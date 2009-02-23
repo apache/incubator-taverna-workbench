@@ -4,10 +4,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
-		<artifactId>ui-impl</artifactId>
+		<artifactId>ui-exts</artifactId>
 		<version>0.4-SNAPSHOT</version>
 	</parent>
-	<groupId>net.sf.taverna.t2.ui-impl</groupId>
+	<groupId>net.sf.taverna.t2.ui-exts</groupId>
 	<artifactId>renderers-impl</artifactId>
 	<name>Renderers Implementation</name>
 	<dependencies>
