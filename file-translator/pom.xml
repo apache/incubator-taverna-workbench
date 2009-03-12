@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.sf.taverna.t2</groupId>
+		<artifactId>ui-exts</artifactId>
+		<version>0.4-SNAPSHOT</version>
+	</parent>
+	<groupId>net.sf.taverna.t2.ui-exts</groupId>
+	<artifactId>file-translator</artifactId>
+	<name>File bindings for the Taverna 1 translator</name>
+	<description>
+		Adds File Open support for Taverna 1 SCUFL workflows.
+	</description>
+	<dependencies>
+
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>file-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>file-impl</artifactId>
+			<version>${t2.ui.impl.version}</version>
+		</dependency>
+
+
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>edits-impl</artifactId>
+			<version>${t2.ui.impl.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>workflowmodel-api</artifactId>
+			<version>${t2.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>workflowmodel-impl</artifactId>
+			<version>${t2.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.compatibility</groupId>
+			<artifactId>compatibility-impl</artifactId>
+			<version>${t2.compatibility.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.infrastructure</groupId>
+			<artifactId>appconfig</artifactId>
+			<version>${t2.infrastructure.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>uk.org.mygrid.taverna.processors</groupId>
+			<artifactId>all</artifactId>
+			<version>${taverna.version}</version>
+		</dependency>
+		<dependency>
+			<!--  A few local workers in here.. :-( -->
+			<groupId>uk.org.mygrid.taverna</groupId>
+			<artifactId>taverna-contrib</artifactId>
+			<version>${taverna.version}</version>
+		</dependency>
+
+	</dependencies>
+</project>
