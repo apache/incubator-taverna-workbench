@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<description>APIs for the Taverna 2 workbench</description>
+	<parent>
+		<artifactId>parent</artifactId>
+		<groupId>net.sf.taverna</groupId>
+		<version>0.1.2009-02-12</version>
+	</parent>
+
+	<groupId>net.sf.taverna.t2</groupId>
+	<artifactId>ui-api</artifactId>
+	<version>0.4-SNAPSHOT</version>
+	<packaging>pom</packaging>
+
+	<name>Taverna 2 UI APIs</name>
+
+	<properties>
+		<t2.ui.api.version>${project.version}</t2.ui.api.version>
+		<t2.activities.version>0.6-SNAPSHOT</t2.activities.version>
+		<t2.infrastructure.version>1.10-SNAPSHOT</t2.infrastructure.version>
+		<t2.core.version>0.6-SNAPSHOT</t2.core.version>
+		<t2.lang.version>0.5-SNAPSHOT</t2.lang.version>
+		<t2.compatibility.version>0.6-SNAPSHOT</t2.compatibility.version>
+		<t2.translators.version>0.6-SNAPSHOT</t2.translators.version>
+		<taverna.version>1.7.2.0</taverna.version>
+	</properties>
+
+	<modules>
+		<module>activity-palette-api</module>
+		<module>common-icons</module>
+		<module>configuration-api</module>
+		<module>contextual-views-api</module>
+		<module>edits-api</module>
+		<module>file-api</module>
+		<module>menu-api</module>
+		<module>perspective-core</module>
+		<module>renderers-api</module>
+		<module>workbench-api</module>
+	</modules>
+	<repositories>
+		<repository>
+			<releases />
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>mygrid-repository</id>
+			<name>myGrid Repository</name>
+			<url>http://www.mygrid.org.uk/maven/repository</url>
+		</repository>
+	</repositories>
+	<scm>
+		<connection>scm:svn:http://taverna.googlecode.com/svn/taverna/workbench/net.sf.taverna.t2.ui-api/trunk/</connection>
+		<developerConnection>scm:svn:https://taverna.googlecode.com/svn/taverna/workbench/net.sf.taverna.t2.ui-api/trunk/</developerConnection>
+		<url>http://code.google.com/p/taverna/source/browse/#svn/taverna/workbench/net.sf.taverna.t2.ui-api/trunk/</url>
+	</scm>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.4</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.help</groupId>
+				<artifactId>javahelp</artifactId>
+				<version>2.0.02</version>
+			</dependency>
+			<dependency>
+				<groupId>log4j</groupId>
+				<artifactId>log4j</artifactId>
+				<version>1.2.13</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-io</groupId>
+				<artifactId>commons-io</artifactId>
+				<version>1.3.1</version>
+			</dependency>
+			<dependency>
+				<groupId>commons-codec</groupId>
+				<artifactId>commons-codec</artifactId>
+				<version>1.3</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.mail</groupId>
+				<artifactId>mail</artifactId>
+				<version>1.4</version>
+			</dependency>
+			<dependency>
+				<groupId>jdom</groupId>
+				<artifactId>jdom</artifactId>
+				<version>1.0</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+</project>
