@@ -1,0 +1,3 @@
+net.sf.taverna.t2.workbench.updatemanager.PluginMenuAction
+net.sf.taverna.t2.workbench.updatemanager.UpdatesAvailableMenuAction
+net.sf.taverna.t2.workbench.updatemanager.UpdatesToolbarSection
