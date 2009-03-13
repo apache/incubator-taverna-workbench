@@ -403,7 +403,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 		
 		// Create a new tree and populate it with the workflow's data
 		final JTree tree = new JTree(new WorkflowExplorerTreeModel(workflow));
-		tree.setRowHeight(16);
+		tree.setRowHeight(18);
 		tree.setEditable(false);
 		tree.setExpandsSelectedPaths(true);
 		tree.setDragEnabled(false);
@@ -463,11 +463,9 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 
 								// Show a contextual pop-up menu
 								JPopupMenu menu = menuManager
-										.createContextMenu(
-												workflow,
-												selectedNode
-														.getUserObject(),
-														tree);
+										.createContextMenu(workflow,
+												selectedNode.getUserObject(),
+												tree);
 								menu.show(evt.getComponent(), evt.getX(),
 										evt.getY());
 							}
