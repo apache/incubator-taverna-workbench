@@ -1,0 +1,17 @@
+<basepane>
+  <child>
+    <znode classname="net.sf.taverna.zaria.ZRavenComponent">
+      <namedcomponent scroll="false">
+        <name>Dataflow Runs</name>
+      </namedcomponent>
+    </znode>
+  </child>
+  <namedcomponents>
+    <namedcomponent>
+      <groupid>net.sf.taverna.t2.ui-components</groupid>
+      <artifact>run-ui</artifact>
+      <classname>net.sf.taverna.t2.workbench.run.DataflowRunsComponentFactory</classname>
+      <name>Dataflow Runs</name>
+    </namedcomponent>
+  </namedcomponents>
+</basepane>

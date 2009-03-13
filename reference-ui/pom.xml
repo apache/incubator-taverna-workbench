@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.sf.taverna.t2</groupId>
+		<artifactId>ui-components</artifactId>
+		<version>0.4-SNAPSHOT</version>
+	</parent>
+	<groupId>net.sf.taverna.t2.ui-components</groupId>
+	<artifactId>reference-ui</artifactId>
+	<name>T2 reference manager user interface</name>
+	<description>
+		UI Support for the T2Reference system, including support for
+		construction and registration of new entities through a UI
+		component and the rendering of existing persisted entities
+	</description>
+	<properties>
+		<spring.version>2.5.4</spring.version>
+		<aspectj.version>1.6.0</aspectj.version>
+	</properties>
+
+	<dependencies>
+
+		<dependency>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>reference-api</artifactId>
+			<version>${t2.core.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.taverna.t2.lang</groupId>
+			<artifactId>ui</artifactId>
+			<version>${t2.lang.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.taverna.t2.infrastructure</groupId>
+			<artifactId>platform</artifactId>
+			<version>${t2.infrastructure.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<optional>true</optional>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.1.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.4</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>${aspectj.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate</artifactId>
+			<version>3.2.5.ga.raven</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.transaction</groupId>
+					<artifactId>jta</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>net.sf.ehcache</groupId>
+					<artifactId>ehcache</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>asm</groupId>
+					<artifactId>asm-attrs</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>antlr</groupId>
+					<artifactId>antlr</artifactId>
+				</exclusion>
+			</exclusions>
+			<scope>test</scope>
+		</dependency>
+
+
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+
+	</dependencies>
+</project>

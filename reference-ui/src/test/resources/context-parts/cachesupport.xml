@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Import this to engage cache support for the Dao objects -->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:raven="http://taverna.sf.net/schema/artifact-support"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
+	http://taverna.sf.net/schema/artifact-support 
+	http://taverna.sf.net/schema/artifact-support/artifact-support.xsd
+	http://www.springframework.org/schema/aop 
+	http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<!-- Really dumb cache provider, just uses a java Map structure -->
+	<!-- with no eviction policies of any kind, so not that great   -->
+	<!-- but entirely reasonable for testing                        -->
+	<bean id="t2reference.cache.cacheProvider"
+		class="net.sf.taverna.t2.reference.impl.SimpleCacheProviderImpl"
+		dependency-check="all" scope="singleton"
+		raven:artifact="net.sf.taverna.t2:t2reference-impl:0.3-SNAPSHOT"
+		raven:repository="raven.repository">
+	</bean>
+
+	<!-- Engage caching -->
+	<aop:config>
+		<aop:aspect id="t2reference.cache.taskCacheAspect"
+			ref="t2reference.cache.cacheAspect">
+			<!-- Methods decorated with @GetIdentifiedOperation should use -->
+			<!-- the getObject method in the CacheAspect implementation    -->
+			<aop:around
+				pointcut="@annotation(net.sf.taverna.t2.reference.annotations.GetIdentifiedOperation)"
+				method="getObject" />
+			<!-- Methods decorated with @PutIdentifiedOperation should use -->
+			<!-- the putObject method in the CacheAspect implementation    -->
+			<aop:around
+				pointcut="@annotation(net.sf.taverna.t2.reference.annotations.PutIdentifiedOperation)"
+				method="putObject" />
+		</aop:aspect>
+	</aop:config>
+
+	<!-- The cache aspect used by the aop:config tag above, shows -->
+	<!-- that aspects loaded from Raven work as usual             -->
+	<bean id="t2reference.cache.cacheAspect"
+		class="net.sf.taverna.t2.reference.impl.CacheAspect"
+		raven:artifact="net.sf.taverna.t2:t2reference-impl:0.3-SNAPSHOT"
+		raven:repository="raven.repository">
+		<property name="cacheProvider">
+			<ref bean="t2reference.cache.cacheProvider" />
+		</property>
+	</bean>
+
+</beans>
