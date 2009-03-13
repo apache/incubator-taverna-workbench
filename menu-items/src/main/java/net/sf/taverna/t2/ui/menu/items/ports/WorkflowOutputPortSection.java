@@ -30,6 +30,7 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
 import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
+import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.OutputPort;
 
 public class WorkflowOutputPortSection extends AbstractMenuSection implements
@@ -50,7 +51,7 @@ public class WorkflowOutputPortSection extends AbstractMenuSection implements
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof OutputPort;
+				&& getContextualSelection().getSelection() instanceof DataflowOutputPort;
 	}
 
 	public void setContextualSelection(ContextualSelection contextualSelection) {
