@@ -36,5 +36,10 @@
 			<artifactId>menu-api</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-exts</groupId>
+			<artifactId>constant-value</artifactId>
+			<version>${t2.ui.exts.version}</version>
+		</dependency>
 	</dependencies>
 </project>
