@@ -22,6 +22,7 @@ package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Enumeration;
@@ -30,8 +31,10 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
@@ -41,11 +44,12 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
+import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
@@ -79,7 +83,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 
 	private MenuManager menuManager = MenuManager.getInstance();
 
-	//private static Logger logger = Logger.getLogger(WorkflowExplorer.class);
+//	private static Logger logger = Logger.getLogger(WorkflowExplorer.class);
 
 	/* Currently selected workflow (to be displayed in the Workflow Explorer). */
 	private Dataflow workflow;
@@ -269,7 +273,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 		openedWorkflowsTrees.put(workflow, wfTree);
 		
 		// Expand the tree
-		expandAll();
+		expandAll(wfTree);
 
 		// Repaint the scroll pane containing the tree
 		jspTree.setViewportView(wfTree);
@@ -423,7 +427,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 							.getX(), evt.getY());
 					if (selectionPath != null) {
 						// Get the selected node
-						DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) selectionPath
+						final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) selectionPath
 								.getLastPathComponent();
 
 						// For both left and right click - add the workflow
@@ -451,6 +455,27 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 							((WorkflowExplorerTreeSelectionModel) tree
 									.getSelectionModel())
 									.mySetSelectionPath(selectionPath);
+							// If this was a right click - show a pop-up
+							// menu as well if there is one defined
+							if (evt.getButton() == MouseEvent.BUTTON3) {
+								if (selectedNode.getUserObject().equals("Processors")){
+									JPopupMenu menu = new JPopupMenu();
+									menu.add(new ShadedLabel("Tree", ShadedLabel.BLUE));
+									menu.add(new JMenuItem(new AbstractAction("Expand") {
+										public void actionPerformed(ActionEvent evt) {
+											expandAscendants(tree, selectedNode);
+										}
+									}));
+									menu.add(new JMenuItem(new AbstractAction("Collapse") {
+										public void actionPerformed(ActionEvent evt) {
+											collapseAscendants(tree, selectedNode);
+										}
+									}));
+									menu.show(evt.getComponent(), evt.getX(),
+											evt.getY());
+								}
+							}
+							
 						} else { // a 'real' workflow component or the
 									// 'whole' workflow (i.e. the tree root)
 									// was clicked on
@@ -466,6 +491,23 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 										.createContextMenu(workflow,
 												selectedNode.getUserObject(),
 												tree);
+								if (menu == null) {
+									menu = new JPopupMenu();
+								}
+								if (selectedNode.getUserObject() instanceof Dataflow){
+									menu.add(new ShadedLabel("Tree", ShadedLabel.BLUE));
+									menu.add(new JMenuItem(new AbstractAction("Expand all") {
+										public void actionPerformed(ActionEvent evt) {
+											expandAll(tree);
+										}
+									}));
+									menu.add(new JMenuItem(new AbstractAction("Collapse all") {
+										public void actionPerformed(ActionEvent evt) {
+											collapseAll(tree);
+										}
+									}));
+								}
+								
 								menu.show(evt.getComponent(), evt.getX(),
 										evt.getY());
 							}
@@ -506,17 +548,61 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	}
 
 	/**
-	 * Expands all nodes in the workflow tree that have children.
+	 * Expands all nodes in the tree that have children.
 	 */
-	private void expandAll() {
+	private void expandAll(JTree tree) {
 
 		int row = 0;
-		while (row < wfTree.getRowCount()) {
-			wfTree.expandRow(row);
+		while (row < tree.getRowCount()) {
+			tree.expandRow(row);
+			row++;
+		}
+	}
+	
+	/**
+	 * Collapses all but the root node in the tree that have children.
+	 */
+	private void collapseAll(JTree tree) {
+
+		int row = 1;
+		while (row < tree.getRowCount()) {
+			tree.collapseRow(row);
 			row++;
 		}
 	}
 
+	/**
+	 * Expands all ascendants of a node in the tree.
+	 */
+	@SuppressWarnings("unchecked")
+	private void expandAscendants(JTree tree, DefaultMutableTreeNode node) {
+
+	    Enumeration<DefaultMutableTreeNode> children = node.children();
+        while (children.hasMoreElements()) {
+        	DefaultMutableTreeNode child = children.nextElement();
+        	if (child.isLeaf()){
+        		tree.makeVisible(new TreePath(child.getPath()));
+        	}
+        	else{
+        		expandAscendants(tree, child);
+        	}
+        }
+	}
+	
+	/**
+	 * Collapses all direct ascendants of a node in the tree.
+	 */
+	@SuppressWarnings("unchecked")
+	private void collapseAscendants(JTree tree, DefaultMutableTreeNode node) {
+
+	    Enumeration<DefaultMutableTreeNode> children = node.children();
+        while (children.hasMoreElements()) {
+        	DefaultMutableTreeNode child = children.nextElement();
+    		int row = tree.getRowForPath(new TreePath(child.getPath()));
+    		tree.collapseRow(row);
+        }
+	}
+	
 	/**
 	 * Observes events on workflow Selection Manager, i.e. when a workflow node
 	 * is selected in the graph view.
