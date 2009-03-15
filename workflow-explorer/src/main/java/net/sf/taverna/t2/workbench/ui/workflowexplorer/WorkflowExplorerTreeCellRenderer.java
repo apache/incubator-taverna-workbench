@@ -30,10 +30,12 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workflowmodel.Condition;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.Datalink;
+import net.sf.taverna.t2.workflowmodel.Merge;
 import net.sf.taverna.t2.workflowmodel.OutputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
@@ -102,6 +104,12 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			renderer.setIcon(WorkbenchIcons.datalinkIcon);
 			renderer.setText(((Datalink) userObject).getSource().getName()
 					+ " -> " + ((Datalink) userObject).getSink().getName());
+		} else if (userObject instanceof Condition) {
+			renderer.setIcon(WorkbenchIcons.controlLinkIcon);
+			renderer.setText(((Condition) userObject).getTarget().getLocalName() + " RUN_AFTER " +((Condition) userObject).getControl().getLocalName());
+		} else if (userObject instanceof Merge) {
+			renderer.setIcon(WorkbenchIcons.mergeIcon);
+			renderer.setText(((Merge) userObject).getLocalName());
 		} else {
 			// It one of the main container nodes (inputs, outputs,
 			// processors, datalinks) or a nested workflow node

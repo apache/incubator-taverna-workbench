@@ -438,12 +438,10 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 										workflow);
 
 						// If the node that was clicked on was inputs,
-						// outputs, processors,
-						// datalinks or nested workflow root node than just
-						// make it selected
+						// outputs, processors, datalinks, merges or nested workflow root 
+						// node than just make it selected
 						// and clear the selection model (these are just
-						// containers for the 'real'
-						// workflow components).
+						// containers for the 'real' workflow components).
 						// Also if the selected node is the root of the
 						// nested workflow - do not
 						// add to selection model as we do not want to show
@@ -458,7 +456,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 							// If this was a right click - show a pop-up
 							// menu as well if there is one defined
 							if (evt.getButton() == MouseEvent.BUTTON3) {
-								if (selectedNode.getUserObject().equals("Processors")){
+								if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.PROCESSORS)){
 									JPopupMenu menu = new JPopupMenu();
 									menu.add(new ShadedLabel("Tree", ShadedLabel.BLUE));
 									menu.add(new JMenuItem(new AbstractAction("Expand") {
