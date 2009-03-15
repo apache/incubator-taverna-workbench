@@ -62,7 +62,7 @@ public class ProcessorSection extends AbstractMenuSection implements
 	@Override
 	protected Action createAction() {
 		Processor proc = (Processor) getContextualSelection().getSelection();
-		String name = "Processor " + proc.getLocalName();
+		String name = "Processor: " + proc.getLocalName();
 		return new AbstractAction(name) {
 			public void actionPerformed(ActionEvent e) {
 			}

@@ -62,7 +62,7 @@ public class MergeSection extends AbstractMenuSection implements
 	@Override
 	protected Action createAction() {
 		Merge proc = (Merge) getContextualSelection().getSelection();
-		String name = "Merge " + proc.getLocalName();
+		String name = "Merge: " + proc.getLocalName();
 		return new AbstractAction(name) {
 			public void actionPerformed(ActionEvent e) {
 			}

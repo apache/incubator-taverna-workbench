@@ -28,7 +28,6 @@ import net.sf.taverna.t2.ui.menu.items.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveConditionAction;
 import net.sf.taverna.t2.workflowmodel.Condition;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Datalink;
 
 public class RemoveConditionMenuAction extends AbstractContextualMenuAction {
 
@@ -39,8 +38,8 @@ public class RemoveConditionMenuAction extends AbstractContextualMenuAction {
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof Datalink
-				&& getContextualSelection().getParent() instanceof Condition;
+				&& getContextualSelection().getSelection() instanceof Condition
+				&& getContextualSelection().getParent() instanceof Dataflow;
 	}
 
 	@Override

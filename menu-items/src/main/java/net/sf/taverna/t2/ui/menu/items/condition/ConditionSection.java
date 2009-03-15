@@ -61,7 +61,8 @@ public class ConditionSection extends AbstractMenuSection implements
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		String name = "Coordination";
+		Condition controllink = (Condition) getContextualSelection().getSelection();
+		String name = "Control link: " + controllink.getTarget().getLocalName() + " RUN_AFTER " + controllink.getControl().getLocalName() ;
 		return new AbstractAction(name) {
 			public void actionPerformed(ActionEvent e) {
 			}

@@ -61,7 +61,8 @@ public class LinkSection extends AbstractMenuSection implements
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		String name = "Link";
+		Datalink link = (Datalink) getContextualSelection().getSelection();
+		String name = "Data link: " + link.getSource().getName() + " -> " + link.getSink().getName();
 		return new AbstractAction(name) {
 			public void actionPerformed(ActionEvent e) {
 			}
