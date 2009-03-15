@@ -135,6 +135,8 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	 * Constructs the Workflow Explorer.
 	 */
 	public WorkflowExplorer() {
+		
+		super();
 
 		// Create a tree that will represent a view over the current workflow
 		// Initially, there is no workflow opened, so we create an empty tree,
@@ -244,17 +246,13 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		jspTree.setBorder(new EtchedBorder());
 
-		// Title
-		JLabel wfExplorerLabel = new JLabel("Workflow Explorer");
-		wfExplorerLabel.setMinimumSize(new Dimension(0, 0)); // so that it can shrink completely
-		wfExplorerLabel.setBorder(new EmptyBorder(0, 0, 5, 0));
+		// Title - not needed as it is now located on a tab labelled 'Workflow Explorer' 
+		//JLabel wfExplorerLabel = new JLabel("Workflow Explorer");
+		//wfExplorerLabel.setMinimumSize(new Dimension(0, 0)); // so that it can shrink completely
+		//wfExplorerLabel.setBorder(new EmptyBorder(0, 0, 5, 0));
 
-		JPanel wfExplorerPanel = new JPanel(new BorderLayout());
-		wfExplorerPanel.add(wfExplorerLabel, BorderLayout.NORTH);
-		wfExplorerPanel.add(jspTree, BorderLayout.CENTER);
-
-		add(wfExplorerLabel, BorderLayout.NORTH);
-		add(wfExplorerPanel, BorderLayout.CENTER);
+		//add(wfExplorerLabel, BorderLayout.NORTH);
+		add(jspTree, BorderLayout.CENTER);
 
 	}
 
