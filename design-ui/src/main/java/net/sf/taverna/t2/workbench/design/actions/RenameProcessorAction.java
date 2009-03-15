@@ -52,7 +52,7 @@ public class RenameProcessorAction extends DataflowEditAction {
 		super(dataflow, component);
 		this.processor = processor;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
-		putValue(NAME, "Rename Processor...");		
+		putValue(NAME, "Rename processor...");		
 	}
 
 	public void actionPerformed(ActionEvent e) {

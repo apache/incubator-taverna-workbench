@@ -47,7 +47,7 @@ public class RemoveConditionAction extends DataflowEditAction {
 		super(dataflow, component);
 		this.condition = condition;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
-		putValue(NAME, "Remove Condition");
+		putValue(NAME, "Delete control link");
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -55,7 +55,7 @@ public class RemoveConditionAction extends DataflowEditAction {
 			editManager.doDataflowEdit(dataflow, edits.getRemoveConditionEdit(condition.getControl(), condition.getTarget()));
 			dataflowSelectionModel.removeSelection(condition);
 		} catch (EditException e1) {
-			logger.debug("Remove condition failed", e1);
+			logger.debug("Delete control link failed", e1);
 		}
 	}
 

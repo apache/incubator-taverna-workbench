@@ -48,7 +48,7 @@ public class RemoveDatalinkAction extends DataflowEditAction {
 		super(dataflow, component);
 		this.datalink = datalink;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
-		putValue(NAME, "Remove Datalink");		
+		putValue(NAME, "Delete data link");		
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -56,7 +56,7 @@ public class RemoveDatalinkAction extends DataflowEditAction {
 			editManager.doDataflowEdit(dataflow, Tools.getDisconnectDatalinkAndRemovePortsEdit(datalink));
 			dataflowSelectionModel.removeSelection(datalink);
 		} catch (EditException e1) {
-			logger.debug("Remove datalink failed", e1);
+			logger.debug("Delete data link failed", e1);
 		}
 	}
 

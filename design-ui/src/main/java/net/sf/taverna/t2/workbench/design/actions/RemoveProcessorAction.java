@@ -56,7 +56,7 @@ public class RemoveProcessorAction extends DataflowEditAction {
 		super(dataflow, component);
 		this.processor = processor;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
-		putValue(NAME, "Delete Processor");		
+		putValue(NAME, "Delete processor");		
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -92,7 +92,7 @@ public class RemoveProcessorAction extends DataflowEditAction {
 			}
 			dataflowSelectionModel.removeSelection(processor);
 		} catch (EditException e1) {
-			logger.error("Remove processor failed", e1);
+			logger.error("Delete processor failed", e1);
 		}
 	}
 

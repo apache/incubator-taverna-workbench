@@ -58,7 +58,7 @@ public class EditDataflowInputPortAction extends DataflowEditAction {
 		super(dataflow, component);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
-		putValue(NAME, "Edit Input Port...");
+		putValue(NAME, "Edit input port...");
 	}
 
 	public void actionPerformed(ActionEvent e) {

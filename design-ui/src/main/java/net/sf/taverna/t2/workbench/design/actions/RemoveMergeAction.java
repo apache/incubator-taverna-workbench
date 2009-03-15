@@ -55,7 +55,7 @@ public class RemoveMergeAction extends DataflowEditAction {
 		super(dataflow, component);
 		this.merge = merge;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
-		putValue(NAME, "Remove Merge");		
+		putValue(NAME, "Delete merge");		
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -81,7 +81,7 @@ public class RemoveMergeAction extends DataflowEditAction {
 			}
 			dataflowSelectionModel.removeSelection(merge);
 		} catch (EditException e1) {
-			logger.debug("Remove merge failed", e1);
+			logger.debug("Delete merge failed", e1);
 		}
 	}
 
