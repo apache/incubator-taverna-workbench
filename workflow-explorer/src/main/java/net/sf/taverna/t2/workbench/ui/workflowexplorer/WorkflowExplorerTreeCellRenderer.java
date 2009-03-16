@@ -106,7 +106,7 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 					+ " -> " + ((Datalink) userObject).getSink().getName());
 		} else if (userObject instanceof Condition) {
 			renderer.setIcon(WorkbenchIcons.controlLinkIcon);
-			renderer.setText(((Condition) userObject).getTarget().getLocalName() + " RUN_AFTER " +((Condition) userObject).getControl().getLocalName());
+			renderer.setText(((Condition) userObject).getTarget().getLocalName() + " RUNS_AFTER " +((Condition) userObject).getControl().getLocalName());
 		} else if (userObject instanceof Merge) {
 			renderer.setIcon(WorkbenchIcons.mergeIcon);
 			renderer.setText(((Merge) userObject).getLocalName());
