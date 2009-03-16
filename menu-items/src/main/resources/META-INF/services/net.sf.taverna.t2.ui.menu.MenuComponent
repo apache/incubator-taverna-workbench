@@ -1,5 +1,7 @@
-net.sf.taverna.t2.ui.menu.items.activityport.ActivityPortSection
+net.sf.taverna.t2.ui.menu.items.activityport.ActivityInputPortSection
 net.sf.taverna.t2.ui.menu.items.activityport.SetConstantInputPortValueMenuAction
+net.sf.taverna.t2.ui.menu.items.activityport.ConnectInputPortMenuActions
+
 
 net.sf.taverna.t2.ui.menu.items.condition.ConditionSection
 net.sf.taverna.t2.ui.menu.items.condition.RemoveConditionMenuAction
@@ -26,4 +28,3 @@ net.sf.taverna.t2.ui.menu.items.processor.ConditionMenuActions
 net.sf.taverna.t2.ui.menu.items.processor.ProcessorSection
 net.sf.taverna.t2.ui.menu.items.processor.RenameProcessorMenuAction
 net.sf.taverna.t2.ui.menu.items.processor.RemoveProcessorMenuAction
-

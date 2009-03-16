@@ -32,16 +32,16 @@ import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 
-public class ActivityPortSection extends AbstractMenuSection implements
+public class ActivityInputPortSection extends AbstractMenuSection implements
 		ContextualMenuComponent {
 
-	public static final URI activityPortSection = URI
-			.create("http://taverna.sf.net/2009/contextMenu/activityPort");
+	public static final URI activityInputPortSection = URI
+			.create("http://taverna.sf.net/2009/contextMenu/activityInputPort");
 	private ContextualSelection contextualSelection;
 
-	public ActivityPortSection() {
+	public ActivityInputPortSection() {
 		super(DefaultContextualMenu.DEFAULT_CONTEXT_MENU, 10,
-				activityPortSection);
+				activityInputPortSection);
 	}
 
 	public ContextualSelection getContextualSelection() {
@@ -50,8 +50,7 @@ public class ActivityPortSection extends AbstractMenuSection implements
 
 	@Override
 	public boolean isEnabled() {
-		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof ActivityInputPort;
+		return getContextualSelection().getSelection() instanceof ActivityInputPort;
 	}
 
 	public void setContextualSelection(ContextualSelection contextualSelection) {
@@ -64,7 +63,7 @@ public class ActivityPortSection extends AbstractMenuSection implements
 	protected Action createAction() {
 		ActivityInputPort port = (ActivityInputPort) getContextualSelection()
 				.getSelection();
-		String name = "Service input: " + port.getName();
+		String name = "Activity input port: " + port.getName();
 		return new AbstractAction(name) {
 			public void actionPerformed(ActionEvent e) {
 			}

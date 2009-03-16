@@ -31,7 +31,7 @@ public class SetConstantInputPortValueMenuAction extends
 		AbstractContextualMenuAction {
 
 	public SetConstantInputPortValueMenuAction() {
-		super(ActivityPortSection.activityPortSection, 10);
+		super(ActivityInputPortSection.activityInputPortSection, 10);
 	}
 
 	@Override
