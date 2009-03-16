@@ -77,9 +77,9 @@ public class ConditionMenuActions extends AbstractMenuCustom implements
 		if (conditions.isEmpty()) {
 			return null;
 		}
-		JMenu conditionMenu = new JMenu("Coordinate from");
+		JMenu conditionMenu = new JMenu("Run after");
 		conditionMenu.setIcon(WorkbenchIcons.controlLinkIcon);
-		conditionMenu.add(new ShadedLabel("Processors:", ShadedLabel.ORANGE));
+		conditionMenu.add(new ShadedLabel("Services:", ShadedLabel.ORANGE));
 		conditionMenu.addSeparator();
 		for (AddConditionAction addConditionAction : conditions) {
 			conditionMenu.add(new JMenuItem(addConditionAction));

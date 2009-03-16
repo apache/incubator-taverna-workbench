@@ -64,7 +64,7 @@ public class ActivityPortSection extends AbstractMenuSection implements
 	protected Action createAction() {
 		ActivityInputPort port = (ActivityInputPort) getContextualSelection()
 				.getSelection();
-		String name = "Activity input port: " + port.getName();
+		String name = "Service input: " + port.getName();
 		return new AbstractAction(name) {
 			public void actionPerformed(ActionEvent e) {
 			}
