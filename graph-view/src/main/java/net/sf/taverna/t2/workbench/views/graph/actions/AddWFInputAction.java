@@ -52,8 +52,8 @@ public class AddWFInputAction extends AbstractAction{
 	public AddWFInputAction(){
 		super();
 		putValue(SMALL_ICON, WorkbenchIcons.inputIcon);
-		putValue(NAME, "Create New Input");			
-		putValue(SHORT_DESCRIPTION, "Create new workflow input");		
+		putValue(NAME, "Create new workflow input port");			
+		putValue(SHORT_DESCRIPTION, "Create new workflow input port");		
 		
 		modelMap.addObserver(perspectiveObserver);
 
