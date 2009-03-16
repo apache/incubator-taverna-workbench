@@ -60,7 +60,7 @@ public class WorkflowInputsSection extends AbstractMenuSection implements
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new AbstractAction("Inputs") {
+		return new AbstractAction("Workflow inputs") {
 			public void actionPerformed(ActionEvent e) {
 			}
 		};

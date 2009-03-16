@@ -60,7 +60,7 @@ public class WorkflowOutputsSection extends AbstractMenuSection implements
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new AbstractAction("Outputs") {
+		return new AbstractAction("Workflow outputs") {
 			public void actionPerformed(ActionEvent e) {
 			}
 		};
