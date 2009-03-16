@@ -58,7 +58,7 @@ public class EditDataflowInputPortAction extends DataflowEditAction {
 		super(dataflow, component);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
-		putValue(NAME, "Edit workflow input...");
+		putValue(NAME, "Edit workflow input port...");
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -73,13 +73,13 @@ public class EditDataflowInputPortAction extends DataflowEditAction {
 			DataflowInputPortPanel inputPanel = new DataflowInputPortPanel();
 			
 			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-					"Edit Workflow Input", inputPanel);
+					"Edit Workflow Input Port", inputPanel);
 			vuid.addTextComponentValidation(inputPanel.getPortNameField(),
-					"Set the input name.", usedInputPorts,
-					"Duplicate workflow input name.", "[\\p{L}\\p{Digit}_.]+",
-					"Invalid workflow input name.");
-			vuid.addMessageComponent(inputPanel.getSingleValueButton(), "Set the input type.");
-			vuid.addMessageComponent(inputPanel.getListValueButton(), "Set the input list depth.");
+					"Set the workflow input port name.", usedInputPorts,
+					"Duplicate workflow input port name.", "[\\p{L}\\p{Digit}_.]+",
+					"Invalid workflow input port name.");
+			vuid.addMessageComponent(inputPanel.getSingleValueButton(), "Set the input port type.");
+			vuid.addMessageComponent(inputPanel.getListValueButton(), "Set the input port list depth.");
 			vuid.setSize(new Dimension(400, 250));
 
 			inputPanel.setPortName(port.getName());

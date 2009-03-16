@@ -49,8 +49,8 @@ public class AddDataflowOutputAction extends DataflowEditAction {
 	public AddDataflowOutputAction(Dataflow dataflow, Component component) {
 		super(dataflow, component);
 		putValue(SMALL_ICON, WorkbenchIcons.outputIcon);
-		putValue(NAME, "Create workflow output");	
-		putValue(SHORT_DESCRIPTION, "Create workflow output");		
+		putValue(NAME, "Create workflow output port");	
+		putValue(SHORT_DESCRIPTION, "Create workflow output port");		
 	}
 
 	public void actionPerformed(ActionEvent event) {
@@ -63,11 +63,11 @@ public class AddDataflowOutputAction extends DataflowEditAction {
 			DataflowOutputPortPanel inputPanel = new DataflowOutputPortPanel();
 			
 			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-					"Create Workflow Output", inputPanel);
+					"Create Workflow Output Port", inputPanel);
 			vuid.addTextComponentValidation(inputPanel.getPortNameField(),
-					"Set the output name.", usedOutputPorts,
-					"Duplicate workflow output name.", "[\\p{L}\\p{Digit}_.]+",
-					"Invalid workflow output name.");
+					"Set the workflow output port name.", usedOutputPorts,
+					"Duplicate workflow output port name.", "[\\p{L}\\p{Digit}_.]+",
+					"Invalid workflow output port name.");
 			vuid.setSize(new Dimension(400, 200));
 
 			if (vuid.show(component)) {
