@@ -63,13 +63,13 @@ public class AddDataflowInputAction extends DataflowEditAction {
 			DataflowInputPortPanel inputPanel = new DataflowInputPortPanel();
 			
 			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-					"Add Workflow Input Port", inputPanel);
+					"Create Workflow Input", inputPanel);
 			vuid.addTextComponentValidation(inputPanel.getPortNameField(),
-					"Set the input port name.", usedInputPorts,
-					"Duplicate input port.", "[\\p{L}\\p{Digit}_.]+",
-					"Invalid input port name.");
-			vuid.addMessageComponent(inputPanel.getSingleValueButton(), "Set the input port type.");
-			vuid.addMessageComponent(inputPanel.getListValueButton(), "Set the input port list depth.");
+					"Set the input name.", usedInputPorts,
+					"Duplicate workflow input name.", "[\\p{L}\\p{Digit}_.]+",
+					"Invalid workflow input name.");
+			vuid.addMessageComponent(inputPanel.getSingleValueButton(), "Set the input type.");
+			vuid.addMessageComponent(inputPanel.getListValueButton(), "Set the input list depth.");
 			vuid.setSize(new Dimension(400, 250));
 
 			inputPanel.setPortDepth(0);

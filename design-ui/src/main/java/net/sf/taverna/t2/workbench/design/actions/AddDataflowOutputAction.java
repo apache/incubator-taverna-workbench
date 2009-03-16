@@ -63,11 +63,11 @@ public class AddDataflowOutputAction extends DataflowEditAction {
 			DataflowOutputPortPanel inputPanel = new DataflowOutputPortPanel();
 			
 			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-					"Add Workflow Output Port", inputPanel);
+					"Create Workflow Output", inputPanel);
 			vuid.addTextComponentValidation(inputPanel.getPortNameField(),
-					"Set the output port name.", usedOutputPorts,
-					"Duplicate output port.", "[\\p{L}\\p{Digit}_.]+",
-					"Invalid output port name.");
+					"Set the output name.", usedOutputPorts,
+					"Duplicate workflow output name.", "[\\p{L}\\p{Digit}_.]+",
+					"Invalid workflow output name.");
 			vuid.setSize(new Dimension(400, 200));
 
 			if (vuid.show(component)) {

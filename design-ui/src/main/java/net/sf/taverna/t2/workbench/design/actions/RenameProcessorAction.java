@@ -52,7 +52,7 @@ public class RenameProcessorAction extends DataflowEditAction {
 		super(dataflow, component);
 		this.processor = processor;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
-		putValue(NAME, "Rename processor...");		
+		putValue(NAME, "Rename service...");		
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -67,11 +67,11 @@ public class RenameProcessorAction extends DataflowEditAction {
 			ProcessorPanel inputPanel = new ProcessorPanel();
 			
 			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-					"Rename Processor", inputPanel);
+					"Rename service", inputPanel);
 			vuid.addTextComponentValidation(inputPanel.getProcessorNameField(),
-					"Set the processor name.", usedProcessors,
-					"Duplicate processor.", "[\\p{L}\\p{Digit}_.]+",
-					"Invalid processor name.");
+					"Set the service name.", usedProcessors,
+					"Duplicate service.", "[\\p{L}\\p{Digit}_.]+",
+					"Invalid service name.");
 			vuid.setSize(new Dimension(400, 200));
 
 			inputPanel.setProcessorName(processor.getLocalName());
@@ -82,7 +82,7 @@ public class RenameProcessorAction extends DataflowEditAction {
 			}
 		
 		} catch (EditException e1) {
-			logger.debug("Rename processor failed", e1);
+			logger.debug("Rename service (processor) failed", e1);
 		}
 	}
 

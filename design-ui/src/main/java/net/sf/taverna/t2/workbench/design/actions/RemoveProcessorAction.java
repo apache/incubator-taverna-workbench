@@ -56,7 +56,7 @@ public class RemoveProcessorAction extends DataflowEditAction {
 		super(dataflow, component);
 		this.processor = processor;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
-		putValue(NAME, "Delete processor");		
+		putValue(NAME, "Delete service");		
 	}
 
 	public void actionPerformed(ActionEvent e) {

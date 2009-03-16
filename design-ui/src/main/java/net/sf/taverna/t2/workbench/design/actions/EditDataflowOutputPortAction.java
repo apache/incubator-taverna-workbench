@@ -52,7 +52,7 @@ public class EditDataflowOutputPortAction extends DataflowEditAction {
 		super(dataflow, component);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
-		putValue(NAME, "Edit output port...");		
+		putValue(NAME, "Edit workflow output...");		
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -67,11 +67,11 @@ public class EditDataflowOutputPortAction extends DataflowEditAction {
 			DataflowOutputPortPanel inputPanel = new DataflowOutputPortPanel();
 			
 			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-					"Edit Workflow Output Port", inputPanel);
+					"Edit Workflow Output", inputPanel);
 			vuid.addTextComponentValidation(inputPanel.getPortNameField(),
-					"Set the output port name.", usedOutputPorts,
-					"Duplicate output port.", "[\\p{L}\\p{Digit}_.]+",
-					"Invalid output port name.");
+					"Set the workflow output name.", usedOutputPorts,
+					"Duplicate workflow output name.", "[\\p{L}\\p{Digit}_.]+",
+					"Invalid workflow output name.");
 			vuid.setSize(new Dimension(400, 200));
 
 			inputPanel.setPortName(port.getName());
