@@ -62,9 +62,9 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 
 	private static final long serialVersionUID = -2327461863858923772L;
 	
-	public static final String INPUTS = "Workflow inputs";
-	public static final String OUTPUTS = "Workflow outputs";
-	public static final String SERVICES = "Services";
+	public static final String INPUTS = "Workflow input ports";
+	public static final String OUTPUTS = "Workflow output ports";
+	public static final String PROCESSORS = "Services";
 	public static final String DATALINKS = "Data links";
 	public static final String CONTROLLINKS = "Control links";
 	public static final String MERGES = "Merges";
@@ -88,7 +88,7 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 		// services, data links, control links and merges.
 		DefaultMutableTreeNode inputs = new DefaultMutableTreeNode(INPUTS);
 		DefaultMutableTreeNode outputs = new DefaultMutableTreeNode(OUTPUTS);
-		DefaultMutableTreeNode services = new DefaultMutableTreeNode(SERVICES);
+		DefaultMutableTreeNode services = new DefaultMutableTreeNode(PROCESSORS);
 		DefaultMutableTreeNode datalinks = new DefaultMutableTreeNode(DATALINKS);
 		DefaultMutableTreeNode controllinks = new DefaultMutableTreeNode(CONTROLLINKS);
 		DefaultMutableTreeNode merges = new DefaultMutableTreeNode(MERGES);

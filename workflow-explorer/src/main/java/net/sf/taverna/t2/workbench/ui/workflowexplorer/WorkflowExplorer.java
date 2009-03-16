@@ -455,7 +455,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 							// If this was a right click - show a pop-up
 							// menu as well if there is one defined
 							if (evt.getButton() == MouseEvent.BUTTON3) {
-								if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.SERVICES)){
+								if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.PROCESSORS)){
 									JPopupMenu menu = new JPopupMenu();
 									menu.add(new ShadedLabel("Tree", ShadedLabel.BLUE));
 									menu.add(new JMenuItem(new AbstractAction("Expand") {
@@ -474,8 +474,8 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 								else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.INPUTS) &&
 										selectedNode.getPath().length == 2){ //This is Inputs node but not inside a nested workflow as we cannot modify nested wf from here
 									JPopupMenu menu = new JPopupMenu();
-									menu.add(new ShadedLabel("Workflow inputs", ShadedLabel.GREEN));
-									menu.add(new JMenuItem(new AbstractAction("Create workflow input", WorkbenchIcons.inputIcon) {
+									menu.add(new ShadedLabel("Workflow input ports", ShadedLabel.GREEN));
+									menu.add(new JMenuItem(new AbstractAction("Create workflow input port", WorkbenchIcons.inputIcon) {
 
 										public void actionPerformed(ActionEvent evt) {
 											new AddDataflowInputAction((Dataflow) ((DefaultMutableTreeNode) tree.getModel().getRoot()).getUserObject(), wfTree.getParent()).actionPerformed(evt);
@@ -487,8 +487,8 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 								else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.OUTPUTS) &&
 										selectedNode.getPath().length == 2){ //This is Outputs node but not inside a nested workflow as we cannot modify nested wf from here
 									JPopupMenu menu = new JPopupMenu();
-									menu.add(new ShadedLabel("Workflow outputs", ShadedLabel.GREEN));
-									menu.add(new JMenuItem(new AbstractAction("Create workflow output", WorkbenchIcons.outputIcon) {
+									menu.add(new ShadedLabel("Workflow output ports", ShadedLabel.GREEN));
+									menu.add(new JMenuItem(new AbstractAction("Create workflow output port", WorkbenchIcons.outputIcon) {
 										public void actionPerformed(ActionEvent evt) {
 											new AddDataflowOutputAction((Dataflow) ((DefaultMutableTreeNode) tree.getModel().getRoot()).getUserObject(), wfTree.getParent()).actionPerformed(evt);
 										}
@@ -512,7 +512,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 								JPopupMenu menu = menuManager
 										.createContextMenu(workflow,
 												selectedNode.getUserObject(),
-												tree);
+												wfTree.getParent());
 								if (menu == null) {
 									menu = new JPopupMenu();
 								}
