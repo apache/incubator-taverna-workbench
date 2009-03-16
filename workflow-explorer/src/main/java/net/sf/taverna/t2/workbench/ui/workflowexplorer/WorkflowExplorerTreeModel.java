@@ -168,7 +168,7 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 		// Populate the workflow's control links.
 		for (Processor processor : processorsList){
 			List<? extends Condition> controllinksList = (List<? extends Condition>) processor.getControlledPreconditionList();
-			if (!datalinksList.isEmpty()) {
+			if (!controllinksList.isEmpty()) {
 				for (Condition controllink: controllinksList) {
 					controllinks.add(new DefaultMutableTreeNode(controllink));
 				}
