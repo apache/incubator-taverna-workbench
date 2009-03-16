@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -33,13 +32,11 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
-import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -454,7 +451,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 							// If this was a right click - show a pop-up
 							// menu as well if there is one defined
 							if (evt.getButton() == MouseEvent.BUTTON3) {
-								if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.PROCESSORS)){
+								if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.SERVICES)){
 									JPopupMenu menu = new JPopupMenu();
 									menu.add(new ShadedLabel("Tree", ShadedLabel.BLUE));
 									menu.add(new JMenuItem(new AbstractAction("Expand") {
