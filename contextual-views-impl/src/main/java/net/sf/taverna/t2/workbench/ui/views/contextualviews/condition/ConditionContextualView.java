@@ -29,7 +29,7 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workflowmodel.Condition;
 
 /**
- * Contextual view for dataflow's condition links.
+ * Contextual view for dataflow's control (condition) links.
  * 
  * @author David Withers
  *
@@ -55,15 +55,15 @@ public class ConditionContextualView extends ContextualView {
 
 	@Override
 	public String getViewTitle() {
-		return "Data link";
+		return "Control link";
 	}
 
 	@Override
 	public void refreshView() {
 		contitionView = new JPanel();
 		contitionView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel controlName = new JLabel("Condition: " + condition.getControl().getLocalName()
-				+ " -> " + condition.getTarget().getLocalName());
+		JLabel controlName = new JLabel("Service " + condition.getControl().getLocalName()
+				+ " RUNS_AFTER service " + condition.getTarget().getLocalName());
 		contitionView.add(controlName);		
 	}
 

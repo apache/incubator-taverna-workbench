@@ -60,7 +60,7 @@ public class MergeContextualView extends ContextualView{
 
 	@Override
 	public String getViewTitle() {
-		return "Data link";
+		return "Merge " + merge.getLocalName();
 	}
 
 	@Override
@@ -69,14 +69,14 @@ public class MergeContextualView extends ContextualView{
 		mergeView = new JPanel();
 		mergeView.setLayout(new BoxLayout(mergeView, BoxLayout.PAGE_AXIS));
 		mergeView.setBorder(new EmptyBorder(5, 5, 5, 5));
-		mergeView.add(new JLabel("Merge: " + merge.getLocalName()));
-		mergeView.add(Box.createRigidArea(new Dimension(0,5)));
-		mergeView.add(new JLabel("Inputs: "));
+		//mergeView.add(new JLabel("Merge name: " + merge.getLocalName()));
+		//mergeView.add(Box.createRigidArea(new Dimension(0,5)));
+		mergeView.add(new JLabel("Merge inputs: "));
 		for (MergeInputPort mergeInputPort : merge.getInputPorts()) {
 			mergeView.add(new JLabel(mergeInputPort.getName()));
 		}
 		mergeView.add(Box.createRigidArea(new Dimension(0,5)));
-		mergeView.add(new JLabel("Outputs: "));
+		mergeView.add(new JLabel("Merge output: "));
 		mergeView.add(new JLabel(merge.getOutputPort().getName()));
 	}
 }
