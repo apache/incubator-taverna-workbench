@@ -50,12 +50,15 @@ import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.workbench.design.actions.AddDataflowInputAction;
+import net.sf.taverna.t2.workbench.design.actions.AddDataflowOutputAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
@@ -433,7 +436,8 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 										workflow);
 
 						// If the node that was clicked on was inputs,
-						// outputs, processors, datalinks, merges or nested workflow root 
+						// outputs, services, data links, control links, 
+						// merges or nested workflow root 
 						// node than just make it selected
 						// and clear the selection model (these are just
 						// containers for the 'real' workflow components).
@@ -462,6 +466,31 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 									menu.add(new JMenuItem(new AbstractAction("Collapse") {
 										public void actionPerformed(ActionEvent evt) {
 											collapseAscendants(tree, selectedNode);
+										}
+									}));
+									menu.show(evt.getComponent(), evt.getX(),
+											evt.getY());
+								}
+								else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.INPUTS) &&
+										selectedNode.getPath().length == 2){ //This is Inputs node but not inside a nested workflow as we cannot modify nested wf from here
+									JPopupMenu menu = new JPopupMenu();
+									menu.add(new ShadedLabel("Workflow inputs", ShadedLabel.GREEN));
+									menu.add(new JMenuItem(new AbstractAction("Create workflow input", WorkbenchIcons.inputIcon) {
+
+										public void actionPerformed(ActionEvent evt) {
+											new AddDataflowInputAction((Dataflow) ((DefaultMutableTreeNode) tree.getModel().getRoot()).getUserObject(), wfTree.getParent()).actionPerformed(evt);
+										}
+									}));
+									menu.show(evt.getComponent(), evt.getX(),
+											evt.getY());
+								}
+								else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.OUTPUTS) &&
+										selectedNode.getPath().length == 2){ //This is Outputs node but not inside a nested workflow as we cannot modify nested wf from here
+									JPopupMenu menu = new JPopupMenu();
+									menu.add(new ShadedLabel("Workflow outputs", ShadedLabel.GREEN));
+									menu.add(new JMenuItem(new AbstractAction("Create workflow output", WorkbenchIcons.outputIcon) {
+										public void actionPerformed(ActionEvent evt) {
+											new AddDataflowOutputAction((Dataflow) ((DefaultMutableTreeNode) tree.getModel().getRoot()).getUserObject(), wfTree.getParent()).actionPerformed(evt);
 										}
 									}));
 									menu.show(evt.getComponent(), evt.getX(),

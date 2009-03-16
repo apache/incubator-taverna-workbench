@@ -48,6 +48,11 @@
 			<version>${t2.ui.components.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<artifactId>design-ui</artifactId>
+			<version>${t2.ui.components.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>helper</artifactId>
 			<version>${t2.ui.impl.version}</version>

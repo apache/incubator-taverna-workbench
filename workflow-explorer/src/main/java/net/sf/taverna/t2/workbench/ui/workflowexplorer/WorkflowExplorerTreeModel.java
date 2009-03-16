@@ -62,8 +62,8 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 
 	private static final long serialVersionUID = -2327461863858923772L;
 	
-	public static final String INPUTS = "Inputs";
-	public static final String OUTPUTS = "Outputs";
+	public static final String INPUTS = "Workflow inputs";
+	public static final String OUTPUTS = "Workflow outputs";
 	public static final String SERVICES = "Services";
 	public static final String DATALINKS = "Data links";
 	public static final String CONTROLLINKS = "Control links";
