@@ -81,6 +81,7 @@ public class WorkbenchIcons {
 	public static ImageIcon copyIcon;
 	public static ImageIcon datalinkIcon;
 	public static ImageIcon controlLinkIcon;
+	public static ImageIcon mergeIcon;
 	public static ImageIcon inputIcon;
 	public static ImageIcon inputPortIcon;
 	public static ImageIcon outputIcon;
@@ -180,6 +181,8 @@ public class WorkbenchIcons {
 					.getResource("explorer/datalink.gif"));
 			controlLinkIcon = new ImageIcon(c
 					.getResource("explorer/constraint.gif"));
+			mergeIcon = new ImageIcon(c
+					.getResource("explorer/merge.png"));
 			inputIcon = new ImageIcon(c
 					.getResource("explorer/input.png"));
 			inputPortIcon = new ImageIcon(c
