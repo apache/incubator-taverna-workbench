@@ -8,8 +8,8 @@
 		<version>0.4-SNAPSHOT</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-exts</groupId>
-	<artifactId>renderers-impl</artifactId>
-	<name>Renderers Implementation</name>
+	<artifactId>renderers-exts</artifactId>
+	<name>Renderers extensions</name>
 	<dependencies>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
