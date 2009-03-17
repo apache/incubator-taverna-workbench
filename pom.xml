@@ -36,7 +36,7 @@
 		<module>file-translator</module>
 		<module>loop-ui</module>
 		<module>menu-items</module>
-		<module>renderers-impl</module>
+		<module>renderers-exts</module>
 	</modules>
 	<repositories>
 		<repository>
