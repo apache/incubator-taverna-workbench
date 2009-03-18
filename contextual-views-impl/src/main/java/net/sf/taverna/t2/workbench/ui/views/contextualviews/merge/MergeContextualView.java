@@ -21,14 +21,19 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.merge;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
+import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Datalink;
@@ -40,7 +45,7 @@ import net.sf.taverna.t2.workflowmodel.TokenProcessingEntity;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 /**
- * Contextual view for dataflow's merges.
+ * Contextual view for a {@link Merge} inside a workflow.
  * 
  * @author Alex Nenadic
  *
@@ -52,9 +57,9 @@ public class MergeContextualView extends ContextualView{
 	private Dataflow workflow;
 	private JEditorPane editorPane;
 
-	public MergeContextualView(Merge merge, Dataflow workflow) {
+	public MergeContextualView(Merge merge) {
 		this.merge = merge;
-		this.workflow = workflow;
+		workflow = FileManager.getInstance().getCurrentDataflow();
 		initView();
 	}
 
@@ -76,6 +81,7 @@ public class MergeContextualView extends ContextualView{
 	@Override
 	public void refreshView() {
 		editorPane.setText(buildHtml());
+		repaint();
 	}
 
 	private String buildHtml() {
@@ -130,23 +136,38 @@ public class MergeContextualView extends ContextualView{
 	}
 
 	protected String getStyle() {
+		String backgroundColour = ColourManager
+		.getInstance()
+		.getDefaultPropertyMap().get("net.sf.taverna.t2.workflowmodel.Merge"); 
 		String style = "<style type='text/css'>";
-		style += "table {align:center; border:solid black 1px; background-color:\"77aadd\";width:100%; height:100%; overflow:auto;}";
+		style += "table {align:center; border:solid black 1px; background-color:\""+backgroundColour+"\";width:100%; height:100%; overflow:auto;}";
 		style += "</style>";
 		return style;
 	}
 
 	protected JPanel panelForHtml(String html) {
-		JPanel result = new JPanel();
+		final JPanel panel = new JPanel();
 
-		result.setLayout(new BorderLayout());
+		panel.setLayout(new BorderLayout());
 		editorPane = new JEditorPane("text/html", html);
 		editorPane.setEditable(false);
-		JScrollPane scrollPane = new JScrollPane(editorPane);
-		result.add(scrollPane, BorderLayout.CENTER);
-		return result;
+		panel.add(editorPane, BorderLayout.CENTER);
+		
+		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JButton configureButton = new JButton(new AbstractAction(){
+
+			public void actionPerformed(ActionEvent e) {
+				MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(merge);
+				mergeConfigurationView.setLocationRelativeTo(panel);
+				mergeConfigurationView.setVisible(true);
+			}
+			
+		});
+		configureButton.setText("Configure");
+		buttonPanel.add(configureButton);
+		panel.add(buttonPanel, BorderLayout.SOUTH);
+		
+		return panel;
 	}
-	
-	
 
 }

@@ -20,10 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.merge;
 
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Merge;
 
 /**
@@ -40,8 +38,7 @@ public class MergeContextualViewFactory implements
 	}
 
 	public ContextualView getView(Merge merge) {
-		Dataflow workflow = FileManager.getInstance().getCurrentDataflow();
-		return new MergeContextualView(merge, workflow);
+		return new MergeContextualView(merge);
 	}
 
 }
