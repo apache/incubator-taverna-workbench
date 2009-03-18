@@ -36,33 +36,34 @@ import net.sf.taverna.t2.workflowmodel.Merge;
 import net.sf.taverna.t2.workflowmodel.MergeInputPort;
 
 /**
- * Configuration action for a {@link Merge}. This action 
- * changes the order of merge's incoming ports.
+ * Configuration action for a {@link Merge}. This action changes the order of
+ * merge's incoming ports.
  * 
  * @author Alex Nenadic
- *
+ * 
  */
 @SuppressWarnings("serial")
 public class MergeConfigurationAction extends AbstractAction {
 
 	private Merge merge;
 	private List<MergeInputPort> reorderedInputPortsList;
-	
-	MergeConfigurationAction(Merge merge, List<MergeInputPort> reorderedInputPortsList){
+
+	MergeConfigurationAction(Merge merge,
+			List<MergeInputPort> reorderedInputPortsList) {
 		super();
 		this.merge = merge;
 		this.reorderedInputPortsList = reorderedInputPortsList;
 	}
-	
+
 	public void actionPerformed(ActionEvent e) {
-		
+
 		Edits edits = EditsRegistry.getEdits();
-		Edit<?> reorderMergeInputPortsEdit = edits.getReorderMergeInputPortsEdit(
-				merge, reorderedInputPortsList);
-		
+		Edit<?> reorderMergeInputPortsEdit = edits
+				.getReorderMergeInputPortsEdit(merge, reorderedInputPortsList);
+
 		Dataflow currentDataflow = FileManager.getInstance()
 				.getCurrentDataflow();
-		
+
 		try {
 			EditManager.getInstance().doDataflowEdit(currentDataflow,
 					reorderMergeInputPortsEdit);
@@ -73,7 +74,7 @@ public class MergeConfigurationAction extends AbstractAction {
 			// TODO Auto-generated catch block
 			ex2.printStackTrace();
 		}
-		
+
 	}
 
 }
