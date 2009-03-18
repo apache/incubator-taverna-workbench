@@ -98,7 +98,8 @@ public class WorkbenchIcons {
 	public static ImageIcon minusIcon;
 	public static ImageIcon undoIcon;
 	public static ImageIcon redoIcon;
-
+	public static ImageIcon upArrowIcon;
+	public static ImageIcon downArrowIcon;
 
 
 	static {
@@ -215,6 +216,10 @@ public class WorkbenchIcons {
 					.getResource("generic/undo.png"));
 			redoIcon = new ImageIcon(c
 					.getResource("generic/redo.png"));
+			upArrowIcon = new ImageIcon(c
+					.getResource("generic/up-arrow.png"));
+			downArrowIcon = new ImageIcon(c
+					.getResource("generic/down-arrow.png"));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println(ex.toString());
