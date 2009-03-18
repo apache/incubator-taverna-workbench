@@ -57,7 +57,7 @@ public class MergeConfigurationView extends JDialog{
 		// Generate labels for the input ports (label displays a link from a workflow entity 
 		// towards the merge's input port)
 		labelList = new ArrayList<String>();
-		String maxLabel = "";
+		String maxLabel = "Order of incoming links (entity.port -> merge.port):";
 		for (MergeInputPort mergeInputPort : inputPortsList){	
 			EventForwardingOutputPort sourcePort = mergeInputPort.getIncomingLink().getSource();
 			// Get the name TokenProcessingEntity (Processor or another Merge or Dataflow) and 
@@ -75,9 +75,9 @@ public class MergeConfigurationView extends JDialog{
 		}
 		// Calculate how many pixels will maximum label take
 		FontMetrics fm = this.getFontMetrics(this.getFont());  
-		// +32 to allow for arrow icons; +10 for borders; +15 for space between GridBagLayout cells
-		// and +13 just in case to add up to a nice number +75
-		dialogWidth = fm.stringWidth(maxLabel) + 75;  
+		// +32 to allow for arrow icons; +10 for borders; +15 for space between GridBagLayout cells.
+		// We'll add +100 just in case
+		dialogWidth = fm.stringWidth(maxLabel) + 100;  
 
 		initComponents();
 	}
@@ -92,7 +92,7 @@ public class MergeConfigurationView extends JDialog{
         listPanel.setLayout(new GridBagLayout());
         listPanel.setBorder(new CompoundBorder(new EmptyBorder(10,10,10,10), new EtchedBorder()));
         
-        JLabel title = new JLabel("<html><body><b>Order of incoming links:</b></body></html>");
+        JLabel title = new JLabel("<html><body><b>Order of incoming links (entity.port -> merge.port):</b></body></html>");
 		GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
 		c.gridy = 0;
