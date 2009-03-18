@@ -53,6 +53,8 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 	private static final long serialVersionUID = -1326663036193567147L;
 
 	private ActivityIconManager activityIconManager = ActivityIconManager.getInstance();
+	
+	private final String RUNS_AFTER = "RUNS_AFTER";
 
 	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
@@ -106,10 +108,9 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 					+ " -> " + ((Datalink) userObject).getSink().getName());
 		} else if (userObject instanceof Condition) {
 			renderer.setIcon(WorkbenchIcons.controlLinkIcon);
-			//renderer.setText(((Condition) userObject).getTarget().getLocalName() + " RUNS_AFTER " +((Condition) userObject).getControl().getLocalName());
 			String htmlText = "<html><head></head><body>"
 					+ ((Condition) userObject).getTarget().getLocalName()
-					+ "<font color=\"FF0033\"> RUNS_AFTER</font> " 
+					+ "<font color=\"FF0033\"> " + RUNS_AFTER + " </font>" 
 					+ ((Condition) userObject).getControl().getLocalName()
 					+ "</body></html>";
 			renderer.setText(htmlText);
