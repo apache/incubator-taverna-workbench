@@ -94,6 +94,7 @@ public class ColourManager extends AbstractConfigurable {
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.localworker.LocalworkerActivity", "#d15fee"); //mediumorchid2
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.wsdl.xmlsplitter.XMLInputSplitterActivity", "#d15fee"); //mediumorchid2
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.wsdl.xmlsplitter.XMLOutputSplitterActivity", "#d15fee"); //mediumorchid2
+		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.Merge", "77aadd");
 	}
 
 	/**
