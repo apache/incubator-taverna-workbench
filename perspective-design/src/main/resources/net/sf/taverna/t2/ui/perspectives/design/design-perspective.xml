@@ -16,7 +16,7 @@
                 <znode classname="net.sf.taverna.zaria.ZTabbedPane">
                   <tabs>
                     <tab>
-                      <title>Workflow explorer</title>
+                      <title>Workflow Explorer</title>
                       <znode classname="net.sf.taverna.zaria.ZRavenComponent">
                         <namedcomponent scroll="false">
                           <name>workflowexplorer</name>
