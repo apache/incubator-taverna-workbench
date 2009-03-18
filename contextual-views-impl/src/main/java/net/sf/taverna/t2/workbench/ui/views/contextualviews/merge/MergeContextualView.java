@@ -87,9 +87,11 @@ public class MergeContextualView extends ContextualView{
 	private String buildHtml() {
 		String html = "<html><head>" + getStyle() + "</head><body>";
 		html += buildTableOpeningTag();
-		html += "<tr><td colspan=\"2\">" + getViewTitle() + "</td></tr>";
+		html += "<tr><td colspan=\"3\"><b>" + getViewTitle() + "</b></td></tr>";
 			
-		html += "<tr><td colspan=\"2\"><b>Ordered incoming links (entity.port -> merge.port)</b></td></tr>";
+		html += "<tr><td colspan=\"3\"><b>Ordered incoming links (entity.port -> merge.port)</b></td></tr>";
+		html += "<tr><td><b>No.</b></td><td><b>From</b></td><td><b>To</b></td></tr>";
+
 		int counter = 1;
 		for (MergeInputPort mergeInputPort : merge.getInputPorts()){	
 			EventForwardingOutputPort sourcePort = mergeInputPort.getIncomingLink().getSource();
@@ -98,20 +100,24 @@ public class MergeContextualView extends ContextualView{
 			TokenProcessingEntity entity = Tools.getTokenProcessingEntityWithEventForwardingOutputPort(sourcePort, workflow);
 			if (entity != null){
 				html += "<tr><td>"+ (counter++) + ".</td><td>" + entity.getLocalName() + "."
-						+ sourcePort.getName() + " -> " + merge.getLocalName() + "." + mergeInputPort.getName()
+						+ sourcePort.getName() + "</td><td>" + merge.getLocalName() + "." + mergeInputPort.getName()
 						+ "</td></tr>";
 			}
 			
 		}
 				
-		html += "<tr><td colspan=\"2\"><b>Outgoing link (merge.port -> entity.port)</b></td></tr>";
+		html += "<tr><td colspan=\"3\"><b>Outgoing link (merge.port -> entity.port)</b></td></tr>";
+		html += "<tr><td><b>No.</b></td><td><b>From</b></td><td><b>To</b></td></tr>";
 		Object[] links = merge.getOutputPort().getOutgoingLinks().toArray();	
 		// There will be only one link in the set
 		EventHandlingInputPort targetPort = ((Datalink) links[0]).getSink();
 		TokenProcessingEntity entity = Tools.getTokenProcessingEntityWithEventHandlingInputPort(targetPort,workflow);
 		// Find the other part of the link (if any - could have been deleted)
 		if (entity != null){
-			html += "<tr><td>&nbsp;</td><td>" + merge.getLocalName() +"." + merge.getOutputPort().getName() + " -> " + entity.getLocalName() + "." + targetPort.getName() + "</td></tr>";
+			html += "<tr><td>1.</td><td>" + merge.getLocalName() + "."
+					+ merge.getOutputPort().getName() + "</td><td>"
+					+ entity.getLocalName() + "." + targetPort.getName()
+					+ "</td></tr>";
 		}
 		
 		html += "</table>";
