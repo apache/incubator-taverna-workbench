@@ -81,7 +81,7 @@ public class AddDataflowInputAction extends DataflowEditAction {
 				editManager.doDataflowEdit(dataflow, edits.getAddDataflowInputPortEdit(dataflow, dataflowInputPort));
 			}
 		} catch (EditException e) {
-			logger.debug("Create workflow input port failed");
+			logger.warn("Create workflow input port failed");
 		}
 
 	}

@@ -103,7 +103,7 @@ public class EditDataflowInputPortAction extends DataflowEditAction {
 				}
 			}
 		} catch (EditException e1) {
-			logger.debug("Rename dataflow input port failed", e1);
+			logger.warn("Rename dataflow input port failed", e1);
 		}
 	}
 
