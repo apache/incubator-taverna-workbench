@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -458,12 +459,12 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 								if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.PROCESSORS)){
 									JPopupMenu menu = new JPopupMenu();
 									menu.add(new ShadedLabel("Tree", ShadedLabel.BLUE));
-									menu.add(new JMenuItem(new AbstractAction("Expand") {
+									menu.add(new JMenuItem(new AbstractAction("Expand", WorkbenchIcons.plusIcon) {
 										public void actionPerformed(ActionEvent evt) {
 											expandAscendants(tree, selectedNode);
 										}
 									}));
-									menu.add(new JMenuItem(new AbstractAction("Collapse") {
+									menu.add(new JMenuItem(new AbstractAction("Collapse", WorkbenchIcons.minusIcon) {
 										public void actionPerformed(ActionEvent evt) {
 											collapseAscendants(tree, selectedNode);
 										}
@@ -517,13 +518,13 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 									menu = new JPopupMenu();
 								}
 								if (selectedNode.getUserObject() instanceof Dataflow){
-									menu.add(new ShadedLabel("Tree", ShadedLabel.BLUE));
-									menu.add(new JMenuItem(new AbstractAction("Expand all") {
+									menu.add(new ShadedLabel("Tree", ShadedLabel.BLUE));		
+									menu.add(new JMenuItem(new AbstractAction("Expand all", WorkbenchIcons.plusIcon) {
 										public void actionPerformed(ActionEvent evt) {
 											expandAll(tree);
 										}
 									}));
-									menu.add(new JMenuItem(new AbstractAction("Collapse all") {
+									menu.add(new JMenuItem(new AbstractAction("Collapse all", WorkbenchIcons.minusIcon) {
 										public void actionPerformed(ActionEvent evt) {
 											collapseAll(tree);
 										}
