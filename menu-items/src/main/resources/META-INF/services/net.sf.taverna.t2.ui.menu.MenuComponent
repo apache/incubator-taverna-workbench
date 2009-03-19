@@ -2,6 +2,8 @@ net.sf.taverna.t2.ui.menu.items.activityport.ActivityInputPortSection
 net.sf.taverna.t2.ui.menu.items.activityport.SetConstantInputPortValueMenuAction
 net.sf.taverna.t2.ui.menu.items.activityport.ConnectInputPortMenuActions
 
+net.sf.taverna.t2.ui.menu.items.activityport.ActivityOutputPortSection
+net.sf.taverna.t2.ui.menu.items.activityport.ConnectOutputPortMenuActions
 
 net.sf.taverna.t2.ui.menu.items.condition.ConditionSection
 net.sf.taverna.t2.ui.menu.items.condition.RemoveConditionMenuAction

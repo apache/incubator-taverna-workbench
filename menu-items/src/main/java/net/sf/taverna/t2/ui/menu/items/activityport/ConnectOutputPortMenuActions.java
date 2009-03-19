@@ -20,7 +20,6 @@
  **********************************************************************/
 package net.sf.taverna.t2.ui.menu.items.activityport;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,17 +42,17 @@ import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.OutputPort;
+import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
+import net.sf.taverna.t2.workflowmodel.InputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
+import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
+import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
-public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
+public class ConnectOutputPortMenuActions extends AbstractMenuCustom implements
 		ContextualMenuComponent {
-
-	public static final Color PURPLISH = new Color(0x8070ff);
 
 	private static NamedWorkflowEntityComparator processorComparator = new NamedWorkflowEntityComparator();
 
@@ -62,8 +61,8 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 
 	private ContextualSelection contextualSelection;
 
-	public ConnectInputPortMenuActions() {
-		super(ActivityInputPortSection.activityInputPortSection, 20);
+	public ConnectOutputPortMenuActions() {
+		super(ActivityOutputPortSection.activityOutputPortSection, 20);
 	}
 
 	public ContextualSelection getContextualSelection() {
@@ -73,7 +72,7 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof ActivityInputPort
+				&& getContextualSelection().getSelection() instanceof ActivityOutputPort
 				&& getContextualSelection().getParent() instanceof Dataflow;
 	}
 
@@ -82,20 +81,27 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 		this.customComponent = null;
 	}
 
-	private void addPortMenuItems(Dataflow dataflow,
-			ActivityInputPort inputPort, JMenu connectMenu) {
-		connectMenu.add(new ShadedLabel("Workflow input ports", ShadedLabel.ORANGE));
-
-		List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(
-				dataflow.getInputPorts());
-		Collections.sort(inputPorts, new PortComparator());
+	protected void addPortMenuItems(Dataflow dataflow,
+			ActivityOutputPort outputPort, JMenu connectMenu) {
+		connectMenu
+				.add(new ShadedLabel("Workflow output ports", ShadedLabel.ORANGE));
+		List<DataflowOutputPort> outputPorts = new ArrayList<DataflowOutputPort>(
+				dataflow.getOutputPorts());
+		Collections.sort(outputPorts, new PortComparator());
 		boolean addedPorts = false;
-		for (DataflowInputPort dataflowInput : inputPorts) {
+		for (DataflowOutputPort dataflowOutput : outputPorts) {
+
 			ConnectPortsAction connectPortsAction = new ConnectPortsAction(
-					dataflow, dataflowInput.getInternalOutputPort(), inputPort);
-			connectPortsAction.putValue(Action.NAME, dataflowInput.getName());
+					dataflow, outputPort, dataflowOutput.getInternalInputPort());
+			connectPortsAction.putValue(Action.NAME, dataflowOutput.getName());
 			connectPortsAction.putValue(Action.SMALL_ICON,
-					WorkbenchIcons.inputIcon);
+					WorkbenchIcons.outputIcon);
+			if (dataflowOutput.getInternalInputPort().getIncomingLink() != null) {
+				// Can't connect to an output port that already has a
+				// link (although a merge would be inserted it can't currently
+				// be serialised)
+				connectPortsAction.setEnabled(false);
+			}
 			connectMenu.add(new JMenuItem(connectPortsAction));
 			addedPorts = true;
 		}
@@ -103,34 +109,33 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 			connectMenu.addSeparator();
 		}
 
-		Collection<Processor> processorsWithActivityInPort = Tools
-				.getProcessorsWithActivityInputPort(dataflow, inputPort);
+		Collection<Processor> processorsWithActivityOutPort = Tools
+			.getProcessorsWithActivityOutputPort(dataflow, outputPort);
 		String suggestedName;
-		if (processorsWithActivityInPort.isEmpty()) {
-			suggestedName = inputPort.getName();
+		if (processorsWithActivityOutPort.isEmpty()) {
+			suggestedName = outputPort.getName();
 		} else {
-			suggestedName = processorsWithActivityInPort.iterator().next()
-					.getLocalName()
-					+ "_" + inputPort.getName();
+			suggestedName = processorsWithActivityOutPort.iterator().next().getLocalName() + "_" + outputPort.getName();
 		}
-
+		
 		CreateAndConnectDataflowPortAction newDataflowPortAction = new CreateAndConnectDataflowPortAction(
-				dataflow, inputPort, suggestedName, contextualSelection.getRelativeToComponent());
-		newDataflowPortAction.putValue(Action.NAME, "New workflow input port…");
+				dataflow, outputPort, suggestedName, contextualSelection.getRelativeToComponent());
+		newDataflowPortAction.putValue(Action.NAME, "New workflow output port…");
 		newDataflowPortAction.putValue(Action.SMALL_ICON,
 				WorkbenchIcons.newIcon);
 		connectMenu.add(new JMenuItem(newDataflowPortAction));
 	}
 
-	private void addProcessorMenuItems(Dataflow dataflow,
-			ActivityInputPort inputPort, JMenu connectMenu) {
-		final Map<Processor, List<OutputPort>> ports = findOutputPorts(
-				dataflow, inputPort);
+	@SuppressWarnings("serial")
+	protected void addProcessorMenuItems(Dataflow dataflow,
+			ActivityOutputPort outputPort, JMenu connectMenu) {
+		final Map<Processor, List<InputPort>> ports = findInputPorts(dataflow,
+				outputPort);
 		if (ports.isEmpty()) {
 			return;
 		}
 		connectMenu.add(new ShadedLabel("Services", ShadedLabel.GREEN));
-		//connectMenu.addSeparator();
+		connectMenu.addSeparator();
 
 		List<Processor> processors = new ArrayList<Processor>(ports.keySet());
 		Collections.sort(processors, processorComparator);
@@ -142,19 +147,19 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 				icon = activityIconManager.iconForActivity(processor
 						.getActivityList().get(0));
 			}
+
 			JMenu processorMenu = new JMenu(new DummyAction(processor
 					.getLocalName(), icon));
-			processorMenu.add(new ShadedLabel("Service outputs", PURPLISH));
-			
+			processorMenu.add(new ShadedLabel("Service inputs", ConnectInputPortMenuActions.PURPLISH));
 			connectMenu.add(processorMenu);
 
-			List<OutputPort> outputPorts = ports.get(processor);
-			Collections.sort(outputPorts, new PortComparator());
-			for (OutputPort outputPort : outputPorts) {
+			List<InputPort> inputPorts = ports.get(processor);
+			Collections.sort(inputPorts, new PortComparator());
+			for (InputPort inputPort : inputPorts) {
 				ConnectPortsAction connectPortsAction = new ConnectPortsAction(
 						dataflow, outputPort, inputPort);
-				connectPortsAction.putValue(Action.NAME, outputPort.getName());
-				connectPortsAction.putValue(Action.SMALL_ICON, WorkbenchIcons.outputPortIcon);
+				connectPortsAction.putValue(Action.NAME, inputPort.getName());
+				connectPortsAction.putValue(Action.SMALL_ICON, WorkbenchIcons.inputPortIcon);
 				processorMenu.add(new JMenuItem(connectPortsAction));
 			}
 
@@ -164,51 +169,49 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 	@Override
 	protected Component createCustomComponent() {
 		Dataflow dataflow = (Dataflow) getContextualSelection().getParent();
-		ActivityInputPort inputPort = (ActivityInputPort) getContextualSelection()
+		ActivityOutputPort outputPort = (ActivityOutputPort) getContextualSelection()
 				.getSelection();
 		// Component component =
 		// getContextualSelection().getRelativeToComponent();
 
-		JMenu connectMenu = new JMenu(new DummyAction(
-				"Connect with output from…", WorkbenchIcons.datalinkIcon));
-
-		addPortMenuItems(dataflow, inputPort, connectMenu);
-		addProcessorMenuItems(dataflow, inputPort, connectMenu);
+		JMenu connectMenu = new JMenu(new DummyAction("Connect as input to…",
+				WorkbenchIcons.datalinkIcon));
+		addPortMenuItems(dataflow, outputPort, connectMenu);
+		addProcessorMenuItems(dataflow, outputPort, connectMenu);
 		return connectMenu;
 	}
 
-	protected Map<Processor, List<OutputPort>> findOutputPorts(
-			Dataflow dataflow, ActivityInputPort targetPort) {
+	protected Map<Processor, List<InputPort>> findInputPorts(Dataflow dataflow,
+			ActivityOutputPort sourcePort) {
 
-		HashMap<Processor, List<OutputPort>> allOutPorts = new HashMap<Processor, List<OutputPort>>();
-		Collection<Processor> processorsWithActivityInputPort = Tools
-				.getProcessorsWithActivityInputPort(dataflow, targetPort);
+		HashMap<Processor, List<InputPort>> allInPorts = new HashMap<Processor, List<InputPort>>();
+		Collection<Processor> processorsWithActivityOutPort = Tools
+				.getProcessorsWithActivityOutputPort(dataflow, sourcePort);
 		for (Processor processor : dataflow.getProcessors()) {
-			if (processorsWithActivityInputPort.contains(processor)) {
+			if (processorsWithActivityOutPort.contains(processor)) {
 				// Don't link to ourself
 				continue;
 			}
-			List<OutputPort> outputPorts = new ArrayList<OutputPort>();
-
-			for (ProcessorOutputPort procOutPort : processor.getOutputPorts()) {
-				outputPorts.add(procOutPort);
+			List<InputPort> inputPorts = new ArrayList<InputPort>();
+			for (ProcessorInputPort procInPort : processor.getInputPorts()) {
+				inputPorts.add(procInPort);
 			}
 
 			for (Activity<?> activity : processor.getActivityList()) {
-				Set<OutputPort> activityOuts = activity.getOutputPorts();
-				for (OutputPort actOutPort : activityOuts) {
-					if (activity.getOutputPortMapping().containsKey(
-							actOutPort.getName())) {
+				Set<ActivityInputPort> activityIns = activity.getInputPorts();
+				for (InputPort actInPort : activityIns) {
+					if (activity.getInputPortMapping().containsValue(
+							actInPort.getName())) {
 						// Should be added from processor ports
 						continue;
 					}
-					outputPorts.add(actOutPort);
+					inputPorts.add(actInPort);
 				}
 			}
-			if (! outputPorts.isEmpty()) {
-				allOutPorts.put(processor, outputPorts);
+			if (!inputPorts.isEmpty()) {
+				allInPorts.put(processor, inputPorts);
 			}
 		}
-		return allOutPorts;
+		return allInPorts;
 	}
 }

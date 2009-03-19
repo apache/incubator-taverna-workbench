@@ -35,6 +35,15 @@ public class SetConstantInputPortValueMenuAction extends
 	}
 
 	@Override
+	public synchronized Action getAction() {
+		Dataflow dataflow = (Dataflow) getContextualSelection().getParent();
+		SetDefaultInputPortValueAction action = (SetDefaultInputPortValueAction) super
+				.getAction();
+		action.updateStatus(dataflow);
+		return action;
+	}
+
+	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
 				&& getContextualSelection().getSelection() instanceof ActivityInputPort
@@ -44,15 +53,6 @@ public class SetConstantInputPortValueMenuAction extends
 	@Override
 	protected Action createAction() {
 		return new SetDefaultInputPortValueAction();
-	}
-
-	@Override
-	public synchronized Action getAction() {
-		Dataflow dataflow = (Dataflow) getContextualSelection().getParent();
-		SetDefaultInputPortValueAction action = (SetDefaultInputPortValueAction) super
-				.getAction();
-		action.updateStatus(dataflow);
-		return action;
 	}
 
 }
