@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
@@ -437,18 +436,11 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 										workflow);
 
 						// If the node that was clicked on was inputs,
-						// outputs, services, data links, control links, 
-						// merges or nested workflow root 
-						// node than just make it selected
-						// and clear the selection model (these are just
+						// outputs, services, data links, control links or 
+						// merges in the main workflow then just make it selected
+						// and clear the selection model (as these are just
 						// containers for the 'real' workflow components).
-						// Also if the selected node is the root of the
-						// nested workflow - do not
-						// add to selection model as we do not want to show
-						// contextual view for it
-						if (selectedNode.getUserObject() instanceof String
-								|| ((selectedNode.getUserObject() instanceof Dataflow) && (!selectedNode
-										.isRoot()))) {
+						if ((selectedNode.getUserObject() instanceof String) && (selectionPath.getPathCount() == 2)) {
 							selectionModel.clearSelection();
 							((WorkflowExplorerTreeSelectionModel) tree
 									.getSelectionModel())
@@ -472,8 +464,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 									menu.show(evt.getComponent(), evt.getX(),
 											evt.getY());
 								}
-								else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.INPUTS) &&
-										selectedNode.getPath().length == 2){ //This is Inputs node but not inside a nested workflow as we cannot modify nested wf from here
+								else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.INPUTS)){
 									JPopupMenu menu = new JPopupMenu();
 									menu.add(new ShadedLabel("Workflow input ports", ShadedLabel.GREEN));
 									menu.add(new JMenuItem(new AbstractAction("Create workflow input port", WorkbenchIcons.inputIcon) {
@@ -485,8 +476,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 									menu.show(evt.getComponent(), evt.getX(),
 											evt.getY());
 								}
-								else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.OUTPUTS) &&
-										selectedNode.getPath().length == 2){ //This is Outputs node but not inside a nested workflow as we cannot modify nested wf from here
+								else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.OUTPUTS)){ 
 									JPopupMenu menu = new JPopupMenu();
 									menu.add(new ShadedLabel("Workflow output ports", ShadedLabel.GREEN));
 									menu.add(new JMenuItem(new AbstractAction("Create workflow output port", WorkbenchIcons.outputIcon) {
@@ -499,40 +489,54 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 								}
 							}
 							
-						} else { // a 'real' workflow component or the
-									// 'whole' workflow (i.e. the tree root)
-									// was clicked on
-							selectionModel.addSelection(selectedNode
-									.getUserObject());
+						} else { // a 'real' workflow component or the 'whole' workflow (i.e. the tree root) was clicked on
+							
+							// We want to disable selection of any nested workflow components (apart from
+							// input and output ports in the wrapping DataflowActivity)
+							TreePath path = WorkflowExplorerTreeModel.getPathForObject(selectedNode
+									.getUserObject(), (DefaultMutableTreeNode)tree.getModel().getRoot());
+							
+							// The getPathForObject() method will return null in a node is inside 
+							// a nested workflow and should not be selected
+							if (path == null){
+								// Just return 
+								return;
+							}
+							else{
+								// Add it to selection model so it is also selected on the graph as well
+								// that listens to the selection model
+								selectionModel.addSelection(selectedNode
+										.getUserObject());
 
-							// If this was a right click - show a pop-up
-							// menu as well if there is one defined
-							if (evt.getButton() == MouseEvent.BUTTON3) {
+								// If this was a right click - show a pop-up
+								// menu as well if there is one defined
+								if (evt.getButton() == MouseEvent.BUTTON3) {
 
-								// Show a contextual pop-up menu
-								JPopupMenu menu = menuManager
-										.createContextMenu(workflow,
-												selectedNode.getUserObject(),
-												wfTree.getParent());
-								if (menu == null) {
-									menu = new JPopupMenu();
+									// Show a contextual pop-up menu
+									JPopupMenu menu = menuManager
+											.createContextMenu(workflow,
+													selectedNode.getUserObject(),
+													wfTree.getParent());
+									if (menu == null) {
+										menu = new JPopupMenu();
+									}
+									if (selectedNode.getUserObject() instanceof Dataflow){
+										menu.add(new ShadedLabel("Tree", ShadedLabel.BLUE));		
+										menu.add(new JMenuItem(new AbstractAction("Expand all", WorkbenchIcons.plusIcon) {
+											public void actionPerformed(ActionEvent evt) {
+												expandAll(tree);
+											}
+										}));
+										menu.add(new JMenuItem(new AbstractAction("Collapse all", WorkbenchIcons.minusIcon) {
+											public void actionPerformed(ActionEvent evt) {
+												collapseAll(tree);
+											}
+										}));
+									}
+									
+									menu.show(evt.getComponent(), evt.getX(),
+											evt.getY());
 								}
-								if (selectedNode.getUserObject() instanceof Dataflow){
-									menu.add(new ShadedLabel("Tree", ShadedLabel.BLUE));		
-									menu.add(new JMenuItem(new AbstractAction("Expand all", WorkbenchIcons.plusIcon) {
-										public void actionPerformed(ActionEvent evt) {
-											expandAll(tree);
-										}
-									}));
-									menu.add(new JMenuItem(new AbstractAction("Collapse all", WorkbenchIcons.minusIcon) {
-										public void actionPerformed(ActionEvent evt) {
-											collapseAll(tree);
-										}
-									}));
-								}
-								
-								menu.show(evt.getComponent(), evt.getX(),
-										evt.getY());
 							}
 						}
 					}
