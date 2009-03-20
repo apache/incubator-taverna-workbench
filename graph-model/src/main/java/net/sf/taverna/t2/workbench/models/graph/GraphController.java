@@ -333,7 +333,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 //				}
 				edge.setId(sourceId + "->" + sinkId);
 				edge.setLineStyle(LineStyle.SOLID);
-				edge.setColor(Color.decode("#c0c0c0"));
+				edge.setColor(Color.decode("#505050"));
 				edge.setFillColor(null);
 				edge.setArrowHeadStyle(ArrowStyle.DOT);
 				if (depth == 0) {
