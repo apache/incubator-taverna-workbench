@@ -354,7 +354,7 @@ public class ProcessorContextualView extends ContextualView {
 
 	@Override
 	public String getViewTitle() {
-		return "Processor " + processor.getLocalName();
+		return "Service: " + processor.getLocalName();
 	}
 
 	private final class AddDefaultStackAction extends AbstractAction {
