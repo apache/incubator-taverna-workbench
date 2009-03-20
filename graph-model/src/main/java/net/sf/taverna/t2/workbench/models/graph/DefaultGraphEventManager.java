@@ -41,6 +41,7 @@ import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.Merge;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
+import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 
 /**
@@ -192,6 +193,9 @@ public class DefaultGraphEventManager implements GraphEventManager {
 				Dataflow dataflow = graphController.getDataflow();
 				menu = menuManager.createContextMenu(dataflow, dataflowObject, component);
 			} else if (dataflowObject instanceof ActivityInputPort) {
+				Dataflow dataflow = graphController.getDataflow();
+				menu = menuManager.createContextMenu(dataflow, dataflowObject, component);
+			} else if (dataflowObject instanceof ActivityOutputPort) {
 				Dataflow dataflow = graphController.getDataflow();
 				menu = menuManager.createContextMenu(dataflow, dataflowObject, component);
 			} else if (dataflowObject instanceof Datalink) {
