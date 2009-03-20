@@ -119,7 +119,7 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			renderer.setIcon(WorkbenchIcons.controlLinkIcon);
 			String htmlText = "<html><head></head><body>"
 					+ ((Condition) userObject).getTarget().getLocalName()
-					+ RUNS_AFTER 
+					+ " " + RUNS_AFTER  + " "
 					+ ((Condition) userObject).getControl().getLocalName()
 					+ "</body></html>";
 			renderer.setText(htmlText);
