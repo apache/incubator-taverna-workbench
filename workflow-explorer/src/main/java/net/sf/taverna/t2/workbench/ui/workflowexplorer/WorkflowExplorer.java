@@ -32,6 +32,7 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -45,11 +46,11 @@ import javax.swing.tree.TreePath;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.ModelMap;
+//import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
+//import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.ui.menu.MenuManager;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
+//import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowInputAction;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowOutputAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
@@ -58,6 +59,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
@@ -151,7 +153,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 		// opened or switched between opened workflows). Note that closing a workflow
 		// also causes either a switch to another opened workflow or, if it was the last one, 
 		// opening of a new empty workflow.
-		ModelMap.getInstance().addObserver(
+		/*ModelMap.getInstance().addObserver(
 				new Observer<ModelMap.ModelMapEvent>() {
 					public void notify(Observable<ModelMapEvent> sender,
 							final ModelMapEvent message) {
@@ -193,36 +195,72 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 							}
 						}
 					}
-				});
+				});*/
 
-		// Start observing workflow closing events on File Manager
+		// Start observing workflow switching or closing events on File Manager
 		FileManager.getInstance().addObserver(new Observer<FileManagerEvent>(){
 
 			public void notify(Observable<FileManagerEvent> sender,
 					FileManagerEvent message) throws Exception {
-				// Remove the closed workflow tree from the map of opened workflow trees
-				if (message instanceof ClosedDataflowEvent) {
-					openedWorkflowsTrees.remove(((ClosedDataflowEvent) message).getDataflow());
+				
+				if (message instanceof SetCurrentDataflowEvent) { // switched the current workflow 
+					// Remove the workflow selection model listener from the 
+					// previous (if any) and add to the new workflow (if any)
+					Dataflow oldWF = workflow; // previous workflow
+					final Dataflow newWF = ((SetCurrentDataflowEvent) message).getDataflow(); // the newly switched to workflow
+					if (oldWF != null) {
+						openedWorkflowsManager
+								.getDataflowSelectionModel(oldWF)
+								.removeObserver(workflowSelectionListener);
+					}
+
+					if (newWF != null) {
+						openedWorkflowsManager
+								.getDataflowSelectionModel(newWF)
+								.addObserver(workflowSelectionListener);
+					}
+
+					// Create a new thread to prevent drawing the
+					// current workflow tree to take over completely
+					new Thread(
+							"Workflow Explorer - model map message: current workflow switched.") {
+						@Override
+						public void run() {
+							// If the workflow tree has already been created - switch to it
+							if (openedWorkflowsTrees.containsKey(newWF)){
+								switchWorkflowTree(newWF);
+							}
+							else{ // otherwise create a new tree for the workflow
+								createWorkflowTree(newWF);
+							}
+						}
+					}.start();
 				}
+				else if (message instanceof ClosedDataflowEvent) { //closed the current workflow
+					// Remove the closed workflow tree from the map of opened workflow trees
+					openedWorkflowsTrees.remove(((ClosedDataflowEvent) message).getDataflow());
+				} 
 			}
 		});
 		
 		// Start observing events on Edit Manager when current workflow is
 		// edited (e.g. a node added, deleted or updated)
 		EditManager.getInstance().addObserver(new Observer<EditManagerEvent>() {
+			
 			public void notify(Observable<EditManagerEvent> sender,
 					final EditManagerEvent message) throws Exception {
 				if (message instanceof AbstractDataflowEditEvent) {
 					// React to edits in the current workflow
 					// Create a new thread to prevent drawing the workflow
 					// tree to take over completely
+
 					new Thread(
 							"Workflow Explorer - edit manager message: current workflow edited.") {
 						@Override
 						public void run() {
 							// Create a new tree to reflect the changes to
 							// the current tree
-							updateWorkflowTree();
+							updateWorkflowTree(((AbstractDataflowEditEvent) message).getDataFlow());
 						}
 					}.start();
 				}
@@ -262,7 +300,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	public void createWorkflowTree(Dataflow df) {
 
 		// Set the current workflow
-		workflow = FileManager.getInstance().getCurrentDataflow(); // == df
+		workflow = df;
 
 		// Create a new tree and populate it with the workflow's data
 		wfTree = createTreeFromWorkflow(workflow);
@@ -282,14 +320,18 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	/**
 	 * Gets called when the current workflow is switched.
 	 */
-	private void switchWorkflowTree(
-			Dataflow df) {
+	private void switchWorkflowTree(Dataflow df) {
 		
 		// Set the current workflow to the one we have switched to
-		workflow = FileManager.getInstance().getCurrentDataflow(); // == df
-		
+		workflow = df;
+			
 		// Get the tree for the current workflow
-		wfTree = openedWorkflowsTrees.get(workflow);
+		//wfTree = openedWorkflowsTrees.get(workflow);
+		updateWorkflowTree(workflow); 
+		// The reason why we update the tree rather than just switch to the one from the map is
+		// because the nested tree might have been edited and we will not not be able to detect
+		// that from Workflow Explorer as we only receive edit events for current workflow (which
+		// is the nested one in this case rather that its parent).
 		
 		// Repaint the scroll pane containing the tree
 		jspTree.setViewportView(wfTree);
@@ -299,12 +341,13 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	
 	/**
 	 * Gets called when the current workflow is edited.
+	 * @param wf 
 	 * @param message 
 	 */
-	public void updateWorkflowTree() {
+	public void updateWorkflowTree(Dataflow df) {
 			
 		// Get the updated workflow
-		workflow = FileManager.getInstance().getCurrentDataflow();
+		workflow = df;
 		
 		// Get the old workflow tree
 		JTree oldTree = openedWorkflowsTrees.get(workflow);
@@ -445,6 +488,11 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 							((WorkflowExplorerTreeSelectionModel) tree
 									.getSelectionModel())
 									.mySetSelectionPath(selectionPath);
+							//tree.revalidate();
+							tree.repaint();
+							//((JScrollPane)tree.getParent()).revalidate();
+							((JScrollPane)tree.getParent()).repaint();
+
 							// If this was a right click - show a pop-up
 							// menu as well if there is one defined
 							if (evt.getButton() == MouseEvent.BUTTON3) {
