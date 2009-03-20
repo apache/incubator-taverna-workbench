@@ -35,9 +35,14 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.Datalink;
+import net.sf.taverna.t2.workflowmodel.EventForwardingOutputPort;
+import net.sf.taverna.t2.workflowmodel.EventHandlingInputPort;
 import net.sf.taverna.t2.workflowmodel.Merge;
+import net.sf.taverna.t2.workflowmodel.MergePort;
 import net.sf.taverna.t2.workflowmodel.OutputPort;
+import net.sf.taverna.t2.workflowmodel.Port;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.ProcessorPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 
@@ -104,8 +109,12 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			renderer.setText(((OutputPort) userObject).getName());
 		} else if (userObject instanceof Datalink) {
 			renderer.setIcon(WorkbenchIcons.datalinkIcon);
-			renderer.setText(((Datalink) userObject).getSource().getName()
-					+ " -> " + ((Datalink) userObject).getSink().getName());
+			EventForwardingOutputPort source = ((Datalink) userObject).getSource();
+			String sourceName = findName(source);
+			EventHandlingInputPort sink = ((Datalink) userObject).getSink();
+			String sinkName = findName(sink);
+			renderer.setText(sourceName
+					+ " -> " + sinkName);
 		} else if (userObject instanceof Condition) {
 			renderer.setIcon(WorkbenchIcons.controlLinkIcon);
 			String htmlText = "<html><head></head><body>"
@@ -130,6 +139,19 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 		}
 
 		return result;
+	}
+
+	protected String findName(Port port) {		
+		if (port instanceof ProcessorPort) {
+			String sourceProcessorName = ((ProcessorPort)port).getProcessor().getLocalName();
+			return sourceProcessorName + ":" + port.getName();
+		} else if (port instanceof MergePort) {
+			String sourceMergeName = ((MergePort)port).getMerge().getLocalName();
+			return sourceMergeName + ":" + port.getName();
+			
+		} else {
+			return port.getName();
+		}
 	}
 
 
