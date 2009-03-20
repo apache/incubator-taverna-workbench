@@ -110,7 +110,7 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			renderer.setIcon(WorkbenchIcons.controlLinkIcon);
 			String htmlText = "<html><head></head><body>"
 					+ ((Condition) userObject).getTarget().getLocalName()
-					+ "<font color=\"FF0033\"> " + RUNS_AFTER + " </font>" 
+					+ RUNS_AFTER 
 					+ ((Condition) userObject).getControl().getLocalName()
 					+ "</body></html>";
 			renderer.setText(htmlText);
