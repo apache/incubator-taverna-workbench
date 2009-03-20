@@ -104,6 +104,37 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	}
 
 	/**
+	 * Create a contextual menu for a selected object.
+	 * <p>
+	 * Items for the contextual menues are discovered in a similar to fashion as
+	 * with {@link #createMenuBar()}, but using {@link DefaultContextualMenu} as
+	 * the root.
+	 * <p>
+	 * Additionally, items implementing {@link ContextualMenuComponent} will be
+	 * {@link ContextualMenuComponent#setContextualSelection(Object, Object, Component)
+	 * informed} about what is the current selection, as passed to this method.
+	 * <p>
+	 * Thus, the items can choose if they want to be
+	 * {@link MenuComponent#isEnabled() visible} or not for a given selection,
+	 * and return an action that is bound it to the selection.
+	 * 
+	 * @param parent
+	 *            The parent object of the selected object, for instance a
+	 *            {@link net.sf.taverna.t2.workflowmodel.Dataflow Dataflow}.
+	 * @param selection
+	 *            The selected object which actions in the contextual menu
+	 *            relate to, for instance a Processor
+	 * @param relativeToComponent
+	 *            A UI component which the returned JPopupMenu (and it's
+	 *            actions) is to be relative to, for instance as a parent of
+	 *            pop-up dialogues.
+	 * @return An empty or populated JPopupMenu depending on the selected
+	 *         objects.
+	 */
+	public abstract JPopupMenu createContextMenu(Object parent,
+			Object selection, Component relativeToComponent);
+	
+	/**
 	 * Create the {@link JMenuBar} containing menu elements defining
 	 * {@link DefaultMenuBar#DEFAULT_MENU_BAR} as their
 	 * {@link MenuComponent#getParentId() parent}.
@@ -290,36 +321,6 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 */
 	public abstract void update();
 
-	/**
-	 * Create a contextual menu for a selected object.
-	 * <p>
-	 * Items for the contextual menues are discovered in a similar to fashion as
-	 * with {@link #createMenuBar()}, but using {@link DefaultContextualMenu} as
-	 * the root.
-	 * <p>
-	 * Additionally, items implementing {@link ContextualMenuComponent} will be
-	 * {@link ContextualMenuComponent#setContextualSelection(Object, Object, Component)
-	 * informed} about what is the current selection, as passed to this method.
-	 * <p>
-	 * Thus, the items can choose if they want to be
-	 * {@link MenuComponent#isEnabled() visible} or not for a given selection,
-	 * and return an action that is bound it to the selection.
-	 * 
-	 * @param parent
-	 *            The parent object of the selected object, for instance a
-	 *            {@link net.sf.taverna.t2.workflowmodel.Dataflow Dataflow}.
-	 * @param selection
-	 *            The selected object which actions in the contextual menu
-	 *            relate to, for instance a Processor
-	 * @param relativeToComponent
-	 *            A UI component which the returned JPopupMenu (and it's
-	 *            actions) is to be relative to, for instance as a parent of
-	 *            pop-up dialogues.
-	 * @return An empty or populated JPopupMenu depending on the selected
-	 *         objects.
-	 */
-	public abstract JPopupMenu createContextMenu(Object parent,
-			Object selection, Component relativeToComponent);
 
 	/**
 	 * Abstract class for events sent to {@link Observer observers} of the menu
