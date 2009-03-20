@@ -62,7 +62,7 @@ public class DataflowInputPortContextualView extends ContextualView{
 	public void refreshView() {
 		dataflowInputPortView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		dataflowInputPortView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel label = new JLabel("<html><body><i>No details provided.</i></body><html>");
+		JLabel label = new JLabel("<html><body><i>No details available.</i></body><html>");
 		dataflowInputPortView.add(label);
 	}
 

@@ -66,7 +66,7 @@ public class ConditionContextualView extends ContextualView {
 		
 		contitionView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		contitionView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel label = new JLabel("<html><body><i>No details provided.</i></body><html>");
+		JLabel label = new JLabel("<html><body><i>No details available.</i></body><html>");
 		contitionView.add(label);
 	
 	}

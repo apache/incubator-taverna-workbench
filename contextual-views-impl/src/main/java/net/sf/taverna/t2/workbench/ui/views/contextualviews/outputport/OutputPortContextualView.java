@@ -64,7 +64,7 @@ public class OutputPortContextualView extends ContextualView{
 		
 		outputPortView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		outputPortView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel label = new JLabel("<html><body><i>No details provided.</i></body><html>");
+		JLabel label = new JLabel("<html><body><i>No details available.</i></body><html>");
 		outputPortView.add(label);
 
 	}
