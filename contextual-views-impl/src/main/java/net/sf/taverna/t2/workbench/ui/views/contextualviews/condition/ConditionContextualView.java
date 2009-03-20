@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.condition;
 
+import java.awt.FlowLayout;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,16 +57,18 @@ public class ConditionContextualView extends ContextualView {
 
 	@Override
 	public String getViewTitle() {
-		return "Control link";
+		return "Control link: " + condition.getControl().getLocalName()
+		+ " runs after " + condition.getTarget().getLocalName();
 	}
 
 	@Override
 	public void refreshView() {
-		contitionView = new JPanel();
+		
+		contitionView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		contitionView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel controlName = new JLabel("Service " + condition.getControl().getLocalName()
-				+ " RUNS_AFTER service " + condition.getTarget().getLocalName());
-		contitionView.add(controlName);		
+		JLabel label = new JLabel("<html><body><i>No details provided.</i></body><html>");
+		contitionView.add(label);
+	
 	}
 
 }

@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.outputport;
 
+import java.awt.FlowLayout;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -54,15 +56,17 @@ public class OutputPortContextualView extends ContextualView{
 
 	@Override
 	public String getViewTitle() {
-		return " Output port";
+		return "Service output port: " + outputPort.getName();
 	}
 
 	@Override
 	public void refreshView() {
-		outputPortView = new JPanel();
+		
+		outputPortView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		outputPortView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel outputPortName = new JLabel("Output port name: " + outputPort.getName());
-		outputPortView.add(outputPortName);
+		JLabel label = new JLabel("<html><body><i>No details provided.</i></body><html>");
+		outputPortView.add(label);
+
 	}
 
 }

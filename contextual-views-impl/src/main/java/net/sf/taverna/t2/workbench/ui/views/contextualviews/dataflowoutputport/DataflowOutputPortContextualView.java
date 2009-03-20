@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflowoutputport;
 
+import java.awt.FlowLayout;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -53,14 +55,14 @@ public class DataflowOutputPortContextualView extends ContextualView{
 
 	@Override
 	public String getViewTitle() {
-		return "Dataflow output port";
+		return "Workflow output port: " + dataflowOutputPort.getName();
 	}
 
 	@Override
 	public void refreshView() {
-		dataflowOutputPortView = new JPanel();
+		dataflowOutputPortView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		dataflowOutputPortView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel outputPortName = new JLabel("Dataflow output port name: " + dataflowOutputPort.getName());
-		dataflowOutputPortView.add(outputPortName);
+		JLabel label = new JLabel("<html><body><i>No details provided.</i></body><html>");
+		dataflowOutputPortView.add(label);
 	}
 }

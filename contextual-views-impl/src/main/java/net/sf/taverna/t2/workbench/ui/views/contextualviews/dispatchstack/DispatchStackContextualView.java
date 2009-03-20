@@ -92,6 +92,6 @@ public class DispatchStackContextualView extends ContextualView{
 
 	@Override
 	public String getViewTitle() {
-		return "Dispatch Stack contextual View";
+		return "Dispatch Stack Contextual View";
 	}
 }

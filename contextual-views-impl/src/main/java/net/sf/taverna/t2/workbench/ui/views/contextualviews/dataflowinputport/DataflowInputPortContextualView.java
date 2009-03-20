@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflowinputport;
 
+import java.awt.FlowLayout;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -53,15 +55,15 @@ public class DataflowInputPortContextualView extends ContextualView{
 
 	@Override
 	public String getViewTitle() {
-		return "Dataflow input port";
+		return "Workflow input port: " + dataflowInputPort.getName();
 	}
 
 	@Override
 	public void refreshView() {
-		dataflowInputPortView = new JPanel();
+		dataflowInputPortView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		dataflowInputPortView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel outputPortName = new JLabel("Dataflow input port name: " + dataflowInputPort.getName());
-		dataflowInputPortView.add(outputPortName);
+		JLabel label = new JLabel("<html><body><i>No details provided.</i></body><html>");
+		dataflowInputPortView.add(label);
 	}
 
 }

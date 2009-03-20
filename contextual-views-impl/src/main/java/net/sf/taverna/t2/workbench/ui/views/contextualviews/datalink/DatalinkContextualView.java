@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.datalink;
 
+import java.awt.FlowLayout;
+
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -55,16 +57,17 @@ public class DatalinkContextualView extends ContextualView {
 
 	@Override
 	public String getViewTitle() {
-		return "Data link";
+		return "Data link: " + datalink.getSource().getName() + " -> " + datalink.getSink().getName();
 	}
 
 	@Override
 	public void refreshView() {
-		
-		datalinkView = new JPanel();
+	
+		datalinkView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		datalinkView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel datalinkName = new JLabel("Datalink: " + datalink.getSource().getName() + " -> " + datalink.getSink().getName());
-		datalinkView.add(datalinkName);		
+		JLabel label = new JLabel("<html><body><i>No details provided.</i></body><html>");
+		datalinkView.add(label);
+	
 	}
 
 }
