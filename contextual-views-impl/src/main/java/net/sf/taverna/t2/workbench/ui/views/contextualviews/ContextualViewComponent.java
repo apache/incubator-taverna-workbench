@@ -79,7 +79,7 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 		panel = new JPanel(new BorderLayout());
 		add(panel, BorderLayout.CENTER);
 
-		title = new JLabel("Contextual View");
+		title = new JLabel("Contextual View"); // the actual title will be changed later based on the workflow object being displayed
 		title.setMinimumSize(new Dimension(0,0));//so that the label can shrink (and contextual view together with it)
 		title.setBorder(new EmptyBorder(0,5,5,5));
 		add(title, BorderLayout.NORTH);
@@ -107,7 +107,7 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 		}
 		this.view = view;
 		views.add(view);
-		title.setText("Contextual View: " + view.getViewTitle());
+		title.setText(view.getViewTitle());
 
 		panel.add(view, BorderLayout.CENTER);
 
@@ -244,7 +244,7 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 	public void refreshView() {
 		if (view != null) {
 			view.refreshView();
-			title.setText("Contextual View: " + view.getViewTitle());
+			title.setText(view.getViewTitle());
 			repaint();
 		}
 	}
