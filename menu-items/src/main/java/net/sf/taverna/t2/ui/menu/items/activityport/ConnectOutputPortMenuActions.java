@@ -41,7 +41,6 @@ import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.InputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
@@ -49,13 +48,17 @@ import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
+import net.sf.taverna.t2.workflowmodel.utils.NamedWorkflowEntityComparator;
+import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 public class ConnectOutputPortMenuActions extends AbstractMenuCustom implements
 		ContextualMenuComponent {
 
-	private static NamedWorkflowEntityComparator processorComparator = new NamedWorkflowEntityComparator();
+	private NamedWorkflowEntityComparator processorComparator = new NamedWorkflowEntityComparator();
 
+	private PortComparator portComparator = new PortComparator();
+	
 	private ActivityIconManager activityIconManager = ActivityIconManager
 			.getInstance();
 
@@ -87,7 +90,7 @@ public class ConnectOutputPortMenuActions extends AbstractMenuCustom implements
 				.add(new ShadedLabel("Workflow output ports", ShadedLabel.ORANGE));
 		List<DataflowOutputPort> outputPorts = new ArrayList<DataflowOutputPort>(
 				dataflow.getOutputPorts());
-		Collections.sort(outputPorts, new PortComparator());
+		Collections.sort(outputPorts, portComparator);
 		boolean addedPorts = false;
 		for (DataflowOutputPort dataflowOutput : outputPorts) {
 
@@ -120,7 +123,7 @@ public class ConnectOutputPortMenuActions extends AbstractMenuCustom implements
 		
 		CreateAndConnectDataflowPortAction newDataflowPortAction = new CreateAndConnectDataflowPortAction(
 				dataflow, outputPort, suggestedName, contextualSelection.getRelativeToComponent());
-		newDataflowPortAction.putValue(Action.NAME, "New workflow output port…");
+		newDataflowPortAction.putValue(Action.NAME, "New workflow output port...");
 		newDataflowPortAction.putValue(Action.SMALL_ICON,
 				WorkbenchIcons.newIcon);
 		connectMenu.add(new JMenuItem(newDataflowPortAction));
@@ -154,7 +157,7 @@ public class ConnectOutputPortMenuActions extends AbstractMenuCustom implements
 			connectMenu.add(processorMenu);
 
 			List<InputPort> inputPorts = ports.get(processor);
-			Collections.sort(inputPorts, new PortComparator());
+			Collections.sort(inputPorts, portComparator);
 			for (InputPort inputPort : inputPorts) {
 				ConnectPortsAction connectPortsAction = new ConnectPortsAction(
 						dataflow, outputPort, inputPort);
@@ -174,7 +177,7 @@ public class ConnectOutputPortMenuActions extends AbstractMenuCustom implements
 		// Component component =
 		// getContextualSelection().getRelativeToComponent();
 
-		JMenu connectMenu = new JMenu(new DummyAction("Connect as input to…",
+		JMenu connectMenu = new JMenu(new DummyAction("Connect as input to...",
 				WorkbenchIcons.datalinkIcon));
 		addPortMenuItems(dataflow, outputPort, connectMenu);
 		addProcessorMenuItems(dataflow, outputPort, connectMenu);
@@ -183,15 +186,9 @@ public class ConnectOutputPortMenuActions extends AbstractMenuCustom implements
 
 	protected Map<Processor, List<InputPort>> findInputPorts(Dataflow dataflow,
 			ActivityOutputPort sourcePort) {
-
 		HashMap<Processor, List<InputPort>> allInPorts = new HashMap<Processor, List<InputPort>>();
-		Collection<Processor> processorsWithActivityOutPort = Tools
-				.getProcessorsWithActivityOutputPort(dataflow, sourcePort);
-		for (Processor processor : dataflow.getProcessors()) {
-			if (processorsWithActivityOutPort.contains(processor)) {
-				// Don't link to ourself
-				continue;
-			}
+		Processor ourProcessor = Tools.getFirstProcessorWithActivityOutputPort(dataflow, sourcePort);
+		for (Processor processor : Tools.possibleDownStreamProcessors(dataflow, ourProcessor)) {
 			List<InputPort> inputPorts = new ArrayList<InputPort>();
 			for (ProcessorInputPort procInPort : processor.getInputPorts()) {
 				inputPorts.add(procInPort);

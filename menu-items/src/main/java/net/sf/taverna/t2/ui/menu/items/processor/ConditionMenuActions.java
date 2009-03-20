@@ -22,9 +22,8 @@ package net.sf.taverna.t2.ui.menu.items.processor;
 
 import java.awt.Component;
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -35,14 +34,16 @@ import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
 import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.workbench.design.actions.AddConditionAction;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Condition;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.utils.NamedWorkflowEntityComparator;
+import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 public class ConditionMenuActions extends AbstractMenuCustom implements
 		ContextualMenuComponent {
 
 	private ContextualSelection contextualSelection;
+	private ArrayList<Processor> processors;
 
 	public ConditionMenuActions() {
 		super(ProcessorSection.processorSection, 20);
@@ -90,16 +91,12 @@ public class ConditionMenuActions extends AbstractMenuCustom implements
 	protected List<AddConditionAction> getAddConditionActions(
 			Dataflow dataflow, Processor targetProcessor, Component component) {
 		List<AddConditionAction> actions = new ArrayList<AddConditionAction>();
-		Set<Processor> invalidControlProcessors = new HashSet<Processor>();
-		invalidControlProcessors.add(targetProcessor);
-		for (Condition condition : targetProcessor.getPreconditionList()) {
-			invalidControlProcessors.add(condition.getControl());
-		}
-		for (Processor processor : dataflow.getProcessors()) {
-			if (!invalidControlProcessors.contains(processor)) {
-				actions.add(new AddConditionAction(dataflow, processor,
-						targetProcessor, component));
-			}
+		processors = new ArrayList<Processor>(Tools.possibleUpStreamProcessors(
+				dataflow, targetProcessor));
+		Collections.sort(processors, new NamedWorkflowEntityComparator());
+		for (Processor processor : processors) {
+			actions.add(new AddConditionAction(dataflow, processor,
+					targetProcessor, component));
 		}
 		return actions;
 	}
