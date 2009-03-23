@@ -364,8 +364,9 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 		// expanded node has been removed)
 		copyExpansionState(oldTree, (DefaultMutableTreeNode) oldTree.getModel().getRoot(), (DefaultMutableTreeNode) wfTree.getModel().getRoot());
 
+		
 		// Repaint the scroll pane containing the tree
-		jspTree.setViewportView(wfTree);
+		jspTree.setViewportView(wfTree);		
 		jspTree.revalidate();
 		jspTree.repaint();
 
@@ -488,10 +489,6 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 							((WorkflowExplorerTreeSelectionModel) tree
 									.getSelectionModel())
 									.mySetSelectionPath(selectionPath);
-							//tree.revalidate();
-							tree.repaint();
-							//((JScrollPane)tree.getParent()).revalidate();
-							((JScrollPane)tree.getParent()).repaint();
 
 							// If this was a right click - show a pop-up
 							// menu as well if there is one defined
