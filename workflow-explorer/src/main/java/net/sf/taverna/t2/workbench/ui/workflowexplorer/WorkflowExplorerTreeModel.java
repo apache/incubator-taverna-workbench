@@ -23,7 +23,6 @@ package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;

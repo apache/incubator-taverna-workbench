@@ -21,12 +21,12 @@
 package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -72,6 +72,9 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
  */
 @SuppressWarnings("serial")
 public class WorkflowExplorer extends JPanel implements UIComponentSPI {
+
+	/* Purple colour for shaded label on pop up menus */
+	public static final Color PURPLISH = new Color(0x8070ff);
 
 	/* Manager of all opened workflows */
 	private DataflowSelectionManager openedWorkflowsManager = DataflowSelectionManager
@@ -431,7 +434,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 							if (evt.getButton() == MouseEvent.BUTTON3) {
 								if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.PROCESSORS)){
 									JPopupMenu menu = new JPopupMenu();
-									menu.add(new ShadedLabel("Tree", ShadedLabel.BLUE));
+									menu.add(new ShadedLabel("Tree", PURPLISH));
 									menu.add(new JMenuItem(new AbstractAction("Expand", WorkbenchIcons.plusIcon) {
 										public void actionPerformed(ActionEvent evt) {
 											expandAscendants(tree, selectedNode);
@@ -502,7 +505,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 										menu = new JPopupMenu();
 									}
 									if (selectedNode.getUserObject() instanceof Dataflow){
-										menu.add(new ShadedLabel("Tree", ShadedLabel.BLUE));		
+										menu.add(new ShadedLabel("Tree", PURPLISH));		
 										menu.add(new JMenuItem(new AbstractAction("Expand all", WorkbenchIcons.plusIcon) {
 											public void actionPerformed(ActionEvent evt) {
 												expandAll(tree);
