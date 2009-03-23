@@ -55,6 +55,8 @@ import net.sf.taverna.t2.workflowmodel.utils.Tools;
 public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 		ContextualMenuComponent {
 
+	private static final int MAX_PROCESSORS_IN_MENU = 19;
+
 	public static final Color PURPLISH = new Color(0x8070ff);
 
 	private NamedWorkflowEntityComparator processorComparator = new NamedWorkflowEntityComparator();
@@ -140,8 +142,29 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 
 		List<Processor> processors = new ArrayList<Processor>(ports.keySet());
 		Collections.sort(processors, processorComparator);
-
+		
+		// TAV-172
+		JMenu expansionMenu;
+		boolean manyProcessors;
+		if (processors.size() > MAX_PROCESSORS_IN_MENU) {
+			manyProcessors = true;
+			expansionMenu = new JMenu();
+			expansionMenu.add(new ShadedLabel("Services", ShadedLabel.GREEN));
+			connectMenu.add(expansionMenu);
+		} else {
+			manyProcessors = false;
+			expansionMenu = connectMenu;
+		}
+		
 		for (Processor processor : processors) {
+			if (manyProcessors && expansionMenu.getItemCount() >= MAX_PROCESSORS_IN_MENU) {
+				labelExpansionMenu(expansionMenu);
+				// Create new blank one for the rest
+				expansionMenu = new JMenu();
+				expansionMenu.add(new ShadedLabel("Services", ShadedLabel.GREEN));
+				connectMenu.add(expansionMenu);
+			}
+			
 			Icon icon = null;
 			if (!processor.getActivityList().isEmpty()) {
 				// Pick the icon of the first activity
@@ -150,9 +173,8 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 			}
 			JMenu processorMenu = new JMenu(new DummyAction(processor
 					.getLocalName(), icon));
-			processorMenu.add(new ShadedLabel("Service outputs", PURPLISH));
-
-			connectMenu.add(processorMenu);
+			processorMenu.add(new ShadedLabel("Service output ports", PURPLISH));
+			expansionMenu.add(processorMenu);
 
 			List<OutputPort> outputPorts = ports.get(processor);
 			Collections.sort(outputPorts, portComparator);
@@ -164,8 +186,16 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 						WorkbenchIcons.outputPortIcon);
 				processorMenu.add(new JMenuItem(connectPortsAction));
 			}
-
 		}
+		if (manyProcessors) {
+			labelExpansionMenu(expansionMenu);
+		}
+	}
+
+	private void labelExpansionMenu(JMenu subMenu) {
+		JMenuItem firstItem = subMenu.getItem(1);
+		JMenuItem lastItem = subMenu.getItem(subMenu.getItemCount()-1);
+		subMenu.setText(firstItem.getText() + " ... " + lastItem.getText());
 	}
 
 	@Override
