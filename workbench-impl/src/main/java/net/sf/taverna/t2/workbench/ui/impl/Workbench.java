@@ -25,9 +25,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
 import java.net.URL;
+import java.util.Properties;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -46,7 +50,10 @@ import net.sf.taverna.raven.log.ConsoleLog;
 import net.sf.taverna.raven.log.Log;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.ui.perspectives.CustomPerspective;
+import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
@@ -55,6 +62,7 @@ import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.impl.actions.CloseAllWorkflowsAction;
 import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.ui.T2ConfigurationFrame;
+import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
 import org.apache.log4j.Logger;
 
@@ -88,6 +96,8 @@ public class Workbench extends JFrame {
 
 	private JToolBar perspectiveToolBar;
 
+	private WorkbenchZBasePane basePane;
+
 	private Workbench() {
 		// Initialisation done by getInstance()
 	}
@@ -115,7 +125,10 @@ public class Workbench extends JFrame {
 
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setLookAndFeel();
-		setSize(new Dimension(1000, 800));
+
+		// Set the size and position of the Workbench to the last
+		// saved values or use the default ones the first time it is launched
+		loadSizeAndLocationPrefs();
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0;
@@ -127,7 +140,7 @@ public class Workbench extends JFrame {
 
 		add(toolbarPanel, gbc);
 
-		WorkbenchZBasePane basePane = makeBasePane();
+		basePane = makeBasePane();
 
 		gbc.anchor = GridBagConstraints.CENTER;
 		gbc.fill = GridBagConstraints.BOTH;
@@ -195,11 +208,26 @@ public class Workbench extends JFrame {
 	}
 
 	public void exit() {
-		// Save the perspectives to an XML file
-		try {
+		// Save the perspectives to XML files
+		try {			
+			
+			PerspectiveSPI currentPerspective = (PerspectiveSPI) ModelMap.getInstance()
+			.getModel(ModelMapConstants.CURRENT_PERSPECTIVE);
+			if (currentPerspective != null
+					&& currentPerspective instanceof CustomPerspective) {
+				((CustomPerspective) currentPerspective).update(basePane
+						.getElement());
+			}
 			perspectives.saveAll();
 		} catch (Exception ex) {
 			logger.error("Error saving perspectives when exiting the Workbench.", ex);
+		}
+		 
+		// Save the current Workbench window size and position to a preferences file
+		try {
+			storeSizeAndLocationPrefs();
+		} catch (Exception ex) {
+			logger.error("Error saving the Workbench size and position when exiting the Workbench.", ex);
 		}
 		
 		if (closeAllWorkflowsAction.closeAllWorkflows(this)) {
@@ -208,6 +236,83 @@ public class Workbench extends JFrame {
 
 	}
 
+	/**
+	 * Store current Workbench position and size.
+	 * @throws IOException
+	 */
+	private void storeSizeAndLocationPrefs() throws IOException {
+
+		// Store the current Workbench window size and position 
+		File confDir = new File(appRuntime.getApplicationHomeDir(),"conf");
+		File propFile = new File(confDir, "preferences.properties");
+		if (!propFile.exists()){
+			propFile.createNewFile();
+		}
+		
+		Writer writer = new BufferedWriter(new FileWriter(propFile));
+		writer.write("width=" + this.getWidth() + "\n");
+		writer.write("height=" + this.getHeight() + "\n");
+		writer.write("x=" + this.getX() + "\n");
+		writer.write("y=" + this.getY() + "\n");
+		writer.flush();
+		writer.close();
+	}
+	
+	/**
+	 * Loads last saved Workbench position and size.
+	 * @throws IOException
+	 */
+	private void loadSizeAndLocationPrefs() {
+		File confDir = new File(appRuntime.getApplicationHomeDir(),"conf");
+		File propFile = new File(confDir, "preferences.properties");
+		
+		// Screen size
+		Dimension screen = getToolkit().getScreenSize();
+
+		if (!propFile.exists()) {
+			
+			// set default size to 3/4 of width and height
+			setSize((int) (screen.getWidth() * 0.75),
+					(int) (screen.getHeight() * 0.75));
+			
+			//this.setSize(new Dimension(1000, 800));
+			this.setLocation(0,0);
+		}
+		else{
+		Properties props = new Properties();
+			try {
+				props.load(propFile.toURI().toURL().openStream());
+				String swidth = props.getProperty("width");
+				String sheight = props.getProperty("height");
+				String sx = props.getProperty("x");
+				String sy = props.getProperty("y");
+
+				int width = Integer.parseInt(swidth);
+				int height = Integer.parseInt(sheight);
+				int x = Integer.parseInt(sx);
+				int y = Integer.parseInt(sy);
+
+				// Make sure our window is not too big
+				width = Math.min((int) screen.getWidth(), width);
+				height = Math.min((int) screen.getHeight(), height);
+
+				// Move to upper left corner if we are too far off
+				if (x > (screen.getWidth() - 50) || x < 0) {
+					x = 0;
+				}
+				if (y > (screen.getHeight() - 50) || y < 0) {
+					y = 0;
+				}
+
+				this.setSize(width, height);
+				this.setLocation(x, y);
+
+			} catch (Exception e) {
+				logger.error("Error loading default Workbench window dimensions.", e);
+			}
+		}
+	}
+	
 	private void setLookAndFeel() {
 		// String landf = MyGridConfiguration
 		// .getProperty("taverna.workbench.themeclass");
