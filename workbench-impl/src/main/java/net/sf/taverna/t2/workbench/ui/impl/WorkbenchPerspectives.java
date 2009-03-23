@@ -456,6 +456,9 @@ public class WorkbenchPerspectives {
 
 			XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
 			outputter.output(layout, new FileOutputStream(file));
+			
+			logger.info("Saved "+ perspective.getClass().getName()+ " perspective into file.");
+
 
 		} catch (JDOMException e) {
 			logger.error("Error parsing perspective XML", e);
@@ -498,6 +501,8 @@ public class WorkbenchPerspectives {
 				"conf");
 		File file = new File(confDir, filename);
 		if (file.exists()) {
+			logger.info("Loaded "+ perspective.getClass().getName()+ " from file.");
+
 			try {
 				Element savedLayoutElement = new SAXBuilder().build(file)
 						.getRootElement();

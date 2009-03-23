@@ -23,8 +23,6 @@ package net.sf.taverna.t2.workbench.ui.impl;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
@@ -35,7 +33,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
-import javax.swing.JRootPane;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
@@ -198,6 +195,13 @@ public class Workbench extends JFrame {
 	}
 
 	public void exit() {
+		// Save the perspectives to an XML file
+		try {
+			perspectives.saveAll();
+		} catch (Exception ex) {
+			logger.error("Error saving perspectives when exiting the Workbench.", ex);
+		}
+		
 		if (closeAllWorkflowsAction.closeAllWorkflows(this)) {
 			System.exit(0);
 		}
