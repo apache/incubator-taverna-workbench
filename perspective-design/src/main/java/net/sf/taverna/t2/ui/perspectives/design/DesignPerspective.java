@@ -20,11 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.design;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import javax.swing.ImageIcon;
 
 import org.jdom.Element;
+import org.jdom.output.Format;
+import org.jdom.output.XMLOutputter;
 
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
@@ -33,13 +36,22 @@ import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 public class DesignPerspective implements PerspectiveSPI, WorkflowPerspective {
 
 	private boolean visible = true;
+	private Element layoutElement = null;
 
 	public ImageIcon getButtonIcon() {
 		return WorkbenchIcons.editIcon;
 	}
 
 	public InputStream getLayoutInputStream() {
-		return getClass().getResourceAsStream("design-perspective.xml");
+		
+		if (layoutElement == null) {
+			return getClass().getResourceAsStream("design-perspective.xml");
+			
+		} else {
+			XMLOutputter outputter = new XMLOutputter(Format.getPrettyFormat());
+			String xml=outputter.outputString(layoutElement);
+			return new ByteArrayInputStream(xml.getBytes());
+		}
 	}
 
 	public String getText() {
@@ -60,9 +72,7 @@ public class DesignPerspective implements PerspectiveSPI, WorkflowPerspective {
 	}
 
 	public void update(Element layoutElement) {
-		// TODO Auto-generated method stub
-		
-		// Not sure what to do here
+		this.layoutElement = layoutElement;		
 	}
 
 }
