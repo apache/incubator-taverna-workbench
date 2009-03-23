@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2009 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -40,6 +40,7 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 import net.sf.taverna.t2.workflowmodel.processor.activity.impl.ActivityOutputPortImpl;
 import net.sf.taverna.t2.workflowmodel.utils.NamedWorkflowEntityComparator;
+import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 /**
@@ -73,8 +74,10 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 	public static final String DATALINKS = "Data links";
 	public static final String CONTROLLINKS = "Control links";
 	public static final String MERGES = "Merges";
-	
+
+	private final PortComparator portComparator = new PortComparator();
 	private final NamedWorkflowEntityComparator namedWorkflowEntitiyComparator = new NamedWorkflowEntityComparator();
+	
 	/* Root of the tree. */
 	private DefaultMutableTreeNode rootNode;
 	
@@ -108,69 +111,64 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 		root.add(merges);
 
 		// Populate the workflow's inputs.
-		List<? extends DataflowInputPort> inputsList = (List<? extends DataflowInputPort>) df.getInputPorts();
-		if (inputsList != null) {
-			for (DataflowInputPort dataflowInput : inputsList) {
-				inputs.add(new DefaultMutableTreeNode(dataflowInput));
-			}
+		List<DataflowInputPort> inputsList =new ArrayList<DataflowInputPort>(df.getInputPorts());
+		Collections.sort(inputsList, portComparator);		
+		for (DataflowInputPort dataflowInput : inputsList) {
+			inputs.add(new DefaultMutableTreeNode(dataflowInput));
 		}
 		
 		// Populate the workflow's outputs.
-		List<? extends DataflowOutputPort> outputsList = (List<? extends DataflowOutputPort>) df.getOutputPorts();
-		if (outputsList != null) {
-			for (DataflowOutputPort dataflowOutput : outputsList) {
-				outputs.add(new DefaultMutableTreeNode(dataflowOutput));
-			}
+		List<DataflowOutputPort> outputsList =new ArrayList<DataflowOutputPort>(df.getOutputPorts());
+		Collections.sort(outputsList, portComparator);
+		for (DataflowOutputPort dataflowOutput : outputsList) {
+			outputs.add(new DefaultMutableTreeNode(dataflowOutput));
 		}
-		
+	
 		// Populate the workflow's processors (which in turn can contain a nested workflow).
 		List<Processor> processorsList = new ArrayList<Processor>(df.getProcessors());
 		Collections.sort(processorsList, namedWorkflowEntitiyComparator);
-		
-		if (!processorsList.isEmpty()) {
-			for (Processor processor : processorsList){
-				DefaultMutableTreeNode processorNode = new DefaultMutableTreeNode(
-						processor);
-				services.add(processorNode);
-				
-				// Nested workflow case
-				if (Tools.containsNestedWorkflow(processor)){
-							
-					// Input ports of the contained DataflowActivity
-					for (ActivityInputPort inputPort : processor.getActivityList().get(0).getInputPorts()) {
-						processorNode.add(new DefaultMutableTreeNode(inputPort));
-					}
-					// Output ports of the contained DataflowActivity
-					for (OutputPort outputPort : processor.getActivityList().get(0).getOutputPorts()) {
-						processorNode.add(new DefaultMutableTreeNode(outputPort));
-					}				
-					// The nested workflow itself
-					Dataflow nestedWorkflow = ((NestedDataflow) processor.getActivityList().get(0)).getNestedDataflow();
-					DefaultMutableTreeNode nestedWorkflowNode = new DefaultMutableTreeNode(nestedWorkflow);
-					processorNode.add(nestedWorkflowNode);
-					// The nested workflow node is the root of the new nested tree
-					createTree(nestedWorkflow, nestedWorkflowNode);
+		for (Processor processor : processorsList){
+			DefaultMutableTreeNode processorNode = new DefaultMutableTreeNode(
+					processor);
+			services.add(processorNode);
+			
+			// Nested workflow case
+			if (Tools.containsNestedWorkflow(processor)){
+						
+				// Input ports of the contained DataflowActivity
+				for (ActivityInputPort inputPort : processor.getActivityList().get(0).getInputPorts()) {
+					processorNode.add(new DefaultMutableTreeNode(inputPort));
 				}
-				else{
-					// A processor node can have children (input and output ports of its associated activity/activities).
-					// Currently we just look at the first activity in the list.
-					for (ActivityInputPort inputPort : processor.getActivityList().get(0).getInputPorts()){
-						processorNode.add(new DefaultMutableTreeNode(inputPort));
-					}
-					
-					for (OutputPort outputPort : processor.getActivityList().get(0).getOutputPorts()){
-						processorNode.add(new DefaultMutableTreeNode(outputPort));
-					}
+				// Output ports of the contained DataflowActivity
+				for (OutputPort outputPort : processor.getActivityList().get(0).getOutputPorts()) {
+					processorNode.add(new DefaultMutableTreeNode(outputPort));
+				}				
+				// The nested workflow itself
+				Dataflow nestedWorkflow = ((NestedDataflow) processor.getActivityList().get(0)).getNestedDataflow();
+				DefaultMutableTreeNode nestedWorkflowNode = new DefaultMutableTreeNode(nestedWorkflow);
+				processorNode.add(nestedWorkflowNode);
+				// The nested workflow node is the root of the new nested tree
+				createTree(nestedWorkflow, nestedWorkflowNode);
+			}
+			else{
+				// A processor node can have children (input and output ports of its associated activity/activities).
+				// Currently we just look at the first activity in the list.
+				for (ActivityInputPort inputPort : processor.getActivityList().get(0).getInputPorts()){
+					processorNode.add(new DefaultMutableTreeNode(inputPort));
+				}
+				
+				for (OutputPort outputPort : processor.getActivityList().get(0).getOutputPorts()){
+					processorNode.add(new DefaultMutableTreeNode(outputPort));
 				}
 			}
+		
 		}
 		
 		// Populate the workflow's data links.
 		List<? extends Datalink> datalinksList = (List<? extends Datalink>) df.getLinks();
-		if (!datalinksList.isEmpty()) {
-			for (Datalink datalink: datalinksList) {
-				datalinks.add(new DefaultMutableTreeNode(datalink));
-			}
+		// TODO: Sort datalinks - but by what?
+		for (Datalink datalink: datalinksList) {
+			datalinks.add(new DefaultMutableTreeNode(datalink));
 		}
 		
 		// Populate the workflow's control links.
@@ -186,10 +184,8 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 		// Populate the workflow's merges.
 		List<Merge> mergesList = new ArrayList<Merge>(df.getMerges());
 		Collections.sort(mergesList, namedWorkflowEntitiyComparator);
-		if (!mergesList.isEmpty()) {
-			for (Merge merge: mergesList) {
-				merges.add(new DefaultMutableTreeNode(merge));
-			}
+		for (Merge merge: mergesList) {
+			merges.add(new DefaultMutableTreeNode(merge));
 		}
 	}
 	
