@@ -110,7 +110,7 @@ public class WorkbenchIcons {
 			resultsPerspectiveIcon = new ImageIcon(c.getResource("generic/results-perspective.png"));
 			closeIcon = new ImageIcon(c.getResource("generic/close.gif"));
 			closeAllIcon = new ImageIcon(c.getResource("generic/closeAll.gif"));
-			deleteIcon = new ImageIcon(c.getResource("generic/delete.png"));
+			deleteIcon = new ImageIcon(c.getResource("generic/bin.png"));
 			trashIcon = new ImageIcon(c.getResource("graph/trash.png"));
 			zoomIcon = new ImageIcon(c.getResource("generic/zoom.gif"));
 			zoomInIcon = new ImageIcon(c.getResource("generic/zoomin.png"));
