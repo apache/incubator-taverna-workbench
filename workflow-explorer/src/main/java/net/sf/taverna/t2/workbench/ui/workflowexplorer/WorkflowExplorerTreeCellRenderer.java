@@ -59,7 +59,7 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	private ActivityIconManager activityIconManager = ActivityIconManager.getInstance();
 	
-	private final String RUNS_AFTER = "runs after";
+	private final String RUNS_AFTER = " runs after ";
 
 	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
