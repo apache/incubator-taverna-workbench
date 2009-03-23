@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -36,6 +37,7 @@ import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.Merge;
 import net.sf.taverna.t2.workflowmodel.OutputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 import net.sf.taverna.t2.workflowmodel.processor.activity.impl.ActivityOutputPortImpl;
@@ -131,33 +133,43 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 			DefaultMutableTreeNode processorNode = new DefaultMutableTreeNode(
 					processor);
 			services.add(processorNode);
+			if (processor.getActivityList().isEmpty()) {
+				continue;
+			}				
+			Activity<?> activity = processor.getActivityList().get(0);
 			
 			// Nested workflow case
-			if (Tools.containsNestedWorkflow(processor)){
+			if (Tools.containsNestedWorkflow(processor) && activity instanceof NestedDataflow){
 						
 				// Input ports of the contained DataflowActivity
-				for (ActivityInputPort inputPort : processor.getActivityList().get(0).getInputPorts()) {
+				List<ActivityInputPort> inputPorts = new ArrayList<ActivityInputPort>(activity.getInputPorts());
+				Collections.sort(inputPorts, portComparator);
+				for (ActivityInputPort inputPort : inputPorts){
 					processorNode.add(new DefaultMutableTreeNode(inputPort));
 				}
 				// Output ports of the contained DataflowActivity
-				for (OutputPort outputPort : processor.getActivityList().get(0).getOutputPorts()) {
+				List<OutputPort> outputPorts = new ArrayList<OutputPort>(activity.getOutputPorts());
+				Collections.sort(outputPorts, portComparator);
+				for (OutputPort outputPort : outputPorts){
 					processorNode.add(new DefaultMutableTreeNode(outputPort));
 				}				
 				// The nested workflow itself
-				Dataflow nestedWorkflow = ((NestedDataflow) processor.getActivityList().get(0)).getNestedDataflow();
+				Dataflow nestedWorkflow = ((NestedDataflow) activity).getNestedDataflow();
 				DefaultMutableTreeNode nestedWorkflowNode = new DefaultMutableTreeNode(nestedWorkflow);
 				processorNode.add(nestedWorkflowNode);
 				// The nested workflow node is the root of the new nested tree
 				createTree(nestedWorkflow, nestedWorkflowNode);
-			}
-			else{
+			} else {
 				// A processor node can have children (input and output ports of its associated activity/activities).
 				// Currently we just look at the first activity in the list.
-				for (ActivityInputPort inputPort : processor.getActivityList().get(0).getInputPorts()){
+				List<ActivityInputPort> inputPorts = new ArrayList<ActivityInputPort>(activity.getInputPorts());
+				Collections.sort(inputPorts, portComparator);
+				for (ActivityInputPort inputPort : inputPorts){
 					processorNode.add(new DefaultMutableTreeNode(inputPort));
-				}
-				
-				for (OutputPort outputPort : processor.getActivityList().get(0).getOutputPorts()){
+				}				
+				List<OutputPort> outputPorts = new ArrayList<OutputPort>(activity.getOutputPorts());
+				Collections.sort(outputPorts, portComparator);
+				for (OutputPort outputPort : outputPorts){
 					processorNode.add(new DefaultMutableTreeNode(outputPort));
 				}
 			}
