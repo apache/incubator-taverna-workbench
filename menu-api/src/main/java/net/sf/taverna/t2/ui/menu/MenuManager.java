@@ -23,9 +23,11 @@ package net.sf.taverna.t2.ui.menu;
 import java.awt.Component;
 import java.lang.ref.WeakReference;
 import java.net.URI;
+import java.util.List;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 
@@ -104,6 +106,42 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	}
 
 	/**
+	 * Add the items from the list of menu items to the parent menu with
+	 * expansion sub-menus if needed.
+	 * <p>
+	 * If the list contains more than maxItemsInMenu items, a series of
+	 * sub-menus will be created and added to the parentMenu instead, each
+	 * containing a maximum of maxItemsInMenu items. (Note that if menuItems
+	 * contains more than maxItemsInMenu*maxItemsInMenu items, there might be
+	 * more than maxItemsInMenu sub-menus added to the parent).
+	 * <p>
+	 * The sub-menus are titled according to the {@link JMenuItem#getText()} of
+	 * the first and last menu item it contains - assuming that they are already
+	 * sorted.
+	 * <p>
+	 * The optional {@link ComponentFactory} headerItemFactory, if not
+	 * <code>null</code>, will be invoked to create a header item that will be
+	 * inserted on top of the sub-menus. This item does not count towards
+	 * maxItemsInMenu.
+	 * <p>
+	 * Note that this is a utility method that does not mandate the use of the
+	 * {@link MenuManager} structure for the menu.
+	 * 
+	 * @param menuItems
+	 *            {@link JMenuItem}s to be inserted
+	 * @param parentMenu
+	 *            Menu to insert items to
+	 * @param maxItemsInMenu
+	 *            Maximum number of items in parent menu or created sub-menus
+	 * @param headerItemFactory
+	 *            If not <code>null</code>, a {@link ComponentFactory} to create
+	 *            a header item to insert at top of created sub-menus
+	 */
+	public abstract void addMenuItemsWithExpansion(List<JMenuItem> menuItems,
+			JMenu parentMenu, int maxItemsInMenu,
+			ComponentFactory headerItemFactory);
+
+	/**
 	 * Create a contextual menu for a selected object.
 	 * <p>
 	 * Items for the contextual menues are discovered in a similar to fashion as
@@ -133,7 +171,7 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 */
 	public abstract JPopupMenu createContextMenu(Object parent,
 			Object selection, Component relativeToComponent);
-	
+
 	/**
 	 * Create the {@link JMenuBar} containing menu elements defining
 	 * {@link DefaultMenuBar#DEFAULT_MENU_BAR} as their
@@ -321,7 +359,6 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 */
 	public abstract void update();
 
-
 	/**
 	 * Abstract class for events sent to {@link Observer observers} of the menu
 	 * manager.
@@ -341,5 +378,16 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 */
 	public static class UpdatedMenuManagerEvent extends MenuManagerEvent {
 	}
+
+	/**
+	 * A factory for making {@link Component}s, in particular for making headers
+	 * (like JLabels) for
+	 * {@link MenuManager#addMenuItemsWithExpansion(List, JMenu, int, ComponentFactory)}
+	 */
+	public interface ComponentFactory {
+		public Component makeComponent();
+	}
+
+	
 
 }
