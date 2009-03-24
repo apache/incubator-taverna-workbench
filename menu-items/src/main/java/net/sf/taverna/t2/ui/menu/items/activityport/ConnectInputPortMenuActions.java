@@ -23,7 +23,6 @@ package net.sf.taverna.t2.ui.menu.items.activityport;
 import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -36,44 +35,23 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
-import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
-import net.sf.taverna.t2.ui.menu.ContextualSelection;
-import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
+import net.sf.taverna.t2.ui.menu.MenuManager.ComponentFactory;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.OutputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
+import net.sf.taverna.t2.workflowmodel.ProcessorPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.utils.NamedWorkflowEntityComparator;
-import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
-public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
-		ContextualMenuComponent {
-
-	private static final int MAX_PROCESSORS_IN_MENU = 19;
-
-	public static final Color PURPLISH = new Color(0x8070ff);
-
-	private NamedWorkflowEntityComparator processorComparator = new NamedWorkflowEntityComparator();
-
-	private PortComparator portComparator = new PortComparator();
-
-	private ActivityIconManager activityIconManager = ActivityIconManager
-			.getInstance();
-
-	private ContextualSelection contextualSelection;
+public class ConnectInputPortMenuActions extends AbstractConnectPortMenuActions
+		implements ContextualMenuComponent {
 
 	public ConnectInputPortMenuActions() {
 		super(ActivityInputPortSection.activityInputPortSection, 20);
-	}
-
-	public ContextualSelection getContextualSelection() {
-		return contextualSelection;
 	}
 
 	@Override
@@ -83,53 +61,6 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 				&& getContextualSelection().getParent() instanceof Dataflow;
 	}
 
-	public void setContextualSelection(ContextualSelection contextualSelection) {
-		this.contextualSelection = contextualSelection;
-		this.customComponent = null;
-	}
-
-	private void addPortMenuItems(Dataflow dataflow,
-			ActivityInputPort inputPort, JMenu connectMenu) {
-		connectMenu.add(new ShadedLabel("Workflow input ports",
-				ShadedLabel.ORANGE));
-
-		List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(
-				dataflow.getInputPorts());
-		Collections.sort(inputPorts, portComparator);
-		boolean addedPorts = false;
-		for (DataflowInputPort dataflowInput : inputPorts) {
-			ConnectPortsAction connectPortsAction = new ConnectPortsAction(
-					dataflow, dataflowInput.getInternalOutputPort(), inputPort);
-			connectPortsAction.putValue(Action.NAME, dataflowInput.getName());
-			connectPortsAction.putValue(Action.SMALL_ICON,
-					WorkbenchIcons.inputIcon);
-			connectMenu.add(new JMenuItem(connectPortsAction));
-			addedPorts = true;
-		}
-		if (addedPorts) {
-			connectMenu.addSeparator();
-		}
-
-		Collection<Processor> processorsWithActivityInPort = Tools
-				.getProcessorsWithActivityInputPort(dataflow, inputPort);
-		String suggestedName;
-		if (processorsWithActivityInPort.isEmpty()) {
-			suggestedName = inputPort.getName();
-		} else {
-			suggestedName = processorsWithActivityInPort.iterator().next()
-					.getLocalName()
-					+ "_" + inputPort.getName();
-		}
-
-		CreateAndConnectDataflowPortAction newDataflowPortAction = new CreateAndConnectDataflowPortAction(
-				dataflow, inputPort, suggestedName, contextualSelection
-						.getRelativeToComponent());
-		newDataflowPortAction.putValue(Action.NAME, "New workflow input port...");
-		newDataflowPortAction.putValue(Action.SMALL_ICON,
-				WorkbenchIcons.newIcon);
-		connectMenu.add(new JMenuItem(newDataflowPortAction));
-	}
-
 	private void addProcessorMenuItems(Dataflow dataflow,
 			ActivityInputPort inputPort, JMenu connectMenu) {
 		final Map<Processor, List<OutputPort>> ports = findOutputPorts(
@@ -137,34 +68,15 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 		if (ports.isEmpty()) {
 			return;
 		}
-		connectMenu.add(new ShadedLabel("Services", ShadedLabel.GREEN));
-		// connectMenu.addSeparator();
-
+		connectMenu.add(new ShadedLabel(SERVICES, colourManager
+				.getPreferredColour(Processor.class.getCanonicalName())));
 		List<Processor> processors = new ArrayList<Processor>(ports.keySet());
 		Collections.sort(processors, processorComparator);
-		
+
 		// TAV-172
-		JMenu expansionMenu;
-		boolean manyProcessors;
-		if (processors.size() > MAX_PROCESSORS_IN_MENU) {
-			manyProcessors = true;
-			expansionMenu = new JMenu();
-			expansionMenu.add(new ShadedLabel("Services", ShadedLabel.GREEN));
-			connectMenu.add(expansionMenu);
-		} else {
-			manyProcessors = false;
-			expansionMenu = connectMenu;
-		}
-		
+
+		List<JMenuItem> menuItems = new ArrayList<JMenuItem>();
 		for (Processor processor : processors) {
-			if (manyProcessors && expansionMenu.getItemCount() >= MAX_PROCESSORS_IN_MENU) {
-				labelExpansionMenu(expansionMenu);
-				// Create new blank one for the rest
-				expansionMenu = new JMenu();
-				expansionMenu.add(new ShadedLabel("Services", ShadedLabel.GREEN));
-				connectMenu.add(expansionMenu);
-			}
-			
 			Icon icon = null;
 			if (!processor.getActivityList().isEmpty()) {
 				// Pick the icon of the first activity
@@ -173,29 +85,43 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 			}
 			JMenu processorMenu = new JMenu(new DummyAction(processor
 					.getLocalName(), icon));
-			processorMenu.add(new ShadedLabel("Service output ports", PURPLISH));
-			expansionMenu.add(processorMenu);
+			final Color processorPortColour = colourManager
+					.getPreferredColour(ProcessorPort.class.getCanonicalName());
+			processorMenu.add(new ShadedLabel(SERVICE_OUTPUT_PORTS,
+					processorPortColour));
+			menuItems.add(processorMenu);
 
 			List<OutputPort> outputPorts = ports.get(processor);
 			Collections.sort(outputPorts, portComparator);
+			List<JMenuItem> processorMenuItems = new ArrayList<JMenuItem>();
 			for (OutputPort outputPort : outputPorts) {
 				ConnectPortsAction connectPortsAction = new ConnectPortsAction(
 						dataflow, outputPort, inputPort);
 				connectPortsAction.putValue(Action.NAME, outputPort.getName());
 				connectPortsAction.putValue(Action.SMALL_ICON,
 						WorkbenchIcons.outputPortIcon);
-				processorMenu.add(new JMenuItem(connectPortsAction));
+				processorMenuItems.add(new JMenuItem(connectPortsAction));
 			}
-		}
-		if (manyProcessors) {
-			labelExpansionMenu(expansionMenu);
-		}
-	}
 
-	private void labelExpansionMenu(JMenu subMenu) {
-		JMenuItem firstItem = subMenu.getItem(1);
-		JMenuItem lastItem = subMenu.getItem(subMenu.getItemCount()-1);
-		subMenu.setText(firstItem.getText() + " ... " + lastItem.getText());
+			menuManager.addMenuItemsWithExpansion(processorMenuItems,
+					processorMenu, workbenchConfiguration.getMaxMenuItems(),
+					new ComponentFactory() {
+						public Component makeComponent() {
+							return new ShadedLabel(SERVICE_OUTPUT_PORTS,
+									processorPortColour);
+						}
+					});
+
+		}
+		menuManager.addMenuItemsWithExpansion(menuItems, connectMenu,
+				workbenchConfiguration.getMaxMenuItems(),
+				new ComponentFactory() {
+					public Component makeComponent() {
+						return new ShadedLabel(SERVICES, colourManager
+								.getPreferredColour(Processor.class
+										.getCanonicalName()));
+					}
+				});
 	}
 
 	@Override
@@ -206,8 +132,8 @@ public class ConnectInputPortMenuActions extends AbstractMenuCustom implements
 		// Component component =
 		// getContextualSelection().getRelativeToComponent();
 
-		JMenu connectMenu = new JMenu(new DummyAction(
-				"Connect with output from...", WorkbenchIcons.datalinkIcon));
+		JMenu connectMenu = new JMenu(new DummyAction(CONNECT_WITH_OUTPUT_FROM,
+				WorkbenchIcons.datalinkIcon));
 
 		addPortMenuItems(dataflow, inputPort, connectMenu);
 		addProcessorMenuItems(dataflow, inputPort, connectMenu);
