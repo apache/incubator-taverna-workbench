@@ -39,6 +39,7 @@ import net.sf.taverna.raven.launcher.LauncherHttpProxyConfiguration;
  */
 public class HttpProxyConfiguration extends AbstractConfigurable {
 
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger
 			.getLogger(HttpProxyConfiguration.class);
 
@@ -51,8 +52,11 @@ public class HttpProxyConfiguration extends AbstractConfigurable {
 	 * The instance of the HttpProxyConfiguration. In theory Taverna could be
 	 * extended to use multiple instances.
 	 */
-	private static HttpProxyConfiguration instance;
 
+	private static class Singleton {
+		private static HttpProxyConfiguration instance = new HttpProxyConfiguration();
+	}
+	
 	/**
 	 * String constants inherited from LauncherHttpProxyConfiguration. This just
 	 * simplified the code somewhat.
@@ -87,10 +91,7 @@ public class HttpProxyConfiguration extends AbstractConfigurable {
 	 * @return
 	 */
 	public static HttpProxyConfiguration getInstance() {
-		if (instance == null) {
-			instance = new HttpProxyConfiguration();
-		}
-		return instance;
+		return Singleton.instance;
 	}
 
 	/**
