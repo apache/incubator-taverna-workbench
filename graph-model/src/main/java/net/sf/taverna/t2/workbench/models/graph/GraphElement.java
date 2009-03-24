@@ -60,7 +60,11 @@ public abstract class GraphElement {
 	
 	protected GraphController graphController;
 	
-	protected float complete;
+	protected float completed;
+
+	protected int iteration;
+
+	protected int errors;
 
 	protected GraphElement(GraphController graphController) {
 		this.graphController = graphController;
@@ -249,12 +253,57 @@ public abstract class GraphElement {
 	}
 	
 	/**
+	 * Returns the iteration.
+	 *
+	 * @return the value of iteration
+	 */
+	public int getIteration() {
+		return iteration;
+	}
+
+	/**
+	 * Sets the iteration.
+	 *
+	 * @param iteration the new value for iteration
+	 */
+	public void setIteration(int iteration) {
+		this.iteration = iteration;
+	}
+
+	/**
+	 * Returns the errors.
+	 *
+	 * @return the value of errors
+	 */
+	public int getErrors() {
+		return errors;
+	}
+
+	/**
+	 * Sets the errors.
+	 *
+	 * @param errors the new value for errors
+	 */
+	public void setErrors(int errors) {
+		this.errors = errors;
+	}
+
+	/**
+	 * Returns the completed.
+	 *
+	 * @return the value of completed
+	 */
+	public float getCompleted() {
+		return completed;
+	}
+
+	/**
 	 * Sets the completed value.
 	 * 
-	 * @param complete
+	 * @param completed
 	 */
-	public void setCompleted(float complete) {
-		this.complete = complete;
+	public void setCompleted(float completed) {
+		this.completed = completed;
 	}
 
 	/**

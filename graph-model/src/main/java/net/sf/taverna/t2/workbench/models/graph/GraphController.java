@@ -1140,8 +1140,18 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		}
 	}
 
-	public void setIteration(String processorId, int iteration) {
-		
+	public void setIteration(String nodeId, int iteration) {
+		if (graphElementMap.containsKey(nodeId)) {
+			GraphElement graphElement = graphElementMap.get(nodeId);
+			graphElement.setIteration(iteration);
+		}		
+	}
+	
+	public void setErrors(String nodeId, int errors) {
+		if (graphElementMap.containsKey(nodeId)) {
+			GraphElement graphElement = graphElementMap.get(nodeId);
+			graphElement.setErrors(errors);
+		}		
 	}
 	
 	public void notify(Observable<DataflowSelectionMessage> sender,

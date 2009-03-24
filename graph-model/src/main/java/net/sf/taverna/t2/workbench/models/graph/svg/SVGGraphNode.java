@@ -93,6 +93,8 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 
 	private SVGOMTextElement iteration;
 
+	private SVGOMTextElement error;
+
 	private SVGOMPolygonElement completedPolygon;
 	
 	private SVGElement deleteButton;
@@ -101,11 +103,7 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 
 	private Text iterationText;
 
-//	private Text errorsText;
-//
-//	private SVGPoint errorsPosition;
-
-//	private String errorStyle;
+	private Text errorsText;
 
 	public SVGGraphNode(SVGGraphController graphController) {
 		super(graphController);
@@ -167,9 +165,21 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 		
 		iterationText = graphController.createText("");
 		iteration = (SVGOMTextElement) graphController.createElement(SVGConstants.SVG_TEXT_TAG);
+		iteration.setAttribute(SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE, SVGConstants.SVG_END_VALUE);
+		iteration.setAttribute(SVGConstants.SVG_FONT_SIZE_ATTRIBUTE, "6");
+		iteration.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
 		iteration.appendChild(iterationText);
 		contractedElement.appendChild(iteration);
 		
+		errorsText = graphController.createText("");
+		error = (SVGOMTextElement) graphController.createElement(SVGConstants.SVG_TEXT_TAG);
+		error.setAttribute(SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE, SVGConstants.SVG_END_VALUE);
+		error.setAttribute(SVGConstants.SVG_FONT_SIZE_ATTRIBUTE, "6");
+		error.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
+		error.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, "red");
+		error.appendChild(errorsText);
+		contractedElement.appendChild(error);
+				
 //		deleteButton = createDeleteButton();
 //		g.appendChild(deleteButton);
 	}
@@ -323,10 +333,7 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 							selectedShapeElement.setAttribute(SVGConstants.SVG_RX_ATTRIBUTE, String.valueOf(width/2f));
 							selectedShapeElement.setAttribute(SVGConstants.SVG_CX_ATTRIBUTE, String.valueOf(width/2f));
 						} else {
-							shapeElement.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil.calculatePoints(getShape(), getWidth(), getHeight()));
-							selectedShapeElement.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil.calculatePoints(getShape(), getWidth(), getHeight()));
-							label.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-							+ getWidth()/2f + " " + getHeight()/2f + ")");
+							updateShape();
 						}
 					}
 				}
@@ -344,16 +351,24 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 						selectedShapeElement.setAttribute(SVGConstants.SVG_RY_ATTRIBUTE, String.valueOf(height/2f));
 						selectedShapeElement.setAttribute(SVGConstants.SVG_CY_ATTRIBUTE, String.valueOf(height/2f));
 					} else {
-						shapeElement.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil.calculatePoints(getShape(), getWidth(), getHeight()));
-						selectedShapeElement.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil.calculatePoints(getShape(), getWidth(), getHeight()));
-						label.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-								+ getWidth()/2f + " " + getHeight()/2f + ")");
+						updateShape();
 					}
 				}
 			}
 		);
 	}
 	
+	private void updateShape() {
+		shapeElement.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil.calculatePoints(getShape(), getWidth(), getHeight()));
+		selectedShapeElement.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil.calculatePoints(getShape(), getWidth(), getHeight()));
+		label.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+				+ getWidth()/2f + " " + getHeight()/2f + ")");
+		iteration.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+				+ (getWidth()-1.5) + " 5.5)");
+		error.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+				+ (getWidth()-1.5) + " " + (getHeight()-1) + ")");
+	}
+
 	public void setShape(final Shape shape) {
 		graphController.updateSVGDocument(
 			new Runnable() {
@@ -502,6 +517,7 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 	}
 
 	public void setIteration(final int iteration) {
+		super.setIteration(iteration);
 		graphController.updateSVGDocument(
 			new Runnable() {
 				public void run() {
@@ -516,31 +532,23 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 		);
 	}
 
-//	/* (non-Javadoc)
-//	 * @see net.sf.taverna.t2.workbench.models.graph.svg.SVGBox#setErrors(int)
-//	 */
-//	public void setErrors(final int errors) {
-//		if (this.graphController.updateManager != null) {
-//			if (errorsText == null) {
-//				addErrorsText();
-//			}
-//			this.graphController.updateManager.getUpdateRunnableQueue().invokeLater(
-//					new Runnable() {
-//						public void run() {
-//							if (errors > 0) {
-//								errorsText.setData(String.valueOf(errors));
-//								polygon.setAttribute(
-//										SVGConstants.SVG_STYLE_ATTRIBUTE, errorStyle);
-//
-//							} else {
-//								errorsText.setData("");
-//								polygon.setAttribute(
-//										SVGConstants.SVG_STYLE_ATTRIBUTE, originalStyle);
-//							}
-//						}
-//					});
-//		}
-//	}
+	public void setErrors(final int errors) {
+		super.setErrors(errors);
+		graphController.updateSVGDocument(
+			new Runnable() {
+				public void run() {
+					if (errors > 0) {
+						errorsText.setData(String.valueOf(errors));
+						setColor(Color.RED);
+
+					} else {
+						errorsText.setData("");
+						setColor(Color.BLACK);
+					}
+				}
+			}
+		);
+	}
 
 	public void setCompleted(final float complete) {
 		super.setCompleted(complete);
@@ -565,94 +573,6 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 			}
 		);
 	}
-
-//	private void addErrorsText() {
-//		if (this.graphController.updateManager != null) {
-//			this.graphController.updateManager.getUpdateRunnableQueue().invokeLater(
-//					new Runnable() {
-//						public void run() {
-//							Element text = SVGGraphNode.this.graphController.getSvgCanvas().getSVGDocument().createElementNS(
-//									SVGUtil.svgNS, SVGConstants.SVG_TEXT_TAG);
-//							text
-//							.setAttribute(
-//									SVGConstants.SVG_X_ATTRIBUTE,
-//									String.valueOf(errorsPosition
-//											.getX() - 1.5));
-//							text
-//							.setAttribute(
-//									SVGConstants.SVG_Y_ATTRIBUTE,
-//									String.valueOf(errorsPosition
-//											.getY() - 1.0));
-//							text.setAttribute(
-//									SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE,
-//							"end");
-//							text.setAttribute(
-//									SVGConstants.SVG_FONT_SIZE_ATTRIBUTE,
-//							"5.5");
-//							text.setAttribute(
-//									SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE,
-//							"sans-serif");
-//							text.setAttribute(
-//									SVGConstants.SVG_FILL_ATTRIBUTE, "red");
-//							synchronized (g) {
-//								if (errorsText == null) {
-//									errorsText = SVGGraphNode.this.graphController.getSvgCanvas().getSVGDocument()
-//									.createTextNode("");
-//									text.appendChild(errorsText);
-//									g.appendChild(text);
-//								}
-//							}
-//						}
-//					});
-//		}
-//	}
-//
-//	private void addCompletedBox(SVGDocument svgDocument) {
-//		completedBox = (SVGOMPolygonElement) svgDocument.createElementNS(
-//				SVGUtil.svgNS,
-//				SVGConstants.SVG_POLYGON_TAG);
-//		completedBox.setAttribute(
-//				SVGConstants.SVG_POINTS_ATTRIBUTE,
-//				calculatePoints(0f));
-//		completedBox.setAttribute(
-//				SVGConstants.SVG_FILL_ATTRIBUTE,
-//				SVGGraphComponent.COMPLETED_COLOUR);
-//		completedBox.setAttribute(
-//				SVGConstants.SVG_FILL_OPACITY_ATTRIBUTE,
-//				"0.8");
-////		completedBox.setAttribute(
-////		SVGConstants.SVG_STROKE_ATTRIBUTE,
-////		"black");
-////		completedBox.setAttribute(
-////		SVGConstants.SVG_STROKE_OPACITY_ATTRIBUTE,
-////		"0.6");
-//		g.insertBefore(completedBox, text);
-//	}
-
-//	/**
-//	 * Calculates the points that specify the proportion completed polygon.
-//	 * 
-//	 * @param complete
-//	 *            the proportion completed
-//	 * @return the points that specify the proportion completed polygon
-//	 */
-//	private String calculatePoints(float complete) {
-//		StringBuffer sb = new StringBuffer();
-//		SVGPointList points = polygon.getPoints();
-//		float x1, x2, y1, y2;
-//		x1 = points.getItem(0).getX() - 0.4f;
-//		x2 = points.getItem(1).getX() + 0.4f;
-//		y1 = points.getItem(0).getY() + 0.4f;
-//		y2 = points.getItem(2).getY() - 0.4f;
-//		x1 = x2 + ((x1 - x2) * complete);
-//		sb.append(x1 + "," + y1 + " ");
-//		sb.append(x2 + "," + y1 + " ");
-//		sb.append(x2 + "," + y2 + " ");
-//		sb.append(x1 + "," + y2 + " ");
-//		sb.append(x1 + "," + y1);
-//
-//		return sb.toString();
-//	}
 
 	public SVGOMPolygonElement getCompletedPolygon() {
 		return completedPolygon;
