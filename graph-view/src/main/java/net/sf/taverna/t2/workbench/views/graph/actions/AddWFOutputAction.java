@@ -52,8 +52,8 @@ public class AddWFOutputAction extends AbstractAction{
 	public AddWFOutputAction(){
 		super();
 		putValue(SMALL_ICON, WorkbenchIcons.outputIcon);
-		putValue(NAME, "Create new workflow output port");	
-		putValue(SHORT_DESCRIPTION, "Create new workflow output port");	
+		putValue(NAME, "Add workflow output port");	
+		putValue(SHORT_DESCRIPTION, "Add workflow output port");	
 
 		modelMap.addObserver(perspectiveObserver);
 	}
