@@ -38,6 +38,7 @@ import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -145,8 +146,61 @@ public class MenuManagerImpl extends MenuManager {
 	/**
 	 * {@inheritDoc}
 	 */
+	public void addMenuItemsWithExpansion(List<JMenuItem> menuItems,
+			JMenu parentMenu, int maxItemsInMenu,
+			ComponentFactory headerItemFactory) {
+		if (menuItems.size() <= maxItemsInMenu) {
+			// Just add them directly
+			for (JMenuItem menuItem : menuItems) {
+				parentMenu.add(menuItem);
+			}
+			return;
+		}
+		int index = 0;
+		while (index < menuItems.size()) {
+			int toIndex = Math.min(menuItems.size(), index
+					+ maxItemsInMenu);
+			if (toIndex == menuItems.size() - 1) {
+				// Don't leave a single item left for the last subMenu
+				toIndex--;
+			}
+			List<JMenuItem> subList = menuItems.subList(index, toIndex);
+			JMenuItem firstItem = subList.get(0);
+			JMenuItem lastItem = subList.get(subList.size() - 1);
+			JMenu subMenu = new JMenu(firstItem.getText() + " ... "
+					+ lastItem.getText());
+			if (headerItemFactory != null) {
+				subMenu.add(headerItemFactory.makeComponent());
+			}
+			for (JMenuItem menuItem : subList) {
+				subMenu.add(menuItem);
+			}
+			parentMenu.add(subMenu);
+			index = toIndex;
+		}
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	public void addObserver(Observer<MenuManagerEvent> observer) {
 		multiCaster.addObserver(observer);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public JPopupMenu createContextMenu(Object parent, Object selection,
+			Component relativeToComponent) {
+		ContextualSelection contextualSelection = new ContextualSelection(
+				parent, selection, relativeToComponent);
+		JPopupMenu popupMenu = new JPopupMenu();
+		populateContextMenu(popupMenu,
+				DefaultContextualMenu.DEFAULT_CONTEXT_MENU, contextualSelection);
+		registerComponent(DefaultContextualMenu.DEFAULT_CONTEXT_MENU,
+				popupMenu, true);
+		return popupMenu;
 	}
 
 	/**
@@ -810,19 +864,6 @@ public class MenuManagerImpl extends MenuManager {
 				update();
 			}
 		}
-	}
-
-	@Override
-	public JPopupMenu createContextMenu(Object parent, Object selection,
-			Component relativeToComponent) {
-		ContextualSelection contextualSelection = new ContextualSelection(
-				parent, selection, relativeToComponent);
-		JPopupMenu popupMenu = new JPopupMenu();
-		populateContextMenu(popupMenu,
-				DefaultContextualMenu.DEFAULT_CONTEXT_MENU, contextualSelection);
-		registerComponent(DefaultContextualMenu.DEFAULT_CONTEXT_MENU,
-				popupMenu, true);
-		return popupMenu;
 	}
 
 	/**
