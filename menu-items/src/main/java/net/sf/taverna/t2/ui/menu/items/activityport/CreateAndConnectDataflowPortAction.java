@@ -131,7 +131,7 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 		DataflowInputPortPanel inputPanel = new DataflowInputPortPanel();
 
 		ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-				"Create workflow input port", inputPanel);
+				"Add workflow input port", inputPanel);
 		vuid.addTextComponentValidation(inputPanel.getPortNameField(),
 				"Set the workflow input port name.", usedInputPorts,
 				"Duplicate workflow input port name.", "[\\p{L}\\p{Digit}_.]+",
@@ -175,7 +175,7 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 		DataflowOutputPortPanel outputPanel = new DataflowOutputPortPanel();
 
 		ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-				"Create workflow output port", outputPanel);
+				"Add workflow output port", outputPanel);
 		vuid.addTextComponentValidation(outputPanel.getPortNameField(),
 				"Set the workflow output port name.", usedOutputPorts,
 				"Duplicate workflow output port name.",
