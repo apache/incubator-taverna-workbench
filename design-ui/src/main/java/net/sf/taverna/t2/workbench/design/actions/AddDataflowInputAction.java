@@ -49,8 +49,8 @@ public class AddDataflowInputAction extends DataflowEditAction {
 	public AddDataflowInputAction(Dataflow dataflow, Component component) {
 		super(dataflow, component);
 		putValue(SMALL_ICON, WorkbenchIcons.inputIcon);
-		putValue(NAME, "Create workflow input port");			
-		putValue(SHORT_DESCRIPTION, "Create workflow input");		
+		putValue(NAME, "Add workflow input port");			
+		putValue(SHORT_DESCRIPTION, "Add workflow input port");		
 	}
 
 	public void actionPerformed(ActionEvent event) {
@@ -63,7 +63,7 @@ public class AddDataflowInputAction extends DataflowEditAction {
 			DataflowInputPortPanel inputPanel = new DataflowInputPortPanel();
 			
 			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-					"Create Workflow Input Port", inputPanel);
+					"Add Workflow Input Port", inputPanel);
 			vuid.addTextComponentValidation(inputPanel.getPortNameField(),
 					"Set the workflow input port name.", usedInputPorts,
 					"Duplicate workflow input port name.", "[\\p{L}\\p{Digit}_.]+",
@@ -81,7 +81,7 @@ public class AddDataflowInputAction extends DataflowEditAction {
 				editManager.doDataflowEdit(dataflow, edits.getAddDataflowInputPortEdit(dataflow, dataflowInputPort));
 			}
 		} catch (EditException e) {
-			logger.warn("Create workflow input port failed");
+			logger.warn("Adding a new workflow input port failed");
 		}
 
 	}
