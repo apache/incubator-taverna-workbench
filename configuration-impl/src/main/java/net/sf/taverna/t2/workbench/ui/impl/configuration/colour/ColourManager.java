@@ -87,13 +87,13 @@ public class ColourManager extends AbstractConfigurable {
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.biomoby.BiomobyObjectActivity", "#ffd700");//gold
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.biomoby.MobyParseDatatypeActivity", "#ffffff");//white
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.dataflow.DataflowActivity", "#ffc0cb");//pink
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.rshell.RshellActivity", "#36688B");//steelblue4
+		defaultPropertyMap.put("net.sf.taverna.t2.activities.rshell.RshellActivity", "#648faa");//slightly lighter than steelblue4
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.soaplab.SoaplabActivity", "#fafad2");//lightgoldenrodyellow
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.stringconstant.StringConstantActivity", "#b0c4de");//lightsteelblue
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.wsdl.WSDLActivity", "#a2cd5a");//darkolivegreen3
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.localworker.LocalworkerActivity", "#d15fee"); //mediumorchid2
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.wsdl.xmlsplitter.XMLInputSplitterActivity", "#7040e0"); 
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.wsdl.xmlsplitter.XMLOutputSplitterActivity", "#7040e0"); 
+		defaultPropertyMap.put("net.sf.taverna.t2.activities.wsdl.xmlsplitter.XMLInputSplitterActivity", "#ab92ea"); //light purple non standard
+		defaultPropertyMap.put("net.sf.taverna.t2.activities.wsdl.xmlsplitter.XMLOutputSplitterActivity", "#ab92ea"); //light purple non-standard
 		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.Merge", "77aadd");
 	}
 
