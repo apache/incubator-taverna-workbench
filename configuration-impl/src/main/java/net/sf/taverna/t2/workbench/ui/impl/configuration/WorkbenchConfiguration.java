@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.log4j.Logger;
+
 import net.sf.taverna.raven.appconfig.ApplicationConfig;
 import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
 
@@ -33,11 +35,17 @@ import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
  * properties
  * 
  * @author Stuart Owen
+ * @author Stian Soiland-Reyes
  * 
  */
 public class WorkbenchConfiguration extends AbstractConfigurable {
 
+	private static Logger logger = Logger.getLogger(WorkbenchConfiguration.class);
+	
+	private static final int DEFAULT_MAX_MENU_ITEMS = 20;
 	public static final String TAVERNA_DOTLOCATION = "taverna.dotlocation";
+	public static final String MAX_MENU_ITEMS = "taverna.maxmenuitems";
+	
 	private static final String BIN = "bin";
 	private static final String BUNDLE_CONTENTS = "Contents";
 	private static final String BUNDLE_MAC_OS = "MacOS";
@@ -75,6 +83,7 @@ public class WorkbenchConfiguration extends AbstractConfigurable {
 					.getProperty(TAVERNA_DOTLOCATION)
 					: getDefaultDotLocation();
 			defaultWorkbenchProperties.put(TAVERNA_DOTLOCATION, dotLocation);
+			defaultWorkbenchProperties.put(MAX_MENU_ITEMS, Integer.toString(DEFAULT_MAX_MENU_ITEMS));
 		}
 		return defaultWorkbenchProperties;
 	}
@@ -85,6 +94,22 @@ public class WorkbenchConfiguration extends AbstractConfigurable {
 
 	public String getUUID() {
 		return uuid;
+	}
+	
+	public int getMaxMenuItems() {
+		String property = getProperty(MAX_MENU_ITEMS);
+		try {
+			int maxMenuItems = Integer.parseInt(property);
+			if (maxMenuItems >= 2) {
+				return maxMenuItems;
+			} else {
+				logger.warn(MAX_MENU_ITEMS + " can't be less than 2");
+			}
+		} catch (NumberFormatException ex) {
+			logger.warn("Invalid number for " + MAX_MENU_ITEMS +": " + property);
+		}
+		// We'll return the default instead
+		return DEFAULT_MAX_MENU_ITEMS;
 	}
 
 	private String getDefaultDotLocation() {
