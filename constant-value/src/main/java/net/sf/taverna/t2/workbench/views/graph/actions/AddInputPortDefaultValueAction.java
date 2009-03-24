@@ -134,7 +134,6 @@ public class AddInputPortDefaultValueAction extends DataflowEditAction {
 			}
 		} catch (EditException ex) {
 			logger.error("Adding default value for input port failed", ex);
-			System.out.println("Adding default value for input port failed: " + ex.getMessage());
 		}
 	}
 
