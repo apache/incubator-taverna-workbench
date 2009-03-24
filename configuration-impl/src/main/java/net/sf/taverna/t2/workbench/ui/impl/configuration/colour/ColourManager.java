@@ -94,7 +94,11 @@ public class ColourManager extends AbstractConfigurable {
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.localworker.LocalworkerActivity", "#d15fee"); //mediumorchid2
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.wsdl.xmlsplitter.XMLInputSplitterActivity", "#ab92ea"); //light purple non standard
 		defaultPropertyMap.put("net.sf.taverna.t2.activities.wsdl.xmlsplitter.XMLOutputSplitterActivity", "#ab92ea"); //light purple non-standard
-		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.Merge", "77aadd");
+		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.Merge", "#77aadd");
+		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.Processor", "#a1c69d"); // ShadedLabel.Green
+		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.ProcessorPort", "#8070ff"); // purplish
+		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.DataflowPort", "#eece8f"); // ShadedLabel.Orange
+
 	}
 
 	/**
