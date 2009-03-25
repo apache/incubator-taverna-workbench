@@ -41,6 +41,8 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+//import org.apache.log4j.Logger;
+
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
@@ -82,7 +84,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 
 	private MenuManager menuManager = MenuManager.getInstance();
 
-//	private static Logger logger = Logger.getLogger(WorkflowExplorer.class);
+	//private static Logger logger = Logger.getLogger(WorkflowExplorer.class);
 
 	/* Currently selected workflow (to be displayed in the Workflow Explorer). */
 	private Dataflow workflow;
@@ -451,7 +453,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 								else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.INPUTS)){
 									JPopupMenu menu = new JPopupMenu();
 									menu.add(new ShadedLabel("Workflow input ports", ShadedLabel.GREEN));
-									menu.add(new JMenuItem(new AbstractAction("Create workflow input port", WorkbenchIcons.inputIcon) {
+									menu.add(new JMenuItem(new AbstractAction("Add workflow input port", WorkbenchIcons.inputIcon) {
 
 										public void actionPerformed(ActionEvent evt) {
 											new AddDataflowInputAction((Dataflow) ((DefaultMutableTreeNode) tree.getModel().getRoot()).getUserObject(), wfTree.getParent()).actionPerformed(evt);
@@ -463,7 +465,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 								else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.OUTPUTS)){ 
 									JPopupMenu menu = new JPopupMenu();
 									menu.add(new ShadedLabel("Workflow output ports", ShadedLabel.GREEN));
-									menu.add(new JMenuItem(new AbstractAction("Create workflow output port", WorkbenchIcons.outputIcon) {
+									menu.add(new JMenuItem(new AbstractAction("Add workflow output port", WorkbenchIcons.outputIcon) {
 										public void actionPerformed(ActionEvent evt) {
 											new AddDataflowOutputAction((Dataflow) ((DefaultMutableTreeNode) tree.getModel().getRoot()).getUserObject(), wfTree.getParent()).actionPerformed(evt);
 										}
@@ -505,12 +507,14 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 										menu = new JPopupMenu();
 									}
 									if (selectedNode.getUserObject() instanceof Dataflow){
-										menu.add(new ShadedLabel("Tree", PURPLISH));		
+										menu.add(new ShadedLabel("Tree", PURPLISH));
+										// Action to expand the whole tree
 										menu.add(new JMenuItem(new AbstractAction("Expand all", WorkbenchIcons.plusIcon) {
 											public void actionPerformed(ActionEvent evt) {
 												expandAll(tree);
 											}
 										}));
+										// Action to collapse the whole tree
 										menu.add(new JMenuItem(new AbstractAction("Collapse all", WorkbenchIcons.minusIcon) {
 											public void actionPerformed(ActionEvent evt) {
 												collapseAll(tree);
