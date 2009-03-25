@@ -461,9 +461,9 @@ public class WorkbenchPerspectives {
 
 
 		} catch (JDOMException e) {
-			logger.error("Error parsing perspective XML", e);
+			logger.error("Error parsing perspective "+ perspective.getClass().getName() + " from an XML file.", e);
 		} catch (IOException e) {
-			logger.error("Error saving perspective XML", e);
+			logger.error("Error saving perspective " + perspective.getClass().getName() + " to an XML file.", e);
 		}
 
 	}
