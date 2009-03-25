@@ -276,7 +276,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 
 		//dataflow inputs
 		List<? extends DataflowInputPort> inputPorts = dataflow.getInputPorts();
-		if (inputPorts.size() > 0) {
+		if (inputPorts.size() > 0 || depth > 0) {
 			graph.addSubgraph(generateInputsGraph(inputPorts, graph.getId(), graph, depth));
 		}
 
@@ -455,7 +455,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			}
 			inputNode.setShape(getPortStyle().inputShape());
 			inputNode.setColor(Color.BLACK);
-			inputNode.setFillColor(Color.decode("#bcd2ee"));
+			inputNode.setFillColor(Color.decode("#8ed6f0"));
 			if (depth == 0) {
 				inputNode.setInteractive(true);
 			}
@@ -514,7 +514,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			}
 			outputNode.setShape(getPortStyle().outputShape());
 			outputNode.setColor(Color.BLACK);
-			outputNode.setFillColor(Color.decode("#bcd2ee"));
+			outputNode.setFillColor(Color.decode("#8ed6f0"));
 			if (depth == 0) {
 				outputNode.setInteractive(true);
 			}
