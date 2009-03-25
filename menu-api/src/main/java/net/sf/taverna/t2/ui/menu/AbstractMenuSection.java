@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.menu;
 
+import java.awt.Color;
 import java.net.URI;
 
 import javax.swing.AbstractAction;
@@ -64,6 +65,8 @@ import javax.swing.Action;
  */
 public abstract class AbstractMenuSection extends AbstractMenuItem {
 
+	public static final String SECTION_COLOR = "sectionColor";
+	
 	/**
 	 * Construct a menu section.
 	 * 
@@ -102,6 +105,8 @@ public abstract class AbstractMenuSection extends AbstractMenuItem {
 	 * <p>
 	 * The actual action will be ignored, but the label and/or icon will be used
 	 * as a section header in the menu.
+	 * If the property {@link #SECTION_COLOR} has been defined in the action, that
+	 * {@link Color} will be used to make the section background.
 	 * <p>
 	 * The default implementation of this method returns <code>null</code>,
 	 * meaning that no section header will be created - instead a simple line
