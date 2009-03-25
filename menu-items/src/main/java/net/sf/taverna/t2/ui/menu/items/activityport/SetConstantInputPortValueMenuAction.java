@@ -22,7 +22,7 @@ package net.sf.taverna.t2.ui.menu.items.activityport;
 
 import javax.swing.Action;
 
-import net.sf.taverna.t2.ui.menu.items.AbstractContextualMenuAction;
+import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.views.graph.actions.SetDefaultInputPortValueAction;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;

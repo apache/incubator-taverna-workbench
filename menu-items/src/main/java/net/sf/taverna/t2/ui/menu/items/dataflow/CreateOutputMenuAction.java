@@ -22,7 +22,7 @@ package net.sf.taverna.t2.ui.menu.items.dataflow;
 
 import javax.swing.Action;
 
-import net.sf.taverna.t2.ui.menu.items.AbstractContextualMenuAction;
+import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowOutputAction;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 

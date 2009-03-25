@@ -24,7 +24,7 @@ import java.awt.Component;
 
 import javax.swing.Action;
 
-import net.sf.taverna.t2.ui.menu.items.AbstractContextualMenuAction;
+import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveConditionAction;
 import net.sf.taverna.t2.workflowmodel.Condition;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
