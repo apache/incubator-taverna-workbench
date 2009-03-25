@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.menu.impl;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.lang.ref.WeakReference;
 import java.net.URI;
@@ -56,6 +57,7 @@ import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.spi.SPIRegistry.SPIRegistryEvent;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.AbstractMenuOptionGroup;
+import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
 import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
@@ -416,7 +418,11 @@ public class MenuManagerImpl extends MenuManager {
 		if (sectionAction != null) {
 			String sectionLabel = (String) sectionAction.getValue(Action.NAME);
 			if (sectionLabel != null) {
-				ShadedLabel label = new ShadedLabel(sectionLabel, ShadedLabel.GREEN);
+				Color labelColor = (Color) sectionAction.getValue(AbstractMenuSection.SECTION_COLOR);
+				if (labelColor == null) {
+					labelColor = ShadedLabel.GREEN;
+				}
+				ShadedLabel label = new ShadedLabel(sectionLabel, labelColor);
 				components.add(label);
 			} else {
 				addNullSeparator(components);
