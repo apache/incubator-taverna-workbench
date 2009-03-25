@@ -39,7 +39,6 @@ import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -81,6 +80,8 @@ public class MenuManagerImpl extends MenuManager {
 
 	private static Logger logger = Logger.getLogger(MenuManagerImpl.class);
 
+	private boolean needsUpdate;
+	
 	/**
 	 * Cache used by {@link #getURIByComponent(Component)}
 	 */
@@ -135,14 +136,16 @@ public class MenuManagerImpl extends MenuManager {
 	// Note: Not reset by #resetCollections()
 	private Map<URI, List<WeakReference<Component>>> uriToPublishedComponents = new HashMap<URI, List<WeakReference<Component>>>();
 
+	private MenuRegistryObserver menuRegistryObserver = new MenuRegistryObserver();
+
 	/**
 	 * Construct the MenuManagerImpl. Observes the SPI registry and does an
 	 * initial {@link #update()}.
 	 */
 	public MenuManagerImpl() {
-		menuRegistry.addObserver(new MenuRegistryObserver());
+		menuRegistry.addObserver(menuRegistryObserver);
 		multiCaster = new MultiCaster<MenuManagerEvent>(this);
-		update();
+		needsUpdate = true;
 	}
 
 	/**
@@ -219,6 +222,9 @@ public class MenuManagerImpl extends MenuManager {
 	@Override
 	public JMenuBar createMenuBar(URI id) {
 		JMenuBar menuBar = new JMenuBar();
+		if (needsUpdate) {
+			update();
+		}
 		populateMenuBar(menuBar, id);
 		registerComponent(id, menuBar, true);
 		return menuBar;
@@ -238,6 +244,9 @@ public class MenuManagerImpl extends MenuManager {
 	@Override
 	public JToolBar createToolBar(URI id) {
 		JToolBar toolbar = new JToolBar();
+		if (needsUpdate) {
+			update();
+		}
 		populateToolBar(toolbar, id);
 		registerComponent(id, toolbar, true);
 		return toolbar;
@@ -284,7 +293,7 @@ public class MenuManagerImpl extends MenuManager {
 	@Override
 	public void update() {
 		synchronized (updateLock) {
-			if (updating) {
+			if (updating && !needsUpdate) {
 				return;
 			}
 			updating = true;
@@ -294,6 +303,7 @@ public class MenuManagerImpl extends MenuManager {
 		} finally {
 			synchronized (updateLock) {
 				updating = false;
+				needsUpdate = false;
 			}
 		}
 	}
@@ -867,7 +877,11 @@ public class MenuManagerImpl extends MenuManager {
 		public void notify(Observable<SPIRegistryEvent> sender,
 				SPIRegistryEvent message) throws Exception {
 			if (message.equals(SPIRegistry.UPDATED)) {
-				update();
+				// Note: If needsUpdate is true we don't need to do update() as it will
+				// be called on the first create*() call anyway
+				if (! needsUpdate) {
+					update();
+				}
 			}
 		}
 	}
