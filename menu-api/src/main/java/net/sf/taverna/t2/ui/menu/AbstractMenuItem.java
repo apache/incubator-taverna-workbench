@@ -81,6 +81,7 @@ public abstract class AbstractMenuItem implements MenuComponent {
 	 * @author Stian Soiland-Reyes
 	 * 
 	 */
+	@SuppressWarnings("serial")
 	public static class DummyAction extends AbstractAction {
 		public DummyAction(String name) {
 			super(name);
