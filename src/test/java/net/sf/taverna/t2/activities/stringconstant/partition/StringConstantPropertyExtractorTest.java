@@ -54,7 +54,7 @@ public class StringConstantPropertyExtractorTest {
 		
 		Map<String,Object> props = new StringConstantPropertyExtractor().extractProperties(item);
 
-		assertEquals("missing or incorrect property","String Constant",props.get("type"));
+		assertEquals("missing or incorrect property","String constant",props.get("type"));
 	}
 
 }
