@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.util.List;
 
 import javax.swing.Action;
+import javax.swing.JComponent;
 
 import org.jdom.Element;
 
@@ -31,11 +32,12 @@ import org.jdom.Element;
  * Tree structure over a nested set of Zaria components, yes, this is almost an
  * exact duplicate of TreeNode but as ZPane is a subclass of JComponent we can't
  * have a getParent method (JComponent already contains this) so, annoyingly, we
- * have to invent a duplicate interface avoiding the name collisions. D'oh. This
+ * have to invent a duplicate interface avoiding the name collisions. This
  * interface also defines that ZTreeNode implementations must be able to
- * serialize their current state to XML and restore from the same.
+ * serialise their current state to XML and restore from the same.
  * 
  * @author Tom Oinn
+ * @author Stian Soiland-Reyes
  */
 public interface ZTreeNode {
 
@@ -114,6 +116,15 @@ public interface ZTreeNode {
 	 * the status on all children
 	 */
 	public void setEditable(boolean editable);
+
+	/**
+	 * Make sure the given component is visible (if it is a descendant of this
+	 * node). This would include flipping tabs and scrolling to the component in
+	 * question.
+	 * <p>
+	 * Return true if the node was made visible.
+	 */
+	public boolean makeVisible(JComponent component);
 
 	/**
 	 * Swap out the given child for the new one

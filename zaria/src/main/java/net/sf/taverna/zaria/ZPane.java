@@ -45,6 +45,7 @@ import org.jdom.Element;
  * basic tree traversal functionality.
  * 
  * @author Tom Oinn
+ * @author Stian Soiland-Reyes
  */
 public abstract class ZPane extends JComponent implements ZTreeNode {
 
@@ -157,6 +158,21 @@ public abstract class ZPane extends JComponent implements ZTreeNode {
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean makeVisible(JComponent component) {
+		if (component == this) {
+			return true;
+		}
+		for (ZTreeNode child: getZChildren()) {
+			if (child.makeVisible(component)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * 
 	 * @return boolean to indicate whether the pane is in edit mode

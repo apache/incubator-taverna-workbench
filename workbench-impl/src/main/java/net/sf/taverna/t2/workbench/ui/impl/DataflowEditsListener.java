@@ -32,12 +32,15 @@ public class DataflowEditsListener implements Observer<EditManagerEvent> {
 
 	private Map<Edit<?>, String> dataflowEditMap;
 	private Edits edits;
-	private static DataflowEditsListener instance;
 
 	private DataflowEditsListener() {
 		super();
 		edits = EditManager.getInstance().getEdits();
 		dataflowEditMap = new HashMap<Edit<?>, String>();
+	}
+	
+	private static class Singleton {
+		private static DataflowEditsListener instance = new DataflowEditsListener();
 	}
 
 	/**
@@ -46,10 +49,7 @@ public class DataflowEditsListener implements Observer<EditManagerEvent> {
 	 * @return
 	 */
 	public static DataflowEditsListener getInstance() {
-		if (instance == null) {
-			instance = new DataflowEditsListener();
-		}
-		return instance;
+		return Singleton.instance;
 	}
 
 	/**

@@ -52,6 +52,13 @@ import net.sf.taverna.zaria.ZBasePane.NamedRavenComponentSpecifier;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
+/**
+ * A non-Zaria JComponent selected from a Raven-described SPI or list of named
+ * instances.
+ * 
+ * @author Tom Oinn
+ * @author Stian Soiland-Reyes
+ */
 @SuppressWarnings("serial")
 public class ZRavenComponent extends ZPane {
 
@@ -111,7 +118,9 @@ public class ZRavenComponent extends ZPane {
 			String componentName = componentNameElement.getTextTrim();
 			JComponent jc = getRoot().getNamedComponent(componentName);
 			if (jc == null) {
-				logger.error("Could not find named component: " + componentName);
+				logger
+						.error("Could not find named component: "
+								+ componentName);
 				return;
 			}
 			if (jc.getParent() != null) {
@@ -138,7 +147,8 @@ public class ZRavenComponent extends ZPane {
 			// if no version defined, use the version defined in the profile
 			if (version == null) {
 				Profile profile = ProfileFactory.getInstance().getProfile();
-				artifact = profile.discoverArtifact(groupId, artifactId, repository);
+				artifact = profile.discoverArtifact(groupId, artifactId,
+						repository);
 			} else {
 				artifact = new BasicArtifact(groupId, artifactId, version);
 			}
@@ -338,6 +348,12 @@ public class ZRavenComponent extends ZPane {
 		getRoot().registerComponent(this.contents);
 		toggleScroll.setEnabled(true);
 		getRoot().revalidate();
+	}
+
+	@Override
+	public boolean makeVisible(JComponent component) {
+		// TODO: Should the scroll pane be scrolled to the top?
+		return super.makeVisible(component) || this.contents == component;
 	}
 
 	/**

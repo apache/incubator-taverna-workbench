@@ -85,11 +85,9 @@ public class Workbench extends JFrame {
 
 	private ApplicationRuntime appRuntime = ApplicationRuntime.getInstance();
 	private ApplicationConfig appConfig = ApplicationConfig.getInstance();
-
-	private static Workbench instance;
-
 	private MenuManager menuManager = MenuManager.getInstance();
-
+	private FileManager fileManager = FileManager.getInstance();
+	private EditManager editManager = EditManager.getInstance();
 	private CloseAllWorkflowsAction closeAllWorkflowsAction = new CloseAllWorkflowsAction();
 
 	private WorkbenchPerspectives perspectives;
@@ -98,19 +96,40 @@ public class Workbench extends JFrame {
 
 	private WorkbenchZBasePane basePane;
 
-	private Workbench() {
-		// Initialisation done by getInstance()
+	private boolean isInitialized = false;
+
+	private class WindowClosingListener extends WindowAdapter {
+		@Override
+		public void windowClosing(WindowEvent e) {
+			exit();
+		}
+	}
+
+	private static class Singleton {
+		private static Workbench instance = new Workbench();
+	}
+
+	public static final Workbench getInstance() {
+		synchronized (Singleton.instance) {
+			if (! Singleton.instance.isInitialized) {
+				Singleton.instance.isInitialized  = true;
+				Singleton.instance.initialize();
+			}
+		}
+		return Singleton.instance;
+	}
+
+
+	/**
+	 * @see #getInstance()
+	 */
+	protected Workbench() {
 	}
 
 	private void makeGUI() {
 		setLayout(new GridBagLayout());
 		
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				exit();
-			}
-		});
+		addWindowListener(new WindowClosingListener());
 		
 		Helper.setKeyCatcher(this);
 
@@ -149,7 +168,8 @@ public class Workbench extends JFrame {
 		gbc.weighty = 0.1;
 		add(basePane, gbc);
 
-		// Need to do this last as it references perspectives
+		/* Need to do this <b>last</b> as it references perspectives 
+		 */
 		JMenuBar menuBar = menuManager.createMenuBar();
 		setJMenuBar(menuBar);
 	}
@@ -159,6 +179,10 @@ public class Workbench extends JFrame {
 		basePane.setRepository(appRuntime.getRavenRepository());
 		perspectives = new WorkbenchPerspectives(basePane, perspectiveToolBar);
 		return basePane;
+	}
+	
+	public void makeNamedComponentVisible(String componentName) {
+		basePane.makeNamedComponentVisible(componentName);
 	}
 
 	protected JPanel makeToolbarPanel() {
@@ -183,19 +207,12 @@ public class Workbench extends JFrame {
 
 		return toolbarPanel;
 	}
-
-	public static final synchronized Workbench getInstance() {
-		if (instance == null) {
-			instance = new Workbench();
-			instance.initialize();
-		}
-		return instance;
-	}
-
+	
+	
 	protected void initialize() {
 		makeGUI();
-		FileManager.getInstance().newDataflow();
-		EditManager.getInstance().addObserver(DataflowEditsListener.getInstance());
+		fileManager.newDataflow();
+		editManager.addObserver(DataflowEditsListener.getInstance());
 		SplashScreen splash = SplashScreen.getSplashScreen();
 		if (splash != null) {
 			splash.setClosable();
@@ -204,7 +221,7 @@ public class Workbench extends JFrame {
 		
 		// Register a listener with FileManager so whenever a current workflow is set 
 		// we make sure we are in the design perspective
-		FileManager.getInstance().addObserver(new SwitchToWorkflowPerspective());
+		fileManager.addObserver(new SwitchToWorkflowPerspective());
 	}
 
 	public void exit() {

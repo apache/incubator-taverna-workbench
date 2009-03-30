@@ -50,12 +50,13 @@ import org.jdom.Element;
 
 /**
  * A base ZPane implementation, this is always the root of the ZTreeNode
- * heirarchy (or should be for sane uses). We need an additional layer here as
+ * hierarchy (or should be for sane uses). We need an additional layer here as
  * the swap component method relies on having a parent, without the extra
  * 'invisible' parent here we couldn't swap out the user visible top level UI
  * component.
  * 
  * @author Tom Oinn
+ * @author Stian Soiland-Reyes
  */
 public abstract class ZBasePane extends ZPane {
 
@@ -286,6 +287,14 @@ public abstract class ZBasePane extends ZPane {
 		return children;
 	}
 
+	public boolean makeNamedComponentVisible(String componentName) {
+		JComponent namedComponent = getNamedComponent(componentName);
+		if (namedComponent == null) { 
+			return false;
+		}
+		return super.makeVisible(namedComponent);
+	}
+	
 	/**
 	 * Lock the parent frame, showing an infinite progress display message
 	 */
@@ -411,7 +420,7 @@ public abstract class ZBasePane extends ZPane {
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	JComponent getNamedComponent(String componentName) {
+	protected JComponent getNamedComponent(String componentName) {
 		synchronized (namedComponents) {
 			if (namedComponents.containsKey(componentName)) {
 				return namedComponents.get(componentName);

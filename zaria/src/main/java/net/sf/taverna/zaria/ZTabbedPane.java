@@ -50,6 +50,7 @@ import org.jdom.Element;
  * present.
  * 
  * @author Tom Oinn
+ * @author Stian Soiland-Reyes
  */
 @SuppressWarnings("serial")
 public class ZTabbedPane extends ZPane {
@@ -161,6 +162,21 @@ public class ZTabbedPane extends ZPane {
 		return children;
 	}
 
+
+	@Override
+	public boolean makeVisible(JComponent node) {
+		if (node == this) {
+			return true;
+		}
+		for (ZTreeNode child: getZChildren()) {
+			if (child.makeVisible(node)) {
+				tabs.setSelectedComponent((Component) child);
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public void newTab() {
 		newTab("Tab " + tabs.getComponentCount());
 	}
