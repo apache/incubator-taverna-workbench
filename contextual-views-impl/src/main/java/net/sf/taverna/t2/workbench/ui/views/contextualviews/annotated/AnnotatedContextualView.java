@@ -64,7 +64,7 @@ import org.apache.log4j.Logger;
  * Annotation information for any Annotated. At the moment it is only used for
  * Dataflow.
  * 
- * @author alanrw
+ * @author Alan R Williams
  * 
  */
 public class AnnotatedContextualView extends ContextualView {
@@ -85,7 +85,7 @@ public class AnnotatedContextualView extends ContextualView {
 	private Map<Class<?>, JTextArea> classToAreaMap;
 	private Map<Class<?>, String> classToCurrentValueMap;
 
-	private static String MISSING_VALUE = "No value specified";
+	private static String MISSING_VALUE = "Unspecified";
 
 	private static int DEFAULT_AREA_WIDTH = 29;
 	
@@ -218,19 +218,26 @@ public class AnnotatedContextualView extends ContextualView {
 		}
 
 		public void focusGained(FocusEvent e) {
-			// TODO Auto-generated method stub
-
+			if (area.getText().equals(MISSING_VALUE)) {
+				area.setText("");
+			}
 		}
 
 		public void focusLost(FocusEvent e) {
 			String currentValue = area.getText();
+			if (currentValue.equals("") || currentValue.equals(MISSING_VALUE)) {
+				currentValue = MISSING_VALUE;
+				area.setText(currentValue);
+			}
 			if (!currentValue.equals(oldValue)) {
+				if (currentValue == MISSING_VALUE) {
+					currentValue = "";
+				}
 				try {
 					Edit<?> edit = setAnnotationString(annotationClass, currentValue);
 					editManager.doDataflowEdit(fileManager.getCurrentDataflow(), edit);
 				} catch (EditException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+					logger.warn("Can't set annotation", e1);
 				}
 				oldValue = area.getText();
 			}
