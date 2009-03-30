@@ -82,11 +82,11 @@ public abstract class AbstractConnectPortMenuActions extends AbstractMenuCustom
 		if (activityPort instanceof ActivityOutputPort) {
 			connectMenu.add(new ShadedLabel(WORKFLOW_INPUT_PORTS,
 					workflowPortColour));
-			ports = new ArrayList<DataflowPort>(dataflow.getInputPorts());
+			ports = new ArrayList<DataflowPort>(dataflow.getOutputPorts());
 		} else {
 			connectMenu.add(new ShadedLabel(WORKFLOW_OUTPUT_PORTS,
 					workflowPortColour));
-			ports = new ArrayList<DataflowPort>(dataflow.getOutputPorts());
+			ports = new ArrayList<DataflowPort>(dataflow.getInputPorts());
 		}
 
 		Collections.sort(ports, portComparator);

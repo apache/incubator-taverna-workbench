@@ -8,6 +8,8 @@ net.sf.taverna.t2.ui.menu.items.activityport.ConnectOutputPortMenuActions
 net.sf.taverna.t2.ui.menu.items.condition.ConditionSection
 net.sf.taverna.t2.ui.menu.items.condition.RemoveConditionMenuAction
 
+net.sf.taverna.t2.ui.menu.items.contextualviews.ShowDetailsMenuAction
+
 net.sf.taverna.t2.ui.menu.items.dataflow.CreateInputMenuAction
 net.sf.taverna.t2.ui.menu.items.dataflow.CreateOutputMenuAction
 net.sf.taverna.t2.ui.menu.items.dataflow.WorkflowInputsSection
@@ -31,3 +33,4 @@ net.sf.taverna.t2.ui.menu.items.processor.ConditionMenuActions
 net.sf.taverna.t2.ui.menu.items.processor.ProcessorSection
 net.sf.taverna.t2.ui.menu.items.processor.RenameProcessorMenuAction
 net.sf.taverna.t2.ui.menu.items.processor.RemoveProcessorMenuAction
+
