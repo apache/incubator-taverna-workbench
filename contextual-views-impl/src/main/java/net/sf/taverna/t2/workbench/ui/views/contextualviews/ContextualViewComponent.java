@@ -17,12 +17,11 @@ import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
@@ -37,14 +36,18 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 
 	private Observer<DataflowSelectionMessage> dataflowSelectionListener = new DataflowSelectionListener();
-	private ModelMapObserver modelMapObserver = new ModelMapObserver();
-	private EditManagerObserver editManagerObserver = new EditManagerObserver();
-	private DataflowSelectionManager dataflowSelectionManager = DataflowSelectionManager
-			.getInstance();
-	private ContextualView view;
+
 	private FileManager fileManager = FileManager.getInstance();
+	private EditManager editManager = EditManager.getInstance();
+	private EditManagerObserver editManagerObserver = new EditManagerObserver();
+	private FileManagerObserver fileManagerObserver = new FileManagerObserver();
+	private DataflowSelectionManager dataflowSelectionManager = DataflowSelectionManager
+	.getInstance();
+
+	private ContextualView view;
 	private JPanel configureButtonPanel = new JPanel();
-	private JButton configureButton = new JButton("Configure", WorkbenchIcons.configureIcon);
+	private JButton configureButton = new JButton("Configure",
+			WorkbenchIcons.configureIcon);
 
 	/** Keep list of views in case you want to go back or forward between them */
 	private List<ContextualView> views = new ArrayList<ContextualView>();
@@ -58,8 +61,8 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 				.getDataflowSelectionModel(currentDataflow);
 		selectionModel.addObserver(dataflowSelectionListener);
 
-		ModelMap.getInstance().addObserver(modelMapObserver);
-		EditManager.getInstance().addObserver(editManagerObserver);
+		editManager.addObserver(editManagerObserver);
+		fileManager.addObserver(fileManagerObserver);
 		initialise();
 	}
 
@@ -79,9 +82,14 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 		panel = new JPanel(new BorderLayout());
 		add(panel, BorderLayout.CENTER);
 
-		title = new JLabel("Contextual View"); // the actual title will be changed later based on the workflow object being displayed
-		title.setMinimumSize(new Dimension(0,0));//so that the label can shrink (and contextual view together with it)
-		title.setBorder(new EmptyBorder(0,5,5,5));
+		title = new JLabel("Contextual View"); // the actual title will be
+												// changed later based on the
+												// workflow object being
+												// displayed
+		title.setMinimumSize(new Dimension(0, 0));// so that the label can
+													// shrink (and contextual
+													// view together with it)
+		title.setBorder(new EmptyBorder(0, 5, 5, 5));
 		add(title, BorderLayout.NORTH);
 
 		configureButtonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
@@ -112,7 +120,8 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 		panel.add(view, BorderLayout.CENTER);
 
 		// Show/hide the 'Configure' button and its panel as needed
-		Action configureAction = view.getConfigureAction(Utils.getParentFrame(this));
+		Action configureAction = view.getConfigureAction(Utils
+				.getParentFrame(this));
 		if (configureAction != null) {
 			configureButtonPanel.setVisible(true);
 			configureButton.setAction(configureAction);
@@ -132,7 +141,6 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 		revalidate();
 		repaint();
 	}
-
 
 	private void clearContextualView() {
 
@@ -179,8 +187,7 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 			// selected, clear the contextual view panel
 			if (selection.isEmpty()) {
 				clearContextualView();
-			}
-			else {
+			} else {
 				Iterator<Object> iterator = selection.iterator();
 				// TODO multiple selections, dataflow contextual view, datalink
 				// contextual view
@@ -199,6 +206,23 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 		updateContextualView(viewType);
 	}
 
+	private final class FileManagerObserver implements
+			Observer<FileManagerEvent> {
+		public void notify(Observable<FileManagerEvent> sender,
+				FileManagerEvent event) throws Exception {
+			if (event instanceof SetCurrentDataflowEvent) {
+				Dataflow dataflow = ((SetCurrentDataflowEvent) event)
+						.getDataflow();
+				if (dataflow != null) {
+					dataflowSelectionManager
+							.getDataflowSelectionModel(dataflow).addObserver(
+									dataflowSelectionListener);
+				}
+				updateSelection();
+			}
+		}
+	}
+
 	private final class DataflowSelectionListener implements
 			Observer<DataflowSelectionMessage> {
 
@@ -209,33 +233,11 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 
 	}
 
-	private final class ModelMapObserver implements Observer<ModelMapEvent> {
-		public void notify(Observable<ModelMapEvent> sender,
-				ModelMapEvent message) throws Exception {
-			if (message.getModelName().equals(
-					ModelMapConstants.CURRENT_DATAFLOW)) {
-				Dataflow oldFlow = (Dataflow) message.getOldModel();
-				Dataflow newFlow = (Dataflow) message.getNewModel();
-
-				if (oldFlow != null) {
-					dataflowSelectionManager.getDataflowSelectionModel(oldFlow)
-							.removeObserver(dataflowSelectionListener);
-				}
-				if (newFlow != null) {
-					dataflowSelectionManager.getDataflowSelectionModel(newFlow)
-							.addObserver(dataflowSelectionListener);
-				}
-				updateSelection();
-			}
-		}
-	}
-
 	private final class EditManagerObserver implements
 			Observer<EditManagerEvent> {
 
 		public void notify(Observable<EditManagerEvent> sender,
 				EditManagerEvent message) throws Exception {
-
 			refreshView();
 		}
 
