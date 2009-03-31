@@ -22,6 +22,8 @@ net.sf.taverna.t2.ui.menu.items.link.RemoveLinkMenuAction
 net.sf.taverna.t2.ui.menu.items.merge.MergeSection
 net.sf.taverna.t2.ui.menu.items.merge.RemoveMergeMenuAction
 
+net.sf.taverna.t2.ui.menu.items.ports.ConnectDataflowInputPortMenuActions
+net.sf.taverna.t2.ui.menu.items.ports.ConnectDataflowOutputPortMenuActions
 net.sf.taverna.t2.ui.menu.items.ports.EditDataflowInputPortMenuAction
 net.sf.taverna.t2.ui.menu.items.ports.EditDataflowOutputPortMenuAction
 net.sf.taverna.t2.ui.menu.items.ports.RemoveDataflowInputPortMenuAction

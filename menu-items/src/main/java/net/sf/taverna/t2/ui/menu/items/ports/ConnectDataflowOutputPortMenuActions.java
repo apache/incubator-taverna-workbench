@@ -18,23 +18,25 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  **********************************************************************/
-package net.sf.taverna.t2.ui.menu.items.activityport;
+package net.sf.taverna.t2.ui.menu.items.ports;
 
+import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
+import net.sf.taverna.t2.ui.menu.items.activityport.AbstractConnectPortMenuActions;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
+import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 
-public class ConnectOutputPortMenuActions extends AbstractConnectPortMenuActions  {
+public class ConnectDataflowOutputPortMenuActions extends
+		AbstractConnectPortMenuActions implements ContextualMenuComponent {
 
-	public ConnectOutputPortMenuActions() {
-		super(ActivityOutputPortSection.activityOutputPortSection, 20);
+	public ConnectDataflowOutputPortMenuActions() {
+		super(WorkflowOutputPortSection.outputPort, 20);
 	}
 
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof ActivityOutputPort
+				&& getContextualSelection().getSelection() instanceof DataflowOutputPort
 				&& getContextualSelection().getParent() instanceof Dataflow;
 	}
-
 
 }
