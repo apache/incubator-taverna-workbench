@@ -23,6 +23,12 @@ package net.sf.taverna.t2.workbench.ui.impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
+import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
@@ -30,29 +36,39 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
  * Manages the mapping between Dataflows and DataflowSelectionModels.
  * 
  * @author David Withers
+ * @author Stian Soiland-Reyes
  */
 public class DataflowSelectionManager {
 
-	private Map<Dataflow, DataflowSelectionModel> dataflowSelectionModelMap = new HashMap<Dataflow, DataflowSelectionModel>();
-	
-	private static final DataflowSelectionManager instance = new DataflowSelectionManager();
-	
-	/**
-	 * Private constructor, use DataflowSelectionManager.getInstance().
-	 *
-	 */
-	private DataflowSelectionManager() {
+	private static class Singleton {
+		private static DataflowSelectionManager instance = new DataflowSelectionManager();
 	}
-	
+
 	/**
 	 * Returns a singleton instance of a <code>DataflowSelectionManager</code>.
 	 * 
 	 * @return a singleton instance of a <code>DataflowSelectionManager</code>
 	 */
 	public static DataflowSelectionManager getInstance() {
-		return instance;
+		return Singleton.instance;
 	}
-	
+
+	private Map<Dataflow, DataflowSelectionModel> dataflowSelectionModelMap = new HashMap<Dataflow, DataflowSelectionModel>();
+
+	private FileManagerObserver fileManagerObserver = new FileManagerObserver();
+
+	private FileManager fileManager = FileManager.getInstance();
+
+	/**
+	 * Private constructor, use DataflowSelectionManager.getInstance().
+	 * 
+	 * @see #getInstance()
+	 * 
+	 */
+	private DataflowSelectionManager() {
+		fileManager.addObserver(fileManagerObserver);
+	}
+
 	/**
 	 * Returns the <code>DataflowSelectionModel</code> for the dataflow.
 	 * 
@@ -60,10 +76,42 @@ public class DataflowSelectionManager {
 	 * @return the <code>DataflowSelectionModel</code> for the dataflow
 	 */
 	public DataflowSelectionModel getDataflowSelectionModel(Dataflow dataflow) {
-		if (!dataflowSelectionModelMap.containsKey(dataflow)) {
-			dataflowSelectionModelMap.put(dataflow, new DataflowSelectionModelImpl());
+		DataflowSelectionModel selectionModel;
+		synchronized (dataflowSelectionModelMap) {
+			selectionModel = dataflowSelectionModelMap.get(dataflow);
+			if (selectionModel == null) {
+				// Create it
+				selectionModel = new DataflowSelectionModelImpl();
+				dataflowSelectionModelMap.put(dataflow, selectionModel);
+			}
 		}
-		return dataflowSelectionModelMap.get(dataflow);
+		return selectionModel;
+	}
+
+
+	public void removeDataflowSelectionModel(Dataflow dataflow) {
+		DataflowSelectionModel selectionModel = dataflowSelectionModelMap
+				.get(dataflow);
+		if (selectionModel == null) {
+			return;
+		}
+		for (Observer<DataflowSelectionMessage> observer : selectionModel
+				.getObservers()) {
+			selectionModel.removeObserver(observer);
+		}
+		dataflowSelectionModelMap.remove(dataflow);
 	}
 	
+
+	public class FileManagerObserver implements
+			Observer<FileManagerEvent> {
+		public void notify(Observable<FileManagerEvent> sender,
+				FileManagerEvent message) throws Exception {
+			if (message instanceof ClosedDataflowEvent) {
+				removeDataflowSelectionModel(((ClosedDataflowEvent) message)
+						.getDataflow());
+			}
+		}
+	}
+
 }
