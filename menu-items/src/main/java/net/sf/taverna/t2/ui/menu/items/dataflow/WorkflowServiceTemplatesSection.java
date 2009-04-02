@@ -42,6 +42,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 public class WorkflowServiceTemplatesSection extends AbstractMenuSection
 		implements ContextualMenuComponent {
 
+	private static final String SERVICE_TEMPLATES = "Service templates";
 	public static final URI serviceTemplatesSection = URI
 			.create("http://taverna.sf.net/2009/contextMenu/serviceTemplates");
 	private ContextualSelection contextualSelection;
@@ -66,7 +67,7 @@ public class WorkflowServiceTemplatesSection extends AbstractMenuSection
 
 	@Override
 	protected Action createAction() {
-		DummyAction action = new DummyAction("Service templates");
+		DummyAction action = new DummyAction(SERVICE_TEMPLATES);
 		// Set the colour for the section
 		action.putValue(AbstractMenuSection.SECTION_COLOR, ShadedLabel.ORANGE);
 		return action;

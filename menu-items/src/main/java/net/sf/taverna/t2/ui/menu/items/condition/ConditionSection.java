@@ -35,6 +35,7 @@ import net.sf.taverna.t2.workflowmodel.Condition;
 public class ConditionSection extends AbstractMenuSection implements
 		ContextualMenuComponent {
 
+	private static final String CONTROL_LINK = "Control link: ";
 	public static final URI conditionSection = URI
 			.create("http://taverna.sf.net/2009/contextMenu/condition");
 	private ContextualSelection contextualSelection;
@@ -58,15 +59,13 @@ public class ConditionSection extends AbstractMenuSection implements
 		this.action = null;
 	}
 
-	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		Condition controllink = (Condition) getContextualSelection().getSelection();
-		String name = "Control link: " + controllink.getTarget().getLocalName() + " RUNS_AFTER " + controllink.getControl().getLocalName() ;
-		return new AbstractAction(name) {
-			public void actionPerformed(ActionEvent e) {
-			}
-		};
+		Condition controllink = (Condition) getContextualSelection()
+				.getSelection();
+		String name = CONTROL_LINK + controllink.getTarget().getLocalName()
+				+ " RUNS_AFTER " + controllink.getControl().getLocalName();
+		return new DummyAction(name);
 	}
 
 }

@@ -30,6 +30,7 @@ import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 
 public class ShowDetailsMenuAction extends AbstractContextualMenuAction {
+	private static final String SHOW_DETAILS = "Show details";
 	private String namedComponent = "contextualView";
 
 	public ShowDetailsMenuAction() {
@@ -43,9 +44,10 @@ public class ShowDetailsMenuAction extends AbstractContextualMenuAction {
 		// && getContextualSelection().getSelection() instanceof Processor;
 	}
 
+	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new AbstractAction("Show details") {
+		return new AbstractAction(SHOW_DETAILS) {
 			public void actionPerformed(ActionEvent e) {
 				Workbench workbench = Workbench.getInstance();
 				workbench.getPerspectives().setWorkflowPerspective();

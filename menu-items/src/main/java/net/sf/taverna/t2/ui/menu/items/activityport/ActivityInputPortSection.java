@@ -35,6 +35,7 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 public class ActivityInputPortSection extends AbstractMenuSection implements
 		ContextualMenuComponent {
 
+	private static final String ACTIVITY_INPUT_PORT = "Activity input port: ";
 	public static final URI activityInputPortSection = URI
 			.create("http://taverna.sf.net/2009/contextMenu/activityInputPort");
 	private ContextualSelection contextualSelection;
@@ -63,11 +64,8 @@ public class ActivityInputPortSection extends AbstractMenuSection implements
 	protected Action createAction() {
 		ActivityInputPort port = (ActivityInputPort) getContextualSelection()
 				.getSelection();
-		String name = "Activity input port: " + port.getName();
-		return new AbstractAction(name) {
-			public void actionPerformed(ActionEvent e) {
-			}
-		};
+		String name = ACTIVITY_INPUT_PORT + port.getName();
+		return new DummyAction(name);
 	}
 
 }

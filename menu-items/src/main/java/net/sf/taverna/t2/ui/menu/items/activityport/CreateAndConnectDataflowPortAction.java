@@ -61,6 +61,20 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class CreateAndConnectDataflowPortAction extends AbstractAction {
 
+	private static final String VALID_PORT_NAME_REGEX = "[\\p{L}\\p{Digit}_.]+";
+	private static final Dimension INPUT_PORT_DIALOGUE_SIZE = new Dimension(400, 250);
+	private static final Dimension OUTPUT_PORT_DIALOGUE_SIZE = new Dimension(400, 200);
+	
+	private static final String INVALID_WORKFLOW_OUTPUT_PORT_NAME = "Invalid workflow output port name.";
+	private static final String DUPLICATE_WORKFLOW_OUTPUT_PORT_NAME = "Duplicate workflow output port name.";
+	private static final String SET_THE_WORKFLOW_OUTPUT_PORT_NAME = "Set the workflow output port name.";
+	private static final String ADD_WORKFLOW_OUTPUT_PORT = "Add workflow output port";
+	private static final String SET_THE_INPUT_PORT_LIST_DEPTH = "Set the input port list depth.";
+	private static final String SET_THE_INPUT_PORT_TYPE = "Set the input port type.";
+	private static final String INVALID_WORKFLOW_INPUT_PORT_NAME = "Invalid workflow input port name.";
+	private static final String DUPLICATE_WORKFLOW_INPUT_PORT_NAME = "Duplicate workflow input port name.";
+	private static final String SET_THE_WORKFLOW_INPUT_PORT_NAME = "Set the workflow input port name.";
+	private static final String ADD_WORKFLOW_INPUT_PORT = "Add workflow input port";
 	private static Logger logger = Logger
 			.getLogger(CreateAndConnectDataflowPortAction.class);
 	private final Dataflow dataflow;
@@ -131,16 +145,16 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 		DataflowInputPortPanel inputPanel = new DataflowInputPortPanel();
 
 		ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-				"Add workflow input port", inputPanel);
+				ADD_WORKFLOW_INPUT_PORT, inputPanel);
 		vuid.addTextComponentValidation(inputPanel.getPortNameField(),
-				"Set the workflow input port name.", usedInputPorts,
-				"Duplicate workflow input port name.", "[\\p{L}\\p{Digit}_.]+",
-				"Invalid workflow input port name.");
+				SET_THE_WORKFLOW_INPUT_PORT_NAME, usedInputPorts,
+				DUPLICATE_WORKFLOW_INPUT_PORT_NAME, VALID_PORT_NAME_REGEX,
+				INVALID_WORKFLOW_INPUT_PORT_NAME);
 		vuid.addMessageComponent(inputPanel.getSingleValueButton(),
-				"Set the input port type.");
+				SET_THE_INPUT_PORT_TYPE);
 		vuid.addMessageComponent(inputPanel.getListValueButton(),
-				"Set the input port list depth.");
-		vuid.setSize(new Dimension(400, 250));
+				SET_THE_INPUT_PORT_LIST_DEPTH);
+		vuid.setSize(INPUT_PORT_DIALOGUE_SIZE);
 
 		inputPanel.setPortName(portTemplate.getName());
 		inputPanel.setPortDepth(portTemplate.getDepth());
@@ -175,12 +189,12 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 		DataflowOutputPortPanel outputPanel = new DataflowOutputPortPanel();
 
 		ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-				"Add workflow output port", outputPanel);
+				ADD_WORKFLOW_OUTPUT_PORT, outputPanel);
 		vuid.addTextComponentValidation(outputPanel.getPortNameField(),
-				"Set the workflow output port name.", usedOutputPorts,
-				"Duplicate workflow output port name.",
-				"[\\p{L}\\p{Digit}_.]+", "Invalid workflow output port name.");
-		vuid.setSize(new Dimension(400, 200));
+				SET_THE_WORKFLOW_OUTPUT_PORT_NAME, usedOutputPorts,
+				DUPLICATE_WORKFLOW_OUTPUT_PORT_NAME,
+				VALID_PORT_NAME_REGEX, INVALID_WORKFLOW_OUTPUT_PORT_NAME);
+		vuid.setSize(OUTPUT_PORT_DIALOGUE_SIZE);
 		outputPanel.setPortName(portTemplate.getName());
 
 		if (vuid.show(parentComponent)) {

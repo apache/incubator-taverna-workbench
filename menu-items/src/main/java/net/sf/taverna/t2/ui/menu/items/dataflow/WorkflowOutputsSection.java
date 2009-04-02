@@ -35,6 +35,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 public class WorkflowOutputsSection extends AbstractMenuSection implements
 		ContextualMenuComponent {
 
+	private static final String WORKFLOW_OUTPUT_PORTS = "Workflow output ports";
 	public static final URI outputsSection = URI
 			.create("http://taverna.sf.net/2009/contextMenu/outputs");
 	private ContextualSelection contextualSelection;
@@ -60,7 +61,7 @@ public class WorkflowOutputsSection extends AbstractMenuSection implements
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new AbstractAction("Workflow output ports") {
+		return new AbstractAction(WORKFLOW_OUTPUT_PORTS) {
 			public void actionPerformed(ActionEvent e) {
 			}
 		};
