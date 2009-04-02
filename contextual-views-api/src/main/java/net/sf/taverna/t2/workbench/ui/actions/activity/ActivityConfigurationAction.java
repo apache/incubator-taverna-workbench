@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
@@ -48,11 +49,7 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 
 	public ActivityConfigurationAction(A activity) {
 		this.activity = activity;
-		// TODO: set icon, but activity icon manager is currently in ui-components, needs
-		// ui-api / ui-impl split
-		
-		// putValue(SMALL_ICON,
-		// ActivityIconManager.getInstance().iconForActivity(activity));
+		putValue(SMALL_ICON, ActivityIconManager.getInstance().iconForActivity(activity));
 	}
 
 	protected A getActivity() {

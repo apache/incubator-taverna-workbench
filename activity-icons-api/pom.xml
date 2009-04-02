@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>net.sf.taverna.t2</groupId>
+		<artifactId>ui-api</artifactId>
+		<version>0.4-SNAPSHOT</version>
+	</parent>
+	<groupId>net.sf.taverna.t2.ui-api</groupId>
+	<artifactId>activity-icons-api</artifactId>
+	<name>Activity icon manager API</name>
+	<dependencies>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>activity-palette-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>workflowmodel-api</artifactId>
+			<version>${t2.core.version}</version>
+		</dependency>
+	</dependencies>
+</project>
