@@ -33,7 +33,6 @@
 	</properties>
 
 	<modules>
-		<module>activity-icons</module>
 		<module>activity-palette-ui</module>
 		<module>contextual-views</module>
 		<module>credential-manager-ui</module>
