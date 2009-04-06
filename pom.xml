@@ -30,6 +30,7 @@
 
 	<modules>
 		<module>activity-palette-impl</module>
+		<module>activity-tools</module>
 		<module>configuration-impl</module>
 		<module>contextual-views-impl</module>
 		<module>edits-impl</module>
