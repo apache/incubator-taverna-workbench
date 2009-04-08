@@ -25,7 +25,9 @@ import javax.swing.ImageIcon;
 
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
-public class DefaultActivityIcon implements ActivityIconSPI{
+public class DefaultActivityIcon implements ActivityIconSPI {
+
+	private static ImageIcon icon = null;
 
 	public int canProvideIconScore(Activity<?> activity) {
 		// For any activity we can provide a default icon
@@ -33,7 +35,15 @@ public class DefaultActivityIcon implements ActivityIconSPI{
 	}
 
 	public Icon getIcon(Activity<?> activity) {
-		return new ImageIcon(DefaultActivityIcon.class.getResource("/default-activity-icon.png"));
+		return getDefaultIcon();
+	}
+
+	public static Icon getDefaultIcon() {
+		if (icon == null) {
+			icon = new ImageIcon(DefaultActivityIcon.class
+					.getResource("/default-activity-icon.png"));
+		}
+		return icon;
 	}
 
 }
