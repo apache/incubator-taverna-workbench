@@ -35,10 +35,25 @@
                 </znode>
               </right>
               <left>
-                <znode classname="net.sf.taverna.zaria.ZRavenComponent">
-                  <namedcomponent scroll="false">
-                    <name>activitypalette</name>
-                  </namedcomponent>
+                <znode classname="net.sf.taverna.zaria.ZTabbedPane">
+                  <tabs>
+                    <tab>
+                      <title>Available services</title>
+                      <znode classname="net.sf.taverna.zaria.ZRavenComponent">
+                        <namedcomponent scroll="false">
+                          <name>activitypalette</name>
+                        </namedcomponent>
+                      </znode>
+                    </tab>
+                    <tab>
+                      <title>Service panel</title>
+                      <znode classname="net.sf.taverna.zaria.ZRavenComponent">
+                        <namedcomponent scroll="false">
+                          <name>servicePanel</name>
+                        </namedcomponent>
+                      </znode>
+                    </tab>
+                  </tabs>
                 </znode>
               </left>
             </split>
@@ -61,6 +76,13 @@
       <version>0.4-SNAPSHOT</version>
       <classname>net.sf.taverna.t2.workbench.ui.activitypalette.ActivityPaletteComponentFactory</classname>
       <name>activitypalette</name>
+    </namedcomponent>
+    <namedcomponent>
+      <groupid>net.sf.taverna.t2.ui-components</groupid>
+      <artifact>activity-palette-ui</artifact>
+      <version>0.4-SNAPSHOT</version>
+      <classname>net.sf.taverna.t2.workbench.ui.servicepanel.ServicePanelComponentFactory</classname>
+      <name>servicePanel</name>
     </namedcomponent>
     <namedcomponent>
       <groupid>net.sf.taverna.t2.ui-impl</groupid>
