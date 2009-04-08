@@ -53,6 +53,30 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class ActivityTree extends JTree {
 
+	private final class ActivityTransferHandler extends TransferHandler {
+		/**
+		 * Triggered when a node ie. an {@link ActivityItem} is dragged out of the
+		 * tree. Figures out what node it is being dragged and then starts a drag
+		 * action with it
+		 */
+		protected Transferable createTransferable(JComponent c) {
+			Transferable transferable = null;
+			TreePath selectionPath = ActivityTree.this.getSelectionPath();
+			if (selectionPath != null) {
+				Object lastPathComponent = selectionPath.getLastPathComponent();
+				if (lastPathComponent instanceof ActivityItem) {
+					ActivityItem activityItem = (ActivityItem) lastPathComponent;
+					transferable = activityItem.getActivityTransferable();
+				}
+			}
+			return transferable;
+		}
+
+		public int getSourceActions(JComponent c) {
+		        return COPY_OR_MOVE;
+		 }
+	}
+
 	private static Logger logger = Logger.getLogger(ActivityTree.class);
 
 	/** A query for each type of activity */
@@ -87,31 +111,7 @@ public class ActivityTree extends JTree {
 
 		});
 		
-		setTransferHandler(new TransferHandler() {
-			
-			/**
-			 * Triggered when a node ie. an {@link ActivityItem} is dragged out of the
-			 * tree. Figures out what node it is being dragged and then starts a drag
-			 * action with it
-			 */
-			protected Transferable createTransferable(JComponent c) {
-				Transferable transferable = null;
-				TreePath selectionPath = ActivityTree.this.getSelectionPath();
-				if (selectionPath != null) {
-					Object lastPathComponent = selectionPath.getLastPathComponent();
-					if (lastPathComponent instanceof ActivityItem) {
-						ActivityItem activityItem = (ActivityItem) lastPathComponent;
-						transferable = activityItem.getActivityTransferable();
-					}
-				}
-				return transferable;
-			}
-			
-			 public int getSourceActions(JComponent c) {
-			        return COPY_OR_MOVE;
-			 }
-			 
-		});		
+		setTransferHandler(new ActivityTransferHandler());		
 
 	}
 

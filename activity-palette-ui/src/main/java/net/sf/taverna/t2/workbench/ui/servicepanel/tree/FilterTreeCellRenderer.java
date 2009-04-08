@@ -28,11 +28,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 @SuppressWarnings("serial")
 public class FilterTreeCellRenderer extends DefaultTreeCellRenderer {
 
-	private FilterTreeModel filterTreeModel;
-
-	public FilterTreeCellRenderer(final FilterTreeModel ftm) {
-		this.filterTreeModel = ftm;
-	}
+	private Filter filter = null;
 
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 			boolean sel, boolean expanded, boolean leaf, int row,
@@ -40,11 +36,19 @@ public class FilterTreeCellRenderer extends DefaultTreeCellRenderer {
 
 		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf,
 				row, hasFocus);
-		Filter currentFilter = filterTreeModel.getCurrentFilter();
-		if (currentFilter != null) {
-			this.setText(currentFilter.filterRepresentation(this.getText()));
+		Filter filter = getFilter();
+		if (filter != null) {
+			setText(filter.filterRepresentation(getText()));
 		}
 		return this;
+	}
+
+	public Filter getFilter() {
+		return filter;
+	}
+
+	public void setFilter(Filter currentFilter) {
+		this.filter = currentFilter;
 	}
 
 }

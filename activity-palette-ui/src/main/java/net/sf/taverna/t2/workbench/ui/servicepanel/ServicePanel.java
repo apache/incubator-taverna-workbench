@@ -21,25 +21,45 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
 import java.awt.BorderLayout;
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
+import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
-import net.sf.taverna.t2.workbench.ui.servicepanel.tree.MockupPanel;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
 /**
  * A panel of available services
  * 
  * @author Stian Soiland-Reyes
- *
+ * 
  */
 @SuppressWarnings("serial")
 public class ServicePanel extends JPanel implements UIComponentSPI {
 
-	public ServicePanel() {
+	private static final String AVAILABLE_SERVICES = "Available services";
+
+	/**
+	 * A Comparable constant to be used with buildPathMap
+	 */
+	private static final UUID SERVICES = UUID
+			.fromString("4DA84170-7746-4817-8C2E-E29AF8B2984D");
+
+	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
+
+	public ServicePanel(ServiceDescriptionRegistry serviceDescriptionRegistry) {
+		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 		initialise();
 	}
 
@@ -57,22 +77,121 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 	public void onDispose() {
 	}
 
+	@SuppressWarnings("unchecked")
+	protected Map<Comparable, Map> buildPathMap() {
+		Map<Comparable, Map> paths = new HashMap<Comparable, Map>();
+		for (ServiceDescription serviceDescription : serviceDescriptionRegistry
+				.getServiceDescriptions()) {
+			Map currentPath = paths;
+			Map pathEntry = paths;
+			for (Object pathElem : serviceDescription.getPath()) {
+				pathEntry = (Map) currentPath.get(pathElem);
+				if (pathEntry == null) {
+					pathEntry = new HashMap();
+					currentPath.put(pathElem, pathEntry);
+				}
+			}
+			List<ServiceDescription> services = (List<ServiceDescription>) pathEntry
+					.get(SERVICES);
+			if (services == null) {
+				services = new ArrayList<ServiceDescription>();
+				pathEntry.put(SERVICES, services);
+			}
+			if (!services.contains(serviceDescription)) {
+				services.add(serviceDescription);
+			}
+		}
+		return paths;
+	}
+
+	protected FilterTreeNode createRoot() {
+		final FilterTreeNode root = new FilterTreeNode(AVAILABLE_SERVICES);
+		new PopulateThread(root).start();
+		return root;
+	}
+
 	protected void initialise() {
 		removeAll();
 		setLayout(new BorderLayout());
-		FilterTreeNode root = new FilterTreeNode("Available services");
-		FilterTreeNode templateServices = new FilterTreeNode("Template services");
-		root.add(templateServices);
-		templateServices.add(new FilterTreeNode("Beanshell"));
-		templateServices.add(new FilterTreeNode("Nested workflow"));
-
-		
-		root.add(new FilterTreeNode("Local services"));
-		root.add(new FilterTreeNode("WSDL services"));
-
-		
-		add(new MockupPanel(new FilterTreeModel(root)));
+		FilterTreeNode root = createRoot();
+		add(new ServiceTreePanel(new FilterTreeModel(root)));
 	}
 
+	@SuppressWarnings("unchecked")
+	protected void populateChildren(FilterTreeNode root, Map pathMap) {
+		List<Comparable> paths = new ArrayList<Comparable>(pathMap.keySet());
+		Collections.sort(paths);
+		for (Comparable path : paths) {
+			if (path.equals(SERVICES)) {
+				continue;
+			}
+			FilterTreeNode node = new FilterTreeNode(path);
+			SwingUtilities.invokeLater(new AddNodeRunnable(root, node));
+			populateChildren(node, (Map) pathMap.get(path));
+		}
+		List<ServiceDescription> services = (List<ServiceDescription>) pathMap
+				.get(SERVICES);
+		if (services != null) {
+			for (ServiceDescription service : services) {
+				SwingUtilities.invokeLater(new AddNodeRunnable(root,
+						new FilterTreeNode(service)));
+			}
+		}
+		if (root.getChildCount() == 0) {
+			// Avoid empty folders in the tree
+			try {
+				SwingUtilities.invokeAndWait(new RemoveNodeRunnable(root));
+			} catch (InterruptedException e) {
+				throw new RuntimeException(
+						"Interrupted while populating service panel", e);
+			} catch (InvocationTargetException e) {
+				throw new RuntimeException(
+						"Exception while populating service panel", e
+								.getCause());
+			}
+		}
+	}
+
+	public class PopulateThread extends Thread {
+		private final FilterTreeNode root;
+
+		private PopulateThread(FilterTreeNode root) {
+			super("Populating service panel");
+			this.root = root;
+		}
+
+		@SuppressWarnings("unchecked")
+		@Override
+		public void run() {
+			Map<Comparable, Map> pathMap = buildPathMap();
+			populateChildren(root, pathMap);
+		}
+	}
+
+	public static class AddNodeRunnable implements Runnable {
+		private final FilterTreeNode node;
+		private final FilterTreeNode root;
+
+		public AddNodeRunnable(FilterTreeNode root, FilterTreeNode node) {
+			this.root = root;
+			this.node = node;
+		}
+
+		public void run() {
+			root.add(node);
+		}
+	}
+
+	public static class RemoveNodeRunnable implements Runnable {
+		private final FilterTreeNode root;
+
+		public RemoveNodeRunnable(FilterTreeNode root) {
+			this.root = root;
+		}
+
+		public void run() {
+			root.removeFromParent();
+		}
+	}
 
 }

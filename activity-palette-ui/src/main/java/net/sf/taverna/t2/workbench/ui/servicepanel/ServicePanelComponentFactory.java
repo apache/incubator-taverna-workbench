@@ -22,6 +22,8 @@ package net.sf.taverna.t2.workbench.ui.servicepanel;
 
 import javax.swing.ImageIcon;
 
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
+import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
@@ -32,8 +34,11 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
  */
 public class ServicePanelComponentFactory implements UIComponentFactorySPI {
 
+	private ServiceDescriptionRegistry serviceDescriptionRegistry = ServiceDescriptionRegistryImpl
+			.getInstance();
+
 	public UIComponentSPI getComponent() {
-		return new ServicePanel();
+		return new ServicePanel(serviceDescriptionRegistry);
 	}
 
 	public ImageIcon getIcon() {
@@ -42,6 +47,15 @@ public class ServicePanelComponentFactory implements UIComponentFactorySPI {
 
 	public String getName() {
 		return "Service panel";
+	}
+
+	public void setServiceDescriptionRegistry(
+			ServiceDescriptionRegistry serviceDescriptionRegistry) {
+		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
+	}
+
+	public ServiceDescriptionRegistry getServiceDescriptionRegistry() {
+		return serviceDescriptionRegistry;
 	}
 
 }

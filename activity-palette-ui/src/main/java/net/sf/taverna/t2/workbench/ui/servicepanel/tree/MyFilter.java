@@ -33,6 +33,9 @@ public class MyFilter implements Filter {
 	}
 
 	private boolean basicFilter(DefaultMutableTreeNode node) {
+		if (filterString.equals("")) {
+			return true;
+		}
 		return node.getUserObject().toString().contains(filterString);
 	}
 
