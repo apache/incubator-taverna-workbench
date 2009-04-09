@@ -47,7 +47,11 @@ public class ServiceTreeCellRenderer extends FilterTreeCellRenderer {
 			ServiceTreeCellRenderer serviceTreeCellRenderer = (ServiceTreeCellRenderer) result;
 			ServiceDescription item = (ServiceDescription) ((FilterTreeNode) value)
 					.getUserObject();
-			serviceTreeCellRenderer.setText(item.getName());
+			String name = item.getName();
+			if (getFilter() != null) {
+				name = getFilter().filterRepresentation(name);
+			}
+			serviceTreeCellRenderer.setText(name);
 			Icon activityIcon = item.getIcon();
 			if (activityIcon != null) {
 				serviceTreeCellRenderer.setIcon(activityIcon);
