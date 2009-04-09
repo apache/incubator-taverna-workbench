@@ -30,9 +30,11 @@ public class MyFilter implements Filter {
 	private static final String HTML_PREFIX = "<html><font color=\"black\">";
 	private String filterString;
 	private boolean superseded;
+	private String filterLowerCase;
 
 	public MyFilter(String filterString) {
 		this.filterString = filterString;
+		this.filterLowerCase = filterString.toLowerCase();
 		this.superseded = false;
 	}
 
@@ -40,7 +42,7 @@ public class MyFilter implements Filter {
 		if (filterString.equals("")) {
 			return true;
 		}
-		return node.getUserObject().toString().contains(filterString);
+		return node.getUserObject().toString().toLowerCase().contains(filterLowerCase);
 	}
 
 	public boolean pass(DefaultMutableTreeNode node) {
@@ -52,15 +54,14 @@ public class MyFilter implements Filter {
 		sb.append(HTML_PREFIX);
 		int from = 0;
 		String originalLowerCase = original.toLowerCase();
-		String filterLowerCase = filterString;
-		int index = originalLowerCase.indexOf(filterLowerCase.toLowerCase(), from);
+		int index = originalLowerCase.indexOf(filterLowerCase, from);
 		while (index > -1) {
 			sb.append(original.substring(from, index));
 			sb.append(HTML_MATCH_START);
 			sb.append(original.substring(index, index+filterLowerCase.length()));
 			sb.append(HTML_MATCH_END);
 			from = index+filterLowerCase.length();
-			index = originalLowerCase.indexOf(filterLowerCase.toLowerCase(), from);
+			index = originalLowerCase.indexOf(filterLowerCase, from);
 		}
 		if (from < original.length()) {
 			sb.append(original.substring(from, original.length()));
