@@ -24,6 +24,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public class MyFilter implements Filter {
 
+	private static final String HTML_MATCH_END = "</font><font color=\"black\">";
+	private static final String HTML_MATCH_START = "</font><font color=\"red\">";
+	private static final String HTML_POSTFIX = "</font></html>";
+	private static final String HTML_PREFIX = "<html><font color=\"black\">";
 	private String filterString;
 	private boolean superseded;
 
@@ -44,9 +48,25 @@ public class MyFilter implements Filter {
 	}
 
 	public String filterRepresentation(String original) {
-		return ("<html><font color=\"black\">"
-				+ original.replace(filterString, "</font><font color=\"red\">"
-						+ filterString + "</font><font color=\"black\">") + "</font></html>");
+		StringBuffer sb = new StringBuffer();
+		sb.append(HTML_PREFIX);
+		int from = 0;
+		String originalLowerCase = original.toLowerCase();
+		String filterLowerCase = filterString;
+		int index = originalLowerCase.indexOf(filterLowerCase.toLowerCase(), from);
+		while (index > -1) {
+			sb.append(original.substring(from, index));
+			sb.append(HTML_MATCH_START);
+			sb.append(original.substring(index, index+filterLowerCase.length()));
+			sb.append(HTML_MATCH_END);
+			from = index+filterLowerCase.length();
+			index = originalLowerCase.indexOf(filterLowerCase.toLowerCase(), from);
+		}
+		if (from < original.length()) {
+			sb.append(original.substring(from, original.length()));
+		}
+		sb.append(HTML_POSTFIX);
+		return sb.toString();
 	}
 
 	/**
