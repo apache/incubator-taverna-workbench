@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
 import java.awt.BorderLayout;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -135,19 +134,6 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			for (ServiceDescription service : services) {
 				SwingUtilities.invokeLater(new AddNodeRunnable(root,
 						new FilterTreeNode(service)));
-			}
-		}
-		if (root.getChildCount() == 0) {
-			// Avoid empty folders in the tree
-			try {
-				SwingUtilities.invokeAndWait(new RemoveNodeRunnable(root));
-			} catch (InterruptedException e) {
-				throw new RuntimeException(
-						"Interrupted while populating service panel", e);
-			} catch (InvocationTargetException e) {
-				throw new RuntimeException(
-						"Exception while populating service panel", e
-								.getCause());
 			}
 		}
 	}
