@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel.tree;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -31,20 +31,24 @@ public class FilterTreeNode extends DefaultMutableTreeNode {
 	 * 
 	 */
 	private static final long serialVersionUID = 1933553584349932151L;
-	private Filter currentFilter;
+	private Filter filter;
 	private boolean passed = true;
-	private List<FilterTreeNode> children = new LinkedList<FilterTreeNode>();
+	private List<FilterTreeNode> filteredChildren = new ArrayList<FilterTreeNode>();
 
 	public FilterTreeNode(Object userObject) {
 		super(userObject);
 		userObject.toString();
 	}
 
+	public Filter getFilter() {
+		return filter;
+	}
+	
 	public void setFilter(Filter filter) {
 		if ((filter == null) || !filter.isSuperseded()) {
-			this.currentFilter = filter;
+			this.filter = filter;
 			passed = false;
-			children.clear();
+			filteredChildren.clear();
 			if (filter == null) {
 				passed = true;
 				passFilterDown(null);
@@ -53,7 +57,7 @@ public class FilterTreeNode extends DefaultMutableTreeNode {
 				passFilterDown(null);
 			} else {
 				passFilterDown(filter);
-				passed = children.size() != 0;
+				passed = filteredChildren.size() != 0;
 			}
 		}
 	}
@@ -64,32 +68,42 @@ public class FilterTreeNode extends DefaultMutableTreeNode {
 			FilterTreeNode realChild = (FilterTreeNode) super.getChildAt(i);
 			realChild.setFilter(filter);
 			if (realChild.isPassed()) {
-				children.add(realChild);
+				filteredChildren.add(realChild);
 			}
 		}
 	}
 
 	public void add(FilterTreeNode node) {
 		super.add(node);
-		node.setFilter(currentFilter);
+		node.setFilter(filter);
 		// TODO work up
 		if (node.isPassed()) {
-			children.add(node);
+			filteredChildren.add(node);
 		}
 	}
+	
+	@Override
+	public void remove(int childIndex) {
+		if (filter != null) {
+			// as child indexes might be inconsistent..
+			throw new IllegalStateException("Can't remove while the filter is active");
+		}
+		super.remove(childIndex);
+	}
+	
 
 	public int getChildCount() {
-		// if (currentFilter == null) {
-		// return super.getChildCount();
-		// }
-		return (children.size());
+		if (filter == null) {
+			return super.getChildCount();
+		}
+		return (filteredChildren.size());
 	}
 
 	public FilterTreeNode getChildAt(int index) {
-		// if (currentFilter == null) {
-		// return (FilterTreeNode) super.getChildAt(index);
-		// }
-		return children.get(index);
+		if (filter == null) {
+			return (FilterTreeNode) super.getChildAt(index);
+		}
+		return filteredChildren.get(index);
 	}
 
 	public boolean isPassed() {
