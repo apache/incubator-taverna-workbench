@@ -37,7 +37,6 @@ public final class FilterTreeModel extends DefaultTreeModel {
 	}
 
 	public void setFilter(Filter filter) {
-		System.out.println("Hello again");
 		if (root != null) {
 			currentFilter = filter;
 			((FilterTreeNode) root).setFilter(filter);

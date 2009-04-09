@@ -128,13 +128,10 @@ public class TreePanel extends JPanel {
 
 	protected synchronized void runFilter() throws InterruptedException,
 			InvocationTargetException {
-		System.out.println("Actually ran");
 		String text = searchField.getText();
 		if (text.length() == 0) {
 			setFilter(null);
 			for (TreePath tp : expandedPaths) {
-				System.out.println("Expanding a path to "
-						+ tp.getLastPathComponent().toString());
 				tree.expandPath(tp);
 			}
 		} else {
@@ -213,8 +210,6 @@ public class TreePanel extends JPanel {
 		}
 
 		public void keyReleased(KeyEvent e) {
-
-			System.out.println("Cancelled with " + searchField.getText());
 			timer.cancel();
 			timer = new Timer();
 			timer.schedule(new TimerTask() {
@@ -232,8 +227,6 @@ public class TreePanel extends JPanel {
 				throws ExpandVetoException {
 			if (searchField.getText().length() == 0) {
 				expandedPaths.remove(event.getPath());
-				System.out.println("Collapsed "
-						+ event.getPath().getLastPathComponent().toString());
 			}
 		}
 
@@ -241,8 +234,6 @@ public class TreePanel extends JPanel {
 				throws ExpandVetoException {
 			if (searchField.getText().length() == 0) {
 				expandedPaths.add(event.getPath());
-				System.out.println("Expanded "
-						+ event.getPath().getLastPathComponent().toString());
 			}
 		}
 	}
