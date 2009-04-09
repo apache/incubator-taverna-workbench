@@ -30,6 +30,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Properties;
 
@@ -38,6 +39,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
@@ -110,15 +112,30 @@ public class Workbench extends JFrame {
 	}
 
 	public static final Workbench getInstance() {
-		synchronized (Singleton.instance) {
-			if (! Singleton.instance.isInitialized) {
-				Singleton.instance.isInitialized  = true;
-				Singleton.instance.initialize();
+		boolean initializing = false;
+		synchronized (Singleton.class) {
+			if (!Singleton.instance.isInitialized) {
+				Singleton.instance.isInitialized = true;
+				initializing = true;
+			}
+		}
+		if (initializing) {
+			try {
+				SwingUtilities.invokeAndWait(new Runnable() {
+					public void run() {
+						Singleton.instance.initialize();
+					}
+				});
+			} catch (InterruptedException e) {
+				throw new RuntimeException(
+						"Interrupted while initializing workbench", e);
+			} catch (InvocationTargetException e) {
+				throw new RuntimeException(
+						"Could not initialize workbench", e.getCause());
 			}
 		}
 		return Singleton.instance;
 	}
-
 
 	/**
 	 * @see #getInstance()
@@ -128,9 +145,9 @@ public class Workbench extends JFrame {
 
 	private void makeGUI() {
 		setLayout(new GridBagLayout());
-		
+
 		addWindowListener(new WindowClosingListener());
-		
+
 		Helper.setKeyCatcher(this);
 
 		URL launcherLogo = getClass().getResource(LAUNCHER_LOGO_PNG);
@@ -139,7 +156,7 @@ public class Workbench extends JFrame {
 			setIconImage(imageIcon.getImage());
 		}
 		setTitle(appConfig.getTitle());
-		
+
 		OSXApplication.setListener(osxAppListener);
 
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -168,7 +185,8 @@ public class Workbench extends JFrame {
 		gbc.weighty = 0.1;
 		add(basePane, gbc);
 
-		/* Need to do this <b>last</b> as it references perspectives 
+		/*
+		 * Need to do this <b>last</b> as it references perspectives
 		 */
 		JMenuBar menuBar = menuManager.createMenuBar();
 		setJMenuBar(menuBar);
@@ -180,7 +198,7 @@ public class Workbench extends JFrame {
 		perspectives = new WorkbenchPerspectives(basePane, perspectiveToolBar);
 		return basePane;
 	}
-	
+
 	public void makeNamedComponentVisible(String componentName) {
 		basePane.makeNamedComponentVisible(componentName);
 	}
@@ -207,8 +225,7 @@ public class Workbench extends JFrame {
 
 		return toolbarPanel;
 	}
-	
-	
+
 	protected void initialize() {
 		makeGUI();
 		fileManager.newDataflow();
@@ -218,18 +235,20 @@ public class Workbench extends JFrame {
 			splash.setClosable();
 			splash.requestClose();
 		}
-		
-		// Register a listener with FileManager so whenever a current workflow is set 
+
+		// Register a listener with FileManager so whenever a current workflow
+		// is set
 		// we make sure we are in the design perspective
 		fileManager.addObserver(new SwitchToWorkflowPerspective());
 	}
 
 	public void exit() {
 		// Save the perspectives to XML files
-		try {			
-			
-			PerspectiveSPI currentPerspective = (PerspectiveSPI) ModelMap.getInstance()
-			.getModel(ModelMapConstants.CURRENT_PERSPECTIVE);
+		try {
+
+			PerspectiveSPI currentPerspective = (PerspectiveSPI) ModelMap
+					.getInstance().getModel(
+							ModelMapConstants.CURRENT_PERSPECTIVE);
 			if (currentPerspective != null
 					&& currentPerspective instanceof CustomPerspective) {
 				((CustomPerspective) currentPerspective).update(basePane
@@ -237,16 +256,23 @@ public class Workbench extends JFrame {
 			}
 			perspectives.saveAll();
 		} catch (Exception ex) {
-			logger.error("Error saving perspectives when exiting the Workbench.", ex);
+			logger
+					.error(
+							"Error saving perspectives when exiting the Workbench.",
+							ex);
 		}
-		 
-		// Save the current Workbench window size and position to a preferences file
+
+		// Save the current Workbench window size and position to a preferences
+		// file
 		try {
 			storeSizeAndLocationPrefs();
 		} catch (Exception ex) {
-			logger.error("Error saving the Workbench size and position when exiting the Workbench.", ex);
+			logger
+					.error(
+							"Error saving the Workbench size and position when exiting the Workbench.",
+							ex);
 		}
-		
+
 		if (closeAllWorkflowsAction.closeAllWorkflows(this)) {
 			System.exit(0);
 		}
@@ -255,17 +281,18 @@ public class Workbench extends JFrame {
 
 	/**
 	 * Store current Workbench position and size.
+	 * 
 	 * @throws IOException
 	 */
 	private void storeSizeAndLocationPrefs() throws IOException {
 
-		// Store the current Workbench window size and position 
-		File confDir = new File(appRuntime.getApplicationHomeDir(),"conf");
+		// Store the current Workbench window size and position
+		File confDir = new File(appRuntime.getApplicationHomeDir(), "conf");
 		File propFile = new File(confDir, "preferences.properties");
-		if (!propFile.exists()){
+		if (!propFile.exists()) {
 			propFile.createNewFile();
 		}
-		
+
 		Writer writer = new BufferedWriter(new FileWriter(propFile));
 		writer.write("width=" + this.getWidth() + "\n");
 		writer.write("height=" + this.getHeight() + "\n");
@@ -274,29 +301,29 @@ public class Workbench extends JFrame {
 		writer.flush();
 		writer.close();
 	}
-	
+
 	/**
 	 * Loads last saved Workbench position and size.
+	 * 
 	 * @throws IOException
 	 */
 	private void loadSizeAndLocationPrefs() {
-		File confDir = new File(appRuntime.getApplicationHomeDir(),"conf");
+		File confDir = new File(appRuntime.getApplicationHomeDir(), "conf");
 		File propFile = new File(confDir, "preferences.properties");
-		
+
 		// Screen size
 		Dimension screen = getToolkit().getScreenSize();
 
 		if (!propFile.exists()) {
-			
+
 			// set default size to 3/4 of width and height
 			setSize((int) (screen.getWidth() * 0.75),
 					(int) (screen.getHeight() * 0.75));
-			
-			//this.setSize(new Dimension(1000, 800));
-			this.setLocation(0,0);
-		}
-		else{
-		Properties props = new Properties();
+
+			// this.setSize(new Dimension(1000, 800));
+			this.setLocation(0, 0);
+		} else {
+			Properties props = new Properties();
 			try {
 				props.load(propFile.toURI().toURL().openStream());
 				String swidth = props.getProperty("width");
@@ -325,11 +352,14 @@ public class Workbench extends JFrame {
 				this.setLocation(x, y);
 
 			} catch (Exception e) {
-				logger.error("Error loading default Workbench window dimensions.", e);
+				logger
+						.error(
+								"Error loading default Workbench window dimensions.",
+								e);
 			}
 		}
 	}
-	
+
 	private void setLookAndFeel() {
 		// String landf = MyGridConfiguration
 		// .getProperty("taverna.workbench.themeclass");
@@ -386,10 +416,10 @@ public class Workbench extends JFrame {
 
 	private final class SwitchToWorkflowPerspective implements
 			Observer<FileManagerEvent> {
-		// If we currently are not in the design perspective  - switch to it now
+		// If we currently are not in the design perspective - switch to it now
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) throws Exception {
-			if (message instanceof SetCurrentDataflowEvent){
+			if (message instanceof SetCurrentDataflowEvent) {
 				getPerspectives().setWorkflowPerspective();
 			}
 		}
