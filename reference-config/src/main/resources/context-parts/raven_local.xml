@@ -18,14 +18,14 @@
 		<system>
 			<!-- T2Reference API -->
 			<sys
-				artifact="net.sf.taverna.t2:t2reference-api:0.3-SNAPSHOT" />
+				artifact="net.sf.taverna.t2.core:reference-api:0.6-SNAPSHOT" />
 
 			<!-- T2Platform -->
-			<sys artifact="net.sf.taverna.t2:platform:0.3-SNAPSHOT" />
+			<sys artifact="net.sf.taverna.t2.infrastructure:platform:1.10-SNAPSHOT" />
 			<sys artifact="commons-logging:commons-logging:1.1.1" />
 
 			<!-- Raven -->
-			<sys artifact="uk.org.mygrid.taverna.raven:raven:1.10-SNAPSHOT" />
+			<sys artifact="net.sf.taverna.t2.infrastructure:raven:1.10-SNAPSHOT" />
 
 			<!-- Spring + Essential External Modules -->
 			<sys artifact="org.springframework:spring-orm:2.5.4" />
