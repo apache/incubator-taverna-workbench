@@ -135,10 +135,14 @@ public class TreePanel extends JPanel {
 				tree.expandPath(tp);
 			}
 		} else {
-			setFilter(new MyFilter(text));
+			setFilter(createFilter(text));
 			expandTreePaths();
 		}
 
+	}
+
+	public Filter createFilter(String text) {
+		return new MyFilter(text);
 	}
 
 	public void setFilter(Filter filter) {

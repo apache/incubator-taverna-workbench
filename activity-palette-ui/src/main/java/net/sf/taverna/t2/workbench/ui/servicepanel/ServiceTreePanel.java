@@ -14,6 +14,7 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
 import net.sf.taverna.t2.partition.ActivityItem;
+import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.TreePanel;
@@ -34,6 +35,11 @@ public class ServiceTreePanel extends TreePanel {
 		tree.expandRow(0);
 	}
 
+	@Override
+	public Filter createFilter(String text) {
+		return new ServiceFilter(text);
+	}
+	
 	@Override
 	protected TreeCellRenderer createCellRenderer() {
 		return new ServiceTreeCellRenderer();

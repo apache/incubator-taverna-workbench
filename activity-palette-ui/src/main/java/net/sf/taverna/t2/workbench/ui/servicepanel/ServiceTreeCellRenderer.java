@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
+import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.Icon;
@@ -51,6 +52,7 @@ public class ServiceTreeCellRenderer extends FilterTreeCellRenderer {
 			if (getFilter() != null) {
 				name = getFilter().filterRepresentation(name);
 			}
+//			serviceTreeCellRenderer.setForeground(Color.red);
 			serviceTreeCellRenderer.setText(name);
 			Icon activityIcon = item.getIcon();
 			if (activityIcon != null) {

@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.ui.servicepanel;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,6 +49,8 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	private static final String AVAILABLE_SERVICES = "Available services";
+
+	private ServiceComparator serviceComparator = new ServiceComparator();
 
 	/**
 	 * A Comparable constant to be used with buildPathMap
@@ -131,10 +134,19 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		List<ServiceDescription> services = (List<ServiceDescription>) pathMap
 				.get(SERVICES);
 		if (services != null) {
+			Collections.sort(services, serviceComparator);
 			for (ServiceDescription service : services) {
 				SwingUtilities.invokeLater(new AddNodeRunnable(root,
 						new FilterTreeNode(service)));
 			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static class ServiceComparator implements
+			Comparator<ServiceDescription> {
+		public int compare(ServiceDescription o1, ServiceDescription o2) {
+			return o1.getName().compareTo(o2.getName());
 		}
 	}
 
