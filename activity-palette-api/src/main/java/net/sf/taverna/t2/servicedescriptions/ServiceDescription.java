@@ -21,6 +21,7 @@ public interface ServiceDescription<ConfigType> {
 	@SuppressWarnings("unchecked")
 	public List<? extends Comparable> getPath();
 	
+	
 	public boolean isTemplateService();
 	
 	@Override
