@@ -43,6 +43,7 @@ public class ServiceFilter implements Filter {
 		this.superseded = false;
 	}
 
+	@SuppressWarnings("unchecked")
 	private boolean basicFilter(DefaultMutableTreeNode node) {
 		if (filterString.equals("")) {
 			return true;
@@ -65,17 +66,21 @@ public class ServiceFilter implements Filter {
 					keyword = searchTerm;
 				}
 				try {
-					BeanInfo beanInfo = Introspector.getBeanInfo(
-							serviceDescription.getClass(), Object.class);
+					BeanInfo beanInfo = Introspector
+							.getBeanInfo(serviceDescription.getClass());
 					for (PropertyDescriptor property : beanInfo
 							.getPropertyDescriptors()) {
 						if (superseded) {
 							return false;
 						}
-						if (type == null  && ! property.isHidden() || 
-								property.getName().equalsIgnoreCase(type)) {
+						if (type == null && !property.isHidden()
+								&& !property.isExpert()
+								|| property.getName().equalsIgnoreCase(type)) {
 							Object readProperty = property.getReadMethod()
 									.invoke(serviceDescription, new Object[0]);
+							if (readProperty == null) {
+								continue;
+							}
 							if (readProperty.toString().toLowerCase().contains(
 									keyword)) {
 								continue search;
