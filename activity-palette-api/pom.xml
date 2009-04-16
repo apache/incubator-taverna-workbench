@@ -52,5 +52,10 @@
 			<artifactId>workflowmodel-api</artifactId>
 			<version>${t2.core.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.lang</groupId>
+			<artifactId>beans</artifactId>
+			<version>${t2.lang.version}</version>
+		</dependency>
 	</dependencies>
 </project>
