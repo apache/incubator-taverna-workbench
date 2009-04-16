@@ -1,8 +1,6 @@
-net.sf.taverna.t2.workbench.views.graph.toolbar.WorkflowMetadataToolbarSection
 net.sf.taverna.t2.workbench.views.graph.toolbar.GraphEditToolbarSection
 net.sf.taverna.t2.workbench.views.graph.toolbar.GraphDeleteToolbarSection
 net.sf.taverna.t2.workbench.views.graph.toolbar.GraphSaveToolbarSection
-net.sf.taverna.t2.workbench.views.graph.toolbar.WorkflowMetadataToolbarAction
 net.sf.taverna.t2.workbench.views.graph.toolbar.AddWFInputToolbarAction
 net.sf.taverna.t2.workbench.views.graph.toolbar.AddWFOutputToolbarAction
 net.sf.taverna.t2.workbench.views.graph.toolbar.RenameWFInputOutputProcessorToolbarAction
@@ -10,11 +8,9 @@ net.sf.taverna.t2.workbench.views.graph.toolbar.DeleteGraphComponentToolbarActio
 net.sf.taverna.t2.workbench.views.graph.toolbar.SaveGraphImageToolbarAction
 
 net.sf.taverna.t2.workbench.views.graph.menu.GraphMenuSection
-net.sf.taverna.t2.workbench.views.graph.menu.WorkflowMetadataMenuSection
 net.sf.taverna.t2.workbench.views.graph.menu.GraphEditMenuSection
 net.sf.taverna.t2.workbench.views.graph.menu.GraphDeleteMenuSection
 net.sf.taverna.t2.workbench.views.graph.menu.GraphSaveMenuSection
-net.sf.taverna.t2.workbench.views.graph.menu.WorkflowMetadataMenuAction
 net.sf.taverna.t2.workbench.views.graph.menu.AddWFInputMenuAction
 net.sf.taverna.t2.workbench.views.graph.menu.AddWFOutputMenuAction
 net.sf.taverna.t2.workbench.views.graph.menu.RenameWFInputOutputProcessorMenuAction
