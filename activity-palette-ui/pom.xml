@@ -67,5 +67,15 @@
 			<artifactId>activity-icons-api</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.lang</groupId>
+			<artifactId>uibuilder</artifactId>
+			<version>${t2.lang.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-beanutils</groupId>
+			<artifactId>commons-beanutils</artifactId>
+			<version>1.8.0</version>
+		</dependency>
 	</dependencies>
 </project>

@@ -1,2 +1,3 @@
 net.sf.taverna.t2.workbench.ui.activitypalette.menu.AddActivityMenu
+net.sf.taverna.t2.workbench.ui.servicepanel.menu.AddServiceProviderMenu
 
