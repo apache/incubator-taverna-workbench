@@ -2,6 +2,10 @@ package net.sf.taverna.t2.servicedescriptions;
 
 import java.util.Collection;
 
+import javax.swing.Icon;
+
+import net.sf.taverna.t2.lang.beans.PropertyAnnotation;
+
 /**
  * A provider of service descriptions
  * 
@@ -46,5 +50,8 @@ public interface ServiceDescriptionProvider {
 	 * @return Name of provider
 	 */
 	public String getName();
+	
+	@PropertyAnnotation(expert = true)
+	public abstract Icon getIcon();
 
 }
