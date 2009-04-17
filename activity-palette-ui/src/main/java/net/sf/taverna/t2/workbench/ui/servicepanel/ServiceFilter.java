@@ -36,15 +36,20 @@ public class ServiceFilter implements Filter {
 	private String filterString;
 	private boolean superseded;
 	private String[] filterLowerCaseSplit;
+	private final Object rootToIgnore;
 
-	public ServiceFilter(String filterString) {
+	public ServiceFilter(String filterString, Object rootToIgnore) {
 		this.filterString = filterString;
+		this.rootToIgnore = rootToIgnore;
 		this.filterLowerCaseSplit = filterString.toLowerCase().split(" ");
 		this.superseded = false;
 	}
 
 	@SuppressWarnings("unchecked")
 	private boolean basicFilter(DefaultMutableTreeNode node) {
+		if (node == rootToIgnore) {
+			return false;
+		}
 		if (filterString.equals("")) {
 			return true;
 		}
@@ -83,6 +88,8 @@ public class ServiceFilter implements Filter {
 							}
 							if (readProperty.toString().toLowerCase().contains(
 									keyword)) {
+								System.out.println("Found " + keyword + " in " + property.getName() + ": " + readProperty);
+								// Found it, try next word
 								continue search;
 							} else {
 								// Dig deeper?

@@ -47,7 +47,7 @@ public class ServiceTreePanel extends TreePanel {
 
 	@Override
 	public Filter createFilter(String text) {
-		return new ServiceFilter(text);
+		return new ServiceFilter(text, filterTreeModel.getRoot());
 	}
 
 	@Override
