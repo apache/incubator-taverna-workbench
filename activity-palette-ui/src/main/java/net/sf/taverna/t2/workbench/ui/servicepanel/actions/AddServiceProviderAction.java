@@ -67,7 +67,7 @@ public class AddServiceProviderAction extends AbstractAction {
 
 	@SuppressWarnings("unchecked")
 	public AddServiceProviderAction(ConfigurableServiceProvider confProvider) {
-		super(confProvider.getName());
+		super(confProvider.getName() + "...", confProvider.getIcon());
 		this.confProvider = confProvider;
 	}
 
@@ -83,9 +83,11 @@ public class AddServiceProviderAction extends AbstractAction {
 		JDialog dialog = new JDialog();
 		dialog.setTitle("Add " + confProvider.getName());
 		dialog.add(buildEditor);
-		dialog.add(
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.add(
 				new JButton(new AddProviderAction(configurationBean, dialog)),
-				BorderLayout.SOUTH);
+				BorderLayout.WEST);
+		dialog.add(buttonPanel, BorderLayout.SOUTH);
 		dialog.setSize(DIALOG_SIZE);
 		dialog.setVisible(true);
 	}

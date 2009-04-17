@@ -69,8 +69,7 @@ public class AddServiceProviderMenu extends AbstractMenuCustom {
 				.getUnconfiguredServiceProviders()) {
 			AddServiceProviderAction addAction = new AddServiceProviderAction(
 					provider);
-			addAction
-					.setServiceDescriptionRegistry(getServiceDescriptionRegistry());
+			addAction.setServiceDescriptionRegistry(getServiceDescriptionRegistry());
 			addServiceMenu.add(addAction);
 			isEmpty = false;
 		}
