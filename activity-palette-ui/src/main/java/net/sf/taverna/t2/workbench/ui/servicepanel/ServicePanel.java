@@ -72,7 +72,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	private static final int STATUS_LINE_UPDATE_MS = 400;
 
-	private PopulateThread populateThread;
+	private TreeUpdaterThread populateThread;
 
 	private FilterTreeNode root = new FilterTreeNode(AVAILABLE_SERVICES);
 
@@ -147,17 +147,17 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				return;
 			}
 
-			populateThread = new PopulateThread();
+			populateThread = new TreeUpdaterThread();
 			populateThread.start();
 		}
 	}
 
-	public class PopulateThread extends Thread {
+	public class TreeUpdaterThread extends Thread {
 
 		private boolean aborting = false;
 
-		private PopulateThread() {
-			super("Populating service panel");
+		private TreeUpdaterThread() {
+			super("Updating service panel");
 		}
 
 		public void abort() {
@@ -193,6 +193,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 						pathEntry = new HashMap();
 						currentPath.put(pathElem, pathEntry);
 					}
+					currentPath = pathEntry;
 				}
 				List<ServiceDescription> services = (List<ServiceDescription>) pathEntry
 						.get(SERVICES);
