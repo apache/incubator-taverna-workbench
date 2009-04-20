@@ -34,6 +34,7 @@ import java.util.TimerTask;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -60,7 +61,7 @@ public class TreePanel extends JPanel {
 
 	public TreePanel(FilterTreeModel treeModel) {
 		filterTreeModel = treeModel;
-		initialize();
+		initialize(null);
 	}
 
 	protected void expandTreePaths() throws InterruptedException,
@@ -87,7 +88,7 @@ public class TreePanel extends JPanel {
 		}
 	}
 
-	protected void initialize() {
+	protected void initialize(JComponent extra) {
 		setLayout(new BorderLayout());
 		treeScrollPane = new JScrollPane(tree);
 		tree.setModel(filterTreeModel);
@@ -110,13 +111,25 @@ public class TreePanel extends JPanel {
 		c.gridy = 0;
 		c.weightx = 1.0;
 		topPanel.add(searchField, c);
+		
 
 		c.fill = GridBagConstraints.NONE;
 		c.gridx = 2;
 		c.gridy = 0;
 		c.weightx = 0.0;
 		topPanel.add(new JButton(new ClearAction()), c);
+
+		if (extra != null) {
+			c.fill = GridBagConstraints.NONE;
+			c.gridx = 0;
+			c.gridy = 1;
+			c.weightx = 0.0;
+		topPanel.add(extra, c);
+	}
+	
 		add(topPanel, BorderLayout.NORTH);
+
+		
 		add(treeScrollPane, BorderLayout.CENTER);
 
 		searchField.addKeyListener(new SearchFieldKeyAdapter());
