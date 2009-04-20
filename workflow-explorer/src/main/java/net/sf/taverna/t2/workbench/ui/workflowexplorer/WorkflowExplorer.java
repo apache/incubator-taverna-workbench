@@ -33,7 +33,6 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JMenuItem;
-import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -41,7 +40,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-//import org.apache.log4j.Logger;
+import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -59,8 +58,9 @@ import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
-import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 /**
@@ -73,7 +73,10 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
  * 
  */
 @SuppressWarnings("serial")
-public class WorkflowExplorer extends JPanel implements UIComponentSPI {
+public class WorkflowExplorer extends WorkflowView {
+
+	private static Logger logger = Logger
+	.getLogger(WorkflowExplorer.class);
 
 	/* Purple colour for shaded label on pop up menus */
 	public static final Color PURPLISH = new Color(0x8070ff);
@@ -143,6 +146,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	public WorkflowExplorer() {
 		
 		super();
+		this.setTransferHandler(new ServiceTransferHandler());
 
 		// Create a tree that will represent a view over the current workflow
 		// Initially, there is no workflow opened, so we create an empty tree,
@@ -151,7 +155,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 		// created, which is represented with a NON-empty JTree with four nodes
 		// (Inputs, Outputs, Processors, and Data links) that themselves have no
 		// children.
-		wfTree = new JTree(new DefaultMutableTreeNode("No workflow open"));
+		assignWfTree(new JTree(new DefaultMutableTreeNode("No workflow open")));
 
 		// Start observing when current workflow is switched (e.g. a new workflow
 		// opened or switched between opened workflows). Note that closing a workflow
@@ -210,6 +214,13 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 
 		// Draw visual components
 		initComponents();
+		
+
+	}
+	
+	private void assignWfTree(JTree tree) {
+		wfTree = tree;
+		wfTree.setTransferHandler(new ServiceTransferHandler());
 	}
 
 	/**
@@ -244,7 +255,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 		workflow = df;
 
 		// Create a new tree and populate it with the workflow's data
-		wfTree = createTreeFromWorkflow(workflow);
+		assignWfTree(createTreeFromWorkflow(workflow));
 
 		// Add the new tree to the list of opened workflow trees
 		openedWorkflowsTrees.put(workflow, wfTree);
@@ -294,7 +305,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 		JTree oldTree = openedWorkflowsTrees.get(workflow);
 		
 		// Create the new tree from the updated workflow
-		wfTree = createTreeFromWorkflow(workflow);
+		assignWfTree(createTreeFromWorkflow(workflow));
 		
 		// Update the tree in the list of opened workflow trees
 		openedWorkflowsTrees.put(workflow, wfTree);
