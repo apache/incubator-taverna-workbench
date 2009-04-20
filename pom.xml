@@ -49,6 +49,7 @@
 		<module>results-view</module>
 		<module>run-ui</module>
 		<module>workflow-explorer</module>
+		<module>workflow-view</module>
 	</modules>
 	<repositories>
 		<repository>
