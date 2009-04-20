@@ -21,9 +21,14 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel.menu;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
 import java.net.URI;
 
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
 import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JPopupMenu;
 
 import net.sf.taverna.t2.partition.ActivityQueryFactory;
 import net.sf.taverna.t2.partition.QueryFactory;
@@ -34,35 +39,40 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
 import net.sf.taverna.t2.workbench.ui.servicepanel.actions.AddServiceProviderAction;
 
 /**
- * A menu that provides a set up menu actions for adding new Activity queries to
- * the Activity Palette. <br>
- * The Actions are discovered from the ActivityQueryFactory's found through the
- * QueryFactory SPI.
+ * A menu that provides a set up menu actions for adding new service providers to
+ * the Service Panel. <br>
+ * The Actions are discovered from the ServiceDescription's found through the
+ * SPI.
  * 
  * @author Stuart Owen
  * @author Stian Soiland-Reyes
+ * @author Alan R Williams
  * 
- * @see ActivityQueryFactory
- * @see QueryFactory
+ * @see ServiceDescription
+ * @see ServicePanel
  * 
  */
-public class AddServiceProviderMenu extends AbstractMenuCustom {
-
-	private static final URI ADD_SERVICE_PROVIDER_URI = URI
-			.create("http://taverna.sf.net/2008/t2workbench/menu#addServiceProvider");
-	private static final URI ACTIVITY_URI = URI
-			.create("http://taverna.sf.net/2008/t2workbench/menu#activity");
+public class AddServiceProviderMenu extends JButton {
+	
+	private final static String ADD_SERVICE_PROVIDER_MENU_NAME = "Add Service";
 
 	public AddServiceProviderMenu() {
-		super(ACTIVITY_URI, 40, ADD_SERVICE_PROVIDER_URI);
+		super();
+		
+		final Component c = createCustomComponent();
+		this.setAction(new AbstractAction(ADD_SERVICE_PROVIDER_MENU_NAME){
+
+			public void actionPerformed(ActionEvent e) {
+				((JPopupMenu) c).show(AddServiceProviderMenu.this, 0, AddServiceProviderMenu.this.getHeight());
+			}});
 	}
 
 	private ServiceDescriptionRegistry serviceDescriptionRegistry = ServiceDescriptionRegistryImpl
 			.getInstance();
 
 	@SuppressWarnings("unchecked")
-	protected Component createCustomComponent() {
-		JMenu addServiceMenu = new JMenu("New service");
+	private Component createCustomComponent() {
+		JPopupMenu addServiceMenu = new JPopupMenu("New service");
 		addServiceMenu.setToolTipText("Add a new service provider");
 		boolean isEmpty = true;
 		for (ConfigurableServiceProvider provider : getServiceDescriptionRegistry()
