@@ -8,6 +8,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeExpansionEvent;
@@ -18,6 +19,7 @@ import javax.swing.tree.TreePath;
 
 import net.sf.taverna.t2.partition.ActivityItem;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
+import net.sf.taverna.t2.workbench.ui.servicepanel.menu.AddServiceProviderMenu;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
@@ -31,14 +33,16 @@ public class ServiceTreePanel extends TreePanel {
 	private static final long serialVersionUID = 6611462684296693909L;
 
 	private static Logger logger = Logger.getLogger(ServiceTreePanel.class);
+	
+	private AddServiceProviderMenu addServiceButton;
 
 	public ServiceTreePanel(FilterTreeModel treeModel) {
 		super(treeModel);
 	}
 
 	@Override
-	protected void initialize() {
-		super.initialize();
+	protected void initialize(JComponent extra) {
+		super.initialize(new AddServiceProviderMenu());
 		tree.setDragEnabled(true);
 		tree.setTransferHandler(new ServiceTransferHandler());
 		tree.addTreeWillExpandListener(new AvoidRootCollapse());
