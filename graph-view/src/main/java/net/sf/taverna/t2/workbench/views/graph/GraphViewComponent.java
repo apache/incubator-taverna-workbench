@@ -67,7 +67,9 @@ import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workflowmodel.Condition;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -89,7 +91,7 @@ import org.apache.log4j.Logger;
  * @author Tom Oinn
  *
  */
-public class GraphViewComponent extends JPanel implements UIComponentSPI {
+public class GraphViewComponent extends WorkflowView {
 
 	private static final long serialVersionUID = 1L;
 
@@ -117,7 +119,8 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 	private Timer timer;
 	
 	public GraphViewComponent() {
-		super(new BorderLayout());
+		super();
+		this.setLayout(new BorderLayout());
 
 		svgCanvas = new JSVGCanvas(null, true, false);
 		svgCanvas.setEnableZoomInteractor(false);
@@ -171,7 +174,7 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 			}
 		});
 
-		svgCanvas.setTransferHandler(new GraphViewTransferHandler(this));
+		svgCanvas.setTransferHandler(new ServiceTransferHandler());
 		
 		ActionListener taskPerformer = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
