@@ -123,20 +123,21 @@ public class TreePanel extends JPanel {
 		c.weightx = 0.2;
 		topPanel.add(new JPanel(), c);
 		
+		JPanel topExtraPanel = new JPanel();
+		topExtraPanel.setLayout(new BorderLayout());
+
+		topExtraPanel.add(topPanel, BorderLayout.NORTH);
 		
 		Component extraComponent = createExtraComponent();
 		if (extraComponent != null) {
-			c.fill = GridBagConstraints.NONE;
-			c.gridx = 0;
-			c.gridy = 1;
-			c.gridwidth = 4;
-			c.weightx = 0.0;
-			topPanel.add(extraComponent, c);
+			JPanel extraPanel  = new JPanel();
+			extraPanel.setLayout(new BorderLayout());
+			extraPanel.add(extraComponent, BorderLayout.WEST);
+			topExtraPanel.add(extraPanel, BorderLayout.CENTER);
 	}
 	
-		add(topPanel, BorderLayout.NORTH);
+		add(topExtraPanel, BorderLayout.NORTH);
 
-		
 		add(treeScrollPane, BorderLayout.CENTER);
 
 		searchField.addKeyListener(new SearchFieldKeyAdapter());
