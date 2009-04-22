@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel.tree;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -34,7 +35,6 @@ import java.util.TimerTask;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -61,7 +61,7 @@ public class TreePanel extends JPanel {
 
 	public TreePanel(FilterTreeModel treeModel) {
 		filterTreeModel = treeModel;
-		initialize(null);
+		initialize();
 	}
 
 	protected void expandTreePaths() throws InterruptedException,
@@ -88,7 +88,7 @@ public class TreePanel extends JPanel {
 		}
 	}
 
-	protected void initialize(JComponent extra) {
+	protected void initialize() {
 		setLayout(new BorderLayout());
 		treeScrollPane = new JScrollPane(tree);
 		tree.setModel(filterTreeModel);
@@ -99,14 +99,14 @@ public class TreePanel extends JPanel {
 		GridBagConstraints c = new GridBagConstraints();
 
 		JLabel filterLabel = new JLabel("Filter:  ");
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = GridBagConstraints.NONE;
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 0.0;
 		c.anchor = GridBagConstraints.LINE_START;
 		topPanel.add(filterLabel, c);
 
-		c.fill = GridBagConstraints.NONE;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		c.gridx = 1;
 		c.gridy = 0;
 		c.weightx = 1.0;
@@ -118,13 +118,20 @@ public class TreePanel extends JPanel {
 		c.gridy = 0;
 		c.weightx = 0.0;
 		topPanel.add(new JButton(new ClearAction()), c);
-
-		if (extra != null) {
+		
+		c.gridx = 3;
+		c.weightx = 0.2;
+		topPanel.add(new JPanel(), c);
+		
+		
+		Component extraComponent = createExtraComponent();
+		if (extraComponent != null) {
 			c.fill = GridBagConstraints.NONE;
 			c.gridx = 0;
 			c.gridy = 1;
+			c.gridwidth = 4;
 			c.weightx = 0.0;
-		topPanel.add(extra, c);
+			topPanel.add(extraComponent, c);
 	}
 	
 		add(topPanel, BorderLayout.NORTH);
@@ -133,6 +140,10 @@ public class TreePanel extends JPanel {
 		add(treeScrollPane, BorderLayout.CENTER);
 
 		searchField.addKeyListener(new SearchFieldKeyAdapter());
+	}
+
+	protected Component createExtraComponent() {
+		return null;
 	}
 
 	protected TreeCellRenderer createCellRenderer() {
