@@ -38,18 +38,18 @@
                 <znode classname="net.sf.taverna.zaria.ZTabbedPane">
                   <tabs>
                     <tab>
-                      <title>Available services</title>
-                      <znode classname="net.sf.taverna.zaria.ZRavenComponent">
-                        <namedcomponent scroll="false">
-                          <name>activitypalette</name>
-                        </namedcomponent>
-                      </znode>
-                    </tab>
-                    <tab>
                       <title>Service panel</title>
                       <znode classname="net.sf.taverna.zaria.ZRavenComponent">
                         <namedcomponent scroll="false">
                           <name>servicePanel</name>
+                        </namedcomponent>
+                      </znode>
+                    </tab>
+                    <tab>
+                      <title>Available services</title>
+                      <znode classname="net.sf.taverna.zaria.ZRavenComponent">
+                        <namedcomponent scroll="false">
+                          <name>activitypalette</name>
                         </namedcomponent>
                       </znode>
                     </tab>
