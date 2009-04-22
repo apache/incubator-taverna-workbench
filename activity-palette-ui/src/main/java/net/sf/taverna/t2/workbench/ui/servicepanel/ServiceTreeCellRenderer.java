@@ -20,7 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
-import java.awt.Color;
 import java.awt.Component;
 
 import javax.swing.Icon;
