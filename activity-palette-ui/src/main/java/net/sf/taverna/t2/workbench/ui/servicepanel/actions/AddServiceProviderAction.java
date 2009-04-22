@@ -4,6 +4,7 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel.actions;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.beans.PropertyDescriptor;
@@ -18,6 +19,7 @@ import javax.swing.JPanel;
 import net.sf.taverna.t2.lang.uibuilder.UIBuilder;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
+import net.sf.taverna.t2.workbench.ui.servicepanel.menu.AddServiceProviderMenu;
 import net.sf.taverna.t2.workflowmodel.ConfigurationException;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -27,6 +29,7 @@ import org.apache.commons.beanutils.PropertyUtils;
  * Action for adding a service provider
  * 
  * @author Stian Soiland-Reyes
+ * @author Alan R Williams
  */
 @SuppressWarnings("serial")
 public class AddServiceProviderAction extends AbstractAction {
@@ -34,6 +37,8 @@ public class AddServiceProviderAction extends AbstractAction {
 	protected static Dimension DIALOG_SIZE = new Dimension(400, 300);
 
 	private ServiceDescriptionRegistry serviceDescriptionRegistry;
+	
+	private Component owner;
 
 	private final class AddProviderAction extends AbstractAction {
 		private final Object configurationBean;
@@ -66,9 +71,10 @@ public class AddServiceProviderAction extends AbstractAction {
 	private final ConfigurableServiceProvider confProvider;
 
 	@SuppressWarnings("unchecked")
-	public AddServiceProviderAction(ConfigurableServiceProvider confProvider) {
+	public AddServiceProviderAction(ConfigurableServiceProvider confProvider, AddServiceProviderMenu addServiceProviderMenu) {
 		super(confProvider.getName() + "...", confProvider.getIcon());
 		this.confProvider = confProvider;
+		this.owner = addServiceProviderMenu;
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -88,7 +94,10 @@ public class AddServiceProviderAction extends AbstractAction {
 				new JButton(new AddProviderAction(configurationBean, dialog)),
 				BorderLayout.WEST);
 		dialog.add(buttonPanel, BorderLayout.SOUTH);
-		dialog.setSize(DIALOG_SIZE);
+//		dialog.setSize(buttonPanel.getPreferredSize());
+		dialog.pack();
+		dialog.setLocationRelativeTo(owner);
+		dialog.setLocation(owner.getLocationOnScreen().x + owner.getWidth(), owner.getLocationOnScreen().y + owner.getHeight());
 		dialog.setVisible(true);
 	}
 

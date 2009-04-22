@@ -78,7 +78,7 @@ public class AddServiceProviderMenu extends JButton {
 		for (ConfigurableServiceProvider provider : getServiceDescriptionRegistry()
 				.getUnconfiguredServiceProviders()) {
 			AddServiceProviderAction addAction = new AddServiceProviderAction(
-					provider);
+					provider, this);
 			addAction.setServiceDescriptionRegistry(getServiceDescriptionRegistry());
 			addServiceMenu.add(addAction);
 			isEmpty = false;
