@@ -48,21 +48,21 @@ public class ActivityPaletteConfiguration extends AbstractConfigurable {
 			defaultPropertyMap = new HashMap<String, String>();
 		
 			//wsdl
-			defaultPropertyMap.put("taverna.defaultwsdl", "http://www.ebi.ac.uk/xembl/XEMBL.wsdl,"+
-                              "http://soap.genome.jp/KEGG.wsdl,"+
-                              "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/soap/eutils.wsdl,"+
-                              "http://soap.bind.ca/wsdl/bind.wsdl,"+
-                              "http://www.ebi.ac.uk/ws/services/urn:Dbfetch?wsdl");
-			
-			//soaplab
-			defaultPropertyMap.put("taverna.defaultsoaplab", "http://www.ebi.ac.uk/soaplab/services/");
+//			defaultPropertyMap.put("taverna.defaultwsdl", "http://www.ebi.ac.uk/xembl/XEMBL.wsdl,"+
+//                              "http://soap.genome.jp/KEGG.wsdl,"+
+//                              "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/soap/eutils.wsdl,"+
+//                              "http://soap.bind.ca/wsdl/bind.wsdl,"+
+//                              "http://www.ebi.ac.uk/ws/services/urn:Dbfetch?wsdl");
+//			
+//			//soaplab
+//			defaultPropertyMap.put("taverna.defaultsoaplab", "http://www.ebi.ac.uk/soaplab/services/");
 			
 			//biomart
 			defaultPropertyMap.put("taverna.defaultmartregistry","http://www.biomart.org/biomart");
 			
 			//add property names
-			defaultPropertyMap.put("name.taverna.defaultwsdl", "WSDL");
-			defaultPropertyMap.put("name.taverna.defaultsoaplab","Soaplab");
+			//defaultPropertyMap.put("name.taverna.defaultwsdl", "WSDL");
+			//defaultPropertyMap.put("name.taverna.defaultsoaplab","Soaplab");
 			defaultPropertyMap.put("name.taverna.defaultmartregistry", "Biomart");
 		}
 		return defaultPropertyMap;
