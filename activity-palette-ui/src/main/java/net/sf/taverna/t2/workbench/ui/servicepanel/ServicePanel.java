@@ -119,7 +119,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	public void providerStatus(ServiceDescriptionProvider provider,
 			String message) {
-		logger.warn(message + " " + provider);
+		logger.info(message + " " + provider);
 		statusMessages.add("<html>" + message + " <small>(" + provider
 				+ ")</small></html>");
 	}
@@ -324,7 +324,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 						if (statusMessage != null) {
 							blankOutCounter = INITIAL_BLANK_OUT_COUNTER;
 							statusLine.setText(statusMessage);
-							statusLine.setVisible(true);
+							statusLine.setVisible(true);							
 						} else {
 							if (blankOutCounter-- < 1) {
 								statusLine.setVisible(false);
@@ -333,7 +333,9 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 					}
 				});
 			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
 			} catch (InvocationTargetException e) {
+				logger.warn("Could not invoke timer ", e.getCause());
 			}
 		}
 	}
