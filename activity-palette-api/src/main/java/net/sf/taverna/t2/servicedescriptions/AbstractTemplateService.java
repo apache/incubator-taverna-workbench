@@ -64,4 +64,9 @@ public abstract class AbstractTemplateService<ConfigType> implements
 		}
 	}
 
+	@Override
+	public String toString() {
+		return "Template service " + getName();
+	}
+	
 }
