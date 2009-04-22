@@ -54,7 +54,7 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.actions.AddServiceProviderAct
 @SuppressWarnings("serial")
 public class AddServiceProviderMenu extends JButton {
 	
-	private final static String ADD_SERVICE_PROVIDER_MENU_NAME = "Add Service";
+	private final static String ADD_SERVICE_PROVIDER_MENU_NAME = "Import new services";
 
 	public AddServiceProviderMenu() {
 		super();
@@ -72,7 +72,7 @@ public class AddServiceProviderMenu extends JButton {
 
 	@SuppressWarnings("unchecked")
 	private Component createCustomComponent() {
-		JPopupMenu addServiceMenu = new JPopupMenu("New service");
+		JPopupMenu addServiceMenu = new JPopupMenu(ADD_SERVICE_PROVIDER_MENU_NAME);
 		addServiceMenu.setToolTipText("Add a new service provider");
 		boolean isEmpty = true;
 		for (ConfigurableServiceProvider provider : getServiceDescriptionRegistry()
