@@ -3,6 +3,8 @@
  */
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
+import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -10,6 +12,7 @@ import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
@@ -19,6 +22,7 @@ import javax.swing.tree.TreePath;
 
 import net.sf.taverna.t2.partition.ActivityItem;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
+import net.sf.taverna.t2.workbench.ui.servicepanel.actions.RefreshProviderRegistryAction;
 import net.sf.taverna.t2.workbench.ui.servicepanel.menu.AddServiceProviderMenu;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
@@ -33,22 +37,28 @@ public class ServiceTreePanel extends TreePanel {
 	private static final long serialVersionUID = 6611462684296693909L;
 
 	private static Logger logger = Logger.getLogger(ServiceTreePanel.class);
-	
-	private AddServiceProviderMenu addServiceButton;
 
 	public ServiceTreePanel(FilterTreeModel treeModel) {
 		super(treeModel);
 	}
 
 	@Override
-	protected void initialize(JComponent extra) {
-		super.initialize(new AddServiceProviderMenu());
+	protected void initialize() {
+		super.initialize();
 		tree.setDragEnabled(true);
 		tree.setTransferHandler(new ServiceTransferHandler());
 		tree.addTreeWillExpandListener(new AvoidRootCollapse());
 		tree.expandRow(0);
 	}
 
+	@Override
+	protected Component createExtraComponent() {
+		JComponent buttonPanel = new JPanel(new FlowLayout());
+		buttonPanel.add(new AddServiceProviderMenu());
+		buttonPanel.add(new JButton(new RefreshProviderRegistryAction()));
+		return buttonPanel;
+	}
+	
 	@Override
 	public Filter createFilter(String text) {
 		return new ServiceFilter(text, filterTreeModel.getRoot());
