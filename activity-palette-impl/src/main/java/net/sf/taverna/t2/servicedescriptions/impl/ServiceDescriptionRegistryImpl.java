@@ -37,6 +37,10 @@ public class ServiceDescriptionRegistryImpl implements
 
 	public static final ThreadGroup threadGroup = new ThreadGroup(
 			"Service description providers");
+	
+	static {
+		threadGroup.setMaxPriority(Thread.MIN_PRIORITY);
+	}
 
 	/**
 	 * Total maximum timeout while waiting for description threads to finish
