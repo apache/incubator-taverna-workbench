@@ -82,6 +82,12 @@ public class ActivityTree extends JTree {
 	/** A query for each type of activity */
 	private List<Query<?>> queryList;
 
+	protected static ThreadGroup activityQueryThreadGroup = new ThreadGroup(
+			"Activity queries");
+	static {
+		activityQueryThreadGroup.setMaxPriority(Thread.MIN_PRIORITY);
+	}
+
 	public ActivityTree(TreeModel newModel) {
 		super(newModel);
 		setRowHeight(16);
@@ -140,7 +146,7 @@ public class ActivityTree extends JTree {
 	private void doQueries() {
 
 		for (final Query<?> query : queryList) {
-			new Thread("Activity query:" + query.toString()) {
+			new Thread(activityQueryThreadGroup , "Activity query:" + query.toString()) {
 				@Override
 				public void run() {
 					query.doQuery();
