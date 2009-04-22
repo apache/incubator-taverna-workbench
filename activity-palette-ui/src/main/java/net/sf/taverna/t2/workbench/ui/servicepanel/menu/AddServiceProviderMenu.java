@@ -22,26 +22,24 @@ package net.sf.taverna.t2.workbench.ui.servicepanel.menu;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.net.URI;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
 import javax.swing.JPopupMenu;
 
-import net.sf.taverna.t2.partition.ActivityQueryFactory;
-import net.sf.taverna.t2.partition.QueryFactory;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl;
-import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
+import net.sf.taverna.t2.workbench.ui.servicepanel.ServicePanel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.actions.AddServiceProviderAction;
 
 /**
  * A menu that provides a set up menu actions for adding new service providers to
- * the Service Panel. <br>
- * The Actions are discovered from the ServiceDescription's found through the
+ * the Service Panel.
+ * <p>
+ * The Actions are discovered from the {@link ServiceDescriptionProvider}s found through the
  * SPI.
  * 
  * @author Stuart Owen
@@ -50,8 +48,10 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.actions.AddServiceProviderAct
  * 
  * @see ServiceDescription
  * @see ServicePanel
+ * @see ServiceDescriptionRegistry#addServiceDescriptionProvider(net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider)
  * 
  */
+@SuppressWarnings("serial")
 public class AddServiceProviderMenu extends JButton {
 	
 	private final static String ADD_SERVICE_PROVIDER_MENU_NAME = "Add Service";
