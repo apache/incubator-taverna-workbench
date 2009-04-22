@@ -19,11 +19,13 @@ import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl
  */
 @SuppressWarnings("serial")
 public class RefreshProviderRegistryAction extends AbstractAction {
+	
+	private static final String REFRESH = "Reload services";
 
 	private ServiceDescriptionRegistry serviceDescriptionRegistry = ServiceDescriptionRegistryImpl.getInstance();
 
 	public RefreshProviderRegistryAction() {
-		super("Refresh");
+		super(REFRESH);
 	}
 
 	public void actionPerformed(ActionEvent e) {
