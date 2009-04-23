@@ -121,7 +121,7 @@ public class RenderedResultComponent extends JPanel {
 	/**
 	 * Creates the component.
 	 */
-	protected RenderedResultComponent() {
+	public RenderedResultComponent() {
 		
 		//this.dataflowOutputPorts = dataflowOutputPorts;
 		
