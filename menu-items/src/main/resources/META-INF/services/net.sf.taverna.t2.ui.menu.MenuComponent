@@ -32,6 +32,7 @@ net.sf.taverna.t2.ui.menu.items.ports.WorkflowInputPortSection
 net.sf.taverna.t2.ui.menu.items.ports.WorkflowOutputPortSection
 
 net.sf.taverna.t2.ui.menu.items.processor.ConditionMenuActions
+net.sf.taverna.t2.ui.menu.items.processor.ConfigureProcessorSection
 net.sf.taverna.t2.ui.menu.items.processor.ProcessorSection
 net.sf.taverna.t2.ui.menu.items.processor.RenameProcessorMenuAction
 net.sf.taverna.t2.ui.menu.items.processor.RemoveProcessorMenuAction
