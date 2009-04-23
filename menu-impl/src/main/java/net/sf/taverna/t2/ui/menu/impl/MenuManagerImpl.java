@@ -424,26 +424,24 @@ public class MenuManagerImpl extends MenuManager {
 		
 
 		MenuComponent sectionDef = uriToMenuElement.get(sectionId);
+		addNullSeparator(components);
+		if (childComponents.isEmpty()) {
+			logger.warn("No sub components found for section " + sectionId);
+			return;
+		}
 		Action sectionAction = sectionDef.getAction();
 		if (sectionAction != null) {
 			String sectionLabel = (String) sectionAction.getValue(Action.NAME);
 			if (sectionLabel != null) {
+				// No separators before the label
+				stripTrailingNullSeparator(components);
 				Color labelColor = (Color) sectionAction.getValue(AbstractMenuSection.SECTION_COLOR);
 				if (labelColor == null) {
 					labelColor = ShadedLabel.GREEN;
 				}
 				ShadedLabel label = new ShadedLabel(sectionLabel, labelColor);
 				components.add(label);
-			} else {
-				addNullSeparator(components);
 			}
-		} else {
-			addNullSeparator(components);
-		}
-
-		if (childComponents.isEmpty()) {
-			logger.warn("No sub components found for section " + sectionId);
-			return;
 		}
 		for (Component childComponent : childComponents) {
 			if (childComponent == null) {
@@ -683,7 +681,7 @@ public class MenuManagerImpl extends MenuManager {
 		menuOptions.setContextualSelection(contextualSelection);
 		for (Component component : makeComponents(id, menuOptions)) {
 			if (component == null) {
-				logger.warn("Ignoring separator in menu bar " + id);
+				popupMenu.addSeparator();
 			} else {
 				popupMenu.add(component);
 			}
