@@ -22,7 +22,12 @@ package net.sf.taverna.t2.workbench.views.monitor;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.sql.SQLException;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -40,6 +45,7 @@ import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
+import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
@@ -93,6 +99,14 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 					.getInstance().getInstances()) {
 				if (connectorType.equalsIgnoreCase(connector.getName())) {
 					provenanceConnector = connector;
+					// String dbURL =
+					// ProvenanceConfiguration.getInstance().getProperty("dbURL");
+					//					
+					// if (dbURL != null) {
+					// //FIXME if dburl does not exist then throw exception
+					// provenanceConnector.setDbURL(dbURL);
+					// // provenanceConnector.init();
+					// }
 				}
 			}
 		}
@@ -140,6 +154,8 @@ class MonitorGraphEventManager implements GraphEventManager {
 	private final ProvenanceConnector provenanceConnector;
 	private final Dataflow dataflow;
 	private String localName;
+	private List<LineageQueryResultRecord> intermediateValues;
+	private Timer timer;
 
 	public MonitorGraphEventManager(ProvenanceConnector provenanceConnector,
 			Dataflow dataflow) {
@@ -156,91 +172,99 @@ class MonitorGraphEventManager implements GraphEventManager {
 
 		Object dataflowObject = graphElement.getDataflowObject();
 		// no popup if provenance is switched off
+		JFrame frame = new JFrame();
+		
+		final JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		JPanel topPanel = new JPanel();
+		topPanel.setLayout(new BorderLayout());
+		JLabel label = new JLabel();
+		final JPanel provenancePanel = new JPanel();
+		provenancePanel.setLayout(new BorderLayout());
 		if (provenanceConnector != null) {
 			if (dataflowObject != null) {
 				if (dataflowObject instanceof Processor) {
-					localName = ((Processor) dataflowObject).getLocalName();
-					JFrame frame = new JFrame();
-					JPanel panel = new JPanel();
-					panel.setLayout(new BorderLayout());
-					JPanel topPanel = new JPanel();
-					topPanel.setLayout(new BorderLayout());
-					JLabel label = new JLabel();
-					final JPanel provenancePanel = new JPanel();
-					provenancePanel.setLayout(new BorderLayout());
-					JButton retrieveProvenanceButton = new JButton(
-							"Retrieve Intermediate Results");
-					retrieveProvenanceButton
-							.addActionListener(new AbstractAction() {
+					if (provenanceConnector != null) {
+						localName = ((Processor) dataflowObject).getLocalName();
+						frame.setTitle("Intermediate Results for " + localName);
+						// JButton retrieveProvenanceButton = new JButton(
+						// "Retrieve Intermediate Results");
+						// retrieveProvenanceButton
+						// .addActionListener(new AbstractAction() {
 
-								private String intermediateValues;
+						// public void actionPerformed(ActionEvent e) {
+						// if (provenanceConnector != null) {
+						String internalIdentier = dataflow
+								.getInternalIdentier();
+						final String sessionID = provenanceConnector
+								.getSessionID();
 
-								public void actionPerformed(ActionEvent e) {
-									if (provenanceConnector != null) {
-										String internalIdentier = dataflow
-												.getInternalIdentier();
-										final String dataflowInstanceID = provenanceConnector
-												.getDataflowInstance(internalIdentier);
-										new Thread(
-												"Retrieve intermediate results for dataflow: "
-														+ internalIdentier
-														+ ", processor: "
-														+ localName) {
-											@Override
-											public void run() {
+						final ProvenanceResultsPanel provResultsPanel = new ProvenanceResultsPanel();
+						provResultsPanel.setContext(provenanceConnector
+								.getInvocationContext());
+						provenancePanel.add(provResultsPanel,
+								BorderLayout.CENTER);
 
-												try {
-													intermediateValues = provenanceConnector
-															.getIntermediateValues(
-																	dataflowInstanceID,
-																	localName,
-																	null, null);
-													JEditorPane editorPane = new JEditorPane(
-															"text/html",
-															intermediateValues);
-													editorPane
-															.setEditable(false);
-													JScrollPane scrollPane = new JScrollPane(
-															editorPane);
-													provenancePanel
-															.add(
-																	scrollPane,
-																	BorderLayout.CENTER);
-													provenancePanel
-															.revalidate();
-													provenancePanel
-															.setVisible(true);
+//						provenancePanel.revalidate();
+//						provenancePanel.setVisible(true);
+						TimerTask timerTask = new TimerTask() {
 
-												} catch (SQLException e) {
-													logger
-															.warn("Could not retrieve intermediate results: "
-																	+ e);
-													JOptionPane
-															.showMessageDialog(
-																	null,
-																	"Could not retrieve intermediate results:\n"
-																	+ e,
-																	"Problem retrieving results",
-																	JOptionPane.ERROR_MESSAGE);
-												}
-											}
-										}.start();
+							@Override
+							public void run() {
+								try {
+									logger
+											.info("Retrieving intermediate results for dataflow instance: "
+													+ sessionID
+													+ " processor: "
+													+ localName);
 
-									}
+									intermediateValues = provenanceConnector
+											.getIntermediateValues(sessionID,
+													localName, null, null);
+									provResultsPanel
+											.setLineageRecords(intermediateValues);
+
+									// provResultsPanel.setLineageRecords(intermediateValues);
+									// panel.revalidate();
+
+								} catch (Exception e) {
+									logger
+											.warn("Could not retrieve intermediate results: "
+													+ e);
+									JOptionPane.showMessageDialog(null,
+											"Could not retrieve intermediate results:\n"
+													+ e,
+											"Problem retrieving results",
+											JOptionPane.ERROR_MESSAGE);
 								}
-							});
+							}
 
-					topPanel.add(label, BorderLayout.NORTH);
-					topPanel.add(retrieveProvenanceButton, BorderLayout.SOUTH);
+						};
+
+						timer = new Timer(
+								"Retrieve intermediate results for dataflow: "
+										+ internalIdentier + ", processor: "
+										+ localName);
+						timer.schedule(timerTask, 0, 50000);
+						//kill the timer when the user closes the frame
+						frame.addWindowListener(new WindowClosingListener());
+
+					}
+					// }
+					// });
+
+					// topPanel.add(label, BorderLayout.NORTH);
+					// topPanel.add(retrieveProvenanceButton,
+					// BorderLayout.SOUTH);
 					panel.add(topPanel, BorderLayout.NORTH);
-//					panel.add(label);
-//					panel.add(retrieveProvenanceButton);
+					// panel.add(label);
+					// panel.add(retrieveProvenanceButton);
 					panel.add(provenancePanel, BorderLayout.CENTER);
-					provenancePanel.setVisible(false);
+//					provenancePanel.setVisible(false);
 					frame.add(panel);
-					label.setText("You selected processor " + localName);
+					// label.setText("Processor:" + localName);
 					frame.setVisible(true);
-					frame.setSize(300, 300);
+					frame.setSize(700, 300);
 
 				}
 				// else if (dataflowObject instanceof OutputPort) {
@@ -346,6 +370,8 @@ class MonitorGraphEventManager implements GraphEventManager {
 				// frame.setVisible(true);
 				// }
 			}
+		} else {
+			//tell the user that provenance is switched off
 		}
 
 	}
@@ -383,6 +409,13 @@ class MonitorGraphEventManager implements GraphEventManager {
 			int screenX, int screenY) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	private class WindowClosingListener extends WindowAdapter {
+		@Override
+		public void windowClosing(WindowEvent e) {
+			timer.cancel();
+		}
 	}
 
 }
