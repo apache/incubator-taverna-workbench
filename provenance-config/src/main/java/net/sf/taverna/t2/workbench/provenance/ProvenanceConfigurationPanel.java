@@ -193,12 +193,14 @@ public class ProvenanceConfigurationPanel extends JPanel {
 					if (provenanceConnector!=null) {
 						logger.info("Provenance has been enabled");
 						String name = provenanceConnector.getName();
+						
 						provenanceConfiguration.setProperty("connector", name);
 						provenanceConfiguration.setProperty("enabled", "yes");
 					}
 					// execute the selected connectors config action
 					if (configureAction != null) {
 						configureAction.actionPerformed(null);
+						provenanceConnector.setDbURL(ProvenanceConfiguration.getInstance().getProperty("dbURL"));
 					}
 
 				} else if (!checkBox.isSelected()) {
@@ -207,10 +209,12 @@ public class ProvenanceConfigurationPanel extends JPanel {
 					if (provenanceConnector!=null) {
 						String name = provenanceConnector.getName();
 						provenanceConfiguration.setProperty("connector", name);
+						
 					}
 					// execute the selected connectors config action
 					if (configureAction != null) {
 						configureAction.actionPerformed(null);
+						provenanceConnector.setDbURL(ProvenanceConfiguration.getInstance().getProperty("dbURL"));
 					}
 				}
 			}
@@ -233,6 +237,7 @@ public class ProvenanceConfigurationPanel extends JPanel {
 									JOptionPane.YES_NO_OPTION);
 
 					if (n == JOptionPane.YES_OPTION) {
+						provenanceConnector.setDbURL(ProvenanceConfiguration.getInstance().getProperty("dbURL"));
 						provenanceConnector.clearDatabase();
 					}
 
@@ -257,6 +262,7 @@ public class ProvenanceConfigurationPanel extends JPanel {
 									JOptionPane.YES_NO_OPTION);
 
 					if (n == JOptionPane.YES_OPTION) {
+						provenanceConnector.setDbURL(ProvenanceConfiguration.getInstance().getProperty("dbURL"));
 						provenanceConnector.createDatabase();
 					}
 
@@ -281,6 +287,7 @@ public class ProvenanceConfigurationPanel extends JPanel {
 									JOptionPane.YES_NO_OPTION);
 
 					if (n == JOptionPane.YES_OPTION) {
+						provenanceConnector.setDbURL(ProvenanceConfiguration.getInstance().getProperty("dbURL"));
 						provenanceConnector.deleteDatabase();
 					}
 
