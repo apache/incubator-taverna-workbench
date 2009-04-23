@@ -35,6 +35,7 @@ import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
+import net.sf.taverna.t2.provenance.reporter.ProvenanceReporter;
 import net.sf.taverna.t2.reference.ReferenceContext;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
@@ -53,7 +54,6 @@ import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.InvalidDataflowException;
 import net.sf.taverna.t2.workflowmodel.TokenProcessingEntity;
-import net.sf.taverna.t2.workflowmodel.impl.DataflowOutputPortImpl;
 import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
@@ -63,8 +63,6 @@ import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializerImpl;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
 public class RunWorkflowAction extends AbstractAction {
 
@@ -72,12 +70,12 @@ public class RunWorkflowAction extends AbstractAction {
 			InvocationContext {
 		private final ReferenceService referenceService;
 		
-		private final ProvenanceConnector provenanceConnector;
+		private final ProvenanceReporter provenanceReporter;
 
 		private InvocationContextImplementation(
-				ReferenceService referenceService, ProvenanceConnector provenanceConnector) {
+				ReferenceService referenceService, ProvenanceReporter provenanceReporter) {
 			this.referenceService = referenceService;
-			this.provenanceConnector = provenanceConnector;
+			this.provenanceReporter = provenanceReporter;
 		}
 
 		public ReferenceService getReferenceService() {
@@ -89,8 +87,8 @@ public class RunWorkflowAction extends AbstractAction {
 			return null;
 		}
 
-		public ProvenanceConnector getProvenanceConnector() {
-			return provenanceConnector;
+		public ProvenanceReporter getProvenanceReporter() {
+			return provenanceReporter;
 		}
 	}
 
@@ -145,27 +143,33 @@ public class RunWorkflowAction extends AbstractAction {
 						}
 					}
 					logger.info("Provenance being captured using: " + 
-							provenanceConnector.getClass());
+							provenanceConnector);
 					String dbURL = ProvenanceConfiguration.getInstance().getProperty("dbURL");
-					String user = ProvenanceConfiguration.getInstance().getProperty("dbUser");
-					String password = ProvenanceConfiguration.getInstance().getProperty("dbPassword");
+//					String user = ProvenanceConfiguration.getInstance().getProperty("dbUser");
+//					String password = ProvenanceConfiguration.getInstance().getProperty("dbPassword");
 					
-					if (dbURL != null && user != null && password != null) {
+					if (dbURL != null) {
+						//FIXME if dburl does not exist then throw exception
+						provenanceConnector.setDbURL(dbURL);	
+						provenanceConnector.init();
+					}
 //					String jdbcString = dbURL + "/T2Provenance" + "?user=" + user + "&password=" + password;
-						provenanceConnector.setDBLocation(dbURL);
-						provenanceConnector.setPassword(password);
-						provenanceConnector.setUser(user);
+//						provenanceConnector.setDBLocation(dbURL);
+//						provenanceConnector.setPassword(password);
+//						provenanceConnector.setUser(user);
 //					provenanceConnector.setDBLocation(jdbcString);					
-					} 
-					provenanceConnector.init();
+//					} 
+//					provenanceConnector.init();
 					provenanceConnector.setReferenceService(referenceService);
+					
 				}
-				
+				InvocationContextImplementation context = new InvocationContextImplementation(
+						referenceService, provenanceConnector);
+				provenanceConnector.setInvocationContext(context);
 				WorkflowInstanceFacade facade;
 				try {
 					facade = new EditsImpl().createWorkflowInstanceFacade(
-							dataflowCopy, new InvocationContextImplementation(
-									referenceService, provenanceConnector), "");
+							dataflowCopy, context, "");
 				} catch (InvalidDataflowException ex) {
 					invalidDataflow(ex.getDataflowValidationReport());
 					return;
