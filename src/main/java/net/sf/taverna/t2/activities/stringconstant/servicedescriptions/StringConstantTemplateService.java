@@ -29,7 +29,7 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 public class StringConstantTemplateService extends AbstractTemplateService<StringConstantConfigurationBean>{
 	
-	private static final String STRINGCONSTANT = "StringConstant";
+	private static final String STRINGCONSTANT = "String_constant";
 
 	@Override
 	public Class<StringConstantActivity> getActivityClass() {
@@ -38,7 +38,9 @@ public class StringConstantTemplateService extends AbstractTemplateService<Strin
 
 	@Override
 	public StringConstantConfigurationBean getActivityConfiguration() {
-		return new StringConstantConfigurationBean();
+		StringConstantConfigurationBean stringConstantConfigurationBean = new StringConstantConfigurationBean();
+		stringConstantConfigurationBean.setValue("Add your own value here");
+		return stringConstantConfigurationBean;
 	}
 
 	@Override

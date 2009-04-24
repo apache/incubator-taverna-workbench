@@ -9,7 +9,7 @@ import net.sf.taverna.t2.workbench.activitytools.AbstractConfigureActivityMenuAc
 public class ConfigureStringConstantMenuAction extends
 		AbstractConfigureActivityMenuAction<StringConstantActivity> {
 
-	private static final String CONFIGURE_STRINGCONSTANT = "Configure value";
+	private static final String CONFIGURE_STRINGCONSTANT = "Edit value";
 
 	public ConfigureStringConstantMenuAction() {
 		super(StringConstantActivity.class);
