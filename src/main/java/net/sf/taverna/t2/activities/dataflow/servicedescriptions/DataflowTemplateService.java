@@ -11,7 +11,7 @@ import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 
 public class DataflowTemplateService extends AbstractTemplateService<Dataflow>{
 	
-	private static final String DATAFLOW = "Nested Workflow";
+	private static final String DATAFLOW = "Nested workflow";
 
 	@Override
 	public Class<DataflowActivity> getActivityClass() {
