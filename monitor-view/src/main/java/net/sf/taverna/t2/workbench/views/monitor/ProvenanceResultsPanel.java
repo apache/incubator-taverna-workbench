@@ -1,7 +1,27 @@
+/*******************************************************************************
+ * Copyright (C) 2009 The University of Manchester   
+ * 
+ *  Modifications to the initial code base are copyright of their
+ *  respective authors, or their employers as appropriate.
+ * 
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public License
+ *  as published by the Free Software Foundation; either version 2.1 of
+ *  the License, or (at your option) any later version.
+ *    
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
+ *    
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ ******************************************************************************/
+
 package net.sf.taverna.t2.workbench.views.monitor;
 
 import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -25,7 +45,21 @@ import net.sf.taverna.t2.workbench.views.results.ResultTreeNode;
 
 import org.apache.log4j.Logger;
 
-public class ProvenanceResultsPanel extends JPanel implements TableModelListener{
+/**
+ * Designed to be used in conjunction with the provenance system in Taverna.
+ * Displays a table with T2 data references and renders the results when clicked
+ * on The results are passed in within a {@link List} of
+ * {@link LineageQueryResultRecord}s. Uses a {@link LineageResultsTableModel} as
+ * its internal model. This handles the dereferencing of the {@link T2Reference}
+ * it receives as a string by turning it into an actual {@link T2Reference}. A
+ * {@link ReferenceRenderer} is used to show whether the {@link T2Reference} is
+ * an error by colouring the cell red or green
+ * 
+ * @author Ian Dunlop
+ * 
+ */
+public class ProvenanceResultsPanel extends JPanel implements
+		TableModelListener {
 
 	static Logger logger = Logger.getLogger(ProvenanceResultsPanel.class);
 
@@ -58,31 +92,35 @@ public class ProvenanceResultsPanel extends JPanel implements TableModelListener
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		setBorder(BorderFactory.createRaisedBevelBorder());
 
-//		setLineageResultsTableModel(new LineageResultsTableModel());
+		// setLineageResultsTableModel(new LineageResultsTableModel());
 		resultsTable = new ResultsTable(getLineageResultsTableModel());
-//		resultsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
+		// resultsTable.setPreferredScrollableViewportSize(new Dimension(500,
+		// 70));
 		resultsTable.getSelectionModel().addListSelectionListener(
 				new RowListener());
 		resultsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		resultsTable.setDefaultRenderer(T2ReferenceImpl.class, new ReferenceRenderer());
+		resultsTable.setDefaultRenderer(T2ReferenceImpl.class,
+				new ReferenceRenderer());
 		resultsTable.getModel().addTableModelListener(this);
-		
-		JPanel tablePanel = new JPanel (new BorderLayout());
+
+		JPanel tablePanel = new JPanel(new BorderLayout());
 		tablePanel.add(resultsTable.getTableHeader(), BorderLayout.PAGE_START);
 		tablePanel.add(resultsTable, BorderLayout.CENTER);
 		resultsTable.setFillsViewportHeight(true);
-		resultsTable.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		resultsTable.setBorder(BorderFactory
+				.createBevelBorder(BevelBorder.RAISED));
 		add(new JScrollPane(resultsTable));
 		add(renderedResultsComponent);
-		renderedResultsComponent.setBorder(BorderFactory.createRaisedBevelBorder());
-//		JPanel panel = new JPanel(new FlowLayout());
-//		JScrollPane scrollPane = new JScrollPane(resultsTable);
-//		panel.add(tablePanel);
-//		panel.add(renderedResultsComponent);
-//		JScrollPane scrollPane = new JScrollPane();
-//		scrollPane.add(panel);
-//		add(scrollPane);
-//		add(panel);
+		renderedResultsComponent.setBorder(BorderFactory
+				.createRaisedBevelBorder());
+		// JPanel panel = new JPanel(new FlowLayout());
+		// JScrollPane scrollPane = new JScrollPane(resultsTable);
+		// panel.add(tablePanel);
+		// panel.add(renderedResultsComponent);
+		// JScrollPane scrollPane = new JScrollPane();
+		// scrollPane.add(panel);
+		// add(scrollPane);
+		// add(panel);
 		revalidate();
 
 	}
@@ -114,15 +152,16 @@ public class ProvenanceResultsPanel extends JPanel implements TableModelListener
 	public void setLineageRecords(List<LineageQueryResultRecord> lineageRecords) {
 		this.lineageRecords = lineageRecords;
 		// FIXME this bit is a hack, need a smarter way of instantiating this
-		// group of prov results objects.  this way assumes that context is set - not clever
+		// group of prov results objects. this way assumes that context is set -
+		// not clever
 		if (lineageResultsTableModel == null) {
 			lineageResultsTableModel = new LineageResultsTableModel(
 					lineageRecords, context);
 			initView();
 		} else {
-			lineageResultsTableModel.setLineageRecords(lineageRecords);			
+			lineageResultsTableModel.setLineageRecords(lineageRecords);
 		}
-		
+
 	}
 
 	public List<LineageQueryResultRecord> getLineageRecords() {
@@ -137,7 +176,8 @@ public class ProvenanceResultsPanel extends JPanel implements TableModelListener
 		return context;
 	}
 
-	public void setLineageResultsTableModel(LineageResultsTableModel lineageResultsTableModel) {
+	public void setLineageResultsTableModel(
+			LineageResultsTableModel lineageResultsTableModel) {
 		this.lineageResultsTableModel = lineageResultsTableModel;
 	}
 
@@ -146,7 +186,6 @@ public class ProvenanceResultsPanel extends JPanel implements TableModelListener
 	}
 
 	public void tableChanged(TableModelEvent e) {
-		System.out.println("table changed");
 		resultsTable.revalidate();
 	}
 
