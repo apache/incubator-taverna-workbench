@@ -19,6 +19,7 @@ import javax.swing.event.TableModelListener;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.impl.T2ReferenceImpl;
 import net.sf.taverna.t2.workbench.views.results.RenderedResultComponent;
 import net.sf.taverna.t2.workbench.views.results.ResultTreeNode;
 
@@ -58,11 +59,12 @@ public class ProvenanceResultsPanel extends JPanel implements TableModelListener
 		setBorder(BorderFactory.createRaisedBevelBorder());
 
 //		setLineageResultsTableModel(new LineageResultsTableModel());
-		resultsTable = new JTable(getLineageResultsTableModel());
+		resultsTable = new ResultsTable(getLineageResultsTableModel());
 //		resultsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
 		resultsTable.getSelectionModel().addListSelectionListener(
 				new RowListener());
 		resultsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		resultsTable.setDefaultRenderer(T2ReferenceImpl.class, new ReferenceRenderer());
 		resultsTable.getModel().addTableModelListener(this);
 		
 		JPanel tablePanel = new JPanel (new BorderLayout());

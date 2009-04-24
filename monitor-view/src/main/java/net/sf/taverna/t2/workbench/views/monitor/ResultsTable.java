@@ -7,13 +7,11 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellRenderer;
 
 public class ResultsTable extends JTable {
 
-	@Override
-	public TableCellRenderer getCellRenderer(int row, int column) {
-		return new ResultsTableRenderer();
+	public ResultsTable(LineageResultsTableModel lineageResultsTableModel) {
+		super(lineageResultsTableModel);
 	}
 
 	// Implement table header tool tips.
