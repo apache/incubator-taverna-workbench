@@ -20,12 +20,15 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.provenance;
 
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -77,22 +80,23 @@ public class ProvenanceConfigurationPanel extends JPanel {
 		viewHolder = new JPanel();
 
 		JPanel onPanel = new JPanel();
-		BoxLayout layout = new BoxLayout(onPanel, BoxLayout.X_AXIS);
+//		BoxLayout layout = new BoxLayout(onPanel, BoxLayout.X_AXIS);
+//
+		onPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-		onPanel.setLayout(layout);
-
-		JPanel dropPanel = new JPanel();
-		BoxLayout layout2 = new BoxLayout(dropPanel, BoxLayout.X_AXIS);
-		dropPanel.setLayout(layout2);
+//		JPanel dropPanel = new JPanel();
+//		BoxLayout layout2 = new BoxLayout(dropPanel, BoxLayout.X_AXIS);
+//		dropPanel.setLayout(layout2);
 
 		JPanel buttonPanel = new JPanel();
 		BoxLayout layout3 = new BoxLayout(buttonPanel, BoxLayout.X_AXIS);
-		buttonPanel.setLayout(layout3);
+		buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
 		JLabel storageConfig = new JLabel(
 				"Enable provenance capture from workflow runs");
 
 		final JCheckBox checkBox = new JCheckBox();
+
 
 		if (provenanceConfiguration.getProperty("enabled").equalsIgnoreCase(
 				"yes")) {
@@ -102,7 +106,10 @@ public class ProvenanceConfigurationPanel extends JPanel {
 		onPanel.add(storageConfig);
 		onPanel.add(checkBox);
 
+
 		final JComboBox connectorChooser = new JComboBox();
+		
+//		connectorChooser.setMaximumSize(new Dimension(150,20));
 
 		String property = provenanceConfiguration.getProperty("connector");
 		for (ProvenanceConnector connector : ProvenanceConnectorRegistry
@@ -136,7 +143,7 @@ public class ProvenanceConfigurationPanel extends JPanel {
 			}
 		}
 
-		dropPanel.add(connectorChooser);
+		
 		connectorChooser.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -297,12 +304,22 @@ public class ProvenanceConfigurationPanel extends JPanel {
 		});
 		//FIXME does not work correctly with the derby-connector
 //		buttonPanel.add(deleteButton);
-		
-		
 		add(onPanel);
-		add(dropPanel);
+		add(Box.createVerticalStrut(10));
+		JPanel boxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		
+		labelPanel.add (new JLabel("Select the database type for provenance storage from the drop down"));
+		add(labelPanel);
+		add(Box.createVerticalStrut(10));//		labelPanel.setMaximumSize(new Dimension(300,20));
+		boxPanel.add(connectorChooser);
+//		boxPanel.add(Box.createHorizontalGlue());
+		add(boxPanel);
+		add(Box.createVerticalStrut(10));
+//		add(dropPanel);
 		viewHolder.setBorder(BorderFactory.createBevelBorder(1));
 		add(viewHolder);
+		add(Box.createVerticalStrut(10));
 		add(buttonPanel);
 
 	}
