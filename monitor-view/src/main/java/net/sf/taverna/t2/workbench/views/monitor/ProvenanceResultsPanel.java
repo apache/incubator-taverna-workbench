@@ -22,6 +22,10 @@
 package net.sf.taverna.t2.workbench.views.monitor;
 
 import java.awt.BorderLayout;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -43,6 +47,7 @@ import net.sf.taverna.t2.reference.impl.T2ReferenceImpl;
 import net.sf.taverna.t2.workbench.views.results.RenderedResultComponent;
 import net.sf.taverna.t2.workbench.views.results.ResultTreeNode;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -106,7 +111,16 @@ public class ProvenanceResultsPanel extends JPanel implements
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		tablePanel.add(resultsTable.getTableHeader(), BorderLayout.PAGE_START);
 		tablePanel.add(resultsTable, BorderLayout.CENTER);
-		resultsTable.setFillsViewportHeight(true);
+		
+		// Java 6 only - do it by introspection
+		// resultsTable.setFillsViewportHeight(true);
+		try {
+			BeanUtils.setProperty(resultsTable, "fillsViewportHeight", true);
+		} catch (IllegalAccessException e) {			
+		} catch (InvocationTargetException e) {
+			// expected - Java 6 only
+		}
+		
 		resultsTable.setBorder(BorderFactory
 				.createBevelBorder(BevelBorder.RAISED));
 		add(new JScrollPane(resultsTable));
