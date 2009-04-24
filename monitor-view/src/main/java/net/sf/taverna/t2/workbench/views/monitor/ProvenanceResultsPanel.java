@@ -1,14 +1,20 @@
 package net.sf.taverna.t2.workbench.views.monitor;
 
+import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.util.List;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.border.BevelBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
@@ -18,7 +24,7 @@ import net.sf.taverna.t2.workbench.views.results.ResultTreeNode;
 
 import org.apache.log4j.Logger;
 
-public class ProvenanceResultsPanel extends JPanel {
+public class ProvenanceResultsPanel extends JPanel implements TableModelListener{
 
 	static Logger logger = Logger.getLogger(ProvenanceResultsPanel.class);
 
@@ -30,7 +36,7 @@ public class ProvenanceResultsPanel extends JPanel {
 
 	private LineageResultsTableModel lineageResultsTableModel;
 
-	private RenderedResultComponent renderedResutlsComponent = new RenderedResultComponent();
+	private RenderedResultComponent renderedResultsComponent = new RenderedResultComponent();
 
 	public ProvenanceResultsPanel() {
 	}
@@ -49,22 +55,32 @@ public class ProvenanceResultsPanel extends JPanel {
 		removeAll();
 
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		setBorder(BorderFactory.createRaisedBevelBorder());
 
 //		setLineageResultsTableModel(new LineageResultsTableModel());
 		resultsTable = new JTable(getLineageResultsTableModel());
 //		resultsTable.setPreferredScrollableViewportSize(new Dimension(500, 70));
 		resultsTable.getSelectionModel().addListSelectionListener(
 				new RowListener());
-		// add(new JScrollPane(resultsTable));
-		// add(renderedResutlsComponent);
-		JPanel panel = new JPanel(new FlowLayout());
-
-		panel.add(resultsTable);
-		panel.add(renderedResutlsComponent);
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.add(panel);
+		resultsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		resultsTable.getModel().addTableModelListener(this);
+		
+		JPanel tablePanel = new JPanel (new BorderLayout());
+		tablePanel.add(resultsTable.getTableHeader(), BorderLayout.PAGE_START);
+		tablePanel.add(resultsTable, BorderLayout.CENTER);
+		resultsTable.setFillsViewportHeight(true);
+		resultsTable.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		add(new JScrollPane(resultsTable));
+		add(renderedResultsComponent);
+		renderedResultsComponent.setBorder(BorderFactory.createRaisedBevelBorder());
+//		JPanel panel = new JPanel(new FlowLayout());
+//		JScrollPane scrollPane = new JScrollPane(resultsTable);
+//		panel.add(tablePanel);
+//		panel.add(renderedResultsComponent);
+//		JScrollPane scrollPane = new JScrollPane();
+//		scrollPane.add(panel);
 //		add(scrollPane);
-		add(panel);
+//		add(panel);
 		revalidate();
 
 	}
@@ -78,7 +94,9 @@ public class ProvenanceResultsPanel extends JPanel {
 					.getLeadSelectionIndex();
 			int columnSelectionIndex = resultsTable.getColumnModel()
 					.getSelectionModel().getLeadSelectionIndex();
-
+			if (rowSelectionIndex == -1 || columnSelectionIndex == -1) {
+				return;
+			}
 			String valueAt = lineageRecords.get(rowSelectionIndex).getValue();
 			logger.info("trying to construct: " + valueAt);
 
@@ -86,7 +104,7 @@ public class ProvenanceResultsPanel extends JPanel {
 					.getReferenceService().referenceFromString(valueAt);
 			ResultTreeNode node = new ResultTreeNode(referenceFromString,
 					getContext());
-			renderedResutlsComponent.setNode(node);
+			renderedResultsComponent.setNode(node);
 
 		}
 	}
@@ -123,6 +141,11 @@ public class ProvenanceResultsPanel extends JPanel {
 
 	public LineageResultsTableModel getLineageResultsTableModel() {
 		return lineageResultsTableModel;
+	}
+
+	public void tableChanged(TableModelEvent e) {
+		System.out.println("table changed");
+		resultsTable.revalidate();
 	}
 
 }

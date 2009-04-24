@@ -71,6 +71,7 @@ public class LineageResultsTableModel extends AbstractTableModel {
 
 	public void setLineageRecords(List<LineageQueryResultRecord> lineageRecords) {
 		this.lineageRecords = lineageRecords;
+		fireTableDataChanged();
 	}
 
 	public List<LineageQueryResultRecord> getLineageRecords() {
