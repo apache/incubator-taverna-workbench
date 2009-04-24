@@ -49,6 +49,11 @@
 			<version>${t2.ui.impl.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>activity-tools</artifactId>
+			<version>${t2.ui.impl.version}</version>
+		</dependency>
 		
 	</dependencies>
 </project>
