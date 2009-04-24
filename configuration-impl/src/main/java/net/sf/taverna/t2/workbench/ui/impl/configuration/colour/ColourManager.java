@@ -123,6 +123,10 @@ public class ColourManager extends AbstractConfigurable {
 		}
 		return colour;
 	}
+	
+	public void setPreferredColour(String itemKey, Color colour) {
+		cachedColours.put(itemKey,colour);
+	}
 
 	@Override
 	public void restoreDefaults() {
