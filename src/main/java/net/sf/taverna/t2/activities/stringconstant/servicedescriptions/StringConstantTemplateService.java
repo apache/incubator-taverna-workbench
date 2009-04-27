@@ -24,8 +24,8 @@ import javax.swing.Icon;
 
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
+import net.sf.taverna.t2.activities.stringconstant.query.StringConstantActivityIcon;
 import net.sf.taverna.t2.servicedescriptions.AbstractTemplateService;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 public class StringConstantTemplateService extends AbstractTemplateService<StringConstantConfigurationBean>{
 	
@@ -45,7 +45,7 @@ public class StringConstantTemplateService extends AbstractTemplateService<Strin
 
 	@Override
 	public Icon getIcon() {
-		return null;
+		return StringConstantActivityIcon.getStringConstantIcon();
 	}
 
 	public String getName() {

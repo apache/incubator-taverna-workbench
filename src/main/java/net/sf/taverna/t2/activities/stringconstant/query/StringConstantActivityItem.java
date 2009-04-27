@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.activities.stringconstant.query;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
@@ -40,8 +39,7 @@ public class StringConstantActivityItem extends AbstractActivityItem {
 	}
 
 	public Icon getIcon() {
-		return new ImageIcon(StringConstantActivityItem.class
-				.getResource("/stringconstant.png"));
+		return StringConstantActivityIcon.getStringConstantIcon();
 	}
 
 	
