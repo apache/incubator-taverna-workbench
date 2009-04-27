@@ -305,21 +305,21 @@ public class ProvenanceConfigurationPanel extends JPanel {
 		//FIXME does not work correctly with the derby-connector
 //		buttonPanel.add(deleteButton);
 		add(onPanel);
-		add(Box.createVerticalStrut(10));
+		add(Box.createVerticalStrut(5));
 		JPanel boxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		
 		labelPanel.add (new JLabel("Select the database type for provenance storage from the drop down"));
 		add(labelPanel);
-		add(Box.createVerticalStrut(10));//		labelPanel.setMaximumSize(new Dimension(300,20));
+		add(Box.createVerticalStrut(5));//		labelPanel.setMaximumSize(new Dimension(300,20));
 		boxPanel.add(connectorChooser);
 //		boxPanel.add(Box.createHorizontalGlue());
 		add(boxPanel);
-		add(Box.createVerticalStrut(10));
+		add(Box.createVerticalStrut(5));
 //		add(dropPanel);
 		viewHolder.setBorder(BorderFactory.createBevelBorder(1));
 		add(viewHolder);
-		add(Box.createVerticalStrut(10));
+		add(Box.createVerticalStrut(5));
 		add(buttonPanel);
 
 	}
