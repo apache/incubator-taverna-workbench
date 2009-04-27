@@ -36,7 +36,7 @@ import javax.swing.table.JTableHeader;
 public class ResultsTable extends JTable {
 
 	private String[] toolTips = {
-			"Name of the input port",
+			"Name of the input/output port",
 			"The iteration that produced this value",
 			"The internal data reference. A red colour represents an error. Click on the value to render the result" };
 
