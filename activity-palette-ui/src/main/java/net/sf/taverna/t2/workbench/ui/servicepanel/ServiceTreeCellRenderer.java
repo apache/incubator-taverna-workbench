@@ -53,7 +53,7 @@ public class ServiceTreeCellRenderer extends FilterTreeCellRenderer {
 			}
 //			serviceTreeCellRenderer.setForeground(Color.red);
 			String displayName = name;
-			String textualDescription = item.getTextualDescription();
+			String textualDescription = item.getDescription();
 			if ((textualDescription != null) && !textualDescription.equals("")) {
 				displayName = displayName + " - " + textualDescription;
 			}
