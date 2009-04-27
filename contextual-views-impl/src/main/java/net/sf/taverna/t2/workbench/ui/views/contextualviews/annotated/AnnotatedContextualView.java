@@ -139,7 +139,7 @@ public class AnnotatedContextualView extends ContextualView {
 	 */
 	@Override
 	public String getViewTitle() {
-		return "Workflow";
+		return "Annotations";
 	}
 
 	public void refreshView() {
