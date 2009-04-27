@@ -75,14 +75,9 @@ public abstract class AbstractConfigurableServiceProvider<ConfigType>
 		return Collections.emptyList();
 	}
 
-	public String getName() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	@Override
 	public String toString() {
-		return "Service provider " + getName() + " " + getConfiguration();
+		return getName() + " " + getConfiguration();
 	}
 
 }
