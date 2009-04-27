@@ -298,8 +298,8 @@ public class ServiceDescriptionRegistryImpl implements
 						// New thread will override the old thread
 						oldThread.interrupt();
 					} else {
-						observers.notify(new ProviderStatusNotification(
-								provider, "Waiting for provider"));
+//						observers.notify(new ProviderStatusNotification(
+//								provider, "Waiting for provider"));
 						continue;
 					}
 				}
@@ -362,6 +362,9 @@ public class ServiceDescriptionRegistryImpl implements
 				return;
 			}
 			providerDescs.addAll(serviceDescriptions);
+			synchronized (providerDescriptions) {
+				providerDescriptions.put(getProvider(), providerDescs);
+			}
 			observers.notify(new PartialServiceDescriptionsNotification(
 					getProvider(), serviceDescriptions));
 		}
