@@ -62,11 +62,20 @@ public abstract class AbstractTemplateService<ConfigType> implements
 		public ConfigType getActivityConfiguration() {
 			return AbstractTemplateService.this.getActivityConfiguration();
 		}
+		
+		public String getTextualDescription() {
+			return AbstractTemplateService.this.getTextualDescription();
+		}
 	}
 
 	@Override
 	public String toString() {
 		return "Template service " + getName();
+	}
+
+	public String getTextualDescription() {
+		// Default to an empty string
+		return "";
 	}
 	
 }

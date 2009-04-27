@@ -10,6 +10,7 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
 
+	private static final String TEXTUAL_DESCRIPTION = "Textual description";
 	private static final String SERVICE_IMPLEMENTATION_CLASS = "Service implementation class";
 	private static final String SERVICE_CONFIGURATION = "Service configuration";
 	private static final String NAME = "Name";
@@ -40,4 +41,17 @@ public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
 	@Override
 	public abstract int hashCode();
 
+	private String textualDescription = "";
+	
+	/**
+	 * @param textualDescription the textualDescription to set
+	 */
+	public void setTextualDescription(String textualDescription) {
+		this.textualDescription = textualDescription;
+	}
+
+	@PropertyAnnotation(displayName = TEXTUAL_DESCRIPTION)
+	public String getTextualDescription() {
+		return this.textualDescription;
+	}
 }
