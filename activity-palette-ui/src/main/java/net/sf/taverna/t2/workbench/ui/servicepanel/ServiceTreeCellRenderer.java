@@ -52,7 +52,12 @@ public class ServiceTreeCellRenderer extends FilterTreeCellRenderer {
 				name = getFilter().filterRepresentation(name);
 			}
 //			serviceTreeCellRenderer.setForeground(Color.red);
-			serviceTreeCellRenderer.setText(name);
+			String displayName = name;
+			String textualDescription = item.getTextualDescription();
+			if ((textualDescription != null) && !textualDescription.equals("")) {
+				displayName = displayName + " - " + textualDescription;
+			}
+			serviceTreeCellRenderer.setText(displayName);
 			Icon activityIcon = item.getIcon();
 			if (activityIcon != null) {
 				serviceTreeCellRenderer.setIcon(activityIcon);
