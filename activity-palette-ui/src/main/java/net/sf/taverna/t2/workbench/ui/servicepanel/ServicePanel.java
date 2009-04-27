@@ -21,25 +21,19 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
 import java.awt.BorderLayout;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-
-import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -47,11 +41,14 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.servicedescriptions.events.AbstractProviderNotification;
+import net.sf.taverna.t2.servicedescriptions.events.PartialServiceDescriptionsNotification;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionProvidedEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+
+import org.apache.log4j.Logger;
 
 /**
  * A panel of available services
@@ -67,12 +64,11 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 	/**
 	 * A Comparable constant to be used with buildPathMap
 	 */
-	private static final UUID SERVICES = UUID
-			.fromString("4DA84170-7746-4817-8C2E-E29AF8B2984D");
+	private static final String SERVICES = "4DA84170-7746-4817-8C2E-E29AF8B2984D";
 
-	private static final int STATUS_LINE_UPDATE_MS = 400;
+	private static final int STATUS_LINE_MESSAGE_MS = 600;
 
-	private TreeUpdaterThread populateThread;
+	private TreeUpdaterThread updaterThread;
 
 	private FilterTreeNode root = new FilterTreeNode(AVAILABLE_SERVICES);
 
@@ -87,8 +83,6 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 	private FilterTreeModel treeModel;
 
 	protected ServiceDescriptionRegistryObserver serviceDescriptionRegistryObserver = new ServiceDescriptionRegistryObserver();
-
-	protected Queue<String> statusMessages = new ConcurrentLinkedQueue<String>();
 
 	protected Timer statusUpdateTimer;
 
@@ -120,8 +114,16 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 	public void providerStatus(ServiceDescriptionProvider provider,
 			String message) {
 		logger.info(message + " " + provider);
-		statusMessages.add("<html>" + message + " <small>(" + provider
-				+ ")</small></html>");
+		final String htmlMessage = "<html><small>" + message + " [" + provider
+				+ "]</small></html>";
+
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				blankOutCounter = INITIAL_BLANK_OUT_COUNTER;
+				statusLine.setText(htmlMessage);
+				statusLine.setVisible(true);
+			}
+		});
 	}
 
 	protected void initialise() {
@@ -135,20 +137,19 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		if (statusUpdateTimer != null) {
 			statusUpdateTimer.cancel();
 		}
-		statusUpdateTimer = new Timer("Update status line");
+		statusUpdateTimer = new Timer("Clear status line");
 		statusUpdateTimer.scheduleAtFixedRate(new UpdateStatusLineTask(), 0,
-				STATUS_LINE_UPDATE_MS);
+				STATUS_LINE_MESSAGE_MS);
 		updateTree();
 	}
 
 	protected void updateTree() {
 		synchronized (updateLock) {
-			if (populateThread != null && populateThread.isAlive()) {
+			if (updaterThread != null && updaterThread.isAlive()) {
 				return;
 			}
-
-			populateThread = new TreeUpdaterThread();
-			populateThread.start();
+			updaterThread = new TreeUpdaterThread();
+			updaterThread.start();
 		}
 	}
 
@@ -297,46 +298,40 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		public void notify(Observable<ServiceDescriptionRegistryEvent> sender,
 				ServiceDescriptionRegistryEvent message) throws Exception {
 			if (message instanceof ServiceDescriptionProvidedEvent) {
-				// TODO: Support other events
-				// and only update relevant parts of tree, or at least select
-				// the recently added provider
-				updateTree();
+
 			}
 			if (message instanceof AbstractProviderNotification) {
 				AbstractProviderNotification abstractProviderNotification = (AbstractProviderNotification) message;
 				providerStatus(abstractProviderNotification.getProvider(),
 						abstractProviderNotification.getMessage());
 			}
+			if (message instanceof PartialServiceDescriptionsNotification) {
+				// TODO: Support other events
+				// and only update relevant parts of tree, or at least select
+				// the recently added provider
+				updateTree();
+			}
 		}
 	}
 
+	private static final int INITIAL_BLANK_OUT_COUNTER = 2;
+
+	public int blankOutCounter = 0;
+
 	private final class UpdateStatusLineTask extends TimerTask {
-
-		private static final int INITIAL_BLANK_OUT_COUNTER = 5;
-		private int blankOutCounter = 0;
-
 		@Override
 		public void run() {
-			try {
-				SwingUtilities.invokeAndWait(new Runnable() {
-					public void run() {
-						String statusMessage = statusMessages.poll();
-						if (statusMessage != null) {
-							blankOutCounter = INITIAL_BLANK_OUT_COUNTER;
-							statusLine.setText(statusMessage);
-							statusLine.setVisible(true);							
-						} else {
-							if (blankOutCounter-- < 1) {
-								statusLine.setVisible(false);
-							}
-						}
-					}
-				});
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-			} catch (InvocationTargetException e) {
-				logger.warn("Could not invoke timer ", e.getCause());
+			if (blankOutCounter < 0 || blankOutCounter-- > 0) {
+				// Only clear it once
+				return;
 			}
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					if (blankOutCounter < 0) {
+						statusLine.setVisible(false);
+					}
+				}
+			});
 		}
 	}
 }
