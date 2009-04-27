@@ -44,13 +44,9 @@ public abstract class AbstractTemplateService<ConfigType> implements
 		}
 
 		@Override
-		public boolean equals(Object other) {
-			return this == other;
-		}
-
-		@Override
-		public int hashCode() {
-			return AbstractTemplateService.this.hashCode();
+		protected List<Object> getIdentifyingData() {
+			// Do it by object identity
+			return null;
 		}
 
 		@Override
@@ -63,7 +59,7 @@ public abstract class AbstractTemplateService<ConfigType> implements
 			return AbstractTemplateService.this.getActivityConfiguration();
 		}
 		
-		public String getTextualDescription() {
+		public String getDescription() {
 			return AbstractTemplateService.this.getTextualDescription();
 		}
 	}
