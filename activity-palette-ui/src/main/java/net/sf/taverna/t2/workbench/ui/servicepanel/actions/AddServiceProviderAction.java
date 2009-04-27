@@ -21,7 +21,9 @@ import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.uibuilder.UIBuilder;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
+import net.sf.taverna.t2.servicedescriptions.CustomizedConfigurePanelProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
+import net.sf.taverna.t2.servicedescriptions.CustomizedConfigurePanelProvider.CustomizedConfigureCallBack;
 import net.sf.taverna.t2.servicedescriptions.events.ProviderErrorNotification;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionProvidedEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
@@ -47,8 +49,6 @@ public class AddServiceProviderAction extends AbstractAction {
 
 	private ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-
-
 	@SuppressWarnings("unchecked")
 	private final ConfigurableServiceProvider confProvider;
 
@@ -62,7 +62,34 @@ public class AddServiceProviderAction extends AbstractAction {
 		this.owner = owner;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void actionPerformed(ActionEvent e) {
+		if (confProvider instanceof CustomizedConfigurePanelProvider) {
+			// Clone it and run the configure on the new one
+			CustomizedConfigurePanelProvider customProvider = (CustomizedConfigurePanelProvider) confProvider
+					.clone();
+			CustomizedConfigureCallBack callBack = new CustomizedConfigureCallBack() {
+				public void newProviderConfiguration(Object providerConfig) {
+					addNewProvider(providerConfig);
+				}
+				public Object getTemplateConfig() {
+					try {
+						return BeanUtils.cloneBean(confProvider
+								.getConfiguration());
+					} catch (Exception ex) {
+						throw new RuntimeException(
+								"Can't clone configuration bean", ex);
+					}
+				}
+				public ServiceDescriptionRegistry getServiceDescriptionRegistry() {
+					return AddServiceProviderAction.this.getServiceDescriptionRegistry();
+				}
+				
+			};
+			customProvider.createCustomizedConfigurePanel(callBack);
+			return;
+		}
+
 		Object configurationBean;
 		try {
 			configurationBean = BeanUtils.cloneBean(confProvider
@@ -87,6 +114,26 @@ public class AddServiceProviderAction extends AbstractAction {
 		dialog.setLocation(owner.getLocationOnScreen().x + owner.getWidth(),
 				owner.getLocationOnScreen().y + owner.getHeight());
 		dialog.setVisible(true);
+	}
+
+	@SuppressWarnings("unchecked")
+	protected void addNewProvider(Object configurationBean) {
+		final ConfigurableServiceProvider cloned = confProvider.clone();
+		try {
+			cloned.configure(configurationBean);
+			getServiceDescriptionRegistry().addObserver(
+					new CheckAddedCorrectlyObserver(cloned));
+			getServiceDescriptionRegistry().addServiceDescriptionProvider(
+					cloned);
+		} catch (ConfigurationException e1) {
+			logger.warn("Can't configure provider " + cloned + " using "
+					+ configurationBean, e1);
+			JOptionPane.showMessageDialog(null,
+					"Can't configure service provider " + cloned.getName(),
+					"Can't add service provider", JOptionPane.ERROR_MESSAGE);
+
+		}
+
 	}
 
 	protected JPanel buildEditor(Object configurationBean) {
@@ -126,7 +173,7 @@ public class AddServiceProviderAction extends AbstractAction {
 	public ServiceDescriptionRegistry getServiceDescriptionRegistry() {
 		return serviceDescriptionRegistry;
 	}
-	
+
 	public class AddProviderAction extends AbstractAction {
 
 		private final Object configurationBean;
@@ -138,28 +185,9 @@ public class AddServiceProviderAction extends AbstractAction {
 			this.dialog = dialog;
 		}
 
-		@SuppressWarnings("unchecked")
 		public void actionPerformed(ActionEvent e) {
-
-			final ConfigurableServiceProvider cloned = confProvider.clone();
-			try {
-				cloned.configure(configurationBean);
-				getServiceDescriptionRegistry().addObserver(
-						new CheckAddedCorrectlyObserver(cloned));
-				getServiceDescriptionRegistry().addServiceDescriptionProvider(
-						cloned);
-				dialog.setVisible(false);
-			} catch (ConfigurationException e1) {
-				logger.warn("Can't configure provider " + cloned + " using "
-						+ configurationBean, e1);
-				JOptionPane
-						.showMessageDialog(null,
-								"Can't configure service provider "
-										+ cloned.getName(),
-								"Can't add service provider",
-								JOptionPane.ERROR_MESSAGE);
-
-			}
+			addNewProvider(configurationBean);
+			dialog.setVisible(false);
 		}
 	}
 
