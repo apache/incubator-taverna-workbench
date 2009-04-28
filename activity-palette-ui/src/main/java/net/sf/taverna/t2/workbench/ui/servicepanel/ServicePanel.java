@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
 import java.awt.BorderLayout;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -173,7 +174,15 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			populateChildren(root, pathMap);
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
-					serviceTreePanel.setFilter(null);
+					try {
+						serviceTreePanel.runFilter();
+						} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
 			});
 		}
