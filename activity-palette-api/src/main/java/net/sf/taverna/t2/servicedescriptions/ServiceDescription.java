@@ -15,6 +15,8 @@ public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
 	private static final String SERVICE_CONFIGURATION = "Service configuration";
 	private static final String SERVICE_IMPLEMENTATION_CLASS = "Service implementation class";
 	private static final String DESCRIPTION = "Description";
+	
+	public static final String LOCAL_SERVICES = "Local services";
 
 	private String description = "";
 
@@ -42,7 +44,7 @@ public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
 	public abstract ConfigType getActivityConfiguration();
 
 	@PropertyAnnotation(displayName = DESCRIPTION)
-	public String getDescription() {
+	public String getTextualDescription() {
 		return this.description;
 	}
 
@@ -74,7 +76,7 @@ public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
 	/**
 	 * @param description the description to set
 	 */
-	public void setDescription(String description) {
+	public void setTextualDescription(String description) {
 		this.description = description;
 	}
 
