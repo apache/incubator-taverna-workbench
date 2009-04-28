@@ -48,6 +48,7 @@ import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEv
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 
 import org.apache.log4j.Logger;
 
@@ -73,7 +74,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	private FilterTreeNode root = new FilterTreeNode(AVAILABLE_SERVICES);
 
-	private ServiceComparator serviceComparator = new ServiceComparator();
+	private static ServiceComparator serviceComparator = new ServiceComparator();
 
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 
@@ -88,6 +89,30 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 	protected Timer statusUpdateTimer;
 
 	protected Object updateLock = new Object();
+	
+	private static Comparator servicePathElementComparator = new Comparator() {
+
+		public int compare(Object o1, Object o2) {
+			if ((o1 instanceof String) && (o2 instanceof String)) {
+				String so1 = (String) o1;
+				String so2 = (String) o2;
+				if (o1.equals(ServiceDescription.SERVICE_TEMPLATES)) {
+					return -1;
+				}
+				if (o2.equals(ServiceDescription.SERVICE_TEMPLATES)) {
+					return 1;
+				}
+				if (o1.equals(ServiceDescription.LOCAL_SERVICES)) {
+					return -1;
+				}
+				if (o2.equals(ServiceDescription.LOCAL_SERVICES)) {
+					return 1;
+				}
+			}
+			return o1.toString().compareTo(o2.toString());
+		}
+		
+	};
 
 	public ServicePanel(ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
@@ -237,7 +262,8 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			}
 
 			List<Comparable> paths = new ArrayList<Comparable>(pathMap.keySet());
-			Collections.sort(paths);
+			
+			Collections.sort(paths, servicePathElementComparator);
 			for (Comparable path : paths) {
 				if (aborting) {
 					return;
@@ -263,6 +289,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				}
 			}
 		}
+		
 
 		public class AddNodeRunnable implements Runnable {
 			private final FilterTreeNode node;
