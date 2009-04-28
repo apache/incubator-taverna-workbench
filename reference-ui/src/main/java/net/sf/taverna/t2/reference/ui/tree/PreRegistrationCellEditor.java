@@ -25,8 +25,6 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.MouseEvent;
-import java.util.EventObject;
 
 import javax.swing.AbstractCellEditor;
 import javax.swing.JScrollPane;

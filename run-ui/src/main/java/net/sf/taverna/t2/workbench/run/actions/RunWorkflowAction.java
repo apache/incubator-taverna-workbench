@@ -292,7 +292,8 @@ public class RunWorkflowAction extends AbstractAction {
 		wlp.setOpaque(true); // content panes must be opaque
 
 		for (DataflowInputPort input : facade.getDataflow().getInputPorts()) {
-			wlp.addInputTab(input.getName(), input.getDepth());
+//			input.getAnnotations();
+			wlp.addInput(input.getName(), input.getDepth(), "");
 		}
 
 		frame.setContentPane(wlp);

@@ -42,6 +42,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
@@ -102,18 +103,21 @@ public class RegistrationPanel extends JPanel {
 	private Action addUrlAction;
 
 	private int depth;
+	private JSplitPane splitPane;
 
 	/**
 	 * Construct a new registration panel for an input with the specified depth.
 	 * 
 	 * @param depth
 	 *            Depth of the POJO to construct from this panel
+	 * @param inputDescription 
+	 * @param inputName 
 	 */
 	@SuppressWarnings("serial")
-	public RegistrationPanel(int depth) {
+	public RegistrationPanel(int depth, String name, String description) {
 		super(new BorderLayout());
 		this.depth = depth;
-		tree = new PreRegistrationTree(depth) {
+		tree = new PreRegistrationTree(depth, name) {
 			@Override
 			public void setStatusMessage(String message, boolean isError) {
 				if (isError) {
@@ -124,7 +128,17 @@ public class RegistrationPanel extends JPanel {
 			}
 		};
 		treeModel = tree.getPreRegistrationTreeModel();
-		add(new JScrollPane(this.tree), BorderLayout.CENTER);
+		
+		splitPane = new JSplitPane();
+		add(splitPane, BorderLayout.CENTER);
+		
+		splitPane.add(new JScrollPane(this.tree), JSplitPane.LEFT);
+		splitPane.add(new JScrollPane(new JLabel("<html><b>" +
+				name + "</b><br>" +
+				description +
+				"</html>")), JSplitPane.RIGHT);
+		splitPane.setDividerLocation(450);
+		
 		buildActions();
 		// Listen to selections on the tree to enable or disable actions
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
@@ -217,11 +231,11 @@ public class RegistrationPanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				MutableTreeNode node = getSelectedNode();
 				treeModel.addPojoStructure(node, "abcd", 0);
-				setStatus("Added new inline string, double click to edit.",
+				setStatus("Added new value, double click to edit.",
 						infoIcon, null);
 			}
 		};
-		addTextAction.putValue(Action.NAME, "New string");
+		addTextAction.putValue(Action.NAME, "New value");
 		addTextAction.putValue(Action.SMALL_ICON, addTextIcon);
 
 		addFileAction = new AbstractAction() {

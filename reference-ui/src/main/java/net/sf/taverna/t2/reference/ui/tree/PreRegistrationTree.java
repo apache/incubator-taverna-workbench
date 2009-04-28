@@ -75,7 +75,7 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 	public void setStatusMessage(String message, boolean isError) {
 		//
 	}
-
+	
 	/**
 	 * Construct with the depth of the collection to be assembled. This will
 	 * instantiate an appropriate internal model and set all the drag and drop
@@ -86,8 +86,26 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 	 *            and so on.
 	 */
 	public PreRegistrationTree(int depth) {
+		this(depth, null);
+	}
+
+	/**
+	 * Construct with the depth of the collection to be assembled. This will
+	 * instantiate an appropriate internal model and set all the drag and drop
+	 * handlers, renderers and cell editing components.
+	 * 
+	 * @param depth
+	 *            the collection depth to use, 0 for single items, 1 for lists
+	 *            and so on.
+	 * @param name Name of the top root of the tree (typically the port name)
+	 */
+	public PreRegistrationTree(int depth, String name) {
 		super();
-		model = new PreRegistrationTreeModel(depth);
+		if (name == null) {
+			model = new PreRegistrationTreeModel(depth);
+		} else {
+			model = new PreRegistrationTreeModel(depth, name);
+		}
 		setModel(model);
 		setEditable(true);
 		setInvokesStopCellEditing(true);

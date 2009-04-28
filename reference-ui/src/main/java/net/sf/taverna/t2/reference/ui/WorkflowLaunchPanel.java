@@ -30,6 +30,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
@@ -44,8 +45,12 @@ import net.sf.taverna.t2.reference.T2Reference;
  * 
  * @author Tom Oinn
  * @author David Withers
+ * @author Stian Soiland-Reyes
  */
+@SuppressWarnings("serial")
 public abstract class WorkflowLaunchPanel extends JPanel {
+
+	private static final String LAUNCH_WORKFLOW = "Launch workflow";
 
 	private final ImageIcon launchIcon = new ImageIcon(getClass().getResource(
 			"/icons/start_task.gif"));
@@ -63,6 +68,10 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	private final ReferenceService referenceService;
 	private final ReferenceContext referenceContext;
 
+	private JLabel workflowDescription = new JLabel();
+
+	private JLabel workflowIcon = new JLabel();
+
 	@SuppressWarnings("serial")
 	public WorkflowLaunchPanel(ReferenceService rs, ReferenceContext context) {
 		super(new BorderLayout());
@@ -70,14 +79,12 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		this.referenceService = rs;
 		this.referenceContext = context;
 
-		launchAction = new AbstractAction() {
+		launchAction = new AbstractAction(LAUNCH_WORKFLOW, launchIcon) {
 			public void actionPerformed(ActionEvent ae) {
 				registerInputs();
 				handleLaunch(inputMap);
 			}
 		};
-		launchAction.putValue(Action.SMALL_ICON, launchIcon);
-		launchAction.putValue(Action.NAME, "Launch workflow");
 
 		// Construct tab container
 		tabs = new JTabbedPane();
@@ -87,22 +94,35 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		toolBar.add(new JButton(launchAction));
-		add(toolBar, BorderLayout.NORTH);
+		
+		JPanel upperPanel = new JPanel(new BorderLayout());
+		upperPanel.add(toolBar, BorderLayout.SOUTH);
+		upperPanel.add(workflowDescription, BorderLayout.CENTER);
+		upperPanel.add(workflowIcon, BorderLayout.EAST);
+		add(upperPanel, BorderLayout.NORTH);
+		
 	}
 
 	@SuppressWarnings("serial")
-	public synchronized void addInputTab(final String inputName,
+	public synchronized void addInput(final String inputName,
 			final int inputDepth) {
+		addInput(inputName, inputDepth, null);
+	}
+	
+	public void addInput(final String inputName,
+			final int inputDepth, String inputDescription) {
 		// Don't do anything if we already have this tab
 		if (inputMap.containsKey(inputName)) {
 			return;
 		} else {
-			RegistrationPanel inputPanel = new RegistrationPanel(inputDepth);
+			RegistrationPanel inputPanel = new RegistrationPanel(inputDepth, inputName, inputDescription);
 			inputMap.put(inputName, null);
 			tabComponents.put(inputName, inputPanel);
 			tabs.addTab(inputName, inputPanel);
 		}
+		
 	}
+
 
 	public synchronized void removeInputTab(final String inputName) {
 		// Only do something if we have this tab to begin with
@@ -134,5 +154,15 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	 *            a map of named inputs in the form of T2Reference instances
 	 */
 	public abstract void handleLaunch(Map<String, T2Reference> workflowInputs);
+
+	public void setWorkflowDescription(String workflowDescription) {
+		this.workflowDescription.setText("<html>"  + workflowDescription + "</html>");
+	}
+
+	public void setWorkflowPicture(ImageIcon workflowPicture) {
+		this.workflowIcon.setIcon(workflowPicture);
+		
+	}
+
 
 }

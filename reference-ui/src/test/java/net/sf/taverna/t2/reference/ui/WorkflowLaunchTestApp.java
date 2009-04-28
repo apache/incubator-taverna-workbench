@@ -22,6 +22,7 @@ package net.sf.taverna.t2.reference.ui;
 
 import java.util.Map;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -36,6 +37,12 @@ import org.springframework.context.ApplicationContext;
 public class WorkflowLaunchTestApp {
 
 	private static WorkflowLaunchPanel wlp;
+	
+
+	private static ImageIcon workflowThumbnail = new ImageIcon(
+			WorkflowLaunchTestApp.class.getResource("/workflow.png"));
+	
+
 
 	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
 		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -70,17 +77,29 @@ public class WorkflowLaunchTestApp {
 		};
 		wlp.setOpaque(true); // content panes must be opaque
 
+		wlp.setWorkflowDescription("It is very good to be able to put a description of the workflow" +
+				" right here in the code. We'll put quite a long description so we can " +
+				"check that line wrapping actually works as we expect. Note that in some cases" +
+				" the initial window will be very wide because of frame.pack() being" +
+				"called.");
+		
+		wlp.setWorkflowPicture(workflowThumbnail);
+		
 		// Add some inputs
-		wlp.addInputTab("Single item", 0);
-		wlp.addInputTab("List", 1);
-		wlp.addInputTab("List of lists", 2);
-		wlp.addInputTab("List of lists of lists", 3);
-		wlp.addInputTab("Really deep list", 6);
-
+		wlp.addInput("Single item", 0, "Make the inputs");
+		wlp.addInput("List", 1, "Add a list here, because that's what I mean");
+		wlp.addInput("List of lists", 2);
+		wlp.addInput("List of lists of lists", 3);
+		wlp.addInput("Really deep list", 6, 
+				"And another really long description that is to " +
+				"wrap onto multiple lines once it appears in the tiny little window. " +
+				"This can be done by using HTML tags, for instance.");
+		
 		frame.setContentPane(wlp);
 
 		// Display the window.
 		frame.pack();
+		frame.setSize(630, 450);
 		frame.setVisible(true);
 	}
 }

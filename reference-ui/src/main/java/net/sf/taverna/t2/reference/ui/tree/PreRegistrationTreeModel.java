@@ -53,31 +53,43 @@ import javax.swing.tree.TreeNode;
  */
 public class PreRegistrationTreeModel extends DefaultTreeModel {
 
+	private static final String INPUT = "Input";
+
+	private static final String LIST_OF_DEPTH = "List of depth";
+
+	private static final String LIST_OF_LISTS_OF_LISTS = "List of lists of lists";
+
+	private static final String LIST_OF_LISTS = "List of lists";
+
+	private static final String LIST = "List";
+
+	private static final String SINGLE_VALUE = "Single value";
+
 	private static final long serialVersionUID = 4133642236173701467L;
 
 	private int depth = 0;
 
 	public PreRegistrationTreeModel(int depth) {
-				
-		super(new DefaultMutableTreeNode(getRootName(depth)));
+		this(depth, INPUT);
+	}
+	
+	public PreRegistrationTreeModel(int depth, String name) {
+
+		super(new DefaultMutableTreeNode(getRootName(depth, name)));
 		this.depth = depth;
 	}
 
-	private static String getRootName(int depth) {
-		if (depth == 0){
-			return "Input: Single value";
-		}
-		else if (depth == 1){
-			return "Input: List";
-		}
-		else if (depth == 2){
-			return "Input: List of lists";
-		}
-		else if (depth == 3){
-			return "Input: List of lists of lists";
-		}
-		else{
-			return "Input: List of depth " + depth;
+	private static String getRootName(int depth, String name) {
+		if (depth == 0) {
+			return name + ": " + SINGLE_VALUE;
+		} else if (depth == 1) {
+			return name + ": " + LIST;
+		} else if (depth == 2) {
+			return name + ": " + LIST_OF_LISTS;
+		} else if (depth == 3) {
+			return name + ": " + LIST_OF_LISTS_OF_LISTS;
+		} else {
+			return name + ": " + LIST_OF_DEPTH + " " + depth;
 		}
 	}
 
@@ -238,10 +250,10 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 		int sourceDepth = getNodeDepth(source);
 		// Handle drag onto a future sibling
 		if (sourceDepth == targetDepth) {
-			
+
 			// Move the source from wherever it currently is and add it as a
 			// sibling of the target node at an index one higher.
-			
+
 			removeNodeFromParent(source);
 			// Capture the index of the target in its parent
 			int targetIndex = getIndexOfChild(target.getParent(), target);
@@ -258,9 +270,9 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 		else if (targetDepth == (sourceDepth + 1)) {
 			// Insert at index 0 in the target, removing from our old parent
 			// first
-			
+
 			removeNodeFromParent(source);
-			
+
 			insertNodeInto(source, target, 0);
 		}
 		// Otherwise traverse, picking the child at index 0 every time and
@@ -268,7 +280,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 		else if (targetDepth > sourceDepth) {
 			// Create a new non-leaf node first if needed
 			if (target.getChildCount() == 0) {
-				
+
 				insertNodeInto(new DefaultMutableTreeNode(null), target, 0);
 			}
 			// Recursively try to move the source to the target's child list at
@@ -283,7 +295,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 			super.removeNodeFromParent(node);
 		}
 	}
-	
+
 	/**
 	 * Return the depth of the specified tree node. Depth is determined by the
 	 * length of the path to the root, where a path of length 2 corresponds to
