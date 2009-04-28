@@ -88,7 +88,7 @@ public class ServiceFilter implements Filter {
 							}
 							if (readProperty.toString().toLowerCase().contains(
 									keyword)) {
-								System.out.println("Found " + keyword + " in " + property.getName() + ": " + readProperty);
+								//System.out.println("Found " + keyword + " in " + property.getName() + ": " + readProperty);
 								// Found it, try next word
 								continue search;
 							} else {
