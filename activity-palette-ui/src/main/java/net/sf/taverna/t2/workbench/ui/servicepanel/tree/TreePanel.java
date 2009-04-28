@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -66,26 +67,26 @@ public class TreePanel extends JPanel {
 
 	protected void expandTreePaths() throws InterruptedException,
 			InvocationTargetException {
-		Filter appliedFilter = filterTreeModel.getCurrentFilter();
-		if (appliedFilter == null) {
+//		Filter appliedFilter = filterTreeModel.getCurrentFilter();
+//		if (appliedFilter == null) {
 			for (int i = 0; (i < tree.getRowCount()) && (i < MAX_EXPANSION); i++) {
 				tree.expandRow(i);
 			}
-		} else {
-			boolean rowsFinished = false;
-			for (int i = 0; (!appliedFilter.isSuperseded()) && (!rowsFinished)
-					&& (i < MAX_EXPANSION); i++) {
-				TreePath tp = tree.getPathForRow(i);
-				if (tp == null) {
-					rowsFinished = true;
-				} else {
-					if (!appliedFilter.pass((DefaultMutableTreeNode) tp
-							.getLastPathComponent())) {
-						tree.expandRow(i);
-					}
-				}
-			}
-		}
+//		} else {
+//			boolean rowsFinished = false;
+//			for (int i = 0; (!appliedFilter.isSuperseded()) && (!rowsFinished)
+//					&& (i < MAX_EXPANSION); i++) {
+//				TreePath tp = tree.getPathForRow(i);
+//				if (tp == null) {
+//					rowsFinished = true;
+//				} else {
+//					if (!appliedFilter.pass((DefaultMutableTreeNode) tp
+//							.getLastPathComponent())) {
+//						tree.expandRow(i);
+//					}
+//				}
+//			}
+//		}
 	}
 
 	protected void initialize() {
@@ -151,7 +152,7 @@ public class TreePanel extends JPanel {
 		return new FilterTreeCellRenderer();
 	}
 
-	protected synchronized void runFilter() throws InterruptedException,
+	public synchronized void runFilter() throws InterruptedException,
 			InvocationTargetException {
 		String text = searchField.getText();
 		if (text.length() == 0) {
@@ -163,7 +164,6 @@ public class TreePanel extends JPanel {
 			setFilter(createFilter(text));
 			expandTreePaths();
 		}
-
 	}
 
 	public Filter createFilter(String text) {
@@ -244,7 +244,7 @@ public class TreePanel extends JPanel {
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					new Thread(runFilterRunnable).start();
+					SwingUtilities.invokeLater(runFilterRunnable);
 				}
 
 			}, 500);
