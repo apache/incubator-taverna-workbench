@@ -165,7 +165,9 @@ public class RunWorkflowAction extends AbstractAction {
 				}
 				InvocationContextImplementation context = new InvocationContextImplementation(
 						referenceService, provenanceConnector);
-				provenanceConnector.setInvocationContext(context);
+				if (provenanceConnector != null) {
+					provenanceConnector.setInvocationContext(context);
+				}
 				WorkflowInstanceFacade facade;
 				try {
 					facade = new EditsImpl().createWorkflowInstanceFacade(
