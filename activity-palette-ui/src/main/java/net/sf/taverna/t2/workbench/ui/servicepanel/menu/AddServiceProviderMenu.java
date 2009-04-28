@@ -22,6 +22,10 @@ package net.sf.taverna.t2.workbench.ui.servicepanel.menu;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -36,11 +40,11 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.ServicePanel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.actions.AddServiceProviderAction;
 
 /**
- * A menu that provides a set up menu actions for adding new service providers to
- * the Service Panel.
+ * A menu that provides a set up menu actions for adding new service providers
+ * to the Service Panel.
  * <p>
- * The Actions are discovered from the {@link ServiceDescriptionProvider}s found through the
- * SPI.
+ * The Actions are discovered from the {@link ServiceDescriptionProvider}s found
+ * through the SPI.
  * 
  * @author Stuart Owen
  * @author Stian Soiland-Reyes
@@ -53,18 +57,29 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.actions.AddServiceProviderAct
  */
 @SuppressWarnings("serial")
 public class AddServiceProviderMenu extends JButton {
-	
+
+	public static class ServiceProviderComparator implements
+			Comparator<ServiceDescriptionProvider> {
+		public int compare(ServiceDescriptionProvider o1,
+				ServiceDescriptionProvider o2) {
+			return o1.getName().toLowerCase().compareTo(
+					o2.getName().toLowerCase());
+		}
+	}
+
 	private final static String ADD_SERVICE_PROVIDER_MENU_NAME = "Import new services";
 
 	public AddServiceProviderMenu() {
 		super();
-		
+
 		final Component c = createCustomComponent();
-		this.setAction(new AbstractAction(ADD_SERVICE_PROVIDER_MENU_NAME){
+		this.setAction(new AbstractAction(ADD_SERVICE_PROVIDER_MENU_NAME) {
 
 			public void actionPerformed(ActionEvent e) {
-				((JPopupMenu) c).show(AddServiceProviderMenu.this, 0, AddServiceProviderMenu.this.getHeight());
-			}});
+				((JPopupMenu) c).show(AddServiceProviderMenu.this, 0,
+						AddServiceProviderMenu.this.getHeight());
+			}
+		});
 	}
 
 	private ServiceDescriptionRegistry serviceDescriptionRegistry = ServiceDescriptionRegistryImpl
@@ -72,11 +87,15 @@ public class AddServiceProviderMenu extends JButton {
 
 	@SuppressWarnings("unchecked")
 	private Component createCustomComponent() {
-		JPopupMenu addServiceMenu = new JPopupMenu(ADD_SERVICE_PROVIDER_MENU_NAME);
+		JPopupMenu addServiceMenu = new JPopupMenu(
+				ADD_SERVICE_PROVIDER_MENU_NAME);
 		addServiceMenu.setToolTipText("Add a new service provider");
 		boolean isEmpty = true;
-		for (ConfigurableServiceProvider provider : getServiceDescriptionRegistry()
-				.getUnconfiguredServiceProviders()) {
+		List<ConfigurableServiceProvider> providers = new ArrayList<ConfigurableServiceProvider>(
+				getServiceDescriptionRegistry()
+						.getUnconfiguredServiceProviders());
+		Collections.sort(providers,  new ServiceProviderComparator());
+		for (ConfigurableServiceProvider provider : providers) {
 			AddServiceProviderAction addAction = new AddServiceProviderAction(
 					provider, this);
 			addAction.setServiceDescriptionRegistry(getServiceDescriptionRegistry());
