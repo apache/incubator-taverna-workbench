@@ -29,7 +29,7 @@ import net.sf.taverna.t2.servicedescriptions.AbstractTemplateService;
 
 public class StringConstantTemplateService extends AbstractTemplateService<StringConstantConfigurationBean>{
 	
-	private static final String STRINGCONSTANT = "String_constant";
+	private static final String STRINGCONSTANT = "String constant";
 
 	@Override
 	public Class<StringConstantActivity> getActivityClass() {
