@@ -4,9 +4,12 @@ import java.util.List;
 
 import javax.swing.Icon;
 
+import org.apache.log4j.Logger;
+
 import net.sf.taverna.t2.lang.beans.PropertyAnnotated;
 import net.sf.taverna.t2.lang.beans.PropertyAnnotation;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
 
 public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
 
@@ -19,6 +22,8 @@ public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
 	public static final String LOCAL_SERVICES = "Local services";
 
 	private String description = "";
+
+	private static Logger logger = Logger.getLogger(ServiceDescription.class);
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -44,7 +49,7 @@ public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
 	public abstract ConfigType getActivityConfiguration();
 
 	@PropertyAnnotation(displayName = DESCRIPTION)
-	public String getTextualDescription() {
+	public String getDescription() {
 		return this.description;
 	}
 
@@ -76,7 +81,7 @@ public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
 	/**
 	 * @param description the description to set
 	 */
-	public void setTextualDescription(String description) {
+	public void setDescription(String description) {
 		this.description = description;
 	}
 
