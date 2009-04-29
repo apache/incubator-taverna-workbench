@@ -13,6 +13,7 @@ import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
@@ -22,6 +23,7 @@ import javax.swing.tree.TreePath;
 
 import net.sf.taverna.t2.partition.ActivityItem;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workbench.ui.servicepanel.actions.RefreshProviderRegistryAction;
 import net.sf.taverna.t2.workbench.ui.servicepanel.menu.AddServiceProviderMenu;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
@@ -36,8 +38,11 @@ public class ServiceTreePanel extends TreePanel {
 
 	private static Logger logger = Logger.getLogger(ServiceTreePanel.class);
 
-	public ServiceTreePanel(FilterTreeModel treeModel) {
+	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
+
+	public ServiceTreePanel(FilterTreeModel treeModel, ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		super(treeModel);
+		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
 	@Override
@@ -48,7 +53,13 @@ public class ServiceTreePanel extends TreePanel {
 		tree.addTreeWillExpandListener(new AvoidRootCollapse());
 		tree.expandRow(0);
 
-		tree.addMouseListener(new ServiceTreeClickListener(tree,this));
+		SwingUtilities.invokeLater(new Runnable() {
+
+			public void run() {
+				tree.addMouseListener(new ServiceTreeClickListener(tree,ServiceTreePanel.this, serviceDescriptionRegistry));
+			}
+			
+		});
 	
 	}
 

@@ -43,6 +43,7 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.servicedescriptions.events.AbstractProviderNotification;
 import net.sf.taverna.t2.servicedescriptions.events.PartialServiceDescriptionsNotification;
+import net.sf.taverna.t2.servicedescriptions.events.RemovedProviderEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionProvidedEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
@@ -72,7 +73,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	private TreeUpdaterThread updaterThread;
 
-	private FilterTreeNode root = new FilterTreeNode(AVAILABLE_SERVICES);
+	private RootFilterTreeNode root = new RootFilterTreeNode(AVAILABLE_SERVICES);
 
 	private static ServiceComparator serviceComparator = new ServiceComparator();
 
@@ -156,7 +157,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		removeAll();
 		setLayout(new BorderLayout());
 		treeModel = new FilterTreeModel(root);
-		serviceTreePanel = new ServiceTreePanel(treeModel);
+		serviceTreePanel = new ServiceTreePanel(treeModel, serviceDescriptionRegistry);
 		add(serviceTreePanel);
 		statusLine = new JLabel();
 		add(statusLine, BorderLayout.SOUTH);
@@ -264,17 +265,17 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			List<Comparable> paths = new ArrayList<Comparable>(pathMap.keySet());
 			
 			Collections.sort(paths, servicePathElementComparator);
-			for (Comparable path : paths) {
+			for (Comparable pathElement : paths) {
 				if (aborting) {
 					return;
 				}
-				if (path.equals(SERVICES)) {
+				if (pathElement.equals(SERVICES)) {
 					continue;
 				}
-				FilterTreeNode childNode = new FilterTreeNode(path);
+				FilterTreeNode childNode = new PathElementFilterTreeNode((String)pathElement);
 				SwingUtilities
 						.invokeLater(new AddNodeRunnable(node, childNode));
-				populateChildren(childNode, (Map) pathMap.get(path));
+				populateChildren(childNode, (Map) pathMap.get(pathElement));
 			}
 			List<ServiceDescription> services = (List<ServiceDescription>) pathMap
 					.get(SERVICES);
@@ -285,7 +286,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 						return;
 					}
 					SwingUtilities.invokeLater(new AddNodeRunnable(node,
-							new FilterTreeNode(service)));
+							new ServiceFilterTreeNode(service)));
 				}
 			}
 		}
@@ -346,6 +347,9 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				// and only update relevant parts of tree, or at least select
 				// the recently added provider
 				updateTree();
+			}
+			if (message instanceof RemovedProviderEvent) {
+				updateTree();					
 			}
 		}
 	}
