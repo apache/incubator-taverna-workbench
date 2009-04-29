@@ -52,4 +52,7 @@ public class StringConstantTemplateService extends AbstractTemplateService<Strin
 		return STRINGCONSTANT;
 	}
 
+	public String getDescription() {
+		return "A string value that you can set";
+	}
 }
