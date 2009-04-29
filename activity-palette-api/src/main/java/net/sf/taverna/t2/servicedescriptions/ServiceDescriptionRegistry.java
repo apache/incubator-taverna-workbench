@@ -14,9 +14,11 @@ public interface ServiceDescriptionRegistry extends
 	public void addServiceDescriptionProvider(
 			ServiceDescriptionProvider provider);
 
-	public Set<ServiceDescriptionProvider> getLocalServiceProviders();
+	public Set<ServiceDescriptionProvider> getUserAddedServiceProviders();
 	
 	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders();
+	
+	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders(ServiceDescription sd);
 
 	@SuppressWarnings("unchecked")
 	public Set<ServiceDescription> getServiceDescriptions();
@@ -37,6 +39,8 @@ public interface ServiceDescriptionRegistry extends
 	public void saveServiceDescriptions();
 
 	public void saveServiceDescriptions(File serviceDescriptionsFile);
+
+	public Set<ServiceDescriptionProvider> getUserRemovedServiceProviders();
 
 	
 }
