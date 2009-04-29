@@ -21,7 +21,10 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel.tree;
 
 import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -108,6 +111,19 @@ public class FilterTreeNode extends DefaultMutableTreeNode {
 
 	public boolean isPassed() {
 		return passed;
+	}
+	
+	public Set<FilterTreeNode> getLeaves() {
+		Set<FilterTreeNode> result = new HashSet<FilterTreeNode>();
+		if (isLeaf()) {
+			result.add(this);
+		} else {
+		for (int i = 0; i < super.getChildCount(); i++) {
+			FilterTreeNode child = (FilterTreeNode) super.getChildAt(i);
+			result.addAll(child.getLeaves());
+		}
+		}
+		return result;
 	}
 
 }
