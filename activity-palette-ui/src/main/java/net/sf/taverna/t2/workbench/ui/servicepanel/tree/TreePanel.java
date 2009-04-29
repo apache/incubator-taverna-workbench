@@ -27,6 +27,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,17 +38,23 @@ import java.util.TimerTask;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
+
+import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.ui.servicepanel.ServicePanel;
+import net.sf.taverna.t2.lang.ui.ShadedLabel;
 
 @SuppressWarnings("serial")
 public class TreePanel extends JPanel {
@@ -65,7 +73,7 @@ public class TreePanel extends JPanel {
 		initialize();
 	}
 
-	protected void expandTreePaths() throws InterruptedException,
+	public void expandTreePaths() throws InterruptedException,
 			InvocationTargetException {
 //		Filter appliedFilter = filterTreeModel.getCurrentFilter();
 //		if (appliedFilter == null) {
@@ -95,6 +103,8 @@ public class TreePanel extends JPanel {
 		tree.setModel(filterTreeModel);
 		tree.addTreeWillExpandListener(new TreeExpandListener());
 		tree.setCellRenderer(createCellRenderer());
+		tree.setSelectionModel(new FilterTreeSelectionModel());
+		
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -210,8 +220,6 @@ public class TreePanel extends JPanel {
 
 	}
 	
-	
-
 	protected class RunFilter implements Runnable {
 		public void run() {
 			Filter oldFilter = filterTreeModel.getCurrentFilter();
