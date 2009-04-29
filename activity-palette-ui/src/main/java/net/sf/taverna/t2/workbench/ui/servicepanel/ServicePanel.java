@@ -61,7 +61,7 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class ServicePanel extends JPanel implements UIComponentSPI {
 
-	private static final String AVAILABLE_SERVICES = "Available services";
+	public static final String AVAILABLE_SERVICES = "Available services";
 
 	/**
 	 * A Comparable constant to be used with buildPathMap
