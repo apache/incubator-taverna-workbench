@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.swing.AbstractAction;
@@ -163,13 +164,17 @@ public class ServiceTreeClickListener extends MouseAdapter {
 						}
 						
 						Set<ServiceDescriptionProvider> providers = new HashSet<ServiceDescriptionProvider>();
+						TreeMap<String,ServiceDescriptionProvider> nameMap = new TreeMap<String, ServiceDescriptionProvider>();
 
-						for (ServiceFilterTreeNode leaf = (ServiceFilterTreeNode) selectedNode.getFirstLeaf(); leaf != null; leaf = (ServiceFilterTreeNode) leaf.getNextLeaf()) {
-							providers.addAll(serviceDescriptionRegistry.getServiceDescriptionProviders(leaf.getUserObject()));
-							
+						for (FilterTreeNode leaf : selectedNode.getLeaves()) {
+							providers.addAll(serviceDescriptionRegistry.getServiceDescriptionProviders((ServiceDescription) leaf.getUserObject()));
+						}
+						for (ServiceDescriptionProvider sdp : providers) {
+							nameMap.put(sdp.toString(), sdp);
 						}
 							boolean first = true;
-								for (final ServiceDescriptionProvider sdp : providers) {
+								for (String name : nameMap.keySet()) {
+									final ServiceDescriptionProvider sdp = nameMap.get(name);
 									if (!(sdp instanceof ConfigurableServiceProvider)) {
 										continue;
 									}
@@ -178,7 +183,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 											ShadedLabel.GREEN));
 									first = false;
 									}
-											menu.add(new AbstractAction(sdp.toString()) {
+											menu.add(new AbstractAction(name) {
 
 										public void actionPerformed(
 												ActionEvent e) {
