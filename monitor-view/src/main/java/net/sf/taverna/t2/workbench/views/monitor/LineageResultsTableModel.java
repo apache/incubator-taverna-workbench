@@ -3,7 +3,9 @@
  */
 package net.sf.taverna.t2.workbench.views.monitor;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -19,7 +21,7 @@ public class LineageResultsTableModel extends AbstractTableModel {
 
 	private List<LineageQueryResultRecord> lineageRecords;
 
-	private String[] columnNames = { "Port Name", "Iteration", "Data Reference" };
+	private String[] columnNames = { "Port Name", "Iteration"};
 
 	private InvocationContext context;
 
@@ -53,16 +55,18 @@ public class LineageResultsTableModel extends AbstractTableModel {
 		if (getLineageRecords() != null) {
 			LineageQueryResultRecord lineageQueryResultRecord = getLineageRecords()
 					.get(rowIndex);
-
+			Map<Integer, LineageQueryResultRecord> map = new HashMap<Integer, LineageQueryResultRecord>();
 			switch (columnIndex) {
 			case 0:
-				return lineageQueryResultRecord.getVname();
+				map.put(1, lineageQueryResultRecord);
+				return map;
 			case 1:
-				return lineageQueryResultRecord.getIteration();
-			case 2:
-				return getContext().getReferenceService()
-						.referenceFromString(
-								lineageQueryResultRecord.getValue());
+				map.put(2, lineageQueryResultRecord);
+				return map;
+//			case 2:
+//				return getContext().getReferenceService()
+//						.referenceFromString(
+//								lineageQueryResultRecord.getValue());
 				// case 3: return lineageQueryResultRecord.getValue();
 			}
 		}

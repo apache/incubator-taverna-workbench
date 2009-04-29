@@ -26,12 +26,15 @@ import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.BevelBorder;
@@ -104,27 +107,30 @@ public class ProvenanceResultsPanel extends JPanel implements
 		resultsTable.getSelectionModel().addListSelectionListener(
 				new RowListener());
 		resultsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		resultsTable.setDefaultRenderer(T2ReferenceImpl.class,
-				new ReferenceRenderer());
+		resultsTable.setDefaultRenderer(HashMap.class,
+				new ReferenceRenderer(getContext()));
 		resultsTable.getModel().addTableModelListener(this);
 
 		JPanel tablePanel = new JPanel(new BorderLayout());
 		tablePanel.add(resultsTable.getTableHeader(), BorderLayout.PAGE_START);
 		tablePanel.add(resultsTable, BorderLayout.CENTER);
-		
+
 		// Java 6 only - do it by introspection
 		// resultsTable.setFillsViewportHeight(true);
 		try {
 			BeanUtils.setProperty(resultsTable, "fillsViewportHeight", true);
-		} catch (IllegalAccessException e) {			
+		} catch (IllegalAccessException e) {
 		} catch (InvocationTargetException e) {
 			// expected - Java 6 only
 		}
-		
+
 		resultsTable.setBorder(BorderFactory
 				.createBevelBorder(BevelBorder.RAISED));
-		add(new JScrollPane(resultsTable));
-		add(renderedResultsComponent);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(resultsTable), renderedResultsComponent);
+		splitPane.setDividerLocation(0.5);
+		//		add(new JScrollPane(resultsTable));
+//		add(renderedResultsComponent);
+		add(splitPane);
 		renderedResultsComponent.setBorder(BorderFactory
 				.createRaisedBevelBorder());
 		// JPanel panel = new JPanel(new FlowLayout());
@@ -158,7 +164,16 @@ public class ProvenanceResultsPanel extends JPanel implements
 					.getReferenceService().referenceFromString(valueAt);
 			ResultTreeNode node = new ResultTreeNode(referenceFromString,
 					getContext());
-			renderedResultsComponent.setNode(node);
+			try {
+				renderedResultsComponent.setNode(node);
+			} catch (Exception e) {
+				logger.warn("Could not render intermediate results for "
+						+ referenceFromString + "due to:\n" + e);
+				JOptionPane.showMessageDialog(null,
+						"Could not render intermediate results for "
+								+ referenceFromString + "due to:\n" + e,
+						"Problem rendering results", JOptionPane.ERROR_MESSAGE);
+			}
 
 		}
 	}

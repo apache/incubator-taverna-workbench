@@ -23,6 +23,8 @@ package net.sf.taverna.t2.workbench.views.monitor;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.util.List;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -30,6 +32,8 @@ import javax.swing.JTable;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellRenderer;
 
+import net.sf.taverna.t2.invocation.InvocationContext;
+import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.T2ReferenceType;
 
@@ -46,41 +50,80 @@ public class ReferenceRenderer extends JLabel implements TableCellRenderer {
 
 	private Border unselectedBorder = null;
 	private Border selectedBorder = null;
+	private List<LineageQueryResultRecord> lineageRecords;
+	private InvocationContext context;
 
-	public ReferenceRenderer() {
+	public ReferenceRenderer(InvocationContext context) {
+		this.setContext(context);
 		setOpaque(true);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column) {
-
+		LineageQueryResultRecord lineageQueryResultRecord = null;
+		String recordValue = null;
+		int recordNumber = 0;
+		if(((Map<Integer, LineageQueryResultRecord>)value).containsKey(1)) {
+			lineageQueryResultRecord = ((Map<Integer, LineageQueryResultRecord>)value).get(1);
+			recordValue = lineageQueryResultRecord.getVname();
+			recordNumber = 1;
+		} else if (((Map<Integer, LineageQueryResultRecord>)value).containsKey(2)) {
+			lineageQueryResultRecord = ((Map<Integer, LineageQueryResultRecord>)value).get(2);
+			recordValue = lineageQueryResultRecord.getIteration();
+			recordNumber = 2;
+		}
+		
+		T2Reference referenceValue = getContext().getReferenceService().referenceFromString(lineageQueryResultRecord.getValue());
+		
 		if (isSelected) {
 			if (selectedBorder == null) {
-				selectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5,
-						table.getSelectionBackground());
+				
+					selectedBorder = BorderFactory.createMatteBorder(2, 0, 2, 0,
+							table.getSelectionBackground());	
+			
 			}
 			setBorder(selectedBorder);
 		} else {
 			if (unselectedBorder == null) {
-				unselectedBorder = BorderFactory.createMatteBorder(2, 5, 2, 5,
-						table.getBackground());
+				
+					unselectedBorder = BorderFactory.createMatteBorder(2, 0, 2, 0,
+							table.getBackground());		
+				
 			}
 			setBorder(unselectedBorder);
 		}
+		
+		setText(recordValue);
 
-		setText(value.toString());
-
-		if (((T2Reference) value).getReferenceType().equals(
+		if (referenceValue.getReferenceType().equals(
 				(T2ReferenceType.ErrorDocument))) {
 			setBackground(new Color(0xff0000));
 			return this;
-		} else if (((T2Reference) value).getReferenceType().equals(
+		
+		} else if (referenceValue.getReferenceType().equals(
 				(T2ReferenceType.ReferenceSet))) {
-			setBackground(new Color(0x33ff00));
+			setBackground(new Color(0xffffff));
 			return this;
 		}
 
 		return this;
+	}
+
+	public void setLineageRecords(List<LineageQueryResultRecord> lineageRecords) {
+		this.lineageRecords = lineageRecords;
+	}
+
+	public List<LineageQueryResultRecord> getLineageRecords() {
+		return lineageRecords;
+	}
+
+	public void setContext(InvocationContext context) {
+		this.context = context;
+	}
+
+	public InvocationContext getContext() {
+		return context;
 	}
 
 }

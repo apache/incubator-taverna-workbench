@@ -112,6 +112,15 @@ public class ShowLineageResultsTable {
 			lineageRecords.add(record);
 			
 		}
+		Exception exception = new Exception("broken");
+		T2Reference register = context.getReferenceService().register(exception, 0, true, context);
+		LineageQueryResultRecord record = new LineageQueryResultRecord();
+		record.setVname("e1");
+		record.setIteration("e2");
+		record.setValue(register.toString());
+		lineageRecords.add(record);
+		
+		
 		return lineageRecords;
 	}
 
