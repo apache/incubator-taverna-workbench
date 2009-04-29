@@ -60,7 +60,7 @@ public abstract class AbstractTemplateService<ConfigType> implements
 		}
 		
 		public String getDescription() {
-			return AbstractTemplateService.this.getTextualDescription();
+			return AbstractTemplateService.this.getDescription();
 		}
 	}
 
@@ -69,7 +69,7 @@ public abstract class AbstractTemplateService<ConfigType> implements
 		return "Template service " + getName();
 	}
 
-	public String getTextualDescription() {
+	public String getDescription() {
 		// Default to an empty string
 		return "";
 	}
