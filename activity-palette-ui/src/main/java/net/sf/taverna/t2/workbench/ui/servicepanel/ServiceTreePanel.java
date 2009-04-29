@@ -28,8 +28,6 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.TreePanel;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
 
 import org.apache.log4j.Logger;
 
@@ -49,6 +47,9 @@ public class ServiceTreePanel extends TreePanel {
 		tree.setTransferHandler(new ServiceTransferHandler());
 		tree.addTreeWillExpandListener(new AvoidRootCollapse());
 		tree.expandRow(0);
+
+		tree.addMouseListener(new ServiceTreeClickListener(tree,this));
+	
 	}
 
 	@Override
@@ -102,25 +103,7 @@ public class ServiceTreePanel extends TreePanel {
 					return new Transferable() {
 						public Object getTransferData(DataFlavor flavor)
 								throws UnsupportedFlavorException, IOException {
-							ActivityAndBeanWrapper wrapper = new ActivityAndBeanWrapper();
-							try {
-								wrapper
-										.setActivity((Activity<?>) serviceDescription
-												.getActivityClass()
-												.newInstance());
-							} catch (InstantiationException e) {
-								logger.error("Could not instantiate activity "
-										+ serviceDescription, e);
-								return null;
-							} catch (IllegalAccessException e) {
-								logger.error("Could not instantiate activity "
-										+ serviceDescription, e);
-								return null;
-							}
-							wrapper.setBean(serviceDescription
-									.getActivityConfiguration());
-							wrapper.setName(serviceDescription.getName());
-							return wrapper;
+							return serviceDescription;
 						}
 
 						public DataFlavor[] getTransferDataFlavors() {
@@ -130,9 +113,9 @@ public class ServiceTreePanel extends TreePanel {
 								flavor = new DataFlavor(
 										DataFlavor.javaJVMLocalObjectMimeType
 												+ ";class="
-												+ ActivityAndBeanWrapper.class
+												+ ServiceDescription.class
 														.getCanonicalName(),
-										"Activity", getClass().getClassLoader());
+										"ServiceDescription", getClass().getClassLoader());
 							} catch (ClassNotFoundException e) {
 								logger.error("Error casting Dataflavor", e);
 							}
@@ -146,9 +129,9 @@ public class ServiceTreePanel extends TreePanel {
 								thisFlavor = new DataFlavor(
 										DataFlavor.javaJVMLocalObjectMimeType
 												+ ";class="
-												+ ActivityAndBeanWrapper.class
+												+ ServiceDescription.class
 														.getCanonicalName(),
-										"Activity", getClass().getClassLoader());
+										"ServiceDescription", getClass().getClassLoader());
 							} catch (ClassNotFoundException e) {
 								logger.error("Error casting Dataflavor", e);
 							}
