@@ -6,6 +6,7 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualV
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 
+@SuppressWarnings("unchecked")
 public class AnnotatedContextualViewFactory implements
 		ContextualViewFactory<Annotated> {
 
