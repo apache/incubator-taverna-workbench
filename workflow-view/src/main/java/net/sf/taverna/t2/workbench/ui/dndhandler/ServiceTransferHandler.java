@@ -34,8 +34,10 @@ import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
@@ -64,13 +66,9 @@ public class ServiceTransferHandler extends TransferHandler {
 	private static Logger logger = Logger
 			.getLogger(ServiceTransferHandler.class);
 
-	private Edits edits = EditsRegistry.getEdits();
-
-	private EditManager editManager = EditManager.getInstance();
-	
 	private Dataflow currentDataflow;
 
-	private DataFlavor activityDataFlavor;
+	private DataFlavor serviceDescriptionDataFlavor;
 
 	public ServiceTransferHandler() {
 		
@@ -87,13 +85,13 @@ public class ServiceTransferHandler extends TransferHandler {
 		currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
 		
 		try {
-			activityDataFlavor = new DataFlavor(
+			serviceDescriptionDataFlavor = new DataFlavor(
 					DataFlavor.javaJVMLocalObjectMimeType + ";class="
-							+ ActivityAndBeanWrapper.class.getCanonicalName(),
-					"Activity", getClass().getClassLoader());
+							+ ServiceDescription.class.getCanonicalName(),
+					"ServiceDescription", getClass().getClassLoader());
 		} catch (ClassNotFoundException e) {
 			logger.warn("Could not find the class "
-					+ ActivityAndBeanWrapper.class);
+					+ ServiceDescription.class);
 		}
 	}
 
@@ -107,7 +105,7 @@ public class ServiceTransferHandler extends TransferHandler {
 	public boolean canImport(JComponent component, DataFlavor[] dataFlavors) {
 		logger.info("Trying to import something");
 		for (DataFlavor dataFlavor : dataFlavors) {
-			if (dataFlavor.equals(activityDataFlavor)) {
+			if (dataFlavor.equals(serviceDescriptionDataFlavor)) {
 				return true;
 			}
 		}
@@ -126,38 +124,21 @@ public class ServiceTransferHandler extends TransferHandler {
 		boolean result = false;
 		logger.info("Importing a transferable");
 		try {
-			Object data = transferable.getTransferData(activityDataFlavor);
-			if (data instanceof ActivityAndBeanWrapper) {
-				ActivityAndBeanWrapper activityAndBeanWrapper = (ActivityAndBeanWrapper) data;
-				
-				Activity activity = activityAndBeanWrapper.getActivity();
-				Object bean = activityAndBeanWrapper.getBean();
-				
-				
-				String name = activityAndBeanWrapper.getName()
-						.replace(' ', '_');
-				name = Tools.uniqueProcessorName(name, currentDataflow);
-				
-				
-				List<Edit<?>> editList = new ArrayList<Edit<?>>();
-				editList.add(edits.getConfigureActivityEdit(activity, bean));
-				Processor p=edits.createProcessor(name);
-				editList.add(edits.getDefaultDispatchStackEdit(p));
-				editList.add(edits.getAddActivityEdit(p, activity));
-//				editList.add(edits.getMapProcessorPortsForActivityEdit(p));
-//				editList.add(edits.getRenameProcessorEdit(p, name));
-				editList.add(edits.getAddProcessorEdit(currentDataflow, p));
-				editManager
-						.doDataflowEdit(currentDataflow, new CompoundEdit(editList));
+			Object data = transferable.getTransferData(serviceDescriptionDataFlavor);
+			if (data instanceof ServiceDescription) {				
+				WorkflowView.importServiceDescription(currentDataflow, (ServiceDescription) data, component, false);
+
 				result = true;
 			}
 		} catch (UnsupportedFlavorException e) {
 			logger.warn("Could not import data : unsupported flavor", e);
 		} catch (IOException e) {
 			logger.warn("Could not import data : I/O error", e);
-		} catch (EditException e) {
-			logger.warn("Could not add processor : edit error", e);
-		} 
+		} catch (InstantiationException e) {
+			logger.warn(e.getMessage());
+		} catch (IllegalAccessException e) {
+			logger.warn(e.getMessage());
+		}
 		return result;
 	}
 }
