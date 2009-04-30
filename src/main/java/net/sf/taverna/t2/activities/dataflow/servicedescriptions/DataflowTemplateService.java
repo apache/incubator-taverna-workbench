@@ -11,7 +11,7 @@ import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 
 public class DataflowTemplateService extends AbstractTemplateService<Dataflow>{
 	
-	private static final String A_CONFIGURABLE_NESTED_WORKFLOW = "A configurable nested workflow";
+	private static final String A_CONFIGURABLE_NESTED_WORKFLOW = "A service that allows you to have one workflow nested within another";
 	private static final String DATAFLOW = "Nested workflow";
 
 	@Override
@@ -33,7 +33,7 @@ public class DataflowTemplateService extends AbstractTemplateService<Dataflow>{
 		return DATAFLOW;
 	}
 	
-	public String getTextualDescription() {
+	public String getDescription() {
 		return A_CONFIGURABLE_NESTED_WORKFLOW;
 	}
 
