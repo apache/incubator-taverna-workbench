@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -121,7 +122,11 @@ public class PortResultsViewTab extends JPanel{
 			}
 		});
 		
-		splitPanel.setTopComponent(new JScrollPane(tree));
+		JPanel leftPanel = new JPanel();
+		leftPanel.setLayout(new BorderLayout());
+		leftPanel.add(new JLabel("Click to view results"), BorderLayout.NORTH);
+		leftPanel.add(new JScrollPane(tree), BorderLayout.CENTER);
+		splitPanel.setTopComponent(leftPanel);
 		splitPanel.setBottomComponent(renderedResultComponent);
 		splitPanel.setDividerLocation(400);
 		
