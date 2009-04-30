@@ -137,40 +137,20 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 			}				
 			Activity<?> activity = processor.getActivityList().get(0);
 			
-			// Nested workflow case
-			if (Tools.containsNestedWorkflow(processor) && activity instanceof NestedDataflow){
-						
-				// Input ports of the contained DataflowActivity
-				List<ActivityInputPort> inputPorts = new ArrayList<ActivityInputPort>(activity.getInputPorts());
-				Collections.sort(inputPorts, portComparator);
-				for (ActivityInputPort inputPort : inputPorts){
-					processorNode.add(new DefaultMutableTreeNode(inputPort));
-				}
-				// Output ports of the contained DataflowActivity
-				List<OutputPort> outputPorts = new ArrayList<OutputPort>(activity.getOutputPorts());
-				Collections.sort(outputPorts, portComparator);
-				for (OutputPort outputPort : outputPorts){
-					processorNode.add(new DefaultMutableTreeNode(outputPort));
-				}				
-				// The nested workflow itself
-				Dataflow nestedWorkflow = ((NestedDataflow) activity).getNestedDataflow();
-				DefaultMutableTreeNode nestedWorkflowNode = new DefaultMutableTreeNode(nestedWorkflow);
-				processorNode.add(nestedWorkflowNode);
-				// The nested workflow node is the root of the new nested tree
-				createTree(nestedWorkflow, nestedWorkflowNode);
-			} else {
-				// A processor node can have children (input and output ports of its associated activity/activities).
-				// Currently we just look at the first activity in the list.
-				List<ActivityInputPort> inputPorts = new ArrayList<ActivityInputPort>(activity.getInputPorts());
-				Collections.sort(inputPorts, portComparator);
-				for (ActivityInputPort inputPort : inputPorts){
-					processorNode.add(new DefaultMutableTreeNode(inputPort));
-				}				
-				List<OutputPort> outputPorts = new ArrayList<OutputPort>(activity.getOutputPorts());
-				Collections.sort(outputPorts, portComparator);
-				for (OutputPort outputPort : outputPorts){
-					processorNode.add(new DefaultMutableTreeNode(outputPort));
-				}
+		    // A processor node can have children (input and output ports of its
+			// associated activity/activities).
+			// Currently we just look at the first activity in the list.
+			List<ActivityInputPort> inputPorts = new ArrayList<ActivityInputPort>(
+					activity.getInputPorts());
+			Collections.sort(inputPorts, portComparator);
+			for (ActivityInputPort inputPort : inputPorts) {
+				processorNode.add(new DefaultMutableTreeNode(inputPort));
+			}
+			List<OutputPort> outputPorts = new ArrayList<OutputPort>(activity
+					.getOutputPorts());
+			Collections.sort(outputPorts, portComparator);
+			for (OutputPort outputPort : outputPorts) {
+				processorNode.add(new DefaultMutableTreeNode(outputPort));
 			}
 		
 		}
