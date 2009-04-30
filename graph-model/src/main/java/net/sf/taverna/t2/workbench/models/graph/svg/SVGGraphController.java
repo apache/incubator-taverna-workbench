@@ -46,6 +46,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import org.apache.batik.bridge.UpdateManager;
 import org.apache.batik.dom.GenericText;
 import org.apache.batik.dom.svg.SVGOMPolygonElement;
+import org.apache.batik.dom.svg.SVGOMTextElement;
 import org.apache.batik.dom.svg.SVGOMTitleElement;
 import org.apache.batik.util.SVGConstants;
 import org.apache.log4j.Logger;
@@ -77,6 +78,13 @@ public abstract class SVGGraphController extends GraphController {
 	public static final int OUTPUT_FLASH_PERIOD = 200;
 
 	static final Timer timer = new Timer(true);
+	
+	private static final String dotErrorMessage = "Cannot draw diagram(s)\n" +
+			"\n" +
+			"Install dot as described\n" +
+			"at http://www.taverna.org.uk\n" +
+			"and specify its location\n" +
+			"in the workbench preferences";
 
 	public SVGGraphController(Dataflow dataflow, JComponent component) {
 		super(dataflow, component);
@@ -119,13 +127,8 @@ public abstract class SVGGraphController extends GraphController {
 				StringWriter stringWriter = new StringWriter();
 				DotWriter dotWriter = new DotWriter(stringWriter);
 				dotWriter.writeGraph(graph);
-//				System.out.println(stringWriter.toString());
-//				FileWriter fw = new FileWriter("/Users/davidwithers/dot-test/dot-all2-12");
-//				fw.write(SVGUtil.getDot(stringWriter.toString()));
-//				fw.flush();
 
 				String layout = SVGUtil.getDot(stringWriter.toString());
-//				System.out.println(layout);
 
 				Rectangle actualBounds = graphLayout.layoutGraph(this, graph, layout, aspectRatio);
 				svgElement.setAttribute(SVGConstants.SVG_WIDTH_ATTRIBUTE, String.valueOf(actualBounds.width));
@@ -138,7 +141,8 @@ public abstract class SVGGraphController extends GraphController {
 				edgeLine = EdgeLine.createAndAdd(svgDocument, this);
 //SVGUtil.writeSVG(svgDocument);
 			} catch (IOException e) {
-				logger.error("Couldn't generate svg", e);
+				outputMessage(dotErrorMessage, svgElement);
+		logger.error("Couldn't generate svg", e);
 			} catch (ParseException e) {
 				logger.error("Couldn't layout svg", e);
 			}
@@ -146,6 +150,20 @@ public abstract class SVGGraphController extends GraphController {
 		return svgDocument;
 	}
 	
+	private void outputMessage(final String message, SVGSVGElement svgElement) {
+		String[] parts = message.split("\n");
+		int initialPosition = 200;
+		for (int i = 0; i < parts.length; i++) {
+			Text errorsText = createText(parts[i]);
+			SVGOMTextElement error = (SVGOMTextElement) createElement(SVGConstants.SVG_TEXT_TAG);
+			error.setAttribute(SVGConstants.SVG_Y_ATTRIBUTE, Integer.toString(initialPosition + i * 60));
+			error.setAttribute(SVGConstants.SVG_FONT_SIZE_ATTRIBUTE, "20");
+	error.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
+	error.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, "red");
+	error.appendChild(errorsText);
+	svgElement.appendChild(error);			
+		}
+	}
 	public void setUpdateManager(UpdateManager updateManager) {
 		this.updateManager = updateManager;
 		resetSelection();
