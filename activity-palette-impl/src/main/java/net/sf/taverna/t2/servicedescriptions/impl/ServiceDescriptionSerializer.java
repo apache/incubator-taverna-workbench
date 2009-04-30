@@ -50,15 +50,32 @@ public class ServiceDescriptionSerializer extends AbstractXMLSerializer
 	public Element serviceRegistryToXML(ServiceDescriptionRegistry registry) {
 		Element serviceDescriptionElem = new Element(SERVICE_DESCRIPTIONS,
 				SERVICE_DESCRIPTION_NS);
+		
 		Element localProvidersElem = new Element(PROVIDERS,
 				SERVICE_DESCRIPTION_NS);
 		serviceDescriptionElem.addContent(localProvidersElem);
 
 		Set<ServiceDescriptionProvider> localProviders = registry
-				.getLocalServiceProviders();
+				.getUserAddedServiceProviders();
 		for (ServiceDescriptionProvider provider : localProviders) {
 			try {
 				localProvidersElem.addContent(serviceProviderToXML(provider));
+			} catch (JDOMException e) {
+				logger.warn("Could not serialize " + provider, e);
+			} catch (IOException e) {
+				logger.warn("Could not serialize " + provider, e);
+			}
+		}
+		
+		Element ignoredProvidersElem = new Element(IGNORED_PROVIDERS,
+				SERVICE_DESCRIPTION_NS);
+		serviceDescriptionElem.addContent(ignoredProvidersElem);
+
+		Set<ServiceDescriptionProvider> ignoreProviders = registry
+				.getUserRemovedServiceProviders();
+		for (ServiceDescriptionProvider provider : ignoreProviders) {
+			try {
+				ignoredProvidersElem.addContent(serviceProviderToXML(provider));
 			} catch (JDOMException e) {
 				logger.warn("Could not serialize " + provider, e);
 			} catch (IOException e) {

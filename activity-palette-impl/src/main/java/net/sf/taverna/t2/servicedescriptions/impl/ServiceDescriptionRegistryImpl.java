@@ -97,7 +97,9 @@ public class ServiceDescriptionRegistryImpl implements
 	/**
 	 * Service providers added by the user, should be saved
 	 */
-	protected Set<ServiceDescriptionProvider> localServiceProviders = new HashSet<ServiceDescriptionProvider>();
+	protected Set<ServiceDescriptionProvider> userAddedProviders = new HashSet<ServiceDescriptionProvider>();
+
+	protected Set<ServiceDescriptionProvider> userRemovedProviders = new HashSet<ServiceDescriptionProvider>();
 
 	protected MultiCaster<ServiceDescriptionRegistryEvent> observers = new MultiCaster<ServiceDescriptionRegistryEvent>(
 			this);
@@ -110,7 +112,7 @@ public class ServiceDescriptionRegistryImpl implements
 
 	protected Map<ServiceDescriptionProvider, FindServiceDescriptionsThread> serviceDescriptionThreads = new HashMap<ServiceDescriptionProvider, FindServiceDescriptionsThread>();
 
-	protected Set<ServiceDescriptionProvider> serviceProviders;
+	protected Set<ServiceDescriptionProvider> allServiceProviders;
 
 	public void addObserver(Observer<ServiceDescriptionRegistryEvent> observer) {
 		observers.addObserver(observer);
@@ -119,8 +121,8 @@ public class ServiceDescriptionRegistryImpl implements
 	public void addServiceDescriptionProvider(
 			ServiceDescriptionProvider provider) {
 		synchronized (this) {
-			localServiceProviders.add(provider);
-			serviceProviders.add(provider);
+			userAddedProviders.add(provider);
+			allServiceProviders.add(provider);
 		}
 		if (!loading) {
 			saveServiceDescriptions();
@@ -145,8 +147,8 @@ public class ServiceDescriptionRegistryImpl implements
 		return provider.getDefaultConfigurations();
 	}
 
-	public Set<ServiceDescriptionProvider> getLocalServiceProviders() {
-		return new HashSet<ServiceDescriptionProvider>(localServiceProviders);
+	public Set<ServiceDescriptionProvider> getUserAddedServiceProviders() {
+		return new HashSet<ServiceDescriptionProvider>(userAddedProviders);
 	}
 
 	public List<Observer<ServiceDescriptionRegistryEvent>> getObservers() {
@@ -159,11 +161,11 @@ public class ServiceDescriptionRegistryImpl implements
 
 	@SuppressWarnings("unchecked")
 	public synchronized Set<ServiceDescriptionProvider> getServiceDescriptionProviders() {
-		if (serviceProviders != null) {
-			return serviceProviders;
+		if (allServiceProviders != null) {
+			return allServiceProviders;
 		}
-		serviceProviders = new HashSet<ServiceDescriptionProvider>(
-				localServiceProviders);
+		allServiceProviders = new HashSet<ServiceDescriptionProvider>(
+				userAddedProviders);
 		synchronized (this) {
 			if (!hasLoadedProviders) {
 				try {
@@ -177,6 +179,9 @@ public class ServiceDescriptionRegistryImpl implements
 		}
 		for (ServiceDescriptionProvider provider : getProviderRegistry()
 				.getInstances()) {
+			if (userRemovedProviders.contains(provider)) {
+				continue;
+			}
 			if (provider instanceof ConfigurableServiceProvider) {
 				ConfigurableServiceProvider template = ((ConfigurableServiceProvider) provider);
 				List<Object> configurables = getConfigurationsFor(template);
@@ -191,13 +196,13 @@ public class ServiceDescriptionRegistryImpl implements
 								+ configurableProvider + " with " + config);
 						continue;
 					}
-					serviceProviders.add(configurableProvider);
+					allServiceProviders.add(configurableProvider);
 				}
 			} else {
-				serviceProviders.add(provider);
+				allServiceProviders.add(provider);
 			}
 		}
-		return serviceProviders;
+		return allServiceProviders;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -254,8 +259,11 @@ public class ServiceDescriptionRegistryImpl implements
 
 	public void removeServiceDescriptionProvider(
 			ServiceDescriptionProvider provider) {
-		if (serviceProviders.remove(provider)) {
-			localServiceProviders.remove(provider);
+		if (allServiceProviders.remove(provider)) {
+			if (! userAddedProviders.remove(provider)) {
+				userRemovedProviders.add(provider);
+			}
+			providerDescriptions.remove(provider);
 			if (!loading) {
 				saveServiceDescriptions();
 			}
@@ -433,5 +441,20 @@ public class ServiceDescriptionRegistryImpl implements
 
 	private static class Singleton {
 		private static final ServiceDescriptionRegistryImpl instance = new ServiceDescriptionRegistryImpl();
+	}
+
+	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders(
+			ServiceDescription sd) {
+		Set<ServiceDescriptionProvider> result = new HashSet<ServiceDescriptionProvider>();
+		for (ServiceDescriptionProvider sdp : providerDescriptions.keySet()) {
+			if (providerDescriptions.get(sdp).contains(sd)) {
+				result.add(sdp);
+			}
+		}
+		return result;
+	}
+
+	public Set<ServiceDescriptionProvider> getUserRemovedServiceProviders() {
+		return new HashSet<ServiceDescriptionProvider>(userRemovedProviders);
 	}
 }
