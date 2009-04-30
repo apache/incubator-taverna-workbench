@@ -55,6 +55,26 @@
 			<version>${t2.lang.version}</version>
 		</dependency>
 		<dependency>
+	<groupId>net.sf.taverna.t2.ui-api</groupId>
+	<artifactId>activity-palette-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+	</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>activity-tools</artifactId>
+			<version>${t2.ui.impl.version}</version>
+		</dependency>
+		<dependency>
+	<groupId>net.sf.taverna.t2.ui-api</groupId>
+	<artifactId>contextual-views-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+		</dependency>
+		<dependency>
+	<groupId>net.sf.taverna.t2.ui-components</groupId>
+	<artifactId>design-ui</artifactId>
+			<version>${t2.ui.api.version}</version>
+			</dependency>
+			<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 		</dependency>
