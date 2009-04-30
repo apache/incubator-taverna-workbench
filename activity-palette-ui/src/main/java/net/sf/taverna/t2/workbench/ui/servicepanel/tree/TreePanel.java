@@ -30,6 +30,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Timer;
@@ -96,6 +97,32 @@ public class TreePanel extends JPanel {
 //			}
 //		}
 	}
+
+	public void expandAll(boolean expand) {
+        FilterTreeNode root = (FilterTreeNode) tree.getModel().getRoot();
+    
+        // Traverse tree from root
+        expandAll(new TreePath(root), expand);
+    }
+	
+    private void expandAll(TreePath parent, boolean expand) {
+        // Traverse children
+        FilterTreeNode node = (FilterTreeNode) parent.getLastPathComponent();
+        if (node.getChildCount() >= 0) {
+            for (Enumeration e=node.children(); e.hasMoreElements(); ) {
+                FilterTreeNode n = (FilterTreeNode) e.nextElement();
+                TreePath path = parent.pathByAddingChild(n);
+                expandAll(path, expand);
+            }
+        }
+    
+        // Expansion or collapse must be done bottom-up
+        if (expand) {
+            tree.expandPath(parent);
+        } else {
+            tree.collapsePath(parent);
+        }
+    }
 
 	protected void initialize() {
 		setLayout(new BorderLayout());

@@ -97,8 +97,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 						JPopupMenu menu = new JPopupMenu();
 						Object selectedObject = selectedNode.getUserObject();
 						logger.info(selectedObject.getClass().getName());
-						if (selectedObject
-								.equals(ServicePanel.AVAILABLE_SERVICES)) {
+						if (! (selectedObject instanceof ServiceDescription)) {
 							menu.add(new ShadedLabel("Tree",
 									ShadedLabel.GREEN));
 							menu.add(new JMenuItem(new AbstractAction(
@@ -108,19 +107,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 											.invokeLater(new Runnable() {
 
 												public void run() {
-													try {
-														panel.expandTreePaths();
-													} catch (InterruptedException e) {
-														// TODO
-														// Auto-generated
-														// catch block
-														e.printStackTrace();
-													} catch (InvocationTargetException e) {
-														// TODO
-														// Auto-generated
-														// catch block
-														e.printStackTrace();
-													}
+														panel.expandAll(true);
 												}
 											});
 								}
@@ -132,17 +119,14 @@ public class ServiceTreeClickListener extends MouseAdapter {
 									SwingUtilities
 											.invokeLater(new Runnable() {
 												public void run() {
-													for (int i = 0; i < tree
-															.getRowCount(); i++) {
-														tree.collapseRow(i);
-													}
+													panel.expandAll(false);
 												}
 
 											});
 								}
 							}));
 						}
-						else if (selectedObject instanceof ServiceDescription) {
+						if (selectedObject instanceof ServiceDescription) {
 							final ServiceDescription sd = (ServiceDescription) selectedObject;
 							menu.add(new ShadedLabel(sd.getName(),
 									ShadedLabel.ORANGE));
@@ -151,7 +135,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 								public void actionPerformed(ActionEvent e) {
 									Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
 									try {
-										WorkflowView.importServiceDescription(currentDataflow, sd, ServiceTreeClickListener.this.panel);
+										WorkflowView.importServiceDescription(currentDataflow, sd, ServiceTreeClickListener.this.panel, false);
 									} catch (InstantiationException e1) {
 										logger.warn(e1.getMessage());
 									} catch (IllegalAccessException e1) {
@@ -161,12 +145,34 @@ public class ServiceTreeClickListener extends MouseAdapter {
 								}
 								
 							});
-						}
+							menu.add(new AbstractAction("Add to workflow with name...") {
+
+								public void actionPerformed(ActionEvent e) {
+									Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
+									try {
+										WorkflowView.importServiceDescription(currentDataflow, sd, ServiceTreeClickListener.this.panel, true);
+									} catch (InstantiationException e1) {
+										logger.warn(e1.getMessage());
+									} catch (IllegalAccessException e1) {
+										logger.warn(e1.getMessage());
+									}
+									
+								}
+								
+							});						}
 						
 						Set<ServiceDescriptionProvider> providers = new HashSet<ServiceDescriptionProvider>();
 						TreeMap<String,ServiceDescriptionProvider> nameMap = new TreeMap<String, ServiceDescriptionProvider>();
 
 						for (FilterTreeNode leaf : selectedNode.getLeaves()) {
+							if (!leaf.isLeaf()) {
+								logger.info("Not a leaf");
+							}
+							if (! (leaf.getUserObject() instanceof ServiceDescription)) {
+								logger.info(leaf.getUserObject().getClass().getCanonicalName());
+								logger.info(leaf.getUserObject().toString());
+								continue;
+							}
 							providers.addAll(serviceDescriptionRegistry.getServiceDescriptionProviders((ServiceDescription) leaf.getUserObject()));
 						}
 						for (ServiceDescriptionProvider sdp : providers) {

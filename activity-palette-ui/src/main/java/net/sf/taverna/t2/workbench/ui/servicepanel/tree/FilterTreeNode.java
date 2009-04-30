@@ -115,7 +115,7 @@ public class FilterTreeNode extends DefaultMutableTreeNode {
 	
 	public Set<FilterTreeNode> getLeaves() {
 		Set<FilterTreeNode> result = new HashSet<FilterTreeNode>();
-		if (isLeaf()) {
+		if (super.getChildCount() == 0) {
 			result.add(this);
 		} else {
 		for (int i = 0; i < super.getChildCount(); i++) {
