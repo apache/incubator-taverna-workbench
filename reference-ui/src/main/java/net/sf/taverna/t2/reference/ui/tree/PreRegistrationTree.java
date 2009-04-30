@@ -144,7 +144,8 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 		};
 		setRowHeight(0);
 		setCellRenderer(renderer);
-		setCellEditor(editor);
+		//setCellEditor(editor);
+		
 		new PreRegistrationTreeDnDHandler(this) {
 			@Override
 			public void handleNodeMove(MutableTreeNode source,

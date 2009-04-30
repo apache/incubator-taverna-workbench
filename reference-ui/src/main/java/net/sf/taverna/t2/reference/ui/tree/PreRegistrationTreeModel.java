@@ -163,7 +163,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	 * @param depth
 	 */
 	@SuppressWarnings("unchecked")
-	public synchronized void addPojoStructure(MutableTreeNode target,
+	public synchronized DefaultMutableTreeNode addPojoStructure(MutableTreeNode target,
 			Object pojo, int depth) {
 		// Firstly check for a null target and set the root node to be the
 		// target if so.
@@ -181,7 +181,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 			if (target.getChildCount() == 0) {
 				insertNodeInto(new DefaultMutableTreeNode(null), target, 0);
 			}
-			addPojoStructure((MutableTreeNode) target.getChildAt(0), pojo,
+			return addPojoStructure((MutableTreeNode) target.getChildAt(0), pojo,
 					depth);
 		} else if (targetDepth < (depth + 1)) {
 			// Need to traverse up the structure to find an appropriate parent
@@ -190,7 +190,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 				throw new IllegalArgumentException(
 						"Can't add this pojo, depths are not compatible.");
 			}
-			addPojoStructure((MutableTreeNode) target.getParent(), pojo, depth);
+			return addPojoStructure((MutableTreeNode) target.getParent(), pojo, depth);
 		} else if (targetDepth == (depth + 1)) {
 			// Found an appropriate parent node, we can insert at position 0
 			// here. If this is the root node then we need to clear it first,
@@ -202,16 +202,22 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 			}
 			int children = target.getChildCount();
 			if (pojo instanceof List) {
-				MutableTreeNode newTarget = new DefaultMutableTreeNode(null);
+				DefaultMutableTreeNode newTarget = new DefaultMutableTreeNode(null);
 				insertNodeInto(newTarget, target, children);
 				for (Object child : (List<Object>) pojo) {
 					addPojoStructure(newTarget, child, depth - 1);
 				}
+				return newTarget;
 			} else {
 				// Append to the target node
-				insertNodeInto(new DefaultMutableTreeNode(pojo), target,
+				DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(pojo);
+				insertNodeInto(newChild, target,
 						children);
+				return newChild;
 			}
+		} else {
+			// Can we really reach this code?
+			return null;
 		}
 	}
 

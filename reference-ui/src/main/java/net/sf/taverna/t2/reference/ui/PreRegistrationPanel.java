@@ -44,7 +44,9 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreePath;
 
 import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTree;
 import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTreeModel;
@@ -218,8 +220,10 @@ public abstract class PreRegistrationPanel extends JPanel {
 
 		addTextAction = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				treeModel.addPojoStructure((MutableTreeNode) treeModel
+				DefaultMutableTreeNode added = treeModel.addPojoStructure((MutableTreeNode) treeModel
 						.getRoot(), "abcd", 0);
+				tree.setSelectionPath(new TreePath(added.getPath()));
+				
 				setStatus("Added new inline string, triple click to edit.",
 						infoIcon, null);
 			}

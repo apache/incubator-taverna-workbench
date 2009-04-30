@@ -100,7 +100,6 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		upperPanel.add(workflowDescription, BorderLayout.CENTER);
 		upperPanel.add(workflowIcon, BorderLayout.EAST);
 		add(upperPanel, BorderLayout.NORTH);
-		
 	}
 
 	@SuppressWarnings("serial")
