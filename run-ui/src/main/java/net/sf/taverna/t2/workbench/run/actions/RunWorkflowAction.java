@@ -21,6 +21,8 @@
 package net.sf.taverna.t2.workbench.run.actions;
 
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -30,6 +32,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import net.sf.taverna.t2.annotation.annotationbeans.ExampleValue;
+import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.ModelMap;
@@ -61,6 +65,8 @@ import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializerImpl;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializerImpl;
+import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
+import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 
 import org.apache.log4j.Logger;
 
@@ -274,6 +280,10 @@ public class RunWorkflowAction extends AbstractAction {
 		}
 	}
 
+	private AnnotationTools annotationTools = new AnnotationTools();
+
+	
+	@SuppressWarnings("serial")
 	private void showInputDialog(final WorkflowInstanceFacade facade, ReferenceContext refContext) {
 		// Create and set up the window.
 		final JFrame frame = new JFrame("Workflow input builder");
@@ -291,9 +301,21 @@ public class RunWorkflowAction extends AbstractAction {
 		};
 		wlp.setOpaque(true); // content panes must be opaque
 
-		for (DataflowInputPort input : facade.getDataflow().getInputPorts()) {
+		String wfDescription = annotationTools.getAnnotationString(facade.getDataflow(), FreeTextDescription.class, "");
+		wlp.setWorkflowDescription(wfDescription);
+		
+		
+		
+		
+		List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(facade.getDataflow().getInputPorts());
+		Collections.sort(inputPorts, new PortComparator());
+		for (DataflowInputPort input : inputPorts) {
 //			input.getAnnotations();
-			wlp.addInput(input.getName(), input.getDepth(), "");
+			
+			String portDescription = annotationTools.getAnnotationString(input, FreeTextDescription.class, "");
+			String portExample = annotationTools.getAnnotationString(input, ExampleValue.class, null);
+			
+			wlp.addInput(input.getName(), input.getDepth(), portDescription, portExample);
 		}
 
 		frame.setContentPane(wlp);

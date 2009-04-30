@@ -105,18 +105,31 @@ public class RegistrationPanel extends JPanel {
 	private final PreRegistrationTree tree;
 	private final PreRegistrationTreeModel treeModel;
 
+
+	private final String example;
+
+
+	private final String description;
+
+
+
+	private String name;
+
 	/**
 	 * Construct a new registration panel for an input with the specified depth.
 	 * 
 	 * @param depth
 	 *            Depth of the POJO to construct from this panel
+	 * @param example 
 	 * @param inputDescription
 	 * @param inputName
 	 */
-	@SuppressWarnings("serial")
-	public RegistrationPanel(int depth, String name, String description) {
+	public RegistrationPanel(int depth, String name, String description, String example) {
 		super(new BorderLayout());
 		this.depth = depth;
+		this.name = name;
+		this.description = description;
+		this.example = example;
 		tree = new PreRegistrationTree(depth, name) {
 			@Override
 			public void setStatusMessage(String message, boolean isError) {
@@ -205,7 +218,6 @@ public class RegistrationPanel extends JPanel {
 		return pojo;
 	}
 
-	@SuppressWarnings("serial")
 	private void buildActions() {
 		if (treeModel.getDepth() > 1) {
 			for (int i = 1; i < treeModel.getDepth(); i++) {
@@ -370,25 +382,30 @@ public class RegistrationPanel extends JPanel {
 	 * Add a new default text string, adding to the root node (which will
 	 * cascade down until it hits the correct level through logic in the model)
 	 */
-	@SuppressWarnings("serial")
 	public class AddTextAction extends AbstractAction {
-
-
 		public AddTextAction() {
 			super("New value", addTextIcon);
 		}
 
 		public void actionPerformed(ActionEvent e) {
 			MutableTreeNode node = getSelectedNode();
+			String newValue;
+			if (example != null && example.length() > 0) {
+				newValue = example;
+			} else {
+				newValue = NEW_VALUE;
+			}
+			
 			DefaultMutableTreeNode added = treeModel.addPojoStructure(node,
-					NEW_VALUE, 0);
+					newValue, 0);
 			tree.setSelectionPath(new TreePath(added.getPath()));
 			setStatus("Added new value, double click to edit.", infoIcon, null);
 		}
 	}
 
-	@SuppressWarnings("serial")
 	public class AddURLAction extends AbstractAction {
+
+		private static final String URL_REGEX = "http:\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?";
 
 		public AddURLAction() {
 			super("Add URL...", addUrlIcon);
@@ -403,14 +420,9 @@ public class RegistrationPanel extends JPanel {
 
 			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
 					"Add an http URL", urlPanel);
-			vuid
-					.addTextComponentValidation(
-							urlPanel.getUrlField(),
-							"Set the URL.",
-							null,
-							"",
-							"http:\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?",
-							"Not a valid http URL.");
+			vuid.addTextComponentValidation(
+							urlPanel.getUrlField(), "Set the URL.",
+							null, "",URL_REGEX,	"Not a valid http URL.");
 			vuid.setSize(new Dimension(400, 200));
 
 			urlPanel.setUrl(currentUrl);
@@ -441,15 +453,12 @@ public class RegistrationPanel extends JPanel {
 	/**
 	 * Remove any children of the currently selected node
 	 */
-	@SuppressWarnings("serial")
 	public class DeleteNodeAction extends AbstractAction {
-
 		public DeleteNodeAction() {
 			super("Delete node", deleteNodeIcon);
 			// Starts off disabled
 			setEnabled(false);
 		}
-
 		public void actionPerformed(ActionEvent e) {
 			MutableTreeNode node = (MutableTreeNode) tree.getSelectionPath()
 					.getLastPathComponent();

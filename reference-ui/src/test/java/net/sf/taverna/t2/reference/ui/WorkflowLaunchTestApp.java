@@ -24,6 +24,7 @@ import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -83,17 +84,18 @@ public class WorkflowLaunchTestApp {
 				" the initial window will be very wide because of frame.pack() being" +
 				"called.");
 		
-		wlp.setWorkflowPicture(workflowThumbnail);
+		// Should be a passive SVG graph of the dataflow
+		wlp.setWorkflowImageComponent(new JLabel(workflowThumbnail));
 		
 		// Add some inputs
-		wlp.addInput("Single item", 0, "Make the inputs");
-		wlp.addInput("List", 1, "Add a list here, because that's what I mean");
+		wlp.addInput("Single item", 0, "Make the inputs", null);
+		wlp.addInput("List", 1, "Add a list here, because that's what I mean", "Example value");
 		wlp.addInput("List of lists", 2);
 		wlp.addInput("List of lists of lists", 3);
 		wlp.addInput("Really deep list", 6, 
 				"And another really long description that is to " +
 				"wrap onto multiple lines once it appears in the tiny little window. " +
-				"This can be done by using HTML tags, for instance.");
+				"This can be done by using HTML tags, for instance.", "And an example\nOf a\nlong\nexample");
 		
 		frame.setContentPane(wlp);
 

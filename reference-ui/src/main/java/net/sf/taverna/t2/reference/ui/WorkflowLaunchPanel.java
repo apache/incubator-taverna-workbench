@@ -30,6 +30,7 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -70,7 +71,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 
 	private JLabel workflowDescription = new JLabel();
 
-	private JLabel workflowIcon = new JLabel();
+	private JPanel workflowImageComponentHolder = new JPanel();
 
 	@SuppressWarnings("serial")
 	public WorkflowLaunchPanel(ReferenceService rs, ReferenceContext context) {
@@ -98,23 +99,23 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		JPanel upperPanel = new JPanel(new BorderLayout());
 		upperPanel.add(toolBar, BorderLayout.SOUTH);
 		upperPanel.add(workflowDescription, BorderLayout.CENTER);
-		upperPanel.add(workflowIcon, BorderLayout.EAST);
+		upperPanel.add(workflowImageComponentHolder, BorderLayout.EAST);
 		add(upperPanel, BorderLayout.NORTH);
 	}
 
 	@SuppressWarnings("serial")
 	public synchronized void addInput(final String inputName,
 			final int inputDepth) {
-		addInput(inputName, inputDepth, null);
+		addInput(inputName, inputDepth, null, null);
 	}
 	
 	public void addInput(final String inputName,
-			final int inputDepth, String inputDescription) {
+			final int inputDepth, String inputDescription, String inputExample) {
 		// Don't do anything if we already have this tab
 		if (inputMap.containsKey(inputName)) {
 			return;
 		} else {
-			RegistrationPanel inputPanel = new RegistrationPanel(inputDepth, inputName, inputDescription);
+			RegistrationPanel inputPanel = new RegistrationPanel(inputDepth, inputName, inputDescription, inputExample);
 			inputMap.put(inputName, null);
 			tabComponents.put(inputName, inputPanel);
 			tabs.addTab(inputName, inputPanel);
@@ -158,10 +159,24 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		this.workflowDescription.setText("<html>"  + workflowDescription + "</html>");
 	}
 
-	public void setWorkflowPicture(ImageIcon workflowPicture) {
-		this.workflowIcon.setIcon(workflowPicture);
-		
+	public void setWorkflowImageComponent(Component workflowImageComponent) {
+		synchronized (workflowImageComponentHolder) {
+			workflowImageComponentHolder.removeAll();
+			workflowImageComponentHolder.add(workflowImageComponent);
+			workflowImageComponentHolder.invalidate();
+		}
 	}
 
+	public Component getWorkflowImageComponent() {
+		try {
+			return workflowImageComponentHolder.getComponent(0);
+		} catch (IndexOutOfBoundsException ex) {
+			return null;
+		}
+	}
+
+	public String getWorkflowDescription() {
+		return workflowDescription.getText();
+	}
 
 }
