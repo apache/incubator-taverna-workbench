@@ -32,6 +32,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Properties;
 
 import javax.swing.ImageIcon;
@@ -53,9 +56,11 @@ import net.sf.taverna.raven.log.Log;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
+import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.ui.perspectives.CustomPerspective;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.workbench.ShutdownSPI;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
@@ -130,8 +135,8 @@ public class Workbench extends JFrame {
 				throw new RuntimeException(
 						"Interrupted while initializing workbench", e);
 			} catch (InvocationTargetException e) {
-				throw new RuntimeException(
-						"Could not initialize workbench", e.getCause());
+				throw new RuntimeException("Could not initialize workbench", e
+						.getCause());
 			}
 		}
 		return Singleton.instance;
@@ -147,6 +152,7 @@ public class Workbench extends JFrame {
 		setLayout(new GridBagLayout());
 
 		addWindowListener(new WindowClosingListener());
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
 		Helper.setKeyCatcher(this);
 
@@ -159,7 +165,6 @@ public class Workbench extends JFrame {
 
 		OSXApplication.setListener(osxAppListener);
 
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setLookAndFeel();
 
 		// Set the size and position of the Workbench to the last
@@ -273,10 +278,40 @@ public class Workbench extends JFrame {
 							ex);
 		}
 
-		if (closeAllWorkflowsAction.closeAllWorkflows(this)) {
+		// TODO use the ShutdownSPI for all the shutdown actions
+		if (callShutdownHooks()
+				&& closeAllWorkflowsAction.closeAllWorkflows(this)) {
 			System.exit(0);
 		}
 
+	}
+
+	/**
+	 * Calls all the shutdown on all the {@link ShutdownSPI}s. If a shutdown
+	 * returns <code>false</code> (meaning that the shutdown process should be
+	 * aborted) then this method returns with a value of <code>false</code>
+	 * immediately.
+	 * 
+	 * @return <code>true</code> if all the <code>ShutdownSPIs</code> return
+	 *         <code>true</code> and the workbench shutdown should proceed
+	 */
+	private boolean callShutdownHooks() {
+		boolean shutdown = true;
+		SPIRegistry<ShutdownSPI> registry = new SPIRegistry<ShutdownSPI>(
+				ShutdownSPI.class);
+		List<ShutdownSPI> instances = registry.getInstances();
+		Collections.sort(instances, new Comparator<ShutdownSPI>() {
+			public int compare(ShutdownSPI o1, ShutdownSPI o2) {
+				return o2.positionHint() - o1.positionHint();
+			}
+		});
+		for (ShutdownSPI shutdownSPI : instances) {
+			if (!shutdownSPI.shutdown()) {
+				shutdown = false;
+				break;
+			}
+		}
+		return shutdown;
 	}
 
 	/**
