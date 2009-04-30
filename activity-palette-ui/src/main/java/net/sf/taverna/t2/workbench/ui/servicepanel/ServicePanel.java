@@ -23,11 +23,14 @@ package net.sf.taverna.t2.workbench.ui.servicepanel;
 import java.awt.BorderLayout;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -63,7 +66,9 @@ import org.apache.log4j.Logger;
 public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	public static final String AVAILABLE_SERVICES = "Available services";
-
+	public static final String MATCHING_SERVIES = "Matching services";
+	public static final String NO_MATCHING_SERVICES = "No matching services";
+	
 	/**
 	 * A Comparable constant to be used with buildPathMap
 	 */
@@ -158,6 +163,9 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		setLayout(new BorderLayout());
 		treeModel = new FilterTreeModel(root);
 		serviceTreePanel = new ServiceTreePanel(treeModel, serviceDescriptionRegistry);
+		serviceTreePanel.setAvailableObjectsString(AVAILABLE_SERVICES);
+		serviceTreePanel.setMatchingObjectsString(MATCHING_SERVIES);
+		serviceTreePanel.setNoMatchingObjectsString(NO_MATCHING_SERVICES);
 		add(serviceTreePanel);
 		statusLine = new JLabel();
 		add(statusLine, BorderLayout.SOUTH);
