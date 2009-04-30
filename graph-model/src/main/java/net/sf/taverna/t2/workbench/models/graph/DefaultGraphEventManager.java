@@ -127,12 +127,17 @@ public class DefaultGraphEventManager implements GraphEventManager {
 					if (sourceNodes.size() > 0) {
 						if (sourceNodes.size() == 1) {
 							final GraphNode sourceNode = sourceNodes.get(0);
-							menu.add(new JMenuItem(new AbstractAction("Link from output '" + sourceNode.getLabel() + "'") {
-								public void actionPerformed(ActionEvent arg0) {
-									graphController.startEdgeCreation(sourceNode, new Point(x, y));
-								}
+							if (sourceNode.getLabel() != null) {
+								menu.add(new JMenuItem(new AbstractAction(
+										"Link from output '"
+												+ sourceNode.getLabel() + "'") {
+									public void actionPerformed(ActionEvent arg0) {
+										graphController.startEdgeCreation(
+												sourceNode, new Point(x, y));
+									}
 
-							}));	
+								}));
+							}
 						} else {
 							JMenu linkMenu = new JMenu("Link from output...");
 							menu.add(linkMenu);
@@ -150,12 +155,17 @@ public class DefaultGraphEventManager implements GraphEventManager {
 					if (sinkNodes.size() > 0) {
 						if (sinkNodes.size() == 1) {
 							final GraphNode sinkNode = sinkNodes.get(0);
-							menu.add(new JMenuItem(new AbstractAction("Link to input '" + sinkNode.getLabel() + "'") {
-								public void actionPerformed(ActionEvent arg0) {
-									graphController.startEdgeCreation(sinkNode, new Point(x, y));
-								}
+							if (sinkNode.getLabel() != null) {
+								menu.add(new JMenuItem(new AbstractAction(
+										"Link to input '" + sinkNode.getLabel()
+												+ "'") {
+									public void actionPerformed(ActionEvent arg0) {
+										graphController.startEdgeCreation(
+												sinkNode, new Point(x, y));
+									}
 
-							}));	
+								}));
+							}
 						} else {
 							JMenu linkMenu = new JMenu("Link to input...");
 							menu.add(linkMenu);
