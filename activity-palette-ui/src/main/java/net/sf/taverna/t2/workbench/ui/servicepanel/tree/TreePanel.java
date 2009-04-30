@@ -58,7 +58,7 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.ServicePanel;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 
 @SuppressWarnings("serial")
-public class TreePanel extends JPanel {
+public abstract class TreePanel extends JPanel {
 
 	private static int MAX_EXPANSION = 100;
 	private static final int SEARCH_WIDTH = 15;
@@ -68,6 +68,10 @@ public class TreePanel extends JPanel {
 	protected JTextField searchField = new JTextField(SEARCH_WIDTH);
 	protected JTree tree = new JTree();
 	protected JScrollPane treeScrollPane;
+	
+	private String availableObjectsString = "";
+	private String matchingObjectsString = "";
+	private String noMatchingObjectsString = "";
 
 	public TreePanel(FilterTreeModel treeModel) {
 		filterTreeModel = treeModel;
@@ -192,15 +196,66 @@ public class TreePanel extends JPanel {
 	public synchronized void runFilter() throws InterruptedException,
 			InvocationTargetException {
 		String text = searchField.getText();
+		final FilterTreeNode root = (FilterTreeNode) tree.getModel().getRoot();
 		if (text.length() == 0) {
 			setFilter(null);
+					root.setUserObject(getAvailableObjectsString());
+					filterTreeModel.nodeChanged(root);
 			for (TreePath tp : expandedPaths) {
 				tree.expandPath(tp);
 			}
 		} else {
 			setFilter(createFilter(text));
+			if (root.getChildCount() > 0) {
+				root.setUserObject(getMatchingObjectsString());
+				} else {
+					root.setUserObject(getNoMatchingObjectsString());
+				}
+			filterTreeModel.nodeChanged(root);
 			expandTreePaths();
 		}
+	}
+
+	/**
+	 * @return the availableObjectsString
+	 */
+	public String getAvailableObjectsString() {
+		return availableObjectsString;
+	}
+
+	/**
+	 * @param availableObjectsString the availableObjectsString to set
+	 */
+	public void setAvailableObjectsString(String availableObjectsString) {
+		this.availableObjectsString = availableObjectsString;
+	}
+
+	/**
+	 * @return the matchingObjectsString
+	 */
+	public String getMatchingObjectsString() {
+		return matchingObjectsString;
+	}
+
+	/**
+	 * @param matchingObjectsString the matchingObjectsString to set
+	 */
+	public void setMatchingObjectsString(String matchingObjectsString) {
+		this.matchingObjectsString = matchingObjectsString;
+	}
+
+	/**
+	 * @return the noMatchingObjectsString
+	 */
+	public String getNoMatchingObjectsString() {
+		return noMatchingObjectsString;
+	}
+
+	/**
+	 * @param noMatchingObjectsString the noMatchingObjectsString to set
+	 */
+	public void setNoMatchingObjectsString(String noMatchingObjectsString) {
+		this.noMatchingObjectsString = noMatchingObjectsString;
 	}
 
 	public Filter createFilter(String text) {
@@ -222,15 +277,7 @@ public class TreePanel extends JPanel {
 
 		public void actionPerformed(ActionEvent e) {
 			searchField.setText("");
-			try {
-				runFilter();
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (InvocationTargetException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
+			SwingUtilities.invokeLater(new RunFilter());
 		}
 	}
 
