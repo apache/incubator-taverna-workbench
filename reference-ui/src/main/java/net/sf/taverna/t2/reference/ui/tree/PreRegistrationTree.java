@@ -107,44 +107,13 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 			model = new PreRegistrationTreeModel(depth, name);
 		}
 		setModel(model);
-		setEditable(true);
 		setInvokesStopCellEditing(true);
 		
 		getSelectionModel().setSelectionMode(
 				TreeSelectionModel.SINGLE_TREE_SELECTION);
 		DefaultTreeCellRenderer renderer = new PreRegistrationTreeCellRenderer();
-		TreeCellEditor editor = new DefaultTreeCellEditor(this, renderer, new PreRegistrationCellEditor()) {
-			@Override
-			protected void determineOffset(JTree tree, Object value,
-					boolean isSelected, boolean expanded, boolean leaf, int row) {
-				editingIcon = ((DefaultTreeCellRenderer) renderer
-						.getTreeCellRendererComponent(tree, value, isSelected,
-								expanded, leaf, row, true)).getIcon();
-				if (editingIcon != null) {
-					offset = renderer.getIconTextGap()
-							+ editingIcon.getIconWidth();
-				} else {
-					offset = renderer.getIconTextGap();
-				}
-			}
-			@Override
-			protected boolean shouldStartEditingTimer(EventObject event) {
-				return false;
-			}
-			@Override
-		    protected boolean canEditImmediately(EventObject event) {
-				if((event instanceof MouseEvent) &&
-						SwingUtilities.isLeftMouseButton((MouseEvent)event)) {
-					MouseEvent me = (MouseEvent)event;
-					return ((me.getClickCount() > 1) &&
-							inHitRegion(me.getX(), me.getY()));
-				}
-				return (event == null);
-			}
-		};
 		setRowHeight(0);
 		setCellRenderer(renderer);
-		//setCellEditor(editor);
 		
 		new PreRegistrationTreeDnDHandler(this) {
 			@Override
@@ -197,21 +166,6 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 				setStatusMessage("Added string from drag and drop", false);
 			}
 		};
-	}
-
-	@Override
-	public boolean isPathEditable(TreePath path) {
-		if (path.getPath().length == 1) {
-			return false;
-		}
-		Object o = path.getLastPathComponent();
-		if (o instanceof DefaultMutableTreeNode) {
-			Object userObject = ((DefaultMutableTreeNode) o).getUserObject();
-			if (userObject != null && userObject instanceof String) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	@Override

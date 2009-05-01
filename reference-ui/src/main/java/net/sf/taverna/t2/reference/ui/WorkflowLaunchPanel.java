@@ -23,22 +23,36 @@ package net.sf.taverna.t2.reference.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 
+import org.apache.log4j.Logger;
+
+import net.sf.taverna.t2.annotation.annotationbeans.Author;
+import net.sf.taverna.t2.annotation.annotationbeans.DescriptiveTitle;
+import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
+import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.reference.ReferenceContext;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
 
 /**
  * A simple workflow launch panel, uses a tabbed layout to display a set of
@@ -47,9 +61,13 @@ import net.sf.taverna.t2.reference.T2Reference;
  * @author Tom Oinn
  * @author David Withers
  * @author Stian Soiland-Reyes
+ * @author Alan R Williams
  */
 @SuppressWarnings("serial")
 public abstract class WorkflowLaunchPanel extends JPanel {
+
+	private static Logger logger = Logger
+	.getLogger(WorkflowLaunchPanel.class);
 
 	private static final String LAUNCH_WORKFLOW = "Launch workflow";
 
@@ -60,24 +78,53 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	// handleLaunch method
 	private final Action launchAction;
 
-	// Hold the current map of name->reference
+	private static final Map<String, Map<String, RegistrationPanel>> workflowInputPanelMap =
+		new HashMap<String, Map<String, RegistrationPanel>>();
+	private final Map<String, RegistrationPanel> inputPanelMap;
 	private final Map<String, T2Reference> inputMap = new HashMap<String, T2Reference>();
 
 	private final JTabbedPane tabs;
 	private final Map<String, RegistrationPanel> tabComponents = new HashMap<String, RegistrationPanel>();
 
+	private final WorkflowInstanceFacade facade;
 	private final ReferenceService referenceService;
 	private final ReferenceContext referenceContext;
 
-	private JLabel workflowDescription = new JLabel();
+	private final static String NO_WORKFLOW_DESCRIPTION = "No description";
+	private static final String NO_WORKFLOW_AUTHOR = "No author";
+
+	private static final String NO_WORKFLOW_TITLE = "No title";
+
+	private JTextArea workflowDescription = new JTextArea(NO_WORKFLOW_DESCRIPTION);
+	private JTextArea workflowTitle = new JTextArea(NO_WORKFLOW_TITLE);
+	private JTextArea workflowAuthor = new JTextArea(NO_WORKFLOW_AUTHOR);
 
 	private JPanel workflowImageComponentHolder = new JPanel();
+	private AnnotationTools annotationTools = new AnnotationTools();
 
+	
 	@SuppressWarnings("serial")
-	public WorkflowLaunchPanel(ReferenceService rs, ReferenceContext context) {
+	public WorkflowLaunchPanel(WorkflowInstanceFacade facade, ReferenceContext context) {
 		super(new BorderLayout());
+		
+		workflowDescription.setBorder(new TitledBorder("Workflow description"));
+		workflowDescription.setEditable(false);
+		workflowDescription.setRows(5);
+		workflowAuthor.setBorder(new TitledBorder("Workflow author"));
+		workflowAuthor.setEditable(false);
+		workflowTitle.setBorder(new TitledBorder("Workflow title"));
+		workflowTitle.setEditable(false);
 
-		this.referenceService = rs;
+		String dataflowName = facade.getDataflow().getLocalName();
+		if (workflowInputPanelMap.containsKey(dataflowName)) {
+			inputPanelMap = workflowInputPanelMap.get(dataflowName);
+		} else {
+			inputPanelMap = new HashMap<String,RegistrationPanel>();
+			workflowInputPanelMap.put(dataflowName, inputPanelMap);
+		}
+		this.facade = facade;
+		this.referenceService = facade.getContext()
+		.getReferenceService();
 		this.referenceContext = context;
 
 		launchAction = new AbstractAction(LAUNCH_WORKFLOW, launchIcon) {
@@ -97,10 +144,29 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		toolBar.add(new JButton(launchAction));
 		
 		JPanel upperPanel = new JPanel(new BorderLayout());
-		upperPanel.add(toolBar, BorderLayout.SOUTH);
-		upperPanel.add(workflowDescription, BorderLayout.CENTER);
-		upperPanel.add(workflowImageComponentHolder, BorderLayout.EAST);
+//		upperPanel.add(toolBar, BorderLayout.SOUTH);
+		JPanel annotationsPanel = new JPanel(new BorderLayout());
+
+		String wfDescription = annotationTools.getAnnotationString(facade.getDataflow(), FreeTextDescription.class, "");
+		setWorkflowDescription(wfDescription);
+		
+		String wfTitle = annotationTools.getAnnotationString(facade.getDataflow(), DescriptiveTitle.class, "");
+		setWorkflowTitle(wfTitle);
+		String wfAuthor = annotationTools.getAnnotationString(facade.getDataflow(), Author.class, "");
+		setWorkflowAuthor(wfAuthor);
+		
+		annotationsPanel.add(workflowTitle, BorderLayout.NORTH);
+		annotationsPanel.add(workflowDescription, BorderLayout.CENTER);
+		annotationsPanel.add(workflowAuthor, BorderLayout.SOUTH);
+		annotationsPanel.setBorder(BorderFactory.createCompoundBorder(
+				  BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()));
+		upperPanel.add(annotationsPanel, BorderLayout.CENTER);
+//		upperPanel.add(workflowImageComponentHolder, BorderLayout.EAST);
 		add(upperPanel, BorderLayout.NORTH);
+		JPanel toolBarPanel = new JPanel(new BorderLayout());
+		toolBarPanel.add(toolBar, BorderLayout.EAST);
+		toolBarPanel.setBorder(new EmptyBorder(5,20,5,20));
+		add(toolBarPanel, BorderLayout.SOUTH);
 	}
 
 	@SuppressWarnings("serial")
@@ -113,9 +179,16 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 			final int inputDepth, String inputDescription, String inputExample) {
 		// Don't do anything if we already have this tab
 		if (inputMap.containsKey(inputName)) {
-			return;
+// do nothing
 		} else {
-			RegistrationPanel inputPanel = new RegistrationPanel(inputDepth, inputName, inputDescription, inputExample);
+			RegistrationPanel inputPanel;
+			if (inputPanelMap.containsKey(inputName) &&
+					(inputPanelMap.get(inputName).getDepth() == inputDepth)) {
+				inputPanel = inputPanelMap.get(inputName);
+			} else {
+				inputPanel = new RegistrationPanel(inputDepth, inputName, inputDescription, inputExample);
+				inputPanelMap.put(inputName, inputPanel);
+			}
 			inputMap.put(inputName, null);
 			tabComponents.put(inputName, inputPanel);
 			tabs.addTab(inputName, inputPanel);
@@ -155,8 +228,45 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	 */
 	public abstract void handleLaunch(Map<String, T2Reference> workflowInputs);
 
-	public void setWorkflowDescription(String workflowDescription) {
-		this.workflowDescription.setText("<html>"  + workflowDescription + "</html>");
+	
+	private String truncateString(String original) {
+		String result = "";
+		try {
+		BufferedReader reader = new BufferedReader(new StringReader(original));
+		boolean finished = false;
+		for (int i = 0; (i < 5) && !finished; i++) {
+			String nextLine;
+				nextLine = reader.readLine();
+			finished = nextLine == null;
+			if (!finished) {
+				result = result + nextLine + "\n";
+			}
+		}
+		if (!finished) {
+			result = result + "...";
+		}
+		} catch (IOException e) {
+			logger.info(e.getMessage());
+		}
+		return result;
+	}
+	
+	private void setWorkflowDescription(String workflowDescription) {
+		if ((workflowDescription != null) && (workflowDescription.length() > 0)) {
+		this.workflowDescription.setText(truncateString(workflowDescription));
+		}
+	}
+
+	private void setWorkflowAuthor(String workflowAuthor) {
+		if ((workflowAuthor != null) && (workflowAuthor.length() > 0)) {
+		this.workflowAuthor.setText(workflowAuthor);
+		}
+	}
+
+	private void setWorkflowTitle(String workflowTitle) {
+		if ((workflowTitle != null) && (workflowTitle.length() > 0)) {
+		this.workflowTitle.setText(workflowTitle);
+		}
 	}
 
 	public void setWorkflowImageComponent(Component workflowImageComponent) {

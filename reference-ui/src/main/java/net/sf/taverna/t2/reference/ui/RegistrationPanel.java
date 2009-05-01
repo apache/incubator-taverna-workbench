@@ -25,6 +25,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -34,6 +36,7 @@ import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -46,6 +49,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -55,6 +60,8 @@ import javax.swing.tree.TreePath;
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
 import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTree;
 import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTreeModel;
+
+import org.apache.log4j.Logger;
 
 /**
  * A JPanel containing a pre-registration tree along with a toolbar for adding
@@ -69,6 +76,9 @@ import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTreeModel;
 public class RegistrationPanel extends JPanel {
 
 	private static final String NEW_VALUE = "Some input data goes here";
+
+	private static Logger logger = Logger
+	.getLogger(RegistrationPanel.class);
 
 	
 	private static final ImageIcon addFileIcon = new ImageIcon(
@@ -102,6 +112,8 @@ public class RegistrationPanel extends JPanel {
 	private JSplitPane splitPane;
 	private final JLabel status;
 	private JTextArea textArea;
+	private JLabel textAreaType;
+	private TextAreaFocusListener textAreaFocusListener;
 	private final PreRegistrationTree tree;
 	private final PreRegistrationTreeModel treeModel;
 
@@ -110,8 +122,6 @@ public class RegistrationPanel extends JPanel {
 
 
 	private final String description;
-
-
 
 	private String name;
 
@@ -143,27 +153,39 @@ public class RegistrationPanel extends JPanel {
 		treeModel = tree.getPreRegistrationTreeModel();
 
 		tree.addTreeSelectionListener(new UpdateEditorPaneOnSelection());
+		
+		tree.setRootVisible(false);
 
 		editorPane = new JPanel(new BorderLayout());
 
-		String header = "<html><b>" + name + "</b>";
+		String header = "<html><b>Port name:</b> " + name;
 		if (description != null) {
-			header += "<br>" + description;
+			header += "<br><b>Description:</b> " + description;
+		}
+		if (example != null) {
+			header += "<br><b>Example:</b> " + example;			
 		}
 		header += "</html>";
 		JLabel editorPaneHeader = new JLabel(header);
+		editorPaneHeader.setBorder(BorderFactory.createCompoundBorder(
+			  BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()));
 
-		editorPane.add(editorPaneHeader, BorderLayout.NORTH);
+		JPanel headerAndToolBarPane = new JPanel(new BorderLayout());
+		
+		headerAndToolBarPane.add(editorPaneHeader, BorderLayout.NORTH);
+		headerAndToolBarPane.add(createToolBar(), BorderLayout.SOUTH);
+		
 		textArea = new JTextArea();
-		editorPane.add(textArea, BorderLayout.CENTER);
-
+		textAreaFocusListener = new TextAreaFocusListener(textArea);
+		textArea.addFocusListener(textAreaFocusListener);
 		splitPane = new JSplitPane();
-		add(splitPane, BorderLayout.CENTER);
 		splitPane.add(new JScrollPane(this.tree), JSplitPane.LEFT);
-		splitPane.add(new JScrollPane(editorPane), JSplitPane.RIGHT);
+		splitPane.add(new JScrollPane(textArea), JSplitPane.RIGHT);
 		splitPane.setDividerLocation(150);
 
-		buildActions();
+		add(headerAndToolBarPane, BorderLayout.NORTH);
+		add(splitPane, BorderLayout.CENTER);
+		
 		// Listen to selections on the tree to enable or disable actions
 		tree.addTreeSelectionListener(new UpdateActionsOnTreeSelection());
 		status = new JLabel();
@@ -172,7 +194,11 @@ public class RegistrationPanel extends JPanel {
 		setStatus("Drag to re-arrange, or drag files, URLs, or text to add",
 				infoIcon, null);
 		add(status, BorderLayout.SOUTH);
+	}
+	
+	private JToolBar createToolBar() {
 		JToolBar toolBar = new JToolBar();
+		buildActions();
 		toolBar.setFloatable(false);
 		toolBar.add(new JButton(deleteNodeAction));
 		toolBar.add(new JButton(addTextAction));
@@ -203,7 +229,7 @@ public class RegistrationPanel extends JPanel {
 			}
 		}
 		// toolBar.add(Box.createHorizontalGlue());
-		add(toolBar, BorderLayout.NORTH);
+		return toolBar;
 	}
 
 	public int getDepth() {
@@ -255,6 +281,7 @@ public class RegistrationPanel extends JPanel {
 
 	private final class UpdateEditorPaneOnSelection implements
 			TreeSelectionListener {
+		
 		public void valueChanged(TreeSelectionEvent e) {
 
 			TreePath oldLeadSelectionPath = e.getOldLeadSelectionPath();
@@ -269,12 +296,16 @@ public class RegistrationPanel extends JPanel {
 			DefaultMutableTreeNode selection = (DefaultMutableTreeNode) e
 					.getPath().getLastPathComponent();
 			textArea.setEditable(false);
+			textAreaFocusListener.setNode(selection);
+			if (!selection.isLeaf()) {
+				textArea.setText("List selected");
+			}
 			if (selection == null) {
 				textArea.setText("No selection");
 				return;
 			}
 			if (selection.getUserObject() == null) {
-				textArea.setText("No user object in " + selection);
+				textArea.setText("List selected");
 				return;
 			}
 			if (selection.getUserObject() instanceof String) {
@@ -283,12 +314,12 @@ public class RegistrationPanel extends JPanel {
 				textArea.requestFocusInWindow();
 				textArea.selectAll();
 			} else {
-				textArea.setText("Selected " + selection.getUserObject()
+				textArea.setText("Fixed object: " + selection.getUserObject()
 						+ " " + selection.getUserObject().getClass());
 			}
 		}
 	}
-
+	
 	public class NewListAction extends AbstractAction {
 		private final int depth;
 
@@ -298,8 +329,9 @@ public class RegistrationPanel extends JPanel {
 		}
 
 		public void actionPerformed(ActionEvent ae) {
-			treeModel.addPojoStructure((MutableTreeNode) treeModel.getRoot(),
+			DefaultMutableTreeNode added = treeModel.addPojoStructure((MutableTreeNode) treeModel.getRoot(),
 					new ArrayList<Object>(), depth);
+			tree.setSelectionPath(new TreePath(added.getPath()));
 			setStatus("Added new collection with depth " + depth, infoIcon,
 					null);
 		}
@@ -349,7 +381,8 @@ public class RegistrationPanel extends JPanel {
 
 				for (File file : fileChooser.getSelectedFiles()) {
 					if (!file.isDirectory()) {
-						treeModel.addPojoStructure(node, file, 0);
+						DefaultMutableTreeNode added = treeModel.addPojoStructure(node, file, 0);
+						tree.setSelectionPath(new TreePath(added.getPath()));
 						setStatus("Added file : " + file.getPath(), infoIcon,
 								null);
 					} else {
@@ -369,7 +402,8 @@ public class RegistrationPanel extends JPanel {
 								children.add(child);
 							}
 						}
-						treeModel.addPojoStructure(node, children, 1);
+						DefaultMutableTreeNode added = treeModel.addPojoStructure(node, children, 1);
+						tree.setSelectionPath(new TreePath(added.getPath()));
 						setStatus("Added directory : " + file.getPath(),
 								infoIcon, null);
 					}
@@ -399,7 +433,7 @@ public class RegistrationPanel extends JPanel {
 			DefaultMutableTreeNode added = treeModel.addPojoStructure(node,
 					newValue, 0);
 			tree.setSelectionPath(new TreePath(added.getPath()));
-			setStatus("Added new value, double click to edit.", infoIcon, null);
+			setStatus("Added new value.", infoIcon, null);
 		}
 	}
 
@@ -436,7 +470,8 @@ public class RegistrationPanel extends JPanel {
 
 						MutableTreeNode node = getSelectedNode();
 
-						treeModel.addPojoStructure(node, url, 0);
+						DefaultMutableTreeNode added = treeModel.addPojoStructure(node, url, 0);
+						tree.setSelectionPath(new TreePath(added.getPath()));
 						setStatus("Added URL : " + url.toExternalForm(),
 								infoIcon, null);
 					} else {
@@ -467,8 +502,38 @@ public class RegistrationPanel extends JPanel {
 				return;
 			} else {
 				treeModel.removeNodeFromParent(node);
+				tree.setSelectionPath(null);
 				setStatus("Deleted node", infoIcon, null);
 			}
 		}
+	}
+
+	private class TextAreaFocusListener implements FocusListener {
+
+		private DefaultMutableTreeNode selection;
+		private JTextArea textArea;
+
+		public TextAreaFocusListener(JTextArea textArea) {
+			this.textArea = textArea;
+		}
+
+		public void setNode(DefaultMutableTreeNode selection) {
+			this.selection = selection;
+		}
+		
+		private void updateSelection() {
+			if ((selection != null) && (selection.getUserObject() instanceof String)) {
+				selection.setUserObject(textArea.getText());
+			}
+		}
+
+		public void focusGained(FocusEvent e) {
+			//nothing
+		}
+
+		public void focusLost(FocusEvent e) {
+			updateSelection();
+		}
+		
 	}
 }

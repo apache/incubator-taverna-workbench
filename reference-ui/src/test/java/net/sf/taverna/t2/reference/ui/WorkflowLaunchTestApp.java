@@ -66,23 +66,23 @@ public class WorkflowLaunchTestApp {
 		JFrame frame = new JFrame("Workflow input builder");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		wlp = new WorkflowLaunchPanel(referenceService, referenceContext) {
-			@Override
-			public void handleLaunch(Map<String, T2Reference> workflowInputs) {
-				System.out.println("Launch...");
-				for (String inputName : workflowInputs.keySet()) {
-					System.out.println(inputName + " = "
-							+ workflowInputs.get(inputName).toString());
-				}
-			}
-		};
-		wlp.setOpaque(true); // content panes must be opaque
-
-		wlp.setWorkflowDescription("It is very good to be able to put a description of the workflow" +
-				" right here in the code. We'll put quite a long description so we can " +
-				"check that line wrapping actually works as we expect. Note that in some cases" +
-				" the initial window will be very wide because of frame.pack() being" +
-				"called.");
+//		wlp = new WorkflowLaunchPanel(referenceService, referenceContext) {
+//			@Override
+//			public void handleLaunch(Map<String, T2Reference> workflowInputs) {
+//				System.out.println("Launch...");
+//				for (String inputName : workflowInputs.keySet()) {
+//					System.out.println(inputName + " = "
+//							+ workflowInputs.get(inputName).toString());
+//				}
+//			}
+//		};
+//		wlp.setOpaque(true); // content panes must be opaque
+//
+//		wlp.setWorkflowDescription("It is very good to be able to put a description of the workflow" +
+//				" right here in the code. We'll put quite a long description so we can " +
+//				"check that line wrapping actually works as we expect. Note that in some cases" +
+//				" the initial window will be very wide because of frame.pack() being" +
+//				"called.");
 		
 		// Should be a passive SVG graph of the dataflow
 		wlp.setWorkflowImageComponent(new JLabel(workflowThumbnail));
