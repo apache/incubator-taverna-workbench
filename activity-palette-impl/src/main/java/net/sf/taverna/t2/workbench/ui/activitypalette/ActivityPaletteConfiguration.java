@@ -58,12 +58,12 @@ public class ActivityPaletteConfiguration extends AbstractConfigurable {
 //			defaultPropertyMap.put("taverna.defaultsoaplab", "http://www.ebi.ac.uk/soaplab/services/");
 			
 			//biomart
-			defaultPropertyMap.put("taverna.defaultmartregistry","http://www.biomart.org/biomart");
+			//defaultPropertyMap.put("taverna.defaultmartregistry","http://www.biomart.org/biomart");
 			
 			//add property names
 			//defaultPropertyMap.put("name.taverna.defaultwsdl", "WSDL");
 			//defaultPropertyMap.put("name.taverna.defaultsoaplab","Soaplab");
-			defaultPropertyMap.put("name.taverna.defaultmartregistry", "Biomart");
+			//defaultPropertyMap.put("name.taverna.defaultmartregistry", "Biomart");
 		}
 		return defaultPropertyMap;
 	}
