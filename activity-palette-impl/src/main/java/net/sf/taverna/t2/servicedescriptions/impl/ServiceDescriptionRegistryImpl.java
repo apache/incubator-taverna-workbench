@@ -43,6 +43,9 @@ public class ServiceDescriptionRegistryImpl implements
 	public static final ThreadGroup threadGroup = new ThreadGroup(
 			"Service description providers");
 
+	private ServiceDescriptionsConfig serviceDescriptionsConfig = ServiceDescriptionsConfig
+			.getInstance();
+
 	/**
 	 * Total maximum timeout while waiting for description threads to finish
 	 */
@@ -81,8 +84,8 @@ public class ServiceDescriptionRegistryImpl implements
 	}
 
 	/**
-	 * <code>false</code> until first call to {@link #loadServiceProviders()} - which is done
-	 * by first call to {@link #getServiceDescriptionProviders()}.
+	 * <code>false</code> until first call to {@link #loadServiceProviders()} -
+	 * which is done by first call to {@link #getServiceDescriptionProviders()}.
 	 */
 	private boolean hasLoadedProviders = false;
 
@@ -94,12 +97,7 @@ public class ServiceDescriptionRegistryImpl implements
 	 */
 	private boolean loading = false;
 
-	/**
-	 * Service providers added by the user, should be saved
-	 */
-	protected Set<ServiceDescriptionProvider> userAddedProviders = new HashSet<ServiceDescriptionProvider>();
-
-	protected Set<ServiceDescriptionProvider> userRemovedProviders = new HashSet<ServiceDescriptionProvider>();
+	protected Set<ServiceDescriptionProvider> allServiceProviders;
 
 	protected MultiCaster<ServiceDescriptionRegistryEvent> observers = new MultiCaster<ServiceDescriptionRegistryEvent>(
 			this);
@@ -112,7 +110,14 @@ public class ServiceDescriptionRegistryImpl implements
 
 	protected Map<ServiceDescriptionProvider, FindServiceDescriptionsThread> serviceDescriptionThreads = new HashMap<ServiceDescriptionProvider, FindServiceDescriptionsThread>();
 
-	protected Set<ServiceDescriptionProvider> allServiceProviders;
+	/**
+	 * Service providers added by the user, should be saved
+	 */
+	protected Set<ServiceDescriptionProvider> userAddedProviders = new HashSet<ServiceDescriptionProvider>();
+
+	protected Set<ServiceDescriptionProvider> userRemovedProviders = new HashSet<ServiceDescriptionProvider>();
+
+	private Set<ServiceDescriptionProvider> defaultServiceDescriptionProviders;
 
 	public void addObserver(Observer<ServiceDescriptionRegistryEvent> observer) {
 		observers.addObserver(observer);
@@ -121,7 +126,10 @@ public class ServiceDescriptionRegistryImpl implements
 	public void addServiceDescriptionProvider(
 			ServiceDescriptionProvider provider) {
 		synchronized (this) {
-			userAddedProviders.add(provider);
+			userRemovedProviders.remove(provider);
+			if (!getDefaultServiceDescriptionProviders().contains(provider)) {
+				userAddedProviders.add(provider);
+			}
 			allServiceProviders.add(provider);
 		}
 		if (!loading) {
@@ -142,15 +150,6 @@ public class ServiceDescriptionRegistryImpl implements
 		return serviceDescriptionsFile;
 	}
 
-	public <ConfigBean> List<ConfigBean> getConfigurationsFor(
-			ConfigurableServiceProvider<ConfigBean> provider) {
-		return provider.getDefaultConfigurations();
-	}
-
-	public Set<ServiceDescriptionProvider> getUserAddedServiceProviders() {
-		return new HashSet<ServiceDescriptionProvider>(userAddedProviders);
-	}
-
 	public List<Observer<ServiceDescriptionRegistryEvent>> getObservers() {
 		return observers.getObservers();
 	}
@@ -160,6 +159,37 @@ public class ServiceDescriptionRegistryImpl implements
 	}
 
 	@SuppressWarnings("unchecked")
+	public synchronized Set<ServiceDescriptionProvider> getDefaultServiceDescriptionProviders() {
+		if (defaultServiceDescriptionProviders != null) {
+			return defaultServiceDescriptionProviders;
+		}
+		defaultServiceDescriptionProviders = new HashSet<ServiceDescriptionProvider>();
+		for (ServiceDescriptionProvider provider : getProviderRegistry()
+				.getInstances()) {
+			if (!(provider instanceof ConfigurableServiceProvider)) {
+				defaultServiceDescriptionProviders.add(provider);
+				continue;
+			}
+			// It's a template, we'll need to configure it first
+			ConfigurableServiceProvider template = ((ConfigurableServiceProvider) provider);
+			List<Object> configurables = template.getDefaultConfigurations();
+			for (Object config : configurables) {
+				// Make a copy that we can configure
+				ConfigurableServiceProvider configurableProvider = template
+						.clone();
+				try {
+					configurableProvider.configure(config);
+				} catch (ConfigurationException e) {
+					logger.warn("Can't configure provider "
+							+ configurableProvider + " with " + config);
+					continue;
+				}
+				defaultServiceDescriptionProviders.add(configurableProvider);
+			}
+		}
+		return defaultServiceDescriptionProviders;
+	}
+
 	public synchronized Set<ServiceDescriptionProvider> getServiceDescriptionProviders() {
 		if (allServiceProviders != null) {
 			return allServiceProviders;
@@ -177,32 +207,30 @@ public class ServiceDescriptionRegistryImpl implements
 				}
 			}
 		}
-		for (ServiceDescriptionProvider provider : getProviderRegistry()
-				.getInstances()) {
+		for (ServiceDescriptionProvider provider : getDefaultServiceDescriptionProviders()) {
 			if (userRemovedProviders.contains(provider)) {
 				continue;
 			}
-			if (provider instanceof ConfigurableServiceProvider) {
-				ConfigurableServiceProvider template = ((ConfigurableServiceProvider) provider);
-				List<Object> configurables = getConfigurationsFor(template);
-				for (Object config : configurables) {
-					// Make a copy that we can configure
-					ConfigurableServiceProvider configurableProvider = template
-							.clone();
-					try {
-						configurableProvider.configure(config);
-					} catch (ConfigurationException e) {
-						logger.warn("Can't configure provider "
-								+ configurableProvider + " with " + config);
-						continue;
-					}
-					allServiceProviders.add(configurableProvider);
-				}
-			} else {
-				allServiceProviders.add(provider);
+			if (provider instanceof ConfigurableServiceProvider
+					&& !serviceDescriptionsConfig.isIncludeDefaults()) {
+				// We'll skip the default configurables
+				continue;
 			}
+			allServiceProviders.add(provider);
 		}
 		return allServiceProviders;
+	}
+
+	@SuppressWarnings("unchecked")
+	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders(
+			ServiceDescription sd) {
+		Set<ServiceDescriptionProvider> result = new HashSet<ServiceDescriptionProvider>();
+		for (ServiceDescriptionProvider sdp : providerDescriptions.keySet()) {
+			if (providerDescriptions.get(sdp).contains(sd)) {
+				result.add(sdp);
+			}
+		}
+		return result;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -232,6 +260,14 @@ public class ServiceDescriptionRegistryImpl implements
 		return providers;
 	}
 
+	public Set<ServiceDescriptionProvider> getUserAddedServiceProviders() {
+		return new HashSet<ServiceDescriptionProvider>(userAddedProviders);
+	}
+
+	public Set<ServiceDescriptionProvider> getUserRemovedServiceProviders() {
+		return new HashSet<ServiceDescriptionProvider>(userRemovedProviders);
+	}
+
 	public void loadServiceProviders() throws DeserializationException {
 		File serviceProviderFile = findServiceDescriptionsFile();
 		if (serviceProviderFile.isFile()) {
@@ -259,15 +295,26 @@ public class ServiceDescriptionRegistryImpl implements
 
 	public void removeServiceDescriptionProvider(
 			ServiceDescriptionProvider provider) {
-		if (allServiceProviders.remove(provider)) {
-			if (! userAddedProviders.remove(provider)) {
+		if (!userAddedProviders.remove(provider)) {
+			// Not previously added - must be a default one.. but should we remove it?
+			if (loading || serviceDescriptionsConfig.isRemovePermanently()
+					&& serviceDescriptionsConfig.isIncludeDefaults()) {
 				userRemovedProviders.add(provider);
 			}
-			providerDescriptions.remove(provider);
-			if (!loading) {
-				saveServiceDescriptions();
+		}
+		if (allServiceProviders.remove(provider)) {
+			synchronized (providerDescriptions) {
+				FindServiceDescriptionsThread serviceDescriptionsThread = serviceDescriptionThreads
+						.remove(provider);
+				if (serviceDescriptionsThread != null) {
+					serviceDescriptionsThread.interrupt();
+				}
+				providerDescriptions.remove(provider);
 			}
 			observers.notify(new RemovedProviderEvent(provider));
+		}
+		if (!loading) {
+			saveServiceDescriptions();
 		}
 	}
 
@@ -306,8 +353,8 @@ public class ServiceDescriptionRegistryImpl implements
 						// New thread will override the old thread
 						oldThread.interrupt();
 					} else {
-//						observers.notify(new ProviderStatusNotification(
-//								provider, "Waiting for provider"));
+						// observers.notify(new ProviderStatusNotification(
+						// provider, "Waiting for provider"));
 						continue;
 					}
 				}
@@ -441,20 +488,5 @@ public class ServiceDescriptionRegistryImpl implements
 
 	private static class Singleton {
 		private static final ServiceDescriptionRegistryImpl instance = new ServiceDescriptionRegistryImpl();
-	}
-
-	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders(
-			ServiceDescription sd) {
-		Set<ServiceDescriptionProvider> result = new HashSet<ServiceDescriptionProvider>();
-		for (ServiceDescriptionProvider sdp : providerDescriptions.keySet()) {
-			if (providerDescriptions.get(sdp).contains(sd)) {
-				result.add(sdp);
-			}
-		}
-		return result;
-	}
-
-	public Set<ServiceDescriptionProvider> getUserRemovedServiceProviders() {
-		return new HashSet<ServiceDescriptionProvider>(userRemovedProviders);
 	}
 }

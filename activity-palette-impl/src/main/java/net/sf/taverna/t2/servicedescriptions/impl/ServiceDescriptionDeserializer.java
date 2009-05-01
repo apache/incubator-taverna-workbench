@@ -56,6 +56,16 @@ public class ServiceDescriptionDeserializer extends AbstractXMLDeserializer
 				registry.addServiceDescriptionProvider(serviceProvider);
 			}
 		}
+		
+		Element ignoredProvidersElem = rootElement.getChild(IGNORED_PROVIDERS,
+				SERVICE_DESCRIPTION_NS);
+		if (ignoredProvidersElem != null) {
+			for (Element providerElem : (Iterable<Element>) ignoredProvidersElem
+					.getChildren(PROVIDER, SERVICE_DESCRIPTION_NS)) {
+				ServiceDescriptionProvider serviceProvider = xmlToProvider(providerElem);
+				registry.removeServiceDescriptionProvider(serviceProvider);
+			}
+		}		
 	}
 
 	private static Logger logger = Logger
