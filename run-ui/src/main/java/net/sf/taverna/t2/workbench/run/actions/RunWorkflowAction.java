@@ -32,6 +32,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import net.sf.taverna.t2.annotation.annotationbeans.Author;
+import net.sf.taverna.t2.annotation.annotationbeans.DescriptiveTitle;
 import net.sf.taverna.t2.annotation.annotationbeans.ExampleValue;
 import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
@@ -289,8 +291,7 @@ public class RunWorkflowAction extends AbstractAction {
 		final JFrame frame = new JFrame("Workflow input builder");
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		WorkflowLaunchPanel wlp = new WorkflowLaunchPanel(facade.getContext()
-				.getReferenceService(), refContext) {
+		WorkflowLaunchPanel wlp = new WorkflowLaunchPanel(facade, refContext) {
 			@Override
 			public void handleLaunch(Map<String, T2Reference> workflowInputs) {
 				switchToResultsPerspective();
@@ -301,11 +302,7 @@ public class RunWorkflowAction extends AbstractAction {
 		};
 		wlp.setOpaque(true); // content panes must be opaque
 
-		String wfDescription = annotationTools.getAnnotationString(facade.getDataflow(), FreeTextDescription.class, "");
-		wlp.setWorkflowDescription(wfDescription);
-		
-		
-		
+
 		
 		List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(facade.getDataflow().getInputPorts());
 		Collections.sort(inputPorts, new PortComparator());
