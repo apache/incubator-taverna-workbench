@@ -10,6 +10,10 @@
 	<groupId>net.sf.taverna.t2.ui-impl</groupId>
 	<artifactId>reference-config</artifactId>
 	<name>Reference Service configuration</name>
+	<properties>
+		<spring.version>2.5.4</spring.version>
+		<aspectj.version>1.6.0</aspectj.version>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -20,6 +24,21 @@
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>configuration-api</artifactId>
 			<version>${t2.ui.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>${aspectj.version}</version>
 		</dependency>
 	</dependencies>
 </project>

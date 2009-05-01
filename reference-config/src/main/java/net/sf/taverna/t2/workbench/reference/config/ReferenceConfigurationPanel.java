@@ -20,46 +20,92 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.reference.config;
 
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 public class ReferenceConfigurationPanel extends JPanel {
 
-	private ReferenceConfiguration configuration = ReferenceConfiguration.getInstance();
-	
+	private static final long serialVersionUID = 1L;
+
+	private ReferenceConfiguration configuration = ReferenceConfiguration
+			.getInstance();
+
 	public ReferenceConfigurationPanel() {
-		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		GridBagLayout gridbag = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		setLayout(gridbag);
+
+		JTextArea storageText = new JTextArea(
+				"Select how Taverna stores the data produced when a workflow is run. This includes workflow results and intermediate results.");
+		storageText.setLineWrap(true);
+		storageText.setWrapStyleWord(true);
+		storageText.setEditable(false);
+		storageText.setBorder(new EmptyBorder(10, 10, 10, 10));
 		
-		JLabel storageConfig = new JLabel("Store data from workflow runs using:");
-		storageConfig.setAlignmentX(LEFT_ALIGNMENT);
-		JRadioButton inMemory = new JRadioButton("In-memory storage");
-		inMemory.setAlignmentX(LEFT_ALIGNMENT);
+		JLabel storageConfig = new JLabel(
+				"Store data from workflow runs using:");
+
+		JRadioButton hibernateCache = new JRadioButton("On-disk (with cache) storage");
 		JRadioButton hibernate = new JRadioButton("On-disk storage");
-		hibernate.setAlignmentX(LEFT_ALIGNMENT);
-		
+		JRadioButton inMemory = new JRadioButton("In-memory storage");
+
 		ButtonGroup buttonGroup = new ButtonGroup();
-		buttonGroup.add(inMemory);
+		buttonGroup.add(hibernateCache);
 		buttonGroup.add(hibernate);
+		buttonGroup.add(inMemory);
+
+		JTextArea hibernateCacheText = new JTextArea(
+		"Stores data on the disk and uses an in-memory cache for faster workflow runs. This is the best option for most users.");
+		hibernateCacheText.setLineWrap(true);
+		hibernateCacheText.setWrapStyleWord(true);
+		hibernateCacheText.setEditable(false);
+		hibernateCacheText.setOpaque(false);
+		hibernateCacheText.setFont(hibernateCacheText.getFont().deriveFont(Font.PLAIN, 10));
 		
-		String context = configuration.getProperty(ReferenceConfiguration.REFERENCE_SERVICE_CONTEXT);
+		JTextArea hibernateText = new JTextArea(
+		"Stores data on the disk. Select this option if you are having problems with Taverna running out of memory.");
+		hibernateText.setLineWrap(true);
+		hibernateText.setWrapStyleWord(true);
+		hibernateText.setEditable(false);
+		hibernateText.setOpaque(false);
+		hibernateText.setFont(hibernateCacheText.getFont().deriveFont(Font.PLAIN, 10));
+		
+		JTextArea inMemoryText = new JTextArea(
+		"Stores data in-memory - data will not be stored between workbench sessions. This option is intended for testing only.");
+		inMemoryText.setLineWrap(true);
+		inMemoryText.setWrapStyleWord(true);
+		inMemoryText.setEditable(false);
+		inMemoryText.setOpaque(false);
+		inMemoryText.setFont(hibernateCacheText.getFont().deriveFont(Font.PLAIN, 10));
+		
+		String context = configuration
+				.getProperty(ReferenceConfiguration.REFERENCE_SERVICE_CONTEXT);
 		if (context.equals(ReferenceConfiguration.IN_MEMORY_CONTEXT)) {
 			inMemory.setSelected(true);
 		} else if (context.equals(ReferenceConfiguration.HIBERNATE_CONTEXT)) {
 			hibernate.setSelected(true);
+		} else if (context
+				.equals(ReferenceConfiguration.HIBERNATE_CACHE_CONTEXT)) {
+			hibernateCache.setSelected(true);
 		}
-		
+
 		inMemory.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
-					configuration.setProperty(ReferenceConfiguration.REFERENCE_SERVICE_CONTEXT,
+					configuration.setProperty(
+							ReferenceConfiguration.REFERENCE_SERVICE_CONTEXT,
 							ReferenceConfiguration.IN_MEMORY_CONTEXT);
 				}
 			}
@@ -67,17 +113,71 @@ public class ReferenceConfigurationPanel extends JPanel {
 		hibernate.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
-					configuration.setProperty(ReferenceConfiguration.REFERENCE_SERVICE_CONTEXT,
+					configuration.setProperty(
+							ReferenceConfiguration.REFERENCE_SERVICE_CONTEXT,
 							ReferenceConfiguration.HIBERNATE_CONTEXT);
 				}
 			}
 		});
+		hibernateCache.addItemListener(new ItemListener() {
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					configuration.setProperty(
+							ReferenceConfiguration.REFERENCE_SERVICE_CONTEXT,
+							ReferenceConfiguration.HIBERNATE_CACHE_CONTEXT);
+				}
+			}
+		});
 		
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = new Insets(0, 0, 10, 0);
+		c.gridx = 0;
+		c.gridy = GridBagConstraints.RELATIVE;
+		c.weightx = 1d;
+		c.weighty = 0d;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		gridbag.setConstraints(storageText, c);
+		add(storageText);
+		
+		c.ipady = 0;
+
+		gridbag.setConstraints(storageConfig, c);
 		add(storageConfig);
-		add(Box.createVerticalStrut(5));
-		add(inMemory);
-		add(Box.createVerticalStrut(5));
+		
+		gridbag.setConstraints(hibernateCache, c);
+		add(hibernateCache);
+
+		c.insets = new Insets(0, 20, 15, 20);
+		gridbag.setConstraints(hibernateCacheText, c);
+		add(hibernateCacheText);
+		
+		c.insets = new Insets(0, 0, 5, 0);
+		gridbag.setConstraints(hibernate, c);
 		add(hibernate);
-		add(Box.createVerticalGlue());
+		
+		c.insets = new Insets(0, 20, 15, 20);
+		gridbag.setConstraints(hibernateText, c);
+		add(hibernateText);
+		
+		c.insets = new Insets(0, 0, 5, 0);
+		gridbag.setConstraints(inMemory, c);
+		add(inMemory);
+
+		c.insets = new Insets(0, 20, 10, 20);
+		c.weighty = 1d;
+		gridbag.setConstraints(inMemoryText, c);
+		add(inMemoryText);
+		
 	}
+	
+	// for testing only
+	public static void main(String[] args) {
+		JDialog dialog = new JDialog();
+		dialog.add(new ReferenceConfigurationPanel());
+		dialog.setModal(true);
+		dialog.setSize(500, 300);
+		dialog.setVisible(true);
+		System.exit(0);
+	}
+
 }

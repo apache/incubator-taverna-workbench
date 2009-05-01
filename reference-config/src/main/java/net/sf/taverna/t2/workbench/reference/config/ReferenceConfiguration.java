@@ -38,10 +38,12 @@ public class ReferenceConfiguration extends AbstractConfigurable {
 
 	public static final String HIBERNATE_CONTEXT = "hibernateReferenceServiceContext.xml";
 
+	public static final String HIBERNATE_CACHE_CONTEXT = "hibernateCacheReferenceServiceContext.xml";
+
 	private Map<String, String> defaultPropertyMap;
 
 	private static ReferenceConfiguration instance;
-
+	
 	public static ReferenceConfiguration getInstance() {
 		if (instance == null) {
 			instance = new ReferenceConfiguration();
@@ -60,7 +62,7 @@ public class ReferenceConfiguration extends AbstractConfigurable {
 		if (defaultPropertyMap == null) {
 			defaultPropertyMap = new HashMap<String, String>();
 			defaultPropertyMap.put(REFERENCE_SERVICE_CONTEXT,
-					IN_MEMORY_CONTEXT);
+					HIBERNATE_CACHE_CONTEXT);
 		}
 		return defaultPropertyMap;
 	}
