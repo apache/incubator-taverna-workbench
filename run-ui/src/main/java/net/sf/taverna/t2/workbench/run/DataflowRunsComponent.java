@@ -42,12 +42,14 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
 import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.impl.WriteQueueAspect;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.ReferenceConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
@@ -192,6 +194,15 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 					context);
 			referenceService = (ReferenceService) appContext
 					.getBean("t2reference.service.referenceService");
+			try {
+				WriteQueueAspect cache = (WriteQueueAspect) appContext
+				.getBean("t2reference.cache.cacheAspect");
+				ReferenceServiceShutdown.setReferenceServiceCache(cache);
+			} catch (NoSuchBeanDefinitionException e) {
+//				ReferenceServiceShutdown.setReferenceServiceCache(null);
+			} catch (ClassCastException e) {
+//				ReferenceServiceShutdown.setReferenceServiceCache(null);
+			}
 		}
 		return referenceService;
 
