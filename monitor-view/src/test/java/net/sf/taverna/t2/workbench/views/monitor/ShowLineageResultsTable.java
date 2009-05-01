@@ -79,6 +79,7 @@ public class ShowLineageResultsTable {
 		panel.add(button);
 		panel.add(provenancePane);
 		frame.add(panel);
+		frame.setSize(600, 300);
 		button.addActionListener(new AbstractAction() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -98,11 +99,12 @@ public class ShowLineageResultsTable {
 	private List<LineageQueryResultRecord> getRecords(InvocationContext context) {
 		List<LineageQueryResultRecord> lineageRecords = new ArrayList<LineageQueryResultRecord>();
 		for (int i = 0; i < 4; i++) {
-			
+
 			LineageQueryResultRecord record = new LineageQueryResultRecord();
 			record.setVname("a" + i);
-			record.setIteration("b" + i);
+			record.setIteration("[" + i + "]");
 			record.setType("c" + i);
+			record.setInput(true);
 
 			String string = UUID.randomUUID().toString();
 			T2Reference register = context.getReferenceService().register(
@@ -110,17 +112,50 @@ public class ShowLineageResultsTable {
 
 			record.setValue(register.toUri().toString());
 			lineageRecords.add(record);
-			
+
 		}
 		Exception exception = new Exception("broken");
-		T2Reference register = context.getReferenceService().register(exception, 0, true, context);
-		LineageQueryResultRecord record = new LineageQueryResultRecord();
-		record.setVname("e1");
-		record.setIteration("e2");
-		record.setValue(register.toString());
-		lineageRecords.add(record);
+		T2Reference register = context.getReferenceService().register(
+				exception, 0, true, context);
+		LineageQueryResultRecord recorda = new LineageQueryResultRecord();
+		recorda.setVname("e1");
+		recorda.setIteration("[0]");
+		recorda.setValue(register.toString());
+		recorda.setInput(false);
+		lineageRecords.add(recorda);
+		for (int ij = 5; ij < 8; ij++) {
+
+			LineageQueryResultRecord record2 = new LineageQueryResultRecord();
+			record2.setVname("a" + ij);
+			record2.setIteration("[" + ij +"]");
+			record2.setType("c" + ij);
+
+			String string = UUID.randomUUID().toString();
+			T2Reference register2 = context.getReferenceService().register(
+					string, 0, true, context);
+
+			record2.setValue(register2.toUri().toString());
+			lineageRecords.add(record2);
+
+		}
 		
-		
+		for (int i = 0; i < 4; i++) {
+
+			LineageQueryResultRecord record = new LineageQueryResultRecord();
+			record.setVname("a" + i);
+			record.setIteration("[" + i + ", 1]");
+			record.setType("c" + i);
+			record.setInput(true);
+
+			String string = UUID.randomUUID().toString();
+			T2Reference register1 = context.getReferenceService().register(
+					string, 0, true, context);
+
+			record.setValue(register1.toUri().toString());
+			lineageRecords.add(record);
+
+		}
+
 		return lineageRecords;
 	}
 

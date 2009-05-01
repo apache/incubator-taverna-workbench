@@ -3,30 +3,27 @@
  */
 package net.sf.taverna.t2.workbench.views.monitor;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.table.AbstractTableModel;
 
-import org.apache.log4j.Logger;
-
 import net.sf.taverna.t2.invocation.InvocationContext;
-import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
 import net.sf.taverna.t2.reference.T2Reference;
+
+import org.apache.log4j.Logger;
 
 public class LineageResultsTableModel extends AbstractTableModel {
 
 	Logger logger = Logger.getLogger(LineageResultsTableModel.class);
 
-	private List<LineageQueryResultRecord> lineageRecords;
+	private Map<String, T2Reference> lineageRecords;
 
-	private String[] columnNames = { "Port Name", "Iteration"};
+//	private String[] columnNames = { "Port Name", "Iteration"};
 
 	private InvocationContext context;
 
 	public LineageResultsTableModel(
-			List<LineageQueryResultRecord> lineageRecords,
+			Map<String, T2Reference> lineageRecords,
 			InvocationContext context) {
 		this.setLineageRecords(lineageRecords);
 		this.setContext(context);
@@ -35,13 +32,13 @@ public class LineageResultsTableModel extends AbstractTableModel {
 	public LineageResultsTableModel() {
 	}
 
-	public int getColumnCount() {
-		return columnNames.length;
-	}
+//	public int getColumnCount() {
+//		return columnNames.length;
+//	}
 
-	public String getColumnName(int columnIndex) {
-		return columnNames[columnIndex];
-	}
+//	public String getColumnName(int columnIndex) {
+//		return columnNames[columnIndex];
+//	}
 
 	public int getRowCount() {
 		if (getLineageRecords() != null) {
@@ -52,24 +49,22 @@ public class LineageResultsTableModel extends AbstractTableModel {
 	}
 
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		if (getLineageRecords() != null) {
-			LineageQueryResultRecord lineageQueryResultRecord = getLineageRecords()
-					.get(rowIndex);
-			Map<Integer, LineageQueryResultRecord> map = new HashMap<Integer, LineageQueryResultRecord>();
-			switch (columnIndex) {
-			case 0:
-				map.put(1, lineageQueryResultRecord);
-				return map;
-			case 1:
-				map.put(2, lineageQueryResultRecord);
-				return map;
-//			case 2:
-//				return getContext().getReferenceService()
-//						.referenceFromString(
-//								lineageQueryResultRecord.getValue());
-				// case 3: return lineageQueryResultRecord.getValue();
-			}
-		}
+//		if (getLineageRecords() != null) {
+//			LineageQueryResultRecord lineageQueryResultRecord = getLineageRecords()
+//					.get(rowIndex);
+////			Map<Integer, LineageQueryResultRecord> map = new HashMap<Integer, LineageQueryResultRecord>();
+//			switch (columnIndex) {
+//			case 0:
+//				return lineageQueryResultRecord.getVname();
+//			case 1:
+//				return lineageQueryResultRecord.getIteration();
+////			case 2:
+////				return getContext().getReferenceService()
+////						.referenceFromString(
+////								lineageQueryResultRecord.getValue());
+//				// case 3: return lineageQueryResultRecord.getValue();
+//			}
+//		}
 
 		return null;
 	}
@@ -80,23 +75,23 @@ public class LineageResultsTableModel extends AbstractTableModel {
 	 * contain plain text rather than a background colour
 	 */
 	public Class getColumnClass(int c) {
-		return getValueAt(0, c).getClass();
+		Class<? extends Object> class1 = getValueAt(0, c).getClass();
+		return class1;
 	}
 
 	private String getType(String value) {
-		logger.info("ref for splitting is: " + value);
 		T2Reference referenceFromString = getContext().getReferenceService()
 				.referenceFromString(value);
 		referenceFromString.getReferenceType();
 		return referenceFromString.getReferenceType().toString();
 	}
 
-	public void setLineageRecords(List<LineageQueryResultRecord> lineageRecords) {
+	public void setLineageRecords(Map<String, T2Reference> lineageRecords) {
 		this.lineageRecords = lineageRecords;
 		fireTableDataChanged();
 	}
 
-	public List<LineageQueryResultRecord> getLineageRecords() {
+	public Map<String, T2Reference> getLineageRecords() {
 		return lineageRecords;
 	}
 
@@ -106,6 +101,10 @@ public class LineageResultsTableModel extends AbstractTableModel {
 
 	public InvocationContext getContext() {
 		return context;
+	}
+
+	public int getColumnCount() {
+		return 0;
 	}
 
 }

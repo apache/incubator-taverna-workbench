@@ -1,0 +1,239 @@
+package net.sf.taverna.t2.workbench.views.monitor;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import javax.swing.BorderFactory;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.border.BevelBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.log4j.Logger;
+
+import net.sf.taverna.t2.invocation.InvocationContext;
+import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
+import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.workbench.views.results.RenderedResultComponent;
+import net.sf.taverna.t2.workbench.views.results.ResultTreeNode;
+
+/**
+ * Displays the iterations for an input or output port in a {@link JTable}.
+ * Listens for row selections and tells the {@link RenderedResultComponent} to
+ * render the {@link T2Reference} associated with the selected iteration
+ * 
+ * @author Ian Dunlop
+ * 
+ * 
+ */
+public class PortTab extends JPanel {
+
+	private static Logger logger = Logger.getLogger(PortTab.class);
+
+	private boolean userUnselected = false;
+
+	private String name;
+
+	private Map<String, T2Reference> portMap;
+
+	private LineageResultsTableModel resultsTableModel;
+
+	private List<LineageQueryResultRecord> lineageRecords;
+
+	private JTable resultsTable;
+
+	private RenderedResultComponent resultsComponent;
+
+	private InvocationContext context;
+
+	private RowListener rowListener;
+
+	/**
+	 * Using the supplied {@link Map} of iterations to {@link T2Reference}s for
+	 * the port with 'name', populate a table and listen for selections on it
+	 * 
+	 * @param name
+	 * @param iterationMap
+	 * @param resultsComponent
+	 * @param context
+	 */
+	public PortTab(String name, Map<String, T2Reference> iterationMap,
+			RenderedResultComponent resultsComponent, InvocationContext context) {
+		this.name = name;
+		this.setContext(context);
+		this.setResultsComponent(resultsComponent);
+		this.setPortMap(iterationMap);
+		initView();
+	}
+
+	private void initView() {
+
+		Set<Entry<String, T2Reference>> entrySet = portMap.entrySet();
+		List<Map<String, T2Reference>> iterationList = new ArrayList<Map<String, T2Reference>>();
+		Map<String, T2Reference> iterationMap = new HashMap<String, T2Reference>();
+		for (Entry<String, T2Reference> entry2 : entrySet) {
+			iterationMap.put(entry2.getKey(), entry2.getValue());
+		}
+		resultsTableModel = new LineageResultsTableModel();
+		resultsTableModel.setLineageRecords(iterationMap);
+		TableColumn iterationColumn = new TableColumn();
+		iterationColumn.setHeaderValue("Iteration");
+		iterationColumn.setModelIndex(0);
+		TableCellRenderer iterationRenderer = new ReferenceRenderer(
+				iterationMap);
+		iterationColumn.setCellRenderer(iterationRenderer);
+		TableColumnModel columnModel = new DefaultTableColumnModel();
+
+		columnModel.addColumn(iterationColumn);
+		setResultsTable(new ResultsTable(resultsTableModel, columnModel));
+		setRowListener(new RowListener());
+		getResultsTable().getSelectionModel().addListSelectionListener(
+				getRowListener());
+		getResultsTable().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		try {
+			BeanUtils.setProperty(getResultsTable(), "fillsViewportHeight",
+					true);
+		} catch (IllegalAccessException e) {
+		} catch (InvocationTargetException e) {
+			// expected - Java 6 only
+		}
+		getResultsTable().setBorder(
+				BorderFactory.createBevelBorder(BevelBorder.RAISED));
+		add(new JScrollPane(getResultsTable()));
+	}
+
+	public void setPortMap(Map<String, T2Reference> portMap) {
+		this.portMap = portMap;
+	}
+
+	public Map<String, T2Reference> getPortMap() {
+		return portMap;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setLineageRecords(List<LineageQueryResultRecord> lineageRecords) {
+		this.lineageRecords = lineageRecords;
+	}
+
+	public List<LineageQueryResultRecord> getLineageRecords() {
+		return lineageRecords;
+	}
+
+	public void setResultsComponent(RenderedResultComponent resultsComponent) {
+		this.resultsComponent = resultsComponent;
+	}
+
+	public RenderedResultComponent getResultsComponent() {
+		return resultsComponent;
+	}
+
+	public void setContext(InvocationContext context) {
+		this.context = context;
+	}
+
+	public InvocationContext getContext() {
+		return context;
+	}
+
+	public void setResultsTable(JTable resultsTable) {
+		this.resultsTable = resultsTable;
+	}
+
+	public JTable getResultsTable() {
+		return resultsTable;
+	}
+
+	public void setRowListener(RowListener rowListener) {
+		this.rowListener = rowListener;
+	}
+
+	public RowListener getRowListener() {
+		return rowListener;
+	}
+
+	public void setUserUnselected(boolean userUnselected) {
+		this.userUnselected = userUnselected;
+	}
+
+	public boolean isUserUnselected() {
+		return userUnselected;
+	}
+
+	/**
+	 * Listen for selections on the table and get the renderer to show the
+	 * result for the selected iteration
+	 * 
+	 * @author Ian Dunlop
+	 * 
+	 */
+	public class RowListener implements ListSelectionListener {
+		private int rowSelectionIndex;
+		private int columnSelectionIndex;
+
+		public void valueChanged(ListSelectionEvent event) {
+			if (event.getValueIsAdjusting()) {
+				return;
+			}
+
+			setRowSelectionIndex(getResultsTable().getSelectionModel()
+					.getLeadSelectionIndex());
+			setColumnSelectionIndex(getResultsTable().getColumnModel()
+					.getSelectionModel().getLeadSelectionIndex());
+			if (getRowSelectionIndex() == -1 || getColumnSelectionIndex() == -1) {
+				return;
+			}
+			Object object = getPortMap().values().toArray()[getRowSelectionIndex()];
+
+			ResultTreeNode node = new ResultTreeNode((T2Reference) object,
+					getContext());
+			try {
+				getResultsComponent().setNode(node);
+			} catch (Exception e) {
+				logger.warn("Could not render intermediate results for "
+						+ object + "due to:\n" + e);
+				JOptionPane.showMessageDialog(null,
+						"Could not render intermediate results for " + object
+								+ "due to:\n" + e, "Problem rendering results",
+						JOptionPane.ERROR_MESSAGE);
+			}
+
+		}
+
+		public void setRowSelectionIndex(int rowSelectionIndex) {
+			this.rowSelectionIndex = rowSelectionIndex;
+		}
+
+		public int getRowSelectionIndex() {
+			return rowSelectionIndex;
+		}
+
+		public void setColumnSelectionIndex(int columnSelectionIndex) {
+			this.columnSelectionIndex = columnSelectionIndex;
+		}
+
+		public int getColumnSelectionIndex() {
+			return columnSelectionIndex;
+		}
+	}
+}

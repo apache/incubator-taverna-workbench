@@ -178,7 +178,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 		panel.setLayout(new BorderLayout());
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BorderLayout());
-		JLabel label = new JLabel();
+
 		final JPanel provenancePanel = new JPanel();
 		provenancePanel.setLayout(new BorderLayout());
 		if (provenanceConnector != null) {
@@ -187,13 +187,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 					if (provenanceConnector != null) {
 						localName = ((Processor) dataflowObject).getLocalName();
 						frame.setTitle("Intermediate Results for " + localName);
-						// JButton retrieveProvenanceButton = new JButton(
-						// "Retrieve Intermediate Results");
-						// retrieveProvenanceButton
-						// .addActionListener(new AbstractAction() {
 
-						// public void actionPerformed(ActionEvent e) {
-						// if (provenanceConnector != null) {
 						String internalIdentier = dataflow
 								.getInternalIdentier();
 						final String sessionID = provenanceConnector
@@ -205,8 +199,6 @@ class MonitorGraphEventManager implements GraphEventManager {
 						provenancePanel.add(provResultsPanel,
 								BorderLayout.CENTER);
 
-//						provenancePanel.revalidate();
-//						provenancePanel.setVisible(true);
 						TimerTask timerTask = new TimerTask() {
 
 							@Override
@@ -224,8 +216,6 @@ class MonitorGraphEventManager implements GraphEventManager {
 									provResultsPanel
 											.setLineageRecords(intermediateValues);
 
-									// provResultsPanel.setLineageRecords(intermediateValues);
-									// panel.revalidate();
 
 								} catch (Exception e) {
 									logger
@@ -250,125 +240,15 @@ class MonitorGraphEventManager implements GraphEventManager {
 						frame.addWindowListener(new WindowClosingListener());
 
 					}
-					// }
-					// });
 
-					// topPanel.add(label, BorderLayout.NORTH);
-					// topPanel.add(retrieveProvenanceButton,
-					// BorderLayout.SOUTH);
 					panel.add(topPanel, BorderLayout.NORTH);
-					// panel.add(label);
-					// panel.add(retrieveProvenanceButton);
 					panel.add(provenancePanel, BorderLayout.CENTER);
-//					provenancePanel.setVisible(false);
 					frame.add(panel);
-					// label.setText("Processor:" + localName);
 					frame.setVisible(true);
-					frame.setSize(700, 300);
+					frame.setSize(800, 400);
 
 				}
-				// else if (dataflowObject instanceof OutputPort) {
-				// String localName = ((OutputPort) dataflowObject).getName();
-				// JFrame frame = new JFrame();
-				// JPanel panel = new JPanel();
-				// JLabel label = new JLabel();
-				// final JPanel provenancePanel = new JPanel();
-				// JButton retrieveProvenanceButton = new JButton(
-				// "Retrieve Intermediate Results");
-				// retrieveProvenanceButton
-				// .addActionListener(new AbstractAction() {
-				//
-				// public void actionPerformed(ActionEvent e) {
-				// if (provenanceConnector != null) {
-				// provenancePanel.add(new JLabel(
-				// "I would have retrieved some provenance from the "
-				// + provenanceConnector
-				// .getName()));
-				// } else {
-				// provenancePanel.add(new JLabel(
-				// "Provenance is switched off"));
-				// }
-				// provenancePanel.revalidate();
-				// }
-				// });
-				//
-				// provenancePanel.setBorder(BorderFactory.createEtchedBorder());
-				// panel.add(retrieveProvenanceButton);
-				// panel.add(provenancePanel);
-				// panel.add(label);
-				// frame.add(panel);
-				// label.setText("You clicked on output port " + localName);
-				// frame.setVisible(true);
-				// } else if (dataflowObject instanceof InputPort) {
-				// String localName = ((InputPort) dataflowObject).getName();
-				// JFrame frame = new JFrame();
-				// JPanel panel = new JPanel();
-				// JLabel label = new JLabel();
-				// final JPanel provenancePanel = new JPanel();
-				// JButton retrieveProvenanceButton = new JButton(
-				// "Retrieve Intermediate Results");
-				// retrieveProvenanceButton
-				// .addActionListener(new AbstractAction() {
-				//
-				// public void actionPerformed(ActionEvent e) {
-				// if (provenanceConnector != null) {
-				// provenancePanel.add(new JLabel(
-				// "I would have retrieved some provenance from the "
-				// + provenanceConnector
-				// .getName()));
-				// } else {
-				// provenancePanel.add(new JLabel(
-				// "Provenance is switched off"));
-				// }
-				// provenancePanel.revalidate();
-				// }
-				// });
-				//
-				// provenancePanel.setBorder(BorderFactory.createEtchedBorder());
-				// panel.add(retrieveProvenanceButton);
-				// panel.add(provenancePanel);
-				// panel.add(label);
-				// frame.add(panel);
-				// label.setText("You clicked on input port " + localName);
-				// frame.setVisible(true);
-				// } else if (dataflowObject instanceof Datalink) {
-				// String outputName = ((Datalink) dataflowObject).getSink()
-				// .getName();
-				// String inputName = ((Datalink) dataflowObject).getSource()
-				// .getName();
-				// JFrame frame = new JFrame();
-				// JPanel panel = new JPanel();
-				// JLabel label = new JLabel();
-				// final JPanel provenancePanel = new JPanel();
-				// JButton retrieveProvenanceButton = new JButton(
-				// "Retrieve Intermediate Results");
-				// retrieveProvenanceButton
-				// .addActionListener(new AbstractAction() {
-				//
-				// public void actionPerformed(ActionEvent e) {
-				// if (provenanceConnector != null) {
-				// provenancePanel.add(new JLabel(
-				// "I would have retrieved some provenance from the "
-				// + provenanceConnector
-				// .getName()));
-				// } else {
-				// provenancePanel.add(new JLabel(
-				// "Provenance is switched off"));
-				// }
-				// provenancePanel.revalidate();
-				// }
-				// });
-				//
-				// provenancePanel.setBorder(BorderFactory.createEtchedBorder());
-				// panel.add(retrieveProvenanceButton);
-				// panel.add(provenancePanel);
-				// panel.add(label);
-				// frame.add(panel);
-				// label.setText("You clicked the link from " + inputName +
-				// " to "
-				// + outputName);
-				// frame.setVisible(true);
-				// }
+
 			}
 		} else {
 			//tell the user that provenance is switched off

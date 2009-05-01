@@ -25,6 +25,8 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 /**
  * Used so that tool tips can be displayed for the cells in the provenance
@@ -35,13 +37,27 @@ import javax.swing.table.JTableHeader;
  */
 public class ResultsTable extends JTable {
 
-	private String[] toolTips = {
-			"Name of the input/output port",
-			"The iteration that produced this value",
-			"The internal data reference. A red colour represents an error. Click on the value to render the result" };
+	@Override
+	public Object getValueAt(int row, int column) {
+		return super.getValueAt(row, column);
+	}
 
-	public ResultsTable(LineageResultsTableModel lineageResultsTableModel) {
-		super(lineageResultsTableModel);
+	private String[] toolTips = {
+			"Name of the input/output port"};
+//			"The iteration that produced this value",
+//			"The internal data reference. A red colour represents an error. Click on the value to render the result" };
+
+	public ResultsTable() {
+		super();
+	}
+	public ResultsTable(TableModel resultsTableModel) {
+		super(resultsTableModel);
+	}
+	
+
+	public ResultsTable(TableModel resultsTableModel,
+			TableColumnModel columnModel) {
+		super(resultsTableModel, columnModel);
 	}
 
 	// Implement table header tool tips.

@@ -23,8 +23,10 @@ package net.sf.taverna.t2.workbench.views.monitor;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -39,9 +41,9 @@ import net.sf.taverna.t2.reference.T2ReferenceType;
 
 /**
  * Used for rendering table cells for {@link T2Reference}s. If they are for
- * successful results then the cell is green, if they are for errors then red is
- * used. A border is placed around the result to show if the cell is selected or
- * not
+ * successful results then the cell is the normal background colour, if they are
+ * for errors then red is used. A border is placed around the result to show if
+ * the cell is selected or not
  * 
  * @author Ian Dunlop
  * 
@@ -52,55 +54,53 @@ public class ReferenceRenderer extends JLabel implements TableCellRenderer {
 	private Border selectedBorder = null;
 	private List<LineageQueryResultRecord> lineageRecords;
 	private InvocationContext context;
+	private Map<String, T2Reference> valueList;
 
-	public ReferenceRenderer(InvocationContext context) {
-		this.setContext(context);
+	public ReferenceRenderer(Map<String, T2Reference> valueList) {
+		this.setValueList(valueList);
 		setOpaque(true);
 	}
 
+	/**
+	 * Return a cell with the iteration inside
+	 */
 	@SuppressWarnings("unchecked")
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column) {
-		LineageQueryResultRecord lineageQueryResultRecord = null;
-		String recordValue = null;
-		int recordNumber = 0;
-		if(((Map<Integer, LineageQueryResultRecord>)value).containsKey(1)) {
-			lineageQueryResultRecord = ((Map<Integer, LineageQueryResultRecord>)value).get(1);
-			recordValue = lineageQueryResultRecord.getVname();
-			recordNumber = 1;
-		} else if (((Map<Integer, LineageQueryResultRecord>)value).containsKey(2)) {
-			lineageQueryResultRecord = ((Map<Integer, LineageQueryResultRecord>)value).get(2);
-			recordValue = lineageQueryResultRecord.getIteration();
-			recordNumber = 2;
-		}
-		
-		T2Reference referenceValue = getContext().getReferenceService().referenceFromString(lineageQueryResultRecord.getValue());
 		
 		if (isSelected) {
 			if (selectedBorder == null) {
-				
-					selectedBorder = BorderFactory.createMatteBorder(2, 0, 2, 0,
-							table.getSelectionBackground());	
-			
+
+				selectedBorder = BorderFactory.createMatteBorder(2, 0, 2, 0,
+						table.getSelectionBackground());
+
 			}
 			setBorder(selectedBorder);
 		} else {
 			if (unselectedBorder == null) {
-				
-					unselectedBorder = BorderFactory.createMatteBorder(2, 0, 2, 0,
-							table.getBackground());		
-				
+
+				unselectedBorder = BorderFactory.createMatteBorder(2, 0, 2, 0,
+						table.getBackground());
+
 			}
 			setBorder(unselectedBorder);
 		}
-		
-		setText(recordValue);
+
+		Set<String> keySet = valueList.keySet();
+		Object[] keyArray = keySet.toArray();
+
+		Collection<T2Reference> values = valueList.values();
+		Object[] valueArray = values.toArray();
+
+		T2Reference referenceValue = (T2Reference) valueArray[row];
+
+		setText(" " + (String) keyArray[row]);
 
 		if (referenceValue.getReferenceType().equals(
 				(T2ReferenceType.ErrorDocument))) {
 			setBackground(new Color(0xff0000));
 			return this;
-		
+
 		} else if (referenceValue.getReferenceType().equals(
 				(T2ReferenceType.ReferenceSet))) {
 			setBackground(new Color(0xffffff));
@@ -110,20 +110,12 @@ public class ReferenceRenderer extends JLabel implements TableCellRenderer {
 		return this;
 	}
 
-	public void setLineageRecords(List<LineageQueryResultRecord> lineageRecords) {
-		this.lineageRecords = lineageRecords;
+	public void setValueList(Map<String, T2Reference> valueList2) {
+		this.valueList = valueList2;
 	}
 
-	public List<LineageQueryResultRecord> getLineageRecords() {
-		return lineageRecords;
-	}
-
-	public void setContext(InvocationContext context) {
-		this.context = context;
-	}
-
-	public InvocationContext getContext() {
-		return context;
+	public Map<String, T2Reference> getValueList() {
+		return valueList;
 	}
 
 }

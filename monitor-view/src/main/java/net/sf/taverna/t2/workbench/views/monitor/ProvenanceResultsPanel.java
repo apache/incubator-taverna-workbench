@@ -21,47 +21,42 @@
 
 package net.sf.taverna.t2.workbench.views.monitor;
 
-import java.awt.BorderLayout;
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.JOptionPane;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import javax.swing.border.BevelBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
 import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.reference.impl.T2ReferenceImpl;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.views.results.RenderedResultComponent;
-import net.sf.taverna.t2.workbench.views.results.ResultTreeNode;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
 
 /**
  * Designed to be used in conjunction with the provenance system in Taverna.
- * Displays a table with T2 data references and renders the results when clicked
- * on The results are passed in within a {@link List} of
- * {@link LineageQueryResultRecord}s. Uses a {@link LineageResultsTableModel} as
- * its internal model. This handles the dereferencing of the {@link T2Reference}
- * it receives as a string by turning it into an actual {@link T2Reference}. A
+ * Displays a {@link JTabbedPane} with a tab for each port. Each of the tabs has
+ * a table which shows the iterations. Each of the iterations has an associated
+ * {@link T2Reference}. The results are rendered when clicked on. The results
+ * are passed in within a {@link List} of {@link LineageQueryResultRecord}s.
+ * Uses a {@link LineageResultsTableModel} as its internal model. A
  * {@link ReferenceRenderer} is used to show whether the {@link T2Reference} is
- * an error by colouring the cell red or green
+ * an error by colouring the cell red.
  * 
  * @author Ian Dunlop
  * 
@@ -69,8 +64,17 @@ import org.apache.log4j.Logger;
 public class ProvenanceResultsPanel extends JPanel implements
 		TableModelListener {
 
-	static Logger logger = Logger.getLogger(ProvenanceResultsPanel.class);
+	private static Logger logger = Logger
+			.getLogger(ProvenanceResultsPanel.class);
 
+	private PortTab oldTab;
+
+	private Map<String, PortTab> portTabMap = new HashMap<String, PortTab>();
+
+	private Map<String, Map<String, T2Reference>> portMap = new HashMap<String, Map<String, T2Reference>>();
+
+	private Map<String, Boolean> inputOutputMap = new HashMap<String, Boolean>();
+	
 	private List<LineageQueryResultRecord> lineageRecords;
 
 	private JTable resultsTable;
@@ -80,6 +84,8 @@ public class ProvenanceResultsPanel extends JPanel implements
 	private LineageResultsTableModel lineageResultsTableModel;
 
 	private RenderedResultComponent renderedResultsComponent = new RenderedResultComponent();
+
+	private JTabbedPane tabbedPane;
 
 	public ProvenanceResultsPanel() {
 	}
@@ -97,99 +103,116 @@ public class ProvenanceResultsPanel extends JPanel implements
 
 		removeAll();
 
-		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		setBorder(BorderFactory.createRaisedBevelBorder());
+		// set up maps
 
-		// setLineageResultsTableModel(new LineageResultsTableModel());
-		resultsTable = new ResultsTable(getLineageResultsTableModel());
-		// resultsTable.setPreferredScrollableViewportSize(new Dimension(500,
-		// 70));
-		resultsTable.getSelectionModel().addListSelectionListener(
-				new RowListener());
-		resultsTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		resultsTable.setDefaultRenderer(HashMap.class,
-				new ReferenceRenderer(getContext()));
-		resultsTable.getModel().addTableModelListener(this);
+		tabbedPane = new JTabbedPane();
 
-		JPanel tablePanel = new JPanel(new BorderLayout());
-		tablePanel.add(resultsTable.getTableHeader(), BorderLayout.PAGE_START);
-		tablePanel.add(resultsTable, BorderLayout.CENTER);
+		ChangeListener changeListener = new ChangeListener() {
+			public void stateChanged(ChangeEvent changeEvent) {
+				JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent
+						.getSource();
+				int index = sourceTabbedPane.getSelectedIndex();
+				String titleAt = tabbedPane.getTitleAt(index);
+				PortTab portTab = portTabMap.get(titleAt);
+				if (oldTab != null) {
 
-		// Java 6 only - do it by introspection
-		// resultsTable.setFillsViewportHeight(true);
-		try {
-			BeanUtils.setProperty(resultsTable, "fillsViewportHeight", true);
-		} catch (IllegalAccessException e) {
-		} catch (InvocationTargetException e) {
-			// expected - Java 6 only
+					oldTab.getResultsTable().clearSelection();
+					oldTab.getResultsTable().getSelectionModel()
+							.clearSelection();
+					oldTab = portTab;
+					oldTab.getResultsTable().clearSelection();
+					oldTab.getResultsTable().getSelectionModel()
+							.clearSelection();
+
+				}
+			}
+		};
+		tabbedPane.addChangeListener(changeListener);
+
+		Set<Entry<String, Map<String, T2Reference>>> entrySet = portMap
+				.entrySet();
+
+		for (Entry<String, Map<String, T2Reference>> entry : entrySet) {
+
+			Map<String, T2Reference> value = entry.getValue();
+			String key = entry.getKey();
+			createPortTab(key, value);
 		}
 
-		resultsTable.setBorder(BorderFactory
-				.createBevelBorder(BevelBorder.RAISED));
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, new JScrollPane(resultsTable), renderedResultsComponent);
-		splitPane.setDividerLocation(0.5);
-		//		add(new JScrollPane(resultsTable));
-//		add(renderedResultsComponent);
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+				tabbedPane, getRenderedResultsComponent());
+		add(new JLabel("Click on an iteration to view the result"));
 		add(splitPane);
-		renderedResultsComponent.setBorder(BorderFactory
-				.createRaisedBevelBorder());
-		// JPanel panel = new JPanel(new FlowLayout());
-		// JScrollPane scrollPane = new JScrollPane(resultsTable);
-		// panel.add(tablePanel);
-		// panel.add(renderedResultsComponent);
-		// JScrollPane scrollPane = new JScrollPane();
-		// scrollPane.add(panel);
-		// add(scrollPane);
-		// add(panel);
+		getRenderedResultsComponent().setBorder(
+				BorderFactory.createRaisedBevelBorder());
+
 		revalidate();
+		splitPane.setDividerLocation(0.5);
+		// remember what tab is currently selected - at init it is the first one
+		String titleAt = tabbedPane.getTitleAt(0);
+		PortTab portTab = portTabMap.get(titleAt);
+		oldTab = portTab;
 
-	}
-
-	private class RowListener implements ListSelectionListener {
-		public void valueChanged(ListSelectionEvent event) {
-			if (event.getValueIsAdjusting()) {
-				return;
-			}
-			int rowSelectionIndex = resultsTable.getSelectionModel()
-					.getLeadSelectionIndex();
-			int columnSelectionIndex = resultsTable.getColumnModel()
-					.getSelectionModel().getLeadSelectionIndex();
-			if (rowSelectionIndex == -1 || columnSelectionIndex == -1) {
-				return;
-			}
-			String valueAt = lineageRecords.get(rowSelectionIndex).getValue();
-			logger.info("trying to construct: " + valueAt);
-
-			T2Reference referenceFromString = getContext()
-					.getReferenceService().referenceFromString(valueAt);
-			ResultTreeNode node = new ResultTreeNode(referenceFromString,
-					getContext());
-			try {
-				renderedResultsComponent.setNode(node);
-			} catch (Exception e) {
-				logger.warn("Could not render intermediate results for "
-						+ referenceFromString + "due to:\n" + e);
-				JOptionPane.showMessageDialog(null,
-						"Could not render intermediate results for "
-								+ referenceFromString + "due to:\n" + e,
-						"Problem rendering results", JOptionPane.ERROR_MESSAGE);
-			}
-
-		}
 	}
 
 	public void setLineageRecords(List<LineageQueryResultRecord> lineageRecords) {
 		this.lineageRecords = lineageRecords;
-		// FIXME this bit is a hack, need a smarter way of instantiating this
-		// group of prov results objects. this way assumes that context is set -
-		// not clever
-		if (lineageResultsTableModel == null) {
-			lineageResultsTableModel = new LineageResultsTableModel(
-					lineageRecords, context);
+		portMap.clear();
+		inputOutputMap.clear();
+		for (LineageQueryResultRecord record : lineageRecords) {
+			boolean input = record.isInput();
+			String vname = record.getVname();
+			inputOutputMap.put(vname, input);
+			String iteration = record.getIteration();
+			String value = record.getValue();
+			Map<String, T2Reference> map = portMap.get(vname);
+			if (map == null) {
+				map = new HashMap<String, T2Reference>();
+				portMap.put(vname, map);
+			}
+			T2Reference referenceValue = getContext().getReferenceService()
+					.referenceFromString(value);
+			map.put(iteration, referenceValue);
+		}
+
+		if (tabbedPane == null) {
 			initView();
 		} else {
-			lineageResultsTableModel.setLineageRecords(lineageRecords);
+			Set<Entry<String, Map<String, T2Reference>>> entrySet = portMap
+					.entrySet();
+
+			for (Entry<String, Map<String, T2Reference>> entry : entrySet) {
+
+				PortTab portTab = getPortTabMap().get(entry.getKey());
+				if (portTab == null) {
+					createPortTab(entry.getKey(), entry.getValue());
+				} else {
+					portTab.setPortMap(entry.getValue());
+				}
+
+			}
+			// reset the selection since the results may have changed
+			oldTab.getResultsTable().clearSelection();
+			oldTab.getResultsTable().getSelectionModel().clearSelection();
+
 		}
+
+	}
+
+	private void createPortTab(String key, Map<String, T2Reference> value) {
+		PortTab portTab = new PortTab(key, value,
+				getRenderedResultsComponent(), getContext());
+		Boolean input = inputOutputMap.get(key);
+		if (input) {
+			ImageIcon inputPortIcon = WorkbenchIcons.inputIcon;
+			tabbedPane.addTab(key, inputPortIcon, portTab, "Input port");		
+		} else {
+			ImageIcon outputPortIcon = WorkbenchIcons.outputIcon;
+			tabbedPane.addTab(key, outputPortIcon, portTab, "Output port");	
+		}
+		portTabMap.put(key, portTab);
 
 	}
 
@@ -216,6 +239,23 @@ public class ProvenanceResultsPanel extends JPanel implements
 
 	public void tableChanged(TableModelEvent e) {
 		resultsTable.revalidate();
+	}
+
+	public void setRenderedResultsComponent(
+			RenderedResultComponent renderedResultsComponent) {
+		this.renderedResultsComponent = renderedResultsComponent;
+	}
+
+	public RenderedResultComponent getRenderedResultsComponent() {
+		return renderedResultsComponent;
+	}
+
+	public void setPortTabMap(Map<String, PortTab> portTabMap) {
+		this.portTabMap = portTabMap;
+	}
+
+	public Map<String, PortTab> getPortTabMap() {
+		return portTabMap;
 	}
 
 }
