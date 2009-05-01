@@ -24,8 +24,6 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
@@ -36,18 +34,8 @@ import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
-import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
 

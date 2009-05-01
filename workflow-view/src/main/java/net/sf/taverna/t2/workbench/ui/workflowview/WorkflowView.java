@@ -26,7 +26,6 @@ import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workbench.design.actions.RenameProcessorAction;
@@ -37,6 +36,7 @@ import net.sf.taverna.t2.workbench.design.actions.RenameProcessorAction;
  * @author alanrw
  *
  */
+@SuppressWarnings("serial")
 public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 	
 	private static Edits edits = EditsRegistry.getEdits();
@@ -67,16 +67,16 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 		name = Tools.uniqueProcessorName(name, currentDataflow);
 		
 		try {
-		List<Edit<?>> editList = new ArrayList<Edit<?>>();
-		editList.add(edits.getConfigureActivityEdit(activity, bean));
-		p=edits.createProcessor(name);
-		editList.add(edits.getDefaultDispatchStackEdit(p));
-		editList.add(edits.getAddActivityEdit(p, activity));
-//		editList.add(edits.getMapProcessorPortsForActivityEdit(p));
-//		editList.add(edits.getRenameProcessorEdit(p, name));
-		editList.add(edits.getAddProcessorEdit(currentDataflow, p));
-			editManager
-					.doDataflowEdit(currentDataflow, new CompoundEdit(editList));
+			List<Edit<?>> editList = new ArrayList<Edit<?>>();
+			editList.add(edits.getConfigureActivityEdit(activity, bean));
+			p=edits.createProcessor(name);
+			editList.add(edits.getDefaultDispatchStackEdit(p));
+			editList.add(edits.getAddActivityEdit(p, activity));
+//			editList.add(edits.getMapProcessorPortsForActivityEdit(p));
+//			editList.add(edits.getRenameProcessorEdit(p, name));
+			editList.add(edits.getAddProcessorEdit(currentDataflow, p));
+				editManager
+						.doDataflowEdit(currentDataflow, new CompoundEdit(editList));
 		} catch (EditException e) {
 			logger.warn("Could not add processor : edit error", e);
 			p = null;
