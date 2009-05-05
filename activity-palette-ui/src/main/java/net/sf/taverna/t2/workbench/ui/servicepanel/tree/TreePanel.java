@@ -102,11 +102,11 @@ public abstract class TreePanel extends JPanel {
 //		}
 	}
 
-	public void expandAll(boolean expand) {
+	public void expandAll(FilterTreeNode node, boolean expand) {
         FilterTreeNode root = (FilterTreeNode) tree.getModel().getRoot();
     
         // Traverse tree from root
-        expandAll(new TreePath(root), expand);
+        expandAll(new TreePath(node.getPath()), expand);
     }
 	
     private void expandAll(TreePath parent, boolean expand) {

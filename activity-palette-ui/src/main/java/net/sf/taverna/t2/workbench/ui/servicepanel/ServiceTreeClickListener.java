@@ -107,7 +107,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 											.invokeLater(new Runnable() {
 
 												public void run() {
-														panel.expandAll(true);
+														panel.expandAll(selectedNode, true);
 												}
 											});
 								}
@@ -119,7 +119,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 									SwingUtilities
 											.invokeLater(new Runnable() {
 												public void run() {
-													panel.expandAll(false);
+													panel.expandAll(selectedNode, false);
 												}
 
 											});

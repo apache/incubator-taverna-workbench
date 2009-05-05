@@ -42,8 +42,8 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 		}
 	}
 
-	private static final String REMOVE_PERMANENTLY = "Allow permanently removal of default service providers";
-	private static final String INCLUDE_DEFAULTS = "Include default service endpoints";
+	private static final String REMOVE_PERMANENTLY = "Allow permanent removal of default service providers";
+	private static final String INCLUDE_DEFAULTS = "Include default service providers";
 	private final ServiceDescriptionsConfig config;
 	private JCheckBox includeDefaults;
 	private JCheckBox removePermanently;
