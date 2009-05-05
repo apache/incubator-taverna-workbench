@@ -4,14 +4,12 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import org.apache.log4j.Logger;
-
-import net.sf.taverna.t2.lang.beans.PropertyAnnotated;
 import net.sf.taverna.t2.lang.beans.PropertyAnnotation;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
 
-public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
+import org.apache.log4j.Logger;
+
+public abstract class ServiceDescription<ConfigType> extends IdentifiedObject {
 
 	public static final String SERVICE_TEMPLATES = "Service templates";
 	private static final String NAME = "Name";
@@ -24,23 +22,6 @@ public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
 	private String description = "";
 
 	private static Logger logger = Logger.getLogger(ServiceDescription.class);
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public boolean equals(Object obj) {
-		if (! (obj instanceof ServiceDescription)) {
-			return false;
-		}
-		List<Object> myIdentifyingData = getIdentifyingData();
-		if (myIdentifyingData == null) {
-			return super.equals(obj);
-		}
-		if (! getClass().isInstance(obj) && obj.getClass().isInstance(this)) {
-			return false;
-		}
-		ServiceDescription serviceDescription = (ServiceDescription) obj;
-		return myIdentifyingData.equals(serviceDescription.getIdentifyingData());
-	}
 
 	@PropertyAnnotation(expert = true, displayName = SERVICE_IMPLEMENTATION_CLASS)
 	public abstract Class<? extends Activity<ConfigType>> getActivityClass();
@@ -64,15 +45,6 @@ public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
 	@SuppressWarnings("unchecked")
 	public abstract List<? extends Comparable> getPath();
 
-	@Override
-	public int hashCode() {
-		List<Object> identifyingData = getIdentifyingData();
-		if (identifyingData == null) {
-			return super.hashCode();
-		}
-		return identifyingData.hashCode();
-	}
-
 	@PropertyAnnotation(hidden = true)
 	public boolean isTemplateService() {
 		return false;
@@ -88,7 +60,5 @@ public abstract class ServiceDescription<ConfigType> extends PropertyAnnotated {
 	public String toString() {
 		return "Service description " +  getName();
 	}
-	
-	protected abstract List<Object> getIdentifyingData();
 	
 }

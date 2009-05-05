@@ -6,7 +6,7 @@ import java.util.List;
 
 import net.sf.taverna.t2.workflowmodel.ConfigurationException;
 
-public abstract class AbstractConfigurableServiceProvider<ConfigType>
+public abstract class AbstractConfigurableServiceProvider<ConfigType> extends IdentifiedObject
 		implements ConfigurableServiceProvider<ConfigType> {
 
 	@SuppressWarnings("unchecked")
