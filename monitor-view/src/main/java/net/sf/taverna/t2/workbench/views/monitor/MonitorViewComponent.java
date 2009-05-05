@@ -215,7 +215,10 @@ class MonitorGraphEventManager implements GraphEventManager {
 													localName, null, null);
 									provResultsPanel
 											.setLineageRecords(intermediateValues);
-
+									logger.info("Intermediate results retrieved for dataflow instance: "
+											+ sessionID
+											+ " processor: "
+											+ localName);
 
 								} catch (Exception e) {
 									logger
