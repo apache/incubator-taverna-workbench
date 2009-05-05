@@ -3,11 +3,18 @@
     <znode classname="net.sf.taverna.zaria.ZSplitPane">
       <split ratio="0.49949545913218973" orientation="horizontal">
         <right>
+                <znode classname="net.sf.taverna.zaria.ZTabbedPane">
+                  <tabs>
+                    <tab>
+                      <title>Workflow diagram</title>
           <znode classname="net.sf.taverna.zaria.ZRavenComponent">
             <namedcomponent scroll="false">
               <name>graphview</name>
             </namedcomponent>
           </znode>
+                    </tab>
+                  </tabs>
+                </znode>
         </right>
         <left>
           <znode classname="net.sf.taverna.zaria.ZSplitPane">
@@ -16,7 +23,7 @@
                 <znode classname="net.sf.taverna.zaria.ZTabbedPane">
                   <tabs>
                     <tab>
-                      <title>Workflow Explorer</title>
+                      <title>Workflow explorer</title>
                       <znode classname="net.sf.taverna.zaria.ZRavenComponent">
                         <namedcomponent scroll="false">
                           <name>workflowexplorer</name>
@@ -45,14 +52,6 @@
                         </namedcomponent>
                       </znode>
                     </tab>
-                    <tab>
-                      <title>Available services</title>
-                      <znode classname="net.sf.taverna.zaria.ZRavenComponent">
-                        <namedcomponent scroll="false">
-                          <name>activitypalette</name>
-                        </namedcomponent>
-                      </znode>
-                    </tab>
                   </tabs>
                 </znode>
               </left>
@@ -69,13 +68,6 @@
       <version>0.4-SNAPSHOT</version>
       <classname>net.sf.taverna.t2.workbench.run.DataflowRunsComponentFactory</classname>
       <name>Dataflow Runs</name>
-    </namedcomponent>
-    <namedcomponent>
-      <groupid>net.sf.taverna.t2.ui-components</groupid>
-      <artifact>activity-palette-ui</artifact>
-      <version>0.4-SNAPSHOT</version>
-      <classname>net.sf.taverna.t2.workbench.ui.activitypalette.ActivityPaletteComponentFactory</classname>
-      <name>activitypalette</name>
     </namedcomponent>
     <namedcomponent>
       <groupid>net.sf.taverna.t2.ui-components</groupid>
