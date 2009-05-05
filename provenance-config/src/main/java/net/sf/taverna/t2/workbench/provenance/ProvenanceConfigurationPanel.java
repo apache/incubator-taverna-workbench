@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.provenance;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -76,17 +77,32 @@ public class ProvenanceConfigurationPanel extends JPanel {
 	 */
 	public ProvenanceConfigurationPanel() {
 
+		// FIXME this is now really hard coded for derby type of database where
+		// no configuration is required, the
+		// consensus was that users do not want to click buttons etc. This does
+		// leave some problems if someone wants to use
+		// eg the mysql type connector which will require user name, password
+		// etc. I think all of the config will have to be moved to the
+		// individual
+		// connector config view rather than this panel doing much. Basically
+		// when the check box is selected the connector config view
+		// has to do something to make sure it will all work rather than the
+		// next couple of lines setting up the database
+		// create the database
+		// the code in run workflow now has to call create db before doing
+		// anything
+
 		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		viewHolder = new JPanel();
 
 		JPanel onPanel = new JPanel();
-//		BoxLayout layout = new BoxLayout(onPanel, BoxLayout.X_AXIS);
-//
+		// BoxLayout layout = new BoxLayout(onPanel, BoxLayout.X_AXIS);
+		//
 		onPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-//		JPanel dropPanel = new JPanel();
-//		BoxLayout layout2 = new BoxLayout(dropPanel, BoxLayout.X_AXIS);
-//		dropPanel.setLayout(layout2);
+		// JPanel dropPanel = new JPanel();
+		// BoxLayout layout2 = new BoxLayout(dropPanel, BoxLayout.X_AXIS);
+		// dropPanel.setLayout(layout2);
 
 		JPanel buttonPanel = new JPanel();
 		BoxLayout layout3 = new BoxLayout(buttonPanel, BoxLayout.X_AXIS);
@@ -95,27 +111,34 @@ public class ProvenanceConfigurationPanel extends JPanel {
 		JLabel storageConfig = new JLabel(
 				"Enable provenance capture from workflow runs");
 
-		final JCheckBox checkBox = new JCheckBox();
+		final JLabel provSelectedLabel = new JLabel(
+				"No provenance connector has been enabled");
+		provSelectedLabel.setForeground(Color.red);
 
+		final JCheckBox checkBox = new JCheckBox();
+		checkBox.setEnabled(false);
 
 		if (provenanceConfiguration.getProperty("enabled").equalsIgnoreCase(
 				"yes")) {
+			checkBox.setEnabled(true);
 			checkBox.setSelected(true);
 		}
 
-		onPanel.add(storageConfig);
-		onPanel.add(checkBox);
-
-
 		final JComboBox connectorChooser = new JComboBox();
-		
-//		connectorChooser.setMaximumSize(new Dimension(150,20));
+		connectorChooser
+				.setToolTipText("To enable provenance select a provenance connector from the drop down and ensure that the check box is selected");
+		// connectorChooser.setMaximumSize(new Dimension(150,20));
 
 		String property = provenanceConfiguration.getProperty("connector");
 		for (ProvenanceConnector connector : ProvenanceConnectorRegistry
 				.getInstance().getInstances()) {
 			connectorChooser.addItem(connector);
-			if (property != null) {
+			// FIXME this 'none' check seems a bit dodgy but it looks like that
+			// is what the abstract config class returns if there is no property
+			if (!property.equalsIgnoreCase("none")) {
+				logger.info("Currently selected provenance connector is: "
+						+ property);
+				checkBox.setEnabled(true);
 				if (property.equalsIgnoreCase(connector.getName())) {
 					connectorChooser.setSelectedItem(connector);
 					provenanceConnector = (ProvenanceConnector) connectorChooser
@@ -143,11 +166,11 @@ public class ProvenanceConfigurationPanel extends JPanel {
 			}
 		}
 
-		
 		connectorChooser.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
 				// get the config view from the contextual view factory registry
+				checkBox.setEnabled(true);
 				provenanceConnector = (ProvenanceConnector) connectorChooser
 						.getSelectedItem();
 				logger.info("Selected provenance connector: "
@@ -159,7 +182,8 @@ public class ProvenanceConfigurationPanel extends JPanel {
 					view = viewFactoryForObject.getView(provenanceConnector);
 					configureAction = view.getConfigureAction(null);
 				} catch (Exception e1) {
-					// probably OK, just no config view so set the view to null and continue
+					// probably OK, just no config view so set the view to null
+					// and continue
 					view = null;
 				}
 				viewHolder.removeAll();
@@ -173,79 +197,137 @@ public class ProvenanceConfigurationPanel extends JPanel {
 					viewHolder.revalidate();
 					revalidate();
 				}
+
 			}
 
 		});
-
-		JButton deleteData = new JButton("Delete current provenance");
-		deleteData.addActionListener(new AbstractAction() {
-
-			public void actionPerformed(ActionEvent e) {
-				// get the selected ProvenanceConnector and call the delete
-				// function
-			}
-
-		});
-
-		final JButton applyButton = new JButton("Apply");
-		applyButton.setToolTipText("Save current settings");
-		// saves the user selected options in the ProvenanceConfiguration
-		// properties file
-		applyButton.addActionListener(new ActionListener() {
+		checkBox.addActionListener(new AbstractAction() {
 
 			public void actionPerformed(ActionEvent e) {
 				provenanceConnector = (ProvenanceConnector) connectorChooser
 						.getSelectedItem();
 				if (checkBox.isSelected()) {
-					if (provenanceConnector!=null) {
+					if (provenanceConnector != null) {
 						logger.info("Provenance has been enabled");
 						String name = provenanceConnector.getName();
-						
+						provSelectedLabel.setText(name
+								+ " will be used for provenance storage");
+						provSelectedLabel.setForeground(Color.green);
+
 						provenanceConfiguration.setProperty("connector", name);
 						provenanceConfiguration.setProperty("enabled", "yes");
 					}
 					// execute the selected connectors config action
 					if (configureAction != null) {
 						configureAction.actionPerformed(null);
-						provenanceConnector.setDbURL(ProvenanceConfiguration.getInstance().getProperty("dbURL"));
+						provenanceConnector.setDbURL(ProvenanceConfiguration
+								.getInstance().getProperty("dbURL"));
 					}
 
 				} else if (!checkBox.isSelected()) {
 					logger.info("Provenance has been disabled");
 					provenanceConfiguration.setProperty("enabled", "no");
-					if (provenanceConnector!=null) {
+					provSelectedLabel
+							.setText("No provenance connector has been enabled");
+					provSelectedLabel.setForeground(Color.red);
+					if (provenanceConnector != null) {
 						String name = provenanceConnector.getName();
 						provenanceConfiguration.setProperty("connector", name);
-						
 					}
 					// execute the selected connectors config action
 					if (configureAction != null) {
 						configureAction.actionPerformed(null);
-						provenanceConnector.setDbURL(ProvenanceConfiguration.getInstance().getProperty("dbURL"));
+						provenanceConnector.setDbURL(ProvenanceConfiguration
+								.getInstance().getProperty("dbURL"));
 					}
 				}
 			}
 
 		});
 
-		buttonPanel.add(applyButton);
+		onPanel.add(storageConfig);
+		onPanel.add(checkBox);
 
-		JButton clearButton = new JButton("Clear Database");
-		clearButton.setToolTipText("Remove the provenance but keep the database and the tables");
+		// final JButton deleteData = new JButton("Delete current provenance");
+		// deleteData.addActionListener(new AbstractAction() {
+		//
+		// public void actionPerformed(ActionEvent e) {
+		// // get the selected ProvenanceConnector and call the delete
+		// // function
+		// }
+		//
+		// });
+
+		// final JButton applyButton = new JButton("Apply");
+		// applyButton.setToolTipText("Save current settings");
+		// // saves the user selected options in the ProvenanceConfiguration
+		// // properties file
+		// applyButton.addActionListener(new ActionListener() {
+		//
+		// public void actionPerformed(ActionEvent e) {
+		// provenanceConnector = (ProvenanceConnector) connectorChooser
+		// .getSelectedItem();
+		// if (checkBox.isSelected()) {
+		// if (provenanceConnector != null) {
+		// logger.info("Provenance has been enabled");
+		// String name = provenanceConnector.getName();
+		//
+		// provenanceConfiguration.setProperty("connector", name);
+		// provenanceConfiguration.setProperty("enabled", "yes");
+		// }
+		// // execute the selected connectors config action
+		// if (configureAction != null) {
+		// configureAction.actionPerformed(null);
+		// provenanceConnector.setDbURL(ProvenanceConfiguration
+		// .getInstance().getProperty("dbURL"));
+		// }
+		//
+		// } else if (!checkBox.isSelected()) {
+		// logger.info("Provenance has been disabled");
+		// provenanceConfiguration.setProperty("enabled", "no");
+		// if (provenanceConnector != null) {
+		// String name = provenanceConnector.getName();
+		// provenanceConfiguration.setProperty("connector", name);
+		//
+		// }
+		// // execute the selected connectors config action
+		// if (configureAction != null) {
+		// configureAction.actionPerformed(null);
+		// provenanceConnector.setDbURL(ProvenanceConfiguration
+		// .getInstance().getProperty("dbURL"));
+		// }
+		// }
+		// }
+		//
+		// });
+		// no longer want this apply button, the db will be created
+		// automatically when check box is selected
+		// buttonPanel.add(applyButton);
+
+		final JButton clearButton = new JButton("Clear Database");
+		clearButton
+				.setToolTipText("Remove the provenance but keep the database and the tables");
 		clearButton.addActionListener(new AbstractAction() {
 
 			public void actionPerformed(ActionEvent e) {
 				if (provenanceConnector != null) {
 					int n = JOptionPane
 							.showConfirmDialog(
-									applyButton,
+									clearButton,
 									"Are you sure you want to clear all the provenance in the database?",
-									"Clear Database",
-									JOptionPane.YES_NO_OPTION);
+									"Clear Database", JOptionPane.YES_NO_OPTION);
 
 					if (n == JOptionPane.YES_OPTION) {
-						provenanceConnector.setDbURL(ProvenanceConfiguration.getInstance().getProperty("dbURL"));
-						provenanceConnector.clearDatabase();
+						provenanceConnector.setDbURL(ProvenanceConfiguration
+								.getInstance().getProperty("dbURL"));
+						try {
+							provenanceConnector.clearDatabase();
+						} catch (Exception e1) {
+							JOptionPane.showMessageDialog(clearButton,
+									"Problem clearing the database: \n"
+											+ e1.toString(), "Error",
+									JOptionPane.ERROR_MESSAGE);
+						}
 					}
 
 				}
@@ -254,71 +336,91 @@ public class ProvenanceConfigurationPanel extends JPanel {
 		});
 
 		buttonPanel.add(clearButton);
-		
-		JButton createButton = new JButton("Create Database");
-		createButton.setToolTipText("Create the provenance database including all the tables required");
-		createButton.addActionListener(new AbstractAction() {
 
-			public void actionPerformed(ActionEvent e) {
-				if (provenanceConnector != null) {
-					int n = JOptionPane
-							.showConfirmDialog(
-									applyButton,
-									"Are you sure you want to create the provenance database?",
-									"Create Database",									
-									JOptionPane.YES_NO_OPTION);
+		// JButton createButton = new JButton("Create Database");
+		// createButton
+		// .setToolTipText("Create the provenance database including all the tables required");
+		// createButton.addActionListener(new AbstractAction() {
+		//
+		// public void actionPerformed(ActionEvent e) {
+		// if (provenanceConnector != null) {
+		// int n = JOptionPane
+		// .showConfirmDialog(
+		// applyButton,
+		// "Are you sure you want to create the provenance database?",
+		// "Create Database",
+		// JOptionPane.YES_NO_OPTION);
+		//
+		// if (n == JOptionPane.YES_OPTION) {
+		// provenanceConnector.setDbURL(ProvenanceConfiguration
+		// .getInstance().getProperty("dbURL"));
+		// provenanceConnector.createDatabase();
+		// }
+		//
+		// }
+		// }
+		//
+		// });
 
-					if (n == JOptionPane.YES_OPTION) {
-						provenanceConnector.setDbURL(ProvenanceConfiguration.getInstance().getProperty("dbURL"));
-						provenanceConnector.createDatabase();
-					}
+		// the db create will be done automatically when the connector is
+		// selected
+		// buttonPanel.add(createButton);
 
-				}
-			}
-			
-		});
-		
-		buttonPanel.add(createButton);
-		
-		JButton deleteButton = new JButton("Delete Database");
-		deleteButton.setToolTipText("Completely remove the provenance database");
-		deleteButton.addActionListener(new AbstractAction() {
-
-			public void actionPerformed(ActionEvent e) {
-				if (provenanceConnector != null) {
-					int n = JOptionPane
-							.showConfirmDialog(
-									applyButton,
-									"Are you sure you want to delete the provenance database?",
-									"Delete Database",
-									JOptionPane.YES_NO_OPTION);
-
-					if (n == JOptionPane.YES_OPTION) {
-						provenanceConnector.setDbURL(ProvenanceConfiguration.getInstance().getProperty("dbURL"));
-						provenanceConnector.deleteDatabase();
-					}
-
-				}
-			}
-			
-		});
-		//FIXME does not work correctly with the derby-connector
-//		buttonPanel.add(deleteButton);
+		// JButton deleteButton = new JButton("Delete Database");
+		// deleteButton
+		// .setToolTipText("Completely remove the provenance database");
+		// deleteButton.addActionListener(new AbstractAction() {
+		//
+		// public void actionPerformed(ActionEvent e) {
+		// if (provenanceConnector != null) {
+		// int n = JOptionPane
+		// .showConfirmDialog(
+		// applyButton,
+		// "Are you sure you want to delete the provenance database?",
+		// "Delete Database",
+		// JOptionPane.YES_NO_OPTION);
+		//
+		// if (n == JOptionPane.YES_OPTION) {
+		// provenanceConnector.setDbURL(ProvenanceConfiguration
+		// .getInstance().getProperty("dbURL"));
+		// provenanceConnector.deleteDatabase();
+		// }
+		//
+		// }
+		// }
+		//
+		// });
+		// FIXME does not work correctly with the derby-connector
+		// buttonPanel.add(deleteButton);
 		add(onPanel);
 		add(Box.createVerticalStrut(5));
 		JPanel boxPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		JPanel labelPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		
-		labelPanel.add (new JLabel("Select the database type for provenance storage from the drop down"));
+
+		if (property != null && checkBox.isSelected()) {
+			provSelectedLabel.setText(property
+					+ " will be used for provenance storage");
+			provSelectedLabel.setForeground(Color.green);
+		}
+
+		labelPanel
+				.add(new JLabel(
+						"Select the database type for provenance storage from the drop down"));
 		add(labelPanel);
-		add(Box.createVerticalStrut(5));//		labelPanel.setMaximumSize(new Dimension(300,20));
+		add(Box.createVerticalStrut(5));// labelPanel.setMaximumSize(new
+		// Dimension(300,20));
 		boxPanel.add(connectorChooser);
-//		boxPanel.add(Box.createHorizontalGlue());
+		// boxPanel.add(Box.createHorizontalGlue());
 		add(boxPanel);
 		add(Box.createVerticalStrut(5));
-//		add(dropPanel);
+		// add(dropPanel);
 		viewHolder.setBorder(BorderFactory.createBevelBorder(1));
 		add(viewHolder);
+
+		add(Box.createVerticalStrut(5));
+		JPanel provSelectedPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		provSelectedPanel.add(provSelectedLabel);
+		add(provSelectedPanel);
 		add(Box.createVerticalStrut(5));
 		add(buttonPanel);
 
