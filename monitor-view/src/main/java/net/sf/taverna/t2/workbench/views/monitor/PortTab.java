@@ -2,7 +2,10 @@ package net.sf.taverna.t2.workbench.views.monitor;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,14 +25,14 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.log4j.Logger;
-
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.views.results.RenderedResultComponent;
 import net.sf.taverna.t2.workbench.views.results.ResultTreeNode;
+
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.log4j.Logger;
 
 /**
  * Displays the iterations for an input or output port in a {@link JTable}.
@@ -62,6 +65,8 @@ public class PortTab extends JPanel {
 
 	private RowListener rowListener;
 
+	private ReferenceRenderer iterationRenderer;
+
 	/**
 	 * Using the supplied {@link Map} of iterations to {@link T2Reference}s for
 	 * the port with 'name', populate a table and listen for selections on it
@@ -85,17 +90,20 @@ public class PortTab extends JPanel {
 		Set<Entry<String, T2Reference>> entrySet = portMap.entrySet();
 		List<Map<String, T2Reference>> iterationList = new ArrayList<Map<String, T2Reference>>();
 		Map<String, T2Reference> iterationMap = new HashMap<String, T2Reference>();
+		
 		for (Entry<String, T2Reference> entry2 : entrySet) {
 			iterationMap.put(entry2.getKey(), entry2.getValue());
 		}
+		List<String> sortedIndexes = sortIteration(iterationMap.keySet());
+	
 		resultsTableModel = new LineageResultsTableModel();
 		resultsTableModel.setLineageRecords(iterationMap);
 		TableColumn iterationColumn = new TableColumn();
 		iterationColumn.setHeaderValue("Iteration");
 		iterationColumn.setModelIndex(0);
-		TableCellRenderer iterationRenderer = new ReferenceRenderer(
-				iterationMap);
-		iterationColumn.setCellRenderer(iterationRenderer);
+			setIterationRenderer(new ReferenceRenderer(
+					iterationMap, sortedIndexes));			
+		iterationColumn.setCellRenderer(getIterationRenderer());
 		TableColumnModel columnModel = new DefaultTableColumnModel();
 
 		columnModel.addColumn(iterationColumn);
@@ -115,9 +123,51 @@ public class PortTab extends JPanel {
 				BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		add(new JScrollPane(getResultsTable()));
 	}
+	
+	
+	private List<String> sortIteration(Set<String> keySet) {
+		List<String> sortedIndexes = new ArrayList<String>(keySet);
+		Collections.sort(sortedIndexes, new Comparator<String>(){
+			public int compare(String o1, String o2) {
+				Iterator<Integer> o1Iter = indexIterator(o1);
+				Iterator<Integer> o2Iter = indexIterator(o2);
+				while (o1Iter.hasNext() && o2Iter.hasNext()) {
+					int compareTo = o1Iter.next().compareTo(o2Iter.next());
+					if (compareTo != 0) {
+						return compareTo;
+					}
+				} 
+				if (o1Iter.hasNext()) {
+					return 1;
+				}
+				if (o2Iter.hasNext()) {
+					return -1;
+				}
+				return 0;
+			}
+
+			private Iterator<Integer> indexIterator(String o1) {
+				o1 = o1.replace("[", "");
+				o1 = o1.replace("]", "");
+				List<Integer> indexes = new ArrayList<Integer>();
+				for (String index : o1.split(",", -1)) {
+					indexes.add(Integer.valueOf(index.trim()));
+				}
+				return indexes.iterator();
+			}
+
+			});
+		return sortedIndexes;
+	}
 
 	public void setPortMap(Map<String, T2Reference> portMap) {
 		this.portMap = portMap;
+		List<String> sortIteration = sortIteration(portMap.keySet());
+		if (iterationRenderer == null) {
+			iterationRenderer = new ReferenceRenderer(
+					portMap, sortIteration);
+		}
+		this.iterationRenderer.setSortedIndexes(sortIteration);
 	}
 
 	public Map<String, T2Reference> getPortMap() {
@@ -178,6 +228,14 @@ public class PortTab extends JPanel {
 
 	public boolean isUserUnselected() {
 		return userUnselected;
+	}
+
+	public void setIterationRenderer(ReferenceRenderer iterationRenderer) {
+		this.iterationRenderer = iterationRenderer;
+	}
+
+	public TableCellRenderer getIterationRenderer() {
+		return iterationRenderer;
 	}
 
 	/**

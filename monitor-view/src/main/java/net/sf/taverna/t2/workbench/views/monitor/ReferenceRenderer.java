@@ -55,8 +55,10 @@ public class ReferenceRenderer extends JLabel implements TableCellRenderer {
 	private List<LineageQueryResultRecord> lineageRecords;
 	private InvocationContext context;
 	private Map<String, T2Reference> valueList;
+	private List<String> sortedIndexes;
 
-	public ReferenceRenderer(Map<String, T2Reference> valueList) {
+	public ReferenceRenderer(Map<String, T2Reference> valueList, List<String> sortedIndexes) {
+		this.setSortedIndexes(sortedIndexes);
 		this.setValueList(valueList);
 		setOpaque(true);
 	}
@@ -83,18 +85,14 @@ public class ReferenceRenderer extends JLabel implements TableCellRenderer {
 						table.getBackground());
 
 			}
-			setBorder(unselectedBorder);
+			setBorder(unselectedBorder);		
 		}
 
-		Set<String> keySet = valueList.keySet();
-		Object[] keyArray = keySet.toArray();
+		String index = getSortedIndexes().get(row);
+		
+		T2Reference referenceValue = (T2Reference) valueList.get(index);
 
-		Collection<T2Reference> values = valueList.values();
-		Object[] valueArray = values.toArray();
-
-		T2Reference referenceValue = (T2Reference) valueArray[row];
-
-		setText(" " + (String) keyArray[row]);
+		setText(" " + index);
 
 		if (referenceValue.getReferenceType().equals(
 				(T2ReferenceType.ErrorDocument))) {
@@ -116,6 +114,14 @@ public class ReferenceRenderer extends JLabel implements TableCellRenderer {
 
 	public Map<String, T2Reference> getValueList() {
 		return valueList;
+	}
+
+	public List<String> getSortedIndexes() {
+		return sortedIndexes;
+	}
+
+	public void setSortedIndexes(List<String> sortedIndexes) {
+		this.sortedIndexes = sortedIndexes;
 	}
 
 }
