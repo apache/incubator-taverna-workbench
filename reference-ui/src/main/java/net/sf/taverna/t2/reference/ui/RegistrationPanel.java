@@ -113,9 +113,9 @@ public class RegistrationPanel extends JPanel {
 	private final JLabel status;
 	private JTextArea textArea;
 	private JLabel textAreaType;
-	private TextAreaFocusListener textAreaFocusListener;
 	private final PreRegistrationTree tree;
 	private final PreRegistrationTreeModel treeModel;
+	private TextAreaDocumentListener textAreaDocumentListener;
 
 
 	private final String example;
@@ -176,8 +176,7 @@ public class RegistrationPanel extends JPanel {
 		headerAndToolBarPane.add(createToolBar(), BorderLayout.SOUTH);
 		
 		textArea = new JTextArea();
-		textAreaFocusListener = new TextAreaFocusListener(textArea);
-		textArea.addFocusListener(textAreaFocusListener);
+		textAreaDocumentListener = new TextAreaDocumentListener(textArea);
 		splitPane = new JSplitPane();
 		splitPane.add(new JScrollPane(this.tree), JSplitPane.LEFT);
 		splitPane.add(new JScrollPane(textArea), JSplitPane.RIGHT);
@@ -296,7 +295,6 @@ public class RegistrationPanel extends JPanel {
 			DefaultMutableTreeNode selection = (DefaultMutableTreeNode) e
 					.getPath().getLastPathComponent();
 			textArea.setEditable(false);
-			textAreaFocusListener.setNode(selection);
 			if (!selection.isLeaf()) {
 				textArea.setText("List selected");
 			}
@@ -304,18 +302,23 @@ public class RegistrationPanel extends JPanel {
 				textArea.setText("No selection");
 				return;
 			}
-			if (selection.getUserObject() == null) {
+			Object selectedUserObject = selection.getUserObject();
+			if (selectedUserObject == null) {
 				textArea.setText("List selected");
 				return;
 			}
-			if (selection.getUserObject() instanceof String) {
+			if (selectedUserObject instanceof String) {
 				textArea.setText((String) selection.getUserObject());
+				textAreaDocumentListener.setSelection(selection);
 				textArea.setEditable(true);
 				textArea.requestFocusInWindow();
 				textArea.selectAll();
+			} else if (selectedUserObject instanceof File) {
+				textArea.setText("File : " + selection.getUserObject());
+			} else if (selectedUserObject instanceof URL) {
+				textArea.setText("URL : " + selection.getUserObject());
 			} else {
-				textArea.setText("Fixed object: " + selection.getUserObject()
-						+ " " + selection.getUserObject().getClass());
+				textArea.setText(selection.getUserObject().toString());
 			}
 		}
 	}
@@ -433,7 +436,7 @@ public class RegistrationPanel extends JPanel {
 			DefaultMutableTreeNode added = treeModel.addPojoStructure(node,
 					newValue, 0);
 			tree.setSelectionPath(new TreePath(added.getPath()));
-			setStatus("Added new value.", infoIcon, null);
+			setStatus("Added new value.  Edit value on right.", infoIcon, null);
 		}
 	}
 
@@ -508,32 +511,42 @@ public class RegistrationPanel extends JPanel {
 		}
 	}
 
-	private class TextAreaFocusListener implements FocusListener {
+	
+	private class TextAreaDocumentListener implements DocumentListener {
+		
+		private final JTextArea textArea;
 
-		private DefaultMutableTreeNode selection;
-		private JTextArea textArea;
-
-		public TextAreaFocusListener(JTextArea textArea) {
+		public TextAreaDocumentListener(JTextArea textArea) {
 			this.textArea = textArea;
+			textArea.getDocument().addDocumentListener(this);
 		}
-
-		public void setNode(DefaultMutableTreeNode selection) {
+		
+		private MutableTreeNode selection;
+		
+                /**
+		 * @param selection the selection to set
+		 */
+		public void setSelection(MutableTreeNode selection) {
 			this.selection = selection;
 		}
-		
+
 		private void updateSelection() {
-			if ((selection != null) && (selection.getUserObject() instanceof String)) {
-				selection.setUserObject(textArea.getText());
+			if (textArea.isEditable()) {
+            selection.setUserObject(textArea.getText());
+            treeModel.nodeChanged(selection);
 			}
+			
 		}
+				public void insertUpdate(DocumentEvent e) {
+					updateSelection();
+                }
 
-		public void focusGained(FocusEvent e) {
-			//nothing
-		}
+                public void removeUpdate(DocumentEvent e) {
+                    updateSelection();
+                }
 
-		public void focusLost(FocusEvent e) {
-			updateSelection();
-		}
-		
-	}
+                public void changedUpdate(DocumentEvent e) {
+                    updateSelection();
+                }
+            }
 }
