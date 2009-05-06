@@ -28,6 +28,8 @@ import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.apache.log4j.Logger;
+
 public class FilterTreeNode extends DefaultMutableTreeNode {
 
 	/**
@@ -37,6 +39,9 @@ public class FilterTreeNode extends DefaultMutableTreeNode {
 	private Filter filter;
 	private boolean passed = true;
 	private List<FilterTreeNode> filteredChildren = new ArrayList<FilterTreeNode>();
+
+	private static Logger logger = Logger
+	.getLogger(FilterTreeNode.class);
 
 	public FilterTreeNode(Object userObject) {
 		super(userObject);
@@ -125,5 +130,24 @@ public class FilterTreeNode extends DefaultMutableTreeNode {
 		}
 		return result;
 	}
+
+	public FilterTreeNode getChildForObject(Object userObject) {
+		FilterTreeNode result = null;
+		for (int i=0; (i < super.getChildCount()) && (result == null); i++) {
+			FilterTreeNode child = (FilterTreeNode) super.getChildAt(i);
+			Object nodeObject = child.getUserObject();
+//			logger.info("nodeObject is a " + nodeObject.getClass().getCanonicalName() + " - " +
+//					"userObject is a " + userObject.getClass().getCanonicalName());
+			if (nodeObject.toString().equals(userObject.toString())) {
+				result = child;
+//				logger.info(nodeObject.toString() + " is equal to " + userObject.toString());
+//			} else {
+//				logger.info(nodeObject.toString() + " is not equal to " + userObject.toString());
+//				
+			}
+		}
+		return result;
+	}
+	
 
 }

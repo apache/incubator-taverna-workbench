@@ -27,11 +27,11 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -39,23 +39,20 @@ import java.util.TimerTask;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeExpansionEvent;
+import javax.swing.event.TreeExpansionListener;
 import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.servicepanel.ServicePanel;
-import net.sf.taverna.t2.lang.ui.ShadedLabel;
+import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
 public abstract class TreePanel extends JPanel {
@@ -63,7 +60,7 @@ public abstract class TreePanel extends JPanel {
 	private static int MAX_EXPANSION = 100;
 	private static final int SEARCH_WIDTH = 15;
 
-	protected Set<TreePath> expandedPaths = new HashSet<TreePath>();
+	protected Set<List<Object>> expandedPaths = new HashSet<List<Object>>();
 	protected FilterTreeModel filterTreeModel;
 	protected JTextField searchField = new JTextField(SEARCH_WIDTH);
 	protected JTree tree = new JTree();
@@ -72,6 +69,11 @@ public abstract class TreePanel extends JPanel {
 	private String availableObjectsString = "";
 	private String matchingObjectsString = "";
 	private String noMatchingObjectsString = "";
+
+	private TreeExpandCollapseListener treeExpandListener = new TreeExpandCollapseListener();
+	
+	private static Logger logger = Logger
+	.getLogger(TreePanel.class);
 
 	public TreePanel(FilterTreeModel treeModel) {
 		filterTreeModel = treeModel;
@@ -132,7 +134,7 @@ public abstract class TreePanel extends JPanel {
 		setLayout(new BorderLayout());
 		treeScrollPane = new JScrollPane(tree);
 		tree.setModel(filterTreeModel);
-		tree.addTreeWillExpandListener(new TreeExpandListener());
+		tree.addTreeExpansionListener(treeExpandListener);
 		tree.setCellRenderer(createCellRenderer());
 		tree.setSelectionModel(new FilterTreeSelectionModel());
 		
@@ -195,14 +197,18 @@ public abstract class TreePanel extends JPanel {
 
 	public synchronized void runFilter() throws InterruptedException,
 			InvocationTargetException {
+		tree.removeTreeExpansionListener(treeExpandListener);
 		String text = searchField.getText();
 		final FilterTreeNode root = (FilterTreeNode) tree.getModel().getRoot();
 		if (text.length() == 0) {
 			setFilter(null);
 					root.setUserObject(getAvailableObjectsString());
 					filterTreeModel.nodeChanged(root);
-			for (TreePath tp : expandedPaths) {
-				tree.expandPath(tp);
+			for (List<Object> tp : expandedPaths) {
+//				for (int i = 0; i < tp.length; i++) {
+//					logger.info("Trying to expand " + tp[i].toString());
+//				}
+				tree.expandPath(filterTreeModel.getTreePathForObjectPath(tp));
 			}
 		} else {
 			setFilter(createFilter(text));
@@ -214,6 +220,7 @@ public abstract class TreePanel extends JPanel {
 			filterTreeModel.nodeChanged(root);
 			expandTreePaths();
 		}
+		tree.addTreeExpansionListener(treeExpandListener);
 	}
 
 	/**
@@ -333,19 +340,30 @@ public abstract class TreePanel extends JPanel {
 		}
 	}
 
-	protected class TreeExpandListener implements TreeWillExpandListener {
-		public void treeWillCollapse(TreeExpansionEvent event)
-				throws ExpandVetoException {
-			if (searchField.getText().length() == 0) {
-				expandedPaths.remove(event.getPath());
+	protected class TreeExpandCollapseListener implements TreeExpansionListener {
+		
+		private void noteExpansions() {
+			expandedPaths.clear();
+			TreePath rootPath = new TreePath(filterTreeModel.getRoot());
+			for (Enumeration<TreePath> e = tree.getExpandedDescendants(rootPath); e.hasMoreElements();) {
+				List<Object> userObjects = new ArrayList<Object>();
+				Object[] expandedPath = e.nextElement().getPath();
+				for (int i = 0; i < expandedPath.length; i++) {
+					FilterTreeNode node = (FilterTreeNode) expandedPath[i];
+//					logger.info("The object in the path is a " + expandedPath[i].getClass().getCanonicalName());
+					userObjects.add(node.getUserObject());
+//					logger.info("Added " + node.getUserObject() + " to path");
+				}
+				expandedPaths.add(userObjects);
 			}
+			
 		}
 
-		public void treeWillExpand(TreeExpansionEvent event)
-				throws ExpandVetoException {
-			if (searchField.getText().length() == 0) {
-				expandedPaths.add(event.getPath());
-			}
+		public void treeCollapsed(TreeExpansionEvent event) {
+			noteExpansions();
+		}
+		public void treeExpanded(TreeExpansionEvent event) {
+			noteExpansions();
 		}
 	}
 

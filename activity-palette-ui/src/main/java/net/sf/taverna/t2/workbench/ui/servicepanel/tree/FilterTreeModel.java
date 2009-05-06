@@ -20,11 +20,20 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel.tree;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
+
+import org.apache.log4j.Logger;
 
 public final class FilterTreeModel extends DefaultTreeModel {
 
 	Filter currentFilter;
+
+	private static Logger logger = Logger
+	.getLogger(FilterTreeModel.class);
 
 	public FilterTreeModel(FilterTreeNode node) {
 		this(node, null);
@@ -71,4 +80,21 @@ public final class FilterTreeModel extends DefaultTreeModel {
 		return currentFilter;
 	}
 
+	public TreePath getTreePathForObjectPath(List<Object> path) {
+		List<FilterTreeNode> resultList = new ArrayList<FilterTreeNode>();
+		FilterTreeNode current = (FilterTreeNode) root;
+		resultList.add(current);
+		for (int i = 1; (i < path.size()) && (current != null); i++) {
+//			logger.info("Looking in " + current.getUserObject().toString() + " for " + path[i].toString());
+			current = current.getChildForObject(path.get(i));
+			if (current != null) {
+				resultList.add(current);
+			}
+		}
+		if (current != null) {
+			Object[] nodeArray = resultList.toArray();
+			return (new TreePath(nodeArray));
+		}
+		return null;
+	}
 }
