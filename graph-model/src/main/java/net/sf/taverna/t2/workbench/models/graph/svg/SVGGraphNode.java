@@ -150,14 +150,12 @@ public class SVGGraphNode extends GraphNode /*implements SVGMonitorShape*/ {
 		completedPolygon = (SVGOMPolygonElement) graphController.createElement(SVGConstants.SVG_POLYGON_TAG);
 		completedPolygon.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil.calculatePoints(getShape(), 0, 0));
 		completedPolygon.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGGraphSettings.COMPLETED_COLOUR);
-//		completedPolygon.setAttribute(SVGConstants.SVG_FILL_OPACITY_ATTRIBUTE, "0.8");
-//		completedPolygon.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
+		completedPolygon.setAttribute(SVGConstants.SVG_FILL_OPACITY_ATTRIBUTE, "0.8");
 		contractedElement.appendChild(completedPolygon);
 
 		labelText = graphController.createText("");
 		label = (SVGOMTextElement) graphController.createElement(SVGConstants.SVG_TEXT_TAG);
 		label.setAttribute(SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE, SVGConstants.SVG_MIDDLE_VALUE);
-//		label.setAttribute("alignment-baseline", SVGConstants.SVG_MIDDLE_VALUE);
 		label.setAttribute("baseline-shift", "-35%");
 		label.appendChild(labelText);
 		contractedElement.appendChild(label);

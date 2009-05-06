@@ -27,7 +27,7 @@ public class SVGGraphSettings {
 
 	public static final String ERROR_COLOUR = "#dd3131";
 
-	public static final String SELECTED_COLOUR = "#dd3131";
+	public static final String SELECTED_COLOUR = "#4377d3";
 
 	public static final String NORMAL_COLOUR = "black";
 
