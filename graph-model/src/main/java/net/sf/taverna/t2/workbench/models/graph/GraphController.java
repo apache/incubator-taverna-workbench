@@ -1108,26 +1108,6 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		return result;
 
 	}
-	
-//	private boolean isLinked(Processor processor) {
-//		for (ProcessorInputPort port : processor.getInputPorts()) {
-//			if (port.getIncomingLink() != null) {
-//				return true;
-//			}
-//		}
-//		for (ProcessorOutputPort port : processor.getOutputPorts()) {
-//			if (!port.getOutgoingLinks().isEmpty()) {
-//				return true;
-//			}
-//		}
-//		if (!processor.getPreconditionList().isEmpty()) {
-//			return true;
-//		}
-//		if (!processor.getControlledPreconditionList().isEmpty()) {
-//			return true;
-//		}
-//		return false;
-//	}
 
 	public void resetSelection() {
 		if (dataflowSelectionModel != null) {

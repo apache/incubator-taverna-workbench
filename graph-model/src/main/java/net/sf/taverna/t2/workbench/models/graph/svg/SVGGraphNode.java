@@ -41,13 +41,11 @@ import org.apache.batik.dom.svg.SVGOMRectElement;
 import org.apache.batik.dom.svg.SVGOMTextElement;
 import org.apache.batik.util.CSSConstants;
 import org.apache.batik.util.SVGConstants;
-import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.svg.SVGElement;
-import org.w3c.dom.svg.SVGPointList;
 
 /**
  * SVG representation of a graph node.
@@ -55,7 +53,7 @@ import org.w3c.dom.svg.SVGPointList;
  * @author David Withers
  */
 
-public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
+public class SVGGraphNode extends GraphNode /*implements SVGMonitorShape*/ {
 
 	private SVGGraphController graphController;
 
@@ -65,8 +63,10 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 
 	private SVGMouseDownEventListener mouseDownAction;
 
+	@SuppressWarnings("unused")
 	private SVGMouseOverEventListener mouseOverAction;
 
+	@SuppressWarnings("unused")
 	private SVGMouseOutEventListener mouseOutAction;
 
 	private SVGOMGElement g;
@@ -131,14 +131,14 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 		polygon = (SVGOMPolygonElement) graphController.createElement(SVGConstants.SVG_POLYGON_TAG);
 		selectedPolygon = (SVGOMPolygonElement) graphController.createElement(SVGConstants.SVG_POLYGON_TAG);
 		selectedPolygon.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
-		selectedPolygon.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphComponent.SELECTED_COLOUR);
+		selectedPolygon.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphSettings.SELECTED_COLOUR);
 		selectedPolygon.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "2");
 		selectedPolygon.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY, CSSConstants.CSS_NONE_VALUE);
 		
 		ellipse = (SVGOMEllipseElement) graphController.createElement(SVGConstants.SVG_ELLIPSE_TAG);
 		selectedEllipse = (SVGOMEllipseElement) graphController.createElement(SVGConstants.SVG_ELLIPSE_TAG);
 		selectedEllipse.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
-		selectedEllipse.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphComponent.SELECTED_COLOUR);
+		selectedEllipse.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphSettings.SELECTED_COLOUR);
 		selectedEllipse.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "2");
 		selectedEllipse.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY, CSSConstants.CSS_NONE_VALUE);
 		
@@ -149,10 +149,9 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 
 		completedPolygon = (SVGOMPolygonElement) graphController.createElement(SVGConstants.SVG_POLYGON_TAG);
 		completedPolygon.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil.calculatePoints(getShape(), 0, 0));
-		completedPolygon.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGGraphComponent.COMPLETED_COLOUR);
-		completedPolygon.setAttribute(SVGConstants.SVG_FILL_OPACITY_ATTRIBUTE, "0.8");
-		completedPolygon.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, "black");
-//		completedPolygon.setAttribute(SVGConstants.SVG_STROKE_OPACITY_ATTRIBUTE, "0.6");
+		completedPolygon.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGGraphSettings.COMPLETED_COLOUR);
+//		completedPolygon.setAttribute(SVGConstants.SVG_FILL_OPACITY_ATTRIBUTE, "0.8");
+//		completedPolygon.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
 		contractedElement.appendChild(completedPolygon);
 
 		labelText = graphController.createText("");
@@ -176,7 +175,7 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 		error.setAttribute(SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE, SVGConstants.SVG_END_VALUE);
 		error.setAttribute(SVGConstants.SVG_FONT_SIZE_ATTRIBUTE, "6");
 		error.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
-		error.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, "red");
+//		error.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGGraphComponent.ERROR_COLOUR);
 		error.appendChild(errorsText);
 		contractedElement.appendChild(error);
 				
@@ -184,6 +183,7 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 //		g.appendChild(deleteButton);
 	}
 
+	@SuppressWarnings("unused")
 	private SVGElement createDeleteButton() {
 		final SVGOMGElement button = (SVGOMGElement) graphController.createElement(SVGConstants.SVG_G_TAG);
 		button.setAttribute(CSSConstants.CSS_VISIBILITY_PROPERTY, CSSConstants.CSS_HIDDEN_VALUE);
@@ -370,10 +370,12 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 	}
 
 	public void setShape(final Shape shape) {
+		final Shape currentShape = getShape();
+		super.setShape(shape);
 		graphController.updateSVGDocument(
 			new Runnable() {
 				public void run() {
-					if (getShape() == null) {
+					if (currentShape == null) {
 						if (shape != null) {
 							if (Shape.CIRCLE.equals(shape)) {
 								contractedElement.insertBefore(ellipse, completedPolygon);
@@ -390,7 +392,7 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 								contractedElement.appendChild(portsGroup);
 							}
 						}
-					} else if (Shape.CIRCLE.equals(getShape())) {
+					} else if (Shape.CIRCLE.equals(currentShape)) {
 						if (!Shape.CIRCLE.equals(shape)) {
 							contractedElement.replaceChild(ellipse, polygon);
 							contractedElement.replaceChild(selectedEllipse, selectedPolygon);
@@ -412,7 +414,6 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 				}
 			}
 		);
-		super.setShape(shape);
 	}
 	
 	public void setLineStyle(final LineStyle lineStyle) {
@@ -464,6 +465,8 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 				public void run() {
 					if (!LineStyle.NONE.equals(getLineStyle())) {
 						shapeElement.setAttribute(
+								SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil.getHexValue(color));
+						completedPolygon.setAttribute(
 								SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil.getHexValue(color));
 					}
 				}
@@ -522,8 +525,7 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 			new Runnable() {
 				public void run() {
 					if (iteration > 0) {
-						iterationText.setData(String
-								.valueOf(iteration));
+						iterationText.setData(String.valueOf(iteration));
 					} else {
 						iterationText.setData("");
 					}
@@ -539,11 +541,14 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 				public void run() {
 					if (errors > 0) {
 						errorsText.setData(String.valueOf(errors));
-						setColor(Color.RED);
-
+//						shapeElement.setAttribute(
+//								SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphComponent.ERROR_COLOUR);
+						completedPolygon.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGGraphSettings.ERROR_COLOUR);
 					} else {
 						errorsText.setData("");
-						setColor(Color.BLACK);
+//						shapeElement.setAttribute(
+//								SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphComponent.NORMAL_COLOUR);
+						completedPolygon.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGGraphSettings.COMPLETED_COLOUR);
 					}
 				}
 			}
@@ -558,28 +563,28 @@ public class SVGGraphNode extends GraphNode implements SVGMonitorShape {
 					completedPolygon.setAttribute(
 							SVGConstants.SVG_POINTS_ATTRIBUTE,
 							SVGUtil.calculatePoints(getShape(), (int) (getWidth() * complete), getHeight()));
-					if (complete == 0f) {
-						completedPolygon
-						.setAttribute(
-								SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE,
-								"0");
-					} else {
-						completedPolygon
-						.setAttribute(
-								SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE,
-								"1");
-					}
+//					if (complete == 0f) {
+//						completedPolygon
+//						.setAttribute(
+//								SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE,
+//								"0");
+//					} else {
+//						completedPolygon
+//						.setAttribute(
+//								SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE,
+//								"1");
+//					}
 				}
 			}
 		);
 	}
 
-	public SVGOMPolygonElement getCompletedPolygon() {
-		return completedPolygon;
-	}
-
-	public void setCompletedPolygon(SVGOMPolygonElement polygon) {
-	}
+//	public SVGOMPolygonElement getCompletedPolygon() {
+//		return completedPolygon;
+//	}
+//
+//	public void setCompletedPolygon(SVGOMPolygonElement polygon) {
+//	}
 
 	/**
 	 * Returns the iterationText.

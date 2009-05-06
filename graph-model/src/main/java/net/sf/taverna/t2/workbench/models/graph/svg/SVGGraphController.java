@@ -44,10 +44,7 @@ import net.sf.taverna.t2.workbench.models.graph.dot.ParseException;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.batik.bridge.UpdateManager;
-import org.apache.batik.dom.GenericText;
-import org.apache.batik.dom.svg.SVGOMPolygonElement;
 import org.apache.batik.dom.svg.SVGOMTextElement;
-import org.apache.batik.dom.svg.SVGOMTitleElement;
 import org.apache.batik.util.SVGConstants;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
@@ -61,21 +58,21 @@ public abstract class SVGGraphController extends GraphController {
 
 	private static Logger logger = Logger.getLogger(SVGGraphController.class);
 
-	private Map<String, SVGShape> processorMap = new HashMap<String, SVGShape>();
+//	private Map<String, SVGShape> processorMap = new HashMap<String, SVGShape>();
 
 	private Map<String, List<SVGGraphEdge>> datalinkMap = new HashMap<String, List<SVGGraphEdge>>();
 
-	SVGDocument svgDocument;
+	private SVGDocument svgDocument;
 	
 	private GraphLayout graphLayout = new GraphLayout();
 
 	private EdgeLine edgeLine;
 	
-	UpdateManager updateManager;
+	private UpdateManager updateManager;
 
-	public static final String OUTPUT_COLOUR = "blue";
-
-	public static final int OUTPUT_FLASH_PERIOD = 200;
+//	public static final String OUTPUT_COLOUR = "blue";
+//
+//	public static final int OUTPUT_FLASH_PERIOD = 200;
 
 	static final Timer timer = new Timer(true);
 	
@@ -109,10 +106,9 @@ public abstract class SVGGraphController extends GraphController {
 	}
 
 	public SVGDocument generateSVGDocument(Rectangle bounds) {
-//System.out.println("bounds = " + bounds);
 		svgDocument = SVGUtil.createSVGDocument();
 		updateManager = null;
-		processorMap.clear();
+//		processorMap.clear();
 		datalinkMap.clear();
 
 		double aspectRatio = ((float) bounds.width) / ((float) bounds.height);
@@ -158,12 +154,13 @@ public abstract class SVGGraphController extends GraphController {
 			SVGOMTextElement error = (SVGOMTextElement) createElement(SVGConstants.SVG_TEXT_TAG);
 			error.setAttribute(SVGConstants.SVG_Y_ATTRIBUTE, Integer.toString(initialPosition + i * 60));
 			error.setAttribute(SVGConstants.SVG_FONT_SIZE_ATTRIBUTE, "20");
-	error.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
-	error.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, "red");
-	error.appendChild(errorsText);
-	svgElement.appendChild(error);			
+			error.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
+			error.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, "red");
+			error.appendChild(errorsText);
+			svgElement.appendChild(error);			
 		}
 	}
+	
 	public void setUpdateManager(UpdateManager updateManager) {
 		this.updateManager = updateManager;
 		resetSelection();
@@ -230,37 +227,6 @@ public abstract class SVGGraphController extends GraphController {
 		}
 	}
 
-	private SVGOMPolygonElement createPolygon(String points) {
-		SVGOMPolygonElement polygon = (SVGOMPolygonElement) svgDocument
-				.createElementNS(SVGUtil.svgNS, SVGConstants.SVG_POLYGON_TAG);
-		polygon.setAttribute(SVGConstants.SVG_STYLE_ATTRIBUTE,
-				"fill:none;stroke:none;");
-		polygon.setAttribute("pointer-events", "fill");
-		polygon.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, points);
-
-		return polygon;
-	}
-
-	private SVGOMPolygonElement createProgressPolygon() {
-		SVGOMPolygonElement polygon = (SVGOMPolygonElement) svgDocument
-		.createElementNS(SVGUtil.svgNS, SVGConstants.SVG_POLYGON_TAG);
-		polygon.setAttribute(
-				SVGConstants.SVG_POINTS_ATTRIBUTE, "");
-		polygon.setAttribute(
-				SVGConstants.SVG_FILL_ATTRIBUTE,
-				SVGGraphComponent.COMPLETED_COLOUR);
-		polygon.setAttribute(
-				SVGConstants.SVG_FILL_OPACITY_ATTRIBUTE,
-				"0.8");
-//		completedBox.setAttribute(
-//		SVGConstants.SVG_STROKE_ATTRIBUTE,
-//		"black");
-//		completedBox.setAttribute(
-//		SVGConstants.SVG_STROKE_OPACITY_ATTRIBUTE,
-//		"0.6");
-		return polygon;
-	}
-
 	public Element createElement(String tag) {
 		return svgDocument.createElementNS(SVGUtil.svgNS, tag);
 	}
@@ -275,43 +241,7 @@ public abstract class SVGGraphController extends GraphController {
 		} else {
 			thread.run();
 		}
-
-	}
-	
-	private Element createIterationTextElement(SVGPoint iterationPosition) {
-		Element text = svgDocument.createElementNS(SVGUtil.svgNS, SVGConstants.SVG_TEXT_TAG);
-		text.setAttribute(SVGConstants.SVG_X_ATTRIBUTE,
-				String.valueOf(iterationPosition.getX() - 1.5));
-		text.setAttribute(SVGConstants.SVG_Y_ATTRIBUTE,
-				String.valueOf(iterationPosition.getY() + 5.5));
-		text.setAttribute(SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE, "end");
-		text.setAttribute(SVGConstants.SVG_FONT_SIZE_ATTRIBUTE, "5.5");
-		text.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
-		return text;
-	}
-	/**
-	 * Sets the processor's iteration count.
-	 * 
-	 * @param processorId
-	 *            the id of the processor
-	 * @param iteration
-	 *            the number of iteration count
-	 */
-	public void setIteration(String processorId, int iteration) {
-		if (processorMap.containsKey(processorId)) {
-			processorMap.get(processorId).setIteration(iteration);
-		}
-	}
-	
-	private String getTitle(SVGOMTitleElement titleElement) {
-		String title = null;
-		Object titleElementChild = titleElement.getFirstChild();
-		if (titleElementChild instanceof GenericText) {
-			GenericText textElement = (GenericText) titleElementChild;
-			title = textElement.getData();
-		}
-		return title;
-	}
+	}	
 
 }
 
@@ -362,79 +292,72 @@ class EdgeLine {
 	}
 
 	public void setSourcePoint(final Point point) {
-		UpdateManager updateManager = this.graphController.updateManager;
-		if (updateManager != null) {
-			updateManager.getUpdateRunnableQueue().invokeLater(
-					new Runnable() {
-						public void run() {
-							line.setAttribute(SVGConstants.SVG_X1_ATTRIBUTE, String.valueOf(point
-									.getX()));
-							line.setAttribute(SVGConstants.SVG_Y1_ATTRIBUTE, String.valueOf(point
-									.getY()));
+		graphController.updateSVGDocument(
+			new Runnable() {
+				public void run() {
+					line.setAttribute(SVGConstants.SVG_X1_ATTRIBUTE, String.valueOf(point
+							.getX()));
+					line.setAttribute(SVGConstants.SVG_Y1_ATTRIBUTE, String.valueOf(point
+							.getY()));
 
-							float x = Float.parseFloat(line
-									.getAttribute(SVGConstants.SVG_X2_ATTRIBUTE));
-							float y = Float.parseFloat(line
-									.getAttribute(SVGConstants.SVG_Y2_ATTRIBUTE));
-							double angle = SVGUtil.calculateAngle(line);
+					float x = Float.parseFloat(line
+							.getAttribute(SVGConstants.SVG_X2_ATTRIBUTE));
+					float y = Float.parseFloat(line
+							.getAttribute(SVGConstants.SVG_Y2_ATTRIBUTE));
+					double angle = SVGUtil.calculateAngle(line);
 
-							pointer.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-									+ x + " " + y + ") rotate(" + angle + " 0 0) ");
-						}
-					});
-		}
+					pointer.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+							+ x + " " + y + ") rotate(" + angle + " 0 0) ");
+				}
+			}
+		);
 	}
 
 	public void setTargetPoint(final Point point) {
-		UpdateManager updateManager = this.graphController.updateManager;
-		if (updateManager != null) {
-			updateManager.getUpdateRunnableQueue().invokeLater(
-					new Runnable() {
-						public void run() {
-							line.setAttribute(SVGConstants.SVG_X2_ATTRIBUTE, String.valueOf(point
-									.getX()));
-							line.setAttribute(SVGConstants.SVG_Y2_ATTRIBUTE, String.valueOf(point
-									.getY()));
+		graphController.updateSVGDocument(
+			new Runnable() {
+				public void run() {
+					line.setAttribute(SVGConstants.SVG_X2_ATTRIBUTE, String.valueOf(point
+							.getX()));
+					line.setAttribute(SVGConstants.SVG_Y2_ATTRIBUTE, String.valueOf(point
+							.getY()));
 
-							double angle = SVGUtil.calculateAngle(line);
-							pointer.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-									+ point.x + " " + point.y + ") rotate(" + angle + " 0 0) ");
-						}
-					});
-		}
+					double angle = SVGUtil.calculateAngle(line);
+					pointer.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+							+ point.x + " " + point.y + ") rotate(" + angle + " 0 0) ");
+				}
+			}
+		);
 	}
 
 	public void setColour(final Color colour) {
-		UpdateManager updateManager = this.graphController.updateManager;
-		if (updateManager != null) {
-			updateManager.getUpdateRunnableQueue().invokeLater(
-					new Runnable() {
-						public void run() {
-							String hexColour = SVGUtil.getHexValue(colour);
-							line.setAttribute(SVGConstants.SVG_STYLE_ATTRIBUTE, "fill:none;stroke:"
-									+ hexColour + ";");
-							pointer.setAttribute(SVGConstants.SVG_STYLE_ATTRIBUTE, "fill:"
-									+ hexColour + ";stroke:" + hexColour + ";");
-						}
-					});
-		}
+		graphController.updateSVGDocument(
+			new Runnable() {
+				public void run() {
+					String hexColour = SVGUtil.getHexValue(colour);
+					line.setAttribute(SVGConstants.SVG_STYLE_ATTRIBUTE, "fill:none;stroke:"
+							+ hexColour + ";");
+					pointer.setAttribute(SVGConstants.SVG_STYLE_ATTRIBUTE, "fill:"
+							+ hexColour + ";stroke:" + hexColour + ";");
+				}
+			}
+		);
 	}
 
 	public void setVisible(final boolean visible) {
-		UpdateManager updateManager = this.graphController.updateManager;
-		if (updateManager != null) {
-			updateManager.getUpdateRunnableQueue().invokeLater(
-					new Runnable() {
-						public void run() {
-							if (visible) {
-								line.setAttribute("visibility", "visible");
-								pointer.setAttribute("visibility", "visible");
-							} else {
-								line.setAttribute("visibility", "hidden");
-								pointer.setAttribute("visibility", "hidden");
-							}
-						}
-					});
-		}
+		graphController.updateSVGDocument(
+			new Runnable() {
+				public void run() {
+					if (visible) {
+						line.setAttribute("visibility", "visible");
+						pointer.setAttribute("visibility", "visible");
+					} else {
+						line.setAttribute("visibility", "hidden");
+						pointer.setAttribute("visibility", "hidden");
+					}
+				}
+			}
+		);
 	}
+	
 }

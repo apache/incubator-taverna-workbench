@@ -32,9 +32,7 @@ import net.sf.taverna.t2.workbench.models.graph.svg.event.SVGMouseOutEventListen
 import net.sf.taverna.t2.workbench.models.graph.svg.event.SVGMouseOverEventListener;
 import net.sf.taverna.t2.workbench.models.graph.svg.event.SVGMouseUpEventListener;
 
-import org.apache.batik.bridge.UpdateManager;
 import org.apache.batik.dom.svg.SVGGraphicsElement;
-import org.apache.batik.dom.svg.SVGOMEllipseElement;
 import org.apache.batik.dom.svg.SVGOMGElement;
 import org.apache.batik.dom.svg.SVGOMPolygonElement;
 import org.apache.batik.dom.svg.SVGOMTextElement;
@@ -42,14 +40,13 @@ import org.apache.batik.util.SVGConstants;
 import org.w3c.dom.Text;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.svg.SVGElement;
-import org.w3c.dom.svg.SVGPointList;
 
 /**
  * SVG representation of a graph.
  * 
  * @author David Withers
  */
-public class SVGGraph extends Graph implements SVGMonitorShape {
+public class SVGGraph extends Graph /*implements SVGMonitorShape*/ {
 
 	private SVGGraphController graphController;
 
@@ -59,15 +56,15 @@ public class SVGGraph extends Graph implements SVGMonitorShape {
 
 	private SVGMouseUpEventListener mouseUpAction;
 
+	@SuppressWarnings("unused")
 	private SVGMouseOverEventListener mouseOverAction;
 
+	@SuppressWarnings("unused")
 	private SVGMouseOutEventListener mouseOutAction;
 
 	private SVGOMGElement g;
 
 	private SVGOMPolygonElement polygon;
-
-	private SVGOMEllipseElement ellipse;
 
 	private SVGGraphicsElement shapeElement;
 
@@ -107,15 +104,14 @@ public class SVGGraph extends Graph implements SVGMonitorShape {
 		
 		polygon = (SVGOMPolygonElement) graphController.createElement(SVGConstants.SVG_POLYGON_TAG);
 		g.appendChild(polygon);
-		ellipse = (SVGOMEllipseElement) graphController.createElement(SVGConstants.SVG_ELLIPSE_TAG);
+//		ellipse = (SVGOMEllipseElement) graphController.createElement(SVGConstants.SVG_ELLIPSE_TAG);
 		shapeElement = polygon;
 
 		completedPolygon = (SVGOMPolygonElement) graphController.createElement(SVGConstants.SVG_POLYGON_TAG);
 		completedPolygon.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil.calculatePoints(getShape(), 0, 0));
-		completedPolygon.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGGraphComponent.COMPLETED_COLOUR);
-		completedPolygon.setAttribute(SVGConstants.SVG_FILL_OPACITY_ATTRIBUTE, "0.8");
-		completedPolygon.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, "black");
-//		completedPolygon.setAttribute(SVGConstants.SVG_STROKE_OPACITY_ATTRIBUTE, "0.6");
+		completedPolygon.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGGraphSettings.COMPLETED_COLOUR);
+//		completedPolygon.setAttribute(SVGConstants.SVG_FILL_OPACITY_ATTRIBUTE, "0.8");
+//		completedPolygon.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
 		g.appendChild(completedPolygon);
 
 		labelText = graphController.createText("");
@@ -137,7 +133,7 @@ public class SVGGraph extends Graph implements SVGMonitorShape {
 		error.setAttribute(SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE, SVGConstants.SVG_END_VALUE);
 		error.setAttribute(SVGConstants.SVG_FONT_SIZE_ATTRIBUTE, "6");
 		error.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
-		error.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, "red");
+//		error.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGGraphComponent.ERROR_COLOUR);
 		error.appendChild(errorsText);
 		shapeElement.appendChild(error);
 
@@ -251,6 +247,8 @@ public class SVGGraph extends Graph implements SVGMonitorShape {
 					if (!LineStyle.NONE.equals(getLineStyle())) {
 						shapeElement.setAttribute(
 								SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil.getHexValue(color));
+						completedPolygon.setAttribute(
+								SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil.getHexValue(color));
 					}
 				}
 			}
@@ -280,16 +278,13 @@ public class SVGGraph extends Graph implements SVGMonitorShape {
 		);
 	}
 	
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.models.graph.GraphElement#setSelected(boolean)
-	 */
 	public void setSelected(final boolean selected) {
 		super.setSelected(selected);
 		graphController.updateSVGDocument(
 			new Runnable() {
 				public void run() {
 					if (selected) {
-						shapeElement.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphComponent.SELECTED_COLOUR);
+						shapeElement.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphSettings.SELECTED_COLOUR);
 						shapeElement.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "2");
 					} else {
 						shapeElement.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil.getHexValue(getColor()));
@@ -317,31 +312,29 @@ public class SVGGraph extends Graph implements SVGMonitorShape {
 
 	public void setCompleted(final float complete) {
 		super.setCompleted(complete);
-		UpdateManager updateManager = this.graphController.updateManager;
-		if (updateManager != null) {
-			updateManager.getUpdateRunnableQueue().invokeLater(
-					new Runnable() {
-						public void run() {
-							Point position = getPosition();
-							completedPolygon.setAttribute(
-									SVGConstants.SVG_POINTS_ATTRIBUTE,
-									SVGUtil.calculatePoints(getShape(), (int) (getWidth() * complete), getHeight()));
-							completedPolygon.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-									+ position.x + " " + position.y + ")");
-							if (complete == 0f) {
-								completedPolygon
-								.setAttribute(
-										SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE,
-								"0");
-							} else {
-								completedPolygon
-								.setAttribute(
-										SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE,
-								"1");
-							}
-						}
-					});
-		}
+		graphController.updateSVGDocument(
+				new Runnable() {
+					public void run() {
+						Point position = getPosition();
+						completedPolygon.setAttribute(
+								SVGConstants.SVG_POINTS_ATTRIBUTE,
+								SVGUtil.calculatePoints(getShape(), (int) (getWidth() * complete), getHeight()));
+						completedPolygon.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+								+ position.x + " " + position.y + ")");
+//						if (complete == 0f) {
+//							completedPolygon
+//							.setAttribute(
+//									SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE,
+//									"0");
+//						} else {
+//							completedPolygon
+//							.setAttribute(
+//									SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE,
+//									"1");
+//						}
+					}
+				}
+			);
 	}
 
 	private void updateShape() {
@@ -361,12 +354,12 @@ public class SVGGraph extends Graph implements SVGMonitorShape {
 		}
 	}
 
-	public SVGOMPolygonElement getCompletedPolygon() {
-		return completedPolygon;
-	}
-
-	public void setCompletedPolygon(SVGOMPolygonElement polygon) {
-	}
+//	public SVGOMPolygonElement getCompletedPolygon() {
+//		return completedPolygon;
+//	}
+//
+//	public void setCompletedPolygon(SVGOMPolygonElement polygon) {
+//	}
 
 	/**
 	 * Returns the iterationText.

@@ -89,6 +89,11 @@ public class SVGUtil {
         return (SVGOMPoint) screenPoint.matrixTransform(mat);
 	}
 	
+	/**
+	 * Writes SVG to the console. For debugging only.
+	 *
+	 * @param svgDocument
+	 */
 	public static void writeSVG(SVGDocument svgDocument) {
 		try {
 			TransformerFactory tranFact = TransformerFactory.newInstance(); 
@@ -98,10 +103,8 @@ public class SVGUtil {
 			Result dest = new StreamResult(System.out);
 			transfor.transform(src, dest);
 		} catch (TransformerConfigurationException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (TransformerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

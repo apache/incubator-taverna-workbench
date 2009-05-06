@@ -59,8 +59,10 @@ public class SVGGraphEdge extends GraphEdge {
 
 	private SVGMouseDownEventListener mouseDownAction;
 
+	@SuppressWarnings("unused")
 	private SVGMouseOverEventListener mouseOverAction;
 
+	@SuppressWarnings("unused")
 	private SVGMouseOutEventListener mouseOutAction;
 
 	private SVGOMGElement g;
@@ -146,10 +148,10 @@ public class SVGGraphEdge extends GraphEdge {
 				new Runnable() {
 					public void run() {
 						if (selected) {
-							path.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphComponent.SELECTED_COLOUR);
-							arrowHead.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphComponent.SELECTED_COLOUR);
+							path.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphSettings.SELECTED_COLOUR);
+							arrowHead.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphSettings.SELECTED_COLOUR);
 							if (getFillColor() != null) {
-								arrowHead.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGGraphComponent.SELECTED_COLOUR);
+								arrowHead.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGGraphSettings.SELECTED_COLOUR);
 							}
 
 //								System.out.println("Path = " +path.getAttribute("d"));
