@@ -31,7 +31,7 @@ import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
 /**
- * A <code>MonitorNode</code> that updates an <code>Graph</code> when
+ * A <code>MonitorNode</code> that updates a <code>Graph</code> when
  * <code>MonitorableProperty</code>s change.
  * 
  * @author David Withers
@@ -184,7 +184,7 @@ public class GraphMonitorNode implements MonitorNode {
 				graphController.setEdgeActive(processorId, true);
 			}
 			if (errorsChanged && errors > 0) {
-//				graphController.setErrors(processorId, errors);				
+				graphController.setErrors(processorId, errors);				
 			}
 		}
 	}

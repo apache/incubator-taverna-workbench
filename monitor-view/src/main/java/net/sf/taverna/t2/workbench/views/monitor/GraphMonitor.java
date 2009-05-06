@@ -96,7 +96,7 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 			final String owningProcessId = getOwningProcessId(owningProcess);
 			Object workflowObject = workflowObjects.remove(owningProcessId);
 			if (workflowObject instanceof Processor) {
-				// processors.get(getProcessorId(owningProcess)).update();
+				 processors.get(getProcessorId(owningProcess)).update();
 			} else if (workflowObject instanceof Dataflow) {
 				if (owningProcess.length == 2) {
 					// outermost dataflow finished so schedule a task to cancel
@@ -162,10 +162,6 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 			}
 		}
 	}
-
-//	public void setGraphController(GraphController graphController) {
-//		this.graphController = graphController;
-//	}
 
 	/**
 	 * Calculates the id that will identify the box on the diagram that
