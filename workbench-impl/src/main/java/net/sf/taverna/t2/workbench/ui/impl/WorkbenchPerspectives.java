@@ -171,7 +171,7 @@ public class WorkbenchPerspectives {
 		List<PerspectiveSPI> perspectives = PerspectiveRegistry.getInstance()
 				.getPerspectives();
 		for (final PerspectiveSPI perspective : perspectives) {
-			updatePerspectiveWithSaved(perspective);
+//			updatePerspectiveWithSaved(perspective);
 			addPerspective(perspective, false);
 		}
 
@@ -529,6 +529,8 @@ public class WorkbenchPerspectives {
 						Element savedElement = savedSplitElements.get(i);
 						Element perspectiveElement = perspectiveSplitElements
 								.get(i);
+						logger.info("Ratio was " + perspectiveElement.getAttributeValue("ratio"));
+						logger.info("Setting ratio to " + savedElement.getAttributeValue("ratio"));
 						perspectiveElement.setAttribute("ratio", savedElement
 								.getAttributeValue("ratio"));
 					}
