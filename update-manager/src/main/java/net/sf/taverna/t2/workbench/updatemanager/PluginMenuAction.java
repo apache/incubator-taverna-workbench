@@ -14,10 +14,13 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 
 public class PluginMenuAction extends AbstractMenuAction {
 
+	private static final String UPDATES_AND_PLUGINS = "Updates and plugins";
+	
 	@SuppressWarnings("serial")
 	protected class SoftwareUpdates extends AbstractAction {
+
 		public SoftwareUpdates() {
-			super("Software updates", UpdatesAvailableIcon.updateRecommendedIcon);
+			super(UPDATES_AND_PLUGINS, UpdatesAvailableIcon.updateRecommendedIcon);
 		}
 
 		public void actionPerformed(ActionEvent e) {
