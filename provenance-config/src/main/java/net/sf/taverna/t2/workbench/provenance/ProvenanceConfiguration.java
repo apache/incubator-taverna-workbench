@@ -47,7 +47,7 @@ public class ProvenanceConfiguration extends AbstractConfigurable {
 		if (defaultProvenanceProperties == null) {
 			defaultProvenanceProperties = new HashMap<String,String>();
 		}
-		defaultProvenanceProperties.put("enabled", "false");
+		defaultProvenanceProperties.put("enabled", "no");
 		defaultProvenanceProperties.put("storage", "local");
 		defaultProvenanceProperties.put("database", "derby");
 		defaultProvenanceProperties.put("create", "true");
