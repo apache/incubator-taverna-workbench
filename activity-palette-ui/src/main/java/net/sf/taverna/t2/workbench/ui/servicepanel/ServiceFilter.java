@@ -25,6 +25,7 @@ import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -80,8 +81,12 @@ public class ServiceFilter implements Filter {
 						}
 						if (type == null && !property.isHidden()
 								&& !property.isExpert()
-								|| property.getName().equalsIgnoreCase(type)) {
-							Object readProperty = property.getReadMethod()
+								|| property.getName().equalsIgnoreCase(type)) {							
+							Method readMethod = property.getReadMethod();
+							if (readMethod == null) {
+								continue;
+							}
+							Object readProperty = readMethod
 									.invoke(serviceDescription, new Object[0]);
 							if (readProperty == null) {
 								continue;
