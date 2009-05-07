@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import javax.swing.JComponent;
 
@@ -58,8 +60,6 @@ public abstract class SVGGraphController extends GraphController {
 
 	private static Logger logger = Logger.getLogger(SVGGraphController.class);
 
-//	private Map<String, SVGShape> processorMap = new HashMap<String, SVGShape>();
-
 	private Map<String, List<SVGGraphEdge>> datalinkMap = new HashMap<String, List<SVGGraphEdge>>();
 
 	private SVGDocument svgDocument;
@@ -69,6 +69,10 @@ public abstract class SVGGraphController extends GraphController {
 	private EdgeLine edgeLine;
 	
 	private UpdateManager updateManager;
+	
+	private Executor executor = Executors.newFixedThreadPool(1);
+	
+	private boolean drawingDiagram = false;
 
 //	public static final String OUTPUT_COLOUR = "blue";
 //
@@ -85,12 +89,10 @@ public abstract class SVGGraphController extends GraphController {
 
 	public SVGGraphController(Dataflow dataflow, JComponent component) {
 		super(dataflow, component);
-//		svgDocument = SVGUtil.createSVGDocument();
 	}
 
 	public SVGGraphController(Dataflow dataflow, GraphEventManager graphEventManager, JComponent component) {
 		super(dataflow, graphEventManager, component);
-//		svgDocument = SVGUtil.createSVGDocument();
 	}
 
 	public GraphEdge createGraphEdge() {
@@ -108,7 +110,6 @@ public abstract class SVGGraphController extends GraphController {
 	public SVGDocument generateSVGDocument(Rectangle bounds) {
 		svgDocument = SVGUtil.createSVGDocument();
 		updateManager = null;
-//		processorMap.clear();
 		datalinkMap.clear();
 
 		double aspectRatio = ((float) bounds.width) / ((float) bounds.height);
@@ -143,6 +144,7 @@ public abstract class SVGGraphController extends GraphController {
 				logger.error("Couldn't layout svg", e);
 			}
 		}
+		drawingDiagram = true;
 		return svgDocument;
 	}
 	
@@ -163,6 +165,7 @@ public abstract class SVGGraphController extends GraphController {
 	
 	public void setUpdateManager(UpdateManager updateManager) {
 		this.updateManager = updateManager;
+		drawingDiagram = false;
 		resetSelection();
 	}
 
@@ -235,11 +238,21 @@ public abstract class SVGGraphController extends GraphController {
 		return svgDocument.createTextNode(text);
 	}
 	
-	public void updateSVGDocument(Runnable thread) {
-		if (updateManager != null) {
-			updateManager.getUpdateRunnableQueue().invokeLater(thread);
-		} else {
+	public void updateSVGDocument(final Runnable thread) {
+		if (updateManager == null && !drawingDiagram) {
 			thread.run();
+		} else {
+			executor.execute(new Runnable() {
+				public void run() {
+					while (updateManager == null) {
+						try {
+							Thread.sleep(200);
+						} catch (InterruptedException e) {
+						}
+					}
+					updateManager.getUpdateRunnableQueue().invokeLater(thread);
+				}			
+			});
 		}
 	}	
 
