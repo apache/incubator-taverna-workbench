@@ -36,6 +36,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -51,6 +52,7 @@ import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.impl.WriteQueueAspect;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.provenance.ProvenanceConfiguration;
 import net.sf.taverna.t2.workbench.reference.config.ReferenceConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
@@ -77,7 +79,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		setDividerLocation(400);
 		
 		topPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		topPanel.setDividerLocation(200);
+		topPanel.setDividerLocation(240);
 		topPanel.setBorder(null);
 		setTopComponent(topPanel);
 		
@@ -151,7 +153,26 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		runListTopPanel.add(worklflowRunsLabel, BorderLayout.WEST);
 		runListTopPanel.add(removeWorkflowRunsButton, BorderLayout.EAST);
 		
-		runListPanel.add(runListTopPanel, BorderLayout.NORTH);
+		JPanel runListWithHintTopPanel = new JPanel();
+		runListWithHintTopPanel.setLayout(new BorderLayout());
+		runListWithHintTopPanel.add(runListTopPanel, BorderLayout.NORTH);
+		
+		JPanel hintsPanel = new JPanel();
+		hintsPanel.setLayout(new BorderLayout());
+		hintsPanel.add(new JLabel("Click on a run to see its results"), BorderLayout.NORTH);
+		if (ProvenanceConfiguration.getInstance().getProperty("enabled")
+				.equalsIgnoreCase("yes")) {
+			hintsPanel.add(new JLabel("Click on a service in the diagram"),
+					BorderLayout.CENTER);
+		}
+		else {
+			hintsPanel.add(new JLabel("Enable provenance under preferences"), BorderLayout.CENTER);
+		}
+		hintsPanel.add(new JLabel("to see intermediate results"),
+				BorderLayout.SOUTH);
+		runListWithHintTopPanel.add(hintsPanel, BorderLayout.SOUTH);
+		
+		runListPanel.add(runListWithHintTopPanel, BorderLayout.NORTH);
 		
 		JScrollPane scrollPane = new JScrollPane(runList);
 		scrollPane.setBorder(null);
