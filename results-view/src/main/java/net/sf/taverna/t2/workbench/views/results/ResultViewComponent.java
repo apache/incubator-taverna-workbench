@@ -82,7 +82,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		setBorder(new EtchedBorder());
 		tabbedPane = new JTabbedPane();
 		saveButtonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		add(saveButtonsPanel, BorderLayout.NORTH);
+//		add(saveButtonsPanel, BorderLayout.NORTH);
 		add(tabbedPane, BorderLayout.CENTER);
 	}
 
