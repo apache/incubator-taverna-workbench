@@ -288,7 +288,7 @@ public class RunWorkflowAction extends AbstractAction {
 	@SuppressWarnings("serial")
 	private void showInputDialog(final WorkflowInstanceFacade facade, ReferenceContext refContext) {
 		// Create and set up the window.
-		final JFrame frame = new JFrame("Workflow input builder");
+		final JFrame frame = new JFrame("Workflow input values");
 		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		WorkflowLaunchPanel wlp = new WorkflowLaunchPanel(facade, refContext) {
