@@ -309,7 +309,7 @@ public class RunWorkflowAction extends AbstractAction {
 		for (DataflowInputPort input : inputPorts) {
 //			input.getAnnotations();
 			
-			String portDescription = annotationTools.getAnnotationString(input, FreeTextDescription.class, "");
+			String portDescription = annotationTools.getAnnotationString(input, FreeTextDescription.class, null);
 			String portExample = annotationTools.getAnnotationString(input, ExampleValue.class, null);
 			
 			wlp.addInput(input.getName(), input.getDepth(), portDescription, portExample);
