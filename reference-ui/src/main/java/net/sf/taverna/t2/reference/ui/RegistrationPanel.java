@@ -49,6 +49,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -74,6 +75,10 @@ import org.apache.log4j.Logger;
  */
 @SuppressWarnings("serial")
 public class RegistrationPanel extends JPanel {
+
+	private static final String NO_EXAMPLE_VALUE = "No example value";
+
+	private static final String NO_PORT_DESCRIPTION = "No port description";
 
 	private static final String NEW_VALUE = "Some input data goes here";
 
@@ -111,6 +116,8 @@ public class RegistrationPanel extends JPanel {
 	private JPanel editorPane;
 	private JSplitPane splitPane;
 	private final JLabel status;
+	private JTextArea descriptionArea;
+	private JTextArea exampleArea;
 	private JTextArea textArea;
 	private JLabel textAreaType;
 	private final PreRegistrationTree tree;
@@ -118,10 +125,10 @@ public class RegistrationPanel extends JPanel {
 	private TextAreaDocumentListener textAreaDocumentListener;
 
 
-	private final String example;
+	private String example;
 
 
-	private final String description;
+	private String description;
 
 	private String name;
 
@@ -158,21 +165,25 @@ public class RegistrationPanel extends JPanel {
 
 		editorPane = new JPanel(new BorderLayout());
 
-		String header = "<html><b>Port name:</b> " + name;
-		if (description != null) {
-			header += "<br><b>Description:</b> " + description;
-		}
-		if (example != null) {
-			header += "<br><b>Example:</b> " + example;			
-		}
-		header += "</html>";
-		JLabel editorPaneHeader = new JLabel(header);
-		editorPaneHeader.setBorder(BorderFactory.createCompoundBorder(
-			  BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()));
-
+		descriptionArea = new JTextArea(NO_PORT_DESCRIPTION);
+		descriptionArea.setBorder(new TitledBorder("Port description"));
+		descriptionArea.setEditable(false);
+		descriptionArea.setRows(5);
+		
+		exampleArea = new JTextArea(NO_EXAMPLE_VALUE);
+		exampleArea.setBorder(new TitledBorder("Example value"));
+		exampleArea.setEditable(false);
+		exampleArea.setRows(5);
+		
+		setDescription(description);
+		setExample(example);
+		
+		JPanel headerPanel = new JPanel(new BorderLayout());
+		headerPanel.add(descriptionArea, BorderLayout.NORTH);
+		headerPanel.add(exampleArea, BorderLayout.SOUTH);
 		JPanel headerAndToolBarPane = new JPanel(new BorderLayout());
 		
-		headerAndToolBarPane.add(editorPaneHeader, BorderLayout.NORTH);
+		headerAndToolBarPane.add(headerPanel, BorderLayout.NORTH);
 		headerAndToolBarPane.add(createToolBar(), BorderLayout.SOUTH);
 		
 		textArea = new JTextArea();
@@ -549,4 +560,25 @@ public class RegistrationPanel extends JPanel {
                     updateSelection();
                 }
             }
+
+
+	public void setDescription(String inputDescription) {
+		this.description = inputDescription;
+		if (inputDescription != null) {
+			descriptionArea.setText(inputDescription);
+		}
+		else {
+			descriptionArea.setText(NO_PORT_DESCRIPTION);
+		}
+	}
+
+	public void setExample(String inputExample) {
+		this.example = inputExample;
+		if (inputExample != null) {
+			exampleArea.setText(inputExample);
+		}
+		else {
+			exampleArea.setText(NO_EXAMPLE_VALUE);
+		}		
+	}
 }

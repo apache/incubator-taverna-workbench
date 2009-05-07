@@ -185,6 +185,8 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 			if (inputPanelMap.containsKey(inputName) &&
 					(inputPanelMap.get(inputName).getDepth() == inputDepth)) {
 				inputPanel = inputPanelMap.get(inputName);
+				inputPanel.setDescription(inputDescription);
+				inputPanel.setExample(inputExample);
 			} else {
 				inputPanel = new RegistrationPanel(inputDepth, inputName, inputDescription, inputExample);
 				inputPanelMap.put(inputName, inputPanel);
