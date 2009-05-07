@@ -66,9 +66,6 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class AnnotatedContextualView extends ContextualView {
 
-	private static final String MISSING_VALUE = "Missing value";
-
-	
 	private static Logger logger = Logger
 			.getLogger(AnnotatedContextualView.class);
 
@@ -85,7 +82,10 @@ public class AnnotatedContextualView extends ContextualView {
 	private Map<Class<?>, JTextArea> classToAreaMap;
 	private Map<Class<?>, String> classToCurrentValueMap;
 
+	private static String MISSING_VALUE = "Type here to give details";
+
 	private static int DEFAULT_AREA_WIDTH = 29;
+	private static int DEFAULT_AREA_ROWS = 5;
 	
 	private FileManager fileManager = FileManager.getInstance();
 	private EditManager editManager = EditManager.getInstance();
@@ -170,6 +170,7 @@ public class AnnotatedContextualView extends ContextualView {
 		area.setFocusable(true);
 		area.addFocusListener(new TextAreaFocusListener(area, c));
 		area.setColumns(DEFAULT_AREA_WIDTH);
+		area.setRows(DEFAULT_AREA_ROWS);
 		area.setLineWrap(true);
 		area.setWrapStyleWord(true);
 		classToAreaMap.put(c, area);
