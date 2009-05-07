@@ -80,11 +80,9 @@ public class DataflowRun {
 				if (token.getIndex().length == 0) {
 					results++;
 					if (results == dataflow.getOutputPorts().size()) {
-//						resultsComponent.deregister(facade);
 						facade.removeResultListener(this);
 						MonitorManager.getInstance().removeObserver(monitorObserver);
 						monitorObserver = null;
-						facade.removeResultListener(this);
 						results = 0;
 					}
 				}
