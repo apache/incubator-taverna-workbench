@@ -35,6 +35,7 @@ import net.sf.taverna.t2.annotation.annotationbeans.HostInstitution;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
+@SuppressWarnings("serial")
 public abstract class HTMLBasedActivityContextualView<ConfigBean> extends
 		ActivityContextualView<ConfigBean> {
 	private JEditorPane editorPane;
@@ -51,7 +52,7 @@ public abstract class HTMLBasedActivityContextualView<ConfigBean> extends
 	private String buildHtml() {
 		String html = "<html><head>" + getStyle() + "</head><body>";
 		html += buildTableOpeningTag();
-		html += "<tr><td colspan=2>" + getViewTitle() + "</td></tr>";
+		html += "<tr><th colspan=\"2\">" + getViewTitle() + "</th></tr>";
 		html += getRawTableRowsHtml() + "</table>";
 		html += "</body></html>";
 		return html;
