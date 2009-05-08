@@ -1,5 +1,6 @@
 package net.sf.taverna.t2.workbench.views.monitor;
 
+import java.awt.Dimension;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -58,6 +59,8 @@ public class PortTab extends JPanel {
 	private List<LineageQueryResultRecord> lineageRecords;
 
 	private JTable resultsTable;
+	
+	private JScrollPane scrollPane;
 
 	private RenderedResultComponent resultsComponent;
 
@@ -93,6 +96,7 @@ public class PortTab extends JPanel {
 		
 		for (Entry<String, T2Reference> entry2 : entrySet) {
 			iterationMap.put(entry2.getKey(), entry2.getValue());
+			logger.info("For port map insert is " + entry2.getKey() + " -> " + entry2.getValue());
 		}
 		List<String> sortedIndexes = sortIteration(iterationMap.keySet());
 	
@@ -121,7 +125,9 @@ public class PortTab extends JPanel {
 		}
 		getResultsTable().setBorder(
 				BorderFactory.createBevelBorder(BevelBorder.RAISED));
-		add(new JScrollPane(getResultsTable()));
+		scrollPane = new JScrollPane(getResultsTable());
+		scrollPane.setPreferredSize(new Dimension(500,300));
+		add(scrollPane);
 	}
 	
 	
@@ -261,7 +267,11 @@ public class PortTab extends JPanel {
 			if (getRowSelectionIndex() == -1 || getColumnSelectionIndex() == -1) {
 				return;
 			}
-			Object object = getPortMap().values().toArray()[getRowSelectionIndex()];
+			logger.info(getRowSelectionIndex());
+			logger.info(iterationRenderer);
+			String selectedIteration = iterationRenderer.getSortedIndexes().get(getRowSelectionIndex());
+
+			Object object = getPortMap().get(selectedIteration);
 
 			ResultTreeNode node = new ResultTreeNode((T2Reference) object,
 					getContext());
