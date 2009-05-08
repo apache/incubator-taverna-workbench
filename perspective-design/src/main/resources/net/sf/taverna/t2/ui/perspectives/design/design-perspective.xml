@@ -2,19 +2,12 @@
   <child>
     <znode classname="net.sf.taverna.zaria.ZSplitPane">
       <split ratio="0.49949545913218973" orientation="horizontal">
-        <right>
-                <znode classname="net.sf.taverna.zaria.ZTabbedPane">
-                  <tabs>
-                    <tab>
-                      <title>Workflow diagram</title>
+      <right>
           <znode classname="net.sf.taverna.zaria.ZRavenComponent">
             <namedcomponent scroll="false">
               <name>graphview</name>
             </namedcomponent>
           </znode>
-                    </tab>
-                  </tabs>
-                </znode>
         </right>
         <left>
           <znode classname="net.sf.taverna.zaria.ZSplitPane">
@@ -42,18 +35,11 @@
                 </znode>
               </right>
               <left>
-                <znode classname="net.sf.taverna.zaria.ZTabbedPane">
-                  <tabs>
-                    <tab>
-                      <title>Service panel</title>
                       <znode classname="net.sf.taverna.zaria.ZRavenComponent">
                         <namedcomponent scroll="false">
                           <name>servicePanel</name>
                         </namedcomponent>
                       </znode>
-                    </tab>
-                  </tabs>
-                </znode>
               </left>
             </split>
           </znode>
