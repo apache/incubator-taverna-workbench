@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,10 +35,12 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.TitledBorder;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -125,6 +128,9 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		serviceDescriptionRegistry
 				.addObserver(serviceDescriptionRegistryObserver);
 		initialise();
+		TitledBorder border = new TitledBorder("Service panel");
+		border.setTitleJustification(TitledBorder.CENTER);
+		this.setBorder(border);
 	}
 
 	public ImageIcon getIcon() {
