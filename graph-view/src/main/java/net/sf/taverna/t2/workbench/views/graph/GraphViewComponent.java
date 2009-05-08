@@ -44,6 +44,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -122,6 +123,10 @@ public class GraphViewComponent extends WorkflowView {
 		super();
 		this.setLayout(new BorderLayout());
 
+		TitledBorder border = new TitledBorder("Workflow diagram");
+		border.setTitleJustification(TitledBorder.CENTER);
+		this.setBorder(border);
+		
 		svgCanvas = new JSVGCanvas(null, true, false);
 		svgCanvas.setEnableZoomInteractor(false);
 		svgCanvas.setEnableRotateInteractor(false);
