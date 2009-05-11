@@ -61,7 +61,13 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 		Activity activity;
 			activity = (Activity) sd.getActivityClass().newInstance();
 		
-		
+		return importActivity(currentDataflow, activity, bean , component, rename);
+	}
+
+	@SuppressWarnings("unchecked")
+	public final static Processor importActivity(Dataflow currentDataflow, Activity activity, Object bean, JComponent component, boolean rename) throws InstantiationException, IllegalAccessException {
+		Processor p = null;
+
 		String name = sd.getName()
 				.replace(' ', '_');
 		name = Tools.uniqueProcessorName(name, currentDataflow);
@@ -107,6 +113,5 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 			}
 		}
 		return p;
-	}
-
+	}	
 }
