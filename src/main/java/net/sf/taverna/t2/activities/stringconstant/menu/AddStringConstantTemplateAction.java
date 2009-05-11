@@ -27,11 +27,13 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JComponent;
 
 import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
+import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
@@ -44,6 +46,7 @@ import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 
 /**
  * An action to add a string constant activity + a wrapping processor to the workflow.
@@ -77,29 +80,18 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 					public void actionPerformed(ActionEvent e) {
 						
 						Dataflow workflow = FileManager.getInstance().getCurrentDataflow();
-
-						// Create a processor placeholder for a string constant activity 
-						// and check for duplicate processor names
-						String suggestedProcessorName = "String_constant";
-						suggestedProcessorName = Tools.uniqueProcessorName(suggestedProcessorName, workflow);
-						Processor processor = EditsRegistry.getEdits().createProcessor(suggestedProcessorName);				
-						// Create the string constant activity and configure it
-						StringConstantActivity stringConstantActivity = new StringConstantActivity();
+						
 						try {
-							stringConstantActivity.configure(new StringConstantConfigurationBean());
-						} catch (ActivityConfigurationException ex) {
-							logger.error("Configuring string constant activity failed when trying to add it to the workflow model", ex);
-							return;
+							WorkflowView.importServiceDescription(workflow, StringConstantTemplateService.getServiceDescription(),
+									(JComponent) e.getSource(), false);
+						} catch (InstantiationException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						} catch (IllegalAccessException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
 						}
-						// List of all edits to be done to the workflow
-						List<Edit<?>> editList = new ArrayList<Edit<?>>();
-						editList.add(EditsRegistry.getEdits().getAddActivityEdit(processor, stringConstantActivity));
-						editList.add(EditsRegistry.getEdits().getAddProcessorEdit(workflow, processor));
-						try {
-							EditManager.getInstance().doDataflowEdit(workflow, new CompoundEdit(editList));
-						} catch (EditException ex) {
-							logger.error("Adding string constant activity to the workflow model failed", ex);
-						}							
+					
 					}
 			
 		};

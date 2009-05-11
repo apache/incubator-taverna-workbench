@@ -37,6 +37,11 @@
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<artifactId>workflow-view</artifactId>
+			<version>${t2.ui.api.version}</version>
+		</dependency>
 		
 		<dependency>
 			<groupId>junit</groupId>
