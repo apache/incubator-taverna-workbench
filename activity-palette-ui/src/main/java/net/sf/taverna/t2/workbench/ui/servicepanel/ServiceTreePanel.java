@@ -67,7 +67,7 @@ public class ServiceTreePanel extends TreePanel {
 	protected Component createExtraComponent() {
 		JComponent buttonPanel = new JPanel(new FlowLayout());
 		buttonPanel.add(new AddServiceProviderMenu());
-		buttonPanel.add(new JButton(new RefreshProviderRegistryAction()));
+//		buttonPanel.add(new JButton(new RefreshProviderRegistryAction()));
 		return buttonPanel;
 	}
 	
