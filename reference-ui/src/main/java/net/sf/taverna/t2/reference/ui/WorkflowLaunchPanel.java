@@ -22,6 +22,7 @@ package net.sf.taverna.t2.reference.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -95,9 +96,9 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 
 	private static final String NO_WORKFLOW_TITLE = "No title";
 
-	private JTextArea workflowDescription = new JTextArea(NO_WORKFLOW_DESCRIPTION);
-	private JTextArea workflowTitle = new JTextArea(NO_WORKFLOW_TITLE);
-	private JTextArea workflowAuthor = new JTextArea(NO_WORKFLOW_AUTHOR);
+	private JTextArea workflowDescription;
+	private JTextArea workflowTitle;
+	private JTextArea workflowAuthor;
 
 	private JPanel workflowImageComponentHolder = new JPanel();
 	private AnnotationTools annotationTools = new AnnotationTools();
@@ -107,13 +108,23 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	public WorkflowLaunchPanel(WorkflowInstanceFacade facade, ReferenceContext context) {
 		super(new BorderLayout());
 		
+		workflowDescription = new JTextArea(NO_WORKFLOW_DESCRIPTION, 5, 40);
 		workflowDescription.setBorder(new TitledBorder("Workflow description"));
 		workflowDescription.setEditable(false);
-		workflowDescription.setRows(5);
+		workflowDescription.setLineWrap(true);
+		workflowDescription.setWrapStyleWord(true);
+		
+		workflowAuthor = new JTextArea(NO_WORKFLOW_AUTHOR, 1, 40);
 		workflowAuthor.setBorder(new TitledBorder("Workflow author"));
 		workflowAuthor.setEditable(false);
+		workflowAuthor.setLineWrap(true);
+		workflowAuthor.setWrapStyleWord(true);
+		
+		workflowTitle = new JTextArea(NO_WORKFLOW_TITLE, 1, 40);
 		workflowTitle.setBorder(new TitledBorder("Workflow title"));
 		workflowTitle.setEditable(false);
+		workflowTitle.setLineWrap(true);
+		workflowTitle.setWrapStyleWord(true);
 
 		String dataflowName = facade.getDataflow().getLocalName();
 		if (workflowInputPanelMap.containsKey(dataflowName)) {

@@ -165,15 +165,17 @@ public class RegistrationPanel extends JPanel {
 
 		editorPane = new JPanel(new BorderLayout());
 
-		descriptionArea = new JTextArea(NO_PORT_DESCRIPTION);
+		descriptionArea = new JTextArea(NO_PORT_DESCRIPTION, 5, 40);
 		descriptionArea.setBorder(new TitledBorder("Port description"));
 		descriptionArea.setEditable(false);
-		descriptionArea.setRows(5);
+		descriptionArea.setLineWrap(true);
+		descriptionArea.setWrapStyleWord(true);
 		
-		exampleArea = new JTextArea(NO_EXAMPLE_VALUE);
+		exampleArea = new JTextArea(NO_EXAMPLE_VALUE, 2, 40);
 		exampleArea.setBorder(new TitledBorder("Example value"));
 		exampleArea.setEditable(false);
-		exampleArea.setRows(5);
+		exampleArea.setLineWrap(true);
+		exampleArea.setWrapStyleWord(true);
 		
 		setDescription(description);
 		setExample(example);
