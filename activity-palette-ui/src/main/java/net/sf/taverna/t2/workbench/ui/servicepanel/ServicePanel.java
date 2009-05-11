@@ -178,7 +178,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		if (statusUpdateTimer != null) {
 			statusUpdateTimer.cancel();
 		}
-		statusUpdateTimer = new Timer("Clear status line");
+		statusUpdateTimer = new Timer("Clear status line", true);
 		statusUpdateTimer.scheduleAtFixedRate(new UpdateStatusLineTask(), 0,
 				STATUS_LINE_MESSAGE_MS);
 		updateTree();

@@ -321,7 +321,7 @@ public abstract class TreePanel extends JPanel {
 
 	protected class SearchFieldKeyAdapter extends KeyAdapter {
 		private final Runnable runFilterRunnable;
-		Timer timer = new Timer();
+		Timer timer = new Timer("Search field timer");
 
 		private SearchFieldKeyAdapter() {
 			this.runFilterRunnable = new RunFilter();

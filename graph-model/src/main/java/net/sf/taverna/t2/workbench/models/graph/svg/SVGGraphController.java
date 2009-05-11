@@ -78,7 +78,7 @@ public abstract class SVGGraphController extends GraphController {
 //
 //	public static final int OUTPUT_FLASH_PERIOD = 200;
 
-	static final Timer timer = new Timer(true);
+	static final Timer timer = new Timer("SVG Graph controller timer", true);
 	
 	private static final String dotErrorMessage = "Cannot draw diagram(s)\n" +
 			"\n" +
