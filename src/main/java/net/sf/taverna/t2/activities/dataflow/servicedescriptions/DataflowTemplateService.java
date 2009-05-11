@@ -6,6 +6,7 @@ import javax.swing.ImageIcon;
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.activities.dataflow.query.DataflowActivityItem;
 import net.sf.taverna.t2.servicedescriptions.AbstractTemplateService;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 
@@ -35,6 +36,11 @@ public class DataflowTemplateService extends AbstractTemplateService<Dataflow>{
 	
 	public String getDescription() {
 		return A_CONFIGURABLE_NESTED_WORKFLOW;
+	}
+	
+	public static ServiceDescription getServiceDescription() {
+		DataflowTemplateService dts = new DataflowTemplateService();
+		return dts.templateService;
 	}
 
 }
