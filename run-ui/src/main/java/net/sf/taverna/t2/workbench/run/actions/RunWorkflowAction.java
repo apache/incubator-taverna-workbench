@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.run.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -137,6 +138,7 @@ public class RunWorkflowAction extends AbstractAction {
 			
 
 			if (dataflowCopy != null) {
+				WorkflowLaunchPanel.getDataflowCopyMap().put(dataflowCopy, dataflow);
 				//TODO check if the database has been created and create if needed
 				//if provenance turned on then add an IntermediateProvLayer to each Processor
 				final ReferenceService referenceService = runComponent.getReferenceService();
