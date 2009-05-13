@@ -22,7 +22,7 @@ package net.sf.taverna.t2.reference.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,10 +32,8 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -44,8 +42,6 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import org.apache.log4j.Logger;
-
 import net.sf.taverna.t2.annotation.annotationbeans.Author;
 import net.sf.taverna.t2.annotation.annotationbeans.DescriptiveTitle;
 import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
@@ -53,11 +49,20 @@ import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.reference.ReferenceContext;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.workbench.models.graph.GraphController;
+import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
+import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
+import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
+
+import org.apache.batik.swing.JSVGCanvas;
+import org.apache.log4j.Logger;
 
 /**
  * A simple workflow launch panel, uses a tabbed layout to display a set of
- * named InputConstructionPanel instances, and a 'run workflow' button.
+ * named InputConstructionPanel instances, and a 'run workflow' button. Also shows a tabbed pane
+ * picture of the workflow, the author and the description
  * 
  * @author Tom Oinn
  * @author David Withers
@@ -69,6 +74,12 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 
 	private static Logger logger = Logger
 	.getLogger(WorkflowLaunchPanel.class);
+/**
+ * Maps original dataflows to their copies - required because the WunWorkflowAction copies
+ * the dataflow before sending it here so you lose the connection with the dataflow that the 
+ * {@link GraphController} has
+ */
+	private static Map<Dataflow, Dataflow> dataflowCopyMap = new HashMap<Dataflow, Dataflow>();
 
 	private static final String LAUNCH_WORKFLOW = "Launch workflow";
 
@@ -102,6 +113,16 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 
 	private JPanel workflowImageComponentHolder = new JPanel();
 	private AnnotationTools annotationTools = new AnnotationTools();
+
+	private SVGGraphController graphController;
+	
+	private JSVGCanvas svgCanvas;
+
+	private JTabbedPane annotationsPanel;
+
+	private JTabbedPane upperPanel;
+
+	private JLabel workflowImageLabel;
 
 	
 	@SuppressWarnings("serial")
@@ -145,18 +166,13 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 			}
 		};
 
-		// Construct tab container
-		tabs = new JTabbedPane();
-		add(tabs, BorderLayout.CENTER);
-
+		
 		// Construct tool bar
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		toolBar.add(new JButton(launchAction));
 		
-		JPanel upperPanel = new JPanel(new BorderLayout());
-//		upperPanel.add(toolBar, BorderLayout.SOUTH);
-		JPanel annotationsPanel = new JPanel(new BorderLayout());
+		upperPanel = new JTabbedPane();
 
 		String wfDescription = annotationTools.getAnnotationString(facade.getDataflow(), FreeTextDescription.class, "");
 		setWorkflowDescription(wfDescription);
@@ -165,19 +181,60 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		setWorkflowTitle(wfTitle);
 		String wfAuthor = annotationTools.getAnnotationString(facade.getDataflow(), Author.class, "");
 		setWorkflowAuthor(wfAuthor);
+		JSVGCanvas createWorkflowGraphic = createWorkflowGraphic(facade.getDataflow());
 		
-		annotationsPanel.add(workflowTitle, BorderLayout.NORTH);
-		annotationsPanel.add(workflowDescription, BorderLayout.CENTER);
-		annotationsPanel.add(workflowAuthor, BorderLayout.SOUTH);
-		annotationsPanel.setBorder(BorderFactory.createCompoundBorder(
-				  BorderFactory.createRaisedBevelBorder(), BorderFactory.createLoweredBevelBorder()));
-		upperPanel.add(annotationsPanel, BorderLayout.CENTER);
-//		upperPanel.add(workflowImageComponentHolder, BorderLayout.EAST);
+		createWorkflowGraphic.setBorder(new TitledBorder("Workflow Title - " + annotationTools.getAnnotationString(facade.getDataflow(), DescriptiveTitle.class, "")));
+		
+		upperPanel.addTab("Diagram", null, createWorkflowGraphic, "Workflow diagram");
+		upperPanel.addTab("Description", null, workflowDescription, "The current description for this workflow");
+		upperPanel.addTab("Author", null, workflowAuthor, "The author for this workflow");
+
 		add(upperPanel, BorderLayout.NORTH);
+		
 		JPanel toolBarPanel = new JPanel(new BorderLayout());
 		toolBarPanel.add(toolBar, BorderLayout.EAST);
 		toolBarPanel.setBorder(new EmptyBorder(5,20,5,20));
 		add(toolBarPanel, BorderLayout.SOUTH);
+		
+		// Construct tab container
+		tabs = new JTabbedPane();
+		add(tabs, BorderLayout.CENTER);
+
+	}
+/**
+ * Create a PNG image of the workflow and place inside an ImageIcon
+ * @param dataflow 
+ * @return
+ */
+	private JSVGCanvas createWorkflowGraphic(Dataflow dataflow) {
+		JSVGCanvas svgCanvas = new JSVGCanvas();
+		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_STATIC);
+		svgCanvas.setBorder(new TitledBorder(annotationTools.getAnnotationString(facade.getDataflow(), FreeTextDescription.class, "")));
+		String dotLocation = (String)WorkbenchConfiguration.getInstance().getProperty("taverna.dotlocation");
+		SVGGraphController graphController = GraphViewComponent.graphControllerMap.get(dataflowCopyMap.get(dataflow));
+		//not sure what the size should be based on - the parent component or otherwise so just
+		//setting it to 200x200 for the moment
+		svgCanvas.setDocument(graphController.generateSVGDocument(new Rectangle(200,200)));
+		
+
+		//		if (dotLocation == null) {
+//			dotLocation = "dot";
+//		}
+//		logger.debug("GraphViewComponent: Invoking dot...");
+//		try {
+//			StringWriter stringWriter = new StringWriter();
+//			DotWriter dotWriter = new DotWriter(stringWriter);
+//			dotWriter.writeGraph(graphController.getGraph());	
+//			ImageIcon workflowIcon = new ImageIcon(SVGUtil.getDot(stringWriter.toString()).getBytes());
+//			return workflowIcon;
+//		} catch (Exception e) {
+//			logger.warn("Could not create workflow image :" + e);
+//		}
+		return svgCanvas;
+	}
+	
+	public static Map<Dataflow,Dataflow> getDataflowCopyMap() {
+		return dataflowCopyMap ;
 	}
 
 	@SuppressWarnings("serial")
