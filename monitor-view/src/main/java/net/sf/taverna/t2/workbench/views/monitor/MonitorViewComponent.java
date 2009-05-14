@@ -21,24 +21,16 @@
 package net.sf.taverna.t2.workbench.views.monitor;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.border.LineBorder;
 
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -73,6 +65,8 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 
 	private Dataflow dataflow;
 
+	private String sessionId;
+
 	public MonitorViewComponent() {
 		super(new BorderLayout());
 		setBorder(LineBorder.createGrayLineBorder());
@@ -99,14 +93,8 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 					.getInstance().getInstances()) {
 				if (connectorType.equalsIgnoreCase(connector.getName())) {
 					provenanceConnector = connector;
-					// String dbURL =
-					// ProvenanceConfiguration.getInstance().getProperty("dbURL");
-					//					
-					// if (dbURL != null) {
-					// //FIXME if dburl does not exist then throw exception
-					// provenanceConnector.setDbURL(dbURL);
-					// // provenanceConnector.init();
-					// }
+					//ensure that this view has the correct session identifier to retrieve provenance
+					this.setSessionId(provenanceConnector.getSessionID());
 				}
 			}
 		}
@@ -114,7 +102,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 
 	public Observer<MonitorMessage> setDataflow(Dataflow dataflow) {
 		graphController = new SVGGraphController(dataflow,
-				new MonitorGraphEventManager(provenanceConnector, dataflow),
+				new MonitorGraphEventManager(provenanceConnector, dataflow, getSessionId()),
 				this) {
 			public void redraw() {
 				svgCanvas.setDocument(graphController
@@ -145,6 +133,14 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 
 	}
 
+	public void setSessionId(String sessionId) {
+		this.sessionId = sessionId;
+	}
+
+	public String getSessionId() {
+		return sessionId;
+	}
+
 }
 
 class MonitorGraphEventManager implements GraphEventManager {
@@ -156,11 +152,13 @@ class MonitorGraphEventManager implements GraphEventManager {
 	private String localName;
 	private List<LineageQueryResultRecord> intermediateValues;
 	private Timer timer;
+	private String sessionID;
 
 	public MonitorGraphEventManager(ProvenanceConnector provenanceConnector,
-			Dataflow dataflow) {
+			Dataflow dataflow, String sessionID) {
 		this.provenanceConnector = provenanceConnector;
 		this.dataflow = dataflow;
+		this.sessionID = sessionID;
 	}
 
 	/**
@@ -190,8 +188,8 @@ class MonitorGraphEventManager implements GraphEventManager {
 
 						String internalIdentier = dataflow
 								.getInternalIdentier();
-						final String sessionID = provenanceConnector
-								.getSessionID();
+//						final String sessionID = provenanceConnector
+//								.getSessionID();
 
 						final ProvenanceResultsPanel provResultsPanel = new ProvenanceResultsPanel();
 						provResultsPanel.setContext(provenanceConnector
@@ -213,6 +211,9 @@ class MonitorGraphEventManager implements GraphEventManager {
 									intermediateValues = provenanceConnector
 											.getIntermediateValues(sessionID,
 													localName, null, null);
+									for (LineageQueryResultRecord record:intermediateValues) {
+										logger.info("LQRR: " + record.toString());
+									}
 									provResultsPanel
 											.setLineageRecords(intermediateValues);
 									logger.info("Intermediate results retrieved for dataflow instance: "

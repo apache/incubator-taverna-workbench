@@ -83,6 +83,12 @@
 			<version>1.8.0</version>
 		</dependency>
 		
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<artifactId>graph-model</artifactId>
+			<version>${t2.ui.components.version}</version>
+		</dependency>
+		
 		<!--
 			<dependency> <groupId>net.sf.taverna.t2</groupId>
 			<artifactId>workflowmodel-impl</artifactId> <version>0.3</version>
