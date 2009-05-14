@@ -98,7 +98,7 @@ public class RegistrationPanel extends JPanel {
 			RegistrationPanel.class.getResource("/icons/delete_obj.gif"));
 	private static final ImageIcon errorIcon = new ImageIcon(
 			RegistrationPanel.class.getResource("/icons/error_tsk.gif"));
-	private static final ImageIcon infoIcon = new ImageIcon(
+	public static final ImageIcon infoIcon = new ImageIcon(
 			RegistrationPanel.class.getResource("/icons/information.gif"));
 
 	// If the depth is greater than 1 we can add sub-folders to the collection
@@ -212,10 +212,18 @@ public class RegistrationPanel extends JPanel {
 		JToolBar toolBar = new JToolBar();
 		buildActions();
 		toolBar.setFloatable(false);
-		toolBar.add(new JButton(deleteNodeAction));
-		toolBar.add(new JButton(addTextAction));
-		toolBar.add(new JButton(addFileAction));
-		toolBar.add(new JButton(addUrlAction));
+		JButton comp = new JButton(deleteNodeAction);
+		comp.setToolTipText("Remove the currently selected input");
+		toolBar.add(comp);
+		JButton comp2 = new JButton(addTextAction);
+		comp2.setToolTipText("Add a new input value");
+		toolBar.add(comp2);
+		JButton comp3 = new JButton(addFileAction);
+		comp3.setToolTipText("Add an input value from a file");
+		toolBar.add(comp3);
+		JButton comp4 = new JButton(addUrlAction);
+		comp4.setToolTipText("Load an input value from a URL");
+		toolBar.add(comp4);
 		// Do lists...
 		if (!addCollectionActions.isEmpty()) {
 			if (addCollectionActions.size() == 1) {
@@ -281,7 +289,7 @@ public class RegistrationPanel extends JPanel {
 		return node;
 	}
 
-	private void setStatus(String statusString, Icon icon, Color textColour) {
+	public void setStatus(String statusString, Icon icon, Color textColour) {
 		status.setText(statusString);
 		status.setIcon(icon);
 		if (textColour != null) {
