@@ -39,6 +39,7 @@ import net.sf.taverna.t2.monitor.MonitorManager.DeregisterNodeMessage;
 import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
 import net.sf.taverna.t2.monitor.MonitorManager.RegisterNodeMessage;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
+import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent.Status;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
@@ -74,8 +75,11 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 
 	private String filter;
 
-	public GraphMonitor(GraphController graphController) {
+	private final MonitorViewComponent monitorViewComponent;
+
+	public GraphMonitor(GraphController graphController, MonitorViewComponent monitorViewComponent) {
 		this.graphController = graphController;
+		this.monitorViewComponent = monitorViewComponent;
 	}
 
 	public void addPropertiesToNode(String[] owningProcess,
@@ -118,6 +122,7 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 								.remove(owningProcessId));
 					}
 				}, deregisterDelay);
+				monitorViewComponent.setStatus(Status.COMPLETE);
 			}
 		}
 	}
@@ -159,6 +164,7 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 						getProcessorId(owningProcess));
 				facade.addResultListener(resultListener);
 				resultListeners.put(owningProcessId, resultListener);
+				monitorViewComponent.setStatus(Status.RUNNING);
 			}
 		}
 	}
@@ -211,7 +217,11 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 		}
 
 		public void resultTokenProduced(WorkflowDataToken token, String portName) {
-			datalinks.add(context + "WORKFLOWINTERNALSINK_" + portName);
+			String id = context + "WORKFLOWINTERNALSINK_" + portName;
+//			datalinks.add(id);
+			if (token.isFinal()) {
+				graphController.setNodeCompleted(id, 1f);
+			}
 		}
 
 	}

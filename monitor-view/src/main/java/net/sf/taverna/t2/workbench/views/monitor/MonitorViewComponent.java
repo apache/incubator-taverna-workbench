@@ -29,8 +29,10 @@ import java.util.TimerTask;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -38,6 +40,7 @@ import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
@@ -60,10 +63,14 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	private SVGGraphController graphController;
 
 	private JSVGCanvas svgCanvas;
-
+	
+	private JLabel statusLabel;
+	
 	private ProvenanceConnector provenanceConnector;
 
 	private Dataflow dataflow;
+	
+	public enum Status {RUNNING, COMPLETE};
 
 	private String sessionId;
 
@@ -80,9 +87,28 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 			}
 		});
 		add(svgCanvas, BorderLayout.CENTER);
+		
+		statusLabel = new JLabel();
+		statusLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		
+		add(statusLabel, BorderLayout.SOUTH);
+		
 		setProvenanceConnector();
 	}
 
+	public void setStatus(Status status) {
+		switch (status) {
+			case RUNNING :
+				statusLabel.setText("Workflow running");
+				statusLabel.setIcon(WorkbenchIcons.workingIcon);
+			    break;
+			case COMPLETE :
+				statusLabel.setText("Workflow complete");
+				statusLabel.setIcon(WorkbenchIcons.greentickIcon);
+			    break;		
+		}
+	}
+	
 	private void setProvenanceConnector() {
 		if (ProvenanceConfiguration.getInstance().getProperty("enabled")
 				.equalsIgnoreCase("yes")) {
@@ -111,7 +137,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 		};
 		svgCanvas.setDocument(graphController.generateSVGDocument(getBounds()));
 		// revalidate();
-		return new GraphMonitor(graphController);
+		return new GraphMonitor(graphController, this);
 	}
 
 	public ImageIcon getIcon() {
