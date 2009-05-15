@@ -27,7 +27,6 @@ import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -52,11 +51,8 @@ import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.reference.ReferenceContext;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.workbench.models.graph.DotWriter;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-import net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil;
-import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
@@ -234,9 +230,11 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		svgCanvas.setBorder(new TitledBorder(annotationTools
 				.getAnnotationString(facade.getDataflow(),
 						FreeTextDescription.class, "")));
+		if (graphController != null) {
 		SVGDocument generateSVGDocument = graphController
 				.generateSVGDocument(new Rectangle(200, 200));
 		svgCanvas.setDocument(generateSVGDocument);
+		}
 		revalidate();
 		
 		return svgCanvas;
@@ -370,7 +368,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		return result;
 	}
 
-	private void setWorkflowDescription(String workflowDescription) {
+	public void setWorkflowDescription(String workflowDescription) {
 		if ((workflowDescription != null) && (workflowDescription.length() > 0)) {
 			this.workflowDescription
 					.setText(truncateString(workflowDescription));
