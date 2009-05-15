@@ -70,10 +70,12 @@ public class WorkbenchIcons {
 	public static ImageIcon breakIcon;
 	public static ImageIcon rbreakIcon;
 	public static ImageIcon tickIcon;
+	public static ImageIcon greentickIcon;
 	public static ImageIcon renameIcon;
 	public static ImageIcon databaseIcon;
 	public static ImageIcon nullIcon;
 	public static ImageIcon uninstallIcon;
+	public static ImageIcon workingIcon;
 	public static ImageIcon updateRecommendedIcon;
 	public static ImageIcon updateIcon;
 	public static ImageIcon searchIcon;
@@ -162,6 +164,7 @@ public class WorkbenchIcons {
 			rbreakIcon = new ImageIcon(c
 					.getResource("generic/rbreak.gif"));
 			tickIcon = new ImageIcon(c.getResource("generic/tick.gif"));
+			greentickIcon = new ImageIcon(c.getResource("generic/greentick.png"));
 			renameIcon = new ImageIcon(c
 					.getResource("generic/rename.png"));
 			databaseIcon = new ImageIcon(c
@@ -178,6 +181,8 @@ public class WorkbenchIcons {
 					.getResource("generic/updateRecommended.png"));
 			uninstallIcon = new ImageIcon(c
 					.getResource("generic/uninstall.png"));
+			workingIcon = new ImageIcon(c
+					.getResource("generic/working.gif"));
 			datalinkIcon = new ImageIcon(c
 					.getResource("explorer/datalink.gif"));
 			controlLinkIcon = new ImageIcon(c
