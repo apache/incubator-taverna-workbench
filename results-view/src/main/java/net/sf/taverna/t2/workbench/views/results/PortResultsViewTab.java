@@ -36,6 +36,7 @@ import javax.swing.tree.TreeSelectionModel;
 import javax.swing.tree.MutableTreeNode;
 
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
+import net.sf.taverna.t2.workflowmodel.Port;
 
 /**
  * A tab containing result tree for an output port and a panel with rendered result
@@ -49,7 +50,7 @@ public class PortResultsViewTab extends JPanel{
 	private static final long serialVersionUID = -5531195402446371947L;
 
 	// Output port this panel is displaying results for
-	private DataflowOutputPort dataflowOutputPort;
+	private Port dataflowOutputPort;
 	
 	// Tree model of results
 	private ResultTreeModel resultModel;
@@ -57,7 +58,7 @@ public class PortResultsViewTab extends JPanel{
 	// Rendered result component
 	private RenderedResultComponent renderedResultComponent;
 	
-	public PortResultsViewTab(DataflowOutputPort dataflowOutputPort){
+	public PortResultsViewTab(Port dataflowOutputPort){
 		super(new BorderLayout());
 
 		this.dataflowOutputPort = dataflowOutputPort;
