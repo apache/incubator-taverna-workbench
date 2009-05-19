@@ -96,7 +96,7 @@ public class ResultTreeModel extends DefaultTreeModel implements ResultListener 
 
 	}
 
-	private void insertNewDataTokenNode(T2Reference reference, int[] index,
+	public void insertNewDataTokenNode(T2Reference reference, int[] index,
 			String owningProcess, InvocationContext context) {
 		MutableTreeNode parent = (MutableTreeNode) getRoot();
 		if (index.length == depth) {
