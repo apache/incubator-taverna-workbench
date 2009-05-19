@@ -72,10 +72,10 @@ public class PreRegistrationTreeCellRenderer extends DefaultTreeCellRenderer {
 					if (userObject instanceof String) {
 						setIcon(textIcon);
 						String string = (String) userObject;
-						if (string.length() < 50) {
+						if (string.length() < 10) {
 							setText(string);
 						} else {
-							setText(string.substring(0, 50) + "...");
+							setText(string.substring(0, 10) + "...");
 						}
 					} else if (userObject instanceof byte[]) {
 						byte[] bytes = (byte[]) userObject;
@@ -83,14 +83,10 @@ public class PreRegistrationTreeCellRenderer extends DefaultTreeCellRenderer {
 						setText("byte[] " + getHumanReadableSize(bytes.length));
 					} else if (userObject instanceof File) {
 						setIcon(fileIcon);
-						try {
-							setText(((File) userObject).getCanonicalPath());
-						} catch (IOException e) {
-							setText(userObject.toString());
-						}
+						setText(((File) userObject).getName());
 					} else if (userObject instanceof URL) {
 						setIcon(urlIcon);
-						setText(((URL) userObject).toExternalForm());
+						setText(((URL) userObject).getHost());
 					}
 				} else {
 					if (expanded) {
