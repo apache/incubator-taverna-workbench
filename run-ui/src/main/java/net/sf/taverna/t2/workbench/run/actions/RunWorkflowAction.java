@@ -23,7 +23,6 @@ package net.sf.taverna.t2.workbench.run.actions;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,8 +32,6 @@ import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
-import net.sf.taverna.t2.annotation.annotationbeans.Author;
-import net.sf.taverna.t2.annotation.annotationbeans.DescriptiveTitle;
 import net.sf.taverna.t2.annotation.annotationbeans.ExampleValue;
 import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
@@ -318,6 +315,7 @@ public class RunWorkflowAction extends AbstractAction {
 		}
 
 		frame.setContentPane(wlp);
+		wlp.setFrame(frame);
 
 		// Display the window.
 		frame.pack();
