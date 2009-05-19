@@ -138,8 +138,10 @@ public abstract class PreRegistrationTreeDnDHandler implements
 		DropTargetContext dtc = dtde.getDropTargetContext();
 		JTree tree = (JTree) dtc.getComponent();
 		TreePath targetPath = tree.getClosestPathForLocation(pt.x, pt.y);
-		MutableTreeNode target = (MutableTreeNode) targetPath
-				.getLastPathComponent();
+		MutableTreeNode target = null;
+		if (targetPath != null) {
+			target = (MutableTreeNode) targetPath.getLastPathComponent();
+		}
 		Transferable tr = dtde.getTransferable();
 		if (tr
 				.isDataFlavorSupported(InternalNodeDragTransferable.INTERNAL_NODE_FLAVOR)) {

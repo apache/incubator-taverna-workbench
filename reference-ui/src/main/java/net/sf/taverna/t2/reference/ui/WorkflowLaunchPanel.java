@@ -22,6 +22,9 @@ package net.sf.taverna.t2.reference.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Frame;
+import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
@@ -34,13 +37,17 @@ import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
@@ -84,7 +91,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	 */
 	private static Map<Dataflow, Dataflow> dataflowCopyMap = new HashMap<Dataflow, Dataflow>();
 
-	private static final String LAUNCH_WORKFLOW = "Launch workflow";
+	private static final String LAUNCH_WORKFLOW = "Run workflow";
 
 	private final ImageIcon launchIcon = new ImageIcon(getClass().getResource(
 			"/icons/start_task.gif"));
@@ -114,9 +121,9 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 
 	private static final String NO_WORKFLOW_TITLE = "No title";
 
-	private JTextArea workflowDescription;
-	private JTextArea workflowTitle;
-	private JTextArea workflowAuthor;
+	private JTextArea workflowDescriptionArea;
+	private String workflowTitleString;
+	private JTextArea workflowAuthorArea;
 
 	private JPanel workflowImageComponentHolder = new JPanel();
 	private AnnotationTools annotationTools = new AnnotationTools();
@@ -126,29 +133,36 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	private JTabbedPane upperPanel;
 
 	private JLabel workflowImageLabel;
+	private JFrame frame;
 
 	@SuppressWarnings("serial")
 	public WorkflowLaunchPanel(final WorkflowInstanceFacade facade,
 			ReferenceContext context) {
 		super(new BorderLayout());
+		JPanel workflowPart = new JPanel(new GridLayout(3,1));
+		JPanel portsPart = new JPanel(new BorderLayout());
 
-		workflowDescription = new JTextArea(NO_WORKFLOW_DESCRIPTION, 5, 40);
-		workflowDescription.setBorder(new TitledBorder("Workflow description"));
-		workflowDescription.setEditable(false);
-		workflowDescription.setLineWrap(true);
-		workflowDescription.setWrapStyleWord(true);
+		JSVGCanvas createWorkflowGraphic = createWorkflowGraphic(facade
+				.getDataflow());
+		createWorkflowGraphic.setBorder(new TitledBorder("Diagram"));
+		
+		workflowPart.add(createWorkflowGraphic);
 
-		workflowAuthor = new JTextArea(NO_WORKFLOW_AUTHOR, 1, 40);
-		workflowAuthor.setBorder(new TitledBorder("Workflow author"));
-		workflowAuthor.setEditable(false);
-		workflowAuthor.setLineWrap(true);
-		workflowAuthor.setWrapStyleWord(true);
+		workflowDescriptionArea = new JTextArea(NO_WORKFLOW_DESCRIPTION, 5, 40);
+		workflowDescriptionArea.setBorder(new TitledBorder("Workflow description"));
+		workflowDescriptionArea.setEditable(false);
+		workflowDescriptionArea.setLineWrap(true);
+		workflowDescriptionArea.setWrapStyleWord(true);
+		
+		workflowPart.add(new JScrollPane(workflowDescriptionArea));
 
-		workflowTitle = new JTextArea(NO_WORKFLOW_TITLE, 1, 40);
-		workflowTitle.setBorder(new TitledBorder("Workflow title"));
-		workflowTitle.setEditable(false);
-		workflowTitle.setLineWrap(true);
-		workflowTitle.setWrapStyleWord(true);
+		workflowAuthorArea = new JTextArea(NO_WORKFLOW_AUTHOR, 1, 40);
+		workflowAuthorArea.setBorder(new TitledBorder("Workflow author"));
+		workflowAuthorArea.setEditable(false);
+		workflowAuthorArea.setLineWrap(true);
+		workflowAuthorArea.setWrapStyleWord(true);
+		
+		workflowPart.add(new JScrollPane(workflowAuthorArea));
 
 		Dataflow key = dataflowCopyMap.get(facade.getDataflow());
 		if (workflowInputPanelMap.containsKey(key)) {
@@ -185,31 +199,27 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		String wfAuthor = annotationTools.getAnnotationString(facade
 				.getDataflow(), Author.class, "");
 		setWorkflowAuthor(wfAuthor);
-		JSVGCanvas createWorkflowGraphic = createWorkflowGraphic(facade
-				.getDataflow());
-
-		createWorkflowGraphic.setBorder(new TitledBorder("Workflow Title - "
-				+ annotationTools.getAnnotationString(facade.getDataflow(),
-						DescriptiveTitle.class, "")));
-
-		upperPanel.addTab("Diagram", null, createWorkflowGraphic,
-				"Workflow diagram");
-		upperPanel.addTab("Description", null, workflowDescription,
-				"The current description for this workflow");
-		upperPanel.addTab("Author", null, workflowAuthor,
-				"The author for this workflow");
-
-		add(upperPanel, BorderLayout.NORTH);
 
 		JPanel toolBarPanel = new JPanel(new BorderLayout());
 		toolBarPanel.add(toolBar, BorderLayout.EAST);
 		toolBarPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
-		add(toolBarPanel, BorderLayout.SOUTH);
+		portsPart.add(toolBarPanel, BorderLayout.SOUTH);
 
 		// Construct tab container
 		tabs = new JTabbedPane();
-		add(tabs, BorderLayout.CENTER);
+		portsPart.add(tabs, BorderLayout.CENTER);
+		
+		workflowPart.setPreferredSize(new Dimension(300,500));
+		portsPart.setPreferredSize(new Dimension(500,500));
+		
+		JPanel overallPanel = new JPanel();
+		overallPanel.setLayout(new BoxLayout(overallPanel, BoxLayout.X_AXIS));
 
+		overallPanel.add(workflowPart);
+		overallPanel.add(portsPart);
+
+		this.add(new JScrollPane(overallPanel), BorderLayout.CENTER);
+		this.revalidate();
 	}
 
 	/**
@@ -227,9 +237,6 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 				graphController.setUpdateManager(svgCanvas.getUpdateManager());
 			}
 		});
-		svgCanvas.setBorder(new TitledBorder(annotationTools
-				.getAnnotationString(facade.getDataflow(),
-						FreeTextDescription.class, "")));
 		if (graphController != null) {
 		SVGDocument generateSVGDocument = graphController
 				.generateSVGDocument(new Rectangle(200, 200));
@@ -344,67 +351,59 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	 *            a map of named inputs in the form of T2Reference instances
 	 */
 	public abstract void handleLaunch(Map<String, T2Reference> workflowInputs);
-
-	private String truncateString(String original) {
-		String result = "";
-		try {
-			BufferedReader reader = new BufferedReader(new StringReader(
-					original));
-			boolean finished = false;
-			for (int i = 0; (i < 5) && !finished; i++) {
-				String nextLine;
-				nextLine = reader.readLine();
-				finished = nextLine == null;
-				if (!finished) {
-					result = result + nextLine + "\n";
-				}
-			}
-			if (!finished) {
-				result = result + "...";
-			}
-		} catch (IOException e) {
-			logger.info(e.getMessage());
-		}
-		return result;
+	
+	private static void selectTopOfTextArea(JTextArea textArea) {
+		textArea.setSelectionStart(0);
+		textArea.setSelectionEnd(0);
 	}
 
 	public void setWorkflowDescription(String workflowDescription) {
 		if ((workflowDescription != null) && (workflowDescription.length() > 0)) {
-			this.workflowDescription
-					.setText(truncateString(workflowDescription));
+			this.workflowDescriptionArea
+					.setText(workflowDescription);
+			selectTopOfTextArea(this.workflowDescriptionArea);
 		}
 	}
 
-	private void setWorkflowAuthor(String workflowAuthor) {
+	void setWorkflowAuthor(String workflowAuthor) {
 		if ((workflowAuthor != null) && (workflowAuthor.length() > 0)) {
-			this.workflowAuthor.setText(workflowAuthor);
+			this.workflowAuthorArea.setText(workflowAuthor);
+			selectTopOfTextArea(this.workflowAuthorArea);
 		}
 	}
 
-	private void setWorkflowTitle(String workflowTitle) {
+	void setWorkflowTitle(String workflowTitle) {
 		if ((workflowTitle != null) && (workflowTitle.length() > 0)) {
-			this.workflowTitle.setText(workflowTitle);
+			this.workflowTitleString = workflowTitle;
+			if (frame != null) {
+			frame.setTitle("Workflow: " + workflowTitleString + " - input values");
+			}
 		}
 	}
 
-	public void setWorkflowImageComponent(Component workflowImageComponent) {
-		synchronized (workflowImageComponentHolder) {
-			workflowImageComponentHolder.removeAll();
-			workflowImageComponentHolder.add(workflowImageComponent);
-			workflowImageComponentHolder.invalidate();
-		}
-	}
-
-	public Component getWorkflowImageComponent() {
-		try {
-			return workflowImageComponentHolder.getComponent(0);
-		} catch (IndexOutOfBoundsException ex) {
-			return null;
-		}
-	}
+//	public void setWorkflowImageComponent(Component workflowImageComponent) {
+//		synchronized (workflowImageComponentHolder) {
+//			workflowImageComponentHolder.removeAll();
+//			workflowImageComponentHolder.add(workflowImageComponent);
+//			workflowImageComponentHolder.invalidate();
+//		}
+//	}
+//
+//	public Component getWorkflowImageComponent() {
+//		try {
+//			return workflowImageComponentHolder.getComponent(0);
+//		} catch (IndexOutOfBoundsException ex) {
+//			return null;
+//		}
+//	}
 
 	public String getWorkflowDescription() {
-		return workflowDescription.getText();
+		return workflowDescriptionArea.getText();
+	}
+
+	public void setFrame(JFrame frame) {
+		this.frame = frame;
+		setWorkflowTitle(this.workflowTitleString);
 	}
 
 }

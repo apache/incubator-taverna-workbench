@@ -52,6 +52,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.TreeModelEvent;
+import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -159,7 +161,28 @@ public class RegistrationPanel extends JPanel {
 		};
 		treeModel = tree.getPreRegistrationTreeModel();
 
-		tree.addTreeSelectionListener(new UpdateEditorPaneOnSelection());
+		final UpdateEditorPaneOnSelection treeSelectionListener = new UpdateEditorPaneOnSelection();
+		tree.addTreeSelectionListener(treeSelectionListener);
+		treeModel.addTreeModelListener(new TreeModelListener() {
+
+			public void treeNodesChanged(TreeModelEvent e) {
+			}
+
+			public void treeNodesInserted(TreeModelEvent e) {
+				DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) e.getChildren()[0];
+				if (selectedNode.getUserObject() != null) {
+					TreePath fullPath = e.getTreePath().pathByAddingChild(selectedNode);
+					tree.setSelectionPath(fullPath);		
+				}
+			}
+
+			public void treeNodesRemoved(TreeModelEvent e) {
+				tree.setSelectionPath(null);
+			}
+
+			public void treeStructureChanged(TreeModelEvent e) {
+				logger.info(e.getChildren()[0].toString());
+			}});
 		
 		tree.setRootVisible(false);
 
@@ -302,20 +325,27 @@ public class RegistrationPanel extends JPanel {
 	private final class UpdateEditorPaneOnSelection implements
 			TreeSelectionListener {
 		
-		public void valueChanged(TreeSelectionEvent e) {
-
-			TreePath oldLeadSelectionPath = e.getOldLeadSelectionPath();
-			if (oldLeadSelectionPath != null) {
-				DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) oldLeadSelectionPath
+		TreePath oldSelectionPath = null;
+		
+		public void setSelectionPath(TreePath selectionPath) {
+			if (oldSelectionPath != null) {
+				DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) oldSelectionPath
 						.getLastPathComponent();
 				if (lastPathComponent != null && textArea.isEditable()) {
 					lastPathComponent.setUserObject(textArea.getText());
 				}
 			}
 
-			DefaultMutableTreeNode selection = (DefaultMutableTreeNode) e
-					.getPath().getLastPathComponent();
+			oldSelectionPath = selectionPath;
+			
 			textArea.setEditable(false);
+			textAreaDocumentListener.setSelection(null);
+			
+			if (selectionPath == null) {
+				textArea.setText("No selection");
+				return;
+			}
+			DefaultMutableTreeNode selection = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
 			if (!selection.isLeaf()) {
 				textArea.setText("List selected");
 			}
@@ -341,6 +371,12 @@ public class RegistrationPanel extends JPanel {
 			} else {
 				textArea.setText(selection.getUserObject().toString());
 			}
+		}
+			
+
+		
+		public void valueChanged(TreeSelectionEvent e) {
+			setSelectionPath(e.getNewLeadSelectionPath());
 		}
 	}
 	
@@ -382,7 +418,7 @@ public class RegistrationPanel extends JPanel {
 	public class AddFileAction extends AbstractAction {
 
 		public AddFileAction() {
-			super("Add file(s)...", addFileIcon);
+			super("Add file location(s)...", addFileIcon);
 		}
 
 		public void actionPerformed(ActionEvent e) {
@@ -466,7 +502,7 @@ public class RegistrationPanel extends JPanel {
 		private static final String URL_REGEX = "http:\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?";
 
 		public AddURLAction() {
-			super("Add URL...", addUrlIcon);
+			super("Add URL ...", addUrlIcon);
 		}
 
 		public void actionPerformed(ActionEvent e) {
@@ -552,7 +588,7 @@ public class RegistrationPanel extends JPanel {
 		}
 
 		private void updateSelection() {
-			if (textArea.isEditable()) {
+			if (textArea.isEditable()  && (this.selection != null)) {
             selection.setUserObject(textArea.getText());
             treeModel.nodeChanged(selection);
 			}
