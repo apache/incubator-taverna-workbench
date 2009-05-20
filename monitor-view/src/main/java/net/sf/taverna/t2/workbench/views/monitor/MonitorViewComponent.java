@@ -196,7 +196,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 
 		Object dataflowObject = graphElement.getDataflowObject();
 		// no popup if provenance is switched off
-		JFrame frame = new JFrame();
+		final JFrame frame = new JFrame();
 		
 		final JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -210,7 +210,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 				if (dataflowObject instanceof Processor) {
 					if (provenanceConnector != null) {
 						localName = ((Processor) dataflowObject).getLocalName();
-						frame.setTitle("Intermediate Results for " + localName);
+						frame.setTitle("No intermediate results for " + localName);
 
 						String internalIdentier = dataflow
 								.getInternalIdentier();
@@ -237,20 +237,26 @@ class MonitorGraphEventManager implements GraphEventManager {
 									intermediateValues = provenanceConnector
 											.getIntermediateValues(sessionID,
 													localName, null, null);
-									for (LineageQueryResultRecord record:intermediateValues) {
-										logger.info("LQRR: " + record.toString());
+									if (intermediateValues.size() > 0) {
+										frame.setTitle("Intermediate results for "
+														+ localName);
+										for (LineageQueryResultRecord record : intermediateValues) {
+											logger.info("LQRR: "
+													+ record.toString());
+										}
+										provResultsPanel
+												.setLineageRecords(intermediateValues);
+										logger
+												.info("Intermediate results retrieved for dataflow instance: "
+														+ sessionID
+														+ " processor: "
+														+ localName);
 									}
-									provResultsPanel
-											.setLineageRecords(intermediateValues);
-									logger.info("Intermediate results retrieved for dataflow instance: "
-											+ sessionID
-											+ " processor: "
-											+ localName);
 
 								} catch (Exception e) {
 									logger
 											.warn("Could not retrieve intermediate results: "
-													+ e);
+													+ e.getStackTrace());
 									JOptionPane.showMessageDialog(null,
 											"Could not retrieve intermediate results:\n"
 													+ e,
