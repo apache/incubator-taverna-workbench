@@ -21,6 +21,7 @@
 
 package net.sf.taverna.t2.workbench.views.monitor;
 
+import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -143,6 +144,8 @@ public class ProvenanceResultsPanel extends JPanel implements
 
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 				tabbedPane, getRenderedResultsComponent());
+//		tabbedPane.setMinimumSize(new Dimension(150,150));
+		splitPane.setResizeWeight(1);
 		add(new JLabel("Click on an iteration to view the result"));
 		add(splitPane);
 		getRenderedResultsComponent().setBorder(

@@ -126,7 +126,7 @@ public class PortTab extends JPanel {
 		getResultsTable().setBorder(
 				BorderFactory.createBevelBorder(BevelBorder.RAISED));
 		scrollPane = new JScrollPane(getResultsTable());
-		scrollPane.setPreferredSize(new Dimension(500,300));
+		scrollPane.setPreferredSize(new Dimension(250,350));
 		add(scrollPane);
 	}
 	
