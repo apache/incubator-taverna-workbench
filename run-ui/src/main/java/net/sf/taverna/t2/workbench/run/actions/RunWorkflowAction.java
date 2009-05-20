@@ -158,8 +158,10 @@ public class RunWorkflowAction extends AbstractAction {
 					if (dbURL != null) {
 						//FIXME if dburl does not exist then throw exception
 						provenanceConnector.setDbURL(dbURL);	
-						provenanceConnector.init();
 					}
+					//slight change, the init is outside but it also means that the init call has to ensure that the dbURL
+					//is set correctly
+					provenanceConnector.init();
 //					String jdbcString = dbURL + "/T2Provenance" + "?user=" + user + "&password=" + password;
 //						provenanceConnector.setDBLocation(dbURL);
 //						provenanceConnector.setPassword(password);
