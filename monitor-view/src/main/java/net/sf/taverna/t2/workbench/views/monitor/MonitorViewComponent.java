@@ -21,6 +21,9 @@
 package net.sf.taverna.t2.workbench.views.monitor;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.List;
@@ -32,6 +35,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
@@ -73,6 +77,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	public enum Status {RUNNING, COMPLETE};
 
 	private String sessionId;
+	
 
 	public MonitorViewComponent() {
 		super(new BorderLayout());
@@ -180,6 +185,9 @@ class MonitorGraphEventManager implements GraphEventManager {
 	private Timer timer;
 	private String sessionID;
 
+	static int MINIMUM_HEIGHT = 500;
+	static int MINIMUM_WIDTH = 800;
+
 	public MonitorGraphEventManager(ProvenanceConnector provenanceConnector,
 			Dataflow dataflow, String sessionID) {
 		this.provenanceConnector = provenanceConnector;
@@ -279,9 +287,19 @@ class MonitorGraphEventManager implements GraphEventManager {
 
 					panel.add(topPanel, BorderLayout.NORTH);
 					panel.add(provenancePanel, BorderLayout.CENTER);
-					frame.add(panel);
+					panel.setMinimumSize(new Dimension(MINIMUM_WIDTH, MINIMUM_HEIGHT - 100));
+					frame.add(new JScrollPane(panel));
+					frame.setSize(new Dimension(800,500));
 					frame.setVisible(true);
-					frame.setSize(800, 400);
+					
+					frame.addComponentListener(new ComponentAdapter() {
+						public void componentResized(ComponentEvent e) {
+							Dimension resizedSize = frame.getSize();
+							int newWidth = resizedSize.width < MINIMUM_WIDTH ? MINIMUM_WIDTH : resizedSize.width;
+							int newHeight = resizedSize.height < MINIMUM_HEIGHT ? MINIMUM_HEIGHT : resizedSize.height;
+							frame.setSize(new Dimension(newWidth, newHeight));
+						}
+					});
 
 				}
 

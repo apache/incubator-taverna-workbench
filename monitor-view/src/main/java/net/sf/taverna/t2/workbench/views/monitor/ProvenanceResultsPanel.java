@@ -98,6 +98,7 @@ public class ProvenanceResultsPanel extends JPanel implements
 		this.lineageRecords = lineageRecords;
 		this.setContext(invocationContext);
 		initView();
+		this.setMinimumSize(new Dimension(800,600));
 	}
 
 	private void initView() {
@@ -144,15 +145,15 @@ public class ProvenanceResultsPanel extends JPanel implements
 
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 				tabbedPane, getRenderedResultsComponent());
-//		tabbedPane.setMinimumSize(new Dimension(150,150));
-		splitPane.setResizeWeight(1);
+		tabbedPane.setMinimumSize(new Dimension(300,300));
+//		splitPane.setResizeWeight(1);
 		add(new JLabel("Click on an iteration to view the result"));
 		add(splitPane);
 		getRenderedResultsComponent().setBorder(
 				BorderFactory.createRaisedBevelBorder());
 
 		revalidate();
-		splitPane.setDividerLocation(0.5);
+//		splitPane.setDividerLocation(0.5);
 		// remember what tab is currently selected - at init it is the first one
 		String titleAt = tabbedPane.getTitleAt(0);
 		PortTab portTab = portTabMap.get(titleAt);
