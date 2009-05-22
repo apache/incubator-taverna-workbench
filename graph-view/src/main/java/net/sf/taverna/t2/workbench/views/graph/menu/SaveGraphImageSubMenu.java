@@ -94,7 +94,7 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 	
 	@SuppressWarnings("unchecked")
 	protected Component createCustomComponent() {
-		saveDiagramMenu = new JMenu("Save Diagram");
+		saveDiagramMenu = new JMenu("Save diagram");
 		saveDiagramMenu.setToolTipText("Open this menu to save diagram in various formats");
 		for (int i = 0; i < saveTypes.length; i++) {
 			String type = saveTypes[i];
