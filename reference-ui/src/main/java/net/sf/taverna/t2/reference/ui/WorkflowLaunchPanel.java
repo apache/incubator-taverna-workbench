@@ -269,52 +269,22 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 				map = new HashMap<String, RegistrationPanel>();
 				workflowInputPanelMap.put(dataflow, map);
 			}
-			if (!map.containsKey(inputName)) {
-					RegistrationPanel inputPanel;
-
-						inputPanel = new RegistrationPanel(inputDepth, inputName,
-								inputDescription, inputExample);
-						map.put(inputName, inputPanel);
-						inputPanelMap.put(inputName, inputPanel);
-						inputMap.put(inputName, null);
-						tabComponents.put(inputName, inputPanel);
-						tabs.addTab(inputName, inputPanel);
-					
+			RegistrationPanel value = map.get(inputName);
+			if ((value == null) || (value.getDepth() != inputDepth)) {
+				value = new RegistrationPanel(inputDepth, inputName, inputDescription, inputExample);
+				map.put(inputName, value);
+				inputPanelMap.put(inputName, value);
 			} else {
-			
-			Set<Entry<String, RegistrationPanel>> entrySet = map.entrySet();
-			
-			for (Entry<String, RegistrationPanel> entry : entrySet) {
-				String key = entry.getKey();
-				RegistrationPanel value = entry.getValue();
 				value.setStatus("Drag to re-arrange, or drag files, URLs, or text to add",
 				RegistrationPanel.infoIcon, null);
-				inputMap.put(key, null);
-				tabComponents.put(key, value);
-				tabs.addTab(key, value);
+				value.setDescription(inputDescription);
+				value.setExample(inputExample);
 			}
-			}
-
+			inputMap.put(inputName, null);
+			tabComponents.put(inputName, value);
+			tabs.addTab(inputName, value);
 		} else {
 			logger.warn("There is no registration panel for the dataflow");
-//			if (inputMap.containsKey(inputName)) {
-//				// do nothing
-//			} else {
-//				RegistrationPanel inputPanel;
-//				if (inputPanelMap.containsKey(inputName)
-//						&& (inputPanelMap.get(inputName).getDepth() == inputDepth)) {
-//					inputPanel = inputPanelMap.get(inputName);
-//					inputPanel.setDescription(inputDescription);
-//					inputPanel.setExample(inputExample);
-//				} else {
-//					inputPanel = new RegistrationPanel(inputDepth, inputName,
-//							inputDescription, inputExample);
-//					inputPanelMap.put(inputName, inputPanel);
-//				}
-//				inputMap.put(inputName, null);
-//				tabComponents.put(inputName, inputPanel);
-//				tabs.addTab(inputName, inputPanel);
-//			}
 		}
 
 	}
