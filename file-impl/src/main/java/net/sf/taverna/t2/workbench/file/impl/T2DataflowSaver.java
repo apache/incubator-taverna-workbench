@@ -39,6 +39,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializerImpl;
+import net.sf.taverna.raven.appconfig.ApplicationConfig;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
@@ -99,6 +100,7 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 		XMLOutputter outputter = new XMLOutputter();
 
 		XMLSerializer serialiser = new XMLSerializerImpl();
+		serialiser.setProducedBy(ApplicationConfig.getInstance().getName());
 		Element serialized;
 		try {
 			serialized = serialiser.serializeDataflow(dataflow);
