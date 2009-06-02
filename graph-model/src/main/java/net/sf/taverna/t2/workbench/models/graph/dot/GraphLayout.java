@@ -54,14 +54,14 @@ public class GraphLayout implements DOTParserVisitor {
 	
 	private int yOffset;
 	
-	public Rectangle layoutGraph(GraphController graphController, Graph graph, String dotLayout, double aspectRatio) throws ParseException {
+	public Rectangle layoutGraph(GraphController graphController, Graph graph, String laidOutDot, double aspectRatio) throws ParseException {
 		this.graphController = graphController;
 		this.aspectRatio = aspectRatio;
 		bounds = null;
 		xOffset = 0;
 		yOffset = 0;
 		
-		DOTParser parser = new DOTParser(new StringReader(dotLayout));
+		DOTParser parser = new DOTParser(new StringReader(laidOutDot));
 		parser.parse().jjtAccept(this, graph);
 		
 //		int xOffset = (bounds.width - bounds.width) / 2;
@@ -268,10 +268,10 @@ public class GraphLayout implements DOTParserVisitor {
 	private Rectangle getRectangle(String value) {
 		String[] coords = removeQuotes(value).split(",");
 		Rectangle rectangle = new Rectangle();
-		rectangle.x = Integer.parseInt(coords[0]);
-		rectangle.y = Integer.parseInt(coords[3]);
-		rectangle.width = Integer.parseInt(coords[2]) - rectangle.x;
-		rectangle.height = rectangle.y - Integer.parseInt(coords[1]);
+		rectangle.x = (int) Float.parseFloat(coords[0]);
+		rectangle.y = (int) Float.parseFloat(coords[3]);
+		rectangle.width = (int) Float.parseFloat(coords[2]) - rectangle.x;
+		rectangle.height = rectangle.y - (int) Float.parseFloat(coords[1]);
 		rectangle.x += xOffset;
 		rectangle.y += yOffset;
 		if (bounds != null) {
@@ -284,11 +284,11 @@ public class GraphLayout implements DOTParserVisitor {
 
 	private Point getPoint(String value) {
 		String[] coords = removeQuotes(value).split(",");
-		return new Point(Integer.parseInt(coords[0]) + xOffset, flipY(Integer.parseInt(coords[1]) + yOffset));
+		return new Point((int) Float.parseFloat(coords[0]) + xOffset, flipY((int) Float.parseFloat(coords[1]) + yOffset));
 	}
 
 	private int getSize(String value) {
-		float size = Float.parseFloat(removeQuotes(value));
+		double size = Double.parseDouble(removeQuotes(value));
 		return (int) (size * 72);
 	}
 
