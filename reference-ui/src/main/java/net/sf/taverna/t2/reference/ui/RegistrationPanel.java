@@ -213,6 +213,7 @@ public class RegistrationPanel extends JPanel {
 		
 		textArea = new JTextArea();
 		textAreaDocumentListener = new TextAreaDocumentListener(textArea);
+		textArea.setEditable(false);
 		splitPane = new JSplitPane();
 		splitPane.add(new JScrollPane(this.tree), JSplitPane.LEFT);
 		splitPane.add(new JScrollPane(textArea), JSplitPane.RIGHT);
@@ -573,14 +574,15 @@ public class RegistrationPanel extends JPanel {
 		
 		private final JTextArea textArea;
 
-		public TextAreaDocumentListener(JTextArea textArea) {
-			this.textArea = textArea;
-			textArea.getDocument().addDocumentListener(this);
-		}
-		
 		private MutableTreeNode selection;
 		
-                /**
+		 		public TextAreaDocumentListener(JTextArea textArea) {
+			this.textArea = textArea;
+			textArea.getDocument().addDocumentListener(this);
+			this.setSelection(null);
+		}
+		
+               /**
 		 * @param selection the selection to set
 		 */
 		public void setSelection(MutableTreeNode selection) {
