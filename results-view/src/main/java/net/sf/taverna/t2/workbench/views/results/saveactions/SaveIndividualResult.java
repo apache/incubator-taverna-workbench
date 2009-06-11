@@ -35,6 +35,7 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
 
@@ -55,6 +56,7 @@ import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
  * in the tree node.
  * 
  * @author Alex Nenadic
+ * @author Alan R Williams
  *
  */
 public class SaveIndividualResult extends AbstractAction implements SaveIndividualResultSPI{
@@ -147,9 +149,12 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 			Preferences prefs = Preferences.userNodeForPackage(getClass());
 			String curDir = prefs.get("currentDir", System.getProperty("user.home"));
 			fc.resetChoosableFileFilters();
+			FileFilter ff = null;
+
 			// Set the file filter if we know the extension
 			if (!fileExtension.equals("")){
-				fc.setFileFilter(new ExtensionFileFilter(new String[] { fileExtension }));
+				ff = new ExtensionFileFilter(new String[] { fileExtension });
+				fc.setFileFilter(ff);
 			}
 			fc.setCurrentDirectory(new File(curDir));
 			
@@ -162,9 +167,13 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 					prefs.put("currentDir", fc.getCurrentDirectory().toString());
 					File file = fc.getSelectedFile();
 					// If we know the extension and the user did not use it - append it to the file name
-					if ((!fileExtension.equals("")) && (!file.getName().toLowerCase().endsWith("."+ fileExtension))) {
-						String newFileName = file.getName() + "."+ fileExtension;
-						file = new File(file.getParentFile(), newFileName);
+					if (!file.exists()) {
+						if ((ff != null) && fc.getFileFilter().equals(ff) && !file.getName().contains(".")) {
+							String newFileName = file.getName() + "." + fileExtension;
+							file = new File(file.getParentFile(), newFileName);
+						} else {
+							file = new File(file.getParentFile(), file.getName());
+						}
 					}
 					final File finalFile = file;
 
@@ -220,7 +229,8 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 			Preferences prefs = Preferences.userNodeForPackage(getClass());
 			String curDir = prefs.get("currentDir", System.getProperty("user.home"));
 			fc.resetChoosableFileFilters();
-			fc.setFileFilter(new ExtensionFileFilter(new String[] { "txt" }));			
+			FileFilter ff = new ExtensionFileFilter(new String[] { "txt" });
+			fc.setFileFilter(ff);			
 			fc.setCurrentDirectory(new File(curDir));
 			
 			boolean tryAgain = true;
@@ -231,11 +241,17 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 					
 					prefs.put("currentDir", fc.getCurrentDirectory().toString());
 					File file = fc.getSelectedFile();
+										
 					// If user did not use the file extension - append it to the file name
-					if (!file.getName().toLowerCase().endsWith(".txt")) {
-						String newFileName = file.getName() + ".txt";
-						file = new File(file.getParentFile(), newFileName);
+					if (!file.exists()) {
+						if (fc.getFileFilter().equals(ff) && !file.getName().contains(".")) {
+							String newFileName = file.getName() + ".txt";
+							file = new File(file.getParentFile(), newFileName);
+						} else {
+							file = new File(file.getParentFile(), file.getName());
+						}
 					}
+
 					final File finalFile = file;
 
 					if (finalFile.exists()){ // File already exists
