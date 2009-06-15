@@ -10,13 +10,13 @@
 	http://taverna.sf.net/schema/artifact-support 
 	http://taverna.sf.net/schema/artifact-support/artifact-support.xsd">
 
-	<!-- Apache Derby rooted at a temporary directory -->
-	<bean id="t2reference.jdbc.temporaryjdbc"
-		class="net.sf.taverna.platform.spring.jdbc.TemporaryJDBC">
+	<!-- Apache Derby rooted at application directory -->
+	<bean id="t2reference.jdbc.applicationjdbc"
+		class="net.sf.taverna.platform.spring.jdbc.ApplicationJDBC">
 	</bean>
 	<bean id="t2reference.jdbc.url" class="java.lang.String"
-		factory-bean="t2reference.jdbc.temporaryjdbc"
-		factory-method="getTemporaryDerbyJDBC" />
+		factory-bean="t2reference.jdbc.applicationjdbc"
+		factory-method="getApplicationDerbyJDBC" />
 	<bean id="t2reference.jdbc.datasource"
 		class="net.sf.taverna.platform.spring.jdbc.InterpolatingDriverManagerDataSource">
 		<property name="driverClassName">
