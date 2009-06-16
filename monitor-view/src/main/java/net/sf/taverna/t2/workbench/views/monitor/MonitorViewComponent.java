@@ -21,7 +21,9 @@
 package net.sf.taverna.t2.workbench.views.monitor;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
@@ -30,12 +32,18 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
@@ -45,8 +53,10 @@ import net.sf.taverna.t2.provenance.ProvenanceConnectorRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
+import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.provenance.ProvenanceConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
@@ -54,6 +64,9 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
 import org.apache.batik.swing.JSVGCanvas;
+import org.apache.batik.swing.JSVGScrollPane;
+import org.apache.batik.swing.JSVGCanvas.ResetTransformAction;
+import org.apache.batik.swing.JSVGCanvas.ZoomAction;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
@@ -67,6 +80,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	private SVGGraphController graphController;
 
 	private JSVGCanvas svgCanvas;
+	private JSVGScrollPane svgScrollPane;
 	
 	private JLabel statusLabel;
 	
@@ -84,14 +98,26 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 		setBorder(LineBorder.createGrayLineBorder());
 
 		svgCanvas = new JSVGCanvas();
+		svgCanvas.setEnableZoomInteractor(false);
+		svgCanvas.setEnableRotateInteractor(false);
 		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
 
 		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
 			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
+//				svgScrollPane.reset();
 				graphController.setUpdateManager(svgCanvas.getUpdateManager());
+//				MonitorViewComponent.this.revalidate();
 			}
 		});
-		add(svgCanvas, BorderLayout.CENTER);
+		
+		JPanel diagramAndControls = new JPanel();
+		diagramAndControls.setLayout(new BorderLayout());
+		
+		svgScrollPane = new MySvgScrollPane(svgCanvas);
+		diagramAndControls.add(graphActionsToolbar(), BorderLayout.NORTH);
+		diagramAndControls.add(svgScrollPane, BorderLayout.CENTER);
+		
+		add(diagramAndControls, BorderLayout.CENTER);
 		
 		statusLabel = new JLabel();
 		statusLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -99,6 +125,40 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 		add(statusLabel, BorderLayout.SOUTH);
 		
 		setProvenanceConnector();
+	}
+	
+	private JToolBar graphActionsToolbar() {
+		JToolBar toolBar = new JToolBar();
+		toolBar.setAlignmentX(Component.LEFT_ALIGNMENT);
+		toolBar.setFloatable(false);
+		
+		JButton resetDiagramButton = new JButton();
+		resetDiagramButton.setBorder(new EmptyBorder(0, 2, 0, 2));
+		JButton zoomInButton = new JButton();
+		zoomInButton.setBorder(new EmptyBorder(0, 2, 0, 2));
+		JButton zoomOutButton = new JButton();
+		zoomOutButton.setBorder(new EmptyBorder(0, 2, 0, 2));
+		
+		Action resetDiagramAction = svgCanvas.new ResetTransformAction();
+		resetDiagramAction.putValue(Action.SHORT_DESCRIPTION, "Reset Diagram");
+		resetDiagramAction.putValue(Action.SMALL_ICON, WorkbenchIcons.refreshIcon);
+		resetDiagramButton.setAction(resetDiagramAction);
+
+		Action zoomInAction = svgCanvas.new ZoomAction(1.2);
+		zoomInAction.putValue(Action.SHORT_DESCRIPTION, "Zoom In");
+		zoomInAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomInIcon);
+		zoomInButton.setAction(zoomInAction);
+
+		Action zoomOutAction = svgCanvas.new ZoomAction(1/1.2);
+		zoomOutAction.putValue(Action.SHORT_DESCRIPTION, "Zoom Out");
+		zoomOutAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomOutIcon);
+		zoomOutButton.setAction(zoomOutAction);
+
+		toolBar.add(resetDiagramButton);
+		toolBar.add(zoomInButton);
+		toolBar.add(zoomOutButton);
+
+		return toolBar;
 	}
 
 	public void setStatus(Status status) {
@@ -170,6 +230,18 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 
 	public String getSessionId() {
 		return sessionId;
+	}
+
+	private class MySvgScrollPane extends JSVGScrollPane {
+
+		public MySvgScrollPane(JSVGCanvas canvas) {
+			super(canvas);
+		}
+		
+		public void reset() {
+			super.resizeScrollBars();
+			super.reset();
+		}
 	}
 
 }
@@ -351,5 +423,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 			timer.cancel();
 		}
 	}
+	
+
 
 }
