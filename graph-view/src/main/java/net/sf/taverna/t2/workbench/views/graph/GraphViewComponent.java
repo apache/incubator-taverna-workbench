@@ -40,6 +40,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.Timer;
@@ -81,6 +82,7 @@ import net.sf.taverna.t2.workflowmodel.Merge;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
 import org.apache.batik.swing.JSVGCanvas;
+import org.apache.batik.swing.JSVGScrollPane;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
@@ -106,7 +108,8 @@ public class GraphViewComponent extends WorkflowView {
 	private Dataflow dataflow;
 	
 	private JSVGCanvas svgCanvas;
-
+	private JSVGScrollPane svgScrollPane;
+	private JPanel scrollPanel;
 	private JButton resetDiagramButton;
 	private JButton zoomInButton;
 	private JButton zoomOutButton;
@@ -128,6 +131,15 @@ public class GraphViewComponent extends WorkflowView {
 		this.setBorder(border);
 		
 		svgCanvas = new JSVGCanvas(null, true, false);
+		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
+            public void gvtRenderingCompleted(GVTTreeRendererEvent e) 
+{
+				logger.info("Rendered svg");
+				svgScrollPane.reset();
+               GraphViewComponent.this.revalidate();
+            }
+        });
+
 		svgCanvas.setEnableZoomInteractor(false);
 		svgCanvas.setEnableRotateInteractor(false);
 		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
@@ -142,7 +154,8 @@ public class GraphViewComponent extends WorkflowView {
 			}
 		});
 		
-		add(svgCanvas, BorderLayout.CENTER);
+		svgScrollPane = new MySvgScrollPane(svgCanvas);
+		add(svgScrollPane, BorderLayout.CENTER);
 
 		// Toolbar with actions related to graph
 		JToolBar graphActionsToolbar = graphActionsToolbar();
@@ -351,8 +364,7 @@ public class GraphViewComponent extends WorkflowView {
 		if (!graphControllerMap.containsKey(dataflow)) {
 			SVGGraphController graphController = new SVGGraphController(dataflow, svgCanvas) {
 				public void redraw() {
-					svgCanvas.setDocument(generateSVGDocument(svgCanvas.getBounds()));
-					revalidate();
+                	svgCanvas.setDocument(generateSVGDocument(svgCanvas.getBounds()));
 				}			
 			};
 			graphController.setDataflowSelectionModel(DataflowSelectionManager.getInstance().getDataflowSelectionModel(dataflow));
@@ -426,6 +438,18 @@ public class GraphViewComponent extends WorkflowView {
 
 	public void onDispose() {
 		// TODO Auto-generated method stub
+	}
+	
+	private class MySvgScrollPane extends JSVGScrollPane {
+
+		public MySvgScrollPane(JSVGCanvas canvas) {
+			super(canvas);
+		}
+		
+		public void reset() {
+			super.resizeScrollBars();
+			super.reset();
+		}
 	}
 
 }
