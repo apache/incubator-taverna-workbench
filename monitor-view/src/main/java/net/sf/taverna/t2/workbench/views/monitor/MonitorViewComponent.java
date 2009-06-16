@@ -255,6 +255,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 	private String localName;
 	private List<LineageQueryResultRecord> intermediateValues;
 	private Timer timer;
+	private TimerTask timerTask;
 	private String sessionID;
 
 	static int MINIMUM_HEIGHT = 500;
@@ -303,7 +304,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 						provenancePanel.add(provResultsPanel,
 								BorderLayout.CENTER);
 
-						TimerTask timerTask = new TimerTask() {
+						timerTask = new TimerTask() {
 
 							@Override
 							public void run() {
@@ -351,7 +352,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 								"Retrieve intermediate results for dataflow: "
 										+ internalIdentier + ", processor: "
 										+ localName);
-						timer.schedule(timerTask, 0, 50000);
+						timer.schedule(timerTask, 1, 50000);
 						//kill the timer when the user closes the frame
 						frame.addWindowListener(new WindowClosingListener());
 
@@ -421,6 +422,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 		@Override
 		public void windowClosing(WindowEvent e) {
 			timer.cancel();
+			timerTask.cancel();
 		}
 	}
 	
