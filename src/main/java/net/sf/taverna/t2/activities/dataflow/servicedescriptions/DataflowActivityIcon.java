@@ -18,9 +18,10 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.activities.dataflow.query;
+package net.sf.taverna.t2.activities.dataflow.servicedescriptions;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconSPI;
@@ -29,9 +30,12 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 /**
  * 
  * @author Alex Nenadic
+ * @author alanrw
  *
  */
 public class DataflowActivityIcon implements ActivityIconSPI{
+	
+	static Icon icon;
 
 	public int canProvideIconScore(Activity<?> activity) {
 		if (activity.getClass().getName().equals(DataflowActivity.class.getName()))
@@ -41,7 +45,13 @@ public class DataflowActivityIcon implements ActivityIconSPI{
 	}
 
 	public Icon getIcon(Activity<?> activity) {
-		return new DataflowActivityItem().getIcon();
+		return getDataflowIcon();
 	}
-
+	
+	public static Icon getDataflowIcon() {
+		if (icon == null) {
+			icon = new ImageIcon(DataflowActivityIcon.class.getResource("/dataflow.png"));
+		}
+		return icon;
+	}
 }

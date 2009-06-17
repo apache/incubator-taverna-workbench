@@ -1,10 +1,8 @@
 package net.sf.taverna.t2.activities.dataflow.servicedescriptions;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
-import net.sf.taverna.t2.activities.dataflow.query.DataflowActivityItem;
 import net.sf.taverna.t2.servicedescriptions.AbstractTemplateService;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -27,7 +25,7 @@ public class DataflowTemplateService extends AbstractTemplateService<Dataflow>{
 
 	@Override
 	public Icon getIcon() {
-		return new ImageIcon(DataflowActivityItem.class.getResource("/dataflow.png"));
+		return DataflowActivityIcon.getDataflowIcon();
 	}
 
 	public String getName() {
