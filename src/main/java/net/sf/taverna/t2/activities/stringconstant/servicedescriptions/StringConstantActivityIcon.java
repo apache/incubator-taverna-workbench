@@ -18,21 +18,41 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.activities.stringconstant.query;
+package net.sf.taverna.t2.activities.stringconstant.servicedescriptions;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import net.sf.taverna.t2.partition.Query;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
-import org.junit.Test;
+import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconSPI;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
-public class StringConstantQueryTest {
+/**
+ * 
+ * @author Alex Nenadic
+ *
+ */
+public class StringConstantActivityIcon implements ActivityIconSPI{
 
-	@Test
-	public void doQuery() {
-		Query<?> q = new StringConstantQuery(null);
-		q.doQuery();
-		assertEquals("There should be 1 item found",1,q.size());
-		assertTrue("The item should be a StringConstantActivityItem",q.toArray()[0] instanceof StringConstantActivityItem);
+	private static Icon icon = null;
+
+	public int canProvideIconScore(Activity<?> activity) {
+		if (activity.getClass().getName().equals(StringConstantActivity.class.getName()))
+			return DEFAULT_ICON + 1;
+		else
+			return NO_ICON;
+	}
+
+	public Icon getIcon(Activity<?> activity) {
+		return getStringConstantIcon();
+	}
+
+	public static Icon getStringConstantIcon() {
+		if (icon == null) {
+			icon = new ImageIcon(StringConstantActivityIcon.class.getResource("/stringconstant.png"));
+		}
+		return icon;
 	}
 }
+
+

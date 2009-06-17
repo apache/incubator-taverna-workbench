@@ -24,7 +24,6 @@ import javax.swing.Icon;
 
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
-import net.sf.taverna.t2.activities.stringconstant.query.StringConstantActivityIcon;
 import net.sf.taverna.t2.servicedescriptions.AbstractTemplateService;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 
