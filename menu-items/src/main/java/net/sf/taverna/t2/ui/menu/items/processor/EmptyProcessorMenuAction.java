@@ -21,18 +21,19 @@
 package net.sf.taverna.t2.ui.menu.items.processor;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
-import net.sf.taverna.t2.workbench.design.actions.RemoveProcessorAction;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
-public class RemoveProcessorMenuAction extends AbstractContextualMenuAction {
+public class EmptyProcessorMenuAction extends AbstractContextualMenuAction {
 
-	public RemoveProcessorMenuAction() {
-		super(ProcessorSection.processorSection, 100);
+	public EmptyProcessorMenuAction() {
+		super(ProcessorSection.processorSection, 99);
 	}
 
 	@Override
@@ -44,11 +45,44 @@ public class RemoveProcessorMenuAction extends AbstractContextualMenuAction {
 
 	@Override
 	protected Action createAction() {
-		Dataflow dataflow = (Dataflow) getContextualSelection().getParent();
-		Processor processor = (Processor) getContextualSelection()
-				.getSelection();
-		Component component = getContextualSelection().getRelativeToComponent();
-		return new RemoveProcessorAction(dataflow, processor, component);
+		return new Action() {
+
+			public void addPropertyChangeListener(
+					PropertyChangeListener listener) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public Object getValue(String key) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			public boolean isEnabled() {
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			public void putValue(String key, Object value) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void removePropertyChangeListener(
+					PropertyChangeListener listener) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void setEnabled(boolean b) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				
+			}};
 	}
 
 }
