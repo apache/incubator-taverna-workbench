@@ -291,7 +291,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 				if (dataflowObject instanceof Processor) {
 					if (provenanceConnector != null) {
 						localName = ((Processor) dataflowObject).getLocalName();
-						frame.setTitle("No intermediate results for " + localName);
+						frame.setTitle("Fetching intermediate results for " + localName);
 
 						String internalIdentier = dataflow
 								.getInternalIdentier();
@@ -332,6 +332,10 @@ class MonitorGraphEventManager implements GraphEventManager {
 														+ sessionID
 														+ " processor: "
 														+ localName);
+									} else {
+										frame.setTitle("No intermediate results for "
+												+ localName);
+										
 									}
 
 								} catch (Exception e) {
@@ -354,7 +358,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 										+ localName);
 						timer.schedule(timerTask, 1, 50000);
 						//kill the timer when the user closes the frame
-						frame.addWindowListener(new WindowClosingListener());
+						frame.addWindowListener(new WindowClosingListener(timer, timerTask));
 
 					}
 
@@ -419,10 +423,22 @@ class MonitorGraphEventManager implements GraphEventManager {
 	}
 	
 	private class WindowClosingListener extends WindowAdapter {
+		private final Timer timer;
+		private final TimerTask timerTask;
+
+		public WindowClosingListener(Timer timer, TimerTask timerTask) {
+			this.timer = timer;
+			this.timerTask = timerTask;
+		}
+
 		@Override
 		public void windowClosing(WindowEvent e) {
-			timer.cancel();
-			timerTask.cancel();
+			if (timer != null) {
+				timer.cancel();
+			}
+			if (timerTask != null) {
+				timerTask.cancel();
+			}
 		}
 	}
 	
