@@ -3,6 +3,7 @@ package net.sf.taverna.t2.servicedescriptions.impl;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,10 +33,19 @@ import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.workflowmodel.ConfigurationException;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
 
 public class ServiceDescriptionRegistryImpl implements
 		ServiceDescriptionRegistry {
+
+	/**
+	 * If a writable property of this name on a provider exists (ie. the
+	 * provider has a method
+	 * setServiceDescriptionRegistry(ServiceDescriptionRegistry registry) - then
+	 * this property will be set to the current registry.
+	 */
+	public static final String SERVICE_DESCRIPTION_REGISTRY = "serviceDescriptionRegistry";
 
 	public static Logger logger = Logger
 			.getLogger(ServiceDescriptionRegistryImpl.class);
@@ -132,6 +142,17 @@ public class ServiceDescriptionRegistryImpl implements
 			}
 			allServiceProviders.add(provider);
 		}
+		
+		// Spring-like auto-config
+		try {
+			// BeanUtils should ignore this if provider does not have that property
+			BeanUtils.setProperty(provider, SERVICE_DESCRIPTION_REGISTRY, this);
+		} catch (IllegalAccessException e) {
+			logger.warn("Could not set serviceDescriptionRegistry on " + provider, e);
+		} catch (InvocationTargetException e) {
+			logger.warn("Could not set serviceDescriptionRegistry on " + provider, e);
+		}
+		
 		if (!loading) {
 			saveServiceDescriptions();
 		}
