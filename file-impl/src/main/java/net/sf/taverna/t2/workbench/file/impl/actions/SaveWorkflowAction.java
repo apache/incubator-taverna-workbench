@@ -103,11 +103,11 @@ public class SaveWorkflowAction extends AbstractAction {
 				logger.info("Dataflow was changed on source: "
 								+ dataflowSource);
 				fileManager.setCurrentDataflow(dataflow);
-				String msg = "Dataflow destination " + dataflowSource
+				String msg = "Workflow destination " + dataflowSource
 						+ " has been changed from elsewhere, "
 						+ "are you sure you want to overwrite?";
 				int ret = JOptionPane.showConfirmDialog(parentComponent, msg,
-						"Dataflow changed", JOptionPane.YES_NO_CANCEL_OPTION);	
+						"Workflow changed", JOptionPane.YES_NO_CANCEL_OPTION);	
 				if (ret == JOptionPane.YES_OPTION) {
 					fileManager.saveDataflow(dataflow, false);
 					logger.info("Saved dataflow " + dataflow
@@ -125,13 +125,13 @@ public class SaveWorkflowAction extends AbstractAction {
 		} catch (SaveException ex) {
 			logger.warn("Could not save dataflow " + dataflow, ex);
 			JOptionPane.showMessageDialog(parentComponent,
-					"Could not save dataflow: \n\n" + ex.getMessage(),
+					"Could not save workflow: \n\n" + ex.getMessage(),
 					"Warning", JOptionPane.WARNING_MESSAGE);
 			return false;
 		} catch (RuntimeException ex) {
 			logger.warn("Could not save dataflow " + dataflow, ex);
 			JOptionPane.showMessageDialog(parentComponent,
-					"Could not save dataflow: \n\n" + ex.getMessage(),
+					"Could not save workflow: \n\n" + ex.getMessage(),
 					"Warning", JOptionPane.WARNING_MESSAGE);
 			return false;
 		}
