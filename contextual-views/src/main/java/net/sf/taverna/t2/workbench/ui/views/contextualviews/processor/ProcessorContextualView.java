@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.processor;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -30,6 +31,7 @@ import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
@@ -37,6 +39,7 @@ import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -52,10 +55,13 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
+import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
+import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchStack;
@@ -66,6 +72,7 @@ import org.apache.log4j.Logger;
  * View of a processor, including it's iteration stack, activities, etc.
  * 
  * @author Stian Soiland-Reyes
+ * @author Alan R Williams
  * 
  */
 public class ProcessorContextualView extends ContextualView {
@@ -98,6 +105,8 @@ public class ProcessorContextualView extends ContextualView {
 	protected SectionLabel iterationStrategyLabel = new SectionLabel(
 			"List handling", ShadedLabel.GREEN);
 	protected JPanel iterationStrategyPanel = new JPanel();
+	protected SectionLabel predictedBehaviourLabel = new SectionLabel("Predicted behavior", ShadedLabel.BLUE);
+	protected JPanel predictedBehaviourPanel = new JPanel();
 	protected JPanel mainPanel = new JPanel();
 
 	protected Processor processor;
@@ -200,6 +209,7 @@ public class ProcessorContextualView extends ContextualView {
 			actitiviesLabel.setText("Activities");
 		}
 		makeActivitiesPanel();
+		makePredictedBehaviourPanel();
 		makeIterationStrategyPanel();
 		makeAdvancedPanel();
 		
@@ -207,6 +217,14 @@ public class ProcessorContextualView extends ContextualView {
 		mainPanel.add(activitiesPanel, gbc);
 		mainPanel.add(iterationStrategyLabel, gbc);
 		mainPanel.add(iterationStrategyPanel, gbc);
+		mainPanel.add(predictedBehaviourLabel, gbc);
+		mainPanel.add(predictedBehaviourPanel, gbc);
+		predictedBehaviourLabel.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				fileManager.getCurrentDataflow().checkValidity();
+				populatePredictedBehaviourPanel();
+			}
+		});
 		mainPanel.add(advancedLabel, gbc);
 		mainPanel.add(advancedPanel, gbc);
 		
@@ -269,7 +287,79 @@ public class ProcessorContextualView extends ContextualView {
 			activitiesPanel.add(noActivitiesLabel, constraints);
 		}
 	}
+	
+	private void makePredictedBehaviourPanel() {
+		makeCloseable(predictedBehaviourPanel, predictedBehaviourLabel);		
+	}
+	
+	private void populatePredictedBehaviourPanel() {
+		predictedBehaviourPanel.removeAll();
+		predictedBehaviourPanel.setLayout(new BorderLayout());
+		
+		String html ="<html><head>" + getStyle() + "</head><body>";
+		
+		List<? extends ProcessorInputPort> inputs = processor.getInputPorts();
+		if (!inputs.isEmpty()) {
+			html += "<table border=1><tr><th>Input Port Name</th>"
+				+ "<th>Size of data</th>" + "</tr>";
+			for (ProcessorInputPort ip : inputs) {
+				html += "<tr><td>" + ip.getName() + "</td><td>";
+				Datalink incoming = ip.getIncomingLink();
+				if (incoming == null) {
+					html += "No value";
+				} else {
+					int depth = incoming.getResolvedDepth();
+					if (depth == -1) {
+						html += "Invalid";
+					} else if (depth == 0) {
+						html += "Single value";
+					} else {
+						html += "List of depth " + depth;
+					}
+				}
+				html += "</td></tr>";
+			}
+			html += "</table>";
+		}
+		List<? extends ProcessorOutputPort> outputs = processor.getOutputPorts();
+		if (!outputs.isEmpty()) {
+			html += "<table border=1><tr><th>Output Port Name</th>"
+				+ "<th>Size of data</th>" + "</tr>";
+			for (ProcessorOutputPort op : outputs) {
+				html += "<tr><td>" + op.getName() + "</td><td>";
+				Set<? extends Datalink> outgoingSet = op.getOutgoingLinks();
+				if (outgoingSet.isEmpty()) {
+					html += "No value";
+				} else {
+					Datalink outgoing = outgoingSet.iterator().next();
+					int depth = outgoing.getResolvedDepth();
+					if (depth == -1) {
+						html += "Invalid";
+					} else if (depth == 0) {
+						html += "Single value";
+					} else {
+						html += "List of depth " + depth;
+					}
+				}
+				html += "</td></tr>";
+			}
+			html += "</table>";
+		}
+		html +="</body></html>";
+		JEditorPane editorPane = new JEditorPane("text/html", html);
+		editorPane.setEditable(false);
+		JScrollPane scrollPane = new JScrollPane(editorPane);
+		predictedBehaviourPanel.add(scrollPane, BorderLayout.CENTER);
+	}
 
+	protected String getStyle() {
+		String style = "<style type='text/css'>";
+		style += "table {align:center; border:solid black 1px;"
+				+ "width:100%; height:100%; overflow:auto;}";
+		style += "</style>";
+		return style;
+	}
+	
 	private void makeAdvancedPanel() {
 		advancedPanel.removeAll();
 		advancedPanel.setLayout(new GridBagLayout());
