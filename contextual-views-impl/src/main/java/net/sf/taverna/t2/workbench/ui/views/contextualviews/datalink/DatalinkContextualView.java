@@ -34,6 +34,7 @@ import net.sf.taverna.t2.workflowmodel.Datalink;
  * Contextual view for dataflow's datalinks.
  * 
  * @author Alex Nenadic
+ * @author Alan R Williams
  *
  */
 public class DatalinkContextualView extends ContextualView {
@@ -65,7 +66,20 @@ public class DatalinkContextualView extends ContextualView {
 	
 		datalinkView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		datalinkView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel label = new JLabel("<html><body><i>No details available.</i></body><html>");
+		String labelContent = "<html><body>";
+		int resolvedDepth = datalink.getResolvedDepth();
+		if (resolvedDepth != -1) {
+			labelContent += "At the last validation, it was predicted that the link will carry\n";
+			if (resolvedDepth == 0) {
+				labelContent += "a single value";
+			} else {
+				labelContent += "a list of depth " + resolvedDepth;
+			}
+		} else {
+			labelContent += "<i>No details available.</i>";
+		}
+		labelContent += "</body><html>";
+		JLabel label = new JLabel(labelContent);
 		datalinkView.add(label);
 	
 	}
