@@ -203,14 +203,14 @@ public class RunWorkflowAction extends AbstractAction {
 
 	}
 
-	private void invalidDataflow(DataflowValidationReport report) {
+	static void invalidDataflow(DataflowValidationReport report) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<html><h3>Workflow failed validation due to:</h3>");
 		sb.append(constructReport(report));
 		showErrorDialog(sb.toString(), "Workflow validation report");
 	}
 	
-	private String constructReport(DataflowValidationReport report) {
+	static private String constructReport(DataflowValidationReport report) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<dl>");
 		List<? extends TokenProcessingEntity> unsatisfiedEntities = report
@@ -324,8 +324,8 @@ public class RunWorkflowAction extends AbstractAction {
 		frame.setVisible(true);
 	}
 
-	private void showErrorDialog(String message, String title) {
-		JOptionPane.showMessageDialog(runComponent, message, title,
+	static private void showErrorDialog(String message, String title) {
+		JOptionPane.showMessageDialog(null, message, title,
 				JOptionPane.ERROR_MESSAGE);
 	}
 
