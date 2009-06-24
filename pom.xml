@@ -39,7 +39,7 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>workflow-view</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${t2.ui.components.version}</version>
 		</dependency>
 		
 		<dependency>
