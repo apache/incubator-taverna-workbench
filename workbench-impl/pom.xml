@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
 		<artifactId>ui-impl</artifactId>
-		<version>0.6-SNAPSHOT</version>
+		<version>0.6</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-impl</groupId>
 	<artifactId>workbench-impl</artifactId>
@@ -43,12 +43,12 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>file-impl</artifactId>
-			<version>0.6-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 			<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>configuration-impl</artifactId>
-			<version>0.6-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.infrastructure</groupId>
@@ -63,7 +63,7 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>zaria</artifactId>
-			<version>0.6-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
@@ -73,12 +73,12 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>edits-impl</artifactId>
-			<version>0.6-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>helper</artifactId>
-			<version>0.6-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 </project>
