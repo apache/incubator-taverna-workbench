@@ -40,10 +40,4 @@
 
 	</dependencies>
 
-
-  <scm>
-    <connection>scm:svn:http://taverna.googlecode.com/svn/taverna/workbench/net.sf.taverna.t2.ui-api/tags/configuration-api-0.4</connection>
-    <developerConnection>scm:svn:https://taverna.googlecode.com/svn/taverna/workbench/net.sf.taverna.t2.ui-api/tags/configuration-api-0.4</developerConnection>
-    <url>http://code.google.com/p/taverna/source/browse/#svn/taverna/workbench/net.sf.taverna.t2.ui-api/tags/configuration-api-0.4</url>
-  </scm>
 </project>

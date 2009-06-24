@@ -52,9 +52,9 @@
 		</repository>
 	</repositories>
 	<scm>
-		<connection>scm:svn:http://taverna.googlecode.com/svn/taverna/workbench/net.sf.taverna.t2.ui-api/trunk/</connection>
-		<developerConnection>scm:svn:https://taverna.googlecode.com/svn/taverna/workbench/net.sf.taverna.t2.ui-api/trunk/</developerConnection>
-		<url>http://code.google.com/p/taverna/source/browse/#svn/taverna/workbench/net.sf.taverna.t2.ui-api/trunk/</url>
+		<connection>scm:svn:http://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-api/trunk/</connection>
+		<developerConnection>scm:svn:https://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-api/trunk/</developerConnection>
+		<url>http://code.google.com/p/taverna/source/browse/#svn/taverna/ui/net.sf.taverna.t2.ui-api/trunk/</url>
 	</scm>
 	<dependencyManagement>
 		<dependencies>
