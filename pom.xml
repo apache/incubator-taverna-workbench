@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
 		<artifactId>ui-activities</artifactId>
-		<version>0.7-SNAPSHOT</version>
+		<version>0.7</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-activities</groupId>
 	<artifactId>dataflow-activity-ui</artifactId>
