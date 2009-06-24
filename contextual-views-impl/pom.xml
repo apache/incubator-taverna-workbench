@@ -32,15 +32,10 @@
 			<artifactId>workflowmodel-api</artifactId>
 			<version>${t2.core.version}</version>
 		</dependency>
-		<!--<dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
-			<artifactId>iteration-strategy-ui</artifactId>
-			<version>${t2.ui.components.version}</version>
-		</dependency>-->
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>workbench-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<version>0.4-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>

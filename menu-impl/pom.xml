@@ -20,13 +20,8 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>menu-api</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<version>0.4-SNAPSHOT</version>
 		</dependency>
-		<!--<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>design-ui</artifactId>
-			<version>${t2.ui.impl.version}</version>
-		</dependency>-->
 		<dependency>
 			<groupId>net.sf.taverna.t2.infrastructure</groupId>
 			<artifactId>spi-discovery-api</artifactId>
@@ -49,7 +44,7 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>helper</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<version>0.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>

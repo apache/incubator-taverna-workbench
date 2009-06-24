@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>plugins-gui</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<version>0.4-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
