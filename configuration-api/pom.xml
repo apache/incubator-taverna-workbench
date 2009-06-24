@@ -4,11 +4,10 @@
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
 		<artifactId>ui-api</artifactId>
-		<version>0.5-SNAPSHOT</version>
+		<version>0.5</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-api</groupId>
 	<artifactId>configuration-api</artifactId>
-  <version>0.5-SNAPSHOT</version>
 	<name>Configuration Management API</name>
 	<description>General configuration management</description>
 
