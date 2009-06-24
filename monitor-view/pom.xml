@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
 		<artifactId>ui-components</artifactId>
-		<version>0.4-SNAPSHOT</version>
+		<version>0.4</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-components</groupId>
 	<artifactId>monitor-view</artifactId>
@@ -28,12 +27,12 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>graph-model</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>0.4-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>results-view</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>0.4</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
@@ -45,7 +44,7 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>provenance-config</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>0.4</version>
 		</dependency>
 		<!--
 			<dependency> <groupId>net.sf.taverna.t2.core</groupId>
@@ -91,26 +90,8 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>graph-model</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>0.4-SNAPSHOT</version>
 		</dependency>
 		
-		<!--
-			<dependency> <groupId>net.sf.taverna.t2</groupId>
-			<artifactId>workflowmodel-impl</artifactId> <version>0.3</version>
-			</dependency> <dependency>
-			<groupId>net.sf.taverna.t2.workbench</groupId>
-			<artifactId>ui-api</artifactId> <version>0.1</version> </dependency>
-			<dependency> <groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId> <version>0.3</version> </dependency>
-			<dependency> <groupId>net.sf.taverna.t2</groupId>
-			<artifactId>observer</artifactId> <version>0.3</version>
-			</dependency> <dependency> <groupId>net.sf.taverna.t2</groupId>
-			<artifactId>all-activities</artifactId> <version>0.3</version>
-			<scope>test</scope> </dependency> <dependency>
-			<groupId>net.sf.taverna.t2</groupId>
-			<artifactId>all-activity-translators</artifactId>
-			<version>0.3</version> <scope>test</scope> </dependency>
-		-->
-
 	</dependencies>
 </project>
