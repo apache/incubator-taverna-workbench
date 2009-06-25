@@ -33,7 +33,7 @@
 	<!-- that aspects loaded from Raven work as usual             -->
 	<bean id="t2reference.cache.cacheAspect"
 		class="net.sf.taverna.t2.reference.impl.WriteQueueAspect"
-		raven:artifact="net.sf.taverna.t2.core:reference-impl:0.6"
+		raven:artifact="net.sf.taverna.t2.core:reference-impl:0.8"
 		raven:repository="raven.repository">
 		<constructor-arg value="5" />	
 	</bean>
