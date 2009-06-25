@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
 		<artifactId>ui-impl</artifactId>
-		<version>0.7</version>
+		<version>0.8-SNAPSHOT</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-impl</groupId>
 	<artifactId>workbench-impl</artifactId>
