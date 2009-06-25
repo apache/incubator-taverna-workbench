@@ -10,18 +10,18 @@
 
 	<groupId>net.sf.taverna.t2</groupId>
 	<artifactId>ui-api</artifactId>
-	<version>0.6-SNAPSHOT</version>
+	<version>0.6</version>
 	<packaging>pom</packaging>
 
 	<name>Taverna 2 UI APIs</name>
 
 	<properties>
-		<t2.activities.version>0.6</t2.activities.version>
-		<t2.infrastructure.version>1.10</t2.infrastructure.version>
-		<t2.core.version>0.6</t2.core.version>
+		<t2.activities.version>0.8</t2.activities.version>
+		<t2.infrastructure.version>1.11</t2.infrastructure.version>
+		<t2.core.version>0.8</t2.core.version>
 		<t2.lang.version>0.5</t2.lang.version>
-		<t2.compatibility.version>0.6</t2.compatibility.version>
-		<t2.translators.version>0.6</t2.translators.version>
+		<t2.compatibility.version>0.8</t2.compatibility.version>
+		<t2.translators.version>0.8</t2.translators.version>
 		<taverna.version>1.7.2.0</taverna.version>
 	</properties>
 
@@ -50,9 +50,9 @@
 		</repository>
 	</repositories>
 	<scm>
-		<connection>scm:svn:http://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-api/tags/ui-api-0.4</connection>
-		<developerConnection>scm:svn:https://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-api/tags/ui-api-0.4</developerConnection>
-		<url>http://code.google.com/p/taverna/source/browse/#svn/taverna/ui/net.sf.taverna.t2.ui-api/tags/ui-api-0.4</url>
+		<connection>scm:svn:http://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-api/tags/ui-api-0.6</connection>
+		<developerConnection>scm:svn:https://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-api/tags/ui-api-0.6</developerConnection>
+		<url>http://code.google.com/p/taverna/source/browse/#svn/taverna/ui/net.sf.taverna.t2.ui-api/tags/ui-api-0.6</url>
 	</scm>
 	<dependencyManagement>
 		<dependencies>
