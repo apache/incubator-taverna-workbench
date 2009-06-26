@@ -34,105 +34,59 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JPasswordField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
-import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewPasswordDialog;
-
 /**
  * Dialog used for viewing service URL, username and password.
  * 
- * @author Alexandra Nenadic
+ * @author Alex Nenadic
  */
-public class ViewPasswordEntryDialog
+public class ViewUsernamePasswordEntryDialog
     extends JDialog
 {
 	private static final long serialVersionUID = -7224904997349644853L;
 
-	/** Service URL field */
+	// Service URL field 
     private JTextField jtfServiceURL;
     
-    /** Username field */
+    // Username field 
     private JTextField jtfUsername;
     
-    /** Password field */
-    private JPasswordField jpfPassword;
+    // Password field 
+    private JTextField jtfPassword;
 
-    /** Service URL value*/
-    private String sURL;    
+    // Service URL value
+    private String serviceURL;    
     
-    /** Service username value*/
-    private String sUsername;
+    // Service username value
+    private String username;
     
-    /** Service password value*/
-    private String sPassword;
-
-   /**
-     * Creates new ViewPasswordEntryDialog dialog where the parent is a frame.
-     *
-     * @param parent Parent frame
-     * @param bModal Is dialog modal?
-     * @param cURL Service URL value
-     * @param cUsername Service username value
-     * @param cPassword Service password value
-     */
-    public ViewPasswordEntryDialog(JFrame parent, boolean bModal, String cURL, String cUsername, String cPassword)
-    {
-        this(parent, "View password entry for a service", bModal, cURL, cUsername, cPassword);
-
-    }
+    // Service password value
+    private String password;
 
     /**
      * Creates new ViewPasswordEntryDialog dialog where the parent is a frame.
-     *
-     * @param parent Parent frame
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?
-     * @param cURL Service URL value
-     * @param cUsername Service username value
-     * @param cPassword Service password value
      */
-    public ViewPasswordEntryDialog(JFrame parent, String sTitle, boolean bModal, String cURL, String cUsername, String cPassword)
+    public ViewUsernamePasswordEntryDialog(JFrame parent, String currentURL, String currentUsername, String currentPassword)
     {
-        super(parent, sTitle, bModal);  
-        sURL = cURL;
-        sUsername = cUsername;
-        sPassword = cPassword;
+        super(parent, "View username and password for a service", true);
+        serviceURL = currentURL;
+        username = currentUsername;
+        password = currentPassword;
         initComponents();
     }
 
     /**
      * Creates new ViewPasswordDialog dialog where the parent is a dialog.
-     *
-     * @param parent Parent dialog
-     * @param bModal Is dialog modal?
-     * @param cURL Service URL value
-     * @param cUsername Service username value
-     * @param cPassword Service password value
      */
-    public ViewPasswordEntryDialog(JDialog parent, boolean bModal, String cURL, String cUsername, String cPassword)
+    public ViewUsernamePasswordEntryDialog(JDialog parent, String currentURL, String currentUsername, String currentPassword)
     {
-        this(parent, "View password entry", bModal, cURL, cUsername, cPassword);
-    }
-
-    /**
-     * Creates new ViewPasswordDialog dialog where the parent is a dialog.
-     *
-     * @param parent Parent dialog
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?
-     * @param cURL Service URL value
-     * @param cUsername Service username value
-     * @param cPassword Service password value
-     */
-    public ViewPasswordEntryDialog(JDialog parent, String sTitle, boolean bModal, String cURL, String cUsername, String cPassword)
-    {
-        super(parent, sTitle, bModal);
-        sURL = cURL;
-        sUsername = cUsername;
-        sPassword = cPassword;
+        super(parent, "View username and password for a service", true);
+        serviceURL = currentURL;
+        username = currentUsername;
+        password = currentPassword;
         initComponents();
     }
 
@@ -144,20 +98,28 @@ public class ViewPasswordEntryDialog
         getContentPane().setLayout(new BorderLayout());
 
         JLabel jlServiceURL = new JLabel("Service URL");
+        jlServiceURL.setBorder(new EmptyBorder(0,5,0,0));
         JLabel jlUsername = new JLabel("Username");
+        jlUsername.setBorder(new EmptyBorder(0,5,0,0));
         JLabel jlPassword = new JLabel("Password");
+        jlPassword.setBorder(new EmptyBorder(0,5,0,0));
 
         //Populate the fields with values and disable user input
         jtfServiceURL = new JTextField(15);
-        jtfServiceURL.setText(sURL);
+        jtfServiceURL.setText(serviceURL);
         jtfServiceURL.setEditable(false);
-        jtfUsername = new JTextField(15);
-        jtfUsername.setText(sUsername);
-        jtfUsername.setEditable(false);
-        jpfPassword = new JPasswordField(15);
-        jpfPassword.setText(sPassword);
-        jpfPassword.setEditable(false);
+        //jtfServiceURL.setBorder(new EmptyBorder(0,0,0,5));
         
+        jtfUsername = new JTextField(15);
+        jtfUsername.setText(username);
+        jtfUsername.setEditable(false);
+       // jtfUsername.setBorder(new EmptyBorder(0,0,0,5));
+        
+        jtfPassword = new JTextField(15);
+        jtfPassword.setText(password);
+        jtfPassword.setEditable(false);
+        //jtfPassword.setBorder(new EmptyBorder(0,0,0,5));
+
         JButton jbOK = new JButton("OK");
         jbOK.addActionListener(new ActionListener()
         {
@@ -167,14 +129,14 @@ public class ViewPasswordEntryDialog
             }
         });
         
-        JButton jbViewPassword = new JButton("View password");
-        jbViewPassword.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-            	showPassword();
-            }
-        });
+//        JButton jbViewPassword = new JButton("View password");
+//        jbViewPassword.addActionListener(new ActionListener()
+//        {
+//            public void actionPerformed(ActionEvent evt)
+//            {
+//            	showPassword();
+//            }
+//        });
         
         JPanel jpPassword = new JPanel(new GridLayout(4, 2, 5, 5));
         jpPassword.add(jlServiceURL);
@@ -182,14 +144,13 @@ public class ViewPasswordEntryDialog
         jpPassword.add(jlUsername);
         jpPassword.add(jtfUsername);
         jpPassword.add(jlPassword);
-        jpPassword.add(jpfPassword);
-        //jpPassword.setBorder(new EmptyBorder(5, 5, 5, 5));
+        jpPassword.add(jtfPassword);
         jpPassword.setBorder(new CompoundBorder(
-                new EmptyBorder(5, 5, 5, 5), new EtchedBorder()));
+                new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
         
         JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
         jpButtons.add(jbOK);
-        jpButtons.add(jbViewPassword);
+       // jpButtons.add(jbViewPassword);
         
         getContentPane().add(jpPassword, BorderLayout.CENTER);
         getContentPane().add(jpButtons, BorderLayout.SOUTH);
@@ -207,20 +168,6 @@ public class ViewPasswordEntryDialog
         getRootPane().setDefaultButton(jbOK);
 
         pack();
-    }
-
-    /**
-     * Show the password which was hidden in the JPasswordField.
-     */
-    private void showPassword()
-    {
-        // Show the password
-        ViewPasswordDialog dShowPassword = new ViewPasswordDialog(this,
-        		"View password",
-        		true, 
-       		 	sPassword);
-        dShowPassword.setLocationRelativeTo(this);
-        dShowPassword.setVisible(true);
     }
 
     /**

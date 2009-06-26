@@ -41,62 +41,41 @@ import javax.swing.border.EmptyBorder;
 /**
  * Dialog used for entering and confirming a password.
  * 
- * @author Alexandra Nenadic
+ * @author Alex Nenadic
  */
-public class GetNewPasswordDialog
-    extends JDialog
-{
+@SuppressWarnings("serial")
+public class GetNewPasswordDialog extends JDialog {
 
-	private static final long serialVersionUID = 5317657512148769008L;
-
-	/** Instructions for user explaining the purpose of the password */
+	// Instructions for user explaining the purpose of the password 
 	private String instructions = null;
 	
-    /** First password entry password field */
+    // First password entry password field 
     private JPasswordField jpfFirst;
 
-    /** Password confirmation entry password field */
+    // Password confirmation entry password field 
     private JPasswordField jpfConfirm;
 
-    /** Stores new password entered */
+    // Stores new password entered 
     private String password = null;
 
     /**
      * Creates new GetNewPasswordDialog where the parent is a frame.
-     *
-     * @param parent Parent frame
-     * @param bModal Is dialog modal?
-     * @param instr Instructions for user
      */
-    public GetNewPasswordDialog(JFrame parent, String sTitle, boolean bModal, String instr)
+    public GetNewPasswordDialog(JFrame parent, String title, boolean modal, String instr)
     {
-        super(parent, sTitle, bModal);
+        super(parent, title, modal);
         instructions = instr;
         initComponents();
     }
 
     /**
      * Creates new GetNewPasswordDialog where the parent is a dialog.
-     *
-     * @param parent Parent dialog
-     * @param bModal Is dialog modal?
-     * @param instr Instructions for user
      */
-    public GetNewPasswordDialog(JDialog parent, String sTitle, boolean bModal, String instr)
+    public GetNewPasswordDialog(JDialog parent, String title, boolean modal, String instr)
     {
-        super(parent, sTitle, bModal);
+        super(parent, title, modal);
         instructions = instr;
         initComponents();
-    }
-
-    /**
-     * Get the password set in the dialog.
-     *
-     * @return The password or null if none was set
-     */
-    public String getPassword()
-    {
-    	return password;
     }
 
     /**
@@ -166,14 +145,23 @@ public class GetNewPasswordDialog
         pack();
     }
 
+
     /**
-     * Checks the following:
+     * Get the password set in the dialog or null if none was set.
+     */
+    public String getPassword()
+    {
+    	return password;
+    }
+    
+    /**
+     * Check the following:
      * <ul>
      *     <li>that the user has supplied and confirmed a password
      *     <li>that the password's match
      *     <li>that the passwords are not empty
      * </ul>
-     * and stores the new password in this object.
+     * and store the new password.
      *
      * @return true, if the user's dialog entry matches the above criteria,
      *         false otherwise

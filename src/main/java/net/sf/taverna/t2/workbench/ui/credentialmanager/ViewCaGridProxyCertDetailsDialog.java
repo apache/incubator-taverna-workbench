@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -33,22 +34,18 @@ import java.awt.event.WindowEvent;
 import java.math.BigInteger;
 import java.util.HashMap;
 
-import javax.swing.DefaultListModel;
+import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.JSeparator;
-
-import java.util.ArrayList;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -59,7 +56,6 @@ import javax.security.auth.x500.X500Principal;
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
 
-//import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.DERBitString;
 import org.bouncycastle.asn1.DEROctetString;
@@ -67,46 +63,49 @@ import org.bouncycastle.asn1.misc.NetscapeCertType;
 
 
 /**
- * Displays the details of a X.509 certificate.
+ * Displays the details of a X.509 caGrid proxy certificate.
  * 
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class ViewCertDetailsDialog
-    extends JDialog
-{ 	
+public class ViewCaGridProxyCertDetailsDialog extends JDialog { 	
+	
 	// Logger
 	//private static Logger logger = Logger.getLogger(ViewCertDetailsDialog.class);
 	
-	// Stores certificate to display 
+	// Stores certificate to display
     private X509Certificate cert;
+
+	private String authNServiceURL;
+
+	private String dorianServiceURL;
     
-    // Stores list of serviceURLs to display 
-    private  ArrayList<String> serviceURLs;
 
     /**
-     * Creates new ViewCertDetailsDialog dialog where the parent is a frame.
+     * Creates new ViewCaGridProxyCertDialog dialog where the parent is a frame.
      */
-    public ViewCertDetailsDialog(JFrame parent, String title, boolean modal,
-        X509Certificate crt, ArrayList<String> serviceURLs)
+    public ViewCaGridProxyCertDetailsDialog(JFrame parent, String title, boolean modal,
+        X509Certificate crt, String authNServiceURL, String dorianServiceURL)
         throws CMException
     {
         super(parent, title, modal);
         this.cert = crt;
-        this.serviceURLs = serviceURLs;
+        this.authNServiceURL = authNServiceURL;
+        this.dorianServiceURL = dorianServiceURL;
         initComponents();
     }
 
     /**
-     * Creates new ViewCertDetailsDialog dialog where the parent is a dialog.
+     * Creates new ViewCaGridProxyCertDialog dialog where the parent is a dialog.
      */
-    public ViewCertDetailsDialog(JDialog parent, String title, boolean modal,
-        X509Certificate crt, ArrayList<String> urlList)
+    public ViewCaGridProxyCertDetailsDialog(JDialog parent, String title, boolean modal,
+        X509Certificate crt, String authNServiceURL, String dorianServiceURL)
         throws CMException
     {
         super(parent, title, modal);
         cert = crt;
-        serviceURLs = urlList;
+        this.authNServiceURL = authNServiceURL;
+        this.dorianServiceURL = dorianServiceURL;        
         initComponents();
     }
     
@@ -401,39 +400,47 @@ public class ViewCertDetailsDialog
         jpCertificate.add(jlMD5FingerprintValue, gbc_jlMD5FingerprintValue);
         jpCertificate.add(jlEmpty, gbc_jlEmpty); //Empty label to get some vertical space on the frame
 
-        // List of serviceURLs
-        JPanel jpURLs  = null; // Panel to hold the URL list
-        if (serviceURLs!=null){ //if service serviceURLs are not null (even if empty - show empty list)
-
-        	jpURLs = new JPanel(new BorderLayout());
-        	jpURLs.setBorder(new CompoundBorder(
+        // List of AuthN and Dorian URLs
+        JPanel jpAuthNDorianURLs = new JPanel(new BorderLayout());
+        jpAuthNDorianURLs.setBorder(new CompoundBorder(
                     new EmptyBorder(0, 15, 0, 15), new EtchedBorder()));
-            // Label
-            JLabel jlServiceURLs = new JLabel ("Service URLs this key pair will be used for:");
-            jlServiceURLs.setFont(new Font(null, Font.BOLD, 11));
-            jlServiceURLs.setBorder(new EmptyBorder(5,5,5,5));    
-      
-            // New empty service serviceURLs list
-            DefaultListModel jltModel = new DefaultListModel();
-            JList jltServiceURLs = new JList(jltModel); 
-            for (String url : serviceURLs){
-            	jltModel.addElement(url);
-            }
-            jltServiceURLs.setVisibleRowCount(5); //don't show more than 5 otherwise the window is too big
-            
-            // Scroll pane for service serviceURLs
-            JScrollPane jspServiceURLs = new JScrollPane(jltServiceURLs,
-                    JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                    JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-            jspServiceURLs.getViewport().setBackground(jltServiceURLs.getBackground());
+        // Label
+        JLabel jlServiceURLs = new JLabel ("The proxy has been obtained using:");
+        jlServiceURLs.setFont(new Font(null, Font.BOLD, 11));
+        jlServiceURLs.setBorder(new EmptyBorder(5,5,5,5));    
+  
+    	JPanel jpURLs = new JPanel();
+    	jpURLs.setLayout(new BoxLayout(jpURLs, BoxLayout.Y_AXIS));
+        JLabel jlAuthNServiceURL = new JLabel("Authentication Service");
+        jlAuthNServiceURL.setFont(new Font(null, Font.PLAIN, 11));
+        jlAuthNServiceURL.setAlignmentX(Component.LEFT_ALIGNMENT);
+        jlAuthNServiceURL.setBorder(new EmptyBorder(5,5,0,5));    
 
-            jpURLs.add(jlServiceURLs, BorderLayout.NORTH);
-            jpURLs.add(jspServiceURLs, BorderLayout.CENTER);
-            
-            // Put it on the main content pane
-            getContentPane().add(jpURLs, BorderLayout.CENTER);
-        }
-        
+        JLabel jlDorianServiceURL = new JLabel("Dorian Service");
+        jlDorianServiceURL.setFont(new Font(null, Font.PLAIN, 11));
+        jlDorianServiceURL.setAlignmentX(Component.LEFT_ALIGNMENT);
+        jlDorianServiceURL.setBorder(new EmptyBorder(5,5,0,5));    
+
+        JTextField jtfAuthNServiceURL = new JTextField(25);
+        jtfAuthNServiceURL.setEditable(false);
+        jtfAuthNServiceURL.setText(authNServiceURL);
+        jtfAuthNServiceURL.setFont(new Font(null, Font.PLAIN, 11));
+        jtfAuthNServiceURL.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JTextField jtfDorianServiceURL = new JTextField(25);
+        jtfDorianServiceURL.setEditable(false);
+        jtfDorianServiceURL.setText(dorianServiceURL);
+        jtfDorianServiceURL.setFont(new Font(null, Font.PLAIN, 11));
+        jtfDorianServiceURL.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        jpURLs.add(jlAuthNServiceURL);
+        jpURLs.add(jtfAuthNServiceURL);
+        jpURLs.add(jlDorianServiceURL);
+        jpURLs.add(jtfDorianServiceURL);
+
+        jpAuthNDorianURLs.add(jlServiceURLs, BorderLayout.NORTH);
+        jpAuthNDorianURLs.add(jpURLs, BorderLayout.CENTER);
+               
         // OK button
         JPanel jpOK = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
@@ -450,6 +457,7 @@ public class ViewCertDetailsDialog
          
         // Put it all together (panel with URL list is already added, if it was not null)
         getContentPane().add(jpCertificate, BorderLayout.NORTH);
+        getContentPane().add(jpAuthNDorianURLs, BorderLayout.CENTER);
         getContentPane().add(jpOK, BorderLayout.SOUTH);
 
         // Resizing wreaks havoc

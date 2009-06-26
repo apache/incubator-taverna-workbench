@@ -40,49 +40,36 @@ import javax.swing.border.EmptyBorder;
 /**
  * Dialog used for entering a password.
  * 
- * @author Alexandra Nenadic
+ * @author Alex Nenadic
  */
-public class GetPasswordDialog
-    extends JDialog
-{
+@SuppressWarnings("serial")
+public class GetPasswordDialog extends JDialog {
 
-	private static final long serialVersionUID = 2359997256455514203L;
-
-	/** Instructions for user explaining the purpose of the password */
+	// Instructions for user explaining the purpose of the password 
 	private String instructions = null;
 	
-    /** Password entry password field */
+    // Password entry password field 
     private JPasswordField jpfPassword;
 
-    /** Stores the password entered */
+    // Stores the password entered 
     private String password = null;
 
     /**
      * Creates new GetPasswordDialog dialog where the parent is a frame.
-     *
-     * @param parent Parent frame
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?
-     * @param instr Instructions for user
      */
-    public GetPasswordDialog(JFrame parent, String sTitle, boolean bModal, String instr)
+    public GetPasswordDialog(JFrame parent, String title, boolean modal, String instr)
     {
-        super(parent, sTitle, bModal);
+        super(parent, title, modal);
         instructions = instr;
         initComponents();
     }
 
     /**
      * Creates new GetPasswordDialog dialog where the parent is a dialog.
-     *
-     * @param parent Parent dialog
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?     
-     * @param instr Instructions for user
      */
-    public GetPasswordDialog(JDialog parent, String sTitle, boolean bModal, String instr)
+    public GetPasswordDialog(JDialog parent, String title, boolean modal, String instr)
     {
-        super(parent, sTitle, bModal);
+        super(parent, title, modal);
         instructions = instr;
         initComponents();
     }
@@ -162,10 +149,8 @@ public class GetPasswordDialog
     }
 
     /**
-     * Checks that the password entered is not empty and 
-     * store the entered password in this object.
-     *
-     * @return true - if the user's dialog entry matches the above criteria, false otherwise
+     * Check that the password entered is not empty and 
+     * store the entered password.
      */
     private boolean checkPassword()
     {

@@ -20,152 +20,151 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
-import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.TreeMap;
-import java.util.Map.Entry;
-import java.util.HashMap;
-import java.util.Vector;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.log4j.Logger;
+
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.CMNotInitialisedException;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
-import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerGUI;
+import net.sf.taverna.t2.security.credentialmanager.KeystoreChangedEvent;
 
 /**
  * The table model used to display the Keystore's key pair entries.
  * 
- * @author Alexandra Nenadic
+ * @author Alex Nenadic
  */
-public class KeyPairsTableModel
-    extends AbstractTableModel
-{
+@SuppressWarnings("serial")
+public class KeyPairsTableModel extends AbstractTableModel implements Observer<KeystoreChangedEvent> {
 
-	private static final long serialVersionUID = 4908900063321484451L;
-
-	/** Holds the column names */
+	// Column names 
     private String[] columnNames;
 
-    /** Holds the table data */
+    // Table data 
     private Object[][] data;
     
-    /** Holds the map of URLs for each key pair entry (i.e. map's keys are key pair entries' aliases
-     * and values are lists of URLs.   
-     */
-    private HashMap<String, Vector<String>> urlMap = null;
+	private CredentialManager credManager;
     
+	private Logger logger = Logger.getLogger(KeyPairsTableModel.class);
+
     /**
      * Construct a new KeyPairsTableModel.
      */
     public KeyPairsTableModel()
     {
+        credManager = null;
+        try{
+        	credManager = CredentialManager.getInstance();
+        }
+        catch (CMException cme){
+			// Failed to instantiate Credential Manager - warn the user and exit
+			String sMessage = "Failed to instantiate Credential Manager. " + cme.getMessage();
+			logger.error("CM GUI: "+ sMessage);
+			cme.printStackTrace();
+			JOptionPane.showMessageDialog(new JFrame(), sMessage,
+					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			return;
+        }
+    	
        	data = new Object[0][0];
         columnNames = new String[] {
         	"Entry Type", // type of the Keystore entry
-        	"Owner:Serial Number", // owner's common name and serial number of the user's public key certificate
-            "Last Modified", // last modified date of the entry
+        	"Owner", // owner's common name
+        	"Issuer", // issuer's common name
+        	"Serial Number", // public key certificate's serial number
+        	"Last Modified", // last modified date of the entry
             "URLs", // the invisible column holding the list of URLs associated with this entry
             "Alias" // the invisible column holding the actual alias in the Keystore
         	};
         
-        
+        try {
+			load();
+		} catch (CMException cme) {
+			String sMessage = "Failed to load key pairs";
+			logger.error(sMessage);
+			cme.printStackTrace();
+			JOptionPane.showMessageDialog(new JFrame(), sMessage,
+					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+        // Start observing changes to the Keystore
+        credManager.addObserver(this);
     }
     
     /**
      * Load the KeyPairsTableModel with the key pair entries from the Keystore. 
-     *
-     * @param keyStore The keystore
-     * @throws CMException A problem is encountered during accessing
-     * the keystore's entries
      */
-    public void load(CredentialManager cm)
-        throws CMException
-    {
-        // Place key pair entries' aliases in a tree map to sort them
-        TreeMap<String, String> sortedAliases = new TreeMap<String, String>();
-        
-        // Also place aliases in a list 
-        Vector<String> aliasList = new Vector<String>();
+    public void load() throws CMException {
         
         try{
-        	for (Enumeration<String> en = cm.getAliases(CredentialManager.KEYSTORE); en.hasMoreElements();) {
-
-        		String sAlias = en.nextElement();
-        		// Only save key pair entries starting with "keypair"
-        		// Alias for a key pair entry is constructed as "keypair#<CERT_SERIAL_NUMBER>#<CERT_COMMON_NAME>"
-        		/*if (keyStore.isKeyEntry(sAlias)
-                    && keyStore.getCertificateChain(sAlias) != null
-                    && keyStore.getCertificateChain(sAlias).length != 0){*/
-        		if (sAlias.startsWith("keypair") && cm.isKeyEntry(sAlias)){ //user's public key cert entry gets the same alias in the Keystore as its private key entry, so we have to check which one it is
-        			sortedAliases.put(sAlias, sAlias);
-            		aliasList.add(sAlias);
+            // Place key pair entries' aliases in a tree map to sort them
+            TreeMap<String, String> sortedAliases = new TreeMap<String, String>();  
+            	
+            ArrayList<String> aliases = credManager.getAliases(CredentialManager.KEYSTORE);
+            
+           	for (String alias: aliases){
+        		// We are only interested in key pair entries here.
+        		// Alias for such entries is constructed as "keypair#<CERT_SERIAL_NUMBER>#<CERT_COMMON_NAME>" where
+        		if (alias.startsWith("keypair#")){
+        			sortedAliases.put(alias, alias);
         		}
-        	}
- 
-        	// Get the lists of URLs for every alias
-        	urlMap = null;
-        	if (aliasList != null){
-            	urlMap = cm.getServiceURLs();        		
-        	}
+        	}   		
         			
             // Create one table row for each key pair entry
-            // Each row has 4 fields - type, service URL, last modified data and the invisible alias
-            data = new Object[sortedAliases.size()][5];
+            data = new Object[sortedAliases.size()][7];
 
             // Iterate through the sorted aliases (if any), retrieving the key pair
             // entries and populating the table model
             int iCnt = 0;
-            for (Iterator<Entry<String, String>> itr = sortedAliases.entrySet().iterator(); itr.hasNext(); iCnt++)
-            {
-                String sAlias = (String) itr.next().getKey();
-
+            for (String alias : sortedAliases.values())
+            {                
+                
                 // Populate the type column - it is set with an integer
                 // but a custom cell renderer will cause a suitable icon
                 // to be displayed
-                data[iCnt][0] = CredentialManagerGUI.KEY_PAIR_ENTRY_TYPE;
+                data[iCnt][0] = CredentialManagerUI.KEY_PAIR_ENTRY_TYPE;
 
-                // Populate the 'Owner:Serial Number' column extracted from the alias
-                data[iCnt][1] = sAlias.substring(sAlias.lastIndexOf('#')+1) + 
-                	":" + 
-                	sAlias.substring(sAlias.indexOf('#')+1,sAlias.lastIndexOf('#'));
+                // Split the alias string to extract owner, issuer and serial number 
+                // alias = "keypair#"<CERT_SUBJECT_COMMON_NAME>"#"<CERT_ISSUER_COMMON_NAME>"#"<CERT_SERIAL_NUMBER>
+                String[] aliasComponents = alias.split("#");
+                
+                // Populate the owner column extracted from the alias
+                data[iCnt][1] = aliasComponents[1];
+                
+                // Populate the issuer column extracted from the alias
+                data[iCnt][2] = aliasComponents[2];
+                
+                // Populate the serial number column extracted from the alias
+                data[iCnt][3] = aliasComponents[3];
                 
                 // Populate the modified date column ("UBER" keystore type supports creation date)
-               	data[iCnt][2] = cm.getCreationDate(CredentialManager.KEYSTORE, sAlias);
+               	data[iCnt][4] = credManager.getEntryCreationDate(CredentialManager.KEYSTORE, alias);
 
                 // Populate the invisible URLs list column
-                data[iCnt][3] = (Vector<String>) urlMap.get(sAlias);   
+                data[iCnt][5] = credManager.getServiceURLsForKeyPair(alias);   
                 
                 // Populate the invisible alias column
-                data[iCnt][4] = sAlias;          
+                data[iCnt][6] = alias;  
+                
+                iCnt++;
             }
         }
         catch (CMException cme){
-            throw (new CMException(cme.getMessage()));
+            throw (cme);
         }
-        catch (CMNotInitialisedException cmni) {
-        	// Should not realy happen - we have initialised the Credential Manager
-        	throw (new CMException(cmni.getMessage()));
-        }	
 
         fireTableDataChanged();
     }
     
     /**
-     * Get the map of URL lists associated to key pair aliases.
-     *
-     * @return The map of aliases and URLs.
-     */
-    public HashMap<String, Vector<String>> getUrlMap()
-    {
-        return urlMap;
-    }
-    
-    /**
      * Get the number of columns in the table.
-     *
-     * @return The number of columns
      */
     public int getColumnCount()
     {
@@ -174,8 +173,6 @@ public class KeyPairsTableModel
 
     /**
      * Get the number of rows in the table.
-     *
-     * @return The number of rows
      */
     public int getRowCount()
     {
@@ -184,9 +181,6 @@ public class KeyPairsTableModel
 
     /**
      * Get the name of the column at the given position.
-     *
-     * @param iCol The column position
-     * @return The column name
      */
     public String getColumnName(int iCol)
     {
@@ -195,10 +189,6 @@ public class KeyPairsTableModel
 
     /**
      * Get the cell value at the given row and column position.
-     *
-     * @param iRow The row position
-     * @param iCol The column position
-     * @return The cell value
      */
     public Object getValueAt(int iRow, int iCol)
     {
@@ -207,9 +197,6 @@ public class KeyPairsTableModel
 
     /**
      * Get the class at of the cells at the given column position.
-     *
-     * @param iCol The column position
-     * @return The column cells' class
      */
     public Class<? extends Object> getColumnClass(int iCol)
     {
@@ -218,16 +205,21 @@ public class KeyPairsTableModel
 
     /**
      * Is the cell at the given row and column position editable?
-     *
-     * @param iRow The row position
-     * @param iCol The column position
-     * @return True if the cell is editable, false otherwise
      */
     public boolean isCellEditable(int iRow, int iCol)
     {
         // The table is always read-only
         return false;
-    }    
+    }
+
+	public void notify(Observable<KeystoreChangedEvent> sender,
+			KeystoreChangedEvent message) throws Exception {
+
+		// reload the table
+		if (message.keystoreType.equals(CredentialManager.KEYSTORE)){
+			load();
+		}
+	}    
 
 }
 

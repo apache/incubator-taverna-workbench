@@ -54,7 +54,7 @@ import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
  * Dialog that displays the details of all trusted certificates
  * keystore allowing the user to pick one or more for import.
  * 
- * @author Alexandra Nenadic
+ * @author Alex Nenadic
  */
 class NewTrustCertsDialog
     extends JDialog
@@ -70,18 +70,24 @@ class NewTrustCertsDialog
     
     /** List of trusted certs selected for import */
     private ArrayList<X509Certificate> selectedTrustCerts;
-
+    
     /**
      * Creates new form NewTrustCertsDialog where the parent is a frame.
-     *
-     * @param parent The parent frame
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?
-     * @param lCerts List of certificates to choose from
      */
-    public NewTrustCertsDialog(JFrame parent, String sTitle, boolean bModal, ArrayList<X509Certificate> lCerts)
+    public NewTrustCertsDialog(JFrame parent, String title, boolean modal, ArrayList<X509Certificate> lCerts)
     {
-        super(parent, sTitle, bModal);
+        super(parent, title, modal);
+        //System.arraycopy(lCerts, 0, trustCerts, 0, lCerts.length);
+        availableTrustCerts = lCerts;
+        initComponents();
+    }
+    
+    /**
+     * Creates new form NewTrustCertsDialog where the parent is a frame.
+     */
+    public NewTrustCertsDialog(JDialog parent, String title, boolean modal, ArrayList<X509Certificate> lCerts)
+    {
+        super(parent, title, modal);
         //System.arraycopy(lCerts, 0, trustCerts, 0, lCerts.length);
         availableTrustCerts = lCerts;
         initComponents();
@@ -145,9 +151,10 @@ class NewTrustCertsDialog
         for (int i = 0; i < availableTrustCerts.size(); i++){
         	
     		String DN = ((X509Certificate) availableTrustCerts.get(i)).getSubjectX500Principal().getName(X500Principal.RFC2253);
-    		CMX509Util.parseDN(DN);
+    		CMX509Util util = new CMX509Util();
+    		util.parseDN(DN);
     		
-        	String CN = CMX509Util.getCN();
+        	String CN = util.getCN();
         	cns.add(i, CN);
         }
         jltTrustCerts.setListData(cns.toArray());

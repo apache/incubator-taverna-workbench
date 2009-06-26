@@ -30,11 +30,11 @@ import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerGUI;
+import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.KeyPairsTableModel;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.PasswordsTableModel;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.TableCellRenderer;
-import net.sf.taverna.t2.workbench.ui.credentialmanager.TrustCertsTableModel;
+import net.sf.taverna.t2.workbench.ui.credentialmanager.TrustedCertsTableModel;
 
 /**
  * Custom cell renderer for the cells of the tables displaying Keystore/Truststore contents.
@@ -78,15 +78,19 @@ public class TableCellRenderer
             if (iCol == 0) {
                 ImageIcon icon = null;
                 //The cell is in the first column of Passwords table
-                if (CredentialManagerGUI.PASSWORD_ENTRY_TYPE.equals(value)) { 
+                if (CredentialManagerUI.PASSWORD_ENTRY_TYPE.equals(value)) { 
                     icon = passwordEntryIcon; //key (i.e. password) entry image
                 }
                 // The cell is in the first column of Key Pairs table
-                else if (CredentialManagerGUI.KEY_PAIR_ENTRY_TYPE.equals(value)) { 
+                else if (CredentialManagerUI.KEY_PAIR_ENTRY_TYPE.equals(value)) { 
+                    icon = keypairEntryIcon; //key pair entry image
+                }
+                // The cell is in the first column of Proxies table
+                else if (CredentialManagerUI.PROXY_ENTRY_TYPE.equals(value)) { 
                     icon = keypairEntryIcon; //key pair entry image
                 }
                 //The cell is in the first column of Trusted Certificates table
-                else if (CredentialManagerGUI.TRUST_CERT_ENTRY_TYPE.equals(value)) { 
+                else if (CredentialManagerUI.TRUST_CERT_ENTRY_TYPE.equals(value)) { 
                     icon = trustcertEntryIcon; //trust. certificate entry image
                 }
 
@@ -98,8 +102,9 @@ public class TableCellRenderer
             }
             // Last Modified column - format date (if date supplied)        
             else if (((jtKeyStoreTable.getModel() instanceof PasswordsTableModel) && (iCol == 3)) || 
-            	((jtKeyStoreTable.getModel() instanceof KeyPairsTableModel) && (iCol == 2))||
-            	((jtKeyStoreTable.getModel() instanceof TrustCertsTableModel) && (iCol == 2))){
+            	((jtKeyStoreTable.getModel() instanceof KeyPairsTableModel) && (iCol == 4))||
+            	((jtKeyStoreTable.getModel() instanceof ProxiesTableModel) && (iCol == 4))||
+            	((jtKeyStoreTable.getModel() instanceof TrustedCertsTableModel) && (iCol == 4))){
             	if (value instanceof Date) {
             		// Include timezone
             		cell.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
