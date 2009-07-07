@@ -4,10 +4,11 @@
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
 		<artifactId>ui-components</artifactId>
-		<version>0.10-SNAPSHOT</version>
+		<version>0.9</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-components</groupId>
 	<artifactId>credential-manager-ui</artifactId>
+	<version>0.10-SNAPSHOT</version>
 	<name>Credential Manager UI</name>
 	<description>
 		Integrates the Credential Manager into the Workbench
@@ -21,7 +22,7 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.security</groupId>
 			<artifactId>credential-manager</artifactId>
-			<version>${t2.security.version}</version>
+			<version>0.7-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
