@@ -50,7 +50,7 @@ import java.security.cert.X509Certificate;
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
-import net.sf.taverna.t2.security.credentialmanager.GetMasterPasswordDialog;
+import net.sf.taverna.t2.security.credentialmanager.SetMasterPasswordDialog;
 
 import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.CryptoFileFilter;
@@ -285,11 +285,10 @@ public class CredentialManagerUI extends JFrame {
 	
 	protected void changeMasterPassword() {
 
-		// Ask user to set the master password for Credential Manager (only the first time)
-		GetMasterPasswordDialog getPasswordDialog = new GetMasterPasswordDialog();
-		getPasswordDialog.setLocationRelativeTo(null);
-		getPasswordDialog.setVisible(true);
-		String password = getPasswordDialog.getPassword();
+		SetMasterPasswordDialog changePasswordDialog = new SetMasterPasswordDialog(this, "Change master password", true , "Change master password for Credential Manager");
+		changePasswordDialog.setLocationRelativeTo(null);
+		changePasswordDialog.setVisible(true);
+		String password = changePasswordDialog.getPassword();
 		if (password == null){ // user cancelled
 			return; // do nothing
 		}
