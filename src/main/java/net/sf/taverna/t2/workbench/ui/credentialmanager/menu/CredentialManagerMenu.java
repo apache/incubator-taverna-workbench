@@ -24,13 +24,26 @@ import java.net.URI;
 
 import javax.swing.Action;
 
+import org.apache.log4j.Logger;
+
+import net.sf.taverna.t2.security.credentialmanager.CMException;
+import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.action.CredentialManagerAction;
 
 public class CredentialManagerMenu extends AbstractMenuAction{
 
+	private static Logger logger = Logger.getLogger(CredentialManagerMenu.class);
+	
 	public CredentialManagerMenu() {
 		super(URI.create("http://taverna.sf.net/2008/t2workbench/menu#advanced"),60);
+		// Force initialisation at startup
+		
+		try {
+			CredentialManager.initialiseSSL();
+		} catch (CMException e) {
+			logger.error("Could not initialise SSL", e);
+		}
 	}
 
 	@Override
