@@ -47,35 +47,27 @@ public class GetServiceURLDialog extends JDialog
 	
 	private static final long serialVersionUID = -2023348569964325951L;
 
-	/** Password entry password field */
+	// Password entry password field /
     private JTextField jtfServiceURL;
 
-    /** Stores the service URL entered */
+    // Stores the service URL entered /
     private String serviceURL = null;
 
     /**
      * Creates new GetServiceURLDialog dialog where the parent is a frame.
-     *
-     * @param parent Parent frame
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?
      */
-    public GetServiceURLDialog(JFrame parent, String sTitle, boolean bModal)
+    public GetServiceURLDialog(JFrame parent, boolean modal)
     {
-        super(parent, sTitle, bModal);
+        super(parent, "Enter service URL", modal);
         initComponents();
     }
 
     /**
-     * Creates new GetServiceURLDialog dialog where the parent is a dialog.
-     *
-     * @param parent Parent dialog
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?     
+     * Creates new GetServiceURLDialog dialog where the parent is a dialog.    
      */
-    public GetServiceURLDialog(JDialog parent, String sTitle, boolean bModal)
+    public GetServiceURLDialog(JDialog parent, boolean modal)
     {
-        super(parent, sTitle, bModal);
+        super(parent, "Enter service URL", modal);
         initComponents();
     }
 
@@ -119,7 +111,7 @@ public class GetServiceURLDialog extends JDialog
 
              
         JLabel jlInstructions; // Instructions
-    	jlInstructions = new JLabel ("Enter the Service URL");
+    	jlInstructions = new JLabel ("Enter service URL for key pair");
     	jlInstructions.setFont(new Font(null, Font.PLAIN, 11));
     	jlInstructions.setBorder(new EmptyBorder(5,5,5,5));
     	getContentPane().add(jlInstructions, BorderLayout.NORTH);

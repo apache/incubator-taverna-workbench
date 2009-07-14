@@ -32,17 +32,15 @@ import javax.swing.table.DefaultTableCellRenderer;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.KeyPairsTableModel;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.PasswordsTableModel;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.TableHeaderRenderer;
-import net.sf.taverna.t2.workbench.ui.credentialmanager.TrustCertsTableModel;
+import net.sf.taverna.t2.workbench.ui.credentialmanager.TrustedCertsTableModel;
 
 /**
  * Custom cell renderer for the headers of the tables displaying Keystore/Truststore contents.
  * 
  * @author Alexandra Nenadic
  */
-public class TableHeaderRenderer
-    extends DefaultTableCellRenderer
-{
-	private static final long serialVersionUID = -7691713691433621006L;
+@SuppressWarnings("serial")
+public class TableHeaderRenderer extends DefaultTableCellRenderer {
 	
 	private final ImageIcon entryTypeIcon = new ImageIcon(TableHeaderRenderer.class.getResource(
 	"/images/table/entry_heading.png"));
@@ -82,30 +80,56 @@ public class TableHeaderRenderer
             // Passwords table has 5 colums, Key pairs and Trusted Certificates tables have 3 each
             if (jtKeyStoreTable.getModel() instanceof PasswordsTableModel){
                 if (iCol == 1) { //Service URL column
-                    header.setToolTipText("Service URL for the password entry");
+                    header.setToolTipText("URL of the service username and password will be used for");
                 }
-                else if (iCol == 2 ){ //Username column 
-                    header.setToolTipText("Username for the password entry");                	
+                else if (iCol == 2){ //Username column 
+                    header.setToolTipText("Username for the service");                	
                 }
                 else if (iCol == 3){ // Last modified column
-                    header.setToolTipText("Password entry's last modification date and time");
+                    header.setToolTipText("Last modification date and time");
                 }            	
             }
             else if(jtKeyStoreTable.getModel() instanceof KeyPairsTableModel){
-                if (iCol == 1) { //Owner:Serial Number column
-                    header.setToolTipText("Certificate's owner and serial number");
+                if (iCol == 1) { //Owner
+                    header.setToolTipText("Certificate's owner");
                 }
-                else if(iCol == 2) { // Last modified column
-                    header.setToolTipText("Key pair entry's last modification date and time");
-                }         	
-            }          
-            else if(jtKeyStoreTable.getModel() instanceof TrustCertsTableModel){
-                if (iCol == 1) { //Owner column
-                    header.setToolTipText("Certificate's owner and serial number");
+                else if (iCol == 2) { //Issuer
+                    header.setToolTipText("Certificate's issuer");
                 }
-                else if (iCol == 2){ // Last modified column
-                    header.setToolTipText("Trusted certificate's last modification date and time");
+                else if (iCol == 3){ //Serial number
+                    header.setToolTipText("Certificate's serial number");
+                }
+                else if(iCol == 4) { // Last modified column
+                    header.setToolTipText("Last modification date and time");
                 }         	
+            }       
+            else if(jtKeyStoreTable.getModel() instanceof ProxiesTableModel){
+                if (iCol == 1) { //Owner
+                    header.setToolTipText("Certificate's owner");
+                }
+                else if (iCol == 2) { //Issuer
+                    header.setToolTipText("Certificate's issuer");
+                }
+                else if (iCol == 3){ //Serial number
+                    header.setToolTipText("Certificate's serial number");
+                }
+                else if(iCol == 4) { // Last modified column
+                    header.setToolTipText("Last modification date and time");
+                }       	
+            } 
+            else if(jtKeyStoreTable.getModel() instanceof TrustedCertsTableModel){
+                if (iCol == 1) { //Owner
+                    header.setToolTipText("Certificate's owner");
+                }
+                else if (iCol == 2) { //Issuer
+                    header.setToolTipText("Certificate's issuer");
+                }
+                else if (iCol == 3){ //Serial number
+                    header.setToolTipText("Certificate's serial number");
+                }
+                else if(iCol == 4) { // Last modified column
+                    header.setToolTipText("Last modification date and time");
+                }        	
             }         
         }
         header.setBorder(new CompoundBorder(

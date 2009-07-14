@@ -24,8 +24,9 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
+//import javax.swing.SwingUtilities;
 
-import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerGUI;
+import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI;
 
 @SuppressWarnings("serial")
 public class CredentialManagerAction extends AbstractAction {
@@ -37,12 +38,18 @@ public class CredentialManagerAction extends AbstractAction {
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		CredentialManagerGUI cmGUI = new CredentialManagerGUI();
-		if (cmGUI.isInitialised()) {
-			cmGUI.setVisible(true);
-		}
+		CredentialManagerUI cmUI = CredentialManagerUI.getInstance();
+		cmUI.setVisible(true);
+
+//		Runnable createAndShowCredentialManagerUI = new Runnable(){
+//
+//		   public void run()
+//		   	{
+//			   CredentialManagerUI cmUI = new CredentialManagerUI();
+//   				cmUI.setVisible(true);
+//		   	}
+//		};
+//		SwingUtilities.invokeLater(createAndShowCredentialManagerUI);
+
 	}
-
-	
-
 }

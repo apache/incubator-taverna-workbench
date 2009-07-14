@@ -43,69 +43,61 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerGUI;
+import org.apache.log4j.Logger;
+
+import net.sf.taverna.t2.security.credentialmanager.CMException;
+import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.GetServiceURLDialog;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.Vector;
 import java.awt.Dimension;
 
 /**
  * Dialog used for editing service urls associated with a key pair entry.
  * 
- * @author Alexandra Nenadic
+ * @author Alex Nenadic
  */
+@SuppressWarnings("serial")
 public class EditKeyPairEntryDialog
     extends JDialog
 {
 
-	private static final long serialVersionUID = 2882368665291275466L;
-
-	/** Service URLs entry list */
+	// Service URLs entry list 
     private JList jltServiceURLs;
 
-    /** Stores service URLs entered */
-    private Vector<String> serviceURLs;
+    // Stores service URLs entered 
+    private ArrayList<String> serviceURLs;
+
+	private Logger logger = Logger.getLogger(EditKeyPairEntryDialog.class);
 
     /**
      * Creates new EditKeyPairEntryDialog dialog where the parent is a frame.
-     *
-     * @param parent Parent frame
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?
-     * @param sURLs Current list of service URLs associated with the key entry
      */
-    public EditKeyPairEntryDialog(JFrame parent, String sTitle, boolean bModal, Vector<String> sURLs)
+    public EditKeyPairEntryDialog(JFrame parent, String title, boolean modal, ArrayList<String> serviceURLs)
     {
-        super(parent, sTitle, bModal);
-        serviceURLs = sURLs;
+        super(parent, title, modal);
+        this.serviceURLs = serviceURLs;
         initComponents();
     }
 
     /**
      * Creates new EditKeyPairEntryDialog dialog where the parent is a dialog.
-     *
-     * @param parent Parent dialog
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?
-     * @param sURLs Current list of service URLs associated with the key entry
      */
-    public EditKeyPairEntryDialog(JDialog parent, String sTitle, boolean bModal, Vector<String> sURLs)
+    public EditKeyPairEntryDialog(JDialog parent, String title, boolean modal, ArrayList<String> serviceURLs)
     {
-        super(parent, sTitle, bModal);
-        serviceURLs = sURLs;
+        super(parent, title, modal);
+        this.serviceURLs = serviceURLs;
         initComponents();
     }
 
     /**
      * Get the service URLs set in the dialog.
-     *
-     * @return The service URLs
      */
-    public Vector<String> getServiceURLs()
+    public ArrayList<String> getServiceURLs()
     {
           return serviceURLs;
     }
@@ -118,7 +110,7 @@ public class EditKeyPairEntryDialog
         getContentPane().setLayout(new BorderLayout());
         
         // Label
-        JLabel jlServiceURLs = new JLabel("Service URLs this key will be used for:");             
+        JLabel jlServiceURLs = new JLabel("Service URLs this key pair will be used for:");             
         jlServiceURLs.setFont(new Font(null, Font.PLAIN, 11));
         jlServiceURLs.setBorder(new EmptyBorder(5,5,5,5));   
         
@@ -126,8 +118,8 @@ public class EditKeyPairEntryDialog
         DefaultListModel jltModel = new DefaultListModel();
         jltServiceURLs = new JList(jltModel); 
         // Populate the list with current values
-        for (Enumeration<String> e = serviceURLs.elements(); e.hasMoreElements();){
-        	jltModel.addElement(e.nextElement());
+        for (String url : serviceURLs){
+        	jltModel.addElement(url);
         }
         jltServiceURLs.setVisibleRowCount(5); //don't show more than 5, otherwise the window is too big
         
@@ -235,7 +227,7 @@ public class EditKeyPairEntryDialog
     private void okPressed()
     {
     	// Get Service URLs
-    	serviceURLs = new Vector<String>();
+    	serviceURLs = new ArrayList<String>();
     	Enumeration<?> URLs = (((DefaultListModel) jltServiceURLs.getModel()).elements());
     	 for( ; URLs.hasMoreElements(); ){
     		 serviceURLs.add((String) URLs.nextElement());
@@ -250,9 +242,7 @@ public class EditKeyPairEntryDialog
     public void addServiceURLPressed(){
     	
     	// Display the dialog for entering service URL
-    	GetServiceURLDialog dGetServiceURL = new GetServiceURLDialog(this, 
-    			"Enter Service URL", 
-    			true);
+    	GetServiceURLDialog dGetServiceURL = new GetServiceURLDialog(this, true);
         
     	dGetServiceURL.setLocationRelativeTo(this);
     	dGetServiceURL.setVisible(true);
@@ -279,7 +269,7 @@ public class EditKeyPairEntryDialog
     		// Warn the user
         	JOptionPane.showMessageDialog(
             		this, 
-            		"The entered URL already exists in the list of URLs for this entry",
+            		"The entered URL already exists in the list of URLs for this key pair entry",
         			"Credential Manager Alert",
         			JOptionPane.INFORMATION_MESSAGE);
         	return;
@@ -288,13 +278,27 @@ public class EditKeyPairEntryDialog
 		// Check if the entered URL is already associated with another key pair entry in the Keystore
     	// This check should exclude the current entry from the map of URLs being searched
     	// really (we've already checked for it in the jltServiceURLs) - but does not really matter anyway
-    	HashMap<String, Vector<String>> urlMap = (HashMap<String, Vector<String>>) ((CredentialManagerGUI) this.getParent()).getURLsForKeyPairs();
+    	
+    	CredentialManager credManager = null;
+    	try {
+			credManager = CredentialManager.getInstance();
+		} catch (CMException cme) {
+			// Failed to instantiate Credential Manager - warn the user and exit
+			String exMessage = "Failed to instantiate Credential Manager";
+			logger .error(exMessage, cme);
+			cme.printStackTrace();
+			JOptionPane.showMessageDialog(new JFrame(), exMessage,
+					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}  
+		
+    	HashMap<String, ArrayList<String>> urlMap = credManager.getServiceURLsforKeyPairs();
        	if (urlMap != null){ // should not be null really (although can be empty). Check anyway.
         	Set<String> aliases = urlMap.keySet();
         	for (Iterator<String> i = aliases.iterator(); i.hasNext(); ){
         		String alias = (String) i.next();
         		// Check if url list for this alias contains the newly entered url
-        		Vector<String> urls = (Vector<String>) urlMap.get(alias);
+        		ArrayList<String> urls = (ArrayList<String>) urlMap.get(alias);
         		if (urls.contains(sURL)){
             		// Warn the user and exit
                 	JOptionPane.showMessageDialog(
@@ -308,17 +312,17 @@ public class EditKeyPairEntryDialog
        	}
     	
 		// Check if the entered URL is already associated with a password entry in the Keystore
-    	Vector<String> urlList = (Vector<String>) ((CredentialManagerGUI) this.getParent()).getURLsForPasswords();
-		// Check if this url list contains the newly entered url
-		if (urlList.contains(sURL)){
-    		// Warn the user and exit
-        	JOptionPane.showMessageDialog(
-            		this, 
-            		"The entered URL is already associated with another password entry",
-        			"Credential Manager Alert",
-        			JOptionPane.INFORMATION_MESSAGE);
-        	return;
-		}    	
+//    	ArrayList<String> urlList = (ArrayList<String>) ((CredentialManagerUI) this.getParent()).getURLsForPasswords();
+//		// Check if this url list contains the newly entered url
+//		if (urlList.contains(sURL)){
+//    		// Warn the user and exit
+//        	JOptionPane.showMessageDialog(
+//            		this, 
+//            		"The entered URL is already associated with another password entry",
+//        			"Credential Manager Alert",
+//        			JOptionPane.INFORMATION_MESSAGE);
+//        	return;
+//		}    	
     	
     	// Otherwise - the entered URL is not already associated with a different entry in the Keystore, 
 		// so add this URL to the list of URLs for this key pair entry

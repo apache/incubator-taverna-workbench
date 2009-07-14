@@ -42,23 +42,17 @@ import javax.swing.border.EtchedBorder;
  * 
  * @author Alexandra Nenadic
  */
-public class ViewPasswordDialog
-    extends JDialog
-{
-	private static final long serialVersionUID = 935722761118204590L;
-
-	/** Password field */
+@SuppressWarnings("serial")
+public class ViewPasswordDialog extends JDialog {
+	
+	// Password field 
     private JTextField jtfPassword;
     
-    /** Password value*/
+    // Password value
     private String sPassword;
 
    /**
      * Creates new ViewPasswordDialog dialog where the parent is a frame.
-     *
-     * @param parent Parent frame
-     * @param bModal Is dialog modal?
-     * @param password Password value
      */
     public ViewPasswordDialog(JFrame parent, boolean bModal, String password)
     {
@@ -82,10 +76,6 @@ public class ViewPasswordDialog
 
     /**
      * Creates new ViewPasswordDialog dialog where the parent is a dialog.
-     *
-     * @param parent Parent dialog
-     * @param bModal Is dialog modal?
-     * @param password Password value
      */
     public ViewPasswordDialog(JDialog parent, boolean bModal, String password)
     {
@@ -94,11 +84,6 @@ public class ViewPasswordDialog
 
     /**
      * Creates new ViewPasswordDialog dialog where the parent is a dialog.
-     *
-     * @param parent Parent dialog
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?
-     * @param password Password value
      */
     public ViewPasswordDialog(JDialog parent, String sTitle, boolean bModal, String password)
     {
