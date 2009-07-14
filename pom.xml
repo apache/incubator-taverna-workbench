@@ -23,7 +23,7 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.security</groupId>
 			<artifactId>credential-manager</artifactId>
-			<version>0.8-SNAPSHOT</version>
+			<version>0.6.1</version>
 		</dependency>
 	</dependencies>
 	<repositories>
