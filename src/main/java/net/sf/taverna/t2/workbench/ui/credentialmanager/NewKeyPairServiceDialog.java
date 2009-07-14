@@ -39,42 +39,31 @@ import javax.swing.border.EmptyBorder;
 /**
  * Dialog used for entering service url.
  * 
- * @author Alexandra Nenadic
+ * @author Alex Nenadic
  */
-public class NewKeyPairServiceDialog
-    extends JDialog
-{
-	private static final long serialVersionUID = -6601251225261121921L;
-
-	/** Service URL entry field */
+@SuppressWarnings("serial")
+public class NewKeyPairServiceDialog extends JDialog {
+	// Service URL entry field 
     private JTextField jtfServiceURL;
 
-    /** Stores service URL entered */
+    // Stores service URL entered 
     private String sURL = null;
 
     /**
      * Creates new NewKeyPairServiceDialog dialog where the parent is a frame.
-     *
-     * @param parent Parent frame
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?
      */
-    public NewKeyPairServiceDialog(JFrame parent, String sTitle, boolean bModal)
+    public NewKeyPairServiceDialog(JFrame parent, String title, boolean modal)
     {
-        super(parent, sTitle, bModal);
+        super(parent, title, modal);
         initComponents();
     }
 
     /**
      * Creates new NewKeyPairServiceDialog dialog where the parent is a dialog.
-     *
-     * @param parent Parent dialog
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?
      */
-    public NewKeyPairServiceDialog(JDialog parent, String sTitle, boolean bModal)
+    public NewKeyPairServiceDialog(JDialog parent, String title, boolean modal)
     {
-        super(parent, sTitle, bModal);
+        super(parent, title, modal);
         initComponents();
     }
 

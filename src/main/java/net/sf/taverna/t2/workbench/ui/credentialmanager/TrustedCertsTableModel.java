@@ -20,102 +20,138 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.log4j.Logger;
+
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
+import net.sf.taverna.t2.security.credentialmanager.KeystoreChangedEvent;
 
-import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerGUI;
-
-import java.util.Enumeration;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 /**
  * The table model used to display the Keystore's trusted certificate entries.
  * 
- * @author Alexandra Nenadic
+ * @author Alex Nenadic
  */
-public class TrustCertsTableModel
-    extends AbstractTableModel
-{
-	private static final long serialVersionUID = 8293656530274606048L;
-
-	/** Holds the column names */
+@SuppressWarnings("serial")
+public class TrustedCertsTableModel extends AbstractTableModel implements Observer<KeystoreChangedEvent>{
+	
+	// Column names 
     private String[] columnNames;
 
-    /** Holds the table data */
+    // Table data 
     private Object[][] data;
+    
+	private CredentialManager credManager;
+	
+	private Logger logger = Logger.getLogger(TrustedCertsTableModel.class);
+
 	
     /**
      * Construct a new TrustCertsTableModel.
      */
-    public TrustCertsTableModel()
-    {
+    public TrustedCertsTableModel() {
+        credManager = null;
+        try{
+        	credManager = CredentialManager.getInstance();
+        }
+        catch (CMException cme){
+			// Failed to instantiate Credential Manager - warn the user and exit
+			String sMessage = "Failed to instantiate Credential Manager. " + cme.getMessage();
+			logger.error("CM GUI: "+ sMessage);
+			cme.printStackTrace();
+			JOptionPane.showMessageDialog(new JFrame(), sMessage,
+					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			return;
+        }
+        
        	data = new Object[0][0];
         columnNames = new String[] {
         	"Entry Type", // type of the Keystore entry
-        	"Owner:Serial Number", // owner's common name and serial number of the public key certificate
+        	"Owner", // owner's common name
+        	"Issuer", // issuer's common name
+        	"Serial Number", // public key certificate's serial number
             "Last Modified", // last modified date of the entry
             "Alias" // the invisible column holding the actual alias in the Keystore
             };
+        
+        try {
+			load();
+		} catch (CMException cme) {
+			String sMessage = "Failed to load trusted certificates";
+			logger.error(sMessage);
+			cme.printStackTrace();
+			JOptionPane.showMessageDialog(new JFrame(), sMessage,
+					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+        // Start observing changes to the Keystore
+        credManager.addObserver(this);
     }
     	   
     /**
      * Load the TrustCertsTableModel with trusted certificate entries from the Keystore. 
-     *
-     * @param keyStore The keystore
-     * @throws CMException A problem is encountered accessing
-     * the keystore's entries
      */
-    public void load(CredentialManager cm)
-        throws CMException
-    {
-        // Place trusted certificate entries' aliases in a tree map to sort them
-        TreeMap<String, String> sortedAliases = new TreeMap<String, String>();
-
+    public void load() throws CMException {
         try{
-        	for (Enumeration<String> en = cm.getAliases(CredentialManager.TRUSTSTORE); en.hasMoreElements();) {
-        		String sAlias = en.nextElement();
-        		// Alias for a trusted cert. entry is constructed as "trustcert#<CERT_SERIAL_NUMBER>#<CERT_COMMON_NAME>"
-        		// Only save trusted certificate entries
-        		//if (cm.isCertificateEntry(CredentialManager.TRUSTSTORE, sAlias)){
-        		if (sAlias.startsWith("trustcert")){
-        			sortedAliases.put(sAlias, sAlias); //Truststore only contains trusted cert entries - no need to check if alias starts with "trustcert" but anyway
+            // Place trusted certificate entries' aliases in a tree map to sort them
+            TreeMap<String, String> sortedAliases = new TreeMap<String, String>();  
+            	
+            ArrayList<String> aliases = credManager.getAliases(CredentialManager.TRUSTSTORE);
+            
+           	for (String alias: aliases){
+        		// We are only interested in trusted certificate entries here.
+        		// Alias for such entries is constructed as "trustedcert#<CERT_SERIAL_NUMBER>#<CERT_COMMON_NAME>"
+        		if (alias.startsWith("trustedcert#")){
+        			sortedAliases.put(alias, alias);
         		}
         	}
         	
             // Create one table row for each trusted certificate entry
             // Each row has 4 fields - type, owner name, last modified data and the invisible alias
-            data = new Object[sortedAliases.size()][4];
+            data = new Object[sortedAliases.size()][6];
 
             // Iterate through the sorted aliases, retrieving the trusted certificate 
             // entries and populating the table model
             int iCnt = 0;
-            for (Iterator<Entry<String, String>> itr = sortedAliases.entrySet().iterator(); itr.hasNext(); iCnt++)
-            {
-                String sAlias = (String) itr.next().getKey();
-
+            for (String alias : sortedAliases.values()){
                 // Populate the type column - it is set with an integer
                 // but a custom cell renderer will cause a suitable icon
                 // to be displayed
-                data[iCnt][0] = CredentialManagerGUI.TRUST_CERT_ENTRY_TYPE;
+                data[iCnt][0] = CredentialManagerUI.TRUST_CERT_ENTRY_TYPE;
                 
-                // Populate the 'Owner:Serial Number' column extracted from the alias
-                data[iCnt][1] = sAlias.substring(sAlias.lastIndexOf('#')+1) + 
-                	":" + 
-                	sAlias.substring(sAlias.indexOf('#')+1,sAlias.lastIndexOf('#'));
+                // Split the alias string to extract owner, issuer and serial number 
+                // alias = "trustedcert#<CERT_SUBJECT_COMMON_NAME>"#"<CERT_ISSUER_COMMON_NAME>"#"<CERT_SERIAL_NUMBER>
+                String[] aliasComponents = alias.split("#");
+       
+                // Populate the owner column extracted from the alias
+                data[iCnt][1] = aliasComponents[1];
+                
+                // Populate the issuer column extracted from the alias
+                data[iCnt][2] = aliasComponents[2];
+                
+                // Populate the serial number column extracted from the alias
+                data[iCnt][3] = aliasComponents[3];
             	
                 // Populate the modified date column
-                data[iCnt][2] = cm.getCreationDate(CredentialManager.TRUSTSTORE, sAlias);
+                data[iCnt][4] = credManager.getEntryCreationDate(CredentialManager.TRUSTSTORE, alias);
 
                 // Populate the invisible alias column
-                data[iCnt][3] = sAlias;
+                data[iCnt][5] = alias;
+                
+                iCnt ++;
             }
         }
-        catch (Exception e){
-            throw (new CMException("Failed to load trusted certificates entries from the Truststore."));
+        catch (CMException cme){
+			 throw (cme);
         }
 
         fireTableDataChanged();
@@ -186,7 +222,16 @@ public class TrustCertsTableModel
     {
         // The table is always read-only
         return false;
-    }    
+    }
+
+	public void notify(Observable<KeystoreChangedEvent> sender,
+			KeystoreChangedEvent message) throws Exception {
+
+		// reload the table
+		if (message.keystoreType.equals(CredentialManager.TRUSTSTORE)){
+			load();
+		}
+	}    
 
 }
 

@@ -33,8 +33,6 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerGUI;
-
 /**
  * 
  * Test launcher for Credential Manager GUI (so it does not have to be
@@ -42,14 +40,14 @@ import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerGUI;
  * @author Alexandra Nenadic
  *
  */
-public class CredentialManagerGUILauncher extends JFrame {
+public class CredentialManagerUILauncher extends JFrame {
 	
 	private static final long serialVersionUID = 2079805060170251148L;
 	
-	private final ImageIcon launchCMIcon = new ImageIcon(CredentialManagerGUILauncher.class.getResource(
+	private final ImageIcon launchCMIcon = new ImageIcon(CredentialManagerUILauncher.class.getResource(
 	"/images/cred_manager.png"));
 	
-	public CredentialManagerGUILauncher(){
+	public CredentialManagerUILauncher(){
 		
 		JPanel jpLaunch = new JPanel();
 		jpLaunch.setPreferredSize(new Dimension (300, 120));
@@ -62,10 +60,10 @@ public class CredentialManagerGUILauncher extends JFrame {
 		jbLaunch.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				CredentialManagerGUI cmGUI = new CredentialManagerGUI();
-				if (cmGUI.isInitialised()){
+				CredentialManagerUI cmGUI = CredentialManagerUI.getInstance();
+				//if (cmGUI.isInitialised()){
 					cmGUI.setVisible(true);
-				}
+				//}
 			}
 		});
 		
@@ -102,7 +100,7 @@ public class CredentialManagerGUILauncher extends JFrame {
          */
         public void run()
         {
-            new CredentialManagerGUILauncher();
+            new CredentialManagerUILauncher();
         }
     }
     

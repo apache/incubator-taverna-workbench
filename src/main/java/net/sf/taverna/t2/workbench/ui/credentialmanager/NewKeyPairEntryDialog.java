@@ -32,9 +32,9 @@ import java.security.Key;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Vector;
 import java.util.Set;
 import java.util.Iterator;
 
@@ -57,7 +57,7 @@ import javax.swing.event.ListSelectionListener;
 
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
-import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerGUI;
+import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.GetServiceURLDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
 
@@ -65,66 +65,50 @@ import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
  * Dialog that displays the details of all key pairs from a PKCS #12
  * keystore allowing the user to pick one for import.
  * 
- * @author Alexandra Nenadic
+ * @author Alex Nenadic
  */
-class NewKeyPairEntryDialog
-    extends JDialog
+@SuppressWarnings("serial")
+class NewKeyPairEntryDialog extends JDialog
 {
-
-	private static final long serialVersionUID = -8069511901485714565L;
-
-	/** List of key pairs available for import */
+	// List of key pairs available for import 
     private JList jltKeyPairs;
 
-    /** Service URL text field for user to enter */
-    //private JTextField jtfServiceURL;
+    // Service URL text field for user to enter
     private JList jltServiceURLs;
     
-    /** Service URL (associated with the key pair) */
-    private Vector<String> serviceURLs;
+    // Service URL (associated with the key pair)
+    private ArrayList<String> serviceURLs;
 
-    /** PKCS #12 keystore */
+    // PKCS #12 keystore */
     private KeyStore pkcs12KeyStore;
 
-    /** Private key part of key pair chosen by the user for import */
+    // Private key part of key pair chosen by the user for import 
     private Key privateKey;
 
-    /** Certificate chain part of key pair chosen by the user for import */
+    // Certificate chain part of key pair chosen by the user for import 
     private Certificate[] certificateChain;
 
-    /** Key pair alias to be used for this entry in the Keystore */
+    // Key pair alias to be used for this entry in the Keystore 
     private String alias;
     
     /**
      * Creates new form NewKeyPairEntryDialog where the parent is a frame.
-     *
-     * @param parent The parent frame
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?
-     * @param pkcs12 The PKCS #12 keystore to list key pairs from
-     * @throws CMException A problem was encountered importing a key pair.
      */
-    public NewKeyPairEntryDialog(JFrame parent, String sTitle, boolean bModal, KeyStore pkcs12KS)
+    public NewKeyPairEntryDialog(JFrame parent, String title, boolean modal, KeyStore pkcs12KS)
         throws CMException
     {
-        super(parent, sTitle, bModal);
+        super(parent, title, modal);
         pkcs12KeyStore = pkcs12KS;
         initComponents();
     }
 
     /**
      * Creates new form NewKeyPairEntryDialog where the parent is a dialog.
-     *
-     * @param parent The parent frame
-     * @param sTitle The dialog's title
-     * @param bModal Is dialog modal?
-     * @param pkcs12 The PKCS #12 keystore to list key pairs from
-     * @throws CMException A problem was encountered importing a key pair.
      */
-    public NewKeyPairEntryDialog(JDialog parent, String sTitle, boolean bModal, KeyStore pkcs12KS)
+    public NewKeyPairEntryDialog(JDialog parent, String title, boolean modal, KeyStore pkcs12KS)
         throws CMException
     {
-        super(parent, sTitle, bModal);
+        super(parent, title, modal);
         pkcs12KeyStore = pkcs12KS;
         initComponents();
     }
@@ -166,7 +150,7 @@ class NewKeyPairEntryDialog
      * 
      * @return list of service URLs
      */
-    public Vector<String> getServiceURLs()
+    public ArrayList<String> getServiceURLs()
     {
         return serviceURLs;
     }
@@ -234,14 +218,14 @@ class NewKeyPairEntryDialog
         
         // Service URLs list
         // Label
-        JLabel jlServiceURL = new JLabel ("Enter service URLs the key pair will be used for:");
+        JLabel jlServiceURL = new JLabel ("Service URLs the key pair will be used for:");
         jlServiceURL.setFont(new Font(null, Font.PLAIN, 11));
         jlServiceURL.setBorder(new EmptyBorder(5,5,5,5));           
         // New empty service URLs list
         DefaultListModel jltModel = new DefaultListModel();
         jltServiceURLs = new JList(jltModel); 
         // 'Add' service URL button
-        JButton addButton = new JButton("+");
+        JButton addButton = new JButton("Add");
         addButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt)
             {
@@ -250,7 +234,7 @@ class NewKeyPairEntryDialog
         });
         addButton.setEnabled(true);
         // 'Remove' service URL button
-        final JButton removeButton = new JButton("-");
+        final JButton removeButton = new JButton("Remove");
         removeButton.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent evt)
             {
@@ -355,7 +339,7 @@ class NewKeyPairEntryDialog
         throws CMException
     {
         try {
-            Vector<String> vKeyPairAliases = new Vector<String>();
+        	ArrayList<String> vKeyPairAliases = new ArrayList<String>();
 
             // For each entry in the keystore...
             for (Enumeration<String> aliases = pkcs12KeyStore.aliases(); aliases.hasMoreElements();)
@@ -376,7 +360,7 @@ class NewKeyPairEntryDialog
             }
 
             if (vKeyPairAliases.size() > 0) {
-                jltKeyPairs.setListData(vKeyPairAliases);
+                jltKeyPairs.setListData(vKeyPairAliases.toArray());
                 jltKeyPairs.setSelectedIndex(0);
             }
             else {
@@ -434,7 +418,7 @@ class NewKeyPairEntryDialog
     public void importPressed()
     {
     	// Get Service URLs
-    	serviceURLs = new Vector<String>();
+    	serviceURLs = new ArrayList<String>();
     	Enumeration<?> URLs = (((DefaultListModel) jltServiceURLs.getModel()).elements());
     	 for( ; URLs.hasMoreElements(); ){
     		 serviceURLs.add((String) URLs.nextElement());
@@ -466,9 +450,7 @@ class NewKeyPairEntryDialog
     public void addServiceURLPressed(){
     	
     	// Display the dialog for entering service URL
-    	GetServiceURLDialog dGetServiceURL = new GetServiceURLDialog(this, 
-    			"Enter Service URL", 
-    			true);
+    	GetServiceURLDialog dGetServiceURL = new GetServiceURLDialog(this, true);
         
     	dGetServiceURL.setLocationRelativeTo(this);
     	dGetServiceURL.setVisible(true);
@@ -495,20 +477,32 @@ class NewKeyPairEntryDialog
     		// Warn the user
         	JOptionPane.showMessageDialog(
             		this, 
-            		"The entered URL already exists in the list of URLs for this entry",
+            		"The entered URL already exists in the list of URLs for this key pair entry",
         			"Credential Manager Alert",
         			JOptionPane.INFORMATION_MESSAGE);
         	return;
     	}
 		
-		// Check if the entered URL is already associated with another key pair entry in the Keystore
-    	HashMap<String, Vector<String>> urlMap = (HashMap<String, Vector<String>>) ((CredentialManagerGUI) this.getParent()).getURLsForKeyPairs();
-       	if (urlMap != null){ // should not be null really (although can be empty). Check anyway.
-        	Set<String> aliases = urlMap.keySet();
+		// Check if the entered URL is already associated with another key pair entry in the Keystore       	
+    	CredentialManager credManager = null;
+		try {
+			credManager = CredentialManager.getInstance();
+		} catch (CMException cme) {
+			// Failed to instantiate Credential Manager - warn the user and exit
+			String sMessage = "Failed to instantiate Credential Manager. " + cme.getMessage();
+			cme.printStackTrace();
+			JOptionPane.showMessageDialog(new JFrame(), sMessage,
+					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+    	// Get the lists of URLs for the alias
+    	HashMap<String, ArrayList<String>> serviceURLsMap = credManager.getServiceURLsforKeyPairs();       	
+    	if (serviceURLsMap != null){ // should not be null really (although can be empty). Check anyway.
+        	Set<String> aliases = serviceURLsMap.keySet();
         	for (Iterator<String> i = aliases.iterator(); i.hasNext(); ){
         		String alias = (String) i.next();
-        		// Check if url list for this alias contains the newly entered url
-        		Vector<String> urls = (Vector<String>) urlMap.get(alias);
+        		// Check if service URL list for this alias contains the newly entered URL
+        		ArrayList<String> urls = (ArrayList<String>) serviceURLsMap.get(alias);
         		if (urls.contains(sURL)){
             		// Warn the user and exit
                 	JOptionPane.showMessageDialog(
@@ -522,17 +516,17 @@ class NewKeyPairEntryDialog
        	}
     	
 		// Check if the entered URL is already associated with a password entry in the Keystore
-    	Vector<String> urlList = (Vector<String>) ((CredentialManagerGUI) this.getParent()).getURLsForPasswords();
-		// Check if this url list contains the newly entered url
-		if (urlList.contains(sURL)){
-    		// Warn the user and exit
-        	JOptionPane.showMessageDialog(
-            		this, 
-            		"The entered URL is already associated with another password entry",
-        			"Credential Manager Alert",
-        			JOptionPane.INFORMATION_MESSAGE);
-        	return;
-		}    	
+//       	ArrayList<String> urlList = (ArrayList<String>) ((CredentialManagerUI) this.getParent()).getURLsForPasswords();
+//		// Check if this url list contains the newly entered url
+//		if (urlList.contains(sURL)){
+//    		// Warn the user and exit
+//        	JOptionPane.showMessageDialog(
+//            		this, 
+//            		"The entered URL is already associated with a password entry",
+//        			"Credential Manager Alert",
+//        			JOptionPane.INFORMATION_MESSAGE);
+//        	return;
+//		}    	
     	
     	// Otherwise - the entered URL is not already associated with a different entry in the Keystore, 
 		// so add this URL to the list of URLs for this key pair entry
