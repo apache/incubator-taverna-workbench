@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-components</groupId>
 	<artifactId>credential-manager-ui</artifactId>
-	<version>0.9.2</version>
+	<version>0.10-SNAPSHOT</version>
 	<name>Credential Manager UI</name>
 	<description>
 		Integrates the Credential Manager into the Workbench
@@ -36,10 +36,4 @@
 			<url>http://www.mygrid.org.uk/maven/repository</url>
 		</repository>
 	</repositories>
-
-  <scm>
-    <connection>scm:svn:http://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-components/tags/credential-manager-ui-0.9.2</connection>
-    <developerConnection>scm:svn:https://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-components/tags/credential-manager-ui-0.9.2</developerConnection>
-    <url>http://code.google.com/p/taverna/source/browse/#svn/taverna/ui/net.sf.taverna.t2.ui-components/tags/credential-manager-ui-0.9.2</url>
-  </scm>
 </project>
