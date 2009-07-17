@@ -121,9 +121,7 @@ public class CredentialManagerUI extends JFrame {
 	// Credential Manager - manages all operations on the Keystore and Truststore
 	public static CredentialManager credManager;
 	
-	// //////////////////////////////////////////////////////////
 	// Keystore tab and table controls
-	// //////////////////////////////////////////////////////////
 	
 	// Tabbed pane to hold keystore entries tables 
 	private JTabbedPane keyStoreTabbedPane;
@@ -152,9 +150,7 @@ public class CredentialManagerUI extends JFrame {
 	// Tab 4: name 
 	public static final String TRUSTED_CERTIFICATES = "Trusted Certificates";
 	
-	// //////////////////////////////////////////////////////////
 	// Tables
-	// //////////////////////////////////////////////////////////
 
 	// Password entries' table 
 	private JTable passwordsTable;
@@ -1491,8 +1487,8 @@ public class CredentialManagerUI extends JFrame {
 			else if (((JTable) evt.getSource()).getModel() instanceof KeyPairsTableModel) { // Key pairs table
 				viewCertificate();
 			} 
-			else if (((JTable) evt.getSource()).getModel() instanceof ProxiesTableModel) { // Key pairs table
-				viewCertificate();
+			else if (((JTable) evt.getSource()).getModel() instanceof ProxiesTableModel) { //Proxies table
+				viewProxyCertificate();
 			}
 			else { // Trusted certificates table
 				viewCertificate();
