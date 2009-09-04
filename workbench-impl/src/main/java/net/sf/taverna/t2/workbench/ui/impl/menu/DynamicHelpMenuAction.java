@@ -22,9 +22,11 @@ package net.sf.taverna.t2.workbench.ui.impl.menu;
 
 import java.awt.AWTEvent;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.helper.Helper;
@@ -54,6 +56,8 @@ public class DynamicHelpMenuAction extends AbstractMenuAction {
 	private final class DynamicHelpAction extends AbstractAction {
 		private DynamicHelpAction() {
 			super("Dynamic help");
+			putValue(Action.ACCELERATOR_KEY,
+					KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
 
 		}
 
