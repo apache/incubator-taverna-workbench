@@ -21,15 +21,19 @@
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
 import java.awt.Component;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
@@ -63,6 +67,9 @@ public class OpenWorkflowAction extends AbstractAction {
 
 	public OpenWorkflowAction() {
 		super(OPEN_WORKFLOW, WorkbenchIcons.openIcon);
+		putValue(Action.ACCELERATOR_KEY,
+				KeyStroke.getKeyStroke(KeyEvent.VK_O,
+						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 	}
 
 	/**

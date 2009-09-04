@@ -21,14 +21,10 @@
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
 import java.awt.Component;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -45,17 +41,16 @@ import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.DataflowValidationReport;
 
 import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
-public class SaveWorkflowAction extends AbstractAction {
+public class ValidateWorkflowAction extends AbstractAction {
 
-	private final SaveWorkflowAsAction saveWorkflowAsAction = new SaveWorkflowAsAction();
+	private static Logger logger = Logger.getLogger(ValidateWorkflowAction.class);
 
-	private static Logger logger = Logger.getLogger(SaveWorkflowAction.class);
-
-	private static final String SAVE_WORKFLOW = "Save workflow";
+	private static final String VALIDATE_WORKFLOW = "Validate workflow";
 
 	private EditManager editManager = EditManager.getInstance();
 
@@ -69,11 +64,8 @@ public class SaveWorkflowAction extends AbstractAction {
 
 	private ModelMapObserver modelMapObserver = new ModelMapObserver();
 
-	public SaveWorkflowAction() {
-		super(SAVE_WORKFLOW, WorkbenchIcons.saveIcon);
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_S,
-						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+	public ValidateWorkflowAction() {
+		super(VALIDATE_WORKFLOW, WorkbenchIcons.saveIcon);
 		modelMap.addObserver(modelMapObserver);
 		editManager.addObserver(editManagerObserver);
 		fileManager.addObserver(fileManagerObserver);
@@ -85,63 +77,18 @@ public class SaveWorkflowAction extends AbstractAction {
 		if (ev.getSource() instanceof Component) {
 			parentComponent = (Component) ev.getSource();
 		}
-		saveCurrentDataflow(parentComponent);
+		validateCurrentDataflow(parentComponent);
 	}
 	
-	public boolean saveCurrentDataflow(Component parentComponent) {
+	public boolean validateCurrentDataflow(Component parentComponent) {
 		Dataflow dataflow = fileManager.getCurrentDataflow();
-		return saveDataflow(parentComponent, dataflow);
+		return validateDataflow(parentComponent, dataflow);
 	}
 	
 
-	public boolean saveDataflow(Component parentComponent, Dataflow dataflow) {
-		if (!fileManager.canSaveWithoutDestination(dataflow)) {
-			return saveWorkflowAsAction.saveDataflow(parentComponent, dataflow);
-		}
-		try {
-			try {
-				fileManager.saveDataflow(dataflow, true);
-				Object dataflowSource = fileManager.getDataflowSource(dataflow);
-				logger.info("Saved dataflow " + dataflow + " to "
-						+ dataflowSource);
-				return true;
-			} catch (OverwriteException ex) {
-				Object dataflowSource = fileManager.getDataflowSource(dataflow);
-				logger.info("Dataflow was changed on source: "
-								+ dataflowSource);
-				fileManager.setCurrentDataflow(dataflow);
-				String msg = "Workflow destination " + dataflowSource
-						+ " has been changed from elsewhere, "
-						+ "are you sure you want to overwrite?";
-				int ret = JOptionPane.showConfirmDialog(parentComponent, msg,
-						"Workflow changed", JOptionPane.YES_NO_CANCEL_OPTION);	
-				if (ret == JOptionPane.YES_OPTION) {
-					fileManager.saveDataflow(dataflow, false);
-					logger.info("Saved dataflow " + dataflow
-							+ " by overwriting " + dataflowSource);
-					return true;
-				} else if (ret == JOptionPane.NO_OPTION) {
-					// Pop up Save As instead to choose another name
-					return saveWorkflowAsAction.saveDataflow(parentComponent,
-							dataflow);
-				} else {
-					logger.info("Aborted overwrite of " + dataflowSource);
-					return false;
-				}
-			}
-		} catch (SaveException ex) {
-			logger.warn("Could not save dataflow " + dataflow, ex);
-			JOptionPane.showMessageDialog(parentComponent,
-					"Could not save workflow: \n\n" + ex.getMessage(),
-					"Warning", JOptionPane.WARNING_MESSAGE);
-			return false;
-		} catch (RuntimeException ex) {
-			logger.warn("Could not save dataflow " + dataflow, ex);
-			JOptionPane.showMessageDialog(parentComponent,
-					"Could not save workflow: \n\n" + ex.getMessage(),
-					"Warning", JOptionPane.WARNING_MESSAGE);
-			return false;
-		}
+	public boolean validateDataflow(Component parentComponent, Dataflow dataflow) {
+		DataflowValidationReport report = dataflow.checkValidity();
+		return report.isValid();
 	}
 
 	protected void updateEnabledStatus(Dataflow dataflow) {

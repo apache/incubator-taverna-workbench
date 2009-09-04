@@ -22,15 +22,19 @@ package net.sf.taverna.t2.workbench.file.impl.actions;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -83,6 +87,9 @@ public class OpenWorkflowFromURLAction extends AbstractAction {
 		putValue(SMALL_ICON, WorkbenchIcons.openurlIcon);
 		putValue(NAME, ACTION_NAME);
 		putValue(SHORT_DESCRIPTION, ACTION_DESCRIPTION);
+		putValue(Action.ACCELERATOR_KEY,
+				KeyStroke.getKeyStroke(KeyEvent.VK_L,
+						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 	}
 
 	public void actionPerformed(ActionEvent e) {

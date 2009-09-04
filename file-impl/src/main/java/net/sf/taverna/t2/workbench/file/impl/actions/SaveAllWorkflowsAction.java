@@ -21,11 +21,16 @@
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
 import java.awt.Component;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -60,6 +65,10 @@ public class SaveAllWorkflowsAction extends AbstractAction {
 
 	public SaveAllWorkflowsAction() {
 		super(SAVE_ALL_WORKFLOWS, WorkbenchIcons.saveAllIcon);
+		putValue(Action.ACCELERATOR_KEY,
+				KeyStroke.getKeyStroke(KeyEvent.VK_S,
+						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
+						| InputEvent.SHIFT_DOWN_MASK));
 		fileManager.addObserver(fileManagerObserver);
 		updateEnabled();
 	}

@@ -21,11 +21,16 @@
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
 import java.awt.Component;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -43,6 +48,10 @@ public class CloseAllWorkflowsAction extends AbstractAction {
 
 	public CloseAllWorkflowsAction() {
 		super(CLOSE_ALL_WORKFLOWS, WorkbenchIcons.closeAllIcon);
+		putValue(Action.ACCELERATOR_KEY,
+				KeyStroke.getKeyStroke(KeyEvent.VK_W,
+						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
+						| InputEvent.SHIFT_DOWN_MASK));
 	}
 
 	public void actionPerformed(ActionEvent event) {

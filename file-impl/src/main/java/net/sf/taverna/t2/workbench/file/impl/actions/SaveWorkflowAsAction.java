@@ -21,14 +21,19 @@
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
 import java.awt.Component;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import net.sf.taverna.t2.lang.observer.Observable;
@@ -69,6 +74,8 @@ public class SaveWorkflowAsAction extends AbstractAction {
 
 	public SaveWorkflowAsAction() {
 		super(SAVE_WORKFLOW_AS, WorkbenchIcons.saveAsIcon);
+		putValue(Action.ACCELERATOR_KEY,
+				KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
 		modelMap.addObserver(new ModelMapObserver());
 		updateEnabledStatus((Dataflow) modelMap
 				.getModel(ModelMapConstants.CURRENT_DATAFLOW));

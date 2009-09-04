@@ -21,10 +21,14 @@
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
 import java.awt.Component;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.exceptions.UnsavedException;
@@ -42,6 +46,9 @@ public class CloseWorkflowAction extends AbstractAction {
 
 	public CloseWorkflowAction() {
 		super(CLOSE_WORKFLOW, WorkbenchIcons.closeIcon);
+		putValue(Action.ACCELERATOR_KEY,
+				KeyStroke.getKeyStroke(KeyEvent.VK_W,
+						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 	}
 
 	public void actionPerformed(ActionEvent e) {

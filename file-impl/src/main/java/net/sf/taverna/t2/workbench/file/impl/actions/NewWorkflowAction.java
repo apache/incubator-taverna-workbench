@@ -20,10 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -41,6 +45,9 @@ public class NewWorkflowAction extends AbstractAction {
 	public NewWorkflowAction() {
 		super(NEW_WORKFLOW, WorkbenchIcons.newIcon);
 		putValue(Action.SHORT_DESCRIPTION, NEW_WORKFLOW);
+		putValue(Action.ACCELERATOR_KEY,
+				KeyStroke.getKeyStroke(KeyEvent.VK_N,
+						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 	}
 
 	public void actionPerformed(ActionEvent e) {
