@@ -24,9 +24,9 @@
 		<t2.compatibility.version>0.8</t2.compatibility.version>
 		<t2.translators.version>0.8</t2.translators.version>
 		<t2.ui.api.version>0.6</t2.ui.api.version>
-		<t2.ui.impl.version>0.8</t2.ui.impl.version>
-		<t2.ui.components.version>0.9</t2.ui.components.version>
-		<t2.ui.activities.version>0.12</t2.ui.activities.version>
+		<t2.ui.impl.version>0.9-SNAPSHOT</t2.ui.impl.version>
+		<t2.ui.components.version>0.10-SNAPSHOT</t2.ui.components.version>
+		<t2.ui.activities.version>0.13-SNAPSHOT</t2.ui.activities.version>
 		<taverna.version>1.7.2.0</taverna.version>
 	</properties>
 
