@@ -246,7 +246,9 @@ public class GraphLayout implements DOTParserVisitor {
 		for (String point : points) {
 			String[] coords = point.split(",");
 			if (coords.length == 2) {
-				path.add(new Point(Integer.parseInt(coords[0]) + xOffset, flipY(Integer.parseInt(coords[1]) + yOffset)));
+				int x = (int) Float.parseFloat(coords[0]) + xOffset;
+				int y = (int) Float.parseFloat(coords[1]) + yOffset;
+				path.add(new Point(x, flipY(y)));
 			}
 		}
 		return path;
