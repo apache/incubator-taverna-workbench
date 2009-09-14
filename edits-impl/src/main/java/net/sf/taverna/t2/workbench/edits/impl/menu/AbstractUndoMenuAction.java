@@ -20,10 +20,13 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.edits.impl.menu;
 
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -65,10 +68,16 @@ public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
 			if (label.equals("Undo")){
 				this.putValue(Action.SMALL_ICON, WorkbenchIcons.undoIcon);
 				this.putValue(Action.SHORT_DESCRIPTION, "Undo an action");
+				putValue(Action.ACCELERATOR_KEY,
+						KeyStroke.getKeyStroke(KeyEvent.VK_Z,
+								Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 			}
 			else if (label.equals("Redo")){
 				this.putValue(Action.SMALL_ICON, WorkbenchIcons.redoIcon);
 				this.putValue(Action.SHORT_DESCRIPTION, "Redo an action");
+				putValue(Action.ACCELERATOR_KEY,
+						KeyStroke.getKeyStroke(KeyEvent.VK_Y,
+								Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 			}
 			editManager.addObserver(new EditManagerObserver());
 			modelMap.addObserver(new ModelMapObserver());
