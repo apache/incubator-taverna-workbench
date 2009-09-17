@@ -36,12 +36,9 @@ public class SetDefaultInputPortValueMenuAction extends AbstractMenuAction {
 
 	private static final URI SET_INPUT_PORT_DEFAULT_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuSetInputPortDefault");
-
-	public static final URI GRAPH_EDIT_MENU_SECTION = URI
-	.create("http://taverna.sf.net/2008/t2workbench/menu#graphEditMenuSection");
 	
 	public SetDefaultInputPortValueMenuAction() {
-		super(GRAPH_EDIT_MENU_SECTION, 40, SET_INPUT_PORT_DEFAULT_URI);
+		super(GraphPortEditMenuSection.GRAPH_PORT_EDIT_MENU_SECTION, 40, SET_INPUT_PORT_DEFAULT_URI);
 	}
 
 	@Override
