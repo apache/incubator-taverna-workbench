@@ -23,6 +23,7 @@ package net.sf.taverna.t2.activities.stringconstant.actions;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 
+import javax.swing.Action;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
@@ -32,11 +33,14 @@ import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationActi
 public class StringConstantActivityConfigurationAction extends
 		ActivityConfigurationAction<StringConstantActivity, StringConstantConfigurationBean> {
 
+	public static final String CONFIGURE_STRINGCONSTANT = "Edit value";
+
 	private static final long serialVersionUID = 2518716617809186972L;
 	private final Frame owner;
 
 	public StringConstantActivityConfigurationAction(StringConstantActivity activity,Frame owner) {
 		super(activity);
+		putValue(Action.NAME, CONFIGURE_STRINGCONSTANT);
 		this.owner = owner;
 	}
 
