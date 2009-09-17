@@ -104,8 +104,12 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 				JMenuItem menuItem = (JMenuItem) c;
 				Action action = menuItem.getAction();
 				if (action != null) {
+					if (result != null) {
+						// do not return anything if there are two matches
+						result = null;
+						break;
+					}
 					result = action;
-					break;
 				}
 			}
 			}
