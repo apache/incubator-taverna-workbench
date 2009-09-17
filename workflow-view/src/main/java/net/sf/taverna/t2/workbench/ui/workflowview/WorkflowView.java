@@ -85,7 +85,18 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 	}
 	
 	if ((p != null) && sd.isTemplateService()) {
-		JPopupMenu dummyMenu = MenuManager.getInstance().createContextMenu(currentDataflow,
+		Action action = getConfigureAction(p);
+		if (action != null) {
+			action.actionPerformed(new ActionEvent(component, 0, ""));
+		}
+
+	}
+	return p;
+}
+	
+	public static Action getConfigureAction(Processor p) {
+		Action result = null;
+		JPopupMenu dummyMenu = MenuManager.getInstance().createContextMenu(null,
 				p, null);
 		for (Component c : dummyMenu.getComponents()) {
 			logger.info(c.getClass().getCanonicalName());
@@ -93,16 +104,11 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 				JMenuItem menuItem = (JMenuItem) c;
 				Action action = menuItem.getAction();
 				if (action != null) {
-					logger.info(action.getClass().getCanonicalName());
-					if (action instanceof ActivityConfigurationAction) {
-						logger.info("Got appropriate action " + action.getClass().getCanonicalName());
-					action.actionPerformed(new ActionEvent(component, 0, ""));
+					result = action;
 					break;
 				}
 			}
 			}
-		}
+		return result;
 	}
-	return p;
-}
 }
