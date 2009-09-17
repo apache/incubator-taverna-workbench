@@ -236,7 +236,6 @@ public class GraphViewComponent extends WorkflowView {
 
 		Action zoomInAction = svgCanvas.new ZoomAction(1.2);
 		ZoomInAction.setDesignAction(zoomInAction);
-		logger.error("ZoomInAction.designAction is being set by GraphViewComponent");
 		zoomInAction.putValue(Action.SHORT_DESCRIPTION, "Zoom In");
 		zoomInAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomInIcon);
 		zoomInButton.setAction(zoomInAction);
