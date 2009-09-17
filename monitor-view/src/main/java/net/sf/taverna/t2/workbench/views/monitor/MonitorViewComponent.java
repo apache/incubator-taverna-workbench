@@ -60,6 +60,9 @@ import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.provenance.ProvenanceConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
+import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
+import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
@@ -91,7 +94,6 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	public enum Status {RUNNING, COMPLETE};
 
 	private String sessionId;
-	
 
 	public MonitorViewComponent() {
 		super(new BorderLayout());
@@ -140,16 +142,19 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 		zoomOutButton.setBorder(new EmptyBorder(0, 2, 0, 2));
 		
 		Action resetDiagramAction = svgCanvas.new ResetTransformAction();
+		ResetDiagramAction.setResultsAction(resetDiagramAction);
 		resetDiagramAction.putValue(Action.SHORT_DESCRIPTION, "Reset Diagram");
 		resetDiagramAction.putValue(Action.SMALL_ICON, WorkbenchIcons.refreshIcon);
 		resetDiagramButton.setAction(resetDiagramAction);
 
 		Action zoomInAction = svgCanvas.new ZoomAction(1.2);
+		ZoomInAction.setResultsAction(zoomInAction);
 		zoomInAction.putValue(Action.SHORT_DESCRIPTION, "Zoom In");
 		zoomInAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomInIcon);
 		zoomInButton.setAction(zoomInAction);
 
 		Action zoomOutAction = svgCanvas.new ZoomAction(1/1.2);
+		ZoomOutAction.setResultsAction(zoomOutAction);
 		zoomOutAction.putValue(Action.SHORT_DESCRIPTION, "Zoom Out");
 		zoomOutAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomOutIcon);
 		zoomOutButton.setAction(zoomOutAction);
