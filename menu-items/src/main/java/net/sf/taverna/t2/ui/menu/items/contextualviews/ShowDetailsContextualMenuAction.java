@@ -21,22 +21,19 @@
 package net.sf.taverna.t2.ui.menu.items.contextualviews;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
-import net.sf.taverna.t2.workbench.views.graph.actions.DesignOnlyAction;
 
-public class ShowDetailsMenuAction extends AbstractContextualMenuAction {
+public class ShowDetailsContextualMenuAction extends AbstractContextualMenuAction {
 	private static final String SHOW_DETAILS = "Show details";
 	private String namedComponent = "contextualView";
 
-	public ShowDetailsMenuAction() {
+	public ShowDetailsContextualMenuAction() {
 		super(DefaultContextualMenu.DEFAULT_CONTEXT_MENU, 1000);
 	}
 
@@ -50,24 +47,13 @@ public class ShowDetailsMenuAction extends AbstractContextualMenuAction {
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new ShowDetailsAction();
+		return new AbstractAction(SHOW_DETAILS) {
+			public void actionPerformed(ActionEvent e) {
+				Workbench workbench = Workbench.getInstance();
+				workbench.getPerspectives().setWorkflowPerspective();
+				workbench.makeNamedComponentVisible(namedComponent);
+			}
+		};
 	}
 
-	protected class ShowDetailsAction extends DesignOnlyAction {
-		
-		ShowDetailsAction() {
-			super();
-			putValue(NAME, "Show details");	
-			putValue(SHORT_DESCRIPTION, "Show details of selected component");
-			putValue(Action.ACCELERATOR_KEY,
-					KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, InputEvent.SHIFT_DOWN_MASK));
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			Workbench workbench = Workbench.getInstance();
-			workbench.getPerspectives().setWorkflowPerspective();
-			workbench.makeNamedComponentVisible(namedComponent);			
-		}
-		
-	}
 }
