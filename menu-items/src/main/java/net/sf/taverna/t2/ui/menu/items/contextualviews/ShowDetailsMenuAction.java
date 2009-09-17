@@ -23,21 +23,26 @@ package net.sf.taverna.t2.ui.menu.items.contextualviews;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.net.URI;
 
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
+import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workbench.views.graph.actions.DesignOnlyAction;
 
-public class ShowDetailsMenuAction extends AbstractContextualMenuAction {
+public class ShowDetailsMenuAction extends AbstractMenuAction {
+	private static final URI SHOW_DETAILS_URI = URI
+	.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuShowDetailsComponent");
+
 	private static final String SHOW_DETAILS = "Show details";
 	private String namedComponent = "contextualView";
 
 	public ShowDetailsMenuAction() {
-		super(DefaultContextualMenu.DEFAULT_CONTEXT_MENU, 1000);
+		super(ShowConfigureMenuAction.GRAPH_DETAILS_MENU_SECTION, 20, SHOW_DETAILS_URI);
 	}
 
 	@Override
