@@ -22,21 +22,18 @@ package net.sf.taverna.t2.workbench.views.graph.menu;
 
 import java.net.URI;
 
+import net.sf.taverna.t2.ui.menu.AbstractMenu;
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
+import net.sf.taverna.t2.ui.menu.DefaultMenuBar;
+import net.sf.taverna.t2.ui.menu.DefaultToolBar;
 
-/**
- * 
- * @author Alex Nenadic
- *
- */
-public class GraphSaveMenuSection extends AbstractMenuSection {
+public class DiagramMenu extends AbstractMenu {
 
-	public static final URI GRAPH_SAVE_MENU_SECTION = URI
-			.create("http://taverna.sf.net/2008/t2workbench/menu#graphSaveMenuSection");
+	public static final URI DIAGRAM = URI
+			.create("http://taverna.sf.net/2008/t2workbench/menu#diagram");
 
-	public GraphSaveMenuSection() {
-		super(GraphMenuSection.GRAPH_MENU_SECTION, 40, GRAPH_SAVE_MENU_SECTION);
+	public DiagramMenu() {
+		super(DefaultMenuBar.DEFAULT_MENU_BAR, 65, DIAGRAM, "View");
 	}
 
 }
-

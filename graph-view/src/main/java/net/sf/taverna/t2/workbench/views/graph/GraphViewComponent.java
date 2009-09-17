@@ -73,6 +73,9 @@ import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
+import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
+import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
 import net.sf.taverna.t2.workflowmodel.Condition;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
@@ -226,16 +229,20 @@ public class GraphViewComponent extends WorkflowView {
 		zoomOutButton.setBorder(new EmptyBorder(0, 2, 0, 2));
 		
 		Action resetDiagramAction = svgCanvas.new ResetTransformAction();
+		ResetDiagramAction.setDesignAction(resetDiagramAction);
 		resetDiagramAction.putValue(Action.SHORT_DESCRIPTION, "Reset Diagram");
 		resetDiagramAction.putValue(Action.SMALL_ICON, WorkbenchIcons.refreshIcon);
 		resetDiagramButton.setAction(resetDiagramAction);
 
 		Action zoomInAction = svgCanvas.new ZoomAction(1.2);
+		ZoomInAction.setDesignAction(zoomInAction);
+		logger.error("ZoomInAction.designAction is being set by GraphViewComponent");
 		zoomInAction.putValue(Action.SHORT_DESCRIPTION, "Zoom In");
 		zoomInAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomInIcon);
 		zoomInButton.setAction(zoomInAction);
 
 		Action zoomOutAction = svgCanvas.new ZoomAction(1/1.2);
+		ZoomOutAction.setDesignAction(zoomOutAction);
 		zoomOutAction.putValue(Action.SHORT_DESCRIPTION, "Zoom Out");
 		zoomOutAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomOutIcon);
 		zoomOutButton.setAction(zoomOutAction);

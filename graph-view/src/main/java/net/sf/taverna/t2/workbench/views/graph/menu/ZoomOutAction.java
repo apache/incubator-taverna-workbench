@@ -18,8 +18,9 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.views.graph.actions;
+package net.sf.taverna.t2.workbench.views.graph.menu;
 
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -28,40 +29,43 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
-import net.sf.taverna.t2.workbench.design.actions.AddDataflowOutputAction;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
-/**
- * An action that adds a workflow output.
- * 
- * @author Alex Nenadic
- * @author Alan R Williams
- *
- */
-@SuppressWarnings("serial")
-public class AddWFOutputAction extends DesignOnlyAction{
-	
-	public AddWFOutputAction(){
+import net.sf.taverna.t2.workbench.views.graph.actions.DesignOrResultsAction;
+
+public class ZoomOutAction extends DesignOrResultsAction {
+
+	private static Action designAction = null;
+	private static Action resultsAction = null;
+
+	public static void setResultsAction(Action resultsAction) {
+		ZoomOutAction.resultsAction = resultsAction;
+	}
+
+	public static void setDesignAction(Action designAction) {
+		ZoomOutAction.designAction = designAction;
+	}
+
+	ZoomOutAction() {
 		super();
-		putValue(SMALL_ICON, WorkbenchIcons.outputIcon);
-		putValue(NAME, "Add workflow output port");	
-		putValue(SHORT_DESCRIPTION, "Add workflow output port");
+		putValue(NAME, "Zoom out");	
+		putValue(SHORT_DESCRIPTION, "Zoom out");
+		putValue(SMALL_ICON, WorkbenchIcons.zoomOutIcon);
 		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
+				KeyStroke.getKeyStroke(KeyEvent.VK_MINUS,
+						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 	}
 	
 	public void actionPerformed(ActionEvent e) {
-		Dataflow dataflow = FileManager.getInstance().getCurrentDataflow();
-		new AddDataflowOutputAction(dataflow, null).actionPerformed(e);
+		if (isWorkflowPerspective() && (designAction != null)) {
+			designAction.actionPerformed(e);
+		} else if (isResultsPerspective() && (resultsAction != null)) {
+			resultsAction.actionPerformed(e);
+		}
 	}
-
+	
 }
-

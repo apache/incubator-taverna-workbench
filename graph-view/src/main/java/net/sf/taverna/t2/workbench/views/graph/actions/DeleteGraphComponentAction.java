@@ -21,9 +21,13 @@
 package net.sf.taverna.t2.workbench.views.graph.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 import net.sf.taverna.t2.lang.observer.Observable;
@@ -72,7 +76,9 @@ public class DeleteGraphComponentAction extends AbstractAction{
 		super();
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
 		putValue(NAME, "Delete");	
-		putValue(SHORT_DESCRIPTION, "Delete selected component");	
+		putValue(SHORT_DESCRIPTION, "Delete selected component");
+		putValue(Action.ACCELERATOR_KEY,
+				KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
 		setEnabled(false);
 		
 		modelMap.addObserver(perspectiveObserver);

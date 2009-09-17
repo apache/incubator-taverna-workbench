@@ -20,48 +20,48 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.actions;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.KeyStroke;
 
-import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
-import net.sf.taverna.t2.workbench.design.actions.AddDataflowOutputAction;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 
 /**
- * An action that adds a workflow output.
- * 
- * @author Alex Nenadic
- * @author Alan R Williams
+ * @author alanrw
  *
  */
-@SuppressWarnings("serial")
-public class AddWFOutputAction extends DesignOnlyAction{
+public abstract class DesignOnlyAction extends AbstractAction {
+
+	private static ModelMap modelMap = ModelMap.getInstance();
+
+	/* Perspective switch observer */
+	private CurrentPerspectiveObserver perspectiveObserver = new CurrentPerspectiveObserver();
 	
-	public AddWFOutputAction(){
+	public DesignOnlyAction() {
 		super();
-		putValue(SMALL_ICON, WorkbenchIcons.outputIcon);
-		putValue(NAME, "Add workflow output port");	
-		putValue(SHORT_DESCRIPTION, "Add workflow output port");
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
+		
+		modelMap.addObserver(perspectiveObserver);
 	}
 	
-	public void actionPerformed(ActionEvent e) {
-		Dataflow dataflow = FileManager.getInstance().getCurrentDataflow();
-		new AddDataflowOutputAction(dataflow, null).actionPerformed(e);
+	/**
+	 * Modify the enabled/disabled state of the action when ModelMapConstants.CURRENT_PERSPECTIVE has been
+	 * modified (i.e. when perspective has been switched).
+	 */
+	public class CurrentPerspectiveObserver implements Observer<ModelMapEvent> {
+		public void notify(Observable<ModelMapEvent> sender,
+				ModelMapEvent message) throws Exception {
+			if (message.getModelName().equals(
+					ModelMapConstants.CURRENT_PERSPECTIVE)) {
+				if (message.getNewModel() instanceof WorkflowPerspective) {
+					setEnabled(true);
+				}
+				else{
+					setEnabled(false);
+				}
+			}
+		}
 	}
-
 }
-

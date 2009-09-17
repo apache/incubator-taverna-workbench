@@ -89,7 +89,7 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 	.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuSaveGraphImage");
 	
 	public SaveGraphImageSubMenu(){
-		super(GraphMenuSection.GRAPH_MENU_SECTION, 70, SAVE_GRAPH_IMAGE_MENU_URI);
+		super(DiagramSaveMenuSection.DIAGRAM_SAVE_MENU_SECTION, 70, SAVE_GRAPH_IMAGE_MENU_URI);
 	}
 	
 	@SuppressWarnings("unchecked")

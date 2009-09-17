@@ -24,30 +24,38 @@ import java.net.URI;
 
 import javax.swing.Action;
 
+import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.workbench.views.graph.actions.SaveGraphImageAction;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.views.graph.actions.DesignOnlyAction;
+
+import org.apache.log4j.Logger;
 
 /**
+ * An action that zooms a diagram image
  * 
  * @author Alex Nenadic
+ * @author Tom Oinn
+ * @author Alan R Williams
  *
  */
-public class SaveGraphImageMenuAction extends AbstractMenuAction {
+@SuppressWarnings("serial")
+public class ResetDiagramMenuAction extends AbstractMenuAction{
 
-	public static final URI SAVE_GRAPH_IMAGE_URI = URI
-			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuSaveGraphImage");
-
-	public SaveGraphImageMenuAction() {
-		super(GraphMenuSection.GRAPH_MENU_SECTION, 70, SAVE_GRAPH_IMAGE_URI);
+	private static Logger logger = Logger.getLogger(ResetDiagramMenuAction.class);
+	
+	private static ModelMap modelMap = ModelMap.getInstance();
+	
+	public static final URI RESET_DIAGRAM_URI = URI
+	.create("http://taverna.sf.net/2008/t2workbench/menu#diagramMenuResetDiagram");
+	
+	public ResetDiagramMenuAction(){
+		super(DiagramZoomMenuSection.DIAGRAM_ZOOM_MENU_SECTION, 5, RESET_DIAGRAM_URI);
 	}
 
 	@Override
 	protected Action createAction() {
-		return new SaveGraphImageAction();
+		return new ResetDiagramAction();
 	}
 
 }
-
-
-
-

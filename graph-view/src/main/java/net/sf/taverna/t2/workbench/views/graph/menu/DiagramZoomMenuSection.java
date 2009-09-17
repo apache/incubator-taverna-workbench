@@ -22,10 +22,7 @@ package net.sf.taverna.t2.workbench.views.graph.menu;
 
 import java.net.URI;
 
-import javax.swing.Action;
-
-import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.workbench.views.graph.actions.DeleteGraphComponentAction;
+import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 
 /**
  * 
@@ -33,22 +30,14 @@ import net.sf.taverna.t2.workbench.views.graph.actions.DeleteGraphComponentActio
  * @author Alan R Williams
  *
  */
-public class DeleteGraphComponentMenuAction extends AbstractMenuAction {
+public class DiagramZoomMenuSection extends AbstractMenuSection {
 
-	private static final URI DELETE_GRAPH_COMPONENT_URI = URI
-			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuDeleteGraphComponent");
+	public static final URI DIAGRAM_ZOOM_MENU_SECTION = URI
+			.create("http://taverna.sf.net/2008/t2workbench/menu#diagramZoomMenuSection");
 
-	public DeleteGraphComponentMenuAction() {
-		super(GraphDeleteMenuSection.GRAPH_DELETE_MENU_SECTION, 10, DELETE_GRAPH_COMPONENT_URI);
-	}
-
-	@Override
-	protected Action createAction() {
-		return new DeleteGraphComponentAction();
+	public DiagramZoomMenuSection() {
+		super(DiagramMenu.DIAGRAM, 20, DIAGRAM_ZOOM_MENU_SECTION);
 	}
 
 }
-
-
-
 

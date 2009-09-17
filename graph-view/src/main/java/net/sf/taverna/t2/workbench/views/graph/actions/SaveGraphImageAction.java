@@ -87,7 +87,7 @@ public class SaveGraphImageAction extends AbstractAction{
 		super();
 		putValue(SMALL_ICON, WorkbenchIcons.savePNGIcon);
 		putValue(NAME, "Save diagram");	
-		putValue(SHORT_DESCRIPTION, "Save diagram image");	
+		putValue(SHORT_DESCRIPTION, "Save diagram");	
 		
 		modelMap.addObserver(perspectiveObserver);
 	}

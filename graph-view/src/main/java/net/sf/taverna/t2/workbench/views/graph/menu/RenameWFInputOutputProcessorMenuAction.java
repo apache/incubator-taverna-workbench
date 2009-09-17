@@ -38,7 +38,7 @@ public class RenameWFInputOutputProcessorMenuAction extends AbstractMenuAction {
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuRenameWFInputOutputProcessor");
 
 	public RenameWFInputOutputProcessorMenuAction() {
-		super(GraphEditMenuSection.GRAPH_EDIT_MENU_SECTION, 30, RENAME_WF_INPUT_OUTPUT_PROCESSOR_URI);
+		super(GraphDetailsMenuSection.GRAPH_DETAILS_MENU_SECTION, 30, RENAME_WF_INPUT_OUTPUT_PROCESSOR_URI);
 	}
 
 	@Override

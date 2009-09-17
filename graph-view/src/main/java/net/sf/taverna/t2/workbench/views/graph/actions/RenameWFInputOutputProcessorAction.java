@@ -21,10 +21,13 @@
 package net.sf.taverna.t2.workbench.views.graph.actions;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 import net.sf.taverna.t2.lang.observer.Observable;
@@ -68,6 +71,8 @@ public class RenameWFInputOutputProcessorAction extends AbstractAction{
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
 		putValue(NAME, "Rename");	
 		putValue(SHORT_DESCRIPTION, "Rename inputs, outputs or processors");
+		putValue(Action.ACCELERATOR_KEY,
+				KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
 		setEnabled(false);
 
 		modelMap.addObserver(perspectiveObserver);
