@@ -85,7 +85,9 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 				Object component = selectedWFComponents.iterator().next();
 				if (component instanceof Processor) {
 					Action action = WorkflowView.getConfigureAction((Processor) component);
+					if (action != null) {
 					action.actionPerformed(e);
+					}
 				} else if (component instanceof Merge) {
 					Merge merge = (Merge) component;
 						MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(merge);
