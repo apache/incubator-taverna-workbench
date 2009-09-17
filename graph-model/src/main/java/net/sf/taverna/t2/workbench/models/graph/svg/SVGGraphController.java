@@ -139,7 +139,7 @@ public abstract class SVGGraphController extends GraphController {
 //SVGUtil.writeSVG(svgDocument);
 			} catch (IOException e) {
 				outputMessage(dotErrorMessage, svgElement);
-		logger.error("Couldn't generate svg", e);
+//		logger.error("Couldn't generate svg", e);
 			} catch (ParseException e) {
 				logger.error("Couldn't layout svg", e);
 			}
