@@ -1,5 +1,5 @@
 net.sf.taverna.t2.workbench.ui.views.contextualviews.outputport.OutputPortContextualViewFactory
-net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflowoutputport.DataflowOutputPortContextualViewFactory
+#net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflowoutputport.DataflowOutputPortContextualViewFactory
 #net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflowinputport.DataflowInputPortContextualViewFactory
 net.sf.taverna.t2.workbench.ui.views.contextualviews.datalink.DatalinkContextualViewFactory
 net.sf.taverna.t2.workbench.ui.views.contextualviews.condition.ConditionContextualViewFactory
