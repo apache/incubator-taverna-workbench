@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
+import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantActivityIcon;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 
 public class StringConstantActivityConfigurationAction extends
@@ -47,7 +48,14 @@ public class StringConstantActivityConfigurationAction extends
 	public void actionPerformed(ActionEvent e) {
 		StringConstantConfigurationBean bean = new StringConstantConfigurationBean();
 		String value = getActivity().getConfiguration().getValue();
-		String newValue = JOptionPane.showInputDialog(owner,"Enter string value",value);
+		String newValue =
+			(String) JOptionPane.showInputDialog(owner,
+					"Enter value",
+					getRelativeName(),
+					JOptionPane.QUESTION_MESSAGE,
+					StringConstantActivityIcon.getStringConstantIcon(),
+					null,
+					value);
 		if (newValue!=null) {
 			bean.setValue(newValue);
 			configureActivity(bean);
