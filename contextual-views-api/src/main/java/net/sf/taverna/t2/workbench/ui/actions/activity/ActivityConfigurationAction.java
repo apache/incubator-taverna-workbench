@@ -88,4 +88,18 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 		}
 		return null;
 	}
+	
+	protected String getRelativeName() {
+		String result = "";
+		Dataflow currentDataflow = FileManager.getInstance()
+		.getCurrentDataflow();
+		if (currentDataflow != null) {
+			result += currentDataflow.getLocalName();
+			Processor p = findProcessor(currentDataflow);
+			if (p != null) {
+				result += (":" + p.getLocalName());
+			}
+		}
+		return result;
+	}
 }
