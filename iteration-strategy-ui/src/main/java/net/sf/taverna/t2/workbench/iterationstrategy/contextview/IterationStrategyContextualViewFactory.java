@@ -34,7 +34,7 @@ public class IterationStrategyContextualViewFactory implements
 		ContextualViewFactory<ActivityInputPort> {
 
 	public boolean canHandle(Object selection) {
-		return selection instanceof ActivityInputPort;
+		return false;
 	}
 
 	public ContextualView getView(ActivityInputPort inputPort) {
