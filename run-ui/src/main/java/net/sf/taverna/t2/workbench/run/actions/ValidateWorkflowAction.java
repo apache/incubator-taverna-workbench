@@ -81,6 +81,8 @@ public class ValidateWorkflowAction extends AbstractAction {
 			RunWorkflowAction.invalidDataflow(report);
 			return false;
 		}
+		JOptionPane.showMessageDialog(null, "No problems found", "Workflow validation report",
+				JOptionPane.INFORMATION_MESSAGE);
 		return true;
 	}
 	
