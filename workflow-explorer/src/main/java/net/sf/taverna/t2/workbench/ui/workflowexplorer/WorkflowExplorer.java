@@ -37,6 +37,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
@@ -407,10 +409,59 @@ public class WorkflowExplorer extends WorkflowView {
 		tree.setDragEnabled(false);
 		tree.setScrollsOnExpand(false);
 		tree.setCellRenderer(new WorkflowExplorerTreeCellRenderer());
-		tree.setSelectionModel(new WorkflowExplorerTreeSelectionModel());
+//		tree.setSelectionModel(new WorkflowExplorerTreeSelectionModel());
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+
+			public void valueChanged(TreeSelectionEvent e) {
+				TreePath selectionPath = e.getNewLeadSelectionPath();
+				if (selectionPath != null) {
+					final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) selectionPath
+					.getLastPathComponent();
+
+			DataflowSelectionModel selectionModel = openedWorkflowsManager.getDataflowSelectionModel(
+							workflow);
+
+			// If the node that was clicked on was inputs,
+			// outputs, services, data links, control links or 
+			// merges in the main workflow then just make it selected
+			// and clear the selection model (as these are just
+			// containers for the 'real' workflow components).
+			if ((selectedNode.getUserObject() instanceof String) && (selectionPath.getPathCount() == 2)) {
+				selectionModel.clearSelection();
+				tree
+						.getSelectionModel()
+						.setSelectionPath(selectionPath);
+
+			} else { // a 'real' workflow component or the 'whole' workflow (i.e. the tree root) was clicked on
+				
+				// We want to disable selection of any nested workflow components (apart from
+				// input and output ports in the wrapping DataflowActivity)
+				TreePath path = WorkflowExplorerTreeModel.getPathForObject(selectedNode
+						.getUserObject(), (DefaultMutableTreeNode)tree.getModel().getRoot());
+				
+				// The getPathForObject() method will return null in a node is inside 
+				// a nested workflow and should not be selected
+				if (path == null){
+					// Just return 
+					return;
+				}
+				else{
+					// Add it to selection model so it is also selected on the graph as well
+					// that listens to the selection model
+					selectionModel.addSelection(selectedNode
+							.getUserObject());		}
+			}
+				}}
+			
+		});
+		
 		tree.addMouseListener(new MouseAdapter() {
 
 			public void mouseClicked(MouseEvent evt) {
+				
+				if (evt.getButton() != MouseEvent.BUTTON3) {
+					return;
+				}
 
 				// Discover the tree row that was clicked on
 				int selRow = tree.getRowForLocation(evt.getX(), evt
@@ -542,6 +593,7 @@ public class WorkflowExplorer extends WorkflowView {
 				}
 			}
 		});
+
 		return tree;
 	}
 	
