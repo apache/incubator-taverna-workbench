@@ -31,6 +31,8 @@ import javax.swing.JSplitPane;
 import javax.swing.JTree;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import javax.swing.tree.MutableTreeNode;
@@ -86,26 +88,19 @@ public class PortResultsViewTab extends JPanel{
 		// Component for rendering individual results
 		renderedResultComponent = new RenderedResultComponent(); 
 
-		// Handle left and right clicks on the results tree
-		tree.addMouseListener(new MouseAdapter(){
-			
-			public void mouseClicked(MouseEvent evt){
-				 // Discover the tree row that was clicked on
-				int selRow = tree.getRowForLocation(evt.getX(), evt.getY());
-				if (selRow != -1) {
-					// Get the selection path for the row
-					TreePath selectionPath = tree.getPathForLocation(evt.getX(), evt.getY());
-					if (selectionPath != null){
-						// Get the selected node
-						final Object selectedNode = selectionPath.getLastPathComponent();				
-						// Left click
-						if(evt.getButton() == MouseEvent.BUTTON1){
-							renderedResultComponent.setNode((MutableTreeNode)selectedNode);
-						}
-					}
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+
+			public void valueChanged(TreeSelectionEvent e) {
+				TreePath selectionPath = e.getNewLeadSelectionPath();
+				if (selectionPath != null) {
+					// Get the selected node
+					final Object selectedNode = selectionPath.getLastPathComponent();				
+					renderedResultComponent.setNode((MutableTreeNode)selectedNode);
 				}
 			}
+			
 		});
+
 		getResultModel().addTreeModelListener(new TreeModelListener() {
 
 			public void treeNodesChanged(TreeModelEvent e) {
