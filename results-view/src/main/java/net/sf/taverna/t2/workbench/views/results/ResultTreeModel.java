@@ -122,12 +122,13 @@ public class ResultTreeModel extends DefaultTreeModel implements ResultListener 
 				}
 			}
 		} else if (reference.getReferenceType() == T2ReferenceType.ErrorDocument) {
-			for (int i = 0; i < depth; i++) {
-				parent = getChildAt(parent, 0);
+			parent = getChildAt(parent, 0);
+			for (int i = 0; i < index.length - 1; i++) {
+				parent = getChildAt(parent, index[i]);
 				parent.setUserObject("List...");
 				nodeChanged(parent);				
 			}
-			MutableTreeNode child = getChildAt(parent, 0);
+			MutableTreeNode child = getChildAt(parent, index[index.length-1]);
 			child = updateChildNodeWithData(reference, owningProcess, parent,
 					child, context);
 			nodeChanged(child);
