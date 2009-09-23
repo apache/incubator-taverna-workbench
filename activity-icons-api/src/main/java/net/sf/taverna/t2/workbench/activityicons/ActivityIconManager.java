@@ -31,6 +31,7 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
  * Manager for activities' icons.
  * 
  * @author Alex Nenadic
+ * @author Alan R Williams
  * 
  */
 public class ActivityIconManager extends SPIRegistry<ActivityIconSPI> {
@@ -79,4 +80,11 @@ public class ActivityIconManager extends SPIRegistry<ActivityIconSPI> {
 		}
 	}
 
+	public void resetIcon(Activity activity) {
+		Icon icon = iconsMap.get(activity);
+		if (icon != null) {
+			iconsMap.remove(activity);
+		}
+		iconForActivity(activity);
+	}
 }
