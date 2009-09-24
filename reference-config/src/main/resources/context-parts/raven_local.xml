@@ -17,12 +17,12 @@
 		<repositories />
 		<system>
 			<!-- T2Reference API -->
-			<sys
-				artifact="net.sf.taverna.t2.core:reference-api:0.9-SNAPSHOT" />
+			<sys artifact="net.sf.taverna.t2.core:reference-api:0.9-SNAPSHOT" />
 
 			<!-- T2Platform -->
 			<sys artifact="net.sf.taverna.t2.infrastructure:platform:1.12-SNAPSHOT" />
 			<sys artifact="commons-logging:commons-logging:1.1.1" />
+                        
 
 			<!-- Raven -->
 			<sys artifact="net.sf.taverna.t2.infrastructure:raven:1.12-SNAPSHOT" />
@@ -42,8 +42,7 @@
 			<sys artifact="dom4j:dom4j:1.6.1" />
 			<sys artifact="cglib:cglib:2.1_3" />
 			<sys artifact="asm:asm:1.5.3" />
-			<sys
-				artifact="commons-collections:commons-collections:2.1.1" />
+			<sys artifact="commons-collections:commons-collections:2.1.1" />
 		</system>
 	</repository>
 
