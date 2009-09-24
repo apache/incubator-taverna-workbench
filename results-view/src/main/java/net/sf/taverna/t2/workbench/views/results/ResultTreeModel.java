@@ -82,7 +82,13 @@ public class ResultTreeModel extends DefaultTreeModel implements ResultListener 
 									dataToken.getContext()), portName);
 							c++;
 						}
-						// TODO: display to user.
+//						MutableTreeNode parent = (MutableTreeNode) getRoot();
+//						for (int i = 0; i <= index.length; i++) {
+//							parent = getChildAt(parent, index[i]);
+//							parent.setUserObject("List...");
+//							nodeChanged(parent);
+//						}
+
 					} catch (Exception e) {
 						logger.error("Error resolving data entity list "
 								+ reference, e);

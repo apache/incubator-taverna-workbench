@@ -80,7 +80,7 @@ public class SaveAllResultsAsXML extends AbstractAction implements SaveAllResult
 	}
 	
 	public AbstractAction getAction() {
-		return this;
+		return new SaveAllResultsAsXML();
 	}
 	
 	// Must be called before actionPerformed()

@@ -25,6 +25,7 @@ import java.awt.FlowLayout;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -39,6 +40,7 @@ import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPIRegistry;
+import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
 
@@ -71,6 +73,8 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 	
 	// Panel containing the save buttons
 	private JPanel saveButtonsPanel;
+
+	private WorkflowInstanceFacade facade;
 		
 	// Registry of all existing 'save results' actions, each one can save results
 	// in a different format
@@ -82,7 +86,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		setBorder(new EtchedBorder());
 		tabbedPane = new JTabbedPane();
 		saveButtonsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-//		add(saveButtonsPanel, BorderLayout.NORTH);
+		add(saveButtonsPanel, BorderLayout.NORTH);
 		add(tabbedPane, BorderLayout.CENTER);
 	}
 
@@ -105,10 +109,13 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		
 		clear();
 		
+		this.facade = facade;
+		
 		// Get all existing 'Save result' actions
 		List<SaveAllResultsSPI> saveActions = saveAllResultsRegistry.getSaveResultActions();
-		for (SaveAllResultsSPI action : saveActions){
-			JButton saveButton = new JButton(action.getAction());
+		for (SaveAllResultsSPI spi : saveActions){
+			SaveAllResultsSPI action = (SaveAllResultsSPI) spi.getAction();
+			JButton saveButton = new JButton((AbstractAction) action);
 			action.setResultReferencesMap(null);
 			action.setInvocationContext(null);
 			saveButton.setEnabled(false);
@@ -169,6 +176,10 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		 	}
 		 }
 		 if (receivedAll){
+				for (DataflowInputPort dataflowInputPort : facade.getDataflow().getInputPorts()) {
+					String name = dataflowInputPort.getName();
+					resultReferencesMap.put(name, facade.getPushedDataMap().get(name));
+				}
 			 for (int i=0; i< saveButtonsPanel.getComponents().length; i++){
 					JButton saveButton = (JButton)saveButtonsPanel.getComponent(i);
 					SaveAllResultsSPI action = (SaveAllResultsSPI)(saveButton.getAction());
