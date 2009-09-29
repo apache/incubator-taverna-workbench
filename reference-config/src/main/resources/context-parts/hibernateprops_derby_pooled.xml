@@ -11,50 +11,38 @@
 	http://taverna.sf.net/schema/artifact-support/artifact-support.xsd">
 
 	<!-- Apache Derby rooted at application directory -->
-	<bean id="t2reference.jdbc.applicationjdbc"
+    <bean id="t2reference.jdbc.applicationjdbc"
 		class="net.sf.taverna.platform.spring.jdbc.ApplicationJDBC">
-	</bean>
-	<bean id="t2reference.jdbc.url" class="java.lang.String"
-		factory-bean="t2reference.jdbc.applicationjdbc"
-		factory-method="getApplicationDerbyJDBC" />
-	<bean id="t2reference.jdbc.datasource"
-		class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="driverClassName">
-			<value>org.apache.derby.jdbc.ClientDriver</value>
-		</property>
-		<property name="url">
-			<value>jdbc:derby://localhost:1527/taverna;create=true</value>
-		</property>
-                <property name="maxActive">
-                    <value>200</value>
-                </property>		
-	</bean>
+    </bean>
+   
+    <bean id="t2reference.jdbc.datasource"
+		class="org.springframework.jndi.JndiObjectFactoryBean">
+        <property name="resourceRef">
+            <value>true</value>
+        </property>
+        <property name="jndiName">
+            <value>jdbc/taverna</value>
+        </property>
+    </bean>
 
 	<!-- Configure hibernate to build schema from scratch, dropping existing -->
-	<bean id="t2reference.orm.h3.properties"
+    <bean id="t2reference.orm.h3.properties"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<property name="properties">
-			<props>
-				<prop key="hibernate.hbm2ddl.auto">create</prop>
-				<prop key="hibernate.dialect">
+        <property name="properties">
+            <props>
+                <prop key="hibernate.hbm2ddl.auto">create</prop>
+                <prop key="hibernate.dialect">
 					org.hibernate.dialect.DerbyDialect
-				</prop>
-				<prop key="hibernate.query.substitutions">
+                </prop>
+                <prop key="hibernate.query.substitutions">
 					true 'T', false 'F'
-				</prop>
-				<prop key="hibernate.show_sql">false</prop>
-				<prop key="hibernate.dbcp.minPoolSize">30</prop>
-				<prop key="hibernate.dbcp.maxPoolSize">200</prop>
-				<prop key="hibernate.dbcp.timeout">600</prop>
-				<prop key="hibernate.dbcp.max_statement">50</prop>
-				<prop key="hibernate.dbcp.testConnectionOnCheckout">
+                </prop>
+                <prop key="hibernate.show_sql">false</prop>
+                
+                <prop key="hibernate.cache.use_second_level_cache">
 					false
-				</prop>
-				<prop key="hibernate.cache.use_second_level_cache">
-					false
-				</prop>
-			</props>
-		</property>
-	</bean>
-
+                </prop>
+            </props>
+        </property>
+    </bean>
 </beans>

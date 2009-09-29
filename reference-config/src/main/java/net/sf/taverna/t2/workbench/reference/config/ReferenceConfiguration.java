@@ -20,10 +20,20 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.reference.config;
 
+import java.io.File;
+import java.io.IOException;
+import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
+import org.apache.commons.dbcp.BasicDataSource;
 
 /**
  * Configuration for the reference service.
@@ -32,47 +42,92 @@ import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
  */
 public class ReferenceConfiguration extends AbstractConfigurable {
 
-	public static final String REFERENCE_SERVICE_CONTEXT = "referenceService.context";
+    public static final String REFERENCE_SERVICE_CONTEXT = "referenceService.context";
+    public static final String IN_MEMORY_CONTEXT = "inMemoryReferenceServiceContext.xml";
+    public static final String HIBERNATE_CONTEXT = "hibernateReferenceServiceContext.xml";
+    public static final String HIBERNATE_CACHE_CONTEXT = "hibernateCacheReferenceServiceContext.xml";
+    private Map<String, String> defaultPropertyMap;
+    private static ReferenceConfiguration instance;
 
-	public static final String IN_MEMORY_CONTEXT = "inMemoryReferenceServiceContext.xml";
+    public static ReferenceConfiguration getInstance() {
+        if (instance == null) {
+            instance = new ReferenceConfiguration();
+        }
+        return instance;
+    }
 
-	public static final String HIBERNATE_CONTEXT = "hibernateReferenceServiceContext.xml";
+    private ReferenceConfiguration() {
+        //FIXME: this is temporary placeholder for setting up the database connection.
+        try {
+            System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
+                    "org.osjava.sj.memory.MemoryContextFactory");
+            System.setProperty("org.osjava.sj.jndi.shared", "true");
 
-	public static final String HIBERNATE_CACHE_CONTEXT = "hibernateCacheReferenceServiceContext.xml";
+            BasicDataSource ds = new BasicDataSource();
+//            ds.setDriverClassName("org.apache.derby.jdbc.ClientDriver");
+            ds.setDriverClassName("org.apache.derby.jdbc.EmbeddedDriver");
+            ds.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
+            ds.setMaxActive(50);
+            ds.setMinIdle(10);
+            ds.setMaxIdle(50);
+            ds.setDefaultAutoCommit(true);
+            try {
+                ds.setUrl(getJDBCUri());
+                InitialContext context = new InitialContext();
+                context.rebind("jdbc/taverna", ds);
+            } catch (IOException ex) {
+                Logger.getLogger(ReferenceConfiguration.class.getName()).log(Level.SEVERE, "Unable to set up local database", ex);
+            }
+        } catch (NamingException ex) {
+            ex.printStackTrace();
+        }
+    }
 
-	private Map<String, String> defaultPropertyMap;
+    public String getCategory() {
+        return "general";
+    }
 
-	private static ReferenceConfiguration instance;
-	
-	public static ReferenceConfiguration getInstance() {
-		if (instance == null) {
-			instance = new ReferenceConfiguration();
-		}
-		return instance;
-	}
+    public Map<String, String> getDefaultPropertyMap() {
+        if (defaultPropertyMap == null) {
+            defaultPropertyMap = new HashMap<String, String>();
+            defaultPropertyMap.put(REFERENCE_SERVICE_CONTEXT,
+                    HIBERNATE_CACHE_CONTEXT);
+        }
+        return defaultPropertyMap;
+    }
 
-	private ReferenceConfiguration() {
-	}
+    public String getName() {
+        return "Data Storage";
+    }
 
-	public String getCategory() {
-		return "general";
-	}
+    public String getUUID() {
+        return "6BD3F5C1-C68D-4893-8D9B-2F46FA1DDB19";
+    }
 
-	public Map<String, String> getDefaultPropertyMap() {
-		if (defaultPropertyMap == null) {
-			defaultPropertyMap = new HashMap<String, String>();
-			defaultPropertyMap.put(REFERENCE_SERVICE_CONTEXT,
-					HIBERNATE_CACHE_CONTEXT);
-		}
-		return defaultPropertyMap;
-	}
+    private String getJDBCUri() throws IOException {
 
-	public String getName() {
-		return "Data Storage";
-	}
+        File applicationHomeDir = ApplicationRuntime.getInstance().getApplicationHomeDir();
+        File dbFile = new File(applicationHomeDir, "t2-database");
+        deleteDirectory(dbFile);
+        if (!dbFile.mkdir()) {
+            throw new IOException("Could not create database " + dbFile);
+        }
+        return "jdbc:derby:" + dbFile.toString() + "/database;create=true";
 
-	public String getUUID() {
-		return "6BD3F5C1-C68D-4893-8D9B-2F46FA1DDB19";
-	}
+    }
 
+    // copied from http://www.rgagnon.com/javadetails/java-0483.html
+    private boolean deleteDirectory(File path) {
+        if (path.exists()) {
+            File[] files = path.listFiles();
+            for (int i = 0; i < files.length; i++) {
+                if (files[i].isDirectory()) {
+                    deleteDirectory(files[i]);
+                } else {
+                    files[i].delete();
+                }
+            }
+        }
+        return (path.delete());
+    }
 }
