@@ -112,7 +112,7 @@ public class ReferenceConfiguration extends AbstractConfigurable {
         if (!dbFile.mkdir()) {
             throw new IOException("Could not create database " + dbFile);
         }
-        return "jdbc:derby:" + dbFile.toString() + "/database;create=true";
+        return "jdbc:derby:" + dbFile.toString() + "/database;create=true;upgrade=true";
 
     }
 
