@@ -42,6 +42,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import net.sf.taverna.t2.activities.beanshell.BeanshellActivity;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.loop.comparisons.Comparison;
@@ -134,7 +135,14 @@ public class LoopContextualView extends ContextualView {
 			Activity<?> condition = loopLayer.getConfiguration().getCondition();
 			if (condition != null) {
 				description.append("Looping using custom conditional<br> ");
-				description.append(condition);
+				if (condition instanceof BeanshellActivity) {
+					String script = ((BeanshellActivity)condition).getConfiguration().getScript();
+					if (script != null) {
+						if (script.length() <= 100) {
+							description.append(script);
+						}
+					}
+				}
 			} else {
 				description.append("<i>Unconfigured, will not loop</i>");
 			}
