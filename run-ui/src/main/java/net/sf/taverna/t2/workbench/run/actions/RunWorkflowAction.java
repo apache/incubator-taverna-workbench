@@ -33,10 +33,12 @@ import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
+import net.sf.taverna.t2.annotation.annotationbeans.DescriptiveTitle;
 import net.sf.taverna.t2.annotation.annotationbeans.ExampleValue;
 import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
@@ -164,12 +166,18 @@ public class RunWorkflowAction extends AbstractAction {
 //					String password = ProvenanceConfiguration.getInstance().getProperty("dbPassword");
 					
 					if (dbURL != null) {
-						//FIXME if dburl does not exist then throw exception
+						//if dburl does not exist then throw exception
 						provenanceConnector.setDbURL(dbURL);	
 					}
 					//slight change, the init is outside but it also means that the init call has to ensure that the dbURL
 					//is set correctly
+					try {
+					if (provenanceConnector != null) {
 					provenanceConnector.init();
+					}
+					} catch (Exception except) {
+						
+					}
 //					String jdbcString = dbURL + "/T2Provenance" + "?user=" + user + "&password=" + password;
 //						provenanceConnector.setDBLocation(dbURL);
 //						provenanceConnector.setPassword(password);
@@ -297,16 +305,29 @@ public class RunWorkflowAction extends AbstractAction {
 	@SuppressWarnings("serial")
 	private void showInputDialog(final WorkflowInstanceFacade facade, ReferenceContext refContext) {
 		// Create and set up the window.
-		final JFrame frame = new JFrame("Workflow input values");
-		frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		
+		String title = annotationTools.getAnnotationString(facade
+				.getDataflow(), DescriptiveTitle.class, "");
+		String dialogTitle = "Workflow ";
+		if ((title != null) && (!title.equals(""))) {
+			dialogTitle = title + ": ";
+		}
+		dialogTitle += "input values";
+		final JDialog dialog = new JDialog ((JFrame) null, dialogTitle, true);
+		dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
 		WorkflowLaunchPanel wlp = new WorkflowLaunchPanel(facade, refContext) {
 			@Override
 			public void handleLaunch(Map<String, T2Reference> workflowInputs) {
 				switchToResultsPerspective();
 				runComponent.runDataflow(facade, workflowInputs);
-				frame.dispose();
+				dialog.dispose();
 			
+			}
+
+			@Override
+			public void handleCancel() {
+				dialog.dispose();
 			}
 		};
 		wlp.setOpaque(true); // content panes must be opaque
@@ -324,12 +345,12 @@ public class RunWorkflowAction extends AbstractAction {
 			wlp.addInput(input.getName(), input.getDepth(), portDescription, portExample);
 		}
 
-		frame.setContentPane(wlp);
-		wlp.setFrame(frame);
+		dialog.setContentPane(wlp);
 
 		// Display the window.
-		frame.pack();
-		frame.setVisible(true);
+		dialog.pack();
+		dialog.setLocationRelativeTo(null);
+		dialog.setVisible(true);
 	}
 
 	static private void showErrorDialog(String message, String title) {
