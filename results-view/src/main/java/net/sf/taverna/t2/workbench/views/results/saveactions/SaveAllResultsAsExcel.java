@@ -39,7 +39,6 @@ import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
 import net.sf.taverna.t2.reference.ErrorDocument;
 import net.sf.taverna.t2.reference.IdentifiedList;
@@ -49,7 +48,6 @@ import net.sf.taverna.t2.reference.T2ReferenceType;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
 
-import org.apache.log4j.Logger;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -66,7 +64,7 @@ import org.embl.ebi.escience.baclava.iterator.BaclavaIterator;
  * 
  * @author Tom Oinn
  */
-public class SaveAllResultsAsExcel extends AbstractAction implements SaveAllResultsSPI {
+public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 
 
 	/**
@@ -74,171 +72,23 @@ public class SaveAllResultsAsExcel extends AbstractAction implements SaveAllResu
 	 */
 	private static final long serialVersionUID = -2759817859804112070L;
 
-	private static Logger logger = Logger.getLogger(SaveAllResultsAsExcel.class);
-
-	private Map<String, T2Reference> resultReferencesMap = null;
-
-	private InvocationContext context = null;
-	
-    HSSFWorkbook wb = null;
+	HSSFWorkbook wb = null;
     HSSFSheet sheet = null;
     HSSFCellStyle headingStyle = null;
     HSSFCellStyle[] styles = null;
-	
+
 	public SaveAllResultsAsExcel(){
 		super();
 		putValue(NAME, "Save as Excel");
-		putValue(SMALL_ICON, WorkbenchIcons.xmlNodeIcon);
+		putValue(SMALL_ICON, WorkbenchIcons.saveIcon);
 	}
 	
 	public AbstractAction getAction() {
 		return new SaveAllResultsAsExcel();
 	}
 	
-	// Must be called before actionPerformed()
-	public void setInvocationContext(InvocationContext context) {
-		this.context = context;
-	}
 	
-	// Must be called before actionPerformed()
-	public void setResultReferencesMap(Map<String, T2Reference> resultReferencesMap) {
-		this.resultReferencesMap = resultReferencesMap;
-	}
-
-	/**
-     * Shows a standard save dialog and dumps the entire result
-     * set to the specified XML file.
-     */
-	public void actionPerformed(ActionEvent e) {
-		
-		JFileChooser fc = new JFileChooser();
-		Preferences prefs = Preferences.userNodeForPackage(getClass());
-		String curDir = prefs.get("currentDir", System.getProperty("user.home"));
-		fc.resetChoosableFileFilters();
-		fc.setFileFilter(new ExtensionFileFilter(new String[]{"xls"}));
-		fc.setCurrentDirectory(new File(curDir));
-		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		
-		boolean tryAgain = true;
-		while (tryAgain) {
-			tryAgain = false;
-			int returnVal = fc.showSaveDialog(null);
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				
-				prefs.put("currentDir", fc.getCurrentDirectory().toString());
-				File file = fc.getSelectedFile();
-
-				// If the user did not use the .xml extension for the file - append it to the file name now
-				if (!file.getName().toLowerCase().endsWith(".xls")) {
-					String newFileName = file.getName() + ".xls";
-					file = new File(file.getParentFile(), newFileName);
-				}
-
-				final File finalFile = file;
-				
-				if (file.exists()){ // File already exists
-					// Ask the user if they want to overwrite the file
-					String msg = file.getAbsolutePath() + " already exists. Do you want to overwrite it?";
-					int ret = JOptionPane.showConfirmDialog(
-							null, msg, "File already exists",
-							JOptionPane.YES_NO_OPTION);
-					
-					if (ret == JOptionPane.YES_OPTION) {
-						// Do this in separate thread to avoid hanging UI
-						new Thread("SaveAllResultsAsExcel: Saving results to " + finalFile){
-							public void run(){
-								try {
-									synchronized(resultReferencesMap){
-										saveData(finalFile);
-									}
-								} catch (Exception ex) {
-									JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
-											JOptionPane.ERROR_MESSAGE);
-									logger.error("SaveAllResultsAsXML Error: Problem saving result data", ex);
-								}	
-							}
-						}.start();
-					}
-					else{
-						tryAgain = true;
-					}
-				}
-				else{ // File does not already exist
-					
-					// Do this in separate thread to avoid hanging UI
-					new Thread("SaveAllResultsAsExcel: Saving results to " + finalFile){
-						public void run(){
-							try {
-								synchronized(resultReferencesMap){
-									saveData(finalFile);
-								}
-							} catch (Exception ex) {
-								JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
-										JOptionPane.ERROR_MESSAGE);
-								logger.error("SaveAllResultsAsXML Error: Problem saving result data", ex);
-							}
-						}
-					}.start();
-				}
-			}
-		}  
-	}		
-	
-	
-	/**
-	 * Converts a T2References pointing to results to 
-	 * a list of (lists of ...) dereferenced result objects.
-	 */
-	Object convertReferencesToObjects(T2Reference reference) throws Exception{				
-
-			if (reference.getReferenceType() == T2ReferenceType.ReferenceSet){
-				// Dereference the object
-				Object dataValue;
-				try{
-					dataValue = context.getReferenceService().renderIdentifier(reference, Object.class, context);
-				}
-				catch(ReferenceServiceException rse){
-					String message = "Problem rendering T2Reference in convertReferencesToObjects().";
-					logger.error("SaveAllResultsAsXML Error: "+ message, rse);
-					throw new Exception(message);
-				}
-				return dataValue;
-			}
-			else if (reference.getReferenceType() == T2ReferenceType.ErrorDocument){
-				// Dereference the ErrorDocument and convert it to some string representation
-				ErrorDocument errorDocument = (ErrorDocument)context.getReferenceService().resolveIdentifier(reference, null, context);
-				String errorString = ResultsUtils.buildErrorDocumentString(errorDocument, context);
-				return errorString;
-			}
-			else { // it is an IdentifiedList<T2Reference> - go recursively
-				IdentifiedList<T2Reference> identifiedList = context
-				.getReferenceService().getListService().getList(reference);
-				List<Object> list = new ArrayList<Object>();
-				
-				for (int j=0; j<identifiedList.size(); j++){
-					T2Reference ref = identifiedList.get(j);
-					list.add(convertReferencesToObjects(ref));
-				}
-				return list;
-			}	
-	}
-	
-
-		/**
-	 * Returns a map of port names to DataThings from a map of port names to a 
-	 * list of (lists of ...) result objects.
-	 */
-	Map<String, DataThing> bakeDataThingMap(Map<String, Object> resultMap){
-		
-		Map<String, DataThing> dataThingMap = new HashMap<String, DataThing>();
-		for (Iterator<String> i = resultMap.keySet().iterator(); i.hasNext();) {
-			String portName = (String) i.next();
-			dataThingMap.put(portName, DataThingFactory.bake(resultMap.get(portName)));
-		}
-		return dataThingMap;
-	}
-	
-	private void saveData(File f) throws Exception {
+	protected void saveData(File f) throws Exception {
 	    generateSheet();
         saveSheet(f);		
 	}
@@ -261,9 +111,9 @@ public class SaveAllResultsAsExcel extends AbstractAction implements SaveAllResu
     		// Build the DataThing map from the resultReferencesMap
     		// First convert map of references to objects into a map of real result objects
     		Map<String, Object> resultMap = new HashMap<String, Object>();
-    		for (Iterator<String> i = resultReferencesMap.keySet().iterator(); i.hasNext();) {
+    		for (Iterator<String> i = chosenReferences.keySet().iterator(); i.hasNext();) {
     			String portName = (String) i.next();
-    			T2Reference reference = resultReferencesMap.get(portName);
+    			T2Reference reference = chosenReferences.get(portName);
     			Object obj = convertReferencesToObjects(reference);
     			resultMap.put(portName, obj);
     		}
@@ -480,6 +330,11 @@ public class SaveAllResultsAsExcel extends AbstractAction implements SaveAllResu
             wb.write(fos);
             fos.close();
     }
+
+	@Override
+	protected String getFilter() {
+		return "xls";
+	}
 
 }
 

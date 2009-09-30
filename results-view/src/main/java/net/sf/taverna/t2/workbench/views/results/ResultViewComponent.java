@@ -22,15 +22,32 @@ package net.sf.taverna.t2.workbench.views.results;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.beans.PropertyChangeListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.WeakHashMap;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JToolBar;
 import javax.swing.border.EtchedBorder;
+import javax.swing.border.TitledBorder;
 
 import net.sf.taverna.t2.facade.ResultListener;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
@@ -111,16 +128,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		
 		this.facade = facade;
 		
-		// Get all existing 'Save result' actions
-		List<SaveAllResultsSPI> saveActions = saveAllResultsRegistry.getSaveResultActions();
-		for (SaveAllResultsSPI spi : saveActions){
-			SaveAllResultsSPI action = (SaveAllResultsSPI) spi.getAction();
-			JButton saveButton = new JButton((AbstractAction) action);
-			action.setResultReferencesMap(null);
-			action.setInvocationContext(null);
-			saveButton.setEnabled(false);
-			saveButtonsPanel.add(saveButton);
-		}
+		saveButtonsPanel.add(new JButton(new SaveAllAction("Save values", this)));
 
 		final List<? extends DataflowOutputPort> dataflowOutputPorts = facade
 				.getDataflow().getOutputPorts();
@@ -176,19 +184,149 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		 	}
 		 }
 		 if (receivedAll){
+			 HashMap<String, T2Reference> inputValuesMap = new HashMap<String, T2Reference> ();
 				for (DataflowInputPort dataflowInputPort : facade.getDataflow().getInputPorts()) {
 					String name = dataflowInputPort.getName();
-					resultReferencesMap.put(name, facade.getPushedDataMap().get(name));
+					inputValuesMap.put(name, facade.getPushedDataMap().get(name));
 				}
 			 for (int i=0; i< saveButtonsPanel.getComponents().length; i++){
 					JButton saveButton = (JButton)saveButtonsPanel.getComponent(i);
-					SaveAllResultsSPI action = (SaveAllResultsSPI)(saveButton.getAction());
-					// Update the action
-					action.setResultReferencesMap(resultReferencesMap);
-					action.setInvocationContext(context);
 					saveButton.setEnabled(true);
 			}
 		 }
+	}
+	
+	private class SaveAllAction extends AbstractAction {
+		
+		private ResultViewComponent parent;
+
+		public SaveAllAction(String name, ResultViewComponent resultViewComponent) {
+			super(name);
+			this.parent = resultViewComponent;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			
+			final JDialog dialog = new JDialog((Frame) null, true);
+			dialog.setResizable(false);
+			dialog.setLocationRelativeTo(null);
+			JPanel panel = new JPanel(new BorderLayout());
+			final Map<String, JCheckBox> inputChecks = new HashMap<String, JCheckBox> ();
+			final Map<String, JCheckBox> outputChecks = new HashMap<String, JCheckBox> ();
+			final Map<JCheckBox, T2Reference> checkReferences =
+				new HashMap<JCheckBox, T2Reference>();
+			final Map<String, T2Reference> chosenReferences =
+				new HashMap<String, T2Reference> ();
+			final Set<SaveAllResultsSPI> actionSet = new HashSet<SaveAllResultsSPI>();
+
+			ItemListener listener = new ItemListener() {
+
+				public void itemStateChanged(ItemEvent e) {
+					JCheckBox source = (JCheckBox) e.getItemSelectable();
+					if (inputChecks.containsValue(source)) {
+						if (source.isSelected()) {
+							if (outputChecks.containsKey(source.getText())) {
+								outputChecks.get(source.getText()).setSelected(false);
+							}
+						}
+					}
+					if (outputChecks.containsValue(source)) {
+						if (source.isSelected()) {
+							if (inputChecks.containsKey(source.getText())) {
+								inputChecks.get(source.getText()).setSelected(false);
+							}
+						}
+					}
+					chosenReferences.clear();
+					for (JCheckBox checkBox : checkReferences.keySet()) {
+						if (checkBox.isSelected()) {
+							chosenReferences.put(checkBox.getText(),
+									checkReferences.get(checkBox));
+						}
+					}
+				}
+				
+			};
+			if (!facade.getDataflow().getInputPorts().isEmpty()) {
+				JPanel inputsPanel = new JPanel();
+				inputsPanel.setLayout(new GridLayout(0, 1));
+				inputsPanel.setBorder(new TitledBorder("Inputs"));
+				WeakHashMap<String, T2Reference> pushedDataMap = facade.getPushedDataMap();
+				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
+				for (DataflowInputPort port : facade.getDataflow().getInputPorts()) {
+					String portName = port.getName();
+					JCheckBox checkBox = new JCheckBox(portName);
+					checkBox
+							.setSelected(!resultReferencesMap.containsKey(portName));
+					checkReferences.put(checkBox, pushedDataMap.get(portName));
+					checkBox.addItemListener(listener);
+					inputChecks.put(portName, checkBox);
+					sortedBoxes.put(portName, checkBox);
+				}
+				for (String portName : sortedBoxes.keySet()) {
+					inputsPanel.add(sortedBoxes.get(portName));
+				}
+				panel.add(inputsPanel, BorderLayout.WEST);
+			}			
+			if (!resultReferencesMap.isEmpty()) {
+				JPanel outputsPanel = new JPanel();
+				outputsPanel.setLayout(new GridLayout(0, 1));
+				outputsPanel.setBorder(new TitledBorder("Outputs"));
+				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
+				for (String portName : resultReferencesMap.keySet()) {
+					JCheckBox checkBox = new JCheckBox(portName);
+					checkBox
+							.setSelected(true);
+					checkReferences.put(checkBox, resultReferencesMap.get(portName));
+					checkBox.addItemListener(listener);
+					outputChecks.put(portName, checkBox);
+					sortedBoxes.put(portName, checkBox);
+				}
+				for (String portName : sortedBoxes.keySet()) {
+					outputsPanel.add(sortedBoxes.get(portName));
+				}
+				
+				panel.add(outputsPanel, BorderLayout.EAST);
+			}
+			chosenReferences.clear();
+			for (JCheckBox checkBox : checkReferences.keySet()) {
+				if (checkBox.isSelected()) {
+					chosenReferences.put(checkBox.getText(),
+							checkReferences.get(checkBox));
+				}
+			}
+
+
+			JPanel buttonsBar = new JPanel();
+			buttonsBar.setLayout(new FlowLayout());
+			// Get all existing 'Save result' actions
+			List<SaveAllResultsSPI> saveActions = saveAllResultsRegistry.getSaveResultActions();
+			for (SaveAllResultsSPI spi : saveActions){
+				SaveAllResultsSPI action = (SaveAllResultsSPI) spi.getAction();
+				actionSet.add(action);
+				JButton saveButton = new JButton((AbstractAction) action);
+				action.setChosenReferences(chosenReferences);
+				action.setInvocationContext(context);
+				action.setParent(dialog);
+				saveButton.setEnabled(true);
+				buttonsBar.add(saveButton);
+			}
+			JButton cancelButton = new JButton("Cancel");
+			cancelButton.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e) {
+					dialog.setVisible(false);
+				}
+				
+			});
+			buttonsBar.add(cancelButton);
+			panel.add(buttonsBar, BorderLayout.SOUTH);
+			panel.revalidate();
+			dialog.add(panel);
+			dialog.pack();
+			dialog.setVisible(true);
+		}
+		
 	}
 
 }
