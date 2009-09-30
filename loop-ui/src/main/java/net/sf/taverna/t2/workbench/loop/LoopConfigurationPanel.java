@@ -171,6 +171,7 @@ public class LoopConfigurationPanel extends JPanel {
 					try {
 						beanshellActivity.configure(beanshellConfigView
 								.getConfiguration());
+						configuration.setCondition(beanshellActivity);
 						configuration.getProperties().put(
 								ActivityGenerator.COMPARISON,
 								ActivityGenerator.CUSTOM_COMPARISON);
