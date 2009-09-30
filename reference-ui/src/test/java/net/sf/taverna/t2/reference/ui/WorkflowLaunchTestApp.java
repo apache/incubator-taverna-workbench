@@ -121,6 +121,10 @@ public class WorkflowLaunchTestApp {
 							+ workflowInputs.get(inputName).toString());
 				}
 			}
+
+			@Override
+			public void handleCancel() {
+			}
 		};
 		wlp.setOpaque(true); // content panes must be opaque
 
@@ -129,7 +133,6 @@ public class WorkflowLaunchTestApp {
 				"check that line wrapping actually works as we expect. Note that in some cases" +
 				" the initial window will be very wide because of frame.pack() being" +
 				"called.");
-		wlp.setWorkflowTitle("This is my title");
 		wlp.setWorkflowAuthor("Me, myself and I");
 				
 		// Add some inputs
@@ -145,7 +148,6 @@ public class WorkflowLaunchTestApp {
 		
 		frame.getContentPane().add(wlp);
 //		frame.getContentPane().add(new JScrollPane(wlp));
-		wlp.setFrame(frame);
 
 		// Display the window.
 		frame.pack();

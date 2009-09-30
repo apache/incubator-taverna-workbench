@@ -53,6 +53,7 @@ import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionSPI;
 import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionsSPIRegistry;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
@@ -114,10 +115,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	private final static String NO_WORKFLOW_DESCRIPTION = "No description";
 	private static final String NO_WORKFLOW_AUTHOR = "No author";
 
-	private static final String NO_WORKFLOW_TITLE = "No title";
-
 	private JTextArea workflowDescriptionArea;
-	private String workflowTitleString;
 	private JTextArea workflowAuthorArea;
 
 	private JPanel workflowImageComponentHolder = new JPanel();
@@ -184,9 +182,6 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 				.getDataflow(), FreeTextDescription.class, "");
 		setWorkflowDescription(wfDescription);
 
-		String wfTitle = annotationTools.getAnnotationString(facade
-				.getDataflow(), DescriptiveTitle.class, "");
-		setWorkflowTitle(wfTitle);
 		String wfAuthor = annotationTools.getAnnotationString(facade
 				.getDataflow(), Author.class, "");
 		setWorkflowAuthor(wfAuthor);
@@ -196,6 +191,11 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
 		toolBar.add(new JButton(launchAction));
+		toolBar.add(new JButton(new AbstractAction("Cancel", WorkbenchIcons.closeIcon) {
+
+			public void actionPerformed(ActionEvent e) {
+				handleCancel();
+			}}));
 		
 		JToolBar loadButtonsBar = new JToolBar();
 		loadButtonsBar.setFloatable(false);
@@ -330,6 +330,8 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	 */
 	public abstract void handleLaunch(Map<String, T2Reference> workflowInputs);
 	
+	public abstract void handleCancel();
+	
 	private static void selectTopOfTextArea(JTextArea textArea) {
 		textArea.setSelectionStart(0);
 		textArea.setSelectionEnd(0);
@@ -350,14 +352,6 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		}
 	}
 
-	void setWorkflowTitle(String workflowTitle) {
-		if ((workflowTitle != null) && (workflowTitle.length() > 0)) {
-			this.workflowTitleString = workflowTitle;
-			if (frame != null) {
-			frame.setTitle("Workflow: " + workflowTitleString + " - input values");
-			}
-		}
-	}
 
 //	public void setWorkflowImageComponent(Component workflowImageComponent) {
 //		synchronized (workflowImageComponentHolder) {
@@ -379,9 +373,5 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		return workflowDescriptionArea.getText();
 	}
 
-	public void setFrame(JFrame frame) {
-		this.frame = frame;
-		setWorkflowTitle(this.workflowTitleString);
-	}
 
 }
