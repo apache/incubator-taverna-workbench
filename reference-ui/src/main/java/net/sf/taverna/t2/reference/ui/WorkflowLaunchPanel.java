@@ -23,17 +23,11 @@ package net.sf.taverna.t2.reference.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -47,7 +41,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
@@ -58,6 +51,8 @@ import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.reference.ReferenceContext;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionSPI;
+import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionsSPIRegistry;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
@@ -182,10 +177,6 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 			}
 		};
 
-		// Construct tool bar
-		JToolBar toolBar = new JToolBar();
-		toolBar.setFloatable(false);
-		toolBar.add(new JButton(launchAction));
 
 		upperPanel = new JTabbedPane();
 
@@ -200,11 +191,28 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 				.getDataflow(), Author.class, "");
 		setWorkflowAuthor(wfAuthor);
 
+
+		// Construct tool bar
+		JToolBar toolBar = new JToolBar();
+		toolBar.setFloatable(false);
+		toolBar.add(new JButton(launchAction));
+		
+		JToolBar loadButtonsBar = new JToolBar();
+		loadButtonsBar.setFloatable(false);
+		ReferenceActionsSPIRegistry spiRegistry = ReferenceActionsSPIRegistry.getInstance();
+		for (ReferenceActionSPI spi : spiRegistry.getInstances()) {
+			ReferenceActionSPI action = (ReferenceActionSPI) spi.getAction();
+			action.setInputPanelMap(inputPanelMap);
+			JButton loadButton = new JButton((AbstractAction) action);
+			loadButtonsBar.add(loadButton);
+		}
+		
 		JPanel toolBarPanel = new JPanel(new BorderLayout());
+		toolBarPanel.add(loadButtonsBar, BorderLayout.WEST);
 		toolBarPanel.add(toolBar, BorderLayout.EAST);
 		toolBarPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
 		portsPart.add(toolBarPanel, BorderLayout.SOUTH);
-
+		
 		// Construct tab container
 		tabs = new JTabbedPane();
 		portsPart.add(tabs, BorderLayout.CENTER);
@@ -276,7 +284,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 				inputPanelMap.put(inputName, value);
 			} else {
 				value.setStatus("Drag to re-arrange, or drag files, URLs, or text to add",
-				RegistrationPanel.infoIcon, null);
+				null);
 				value.setDescription(inputDescription);
 				value.setExample(inputExample);
 			}

@@ -153,9 +153,9 @@ public class RegistrationPanel extends JPanel {
 			@Override
 			public void setStatusMessage(String message, boolean isError) {
 				if (isError) {
-					setStatus(message, errorIcon, Color.red);
+					setStatus(message, Color.red);
 				} else {
-					setStatus(message, infoIcon, Color.black);
+					setStatus(message, Color.black);
 				}
 			}
 		};
@@ -228,7 +228,7 @@ public class RegistrationPanel extends JPanel {
 		status.setOpaque(false);
 		status.setBorder(new EmptyBorder(2, 2, 2, 2));
 		setStatus("Drag to re-arrange, or drag files, URLs, or text to add",
-				infoIcon, null);
+				null);
 		add(status, BorderLayout.SOUTH);
 	}
 	
@@ -313,9 +313,8 @@ public class RegistrationPanel extends JPanel {
 		return node;
 	}
 
-	public void setStatus(String statusString, Icon icon, Color textColour) {
+	public void setStatus(String statusString, Color textColour) {
 		status.setText(statusString);
-		status.setIcon(icon);
 		if (textColour != null) {
 			status.setForeground(textColour);
 		} else {
@@ -393,7 +392,7 @@ public class RegistrationPanel extends JPanel {
 			DefaultMutableTreeNode added = treeModel.addPojoStructure((MutableTreeNode) treeModel.getRoot(),
 					new ArrayList<Object>(), depth);
 			tree.setSelectionPath(new TreePath(added.getPath()));
-			setStatus("Added new collection with depth " + depth, infoIcon,
+			setStatus("Added new collection with depth " + depth,
 					null);
 		}
 	}
@@ -444,14 +443,14 @@ public class RegistrationPanel extends JPanel {
 					if (!file.isDirectory()) {
 						DefaultMutableTreeNode added = treeModel.addPojoStructure(node, file, 0);
 						tree.setSelectionPath(new TreePath(added.getPath()));
-						setStatus("Added file : " + file.getPath(), infoIcon,
+						setStatus("Added file : " + file.getPath(),
 								null);
 					} else {
 						if (treeModel.getDepth() < 1) {
 							// TODO add popup warning
 							setStatus(
 									"Can't add directory to single item input",
-									errorIcon, null);
+									null);
 							return;
 						}
 						// Try to handle directories as flat lists, don't
@@ -466,7 +465,7 @@ public class RegistrationPanel extends JPanel {
 						DefaultMutableTreeNode added = treeModel.addPojoStructure(node, children, 1);
 						tree.setSelectionPath(new TreePath(added.getPath()));
 						setStatus("Added directory : " + file.getPath(),
-								infoIcon, null);
+								null);
 					}
 				}
 			}
@@ -494,7 +493,7 @@ public class RegistrationPanel extends JPanel {
 			DefaultMutableTreeNode added = treeModel.addPojoStructure(node,
 					newValue, 0);
 			tree.setSelectionPath(new TreePath(added.getPath()));
-			setStatus("Added new value.  Edit value on right.", infoIcon, null);
+			setStatus("Added new value.  Edit value on right.", null);
 		}
 	}
 
@@ -534,13 +533,13 @@ public class RegistrationPanel extends JPanel {
 						DefaultMutableTreeNode added = treeModel.addPojoStructure(node, url, 0);
 						tree.setSelectionPath(new TreePath(added.getPath()));
 						setStatus("Added URL : " + url.toExternalForm(),
-								infoIcon, null);
+								null);
 					} else {
 						setStatus("Only http URLs are supported for now.",
-								errorIcon, null);
+								null);
 					}
 				} catch (MalformedURLException e1) {
-					setStatus("Invalid URL.", errorIcon, null);
+					setStatus("Invalid URL.", null);
 				}
 			}
 		}
@@ -564,7 +563,7 @@ public class RegistrationPanel extends JPanel {
 			} else {
 				treeModel.removeNodeFromParent(node);
 				tree.setSelectionPath(null);
-				setStatus("Deleted node", infoIcon, null);
+				setStatus("Deleted node", null);
 			}
 		}
 	}
@@ -628,5 +627,17 @@ public class RegistrationPanel extends JPanel {
 		else {
 			exampleArea.setText(NO_EXAMPLE_VALUE);
 		}		
+	}
+	
+	public void setValue(Object o) {
+		treeModel.addPojoStructure(null, o, 0);
+	}
+	
+	public void setValue(Object o, int depth) {
+		treeModel.addPojoStructure(null, o, depth);
+	}
+	
+	public Object getValue() {
+		return treeModel.getAsPojo();
 	}
 }

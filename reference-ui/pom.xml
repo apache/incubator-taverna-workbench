@@ -21,6 +21,11 @@
 
 	<dependencies>
 		<dependency>
+		 	<groupId>uk.org.mygrid.taverna.baclava</groupId>
+			<artifactId>baclava-core</artifactId>
+			<version>${taverna.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>graph-view</artifactId>
 			<version>${project.version}</version>
