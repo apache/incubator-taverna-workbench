@@ -43,6 +43,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
@@ -54,6 +55,7 @@ import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.invocation.WorkflowDataToken;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPIRegistry;
@@ -250,7 +252,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			if (!facade.getDataflow().getInputPorts().isEmpty()) {
 				JPanel inputsPanel = new JPanel();
 				inputsPanel.setLayout(new GridLayout(0, 1));
-				inputsPanel.setBorder(new TitledBorder("Inputs"));
+				inputsPanel.add(new JLabel("Inputs:"));
 				WeakHashMap<String, T2Reference> pushedDataMap = facade.getPushedDataMap();
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (DataflowInputPort port : facade.getDataflow().getInputPorts()) {
@@ -271,7 +273,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			if (!resultReferencesMap.isEmpty()) {
 				JPanel outputsPanel = new JPanel();
 				outputsPanel.setLayout(new GridLayout(0, 1));
-				outputsPanel.setBorder(new TitledBorder("Outputs"));
+				outputsPanel.add(new JLabel("Outputs:"));
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (String portName : resultReferencesMap.keySet()) {
 					JCheckBox checkBox = new JCheckBox(portName);
@@ -311,7 +313,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				saveButton.setEnabled(true);
 				buttonsBar.add(saveButton);
 			}
-			JButton cancelButton = new JButton("Cancel");
+			JButton cancelButton = new JButton("Cancel", WorkbenchIcons.closeIcon);
 			cancelButton.addActionListener(new ActionListener() {
 
 				public void actionPerformed(ActionEvent e) {
