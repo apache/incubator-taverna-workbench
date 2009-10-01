@@ -550,7 +550,7 @@ public class RegistrationPanel extends JPanel {
 	 */
 	public class DeleteNodeAction extends AbstractAction {
 		public DeleteNodeAction() {
-			super("Delete node", deleteNodeIcon);
+			super("Delete", deleteNodeIcon);
 			// Starts off disabled
 			setEnabled(false);
 		}
