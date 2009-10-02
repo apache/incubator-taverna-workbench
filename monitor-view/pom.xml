@@ -56,11 +56,7 @@
 			<artifactId>reference-impl</artifactId>
 			<version>${t2.core.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.infrastructure</groupId>
-			<artifactId>platform</artifactId>
-			<version>${t2.infrastructure.version}</version>
-		</dependency>
+		
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>workbench-api</artifactId>
