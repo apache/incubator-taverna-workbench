@@ -35,7 +35,9 @@ import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
 import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 
 import org.apache.log4j.Logger;
 
@@ -65,6 +67,10 @@ public class RemoveProcessorAction extends DataflowEditAction {
 			List<? extends ProcessorOutputPort> outputPorts = processor.getOutputPorts();
 			List<? extends Condition> controlledPreconditions = processor.getControlledPreconditionList();
 			List<? extends Condition> preconditions = processor.getPreconditionList();
+			List<? extends Activity<?>> activities = processor.getActivityList();
+			for (Activity activity : activities) {
+				ActivityConfigurationAction.clearDialog(activity);
+			}
 			List<Edit<?>> editList = new ArrayList<Edit<?>>();
 			for (ProcessorInputPort inputPort : inputPorts) {
 				Datalink datalink = inputPort.getIncomingLink();

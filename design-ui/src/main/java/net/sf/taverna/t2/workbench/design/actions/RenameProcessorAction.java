@@ -26,12 +26,16 @@ import java.awt.event.ActionEvent;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.swing.JDialog;
+
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
 import net.sf.taverna.t2.workbench.design.ui.ProcessorPanel;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 import org.apache.log4j.Logger;
 
@@ -79,6 +83,12 @@ public class RenameProcessorAction extends DataflowEditAction {
 			if (vuid.show(component)) {
 				String processorName = inputPanel.getProcessorName();
 				editManager.doDataflowEdit(dataflow, edits.getRenameProcessorEdit(processor, processorName));
+				for (Activity activity : processor.getActivityList()) {
+					JDialog dialog = ActivityConfigurationAction.getDialog(activity);
+					if (dialog != null) {
+						dialog.setTitle(dataflow.getLocalName() + ":" + processor.getLocalName());
+					}
+				}
 			}
 		
 		} catch (EditException e1) {
