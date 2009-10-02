@@ -165,10 +165,7 @@ public class RunWorkflowAction extends AbstractAction {
 //					String user = ProvenanceConfiguration.getInstance().getProperty("dbUser");
 //					String password = ProvenanceConfiguration.getInstance().getProperty("dbPassword");
 					
-					if (dbURL != null) {
-						//if dburl does not exist then throw exception
-						provenanceConnector.setDbURL(dbURL);	
-					}
+					
 					//slight change, the init is outside but it also means that the init call has to ensure that the dbURL
 					//is set correctly
 					try {
