@@ -67,13 +67,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>net.sf.taverna.t2.infrastructure</groupId>
-			<artifactId>platform</artifactId>
-			<version>${t2.infrastructure.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 			<optional>true</optional>
