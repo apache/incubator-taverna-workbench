@@ -207,8 +207,7 @@ public class ProvenanceConfigurationPanel extends JPanel {
 									"Clear Database", JOptionPane.YES_NO_OPTION);
 
 					if (n == JOptionPane.YES_OPTION) {
-						provenanceConnector.setDbURL(ProvenanceConfiguration
-								.getInstance().getProperty("dbURL"));
+
 						try {
 							provenanceConnector.clearDatabase();
 						} catch (Exception e1) {
