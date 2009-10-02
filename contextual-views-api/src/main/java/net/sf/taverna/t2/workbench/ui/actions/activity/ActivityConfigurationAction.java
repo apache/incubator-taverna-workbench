@@ -22,12 +22,18 @@ package net.sf.taverna.t2.workbench.ui.actions.activity;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.WeakHashMap;
 
 import javax.swing.AbstractAction;
+import javax.swing.JDialog;
 
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
+import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
@@ -42,10 +48,15 @@ import org.apache.log4j.Logger;
 public abstract class ActivityConfigurationAction<A extends Activity<ConfigurationBean>, ConfigurationBean>
 		extends AbstractAction {
 
+	private static WeakHashMap<Activity, JDialog> configurationDialogs = new WeakHashMap<Activity, JDialog>();
+	
+	
 	private static Logger logger = Logger
 			.getLogger(ActivityConfigurationAction.class);
 
 	private A activity;
+	
+	private static DataflowCloseListener listener;
 
 	public ActivityConfigurationAction(A activity) {
 		this.activity = activity;
@@ -101,5 +112,66 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 			}
 		}
 		return result;
+	}
+	
+	protected static void setDialog(Activity activity, JDialog dialog) {
+		if (listener == null) {
+			listener = new DataflowCloseListener();
+			FileManager.getInstance().addObserver(listener);
+		}
+		if (configurationDialogs.containsKey(activity)) {
+			JDialog currentDialog = configurationDialogs.get(activity);
+			if (!currentDialog.equals(dialog)) {
+				if (currentDialog.isVisible()) {
+					currentDialog.setVisible(false);
+				}
+			}
+		}
+		configurationDialogs.put(activity, dialog);
+		dialog.setVisible(true);
+	}
+	
+	public static void clearDialog(Activity activity) {
+		if (configurationDialogs.containsKey(activity)) {
+			JDialog currentDialog = configurationDialogs.get(activity);
+			if (currentDialog.isVisible()) {
+				currentDialog.setVisible(false);
+			}
+			configurationDialogs.remove(activity);
+		}	
+	}
+	
+	protected static void clearDialog(JDialog dialog) {
+		if (configurationDialogs.containsValue(dialog)) {
+			if (dialog.isVisible()) {
+				dialog.setVisible(false);
+			}
+			for (Activity activity : configurationDialogs.keySet()) {
+				if (configurationDialogs.get(activity).equals(dialog)) {
+					configurationDialogs.remove(activity);
+				}
+			}
+		}
+	}
+	
+	public static JDialog getDialog(Activity activity) {
+		return configurationDialogs.get(activity);
+	}
+	
+	private static class DataflowCloseListener implements Observer<FileManagerEvent> {
+
+		public void notify(Observable<FileManagerEvent> sender,
+				FileManagerEvent message) throws Exception {
+			if (message instanceof ClosedDataflowEvent) {
+				Dataflow dataflow = ((ClosedDataflowEvent) message).getDataflow();
+				for (Processor p : dataflow.getProcessors()) {
+					for (Activity a : p.getActivityList()) {
+						clearDialog(a);
+					}
+				}
+			}
+			
+		}
+		
 	}
 }
