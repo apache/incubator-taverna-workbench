@@ -17,11 +17,7 @@
 			<version>${t2.lang.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>net.sf.taverna.t2.infrastructure</groupId>
-			<artifactId>platform</artifactId>
-			<version>${t2.infrastructure.version}</version>
-		</dependency>
+		
 		<dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>workflowmodel-api</artifactId>
