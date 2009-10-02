@@ -39,23 +39,23 @@ import org.apache.log4j.Logger;
  * @author alanrw
  *
  */
-public class DynamicHelpMenuAction extends AbstractMenuAction {
+public class OnlineHelpMenuAction extends AbstractMenuAction {
 
 	private static Logger logger = Logger
-			.getLogger(DynamicHelpMenuAction.class);
+			.getLogger(OnlineHelpMenuAction.class);
 
-	public DynamicHelpMenuAction() {
+	public OnlineHelpMenuAction() {
 		super(HelpMenu.HELP_URI, 10);
 	}
 
 	@Override
 	protected Action createAction() {
-		return new DynamicHelpAction();
+		return new OnlineHelpAction();
 	}
 
-	private final class DynamicHelpAction extends AbstractAction {
-		private DynamicHelpAction() {
-			super("Dynamic help");
+	private final class OnlineHelpAction extends AbstractAction {
+		private OnlineHelpAction() {
+			super("Online help");
 			putValue(Action.ACCELERATOR_KEY,
 					KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
 

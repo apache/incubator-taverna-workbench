@@ -11,7 +11,7 @@ net.sf.taverna.t2.workbench.ui.impl.menu.DisplayPerspectivesMenu
 net.sf.taverna.t2.workbench.ui.impl.menu.EditPerspectivesMenu
 
 net.sf.taverna.t2.workbench.ui.impl.menu.HelpMenu
-net.sf.taverna.t2.workbench.ui.impl.menu.DynamicHelpMenuAction
+net.sf.taverna.t2.workbench.ui.impl.menu.OnlineHelpMenuAction
 
 #net.sf.taverna.t2.workbench.ui.impl.menu.ViewShowMenuSection
 #net.sf.taverna.t2.workbench.ui.impl.menu.ChangePerspectiveMenuAction
