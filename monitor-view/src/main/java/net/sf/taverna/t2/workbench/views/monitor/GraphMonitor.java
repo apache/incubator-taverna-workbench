@@ -113,16 +113,21 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 						}, deregisterDelay);
 					}
 				}
-
 			} else if (workflowObject instanceof WorkflowInstanceFacade) {
 				final WorkflowInstanceFacade facade = (WorkflowInstanceFacade) workflowObject;
+				// Is this the workflow facade for the outer most workflow?
+				// (If it is the facade for one of the contained nested workflows then the
+				// workflow status should not be set to COMPLETED after the nested one has finished
+				// as the main workflow may still be running)
+				if (owningProcess.length == 1){
+					monitorViewComponent.setStatus(Status.COMPLETE);
+				}
 				updateTimer.schedule(new TimerTask() {
 					public void run() {
 						facade.removeResultListener(resultListeners
 								.remove(owningProcessId));
 					}
 				}, deregisterDelay);
-				monitorViewComponent.setStatus(Status.COMPLETE);
 			}
 		}
 	}
@@ -141,6 +146,7 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 						processor, owningProcess, properties, graphController);
 				processors.put(getProcessorId(owningProcess), monitorNode);
 			} else if (workflowObject instanceof Dataflow) {
+				// outermost dataflow 
 				if (owningProcess.length == 2) {
 					updateTask = new TimerTask() {
 						public void run() {
