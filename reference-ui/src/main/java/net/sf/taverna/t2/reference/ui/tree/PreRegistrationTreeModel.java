@@ -299,6 +299,8 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	public synchronized void removeNodeFromParent(MutableTreeNode node) {
 		if (node.getParent() != null) {
 			super.removeNodeFromParent(node);
+		} else {
+			
 		}
 	}
 
