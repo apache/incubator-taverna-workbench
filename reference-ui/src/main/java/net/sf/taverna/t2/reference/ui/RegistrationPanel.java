@@ -557,14 +557,9 @@ public class RegistrationPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			MutableTreeNode node = (MutableTreeNode) tree.getSelectionPath()
 					.getLastPathComponent();
-			// Can't delete the root node
-			if (node.getParent() == treeModel.getRoot()) {
-				return;
-			} else {
 				treeModel.removeNodeFromParent(node);
 				tree.setSelectionPath(null);
 				setStatus("Deleted node", null);
-			}
 		}
 	}
 
