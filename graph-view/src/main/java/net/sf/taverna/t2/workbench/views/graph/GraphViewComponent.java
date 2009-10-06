@@ -368,7 +368,7 @@ public class GraphViewComponent extends WorkflowView {
 	public void setDataflow(Dataflow dataflow) {
 		this.dataflow = dataflow;
 		if (!graphControllerMap.containsKey(dataflow)) {
-			SVGGraphController graphController = new SVGGraphController(dataflow, svgCanvas) {
+			SVGGraphController graphController = new SVGGraphController(dataflow, false, svgCanvas) {
 				public void redraw() {
                 	svgCanvas.setDocument(generateSVGDocument(svgCanvas.getBounds()));
 				}			
