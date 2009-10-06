@@ -42,7 +42,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -77,8 +77,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 @SuppressWarnings("serial")
 public class WorkflowExplorer extends WorkflowView {
 
-	private static Logger logger = Logger
-	.getLogger(WorkflowExplorer.class);
+	//private static Logger logger = Logger.getLogger(WorkflowExplorer.class);
 
 	/* Purple colour for shaded label on pop up menus */
 	public static final Color PURPLISH = new Color(0x8070ff);
@@ -88,8 +87,6 @@ public class WorkflowExplorer extends WorkflowView {
 										.getInstance();
 
 	private MenuManager menuManager = MenuManager.getInstance();
-
-	//private static Logger logger = Logger.getLogger(WorkflowExplorer.class);
 
 	/* Currently selected workflow (to be displayed in the Workflow Explorer). */
 	private Dataflow workflow;
@@ -159,54 +156,6 @@ public class WorkflowExplorer extends WorkflowView {
 		// children.
 		assignWfTree(new JTree(new DefaultMutableTreeNode("No workflow open")));
 
-		// Start observing when current workflow is switched (e.g. a new workflow
-		// opened or switched between opened workflows). Note that closing a workflow
-		// also causes either a switch to another opened workflow or, if it was the last one, 
-		// opening of a new empty workflow.
-		/*ModelMap.getInstance().addObserver(
-				new Observer<ModelMap.ModelMapEvent>() {
-					public void notify(Observable<ModelMapEvent> sender,
-							final ModelMapEvent message) {
-						if (message.getModelName().equals(
-								ModelMapConstants.CURRENT_DATAFLOW)) {
-							if (message.getNewModel() instanceof Dataflow) {
-
-								// Remove the workflow selection model listener from the 
-								// previous (if any) and add to the new workflow (if any)
-								Dataflow oldWF = (Dataflow) message.getOldModel();
-								Dataflow newWF = (Dataflow) message.getNewModel();
-								if (oldWF != null) {
-									openedWorkflowsManager
-											.getDataflowSelectionModel(oldWF)
-											.removeObserver(workflowSelectionListener);
-								}
-
-								if (newWF != null) {
-									openedWorkflowsManager
-											.getDataflowSelectionModel(newWF)
-											.addObserver(workflowSelectionListener);
-								}
-
-								// Create a new thread to prevent drawing the
-								// current workflow tree to take over completely
-								new Thread(
-										"Workflow Explorer - model map message: current workflow switched.") {
-									@Override
-									public void run() {
-										// If the workflow tree has already been created - switch to it
-										if (openedWorkflowsTrees.containsKey(((Dataflow) message.getNewModel()))){
-											switchWorkflowTree((Dataflow) message.getNewModel());
-										}
-										else{ // otherwise create a new tree for the workflow
-											createWorkflowTree((Dataflow) message.getNewModel());
-										}
-									}
-								}.start();
-							}
-						}
-					}
-				});*/
-
 		// Start observing workflow switching or closing events on File Manager
 		fileManager.addObserver(fileManagerObserver);
 		
@@ -216,8 +165,6 @@ public class WorkflowExplorer extends WorkflowView {
 
 		// Draw visual components
 		initComponents();
-		
-
 	}
 	
 	private void assignWfTree(JTree tree) {
@@ -272,64 +219,91 @@ public class WorkflowExplorer extends WorkflowView {
 	}
 
 	/**
-	 * Gets called when the current workflow is switched.
+	 * Switch the current workflow to a previously opened workflow.
 	 */
 	private void switchWorkflowTree(Dataflow df) {
 		
 		// Set the current workflow to the one we have switched to
 		workflow = df;
 			
-		// Get the tree for the current workflow
-		//wfTree = openedWorkflowsTrees.get(workflow);
-		updateWorkflowTree(workflow); 
-		// The reason why we update the tree rather than just switch to the one from the map is
-		// because the nested tree might have been edited and we will not not be able to detect
-		// that from Workflow Explorer as we only receive edit events for current workflow (which
-		// is the nested one in this case rather that its parent).
+		// Set the tree for the current workflow
+		wfTree = openedWorkflowsTrees.get(workflow);
 		
 		// Repaint the scroll pane containing the tree
 		scrollPane.setViewportView(wfTree);
+		
+		// Select the node(s) that should be selected (do this after assigning the tree to the scroll pane)
+		setSelectedNodes(wfTree, workflow);
+		
 		scrollPane.revalidate();
 		scrollPane.repaint();										
 	}
 	
 	/**
-	 * Gets called when the current workflow is edited.
-	 * @param wf 
-	 * @param message 
+	 * Gets called when the current workflow is edited, or when a parent workflow of
+	 * a nested workflow is edited due to saved changes in the nested workflow 
+	 * (which is the current workflow).
 	 */
 	public void updateWorkflowTree(Dataflow df) {
-			
-		// Get the updated workflow
-		workflow = df;
-		
-		// Get the old workflow tree
-		JTree oldTree = openedWorkflowsTrees.get(workflow);
 		
 		// Create the new tree from the updated workflow
-		assignWfTree(createTreeFromWorkflow(workflow));
+		JTree newTree = createTreeFromWorkflow(df);
+		
+		// Get the old workflow tree
+		JTree oldTree = openedWorkflowsTrees.get(df);
 		
 		// Update the tree in the list of opened workflow trees
-		openedWorkflowsTrees.put(workflow, wfTree);
+		openedWorkflowsTrees.put(df, newTree);
 		
 		// Update the new tree's expansion state based on the old tree
 		// i.e. all nodes in the old tree that have been expanded/collapsed 
 		// should also be expanded/collapsed in the new tree (unless an 
 		// expanded node has been removed)
-		copyExpansionState(oldTree, (DefaultMutableTreeNode) oldTree.getModel().getRoot(), (DefaultMutableTreeNode) wfTree.getModel().getRoot());
-
+		copyExpansionState(oldTree, (DefaultMutableTreeNode) oldTree.getModel().getRoot(), newTree, (DefaultMutableTreeNode) newTree.getModel().getRoot());
 		
-		// Repaint the scroll pane containing the tree
-		scrollPane.setViewportView(wfTree);		
-		scrollPane.revalidate();
-		scrollPane.repaint();
+		// Get the current workflow from FileManager.
+		// If current workflow is different from the workflow df passed through 
+		// this method then this means that the current workflow is the nested workflow 
+		// (whose parent is workflow df) and that the nested workflow has been previously 
+		// edited and then saved which triggered the update on the parent workflow df. 
+		// In this case, we should just update the parent workflow tree but keep the nested 
+		// workflow as the current workflow. On the other hand, if the current workflow is 
+		// the same as workflow df then this is just an update to the current workflow so 
+		// we have to update and redraw the workflow tree.
+		if (df.equals(fileManager.getCurrentDataflow())){ //this was an update on the current workflow
+			
+			// Update the current workflow
+			workflow = df; // although they are the same anyway
+			
+			// Set the current tree to the new tree
+			assignWfTree(newTree);
+			
+			// Repaint the scroll pane containing the tree
+			scrollPane.setViewportView(wfTree);	
+			
+			// Select the node(s) that should be selected (do this after assigning the tree to the scroll pane)
+			setSelectedNodes(wfTree, workflow);
+			
+			scrollPane.revalidate();
+			scrollPane.repaint();
+		}
+		else{ // just update the parent tree (already done above) but do not switch the trees
 
-		// Select the node(s) that should be selected
-		setSelectedNodes();
+			// Do nothing
+			
+			// Do not revalidate/repaint as we are not switching to the 
+			// new tree but keep showing the nested wf that has not changed
+		}
 	}
 	
+	/**
+	 * Copies the expansion state of the old tree starting from the given node in the old tree to
+	 * the new tree starting from the new node. We normally use it starting from the root nodes of
+	 * both trees when an update has happened to the tree and we want to preserve the expansion state 
+	 * in the updated tree. 
+	 */
 	@SuppressWarnings("unchecked")
-	private void copyExpansionState(JTree oldTree, DefaultMutableTreeNode oldNode, DefaultMutableTreeNode newNode) {
+	private void copyExpansionState(JTree oldTree, DefaultMutableTreeNode oldNode, JTree newTree,  DefaultMutableTreeNode newNode) {
 		
 		boolean expandParentNode = false;
 		
@@ -343,7 +317,7 @@ public class WorkflowExplorer extends WorkflowView {
         	
         	if (oldChild != null){ // corresponding node found in the old tree
         		// Recursively do the same for each child
-        		copyExpansionState(oldTree, oldChild, newChild);
+        		copyExpansionState(oldTree, oldChild, newTree, newChild);
         	}
         	else{ // corresponding node not found in the old tree -
         		// a new node has been added or a node had been edited in the new tree so 
@@ -356,31 +330,27 @@ public class WorkflowExplorer extends WorkflowView {
         if (expandParentNode){ 
         	// Order matters - we first check if a new child was inserted to this node
         	// (that means that the old node might have been a leaf before)
-    		int row = wfTree.getRowForPath(new TreePath(newNode.getPath()));
-    		wfTree.expandRow(row);
+    		int row = newTree.getRowForPath(new TreePath(newNode.getPath()));
+    		newTree.expandRow(row);
         }
         else if (oldNode.isLeaf()){ // if it is a leaf - expand/collapse does not work, so use isVisible/makeVisible
         	if (oldTree.isVisible(new TreePath(oldNode.getPath()))){
-        		wfTree.makeVisible(new TreePath(newNode.getPath()));
+        		newTree.makeVisible(new TreePath(newNode.getPath()));
         	}
         }
         else if (oldTree.isExpanded(new TreePath(oldNode.getPath()))){
-    		int row = wfTree.getRowForPath(new TreePath(newNode.getPath()));
-    		wfTree.expandRow(row);
+    		int row = newTree.getRowForPath(new TreePath(newNode.getPath()));
+    		newTree.expandRow(row);
     	}
     	else{ // node was collapsed
-    		int row = wfTree.getRowForPath(new TreePath(newNode.getPath()));
-    		wfTree.collapseRow(row);
+    		int row = newTree.getRowForPath(new TreePath(newNode.getPath()));
+    		newTree.collapseRow(row);
     	}
-		
 	}
 
 	/**
 	 * Returns a child of a given node that contains the same user object as 
 	 * the one passed to the method.
-	 * @param node
-	 * @param userObject
-	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	private DefaultMutableTreeNode findChildWithUserObject(DefaultMutableTreeNode node, Object userObject) {
@@ -602,9 +572,9 @@ public class WorkflowExplorer extends WorkflowView {
 	 * model, i.e. the node(s) currently selected in the workflow graph view
 	 * also become selected in the tree view.
 	 */
-	private void setSelectedNodes() {
+	private void setSelectedNodes(JTree tree, Dataflow wf) {
 
-		DataflowSelectionModel selectionModel = openedWorkflowsManager.getDataflowSelectionModel(workflow);
+		DataflowSelectionModel selectionModel = openedWorkflowsManager.getDataflowSelectionModel(wf);
 
 		// List of all selected objects in the graph view
 		Set<Object> selection = selectionModel.getSelection();
@@ -615,14 +585,14 @@ public class WorkflowExplorer extends WorkflowView {
 
 			for (Object selected : selection) {
 				TreePath path = WorkflowExplorerTreeModel.getPathForObject(
-						selected, (DefaultMutableTreeNode) wfTree
+						selected, (DefaultMutableTreeNode) tree
 								.getModel().getRoot());
 				paths[--i] = path;
 			}
-			wfTree.setSelectionPaths(paths);
-			wfTree.scrollPathToVisible(paths[0]);
-			invalidate();
-			repaint();			
+			tree.setSelectionPaths(paths);
+			tree.scrollPathToVisible(paths[0]);
+			//revalidate();
+			//repaint();			
 		}
 	}
 
@@ -730,8 +700,12 @@ public class WorkflowExplorer extends WorkflowView {
 		}
 	}
 
+
 	/**
-	 * Update workflow tree on edits to workflow
+	 * Update workflow tree on edits to the workflow. Gets called when either 
+	 * current workflow is edited or when current workflow is a nested workflow
+	 * that had been edited and then saved which will trigger update to the parent
+	 * workflow which is not the current workflow.
 	 *
 	 */
 	public class EditManagerObserver implements Observer<EditManagerEvent> {
@@ -746,8 +720,7 @@ public class WorkflowExplorer extends WorkflowView {
 						"Workflow Explorer - edit manager message: current workflow edited.") {
 					@Override
 					public void run() {
-						// Create a new tree to reflect the changes to
-						// the current tree
+						// Update the workflow tree to reflect the changes
 						updateWorkflowTree(((AbstractDataflowEditEvent) message).getDataFlow());
 					}
 				}.start();
@@ -765,7 +738,9 @@ public class WorkflowExplorer extends WorkflowView {
 		public void notify(Observable<DataflowSelectionMessage> sender,
 				DataflowSelectionMessage message) throws Exception {
 
-			setSelectedNodes();
+			setSelectedNodes(wfTree, workflow);
+			scrollPane.revalidate();
+			scrollPane.repaint();
 		}
 	}
 
