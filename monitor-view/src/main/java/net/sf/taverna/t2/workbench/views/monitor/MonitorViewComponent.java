@@ -43,6 +43,7 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
+import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorRegistry;
@@ -59,11 +60,10 @@ import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
-import org.apache.batik.swing.JSVGCanvas.ResetTransformAction;
-import org.apache.batik.swing.JSVGCanvas.ZoomAction;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
@@ -99,7 +99,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
 			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
 //				svgScrollPane.reset();
-				graphController.setUpdateManager(svgCanvas.getUpdateManager());
+				getGraphController().setUpdateManager(svgCanvas.getUpdateManager());
 //				MonitorViewComponent.this.revalidate();
 			}
 		});
@@ -189,17 +189,17 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	}
 
 	public Observer<MonitorMessage> setDataflow(Dataflow dataflow) {
-		graphController = new SVGGraphController(dataflow,
-				new MonitorGraphEventManager(provenanceConnector, dataflow, getSessionId()),
+		setGraphController(new SVGGraphController(dataflow, true,
+				new MonitorGraphEventManager(this, provenanceConnector, dataflow, getSessionId()),
 				this) {
 			public void redraw() {
-				svgCanvas.setDocument(graphController
+				svgCanvas.setDocument(getGraphController()
 						.generateSVGDocument(getBounds()));
 			}
-		};
-		svgCanvas.setDocument(graphController.generateSVGDocument(getBounds()));
+		});
+		svgCanvas.setDocument(getGraphController().generateSVGDocument(getBounds()));
 		// revalidate();
-		return new GraphMonitor(graphController, this);
+		return new GraphMonitor(getGraphController(), this);
 	}
 
 	public ImageIcon getIcon() {
@@ -227,6 +227,14 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 
 	public String getSessionId() {
 		return sessionId;
+	}
+
+	public void setGraphController(SVGGraphController graphController) {
+		this.graphController = graphController;
+	}
+
+	public SVGGraphController getGraphController() {
+		return graphController;
 	}
 
 	private class MySvgScrollPane extends JSVGScrollPane {
@@ -257,9 +265,11 @@ class MonitorGraphEventManager implements GraphEventManager {
 
 	static int MINIMUM_HEIGHT = 500;
 	static int MINIMUM_WIDTH = 800;
+	private MonitorViewComponent monitorViewComponent;
 
-	public MonitorGraphEventManager(ProvenanceConnector provenanceConnector,
+	public MonitorGraphEventManager(MonitorViewComponent monitorViewComponent, ProvenanceConnector provenanceConnector,
 			Dataflow dataflow, String sessionID) {
+		this.monitorViewComponent = monitorViewComponent;
 		this.provenanceConnector = provenanceConnector;
 		this.dataflow = dataflow;
 		this.sessionID = sessionID;
@@ -273,6 +283,11 @@ class MonitorGraphEventManager implements GraphEventManager {
 			int screenX, int screenY) {
 
 		Object dataflowObject = graphElement.getDataflowObject();
+		GraphElement parent = graphElement.getParent();
+		if (monitorViewComponent.getGraphController().getDataflowSelectionModel() != null) {
+			monitorViewComponent.getGraphController().getDataflowSelectionModel().addSelection(dataflowObject);
+		}
+
 		// no popup if provenance is switched off
 		final JFrame frame = new JFrame();
 		
@@ -288,8 +303,17 @@ class MonitorGraphEventManager implements GraphEventManager {
 				if (dataflowObject instanceof Processor) {
 					if (provenanceConnector != null) {
 						localName = ((Processor) dataflowObject).getLocalName();
+						Processor processor = (Processor) dataflowObject;
 						frame.setTitle("Fetching intermediate results for " + localName);
-
+						//if the processor is inside a nested workflow then get the nested workflow id.  There
+						//no parent on a top level workflow
+						String nestedWorkflowID;
+						if (parent == null) {
+							nestedWorkflowID = null;
+						} else {
+							Activity<?> activity = ((Processor)parent).getActivityList().get(0);
+							nestedWorkflowID = ((DataflowActivity)activity).getNestedDataflow().getInternalIdentier();
+						}
 						String internalIdentier = dataflow
 								.getInternalIdentier();
 //						final String sessionID = provenanceConnector
@@ -312,6 +336,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 													+ " processor: "
 													+ localName);
 
+									//TODO use the new provenance access API with the nested workflow if required to get the results
 									intermediateValues = provenanceConnector
 											.getIntermediateValues(sessionID,
 													localName, null, null);
