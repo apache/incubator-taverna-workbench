@@ -165,15 +165,19 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 	protected boolean edgeCreationFromSink = false;
 
 	protected Graph lastGraph;
+
+	private boolean interactive;
 	
-	public GraphController(Dataflow dataflow, Component componentForPopups) {
+	public GraphController(Dataflow dataflow, boolean interactive, Component componentForPopups) {
 		this.dataflow = dataflow;
+		this.interactive = interactive;
 		this.componentForPopups = componentForPopups;
 		this.graphEventManager = new DefaultGraphEventManager(this, componentForPopups);
 	}
 	
-	public GraphController(Dataflow dataflow, GraphEventManager graphEventManager, Component componentForPopups) {
+	public GraphController(Dataflow dataflow, boolean interactive, GraphEventManager graphEventManager, Component componentForPopups) {
 		this.dataflow = dataflow;
+		this.interactive = interactive;
 		this.componentForPopups = componentForPopups;
 		this.graphEventManager = graphEventManager;
 	}
@@ -588,11 +592,18 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		node.setColor(Color.BLACK);
 		node.setLineStyle(LineStyle.SOLID);
 		node.setFillColor(GraphColorManager.getFillColor(firstActivity));
-		if (depth == 0) {
-			node.setInteractive(true);
-			node.setDataflowObject(processor);
-		}
-
+//check whether the nested workflow processors should be clickable or not so no depth check needed
+//		if (depth == 0) {
+			if (interactive) {
+				System.out.println("setting interactive");
+				node.setInteractive(true);				
+				node.setDataflowObject(processor);
+			} else {
+				System.out.println("not interactive");
+				node.setInteractive(false);
+			}
+//		}
+		
 		if (firstActivity instanceof NestedDataflow && expandNestedDataflow(((NestedDataflow) firstActivity).getNestedDataflow())) {
 			Dataflow subDataflow = ((NestedDataflow) firstActivity).getNestedDataflow();
 			for (InputPort inputPort : firstActivity.getInputPorts()) {

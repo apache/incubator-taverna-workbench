@@ -57,6 +57,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGLocatable;
 import org.w3c.dom.svg.SVGMatrix;
+import org.apache.batik.transcoder.TranscoderException;
 
 /**
  * Utility methods.

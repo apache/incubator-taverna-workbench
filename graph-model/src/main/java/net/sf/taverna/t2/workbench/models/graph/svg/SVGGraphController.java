@@ -87,12 +87,12 @@ public abstract class SVGGraphController extends GraphController {
 			"and specify its location\n" +
 			"in the workbench preferences";
 
-	public SVGGraphController(Dataflow dataflow, JComponent component) {
-		super(dataflow, component);
+	public SVGGraphController(Dataflow dataflow, boolean interactive, JComponent component) {
+		super(dataflow, interactive, component);
 	}
 
-	public SVGGraphController(Dataflow dataflow, GraphEventManager graphEventManager, JComponent component) {
-		super(dataflow, graphEventManager, component);
+	public SVGGraphController(Dataflow dataflow, boolean interactive, GraphEventManager graphEventManager, JComponent component) {
+		super(dataflow, interactive, graphEventManager, component);
 	}
 
 	public GraphEdge createGraphEdge() {
