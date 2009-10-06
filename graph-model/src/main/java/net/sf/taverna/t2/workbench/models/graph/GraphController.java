@@ -592,17 +592,17 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		node.setColor(Color.BLACK);
 		node.setLineStyle(LineStyle.SOLID);
 		node.setFillColor(GraphColorManager.getFillColor(firstActivity));
-//check whether the nested workflow processors should be clickable or not so no depth check needed
-//		if (depth == 0) {
-			if (interactive) {
-				System.out.println("setting interactive");
-				node.setInteractive(true);				
-				node.setDataflowObject(processor);
-			} else {
-				System.out.println("not interactive");
-				node.setInteractive(false);
-			}
-//		}
+//check whether the nested workflow processors should be clickable or not, if top level workflow then should be clickable regardless
+		if (depth == 0) {
+			node.setInteractive(true);
+			node.setDataflowObject(processor);
+		}
+		if (interactive) {
+			node.setInteractive(true);				
+			node.setDataflowObject(processor);
+		}
+
+		
 		
 		if (firstActivity instanceof NestedDataflow && expandNestedDataflow(((NestedDataflow) firstActivity).getNestedDataflow())) {
 			Dataflow subDataflow = ((NestedDataflow) firstActivity).getNestedDataflow();
