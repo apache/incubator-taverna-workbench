@@ -53,6 +53,7 @@
  *****************************************************************/
 package net.sf.taverna.raven.plugins.ui;
 
+import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -310,6 +311,7 @@ public class PluginManagerFrame extends JDialog {
 			jList = new JList();
 			jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			jList.setModel(new PluginListModel(pluginManager));
+			jList.setSelectionBackground(new Color(135,206,250)); //LightSkyBlue 
 			jList.setCellRenderer(new PluginListCellRenderer(pluginManager));
 			jList.addListSelectionListener(new ListSelectionListener() {
 
