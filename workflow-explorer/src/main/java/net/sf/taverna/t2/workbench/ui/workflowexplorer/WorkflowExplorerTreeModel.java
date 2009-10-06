@@ -38,11 +38,9 @@ import net.sf.taverna.t2.workflowmodel.OutputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 import net.sf.taverna.t2.workflowmodel.processor.activity.impl.ActivityOutputPortImpl;
 import net.sf.taverna.t2.workflowmodel.utils.NamedWorkflowEntityComparator;
 import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 /**
  * Workflow Explorer tree model. The tree root has four children nodes,
