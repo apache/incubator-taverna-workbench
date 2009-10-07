@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>parent</artifactId>
+		<groupId>net.sf.taverna</groupId>
+		<version>0.1.2009-02-12</version>
+	</parent>
+	
+	<groupId>org.myexperiment</groupId>
+	<artifactId>perspective-myexperiment</artifactId>
+	<version>0.2-SNAPSHOT</version>
+	<name>myExperiment perspective</name>
+	<repositories>
+		<repository>
+			<releases />
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>mygrid-repository</id>
+			<name>myGrid Repository</name>
+			<url>http://www.mygrid.org.uk/maven/repository</url>
+		</repository>
+		<repository>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots />
+			<id>mygrid-snapshot-repository</id>
+			<name>myGrid Snapshot Repository</name>
+			<url>
+				http://www.mygrid.org.uk/maven/snapshot-repository
+			</url>
+		</repository>
+		<repository>
+      <id>trianacode-maven-repos</id>
+      <url>http://trianacode.org/maven</url>
+    </repository>
+	</repositories>
+	<scm>
+		<connection>scm:svn:http://taverna.googlecode.com/svn/unsorted/myexperiment-plugin/trunk/</connection>
+		<developerConnection>scm:svn:https://taverna.googlecode.com/svn/unsorted/myexperiment-plugin/trunk/</developerConnection>
+		<url>http://code.google.com/p/taverna/source/browse/#svn/taverna/svn/unsorted/myexperiment-plugin/trunk/</url>
+	</scm>
+	
+	<dependencies>
+		<dependency>
+      <groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>perspective-core</artifactId>
+      <version>0.7-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.infrastructure</groupId>
+			<artifactId>appconfig</artifactId>
+			<version>1.12-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+      <groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>menu-api</artifactId>
+      <version>0.7-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.lang</groupId>
+			<artifactId>ui</artifactId>
+			<version>0.6-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+	     <groupId>net.sf.taverna.t2.ui-api</groupId>
+  		<artifactId>common-icons</artifactId>
+	    <version>0.7-SNAPSHOT</version>
+  	</dependency>
+		<dependency>
+      <groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>workbench-api</artifactId>
+      <version>0.7-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>file-api</artifactId>
+			<version>0.7-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>workflowmodel-impl</artifactId>
+			<version>0.9-SNAPSHOT</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.jdom</groupId>
+			<artifactId>jdom</artifactId>
+			<version>1.1</version>
+	  </dependency>
+		
+		<dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.8</version>
+    </dependency>
+		
+    <dependency>
+      <groupId>BrowserLauncher2</groupId>
+      <artifactId>BrowserLauncher2</artifactId>
+      <version>1.3</version>
+    </dependency>
+	</dependencies>
+</project>
