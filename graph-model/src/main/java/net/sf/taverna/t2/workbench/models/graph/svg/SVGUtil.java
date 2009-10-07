@@ -46,8 +46,8 @@ import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.dom.svg.SVGOMPoint;
-import org.apache.batik.transcoder.TranscoderException;
-import org.apache.batik.transcoder.svg2svg.PrettyPrinter;
+//import org.apache.batik.transcoder.TranscoderException;
+//import org.apache.batik.transcoder.svg2svg.PrettyPrinter;
 import org.apache.batik.util.SVGConstants;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.log4j.Logger;
@@ -57,7 +57,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGLocatable;
 import org.w3c.dom.svg.SVGMatrix;
-import org.apache.batik.transcoder.TranscoderException;
 
 /**
  * Utility methods.
@@ -136,17 +135,19 @@ public class SVGUtil {
 			Result dest = new StreamResult(sw);
 			transformer.transform(src, dest);
 
-			PrettyPrinter pp = new PrettyPrinter();
-			pp.print(new StringReader(sw.toString()), writer);
+//			PrettyPrinter pp = new PrettyPrinter();
+//			pp.print(new StringReader(sw.toString()), writer);
 		} catch (TransformerConfigurationException e) {
 			e.printStackTrace(new PrintWriter(writer));
 		} catch (TransformerException e) {
 			e.printStackTrace(new PrintWriter(writer));
-		} catch (TranscoderException e) {
-			e.printStackTrace(new PrintWriter(writer));
-		} catch (IOException e) {
-			e.printStackTrace(new PrintWriter(writer));
-		}
+		} 
+//		catch (TranscoderException e) {
+//			e.printStackTrace(new PrintWriter(writer));
+//		} 
+//		catch (IOException e) {
+//			e.printStackTrace(new PrintWriter(writer));
+//		}
 	}
 
 	/**
