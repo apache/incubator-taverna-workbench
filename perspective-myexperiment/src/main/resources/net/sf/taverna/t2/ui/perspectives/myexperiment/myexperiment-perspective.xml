@@ -8,9 +8,9 @@
   </child>
   <namedcomponents>
     <namedcomponent>
-      <groupid>org.myexperiment</groupid>
+      <groupid>net.sf.taverna.t2.ui-components</groupid>
       <artifact>perspective-myexperiment</artifact>
-      <version>0.2-SNAPSHOT</version>
+      <version>0.10-SNAPSHOT</version>
       <classname>net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponentFactory</classname>
       <name>myExperiment Perspective</name>
     </namedcomponent>
