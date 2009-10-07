@@ -2,14 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<artifactId>parent</artifactId>
-		<groupId>net.sf.taverna</groupId>
-		<version>0.1.2009-02-12</version>
+		<groupId>net.sf.taverna.t2</groupId>
+		<artifactId>ui-components</artifactId>
+		<version>0.10-SNAPSHOT</version>
 	</parent>
 	
-	<groupId>org.myexperiment</groupId>
+	<groupId>net.sf.taverna.t2.ui-components</groupId>
 	<artifactId>perspective-myexperiment</artifactId>
-	<version>0.2-SNAPSHOT</version>
 	<name>myExperiment perspective</name>
 	<repositories>
 		<repository>
@@ -37,53 +36,48 @@
       <url>http://trianacode.org/maven</url>
     </repository>
 	</repositories>
-	<scm>
-		<connection>scm:svn:http://taverna.googlecode.com/svn/unsorted/myexperiment-plugin/trunk/</connection>
-		<developerConnection>scm:svn:https://taverna.googlecode.com/svn/unsorted/myexperiment-plugin/trunk/</developerConnection>
-		<url>http://code.google.com/p/taverna/source/browse/#svn/taverna/svn/unsorted/myexperiment-plugin/trunk/</url>
-	</scm>
 	
 	<dependencies>
 		<dependency>
       <groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>perspective-core</artifactId>
-      <version>0.7-SNAPSHOT</version>
+      <version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.infrastructure</groupId>
 			<artifactId>appconfig</artifactId>
-			<version>1.12-SNAPSHOT</version>
+			<version>${t2.infrastructure.version}</version>
 		</dependency>
 		<dependency>
       <groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>menu-api</artifactId>
-      <version>0.7-SNAPSHOT</version>
+      <version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
 			<artifactId>ui</artifactId>
-			<version>0.6-SNAPSHOT</version>
+			<version>${t2.lang.version}</version>
 		</dependency>
 		<dependency>
 	     <groupId>net.sf.taverna.t2.ui-api</groupId>
   		<artifactId>common-icons</artifactId>
-	    <version>0.7-SNAPSHOT</version>
+	    <version>${t2.ui.api.version}</version>
   	</dependency>
 		<dependency>
       <groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>workbench-api</artifactId>
-      <version>0.7-SNAPSHOT</version>
+      <version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>file-api</artifactId>
-			<version>0.7-SNAPSHOT</version>
+			<version>${t2.ui.api.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>workflowmodel-impl</artifactId>
-			<version>0.9-SNAPSHOT</version>
+			<version>${t2.core.version}</version>
 		</dependency>
 		
 		<dependency>
