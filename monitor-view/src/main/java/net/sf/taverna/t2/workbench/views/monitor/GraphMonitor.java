@@ -33,6 +33,7 @@ import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.WorkflowDataToken;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.monitor.MonitorManager;
 import net.sf.taverna.t2.monitor.MonitorableProperty;
 import net.sf.taverna.t2.monitor.MonitorManager.AddPropertiesMessage;
 import net.sf.taverna.t2.monitor.MonitorManager.DeregisterNodeMessage;
@@ -121,6 +122,12 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 				// as the main workflow may still be running)
 				if (owningProcess.length == 1){
 					monitorViewComponent.setStatus(Status.COMPLETE);
+					// Stop observing monitor messages as workflow has finished running
+					// This observer may have been already removed (in which case the command 
+					// will have no effect) but in the case the workflow has no outputs
+					// we have to do the removing here.
+					MonitorManager.getInstance().removeObserver(
+							this);
 				}
 				updateTimer.schedule(new TimerTask() {
 					public void run() {
