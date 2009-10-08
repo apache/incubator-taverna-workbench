@@ -22,7 +22,6 @@ package net.sf.taverna.t2.workbench.run.actions;
 
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +43,8 @@ import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.provenance.ProvenanceConnectorRegistry;
+import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
+import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.provenance.reporter.ProvenanceReporter;
 import net.sf.taverna.t2.reference.ReferenceContext;
@@ -154,9 +154,9 @@ public class RunWorkflowAction extends AbstractAction {
 				if (ProvenanceConfiguration.getInstance().getProperty("enabled").equalsIgnoreCase("yes")) {
 					String connectorType = ProvenanceConfiguration.getInstance().getProperty("connector");
 
-					for (ProvenanceConnector connector:ProvenanceConnectorRegistry.getInstance().getInstances()) {
-						if (connectorType.equalsIgnoreCase(connector.getName())) {
-							provenanceConnector = connector;
+					for (ProvenanceConnectorFactory factory:ProvenanceConnectorFactoryRegistry.getInstance().getInstances()) {
+						if (connectorType.equalsIgnoreCase(factory.getConnectorType())) {
+							provenanceConnector = factory.getProvenanceConnector();
 						}
 					}
 					logger.info("Provenance being captured using: " + 
@@ -171,6 +171,7 @@ public class RunWorkflowAction extends AbstractAction {
 					try {
 					if (provenanceConnector != null) {
 					provenanceConnector.init();
+					provenanceConnector.setReferenceService(referenceService);
 					}
 					} catch (Exception except) {
 						
@@ -182,7 +183,6 @@ public class RunWorkflowAction extends AbstractAction {
 //					provenanceConnector.setDBLocation(jdbcString);					
 //					} 
 //					provenanceConnector.init();
-					provenanceConnector.setReferenceService(referenceService);
 					
 				}
 				InvocationContextImplementation context = new InvocationContextImplementation(
