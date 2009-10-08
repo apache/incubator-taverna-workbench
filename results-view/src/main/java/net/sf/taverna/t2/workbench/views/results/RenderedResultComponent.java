@@ -65,6 +65,7 @@ import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.renderers.Renderer;
 import net.sf.taverna.t2.renderers.RendererException;
 import net.sf.taverna.t2.renderers.RendererRegistry;
+import net.sf.taverna.t2.workbench.views.results.ResultTreeNode.ResultTreeNodeState;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPIRegistry;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
@@ -104,9 +105,8 @@ public class RenderedResultComponent extends JPanel {
 	
 	private InvocationContext context;
 
-	// Currently selected node from the ResultViewComponent, if any. If this is a instance of a 
-	// TreeResultNode then it contains a T2Reference to the result data
-	private MutableTreeNode node = null;
+	// Currently selected node from the ResultViewComponent, if any. 
+	private ResultTreeNode node = null;
 	
 	// List of all output ports - needs to be passed to 'save result' actions.
 	List<? extends DataflowOutputPort> dataflowOutputPorts = null;
@@ -168,9 +168,9 @@ public class RenderedResultComponent extends JPanel {
 	 * Sets the tree node this components renders the results for, 
 	 * and update the rendered results panel.
 	 */
-	public void setNode(MutableTreeNode node){
+	public void setNode(ResultTreeNode node){
 		this.node = node;
-		if (this.node instanceof ResultTreeNode)
+		if (this.node.isState(ResultTreeNodeState.RESULT_REFERENCE))
 			updateResult();
 		else
 			clearResult();

@@ -20,9 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
 
 import net.sf.taverna.t2.facade.ResultListener;
 import net.sf.taverna.t2.invocation.InvocationContext;
@@ -30,6 +28,7 @@ import net.sf.taverna.t2.invocation.WorkflowDataToken;
 import net.sf.taverna.t2.reference.IdentifiedList;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.T2ReferenceType;
+import net.sf.taverna.t2.workbench.views.results.ResultTreeNode.ResultTreeNodeState;
 
 import org.apache.log4j.Logger;
 
@@ -48,7 +47,7 @@ public class ResultTreeModel extends DefaultTreeModel implements ResultListener 
 	int depthSeen = -1;
 
 	public ResultTreeModel(String portName, int depth) {
-		super(new DefaultMutableTreeNode("Results:"));
+		super(new ResultTreeNode(ResultTreeNode.ResultTreeNodeState.RESULT_TOP));
 		this.portName = portName;
 		this.depth = depth;
 	}
@@ -67,6 +66,14 @@ public class ResultTreeModel extends DefaultTreeModel implements ResultListener 
 				if (reference.getReferenceType() == T2ReferenceType.IdentifiedList) {
 
 					try {
+						ResultTreeNode parent = (ResultTreeNode) getRoot();
+						parent = getChildAt(parent,0);
+						changeState(parent, ResultTreeNodeState.RESULT_LIST);
+						for (int i = 0; i < index.length; i++) {
+							parent = getChildAt(parent, index[i]);
+							changeState(parent, ResultTreeNodeState.RESULT_LIST);
+						}
+						
 						IdentifiedList<T2Reference> list = dataToken
 								.getContext().getReferenceService()
 								.getListService().getList(reference);
@@ -82,14 +89,11 @@ public class ResultTreeModel extends DefaultTreeModel implements ResultListener 
 									dataToken.getContext()), portName);
 							c++;
 						}
-//						MutableTreeNode parent = (MutableTreeNode) getRoot();
-//						for (int i = 0; i <= index.length; i++) {
-//							parent = getChildAt(parent, index[i]);
-//							parent.setUserObject("List...");
+//						if (c == 0) {
+//							parent.setUserObject("Empty list (depth=" + reference.getDepth() + ")" + reference.getLocalPart());
 //							nodeChanged(parent);
 //						}
-
-					} catch (Exception e) {
+					} catch (NullPointerException e) {
 						logger.error("Error resolving data entity list "
 								+ reference, e);
 					}
@@ -104,26 +108,24 @@ public class ResultTreeModel extends DefaultTreeModel implements ResultListener 
 
 	public void insertNewDataTokenNode(T2Reference reference, int[] index,
 			String owningProcess, InvocationContext context) {
-		MutableTreeNode parent = (MutableTreeNode) getRoot();
+		ResultTreeNode parent = (ResultTreeNode) getRoot();
 		if (index.length == depth) {
 			if (depth == 0) {
-				MutableTreeNode child = getChildAt(parent, 0);
-				child = updateChildNodeWithData(reference, owningProcess, parent,
-						child, context);
-				nodeChanged(child);
+				ResultTreeNode child = getChildAt(parent, 0);
+				updateNodeWithData(child, reference,
+						context);
 			} else {
 				parent = getChildAt(parent, 0);
-				parent.setUserObject("List...");
+				changeState(parent, ResultTreeNodeState.RESULT_LIST);
 				for (int indexElement = 0; indexElement < depth; indexElement++) {
-					MutableTreeNode child = getChildAt(parent,
+					ResultTreeNode child = getChildAt(parent,
 							index[indexElement]);
 					if (indexElement == (depth - 1)) { // leaf
-						child = updateChildNodeWithData(reference, owningProcess,
-								parent, child, context);
+						updateNodeWithData(child, reference, context);
 					} else { // list
-						child.setUserObject("List...");
+						child.setState(ResultTreeNodeState.RESULT_LIST);
+						nodeChanged(child);
 					}
-					nodeChanged(child);
 					parent = child;
 				}
 			}
@@ -131,39 +133,45 @@ public class ResultTreeModel extends DefaultTreeModel implements ResultListener 
 			parent = getChildAt(parent, 0);
 			for (int i = 0; i < index.length - 1; i++) {
 				parent = getChildAt(parent, index[i]);
-				parent.setUserObject("List...");
-				nodeChanged(parent);				
+				parent = getChildAt(parent, 0);
+				changeState(parent, ResultTreeNodeState.RESULT_LIST);
 			}
-			MutableTreeNode child = getChildAt(parent, index[index.length-1]);
-			child = updateChildNodeWithData(reference, owningProcess, parent,
-					child, context);
-			nodeChanged(child);
+			if (index.length > 0) {
+				ResultTreeNode child = getChildAt(parent, index[index.length-1]);
+				updateNodeWithData(child, reference, context);
+			} else {
+				updateNodeWithData(parent, reference, context);
+			}
 		}
 	}
 
-	private MutableTreeNode updateChildNodeWithData(T2Reference reference,
-			String owningProcess, MutableTreeNode parent,
-			MutableTreeNode child, InvocationContext context) {
-
-		int childIndex = parent.getIndex(child);
-		child = new ResultTreeNode(reference, context);
-
-		parent.remove(childIndex);
-		parent.insert(child, childIndex);
-
-		return child;
+	private void updateNodeWithData(ResultTreeNode node, 
+			T2Reference reference,
+			InvocationContext context) {	
+		node.setState(ResultTreeNodeState.RESULT_REFERENCE);
+		node.setReference(reference);
+		node.setContext(context);
+		nodeChanged(node);
 	}
 
-	private MutableTreeNode getChildAt(MutableTreeNode parent, int i) {
+	private ResultTreeNode getChildAt(ResultTreeNode parent, int i) {
 		int childCount = getChildCount(parent);
 		if (childCount <= i) {
 			for (int x = childCount; x <= i; x++) {
-				insertNodeInto(new DefaultMutableTreeNode("Waiting for data"),
+				insertNodeInto(new ResultTreeNode(ResultTreeNode.ResultTreeNodeState.RESULT_WAITING),
 						parent, x);
 			}
 		}
 
-		return (MutableTreeNode) parent.getChildAt(i);
+		return (ResultTreeNode) parent.getChildAt(i);
+	}
+	
+	private void changeState(ResultTreeNode node, ResultTreeNodeState state) {
+		if (!node.isState(state)) {
+			node.setState(state);
+			nodeChanged(node);
+		}
+		
 	}
 
 }

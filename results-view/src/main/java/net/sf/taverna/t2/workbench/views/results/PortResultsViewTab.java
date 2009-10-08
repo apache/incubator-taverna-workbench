@@ -98,7 +98,7 @@ public class PortResultsViewTab extends JPanel{
 				if (selectionPath != null) {
 					// Get the selected node
 					final Object selectedNode = selectionPath.getLastPathComponent();				
-					renderedResultComponent.setNode((MutableTreeNode)selectedNode);
+					renderedResultComponent.setNode((ResultTreeNode)selectedNode);
 				}
 			}
 			

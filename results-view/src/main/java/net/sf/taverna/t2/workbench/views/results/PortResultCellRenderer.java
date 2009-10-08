@@ -35,7 +35,8 @@ public class PortResultCellRenderer extends DefaultTreeCellRenderer {
 		boolean result = false;
 		if (node instanceof ResultTreeNode) {
 			ResultTreeNode rtn = (ResultTreeNode) node;
-			if (rtn.getReference().containsErrors()) {
+			T2Reference reference = rtn.getReference();
+			if ((reference != null) && (reference.containsErrors())) {
 				result = true;
 			}
 		}

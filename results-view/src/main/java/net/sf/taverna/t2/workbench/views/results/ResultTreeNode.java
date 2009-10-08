@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
@@ -33,18 +33,30 @@ import net.sf.taverna.t2.reference.T2Reference;
 
 import org.apache.log4j.Logger;
 
-public class ResultTreeNode implements MutableTreeNode {
+public class ResultTreeNode extends DefaultMutableTreeNode {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ResultTreeNode.class);
 
-	private MutableTreeNode parent;
+	private T2Reference reference;
 
-	private List<MutableTreeNode> children = new ArrayList<MutableTreeNode>();
-
-	private final T2Reference reference;
+	public void setReference(T2Reference reference) {
+		this.reference = reference;
+	}
 
 	private InvocationContext context;
+	
+	public enum ResultTreeNodeState {RESULT_TOP, RESULT_WAITING, RESULT_LIST, RESULT_REFERENCE};
+
+	private ResultTreeNodeState state;
+	
+	public ResultTreeNodeState getState() {
+		return state;
+	}
+
+	public void setState(ResultTreeNodeState state) {
+		this.state = state;
+	}
 
 	public T2Reference getReference() {
 		return reference;
@@ -53,76 +65,41 @@ public class ResultTreeNode implements MutableTreeNode {
 	public ResultTreeNode(T2Reference reference, InvocationContext context/*, List<String> mimeTypes*/) {
 		this.reference = reference;
 		this.context = context;
+		this.state = ResultTreeNodeState.RESULT_REFERENCE;
+	}
+	
+	public ResultTreeNode(ResultTreeNodeState state) {
+		this.reference = null;
+		this.context = null;
+		this.state = state;
 	}
 
-	public Enumeration<MutableTreeNode> children() {
-		return Collections.enumeration(children);
-	}
-
-	public boolean getAllowsChildren() {
-		return false;
-	}
-
-	public TreeNode getChildAt(int index) {
-//		if (children.size() == 0) {
-//			try {
-//				// add a node underneath the 'folder' which displays the mime
-//				// types and can be right clicked on.  Similar to T1 functionality
-//				children.add(new ResultTreeChildNode(mimeTypes, context,
-//						reference));
-//			} catch (Exception e) {
-//
-//			}
-//		}
-		return children.get(index);
-	}
-
-	public int getChildCount() {
-		return 0;
-	}
-
-	public int getIndex(TreeNode node) {
-		return children.indexOf(node);
-	}
-
-	public TreeNode getParent() {
-		return parent;
-	}
-
-	public boolean isLeaf() {
-		return true;
-	}
-
-	public void insert(MutableTreeNode node, int index) {
-		children.add(index, node);
-	}
-
-	public void remove(int index) {
-		children.remove(index);
-	}
-
-	public void remove(MutableTreeNode node) {
-		children.remove(node);
-	}
-
-	public void removeFromParent() {
-		parent.remove(this);
-	}
-
-	public void setParent(MutableTreeNode node) {
-		parent = node;
-	}
-
-	public void setUserObject(Object arg0) {
-
+	public void setContext(InvocationContext context) {
+		this.context = context;
 	}
 
 	public String toString() {
+		if (state.equals(ResultTreeNodeState.RESULT_TOP)) {
+			return "Results:";
+		}
+		if (state.equals(ResultTreeNodeState.RESULT_LIST)) {
+			if (getChildCount() == 0) {
+				return "Empty list";
+			}
+			return "List...";
+		}
+		if (state.equals(ResultTreeNodeState.RESULT_WAITING)) {
+			return "Waiting for data";
+		}
 		return reference.toString();
 	}
 
 	public InvocationContext getContext() {
 		return context;
+	}
+	
+	public boolean isState(ResultTreeNodeState state) {
+		return this.state.equals(state);
 	}
 
 }
