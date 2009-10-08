@@ -23,6 +23,8 @@ package net.sf.taverna.t2.workbench.views.monitor;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
@@ -46,9 +48,13 @@ import javax.swing.border.LineBorder;
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
+import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorRegistry;
+import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
+import net.sf.taverna.t2.provenance.lineageservice.Dependencies;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
+import net.sf.taverna.t2.provenance.lineageservice.LineageSQLQuery;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
@@ -118,7 +124,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 		
 		add(statusLabel, BorderLayout.SOUTH);
 		
-		setProvenanceConnector();
+//		setProvenanceConnector();
 	}
 	
 	private JToolBar graphActionsToolbar() {
@@ -171,21 +177,9 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 		}
 	}
 	
-	private void setProvenanceConnector() {
-		if (ProvenanceConfiguration.getInstance().getProperty("enabled")
-				.equalsIgnoreCase("yes")) {
-			String connectorType = ProvenanceConfiguration.getInstance()
-					.getProperty("connector");
-
-			for (ProvenanceConnector connector : ProvenanceConnectorRegistry
-					.getInstance().getInstances()) {
-				if (connectorType.equalsIgnoreCase(connector.getName())) {
-					provenanceConnector = connector;
-					//ensure that this view has the correct session identifier to retrieve provenance
-					this.setSessionId(provenanceConnector.getSessionID());
-				}
-			}
-		}
+	public void setProvenanceConnector(ProvenanceConnector connector) {
+		provenanceConnector = connector;
+		setSessionId(provenanceConnector.getSessionID());
 	}
 
 	public Observer<MonitorMessage> setDataflow(Dataflow dataflow) {
@@ -198,7 +192,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 			}
 		});
 		svgCanvas.setDocument(getGraphController().generateSVGDocument(getBounds()));
-		// revalidate();
+
 		return new GraphMonitor(getGraphController(), this);
 	}
 
@@ -261,11 +255,14 @@ class MonitorGraphEventManager implements GraphEventManager {
 	private List<LineageQueryResultRecord> intermediateValues;
 	private Timer timer;
 	private TimerTask timerTask;
+	private Runnable runnable;
 	private String sessionID;
+	private String nestedWorkflowID;
 
 	static int MINIMUM_HEIGHT = 500;
 	static int MINIMUM_WIDTH = 800;
 	private MonitorViewComponent monitorViewComponent;
+	private ProvenanceResultsPanel provResultsPanel;
 
 	public MonitorGraphEventManager(MonitorViewComponent monitorViewComponent, ProvenanceConnector provenanceConnector,
 			Dataflow dataflow, String sessionID) {
@@ -282,6 +279,8 @@ class MonitorGraphEventManager implements GraphEventManager {
 			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
 			int screenX, int screenY) {
 
+		
+
 		Object dataflowObject = graphElement.getDataflowObject();
 		GraphElement parent = graphElement.getParent();
 		if (monitorViewComponent.getGraphController().getDataflowSelectionModel() != null) {
@@ -295,6 +294,42 @@ class MonitorGraphEventManager implements GraphEventManager {
 		panel.setLayout(new BorderLayout());
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BorderLayout());
+		JPanel fetchButtonPanel = new JPanel();
+		fetchButtonPanel.setLayout(new BorderLayout());
+		JButton fetchResults = new JButton("Fetch Results");
+		fetchResults.setToolTipText("Retrieve provenance again - in case you need to get any new results");
+		fetchButtonPanel.add(fetchResults, BorderLayout.WEST);
+		topPanel.add(fetchButtonPanel);
+		
+		fetchResults.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				ProvenanceAccess provenanceAccess = new ProvenanceAccess(ProvenanceConfiguration.getInstance().getProperty("connector"));
+				//TODO use the new provenance access API with the nested workflow if required to get the results
+				Dependencies fetchPortData = provenanceAccess.fetchPortData(sessionID, nestedWorkflowID, localName, null, null);
+				intermediateValues = fetchPortData.getRecords();
+				if (intermediateValues.size() > 0) {
+					frame.setTitle("Intermediate results for "
+									+ localName);
+					for (LineageQueryResultRecord record : intermediateValues) {
+						logger.info("LQRR: "
+								+ record.toString());
+					}
+					provResultsPanel
+							.setLineageRecords(intermediateValues);
+					logger
+							.info("Intermediate results retrieved for dataflow instance: "
+									+ sessionID
+									+ " processor: "
+									+ localName
+									+ " nested: " + nestedWorkflowID);
+				} else {
+					frame.setTitle("Currently no intermediate results for "
+							+ localName);
+					
+				}
+			}
+		});
 
 		final JPanel provenancePanel = new JPanel();
 		provenancePanel.setLayout(new BorderLayout());
@@ -307,39 +342,47 @@ class MonitorGraphEventManager implements GraphEventManager {
 						frame.setTitle("Fetching intermediate results for " + localName);
 						//if the processor is inside a nested workflow then get the nested workflow id.  There
 						//no parent on a top level workflow
-						String nestedWorkflowID;
-						if (parent == null) {
-							nestedWorkflowID = null;
-						} else {
-							Activity<?> activity = ((Processor)parent).getActivityList().get(0);
-							nestedWorkflowID = ((DataflowActivity)activity).getNestedDataflow().getInternalIdentier();
-						}
+//						if (parent == null) {
+//							nestedWorkflowID = null;
+//						} else {
+						
+							//is it inside a nested workflow?
+							if (parent != null && parent.getDataflowObject() instanceof Processor) {
+								if (((Processor)parent.getDataflowObject()).getActivityList().get(0) instanceof DataflowActivity) {
+									Activity<?> activity = ((Processor)parent.getDataflowObject()).getActivityList().get(0);
+									nestedWorkflowID = ((DataflowActivity)activity).getNestedDataflow().getInternalIdentier();
+								}
+							} else {
+								nestedWorkflowID = null;
+							}
+//						}
 						String internalIdentier = dataflow
 								.getInternalIdentier();
-//						final String sessionID = provenanceConnector
-//								.getSessionID();
-
-						final ProvenanceResultsPanel provResultsPanel = new ProvenanceResultsPanel();
+provResultsPanel = new ProvenanceResultsPanel();
 						provResultsPanel.setContext(provenanceConnector
 								.getInvocationContext());
 						provenancePanel.add(provResultsPanel,
 								BorderLayout.CENTER);
 
-						timerTask = new TimerTask() {
+						runnable = new Runnable() {
 
-							@Override
+
 							public void run() {
 								try {
 									logger
 											.info("Retrieving intermediate results for dataflow instance: "
 													+ sessionID
 													+ " processor: "
-													+ localName);
-
+													+ localName
+													+ " nested: " + nestedWorkflowID);
+									ProvenanceAccess provenanceAccess = new ProvenanceAccess(ProvenanceConfiguration.getInstance().getProperty("connector"));
 									//TODO use the new provenance access API with the nested workflow if required to get the results
-									intermediateValues = provenanceConnector
-											.getIntermediateValues(sessionID,
-													localName, null, null);
+									Dependencies fetchPortData = provenanceAccess.fetchPortData(sessionID, nestedWorkflowID, localName, null, null);
+									intermediateValues = fetchPortData.getRecords();
+									
+//									intermediateValues = provenanceConnector
+//											.getIntermediateValues(sessionID,
+//													localName, null, null);
 									if (intermediateValues.size() > 0) {
 										frame.setTitle("Intermediate results for "
 														+ localName);
@@ -349,13 +392,20 @@ class MonitorGraphEventManager implements GraphEventManager {
 										}
 										provResultsPanel
 												.setLineageRecords(intermediateValues);
+//										frame.setVisible(true);
 										logger
 												.info("Intermediate results retrieved for dataflow instance: "
 														+ sessionID
 														+ " processor: "
-														+ localName);
+														+ localName
+														+ " nested: " + nestedWorkflowID);
 									} else {
-										frame.setTitle("No intermediate results for "
+//										JOptionPane.showMessageDialog(null,
+//												"Currently no intermediate results available for processor " + localName + "\nData may still be being processed",
+//												"No results yet",
+//												JOptionPane.INFORMATION_MESSAGE);
+//										frame.setVisible(false);
+										frame.setTitle("Currently no intermediate results for "
 												+ localName);
 										
 									}
@@ -373,14 +423,15 @@ class MonitorGraphEventManager implements GraphEventManager {
 							}
 
 						};
-
-						timer = new Timer(
-								"Retrieve intermediate results for dataflow: "
-										+ internalIdentier + ", processor: "
-										+ localName);
-						timer.schedule(timerTask, 1, 50000);
+						runnable.run();
+//						timer = new Timer(
+//								"Retrieve intermediate results for dataflow: "
+//										+ internalIdentier + ", processor: "
+//										+ localName);
+//						
+//						timer.schedule(timerTask, 1, 50000);
 						//kill the timer when the user closes the frame
-						frame.addWindowListener(new WindowClosingListener(timer, timerTask));
+//						frame.addWindowListener(new WindowClosingListener(timer, timerTask));
 
 					}
 

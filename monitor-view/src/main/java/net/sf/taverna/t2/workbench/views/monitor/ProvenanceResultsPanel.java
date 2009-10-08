@@ -69,6 +69,8 @@ public class ProvenanceResultsPanel extends JPanel implements
 			.getLogger(ProvenanceResultsPanel.class);
 
 	private PortTab oldTab;
+	
+	private Map<PortTab, Integer> selectedRowMap = new HashMap<PortTab, Integer>();
 
 	private Map<String, PortTab> portTabMap = new HashMap<String, PortTab>();
 
@@ -113,13 +115,25 @@ public class ProvenanceResultsPanel extends JPanel implements
 
 		ChangeListener changeListener = new ChangeListener() {
 			public void stateChanged(ChangeEvent changeEvent) {
+				changeTab(changeEvent);
+			}
+			
+			private void changeTab(ChangeEvent changeEvent) {
+				renderedResultsComponent.clearResult();
+				renderedResultsComponent.revalidate();
+				//need to do this twice to get it to refresh - no idea why but it works!
+				renderedResultsComponent.revalidate();
+				revalidate();
+				repaint();
+				
 				JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent
 						.getSource();
 				int index = sourceTabbedPane.getSelectedIndex();
 				String titleAt = tabbedPane.getTitleAt(index);
 				PortTab portTab = portTabMap.get(titleAt);
 				if (oldTab != null) {
-
+					int selectedRow = oldTab.getResultsTable().getSelectedRow();
+					selectedRowMap.put(oldTab, selectedRow);
 					oldTab.getResultsTable().clearSelection();
 					oldTab.getResultsTable().getSelectionModel()
 							.clearSelection();
@@ -127,9 +141,23 @@ public class ProvenanceResultsPanel extends JPanel implements
 					oldTab.getResultsTable().clearSelection();
 					oldTab.getResultsTable().getSelectionModel()
 							.clearSelection();
-
+					if (selectedRowMap.containsKey(oldTab)) {
+						Integer integer = selectedRowMap.get(oldTab);
+						if (integer!= -1) {
+							oldTab.getResultsTable().changeSelection(integer, 0, false, false);							
+						} else {
+							renderedResultsComponent.clearResult();
+							revalidate();
+							repaint();
+						}
+					} else {
+						renderedResultsComponent.clearResult();
+						revalidate();
+						repaint();
+					}
 				}
-			}
+
+				}			
 		};
 		tabbedPane.addChangeListener(changeListener);
 
@@ -198,8 +226,18 @@ public class ProvenanceResultsPanel extends JPanel implements
 
 			}
 			// reset the selection since the results may have changed
-			oldTab.getResultsTable().clearSelection();
-			oldTab.getResultsTable().getSelectionModel().clearSelection();
+			Set<Entry<String, PortTab>> entrySet2 = portTabMap.entrySet();
+			for (Entry<String, PortTab> entry:entrySet2) {
+				entry.getValue().getResultsTable().clearSelection();
+				entry.getValue().getResultsTable().getSelectionModel().clearSelection();
+				selectedRowMap.put(entry.getValue(), -1);
+				renderedResultsComponent.clearResult();
+				renderedResultsComponent.revalidate();
+				revalidate();
+				repaint();
+			}
+//			oldTab.getResultsTable().clearSelection();
+//			oldTab.getResultsTable().getSelectionModel().clearSelection();
 
 		}
 
