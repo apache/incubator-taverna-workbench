@@ -276,7 +276,6 @@ class MonitorGraphEventManager implements GraphEventManager {
 	public void mouseClicked(final GraphElement graphElement, short button,
 			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
 			int screenX, int screenY) {
-
 		
 
 		Object dataflowObject = graphElement.getDataflowObject();
