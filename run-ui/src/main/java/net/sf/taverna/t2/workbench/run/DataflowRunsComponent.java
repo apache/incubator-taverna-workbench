@@ -50,7 +50,7 @@ import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.impl.WriteQueueAspect;
-import net.sf.taverna.t2.workbench.reference.config.ReferenceConfiguration;
+import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
 public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI {
@@ -157,7 +157,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		JPanel hintsPanel = new JPanel();
 		hintsPanel.setLayout(new BorderLayout());
 		hintsPanel.add(new JLabel("Click on a run to see its results"), BorderLayout.NORTH);
-		if (ReferenceConfiguration.getInstance().isProvenanceEnabled()) {
+		if (DataManagementConfiguration.getInstance().isProvenanceEnabled()) {
 			hintsPanel.add(new JLabel("Click on a service in the diagram"),
 					BorderLayout.CENTER);
 		}
@@ -201,11 +201,9 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		}
 		return singletonInstance;
 	}
-
-        
 	
 	public ReferenceService getReferenceService() {
-		String context = ReferenceConfiguration.getInstance().getDatabaseContext();
+		String context = DataManagementConfiguration.getInstance().getDatabaseContext();
 		if (!context.equals(referenceContext)) {
 			referenceContext = context;
 			ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
