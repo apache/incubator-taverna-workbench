@@ -24,109 +24,51 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.ActionEvent;
 
-import javax.swing.ButtonGroup;
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
+import net.sf.taverna.t2.workbench.helper.Helper;
 
 public class ReferenceConfigurationPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
     private ReferenceConfiguration configuration = ReferenceConfiguration.getInstance();
+    JCheckBox enableProvenance;
+    JCheckBox enableInMemory;
 
     public ReferenceConfigurationPanel() {
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         setLayout(gridbag);
 
+        enableProvenance = new JCheckBox("Enable provenance capture");
+        JTextArea enableProvenanceText = new JTextArea("Disabling provenance will prevent you from being able to view intermediate results, but does give a performance benefit.");
+        enableProvenanceText.setLineWrap(true);
+        enableProvenanceText.setWrapStyleWord(true);
+        enableProvenanceText.setEditable(false);
+        enableProvenanceText.setOpaque(false);
+        enableProvenanceText.setFont(enableProvenanceText.getFont().deriveFont(Font.PLAIN, 10));
+
+        enableInMemory = new JCheckBox("In-memory storage");
+        JTextArea enableInMemoryText = new JTextArea("Data will not be stored between workbench sessions. This option is intended for testing only. Only use if your workflows have a low memory requirement. Provenance information is still recorded to a database.");
+        enableInMemoryText.setLineWrap(true);
+        enableInMemoryText.setWrapStyleWord(true);
+        enableInMemoryText.setEditable(false);
+        enableInMemoryText.setOpaque(false);
+        enableInMemoryText.setFont(enableProvenanceText.getFont().deriveFont(Font.PLAIN, 10));       
+
         JTextArea storageText = new JTextArea(
-                "Select how Taverna stores the data produced when a workflow is run. This includes workflow results and intermediate results.");
+                "Select how Taverna stores the data and provenance produced when a workflow is run. This includes workflow results and intermediate results.");
         storageText.setLineWrap(true);
         storageText.setWrapStyleWord(true);
         storageText.setEditable(false);
         storageText.setBorder(new EmptyBorder(10, 10, 10, 10));
-
-        JLabel storageConfig = new JLabel(
-                "Store data from workflow runs using:");
-
-        JRadioButton hibernateCache = new JRadioButton("On-disk (with cache) storage");
-        JRadioButton hibernate = new JRadioButton("On-disk storage");
-        JRadioButton inMemory = new JRadioButton("In-memory storage");
-
-        ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(hibernateCache);
-        buttonGroup.add(hibernate);
-        buttonGroup.add(inMemory);
-
-        JTextArea hibernateCacheText = new JTextArea(
-                "Stores data on the disk and uses an in-memory cache for faster workflow runs. This is the best option for most users.");
-        hibernateCacheText.setLineWrap(true);
-        hibernateCacheText.setWrapStyleWord(true);
-        hibernateCacheText.setEditable(false);
-        hibernateCacheText.setOpaque(false);
-        hibernateCacheText.setFont(hibernateCacheText.getFont().deriveFont(Font.PLAIN, 10));
-
-        JTextArea hibernateText = new JTextArea(
-                "Stores data on the disk. Select this option if you are having problems with Taverna running out of memory.");
-        hibernateText.setLineWrap(true);
-        hibernateText.setWrapStyleWord(true);
-        hibernateText.setEditable(false);
-        hibernateText.setOpaque(false);
-        hibernateText.setFont(hibernateCacheText.getFont().deriveFont(Font.PLAIN, 10));
-
-        JTextArea inMemoryText = new JTextArea(
-                "Stores data in-memory - data will not be stored between workbench sessions. This option is intended for testing only.");
-        inMemoryText.setLineWrap(true);
-        inMemoryText.setWrapStyleWord(true);
-        inMemoryText.setEditable(false);
-        inMemoryText.setOpaque(false);
-        inMemoryText.setFont(hibernateCacheText.getFont().deriveFont(Font.PLAIN, 10));
-
-        String context = configuration.getProperty(ReferenceConfiguration.REFERENCE_SERVICE_CONTEXT);
-        if (context.equals(ReferenceConfiguration.IN_MEMORY_CONTEXT)) {
-            inMemory.setSelected(true);
-        } else if (context.equals(ReferenceConfiguration.HIBERNATE_CONTEXT)) {
-            hibernate.setSelected(true);
-        } else if (context.equals(ReferenceConfiguration.HIBERNATE_CACHE_CONTEXT)) {
-            hibernateCache.setSelected(true);
-        }
-
-        inMemory.addItemListener(new ItemListener() {
-
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    configuration.setProperty(
-                            ReferenceConfiguration.REFERENCE_SERVICE_CONTEXT,
-                            ReferenceConfiguration.IN_MEMORY_CONTEXT);
-                }
-            }
-        });
-        hibernate.addItemListener(new ItemListener() {
-
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    configuration.setProperty(
-                            ReferenceConfiguration.REFERENCE_SERVICE_CONTEXT,
-                            ReferenceConfiguration.HIBERNATE_CONTEXT);
-                }                
-            }
-        });
-        hibernateCache.addItemListener(new ItemListener() {
-
-            public void itemStateChanged(ItemEvent e) {
-                if (e.getStateChange() == ItemEvent.SELECTED) {
-                    configuration.setProperty(
-                            ReferenceConfiguration.REFERENCE_SERVICE_CONTEXT,
-                            ReferenceConfiguration.HIBERNATE_CACHE_CONTEXT);
-                }
-            }
-        });
 
         c.anchor = GridBagConstraints.NORTHWEST;
         c.insets = new Insets(0, 0, 10, 0);
@@ -139,33 +81,28 @@ public class ReferenceConfigurationPanel extends JPanel {
         add(storageText);
 
         c.ipady = 0;
-
-        gridbag.setConstraints(storageConfig, c);
-        add(storageConfig);
-
-        gridbag.setConstraints(hibernateCache, c);
-        add(hibernateCache);
+        c.insets = new Insets(0, 0, 5, 0);
+        gridbag.setConstraints(enableProvenance, c);
+        add(enableProvenance);
 
         c.insets = new Insets(0, 20, 15, 20);
-        gridbag.setConstraints(hibernateCacheText, c);
-        add(hibernateCacheText);
+        gridbag.setConstraints(enableProvenanceText, c);
+        add(enableProvenanceText);
 
         c.insets = new Insets(0, 0, 5, 0);
-        gridbag.setConstraints(hibernate, c);
-        add(hibernate);
+        gridbag.setConstraints(enableInMemory, c);
+        add(enableInMemory);
 
         c.insets = new Insets(0, 20, 15, 20);
-        gridbag.setConstraints(hibernateText, c);
-        add(hibernateText);
+        gridbag.setConstraints(enableInMemoryText, c);
+        add(enableInMemoryText);
 
+        JPanel buttonPanel = createButtonPanel();
         c.insets = new Insets(0, 0, 5, 0);
-        gridbag.setConstraints(inMemory, c);
-        add(inMemory);
+        gridbag.setConstraints(buttonPanel, c);
+        add(buttonPanel);
 
-        c.insets = new Insets(0, 20, 10, 20);
-        c.weighty = 1d;
-        gridbag.setConstraints(inMemoryText, c);
-        add(inMemoryText);
+        resetFields(configuration);
 
     }
 
@@ -177,5 +114,58 @@ public class ReferenceConfigurationPanel extends JPanel {
         dialog.setSize(500, 300);
         dialog.setVisible(true);
         System.exit(0);
+    }
+
+    private void resetFields(ReferenceConfiguration instance) {
+        System.out.println("IN MEM="+configuration.getProperty(ReferenceConfiguration.IN_MEMORY));
+        enableInMemory.setSelected(configuration.getProperty(ReferenceConfiguration.IN_MEMORY).equalsIgnoreCase("true"));
+        enableProvenance.setSelected(configuration.getProperty(ReferenceConfiguration.ENABLE_PROVENANCE).equalsIgnoreCase("true"));
+    }
+
+    private void applySettings() {
+        configuration.setProperty(ReferenceConfiguration.ENABLE_PROVENANCE, String.valueOf(enableProvenance.isSelected()));
+        configuration.setProperty(ReferenceConfiguration.IN_MEMORY, String.valueOf(enableInMemory.isSelected()));
+    }
+
+    private JPanel createButtonPanel() {
+        final JPanel panel = new JPanel();
+
+        /**
+         * The helpButton shows help about the current component
+         */
+        JButton helpButton = new JButton(new AbstractAction("Help") {
+
+            public void actionPerformed(ActionEvent arg0) {
+                Helper.showHelp(panel);
+            }
+        });
+        panel.add(helpButton);
+
+        /**
+         * The resetButton changes the property values shown to those
+         * corresponding to the configuration currently applied.
+         */
+        JButton resetButton = new JButton(new AbstractAction("Reset") {
+
+            public void actionPerformed(ActionEvent arg0) {
+                resetFields(configuration);
+            }
+        });
+        panel.add(resetButton);
+
+        /**
+         * The applyButton applies the shown field values to the
+         * {@link HttpProxyConfiguration} and saves them for future.
+         */
+        JButton applyButton = new JButton(new AbstractAction("Apply") {
+
+            public void actionPerformed(ActionEvent arg0) {
+                applySettings();
+                resetFields(configuration);
+            }
+        });
+        panel.add(applyButton);
+
+        return panel;
     }
 }
