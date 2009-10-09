@@ -53,7 +53,7 @@ import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.ui.WorkflowLaunchPanel;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.provenance.ProvenanceConfiguration;
+import net.sf.taverna.t2.workbench.reference.config.ReferenceConfiguration;
 import net.sf.taverna.t2.workbench.run.DataflowRunsComponent;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
@@ -151,19 +151,15 @@ public class RunWorkflowAction extends AbstractAction {
 				final ReferenceService referenceService = runComponent.getReferenceService();
 				ReferenceContext referenceContext = null;
 				ProvenanceConnector provenanceConnector = null;
-				if (ProvenanceConfiguration.getInstance().getProperty("enabled").equalsIgnoreCase("yes")) {
-					String connectorType = ProvenanceConfiguration.getInstance().getProperty("connector");
+				if (ReferenceConfiguration.getInstance().isProvenanceEnabled()) {
+					String connectorType = ReferenceConfiguration.getInstance().getConnectorType();
 
 					for (ProvenanceConnectorFactory factory:ProvenanceConnectorFactoryRegistry.getInstance().getInstances()) {
 						if (connectorType.equalsIgnoreCase(factory.getConnectorType())) {
 							provenanceConnector = factory.getProvenanceConnector();
 						}
 					}
-					logger.info("Provenance being captured using: " + 
-							provenanceConnector);
-					String dbURL = ProvenanceConfiguration.getInstance().getProperty("dbURL");
-//					String user = ProvenanceConfiguration.getInstance().getProperty("dbUser");
-//					String password = ProvenanceConfiguration.getInstance().getProperty("dbPassword");
+					 
 					
 					
 					//slight change, the init is outside but it also means that the init call has to ensure that the dbURL

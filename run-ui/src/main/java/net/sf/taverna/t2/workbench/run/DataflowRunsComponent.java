@@ -36,7 +36,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -51,8 +50,6 @@ import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.impl.WriteQueueAspect;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.provenance.ProvenanceConfiguration;
 import net.sf.taverna.t2.workbench.reference.config.ReferenceConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
@@ -160,8 +157,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		JPanel hintsPanel = new JPanel();
 		hintsPanel.setLayout(new BorderLayout());
 		hintsPanel.add(new JLabel("Click on a run to see its results"), BorderLayout.NORTH);
-		if (ProvenanceConfiguration.getInstance().getProperty("enabled")
-				.equalsIgnoreCase("yes")) {
+		if (ReferenceConfiguration.getInstance().isProvenanceEnabled()) {
 			hintsPanel.add(new JLabel("Click on a service in the diagram"),
 					BorderLayout.CENTER);
 		}
@@ -205,10 +201,11 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		}
 		return singletonInstance;
 	}
+
+        
 	
 	public ReferenceService getReferenceService() {
-		String context = ReferenceConfiguration.getInstance().getProperty(
-				ReferenceConfiguration.REFERENCE_SERVICE_CONTEXT);
+		String context = ReferenceConfiguration.getInstance().getDatabaseContext();
 		if (!context.equals(referenceContext)) {
 			referenceContext = context;
 			ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
