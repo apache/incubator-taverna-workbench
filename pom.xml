@@ -38,7 +38,7 @@
 		<module>httpproxy-config</module>
 		<module>menu-impl</module>
 		<module>plugins-gui</module>
-		<module>reference-config</module>
+		<module>data-management-config</module>
 		<module>renderers-impl</module>
 		<module>update-manager</module>
 		<module>workbench-impl</module>
