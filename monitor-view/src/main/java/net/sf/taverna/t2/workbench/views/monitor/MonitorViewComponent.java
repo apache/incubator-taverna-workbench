@@ -56,7 +56,8 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-import net.sf.taverna.t2.workbench.reference.config.ReferenceConfiguration;
+
+import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
@@ -301,7 +302,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 		fetchResults.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
-				ProvenanceAccess provenanceAccess = new ProvenanceAccess(ReferenceConfiguration.getInstance().getConnectorType());
+				ProvenanceAccess provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
 				//TODO use the new provenance access API with the nested workflow if required to get the results
 				Dependencies fetchPortData = provenanceAccess.fetchPortData(sessionID, nestedWorkflowID, localName, null, null);
 				intermediateValues = fetchPortData.getRecords();
@@ -372,7 +373,7 @@ provResultsPanel = new ProvenanceResultsPanel();
 													+ " processor: "
 													+ localName
 													+ " nested: " + nestedWorkflowID);
-									ProvenanceAccess provenanceAccess = new ProvenanceAccess(ReferenceConfiguration.getInstance().getConnectorType());
+									ProvenanceAccess provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
 									//TODO use the new provenance access API with the nested workflow if required to get the results
 									Dependencies fetchPortData = provenanceAccess.fetchPortData(sessionID, nestedWorkflowID, localName, null, null);
 									intermediateValues = fetchPortData.getRecords();
