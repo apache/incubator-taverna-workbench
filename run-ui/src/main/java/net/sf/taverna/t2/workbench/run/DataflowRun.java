@@ -32,6 +32,7 @@ import net.sf.taverna.t2.invocation.WorkflowDataToken;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.monitor.MonitorManager;
 import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
+import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
 import net.sf.taverna.t2.workbench.views.results.ResultViewComponent;
@@ -62,6 +63,7 @@ public class DataflowRun {
 		this.inputs = inputs;
 		this.date = date;		
 		monitorViewComponent = new MonitorViewComponent();
+		monitorViewComponent.setProvenanceConnector((ProvenanceConnector) (facade.getContext().getProvenanceReporter()));
 		resultsComponent = new ResultViewComponent();
 	}
 
