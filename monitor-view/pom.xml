@@ -41,17 +41,11 @@
 			<version>${t2.ui.impl.version}</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
-			<artifactId>provenance-config</artifactId>
-			<version>${project.version}</version>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>provenanceconnector</artifactId>
+			<version>${t2.core.version}</version>
 		</dependency>
-		<!--
-			<dependency> <groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>reference-api</artifactId>
-			<version>${t2.core.version}</version> </dependency>
-		-->
 		<dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>reference-impl</artifactId>

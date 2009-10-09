@@ -48,18 +48,15 @@ import javax.swing.border.LineBorder;
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
-import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
-import net.sf.taverna.t2.provenance.ProvenanceConnectorRegistry;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.provenance.lineageservice.Dependencies;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
-import net.sf.taverna.t2.provenance.lineageservice.LineageSQLQuery;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-import net.sf.taverna.t2.workbench.provenance.ProvenanceConfiguration;
+import net.sf.taverna.t2.workbench.reference.config.ReferenceConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
@@ -304,7 +301,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 		fetchResults.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
-				ProvenanceAccess provenanceAccess = new ProvenanceAccess(ProvenanceConfiguration.getInstance().getProperty("connector"));
+				ProvenanceAccess provenanceAccess = new ProvenanceAccess(ReferenceConfiguration.getInstance().getConnectorType());
 				//TODO use the new provenance access API with the nested workflow if required to get the results
 				Dependencies fetchPortData = provenanceAccess.fetchPortData(sessionID, nestedWorkflowID, localName, null, null);
 				intermediateValues = fetchPortData.getRecords();
@@ -375,7 +372,7 @@ provResultsPanel = new ProvenanceResultsPanel();
 													+ " processor: "
 													+ localName
 													+ " nested: " + nestedWorkflowID);
-									ProvenanceAccess provenanceAccess = new ProvenanceAccess(ProvenanceConfiguration.getInstance().getProperty("connector"));
+									ProvenanceAccess provenanceAccess = new ProvenanceAccess(ReferenceConfiguration.getInstance().getConnectorType());
 									//TODO use the new provenance access API with the nested workflow if required to get the results
 									Dependencies fetchPortData = provenanceAccess.fetchPortData(sessionID, nestedWorkflowID, localName, null, null);
 									intermediateValues = fetchPortData.getRecords();
