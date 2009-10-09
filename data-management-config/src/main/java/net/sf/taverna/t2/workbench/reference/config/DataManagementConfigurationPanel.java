@@ -46,6 +46,7 @@ public class DataManagementConfigurationPanel extends JPanel {
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         setLayout(gridbag);
+        
 
         enableProvenance = new JCheckBox("Enable provenance capture");
         JTextArea enableProvenanceText = new JTextArea("Disabling provenance will prevent you from being able to view intermediate results, but does give a performance benefit.");

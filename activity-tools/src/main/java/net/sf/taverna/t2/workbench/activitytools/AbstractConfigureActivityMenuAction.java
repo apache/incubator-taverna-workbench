@@ -17,6 +17,7 @@ public abstract class AbstractConfigureActivityMenuAction<ActivityClass extends 
 			.create("http://taverna.sf.net/2009/contextMenu/configureSection");
 
 	protected final Class<ActivityClass> activityClass;
+        
 
 	public AbstractConfigureActivityMenuAction(
 			Class<ActivityClass> activityClass) {
