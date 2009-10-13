@@ -56,7 +56,7 @@ public class DotWriter {
 	 * @throws IOException
 	 */
 	public void writeGraph(Graph graph) throws IOException {
-		writeLine("digraph " + graph.getId() + " {");
+		writeLine("digraph \"" + graph.getId() + "\" {");
 
 		// Overall graph style
 		writeLine(" graph [");
