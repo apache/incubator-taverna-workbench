@@ -159,9 +159,14 @@ public class PluginManagerFrame extends JDialog {
 		managerListener = new PluginManagerListener() {
 
 			public void pluginAdded(PluginManagerEvent event) {
-				if (event.getPlugin().getProfile().getSystemArtifacts().size()!=0) {
+				// For some reason even if a plugin does not declare dependencies to system 
+				// artifacts it is required for Taverna to be restarted to pick the new plugin up
+				// (probably because things like Service Panel and Perspectives where new plugins can
+				// have some effect are not listening to plugin updates), 
+				// so we have to show the "Restart Taverna" message in any case until this is fixed
+				//if (event.getPlugin().getProfile().getSystemArtifacts().size()!=0) {
 					JOptionPane.showMessageDialog(PluginManagerFrame.this,"The plugin '"+event.getPlugin().getName()+"' will not be fully functional until Taverna is restarted","Restart required.", JOptionPane.WARNING_MESSAGE);
-				}
+				//}
 			}
 
 			public void pluginChanged(PluginManagerEvent event)
