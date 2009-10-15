@@ -44,6 +44,7 @@ import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
+import net.sf.taverna.t2.workbench.file.events.ClosingDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.OpenedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
@@ -126,12 +127,17 @@ public class FileManagerImpl extends FileManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void closeDataflow(Dataflow dataflow, boolean failOnUnsaved)
+	public boolean closeDataflow(Dataflow dataflow, boolean failOnUnsaved)
 			throws UnsavedException {
 		if (dataflow == null) {
 			throw new NullPointerException("Dataflow can't be null");
 		}
-		if (failOnUnsaved && getOpenDataflowInfo(dataflow).isChanged()) {
+		ClosingDataflowEvent message = new ClosingDataflowEvent(dataflow);
+		observers.notify(message);
+		if (message.isAbortClose()) {
+			return false;
+		}
+		if ((failOnUnsaved && getOpenDataflowInfo(dataflow).isChanged())) {
 			throw new UnsavedException(dataflow);
 		}
 		if (dataflow.equals(getCurrentDataflow())) {
@@ -156,6 +162,7 @@ public class FileManagerImpl extends FileManager {
 		}
 		openDataflowInfos.remove(dataflow);
 		observers.notify(new ClosedDataflowEvent(dataflow));
+		return true;
 	}
 
 	/**
