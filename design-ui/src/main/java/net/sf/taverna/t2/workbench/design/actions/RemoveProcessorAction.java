@@ -67,10 +67,6 @@ public class RemoveProcessorAction extends DataflowEditAction {
 			List<? extends ProcessorOutputPort> outputPorts = processor.getOutputPorts();
 			List<? extends Condition> controlledPreconditions = processor.getControlledPreconditionList();
 			List<? extends Condition> preconditions = processor.getPreconditionList();
-			List<? extends Activity<?>> activities = processor.getActivityList();
-			for (Activity activity : activities) {
-				ActivityConfigurationAction.clearDialog(activity);
-			}
 			List<Edit<?>> editList = new ArrayList<Edit<?>>();
 			for (ProcessorInputPort inputPort : inputPorts) {
 				Datalink datalink = inputPort.getIncomingLink();
