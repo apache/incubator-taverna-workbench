@@ -66,8 +66,7 @@ public class CloseWorkflowAction extends AbstractAction {
 		}
 
 		try {
-			fileManager.closeDataflow(dataflow, true);
-			return true;
+			return fileManager.closeDataflow(dataflow, true);
 		} catch (UnsavedException e1) {
 			fileManager.setCurrentDataflow(dataflow);
 			String msg = "Do you want to save changes before closing the workflow "
