@@ -170,7 +170,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 *             If failOnUnsaved was <code>true</code> and there has been
 	 *             changes to the dataflow since the last save
 	 */
-	public abstract void closeDataflow(Dataflow dataflow, boolean failOnUnsaved)
+	public abstract boolean closeDataflow(Dataflow dataflow, boolean failOnUnsaved)
 			throws UnsavedException;
 
 	/**
