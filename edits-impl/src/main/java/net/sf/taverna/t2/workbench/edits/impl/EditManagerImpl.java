@@ -34,6 +34,8 @@ import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 
+import org.apache.log4j.Logger;
+
 /**
  * Implementation of {@link EditManager}.
  * 
@@ -46,6 +48,10 @@ public class EditManagerImpl extends EditManager {
 			this);
 
 	protected Map<Dataflow, DataflowEdits> editsForDataflow = new HashMap<Dataflow, DataflowEdits>();
+	
+	private static Logger logger = Logger.getLogger(EditManagerImpl.class);
+	
+
 
 	/**
 	 * {@inheritDoc}
@@ -144,6 +150,7 @@ public class EditManagerImpl extends EditManager {
 			edit.undo();
 			edits.addUndo(edit);
 		}
+		logger.info("Undoing an edit");
 		multiCaster.notify(new DataFlowUndoEvent(dataflow, edit));
 	}
 
