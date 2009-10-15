@@ -25,148 +25,218 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.sql.Connection;
+import java.sql.SQLException;
 
+import javax.naming.NamingException;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
+
+import org.apache.log4j.Logger;
+
 import net.sf.taverna.t2.workbench.helper.Helper;
 
 public class DataManagementConfigurationPanel extends JPanel {
 
-    private static final long serialVersionUID = 1L;
-    private DataManagementConfiguration configuration = DataManagementConfiguration.getInstance();
-    JCheckBox enableProvenance;
-    JCheckBox enableInMemory;
+	private static final long serialVersionUID = 1L;
+	private DataManagementConfiguration configuration = DataManagementConfiguration
+			.getInstance();
+	private final static Logger logger = Logger
+			.getLogger(DataManagementConfigurationPanel.class);
 
-    public DataManagementConfigurationPanel() {
-        GridBagLayout gridbag = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
-        setLayout(gridbag);
-        
+	JCheckBox enableProvenance;
+	JCheckBox enableInMemory;
 
-        enableProvenance = new JCheckBox("Enable provenance capture");
-        JTextArea enableProvenanceText = new JTextArea("Disabling provenance will prevent you from being able to view intermediate results, but does give a performance benefit.");
-        enableProvenanceText.setLineWrap(true);
-        enableProvenanceText.setWrapStyleWord(true);
-        enableProvenanceText.setEditable(false);
-        enableProvenanceText.setOpaque(false);
-        enableProvenanceText.setFont(enableProvenanceText.getFont().deriveFont(Font.PLAIN, 10));
+	public DataManagementConfigurationPanel() {
+		GridBagLayout gridbag = new GridBagLayout();
+		GridBagConstraints c = new GridBagConstraints();
+		setLayout(gridbag);
 
-        enableInMemory = new JCheckBox("In-memory storage");
-        JTextArea enableInMemoryText = new JTextArea("Data will not be stored between workbench sessions. This option is intended for testing only. Only use if your workflows have a low memory requirement. Provenance information is still recorded to a database.");
-        enableInMemoryText.setLineWrap(true);
-        enableInMemoryText.setWrapStyleWord(true);
-        enableInMemoryText.setEditable(false);
-        enableInMemoryText.setOpaque(false);
-        enableInMemoryText.setFont(enableProvenanceText.getFont().deriveFont(Font.PLAIN, 10));       
+		enableProvenance = new JCheckBox("Enable provenance capture");
+		JTextArea enableProvenanceText = new JTextArea(
+				"Disabling provenance will prevent you from being able to view intermediate results, but does give a performance benefit.");
+		enableProvenanceText.setLineWrap(true);
+		enableProvenanceText.setWrapStyleWord(true);
+		enableProvenanceText.setEditable(false);
+		enableProvenanceText.setOpaque(false);
+		enableProvenanceText.setFont(enableProvenanceText.getFont().deriveFont(
+				Font.PLAIN, 10));
 
-        JTextArea storageText = new JTextArea(
-                "Select how Taverna stores the data and provenance produced when a workflow is run. This includes workflow results and intermediate results.");
-        storageText.setLineWrap(true);
-        storageText.setWrapStyleWord(true);
-        storageText.setEditable(false);
-        storageText.setBorder(new EmptyBorder(10, 10, 10, 10));
+		enableInMemory = new JCheckBox("In-memory storage");
+		JTextArea enableInMemoryText = new JTextArea(
+				"Data will not be stored between workbench sessions. This option is intended for testing only. Only use if your workflows have a low memory requirement. Provenance information is still recorded to a database.");
+		enableInMemoryText.setLineWrap(true);
+		enableInMemoryText.setWrapStyleWord(true);
+		enableInMemoryText.setEditable(false);
+		enableInMemoryText.setOpaque(false);
+		enableInMemoryText.setFont(enableProvenanceText.getFont().deriveFont(
+				Font.PLAIN, 10));
 
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.insets = new Insets(0, 0, 10, 0);
-        c.gridx = 0;
-        c.gridy = GridBagConstraints.RELATIVE;
-        c.weightx = 1d;
-        c.weighty = 0d;
-        c.fill = GridBagConstraints.HORIZONTAL;
-        gridbag.setConstraints(storageText, c);
-        add(storageText);
+		JTextArea storageText = new JTextArea(
+				"Select how Taverna stores the data and provenance produced when a workflow is run. This includes workflow results and intermediate results.");
+		storageText.setLineWrap(true);
+		storageText.setWrapStyleWord(true);
+		storageText.setEditable(false);
+		storageText.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        c.ipady = 0;
-        c.insets = new Insets(0, 0, 5, 0);
-        gridbag.setConstraints(enableProvenance, c);
-        add(enableProvenance);
+		JComponent portPanel = createStatusComponent();
 
-        c.insets = new Insets(0, 20, 15, 20);
-        gridbag.setConstraints(enableProvenanceText, c);
-        add(enableProvenanceText);
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = new Insets(0, 0, 10, 0);
+		c.gridx = 0;
+		c.gridy = GridBagConstraints.RELATIVE;
+		c.weightx = 1d;
+		c.weighty = 1d;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		gridbag.setConstraints(storageText, c);
+		add(storageText);
 
-        c.insets = new Insets(0, 0, 5, 0);
-        gridbag.setConstraints(enableInMemory, c);
-        add(enableInMemory);
+		c.ipady = 0;
+		c.insets = new Insets(0, 0, 5, 0);
+		gridbag.setConstraints(enableProvenance, c);
+		add(enableProvenance);
 
-        c.insets = new Insets(0, 20, 15, 20);
-        gridbag.setConstraints(enableInMemoryText, c);
-        add(enableInMemoryText);
+		c.insets = new Insets(0, 20, 15, 20);
+		gridbag.setConstraints(enableProvenanceText, c);
+		add(enableProvenanceText);
 
-        JPanel buttonPanel = createButtonPanel();
-        c.insets = new Insets(0, 0, 5, 0);
-        gridbag.setConstraints(buttonPanel, c);
-        add(buttonPanel);
+		c.insets = new Insets(0, 0, 5, 0);
+		gridbag.setConstraints(enableInMemory, c);
+		add(enableInMemory);
 
-        resetFields(configuration);
+		c.insets = new Insets(0, 20, 15, 20);
+		gridbag.setConstraints(enableInMemoryText, c);
+		add(enableInMemoryText);
 
-    }
+		c.insets = new Insets(0, 20, 15, 20);
+		gridbag.setConstraints(portPanel, c);
+		add(portPanel);
 
-    // for testing only
-    public static void main(String[] args) {
-        JDialog dialog = new JDialog();
-        dialog.add(new DataManagementConfigurationPanel());
-        dialog.setModal(true);
-        dialog.setSize(500, 300);
-        dialog.setVisible(true);
-        System.exit(0);
-    }
+		JPanel buttonPanel = createButtonPanel();
+		c.insets = new Insets(0, 0, 5, 0);
+		gridbag.setConstraints(buttonPanel, c);
+		add(buttonPanel);
 
-    private void resetFields(DataManagementConfiguration instance) {
-        System.out.println("IN MEM="+configuration.getProperty(DataManagementConfiguration.IN_MEMORY));
-        enableInMemory.setSelected(configuration.getProperty(DataManagementConfiguration.IN_MEMORY).equalsIgnoreCase("true"));
-        enableProvenance.setSelected(configuration.getProperty(DataManagementConfiguration.ENABLE_PROVENANCE).equalsIgnoreCase("true"));
-    }
+		resetFields(configuration);
 
-    private void applySettings() {
-        configuration.setProperty(DataManagementConfiguration.ENABLE_PROVENANCE, String.valueOf(enableProvenance.isSelected()));
-        configuration.setProperty(DataManagementConfiguration.IN_MEMORY, String.valueOf(enableInMemory.isSelected()));
-    }
+	}
 
-    private JPanel createButtonPanel() {
-        final JPanel panel = new JPanel();
+	private JComponent createStatusComponent() {
 
-        /**
-         * The helpButton shows help about the current component
-         */
-        JButton helpButton = new JButton(new AbstractAction("Help") {
+		JTextArea textArea = new JTextArea();
+		Connection connection = null;
+		boolean running = false;
 
-            public void actionPerformed(ActionEvent arg0) {
-                Helper.showHelp(panel);
-            }
-        });
-        panel.add(helpButton);
+		try {
+			running = DataManagementHelper.isRunning();
+			connection = DataManagementHelper.openConnection();
 
-        /**
-         * The resetButton changes the property values shown to those
-         * corresponding to the configuration currently applied.
-         */
-        JButton resetButton = new JButton(new AbstractAction("Reset") {
+		} catch (Exception e) {
+			running = false;
+		} finally {
+			if (connection != null)
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					logger
+							.warn(
+									"Unable to close connection to database (or return to pool)",
+									e);
+				}
+		}
 
-            public void actionPerformed(ActionEvent arg0) {
-                resetFields(configuration);
-            }
-        });
-        panel.add(resetButton);
+		if (running) {
+			int port = DataManagementConfiguration.getInstance()
+					.getCurrentPort();
+			textArea.setText("The database is currently running on port: "
+					+ port);
+		} else {
+			textArea
+					.setText("Unable to retrieve a database connection - the database isn't available");
+		}
 
-        /**
-         * The applyButton applies the shown field values to the
-         * {@link HttpProxyConfiguration} and saves them for future.
-         */
-        JButton applyButton = new JButton(new AbstractAction("Apply") {
+		textArea.setLineWrap(true);
+		textArea.setWrapStyleWord(true);
+		textArea.setEditable(false);
+		textArea.setOpaque(false);
+		textArea.setAlignmentX(CENTER_ALIGNMENT);
+		textArea.setFont(textArea.getFont().deriveFont(Font.PLAIN, 10));
+		return textArea;
+	}
 
-            public void actionPerformed(ActionEvent arg0) {
-                applySettings();
-                resetFields(configuration);
-            }
-        });
-        panel.add(applyButton);
+	// for testing only
+	public static void main(String[] args) {
+		JDialog dialog = new JDialog();
+		dialog.add(new DataManagementConfigurationPanel());
+		dialog.setModal(true);
+		dialog.setSize(500, 300);
+		dialog.setVisible(true);
+		System.exit(0);
+	}
 
-        return panel;
-    }
+	private void resetFields(DataManagementConfiguration instance) {
+		enableInMemory
+				.setSelected(configuration.getProperty(
+						DataManagementConfiguration.IN_MEMORY)
+						.equalsIgnoreCase("true"));
+		enableProvenance.setSelected(configuration.getProperty(
+				DataManagementConfiguration.ENABLE_PROVENANCE)
+				.equalsIgnoreCase("true"));
+	}
+
+	private void applySettings() {
+		configuration.setProperty(
+				DataManagementConfiguration.ENABLE_PROVENANCE, String
+						.valueOf(enableProvenance.isSelected()));
+		configuration.setProperty(DataManagementConfiguration.IN_MEMORY, String
+				.valueOf(enableInMemory.isSelected()));
+	}
+
+	private JPanel createButtonPanel() {
+		final JPanel panel = new JPanel();
+
+		/**
+		 * The helpButton shows help about the current component
+		 */
+		JButton helpButton = new JButton(new AbstractAction("Help") {
+
+			public void actionPerformed(ActionEvent arg0) {
+				Helper.showHelp(panel);
+			}
+		});
+		panel.add(helpButton);
+
+		/**
+		 * The resetButton changes the property values shown to those
+		 * corresponding to the configuration currently applied.
+		 */
+		JButton resetButton = new JButton(new AbstractAction("Reset") {
+
+			public void actionPerformed(ActionEvent arg0) {
+				resetFields(configuration);
+			}
+		});
+		panel.add(resetButton);
+
+		/**
+		 * The applyButton applies the shown field values to the
+		 * {@link HttpProxyConfiguration} and saves them for future.
+		 */
+		JButton applyButton = new JButton(new AbstractAction("Apply") {
+
+			public void actionPerformed(ActionEvent arg0) {
+				applySettings();
+				resetFields(configuration);
+			}
+		});
+		panel.add(applyButton);
+
+		return panel;
+	}
 }

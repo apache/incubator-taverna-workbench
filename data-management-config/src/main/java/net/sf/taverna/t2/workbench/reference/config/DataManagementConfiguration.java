@@ -20,41 +20,45 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.reference.config;
 
-import java.io.File;
-import java.io.IOException;
-import java.sql.Connection;
 import java.util.HashMap;
 import java.util.Map;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
-import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.derby.drda.NetworkServerControl;
 
 /**
- * Configuration for the reference service.
+ * Configuration for the reference service and provenance.
  * 
  * @author David Withers
+ * @author Stuart Owen
  */
+
 public class DataManagementConfiguration extends AbstractConfigurable {
 
     public static final String IN_MEMORY = "In Memory";
     public static final String ENABLE_PROVENANCE = "Provenance enabled";
     public static final String CONNECTOR_TYPE = "Connector type";
     public static final String PORT = "Port";
+    public static final String CURRENT_PORT = "Current port";
     public static final String REFERENCE_SERVICE_CONTEXT = "referenceService.context";
     public static final String IN_MEMORY_CONTEXT = "inMemoryReferenceServiceContext.xml";
     public static final String HIBERNATE_CONTEXT = "hibernateReferenceServiceContext.xml";
+    public static final String POOL_MAX_ACTIVE = "Pool max active";
+    public static final String POOL_MIN_IDLE = "Pool min idle";
+    public static final String POOL_MAX_IDLE = "Pool max idle";
+    public static final String DRIVER_CLASS_NAME = "Driver class name";
+    
+    public static final String JNDI_NAME = "jdbc/taverna";
+    
     private Map<String, String> defaultPropertyMap;
     private static DataManagementConfiguration instance;
 
     public static DataManagementConfiguration getInstance() {
         if (instance == null) {
             instance = new DataManagementConfiguration();
+            
+            //FIXME: Still a silly place to start it
+            DataManagementHelper.startDerbyNetworkServer();
+            DataManagementHelper.setupDataSource();
         }
         return instance;
     }
@@ -66,57 +70,41 @@ public class DataManagementConfiguration extends AbstractConfigurable {
             return HIBERNATE_CONTEXT;
         }
     }
+    
+    public String getDriverClassName() {
+    	return getProperty(DRIVER_CLASS_NAME);
+    }
 
-    public boolean isProvenanceEnabled() {
-        System.out.println("Provenenance enabled = "+getProperty(ENABLE_PROVENANCE).equalsIgnoreCase("true"));
+    public boolean isProvenanceEnabled() {        
         return getProperty(ENABLE_PROVENANCE).equalsIgnoreCase("true");
     }
-
-    public void startDerbyNetworkServer() {
-        NetworkServerControl server;
-        System.setProperty("derby.drda.host","localhost");
-        System.setProperty("derby.drda.portNumber",getProperty(PORT));
-        try {
-            server = new NetworkServerControl();
-            server.start(null);
-        } catch (Exception ex) {
-            Logger.getLogger(DataManagementConfiguration.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+    
+    public int getPort() {
+    	return Integer.valueOf(getProperty(PORT));
     }
-
-    private void setupDataSource() {
-        //FIXME: this is temporary placeholder for setting up the database connection.
-
-        try {
-            System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
-                    "org.osjava.sj.memory.MemoryContextFactory");
-            System.setProperty("org.osjava.sj.jndi.shared", "true");
-
-            BasicDataSource ds = new BasicDataSource();
-            ds.setDriverClassName("org.apache.derby.jdbc.ClientDriver");
-            //ds.setDriverClassName("org.apache.derby.jdbc.EmbeddedDriver");
-            ds.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
-            ds.setMaxActive(50);
-            ds.setMinIdle(10);
-            ds.setMaxIdle(50);
-            ds.setDefaultAutoCommit(true);
-            ds.setInitialSize(20);
-            try {
-                ds.setUrl(getJDBCUri());
-                InitialContext context = new InitialContext();
-                context.rebind("jdbc/taverna", ds);
-            } catch (IOException ex) {
-                Logger.getLogger(DataManagementConfiguration.class.getName()).log(Level.SEVERE, "Unable to set up local database", ex);
-            }
-        } catch (NamingException ex) {
-            ex.printStackTrace();
-        }
+    
+    public void setCurrentPort(int port) {
+    	setProperty(CURRENT_PORT, String.valueOf(port));
+    }
+    
+    public int getCurrentPort() {
+    	return Integer.valueOf(getProperty(CURRENT_PORT));
+    }
+    
+    public int getPoolMaxActive() {
+    	return Integer.valueOf(getProperty(POOL_MAX_ACTIVE));
+    }
+    
+    public int getPoolMinIdle() {
+    	return Integer.valueOf(getProperty(POOL_MIN_IDLE));
+    }
+    
+    public int getPoolMaxIdle() {
+    	return Integer.valueOf(getProperty(POOL_MAX_IDLE));
     }
 
     private DataManagementConfiguration() {
-        startDerbyNetworkServer();
-        setupDataSource();
+        
     }
 
     public String getCategory() {
@@ -128,50 +116,27 @@ public class DataManagementConfiguration extends AbstractConfigurable {
             defaultPropertyMap = new HashMap<String, String>();
             defaultPropertyMap.put(IN_MEMORY, "false");
             defaultPropertyMap.put(ENABLE_PROVENANCE, "true");
-            defaultPropertyMap.put(PORT, "1529");
+            defaultPropertyMap.put(PORT, "1527");
+            defaultPropertyMap.put(DRIVER_CLASS_NAME, "org.apache.derby.jdbc.ClientDriver");
+            defaultPropertyMap.put(POOL_MAX_ACTIVE, "50");
+            defaultPropertyMap.put(POOL_MAX_IDLE, "50");
+            defaultPropertyMap.put(POOL_MIN_IDLE, "10");
+            
             defaultPropertyMap.put(CONNECTOR_TYPE,"Derby DB Connector");
         }
         return defaultPropertyMap;
     }
 
     public String getName() {
-        return "Data storage & provenance";
+        return "Data & provenance";
     }
 
     public String getUUID() {
         return "6BD3F5C1-C68D-4893-8D9B-2F46FA1DDB19";
     }
 
-    private String getJDBCUri() throws IOException {
 
-//        File applicationHomeDir = ApplicationRuntime.getInstance().getApplicationHomeDir();
-//        File dbFile = new File(applicationHomeDir, "t2-database");
-//        deleteDirectory(dbFile);
-//        if (!dbFile.mkdir()) {
-//            throw new IOException("Could not create database " + dbFile);
-//        }
-        //return "jdbc:derby:" + dbFile.toString() + "/database;create=true;upgrade=true";
-        return "jdbc:derby://localhost:" + getProperty(PORT) + "/t2-database;create=true;upgrade=true";
-
-    }
-
-    // copied from http://www.rgagnon.com/javadetails/java-0483.html
-    private boolean deleteDirectory(File path) {
-        if (path.exists()) {
-            File[] files = path.listFiles();
-            for (int i = 0; i < files.length; i++) {
-                if (files[i].isDirectory()) {
-                    deleteDirectory(files[i]);
-                } else {
-                    files[i].delete();
-                }
-            }
-        }
-        return (path.delete());
-    }
-
-    public String getConnectorType() {
-        System.out.println("Connector type = "+getProperty(CONNECTOR_TYPE));
+    public String getConnectorType() {        
         return getProperty(CONNECTOR_TYPE);
     }
 }
