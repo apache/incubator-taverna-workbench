@@ -59,7 +59,7 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 	private static Logger logger = Logger.getLogger(AddStringConstantTemplateMenuAction.class);
 
 	public AddStringConstantTemplateMenuAction(){
-		super(GraphEditMenuSection.GRAPH_EDIT_MENU_SECTION, 24, ADD_STRING_CONSTANT_URI);
+		super(GraphEditMenuSection.GRAPH_EDIT_MENU_SECTION, 25, ADD_STRING_CONSTANT_URI);
 	}
 
 	@Override
