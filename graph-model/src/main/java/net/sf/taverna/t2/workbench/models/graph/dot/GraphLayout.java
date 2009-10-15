@@ -26,6 +26,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.taverna.raven.log.Log;
 import net.sf.taverna.t2.workbench.models.graph.Graph;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.GraphEdge;
@@ -40,6 +41,8 @@ import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
  */
 public class GraphLayout implements DOTParserVisitor {
 	
+	private static Log logger = Log.getLogger(GraphLayout.class);
+
 	private static final int BORDER = 10;
 	
 	private Rectangle bounds;
@@ -61,6 +64,7 @@ public class GraphLayout implements DOTParserVisitor {
 		xOffset = 0;
 		yOffset = 0;
 		
+//		logger.error(laidOutDot);
 		DOTParser parser = new DOTParser(new StringReader(laidOutDot));
 		parser.parse().jjtAccept(this, graph);
 		
