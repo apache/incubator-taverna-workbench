@@ -459,9 +459,9 @@ public class WorkflowExplorer extends WorkflowView {
 						// containers for the 'real' workflow components).
 						if ((selectedNode.getUserObject() instanceof String) && (selectionPath.getPathCount() == 2)) {
 							selectionModel.clearSelection();
-							((WorkflowExplorerTreeSelectionModel) tree
-									.getSelectionModel())
-									.mySetSelectionPath(selectionPath);
+							tree
+									.getSelectionModel()
+									.setSelectionPath(selectionPath);
 
 							// If this was a right click - show a pop-up
 							// menu as well if there is one defined
