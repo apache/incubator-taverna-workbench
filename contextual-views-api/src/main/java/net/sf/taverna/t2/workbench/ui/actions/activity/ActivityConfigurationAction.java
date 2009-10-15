@@ -33,6 +33,7 @@ import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
+import net.sf.taverna.t2.workbench.file.events.ClosingDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -42,19 +43,20 @@ import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
 
 import org.apache.log4j.Logger;
 
 public abstract class ActivityConfigurationAction<A extends Activity<ConfigurationBean>, ConfigurationBean>
 		extends AbstractAction {
 
-	private static WeakHashMap<Activity, JDialog> configurationDialogs = new WeakHashMap<Activity, JDialog>();
+	private static WeakHashMap<Activity, ActivityConfigurationDialog> configurationDialogs = new WeakHashMap<Activity, ActivityConfigurationDialog>();
 	
 	
 	private static Logger logger = Logger
 			.getLogger(ActivityConfigurationAction.class);
 
-	private A activity;
+	protected A activity;
 	
 	private static DataflowCloseListener listener;
 
@@ -67,60 +69,22 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 		return activity;
 	}
 
-	protected void configureActivity(ConfigurationBean configurationBean) {
-		Edits edits = EditsRegistry.getEdits();
-		Edit<?> configureActivityEdit = edits.getConfigureActivityEdit(
-				getActivity(), configurationBean);
-		Dataflow currentDataflow = FileManager.getInstance()
-				.getCurrentDataflow();
-		try {
-			List<Edit<?>> editList = new ArrayList<Edit<?>>();
-			editList.add(configureActivityEdit);
-			Processor p = findProcessor(currentDataflow);
-			if (p != null && p.getActivityList().size() == 1) {
-				editList.add(edits.getMapProcessorPortsForActivityEdit(p));
-			}
-			EditManager.getInstance().doDataflowEdit(currentDataflow,
-					new CompoundEdit(editList));
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (EditException e) {
-			e.printStackTrace();
-		}
-	}
 
-	protected Processor findProcessor(Dataflow df) {
-		Activity<?> activity = getActivity();
-
-		for (Processor processor : df.getProcessors()) {
-			if (processor.getActivityList().contains(activity))
-				return processor;
-		}
-		return null;
-	}
-	
-	protected String getRelativeName() {
-		String result = "";
-		Dataflow currentDataflow = FileManager.getInstance()
-		.getCurrentDataflow();
-		if (currentDataflow != null) {
-			result += currentDataflow.getLocalName();
-			Processor p = findProcessor(currentDataflow);
-			if (p != null) {
-				result += (":" + p.getLocalName());
-			}
-		}
-		return result;
-	}
-	
-	protected static void setDialog(Activity activity, JDialog dialog) {
+	protected static void setDialog(Activity activity, ActivityConfigurationDialog dialog) {
 		if (listener == null) {
 			listener = new DataflowCloseListener();
+			// Ensure that the DataflowCloseListener is the first notified listener.  Otherwise you cannot save the configurations.
+			List<Observer<FileManagerEvent>> existingListeners = FileManager.getInstance().getObservers();			
 			FileManager.getInstance().addObserver(listener);
+			for (Observer<FileManagerEvent> observer : existingListeners) {
+				if (!observer.equals(listener)) {
+					FileManager.getInstance().removeObserver(observer);
+					FileManager.getInstance().addObserver(observer);
+				}
+			}
 		}
 		if (configurationDialogs.containsKey(activity)) {
-			JDialog currentDialog = configurationDialogs.get(activity);
+			ActivityConfigurationDialog currentDialog = configurationDialogs.get(activity);
 			if (!currentDialog.equals(dialog)) {
 				if (currentDialog.isVisible()) {
 					currentDialog.setVisible(false);
@@ -133,11 +97,12 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 	
 	public static void clearDialog(Activity activity) {
 		if (configurationDialogs.containsKey(activity)) {
-			JDialog currentDialog = configurationDialogs.get(activity);
+			ActivityConfigurationDialog currentDialog = configurationDialogs.get(activity);
 			if (currentDialog.isVisible()) {
 				currentDialog.setVisible(false);
 			}
 			configurationDialogs.remove(activity);
+			currentDialog.dispose();
 		}	
 	}
 	
@@ -151,10 +116,25 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 					configurationDialogs.remove(activity);
 				}
 			}
+			dialog.dispose();
 		}
 	}
 	
-	public static JDialog getDialog(Activity activity) {
+	public static boolean closeDialog(Activity activity) {
+		boolean closeIt = true;
+		if (configurationDialogs.containsKey(activity)) {
+			ActivityConfigurationDialog currentDialog = configurationDialogs.get(activity);
+			if (currentDialog.isVisible()) {
+				closeIt = currentDialog.closeDialog();
+			}
+			if (closeIt) {
+				configurationDialogs.remove(activity);
+			}
+		}
+		return closeIt;
+	}
+	
+	public static ActivityConfigurationDialog getDialog(Activity activity) {
 		return configurationDialogs.get(activity);
 	}
 	
@@ -162,11 +142,18 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) throws Exception {
-			if (message instanceof ClosedDataflowEvent) {
-				Dataflow dataflow = ((ClosedDataflowEvent) message).getDataflow();
+			if (message instanceof ClosingDataflowEvent) {
+				ClosingDataflowEvent closingDataflowEvent = (ClosingDataflowEvent) message;
+				if (closingDataflowEvent.isAbortClose()) {
+					return;
+				}
+				Dataflow dataflow = ((ClosingDataflowEvent) message).getDataflow();
 				for (Processor p : dataflow.getProcessors()) {
 					for (Activity a : p.getActivityList()) {
-						clearDialog(a);
+						if (!closeDialog(a)) {
+							closingDataflowEvent.setAbortClose(true);
+							return;
+						}
 					}
 				}
 			}
