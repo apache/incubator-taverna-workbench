@@ -462,21 +462,34 @@ public class PluginManagerFrame extends JDialog {
 		Object selectedObject = jList.getSelectedValue();
 		if (selectedObject!=null && selectedObject instanceof Plugin) {
 			Plugin plugin = (Plugin) selectedObject;
-			if (plugin.isEnabled()) {
+			
+			// If this is a build-in plugin - set the text of the enableButton
+			// to 'Disable' but also disable the button to indicate that
+			// built-in plugins cannot be disabled.
+			// Similarly, uninstallButton should be disabled in this case.
+			if (plugin.isBuiltIn()){
 				getEnableButton().setText("Disable");
 				getEnableButton().setActionCommand("disable");
-			} else {
-				getEnableButton().setText("Enable");
-				getEnableButton().setActionCommand("enable");
-			}
-			
-			//only allow plugin to be enabled if it is compatible.
-			if (plugin.isCompatible()) {								
-				getEnableButton().setEnabled(true);
-			}
-			else {
 				getEnableButton().setEnabled(false);
 			}
+			else{
+				if (plugin.isEnabled()) {
+					getEnableButton().setText("Disable");
+					getEnableButton().setActionCommand("disable");
+				} else {
+					getEnableButton().setText("Enable");
+					getEnableButton().setActionCommand("enable");
+				}
+				
+				//only allow plugin to be enabled if it is compatible.
+				if (plugin.isCompatible()) {								
+					getEnableButton().setEnabled(true);
+				}
+				else {
+					getEnableButton().setEnabled(false);
+				}
+			}
+
 			if (pluginManager.isUpdateAvailable(plugin)) {
 				getUpdateButton().setEnabled(true);
 			} else {
