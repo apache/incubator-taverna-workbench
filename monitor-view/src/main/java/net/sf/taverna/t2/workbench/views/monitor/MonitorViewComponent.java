@@ -55,8 +55,8 @@ import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
+import net.sf.taverna.t2.workbench.models.graph.GraphNode;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
@@ -280,6 +280,10 @@ class MonitorGraphEventManager implements GraphEventManager {
 
 		Object dataflowObject = graphElement.getDataflowObject();
 		GraphElement parent = graphElement.getParent();
+		if (parent instanceof GraphNode) {
+			   parent = parent.getParent();
+			}
+
 		if (monitorViewComponent.getGraphController().getDataflowSelectionModel() != null) {
 			monitorViewComponent.getGraphController().getDataflowSelectionModel().addSelection(dataflowObject);
 		}
@@ -321,8 +325,8 @@ class MonitorGraphEventManager implements GraphEventManager {
 									+ localName
 									+ " nested: " + targetWorkflowID);
 				} else {
-					frame.setTitle("Currently no intermediate results for "
-							+ localName);
+					frame.setTitle("Currently no intermediate results for service "
+							+ localName  + ". Click \'Fetch Results\' to try again.");
 					
 				}
 			}
@@ -334,9 +338,13 @@ class MonitorGraphEventManager implements GraphEventManager {
 			if (dataflowObject != null) {
 				if (dataflowObject instanceof Processor) {
 					if (provenanceConnector != null) {
-						localName = ((Processor) dataflowObject).getLocalName();
-						Processor processor = (Processor) dataflowObject;
-						frame.setTitle("Fetching intermediate results for " + localName);
+						//Is it a nested workflow that has been clicked on or a processor inside it?
+//						if (((Processor) dataflowObject).getActivityList().get(0) instanceof DataflowActivity) {
+//							localName = null;
+//						} else {
+							localName = ((Processor) dataflowObject).getLocalName();
+//						}
+						frame.setTitle("Fetching intermediate results for service " + localName);
 						//if the processor is inside a nested workflow then get the nested workflow id.  There
 						//no parent on a top level workflow
 //						if (parent == null) {
@@ -391,6 +399,7 @@ provResultsPanel = new ProvenanceResultsPanel();
 										}
 										provResultsPanel
 												.setLineageRecords(intermediateValues);
+										frame.setVisible(true);
 //										frame.setVisible(true);
 										logger
 												.info("Intermediate results retrieved for dataflow instance: "
@@ -404,8 +413,9 @@ provResultsPanel = new ProvenanceResultsPanel();
 //												"No results yet",
 //												JOptionPane.INFORMATION_MESSAGE);
 //										frame.setVisible(false);
-										frame.setTitle("Currently no intermediate results for "
-												+ localName);
+										frame.setTitle("Currently no intermediate results for service "
+												+ localName + ". Click \'Fetch Results\' to try again.");
+										frame.setVisible(true);
 										
 									}
 
@@ -413,6 +423,7 @@ provResultsPanel = new ProvenanceResultsPanel();
 									logger
 											.warn("Could not retrieve intermediate results: "
 													+ e.getStackTrace());
+									frame.setVisible(false);
 									JOptionPane.showMessageDialog(null,
 											"Could not retrieve intermediate results:\n"
 													+ e,
@@ -439,7 +450,7 @@ provResultsPanel = new ProvenanceResultsPanel();
 					panel.setMinimumSize(new Dimension(MINIMUM_WIDTH, MINIMUM_HEIGHT - 100));
 					frame.add(new JScrollPane(panel));
 					frame.setSize(new Dimension(800,500));
-					frame.setVisible(true);
+					
 					
 					frame.addComponentListener(new ComponentAdapter() {
 						public void componentResized(ComponentEvent e) {
