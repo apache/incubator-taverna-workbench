@@ -138,7 +138,11 @@ public class GraphNode extends GraphShapeElement {
 	 * @param graph the new graph
 	 */
 	public void setGraph(Graph graph) {
-		this.graph = graph;
+		 if (graph != null) {
+
+		     graph.setParent(this);
+		   }
+		   this.graph = graph;
 	}
 
 	/* (non-Javadoc)
