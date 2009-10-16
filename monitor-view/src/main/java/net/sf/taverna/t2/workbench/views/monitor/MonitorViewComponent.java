@@ -255,7 +255,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 	private TimerTask timerTask;
 	private Runnable runnable;
 	private String sessionID;
-	private String nestedWorkflowID;
+	private String targetWorkflowID;
 
 	static int MINIMUM_HEIGHT = 500;
 	static int MINIMUM_WIDTH = 800;
@@ -303,7 +303,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 			public void actionPerformed(ActionEvent e) {
 				ProvenanceAccess provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
 				//TODO use the new provenance access API with the nested workflow if required to get the results
-				Dependencies fetchPortData = provenanceAccess.fetchPortData(sessionID, nestedWorkflowID, localName, null, null);
+				Dependencies fetchPortData = provenanceAccess.fetchPortData(sessionID, targetWorkflowID, localName, null, null);
 				intermediateValues = fetchPortData.getRecords();
 				if (intermediateValues.size() > 0) {
 					frame.setTitle("Intermediate results for "
@@ -319,7 +319,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 									+ sessionID
 									+ " processor: "
 									+ localName
-									+ " nested: " + nestedWorkflowID);
+									+ " nested: " + targetWorkflowID);
 				} else {
 					frame.setTitle("Currently no intermediate results for "
 							+ localName);
@@ -347,12 +347,13 @@ class MonitorGraphEventManager implements GraphEventManager {
 							if (parent != null && parent.getDataflowObject() instanceof Processor) {
 								if (((Processor)parent.getDataflowObject()).getActivityList().get(0) instanceof DataflowActivity) {
 									Activity<?> activity = ((Processor)parent.getDataflowObject()).getActivityList().get(0);
-									nestedWorkflowID = ((DataflowActivity)activity).getNestedDataflow().getInternalIdentier();
+									targetWorkflowID = ((DataflowActivity)activity).getNestedDataflow().getInternalIdentier();
 								}
 							} else {
-								nestedWorkflowID = null;
+								targetWorkflowID = dataflow.getInternalIdentier();
 							}
 //						}
+							
 						String internalIdentier = dataflow
 								.getInternalIdentier();
 provResultsPanel = new ProvenanceResultsPanel();
@@ -371,10 +372,11 @@ provResultsPanel = new ProvenanceResultsPanel();
 													+ sessionID
 													+ " processor: "
 													+ localName
-													+ " nested: " + nestedWorkflowID);
+													+ " nested: " + targetWorkflowID);																
+									
 									ProvenanceAccess provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
 									//TODO use the new provenance access API with the nested workflow if required to get the results
-									Dependencies fetchPortData = provenanceAccess.fetchPortData(sessionID, nestedWorkflowID, localName, null, null);
+									Dependencies fetchPortData = provenanceAccess.fetchPortData(sessionID, targetWorkflowID, localName, null, null);
 									intermediateValues = fetchPortData.getRecords();
 									
 //									intermediateValues = provenanceConnector
@@ -395,7 +397,7 @@ provResultsPanel = new ProvenanceResultsPanel();
 														+ sessionID
 														+ " processor: "
 														+ localName
-														+ " nested: " + nestedWorkflowID);
+														+ " nested: " + targetWorkflowID);										
 									} else {
 //										JOptionPane.showMessageDialog(null,
 //												"Currently no intermediate results available for processor " + localName + "\nData may still be being processed",
