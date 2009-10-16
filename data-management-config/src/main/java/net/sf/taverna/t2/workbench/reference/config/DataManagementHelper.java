@@ -22,8 +22,7 @@ import org.apache.log4j.Logger;
 public class DataManagementHelper {
 	
 	private final static Logger logger = Logger.getLogger(DataManagementHelper.class); 
-		
-	
+			
 	private static NetworkServerControl server;
 	
 	public static void setupDataSource() {
@@ -76,6 +75,8 @@ public class DataManagementHelper {
 	public synchronized static void startDerbyNetworkServer() {
         
         System.setProperty("derby.drda.host","localhost");
+        System.setProperty("derby.drda.minThreads","5");
+        System.setProperty("derby.drda.maxThreads",String.valueOf(DataManagementConfiguration.getInstance().getPoolMaxActive()));
         
         int port=DataManagementConfiguration.getInstance().getPort();
         int maxPort = port+10;
