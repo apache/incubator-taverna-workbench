@@ -244,6 +244,9 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		if (depth == 0) {
 			graph.setDataflowObject(dataflow);
 		}
+		if (interactive) {
+			graph.setDataflowObject(dataflow);
+		}
 		
 		//processors
 		for (Processor processor : dataflow.getProcessors()) {
@@ -343,6 +346,9 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 				if (depth == 0) {
 					edge.setDataflowObject(condition);
 				}
+				if (interactive) {
+					edge.setDataflowObject(condition);
+				}
 				dataflowToGraph.put(condition, edge);
 				graphElementMap.put(edge.getId(), edge);
 			}
@@ -416,6 +422,9 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			if (depth == 0) {
 				edge.setDataflowObject(datalink);
 			}
+			if (interactive) {
+				edge.setDataflowObject(datalink);
+			}
 			dataflowToGraph.put(datalink, edge);
 			graphElementMap.put(edge.getId(), edge);
 		}
@@ -461,6 +470,9 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			inputNode.setColor(Color.BLACK);
 			inputNode.setFillColor(Color.decode("#8ed6f0"));
 			if (depth == 0) {
+				inputNode.setInteractive(true);
+			}
+			if (interactive) {
 				inputNode.setInteractive(true);
 			}
 			if (depth < 2) {
@@ -522,6 +534,9 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			if (depth == 0) {
 				outputNode.setInteractive(true);
 			}
+			if (interactive) {
+				outputNode.setInteractive(true);
+			}
 			if (depth < 2) {
 				if (dataflowToActivityPort.containsKey(outputPort)) {
 					outputNode.setDataflowObject(dataflowToActivityPort.get(outputPort));
@@ -551,6 +566,9 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		node.setLineStyle(LineStyle.SOLID);
 		node.setFillColor(Color.decode("#4f94cd"));
 		if (depth == 0) {
+			node.setDataflowObject(merge);
+		}
+		if (interactive) {
 			node.setDataflowObject(merge);
 		}
 
@@ -627,7 +645,11 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			}
 
 			Graph subGraph = generateGraph(subDataflow, prefix, processor.getLocalName(), depth + 1);
+			//TODO why does this depth matter?
 			if (depth == 0) {
+				subGraph.setDataflowObject(processor);
+			}
+			if (interactive) {
 				subGraph.setDataflowObject(processor);
 			}
 			node.setGraph(subGraph);
@@ -659,6 +681,9 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 				if (depth == 0) {
 					portNode.setDataflowObject(inputPort);
 				}
+				if (interactive) {
+					portNode.setDataflowObject(inputPort);
+				}
 				if (!node.isExpanded()) {
 					dataflowToGraph.put(inputPort, portNode);
 				}
@@ -688,6 +713,9 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 				portNode.setFillColor(node.getFillColor());
 				portNode.setLineStyle(LineStyle.SOLID);
 				if (depth == 0) {
+					portNode.setDataflowObject(outputPort);
+				}
+				if (interactive) {
 					portNode.setDataflowObject(outputPort);
 				}
 				if (!node.isExpanded()) {
