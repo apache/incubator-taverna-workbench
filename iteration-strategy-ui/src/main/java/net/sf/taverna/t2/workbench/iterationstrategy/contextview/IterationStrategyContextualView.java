@@ -150,7 +150,7 @@ public class IterationStrategyContextualView extends ContextualView {
 		private final Frame owner;
 
 		private ConfigureIterationStrategyAction(Frame owner) {
-			super("Configure list handling");
+			super("Configure");
 			this.owner = owner;
 		}
 
