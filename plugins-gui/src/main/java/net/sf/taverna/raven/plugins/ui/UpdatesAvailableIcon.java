@@ -110,12 +110,16 @@ public class UpdatesAvailableIcon extends JLabel implements
 			checkForUpdates();
 	}
 
-	public void pluginChanged(PluginManagerEvent event) {
+	public void pluginStateChanged(PluginManagerEvent event) {
 
 	}
 
+	public void pluginUpdated(PluginManagerEvent event) {
+		logger.info("Plugin Updated");
+	}
+	
 	public void pluginRemoved(PluginManagerEvent event) {
-		logger.info("Plugin Removed ");
+		logger.info("Plugin Removed");
 		if (isVisible())
 			checkForUpdates();
 	}

@@ -98,7 +98,11 @@ public class PluginListModel extends AbstractListModel implements PluginManagerL
 		fireIntervalRemoved(this, event.getPluginIndex(), event.getPluginIndex());
 	}
 
-	public void pluginChanged(PluginManagerEvent event) {		
+	public void pluginUpdated(PluginManagerEvent event) {		
+		//fireContentsChanged(this, event.getPluginIndex(), event.getPluginIndex());
+	}
+	
+	public void pluginStateChanged(PluginManagerEvent event) {		
 		fireContentsChanged(this, event.getPluginIndex(), event.getPluginIndex());
 	}
 

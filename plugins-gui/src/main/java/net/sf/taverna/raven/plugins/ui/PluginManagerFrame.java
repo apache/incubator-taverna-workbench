@@ -162,35 +162,43 @@ public class PluginManagerFrame extends JDialog {
 				// For some reason even if a plugin does not declare dependencies to system 
 				// artifacts it is required for Taverna to be restarted to pick the new plugin up
 				// (probably because things like Service Panel and Perspectives where new plugins can
-				// have some effect are not listening to plugin updates), 
-				// so we have to show the "Restart Taverna" message in any case until this is fixed
+				// have some effect are not listening to plugin changes). 
+				// So, we have to show the "Restart Taverna" message in any case until this is fixed.
 				//if (event.getPlugin().getProfile().getSystemArtifacts().size()!=0) {
-					JOptionPane.showMessageDialog(PluginManagerFrame.this,"The plugin '"+event.getPlugin().getName()+"' will not be fully functional until Taverna is restarted","Restart required.", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(PluginManagerFrame.this,"The plugin '"+event.getPlugin().getName()+"' will not be fully functional until Taverna is restarted","Restart Required", JOptionPane.WARNING_MESSAGE);
 				//}
 			}
 
-			public void pluginChanged(PluginManagerEvent event)
+			public void pluginStateChanged(PluginManagerEvent event)
 			{
-				if (event.getPlugin().getProfile().getSystemArtifacts().size()!=0) {
+				// As in the pluginAdded() method, it is currently always required 
+				// to restart Taverna for any changes to the plugins to take effect
+				// (probably because things like Service Panel and Perspectives where 
+				// changes to plugin can have some effect are not listening to these changes). 
+				// So, we have to show the "Restart Taverna" message in any case until this is fixed.
+				//if (event.getPlugin().getProfile().getSystemArtifacts().size()!=0) {
 					if (event.getSource() instanceof PluginEvent) {
 						PluginEvent pluginEvent = (PluginEvent)event.getSource();
 						if (pluginEvent.getAction()==PluginEvent.ENABLED) {
-							JOptionPane.showMessageDialog(PluginManagerFrame.this, "The plugin '"+event.getPlugin().getName()+"' will not be completely enabled until Taverna is restarted.","Restart required", JOptionPane.WARNING_MESSAGE);
+							JOptionPane.showMessageDialog(PluginManagerFrame.this, "The plugin '"+event.getPlugin().getName()+"' will not be completely enabled until Taverna is restarted.","Restart Required", JOptionPane.WARNING_MESSAGE);
 						}
 						else if (pluginEvent.getAction()==PluginEvent.DISABLED) {
-							JOptionPane.showMessageDialog(PluginManagerFrame.this, "The plugin '"+event.getPlugin().getName()+"' will not be completely disabled until Taverna is restarted.","Restart required", JOptionPane.WARNING_MESSAGE);
+							JOptionPane.showMessageDialog(PluginManagerFrame.this, "The plugin '"+event.getPlugin().getName()+"' will not be completely disabled until Taverna is restarted.","Restart Required", JOptionPane.WARNING_MESSAGE);
 						}
 					}
-				}
-				
+				//}
 			}
 
 			public void pluginIncompatible(PluginManagerEvent event) {
 				
 			}
 
+			public void pluginUpdated(PluginManagerEvent event) {
+				JOptionPane.showMessageDialog(PluginManagerFrame.this, "The plugin '"+event.getPlugin().getName()+"' will not be completely updated until Taverna is restarted.","Restart Required", JOptionPane.WARNING_MESSAGE);
+			}
+			
 			public void pluginRemoved(PluginManagerEvent event) {
-				JOptionPane.showMessageDialog(PluginManagerFrame.this, "The plugin '"+event.getPlugin().getName()+"' will not be completely uninstalled until Taverna is restarted.","Restart required", JOptionPane.WARNING_MESSAGE);
+				JOptionPane.showMessageDialog(PluginManagerFrame.this, "The plugin '"+event.getPlugin().getName()+"' will not be completely uninstalled until Taverna is restarted.","Restart Required", JOptionPane.WARNING_MESSAGE);
 			}
 			
 		};
@@ -287,6 +295,7 @@ public class PluginManagerFrame extends JDialog {
 						pluginManager.updatePlugin((Plugin) selectedObject);
 					}
 					jList.setSelectedValue(selectedObject, true);
+					updateButton.setEnabled(false);
 				}
 			});
 		}
@@ -457,6 +466,8 @@ public class PluginManagerFrame extends JDialog {
 					} else {
 						jList.setSelectedIndex(0);
 					}
+					// Respond to selected plugin - i.e. enable/disable action buttons as appropriate 
+					respondToSelectedPlugin();
 				}
 			});
 		}
