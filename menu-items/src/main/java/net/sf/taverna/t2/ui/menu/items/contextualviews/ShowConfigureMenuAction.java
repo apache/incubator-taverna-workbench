@@ -68,11 +68,10 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 	protected class ShowConfigureAction extends DesignOnlyAction {
 		ShowConfigureAction() {
 		super();
-//		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
 		putValue(NAME, "Configure");	
 		putValue(SHORT_DESCRIPTION, "Configure selected component");
 		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0));
+				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true));
 		}
 		public void actionPerformed(ActionEvent e) {
 			Dataflow dataflow = FileManager.getInstance().getCurrentDataflow();
