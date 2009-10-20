@@ -134,13 +134,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 
 								public void actionPerformed(ActionEvent e) {
 									Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
-									try {
-										WorkflowView.importServiceDescription(currentDataflow, sd, ServiceTreeClickListener.this.panel, false);
-									} catch (InstantiationException e1) {
-										logger.warn(e1.getMessage());
-									} catch (IllegalAccessException e1) {
-										logger.warn(e1.getMessage());
-									}
+									WorkflowView.importServiceDescription(sd, false);
 									
 								}
 								
@@ -149,13 +143,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 
 								public void actionPerformed(ActionEvent e) {
 									Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
-									try {
-										WorkflowView.importServiceDescription(currentDataflow, sd, ServiceTreeClickListener.this.panel, true);
-									} catch (InstantiationException e1) {
-										logger.warn(e1.getMessage());
-									} catch (IllegalAccessException e1) {
-										logger.warn(e1.getMessage());
-									}
+									WorkflowView.importServiceDescription(sd, true);
 									
 								}
 								
