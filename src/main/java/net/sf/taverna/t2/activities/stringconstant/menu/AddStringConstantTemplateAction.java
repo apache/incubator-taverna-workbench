@@ -81,16 +81,8 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 						
 						Dataflow workflow = FileManager.getInstance().getCurrentDataflow();
 						
-						try {
-							WorkflowView.importServiceDescription(workflow, StringConstantTemplateService.getServiceDescription(),
-									(JComponent) e.getSource(), false);
-						} catch (InstantiationException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						} catch (IllegalAccessException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
+						WorkflowView.importServiceDescription(StringConstantTemplateService.getServiceDescription(),
+								false);
 					
 					}
 			
