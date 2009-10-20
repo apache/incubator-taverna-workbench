@@ -81,6 +81,7 @@ public class WorkbenchIcons {
 	public static ImageIcon searchIcon;
 	public static ImageIcon pasteIcon;
 	public static ImageIcon copyIcon;
+	public static ImageIcon cutIcon;
 	public static ImageIcon datalinkIcon;
 	public static ImageIcon controlLinkIcon;
 	public static ImageIcon mergeIcon;
@@ -172,6 +173,7 @@ public class WorkbenchIcons {
 			nullIcon = new ImageIcon(new java.awt.image.BufferedImage(1, 1,
 					java.awt.image.BufferedImage.TYPE_INT_RGB));
 			copyIcon = new ImageIcon(c.getResource("generic/copy.png"));
+			cutIcon = new ImageIcon(c.getResource("generic/cut.png"));
 			pasteIcon = new ImageIcon(c.getResource("generic/paste.png"));
 			searchIcon = new ImageIcon(c
 					.getResource("generic/search.png"));
