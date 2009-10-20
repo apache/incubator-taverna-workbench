@@ -962,12 +962,10 @@ public class ResourcePreviewFactory {
   private JScrollPane createWorkflowComponentPreviewTab(Workflow w) {
 	final JPanel jpWorkflowComponentsTabContent = createStandardTabContentPanel();
 
-	if (!w.isTaverna1Workflow()) {
+	if (!w.isTavernaWorkflow()) {
 	  // can only display components for Taverna 1 workflows at the moment
-	  JLabel lNotSupported = new JLabel(
-		  "<html>This is "
-			  + w.getVisibleType()
-			  + " workflow;<br/>myExperiment can only display Taverna 1 workflow components at the moment.</html>");
+	  JLabel lNotSupported = new JLabel("<html>This is a " + w.getVisibleType()
+	      + " workflow;<br/>myExperiment can only display Taverna workflow components at the moment.</html>");
 	  lNotSupported.setFont(lNotSupported.getFont().deriveFont(Font.ITALIC));
 	  lNotSupported.setForeground(Color.GRAY);
 	  jpWorkflowComponentsTabContent.add(lNotSupported);

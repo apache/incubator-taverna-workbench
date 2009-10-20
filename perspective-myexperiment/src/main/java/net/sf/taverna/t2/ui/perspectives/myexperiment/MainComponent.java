@@ -272,7 +272,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 	this.tpMainTabs.add("Starter Pack", this.pExampleWorkflows);
 	this.tpMainTabs.add("Tag Browser", this.pTagBrowser);
 	this.tpMainTabs.add("Search", this.pSearchTab);
-	this.tpMainTabs.add("History", this.pHistoryBrowserTab);
+	this.tpMainTabs.add("Local History", this.pHistoryBrowserTab);
 
 	// add main tabs and the status bar into the perspective
 	this.setLayout(new BorderLayout());

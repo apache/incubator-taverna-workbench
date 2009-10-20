@@ -2,12 +2,16 @@ package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,7 +69,20 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
   private JPanel jpDownloadedItemsHistory;
   private JPanel jpOpenedItemsHistory;
   private JPanel jpCommentedOnHistory;
-  
+  private JSplitPane spMain;
+  private JClickableLabel jclPreviewHistory;
+  private JClickableLabel jclSearchHistory;
+  private JClickableLabel jclTagSearchHistory;
+  private JClickableLabel jclDownloadedItemsHistory;
+  private JClickableLabel jclOpenedItemsHistory;
+  private JClickableLabel jclCommentedOnHistory;
+  private JPanel jpPreviewHistoryBox;
+  private JPanel jpSearchHistoryBox;
+  private JPanel jpTagSearchHistoryBox;
+  private JPanel jpDownloadedItemsHistoryBox;
+  private JPanel jpOpenedItemsHistoryBox;
+  private JPanel jpCommentedOnHistoryBox;
+
   
   @SuppressWarnings("unchecked")
   public HistoryBrowserTabContentPanel(MainComponent component, MyExperimentClient client, Logger logger)
@@ -139,7 +156,7 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 	JPanel jpTemp = new JPanel();
 	jpTemp.setLayout(new BorderLayout());
 	jpTemp.add(generateContentBox(strBoxTitle, jPanel), BorderLayout.CENTER);
-	JButton bClear = new JButton("Clear " + strBoxTitle, WorkbenchIcons.configureIcon);
+	JButton bClear = new JButton("Clear " + strBoxTitle, WorkbenchIcons.deleteIcon);
 	bClear.addActionListener(new ActionListener() {
 	  public void actionPerformed(ActionEvent e) {
 		confirmHistoryDelete(id, strBoxTitle);
@@ -147,6 +164,7 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 	});
 
 	jpTemp.add(bClear, BorderLayout.SOUTH);
+	jpTemp.setMinimumSize(new Dimension(500, 0));
 	return jpTemp;
   }
   
@@ -164,30 +182,66 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
     this.jpOpenedItemsHistory = new JPanel();
     this.jpCommentedOnHistory = new JPanel();
     
+    // create sidebar
+    JPanel jpSidebar = new JPanel();
+    jpSidebar.setLayout(new BoxLayout(jpSidebar, BoxLayout.Y_AXIS));
+    
+    jclPreviewHistory = new JClickableLabel("Previewed Items", "preview_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
+	jclPreviewHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    jpSidebar.add(jclPreviewHistory);
+    
+    jclSearchHistory = new JClickableLabel("Search History", "search_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
+    jclSearchHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    jpSidebar.add(jclSearchHistory);
+    
+    jclTagSearchHistory = new JClickableLabel("Tag Searches Made", "tag_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
+    jclTagSearchHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    jpSidebar.add(jclTagSearchHistory);
+    
+    jclDownloadedItemsHistory = new JClickableLabel("Downloaded Items", "downloads_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
+    jclDownloadedItemsHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    jpSidebar.add(jclDownloadedItemsHistory);
+    
+    jclOpenedItemsHistory = new JClickableLabel("Opened Items", "opened_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
+    jclOpenedItemsHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    jpSidebar.add(jclOpenedItemsHistory);
+    
+    jclCommentedOnHistory = new JClickableLabel("Items Commented On", "comments_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
+    jclCommentedOnHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+    jpSidebar.add(jclCommentedOnHistory);
+        
+    JPanel jpSidebarContainer = new JPanel();
+	jpSidebarContainer.add(jpSidebar, BorderLayout.NORTH);
+    JScrollPane spSidebar = new JScrollPane(jpSidebarContainer);
+    spSidebar.getVerticalScrollBar().setUnitIncrement(ResourcePreviewBrowser.PREFERRED_SCROLL);
+    spSidebar.setMinimumSize(new Dimension(245, 0));
+    spSidebar.setMaximumSize(new Dimension(300, 0));
+    
     // create standard boxes for each content holder panels
-    JPanel jpPreviewHistoryBox = addSpecifiedPanel(1, "Preview History", jpPreviewHistory);
-    JPanel jpSearchHistoryBox = addSpecifiedPanel(2, "Search History", jpSearchHistory);
-    JPanel jpTagSearchHistoryBox = addSpecifiedPanel(3, "Tag Search History", jpTagSearchHistory);
-    JPanel jpDownloadedItemsHistoryBox = addSpecifiedPanel(4, "Downloaded Items", jpDownloadedItemsHistory);
-    JPanel jpOpenedItemsHistoryBox = addSpecifiedPanel(5, "Opened Items", jpOpenedItemsHistory);
-    JPanel jpCommentedOnHistoryBox = addSpecifiedPanel(6, "Commented On", jpCommentedOnHistory);
+    // only one of these will hold the right hand side of spMain at any given time
+    // arg 1: is the ID, which will be used by confirmHistoryDelete() to decide
+    // how to delete the history item
+    jpPreviewHistoryBox = addSpecifiedPanel(1, "Preview History", jpPreviewHistory);
+    jpSearchHistoryBox = addSpecifiedPanel(2, "Search History", jpSearchHistory);
+    jpTagSearchHistoryBox = addSpecifiedPanel(3, "Tag Search History", jpTagSearchHistory);
+    jpDownloadedItemsHistoryBox = addSpecifiedPanel(4, "Downloaded Items", jpDownloadedItemsHistory);
+    jpOpenedItemsHistoryBox = addSpecifiedPanel(5, "Opened Items", jpOpenedItemsHistory);
+    jpCommentedOnHistoryBox = addSpecifiedPanel(6, "Commented On", jpCommentedOnHistory);
+    
+    // put everything together
+    spMain = new JSplitPane();
+    spMain.setLeftComponent(spSidebar);
+    spMain.setRightComponent(jpPreviewHistoryBox);
+    
+    spMain.setOneTouchExpandable(true);
+    spMain.setDividerLocation(247);
+    spMain.setDoubleBuffered(true);
 
-    // PUT BOXES TOGETHER
-    JPanel jpMain = new JPanel();
-    jpMain.setLayout(new GridLayout(2, 3));
-    
-    jpMain.add(jpPreviewHistoryBox);
-    jpMain.add(jpSearchHistoryBox);
-    jpMain.add(jpTagSearchHistoryBox);
-    jpMain.add(jpDownloadedItemsHistoryBox);
-    jpMain.add(jpOpenedItemsHistoryBox);
-    jpMain.add(jpCommentedOnHistoryBox);
-    
-    
-    // PUT EVERYTHING TOGETHER
+    // spMyStuff will be the only component in the Panel
     this.setLayout(new BorderLayout());
+    this.add(spMain);
     this.add(lHelper, BorderLayout.NORTH);
-    this.add(jpMain, BorderLayout.CENTER);
+    
   }
   
   
@@ -447,6 +501,13 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
         // open tag browser tab and start the chosen tag search
         this.pluginMainComponent.getTagBrowserTab().actionPerformed(e);
         this.pluginMainComponent.getMainTabs().setSelectedComponent(this.pluginMainComponent.getTagBrowserTab());
+      } else if (e.getActionCommand().contains("history")) {
+		if (e.getActionCommand() ==  "preview_history") spMain.setRightComponent(jpPreviewHistoryBox);
+		else if (e.getActionCommand() ==  "search_history") spMain.setRightComponent(jpSearchHistoryBox);
+		else if (e.getActionCommand() ==  "tag_history") spMain.setRightComponent(jpTagSearchHistoryBox);
+		else if (e.getActionCommand() ==  "downloads_history") spMain.setRightComponent(jpDownloadedItemsHistoryBox);
+		else if (e.getActionCommand() ==  "opened_history") spMain.setRightComponent(jpOpenedItemsHistoryBox);
+		else if (e.getActionCommand() ==  "comments_history") spMain.setRightComponent(jpCommentedOnHistoryBox);
       }
     }
     
