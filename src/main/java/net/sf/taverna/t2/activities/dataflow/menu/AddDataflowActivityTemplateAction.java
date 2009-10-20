@@ -68,18 +68,8 @@ public class AddDataflowActivityTemplateAction extends AbstractContextualMenuAct
 				.iconForActivity(new DataflowActivity())){
 
 			public void actionPerformed(ActionEvent e) {
-				Dataflow workflow = FileManager.getInstance().getCurrentDataflow();
-
-				try {
-					WorkflowView.importServiceDescription(workflow, DataflowTemplateService.getServiceDescription(),
-							(JComponent) e.getSource(), false);
-				} catch (InstantiationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (IllegalAccessException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}	
+				WorkflowView.importServiceDescription(DataflowTemplateService.getServiceDescription(),
+						false);	
 			}
 		};
 		
