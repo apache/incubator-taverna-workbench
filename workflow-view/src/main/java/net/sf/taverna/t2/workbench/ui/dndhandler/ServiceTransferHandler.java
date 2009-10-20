@@ -20,10 +20,12 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.dndhandler;
 
+import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
+import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
@@ -34,10 +36,16 @@ import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.ProcessorXMLSerializer;
 
 import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.JDOMException;
 
 /**
  * TransferHandler for accepting ActivityAndBeanWrapper object dropped on the
@@ -57,7 +65,6 @@ public class ServiceTransferHandler extends TransferHandler {
 	private Dataflow currentDataflow;
 
 	private DataFlavor serviceDescriptionDataFlavor;
-
 	public ServiceTransferHandler() {
 		
 		ModelMap.getInstance().addObserver(new Observer<ModelMap.ModelMapEvent>() {
@@ -109,24 +116,28 @@ public class ServiceTransferHandler extends TransferHandler {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean importData(JComponent component, Transferable transferable) {
-		boolean result = false;
 		logger.info("Importing a transferable");
-		try {
-			Object data = transferable.getTransferData(serviceDescriptionDataFlavor);
-			if (data instanceof ServiceDescription) {				
-				WorkflowView.importServiceDescription(currentDataflow, (ServiceDescription) data, component, false);
+		logger.info(component.getClass().getCanonicalName());
+			WorkflowView.pasteTransferable(transferable);
+		return true;
+	}
+	
+	protected Transferable createTransferable(JComponent c) {
+		return null;
+	}
 
-				result = true;
-			}
-		} catch (UnsupportedFlavorException e) {
-			logger.warn("Could not import data : unsupported flavor", e);
-		} catch (IOException e) {
-			logger.warn("Could not import data : I/O error", e);
-		} catch (InstantiationException e) {
-			logger.warn(e.getMessage());
-		} catch (IllegalAccessException e) {
-			logger.warn(e.getMessage());
+	public int getSourceActions(JComponent c) {
+		return COPY_OR_MOVE;
+	}
+	
+	@Override
+	public void exportToClipboard(JComponent comp, Clipboard clip, int action)
+			throws IllegalStateException {
+		super.exportToClipboard(comp, clip, action);
+		if (action == COPY) {
+			WorkflowView.copyProcessor();
+		} else if (action == MOVE) {
+			WorkflowView.cutProcessor();
 		}
-		return result;
 	}
 }
