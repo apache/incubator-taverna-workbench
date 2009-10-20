@@ -17,6 +17,8 @@ net.sf.taverna.t2.ui.menu.items.dataflow.CreateOutputMenuAction
 net.sf.taverna.t2.ui.menu.items.dataflow.WorkflowInputsSection
 net.sf.taverna.t2.ui.menu.items.dataflow.WorkflowOutputsSection
 net.sf.taverna.t2.ui.menu.items.dataflow.WorkflowServiceTemplatesSection
+net.sf.taverna.t2.ui.menu.items.dataflow.EditSection
+net.sf.taverna.t2.ui.menu.items.contextualviews.PasteMenuAction
 
 net.sf.taverna.t2.ui.menu.items.link.LinkSection
 net.sf.taverna.t2.ui.menu.items.link.RemoveLinkMenuAction
