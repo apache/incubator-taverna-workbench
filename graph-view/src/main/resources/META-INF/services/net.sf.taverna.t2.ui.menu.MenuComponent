@@ -12,10 +12,12 @@ net.sf.taverna.t2.workbench.views.graph.menu.DiagramSaveMenuSection
 net.sf.taverna.t2.workbench.views.graph.menu.DiagramZoomMenuSection
 
 net.sf.taverna.t2.workbench.views.graph.menu.GraphMenuSection
+net.sf.taverna.t2.workbench.views.graph.menu.GraphCopyMenuSection
 net.sf.taverna.t2.workbench.views.graph.menu.GraphEditMenuSection
 net.sf.taverna.t2.workbench.views.graph.menu.GraphDeleteMenuSection
 net.sf.taverna.t2.workbench.views.graph.menu.GraphDetailsMenuSection
 
+net.sf.taverna.t2.workbench.views.graph.menu.ImportWFMenuAction
 net.sf.taverna.t2.workbench.views.graph.menu.AddWFInputMenuAction
 net.sf.taverna.t2.workbench.views.graph.menu.AddWFOutputMenuAction
 net.sf.taverna.t2.workbench.views.graph.menu.RenameWFInputOutputProcessorMenuAction
