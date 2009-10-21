@@ -42,7 +42,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
@@ -65,6 +64,7 @@ import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.renderers.Renderer;
 import net.sf.taverna.t2.renderers.RendererException;
 import net.sf.taverna.t2.renderers.RendererRegistry;
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.views.results.ResultTreeNode.ResultTreeNodeState;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPIRegistry;
@@ -204,7 +204,7 @@ public class RenderedResultComponent extends JPanel {
 							// Exception
 							// show the user that something unexpected has happened but
 							// continue
-							component = new JTextArea(
+							component = new DialogTextArea(
 									"Could not render using renderer type "
 									+ renderer.getClass().getName()
 									+ "\n"

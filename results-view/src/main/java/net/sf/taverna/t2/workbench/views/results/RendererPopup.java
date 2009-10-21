@@ -42,7 +42,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JTextArea;
 import javax.swing.JTree;
 
 import net.sf.jmimemagic.Magic;
@@ -51,6 +50,7 @@ import net.sf.jmimemagic.MagicMatch;
 import net.sf.jmimemagic.MagicMatchNotFoundException;
 import net.sf.jmimemagic.MagicParseException;
 import net.sf.taverna.t2.invocation.InvocationContext;
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.renderers.Renderer;
 import net.sf.taverna.t2.renderers.RendererException;
@@ -216,12 +216,12 @@ public class RendererPopup extends MouseAdapter {
 					// Exception
 					// show the user that something unexpected has happened but
 					// continue
-					component = new JTextArea(
+					component = new DialogTextArea(
 							"Could not render using renderer type "
 									+ guiRenderer.getClass().getName()
 									+ "\n"
 									+ "Please try with a different renderer if available and consult log for details of problem");
-					logger.warn("Couln not render using "
+					logger.warn("Could not render using "
 							+ guiRenderer.getClass().getName(), e1);
 				}
 				// RenderedResultComponent rendererComponent =
