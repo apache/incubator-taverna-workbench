@@ -25,8 +25,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,8 +34,6 @@ import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -46,7 +42,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
@@ -60,6 +55,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
 import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTree;
 import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTreeModel;
@@ -98,8 +94,6 @@ public class RegistrationPanel extends JPanel {
 			RegistrationPanel.class.getResource("/icons/web.gif"));
 	private static final ImageIcon deleteNodeIcon = new ImageIcon(
 			RegistrationPanel.class.getResource("/icons/delete_obj.gif"));
-	private static final ImageIcon errorIcon = new ImageIcon(
-			RegistrationPanel.class.getResource("/icons/error_tsk.gif"));
 	public static final ImageIcon infoIcon = new ImageIcon(
 			RegistrationPanel.class.getResource("/icons/information.gif"));
 
@@ -115,13 +109,11 @@ public class RegistrationPanel extends JPanel {
 	private DeleteNodeAction deleteNodeAction = new DeleteNodeAction();
 
 	private int depth;
-	private JPanel editorPane;
 	private JSplitPane splitPane;
 	private final JLabel status;
-	private JTextArea descriptionArea;
-	private JTextArea exampleArea;
-	private JTextArea textArea;
-	private JLabel textAreaType;
+	private DialogTextArea descriptionArea;
+	private DialogTextArea exampleArea;
+	private DialogTextArea textArea;
 	private final PreRegistrationTree tree;
 	private final PreRegistrationTreeModel treeModel;
 	private TextAreaDocumentListener textAreaDocumentListener;
@@ -129,10 +121,6 @@ public class RegistrationPanel extends JPanel {
 
 	private String example;
 
-
-	private String description;
-
-	private String name;
 
 	/**
 	 * Construct a new registration panel for an input with the specified depth.
@@ -146,8 +134,6 @@ public class RegistrationPanel extends JPanel {
 	public RegistrationPanel(int depth, String name, String description, String example) {
 		super(new BorderLayout());
 		this.depth = depth;
-		this.name = name;
-		this.description = description;
 		this.example = example;
 		tree = new PreRegistrationTree(depth, name) {
 			@Override
@@ -186,15 +172,15 @@ public class RegistrationPanel extends JPanel {
 		
 		tree.setRootVisible(false);
 
-		editorPane = new JPanel(new BorderLayout());
+		new JPanel(new BorderLayout());
 
-		descriptionArea = new JTextArea(NO_PORT_DESCRIPTION, 5, 40);
+		descriptionArea = new DialogTextArea(NO_PORT_DESCRIPTION, 5, 40);
 		descriptionArea.setBorder(new TitledBorder("Port description"));
 		descriptionArea.setEditable(false);
 		descriptionArea.setLineWrap(true);
 		descriptionArea.setWrapStyleWord(true);
 		
-		exampleArea = new JTextArea(NO_EXAMPLE_VALUE, 2, 40);
+		exampleArea = new DialogTextArea(NO_EXAMPLE_VALUE, 2, 40);
 		exampleArea.setBorder(new TitledBorder("Example value"));
 		exampleArea.setEditable(false);
 		exampleArea.setLineWrap(true);
@@ -211,7 +197,7 @@ public class RegistrationPanel extends JPanel {
 		headerAndToolBarPane.add(headerPanel, BorderLayout.NORTH);
 		headerAndToolBarPane.add(createToolBar(), BorderLayout.SOUTH);
 		
-		textArea = new JTextArea();
+		textArea = new DialogTextArea();
 		textAreaDocumentListener = new TextAreaDocumentListener(textArea);
 		textArea.setEditable(false);
 		splitPane = new JSplitPane();
@@ -566,11 +552,11 @@ public class RegistrationPanel extends JPanel {
 	
 	private class TextAreaDocumentListener implements DocumentListener {
 		
-		private final JTextArea textArea;
+		private final DialogTextArea textArea;
 
 		private MutableTreeNode selection;
 		
-		 		public TextAreaDocumentListener(JTextArea textArea) {
+		 		public TextAreaDocumentListener(DialogTextArea textArea) {
 			this.textArea = textArea;
 			textArea.getDocument().addDocumentListener(this);
 			this.setSelection(null);
@@ -605,7 +591,6 @@ public class RegistrationPanel extends JPanel {
 
 
 	public void setDescription(String inputDescription) {
-		this.description = inputDescription;
 		if (inputDescription != null) {
 			descriptionArea.setText(inputDescription);
 		}

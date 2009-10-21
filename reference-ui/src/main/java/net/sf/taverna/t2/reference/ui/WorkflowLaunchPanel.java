@@ -34,20 +34,17 @@ import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import net.sf.taverna.t2.annotation.annotationbeans.Author;
-import net.sf.taverna.t2.annotation.annotationbeans.DescriptiveTitle;
 import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.reference.ReferenceContext;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
@@ -115,18 +112,10 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	private final static String NO_WORKFLOW_DESCRIPTION = "No description";
 	private static final String NO_WORKFLOW_AUTHOR = "No author";
 
-	private JTextArea workflowDescriptionArea;
-	private JTextArea workflowAuthorArea;
+	private DialogTextArea workflowDescriptionArea;
+	private DialogTextArea workflowAuthorArea;
 
-	private JPanel workflowImageComponentHolder = new JPanel();
 	private AnnotationTools annotationTools = new AnnotationTools();
-
-	private JTabbedPane annotationsPanel;
-
-	private JTabbedPane upperPanel;
-
-	private JLabel workflowImageLabel;
-	private JFrame frame;
 
 	@SuppressWarnings("serial")
 	public WorkflowLaunchPanel(final WorkflowInstanceFacade facade,
@@ -141,7 +130,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		
 		workflowPart.add(createWorkflowGraphic);
 
-		workflowDescriptionArea = new JTextArea(NO_WORKFLOW_DESCRIPTION, 5, 40);
+		workflowDescriptionArea = new DialogTextArea(NO_WORKFLOW_DESCRIPTION, 5, 40);
 		workflowDescriptionArea.setBorder(new TitledBorder("Workflow description"));
 		workflowDescriptionArea.setEditable(false);
 		workflowDescriptionArea.setLineWrap(true);
@@ -149,7 +138,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		
 		workflowPart.add(new JScrollPane(workflowDescriptionArea));
 
-		workflowAuthorArea = new JTextArea(NO_WORKFLOW_AUTHOR, 1, 40);
+		workflowAuthorArea = new DialogTextArea(NO_WORKFLOW_AUTHOR, 1, 40);
 		workflowAuthorArea.setBorder(new TitledBorder("Workflow author"));
 		workflowAuthorArea.setEditable(false);
 		workflowAuthorArea.setLineWrap(true);
@@ -176,7 +165,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		};
 
 
-		upperPanel = new JTabbedPane();
+		new JTabbedPane();
 
 		String wfDescription = annotationTools.getAnnotationString(facade
 				.getDataflow(), FreeTextDescription.class, "");
@@ -332,7 +321,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	
 	public abstract void handleCancel();
 	
-	private static void selectTopOfTextArea(JTextArea textArea) {
+	private static void selectTopOfTextArea(DialogTextArea textArea) {
 		textArea.setSelectionStart(0);
 		textArea.setSelectionEnd(0);
 	}
