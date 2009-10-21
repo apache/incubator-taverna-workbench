@@ -16,6 +16,12 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
+			<groupId>net.sf.taverna.t2.lang</groupId>
+			<artifactId>ui</artifactId>
+			<version>${t2.lang.version}</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>javax.help</groupId>
 			<artifactId>javahelp</artifactId>
 		</dependency>
