@@ -35,10 +35,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.configuration.ConfigurationManager;
 import net.sf.taverna.t2.workbench.helper.Helper;
 
@@ -76,7 +76,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	private JRadioButton useNoProxy;
 
 	/**
-	 * JTextFields and one JTextArea to hold the settings for the HTTP proxy
+	 * JTextFields and one DialogTextArea to hold the settings for the HTTP proxy
 	 * properties. The values are only editable if the user picks
 	 * useSpecifiedValues.
 	 */
@@ -85,7 +85,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	private JTextField proxyUserField;
 	private JTextField proxyPasswordField;
 
-	private JTextArea nonProxyHostsArea;
+	private DialogTextArea nonProxyHostsArea;
 	private JScrollPane nonProxyScrollPane;
 
 	/**
@@ -213,7 +213,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 		result.add(createLabeledComponentPanel("Proxy Password",
 				proxyPasswordField));
 
-		nonProxyHostsArea = new JTextArea(10, 40);
+		nonProxyHostsArea = new DialogTextArea(10, 40);
 		nonProxyScrollPane = new JScrollPane(nonProxyHostsArea);
 		nonProxyScrollPane
 				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
