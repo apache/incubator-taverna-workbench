@@ -161,7 +161,7 @@ public class GraphLayout implements DOTParserVisitor {
 		if (data instanceof Graph) {
 			Graph graph = (Graph) data;
 			if ("bb".equalsIgnoreCase(node.name)) {
-				Rectangle rect = getRectangle(node.value);
+				Rectangle rect = getRectangle(node.value + "");
 				if (rect.width == 0 && rect.height == 0) {
 					rect.width = 500;
 					rect.height = 500;
@@ -174,21 +174,21 @@ public class GraphLayout implements DOTParserVisitor {
 				graph.setHeight(rect.height);
 				graph.setPosition(new Point(rect.x, rect.y));
 			} else if ("lp".equalsIgnoreCase(node.name)) {
-				graph.setLabelPosition(getPoint(node.value));
+				graph.setLabelPosition(getPoint(node.value + ""));
 			}
 		} else if (data instanceof GraphNode) {
 			GraphNode graphNode = (GraphNode) data;
 			if ("width".equalsIgnoreCase(node.name)) {
-				graphNode.setWidth(getSize(node.value));
+				graphNode.setWidth(getSize(node.value + ""));
 			} else if ("height".equalsIgnoreCase(node.name)) {
-				graphNode.setHeight(getSize(node.value));
+				graphNode.setHeight(getSize(node.value + ""));
 			} else if ("pos".equalsIgnoreCase(node.name)) {
-				Point position = getPoint(node.value);
+				Point position = getPoint(node.value + "");
 				position.x = position.x - (graphNode.getWidth() / 2);
 				position.y = position.y - (graphNode.getHeight() / 2);
 				graphNode.setPosition(position);
 			} else if ("rects".equalsIgnoreCase(node.name)) {
-				List<Rectangle> rectangles = getRectangles(node.value);
+				List<Rectangle> rectangles = getRectangles(node.value + "");
 				List<GraphNode> sinkNodes = graphNode.getSinkNodes();
 				if (graphController.getAlignment().equals(Alignment.HORIZONTAL)) {
 					Rectangle rect = rectangles.remove(0);
@@ -219,7 +219,7 @@ public class GraphLayout implements DOTParserVisitor {
 		} else if (data instanceof GraphEdge) {
 			GraphEdge graphEdge = (GraphEdge) data;
 			if ("pos".equalsIgnoreCase(node.name)) {
-				graphEdge.setPath(getPath(node.value));
+				graphEdge.setPath(getPath(node.value + ""));
 			}
 		}
 		return node.childrenAccept(this, data);
