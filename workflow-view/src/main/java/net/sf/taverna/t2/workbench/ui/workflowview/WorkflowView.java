@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -39,6 +40,9 @@ import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.impl.AddDataflowInputPortEdit;
+import net.sf.taverna.t2.workflowmodel.impl.AddDataflowOutputPortEdit;
+import net.sf.taverna.t2.workflowmodel.impl.AddProcessorEdit;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
@@ -51,6 +55,10 @@ import net.sf.taverna.t2.workbench.ui.actions.PasteGraphComponentAction;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveProcessorAction;
 import net.sf.taverna.t2.workbench.design.actions.RenameProcessorAction;
+
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 
 /**
  * 
@@ -73,12 +81,17 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 	private static DataFlavor processorFlavor = null;
 	private static DataFlavor serviceDescriptionDataFlavor = null;
 	private static HashMap<String, Element> requiredSubworkflows = new HashMap<String, Element>();
+	
+	private static ChangeObserver observer = null;
 
 	/**
 	 * Create a WorkflowView and set it up to receive services.
 	 */
 	public WorkflowView() {
 		super();
+		if (observer == null) {
+			observer = new ChangeObserver();
+		}
 		setFocusable(true);
 		if (serviceDescriptionDataFlavor == null) {
 			try {
@@ -195,8 +208,10 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 		String newName = Tools.uniqueProcessorName(p.getLocalName(), currentDataflow);
 		List<Edit<?>> editList = new ArrayList<Edit<?>>();
 
-		Edit renameEdit = EditsRegistry.getEdits().getRenameProcessorEdit(p, newName);
-		editList.add(renameEdit);
+		if (!newName.equals(p.getLocalName())) {
+			Edit renameEdit = EditsRegistry.getEdits().getRenameProcessorEdit(p, newName);
+			editList.add(renameEdit);
+		}			
 		Edit edit = EditsRegistry.getEdits().getAddProcessorEdit(currentDataflow, p);
 		editList.add(edit);
 		EditManager.getInstance().doDataflowEdit(currentDataflow, new CompoundEdit(editList));
@@ -311,5 +326,51 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 		copyProcessor(processor);
 		new RemoveProcessorAction(dataflow, processor, component).actionPerformed(null);
 
+	}
+	
+	private class ChangeObserver implements Observer<EditManagerEvent> {
+
+		
+		public ChangeObserver() {
+			super();
+			EditManager.getInstance().addObserver(this);
+		}
+
+		public void notify(Observable<EditManagerEvent> sender,
+				EditManagerEvent message) throws Exception {
+			Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
+			Edit<?> edit = message.getEdit();
+			considerEdit(edit);
+		}
+		
+		private void considerEdit(Edit<?> edit) {
+			if (edit instanceof CompoundEdit) {
+				CompoundEdit compound = (CompoundEdit) edit;
+				for (Edit e : compound.getChildEdits()) {
+					considerEdit(e);
+				}
+			} else {
+				Object subject = edit.getSubject();
+				if (subject instanceof Dataflow) {
+					DataflowSelectionModel selectionModel = DataflowSelectionManager
+					.getInstance().getDataflowSelectionModel(
+							(Dataflow) edit.getSubject());
+					Object selectedObject = null;
+					if (edit instanceof AddProcessorEdit) {
+						selectedObject = ((AddProcessorEdit) edit).getProcessor();
+					} else if (edit instanceof AddDataflowInputPortEdit) {
+						selectedObject = ((AddDataflowInputPortEdit) edit).getDataflowInputPort();
+					} else if (edit instanceof AddDataflowOutputPortEdit) {
+						selectedObject = ((AddDataflowOutputPortEdit) edit).getDataflowOutputPort();
+					}
+					if (selectedObject != null) {
+						HashSet selection = new HashSet();
+						selection.add(selectedObject);
+						selectionModel.setSelection(selection);		
+					}
+				}
+			}
+		}
+		
 	}
 }
