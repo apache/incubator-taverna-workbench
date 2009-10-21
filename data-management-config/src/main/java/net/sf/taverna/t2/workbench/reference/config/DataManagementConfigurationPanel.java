@@ -28,19 +28,18 @@ import java.awt.event.ActionEvent;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import javax.naming.NamingException;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
-import org.apache.log4j.Logger;
-
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.helper.Helper;
+
+import org.apache.log4j.Logger;
 
 public class DataManagementConfigurationPanel extends JPanel {
 
@@ -59,7 +58,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		setLayout(gridbag);
 
 		enableProvenance = new JCheckBox("Enable provenance capture");
-		JTextArea enableProvenanceText = new JTextArea(
+		DialogTextArea enableProvenanceText = new DialogTextArea(
 				"Disabling provenance will prevent you from being able to view intermediate results, but does give a performance benefit.");
 		enableProvenanceText.setLineWrap(true);
 		enableProvenanceText.setWrapStyleWord(true);
@@ -69,7 +68,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 				Font.PLAIN, 10));
 
 		enableInMemory = new JCheckBox("In-memory storage");
-		JTextArea enableInMemoryText = new JTextArea(
+		DialogTextArea enableInMemoryText = new DialogTextArea(
 				"Data will not be stored between workbench sessions. This option is intended for testing only. Only use if your workflows have a low memory requirement. Provenance information is still recorded to a database.");
 		enableInMemoryText.setLineWrap(true);
 		enableInMemoryText.setWrapStyleWord(true);
@@ -78,7 +77,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		enableInMemoryText.setFont(enableProvenanceText.getFont().deriveFont(
 				Font.PLAIN, 10));
 
-		JTextArea storageText = new JTextArea(
+		DialogTextArea storageText = new DialogTextArea(
 				"Select how Taverna stores the data and provenance produced when a workflow is run. This includes workflow results and intermediate results.");
 		storageText.setLineWrap(true);
 		storageText.setWrapStyleWord(true);
@@ -129,7 +128,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 
 	private JComponent createStatusComponent() {
 
-		JTextArea textArea = new JTextArea();
+		DialogTextArea textArea = new DialogTextArea();
 		Connection connection = null;
 		boolean running = false;
 
