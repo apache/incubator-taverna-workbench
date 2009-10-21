@@ -70,7 +70,7 @@ public abstract class SVGGraphController extends GraphController {
 	
 	private UpdateManager updateManager;
 	
-	private Executor executor = Executors.newFixedThreadPool(1);
+	private static Executor executor = Executors.newFixedThreadPool(1);
 	
 	private boolean drawingDiagram = false;
 
