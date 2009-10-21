@@ -34,7 +34,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
@@ -45,6 +44,7 @@ import net.sf.taverna.raven.spi.SpiRegistry;
 import net.sf.taverna.t2.annotation.Annotated;
 import net.sf.taverna.t2.annotation.AppliesTo;
 import net.sf.taverna.t2.annotation.annotationbeans.AbstractTextualValueAssertion;
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
@@ -79,7 +79,7 @@ public class AnnotatedContextualView extends ContextualView {
 
 	private PropertyResourceBundle prb;
 
-	private Map<Class<?>, JTextArea> classToAreaMap;
+	private Map<Class<?>, DialogTextArea> classToAreaMap;
 	private Map<Class<?>, String> classToCurrentValueMap;
 
 	private static String MISSING_VALUE = "Type here to give details";
@@ -101,7 +101,7 @@ public class AnnotatedContextualView extends ContextualView {
 		prb = (PropertyResourceBundle) ResourceBundle
 				.getBundle("annotatedcontextualview");
 		this.annotated = annotated;
-		classToAreaMap = new HashMap<Class<?>, JTextArea>();
+		classToAreaMap = new HashMap<Class<?>, DialogTextArea>();
 		classToCurrentValueMap = new HashMap<Class<?>, String>();
 		
 		initView();
@@ -164,9 +164,9 @@ public class AnnotatedContextualView extends ContextualView {
 	
 
 	
-	private JTextArea createTextArea(final Class<?> c, final String value) {
+	private DialogTextArea createTextArea(final Class<?> c, final String value) {
 		classToCurrentValueMap.put(c, value);
-		JTextArea area = new JTextArea(value);
+		DialogTextArea area = new DialogTextArea(value);
 		area.setFocusable(true);
 		area.addFocusListener(new TextAreaFocusListener(area, c));
 		area.setColumns(DEFAULT_AREA_WIDTH);
@@ -183,9 +183,9 @@ public class AnnotatedContextualView extends ContextualView {
 
 		String oldValue = null;
 		Class<?> annotationClass;
-		JTextArea area = null;
+		DialogTextArea area = null;
 
-		public TextAreaFocusListener(JTextArea area, Class<?> c) {
+		public TextAreaFocusListener(DialogTextArea area, Class<?> c) {
 			annotationClass = c;
 			oldValue = area.getText();
 			this.area = area;

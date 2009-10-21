@@ -25,8 +25,8 @@ import java.awt.GridBagLayout;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchStack;
@@ -79,7 +79,7 @@ public class DispatchStackContextualView extends ContextualView{
 			constraints.weighty = 0;
 			constraints.fill = GridBagConstraints.NONE;
 			String simpleName = layer.getClass().getSimpleName();
-			JTextArea dispatchLayer = new JTextArea(simpleName);
+			DialogTextArea dispatchLayer = new DialogTextArea(simpleName);
 			layers.add(dispatchLayer, constraints);
 			gridy++;
 		}
