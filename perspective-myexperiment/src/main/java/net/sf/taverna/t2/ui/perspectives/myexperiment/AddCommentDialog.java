@@ -18,22 +18,19 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
-import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponent;
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.ServerResponse;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
 
@@ -46,7 +43,7 @@ public class AddCommentDialog extends JDialog implements ActionListener, CaretLi
   private Logger logger;
   
   // COMPONENTS
-  private JTextArea taComment;
+  private DialogTextArea taComment;
   private JButton bPost;
   private JButton bCancel;
   private JLabel lStatusMessage;
@@ -98,7 +95,7 @@ public class AddCommentDialog extends JDialog implements ActionListener, CaretLi
     c.insets = new Insets(10, 10, 5, 10);
     contentPane.add(lInfo, c);
     
-    this.taComment = new JTextArea(5, 35);
+    this.taComment = new DialogTextArea(5, 35);
     this.taComment.setLineWrap(true);
     this.taComment.setWrapStyleWord(true);
     this.taComment.addKeyListener(this);

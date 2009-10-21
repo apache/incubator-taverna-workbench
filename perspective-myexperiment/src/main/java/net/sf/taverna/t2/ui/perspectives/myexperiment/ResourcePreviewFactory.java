@@ -27,7 +27,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
@@ -36,6 +35,7 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
 
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Comment;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.File;
@@ -1229,7 +1229,7 @@ public class ResourcePreviewFactory {
 			c.weighty = 1.0; // only if this is the comment for the last item,
 							 // shift all items to the top of the panel
 
-		  JTextArea taCommentText = new JTextArea("Comment: " + strComment);
+		  DialogTextArea taCommentText = new DialogTextArea("Comment: " + strComment);
 		  taCommentText.setOpaque(false);
 		  taCommentText.setEditable(false);
 		  taCommentText.setLineWrap(true);
@@ -1335,7 +1335,7 @@ public class ResourcePreviewFactory {
 				if (iCnt + 1 == lComments.size())
 				  c.weighty = 1.0;
 
-				JTextArea taCommentText = new JTextArea(Util
+				DialogTextArea taCommentText = new DialogTextArea(Util
 					.stripAllHTML(comment.getComment()));
 				taCommentText.setBorder(BorderFactory.createEmptyBorder(0, 25,
 					10, 25));

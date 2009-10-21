@@ -500,7 +500,7 @@ public class Util
   /**
    * Tiny helper to strip out all HTML tags. This will not leave
    * any HTML tags at all (so that the content can be displayed in
-   * JTextArea - and the like - components. This helps to present
+   * DialogTextArea - and the like - components. This helps to present
    * HTML content inside JAVA easier.
    */
   public static String stripAllHTML(String source)
