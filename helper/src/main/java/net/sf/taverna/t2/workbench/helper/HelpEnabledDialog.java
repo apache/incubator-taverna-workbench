@@ -19,11 +19,12 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
+
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 
 /**
  * 
@@ -132,7 +133,7 @@ public class HelpEnabledDialog extends JDialog {
 		messageAreaPanel.setLayout(new BorderLayout());
 		int areaRows = (message.length() / areaWidth) + 1;
 		int areaColumns = Math.min(areaWidth, message.length());
-		JTextArea messageArea = new JTextArea(message);
+		DialogTextArea messageArea = new DialogTextArea(message);
 		logger.info("areaRows is " + areaRows + " - columns is " + areaColumns);
 		messageArea.setLineWrap(true);
 		messageArea.setWrapStyleWord(true);
