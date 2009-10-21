@@ -70,9 +70,9 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 
 	private Map<String, ResultListener> resultListeners = new HashMap<String, ResultListener>();
 
-	private Timer updateTimer = new Timer("GraphMonitor update timer", true);
+	private static Timer updateTimer = new Timer("GraphMonitor update timer", true);
 
-	private TimerTask updateTask;
+	private UpdateTask updateTask;
 
 	private String filter;
 
@@ -106,12 +106,15 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 				if (owningProcess.length == 2) {
 					// outermost dataflow finished so schedule a task to cancel
 					// the update task
-					if (updateTask != null) {
-						updateTimer.schedule(new TimerTask() {
-							public void run() {
-								updateTask.cancel();
-							}
-						}, deregisterDelay);
+					synchronized (this) {
+						if (updateTask != null) {
+							updateTimer.schedule(new TimerTask() {
+								public void run() {
+									updateTask.cancel();
+									updateTask = null;
+								}
+							}, deregisterDelay);
+						}
 					}
 				}
 			} else if (workflowObject instanceof WorkflowInstanceFacade) {
@@ -155,21 +158,13 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 			} else if (workflowObject instanceof Dataflow) {
 				// outermost dataflow 
 				if (owningProcess.length == 2) {
-					updateTask = new TimerTask() {
-						public void run() {
-							for (GraphMonitorNode node : processors.values()) {
-								node.update();
-							}
-							synchronized (datalinks) {
-								for (String datalink : datalinks) {
-									graphController.setEdgeActive(datalink, true);																	
-								}
-								datalinks.clear();
-							}
-
+					synchronized (this) {
+						if (updateTask != null) {
+							updateTask = new UpdateTask();
+							updateTimer.schedule(updateTask, monitorRate,
+									monitorRate);
 						}
-					};
-					updateTimer.schedule(updateTask, monitorRate, monitorRate);
+					}
 				}
 			} else if (workflowObject instanceof WorkflowInstanceFacade) {
 				WorkflowInstanceFacade facade = (WorkflowInstanceFacade) workflowObject;
@@ -215,6 +210,20 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 			sb.append(string);
 		}
 		return sb.toString();
+	}
+
+	public class UpdateTask extends TimerTask {
+		public void run() {
+			for (GraphMonitorNode node : processors.values()) {
+				node.update();
+			}
+			synchronized (datalinks) {
+				for (String datalink : datalinks) {
+					graphController.setEdgeActive(datalink, true);
+				}
+				datalinks.clear();
+			}
+		}
 	}
 
 	class MonitorResultListener implements ResultListener {
