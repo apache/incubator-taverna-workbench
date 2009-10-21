@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results;
 
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
 
 import net.sf.taverna.t2.facade.ResultListener;
@@ -52,8 +53,16 @@ public class ResultTreeModel extends DefaultTreeModel implements ResultListener 
 		this.depth = depth;
 	}
 
-	public void resultTokenProduced(WorkflowDataToken dataToken, String portName) {
-		
+	public void resultTokenProduced(final WorkflowDataToken dataToken, final String portName) {
+		// Don't slow down workflow execution, do it in GUI thread
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				resultTokenProducedGui(dataToken, portName);
+			}
+		});
+	}
+
+	public void resultTokenProducedGui(WorkflowDataToken dataToken, String portName) {		
 		int[] index = dataToken.getIndex();
 		if (this.portName.equals(portName)) {
 			if (depthSeen == -1) {
