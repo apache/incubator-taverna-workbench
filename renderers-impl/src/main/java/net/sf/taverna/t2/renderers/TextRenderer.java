@@ -24,8 +24,8 @@ import java.awt.Font;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
-import javax.swing.JTextArea;
 
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 
@@ -56,7 +56,7 @@ public class TextRenderer implements Renderer {
 
 	public JComponent getComponent(ReferenceService referenceService,
 			T2Reference reference) throws RendererException {
-		JTextArea theTextArea = new JTextArea();
+		DialogTextArea theTextArea = new DialogTextArea();
 		String resolve = null;
 		try {
 			resolve = (String) referenceService.renderIdentifier(reference,

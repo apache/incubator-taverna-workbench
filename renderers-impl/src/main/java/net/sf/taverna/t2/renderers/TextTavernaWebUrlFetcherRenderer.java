@@ -69,7 +69,7 @@ public class TextTavernaWebUrlFetcherRenderer implements Renderer {
 		// return renderers.getRenderer(urlThing).getComponent(
 		// renderers, urlThing);
 		// } catch (Exception ex) {
-		// JTextArea theTextArea = new JTextArea();
+		// DialogTextArea theTextArea = new DialogTextArea();
 		// theTextArea.setText((String) dataObject);
 		// theTextArea.setFont(Font.getFont("Monospaced"));
 		// return theTextArea;

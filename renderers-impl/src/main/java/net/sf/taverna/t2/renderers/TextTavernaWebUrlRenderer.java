@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
-import javax.swing.JTextArea;
 
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 
@@ -72,9 +72,9 @@ public class TextTavernaWebUrlRenderer implements Renderer {
 				jep.setText("<a href=\"" + url + "\">" + url + "</a>");
 				return jep;
 			} catch (Exception ex) {
-				JTextArea theTextArea = null;
+				DialogTextArea theTextArea = null;
 				try {
-					theTextArea = new JTextArea();
+					theTextArea = new DialogTextArea();
 					theTextArea.setText((String) dataObject);
 					theTextArea.setFont(Font.getFont("Monospaced"));
 				} catch (Exception e) {
