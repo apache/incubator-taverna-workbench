@@ -25,6 +25,7 @@
 		<t2.translators.version>0.9-SNAPSHOT</t2.translators.version>
 		<t2.ui.api.version>0.7-SNAPSHOT</t2.ui.api.version>
 		<taverna.version>1.7.2.0</taverna.version>
+		<t2.lang.version>0.6-SNAPSHOT</t2.lang.version>
 	</properties>
 
 	<modules>
