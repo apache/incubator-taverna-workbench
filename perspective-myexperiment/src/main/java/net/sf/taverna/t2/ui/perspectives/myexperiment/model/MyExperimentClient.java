@@ -977,10 +977,10 @@ public class MyExperimentClient {
   public ServerResponse postWorkflow(String strWorkflowContent, String strTitle, String strDescription) {
 	try {
 	  String strWorkflowData = "<workflow>";
-	  if (!strTitle.isEmpty())
+	  if (strTitle.length()>0)
 		strWorkflowData += "<title>" + strTitle + "</title>";
 
-	  if (!strDescription.isEmpty())
+	  if (strDescription.length()>0)
 		strWorkflowData += "<description>" + strDescription + "</description>";
 
 	  String encodedWorkflow = Base64.encodeBytes(strWorkflowContent.getBytes());

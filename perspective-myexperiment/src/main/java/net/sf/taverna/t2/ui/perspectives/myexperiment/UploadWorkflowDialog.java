@@ -176,7 +176,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	  // if the description or the title are empty, prompt the user to confirm
 	  // the upload
 	  boolean proceedWithUpload = false;
-	  if (this.strDescription.isEmpty() || this.strTitle.isEmpty()) {
+	  if ((this.strDescription.length()==0) || (this.strTitle.length()==0)) {
 		String strInfo = "The workflow 'title' field or the 'description' field\n"
 			+ "(or both) are empty.  Any metadata found within the\n"
 			+ "workflow will be used instead.  Do you wish to proceed?";
