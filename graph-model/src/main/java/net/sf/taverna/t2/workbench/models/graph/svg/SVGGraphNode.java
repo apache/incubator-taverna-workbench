@@ -136,6 +136,8 @@ public class SVGGraphNode extends GraphNode /*implements SVGMonitorShape*/ {
 		selectedPolygon.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY, CSSConstants.CSS_NONE_VALUE);
 		
 		ellipse = (SVGOMEllipseElement) graphController.createElement(SVGConstants.SVG_ELLIPSE_TAG);
+		ellipse.setAttribute(SVGConstants.SVG_RX_ATTRIBUTE, "2");
+		ellipse.setAttribute(SVGConstants.SVG_RY_ATTRIBUTE, "2");
 		selectedEllipse = (SVGOMEllipseElement) graphController.createElement(SVGConstants.SVG_ELLIPSE_TAG);
 		selectedEllipse.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
 		selectedEllipse.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphSettings.SELECTED_COLOUR);
