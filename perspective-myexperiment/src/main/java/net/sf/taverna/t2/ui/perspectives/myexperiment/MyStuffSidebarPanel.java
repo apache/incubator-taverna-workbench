@@ -7,6 +7,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -14,6 +17,7 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
@@ -25,8 +29,6 @@ import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
-
-
 
 /*
  * @author Sergejs Aleksejevs
@@ -44,13 +46,13 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
   private JPanel jpMyTagsBox;
   private JButton bLogout;
   protected JButton bRefreshMyStuff;
+  private JButton bUpload;
 
   // icons which are used in several places in the sidebar
   private ImageIcon iconUser;
   private ImageIcon iconLogout;
 
-  public MyStuffSidebarPanel(MainComponent component,
-	  MyExperimentClient client, Logger logger) {
+  public MyStuffSidebarPanel(MainComponent component, MyExperimentClient client, Logger logger) {
 	super();
 
 	// set main variables to ensure access to myExperiment, logger and the
@@ -60,16 +62,14 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	this.logger = logger;
 
 	// prepare icons
-	iconUser = new ImageIcon(MyExperimentPerspective
-		.getLocalIconURL(Resource.USER));
-	iconLogout = new ImageIcon(MyExperimentPerspective
-		.getLocalResourceURL("logout_icon"));
+	iconUser = new ImageIcon(MyExperimentPerspective.getLocalIconURL(Resource.USER));
+	iconLogout = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("logout_icon"));
 
 	// add elements of the sidebar
 	this.setLayout(new GridBagLayout());
 	GridBagConstraints gbConstraints = new GridBagConstraints();
-    gbConstraints.anchor = GridBagConstraints.NORTHWEST;
-    gbConstraints.fill = GridBagConstraints.HORIZONTAL;
+	gbConstraints.anchor = GridBagConstraints.NORTHWEST;
+	gbConstraints.fill = GridBagConstraints.HORIZONTAL;
 	gbConstraints.weightx = 1;
 	gbConstraints.gridx = 0;
 
@@ -103,8 +103,8 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
   private JPanel createMyProfileBox() {
 	JPanel jpProfile = new JPanel();
 	jpProfile.setMaximumSize(new Dimension(1024, 0)); // HACK: this is to make
-													  // sure that profile box
-													  // won't be stretched
+	// sure that profile box
+	// won't be stretched
 	jpProfile.setLayout(new BoxLayout(jpProfile, BoxLayout.X_AXIS));
 
 	JPanel jpAvatar = new JPanel();
@@ -119,29 +119,39 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	jlUserAvatar.setAlignmentX(LEFT_ALIGNMENT);
 	jpAvatar.add(jlUserAvatar);
 
-	JClickableLabel jclUserName = new JClickableLabel(currentUser.getName(),
-		"preview:" + Resource.USER + ":" + currentUser.getURI(),
-		pluginMainComponent.getPreviewBrowser(), this.iconUser);
+	JClickableLabel jclUserName = new JClickableLabel(currentUser.getName(), "preview:"
+		+ Resource.USER + ":" + currentUser.getURI(), pluginMainComponent.getPreviewBrowser(), this.iconUser);
 	jclUserName.setAlignmentX(LEFT_ALIGNMENT);
 	jpAvatar.add(jclUserName);
 
 	jpProfile.add(jpAvatar);
-	
+
 	bLogout = new JButton("Logout", iconLogout);
 	bLogout.addActionListener(this);
 
 	bRefreshMyStuff = new JButton("Refresh", WorkbenchIcons.refreshIcon);
 	bRefreshMyStuff.addActionListener(this.pluginMainComponent.getMyStuffTab());
 
+	bUpload = new JButton("Upload Workflow", WorkbenchIcons.upArrowIcon);
+	bUpload.addActionListener(this);
+
 	JPanel jpButtons = new JPanel();
-	jpButtons.add(bLogout);
-	jpButtons.add(bRefreshMyStuff);
+	jpButtons.setLayout(new GridBagLayout());
+	GridBagConstraints gbc = new GridBagConstraints();
+	gbc.gridwidth = 1;
+	gbc.gridy = 0;
+	gbc.fill = GridBagConstraints.BOTH;
+	gbc.gridx = 0;
+
+	jpButtons.add(bUpload, gbc);
+	gbc.gridy++;
+	jpButtons.add(bRefreshMyStuff, gbc);
+	gbc.gridy++;
+	jpButtons.add(bLogout, gbc);
 
 	jpProfile.add(jpButtons);
 
-	jpProfile.setBorder(BorderFactory.createCompoundBorder(
-		BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
-			" My Profile "), BorderFactory.createEmptyBorder(1, 8, 8, 5)));
+	jpProfile.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " My Profile "), BorderFactory.createEmptyBorder(1, 8, 8, 5)));
 
 	return (jpProfile);
   }
@@ -152,14 +162,12 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	jpFriends.setLayout(new BoxLayout(jpFriends, BoxLayout.Y_AXIS));
 
 	// iterate through all friends and add all to the panel
-	Iterator<HashMap<String, String>> iFriends = this.myExperimentClient
-		.getCurrentUser().getFriends().iterator();
+	Iterator<HashMap<String, String>> iFriends = this.myExperimentClient.getCurrentUser().getFriends().iterator();
 	if (iFriends.hasNext()) {
 	  while (iFriends.hasNext()) {
 		HashMap<String, String> hmCurFriend = iFriends.next();
 		jpFriends.add(new JClickableLabel(hmCurFriend.get("name"), "preview:"
-			+ Resource.USER + ":" + hmCurFriend.get("uri"), pluginMainComponent
-			.getPreviewBrowser(), this.iconUser));
+			+ Resource.USER + ":" + hmCurFriend.get("uri"), pluginMainComponent.getPreviewBrowser(), this.iconUser));
 	  }
 	} else {
 	  // known not to have any friends
@@ -169,9 +177,7 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	  jpFriends.add(lNone);
 	}
 
-	jpFriends.setBorder(BorderFactory.createCompoundBorder(
-		BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(),
-			" My Friends "), BorderFactory.createEmptyBorder(1, 8, 8, 5)));
+	jpFriends.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " My Friends "), BorderFactory.createEmptyBorder(1, 8, 8, 5)));
 
 	return (jpFriends);
   }
@@ -184,18 +190,15 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	jpGroups.setLayout(new BoxLayout(jpGroups, BoxLayout.Y_AXIS));
 
 	// prepare the icon for groups
-	ImageIcon iconGroup = new ImageIcon(MyExperimentPerspective
-		.getLocalIconURL(Resource.GROUP));
+	ImageIcon iconGroup = new ImageIcon(MyExperimentPerspective.getLocalIconURL(Resource.GROUP));
 
 	// iterate through all groups and add all to the panel
-	Iterator<HashMap<String, String>> iGroups = this.myExperimentClient
-		.getCurrentUser().getGroups().iterator();
+	Iterator<HashMap<String, String>> iGroups = this.myExperimentClient.getCurrentUser().getGroups().iterator();
 	if (iGroups.hasNext()) {
 	  while (iGroups.hasNext()) {
 		HashMap<String, String> hmCurGroup = iGroups.next();
 		jpGroups.add(new JClickableLabel(hmCurGroup.get("name"), "preview:"
-			+ Resource.GROUP + ":" + hmCurGroup.get("uri"), pluginMainComponent
-			.getPreviewBrowser(), iconGroup));
+			+ Resource.GROUP + ":" + hmCurGroup.get("uri"), pluginMainComponent.getPreviewBrowser(), iconGroup));
 	  }
 	} else {
 	  // known not to have any groups
@@ -205,9 +208,7 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	  jpGroups.add(lNone);
 	}
 
-	jpGroups.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-		.createTitledBorder(BorderFactory.createEtchedBorder(), " My Groups "),
-		BorderFactory.createEmptyBorder(1, 8, 8, 5)));
+	jpGroups.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " My Groups "), BorderFactory.createEmptyBorder(1, 8, 8, 5)));
 
 	return (jpGroups);
   }
@@ -218,9 +219,7 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	JPanel jpFavourites = new JPanel();
 
 	jpFavourites.setLayout(new BoxLayout(jpFavourites, BoxLayout.Y_AXIS));
-	jpFavourites.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-		.createTitledBorder(BorderFactory.createEtchedBorder(),
-			" My Favourites "), BorderFactory.createEmptyBorder(1, 8, 8, 5)));
+	jpFavourites.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " My Favourites "), BorderFactory.createEmptyBorder(1, 8, 8, 5)));
 
 	return (jpFavourites);
   }
@@ -229,16 +228,12 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	this.jpMyFavouritesBox.removeAll();
 
 	// iterate through all favourites and add all to the panel
-	Iterator<Resource> iFavourites = this.myExperimentClient.getCurrentUser()
-		.getFavourites().iterator();
+	Iterator<Resource> iFavourites = this.myExperimentClient.getCurrentUser().getFavourites().iterator();
 	if (iFavourites.hasNext()) {
 	  while (iFavourites.hasNext()) {
 		Resource rFavourite = iFavourites.next();
-		this.jpMyFavouritesBox.add(new JClickableLabel(rFavourite.getTitle(),
-			"preview:" + rFavourite.getItemType() + ":" + rFavourite.getURI(),
-			pluginMainComponent.getPreviewBrowser(), new ImageIcon(
-				MyExperimentPerspective.getLocalIconURL(rFavourite
-					.getItemType()))));
+		this.jpMyFavouritesBox.add(new JClickableLabel(rFavourite.getTitle(), "preview:"
+			+ rFavourite.getItemType() + ":" + rFavourite.getURI(), pluginMainComponent.getPreviewBrowser(), new ImageIcon(MyExperimentPerspective.getLocalIconURL(rFavourite.getItemType()))));
 	  }
 	} else {
 	  // known not to have any favourites
@@ -255,17 +250,14 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	jpTags.setLayout(new BoxLayout(jpTags, BoxLayout.Y_AXIS));
 
 	// prepare the icon for tags
-	ImageIcon iconTag = new ImageIcon(MyExperimentPerspective
-		.getLocalIconURL(Resource.TAG));
+	ImageIcon iconTag = new ImageIcon(MyExperimentPerspective.getLocalIconURL(Resource.TAG));
 
 	// iterate through all tags and add all to the panel
-	Iterator<HashMap<String, String>> iTags = this.myExperimentClient
-		.getCurrentUser().getTags().iterator();
+	Iterator<HashMap<String, String>> iTags = this.myExperimentClient.getCurrentUser().getTags().iterator();
 	if (iTags.hasNext()) {
 	  while (iTags.hasNext()) {
 		String strCurTag = iTags.next().get("name");
-		jpTags.add(new JClickableLabel(strCurTag, "tag:" + strCurTag,
-			pluginMainComponent.getPreviewBrowser(), iconTag));
+		jpTags.add(new JClickableLabel(strCurTag, "tag:" + strCurTag, pluginMainComponent.getPreviewBrowser(), iconTag));
 	  }
 	} else {
 	  // known not to have any tags
@@ -275,9 +267,7 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	  jpTags.add(lNone);
 	}
 
-	jpTags.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-		.createTitledBorder(BorderFactory.createEtchedBorder(), " My Tags "),
-		BorderFactory.createEmptyBorder(1, 8, 8, 5)));
+	jpTags.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " My Tags "), BorderFactory.createEmptyBorder(1, 8, 8, 5)));
 
 	return (jpTags);
   }
@@ -295,29 +285,23 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 		// "forget" login details
 		this.myExperimentClient.doLogout();
 	  } catch (Exception ex) {
-		logger
-			.error("Error while trying to logout from myExperiment, exception:\n"
-				+ ex);
+		logger.error("Error while trying to logout from myExperiment, exception:\n"
+			+ ex);
 	  }
 
 	  // repaint "myStuff" tab to display the login box again
-	  this.pluginMainComponent.getStatusBar().setStatus(
-		  this.pluginMainComponent.getMyStuffTab().getClass().getName(),
-		  "Logging out");
-	  this.pluginMainComponent.getMyStuffTab()
-		  .createAndInitialiseInnerComponents();
+	  this.pluginMainComponent.getStatusBar().setStatus(this.pluginMainComponent.getMyStuffTab().getClass().getName(), "Logging out");
+	  this.pluginMainComponent.getMyStuffTab().createAndInitialiseInnerComponents();
 	  this.pluginMainComponent.getMyStuffTab().revalidate();
 	  this.pluginMainComponent.getMyStuffTab().repaint();
-	  this.pluginMainComponent.getStatusBar().setStatus(
-		  this.pluginMainComponent.getMyStuffTab().getClass().getName(), null);
+	  this.pluginMainComponent.getStatusBar().setStatus(this.pluginMainComponent.getMyStuffTab().getClass().getName(), null);
 	  this.pluginMainComponent.getStatusBar().setCurrentUser(null);
 
 	  // remove "My Tags" from the tags browser tab and rerun last searches (tag
 	  // & keyword)
 	  // so that any "private" search results won't get shown anymore
 	  this.pluginMainComponent.getTagBrowserTab().setMyTagsShown(false);
-	  this.pluginMainComponent.getTagBrowserTab().getTagSearchResultPanel()
-		  .clear();
+	  this.pluginMainComponent.getTagBrowserTab().getTagSearchResultPanel().clear();
 	  this.pluginMainComponent.getTagBrowserTab().rerunLastTagSearch();
 
 	  this.pluginMainComponent.getSearchTab().getSearchResultPanel().clear();
@@ -327,6 +311,47 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	  // content?
 	  // TODO
 	}
+	/* ************************************************************************* */
+	else if (e.getSource().equals(this.bUpload)) {
+	  File workflowFile = null;
+	  JFileChooser jfsSelectFile = new JFileChooser();
+
+	  if (jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+		workflowFile = jfsSelectFile.getSelectedFile();
+	  else return;
+	  
+	  UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this.pluginMainComponent, workflowFile, pluginMainComponent, myExperimentClient, logger);
+
+	  if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
+		// comment was added because return value is true;
+		// a good option now would be to reload only the comments tab, but
+		// for now we refresh the whole of the preview
+		// this.actionPerformed(new ActionEvent(this.bRefresh, 0, ""));
+
+		// update history of the items that were commented on, making sure
+		// that:
+		// - there's only one occurrence of this item in the history;
+		// - if this item was in the history before, it is moved to the 'top'
+		// now;
+		// - predefined history size is not exceeded
+		// this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().remove(this.rpcContent.getResource());
+		// this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().add(this.rpcContent.getResource());
+		// if
+		// (this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().size()
+		// > HistoryBrowserTabContentPanel.COMMENTED_ON_ITEMS_HISTORY) {
+		// this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().remove(0);
+		// }
+
+		// now update the history of the items that were commented on in
+		// 'History' tab
+		// if (this.pluginMainComponent.getHistoryBrowser() != null) {
+		// this.pluginMainComponent.getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.COMMENTED_ON_ITEMS_HISTORY);
+		// }
+	  }
+
+	}
+	/* ************************************************************************* */
+
   }
 
 }
