@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
@@ -66,7 +67,7 @@ public class SVGRenderer implements Renderer {
 
 	public JComponent getComponent(ReferenceService referenceService,
 			T2Reference reference) throws RendererException {
-		JSVGCanvas svgCanvas = new JSVGCanvas();
+		final JSVGCanvas svgCanvas = new JSVGCanvas();
 		Object resolve = null;
 		try {
 			resolve = referenceService.renderIdentifier(reference,
@@ -89,7 +90,15 @@ public class SVGRenderer implements Renderer {
 			} catch (Exception e) {
 				throw new RendererException("Could not create SVG renderer", e);
 			}
-			return svgCanvas;
+			JPanel jp = new JPanel(){
+				@Override
+				protected void finalize() throws Throwable {
+					svgCanvas.stopProcessing();
+					super.finalize();
+				}
+			};
+			jp.add(svgCanvas);
+			return jp;
 		}
 		return null;
 	}
