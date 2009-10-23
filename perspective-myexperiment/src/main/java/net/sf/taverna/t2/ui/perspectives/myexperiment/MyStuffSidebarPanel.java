@@ -8,8 +8,6 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileFilter;
-import java.io.FileReader;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -20,8 +18,6 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SpringLayout;
-
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.User;
@@ -323,10 +319,8 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	  UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this.pluginMainComponent, workflowFile, pluginMainComponent, myExperimentClient, logger);
 
 	  if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
-		// comment was added because return value is true;
-		// a good option now would be to reload only the comments tab, but
-		// for now we refresh the whole of the preview
-		// this.actionPerformed(new ActionEvent(this.bRefresh, 0, ""));
+		// true was returned so  refresh the whole of the mystuff content panel
+		  this.actionPerformed(new ActionEvent(this.bRefreshMyStuff, 0, ""));
 
 		// update history of the items that were commented on, making sure
 		// that:

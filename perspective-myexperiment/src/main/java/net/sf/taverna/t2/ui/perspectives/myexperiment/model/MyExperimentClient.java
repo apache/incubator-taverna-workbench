@@ -378,7 +378,7 @@ public class MyExperimentClient {
 	HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
 
 	// "tune" the connection
-	urlConn.setRequestMethod("POST");
+	urlConn.setRequestMethod((strURL.contains("?id=") ? "PUT" : "POST"));
 	urlConn.setDoOutput(true);
 	urlConn.setRequestProperty("Content-Type", "application/xml");
 	urlConn.setRequestProperty("User-Agent", PLUGIN_USER_AGENT);
@@ -386,7 +386,7 @@ public class MyExperimentClient {
 	// the last line wouldn't be executed if the user wasn't logged in (see
 	// above code), so safe to run
 
-	// prepare and POST XML data
+	// prepare and PUT/POST XML data
 	String strPOSTContent = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
 		+ strXMLDataBody;
 	OutputStreamWriter out = new OutputStreamWriter(urlConn.getOutputStream());
@@ -974,22 +974,28 @@ public class MyExperimentClient {
 	}
   }
 
+  private String prepareWorkflowPostContent(String strTitle, String strDescription, String strWorkflowContent) {
+	String strWorkflowData = "<workflow>";
+	if (strTitle.length() > 0)
+	  strWorkflowData += "<title>" + strTitle + "</title>";
+
+	if (strDescription.length() > 0)
+	  strWorkflowData += "<description>" + strDescription + "</description>";
+
+	String encodedWorkflow = Base64.encodeBytes(strWorkflowContent.getBytes());
+
+	strWorkflowData += "<content-type>application/vnd.taverna.t2flow+xml</content-type>"
+		+ " <license-type>by-sa</license-type>"
+		+ "<content encoding=\"base64\" type=\"binary\">"
+		+ encodedWorkflow
+		+ "</content>" + "</workflow>";
+
+	return(strWorkflowData);
+  }
+
   public ServerResponse postWorkflow(String strWorkflowContent, String strTitle, String strDescription) {
 	try {
-	  String strWorkflowData = "<workflow>";
-	  if (strTitle.length()>0)
-		strWorkflowData += "<title>" + strTitle + "</title>";
-
-	  if (strDescription.length()>0)
-		strWorkflowData += "<description>" + strDescription + "</description>";
-
-	  String encodedWorkflow = Base64.encodeBytes(strWorkflowContent.getBytes());
-
-	  strWorkflowData += "<content-type>application/vnd.taverna.t2flow+xml</content-type>"
-		  + " <license-type>by-sa</license-type>"
-		  + "<content encoding=\"base64\" type=\"binary\">"
-		  + encodedWorkflow
-		  + "</content>" + "</workflow>";
+	  String strWorkflowData = prepareWorkflowPostContent(strTitle, strDescription, strWorkflowContent);
 
 	  ServerResponse response = this.doMyExperimentPOST(BASE_URL
 		  + "/workflow.xml", strWorkflowData);
@@ -998,7 +1004,33 @@ public class MyExperimentClient {
 //		// XML response should contain the new workflow that was posted
 //		Workflow newWorkflow = Workflow.buildFromXML(response.getResponseBody(), logger);
 //
-//		System.out.println("* *** *** *** *" + newWorkflow + "* *** *** *** *");
+//		System.out.println("* *** *** *** *" + response.getResponseBody() + "* *** *** *** *");
+//	  }
+
+	  // will return the whole response object so that the application could
+	  // decide on the next steps
+	  return (response);
+	} catch (Exception e) {
+	  logger.error("Failed while trying to upload the workflow");
+	  return (new ServerResponse(ServerResponse.LOCAL_FAILURE, null));
+	}
+  }
+
+  public ServerResponse postNewVersionOfWorkflow(Resource updateResource, String strWorkflowContent, String strTitle, String strDescription) {
+	try {
+	  String strWorkflowData = prepareWorkflowPostContent(strTitle, strDescription, strWorkflowContent);
+
+	  Workflow wf = (Workflow) updateResource;
+	  ServerResponse response = this.doMyExperimentPOST(BASE_URL
+		  + "/workflow.xml?id=" + updateResource.getID() 
+		  + "&version=" + (wf.getID() + 1)
+		  , strWorkflowData);
+
+//	  if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
+//		// XML response should contain the new workflow that was posted
+//		Workflow newWorkflow = Workflow.buildFromXML(response.getResponseBody(), logger);
+//
+//		System.out.println("* *** *** *** *" + response.getResponseBody() + "* *** *** *** *");
 //	  }
 
 	  // will return the whole response object so that the application could

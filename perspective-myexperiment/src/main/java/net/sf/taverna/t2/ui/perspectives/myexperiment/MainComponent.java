@@ -24,31 +24,18 @@
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.BorderLayout;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.util.Properties;
-
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
-import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
@@ -59,14 +46,10 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializationConstants;
 
 import net.sf.taverna.t2.ui.perspectives.PerspectiveRegistry;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Base64;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Tag;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Workflow;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.model.SearchEngine.QuerySearchInstance;
-
 import org.apache.log4j.Logger;
 
 import edu.stanford.ejalbert.BrowserLauncher;

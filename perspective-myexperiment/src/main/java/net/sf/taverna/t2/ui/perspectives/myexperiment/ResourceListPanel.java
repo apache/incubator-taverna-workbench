@@ -9,17 +9,13 @@ import java.awt.GridBagLayout;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
 
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Workflow;
-
 import org.apache.log4j.Logger;
 
 import edu.stanford.ejalbert.BrowserLauncher;

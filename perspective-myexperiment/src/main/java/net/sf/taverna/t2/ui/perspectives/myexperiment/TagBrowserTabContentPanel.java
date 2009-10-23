@@ -7,8 +7,6 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -23,7 +21,6 @@ import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Base64;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.SearchEngine;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Tag;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.model.SearchEngine.QuerySearchInstance;
 
 
 

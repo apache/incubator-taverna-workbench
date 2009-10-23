@@ -1,12 +1,9 @@
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,10 +13,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
-
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -33,14 +27,11 @@ import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
-
 import org.apache.log4j.Logger;
 
 
@@ -48,8 +39,7 @@ import org.apache.log4j.Logger;
 /*
  * @author Sergejs Aleksejevs
  */
-public class MyStuffTabContentPanel extends JPanel implements ActionListener,
-	KeyListener, FocusListener {
+public class MyStuffTabContentPanel extends JPanel implements ActionListener, KeyListener, FocusListener {
   private MainComponent pluginMainComponent;
   private MyExperimentClient myExperimentClient;
   private Logger logger;
@@ -73,8 +63,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
   // it is possible to switch to another tab in this tabbed view
   protected JComponent cTabContentComponentToSwitchToAfterLogin = null;
 
-  public MyStuffTabContentPanel(MainComponent component,
-	  MyExperimentClient client, Logger logger) {
+  public MyStuffTabContentPanel(MainComponent component, MyExperimentClient client, Logger logger) {
 	super();
 
 	// set main variables to ensure access to myExperiment, logger and the
@@ -92,45 +81,57 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 	// based on the current status (logged in / anonymous user), decide which
 	// components to create and display
 	if (this.myExperimentClient.isLoggedIn()) {
-	  jpSidebar = new MyStuffSidebarPanel(pluginMainComponent,
-		  myExperimentClient, logger);
-	  JPanel jpSidebarContainer = new JPanel();	  
+	  jpSidebar = new MyStuffSidebarPanel(pluginMainComponent, myExperimentClient, logger);
+	  JPanel jpSidebarContainer = new JPanel();
 	  jpSidebarContainer.setLayout(new BorderLayout());
 	  jpSidebarContainer.add(jpSidebar, BorderLayout.NORTH);
-      JScrollPane spSidebar = new JScrollPane(jpSidebarContainer);
-	  spSidebar.getVerticalScrollBar().setUnitIncrement(
-		  ResourcePreviewBrowser.PREFERRED_SCROLL);
-	  spSidebar.setMinimumSize(new Dimension(jpSidebar.getMyProfileBox()
-		  .getPreferredSize().width + 30, 0)); // +30 --> 10 for padding and 10 for vertical scroll bar + 10 extra
+	  JScrollPane spSidebar = new JScrollPane(jpSidebarContainer);
+	  spSidebar.getVerticalScrollBar().setUnitIncrement(ResourcePreviewBrowser.PREFERRED_SCROLL);
+	  spSidebar.setMinimumSize(new Dimension(jpSidebar.getMyProfileBox().getPreferredSize().width + 30, 0)); // +30
+	  // -->
+	  // 10
+	  // for
+	  // padding
+	  // and
+	  // 10
+	  // for
+	  // vertical
+	  // scroll
+	  // bar
+	  // +
+	  // 10
+	  // extra
 	  // current user is logged in to myExperiment, display all personal data
-      spMyStuff = new JSplitPane();
-      spMyStuff.setLeftComponent(spSidebar);
-      spMyStuff.setRightComponent(new MyStuffContributionsPanel(pluginMainComponent, myExperimentClient, logger));
-      this.pluginMainComponent.getStatusBar().setCurrentUser(myExperimentClient.getCurrentUser().getName());
-	  
-      // set proportional sizes of the two panes as 30/70 percents of the total
+	  spMyStuff = new JSplitPane();
+	  spMyStuff.setLeftComponent(spSidebar);
+	  spMyStuff.setRightComponent(new MyStuffContributionsPanel(pluginMainComponent, myExperimentClient, logger));
+	  this.pluginMainComponent.getStatusBar().setCurrentUser(myExperimentClient.getCurrentUser().getName());
+
+	  // set proportional sizes of the two panes as 30/70 percents of the total
 	  // width of the SplitPane
 	  // this can only be done after the SplitPane is made visible - hence the
 	  // need for the listener below
-      pluginMainComponent.addComponentListener(new ComponentAdapter() {
-        public void componentShown(ComponentEvent e)
-        {
-          javax.swing.JOptionPane.showMessageDialog(null, "component shown");
-          // NB! This is only needed for use with test class, not when Taverna calls perspective!!
-          // the SplitPane wouldn't have loaded yet - wait until it does
-          try { Thread.sleep(50); } // 50ms is a tiny delay -- acceptable
-          catch (Exception ex) { /* do nothing */ }
-          
-          // set the proportions in the SplitPane
-         spMyStuff.setDividerLocation(400);
-        }
-      });
+	  pluginMainComponent.addComponentListener(new ComponentAdapter() {
+		public void componentShown(ComponentEvent e) {
+		  javax.swing.JOptionPane.showMessageDialog(null, "component shown");
+		  // NB! This is only needed for use with test class, not when Taverna
+		  // calls perspective!!
+		  // the SplitPane wouldn't have loaded yet - wait until it does
+		  try {
+			Thread.sleep(50);
+		  } // 50ms is a tiny delay -- acceptable
+		  catch (Exception ex) { /* do nothing */}
 
-      // make sure that both panes will grow/shrink at the same rate if the
-      // size of the whole SplitPane is changed by resizing the window
-      spMyStuff.setResizeWeight(0.3);
+		  // set the proportions in the SplitPane
+		  spMyStuff.setDividerLocation(400);
+		}
+	  });
+
+	  // make sure that both panes will grow/shrink at the same rate if the
+	  // size of the whole SplitPane is changed by resizing the window
+	  spMyStuff.setResizeWeight(0.3);
 	  spMyStuff.setOneTouchExpandable(true);
-      spMyStuff.setDividerLocation(400);
+	  spMyStuff.setDividerLocation(400);
 	  spMyStuff.setDoubleBuffered(true);
 
 	  // spMyStuff will be the only component in the Panel
@@ -144,16 +145,14 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 		public void run() {
 		  try {
 			cdlComponentLoadingDone.await();
-			pluginMainComponent.getStatusBar().setStatus(
-				this.getClass().getName(), null);
+			pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), null);
 		  } catch (InterruptedException ex) { /* do nothing for now */
 		  }
 		}
 	  }.start();
 	} else {
 	  // reset status in case of unsuccessful autologin
-	  this.pluginMainComponent.getStatusBar().setStatus(
-		  this.getClass().getName(), null);
+	  this.pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), null);
 
 	  // user isn't logged in, display login box only
 	  JPanel jpLoginBoxContainer = new JPanel();
@@ -163,27 +162,17 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 
 	  // check if login credentials are stored in the INI file;
 	  // if this is the case, populate the box
-	  Object oRememberMe = this.myExperimentClient.getSettings().get(
-		  MyExperimentClient.INI_REMEMBER_ME);
+	  Object oRememberMe = this.myExperimentClient.getSettings().get(MyExperimentClient.INI_REMEMBER_ME);
 	  if (oRememberMe != null && oRememberMe.equals("true")) {
-		this.tfLogin.setText(this.myExperimentClient.getSettings().get(
-			MyExperimentClient.INI_LOGIN).toString());
-		this.pfPassword.setText(this.myExperimentClient.getSettings().get(
-			MyExperimentClient.INI_PASSWORD).toString());
+		this.tfLogin.setText(this.myExperimentClient.getSettings().get(MyExperimentClient.INI_LOGIN).toString());
+		this.pfPassword.setText(this.myExperimentClient.getSettings().get(MyExperimentClient.INI_PASSWORD).toString());
 		this.cbRememberMe.setSelected(true);
-		this.cbLoginAutomatically.setSelected(this.myExperimentClient
-			.getSettings().get(MyExperimentClient.INI_AUTO_LOGIN)
-			.equals("true"));
+		this.cbLoginAutomatically.setSelected(this.myExperimentClient.getSettings().get(MyExperimentClient.INI_AUTO_LOGIN).equals("true"));
 	  }
 
 	  // put everything together (welcome banner + login box)
 	  this.setLayout(new BorderLayout());
-	  this
-		  .add(
-			  new ShadedLabel(
-				  "Welcome to the myExperiment plugin. Please note that you can still use other tabs even "
-					  + "if you don't have a user profile yet!",
-				  ShadedLabel.BLUE), BorderLayout.NORTH);
+	  this.add(new ShadedLabel("Welcome to the myExperiment plugin. Please note that you can still use other tabs even " + "if you don't have a user profile yet!", ShadedLabel.BLUE), BorderLayout.NORTH);
 	  this.add(jpLoginBoxContainer, BorderLayout.CENTER);
 
 	  // this will ensure that login is selected and focused
@@ -195,10 +184,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
   // generates JPanel containing a login box
   private JPanel createLoginBox() {
 	JPanel jpLoginBox = new JPanel();
-	jpLoginBox
-		.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-			.createEtchedBorder(), BorderFactory.createEmptyBorder(10, 10, 10,
-			10)));
+	jpLoginBox.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEtchedBorder(), BorderFactory.createEmptyBorder(10, 10, 10, 10)));
 
 	jpLoginBox.setLayout(new GridBagLayout());
 	GridBagConstraints c = new GridBagConstraints();
@@ -247,24 +233,18 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 	pfPassword = new JPasswordField(20);
 	pfPassword.addKeyListener(this);
 	pfPassword.addFocusListener(this);
-	jpLoginBox.add(pfPassword, c);	
-	
+	jpLoginBox.add(pfPassword, c);
+
 	cbRememberMe = new JCheckBox("Remember me");
 	cbRememberMe.setBorder(BorderFactory.createEmptyBorder()); // makes sure
-															   // that this is
-															   // aligned with
-															   // text fields
-															   // above
+	// that this is aligned with text fields above
 	cbRememberMe.addKeyListener(this);
-
-	jclForgetMe = new JClickableLabel("(Forget me)", "forget_me", this, null,
-		SwingConstants.LEFT,
-		"Click to remove your login details from the system");
+	
+	jclForgetMe = new JClickableLabel("(Forget me)", "forget_me", this, null, SwingConstants.LEFT, "Click to remove your login details from the system");
 	jclForgetMe.setBorder(BorderFactory.createEmptyBorder(0, 6, 0, 4));
 
 	JPanel jpRememberMeForgetMe = new JPanel();
-	jpRememberMeForgetMe.setLayout(new BoxLayout(jpRememberMeForgetMe,
-		BoxLayout.X_AXIS));
+	jpRememberMeForgetMe.setLayout(new BoxLayout(jpRememberMeForgetMe, BoxLayout.X_AXIS));
 	jpRememberMeForgetMe.add(cbRememberMe);
 	jpRememberMeForgetMe.add(jclForgetMe);
 
@@ -282,15 +262,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 	c.gridy = 4;
 	cbLoginAutomatically = new JCheckBox("Log in automatically (next time)");
 	cbLoginAutomatically.setBorder(BorderFactory.createEmptyBorder()); // makes
-																	   // sure
-																	   // that
-																	   // this
-																	   // is
-																	   // aligned
-																	   // with
-																	   // text
-																	   // fields
-																	   // above
+	// sure that this is aligned with text fields above
 	cbLoginAutomatically.setPreferredSize(tfLogin.getPreferredSize());
 	cbLoginAutomatically.addActionListener(this);
 	cbLoginAutomatically.addKeyListener(this);
@@ -301,8 +273,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 	c.insets = new Insets(10, 0, 0, 0);
 	c.gridx = 0;
 	c.gridy = 5;
-	bLogin = new JButton("Login", new ImageIcon(MyExperimentPerspective
-		.getLocalResourceURL("login_icon")));
+	bLogin = new JButton("Login", new ImageIcon(MyExperimentPerspective.getLocalResourceURL("login_icon")));
 	bLogin.setDefaultCapable(true);
 	bLogin.addKeyListener(this);
 	bLogin.addActionListener(this);
@@ -320,8 +291,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
   public void actionPerformed(ActionEvent e) {
 	if (e.getSource().equals(this.bLogin)) {
 	  // "Login" button clicked
-	  pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(),
-		  "Logging in");
+	  pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), "Logging in");
 
 	  // Make call to myExperiment API in a different thread
 	  // (then use SwingUtilities.invokeLater to update the UI when ready).
@@ -331,8 +301,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 
 		  try {
 			// do the actual "logging in"
-			boolean bLoginSuccessful = myExperimentClient.doLogin(tfLogin
-				.getText(), new String(pfPassword.getPassword()));
+			boolean bLoginSuccessful = myExperimentClient.doLogin(tfLogin.getText(), new String(pfPassword.getPassword()));
 
 			// check if need to store the login credentials and settings
 			if (bLoginSuccessful) {
@@ -340,25 +309,15 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 			  // login/password - when the 'remember me' tick is not checked
 			  // anymore);
 			  // however, need to check whether to store login details or not
-			  myExperimentClient.getSettings().put(
-				  MyExperimentClient.INI_LOGIN,
-				  (cbRememberMe.isSelected() ? tfLogin.getText() : ""));
-			  myExperimentClient.getSettings().put(
-				  MyExperimentClient.INI_PASSWORD,
-				  (cbRememberMe.isSelected() ? new String(pfPassword
-					  .getPassword()) : ""));
-			  myExperimentClient.getSettings().put(
-				  MyExperimentClient.INI_REMEMBER_ME,
-				  new Boolean(cbRememberMe.isSelected()).toString());
-			  myExperimentClient.getSettings().put(
-				  MyExperimentClient.INI_AUTO_LOGIN,
-				  new Boolean(cbLoginAutomatically.isSelected()).toString());
+			  myExperimentClient.getSettings().put(MyExperimentClient.INI_LOGIN, (cbRememberMe.isSelected() ? tfLogin.getText() : ""));
+			  myExperimentClient.getSettings().put(MyExperimentClient.INI_PASSWORD, (cbRememberMe.isSelected() ? new String(pfPassword.getPassword()) : ""));
+			  myExperimentClient.getSettings().put(MyExperimentClient.INI_REMEMBER_ME, new Boolean(cbRememberMe.isSelected()).toString());
+			  myExperimentClient.getSettings().put(MyExperimentClient.INI_AUTO_LOGIN, new Boolean(cbLoginAutomatically.isSelected()).toString());
 			  myExperimentClient.storeSettings();
 
 			  // if logging in was successful, set the status to the start of
 			  // fetching the data
-			  pluginMainComponent.getStatusBar().setStatus(
-				  this.getClass().getName(), "Fetching user data");
+			  pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), "Fetching user data");
 			}
 
 			SwingUtilities.invokeLater(new Runnable() {
@@ -369,8 +328,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 
 				  // ..also, load user's tag cloud
 				  pluginMainComponent.getTagBrowserTab().setMyTagsShown(true);
-				  pluginMainComponent.getTagBrowserTab().getMyTagPanel()
-					  .refresh();
+				  pluginMainComponent.getTagBrowserTab().getMyTagPanel().refresh();
 
 				  // ..also, refresh tag search results because these my include
 				  // much more than
@@ -385,28 +343,20 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 				  // if after logging it is needed to switch to other tab,
 				  // that is done now
 				  if (cTabContentComponentToSwitchToAfterLogin != null) {
-					pluginMainComponent.getMainTabs().setSelectedComponent(
-						cTabContentComponentToSwitchToAfterLogin);
+					pluginMainComponent.getMainTabs().setSelectedComponent(cTabContentComponentToSwitchToAfterLogin);
 					cTabContentComponentToSwitchToAfterLogin = null;
 				  }
 
 				  logger.debug("Logged in to myExperiment successfully");
 				} else {
 				  // couldn't login - display error message
-				  pluginMainComponent.getStatusBar().setStatus(
-					  this.getClass().getName(), null);
-				  javax.swing.JOptionPane
-					  .showMessageDialog(
-						  null,
-						  "Couldn't login to myExperiment - please check your login details",
-						  "myExperiment Plugin - Couldn't Login",
-						  JOptionPane.ERROR_MESSAGE);
+				  pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), null);
+				  javax.swing.JOptionPane.showMessageDialog(null, "Couldn't login to myExperiment - please check your login details", "myExperiment Plugin - Couldn't Login", JOptionPane.ERROR_MESSAGE);
 				}
 			  }
 			});
 		  } catch (Exception ex) {
-			logger
-				.error("Exception on attempt to login to myExperiment:\n", ex);
+			logger.error("Exception on attempt to login to myExperiment:\n", ex);
 		  }
 		}
 	  }.start();
@@ -419,13 +369,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 	} else if (e.getSource().equals(jclForgetMe)) {
 	  // request to "forget" login credentials
 	  // (do so after user confirmation)
-	  if (JOptionPane
-		  .showConfirmDialog(
-			  null,
-			  "This will remove a local record of your login credentials.\nYou will have to login "
-				  + "manually next time when you choose to do so.\n\nDo you want to proceed?",
-			  "myExperiment Plugin - Confirmation Required",
-			  JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+	  if (JOptionPane.showConfirmDialog(null, "This will remove a local record of your login credentials.\nYou will have to login " + "manually next time when you choose to do so.\n\nDo you want to proceed?", "myExperiment Plugin - Confirmation Required", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 		// remove the values from the form
 		this.tfLogin.setText("");
 		this.pfPassword.setText("");
@@ -434,25 +378,20 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 
 		// remove the values from settings
 		myExperimentClient.getSettings().put(MyExperimentClient.INI_LOGIN, "");
-		myExperimentClient.getSettings().put(MyExperimentClient.INI_PASSWORD,
-			"");
-		myExperimentClient.getSettings().put(
-			MyExperimentClient.INI_REMEMBER_ME, new Boolean(false).toString());
-		myExperimentClient.getSettings().put(MyExperimentClient.INI_AUTO_LOGIN,
-			new Boolean(false).toString());
+		myExperimentClient.getSettings().put(MyExperimentClient.INI_PASSWORD, "");
+		myExperimentClient.getSettings().put(MyExperimentClient.INI_REMEMBER_ME, new Boolean(false).toString());
+		myExperimentClient.getSettings().put(MyExperimentClient.INI_AUTO_LOGIN, new Boolean(false).toString());
 	  }
 
 	} else if (e.getSource().equals(this.jpSidebar.bRefreshMyStuff)) {
 	  // this will re-fetch all user profile data and repopulate the whole of
 	  // the 'My Stuff' tab
-	  pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(),
-		  "Refreshing user data");
+	  pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), "Refreshing user data");
 
 	  new Thread("Refreshing myStuff tab data") {
 		public void run() {
 		  // re-fetch user data first
-		  myExperimentClient.setCurrentUser(myExperimentClient
-			  .fetchCurrentUser(myExperimentClient.getCurrentUser().getURI()));
+		  myExperimentClient.setCurrentUser(myExperimentClient.fetchCurrentUser(myExperimentClient.getCurrentUser().getURI()));
 		  createAndInitialiseInnerComponents();
 		  revalidate();
 		}
@@ -469,10 +408,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 		// ENTER pressed inside 'login' field - shift focus onto the 'password'
 		// field
 		this.pfPassword.requestFocusInWindow();
-	  } else if (e.getSource().equals(this.pfPassword)
-		  || e.getSource().equals(this.cbRememberMe)
-		  || e.getSource().equals(this.cbLoginAutomatically)
-		  || e.getSource().equals(this.bLogin)) {
+	  } else if (e.getSource().equals(this.pfPassword) || e.getSource().equals(this.cbRememberMe) || e.getSource().equals(this.cbLoginAutomatically) || e.getSource().equals(this.bLogin)) {
 		// ENTER pressed when focus was on the login button, one of checkboxes
 		// or the password field - do logging in
 		actionPerformed(new ActionEvent(this.bLogin, 0, ""));
@@ -490,8 +426,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener,
 
   // *** Callbacks for FocusListener interface ***
   public void focusGained(FocusEvent e) {
-	if (e.getSource().equals(this.tfLogin)
-		|| e.getSource().equals(this.pfPassword)) {
+	if (e.getSource().equals(this.tfLogin) || e.getSource().equals(this.pfPassword)) {
 	  ((JTextField) e.getSource()).selectAll();
 	}
   }

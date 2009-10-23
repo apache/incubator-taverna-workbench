@@ -13,10 +13,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.net.HttpURLConnection;
 
 import javax.swing.ImageIcon;
@@ -57,7 +54,9 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
   private JLabel lStatusMessage;
 
   // STORAGE
-  private File workflowFile; // the workflow to be uploaded
+  private File workflowFile; // the workflow file to be uploaded
+  private Resource updateResource; // the workflow resource that is to be updated
+  
   private String strDescription = null;
   private String strTitle = null;
   private boolean bUploadingSuccessful = false;
@@ -73,6 +72,29 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	this.logger = logger;
 
 	// set the resource for which the comment is being added
+	this.workflowFile = file;
+	this.updateResource = null;
+
+	// set options of the 'add comment' dialog box
+	this.setModal(true);
+	this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+	this.setTitle("Upload workflow to myExperiment");
+
+	this.initialiseUI();
+  }
+
+  public UploadWorkflowDialog(JPanel owner, File file, MainComponent component, MyExperimentClient client, Logger logger, Resource resource) {
+	// super(owner);
+	// super();
+
+	// set main variables to ensure access to myExperiment, logger and the
+	// parent component
+	this.pluginMainComponent = component;
+	this.myExperimentClient = client;
+	this.logger = logger;
+
+	// set the resource for which the comment is being added
+	this.updateResource = resource;
 	this.workflowFile = file;
 
 	// set options of the 'add comment' dialog box
@@ -234,9 +256,14 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 			} catch (Exception e) {
 			  lStatusMessage = new JLabel("Error occurred:" + e.getMessage(), new ImageIcon(MyExperimentPerspective.getLocalResourceURL("failure_icon")), SwingConstants.LEFT);
 			}
-
+			
 			// *** POST THE WORKFLOW ***
-			final ServerResponse response = myExperimentClient.postWorkflow(workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription));
+			final ServerResponse response;
+			if (updateResource == null)
+			  response = myExperimentClient.postWorkflow(workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription));
+			else
+			  response = myExperimentClient.postNewVersionOfWorkflow(updateResource, workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription));
+			
 			bUploadingSuccessful = (response.getResponseCode() == HttpURLConnection.HTTP_OK);
 
 			SwingUtilities.invokeLater(new Runnable() {
@@ -245,6 +272,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 				if (bUploadingSuccessful) {
 				  // workflow uploaded successfully
 				  setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+				  tfTitle.setEnabled(false);
 				  taDescription.setEnabled(false);
 				  contentPane.remove(lStatusMessage);
 
