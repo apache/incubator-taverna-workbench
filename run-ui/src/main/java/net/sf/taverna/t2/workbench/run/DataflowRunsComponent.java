@@ -137,12 +137,14 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 			public void actionPerformed(ActionEvent e) {
 				int[] selected = runList.getSelectedIndices();
 				for (int i = selected.length - 1; i >=0; i--){
-					runListModel.remove(selected[i]);
+					DataflowRun remove = (DataflowRun)runListModel.remove(selected[i]);
+					remove.getMonitorViewComponent().onDispose();
 				}
 				// Set the first item as selected - if there is one
 				if (runListModel.size() > 0){
 					runList.setSelectedIndex(0);
 				}
+				System.gc();
 			}
 		});
 		JPanel runListTopPanel = new JPanel();
