@@ -200,6 +200,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 
 		private TreeUpdaterThread() {
 			super("Updating service panel");
+			setDaemon(true);
 		}
 
 		public void abort() {
