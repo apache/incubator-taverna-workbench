@@ -310,10 +310,8 @@ public abstract class TreePanel extends JPanel {
 			try {
 				runFilter();
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				Thread.interrupted();
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -321,8 +319,8 @@ public abstract class TreePanel extends JPanel {
 
 	protected class SearchFieldKeyAdapter extends KeyAdapter {
 		private final Runnable runFilterRunnable;
-		Timer timer = new Timer("Search field timer");
-
+		Timer timer = new Timer("Search field timer", true);
+		
 		private SearchFieldKeyAdapter() {
 			this.runFilterRunnable = new RunFilter();
 		}
