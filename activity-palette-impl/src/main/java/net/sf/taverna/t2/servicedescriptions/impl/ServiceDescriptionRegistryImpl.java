@@ -483,6 +483,7 @@ public class ServiceDescriptionRegistryImpl implements
 			this.provider = provider;
 			this.callBack = callBack;
 			this.setUncaughtExceptionHandler(this);
+			this.setDaemon(true);
 		}
 
 		public ServiceDescriptionProvider getProvider() {
