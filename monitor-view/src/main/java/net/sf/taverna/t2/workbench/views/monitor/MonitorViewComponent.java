@@ -27,11 +27,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -74,6 +70,7 @@ import org.apache.log4j.Logger;
 
 public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(MonitorViewComponent.class);
 
 	private static final long serialVersionUID = 1L;
@@ -86,10 +83,14 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	private JLabel statusLabel;
 	
 	private ProvenanceConnector provenanceConnector;	
-	
-	public enum Status {RUNNING, COMPLETE};
+
+	public enum Status {
+		RUNNING, COMPLETE
+	}
 
 	private String sessionId;
+
+	private GVTTreeRendererAdapter gvtTreeRendererAdapter;
 
 	public MonitorViewComponent() {
 		super(new BorderLayout());
@@ -100,13 +101,14 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 		svgCanvas.setEnableRotateInteractor(false);
 		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
 
-		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
+		gvtTreeRendererAdapter = new GVTTreeRendererAdapter() {
 			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
 //				svgScrollPane.reset();
 				getGraphController().setUpdateManager(svgCanvas.getUpdateManager());
 //				MonitorViewComponent.this.revalidate();
 			}
-		});
+		};
+		svgCanvas.addGVTTreeRendererListener(gvtTreeRendererAdapter);
 		
 		JPanel diagramAndControls = new JPanel();
 		diagramAndControls.setLayout(new BorderLayout());
@@ -209,9 +211,23 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	}
 
 	public void onDispose() {
-		// TODO Auto-generated method stub
-
+		if (svgScrollPane != null) {
+			svgScrollPane.removeAll();
+			svgScrollPane = null;
+		}
+		if (svgCanvas != null) {
+			svgCanvas.stopProcessing();
+			svgCanvas.removeGVTTreeRendererListener(gvtTreeRendererAdapter);
+			svgCanvas = null;
+		}
 	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		onDispose();
+	}
+
+
 
 	public void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
@@ -230,6 +246,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	}
 
 	private class MySvgScrollPane extends JSVGScrollPane {
+		private static final long serialVersionUID = 6890422410714378543L;
 
 		public MySvgScrollPane(JSVGCanvas canvas) {
 			super(canvas);
@@ -251,8 +268,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 	private final Dataflow dataflow;
 	private String localName;
 	private List<LineageQueryResultRecord> intermediateValues;
-	private Timer timer;
-	private TimerTask timerTask;
+
 	private Runnable runnable;
 	private String sessionID;
 	private String targetWorkflowID;
@@ -362,9 +378,8 @@ class MonitorGraphEventManager implements GraphEventManager {
 							}
 //						}
 							
-						String internalIdentier = dataflow
-								.getInternalIdentier();
-provResultsPanel = new ProvenanceResultsPanel();
+//						String internalIdentier = dataflow.getInternalIdentier();
+						provResultsPanel = new ProvenanceResultsPanel();
 						provResultsPanel.setContext(provenanceConnector
 								.getInvocationContext());
 						provenancePanel.add(provResultsPanel,
@@ -375,8 +390,7 @@ provResultsPanel = new ProvenanceResultsPanel();
 
 							public void run() {
 								try {
-									logger
-											.info("Retrieving intermediate results for dataflow instance: "
+									logger.info("Retrieving intermediate results for dataflow instance: "
 													+ sessionID
 													+ " processor: "
 													+ localName
@@ -505,25 +519,6 @@ provResultsPanel = new ProvenanceResultsPanel();
 
 	}
 	
-	private class WindowClosingListener extends WindowAdapter {
-		private final Timer timer;
-		private final TimerTask timerTask;
-
-		public WindowClosingListener(Timer timer, TimerTask timerTask) {
-			this.timer = timer;
-			this.timerTask = timerTask;
-		}
-
-		@Override
-		public void windowClosing(WindowEvent e) {
-			if (timer != null) {
-				timer.cancel();
-			}
-			if (timerTask != null) {
-				timerTask.cancel();
-			}
-		}
-	}
 	
 
 

@@ -116,6 +116,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	private DialogTextArea workflowAuthorArea;
 
 	private AnnotationTools annotationTools = new AnnotationTools();
+	private JSVGCanvas createWorkflowGraphic;
 
 	@SuppressWarnings("serial")
 	public WorkflowLaunchPanel(final WorkflowInstanceFacade facade,
@@ -124,7 +125,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		JPanel workflowPart = new JPanel(new GridLayout(3,1));
 		JPanel portsPart = new JPanel(new BorderLayout());
 
-		JSVGCanvas createWorkflowGraphic = createWorkflowGraphic(facade
+		createWorkflowGraphic = createWorkflowGraphic(facade
 				.getDataflow());
 		createWorkflowGraphic.setBorder(new TitledBorder("Diagram"));
 		
@@ -362,5 +363,10 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		return workflowDescriptionArea.getText();
 	}
 
-
+	@Override
+	protected void finalize() throws Throwable {
+		createWorkflowGraphic.stopProcessing();
+		super.finalize();
+	}
+	
 }

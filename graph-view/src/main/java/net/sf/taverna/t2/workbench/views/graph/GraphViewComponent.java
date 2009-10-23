@@ -88,6 +88,7 @@ import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
+import org.apache.batik.swing.svg.GVTTreeBuilderListener;
 import org.apache.log4j.Logger;
 
 /**
@@ -124,6 +125,8 @@ public class GraphViewComponent extends WorkflowView {
 	private JToggleButton expandNested;
 	
 	private Timer timer;
+
+	private GVTTreeRendererAdapter gvtTreeBuilderAdapter;
 	
 	public GraphViewComponent() {
 		super();
@@ -134,14 +137,15 @@ public class GraphViewComponent extends WorkflowView {
 		this.setBorder(border);
 		
 		svgCanvas = new JSVGCanvas(null, true, false);
-		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
+		gvtTreeBuilderAdapter = new GVTTreeRendererAdapter() {
             public void gvtRenderingCompleted(GVTTreeRendererEvent e) 
 {
 				logger.info("Rendered svg");
 				svgScrollPane.reset();
                GraphViewComponent.this.revalidate();
             }
-        });
+        };
+		svgCanvas.addGVTTreeRendererListener(gvtTreeBuilderAdapter);
 
 		svgCanvas.setEnableZoomInteractor(false);
 		svgCanvas.setEnableRotateInteractor(false);
@@ -443,9 +447,25 @@ public class GraphViewComponent extends WorkflowView {
 	}
 
 	public void onDispose() {
-		// TODO Auto-generated method stub
+		if (timer != null) {
+			timer.stop();
+		}
+		if (svgScrollPane != null) {
+			svgScrollPane.removeAll();
+			svgScrollPane = null;
+		}
+		if (svgCanvas != null) {
+			svgCanvas.stopProcessing();
+			svgCanvas.removeGVTTreeRendererListener(gvtTreeBuilderAdapter);
+			svgCanvas = null;
+		}
 	}
-	
+
+	@Override
+	protected void finalize() throws Throwable {
+		onDispose();
+	}
+
 	private class MySvgScrollPane extends JSVGScrollPane {
 
 		public MySvgScrollPane(JSVGCanvas canvas) {
