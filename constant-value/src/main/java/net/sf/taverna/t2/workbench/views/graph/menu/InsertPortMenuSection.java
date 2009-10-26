@@ -30,16 +30,16 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
  * @author Alan R Williams
  *
  */
-public class GraphPortEditMenuSection extends AbstractMenuSection {
+public class InsertPortMenuSection extends AbstractMenuSection {
 
-	public static final URI GRAPH_PORT_EDIT_MENU_SECTION = URI
-			.create("http://taverna.sf.net/2008/t2workbench/menu#graphPortEditMenuSection");
+	public static final URI INSERT_PORT_EDIT_MENU_SECTION = URI
+			.create("http://taverna.sf.net/2008/t2workbench/menu#insertPortEditMenuSection");
 
-	public static final URI GRAPH_MENU_SECTION = URI
-	.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuSection");
+	public static final URI INSERT_MENU = URI
+	.create("http://taverna.sf.net/2008/t2workbench/menu#insert");
 
-	public GraphPortEditMenuSection() {
-		super(GRAPH_MENU_SECTION, 27, GRAPH_PORT_EDIT_MENU_SECTION);
+	public InsertPortMenuSection() {
+		super(INSERT_MENU, 27, INSERT_PORT_EDIT_MENU_SECTION);
 	}
 
 }
