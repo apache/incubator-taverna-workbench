@@ -67,8 +67,8 @@ public class SetDefaultInputPortValueAction extends AbstractAction{
 	public SetDefaultInputPortValueAction(){
 		super();
 		putValue(SMALL_ICON, WorkbenchIcons.inputValueIcon);
-		putValue(NAME, "Set constant value");	
-		putValue(SHORT_DESCRIPTION, "Set a constant value for an input port");
+		putValue(NAME, "Constant value");	
+		putValue(SHORT_DESCRIPTION, "Add a constant value for an input port");
 		setEnabled(false);
 
 		modelMap.addObserver(perspectiveObserver);
