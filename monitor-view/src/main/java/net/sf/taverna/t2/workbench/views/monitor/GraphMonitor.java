@@ -70,7 +70,7 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 
 	private Map<String, ResultListener> resultListeners = new HashMap<String, ResultListener>();
 
-	private static Timer updateTimer = new Timer("GraphMonitor update timer", true);
+	private Timer updateTimer = new Timer("GraphMonitor update timer", true);
 
 	private UpdateTask updateTask;
 
@@ -269,5 +269,13 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 		}
 	}
 
+	public void onDispose() {
+		updateTimer.cancel();
+	}
 
+	@Override
+	protected void finalize() throws Throwable {
+		onDispose();
+	}
+	
 }

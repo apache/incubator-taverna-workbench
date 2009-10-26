@@ -92,6 +92,8 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 
 	private GVTTreeRendererAdapter gvtTreeRendererAdapter;
 
+	private GraphMonitor graphMonitor;
+
 	public MonitorViewComponent() {
 		super(new BorderLayout());
 		setBorder(LineBorder.createGrayLineBorder());
@@ -193,7 +195,8 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 		});
 		svgCanvas.setDocument(getGraphController().generateSVGDocument(getBounds()));
 
-		return new GraphMonitor(getGraphController(), this);
+		graphMonitor = new GraphMonitor(getGraphController(), this);
+		return graphMonitor;
 	}
 
 	public ImageIcon getIcon() {
@@ -211,6 +214,9 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	}
 
 	public void onDispose() {
+		if (graphMonitor != null) {
+			graphMonitor.onDispose();
+		}
 		if (svgScrollPane != null) {
 			svgScrollPane.removeAll();
 			svgScrollPane = null;
@@ -220,6 +226,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 			svgCanvas.removeGVTTreeRendererListener(gvtTreeRendererAdapter);
 			svgCanvas = null;
 		}
+		
 	}
 
 	@Override
