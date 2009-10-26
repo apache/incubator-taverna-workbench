@@ -65,7 +65,7 @@ public class CutProcessorAction extends AbstractAction {
 		this.processor = processor;
 		this.component = component;
 		putValue(SMALL_ICON, WorkbenchIcons.cutIcon);
-		putValue(NAME, "Cut service");		
+		putValue(NAME, "Cut");		
 	}
 
 	public void actionPerformed(ActionEvent e) {

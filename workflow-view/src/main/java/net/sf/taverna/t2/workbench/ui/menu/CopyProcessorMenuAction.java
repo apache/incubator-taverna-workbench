@@ -32,8 +32,12 @@ import net.sf.taverna.t2.workflowmodel.Processor;
 
 public class CopyProcessorMenuAction extends AbstractContextualMenuAction {
 
+	public static final URI editSection = URI
+	.create("http://taverna.sf.net/2009/contextMenu/edit");
+
+
 	public CopyProcessorMenuAction() {
-		super(EditProcessorSection.editSection, 92);
+		super(editSection, 20);
 	}
 
 	@Override

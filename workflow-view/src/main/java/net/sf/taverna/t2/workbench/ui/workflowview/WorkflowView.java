@@ -205,6 +205,9 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 			Element e = (Element) t.getTransferData(processorFlavor);
 			Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
 			Processor p = ProcessorXMLDeserializer.getInstance().deserializeProcessor(e,requiredSubworkflows);
+			if (p == null) {
+				return;
+			}
 		String newName = Tools.uniqueProcessorName(p.getLocalName(), currentDataflow);
 		List<Edit<?>> editList = new ArrayList<Edit<?>>();
 

@@ -58,7 +58,7 @@ public class CopyProcessorAction extends AbstractAction {
 	public CopyProcessorAction(Processor processor) {
 		this.processor = processor;
 		putValue(SMALL_ICON, WorkbenchIcons.copyIcon);
-		putValue(NAME, "Copy service");		
+		putValue(NAME, "Copy");		
 	}
 
 	public void actionPerformed(ActionEvent e) {

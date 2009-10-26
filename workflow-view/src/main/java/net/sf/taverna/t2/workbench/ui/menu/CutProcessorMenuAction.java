@@ -27,20 +27,18 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.ui.actions.CopyProcessorAction;
+import net.sf.taverna.t2.workbench.ui.actions.CutGraphComponentAction;
 import net.sf.taverna.t2.workbench.ui.actions.CutProcessorAction;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
 public class CutProcessorMenuAction extends AbstractContextualMenuAction {
 
-	public CutProcessorMenuAction() {
-		super(EditProcessorSection.editSection, 91);
-	}
+	public static final URI editSection = URI
+	.create("http://taverna.sf.net/2009/contextMenu/edit");
 
-	@Override
-	public boolean isEnabled() {
-		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof Processor;
+	public CutProcessorMenuAction() {
+		super(editSection, 10);
 	}
 
 	@Override
@@ -50,6 +48,12 @@ public class CutProcessorMenuAction extends AbstractContextualMenuAction {
 				.getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();
 		return new CutProcessorAction(dataflow, processor, component);
+	}
+
+	@Override
+	public boolean isEnabled() {
+		return super.isEnabled()
+				&& getContextualSelection().getSelection() instanceof Processor;
 	}
 
 }
