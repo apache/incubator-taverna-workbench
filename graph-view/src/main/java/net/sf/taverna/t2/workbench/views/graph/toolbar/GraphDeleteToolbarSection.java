@@ -36,7 +36,7 @@ public class GraphDeleteToolbarSection extends AbstractMenuSection {
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphDeleteToolbarSection");
 
 	public GraphDeleteToolbarSection() {
-		super(DefaultToolBar.DEFAULT_TOOL_BAR, 40, GRAPH_DELETE_TOOLBAR_SECTION);
+		super(DefaultToolBar.DEFAULT_TOOL_BAR, 80, GRAPH_DELETE_TOOLBAR_SECTION);
 	}
 
 }
