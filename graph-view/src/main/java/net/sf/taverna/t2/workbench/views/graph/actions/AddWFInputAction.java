@@ -54,8 +54,8 @@ public class AddWFInputAction extends DesignOnlyAction{
 	public AddWFInputAction(){
 		super();
 		putValue(SMALL_ICON, WorkbenchIcons.inputIcon);
-		putValue(NAME, "Add workflow input port");			
-		putValue(SHORT_DESCRIPTION, "Add workflow input port");
+		putValue(NAME, "Workflow input port");			
+		putValue(SHORT_DESCRIPTION, "Workflow input port");
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
 	}

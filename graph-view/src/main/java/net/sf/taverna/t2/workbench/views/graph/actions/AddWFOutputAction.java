@@ -52,8 +52,8 @@ public class AddWFOutputAction extends DesignOnlyAction{
 	public AddWFOutputAction(){
 		super();
 		putValue(SMALL_ICON, WorkbenchIcons.outputIcon);
-		putValue(NAME, "Add workflow output port");	
-		putValue(SHORT_DESCRIPTION, "Add workflow output port");
+		putValue(NAME, "Workflow output port");	
+		putValue(SHORT_DESCRIPTION, "Workflow output port");
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
 	}
