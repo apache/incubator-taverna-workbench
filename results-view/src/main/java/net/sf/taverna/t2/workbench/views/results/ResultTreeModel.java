@@ -93,7 +93,7 @@ public class ResultTreeModel extends DefaultTreeModel implements ResultListener 
 						int c = 0;
 						for (T2Reference id : list) {
 							elementIndex[index.length] = c;
-							resultTokenProduced(new WorkflowDataToken(dataToken
+							resultTokenProducedGui(new WorkflowDataToken(dataToken
 									.getOwningProcess(), elementIndex, id,
 									dataToken.getContext()), portName);
 							c++;
