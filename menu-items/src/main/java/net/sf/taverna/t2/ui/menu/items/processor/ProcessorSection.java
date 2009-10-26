@@ -30,6 +30,7 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
 import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
+import net.sf.taverna.t2.ui.menu.items.contextualviews.EditSection;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
 public class ProcessorSection extends AbstractMenuSection implements
@@ -40,7 +41,7 @@ public class ProcessorSection extends AbstractMenuSection implements
 	private ContextualSelection contextualSelection;
 
 	public ProcessorSection() {
-		super(DefaultContextualMenu.DEFAULT_CONTEXT_MENU, 10, processorSection);
+		super(EditSection.editSection, 200, processorSection);
 	}
 
 	public ContextualSelection getContextualSelection() {
@@ -56,17 +57,6 @@ public class ProcessorSection extends AbstractMenuSection implements
 	public void setContextualSelection(ContextualSelection contextualSelection) {
 		this.contextualSelection = contextualSelection;
 		this.action = null;
-	}
-
-	@SuppressWarnings("serial")
-	@Override
-	protected Action createAction() {
-		Processor proc = (Processor) getContextualSelection().getSelection();
-		String name = "Service: " + proc.getLocalName();
-		return new AbstractAction(name) {
-			public void actionPerformed(ActionEvent e) {
-			}
-		};
 	}
 
 }

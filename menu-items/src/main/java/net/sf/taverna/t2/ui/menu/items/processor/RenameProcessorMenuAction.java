@@ -25,6 +25,7 @@ import java.awt.Component;
 import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
+import net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureSection;
 import net.sf.taverna.t2.workbench.design.actions.RenameProcessorAction;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
@@ -32,7 +33,7 @@ import net.sf.taverna.t2.workflowmodel.Processor;
 public class RenameProcessorMenuAction extends AbstractContextualMenuAction {
 
 	public RenameProcessorMenuAction() {
-		super(ProcessorSection.processorSection, 10);
+		super(ConfigureSection.configureSection, 60);
 	}
 
 	@Override

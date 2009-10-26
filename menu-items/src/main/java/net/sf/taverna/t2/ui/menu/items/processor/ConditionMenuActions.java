@@ -32,6 +32,7 @@ import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
 import net.sf.taverna.t2.ui.menu.ContextualSelection;
+import net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureSection;
 import net.sf.taverna.t2.workbench.design.actions.AddConditionAction;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -46,7 +47,7 @@ public class ConditionMenuActions extends AbstractMenuCustom implements
 	private ArrayList<Processor> processors;
 
 	public ConditionMenuActions() {
-		super(ProcessorSection.processorSection, 20);
+		super(ConfigureSection.configureSection, 80 );
 	}
 
 	public ContextualSelection getContextualSelection() {

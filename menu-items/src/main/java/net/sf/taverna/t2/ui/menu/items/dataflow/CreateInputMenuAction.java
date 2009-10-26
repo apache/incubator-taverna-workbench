@@ -23,13 +23,14 @@ package net.sf.taverna.t2.ui.menu.items.dataflow;
 import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
+import net.sf.taverna.t2.ui.menu.items.contextualviews.InsertSection;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowInputAction;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 public class CreateInputMenuAction extends AbstractContextualMenuAction {
 
 	public CreateInputMenuAction() {
-		super(WorkflowInputsSection.inputsSection, 10);
+		super(InsertSection.insertSection, 10);
 	}
 
 	@Override
