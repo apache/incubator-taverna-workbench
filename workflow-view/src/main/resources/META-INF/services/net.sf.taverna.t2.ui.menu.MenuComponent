@@ -8,5 +8,3 @@ net.sf.taverna.t2.workbench.ui.menu.CutGraphComponentMenuAction
 net.sf.taverna.t2.workbench.ui.toolbar.CutToolbarAction
 net.sf.taverna.t2.workbench.ui.toolbar.CopyToolbarAction
 net.sf.taverna.t2.workbench.ui.toolbar.PasteToolbarAction
-
-net.sf.taverna.t2.workbench.ui.menu.EditProcessorSection
