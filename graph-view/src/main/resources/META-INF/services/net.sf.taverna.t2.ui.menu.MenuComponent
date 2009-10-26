@@ -17,6 +17,8 @@ net.sf.taverna.t2.workbench.views.graph.menu.GraphEditMenuSection
 net.sf.taverna.t2.workbench.views.graph.menu.GraphDeleteMenuSection
 net.sf.taverna.t2.workbench.views.graph.menu.GraphDetailsMenuSection
 
+net.sf.taverna.t2.workbench.views.graph.menu.InsertMenu
+
 net.sf.taverna.t2.workbench.views.graph.menu.AddWFInputMenuAction
 net.sf.taverna.t2.workbench.views.graph.menu.AddWFOutputMenuAction
 net.sf.taverna.t2.workbench.views.graph.menu.RenameWFInputOutputProcessorMenuAction
