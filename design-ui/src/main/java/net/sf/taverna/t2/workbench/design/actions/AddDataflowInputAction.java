@@ -49,7 +49,7 @@ public class AddDataflowInputAction extends DataflowEditAction {
 	public AddDataflowInputAction(Dataflow dataflow, Component component) {
 		super(dataflow, component);
 		putValue(SMALL_ICON, WorkbenchIcons.inputIcon);
-		putValue(NAME, "Add workflow input port");			
+		putValue(NAME, "Workflow input port");			
 		putValue(SHORT_DESCRIPTION, "Add workflow input port");		
 	}
 
