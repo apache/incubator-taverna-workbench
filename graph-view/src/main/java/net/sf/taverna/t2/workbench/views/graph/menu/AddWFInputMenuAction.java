@@ -38,7 +38,7 @@ public class AddWFInputMenuAction extends AbstractMenuAction {
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuAddWFInput");
 
 	public AddWFInputMenuAction() {
-		super(GraphEditMenuSection.GRAPH_EDIT_MENU_SECTION, 10, ADD_WF_INPUT_URI);
+		super(InsertMenu.INSERT, 10, ADD_WF_INPUT_URI);
 	}
 
 	@Override
