@@ -57,13 +57,13 @@ import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 @SuppressWarnings("serial")
 public class AddStringConstantTemplateAction extends AbstractContextualMenuAction {
 
-	private static final URI serviceTemplatesSection = URI
-	.create("http://taverna.sf.net/2009/contextMenu/serviceTemplates");
+	private static final URI insertSection = URI
+	.create("http://taverna.sf.net/2009/contextMenu/insert");
 	
 	private static Logger logger = Logger.getLogger(AddStringConstantTemplateAction.class);
 
 	public AddStringConstantTemplateAction(){
-		super(serviceTemplatesSection, 10);
+		super(insertSection, 70);
 	}
 
 	@Override
@@ -74,7 +74,7 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 	
 	@Override
 	protected Action createAction() {
-		AbstractAction action = new AbstractAction("Add string constant", ActivityIconManager.getInstance()
+		AbstractAction action = new AbstractAction("String constant", ActivityIconManager.getInstance()
 				.iconForActivity(new StringConstantActivity())){
 
 					public void actionPerformed(ActionEvent e) {
