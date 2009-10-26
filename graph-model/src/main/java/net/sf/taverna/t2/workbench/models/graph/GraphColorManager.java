@@ -22,6 +22,7 @@ package net.sf.taverna.t2.workbench.models.graph;
 
 import java.awt.Color;
 
+import net.sf.taverna.t2.activities.localworker.LocalworkerActivity;
 import net.sf.taverna.t2.annotation.AnnotationAssertion;
 import net.sf.taverna.t2.annotation.AnnotationChain;
 import net.sf.taverna.t2.annotation.annotationbeans.HostInstitution;
@@ -54,7 +55,8 @@ public class GraphColorManager {
 
 		if (activity.getClass().getName().equals(
 				"net.sf.taverna.t2.activities.localworker.LocalworkerActivity")) {
-			if (checkAnnotations(activity)) {
+			LocalworkerActivity la = (LocalworkerActivity) activity;
+			if (la.isAltered()) {
 				Color colour = ColourManager
 						.getInstance()
 						.getPreferredColour(
@@ -67,21 +69,6 @@ public class GraphColorManager {
 		Color colour = ColourManager.getInstance().getPreferredColour(
 				activity.getClass().getName());
 		return colour;
-	}
-
-	private static boolean checkAnnotations(Activity<?> activity) {
-		for (AnnotationChain chain : activity.getAnnotations()) {
-			for (AnnotationAssertion<?> assertion : chain.getAssertions()) {
-				Object detail = assertion.getDetail();
-				System.out.println(detail.getClass().getName());
-				if (detail instanceof HostInstitution) {
-					// this is a user defined localworker so use the beanshell
-					// colour!
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	public static Color getSubGraphFillColor(int depth) {
