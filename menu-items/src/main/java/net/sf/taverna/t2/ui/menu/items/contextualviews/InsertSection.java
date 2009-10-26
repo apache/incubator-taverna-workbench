@@ -21,39 +21,49 @@
 package net.sf.taverna.t2.ui.menu.items.contextualviews;
 
 import java.awt.event.ActionEvent;
+import java.net.URI;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
+import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
+import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
+import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
-import net.sf.taverna.t2.workbench.ui.impl.Workbench;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
 
-public class ShowDetailsContextualMenuAction extends AbstractContextualMenuAction {
-	private static final String SHOW_DETAILS = "Show details";
-	private String namedComponent = "contextualView";
+public class InsertSection extends AbstractMenuSection implements
+		ContextualMenuComponent {
 
-	public ShowDetailsContextualMenuAction() {
-		super(ConfigureSection.configureSection, 40);
+	private static final String INSERT = "Insert";
+	public static final URI insertSection = URI
+			.create("http://taverna.sf.net/2009/contextMenu/insert");
+	private ContextualSelection contextualSelection;
+
+	public InsertSection() {
+		super(DefaultContextualMenu.DEFAULT_CONTEXT_MENU, 20, insertSection);
+	}
+
+	public ContextualSelection getContextualSelection() {
+		return contextualSelection;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return super.isEnabled();
-		// FIXME: Should we list all the applicable types here?
-		// && getContextualSelection().getSelection() instanceof Processor;
+		return super.isEnabled()
+				&& getContextualSelection().getSelection() instanceof Dataflow;
+	}
+
+	public void setContextualSelection(ContextualSelection contextualSelection) {
+		this.contextualSelection = contextualSelection;
 	}
 
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new AbstractAction(SHOW_DETAILS) {
+		return new AbstractAction(INSERT) {
 			public void actionPerformed(ActionEvent e) {
-				Workbench workbench = Workbench.getInstance();
-				workbench.getPerspectives().setWorkflowPerspective();
-				workbench.makeNamedComponentVisible(namedComponent);
 			}
 		};
 	}
-
 }

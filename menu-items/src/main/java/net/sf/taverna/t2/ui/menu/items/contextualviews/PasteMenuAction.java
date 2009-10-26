@@ -28,8 +28,8 @@ import java.util.Set;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
+import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.ui.menu.items.dataflow.EditSection;
 import net.sf.taverna.t2.workbench.design.actions.EditDataflowInputPortAction;
 import net.sf.taverna.t2.workbench.design.actions.EditDataflowOutputPortAction;
 import net.sf.taverna.t2.workbench.file.FileManager;
@@ -45,7 +45,7 @@ import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.Merge;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
-public class PasteMenuAction extends AbstractMenuAction {
+public class PasteMenuAction extends AbstractContextualMenuAction {
 	
 	private static final URI PASTE_SERVICE_URI = URI
 	.create("http://taverna.sf.net/2008/t2workbench/paste#pasteServiceComponent");
@@ -62,6 +62,10 @@ public class PasteMenuAction extends AbstractMenuAction {
 	@Override
 	protected Action createAction() {
 		return PasteGraphComponentAction.getInstance();
+	}
+	
+	public boolean isEnabled() {
+		return super.isEnabled() && (getContextualSelection().getSelection() instanceof Dataflow);
 	}
 
 }

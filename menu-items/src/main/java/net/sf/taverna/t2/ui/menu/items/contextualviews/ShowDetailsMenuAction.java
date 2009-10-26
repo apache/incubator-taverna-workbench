@@ -38,7 +38,7 @@ public class ShowDetailsMenuAction extends AbstractMenuAction {
 	private static final URI SHOW_DETAILS_URI = URI
 	.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuShowDetailsComponent");
 
-	private static final String SHOW_DETAILS = "Show details";
+	private static final String SHOW_DETAILS = "Details";
 	private String namedComponent = "contextualView";
 
 	public ShowDetailsMenuAction() {
