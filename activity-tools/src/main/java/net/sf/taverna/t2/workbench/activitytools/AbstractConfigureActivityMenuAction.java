@@ -14,14 +14,14 @@ public abstract class AbstractConfigureActivityMenuAction<ActivityClass extends 
 		extends AbstractContextualMenuAction {
 
 	private static final URI configureSection = URI
-			.create("http://taverna.sf.net/2009/contextMenu/configureSection");
+			.create("http://taverna.sf.net/2009/contextMenu/configure");
 
 	protected final Class<ActivityClass> activityClass;
         
 
 	public AbstractConfigureActivityMenuAction(
 			Class<ActivityClass> activityClass) {
-		super(configureSection, 10);
+		super(configureSection, 50);
 		this.activityClass = activityClass;
 	}
 
