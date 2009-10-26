@@ -160,10 +160,11 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 				if (owningProcess.length == 2) {
 					synchronized (this) {
 						if (updateTask != null) {
-							updateTask = new UpdateTask();
-							updateTimer.schedule(updateTask, monitorRate,
-									monitorRate);
+							// updateTask.cancel();
 						}
+						updateTask = new UpdateTask();
+						updateTimer.schedule(updateTask, monitorRate,
+								monitorRate);
 					}
 				}
 			} else if (workflowObject instanceof WorkflowInstanceFacade) {
@@ -267,5 +268,6 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 			logger.warn("Unknown message " + message + " from " + sender);
 		}
 	}
+
 
 }
