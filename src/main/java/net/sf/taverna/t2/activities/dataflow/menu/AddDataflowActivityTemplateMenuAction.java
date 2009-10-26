@@ -37,6 +37,7 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workbench.views.graph.actions.DesignOnlyAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.GraphEditMenuSection;
+import net.sf.taverna.t2.workbench.views.graph.menu.InsertMenu;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
@@ -50,7 +51,7 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class AddDataflowActivityTemplateMenuAction extends AbstractMenuAction {
 
-	private static final String ADD_NESTED_WORKFLOW = "Add nested workflow";
+	private static final String ADD_NESTED_WORKFLOW = "Nested workflow";
 
 	private static final URI ADD_NESTED_WORKFLOW_URI = URI
 	.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuAddNestedWorkflow");
@@ -58,7 +59,7 @@ public class AddDataflowActivityTemplateMenuAction extends AbstractMenuAction {
 	private static Logger logger = Logger.getLogger(AddDataflowActivityTemplateAction.class);
 
 	public AddDataflowActivityTemplateMenuAction() {
-		super(GraphEditMenuSection.GRAPH_EDIT_MENU_SECTION, 21, ADD_NESTED_WORKFLOW_URI);
+		super(InsertMenu.INSERT, 21, ADD_NESTED_WORKFLOW_URI);
 	}
 
 	protected class AddDataflowMenuAction extends DesignOnlyAction {
@@ -67,7 +68,7 @@ public class AddDataflowActivityTemplateMenuAction extends AbstractMenuAction {
 				putValue(SMALL_ICON, ActivityIconManager.getInstance()
 						.iconForActivity(new DataflowActivity()));
 				putValue(NAME, ADD_NESTED_WORKFLOW);	
-				putValue(SHORT_DESCRIPTION, "Add nested workflow");	
+				putValue(SHORT_DESCRIPTION, "Nested workflow");	
 				putValue(Action.ACCELERATOR_KEY,
 						KeyStroke.getKeyStroke(KeyEvent.VK_N, InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
 			

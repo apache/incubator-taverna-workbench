@@ -46,13 +46,13 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class AddDataflowActivityTemplateAction extends AbstractContextualMenuAction {
 
-	private static final URI serviceTemplatesSection = URI
-	.create("http://taverna.sf.net/2009/contextMenu/serviceTemplates");
+	private static final URI insertSection = URI
+	.create("http://taverna.sf.net/2009/contextMenu/insert");
 	
 	private static Logger logger = Logger.getLogger(AddDataflowActivityTemplateAction.class);
 
 	public AddDataflowActivityTemplateAction() {
-		super(serviceTemplatesSection, 40);
+		super(insertSection, 40);
 	}
 
 	@Override
@@ -64,7 +64,7 @@ public class AddDataflowActivityTemplateAction extends AbstractContextualMenuAct
 	@Override
 	protected Action createAction() {
 
-		AbstractAction action = new AbstractAction("Add nested workflow", ActivityIconManager.getInstance()
+		AbstractAction action = new AbstractAction("Nested workflow", ActivityIconManager.getInstance()
 				.iconForActivity(new DataflowActivity())){
 
 			public void actionPerformed(ActionEvent e) {
