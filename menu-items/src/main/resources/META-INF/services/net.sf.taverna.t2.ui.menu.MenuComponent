@@ -14,10 +14,10 @@ net.sf.taverna.t2.ui.menu.items.contextualviews.ShowConfigureMenuAction
 
 net.sf.taverna.t2.ui.menu.items.dataflow.CreateInputMenuAction
 net.sf.taverna.t2.ui.menu.items.dataflow.CreateOutputMenuAction
-net.sf.taverna.t2.ui.menu.items.dataflow.WorkflowInputsSection
-net.sf.taverna.t2.ui.menu.items.dataflow.WorkflowOutputsSection
+net.sf.taverna.t2.ui.menu.items.contextualviews.InsertSection
 net.sf.taverna.t2.ui.menu.items.dataflow.WorkflowServiceTemplatesSection
-net.sf.taverna.t2.ui.menu.items.dataflow.EditSection
+net.sf.taverna.t2.ui.menu.items.contextualviews.EditSection
+net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureSection
 net.sf.taverna.t2.ui.menu.items.contextualviews.PasteMenuAction
 
 net.sf.taverna.t2.ui.menu.items.link.LinkSection
@@ -36,9 +36,7 @@ net.sf.taverna.t2.ui.menu.items.ports.WorkflowInputPortSection
 net.sf.taverna.t2.ui.menu.items.ports.WorkflowOutputPortSection
 
 net.sf.taverna.t2.ui.menu.items.processor.ConditionMenuActions
-net.sf.taverna.t2.ui.menu.items.processor.ConfigureProcessorSection
 net.sf.taverna.t2.ui.menu.items.processor.ProcessorSection
 net.sf.taverna.t2.ui.menu.items.processor.RenameProcessorMenuAction
-net.sf.taverna.t2.ui.menu.items.processor.EmptyProcessorMenuAction
 net.sf.taverna.t2.ui.menu.items.processor.RemoveProcessorMenuAction
 
