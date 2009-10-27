@@ -36,6 +36,7 @@
 		<module>loop-ui</module>
 		<module>menu-items</module>
 		<module>renderers-exts</module>
+		<module>import-workflow</module>
 	</modules>
 	<repositories>
 		<repository>
