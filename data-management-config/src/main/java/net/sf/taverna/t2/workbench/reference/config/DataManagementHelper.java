@@ -1,5 +1,6 @@
 package net.sf.taverna.t2.workbench.reference.config;
 
+import java.io.File;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -8,6 +9,9 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+
+import net.sf.taverna.raven.appconfig.ApplicationConfig;
+import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.derby.drda.NetworkServerControl;
@@ -73,11 +77,18 @@ public class DataManagementHelper {
 	}
 	
 	public synchronized static void startDerbyNetworkServer() {
+        String homeDir=ApplicationRuntime.getInstance().getApplicationHomeDir().getAbsolutePath();
+        String logDir=homeDir+File.separator+"logs";
+        
+        //make the logs directory if it doesn't already exist
+        File logDirFile=new File(logDir);
+        if (!logDirFile.exists()) logDirFile.mkdir();
         
         System.setProperty("derby.drda.host","localhost");
         System.setProperty("derby.drda.minThreads","5");
-        System.setProperty("derby.drda.maxThreads",String.valueOf(DataManagementConfiguration.getInstance().getPoolMaxActive()));
-        
+        System.setProperty("derby.drda.maxThreads",String.valueOf(DataManagementConfiguration.getInstance().getPoolMaxActive()));        
+        System.setProperty("derby.system.home",homeDir);
+        System.setProperty("derby.stream.error.file",logDir+File.separator+"derby.log");
         int port=DataManagementConfiguration.getInstance().getPort();
         int maxPort = port+10;
         
