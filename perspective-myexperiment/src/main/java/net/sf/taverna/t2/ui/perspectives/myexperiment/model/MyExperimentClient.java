@@ -34,6 +34,7 @@ import org.jdom.input.SAXBuilder;
 public class MyExperimentClient {
   // CONSTANTS
   public static final String DEFAULT_BASE_URL = "http://sandbox.myexperiment.org";
+  //  public static final String DEFAULT_BASE_URL = "http://www.myexperiment.org";
   public static final String PLUGIN_USER_AGENT = "Taverna2-myExperiment-plugin/"
 	  + MyExperimentPerspective.PLUGIN_VERSION
 	  + " Java/"
@@ -58,6 +59,8 @@ public class MyExperimentClient {
   public static final String INI_MY_STUFF_WORKFLOWS = "show_workflows_in_my_stuff";
   public static final String INI_MY_STUFF_FILES = "show_files_in_my_stuff";
   public static final String INI_MY_STUFF_PACKS = "show_packs_in_my_stuff";
+
+  private final String DO_PUT = "_DO_UPDATE_SIGNAL_";
 
   // universal date formatter
   private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
@@ -378,7 +381,8 @@ public class MyExperimentClient {
 	HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
 
 	// "tune" the connection
-	urlConn.setRequestMethod((strURL.contains("?id=") ? "PUT" : "POST"));
+	urlConn.setRequestMethod((strURL.contains(DO_PUT) ? "PUT" : "POST"));
+	strURL = strURL.replace(DO_PUT, "");
 	urlConn.setDoOutput(true);
 	urlConn.setRequestProperty("Content-Type", "application/xml");
 	urlConn.setRequestProperty("User-Agent", PLUGIN_USER_AGENT);
@@ -982,15 +986,28 @@ public class MyExperimentClient {
 	if (strDescription.length() > 0)
 	  strWorkflowData += "<description>" + strDescription + "</description>";
 
-	String encodedWorkflow = Base64.encodeBytes(strWorkflowContent.getBytes());
+	String encodedWorkflow;
+	if (strWorkflowContent.length() > 0) {
+	  encodedWorkflow = "<content-type>application/vnd.taverna.t2flow+xml</content-type>"
+		  + "<content encoding=\"base64\" type=\"binary\">"
+		  + Base64.encodeBytes(strWorkflowContent.getBytes()) + "</content>";
+	} else
+	  encodedWorkflow = "";
 
-	strWorkflowData += "<content-type>application/vnd.taverna.t2flow+xml</content-type>"
-		+ " <license-type>by-sa</license-type>"
-		+ "<content encoding=\"base64\" type=\"binary\">"
-		+ encodedWorkflow
-		+ "</content>" + "</workflow>";
+	strWorkflowData += "<license-type>by-sa</license-type>" + encodedWorkflow
+		+ "</workflow>";
 
-	return(strWorkflowData);
+	return (strWorkflowData);
+  }
+
+  private void afterMyExperimentPost(ServerResponse response) {
+//	if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
+//	  // XML response should contain the new workflow that was posted
+//	  Workflow newWorkflow = Workflow.buildFromXML(response.getResponseBody(), logger);
+//
+//	  System.out.println("* *** *** *** *" + response.getResponseBody()
+//		  + "* *** *** *** *");
+//	}
   }
 
   public ServerResponse postWorkflow(String strWorkflowContent, String strTitle, String strDescription) {
@@ -1000,15 +1017,8 @@ public class MyExperimentClient {
 	  ServerResponse response = this.doMyExperimentPOST(BASE_URL
 		  + "/workflow.xml", strWorkflowData);
 
-//	  if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
-//		// XML response should contain the new workflow that was posted
-//		Workflow newWorkflow = Workflow.buildFromXML(response.getResponseBody(), logger);
-//
-//		System.out.println("* *** *** *** *" + response.getResponseBody() + "* *** *** *** *");
-//	  }
-
-	  // will return the whole response object so that the application could
-	  // decide on the next steps
+	  afterMyExperimentPost(response);
+	  // will return the whole response object so that the application could decide on the next steps
 	  return (response);
 	} catch (Exception e) {
 	  logger.error("Failed while trying to upload the workflow");
@@ -1016,25 +1026,19 @@ public class MyExperimentClient {
 	}
   }
 
-  public ServerResponse postNewVersionOfWorkflow(Resource updateResource, String strWorkflowContent, String strTitle, String strDescription) {
+  public ServerResponse postNewVersionOfWorkflow(Resource updateResource, String strWorkflowFileContent, String strTitle, String strDescription) {
 	try {
-	  String strWorkflowData = prepareWorkflowPostContent(strTitle, strDescription, strWorkflowContent);
+	  String strWorkflowData = prepareWorkflowPostContent(strTitle, strDescription, strWorkflowFileContent);
 
-	  Workflow wf = (Workflow) updateResource;
+	  // if strWorkflowFileContent is empty; include version info for PUT (since workflow is being updated)
+	  // a POST would require data, hence strWorkflowFileContent would not be empty
+	  String doUpdateStatus = (strWorkflowFileContent.length() == 0 ? DO_PUT : "");
+
 	  ServerResponse response = this.doMyExperimentPOST(BASE_URL
-		  + "/workflow.xml?id=" + updateResource.getID() 
-		  + "&version=" + (wf.getID() + 1)
-		  , strWorkflowData);
+		  + "/workflow.xml?id=" + updateResource.getID() + doUpdateStatus, strWorkflowData);
 
-//	  if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
-//		// XML response should contain the new workflow that was posted
-//		Workflow newWorkflow = Workflow.buildFromXML(response.getResponseBody(), logger);
-//
-//		System.out.println("* *** *** *** *" + response.getResponseBody() + "* *** *** *** *");
-//	  }
-
-	  // will return the whole response object so that the application could
-	  // decide on the next steps
+	  afterMyExperimentPost(response);
+	  // will return the whole response object so that the application could decide on the next steps
 	  return (response);
 	} catch (Exception e) {
 	  logger.error("Failed while trying to upload the workflow");

@@ -16,8 +16,11 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.User;
@@ -316,7 +319,9 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 		workflowFile = jfsSelectFile.getSelectedFile();
 	  else return;
 	  
-	  UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this.pluginMainComponent, workflowFile, pluginMainComponent, myExperimentClient, logger);
+	  JFrame containingFrame = (JFrame) SwingUtilities.windowForComponent(this);
+	  
+	  UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(workflowFile, containingFrame, pluginMainComponent, myExperimentClient, logger);
 
 	  if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
 		// true was returned so  refresh the whole of the mystuff content panel

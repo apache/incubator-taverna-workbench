@@ -22,7 +22,6 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -55,16 +54,14 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 
   // STORAGE
   private File workflowFile; // the workflow file to be uploaded
-  private Resource updateResource; // the workflow resource that is to be updated
-  
+  private Resource updateResource; // the workflow resource that is to be
+  // updated
+
   private String strDescription = null;
   private String strTitle = null;
   private boolean bUploadingSuccessful = false;
 
-  public UploadWorkflowDialog(JPanel owner, File file, MainComponent component, MyExperimentClient client, Logger logger) {
-	// super(owner);
-	// super();
-
+  private void constructorInit(Resource resource, File file, JFrame owner, MainComponent component, MyExperimentClient client, Logger logger) {
 	// set main variables to ensure access to myExperiment, logger and the
 	// parent component
 	this.pluginMainComponent = component;
@@ -73,7 +70,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 
 	// set the resource for which the comment is being added
 	this.workflowFile = file;
-	this.updateResource = null;
+	this.updateResource = resource;
 
 	// set options of the 'add comment' dialog box
 	this.setModal(true);
@@ -83,26 +80,14 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	this.initialiseUI();
   }
 
-  public UploadWorkflowDialog(JPanel owner, File file, MainComponent component, MyExperimentClient client, Logger logger, Resource resource) {
-	// super(owner);
-	// super();
+  public UploadWorkflowDialog(File file, JFrame owner, MainComponent component, MyExperimentClient client, Logger logger) {
+	super(owner);
+	constructorInit(null, file, owner, component, client, logger);
+  }
 
-	// set main variables to ensure access to myExperiment, logger and the
-	// parent component
-	this.pluginMainComponent = component;
-	this.myExperimentClient = client;
-	this.logger = logger;
-
-	// set the resource for which the comment is being added
-	this.updateResource = resource;
-	this.workflowFile = file;
-
-	// set options of the 'add comment' dialog box
-	this.setModal(true);
-	this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-	this.setTitle("Upload workflow to myExperiment");
-
-	this.initialiseUI();
+  public UploadWorkflowDialog(Resource resource, File file, JFrame owner, MainComponent component, MyExperimentClient client, Logger logger) {
+	super(owner);
+	constructorInit(resource, file, owner, component, client, logger);
   }
 
   private void initialiseUI() {
@@ -142,7 +127,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	c.insets = new Insets(0, 10, 0, 10);
 	contentPane.add(spDescription, c);
 
-	this.bUpload = new JButton("Upload Workflow");
+	this.bUpload = new JButton(updateResource == null ? "Upload Workflow" : "Update Workflow");
 	this.bUpload.setDefaultCapable(true);
 	this.getRootPane().setDefaultButton(this.bUpload);
 	this.bUpload.addActionListener(this);
@@ -198,7 +183,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	  // if the description or the title are empty, prompt the user to confirm
 	  // the upload
 	  boolean proceedWithUpload = false;
-	  if ((this.strDescription.length()==0) || (this.strTitle.length()==0)) {
+	  if ((this.strDescription.length() == 0) && (this.strTitle.length() == 0)) {
 		String strInfo = "The workflow 'title' field or the 'description' field\n"
 			+ "(or both) are empty.  Any metadata found within the\n"
 			+ "workflow will be used instead.  Do you wish to proceed?";
@@ -206,12 +191,12 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 		if (confirm == JOptionPane.YES_OPTION)
 		  proceedWithUpload = true;
 	  } else {
-		String strInfo = "This will upload the workflow and may take a while\n"
-			+ "depending on the speed of your internet connection.\n"
-			+ "You will not be able to close this window until the \n"
-			+ "process completes.  Do you wish to proceed?";
-		int confirm = JOptionPane.showConfirmDialog(this, strInfo, "Workflow Upload", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-		if (confirm == JOptionPane.YES_OPTION)
+//		String strInfo = "This will upload the workflow and may take a while\n"
+//			+ "depending on the speed of your internet connection.\n"
+//			+ "You will not be able to close this window until the \n"
+//			+ "process completes.  Do you wish to proceed?";
+//		int confirm = JOptionPane.showConfirmDialog(this, strInfo, "Workflow Upload", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+//		if (confirm == JOptionPane.YES_OPTION)
 		  proceedWithUpload = true;
 	  }
 
@@ -232,7 +217,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 		c.anchor = GridBagConstraints.CENTER;
 		c.fill = GridBagConstraints.NONE;
 		c.insets = new Insets(10, 5, 10, 5);
-		lStatusMessage = new JLabel("Uploading your workflow...", new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner")), SwingConstants.CENTER);
+		lStatusMessage = new JLabel("Posting your workflow...", new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner")), SwingConstants.CENTER);
 		contentPane.add(lStatusMessage, c);
 
 		// disable the (X) button (ideally, would need to remove it, but there's
@@ -247,23 +232,26 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 		new Thread("Posting workflow") {
 		  public void run() {
 			String workflowFileContent = "";
-			try {
-			  BufferedReader reader = new BufferedReader(new FileReader(workflowFile));
-			  String line;
+			if (workflowFile != null) {
+			  try {
+				BufferedReader reader = new BufferedReader(new FileReader(workflowFile));
+				String line;
 
-			  while ((line = reader.readLine()) != null)
-				workflowFileContent += line;
-			} catch (Exception e) {
-			  lStatusMessage = new JLabel("Error occurred:" + e.getMessage(), new ImageIcon(MyExperimentPerspective.getLocalResourceURL("failure_icon")), SwingConstants.LEFT);
+				while ((line = reader.readLine()) != null)
+				  workflowFileContent += line;
+			  } catch (Exception e) {
+				lStatusMessage = new JLabel("Error occurred:" + e.getMessage(), new ImageIcon(MyExperimentPerspective.getLocalResourceURL("failure_icon")), SwingConstants.LEFT);
+			  }
 			}
-			
+
 			// *** POST THE WORKFLOW ***
 			final ServerResponse response;
-			if (updateResource == null)
+			if (updateResource == null) // upload a new workflow
 			  response = myExperimentClient.postWorkflow(workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription));
 			else
+			  // edit existing workflow
 			  response = myExperimentClient.postNewVersionOfWorkflow(updateResource, workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription));
-			
+
 			bUploadingSuccessful = (response.getResponseCode() == HttpURLConnection.HTTP_OK);
 
 			SwingUtilities.invokeLater(new Runnable() {
@@ -327,8 +315,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 		}.start();
 	  } // if proceedWithUpload
 	} else if (e.getSource().equals(this.bCancel)) {
-	  // cleanup the input fields if it wasn't posted successfully + simply
-	  // close and destroy the window
+	  // cleanup the input fields if it wasn't posted successfully + simply close and destroy the window
 	  if (!this.bUploadingSuccessful) {
 		this.strDescription = null;
 		this.tfTitle = null;
@@ -371,7 +358,12 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
   // *** Callbacks for ComponentListener interface ***
   public void componentShown(ComponentEvent e) {
 	// center this dialog box within the preview browser window
-//	Util.centerComponentWithinAnother(this.pluginMainComponent.getPreviewBrowser(), this);
+	if (updateResource == null) // upload has been pressed from the MAIN
+	  // perspective window
+	  Util.centerComponentWithinAnother(this.pluginMainComponent, this);
+	else
+	  // upload pressed from resource preview window
+	  Util.centerComponentWithinAnother(this.pluginMainComponent.getPreviewBrowser(), this);
   }
 
   public void componentHidden(ComponentEvent e) {

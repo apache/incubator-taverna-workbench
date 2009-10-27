@@ -54,13 +54,10 @@ import org.apache.log4j.Logger;
 
 import edu.stanford.ejalbert.BrowserLauncher;
 
-
-
 /*
  * @author Sergejs Aleksejevs
  */
-public final class MainComponent extends JPanel implements UIComponentSPI,
-	ChangeListener {
+public final class MainComponent extends JPanel implements UIComponentSPI, ChangeListener {
   // myExperiment client, logger and the stylesheet will be made available
   // throughout the whole perspective
   private MyExperimentClient myExperimentClient;
@@ -90,27 +87,20 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 	}
 
 	// components to generate and display previews
-	previewFactory = new ResourcePreviewFactory(this, myExperimentClient,
-		logger);
-	previewBrowser = new ResourcePreviewBrowser(this, myExperimentClient,
-		logger);
+	previewFactory = new ResourcePreviewFactory(this, myExperimentClient, logger);
+	previewBrowser = new ResourcePreviewBrowser(this, myExperimentClient, logger);
 
 	this.css = new StyleSheet();
-	this.css.importStyleSheet(MyExperimentPerspective
-		.getLocalResourceURL("css_stylesheet"));
+	this.css.importStyleSheet(MyExperimentPerspective.getLocalResourceURL("css_stylesheet"));
 	logger.debug("Stylesheet loaded: \n" + this.css.toString());
 
 	// check if values for default tabs are set, if not - set defaults;
 	// NB! This has to be done before initialising UI
-	if (myExperimentClient.getSettings().getProperty(
-		MyExperimentClient.INI_DEFAULT_ANONYMOUS_TAB) == null)
-	  myExperimentClient.getSettings().put(
-		  MyExperimentClient.INI_DEFAULT_ANONYMOUS_TAB, "3"); // DEFAULT IS
+	if (myExperimentClient.getSettings().getProperty(MyExperimentClient.INI_DEFAULT_ANONYMOUS_TAB) == null)
+	  myExperimentClient.getSettings().put(MyExperimentClient.INI_DEFAULT_ANONYMOUS_TAB, "3"); // DEFAULT IS
 	// SEARCH TAB
-	if (myExperimentClient.getSettings().getProperty(
-		MyExperimentClient.INI_DEFAULT_LOGGED_IN_TAB) == null)
-	  myExperimentClient.getSettings().put(
-		  MyExperimentClient.INI_DEFAULT_LOGGED_IN_TAB, "0"); // DEFAULT IS MY
+	if (myExperimentClient.getSettings().getProperty(MyExperimentClient.INI_DEFAULT_LOGGED_IN_TAB) == null)
+	  myExperimentClient.getSettings().put(MyExperimentClient.INI_DEFAULT_LOGGED_IN_TAB, "0"); // DEFAULT IS MY
 	// STUFF TAB
 
 	initialisePerspectiveUI();
@@ -129,10 +119,8 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 	  // this will be used later on when shutdown operation needs to be
 	  // performed - e.g.
 	  // this aids ShutdownSPI to find the running instance of the plugin
-	  for (PerspectiveSPI perspective : PerspectiveRegistry.getInstance()
-		  .getPerspectives()) {
-		if (perspective.getText().equals(
-			MyExperimentPerspective.PERSPECTIVE_NAME)) {
+	  for (PerspectiveSPI perspective : PerspectiveRegistry.getInstance().getPerspectives()) {
+		if (perspective.getText().equals(MyExperimentPerspective.PERSPECTIVE_NAME)) {
 		  ((MyExperimentPerspective) perspective).setMainComponent(this);
 		  break;
 		}
@@ -143,8 +131,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 	  // ShutdownSPI would replace this in that case.
 	  MainComponentShutdownHook shutdownHook = new MainComponentShutdownHook();
 	  shutdownHook.setLinks(this, this.myExperimentClient, this.logger);
-	  Runtime.getRuntime().addShutdownHook(
-		  shutdownHook.new MyExperimentClientShutdownThread());
+	  Runtime.getRuntime().addShutdownHook(shutdownHook.new MyExperimentClientShutdownThread());
 	}
 
 	// Do the rest in a separate thread to avoid hanging the GUI.
@@ -238,16 +225,11 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 	// (NB! Status bar needs to be initialised first, so that it is available to
 	// other components immediately!)
 	this.pStatusBar = new PluginStatusBar(this, myExperimentClient, logger);
-	this.pMyStuffContainer = new MyStuffTabContentPanel(this,
-		myExperimentClient, logger);
-	this.pExampleWorkflows = new ExampleWorkflowsPanel(this,
-		myExperimentClient, logger);
-	this.pTagBrowser = new TagBrowserTabContentPanel(this, myExperimentClient,
-		logger);
-	this.pSearchTab = new SearchTabContentPanel(this, myExperimentClient,
-		logger);
-	this.pHistoryBrowserTab = new HistoryBrowserTabContentPanel(this,
-		myExperimentClient, logger);
+	this.pMyStuffContainer = new MyStuffTabContentPanel(this, myExperimentClient, logger);
+	this.pExampleWorkflows = new ExampleWorkflowsPanel(this, myExperimentClient, logger);
+	this.pTagBrowser = new TagBrowserTabContentPanel(this, myExperimentClient, logger);
+	this.pSearchTab = new SearchTabContentPanel(this, myExperimentClient, logger);
+	this.pHistoryBrowserTab = new HistoryBrowserTabContentPanel(this, myExperimentClient, logger);
 
 	// add the required ones into the main tabs
 	this.tpMainTabs = new JTabbedPane();
@@ -277,8 +259,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 	// so essentially, this is only to set the myExperiment logo as an icon of
 	// preferences
 	// dialog.)
-	this.jdPreferences = new PluginPreferencesDialog(this.getPreviewBrowser(),
-		this, myExperimentClient, logger);
+	this.jdPreferences = new PluginPreferencesDialog(this.getPreviewBrowser(), this, myExperimentClient, logger);
   }
 
   private void initialiseData() {
@@ -286,28 +267,23 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 
 	// check if 'auto-login' is required (NB! This requires the BASE_URL to be
 	// set correctly!)
-	Object oAutoLogin = this.myExperimentClient.getSettings().get(
-		MyExperimentClient.INI_AUTO_LOGIN);
+	Object oAutoLogin = this.myExperimentClient.getSettings().get(MyExperimentClient.INI_AUTO_LOGIN);
 	if (oAutoLogin != null && oAutoLogin.equals("true")) {
-	  this.getStatusBar().setStatus(this.getMyStuffTab().getClass().getName(),
-		  "Performing autologin");
+	  this.getStatusBar().setStatus(this.getMyStuffTab().getClass().getName(), "Performing autologin");
 	  this.myExperimentClient.doLoginFromStoredCredentials();
-	  this.getStatusBar().setStatus(this.getMyStuffTab().getClass().getName(),
-		  "Autologin finished. Fetching user data");
+	  this.getStatusBar().setStatus(this.getMyStuffTab().getClass().getName(), "Autologin finished. Fetching user data");
 	}
 
-    // NB! This should only be done if the user is logged in -
-    // otherwise this component simply doesn't exist
-//    this.pMyStuffContainer.spMyStuff.setDividerLocation(0.3);
+	// NB! This should only be done if the user is logged in -
+	// otherwise this component simply doesn't exist
+	//    this.pMyStuffContainer.spMyStuff.setDividerLocation(0.3);
 
 	// load data into all tabs
 	this.pMyStuffContainer.createAndInitialiseInnerComponents();
 	if (this.myExperimentClient.isLoggedIn()) {
 	  // set the default tab for logged in user (e.g. as a consequence of
 	  // auto-login)
-	  tpMainTabs.setSelectedIndex(Integer.parseInt(myExperimentClient
-		  .getSettings().getProperty(
-			  MyExperimentClient.INI_DEFAULT_LOGGED_IN_TAB)));
+	  tpMainTabs.setSelectedIndex(Integer.parseInt(myExperimentClient.getSettings().getProperty(MyExperimentClient.INI_DEFAULT_LOGGED_IN_TAB)));
 
 	  // auto-login was successful - can display user tags
 	  // (no need to refresh this cloud on its own, because the whole tab
@@ -316,9 +292,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 	} else {
 	  // set the default tab for anonymous user (auto-login failed or wasn't
 	  // chosen)
-	  tpMainTabs.setSelectedIndex(Integer.parseInt(myExperimentClient
-		  .getSettings().getProperty(
-			  MyExperimentClient.INI_DEFAULT_ANONYMOUS_TAB)));
+	  tpMainTabs.setSelectedIndex(Integer.parseInt(myExperimentClient.getSettings().getProperty(MyExperimentClient.INI_DEFAULT_ANONYMOUS_TAB)));
 	}
 
 	this.pExampleWorkflows.refresh();
@@ -328,8 +302,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
   public void stateChanged(ChangeEvent e) {
 	// invoked when a tab is opened
 	if (e.getSource().equals(this.tpMainTabs)) {
-	  this.getStatusBar().displayStatus(
-		  this.getMainTabs().getSelectedComponent().getClass().getName());
+	  this.getStatusBar().displayStatus(this.getMainTabs().getSelectedComponent().getClass().getName());
 	}
 
   }
@@ -351,8 +324,8 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 	}
 
 	public void actionPerformed(ActionEvent actionEvent) {
-	  getPreviewBrowser().preview(
-		  "preview:" + this.iResourceType + ":" + this.strResourceURI);
+	  getPreviewBrowser().preview("preview:" + this.iResourceType + ":"
+		  + this.strResourceURI);
 	}
   }
 
@@ -409,13 +382,11 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 
 		// now update the downloaded items history panel in 'History' tab
 		if (getHistoryBrowser() != null) {
-		  getHistoryBrowser().refreshHistoryBox(
-			  HistoryBrowserTabContentPanel.DOWNLOADED_ITEMS_HISTORY);
+		  getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.DOWNLOADED_ITEMS_HISTORY);
 		}
 	  } catch (Exception ex) {
-		logger
-			.error("Failed while trying to open download URL in a standard browser; URL was: "
-				+ resource.getURI() + "\nException was: " + ex);
+		logger.error("Failed while trying to open download URL in a standard browser; URL was: "
+			+ resource.getURI() + "\nException was: " + ex);
 	  }
 	}
   }
@@ -427,8 +398,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 	  this(resource, true);
 	}
 
-	public LoadResourceInTavernaAction(Resource resource,
-		boolean bShowButtonLabel) {
+	public LoadResourceInTavernaAction(Resource resource, boolean bShowButtonLabel) {
 	  this.resource = resource;
 	  String strResourceType = resource.getItemTypeName().toLowerCase();
 
@@ -459,31 +429,24 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 	}
 
 	public void actionPerformed(ActionEvent actionEvent) {
-	  // if the preview browser window is opened, hide it beneath the main
-	  // window
+	  // if the preview browser window is opened, hide it beneath the main window
 	  if (getPreviewBrowser().isActive())
 		getPreviewBrowser().toBack();
 
-	  final String strCallerTabClassName = getMainTabs().getSelectedComponent()
-		  .getClass().getName();
-	  getStatusBar().setStatus(strCallerTabClassName,
-		  "Downloading and opening workflow...");
+	  final String strCallerTabClassName = getMainTabs().getSelectedComponent().getClass().getName();
+	  getStatusBar().setStatus(strCallerTabClassName, "Downloading and opening workflow...");
 	  logger.debug("Downloading and opening workflow from URI: "
 		  + resource.getURI());
 
 	  new Thread("Download and open workflow") {
 		public void run() {
 		  try {
-			Workflow w = myExperimentClient.fetchWorkflowBinary(resource
-				.getURI());
-			ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(
-				w.getContent());
+			Workflow w = myExperimentClient.fetchWorkflowBinary(resource.getURI());
+			ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
 
 			FileManager fileManager = FileManager.getInstance();
-			FileType fileTypeType = (w.isTaverna1Workflow() ? new ScuflFileType()
-				: new T2FlowFileType());
-			Dataflow openDataflow = fileManager.openDataflow(fileTypeType,
-				workflowDataInputStream);
+			FileType fileTypeType = (w.isTaverna1Workflow() ? new ScuflFileType() : new T2FlowFileType());
+			Dataflow openDataflow = fileManager.openDataflow(fileTypeType, workflowDataInputStream);
 
 			getStatusBar().setStatus(strCallerTabClassName, null);
 
@@ -500,17 +463,12 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 
 			// now update the opened items history panel in 'History' tab
 			if (getHistoryBrowser() != null) {
-			  getHistoryBrowser().refreshHistoryBox(
-				  HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY);
+			  getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY);
 			}
 		  } catch (Exception e) {
-			javax.swing.JOptionPane.showMessageDialog(null,
-				"An error has occurred while trying to load a workflow from myExperiment.\n\n"
-					+ e, "Error", JOptionPane.ERROR_MESSAGE);
-			logger
-				.error(
-					"Failed to open connection to URL to download and open workflow, from myExperiment.",
-					e);
+			javax.swing.JOptionPane.showMessageDialog(null, "An error has occurred while trying to load a workflow from myExperiment.\n\n"
+				+ e, "Error", JOptionPane.ERROR_MESSAGE);
+			logger.error("Failed to open connection to URL to download and open workflow, from myExperiment.", e);
 		  }
 
 		}
@@ -518,21 +476,55 @@ public final class MainComponent extends JPanel implements UIComponentSPI,
 	}
   }
 
-  public class ImportWorkflowAction extends AbstractAction {
+  public class ImportIntoTavernaAction extends AbstractAction {
 	private int workflowId = 0;
+	private Resource resource;
 
-	public ImportWorkflowAction(int workflowId) {
+	public ImportIntoTavernaAction(int workflowId) {
 	  putValue(SMALL_ICON, WorkbenchIcons.importIcon);
 	  putValue(NAME, "Import into current workflow");
-	  putValue(SHORT_DESCRIPTION,
-		  "Download and import this workflow into the current workflow in Design mode");
+	  putValue(SHORT_DESCRIPTION, "Download and import this workflow into the current workflow in Design mode");
 
 	  this.workflowId = workflowId;
 	}
 
+	public ImportIntoTavernaAction(Resource r) {
+	  this(r, true);
+	}
+
+	public ImportIntoTavernaAction(Resource r, boolean bShowButtonLabel) {
+	  this.resource = r;
+	  String strResourceType = resource.getItemTypeName().toLowerCase();
+
+	  putValue(SMALL_ICON, WorkbenchIcons.importIcon);
+
+	  if (bShowButtonLabel)
+		putValue(NAME, "Import into current workflow");
+
+	  boolean bLoadingAllowed = false;
+	  String strTooltip = "Loading " + strResourceType
+		  + "s into Taverna Workbench is currently not possible";
+	  if (resource.getItemType() == Resource.WORKFLOW) {
+		if (((Workflow) resource).isTavernaWorkflow()) {
+		  if (resource.isDownloadAllowed()) {
+			// Taverna workflow and download allowed - can load in Taverna
+			bLoadingAllowed = true;
+			strTooltip = "Download and import this workflow into the currently opened workflow in Design mode of Taverna Workbench";
+		  } else {
+			strTooltip = "You don't have permissions to download this workflow, and thus to load into Taverna Workbench";
+		  }
+		} else {
+		  strTooltip = "Loading workflow of unsupported type into Taverna Workbench is not possible.";
+		}
+	  }
+
+	  setEnabled(bLoadingAllowed);
+	  putValue(SHORT_DESCRIPTION, strTooltip);
+	}
+
 	public void actionPerformed(ActionEvent actionEvent) {
-	  javax.swing.JOptionPane.showMessageDialog(null,
-		  "should import workflow: id = " + workflowId);
+	  javax.swing.JOptionPane.showMessageDialog(null, "should import workflow: id = "
+		  + workflowId);
 
 	  /*
 	   * try { URL url = client.getWorkflowDownloadURL(this.workflowId);

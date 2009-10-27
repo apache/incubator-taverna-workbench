@@ -8,7 +8,6 @@ import java.awt.event.ComponentListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.EventListener;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -75,9 +74,11 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
   private JButton bOpenInMyExp;
   private JButton bDownload;
   private JButton bOpenInTaverna;
+  private JButton bImportIntoTaverna;
   private JButton bAddComment;
   private JButton bAddRemoveFavourite;
   private JButton bUpload;
+  private JButton bEditMetadata;
   private JScrollPane spContentScroller;
 
   // icons
@@ -217,9 +218,11 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	bOpenInMyExp.setEnabled(false);
 	bDownload.setEnabled(false);
 	bOpenInTaverna.setEnabled(false);
+	bImportIntoTaverna.setEnabled(false);
 	bAddRemoveFavourite.setEnabled(false);
 	bAddComment.setEnabled(false);
 	bUpload.setEnabled(false);
+	bEditMetadata.setEnabled(false);
 
 	// Make call to myExperiment API in a different thread
 	// (then use SwingUtilities.invokeLater to update the UI when ready).
@@ -313,6 +316,10 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	bOpenInMyExp.setEnabled(false);
 	bOpenInMyExp.addActionListener(this);
 
+	bEditMetadata = new JButton(WorkbenchIcons.editIcon);
+	bEditMetadata.setEnabled(false);
+	bEditMetadata.addActionListener(this);
+
 	bUpload = new JButton(WorkbenchIcons.upArrowIcon);
 	bUpload.setEnabled(false);
 	bUpload.addActionListener(this);
@@ -325,6 +332,10 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	bOpenInTaverna.setEnabled(false);
 	bOpenInTaverna.addActionListener(this);
 
+	bImportIntoTaverna = new JButton(WorkbenchIcons.importIcon);
+	bImportIntoTaverna.setEnabled(false);
+	bImportIntoTaverna.addActionListener(this);
+
 	bAddRemoveFavourite = new JButton(iconAddFavourite);
 	bAddRemoveFavourite.setEnabled(false);
 	bAddRemoveFavourite.addActionListener(this);
@@ -336,8 +347,10 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	// put all action buttons into a button bar
 	JPanel jpActionButtons = new JPanel();
 	jpActionButtons.add(bOpenInMyExp);
+	jpActionButtons.add(bEditMetadata);
 	jpActionButtons.add(bUpload);
 	jpActionButtons.add(bDownload);
+	jpActionButtons.add(bImportIntoTaverna);
 	jpActionButtons.add(bOpenInTaverna);
 	jpActionButtons.add(bAddRemoveFavourite);
 	jpActionButtons.add(bAddComment);
@@ -368,31 +381,49 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	this.bOpenInMyExp.setToolTipText("Open this " + strResourceType
 		+ " in myExperiment");
 
-	// "Upload new version" to myExperiment is only available for logged in
+	// "edit metadata" to myExperiment is only available for logged in
 	// users who are the owners of the workflow
-	String strTooltip = "It is currently not possible to upload a new version of this workflow";
-	boolean bUploadAvailable = false;
-	
+	String strTooltip = "It is currently not possible to edit the metadata for this workflow";
+	boolean bUpdateMetaAvailable = false;
+
 	if (myExperimentClient.isLoggedIn()
 		&& (myExperimentClient.getCurrentUser().equals(r.getUploader()))
 		&& (r.getItemTypeName().equals("Workflow"))) {
-	  strTooltip = "Upload a new version of this workflow to myExperiment.";
+	  strTooltip = "Update the metadata of this workflow.";
+	  bUpdateMetaAvailable = true;
+	} else {
+	  strTooltip = "Only the owners of workflows can change the metadata of workflows.";
+	}
+	this.bEditMetadata.setToolTipText(strTooltip);
+	this.bEditMetadata.setEnabled(bUpdateMetaAvailable);
+
+	// "upload new version" to myExperiment is only available for logged in
+	// users who are the owners of the workflow
+	strTooltip = "It is currently not possible to upload a new version of this workflow.";
+	boolean bUploadAvailable = false;
+
+	if (myExperimentClient.isLoggedIn()
+		&& (myExperimentClient.getCurrentUser().equals(r.getUploader()))
+		&& (r.getItemTypeName().equals("Workflow"))) {
+	  strTooltip = "Upload a new version of this workflow.";
 	  bUploadAvailable = true;
 	} else {
-	  strTooltip = "Only the owners of workflows can upload new versions of workflows";
+	  strTooltip = "Only the owners of workflows can upload new versions of workflows.";
 	}
 	this.bUpload.setToolTipText(strTooltip);
 	this.bUpload.setEnabled(bUploadAvailable);
 
 	// "Download" - only for selected types and based on current user's
-	// permissions
-	// (these conditions are checked within the action)
+	// permissions (these conditions are checked within the action)
 	this.bDownload.setAction(pluginMainComponent.new DownloadResourceAction(r, false));
 
 	// "Open in Taverna" - only for Taverna workflows and when download is
-	// allowed for current user
-	// (these checks are carried out inside the action)
+	// allowed for current user (these checks are carried out inside the action)
 	this.bOpenInTaverna.setAction(pluginMainComponent.new LoadResourceInTavernaAction(r, false));
+
+	// "Import into Taverna" - only for Taverna workflows and when download is
+	// allowed for current user (these checks are carried out inside the action)
+	this.bImportIntoTaverna.setAction(pluginMainComponent.new ImportIntoTavernaAction(r, false));
 
 	// "Add to Favourites" - for all types, but only for logged in users
 	strTooltip = "It is currently not possible to add " + strResourceType
@@ -494,24 +525,25 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 			+ this.rpcContent.getResourceURL() + "\nException was: " + ex);
 	  }
 	} else if (e.getSource().equals(this.bUpload)) {
-	  File workflowFile = null;
-	  JFileChooser jfsSelectFile = new JFileChooser();
-
-	  if (jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-		workflowFile = jfsSelectFile.getSelectedFile();
-	  else
-		return;
-
+	  /* ************************************************************************* */
 	  Resource resource = this.rpcContent.getResource();
 	  if (resource.getItemTypeName().equals("Workflow")) {
-		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this.pluginMainComponent, workflowFile, pluginMainComponent, myExperimentClient, logger, resource);
+		File workflowFile = null;
+		JFileChooser jfsSelectFile = new JFileChooser();
+
+		if (jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+		  workflowFile = jfsSelectFile.getSelectedFile();
+		else
+		  return;
+
+		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(resource, workflowFile, this, pluginMainComponent, myExperimentClient, logger);
 
 		if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
 		  // "true" has been returned so update the resource
 		  this.actionPerformed(new ActionEvent(this.bRefresh, 0, ""));
 
 		  // TODO create and upload/update history log!!!
-		  
+
 		  // update history of the items that were commented on, making sure
 		  // that:
 		  // - there's only one occurrence of this item in the history;
@@ -533,6 +565,18 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 		  // }
 		}
 	  }
+	} else if (e.getSource().equals(this.bEditMetadata)) {
+	  Resource resource = this.rpcContent.getResource();
+	  if (resource.getItemTypeName().equals("Workflow")) {
+
+		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(resource, null, this, pluginMainComponent, myExperimentClient, logger);
+
+		if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
+		  // "true" has been returned so update the resource
+		  this.actionPerformed(new ActionEvent(this.bRefresh, 0, ""));
+		}
+	  }
+	  /* ************************************************************************* */
 	} else if (e.getSource().equals(this.bAddComment)) {
 	  // "Add Comment" button was clicked
 	  String strComment = null;
@@ -606,9 +650,8 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 
   public void componentShown(ComponentEvent e) {
 	// every time the preview browser window is shown, it will start loading a
-	// preview -
-	// this state is set in the preview() method; (so this won't have to be done
-	// here)
+	// preview - this state is set in the preview() method; (so this won't have
+	// to be done here)
 
 	// remove everything from the preview and re-add only the status bar
 	// (this is done so that newly opened preview window won't show the old
@@ -617,13 +660,12 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	jpMain.add(jpStatusBar, BorderLayout.NORTH);
 	repaint();
 
-	// set the size of the dialog box
-	// (NB! Size needs to be set before the position!)
+	// set the size of the dialog box (NB! Size needs to be set before the
+	// position!)
 	this.setSize(ResourcePreviewBrowser.PREFERRED_WIDTH, ResourcePreviewBrowser.PREFERRED_HEIGHT);
 
 	// make sure that the dialog box appears centered horizontally relatively to
-	// the main
-	// component; also, pad by 30px vertically from the top of the main
+	// the main component; also, pad by 30px vertically from the top of the main
 	// component
 	int iMainComponentCenterX = (int) Math.round(this.pluginMainComponent.getLocationOnScreen().getX()
 		+ (this.pluginMainComponent.getWidth() / 2));
