@@ -27,12 +27,14 @@ import net.sf.taverna.t2.workbench.configuration.ConfigurationUIFactory;
 
 public class DataManagementConfigurationUIFactory implements ConfigurationUIFactory {
 	
+	JPanel configPanel = new DataManagementConfigurationPanel();
+	
 	public boolean canHandle(String uuid) {
 		return uuid.equals(getConfigurable().getUUID());
 	}
 
 	public JPanel getConfigurationPanel() {
-		return new DataManagementConfigurationPanel();
+		return configPanel;
 	}
 
 	public Configurable getConfigurable() {

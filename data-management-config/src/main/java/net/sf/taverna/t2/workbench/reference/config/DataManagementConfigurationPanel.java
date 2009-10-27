@@ -55,7 +55,6 @@ public class DataManagementConfigurationPanel extends JPanel {
 	public DataManagementConfigurationPanel() {
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
-		setLayout(gridbag);
 
 		enableProvenance = new JCheckBox("Enable provenance capture");
 		DialogTextArea enableProvenanceText = new DialogTextArea(
@@ -121,6 +120,8 @@ public class DataManagementConfigurationPanel extends JPanel {
 		c.insets = new Insets(0, 0, 5, 0);
 		gridbag.setConstraints(buttonPanel, c);
 		add(buttonPanel);
+		
+		setLayout(gridbag);
 
 		resetFields(configuration);
 
