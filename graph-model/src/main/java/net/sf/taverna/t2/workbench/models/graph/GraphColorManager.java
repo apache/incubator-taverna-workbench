@@ -21,13 +21,12 @@
 package net.sf.taverna.t2.workbench.models.graph;
 
 import java.awt.Color;
+import java.lang.reflect.InvocationTargetException;
 
-import net.sf.taverna.t2.activities.localworker.LocalworkerActivity;
-import net.sf.taverna.t2.annotation.AnnotationAssertion;
-import net.sf.taverna.t2.annotation.AnnotationChain;
-import net.sf.taverna.t2.annotation.annotationbeans.HostInstitution;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+
+import org.apache.commons.beanutils.PropertyUtils;
 
 /**
  * Manages the colour of elements in a graph.
@@ -55,14 +54,18 @@ public class GraphColorManager {
 
 		if (activity.getClass().getName().equals(
 				"net.sf.taverna.t2.activities.localworker.LocalworkerActivity")) {
-			LocalworkerActivity la = (LocalworkerActivity) activity;
-			if (la.isAltered()) {
-				Color colour = ColourManager
-						.getInstance()
-						.getPreferredColour(
-								"net.sf.taverna.t2.activities.beanshell.BeanshellActivity");
-				return colour;
-
+			try {
+				// To avoid compile time dependency - read isAltered property as bean
+				if (Boolean.TRUE.equals(PropertyUtils.getProperty(activity, "altered"))) {
+					Color colour = ColourManager
+							.getInstance()
+							.getPreferredColour(
+									"net.sf.taverna.t2.activities.beanshell.BeanshellActivity");
+					return colour;
+				}
+			} catch (IllegalAccessException e) {
+			} catch (InvocationTargetException e) {
+			} catch (NoSuchMethodException e) {
 			}
 
 		}
