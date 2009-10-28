@@ -41,7 +41,7 @@ public class ServiceTreeCellRenderer extends FilterTreeCellRenderer {
 
 		Component result = super.getTreeCellRendererComponent(tree, value, sel,
 				expanded, leaf, row, hasFocus);
-		if (leaf && result instanceof ServiceTreeCellRenderer
+		if (result instanceof ServiceTreeCellRenderer
 				&& value instanceof FilterTreeNode
 				&& ((FilterTreeNode) value).getUserObject() instanceof ServiceDescription) {
 			ServiceTreeCellRenderer serviceTreeCellRenderer = (ServiceTreeCellRenderer) result;
