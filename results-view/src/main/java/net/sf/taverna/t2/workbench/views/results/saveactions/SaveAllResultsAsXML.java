@@ -64,7 +64,7 @@ public class SaveAllResultsAsXML extends SaveAllResultsSPI {
 
 	public SaveAllResultsAsXML(){
 		super();
-		putValue(NAME, "Save values");
+		putValue(NAME, "Save in single XML document");
 		putValue(SMALL_ICON, WorkbenchIcons.xmlNodeIcon);
 	}
 	
