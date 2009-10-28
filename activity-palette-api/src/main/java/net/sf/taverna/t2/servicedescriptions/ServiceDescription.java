@@ -5,6 +5,9 @@ import java.util.List;
 import javax.swing.Icon;
 
 import net.sf.taverna.t2.lang.beans.PropertyAnnotation;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.Edit;
+import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 import org.apache.log4j.Logger;
@@ -16,7 +19,7 @@ public abstract class ServiceDescription<ConfigType> extends IdentifiedObject {
 	private static final String SERVICE_CONFIGURATION = "Service configuration";
 	private static final String SERVICE_IMPLEMENTATION_CLASS = "Service implementation class";
 	private static final String DESCRIPTION = "Description";
-	
+
 	public static final String LOCAL_SERVICES = "Local services";
 
 	private String description = "";
@@ -39,7 +42,6 @@ public abstract class ServiceDescription<ConfigType> extends IdentifiedObject {
 
 	@PropertyAnnotation(displayName = NAME)
 	public abstract String getName();
-	
 
 	@PropertyAnnotation(expert = true)
 	@SuppressWarnings("unchecked")
@@ -49,16 +51,31 @@ public abstract class ServiceDescription<ConfigType> extends IdentifiedObject {
 	public boolean isTemplateService() {
 		return false;
 	}
-	
+
 	/**
-	 * @param description the description to set
+	 * @param description
+	 *            the description to set
 	 */
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
 	public String toString() {
-		return "Service description " +  getName();
+		return "Service description " + getName();
 	}
-	
+
+	/**
+	 * Any addition edit that needs to be performed upon insertion of an
+	 * instance of the ServiceDescription into the Dataflow withi nthe specified
+	 * Processor
+	 * 
+	 * @param dataflow
+	 * @param p
+	 * @param a
+	 * @return
+	 */
+	public Edit getInsertionEdit(Dataflow dataflow, Processor p, Activity a) {
+		return null;
+	}
+
 }
