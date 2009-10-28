@@ -978,41 +978,58 @@ public class MyExperimentClient {
 	}
   }
 
-  private String prepareWorkflowPostContent(String strTitle, String strDescription, String strWorkflowContent) {
+  private String prepareWorkflowPostContent(String workflowContent, String title, String description, String license, String sharing) {
 	String strWorkflowData = "<workflow>";
-	if (strTitle.length() > 0)
-	  strWorkflowData += "<title>" + strTitle + "</title>";
 
-	if (strDescription.length() > 0)
-	  strWorkflowData += "<description>" + strDescription + "</description>";
+	if (title.length() > 0)
+	  strWorkflowData += "<title>" + title + "</title>";
 
-	String encodedWorkflow;
-	if (strWorkflowContent.length() > 0) {
-	  encodedWorkflow = "<content-type>application/vnd.taverna.t2flow+xml</content-type>"
+	if (description.length() > 0)
+	  strWorkflowData += "<description>" + description + "</description>";
+
+	if (license.length() > 0)
+	  strWorkflowData += "<license-type>" + license + "</license-type>";
+
+	if (sharing.length() > 0) {
+	  if (sharing.contains("private"))
+		strWorkflowData += "<permissions />";
+	  else {
+		strWorkflowData += "<permissions><permission>"
+			+ "<category>public</category>";
+		if (sharing.contains("view") || sharing.contains("download")) 
+		  strWorkflowData += "<privilege type=\"view\" />";
+		if (sharing.contains("download"))
+		  strWorkflowData += "<privilege type=\"download\" />";
+		strWorkflowData += "</permission></permissions>";
+	  }
+	}
+
+	String encodedWorkflow = "";
+	if (workflowContent.length() > 0) {
+	  encodedWorkflow += "<content-type>application/vnd.taverna.t2flow+xml</content-type>"
 		  + "<content encoding=\"base64\" type=\"binary\">"
-		  + Base64.encodeBytes(strWorkflowContent.getBytes()) + "</content>";
-	} else
-	  encodedWorkflow = "";
+		  + Base64.encodeBytes(workflowContent.getBytes()) + "</content>";
+	  strWorkflowData += encodedWorkflow;
+	}
 
-	strWorkflowData += "<license-type>by-sa</license-type>" + encodedWorkflow
-		+ "</workflow>";
+	strWorkflowData += "</workflow>";
 
 	return (strWorkflowData);
   }
 
   private void afterMyExperimentPost(ServerResponse response) {
-//	if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
-//	  // XML response should contain the new workflow that was posted
-//	  Workflow newWorkflow = Workflow.buildFromXML(response.getResponseBody(), logger);
-//
-//	  System.out.println("* *** *** *** *" + response.getResponseBody()
-//		  + "* *** *** *** *");
-//	}
+	//	if (response.getResponseCode() == HttpURLConnection.HTTP_OK) {
+	//	  // XML response should contain the new workflow that was posted
+	//	  Workflow newWorkflow = Workflow.buildFromXML(response.getResponseBody(), logger);
+	//
+	//	  System.out.println("* *** *** *** *" + response.getResponseBody()
+	//		  + "* *** *** *** *");
+	//	}
   }
 
-  public ServerResponse postWorkflow(String strWorkflowContent, String strTitle, String strDescription) {
+  public ServerResponse postWorkflow(String workflowContent, String title, String description, String license, String sharing) {
 	try {
-	  String strWorkflowData = prepareWorkflowPostContent(strTitle, strDescription, strWorkflowContent);
+	  String strWorkflowData = prepareWorkflowPostContent(workflowContent, title, description, license, sharing);
 
 	  ServerResponse response = this.doMyExperimentPOST(BASE_URL
 		  + "/workflow.xml", strWorkflowData);
@@ -1026,16 +1043,16 @@ public class MyExperimentClient {
 	}
   }
 
-  public ServerResponse postNewVersionOfWorkflow(Resource updateResource, String strWorkflowFileContent, String strTitle, String strDescription) {
+  public ServerResponse postNewVersionOfWorkflow(Resource resource, String workflowContent, String title, String description, String license, String sharing) {
 	try {
-	  String strWorkflowData = prepareWorkflowPostContent(strTitle, strDescription, strWorkflowFileContent);
+	  String strWorkflowData = prepareWorkflowPostContent(workflowContent, title, description, license, sharing);
 
 	  // if strWorkflowFileContent is empty; include version info for PUT (since workflow is being updated)
 	  // a POST would require data, hence strWorkflowFileContent would not be empty
-	  String doUpdateStatus = (strWorkflowFileContent.length() == 0 ? DO_PUT : "");
+	  String doUpdateStatus = (workflowContent.length() == 0 ? DO_PUT : "");
 
 	  ServerResponse response = this.doMyExperimentPOST(BASE_URL
-		  + "/workflow.xml?id=" + updateResource.getID() + doUpdateStatus, strWorkflowData);
+		  + "/workflow.xml?id=" + resource.getID() + doUpdateStatus, strWorkflowData);
 
 	  afterMyExperimentPost(response);
 	  // will return the whole response object so that the application could decide on the next steps
@@ -1117,28 +1134,5 @@ public class MyExperimentClient {
 	}
 
 	return (strRes);
-  }
-
-  public static void main(String[] args) throws Exception {
-	MyExperimentClient client = new MyExperimentClient();
-
-	System.out.println(client.doMyExperimentGET(DEFAULT_BASE_URL
-		+ "/workflow.xml?id=56"));
-
-	System.out.println("\n\nLogging in");
-	System.out.println(client.doLogin("username-goes-here", "password-goes-here"));
-	System.out.println("\n\n");
-
-	Element root = client.doMyExperimentGET(DEFAULT_BASE_URL
-		+ "/workflow.xml?id=56").getResponseBody().getRootElement();
-	System.out.println(root.getAttributeValue("uri"));
-	System.out.println(root.getChild("title").getText());
-	System.out.println(root.getChild("description").getText());
-
-	System.out.println("\n\nLogged out\n\n");
-	client.doLogout();
-
-	System.out.println(client.doMyExperimentGET(DEFAULT_BASE_URL
-		+ "/workflow.xml?id=56"));
   }
 }

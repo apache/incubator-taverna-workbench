@@ -2,7 +2,6 @@ package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.Dimension;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 
 public class TestJFrameForLocalLaunch {
 
@@ -17,7 +16,7 @@ public class TestJFrameForLocalLaunch {
 	{
 	  JFrame frame = new JFrame("myExperiment Perspective Test");
 	  frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
+	  
 	  frame.setMinimumSize(new Dimension(1000, 700));
 	  frame.setLocation(300, 150);
 	  frame.getContentPane().add(new net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponent());

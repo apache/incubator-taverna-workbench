@@ -39,6 +39,7 @@ import javax.swing.text.html.StyleSheet;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
+import net.sf.taverna.t2.workbench.file.importworkflow.DataflowMerger;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
@@ -523,8 +524,8 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	}
 
 	public void actionPerformed(ActionEvent actionEvent) {
-	  javax.swing.JOptionPane.showMessageDialog(null, "should import workflow: id = "
-		  + workflowId);
+//	  javax.swing.JOptionPane.showMessageDialog(null, "should import workflow: id = "
+//		  + workflowId);
 
 	  /*
 	   * try { URL url = client.getWorkflowDownloadURL(this.workflowId);
@@ -552,6 +553,53 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	   * "Failed to open connection to URL to download and import workflow, from myExperiment."
 	   * , e); }
 	   */
+
+	  // if the preview browser window is opened, hide it beneath the main window
+	  if (getPreviewBrowser().isActive())
+		getPreviewBrowser().toBack();
+
+	  final String strCallerTabClassName = getMainTabs().getSelectedComponent().getClass().getName();
+	  getStatusBar().setStatus(strCallerTabClassName, "Downloading and opening workflow...");
+	  logger.debug("Downloading and opening workflow from URI: "
+		  + resource.getURI());
+
+	  new Thread("Download and open workflow") {
+		public void run() {
+		  try {
+			Workflow w = myExperimentClient.fetchWorkflowBinary(resource.getURI());
+			ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
+
+			FileManager fileManager = FileManager.getInstance();
+			FileType fileTypeType = (w.isTaverna1Workflow() ? new ScuflFileType() : new T2FlowFileType());
+			Dataflow currentDataflow = fileManager.getCurrentDataflow();
+			DataflowMerger dataflowMerger = new DataflowMerger(currentDataflow);
+			dataflowMerger.merge(fileManager.openDataflow(fileTypeType, workflowDataInputStream));
+
+			getStatusBar().setStatus(strCallerTabClassName, null);
+
+			// update opened items history making sure that:
+			// - there's only one occurrence of this item in the history;
+			// - if this item was in the history before, it is moved to the
+			// 'top' now;
+			// - predefined history size is not exceeded
+			getHistoryBrowser().getOpenedItemsHistoryList().remove(resource);
+			getHistoryBrowser().getOpenedItemsHistoryList().add(resource);
+			if (getHistoryBrowser().getOpenedItemsHistoryList().size() > HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY_LENGTH) {
+			  getHistoryBrowser().getOpenedItemsHistoryList().remove(0);
+			}
+
+			// now update the opened items history panel in 'History' tab
+			if (getHistoryBrowser() != null) {
+			  getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY);
+			}
+		  } catch (Exception e) {
+			javax.swing.JOptionPane.showMessageDialog(null, "An error has occurred while trying to load a workflow from myExperiment.\n\n"
+				+ e, "Error", JOptionPane.ERROR_MESSAGE);
+			logger.error("Failed to open connection to URL to download and open workflow, from myExperiment.", e);
+		  }
+
+		}
+	  }.start();
 	}
   }
 

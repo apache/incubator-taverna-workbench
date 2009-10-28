@@ -18,6 +18,7 @@ import java.net.HttpURLConnection;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -32,10 +33,12 @@ import javax.swing.WindowConstants;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
+import net.sf.taverna.t2.ui.perspectives.myexperiment.model.License;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.ServerResponse;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
+import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Workflow;
 
 import org.apache.log4j.Logger;
 
@@ -51,6 +54,10 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
   private JButton bUpload;
   private JButton bCancel;
   private JLabel lStatusMessage;
+  JComboBox jcbLicences;
+  JComboBox jcbSharingPermissions;
+  private String licence;
+  private String sharing;
 
   // STORAGE
   private File workflowFile; // the workflow file to be uploaded
@@ -60,6 +67,8 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
   private String strDescription = null;
   private String strTitle = null;
   private boolean bUploadingSuccessful = false;
+
+  private int gridYPositionForStatusLabel;
 
   private void constructorInit(Resource resource, File file, JFrame owner, MainComponent component, MyExperimentClient client, Logger logger) {
 	// set main variables to ensure access to myExperiment, logger and the
@@ -99,6 +108,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	GridBagConstraints c = new GridBagConstraints();
 
 	// add all components
+	// title
 	JLabel lTitle = new JLabel("Workflow title:");
 	c.gridx = 0;
 	c.gridy = 0;
@@ -109,30 +119,82 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	contentPane.add(lTitle, c);
 
 	this.tfTitle = new JTextField();
-	c.gridy = 1;
+	if (this.updateResource != null)
+	  this.tfTitle.setText(this.updateResource.getTitle());
+	c.gridy++;
 	c.insets = new Insets(0, 10, 0, 10);
 	contentPane.add(this.tfTitle, c);
 
+	// description
 	JLabel lDescription = new JLabel("Workflow description:");
-	c.gridy = 2;
+	c.gridy++;
 	c.insets = new Insets(10, 10, 5, 10);
 	contentPane.add(lDescription, c);
 
 	this.taDescription = new JTextArea(5, 35);
 	this.taDescription.setLineWrap(true);
 	this.taDescription.setWrapStyleWord(true);
+	if (this.updateResource != null)
+	  this.taDescription.setText(this.updateResource.getDescription());
 
 	JScrollPane spDescription = new JScrollPane(this.taDescription);
-	c.gridy = 3;
+	c.gridy++;
 	c.insets = new Insets(0, 10, 0, 10);
 	contentPane.add(spDescription, c);
 
+	// licences
+	String[] licenseText = new String[License.SUPPORTED_TYPES.length];
+	for (int x = 0; x < License.SUPPORTED_TYPES.length; x++)
+	  licenseText[x] = License.getInstance(License.SUPPORTED_TYPES[x]).getText();
+
+	jcbLicences = new JComboBox(licenseText);
+
+	if (this.updateResource != null) { // adding a new workflow 
+	  Workflow wf = (Workflow) this.updateResource;
+	  String wfText = wf.getLicense().getText();
+	  for (int x = 0; x < licenseText.length; x++)
+		if (wfText.equals(licenseText[x])) {
+		  jcbLicences.setSelectedIndex(x);
+		  break;
+		}
+	}
+
+	jcbLicences.addActionListener(this);
+	jcbLicences.setEditable(false);
+
+	JLabel lLicense = new JLabel("Please select the licence to apply:");
+	c.gridy++;
+	c.insets = new Insets(10, 10, 5, 10);
+	contentPane.add(lLicense, c);
+
+	c.gridy++;
+	c.insets = new Insets(0, 10, 0, 10);
+	contentPane.add(jcbLicences, c);
+
+	// sharing - options: private / view / download
+	String[] permissions = { "This workflow is private.", "Anyone can view, but noone can download.", "Anyone can view, and anyone can download" };
+
+	this.jcbSharingPermissions = new JComboBox(permissions);
+
+	jcbSharingPermissions.addActionListener(this);
+	jcbSharingPermissions.setEditable(false);
+
+	JLabel jSharing = new JLabel("Please select your sharing permissions:");
+	c.gridy++;
+	c.insets = new Insets(10, 10, 5, 10);
+	contentPane.add(jSharing, c);
+
+	c.gridy++;
+	c.insets = new Insets(0, 10, 0, 10);
+	contentPane.add(jcbSharingPermissions, c);
+
+	// buttons
 	this.bUpload = new JButton(updateResource == null ? "Upload Workflow" : "Update Workflow");
 	this.bUpload.setDefaultCapable(true);
 	this.getRootPane().setDefaultButton(this.bUpload);
 	this.bUpload.addActionListener(this);
 	this.bUpload.addKeyListener(this);
-	c.gridy = 4;
+	c.gridy++;
 	c.anchor = GridBagConstraints.EAST;
 	c.gridwidth = 1;
 	c.fill = GridBagConstraints.NONE;
@@ -152,6 +214,8 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	this.setMinimumSize(this.getPreferredSize());
 	this.setMaximumSize(this.getPreferredSize());
 	this.addComponentListener(this);
+
+	gridYPositionForStatusLabel = c.gridy;
   }
 
   /**
@@ -174,9 +238,27 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
   // *** Callback for ActionListener interface ***
   public void actionPerformed(ActionEvent e) {
 	if (e.getSource().equals(this.bUpload)) {
+	  // get sharing permission
+	  switch (this.jcbSharingPermissions.getSelectedIndex()) {
+		case 0:
+		  this.sharing = "private";
+		  break;
+		case 1:
+		  this.sharing = "view";
+		  break;
+		case 2:
+		  this.sharing = "download";
+		  break;
+	  }
+
+	  //get licence
+	  this.licence = License.SUPPORTED_TYPES[this.jcbLicences.getSelectedIndex()];
+
+	  // get title
 	  this.strTitle = this.tfTitle.getText();
 	  this.strTitle = this.strTitle.trim();
 
+	  // get description
 	  this.strDescription = this.taDescription.getText();
 	  this.strDescription = this.strDescription.trim();
 
@@ -191,13 +273,13 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 		if (confirm == JOptionPane.YES_OPTION)
 		  proceedWithUpload = true;
 	  } else {
-//		String strInfo = "This will upload the workflow and may take a while\n"
-//			+ "depending on the speed of your internet connection.\n"
-//			+ "You will not be able to close this window until the \n"
-//			+ "process completes.  Do you wish to proceed?";
-//		int confirm = JOptionPane.showConfirmDialog(this, strInfo, "Workflow Upload", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-//		if (confirm == JOptionPane.YES_OPTION)
-		  proceedWithUpload = true;
+		//		String strInfo = "This will upload the workflow and may take a while\n"
+		//			+ "depending on the speed of your internet connection.\n"
+		//			+ "You will not be able to close this window until the \n"
+		//			+ "process completes.  Do you wish to proceed?";
+		//		int confirm = JOptionPane.showConfirmDialog(this, strInfo, "Workflow Upload", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+		//		if (confirm == JOptionPane.YES_OPTION)
+		proceedWithUpload = true;
 	  }
 
 	  if (proceedWithUpload) {
@@ -212,7 +294,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 
 		final GridBagConstraints c = new GridBagConstraints();
 		c.gridx = 0;
-		c.gridy = 5;
+		c.gridy = gridYPositionForStatusLabel;
 		c.gridwidth = 2;
 		c.anchor = GridBagConstraints.CENTER;
 		c.fill = GridBagConstraints.NONE;
@@ -247,10 +329,10 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 			// *** POST THE WORKFLOW ***
 			final ServerResponse response;
 			if (updateResource == null) // upload a new workflow
-			  response = myExperimentClient.postWorkflow(workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription));
+			  response = myExperimentClient.postWorkflow(workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription), licence, sharing);
 			else
 			  // edit existing workflow
-			  response = myExperimentClient.postNewVersionOfWorkflow(updateResource, workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription));
+			  response = myExperimentClient.postNewVersionOfWorkflow(updateResource, workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription), licence, sharing);
 
 			bUploadingSuccessful = (response.getResponseCode() == HttpURLConnection.HTTP_OK);
 
@@ -262,6 +344,8 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 				  setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 				  tfTitle.setEnabled(false);
 				  taDescription.setEnabled(false);
+				  jcbLicences.setEnabled(false);
+				  jcbSharingPermissions.setEnabled(false);
 				  contentPane.remove(lStatusMessage);
 
 				  c.insets = new Insets(10, 5, 5, 5);
@@ -272,7 +356,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 				  bCancel.setDefaultCapable(true);
 				  rootPane.setDefaultButton(bCancel);
 				  c.insets = new Insets(5, 5, 10, 5);
-				  c.gridy += 1;
+				  c.gridy++;
 				  contentPane.add(bCancel, c);
 
 				  pack();
@@ -296,7 +380,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 				  c.gridwidth = 1;
 				  c.weightx = 0.5;
 				  c.gridx = 0;
-				  c.gridy += 1;
+				  c.gridy++;
 				  contentPane.add(bUpload, c);
 				  rootPane.setDefaultButton(bUpload);
 
