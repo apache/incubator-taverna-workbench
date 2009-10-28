@@ -25,13 +25,15 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import net.sf.taverna.raven.log.Log;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
-import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 
 public class ShowDetailsContextualMenuAction extends AbstractContextualMenuAction {
 	private static final String SHOW_DETAILS = "Show details";
 	private String namedComponent = "contextualView";
+
+	private static Log logger = Log.getLogger(ShowDetailsContextualMenuAction.class);
 
 	public ShowDetailsContextualMenuAction() {
 		super(ConfigureSection.configureSection, 40);
