@@ -27,13 +27,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -71,6 +72,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 	public static final String AVAILABLE_SERVICES = "Available services";
 	public static final String MATCHING_SERVIES = "Matching services";
 	public static final String NO_MATCHING_SERVICES = "No matching services";
+	public static final String MOBY_OBJECTS = "MOBY Objects";
 	
 	/**
 	 * A Comparable constant to be used with buildPathMap
@@ -117,8 +119,14 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				if (o2.equals(ServiceDescription.LOCAL_SERVICES)) {
 					return 1;
 				}
+				if (o1.equals(MOBY_OBJECTS)) {
+					return -1;
+				}
+				if (o2.equals(MOBY_OBJECTS)) {
+					return 1;
+				}
 			}
-			return o1.toString().compareTo(o2.toString());
+			return o1.toString().compareToIgnoreCase(o2.toString());
 		}
 		
 	};
@@ -230,7 +238,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 
 		@SuppressWarnings("unchecked")
 		protected Map<Comparable, Map> buildPathMap() {
-			Map<Comparable, Map> paths = new HashMap<Comparable, Map>();
+			Map<Comparable, Map> paths = new TreeMap<Comparable, Map>();
 			for (ServiceDescription serviceDescription : serviceDescriptionRegistry
 					.getServiceDescriptions()) {
 				if (aborting) {
@@ -241,19 +249,20 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				for (Object pathElem : serviceDescription.getPath()) {
 					pathEntry = (Map) currentPath.get(pathElem);
 					if (pathEntry == null) {
-						pathEntry = new HashMap();
+						pathEntry = new TreeMap();
 						currentPath.put(pathElem, pathEntry);
 					}
 					currentPath = pathEntry;
 				}
-				List<ServiceDescription> services = (List<ServiceDescription>) pathEntry
+				TreeMap<String, ServiceDescription> services = (TreeMap<String, ServiceDescription>) pathEntry
 						.get(SERVICES);
 				if (services == null) {
-					services = new ArrayList<ServiceDescription>();
+					services = new TreeMap<String, ServiceDescription>();
 					pathEntry.put(SERVICES, services);
 				}
-				if (!services.contains(serviceDescription)) {
-					services.add(serviceDescription);
+				String serviceDescriptionName = serviceDescription.getName();
+				if (!services.containsKey(serviceDescriptionName)) {
+					services.put(serviceDescriptionName, serviceDescription);
 				}
 			}
 			return paths;
@@ -277,9 +286,15 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				});
 			}
 
-			List<Comparable> paths = new ArrayList<Comparable>(pathMap.keySet());
+			TreeSet<Comparable> paths = new TreeSet<Comparable>(servicePathElementComparator);
+			TreeMap<String, ServiceDescription> services = (TreeMap<String, ServiceDescription>) pathMap
+			.get(SERVICES);
+			if (services == null) {
+				services = new TreeMap<String, ServiceDescription>();
+			}
+			paths.addAll(pathMap.keySet());
+			paths.addAll(services.keySet());
 			
-			Collections.sort(paths, servicePathElementComparator);
 			for (Comparable pathElement : paths) {
 				if (aborting) {
 					return;
@@ -287,23 +302,31 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				if (pathElement.equals(SERVICES)) {
 					continue;
 				}
-				FilterTreeNode childNode = new PathElementFilterTreeNode((String)pathElement);
+				FilterTreeNode childNode;
+				if (services.containsKey(pathElement)) {
+					childNode = new ServiceFilterTreeNode(services.get(pathElement));
+				} else {
+					childNode = new PathElementFilterTreeNode((String)pathElement);
+				}
 				SwingUtilities
 						.invokeLater(new AddNodeRunnable(node, childNode));
-				populateChildren(childNode, (Map) pathMap.get(pathElement));
-			}
-			List<ServiceDescription> services = (List<ServiceDescription>) pathMap
-					.get(SERVICES);
-			if (services != null) {
-				Collections.sort(services, serviceComparator);
-				for (ServiceDescription service : services) {
-					if (aborting) {
-						return;
-					}
-					SwingUtilities.invokeLater(new AddNodeRunnable(node,
-							new ServiceFilterTreeNode(service)));
+				if (pathMap.containsKey(pathElement)) {
+					populateChildren(childNode, (Map) pathMap.get(pathElement));
 				}
 			}
+//			if (!services.isEmpty()) {
+//				Collections.sort(services, serviceComparator);
+//				for (String serviceName : services.keySet()) {
+//					if (aborting) {
+//						return;
+//					}
+//					if (pathMap.containsKey(serviceName)) {
+//						continue;
+//					}
+//					SwingUtilities.invokeLater(new AddNodeRunnable(node,
+//							new ServiceFilterTreeNode(services.get(serviceName))));
+//				}
+//			}
 		}
 		
 
