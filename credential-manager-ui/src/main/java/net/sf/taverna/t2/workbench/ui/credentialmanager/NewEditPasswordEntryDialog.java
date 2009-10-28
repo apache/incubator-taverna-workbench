@@ -23,7 +23,10 @@ package net.sf.taverna.t2.workbench.ui.credentialmanager;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -181,7 +184,7 @@ public class NewEditPasswordEntryDialog extends JDialog
         JLabel jlConfirmPassword = new JLabel("Confirm password");
         jlConfirmPassword.setBorder(new EmptyBorder(0,5,0,0));
                
-        jtfServiceURL = new JTextField(15);
+        jtfServiceURL = new JTextField();
         //jtfServiceURL.setBorder(new EmptyBorder(0,0,0,5));
 
         jtfUsername = new JTextField(15);
@@ -220,21 +223,78 @@ public class NewEditPasswordEntryDialog extends JDialog
             }
         });
 
-        JPanel jpPassword = new JPanel(new GridLayout(4, 2, 5, 5));
-        jpPassword.add(jlServiceURL);
-        jpPassword.add(jtfServiceURL);
-        jpPassword.add(jlUsername);
-        jpPassword.add(jtfUsername);
-        jpPassword.add(jlFirstPassword);
-        jpPassword.add(jpfFirstPassword);
-        jpPassword.add(jlConfirmPassword);
-        jpPassword.add(jpfConfirmPassword);
+        JPanel jpPassword = new JPanel(new GridBagLayout());
+        
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.weighty = 0.0;
+		
+		gbc.weightx = 0.0;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 0);
+        jpPassword.add(jlServiceURL, gbc);
+        
+		gbc.weightx = 1.0;
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 5);
+        jpPassword.add(jtfServiceURL, gbc);
+        
+		gbc.weightx = 0.0;
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 0);
+        jpPassword.add(jlUsername, gbc);
+        
+		gbc.weightx = 1.0;
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 5);
+        jpPassword.add(jtfUsername, gbc);
+        
+		gbc.weightx = 0.0;
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 0);
+        jpPassword.add(jlFirstPassword, gbc);
+        
+		gbc.weightx = 1.0;
+		gbc.gridx = 1;
+		gbc.gridy = 2;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 5);
+        jpPassword.add(jpfFirstPassword, gbc);
+        
+		gbc.weightx = 0.0;
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 0);
+        jpPassword.add(jlConfirmPassword, gbc);
+        
+		gbc.weightx = 1.0;
+		gbc.gridx = 1;
+		gbc.gridy = 3;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 5);
+        jpPassword.add(jpfConfirmPassword, gbc);
         
         jpPassword.setBorder(new CompoundBorder(
                 new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
         
-        jpPassword.setMinimumSize(new Dimension(300,100));
-
         JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
         jpButtons.add(jbOK);
         jpButtons.add(jbCancel);
@@ -250,7 +310,7 @@ public class NewEditPasswordEntryDialog extends JDialog
             }
         });
 
-        setResizable(false);
+        //setResizable(false);
 
         getRootPane().setDefaultButton(jbOK);
 

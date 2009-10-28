@@ -138,11 +138,11 @@ public class PasswordsTableModel extends AbstractTableModel implements Observer<
                 data[iCnt][1] = serviceURL;
                 
                 // Get the username and password pair from the Keystore. They
-                // are returned in a single string in format <USERNAME> <PASSWORD>
-                String unpassPair = credManager.getUsernameAndPasswordForService(serviceURL);
-            	String username = unpassPair.substring(0, unpassPair.indexOf(' '));
-            	String password = unpassPair.substring(unpassPair.indexOf(' ')+1);
-                
+                // are returned in a single string in format <USERNAME><SEPARATOR_CHARACTER><PASSWORD>
+                String[] unpassPair = credManager.getUsernameAndPasswordForService(serviceURL);
+            	String username = unpassPair[0];
+            	String password = unpassPair[1];
+
                 // Populate the username column
                 data[iCnt][2] = username;
                

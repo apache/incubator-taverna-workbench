@@ -136,7 +136,7 @@ public class CredentialManagerUI extends JFrame {
 	private JPanel keyPairsTab = new JPanel(new BorderLayout(10, 10));
 
 	// Tab 2: name 
-	public static final String KEYPAIRS = "Key Pairs";
+	public static final String KEYPAIRS = "Your Certificates";
 	
 	// Tab 3: holds key pairs (user certificates) table 
 	private JPanel proxiesTab = new JPanel(new BorderLayout(10, 10));
@@ -550,7 +550,8 @@ public class CredentialManagerUI extends JFrame {
 	}
 	
 	/**
-	 * Display the username/password pair entry from the Keystore.
+	 * Displays the details of the username/password pair entry - this includes 
+	 * showing the plaintext password and service URL for this entry.
 	 */
 	private void viewPassword() {
 		// Which username/password pair entry has been selected, if any?
@@ -577,7 +578,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 	
 	/**
-	 * Insert a new username/password pair for a service URL in the Keystore.
+	 * Lets a user insert a new username/password/service URL tuple to the Keystore.
 	 */
 	private void newPassword() {
 		
@@ -627,7 +628,7 @@ public class CredentialManagerUI extends JFrame {
 			if (serviceURLs.contains(serviceURL)) { // if such a URL already exists 
 				// Ask if the user wants to overwrite it
 				int iSelected = JOptionPane.showConfirmDialog(this,
-						"The Keystore already contains a password entry with the same service URL.\n"
+						"Credential Manager already contains a password entry with the same service URL.\n"
 								+ "Do you want to overwrite it?",
 						"Credential Manager Alert",
 						JOptionPane.YES_NO_OPTION);
@@ -639,7 +640,7 @@ public class CredentialManagerUI extends JFrame {
 						break;
 					}
 					catch (CMException cme){
-						String exMessage = "Failed to insert a new username and password pair in the Keystore";
+						String exMessage = "Credential Manager failed to insert a new username and password pair";
 						JOptionPane.showMessageDialog(this, exMessage,
 								"Credential Manager Error",
 								JOptionPane.ERROR_MESSAGE);
@@ -655,7 +656,7 @@ public class CredentialManagerUI extends JFrame {
 					break;
 				}
 				catch (CMException cme){
-					String exMessage = "Failed to insert a new username and password pair in the Keystore";
+					String exMessage = "Credential Manager failed to insert a new username and password pair";
 					JOptionPane.showMessageDialog(this, exMessage,
 							"Credential Manager Error",
 							JOptionPane.ERROR_MESSAGE);
@@ -664,9 +665,102 @@ public class CredentialManagerUI extends JFrame {
 		} 
 	}
 	
+	/**
+	 * Lets a user insert a new username/password pair for a given service URL 
+	 * to the Keystore.
+	 */
+	public void newPasswordForService(String serviceURL) {
+		
+		// Make sure password tab is selected as this method may
+		// be called from outside of Credential Manager UI.
+		keyStoreTabbedPane.setSelectedComponent(passwordsTab);
+		
+		String username = null; // username
+		String password = null; // password
+
+		// Loop until the user cancels or enters everything correctly
+		while (true) { 
+			
+			// Let the user insert a new password entry for the given service URL 
+			// (by specifying username and password)
+			NewEditPasswordEntryDialog newPasswordDialog = new NewEditPasswordEntryDialog(
+					this, "New username and password for a service", true, serviceURL, username,
+					password);
+			newPasswordDialog.setLocationRelativeTo(this);
+			newPasswordDialog.setVisible(true);
+
+			serviceURL = newPasswordDialog.getServiceURL(); // get service URL
+			username = newPasswordDialog.getUsername(); // get username
+			password = newPasswordDialog.getPassword(); // get password
+
+			if (password == null) { // user cancelled - any of the above three fields is null 		
+				// do nothing
+				return;
+			}
+
+			// Check if a password entry with the given service URL
+			// already exists in the Keystore.
+			// We ask this here as the user may wish to overwrite the
+			// existing password entry.
+			// Checking for key pair entries' URLs is done in the
+			// NewEditPasswordEntry dialog.
+			
+			// Get list of service URLs for all the password entries in the Keystore
+			ArrayList<String> serviceURLs = null;
+			try{
+				serviceURLs = credManager.getServiceURLsforUsernameAndPasswords(); 
+			}
+			catch(CMException  cme){
+				String exMessage = "Failed to get service URLs for all username and password pairs to check if the entered service URL already exists";
+				JOptionPane.showMessageDialog(this, exMessage,
+						"Credential Manager Error",
+						JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			if (serviceURLs.contains(serviceURL)) { // if such a URL already exists 
+				// Ask if the user wants to overwrite it
+				int iSelected = JOptionPane.showConfirmDialog(this,
+						"Credential Manager already contains a password entry with the same service URL.\n"
+								+ "Do you want to overwrite it?",
+						"Credential Manager Alert",
+						JOptionPane.YES_NO_OPTION);
+
+				// Add the new password entry in the Keystore 
+				if (iSelected == JOptionPane.YES_OPTION) {
+					try{
+						credManager.saveUsernameAndPasswordForService(username, password, serviceURL);
+						break;
+					}
+					catch (CMException cme){
+						String exMessage = "Credential Manager failed to insert a new username and password pair";
+						JOptionPane.showMessageDialog(this, exMessage,
+								"Credential Manager Error",
+								JOptionPane.ERROR_MESSAGE);
+					}
+				}
+			// Otherwise show the same window with the entered service
+			// URL, username and password values
+			} 
+			else {
+				// Add the new password entry in the Keystore
+				try{
+					credManager.saveUsernameAndPasswordForService(username, password, serviceURL);
+					break;
+				}
+				catch (CMException cme){
+					String exMessage = "Credential Manager failed to insert a new username and password pair";
+					JOptionPane.showMessageDialog(this, exMessage,
+							"Credential Manager Error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		} 
+	}
+
 
 	/**
-	 * Edit a username and password entry or their related service URL in the Keystore.
+	 * Lets a user edit a username and password entry or their related service URL 
+	 * to the Keystore.
 	 */
 	private void editPassword() {
 
@@ -781,7 +875,8 @@ public class CredentialManagerUI extends JFrame {
 	}
 
 	/**
-	 * Delete the selected username and password entries from the Keystore.
+	 * Lets the user delete the selected username and password entries 
+	 * from the Keystore.
 	 */
 	private void deletePassword() {
 
@@ -820,7 +915,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 	
 	/**
-	 * Show the contents of a (user or trusted) certificate.
+	 * Shows the contents of a (user or trusted) certificate.
 	 */
 	@SuppressWarnings("unchecked")
 	private void viewCertificate() {
@@ -883,7 +978,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 	
 	/**
-	 * Import a key pair from a PKCS #12 keystore file to the Keystore.
+	 * Lets a user import a key pair from a PKCS #12 keystore file to the Keystore.
 	 */
 	private void newKeyPair() {
 
@@ -987,7 +1082,7 @@ public class CredentialManagerUI extends JFrame {
 
 	
 	/**
-	 * Edit service URLs for a given key pair entry.
+	 * Lets a user edit service URLs for a given key pair entry.
 	 */
 	@SuppressWarnings("unchecked")
 	private void editKeyPair() {
@@ -1036,7 +1131,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 
 	/**
-	 * Export user's private and public key pair to a PKCS #12
+	 * Lets a user export user's private and public key pair to a PKCS #12
 	 * keystore file.
 	 */
 	private void exportKeyPair() {
@@ -1110,7 +1205,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 
 	/**
-	 * Delete selected key pair entries from the Keystore.
+	 * Lets a user delete selected key pair entries from the Keystore.
 	 */
 	private void deleteKeyPair() {
 		
@@ -1151,7 +1246,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 	
 	/**
-	 * Show the contents of a proxy certificate.
+	 * Shows the contents of a proxy certificate.
 	 */
 	private void viewProxyCertificate() {
 
@@ -1187,7 +1282,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 	
 	/**
-	 * Delete selected proxy entries from the Keystore.
+	 * Lets a user delete selected proxy entries from the Keystore.
 	 */
 	private void deleteProxy() {
 		
@@ -1228,7 +1323,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 
 	/**
-	 * Import a trusted certificate from a PEM or DER encoded file
+	 * Lets a user import a trusted certificate from a PEM or DER encoded file
 	 * into the Truststore.
 	 */
 	private void importTrustedCertificate() {
@@ -1427,7 +1522,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 	
 	/**
-	 * Delete selected trusted certificate entries from the Truststore.
+	 * Lets a user delete the selected trusted certificate entries from the Truststore.
 	 */
 	private void deleteTrustedCertificate() {
 		
@@ -1468,7 +1563,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 	
 	/**
-	 * Handle double click on the Keystore tables. If it has occurred, show the
+	 * Handles double click on the Keystore tables. If it has occurred, show the
 	 * details of the entry clicked upon.
 	 */
 	private void tableDoubleClick(MouseEvent evt) {
@@ -1497,7 +1592,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 	
 	/**
-	 * Let the user select a file to export to or import from a key pair or a
+	 * Lets the user select a file to export to or import from a key pair or a
 	 * certificate. The file types are filtered according to their extensions:
 	 * .p12 or .pfx are PKCS #12 keystore files containing private key and its
 	 * public key (+cert chain) .crt are ASN.1 PEM-encoded files containing one
@@ -1524,7 +1619,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 	
 	/**
-	 * Exit the UI's frame.
+	 * Exits the UI's frame.
 	 */
 	private void closeFrame() {
 		setVisible(false);

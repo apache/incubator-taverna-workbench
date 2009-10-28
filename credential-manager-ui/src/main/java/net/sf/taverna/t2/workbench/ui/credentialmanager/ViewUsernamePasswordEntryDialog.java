@@ -22,7 +22,10 @@ package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -105,7 +108,7 @@ public class ViewUsernamePasswordEntryDialog
         jlPassword.setBorder(new EmptyBorder(0,5,0,0));
 
         //Populate the fields with values and disable user input
-        jtfServiceURL = new JTextField(15);
+        jtfServiceURL = new JTextField();
         jtfServiceURL.setText(serviceURL);
         jtfServiceURL.setEditable(false);
         //jtfServiceURL.setBorder(new EmptyBorder(0,0,0,5));
@@ -138,13 +141,60 @@ public class ViewUsernamePasswordEntryDialog
 //            }
 //        });
         
-        JPanel jpPassword = new JPanel(new GridLayout(4, 2, 5, 5));
-        jpPassword.add(jlServiceURL);
-        jpPassword.add(jtfServiceURL);
-        jpPassword.add(jlUsername);
-        jpPassword.add(jtfUsername);
-        jpPassword.add(jlPassword);
-        jpPassword.add(jtfPassword);
+        JPanel jpPassword = new JPanel(new GridBagLayout());
+        
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.weighty = 0.0;
+		
+		gbc.weightx = 0.0;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 0);
+        jpPassword.add(jlServiceURL, gbc);
+        
+		gbc.weightx = 1.0;
+		gbc.gridx = 1;
+		gbc.gridy = 0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 5);
+        jpPassword.add(jtfServiceURL, gbc);
+        
+		gbc.weightx = 0.0;
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 0);
+        jpPassword.add(jlUsername, gbc);
+        
+		gbc.weightx = 1.0;
+		gbc.gridx = 1;
+		gbc.gridy = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 5);
+        jpPassword.add(jtfUsername, gbc);
+        
+		gbc.weightx = 0.0;
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 0);
+        jpPassword.add(jlPassword, gbc);
+        
+		gbc.weightx = 1.0;
+		gbc.gridx = 1;
+		gbc.gridy = 2;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(5, 10, 0, 5);
+        jpPassword.add(jtfPassword, gbc);
+        
+        
         jpPassword.setBorder(new CompoundBorder(
                 new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
         
@@ -163,7 +213,7 @@ public class ViewUsernamePasswordEntryDialog
             }
         });
 
-        setResizable(false);
+       // setResizable(false);
 
         getRootPane().setDefaultButton(jbOK);
 

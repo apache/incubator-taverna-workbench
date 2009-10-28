@@ -30,7 +30,7 @@ public class CredentialManagerToolbarSection extends AbstractMenuSection {
 	public static URI CREDENTIAL_MANAGER_TOOLBAR_SECTION = URI.create("http://taverna.sf.net/2008/t2workbench/toolbar#credentialManagerSection");
 	
 	public CredentialManagerToolbarSection() {
-		super(DefaultToolBar.DEFAULT_TOOL_BAR, 100, CREDENTIAL_MANAGER_TOOLBAR_SECTION);
+		super(DefaultToolBar.DEFAULT_TOOL_BAR, 300, CREDENTIAL_MANAGER_TOOLBAR_SECTION);
 	}
 
 }
