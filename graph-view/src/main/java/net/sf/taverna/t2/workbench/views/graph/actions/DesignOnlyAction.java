@@ -40,9 +40,11 @@ public abstract class DesignOnlyAction extends AbstractAction {
 	/* Perspective switch observer */
 	private CurrentPerspectiveObserver perspectiveObserver = new CurrentPerspectiveObserver();
 	
+	protected boolean inWorkflow = true;
+	
 	public DesignOnlyAction() {
 		super();
-		
+		inWorkflow = ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_PERSPECTIVE) instanceof WorkflowPerspective;
 		modelMap.addObserver(perspectiveObserver);
 	}
 	
@@ -56,9 +58,11 @@ public abstract class DesignOnlyAction extends AbstractAction {
 			if (message.getModelName().equals(
 					ModelMapConstants.CURRENT_PERSPECTIVE)) {
 				if (message.getNewModel() instanceof WorkflowPerspective) {
+					inWorkflow = true;
 					setEnabled(true);
 				}
 				else{
+					inWorkflow = false;
 					setEnabled(false);
 				}
 			}
