@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.views.results;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridLayout;
@@ -42,11 +43,14 @@ import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.JTextArea;
 import javax.swing.JToolBar;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.TitledBorder;
 
@@ -54,6 +58,7 @@ import net.sf.taverna.t2.facade.ResultListener;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.invocation.WorkflowDataToken;
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
@@ -194,6 +199,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			 for (int i=0; i< saveButtonsPanel.getComponents().length; i++){
 					JButton saveButton = (JButton)saveButtonsPanel.getComponent(i);
 					saveButton.setEnabled(true);
+					saveButton.setFocusable(false);
 			}
 		 }
 	}
@@ -212,7 +218,15 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			final JDialog dialog = new JDialog((Frame) null, true);
 			dialog.setResizable(false);
 			dialog.setLocationRelativeTo(null);
+			dialog.setTitle("Workflow run data saver");
 			JPanel panel = new JPanel(new BorderLayout());
+			DialogTextArea explanation = new DialogTextArea();
+			explanation.setText("Select the input and output ports to save the associated data");
+			explanation.setColumns(40);
+			explanation.setEditable(false);
+			explanation.setOpaque(false);
+			explanation.setBorder(new EmptyBorder(5, 20, 5, 20));
+			panel.add(explanation, BorderLayout.NORTH);
 			final Map<String, JCheckBox> inputChecks = new HashMap<String, JCheckBox> ();
 			final Map<String, JCheckBox> outputChecks = new HashMap<String, JCheckBox> ();
 			final Map<JCheckBox, T2Reference> checkReferences =
@@ -251,6 +265,8 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			};
 			if (!facade.getDataflow().getInputPorts().isEmpty()) {
 				JPanel inputsPanel = new JPanel();
+				inputsPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
+
 				inputsPanel.setLayout(new GridLayout(0, 1));
 				inputsPanel.add(new JLabel("Inputs:"));
 				WeakHashMap<String, T2Reference> pushedDataMap = facade.getPushedDataMap();
@@ -272,6 +288,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			}			
 			if (!resultReferencesMap.isEmpty()) {
 				JPanel outputsPanel = new JPanel();
+				outputsPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
 				outputsPanel.setLayout(new GridLayout(0, 1));
 				outputsPanel.add(new JLabel("Outputs:"));
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
