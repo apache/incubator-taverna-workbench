@@ -129,6 +129,10 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 //		editList.add(edits.getMapProcessorPortsForActivityEdit(p));
 //		editList.add(edits.getRenameProcessorEdit(p, name));
 		editList.add(edits.getAddProcessorEdit(currentDataflow, p));
+		Edit insertionEdit = sd.getInsertionEdit(currentDataflow, p, activity);
+		if (insertionEdit != null) {
+			editList.add(insertionEdit);
+		}
 			editManager
 					.doDataflowEdit(currentDataflow, new CompoundEdit(editList));
 	} catch (EditException e) {
