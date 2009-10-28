@@ -20,14 +20,19 @@
  **********************************************************************/
 package net.sf.taverna.t2.ui.menu.items.contextualviews;
 
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.net.URI;
 import java.util.Set;
 
 import javax.swing.Action;
 import javax.swing.KeyStroke;
+import javax.swing.text.JTextComponent;
 
+import net.sf.taverna.raven.log.Log;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.design.actions.EditDataflowInputPortAction;
 import net.sf.taverna.t2.workbench.design.actions.EditDataflowOutputPortAction;
@@ -45,6 +50,8 @@ import net.sf.taverna.t2.workflowmodel.Processor;
 
 public class ShowConfigureMenuAction extends AbstractMenuAction {
 	
+	private static Log logger = Log.getLogger(ShowConfigureMenuAction.class);
+
 	public static final URI GRAPH_DETAILS_MENU_SECTION = URI
 	.create("http://taverna.sf.net/2008/t2workbench/menu#graphDetailsMenuSection");
 	
@@ -66,12 +73,32 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 	}
 	
 	protected class ShowConfigureAction extends DesignOnlyAction {
+		
 		ShowConfigureAction() {
 		super();
 		putValue(NAME, "Configure");	
 		putValue(SHORT_DESCRIPTION, "Configure selected component");
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true));
+		
+		KeyboardFocusManager focusManager =
+		    KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		focusManager.addPropertyChangeListener(
+		    new PropertyChangeListener() {
+		        public void propertyChange(PropertyChangeEvent e) {
+		            String prop = e.getPropertyName();
+		            if ("focusOwner".equals(prop)) {
+						if (e.getNewValue() instanceof JTextComponent) {
+									ShowConfigureAction.this.setEnabled(false);
+						} else {
+									ShowConfigureAction.this
+											.setEnabled(inWorkflow);
+								}
+							}
+						}
+		    }
+		);
+
 		}
 		public void actionPerformed(ActionEvent e) {
 			Dataflow dataflow = FileManager.getInstance().getCurrentDataflow();
@@ -103,7 +130,6 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 				}
 			}
 		}
-		
 	}
 
 }
