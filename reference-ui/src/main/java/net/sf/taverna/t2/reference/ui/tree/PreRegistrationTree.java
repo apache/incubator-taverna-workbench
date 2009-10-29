@@ -43,6 +43,8 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.apache.log4j.Logger;
+
 /**
  * A wrapper around JTree that installs the set of models, renderers and
  * listeners used by the pre-registration tree control. Implements autoscroll
@@ -53,6 +55,10 @@ import javax.swing.tree.TreeSelectionModel;
  * 
  */
 public class PreRegistrationTree extends JTree implements Autoscroll {
+	
+	private static Logger logger = Logger
+	.getLogger(PreRegistrationTree.class);
+
 
 	private static final long serialVersionUID = -8357524058131749686L;
 	private PreRegistrationTreeModel model;
@@ -209,6 +215,12 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 				+ margin, outer.height - inner.height - inner.y + outer.y
 				+ margin, outer.width - inner.width - inner.x + outer.x
 				+ margin);
+	}
+	
+	public int getRowCount() {
+		int result = super.getRowCount();
+		logger.info("Row count is " + result);
+		return result;
 	}
 
 }
