@@ -51,6 +51,8 @@ public class PreRegistrationTreeCellRenderer extends DefaultTreeCellRenderer {
 			"/icons/web.gif"));
 	private ImageIcon binaryIcon = new ImageIcon(getClass().getResource(
 			"/icons/genericregister_obj.gif"));
+	
+	private static int MAXIMUM_TEXT_LENGTH = 14;
 
 	@Override
 	public synchronized Component getTreeCellRendererComponent(JTree tree,
@@ -72,10 +74,10 @@ public class PreRegistrationTreeCellRenderer extends DefaultTreeCellRenderer {
 					if (userObject instanceof String) {
 						setIcon(textIcon);
 						String string = (String) userObject;
-						if (string.length() < 10) {
+						if (string.length() < MAXIMUM_TEXT_LENGTH) {
 							setText(string);
 						} else {
-							setText(string.substring(0, 10) + "...");
+							setText(string.substring(0, MAXIMUM_TEXT_LENGTH - 4) + "...");
 						}
 					} else if (userObject instanceof byte[]) {
 						byte[] bytes = (byte[]) userObject;
