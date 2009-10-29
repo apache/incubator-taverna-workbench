@@ -1,7 +1,6 @@
 package net.sf.taverna.t2.workbench.reference.config;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -45,13 +44,14 @@ public class DataManagementHelper {
             ds.setMaxIdle(config.getPoolMaxIdle());
             ds.setDefaultAutoCommit(true);
             ds.setInitialSize(config.getPoolMinIdle());
-            try {
-                ds.setUrl(getJDBCUri());
-                InitialContext context = new InitialContext();
-                context.rebind(DataManagementConfiguration.JNDI_NAME, ds);
-            } catch (IOException ex) {
-                logger.error("Unable to set up DataSource",ex);
-            }
+            //Derby blows up if the username of password is empty (even an empty string thats not null).
+            if (config.getUsername()!=null && config.getUsername().length()>=1) ds.setUsername(config.getUsername());
+            if (config.getPassword()!=null && config.getPassword().length()>=1) ds.setPassword(config.getPassword());
+            
+            ds.setUrl(config.getJDBCUri());
+            InitialContext context = new InitialContext();
+            context.rebind(DataManagementConfiguration.JNDI_NAME, ds);
+            
         } catch (NamingException ex) {
             ex.printStackTrace();
         }
@@ -115,11 +115,5 @@ public class DataManagementHelper {
 			logger.error("Error shuttong down theDerby network server",e);
 		}
 	}
-	
-	
-	protected static  String getJDBCUri() throws IOException {	  
-      return "jdbc:derby://localhost:" + DataManagementConfiguration.getInstance().getCurrentPort() + "/t2-database;create=true;upgrade=true";
-	}
-	
 
 }

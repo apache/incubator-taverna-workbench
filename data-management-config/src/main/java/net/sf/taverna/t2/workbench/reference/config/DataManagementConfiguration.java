@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.reference.config;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,18 +35,25 @@ import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
 
 public class DataManagementConfiguration extends AbstractConfigurable {
 
-    public static final String IN_MEMORY = "In Memory";
-    public static final String ENABLE_PROVENANCE = "Provenance enabled";
-    public static final String CONNECTOR_TYPE = "Connector type";
-    public static final String PORT = "Port";
-    public static final String CURRENT_PORT = "Current port";
+    public static final String IN_MEMORY = "in_memory";
+    public static final String ENABLE_PROVENANCE = "provenance";
+    public static final String CONNECTOR_TYPE = "connector";
+    public static final String PORT = "port";
+    public static final String CURRENT_PORT = "current_port";
     public static final String REFERENCE_SERVICE_CONTEXT = "referenceService.context";
     public static final String IN_MEMORY_CONTEXT = "inMemoryReferenceServiceContext.xml";
     public static final String HIBERNATE_CONTEXT = "hibernateReferenceServiceContext.xml";
-    public static final String POOL_MAX_ACTIVE = "Pool max active";
-    public static final String POOL_MIN_IDLE = "Pool min idle";
-    public static final String POOL_MAX_IDLE = "Pool max idle";
-    public static final String DRIVER_CLASS_NAME = "Driver class name";
+    public static final String HIBERNATE_DIALECT = "dialect";
+    public static final String POOL_MAX_ACTIVE = "pool_max_active";
+    public static final String POOL_MIN_IDLE = "pool_min_idle";
+    public static final String POOL_MAX_IDLE = "pool_max_idle";
+    public static final String DRIVER_CLASS_NAME = "driver";
+    public static final String JDBC_URI = "jdbcuri";
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    
+    public static final String CONNECTOR_MYSQL="mysql";
+    public static final String CONNECTOR_DERBY="derby";
     
     public static final String JNDI_NAME = "jdbc/taverna";
     
@@ -56,7 +64,7 @@ public class DataManagementConfiguration extends AbstractConfigurable {
         if (instance == null) {
             instance = new DataManagementConfiguration();
             
-            //FIXME: Still a silly place to start it
+            //FIXME: Still a silly place to start it            
             DataManagementHelper.startDerbyNetworkServer();
             DataManagementHelper.setupDataSource();
         }
@@ -118,15 +126,23 @@ public class DataManagementConfiguration extends AbstractConfigurable {
             defaultPropertyMap.put(ENABLE_PROVENANCE, "true");
             defaultPropertyMap.put(PORT, "1527");
             defaultPropertyMap.put(DRIVER_CLASS_NAME, "org.apache.derby.jdbc.ClientDriver");
+            defaultPropertyMap.put(HIBERNATE_DIALECT, "org.hibernate.dialect.DerbyDialect");
             defaultPropertyMap.put(POOL_MAX_ACTIVE, "50");
             defaultPropertyMap.put(POOL_MAX_IDLE, "50");
             defaultPropertyMap.put(POOL_MIN_IDLE, "10");
+            defaultPropertyMap.put(USERNAME,"");
+            defaultPropertyMap.put(PASSWORD,"");            
+            defaultPropertyMap.put(JDBC_URI,"");
             
-            defaultPropertyMap.put(CONNECTOR_TYPE,"Derby DB Connector");
+            defaultPropertyMap.put(CONNECTOR_TYPE,CONNECTOR_DERBY);
         }
         return defaultPropertyMap;
     }
 
+    public String getHibernateDialect() {
+    	return getProperty(HIBERNATE_DIALECT);
+    }
+    
     public String getName() {
         return "Data & provenance";
     }
@@ -139,4 +155,22 @@ public class DataManagementConfiguration extends AbstractConfigurable {
     public String getConnectorType() {        
         return getProperty(CONNECTOR_TYPE);
     }
+
+    
+	public String getJDBCUri() {
+		if (CONNECTOR_DERBY.equals(getConnectorType())) {
+			return "jdbc:derby://localhost:" + getCurrentPort() + "/t2-database;create=true;upgrade=true";
+		}
+		else {
+			return getProperty(JDBC_URI);
+		}
+	}
+
+	public String getUsername() {
+		return getProperty(USERNAME);
+	}
+	
+	public String getPassword() {
+		return getProperty(PASSWORD);
+	}
 }

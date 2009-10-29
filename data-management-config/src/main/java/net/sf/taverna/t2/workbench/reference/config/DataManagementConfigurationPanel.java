@@ -123,7 +123,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		
 		setLayout(gridbag);
 
-		resetFields(configuration);
+		resetFields();
 
 	}
 
@@ -180,14 +180,19 @@ public class DataManagementConfigurationPanel extends JPanel {
 		System.exit(0);
 	}
 
-	private void resetFields(DataManagementConfiguration instance) {
-		enableInMemory
-				.setSelected(configuration.getProperty(
-						DataManagementConfiguration.IN_MEMORY)
-						.equalsIgnoreCase("true"));
-		enableProvenance.setSelected(configuration.getProperty(
-				DataManagementConfiguration.ENABLE_PROVENANCE)
-				.equalsIgnoreCase("true"));
+	public void resetFields() {
+		if (configuration.getConnectorType().equals(DataManagementConfiguration.CONNECTOR_DERBY)) {
+			enableInMemory
+					.setSelected(configuration.getProperty(
+							DataManagementConfiguration.IN_MEMORY)
+							.equalsIgnoreCase("true"));
+			enableProvenance.setSelected(configuration.getProperty(
+					DataManagementConfiguration.ENABLE_PROVENANCE)
+					.equalsIgnoreCase("true"));
+		}
+		else {
+			//TODO: handle when configured manually as MYSQL
+		}
 	}
 
 	private void applySettings() {
@@ -219,7 +224,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		JButton resetButton = new JButton(new AbstractAction("Reset") {
 
 			public void actionPerformed(ActionEvent arg0) {
-				resetFields(configuration);
+				resetFields();
 			}
 		});
 		panel.add(resetButton);
@@ -232,7 +237,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 
 			public void actionPerformed(ActionEvent arg0) {
 				applySettings();
-				resetFields(configuration);
+				resetFields();
 			}
 		});
 		panel.add(applyButton);

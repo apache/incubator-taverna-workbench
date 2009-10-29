@@ -11,7 +11,7 @@
 
 	<import resource="context-parts/raven_applicationruntime.xml" />
 	<import resource="context-parts/dao_hibernate.xml" />
-	<import resource="context-parts/hibernateprops_derby_pooled.xml" />
+	<import resource="context-parts/hibernateprops_pooled.xml" />
 	<import resource="context-parts/componentservices.xml" />
 	<import resource="context-parts/referenceservice.xml" />
 

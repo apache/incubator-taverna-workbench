@@ -9,12 +9,7 @@
 	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 	http://taverna.sf.net/schema/artifact-support 
 	http://taverna.sf.net/schema/artifact-support/artifact-support.xsd">
-
-	<!-- Apache Derby rooted at application directory -->
-    <bean id="t2reference.jdbc.applicationjdbc"
-		class="net.sf.taverna.platform.spring.jdbc.ApplicationJDBC">
-    </bean>
-   
+    
     <bean id="t2reference.jdbc.datasource"
 		class="org.springframework.jndi.JndiObjectFactoryBean">
         <property name="resourceRef">
@@ -29,9 +24,9 @@
     <bean id="t2reference.orm.h3.properties"
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="properties">
-            <props>
+            <props>            
                 <prop key="hibernate.hbm2ddl.auto">create</prop>
-                <prop key="hibernate.dialect">
+                <prop key="hibernate.dialect" >
 					org.hibernate.dialect.DerbyDialect
                 </prop>
                 <prop key="hibernate.query.substitutions">
