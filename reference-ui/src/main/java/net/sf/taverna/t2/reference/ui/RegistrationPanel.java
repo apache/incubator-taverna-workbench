@@ -149,26 +149,6 @@ public class RegistrationPanel extends JPanel {
 
 		final UpdateEditorPaneOnSelection treeSelectionListener = new UpdateEditorPaneOnSelection();
 		tree.addTreeSelectionListener(treeSelectionListener);
-		treeModel.addTreeModelListener(new TreeModelListener() {
-
-			public void treeNodesChanged(TreeModelEvent e) {
-			}
-
-			public void treeNodesInserted(TreeModelEvent e) {
-				DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) e.getChildren()[0];
-				if (selectedNode.getUserObject() != null) {
-					TreePath fullPath = e.getTreePath().pathByAddingChild(selectedNode);
-					tree.setSelectionPath(fullPath);		
-				}
-			}
-
-			public void treeNodesRemoved(TreeModelEvent e) {
-				tree.setSelectionPath(null);
-			}
-
-			public void treeStructureChanged(TreeModelEvent e) {
-				logger.info(e.getChildren()[0].toString());
-			}});
 		
 		tree.setRootVisible(false);
 
@@ -375,9 +355,13 @@ public class RegistrationPanel extends JPanel {
 		}
 
 		public void actionPerformed(ActionEvent ae) {
-			DefaultMutableTreeNode added = treeModel.addPojoStructure((MutableTreeNode) treeModel.getRoot(),
+			MutableTreeNode parent = (MutableTreeNode) treeModel.getRoot();
+			MutableTreeNode selection = getSelectedNode();
+			if (selection != null) {
+				parent = selection;
+			}
+			DefaultMutableTreeNode added = addPojo(parent,
 					new ArrayList<Object>(), depth);
-			tree.setSelectionPath(new TreePath(added.getPath()));
 			setStatus("Added new collection with depth " + depth,
 					null);
 		}
@@ -427,8 +411,7 @@ public class RegistrationPanel extends JPanel {
 
 				for (File file : fileChooser.getSelectedFiles()) {
 					if (!file.isDirectory()) {
-						DefaultMutableTreeNode added = treeModel.addPojoStructure(node, file, 0);
-						tree.setSelectionPath(new TreePath(added.getPath()));
+						DefaultMutableTreeNode added = addPojo(node, file, 0);
 						setStatus("Added file : " + file.getPath(),
 								null);
 					} else {
@@ -448,8 +431,7 @@ public class RegistrationPanel extends JPanel {
 								children.add(child);
 							}
 						}
-						DefaultMutableTreeNode added = treeModel.addPojoStructure(node, children, 1);
-						tree.setSelectionPath(new TreePath(added.getPath()));
+						DefaultMutableTreeNode added = addPojo(node, children, 1);
 						setStatus("Added directory : " + file.getPath(),
 								null);
 					}
@@ -476,13 +458,19 @@ public class RegistrationPanel extends JPanel {
 				newValue = NEW_VALUE;
 			}
 			
-			DefaultMutableTreeNode added = treeModel.addPojoStructure(node,
-					newValue, 0);
-			tree.setSelectionPath(new TreePath(added.getPath()));
+			DefaultMutableTreeNode added = addPojo(node, newValue, 0);
+			
 			setStatus("Added new value.  Edit value on right.", null);
 		}
 	}
 
+	private DefaultMutableTreeNode addPojo (MutableTreeNode node, Object newValue, int position) {
+		DefaultMutableTreeNode added = treeModel.addPojoStructure(node,
+				newValue, position);
+		tree.setSelectionPath(new TreePath(added.getPath()));
+		return added;
+	}
+	
 	public class AddURLAction extends AbstractAction {
 
 		private static final String URL_REGEX = "http:\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?";
@@ -516,8 +504,7 @@ public class RegistrationPanel extends JPanel {
 
 						MutableTreeNode node = getSelectedNode();
 
-						DefaultMutableTreeNode added = treeModel.addPojoStructure(node, url, 0);
-						tree.setSelectionPath(new TreePath(added.getPath()));
+						DefaultMutableTreeNode added = addPojo(node, url, 0);
 						setStatus("Added URL : " + url.toExternalForm(),
 								null);
 					} else {
@@ -610,11 +597,11 @@ public class RegistrationPanel extends JPanel {
 	}
 	
 	public void setValue(Object o) {
-		treeModel.addPojoStructure(null, o, 0);
+		addPojo(null, o, 0);
 	}
 	
 	public void setValue(Object o, int depth) {
-		treeModel.addPojoStructure(null, o, depth);
+		addPojo(null, 0, depth);
 	}
 	
 	public Object getValue() {
