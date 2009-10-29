@@ -30,6 +30,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
+import org.apache.log4j.Logger;
+
 /**
  * A subclass of DefaultTreeModel which is aware of the depth property of its
  * leaf nodes. This is used to hold and assemble data collections prior to
@@ -52,6 +54,10 @@ import javax.swing.tree.TreeNode;
  * 
  */
 public class PreRegistrationTreeModel extends DefaultTreeModel {
+	
+	private static Logger logger = Logger
+	.getLogger(PreRegistrationTreeModel.class);
+
 
 	private static final String INPUT = "Input";
 
