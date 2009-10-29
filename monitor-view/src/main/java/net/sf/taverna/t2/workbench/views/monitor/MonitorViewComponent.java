@@ -180,8 +180,10 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	}
 	
 	public void setProvenanceConnector(ProvenanceConnector connector) {
-		provenanceConnector = connector;
-		setSessionId(provenanceConnector.getSessionID());
+		if (connector != null) {
+			provenanceConnector = connector;
+			setSessionId(provenanceConnector.getSessionID());			
+		}
 	}
 
 	public Observer<MonitorMessage> setDataflow(Dataflow dataflow) {
