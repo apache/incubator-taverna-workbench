@@ -23,6 +23,8 @@ package net.sf.taverna.t2.renderers;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
@@ -36,6 +38,10 @@ import net.sf.taverna.t2.reference.T2Reference;
 public class TextXMLRenderer implements Renderer {
 
 	private Pattern pattern;
+
+	private float MEGABYTE = 1024 * 1024;
+
+	private int meg = 1048576;
 
 	public TextXMLRenderer() {
 		pattern = Pattern.compile(".*text/xml.*");
@@ -64,9 +70,28 @@ public class TextXMLRenderer implements Renderer {
 		try {
 			resolve = (String) referenceService.renderIdentifier(reference,
 					String.class, null);
+			byte[] bytes = resolve.getBytes();
+
+			if (bytes.length > MEGABYTE) {
+
+				int response = JOptionPane
+						.showConfirmDialog(
+								null,
+								"Result is approximately "
+										+ bytesToMeg(((byte[]) bytes).length)
+										+ " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
+								"Render this as xml?",
+								JOptionPane.YES_NO_OPTION);
+
+				if (response == JOptionPane.NO_OPTION) {
+					return new JTextArea(
+							"Rendering cancelled due to size of file. Try saving and viewing in an external application");
+				}
+			}
+
 		} catch (Exception e) {
 			// TODO not a string so throw something
-			return null;
+			return new JTextArea("Could not render due to " + e);
 		}
 		try {
 			return new XMLTree(resolve);
@@ -74,5 +99,17 @@ public class TextXMLRenderer implements Renderer {
 			// throw something?
 		}
 		return null;
+	}
+
+	/**
+	 * Work out size of file in megabytes to 1 decimal place
+	 * 
+	 * @param bytes
+	 * @return
+	 */
+	private int bytesToMeg(long bytes) {
+		float f = bytes / MEGABYTE;
+		Math.round(f);
+		return Math.round(f);
 	}
 }

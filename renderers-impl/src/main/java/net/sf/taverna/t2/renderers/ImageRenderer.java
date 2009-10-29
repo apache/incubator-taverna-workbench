@@ -26,17 +26,25 @@ import java.util.regex.Pattern;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 
 /**
+ * Renderer for mime type image/*
+ * 
  * @author Matthew Pocock
  * @author Ian Dunlop
  */
 public class ImageRenderer implements Renderer
 
 {
+	private float MEGABYTE = 1024*1024;
+	
+	private int meg = 1048576;
+	
 	private Pattern pattern;
 
 	public ImageRenderer() {
@@ -67,14 +75,29 @@ public class ImageRenderer implements Renderer
 			e.printStackTrace();
 		}
 		if (data instanceof byte[]) {
-			// JLabel or something else?
-			try {
-				ImageIcon theImage = new ImageIcon((byte[]) data);
-				return new JLabel(theImage);
-			} catch (Exception e) {
-				throw new RendererException("Unable to generate image", e);
+			//3 megabyte limit for jpeg viewing?
+			if (((byte[])data).length > (meg*4)) {
+				int response = JOptionPane
+				.showConfirmDialog(
+						null,
+						"Image is approximately "  + bytesToMeg(((byte[])data).length) + " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
+						"Render this image?",
+						JOptionPane.YES_NO_OPTION);
+				if (response == JOptionPane.YES_OPTION) {
+					try {
+						ImageIcon theImage = new ImageIcon((byte[]) data);
+						return new JLabel(theImage);
+					} catch (Exception e) {
+						throw new RendererException("Unable to generate image", e);
+					}
+				} else {
+					return new JTextArea("Rendering cancelled due to size of image. Try saving and viewing in an external application");
+				}
 			}
+			
+			// JLabel or something else?
 		} else if (data instanceof ImageProducer) {
+			//TODO really not sure what this is or how to find out how big it is
 			JLabel label = new JLabel();
 			java.awt.Image image = label.createImage((ImageProducer) data);
 			ImageIcon icon = new ImageIcon(image);
@@ -83,5 +106,16 @@ public class ImageRenderer implements Renderer
 		}
 
 		return null;
+	}
+	
+	/**
+	 * Work out size of file in megabytes to 1 decimal place
+	 * @param bytes
+	 * @return
+	 */
+		private int bytesToMeg(long bytes) {
+		float f = bytes / MEGABYTE;
+		Math.round(f);
+		return Math.round(f);
 	}
 }

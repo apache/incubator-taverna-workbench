@@ -24,17 +24,24 @@ import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 
 /**
- * 
+ * Renderer for mime type text/html
  * 
  * @author Ian Dunlop
  */
 public class TextHtmlRenderer implements Renderer {
+
 	private Pattern pattern;
+
+	private float MEGABYTE = 1024 * 1024;
+
+	private int meg = 1048576;
 
 	public TextHtmlRenderer() {
 		pattern = Pattern.compile(".*text/html.*");
@@ -63,6 +70,35 @@ public class TextHtmlRenderer implements Renderer {
 			String resolve = (String) referenceService.renderIdentifier(
 					reference, String.class, null);
 			JEditorPane editorPane = null;
+
+			byte[] bytes = resolve.getBytes();
+			if (bytes.length > meg) {
+				System.out.println("size is: " + bytes.length / MEGABYTE);
+				bytesToMeg(bytes.length);
+
+				// int response = JOptionPane
+				// .showConfirmDialog(
+				// null,
+				// "Result is approximately " + bytesToMeg(bytes.length) +
+				// " meg in size, there could be issues with rendering this inside Taverna\nDo you want to render the first part of the file?",
+				// "Render part of the file?",
+				// JOptionPane.YES_NO_OPTION);
+
+				int response = JOptionPane
+						.showConfirmDialog(
+								null,
+								"Result is approximately "
+										+ bytesToMeg(((byte[]) bytes).length)
+										+ " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
+								"Render this as text/html?",
+								JOptionPane.YES_NO_OPTION);
+
+				if (response == JOptionPane.NO_OPTION) {
+					return new JTextArea(
+							"Rendering cancelled due to size of file. Try saving and viewing in an external application");
+				}
+			}
+
 			try {
 				editorPane = new JEditorPane("text/html", "<pre>" + resolve
 						+ "</pre>");
@@ -74,5 +110,17 @@ public class TextHtmlRenderer implements Renderer {
 		} catch (Exception e) {
 			throw new RendererException("Could not resolve " + reference, e);
 		}
+	}
+
+	/**
+	 * Work out size of file in megabytes to 1 decimal place
+	 * 
+	 * @param bytes
+	 * @return
+	 */
+	private int bytesToMeg(long bytes) {
+		float f = bytes / MEGABYTE;
+		Math.round(f);
+		return Math.round(f);
 	}
 }

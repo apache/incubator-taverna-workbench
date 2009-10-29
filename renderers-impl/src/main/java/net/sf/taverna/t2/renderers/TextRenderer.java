@@ -24,18 +24,25 @@ import java.awt.Font;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 
 /**
- * 
+ * Renderer for mime type text/*
  * 
  * @author Ian Dunlop
  */
 public class TextRenderer implements Renderer {
+
 	private Pattern pattern;
+
+	private float MEGABYTE = 1024 * 1024;
+
+	private int meg = 1048576;
 
 	public TextRenderer() {
 		pattern = Pattern.compile(".*text/.*");
@@ -61,9 +68,45 @@ public class TextRenderer implements Renderer {
 		try {
 			resolve = (String) referenceService.renderIdentifier(reference,
 					String.class, null);
+			byte[] bytes = resolve.getBytes();
+			System.out.println("size is: " + bytes.length);
+			if (bytes.length > meg) {
+				System.out.println("size is: " + bytes.length / MEGABYTE);
+				bytesToMeg(bytes.length);
+
+				Object[] options = { "Continue rendering", "Render partial",
+						"Cancel" };
+//allow partial rendering of text files
+				int response = JOptionPane
+						.showOptionDialog(
+								null,
+								"Result is approximately "
+										+ bytesToMeg(bytes.length)
+										+ " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to cancel, render all of the result, or only the first part?",
+								"Rendering large result",
+								JOptionPane.YES_NO_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE, null, options,
+								options[2]);
+
+				if (response == JOptionPane.NO_OPTION) {
+					byte[] smallStringBytes = new byte[1048576];
+					for (int i = 0; i < meg; i++) {
+						smallStringBytes[i] = bytes[i];
+					}
+					theTextArea.setText(new String(smallStringBytes));
+					theTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+					return theTextArea;
+				} else if (response == JOptionPane.CANCEL_OPTION) {
+					theTextArea
+							.setText(new String(
+									"Rendering cancelled due to size of file. Try saving and viewing in an external application"));
+					return theTextArea;
+				}
+			}
 		} catch (Exception e1) {
-			// TODO not a string so break - should handle this better
-			return null;
+			// TODO not a string so inform the use about the problem - should
+			// handle this better
+			return new JTextArea("Could not render component due to " + e1);
 		}
 		try {
 			theTextArea.setText(resolve);
@@ -74,4 +117,16 @@ public class TextRenderer implements Renderer {
 
 		return theTextArea;
 	}
+
+	/**
+	 * Work out size of file in megabytes to 1 decimal place
+	 * @param bytes
+	 * @return
+	 */
+		private int bytesToMeg(long bytes) {
+		float f = bytes / MEGABYTE;
+		Math.round(f);
+		return Math.round(f);
+	}
+
 }

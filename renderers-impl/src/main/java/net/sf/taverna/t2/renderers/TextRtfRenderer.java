@@ -24,16 +24,22 @@ import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 
 /**
- * 
+ * Renderer for mime type text/rtf
  * 
  * @author Ian Dunlop
  */
 public class TextRtfRenderer implements Renderer {
+
+	private float MEGABYTE = 1024 * 1024;
+
+	private int meg = 1048576;
 
 	private Pattern pattern;
 
@@ -65,14 +71,41 @@ public class TextRtfRenderer implements Renderer {
 			String resolve = (String) referenceService.renderIdentifier(
 					reference, String.class, null);
 			try {
-				editorPane = new JEditorPane("text/html", resolve);
+				byte[] bytes = resolve.getBytes();
+				if (bytes.length > meg) {
+					int response = JOptionPane
+							.showConfirmDialog(
+									null,
+									"Result is approximately "
+											+ bytesToMeg(bytes.length)
+											+ " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
+									"Render as rtf?",
+									JOptionPane.YES_NO_OPTION);
+					if (response == JOptionPane.YES_OPTION) {
+						editorPane = new JEditorPane("text/html", resolve);
+					} else {
+						return new JTextArea(
+								"Rendering cancelled due to size of file.  Try saving and viewing in an external application");
+					}
+				}
 			} catch (Exception e) {
 				throw new RendererException(
 						"Unable to create text/rtf renderer", e);
 			}
+			editorPane = new JEditorPane("text/html", resolve);
 			return editorPane;
 		} catch (Exception e) {
 			throw new RendererException("Could not resolve " + reference, e);
 		}
+	}
+/**
+ * Work out size of file in megabytes to 1 decimal place
+ * @param bytes
+ * @return
+ */
+	private int bytesToMeg(long bytes) {
+		float f = bytes / MEGABYTE;
+		Math.round(f);
+		return Math.round(f);
 	}
 }
