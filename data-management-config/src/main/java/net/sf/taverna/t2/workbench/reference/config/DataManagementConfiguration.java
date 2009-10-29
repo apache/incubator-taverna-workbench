@@ -53,7 +53,7 @@ public class DataManagementConfiguration extends AbstractConfigurable {
     public static final String PASSWORD = "password";
     
     public static final String CONNECTOR_MYSQL="mysql";
-    public static final String CONNECTOR_DERBY="derby";
+    public static final String CONNECTOR_DERBY="Derby DB Connector";
     
     public static final String JNDI_NAME = "jdbc/taverna";
     
