@@ -105,7 +105,7 @@ public class OpenWorkflowAction extends AbstractAction {
 	}
 
 	/**
-	 * Open an array of worklow files.
+	 * Open an array of workflow files.
 	 * 
 	 * @param parentComponent
 	 *            Parent component for UI dialogues
