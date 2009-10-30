@@ -70,6 +70,12 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>net.sf.taverna.t2.activities</groupId>
+			<artifactId>all-activities</artifactId>
+			<version>${t2.activities.version}</version>
+		</dependency>
+		
+		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
 			<version>1.2.1</version>

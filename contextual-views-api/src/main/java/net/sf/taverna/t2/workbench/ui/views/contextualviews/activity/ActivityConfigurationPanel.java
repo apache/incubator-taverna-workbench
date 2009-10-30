@@ -5,10 +5,9 @@ package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 
 import javax.swing.JPanel;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
-
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+
+import com.thoughtworks.xstream.XStream;
 
 /**
  * @author alanrw
@@ -24,11 +23,13 @@ public abstract class ActivityConfigurationPanel<A extends Activity, B extends O
 
 	protected String convertBeanToString(Object bean) {
 		XStream xstream = new XStream();
+		xstream.setClassLoader(bean.getClass().getClassLoader());
 		return xstream.toXML(bean);
 	}
 	
 	protected Object cloneBean(Object bean) {
 		XStream xstream = new XStream();
+		xstream.setClassLoader(bean.getClass().getClassLoader());
 		return (xstream.fromXML(xstream.toXML(bean)));
 	}
 
