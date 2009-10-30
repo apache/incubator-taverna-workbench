@@ -29,5 +29,10 @@
 			<artifactId>ui</artifactId>
 			<version>${t2.lang.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>eu.medsea.mimeutil</groupId>
+			<artifactId>mime-util</artifactId>
+			<version>2.1.2</version>
+		</dependency>
 	</dependencies>
 </project>
