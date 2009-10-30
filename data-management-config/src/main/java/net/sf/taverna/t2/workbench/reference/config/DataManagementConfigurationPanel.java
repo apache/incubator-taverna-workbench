@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.reference.config;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -51,8 +52,23 @@ public class DataManagementConfigurationPanel extends JPanel {
 
 	JCheckBox enableProvenance;
 	JCheckBox enableInMemory;
+	private JButton helpButton;
+	private JButton resetButton;
+	private JButton applyButton;	
+	private DialogTextArea storageText;
+	private DialogTextArea enableInMemoryTextDisabled;
 
 	public DataManagementConfigurationPanel() {
+		
+		GridBagLayout gridbag = generateGridBagLayout();
+		
+		setLayout(gridbag);
+
+		resetFields();
+
+	}	
+
+	private GridBagLayout generateGridBagLayout() {
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -75,8 +91,18 @@ public class DataManagementConfigurationPanel extends JPanel {
 		enableInMemoryText.setOpaque(false);
 		enableInMemoryText.setFont(enableProvenanceText.getFont().deriveFont(
 				Font.PLAIN, 10));
+		
+		enableInMemoryTextDisabled = new DialogTextArea("It is not possible to modify the data storage settings whilst there are workflow runs in progress, or past workflow runs open");
+		enableInMemoryTextDisabled.setLineWrap(true);
+		enableInMemoryTextDisabled.setWrapStyleWord(true);
+		enableInMemoryTextDisabled.setEditable(false);
+		enableInMemoryTextDisabled.setOpaque(false);
+		enableInMemoryTextDisabled.setFont(enableProvenanceText.getFont().deriveFont(
+				Font.BOLD, 10));
+		enableInMemoryTextDisabled.setForeground(Color.RED);
+		enableInMemoryTextDisabled.setVisible(false);
 
-		DialogTextArea storageText = new DialogTextArea(
+		storageText = new DialogTextArea(
 				"Select how Taverna stores the data and provenance produced when a workflow is run. This includes workflow results and intermediate results.");
 		storageText.setLineWrap(true);
 		storageText.setWrapStyleWord(true);
@@ -94,7 +120,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		c.fill = GridBagConstraints.HORIZONTAL;
 		gridbag.setConstraints(storageText, c);
 		add(storageText);
-
+		
 		c.ipady = 0;
 		c.insets = new Insets(0, 0, 5, 0);
 		gridbag.setConstraints(enableProvenance, c);
@@ -111,6 +137,10 @@ public class DataManagementConfigurationPanel extends JPanel {
 		c.insets = new Insets(0, 20, 15, 20);
 		gridbag.setConstraints(enableInMemoryText, c);
 		add(enableInMemoryText);
+		
+		c.insets = new Insets(0, 20, 15, 20);
+		gridbag.setConstraints(enableInMemoryTextDisabled, c);
+		add(enableInMemoryTextDisabled);
 
 		c.insets = new Insets(0, 20, 15, 20);
 		gridbag.setConstraints(portPanel, c);
@@ -120,11 +150,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		c.insets = new Insets(0, 0, 5, 0);
 		gridbag.setConstraints(buttonPanel, c);
 		add(buttonPanel);
-		
-		setLayout(gridbag);
-
-		resetFields();
-
+		return gridbag;
 	}
 
 	private JComponent createStatusComponent() {
@@ -193,6 +219,23 @@ public class DataManagementConfigurationPanel extends JPanel {
 		else {
 			//TODO: handle when configured manually as MYSQL
 		}
+		boolean enabled=true;
+		if (workflowInstances()) {
+			enabled=false;
+			
+		}
+		else {
+			enabled=true;
+		}
+		enableInMemory.setEnabled(enabled);
+		enableInMemoryTextDisabled.setVisible(!enabled);
+				
+		
+	}
+	
+	private boolean workflowInstances() {
+		//TODO: need to determine the stored workflow runs, or current runs, from somewhere.
+		return false;
 	}
 
 	private void applySettings() {
@@ -206,10 +249,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 	private JPanel createButtonPanel() {
 		final JPanel panel = new JPanel();
 
-		/**
-		 * The helpButton shows help about the current component
-		 */
-		JButton helpButton = new JButton(new AbstractAction("Help") {
+		helpButton = new JButton(new AbstractAction("Help") {
 
 			public void actionPerformed(ActionEvent arg0) {
 				Helper.showHelp(panel);
@@ -217,11 +257,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		});
 		panel.add(helpButton);
 
-		/**
-		 * The resetButton changes the property values shown to those
-		 * corresponding to the configuration currently applied.
-		 */
-		JButton resetButton = new JButton(new AbstractAction("Reset") {
+		resetButton = new JButton(new AbstractAction("Reset") {
 
 			public void actionPerformed(ActionEvent arg0) {
 				resetFields();
@@ -229,11 +265,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		});
 		panel.add(resetButton);
 
-		/**
-		 * The applyButton applies the shown field values to the
-		 * {@link HttpProxyConfiguration} and saves them for future.
-		 */
-		JButton applyButton = new JButton(new AbstractAction("Apply") {
+		applyButton = new JButton(new AbstractAction("Apply") {
 
 			public void actionPerformed(ActionEvent arg0) {
 				applySettings();
