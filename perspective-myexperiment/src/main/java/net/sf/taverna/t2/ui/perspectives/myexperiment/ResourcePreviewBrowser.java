@@ -33,9 +33,7 @@ import org.apache.log4j.Logger;
 import edu.stanford.ejalbert.BrowserLauncher;
 
 /**
- * A class to show modal dialog boxes with previews of resources.
- * 
- * @author Sergejs Aleksejevs
+ * @author Sergejs Aleksejevs, Emmanuel Tagarira
  */
 public class ResourcePreviewBrowser extends JFrame implements ActionListener, HyperlinkListener, ComponentListener {
   // CONSTANTS
@@ -47,14 +45,9 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
   // navigation data
   private int iCurrentHistoryIdx; // index within the current history
   private ArrayList<String> alCurrentHistory; // current history - e.g. if one
-  // opens Page1, then Page2; goes
-  // back and opens Page3 - current
-  // preview would hold only [Page1,
-  // Page3]
+  // opens Page1, then Page2; goes back and opens Page3 - current preview would hold only [Page1, Page3]
   private ArrayList<Resource> alFullHistory; // all resources that were
-  // previewed since application
-  // started (will be used by
-  // ResourcePreviewHistoryBrowser)
+  // previewed since application started (will be used by ResourcePreviewHistoryBrowser)
 
   // components for accessing application's main elements
   private MainComponent pluginMainComponent;
@@ -74,7 +67,8 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
   private JButton bOpenInMyExp;
   private JButton bDownload;
   private JButton bOpenInTaverna;
-  private JButton bImportIntoTaverna;
+  private JButton bImportIntoTavernaAndMerge;
+  private JButton bImportIntoTavernaAndNest;
   private JButton bAddComment;
   private JButton bAddRemoveFavourite;
   private JButton bUpload;
@@ -218,7 +212,8 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	bOpenInMyExp.setEnabled(false);
 	bDownload.setEnabled(false);
 	bOpenInTaverna.setEnabled(false);
-	bImportIntoTaverna.setEnabled(false);
+	bImportIntoTavernaAndMerge.setEnabled(false);
+	bImportIntoTavernaAndNest.setEnabled(false);
 	bAddRemoveFavourite.setEnabled(false);
 	bAddComment.setEnabled(false);
 	bUpload.setEnabled(false);
@@ -332,9 +327,13 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	bOpenInTaverna.setEnabled(false);
 	bOpenInTaverna.addActionListener(this);
 
-	bImportIntoTaverna = new JButton(WorkbenchIcons.importIcon);
-	bImportIntoTaverna.setEnabled(false);
-	bImportIntoTaverna.addActionListener(this);
+	bImportIntoTavernaAndMerge = new JButton();
+	bImportIntoTavernaAndMerge.setEnabled(false);
+	bImportIntoTavernaAndMerge.addActionListener(this);
+
+	bImportIntoTavernaAndNest = new JButton();
+	bImportIntoTavernaAndNest.setEnabled(false);
+	bImportIntoTavernaAndNest.addActionListener(this);
 
 	bAddRemoveFavourite = new JButton(iconAddFavourite);
 	bAddRemoveFavourite.setEnabled(false);
@@ -350,7 +349,8 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	jpActionButtons.add(bEditMetadata);
 	jpActionButtons.add(bUpload);
 	jpActionButtons.add(bDownload);
-	jpActionButtons.add(bImportIntoTaverna);
+	jpActionButtons.add(bImportIntoTavernaAndMerge);
+	jpActionButtons.add(bImportIntoTavernaAndNest);
 	jpActionButtons.add(bOpenInTaverna);
 	jpActionButtons.add(bAddRemoveFavourite);
 	jpActionButtons.add(bAddComment);
@@ -423,7 +423,11 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 
 	// "Import into Taverna" - only for Taverna workflows and when download is
 	// allowed for current user (these checks are carried out inside the action)
-	this.bImportIntoTaverna.setAction(pluginMainComponent.new ImportIntoTavernaAction(r, false));
+
+	// import and merge
+	this.bImportIntoTavernaAndMerge.setAction(pluginMainComponent.new ImportIntoTavernaAction(r, false)); // false => NEST (ie DO NOT MERGE)
+	// import and nest
+	this.bImportIntoTavernaAndNest.setAction(pluginMainComponent.new ImportIntoTavernaAction(r, true)); // true => MERGE
 
 	// "Add to Favourites" - for all types, but only for logged in users
 	strTooltip = "It is currently not possible to add " + strResourceType

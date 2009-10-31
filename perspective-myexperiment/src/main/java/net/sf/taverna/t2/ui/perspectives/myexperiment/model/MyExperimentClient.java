@@ -1,3 +1,23 @@
+/*******************************************************************************
+ * Copyright (C) 2009 The University of Manchester
+ * 
+ * Modifications to the initial code base are copyright of their respective
+ * authors, or their employers as appropriate.
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.myexperiment.model;
 
 import java.io.*;
@@ -29,7 +49,7 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
 /**
- * @author Sergejs Aleksejevs
+ * @author Sergejs Aleksejevs, Emmanuel Tagarira, Jiten Bhagat
  */
 public class MyExperimentClient {
   // CONSTANTS
@@ -62,6 +82,8 @@ public class MyExperimentClient {
 
   private final String DO_PUT = "_DO_UPDATE_SIGNAL_";
 
+  public static boolean prefsChangedSinceLastStart = false;
+
   // universal date formatter
   private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
   private static final DateFormat SHORT_DATE_FORMATTER = new SimpleDateFormat("HH:mm 'on' dd/MM/yyyy");
@@ -83,7 +105,6 @@ public class MyExperimentClient {
 
   // default constructor
   public MyExperimentClient() {
-
   }
 
   public MyExperimentClient(Logger logger) {
@@ -92,8 +113,7 @@ public class MyExperimentClient {
 	this.logger = logger;
 
 	// === Load INI settings ===
-	// but loading settings from INI file, determine what folder is to be used
-	// for INI file
+	// but loading settings from INI file, determine what folder is to be used for INI file
 	if (Util.isRunningInTaverna()) {
 	  // running inside Taverna - use its folder to place the config file
 	  this.fIniFileDir = new java.io.File(ApplicationRuntime.getInstance().getApplicationHomeDir(), "conf");
@@ -107,8 +127,7 @@ public class MyExperimentClient {
 	this.iniSettings = new Properties();
 	this.loadSettings();
 
-	// === Check if defaults should be applied to override not sensible settings
-	// from INI file ===
+	// === Check if defaults should be applied to override not sensible settings from INI file ===
 	// verify that myExperiment BASE URL was read - use default otherwise
 	if (BASE_URL == null || BASE_URL.length() == 0)
 	  BASE_URL = DEFAULT_BASE_URL;
@@ -291,12 +310,9 @@ public class MyExperimentClient {
 
 	// verify outcomes
 	if (doc == null) {
-	  // login credentials were invalid - revert to not logged in state and
-	  // disable autologin function;
-	  // stored credentials will be kept to allow the user to verify and edit
-	  // them
-	  // (login screen will be displayed as usual + an error message box will
-	  // appear)
+	  // login credentials were invalid - revert to not logged in state and disable autologin function;
+	  // stored credentials will be kept to allow the user to verify and edit them
+	  // (login screen will be displayed as usual + an error message box will appear)
 	  this.LOGGED_IN = false;
 	  this.AUTH_STRING = "";
 	  this.iniSettings.put(MyExperimentClient.INI_AUTO_LOGIN, new Boolean(false).toString());
@@ -304,16 +320,13 @@ public class MyExperimentClient {
 	  javax.swing.JOptionPane.showMessageDialog(null, "Your login details that were stored in the configuration file "
 		  + "appear to be incorrect.\nAutologin feature has been disabled - please check your details and login manually.");
 	} else {
-	  // login credentials were verified successfully;
-	  // load current user
+	  // login credentials were verified successfully; load current user
 	  String strCurrentUserURI = doc.getRootElement().getAttributeValue("uri");
 	  try {
 		this.current_user = this.fetchCurrentUser(strCurrentUserURI);
 		this.logger.debug("Logged in to myExperiment successfully with credentials that were loaded from INI file.");
 	  } catch (Exception e) {
-		// this is highly unlikely because the login credentials were validated
-		// successfully
-		// just before this
+		// this is highly unlikely because the login credentials were validated successfully just before this
 		this.logger.error("Couldn't fetch user data from myExperiment ("
 			+ strCurrentUserURI
 			+ ") while making login from stored credentials. Exception:\n" + e);
@@ -322,12 +335,9 @@ public class MyExperimentClient {
   }
 
   // Simulates a "logout" action. Logging in and out in the plugin is only an
-  // abstraction created
-  // for user convenience; it is a purely virtual concept, because the
-  // myExperiment API is
-  // completely stateless - hence, logging out simply consists of "forgetting"
-  // the authentication
-  // details and updating the state.
+  // abstraction created for user convenience; it is a purely virtual concept, because the
+  // myExperiment API is completely stateless - hence, logging out simply consists of "forgetting"
+  // the authentication details and updating the state.
   public void doLogout() throws Exception {
 	LOGGED_IN = false;
 	AUTH_STRING = "";
@@ -387,8 +397,7 @@ public class MyExperimentClient {
 	urlConn.setRequestProperty("Content-Type", "application/xml");
 	urlConn.setRequestProperty("User-Agent", PLUGIN_USER_AGENT);
 	urlConn.setRequestProperty("Authorization", "Basic " + AUTH_STRING);
-	// the last line wouldn't be executed if the user wasn't logged in (see
-	// above code), so safe to run
+	// the last line wouldn't be executed if the user wasn't logged in (see above code), so safe to run
 
 	// prepare and PUT/POST XML data
 	String strPOSTContent = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"
@@ -560,19 +569,15 @@ public class MyExperimentClient {
 		  strURI += "&elements=" + Group.getRequiredAPIElements(iRequestType);
 		  break;
 		case Resource.TAG:
-		  // this should set no elements, because default is desired at the
-		  // moment -
-		  // but even having "&elements=" with and empty string at the end will
-		  // still
+		  // this should set no elements, because default is desired at the moment -
+		  // but even having "&elements=" with and empty string at the end will still
 		  // retrieve default fields from the API
 		  strURI += "&elements=" + Tag.getRequiredAPIElements(iRequestType);
 		  break;
 		case Resource.COMMENT:
 		  // this should set no elements, because default is desired at the
-		  // moment -
-		  // but even having "&elements=" with and empty string at the end will
-		  // still
-		  // retrieve default fields from the API
+		  // moment - but even having "&elements=" with and empty string at the end will
+		  // still retrieve default fields from the API
 		  strURI += "&elements=" + Comment.getRequiredAPIElements(iRequestType);
 		  break;
 	  }
@@ -715,8 +720,7 @@ public class MyExperimentClient {
 	  }
 
 	  // a little preprocessing before tag selection - if "size" is set to 0, -1
-	  // or any negative number,
-	  // assume the request is for ALL user tags
+	  // or any negative number, assume the request is for ALL user tags
 	  if (size <= 0)
 		size = tcCloud.getTags().size();
 
@@ -996,7 +1000,7 @@ public class MyExperimentClient {
 	  else {
 		strWorkflowData += "<permissions><permission>"
 			+ "<category>public</category>";
-		if (sharing.contains("view") || sharing.contains("download")) 
+		if (sharing.contains("view") || sharing.contains("download"))
 		  strWorkflowData += "<privilege type=\"view\" />";
 		if (sharing.contains("download"))
 		  strWorkflowData += "<privilege type=\"download\" />";

@@ -41,6 +41,7 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.importworkflow.DataflowMerger;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.myexperiment.config.MyExperimentConfigurationPanel;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -55,12 +56,11 @@ import org.apache.log4j.Logger;
 
 import edu.stanford.ejalbert.BrowserLauncher;
 
-/*
- * @author Sergejs Aleksejevs
+/**
+ * @author Sergejs Aleksejevs, Emmanuel Tagarira, Jiten Bhagat
  */
 public final class MainComponent extends JPanel implements UIComponentSPI, ChangeListener {
-  // myExperiment client, logger and the stylesheet will be made available
-  // throughout the whole perspective
+  // myExperiment client, logger and the stylesheet will be made available throughout the whole perspective
   private MyExperimentClient myExperimentClient;
   private final Logger logger = Logger.getLogger(MainComponent.class);
   private StyleSheet css;
@@ -115,11 +115,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 
 	// determine which shutdown operations to use
 	if (Util.isRunningInTaverna()) {
-	  // register the current instance of main component with the myExperiment
-	  // perspective;
-	  // this will be used later on when shutdown operation needs to be
-	  // performed - e.g.
-	  // this aids ShutdownSPI to find the running instance of the plugin
+	  // register the current instance of main component with the myExperiment perspective; this will be used later on when shutdown operation needs to be performed - e.g. this aids ShutdownSPI to find the running instance of the plugin
 	  for (PerspectiveSPI perspective : PerspectiveRegistry.getInstance().getPerspectives()) {
 		if (perspective.getText().equals(MyExperimentPerspective.PERSPECTIVE_NAME)) {
 		  ((MyExperimentPerspective) perspective).setMainComponent(this);
@@ -227,7 +223,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	// other components immediately!)
 	this.pStatusBar = new PluginStatusBar(this, myExperimentClient, logger);
 	this.pMyStuffContainer = new MyStuffTabContentPanel(this, myExperimentClient, logger);
-	this.pExampleWorkflows = new ExampleWorkflowsPanel(this, myExperimentClient, logger);
+	//	this.pExampleWorkflows = new ExampleWorkflowsPanel(this, myExperimentClient, logger);
 	this.pTagBrowser = new TagBrowserTabContentPanel(this, myExperimentClient, logger);
 	this.pSearchTab = new SearchTabContentPanel(this, myExperimentClient, logger);
 	this.pHistoryBrowserTab = new HistoryBrowserTabContentPanel(this, myExperimentClient, logger);
@@ -235,7 +231,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	// add the required ones into the main tabs
 	this.tpMainTabs = new JTabbedPane();
 	this.tpMainTabs.add("My Stuff", this.pMyStuffContainer);
-	this.tpMainTabs.add("Starter Pack", this.pExampleWorkflows);
+	//	this.tpMainTabs.add("Starter Pack", this.pExampleWorkflows);
 	this.tpMainTabs.add("Tag Browser", this.pTagBrowser);
 	this.tpMainTabs.add("Search", this.pSearchTab);
 	this.tpMainTabs.add("Local History", this.pHistoryBrowserTab);
@@ -250,16 +246,14 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	this.tpMainTabs.addChangeListener(this);
 
 	// initialise the preferences dialog
-	// NB! this has to be done after all tabs were created
-	// (Preview Browser is used as an owner of the preferences dialog because
-	// Preview
-	// Browser is the only JFrame in the application - in Java 1.5 it is only
-	// possible
-	// to set an icon to a JFrame and all 'children' dialog of it get the same
-	// icon -
-	// so essentially, this is only to set the myExperiment logo as an icon of
-	// preferences
-	// dialog.)
+	/*
+	 * NB! this has to be done after all tabs were created (Preview Browser is
+	 * used as an owner of the preferences dialog because Preview Browser is the
+	 * only JFrame in the application - in Java 1.5 it is only possible to set
+	 * an icon to a JFrame and all 'children' dialog of it get the same icon -
+	 * so essentially, this is only to set the myExperiment logo as an icon of
+	 * preferences dialog.)
+	 */
 	this.jdPreferences = new PluginPreferencesDialog(this.getPreviewBrowser(), this, myExperimentClient, logger);
   }
 
@@ -296,7 +290,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	  tpMainTabs.setSelectedIndex(Integer.parseInt(myExperimentClient.getSettings().getProperty(MyExperimentClient.INI_DEFAULT_ANONYMOUS_TAB)));
 	}
 
-	this.pExampleWorkflows.refresh();
+	//	this.pExampleWorkflows.refresh();
 	this.pTagBrowser.refresh();
   }
 
@@ -305,7 +299,11 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	if (e.getSource().equals(this.tpMainTabs)) {
 	  this.getStatusBar().displayStatus(this.getMainTabs().getSelectedComponent().getClass().getName());
 	}
+  }
 
+  public MyExperimentConfigurationPanel getMyExperimentConfigurationPanel() {
+	MyExperimentConfigurationPanel configPanel = new net.sf.taverna.t2.workbench.myexperiment.config.MyExperimentConfigurationPanel(this, this.myExperimentClient, this.logger);
+	return configPanel;
   }
 
   // ************** ACTIONS ***************
@@ -454,8 +452,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 			// update opened items history making sure that:
 			// - there's only one occurrence of this item in the history;
 			// - if this item was in the history before, it is moved to the
-			// 'top' now;
-			// - predefined history size is not exceeded
+			// 'top' now; - predefined history size is not exceeded
 			getHistoryBrowser().getOpenedItemsHistoryList().remove(resource);
 			getHistoryBrowser().getOpenedItemsHistoryList().add(resource);
 			if (getHistoryBrowser().getOpenedItemsHistoryList().size() > HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY_LENGTH) {
@@ -474,33 +471,26 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 
 		}
 	  }.start();
+
+	  setVisible(false);
 	}
   }
 
   public class ImportIntoTavernaAction extends AbstractAction {
-	private int workflowId = 0;
 	private Resource resource;
+	private boolean importAsNesting;
 
-	public ImportIntoTavernaAction(int workflowId) {
-	  putValue(SMALL_ICON, WorkbenchIcons.importIcon);
-	  putValue(NAME, "Import into current workflow");
-	  putValue(SHORT_DESCRIPTION, "Download and import this workflow into the current workflow in Design mode");
-
-	  this.workflowId = workflowId;
-	}
-
-	public ImportIntoTavernaAction(Resource r) {
-	  this(r, true);
-	}
-
-	public ImportIntoTavernaAction(Resource r, boolean bShowButtonLabel) {
+	public ImportIntoTavernaAction(Resource r, boolean importAndNest) {
 	  this.resource = r;
+	  this.importAsNesting = importAndNest;
+
 	  String strResourceType = resource.getItemTypeName().toLowerCase();
 
-	  putValue(SMALL_ICON, WorkbenchIcons.importIcon);
-
-	  if (bShowButtonLabel)
-		putValue(NAME, "Import into current workflow");
+	  if (importAndNest) {
+		putValue(SMALL_ICON, WorkbenchIcons.plusIcon);
+	  } else {
+		putValue(SMALL_ICON, WorkbenchIcons.importIcon);
+	  }
 
 	  boolean bLoadingAllowed = false;
 	  String strTooltip = "Loading " + strResourceType
@@ -510,7 +500,10 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 		  if (resource.isDownloadAllowed()) {
 			// Taverna workflow and download allowed - can load in Taverna
 			bLoadingAllowed = true;
-			strTooltip = "Download and import this workflow into the currently opened workflow in Design mode of Taverna Workbench";
+			if (importAndNest)
+			  strTooltip = "Add this workflow as a NESTING into the currently opened workflow in Design mode of Taverna Workbench";
+			else
+			  strTooltip = "Import and MERGE this workflow into the currently opened workflow in Design mode of Taverna Workbench";
 		  } else {
 			strTooltip = "You don't have permissions to download this workflow, and thus to load into Taverna Workbench";
 		  }
@@ -524,36 +517,6 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	}
 
 	public void actionPerformed(ActionEvent actionEvent) {
-//	  javax.swing.JOptionPane.showMessageDialog(null, "should import workflow: id = "
-//		  + workflowId);
-
-	  /*
-	   * try { URL url = client.getWorkflowDownloadURL(this.workflowId);
-	   * 
-	   * logger.debug("Downloading and importing workflow from URL: " +
-	   * url.toString());
-	   * 
-	   * ImportWorkflowFromFileAction action = new
-	   * ImportWorkflowFromFileAction(MainComponent.this);
-	   * 
-	   * HttpURLConnection conn = setupConnection(url);
-	   * 
-	   * if (conn != null) { action.openFromURL(conn);
-	   * 
-	   * // Switch to the Design perspective PerspectiveSPI perspective = null;
-	   * List<PerspectiveSPI> perspectives =
-	   * PerspectiveRegistry.getInstance().getPerspectives(); for
-	   * (PerspectiveSPI p : perspectives) { if
-	   * (p.getText().equalsIgnoreCase("design")) { perspective = p; } } if
-	   * (perspective != null) {
-	   * ModelMap.getInstance().setModel(ModelMap.CURRENT_PERSPECTIVE,
-	   * perspective); } }
-	   * 
-	   * } catch (Exception e) {logger.error(
-	   * "Failed to open connection to URL to download and import workflow, from myExperiment."
-	   * , e); }
-	   */
-
 	  // if the preview browser window is opened, hide it beneath the main window
 	  if (getPreviewBrowser().isActive())
 		getPreviewBrowser().toBack();
@@ -563,43 +526,50 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	  logger.debug("Downloading and opening workflow from URI: "
 		  + resource.getURI());
 
-	  new Thread("Download and open workflow") {
-		public void run() {
-		  try {
-			Workflow w = myExperimentClient.fetchWorkflowBinary(resource.getURI());
-			ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
+	  if (this.importAsNesting) {
+		javax.swing.JOptionPane.showMessageDialog(null, "needs implementing");
+		return;
+	  } else {
+		new Thread("Download and open workflow") {
+		  public void run() {
+			try {
+			  Workflow w = myExperimentClient.fetchWorkflowBinary(resource.getURI());
+			  ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
 
-			FileManager fileManager = FileManager.getInstance();
-			FileType fileTypeType = (w.isTaverna1Workflow() ? new ScuflFileType() : new T2FlowFileType());
-			Dataflow currentDataflow = fileManager.getCurrentDataflow();
-			DataflowMerger dataflowMerger = new DataflowMerger(currentDataflow);
-			dataflowMerger.merge(fileManager.openDataflow(fileTypeType, workflowDataInputStream));
+			  FileManager fileManager = FileManager.getInstance();
+			  FileType fileTypeType = (w.isTaverna1Workflow() ? new ScuflFileType() : new T2FlowFileType());
+			  Dataflow currentDataflow = fileManager.getCurrentDataflow();
+			  Dataflow toBeImported = fileManager.openDataflow(fileTypeType, workflowDataInputStream);
+			  DataflowMerger dataflowMerger = new DataflowMerger(currentDataflow);
+			  dataflowMerger.merge(toBeImported);
+			  fileManager.closeDataflow(toBeImported, false);
 
-			getStatusBar().setStatus(strCallerTabClassName, null);
+			  getStatusBar().setStatus(strCallerTabClassName, null);
 
-			// update opened items history making sure that:
-			// - there's only one occurrence of this item in the history;
-			// - if this item was in the history before, it is moved to the
-			// 'top' now;
-			// - predefined history size is not exceeded
-			getHistoryBrowser().getOpenedItemsHistoryList().remove(resource);
-			getHistoryBrowser().getOpenedItemsHistoryList().add(resource);
-			if (getHistoryBrowser().getOpenedItemsHistoryList().size() > HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY_LENGTH) {
-			  getHistoryBrowser().getOpenedItemsHistoryList().remove(0);
+			  // update opened items history making sure that:
+			  // - there's only one occurrence of this item in the history;
+			  // - if this item was in the history before, it is moved to the
+			  // 'top' now; - predefined history size is not exceeded
+			  getHistoryBrowser().getOpenedItemsHistoryList().remove(resource);
+			  getHistoryBrowser().getOpenedItemsHistoryList().add(resource);
+			  if (getHistoryBrowser().getOpenedItemsHistoryList().size() > HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY_LENGTH) {
+				getHistoryBrowser().getOpenedItemsHistoryList().remove(0);
+			  }
+
+			  // now update the opened items history panel in 'History' tab
+			  if (getHistoryBrowser() != null) {
+				getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY);
+			  }
+			} catch (Exception e) {
+			  javax.swing.JOptionPane.showMessageDialog(null, "An error has occurred while trying to load a workflow from myExperiment.\n\n"
+				  + e, "Error", JOptionPane.ERROR_MESSAGE);
+			  logger.error("Failed to open connection to URL to download and open workflow, from myExperiment.", e);
 			}
-
-			// now update the opened items history panel in 'History' tab
-			if (getHistoryBrowser() != null) {
-			  getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY);
-			}
-		  } catch (Exception e) {
-			javax.swing.JOptionPane.showMessageDialog(null, "An error has occurred while trying to load a workflow from myExperiment.\n\n"
-				+ e, "Error", JOptionPane.ERROR_MESSAGE);
-			logger.error("Failed to open connection to URL to download and open workflow, from myExperiment.", e);
 		  }
+		}.start();
 
-		}
-	  }.start();
+		setVisible(false);
+	  }
 	}
   }
 

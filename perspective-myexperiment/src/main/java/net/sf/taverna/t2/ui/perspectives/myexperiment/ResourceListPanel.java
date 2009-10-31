@@ -1,3 +1,23 @@
+/*******************************************************************************
+ * Copyright (C) 2009 The University of Manchester
+ * 
+ * Modifications to the initial code base are copyright of their respective
+ * authors, or their employers as appropriate.
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.BorderLayout;
@@ -20,12 +40,10 @@ import org.apache.log4j.Logger;
 
 import edu.stanford.ejalbert.BrowserLauncher;
 
-
-
 // import edu.stanford.ejalbert.BrowserLauncher;
 
-/*
- * @author Sergejs Aleksejevs (based on original class by Jiten Bhagat)
+/**
+ * @author Sergejs Aleksejevs, Emmanuel Tagarira, Jiten Bhagat
  */
 public class ResourceListPanel extends JPanel implements HyperlinkListener {
   // CONSTANTS
@@ -50,8 +68,7 @@ public class ResourceListPanel extends JPanel implements HyperlinkListener {
   // it's not of full size
   private boolean bFullSizeItemsList = true;
 
-  public ResourceListPanel(MainComponent component, MyExperimentClient client,
-	  Logger logger) {
+  public ResourceListPanel(MainComponent component, MyExperimentClient client, Logger logger) {
 	super();
 
 	// set main variables to ensure access to myExperiment, logger and the
@@ -122,17 +139,12 @@ public class ResourceListPanel extends JPanel implements HyperlinkListener {
 			  gbConstraints.weighty = 1.0;
 
 			res = this.listItems.get(i);
-			this.listPanel.add(res.createListViewPanel(bFullSizeItemsList,
-				pluginMainComponent, this, logger), gbConstraints);
-			logger
-				.debug("Added entry in resource list panel for the resource (Type: "
-					+ res.getItemTypeName() + ", URI: " + res.getURI() + ")");
+			this.listPanel.add(res.createListViewPanel(bFullSizeItemsList, pluginMainComponent, this, logger), gbConstraints);
+			logger.debug("Added entry in resource list panel for the resource (Type: "
+				+ res.getItemTypeName() + ", URI: " + res.getURI() + ")");
 		  } catch (Exception e) {
-			logger
-				.error(
-					"Failed to add item entry to ResourceListPanel (Item Type : "
-						+ res.getItemTypeName() + ", URI: " + res.getURI()
-						+ ")", e);
+			logger.error("Failed to add item entry to ResourceListPanel (Item Type : "
+				+ res.getItemTypeName() + ", URI: " + res.getURI() + ")", e);
 		  }
 		}
 	  } else {

@@ -22,8 +22,6 @@ import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.SearchEngine;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Tag;
 
-
-
 /*
  * @author Jiten Bhagat
  */
@@ -53,14 +51,14 @@ public class TagBrowserTabContentPanel extends JPanel implements ActionListener 
 
   // Search components
   private SearchEngine searchEngine; // The search engine for executing keyword
-									 // query searches
+  // query searches
   private Vector<Long> vCurrentSearchThreadID; // This will keep ID of the
-											   // current search thread (there
-											   // will only be one such thread)
+
+  // current search thread (there
+  // will only be one such thread)
 
   @SuppressWarnings("unchecked")
-  public TagBrowserTabContentPanel(MainComponent component,
-	  MyExperimentClient client, Logger logger) {
+  public TagBrowserTabContentPanel(MainComponent component, MyExperimentClient client, Logger logger) {
 	super();
 
 	// set main variables to ensure access to myExperiment, logger and the
@@ -73,8 +71,7 @@ public class TagBrowserTabContentPanel extends JPanel implements ActionListener 
 	this.strCurrentTagCommand = null;
 
 	// initialise the tag search history
-	String strTagSearchHistory = (String) myExperimentClient.getSettings().get(
-		MyExperimentClient.INI_TAG_SEARCH_HISTORY);
+	String strTagSearchHistory = (String) myExperimentClient.getSettings().get(MyExperimentClient.INI_TAG_SEARCH_HISTORY);
 	if (strTagSearchHistory != null) {
 	  Object oTagSearchHistory = Base64.decodeToObject(strTagSearchHistory);
 	  this.lTagSearchHistory = (ArrayList<Tag>) oTagSearchHistory;
@@ -87,10 +84,9 @@ public class TagBrowserTabContentPanel extends JPanel implements ActionListener 
 	// initialise the search engine
 	vCurrentSearchThreadID = new Vector<Long>(1);
 	vCurrentSearchThreadID.add(null); // this is just a placeholder, so that
-									  // it's possible to update this value
-									  // instead of adding new ones later
-	this.searchEngine = new SearchEngine(vCurrentSearchThreadID, true,
-		jpTagSearchResults, pluginMainComponent, myExperimentClient, logger);
+	// it's possible to update this value
+	// instead of adding new ones later
+	this.searchEngine = new SearchEngine(vCurrentSearchThreadID, true, jpTagSearchResults, pluginMainComponent, myExperimentClient, logger);
 
 	SwingUtilities.invokeLater(new Runnable() {
 	  public void run() {
@@ -106,9 +102,7 @@ public class TagBrowserTabContentPanel extends JPanel implements ActionListener 
 	// This panel will be used when the user is not logged in - i.e. when can't
 	// show "My Tags";
 	// log-in button will be shown instead
-	this.bLoginToSeeMyTags = new JButton(
-		"Login to see your tags",
-		new ImageIcon(MyExperimentPerspective.getLocalResourceURL("login_icon")));
+	this.bLoginToSeeMyTags = new JButton("Login to see your tags", new ImageIcon(MyExperimentPerspective.getLocalResourceURL("login_icon")));
 	this.bLoginToSeeMyTags.addActionListener(this);
 
 	this.jpLoginToSeeMyTags = new JPanel();
@@ -116,22 +110,16 @@ public class TagBrowserTabContentPanel extends JPanel implements ActionListener 
 	this.jpLoginToSeeMyTags.add(this.bLoginToSeeMyTags);
 
 	// Create the tag clouds
-	this.jpMyTags = new TagCloudPanel("My Tags",
-		TagCloudPanel.TAGCLOUD_TYPE_USER, this, pluginMainComponent,
-		myExperimentClient, logger);
-	this.jpAllTags = new TagCloudPanel("All Tags",
-		TagCloudPanel.TAGCLOUD_TYPE_GENERAL, this, pluginMainComponent,
-		myExperimentClient, logger);
+	this.jpMyTags = new TagCloudPanel("My Tags", TagCloudPanel.TAGCLOUD_TYPE_USER, this, pluginMainComponent, myExperimentClient, logger);
+	this.jpAllTags = new TagCloudPanel("All Tags", TagCloudPanel.TAGCLOUD_TYPE_GENERAL, this, pluginMainComponent, myExperimentClient, logger);
 
 	// add the two tag clouds to the left-hand side sidebar
 	this.spTagCloudSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-	this.spTagCloudSplitPane.setTopComponent(this.myExperimentClient
-		.isLoggedIn() ? jpMyTags : jpLoginToSeeMyTags);
+	this.spTagCloudSplitPane.setTopComponent(this.myExperimentClient.isLoggedIn() ? jpMyTags : jpLoginToSeeMyTags);
 	this.spTagCloudSplitPane.setBottomComponent(jpAllTags);
 
 	// create panel for tag search results
-	this.jpTagSearchResults = new SearchResultsPanel(this, pluginMainComponent,
-		myExperimentClient, logger);
+	this.jpTagSearchResults = new SearchResultsPanel(this, pluginMainComponent, myExperimentClient, logger);
 
 	this.spMainSplitPane = new JSplitPane();
 	this.spMainSplitPane.setLeftComponent(spTagCloudSplitPane);
@@ -167,8 +155,7 @@ public class TagBrowserTabContentPanel extends JPanel implements ActionListener 
   // (if tag searches have already been done before)
   public void rerunLastTagSearch() {
 	if (this.strCurrentTagCommand != null) {
-	  this.actionPerformed(new ActionEvent(this.jpAllTags, 0,
-		  this.strCurrentTagCommand));
+	  this.actionPerformed(new ActionEvent(this.jpAllTags, 0, this.strCurrentTagCommand));
 	}
   }
 
@@ -198,8 +185,7 @@ public class TagBrowserTabContentPanel extends JPanel implements ActionListener 
 	  this.strCurrentTagCommand = null;
 	  vCurrentSearchThreadID.set(0, null);
 	  this.getTagSearchResultPanel().clear();
-	  this.getTagSearchResultPanel().setStatus(
-		  SearchResultsPanel.NO_SEARCHES_STATUS);
+	  this.getTagSearchResultPanel().setStatus(SearchResultsPanel.NO_SEARCHES_STATUS);
 	  this.getTagSearchResultPanel().bClear.setEnabled(false);
 	  this.getTagSearchResultPanel().bRefresh.setEnabled(false);
 	} else if (e.getSource() instanceof JClickableLabel
@@ -225,8 +211,7 @@ public class TagBrowserTabContentPanel extends JPanel implements ActionListener 
 
 		// now update the tag search history panel in 'History' tab
 		if (this.pluginMainComponent.getHistoryBrowser() != null) {
-		  this.pluginMainComponent.getHistoryBrowser()
-			  .refreshTagSearchHistory();
+		  this.pluginMainComponent.getHistoryBrowser().refreshTagSearchHistory();
 		}
 	  }
 	} else if (e.getSource().equals(this.bLoginToSeeMyTags)) {
@@ -234,8 +219,7 @@ public class TagBrowserTabContentPanel extends JPanel implements ActionListener 
 	  this.pluginMainComponent.getMyStuffTab().cTabContentComponentToSwitchToAfterLogin = this;
 
 	  // switch to login tab
-	  this.pluginMainComponent.getMainTabs().setSelectedComponent(
-		  this.pluginMainComponent.getMyStuffTab());
+	  this.pluginMainComponent.getMainTabs().setSelectedComponent(this.pluginMainComponent.getMyStuffTab());
 	}
   }
 

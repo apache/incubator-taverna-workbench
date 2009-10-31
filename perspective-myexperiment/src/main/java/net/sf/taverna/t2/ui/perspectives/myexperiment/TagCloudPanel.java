@@ -1,3 +1,23 @@
+/*******************************************************************************
+ * Copyright (C) 2009 The University of Manchester
+ * 
+ * Modifications to the initial code base are copyright of their respective
+ * authors, or their employers as appropriate.
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.BorderLayout;
@@ -29,10 +49,10 @@ import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Tag;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.TagCloud;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
-
-
-public class TagCloudPanel extends JPanel implements ChangeListener,
-	ItemListener, ActionListener, HyperlinkListener {
+/**
+ * @author Sergejs Aleksejevs, Jiten Bhagat
+ */
+public class TagCloudPanel extends JPanel implements ChangeListener, ItemListener, ActionListener, HyperlinkListener {
   // CONSTANTS
   private static final int TAGCLOUD_MAX_FONTSIZE = 36;
   private static final int TAGCLOUD_MIN_FONTSIZE = 12;
@@ -60,9 +80,7 @@ public class TagCloudPanel extends JPanel implements ChangeListener,
   private TagCloud tcData = new TagCloud();
   private boolean bUserTagCloudSliderValueNeverSet = true;
 
-  public TagCloudPanel(String title, int iTagCloudType,
-	  ActionListener clickHandler, MainComponent component,
-	  MyExperimentClient client, Logger logger) {
+  public TagCloudPanel(String title, int iTagCloudType, ActionListener clickHandler, MainComponent component, MyExperimentClient client, Logger logger) {
 	super();
 
 	// set parameters and the main variables to ensure access to myExperiment,
@@ -85,25 +103,21 @@ public class TagCloudPanel extends JPanel implements ChangeListener,
 	// (all controls will be created anyway, but if that's a resource
 	// preview tag cloud, make sure that these controls are not displayed)
 	JPanel jpCloudControlsPanel = new JPanel();
-	jpCloudControlsPanel.setLayout(new BoxLayout(jpCloudControlsPanel,
-		BoxLayout.LINE_AXIS));
-	this.jsCloudSizeSlider = new JSlider(1, TAGCLOUD_DEFAULT_MAX_SIZE,
-		TAGCLOUD_DEFAULT_DISPLAY_SIZE);
+	jpCloudControlsPanel.setLayout(new BoxLayout(jpCloudControlsPanel, BoxLayout.LINE_AXIS));
+	this.jsCloudSizeSlider = new JSlider(1, TAGCLOUD_DEFAULT_MAX_SIZE, TAGCLOUD_DEFAULT_DISPLAY_SIZE);
 	this.cbShowAllTags = new JCheckBox("All tags", false);
 	this.bRefresh = new JButton("Refresh", WorkbenchIcons.refreshIcon);
 
 	if (this.iType != TagCloudPanel.TAGCLOUD_TYPE_RESOURCE_PREVIEW) {
 	  this.jsCloudSizeSlider.addChangeListener(this);
-	  this.jsCloudSizeSlider
-		  .setToolTipText("Drag the slider to select how big the tag cloud should be, or check the \"All tags\" box to get the full tag cloud.");
+	  this.jsCloudSizeSlider.setToolTipText("Drag the slider to select how big the tag cloud should be, or check the \"All tags\" box to get the full tag cloud.");
 	  jpCloudControlsPanel.add(this.jsCloudSizeSlider);
 
 	  this.cbShowAllTags.addItemListener(this);
 	  jpCloudControlsPanel.add(this.cbShowAllTags);
 
 	  this.bRefresh.addActionListener(this);
-	  this.bRefresh
-		  .setToolTipText("Click this button to refresh the Tag Cloud");
+	  this.bRefresh.setToolTipText("Click this button to refresh the Tag Cloud");
 	  jpCloudControlsPanel.add(this.bRefresh);
 	}
 
@@ -119,9 +133,7 @@ public class TagCloudPanel extends JPanel implements ChangeListener,
 	this.tpTagCloudBody.setContentType("text/html");
 	this.tpTagCloudBody.addHyperlinkListener(this);
 
-	JScrollPane spTagCloudBody = new JScrollPane(this.tpTagCloudBody,
-		JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-		JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+	JScrollPane spTagCloudBody = new JScrollPane(this.tpTagCloudBody, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 	spTagCloudBody.setBorder(BorderFactory.createEmptyBorder());
 	spTagCloudBody.setOpaque(true);
 
@@ -138,8 +150,7 @@ public class TagCloudPanel extends JPanel implements ChangeListener,
 	  this.add(lCloudTitle, BorderLayout.NORTH);
 	}
 	this.add(jpTagCloudContentWithControls, BorderLayout.CENTER);
-	this.setBorder(BorderFactory.createCompoundBorder(BorderFactory
-		.createEmptyBorder(2, 2, 2, 2), BorderFactory.createEtchedBorder()));
+	this.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2), BorderFactory.createEtchedBorder()));
   }
 
   public void refresh() {
@@ -166,14 +177,12 @@ public class TagCloudPanel extends JPanel implements ChangeListener,
 			  break;
 
 			case TagCloudPanel.TAGCLOUD_TYPE_USER:
-			  tcData = myExperimentClient.getUserTagCloud(myExperimentClient
-				  .getCurrentUser(), size);
+			  tcData = myExperimentClient.getUserTagCloud(myExperimentClient.getCurrentUser(), size);
 			  break;
 
 			case TagCloudPanel.TAGCLOUD_TYPE_RESOURCE_PREVIEW:
 			  // fetch tag counts for tags that are already pre-set
-			  myExperimentClient.convertTagListIntoTagCloudData(tcData
-				  .getTags());
+			  myExperimentClient.convertTagListIntoTagCloudData(tcData.getTags());
 			  break;
 
 			default:
@@ -201,8 +210,7 @@ public class TagCloudPanel extends JPanel implements ChangeListener,
 	  this.jsCloudSizeSlider.removeChangeListener(this);
 	  if (this.iType == TAGCLOUD_TYPE_USER) {
 		jsCloudSizeSlider.setMinimum(1);
-		jsCloudSizeSlider.setMaximum(myExperimentClient.getCurrentUser()
-			.getTags().size());
+		jsCloudSizeSlider.setMaximum(myExperimentClient.getCurrentUser().getTags().size());
 		if (bUserTagCloudSliderValueNeverSet) {
 		  // this is the first load of the cloud, show all user tags
 		  jsCloudSizeSlider.setValue(jsCloudSizeSlider.getMaximum());
@@ -262,8 +270,7 @@ public class TagCloudPanel extends JPanel implements ChangeListener,
 		content.append("</div>");
 	  } else {
 		content.append("<br>");
-		content
-			.append("<span style='color: gray; font-weight: italic;'>&nbsp;&nbsp;No tags to display</span>");
+		content.append("<span style='color: gray; font-weight: italic;'>&nbsp;&nbsp;No tags to display</span>");
 	  }
 
 	  HTMLEditorKit kit = new HTMLEditorKit();
@@ -271,8 +278,7 @@ public class TagCloudPanel extends JPanel implements ChangeListener,
 
 	  kit.setStyleSheet(this.pluginMainComponent.getStyleSheet());
 
-	  doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content
-		  .toString());
+	  doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 
 	  this.tpTagCloudBody.setEditorKit(kit);
 	  this.tpTagCloudBody.setDocument(doc);
@@ -333,8 +339,7 @@ public class TagCloudPanel extends JPanel implements ChangeListener,
 		&& e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
 	  // one of the tags was clicked, but click processing is off-loaded to
 	  // 'clickHandler'
-	  this.clickHandler.actionPerformed(new ActionEvent(this, (this.getClass()
-		  .getName() + e.getDescription()).hashCode(), e.getDescription()));
+	  this.clickHandler.actionPerformed(new ActionEvent(this, (this.getClass().getName() + e.getDescription()).hashCode(), e.getDescription()));
 	}
   }
 }

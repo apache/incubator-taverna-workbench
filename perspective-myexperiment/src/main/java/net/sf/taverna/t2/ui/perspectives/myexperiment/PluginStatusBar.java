@@ -1,3 +1,23 @@
+/*******************************************************************************
+ * Copyright (C) 2009 The University of Manchester
+ * 
+ * Modifications to the initial code base are copyright of their respective
+ * authors, or their employers as appropriate.
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.BorderLayout;
@@ -17,10 +37,8 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
 
-
-
-/*
- * @author Sergejs Aleksejevs
+/**
+ * @author Sergejs Aleksejevs, Emmanuel Tagarira
  */
 public class PluginStatusBar extends JPanel implements ActionListener {
   // CONSTANTS
@@ -34,7 +52,7 @@ public class PluginStatusBar extends JPanel implements ActionListener {
   private JLabel lSpinnerIcon;
   private JLabel lStatusMsg;
   private JLabel lCurrentUser;
-  private JButton bPreferences;
+  //  private JButton bPreferences;
 
   // collections to keep the statuses for different tabs
   ArrayList<String> alTabClassNames;
@@ -44,8 +62,7 @@ public class PluginStatusBar extends JPanel implements ActionListener {
   ImageIcon iconSpinner;
   ImageIcon iconSpinnerStopped;
 
-  public PluginStatusBar(MainComponent component, MyExperimentClient client,
-	  Logger logger) {
+  public PluginStatusBar(MainComponent component, MyExperimentClient client, Logger logger) {
 	super();
 
 	// set main variables to ensure access to myExperiment, logger and the
@@ -59,31 +76,27 @@ public class PluginStatusBar extends JPanel implements ActionListener {
 	alTabStatuses = new ArrayList<String>();
 
 	// load icons
-	this.iconSpinner = new ImageIcon(MyExperimentPerspective
-		.getLocalResourceURL("spinner"));
-	this.iconSpinnerStopped = new ImageIcon(MyExperimentPerspective
-		.getLocalResourceURL("spinner_stopped"));
+	this.iconSpinner = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner"));
+	this.iconSpinnerStopped = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner_stopped"));
 
 	// prepare main panel for the status bar
 	this.setLayout(new BorderLayout());
 	this.setBorder(BorderFactory.createEmptyBorder(1, 4, 1, 1)); // this will
-																 // add a bit
-																 // more spacing
-																 // on the left
-																 // - before the
-																 // status
-																 // message
+	// add a bit
+	// more spacing
+	// on the left
+	// - before the
+	// status
+	// message
 
 	// prepare status labels
 	this.lSpinnerIcon = new JLabel("", iconSpinnerStopped, SwingConstants.LEFT);
 	this.lStatusMsg = new JLabel("Ready");
-	this.lCurrentUser = new JLabel("Please log in to access your profile",
-		SwingConstants.CENTER);
+	this.lCurrentUser = new JLabel("Please log in to access your profile", SwingConstants.CENTER);
 
 	// 'Plugin Preferences' button
-	this.bPreferences = new JButton("Plugin Preferences",
-		WorkbenchIcons.configureIcon);
-	this.bPreferences.addActionListener(this);
+	//	this.bPreferences = new JButton("Plugin Preferences", WorkbenchIcons.configureIcon);
+	//	this.bPreferences.addActionListener(this);
 
 	// put everything together
 	JPanel pWestStatusBarSection = new JPanel();
@@ -91,8 +104,8 @@ public class PluginStatusBar extends JPanel implements ActionListener {
 	pWestStatusBarSection.add(lStatusMsg);
 
 	this.add(pWestStatusBarSection, BorderLayout.WEST);
-	this.add(this.lCurrentUser, BorderLayout.CENTER);
-	this.add(this.bPreferences, BorderLayout.EAST);
+	this.add(this.lCurrentUser, BorderLayout.EAST);
+	//	this.add(this.bPreferences, BorderLayout.EAST);
   }
 
   // updates the current user name in the middle of the status bar
@@ -155,8 +168,7 @@ public class PluginStatusBar extends JPanel implements ActionListener {
   // indicates that some action is currently in progress
   // (action will be displayed by lStatusMsg label)
   public void startSpinner(boolean bStart) {
-	this.lSpinnerIcon.setIcon(bStart ? this.iconSpinner
-		: this.iconSpinnerStopped);
+	this.lSpinnerIcon.setIcon(bStart ? this.iconSpinner : this.iconSpinnerStopped);
   }
 
   // Determine whether the tab in the parameter is currently active in the main
@@ -164,8 +176,7 @@ public class PluginStatusBar extends JPanel implements ActionListener {
   private boolean isTabActive(String strTabClassName) {
 	// get the current active tab (this is a normal class name of the main tab
 	// content component)
-	String strCurSelectedTabClassName = this.pluginMainComponent.getMainTabs()
-		.getSelectedComponent().getClass().getName();
+	String strCurSelectedTabClassName = this.pluginMainComponent.getMainTabs().getSelectedComponent().getClass().getName();
 
 	// get the real class name to match
 	String strBaseClassName = Util.getBaseClassName(strTabClassName);
@@ -175,10 +186,10 @@ public class PluginStatusBar extends JPanel implements ActionListener {
   }
 
   public void actionPerformed(ActionEvent e) {
-	if (e.getSource().equals(this.bPreferences)) {
-	  // open preferences dialog box
-	  pluginMainComponent.getPreferencesDialog().setVisible(true);
-	}
+	//	if (e.getSource().equals(this.bPreferences)) {
+	//	  // open preferences dialog box
+	//	  pluginMainComponent.getPreferencesDialog().setVisible(true);
+	//	}
   }
 
 }

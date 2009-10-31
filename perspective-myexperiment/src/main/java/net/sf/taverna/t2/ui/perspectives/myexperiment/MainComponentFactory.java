@@ -20,6 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
+/**
+ * @author Sergejs Aleksejevs, Jiten Bhagat
+ */
 
 import javax.swing.ImageIcon;
 

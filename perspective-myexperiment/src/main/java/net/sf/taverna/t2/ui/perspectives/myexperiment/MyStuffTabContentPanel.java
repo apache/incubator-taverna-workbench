@@ -1,3 +1,23 @@
+/*******************************************************************************
+ * Copyright (C) 2009 The University of Manchester
+ * 
+ * Modifications to the initial code base are copyright of their respective
+ * authors, or their employers as appropriate.
+ * 
+ * This program is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.BorderLayout;
@@ -34,10 +54,8 @@ import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import org.apache.log4j.Logger;
 
-
-
-/*
- * @author Sergejs Aleksejevs
+/**
+ * @author Sergejs Aleksejevs, Emmanuel Tagarira, Jiten Bhagat
  */
 public class MyStuffTabContentPanel extends JPanel implements ActionListener, KeyListener, FocusListener {
   private MainComponent pluginMainComponent;
@@ -88,20 +106,9 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	  JScrollPane spSidebar = new JScrollPane(jpSidebarContainer);
 	  spSidebar.getVerticalScrollBar().setUnitIncrement(ResourcePreviewBrowser.PREFERRED_SCROLL);
 	  spSidebar.setMinimumSize(new Dimension(jpSidebar.getMyProfileBox().getPreferredSize().width + 30, 0)); // +30
-	  // -->
-	  // 10
-	  // for
-	  // padding
-	  // and
-	  // 10
-	  // for
-	  // vertical
-	  // scroll
-	  // bar
-	  // +
-	  // 10
-	  // extra
-	  // current user is logged in to myExperiment, display all personal data
+	  // --> 10 for padding and 10 for vertical scroll bar + 10 extra current
+	  // user is logged in to myExperiment, display all personal data
+
 	  spMyStuff = new JSplitPane();
 	  spMyStuff.setLeftComponent(spSidebar);
 	  spMyStuff.setRightComponent(new MyStuffContributionsPanel(pluginMainComponent, myExperimentClient, logger));
@@ -172,7 +179,8 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 
 	  // put everything together (welcome banner + login box)
 	  this.setLayout(new BorderLayout());
-	  this.add(new ShadedLabel("Welcome to the myExperiment plugin. Please note that you can still use other tabs even " + "if you don't have a user profile yet!", ShadedLabel.BLUE), BorderLayout.NORTH);
+	  this.add(new ShadedLabel("Welcome to the myExperiment plugin. Please note that you can still use other tabs even "
+		  + "if you don't have a user profile yet!", ShadedLabel.BLUE), BorderLayout.NORTH);
 	  this.add(jpLoginBoxContainer, BorderLayout.CENTER);
 
 	  // this will ensure that login is selected and focused
@@ -239,7 +247,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	cbRememberMe.setBorder(BorderFactory.createEmptyBorder()); // makes sure
 	// that this is aligned with text fields above
 	cbRememberMe.addKeyListener(this);
-	
+
 	jclForgetMe = new JClickableLabel("(Forget me)", "forget_me", this, null, SwingConstants.LEFT, "Click to remove your login details from the system");
 	jclForgetMe.setBorder(BorderFactory.createEmptyBorder(0, 6, 0, 4));
 
@@ -369,7 +377,8 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	} else if (e.getSource().equals(jclForgetMe)) {
 	  // request to "forget" login credentials
 	  // (do so after user confirmation)
-	  if (JOptionPane.showConfirmDialog(null, "This will remove a local record of your login credentials.\nYou will have to login " + "manually next time when you choose to do so.\n\nDo you want to proceed?", "myExperiment Plugin - Confirmation Required", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+	  if (JOptionPane.showConfirmDialog(null, "This will remove a local record of your login credentials.\nYou will have to login "
+		  + "manually next time when you choose to do so.\n\nDo you want to proceed?", "myExperiment Plugin - Confirmation Required", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 		// remove the values from the form
 		this.tfLogin.setText("");
 		this.pfPassword.setText("");
@@ -408,7 +417,10 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 		// ENTER pressed inside 'login' field - shift focus onto the 'password'
 		// field
 		this.pfPassword.requestFocusInWindow();
-	  } else if (e.getSource().equals(this.pfPassword) || e.getSource().equals(this.cbRememberMe) || e.getSource().equals(this.cbLoginAutomatically) || e.getSource().equals(this.bLogin)) {
+	  } else if (e.getSource().equals(this.pfPassword)
+		  || e.getSource().equals(this.cbRememberMe)
+		  || e.getSource().equals(this.cbLoginAutomatically)
+		  || e.getSource().equals(this.bLogin)) {
 		// ENTER pressed when focus was on the login button, one of checkboxes
 		// or the password field - do logging in
 		actionPerformed(new ActionEvent(this.bLogin, 0, ""));
@@ -426,7 +438,8 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 
   // *** Callbacks for FocusListener interface ***
   public void focusGained(FocusEvent e) {
-	if (e.getSource().equals(this.tfLogin) || e.getSource().equals(this.pfPassword)) {
+	if (e.getSource().equals(this.tfLogin)
+		|| e.getSource().equals(this.pfPassword)) {
 	  ((JTextField) e.getSource()).selectAll();
 	}
   }

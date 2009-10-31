@@ -5,7 +5,7 @@ package net.sf.taverna.t2.ui.perspectives.myexperiment.model;
 import java.io.Serializable;
 
 /*
- * @author Jiten Bhagat
+ * @author Jiten Bhagat, Emmanuel Tagarira
  */
 public class License implements Serializable {
   private String type;
@@ -14,8 +14,8 @@ public class License implements Serializable {
 
   private String link;
 
-  public static String[] SUPPORTED_TYPES = {"by-nd", "by", "by-sa", "by-nc-nd", "by-nc", "by-nc-sa"};
-  
+  public static String[] SUPPORTED_TYPES = { "by-nd", "by", "by-sa", "by-nc-nd", "by-nc", "by-nc-sa" };
+
   private License() {
 
   }
