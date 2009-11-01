@@ -61,6 +61,7 @@ import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.ui.perspectives.CustomPerspective;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.ShutdownSPI;
+import net.sf.taverna.t2.workbench.StartupSPI;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
@@ -232,6 +233,10 @@ public class Workbench extends JFrame {
 	}
 
 	protected void initialize() {
+		// Call the startup hooks
+		if (!callStartupHooks()){
+			System.exit(0);
+		}
 		makeGUI();
 		fileManager.newDataflow();
 		editManager.addObserver(DataflowEditsListener.getInstance());
@@ -247,6 +252,30 @@ public class Workbench extends JFrame {
 		fileManager.addObserver(new SwitchToWorkflowPerspective());
 	}
 
+	/**
+	 * Calls the startup methods on all the {@link StartupSPI}s. If any startup
+	 * method returns <code>false</code> (meaning that the Workbench will not 
+	 * function at all) then this method returns <code>false</code>.
+	 */
+	private boolean callStartupHooks() {
+		boolean startup = true;
+		SPIRegistry<StartupSPI> registry = new SPIRegistry<StartupSPI>(
+				StartupSPI.class);
+		List<StartupSPI> instances = registry.getInstances();
+		Collections.sort(instances, new Comparator<StartupSPI>() {
+			public int compare(StartupSPI o1, StartupSPI o2) {
+				return o2.positionHint() - o1.positionHint();
+			}
+		});
+		for (StartupSPI startupSPI : instances) {
+			if (!startupSPI.startup()) {
+				startup = false;
+				break;
+			}
+		}
+		return startup;
+	}
+	
 	public void exit() {
 		// Save the perspectives to XML files
 		try {
