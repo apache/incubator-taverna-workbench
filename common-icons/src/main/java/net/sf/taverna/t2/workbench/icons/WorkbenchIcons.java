@@ -103,7 +103,7 @@ public class WorkbenchIcons {
 	public static ImageIcon redoIcon;
 	public static ImageIcon upArrowIcon;
 	public static ImageIcon downArrowIcon;
-
+	public static ImageIcon tavernaCogs64x64Icon;
 
 	static {
 		// Load the image files found in this package into the class.
@@ -227,6 +227,8 @@ public class WorkbenchIcons {
 					.getResource("generic/up-arrow.png"));
 			downArrowIcon = new ImageIcon(c
 					.getResource("generic/down-arrow.png"));
+			tavernaCogs64x64Icon = new ImageIcon(c
+					.getResource("generic/taverna_cogs_64x64.png"));
 		} catch (Exception ex) {
 			ex.printStackTrace();
 			System.out.println(ex.toString());
