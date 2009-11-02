@@ -101,10 +101,10 @@ public class UserRegistrationForm extends JDialog{
 
 	private static String[] industryTypes = { "",
 			"Academia - Life Sciences", "Academia - Social Sciences",
-			"Academia - Physical Sciences",
-			"Academia - Environmental Sciences", "Industry - Biotechnology",
-			"Industry - Pharmaceutical", "Industry - Chemical",
-			"Industry - Engineering", "Healthcare Services",
+			"Academia - Physical Sciences", "Academia - Environmental Sciences",
+			"Academia - Other", "Industry - Biotechnology",
+			"Industry - Pharmaceutical", "Industry - Engineering", 
+			"Industry - Other", "Healthcare Services",
 			"Goverment and Public Sector", "Other" };
 	
 	private Logger logger = Logger.getLogger(UserRegistrationForm.class);
@@ -131,6 +131,11 @@ public class UserRegistrationForm extends JDialog{
 		initComponents();
 	}
 
+	public static void main(String[] args){
+		UserRegistrationForm form = new UserRegistrationForm();
+		form.setVisible(true);
+	}
+	
 	private void initComponents() {
 		setUndecorated(true);
 
