@@ -221,14 +221,11 @@ public class DefaultGraphEventManager implements GraphEventManager {
 			if (menu != null) {
 				final Point p = new Point(screenX, screenY);
 				SwingUtilities.convertPointFromScreen(p, component);
-				// Sometimes we get an empty menu and you have to roll the mouse
-				// over in order for menu items to appear so let's try and remove the
-				// SwingUtilities.invokeLater and see if it helps
-				//SwingUtilities.invokeLater(new Runnable() {
-		          //  public void run(){
+				SwingUtilities.invokeLater(new Runnable() {
+		            public void run(){
 		            	menu.show(component, p.x, p.y);
-		          //  }
-		        //});
+		            }
+		        });
 			}
 		}
 	}
