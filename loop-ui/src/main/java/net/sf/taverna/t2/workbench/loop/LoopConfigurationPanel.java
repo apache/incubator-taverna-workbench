@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.loop;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -84,6 +85,7 @@ public class LoopConfigurationPanel extends JPanel {
 
 	protected Loop loopLayer;
 	private Object Comparison;
+	private Activity<?> originalCondition = null;
 
 	public LoopConfigurationPanel(Processor processor, Loop loopLayer) {
 		this.processor = processor;
@@ -94,7 +96,7 @@ public class LoopConfigurationPanel extends JPanel {
 
 	public LoopConfiguration getConfiguration() {
 		uiToConfig();
-		return configuration;
+		return configuration.clone();
 	}
 
 	private static Logger logger = Logger
@@ -143,7 +145,7 @@ public class LoopConfigurationPanel extends JPanel {
 
 	public class ResetAction extends AbstractAction {
 		public ResetAction() {
-			super("Reset");
+			super("Clear");
 		}
 
 		public void actionPerformed(ActionEvent e) {
@@ -154,40 +156,11 @@ public class LoopConfigurationPanel extends JPanel {
 
 	private final class CustomizeAction extends AbstractAction {
 
-		private final class BeanshellClosed implements ActionListener {
-			private final BeanshellActivity beanshellActivity;
-			private final BeanshellConfigView beanshellConfigView;
-			private final JDialog dialog;
+		private final JButton customizeButton;
 
-			private BeanshellClosed(BeanshellActivity beanshellActivity,
-					BeanshellConfigView beanshellConfigView, JDialog dialog) {
-				this.beanshellActivity = beanshellActivity;
-				this.beanshellConfigView = beanshellConfigView;
-				this.dialog = dialog;
-			}
-
-			public void actionPerformed(ActionEvent e) {
-				if (beanshellConfigView.isConfigurationChanged()) {
-					try {
-						beanshellActivity.configure(beanshellConfigView
-								.getConfiguration());
-						configuration.setCondition(beanshellActivity);
-						configuration.getProperties().put(
-								ActivityGenerator.COMPARISON,
-								ActivityGenerator.CUSTOM_COMPARISON);
-					} catch (ActivityConfigurationException e1) {
-						logger
-								.warn("Can't configure conditional beanshell",
-										e1);
-					}
-				}
-				dialog.setVisible(false);
-				configToUi();
-			}
-		}
-
-		public CustomizeAction() {
+		public CustomizeAction(JButton customizeButton) {
 			super("Customize");
+			this.customizeButton = customizeButton;
 		}
 
 		private DataflowSelectionManager dataflowSelectionManager = DataflowSelectionManager
@@ -222,11 +195,50 @@ public class LoopConfigurationPanel extends JPanel {
 			final BeanshellConfigView beanshellConfigView = new BeanshellConfigView(
 					beanshellActivity);
 			final JDialog dialog = new JDialog(owner, true);
+			dialog.setLayout(new BorderLayout());
 			Helper.setKeyCatcher(dialog);
-			dialog.add(beanshellConfigView);
-			dialog.setSize(500, 600);
-			beanshellConfigView.setButtonClickedListener(new BeanshellClosed(
-					beanshellActivity, beanshellConfigView, dialog));
+			dialog.add(beanshellConfigView, BorderLayout.NORTH);
+			dialog.setSize(600, 600);
+			JPanel buttonPanel = new JPanel();
+
+			buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+
+			JButton applyButton = new JButton(new AbstractAction() {
+
+				public void actionPerformed(ActionEvent e) {
+					if (beanshellConfigView.isConfigurationChanged()) {
+						try {
+							beanshellConfigView.noteConfiguration();
+							beanshellActivity.configure(beanshellConfigView
+									.getConfiguration());
+							configuration.setCondition(beanshellActivity);
+							configuration.getProperties().put(
+									ActivityGenerator.COMPARISON,
+									ActivityGenerator.CUSTOM_COMPARISON);
+						} catch (ActivityConfigurationException e1) {
+							logger
+									.warn("Can't configure conditional beanshell",
+											e1);
+						}
+					}
+					dialog.setVisible(false);
+					configToUi();					
+				}
+
+			});
+			applyButton.setText("Apply");
+
+			buttonPanel.add(applyButton);
+			JButton closeButton = new JButton(new AbstractAction() {
+
+				public void actionPerformed(ActionEvent e) {
+					dialog.setVisible(false);
+				}
+			});
+			closeButton.setText("Cancel");
+			buttonPanel.add(closeButton);
+			dialog.add(buttonPanel, BorderLayout.SOUTH);
+			dialog.setLocationRelativeTo(customizeButton);
 			dialog.setVisible(true);
 
 		}
@@ -322,7 +334,9 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.gridy++;
 		gbc.gridwidth = 1;
 		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-		customPanel.add(new JButton(new CustomizeAction()), gbc);
+		JButton customizeButton = new JButton();
+		customizeButton.setAction(new CustomizeAction(customizeButton));
+		customPanel.add(customizeButton, gbc);
 
 		gbc.gridx++;
 		customPanel.add(new JButton(new ResetAction()), gbc);
@@ -392,7 +406,9 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.gridy++;
 		gbc.gridwidth = 2;
 		gbc.anchor = GridBagConstraints.LAST_LINE_END;
-		configPanel.add(new JButton(new CustomizeAction()), gbc);
+		JButton customizeButton = new JButton();
+		customizeButton.setAction(new CustomizeAction(customizeButton));
+		configPanel.add(customizeButton, gbc);
 
 		// filler
 		gbc.gridy++;

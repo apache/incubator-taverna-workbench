@@ -201,6 +201,7 @@ public class LoopContextualView extends ContextualView {
 
 			dialog.add(buttonPanel, BorderLayout.SOUTH);
 			dialog.setSize(400, 400);
+			dialog.setLocationRelativeTo(null);
 			dialog.setVisible(true);
 		}
 
