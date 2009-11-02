@@ -53,8 +53,7 @@ import org.jdom.input.SAXBuilder;
  */
 public class MyExperimentClient {
   // CONSTANTS
-  public static final String DEFAULT_BASE_URL = "http://sandbox.myexperiment.org";
-  //  public static final String DEFAULT_BASE_URL = "http://www.myexperiment.org";
+  public static final String DEFAULT_BASE_URL = "http://www.myexperiment.org";
   public static final String PLUGIN_USER_AGENT = "Taverna2-myExperiment-plugin/"
 	  + MyExperimentPerspective.PLUGIN_VERSION
 	  + " Java/"
@@ -82,7 +81,7 @@ public class MyExperimentClient {
 
   private final String DO_PUT = "_DO_UPDATE_SIGNAL_";
 
-  public static boolean prefsChangedSinceLastStart = false;
+  public static boolean baseChangedSinceLastStart = false;
 
   // universal date formatter
   private static final DateFormat DATE_FORMATTER = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy");
@@ -317,8 +316,10 @@ public class MyExperimentClient {
 	  this.AUTH_STRING = "";
 	  this.iniSettings.put(MyExperimentClient.INI_AUTO_LOGIN, new Boolean(false).toString());
 
-	  javax.swing.JOptionPane.showMessageDialog(null, "Your login details that were stored in the configuration file "
-		  + "appear to be incorrect.\nAutologin feature has been disabled - please check your details and login manually.");
+	  javax.swing.JOptionPane.showMessageDialog(null, "Your myExperiment login details that were stored\n"
+		  + "in the configuration file  appear to be incorrect.\n"
+		  + "The auto-login feature has been disabled - please\n"
+		  + " check your details and log in manually.");
 	} else {
 	  // login credentials were verified successfully; load current user
 	  String strCurrentUserURI = doc.getRootElement().getAttributeValue("uri");

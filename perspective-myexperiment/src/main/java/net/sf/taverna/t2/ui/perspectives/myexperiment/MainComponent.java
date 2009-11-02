@@ -77,14 +77,33 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
   private PluginStatusBar pStatusBar;
   private PluginPreferencesDialog jdPreferences;
 
+  public static MainComponent MAIN_COMPONENT;
+  public static MyExperimentClient MY_EXPERIMENT_CLIENT;
+  public static Logger LOGGER;
+
   public MainComponent() {
 	super();
-
+	  
 	// create and initialise myExperiment client
 	try {
 	  this.myExperimentClient = new MyExperimentClient(logger);
 	} catch (Exception e) {
 	  this.logger.error("Couldn't initialise myExperiment client");
+	}
+
+	if (MAIN_COMPONENT == null) {
+	  MainComponent temp = this;
+	  MAIN_COMPONENT = temp;
+	}
+	
+	if (MY_EXPERIMENT_CLIENT==null) {
+	  MyExperimentClient temp = this.myExperimentClient;
+	  MY_EXPERIMENT_CLIENT = temp;
+	}
+	  
+	if (LOGGER==null) {
+	  Logger temp = this.logger;
+	  LOGGER = temp;
 	}
 
 	// components to generate and display previews
@@ -302,8 +321,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
   }
 
   public MyExperimentConfigurationPanel getMyExperimentConfigurationPanel() {
-	MyExperimentConfigurationPanel configPanel = new net.sf.taverna.t2.workbench.myexperiment.config.MyExperimentConfigurationPanel(this, this.myExperimentClient, this.logger);
-	return configPanel;
+	return new MyExperimentConfigurationPanel(MAIN_COMPONENT, this.myExperimentClient, this.logger);
   }
 
   // ************** ACTIONS ***************
@@ -451,8 +469,8 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 
 			// update opened items history making sure that:
 			// - there's only one occurrence of this item in the history;
-			// - if this item was in the history before, it is moved to the
-			// 'top' now; - predefined history size is not exceeded
+			// - if this item was in the history before, it is moved to the 'top' now; 
+			// - predefined history size is not exceeded
 			getHistoryBrowser().getOpenedItemsHistoryList().remove(resource);
 			getHistoryBrowser().getOpenedItemsHistoryList().add(resource);
 			if (getHistoryBrowser().getOpenedItemsHistoryList().size() > HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY_LENGTH) {

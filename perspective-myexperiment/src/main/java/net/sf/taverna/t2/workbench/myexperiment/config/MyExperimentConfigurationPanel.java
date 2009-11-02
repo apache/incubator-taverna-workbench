@@ -25,14 +25,11 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -43,15 +40,13 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponent;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponentShutdownHook;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.MyExperimentPerspective;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
 
 /**
- * @author Emmanuel Tagarira, Alan Williams
+ * @author Emmanuel Tagarira, Sergejs Aleksejevs, Alan Williams
  */
 public class MyExperimentConfigurationPanel extends JPanel implements ActionListener {
   // CONSTANTS
@@ -74,22 +69,23 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
   private Component[] pluginTabComponents;
   private ArrayList<String> alPluginTabComponentNames;
 
-  public MyExperimentConfigurationPanel(MainComponent component, MyExperimentClient client, Logger logger) {
+  public MyExperimentConfigurationPanel(MainComponent component, MyExperimentClient client, Logger incomingLogger) {
 	super();
 
 	// set main variables to ensure access to myExperiment, logger and the parent component
-	this.pluginMainComponent = component;
-	this.myExperimentClient = client;
-	this.logger = logger;
+	pluginMainComponent = component;
+	myExperimentClient = client;
+	logger = incomingLogger;
 
 	// prepare plugin tab names to display in the UI afterwards
 	this.alPluginTabComponentNames = new ArrayList<String>();
-	this.pluginTabComponents = this.pluginMainComponent.getMainTabs().getComponents();
+	this.pluginTabComponents = pluginMainComponent.getMainTabs().getComponents();
 	for (int i = 0; i < this.pluginTabComponents.length; i++)
-	  alPluginTabComponentNames.add(this.pluginMainComponent.getMainTabs().getTitleAt(i));
+	  alPluginTabComponentNames.add(pluginMainComponent.getMainTabs().getTitleAt(i));
 
 	this.initialiseUI();
 	this.initialiseData();
+
   }
 
   private void initialiseUI() {
@@ -211,12 +207,12 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 	this.setLayout(layout);
 	this.add(jpEverything, BorderLayout.NORTH);
 
-	if (MyExperimentClient.prefsChangedSinceLastStart) {
+	if (MyExperimentClient.baseChangedSinceLastStart) {
 	  JPanel jpInfo = new JPanel();
 	  jpInfo.setLayout(new BoxLayout(jpInfo, BoxLayout.Y_AXIS));
-	  String info = "Your myExperiment preferences have been modified since Taverna was started;";
+	  String info = "Your myExperiment base url has been modified since Taverna was started;";
 	  jpInfo.add(new JLabel(info, WorkbenchIcons.leafIcon, SwingConstants.LEFT));
-	  info = "these changes may not take effect until you restart Taverna.";
+	  info = "this change will not take effect until you restart Taverna.";
 	  jpInfo.add(new JLabel(info));
 	  this.add(jpInfo, BorderLayout.SOUTH);
 	}
@@ -264,14 +260,21 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 	  myExperimentClient.getSettings().put(MyExperimentClient.INI_MY_STUFF_FILES, new Boolean(cbMyStuffFiles.isSelected()).toString());
 	  myExperimentClient.getSettings().put(MyExperimentClient.INI_MY_STUFF_PACKS, new Boolean(cbMyStuffPacks.isSelected()).toString());
 
-	  if (!MyExperimentClient.prefsChangedSinceLastStart)
-		javax.swing.JOptionPane.showMessageDialog(null, "Your new settings have been saved, but will\n"
-			+ "not take effect until you restart Taverna.", "myExperiment Plugin - Info", JOptionPane.INFORMATION_MESSAGE);
+	  // NB! changed myExperiment location will not take action until the next application restart
+	  if (MyExperimentClient.baseChangedSinceLastStart
+		  || !strNewMyExperimentURL.equals(myExperimentClient.getBaseURL())) {
+		// turn off auto-login
+		myExperimentClient.getSettings().put(MyExperimentClient.INI_AUTO_LOGIN, new Boolean(false).toString());
 
-	  MyExperimentClient.prefsChangedSinceLastStart = true;
+		javax.swing.JOptionPane.showMessageDialog(null, "You have selected a new Base URL for myExperiment.\n"
+			+ "Your new setting has been saved, but will not take\n"
+			+ "effect until you restart Taverna.", "myExperiment Plugin - Info", JOptionPane.INFORMATION_MESSAGE);
+
+		MyExperimentClient.baseChangedSinceLastStart = true;
+	  }
+
 	  myExperimentClient.storeSettings();
-	  pluginMainComponent = new MainComponent();
-
+	  //	  pluginMainComponent = new MainComponent();
 	}
   }
 }

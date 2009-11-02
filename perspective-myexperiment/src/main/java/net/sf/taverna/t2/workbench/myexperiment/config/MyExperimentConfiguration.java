@@ -21,10 +21,9 @@
 package net.sf.taverna.t2.workbench.myexperiment.config;
 
 import java.util.HashMap;
-import java.util.Map; // import org.apache.axis.AxisProperties;
+import java.util.Map;
 import org.apache.log4j.Logger;
 
-import net.sf.taverna.raven.launcher.LauncherHttpProxyConfiguration;
 import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
 import net.sf.taverna.t2.workbench.configuration.Configurable;
 

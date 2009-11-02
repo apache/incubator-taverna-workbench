@@ -37,9 +37,7 @@ public class MyExperimentConfigurationUIFactory implements ConfigurationUIFactor
   }
 
   public JPanel getConfigurationPanel() {
-	MainComponentFactory factory = new net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponentFactory();
-	MainComponent mainPluginComponent = (MainComponent) factory.getComponent();
-	return (JPanel) mainPluginComponent.getMyExperimentConfigurationPanel();
+	return new MyExperimentConfigurationPanel(MainComponent.MAIN_COMPONENT, MainComponent.MY_EXPERIMENT_CLIENT, MainComponent.LOGGER);
   }
 
   public Configurable getConfigurable() {
