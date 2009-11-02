@@ -172,11 +172,10 @@ public class UserRegistrationForm extends JDialog{
 	}
 	
 	private void initComponents() {
-		//setUndecorated(true);
-		
-		
+
 		JPanel mainPanel = new JPanel((new GridBagLayout()));	
 		
+		// Base font for all components on the form
 		Font baseFont = new JLabel("base font").getFont().deriveFont(11f);
 		
 		// Title panel
@@ -222,13 +221,8 @@ public class UserRegistrationForm extends JDialog{
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 2;
 		gbc.insets = new Insets(10, 0, 10, 10);
-		
-		
-		
 		DialogTextArea registrationMessage1 = new DialogTextArea(
 				WHY_REGISTER);
-	
-	
 		registrationMessage1.setMargin(new Insets(0, 10, 0, 0));
 		registrationMessage1.setFont(baseFont);
 		registrationMessage1.setEditable(false);
@@ -402,7 +396,7 @@ public class UserRegistrationForm extends JDialog{
 		gbc.insets = new Insets(10, 10, 0, 10);
 		mainPanel.add(institutionOrCompanyTextField, gbc);
 		
-		// Industry
+		// Industry type
 		JLabel industryLabel = new JLabel(" Industry type:");
 		industryLabel.setFont(baseFont);
 		gbc.weightx = 0.0;
@@ -430,7 +424,7 @@ public class UserRegistrationForm extends JDialog{
 		gbc.insets = new Insets(10, 10, 0, 10);
 		mainPanel.add(industryTypeTextField, gbc);
 		
-		// Field
+		// Field of investigation
 		JTextArea fieldLabel = new JTextArea(FIELD_OF_INVESTIGATION);
 		fieldLabel.setFont(baseFont);
 		fieldLabel.setEditable(false);
@@ -461,7 +455,7 @@ public class UserRegistrationForm extends JDialog{
 		gbc.insets = new Insets(10, 10, 0, 10);
 		mainPanel.add(fieldTextField, gbc);
 		
-		// Purpose
+		// Purpose of using Taverna
 		JTextArea purposeLabel = new JTextArea(WHY_YOU_INTEND_TO_USE_TAVERNA);
 		purposeLabel.setFont(baseFont);
 		purposeLabel.setEditable(false);
@@ -636,13 +630,7 @@ public class UserRegistrationForm extends JDialog{
 			regData.setInstitutionOrCompanyName(institutionOrCompanyTextField.getText());
 			regData.setIndustry(industryTypeTextField.getSelectedItem().toString());
 			regData.setField(fieldTextField.getText());
-			// Remove all new line characters from the 'Purpose' string 
-			// as we want the string all in one line (that also makes it 
-			// platform independent later on when we save these properties on the server)
-			String purpose = purposeTextArea.getText();
-			
-			//purpose = purpose.replaceAll("\\s+", " "); // replace all white spaces ( \t\n\x0B\f\r) with a single blank character
-			regData.setPurposeOfUsingTaverna(purpose);
+			regData.setPurposeOfUsingTaverna(fieldTextField.getText());
 			
 			if (postUserRegistrationDataToServer(regData)){
 				saveUserRegistrationData(regData, UserRegistrationHook.registrationDataFile);
