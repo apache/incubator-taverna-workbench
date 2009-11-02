@@ -1,0 +1,302 @@
+#  This file is part of the chemical-mime-data package.
+#  It is distributed under the GNU Lesser General Public License version 2.1.
+#
+#  Database: '$Id: chemical-mime-database.xml.in,v 1.50 2007/02/16 20:47:25 dleidert Exp $'
+
+
+# This file was created automatically by cmd_file-magic.xsl. Copy or   
+# append its content to KDE's MIME magic database (on Debian systems,  
+# it's the file /usr/share/mimelnk/magic.                              
+
+
+# chemical/x-pdb 85
+0	string	ATOM\ \ \ 
+>11	string	\ 	chemical/x-pdb
+0	string	HETATM\ 
+>11	string	\ 	chemical/x-pdb
+0	string	TER\ \ \ \ 
+>11	string	\ 	chemical/x-pdb
+0	string	AUTHOR\ 	chemical/x-pdb
+0	string	CISPEP\ 	chemical/x-pdb
+0	string	COMPND\ 	chemical/x-pdb
+0	string	CRYST1\ 	chemical/x-pdb
+0	string	DBREF\ \ 	chemical/x-pdb
+0	string	EXPDTA\ 	chemical/x-pdb
+0	string	FORMUL\ 	chemical/x-pdb
+0	string	HEADER\ 	chemical/x-pdb
+0	string	HELIX\ \ 	chemical/x-pdb
+0	string	HETNAM\ 	chemical/x-pdb
+0	string	HETSYN\ 	chemical/x-pdb
+0	string	JRNL\ \ \ 	chemical/x-pdb
+0	string	KEYWDS\ 	chemical/x-pdb
+0	string	LINK\ \ \ 	chemical/x-pdb
+0	string	MODEL\ \ 	chemical/x-pdb
+0	string	MTRIX1\ 	chemical/x-pdb
+0	string	ORIGX1\ 	chemical/x-pdb
+0	string	REMARK\ 	chemical/x-pdb
+0	string	REVDAT\ 	chemical/x-pdb
+0	string	SCALE1\ 	chemical/x-pdb
+0	string	SEQDAV\ 	chemical/x-pdb
+0	string	SEQRES\ 	chemical/x-pdb
+0	string	SHEET\ \ 	chemical/x-pdb
+0	string	SOURCE\ 	chemical/x-pdb
+0	string	TITLE\ \ 	chemical/x-pdb
+0	string	TURN\ \ \ 	chemical/x-pdb
+
+# chemical/x-cmtx 80
+0	string	TITL
+>5	search/76	NOTE	chemical/x-cmtx
+0	string	MOLE
+>5	search/76	TITL
+>>10	search/151	NOTE	chemical/x-cmtx
+
+# chemical/x-gamess-input 80
+0	search/80	$CONTRL
+>8	search/72	AIMPAC	chemical/x-gamess-input
+>8	search/72	CCTYP	chemical/x-gamess-input
+>8	search/72	CITYP	chemical/x-gamess-input
+>8	search/72	COORD	chemical/x-gamess-input
+>8	search/72	DFTTYP	chemical/x-gamess-input
+>8	search/72	EXETYP	chemical/x-gamess-input
+>8	search/72	FRIEND	chemical/x-gamess-input
+>8	search/72	GEOM	chemical/x-gamess-input
+>8	search/72	GRDTYP	chemical/x-gamess-input
+>8	search/72	ICHARG	chemical/x-gamess-input
+>8	search/72	ICUT	chemical/x-gamess-input
+>8	search/72	INTTYP	chemical/x-gamess-input
+>8	search/72	ISPHER	chemical/x-gamess-input
+>8	search/72	ITOL	chemical/x-gamess-input
+>8	search/72	LOCAL	chemical/x-gamess-input
+>8	search/72	MAXIT	chemical/x-gamess-input
+>8	search/72	MOLPLT	chemical/x-gamess-input
+>8	search/72	MPLEVEL	chemical/x-gamess-input
+>8	search/72	MULT	chemical/x-gamess-input
+>8	search/72	NPRINT	chemical/x-gamess-input
+>8	search/72	NORMF	chemical/x-gamess-input
+>8	search/72	NORMP	chemical/x-gamess-input
+>8	search/72	NOSYM	chemical/x-gamess-input
+>8	search/72	NUMGRD	chemical/x-gamess-input
+>8	search/72	NZVAR	chemical/x-gamess-input
+>8	search/72	PLTORB	chemical/x-gamess-input
+>8	search/72	PP	chemical/x-gamess-input
+>8	search/72	QMTTOL	chemical/x-gamess-input
+>8	search/72	RELWFN	chemical/x-gamess-input
+>8	search/72	RUNTYP	chemical/x-gamess-input
+>8	search/72	SCFTYP	chemical/x-gamess-input
+>8	search/72	TDDFT	chemical/x-gamess-input
+>8	search/72	TREST	chemical/x-gamess-input
+>8	search/72	UNITS	chemical/x-gamess-input
+>8	search/72	$END	chemical/x-gamess-input
+
+# chemical/x-genbank 80
+0	string	\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GENETIC\ SEQ
+>&0	string	UENCE\ DATA\ BANK	chemical/x-genbank
+0	string	LOCUS\ \ \ \ \ \ \ 	chemical/x-genbank
+
+# chemical/x-shelx 80
+0	string	TITL
+>5	search/76	CELL	chemical/x-shelx
+
+# application/x-chemtool 50
+0	string	Chemtool\ Version\ 	application/x-chemtool
+
+# application/x-ghemical 50
+0	string	\!Header\ gpr\ 
+>12	string	100\n	application/x-ghemical
+>12	string	110\n	application/x-ghemical
+>12	string	111\n	application/x-ghemical
+0	string	\!Header\ mmlgp\ 
+>14	string	100\n	application/x-ghemical
+
+# application/x-xdrawchem 50
+0	search/256	\<\!DOCTYPE\ xdrawchem	application/x-xdrawchem
+0	search/64	\<xdrawchem	application/x-xdrawchem
+
+# chemical/x-cactvs-ascii 50
+0	string	#
+>0	search/100	Cactvs\ NMDSAscii\ by	chemical/x-cactvs-ascii
+
+# chemical/x-cactvs-binary 50
+8	byte	07
+>9	string	CACTVSBIN	chemical/x-cactvs-binary
+
+# chemical/x-cactvs-table 50
+0	string	CACTVS\ QSAR\ Table	chemical/x-cactvs-table
+
+# chemical/x-cdx 50
+0	string	VjCD0100
+>8	lelong	0x01020304
+>>12	lelong	0x00000000
+>>>16	lelong	0x00000000
+>>>>20	lelong	0x80000000	chemical/x-cdx
+>>>>20	lelong	0x00000000	chemical/x-cdx
+
+# chemical/x-cdxml 50
+0	search/256	\<\!DOCTYPE\ CDXML	chemical/x-cdxml
+0	search/64	\<CDXML	chemical/x-cdxml
+
+# chemical/x-cif 50
+0	string	#\#CIF_1.1
+>10	byte	9	chemical/x-cif
+>10	byte	10	chemical/x-cif
+>10	byte	13	chemical/x-cif
+
+# chemical/x-cmdf 50
+0	string	CMDFCrystalMakerM	chemical/x-cmdf
+0	string	CMD5(CrystalMaker)	chemical/x-cmdf
+
+# chemical/x-cml 50
+0	search/256	\<\!DOCTYPE\ cml	chemical/x-cml
+0	search/256	\<\!DOCTYPE\ molecule	chemical/x-cml
+0	search/64	\<cml	chemical/x-cml
+0	search/64	\<molecule	chemical/x-cml
+
+# chemical/x-cmmf 50
+0	string	CMMFCrystalMakerM	chemical/x-cmmf
+0	string	CMM5(CrystalMaker)	chemical/x-cmmf
+
+# chemical/x-ctx 50
+0	string	\ /IDENT\ \ \ \ \ \ \ \ 	chemical/x-ctx
+
+# chemical/x-embl-dl-nucleotide 50
+0	string	ID\ \ \ 	chemical/x-embl-dl-nucleotide
+
+# chemical/x-fasta 50
+0	string	\<	chemical/x-fasta
+
+# chemical/x-gamess-output 50
+0	string	-----\ GAMESS\ execution\ script\ 
+>&0	string	-----	chemical/x-gamess-output
+65	search/65	GAMESS\ VERSION\ =
+>584	search/1	\n\n\ EXECUTION\ OF\ GAMESS\ BEGUN	chemical/x-gamess-output
+
+# chemical/x-gaussian-log 50
+1	string	Entering\ Gaussian\ System,\ Link
+>&0	string	\ 0=	chemical/x-gaussian-log
+
+# chemical/x-gcg8-sequence 50
+0	string	\!\!AA_SEQUENCE\ 1.0\n	chemical/x-gcg8-sequence
+0	string	\!\!NA_SEQUENCE\ 1.0\n	chemical/x-gcg8-sequence
+
+# chemical/x-gulp 50
+81	search/79	GENERAL\ UTILITY\ LATTICE\ PROGRA
+>161	search/79	Julian\ Gale
+>>241	search/79	Nanochemistry\ Research\ Institu
+>>>&0	string	te
+>>>>321	search/79	Curtin\ University\ of\ Technolog
+>>>>>&0	string	y,\ Western\ Australia	chemical/x-gulp
+>161	search/79	Julian\ Gale,\ NRI,\ Curtin\ Unive
+>>&0	string	rsity	chemical/x-gulp
+
+# chemical/x-hin 50
+0	string	mol\ 1\ 
+>6	search/58	.hin
+>>12	search/116	atom\ 1	chemical/x-hin
+
+# chemical/x-inchi-xml 50
+0	search/64	\<INChI	chemical/x-inchi-xml
+
+# chemical/x-isostar 50
+0	string	#\ Isostar\ Scatter\ Plot	chemical/x-isostar
+
+# chemical/x-kinemage 50
+0	string	\<title\>
+>17	search/223	\n@text	chemical/x-kinemage
+>17	search/223	\n@kinemage	chemical/x-kinemage
+0	string	@text	chemical/x-kinemage
+0	string	@kinemage	chemical/x-kinemage
+
+# chemical/x-mdl-rdfile 50
+0	string	$RDFILE\ 1\n
+>10	string	$DATM	chemical/x-mdl-rdfile
+
+# chemical/x-mdl-rxnfile 50
+0	string	$RXN\n	chemical/x-mdl-rxnfile
+0	string	$RXN\ V3000\n	chemical/x-mdl-rxnfile
+
+# chemical/x-mdl-xdfile 50
+0	search/64	\<XDfile	chemical/x-mdl-xdfile
+
+# chemical/x-mol2 50
+0	search/800	@\<TRIPOS\>MOLECULE\x0D	chemical/x-mol2
+
+# chemical/x-mopac-out 50
+81	search/79	MOPAC
+>81	search/79	(c)\ Fujitsu	chemical/x-mopac-out
+81	search/79	MOPAC	chemical/x-mopac-out
+
+# chemical/x-msi-car 50
+0	string	\!BIOSYM\ archive\ 	chemical/x-msi-car
+
+# chemical/x-msi-hessian 50
+0	string	$hessian	chemical/x-msi-hessian
+
+# chemical/x-msi-mdf 50
+0	string	\!BIOSYM\ molecular_data\ 	chemical/x-msi-mdf
+
+# chemical/x-msi-msi 50
+0	string	#\ MSI\ CERIUS2\ DataModel\ File\ V
+>&0	string	ersion\ 	chemical/x-msi-msi
+
+# chemical/x-ncbi-asn1 50
+0	string	PC-AssayContainer	chemical/x-ncbi-asn1
+0	string	PC-Compound	chemical/x-ncbi-asn1
+0	string	PC-InfoData	chemical/x-ncbi-asn1
+0	string	PC-ID	chemical/x-ncbi-asn1
+0	string	PC-Source	chemical/x-ncbi-asn1
+0	string	PC-Substance	chemical/x-ncbi-asn1
+0	string	PC-XRefData	chemical/x-ncbi-asn1
+
+# chemical/x-ncbi-asn1-binary 50
+0	lelong	0x803080A0
+>4	lelong	0x80308030	chemical/x-ncbi-asn1-binary
+0	lelong	0x80308030
+>4	lelong	0x803080A0	chemical/x-ncbi-asn1-binary
+
+# chemical/x-ncbi-asn1-xml 50
+0	search/64	\<PC-AssayContainer	chemical/x-ncbi-asn1-xml
+0	search/64	\<PC-Compound	chemical/x-ncbi-asn1-xml
+0	search/64	\<PC-ID	chemical/x-ncbi-asn1-xml
+0	search/64	\<PC-InfoData	chemical/x-ncbi-asn1-xml
+0	search/64	\<PC-Source	chemical/x-ncbi-asn1-xml
+0	search/64	\<PC-Substance	chemical/x-ncbi-asn1-xml
+0	search/64	\<PC-XRefData	chemical/x-ncbi-asn1-xml
+
+# chemical/x-qchem-output 50
+20	string	Welcome\ to\ Q-Chem
+>41	string	A\ Quantum\ Leap\ Into\ The\ Future
+>>&0	string	\ Of\ Chemistry	chemical/x-qchem-output
+
+# chemical/x-swissprot 50
+0	string	ID\ \ \ 	chemical/x-swissprot
+
+# chemical/x-turbomole-basis 50
+0	string	$basis\n	chemical/x-turbomole-basis
+
+# chemical/x-turbomole-control 50
+0	string	$title\n	chemical/x-turbomole-control
+0	string	$operating\ system\ unix\n	chemical/x-turbomole-control
+
+# chemical/x-turbomole-coord 50
+0	string	$coord\n	chemical/x-turbomole-coord
+
+# chemical/x-turbomole-grad 50
+0	string	$grad\ 	chemical/x-turbomole-grad
+
+# chemical/x-turbomole-input 50
+0	string	%method\n
+>8	string	ENRGY\ ::\ 	chemical/x-turbomole-input
+>8	string	FORCE\ ::\ 	chemical/x-turbomole-input
+>8	string	GEOMY\ ::\ 	chemical/x-turbomole-input
+>8	string	GRADI\ ::\ 	chemical/x-turbomole-input
+
+# chemical/x-turbomole-jbas 50
+0	string	$jbas\ 	chemical/x-turbomole-jbas
+
+# chemical/x-turbomole-scfmo 50
+0	string	$scfmo\ 	chemical/x-turbomole-scfmo
+
+# chemical/x-vamas-iso14976 50
+0	string	VAMAS\ Surface\ Chemical\ Analysi
+>&0	string	s\ Standard\ Data\ Transfer\ Forma
+>>&0	string	t\ 1988\ May\ 4	chemical/x-vamas-iso14976

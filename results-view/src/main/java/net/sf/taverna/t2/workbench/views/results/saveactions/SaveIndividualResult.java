@@ -37,9 +37,6 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.log4j.Logger;
-
-import net.sf.jmimemagic.MagicMatch;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
 import net.sf.taverna.t2.reference.ErrorDocument;
@@ -50,6 +47,10 @@ import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
+
+import org.apache.log4j.Logger;
+
+import eu.medsea.mimeutil.MimeType;
 
 /**
  * Saves individual result to a file. A T2Reference to the result data is held
@@ -88,7 +89,6 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 	 */
 	public void actionPerformed(ActionEvent e) {
 		Identified identified = context.getReferenceService().resolveIdentifier(resultReference, null, context);
-		MagicMatch magicMatch = null;
 		
 		if (identified instanceof ReferenceSet) { // Node contains an external reference to data
 		
@@ -101,35 +101,25 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 			});
 			
 			// Get the MIME type so that we know which file extension to use when saving the result
-			String mimeType = null;
+			List<MimeType> mimeTypes = new ArrayList<MimeType>();
+			List<String> extensionTypes = new ArrayList<String>();
 			for (ExternalReferenceSPI externalReference : externalReferences) {
-				mimeType = ResultsUtils.getMimeType(externalReference, context);
-				if (mimeType != null) {
-					break;
+				List<MimeType> mimeTypesList = ResultsUtils.getMimeTypes(externalReference, context);
+				for (MimeType mime:mimeTypesList) {
+					if (!mimeTypes.contains(mime)) {
+						mimeTypes.add(mime);
+					}
 				}
 			}
-			if (mimeType == null) {
-				mimeType = "text/plain";
-			}
-
-			// Get the file extension from the MIME type
-			String fileExtension = null;
-			for (ExternalReferenceSPI externalReference : externalReferences) {
-				magicMatch = ResultsUtils.getMagicMatch(externalReference, context);
-				if (magicMatch != null) {
-					break;
-				}
+			if (mimeTypes.isEmpty()) {
+				mimeTypes.add(new MimeType("text/plain"));
 			}
 			
-			if (mimeType.equals("text/plain")){ // for some reason magicMatch.getExtension() returns empty string for mime type "text/plain"
-				fileExtension = "txt";
-			}
-			else if (magicMatch == null || magicMatch.getExtension().equals("")) {
-				// We do not know the extension - do not try to set it
-				fileExtension = "";
-			}
-			else{
-				fileExtension = magicMatch.getExtension();
+			for (MimeType mime:mimeTypes) {
+				String extension = ResultsUtils.getExtension(mime.toString());
+				if (!extensionTypes.contains(extension)) {
+					extensionTypes.add(extension);
+				}
 			}
 			
 			final Object data;
@@ -152,10 +142,13 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 			FileFilter ff = null;
 
 			// Set the file filter if we know the extension
-			if (!fileExtension.equals("")){
-				ff = new ExtensionFileFilter(new String[] { fileExtension });
+//			if (!fileExtension.equals("")){
+			String[] extensionTypeArray = new String[extensionTypes.size()];
+			extensionTypes.toArray(extensionTypeArray);
+				ff = new ExtensionFileFilter(extensionTypeArray);
+//				fc.addChoosableFileFilter(ff);
 				fc.setFileFilter(ff);
-			}
+//			}
 			fc.setCurrentDirectory(new File(curDir));
 			
 			boolean tryAgain = true;
@@ -169,7 +162,8 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 					// If we know the extension and the user did not use it - append it to the file name
 					if (!file.exists()) {
 						if ((ff != null) && fc.getFileFilter().equals(ff) && !file.getName().contains(".")) {
-							String newFileName = file.getName() + "." + fileExtension;
+							//has to be .txt in the file extension
+							String newFileName = file.getName() + "." + extensionTypeArray[0];
 							file = new File(file.getParentFile(), newFileName);
 						} else {
 							file = new File(file.getParentFile(), file.getName());

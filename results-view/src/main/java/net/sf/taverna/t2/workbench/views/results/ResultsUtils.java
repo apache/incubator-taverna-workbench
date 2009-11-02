@@ -23,18 +23,12 @@ package net.sf.taverna.t2.workbench.views.results;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
-import org.apache.log4j.Logger;
-
-import net.sf.jmimemagic.Magic;
-import net.sf.jmimemagic.MagicException;
-import net.sf.jmimemagic.MagicMatch;
-import net.sf.jmimemagic.MagicMatchNotFoundException;
-import net.sf.jmimemagic.MagicParseException;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.reference.ErrorDocument;
 import net.sf.taverna.t2.reference.ErrorDocumentService;
@@ -45,78 +39,102 @@ import net.sf.taverna.t2.reference.StackTraceElementBean;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.T2ReferenceType;
 
+import org.apache.log4j.Logger;
+import org.clapper.util.misc.MIMETypeUtil;
+
+import eu.medsea.mimeutil.MimeType;
+import eu.medsea.mimeutil.MimeUtil2;
+
 /**
- * Convenience methods for displaying and storing workflow run results.
- * For example, converting result error documents into various 
- * representations (e.g. StringS or JTreeS), getting MIME type of result objects, etc.
- *  
+ * Convenience methods for displaying and storing workflow run results. For
+ * example, converting result error documents into various representations (e.g.
+ * StringS or JTreeS), getting MIME type of result objects, etc.
+ * 
  * @author Alex Nenadic
- *
+ * 
  */
 public class ResultsUtils {
-		
+
 	private static Logger logger = Logger.getLogger(ResultsUtils.class);
-	
+
 	/**
 	 * Creates a string representation of the ErrorDocument.
 	 */
-	public static String buildErrorDocumentString(ErrorDocument errDocument, InvocationContext context){
-		
+	public static String buildErrorDocumentString(ErrorDocument errDocument,
+			InvocationContext context) {
+
 		String errDocumentString = "";
-		
+
 		String exceptionMessage = errDocument.getExceptionMessage();
 		if (exceptionMessage != null && !exceptionMessage.equals("")) {
-			DefaultMutableTreeNode exceptionMessageNode = new DefaultMutableTreeNode(exceptionMessage);
+			DefaultMutableTreeNode exceptionMessageNode = new DefaultMutableTreeNode(
+					exceptionMessage);
 			errDocumentString += exceptionMessageNode + "\n";
-			List<StackTraceElementBean> stackTrace = errDocument.getStackTraceStrings();
+			List<StackTraceElementBean> stackTrace = errDocument
+					.getStackTraceStrings();
 			if (stackTrace.size() > 0) {
 				for (StackTraceElementBean stackTraceElement : stackTrace) {
-					errDocumentString += getStackTraceElementString(stackTraceElement) + "\n";
+					errDocumentString += getStackTraceElementString(stackTraceElement)
+							+ "\n";
 				}
 			}
 
 		}
-		
+
 		Set<T2Reference> errorReferences = errDocument.getErrorReferences();
-		if (!errorReferences.isEmpty()){
+		if (!errorReferences.isEmpty()) {
 			errDocumentString += "Set of ErrorDocumentS to follow." + "\n";
 		}
 		int errorCounter = 1;
 		int listCounter = 0;
 		for (T2Reference reference : errorReferences) {
-			if (reference.getReferenceType().equals(T2ReferenceType.ErrorDocument)) {
-				ErrorDocumentService errorDocumentService = context.getReferenceService().getErrorDocumentService();
-				ErrorDocument causeErrorDocument = errorDocumentService.getError(reference);
-				if (listCounter == 0){
-					errDocumentString += "ErrorDocument " + (errorCounter++) + "\n";
+			if (reference.getReferenceType().equals(
+					T2ReferenceType.ErrorDocument)) {
+				ErrorDocumentService errorDocumentService = context
+						.getReferenceService().getErrorDocumentService();
+				ErrorDocument causeErrorDocument = errorDocumentService
+						.getError(reference);
+				if (listCounter == 0) {
+					errDocumentString += "ErrorDocument " + (errorCounter++)
+							+ "\n";
+				} else {
+					errDocumentString += "ErrorDocument " + listCounter + "."
+							+ (errorCounter++) + "\n";
 				}
-				else{
-					errDocumentString += "ErrorDocument "
-							+ listCounter + "." + (errorCounter++) + "\n";
-				}
-				errDocumentString += buildErrorDocumentString(causeErrorDocument, context) + "\n";
-			} else if (reference.getReferenceType().equals(T2ReferenceType.IdentifiedList)) {
-				List<ErrorDocument> errorDocuments = getErrorDocuments(reference, context);
-				errDocumentString += "ErrorDocument list " + (++listCounter) + "\n";
+				errDocumentString += buildErrorDocumentString(
+						causeErrorDocument, context)
+						+ "\n";
+			} else if (reference.getReferenceType().equals(
+					T2ReferenceType.IdentifiedList)) {
+				List<ErrorDocument> errorDocuments = getErrorDocuments(
+						reference, context);
+				errDocumentString += "ErrorDocument list " + (++listCounter)
+						+ "\n";
 				for (ErrorDocument causeErrorDocument : errorDocuments) {
-					errDocumentString += buildErrorDocumentString(causeErrorDocument, context) + "\n";
+					errDocumentString += buildErrorDocumentString(
+							causeErrorDocument, context)
+							+ "\n";
 				}
 			}
 		}
-		
+
 		return errDocumentString;
 	}
-	
-	public static void buildErrorDocumentTree(DefaultMutableTreeNode node, ErrorDocument errorDocument, InvocationContext context) {
+
+	public static void buildErrorDocumentTree(DefaultMutableTreeNode node,
+			ErrorDocument errorDocument, InvocationContext context) {
 		DefaultMutableTreeNode child = new DefaultMutableTreeNode(errorDocument);
 		String exceptionMessage = errorDocument.getExceptionMessage();
 		if (exceptionMessage != null && !exceptionMessage.equals("")) {
-			DefaultMutableTreeNode exceptionMessageNode = new DefaultMutableTreeNode(exceptionMessage);
+			DefaultMutableTreeNode exceptionMessageNode = new DefaultMutableTreeNode(
+					exceptionMessage);
 			child.add(exceptionMessageNode);
-			List<StackTraceElementBean> stackTrace = errorDocument.getStackTraceStrings();
+			List<StackTraceElementBean> stackTrace = errorDocument
+					.getStackTraceStrings();
 			if (stackTrace.size() > 0) {
 				for (StackTraceElementBean stackTraceElement : stackTrace) {
-					exceptionMessageNode.add(new DefaultMutableTreeNode(getStackTraceElementString(stackTraceElement)));
+					exceptionMessageNode.add(new DefaultMutableTreeNode(
+							getStackTraceElementString(stackTraceElement)));
 				}
 			}
 
@@ -125,16 +143,21 @@ public class ResultsUtils {
 
 		Set<T2Reference> errorReferences = errorDocument.getErrorReferences();
 		for (T2Reference reference : errorReferences) {
-			if (reference.getReferenceType().equals(T2ReferenceType.ErrorDocument)) {
-				ErrorDocumentService errorDocumentService = context.getReferenceService().getErrorDocumentService();
-				ErrorDocument causeErrorDocument = errorDocumentService.getError(reference);
+			if (reference.getReferenceType().equals(
+					T2ReferenceType.ErrorDocument)) {
+				ErrorDocumentService errorDocumentService = context
+						.getReferenceService().getErrorDocumentService();
+				ErrorDocument causeErrorDocument = errorDocumentService
+						.getError(reference);
 				if (errorReferences.size() == 1) {
 					buildErrorDocumentTree(node, causeErrorDocument, context);
 				} else {
 					buildErrorDocumentTree(child, causeErrorDocument, context);
 				}
-			} else if (reference.getReferenceType().equals(T2ReferenceType.IdentifiedList)) {
-				List<ErrorDocument> errorDocuments = getErrorDocuments(reference, context);
+			} else if (reference.getReferenceType().equals(
+					T2ReferenceType.IdentifiedList)) {
+				List<ErrorDocument> errorDocuments = getErrorDocuments(
+						reference, context);
 				if (errorDocuments.size() == 1) {
 					buildErrorDocumentTree(node, errorDocuments.get(0), context);
 				} else {
@@ -145,8 +168,9 @@ public class ResultsUtils {
 			}
 		}
 	}
-		
-	private static String getStackTraceElementString(StackTraceElementBean stackTraceElement) {
+
+	private static String getStackTraceElementString(
+			StackTraceElementBean stackTraceElement) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(stackTraceElement.getClassName());
 		sb.append('.');
@@ -162,81 +186,66 @@ public class ResultsUtils {
 		}
 		return sb.toString();
 	}
-	
-	public static List<ErrorDocument> getErrorDocuments(T2Reference reference, InvocationContext context) {
+
+	public static List<ErrorDocument> getErrorDocuments(T2Reference reference,
+			InvocationContext context) {
 		List<ErrorDocument> errorDocuments = new ArrayList<ErrorDocument>();
 		if (reference.getReferenceType().equals(T2ReferenceType.ErrorDocument)) {
-			ErrorDocumentService errorDocumentService = context.getReferenceService().getErrorDocumentService();
-			errorDocuments.add(errorDocumentService.getError(reference));			
-		} else if (reference.getReferenceType().equals(T2ReferenceType.IdentifiedList)) {
-			ListService listService = context.getReferenceService().getListService();
+			ErrorDocumentService errorDocumentService = context
+					.getReferenceService().getErrorDocumentService();
+			errorDocuments.add(errorDocumentService.getError(reference));
+		} else if (reference.getReferenceType().equals(
+				T2ReferenceType.IdentifiedList)) {
+			ListService listService = context.getReferenceService()
+					.getListService();
 			IdentifiedList<T2Reference> list = listService.getList(reference);
 			for (T2Reference listReference : list) {
-				errorDocuments.addAll(getErrorDocuments(listReference, context));
+				errorDocuments
+						.addAll(getErrorDocuments(listReference, context));
 			}
 		}
 		return errorDocuments;
 	}
-	
-	public static String getMimeType(ExternalReferenceSPI externalReference, InvocationContext context) {
+
+	@SuppressWarnings("unchecked")
+	public static List<MimeType> getMimeTypes(
+			ExternalReferenceSPI externalReference, InvocationContext context) {
+		List<MimeType> mimeList = new ArrayList<MimeType>();
+		MimeUtil2 mimeUtil = new MimeUtil2();
+		mimeUtil
+				.registerMimeDetector("eu.medsea.mimeutil.detector.ExtensionMimeDetector");
+		mimeUtil
+				.registerMimeDetector("eu.medsea.mimeutil.detector.MagicMimeMimeDetector");
+		mimeUtil
+				.registerMimeDetector("eu.medsea.mimeutil.detector.WindowsRegistryMimeDetector");
+		mimeUtil
+				.registerMimeDetector("net.sf.taverna.t2.workbench.views.results.ExtraMimeTypes");
 		InputStream inputStream = externalReference.openStream(context);
-		byte[] bytes = null;
-		String mimeType = null;
 		try {
-			bytes = new byte[64];
+			byte[] bytes = new byte[64];
 			inputStream.read(bytes);
-			mimeType = Magic.getMagicMatch(bytes, true).getMimeType();
+			Collection mimeTypes2 = mimeUtil.getMimeTypes(bytes);
+			mimeList.addAll(mimeTypes2);
 		} catch (IOException e) {
 			e.printStackTrace();
 			logger.debug("Failed to read from stream to determine mimetype", e);
-		} catch (MagicParseException e) {
-			e.printStackTrace();
-			logger.debug("Error calling mime magic", e);
-		} catch (MagicMatchNotFoundException e) {
-			e.printStackTrace();
-			logger.debug("Error calling mime magic", e);
-		} catch (MagicException e) {
-			e.printStackTrace();
-			logger.debug("Error calling mime magic", e);
 		} finally {
 			try {
 				inputStream.close();
 			} catch (IOException e) {
 				e.printStackTrace();
-				logger.debug("Failed to close stream after determining mimetype", e);
+				logger.debug(
+						"Failed to close stream after determining mimetype", e);
 			}
 		}
-		return mimeType;
+
+		return mimeList;
 	}
-	
-	public static MagicMatch getMagicMatch(ExternalReferenceSPI externalReference, InvocationContext context) {
-		InputStream inputStream = externalReference.openStream(context);
-		byte[] bytes = null;
-		MagicMatch magicMatch = null;
-		try {
-			bytes = new byte[64];
-			inputStream.read(bytes);
-			magicMatch = Magic.getMagicMatch(bytes, true);
-		} catch (IOException e) {
-			e.printStackTrace();
-			logger.debug("Failed to read from stream to determine mimetype", e);
-		} catch (MagicParseException e) {
-			e.printStackTrace();
-			logger.debug("Error calling mime magic", e);
-		} catch (MagicMatchNotFoundException e) {
-			e.printStackTrace();
-			logger.debug("Error calling mime magic", e);
-		} catch (MagicException e) {
-			e.printStackTrace();
-			logger.debug("Error calling mime magic", e);
-		} finally {
-			try {
-				inputStream.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-				logger.debug("Failed to close stream after determining mimetype", e);
-			}
-		}
-		return magicMatch;
+
+	public static String getExtension(String mimeType) {
+
+		String mimeTypeForFileExtension = MIMETypeUtil
+				.fileExtensionForMIMEType(mimeType);
+		return mimeTypeForFileExtension;
 	}
 }
