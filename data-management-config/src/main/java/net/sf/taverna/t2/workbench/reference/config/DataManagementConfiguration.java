@@ -54,8 +54,8 @@ public class DataManagementConfiguration extends AbstractConfigurable {
     public static final String PASSWORD = "password";
     
     //FIXME: these should me just mysql & derby - but build & dependency issues is causing the provenance to expect these values:
-    public static final String CONNECTOR_MYSQL="mysqlprovenance";
-    public static final String CONNECTOR_DERBY="Derby DB Connector";
+    public static final String CONNECTOR_MYSQL="mysql";
+    public static final String CONNECTOR_DERBY="derby";
     
     public static final String JNDI_NAME = "jdbc/taverna";
     

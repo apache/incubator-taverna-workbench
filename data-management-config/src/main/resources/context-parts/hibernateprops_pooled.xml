@@ -25,11 +25,14 @@
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="properties">
             <props>            
-                <prop key="hibernate.hbm2ddl.auto">create</prop>                
+                <prop key="hibernate.hbm2ddl.auto">create</prop>
+                <prop key="hibernate.dialect" >
+					${hibernate.dialect}
+                </prop>
                 <prop key="hibernate.query.substitutions">
 					true 'T', false 'F'
                 </prop>
-                <prop key="hibernate.show_sql">false</prop>                
+                <prop key="hibernate.show_sql">false</prop>
                 
                 <prop key="hibernate.cache.use_second_level_cache">
 					false
