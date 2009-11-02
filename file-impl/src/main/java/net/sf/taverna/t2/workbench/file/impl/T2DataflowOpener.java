@@ -126,9 +126,9 @@ public class T2DataflowOpener extends AbstractDataflowPersistenceHandler
 		try {
 			document = builder.build(workflowXMLstream);
 		} catch (JDOMException e) {
-			throw new OpenException("Could not parse XML of dataflow", e);
+			throw new OpenException("Could not parse XML of the workflow", e);
 		} catch (IOException e) {
-			throw new OpenException("Could not read dataflow", e);
+			throw new OpenException("Could not open the workflow file for parsing", e);
 		}
 
 		Dataflow dataflow;
@@ -136,9 +136,9 @@ public class T2DataflowOpener extends AbstractDataflowPersistenceHandler
 			dataflow = deserializer.deserializeDataflow(document
 					.getRootElement());
 		} catch (DeserializationException e) {
-			throw new OpenException("Could not deserialise dataflow ", e);
+			throw new OpenException("Could not deserialise the workflow", e);
 		} catch (EditException e) {
-			throw new OpenException("Could not construct dataflow ", e);
+			throw new OpenException("Could not construct the workflow", e);
 		}
 		return dataflow;
 	}

@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -309,12 +310,13 @@ public class FileManagerImpl extends FileManager {
 		Set<DataflowPersistenceHandler> handlers;
 		Class<? extends Object> sourceClass = source.getClass();
 		
-		if (fileType != null) {
-			handlers = persistanceHandlerRegistry.getOpenHandlersFor(fileType,
-					sourceClass);
-		} else {
+		boolean unknownFileType = (fileType == null);
+		if (unknownFileType) {
 			handlers = persistanceHandlerRegistry
 					.getOpenHandlersFor(sourceClass);
+		} else {
+			handlers = persistanceHandlerRegistry.getOpenHandlersFor(fileType,
+					sourceClass);
 		}
 
 		if (handlers.isEmpty()) {
@@ -324,12 +326,22 @@ public class FileManagerImpl extends FileManager {
 		OpenException lastException = null;
 		for (DataflowPersistenceHandler handler : handlers) {
 			Collection<FileType> fileTypes;
-			if (fileType == null) {
+			if (unknownFileType) {
 				fileTypes = handler.getOpenFileTypes();
 			} else {
 				fileTypes = Collections.singleton(fileType);
 			}
 			for (FileType candidateFileType : fileTypes) {
+				if (unknownFileType && (source instanceof File)) {
+					// If source is file but fileType was not explicitly set from the 
+					// open workflow dialog - check the file extension and decide which
+					// handler to use based on that (so that we do not loop though all handlers)
+					File file = (File) source;
+					if (! file.getPath().endsWith(candidateFileType.getExtension())) {
+						continue;
+					}
+				}
+				
 				try {
 					DataflowInfo openDataflow = handler.openDataflow(
 							candidateFileType, source);
@@ -342,13 +354,13 @@ public class FileManagerImpl extends FileManager {
 					observers.notify(new OpenedDataflowEvent(dataflow));
 					return dataflow;
 				} catch (OpenException ex) {
-					logger.warn("Could not open from " + source + " using "
+					logger.warn("Could not open workflow " + source + " using "
 							+ handler + " of type " + candidateFileType);
 					lastException = ex;
 				}
 			}
 		}
-		throw new OpenException("Could not open " + source + "\n"
+		throw new OpenException("Could not open workflow " + source + "\n"
 				+ lastException, lastException);
 	}
 
