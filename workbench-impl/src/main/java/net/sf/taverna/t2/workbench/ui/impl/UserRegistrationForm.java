@@ -58,23 +58,26 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-//import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+
 @SuppressWarnings("serial")
 public class UserRegistrationForm extends JDialog{
 
+	private static final String REGISTRATION_URL = "http://www.mygrid.org.uk/taverna/registration/";
+	
 	public static String TAVERNA_VERSION_PROPERTY_NAME = "Taverna version";
 	public static String FIRST_NAME_PROPERTY_NAME = "First name";
 	public static String LAST_NAME_PROPERTY_NAME = "Last name";
@@ -99,6 +102,34 @@ public class UserRegistrationForm extends JDialog{
 	private static String TRUE = Boolean.TRUE.toString();
 	private static String FALSE = Boolean.FALSE.toString();
 
+	private static final String WELCOME = "Welcome to the Taverna User Registration Form";
+	private static final String PLEASE_FILL_IN_THIS_REGISTRATION_FORM = "Please fill in this registration form to let us know that you are using Taverna";
+	
+	private static final String WE_DO = "Note that by registering:\n\n" +
+					"   \u25CF We do not have access to your data\n" +
+					"   \u25CF We do not have access to your service usage\n" +
+					"   \u25CF You will not be monitored\n" +
+					"   \u25CF We do record the information you provide\n     at registration time";
+	
+	private static final String WHY_REGISTER = "By registering you will:\n\n"
+			+ "   \u25CF Allow us to support you better; future plans will be\n     directed towards solutions Taverna users require\n"
+			+ "   \u25CF Help sustain Taverna development; our continued\n     funding relies on us showing usage\n"
+			+ "   \u25CF (Optionally) Hear about news and product updates";
+
+	private static final String FIRST_NAME = "*First name:";
+
+	private static final String LAST_NAME = "*Last name:";
+
+	private static final String EMAIL_ADDRESS = "*Email address:";
+	
+	private static final String KEEP_ME_INFORMED = "Keep me informed of news and product updates via email";
+	
+	private static final String INSTITUTION_COMPANY_NAME = "*Institution/Company name:";
+
+	private static final String FIELD_OF_INVESTIGATION = " Field of investigation:\n (e.g. bioinformatics, chemistry,\n sociology, physics)";
+
+	private static final String WHY_YOU_INTEND_TO_USE_TAVERNA = " Please give a brief description of\n why you intend to use Taverna:\n(e.g. genome analysis for\n bacterial strain identification)";
+
 	private static String[] industryTypes = { "",
 			"Academia - Life Sciences", "Academia - Social Sciences",
 			"Academia - Physical Sciences", "Academia - Environmental Sciences",
@@ -106,6 +137,8 @@ public class UserRegistrationForm extends JDialog{
 			"Industry - Pharmaceutical", "Industry - Engineering", 
 			"Industry - Other", "Healthcare Services",
 			"Goverment and Public Sector", "Other" };
+	
+	private static final String I_AGREE_TO_THE_TERMS_AND_CONDITIONS = "I agree to the terms and conditions of registration http://www.taverna.org.uk/legal/terms";
 	
 	private Logger logger = Logger.getLogger(UserRegistrationForm.class);
 	private UserRegistrationData previousRegistrationData;
@@ -131,28 +164,33 @@ public class UserRegistrationForm extends JDialog{
 		initComponents();
 	}
 
-	public static void main(String[] args){
+	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
+		UIManager.setLookAndFeel(UIManager
+				.getSystemLookAndFeelClassName());
 		UserRegistrationForm form = new UserRegistrationForm();
 		form.setVisible(true);
 	}
 	
 	private void initComponents() {
-		setUndecorated(true);
-
+		//setUndecorated(true);
+		
+		
 		JPanel mainPanel = new JPanel((new GridBagLayout()));	
+		
+		Font baseFont = new JLabel("base font").getFont().deriveFont(11f);
 		
 		// Title panel
 		JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		titlePanel.setBackground(Color.WHITE);
 		//titlePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		JLabel titleLabel = new JLabel("Welcome to the Taverna User Registartion Form");
-		titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 13.5f));
+		JLabel titleLabel = new JLabel(WELCOME);
+		titleLabel.setFont(baseFont.deriveFont(Font.BOLD, 13.5f));
 		//titleLabel.setBorder(new EmptyBorder(10, 10, 0, 10));
 		JLabel titleIcon = new JLabel(WorkbenchIcons.tavernaCogs64x64Icon);
 		//titleIcon.setBorder(new EmptyBorder(10, 10, 10, 10));
-		DialogTextArea titleMessage = new DialogTextArea("Please fill in this registration form to let us know that you are using Taverna");
+		DialogTextArea titleMessage = new DialogTextArea(PLEASE_FILL_IN_THIS_REGISTRATION_FORM);
 		titleMessage.setMargin(new Insets(5, 20, 10, 10));
-		titleMessage.setFont(titleMessage.getFont().deriveFont(11f));
+		titleMessage.setFont(baseFont);
 		titleMessage.setEditable(false);
 		titleMessage.setFocusable(false);
 		//titlePanel.setBorder( new EmptyBorder(10, 10, 0, 10));
@@ -184,25 +222,23 @@ public class UserRegistrationForm extends JDialog{
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 2;
 		gbc.insets = new Insets(10, 0, 10, 10);
+		
+		
+		
 		DialogTextArea registrationMessage1 = new DialogTextArea(
-				"By registering you will:\n\n" +
-				"   \u25CF Allow us to support you better; future plans will be\n     directed towards solutions Taverna users require\n" +
-				"   \u25CF Help sustain Taverna development; our continued\n     funding relies on us showing usage\n" +
-				"   \u25CF (Optionally) Hear about news and product updates");
+				WHY_REGISTER);
+	
+	
 		registrationMessage1.setMargin(new Insets(0, 10, 0, 0));
-		registrationMessage1.setFont(registrationMessage1.getFont().deriveFont(11f));
+		registrationMessage1.setFont(baseFont);
 		registrationMessage1.setEditable(false);
 		registrationMessage1.setFocusable(false);
 		registrationMessage1.setBackground(getBackground());
 
 		DialogTextArea registrationMessage2 = new DialogTextArea(
-				"Note that by registering:\n\n" +
-				"   \u25CF We do not have access to your data\n" +
-				"   \u25CF We do not have access to your service usage\n" +
-				"   \u25CF You will not be monitored\n" +
-				"   \u25CF We do record the information you provide\n     at registration time");
+				WE_DO);
 		registrationMessage2.setMargin(new Insets(0, 10, 0, 10));
-		registrationMessage2.setFont(registrationMessage1.getFont().deriveFont(11f));
+		registrationMessage2.setFont(baseFont);
 		registrationMessage2.setEditable(false);
 		registrationMessage2.setFocusable(false);
 		registrationMessage2.setBackground(getBackground());
@@ -214,7 +250,7 @@ public class UserRegistrationForm extends JDialog{
 		
 		// Mandatory label
 //		JLabel mandatoryLabel = new JLabel("* Mandatory fields");
-//		mandatoryLabel.setFont(mandatoryLabel.getFont().deriveFont(11f));
+//		mandatoryLabel.setFont(baseFont);
 //		gbc.weightx = 0.0;
 //		gbc.weighty = 0.0;
 //		gbc.gridx = 0;
@@ -226,8 +262,8 @@ public class UserRegistrationForm extends JDialog{
 //		mainPanel.add(mandatoryLabel, gbc);
 		
 		// First name
-		JLabel firstNameLabel = new JLabel("*First name:");
-		firstNameLabel.setFont(firstNameLabel.getFont().deriveFont(11f));
+		JLabel firstNameLabel = new JLabel(FIRST_NAME);		
+		firstNameLabel.setFont(baseFont);
 		gbc.weightx = 0.0;
 		gbc.weighty = 0.0;
 		gbc.gridx = 0;
@@ -239,7 +275,7 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(firstNameLabel, gbc);
 		
 		firstNameTextField = new JTextField();
-		firstNameTextField.setFont(firstNameTextField.getFont().deriveFont(11f));
+		firstNameTextField.setFont(baseFont);
 		if (previousRegistrationData!=null){
 			firstNameTextField.setText(previousRegistrationData.getFirstName());
 		}
@@ -254,8 +290,8 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(firstNameTextField, gbc);
 		
 		// Last name
-		JLabel lastNameLabel = new JLabel("*Last name:");
-		lastNameLabel.setFont(lastNameLabel.getFont().deriveFont(11f));
+		JLabel lastNameLabel = new JLabel(LAST_NAME);
+		lastNameLabel.setFont(baseFont);
 		gbc.weightx = 0.0;
 		gbc.weighty = 0.0;
 		gbc.gridx = 0;
@@ -267,7 +303,7 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(lastNameLabel, gbc);
 		
 		lastNameTextField = new JTextField();
-		lastNameTextField.setFont(lastNameTextField.getFont().deriveFont(11f));
+		lastNameTextField.setFont(baseFont);
 		if (previousRegistrationData!=null){
 			lastNameTextField.setText(previousRegistrationData.getLastName());
 		}
@@ -282,8 +318,8 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(lastNameTextField, gbc);
 		
 		// Email address
-		JLabel emailLabel = new JLabel("*Email address:");
-		emailLabel.setFont(emailLabel.getFont().deriveFont(11f));
+		JLabel emailLabel = new JLabel(EMAIL_ADDRESS);
+		emailLabel.setFont(baseFont);
 		gbc.weightx = 0.0;
 		gbc.weighty = 0.0;
 		gbc.gridx = 0;
@@ -295,7 +331,7 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(emailLabel, gbc);
 		
 		emailTextField = new JTextField();
-		emailTextField.setFont(emailTextField.getFont().deriveFont(11f));
+		emailTextField.setFont(baseFont);
 		if (previousRegistrationData!=null){
 			emailTextField.setText(previousRegistrationData.getEmailAddress());
 		}
@@ -310,8 +346,8 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(emailTextField, gbc);
 		
 		// Keep me informed
-		keepMeInformedCheckBox = new JCheckBox("Keep me informed of news and product updates via email");
-		keepMeInformedCheckBox.setFont(keepMeInformedCheckBox.getFont().deriveFont(11f));
+		keepMeInformedCheckBox = new JCheckBox(KEEP_ME_INFORMED);
+		keepMeInformedCheckBox.setFont(baseFont);
 		if (previousRegistrationData!=null){
 			keepMeInformedCheckBox.setSelected(previousRegistrationData.getKeepMeInformed());
 		}
@@ -339,8 +375,8 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(keepMeInformedCheckBox, gbc);
 		
 		// Institution name
-		JLabel institutionLabel = new JLabel("*Institution/Company:");
-		institutionLabel.setFont(institutionLabel.getFont().deriveFont(11f));
+		JLabel institutionLabel = new JLabel(INSTITUTION_COMPANY_NAME);
+		institutionLabel.setFont(baseFont);
 		gbc.weightx = 0.0;
 		gbc.weighty = 0.0;
 		gbc.gridx = 0;
@@ -352,7 +388,7 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(institutionLabel, gbc);
 		
 		institutionOrCompanyTextField = new JTextField();
-		institutionOrCompanyTextField.setFont(institutionOrCompanyTextField.getFont().deriveFont(11f));
+		institutionOrCompanyTextField.setFont(baseFont);
 		if (previousRegistrationData!=null){
 			institutionOrCompanyTextField.setText(previousRegistrationData.getInstitutionOrCompanyName());
 		}
@@ -368,7 +404,7 @@ public class UserRegistrationForm extends JDialog{
 		
 		// Industry
 		JLabel industryLabel = new JLabel(" Industry type:");
-		industryLabel.setFont(industryLabel.getFont().deriveFont(11f));
+		industryLabel.setFont(baseFont);
 		gbc.weightx = 0.0;
 		gbc.weighty = 0.0;
 		gbc.gridx = 0;
@@ -380,7 +416,7 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(industryLabel, gbc);
 		
 		industryTypeTextField = new JComboBox(industryTypes);
-		industryTypeTextField.setFont(industryTypeTextField.getFont().deriveFont(11f));
+		industryTypeTextField.setFont(baseFont);
 		if (previousRegistrationData!=null){
 			industryTypeTextField.setSelectedItem(previousRegistrationData.getIndustry());
 		}
@@ -395,8 +431,8 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(industryTypeTextField, gbc);
 		
 		// Field
-		JTextArea fieldLabel = new JTextArea(" Field of investigation:\n (e.g. bioinformatics, chemistry,\n sociology, physics)");
-		fieldLabel.setFont(fieldLabel.getFont().deriveFont(11f));
+		JTextArea fieldLabel = new JTextArea(FIELD_OF_INVESTIGATION);
+		fieldLabel.setFont(baseFont);
 		fieldLabel.setEditable(false);
 		fieldLabel.setFocusable(false);
 		fieldLabel.setBackground(getBackground());
@@ -411,7 +447,7 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(fieldLabel, gbc);
 		
 		fieldTextField = new JTextField();
-		fieldTextField.setFont(fieldTextField.getFont().deriveFont(11f));
+		fieldTextField.setFont(baseFont);
 		if (previousRegistrationData!=null){
 			fieldTextField.setText(previousRegistrationData.getField());
 		}
@@ -426,8 +462,8 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(fieldTextField, gbc);
 		
 		// Purpose
-		JTextArea purposeLabel = new JTextArea(" Please give a brief description of\n why you intend to use Taverna:\n(e.g. genome analysis for\n bacterial strain identification)");
-		purposeLabel.setFont(purposeLabel.getFont().deriveFont(11f));
+		JTextArea purposeLabel = new JTextArea(WHY_YOU_INTEND_TO_USE_TAVERNA);
+		purposeLabel.setFont(baseFont);
 		purposeLabel.setEditable(false);
 		purposeLabel.setFocusable(false);
 		purposeLabel.setBackground(getBackground());
@@ -442,7 +478,7 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(purposeLabel, gbc);
 		
 		purposeTextArea = new JTextArea(5,30);
-		purposeTextArea.setFont(purposeTextArea.getFont().deriveFont(11f));
+		purposeTextArea.setFont(baseFont);
 		purposeTextArea.setLineWrap(true);
 		purposeTextArea.setAutoscrolls(true);
 		if (previousRegistrationData!=null){
@@ -471,8 +507,8 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(purposeScrollPane, gbc);
 		
 		// Terms and conditions
-		termsAndConditionsCheckBox = new JCheckBox("I agree to the terms and conditions of registration http://www.taverna.org.uk/legal/terms");
-		termsAndConditionsCheckBox.setFont(termsAndConditionsCheckBox.getFont().deriveFont(11f));
+		termsAndConditionsCheckBox = new JCheckBox(I_AGREE_TO_THE_TERMS_AND_CONDITIONS);
+		termsAndConditionsCheckBox.setFont(baseFont);
 		termsAndConditionsCheckBox.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(java.awt.event.KeyEvent evt) {
 				if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -499,7 +535,7 @@ public class UserRegistrationForm extends JDialog{
 		// Button panel
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		JButton registerButton = new JButton("Register");
-		registerButton.setFont(registerButton.getFont().deriveFont(11f));
+		registerButton.setFont(baseFont);
 		registerButton.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(java.awt.event.KeyEvent evt) {
 				if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -514,7 +550,7 @@ public class UserRegistrationForm extends JDialog{
 			}
 		});
 		JButton doNotRegisterButton = new JButton("Do not ask me again");
-		doNotRegisterButton.setFont(doNotRegisterButton.getFont().deriveFont(11f));
+		doNotRegisterButton.setFont(baseFont);
 		doNotRegisterButton.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(java.awt.event.KeyEvent evt) {
 				if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -529,7 +565,7 @@ public class UserRegistrationForm extends JDialog{
 			}
 		});
 		JButton remindMeButton = new JButton("Remind me in 2 weeks");
-		remindMeButton.setFont(remindMeButton.getFont().deriveFont(11f));
+		remindMeButton.setFont(baseFont);
 		remindMeButton.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(java.awt.event.KeyEvent evt) {
 				if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -557,6 +593,7 @@ public class UserRegistrationForm extends JDialog{
 
 		getContentPane().setLayout(new BorderLayout());
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
+
 		pack();
 		setResizable(false);
 		// Center the dialog on the screen (we do not have the parent)
@@ -603,7 +640,8 @@ public class UserRegistrationForm extends JDialog{
 			// as we want the string all in one line (that also makes it 
 			// platform independent later on when we save these properties on the server)
 			String purpose = purposeTextArea.getText();
-			purpose = purpose.replaceAll("\\s+", " "); // replace all white spaces ( \t\n\x0B\f\r) with a single blank character
+			
+			//purpose = purpose.replaceAll("\\s+", " "); // replace all white spaces ( \t\n\x0B\f\r) with a single blank character
 			regData.setPurposeOfUsingTaverna(purpose);
 			
 			if (postUserRegistrationDataToServer(regData)){
@@ -704,7 +742,7 @@ public class UserRegistrationForm extends JDialog{
 					JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
-        String server = "http://cactus.cs.man.ac.uk/~alex/taverna_registration/registration.php";
+        String server = REGISTRATION_URL;
         //server = "http://localhost/~alex/taverna_registration/registration.php";
 		logger.info("Posting user registartion to " + server + " with parameters: "
 				+ parameters);
