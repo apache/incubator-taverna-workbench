@@ -37,6 +37,8 @@ public class DataManagementHelper {
 
             BasicDataSource ds = new BasicDataSource();
             ds.setDriverClassName(config.getDriverClassName());
+            
+            System.setProperty("hibernate.dialect", config.getHibernateDialect());
 
             ds.setDefaultTransactionIsolation(Connection.TRANSACTION_READ_UNCOMMITTED);
             ds.setMaxActive(config.getPoolMaxActive());

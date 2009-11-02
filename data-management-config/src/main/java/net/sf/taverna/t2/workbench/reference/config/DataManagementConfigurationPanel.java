@@ -109,7 +109,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		storageText.setEditable(false);
 		storageText.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-		JComponent portPanel = createStatusComponent();
+		JComponent portPanel = createDerbyServerStatusComponent();
 
 		c.anchor = GridBagConstraints.NORTHWEST;
 		c.insets = new Insets(0, 0, 10, 0);
@@ -153,7 +153,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		return gridbag;
 	}
 
-	private JComponent createStatusComponent() {
+	private JComponent createDerbyServerStatusComponent() {
 
 		DialogTextArea textArea = new DialogTextArea();
 		Connection connection = null;
@@ -193,6 +193,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		textArea.setOpaque(false);
 		textArea.setAlignmentX(CENTER_ALIGNMENT);
 		textArea.setFont(textArea.getFont().deriveFont(Font.PLAIN, 10));
+		textArea.setVisible(DataManagementConfiguration.getInstance().getStartInternalDerbyServer());
 		return textArea;
 	}
 

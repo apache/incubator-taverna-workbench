@@ -44,6 +44,7 @@ public class DataManagementConfiguration extends AbstractConfigurable {
     public static final String IN_MEMORY_CONTEXT = "inMemoryReferenceServiceContext.xml";
     public static final String HIBERNATE_CONTEXT = "hibernateReferenceServiceContext.xml";
     public static final String HIBERNATE_DIALECT = "dialect";
+    public static final String START_INTERNAL_DERBY = "start_derby";
     public static final String POOL_MAX_ACTIVE = "pool_max_active";
     public static final String POOL_MIN_IDLE = "pool_min_idle";
     public static final String POOL_MAX_IDLE = "pool_max_idle";
@@ -52,7 +53,8 @@ public class DataManagementConfiguration extends AbstractConfigurable {
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
     
-    public static final String CONNECTOR_MYSQL="mysql";
+    //FIXME: these should me just mysql & derby - but build & dependency issues is causing the provenance to expect these values:
+    public static final String CONNECTOR_MYSQL="mysqlprovenance";
     public static final String CONNECTOR_DERBY="Derby DB Connector";
     
     public static final String JNDI_NAME = "jdbc/taverna";
@@ -63,9 +65,11 @@ public class DataManagementConfiguration extends AbstractConfigurable {
     public static DataManagementConfiguration getInstance() {
         if (instance == null) {
             instance = new DataManagementConfiguration();
+                        
+            if (instance.getStartInternalDerbyServer()) {
+            	DataManagementHelper.startDerbyNetworkServer();
+            }
             
-            //FIXME: Still a silly place to start it            
-            DataManagementHelper.startDerbyNetworkServer();
             DataManagementHelper.setupDataSource();
         }
         return instance;
@@ -82,9 +86,13 @@ public class DataManagementConfiguration extends AbstractConfigurable {
     public String getDriverClassName() {
     	return getProperty(DRIVER_CLASS_NAME);
     }
-
-    public boolean isProvenanceEnabled() {        
+    
+    public boolean isProvenanceEnabled() {            	
         return getProperty(ENABLE_PROVENANCE).equalsIgnoreCase("true");
+    }
+    
+    public boolean getStartInternalDerbyServer() {
+    	return getProperty(START_INTERNAL_DERBY).equalsIgnoreCase("true");
     }
     
     public int getPort() {
@@ -120,19 +128,22 @@ public class DataManagementConfiguration extends AbstractConfigurable {
     }
 
     public Map<String, String> getDefaultPropertyMap() {
+    	
         if (defaultPropertyMap == null) {
             defaultPropertyMap = new HashMap<String, String>();
             defaultPropertyMap.put(IN_MEMORY, "false");
             defaultPropertyMap.put(ENABLE_PROVENANCE, "true");
             defaultPropertyMap.put(PORT, "1527");
-            defaultPropertyMap.put(DRIVER_CLASS_NAME, "org.apache.derby.jdbc.ClientDriver");
+            //defaultPropertyMap.put(DRIVER_CLASS_NAME, "org.apache.derby.jdbc.ClientDriver");
+            defaultPropertyMap.put(DRIVER_CLASS_NAME, "org.apache.derby.jdbc.EmbeddedDriver");
             defaultPropertyMap.put(HIBERNATE_DIALECT, "org.hibernate.dialect.DerbyDialect");
             defaultPropertyMap.put(POOL_MAX_ACTIVE, "50");
             defaultPropertyMap.put(POOL_MAX_IDLE, "50");
             defaultPropertyMap.put(POOL_MIN_IDLE, "10");
             defaultPropertyMap.put(USERNAME,"");
             defaultPropertyMap.put(PASSWORD,"");            
-            defaultPropertyMap.put(JDBC_URI,"");
+            defaultPropertyMap.put(JDBC_URI,"jdbc:derby:t2-database;create=true;upgrade=true");
+            defaultPropertyMap.put(START_INTERNAL_DERBY, "false");
             
             defaultPropertyMap.put(CONNECTOR_TYPE,CONNECTOR_DERBY);
         }
@@ -158,8 +169,8 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 
     
 	public String getJDBCUri() {
-		if (CONNECTOR_DERBY.equals(getConnectorType())) {
-			return "jdbc:derby://localhost:" + getCurrentPort() + "/t2-database;create=true;upgrade=true";
+		if (CONNECTOR_DERBY.equals(getConnectorType()) && getStartInternalDerbyServer()) {
+			return "jdbc:derby://localhost:" + getCurrentPort() + "/t2-database;create=true;upgrade=true";			
 		}
 		else {
 			return getProperty(JDBC_URI);
