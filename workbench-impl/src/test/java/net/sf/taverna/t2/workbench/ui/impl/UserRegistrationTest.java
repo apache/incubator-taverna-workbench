@@ -41,7 +41,7 @@ package net.sf.taverna.t2.workbench.ui.impl;
 
 	public class UserRegistrationTest {
 
-		@Test
+		//@Test
 		public void postUserRegistrationDataToServer() {
 
 			String parameters = "";
@@ -66,15 +66,18 @@ package net.sf.taverna.t2.workbench.ui.impl;
 			}
 	        String server = "http://cactus.cs.man.ac.uk/~alex/taverna_registration/registration.php";
 	        server = "http://localhost/~alex/taverna_registration/registration.php";
+	        //server = "https://somehost.co.uk";
+
 	        System.out.println("Posting user registartion to " + server + " with parameters: "
 					+ parameters);
 			String response = "";
 			try{
 				URL url = new URL(server);
 				URLConnection conn = url.openConnection();
+				System.out.println("Opened a connection");
 				// Set timeout for connection, otherwise we might hang too long 
 				// if server is not responding and it will block Taverna
-				conn.setConnectTimeout(3000);
+				conn.setConnectTimeout(7000);
 				// Set connection parameters
 				conn.setDoInput(true);
 				conn.setDoOutput(true);
@@ -82,6 +85,7 @@ package net.sf.taverna.t2.workbench.ui.impl;
 				// Make server believe we are HTML form data...
 				conn.setRequestProperty("Content-Type",
 					"application/x-www-form-urlencoded");
+				System.out.println("Trying to get an output stream from the connection");
 				DataOutputStream out = new DataOutputStream(conn.getOutputStream());
 				// Write out the bytes of the content string to the stream.
 				out.writeBytes(parameters);
