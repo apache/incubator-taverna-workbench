@@ -36,12 +36,13 @@ package net.sf.taverna.t2.workbench.ui.impl;
 
 	import net.sf.taverna.t2.workbench.ui.impl.UserRegistrationForm;
 
-	import org.junit.Test;
+import org.junit.Ignore;
+import org.junit.Test;
 
 
 	public class UserRegistrationTest {
 
-		//@Test
+		@Ignore
 		public void postUserRegistrationDataToServer() {
 
 			String parameters = "";
