@@ -95,7 +95,7 @@ public class DefaultGraphEventManager implements GraphEventManager {
 					boolean expanded = false;
 					if (graphController.getPortStyle(processor).equals(PortStyle.NONE)) {
 						menu.addSeparator();
-						menu.add(new JMenuItem(new AbstractAction("Show Ports") {
+						menu.add(new JMenuItem(new AbstractAction("Show ports") {
 							public void actionPerformed(ActionEvent arg0) {
 								graphController.setPortStyle(processor, PortStyle.ALL);
 								graphController.redraw();
@@ -103,7 +103,7 @@ public class DefaultGraphEventManager implements GraphEventManager {
 						}));
 					} else if (graphController.getPortStyle(processor).equals(PortStyle.ALL)) {
 						menu.addSeparator();
-						menu.add(new JMenuItem(new AbstractAction("Hide Ports") {
+						menu.add(new JMenuItem(new AbstractAction("Hide ports") {
 							public void actionPerformed(ActionEvent arg0) {
 								graphController.setPortStyle(processor, PortStyle.NONE);
 								graphController.redraw();
@@ -114,7 +114,7 @@ public class DefaultGraphEventManager implements GraphEventManager {
 							processor.getActivityList().get(0) instanceof NestedDataflow) {						
 						final NestedDataflow nestedDataflow = (NestedDataflow) processor.getActivityList().get(0);
 						menu.addSeparator();
-						menu.add(new JMenuItem(new AbstractAction("Show Nested Workflow") {
+						menu.add(new JMenuItem(new AbstractAction("Show nested workflow") {
 							public void actionPerformed(ActionEvent arg0) {
 								graphController.setExpandNestedDataflow(nestedDataflow.getNestedDataflow(), true);
 								graphController.redraw();
@@ -185,7 +185,7 @@ public class DefaultGraphEventManager implements GraphEventManager {
 							processor.getActivityList().get(0) instanceof NestedDataflow) {						
 						final NestedDataflow nestedDataflow = (NestedDataflow) processor.getActivityList().get(0);
 						menu.addSeparator();
-						menu.add(new JMenuItem(new AbstractAction("Hide Nested Workflow") {
+						menu.add(new JMenuItem(new AbstractAction("Hide nested workflow") {
 							public void actionPerformed(ActionEvent arg0) {
 								graphController.setExpandNestedDataflow(nestedDataflow.getNestedDataflow(), false);
 								graphController.redraw();
@@ -221,11 +221,14 @@ public class DefaultGraphEventManager implements GraphEventManager {
 			if (menu != null) {
 				final Point p = new Point(screenX, screenY);
 				SwingUtilities.convertPointFromScreen(p, component);
-				SwingUtilities.invokeLater(new Runnable() {
-		            public void run(){
+				// Sometimes we get an empty menu and you have to roll the mouse
+				// over in order for menu items to appear so let's try and remove the
+				// SwingUtilities.invokeLater and see if it helps
+				//SwingUtilities.invokeLater(new Runnable() {
+		          //  public void run(){
 		            	menu.show(component, p.x, p.y);
-		            }
-		        });
+		          //  }
+		        //});
 			}
 		}
 	}
