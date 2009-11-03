@@ -73,16 +73,6 @@ public class TextHtmlRenderer implements Renderer {
 
 			byte[] bytes = resolve.getBytes();
 			if (bytes.length > meg) {
-				System.out.println("size is: " + bytes.length / MEGABYTE);
-				bytesToMeg(bytes.length);
-
-				// int response = JOptionPane
-				// .showConfirmDialog(
-				// null,
-				// "Result is approximately " + bytesToMeg(bytes.length) +
-				// " meg in size, there could be issues with rendering this inside Taverna\nDo you want to render the first part of the file?",
-				// "Render part of the file?",
-				// JOptionPane.YES_NO_OPTION);
 
 				int response = JOptionPane
 						.showConfirmDialog(

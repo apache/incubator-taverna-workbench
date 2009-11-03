@@ -69,10 +69,7 @@ public class TextRenderer implements Renderer {
 			resolve = (String) referenceService.renderIdentifier(reference,
 					String.class, null);
 			byte[] bytes = resolve.getBytes();
-			System.out.println("size is: " + bytes.length);
 			if (bytes.length > meg) {
-				System.out.println("size is: " + bytes.length / MEGABYTE);
-				bytesToMeg(bytes.length);
 
 				Object[] options = { "Continue rendering", "Render partial",
 						"Cancel" };
