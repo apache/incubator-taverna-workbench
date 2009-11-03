@@ -15,7 +15,7 @@ public class MimeTester {
 		System.out.println(mimeTypeForFileExtension);
 		MimeUtil2 mimeUtil = new MimeUtil2();
 		mimeUtil
-				.registerMimeDetector("net.sf.taverna.t2.workbench.views.results.ExtraMimeTypes");
+				.registerMimeDetector("eu.medsea.mimeutil.detector.ExtraMimeTypes");
 		boolean mimeTypeKnown = MimeUtil2.isMimeTypeKnown("chemical/x-pdb");
 		System.out.println(mimeTypeKnown);
 	}

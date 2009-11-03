@@ -219,7 +219,7 @@ public class ResultsUtils {
 		mimeUtil
 				.registerMimeDetector("eu.medsea.mimeutil.detector.WindowsRegistryMimeDetector");
 		mimeUtil
-				.registerMimeDetector("net.sf.taverna.t2.workbench.views.results.ExtraMimeTypes");
+				.registerMimeDetector("eu.medsea.mimeutil.detector.ExtraMimeTypes");
 		InputStream inputStream = externalReference.openStream(context);
 		try {
 			byte[] bytes = new byte[64];
