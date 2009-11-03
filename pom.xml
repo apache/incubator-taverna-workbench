@@ -43,6 +43,7 @@
 		<module>update-manager</module>
 		<module>workbench-impl</module>
 		<module>zaria</module>
+		<module>data-management-config-ui</module>		
 	</modules>
 	<repositories>
 		<repository>
