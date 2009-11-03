@@ -82,6 +82,9 @@ public class FileManagerImpl extends FileManager {
 
 	private ModelMapObserver modelMapObserver = new ModelMapObserver();
 
+	protected MultiCaster<FileManagerEvent> observers = new MultiCaster<FileManagerEvent>(
+			this);
+
 	/**
 	 * Ordered list of open dataflows
 	 */
@@ -89,9 +92,6 @@ public class FileManagerImpl extends FileManager {
 
 	private DataflowPersistenceHandlerRegistry persistanceHandlerRegistry = DataflowPersistenceHandlerRegistry
 			.getInstance();
-
-	protected MultiCaster<FileManagerEvent> observers = new MultiCaster<FileManagerEvent>(
-			this);
 
 	public FileManagerImpl() {
 		editManager.addObserver(editManagerObserver);
@@ -174,6 +174,18 @@ public class FileManagerImpl extends FileManager {
 		return (Dataflow) modelMap.getModel(ModelMapConstants.CURRENT_DATAFLOW);
 	}
 
+	@Override
+	public Dataflow getDataflowBySource(Object source) {
+		for (Entry<Dataflow,OpenDataflowInfo> infoEntry : openDataflowInfos.entrySet()) {
+			OpenDataflowInfo info = infoEntry.getValue();
+			if (source.equals(info.getSource())) {
+				return infoEntry.getKey();
+			}
+		}
+		// Not found
+		return null;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -195,6 +207,31 @@ public class FileManagerImpl extends FileManager {
 	 */
 	public List<Observer<FileManagerEvent>> getObservers() {
 		return observers.getObservers();
+	}
+
+	/**
+	 * Get the {@link OpenDataflowInfo} for the given dataflow
+	 * 
+	 * @throws NullPointerException
+	 *             if the dataflow was <code>null</code>
+	 * @throws IllegalArgumentException
+	 *             if the dataflow was not open.
+	 * @param dataflow
+	 *            Dataflow which information is to be found
+	 * @return The {@link OpenDataflowInfo} describing the dataflow
+	 */
+	protected synchronized OpenDataflowInfo getOpenDataflowInfo(
+			Dataflow dataflow) {
+		if (dataflow == null) {
+			throw new NullPointerException("Dataflow can't be null");
+		}
+		OpenDataflowInfo info = openDataflowInfos.get(dataflow);
+		if (info != null) {
+			return info;
+		} else {
+			throw new IllegalArgumentException("Dataflow was not opened"
+					+ dataflow);
+		}
 	}
 
 	/**
@@ -365,6 +402,35 @@ public class FileManagerImpl extends FileManager {
 	}
 
 	/**
+	 * Mark the dataflow as opened, and close the blank dataflow if needed.
+	 * 
+	 * @param dataflow
+	 *            Dataflow that has been opened
+	 */
+	protected void openDataflowInternal(Dataflow dataflow) {
+		if (dataflow == null) {
+			throw new NullPointerException("Dataflow can't be null");
+		}
+
+		if (isDataflowOpen(dataflow)) {
+			throw new IllegalArgumentException("Dataflow is already open: "
+					+ dataflow);
+		}
+		openDataflowInfos.put(dataflow, new OpenDataflowInfo());
+		setCurrentDataflow(dataflow);
+		if (openDataflowInfos.size() == 2 && blankDataflow != null) {
+			// Behave like a word processor and close the blank workflow
+			// when another workflow has been opened
+			try {
+				closeDataflow(blankDataflow, true);
+			} catch (UnsavedException e) {
+				logger.error("Blank dataflow was modified "
+						+ "and could not be closed");
+			}
+		}
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public void removeObserver(Observer<FileManagerEvent> observer) {
@@ -478,60 +544,6 @@ public class FileManagerImpl extends FileManager {
 	}
 
 	/**
-	 * Get the {@link OpenDataflowInfo} for the given dataflow
-	 * 
-	 * @throws NullPointerException
-	 *             if the dataflow was <code>null</code>
-	 * @throws IllegalArgumentException
-	 *             if the dataflow was not open.
-	 * @param dataflow
-	 *            Dataflow which information is to be found
-	 * @return The {@link OpenDataflowInfo} describing the dataflow
-	 */
-	protected synchronized OpenDataflowInfo getOpenDataflowInfo(
-			Dataflow dataflow) {
-		if (dataflow == null) {
-			throw new NullPointerException("Dataflow can't be null");
-		}
-		OpenDataflowInfo info = openDataflowInfos.get(dataflow);
-		if (info != null) {
-			return info;
-		} else {
-			throw new IllegalArgumentException("Dataflow was not opened"
-					+ dataflow);
-		}
-	}
-
-	/**
-	 * Mark the dataflow as opened, and close the blank dataflow if needed.
-	 * 
-	 * @param dataflow
-	 *            Dataflow that has been opened
-	 */
-	protected void openDataflowInternal(Dataflow dataflow) {
-		if (dataflow == null) {
-			throw new NullPointerException("Dataflow can't be null");
-		}
-
-		if (isDataflowOpen(dataflow)) {
-			throw new IllegalArgumentException("Dataflow is already open: "
-					+ dataflow);
-		}
-		openDataflowInfos.put(dataflow, new OpenDataflowInfo());
-		setCurrentDataflow(dataflow);
-		if (openDataflowInfos.size() == 2 && blankDataflow != null) {
-			// Behave like a word processor and close the blank workflow
-			// when another workflow has been opened
-			try {
-				closeDataflow(blankDataflow, true);
-			} catch (UnsavedException e) {
-				logger.error("Blank dataflow was modified "
-						+ "and could not be closed");
-			}
-		}
-	}
-
-	/**
 	 * Observe the {@link EditManager} for changes to open dataflows. A change
 	 * of an open workflow would set it as changed using
 	 * {@link FileManagerImpl#setDataflowChanged(Dataflow, boolean)}.
@@ -580,17 +592,5 @@ public class FileManagerImpl extends FileManager {
 			}
 		}
 	}
-
-	@Override
-	public Dataflow getDataflowBySource(Object source) {
-		for (Entry<Dataflow,OpenDataflowInfo> infoEntry : openDataflowInfos.entrySet()) {
-			OpenDataflowInfo info = infoEntry.getValue();
-			if (source.equals(info.getSource())) {
-				return infoEntry.getKey();
-			}
-		}
-		// Not found
-		return null;
-	}
-
+	
 }
