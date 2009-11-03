@@ -1,6 +1,9 @@
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.BorderLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
@@ -25,7 +28,6 @@ import javax.swing.event.HyperlinkListener;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Base64;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.model.User;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
@@ -44,18 +46,19 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 
   // navigation data
   private int iCurrentHistoryIdx; // index within the current history
-  private ArrayList<String> alCurrentHistory; // current history - e.g. if one
+  private final ArrayList<String> alCurrentHistory; // current history - e.g. if one
   // opens Page1, then Page2; goes back and opens Page3 - current preview would hold only [Page1, Page3]
   private ArrayList<Resource> alFullHistory; // all resources that were
   // previewed since application started (will be used by ResourcePreviewHistoryBrowser)
 
   // components for accessing application's main elements
-  private MainComponent pluginMainComponent;
-  private MyExperimentClient myExperimentClient;
-  private Logger logger;
+  private final MainComponent pluginMainComponent;
+  private final MyExperimentClient myExperimentClient;
+  private final Logger logger;
 
   // holder of the data about currently previewed item
   private ResourcePreviewContent rpcContent;
+  private Resource resource;
 
   // components of the preview window
   private JPanel jpMain;
@@ -67,8 +70,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
   private JButton bOpenInMyExp;
   private JButton bDownload;
   private JButton bOpenInTaverna;
-  private JButton bImportIntoTavernaAndMerge;
-  private JButton bImportIntoTavernaAndNest;
+  private JButton bImportIntoTaverna;
   private JButton bAddComment;
   private JButton bAddRemoveFavourite;
   private JButton bUpload;
@@ -76,12 +78,12 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
   private JScrollPane spContentScroller;
 
   // icons
-  private ImageIcon iconOpenInMyExp = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("open_in_my_experiment_icon"));
-  private ImageIcon iconAddFavourite = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("add_favourite_icon"));
-  private ImageIcon iconDeleteFavourite = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("delete_favourite_icon"));
-  private ImageIcon iconAddComment = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("add_comment_icon"));
-  private ImageIcon iconSpinner = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner"));
-  private ImageIcon iconSpinnerStopped = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner_stopped"));
+  private final ImageIcon iconOpenInMyExp = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("open_in_my_experiment_icon"));
+  private final ImageIcon iconAddFavourite = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("add_favourite_icon"));
+  private final ImageIcon iconDeleteFavourite = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("delete_favourite_icon"));
+  private final ImageIcon iconAddComment = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("add_comment_icon"));
+  private final ImageIcon iconSpinner = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner"));
+  private final ImageIcon iconSpinnerStopped = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner_stopped"));
 
   public ResourcePreviewBrowser(MainComponent component, MyExperimentClient client, Logger logger) {
 	super();
@@ -212,8 +214,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	bOpenInMyExp.setEnabled(false);
 	bDownload.setEnabled(false);
 	bOpenInTaverna.setEnabled(false);
-	bImportIntoTavernaAndMerge.setEnabled(false);
-	bImportIntoTavernaAndNest.setEnabled(false);
+	bImportIntoTaverna.setEnabled(false);
 	bAddRemoveFavourite.setEnabled(false);
 	bAddComment.setEnabled(false);
 	bUpload.setEnabled(false);
@@ -225,6 +226,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	final EventListener self = this;
 
 	new Thread("Load myExperiment resource preview content") {
+	  @Override
 	  public void run() {
 		logger.debug("Starting to fetch the preview content data");
 
@@ -281,6 +283,8 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 
   private void initialiseUI() {
 	// create the STATUS BAR of the preview window
+
+	// navigation buttons => far left of status bar
 	JPanel jpNavigationButtons = new JPanel();
 	bBack = new JButton(new ImageIcon(MyExperimentPerspective.getLocalResourceURL("back_icon")));
 	bBack.setToolTipText("Back");
@@ -294,46 +298,25 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	bForward.setEnabled(false);
 	jpNavigationButtons.add(bForward);
 
-	JPanel jpStatusRefresh = new JPanel();
+	// refresh buttons => far right of status bar
+	JPanel jpRefreshButtons = new JPanel();
 	bRefresh = new JButton(new ImageIcon(MyExperimentPerspective.getLocalResourceURL("refresh_icon")));
 	bRefresh.setToolTipText("Refresh");
 	bRefresh.addActionListener(this);
-	jpStatusRefresh.add(bRefresh);
+	jpRefreshButtons.add(bRefresh);
 
 	lSpinnerIcon = new JLabel(this.iconSpinner);
-	jpStatusRefresh.add(lSpinnerIcon);
+	jpRefreshButtons.add(lSpinnerIcon);
 
 	// ACTION BUTTONS
 	// 'open in myExperiment' button is the only one that is always available,
 	// still will be set available during loading of the preview for consistency
 	// of the UI
+
+	// myExperiment "webby" functions
 	bOpenInMyExp = new JButton(iconOpenInMyExp);
 	bOpenInMyExp.setEnabled(false);
 	bOpenInMyExp.addActionListener(this);
-
-	bEditMetadata = new JButton(WorkbenchIcons.editIcon);
-	bEditMetadata.setEnabled(false);
-	bEditMetadata.addActionListener(this);
-
-	bUpload = new JButton(WorkbenchIcons.upArrowIcon);
-	bUpload.setEnabled(false);
-	bUpload.addActionListener(this);
-
-	bDownload = new JButton(WorkbenchIcons.saveIcon);
-	bDownload.setEnabled(false);
-	bDownload.addActionListener(this);
-
-	bOpenInTaverna = new JButton(WorkbenchIcons.openIcon);
-	bOpenInTaverna.setEnabled(false);
-	bOpenInTaverna.addActionListener(this);
-
-	bImportIntoTavernaAndMerge = new JButton();
-	bImportIntoTavernaAndMerge.setEnabled(false);
-	bImportIntoTavernaAndMerge.addActionListener(this);
-
-	bImportIntoTavernaAndNest = new JButton();
-	bImportIntoTavernaAndNest.setEnabled(false);
-	bImportIntoTavernaAndNest.addActionListener(this);
 
 	bAddRemoveFavourite = new JButton(iconAddFavourite);
 	bAddRemoveFavourite.setEnabled(false);
@@ -343,23 +326,64 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	bAddComment.setEnabled(false);
 	bAddComment.addActionListener(this);
 
+	bEditMetadata = new JButton(WorkbenchIcons.editIcon);
+	bEditMetadata.setEnabled(false);
+	bEditMetadata.addActionListener(this);
+
+	bUpload = new JButton(WorkbenchIcons.upArrowIcon);
+	bUpload.setEnabled(false);
+	bUpload.addActionListener(this);
+
+	JPanel jpMyExperimentButtons = new JPanel();
+	jpMyExperimentButtons.add(bOpenInMyExp);
+	jpMyExperimentButtons.add(bAddRemoveFavourite);
+	jpMyExperimentButtons.add(bAddComment);
+	jpMyExperimentButtons.add(bEditMetadata);
+	jpMyExperimentButtons.add(bUpload);
+
+	// functions more specific to taverna
+	bOpenInTaverna = new JButton(WorkbenchIcons.openIcon);
+	bOpenInTaverna.setEnabled(false);
+	bOpenInTaverna.addActionListener(this);
+
+	bDownload = new JButton(WorkbenchIcons.saveIcon);
+	bDownload.setEnabled(false);
+	bDownload.addActionListener(this);
+
+	JPanel jpTavernaButtons = new JPanel();
+	jpTavernaButtons.add(bOpenInTaverna);
+	jpTavernaButtons.add(bDownload);
+
+	// import buttons
+	bImportIntoTaverna = new JButton();
+	bImportIntoTaverna.setEnabled(false);
+	bImportIntoTaverna.addActionListener(this);
+
+	JPanel jpImportButtons = new JPanel();
+	jpImportButtons.add(bImportIntoTaverna);
+
 	// put all action buttons into a button bar
 	JPanel jpActionButtons = new JPanel();
-	jpActionButtons.add(bOpenInMyExp);
-	jpActionButtons.add(bEditMetadata);
-	jpActionButtons.add(bUpload);
-	jpActionButtons.add(bDownload);
-	jpActionButtons.add(bImportIntoTavernaAndMerge);
-	jpActionButtons.add(bImportIntoTavernaAndNest);
-	jpActionButtons.add(bOpenInTaverna);
-	jpActionButtons.add(bAddRemoveFavourite);
-	jpActionButtons.add(bAddComment);
+	jpActionButtons.setLayout(new GridBagLayout());
+	GridBagConstraints c = new GridBagConstraints();
+	c.insets = new Insets(0, 100, 0, 30);
+	c.gridx = 0;
+	c.gridy = 0;
+	jpActionButtons.add(jpMyExperimentButtons, c);
+
+	c.gridx++;
+	c.insets = new Insets(0, 30, 0, 30);
+	jpActionButtons.add(jpTavernaButtons, c);
+
+	c.gridx++;
+	c.insets = new Insets(0, 30, 0, 100);
+	jpActionButtons.add(jpImportButtons, c);
 
 	jpStatusBar = new JPanel();
 	jpStatusBar.setLayout(new BorderLayout());
 	jpStatusBar.add(jpNavigationButtons, BorderLayout.WEST);
 	jpStatusBar.add(jpActionButtons, BorderLayout.CENTER);
-	jpStatusBar.add(jpStatusRefresh, BorderLayout.EAST);
+	jpStatusBar.add(jpRefreshButtons, BorderLayout.EAST);
 
 	// put everything together
 	jpMain = new JPanel();
@@ -424,10 +448,8 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	// "Import into Taverna" - only for Taverna workflows and when download is
 	// allowed for current user (these checks are carried out inside the action)
 
-	// import and merge
-	this.bImportIntoTavernaAndMerge.setAction(pluginMainComponent.new ImportIntoTavernaAction(r, false)); // false => NEST (ie DO NOT MERGE)
-	// import and nest
-	this.bImportIntoTavernaAndNest.setAction(pluginMainComponent.new ImportIntoTavernaAction(r, true)); // true => MERGE
+	// the import button
+	this.bImportIntoTaverna.setAction(pluginMainComponent.new ImportIntoTavernaAction(r));
 
 	// "Add to Favourites" - for all types, but only for logged in users
 	strTooltip = "It is currently not possible to add " + strResourceType
@@ -688,6 +710,10 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 
   public void componentMoved(ComponentEvent e) {
 	// do nothing
+  }
+
+  public Resource getResource() {
+	return resource;
   }
 
 }

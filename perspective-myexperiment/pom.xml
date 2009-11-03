@@ -39,6 +39,11 @@
 	</repositories>
 
 	<dependencies>
+    <dependency>
+      <groupId>net.sf.taverna.t2.activities</groupId>
+      <artifactId>dataflow-activity</artifactId>
+      <version>${t2.activities.version}</version>
+    </dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.infrastructure</groupId>
 			<artifactId>launcher</artifactId>

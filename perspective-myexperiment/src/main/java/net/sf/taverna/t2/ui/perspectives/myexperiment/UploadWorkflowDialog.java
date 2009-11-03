@@ -289,21 +289,14 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	  // the upload
 	  boolean proceedWithUpload = false;
 	  if ((this.strDescription.length() == 0) && (this.strTitle.length() == 0)) {
-		String strInfo = "The workflow 'title' field or the 'description' field\n"
+		String strInfo = "The workflow 'title' field and the 'description' field\n"
 			+ "(or both) are empty.  Any metadata found within the\n"
 			+ "workflow will be used instead.  Do you wish to proceed?";
 		int confirm = JOptionPane.showConfirmDialog(this, strInfo, "Empty fields", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
 		if (confirm == JOptionPane.YES_OPTION)
 		  proceedWithUpload = true;
-	  } else {
-		//		String strInfo = "This will upload the workflow and may take a while\n"
-		//			+ "depending on the speed of your internet connection.\n"
-		//			+ "You will not be able to close this window until the \n"
-		//			+ "process completes.  Do you wish to proceed?";
-		//		int confirm = JOptionPane.showConfirmDialog(this, strInfo, "Workflow Upload", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
-		//		if (confirm == JOptionPane.YES_OPTION)
+	  } else
 		proceedWithUpload = true;
-	  }
 
 	  if (proceedWithUpload) {
 		// the window will stay visible, but should turn into 'waiting' state
@@ -322,7 +315,8 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 		c.anchor = GridBagConstraints.CENTER;
 		c.fill = GridBagConstraints.NONE;
 		c.insets = new Insets(10, 5, 10, 5);
-		lStatusMessage = new JLabel("Posting your workflow...", new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner")), SwingConstants.CENTER);
+		lStatusMessage = new JLabel((updateResource == null ? "Uploading" : "Updating")
+			+ " your workflow...", new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner")), SwingConstants.CENTER);
 		contentPane.add(lStatusMessage, c);
 
 		// disable the (X) button (ideally, would need to remove it, but there's
@@ -372,7 +366,8 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 				  contentPane.remove(lStatusMessage);
 
 				  c.insets = new Insets(10, 5, 5, 5);
-				  lStatusMessage = new JLabel("Your workflow was uploaded successfully", new ImageIcon(MyExperimentPerspective.getLocalResourceURL("success_icon")), SwingConstants.LEFT);
+				  lStatusMessage = new JLabel("Your workflow was successfully "
+					  + (updateResource == null ? "uploaded." : "updated."), new ImageIcon(MyExperimentPerspective.getLocalResourceURL("success_icon")), SwingConstants.LEFT);
 				  contentPane.add(lStatusMessage, c);
 
 				  bCancel.setText("OK");
@@ -392,7 +387,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 				  contentPane.remove(lStatusMessage);
 
 				  c.insets = new Insets(10, 5, 5, 5);
-				  lStatusMessage = new JLabel("Error occurred while uploading workflow: "
+				  lStatusMessage = new JLabel("Error occurred while processing your request: "
 					  + Util.retrieveReasonFromErrorXMLDocument(response.getResponseBody()), new ImageIcon(MyExperimentPerspective.getLocalResourceURL("failure_icon")), SwingConstants.LEFT);
 				  contentPane.add(lStatusMessage, c);
 

@@ -52,9 +52,9 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
   // CONSTANTS
 
   // components for accessing application's main elements
-  private MainComponent pluginMainComponent;
-  private MyExperimentClient myExperimentClient;
-  private Logger logger;
+  private final MainComponent pluginMainComponent;
+  private final MyExperimentClient myExperimentClient;
+  private final Logger logger;
 
   // COMPONENTS
   private JTextField tfMyExperimentURL;
@@ -66,8 +66,8 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
   private JButton bApply;
 
   // DATA STORAGE
-  private Component[] pluginTabComponents;
-  private ArrayList<String> alPluginTabComponentNames;
+  private final Component[] pluginTabComponents;
+  private final ArrayList<String> alPluginTabComponentNames;
 
   public MyExperimentConfigurationPanel(MainComponent component, MyExperimentClient client, Logger incomingLogger) {
 	super();
@@ -210,10 +210,9 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 	if (MyExperimentClient.baseChangedSinceLastStart) {
 	  JPanel jpInfo = new JPanel();
 	  jpInfo.setLayout(new BoxLayout(jpInfo, BoxLayout.Y_AXIS));
-	  String info = "Your myExperiment base url has been modified since Taverna was started;";
+	  String info = "<html>Your myExperiment base url has been modified since Taverna was started;<br/>"
+		  + "this change will not take effect until you restart Taverna.</html>";
 	  jpInfo.add(new JLabel(info, WorkbenchIcons.leafIcon, SwingConstants.LEFT));
-	  info = "this change will not take effect until you restart Taverna.";
-	  jpInfo.add(new JLabel(info));
 	  this.add(jpInfo, BorderLayout.SOUTH);
 	}
   }
@@ -268,7 +267,9 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 
 		javax.swing.JOptionPane.showMessageDialog(null, "You have selected a new Base URL for myExperiment.\n"
 			+ "Your new setting has been saved, but will not take\n"
-			+ "effect until you restart Taverna.", "myExperiment Plugin - Info", JOptionPane.INFORMATION_MESSAGE);
+			+ "effect until you restart Taverna.\n\n"
+			+ "The auto-login feature has been disabled for you to\n"
+			+ "check the login details at the next launch.", "myExperiment Plugin - Info", JOptionPane.INFORMATION_MESSAGE);
 
 		MyExperimentClient.baseChangedSinceLastStart = true;
 	  }

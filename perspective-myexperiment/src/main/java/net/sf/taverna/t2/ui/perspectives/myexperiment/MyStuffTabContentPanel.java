@@ -27,13 +27,14 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.concurrent.CountDownLatch;
+
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
@@ -52,15 +53,16 @@ import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
+
 import org.apache.log4j.Logger;
 
 /**
  * @author Sergejs Aleksejevs, Emmanuel Tagarira, Jiten Bhagat
  */
 public class MyStuffTabContentPanel extends JPanel implements ActionListener, KeyListener, FocusListener {
-  private MainComponent pluginMainComponent;
-  private MyExperimentClient myExperimentClient;
-  private Logger logger;
+  private final MainComponent pluginMainComponent;
+  private final MyExperimentClient myExperimentClient;
+  private final Logger logger;
 
   // components that should be accessible from anywhere in this class
   private JButton bLogin;
@@ -119,6 +121,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	  // this can only be done after the SplitPane is made visible - hence the
 	  // need for the listener below
 	  pluginMainComponent.addComponentListener(new ComponentAdapter() {
+		@Override
 		public void componentShown(ComponentEvent e) {
 		  javax.swing.JOptionPane.showMessageDialog(null, "component shown");
 		  // NB! This is only needed for use with test class, not when Taverna
@@ -149,6 +152,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	  // 'ready'
 	  // (done in a new thread so that this doesn't freeze the plugin window)
 	  new Thread("Waiting for myStuff data to load") {
+		@Override
 		public void run() {
 		  try {
 			cdlComponentLoadingDone.await();
@@ -304,6 +308,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	  // Make call to myExperiment API in a different thread
 	  // (then use SwingUtilities.invokeLater to update the UI when ready).
 	  new Thread("Login to myExperiment") {
+		@Override
 		public void run() {
 		  logger.debug("Logging in to myExperiment");
 
@@ -393,11 +398,11 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	  }
 
 	} else if (e.getSource().equals(this.jpSidebar.bRefreshMyStuff)) {
-	  // this will re-fetch all user profile data and repopulate the whole of
-	  // the 'My Stuff' tab
+	  // this will re-fetch all user profile data and repopulate the whole of the 'My Stuff' tab
 	  pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), "Refreshing user data");
 
 	  new Thread("Refreshing myStuff tab data") {
+		@Override
 		public void run() {
 		  // re-fetch user data first
 		  myExperimentClient.setCurrentUser(myExperimentClient.fetchCurrentUser(myExperimentClient.getCurrentUser().getURI()));

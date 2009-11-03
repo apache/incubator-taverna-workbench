@@ -23,10 +23,7 @@ package net.sf.taverna.t2.workbench.myexperiment.config;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponent;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponentFactory;
 
 /**
  * @author Emmanuel Tagarira
@@ -39,12 +36,9 @@ public class TestJFrameForPreferencesLocalLaunch {
 
 	frame.setMinimumSize(new Dimension(500, 300));
 	frame.setLocation(300, 150);
-	MainComponentFactory factory = new net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponentFactory();
-	MainComponent mainPluginComponent = (MainComponent) factory.getComponent();
-	frame.getContentPane().add((JPanel) mainPluginComponent.getMyExperimentConfigurationPanel());
+	frame.getContentPane().add(new MyExperimentConfigurationPanel(MainComponent.MAIN_COMPONENT, MainComponent.MY_EXPERIMENT_CLIENT, MainComponent.LOGGER));
 
 	frame.pack();
 	frame.setVisible(true);
   }
-
 }
