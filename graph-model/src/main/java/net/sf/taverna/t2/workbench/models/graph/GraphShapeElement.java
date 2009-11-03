@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.models.graph;
 
+import java.awt.Dimension;
 import java.awt.Point;
 
 /**
@@ -33,11 +34,7 @@ public class GraphShapeElement extends GraphElement {
 	
 	private Shape shape;
 	
-	private Point position = new Point();
-	
-	private int width;
-	
-	private int height;
+	private int x, y, width, height;
 	
 	public GraphShapeElement(GraphController graphController) {
 		super(graphController);
@@ -58,13 +55,13 @@ public class GraphShapeElement extends GraphElement {
 	 * @return the position
 	 */
 	public Point getPosition() {
-		return position;
+		return new Point(x, y);
 	}
 
 	/**
-	 * Returns the shape of the node.
+	 * Returns the shape of the element.
 	 *
-	 * @return the shape of the node
+	 * @return the shape of the element
 	 */
 	public Shape getShape() {
 		return shape;
@@ -80,39 +77,41 @@ public class GraphShapeElement extends GraphElement {
 	}
 	
 	/**
-	 * Sets the height of the node in points. Value must be >= 0.
-	 *
-	 * @param height the new height of the node in points
-	 */
-	public void setHeight(int height) throws IllegalArgumentException {
-		this.height = height;
-	}
-
-	/**
 	 * Sets the position.
 	 *
 	 * @param position the new position
 	 */
 	public void setPosition(Point position) {
-		this.position = position;
+		x = position.x;
+		y = position.y;
 	}
 
 	/**
-	 * Sets the shape of the node.
+	 * Sets the shape of the element.
 	 *
-	 * @param shape the new shape of the node
+	 * @param shape the new shape of the element
 	 */
 	public void setShape(Shape shape) {
 		this.shape = shape;
 	}
 
 	/**
-	 * Sets the width of the node in points. Value must be >= 0.
-	 *
-	 * @param width the new width of the node in points
+	 * Returns the size of the element.
+	 * 
+	 * @return the size of the element
 	 */
-	public void setWidth(int width) throws IllegalArgumentException {
-		this.width = width;
+	public Dimension getSize() {
+		return new Dimension(width, height);
+	}
+	
+	/**
+	 * Sets the size of the element.
+	 * 
+	 * @param size the new size of the node
+	 */
+	public void setSize(Dimension size) {
+		width = size.width;
+		height = size.height;
 	}
 
 }

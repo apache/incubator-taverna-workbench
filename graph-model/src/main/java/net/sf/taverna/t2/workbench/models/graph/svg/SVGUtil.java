@@ -45,9 +45,11 @@ import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
 
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
+import org.apache.batik.dom.svg.SVGOMAnimationElement;
 import org.apache.batik.dom.svg.SVGOMPoint;
-//import org.apache.batik.transcoder.TranscoderException;
-//import org.apache.batik.transcoder.svg2svg.PrettyPrinter;
+import org.apache.batik.transcoder.TranscoderException;
+import org.apache.batik.transcoder.svg2svg.PrettyPrinter;
+import org.apache.batik.util.SMILConstants;
 import org.apache.batik.util.SVGConstants;
 import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.log4j.Logger;
@@ -55,6 +57,7 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.svg.SVGDocument;
+import org.w3c.dom.svg.SVGElement;
 import org.w3c.dom.svg.SVGLocatable;
 import org.w3c.dom.svg.SVGMatrix;
 
@@ -87,6 +90,11 @@ public class SVGUtil {
 		docFactory = new SAXSVGDocumentFactory(parser);
 	}
 
+	/**
+	 * Creates a new SVGDocument.
+	 * 
+	 * @return a new SVGDocument
+	 */
 	public static SVGDocument createSVGDocument() {
 		DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
 		return (SVGDocument) impl.createDocument(svgNS, SVG, null);
@@ -109,7 +117,7 @@ public class SVGUtil {
 
 	/**
 	 * Writes SVG to the console. For debugging only.
-	 *
+	 * 
 	 * @param svgDocument
 	 *            the document to output
 	 */
@@ -135,19 +143,17 @@ public class SVGUtil {
 			Result dest = new StreamResult(sw);
 			transformer.transform(src, dest);
 
-//			PrettyPrinter pp = new PrettyPrinter();
-//			pp.print(new StringReader(sw.toString()), writer);
+			PrettyPrinter pp = new PrettyPrinter();
+			pp.print(new StringReader(sw.toString()), writer);
 		} catch (TransformerConfigurationException e) {
 			e.printStackTrace(new PrintWriter(writer));
 		} catch (TransformerException e) {
 			e.printStackTrace(new PrintWriter(writer));
-		} 
-//		catch (TranscoderException e) {
-//			e.printStackTrace(new PrintWriter(writer));
-//		} 
-//		catch (IOException e) {
-//			e.printStackTrace(new PrintWriter(writer));
-//		}
+		} catch (TranscoderException e) {
+			e.printStackTrace(new PrintWriter(writer));
+		} catch (IOException e) {
+			e.printStackTrace(new PrintWriter(writer));
+		}
 	}
 
 	/**
@@ -346,11 +352,15 @@ public class SVGUtil {
 	}
 
 	/**
-	 * Appends x y coordinates to a <code>StringBuilder</code> in the format "x,y ".
+	 * Appends x y coordinates to a <code>StringBuilder</code> in the format
+	 * "x,y ".
 	 * 
-	 * @param stringBuilder the <code>StringBuilder</code> to append the point to
-	 * @param x the x coordinate
-	 * @param y the y coordinate
+	 * @param stringBuilder
+	 *            the <code>StringBuilder</code> to append the point to
+	 * @param x
+	 *            the x coordinate
+	 * @param y
+	 *            the y coordinate
 	 */
 	public static void addPoint(StringBuilder stringBuilder, float x, float y) {
 		stringBuilder.append(x).append(COMMA).append(y).append(SPACE);
@@ -368,7 +378,7 @@ public class SVGUtil {
 	 */
 	public static String getPath(List<Point> pointList) {
 		StringBuilder sb = new StringBuilder();
-		if (pointList.size() > 1) {
+		if (pointList != null && pointList.size() > 1) {
 			Point firstPoint = pointList.get(0);
 			sb.append(M).append(firstPoint.x).append(COMMA).append(firstPoint.y);
 			sb.append(SPACE);
@@ -380,6 +390,86 @@ public class SVGUtil {
 			}
 		}
 		return sb.toString();
+	}
+
+	/**
+	 * Creates an animation element.
+	 * 
+	 * @param graphController
+	 *            the SVGGraphController to use to create the animation element
+	 * @param elementType
+	 *            the type of animation element to create
+	 * @param attribute
+	 *            the attribute that the animation should affect
+	 * @param transformType
+	 *            the type of transform - use null not creating a transform
+	 *            animation
+	 * @return an new animation element
+	 */
+	public static SVGOMAnimationElement createAnimationElement(SVGGraphController graphController,
+			String elementType, String attribute, String transformType) {
+		SVGOMAnimationElement animationElement = (SVGOMAnimationElement) graphController
+				.createElement(elementType);
+		animationElement.setAttribute(SMILConstants.SMIL_ATTRIBUTE_NAME_ATTRIBUTE, attribute);
+		if (transformType != null) {
+			animationElement.setAttribute(SVGConstants.SVG_TYPE_ATTRIBUTE, transformType);
+		}
+		animationElement.setAttribute(SMILConstants.SMIL_FILL_ATTRIBUTE,
+				SMILConstants.SMIL_FREEZE_VALUE);
+		return animationElement;
+	}
+
+	/**
+	 * Adds an animation to the SVG element and starts the animation.
+	 * 
+	 * @param animate
+	 *            that animation element
+	 * @param element
+	 *            the element to animate
+	 * @param duration
+	 *            the duration of the animation in milliseconds
+	 * @param from
+	 *            the starting point for the animation, can be null
+	 * @param to
+	 *            the end point for the animation, cannot be null
+	 */
+	public static void animate(SVGOMAnimationElement animate, SVGElement element, int duration,
+			String from, String to) {
+		animate.setAttribute(SMILConstants.SMIL_DUR_ATTRIBUTE, duration + "ms");
+		if (from != null) {
+			animate.setAttribute(SMILConstants.SMIL_FROM_ATTRIBUTE, from);
+		}
+		animate.setAttribute(SMILConstants.SMIL_TO_ATTRIBUTE, to);
+		element.appendChild(animate);
+		try {
+			animate.beginElement();
+		} catch (NullPointerException e) {
+		}
+	}
+
+	/**
+	 * Adjusts the length of <code>pointList</code> by adding or removing points
+	 * to make the length equal to <code>size</code>. If <code>pointList</code>
+	 * is shorter than <code>size</code> the last point is repeated. If
+	 * <code>pointList</code> is longer than <code>size</code> points at the end
+	 * of the list are removed.
+	 * 
+	 * @param pointList
+	 *            the path to adjust
+	 * @param size
+	 *            the required size for <code>pointList</code>
+	 */
+	public static void adjustPathLength(List<Point> pointList, int size) {
+		if (pointList.size() < size) {
+			Point lastPoint = pointList.get(pointList.size() - 1);
+			for (int i = pointList.size(); i < size; i++) {
+				pointList.add(lastPoint);
+			}
+		} else if (pointList.size() > size) {
+			for (int i = pointList.size(); i > size; i--) {
+				pointList.remove(i - 1);
+			}
+		}
 	}
 
 }

@@ -46,6 +46,8 @@ public abstract class GraphElement {
 	
 	private Color fillColor;
 	
+	private float opacity = 1f;
+	
 	private GraphElement parent;
 	
 	private boolean selected;
@@ -54,9 +56,11 @@ public abstract class GraphElement {
 	
 	private boolean interactive;
 	
-	private Object dataflowObject;
+	private boolean visible = true;
 	
-	protected GraphEventManager eventManager;
+	private boolean filtered;
+	
+	private Object dataflowObject;
 	
 	protected GraphController graphController;
 	
@@ -68,9 +72,6 @@ public abstract class GraphElement {
 
 	protected GraphElement(GraphController graphController) {
 		this.graphController = graphController;
-		if (graphController != null) {
-			eventManager = graphController.getGraphEventManager();
-		}
 	}
 	
 	/**
@@ -79,7 +80,10 @@ public abstract class GraphElement {
 	 * @return the eventManager
 	 */
 	public GraphEventManager getEventManager() {
-		return eventManager;
+		if (graphController != null) {
+			return graphController.getGraphEventManager();
+		}
+		return null;
 	}
 
 	/**
@@ -307,16 +311,16 @@ public abstract class GraphElement {
 	}
 
 	/**
-	 * Returns the active.
+	 * Returns <code>true</code> if the element is active. The default value is <code>false</code>.
 	 *
-	 * @return the active
+	 * @return <code>true</code> if the element is active
 	 */
 	public boolean isActive() {
 		return active;
 	}
 
 	/**
-	 * Sets the active.
+	 * Sets the value of active.
 	 *
 	 * @param active the new active
 	 */
@@ -325,21 +329,105 @@ public abstract class GraphElement {
 	}
 
 	/**
-	 * Returns the interactive.
+	 * Returns <code>true</code> if the element is interactive. The default value is <code>false</code>.
 	 *
-	 * @return the interactive
+	 * @return <code>true</code> if the element is interactive
 	 */
 	public boolean isInteractive() {
 		return interactive;
 	}
 
 	/**
-	 * Sets the interactive.
+	 * Sets the value of interactive.
 	 *
 	 * @param interactive the new interactive
 	 */
 	public void setInteractive(boolean interactive) {
 		this.interactive = interactive;
+	}
+
+	/**
+	 * Returns <code>true</code> if the element is visible. The default value is <code>true</code>.
+	 *
+	 * @return <code>true</code> if the element is visible
+	 */
+	public boolean isVisible() {
+		return visible;
+	}
+
+	/**
+	 * Sets whether the element is visible.
+	 *
+	 * @param visible the new value for visible
+	 */
+	public void setVisible(boolean visible) {
+		this.visible = visible;
+	}
+
+	/**
+	 * Returns the opacity value. The default value is 1.0
+	 *
+	 * @return the opacity value
+	 */
+	public float getOpacity() {
+		return opacity;
+	}
+
+	/**
+	 * Sets the opacity of the element. Must be a value between 0.0 and 1.0.
+	 *
+	 * @param opacity the new opacity value
+	 */
+	public void setOpacity(float opacity) {
+		this.opacity = opacity;
+	}
+
+	/**
+	 * Returns <code>true</code> if the element is filtered.
+	 *
+	 * @return <code>true</code> if the element is filtered
+	 */
+	public boolean isFiltered() {
+		return filtered;
+	}
+
+	/**
+	 * Sets the value of filtered.
+	 *
+	 * @param filtered the new value for filtered
+	 */
+	public void setFiltered(boolean filtered) {
+		this.filtered = filtered;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		GraphElement other = (GraphElement) obj;
+		if (id == null) {
+			if (other.id != null) {
+				return false;
+			}
+		} else if (!id.equals(other.id)) {
+			return false;
+		}
+		return true;
 	}
 	
 }

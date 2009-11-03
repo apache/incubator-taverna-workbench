@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.models.graph.dot;
 
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.io.StringReader;
@@ -99,7 +100,7 @@ public class GraphLayout implements DOTParserVisitor {
 	}
 
 	public Object visit(ASTNodeStatement node, Object data) {
-		GraphElement element = graphController.getElement(removeQuotes(node.name));
+		GraphElement element = graphController.getElement(removeQuotes(node.getName()));
 		if (element != null) {
 			return node.childrenAccept(this, element);
 		}
@@ -116,20 +117,20 @@ public class GraphLayout implements DOTParserVisitor {
 
 	public Object visit(ASTEdgeStatement node, Object data) {
 		StringBuilder id = new StringBuilder();
-		id.append(removeQuotes(node.name));
-		if (node.port != null) {
+		id.append(removeQuotes(node.getName()));
+		if (node.getPort() != null) {
 			id.append(":");
-			id.append(removeQuotes(node.port));
+			id.append(removeQuotes(node.getPort()));
 		}
 	    if (node.children != null) {
 	        for (Node child : node.children) {
 	        	if (child instanceof ASTEdgeRHS) {
 	        		NamedNode rhsNode = (NamedNode) child.jjtAccept(this, data);
 	        		id.append("->");
-	        		id.append(removeQuotes(rhsNode.name));
-	        		if (rhsNode.port != null) {
+	        		id.append(removeQuotes(rhsNode.getName()));
+	        		if (rhsNode.getPort() != null) {
 	        			id.append(":");
-	        			id.append(removeQuotes(rhsNode.port));
+	        			id.append(removeQuotes(rhsNode.getPort()));
 	        		}
 	        	}
 	        }
@@ -142,7 +143,7 @@ public class GraphLayout implements DOTParserVisitor {
 	}
 
 	public Object visit(ASTSubgraph node, Object data) {
-		GraphElement element = graphController.getElement(removeQuotes(node.name).substring("cluster_".length()));
+		GraphElement element = graphController.getElement(removeQuotes(node.getName()).substring("cluster_".length()));
 		if (element != null) {
 			return node.childrenAccept(this, element);
 		}
@@ -160,8 +161,8 @@ public class GraphLayout implements DOTParserVisitor {
 	public Object visit(ASTAList node, Object data) {
 		if (data instanceof Graph) {
 			Graph graph = (Graph) data;
-			if ("bb".equalsIgnoreCase(node.name)) {
-				Rectangle rect = getRectangle(node.value + "");
+			if ("bb".equalsIgnoreCase(node.getName())) {
+				Rectangle rect = getRectangle(node.getValue());
 				if (rect.width == 0 && rect.height == 0) {
 					rect.width = 500;
 					rect.height = 500;
@@ -170,56 +171,53 @@ public class GraphLayout implements DOTParserVisitor {
 					bounds = calculateBounds(rect);
 					rect = bounds;
 				}
-				graph.setWidth(rect.width);
-				graph.setHeight(rect.height);
-				graph.setPosition(new Point(rect.x, rect.y));
-			} else if ("lp".equalsIgnoreCase(node.name)) {
-				graph.setLabelPosition(getPoint(node.value + ""));
+				graph.setSize(rect.getSize());
+				graph.setPosition(rect.getLocation());
+			} else if ("lp".equalsIgnoreCase(node.getName())) {
+				graph.setLabelPosition(getPoint(node.getValue()));
 			}
 		} else if (data instanceof GraphNode) {
 			GraphNode graphNode = (GraphNode) data;
-			if ("width".equalsIgnoreCase(node.name)) {
-				graphNode.setWidth(getSize(node.value + ""));
-			} else if ("height".equalsIgnoreCase(node.name)) {
-				graphNode.setHeight(getSize(node.value + ""));
-			} else if ("pos".equalsIgnoreCase(node.name)) {
-				Point position = getPoint(node.value + "");
+			if ("width".equalsIgnoreCase(node.getName())) {
+				graphNode.setSize(new Dimension(getSize(node.getValue()), graphNode.getHeight()));
+			} else if ("height".equalsIgnoreCase(node.getName())) {
+				graphNode.setSize(new Dimension(graphNode.getWidth(), getSize(node.getValue())));
+			} else if ("pos".equalsIgnoreCase(node.getName())) {
+				Point position = getPoint(node.getValue());
 				position.x = position.x - (graphNode.getWidth() / 2);
 				position.y = position.y - (graphNode.getHeight() / 2);
 				graphNode.setPosition(position);
-			} else if ("rects".equalsIgnoreCase(node.name)) {
-				List<Rectangle> rectangles = getRectangles(node.value + "");
+			} else if ("rects".equalsIgnoreCase(node.getName())) {
+				List<Rectangle> rectangles = getRectangles(node.getValue());
 				List<GraphNode> sinkNodes = graphNode.getSinkNodes();
 				if (graphController.getAlignment().equals(Alignment.HORIZONTAL)) {
 					Rectangle rect = rectangles.remove(0);
-					graphNode.setWidth(rect.width);
-					graphNode.setHeight(rect.height);
-					graphNode.setPosition(new Point(rect.x, rect.y));
+					graphNode.setSize(rect.getSize());
+					graphNode.setPosition(rect.getLocation());
 				} else {
 					Rectangle rect = rectangles.remove(sinkNodes.size());
-					graphNode.setWidth(rect.width);
-					graphNode.setHeight(rect.height);
-					graphNode.setPosition(new Point(rect.x, rect.y));
+					graphNode.setSize(rect.getSize());
+					graphNode.setPosition(rect.getLocation());
 				}
 				Point origin = graphNode.getPosition();
 				for (GraphNode sinkNode : sinkNodes) {
 					Rectangle rect = rectangles.remove(0);
-					sinkNode.setWidth(rect.width);
-					sinkNode.setHeight(rect.height);
-					sinkNode.setPosition(new Point(rect.x - origin.x, rect.y - origin.y));
+					rect.setLocation(rect.x - origin.x, rect.y - origin.y);
+					sinkNode.setSize(rect.getSize());
+					sinkNode.setPosition(rect.getLocation());
 				}
 				List<GraphNode> sourceNodes = graphNode.getSourceNodes();
 				for (GraphNode sourceNode : sourceNodes) {
 					Rectangle rect = rectangles.remove(0);
-					sourceNode.setWidth(rect.width);
-					sourceNode.setHeight(rect.height);
-					sourceNode.setPosition(new Point(rect.x - origin.x, rect.y - origin.y));
+					rect.setLocation(rect.x - origin.x, rect.y - origin.y);
+					sourceNode.setSize(rect.getSize());
+					sourceNode.setPosition(rect.getLocation());
 				}
 			}
 		} else if (data instanceof GraphEdge) {
 			GraphEdge graphEdge = (GraphEdge) data;
-			if ("pos".equalsIgnoreCase(node.name)) {
-				graphEdge.setPath(getPath(node.value + ""));
+			if ("pos".equalsIgnoreCase(node.getName())) {
+				graphEdge.setPath(getPath(node.getValue()));
 			}
 		}
 		return node.childrenAccept(this, data);

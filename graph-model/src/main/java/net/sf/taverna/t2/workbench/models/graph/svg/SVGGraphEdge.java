@@ -31,11 +31,13 @@ import net.sf.taverna.t2.workbench.models.graph.svg.event.SVGMouseOutEventListen
 import net.sf.taverna.t2.workbench.models.graph.svg.event.SVGMouseOverEventListener;
 
 import org.apache.batik.dom.svg.SVGGraphicsElement;
+import org.apache.batik.dom.svg.SVGOMAnimationElement;
 import org.apache.batik.dom.svg.SVGOMEllipseElement;
 import org.apache.batik.dom.svg.SVGOMGElement;
 import org.apache.batik.dom.svg.SVGOMPathElement;
 import org.apache.batik.dom.svg.SVGOMPolygonElement;
 import org.apache.batik.util.CSSConstants;
+import org.apache.batik.util.SMILConstants;
 import org.apache.batik.util.SVGConstants;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.svg.SVGElement;
@@ -54,7 +56,9 @@ public class SVGGraphEdge extends GraphEdge {
 	private static final String ELLIPSE_RADIUS = "3.5";
 
 	private SVGGraphController graphController;
-	
+
+	private SVGGraphElementDelegate delegate;
+
 	private SVGMouseClickEventListener mouseClickAction;
 
 	private SVGMouseDownEventListener mouseDownAction;
@@ -65,233 +69,219 @@ public class SVGGraphEdge extends GraphEdge {
 	@SuppressWarnings("unused")
 	private SVGMouseOutEventListener mouseOutAction;
 
-	private SVGOMGElement g;
+	private SVGOMGElement mainGroup;
 
-	private SVGOMPathElement path;
+	private SVGOMPathElement path, deleteButton;
 
 	private SVGOMPolygonElement polygon;
 
 	private SVGOMEllipseElement ellipse;
 
-	private SVGOMPathElement deleteButton;
-
 	private SVGGraphicsElement arrowHead;
+
+	private SVGOMAnimationElement animatePath, animatePosition, animateRotation;
 
 	public SVGGraphEdge(SVGGraphController graphController) {
 		super(graphController);
 		this.graphController = graphController;
-		
-		mouseClickAction = new SVGMouseClickEventListener(eventManager, this);
-		mouseDownAction = new SVGMouseDownEventListener(eventManager, this);
-		mouseOverAction = new SVGMouseOverEventListener(eventManager, this);
-		mouseOutAction = new SVGMouseOutEventListener(eventManager, this);
 
-		g = (SVGOMGElement) graphController.createElement(SVGConstants.SVG_G_TAG);
-		
+		mouseClickAction = new SVGMouseClickEventListener(this);
+		mouseDownAction = new SVGMouseDownEventListener(this);
+		mouseOverAction = new SVGMouseOverEventListener(this);
+		mouseOutAction = new SVGMouseOutEventListener(this);
+
+		mainGroup = (SVGOMGElement) graphController.createElement(SVGConstants.SVG_G_TAG);
+		mainGroup.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, CSSConstants.CSS_BLACK_VALUE);
+		mainGroup.setAttribute(SVGConstants.SVG_STROKE_DASHARRAY_ATTRIBUTE,
+				CSSConstants.CSS_NONE_VALUE);
+		mainGroup.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "1");
+
 		path = (SVGOMPathElement) graphController.createElement(SVGConstants.SVG_PATH_TAG);
 		path.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
-		EventTarget t = (EventTarget) path;		
+		EventTarget t = (EventTarget) path;
 		t.addEventListener(SVGConstants.SVG_CLICK_EVENT_TYPE, mouseClickAction, false);
-//		t.addEventListener(SVGConstants.SVG_MOUSEOVER_EVENT_TYPE, mouseOverAction, false);
-//		t.addEventListener(SVGConstants.SVG_MOUSEOUT_EVENT_TYPE, mouseOutAction, false);
-		g.appendChild(path);
-		
+		// t.addEventListener(SVGConstants.SVG_MOUSEOVER_EVENT_TYPE,
+		// mouseOverAction, false);
+		// t.addEventListener(SVGConstants.SVG_MOUSEOUT_EVENT_TYPE,
+		// mouseOutAction, false);
+		mainGroup.appendChild(path);
+
 		polygon = (SVGOMPolygonElement) graphController.createElement(SVGConstants.SVG_POLYGON_TAG);
-		polygon.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE,
-				ARROW_LENGTH + ", 0" +
-				" 0, -"+ ARROW_WIDTH +
-				" 0," + ARROW_WIDTH);
+		polygon.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, ARROW_LENGTH + ", 0" + " 0, -"
+				+ ARROW_WIDTH + " 0," + ARROW_WIDTH);
 		t = (EventTarget) polygon;
 		t.addEventListener(SVGConstants.SVG_CLICK_EVENT_TYPE, mouseClickAction, false);
 		t.addEventListener(SVGConstants.SVG_MOUSEDOWN_EVENT_TYPE, mouseDownAction, false);
-//		t.addEventListener(SVGConstants.SVG_MOUSEOVER_EVENT_TYPE, mouseOverAction, false);
-//		t.addEventListener(SVGConstants.SVG_MOUSEOUT_EVENT_TYPE, mouseOutAction, false);
-		
+		// t.addEventListener(SVGConstants.SVG_MOUSEOVER_EVENT_TYPE,
+		// mouseOverAction, false);
+		// t.addEventListener(SVGConstants.SVG_MOUSEOUT_EVENT_TYPE,
+		// mouseOutAction, false);
+
 		ellipse = (SVGOMEllipseElement) graphController.createElement(SVGConstants.SVG_ELLIPSE_TAG);
 		ellipse.setAttribute(SVGConstants.SVG_CX_ATTRIBUTE, ELLIPSE_RADIUS);
 		ellipse.setAttribute(SVGConstants.SVG_CY_ATTRIBUTE, SVGConstants.SVG_ZERO_VALUE);
 		ellipse.setAttribute(SVGConstants.SVG_RX_ATTRIBUTE, ELLIPSE_RADIUS);
 		ellipse.setAttribute(SVGConstants.SVG_RY_ATTRIBUTE, ELLIPSE_RADIUS);
-		
 
 		arrowHead = polygon;
-		g.appendChild(arrowHead);
+		mainGroup.appendChild(arrowHead);
 
 		deleteButton = (SVGOMPathElement) graphController.createElement(SVGConstants.SVG_PATH_TAG);
 		deleteButton.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, "red");
 		deleteButton.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "2");
 		deleteButton.setAttribute(SVGConstants.SVG_D_ATTRIBUTE, "M-3.5,-7L3.5,0M-3.5,0L3.5,-7");
 		deleteButton.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY, CSSConstants.CSS_NONE_VALUE);
-		g.appendChild(deleteButton);
+		mainGroup.appendChild(deleteButton);
 
+		animatePath = SVGUtil.createAnimationElement(graphController, SVGConstants.SVG_ANIMATE_TAG,
+				SVGConstants.SVG_D_ATTRIBUTE, null);
+
+		animatePosition = SVGUtil.createAnimationElement(graphController,
+				SVGConstants.SVG_ANIMATE_TRANSFORM_TAG, SVGConstants.SVG_TRANSFORM_ATTRIBUTE,
+				SVGConstants.TRANSFORM_TRANSLATE);
+
+		animateRotation = SVGUtil.createAnimationElement(graphController,
+				SVGConstants.SVG_ANIMATE_TRANSFORM_TAG, SVGConstants.SVG_TRANSFORM_ATTRIBUTE,
+				SVGConstants.TRANSFORM_ROTATE);
+		animateRotation.setAttribute(SMILConstants.SMIL_ADDITIVE_ATTRIBUTE,
+				SMILConstants.SMIL_SUM_VALUE);
+
+		delegate = new SVGGraphElementDelegate(graphController, this, mainGroup);
 	}
-		
+
 	public SVGElement getSVGElement() {
-		return g;
+		return mainGroup;
 	}
-	
+
 	/**
 	 * Returns the path.
-	 *
+	 * 
 	 * @return the path
 	 */
 	public SVGOMPathElement getPathElement() {
 		return path;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.models.graph.GraphElement#setSelected(boolean)
-	 */
+	@Override
 	public void setSelected(final boolean selected) {
 		super.setSelected(selected);
-		graphController.updateSVGDocument(
-				new Runnable() {
-					public void run() {
-						if (selected) {
-							path.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphSettings.SELECTED_COLOUR);
-							arrowHead.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGGraphSettings.SELECTED_COLOUR);
-							if (getFillColor() != null) {
-								arrowHead.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGGraphSettings.SELECTED_COLOUR);
-							}
-
-//								System.out.println("Path = " +path.getAttribute("d"));
-//								SVGOMAnimateMotionElement animateMotion = (SVGOMAnimateMotionElement) graphController.svgDocument
-//								.createElementNS(SVGUtil.svgNS, SVGConstants.SVG_ANIMATE_MOTION_TAG);
-//								animateMotion.setAttribute("begin", "0s");
-//								animateMotion.setAttribute("dur", "1s");
-//								animateMotion.setAttribute("repeatDur", "indefinite");
-//								animateMotion.setAttribute("path", path.getAttribute("d"));
-
-//								polygon.appendChild(animateMotion);
-//								animateMotion.beginElement();
-
-						} else {
-							path.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil.getHexValue(getColor()));
-							arrowHead.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil.getHexValue(getColor()));
-							if (getFillColor() != null) {
-								arrowHead.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGUtil.getHexValue(getColor()));
-							}
-						}
-					}
-				}
-		);
+		graphController.updateSVGDocument(new Runnable() {
+			public void run() {
+				mainGroup.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE,
+						selected ? SVGGraphSettings.SELECTED_COLOUR : SVGUtil
+								.getHexValue(getColor()));
+				mainGroup.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE,
+						selected ? SVGGraphSettings.SELECTED_COLOUR : SVGUtil
+								.getHexValue(getColor()));
+			}
+		});
 	}
 
 	@Override
-	public void setActive(boolean active) {
+	public void setActive(final boolean active) {
 		super.setActive(active);
-		if (active) {
-			path.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "2");
-			deleteButton.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY, CSSConstants.CSS_INLINE_VALUE);
-		} else {
-			path.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "1");
-			deleteButton.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY, CSSConstants.CSS_NONE_VALUE);
-		}
-//		if (active) {
-//			setColour(SVGGraphController.OUTPUT_COLOUR);
-//			SVGGraphController.timer.schedule(new TimerTask() {
-//				public void run() {
-//					resetStyle();
-//				}
-//			}, SVGGraphController.OUTPUT_FLASH_PERIOD);
-//		}
+		graphController.updateSVGDocument(new Runnable() {
+			public void run() {
+				if (active) {
+					path.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "2");
+					deleteButton.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
+							CSSConstants.CSS_INLINE_VALUE);
+				} else {
+					path.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "1");
+					deleteButton.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
+							CSSConstants.CSS_NONE_VALUE);
+				}
+			}
+		});
 	}
 
-	public void setVisible(final boolean visible) {
-		graphController.updateSVGDocument(
-			new Runnable() {
-				public void run() {
-					if (visible) {
-						path.setAttribute("visibility", "visible");
-						if (polygon != null) {
-							polygon.setAttribute("visibility", "visible");
-						} else {
-							ellipse.setAttribute("visibility", "visible");
-						}
-					} else {
-						path.setAttribute("visibility", "hidden");
-						if (polygon != null) {
-							polygon.setAttribute("visibility", "hidden");
-						} else {
-							ellipse.setAttribute("visibility", "hidden");
-						}
-					}
-				}
-			});
-	}
-	
-	public void setColor(final Color color) {
-		super.setColor(color);
-		graphController.updateSVGDocument(
-			new Runnable() {
-				public void run() {
-					path.setAttribute(
-							SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil.getHexValue(color));
-					polygon.setAttribute(
-							SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil.getHexValue(color));
-					ellipse.setAttribute(
-							SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil.getHexValue(color));
-				}
-			}
-		);
-	}
-	
-	public void setFillColor(final Color fillColor) {
-		super.setFillColor(fillColor);
-		graphController.updateSVGDocument(
-			new Runnable() {
-				public void run() {
-					polygon.setAttribute(
-							SVGConstants.SVG_FILL_ATTRIBUTE, SVGUtil.getHexValue(fillColor));
-					ellipse.setAttribute(
-							SVGConstants.SVG_FILL_ATTRIBUTE, SVGUtil.getHexValue(fillColor));
-				}
-			}
-		);
-	}
-	
 	@Override
 	public void setArrowHeadStyle(final ArrowStyle arrowHeadStyle) {
 		super.setArrowHeadStyle(arrowHeadStyle);
-		graphController.updateSVGDocument(
-			new Runnable() {
-				public void run() {
-					if (ArrowStyle.NONE.equals(arrowHeadStyle)) {
-						g.removeChild(arrowHead);
-					} else if (ArrowStyle.NORMAL.equals(arrowHeadStyle)) {
-						g.removeChild(arrowHead);
-						arrowHead = polygon;
-						g.appendChild(arrowHead);
-					} else if (ArrowStyle.DOT.equals(arrowHeadStyle)) {
-						g.removeChild(arrowHead);
-						arrowHead = ellipse;
-						g.appendChild(arrowHead);
-					}
+		graphController.updateSVGDocument(new Runnable() {
+			public void run() {
+				if (ArrowStyle.NONE.equals(arrowHeadStyle)) {
+					mainGroup.removeChild(arrowHead);
+				} else if (ArrowStyle.NORMAL.equals(arrowHeadStyle)) {
+					mainGroup.removeChild(arrowHead);
+					arrowHead = polygon;
+					mainGroup.appendChild(arrowHead);
+				} else if (ArrowStyle.DOT.equals(arrowHeadStyle)) {
+					mainGroup.removeChild(arrowHead);
+					arrowHead = ellipse;
+					mainGroup.appendChild(arrowHead);
 				}
 			}
-		);
+		});
 	}
 
+	@Override
 	public void setPath(final List<Point> pointList) {
+		final List<Point> oldPointList = getPath();
 		super.setPath(pointList);
-		graphController.updateSVGDocument(
-			new Runnable() {
-				public void run() {
-					path.setAttribute(
-							SVGConstants.SVG_D_ATTRIBUTE, SVGUtil.getPath(pointList));
-					if (pointList.size() > 1) {
-						Point a = pointList.get(pointList.size() - 2);
-						Point b = pointList.get(pointList.size() - 1);
-						double angle = SVGUtil.calculateAngle(a.x, a.y, b.x, b.y);
-						polygon.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-								+ b.x + " " + b.y + ") rotate(" + angle + " 0 0) ");
-						ellipse.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-								+ b.x + " " + b.y + ") rotate(" + angle + " 0 0) ");
-						deleteButton.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("+b.x+" "+b.y+")");
-					}
+		graphController.updateSVGDocument(new Runnable() {
+			public void run() {
+				Point lastPoint = pointList.get(pointList.size() - 1);
+				double angle = SVGUtil.calculateAngle(pointList);
+				if (graphController.isAnimatable() && oldPointList != null) {
+					SVGUtil.adjustPathLength(oldPointList, pointList.size());
+					Point oldLastPoint = oldPointList.get(oldPointList.size() - 1);
+					double oldAngle = SVGUtil.calculateAngle(oldPointList);
+					SVGUtil.animate(animatePath, path, graphController.getAnimationSpeed(),
+							SVGUtil.getPath(oldPointList), SVGUtil.getPath(pointList));
+
+					SVGUtil.animate(animatePosition, polygon, graphController
+							.getAnimationSpeed(), oldLastPoint.x + ", " + oldLastPoint.y,
+							lastPoint.x + ", " + lastPoint.y);
+
+					SVGUtil.animate(animateRotation, polygon, graphController
+							.getAnimationSpeed(), oldAngle + " 0 0", angle + " 0 0");
+
+					ellipse.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+							+ lastPoint.x + " " + lastPoint.y + ") rotate(" + angle + " 0 0) ");
+					deleteButton.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+							+ lastPoint.x + " " + lastPoint.y + ")");
+				} else {
+					path.setAttribute(SVGConstants.SVG_D_ATTRIBUTE, SVGUtil.getPath(pointList));
+					polygon.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+							+ lastPoint.x + " " + lastPoint.y + ") rotate(" + angle + " 0 0) ");
+					ellipse.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+							+ lastPoint.x + " " + lastPoint.y + ") rotate(" + angle + " 0 0) ");
+					deleteButton.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+							+ lastPoint.x + " " + lastPoint.y + ")");
 				}
 			}
-		);
+		});
+	}
+
+	@Override
+	public void setColor(final Color color) {
+		delegate.setColor(color);
+		super.setColor(color);
+	}
+
+	@Override
+	public void setFillColor(final Color fillColor) {
+		delegate.setFillColor(fillColor);
+		super.setFillColor(fillColor);
+	}
+
+	@Override
+	public void setVisible(final boolean visible) {
+		delegate.setVisible(visible);
+		super.setVisible(visible);
+	}
+
+	@Override
+	public void setFiltered(final boolean filtered) {
+		delegate.setFiltered(filtered);
+		super.setFiltered(filtered);
+	}
+
+	@Override
+	public void setOpacity(final float opacity) {
+		delegate.setOpacity(opacity);
+		super.setOpacity(opacity);
 	}
 
 }

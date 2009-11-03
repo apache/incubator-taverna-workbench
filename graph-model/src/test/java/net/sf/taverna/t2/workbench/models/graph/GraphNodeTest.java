@@ -25,6 +25,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.awt.Dimension;
+import java.awt.Rectangle;
+
 import net.sf.taverna.t2.workbench.models.graph.GraphShapeElement.Shape;
 
 import org.junit.Before;
@@ -36,9 +40,7 @@ public class GraphNodeTest {
 	
 	private Shape shape;
 		
-	private int width;
-	
-	private int height;
+	private Dimension size;
 	
 	private Graph graph;
 	
@@ -49,14 +51,12 @@ public class GraphNodeTest {
 	@Before
 	public void setUp() throws Exception {
 		shape = Shape.HOUSE;
-		width = 1;
-		height = 2;
+		size = new Dimension(1, 2);
 		graph = new Graph(graphController);
 		expanded = false;
 		node = new GraphNode(graphController);
 		node.setShape(shape);
-		node.setWidth(width);
-		node.setHeight(height);
+		node.setSize(size);
 		node.setGraph(graph);
 		node.setExpanded(expanded);
 	}
@@ -91,7 +91,7 @@ public class GraphNodeTest {
 
 	@Test
 	public void testGetHeight() {
-		assertEquals(height, node.getHeight(), 0);
+		assertEquals(size.height, node.getHeight(), 0);
 	}
 
 	@Test
@@ -106,6 +106,11 @@ public class GraphNodeTest {
 	}
 
 	@Test
+	public void testGetSize() {
+		assertEquals(size, node.getSize());
+	}
+
+	@Test
 	public void testGetSourceNodes() {
 		assertNotNull(node.getSourceNodes());
 		assertEquals(0, node.getSourceNodes().size());
@@ -113,7 +118,7 @@ public class GraphNodeTest {
 
 	@Test
 	public void testGetWidth() {
-		assertEquals(width, node.getWidth(), 0);
+		assertEquals(size.width, node.getWidth(), 0);
 	}
 
 	@Test
@@ -157,14 +162,6 @@ public class GraphNodeTest {
 	}
 
 	@Test
-	public void testSetHeight() {
-		node.setHeight(6);
-		assertEquals(6, node.getHeight(), 0);
-		node.setHeight(4);
-		assertEquals(4, node.getHeight(), 0);
-	}
-
-	@Test
 	public void testSetShape() {
 		node.setShape(Shape.INVTRIANGLE);
 		assertEquals(Shape.INVTRIANGLE, node.getShape());
@@ -173,11 +170,11 @@ public class GraphNodeTest {
 	}
 
 	@Test
-	public void testSetWidth() {
-		node.setWidth(23);
-		assertEquals(23, node.getWidth(), 0);
-		node.setWidth(14);
-		assertEquals(14, node.getWidth(), 0);
+	public void testSetSize() {
+		node.setSize(new Dimension(23, 6));
+		assertEquals(new Dimension(23, 6), node.getSize());
+		node.setSize(new Dimension(14, 4));
+		assertEquals(new Dimension(14, 4), node.getSize());
 	}
 
 }

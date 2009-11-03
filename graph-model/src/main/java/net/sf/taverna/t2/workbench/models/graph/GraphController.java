@@ -22,12 +22,15 @@ package net.sf.taverna.t2.workbench.models.graph;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.JOptionPane;
 
@@ -164,24 +167,24 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 	
 	protected boolean edgeCreationFromSink = false;
 
-	protected Graph lastGraph;
+	private Graph graph;
 
 	private boolean interactive;
 	
 	public GraphController(Dataflow dataflow, boolean interactive, Component componentForPopups) {
+		this(dataflow, interactive, componentForPopups, Alignment.VERTICAL, PortStyle.NONE);
+	}
+	
+	public GraphController(Dataflow dataflow, boolean interactive, Component componentForPopups, Alignment alignment, PortStyle portStyle) {
 		this.dataflow = dataflow;
 		this.interactive = interactive;
 		this.componentForPopups = componentForPopups;
+		this.alignment = alignment;
+		this.portStyle = portStyle;
 		this.graphEventManager = new DefaultGraphEventManager(this, componentForPopups);
+		graph = generateGraph();
 	}
-	
-	public GraphController(Dataflow dataflow, boolean interactive, GraphEventManager graphEventManager, Component componentForPopups) {
-		this.dataflow = dataflow;
-		this.interactive = interactive;
-		this.componentForPopups = componentForPopups;
-		this.graphEventManager = graphEventManager;
-	}
-	
+
 	public abstract Graph createGraph();
 	
 	public abstract GraphNode createGraphNode();
@@ -195,6 +198,12 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 	public GraphElement getElement(String id) {
 		return idToElement.get(id);
 	}
+	
+	public Graph getGraph() {
+		return graph;
+	}
+	
+	public abstract void redraw();
 	
 	/**
 	 * Generates a graph model of a dataflow.
@@ -210,18 +219,8 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		dataflowToActivityPort.clear();
 		graphElementMap.clear();
 		portToActivity.clear();
-		lastGraph = generateGraph(dataflow, "", dataflow.getLocalName(), 0);
-		return lastGraph;
+		return generateGraph(dataflow, "", dataflow.getLocalName(), 0);
 	}
-	
-	public synchronized Graph getGraph() {
-		if (lastGraph == null) {
-			return generateGraph();
-		}
-		return lastGraph;
-	}
-	
-	public abstract void redraw();
 	
 	private Graph generateGraph(Dataflow dataflow, String prefix, String name, int depth) {
 		Graph graph = createGraph();
@@ -313,6 +312,165 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		return graph;
 	}
 
+	public void transformGraph(Graph oldGraph, Graph newGraph) {
+		oldGraph.setAlignment(newGraph.getAlignment());
+		transformGraphElement(oldGraph, newGraph);
+		List<GraphEdge> oldEdges = new ArrayList<GraphEdge>(oldGraph.getEdges());
+		List<GraphEdge> newEdges = new ArrayList<GraphEdge>(newGraph.getEdges());
+		for (GraphEdge oldEdge : oldEdges) {
+			int index = newEdges.indexOf(oldEdge);
+			if (index >= 0) {
+				GraphEdge newEdge = newEdges.remove(index);
+				oldEdge.setPath(newEdge.getPath());
+				dataflowToGraph.put(oldEdge.getDataflowObject(), oldEdge);
+			} else {
+				oldGraph.removeEdge(oldEdge);
+			}
+		}
+		List<GraphNode> newNodes = new ArrayList<GraphNode>(newGraph.getNodes());
+		List<GraphNode> oldNodes = new ArrayList<GraphNode>(oldGraph.getNodes());
+		for (GraphNode oldNode : oldNodes) {
+			int index = newNodes.indexOf(oldNode);
+			if (index >= 0) {
+				GraphNode newNode = newNodes.remove(index);
+				oldNode.setExpanded(newNode.isExpanded());
+				List<GraphNode> newSourceNodes = new ArrayList<GraphNode>(newNode.getSourceNodes());
+				List<GraphNode> oldSourceNodes = new ArrayList<GraphNode>(oldNode.getSourceNodes());
+				for (GraphNode oldSourceNode : oldSourceNodes) {
+					int sourceNodeIndex = newSourceNodes.indexOf(oldSourceNode);
+					if (sourceNodeIndex >= 0) {
+						GraphNode newSourceNode = newSourceNodes.remove(sourceNodeIndex);
+						transformGraphElement(oldSourceNode, newSourceNode);
+					} else {
+						oldNode.removeSourceNode(oldSourceNode);
+					}
+				}
+				for (GraphNode sourceNode : newSourceNodes) {
+					oldNode.addSourceNode(sourceNode);
+				}
+				List<GraphNode> newSinkNodes = new ArrayList<GraphNode>(newNode.getSinkNodes());
+				List<GraphNode> oldSinkNodes = new ArrayList<GraphNode>(oldNode.getSinkNodes());
+				for (GraphNode oldSinkNode : oldSinkNodes) {
+					int sinkNodeIndex = newSinkNodes.indexOf(oldSinkNode);
+					if (sinkNodeIndex >= 0) {
+						GraphNode newSinkNode = newSinkNodes.remove(sinkNodeIndex);
+						transformGraphElement(oldSinkNode, newSinkNode);
+					} else {
+						oldNode.removeSinkNode(oldSinkNode);
+					}
+				}
+				for (GraphNode sinkNode : newSinkNodes) {
+					oldNode.addSinkNode(sinkNode);
+				}
+				Graph oldSubGraph = oldNode.getGraph();
+				Graph newSubGraph = newNode.getGraph();
+				if (oldSubGraph != null && newSubGraph != null) {
+					transformGraph(oldSubGraph, newSubGraph);
+				}
+				transformGraphElement(oldNode, newNode);
+			} else {
+				oldGraph.removeNode(oldNode);
+			}
+		}
+		List<Graph> newSubGraphs = new ArrayList<Graph>(newGraph.getSubgraphs());
+		List<Graph> oldSubGraphs = new ArrayList<Graph>(oldGraph.getSubgraphs());
+		for (Graph oldSubGraph : oldSubGraphs) {
+			int index = newSubGraphs.indexOf(oldSubGraph);
+			if (index >= 0) {
+				Graph newSubGraph = newSubGraphs.remove(index);
+				transformGraph(oldSubGraph, newSubGraph);
+			} else {
+				oldGraph.removeSubgraph(oldSubGraph);
+			}
+		}
+		for (GraphNode node : newNodes) {
+			oldGraph.addNode(node);
+		}
+		for (Graph graph : newSubGraphs) {
+			oldGraph.addSubgraph(graph);
+		}
+		for (GraphEdge newEdge : newEdges) {
+			oldGraph.addEdge(newEdge);
+		}
+	}
+	
+	public void transformGraphElement(GraphShapeElement oldGraphElement, GraphShapeElement newGraphElement) {
+		oldGraphElement.setDataflowObject(newGraphElement.getDataflowObject());
+		oldGraphElement.setShape(newGraphElement.getShape());
+		oldGraphElement.setSize(newGraphElement.getSize());
+		oldGraphElement.setPosition(newGraphElement.getPosition());
+		oldGraphElement.setLabel(newGraphElement.getLabel());
+		oldGraphElement.setLabelPosition(newGraphElement.getLabelPosition());
+		oldGraphElement.setLineStyle(newGraphElement.getLineStyle());
+		oldGraphElement.setOpacity(newGraphElement.getOpacity());
+		oldGraphElement.setVisible(newGraphElement.isVisible());
+		oldGraphElement.setColor(newGraphElement.getColor());
+		oldGraphElement.setFillColor(newGraphElement.getFillColor());
+		dataflowToGraph.put(oldGraphElement.getDataflowObject(), oldGraphElement);
+	}
+	
+	public void filterGraph(Set<?> dataflowEntities) {
+		Set<GraphElement> graphElements = new HashSet<GraphElement>();
+		for (Entry<Object, GraphElement> entry : dataflowToGraph.entrySet()) {
+			if (!dataflowEntities.contains(entry.getKey())) {
+				graphElements.add(entry.getValue());
+			}
+		}
+		filterGraph(getGraph(), graphElements);
+	}
+	
+	private void filterGraph(Graph graph, Set<GraphElement> graphElements) {
+		for (GraphNode node : graph.getNodes()) {
+			node.setFiltered(graphElements.contains(node));
+			Graph subgraph = node.getGraph();
+			if (subgraph != null) {
+				if (graphElements.contains(subgraph)) {
+					removeFilter(subgraph);
+					subgraph.setFiltered(true);
+				} else {
+					subgraph.setFiltered(false);
+					filterGraph(subgraph, graphElements);
+				}
+			}
+		}
+		for (GraphEdge edge : graph.getEdges()) {
+				edge.setFiltered(graphElements.contains(edge));
+		}
+		for (Graph subgraph : graph.getSubgraphs()) {
+			if (graphElements.contains(subgraph)) {
+				removeFilter(subgraph);
+				subgraph.setFiltered(true);
+			} else {
+				subgraph.setFiltered(false);
+				filterGraph(subgraph, graphElements);
+			}
+		}
+	}
+	
+	public void removeFilter() {
+		for (Entry<Object, GraphElement> entry : dataflowToGraph.entrySet()) {
+			entry.getValue().setFiltered(false);
+		}
+	}
+	
+	private void removeFilter(Graph graph) {
+		for (GraphNode node : graph.getNodes()) {
+			node.setOpacity(1f);
+			Graph subgraph = node.getGraph();
+			if (subgraph != null) {
+				subgraph.setFiltered(false);
+				removeFilter(subgraph);
+			}
+		}
+		for (GraphEdge edge : graph.getEdges()) {
+			edge.setFiltered(false);
+		}
+		for (Graph subgraph : graph.getSubgraphs()) {
+			subgraph.setFiltered(false);
+			removeFilter(subgraph);
+		}
+	}
+	
 	private GraphEdge generateControlEdge(Condition condition, GraphNode sink, int depth) {
 		GraphEdge edge = null;
 		GraphElement element = dataflowToGraph.get(condition.getControl());
@@ -448,8 +606,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		triangle.setId(prefix + "WORKFLOWINTERNALSOURCECONTROL");
 		triangle.setLabel("");
 		triangle.setShape(Shape.TRIANGLE);
-		triangle.setWidth((int) (0.2f * 72));
-		triangle.setHeight((int) ((Math.sin(Math.toRadians(60)) * 0.2) * 72));
+		triangle.setSize(new Dimension((int) (0.2f * 72), (int) ((Math.sin(Math.toRadians(60)) * 0.2) * 72)));
 		triangle.setFillColor(Color.decode("#ff4040"));
 		triangle.setColor(Color.BLACK);
 		triangle.setLineStyle(LineStyle.SOLID);
@@ -461,13 +618,13 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			inputNode.setId(prefix + "WORKFLOWINTERNALSOURCE_"+ inputPort.getName());
 			if (getPortStyle().equals(PortStyle.BLOB)) {
 				inputNode.setLabel("");
-				inputNode.setWidth((int) (0.3f * 72));
-				inputNode.setHeight((int) (0.3f * 72));
+				inputNode.setSize(new Dimension((int) (0.3f * 72), (int) (0.3f * 72)));
 			} else {
 				inputNode.setLabel(inputPort.getName());
 			}
 			inputNode.setShape(getPortStyle().inputShape());
 			inputNode.setColor(Color.BLACK);
+			inputNode.setLineStyle(LineStyle.SOLID);
 			inputNode.setFillColor(Color.decode("#8ed6f0"));
 			if (depth == 0) {
 				inputNode.setInteractive(true);
@@ -510,8 +667,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		triangle.setId(prefix + "WORKFLOWINTERNALSINKCONTROL");
 		triangle.setLabel("");
 		triangle.setShape(Shape.INVTRIANGLE);
-		triangle.setWidth((int) (0.2f * 72));
-		triangle.setHeight((int) ((Math.sin(Math.toRadians(60)) * 0.2) * 72));
+		triangle.setSize(new Dimension((int) (0.2f * 72), (int) ((Math.sin(Math.toRadians(60)) * 0.2) * 72)));
 		triangle.setFillColor(Color.decode("#66cd00"));
 		triangle.setColor(Color.BLACK);
 		triangle.setLineStyle(LineStyle.SOLID);
@@ -523,13 +679,13 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			outputNode.setId(prefix + "WORKFLOWINTERNALSINK_"+ outputPort.getName());
 			if (getPortStyle().equals(PortStyle.BLOB)) {
 				outputNode.setLabel("");
-				outputNode.setWidth((int) (0.3f * 72));
-				outputNode.setHeight((int) (0.3f * 72));
+				outputNode.setSize(new Dimension((int) (0.3f * 72), (int) (0.3f * 72)));
 			} else {
 				outputNode.setLabel(outputPort.getName());
 			}
 			outputNode.setShape(getPortStyle().outputShape());
 			outputNode.setColor(Color.BLACK);
+			outputNode.setLineStyle(LineStyle.SOLID);
 			outputNode.setFillColor(Color.decode("#8ed6f0"));
 			if (depth == 0) {
 				outputNode.setInteractive(true);
@@ -560,8 +716,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		node.setId(prefix + merge.getLocalName());
 		node.setLabel("");
 		node.setShape(getPortStyle().mergeShape());
-		node.setWidth((int) (0.2f * 72));
-		node.setHeight((int) (0.2f * 72));
+		node.setSize(new Dimension((int) (0.2f * 72), (int) (0.2f * 72)));
 		node.setColor(Color.BLACK);
 		node.setLineStyle(LineStyle.SOLID);
 		node.setFillColor(Color.decode("#4f94cd"));
@@ -601,8 +756,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		node.setId(prefix + processor.getLocalName());
 		if (getPortStyle().equals(PortStyle.BLOB)) {
 			node.setLabel("");
-			node.setWidth((int) (0.3f * 72));
-			node.setHeight((int) (0.3f * 72));
+			node.setSize(new Dimension((int) (0.3f * 72), (int) (0.3f * 72)));
 		} else {
 			node.setLabel(processor.getLocalName());
 		}
@@ -1182,12 +1336,21 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 	}
 
 	/**
-	 * Returns the graphEventManager.
+	 * Returns the GraphEventManager.
 	 *
-	 * @return the graphEventManager
+	 * @return the GraphEventManager
 	 */
 	public GraphEventManager getGraphEventManager() {
 		return graphEventManager;
+	}
+
+	/**
+	 * Sets the GraphEventManager.
+	 *
+	 * @param graphEventManager the new GraphEventManager
+	 */
+	public void setGraphEventManager(GraphEventManager graphEventManager) {
+		this.graphEventManager = graphEventManager;
 	}
 
 }

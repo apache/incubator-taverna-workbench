@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.workbench.models.graph.svg.event;
 
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
-import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
 
 import org.w3c.dom.events.EventListener;
 
@@ -32,13 +31,9 @@ import org.w3c.dom.events.EventListener;
  */
 public abstract class SVGEventListener implements EventListener {
 
-	protected GraphEventManager graphEventManager;
-	
 	protected GraphElement graphElement;
 	
-	public SVGEventListener(GraphEventManager graphEventManager,
-			GraphElement graphElement) {
-		this.graphEventManager = graphEventManager;
+	public SVGEventListener(GraphElement graphElement) {
 		this.graphElement = graphElement;
 	}
 	

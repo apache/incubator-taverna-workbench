@@ -195,7 +195,7 @@ SimpleNode parse() #Parse :
 void graph() #Graph :
 {Token t;}
 {
-    [<STRICT>] (<GRAPH>|<DIGRAPH>) t=<ID>{jjtThis.name = t.image;} <LBRACE> stmt_list() <RBRACE>  <EOF>
+    [<STRICT>] (<GRAPH>|<DIGRAPH>) t=<ID>{jjtThis.setName(t.image);} <LBRACE> stmt_list() <RBRACE>  <EOF>
 }
 
 void stmt_list() #StatementList :
@@ -223,7 +223,7 @@ void ideq_stmt() :
 void attr_stmt() #AttributeStatement :
 {Token t;}
 {
-    (t=<GRAPH>{jjtThis.name = t.image;} | t=<NODE>{jjtThis.name = t.image;} | t=<EDGE>{jjtThis.name = t.image;}) attr_list()
+    (t=<GRAPH>{jjtThis.setName(t.image);} | t=<NODE>{jjtThis.setName(t.image);} | t=<EDGE>{jjtThis.setName(t.image);}) attr_list()
 }
 
 void node_stmt() #NodeStatement :
@@ -235,13 +235,13 @@ void node_stmt() #NodeStatement :
 void node_id(NamedNode namedNode) #NodeId :
 {Token t;}
 {
-    t=<ID>{namedNode.name = t.image;} [port(namedNode)]
+    t=<ID>{namedNode.setName(t.image);} [port(namedNode)]
 }
 
 void port(NamedNode namedNode) #Port :
 {Token t;}
 {
-    <COLON> t=<ID>{namedNode.port = t.image;}
+    <COLON> t=<ID>{namedNode.setPort(t.image);}
 }
 
 void edge_stmt() #EdgeStatement :
@@ -255,9 +255,9 @@ void subgraph() #Subgraph :
 {
     (
         LOOKAHEAD(2)
-        ([<SUBGRAPH>  [t=<ID>{jjtThis.name = t.image;}]] <LBRACE> stmt_list() <RBRACE>)
+        ([<SUBGRAPH>  [t=<ID>{jjtThis.setName(t.image);}]] <LBRACE> stmt_list() <RBRACE>)
             |
-        (<SUBGRAPH> t=<ID>{jjtThis.name = t.image;})
+        (<SUBGRAPH> t=<ID>{jjtThis.setName(t.image);})
     )
 
 }
@@ -284,6 +284,6 @@ void attr_list() #AttributeList :
 void a_list() #AList :
 {Token t;}
 {
-    t=<ID>{jjtThis.name = t.image;} [<EQ> t=<ID>{jjtThis.value = t.image;}] [<COMMA>] [a_list()]
+    t=<ID>{jjtThis.setName(t.image);} [<EQ> t=<ID>{jjtThis.setValue(t.image);}] [<COMMA>] [a_list()]
 }
 
