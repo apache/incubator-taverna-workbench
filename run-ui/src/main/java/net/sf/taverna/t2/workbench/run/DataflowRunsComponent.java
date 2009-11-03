@@ -189,10 +189,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		tempResultsPanel.add(new JLabel("Results"), BorderLayout.NORTH);
 		tempResultsPanel.add(new JLabel("No results yet", JLabel.CENTER), BorderLayout.CENTER);
 		setBottomComponent(tempResultsPanel);
-		
-//		revalidate();
-//		setDividerLocation(.3);
-		
+
 		//force reference service to be constructed now rather than at first workflow run
 		getReferenceService();
 	}
@@ -202,6 +199,10 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 			singletonInstance = new DataflowRunsComponent();
 		}
 		return singletonInstance;
+	}
+	
+	public long getRunListCount() {
+		return runListModel.size();
 	}
 	
 	public ReferenceService getReferenceService() {

@@ -199,15 +199,7 @@ public class RunWorkflowAction extends AbstractAction {
 				} catch (Exception except) {
 
 				}
-				// String jdbcString = dbURL + "/T2Provenance" + "?user=" + user
-				// + "&password=" + password;
-				// provenanceConnector.setDBLocation(dbURL);
-				// provenanceConnector.setPassword(password);
-				// provenanceConnector.setUser(user);
-				// provenanceConnector.setDBLocation(jdbcString);
-				// }
-				// provenanceConnector.init();
-
+				
 			}
 			InvocationContextImplementation context = new InvocationContextImplementation(
 					referenceService, provenanceConnector);
