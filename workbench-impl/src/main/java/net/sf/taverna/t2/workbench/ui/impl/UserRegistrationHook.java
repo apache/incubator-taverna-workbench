@@ -68,7 +68,7 @@ public class UserRegistrationHook implements StartupSPI{
 		if (remindMeLaterFile.exists()){
 			long lastModified  = remindMeLaterFile.lastModified();
 			long now = new Date().getTime();
-			if (now - lastModified < 2*14*24*3600*1000){ // 2 weeks have not passed since we last asked
+			if (now - lastModified < 14*24*3600*1000){ // 2 weeks have not passed since we last asked
 				return true;
 			}
 			else{ // Ask user again if they want to register 
