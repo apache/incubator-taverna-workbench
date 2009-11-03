@@ -62,7 +62,6 @@ import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import org.apache.log4j.Logger;
 
 import eu.medsea.mimeutil.MimeType;
-import eu.medsea.mimeutil.MimeUtil2;
 
 /**
  * Creates a component that renders an individual result from an output port.
@@ -264,6 +263,16 @@ public class RenderedResultComponent extends JPanel {
 			for (MimeType mimeType:mimeTypes) {
 				List<Renderer> renderersList = rendererRegistry.getRenderersForMimeType(
 						context, t2Reference, mimeType.toString());
+				for (Renderer renderer:renderersList) {
+					if (!renderersForMimeType.contains(renderer)) {
+						renderersForMimeType.add(renderer);	
+					}
+				}
+			}
+			//if there are no renderers then try text/plain
+			if (renderersForMimeType.isEmpty()) {
+				List<Renderer> renderersList = rendererRegistry.getRenderersForMimeType(
+						context, t2Reference, "text/plain");
 				for (Renderer renderer:renderersList) {
 					if (!renderersForMimeType.contains(renderer)) {
 						renderersForMimeType.add(renderer);	
