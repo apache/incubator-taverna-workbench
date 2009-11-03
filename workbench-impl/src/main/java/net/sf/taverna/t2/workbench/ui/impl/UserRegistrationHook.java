@@ -32,7 +32,7 @@ public class UserRegistrationHook implements StartupSPI{
 
 	public static final String REGISTRATION_DIRECTORY_NAME = "registration";
 	public static final String REGISTRATION_DATA_FILE_NAME = "registration_data.properties";
-	public static final String REMIND_ME_FILE_NAME = "remind_me";
+	public static final String REMIND_ME_LATER_FILE_NAME = "remind_me_later";
 	public static final String DO_NOT_REGISTER_ME_FILE_NAME = "do_not_register_me";
 
 	public static String appName = ApplicationConfig.getInstance().getName();
@@ -40,7 +40,7 @@ public class UserRegistrationHook implements StartupSPI{
 	public static File registrationDirectory = getRegistrationDirectory();
 	public static File registrationDataFile = new File(registrationDirectory,REGISTRATION_DATA_FILE_NAME);
 	public static File doNotRegisterMeFile = new File(registrationDirectory,DO_NOT_REGISTER_ME_FILE_NAME);
-	public static File remindMeFile = new File(registrationDirectory,REMIND_ME_FILE_NAME);
+	public static File remindMeLaterFile = new File(registrationDirectory,REMIND_ME_LATER_FILE_NAME);
 
 
 	public int positionHint() {
@@ -65,8 +65,8 @@ public class UserRegistrationHook implements StartupSPI{
 		}
 		
 		// If user said to remind them - check if more than 2 weeks passed since we asked previously.
-		if (remindMeFile.exists()){
-			long lastModified  = remindMeFile.lastModified();
+		if (remindMeLaterFile.exists()){
+			long lastModified  = remindMeLaterFile.lastModified();
 			long now = new Date().getTime();
 			if (now - lastModified < 2*14*24*3600*1000){ // 2 weeks have not passed since we last asked
 				return true;

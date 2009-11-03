@@ -600,7 +600,7 @@ public class UserRegistrationForm extends JDialog{
 	
 	protected void remindMeLater() {
 	       try {
-	            FileUtils.touch(UserRegistrationHook.remindMeFile);
+	            FileUtils.touch(UserRegistrationHook.remindMeLaterFile);
 	        } catch (IOException ioex) {
 	        	logger.error("Failed to touch the 'Remind me later' file at user registration.", ioex);
 	        }
@@ -610,8 +610,8 @@ public class UserRegistrationForm extends JDialog{
 	protected void doNotRegister() {
 	       try {
 	            FileUtils.touch(UserRegistrationHook.doNotRegisterMeFile);
-				if (UserRegistrationHook.remindMeFile.exists()){
-					UserRegistrationHook.remindMeFile.delete();
+				if (UserRegistrationHook.remindMeLaterFile.exists()){
+					UserRegistrationHook.remindMeLaterFile.delete();
 				}
 	        } catch (IOException ioex) {
 	        	logger.error("Failed to touch the 'Do not register me' file at user registration.", ioex);
@@ -634,8 +634,8 @@ public class UserRegistrationForm extends JDialog{
 			
 			if (postUserRegistrationDataToServer(regData)){
 				saveUserRegistrationData(regData, UserRegistrationHook.registrationDataFile);
-				if (UserRegistrationHook.remindMeFile.exists()){
-					UserRegistrationHook.remindMeFile.delete();
+				if (UserRegistrationHook.remindMeLaterFile.exists()){
+					UserRegistrationHook.remindMeLaterFile.delete();
 				}
 		    	closeDialog();
 			}
