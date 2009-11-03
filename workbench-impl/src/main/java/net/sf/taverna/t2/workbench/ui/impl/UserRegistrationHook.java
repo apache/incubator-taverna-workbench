@@ -126,7 +126,7 @@ public class UserRegistrationHook implements StartupSPI{
 		
 		File home = ApplicationRuntime.getInstance().getApplicationHomeDir();
 
-		File registrationDirectory = new File(home,"registration");
+		File registrationDirectory = new File(home,REGISTRATION_DIRECTORY_NAME);
 		if (!registrationDirectory.exists()) {
 			registrationDirectory.mkdir();
 		}
