@@ -94,7 +94,8 @@ public class ImageRenderer implements Renderer
 					return new JTextArea("Rendering cancelled due to size of image. Try saving and viewing in an external application");
 				}
 			}
-			
+			ImageIcon theImage = new ImageIcon((byte[]) data);
+			return new JLabel(theImage);
 			// JLabel or something else?
 		} else if (data instanceof ImageProducer) {
 			//TODO really not sure what this is or how to find out how big it is
