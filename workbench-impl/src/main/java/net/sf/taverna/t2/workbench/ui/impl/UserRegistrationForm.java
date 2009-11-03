@@ -564,13 +564,13 @@ public class UserRegistrationForm extends JDialog{
 			public void keyPressed(java.awt.event.KeyEvent evt) {
 				if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
 					evt.consume();
-					remindMe();
+					remindMeLater();
 				}
 			}
 		});
 		remindMeButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
-				remindMe();
+				remindMeLater();
 			}
 		});
 		buttonPanel.add(registerButton);
@@ -598,11 +598,11 @@ public class UserRegistrationForm extends JDialog{
 		setSize(getPreferredSize());
 	}
 	
-	protected void remindMe() {
+	protected void remindMeLater() {
 	       try {
 	            FileUtils.touch(UserRegistrationHook.remindMeFile);
 	        } catch (IOException ioex) {
-	        	logger.error("Failed to touch the 'Remind me' file at user registration.", ioex);
+	        	logger.error("Failed to touch the 'Remind me later' file at user registration.", ioex);
 	        }
 		closeDialog();		
 	}
