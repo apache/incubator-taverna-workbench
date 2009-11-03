@@ -42,7 +42,7 @@ public class CredentialManagerMenu extends AbstractMenuAction{
 		try {
 			CredentialManager.initialiseSSL();
 		} catch (CMException e) {
-			logger.error("Could not initialise SSL", e);
+			logger.error("Could not initialise SSL properties for SSL connections from Taverna.", e);
 		}
 	}
 
