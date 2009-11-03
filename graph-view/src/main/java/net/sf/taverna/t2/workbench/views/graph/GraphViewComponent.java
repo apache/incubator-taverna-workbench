@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.views.graph;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -30,7 +31,6 @@ import java.awt.event.ComponentEvent;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -40,7 +40,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.Timer;
@@ -50,14 +49,9 @@ import javax.swing.border.TitledBorder;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
+import net.sf.taverna.t2.lang.ui.ModelMap.ModelDestroyedEvent;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
-import net.sf.taverna.t2.workbench.design.actions.RemoveConditionAction;
-import net.sf.taverna.t2.workbench.design.actions.RemoveDataflowInputPortAction;
-import net.sf.taverna.t2.workbench.design.actions.RemoveDataflowOutputPortAction;
-import net.sf.taverna.t2.workbench.design.actions.RemoveDatalinkAction;
-import net.sf.taverna.t2.workbench.design.actions.RemoveMergeAction;
-import net.sf.taverna.t2.workbench.design.actions.RemoveProcessorAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
@@ -68,27 +62,19 @@ import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+import net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
-import net.sf.taverna.t2.workflowmodel.Condition;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.Merge;
-import net.sf.taverna.t2.workflowmodel.Processor;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
-import org.apache.batik.swing.svg.GVTTreeBuilderListener;
 import org.apache.log4j.Logger;
 
 /**
@@ -102,85 +88,50 @@ public class GraphViewComponent extends WorkflowView {
 
 	private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(GraphViewComponent.class);
+
+    private static GraphViewConfiguration configuration = GraphViewConfiguration.getInstance();
 
 	private SVGGraphController graphController;
 	
+	private JPanel diagramPanel;
+	
 	public static Map<Dataflow, SVGGraphController> graphControllerMap = new HashMap<Dataflow, SVGGraphController>();
 	
+	public static Map<Dataflow, JPanel> diagramPanelMap = new HashMap<Dataflow, JPanel>();
+	
 	private Dataflow dataflow;
-	
-	private JSVGCanvas svgCanvas;
-	private JSVGScrollPane svgScrollPane;
-	private JPanel scrollPanel;
-	private JButton resetDiagramButton;
-	private JButton zoomInButton;
-	private JButton zoomOutButton;
-	private JToggleButton noPorts;
-	private JToggleButton allPorts;
-	private JToggleButton blobs;
-	private JToggleButton vertical;
-	private JToggleButton horizontal;
-	private JToggleButton expandNested;
-	
+		
 	private Timer timer;
 
 	private GVTTreeRendererAdapter gvtTreeBuilderAdapter;
 	
+	private CardLayout cardLayout;
+	
 	public GraphViewComponent() {
-		super();
-		this.setLayout(new BorderLayout());
+		cardLayout = new CardLayout();
+		setLayout(cardLayout);
 
 		TitledBorder border = new TitledBorder("Workflow diagram");
 		border.setTitleJustification(TitledBorder.CENTER);
-		this.setBorder(border);
-		
-		svgCanvas = new JSVGCanvas(null, true, false);
-		gvtTreeBuilderAdapter = new GVTTreeRendererAdapter() {
-            public void gvtRenderingCompleted(GVTTreeRendererEvent e) 
-{
-				logger.info("Rendered svg");
-				svgScrollPane.reset();
-               GraphViewComponent.this.revalidate();
-            }
-        };
-		svgCanvas.addGVTTreeRendererListener(gvtTreeBuilderAdapter);
+		setBorder(border);
 
-		svgCanvas.setEnableZoomInteractor(false);
-		svgCanvas.setEnableRotateInteractor(false);
-		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
-		
-		AutoScrollInteractor asi = new AutoScrollInteractor(svgCanvas);
-		svgCanvas.addMouseListener(asi);
-		svgCanvas.addMouseMotionListener(asi);
-
-		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
-			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
-				graphController.setUpdateManager(svgCanvas.getUpdateManager());
-			}
-		});
-		
-		svgScrollPane = new MySvgScrollPane(svgCanvas);
-		add(svgScrollPane, BorderLayout.CENTER);
-
-		// Toolbar with actions related to graph
-		JToolBar graphActionsToolbar = graphActionsToolbar();
-		graphActionsToolbar.setAlignmentX(Component.LEFT_ALIGNMENT);
-		graphActionsToolbar.setFloatable(false);
-
-		// Panel to hold the toolbars
-		JPanel toolbarPanel = new JPanel();
-		toolbarPanel.setLayout(new BoxLayout(toolbarPanel, BoxLayout.PAGE_AXIS));
-		toolbarPanel.add(graphActionsToolbar);
-
-		add(toolbarPanel, BorderLayout.NORTH);
-				
 		ModelMap.getInstance().addObserver(new Observer<ModelMap.ModelMapEvent>() {
 			public void notify(Observable<ModelMapEvent> sender, ModelMapEvent message) {
-				if (message.getModelName().equals(ModelMapConstants.CURRENT_DATAFLOW)) {
-					if (message.getNewModel() instanceof Dataflow) {
-						setDataflow((Dataflow) message.getNewModel());
+				if (message instanceof ModelDestroyedEvent) {
+					if (message.getOldModel() instanceof Dataflow) {
+//						System.out.println("ModelDestroyedEvent - " + message.getModelName());
+						JPanel panel = diagramPanelMap.remove((Dataflow) message.getOldModel());
+						if (panel != null) {
+							remove(panel);
+						}
+						graphControllerMap.remove((Dataflow) message.getOldModel());
+					}
+				} else {
+					if (message.getModelName().equals(ModelMapConstants.CURRENT_DATAFLOW)) {
+						if (message.getNewModel() instanceof Dataflow) {
+							setDataflow((Dataflow) message.getNewModel());
+						}
 					}
 				}
 			}
@@ -199,12 +150,12 @@ public class GraphViewComponent extends WorkflowView {
 			}
 		});
 
-		svgCanvas.setTransferHandler(new ServiceTransferHandler());
-		
 		ActionListener taskPerformer = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
+				if (graphController != null) {
 					graphController.redraw();
-					timer.stop();
+				}
+				timer.stop();
 			}
 		};
 		timer = new Timer(100, taskPerformer);
@@ -221,15 +172,70 @@ public class GraphViewComponent extends WorkflowView {
 		
 	}
 
+	private JPanel createDiagramPanel(Dataflow dataflow) {
+		JPanel diagramPanel = new JPanel(new BorderLayout());
+		
+		// get the default diagram settings
+		Alignment alignment = Alignment.valueOf(configuration.getProperty(GraphViewConfiguration.ALIGNMENT));
+		PortStyle portStyle = PortStyle.valueOf(configuration.getProperty(GraphViewConfiguration.PORT_STYLE));
+        boolean animationEnabled = Boolean.parseBoolean(configuration.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
+        int animationSpeed = Integer.valueOf(configuration.getProperty(GraphViewConfiguration.ANIMATION_SPEED));
+
+        // create an SVG canvas
+		final JSVGCanvas svgCanvas = new JSVGCanvas(null, true, false);
+		svgCanvas.setEnableZoomInteractor(false);
+		svgCanvas.setEnableRotateInteractor(false);
+		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
+		svgCanvas.setTransferHandler(new ServiceTransferHandler());
+		
+		AutoScrollInteractor asi = new AutoScrollInteractor(svgCanvas);
+		svgCanvas.addMouseListener(asi);
+		svgCanvas.addMouseMotionListener(asi);
+		
+		final JSVGScrollPane svgScrollPane = new MySvgScrollPane(svgCanvas);
+
+		gvtTreeBuilderAdapter = new GVTTreeRendererAdapter() {
+			public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
+				logger.info("Rendered svg");
+				svgScrollPane.reset();
+				GraphViewComponent.this.revalidate();
+			}
+		};
+		svgCanvas.addGVTTreeRendererListener(gvtTreeBuilderAdapter);
+
+		// create a graph controller
+		SVGGraphController svgGraphController = new SVGGraphController(dataflow, false, svgCanvas, alignment, portStyle);		
+		svgGraphController.setDataflowSelectionModel(DataflowSelectionManager.getInstance().getDataflowSelectionModel(dataflow));
+		svgGraphController.setAnimationSpeed(animationEnabled?animationSpeed:0);
+
+        graphControllerMap.put(dataflow, svgGraphController);
+
+        // Toolbar with actions related to graph
+		JToolBar graphActionsToolbar = graphActionsToolbar(svgGraphController, svgCanvas, alignment, portStyle);
+		graphActionsToolbar.setAlignmentX(Component.LEFT_ALIGNMENT);
+		graphActionsToolbar.setFloatable(false);
+
+		// Panel to hold the toolbars
+		JPanel toolbarPanel = new JPanel();
+		toolbarPanel.setLayout(new BoxLayout(toolbarPanel, BoxLayout.PAGE_AXIS));
+		toolbarPanel.add(graphActionsToolbar);
+
+		diagramPanel.add(toolbarPanel, BorderLayout.NORTH);
+		diagramPanel.add(svgScrollPane, BorderLayout.CENTER);
+//		diagramPanel.add(new MySvgScrollPane(svgCanvas), BorderLayout.CENTER);
+		
+		return diagramPanel;
+	}
+	
 	@SuppressWarnings("serial")
-	private JToolBar graphActionsToolbar() {
+	private JToolBar graphActionsToolbar(final SVGGraphController graphController, JSVGCanvas svgCanvas, Alignment alignment, PortStyle portStyle) {
 		JToolBar toolBar = new JToolBar();
 		
-		resetDiagramButton = new JButton();
+		JButton resetDiagramButton = new JButton();
 		resetDiagramButton.setBorder(new EmptyBorder(0, 2, 0, 2));
-		zoomInButton = new JButton();
+		JButton zoomInButton = new JButton();
 		zoomInButton.setBorder(new EmptyBorder(0, 2, 0, 2));
-		zoomOutButton = new JButton();
+		JButton zoomOutButton = new JButton();
 		zoomOutButton.setBorder(new EmptyBorder(0, 2, 0, 2));
 		
 		Action resetDiagramAction = svgCanvas.new ResetTransformAction();
@@ -258,13 +264,20 @@ public class GraphViewComponent extends WorkflowView {
 		
 		ButtonGroup nodeTypeGroup = new ButtonGroup();
 
-		noPorts = new JToggleButton();
-		allPorts = new JToggleButton();
-		blobs = new JToggleButton();
+		JToggleButton noPorts = new JToggleButton();
+		JToggleButton allPorts = new JToggleButton();
+		JToggleButton blobs = new JToggleButton();
 		nodeTypeGroup.add(noPorts);
 		nodeTypeGroup.add(allPorts);
 		nodeTypeGroup.add(blobs);
-		noPorts.setSelected(true);
+
+        if (portStyle.equals(PortStyle.NONE)) {
+        	noPorts.setSelected(true);
+        } else if (portStyle.equals(PortStyle.ALL)) {
+        	allPorts.setSelected(true);
+        } else {
+        	blobs.setSelected(true);
+        }
 		
 		noPorts.setAction(new AbstractAction() {
 
@@ -310,11 +323,16 @@ public class GraphViewComponent extends WorkflowView {
 		
 		ButtonGroup alignmentGroup = new ButtonGroup();
 
-		vertical = new JToggleButton();
-		horizontal = new JToggleButton();
+		JToggleButton vertical = new JToggleButton();
+		JToggleButton horizontal = new JToggleButton();
 		alignmentGroup.add(vertical);
 		alignmentGroup.add(horizontal);
-		vertical.setSelected(true);
+
+        if (alignment.equals(Alignment.VERTICAL)) {
+        	vertical.setSelected(true);
+        } else {
+        	horizontal.setSelected(true);
+        }
 
 		vertical.setAction(new AbstractAction() {
 
@@ -345,7 +363,7 @@ public class GraphViewComponent extends WorkflowView {
 		
 		toolBar.addSeparator();
 
-		expandNested = new JToggleButton();
+		JToggleButton expandNested = new JToggleButton();
 		expandNested.setSelected(true);
 
 		expandNested.setAction(new AbstractAction() {
@@ -371,30 +389,14 @@ public class GraphViewComponent extends WorkflowView {
 	 */
 	public void setDataflow(Dataflow dataflow) {
 		this.dataflow = dataflow;
-		if (!graphControllerMap.containsKey(dataflow)) {
-			SVGGraphController graphController = new SVGGraphController(dataflow, false, svgCanvas) {
-				public void redraw() {
-                	svgCanvas.setDocument(generateSVGDocument(svgCanvas.getBounds()));
-				}			
-			};
-			graphController.setDataflowSelectionModel(DataflowSelectionManager.getInstance().getDataflowSelectionModel(dataflow));
-			graphControllerMap.put(dataflow, graphController);
+		if (!diagramPanelMap.containsKey(dataflow)) {
+			JPanel newDiagramPanel = createDiagramPanel(dataflow);
+			add(newDiagramPanel, String.valueOf(newDiagramPanel.hashCode()));
+			diagramPanelMap.put(dataflow, newDiagramPanel);
 		}
 		graphController = graphControllerMap.get(dataflow);
-		
-		if (graphController.getPortStyle().equals(PortStyle.NONE)) {
-			noPorts.setSelected(true);
-		} else if (graphController.getPortStyle().equals(PortStyle.ALL)) {
-			allPorts.setSelected(true);
-		} else {
-			blobs.setSelected(true);
-		}
-		if (graphController.getAlignment().equals(Alignment.HORIZONTAL)) {
-			horizontal.setSelected(true);
-		} else {
-			vertical.setSelected(true);
-		}
-		
+		diagramPanel = diagramPanelMap.get(dataflow);
+		cardLayout.show(this, String.valueOf(diagramPanel.hashCode()));
 		graphController.redraw();
 	}
 	
@@ -450,15 +452,15 @@ public class GraphViewComponent extends WorkflowView {
 		if (timer != null) {
 			timer.stop();
 		}
-		if (svgScrollPane != null) {
-			svgScrollPane.removeAll();
-			svgScrollPane = null;
-		}
-		if (svgCanvas != null) {
-			svgCanvas.stopProcessing();
-			svgCanvas.removeGVTTreeRendererListener(gvtTreeBuilderAdapter);
-			svgCanvas = null;
-		}
+//		if (svgScrollPane != null) {
+//			svgScrollPane.removeAll();
+//			svgScrollPane = null;
+//		}
+//		if (svgCanvas != null) {
+//			svgCanvas.stopProcessing();
+//			svgCanvas.removeGVTTreeRendererListener(gvtTreeBuilderAdapter);
+//			svgCanvas = null;
+//		}
 	}
 
 	@Override
