@@ -106,7 +106,6 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 		gvtTreeRendererAdapter = new GVTTreeRendererAdapter() {
 			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
 //				svgScrollPane.reset();
-				getGraphController().setUpdateManager(svgCanvas.getUpdateManager());
 //				MonitorViewComponent.this.revalidate();
 			}
 		};
@@ -187,17 +186,10 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	}
 
 	public Observer<MonitorMessage> setDataflow(Dataflow dataflow) {
-		setGraphController(new SVGGraphController(dataflow, true,
-				new MonitorGraphEventManager(this, provenanceConnector, dataflow, getSessionId()),
-				this) {
-			public void redraw() {
-				svgCanvas.setDocument(getGraphController()
-						.generateSVGDocument(getBounds()));
-			}
-		});
-		svgCanvas.setDocument(getGraphController().generateSVGDocument(getBounds()));
-
-		graphMonitor = new GraphMonitor(getGraphController(), this);
+		SVGGraphController svgGraphController = new SVGGraphController(dataflow, true, svgCanvas);
+		svgGraphController.setGraphEventManager(new MonitorGraphEventManager(this, provenanceConnector, dataflow, getSessionId()));
+		setGraphController(svgGraphController);
+		graphMonitor = new GraphMonitor(svgGraphController, this);
 		return graphMonitor;
 	}
 
