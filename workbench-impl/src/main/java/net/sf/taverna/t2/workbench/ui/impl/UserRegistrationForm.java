@@ -558,9 +558,9 @@ public class UserRegistrationForm extends JDialog{
 				doNotRegister();
 			}
 		});
-		JButton remindMeButton = new JButton("Remind me later"); // in 2 weeks
-		remindMeButton.setFont(baseFont);
-		remindMeButton.addKeyListener(new java.awt.event.KeyAdapter() {
+		JButton remindMeLaterButton = new JButton("Remind me later"); // in 2 weeks
+		remindMeLaterButton.setFont(baseFont);
+		remindMeLaterButton.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(java.awt.event.KeyEvent evt) {
 				if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
 					evt.consume();
@@ -568,13 +568,13 @@ public class UserRegistrationForm extends JDialog{
 				}
 			}
 		});
-		remindMeButton.addActionListener(new ActionListener(){
+		remindMeLaterButton.addActionListener(new ActionListener(){
 			public void actionPerformed(ActionEvent e) {
 				remindMeLater();
 			}
 		});
 		buttonPanel.add(registerButton);
-		buttonPanel.add(remindMeButton);
+		buttonPanel.add(remindMeLaterButton);
 		buttonPanel.add(doNotRegisterButton);
 		addDivider(buttonPanel, SwingConstants.TOP, true);		
 		gbc.gridx = 0;
