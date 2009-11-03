@@ -39,6 +39,8 @@ import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.helper.Helper;
+import net.sf.taverna.t2.workbench.run.DataflowRunsComponent;
+import net.sf.taverna.t2.workbench.run.DataflowRunsComponentFactory;
 
 import org.apache.log4j.Logger;
 
@@ -54,19 +56,19 @@ public class DataManagementConfigurationPanel extends JPanel {
 	JCheckBox enableInMemory;
 	private JButton helpButton;
 	private JButton resetButton;
-	private JButton applyButton;	
+	private JButton applyButton;
 	private DialogTextArea storageText;
 	private DialogTextArea enableInMemoryTextDisabled;
 
 	public DataManagementConfigurationPanel() {
-		
+
 		GridBagLayout gridbag = generateGridBagLayout();
-		
+
 		setLayout(gridbag);
 
 		resetFields();
 
-	}	
+	}
 
 	private GridBagLayout generateGridBagLayout() {
 		GridBagLayout gridbag = new GridBagLayout();
@@ -91,14 +93,15 @@ public class DataManagementConfigurationPanel extends JPanel {
 		enableInMemoryText.setOpaque(false);
 		enableInMemoryText.setFont(enableProvenanceText.getFont().deriveFont(
 				Font.PLAIN, 10));
-		
-		enableInMemoryTextDisabled = new DialogTextArea("It is not possible to modify the data storage settings whilst there are workflow runs in progress, or past workflow runs open");
+
+		enableInMemoryTextDisabled = new DialogTextArea(
+				"It is not possible to modify the data storage settings whilst there are workflow runs in progress, or past workflow runs open");
 		enableInMemoryTextDisabled.setLineWrap(true);
 		enableInMemoryTextDisabled.setWrapStyleWord(true);
 		enableInMemoryTextDisabled.setEditable(false);
 		enableInMemoryTextDisabled.setOpaque(false);
-		enableInMemoryTextDisabled.setFont(enableProvenanceText.getFont().deriveFont(
-				Font.BOLD, 10));
+		enableInMemoryTextDisabled.setFont(enableProvenanceText.getFont()
+				.deriveFont(Font.BOLD, 10));
 		enableInMemoryTextDisabled.setForeground(Color.RED);
 		enableInMemoryTextDisabled.setVisible(false);
 
@@ -120,7 +123,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		c.fill = GridBagConstraints.HORIZONTAL;
 		gridbag.setConstraints(storageText, c);
 		add(storageText);
-		
+
 		c.ipady = 0;
 		c.insets = new Insets(0, 0, 5, 0);
 		gridbag.setConstraints(enableProvenance, c);
@@ -137,7 +140,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		c.insets = new Insets(0, 20, 15, 20);
 		gridbag.setConstraints(enableInMemoryText, c);
 		add(enableInMemoryText);
-		
+
 		c.insets = new Insets(0, 20, 15, 20);
 		gridbag.setConstraints(enableInMemoryTextDisabled, c);
 		add(enableInMemoryTextDisabled);
@@ -193,7 +196,8 @@ public class DataManagementConfigurationPanel extends JPanel {
 		textArea.setOpaque(false);
 		textArea.setAlignmentX(CENTER_ALIGNMENT);
 		textArea.setFont(textArea.getFont().deriveFont(Font.PLAIN, 10));
-		textArea.setVisible(DataManagementConfiguration.getInstance().getStartInternalDerbyServer());
+		textArea.setVisible(DataManagementConfiguration.getInstance()
+				.getStartInternalDerbyServer());
 		return textArea;
 	}
 
@@ -208,34 +212,22 @@ public class DataManagementConfigurationPanel extends JPanel {
 	}
 
 	public void resetFields() {
-		if (configuration.getConnectorType().equals(DataManagementConfiguration.CONNECTOR_DERBY)) {
-			enableInMemory
-					.setSelected(configuration.getProperty(
-							DataManagementConfiguration.IN_MEMORY)
-							.equalsIgnoreCase("true"));
-			enableProvenance.setSelected(configuration.getProperty(
-					DataManagementConfiguration.ENABLE_PROVENANCE)
-					.equalsIgnoreCase("true"));
-		}
-		else {
-			//TODO: handle when configured manually as MYSQL
-		}
-		boolean enabled=true;
-		if (workflowInstances()) {
-			enabled=false;
-			
-		}
-		else {
-			enabled=true;
-		}
+
+		enableInMemory
+				.setSelected(configuration.getProperty(
+						DataManagementConfiguration.IN_MEMORY)
+						.equalsIgnoreCase("true"));
+		enableProvenance.setSelected(configuration.getProperty(
+				DataManagementConfiguration.ENABLE_PROVENANCE)
+				.equalsIgnoreCase("true"));
+
+		boolean enabled = !workflowInstances();
 		enableInMemory.setEnabled(enabled);
 		enableInMemoryTextDisabled.setVisible(!enabled);
-				
-		
+
 	}
-	
+
 	private boolean workflowInstances() {
-		//TODO: need to determine the stored workflow runs, or current runs, from somewhere.
 		return false;
 	}
 

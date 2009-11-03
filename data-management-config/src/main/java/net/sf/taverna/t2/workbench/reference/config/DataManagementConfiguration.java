@@ -63,6 +63,7 @@ public class DataManagementConfiguration extends AbstractConfigurable {
     private static DataManagementConfiguration instance;
 
     public static DataManagementConfiguration getInstance() {
+    	
         if (instance == null) {
             instance = new DataManagementConfiguration();
                         
