@@ -558,7 +558,7 @@ public class UserRegistrationForm extends JDialog{
 				doNotRegister();
 			}
 		});
-		JButton remindMeButton = new JButton("Remind me in 2 weeks");
+		JButton remindMeButton = new JButton("Remind me later"); // in 2 weeks
 		remindMeButton.setFont(baseFont);
 		remindMeButton.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(java.awt.event.KeyEvent evt) {
