@@ -11,8 +11,8 @@ public class TestPortMerge extends AbstractTestHelper {
 	@Test
 	public void mergeQintoP() throws Exception {
 		DataflowMerger merger = new DataflowMerger(p);
-		merger.merge(q);
-		Dataflow merged = merger.getDataflow();
+		merger.getMergeEdit(q).doEdit();
+		Dataflow merged = p;
 		checkQ();
 
 		assertHasProcessors(merged, "P", "Q");
@@ -22,7 +22,7 @@ public class TestPortMerge extends AbstractTestHelper {
 				"p->Q.inputlist", "Q.outputlist->q", "p->p");
 		EventForwardingOutputPort source = findOutputPort(merged, "p")
 				.getInternalInputPort().getIncomingLink().getSource();
-		assertEquals("out port P not linked to input P", source, findInputPort(
+		assertSame("out port P not linked to input P", source, findInputPort(
 				merged, "p").getInternalOutputPort());
 
 	}

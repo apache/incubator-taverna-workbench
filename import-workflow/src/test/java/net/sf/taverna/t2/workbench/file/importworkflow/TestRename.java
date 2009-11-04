@@ -1,6 +1,7 @@
 package net.sf.taverna.t2.workbench.file.importworkflow;
 
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 
 import org.junit.Test;
 
@@ -9,8 +10,8 @@ public class TestRename extends AbstractTestHelper {
 	@Test
 	public void mergePintoP() throws Exception {
 		DataflowMerger merger = new DataflowMerger(p);
-		merger.merge(p);
-		Dataflow merged = merger.getDataflow();
+		merger.getMergeEdit(p).doEdit();
+		Dataflow merged = p;
 
 		assertHasProcessors(merged, "P", "P_2");
 		assertHasInputPorts(merged, "i", "i_2");
@@ -22,11 +23,11 @@ public class TestRename extends AbstractTestHelper {
 	@Test
 	public void mergePintoPintoP() throws Exception {
 		// Don't put p in constructor, or we would get exponential merging!	
-		DataflowMerger merger = new DataflowMerger();
-		merger.merge(p);
-		merger.merge(p);
-		merger.merge(p);
-		Dataflow merged = merger.getDataflow();
+		Dataflow merged = EditsRegistry.getEdits().createDataflow();
+		DataflowMerger merger = new DataflowMerger(merged);
+		merger.getMergeEdit(p).doEdit();
+		merger.getMergeEdit(p).doEdit();
+		merger.getMergeEdit(p).doEdit();
 
 		assertHasProcessors(merged, "P", "P_2", "P_3");
 		assertHasInputPorts(merged, "i", "i_2", "i_3");
@@ -38,11 +39,12 @@ public class TestRename extends AbstractTestHelper {
 
 	@Test
 	public void mergePintoPWithPrefix() throws Exception {
-		DataflowMerger merger = new DataflowMerger();
-		merger.merge(p);
-		merger.merge(p, "fish_");
-		merger.merge(p, "soup_");
-		Dataflow merged = merger.getDataflow();
+		// Don't put p in constructor, or we would get exponential merging!	
+		Dataflow merged = EditsRegistry.getEdits().createDataflow();
+		DataflowMerger merger = new DataflowMerger(merged);
+		merger.getMergeEdit(p).doEdit();
+		merger.getMergeEdit(p, "fish_").doEdit();
+		merger.getMergeEdit(p, "soup_").doEdit();
 
 		assertHasProcessors(merged, "P", "fish_P", "soup_P");
 		assertHasInputPorts(merged, "i", "fish_i", "soup_i");

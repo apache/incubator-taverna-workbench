@@ -8,6 +8,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-exts</groupId>
 	<artifactId>import-workflow</artifactId>
+	<name>Import workflow</name>
 	<version>0.10-SNAPSHOT</version>
 	<dependencies>
 		<dependency>
@@ -16,42 +17,45 @@
 			<version>${t2.core.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.taverna.t2.activities</groupId>
 			<artifactId>localworker-activity</artifactId>
 			<version>${t2.activities.version}</version>
-			<type>jar</type>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>menu-api</artifactId>
 			<version>${t2.ui.api.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>workbench-api</artifactId>
 			<version>${t2.ui.api.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>file-api</artifactId>
 			<version>${t2.ui.api.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>file-impl</artifactId>
 			<version>${t2.ui.impl.version}</version>
-			<type>jar</type>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>edits-impl</artifactId>
+			<version>${t2.ui.impl.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<artifactId>graph-view</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+
 	</dependencies>
 </project>

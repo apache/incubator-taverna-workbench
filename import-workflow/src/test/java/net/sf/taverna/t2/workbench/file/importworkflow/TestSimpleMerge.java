@@ -6,6 +6,8 @@ import static org.junit.Assert.assertSame;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
+import net.sf.taverna.t2.workflowmodel.Edits;
+import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
 
@@ -48,13 +50,15 @@ public class TestSimpleMerge extends AbstractTestHelper {
 	
 	@Test
 	public void mergeAbcAndPIntoNew() throws Exception {
-		DataflowMerger merger = new DataflowMerger();
-		merger.merge(abc);
-
-		Dataflow merged = merger.getDataflow();
+		Edits edit = EditsRegistry.getEdits();
+		Dataflow merged = edit.createDataflow();
+		DataflowMerger merger = new DataflowMerger(merged);
+		merger.getMergeEdit(abc).doEdit();
+		
 		assertNotSame(abc, merged);
-		merger.merge(p);
+		merger.getMergeEdit(p).doEdit();
 
+		
 		// Assert abc and p were not modified
 		checkAbc();
 		checkP();
@@ -66,12 +70,9 @@ public class TestSimpleMerge extends AbstractTestHelper {
 	@Test
 	public void mergePintoAbc() throws Exception {
 		DataflowMerger merger = new DataflowMerger(abc);
-		Dataflow merged = merger.getDataflow();
-		assertSame(abc, merged);
+		Dataflow merged = abc;
 
-		merger.merge(p);
-		assertSame(abc, merger.getDataflow());
-
+		merger.getMergeEdit(p).doEdit();
 		checkMergedAbcP(merged);
 		checkCopiedFromP(merged);
 		// Assert P did not change
@@ -80,12 +81,11 @@ public class TestSimpleMerge extends AbstractTestHelper {
 	
 	@Test
 	public void mergeAbcintoP() throws Exception {
-		DataflowMerger merger = new DataflowMerger(p);
-		assertSame(p, merger.getDataflow());
-		merger.merge(abc);
-		assertSame(p, merger.getDataflow());
+		Dataflow merged = p;
+		DataflowMerger merger = new DataflowMerger(merged);
+		merger.getMergeEdit(abc).doEdit();
 
-		checkMergedAbcP(merger.getDataflow());
+		checkMergedAbcP(merged);
 		// Assert ABC did not change
 		checkAbc();
 	}
