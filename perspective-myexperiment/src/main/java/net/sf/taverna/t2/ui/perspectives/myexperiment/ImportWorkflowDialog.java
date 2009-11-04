@@ -23,6 +23,7 @@ import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Workflow;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.importworkflow.DataflowMerger;
@@ -34,6 +35,7 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 
   private JPanel mainPanel;
   private final FileManager fileManager = FileManager.getInstance();
+  private final EditManager editManager = EditManager.getInstance();
   private JComboBox jcbOpenFiles;
   private JPanel jpButtons;
   private JButton bImportAndMerge;
@@ -131,15 +133,10 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 			ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
 			FileType fileTypeType = (w.isTaverna1Workflow() ? new MainComponent.ScuflFileType() : new MainComponent.T2FlowFileType());
 
-			FileManager fileManager = FileManager.getInstance();
 			Dataflow currentDataflow = fileManager.getCurrentDataflow();
-
-			Dataflow toBeImported = fileManager.openDataflow(fileTypeType, workflowDataInputStream);
-
+			Dataflow toBeImported = fileManager.openDataflowSilently(fileTypeType, workflowDataInputStream).getDataflow();
 			DataflowMerger dataflowMerger = new DataflowMerger(currentDataflow);
-			dataflowMerger.merge(toBeImported);
-			fileManager.closeDataflow(toBeImported, true);
-
+			editManager.doDataflowEdit(currentDataflow, dataflowMerger.getMergeEdit(toBeImported));
 			setVisible(false);
 		  } catch (Exception e) {
 			javax.swing.JOptionPane.showMessageDialog(null, "An error has occurred while trying to load a workflow from myExperiment.\n\n"
@@ -159,15 +156,13 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 			ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
 			FileType fileTypeType = (w.isTaverna1Workflow() ? new MainComponent.ScuflFileType() : new MainComponent.T2FlowFileType());
 
-			FileManager fileManager = FileManager.getInstance();
 			Dataflow currentDataflow = fileManager.getCurrentDataflow();
 
-			Dataflow toBeImported = fileManager.openDataflow(fileTypeType, workflowDataInputStream);
+			Dataflow toBeImported = fileManager.openDataflowSilently(fileTypeType, workflowDataInputStream).getDataflow();
 			DataflowActivity dataflowActivity = new DataflowActivity();
 			dataflowActivity.configure(toBeImported);
 
 			// TODO: find out how to create a new processor inside a workflow
-			fileManager.closeDataflow(toBeImported, true);
 
 			setVisible(false);
 		  } catch (Exception e) {
