@@ -53,23 +53,23 @@ import org.apache.log4j.Logger;
  * @author Sergejs Aleksejevs, Emmanuel Tagarira, Jiten Bhagat
  */
 public class MyStuffSidebarPanel extends JPanel implements ActionListener {
-  private MainComponent pluginMainComponent;
-  private MyExperimentClient myExperimentClient;
-  private Logger logger;
+  private final MainComponent pluginMainComponent;
+  private final MyExperimentClient myExperimentClient;
+  private final Logger logger;
 
   // main components of the SidebarPanel
-  private JPanel jpMyProfileBox;
-  private JPanel jpMyFriendsBox;
-  private JPanel jpMyGroupsBox;
-  private JPanel jpMyFavouritesBox;
-  private JPanel jpMyTagsBox;
+  private final JPanel jpMyProfileBox;
+  private final JPanel jpMyFriendsBox;
+  private final JPanel jpMyGroupsBox;
+  private final JPanel jpMyFavouritesBox;
+  private final JPanel jpMyTagsBox;
   private JButton bLogout;
   protected JButton bRefreshMyStuff;
   private JButton bUpload;
 
   // icons which are used in several places in the sidebar
-  private ImageIcon iconUser;
-  private ImageIcon iconLogout;
+  private final ImageIcon iconUser;
+  private final ImageIcon iconLogout;
 
   public MyStuffSidebarPanel(MainComponent component, MyExperimentClient client, Logger logger) {
 	super();
@@ -120,14 +120,9 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
   // creates a JPanel displaying the currently logged in user, logout button,
   // etc
   private JPanel createMyProfileBox() {
-	JPanel jpProfile = new JPanel();
-	jpProfile.setMaximumSize(new Dimension(1024, 0)); // HACK: this is to make
-	// sure that profile box
-	// won't be stretched
-	jpProfile.setLayout(new BoxLayout(jpProfile, BoxLayout.X_AXIS));
-
+	// panel containing name and avatar
 	JPanel jpAvatar = new JPanel();
-	jpAvatar.setLayout(new BoxLayout(jpAvatar, BoxLayout.Y_AXIS));
+	jpAvatar.setLayout(new BoxLayout(jpAvatar, BoxLayout.X_AXIS));
 
 	User currentUser = this.myExperimentClient.getCurrentUser();
 	ImageIcon userAvatar = currentUser.getAvatar();
@@ -138,13 +133,23 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	jlUserAvatar.setAlignmentX(LEFT_ALIGNMENT);
 	jpAvatar.add(jlUserAvatar);
 
-	JClickableLabel jclUserName = new JClickableLabel(currentUser.getName(), "preview:"
+	String name = "<html>";
+	for (int x = 0; x < currentUser.getName().split(" ").length; x++)
+	  name += currentUser.getName().split(" ")[x] + "<br/>";
+	name += "</html>";
+
+	JClickableLabel jclUserName = new JClickableLabel(name, "preview:"
 		+ Resource.USER + ":" + currentUser.getURI(), pluginMainComponent.getPreviewBrowser(), this.iconUser);
-	jclUserName.setAlignmentX(LEFT_ALIGNMENT);
 	jpAvatar.add(jclUserName);
 
-	jpProfile.add(jpAvatar);
+	// panel containing everything in the profile box
+	JPanel jpEverythingInProfileBox = new JPanel();
+	jpEverythingInProfileBox.setMaximumSize(new Dimension(1024, 0));
+	jpEverythingInProfileBox.setLayout(new BoxLayout(jpEverythingInProfileBox, BoxLayout.X_AXIS));
 
+	jpEverythingInProfileBox.add(jpAvatar);
+
+	// action buttons 
 	bLogout = new JButton("Logout", iconLogout);
 	bLogout.addActionListener(this);
 
@@ -154,11 +159,13 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	bUpload = new JButton("Upload Workflow", WorkbenchIcons.upArrowIcon);
 	bUpload.addActionListener(this);
 
+	// panel for the buttons
 	JPanel jpButtons = new JPanel();
 	jpButtons.setLayout(new GridBagLayout());
 	GridBagConstraints gbc = new GridBagConstraints();
 	gbc.gridwidth = 1;
 	gbc.gridy = 0;
+	gbc.anchor = GridBagConstraints.NORTH;
 	gbc.fill = GridBagConstraints.BOTH;
 	gbc.gridx = 0;
 
@@ -168,11 +175,11 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	gbc.gridy++;
 	jpButtons.add(bLogout, gbc);
 
-	jpProfile.add(jpButtons);
+	jpEverythingInProfileBox.add(jpButtons);
 
-	jpProfile.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " My Profile "), BorderFactory.createEmptyBorder(1, 8, 8, 5)));
+	jpEverythingInProfileBox.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), " My Profile "), BorderFactory.createEmptyBorder(1, 8, 8, 5)));
 
-	return (jpProfile);
+	return (jpEverythingInProfileBox);
   }
 
   // creates a JPanel that displays a list of all friends of the current user
@@ -326,12 +333,11 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	  this.pluginMainComponent.getSearchTab().getSearchResultPanel().clear();
 	  this.pluginMainComponent.getSearchTab().rerunLastSearch();
 
-	  // also, update another tabs, so that they don't display any 'private'
-	  // content?
-	  // TODO
-	}
-	/* ************************************************************************* */
-	else if (e.getSource().equals(this.bUpload)) {
+	  // TODO: also, update another tabs, so that they don't display any 'private' content?
+	} else if (e.getSource().equals(this.bUpload)) {
+	  JFrame containingFrame = (JFrame) SwingUtilities.windowForComponent(this);
+	  //	  UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(containingFrame);
+
 	  File workflowFile = null;
 	  JFileChooser jfsSelectFile = new JFileChooser();
 
@@ -340,9 +346,7 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	  else
 		return;
 
-	  JFrame containingFrame = (JFrame) SwingUtilities.windowForComponent(this);
-
-	  UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(workflowFile, containingFrame, pluginMainComponent, myExperimentClient, logger);
+	  UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(containingFrame, workflowFile);
 
 	  if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
 		// true was returned so  refresh the whole of the mystuff content panel
@@ -370,7 +374,6 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	  }
 
 	}
-	/* ************************************************************************* */
 
   }
 

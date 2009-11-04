@@ -49,7 +49,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
@@ -67,9 +66,9 @@ import org.apache.log4j.Logger;
  */
 public class UploadWorkflowDialog extends JDialog implements ActionListener, CaretListener, ComponentListener, KeyListener {
   // components for accessing application's main elements
-  private MainComponent pluginMainComponent;
-  private MyExperimentClient myExperimentClient;
-  private Logger logger;
+  private final MainComponent pluginMainComponent = MainComponent.MAIN_COMPONENT;
+  private final MyExperimentClient myExperimentClient = MainComponent.MY_EXPERIMENT_CLIENT;
+  private final Logger logger = MainComponent.LOGGER;
 
   // COMPONENTS
   private JTextArea taDescription;
@@ -77,49 +76,41 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
   private JButton bUpload;
   private JButton bCancel;
   private JLabel lStatusMessage;
-  JComboBox jcbLicences;
-  JComboBox jcbSharingPermissions;
+  private JComboBox jcbLicences;
+  private JComboBox jcbSharingPermissions;
   private String licence;
   private String sharing;
 
   // STORAGE
   private File workflowFile; // the workflow file to be uploaded
-  private Resource updateResource; // the workflow resource that is to be
-  // updated
+  private Resource updateResource; // the workflow resource that is to be updated
 
   private String strDescription = null;
   private String strTitle = null;
   private boolean bUploadingSuccessful = false;
 
+  // misc.
   private int gridYPositionForStatusLabel;
 
-  private void constructorInit(Resource resource, File file, JFrame owner, MainComponent component, MyExperimentClient client, Logger logger) {
-	// set main variables to ensure access to myExperiment, logger and the
-	// parent component
-	this.pluginMainComponent = component;
-	this.myExperimentClient = client;
-	this.logger = logger;
+  public UploadWorkflowDialog(JFrame parent, File file) {
+	super(parent, "Upload workflow to myExperiment", true);
+	initVarsAndUI(file, null);
+  }
 
+  public UploadWorkflowDialog(JFrame parent, File file, Resource resource) {
+	super(parent, "Update workflow", true);
+	initVarsAndUI(file, resource);
+  }
+
+  private void initVarsAndUI(File file, Resource resource) {
 	// set the resource for which the comment is being added
 	this.workflowFile = file;
 	this.updateResource = resource;
 
 	// set options of the 'add comment' dialog box
-	this.setModal(true);
-	this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-	this.setTitle("Upload workflow to myExperiment");
+	this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-	this.initialiseUI();
-  }
-
-  public UploadWorkflowDialog(File file, JFrame owner, MainComponent component, MyExperimentClient client, Logger logger) {
-	super(owner);
-	constructorInit(null, file, owner, component, client, logger);
-  }
-
-  public UploadWorkflowDialog(Resource resource, File file, JFrame owner, MainComponent component, MyExperimentClient client, Logger logger) {
-	super(owner);
-	constructorInit(resource, file, owner, component, client, logger);
+	initialiseUI();
   }
 
   private void initialiseUI() {
@@ -130,6 +121,9 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	contentPane.setLayout(new GridBagLayout());
 	GridBagConstraints c = new GridBagConstraints();
 
+	Insets fieldInset = new Insets(0, 10, 0, 10);
+	Insets labelInset = new Insets(10, 10, 5, 10);
+
 	// add all components
 	// title
 	JLabel lTitle = new JLabel("Workflow title:");
@@ -138,20 +132,20 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	c.anchor = GridBagConstraints.WEST;
 	c.gridwidth = 2;
 	c.fill = GridBagConstraints.HORIZONTAL;
-	c.insets = new Insets(10, 10, 5, 10);
+	c.insets = labelInset;
 	contentPane.add(lTitle, c);
 
 	this.tfTitle = new JTextField();
 	if (this.updateResource != null)
 	  this.tfTitle.setText(this.updateResource.getTitle());
 	c.gridy++;
-	c.insets = new Insets(0, 10, 0, 10);
+	c.insets = fieldInset;
 	contentPane.add(this.tfTitle, c);
 
 	// description
 	JLabel lDescription = new JLabel("Workflow description:");
 	c.gridy++;
-	c.insets = new Insets(10, 10, 5, 10);
+	c.insets = labelInset;
 	contentPane.add(lDescription, c);
 
 	this.taDescription = new JTextArea(5, 35);
@@ -162,7 +156,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 
 	JScrollPane spDescription = new JScrollPane(this.taDescription);
 	c.gridy++;
-	c.insets = new Insets(0, 10, 0, 10);
+	c.insets = fieldInset;
 	contentPane.add(spDescription, c);
 
 	// licences
@@ -187,11 +181,11 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 
 	JLabel lLicense = new JLabel("Please select the licence to apply:");
 	c.gridy++;
-	c.insets = new Insets(10, 10, 5, 10);
+	c.insets = labelInset;
 	contentPane.add(lLicense, c);
 
 	c.gridy++;
-	c.insets = new Insets(0, 10, 0, 10);
+	c.insets = fieldInset;
 	contentPane.add(jcbLicences, c);
 
 	// sharing - options: private / view / download
@@ -204,11 +198,11 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 
 	JLabel jSharing = new JLabel("Please select your sharing permissions:");
 	c.gridy++;
-	c.insets = new Insets(10, 10, 5, 10);
+	c.insets = labelInset;
 	contentPane.add(jSharing, c);
 
 	c.gridy++;
-	c.insets = new Insets(0, 10, 0, 10);
+	c.insets = fieldInset;
 	contentPane.add(jcbSharingPermissions, c);
 
 	// buttons
@@ -329,6 +323,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 		this.repaint();
 
 		new Thread("Posting workflow") {
+		  @Override
 		  public void run() {
 			String workflowFileContent = "";
 			if (workflowFile != null) {

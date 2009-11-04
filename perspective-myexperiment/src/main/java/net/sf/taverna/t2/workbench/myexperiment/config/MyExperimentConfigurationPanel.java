@@ -52,9 +52,9 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
   // CONSTANTS
 
   // components for accessing application's main elements
-  private final MainComponent pluginMainComponent;
-  private final MyExperimentClient myExperimentClient;
-  private final Logger logger;
+  private final MainComponent pluginMainComponent = MainComponent.MAIN_COMPONENT;
+  private final MyExperimentClient myExperimentClient = MainComponent.MY_EXPERIMENT_CLIENT;
+  private final Logger logger = MainComponent.LOGGER;
 
   // COMPONENTS
   private JTextField tfMyExperimentURL;
@@ -69,13 +69,8 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
   private final Component[] pluginTabComponents;
   private final ArrayList<String> alPluginTabComponentNames;
 
-  public MyExperimentConfigurationPanel(MainComponent component, MyExperimentClient client, Logger incomingLogger) {
+  public MyExperimentConfigurationPanel() {
 	super();
-
-	// set main variables to ensure access to myExperiment, logger and the parent component
-	pluginMainComponent = component;
-	myExperimentClient = client;
-	logger = incomingLogger;
 
 	// prepare plugin tab names to display in the UI afterwards
 	this.alPluginTabComponentNames = new ArrayList<String>();

@@ -23,9 +23,11 @@ package net.sf.taverna.t2.workbench.myexperiment.config;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponent;
 
 /**
+ * This is a class to get a visual on what the preferences will look like when
+ * integrated into the main taverna preferences.
+ * 
  * @author Emmanuel Tagarira
  */
 public class TestJFrameForPreferencesLocalLaunch {
@@ -36,7 +38,7 @@ public class TestJFrameForPreferencesLocalLaunch {
 
 	frame.setMinimumSize(new Dimension(500, 300));
 	frame.setLocation(300, 150);
-	frame.getContentPane().add(new MyExperimentConfigurationPanel(MainComponent.MAIN_COMPONENT, MainComponent.MY_EXPERIMENT_CLIENT, MainComponent.LOGGER));
+	frame.getContentPane().add(new MyExperimentConfigurationPanel());
 
 	frame.pack();
 	frame.setVisible(true);

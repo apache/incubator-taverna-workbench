@@ -467,8 +467,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 		}
 		bFavouritingAvailable = true;
 	  } else {
-		// TODO should be changed to display login box first, then favouriting
-		// option
+		// TODO should be changed to display login box first, then favouriting option
 		strTooltip = "Only logged in users can add items to favourites";
 	  }
 	}
@@ -484,8 +483,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 		strTooltip = "Add a comment on this " + strResourceType;
 		bCommentingAvailable = true;
 	  } else {
-		// TODO should be changed to display login box first, then commenting
-		// option
+		// TODO should be changed to display login box first, then commenting option
 		strTooltip = "Only logged in users can make comments";
 	  }
 	}
@@ -562,7 +560,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 		else
 		  return;
 
-		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(resource, workflowFile, this, pluginMainComponent, myExperimentClient, logger);
+		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this, workflowFile, resource);
 
 		if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
 		  // "true" has been returned so update the resource
@@ -595,7 +593,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	  Resource resource = this.rpcContent.getResource();
 	  if (resource.getItemTypeName().equals("Workflow")) {
 
-		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(resource, null, this, pluginMainComponent, myExperimentClient, logger);
+		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this, null, resource);
 
 		if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
 		  // "true" has been returned so update the resource

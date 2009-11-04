@@ -29,8 +29,6 @@ import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.importworkflow.DataflowMerger;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
-// import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
-
 public class ImportWorkflowDialog extends JDialog implements ActionListener, ComponentListener {
 
   private JPanel mainPanel;
@@ -41,13 +39,13 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
   private JButton bImportAndMerge;
   private JButton bImportAndNest;
   private final Resource resource;
+  private final boolean loadingSuccessful = false;
 
   public ImportWorkflowDialog(ResourcePreviewBrowser parent, Resource r) {
 	super(parent, "Import workflow", false);
 	this.resource = r;
 	initUI();
 	setContentPane(mainPanel);
-	setVisible(true);
 	setResizable(false);
 	this.setMinimumSize(new Dimension(400, 200));
 	this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -120,6 +118,12 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
   }
 
   public void actionPerformed(ActionEvent e) {
+	// set status bar to reflect process 
+	final String strCallerTabClassName = MainComponent.MAIN_COMPONENT.getMainTabs().getSelectedComponent().getClass().getName();
+	MainComponent.MAIN_COMPONENT.getStatusBar().setStatus(strCallerTabClassName, "Downloading and importing workflow...");
+	MainComponent.LOGGER.debug("Downloading and importing workflow from URI: "
+		+ resource.getURI());
+
 	bImportAndNest.setEnabled(false);
 	bImportAndMerge.setEnabled(false);
 	if (e.getSource().equals(bImportAndMerge)) {
@@ -137,7 +141,6 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 			Dataflow toBeImported = fileManager.openDataflowSilently(fileTypeType, workflowDataInputStream).getDataflow();
 			DataflowMerger dataflowMerger = new DataflowMerger(currentDataflow);
 			editManager.doDataflowEdit(currentDataflow, dataflowMerger.getMergeEdit(toBeImported));
-			setVisible(false);
 		  } catch (Exception e) {
 			javax.swing.JOptionPane.showMessageDialog(null, "An error has occurred while trying to load a workflow from myExperiment.\n\n"
 				+ e, "Error", JOptionPane.ERROR_MESSAGE);
@@ -156,15 +159,9 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 			ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
 			FileType fileTypeType = (w.isTaverna1Workflow() ? new MainComponent.ScuflFileType() : new MainComponent.T2FlowFileType());
 
-			Dataflow currentDataflow = fileManager.getCurrentDataflow();
-
 			Dataflow toBeImported = fileManager.openDataflowSilently(fileTypeType, workflowDataInputStream).getDataflow();
 			DataflowActivity dataflowActivity = new DataflowActivity();
 			dataflowActivity.configure(toBeImported);
-
-			// TODO: find out how to create a new processor inside a workflow
-
-			setVisible(false);
 		  } catch (Exception e) {
 			javax.swing.JOptionPane.showMessageDialog(null, "An error has occurred while trying to load a workflow from myExperiment.\n\n"
 				+ e, "Error", JOptionPane.ERROR_MESSAGE);
@@ -173,21 +170,25 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 		}; // run
 	  }.start(); // thread
 	}
+
+	setVisible(false);
+	MainComponent.MAIN_COMPONENT.getStatusBar().setStatus(strCallerTabClassName, null);
+  }
+
+  public boolean launchImportDialogAndLoadIfRequired() {
+	// makes the 'add comment' dialog visible, then waits until it is closed;
+	// control returns to this method when the dialog window is disposed
+	this.setVisible(true);
+	return (loadingSuccessful);
   }
 
   public void componentHidden(ComponentEvent e) {
-	// TODO Auto-generated method stub
-
   }
 
   public void componentMoved(ComponentEvent e) {
-	// TODO Auto-generated method stub
-
   }
 
   public void componentResized(ComponentEvent e) {
-	// TODO Auto-generated method stub
-
   }
 
   public void componentShown(ComponentEvent e) {

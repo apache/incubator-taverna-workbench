@@ -22,15 +22,14 @@
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.io.InputStream;
-
-import javax.swing.ImageIcon;
 import java.net.URL;
 
-import org.jdom.Element;
+import javax.swing.ImageIcon;
 
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
+
+import org.jdom.Element;
 
 /**
  * @author Sergejs Aleksejevs, Jiten Bhagat
@@ -69,8 +68,7 @@ public class MyExperimentPerspective implements PerspectiveSPI {
 
   public int positionHint() {
 	// this determines position of myExperiment perspective in the
-	// bar with perspective buttons (currently makes it the last in
-	// the list)
+	// bar with perspective buttons (currently makes it the last in the list)
 	return 30;
   }
 
@@ -80,8 +78,6 @@ public class MyExperimentPerspective implements PerspectiveSPI {
   }
 
   public void update(Element layoutElement) {
-	// TODO Auto-generated method stub
-
 	// Not sure what to do here
   }
 

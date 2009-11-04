@@ -92,7 +92,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 
 	// x, y, z ARE NOT USED ANYWHERE ELSE
 	// HACK TO BE ABLE TO GET THE REFS FROM TAVERNA'S PREFERENCE PANEL
-	// TODO: refactor code for all the other classes to utilise the static vars
+	// TODO: refactor code for all the other classes to utilise the class vars
 	MainComponent x = this;
 	MAIN_COMPONENT = x;
 
@@ -164,13 +164,9 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
   }
 
   public void onDisplay() {
-	// TODO Auto-generated method stub
-
   }
 
   public void onDispose() {
-	// TODO Auto-generated method stub
-
   }
 
   public MyExperimentClient getMyExperimentClient() {
@@ -226,13 +222,11 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
   }
 
   private void initialisePerspectiveUI() {
-	// HACK: this is required to prevent some labels from having white
-	// non-transparent background
+	// HACK: this is required to prevent some labels from having white non-transparent background
 	ShadedLabel testLabel = new ShadedLabel("test", ShadedLabel.BLUE);
 
 	// create instances of individual components
-	// (NB! Status bar needs to be initialised first, so that it is available to
-	// other components immediately!)
+	// (NB! Status bar needs to be initialised first, so that it is available to other components immediately!)
 	this.pStatusBar = new PluginStatusBar(this, myExperimentClient, logger);
 	this.pMyStuffContainer = new MyStuffTabContentPanel(this, myExperimentClient, logger);
 	//	this.pExampleWorkflows = new ExampleWorkflowsPanel(this, myExperimentClient, logger);
@@ -243,6 +237,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	// add the required ones into the main tabs
 	this.tpMainTabs = new JTabbedPane();
 	this.tpMainTabs.add("My Stuff", this.pMyStuffContainer);
+	// TODO: implement the starter pack
 	//	this.tpMainTabs.add("Starter Pack", this.pExampleWorkflows);
 	this.tpMainTabs.add("Tag Browser", this.pTagBrowser);
 	this.tpMainTabs.add("Search", this.pSearchTab);
@@ -517,38 +512,23 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	  if (getPreviewBrowser().isActive())
 		getPreviewBrowser().toBack();
 
-	  final String strCallerTabClassName = getMainTabs().getSelectedComponent().getClass().getName();
-	  getStatusBar().setStatus(strCallerTabClassName, "Downloading and opening workflow...");
-	  logger.debug("Downloading and opening workflow from URI: "
-		  + resource.getURI());
-
 	  ImportWorkflowDialog importWorkflowDialog = new ImportWorkflowDialog(getPreviewBrowser(), resource);
-	  //	  importWorkflowDialog.dispose();
 
-	  new Thread("Update status bar and history") {
-		@Override
-		public void run() {
-		  getStatusBar().setStatus(strCallerTabClassName, null);
-
-		  // update opened items history making sure that:
-		  // - there's only one occurrence of this item in the history;
-		  // - if this item was in the history before, it is moved to the 'top' now; 
-		  // - predefined history size is not exceeded
-		  getHistoryBrowser().getOpenedItemsHistoryList().remove(resource);
-		  getHistoryBrowser().getOpenedItemsHistoryList().add(resource);
-		  if (getHistoryBrowser().getOpenedItemsHistoryList().size() > HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY_LENGTH) {
-			getHistoryBrowser().getOpenedItemsHistoryList().remove(0);
-		  }
-
-		  // now update the opened items history panel in 'History' tab
-		  if (getHistoryBrowser() != null) {
-			getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY);
-		  }
+	  if (importWorkflowDialog.launchImportDialogAndLoadIfRequired()) {
+		// update opened items history making sure that:
+		// - there's only one occurrence of this item in the history;
+		// - if this item was in the history before, it is moved to the 'top' now; 
+		// - predefined history size is not exceeded
+		getHistoryBrowser().getOpenedItemsHistoryList().remove(resource);
+		getHistoryBrowser().getOpenedItemsHistoryList().add(resource);
+		if (getHistoryBrowser().getOpenedItemsHistoryList().size() > HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY_LENGTH) {
+		  getHistoryBrowser().getOpenedItemsHistoryList().remove(0);
 		}
 
-	  }.start();
-	  /* ************************************************************************* */
-
+		// now update the opened items history panel in 'History' tab
+		if (getHistoryBrowser() != null)
+		  getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY);
+	  }
 	}
   }
 

@@ -23,8 +23,6 @@ package net.sf.taverna.t2.workbench.myexperiment.config;
 import javax.swing.JPanel;
 
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponent;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponentFactory;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.MyExperimentPerspective;
 import net.sf.taverna.t2.workbench.configuration.Configurable;
 import net.sf.taverna.t2.workbench.configuration.ConfigurationUIFactory;
 
@@ -38,7 +36,9 @@ public class MyExperimentConfigurationUIFactory implements ConfigurationUIFactor
   }
 
   public JPanel getConfigurationPanel() {
-	return new MyExperimentConfigurationPanel(MainComponent.MAIN_COMPONENT, MainComponent.MY_EXPERIMENT_CLIENT, MainComponent.LOGGER);
+	if (MainComponent.MAIN_COMPONENT == null)
+	  MainComponent.MAIN_COMPONENT = new MainComponent();
+	return new MyExperimentConfigurationPanel();
   }
 
   public Configurable getConfigurable() {
