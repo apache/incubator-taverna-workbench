@@ -509,16 +509,13 @@ public class ImportWorkflowWizard extends JDialog {
 			svgCanvas.setVisible(false);
 			return;
 		}
+		
+//		Temporarily broken?
+		
 		SVGGraphController currentWfGraphController = new SVGGraphController(
-				dataflow, false, svgCanvas) {
-			public void redraw() {
-				svgCanvas
-						.setDocument(generateSVGDocument(svgCanvas.getBounds()));
-			}
-		};
+				dataflow, false, svgCanvas);
 		SVGDocument generateSVGDocument = currentWfGraphController
-				.generateSVGDocument(new Rectangle(200, 200));
-
+				.getSvgDocument();
 		svgCanvas.setDocument(generateSVGDocument);
 		svgCanvas.setVisible(true);
 	}
