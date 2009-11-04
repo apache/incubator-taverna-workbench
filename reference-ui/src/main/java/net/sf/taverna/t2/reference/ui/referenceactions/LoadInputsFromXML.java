@@ -23,7 +23,6 @@ package net.sf.taverna.t2.reference.ui.referenceactions;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Iterator;
@@ -32,13 +31,13 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 
+import net.sf.taverna.t2.reference.ui.RegistrationPanel;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+
 import org.embl.ebi.escience.baclava.DataThing;
 import org.embl.ebi.escience.baclava.factory.DataThingXMLFactory;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
-
-import net.sf.taverna.t2.reference.ui.RegistrationPanel;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 /**
  * Loads a set of input values from an XML document
@@ -97,6 +96,7 @@ public class LoadInputsFromXML extends AbstractAction implements ReferenceAction
 		this.inputPanelMap = inputPanelMap;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private int getObjectDepth(Object o) {
 		int result = 0;
 		if (o instanceof Iterable) {

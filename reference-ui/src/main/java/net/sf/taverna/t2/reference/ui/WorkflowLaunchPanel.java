@@ -24,7 +24,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.util.HashMap;
 import java.util.Map;
@@ -118,7 +117,6 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	private AnnotationTools annotationTools = new AnnotationTools();
 	private JSVGCanvas createWorkflowGraphic;
 
-	@SuppressWarnings("serial")
 	public WorkflowLaunchPanel(final WorkflowInstanceFacade facade,
 			ReferenceContext context) {
 		super(new BorderLayout());
@@ -229,19 +227,19 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	private JSVGCanvas createWorkflowGraphic(Dataflow dataflow) {
 		final JSVGCanvas svgCanvas = new JSVGCanvas();
 		final SVGGraphController graphController = GraphViewComponent.graphControllerMap
-		.get(dataflowCopyMap.get(dataflow));
+				.get(dataflowCopyMap.get(dataflow));
 		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
 			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
 				graphController.setUpdateManager(svgCanvas.getUpdateManager());
 			}
 		});
 		if (graphController != null) {
-		SVGDocument generateSVGDocument = graphController
-				.generateSVGDocument(new Rectangle(200, 200));
-		svgCanvas.setDocument(generateSVGDocument);
+			SVGDocument svgDoc = graphController.getSvgDocument();
+			svgCanvas.setDocument(svgDoc);
 		}
+		// FIXME: Why revalidate the panel now, before he inserted the canvas?
 		revalidate();
-		
+
 		return svgCanvas;
 	}
 
@@ -249,7 +247,6 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		return dataflowCopyMap;
 	}
 
-	@SuppressWarnings("serial")
 	public synchronized void addInput(final String inputName,
 			final int inputDepth) {
 		addInput(inputName, inputDepth, null, null);

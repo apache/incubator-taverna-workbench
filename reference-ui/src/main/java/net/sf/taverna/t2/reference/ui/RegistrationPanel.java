@@ -47,8 +47,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -80,8 +78,8 @@ public class RegistrationPanel extends JPanel {
 
 	private static final String NEW_VALUE = "Some input data goes here";
 
-	private static Logger logger = Logger
-	.getLogger(RegistrationPanel.class);
+	@SuppressWarnings("unused")
+	private static Logger logger = Logger.getLogger(RegistrationPanel.class);
 
 	
 	private static final ImageIcon addFileIcon = new ImageIcon(
@@ -354,6 +352,7 @@ public class RegistrationPanel extends JPanel {
 			this.depth = depth;
 		}
 
+		@SuppressWarnings("unused")
 		public void actionPerformed(ActionEvent ae) {
 			MutableTreeNode parent = (MutableTreeNode) treeModel.getRoot();
 			MutableTreeNode selection = getSelectedNode();
@@ -390,7 +389,8 @@ public class RegistrationPanel extends JPanel {
 		public AddFileAction() {
 			super("Add file location(s)...", addFileIcon);
 		}
-
+		
+		@SuppressWarnings("unused")
 		public void actionPerformed(ActionEvent e) {
 			JFileChooser fileChooser = new JFileChooser();
 			Preferences prefs = Preferences.userNodeForPackage(getClass());
@@ -411,6 +411,7 @@ public class RegistrationPanel extends JPanel {
 
 				for (File file : fileChooser.getSelectedFiles()) {
 					if (!file.isDirectory()) {
+						
 						DefaultMutableTreeNode added = addPojo(node, file, 0);
 						setStatus("Added file : " + file.getPath(),
 								null);
@@ -448,7 +449,8 @@ public class RegistrationPanel extends JPanel {
 		public AddTextAction() {
 			super("New value", addTextIcon);
 		}
-
+		
+		@SuppressWarnings("unused")
 		public void actionPerformed(ActionEvent e) {
 			MutableTreeNode node = getSelectedNode();
 			String newValue;
@@ -478,7 +480,8 @@ public class RegistrationPanel extends JPanel {
 		public AddURLAction() {
 			super("Add URL ...", addUrlIcon);
 		}
-
+		
+		@SuppressWarnings("unused")
 		public void actionPerformed(ActionEvent e) {
 			Preferences prefs = Preferences.userNodeForPackage(getClass());
 			String currentUrl = prefs.get("currentUrl",
@@ -601,7 +604,7 @@ public class RegistrationPanel extends JPanel {
 	}
 	
 	public void setValue(Object o, int depth) {
-		addPojo(null, 0, depth);
+		addPojo(null, o, depth);
 	}
 	
 	public Object getValue() {
