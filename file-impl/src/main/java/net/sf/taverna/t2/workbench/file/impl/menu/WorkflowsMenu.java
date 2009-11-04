@@ -84,14 +84,10 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 			String name = null;
 			Object source = fileManager.getDataflowSource(dataflow);
 			if (source instanceof File){
-				name = "file://" + ((File)source).getAbsolutePath();
+				name = ((File)source).getAbsolutePath();
 			}
 			else if (source instanceof URL){
-				String protocol = ((URL)source).getProtocol();
-				int port = ((URL)source).getPort();
-				String host = ((URL)source).getHost();
-				String file = ((URL)source).getFile();
-				name = protocol + "://" + ((port==-1) ? "" : port) + host + file;
+				name = source.toString();
 				}
 			else{ // InputStream
 				name = dataflow.getLocalName();
