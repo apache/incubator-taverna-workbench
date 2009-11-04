@@ -3,6 +3,7 @@ net.sf.taverna.t2.workbench.file.impl.menu.FileNewMenuAction
 net.sf.taverna.t2.workbench.file.impl.menu.FileOpenMenuAction
 net.sf.taverna.t2.workbench.file.impl.menu.FileOpenFromURLMenuAction
 net.sf.taverna.t2.workbench.file.impl.menu.FileOpenMenuSection
+net.sf.taverna.t2.workbench.file.impl.menu.FileOpenRecentMenuAction
 net.sf.taverna.t2.workbench.file.impl.menu.FileSaveMenuSection
 net.sf.taverna.t2.workbench.file.impl.menu.FileSaveMenuAction
 net.sf.taverna.t2.workbench.file.impl.menu.FileSaveAllMenuAction
