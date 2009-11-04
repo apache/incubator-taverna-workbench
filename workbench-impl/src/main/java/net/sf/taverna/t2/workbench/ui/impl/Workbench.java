@@ -441,7 +441,7 @@ public class Workbench extends JFrame {
 		// }
 		// }
 
-		if (!set) {
+		if (!set && !System.getProperties().contains("swing.defaultlaf")) {
 			try {
 				UIManager
 						.setLookAndFeel("de.javasoft.plaf.synthetica.SyntheticaStandardLookAndFeel");
@@ -465,13 +465,6 @@ public class Workbench extends JFrame {
 
 			}
 		}
-	}
-
-	public static void main(String[] args) throws IOException {
-		System.setProperty("raven.eclipse", "true");
-		Log.setImplementation(new ConsoleLog());
-		Workbench workbench = getInstance();
-		workbench.setVisible(true);
 	}
 
 	public WorkbenchPerspectives getPerspectives() {
