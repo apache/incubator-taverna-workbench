@@ -366,10 +366,10 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 
 	/**
 	 * Open a dataflow from a source. The dataflow will not initially be marked
-	 * as changed.
+	 * as changed, and will be set as the new current workflow.
 	 * <p>
 	 * The file manager will find implementations of the SPI
-	 * {@link DataflowPersistenceHandler} to perform the save for the given file
+	 * {@link DataflowPersistenceHandler} to perform the opening for the given file
 	 * type and destination class.
 	 * </p>
 	 * <p>
@@ -398,6 +398,37 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 *             IO errors or syntax errors.
 	 */
 	public abstract Dataflow openDataflow(FileType fileType, Object source)
+			throws OpenException;
+	
+	/**
+	 * Open a dataflow from a source silently. The dataflow will not be listed
+	 * as open, and will not be made the current workflow.
+	 * <p>
+	 * The file manager will find implementations of the SPI
+	 * {@link DataflowPersistenceHandler} to perform the opening for the given file
+	 * type and destination class.
+	 * </p>
+	 * <p>
+	 * Listeners will <strong>not</strong> be notified.
+	 * </p>
+	 * 
+	 * @param fileType
+	 *            The filetype, for instance
+	 *            {@link net.sf.taverna.t2.workbench.file.impl.T2FlowFileType}.
+	 *            The file type must be supported by an implementation of the
+	 *            SPI DataflowPersistenceHandler.
+	 * @param source
+	 *            The source, for instance a {@link File} or {@link URL}. The
+	 *            source type must be supported by an implementation of
+	 *            DataflowPersistenceHandler.
+	 * 
+	 * @return The {@link DataflowInfo} describing the opened dataflow.
+	 * @throws OpenException
+	 *             If there was no matching DataflowPersistenceHandler found or
+	 *             the source could not be opened for any other reason, such as
+	 *             IO errors or syntax errors.
+	 */
+	public abstract DataflowInfo openDataflowSilently(FileType fileType, Object source)
 			throws OpenException;
 
 	/**
@@ -474,6 +505,54 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	public abstract void saveDataflow(Dataflow dataflow, FileType fileType,
 			Object destination, boolean failOnOverwrite) throws SaveException,
 			OverwriteException;
+
+	/**
+	 * Silently save the dataflow to the given destination using the given
+	 * filetype.
+	 * <p>
+	 * The file manager will find implementations of the SPI
+	 * {@link DataflowPersistenceHandler} to perform the save for the given file
+	 * type and destination class.
+	 * </p>
+	 * <p>
+	 * Listeners will <strong>not</strong> be notified, and the dataflow does
+	 * not previously have to be opened. getDataflowSource(),
+	 * isDataflowChanged() etc will not be affected - as if the silent save
+	 * never happened.
+	 * </p>
+	 * 
+	 * @param dataflow
+	 *            {@link Dataflow} to be saved
+	 * @param fileType
+	 *            {@link FileType} to save dataflow as, for instance
+	 *            {@link net.sf.taverna.t2.workbench.file.impl.T2FlowFileType}.
+	 *            The file type must be supported by an SPI implementation of
+	 *            {@link DataflowPersistenceHandler}.
+	 * @param destination
+	 *            Destination to save dataflow to, for instance a {@link File}
+	 * @param failOnOverwrite
+	 *            If <code>true</code>, an {@link OverwriteException} is thrown
+	 *            if a save would overwrite the destination because it already
+	 *            exists, but was not opened or save to using the file manager
+	 *            for the given dataflow. (ie. a repeated call to this function
+	 *            should not throw an OverwriteException unless someone outside
+	 *            has modified the file)
+	 * @return The {@link DataflowInfo} describing where the workflow was saved
+	 * @throws OverwriteException
+	 *             if failOnOverwrite was true, and a save would overwrite the
+	 *             destination because it already existed, and was not last
+	 *             written to by a previous save. The save was not performed.
+	 * @throws SaveException
+	 *             If any other error occurs during saving, including the case
+	 *             that a dataflow is not connected to a source or destination,
+	 *             that there are no handlers (some source types can't be saved
+	 *             to, such as HTTP URLs), or any other IO error occurring while
+	 *             saving.
+	 */
+	public abstract DataflowInfo saveDataflowSilently(Dataflow dataflow, FileType fileType,
+			Object destination, boolean failOnOverwrite) throws SaveException,
+			OverwriteException;
+
 
 	/**
 	 * Set the current dataflow to the one provided.
@@ -559,5 +638,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 		}
 		return canonicalSource;
 	}
+
+	
 
 }
