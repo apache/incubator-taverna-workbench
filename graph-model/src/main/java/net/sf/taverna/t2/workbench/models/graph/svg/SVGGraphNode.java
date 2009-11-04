@@ -401,7 +401,7 @@ public class SVGGraphNode extends GraphNode {
 									getWidth(), getHeight()));
 						}
 
-						if (getLabel() != null && !getLabel().isEmpty()) {
+						if (getLabel() != null && !getLabel().equals("")) {
 							SVGUtil.animate(animateLabel, labelGroup, graphController
 									.getAnimationSpeed(), (oldWidth / 2f) + ", "
 									+ (oldHeight / 2f), (getWidth() / 2f) + ", "
