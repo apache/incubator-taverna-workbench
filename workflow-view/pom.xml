@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
@@ -13,36 +14,6 @@
 		<batik.version>1.7</batik.version>
 	</properties>
 	<dependencies>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>file-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>menu-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>edits-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>workbench-api</artifactId>
-			<version>${t2.ui.api.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-api</artifactId>
-			<version>${t2.core.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-impl</artifactId>
-			<version>${t2.core.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
 			<artifactId>observer</artifactId>
@@ -59,34 +30,69 @@
 			<version>${t2.lang.version}</version>
 		</dependency>
 		<dependency>
-	<groupId>net.sf.taverna.t2.ui-api</groupId>
-	<artifactId>activity-palette-api</artifactId>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>workflowmodel-api</artifactId>
+			<version>${t2.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>workflowmodel-impl</artifactId>
+			<version>${t2.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>workbench-api</artifactId>
 			<version>${t2.ui.api.version}</version>
-	</dependency>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>activity-palette-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>contextual-views-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>workbench-impl</artifactId>
+			<version>${t2.ui.impl.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>activity-tools</artifactId>
 			<version>${t2.ui.impl.version}</version>
 		</dependency>
 		<dependency>
-	<groupId>net.sf.taverna.t2.ui-api</groupId>
-	<artifactId>contextual-views-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>file-impl</artifactId>
+			<version>${t2.ui.impl.version}</version>
 		</dependency>
 		<dependency>
-	<groupId>net.sf.taverna.t2.activities</groupId>
-	<artifactId>dataflow-activity</artifactId>
-	<version>${t2.activities.version}</version>
-	</dependency>
-	<dependency>
-	<groupId>net.sf.taverna.t2.ui-components</groupId>
-	<artifactId>design-ui</artifactId>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>menu-impl</artifactId>
+			<version>${t2.ui.impl.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>edits-impl</artifactId>
+			<version>${t2.ui.impl.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.activities</groupId>
+			<artifactId>dataflow-activity</artifactId>
+			<version>${t2.activities.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<artifactId>design-ui</artifactId>
 			<version>${project.version}</version>
-			</dependency>
-			<dependency>
+		</dependency>
+		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 		</dependency>
-		
+
 	</dependencies>
 </project>
