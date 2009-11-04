@@ -40,6 +40,7 @@ import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.file.DataflowInfo;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
@@ -201,6 +202,22 @@ public class FileManagerTest {
 		assertEquals("currentDataflow", event.getModelName());
 		assertEquals(dataflow, event.getNewModel());
 	}
+	
+	@Test
+	public void openSilently() throws Exception {
+		assertTrue("ModelMapObserver already contained messages",
+				modelMapObserver.messages.isEmpty());
+		URL url = getClass().getResource(DUMMY_WORKFLOW_T2FLOW);
+		DataflowInfo info = fileManager.openDataflowSilently(T2_FLOW_FILE_TYPE, url);
+		
+		Dataflow dataflow = info.getDataflow();
+		assertNotNull("Dataflow was not loaded", dataflow);
+		
+		assertNotSame("Loaded dataflow was set as current dataflow",
+				dataflow, modelmap.getModel(ModelMapConstants.CURRENT_DATAFLOW));
+		assertTrue("ModelMapObserver contained unexpected messages",
+				modelMapObserver.messages.isEmpty());
+	}
 
 	@Test
 	public void canSaveDataflow() throws Exception {
@@ -253,6 +270,31 @@ public class FileManagerTest {
 				loadedScript);
 	}
 
+	@Test
+	public void saveSilent() throws Exception {
+		assertTrue("ModelMapObserver contained unexpected messages",
+				modelMapObserver.messages.isEmpty());
+
+		URL url = getClass().getResource(DUMMY_WORKFLOW_T2FLOW);
+		DataflowInfo info = fileManager.openDataflowSilently(T2_FLOW_FILE_TYPE, url);
+		Dataflow dataflow = info.getDataflow();
+		assertTrue("ModelMapObserver contained unexpected messages",
+				modelMapObserver.messages.isEmpty());
+
+		File dataflowFile = File.createTempFile("test", ".t2flow");
+		dataflowFile.deleteOnExit();
+		dataflowFile.delete();
+		assertFalse("File should not exist", dataflowFile.isFile());
+		
+		fileManager.saveDataflowSilently(dataflow, T2_FLOW_FILE_TYPE, dataflowFile, false);
+		assertTrue("File should exist", dataflowFile.isFile());
+		
+		assertTrue("ModelMapObserver contained unexpected messages",
+				modelMapObserver.messages.isEmpty());
+
+	}
+	
+	
 	@Test
 	public void saveOverwriteAgain() throws Exception {
 		Dataflow dataflow = openDataflow();

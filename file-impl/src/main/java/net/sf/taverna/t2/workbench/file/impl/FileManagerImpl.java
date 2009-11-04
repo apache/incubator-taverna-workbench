@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.WeakHashMap;
 import java.util.Map.Entry;
 
 import javax.swing.filechooser.FileFilter;
@@ -342,8 +343,20 @@ public class FileManagerImpl extends FileManager {
 	 */
 	@Override
 	public Dataflow openDataflow(FileType fileType, Object source)
+			throws OpenException {		
+		DataflowInfo openDataflow = openDataflowSilently(fileType, source);
+		Dataflow dataflow = openDataflow.getDataflow();
+		openDataflowInternal(dataflow);
+		getOpenDataflowInfo(dataflow).setOpenedFrom(openDataflow);
+		observers.notify(new OpenedDataflowEvent(dataflow));
+		return dataflow;
+	}
+
+
+	@Override
+	public DataflowInfo openDataflowSilently(FileType fileType, Object source)
 			throws OpenException {
-		
+
 		Set<DataflowPersistenceHandler> handlers;
 		Class<? extends Object> sourceClass = source.getClass();
 		
@@ -382,14 +395,11 @@ public class FileManagerImpl extends FileManager {
 				try {
 					DataflowInfo openDataflow = handler.openDataflow(
 							candidateFileType, source);
-					Dataflow dataflow = openDataflow.getDataflow();
+					Dataflow dataflow = openDataflow.getDataflow();					
 					logger.info("Loaded workflow: " + dataflow.getLocalName()
 							+ " " + dataflow.getInternalIdentier() + " from "
 							+ source + " using " + handler);
-					openDataflowInternal(dataflow);
-					getOpenDataflowInfo(dataflow).setOpenedFrom(openDataflow);
-					observers.notify(new OpenedDataflowEvent(dataflow));
-					return dataflow;
+					return openDataflow;
 				} catch (OpenException ex) {
 					logger.warn("Could not open workflow " + source + " using "
 							+ handler + " of type " + candidateFileType);
@@ -400,7 +410,7 @@ public class FileManagerImpl extends FileManager {
 		throw new OpenException("Could not open workflow " + source + "\n"
 				+ lastException, lastException);
 	}
-
+	
 	/**
 	 * Mark the dataflow as opened, and close the blank dataflow if needed.
 	 * 
@@ -460,6 +470,16 @@ public class FileManagerImpl extends FileManager {
 	@Override
 	public void saveDataflow(Dataflow dataflow, FileType fileType,
 			Object destination, boolean failOnOverwrite) throws SaveException {
+		DataflowInfo savedDataflow = saveDataflowSilently(dataflow, fileType, destination, failOnOverwrite);
+		getOpenDataflowInfo(dataflow).setSavedTo(savedDataflow);
+		observers.notify(new SavedDataflowEvent(dataflow));
+	}
+	
+
+	@Override
+	public DataflowInfo saveDataflowSilently(Dataflow dataflow, FileType fileType,
+			Object destination, boolean failOnOverwrite) throws SaveException,
+			OverwriteException {
 		Set<DataflowPersistenceHandler> handlers;
 
 		Class<? extends Object> destinationClass = destination.getClass();
@@ -493,10 +513,8 @@ public class FileManagerImpl extends FileManager {
 				logger.info("Saved workflow: " + dataflow.getLocalName() + " "
 						+ dataflow.getInternalIdentier() + " to "
 						+ savedDataflow.getCanonicalSource() + " using "
-						+ handler);
-				getOpenDataflowInfo(dataflow).setSavedTo(savedDataflow);
-				observers.notify(new SavedDataflowEvent(dataflow));
-				return;
+						+ handler);				
+				return savedDataflow;
 			} catch (SaveException ex) {
 				logger.warn("Could not save to " + destination + " using "
 						+ handler);
@@ -506,6 +524,7 @@ public class FileManagerImpl extends FileManager {
 		throw new SaveException("Could not save to " + destination,
 				lastException);
 	}
+	
 
 	/**
 	 * {@inheritDoc}
@@ -592,5 +611,7 @@ public class FileManagerImpl extends FileManager {
 			}
 		}
 	}
+
+
 	
 }
