@@ -57,8 +57,6 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
 
 import org.apache.batik.swing.JSVGCanvas;
-import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
-import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
 import org.w3c.dom.svg.SVGDocument;
 
@@ -219,30 +217,22 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	}
 
 	/**
-	 * Create a PNG image of the workflow and place inside an ImageIcon
+	 * Creates an SVGCanvas loaded with the SVGDocument for the Dataflow.
 	 * 
 	 * @param dataflow
 	 * @return
 	 */
 	private JSVGCanvas createWorkflowGraphic(Dataflow dataflow) {
-		final JSVGCanvas svgCanvas = new JSVGCanvas();
-		final SVGGraphController graphController = GraphViewComponent.graphControllerMap
+		JSVGCanvas svgCanvas = new JSVGCanvas();
+		SVGGraphController graphController = GraphViewComponent.graphControllerMap
 				.get(dataflowCopyMap.get(dataflow));
-		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
-			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
-				graphController.setUpdateManager(svgCanvas.getUpdateManager());
-			}
-		});
 		if (graphController != null) {
-			SVGDocument svgDoc = graphController.getSvgDocument();
-			svgCanvas.setDocument(svgDoc);
+			SVGDocument svgDoc = graphController.getSVGDocument();
+			svgCanvas.setDocument((SVGDocument) svgDoc.cloneNode(true));
 		}
-		// FIXME: Why revalidate the panel now, before he inserted the canvas?
-		revalidate();
-
 		return svgCanvas;
 	}
-
+	
 	public static Map<Dataflow, Dataflow> getDataflowCopyMap() {
 		return dataflowCopyMap;
 	}

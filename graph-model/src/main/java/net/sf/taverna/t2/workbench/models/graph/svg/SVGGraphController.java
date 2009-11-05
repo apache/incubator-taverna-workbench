@@ -129,7 +129,7 @@ public class SVGGraphController extends GraphController {
 		return new SVGGraphNode(this);
 	}
 
-	private synchronized SVGDocument getSVGDocument() {
+	public synchronized SVGDocument getSVGDocument() {
 		if (svgDocument == null) {
 			svgDocument = SVGUtil.createSVGDocument();
 		}
@@ -137,12 +137,10 @@ public class SVGGraphController extends GraphController {
 	}
 	
 	public void redraw() {
-		if (svgDocument != null) {
-			Graph graph = generateGraph();
-			Rectangle actualBounds = layoutGraph(graph, svgCanvas.getBounds());
-			setBounds(actualBounds);
-			transformGraph(getGraph(), graph);
-		}
+		Graph graph = generateGraph();
+		Rectangle actualBounds = layoutGraph(graph, svgCanvas.getBounds());
+		setBounds(actualBounds);
+		transformGraph(getGraph(), graph);
 	}
 	
 	private void layoutSVGDocument(Rectangle bounds) {
@@ -340,15 +338,6 @@ public class SVGGraphController extends GraphController {
 	 */
 	public void setAnimationSpeed(int animationSpeed) {
 		this.animationSpeed = animationSpeed;
-	}
-
-	/**
-	 * Returns the svgDocument.
-	 *
-	 * @return the svgDocument
-	 */
-	public SVGDocument getSvgDocument() {
-		return svgDocument;
 	}
 	
 }
