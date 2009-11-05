@@ -79,7 +79,7 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 		putValue(NAME, "Configure");	
 		putValue(SHORT_DESCRIPTION, "Configure selected component");
 		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, true));
+				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false));
 		
 		KeyboardFocusManager focusManager =
 		    KeyboardFocusManager.getCurrentKeyboardFocusManager();
