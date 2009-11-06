@@ -25,6 +25,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -67,6 +68,7 @@ import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
+import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
@@ -157,9 +159,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 
 	protected Map<String, GraphElement> graphElementMap = new HashMap<String, GraphElement>();
 
-	protected GraphElement edgeCreationSource;
-	
-	protected GraphElement edgeCreationSink;
+	protected GraphElement edgeCreationSource, edgeCreationSink;
 	
 	protected GraphEdge edgeMoveElement;
 	
@@ -170,6 +170,8 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 	private Graph graph;
 
 	private boolean interactive;
+	
+	private final PortComparator portComparator = new PortComparator();
 	
 	public GraphController(Dataflow dataflow, boolean interactive, Component componentForPopups) {
 		this(dataflow, interactive, componentForPopups, Alignment.VERTICAL, PortStyle.NONE);
@@ -803,7 +805,9 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			dataflowToGraph.put(processor, node);
 		}
 
-		Set<ActivityInputPort> inputPorts = firstActivity.getInputPorts();		
+		List<ActivityInputPort> inputPorts = new ArrayList<ActivityInputPort>(
+				firstActivity.getInputPorts());
+		Collections.sort(inputPorts, portComparator);
 		if (inputPorts.size() == 0) {
 			GraphNode portNode = createGraphNode();
 			portNode.setShape(Shape.BOX);
@@ -837,7 +841,9 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			}
 		}
 
-		Set<OutputPort> outputPorts = firstActivity.getOutputPorts();
+		List<OutputPort> outputPorts = new ArrayList<OutputPort>(
+				firstActivity.getOutputPorts());
+		Collections.sort(outputPorts, portComparator);
 		if (outputPorts.size() == 0) {
 			GraphNode portNode = createGraphNode();
 			portNode.setShape(Shape.BOX);
