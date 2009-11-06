@@ -32,9 +32,13 @@ import net.sf.taverna.t2.invocation.WorkflowDataToken;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.monitor.MonitorManager;
 import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
+import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
+import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
+import net.sf.taverna.t2.workbench.views.monitor.PreviousRunsComponent;
 import net.sf.taverna.t2.workbench.views.results.ResultViewComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EditException;
@@ -42,44 +46,85 @@ import net.sf.taverna.t2.workflowmodel.EditException;
 public class DataflowRun {
 
 	private WorkflowInstanceFacade facade;
-	
+
 	private Map<String, T2Reference> inputs;
-	
+
 	private Date date;
 
 	private MonitorViewComponent monitorViewComponent;
-	
+
 	private ResultViewComponent resultsComponent;
-	
+
 	private Observer<MonitorMessage> monitorObserver;
 
 	private int results = 0;
 
 	private Dataflow dataflow;
 
-	public DataflowRun(WorkflowInstanceFacade facade, Map<String, T2Reference> inputs, Date date) {
-		this.facade = facade;
-		this.dataflow = facade.getDataflow();
-		this.inputs = inputs;
-		this.date = date;		
+	public DataflowRun(Dataflow dataflow, Date date, String sessionID) {
+		// get the provenance connector and hope it and the reference service
+		// are the correct ones!! ie. the user has not changed something etc
+		// the reference service is needed to dereference the data so if it is
+		// the 'wrong' one then........
+		this.date = date;
+		monitorViewComponent = new PreviousRunsComponent();
+		String connectorType = DataManagementConfiguration.getInstance()
+				.getConnectorType();
+		ProvenanceConnector provenanceConnector = null;
+		for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry
+				.getInstance().getInstances()) {
+			if (connectorType.equalsIgnoreCase(factory.getConnectorType())) {
+				provenanceConnector = factory.getProvenanceConnector();
+			}
+		}
+
+		try {
+			if (provenanceConnector != null) {
+				provenanceConnector.init();
+				provenanceConnector.setSessionID(sessionID);
+			}
+		} catch (Exception except) {
+
+		}
+		monitorViewComponent.setProvenanceConnector(provenanceConnector);
+		monitorObserver = monitorViewComponent.setDataflow(dataflow);
+
+		resultsComponent = new ResultViewComponent();
+		monitorViewComponent.setStatus(MonitorViewComponent.Status.COMPLETE);
+		monitorViewComponent.revalidate();
+		monitorViewComponent.revalidate();
+	}
+
+	public DataflowRun(WorkflowInstanceFacade facade,
+			Map<String, T2Reference> inputs, Date date) {
+		this.date = date;
 		monitorViewComponent = new MonitorViewComponent();
-		monitorViewComponent.setProvenanceConnector((ProvenanceConnector) (facade.getContext().getProvenanceReporter()));
+		this.facade = facade;
+		this.inputs = inputs;
+		this.dataflow = facade.getDataflow();
+		monitorViewComponent
+				.setProvenanceConnector((ProvenanceConnector) (facade
+						.getContext().getProvenanceReporter()));
+
 		resultsComponent = new ResultViewComponent();
 	}
 
 	public void run() {
-		
+
 		monitorObserver = monitorViewComponent.setDataflow(dataflow);
 
-//		resultsComponent.setContext(context);
+		// resultsComponent.setContext(context);
 		MonitorManager.getInstance().addObserver(monitorObserver);
 		// Use the empty context by default to root this facade on the monitor
 		// tree
-		
-		// Only if this workflow has at least one output port there will be some results to observe.
-		// Otherwise, we have to find another way of detecting when a workflow without output ports
-		// has finished running - we do that by observing when all processors have finished.
-		if (dataflow.getOutputPorts().size()>0){
+
+		// Only if this workflow has at least one output port there will be some
+		// results to observe.
+		// Otherwise, we have to find another way of detecting when a workflow
+		// without output ports
+		// has finished running - we do that by observing when all processors
+		// have finished.
+		if (dataflow.getOutputPorts().size() > 0) {
 			facade.addResultListener(new ResultListener() {
 				public void resultTokenProduced(WorkflowDataToken token,
 						String portName) {
@@ -124,15 +169,18 @@ public class DataflowRun {
 
 	@Override
 	public String toString() {
-		return dataflow.getLocalName() +  " " + DateFormat.getTimeInstance().format(date);
+		return dataflow.getLocalName() + " "
+				+ DateFormat.getTimeInstance().format(date);
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((dataflow == null) ? 0 : dataflow.getInternalIdentier().hashCode());
+		result = prime
+				* result
+				+ ((dataflow == null) ? 0 : dataflow.getInternalIdentier()
+						.hashCode());
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
 		return result;
 	}
@@ -149,7 +197,8 @@ public class DataflowRun {
 		if (dataflow == null) {
 			if (other.dataflow != null)
 				return false;
-		} else if (!dataflow.getInternalIdentier().equals(other.dataflow.getInternalIdentier()))
+		} else if (!dataflow.getInternalIdentier().equals(
+				other.dataflow.getInternalIdentier()))
 			return false;
 		if (date == null) {
 			if (other.date != null)
@@ -177,7 +226,7 @@ public class DataflowRun {
 
 	/**
 	 * Returns the monitorViewComponent.
-	 *
+	 * 
 	 * @return the monitorViewComponent
 	 */
 	public MonitorViewComponent getMonitorViewComponent() {
@@ -186,11 +235,11 @@ public class DataflowRun {
 
 	/**
 	 * Returns the resultsComponent.
-	 *
+	 * 
 	 * @return the resultsComponent
 	 */
 	public ResultViewComponent getResultsComponent() {
 		return resultsComponent;
 	}
-	
+
 }
