@@ -296,14 +296,11 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 
 		//conditions
 		for (Processor processor : dataflow.getProcessors()) {
-			GraphElement element = dataflowToGraph.get(processor);
-			if (element instanceof GraphNode) {
-				GraphNode sink = (GraphNode) element;
-				for (Condition condition : processor.getPreconditionList()) {
-					GraphEdge edge = generateControlEdge(condition, sink, depth);
-					if (edge != null) {
-						graph.addEdge(edge);
-					}
+			GraphElement sink = dataflowToGraph.get(processor);
+			for (Condition condition : processor.getPreconditionList()) {
+				GraphEdge edge = generateControlEdge(condition, sink, depth);
+				if (edge != null) {
+					graph.addEdge(edge);
 				}
 			}
 		}
@@ -471,45 +468,36 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		}
 	}
 	
-	private GraphEdge generateControlEdge(Condition condition, GraphNode sink, int depth) {
+	private GraphEdge generateControlEdge(Condition condition, GraphElement sink, int depth) {
 		GraphEdge edge = null;
-		GraphElement element = dataflowToGraph.get(condition.getControl());
-		if (element instanceof GraphNode) {
-			GraphNode source = (GraphNode) element;
-			if (source != null && sink != null) {
-				edge = createGraphEdge();
-				if (source.isExpanded()) {
-					edge.setSource(outputControls.get(source.getGraph()));
-				} else {
-					edge.setSource(source);
-				}
-				if (sink.isExpanded()) {
-					edge.setSink(inputControls.get(sink.getGraph()));
-				} else {
-					edge.setSink(sink);
-				}
-				String sourceId = edge.getSource().getId();
-				String sinkId = edge.getSink().getId();
-//				if (source.getParent() instanceof GraphNode) {
-//					sourceId = source.getParent().getId();
-//				}
-//				if (sink.getParent() instanceof GraphNode) {
-//					sinkId = sink.getParent().getId();
-//				}
-				edge.setId(sourceId + "->" + sinkId);
-				edge.setLineStyle(LineStyle.SOLID);
-				edge.setColor(Color.decode("#505050"));
-				edge.setFillColor(null);
-				edge.setArrowHeadStyle(ArrowStyle.DOT);
-				if (depth == 0) {
-					edge.setDataflowObject(condition);
-				}
-				if (interactive) {
-					edge.setDataflowObject(condition);
-				}
-				dataflowToGraph.put(condition, edge);
-				graphElementMap.put(edge.getId(), edge);
+		GraphElement source = dataflowToGraph.get(condition.getControl());
+		if (source != null && sink != null) {
+			edge = createGraphEdge();
+			if (source instanceof Graph) {
+				edge.setSource(outputControls.get(source));
+			} else if (source instanceof GraphNode) {
+				edge.setSource((GraphNode) source);
 			}
+			if (sink instanceof Graph) {
+				edge.setSink(inputControls.get(sink));
+			} else if (sink instanceof GraphNode) {
+				edge.setSink((GraphNode) sink);
+			}
+			String sourceId = edge.getSource().getId();
+			String sinkId = edge.getSink().getId();
+			edge.setId(sourceId + "->" + sinkId);
+			edge.setLineStyle(LineStyle.SOLID);
+			edge.setColor(Color.decode("#505050"));
+			edge.setFillColor(null);
+			edge.setArrowHeadStyle(ArrowStyle.DOT);
+			if (depth == 0) {
+				edge.setDataflowObject(condition);
+			}
+			if (interactive) {
+				edge.setDataflowObject(condition);
+			}
+			dataflowToGraph.put(condition, edge);
+			graphElementMap.put(edge.getId(), edge);
 		}
 		return edge;
 	}
