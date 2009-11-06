@@ -48,19 +48,18 @@ public class GraphLayout implements DOTParserVisitor {
 	
 	private Rectangle bounds;
 	
-//	private Rectangle adjustedBounds;
-	
-	private double aspectRatio;
-	
+	private Rectangle requiredBounds;
+		
 	private GraphController graphController;
 	
 	private int xOffset;
 	
 	private int yOffset;
 	
-	public Rectangle layoutGraph(GraphController graphController, Graph graph, String laidOutDot, double aspectRatio) throws ParseException {
+	public Rectangle layoutGraph(GraphController graphController, Graph graph, String laidOutDot, Rectangle requiredBounds) throws ParseException {
 		this.graphController = graphController;
-		this.aspectRatio = aspectRatio;
+		this.requiredBounds = requiredBounds;
+
 		bounds = null;
 		xOffset = 0;
 		yOffset = 0;
@@ -229,7 +228,8 @@ public class GraphLayout implements DOTParserVisitor {
 		bounds.height += BORDER;
 		Rectangle newBounds = new Rectangle(bounds);
 		double ratio = ((float) bounds.width) / ((float) bounds.height);
-		double requiredRatio = aspectRatio;
+		double requiredRatio = ((float) requiredBounds.width) / ((float) requiredBounds.height);
+		// adjust the bounds so they match the aspect ration of the required bounds
 		if (ratio > requiredRatio) {
 			newBounds.height = (int) ((ratio / requiredRatio) * bounds.height);
 		} else if (ratio < requiredRatio) {
@@ -237,6 +237,16 @@ public class GraphLayout implements DOTParserVisitor {
 		}
 		xOffset = (newBounds.width - bounds.width) / 2;
 		yOffset = (newBounds.height - bounds.height) / 2;
+		// adjust the bounds and so they are not less than the required bounds
+		if (newBounds.width < requiredBounds.width) {
+			xOffset += (requiredBounds.width - newBounds.width) / 2;
+			newBounds.width = requiredBounds.width;
+		}
+		if (newBounds.height < requiredBounds.height) {
+			yOffset += (requiredBounds.height - newBounds.height) / 2;
+			newBounds.height = requiredBounds.height;
+		}
+		// adjust the offset for the border
 		xOffset += BORDER/2;
 		yOffset += BORDER/2;
 		return newBounds;

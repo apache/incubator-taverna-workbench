@@ -165,13 +165,13 @@ public class SVGGraphController extends GraphController {
 	
 	public Rectangle layoutGraph(Graph graph, Rectangle bounds) {
 		Rectangle actualBounds = null;
-		double aspectRatio = ((float) bounds.width) / ((float) bounds.height);
+		bounds = new Rectangle(bounds);
 		StringWriter stringWriter = new StringWriter();
 		DotWriter dotWriter = new DotWriter(stringWriter);
 		try {
 			dotWriter.writeGraph(graph);
 			String layout = SVGUtil.getDot(stringWriter.toString());
-			actualBounds = graphLayout.layoutGraph(this, graph, layout, aspectRatio);
+			actualBounds = graphLayout.layoutGraph(this, graph, layout, bounds);
 		} catch (IOException e) {
 			outputMessage(dotErrorMessage);
 			logger.error("Couldn't generate dot", e);
