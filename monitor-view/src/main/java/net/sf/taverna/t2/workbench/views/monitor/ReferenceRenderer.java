@@ -23,10 +23,8 @@ package net.sf.taverna.t2.workbench.views.monitor;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
