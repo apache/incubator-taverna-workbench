@@ -39,6 +39,16 @@
 	</repositories>
 
 	<dependencies>
+	<dependency>
+      <groupId>net.sf.taverna.t2.ui-activities</groupId>
+      <artifactId>dataflow-activity-ui</artifactId>
+      <version>0.13-SNAPSHOT</version>
+    </dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-exts</groupId>
+			<artifactId>import-workflow</artifactId>
+			<version>0.10-SNAPSHOT</version>
+		</dependency>
     <dependency>
       <groupId>net.sf.taverna.t2.activities</groupId>
       <artifactId>dataflow-activity</artifactId>
@@ -48,11 +58,6 @@
 			<groupId>net.sf.taverna.t2.infrastructure</groupId>
 			<artifactId>launcher</artifactId>
 			<version>${t2.infrastructure.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-exts</groupId>
-			<artifactId>import-workflow</artifactId>
-			<version>0.10-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>

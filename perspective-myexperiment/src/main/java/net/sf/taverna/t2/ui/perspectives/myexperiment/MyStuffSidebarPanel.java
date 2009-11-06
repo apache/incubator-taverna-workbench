@@ -35,7 +35,6 @@ import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -339,39 +338,17 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	  //	  UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(containingFrame);
 
 	  File workflowFile = null;
-	  JFileChooser jfsSelectFile = new JFileChooser();
-
-	  if (jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-		workflowFile = jfsSelectFile.getSelectedFile();
-	  else
-		return;
+	  //	  JFileChooser jfsSelectFile = new JFileChooser();
+	  //	  if (jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+	  //		workflowFile = jfsSelectFile.getSelectedFile();
+	  //	  else
+	  //		return;
 
 	  UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(containingFrame, workflowFile);
 
-	  if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
+	  if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired())
 		// true was returned so  refresh the whole of the mystuff content panel
 		this.actionPerformed(new ActionEvent(this.bRefreshMyStuff, 0, ""));
-
-		// update history of the items that were commented on, making sure
-		// that:
-		// - there's only one occurrence of this item in the history;
-		// - if this item was in the history before, it is moved to the 'top'
-		// now;
-		// - predefined history size is not exceeded
-		// this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().remove(this.rpcContent.getResource());
-		// this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().add(this.rpcContent.getResource());
-		// if
-		// (this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().size()
-		// > HistoryBrowserTabContentPanel.COMMENTED_ON_ITEMS_HISTORY) {
-		// this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().remove(0);
-		// }
-
-		// now update the history of the items that were commented on in
-		// 'History' tab
-		// if (this.pluginMainComponent.getHistoryBrowser() != null) {
-		// this.pluginMainComponent.getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.COMMENTED_ON_ITEMS_HISTORY);
-		// }
-	  }
 
 	}
 

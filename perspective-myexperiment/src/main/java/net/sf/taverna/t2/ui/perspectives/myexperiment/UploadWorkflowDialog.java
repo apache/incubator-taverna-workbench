@@ -29,6 +29,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.BufferedReader;
@@ -36,13 +38,17 @@ import java.io.File;
 import java.io.FileReader;
 import java.net.HttpURLConnection;
 
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -58,13 +64,14 @@ import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.ServerResponse;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Workflow;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
 
 /**
  * @author Emmanuel Tagarira, Sergejs Aleksejevs
  */
-public class UploadWorkflowDialog extends JDialog implements ActionListener, CaretListener, ComponentListener, KeyListener {
+public class UploadWorkflowDialog extends JDialog implements ActionListener, CaretListener, ComponentListener, KeyListener, FocusListener {
   // components for accessing application's main elements
   private final MainComponent pluginMainComponent = MainComponent.MAIN_COMPONENT;
   private final MyExperimentClient myExperimentClient = MainComponent.MY_EXPERIMENT_CLIENT;
@@ -82,7 +89,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
   private String sharing;
 
   // STORAGE
-  private File workflowFile; // the workflow file to be uploaded
+  private File localWorkflowFile; // the workflow file to be uploaded
   private Resource updateResource; // the workflow resource that is to be updated
 
   private String strDescription = null;
@@ -91,6 +98,13 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 
   // misc.
   private int gridYPositionForStatusLabel;
+  private JRadioButton rbSelectLocalFile;
+  private JRadioButton rbSelectOpenWorkflow;
+  private JButton bSelectFile;
+  private JComboBox jcbOpenWorkflows;
+  private JLabel selectedFileLabel = new JLabel("no file is currently selected");
+  private boolean uploadWorkflowFromLocalFile;
+  JFileChooser jfsSelectFile = new JFileChooser();
 
   public UploadWorkflowDialog(JFrame parent, File file) {
 	super(parent, "Upload workflow to myExperiment", true);
@@ -104,7 +118,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 
   private void initVarsAndUI(File file, Resource resource) {
 	// set the resource for which the comment is being added
-	this.workflowFile = file;
+	this.localWorkflowFile = file;
 	this.updateResource = resource;
 
 	// set options of the 'add comment' dialog box
@@ -113,26 +127,83 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	initialiseUI();
   }
 
+  public static void main(String[] args) {
+	UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(null, null);
+	uploadWorkflowDialog.launchUploadDialogAndPostIfRequired();
+  }
+
+  private JPanel createSelectSource() {
+	// create radio buttons
+	ButtonGroup radioButtons = new ButtonGroup();
+	rbSelectOpenWorkflow = new JRadioButton("Open Workflow");
+	rbSelectOpenWorkflow.addFocusListener(this);
+	rbSelectLocalFile = new JRadioButton("Local File");
+	rbSelectLocalFile.addFocusListener(this);
+	radioButtons.add(rbSelectOpenWorkflow);
+	radioButtons.add(rbSelectLocalFile);
+
+	// create the source panel and add items
+	JPanel source = new JPanel(new GridBagLayout());
+	GridBagConstraints c = new GridBagConstraints();
+	c.anchor = GridBagConstraints.WEST;
+	c.gridy = 0;
+	c.gridx = 0;
+	c.gridwidth = 1;
+	c.insets = new Insets(3, 0, 3, 0);
+	c.fill = GridBagConstraints.BOTH;
+
+	// add info label
+	JLabel info = new JLabel("Upload a workflow you would like to upload:");
+	source.add(info, c);
+
+	// add open workflow radio button
+	c.gridy++;
+	source.add(rbSelectOpenWorkflow, c);
+	jcbOpenWorkflows = ImportWorkflowDialog.createDropdown();
+	c.gridx = 1;
+	c.gridwidth = 2;
+	source.add(jcbOpenWorkflows, c);
+
+	// add local file radio button
+	c.gridwidth = 1;
+	c.gridy++;
+	c.gridx = 0;
+	source.add(rbSelectLocalFile, c);
+	c.gridx = 1;
+	source.add(selectedFileLabel, c);
+	bSelectFile = new JButton(WorkbenchIcons.openIcon);
+	bSelectFile.addActionListener(this);
+	c.gridx = 2;
+	source.add(bSelectFile, c);
+
+	return source;
+  }
+
   private void initialiseUI() {
 	// get content pane
 	Container contentPane = this.getContentPane();
 
-	// set up layout
-	contentPane.setLayout(new GridBagLayout());
-	GridBagConstraints c = new GridBagConstraints();
-
 	Insets fieldInset = new Insets(0, 10, 0, 10);
 	Insets labelInset = new Insets(10, 10, 5, 10);
 
-	// add all components
-	// title
-	JLabel lTitle = new JLabel("Workflow title:");
+	// set up layout
+	contentPane.setLayout(new GridBagLayout());
+	GridBagConstraints c = new GridBagConstraints();
 	c.gridx = 0;
 	c.gridy = 0;
 	c.anchor = GridBagConstraints.WEST;
 	c.gridwidth = 2;
 	c.fill = GridBagConstraints.HORIZONTAL;
+	c.insets = fieldInset;
+
+	// ADD ALL COMPONENTS
+	// source for workflow to upload
+	contentPane.add(createSelectSource(), c);
+
+	// title
+	JLabel lTitle = new JLabel("Workflow title:");
 	c.insets = labelInset;
+	c.gridy++;
 	contentPane.add(lTitle, c);
 
 	this.tfTitle = new JTextField();
@@ -211,6 +282,8 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	this.getRootPane().setDefaultButton(this.bUpload);
 	this.bUpload.addActionListener(this);
 	this.bUpload.addKeyListener(this);
+	bUpload.setEnabled(false);
+
 	c.gridy++;
 	c.anchor = GridBagConstraints.EAST;
 	c.gridwidth = 1;
@@ -252,9 +325,8 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	return (bUploadingSuccessful);
   }
 
-  // *** Callback for ActionListener interface ***
   public void actionPerformed(ActionEvent e) {
-	if (e.getSource().equals(this.bUpload)) {
+	if (e.getSource().equals(this.bUpload)) { // * *** *** *** * UPLOAD BUTTON * *** *** *** *
 	  // get sharing permission
 	  switch (this.jcbSharingPermissions.getSelectedIndex()) {
 		case 0:
@@ -326,9 +398,9 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 		  @Override
 		  public void run() {
 			String workflowFileContent = "";
-			if (workflowFile != null) {
+			if (localWorkflowFile != null) {
 			  try {
-				BufferedReader reader = new BufferedReader(new FileReader(workflowFile));
+				BufferedReader reader = new BufferedReader(new FileReader(localWorkflowFile));
 				String line;
 
 				while ((line = reader.readLine()) != null)
@@ -411,17 +483,19 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 		  }
 		}.start();
 	  } // if proceedWithUpload
-	} else if (e.getSource().equals(this.bCancel)) {
+	} else if (e.getSource().equals(this.bCancel)) { // * *** *** *** * CANCEL BUTTON * *** *** *** *
 	  // cleanup the input fields if it wasn't posted successfully + simply close and destroy the window
 	  if (!this.bUploadingSuccessful) {
 		this.strDescription = null;
 		this.tfTitle = null;
 	  }
 	  this.dispose();
+	} else if (e.getSource().equals(bSelectFile)) {// * *** *** *** * SELECT FILE BUTTON * *** *** *** *
+	  if (jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+		localWorkflowFile = jfsSelectFile.getSelectedFile();
 	}
   }
 
-  // *** Callbacks for KeyListener interface ***
   public void keyPressed(KeyEvent e) {
 	// if TAB was pressed in the text field (title), need to move keyboard focus
 	if (e.getSource().equals(this.tfTitle)
@@ -439,20 +513,28 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	}
   }
 
-  public void keyReleased(KeyEvent e) {
-	// not in use
+  public void focusGained(FocusEvent e) {
+	if (e.getSource().equals(rbSelectLocalFile)) {
+	  uploadWorkflowFromLocalFile = true;
+	  selectedFileLabel.setEnabled(uploadWorkflowFromLocalFile);
+	  bSelectFile.setEnabled(uploadWorkflowFromLocalFile);
+	  jcbOpenWorkflows.setEnabled(!uploadWorkflowFromLocalFile);
+
+	  if (localWorkflowFile == null
+		  && jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+		localWorkflowFile = jfsSelectFile.getSelectedFile();
+
+	  selectedFileLabel = new JLabel(localWorkflowFile.getPath());
+	} else if (e.getSource().equals(rbSelectOpenWorkflow)) {
+	  uploadWorkflowFromLocalFile = false;
+	  selectedFileLabel.setEnabled(uploadWorkflowFromLocalFile);
+	  bSelectFile.setEnabled(uploadWorkflowFromLocalFile);
+	  jcbOpenWorkflows.setEnabled(!uploadWorkflowFromLocalFile);
+	}
+
+	bUpload.setEnabled(true);
   }
 
-  public void keyTyped(KeyEvent e) {
-	// not in use
-  }
-
-  // *** Callback for CaretListener interface ***
-  public void caretUpdate(CaretEvent e) {
-	// not in use
-  }
-
-  // *** Callbacks for ComponentListener interface ***
   public void componentShown(ComponentEvent e) {
 	// center this dialog box within the preview browser window
 	if (updateResource == null) // upload has been pressed from the MAIN
@@ -463,6 +545,14 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	  Util.centerComponentWithinAnother(this.pluginMainComponent.getPreviewBrowser(), this);
   }
 
+  public void focusLost(FocusEvent e) {
+	// not in use
+  }
+
+  public void caretUpdate(CaretEvent e) {
+	// not in use
+  }
+
   public void componentHidden(ComponentEvent e) {
 	// not in use
   }
@@ -471,8 +561,15 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	// not in use
   }
 
-  public void componentResized(ComponentEvent e) {
+  public void keyReleased(KeyEvent e) {
 	// not in use
   }
 
+  public void keyTyped(KeyEvent e) {
+	// not in use
+  }
+
+  public void componentResized(ComponentEvent e) {
+	// not in use
+  }
 }
