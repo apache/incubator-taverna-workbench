@@ -53,8 +53,6 @@ public class PreviousRunsComponent extends MonitorViewComponent{
 
 		gvtTreeBuilderAdapter = new GVTTreeRendererAdapter() {
 			public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
-				logger.info("Rendered svg");
-				System.out.println("SVG rendered");
 				svgScrollPane.reset();
 				PreviousRunsComponent.this.revalidate();
 			}
