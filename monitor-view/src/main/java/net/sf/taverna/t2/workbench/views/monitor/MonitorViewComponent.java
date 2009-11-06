@@ -77,12 +77,12 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 
 	private SVGGraphController graphController;
 
-	private JSVGCanvas svgCanvas;
-	private JSVGScrollPane svgScrollPane;
+	protected JSVGCanvas svgCanvas;
+	protected JSVGScrollPane svgScrollPane;
 	
-	private JLabel statusLabel;
+	protected JLabel statusLabel;
 	
-	private ProvenanceConnector provenanceConnector;	
+	protected ProvenanceConnector provenanceConnector;	
 
 	public enum Status {
 		RUNNING, COMPLETE
@@ -90,7 +90,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 
 	private String sessionId;
 
-	private GVTTreeRendererAdapter gvtTreeRendererAdapter;
+	protected GVTTreeRendererAdapter gvtTreeRendererAdapter;
 
 	private GraphMonitor graphMonitor;
 
@@ -128,7 +128,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 //		setProvenanceConnector();
 	}
 	
-	private JToolBar graphActionsToolbar() {
+	protected JToolBar graphActionsToolbar() {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setAlignmentX(Component.LEFT_ALIGNMENT);
 		toolBar.setFloatable(false);
@@ -246,7 +246,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 		return graphController;
 	}
 
-	private class MySvgScrollPane extends JSVGScrollPane {
+	class MySvgScrollPane extends JSVGScrollPane {
 		private static final long serialVersionUID = 6890422410714378543L;
 
 		public MySvgScrollPane(JSVGCanvas canvas) {
