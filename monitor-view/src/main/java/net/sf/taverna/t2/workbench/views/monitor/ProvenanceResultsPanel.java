@@ -41,13 +41,18 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
+import net.sf.taverna.t2.provenance.reporter.ProvenanceReporter;
+import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.views.results.RenderedResultComponent;
 
 import org.apache.log4j.Logger;
+import org.springframework.context.ApplicationContext;
 
 /**
  * Designed to be used in conjunction with the provenance system in Taverna.
@@ -69,7 +74,7 @@ public class ProvenanceResultsPanel extends JPanel implements
 			.getLogger(ProvenanceResultsPanel.class);
 
 	private PortTab oldTab;
-	
+
 	private Map<PortTab, Integer> selectedRowMap = new HashMap<PortTab, Integer>();
 
 	private Map<String, PortTab> portTabMap = new HashMap<String, PortTab>();
@@ -77,7 +82,7 @@ public class ProvenanceResultsPanel extends JPanel implements
 	private Map<String, Map<String, T2Reference>> portMap = new HashMap<String, Map<String, T2Reference>>();
 
 	private Map<String, Boolean> inputOutputMap = new HashMap<String, Boolean>();
-	
+
 	private List<LineageQueryResultRecord> lineageRecords;
 
 	private JTable resultsTable;
@@ -100,7 +105,7 @@ public class ProvenanceResultsPanel extends JPanel implements
 		this.lineageRecords = lineageRecords;
 		this.setContext(invocationContext);
 		initView();
-		this.setMinimumSize(new Dimension(800,600));
+		this.setMinimumSize(new Dimension(800, 600));
 	}
 
 	private void initView() {
@@ -117,15 +122,16 @@ public class ProvenanceResultsPanel extends JPanel implements
 			public void stateChanged(ChangeEvent changeEvent) {
 				changeTab(changeEvent);
 			}
-			
+
 			private void changeTab(ChangeEvent changeEvent) {
 				renderedResultsComponent.clearResult();
 				renderedResultsComponent.revalidate();
-				//need to do this twice to get it to refresh - no idea why but it works!
+				// need to do this twice to get it to refresh - no idea why but
+				// it works!
 				renderedResultsComponent.revalidate();
 				revalidate();
 				repaint();
-				
+
 				JTabbedPane sourceTabbedPane = (JTabbedPane) changeEvent
 						.getSource();
 				int index = sourceTabbedPane.getSelectedIndex();
@@ -143,8 +149,9 @@ public class ProvenanceResultsPanel extends JPanel implements
 							.clearSelection();
 					if (selectedRowMap.containsKey(oldTab)) {
 						Integer integer = selectedRowMap.get(oldTab);
-						if (integer!= -1) {
-							oldTab.getResultsTable().changeSelection(integer, 0, false, false);							
+						if (integer != -1) {
+							oldTab.getResultsTable().changeSelection(integer,
+									0, false, false);
 						} else {
 							renderedResultsComponent.clearResult();
 							revalidate();
@@ -157,7 +164,7 @@ public class ProvenanceResultsPanel extends JPanel implements
 					}
 				}
 
-				}			
+			}
 		};
 		tabbedPane.addChangeListener(changeListener);
 
@@ -173,15 +180,15 @@ public class ProvenanceResultsPanel extends JPanel implements
 
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 				tabbedPane, getRenderedResultsComponent());
-		tabbedPane.setMinimumSize(new Dimension(300,300));
-//		splitPane.setResizeWeight(1);
+		tabbedPane.setMinimumSize(new Dimension(300, 300));
+		// splitPane.setResizeWeight(1);
 		add(new JLabel("Click on an iteration to view the result"));
 		add(splitPane);
 		getRenderedResultsComponent().setBorder(
 				BorderFactory.createRaisedBevelBorder());
 
 		revalidate();
-//		splitPane.setDividerLocation(0.5);
+		// splitPane.setDividerLocation(0.5);
 		// remember what tab is currently selected - at init it is the first one
 		String titleAt = tabbedPane.getTitleAt(0);
 		PortTab portTab = portTabMap.get(titleAt);
@@ -227,17 +234,18 @@ public class ProvenanceResultsPanel extends JPanel implements
 			}
 			// reset the selection since the results may have changed
 			Set<Entry<String, PortTab>> entrySet2 = portTabMap.entrySet();
-			for (Entry<String, PortTab> entry:entrySet2) {
+			for (Entry<String, PortTab> entry : entrySet2) {
 				entry.getValue().getResultsTable().clearSelection();
-				entry.getValue().getResultsTable().getSelectionModel().clearSelection();
+				entry.getValue().getResultsTable().getSelectionModel()
+						.clearSelection();
 				selectedRowMap.put(entry.getValue(), -1);
 				renderedResultsComponent.clearResult();
 				renderedResultsComponent.revalidate();
 				revalidate();
 				repaint();
 			}
-//			oldTab.getResultsTable().clearSelection();
-//			oldTab.getResultsTable().getSelectionModel().clearSelection();
+			// oldTab.getResultsTable().clearSelection();
+			// oldTab.getResultsTable().getSelectionModel().clearSelection();
 
 		}
 
@@ -249,10 +257,10 @@ public class ProvenanceResultsPanel extends JPanel implements
 		Boolean input = inputOutputMap.get(key);
 		if (input) {
 			ImageIcon inputPortIcon = WorkbenchIcons.inputIcon;
-			tabbedPane.addTab(key, inputPortIcon, portTab, "Input port");		
+			tabbedPane.addTab(key, inputPortIcon, portTab, "Input port");
 		} else {
 			ImageIcon outputPortIcon = WorkbenchIcons.outputIcon;
-			tabbedPane.addTab(key, outputPortIcon, portTab, "Output port");	
+			tabbedPane.addTab(key, outputPortIcon, portTab, "Output port");
 		}
 		portTabMap.put(key, portTab);
 
@@ -267,6 +275,33 @@ public class ProvenanceResultsPanel extends JPanel implements
 	}
 
 	public InvocationContext getContext() {
+		if (context == null) {
+			String context = DataManagementConfiguration.getInstance()
+					.getDatabaseContext();
+			ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
+					context);
+			final ReferenceService referenceService = (ReferenceService) appContext
+					.getBean("t2reference.service.referenceService");
+			InvocationContext invContext = new InvocationContext() {
+
+				public <T> List<? extends T> getEntities(Class<T> arg0) {
+					// TODO Auto-generated method stub
+					return null;
+				}
+
+				public ReferenceService getReferenceService() {
+					// TODO Auto-generated method stub
+					return referenceService;
+				}
+
+				public ProvenanceReporter getProvenanceReporter() {
+					// TODO Auto-generated method stub
+					return null;
+				}
+			};
+			this.context = invContext;
+		}
+
 		return context;
 	}
 
