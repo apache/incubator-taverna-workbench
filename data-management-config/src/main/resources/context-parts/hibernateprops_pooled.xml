@@ -25,7 +25,7 @@
 		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="properties">
             <props>            
-                <prop key="hibernate.hbm2ddl.auto">create</prop>
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
                 <prop key="hibernate.dialect" >
 					${hibernate.dialect}
                 </prop>
