@@ -515,7 +515,7 @@ public class ImportWorkflowWizard extends JDialog {
 		SVGGraphController currentWfGraphController = new SVGGraphController(
 				dataflow, false, svgCanvas);
 		SVGDocument generateSVGDocument = currentWfGraphController
-				.getSvgDocument();
+				.getSVGDocument();
 		svgCanvas.setDocument(generateSVGDocument);
 		svgCanvas.setVisible(true);
 	}
