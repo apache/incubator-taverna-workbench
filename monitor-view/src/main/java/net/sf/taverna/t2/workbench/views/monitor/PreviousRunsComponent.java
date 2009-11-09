@@ -8,7 +8,6 @@ import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
-import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
 import net.sf.taverna.t2.workbench.views.graph.AutoScrollInteractor;
@@ -22,6 +21,8 @@ import org.apache.log4j.Logger;
 
 public class PreviousRunsComponent extends MonitorViewComponent{
 	
+	private static final long serialVersionUID = 1L;
+
 	private static Logger logger = Logger.getLogger(PreviousRunsComponent.class);
 	
 	private JLabel statusLabel;
