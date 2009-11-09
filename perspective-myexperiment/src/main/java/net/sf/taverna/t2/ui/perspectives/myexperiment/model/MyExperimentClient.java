@@ -1048,7 +1048,7 @@ public class MyExperimentClient {
 	}
   }
 
-  public ServerResponse postNewVersionOfWorkflow(Resource resource, String workflowContent, String title, String description, String license, String sharing) {
+  public ServerResponse updateWorkflowVersionOrMetadata(Resource resource, String workflowContent, String title, String description, String license, String sharing) {
 	try {
 	  String strWorkflowData = prepareWorkflowPostContent(workflowContent, title, description, license, sharing);
 

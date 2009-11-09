@@ -27,7 +27,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -337,14 +336,14 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 	  JFrame containingFrame = (JFrame) SwingUtilities.windowForComponent(this);
 	  //	  UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(containingFrame);
 
-	  File workflowFile = null;
+	  //	  File workflowFile = null;
 	  //	  JFileChooser jfsSelectFile = new JFileChooser();
 	  //	  if (jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
 	  //		workflowFile = jfsSelectFile.getSelectedFile();
 	  //	  else
 	  //		return;
 
-	  UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(containingFrame, workflowFile);
+	  UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(containingFrame, true);
 
 	  if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired())
 		// true was returned so  refresh the whole of the mystuff content panel

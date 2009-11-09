@@ -39,7 +39,12 @@
 	</repositories>
 
 	<dependencies>
-	<dependency>
+	  <dependency>
+	    <groupId>net.sf.taverna.t2.ui-impl</groupId>
+	    <artifactId>file-impl</artifactId>
+	    <version>${t2.ui.impl.version}</version>
+	  </dependency>
+	  <dependency>
       <groupId>net.sf.taverna.t2.ui-activities</groupId>
       <artifactId>dataflow-activity-ui</artifactId>
       <version>0.13-SNAPSHOT</version>

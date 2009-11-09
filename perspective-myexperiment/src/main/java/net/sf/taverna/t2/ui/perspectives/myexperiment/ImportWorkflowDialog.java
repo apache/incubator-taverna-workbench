@@ -156,6 +156,8 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 	//	jpButtons.add(bImportAndNest, c);
   }
 
+  // TODO: move to UploadWorkflowDialog AFTER Stian has finished workflow import ie code inbetween /* *** */
+  /* ************************************************************************* */
   protected static JComboBox createDropdown() {
 	List<DataflowSelection> openDataflows = new ArrayList<DataflowSelection>();
 
@@ -186,6 +188,8 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 	return jcbOpenFiles;
   }
 
+  /* ************************************************************************* */
+
   public void actionPerformed(ActionEvent e) {
 	// set status bar to reflect process 
 	final String strCallerTabClassName = MainComponent.MAIN_COMPONENT.getMainTabs().getSelectedComponent().getClass().getName();
@@ -197,6 +201,8 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 	bImportAndMerge.setEnabled(false);
 	tfPrefix.setEnabled(false);
 	if (e.getSource().equals(bImportAndMerge)) {
+	  // TODO: remove sanitization AFTER Stian has finished workflow import ie code inbetween /* *** */
+	  /* ************************************************************************* */
 	  // sanitize the user input
 	  boolean sanitized = false;
 	  char[] prefix = tfPrefix.getText().toCharArray();
@@ -225,6 +231,7 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 		  return;
 		}
 	  }
+	  /* ************************************************************************* */
 
 	  // proceed with merge
 	  bImportAndNest.setText("---");
@@ -234,6 +241,8 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 		@Override
 		public void run() {
 		  try {
+			// TODO: proper way to do merge  AFTER Stian has finished workflow import ie code inbetween /* *** */
+			/* ************************************************************************* */
 			Workflow w = MainComponent.MY_EXPERIMENT_CLIENT.fetchWorkflowBinary(resource.getURI());
 
 			ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
@@ -244,6 +253,7 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 			DataflowMerger dataflowMerger = new DataflowMerger(currentDataflow);
 			editManager.doDataflowEdit(currentDataflow, dataflowMerger.getMergeEdit(toBeImported, sanitizedPrefix));
 			fileManager.setDataflowChanged(currentDataflow, true);
+			/* ************************************************************************* */
 		  } catch (Exception e) {
 			javax.swing.JOptionPane.showMessageDialog(null, "An error has occurred while trying to load a workflow from myExperiment.\n\n"
 				+ e, "Error", JOptionPane.ERROR_MESSAGE);
@@ -258,6 +268,8 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 		@Override
 		public void run() {
 		  try {
+			// TODO: proper way to do merge  AFTER Stian has finished workflow import ie code inbetween /* *** */
+			/* ************************************************************************* */
 			Workflow w = MainComponent.MY_EXPERIMENT_CLIENT.fetchWorkflowBinary(resource.getURI());
 			ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
 			FileType fileTypeType = (w.isTaverna1Workflow() ? new MainComponent.ScuflFileType() : new MainComponent.T2FlowFileType());
@@ -271,7 +283,7 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 
 			Processor dataflowProcessor = WorkflowView.importServiceDescription(DataflowTemplateService.getServiceDescription(), false);
 			NestedDataflowSource nestedDataflowSource = new NestedDataflowSource(currentDataflow, dataflowActivity);
-
+			/* ************************************************************************* */
 		  } catch (Exception e) {
 			javax.swing.JOptionPane.showMessageDialog(null, "An error has occurred while trying to load a workflow from myExperiment.\n\n"
 				+ e, "Error", JOptionPane.ERROR_MESSAGE);
@@ -305,6 +317,8 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 	Util.centerComponentWithinAnother(MainComponent.MAIN_COMPONENT.getPreviewBrowser(), this);
   }
 
+  // TODO: move to UploadWorkflowDialog AFTER Stian has finished workflow import ie code inbetween /* *** */
+  /* ************************************************************************* */
   protected static class DataflowSelection {
 	private final Dataflow dataflow;
 	private final String name;
@@ -328,5 +342,5 @@ public class ImportWorkflowDialog extends JDialog implements ActionListener, Com
 	}
 
   }
-
+  /* ************************************************************************* */
 }

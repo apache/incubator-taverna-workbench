@@ -8,7 +8,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.io.File;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -552,48 +550,25 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	  /* ************************************************************************* */
 	  Resource resource = this.rpcContent.getResource();
 	  if (resource.getItemTypeName().equals("Workflow")) {
-		File workflowFile = null;
-		JFileChooser jfsSelectFile = new JFileChooser();
+		//		File workflowFile = null;
+		//		JFileChooser jfsSelectFile = new JFileChooser();
+		//		if (jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+		//		  workflowFile = jfsSelectFile.getSelectedFile();
+		//		else
+		//		  return;
 
-		if (jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-		  workflowFile = jfsSelectFile.getSelectedFile();
-		else
-		  return;
-
-		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this, workflowFile, resource);
+		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this, true, resource);
 
 		if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
 		  // "true" has been returned so update the resource
 		  this.actionPerformed(new ActionEvent(this.bRefresh, 0, ""));
-
 		  // TODO create and upload/update history log!!!
-
-		  // update history of the items that were commented on, making sure
-		  // that:
-		  // - there's only one occurrence of this item in the history;
-		  // - if this item was in the history before, it is moved to the 'top'
-		  // now;
-		  // - predefined history size is not exceeded
-		  // this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().remove(this.rpcContent.getResource());
-		  // this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().add(this.rpcContent.getResource());
-		  // if
-		  // (this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().size()
-		  // > HistoryBrowserTabContentPanel.COMMENTED_ON_ITEMS_HISTORY) {
-		  // this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().remove(0);
-		  // }
-
-		  // now update the history of the items that were commented on in
-		  // 'History' tab
-		  // if (this.pluginMainComponent.getHistoryBrowser() != null) {
-		  // this.pluginMainComponent.getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.COMMENTED_ON_ITEMS_HISTORY);
-		  // }
 		}
 	  }
 	} else if (e.getSource().equals(this.bEditMetadata)) {
 	  Resource resource = this.rpcContent.getResource();
 	  if (resource.getItemTypeName().equals("Workflow")) {
-
-		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this, null, resource);
+		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this, false, resource);
 
 		if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
 		  // "true" has been returned so update the resource

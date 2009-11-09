@@ -38,6 +38,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.net.HttpURLConnection;
 
+import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -58,13 +59,17 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
+import net.sf.taverna.t2.ui.perspectives.myexperiment.ImportWorkflowDialog.DataflowSelection;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.License;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.ServerResponse;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Workflow;
+import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.file.impl.actions.SaveWorkflowAsAction;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
 
@@ -89,8 +94,9 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
   private String sharing;
 
   // STORAGE
-  private File localWorkflowFile; // the workflow file to be uploaded
+  private File localWorkflowFile; // the local workflow file to be uploaded
   private Resource updateResource; // the workflow resource that is to be updated
+  private File uploadFile; // THE UPLOAD FILE
 
   private String strDescription = null;
   private String strTitle = null;
@@ -102,24 +108,26 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
   private JRadioButton rbSelectOpenWorkflow;
   private JButton bSelectFile;
   private JComboBox jcbOpenWorkflows;
-  private JLabel selectedFileLabel = new JLabel("no file is currently selected");
+  private final JLabel selectedFileLabel = new JLabel("no wokflow file selected");
   private boolean uploadWorkflowFromLocalFile;
   JFileChooser jfsSelectFile = new JFileChooser();
 
-  public UploadWorkflowDialog(JFrame parent, File file) {
+  private boolean userRequestedWorkflowUpload;
+
+  public UploadWorkflowDialog(JFrame parent, boolean doUpload) {
 	super(parent, "Upload workflow to myExperiment", true);
-	initVarsAndUI(file, null);
+	initVarsAndUI(doUpload, null);
   }
 
-  public UploadWorkflowDialog(JFrame parent, File file, Resource resource) {
-	super(parent, "Update workflow", true);
-	initVarsAndUI(file, resource);
+  public UploadWorkflowDialog(JFrame parent, boolean doUpload, Resource resource) {
+	super(parent, "Update workflow information", true);
+	initVarsAndUI(doUpload, resource);
   }
 
-  private void initVarsAndUI(File file, Resource resource) {
+  private void initVarsAndUI(boolean doUpload, Resource resource) {
 	// set the resource for which the comment is being added
-	this.localWorkflowFile = file;
 	this.updateResource = resource;
+	this.userRequestedWorkflowUpload = doUpload;
 
 	// set options of the 'add comment' dialog box
 	this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
@@ -127,34 +135,33 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	initialiseUI();
   }
 
-  public static void main(String[] args) {
-	UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(null, null);
-	uploadWorkflowDialog.launchUploadDialogAndPostIfRequired();
-  }
-
   private JPanel createSelectSource() {
 	// create radio buttons
 	ButtonGroup radioButtons = new ButtonGroup();
-	rbSelectOpenWorkflow = new JRadioButton("Open Workflow");
+	rbSelectOpenWorkflow = new JRadioButton("Already Opened Workflow");
 	rbSelectOpenWorkflow.addFocusListener(this);
-	rbSelectLocalFile = new JRadioButton("Local File");
+	rbSelectLocalFile = new JRadioButton("Select Local File");
 	rbSelectLocalFile.addFocusListener(this);
 	radioButtons.add(rbSelectOpenWorkflow);
+	rbSelectOpenWorkflow.setSelected(true);
 	radioButtons.add(rbSelectLocalFile);
 
 	// create the source panel and add items
 	JPanel source = new JPanel(new GridBagLayout());
+	source.setBorder(BorderFactory.createTitledBorder("Workflow source"));
+
 	GridBagConstraints c = new GridBagConstraints();
-	c.anchor = GridBagConstraints.WEST;
+	c.anchor = GridBagConstraints.NORTHWEST;
 	c.gridy = 0;
 	c.gridx = 0;
 	c.gridwidth = 1;
+	c.weightx = 1;
 	c.insets = new Insets(3, 0, 3, 0);
 	c.fill = GridBagConstraints.BOTH;
 
 	// add info label
-	JLabel info = new JLabel("Upload a workflow you would like to upload:");
-	source.add(info, c);
+	//	JLabel info = new JLabel("Upload a workflow you would like to upload:");
+	//	source.add(info, c);
 
 	// add open workflow radio button
 	c.gridy++;
@@ -173,51 +180,46 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	source.add(selectedFileLabel, c);
 	bSelectFile = new JButton(WorkbenchIcons.openIcon);
 	bSelectFile.addActionListener(this);
+	bSelectFile.setToolTipText("Select the file you would like to upload to myExperiment");
 	c.gridx = 2;
 	source.add(bSelectFile, c);
 
 	return source;
   }
 
-  private void initialiseUI() {
-	// get content pane
-	Container contentPane = this.getContentPane();
+  private JPanel createMetadataPanel() {
+	Insets fieldInset = new Insets(0, 5, 4, 5);
+	Insets labelInset = new Insets(3, 5, 4, 5);
 
-	Insets fieldInset = new Insets(0, 10, 0, 10);
-	Insets labelInset = new Insets(10, 10, 5, 10);
-
-	// set up layout
-	contentPane.setLayout(new GridBagLayout());
 	GridBagConstraints c = new GridBagConstraints();
 	c.gridx = 0;
+	c.weightx = 1;
 	c.gridy = 0;
 	c.anchor = GridBagConstraints.WEST;
 	c.gridwidth = 2;
 	c.fill = GridBagConstraints.HORIZONTAL;
-	c.insets = fieldInset;
 
-	// ADD ALL COMPONENTS
-	// source for workflow to upload
-	contentPane.add(createSelectSource(), c);
+	JPanel metaPanel = new JPanel(new GridBagLayout());
+	metaPanel.setBorder(BorderFactory.createTitledBorder("Workflow information"));
 
 	// title
 	JLabel lTitle = new JLabel("Workflow title:");
 	c.insets = labelInset;
 	c.gridy++;
-	contentPane.add(lTitle, c);
+	metaPanel.add(lTitle, c);
 
 	this.tfTitle = new JTextField();
 	if (this.updateResource != null)
 	  this.tfTitle.setText(this.updateResource.getTitle());
 	c.gridy++;
 	c.insets = fieldInset;
-	contentPane.add(this.tfTitle, c);
+	metaPanel.add(this.tfTitle, c);
 
 	// description
 	JLabel lDescription = new JLabel("Workflow description:");
 	c.gridy++;
 	c.insets = labelInset;
-	contentPane.add(lDescription, c);
+	metaPanel.add(lDescription, c);
 
 	this.taDescription = new JTextArea(5, 35);
 	this.taDescription.setLineWrap(true);
@@ -228,7 +230,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	JScrollPane spDescription = new JScrollPane(this.taDescription);
 	c.gridy++;
 	c.insets = fieldInset;
-	contentPane.add(spDescription, c);
+	metaPanel.add(spDescription, c);
 
 	// licences
 	String[] licenseText = new String[License.SUPPORTED_TYPES.length];
@@ -253,11 +255,11 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	JLabel lLicense = new JLabel("Please select the licence to apply:");
 	c.gridy++;
 	c.insets = labelInset;
-	contentPane.add(lLicense, c);
+	metaPanel.add(lLicense, c);
 
 	c.gridy++;
 	c.insets = fieldInset;
-	contentPane.add(jcbLicences, c);
+	metaPanel.add(jcbLicences, c);
 
 	// sharing - options: private / view / download
 	String[] permissions = { "This workflow is private.", "Anyone can view, but noone can download.", "Anyone can view, and anyone can download" };
@@ -270,11 +272,40 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	JLabel jSharing = new JLabel("Please select your sharing permissions:");
 	c.gridy++;
 	c.insets = labelInset;
-	contentPane.add(jSharing, c);
+	metaPanel.add(jSharing, c);
 
 	c.gridy++;
 	c.insets = fieldInset;
-	contentPane.add(jcbSharingPermissions, c);
+	metaPanel.add(jcbSharingPermissions, c);
+
+	return metaPanel;
+  }
+
+  private void initialiseUI() {
+	// get content pane
+	Container contentPane = this.getContentPane();
+
+	Insets fieldInset = new Insets(3, 5, 3, 5);
+
+	// set up layout
+	contentPane.setLayout(new GridBagLayout());
+	GridBagConstraints c = new GridBagConstraints();
+	c.gridx = 0;
+	c.gridy = 0;
+	c.anchor = GridBagConstraints.NORTHWEST;
+	c.gridwidth = 2;
+	c.fill = GridBagConstraints.HORIZONTAL;
+
+	// ADD ALL COMPONENTS
+	// source for workflow to upload
+	if (userRequestedWorkflowUpload) {
+	  c.insets = fieldInset;
+	  contentPane.add(createSelectSource(), c);
+	  c.gridy++;
+	}
+
+	// create metadata panel
+	contentPane.add(createMetadataPanel(), c);
 
 	// buttons
 	this.bUpload = new JButton(updateResource == null ? "Upload Workflow" : "Update Workflow");
@@ -282,7 +313,6 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	this.getRootPane().setDefaultButton(this.bUpload);
 	this.bUpload.addActionListener(this);
 	this.bUpload.addKeyListener(this);
-	bUpload.setEnabled(false);
 
 	c.gridy++;
 	c.anchor = GridBagConstraints.EAST;
@@ -325,34 +355,86 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	return (bUploadingSuccessful);
   }
 
-  public void actionPerformed(ActionEvent e) {
-	if (e.getSource().equals(this.bUpload)) { // * *** *** *** * UPLOAD BUTTON * *** *** *** *
-	  // get sharing permission
-	  switch (this.jcbSharingPermissions.getSelectedIndex()) {
-		case 0:
-		  this.sharing = "private";
-		  break;
-		case 1:
-		  this.sharing = "view";
-		  break;
-		case 2:
-		  this.sharing = "download";
-		  break;
+  private File performSourceCheck() {
+	if (!rbSelectLocalFile.isSelected() && !rbSelectOpenWorkflow.isSelected()) { // it is logicall impossible to get this message, have it JUST IN CASE
+	  JOptionPane.showConfirmDialog(this, "You have not selected a source for you workflow.\n"
+		  + "Please select a source and try again.", "Select Workflow Source", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+	  return null;
+	}
+
+	if (rbSelectOpenWorkflow.isSelected()) { // user requested to use a flow currently open in t2 
+	  Dataflow dataflowToUpload = ((DataflowSelection) jcbOpenWorkflows.getSelectedItem()).getDataflow();
+	  FileManager fileManager = FileManager.getInstance();
+	  SaveWorkflowAsAction saveAction = new SaveWorkflowAsAction();
+
+	  boolean skipPrompt = false;
+	  if (fileManager.isDataflowChanged(dataflowToUpload)) { // if flow has changed, prompt user to save
+		JOptionPane.showConfirmDialog(this, "The workflow you are trying to upload has\n"
+			+ "changed since the last time it was saved.\n\n"
+			+ "Please save your file to proceed...", "Save Workflow", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE);
+		saveAction.saveDataflow(this, dataflowToUpload);
+		skipPrompt = true;
 	  }
 
-	  //get licence
-	  this.licence = License.SUPPORTED_TYPES[this.jcbLicences.getSelectedIndex()];
+	  File dataflowFile = (File) fileManager.getDataflowSource(dataflowToUpload);
+	  if (dataflowFile == null && !skipPrompt) {
+		JOptionPane.showConfirmDialog(this, "You cannot upload an empty workflow.\n"
+			+ "Please select a different workflow before\n"
+			+ "you attempt the upload again.", "Upload Error", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+		return null;
+	  } else
+		return dataflowFile;
 
-	  // get title
-	  this.strTitle = this.tfTitle.getText();
-	  this.strTitle = this.strTitle.trim();
+	} else { // user wants to use local file
+	  if (localWorkflowFile == null) {
+		JOptionPane.showConfirmDialog(this, "You have not selected a file to upload.\n"
+			+ "Please select a file and try again.", "Select Workflow Source", JOptionPane.DEFAULT_OPTION, JOptionPane.ERROR_MESSAGE);
+		return null;
+	  }
 
-	  // get description
-	  this.strDescription = this.taDescription.getText();
-	  this.strDescription = this.strDescription.trim();
+	  return localWorkflowFile;
+	}
+  }
 
-	  // if the description or the title are empty, prompt the user to confirm
-	  // the upload
+  private void getMetadata() {
+	// get sharing permission
+	switch (this.jcbSharingPermissions.getSelectedIndex()) {
+	  case 0:
+		this.sharing = "private";
+		break;
+	  case 1:
+		this.sharing = "view";
+		break;
+	  case 2:
+		this.sharing = "download";
+		break;
+	}
+
+	//get licence
+	this.licence = License.SUPPORTED_TYPES[this.jcbLicences.getSelectedIndex()];
+
+	// get title
+	this.strTitle = this.tfTitle.getText();
+	this.strTitle = this.strTitle.trim();
+
+	// get description
+	this.strDescription = this.taDescription.getText();
+	this.strDescription = this.strDescription.trim();
+  }
+
+  public void actionPerformed(ActionEvent e) {
+	if (e.getSource().equals(this.bUpload)) { // * *** *** *** * UPLOAD BUTTON * *** *** *** *
+	  // perform source check returns a file if attaining the source was successful
+	  if (userRequestedWorkflowUpload) {
+		uploadFile = performSourceCheck();
+		if (uploadFile == null)
+		  return;
+	  }
+
+	  // collect and put the metadata values in their respectable vars 
+	  getMetadata();
+
+	  // if the description or the title are empty, prompt the user to confirm the upload
 	  boolean proceedWithUpload = false;
 	  if ((this.strDescription.length() == 0) && (this.strTitle.length() == 0)) {
 		String strInfo = "The workflow 'title' field and the 'description' field\n"
@@ -385,8 +467,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 			+ " your workflow...", new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner")), SwingConstants.CENTER);
 		contentPane.add(lStatusMessage, c);
 
-		// disable the (X) button (ideally, would need to remove it, but there's
-		// no way to do this)
+		// disable the (X) button (ideally, would need to remove it, but there's no way to do this)
 		this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
 
 		// revalidate the window
@@ -398,25 +479,27 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 		  @Override
 		  public void run() {
 			String workflowFileContent = "";
-			if (localWorkflowFile != null) {
-			  try {
-				BufferedReader reader = new BufferedReader(new FileReader(localWorkflowFile));
-				String line;
+			if (userRequestedWorkflowUpload) {
+			  if (uploadFile != null) {
+				try {
+				  BufferedReader reader = new BufferedReader(new FileReader(uploadFile));
+				  String line;
 
-				while ((line = reader.readLine()) != null)
-				  workflowFileContent += line;
-			  } catch (Exception e) {
-				lStatusMessage = new JLabel("Error occurred:" + e.getMessage(), new ImageIcon(MyExperimentPerspective.getLocalResourceURL("failure_icon")), SwingConstants.LEFT);
+				  while ((line = reader.readLine()) != null)
+					workflowFileContent += line;
+				} catch (Exception e) {
+				  lStatusMessage = new JLabel("Error occurred:"
+					  + e.getMessage(), new ImageIcon(MyExperimentPerspective.getLocalResourceURL("failure_icon")), SwingConstants.LEFT);
+				}
 			  }
 			}
-
 			// *** POST THE WORKFLOW ***
 			final ServerResponse response;
-			if (updateResource == null) // upload a new workflow
+			if (userRequestedWorkflowUpload) // upload a new workflow
 			  response = myExperimentClient.postWorkflow(workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription), licence, sharing);
 			else
 			  // edit existing workflow
-			  response = myExperimentClient.postNewVersionOfWorkflow(updateResource, workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription), licence, sharing);
+			  response = myExperimentClient.updateWorkflowVersionOrMetadata(updateResource, workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription), licence, sharing);
 
 			bUploadingSuccessful = (response.getResponseCode() == HttpURLConnection.HTTP_OK);
 
@@ -426,10 +509,19 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 				if (bUploadingSuccessful) {
 				  // workflow uploaded successfully
 				  setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+
+				  // disable all fields in dialog
 				  tfTitle.setEnabled(false);
 				  taDescription.setEnabled(false);
 				  jcbLicences.setEnabled(false);
 				  jcbSharingPermissions.setEnabled(false);
+				  if (userRequestedWorkflowUpload) {
+					rbSelectOpenWorkflow.setEnabled(false);
+					rbSelectLocalFile.setEnabled(false);
+					selectedFileLabel.setEnabled(false);
+					bSelectFile.setEnabled(false);
+					jcbOpenWorkflows.setEnabled(false);
+				  }
 				  contentPane.remove(lStatusMessage);
 
 				  c.insets = new Insets(10, 5, 5, 5);
@@ -491,8 +583,15 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	  }
 	  this.dispose();
 	} else if (e.getSource().equals(bSelectFile)) {// * *** *** *** * SELECT FILE BUTTON * *** *** *** *
-	  if (jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+	  if (jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
 		localWorkflowFile = jfsSelectFile.getSelectedFile();
+
+		if (localWorkflowFile != null) {
+		  selectedFileLabel.setText(localWorkflowFile.getAbsolutePath());
+		  selectedFileLabel.setEnabled(true);
+		}
+		pack();
+	  }
 	}
   }
 
@@ -516,23 +615,22 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
   public void focusGained(FocusEvent e) {
 	if (e.getSource().equals(rbSelectLocalFile)) {
 	  uploadWorkflowFromLocalFile = true;
-	  selectedFileLabel.setEnabled(uploadWorkflowFromLocalFile);
 	  bSelectFile.setEnabled(uploadWorkflowFromLocalFile);
 	  jcbOpenWorkflows.setEnabled(!uploadWorkflowFromLocalFile);
 
-	  if (localWorkflowFile == null
-		  && jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-		localWorkflowFile = jfsSelectFile.getSelectedFile();
+	  if (localWorkflowFile != null) {
+		selectedFileLabel.setEnabled(uploadWorkflowFromLocalFile);
+		selectedFileLabel.setText(localWorkflowFile.getAbsolutePath());
+		pack();
+	  } else
+		selectedFileLabel.setEnabled(!uploadWorkflowFromLocalFile);
 
-	  selectedFileLabel = new JLabel(localWorkflowFile.getPath());
 	} else if (e.getSource().equals(rbSelectOpenWorkflow)) {
 	  uploadWorkflowFromLocalFile = false;
 	  selectedFileLabel.setEnabled(uploadWorkflowFromLocalFile);
 	  bSelectFile.setEnabled(uploadWorkflowFromLocalFile);
 	  jcbOpenWorkflows.setEnabled(!uploadWorkflowFromLocalFile);
 	}
-
-	bUpload.setEnabled(true);
   }
 
   public void componentShown(ComponentEvent e) {
