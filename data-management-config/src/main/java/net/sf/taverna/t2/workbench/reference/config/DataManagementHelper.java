@@ -30,6 +30,12 @@ public class DataManagementHelper {
 	public static void setupDataSource() {
 		
 		DataManagementConfiguration config = DataManagementConfiguration.getInstance();
+		
+		if (config.getConnectorType()==DataManagementConfiguration.CONNECTOR_DERBY) {
+			String homeDir=ApplicationRuntime.getInstance().getApplicationHomeDir().getAbsolutePath();
+			System.setProperty("derby.system.home",homeDir);
+		}
+		
         try {
             System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
                     "org.osjava.sj.memory.MemoryContextFactory");
@@ -88,7 +94,7 @@ public class DataManagementHelper {
         System.setProperty("derby.drda.host","localhost");
         System.setProperty("derby.drda.minThreads","5");
         System.setProperty("derby.drda.maxThreads",String.valueOf(DataManagementConfiguration.getInstance().getPoolMaxActive()));        
-        System.setProperty("derby.system.home",homeDir);
+        
         System.setProperty("derby.stream.error.file",logDir+File.separator+"derby.log");
         int port=DataManagementConfiguration.getInstance().getPort();
         int maxPort = port+10;
