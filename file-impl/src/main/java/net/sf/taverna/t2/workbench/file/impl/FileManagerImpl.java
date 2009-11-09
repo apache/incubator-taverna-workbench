@@ -148,7 +148,7 @@ public class FileManagerImpl extends FileManager {
 			List<Dataflow> dataflows = getOpenDataflows();
 			int openIndex = dataflows.indexOf(dataflow);
 			if (openIndex == -1) {
-				throw new IllegalArgumentException("Dataflow was not opened"
+				throw new IllegalArgumentException("Dataflow was not opened "
 						+ dataflow);
 			} else if (openIndex > 0) {
 				setCurrentDataflow(dataflows.get(openIndex - 1));
