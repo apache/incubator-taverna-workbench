@@ -10,10 +10,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,6 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.DataflowInfo;
@@ -87,7 +92,7 @@ public class ImportWorkflowWizard extends JDialog {
 	public ImportWorkflowWizard(Frame parentFrame) {
 		super(parentFrame, "Import workflow", true);
 
-		setSize(600, 400);
+		setSize(600, 600);
 		add(makeContentPane(), BorderLayout.CENTER);
 		// Add some space
 		add(new JPanel(), BorderLayout.WEST);
@@ -193,9 +198,9 @@ public class ImportWorkflowWizard extends JDialog {
 	}
 
 	protected void updateFooter() {
-		prefixField.setEnabled(importEnabled);
-		prefixLabel.setEnabled(importEnabled);
-		prefixHelp.setEnabled(importEnabled);
+		prefixField.setVisible(importEnabled);
+		prefixLabel.setVisible(importEnabled);
+		prefixHelp.setVisible(importEnabled);
 	}
 
 	protected void updateHeader() {
@@ -318,6 +323,7 @@ public class ImportWorkflowWizard extends JDialog {
 		j.add(radioOpenDestination, gbc);
 		destinationSelection.add(radioOpenDestination);
 		radioOpenDestination.addActionListener(updateChosenListener);
+		gbc.weightx = 0.1;
 		gbc.gridx = 1;
 		j.add(makeSelectOpenWorkflowComboBox(), gbc);
 
@@ -478,29 +484,41 @@ public class ImportWorkflowWizard extends JDialog {
 		fieldFile.addFocusListener(new FocusAdapter() {
 			public void focusGained(FocusEvent e) {
 				radioFile.setSelected(true);
-				browseFileOnClick.checkEmptyFile();
 			}
 
 			@Override
 			public void focusLost(FocusEvent e) {
 				findChosenDataflow(e.getComponent(), true);
 			}
-		});
+		});	
 		j.add(fieldFile, gbc);
+		radioFile.addItemListener(new ItemListener() {
 
+			public void itemStateChanged(ItemEvent e) {
+				if (e.getStateChange() == ItemEvent.SELECTED) {
+					System.out.println("It was selected");
+					browseFileOnClick.checkEmptyFile();
+				}
+			}			
+		});
+		
 		gbc.gridx = 1;
 		gbc.weightx = 0.0;
 		gbc.fill = GridBagConstraints.NONE;
 		buttonBrowse = new JButton(new OpenWorkflowAction() {
 			@Override
 			public void openWorkflows(Component parentComponent, File[] files,
-					FileType fileType, OpenCallback openCallback) {
-				radioFile.setSelected(true);
+					FileType fileType, OpenCallback openCallback) {				
 				if (files.length == 0) {
+					radioFile.setSelected(false);
 					fieldFile.setText("");
+					radioFile.requestFocus();
 					return;
 				}
 				fieldFile.setText(files[0].getPath());
+				if (! radioFile.isSelected()) {
+					radioFile.setSelected(true);
+				}
 				findChosenDataflow(parentComponent, true);
 			}
 		});
