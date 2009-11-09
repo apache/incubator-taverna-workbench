@@ -12,7 +12,10 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -64,7 +67,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 
 	private JMenu menu;
 
-	private Set<Recent> recents = new LinkedHashSet<Recent>();
+	private List<Recent> recents = new ArrayList<Recent>();
 
 	public FileOpenRecentMenuAction() {
 		super(FileOpenMenuSection.FILE_OPEN_SECTION_URI, 30, RECENT_URI);
@@ -103,14 +106,16 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 			return;
 		}
 		if (!(dataflowSource instanceof Serializable)) {
-			logger
-					.warn("Can't serialize dataflow source for 'Recent workflows': "
+			logger.warn("Can't serialize dataflow source for 'Recent workflows': "
 							+ dataflowSource);
 			return;
 		}
-		synchronized (recents) {
-			recents
-					.add(new Recent((Serializable) dataflowSource, dataflowType));
+		synchronized (recents) {			
+			Recent recent = new Recent((Serializable) dataflowSource, dataflowType);
+			if (recents.contains(recent)) {
+				recents.remove(recent);
+			}
+			recents.add(0, recent); // Add to front
 		}
 		updateRecentMenu();
 	}
@@ -168,15 +173,8 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		try {
 			Element serializedRecent;
 			synchronized (recents) {
-				synchronized (recents) {
-					if (recents.size() > MAX_ITEMS) {
-						// Shrink if needed
-						Recent[] copy = recents.toArray(new Recent[0]);
-						for (int i = MAX_ITEMS - 1; i < copy.length; i++) {
-							recents.remove(copy[i]);
-						}
-					}
-				}
+				// Remove excess entries
+				recents.subList(MAX_ITEMS, recents.size()).clear();
 				serializedRecent = serializer.serializeRecent(recents);
 			}
 			outputStream = new BufferedOutputStream(new FileOutputStream(
@@ -350,14 +348,14 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 	}
 
 	protected static class RecentDeserializer extends AbstractXMLDeserializer {
-		public Set<Recent> deserializeRecent(Element el) {
-			return (Set<Recent>) super.createBean(el, getClass()
+		public Collection<Recent> deserializeRecent(Element el) {
+			return (Collection<Recent>) super.createBean(el, getClass()
 					.getClassLoader());
 		}
 	}
 
 	protected static class RecentSerializer extends AbstractXMLSerializer {
-		public Element serializeRecent(Set<Recent> x) throws JDOMException,
+		public Element serializeRecent(List<Recent> x) throws JDOMException,
 				IOException {
 			Element beanAsElement = super.beanAsElement(x);
 			return beanAsElement;
