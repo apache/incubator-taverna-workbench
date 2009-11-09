@@ -30,11 +30,7 @@ public class DataManagementHelper {
 	public static void setupDataSource() {
 		
 		DataManagementConfiguration config = DataManagementConfiguration.getInstance();
-		
-		if (config.getConnectorType()==DataManagementConfiguration.CONNECTOR_DERBY) {
-			String homeDir=ApplicationRuntime.getInstance().getApplicationHomeDir().getAbsolutePath();
-			System.setProperty("derby.system.home",homeDir);
-		}
+		setDerbyHome();
 		
         try {
             System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
@@ -65,6 +61,14 @@ public class DataManagementHelper {
         }
     }
 	
+	private static void setDerbyHome() {
+		if (DataManagementConfiguration.getInstance().getConnectorType()==DataManagementConfiguration.CONNECTOR_DERBY) {
+			String homeDir=ApplicationRuntime.getInstance().getApplicationHomeDir().getAbsolutePath();
+			System.setProperty("derby.system.home",homeDir);
+		}
+		
+	}
+
 	public static boolean isRunning() {
 		if (server==null) {
 			return false;			
@@ -84,8 +88,10 @@ public class DataManagementHelper {
 	}
 	
 	public synchronized static void startDerbyNetworkServer() {
+		setDerbyHome();
+		
         String homeDir=ApplicationRuntime.getInstance().getApplicationHomeDir().getAbsolutePath();
-        String logDir=homeDir+File.separator+"logs";
+        String logDir=homeDir+File.separator+"logs";        
         
         //make the logs directory if it doesn't already exist
         File logDirFile=new File(logDir);
