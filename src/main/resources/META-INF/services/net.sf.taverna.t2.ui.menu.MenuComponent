@@ -1,4 +1,4 @@
-net.sf.taverna.t2.activities.dataflow.menu.AddDataflowActivityTemplateAction
-net.sf.taverna.t2.activities.dataflow.menu.AddDataflowActivityTemplateMenuAction
+#net.sf.taverna.t2.activities.dataflow.menu.AddDataflowActivityTemplateAction
+#net.sf.taverna.t2.activities.dataflow.menu.AddDataflowActivityTemplateMenuAction
 net.sf.taverna.t2.activities.dataflow.menu.EditNestedDataflowMenuAction
-net.sf.taverna.t2.activities.dataflow.menu.OpenNestedDataflowFromFileMenuAction
+#net.sf.taverna.t2.activities.dataflow.menu.OpenNestedDataflowFromFileMenuAction
