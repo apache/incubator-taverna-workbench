@@ -173,9 +173,11 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		try {
 			Element serializedRecent;
 			synchronized (recents) {
-				// Remove excess entries
-				recents.subList(MAX_ITEMS, recents.size()).clear();
-				serializedRecent = serializer.serializeRecent(recents);
+				if (recents.size() > MAX_ITEMS) {
+					// Remove excess entries
+					recents.subList(MAX_ITEMS, recents.size()).clear();
+				}
+				serializedRecent = serializer.serializeRecent(recents);				
 			}
 			outputStream = new BufferedOutputStream(new FileOutputStream(
 					recentFile));
