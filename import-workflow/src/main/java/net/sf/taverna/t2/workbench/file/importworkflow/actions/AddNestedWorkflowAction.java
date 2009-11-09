@@ -4,32 +4,32 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 
 import net.sf.taverna.t2.activities.dataflow.servicedescriptions.DataflowActivityIcon;
 import net.sf.taverna.t2.workbench.file.importworkflow.gui.ImportWorkflowWizard;
 import net.sf.taverna.t2.workbench.ui.Utils;
 
 /**
- * A general version of {@link AddNestedWorkflowAction} and
- * {@link MergeWorkflowAction} that allows the user to choose which action to
- * perform.
+ * An action for adding a nested workflow.
  * 
  * @author Stian Soiland-Reyes
- * 
+ *
  */
-public class ImportWorkflowAction extends AbstractAction {
+public class AddNestedWorkflowAction extends AbstractAction {
 	private static final long serialVersionUID = -2242979457902699028L;
 
 	protected static class Singleton {
-		protected static ImportWorkflowAction instance = new ImportWorkflowAction();
+		protected static AddNestedWorkflowAction instance = new AddNestedWorkflowAction();
 	}
 
-	public static ImportWorkflowAction getInstance() {
+	public static AddNestedWorkflowAction getInstance() {
 		return Singleton.instance;
 	}
 
-	public ImportWorkflowAction() {
-		super("Import workflow", DataflowActivityIcon.getDataflowIcon());
+	public AddNestedWorkflowAction() {
+		super("Add nested workflow", DataflowActivityIcon.getDataflowIcon());
+		
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -39,8 +39,8 @@ public class ImportWorkflowAction extends AbstractAction {
 		} else {
 			parentComponent = null;
 		}
-		ImportWorkflowWizard wizard = new ImportWorkflowWizard(Utils
-				.getParentFrame(parentComponent));
+		ImportWorkflowWizard wizard = new ImportWorkflowWizard(Utils.getParentFrame(parentComponent));
+		wizard.setMergeEnabled(false);
 		wizard.setVisible(true);
 	}
 

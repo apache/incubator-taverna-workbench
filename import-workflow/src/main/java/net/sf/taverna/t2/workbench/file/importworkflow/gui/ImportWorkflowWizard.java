@@ -1,6 +1,7 @@
 package net.sf.taverna.t2.workbench.file.importworkflow.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Frame;
@@ -16,7 +17,6 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,10 +32,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
+import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
+import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.DataflowInfo;
 import net.sf.taverna.t2.workbench.file.FileManager;
@@ -47,47 +47,57 @@ import net.sf.taverna.t2.workbench.file.importworkflow.MergeException;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflowmodel.Edits;
+import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.log4j.Logger;
 import org.w3c.dom.svg.SVGDocument;
 
 public class ImportWorkflowWizard extends JDialog {
+	private static final long serialVersionUID = -8124860319858897065L;
+	protected static FileManager fileManager = FileManager.getInstance();
+	protected static Logger logger = Logger.getLogger(ImportWorkflowWizard.class);
+	protected BrowseFileOnClick browseFileOnClick = new BrowseFileOnClick();
+	protected JButton buttonBrowse;
+	protected JComboBox chooseDataflow;
+	protected Thread dataflowOpenerThread;
 
-	private static FileManager fileManager = FileManager.getInstance();
-	private static Logger logger = Logger.getLogger(ImportWorkflowWizard.class);
-	private static final long serialVersionUID = -4797758549214437719L;
-	private BrowseFileOnClick browseFileOnClick = new BrowseFileOnClick();
-	private JButton buttonBrowse;
-	private JComboBox chooseDataflow;
-	private JSVGCanvas destinationPreview;
-	private Thread dataflowOpenerThread;
+	protected Dataflow destinationDataflow;
+	protected JTextField fieldFile;
 
-	private Dataflow destinationDataflow = fileManager.getCurrentDataflow();
-	private JTextField fieldFile;
-
-	private JTextField fieldUrl;
-	private boolean importEnabled = true;
-	private boolean nestedEnabled = true;
-	private JSVGCanvas sourcePreview;
-	private JTextField prefixField;
-	private JRadioButton radioFile;
-	private JRadioButton radioNew;
-	private JRadioButton radioOpened;
-	private JRadioButton radioUrl;
-	private Dataflow sourceDataflow;
-	private ButtonGroup sourceSelection;
-	private ActionListener updateChosenListener = new UpdateChosenListener();
-	private Thread updateDestinationThread;
-	private Component sourceSelectionPanel;
-	private JLabel introduction;
-	private JLabel prefixLabel;
-	private JLabel prefixHelp;
-	private JPanel destinationSelectionPanel;
-	private ButtonGroup destinationSelection;
-	private JRadioButton radioNewDestination;
-	private JRadioButton radioOpenDestination;
+	protected JTextField fieldUrl;
+	protected boolean mergeEnabled = true;
+	protected boolean nestedEnabled = true;
+	protected JSVGCanvas previewSource = new JSVGCanvas();
+	protected JSVGCanvas previewDestination = new JSVGCanvas();
+	protected JTextField prefixField;
+	protected JRadioButton radioFile;
+	protected JRadioButton radioNew;
+	protected JRadioButton radioOpened;
+	protected JRadioButton radioUrl;
+	protected Dataflow sourceDataflow;
+	protected ButtonGroup sourceSelection;
+	protected ActionListener updateChosenListener = new UpdateChosenListener();
+	protected Thread updatePreviewsThread;
+	protected Component sourceSelectionPanel;
+	protected JLabel prefixLabel;
+	protected JLabel prefixHelp;
+	protected JPanel destinationSelectionPanel;
+	protected ButtonGroup destinationSelection;
+	protected JRadioButton radioNewDestination;
+	protected JRadioButton radioOpenDestination;
+	protected JComboBox destinationAlreadyOpen;
+	protected JPanel introductionPanel;
+	protected ButtonGroup actionSelection;
+	protected JRadioButton actionNested;
+	protected JRadioButton actionMerge;
+	protected JRadioButton radioCustomSource;
+	protected JRadioButton radioCustomDestination;
 
 	public ImportWorkflowWizard(Frame parentFrame) {
 		super(parentFrame, "Import workflow", true);
@@ -99,20 +109,12 @@ public class ImportWorkflowWizard extends JDialog {
 		add(new JPanel(), BorderLayout.NORTH);
 		add(new JPanel(), BorderLayout.SOUTH);
 		add(new JPanel(), BorderLayout.EAST);
+		findChosenDataflow(this, true);
+		updateAll();
 	}
 
-	public void setDataflowDestination(Dataflow destinationDataflow) {
-		this.destinationDataflow = destinationDataflow;
-		updateDestinationSection();
-	}
-
-	public void setDataflowSource(Dataflow sourceDataflow) {
-		this.sourceDataflow = sourceDataflow;
-		updateSourceSection();
-	}
-
-	public void setImportEnabled(boolean importEnabled) {
-		this.importEnabled = importEnabled;
+	public void setMergeEnabled(boolean importEnabled) {
+		this.mergeEnabled = importEnabled;
 		updateAll();
 	}
 
@@ -127,7 +129,7 @@ public class ImportWorkflowWizard extends JDialog {
 	 * 
 	 * @param runnable
 	 */
-	private void invokeAndWait(Runnable runnable) {
+	public static void invokeAndWait(Runnable runnable) {
 		if (SwingUtilities.isEventDispatchThread()) {
 			runnable.run();
 			return;
@@ -141,7 +143,7 @@ public class ImportWorkflowWizard extends JDialog {
 		}
 	}
 
-	private Component makeWorkflowImage() {
+	protected Component makeWorkflowImage() {
 		JPanel workflowImages = new JPanel(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridy = 0;
@@ -149,21 +151,18 @@ public class ImportWorkflowWizard extends JDialog {
 		gbc.weighty = 0.1;
 
 		gbc.weightx = 0.1;
-		workflowImages.add(new JPanel(), gbc);
+		workflowImages.add(new JPanel(), gbc);// filler
 
 		gbc.weightx = 0.0;
-		sourcePreview = new JSVGCanvas();
-		sourcePreview.setBackground(workflowImages.getBackground());
-		workflowImages.add(sourcePreview, gbc);
+		previewSource.setBackground(workflowImages.getBackground());
+		workflowImages.add(previewSource, gbc);
 
 		JLabel arrow = new JLabel("\u2192");
 		arrow.setFont(arrow.getFont().deriveFont(48f));
 		workflowImages.add(arrow, gbc);
 
-		destinationPreview = new JSVGCanvas();
-		destinationPreview.setBackground(workflowImages.getBackground());
-
-		workflowImages.add(destinationPreview, gbc);
+		previewDestination.setBackground(workflowImages.getBackground());
+		workflowImages.add(previewDestination, gbc);
 
 		gbc.weightx = 0.1;
 		workflowImages.add(new JPanel(), gbc);
@@ -173,42 +172,74 @@ public class ImportWorkflowWizard extends JDialog {
 	}
 
 	protected void updateAll() {
+		updatePreviews(); // will go in separate thread anyway, do it first
 		updateHeader();
 		updateSourceSection();
 		updateDestinationSection();
 		updateFooter();
 	}
 
-	protected synchronized void updateDestinationSection() {
-		destinationSelectionPanel.setVisible(nestedEnabled);
-		if (updateDestinationThread != null
-				&& updateDestinationThread.isAlive()) {
-			updateDestinationThread.interrupt();
+	protected void updateDestinationSection() {
+		
+		radioNewDestination.setVisible(false);
+
+		radioCustomDestination.setText(customDestinationName);
+		radioCustomDestination.setVisible(customDestinationDataflow != null);
+
+		// radioNewDestination.setVisible(nestedEnabled);
+		// radioNewDestination.setEnabled(actionNested.isSelected());
+		
+		destinationSelectionPanel.setVisible(destinationEnabled);
+		
+	}
+
+	protected synchronized void updatePreviews() {
+		if (updatePreviewsThread != null && updatePreviewsThread.isAlive()) {
+			updatePreviewsThread.interrupt();
 		}
-		updateDestinationThread = new UpdatePreviewsThread();
-		updateDestinationThread.start();
+		updatePreviewsThread = new UpdatePreviewsThread();
+		updatePreviewsThread.start();
 	}
 
 	protected void updateDestinationPreview() {
-		updateWorkflowGraphic(destinationPreview, destinationDataflow);
+		updateWorkflowGraphic(previewDestination, destinationDataflow);
 	}
 
 	protected void updateSourcePreview() {
-		updateWorkflowGraphic(sourcePreview, sourceDataflow);
+		updateWorkflowGraphic(previewSource, sourceDataflow);
 	}
 
 	protected void updateFooter() {
-		prefixField.setVisible(importEnabled);
-		prefixLabel.setVisible(importEnabled);
-		prefixHelp.setVisible(importEnabled);
+		prefixField.setVisible(mergeEnabled);
+		prefixLabel.setVisible(mergeEnabled);
+		prefixHelp.setVisible(mergeEnabled);
+
+		prefixField.setEnabled(actionMerge.isSelected());
+		prefixLabel.setEnabled(actionMerge.isSelected());
+		prefixHelp.setEnabled(actionMerge.isSelected());
+		if (actionMerge.isSelected()) {
+			prefixHelp.setForeground(prefixLabel.getForeground());
+		} else {
+			// Work around
+			// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4303706
+			// and assume gray is the 'disabled' colour in our Look n Feel
+			prefixHelp.setForeground(Color.gray);
+		}
+
 	}
 
 	protected void updateHeader() {
-		introduction.setText(makeIntroductionText());
+		makeIntroductionPanel();
 	}
 
 	protected void updateSourceSection() {
-		radioNew.setEnabled(nestedEnabled);		
+		radioCustomSource.setText(customSourceName);
+		radioCustomSource.setVisible(customSourceDataFlow != null);
+
+		radioNew.setVisible(nestedEnabled);
+		radioNew.setEnabled(actionNested.isSelected());
+		
+		sourceSelectionPanel.setVisible(sourceEnabled);
 	}
 
 	/**
@@ -219,14 +250,16 @@ public class ImportWorkflowWizard extends JDialog {
 	 * @throws InvocationTargetException
 	 * @throws InterruptedException
 	 */
-	private void updateWorkflowGraphic(final JSVGCanvas svgCanvas,
+	protected void updateWorkflowGraphic(final JSVGCanvas svgCanvas,
 			Dataflow dataflow) {
+		invokeAndWait(new Runnable() {
+			public void run() {
+				// Set it to blank while reloading
+				svgCanvas.setSVGDocument(null);
+			}
+		});
 		if (dataflow == null) {
-			invokeAndWait(new Runnable() {
-				public void run() {
-					svgCanvas.setVisible(false);
-				}
-			});
+			// Already set to blank
 			return;
 		}
 		SVGGraphController currentWfGraphController = new SVGGraphController(
@@ -277,23 +310,20 @@ public class ImportWorkflowWizard extends JDialog {
 
 		gbc.gridx = 0;
 		gbc.gridy = 0;
+		gbc.weightx = 0.1;
 		gbc.fill = GridBagConstraints.BOTH;
 
-		introduction = new JLabel(makeIntroductionText());
-		panel.add(introduction, gbc);
+		introductionPanel = makeIntroductionPanel();
+		panel.add(introductionPanel, gbc);
 
 		gbc.gridy = 1;
-		gbc.weightx = 0.1;
 		sourceSelectionPanel = makeSourceSelectionPanel();
 		panel.add(sourceSelectionPanel, gbc);
-
 
 		gbc.gridy = 2;
 		destinationSelectionPanel = makeDestinationSelectionPanel();
 		panel.add(destinationSelectionPanel, gbc);
 
-		
-		
 		gbc.gridy = 3;
 		gbc.weighty = 0.1;
 		panel.add(makeImportStylePanel(), gbc);
@@ -301,7 +331,82 @@ public class ImportWorkflowWizard extends JDialog {
 		return panel;
 	}
 
-	private JPanel makeDestinationSelectionPanel() {
+	protected JPanel makeIntroductionPanel() {
+		if (introductionPanel == null) {
+			introductionPanel = new JPanel(new GridBagLayout());
+		} else {
+			introductionPanel.removeAll();
+		}
+		boolean bothEnabled = mergeEnabled && nestedEnabled;
+		if (bothEnabled) {
+			introductionPanel.setBorder(BorderFactory
+					.createTitledBorder("Import method"));
+		} else {
+			introductionPanel.setBorder(BorderFactory.createEmptyBorder());
+		}
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		// gbc.gridy = 0;
+		gbc.weightx = 0.1;
+		gbc.fill = GridBagConstraints.BOTH;
+		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+
+		StringBuilder nestedHelp = new StringBuilder();
+		nestedHelp.append("<html><small>");
+		nestedHelp.append("Add a <strong>nested workflow</strong> ");
+		nestedHelp.append("into the ");
+		nestedHelp.append("destination workflow as a single service. ");
+		nestedHelp.append("The nested workflow ");
+		nestedHelp.append("can be <em>edited separately</em>, but is shown ");
+		nestedHelp.append("expanded in the diagram of the parent  ");
+		nestedHelp.append("workflow. In the parent workflow you can ");
+		nestedHelp
+				.append("connect to the input and output ports of the nested ");
+		nestedHelp.append("workflow. ");
+		nestedHelp.append("</small></html>");
+
+		StringBuilder mergeHelp = new StringBuilder();
+		mergeHelp.append("<html><small>");
+		mergeHelp.append("<strong>Merge</strong> a workflow ");
+		mergeHelp.append("by copying all services, ports and links ");
+		mergeHelp
+				.append("directly into the destination workflow. This can be  ");
+		mergeHelp.append("useful for merging smaller workflow fragments. For ");
+		mergeHelp.append("inclusion of larger workflows you might find using ");
+		mergeHelp.append("<em>nested workflows</em> more beneficial.");
+		mergeHelp.append("</small></html>");
+
+		actionSelection = new ButtonGroup();
+		actionNested = new JRadioButton(nestedHelp.toString());
+		ActionListener updateListener = new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateSourceSection();
+				updateDestinationSection();
+				updateFooter();
+			}
+		};
+		actionNested.addActionListener(updateListener);
+		actionSelection.add(actionNested);
+
+		actionMerge = new JRadioButton(mergeHelp.toString());
+		actionMerge.addActionListener(updateListener);
+		actionSelection.add(actionMerge);
+
+		if (bothEnabled) {
+			introductionPanel.add(actionNested, gbc);
+			introductionPanel.add(actionMerge, gbc);
+			actionNested.setSelected(true);
+		} else if (nestedEnabled) {
+			introductionPanel.add(new JLabel(nestedHelp.toString()), gbc);
+			actionNested.setSelected(true);
+		} else if (mergeEnabled) {
+			introductionPanel.add(new JLabel(mergeHelp.toString()), gbc);
+			actionMerge.setSelected(true);
+		}
+		return introductionPanel;
+	}
+
+	protected JPanel makeDestinationSelectionPanel() {
 		JPanel j = new JPanel(new GridBagLayout());
 		j.setBorder(BorderFactory.createTitledBorder("Workflow destination"));
 
@@ -314,10 +419,9 @@ public class ImportWorkflowWizard extends JDialog {
 		radioNewDestination = new JRadioButton("New workflow");
 		gbc.gridy = 0;
 		j.add(radioNewDestination, gbc);
-		destinationSelection.add(radioNewDestination);		
+		destinationSelection.add(radioNewDestination);
 		radioNewDestination.addActionListener(updateChosenListener);
 
-		
 		radioOpenDestination = new JRadioButton("Already opened workflow");
 		gbc.gridy = 2;
 		j.add(radioOpenDestination, gbc);
@@ -325,38 +429,21 @@ public class ImportWorkflowWizard extends JDialog {
 		radioOpenDestination.addActionListener(updateChosenListener);
 		gbc.weightx = 0.1;
 		gbc.gridx = 1;
-		j.add(makeSelectOpenWorkflowComboBox(), gbc);
+		destinationAlreadyOpen = makeSelectOpenWorkflowComboBox(true);
+		j.add(destinationAlreadyOpen, gbc);
 
+		radioCustomDestination = new JRadioButton(customDestinationName);
+		radioCustomDestination.setVisible(customDestinationName != null);
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		gbc.gridwidth = 2;
+		j.add(radioCustomDestination, gbc);
+		destinationSelection.add(radioCustomDestination);
+		radioCustomDestination.addActionListener(updateChosenListener);
+		gbc.gridwidth = 1;
+
+		radioOpenDestination.setSelected(true);
 		return j;
-	}
-
-	private String makeIntroductionText() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<html><small>");
-
-		if (nestedEnabled) {
-			sb.append("<p>By adding a <strong>nested workflow</strong>, ");
-			sb.append("the source workflow will be inserted into the, ");
-			sb.append("destination workflow, where it can be connected and  ");
-			sb.append("used like any other service. The nested workflow ");
-			sb.append("can be edited and replaced separately, and shown ");
-			sb.append("expanded or collapsed in the diagram of the parent  ");
-			sb.append("workflow. In the parent workflow you can only ");
-			sb.append("connect to the input and output ports of the nested ");
-			sb.append("workflow. ");
-			sb.append("</p>");
-		}
-		if (importEnabled) {
-			sb.append("<p>By <strong>importing</strong> a workflow, ");
-			sb.append("all services, ports and links will be copied ");
-			sb.append("directly into the destination workflow. This can be  ");
-			sb.append("useful for merging smaller workflow fragments. For ");
-			sb.append("inclusion of larger workflows you might find using ");
-			sb.append("<em>nested workflows</em> more tidy.");
-			sb.append("</p>");
-		}
-		sb.append("</small></html>");
-		return sb.toString();
 	}
 
 	protected Component makeImportStylePanel() {
@@ -382,7 +469,7 @@ public class ImportWorkflowWizard extends JDialog {
 		gbc.gridwidth = 2;
 
 		prefixHelp = new JLabel(
-				"<html><small>Optional prefix, will be prepended to the name of the "
+				"<html><small>Optional prefix to be prepended to the name of the "
 						+ "inserted processors and workflow ports. Even if no prefix is given, duplicate names will be "
 						+ "resolved by adding numbers, for instance <code>my_service_2</code> if <code>my_service</code> already "
 						+ "existed." + "</small></html>");
@@ -401,68 +488,7 @@ public class ImportWorkflowWizard extends JDialog {
 
 		gbc.gridy = 4;
 		gbc.fill = GridBagConstraints.NONE;
-		JButton comp = new JButton("Import workflow");
-		comp.setAction(new AbstractAction("Import workflow") {
-			public void actionPerformed(ActionEvent e) {
-				Component parentComponent;
-				if (e.getSource() instanceof Component) {
-					parentComponent = (Component) e.getSource();
-				} else {
-					parentComponent = null;
-				}
-
-				findChosenDataflow(parentComponent, false);
-				DataflowMerger merger = new DataflowMerger(destinationDataflow);
-
-				EditManager editManager = EditManager.getInstance();
-				String prefix = prefixField.getText();
-				if (!prefix.equals("")) {
-					if (!prefix.matches("[_.]$")) {
-						prefix = prefix + "_";
-					}
-					if (!prefix.matches("[\\p{L}\\p{Digit}_.]+")) {
-						JOptionPane
-								.showMessageDialog(
-										parentComponent,
-										"The merge prefix '"
-												+ prefix
-												+ "' is not valid. Try "
-												+ "using only letters, numbers, underscore and dot.",
-										"Invalid merge prefix",
-										JOptionPane.ERROR_MESSAGE);
-						prefixField.requestFocus();
-						return;
-					}
-				}
-
-				CompoundEdit mergeEdit;
-				try {
-					mergeEdit = merger.getMergeEdit(
-							ImportWorkflowWizard.this.sourceDataflow, prefix);
-				} catch (MergeException e1) {
-					logger.warn("Could not merge workflow", e1);
-					JOptionPane.showMessageDialog(parentComponent,
-							"An error occured while merging workflows:\n"
-									+ e1.getLocalizedMessage(),
-							"Could not merge workflows",
-							JOptionPane.WARNING_MESSAGE);
-					return;
-				}
-				try {
-					editManager.doDataflowEdit(destinationDataflow, mergeEdit);
-				} catch (EditException e1) {
-					JOptionPane.showMessageDialog(parentComponent,
-							"An error occured while merging workflows:\n"
-									+ e1.getLocalizedMessage(),
-							"Could not merge workflows",
-							JOptionPane.WARNING_MESSAGE);
-					return;
-				}
-
-				setVisible(false);
-			}
-
-		});
+		JButton comp = new JButton(new ImportWorkflowAction());
 		j.add(comp, gbc);
 		return j;
 
@@ -490,7 +516,7 @@ public class ImportWorkflowWizard extends JDialog {
 			public void focusLost(FocusEvent e) {
 				findChosenDataflow(e.getComponent(), true);
 			}
-		});	
+		});
 		j.add(fieldFile, gbc);
 		radioFile.addItemListener(new ItemListener() {
 
@@ -499,16 +525,16 @@ public class ImportWorkflowWizard extends JDialog {
 					System.out.println("It was selected");
 					browseFileOnClick.checkEmptyFile();
 				}
-			}			
+			}
 		});
-		
+
 		gbc.gridx = 1;
 		gbc.weightx = 0.0;
 		gbc.fill = GridBagConstraints.NONE;
 		buttonBrowse = new JButton(new OpenWorkflowAction() {
 			@Override
 			public void openWorkflows(Component parentComponent, File[] files,
-					FileType fileType, OpenCallback openCallback) {				
+					FileType fileType, OpenCallback openCallback) {
 				if (files.length == 0) {
 					radioFile.setSelected(false);
 					fieldFile.setText("");
@@ -516,7 +542,7 @@ public class ImportWorkflowWizard extends JDialog {
 					return;
 				}
 				fieldFile.setText(files[0].getPath());
-				if (! radioFile.isSelected()) {
+				if (!radioFile.isSelected()) {
 					radioFile.setSelected(true);
 				}
 				findChosenDataflow(parentComponent, true);
@@ -530,8 +556,9 @@ public class ImportWorkflowWizard extends JDialog {
 		return j;
 	}
 
-	protected JComboBox makeSelectOpenWorkflowComboBox() {
+	protected JComboBox makeSelectOpenWorkflowComboBox(boolean selectCurrent) {
 		List<DataflowSelection> openDataflows = new ArrayList<DataflowSelection>();
+		DataflowSelection current = null;
 		for (Dataflow df : fileManager.getOpenDataflows()) {
 			Object source = fileManager.getDataflowSource(df);
 			String name;
@@ -540,13 +567,22 @@ public class ImportWorkflowWizard extends JDialog {
 			} else {
 				name = df.getLocalName();
 			}
-			if (df.equals(fileManager.getCurrentDataflow())) {
-				name = "<html><body>" + name + " <i>(current)</i></body></html>";
+			boolean isCurrent = df.equals(fileManager.getCurrentDataflow());
+			if (isCurrent) {
+				name = "<html><body>" + name
+						+ " <i>(current)</i></body></html>";
 			}
-			openDataflows.add(new DataflowSelection(df, name));
+			DataflowSelection selection = new DataflowSelection(df, name);
+			openDataflows.add(selection);
+			if (isCurrent) {
+				current = selection;
+			}
 		}
 		JComboBox chooseDataflow = new JComboBox(openDataflows.toArray());
-		chooseDataflow.addActionListener(updateChosenListener);		
+		if (selectCurrent) {
+			chooseDataflow.setSelectedItem(current);
+		}
+		chooseDataflow.addActionListener(updateChosenListener);
 		return chooseDataflow;
 
 	}
@@ -586,6 +622,15 @@ public class ImportWorkflowWizard extends JDialog {
 		sourceSelection.add(radioOpened);
 		radioOpened.addActionListener(updateChosenListener);
 
+		radioCustomSource = new JRadioButton(customSourceName);
+		radioCustomSource.setVisible(customSourceDataFlow != null);
+		gbc.gridy = 4;
+		gbc.gridwidth = 2;
+		j.add(radioCustomSource, gbc);
+		sourceSelection.add(radioCustomSource);
+		radioCustomSource.addActionListener(updateChosenListener);
+		gbc.gridwidth = 1;
+
 		gbc.gridx = 1;
 		gbc.gridy = 1;
 		gbc.weightx = 0.1;
@@ -607,7 +652,7 @@ public class ImportWorkflowWizard extends JDialog {
 		});
 
 		gbc.gridy = 3;
-		chooseDataflow = makeSelectOpenWorkflowComboBox();
+		chooseDataflow = makeSelectOpenWorkflowComboBox(false);
 		chooseDataflow.addFocusListener(new FocusAdapter() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -619,8 +664,199 @@ public class ImportWorkflowWizard extends JDialog {
 		return j;
 	}
 
-	private final class UpdatePreviewsThread extends Thread {
-		private UpdatePreviewsThread() {
+	private EditManager editManager = EditManager.getInstance();
+
+	private Edits edits = editManager.getEdits();
+	private Dataflow customSourceDataFlow = null;
+	private Dataflow customDestinationDataflow = null;
+	private String customSourceName = "";
+	private String customDestinationName = "";
+
+	private boolean sourceEnabled = true;
+	private boolean destinationEnabled = true;
+
+	protected Edit<?> makeInsertNestedWorkflowEdit(Dataflow nestedFlow, String name) {
+		List<Edit<?>> editList = new ArrayList<Edit<?>>();
+		Activity<Dataflow> activity = new DataflowActivity();
+		editList.add(edits.getConfigureActivityEdit(activity, nestedFlow));
+		Processor p = edits.createProcessor(name);
+		editList.add(edits.getDefaultDispatchStackEdit(p));
+		editList.add(edits.getAddActivityEdit(p, activity));
+		editList.add(edits.getAddProcessorEdit(destinationDataflow, p));
+		CompoundEdit edit = new CompoundEdit(editList);
+		return edit;
+	}
+	
+	protected class ImportWorkflowAction extends AbstractAction implements
+			Runnable {
+		private Component parentComponent;
+		private ProgressMonitor progressMonitor;
+
+		protected ImportWorkflowAction() {
+			super("Import workflow");
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() instanceof Component) {
+				parentComponent = (Component) e.getSource();
+			} else {
+				parentComponent = null;
+			}
+			Thread t = new Thread(this, "Import workflow");
+			progressMonitor = new ProgressMonitor(parentComponent,
+					"Importing workflow", "", 0, 100);
+			progressMonitor.setMillisToDecideToPopup(200);
+			progressMonitor.setProgress(5);
+			t.start();
+			setVisible(false);
+		}
+
+		protected void nested() {
+			if (progressMonitor.isCanceled()) {
+				return;
+			}
+			progressMonitor.setProgress(15);
+			if (!fileManager.isDataflowOpen(destinationDataflow)) {
+				fileManager.openDataflow(destinationDataflow);
+			} else {
+				fileManager.setCurrentDataflow(destinationDataflow);
+			}
+			if (progressMonitor.isCanceled()) {
+				return;
+			}
+
+			progressMonitor.setNote("Copying source workflow");
+			Dataflow nestedFlow;
+			try {
+				nestedFlow = DataflowMerger.copyWorkflow(sourceDataflow);
+			} catch (Exception ex) {
+				logger.warn("Could not copy nested workflow", ex);
+				progressMonitor.setProgress(100);
+				JOptionPane.showMessageDialog(parentComponent,
+						"An error occured while copying workflow:\n"
+								+ ex.getLocalizedMessage(),
+						"Could not copy nested workflow",
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+			if (progressMonitor.isCanceled()) {
+				return;
+			}
+
+			progressMonitor.setNote("Creating nested workflow");
+			progressMonitor.setProgress(45);
+
+			String name = Tools.uniqueProcessorName(nestedFlow.getLocalName(),
+					destinationDataflow);
+
+			Edit<?> edit = makeInsertNestedWorkflowEdit(nestedFlow, name);
+			if (progressMonitor.isCanceled()) {
+				return;
+			}
+
+			progressMonitor.setNote("Inserting nested workflow");
+			progressMonitor.setProgress(65);
+			
+			try {
+				editManager.doDataflowEdit(destinationDataflow, edit);
+			} catch (EditException e) {
+				progressMonitor.setProgress(100);
+				logger.warn("Could not import nested workflow", e);
+				JOptionPane.showMessageDialog(parentComponent,
+						"An error occured while importing workflow:\n"
+								+ e.getLocalizedMessage(),
+						"Could not import workflows",
+						JOptionPane.WARNING_MESSAGE);
+			}
+			progressMonitor.setProgress(100);
+		}
+
+	
+
+		protected void merge() {
+			progressMonitor.setProgress(10);
+			DataflowMerger merger = new DataflowMerger(destinationDataflow);
+			progressMonitor.setProgress(25);
+			progressMonitor.setNote("Planning workflow merging");
+
+			String prefix = prefixField.getText();
+			if (!prefix.equals("")) {
+				if (!prefix.matches("[_.]$")) {
+					prefix = prefix + "_";
+				}
+				if (!prefix.matches("[\\p{L}\\p{Digit}_.]+")) {
+					progressMonitor.setProgress(100);
+					ImportWorkflowWizard.this.setVisible(true);
+					JOptionPane
+							.showMessageDialog(
+									parentComponent,
+									"The merge prefix '"
+											+ prefix
+											+ "' is not valid. Try "
+											+ "using only letters, numbers, underscore and dot.",
+									"Invalid merge prefix",
+									JOptionPane.ERROR_MESSAGE);
+					prefixField.requestFocus();
+					return;
+				}
+			}
+
+			CompoundEdit mergeEdit;
+			try {
+				mergeEdit = merger.getMergeEdit(
+						ImportWorkflowWizard.this.sourceDataflow, prefix);
+			} catch (MergeException e1) {
+				progressMonitor.setProgress(100);
+				logger.warn("Could not merge workflow", e1);
+				JOptionPane.showMessageDialog(parentComponent,
+						"An error occured while merging workflows:\n"
+								+ e1.getLocalizedMessage(),
+						"Could not merge workflows",
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}
+
+			progressMonitor.setProgress(55);
+			if (!fileManager.isDataflowOpen(destinationDataflow)) {
+				fileManager.openDataflow(destinationDataflow);
+			} else {
+				fileManager.setCurrentDataflow(destinationDataflow);
+			}
+
+			progressMonitor.setNote("Merging workflows");
+			progressMonitor.setProgress(75);
+
+			if (progressMonitor.isCanceled()) {
+				return;
+			}
+
+			try {
+				editManager.doDataflowEdit(destinationDataflow, mergeEdit);
+			} catch (EditException e1) {
+				progressMonitor.setProgress(100);
+				JOptionPane.showMessageDialog(parentComponent,
+						"An error occured while merging workflows:\n"
+								+ e1.getLocalizedMessage(),
+						"Could not merge workflows",
+						JOptionPane.WARNING_MESSAGE);
+				return;
+			}			
+			progressMonitor.setProgress(100);
+
+		}
+
+		public void run() {
+			findChosenDataflow(parentComponent, false);
+			if (actionMerge.isSelected()) {
+				merge();
+			} else if (actionNested.isSelected()) {
+				nested();
+			}
+		}
+	}
+
+	protected class UpdatePreviewsThread extends Thread {
+		protected UpdatePreviewsThread() {
 			super("Updating destination previews");
 		}
 
@@ -637,7 +873,7 @@ public class ImportWorkflowWizard extends JDialog {
 		}
 	}
 
-	private final class BrowseFileOnClick implements ActionListener {
+	protected class BrowseFileOnClick implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			checkEmptyFile();
 		}
@@ -650,12 +886,13 @@ public class ImportWorkflowWizard extends JDialog {
 		}
 	}
 
-	private final class DataflowOpenerThread extends Thread {
+	protected class DataflowOpenerThread extends Thread {
 		private final boolean background;
 		private final Component parentComponent;
 		private boolean shouldStop = false;
+		private boolean shownWarning = false;
 
-		private DataflowOpenerThread(Component parentComponent,
+		protected DataflowOpenerThread(Component parentComponent,
 				boolean background) {
 			super("Inspecting selected workflow");
 			this.parentComponent = parentComponent;
@@ -669,6 +906,53 @@ public class ImportWorkflowWizard extends JDialog {
 		}
 
 		public void run() {
+			updateSource();
+			updateDestination();
+		}
+
+		public void updateDestination() {
+			ButtonModel selection = destinationSelection.getSelection();
+			Dataflow chosenDataflow = null;
+			if (selection == null) {
+				chosenDataflow = null;
+			} else if (selection.equals(radioNewDestination.getModel())) {
+				chosenDataflow = EditManager.getInstance().getEdits()
+						.createDataflow();
+			} else if (selection.equals(radioOpenDestination.getModel())) {
+				DataflowSelection chosen = (DataflowSelection) destinationAlreadyOpen
+						.getSelectedItem();
+				chosenDataflow = chosen.getDataflow();
+			} else if (selection.equals(radioCustomDestination.getModel())) {
+				chosenDataflow = customDestinationDataflow;
+			} else {
+				logger.error("Unknown selection " + selection);
+			}
+
+			if (chosenDataflow == null) {
+				if (!background) {
+					setVisible(true);
+					JOptionPane.showMessageDialog(parentComponent,
+							"You need to choose a destination workflow",
+							"No destination workflow chosen",
+							JOptionPane.ERROR_MESSAGE);
+					shownWarning = true;
+					return;
+				}
+			}
+			if (checkInterrupted()) {
+				return;
+			}
+			if (chosenDataflow != ImportWorkflowWizard.this.destinationDataflow) {
+				updateWorkflowGraphic(previewDestination, chosenDataflow);
+				if (checkInterrupted()) {
+					return;
+				}
+				ImportWorkflowWizard.this.destinationDataflow = chosenDataflow;
+			}
+
+		}
+
+		public void updateSource() {
 			ButtonModel selection = sourceSelection.getSelection();
 			Dataflow chosenDataflow = null;
 			if (selection == null) {
@@ -686,7 +970,9 @@ public class ImportWorkflowWizard extends JDialog {
 					}
 					chosenDataflow = opened.getDataflow();
 				} catch (OpenException e1) {
-					if (!background) {
+					if (!background && !shownWarning) {
+						setVisible(true);
+						radioFile.requestFocus();
 						logger.warn("Could not open workflow for merging: "
 								+ filePath, e1);
 						JOptionPane.showMessageDialog(parentComponent,
@@ -694,9 +980,8 @@ public class ImportWorkflowWizard extends JDialog {
 										+ filePath + "\n" + e1.getMessage(),
 								"Could not open workflow",
 								JOptionPane.WARNING_MESSAGE);
+						shownWarning = true;
 					}
-					ImportWorkflowWizard.this.sourceDataflow = null;
-					return;
 				}
 			} else if (selection.equals(radioUrl.getModel())) {
 				String url = fieldUrl.getText();
@@ -708,57 +993,65 @@ public class ImportWorkflowWizard extends JDialog {
 					}
 					chosenDataflow = opened.getDataflow();
 				} catch (OpenException e1) {
-					if (!background) {
-						logger.warn("Could not open workflow for merging: "
-								+ url, e1);
+					if (!background && !shownWarning) {
+						logger.warn("Could not open source workflow: " + url,
+								e1);
+						setVisible(true);
+						fieldUrl.requestFocus();
 						JOptionPane.showMessageDialog(parentComponent,
 								"An error occured while trying to open " + url
 										+ "\n" + e1.getMessage(),
 								"Could not open workflow",
 								JOptionPane.WARNING_MESSAGE);
+						shownWarning = true;
+
 					}
 					if (checkInterrupted()) {
 						return;
 					}
-					ImportWorkflowWizard.this.sourceDataflow = null;
-					return;
 				} catch (MalformedURLException e1) {
-					if (!background) {
+					if (!background && !shownWarning) {
 						logger.warn("Invalid workflow URL: " + url, e1);
+						setVisible(true);
+						fieldUrl.requestFocus();
 						JOptionPane.showMessageDialog(parentComponent,
 								"The workflow location " + url
 										+ " is invalid\n"
 										+ e1.getLocalizedMessage(),
 								"Invalid URL", JOptionPane.ERROR_MESSAGE);
+						shownWarning = true;
 					}
 					if (checkInterrupted()) {
 						return;
 					}
-					ImportWorkflowWizard.this.sourceDataflow = null;
-					return;
 				}
 			} else if (selection.equals(radioOpened.getModel())) {
 				DataflowSelection chosen = (DataflowSelection) chooseDataflow
 						.getSelectedItem();
 				chosenDataflow = chosen.getDataflow();
-			}
-			if (chosenDataflow == null) {
-				if (!background) {
-					JOptionPane.showMessageDialog(parentComponent,
-							"You need to choose a workflow for merging",
-							"No workflow chosen", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
+			} else if (selection.equals(radioCustomSource.getModel())) {
+				chosenDataflow = customSourceDataFlow;
+			} else {
+				logger.error("Unknown selection " + selection);
 			}
 			if (checkInterrupted()) {
 				return;
 			}
 			if (chosenDataflow != ImportWorkflowWizard.this.sourceDataflow) {
-				updateWorkflowGraphic(sourcePreview, chosenDataflow);
+				updateWorkflowGraphic(previewSource, chosenDataflow);
 				if (checkInterrupted()) {
 					return;
 				}
 				ImportWorkflowWizard.this.sourceDataflow = chosenDataflow;
+			}
+			if (chosenDataflow == null) {
+				if (!background && !shownWarning) {
+					setVisible(true);
+					JOptionPane.showMessageDialog(parentComponent,
+							"You need to choose a workflow for merging",
+							"No workflow chosen", JOptionPane.ERROR_MESSAGE);
+					shownWarning = true;
+				}
 			}
 		}
 
@@ -771,7 +1064,7 @@ public class ImportWorkflowWizard extends JDialog {
 		}
 	}
 
-	private class DataflowSelection {
+	public static class DataflowSelection {
 		private final Dataflow dataflow;
 		private final String name;
 
@@ -795,7 +1088,7 @@ public class ImportWorkflowWizard extends JDialog {
 
 	}
 
-	private final class UpdateChosenListener implements ActionListener {
+	protected class UpdateChosenListener implements ActionListener {
 		public void actionPerformed(ActionEvent e) {
 			Component parentComponent;
 			if (e.getSource() instanceof Component) {
@@ -804,7 +1097,31 @@ public class ImportWorkflowWizard extends JDialog {
 				parentComponent = null;
 			}
 			findChosenDataflow(parentComponent, true);
+
 		}
 	}
 
+	public void setCustomSourceDataflow(Dataflow sourceDataflow, String label) {
+		this.customSourceDataFlow = sourceDataflow;
+		this.customSourceName = label;
+		updateSourceSection();
+		radioCustomSource.setSelected(true);
+	}
+
+	public void setCustomDestinationDataflow(Dataflow destinationDataflow,
+			String label) {
+		this.customDestinationDataflow = destinationDataflow;
+		this.customDestinationName = label;
+		updateDestinationSection();
+		radioCustomDestination.setSelected(true);
+	}
+
+	public void setDestinationEnabled(boolean destinationEnabled) {
+		this.destinationEnabled = destinationEnabled;
+		updateDestinationSection();
+	}
+	public void setSourceEnabled(boolean sourceEnabled) {
+		this.sourceEnabled = sourceEnabled;
+		updateSourceSection();
+	}
 }
