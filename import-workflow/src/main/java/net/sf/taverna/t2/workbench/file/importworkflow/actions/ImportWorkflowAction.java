@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.JDialog;
 
 import net.sf.taverna.t2.workbench.file.importworkflow.gui.ImportWorkflowWizard;
 import net.sf.taverna.t2.workbench.ui.Utils;
@@ -30,7 +29,9 @@ public class ImportWorkflowAction extends AbstractAction {
 		} else {
 			parentComponent = null;
 		}
-		JDialog wizard = new ImportWorkflowWizard(Utils.getParentFrame(parentComponent));
+		ImportWorkflowWizard wizard = new ImportWorkflowWizard(Utils.getParentFrame(parentComponent));
+		//wizard.setImportEnabled(true);
+		wizard.setNestedEnabled(false);
 		wizard.setVisible(true);
 	}
 
