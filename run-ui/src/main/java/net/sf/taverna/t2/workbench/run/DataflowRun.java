@@ -61,12 +61,15 @@ public class DataflowRun {
 
 	private Dataflow dataflow;
 
+	private String runID;
+
 	public DataflowRun(Dataflow dataflow, Date date, String sessionID) {
 		// get the provenance connector and hope it and the reference service
 		// are the correct ones!! ie. the user has not changed something etc
 		// the reference service is needed to dereference the data so if it is
 		// the 'wrong' one then........
 		this.date = date;
+		this.setSessionID(sessionID);
 		monitorViewComponent = new PreviousRunsComponent();
 		String connectorType = DataManagementConfiguration.getInstance()
 				.getConnectorType();
@@ -105,7 +108,7 @@ public class DataflowRun {
 		monitorViewComponent
 				.setProvenanceConnector((ProvenanceConnector) (facade
 						.getContext().getProvenanceReporter()));
-
+		setSessionID(facade.getContext().getProvenanceReporter().getSessionID());
 		resultsComponent = new ResultViewComponent();
 	}
 
@@ -240,6 +243,14 @@ public class DataflowRun {
 	 */
 	public ResultViewComponent getResultsComponent() {
 		return resultsComponent;
+	}
+
+	public void setSessionID(String sessionID) {
+		this.runID = sessionID;
+	}
+
+	public String getSessionID() {
+		return runID;
 	}
 
 }
