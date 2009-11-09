@@ -63,7 +63,7 @@ public class GraphViewConfigurationPanel extends JPanel {
         setLayout(gridbag);
 
         JTextArea descriptionText = new JTextArea(
-                "Default dettings for the workflow diagram.");
+                "Default settings for the workflow diagram.");
         descriptionText.setLineWrap(true);
         descriptionText.setWrapStyleWord(true);
         descriptionText.setEditable(false);
