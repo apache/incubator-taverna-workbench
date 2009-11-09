@@ -88,7 +88,7 @@ public class ServiceDescriptionRegistryImpl implements
 				return;
 			}
 			if (thread.isAlive()) {
-				logger.warn("Thread did not finish " + thread);
+				logger.debug("Thread did not finish " + thread);
 			}
 		}
 	}
