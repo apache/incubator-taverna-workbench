@@ -20,25 +20,29 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.processor;
 
+import java.util.Arrays;
+import java.util.List;
+
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
 /**
- * SPI factory for creating a {@link ProcessorContextualView}.
+ * SPI factory for creating a {@link ProcessorDispatchStackContextualView}.
  * 
  * @author Stian Soiland-Reyes
+ * @author Alan R Williams
  *
  */
-public class ProcessorContextualViewFactory implements
+public class ProcessorDispatchStackContextualViewFactory implements
 		ContextualViewFactory<Processor> {
 
 	public boolean canHandle(Object selection) {
 		return selection instanceof Processor;
 	}
 
-	public ContextualView getView(Processor selection) {
-		return new ProcessorContextualView((Processor) selection);
+	public List<ContextualView> getViews(Processor selection) {
+		return Arrays.asList(new ContextualView[] {new ProcessorDispatchStackContextualView(selection)});
 	}
 
 }
