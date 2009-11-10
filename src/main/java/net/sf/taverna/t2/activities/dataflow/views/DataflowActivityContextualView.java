@@ -64,6 +64,7 @@ public class DataflowActivityContextualView extends
 		viewWorkflowButton.addActionListener(new EditNestedDataflowAction(getActivity()));
 		JButton configureButton = new JButton(new ReplaceNestedWorkflowAction(
 						getActivity()));
+		configureButton.setIcon(null);
 		JPanel flowPanel = new JPanel(new FlowLayout());
 		flowPanel.add(viewWorkflowButton);
 		flowPanel.add(configureButton);
