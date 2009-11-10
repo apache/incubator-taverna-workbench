@@ -173,8 +173,7 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 					if (result != null) {
 						// do not return anything if there are two matches
 //						logger.info("Multiple actions " + action.getClass().getCanonicalName() + " " + result.getClass().getCanonicalName());
-						result = null;
-						break;
+						return null;
 					}
 					result = action;
 				}
