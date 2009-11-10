@@ -21,12 +21,15 @@
 package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 
 import java.awt.Component;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+
+import org.apache.commons.beanutils.BeanUtils;
 
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -96,7 +99,19 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 				renderer.setIcon(icon);
 			}
 
-			renderer.setText(((Processor) userObject).getLocalName());
+			String text = ((Processor) userObject).getLocalName();
+				String extraDescription;
+				try {
+					extraDescription = BeanUtils.getProperty(activity, "extraDescription");
+					text += " - " + extraDescription;
+				} catch (IllegalAccessException e) {
+					// no problem
+				} catch (InvocationTargetException e) {
+					// no problem
+				} catch (NoSuchMethodException e) {
+					// no problem;
+				}
+			renderer.setText(text);
 		}
 		// Processor's child input port (from the associated activity)
 		else if (userObject instanceof ActivityInputPort) {
