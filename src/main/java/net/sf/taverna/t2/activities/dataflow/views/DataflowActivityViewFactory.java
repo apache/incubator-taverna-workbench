@@ -20,6 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.activities.dataflow.views;
 
+import java.util.Arrays;
+import java.util.List;
+
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
@@ -30,8 +33,8 @@ public class DataflowActivityViewFactory implements ContextualViewFactory<Datafl
 		return object instanceof DataflowActivity;
 	}
 
-	public ContextualView getView(DataflowActivity activity) {
-		return new DataflowActivityContextualView(activity);
+	public List<ContextualView> getViews(DataflowActivity activity) {
+		return Arrays.asList(new ContextualView[] {new DataflowActivityContextualView(activity)});
 	}
 
 }

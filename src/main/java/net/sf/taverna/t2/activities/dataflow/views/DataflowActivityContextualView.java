@@ -93,4 +93,9 @@ public class DataflowActivityContextualView extends
 		// (DataflowActivity) getActivity(), owner);
 	}
 
+	@Override
+	public int getPreferredPosition() {
+		return 100;
+	}
+
 }
