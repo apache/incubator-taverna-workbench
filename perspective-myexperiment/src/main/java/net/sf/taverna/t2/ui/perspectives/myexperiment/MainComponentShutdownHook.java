@@ -20,13 +20,13 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
-import org.apache.log4j.Logger;
-
 import net.sf.taverna.t2.ui.perspectives.PerspectiveRegistry;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Base64;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.workbench.ShutdownSPI;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author Sergejs Aleksejevs, Jiten Bhagat
@@ -78,6 +78,7 @@ public class MainComponentShutdownHook implements ShutdownSPI {
    */
   // ************** CLEANUP THREAD *****************
   protected class MyExperimentClientShutdownThread extends Thread {
+	@Override
 	public void run() {
 	  this.setName("myExperiment Plugin shutdown thread");
 	  logger.debug("Starting shutdown operations for myExperiment plugin");
@@ -89,6 +90,7 @@ public class MainComponentShutdownHook implements ShutdownSPI {
 		myExperimentClient.getSettings().put(MyExperimentClient.INI_PREVIEWED_ITEMS_HISTORY, Base64.encodeObject(pluginMainComponent.getPreviewBrowser().getPreviewHistory()));
 		myExperimentClient.getSettings().put(MyExperimentClient.INI_DOWNLOADED_ITEMS_HISTORY, Base64.encodeObject(pluginMainComponent.getHistoryBrowser().getDownloadedItemsHistoryList()));
 		myExperimentClient.getSettings().put(MyExperimentClient.INI_OPENED_ITEMS_HISTORY, Base64.encodeObject(pluginMainComponent.getHistoryBrowser().getOpenedItemsHistoryList()));
+		myExperimentClient.getSettings().put(MyExperimentClient.INI_UPLOADED_ITEMS_HISTORY, Base64.encodeObject(pluginMainComponent.getHistoryBrowser().getUploadedItemsHistoryList()));
 		myExperimentClient.getSettings().put(MyExperimentClient.INI_COMMENTED_ITEMS_HISTORY, Base64.encodeObject(pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList()));
 
 		myExperimentClient.storeSettings();

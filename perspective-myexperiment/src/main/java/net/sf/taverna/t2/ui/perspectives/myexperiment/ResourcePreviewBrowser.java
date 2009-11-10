@@ -445,7 +445,6 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 
 	// "Import into Taverna" - only for Taverna workflows and when download is
 	// allowed for current user (these checks are carried out inside the action)
-
 	// the import button
 	this.bImportIntoTaverna.setAction(pluginMainComponent.new ImportIntoTavernaAction(r));
 
@@ -550,19 +549,11 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	  /* ************************************************************************* */
 	  Resource resource = this.rpcContent.getResource();
 	  if (resource.getItemTypeName().equals("Workflow")) {
-		//		File workflowFile = null;
-		//		JFileChooser jfsSelectFile = new JFileChooser();
-		//		if (jfsSelectFile.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-		//		  workflowFile = jfsSelectFile.getSelectedFile();
-		//		else
-		//		  return;
-
 		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this, true, resource);
 
 		if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
 		  // "true" has been returned so update the resource
 		  this.actionPerformed(new ActionEvent(this.bRefresh, 0, ""));
-		  // TODO create and upload/update history log!!!
 		}
 	  }
 	} else if (e.getSource().equals(this.bEditMetadata)) {
@@ -588,8 +579,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 
 		// update history of the items that were commented on, making sure that:
 		// - there's only one occurrence of this item in the history;
-		// - if this item was in the history before, it is moved to the 'top'
-		// now;
+		// - if this item was in the history before, it is moved to the 'top' now;
 		// - predefined history size is not exceeded
 		this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().remove(this.rpcContent.getResource());
 		this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().add(this.rpcContent.getResource());
@@ -597,8 +587,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 		  this.pluginMainComponent.getHistoryBrowser().getCommentedOnItemsHistoryList().remove(0);
 		}
 
-		// now update the history of the items that were commented on in
-		// 'History' tab
+		// now update the history of the items that were commented on in 'History' tab
 		if (this.pluginMainComponent.getHistoryBrowser() != null) {
 		  this.pluginMainComponent.getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.COMMENTED_ON_ITEMS_HISTORY);
 		}
@@ -610,16 +599,14 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	  int iFavouritingStatus = favouriteDialog.launchAddRemoveFavouriteDialogAndPerformNecessaryActionIfRequired();
 
 	  // if the operation wasn't cancelled, update status of the
-	  // "add/remove favourite"
-	  // button and the list of favourites in the user profile
+	  // "add/remove favourite" button and the list of favourites in the user profile
 	  if (iFavouritingStatus != AddRemoveFavouriteDialog.OPERATION_CANCELLED) {
 		this.updateButtonBarState(this.rpcContent);
 		this.pluginMainComponent.getMyStuffTab().getSidebar().repopulateFavouritesBox();
 		this.pluginMainComponent.getMyStuffTab().getSidebar().revalidate();
 	  }
 	} else if (e.getSource() instanceof JClickableLabel) {
-	  // clicked somewhere on a JClickableLabel; if that's a 'preview' request -
-	  // launch preview
+	  // clicked somewhere on a JClickableLabel; if that's a 'preview' request - launch preview
 	  if (e.getActionCommand().startsWith("preview:")) {
 		this.preview(e.getActionCommand());
 	  } else if (e.getActionCommand().startsWith("tag:")) {

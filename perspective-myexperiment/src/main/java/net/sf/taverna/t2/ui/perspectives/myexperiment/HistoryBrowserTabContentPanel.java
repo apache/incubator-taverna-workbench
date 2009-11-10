@@ -60,20 +60,23 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
   // CONSTANTS
   public static final int DOWNLOADED_ITEMS_HISTORY_LENGTH = 50;
   public static final int OPENED_ITEMS_HISTORY_LENGTH = 50;
+  public static final int UPLOADED_ITEMS_HISTORY_LENGTH = 50;
   public static final int COMMENTED_ON_ITEMS_HISTORY_LENGTH = 50;
 
   public static final int PREVIEWED_ITEMS_HISTORY = 0;
   public static final int DOWNLOADED_ITEMS_HISTORY = 1;
   public static final int OPENED_ITEMS_HISTORY = 2;
+  public static final int UPLOADED_ITEMS_HISTORY = 4;
   public static final int COMMENTED_ON_ITEMS_HISTORY = 3;
 
-  private MainComponent pluginMainComponent;
-  private MyExperimentClient myExperimentClient;
-  private Logger logger;
+  private final MainComponent pluginMainComponent;
+  private final MyExperimentClient myExperimentClient;
+  private final Logger logger;
 
   // STORAGE
   private ArrayList<Resource> lDownloadedItems;
   private ArrayList<Resource> lOpenedItems;
+  private ArrayList<Resource> lUploadedItems;
   private ArrayList<Resource> lCommentedOnItems;
 
   // COMPONENTS
@@ -82,6 +85,7 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
   private JPanel jpTagSearchHistory;
   private JPanel jpDownloadedItemsHistory;
   private JPanel jpOpenedItemsHistory;
+  private JPanel jpUploadedItemsHistory;
   private JPanel jpCommentedOnHistory;
   private JSplitPane spMain;
   private JClickableLabel jclPreviewHistory;
@@ -89,12 +93,14 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
   private JClickableLabel jclTagSearchHistory;
   private JClickableLabel jclDownloadedItemsHistory;
   private JClickableLabel jclOpenedItemsHistory;
+  private JClickableLabel jclUploadedItemsHistory;
   private JClickableLabel jclCommentedOnHistory;
   private JPanel jpPreviewHistoryBox;
   private JPanel jpSearchHistoryBox;
   private JPanel jpTagSearchHistoryBox;
   private JPanel jpDownloadedItemsHistoryBox;
   private JPanel jpOpenedItemsHistoryBox;
+  private JPanel jpUploadedItemsHistoryBox;
   private JPanel jpCommentedOnHistoryBox;
 
   @SuppressWarnings("unchecked")
@@ -122,6 +128,15 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 	  this.lOpenedItems = (ArrayList<Resource>) oOpenedItemsHistory;
 	} else {
 	  this.lOpenedItems = new ArrayList<Resource>();
+	}
+
+	// initialise uploaded items history
+	String strUploadedItemsHistory = (String) myExperimentClient.getSettings().get(MyExperimentClient.INI_UPLOADED_ITEMS_HISTORY);
+	if (strUploadedItemsHistory != null) {
+	  Object oUploadedItemsHistory = Base64.decodeToObject(strUploadedItemsHistory);
+	  this.lUploadedItems = (ArrayList<Resource>) oUploadedItemsHistory;
+	} else {
+	  this.lUploadedItems = new ArrayList<Resource>();
 	}
 
 	// initialise history of the items that were commented on
@@ -160,6 +175,9 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 		case 6:
 		  clearCommentedOnItemsHistory();
 		  break;
+		case 7:
+		  clearUploadedItemsHistory();
+		  break;
 	  }
 	  refreshAllData();
 	}
@@ -192,6 +210,7 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 	this.jpSearchHistory = new JPanel();
 	this.jpDownloadedItemsHistory = new JPanel();
 	this.jpOpenedItemsHistory = new JPanel();
+	this.jpUploadedItemsHistory = new JPanel();
 	this.jpCommentedOnHistory = new JPanel();
 
 	// create sidebar
@@ -218,6 +237,10 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 	jclOpenedItemsHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 	jpSidebar.add(jclOpenedItemsHistory);
 
+	jclUploadedItemsHistory = new JClickableLabel("Updated Items", "uploaded_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
+	jclUploadedItemsHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+	jpSidebar.add(jclUploadedItemsHistory);
+
 	jclCommentedOnHistory = new JClickableLabel("Items Commented On", "comments_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
 	jclCommentedOnHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 	jpSidebar.add(jclCommentedOnHistory);
@@ -233,12 +256,13 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 	// only one of these will hold the right hand side of spMain at any given time
 	// arg 1: is the ID, which will be used by confirmHistoryDelete() to decide
 	// how to delete the history item
-	jpPreviewHistoryBox = addSpecifiedPanel(1, "Preview History", jpPreviewHistory);
-	jpSearchHistoryBox = addSpecifiedPanel(2, "Search History", jpSearchHistory);
-	jpTagSearchHistoryBox = addSpecifiedPanel(3, "Tag Search History", jpTagSearchHistory);
-	jpDownloadedItemsHistoryBox = addSpecifiedPanel(4, "Downloaded Items", jpDownloadedItemsHistory);
-	jpOpenedItemsHistoryBox = addSpecifiedPanel(5, "Opened Items", jpOpenedItemsHistory);
-	jpCommentedOnHistoryBox = addSpecifiedPanel(6, "Commented On", jpCommentedOnHistory);
+	jpPreviewHistoryBox = addSpecifiedPanel(1, "Items you have previewed", jpPreviewHistory);
+	jpSearchHistoryBox = addSpecifiedPanel(2, "Terms you have searched for", jpSearchHistory);
+	jpTagSearchHistoryBox = addSpecifiedPanel(3, "Tags searches you have made", jpTagSearchHistory);
+	jpDownloadedItemsHistoryBox = addSpecifiedPanel(4, "Items you have downloaded", jpDownloadedItemsHistory);
+	jpOpenedItemsHistoryBox = addSpecifiedPanel(5, "Workflows you have opened in Taverna", jpOpenedItemsHistory);
+	jpCommentedOnHistoryBox = addSpecifiedPanel(6, "Items you have commented on in myExperiment", jpCommentedOnHistory);
+	jpUploadedItemsHistoryBox = addSpecifiedPanel(7, "Items you have updated on myExperiment", jpUploadedItemsHistory);
 
 	// put everything together
 	spMain = new JSplitPane();
@@ -268,8 +292,16 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 	return (this.lOpenedItems);
   }
 
+  public ArrayList<Resource> getUploadedItemsHistoryList() {
+	return (this.lUploadedItems);
+  }
+
   public void clearOpenedItemsHistory() {
 	this.lOpenedItems.clear();
+  }
+
+  public void clearUploadedItemsHistory() {
+	this.lUploadedItems.clear();
   }
 
   public ArrayList<Resource> getCommentedOnItemsHistoryList() {
@@ -287,6 +319,7 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 	this.refreshHistoryBox(PREVIEWED_ITEMS_HISTORY);
 	this.refreshHistoryBox(DOWNLOADED_ITEMS_HISTORY);
 	this.refreshHistoryBox(OPENED_ITEMS_HISTORY);
+	this.refreshHistoryBox(UPLOADED_ITEMS_HISTORY);
 	this.refreshHistoryBox(COMMENTED_ON_ITEMS_HISTORY);
 	this.refreshSearchHistory();
 	this.refreshTagSearchHistory();
@@ -309,15 +342,19 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 		break;
 	  case DOWNLOADED_ITEMS_HISTORY:
 		this.jpDownloadedItemsHistory.removeAll();
-		populateHistoryBox(this.lDownloadedItems, this.jpDownloadedItemsHistory, "No items were downloaded yet");
+		populateHistoryBox(this.lDownloadedItems, this.jpDownloadedItemsHistory, "No items were downloaded");
 		break;
 	  case OPENED_ITEMS_HISTORY:
 		this.jpOpenedItemsHistory.removeAll();
-		populateHistoryBox(this.lOpenedItems, this.jpOpenedItemsHistory, "No items were opened yet");
+		populateHistoryBox(this.lOpenedItems, this.jpOpenedItemsHistory, "No items were opened");
+		break;
+	  case UPLOADED_ITEMS_HISTORY:
+		this.jpUploadedItemsHistory.removeAll();
+		populateHistoryBox(this.lUploadedItems, this.jpUploadedItemsHistory, "No items were updated");
 		break;
 	  case COMMENTED_ON_ITEMS_HISTORY:
 		this.jpCommentedOnHistory.removeAll();
-		populateHistoryBox(this.lCommentedOnItems, this.jpCommentedOnHistory, "You didn't comment on any items yet");
+		populateHistoryBox(this.lCommentedOnItems, this.jpCommentedOnHistory, "You didn't comment on any items");
 		break;
 	}
   }
@@ -331,8 +368,10 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 	if (lHistory.size() > 0) {
 	  for (int i = lHistory.size() - 1; i >= 0; i--) {
 		Resource r = lHistory.get(i);
-		JClickableLabel lResource = Util.generateClickableLabelFor(r, this.pluginMainComponent.getPreviewBrowser());
-		jpPanelToPopulate.add(lResource);
+		if (r != null) {
+		  JClickableLabel lResource = Util.generateClickableLabelFor(r, this.pluginMainComponent.getPreviewBrowser());
+		  jpPanelToPopulate.add(lResource);
+		}
 	  }
 	} else {
 	  jpPanelToPopulate.add(Util.generateNoneTextLabel(strLabelIfNoItems));
@@ -489,6 +528,8 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 		  spMain.setRightComponent(jpDownloadedItemsHistoryBox);
 		else if (e.getActionCommand() == "opened_history")
 		  spMain.setRightComponent(jpOpenedItemsHistoryBox);
+		else if (e.getActionCommand() == "uploaded_history")
+		  spMain.setRightComponent(jpUploadedItemsHistoryBox);
 		else if (e.getActionCommand() == "comments_history")
 		  spMain.setRightComponent(jpCommentedOnHistoryBox);
 	  }

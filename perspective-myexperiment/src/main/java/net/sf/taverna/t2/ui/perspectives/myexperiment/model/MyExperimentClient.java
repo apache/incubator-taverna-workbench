@@ -20,33 +20,39 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.myexperiment.model;
 
-import java.io.*;
-import java.net.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.Properties;
 
-import javax.naming.spi.Resolver;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MyExperimentPerspective;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Tag;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.SearchEngine.QuerySearchInstance;
 
 import org.apache.log4j.Logger;
-
-import org.xml.sax.*;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
+import org.xml.sax.InputSource;
 
 /**
  * @author Sergejs Aleksejevs, Emmanuel Tagarira, Jiten Bhagat
@@ -71,6 +77,7 @@ public class MyExperimentClient {
   public static final String INI_TAG_SEARCH_HISTORY = "tag_search_history";
   public static final String INI_PREVIEWED_ITEMS_HISTORY = "previewed_items_history";
   public static final String INI_OPENED_ITEMS_HISTORY = "opened_items_history";
+  public static final String INI_UPLOADED_ITEMS_HISTORY = "uploaded_items_history";
   public static final String INI_DOWNLOADED_ITEMS_HISTORY = "downloaded_items_history";
   public static final String INI_COMMENTED_ITEMS_HISTORY = "commented_items_history";
   public static final String INI_DEFAULT_LOGGED_IN_TAB = "default_tab_for_logged_in_users";
@@ -131,9 +138,7 @@ public class MyExperimentClient {
 	if (BASE_URL == null || BASE_URL.length() == 0)
 	  BASE_URL = DEFAULT_BASE_URL;
 	this.iniSettings.put(INI_BASE_URL, BASE_URL); // store this to settings (if
-	// no changes were made - same
-	// as before, alternatively
-	// default URL)
+	// no changes were made - same as before, alternatively default URL)
   }
 
   // getter for the current status

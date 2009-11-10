@@ -36,7 +36,10 @@ import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -59,7 +62,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
-import net.sf.taverna.t2.ui.perspectives.myexperiment.ImportWorkflowDialog.DataflowSelection;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.License;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
@@ -166,9 +168,9 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	// add open workflow radio button
 	c.gridy++;
 	source.add(rbSelectOpenWorkflow, c);
-	jcbOpenWorkflows = ImportWorkflowDialog.createDropdown();
 	c.gridx = 1;
 	c.gridwidth = 2;
+	createDropdown();
 	source.add(jcbOpenWorkflows, c);
 
 	// add local file radio button
@@ -185,6 +187,36 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	source.add(bSelectFile, c);
 
 	return source;
+  }
+
+  private void createDropdown() {
+	FileManager fileManager = FileManager.getInstance();
+	List<DataflowSelection> openDataflows = new ArrayList<DataflowSelection>();
+
+	int currentlyOpenedIndex = 0;
+	boolean foundIndex = false;
+
+	for (Dataflow df : fileManager.getOpenDataflows()) {
+	  Object source = fileManager.getDataflowSource(df);
+
+	  String name = "";
+	  boolean getLocalName = source instanceof InputStream;
+	  if (source != null)
+		name = (getLocalName ? df.getLocalName() : source.toString());
+
+	  if (df.equals(fileManager.getCurrentDataflow())) {
+		name = "<html><body>" + name + " - "
+			+ " <i>(current)</i></body></html>";
+		foundIndex = true;
+	  }
+
+	  openDataflows.add(new DataflowSelection(df, name));
+	  if (!foundIndex)
+		currentlyOpenedIndex++;
+	}
+
+	jcbOpenWorkflows = new JComboBox(openDataflows.toArray());
+	jcbOpenWorkflows.setSelectedIndex(currentlyOpenedIndex);
   }
 
   private JPanel createMetadataPanel() {
@@ -495,7 +527,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 			}
 			// *** POST THE WORKFLOW ***
 			final ServerResponse response;
-			if (userRequestedWorkflowUpload) // upload a new workflow
+			if (updateResource == null) // upload a new workflow
 			  response = myExperimentClient.postWorkflow(workflowFileContent, Util.stripAllHTML(strTitle), Util.stripAllHTML(strDescription), licence, sharing);
 			else
 			  // edit existing workflow
@@ -538,6 +570,22 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 
 				  pack();
 				  bCancel.requestFocusInWindow();
+
+				  // update uploaded items history making sure that:
+				  // - there's only one occurrence of this item in the history;
+				  // - if this item was in the history before, it is moved to the 'top' now; 
+				  // - predefined history size is not exceeded
+				  MainComponent.MAIN_COMPONENT.getHistoryBrowser().getUploadedItemsHistoryList().remove(updateResource);
+				  MainComponent.MAIN_COMPONENT.getHistoryBrowser().getUploadedItemsHistoryList().add(updateResource);
+				  if (MainComponent.MAIN_COMPONENT.getHistoryBrowser().getUploadedItemsHistoryList().size() > HistoryBrowserTabContentPanel.UPLOADED_ITEMS_HISTORY_LENGTH) {
+					MainComponent.MAIN_COMPONENT.getHistoryBrowser().getUploadedItemsHistoryList().remove(0);
+				  }
+
+				  // now update the uploaded items history panel in 'History' tab
+				  if (MainComponent.MAIN_COMPONENT.getHistoryBrowser() != null) {
+					MainComponent.MAIN_COMPONENT.getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.UPLOADED_ITEMS_HISTORY);
+				  }
+
 				} else {
 				  // posting wasn't successful, notify the user
 				  // and provide an option to close window or start again
@@ -670,4 +718,28 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
   public void componentResized(ComponentEvent e) {
 	// not in use
   }
+
+  private class DataflowSelection {
+	private final Dataflow dataflow;
+	private final String name;
+
+	public DataflowSelection(Dataflow dataflow, String name) {
+	  this.dataflow = dataflow;
+	  this.name = name;
+	}
+
+	public Dataflow getDataflow() {
+	  return dataflow;
+	}
+
+	public String getName() {
+	  return name;
+	}
+
+	@Override
+	public String toString() {
+	  return name;
+	}
+  }
+
 }

@@ -164,6 +164,7 @@ public class Resource implements Comparable<Resource>, Serializable {
 	this.updatedAt = updatedAt;
   }
 
+  @Override
   public String toString() {
 	return ("(" + this.getItemTypeName() + ", " + this.getURI() + ","
 		+ this.getTitle() + ")");
@@ -191,6 +192,7 @@ public class Resource implements Comparable<Resource>, Serializable {
    * interface work properly - this way resources are treated to be the same if
    * they store identical data, rather than they simply hold the same reference.
    */
+  @Override
   public boolean equals(Object other) {
 	// could only be equal to another Resource object, not anything else
 	if (!(other instanceof Resource))
@@ -551,6 +553,14 @@ public class Resource implements Comparable<Resource>, Serializable {
 		  JButton loadButton = new JButton();
 		  loadButton.setAction(pluginMainComponent.new LoadResourceInTavernaAction(this));
 		  jpButtonsPanel.add(loadButton);
+		}
+
+		// "Import" button is only to be displayed for workflows
+		if (this.getItemType() == Resource.WORKFLOW) {
+		  // (various checks apply to see if this can be done - these are made inside the action)
+		  JButton importButton = new JButton();
+		  importButton.setAction(pluginMainComponent.new ImportIntoTavernaAction(this));
+		  jpButtonsPanel.add(importButton);
 		}
 
 		// setting look and feel for buttons

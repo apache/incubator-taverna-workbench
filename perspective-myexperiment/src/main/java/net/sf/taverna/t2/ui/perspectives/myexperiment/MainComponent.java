@@ -509,66 +509,58 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	  putValue(SHORT_DESCRIPTION, strTooltip);
 	}
 
-	private FileManager fileManager = FileManager.getInstance();
-	
+	private final FileManager fileManager = FileManager.getInstance();
+
 	public void actionPerformed(ActionEvent actionEvent) {
 	  // if the preview browser window is opened, hide it beneath the main window
 	  if (getPreviewBrowser().isActive())
 		getPreviewBrowser().toBack();
 
 	  ImportWorkflowWizard importWorkflowDialog = new ImportWorkflowWizard(getPreviewBrowser());
-	  
-		Workflow w;
-			try {
-				w = MY_EXPERIMENT_CLIENT.fetchWorkflowBinary(resource.getURI());
-			} catch (Exception e) {
-				JOptionPane.showMessageDialog(null,
-						"An error has occurred " +
-						"while trying to load a "
-								+ "workflow from myExperiment.\n\n" + e,
-						"Error", JOptionPane.ERROR_MESSAGE);
-				LOGGER.error("Failed to open connection to URL to "
-						+ "download and open workflow, from myExperiment.", e);
-				return;
-			}
-			ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
-		FileType fileTypeType = (w.isTaverna1Workflow() ? new MainComponent.ScuflFileType() : new MainComponent.T2FlowFileType());
-			Dataflow toBeImported;
-			try {
-				toBeImported = fileManager.openDataflowSilently(fileTypeType,
-						workflowDataInputStream).getDataflow();
-			} catch (OpenException e) {
-				JOptionPane.showMessageDialog(null, "An error has occurred"
-						+ " while trying to load a "
-						+ "workflow from myExperiment.\n\n" + e, "Error",
-						JOptionPane.ERROR_MESSAGE);
-				LOGGER.error("Failed to" + " open connection to URL "
-						+ "to download and open workflow, from myExperiment.",
-						e);
-				return;
-			}
-			importWorkflowDialog.setCustomSourceDataflow(toBeImported,
-					"From myExperiment:" + w.getTitle());
-			importWorkflowDialog.setVisible(true);
 
-	  //ImportWorkflowDialog importWorkflowDialog = new ImportWorkflowDialog(getPreviewBrowser(), resource);
-//	  if (importWorkflowDialog.launchImportDialogAndLoadIfRequired()) {
-		
-		// update opened items history making sure that:
-		// - there's only one occurrence of this item in the history;
-		// - if this item was in the history before, it is moved to the 'top' now; 
-		// - predefined history size is not exceeded
-		getHistoryBrowser().getOpenedItemsHistoryList().remove(resource);
-		getHistoryBrowser().getOpenedItemsHistoryList().add(resource);
-		if (getHistoryBrowser().getOpenedItemsHistoryList().size() > HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY_LENGTH) {
-		  getHistoryBrowser().getOpenedItemsHistoryList().remove(0);
-		}
-
-		// now update the opened items history panel in 'History' tab
-		if (getHistoryBrowser() != null)
-		  getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY);
+	  Workflow w;
+	  try {
+		w = MY_EXPERIMENT_CLIENT.fetchWorkflowBinary(resource.getURI());
+	  } catch (Exception e) {
+		JOptionPane.showMessageDialog(null, "An error has occurred "
+			+ "while trying to load a " + "workflow from myExperiment.\n\n" + e, "Error", JOptionPane.ERROR_MESSAGE);
+		LOGGER.error("Failed to open connection to URL to "
+			+ "download and open workflow, from myExperiment.", e);
+		return;
 	  }
-	
+	  ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
+	  FileType fileTypeType = (w.isTaverna1Workflow() ? new MainComponent.ScuflFileType() : new MainComponent.T2FlowFileType());
+	  Dataflow toBeImported;
+	  try {
+		toBeImported = fileManager.openDataflowSilently(fileTypeType, workflowDataInputStream).getDataflow();
+	  } catch (OpenException e) {
+		JOptionPane.showMessageDialog(null, "An error has occurred"
+			+ " while trying to load a " + "workflow from myExperiment.\n\n"
+			+ e, "Error", JOptionPane.ERROR_MESSAGE);
+		LOGGER.error("Failed to" + " open connection to URL "
+			+ "to download and open workflow, from myExperiment.", e);
+		return;
+	  }
+	  importWorkflowDialog.setCustomSourceDataflow(toBeImported, "From myExperiment: "
+		  + resource.getTitle());
+	  importWorkflowDialog.setSourceEnabled(false);
+	  importWorkflowDialog.setVisible(true);
+
+	  // update opened items history making sure that:
+	  // - there's only one occurrence of this item in the history;
+	  // - if this item was in the history before, it is moved to the 'top' now; 
+	  // - predefined history size is not exceeded
+	  getHistoryBrowser().getOpenedItemsHistoryList().remove(resource);
+	  getHistoryBrowser().getOpenedItemsHistoryList().add(resource);
+	  if (getHistoryBrowser().getOpenedItemsHistoryList().size() > HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY_LENGTH) {
+		getHistoryBrowser().getOpenedItemsHistoryList().remove(0);
+	  }
+
+	  // now update the opened items history panel in 'History' tab
+	  if (getHistoryBrowser() != null)
+		getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY);
+	}
+
   }
 
   // *** FileTypes for opening workflows inside Taverna
