@@ -45,6 +45,8 @@ import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Workflow;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
+import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
+import net.sf.taverna.t2.workbench.file.importworkflow.gui.ImportWorkflowWizard;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
@@ -507,14 +509,51 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	  putValue(SHORT_DESCRIPTION, strTooltip);
 	}
 
+	private FileManager fileManager = FileManager.getInstance();
+	
 	public void actionPerformed(ActionEvent actionEvent) {
 	  // if the preview browser window is opened, hide it beneath the main window
 	  if (getPreviewBrowser().isActive())
 		getPreviewBrowser().toBack();
 
-	  ImportWorkflowDialog importWorkflowDialog = new ImportWorkflowDialog(getPreviewBrowser(), resource);
+	  ImportWorkflowWizard importWorkflowDialog = new ImportWorkflowWizard(getPreviewBrowser());
+	  
+		Workflow w;
+			try {
+				w = MY_EXPERIMENT_CLIENT.fetchWorkflowBinary(resource.getURI());
+			} catch (Exception e) {
+				JOptionPane.showMessageDialog(null,
+						"An error has occurred " +
+						"while trying to load a "
+								+ "workflow from myExperiment.\n\n" + e,
+						"Error", JOptionPane.ERROR_MESSAGE);
+				LOGGER.error("Failed to open connection to URL to "
+						+ "download and open workflow, from myExperiment.", e);
+				return;
+			}
+			ByteArrayInputStream workflowDataInputStream = new ByteArrayInputStream(w.getContent());
+		FileType fileTypeType = (w.isTaverna1Workflow() ? new MainComponent.ScuflFileType() : new MainComponent.T2FlowFileType());
+			Dataflow toBeImported;
+			try {
+				toBeImported = fileManager.openDataflowSilently(fileTypeType,
+						workflowDataInputStream).getDataflow();
+			} catch (OpenException e) {
+				JOptionPane.showMessageDialog(null, "An error has occurred"
+						+ " while trying to load a "
+						+ "workflow from myExperiment.\n\n" + e, "Error",
+						JOptionPane.ERROR_MESSAGE);
+				LOGGER.error("Failed to" + " open connection to URL "
+						+ "to download and open workflow, from myExperiment.",
+						e);
+				return;
+			}
+			importWorkflowDialog.setCustomSourceDataflow(toBeImported,
+					"From myExperiment:" + w.getTitle());
+			importWorkflowDialog.setVisible(true);
 
-	  if (importWorkflowDialog.launchImportDialogAndLoadIfRequired()) {
+	  //ImportWorkflowDialog importWorkflowDialog = new ImportWorkflowDialog(getPreviewBrowser(), resource);
+//	  if (importWorkflowDialog.launchImportDialogAndLoadIfRequired()) {
+		
 		// update opened items history making sure that:
 		// - there's only one occurrence of this item in the history;
 		// - if this item was in the history before, it is moved to the 'top' now; 
@@ -529,7 +568,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 		if (getHistoryBrowser() != null)
 		  getHistoryBrowser().refreshHistoryBox(HistoryBrowserTabContentPanel.OPENED_ITEMS_HISTORY);
 	  }
-	}
+	
   }
 
   // *** FileTypes for opening workflows inside Taverna
