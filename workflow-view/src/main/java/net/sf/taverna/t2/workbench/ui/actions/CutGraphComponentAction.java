@@ -73,6 +73,8 @@ public class CutGraphComponentAction extends AbstractAction{
 		putValue(SMALL_ICON, WorkbenchIcons.cutIcon);
 		putValue(NAME, "Cut");	
 		putValue(SHORT_DESCRIPTION, "Cut selected component");
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_T);
+
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		setEnabled(false);

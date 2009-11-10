@@ -22,10 +22,12 @@ package net.sf.taverna.t2.workbench.ui.actions;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
@@ -59,6 +61,7 @@ public class CopyProcessorAction extends AbstractAction {
 		this.processor = processor;
 		putValue(SMALL_ICON, WorkbenchIcons.copyIcon);
 		putValue(NAME, "Copy");		
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_Y);
 	}
 
 	public void actionPerformed(ActionEvent e) {

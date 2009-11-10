@@ -53,6 +53,8 @@ public class PasteGraphComponentAction extends AbstractAction{
 		putValue(SMALL_ICON, WorkbenchIcons.pasteIcon);
 		putValue(NAME, "Paste");	
 		putValue(SHORT_DESCRIPTION, "Paste");
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_P);
+
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		setEnabled(false);

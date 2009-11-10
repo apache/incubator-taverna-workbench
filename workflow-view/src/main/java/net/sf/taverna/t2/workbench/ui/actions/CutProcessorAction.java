@@ -22,10 +22,12 @@ package net.sf.taverna.t2.workbench.ui.actions;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 
 import net.sf.taverna.t2.workbench.design.actions.RemoveProcessorAction;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -66,6 +68,7 @@ public class CutProcessorAction extends AbstractAction {
 		this.component = component;
 		putValue(SMALL_ICON, WorkbenchIcons.cutIcon);
 		putValue(NAME, "Cut");		
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
 	}
 
 	public void actionPerformed(ActionEvent e) {

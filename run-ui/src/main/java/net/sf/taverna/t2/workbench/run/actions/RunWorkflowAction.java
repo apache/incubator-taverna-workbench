@@ -120,6 +120,7 @@ public class RunWorkflowAction extends AbstractAction {
 		putValue(SMALL_ICON, WorkbenchIcons.runIcon);
 		putValue(NAME, "Run workflow...");
 		putValue(SHORT_DESCRIPTION, "Run the current workflow");
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
 		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R,
 				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 	}

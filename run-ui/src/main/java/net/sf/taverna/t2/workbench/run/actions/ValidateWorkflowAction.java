@@ -22,8 +22,10 @@ package net.sf.taverna.t2.workbench.run.actions;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.lang.observer.Observable;
@@ -62,6 +64,8 @@ public class ValidateWorkflowAction extends AbstractAction {
 
 	public ValidateWorkflowAction() {
 		super(VALIDATE_WORKFLOW, WorkbenchIcons.searchIcon);
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_V);
+
 		modelMap.addObserver(modelMapObserver);
 		updateEnabledStatus(fileManager.getCurrentDataflow());
 	}

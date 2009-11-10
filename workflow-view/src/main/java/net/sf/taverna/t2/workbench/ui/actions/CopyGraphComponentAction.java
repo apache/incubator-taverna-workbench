@@ -70,6 +70,8 @@ public class CopyGraphComponentAction extends AbstractAction{
 		putValue(SMALL_ICON, WorkbenchIcons.copyIcon);
 		putValue(NAME, "Copy");	
 		putValue(SHORT_DESCRIPTION, "Copy selected component");
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_Y);
+
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		setEnabled(false);
