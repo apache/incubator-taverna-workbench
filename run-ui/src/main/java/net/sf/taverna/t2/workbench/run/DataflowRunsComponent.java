@@ -26,12 +26,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -39,6 +40,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -48,15 +50,17 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.context.ApplicationContext;
-
 import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowInstance;
+import net.sf.taverna.t2.reference.ErrorDocument;
+import net.sf.taverna.t2.reference.IdentifiedList;
 import net.sf.taverna.t2.reference.ReferenceService;
+import net.sf.taverna.t2.reference.ReferenceServiceException;
+import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.T2ReferenceType;
 import net.sf.taverna.t2.reference.impl.WriteQueueAspect;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
@@ -70,6 +74,8 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
+import org.springframework.context.ApplicationContext;
 
 public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI {
 
@@ -91,6 +97,9 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 	private JButton removeWorkflowRunsButton;
 
 	private JSplitPane topPanel;
+	
+	// Queue for previous workflow runs to be deleted
+	private static final LinkedList<DataflowRun> runsToBeDeletedQueue = new LinkedList<DataflowRun>();
 
 	private DataflowRunsComponent() {
 		super(JSplitPane.VERTICAL_SPLIT);
@@ -157,19 +166,39 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		JLabel worklflowRunsLabel = new JLabel("Workflow Runs");
 		worklflowRunsLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		worklflowRunsLabel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
-		removeWorkflowRunsButton = new JButton("Remove"); // button to remove
-		// previous workflow
-		// runs
+		// button to remove previous workflow runs
+		removeWorkflowRunsButton = new JButton("Remove"); 
 		removeWorkflowRunsButton.setAlignmentX(JComponent.RIGHT_ALIGNMENT);
 		removeWorkflowRunsButton.setEnabled(false);
 		removeWorkflowRunsButton.setToolTipText("Remove workflow run(s)");
 		removeWorkflowRunsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// Warn user that removing workflow run will 
+				// cause all provenance data for that run to be deleted
+				int option = JOptionPane
+						.showConfirmDialog(
+								null,
+								new JLabel("<html><body>Are you sure you want to delete the selected workflow run(s)?<br>" +
+										"Deleting them will remove all provenance data related to the run(s).</body></html>"),
+								"Confirm workflow run deletion",
+								JOptionPane.OK_CANCEL_OPTION);
+				if (option == JOptionPane.CANCEL_OPTION){
+					return;
+				}
 				int[] selected = runList.getSelectedIndices();
 				for (int i = selected.length - 1; i >= 0; i--) {
-					DataflowRun remove = (DataflowRun) runListModel
+					final DataflowRun dataflowRunToBeDeleted = (DataflowRun) runListModel
 							.remove(selected[i]);
-					remove.getMonitorViewComponent().onDispose();
+					dataflowRunToBeDeleted.getMonitorViewComponent().onDispose();
+					// Add this workflow run to the queue to be deleted
+					synchronized (runsToBeDeletedQueue) {
+						runsToBeDeletedQueue.add(dataflowRunToBeDeleted);
+					}
+				}
+				if (selected.length >0){
+					synchronized (runsToBeDeletedQueue) {
+						runsToBeDeletedQueue.notify();
+					}
 				}
 				// Set the first item as selected - if there is one
 				if (runListModel.size() > 0) {
@@ -240,7 +269,10 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		};
 		thread.run();
 		
-
+		// Start listening for requests for previous workflow runs to be deleted 
+		// from the provenance database
+		Thread deleteWorkflowRunsThread = new DeleteWorkflowRunsThread();
+		deleteWorkflowRunsThread.start();
 	}
 
 	private void retrievePreviousRuns() {
@@ -258,7 +290,6 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 			Date date = new Date(time.getTime());
 			try {
 				SAXBuilder builder = new SAXBuilder();
-				String xml = new String(workflowInstance.getDataflowBlob());
 				Document document = builder.build(new ByteArrayInputStream(workflowInstance.getDataflowBlob()));
 				Element rootElement = document.getRootElement();
 				Dataflow dataflow = XMLDeserializerRegistry.getInstance()
@@ -339,5 +370,84 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		// TODO Auto-generated method stub
 
 	}
+	
+	public static LinkedList<DataflowRun> getRunsToBeDeletedQueue() {
+		return runsToBeDeletedQueue;
+	}
+
+	/**
+	 *  Thread that deletes provenance for previous workflow runs 
+	 *  placed in a special queue.
+	 */
+	private class DeleteWorkflowRunsThread extends Thread {
+        public void run() {
+        	DataflowRun runToDelete = null;
+            while (true) {
+                synchronized(runsToBeDeletedQueue) {  
+                	while (runsToBeDeletedQueue.isEmpty()) {
+                        try
+                        {
+                        	runsToBeDeletedQueue.wait();
+                        }
+                        catch (InterruptedException ignored)
+                        {
+                        }
+                    }
+                    // Retrieve the first element from the queue (but do not remove it)
+                    runToDelete = runsToBeDeletedQueue.peek();
+                }
+
+				// Remove provenance data for the run and all references held by the 
+				// workflow run from the Reference Manager's database
+                try{
+				logger.info("Starting deletion of workflow run '" + runToDelete.toString() + "' (run id "
+						+ runToDelete.getRunId() + ") from provenance and Reference Service's databases.");
+				String connectorType = DataManagementConfiguration.getInstance().getConnectorType();
+				ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
+				// Remove the run from provenance database
+				Set<String> referencedDataSet = provenanceAccess.removeRun(runToDelete.getRunId());
+				// Get all the references to the data used by the workflow run
+				ArrayList<T2Reference> referencesList = new ArrayList<T2Reference>();
+				for (String referencedData : referencedDataSet){
+					T2Reference reference = referenceService.referenceFromString(referencedData);
+					referencesList.add(reference);
+				}				
+				int chunkSize = 100;
+				int startIndex = 0;
+				int listSize = referencesList.size();
+				while(startIndex < listSize){
+					// Delete in chunks of 100 data references
+					List<T2Reference> chunk = null;
+					if(listSize > startIndex + chunkSize){
+						chunk = referencesList.subList(startIndex, startIndex + chunkSize);
+					}
+					else{
+						chunk = referencesList.subList(startIndex, listSize);
+					}
+					try{
+						// Remove referenced data from Reference Manager's database
+						referenceService.delete(chunk);
+					} catch (ReferenceServiceException rex) {
+						// Log the error and continue to delete data
+						logger.error("Reference Service: failed to delete a set of data references when deleting workflow run(s).", rex);
+					} 
+					startIndex = startIndex + chunkSize;
+				}
+				logger.info("Deletion of workflow run '" + runToDelete.toString() + "' (run id "
+					+ runToDelete.getRunId() + ") from provenance and Reference Service's databases completed.");
+              } catch (Exception ex){
+				logger.error("Failed to delete workflow run '" + runToDelete.toString() + "' (run id "
+						+ runToDelete.getRunId() + ") from provenance database.", ex);;
+              }
+              finally{
+            	  synchronized (runsToBeDeletedQueue) {
+            		  // Remove the run we have just deleted
+            		  runsToBeDeletedQueue.removeFirst();
+				}
+              }
+            }   
+        }
+    }
+
 
 }
