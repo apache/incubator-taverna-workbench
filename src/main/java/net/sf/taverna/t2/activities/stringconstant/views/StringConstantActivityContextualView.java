@@ -55,6 +55,11 @@ public class StringConstantActivityContextualView extends HTMLBasedActivityConte
 		return new StringConstantActivityConfigurationAction((StringConstantActivity)getActivity(),owner);
 	}
 
+	@Override
+	public int getPreferredPosition() {
+		return 100;
+	}
+
 }
 
 

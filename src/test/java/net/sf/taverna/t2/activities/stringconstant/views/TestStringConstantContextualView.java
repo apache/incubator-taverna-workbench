@@ -22,6 +22,9 @@ package net.sf.taverna.t2.activities.stringconstant.views;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.actions.StringConstantActivityConfigurationAction;
@@ -46,10 +49,16 @@ public class TestStringConstantContextualView {
 	}
 	@SuppressWarnings("unchecked")
 	@Test
-	public void testDisovery() throws Exception {ContextualViewFactory factory = ContextualViewFactoryRegistry.getInstance().getViewFactoryForObject(activity);
-		assertTrue("Factory should be StringConstantActivityViewFactory",factory instanceof StringConstantActivityViewFactory);
-		ContextualView view = factory.getView(activity);
-		assertTrue("The view should be StringConstantActivityContextualView",view instanceof StringConstantActivityContextualView);
+	public void testDisovery() throws Exception {
+		List<ContextualViewFactory> viewFactoriesForBeanType = ContextualViewFactoryRegistry.getInstance().getViewFactoriesForObject(activity);
+		assertTrue("The stringconstant view factory should not be empty", !viewFactoriesForBeanType.isEmpty());
+		StringConstantActivityViewFactory factory = null;
+		for (ContextualViewFactory cvf : viewFactoriesForBeanType) {
+			if (cvf instanceof StringConstantActivityViewFactory) {
+				factory = (StringConstantActivityViewFactory) cvf;
+			}
+		}
+		assertTrue("No strongconstant view factory", factory != null);		
 	}
 	
 	@Test

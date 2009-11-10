@@ -20,8 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.activities.stringconstant.views;
 
+import java.util.Arrays;
+import java.util.List;
+
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
-import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityContextualView;
+import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 
 public class StringConstantActivityViewFactory implements ContextualViewFactory<StringConstantActivity> {
@@ -31,8 +34,8 @@ public class StringConstantActivityViewFactory implements ContextualViewFactory<
 		return object instanceof StringConstantActivity;
 	}
 
-	public ActivityContextualView<?> getView(StringConstantActivity activity) {
-		return new StringConstantActivityContextualView(activity);
+	public List<ContextualView> getViews(StringConstantActivity activity) {
+		return Arrays.asList(new ContextualView[] {new StringConstantActivityContextualView(activity)});
 	}
 
 }
