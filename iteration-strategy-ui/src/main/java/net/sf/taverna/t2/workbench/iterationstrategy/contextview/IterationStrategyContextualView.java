@@ -248,4 +248,9 @@ public class IterationStrategyContextualView extends ContextualView {
 
 		}
 	}
+
+	@Override
+	public int getPreferredPosition() {
+		return 200;
+	}
 }
