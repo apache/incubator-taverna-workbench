@@ -1106,6 +1106,7 @@ public class ImportWorkflowWizard extends JDialog {
 		this.customSourceName = label;
 		updateSourceSection();
 		radioCustomSource.setSelected(true);
+		updatePreviews();
 	}
 
 	public void setCustomDestinationDataflow(Dataflow destinationDataflow,
@@ -1114,6 +1115,7 @@ public class ImportWorkflowWizard extends JDialog {
 		this.customDestinationName = label;
 		updateDestinationSection();
 		radioCustomDestination.setSelected(true);
+		updatePreviews();
 	}
 
 	public void setDestinationEnabled(boolean destinationEnabled) {
