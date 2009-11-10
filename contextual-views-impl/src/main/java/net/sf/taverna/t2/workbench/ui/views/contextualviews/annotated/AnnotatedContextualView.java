@@ -219,6 +219,11 @@ public class AnnotatedContextualView extends ContextualView {
 
 	}
 
+	@Override
+	public int getPreferredPosition() {
+		return 500;
+	}
+
 
 
 }

@@ -1,22 +1,32 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.Color;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.Action;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
@@ -44,15 +54,29 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 	private DataflowSelectionManager dataflowSelectionManager = DataflowSelectionManager
 	.getInstance();
 
-	private ContextualView view;
-	private JPanel configureButtonPanel = new JPanel();
-	private JButton configureButton = new JButton("Configure",
-			WorkbenchIcons.configureIcon);
-
 	/** Keep list of views in case you want to go back or forward between them */
-	private List<ContextualView> views = new ArrayList<ContextualView>();
-	private JPanel panel;
-	private JLabel title;
+//	private List<ContextualView> views = new ArrayList<ContextualView>();
+	
+	GridBagConstraints gbc;
+
+	protected Map<JPanel, SectionLabel> closeables = new HashMap<JPanel, SectionLabel>();
+	
+	private int openChild = -1;
+
+	private JPanel mainPanel;
+	
+	private List<JPanel> shownComponents = null;
+	
+	private Object lastSelection = null;
+	
+	private static Comparator<ContextualView> viewComparator = new Comparator<ContextualView> () {
+
+		public int compare(ContextualView o1, ContextualView o2) {
+			return (o1.getPreferredPosition() - o2.getPreferredPosition());
+		}};
+		
+	private Color[] colors = new Color[] {ShadedLabel.BLUE, ShadedLabel.GREEN, ShadedLabel.ORANGE};
+	int colorIndex = 0;
 
 	public ContextualViewComponent() {
 		Dataflow currentDataflow = fileManager.getCurrentDataflow();
@@ -76,27 +100,9 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 	}
 
 	private void initialise() {
-
-		setLayout(new BorderLayout());
-
-		panel = new JPanel(new BorderLayout());
-		add(panel, BorderLayout.CENTER);
-
-		title = new JLabel("Contextual View"); // the actual title will be
-												// changed later based on the
-												// workflow object being
-												// displayed
-		title.setMinimumSize(new Dimension(0, 0));// so that the label can
-													// shrink (and contextual
-													// view together with it)
-		title.setBorder(new EmptyBorder(0, 5, 5, 5));
-		add(title, BorderLayout.NORTH);
-
-		configureButtonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		configureButtonPanel.add(configureButton);
-		configureButton.setEnabled(false);
-		configureButton.setVisible(false);
-		add(configureButtonPanel, BorderLayout.SOUTH);
+		this.setLayout(new BorderLayout());
+		mainPanel = new JPanel(new GridBagLayout());
+		this.add(mainPanel, BorderLayout.NORTH);
 	}
 
 	public void onDisplay() {
@@ -109,64 +115,98 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 
 	}
 
-	private void updateContextualView(ContextualView view) {
-		if (this.view != null) {
-			panel.remove(this.view);
+	private void updateContextualView(List<ContextualViewFactory> viewFactoriesForBeanType, Object selection) {
+		mainPanel.removeAll();
+		closeables.clear();
+
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.weightx = 0.1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		
+		gbc.gridy = 0;
+		JPanel firstPanel = null;
+		shownComponents = new ArrayList<JPanel>();
+		List<ContextualView> views = new ArrayList<ContextualView>();
+		for (ContextualViewFactory cvf: viewFactoriesForBeanType) {
+			views.addAll(cvf.getViews(selection));
 		}
-		this.view = view;
-		views.add(view);
-		title.setText(view.getViewTitle());
+		Collections.sort(views, viewComparator);
+		colorIndex = 0;
+		if (!views.isEmpty()) {
+			for (ContextualView view : views) {
+				SectionLabel label = new SectionLabel(view.getViewTitle(),
+						nextColor());
+				mainPanel.add(label, gbc);
+				gbc.gridy++;
+				JPanel subPanel = new JPanel();
+				subPanel.setLayout(new GridBagLayout());
 
-		panel.add(view, BorderLayout.CENTER);
+				GridBagConstraints constraints = new GridBagConstraints();
+				constraints.gridx = 0;
+				constraints.gridy = 0;
+				constraints.weightx = 0.1;
+				constraints.weighty = 0;
+				constraints.anchor = GridBagConstraints.CENTER;
+				constraints.fill = GridBagConstraints.HORIZONTAL;
 
-		// Show/hide the 'Configure' button and its panel as needed
-		Action configureAction = view.getConfigureAction(Utils
-				.getParentFrame(this));
-		if (configureAction != null) {
-			configureButtonPanel.setVisible(true);
-			configureButton.setAction(configureAction);
-			if ((configureButton.getText() == null || configureButton.getText()
-					.equals(""))
-					&& configureButton.getIcon() == null) {
-				configureButton.setText("Configure");
-				configureButton.setIcon(WorkbenchIcons.configureIcon);
+				subPanel.add(view, constraints);
+				Frame frame = Utils.getParentFrame(this);
+				Action configureAction = view.getConfigureAction(frame);
+				if (configureAction != null) {
+					JButton configureButton = new JButton(configureAction);
+					if (configureButton.getText() == null
+							|| configureButton.getText().equals("")) {
+						configureButton.setText("Configure");
+					}
+					constraints.gridy++;
+					constraints.fill = GridBagConstraints.NONE;
+					constraints.anchor = GridBagConstraints.LINE_START;
+					subPanel.add(configureButton, constraints);
+				}
+				if (firstPanel == null) {
+					firstPanel = subPanel;
+				}
+				mainPanel.add(subPanel, gbc);
+				shownComponents.add(subPanel);
+				gbc.gridy++;
+				if (viewFactoriesForBeanType.size() != 1) {
+					makeCloseable(subPanel, label);
+				}
 			}
-			configureButton.setEnabled(true);
-			configureButton.setVisible(true);
+			if ((lastSelection != selection)
+					|| ((openChild == -1) && (firstPanel != null))) {
+				openSection(firstPanel);
+			} else {
+				openSection(shownComponents.get(openChild));
+			}
 		} else {
-			configureButtonPanel.setVisible(false);
-			configureButton.setEnabled(false);
-			configureButton.setVisible(false);
+			mainPanel.add(new JLabel("No details available"));
 		}
-		revalidate();
-		repaint();
+		gbc.weighty = 0.1;
+		gbc.fill = GridBagConstraints.BOTH;
+		mainPanel.add(new JPanel(), gbc);
+		lastSelection = selection;
+		mainPanel.revalidate();
+		mainPanel.repaint();
+		this.revalidate();
+		this.repaint();
 	}
 
 	private void clearContextualView() {
 
 		// Remove the contextual view panel
-		if (this.view != null) {
-			panel.remove(this.view);
-			title.setText("<html><i>No object selected.</i></html>");
+		if (this.mainPanel != null) {
+			mainPanel.removeAll();
+			mainPanel.add(new JLabel("No details available"));
 		}
-
-		// Hide the 'Configure' button and its panel
-		configureButtonPanel.setVisible(false);
-		configureButton.setVisible(false);
-
 		revalidate();
 		repaint();
 	}
 
 	public void updateSelection(Object selectedItem) {
 
-		// if (selectedItem instanceof Processor) {
-		// Processor processor = (Processor) selectedItem;
-		// Activity<?> activity = processor.getActivityList().get(0);
-		// findContextualView(activity);
-		// } else {
 		findContextualView(selectedItem);
-		// }
 
 	}
 
@@ -200,10 +240,9 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 	private void findContextualView(Object selection) {
 		ContextualViewFactoryRegistry reg = ContextualViewFactoryRegistry
 				.getInstance();
-		ContextualViewFactory viewFactoryForBeanType = reg
-				.getViewFactoryForObject(selection);
-		ContextualView viewType = viewFactoryForBeanType.getView(selection);
-		updateContextualView(viewType);
+		List<ContextualViewFactory> viewFactoriesForBeanType = reg
+				.getViewFactoriesForObject(selection);
+		updateContextualView(viewFactoriesForBeanType, selection);
 	}
 
 	private final class FileManagerObserver implements
@@ -244,10 +283,73 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 	}
 
 	public void refreshView() {
-		if (view != null) {
-			view.refreshView();
-			title.setText(view.getViewTitle());
-			repaint();
+		if (mainPanel != null) {
+			updateSelection();
 		}
+	}
+	
+	private final class SectionLabel extends ShadedLabel {
+		private JLabel expand;
+
+		private SectionLabel(String text, Color colour) {
+			super(text, colour);
+			expand = new JLabel(WorkbenchIcons.minusIcon);
+			add(expand, 0);
+			setExpanded(true);
+		}
+		public void setExpanded(boolean expanded) {
+			if (expanded) {
+				expand.setIcon(WorkbenchIcons.minusIcon);
+			} else {
+				expand.setIcon(WorkbenchIcons.plusIcon);
+			}
+		}
+	}
+
+	private void makeCloseable(JPanel panel, SectionLabel label) {
+		panel.setVisible(false);
+		if (closeables.get(panel) != label) {
+			closeables.put(panel, label);
+			// Only add mouse listener once
+			label.addMouseListener(new SectionOpener(panel));
+		}
+	}
+	
+	protected class SectionOpener extends MouseAdapter {
+
+		private final JPanel sectionToOpen;
+
+		public SectionOpener(JPanel sectionToOpen) {
+			this.sectionToOpen = sectionToOpen;
+		}
+
+		public void mouseClicked(MouseEvent e) {
+			openSection(sectionToOpen);
+		}
+	}
+	
+	public synchronized void openSection(JPanel sectionToOpen) {
+		openChild = -1;
+		for (Entry<JPanel, SectionLabel> entry : closeables.entrySet()) {
+			JPanel section = entry.getKey();
+			SectionLabel sectionLabel = entry.getValue();
+			
+			if (section != sectionToOpen) {
+				section.setVisible(false);
+			} else {
+				section.setVisible(! section.isVisible());
+				if (section.isVisible()) {
+					openChild = shownComponents.indexOf(sectionToOpen);
+				}
+			}
+			sectionLabel.setExpanded(section.isVisible());
+		}
+	}
+	
+	private Color nextColor () {
+		if (colorIndex >= colors.length) {
+			colorIndex = 0;
+		}
+		return colors[colorIndex++];
 	}
 }

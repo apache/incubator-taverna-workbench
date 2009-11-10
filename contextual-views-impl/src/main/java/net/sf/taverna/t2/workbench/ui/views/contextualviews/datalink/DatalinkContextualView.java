@@ -21,12 +21,17 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.datalink;
 
 import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workflowmodel.Datalink;
 
@@ -66,22 +71,25 @@ public class DatalinkContextualView extends ContextualView {
 	
 		datalinkView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		datalinkView.setBorder(new EmptyBorder(5,5,5,5));
-		String labelContent = "<html><body>";
-		int resolvedDepth = datalink.getResolvedDepth();
-		if (resolvedDepth != -1) {
-			labelContent += "At the last validation, it was predicted that the link will carry\n";
-			if (resolvedDepth == 0) {
-				labelContent += "a single value";
-			} else {
-				labelContent += "a list of depth " + resolvedDepth;
-			}
-		} else {
-			labelContent += "<i>No details available.</i>";
-		}
-		labelContent += "</body><html>";
-		JLabel label = new JLabel(labelContent);
+		JLabel label = new JLabel (getTextFromDepth("link", datalink.getResolvedDepth()));
 		datalinkView.add(label);
 	
+	}
+	
+	@Override
+	public Action getConfigureAction(Frame owner) {
+		return new AbstractAction("Update prediction") {
+
+			public void actionPerformed(ActionEvent e) {
+				FileManager.getInstance().getCurrentDataflow().checkValidity();
+				refreshView();
+			}};
+	}
+
+
+	@Override
+	public int getPreferredPosition() {
+		return 100;
 	}
 
 }

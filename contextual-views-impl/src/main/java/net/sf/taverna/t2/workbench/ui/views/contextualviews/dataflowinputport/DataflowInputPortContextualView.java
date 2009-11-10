@@ -21,13 +21,21 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflowinputport;
 
 import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
+import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.impl.DataflowInputPortImpl;
 
 /**
@@ -62,8 +70,23 @@ public class DataflowInputPortContextualView extends ContextualView{
 	public void refreshView() {
 		dataflowInputPortView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		dataflowInputPortView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel label = new JLabel("<html><body><i>No details available.</i></body><html>");
+		JLabel label = new JLabel (getTextFromDepth("port", dataflowInputPort.getDepth()));
 		dataflowInputPortView.add(label);
+	}
+
+	@Override
+	public Action getConfigureAction(Frame owner) {
+		return new AbstractAction("Update prediction") {
+
+			public void actionPerformed(ActionEvent e) {
+				FileManager.getInstance().getCurrentDataflow().checkValidity();
+				refreshView();
+			}};
+	}
+
+	@Override
+	public int getPreferredPosition() {
+		return 100;
 	}
 
 }

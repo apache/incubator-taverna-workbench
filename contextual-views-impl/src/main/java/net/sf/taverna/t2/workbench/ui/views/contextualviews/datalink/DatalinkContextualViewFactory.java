@@ -20,6 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.datalink;
 
+import java.util.Arrays;
+import java.util.List;
+
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workflowmodel.Datalink;
@@ -37,8 +40,8 @@ public class DatalinkContextualViewFactory implements
 		return object instanceof Datalink;
 	}
 
-	public ContextualView getView(Datalink datalink) {
-		return new DatalinkContextualView(datalink);
+	public List<ContextualView> getViews(Datalink datalink) {
+		return Arrays.asList(new ContextualView[] {new DatalinkContextualView(datalink)});
 	}
 
 }

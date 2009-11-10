@@ -20,6 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.inputport;
 
+import java.util.Arrays;
+import java.util.List;
+
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workflowmodel.processor.activity.impl.ActivityInputPortImpl;
@@ -38,8 +41,8 @@ public class InputPortContextualViewFactory implements
 		return object instanceof ActivityInputPortImpl;
 	}
 
-	public ContextualView getView(ActivityInputPortImpl inputport) {
-		return new InputPortContextualView(inputport);
+	public List<ContextualView> getViews(ActivityInputPortImpl inputport) {
+		return Arrays.asList(new ContextualView[] {new InputPortContextualView(inputport)});
 	}
 
 }

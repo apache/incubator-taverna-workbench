@@ -20,6 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.condition;
 
+import java.util.Arrays;
+import java.util.List;
+
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workflowmodel.Condition;
@@ -37,8 +40,8 @@ public class ConditionContextualViewFactory implements
 		return object instanceof Condition;
 	}
 
-	public ContextualView getView(Condition condition) {
-		return new ConditionContextualView(condition);
+	public List<ContextualView> getViews(Condition condition) {
+		return Arrays.asList(new ContextualView[] {new ConditionContextualView(condition)});
 	}
 
 }

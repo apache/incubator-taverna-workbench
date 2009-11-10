@@ -69,4 +69,9 @@ public class OutputPortContextualView extends ContextualView{
 
 	}
 
+	@Override
+	public int getPreferredPosition() {
+		return 100;
+	}
+
 }

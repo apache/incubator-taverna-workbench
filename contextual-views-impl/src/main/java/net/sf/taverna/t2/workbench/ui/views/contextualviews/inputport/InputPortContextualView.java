@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.inputport;
 
 import java.awt.FlowLayout;
+import java.util.Set;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -28,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
+import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.processor.activity.impl.ActivityInputPortImpl;
 
 /**
@@ -67,6 +69,11 @@ public class InputPortContextualView extends ContextualView{
 		JLabel label = new JLabel("<html><body><i>No details available.</i></body><html>");
 		inputPortView.add(label);
 
+	}
+
+	@Override
+	public int getPreferredPosition() {
+		return 100;
 	}
 
 }

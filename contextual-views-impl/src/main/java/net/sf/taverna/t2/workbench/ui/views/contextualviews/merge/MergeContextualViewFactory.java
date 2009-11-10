@@ -20,6 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.merge;
 
+import java.util.Arrays;
+import java.util.List;
+
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workflowmodel.Merge;
@@ -37,8 +40,8 @@ public class MergeContextualViewFactory implements
 		return object instanceof Merge;
 	}
 
-	public ContextualView getView(Merge merge) {
-		return new MergeContextualView(merge);
+	public List<ContextualView> getViews(Merge merge) {
+		return Arrays.asList(new ContextualView[] {new MergeContextualView(merge)});
 	}
 
 }

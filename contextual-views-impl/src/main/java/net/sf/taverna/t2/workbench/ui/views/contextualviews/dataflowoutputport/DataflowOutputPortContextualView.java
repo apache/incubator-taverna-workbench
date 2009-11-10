@@ -21,12 +21,17 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflowoutputport;
 
 import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workflowmodel.impl.DataflowOutputPortImpl;
 
@@ -62,7 +67,22 @@ public class DataflowOutputPortContextualView extends ContextualView{
 	public void refreshView() {
 		dataflowOutputPortView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		dataflowOutputPortView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel label = new JLabel("<html><body><i>No details available.</i></body><html>");
+		JLabel label = new JLabel (getTextFromDepth("port", dataflowOutputPort.getDepth()));
 		dataflowOutputPortView.add(label);
+	}
+
+	@Override
+	public Action getConfigureAction(Frame owner) {
+		return new AbstractAction("Update prediction") {
+
+			public void actionPerformed(ActionEvent e) {
+				FileManager.getInstance().getCurrentDataflow().checkValidity();
+				refreshView();
+			}};
+	}
+
+	@Override
+	public int getPreferredPosition() {
+		return 100;
 	}
 }

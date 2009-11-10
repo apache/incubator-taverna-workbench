@@ -174,4 +174,9 @@ public class MergeContextualView extends ContextualView{
 		return panel;
 	}
 
+	@Override
+	public int getPreferredPosition() {
+		return 100;
+	}
+
 }

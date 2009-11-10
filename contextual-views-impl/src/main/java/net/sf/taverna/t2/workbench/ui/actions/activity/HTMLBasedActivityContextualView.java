@@ -122,8 +122,8 @@ public abstract class HTMLBasedActivityContextualView<ConfigBean> extends
 		result.setLayout(new BorderLayout());
 		editorPane = new JEditorPane("text/html", html);
 		editorPane.setEditable(false);
-		JScrollPane scrollPane = new JScrollPane(editorPane);
-		result.add(scrollPane, BorderLayout.CENTER);
+//		JScrollPane scrollPane = new JScrollPane(editorPane);
+		result.add(editorPane, BorderLayout.CENTER);
 		return result;
 	}
 
