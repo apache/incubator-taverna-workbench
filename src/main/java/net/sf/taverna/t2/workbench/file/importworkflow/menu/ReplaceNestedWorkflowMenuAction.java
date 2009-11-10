@@ -1,24 +1,24 @@
-package net.sf.taverna.t2.activities.dataflow.menu;
+package net.sf.taverna.t2.workbench.file.importworkflow.menu;
 
 import javax.swing.Action;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
-import net.sf.taverna.t2.activities.dataflow.actions.OpenNestedDataflowFromFileAction;
 import net.sf.taverna.t2.workbench.activitytools.AbstractConfigureActivityMenuAction;
+import net.sf.taverna.t2.workbench.file.importworkflow.actions.ReplaceNestedWorkflowAction;
 
-public class OpenNestedDataflowFromFileMenuAction extends
+public class ReplaceNestedWorkflowMenuAction extends
 		AbstractConfigureActivityMenuAction<DataflowActivity> {
 
-	public OpenNestedDataflowFromFileMenuAction() {
+	public ReplaceNestedWorkflowMenuAction() {
 		super(DataflowActivity.class);
 	}
 
 	@Override
 	protected Action createAction() {
-		OpenNestedDataflowFromFileAction configAction = new OpenNestedDataflowFromFileAction(findActivity());
+		ReplaceNestedWorkflowAction configAction = new ReplaceNestedWorkflowAction(
+				findActivity());
 		addMenuDots(configAction);
 		return configAction;
 	}
-
 
 }

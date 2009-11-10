@@ -1,4 +1,6 @@
-#net.sf.taverna.t2.activities.dataflow.menu.AddDataflowActivityTemplateAction
-#net.sf.taverna.t2.activities.dataflow.menu.AddDataflowActivityTemplateMenuAction
 net.sf.taverna.t2.activities.dataflow.menu.EditNestedDataflowMenuAction
-#net.sf.taverna.t2.activities.dataflow.menu.OpenNestedDataflowFromFileMenuAction
+
+net.sf.taverna.t2.workbench.file.importworkflow.menu.AddNestedWorkflowMenuAction
+net.sf.taverna.t2.workbench.file.importworkflow.menu.ImportWorkflowMenuAction
+net.sf.taverna.t2.workbench.file.importworkflow.menu.MergeWorkflowMenuAction
+net.sf.taverna.t2.workbench.file.importworkflow.menu.ReplaceNestedWorkflowMenuAction

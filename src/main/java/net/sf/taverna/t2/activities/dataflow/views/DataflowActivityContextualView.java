@@ -29,16 +29,16 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
-
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.activities.dataflow.actions.EditNestedDataflowAction;
-import net.sf.taverna.t2.activities.dataflow.actions.OpenNestedDataflowFromFileAction;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
+import net.sf.taverna.t2.workbench.file.importworkflow.actions.ReplaceNestedWorkflowAction;
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+
+import org.apache.log4j.Logger;
 
 public class DataflowActivityContextualView extends
 		HTMLBasedActivityContextualView<Dataflow> {
@@ -62,11 +62,8 @@ public class DataflowActivityContextualView extends
 		JComponent mainFrame = super.getMainFrame();
 		JButton viewWorkflowButton = new JButton("Edit workflow");
 		viewWorkflowButton.addActionListener(new EditNestedDataflowAction(getActivity()));
-		JButton configureButton = new JButton("Open from file");
-		configureButton
-				.addActionListener(new OpenNestedDataflowFromFileAction(
+		JButton configureButton = new JButton(new ReplaceNestedWorkflowAction(
 						getActivity()));
-
 		JPanel flowPanel = new JPanel(new FlowLayout());
 		flowPanel.add(viewWorkflowButton);
 		flowPanel.add(configureButton);
