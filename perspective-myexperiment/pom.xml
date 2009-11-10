@@ -49,11 +49,6 @@
       <artifactId>dataflow-activity-ui</artifactId>
       <version>0.13-SNAPSHOT</version>
     </dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-exts</groupId>
-			<artifactId>import-workflow</artifactId>
-			<version>0.10-SNAPSHOT</version>
-		</dependency>
     <dependency>
       <groupId>net.sf.taverna.t2.activities</groupId>
       <artifactId>dataflow-activity</artifactId>
