@@ -74,6 +74,7 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 	}
 
 	protected void updateWorkflowsMenuUI() {
+		workflowsMenu.setEnabled(false);
 		workflowsMenu.removeAll();
 		ButtonGroup workflowsGroup = new ButtonGroup();
 
@@ -111,6 +112,7 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 		if (i == 0) {
 			workflowsMenu.add(new NoWorkflowsOpen());
 		}
+		workflowsMenu.setEnabled(true);
 
 		workflowsMenu.revalidate();
 	}
