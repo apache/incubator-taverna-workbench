@@ -395,4 +395,9 @@ public class LoopContextualView extends ContextualView {
 
 	}
 
+	@Override
+	public int getPreferredPosition() {
+		return 400;
+	}
+
 }

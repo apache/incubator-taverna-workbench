@@ -20,6 +20,10 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.loop;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
@@ -30,8 +34,8 @@ public class LoopContextualViewFactory implements ContextualViewFactory<Loop> {
 		return selection instanceof Loop;
 	}
 
-	public ContextualView getView(Loop selection) {
-		return new LoopContextualView(selection);
+	public List<ContextualView> getViews(Loop selection) {
+		return Arrays.asList(new ContextualView[] {new LoopContextualView(selection)});
 	}
 
 }
