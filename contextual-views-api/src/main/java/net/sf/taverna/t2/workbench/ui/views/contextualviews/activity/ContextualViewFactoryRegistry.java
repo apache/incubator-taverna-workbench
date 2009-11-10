@@ -18,7 +18,17 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
+
+/**
+ * @author Alan R Williams
+ */
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import javax.swing.event.ListSelectionEvent;
 
 import net.sf.taverna.t2.spi.SPIRegistry;
 
@@ -56,25 +66,25 @@ public class ContextualViewFactoryRegistry extends
 	}
 
 	/**
-	 * Discover and return an ContextualViewFactory associated to the provided
-	 * activity. This is accomplished by returning the first discovered
+	 * Discover and return the ContextualViewFactory associated to the provided
+	 * object. This is accomplished by returning the discovered
 	 * {@link ContextualViewFactory#canHandle(Object)} that returns true for
-	 * that Activity.
+	 * that Object.
 	 * 
 	 * @param object
 	 * @return
 	 * 
 	 * @see ContextualViewFactory#canHandle(Object)
 	 */
-	public ContextualViewFactory<?> getViewFactoryForObject(Object object) {
+	public List<ContextualViewFactory> getViewFactoriesForObject(Object object) {
 
+		List<ContextualViewFactory> result = new ArrayList<ContextualViewFactory>();
 		for (ContextualViewFactory<?> factory : getInstances()) {
 			if (factory.canHandle(object)) {
-				return factory;
+				result.add(factory);
 			}
 		}
-		throw new IllegalArgumentException(
-				"Can't find factory for view class " + object);
+		return result;
 	}
 
 	private static class Singleton {

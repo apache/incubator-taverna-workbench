@@ -103,6 +103,8 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 			}
 		});
 		this.pack();
+		this.setLocationRelativeTo(null);
+		this.setResizable(false);
 
 		observer = new Observer<EditManagerEvent>() {
 

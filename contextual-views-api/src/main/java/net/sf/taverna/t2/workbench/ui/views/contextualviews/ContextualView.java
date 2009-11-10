@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Frame;
 
 import javax.swing.Action;
@@ -43,6 +44,7 @@ import javax.swing.JPanel;
  * 
  * @author Stuart Owen
  * @author Ian Dunlop
+ * @author Alan R Williams
  * 
  */
 public abstract class ContextualView extends JPanel {
@@ -89,5 +91,26 @@ public abstract class ContextualView extends JPanel {
 	}
 	
 	public abstract void refreshView();
+	
+	public abstract int getPreferredPosition();
+	
+	public static String getTextFromDepth(String kind, Integer depth) {
+		String labelText = "The last prediction said the " + kind;
+		if (depth == null) {
+			labelText += " would not transmit a value";
+		} else {
+			if (depth == -1) {
+				labelText += " was invalid/unpredicted";
+			} else {
+				labelText += " would carry ";
+				if (depth == 0) {
+					labelText += " a single value";
+				} else {
+					labelText += "a list of depth " + depth;
+				}
+			}
+		}
+		return labelText;
+	}
 
 }

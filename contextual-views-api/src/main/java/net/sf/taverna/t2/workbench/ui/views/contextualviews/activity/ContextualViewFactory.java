@@ -20,13 +20,15 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 
+import java.util.List;
+
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 
 /**
  * Defines a factory class that when associated with a selected object creates a
  * {@link ContextualView} for that selection.
  * <p>
- * This factory acts as an SPI to find a {@link ContextualView}s for a given
+ * This factory acts as an SPI to find {@link ContextualView}s for a given
  * Activity and other workflow components.
  * </p>
  * 
@@ -45,10 +47,10 @@ public interface ContextualViewFactory<SelectionType> {
 
 	/**
 	 * @param selection
-	 *            - the object for which a ContextualView needs to be generated
-	 * @return an instance of an {@link ContextualView}
+	 *            - the object for which ContextualViews needs to be generated
+	 * @return instance of {@link ContextualView}
 	 */
-	public ContextualView getView(SelectionType selection);
+	public List<ContextualView> getViews(SelectionType selection);
 
 	/**
 	 * Used by the SPI system to find the correct factory that can handle the
