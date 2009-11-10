@@ -52,6 +52,8 @@ public class CloseAllWorkflowsAction extends AbstractAction {
 				KeyStroke.getKeyStroke(KeyEvent.VK_W,
 						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
 						| InputEvent.SHIFT_DOWN_MASK));
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_L);
+
 	}
 
 	public void actionPerformed(ActionEvent event) {

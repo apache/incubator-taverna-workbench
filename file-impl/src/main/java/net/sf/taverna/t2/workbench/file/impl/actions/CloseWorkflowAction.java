@@ -49,6 +49,8 @@ public class CloseWorkflowAction extends AbstractAction {
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_W,
 						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
+
 	}
 
 	public void actionPerformed(ActionEvent e) {

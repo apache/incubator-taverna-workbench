@@ -37,6 +37,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
+import net.sf.taverna.t2.ui.menu.AbstractMenuItem.DummyAction;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
@@ -70,7 +71,10 @@ public class OpenWorkflowAction extends AbstractAction {
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_O,
 						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_O);
 	}
+	
+
 
 	/**
 	 * {@inheritDoc}

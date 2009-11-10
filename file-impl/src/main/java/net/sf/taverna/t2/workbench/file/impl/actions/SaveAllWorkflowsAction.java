@@ -69,6 +69,8 @@ public class SaveAllWorkflowsAction extends AbstractAction {
 				KeyStroke.getKeyStroke(KeyEvent.VK_S,
 						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
 						| InputEvent.SHIFT_DOWN_MASK));
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_A);
+
 		fileManager.addObserver(fileManagerObserver);
 		updateEnabled();
 	}

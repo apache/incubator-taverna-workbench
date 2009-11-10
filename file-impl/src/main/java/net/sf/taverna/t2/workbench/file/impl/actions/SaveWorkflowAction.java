@@ -74,6 +74,7 @@ public class SaveWorkflowAction extends AbstractAction {
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_S,
 						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
 		modelMap.addObserver(modelMapObserver);
 		editManager.addObserver(editManagerObserver);
 		fileManager.addObserver(fileManagerObserver);

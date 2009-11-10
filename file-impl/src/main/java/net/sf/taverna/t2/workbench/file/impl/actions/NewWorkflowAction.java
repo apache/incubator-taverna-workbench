@@ -45,6 +45,7 @@ public class NewWorkflowAction extends AbstractAction {
 	public NewWorkflowAction() {
 		super(NEW_WORKFLOW, WorkbenchIcons.newIcon);
 		putValue(Action.SHORT_DESCRIPTION, NEW_WORKFLOW);
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_N);
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_N,
 						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));

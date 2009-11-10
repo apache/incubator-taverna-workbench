@@ -2,6 +2,7 @@ package net.sf.taverna.t2.workbench.file.impl.menu;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
@@ -122,7 +124,9 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 
 	@Override
 	protected Component createCustomComponent() {
-		menu = new JMenu("Recent workflows");
+		action = new DummyAction("Recent workflows");
+		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+		menu = new JMenu(action);
 		loadRecent();
 		updateRecentMenu();
 		return menu;
@@ -210,20 +214,20 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 			for (Recent recent : recents) {
 				if (++items >= MAX_ITEMS) {
 					break;
-				}
+				}				
 				OpenRecentAction openRecentAction = new OpenRecentAction(recent);
 				if (fileManager.getDataflowBySource(recent.getDataflowSource()) != null) {
 					openRecentAction.setEnabled(false);
 				} // else setEnabled(true)
 				JMenuItem menuItem = new JMenuItem(openRecentAction);
 				if (items < 10) {
-					// Only keystrokes 1-9
-					menuItem.setAccelerator(KeyStroke.getKeyStroke(String
-							.valueOf(items)));
+					openRecentAction.putValue(Action.NAME, items + " " + openRecentAction.getValue(Action.NAME));
+					menuItem.setMnemonic(KeyEvent.VK_0 + items);
 				}
 				menu.add(menuItem);
 			}
 		}
+		menu.setEnabled(items > 0);
 		menu.revalidate();
 	}
 

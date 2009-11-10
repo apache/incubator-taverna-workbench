@@ -22,10 +22,12 @@ package net.sf.taverna.t2.workbench.file.impl.menu;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URL;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ButtonGroup;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
@@ -35,6 +37,7 @@ import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
 import net.sf.taverna.t2.ui.menu.DefaultMenuBar;
+import net.sf.taverna.t2.ui.menu.AbstractMenuItem.DummyAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
@@ -60,7 +63,11 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 
 	@Override
 	protected Component createCustomComponent() {
-		workflowsMenu = new JMenu("Workflows");
+		DummyAction action = new DummyAction("Workflows");
+		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_W);
+
+		workflowsMenu = new JMenu(action);
+
 		updateWorkflowsMenu();
 		return workflowsMenu;
 	}
@@ -101,6 +108,11 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 
 			SwitchWorkflowAction switchWorkflowAction = new SwitchWorkflowAction(
 					name, dataflow);
+			if (i < 10) {
+				switchWorkflowAction.putValue(Action.MNEMONIC_KEY, 
+						new Integer(KeyEvent.VK_0 + i));
+			}
+			
 			JRadioButtonMenuItem switchWorkflowMenuItem = new JRadioButtonMenuItem(
 					switchWorkflowAction);
 			workflowsGroup.add(switchWorkflowMenuItem);

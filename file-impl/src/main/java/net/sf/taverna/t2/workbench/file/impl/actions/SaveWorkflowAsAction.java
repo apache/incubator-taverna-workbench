@@ -76,6 +76,8 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		super(SAVE_WORKFLOW_AS, WorkbenchIcons.saveAsIcon);
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
+
 		modelMap.addObserver(new ModelMapObserver());
 		updateEnabledStatus((Dataflow) modelMap
 				.getModel(ModelMapConstants.CURRENT_DATAFLOW));

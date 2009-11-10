@@ -87,6 +87,7 @@ public class OpenWorkflowFromURLAction extends AbstractAction {
 		putValue(SMALL_ICON, WorkbenchIcons.openurlIcon);
 		putValue(NAME, ACTION_NAME);
 		putValue(SHORT_DESCRIPTION, ACTION_DESCRIPTION);
+		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_L);
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_L,
 						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
