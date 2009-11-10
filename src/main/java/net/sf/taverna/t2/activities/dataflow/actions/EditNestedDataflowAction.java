@@ -7,7 +7,6 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
@@ -15,13 +14,11 @@ import net.sf.taverna.t2.activities.dataflow.filemanager.NestedDataflowSource;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
-import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
 
-public class EditNestedDataflowAction extends
-ActivityConfigurationAction<DataflowActivity, Dataflow> {
+public class EditNestedDataflowAction extends AbstractAction {
 	private static final long serialVersionUID = 8854590545492535080L;
 	private static Logger logger = Logger
 			.getLogger(EditNestedDataflowAction.class);
@@ -30,9 +27,8 @@ ActivityConfigurationAction<DataflowActivity, Dataflow> {
 	private FileManager fileManager = FileManager.getInstance();
 
 	public EditNestedDataflowAction(DataflowActivity activity) {
-		super(activity);
-		putValue(Action.NAME, "Edit nested workflow");
-		dataflowActivity = activity;
+		super("Edit nested workflow");
+		this.dataflowActivity = activity;
 	}
 
 	public void actionPerformed(ActionEvent e) {

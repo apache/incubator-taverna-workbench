@@ -61,11 +61,12 @@ import org.w3c.dom.svg.SVGDocument;
 public class ImportWorkflowWizard extends JDialog {
 	private static final long serialVersionUID = -8124860319858897065L;
 	protected static FileManager fileManager = FileManager.getInstance();
-	protected static Logger logger = Logger.getLogger(ImportWorkflowWizard.class);
+	protected static Logger logger = Logger
+			.getLogger(ImportWorkflowWizard.class);
 	protected BrowseFileOnClick browseFileOnClick = new BrowseFileOnClick();
 	protected JButton buttonBrowse;
 	protected JComboBox chooseDataflow;
-	protected Thread dataflowOpenerThread;
+	protected DataflowOpenerThread dataflowOpenerThread;
 
 	protected Dataflow destinationDataflow;
 	protected JTextField fieldFile;
@@ -180,7 +181,7 @@ public class ImportWorkflowWizard extends JDialog {
 	}
 
 	protected void updateDestinationSection() {
-		
+
 		radioNewDestination.setVisible(false);
 
 		radioCustomDestination.setText(customDestinationName);
@@ -188,9 +189,9 @@ public class ImportWorkflowWizard extends JDialog {
 
 		// radioNewDestination.setVisible(nestedEnabled);
 		// radioNewDestination.setEnabled(actionNested.isSelected());
-		
+
 		destinationSelectionPanel.setVisible(destinationEnabled);
-		
+
 	}
 
 	protected synchronized void updatePreviews() {
@@ -238,7 +239,7 @@ public class ImportWorkflowWizard extends JDialog {
 
 		radioNew.setVisible(nestedEnabled);
 		radioNew.setEnabled(actionNested.isSelected());
-		
+
 		sourceSelectionPanel.setVisible(sourceEnabled);
 	}
 
@@ -274,8 +275,25 @@ public class ImportWorkflowWizard extends JDialog {
 		});
 	}
 
-	protected synchronized void findChosenDataflow(Component parentComponent,
-			boolean background) {
+	/**
+	 * Open the selected source and destination workflows. If background is
+	 * true, this method will return immediately while a
+	 * {@link DataflowOpenerThread} performs the updates. If a
+	 * DataflowOpenerThread is already running, it will be interrupted and
+	 * stopped.
+	 * 
+	 * 
+	 * @param parentComponent
+	 *            The parent component for showing dialogues
+	 * @param background
+	 *            If true, will run in separate thread.
+	 * @return <code>false</code> if running in the background, or if a dialogue
+	 *         was shown and the operation is aborted by the user, or
+	 *         <code>true</code> if not running in the background and the method
+	 *         completed without user interruption.
+	 */
+	protected synchronized boolean findChosenDataflow(
+			Component parentComponent, boolean background) {
 		if (dataflowOpenerThread != null && dataflowOpenerThread.isAlive()) {
 			if (background) {
 				// We've changed our mind
@@ -287,7 +305,7 @@ public class ImportWorkflowWizard extends JDialog {
 				} catch (InterruptedException e) {
 					Thread.currentThread().interrupt();
 				}
-				return;
+				return !dataflowOpenerThread.shownWarning;
 			}
 		}
 		dataflowOpenerThread = new DataflowOpenerThread(parentComponent,
@@ -295,8 +313,10 @@ public class ImportWorkflowWizard extends JDialog {
 
 		if (background) {
 			dataflowOpenerThread.start();
+			return false;
 		} else {
 			dataflowOpenerThread.run();
+			return !dataflowOpenerThread.shownWarning;
 		}
 
 	}
@@ -675,7 +695,8 @@ public class ImportWorkflowWizard extends JDialog {
 	private boolean sourceEnabled = true;
 	private boolean destinationEnabled = true;
 
-	protected Edit<?> makeInsertNestedWorkflowEdit(Dataflow nestedFlow, String name) {
+	protected Edit<?> makeInsertNestedWorkflowEdit(Dataflow nestedFlow,
+			String name) {
 		List<Edit<?>> editList = new ArrayList<Edit<?>>();
 		Activity<Dataflow> activity = new DataflowActivity();
 		editList.add(edits.getConfigureActivityEdit(activity, nestedFlow));
@@ -686,9 +707,10 @@ public class ImportWorkflowWizard extends JDialog {
 		CompoundEdit edit = new CompoundEdit(editList);
 		return edit;
 	}
-	
+
 	protected class ImportWorkflowAction extends AbstractAction implements
 			Runnable {
+		private static final String VALID_NAME_REGEX = "[\\p{L}\\p{Digit}_.]+";
 		private Component parentComponent;
 		private ProgressMonitor progressMonitor;
 
@@ -756,7 +778,7 @@ public class ImportWorkflowWizard extends JDialog {
 
 			progressMonitor.setNote("Inserting nested workflow");
 			progressMonitor.setProgress(65);
-			
+
 			try {
 				editManager.doDataflowEdit(destinationDataflow, edit);
 			} catch (EditException e) {
@@ -771,8 +793,6 @@ public class ImportWorkflowWizard extends JDialog {
 			progressMonitor.setProgress(100);
 		}
 
-	
-
 		protected void merge() {
 			progressMonitor.setProgress(10);
 			DataflowMerger merger = new DataflowMerger(destinationDataflow);
@@ -784,19 +804,22 @@ public class ImportWorkflowWizard extends JDialog {
 				if (!prefix.matches("[_.]$")) {
 					prefix = prefix + "_";
 				}
-				if (!prefix.matches("[\\p{L}\\p{Digit}_.]+")) {
+				if (!prefix.matches(VALID_NAME_REGEX)) {
 					progressMonitor.setProgress(100);
-					ImportWorkflowWizard.this.setVisible(true);
-					JOptionPane
-							.showMessageDialog(
-									parentComponent,
-									"The merge prefix '"
-											+ prefix
+					final String wrongPrefix = prefix;
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							JOptionPane.showMessageDialog(parentComponent,
+									"The merge prefix '" + wrongPrefix
 											+ "' is not valid. Try "
-											+ "using only letters, numbers, underscore and dot.",
+											+ "using only letters, numbers, "
+											+ "underscore and dot.",
 									"Invalid merge prefix",
 									JOptionPane.ERROR_MESSAGE);
-					prefixField.requestFocus();
+							prefixField.requestFocus();
+							ImportWorkflowWizard.this.setVisible(true);
+						}
+					});
 					return;
 				}
 			}
@@ -840,13 +863,16 @@ public class ImportWorkflowWizard extends JDialog {
 						"Could not merge workflows",
 						JOptionPane.WARNING_MESSAGE);
 				return;
-			}			
+			}
 			progressMonitor.setProgress(100);
 
 		}
 
 		public void run() {
-			findChosenDataflow(parentComponent, false);
+			boolean completed = findChosenDataflow(parentComponent, false);
+			if (!completed) {
+				return;
+			}
 			if (actionMerge.isSelected()) {
 				merge();
 			} else if (actionNested.isSelected()) {
@@ -929,13 +955,19 @@ public class ImportWorkflowWizard extends JDialog {
 			}
 
 			if (chosenDataflow == null) {
-				if (!background) {
-					setVisible(true);
-					JOptionPane.showMessageDialog(parentComponent,
-							"You need to choose a destination workflow",
-							"No destination workflow chosen",
-							JOptionPane.ERROR_MESSAGE);
+				if (!background && !shownWarning) {
 					shownWarning = true;
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							JOptionPane
+									.showMessageDialog(
+											parentComponent,
+											"You need to choose a destination workflow",
+											"No destination workflow chosen",
+											JOptionPane.ERROR_MESSAGE);
+							setVisible(true);
+						}
+					});
 					return;
 				}
 			}
@@ -961,7 +993,7 @@ public class ImportWorkflowWizard extends JDialog {
 				chosenDataflow = EditManager.getInstance().getEdits()
 						.createDataflow();
 			} else if (selection.equals(radioFile.getModel())) {
-				String filePath = fieldFile.getText();
+				final String filePath = fieldFile.getText();
 				try {
 					DataflowInfo opened = fileManager.openDataflowSilently(
 							null, new File(filePath));
@@ -969,22 +1001,27 @@ public class ImportWorkflowWizard extends JDialog {
 						return;
 					}
 					chosenDataflow = opened.getDataflow();
-				} catch (OpenException e1) {
+				} catch (final OpenException e1) {
 					if (!background && !shownWarning) {
-						setVisible(true);
-						radioFile.requestFocus();
+						shownWarning = true;
 						logger.warn("Could not open workflow for merging: "
 								+ filePath, e1);
-						JOptionPane.showMessageDialog(parentComponent,
-								"An error occured while trying to open "
-										+ filePath + "\n" + e1.getMessage(),
-								"Could not open workflow",
-								JOptionPane.WARNING_MESSAGE);
-						shownWarning = true;
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								radioFile.requestFocus();
+								JOptionPane.showMessageDialog(parentComponent,
+										"An error occured while trying to open "
+												+ filePath + "\n"
+												+ e1.getMessage(),
+										"Could not open workflow",
+										JOptionPane.WARNING_MESSAGE);
+								setVisible(true);
+							}
+						});
 					}
 				}
 			} else if (selection.equals(radioUrl.getModel())) {
-				String url = fieldUrl.getText();
+				final String url = fieldUrl.getText();
 				try {
 					DataflowInfo opened = fileManager.openDataflowSilently(
 							null, new URL(url));
@@ -992,34 +1029,43 @@ public class ImportWorkflowWizard extends JDialog {
 						return;
 					}
 					chosenDataflow = opened.getDataflow();
-				} catch (OpenException e1) {
+				} catch (final OpenException e1) {
 					if (!background && !shownWarning) {
 						logger.warn("Could not open source workflow: " + url,
 								e1);
-						setVisible(true);
-						fieldUrl.requestFocus();
-						JOptionPane.showMessageDialog(parentComponent,
-								"An error occured while trying to open " + url
-										+ "\n" + e1.getMessage(),
-								"Could not open workflow",
-								JOptionPane.WARNING_MESSAGE);
 						shownWarning = true;
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								fieldUrl.requestFocus();
+								JOptionPane.showMessageDialog(parentComponent,
+										"An error occured while trying to open "
+												+ url + "\n" + e1.getMessage(),
+										"Could not open workflow",
+										JOptionPane.WARNING_MESSAGE);
+								setVisible(true);
+							}
+						});
 
 					}
 					if (checkInterrupted()) {
 						return;
 					}
-				} catch (MalformedURLException e1) {
+				} catch (final MalformedURLException e1) {
 					if (!background && !shownWarning) {
 						logger.warn("Invalid workflow URL: " + url, e1);
-						setVisible(true);
-						fieldUrl.requestFocus();
-						JOptionPane.showMessageDialog(parentComponent,
-								"The workflow location " + url
-										+ " is invalid\n"
-										+ e1.getLocalizedMessage(),
-								"Invalid URL", JOptionPane.ERROR_MESSAGE);
 						shownWarning = true;
+						SwingUtilities.invokeLater(new Runnable() {
+							public void run() {
+								fieldUrl.requestFocus();
+								JOptionPane.showMessageDialog(parentComponent,
+										"The workflow location " + url
+												+ " is invalid\n"
+												+ e1.getLocalizedMessage(),
+										"Invalid URL",
+										JOptionPane.ERROR_MESSAGE);
+								setVisible(true);
+							}
+						});
 					}
 					if (checkInterrupted()) {
 						return;
@@ -1046,11 +1092,18 @@ public class ImportWorkflowWizard extends JDialog {
 			}
 			if (chosenDataflow == null) {
 				if (!background && !shownWarning) {
-					setVisible(true);
-					JOptionPane.showMessageDialog(parentComponent,
-							"You need to choose a workflow for merging",
-							"No workflow chosen", JOptionPane.ERROR_MESSAGE);
 					shownWarning = true;
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							JOptionPane
+									.showMessageDialog(
+											parentComponent,
+											"You need to choose a workflow for merging",
+											"No workflow chosen",
+											JOptionPane.ERROR_MESSAGE);
+							setVisible(true);
+						}
+					});
 				}
 			}
 		}
@@ -1122,6 +1175,7 @@ public class ImportWorkflowWizard extends JDialog {
 		this.destinationEnabled = destinationEnabled;
 		updateDestinationSection();
 	}
+
 	public void setSourceEnabled(boolean sourceEnabled) {
 		this.sourceEnabled = sourceEnabled;
 		updateSourceSection();

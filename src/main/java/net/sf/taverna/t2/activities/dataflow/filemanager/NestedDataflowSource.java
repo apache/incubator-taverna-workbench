@@ -23,9 +23,12 @@
  */
 package net.sf.taverna.t2.activities.dataflow.filemanager;
 
+import java.util.Collection;
+
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 /**
  * A source description for a nested dataflow, opened from a
@@ -87,6 +90,23 @@ public class NestedDataflowSource {
 
 	public Dataflow getParentDataflow() {
 		return parentDataflow;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("Nested workflow");
+		
+		Collection<Processor> processors = Tools.getProcessorsWithActivity(getParentDataflow(),
+				getDataflowActivity());
+		if (! processors.isEmpty()) {
+			Processor processor = processors.iterator().next();
+			sb.append(' ');
+			sb.append(processor.getLocalName());
+			sb.append(" in ");
+			sb.append(getParentDataflow().getLocalName());
+		}
+		return sb.toString();
 	}
 	
 }
