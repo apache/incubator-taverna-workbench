@@ -174,9 +174,9 @@ public class SVGGraphController extends GraphController {
 			actualBounds = graphLayout.layoutGraph(this, graph, layout, bounds);
 		} catch (IOException e) {
 			outputMessage(dotErrorMessage);
-			logger.error("Couldn't generate dot", e);
+			logger.warn("Couldn't generate dot");
 		} catch (ParseException e) {
-			logger.error("Couldn't layout graph", e);
+			logger.warn("Couldn't layout graph");
 		}
 		return actualBounds;
 	}
