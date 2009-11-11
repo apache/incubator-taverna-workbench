@@ -21,6 +21,8 @@
 package net.sf.taverna.t2.workbench.file.impl;
 
 import java.io.File;
+import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -186,7 +188,38 @@ public class FileManagerImpl extends FileManager {
 		// Not found
 		return null;
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public String getDataflowName(Dataflow dataflow) {
+		Object source = getDataflowSource(dataflow);
+		String name = dataflow.getLocalName(); 	// Fallback
+		if (source == null) {
+			return name;
+		}
+		if (source instanceof File){
+			return ((File)source).getAbsolutePath();
+		} else if (source instanceof URL){
+			return source.toString();
+		} else {
+			// Check if it has implemented a toString() method
+			Method toStringMethod = null;
+			Method toStringMethodFromObject = null;
+			try {
+				toStringMethod = source.getClass().getMethod("toString");
+				toStringMethodFromObject = Object.class.getMethod("toString");
+			} catch (Exception e) {
+				throw new IllegalStateException("Source did not implement Object.toString() " + source);
+			}
+			if (toStringMethod != toStringMethodFromObject) {
+				return source.toString();
+			} 
+		}
+		return name;
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -612,6 +645,7 @@ public class FileManagerImpl extends FileManager {
 		}
 	}
 
+	
 
 	
 }

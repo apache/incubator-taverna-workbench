@@ -90,7 +90,7 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 		for (final Dataflow dataflow : fileManager.getOpenDataflows()) {
 		
 			
-			String name = findWorkflowName(dataflow);
+			String name = fileManager.getDataflowName(dataflow);
 			if (fileManager.isDataflowChanged(dataflow)) {
 				name = "*" + name;
 			}
@@ -120,30 +120,6 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 		workflowsMenu.revalidate();
 	}
 
-	public static String findWorkflowName(final Dataflow dataflow) {
-		Object source = fileManager.getDataflowSource(dataflow);
-		String name = dataflow.getLocalName(); 	// Fallback
-		
-		if (source instanceof File){
-			name = ((File)source).getAbsolutePath();
-		} else if (source instanceof URL){
-			name = source.toString();
-		} else if (source != null) {
-			// Check if it has implemented a toString() method
-			Method toStringMethod = null;
-			Method toStringMethodFromObject = null;
-			try {
-				toStringMethod = source.getClass().getMethod("toString");
-				toStringMethodFromObject = Object.class.getMethod("toString");
-			} catch (Exception e) {
-				throw new IllegalStateException("Source did not implement Object.toString() " + source);
-			}
-			if (toStringMethod != toStringMethodFromObject) {
-				name = source.toString();
-			} 
-		}
-		return name;
-	}
 
 	private final class EditManagerObserver implements
 			Observer<EditManagerEvent> {
