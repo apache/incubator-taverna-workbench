@@ -98,7 +98,7 @@ public class ServiceTransferHandler extends TransferHandler {
 	 */
 	@Override
 	public boolean canImport(JComponent component, DataFlavor[] dataFlavors) {
-		logger.info("Trying to import something");
+		logger.debug("Trying to import something");
 		for (DataFlavor dataFlavor : dataFlavors) {
 			if (dataFlavor.equals(serviceDescriptionDataFlavor)) {
 				return true;
@@ -117,8 +117,8 @@ public class ServiceTransferHandler extends TransferHandler {
 	@Override
 	public boolean importData(JComponent component, Transferable transferable) {
 		logger.info("Importing a transferable");
-		logger.info(component.getClass().getCanonicalName());
-			WorkflowView.pasteTransferable(transferable);
+		logger.debug(component.getClass().getCanonicalName());
+		WorkflowView.pasteTransferable(transferable);
 		return true;
 	}
 	
