@@ -159,8 +159,14 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		synchronized (recents) {
 			recents.clear();
 			RecentDeserializer deserialiser = new RecentDeserializer();
-			recents.addAll(deserialiser.deserializeRecent(document
-					.getRootElement()));
+			try { 
+				recents.addAll(deserialiser.deserializeRecent(document
+						.getRootElement()));
+			} catch (Exception e) {
+				logger.warn("Could not read recent workflows from file "
+						+ recentFile, e);
+				return;
+			}
 		}
 	}
 
@@ -265,7 +271,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		public void run() {
 			final Serializable source = recent.getDataflowSource();
 			try {
-				fileManager.openDataflow(recent.getDataflowType(), source);
+				fileManager.openDataflow(recent.makefileType(), source);
 			} catch (OpenException ex) {
 				logger.warn("Failed to open the workflow from  " + source
 						+ " \n", ex);
@@ -281,47 +287,58 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 
 	public static class Recent implements Serializable {
 
-		private Serializable dataflowSource;
+		private final class RecentFileType extends FileType {
+			@Override
+			public String getMimeType() {
+				return mimeType;
+			}
+			@Override
+			public String getExtension() {
+				return extension;
+			}
 
-		private FileType dataflowType;
+			@Override
+			public String getDescription() {
+				return "File type " + extension + " " + mimeType;
+			}
+		}
+		private Serializable dataflowSource;
+		private String mimeType;
+		public String getMimeType() {
+			return mimeType;
+		}
+
+		public void setMimeType(String mimeType) {
+			this.mimeType = mimeType;
+		}
+
+		public String getExtension() {
+			return extension;
+		}
+
+		public void setExtension(String extension) {
+			this.extension = extension;
+		}
+		private String extension;
 
 		public Recent() {
 		}
 
+		public FileType makefileType() {
+			if (mimeType == null && extension == null) {
+				return null;
+			}
+			return new RecentFileType();
+		}
+		
 		public Recent(Serializable dataflowSource, FileType dataflowType) {
 			this.setDataflowSource(dataflowSource);
-			this.setDataflowType(dataflowType);
+			if (dataflowType != null) {
+				this.setMimeType(dataflowType.getMimeType());
+				this.setExtension(dataflowType.getExtension());
+			}
 		}
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Recent other = (Recent) obj;
-			if (getDataflowSource() == null) {
-				if (other.getDataflowSource() != null)
-					return false;
-			} else if (!getDataflowSource().equals(other.getDataflowSource()))
-				return false;
-			if (getDataflowType() == null) {
-				if (other.getDataflowType() != null)
-					return false;
-			} else if (!getDataflowType().equals(other.getDataflowType()))
-				return false;
-			return true;
-		}
-
-		public Serializable getDataflowSource() {
-			return dataflowSource;
-		}
-
-		public FileType getDataflowType() {
-			return dataflowType;
-		}
 
 		@Override
 		public int hashCode() {
@@ -329,23 +346,57 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 			int result = 1;
 			result = prime
 					* result
-					+ ((getDataflowSource() == null) ? 0 : getDataflowSource()
-							.hashCode());
-			result = prime
-					* result
-					+ ((getDataflowType() == null) ? 0 : getDataflowType()
-							.hashCode());
+					+ ((dataflowSource == null) ? 0 : dataflowSource.hashCode());
+			result = prime * result
+					+ ((extension == null) ? 0 : extension.hashCode());
+			result = prime * result
+					+ ((mimeType == null) ? 0 : mimeType.hashCode());
 			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (!(obj instanceof Recent)) {
+				return false;
+			}
+			Recent other = (Recent) obj;
+			if (dataflowSource == null) {
+				if (other.dataflowSource != null) {
+					return false;
+				}
+			} else if (!dataflowSource.equals(other.dataflowSource)) {
+				return false;
+			}
+			if (extension == null) {
+				if (other.extension != null) {
+					return false;
+				}
+			} else if (!extension.equals(other.extension)) {
+				return false;
+			}
+			if (mimeType == null) {
+				if (other.mimeType != null) {
+					return false;
+				}
+			} else if (!mimeType.equals(other.mimeType)) {
+				return false;
+			}
+			return true;
+		}
+
+		public Serializable getDataflowSource() {
+			return dataflowSource;
 		}
 
 		public void setDataflowSource(Serializable dataflowSource) {
 			this.dataflowSource = dataflowSource;
 		}
-
-		public void setDataflowType(FileType dataflowType) {
-			this.dataflowType = dataflowType;
-		}
-
 		@Override
 		public String toString() {
 			return getDataflowSource() + "";
