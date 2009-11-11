@@ -52,9 +52,9 @@ public class CheckForUpdatesStartupHook implements StartupSPI{
 	public boolean startup() {
 		
 		 // For Taverna snapshots - do not check for updates
-		if (appName.toLowerCase().contains("snapshot")){
+		/*if (appName.toLowerCase().contains("snapshot")){
 			return true;
-		}
+		}*/
 
 		// Check if more than 2 weeks passed since we checked for updates.
 		if (lastUpdateCheckFile.exists()){
