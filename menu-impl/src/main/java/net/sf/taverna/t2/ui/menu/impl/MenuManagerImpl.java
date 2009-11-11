@@ -445,7 +445,7 @@ public class MenuManagerImpl extends MenuManager {
 		}
 		for (Component childComponent : childComponents) {
 			if (childComponent == null) {
-				logger.warn("Separator found within section");
+				logger.warn("Separator found within section " + sectionId);
 				addNullSeparator(components);
 			} else {
 				components.add(childComponent);
