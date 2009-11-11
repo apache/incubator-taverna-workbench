@@ -43,6 +43,11 @@ public class ReplaceNestedWorkflowAction extends
 				return edits
 						.getConfigureActivityEdit(getActivity(), nestedFlow);
 			}
+
+			@Override
+			protected DataflowActivity getInsertedActivity() {
+				return getActivity();
+			}
 		};
 
 		wizard.setMergeEnabled(false);
