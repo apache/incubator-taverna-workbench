@@ -217,6 +217,9 @@ public class SVGGraphEdge extends GraphEdge {
 
 	@Override
 	public void setPath(final List<Point> pointList) {
+		if (pointList == null) {
+			return;
+		}
 		final List<Point> oldPointList = getPath();
 		super.setPath(pointList);
 		graphController.updateSVGDocument(new Runnable() {

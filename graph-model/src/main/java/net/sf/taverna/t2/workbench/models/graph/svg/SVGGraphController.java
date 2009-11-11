@@ -192,9 +192,11 @@ public class SVGGraphController extends GraphController {
 					String to =  "0 0 " + bounds.width + " " + bounds.height;
 					SVGUtil.animate(animateBounds, svgElement, getAnimationSpeed(), from, to);
 				} else {
+					if ((svgElement != null) && (bounds != null)) {
 					svgElement.setAttribute(SVGConstants.SVG_VIEW_BOX_ATTRIBUTE, "0 0 " +
 							String.valueOf(bounds.width) + " " +
 							String.valueOf(bounds.height));
+					}
 				}
 			}
 		});
@@ -212,8 +214,10 @@ public class SVGGraphController extends GraphController {
 			error.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
 			error.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, "red");
 			error.appendChild(errorsText);
-			svgElement.appendChild(error);			
+			svgElement.appendChild(error);		
 		}
+		bounds = new Rectangle(300, parts.length * 60 + 200);
+		svgCanvas.setDocument(getSVGDocument());
 	}
 	
 	public void setUpdateManager(UpdateManager updateManager) {
