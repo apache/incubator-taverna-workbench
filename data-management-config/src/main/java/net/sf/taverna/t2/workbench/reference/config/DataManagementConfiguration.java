@@ -20,7 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.reference.config;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
