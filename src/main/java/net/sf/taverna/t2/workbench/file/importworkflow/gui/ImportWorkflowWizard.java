@@ -36,6 +36,7 @@ import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
+import net.sf.taverna.t2.activities.dataflow.actions.EditNestedDataflowAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.DataflowInfo;
 import net.sf.taverna.t2.workbench.file.FileManager;
@@ -74,8 +75,8 @@ public class ImportWorkflowWizard extends JDialog {
 	protected JTextField fieldUrl;
 	protected boolean mergeEnabled = true;
 	protected boolean nestedEnabled = true;
-	protected JSVGCanvas previewSource = new JSVGCanvas();
-	protected JSVGCanvas previewDestination = new JSVGCanvas();
+	protected JSVGCanvas previewSource = new JSVGCanvas(null, false, false);
+	protected JSVGCanvas previewDestination = new JSVGCanvas(null, false, false);
 	protected JTextField prefixField;
 	protected JRadioButton radioFile;
 	protected JRadioButton radioNew;
@@ -208,7 +209,7 @@ public class ImportWorkflowWizard extends JDialog {
 
 	protected void updateSourcePreview() {
 		updateWorkflowGraphic(previewSource, sourceDataflow);
-	}
+	} 
 
 	protected void updateFooter() {
 		prefixField.setVisible(mergeEnabled);
@@ -239,6 +240,11 @@ public class ImportWorkflowWizard extends JDialog {
 
 		radioNew.setVisible(nestedEnabled);
 		radioNew.setEnabled(actionNested.isSelected());
+		
+		if (actionNested.isSelected() && sourceSelection.getSelection() == null) {
+			// Preselect the new workflow
+			radioNew.setSelected(true);
+		}
 
 		sourceSelectionPanel.setVisible(sourceEnabled);
 	}
@@ -265,14 +271,13 @@ public class ImportWorkflowWizard extends JDialog {
 		}
 		SVGGraphController currentWfGraphController = new SVGGraphController(
 				dataflow, false, svgCanvas);
-		final SVGDocument generateSVGDocument = currentWfGraphController
-				.getSVGDocument();
-		invokeAndWait(new Runnable() {
-			public void run() {
-				svgCanvas.setDocument(generateSVGDocument);
-				svgCanvas.setVisible(true);
-			}
-		});
+		//final SVGDocument generateSVGDocument = currentWfGraphController
+			//	.getSVGDocument();
+//		invokeAndWait(new Runnable() {
+	//		public void run() {
+		//		svgCanvas.setDocument(generateSVGDocument);
+		//	}
+		//});
 	}
 
 	/**
@@ -580,13 +585,7 @@ public class ImportWorkflowWizard extends JDialog {
 		List<DataflowSelection> openDataflows = new ArrayList<DataflowSelection>();
 		DataflowSelection current = null;
 		for (Dataflow df : fileManager.getOpenDataflows()) {
-			Object source = fileManager.getDataflowSource(df);
-			String name;
-			if (source != null) {
-				name = source.toString();
-			} else {
-				name = df.getLocalName();
-			}
+			String name = fileManager.getDataflowName(df);
 			boolean isCurrent = df.equals(fileManager.getCurrentDataflow());
 			if (isCurrent) {
 				name = "<html><body>" + name
@@ -694,18 +693,23 @@ public class ImportWorkflowWizard extends JDialog {
 
 	private boolean sourceEnabled = true;
 	private boolean destinationEnabled = true;
+	private DataflowActivity insertedActivity;
 
 	protected Edit<?> makeInsertNestedWorkflowEdit(Dataflow nestedFlow,
 			String name) {
 		List<Edit<?>> editList = new ArrayList<Edit<?>>();
-		Activity<Dataflow> activity = new DataflowActivity();
-		editList.add(edits.getConfigureActivityEdit(activity, nestedFlow));
+		insertedActivity = new DataflowActivity();
+		editList.add(edits.getConfigureActivityEdit(insertedActivity, nestedFlow));
 		Processor p = edits.createProcessor(name);
 		editList.add(edits.getDefaultDispatchStackEdit(p));
-		editList.add(edits.getAddActivityEdit(p, activity));
+		editList.add(edits.getAddActivityEdit(p, insertedActivity));
 		editList.add(edits.getAddProcessorEdit(destinationDataflow, p));
 		CompoundEdit edit = new CompoundEdit(editList);
 		return edit;
+	}
+	
+	protected DataflowActivity getInsertedActivity() {
+		return insertedActivity;
 	}
 
 	protected class ImportWorkflowAction extends AbstractAction implements
@@ -789,6 +793,14 @@ public class ImportWorkflowWizard extends JDialog {
 								+ e.getLocalizedMessage(),
 						"Could not import workflows",
 						JOptionPane.WARNING_MESSAGE);
+			}
+			
+			DataflowActivity inserted = getInsertedActivity();
+			if (radioNew.isSelected()) {				
+				progressMonitor.setNote("Opening new nested workflow for editing");
+				progressMonitor.setProgress(90);
+				// To 'force' the progress bar dialogue to appear
+				new EditNestedDataflowAction(inserted).openNestedWorkflow(parentComponent);
 			}
 			progressMonitor.setProgress(100);
 		}
@@ -877,7 +889,7 @@ public class ImportWorkflowWizard extends JDialog {
 				merge();
 			} else if (actionNested.isSelected()) {
 				nested();
-			}
+			} 
 		}
 	}
 
