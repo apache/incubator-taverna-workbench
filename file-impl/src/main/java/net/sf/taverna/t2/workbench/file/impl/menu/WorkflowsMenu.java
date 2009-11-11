@@ -24,6 +24,7 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.net.URL;
 
 import javax.swing.AbstractAction;
@@ -37,7 +38,6 @@ import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
 import net.sf.taverna.t2.ui.menu.DefaultMenuBar;
-import net.sf.taverna.t2.ui.menu.AbstractMenuItem.DummyAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
@@ -50,7 +50,7 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 
 	private EditManager editManager = EditManager.getInstance();
 	private EditManagerObserver editManagerObserver = new EditManagerObserver();
-	private FileManager fileManager = FileManager.getInstance();
+	private static FileManager fileManager = FileManager.getInstance();
 	private FileManagerObserver fileManagerObserver = new FileManagerObserver();
 
 	private JMenu workflowsMenu;
@@ -88,18 +88,9 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 		int i = 0;
 		Dataflow currentDataflow = fileManager.getCurrentDataflow();
 		for (final Dataflow dataflow : fileManager.getOpenDataflows()) {
-			//String name = dataflow.getLocalName();
-			String name = null;
-			Object source = fileManager.getDataflowSource(dataflow);
-			if (source instanceof File){
-				name = ((File)source).getAbsolutePath();
-			}
-			else if (source instanceof URL){
-				name = source.toString();
-				}
-			else{ // InputStream
-				name = dataflow.getLocalName();
-			}
+		
+			
+			String name = findWorkflowName(dataflow);
 			if (fileManager.isDataflowChanged(dataflow)) {
 				name = "*" + name;
 			}
@@ -127,6 +118,31 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 		workflowsMenu.setEnabled(true);
 
 		workflowsMenu.revalidate();
+	}
+
+	public static String findWorkflowName(final Dataflow dataflow) {
+		Object source = fileManager.getDataflowSource(dataflow);
+		String name = dataflow.getLocalName(); 	// Fallback
+		
+		if (source instanceof File){
+			name = ((File)source).getAbsolutePath();
+		} else if (source instanceof URL){
+			name = source.toString();
+		} else if (source != null) {
+			// Check if it has implemented a toString() method
+			Method toStringMethod = null;
+			Method toStringMethodFromObject = null;
+			try {
+				toStringMethod = source.getClass().getMethod("toString");
+				toStringMethodFromObject = Object.class.getMethod("toString");
+			} catch (Exception e) {
+				throw new IllegalStateException("Source did not implement Object.toString() " + source);
+			}
+			if (toStringMethod != toStringMethodFromObject) {
+				name = source.toString();
+			} 
+		}
+		return name;
 	}
 
 	private final class EditManagerObserver implements
