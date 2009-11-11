@@ -202,6 +202,25 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	public abstract Dataflow getDataflowBySource(Object source);
 	
 	/**
+	 * Get a name to represent this dataflow.
+	 * <p>
+	 * The name will primarily be deduced from the source of where the workflow
+	 * is opened from, unless {@link Object#toString()} is not overridden (for
+	 * instance opened from an InputStream) or if the source is unknown, in
+	 * which case the dataflow's internal name {@link Dataflow#getLocalName()}
+	 * is returned.
+	 * <p>
+	 * The returned name can be used in listings like the Workflows menu, but is
+	 * not guaranteed to be unique. (For instance a workflow could be opened
+	 * twice from the same source).
+	 * 
+	 * @param dataflow
+	 *            Workflow to get the name for
+	 * @return The deduced workflow name
+	 */
+	public abstract String getDataflowName(Dataflow dataflow);
+	
+	/**
 	 * Get the last opened/saved source/destination for the given dataflow.
 	 * <p>
 	 * The source is the last source used with
@@ -638,6 +657,8 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 		}
 		return canonicalSource;
 	}
+
+
 
 	
 
