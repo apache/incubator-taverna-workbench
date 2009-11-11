@@ -59,7 +59,10 @@ public class ImportWorkflowMenuAction extends
 
 	@Override
 	protected Action createAction() {
-		return ImportWorkflowAction.getInstance();
+		ImportWorkflowAction myAction = new ImportWorkflowAction();
+		// Just "Workflow" as we go under the "Insert" menu
+		myAction.putValue(Action.NAME, "Workflow");
+		return myAction;
 	}
 
 }
