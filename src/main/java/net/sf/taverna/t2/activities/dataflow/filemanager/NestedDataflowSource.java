@@ -26,6 +26,7 @@ package net.sf.taverna.t2.activities.dataflow.filemanager;
 import java.util.Collection;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
@@ -95,16 +96,20 @@ public class NestedDataflowSource {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("Nested workflow");
+		//sb.append("Nested workflow");
 		
 		Collection<Processor> processors = Tools.getProcessorsWithActivity(getParentDataflow(),
 				getDataflowActivity());
 		if (! processors.isEmpty()) {
 			Processor processor = processors.iterator().next();
-			sb.append(' ');
+			//sb.append(' ');
 			sb.append(processor.getLocalName());
 			sb.append(" in ");
-			sb.append(getParentDataflow().getLocalName());
+			// TODO: Is this safe? This might make a loop if a nested workflow has a parent
+			// in a nested workflow..
+			sb.append(FileManager.getInstance().getDataflowName(getParentDataflow()));
+		} else {
+			sb.append("Nested workflow");
 		}
 		return sb.toString();
 	}
