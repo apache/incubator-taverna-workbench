@@ -165,7 +165,7 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 		JPopupMenu dummyMenu = MenuManager.getInstance().createContextMenu(null,
 				p, null);
 		for (Component c : dummyMenu.getComponents()) {
-			logger.info(c.getClass().getCanonicalName());
+			logger.debug(c.getClass().getCanonicalName());
 			if (c instanceof JMenuItem) {
 				JMenuItem menuItem = (JMenuItem) c;
 				Action action = menuItem.getAction();
