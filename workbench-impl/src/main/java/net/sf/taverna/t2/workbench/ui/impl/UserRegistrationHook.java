@@ -50,9 +50,9 @@ public class UserRegistrationHook implements StartupSPI{
 	public boolean startup() {
 		
 		 // For Taverna snapshots - do not ask user to register
-		if (appName.toLowerCase().contains("snapshot")){
+		/*if (appName.toLowerCase().contains("snapshot")){
 			return true;
-		}
+		}*/
 		
 		// If there is already user's registration data present - exit.
 		if (registrationDataFile.exists()){

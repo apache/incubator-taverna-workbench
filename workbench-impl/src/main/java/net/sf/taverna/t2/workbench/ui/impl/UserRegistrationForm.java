@@ -69,6 +69,9 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkListener;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -507,7 +510,7 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(purposeScrollPane, gbc);
 		
 		// Terms and conditions
-		termsAndConditionsCheckBox = new JCheckBox(I_AGREE_TO_THE_TERMS_AND_CONDITIONS);
+		termsAndConditionsCheckBox = new JCheckBox();
 		termsAndConditionsCheckBox.setFont(baseFont);
 		termsAndConditionsCheckBox.setBorder(null);
 		termsAndConditionsCheckBox.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -534,15 +537,20 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(termsAndConditionsCheckBox, gbc);*/
 		
 		// Terms and conditions link	
-		JEditorPane termsAndConditionsURL = new JEditorPane("text/html",
-				"<html><body><font size=\"2\" face=\"" + baseFont.getFamily()
-						+ "\"><a href=\"" + TERMS_AND_CONDITIONS_URL + "\">"
-						+ TERMS_AND_CONDITIONS_URL
-						+ "</a></font></body></html>");
+		JEditorPane termsAndConditionsURL = new JEditorPane();
 		termsAndConditionsURL.setEditable(false);
 		termsAndConditionsURL.setBackground(this.getBackground());
 		termsAndConditionsURL.setFocusable(false);
-		termsAndConditionsURL.setSize(new Dimension(termsAndConditionsURL.getPreferredSize().width,termsAndConditionsCheckBox.getSize().height));
+		HTMLEditorKit kit = new HTMLEditorKit();
+		termsAndConditionsURL.setEditorKit(kit);
+		StyleSheet styleSheet = kit.getStyleSheet();
+		//styleSheet.addRule("body {font-family:"+baseFont.getFamily()+"; font-size:"+baseFont.getSize()+";}"); // base font looks bigger when rendered as HTML
+		styleSheet.addRule("body {font-family:"+baseFont.getFamily()+"; font-size:9px;}");
+		Document doc = kit.createDefaultDocument();
+		termsAndConditionsURL.setDocument(doc);
+		termsAndConditionsURL.setText("<html><body>"+I_AGREE_TO_THE_TERMS_AND_CONDITIONS+" <a href=\"" + TERMS_AND_CONDITIONS_URL + "\">"
+				+ TERMS_AND_CONDITIONS_URL
+				+ "</a></body></html>");
 		termsAndConditionsURL.addHyperlinkListener(new HyperlinkListener() {
 			public void hyperlinkUpdate(HyperlinkEvent he) {
 				HyperlinkEvent.EventType type = he.getEventType();
