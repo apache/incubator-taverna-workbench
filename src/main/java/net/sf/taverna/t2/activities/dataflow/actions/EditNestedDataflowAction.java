@@ -38,6 +38,10 @@ public class EditNestedDataflowAction extends AbstractAction {
 		} else {
 			parentComponent = null;
 		}
+		openNestedWorkflow(parentComponent);
+	}
+
+	public void openNestedWorkflow(final Component parentComponent) {
 		NestedDataflowSource nestedDataflowSource = new NestedDataflowSource(
 				getFileManager().getCurrentDataflow(), dataflowActivity);
 
