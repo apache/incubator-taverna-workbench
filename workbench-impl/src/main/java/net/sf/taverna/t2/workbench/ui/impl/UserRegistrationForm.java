@@ -56,6 +56,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -66,12 +67,16 @@ import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+
+import edu.stanford.ejalbert.BrowserLauncher;
 
 @SuppressWarnings("serial")
 public class UserRegistrationForm extends JDialog{
@@ -138,7 +143,8 @@ public class UserRegistrationForm extends JDialog{
 			"Industry - Other", "Healthcare Services",
 			"Goverment and Public Sector", "Other" };
 	
-	private static final String I_AGREE_TO_THE_TERMS_AND_CONDITIONS = "I agree to the terms and conditions of registration http://www.taverna.org.uk/legal/terms";
+	private static final String I_AGREE_TO_THE_TERMS_AND_CONDITIONS = "I agree to the terms and conditions of registration at";
+	private static final String TERMS_AND_CONDITIONS_URL = "http://www.taverna.org.uk/legal/terms";
 	
 	private Logger logger = Logger.getLogger(UserRegistrationForm.class);
 	private UserRegistrationData previousRegistrationData;
@@ -503,6 +509,7 @@ public class UserRegistrationForm extends JDialog{
 		// Terms and conditions
 		termsAndConditionsCheckBox = new JCheckBox(I_AGREE_TO_THE_TERMS_AND_CONDITIONS);
 		termsAndConditionsCheckBox.setFont(baseFont);
+		termsAndConditionsCheckBox.setBorder(null);
 		termsAndConditionsCheckBox.addKeyListener(new java.awt.event.KeyAdapter() {
 			public void keyPressed(java.awt.event.KeyEvent evt) {
 				if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
@@ -516,15 +523,52 @@ public class UserRegistrationForm extends JDialog{
 				}
 			}
 		});
-		gbc.weightx = 0.0;
+		/*gbc.weightx = 0.0;
 		gbc.weighty = 0.0;
 		gbc.gridx = 0;
 		gbc.gridy = 12;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 2;
+		gbc.insets = new Insets(10, 10, 0, 0);
+		mainPanel.add(termsAndConditionsCheckBox, gbc);*/
+		
+		// Terms and conditions link	
+		JEditorPane termsAndConditionsURL = new JEditorPane("text/html",
+				"<html><body><font size=\"2\" face=\"" + baseFont.getFamily()
+						+ "\"><a href=\"" + TERMS_AND_CONDITIONS_URL + "\">"
+						+ TERMS_AND_CONDITIONS_URL
+						+ "</a></font></body></html>");
+		termsAndConditionsURL.setEditable(false);
+		termsAndConditionsURL.setBackground(this.getBackground());
+		termsAndConditionsURL.setFocusable(false);
+		termsAndConditionsURL.setSize(new Dimension(termsAndConditionsURL.getPreferredSize().width,termsAndConditionsCheckBox.getSize().height));
+		termsAndConditionsURL.addHyperlinkListener(new HyperlinkListener() {
+			public void hyperlinkUpdate(HyperlinkEvent he) {
+				HyperlinkEvent.EventType type = he.getEventType();
+			    if (type == HyperlinkEvent.EventType.ACTIVATED) {
+					// Open a Web browser
+					try{
+						BrowserLauncher launcher = new BrowserLauncher();
+						launcher.openURLinBrowser(TERMS_AND_CONDITIONS_URL);
+					}catch(Exception ex){
+						logger.error("User registration: Failed to launch browser to show terms and conditions at " + TERMS_AND_CONDITIONS_URL);
+					}
+			    }				
+			}
+		});
+		gbc.weightx = 0.0;
+		gbc.weighty = 0.0;
+		gbc.gridx = 0;
+		gbc.gridy = 13;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.gridwidth = 2;
 		gbc.insets = new Insets(10, 10, 0, 10);
-		mainPanel.add(termsAndConditionsCheckBox, gbc);
+		JPanel termsAndConditionsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		termsAndConditionsPanel.add(termsAndConditionsCheckBox);
+		termsAndConditionsPanel.add(termsAndConditionsURL);
+		mainPanel.add(termsAndConditionsPanel, gbc);
 		
 		// Button panel
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
