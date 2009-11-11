@@ -30,6 +30,9 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -137,8 +140,14 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		
 		saveButtonsPanel.add(new JButton(new SaveAllAction("Save values", this)));
 
-		final List<? extends DataflowOutputPort> dataflowOutputPorts = facade
-				.getDataflow().getOutputPorts();
+		List<DataflowOutputPort> dataflowOutputPorts = new ArrayList<DataflowOutputPort>(facade
+				.getDataflow().getOutputPorts());
+		
+		Collections.sort(dataflowOutputPorts, new Comparator<DataflowOutputPort>() {
+
+			public int compare(DataflowOutputPort o1, DataflowOutputPort o2) {
+				return o1.getName().compareTo(o2.getName());
+			}});
 		
 		for (DataflowOutputPort dataflowOutputPort : dataflowOutputPorts) {
 			String portName = dataflowOutputPort.getName();
