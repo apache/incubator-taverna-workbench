@@ -99,6 +99,12 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 	private JSplitPane topPanel;
 	
 	// Queue for previous workflow runs to be deleted
+	// The reason for not using LinkedBlockingQueue here is that we need to do a peek first and then remove
+	// in the delete run thread, rather than taking the first element of the queue since
+	// shutdown hook checks if the queue is empty and then pops up a dialog it is taking a while (and if we do
+	// a remove immediately the hook would not detect that there is deletion going on if there was only one element 
+	// in the queue). Peek in LinkedBlockingQueue does not wait so we would have to sync anyway so there is not 
+	// advantage in using it over LinkedList. 
 	private static final LinkedList<DataflowRun> runsToBeDeletedQueue = new LinkedList<DataflowRun>();
 
 	private DataflowRunsComponent() {
