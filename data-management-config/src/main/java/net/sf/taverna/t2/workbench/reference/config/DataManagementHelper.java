@@ -10,6 +10,7 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
+import net.sf.taverna.raven.appconfig.config.Log4JConfiguration;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.derby.drda.NetworkServerControl;
@@ -19,6 +20,7 @@ import org.apache.log4j.Logger;
  * A set of utility methods related to basic data management.
  * 
  * @author Stuart Owen
+ * @author Stian Soiland-Reyes
  *
  */
 public class DataManagementHelper {
@@ -30,7 +32,7 @@ public class DataManagementHelper {
 	public static void setupDataSource() {
 		
 		DataManagementConfiguration config = DataManagementConfiguration.getInstance();
-		setDerbyHome();
+		setDerbyPaths();
 		
         try {
             System.setProperty(Context.INITIAL_CONTEXT_FACTORY,
@@ -61,10 +63,12 @@ public class DataManagementHelper {
         }
     }
 	
-	private static void setDerbyHome() {
+	private static void setDerbyPaths() {
 		if (DataManagementConfiguration.getInstance().getConnectorType()==DataManagementConfiguration.CONNECTOR_DERBY) {
 			String homeDir=ApplicationRuntime.getInstance().getApplicationHomeDir().getAbsolutePath();
-			System.setProperty("derby.system.home",homeDir);
+			System.setProperty("derby.system.home",homeDir);			
+			File logFile = new File(Log4JConfiguration.getInstance().getLogDir(), "derby.log");
+			System.setProperty("derby.stream.error.file", logFile.getAbsolutePath());
 		}
 		
 	}
@@ -88,20 +92,12 @@ public class DataManagementHelper {
 	}
 	
 	public synchronized static void startDerbyNetworkServer() {
-		setDerbyHome();
+		setDerbyPaths();
 		
-        String homeDir=ApplicationRuntime.getInstance().getApplicationHomeDir().getAbsolutePath();
-        String logDir=homeDir+File.separator+"logs";        
-        
-        //make the logs directory if it doesn't already exist
-        File logDirFile=new File(logDir);
-        if (!logDirFile.exists()) logDirFile.mkdir();
-        
+		
         System.setProperty("derby.drda.host","localhost");
         System.setProperty("derby.drda.minThreads","5");
         System.setProperty("derby.drda.maxThreads",String.valueOf(DataManagementConfiguration.getInstance().getPoolMaxActive()));        
-        
-        System.setProperty("derby.stream.error.file",logDir+File.separator+"derby.log");
         int port=DataManagementConfiguration.getInstance().getPort();
         int maxPort = port+10;
         
