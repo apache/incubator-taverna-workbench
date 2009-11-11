@@ -246,6 +246,10 @@ public class RunWorkflowAction extends AbstractAction {
 	static private String constructReport(DataflowValidationReport report) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<dl>");
+		if (report.isWorkflowIncomplete()){
+			sb.append("<dt><b>Workflow is incomplete</b></dt>");
+			sb.append("<dt><i>(Workflow should contain at least one service or a connected output port)</i>");
+		}
 		List<? extends TokenProcessingEntity> unsatisfiedEntities = report
 				.getUnsatisfiedEntities();
 		if (unsatisfiedEntities.size() > 0) {

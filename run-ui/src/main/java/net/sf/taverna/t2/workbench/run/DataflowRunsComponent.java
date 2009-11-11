@@ -387,71 +387,88 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 	 */
 	private class DeleteWorkflowRunsThread extends Thread {
         public void run() {
-        	DataflowRun runToDelete = null;
-            while (true) {
-                synchronized(runsToBeDeletedQueue) {  
-                	while (runsToBeDeletedQueue.isEmpty()) {
-                        try
-                        {
-                        	runsToBeDeletedQueue.wait();
-                        }
-                        catch (InterruptedException ignored)
-                        {
-                        }
-                    }
-                    // Retrieve the first element from the queue (but do not remove it)
-                    runToDelete = runsToBeDeletedQueue.peek();
-                }
+			try {
+				DataflowRun runToDelete = null;
+				while (true) {
+					synchronized (runsToBeDeletedQueue) {
+						// Wait until an element is placed in the queue
+						while (runsToBeDeletedQueue.isEmpty()) {
+							runsToBeDeletedQueue.wait();
+						}
+					}
+					// Retrieve the first element from the queue (but do not
+					// remove it)
+					runToDelete = runsToBeDeletedQueue.peek();
 
-				// Remove provenance data for the run and all references held by the 
-				// workflow run from the Reference Manager's database
-                try{
-				logger.info("Starting deletion of workflow run '" + runToDelete.toString() + "' (run id "
-						+ runToDelete.getRunId() + ") from provenance and Reference Service's databases.");
-				String connectorType = DataManagementConfiguration.getInstance().getConnectorType();
-				ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
-				// Remove the run from provenance database
-				Set<String> referencedDataSet = provenanceAccess.removeRun(runToDelete.getRunId());
-				// Get all the references to the data used by the workflow run
-				ArrayList<T2Reference> referencesList = new ArrayList<T2Reference>();
-				for (String referencedData : referencedDataSet){
-					T2Reference reference = referenceService.referenceFromString(referencedData);
-					referencesList.add(reference);
-				}				
-				int chunkSize = 100;
-				int startIndex = 0;
-				int listSize = referencesList.size();
-				while(startIndex < listSize){
-					// Delete in chunks of 100 data references
-					List<T2Reference> chunk = null;
-					if(listSize > startIndex + chunkSize){
-						chunk = referencesList.subList(startIndex, startIndex + chunkSize);
+					// Remove provenance data for the run and all references
+					// held by the workflow run from the Reference Manager's database
+					try {
+						logger.info("Starting deletion of workflow run '"
+										+ runToDelete.toString()
+										+ "' (run id "
+										+ runToDelete.getRunId()
+										+ ") from provenance and Reference Manager's databases.");
+						String connectorType = DataManagementConfiguration
+								.getInstance().getConnectorType();
+						ProvenanceAccess provenanceAccess = new ProvenanceAccess(
+								connectorType);
+						// Remove the run from provenance database
+						Set<String> referencedDataSet = provenanceAccess
+								.removeRun(runToDelete.getRunId());
+						// Get all the references to the data used by the workflow run
+						ArrayList<T2Reference> referencesList = new ArrayList<T2Reference>();
+						for (String referencedData : referencedDataSet) {
+							T2Reference reference = referenceService
+									.referenceFromString(referencedData);
+							referencesList.add(reference);
+						}
+						// Delete referenced data from Reference Manager's database						
+						int chunkSize = 100;
+						int startIndex = 0;
+						int listSize = referencesList.size();
+						while (startIndex < listSize) {
+							// Delete in chunks of 100 data references
+							List<T2Reference> chunk = null;
+							if (listSize > startIndex + chunkSize) {
+								chunk = referencesList.subList(startIndex,
+										startIndex + chunkSize);
+							} else {
+								chunk = referencesList.subList(startIndex,listSize);
+							}
+							try {
+								referenceService.delete(chunk);
+							} catch (ReferenceServiceException rex) {
+								// Log the error and continue to delete data
+								logger.error("Failed to delete a list of " + chunk.size()+ " data references " +
+										"when deleting workflow run '"
+														+ runToDelete.toString()
+														+ "' (run id "
+														+ runToDelete.getRunId()
+														+ ") from Reference Manager's database.",
+												rex);
+							}
+							startIndex = startIndex + chunkSize;
+						}
+						logger.info("Deletion of workflow run '"
+										+ runToDelete.toString()
+										+ "' (run id "
+										+ runToDelete.getRunId()
+										+ ") from provenance and Reference Manager's databases completed.");
+					} catch (Exception ex) {
+						logger.error("Failed to delete workflow run '"
+								+ runToDelete.toString() + "' (run id "
+								+ runToDelete.getRunId()
+								+ ") from provenance database.", ex);
+					} finally {
+						synchronized (runsToBeDeletedQueue) {
+							// Remove the run we have just deleted
+							runsToBeDeletedQueue.removeFirst();
+						}
 					}
-					else{
-						chunk = referencesList.subList(startIndex, listSize);
-					}
-					try{
-						// Remove referenced data from Reference Manager's database
-						referenceService.delete(chunk);
-					} catch (ReferenceServiceException rex) {
-						// Log the error and continue to delete data
-						logger.error("Reference Service: failed to delete a set of data references when deleting workflow run(s).", rex);
-					} 
-					startIndex = startIndex + chunkSize;
 				}
-				logger.info("Deletion of workflow run '" + runToDelete.toString() + "' (run id "
-					+ runToDelete.getRunId() + ") from provenance and Reference Service's databases completed.");
-              } catch (Exception ex){
-				logger.error("Failed to delete workflow run '" + runToDelete.toString() + "' (run id "
-						+ runToDelete.getRunId() + ") from provenance database.", ex);;
-              }
-              finally{
-            	  synchronized (runsToBeDeletedQueue) {
-            		  // Remove the run we have just deleted
-            		  runsToBeDeletedQueue.removeFirst();
-				}
-              }
-            }   
+			} catch (InterruptedException ignored) {
+
+			}
         }
     }
 

@@ -64,7 +64,7 @@ public class RemoveDataflowRunsShutdownDialog extends JDialog{
 	private long startTime = System.currentTimeMillis();
 
 	public RemoveDataflowRunsShutdownDialog() {
-		super((Frame) null, "Saving provenance data", true);
+		super((Frame) null, "Deleting provenance data", true);
 		setUndecorated(true);
 		setLocationRelativeTo(null);
 
@@ -104,7 +104,7 @@ public class RemoveDataflowRunsShutdownDialog extends JDialog{
 		});
 
 		JLabel message = new JLabel(
-				"Provenance data is being written to the database.");
+				"Provenance data is being deleted from the database.");
 
 		JPanel topPanel = new JPanel(topPanelGridbag);
 		topPanel.setBackground(Color.WHITE);
