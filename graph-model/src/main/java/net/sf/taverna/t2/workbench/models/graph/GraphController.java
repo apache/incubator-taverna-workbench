@@ -740,7 +740,10 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 
 	private GraphNode generateProcessorNode(Processor processor, String prefix, int depth) {
 		//Blatantly ignoring any other activities for now
-		Activity<?> firstActivity = processor.getActivityList().get(0);
+		Activity<?> firstActivity = null;
+		if (! processor.getActivityList().isEmpty()) {
+			firstActivity = processor.getActivityList().get(0);
+		}
 
 		GraphNode node = createGraphNode();
 		node.setId(prefix + processor.getLocalName());
@@ -753,7 +756,9 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		node.setShape(getPortStyle(processor).processorShape());
 		node.setColor(Color.BLACK);
 		node.setLineStyle(LineStyle.SOLID);
-		node.setFillColor(GraphColorManager.getFillColor(firstActivity));
+		if (firstActivity != null) {
+			node.setFillColor(GraphColorManager.getFillColor(firstActivity));
+		}
 //check whether the nested workflow processors should be clickable or not, if top level workflow then should be clickable regardless
 		if (depth == 0) {
 			node.setInteractive(true);
@@ -805,8 +810,12 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			dataflowToGraph.put(processor, node);
 		}
 
-		List<ActivityInputPort> inputPorts = new ArrayList<ActivityInputPort>(
-				firstActivity.getInputPorts());
+		List<InputPort> inputPorts;
+		if (firstActivity != null) {
+			inputPorts = new ArrayList<InputPort>(firstActivity.getInputPorts());
+		} else {
+			inputPorts = new ArrayList<InputPort>(processor.getInputPorts());
+		}
 		Collections.sort(inputPorts, portComparator);
 		if (inputPorts.size() == 0) {
 			GraphNode portNode = createGraphNode();
@@ -841,8 +850,13 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			}
 		}
 
-		List<OutputPort> outputPorts = new ArrayList<OutputPort>(
-				firstActivity.getOutputPorts());
+		List<OutputPort> outputPorts;
+		if (firstActivity != null) {
+			outputPorts = new ArrayList<OutputPort>(firstActivity
+					.getOutputPorts());
+		} else {
+			outputPorts = new ArrayList<OutputPort>(processor.getOutputPorts());
+		}
 		Collections.sort(outputPorts, portComparator);
 		if (outputPorts.size() == 0) {
 			GraphNode portNode = createGraphNode();
