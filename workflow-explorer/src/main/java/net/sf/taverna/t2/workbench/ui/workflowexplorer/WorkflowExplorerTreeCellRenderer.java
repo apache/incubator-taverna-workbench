@@ -91,18 +91,19 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			// the first one in the list gets displayed
 			List<? extends Activity<?>> activityList = ((Processor) userObject)
 					.getActivityList();
-			Activity<?> activity = activityList.get(0);
-			
-			Icon icon = activityIconManager.iconForActivity(activity);
-			
-			if (icon != null) {
-				renderer.setIcon(icon);
-			}
-
 			String text = ((Processor) userObject).getLocalName();
+			if (!activityList.isEmpty()) {
+				Activity<?> activity = activityList.get(0);
+				Icon icon = activityIconManager.iconForActivity(activity);
+
+				if (icon != null) {
+					renderer.setIcon(icon);
+				}
+
 				String extraDescription;
 				try {
-					extraDescription = BeanUtils.getProperty(activity, "extraDescription");
+					extraDescription = BeanUtils.getProperty(activity,
+							"extraDescription");
 					text += " - " + extraDescription;
 				} catch (IllegalAccessException e) {
 					// no problem
@@ -111,6 +112,7 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 				} catch (NoSuchMethodException e) {
 					// no problem;
 				}
+			}
 			renderer.setText(text);
 		}
 		// Processor's child input port (from the associated activity)
