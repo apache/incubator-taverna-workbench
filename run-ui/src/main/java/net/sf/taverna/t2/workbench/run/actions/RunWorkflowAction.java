@@ -253,9 +253,9 @@ public class RunWorkflowAction extends AbstractAction {
 		List<? extends TokenProcessingEntity> unsatisfiedEntities = report
 				.getUnsatisfiedEntities();
 		if (unsatisfiedEntities.size() > 0) {
-			sb.append("<dt><b>Invalid processors</b>");
+			sb.append("<dt><b>Invalid services</b>");
 			sb
-					.append("<dt><i>(Due to cyclic dependencies or upstream errors)</i>");
+					.append("<dt><i>(Due to feedback loops in the workflow or upstream errors)</i>");
 			for (TokenProcessingEntity entity : unsatisfiedEntities) {
 				sb.append("<dd>" + entity.getLocalName());
 			}
