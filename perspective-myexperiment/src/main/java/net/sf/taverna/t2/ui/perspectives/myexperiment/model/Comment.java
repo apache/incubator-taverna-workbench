@@ -133,7 +133,6 @@ public class Comment extends Resource {
 		  + ", URI: " + c.getURI());
 	} catch (Exception e) {
 	  logger.error("Failed midway through creating comment object from XML", e);
-	  e.printStackTrace();
 	}
 
 	// return created comment instance
