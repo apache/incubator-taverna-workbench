@@ -311,7 +311,12 @@ public class SVGGraphController extends GraphController {
 						} catch (InterruptedException e) {
 						}
 					}
-					updateManager.getUpdateRunnableQueue().invokeLater(thread);
+					try {
+						updateManager.getUpdateRunnableQueue().invokeLater(thread);
+					}
+					catch (IllegalStateException e) {
+						logger.error("Update of SVG failed", e);
+					}
 				}			
 			});
 		}
