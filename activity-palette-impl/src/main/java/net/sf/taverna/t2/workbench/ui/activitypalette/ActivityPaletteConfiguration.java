@@ -40,7 +40,7 @@ public class ActivityPaletteConfiguration extends AbstractConfigurable {
 	}
 
 	public String getCategory() {
-		return "activities";
+		return "Services";
 	}
 
 	public Map<String, String> getDefaultPropertyMap() {
