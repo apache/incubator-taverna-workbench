@@ -45,7 +45,7 @@ public class RunIterationStrategyEditor {
 		
 		IterationStrategyEditorControl editorControl = new IterationStrategyEditorControl(iterationStrategyImpl);
 		
-		JFrame frame = new JFrame("Iteration strategy editor");
+		JFrame frame = new JFrame("List handling editor");
 		frame.add(editorControl);
 		frame.setSize(500,400);
 		frame.setVisible(true);

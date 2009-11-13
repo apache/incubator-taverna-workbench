@@ -29,7 +29,7 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 public class IterationStrategyEditorFactory implements UIComponentFactorySPI {
 
 	public String getName() {
-		return "Iteration strategy editor";
+		return "List handling editor";
 	}
 
 	public ImageIcon getIcon() {

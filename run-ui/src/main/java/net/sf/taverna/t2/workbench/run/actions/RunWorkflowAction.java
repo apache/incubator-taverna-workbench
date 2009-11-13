@@ -287,7 +287,7 @@ public class RunWorkflowAction extends AbstractAction {
 			for (TokenProcessingEntity entity : failedEntities) {
 				if (!invalidDataflowProcessors.contains(entity)) {
 					if (!foundfailure) {
-						sb.append("<dt><b>Invalid iteration strategies</b>");
+						sb.append("<dt><b>Invalid list handling</b>");
 						sb
 								.append("<dt><i>(Generally dot product with different cardinalities)</i>");
 						foundfailure = true;

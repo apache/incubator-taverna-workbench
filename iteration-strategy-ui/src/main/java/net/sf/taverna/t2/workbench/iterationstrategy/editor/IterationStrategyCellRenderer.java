@@ -58,7 +58,7 @@ final class IterationStrategyCellRenderer extends DefaultTreeCellRenderer {
 			NamedInputPortNode namedInput = (NamedInputPortNode) value;
 			setText(namedInput.getPortName());
 		} else {
-			setText("Iteration strategy");
+			setText("List handling");
 		}
 		return this;
 	}

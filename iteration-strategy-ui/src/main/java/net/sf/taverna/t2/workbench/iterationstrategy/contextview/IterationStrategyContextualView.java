@@ -155,7 +155,7 @@ public class IterationStrategyContextualView extends ContextualView {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			String title = "Iteration strategy for " + processor.getLocalName();
+			String title = "List handling for " + processor.getLocalName();
 			final HelpEnabledDialog dialog = new HelpEnabledDialog(owner, title, true, null);
 			IterationStrategyImpl iterationStrategy = getIterationStrategy();
 			IterationStrategyEditorControl iterationStrategyEditorControl = new IterationStrategyEditorControl(
@@ -214,17 +214,17 @@ public class IterationStrategyContextualView extends ContextualView {
 					dialog.setVisible(false);
 					refreshView();
 				} catch (RuntimeException ex) {
-					logger.warn("Could not set iteration strategy", ex);
+					logger.warn("Could not set list handling", ex);
 					JOptionPane.showMessageDialog(owner,
-							"Can't set iteration strategy",
-							"An error occured when setting iteration strategy: "
+							"Can't set list handling",
+							"An error occured when setting list handling: "
 									+ ex.getMessage(),
 							JOptionPane.ERROR_MESSAGE);
 				} catch (EditException ex) {
-					logger.warn("Could not set iteration strategy", ex);
+					logger.warn("Could not set list handling", ex);
 					JOptionPane.showMessageDialog(owner,
-							"Can't set iteration strategy",
-							"An error occured when setting iteration strategy: "
+							"Can't set list handling",
+							"An error occured when setting list handling: "
 									+ ex.getMessage(),
 							JOptionPane.ERROR_MESSAGE);
 				}
