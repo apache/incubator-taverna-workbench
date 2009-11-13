@@ -460,7 +460,7 @@ public class Workbench extends JFrame {
 						set = true;
 					}
 				} catch (Exception ex2) {
-					ex2.printStackTrace();
+					logger.error("Unable to load default look and feel", ex2);
 				}
 
 			}
