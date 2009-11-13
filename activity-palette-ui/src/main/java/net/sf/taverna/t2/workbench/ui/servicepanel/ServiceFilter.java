@@ -32,12 +32,16 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
 
+import org.apache.log4j.Logger;
+
 public class ServiceFilter implements Filter {
 
 	private String filterString;
 	private boolean superseded;
 	private String[] filterLowerCaseSplit;
 	private final Object rootToIgnore;
+	private static Logger logger = Logger
+	.getLogger(ServiceFilter.class);
 
 	public ServiceFilter(String filterString, Object rootToIgnore) {
 		this.filterString = filterString;
@@ -93,8 +97,6 @@ public class ServiceFilter implements Filter {
 							}
 							if (readProperty.toString().toLowerCase().contains(
 									keyword)) {
-								//System.out.println("Found " + keyword + " in " + property.getName() + ": " + readProperty);
-								// Found it, try next word
 								continue search;
 							} else {
 								// Dig deeper?
@@ -104,16 +106,16 @@ public class ServiceFilter implements Filter {
 					return false;
 				} catch (IntrospectionException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error("", e);
 				} catch (IllegalArgumentException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error("", e);
 				} catch (IllegalAccessException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error("", e);
 				} catch (InvocationTargetException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error("", e);
 				}
 				return false;
 			}
