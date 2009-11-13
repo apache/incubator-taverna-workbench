@@ -67,7 +67,6 @@ public class WorkflowLaunchTestApp {
 				try {
 					createAndShowGUI(referenceService, refContext);
 				} catch (InvalidDataflowException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
