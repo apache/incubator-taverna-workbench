@@ -125,7 +125,7 @@ public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
 		status2 = new JLabel();
 		status2.setFont(getFont().deriveFont(Font.BOLD));
 		status2.setForeground(Color.RED);
-		status2.setText("status");
+		status2.setText("Status");
 		
 		
 		GridBagConstraints gridBagVersion = new GridBagConstraints();
@@ -137,7 +137,7 @@ public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
 		
 		version = new JLabel();
 		version.setFont(getFont().deriveFont(Font.PLAIN));
-		version.setText("version");
+		version.setText("Version");
 		
 		GridBagConstraints gridBagDescription = new GridBagConstraints();
 		gridBagDescription.gridx = 0;
@@ -149,7 +149,7 @@ public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
 		gridBagDescription.gridy = 1;
 		description = new JLabel();
 		description.setFont(getFont().deriveFont(Font.PLAIN));
-		description.setText("plugin description");
+		description.setText("Plugin description");
 		
 		GridBagConstraints gridBagName = new GridBagConstraints();
 		gridBagName.gridx = 0;
@@ -162,7 +162,7 @@ public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
 		gridBagName.gridy = 0;
 		name = new JLabel();
 		name.setFont(getFont().deriveFont(Font.BOLD));
-		name.setText("plugin name");
+		name.setText("Plugin name");
 		
 		this.setSize(297, 97);
 		this.setLayout(new GridBagLayout());

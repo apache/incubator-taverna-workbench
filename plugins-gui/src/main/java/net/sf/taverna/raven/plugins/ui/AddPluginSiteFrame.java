@@ -179,7 +179,7 @@ public class AddPluginSiteFrame extends JDialog {
 	        
 	        
 	        jContentPane.setLayout(new GridBagLayout());	 
-	        jContentPane.add(new JLabel("Enter plugin site name and url"),gridBagContraintHeading);
+	        jContentPane.add(new JLabel("Enter update site name and url"),gridBagContraintHeading);
 	        jContentPane.add(name, gridBagContraintNameLabel);
 	        jContentPane.add(url, gridBagContraintURLLabel);
 	        jContentPane.add(nameText, gridBagContraintNameText);

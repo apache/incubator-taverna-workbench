@@ -141,7 +141,7 @@ public class PluginSiteFrame extends JDialog {
 		this.pluginSites = this.pluginManager.getPluginSites();
 		this.setSize(600, 450);
 		this.setContentPane(getJContentPane());
-		this.setTitle("Plugin Sites");
+		this.setTitle("Update Sites");
 	}
 
 	/**
@@ -254,7 +254,7 @@ public class PluginSiteFrame extends JDialog {
 		progressBar.setString("Checking for new plugins");
 		pluginSitePanel.add(progressBar, gridBagConstraints1);
 
-		new Thread("Plugin Site") {
+		new Thread("Checking update site " + pluginSite) {
 			public void run() {
 				try {
 					List<Plugin> plugins = pluginManager
@@ -313,13 +313,13 @@ public class PluginSiteFrame extends JDialog {
 					} else {
 						pluginSitePanel.remove(progressBar);
 						pluginSitePanel.add(new JLabel(
-								"This plugin site contains no new plugins"),
+								"This update site contains no new plugins"),
 								gridBagConstraints1);
 					}
 				} catch (Exception e) {
 					pluginSitePanel.remove(progressBar);
 					pluginSitePanel.add(new JLabel(
-							"Unable to contact the plugin site"),
+							"Unable to contact the update site"),
 							gridBagConstraints1);
 				} finally {
 					pluginSitePanel.revalidate();
@@ -361,7 +361,7 @@ public class PluginSiteFrame extends JDialog {
 						item.addActionListener(new ActionListener() {
 	
 							public void actionPerformed(ActionEvent e) {
-								int response=JOptionPane.showConfirmDialog(PluginSiteFrame.this, "Are you sure you want to remove the plugin site:"+pluginSite.getName(),"Remove plugin site",JOptionPane.YES_NO_OPTION);
+								int response=JOptionPane.showConfirmDialog(PluginSiteFrame.this, "Are you sure you want to remove the update site:"+pluginSite.getName(),"Remove update site",JOptionPane.YES_NO_OPTION);
 								if (response==JOptionPane.YES_OPTION) {
 									pluginManager.removePluginSite(pluginSite);
 									pluginManager.savePluginSites();
@@ -494,7 +494,7 @@ public class PluginSiteFrame extends JDialog {
 		addSiteFrame.setVisible(true);
 		if (addSiteFrame.getName()!=null) {
 			if (addSiteFrame.getName().length()==0) {
-				JOptionPane.showMessageDialog(this, "You must provide a name for your site.","Error adding plugin site",JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(this, "You must provide a name for your site.","Error adding update site",JOptionPane.ERROR_MESSAGE);
 				addPluginSite();
 			}
 			else {
@@ -509,7 +509,7 @@ public class PluginSiteFrame extends JDialog {
 						addSiteFrame=null; //so that the name and url are reset.
 					}
 					catch(Exception e) {
-						JOptionPane.showMessageDialog(this, "There was a problem adding the site you provided: "+e.getMessage(),"Error adding plugin site",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(this, "There was a problem adding the site you provided: "+e.getMessage(),"Error adding update site",JOptionPane.ERROR_MESSAGE);						
 					}
 				}
 			}
@@ -524,7 +524,7 @@ public class PluginSiteFrame extends JDialog {
 	private JButton getAddPluginSiteButton() {
 		if (addSiteButton == null) {
 			addSiteButton = new JButton();
-			addSiteButton.setText("Add Plugin Site");
+			addSiteButton.setText("Add update site");
 			addSiteButton.setEnabled(true);
 			addSiteButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {

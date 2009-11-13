@@ -102,7 +102,7 @@ public class ProfileVersionCellRenderer extends JPanel implements
 		gridBagVersion.gridy = 0;		
 		version = new JLabel();
 		version.setFont(getFont().deriveFont(Font.BOLD));
-		version.setText("version");
+		version.setText("Version");
 		
 		GridBagConstraints gridBagDescription = new GridBagConstraints();
 		gridBagDescription.gridx = 0;
@@ -114,7 +114,7 @@ public class ProfileVersionCellRenderer extends JPanel implements
 		gridBagDescription.gridy = 1;
 		description = new JLabel();
 		description.setFont(getFont().deriveFont(Font.PLAIN));
-		description.setText("plugin description");
+		description.setText("Plugin description");
 		
 		GridBagConstraints gridBagName = new GridBagConstraints();
 		gridBagName.gridx = 0;
@@ -127,7 +127,7 @@ public class ProfileVersionCellRenderer extends JPanel implements
 		gridBagName.gridy = 0;
 		name = new JLabel();
 		name.setFont(getFont().deriveFont(Font.PLAIN));
-		name.setText("plugin name");
+		name.setText("Plugin name");
 		
 		this.setSize(297, 97);
 		this.setLayout(new GridBagLayout());

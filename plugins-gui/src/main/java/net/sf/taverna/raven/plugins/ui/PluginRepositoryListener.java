@@ -114,7 +114,7 @@ public class PluginRepositoryListener implements
 						}
 					}
 				}
-			}, "Plugin repository progress bar");
+			}, "Update repository progress bar");
 			progressThread.start();
 		}
 	}

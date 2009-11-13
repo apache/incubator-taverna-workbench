@@ -146,7 +146,7 @@ public class PluginManagerFrame extends JDialog {
 	private void initialize() {
 		this.setSize(613, 444);
 		this.setContentPane(getJContentPane());
-		this.setTitle("Plugin Manager");
+		this.setTitle("Updates and plugins");
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		this.addWindowListener(new WindowAdapter() {
 
