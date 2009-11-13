@@ -178,7 +178,6 @@ public class PackItem extends Resource {
 	  logger.debug("Found information for pack item with URI: " + p.getURI());
 	} catch (Exception e) {
 	  logger.error("Failed midway through creating pack item object from XML", e);
-	  e.printStackTrace();
 	}
 
 	// return created pack item instance
