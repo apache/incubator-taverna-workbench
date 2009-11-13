@@ -46,10 +46,7 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
-import javax.swing.event.TreeWillExpandListener;
-import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreeCellRenderer;
-import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
@@ -312,7 +309,7 @@ public abstract class TreePanel extends JPanel {
 			} catch (InterruptedException e) {
 				Thread.interrupted();
 			} catch (InvocationTargetException e) {
-				e.printStackTrace();
+				logger.error("", e);
 			}
 		}
 	}
