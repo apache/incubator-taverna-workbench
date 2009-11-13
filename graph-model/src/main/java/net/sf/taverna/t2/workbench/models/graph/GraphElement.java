@@ -176,7 +176,6 @@ public abstract class GraphElement {
 		if (graphController != null) {
 			graphController.mapElement(id, this);
 		}
-//		System.out.println(id);
 		this.id = id;
 	}
 
