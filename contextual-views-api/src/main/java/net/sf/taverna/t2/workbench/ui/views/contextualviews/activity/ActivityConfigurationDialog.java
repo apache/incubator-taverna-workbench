@@ -214,6 +214,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 	private void applyConfiguration() {
 		panel.noteConfiguration();
 		configureActivity(panel.getConfiguration());
+		panel.refreshConfiguration();
 	}
 
 	public void dispose() {
