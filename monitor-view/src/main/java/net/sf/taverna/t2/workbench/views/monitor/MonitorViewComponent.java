@@ -424,7 +424,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 														+ " nested: " + targetWorkflowID);										
 									} else {
 //										JOptionPane.showMessageDialog(null,
-//												"Currently no intermediate results available for processor " + localName + "\nData may still be being processed",
+//												"Currently no intermediate results available for service " + localName + "\nData may still be being processed",
 //												"No results yet",
 //												JOptionPane.INFORMATION_MESSAGE);
 //										frame.setVisible(false);
