@@ -291,7 +291,6 @@ public class User extends Resource {
 
 	} catch (Exception e) {
 	  logger.error("Failed midway through creating user object from XML", e);
-	  e.printStackTrace();
 	}
 
 	return (user);
