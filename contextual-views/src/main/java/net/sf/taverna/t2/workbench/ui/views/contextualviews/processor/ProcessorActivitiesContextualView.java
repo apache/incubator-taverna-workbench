@@ -146,7 +146,7 @@ public class ProcessorActivitiesContextualView extends ContextualView {
 		if (activityList.isEmpty()) {
 			JLabel noActivitiesLabel = new JLabel(
 					"<html><strong>Abstract processor</strong>"
-							+ "<br><i>No activities, this processor will not execute</i></html>");
+							+ "<br><i>No services.  This will not execute./i></html>");
 			constraints.fill = GridBagConstraints.NONE;
 			constraints.anchor = GridBagConstraints.LINE_START;
 			mainPanel.add(noActivitiesLabel, constraints);
