@@ -173,11 +173,9 @@ public class UpdatesAvailableIcon extends JLabel implements
 						}
 					});
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error("Could not check for updates", e);
 				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.error("Could not check for updates", e);
 				}
 			} else {
 				setToolTipText("");
