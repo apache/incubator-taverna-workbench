@@ -206,7 +206,6 @@ public class MyExperimentClient {
 	  this.iniSettings.put(MyExperimentClient.INI_PASSWORD, "");
 	} catch (IOException e) {
 	  this.logger.error("Error on reading settings from INI file:\n" + e);
-	  e.printStackTrace();
 	}
   }
 
@@ -801,7 +800,6 @@ public class MyExperimentClient {
 	  doc = this.doMyExperimentGET(strURL).getResponseBody();
 	} catch (Exception e) {
 	  logger.error("ERROR: Failed to fetch user's contributions.");
-	  e.printStackTrace();
 	}
 
 	return (doc);
@@ -955,7 +953,6 @@ public class MyExperimentClient {
 	} catch (Exception e) {
 	  logger.error("ERROR: Failed to run search on myExperiment. Query URL was'"
 		  + strSearchURL + "'\n" + e);
-	  e.printStackTrace();
 	}
 
 	return (doc);
@@ -1114,7 +1111,6 @@ public class MyExperimentClient {
 	} catch (Exception e) {
 	  logger.error("Failed while trying to remove an item ("
 		  + resource.getURI() + ") from favourites\n" + e);
-	  e.printStackTrace();
 	  return (new ServerResponse(ServerResponse.LOCAL_FAILURE, null));
 	}
   }
