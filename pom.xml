@@ -37,7 +37,6 @@
 		<module>design-ui</module>
 		<module>graph-model</module>
 		<module>graph-view</module>
-		<module>inputs-view</module>
 		<module>iteration-strategy-ui</module>
 		<module>monitor-view</module>
 		<module>perspective-design</module>
