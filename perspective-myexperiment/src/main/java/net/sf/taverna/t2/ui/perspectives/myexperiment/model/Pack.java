@@ -225,8 +225,7 @@ public class Pack extends Resource
     }
     catch (Exception e) {
       logger.error("Failed midway through creating pack object from XML", e);
-      e.printStackTrace();
-    }
+   }
     
     // return created pack instance
     return(p);
