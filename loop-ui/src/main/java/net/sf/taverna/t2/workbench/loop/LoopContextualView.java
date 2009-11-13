@@ -147,7 +147,7 @@ public class LoopContextualView extends ContextualView {
 				description.append("<i>Unconfigured, will not loop</i>");
 			}
 		} else {
-			description.append("The activity will be invoked repeatedly <br>");
+			description.append("The main service will be invoked repeatedly <br>");
 			description.append("until its output ");
 			description.append(properties
 					.getProperty(ActivityGenerator.COMPARE_PORT));
