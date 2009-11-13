@@ -35,6 +35,8 @@ import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Merge;
 import net.sf.taverna.t2.workflowmodel.MergeInputPort;
 
+import org.apache.log4j.Logger;
+
 /**
  * Configuration action for a {@link Merge}. This action changes the order of
  * merge's incoming ports.
@@ -44,6 +46,9 @@ import net.sf.taverna.t2.workflowmodel.MergeInputPort;
  */
 @SuppressWarnings("serial")
 public class MergeConfigurationAction extends AbstractAction {
+
+	private static Logger logger = Logger
+	.getLogger(MergeConfigurationAction.class);
 
 	private Merge merge;
 	private List<MergeInputPort> reorderedInputPortsList;
@@ -68,11 +73,9 @@ public class MergeConfigurationAction extends AbstractAction {
 			EditManager.getInstance().doDataflowEdit(currentDataflow,
 					reorderMergeInputPortsEdit);
 		} catch (IllegalStateException ex1) {
-			// TODO Auto-generated catch block
-			ex1.printStackTrace();
+			logger.error("Could not configure merge", ex1);
 		} catch (EditException ex2) {
-			// TODO Auto-generated catch block
-			ex2.printStackTrace();
+			logger.error("Could not configure merge", ex2);
 		}
 
 	}
