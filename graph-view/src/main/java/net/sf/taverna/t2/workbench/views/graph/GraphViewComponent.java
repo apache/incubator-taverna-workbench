@@ -472,14 +472,26 @@ public class GraphViewComponent extends WorkflowView {
 			if (! (message instanceof AbstractDataflowEditEvent)) {
 				return;
 			}
-			SwingUtilities.invokeLater(new Runnable() {
+			Runnable doRun = new Runnable() {
 				public void run() {
 					AbstractDataflowEditEvent dataflowEditEvent = (AbstractDataflowEditEvent) message;
 					if (dataflowEditEvent.getDataFlow() == dataflow) {
 						graphController.redraw();
 					}
 				}
-			});			
+			};
+			Runnable redraw = new Runnable() {
+				public void run() {
+					AbstractDataflowEditEvent dataflowEditEvent = (AbstractDataflowEditEvent) message;
+					if (dataflowEditEvent.getDataFlow() == dataflow) {
+						graphController.redraw();
+					}
+				}
+			};
+			// Seems to hang diagram at times.. things not happening in right order?
+			//SwingUtilities.invokeLater(redraw);	
+			// Run it directly for now
+			redraw.run();
 		}
 	}
 
@@ -515,8 +527,13 @@ public class GraphViewComponent extends WorkflowView {
 
 		public void notify(Observable<ModelMapEvent> sender,
 				ModelMapEvent message) {
-			SwingUtilities.invokeLater(new ModelMapObserverRunnable(message));
+			ModelMapObserverRunnable runnable = new ModelMapObserverRunnable(message);
+			// Seems to hang diagram at times.. things not happening in right order?		
+			//SwingUtilities.invokeLater(runnable);
+			// instead - run directly
+			runnable.run();
 		}
+		
 
 	}
 
