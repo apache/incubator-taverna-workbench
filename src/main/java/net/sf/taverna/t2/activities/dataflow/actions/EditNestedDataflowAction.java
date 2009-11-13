@@ -56,13 +56,13 @@ public class EditNestedDataflowAction extends AbstractAction {
 		try {
 			getFileManager().openDataflow(T2_FLOW_FILE_TYPE, nestedDataflowSource);
 		} catch (OpenException e1) {
-			logger.error("Could not open nested dataflow from activity "
+			logger.error("Could not open nested workflow from service "
 					+ dataflowActivity, e1);
 			JOptionPane
 					.showMessageDialog(parentComponent,
-							"Could not open nested dataflow:\n"
+							"Could not open nested workflow:\n"
 									+ e1.getMessage(),
-							"Could not open nested dataflow",
+							"Could not open nested workflow",
 							JOptionPane.ERROR_MESSAGE);
 			return;
 		}

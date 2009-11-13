@@ -103,18 +103,18 @@ public class NestedDataflowPersistenceHandler extends
 				.getDataflowActivity();
 		Dataflow dataflow = dataflowActivity.getConfiguration();
 		if (dataflow == null) {
-			throw new OpenException("Dataflow was null");
+			throw new OpenException("Workflow was null");
 		}
 		try {
 			return new DataflowInfo(fileType, source, copyDataflow(dataflow));
 		} catch (SerializationException e) {
-			throw new OpenException("Could not serialize dataflow " + dataflow,
+			throw new OpenException("Could not serialize workflow " + dataflow,
 					e);
 		} catch (DeserializationException e) {
-			throw new OpenException("Could not deserialize dataflow "
+			throw new OpenException("Could not deserialize workflow "
 					+ dataflow, e);
 		} catch (EditException e) {
-			throw new OpenException("Could not recreate dataflow " + dataflow,
+			throw new OpenException("Could not recreate workflow " + dataflow,
 					e);
 		}
 	}
@@ -141,13 +141,13 @@ public class NestedDataflowPersistenceHandler extends
 		try {
 			dataflowCopy = copyDataflow(dataflow);
 		} catch (SerializationException e) {
-			throw new SaveException("Could not serialize dataflow " + dataflow,
+			throw new SaveException("Could not serialize workflow " + dataflow,
 					e);
 		} catch (DeserializationException e) {
-			throw new SaveException("Could not deserialize dataflow "
+			throw new SaveException("Could not deserialize workflow "
 					+ dataflow, e);
 		} catch (EditException e) {
-			throw new SaveException("Could not recreate dataflow " + dataflow,
+			throw new SaveException("Could not recreate workflow " + dataflow,
 					e);
 		}
 		Dataflow parentDataflow = nestedDataflowDestination.getParentDataflow();
@@ -160,7 +160,7 @@ public class NestedDataflowPersistenceHandler extends
 		try {
 			editManager.doDataflowEdit(parentDataflow, new CompoundEdit(editList));
 		} catch (EditException e) {
-			throw new SaveException("Could not configure dataflow activity "
+			throw new SaveException("Could not configure workflow service "
 					+ dataflowActivity, e);
 		}
 		return new DataflowInfo(fileType, destination, dataflow);
