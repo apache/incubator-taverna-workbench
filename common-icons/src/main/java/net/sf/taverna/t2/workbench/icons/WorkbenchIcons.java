@@ -22,6 +22,8 @@ package net.sf.taverna.t2.workbench.icons;
 
 import javax.swing.ImageIcon;
 
+import org.apache.log4j.Logger;
+
 /**
  * A container for common icons used by the workbench
  * 
@@ -31,6 +33,8 @@ import javax.swing.ImageIcon;
 @SuppressWarnings("unchecked")
 public class WorkbenchIcons {
 
+	private static Logger logger = Logger
+	.getLogger(WorkbenchIcons.class);
 
 	public static ImageIcon resultsPerspectiveIcon;
 	public static ImageIcon closeIcon;
@@ -230,8 +234,7 @@ public class WorkbenchIcons {
 			tavernaCogs64x64Icon = new ImageIcon(c
 					.getResource("generic/taverna_cogs_64x64.png"));
 		} catch (Exception ex) {
-			ex.printStackTrace();
-			System.out.println(ex.toString());
+			logger.error("Could not create icon", ex);
 		}
 	}
 }
