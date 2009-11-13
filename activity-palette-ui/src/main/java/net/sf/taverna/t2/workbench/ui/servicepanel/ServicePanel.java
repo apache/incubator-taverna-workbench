@@ -69,6 +69,8 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class ServicePanel extends JPanel implements UIComponentSPI {
 
+	private static Logger logger = Logger.getLogger(ServicePanel.class);
+
 	public static final String AVAILABLE_SERVICES = "Available services";
 	public static final String MATCHING_SERVIES = "Matching services";
 	public static final String NO_MATCHING_SERVICES = "No matching services";
@@ -155,8 +157,6 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 	public void onDispose() {
 	}
 
-	private static Logger logger = Logger.getLogger(ServicePanel.class);
-
 	public void providerStatus(ServiceDescriptionProvider provider,
 			String message) {
 		logger.info(message + " " + provider);
@@ -227,10 +227,10 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 						serviceTreePanel.runFilter();
 						} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+							logger.error("", e);
 					} catch (InvocationTargetException e) {
 						// TODO Auto-generated catch block
-						e.printStackTrace();
+						logger.error("", e);
 					}
 				}
 			});
