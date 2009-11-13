@@ -61,7 +61,7 @@ public class AddConditionAction extends DataflowEditAction {
 		try {
 			editManager.doDataflowEdit(dataflow, edits.getCreateConditionEdit(control, target));
 		} catch (EditException e) {
-			logger.debug("Create condition between '" + control.getLocalName() + "' and '" + target.getLocalName() + "' failed");
+			logger.debug("Create control link between '" + control.getLocalName() + "' and '" + target.getLocalName() + "' failed");
 		}
 
 	}
