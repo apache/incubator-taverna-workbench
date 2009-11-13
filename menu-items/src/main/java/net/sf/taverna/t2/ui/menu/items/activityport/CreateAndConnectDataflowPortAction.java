@@ -211,7 +211,7 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 				CompoundEdit compoundEdit = new CompoundEdit(editList);
 				editManager.doDataflowEdit(dataflow, compoundEdit);
 			} catch (EditException ex) {
-				logger.warn("Can't create or connect new output port", ex);
+				logger.warn("Can't create or connect new workflow output port", ex);
 			}
 		}
 	}

@@ -63,7 +63,7 @@ public class WorkflowInputPortSection extends AbstractMenuSection implements
 	@Override
 	protected Action createAction() {
 		InputPort proc = (InputPort) getContextualSelection().getSelection();
-		String name = "Workflow input: " + proc.getName();
+		String name = "Workflow input port: " + proc.getName();
 		return new AbstractAction(name) {
 			public void actionPerformed(ActionEvent e) {
 			}
