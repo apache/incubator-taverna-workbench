@@ -28,7 +28,7 @@ public class UnsavedException extends FileException {
 	private final Dataflow dataflow;
 
 	public UnsavedException(Dataflow dataflow) {
-		super("Dataflow was not saved: " + dataflow);
+		super("Workflow was not saved: " + dataflow);
 		this.dataflow = dataflow;
 	}
 
