@@ -227,13 +227,11 @@ public class ResultsUtils {
 			Collection mimeTypes2 = mimeUtil.getMimeTypes(bytes);
 			mimeList.addAll(mimeTypes2);
 		} catch (IOException e) {
-			e.printStackTrace();
 			logger.error("Failed to read from stream to determine mimetype", e);
 		} finally {
 			try {
 				inputStream.close();
 			} catch (IOException e) {
-				e.printStackTrace();
 				logger.error(
 						"Failed to close stream after determining mimetype", e);
 			}
