@@ -104,7 +104,7 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 	 */
 	public CreateAndConnectDataflowPortAction(Dataflow dataflow, Port port,
 			String suggestedName, Component parentComponent) {
-		super("Connect to new dataflow port");
+		super("Connect to new workflow port");
 		this.dataflow = dataflow;
 		this.port = port;
 		this.suggestedName = suggestedName;
