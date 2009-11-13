@@ -47,6 +47,8 @@ import javax.swing.JTree;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.log4j.Logger;
+
 /**
  * An abstract handler class for drags within a JTree backed by a
  * DefaultTreeModel. Implement the (@link
@@ -60,6 +62,9 @@ import javax.swing.tree.TreePath;
  */
 public abstract class PreRegistrationTreeDnDHandler implements
 		DropTargetListener, DragGestureListener, DragSourceListener {
+
+	private static Logger logger = Logger
+	.getLogger(PreRegistrationTreeDnDHandler.class);
 
 	private JTree tree;
 
@@ -173,10 +178,10 @@ public abstract class PreRegistrationTreeDnDHandler implements
 						dtde.dropComplete(true);
 					} catch (UnsupportedFlavorException e) {
 						dtde.dropComplete(false);
-						e.printStackTrace();
+						logger.error("Cannot import data", e);
 					} catch (IOException e) {
 						dtde.dropComplete(false);
-						e.printStackTrace();
+						logger.error("Cannot import data", e);
 					}
 					return;
 				} else if (mimeType.contains("class=java.lang.String;")) {
@@ -188,10 +193,10 @@ public abstract class PreRegistrationTreeDnDHandler implements
 						dtde.dropComplete(true);
 					} catch (UnsupportedFlavorException e) {
 						dtde.dropComplete(false);
-						e.printStackTrace();
+						logger.error("Cannot import data", e);
 					} catch (IOException e) {
 						dtde.dropComplete(false);
-						e.printStackTrace();
+						logger.error("Cannot import data", e);
 					}
 					return;
 				}
