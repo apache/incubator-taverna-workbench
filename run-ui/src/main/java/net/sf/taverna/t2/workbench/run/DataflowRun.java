@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.run;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Map.Entry;
 
 import net.sf.taverna.t2.facade.ResultListener;
@@ -43,7 +44,12 @@ import net.sf.taverna.t2.workbench.views.results.ResultViewComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EditException;
 
+import org.apache.log4j.Logger;
+
 public class DataflowRun {
+
+	private static Logger logger = Logger
+	.getLogger(DataflowRun.class);
 
 	private WorkflowInstanceFacade facade;
 
@@ -106,10 +112,15 @@ public class DataflowRun {
 		this.facade = facade;
 		this.inputs = inputs;
 		this.dataflow = facade.getDataflow();
+		ProvenanceConnector connector = (ProvenanceConnector) (facade
+				.getContext().getProvenanceReporter());
 		monitorViewComponent
-				.setProvenanceConnector((ProvenanceConnector) (facade
-						.getContext().getProvenanceReporter()));
-		this.runId = facade.getContext().getProvenanceReporter().getSessionID();
+				.setProvenanceConnector(connector);
+		if (connector != null) {
+			this.runId = connector.getSessionID();
+		} else {
+			this.runId = UUID.randomUUID().toString();
+		}
 		resultsComponent = new ResultViewComponent();
 	}
 
@@ -149,8 +160,7 @@ public class DataflowRun {
 		try {
 			resultsComponent.register(facade);
 		} catch (EditException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			logger.error("Unable to register facade", e1);
 		}
 		facade.fire();
 		if (inputs != null) {
@@ -162,7 +172,7 @@ public class DataflowRun {
 					facade.pushData(new WorkflowDataToken("", index,
 							identifier, facade.getContext()), portName);
 				} catch (TokenOrderException e) {
-					e.printStackTrace();
+					logger.error("Unable to push data", e);
 				}
 			}
 		}
