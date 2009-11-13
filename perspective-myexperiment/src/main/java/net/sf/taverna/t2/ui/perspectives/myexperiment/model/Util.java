@@ -44,18 +44,18 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
-import javax.imageio.ImageIO;
 
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.JClickableLabel;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MyExperimentPerspective;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.SearchEngine.QuerySearchInstance;
 
+import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 
@@ -63,7 +63,10 @@ import org.jdom.Element;
  * @author Sergejs Aleksejevs
  */
 public class Util {
-  // ******** DATA ENCRYPTION ********
+	private static Logger logger = Logger
+	.getLogger(Util.class);
+
+	// ******** DATA ENCRYPTION ********
 
   private static final String PBE_PASSWORD = System.getProperty("user.home");
   private static final String PBE_SALT;
@@ -112,8 +115,7 @@ public class Util {
 	  byte[] encrypted = cipher.doFinal(str.getBytes());
 	  return (encrypted);
 	} catch (Exception e) {
-	  System.err.println(e);
-	  e.printStackTrace();
+		logger.error("Could not encrypt and store password");
 	  return (new byte[1]);
 	}
 
