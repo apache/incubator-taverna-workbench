@@ -383,7 +383,6 @@ public class NewEditPasswordEntryDialog extends JDialog
 			// Failed to instantiate Credential Manager - warn the user and exit
 			String exMessage = "Failed to instantiate Credential Manager";
 			logger.error(exMessage, cme);
-			cme.printStackTrace();
 			JOptionPane.showMessageDialog(new JFrame(), exMessage,
 					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
 			return false;
