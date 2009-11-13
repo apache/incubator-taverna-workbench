@@ -34,6 +34,7 @@ import javax.swing.JTextField;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.log4j.Logger;
 
 /**
  * Simple dialogue to handle username/password input for workflow URL requiring http authentication.
@@ -45,7 +46,10 @@ import org.apache.commons.codec.binary.Base64;
 @SuppressWarnings("serial")
 public class PasswordInput extends HelpEnabledDialog {
         
-        private String password=null;
+	private static Logger logger = Logger
+	.getLogger(PasswordInput.class);
+
+	private String password=null;
         private String username=null;
         private URL url=null;
         private int tryCount = 0;
@@ -179,7 +183,7 @@ public class PasswordInput extends HelpEnabledDialog {
                             this.setVisible(false);
                         }
                 } catch (IOException ex) {
-                        ex.printStackTrace();
+                        logger.error("Could not get password", ex);
                 }
                 
                 
