@@ -319,14 +319,14 @@ public class LoopConfigurationPanel extends JPanel {
 
 		JLabel helpLabel = new JLabel(
 				"<html><em>"
-						+ "The processor's activity will be invoked repeatedly as<br>"
-						+ "long as the conditional activity returns a string equal<br>"
-						+ "to 'true' on it's output port <code>loop</code>."
+						+ "The main service will be invoked repeatedly as<br>"
+						+ "long as the condition service returns a string equal<br>"
+						+ "to 'true' on its output port <code>loop</code>."
 						+ "<br><br>"
 						+ "Any conditional input ports will be populated with values from<br>"
-						+ "the matching output ports of the processor's activity, <br>"
-						+ "and outputs from the conditional will replace the original<br>"
-						+ "inputs to the processor's activity.</em></html>");
+						+ "the matching output ports of the main service, <br>"
+						+ "and outputs from the condition service will replace the original<br>"
+						+ "inputs to the main service.</em></html>");
 		customPanel.add(helpLabel, gbc);
 
 		gbc.fill = GridBagConstraints.NONE;
@@ -361,7 +361,7 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.gridwidth = 2;
 
 		JLabel invokedRepeatedlyLabel = new JLabel(
-				"The activity will be invoked repeatedly until its output");
+				"The main service will be invoked repeatedly until its output");
 		configPanel.add(invokedRepeatedlyLabel, gbc);
 		gbc.gridy++;
 		gbc.gridx = 0;
@@ -387,8 +387,8 @@ public class LoopConfigurationPanel extends JPanel {
 		if (activityOutputPorts.isEmpty()) {
 			JLabel warningLabel = new JLabel(
 					"<html><strong>Warning:</strong><br>"
-							+ "<i>No activity output ports detected,<br>"
-							+ "can't use built-in comparisons.</i></html>");
+							+ "<i>No output ports detected on the main service,<br>"
+							+ "Cannot use built-in comparisons.</i></html>");
 			gbc.gridwidth = 3;
 			gbc.fill = GridBagConstraints.BOTH;
 			gbc.gridy++;
