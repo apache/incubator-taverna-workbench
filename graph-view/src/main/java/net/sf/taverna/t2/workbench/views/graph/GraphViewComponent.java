@@ -493,8 +493,6 @@ public class GraphViewComponent extends WorkflowView {
 		public void run() {
 			if (message instanceof ModelDestroyedEvent) {
 				if (message.getOldModel() instanceof Dataflow) {
-					// System.out.println("ModelDestroyedEvent - " +
-					// message.getModelName());
 					JPanel panel = diagramPanelMap.remove((Dataflow) message
 							.getOldModel());
 					if (panel != null) {
