@@ -54,7 +54,7 @@ public class RemoveDataflowInputPortAction extends DataflowEditAction {
 		super(dataflow, component);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
-		putValue(NAME, "Delete workflow input");		
+		putValue(NAME, "Delete workflow input port");		
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -72,7 +72,7 @@ public class RemoveDataflowInputPortAction extends DataflowEditAction {
 			}			
 			dataflowSelectionModel.removeSelection(port);
 		} catch (EditException e1) {
-			logger.debug("Delete dataflow input port failed", e1);
+			logger.debug("Delete workflow input port failed", e1);
 		}
 	}
 

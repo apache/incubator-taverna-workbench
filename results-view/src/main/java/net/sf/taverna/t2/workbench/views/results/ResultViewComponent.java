@@ -277,7 +277,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				inputsPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
 
 				inputsPanel.setLayout(new GridLayout(0, 1));
-				inputsPanel.add(new JLabel("Inputs:"));
+				inputsPanel.add(new JLabel("Workflow inputs:"));
 				WeakHashMap<String, T2Reference> pushedDataMap = facade.getPushedDataMap();
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (DataflowInputPort port : facade.getDataflow().getInputPorts()) {
