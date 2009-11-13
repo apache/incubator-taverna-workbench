@@ -55,6 +55,8 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import org.apache.log4j.Logger;
+
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
@@ -70,6 +72,9 @@ import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
 @SuppressWarnings("serial")
 class NewKeyPairEntryDialog extends JDialog
 {
+
+	private Logger logger = Logger.getLogger(NewKeyPairEntryDialog.class);
+	
 	// List of key pairs available for import 
     private JList jltKeyPairs;
 
@@ -490,7 +495,7 @@ class NewKeyPairEntryDialog extends JDialog
 		} catch (CMException cme) {
 			// Failed to instantiate Credential Manager - warn the user and exit
 			String sMessage = "Failed to instantiate Credential Manager. " + cme.getMessage();
-			cme.printStackTrace();
+			logger.error(sMessage, cme);
 			JOptionPane.showMessageDialog(new JFrame(), sMessage,
 					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
 			return;
