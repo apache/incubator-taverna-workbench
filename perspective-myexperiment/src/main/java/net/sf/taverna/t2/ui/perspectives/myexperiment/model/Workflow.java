@@ -412,7 +412,6 @@ public class Workflow extends Resource {
 		  + ", Title: " + w.getTitle());
 	} catch (Exception e) {
 	  logger.error("Failed midway through creating workflow object from XML", e);
-	  e.printStackTrace();
 	}
 
 	// return created workflow instance
