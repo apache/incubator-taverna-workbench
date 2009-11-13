@@ -1284,7 +1284,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 	private Object showPortOptions(List<? extends Port> ports, String portType, Component component, Point point) {
 		Object result = null;
 		if (ports.size() == 0) {
-			JOptionPane.showMessageDialog(component, "Processor has no "+portType+" ports to connect to");
+			JOptionPane.showMessageDialog(component, "Service has no "+portType+" ports to connect to");
 		} else if (ports.size() == 1) {
 			result = ports.get(0);
 		} else {
