@@ -32,6 +32,8 @@ import javax.swing.JTextArea;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 
+import org.apache.log4j.Logger;
+
 /**
  * Renderer for mime type image/*
  * 
@@ -41,6 +43,10 @@ import net.sf.taverna.t2.reference.T2Reference;
 public class ImageRenderer implements Renderer
 
 {
+	private static Logger logger = Logger
+	.getLogger(ImageRenderer.class);
+
+	
 	private float MEGABYTE = 1024*1024;
 	
 	private int meg = 1048576;
@@ -71,8 +77,7 @@ public class ImageRenderer implements Renderer
 			data = referenceService.renderIdentifier(reference, byte[].class,
 					null);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Cannot render identifier", e);
 		}
 		if (data instanceof byte[]) {
 			//3 megabyte limit for jpeg viewing?
