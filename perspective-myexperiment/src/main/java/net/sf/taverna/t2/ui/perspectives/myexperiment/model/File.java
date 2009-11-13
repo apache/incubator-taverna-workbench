@@ -230,7 +230,6 @@ public class File extends Resource {
 		  + ", Title: " + f.getTitle());
 	} catch (Exception e) {
 	  logger.error("Failed midway through creating file object from XML", e);
-	  e.printStackTrace();
 	}
 
 	// return created file instance
