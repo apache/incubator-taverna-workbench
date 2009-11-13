@@ -187,7 +187,7 @@ public class SVGUtil {
 		// versions. http://www.graphviz.org/bugs/b1075.html
 		// Contributed by Marko Ullgren
 		svgText = svgText.replaceAll("font-weight:regular", "font-weight:normal");
-		System.out.println(svgText);
+		logger.info(svgText);
 		// Fake URI, just used for internal references like #fish
 		return docFactory.createSVGDocument("http://taverna.sf.net/diagram/generated.svg",
 				new StringReader(svgText));
@@ -222,7 +222,7 @@ public class SVGUtil {
 		out.close();
 
 		String dot = devourer.blockOnOutput();
-		// System.out.println(dot);
+		// logger.info(dot);
 		return dot;
 	}
 
