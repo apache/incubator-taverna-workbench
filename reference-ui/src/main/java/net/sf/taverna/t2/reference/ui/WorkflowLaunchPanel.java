@@ -269,7 +269,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 			tabComponents.put(inputName, value);
 			tabs.addTab(inputName, value);
 		} else {
-			logger.warn("There is no registration panel for the dataflow");
+			logger.warn("There is no registration panel for the workflow");
 		}
 
 	}

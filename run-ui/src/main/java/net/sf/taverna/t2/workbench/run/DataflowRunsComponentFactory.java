@@ -37,7 +37,7 @@ public class DataflowRunsComponentFactory implements UIComponentFactorySPI {
 	}
 
 	public String getName() {
-		return "Dataflow Runs View";
+		return "Workflow Runs View";
 	}
 
 }

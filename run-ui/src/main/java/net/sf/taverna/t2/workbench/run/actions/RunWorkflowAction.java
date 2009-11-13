@@ -132,7 +132,7 @@ public class RunWorkflowAction extends AbstractAction {
 			return;
 		}
 		final Dataflow dataflow = (Dataflow) model;
-		Thread t = new Thread("Preparing to run dataflow "
+		Thread t = new Thread("Preparing to run workflow "
 				+ dataflow.getLocalName()) {
 			public void run() {
 				try {
@@ -157,11 +157,11 @@ public class RunWorkflowAction extends AbstractAction {
 			dataflowCopy = deserialiser.deserializeDataflow(serialiser
 					.serializeDataflow(dataflow));
 		} catch (SerializationException e1) {
-			logger.error("Unable to copy dataflow", e1);
+			logger.error("Unable to copy workflow", e1);
 		} catch (DeserializationException e1) {
-			logger.error("Unable to copy dataflow", e1);
+			logger.error("Unable to copy workflow", e1);
 		} catch (EditException e1) {
-			logger.error("Unable to copy dataflow", e1);
+			logger.error("Unable to copy workflow", e1);
 		}
 
 		if (dataflowCopy != null) {

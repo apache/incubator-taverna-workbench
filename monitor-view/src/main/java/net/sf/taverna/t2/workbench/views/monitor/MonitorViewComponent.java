@@ -336,7 +336,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 					provResultsPanel
 							.setLineageRecords(intermediateValues);
 					logger
-							.info("Intermediate results retrieved for dataflow instance: "
+							.info("Intermediate results retrieved for workflow instance: "
 									+ sessionID
 									+ " processor: "
 									+ localName
@@ -391,7 +391,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 
 							public void run() {
 								try {
-									logger.info("Retrieving intermediate results for dataflow instance: "
+									logger.info("Retrieving intermediate results for workflow instance: "
 													+ sessionID
 													+ " processor: "
 													+ localName
@@ -417,7 +417,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 										frame.setVisible(true);
 //										frame.setVisible(true);
 										logger
-												.info("Intermediate results retrieved for dataflow instance: "
+												.info("Intermediate results retrieved for workflow instance: "
 														+ sessionID
 														+ " processor: "
 														+ localName
@@ -450,7 +450,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 						};
 						runnable.run();
 //						timer = new Timer(
-//								"Retrieve intermediate results for dataflow: "
+//								"Retrieve intermediate results for workflow: "
 //										+ internalIdentier + ", processor: "
 //										+ localName);
 //						

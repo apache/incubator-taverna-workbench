@@ -69,7 +69,7 @@ public class RemoveDataflowOutputPortAction extends DataflowEditAction {
 			}			
 			dataflowSelectionModel.removeSelection(port);
 		} catch (EditException e1) {
-			logger.debug("Delete dataflow output port failed", e1);
+			logger.debug("Delete workflow output port failed", e1);
 		}
 	}
 
