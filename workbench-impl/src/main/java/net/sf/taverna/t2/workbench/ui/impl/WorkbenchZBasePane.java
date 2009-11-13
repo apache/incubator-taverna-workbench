@@ -28,6 +28,8 @@ import javax.swing.JPanel;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 import net.sf.taverna.zaria.ZBasePane;
 
+import org.apache.log4j.Logger;
+
 /**
  * The default ZBasePane used within the Taverna Workbench
  * 
@@ -36,6 +38,9 @@ import net.sf.taverna.zaria.ZBasePane;
  */
 @SuppressWarnings("serial")
 public class WorkbenchZBasePane extends ZBasePane {
+
+	private static Logger logger = Logger
+	.getLogger(WorkbenchZBasePane.class);
 
 	public WorkbenchZBasePane() {
 		super();
@@ -70,9 +75,9 @@ public class WorkbenchZBasePane extends ZBasePane {
 			factory = (UIComponentFactorySPI) theClass.newInstance();
 			return (JComponent) factory.getComponent();
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			logger.error("Unable to create component", e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			logger.error("Unable to create component", e);
 		}
 		return new JPanel();
 	}
