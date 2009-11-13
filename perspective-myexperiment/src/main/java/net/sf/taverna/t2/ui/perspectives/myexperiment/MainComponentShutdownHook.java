@@ -97,7 +97,6 @@ public class MainComponentShutdownHook implements ShutdownSPI {
 	  } catch (Exception e) {
 		logger.error("Failed while serializing myExperiment plugin settings:\n"
 			+ e);
-		e.printStackTrace();
 	  }
 
 	  logger.debug("myExperiment plugin shutdown is completed; terminated...");
