@@ -155,7 +155,7 @@ public class IterationStrategyEditor extends IterationStrategyTree implements
 				// The dragged item (pathSource) has been inserted at the target
 				// selected by the user.
 				// Now it is time to delete it from its original location.
-				System.out.println("REMOVING: "
+				logger.info("REMOVING: "
 						+ pathSource.getLastPathComponent());
 
 				// .
@@ -227,7 +227,7 @@ public class IterationStrategyEditor extends IterationStrategyTree implements
 
 		setSelectionPath(path); // Select this path in the tree
 
-		System.out.println("DRAGGING: " + path.getLastPathComponent());
+		logger.info("DRAGGING: " + path.getLastPathComponent());
 
 		// Wrap the path being transferred into a Transferable object
 		Transferable transferable = new CTransferableTreePath(path);
@@ -268,13 +268,13 @@ public class IterationStrategyEditor extends IterationStrategyTree implements
 
 	// TreeModelListener interface...
 	public void treeNodesChanged(TreeModelEvent e) {
-		System.out.println("treeNodesChanged");
+		logger.info("treeNodesChanged");
 		sayWhat(e);
 		// We dont need to reset the selection path, since it has not moved
 	}
 
 	public void treeNodesInserted(TreeModelEvent e) {
-		System.out.println("treeNodesInserted ");
+		logger.info("treeNodesInserted ");
 		sayWhat(e);
 
 		// We need to reset the selection path to the node just inserted
@@ -284,12 +284,12 @@ public class IterationStrategyEditor extends IterationStrategyTree implements
 	}
 
 	public void treeNodesRemoved(TreeModelEvent e) {
-		System.out.println("treeNodesRemoved ");
+		logger.info("treeNodesRemoved ");
 		sayWhat(e);
 	}
 
 	public void treeStructureChanged(TreeModelEvent e) {
-		System.out.println("treeStructureChanged ");
+		logger.info("treeStructureChanged ");
 		sayWhat(e);
 	}
 
@@ -327,10 +327,10 @@ public class IterationStrategyEditor extends IterationStrategyTree implements
 	}
 
 	private void sayWhat(TreeModelEvent e) {
-		System.out.println(e.getTreePath().getLastPathComponent());
+		logger.info(e.getTreePath().getLastPathComponent());
 		int[] nIndex = e.getChildIndices();
 		for (int i = 0; i < nIndex.length; i++) {
-			System.out.println(i + ". " + nIndex[i]);
+			logger.info(i + ". " + nIndex[i]);
 		}
 	}
 
@@ -502,7 +502,7 @@ public class IterationStrategyEditor extends IterationStrategyTree implements
 					TreePath pathSource = (TreePath) transferable
 							.getTransferData(flavor);
 
-					System.out.println("DROPPING: "
+					logger.info("DROPPING: "
 							+ pathSource.getLastPathComponent());
 					DefaultTreeModel model = getModel();
 
@@ -512,49 +512,49 @@ public class IterationStrategyEditor extends IterationStrategyTree implements
 							.getLastPathComponent();
 					/**
 					 * if (draggedNode.getParent().equals(dropNode.getParent(
-					 * ))) { System.out.println("Not doing anything, parent is
+					 * ))) { logger.info("Not doing anything, parent is
 					 * the same for both nodes"); e.dropComplete(false); return;
 					 * }
 					 */
-					System.out.println("Removing node "
+					logger.info("Removing node "
 							+ draggedNode.toString() + " of type "
 							+ draggedNode.getClass().getName());
 					TreeNode oldParent = draggedNode.getParent();
 
 					if (dropNode instanceof NamedInputPortNode
 							|| ((!isExpanded(pathTarget)) && _nShift <= 0)) {
-						System.out.println("Drop target is a leaf node: "
+						logger.info("Drop target is a leaf node: "
 								+ dropNode);
 						IterationStrategyNode newParentNode = dropNode
 								.getParent();
-						System.out.println("Drop target parent : "
+						logger.info("Drop target parent : "
 								+ newParentNode + " of type "
 								+ newParentNode.getClass().getName());
 						int index = model.getIndexOfChild(dropNode.getParent(),
 								dropNode);
-						System.out.println("Drop target has index " + index
+						logger.info("Drop target has index " + index
 								+ " in its parent's child list");
 
 						int newIndex = Math.min(index + 1, newParentNode
 								.getChildCount());
 						newParentNode.insert(draggedNode, newIndex);
-						System.out.println("Node inserted");
-						System.out.println("New node parent is "
+						logger.info("Node inserted");
+						logger.info("New node parent is "
 								+ draggedNode.getParent().toString()
 								+ " of type "
 								+ draggedNode.getParent().getClass().getName());
 						model.nodeStructureChanged(oldParent);
 						model.nodeStructureChanged(newParentNode);
 					} else {
-						System.out.println("Drop target is not a leaf");
-						System.out.println("Drop target : "
+						logger.info("Drop target is not a leaf");
+						logger.info("Drop target : "
 								+ dropNode.toString() + " of type "
 								+ dropNode.getClass().getName());
 						dropNode.insert(draggedNode, 0);
 						model.nodeStructureChanged(oldParent);
 						model.nodeStructureChanged(dropNode);
 
-						System.out.println("Node inserted");
+						logger.info("Node inserted");
 					}
 					setSelectionPath(new TreePath(model
 							.getPathToRoot(draggedNode)));
@@ -581,15 +581,15 @@ public class IterationStrategyEditor extends IterationStrategyTree implements
 
 					break; // No need to check remaining flavors
 				} catch (UnsupportedFlavorException ufe) {
-					System.out.println(ufe);
+					logger.info(ufe);
 					e.dropComplete(false);
 					return;
 				} catch (IOException ioe) {
-					System.out.println(ioe);
+					logger.info(ioe);
 					e.dropComplete(false);
 					return;
 				} catch (ClassCastException cce) {
-					System.out.println(cce);
+					logger.info(cce);
 					e.dropComplete(false);
 					return;
 				}
@@ -651,7 +651,7 @@ public class IterationStrategyEditor extends IterationStrategyTree implements
 			// Do this if you want to prohibit dropping onto the drag source...
 			Point pt = e.getLocation();
 			TreePath path = getClosestPathForLocation(pt.x, pt.y);
-			System.out.println(path.toString() + " " + pathSource.toString());
+			logger.info(path.toString() + " " + pathSource.toString());
 			if (path.equals(pathSource)) {
 				return false;
 			}
