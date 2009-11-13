@@ -495,7 +495,7 @@ public class ImportWorkflowWizard extends JDialog {
 
 		prefixHelp = new JLabel(
 				"<html><small>Optional prefix to be prepended to the name of the "
-						+ "inserted processors and workflow ports. Even if no prefix is given, duplicate names will be "
+						+ "inserted services and workflow ports. Even if no prefix is given, duplicate names will be "
 						+ "resolved by adding numbers, for instance <code>my_service_2</code> if <code>my_service</code> already "
 						+ "existed." + "</small></html>");
 		prefixHelp.setLabelFor(prefixField);
@@ -547,7 +547,6 @@ public class ImportWorkflowWizard extends JDialog {
 
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
-					System.out.println("It was selected");
 					browseFileOnClick.checkEmptyFile();
 				}
 			}
