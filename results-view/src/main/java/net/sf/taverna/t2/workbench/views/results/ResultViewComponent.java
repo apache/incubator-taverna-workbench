@@ -230,7 +230,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			dialog.setTitle("Workflow run data saver");
 			JPanel panel = new JPanel(new BorderLayout());
 			DialogTextArea explanation = new DialogTextArea();
-			explanation.setText("Select the input and output ports to save the associated data");
+			explanation.setText("Select the workflow input and output ports to save the associated data");
 			explanation.setColumns(40);
 			explanation.setEditable(false);
 			explanation.setOpaque(false);
@@ -299,7 +299,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				JPanel outputsPanel = new JPanel();
 				outputsPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
 				outputsPanel.setLayout(new GridLayout(0, 1));
-				outputsPanel.add(new JLabel("Outputs:"));
+				outputsPanel.add(new JLabel("Workflow outputs:"));
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (String portName : resultReferencesMap.keySet()) {
 					JCheckBox checkBox = new JCheckBox(portName);

@@ -81,7 +81,7 @@ public class EditDataflowOutputPortAction extends DataflowEditAction {
 				editManager.doDataflowEdit(dataflow, edits.getRenameDataflowOutputPortEdit(port, portName));
 			}
 		} catch (EditException e1) {
-			logger.debug("Rename dataflow output port failed", e1);
+			logger.debug("Rename workflow output port failed", e1);
 		}
 	}
 

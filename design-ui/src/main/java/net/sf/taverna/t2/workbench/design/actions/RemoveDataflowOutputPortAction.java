@@ -53,7 +53,7 @@ public class RemoveDataflowOutputPortAction extends DataflowEditAction {
 		super(dataflow, component);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
-		putValue(NAME, "Delete workflow output");		
+		putValue(NAME, "Delete workflow output port");		
 	}
 
 	public void actionPerformed(ActionEvent e) {

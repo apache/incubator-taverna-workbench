@@ -76,7 +76,7 @@ public class AddDataflowOutputAction extends DataflowEditAction {
 				editManager.doDataflowEdit(dataflow, edits.getAddDataflowOutputPortEdit(dataflow, dataflowOutputPort));
 			}
 		} catch (EditException e) {
-			logger.debug("Create dataflow output port failed", e);
+			logger.debug("Create workflow output port failed", e);
 		}
 
 	}

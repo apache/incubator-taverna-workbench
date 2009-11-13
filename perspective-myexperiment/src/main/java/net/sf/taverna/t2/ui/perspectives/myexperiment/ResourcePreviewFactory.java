@@ -1030,7 +1030,7 @@ public class ResourcePreviewFactory {
 	  JPanel jpInputsWithTitle = new JPanel();
 	  jpInputsWithTitle.setBorder(BorderFactory.createEtchedBorder());
 	  jpInputsWithTitle.setLayout(new BorderLayout());
-	  jpInputsWithTitle.add(new ShadedLabel("Inputs (" + vInputsData.size()
+	  jpInputsWithTitle.add(new ShadedLabel("Workflow input ports (" + vInputsData.size()
 		  + ")", ShadedLabel.BLUE, true), BorderLayout.NORTH);
 	  if (vInputsData.size() > 0) {
 		jpInputsWithTitle.add(jpInputs, BorderLayout.CENTER);
@@ -1066,7 +1066,7 @@ public class ResourcePreviewFactory {
 	  JPanel jpProcessorsWithTitle = new JPanel();
 	  jpProcessorsWithTitle.setBorder(BorderFactory.createEtchedBorder());
 	  jpProcessorsWithTitle.setLayout(new BorderLayout());
-	  jpProcessorsWithTitle.add(new ShadedLabel("Processors ("
+	  jpProcessorsWithTitle.add(new ShadedLabel("Services ("
 		  + vProcessorsData.size() + ")", ShadedLabel.BLUE, true),
 		  BorderLayout.NORTH);
 	  if (vProcessorsData.size() > 0) {
@@ -1137,7 +1137,7 @@ public class ResourcePreviewFactory {
 	  JPanel jpOutputsWithTitle = new JPanel();
 	  jpOutputsWithTitle.setBorder(BorderFactory.createEtchedBorder());
 	  jpOutputsWithTitle.setLayout(new BorderLayout());
-	  jpOutputsWithTitle.add(new ShadedLabel("Outputs (" + vOutputsData.size()
+	  jpOutputsWithTitle.add(new ShadedLabel("Workflow output ports (" + vOutputsData.size()
 		  + ")", ShadedLabel.BLUE, true), BorderLayout.NORTH);
 	  if (vOutputsData.size() > 0) {
 		jpOutputsWithTitle.add(jpOutputs, BorderLayout.CENTER);

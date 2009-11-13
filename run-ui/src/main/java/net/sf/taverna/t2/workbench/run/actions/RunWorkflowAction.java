@@ -248,7 +248,7 @@ public class RunWorkflowAction extends AbstractAction {
 		sb.append("<dl>");
 		if (report.isWorkflowIncomplete()){
 			sb.append("<dt><b>Workflow is incomplete</b></dt>");
-			sb.append("<dt><i>(Workflow should contain at least one service or a connected output port)</i>");
+			sb.append("<dt><i>(Workflow should contain at least one service or a connected workflow output port)</i>");
 		}
 		List<? extends TokenProcessingEntity> unsatisfiedEntities = report
 				.getUnsatisfiedEntities();
@@ -269,9 +269,9 @@ public class RunWorkflowAction extends AbstractAction {
 						.getIncomingLink();
 				if (dl == null) {
 					if (!foundUnconnected) {
-						sb.append("<dt><b>Unconnected workflow outputs</b>");
+						sb.append("<dt><b>Unconnected workflow output ports</b>");
 						sb
-								.append("<dt><i>(Workflow outputs must be connected to a valid link)</i>");
+								.append("<dt><i>(Workflow output ports must be connected to a valid link)</i>");
 						foundUnconnected = true;
 					}
 					sb.append("<dd>" + dataflowOutputPort.getName());

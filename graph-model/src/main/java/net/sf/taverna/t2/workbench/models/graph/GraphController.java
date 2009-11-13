@@ -589,7 +589,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		if (getPortStyle().equals(PortStyle.BLOB)) {
 			inputs.setLabel("");
 		} else {
-			inputs.setLabel("Workflow Inputs");
+			inputs.setLabel("Workflow input ports");
 		}
 
 		GraphNode triangle = createGraphNode();
@@ -650,7 +650,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		if (getPortStyle().equals(PortStyle.BLOB)) {
 			outputs.setLabel("");
 		} else {
-			outputs.setLabel("Workflow Outputs");
+			outputs.setLabel("Workflow output ports");
 		}
 
 		GraphNode triangle = createGraphNode();
