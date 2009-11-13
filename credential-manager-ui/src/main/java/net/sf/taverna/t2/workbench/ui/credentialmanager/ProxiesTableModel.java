@@ -70,7 +70,6 @@ public class ProxiesTableModel extends AbstractTableModel implements Observer<Ke
 			// Failed to instantiate Credential Manager - warn the user and exit
 			String sMessage = "Failed to instantiate Credential Manager. " + cme.getMessage();
 			logger.error("CM GUI: "+ sMessage);
-			cme.printStackTrace();
 			JOptionPane.showMessageDialog(new JFrame(), sMessage,
 					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -91,7 +90,6 @@ public class ProxiesTableModel extends AbstractTableModel implements Observer<Ke
 		} catch (CMException cme) {
 			String sMessage = "Failed to load proxies";
 			logger.error(sMessage);
-			cme.printStackTrace();
 			JOptionPane.showMessageDialog(new JFrame(), sMessage,
 					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
 			return;
