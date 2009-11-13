@@ -347,7 +347,7 @@ public class OpenWorkflowAction extends AbstractAction {
 		private FileOpenerThread(Component parentComponent,
 				File[] selectedFiles, FileType fileType,
 				OpenCallback openCallback) {
-			super("Opening dataflow(s) " + Arrays.asList(selectedFiles));
+			super("Opening workflows(s) " + Arrays.asList(selectedFiles));
 			this.parentComponent = parentComponent;
 			this.files = selectedFiles;
 			this.fileType = fileType;

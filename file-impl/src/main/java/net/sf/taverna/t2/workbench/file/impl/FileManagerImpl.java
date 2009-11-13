@@ -150,7 +150,7 @@ public class FileManagerImpl extends FileManager {
 			List<Dataflow> dataflows = getOpenDataflows();
 			int openIndex = dataflows.indexOf(dataflow);
 			if (openIndex == -1) {
-				throw new IllegalArgumentException("Dataflow was not opened "
+				throw new IllegalArgumentException("Workflow was not opened "
 						+ dataflow);
 			} else if (openIndex > 0) {
 				setCurrentDataflow(dataflows.get(openIndex - 1));
@@ -263,7 +263,7 @@ public class FileManagerImpl extends FileManager {
 		if (info != null) {
 			return info;
 		} else {
-			throw new IllegalArgumentException("Dataflow was not opened"
+			throw new IllegalArgumentException("Workflow was not opened"
 					+ dataflow);
 		}
 	}
@@ -456,7 +456,7 @@ public class FileManagerImpl extends FileManager {
 		}
 
 		if (isDataflowOpen(dataflow)) {
-			throw new IllegalArgumentException("Dataflow is already open: "
+			throw new IllegalArgumentException("Workflow is already open: "
 					+ dataflow);
 		}
 		openDataflowInfos.put(dataflow, new OpenDataflowInfo());
@@ -467,7 +467,7 @@ public class FileManagerImpl extends FileManager {
 			try {
 				closeDataflow(blankDataflow, true);
 			} catch (UnsavedException e) {
-				logger.error("Blank dataflow was modified "
+				logger.error("Blank workflow was modified "
 						+ "and could not be closed");
 			}
 		}
@@ -577,7 +577,7 @@ public class FileManagerImpl extends FileManager {
 				openDataflow(dataflow);
 				return;
 			} else {
-				throw new IllegalArgumentException("Dataflow is not open: "
+				throw new IllegalArgumentException("Workflow is not open: "
 						+ dataflow);
 			}
 		}

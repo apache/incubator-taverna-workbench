@@ -60,13 +60,13 @@ public class RedoMenuAction extends AbstractUndoMenuAction {
 				} catch (EditException e) {
 					logger.warn("Could not redo for " + dataflow, e);
 					JOptionPane.showMessageDialog(null,
-							"Could not redo for dataflow " + dataflow + ":\n"
+							"Could not redo for workflow " + dataflow + ":\n"
 									+ e, "Could not redo",
 							JOptionPane.ERROR_MESSAGE);
 				} catch (RuntimeException e) {
 					logger.warn("Could not redo for " + dataflow, e);
 					JOptionPane.showMessageDialog(null,
-							"Could not redo for dataflow " + dataflow + ":\n"
+							"Could not redo for workflow " + dataflow + ":\n"
 									+ e, "Could not redo",
 							JOptionPane.ERROR_MESSAGE);
 				}

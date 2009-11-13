@@ -59,7 +59,7 @@ public class UndoMenuAction extends AbstractUndoMenuAction {
 				} catch (RuntimeException e) {
 					logger.warn("Could not undo for " + dataflow, e);
 					JOptionPane.showMessageDialog(null,
-							"Could not undo for dataflow " + dataflow + ":\n"
+							"Could not undo for workflow " + dataflow + ":\n"
 									+ e, "Could not undo",
 							JOptionPane.ERROR_MESSAGE);
 				}

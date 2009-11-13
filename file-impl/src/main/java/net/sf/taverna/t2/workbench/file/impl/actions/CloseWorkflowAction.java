@@ -63,7 +63,7 @@ public class CloseWorkflowAction extends AbstractAction {
 
 	public boolean closeWorkflow(Component parentComponent, Dataflow dataflow) {
 		if (dataflow == null) {
-			logger.warn("Attempted to close a null dataflow");
+			logger.warn("Attempted to close a null workflow");
 			return false;
 		}
 

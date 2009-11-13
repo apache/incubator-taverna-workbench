@@ -108,7 +108,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 			return;
 		}
 		if (!(dataflowSource instanceof Serializable)) {
-			logger.warn("Can't serialize dataflow source for 'Recent workflows': "
+			logger.warn("Can't serialize workflow source for 'Recent workflows': "
 							+ dataflowSource);
 			return;
 		}

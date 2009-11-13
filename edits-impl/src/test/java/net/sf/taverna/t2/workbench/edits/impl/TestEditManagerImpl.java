@@ -77,7 +77,7 @@ public class TestEditManagerImpl {
 		assertTrue("Event was not a DataflowEditEvent",
 				event instanceof DataflowEditEvent);
 		DataflowEditEvent dataEditEvent = (DataflowEditEvent) event;
-		assertEquals("Event did not have correct dataflow", dataflow,
+		assertEquals("Event did not have correct workflow", dataflow,
 				dataEditEvent.getDataFlow());
 		assertEquals("Event did not have correct edit", edit, dataEditEvent
 				.getEdit());
@@ -105,7 +105,7 @@ public class TestEditManagerImpl {
 		assertTrue("Event was not a DataflowEditEvent",
 				event instanceof DataFlowUndoEvent);
 		DataFlowUndoEvent dataEditEvent = (DataFlowUndoEvent) event;
-		assertEquals("Event did not have correct dataflow", dataflow,
+		assertEquals("Event did not have correct workflow", dataflow,
 				dataEditEvent.getDataFlow());
 		assertEquals("Event did not have correct edit", edit, dataEditEvent
 				.getEdit());

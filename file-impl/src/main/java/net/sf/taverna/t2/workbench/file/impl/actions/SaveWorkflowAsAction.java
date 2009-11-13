@@ -151,7 +151,7 @@ public class SaveWorkflowAsAction extends AbstractAction {
 					try {
 						fileManager
 								.saveDataflow(dataflow, fileType, file, true);
-						logger.info("Saved dataflow " + dataflow + " to "
+						logger.info("Saved workflow " + dataflow + " to "
 								+ file);
 						return true;
 					} catch (OverwriteException ex) {
@@ -164,7 +164,7 @@ public class SaveWorkflowAsAction extends AbstractAction {
 						if (ret == JOptionPane.YES_OPTION) {
 							fileManager.saveDataflow(dataflow, fileType, file,
 									false);
-							logger.info("Saved dataflow " + dataflow
+							logger.info("Saved workflow " + dataflow
 									+ " by overwriting " + file);
 							return true;
 						} else if (ret == JOptionPane.NO_OPTION) {

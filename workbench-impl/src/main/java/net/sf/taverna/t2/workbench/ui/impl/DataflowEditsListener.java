@@ -73,7 +73,7 @@ public class DataflowEditsListener implements Observer<EditManagerEvent> {
 			String newIdentifier = UUID.randomUUID().toString();
 			edits.getUpdateDataflowInternalIdentifierEdit(dataFlow,
 					newIdentifier).doEdit();
-			logger.info("Dataflow edit, id changed from: " + internalIdentier
+			logger.debug("Workflow edit, id changed from: " + internalIdentier
 					+ " to " + newIdentifier);
 
 		} else if (event instanceof DataFlowRedoEvent) {
@@ -88,7 +88,7 @@ public class DataflowEditsListener implements Observer<EditManagerEvent> {
 
 			edits.getUpdateDataflowInternalIdentifierEdit(dataFlow, oldId)
 					.doEdit();
-			logger.info("Dataflow edit, id changed from: " + newId + " to "
+			logger.debug("Workflow edit, id changed from: " + newId + " to "
 					+ oldId);
 
 		} else if (event instanceof DataFlowUndoEvent) {
@@ -103,7 +103,7 @@ public class DataflowEditsListener implements Observer<EditManagerEvent> {
 
 			edits.getUpdateDataflowInternalIdentifierEdit(dataFlow, oldId)
 					.doEdit();
-			logger.info("Dataflow edit, id changed from: " + newId + " to "
+			logger.debug("Workflow edit, id changed from: " + newId + " to "
 					+ oldId);
 		}
 
