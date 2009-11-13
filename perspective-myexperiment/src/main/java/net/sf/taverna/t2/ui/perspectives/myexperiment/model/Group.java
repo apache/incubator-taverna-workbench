@@ -215,7 +215,6 @@ public class Group extends Resource
     }
     catch (Exception e) {
       logger.error("Failed midway through creating group object from XML", e);
-      e.printStackTrace();
     }
     
     // return created group instance
