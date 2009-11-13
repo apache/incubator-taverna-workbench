@@ -54,6 +54,12 @@
 		<developerConnection>scm:svn:https://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-api/tags/ui-api-0.4</developerConnection>
 		<url>http://code.google.com/p/taverna/source/browse/#svn/taverna/ui/net.sf.taverna.t2.ui-api/tags/ui-api-0.4</url>
 	</scm>
+	<dependencies>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+		</dependency>
+	</dependencies>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
