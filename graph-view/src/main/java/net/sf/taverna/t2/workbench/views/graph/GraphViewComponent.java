@@ -273,7 +273,7 @@ public class GraphViewComponent extends WorkflowView {
 
 		});
 		noPorts.getAction().putValue(Action.SHORT_DESCRIPTION,
-				"Display no processor ports");
+				"Display no service ports");
 		noPorts.getAction().putValue(Action.SMALL_ICON,
 				WorkbenchIcons.noportIcon);
 		noPorts.setFocusPainted(false);
@@ -287,7 +287,7 @@ public class GraphViewComponent extends WorkflowView {
 
 		});
 		allPorts.getAction().putValue(Action.SHORT_DESCRIPTION,
-				"Display all processor ports");
+				"Display all service ports");
 		allPorts.getAction().putValue(Action.SMALL_ICON,
 				WorkbenchIcons.allportIcon);
 		allPorts.setFocusPainted(false);
@@ -301,7 +301,7 @@ public class GraphViewComponent extends WorkflowView {
 
 		});
 		blobs.getAction().putValue(Action.SHORT_DESCRIPTION,
-				"Display processors as circles");
+				"Display services as circles");
 		blobs.getAction().putValue(Action.SMALL_ICON, WorkbenchIcons.blobIcon);
 		blobs.setFocusPainted(false);
 
@@ -333,7 +333,7 @@ public class GraphViewComponent extends WorkflowView {
 
 		});
 		vertical.getAction().putValue(Action.SHORT_DESCRIPTION,
-				"Align processors vertically");
+				"Align services vertically");
 		vertical.getAction().putValue(Action.SMALL_ICON,
 				WorkbenchIcons.verticalIcon);
 		vertical.setFocusPainted(false);
@@ -347,7 +347,7 @@ public class GraphViewComponent extends WorkflowView {
 
 		});
 		horizontal.getAction().putValue(Action.SHORT_DESCRIPTION,
-				"Align processors horizontally");
+				"Align services horizontally");
 		horizontal.getAction().putValue(Action.SMALL_ICON,
 				WorkbenchIcons.horizontalIcon);
 		horizontal.setFocusPainted(false);
