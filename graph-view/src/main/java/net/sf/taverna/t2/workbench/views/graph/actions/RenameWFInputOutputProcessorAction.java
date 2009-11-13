@@ -70,7 +70,7 @@ public class RenameWFInputOutputProcessorAction extends AbstractAction{
 		super();
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
 		putValue(NAME, "Rename");	
-		putValue(SHORT_DESCRIPTION, "Rename inputs, outputs or processors");
+		putValue(SHORT_DESCRIPTION, "Rename inputs, outputs or services");
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_F2, 0));
 		setEnabled(false);
