@@ -96,7 +96,7 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 	}
 
 	public String getName() {
-		return "Contextual View";
+		return "Details";
 	}
 
 	private void initialise() {

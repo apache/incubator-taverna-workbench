@@ -36,7 +36,7 @@ public class ContextualViewComponentFactory implements UIComponentFactorySPI{
 	}
 
 	public String getName() {
-		return "Contextual View";
+		return "Details";
 	}
 
 }
