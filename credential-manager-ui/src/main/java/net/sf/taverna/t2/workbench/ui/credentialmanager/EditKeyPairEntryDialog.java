@@ -285,8 +285,7 @@ public class EditKeyPairEntryDialog
 		} catch (CMException cme) {
 			// Failed to instantiate Credential Manager - warn the user and exit
 			String exMessage = "Failed to instantiate Credential Manager";
-			logger .error(exMessage, cme);
-			cme.printStackTrace();
+			logger.error(exMessage, cme);
 			JOptionPane.showMessageDialog(new JFrame(), exMessage,
 					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
 			return;
