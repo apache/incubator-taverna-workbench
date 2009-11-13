@@ -59,7 +59,7 @@ public class DataManagementHelper {
             context.rebind(DataManagementConfiguration.JNDI_NAME, ds);
             
         } catch (NamingException ex) {
-            ex.printStackTrace();
+            logger.error("", ex);
         }
     }
 	
