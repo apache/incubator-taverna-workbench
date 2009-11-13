@@ -187,7 +187,7 @@ public class DataflowActivityConfigView extends JPanel {
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
 		String curDir = prefs
 				.get("currentDir", System.getProperty("user.home"));
-		fileChooser.setDialogTitle("Select dataflow.....");
+		fileChooser.setDialogTitle("Select workflow.....");
 
 		fileChooser.resetChoosableFileFilters();
 
@@ -200,7 +200,7 @@ public class DataflowActivityConfigView extends JPanel {
 
 			@Override
 			public String getDescription() {
-				return "T2 dataflow";
+				return "Taverna 2 workflow";
 			}
 
 		};
