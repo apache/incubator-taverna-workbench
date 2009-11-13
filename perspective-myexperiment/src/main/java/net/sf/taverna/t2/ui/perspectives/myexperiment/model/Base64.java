@@ -1,5 +1,9 @@
 package net.sf.taverna.t2.ui.perspectives.myexperiment.model;
 
+import net.sf.taverna.t2.activities.dataflow.views.DataflowActivityConfigView;
+
+import org.apache.log4j.Logger;
+
 /**
  * <p>Encodes and decodes to and from Base64 notation.</p>
  * <p>Homepage: <a href="http://iharder.net/base64">http://iharder.net/base64</a>.</p>
@@ -87,7 +91,10 @@ package net.sf.taverna.t2.ui.perspectives.myexperiment.model;
 public class Base64
 {
     
-/* ********  P U B L I C   F I E L D S  ******** */   
+	private static Logger logger = Logger
+	.getLogger(Base64.class);
+
+	/* ********  P U B L I C   F I E L D S  ******** */   
     
     
     /** No options specified. Value is zero. */
@@ -414,8 +421,8 @@ public class Base64
      */
     private final static void usage( String msg )
     {
-        System.err.println( msg );
-        System.err.println( "Usage: java Base64 -e|-d inputfile outputfile" );
+        logger.error( msg );
+        logger.error( "Usage: java Base64 -e|-d inputfile outputfile" );
     }   // end usage
     
     
@@ -590,15 +597,12 @@ public class Base64
         }   // end try
         catch( java.io.IOException e )
         {
-            e.printStackTrace();
+            logger.error("Could not Base64 encode object");
             return null;
         }   // end catch
         finally
         {
-            try{ oos.close();   } catch( Exception e ){}
-            try{ gzos.close();  } catch( Exception e ){}
-            try{ b64os.close(); } catch( Exception e ){}
-            try{ baos.close();  } catch( Exception e ){}
+            try{ oos.close();   } catch( Exception e ){logger.error("", e);}
         }   // end finally
         
         // Return value according to relevant encoding.
@@ -720,14 +724,14 @@ public class Base64
             }   // end try
             catch( java.io.IOException e )
             {
-                e.printStackTrace();
-                return null;
+            	logger.error("Could not encode bytes", e);
+               return null;
             }   // end catch
             finally
             {
-                try{ gzos.close();  } catch( Exception e ){}
-                try{ b64os.close(); } catch( Exception e ){}
-                try{ baos.close();  } catch( Exception e ){}
+                try{ gzos.close();  } catch( Exception e ){logger.error("", e);}
+                try{ b64os.close(); } catch( Exception e ){logger.error("", e);}
+                try{ baos.close();  } catch( Exception e ){logger.error("", e);}
             }   // end finally
 
             // Return value according to relevant encoding.
@@ -875,10 +879,10 @@ public class Base64
 
             return 3;
             }catch( Exception e){
-                System.out.println(""+source[srcOffset]+ ": " + ( DECODABET[ source[ srcOffset     ] ]  ) );
-                System.out.println(""+source[srcOffset+1]+  ": " + ( DECODABET[ source[ srcOffset + 1 ] ]  ) );
-                System.out.println(""+source[srcOffset+2]+  ": " + ( DECODABET[ source[ srcOffset + 2 ] ]  ) );
-                System.out.println(""+source[srcOffset+3]+  ": " + ( DECODABET[ source[ srcOffset + 3 ] ]  ) );
+                logger.error(""+source[srcOffset]+ ": " + ( DECODABET[ source[ srcOffset     ] ]  ) , e);
+                logger.error(""+source[srcOffset+1]+  ": " + ( DECODABET[ source[ srcOffset + 1 ] ]  ), e);
+                logger.error(""+source[srcOffset+2]+  ": " + ( DECODABET[ source[ srcOffset + 2 ] ]  ), e);
+                logger.error(""+source[srcOffset+3]+  ": " + ( DECODABET[ source[ srcOffset + 3 ] ]  ), e);
                 return -1;
             }   // end catch
         }
@@ -936,7 +940,7 @@ public class Base64
             }   // end if: white space, equals sign or better
             else
             {
-                System.err.println( "Bad Base64 input character at " + i + ": " + source[i] + "(decimal)" );
+                logger.error( "Bad Base64 input character at " + i + ": " + source[i] + "(decimal)" );
                 return null;
             }   // end else: 
         }   // each input character
@@ -1024,9 +1028,9 @@ public class Base64
                 }   // end catch
                 finally
                 {
-                    try{ baos.close(); } catch( Exception e ){}
-                    try{ gzis.close(); } catch( Exception e ){}
-                    try{ bais.close(); } catch( Exception e ){}
+                    try{ baos.close(); } catch( Exception e ){logger.error("", e);}
+                    try{ gzis.close(); } catch( Exception e ){logger.error("", e);}
+                    try{ bais.close(); } catch( Exception e ){logger.error("", e);}
                 }   // end finally
 
             }   // end if: gzipped
@@ -1064,18 +1068,18 @@ public class Base64
         }   // end try
         catch( java.io.IOException e )
         {
-            e.printStackTrace();
+            logger.error("Could not decode Base64 object", e);
             obj = null;
         }   // end catch
         catch( java.lang.ClassNotFoundException e )
         {
-            e.printStackTrace();
+            logger.error("Could not decode Base64 object", e);
             obj = null;
         }   // end catch
         finally
         {
-            try{ bais.close(); } catch( Exception e ){}
-            try{ ois.close();  } catch( Exception e ){}
+            try{ bais.close(); } catch( Exception e ){logger.error("", e);}
+            try{ ois.close();  } catch( Exception e ){logger.error("", e);}
         }   // end finally
         
         return obj;
@@ -1110,7 +1114,7 @@ public class Base64
         }   // end catch: IOException
         finally
         {
-            try{ bos.close(); } catch( Exception e ){}
+            try{ bos.close(); } catch( Exception e ){logger.error("", e);}
         }   // end finally
         
         return success;
@@ -1143,7 +1147,7 @@ public class Base64
         }   // end catch: IOException
         finally
         {
-                try{ bos.close(); } catch( Exception e ){}
+                try{ bos.close(); } catch( Exception e ){logger.error("", e);}
         }   // end finally
         
         return success;
@@ -1176,7 +1180,7 @@ public class Base64
             // Check for size of file
             if( file.length() > Integer.MAX_VALUE )
             {
-                System.err.println( "File is too big for this convenience method (" + file.length() + " bytes)." );
+                logger.error( "File is too big for this convenience method (" + file.length() + " bytes)." );
                 return null;
             }   // end if: file too big for int index
             buffer = new byte[ (int)file.length() ];
@@ -1197,11 +1201,11 @@ public class Base64
         }   // end try
         catch( java.io.IOException e )
         {
-            System.err.println( "Error decoding from file " + filename );
+            logger.error( "Error decoding from file " + filename, e);
         }   // end catch: IOException
         finally
         {
-            try{ bis.close(); } catch( Exception e) {}
+            try{ bis.close(); } catch( Exception e) {logger.error("", e);}
         }   // end finally
         
         return decodedData;
@@ -1245,11 +1249,11 @@ public class Base64
         }   // end try
         catch( java.io.IOException e )
         {
-            System.err.println( "Error encoding from file " + filename );
+            logger.error( "Error encoding from file " + filename, e);
         }   // end catch: IOException
         finally
         {
-            try{ bis.close(); } catch( Exception e) {}
+            try{ bis.close(); } catch( Exception e) {logger.error("", e);}
         }   // end finally
         
         return encodedData;
@@ -1284,10 +1288,10 @@ public class Base64
             }   // end while: through file
             success = true;
         } catch( java.io.IOException exc ){
-            exc.printStackTrace();
+            logger.error("Could not encode Base64 file", exc);
         } finally{
-            try{ in.close();  } catch( Exception exc ){}
-            try{ out.close(); } catch( Exception exc ){}
+            try{ in.close();  } catch( Exception exc ){logger.error("", exc);}
+            try{ out.close(); } catch( Exception exc ){logger.error("", exc);}
         }   // end finally
         
         return success;
@@ -1321,10 +1325,10 @@ public class Base64
             }   // end while: through file
             success = true;
         } catch( java.io.IOException exc ){
-            exc.printStackTrace();
-        } finally{
-            try{ in.close();  } catch( Exception exc ){}
-            try{ out.close(); } catch( Exception exc ){}
+            logger.error("Could not decode Base64 file", exc);
+       } finally{
+            try{ in.close();  } catch( Exception exc ){logger.error("", exc);}
+            try{ out.close(); } catch( Exception exc ){logger.error("", exc);}
         }   // end finally
         
         return success;
