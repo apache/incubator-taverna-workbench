@@ -47,7 +47,6 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.EditsRegistry;
@@ -110,8 +109,8 @@ public class DataflowActivityConfigView extends JPanel {
 					try {
 						dataflowActivity.configure(dataflow);
 					} catch (ActivityConfigurationException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+						
+						logger.error("Unable to configure activity", e1);
 					}
 					addSelectedDataflowToCurrentDataflow(dataflow);
 					// observe the file manager in case this dataflow gets
@@ -188,7 +187,7 @@ public class DataflowActivityConfigView extends JPanel {
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
 		String curDir = prefs
 				.get("currentDir", System.getProperty("user.home"));
-		fileChooser.setDialogTitle("Select workflow.....");
+		fileChooser.setDialogTitle("Select dataflow.....");
 
 		fileChooser.resetChoosableFileFilters();
 
@@ -201,7 +200,7 @@ public class DataflowActivityConfigView extends JPanel {
 
 			@Override
 			public String getDescription() {
-				return "Taverna 2 workflow";
+				return "T2 dataflow";
 			}
 
 		};
@@ -237,41 +236,32 @@ public class DataflowActivityConfigView extends JPanel {
 		try {
 			inputStream = new FileInputStream(selectedFile);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Unable to deserialize nested workflow", e);
 		}
 		SAXBuilder builder = new SAXBuilder();
 		Element detachRootElement = null;
 		try {
 			detachRootElement = builder.build(inputStream).detachRootElement();
 		} catch (JDOMException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("", e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("", e);
 		}
 		try {
 			return deserializer.deserializeDataflow(detachRootElement,
 					new HashMap<String, Element>());
 		} catch (EditException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Could not deserialize dataflow", e);
 		} catch (DeserializationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Could not deserialize dataflow", e);
 		} catch (ActivityConfigurationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Could not deserialize dataflow", e);
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Could not deserialize dataflow", e);
 		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Could not deserialize dataflow", e);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Could not deserialize dataflow", e);
 		}
 		return null;
 	}
@@ -299,8 +289,7 @@ public class DataflowActivityConfigView extends JPanel {
 									createProcessor));
 
 		} catch (EditException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Could not add nested workflow", e);
 		}
 
 	}
