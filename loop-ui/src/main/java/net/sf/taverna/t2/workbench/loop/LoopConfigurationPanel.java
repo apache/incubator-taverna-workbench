@@ -183,7 +183,7 @@ public class LoopConfigurationPanel extends JPanel {
 				}
 				configuration.setCondition(activity);
 			} else if (! (condition instanceof BeanshellActivity)) {
-				logger.warn("Can't configure unknown conditional activity type " + condition.getClass());
+				logger.warn("Can't configure unknown condition service type " + condition.getClass());
 				return;
 			}
 
