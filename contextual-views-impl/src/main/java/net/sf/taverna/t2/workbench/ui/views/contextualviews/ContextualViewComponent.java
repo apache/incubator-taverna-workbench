@@ -1,6 +1,5 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -18,11 +17,11 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.Action;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -43,7 +42,7 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 @SuppressWarnings("serial")
-public class ContextualViewComponent extends JPanel implements UIComponentSPI {
+public class ContextualViewComponent extends JScrollPane implements UIComponentSPI {
 
 	private Observer<DataflowSelectionMessage> dataflowSelectionListener = new DataflowSelectionListener();
 
@@ -100,13 +99,11 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 	}
 
 	private void initialise() {
-		this.setLayout(new BorderLayout());
 		mainPanel = new JPanel(new GridBagLayout());
-		this.add(mainPanel, BorderLayout.NORTH);
+		this.setViewportView(mainPanel);
 	}
 
 	public void onDisplay() {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -344,6 +341,8 @@ public class ContextualViewComponent extends JPanel implements UIComponentSPI {
 			}
 			sectionLabel.setExpanded(section.isVisible());
 		}
+		this.revalidate();
+		this.repaint();
 	}
 	
 	private Color nextColor () {
