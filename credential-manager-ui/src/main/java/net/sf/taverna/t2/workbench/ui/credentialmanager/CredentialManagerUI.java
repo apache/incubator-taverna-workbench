@@ -48,8 +48,11 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 
 import net.sf.taverna.t2.security.credentialmanager.CMException;
+import net.sf.taverna.t2.security.credentialmanager.CMUtil;
 import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
+import net.sf.taverna.t2.security.credentialmanager.ChangeMasterPasswordDialog;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
+import net.sf.taverna.t2.security.credentialmanager.GetMasterPasswordDialog;
 import net.sf.taverna.t2.security.credentialmanager.SetMasterPasswordDialog;
 
 import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI;
@@ -182,16 +185,65 @@ public class CredentialManagerUI extends JFrame {
 	 */
 	public static CredentialManagerUI getInstance(){
 		synchronized (CredentialManagerUI.class) {
-			if (INSTANCE == null)
+			if (INSTANCE == null){
+				// Pop up a warning about Java Cryptography Extension (JCE) 
+				// Unlimited Strength Jurisdiction Policy 
+				CMUtil.warnUserAboutJCEPolicy();
+				String password;
+				if (CredentialManager.isInitialised()){
+					// Ask user to provide a master password for Credential Manager
+					GetMasterPasswordDialog getPasswordDialog = new GetMasterPasswordDialog("Enter master password for Credential Manager");
+					getPasswordDialog.setLocationRelativeTo(null);
+					getPasswordDialog.setVisible(true);
+					password = getPasswordDialog.getPassword();
+				}
+				else{ // Credential Manager has not been initialised so far
+					File keystoreFile = new File(CMUtil.getSecurityConfigurationDirectory(),CredentialManager.T2KEYSTORE_FILE); 				
+					if (keystoreFile.exists()){ // If keystore exists then password has been set some time before
+						// Ask user to provide a master password for Credential Manager
+						GetMasterPasswordDialog getPasswordDialog = new GetMasterPasswordDialog("Enter master password for Credential Manager");
+						getPasswordDialog.setLocationRelativeTo(null);
+						getPasswordDialog.setVisible(true);
+						password = getPasswordDialog.getPassword();
+						if (password == null){ //user cancelled
+							return null;
+						}
+					}
+					else{ // Keystore does not exist - ask user to set the master password for Credential Manager
+						SetMasterPasswordDialog setPasswordDialog = new SetMasterPasswordDialog((JFrame) null, "Set master password", true, "Set master password for Credential Manager");
+						setPasswordDialog.setLocationRelativeTo(null);
+						setPasswordDialog.setVisible(true);
+						password = setPasswordDialog.getPassword();
+						if (password == null){ //user cancelled
+							return null;
+						}
+					}		
+				}
 				try {
-					INSTANCE = new CredentialManagerUI();
+					INSTANCE = new CredentialManagerUI(password);
 				} catch (CMException cme) {
 					// Failed to instantiate Credential Manager - warn the user and exit
-					String exMessage = "Failed to instantiate Credential Manager. " + cme.getMessage();
+					String exMessage = cme.getMessage();
 					logger.error(exMessage);
 					JOptionPane.showMessageDialog(new JFrame(), exMessage,
 							"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+					INSTANCE = null;
+					return null;
 				}
+			}
+			else{ // CredentialManagerUI (and therefore Credential Manager) have been instantiated before - ask user to confirm master password
+				GetMasterPasswordDialog getPasswordDialog = new GetMasterPasswordDialog("Enter master password for Credential Manager");
+				getPasswordDialog.setLocationRelativeTo(null);
+				getPasswordDialog.setVisible(true);
+				String password = getPasswordDialog.getPassword();
+				if (password == null){ //user cancelled
+					return null;
+				}
+				if (! CredentialManager.confirmMasterPassword(password)){
+					JOptionPane.showMessageDialog(null, "Incorrect password.", "Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+					return null;
+				}
+			}
 		}
 		return INSTANCE;
 	}
@@ -208,12 +260,14 @@ public class CredentialManagerUI extends JFrame {
 	/**
 	 * Creates a new Credential Manager UI's frame.
 	 */
-	private CredentialManagerUI() throws CMException
+	private CredentialManagerUI(String password) throws CMException
 	{
 
 		// Instantiate Credential Manager that will perform all 
 		// operations on the Keystore and Truststore
-		credManager = CredentialManager.getInstance();
+		// We are using a special method that takes a password to instantiate 
+		// Credential Manager as we needed to give user the option from the UI to cancel
+		credManager = CredentialManager.getInstance(password);
 		
         // Initialise the UI components
 		initComponents();		
@@ -281,7 +335,7 @@ public class CredentialManagerUI extends JFrame {
 	
 	protected void changeMasterPassword() {
 
-		SetMasterPasswordDialog changePasswordDialog = new SetMasterPasswordDialog(this, "Change master password", true , "Change master password for Credential Manager");
+		ChangeMasterPasswordDialog changePasswordDialog = new ChangeMasterPasswordDialog(this, "Change master password", true , "Change master password for Credential Manager");
 		changePasswordDialog.setLocationRelativeTo(null);
 		changePasswordDialog.setVisible(true);
 		String password = changePasswordDialog.getPassword();

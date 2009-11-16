@@ -37,6 +37,7 @@ import javax.swing.WindowConstants;
  * 
  * Test launcher for Credential Manager GUI (so it does not have to be
  * launched from Taverna).
+ * 
  * @author Alexandra Nenadic
  *
  */
@@ -61,9 +62,9 @@ public class CredentialManagerUILauncher extends JFrame {
 
 			public void actionPerformed(ActionEvent e) {
 				CredentialManagerUI cmGUI = CredentialManagerUI.getInstance();
-				//if (cmGUI.isInitialised()){
+				if (cmGUI != null){
 					cmGUI.setVisible(true);
-				//}
+				}
 			}
 		});
 		

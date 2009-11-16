@@ -39,7 +39,8 @@ public class CredentialManagerAction extends AbstractAction {
 	
 	public void actionPerformed(ActionEvent e) {
 		CredentialManagerUI cmUI = CredentialManagerUI.getInstance();
-		cmUI.setVisible(true);
+		if (cmUI != null)
+			cmUI.setVisible(true);
 
 //		Runnable createAndShowCredentialManagerUI = new Runnable(){
 //
