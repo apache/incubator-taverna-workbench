@@ -75,7 +75,7 @@ public class CloseWorkflowAction extends AbstractAction {
 					+ fileManager.getDataflowName(dataflow) + "?";
 			int ret = JOptionPane.showConfirmDialog(parentComponent, msg,
 					"Save workflow?", JOptionPane.YES_NO_CANCEL_OPTION);
-			if (ret == JOptionPane.CANCEL_OPTION) {
+			if (ret == JOptionPane.CANCEL_OPTION || ret == JOptionPane.CLOSED_OPTION) {
 				return false;
 			} else if (ret == JOptionPane.NO_OPTION) {
 				try {
