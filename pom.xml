@@ -34,6 +34,7 @@
 		<module>activity-palette-ui</module>
 		<module>contextual-views</module>
 		<module>credential-manager-ui</module>
+		<module>data-management-config-ui</module>
 		<module>design-ui</module>
 		<module>graph-model</module>
 		<module>graph-view</module>
