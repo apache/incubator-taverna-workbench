@@ -35,6 +35,7 @@
 		<module>file-translator</module>
 		<module>loop-ui</module>
 		<module>menu-items</module>
+		<module>perspective-myexperiment</module>
 		<module>renderers-exts</module>
 	</modules>
 	<repositories>
