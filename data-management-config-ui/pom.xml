@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>net.sf.taverna.t2</groupId>
+        <artifactId>ui-impl</artifactId>
+        <version>0.9-SNAPSHOT</version>
+    </parent>
+    <groupId>net.sf.taverna.t2.ui-impl</groupId>
+    <artifactId>data-management-config-ui</artifactId>
+    <name>Data management configuration UI components</name>
+    
+    <properties>
+        <spring.version>2.5.4</spring.version>
+        <aspectj.version>1.6.0</aspectj.version>
+    </properties>
+    <dependencies>
+        
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>net.sf.taverna.t2.ui-api</groupId>
+            <artifactId>configuration-api</artifactId>
+            <version>${t2.ui.api.version}</version>
+        </dependency>
+        
+        <dependency>
+        	<groupId>net.sf.taverna.t2.lang</groupId>
+        	<artifactId>ui</artifactId>
+        	<version>0.6-SNAPSHOT</version>        	
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjrt</artifactId>
+            <version>${aspectj.version}</version>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>${aspectj.version}</version>
+        </dependency>
+
+        <dependency>
+        	<groupId>net.sf.taverna.t2.ui-impl</groupId>
+        	<artifactId>data-management-config</artifactId>
+        	<version>0.9-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>net.sf.taverna.t2.ui-impl</groupId>
+            <artifactId>helper</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
+        <dependency>
+        	<groupId>net.sf.taverna.t2.ui-components</groupId>
+        	<artifactId>run-ui</artifactId>
+        	<version>0.10-SNAPSHOT</version>
+        </dependency>
+        
+        <dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>1.2.13</version>
+		</dependency>       
+
+    </dependencies>
+</project>
