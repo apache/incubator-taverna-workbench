@@ -41,7 +41,6 @@
 		<module>iteration-strategy-ui</module>
 		<module>monitor-view</module>
 		<module>perspective-design</module>
-		<module>perspective-myexperiment</module>
 		<module>perspective-results</module>		
 		<module>reference-ui</module>
 		<module>results-view</module>
