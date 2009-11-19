@@ -4,7 +4,7 @@
     <parent>
         <groupId>net.sf.taverna.t2</groupId>
         <artifactId>ui-impl</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.9</version>
     </parent>
     <groupId>net.sf.taverna.t2.ui-impl</groupId>
     <artifactId>data-management-config</artifactId>
@@ -31,7 +31,7 @@
         <dependency>
         	<groupId>net.sf.taverna.t2.lang</groupId>
         	<artifactId>ui</artifactId>
-        	<version>0.6-SNAPSHOT</version>        	
+        	<version>${t2.lang.version}</version>        	
         </dependency>
 
         <dependency>
