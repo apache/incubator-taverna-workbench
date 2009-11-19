@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
 		<artifactId>ui-exts</artifactId>
-		<version>0.10-SNAPSHOT</version>
+		<version>0.10</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-exts</groupId>
 	<artifactId>menu-items</artifactId>
