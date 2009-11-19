@@ -213,7 +213,7 @@ public class FileManagerImpl extends FileManager {
 			} catch (Exception e) {
 				throw new IllegalStateException("Source did not implement Object.toString() " + source);
 			}
-			if (toStringMethod != toStringMethodFromObject) {
+			if (! toStringMethod.equals(toStringMethodFromObject)) {
 				return source.toString();
 			} 
 		}
