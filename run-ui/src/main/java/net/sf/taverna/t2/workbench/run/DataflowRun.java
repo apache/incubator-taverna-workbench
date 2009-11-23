@@ -70,39 +70,33 @@ public class DataflowRun {
 	// Unique identifier of the workflow run
 	private String runId;
 
+	private ProvenanceConnector connector;
+
 	public DataflowRun(Dataflow dataflow, Date date, String sessionID) {
 		// get the provenance connector and hope it and the reference service
 		// are the correct ones!! ie. the user has not changed something etc
 		// the reference service is needed to dereference the data so if it is
 		// the 'wrong' one then........
+		this.dataflow = dataflow;
 		this.date = date;
 		this.runId = sessionID;
-		monitorViewComponent = new PreviousRunsComponent();
 		String connectorType = DataManagementConfiguration.getInstance()
 				.getConnectorType();
-		ProvenanceConnector provenanceConnector = null;
 		for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry
 				.getInstance().getInstances()) {
 			if (connectorType.equalsIgnoreCase(factory.getConnectorType())) {
-				provenanceConnector = factory.getProvenanceConnector();
+				connector = factory.getProvenanceConnector();
 			}
 		}
 
 		try {
-			if (provenanceConnector != null) {
-				provenanceConnector.init();
-				provenanceConnector.setSessionID(sessionID);
+			if (connector != null) {
+				connector.init();
+				connector.setSessionID(sessionID);
 			}
 		} catch (Exception except) {
 
 		}
-		monitorViewComponent.setProvenanceConnector(provenanceConnector);
-		monitorObserver = monitorViewComponent.setDataflow(dataflow);
-
-		resultsComponent = new ResultViewComponent();
-		monitorViewComponent.setStatus(MonitorViewComponent.Status.COMPLETE);
-		monitorViewComponent.revalidate();
-		monitorViewComponent.revalidate();
 	}
 
 	public DataflowRun(WorkflowInstanceFacade facade,
@@ -112,7 +106,7 @@ public class DataflowRun {
 		this.facade = facade;
 		this.inputs = inputs;
 		this.dataflow = facade.getDataflow();
-		ProvenanceConnector connector = (ProvenanceConnector) (facade
+		connector = (ProvenanceConnector) (facade
 				.getContext().getProvenanceReporter());
 		monitorViewComponent
 				.setProvenanceConnector(connector);
@@ -244,6 +238,15 @@ public class DataflowRun {
 	 * @return the monitorViewComponent
 	 */
 	public MonitorViewComponent getMonitorViewComponent() {
+		if (monitorViewComponent == null) {
+			monitorViewComponent = new PreviousRunsComponent();
+			monitorViewComponent.setProvenanceConnector(connector);
+			monitorObserver = monitorViewComponent.setDataflow(dataflow);
+
+			resultsComponent = new ResultViewComponent();
+			monitorViewComponent.setStatus(MonitorViewComponent.Status.COMPLETE);
+			//		monitorViewComponent.revalidate();
+		}
 		return monitorViewComponent;
 	}
 
