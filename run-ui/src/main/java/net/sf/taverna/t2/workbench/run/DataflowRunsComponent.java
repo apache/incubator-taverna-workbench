@@ -28,6 +28,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -157,6 +158,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 						DataflowRun dataflowRun = (DataflowRun) selection;
 						topPanel.setBottomComponent(dataflowRun
 								.getMonitorViewComponent());
+
 						setBottomComponent(dataflowRun.getResultsComponent());
 						setDividerLocation(location);
 						removeWorkflowRunsButton.setEnabled(true);
@@ -259,7 +261,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 				BorderLayout.CENTER);
 		setBottomComponent(tempResultsPanel);
 
-		// revalidate();
+	    // revalidate();
 		// setDividerLocation(.3);
 
 		// force reference service to be constructed now rather than at first
@@ -273,7 +275,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 			}
 			
 		};
-		thread.run();
+		thread.start();
 		
 		// Start listening for requests for previous workflow runs to be deleted 
 		// from the provenance database
@@ -288,6 +290,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 
 		List<WorkflowInstance> allWorkflowIDs = provenanceAccess
 				.getAllWorkflowIDs();
+		Collections.reverse(allWorkflowIDs);
 		for (WorkflowInstance workflowInstance : allWorkflowIDs) {
 			logger.info("retrieved previous run, workflow id: "
 					+ workflowInstance.getInstanceID() + " date: "
@@ -302,8 +305,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 						.getDeserializer().deserializeDataflow(rootElement);
 				DataflowRun runComponent = new DataflowRun(dataflow, date,
 						workflowInstance.getInstanceID());
-				runComponent.setDataflow(dataflow);
-				runListModel.add(0, runComponent);
+				runListModel.add(runListModel.getSize(), runComponent);
 			} catch (JDOMException e) {
 				logger.error("Problem with previous run: "
 						+ workflowInstance.getInstanceID() + " " + e);
