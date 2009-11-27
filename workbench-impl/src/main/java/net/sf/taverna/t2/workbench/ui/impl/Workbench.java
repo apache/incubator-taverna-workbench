@@ -443,7 +443,7 @@ public class Workbench extends JFrame {
 		// }
 		// }
 
-		if (!set && !System.getProperties().contains("swing.defaultlaf")) {
+		if (!set && !System.getProperties().containsKey("swing.defaultlaf")) {
 			try {
 				UIManager
 						.setLookAndFeel("de.javasoft.plaf.synthetica.SyntheticaStandardLookAndFeel");
