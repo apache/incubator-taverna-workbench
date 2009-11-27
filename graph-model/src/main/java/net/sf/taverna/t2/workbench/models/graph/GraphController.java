@@ -1050,7 +1050,9 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 	public boolean startEdgeCreation(GraphElement graphElement, Point point) {
 		if (!edgeCreationFromSource && !edgeCreationFromSink) {
 			Object dataflowObject = graphElement.getDataflowObject();
-			if (dataflowObject instanceof ActivityInputPort || dataflowObject instanceof DataflowOutputPort) {
+			if (dataflowObject instanceof ActivityInputPort
+					|| dataflowObject instanceof ProcessorInputPort
+					|| dataflowObject instanceof DataflowOutputPort) {
 				edgeCreationSink = graphElement;
 				edgeCreationFromSink = true;
 			} else if (dataflowObject instanceof OutputPort || dataflowObject instanceof DataflowInputPort) {
@@ -1071,12 +1073,26 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		Object dataflowObject = graphElement.getDataflowObject();
 		if (edgeCreationFromSink) {
 			if (graphElement instanceof GraphNode) {
+				Object sinkObject = edgeCreationSink.getDataflowObject();
 				if (dataflowObject instanceof OutputPort) {
-					OutputPort outputPort = (OutputPort) dataflowObject;
-					Activity<?> activity = portToActivity.get(outputPort);
-					if (activity != null) {
-						//can't connect to same processor
-						if (!activity.getInputPorts().contains(edgeCreationSink.getDataflowObject())) {
+					Processor sourceProcessor = portToProcessor.get(dataflowObject);
+					if (sourceProcessor != null) {
+						Processor sinkProcessor = null;
+						if (sinkObject instanceof Processor) {
+							sinkProcessor = (Processor)sinkObject;
+						} else if (portToProcessor.containsKey(sinkObject)) {
+							sinkProcessor = portToProcessor.get(sinkObject);
+						} 
+						if (sinkProcessor != null) {
+							Set<Processor> possibleSinkProcessors = Tools
+									.possibleDownStreamProcessors(dataflow,
+											sourceProcessor);
+							if (possibleSinkProcessors.contains(sinkProcessor)) {
+								edgeCreationSource = graphElement;
+								edgeValid = true;
+							}
+						} 
+						if (sinkObject instanceof DataflowOutputPort) {
 							edgeCreationSource = graphElement;
 							edgeValid = true;
 						}
@@ -1085,14 +1101,25 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 					edgeCreationSource = graphElement;
 					edgeValid = true;
 				} else if (dataflowObject instanceof Processor) {
-					Processor processor = (Processor) dataflowObject;
-					List<? extends Activity<?>> activities = processor.getActivityList();
-					if (activities.size() > 0) {
-						Activity<?> activity = activities.get(0);
-						if (activity.getOutputPorts().size() > 0 && !activity.getInputPorts().contains(edgeCreationSink.getDataflowObject())) {
+					Processor sourceProcessor = (Processor) dataflowObject;
+					Processor sinkProcessor = null;
+					if (sinkObject instanceof Processor) {
+						sinkProcessor = (Processor)sinkObject;
+					} else if (portToProcessor.containsKey(sinkObject)) {
+						sinkProcessor = portToProcessor.get(sinkObject);
+					}
+					if (sinkProcessor != null) {
+						Set<Processor> possibleSinkProcessors = Tools
+								.possibleDownStreamProcessors(dataflow,
+										sourceProcessor);
+						if (possibleSinkProcessors.contains(sinkProcessor)) {
 							edgeCreationSource = graphElement;
 							edgeValid = true;
 						}
+					} 
+					if (sinkObject instanceof DataflowOutputPort) { 
+						edgeCreationSource = graphElement;
+						edgeValid = true;
 					}
 				}
 			}
@@ -1101,12 +1128,27 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			}
 		} else if (edgeCreationFromSource) {
 			if (graphElement instanceof GraphNode) {
-				if (dataflowObject instanceof ActivityInputPort) {
-					ActivityInputPort activityInputPort = (ActivityInputPort) dataflowObject;
-					Activity<?> activity = portToActivity.get(activityInputPort);
-					if (activity != null) {
-						//can't connect to same processor
-						if (!activity.getOutputPorts().contains(edgeCreationSource.getDataflowObject())) {
+				Object sourceObject = edgeCreationSource.getDataflowObject();
+				if (dataflowObject instanceof InputPort)  {
+					Processor sinkProcessor = portToProcessor.get(dataflowObject);
+					if (sinkProcessor != null) {
+						Processor sourceProcessor = null;
+						if (sourceObject instanceof Processor) {
+							sourceProcessor = (Processor)sourceObject;
+						} else if (portToProcessor.containsKey(sourceObject)) {
+							sourceProcessor = portToProcessor.get(sourceObject);
+						}
+						if (sourceProcessor != null) {
+							Set<Processor> possibleSourceProcessors = Tools
+									.possibleUpStreamProcessors(dataflow,
+											sinkProcessor);
+							if (possibleSourceProcessors
+									.contains(sourceProcessor)) {
+								edgeCreationSink = graphElement;
+								edgeValid = true;
+							}
+						}
+						if (sourceObject instanceof DataflowInputPort) {
 							edgeCreationSink = graphElement;
 							edgeValid = true;
 						}
@@ -1115,14 +1157,25 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 					edgeCreationSink = graphElement;
 					edgeValid = true;
 				} else if (dataflowObject instanceof Processor) {
-					Processor processor = (Processor) dataflowObject;
-					List<? extends Activity<?>> activities = processor.getActivityList();
-					if (activities.size() > 0) {
-						Activity<?> activity = activities.get(0);
-						if (activity.getInputPorts().size() > 0 && !activity.getOutputPorts().contains(edgeCreationSource.getDataflowObject())) {
+					Processor sinkProcessor = (Processor) dataflowObject;
+					Processor sourceProcessor = null;
+					if (sourceObject instanceof Processor) {
+						sourceProcessor = (Processor)sourceObject;
+					} else if (portToProcessor.containsKey(sourceObject)) {
+						sourceProcessor = portToProcessor.get(sourceObject);
+					}
+					if (sourceProcessor != null) {
+						Set<Processor> possibleSourceProcessors = Tools
+								.possibleUpStreamProcessors(dataflow,
+										sinkProcessor);
+						if (possibleSourceProcessors.contains(sourceProcessor)) {
 							edgeCreationSink = graphElement;
 							edgeValid = true;
 						}
+					}
+					if (sourceObject instanceof DataflowInputPort) {
+						edgeCreationSink = graphElement;
+						edgeValid = true;
 					}
 				}
 			} 
