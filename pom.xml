@@ -9,7 +9,7 @@
 
 	<groupId>net.sf.taverna.t2</groupId>
 	<artifactId>ui-impl</artifactId>
-	<version>0.9</version>
+	<version>0.10-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<name>Taverna 2 UI implementations</name>
@@ -17,13 +17,13 @@
 
 	<properties>
 		<t2.ui.impl.version>${project.version}</t2.ui.impl.version>
-		<t2.activities.version>0.9</t2.activities.version>
-		<t2.infrastructure.version>1.12</t2.infrastructure.version>
-		<t2.core.version>0.9</t2.core.version>
-		<t2.lang.version>0.6</t2.lang.version>
-		<t2.compatibility.version>0.9</t2.compatibility.version>
-		<t2.translators.version>0.9</t2.translators.version>
-		<t2.ui.api.version>0.7</t2.ui.api.version>
+		<t2.activities.version>0.10-SNAPSHOT</t2.activities.version>
+		<t2.infrastructure.version>1.13-SNAPSHOT</t2.infrastructure.version>
+		<t2.core.version>0.10-SNAPSHOT</t2.core.version>
+		<t2.lang.version>0.7-SNAPSHOT</t2.lang.version>
+		<t2.compatibility.version>0.10-SNAPSHOT</t2.compatibility.version>
+		<t2.translators.version>0.10-SNAPSHOT</t2.translators.version>
+		<t2.ui.api.version>0.8-SNAPSHOT</t2.ui.api.version>
 		<taverna.version>1.7.2.0</taverna.version>
 	</properties>
 
