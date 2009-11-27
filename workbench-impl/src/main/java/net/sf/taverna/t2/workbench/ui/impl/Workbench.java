@@ -166,7 +166,7 @@ public class Workbench extends JFrame {
 
 		OSXApplication.setListener(osxAppListener);
 
-		setLookAndFeel();
+		
 
 		// Set the size and position of the Workbench to the last
 		// saved values or use the default ones the first time it is launched
@@ -233,7 +233,9 @@ public class Workbench extends JFrame {
 	}
 
 	protected void initialize() {
-		// Call the startup hooks
+		setLookAndFeel();
+		
+		// Call the startup hooks		
 		if (!callStartupHooks()){
 			System.exit(0);
 		}
