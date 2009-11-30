@@ -52,12 +52,10 @@ import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.log4j.Logger;
-import org.w3c.dom.svg.SVGDocument;
 
 public class ImportWorkflowWizard extends JDialog {
 	private static final long serialVersionUID = -8124860319858897065L;
@@ -139,7 +137,7 @@ public class ImportWorkflowWizard extends JDialog {
 		try {
 			SwingUtilities.invokeAndWait(runnable);
 		} catch (InterruptedException ex) {
-			Thread.currentThread().interrupt();
+			//logger.warn("Runnable " + runnable + " was interrupted " + runnable, ex);
 		} catch (InvocationTargetException e) {
 			logger.warn("Can't invoke " + runnable, e);
 		}
@@ -1169,8 +1167,7 @@ public class ImportWorkflowWizard extends JDialog {
 		this.customSourceDataFlow = sourceDataflow;
 		this.customSourceName = label;
 		updateSourceSection();
-		radioCustomSource.setSelected(true);
-		updatePreviews();
+		radioCustomSource.doClick();
 	}
 
 	public void setCustomDestinationDataflow(Dataflow destinationDataflow,
@@ -1178,8 +1175,7 @@ public class ImportWorkflowWizard extends JDialog {
 		this.customDestinationDataflow = destinationDataflow;
 		this.customDestinationName = label;
 		updateDestinationSection();
-		radioCustomDestination.setSelected(true);
-		updatePreviews();
+		radioCustomDestination.doClick();
 	}
 
 	public void setDestinationEnabled(boolean destinationEnabled) {
