@@ -171,12 +171,16 @@ public class SVGGraphController extends GraphController {
 		try {
 			dotWriter.writeGraph(graph);
 			String layout = SVGUtil.getDot(stringWriter.toString());
-			actualBounds = graphLayout.layoutGraph(this, graph, layout, bounds);
+			if (layout.equals("")) {
+				logger.warn("Invalid dot returned");
+			} else {
+				actualBounds = graphLayout.layoutGraph(this, graph, layout, bounds);
+			}
 		} catch (IOException e) {
 			outputMessage(dotErrorMessage);
-			logger.warn("Couldn't generate dot");
+			logger.warn("Couldn't generate dot", e);
 		} catch (ParseException e) {
-			logger.warn("Couldn't layout graph");
+			logger.warn("Couldn't layout graph", e);
 		}
 		return actualBounds;
 	}
