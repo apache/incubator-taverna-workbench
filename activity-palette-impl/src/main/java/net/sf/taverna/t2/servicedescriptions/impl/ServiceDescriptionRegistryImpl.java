@@ -239,7 +239,7 @@ public class ServiceDescriptionRegistryImpl implements
 			}
 			allServiceProviders.add(provider);
 		}
-		return allServiceProviders;
+		return new HashSet<ServiceDescriptionProvider>(allServiceProviders);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -314,7 +314,7 @@ public class ServiceDescriptionRegistryImpl implements
 		observers.removeObserver(observer);
 	}
 
-	public void removeServiceDescriptionProvider(
+	public synchronized void removeServiceDescriptionProvider(
 			ServiceDescriptionProvider provider) {
 		if (!userAddedProviders.remove(provider)) {
 			// Not previously added - must be a default one.. but should we remove it?
