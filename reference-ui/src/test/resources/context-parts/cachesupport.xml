@@ -18,7 +18,7 @@
 	<bean id="t2reference.cache.cacheProvider"
 		class="net.sf.taverna.t2.reference.impl.SimpleCacheProviderImpl"
 		dependency-check="all" scope="singleton"
-		raven:artifact="net.sf.taverna.t2:t2reference-impl:0.3-SNAPSHOT"
+		raven:artifact="net.sf.taverna.t2.core:reference-impl:0.10-SNAPSHOT"
 		raven:repository="raven.repository">
 	</bean>
 
@@ -43,7 +43,7 @@
 	<!-- that aspects loaded from Raven work as usual             -->
 	<bean id="t2reference.cache.cacheAspect"
 		class="net.sf.taverna.t2.reference.impl.CacheAspect"
-		raven:artifact="net.sf.taverna.t2:t2reference-impl:0.3-SNAPSHOT"
+		raven:artifact="net.sf.taverna.t2.core:reference-impl:0.10-SNAPSHOT"
 		raven:repository="raven.repository">
 		<property name="cacheProvider">
 			<ref bean="t2reference.cache.cacheProvider" />
