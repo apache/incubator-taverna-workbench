@@ -71,6 +71,8 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 
 	private List<Recent> recents = new ArrayList<Recent>();
 
+	private Thread loadRecentThread;
+
 	public FileOpenRecentMenuAction() {
 		super(FileOpenMenuSection.FILE_OPEN_SECTION_URI, 30, RECENT_URI);
 		fileManager.addObserver(this);
@@ -127,8 +129,17 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		action = new DummyAction("Recent workflows");
 		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
 		menu = new JMenu(action);
-		loadRecent();
-		updateRecentMenu();
+		// Disabled until we have loaded the recent workflows
+		menu.setEnabled(false);
+		loadRecentThread = new Thread("Loading recent workflow menu") {
+			// Avoid hanging GUI initialization while deserialising
+			@Override
+			public void run() {
+				loadRecent();
+				updateRecentMenu();
+			}
+		};
+		loadRecentThread.start();
 		return menu;
 	}
 

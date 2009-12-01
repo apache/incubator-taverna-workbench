@@ -93,8 +93,10 @@ public class FileManagerImpl extends FileManager {
 	 */
 	private LinkedHashMap<Dataflow, OpenDataflowInfo> openDataflowInfos = new LinkedHashMap<Dataflow, OpenDataflowInfo>();
 
-	private DataflowPersistenceHandlerRegistry persistanceHandlerRegistry = DataflowPersistenceHandlerRegistry
-			.getInstance();
+	public DataflowPersistenceHandlerRegistry getPersistanceHandlerRegistry() {
+		// Delay initialization of handlers
+		return DataflowPersistenceHandlerRegistry.getInstance();
+	}
 
 	public FileManagerImpl() {
 		editManager.addObserver(editManagerObserver);
@@ -120,7 +122,7 @@ public class FileManagerImpl extends FileManager {
 		if (dataflowInfo.getSource() == null) {
 			return false;
 		}
-		Set<DataflowPersistenceHandler> handlers = persistanceHandlerRegistry
+		Set<DataflowPersistenceHandler> handlers = getPersistanceHandlerRegistry()
 				.getSaveHandlersForType(dataflowInfo.getFileType(),
 						dataflowInfo.getDataflowInfo().getCanonicalSource()
 								.getClass());
@@ -283,7 +285,7 @@ public class FileManagerImpl extends FileManager {
 	public List<FileFilter> getOpenFileFilters() {
 		List<FileFilter> fileFilters = new ArrayList<FileFilter>();
 
-		Set<FileType> fileTypes = persistanceHandlerRegistry.getOpenFileTypes();
+		Set<FileType> fileTypes = getPersistanceHandlerRegistry().getOpenFileTypes();
 		if (!fileTypes.isEmpty()) {
 			fileFilters.add(new MultipleFileTypes(fileTypes,
 					"All supported workflow types"));
@@ -300,7 +302,7 @@ public class FileManagerImpl extends FileManager {
 	@Override
 	public List<FileFilter> getOpenFileFilters(Class<?> sourceClass) {
 		List<FileFilter> fileFilters = new ArrayList<FileFilter>();
-		for (FileType fileType : persistanceHandlerRegistry
+		for (FileType fileType : getPersistanceHandlerRegistry()
 				.getOpenFileTypesFor(sourceClass)) {
 			fileFilters.add(new FileTypeFileFilter(fileType));
 		}
@@ -313,7 +315,7 @@ public class FileManagerImpl extends FileManager {
 	@Override
 	public List<FileFilter> getSaveFileFilters() {
 		List<FileFilter> fileFilters = new ArrayList<FileFilter>();
-		for (FileType fileType : persistanceHandlerRegistry.getSaveFileTypes()) {
+		for (FileType fileType : getPersistanceHandlerRegistry().getSaveFileTypes()) {
 			fileFilters.add(new FileTypeFileFilter(fileType));
 		}
 		return fileFilters;
@@ -325,7 +327,7 @@ public class FileManagerImpl extends FileManager {
 	@Override
 	public List<FileFilter> getSaveFileFilters(Class<?> destinationClass) {
 		List<FileFilter> fileFilters = new ArrayList<FileFilter>();
-		for (FileType fileType : persistanceHandlerRegistry
+		for (FileType fileType : getPersistanceHandlerRegistry()
 				.getSaveFileTypesFor(destinationClass)) {
 			fileFilters.add(new FileTypeFileFilter(fileType));
 		}
@@ -395,10 +397,10 @@ public class FileManagerImpl extends FileManager {
 		
 		boolean unknownFileType = (fileType == null);
 		if (unknownFileType) {
-			handlers = persistanceHandlerRegistry
+			handlers = getPersistanceHandlerRegistry()
 					.getOpenHandlersFor(sourceClass);
 		} else {
-			handlers = persistanceHandlerRegistry.getOpenHandlersFor(fileType,
+			handlers = getPersistanceHandlerRegistry().getOpenHandlersFor(fileType,
 					sourceClass);
 		}
 
@@ -517,10 +519,10 @@ public class FileManagerImpl extends FileManager {
 
 		Class<? extends Object> destinationClass = destination.getClass();
 		if (fileType != null) {
-			handlers = persistanceHandlerRegistry.getSaveHandlersForType(
+			handlers = getPersistanceHandlerRegistry().getSaveHandlersForType(
 					fileType, destinationClass);
 		} else {
-			handlers = persistanceHandlerRegistry
+			handlers = getPersistanceHandlerRegistry()
 					.getSaveHandlersFor(destinationClass);
 		}
 
