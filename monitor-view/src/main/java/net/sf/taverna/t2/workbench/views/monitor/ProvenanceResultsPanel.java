@@ -43,15 +43,15 @@ import javax.swing.event.TableModelListener;
 
 import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.invocation.InvocationContext;
+import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
-import net.sf.taverna.t2.provenance.reporter.ProvenanceReporter;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.views.results.RenderedResultComponent;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 import org.springframework.context.ApplicationContext;
 
 /**
@@ -67,11 +67,11 @@ import org.springframework.context.ApplicationContext;
  * @author Ian Dunlop
  * 
  */
+@SuppressWarnings("serial")
 public class ProvenanceResultsPanel extends JPanel implements
 		TableModelListener {
 
-	private static Logger logger = Logger
-			.getLogger(ProvenanceResultsPanel.class);
+	//private static Logger logger = Logger.getLogger(ProvenanceResultsPanel.class);
 
 	private PortTab oldTab;
 
@@ -282,23 +282,7 @@ public class ProvenanceResultsPanel extends JPanel implements
 					context);
 			final ReferenceService referenceService = (ReferenceService) appContext
 					.getBean("t2reference.service.referenceService");
-			InvocationContext invContext = new InvocationContext() {
-
-				public <T> List<? extends T> getEntities(Class<T> arg0) {
-					// TODO Auto-generated method stub
-					return null;
-				}
-
-				public ReferenceService getReferenceService() {
-					// TODO Auto-generated method stub
-					return referenceService;
-				}
-
-				public ProvenanceReporter getProvenanceReporter() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			};
+			InvocationContext invContext = new InvocationContextImpl(referenceService, null);
 			this.context = invContext;
 		}
 
