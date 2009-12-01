@@ -23,11 +23,14 @@ package net.sf.taverna.t2.workbench.views.graph.config;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.Hashtable;
 
+import javax.swing.AbstractAction;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -36,9 +39,8 @@ import javax.swing.JRadioButton;
 import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
+import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
@@ -57,23 +59,40 @@ public class GraphViewConfigurationPanel extends JPanel {
 
     private static GraphViewConfiguration configuration = GraphViewConfiguration.getInstance();
 
+	private JRadioButton noPorts;
+
+	private JRadioButton allPorts;
+
+	private JRadioButton blobs;
+	
+	private JRadioButton vertical;
+
+	private JRadioButton horizontal;
+	
+	private JCheckBox animation;
+
+	private JLabel animationSpeedLabel;
+
+	private JSlider animationSpeedSlider;
+
     public GraphViewConfigurationPanel() {
         GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         setLayout(gridbag);
 
-        JTextArea descriptionText = new JTextArea(
-                "Default settings for the workflow diagram.");
+		// Title describing what kind of settings we are configuring here
+        JTextArea descriptionText = new JTextArea("Default settings for the workflow diagram");
         descriptionText.setLineWrap(true);
         descriptionText.setWrapStyleWord(true);
         descriptionText.setEditable(false);
+        descriptionText.setFocusable(false);
         descriptionText.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         JLabel defaultLayoutLabel = new JLabel("Service display");
 
-        final JRadioButton noPorts = new JRadioButton();
-        JRadioButton allPorts = new JRadioButton();
-        JRadioButton blobs = new JRadioButton();
+        noPorts = new JRadioButton();
+        allPorts = new JRadioButton();
+        blobs = new JRadioButton();
 
         JLabel noPortsLabel = new JLabel("Name only", WorkbenchIcons.noportIcon, JLabel.LEFT);
         JLabel allPortsLabel = new JLabel("Name and ports", WorkbenchIcons.allportIcon, JLabel.LEFT);
@@ -83,20 +102,11 @@ public class GraphViewConfigurationPanel extends JPanel {
         buttonGroup.add(noPorts);
         buttonGroup.add(allPorts);
         buttonGroup.add(blobs);
-        
-        PortStyle portStyle = PortStyle.valueOf(configuration.getProperty(GraphViewConfiguration.PORT_STYLE));
-        if (portStyle.equals(PortStyle.NONE)) {
-        	noPorts.setSelected(true);
-        } else if (portStyle.equals(PortStyle.ALL)) {
-        	allPorts.setSelected(true);
-        } else {
-        	blobs.setSelected(true);
-        }
 
         JLabel defaultAlignmentLabel = new JLabel("Diagram alignment");
 
-        JRadioButton vertical = new JRadioButton();
-        JRadioButton horizontal = new JRadioButton();
+        vertical = new JRadioButton();
+        horizontal = new JRadioButton();
 
         JLabel verticalLabel = new JLabel("Vertical", WorkbenchIcons.verticalIcon, JLabel.LEFT);
         JLabel horizontalLabel = new JLabel("Horizontal", WorkbenchIcons.horizontalIcon, JLabel.LEFT);
@@ -105,23 +115,11 @@ public class GraphViewConfigurationPanel extends JPanel {
         alignmentButtonGroup.add(horizontal);
         alignmentButtonGroup.add(vertical);
 
-        Alignment alignment = Alignment.valueOf(configuration.getProperty(GraphViewConfiguration.ALIGNMENT));
-        if (alignment.equals(Alignment.VERTICAL)) {
-        	vertical.setSelected(true);
-        } else {
-        	horizontal.setSelected(true);
-        }
+        animation = new JCheckBox("Enable animation");
 
-        final JCheckBox animation = new JCheckBox("Enable animation");
- 
-        boolean animationEnabled = Boolean.parseBoolean(configuration.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
-        animation.setSelected(animationEnabled);
-
-        final JLabel animationSpeedLabel = new JLabel("Animation speed");
-        animationSpeedLabel.setEnabled(animationEnabled);
+        animationSpeedLabel = new JLabel("Animation speed");
         
-        final JSlider animationSpeedSlider = new JSlider(ANIMATION_SPEED_MIN, ANIMATION_SPEED_MAX);
-        animationSpeedSlider.setEnabled(animationEnabled);
+        animationSpeedSlider = new JSlider(ANIMATION_SPEED_MIN, ANIMATION_SPEED_MAX);
         animationSpeedSlider.setMajorTickSpacing(500);
         animationSpeedSlider.setMinorTickSpacing(100);
         animationSpeedSlider.setPaintTicks(true);
@@ -135,62 +133,16 @@ public class GraphViewConfigurationPanel extends JPanel {
         labelTable.put(new Integer(ANIMATION_SPEED_MAX), new JLabel("Slow"));
         animationSpeedSlider.setLabelTable(labelTable);
 
-        int animationSpeed = Integer.valueOf(configuration.getProperty(GraphViewConfiguration.ANIMATION_SPEED));
-        if (animationSpeed > ANIMATION_SPEED_MAX) {
-        	animationSpeed = ANIMATION_SPEED_MAX;
-        } else if (animationSpeed < ANIMATION_SPEED_MIN) {
-        	animationSpeed = ANIMATION_SPEED_MIN;
-        }
-        animationSpeedSlider.setValue(animationSpeed);
-
-        noPorts.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-            	configuration.setProperty(GraphViewConfiguration.PORT_STYLE, PortStyle.NONE.toString());
-            }
-        });
-
-        allPorts.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-            	configuration.setProperty(GraphViewConfiguration.PORT_STYLE, PortStyle.ALL.toString());
-            }
-        });
-
-        blobs.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-            	configuration.setProperty(GraphViewConfiguration.PORT_STYLE, PortStyle.BLOB.toString());
-            }
-        });
-
-        vertical.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-            	configuration.setProperty(GraphViewConfiguration.ALIGNMENT, Alignment.VERTICAL.toString());
-            }
-        });
-
-        horizontal.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-            	configuration.setProperty(GraphViewConfiguration.ALIGNMENT, Alignment.HORIZONTAL.toString());
-            }
-        });
-
         animation.addItemListener(new ItemListener() {
             public void itemStateChanged(ItemEvent e) {
             	boolean animationEnabled = animation.isSelected();
-            	configuration.setProperty(GraphViewConfiguration.ANIMATION_ENABLED,
-            			String.valueOf(animationEnabled));
          		animationSpeedLabel.setEnabled(animationEnabled);
          		animationSpeedSlider.setEnabled(animationEnabled);
             }
-        });
-
-        animationSpeedSlider.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-			    if (!animationSpeedSlider.getValueIsAdjusting()) {
-			        int speed = animationSpeedSlider.getValue();
-	            	configuration.setProperty(GraphViewConfiguration.ANIMATION_SPEED, String.valueOf(speed));
-			    }
-			}
-		});
+        });	
+        
+        // Set current configuration values
+        setFields(configuration);
         
         c.anchor = GridBagConstraints.WEST;
         c.gridx = 0;
@@ -256,11 +208,138 @@ public class GraphViewConfigurationPanel extends JPanel {
         
         c.insets = new Insets(0, 20, 10, 30);
         c.anchor = GridBagConstraints.NORTHWEST;
-        c.weighty = 1d;
+        c.weighty = 0d;
         add(animationSpeedSlider, c);
+        
+        // Buttons
+        c.gridx = 0;
+        c.insets = new Insets(0, 20, 10, 30);
+        c.anchor = GridBagConstraints.NORTHWEST;
+        c.weighty = 1d;
+        add(createButtonPanel(), c);
 
     }
 
+	/**
+	 * Create the panel with the buttons.
+	 */
+	@SuppressWarnings("serial")
+	private JPanel createButtonPanel() {
+		final JPanel panel = new JPanel();
+
+		/**
+		 * The helpButton shows help about the current component
+		 */
+		JButton helpButton = new JButton(new AbstractAction("Help") {
+			public void actionPerformed(ActionEvent arg0) {
+				Helper.showHelp(panel);
+			}
+		});
+		panel.add(helpButton);
+
+		/**
+		 * The resetButton changes the property values shown to those
+		 * corresponding to the configuration currently applied.
+		 */
+		JButton resetButton = new JButton(new AbstractAction("Reset") {
+			public void actionPerformed(ActionEvent arg0) {
+				setFields(GraphViewConfiguration.getInstance());
+			}
+		});
+		panel.add(resetButton);
+
+		/**
+		 * The applyButton applies the shown field values to the
+		 * {@link HttpProxyConfiguration} and saves them for future.
+		 */
+		JButton applyButton = new JButton(new AbstractAction("Apply") {
+			public void actionPerformed(ActionEvent arg0) {
+				applySettings();
+				setFields(GraphViewConfiguration.getInstance());
+			}
+		});
+		panel.add(applyButton);
+
+		return panel;
+	}
+
+	/**
+	 * Save the currently set field values to the
+	 * {@link GraphViewConfiguration}. Also apply those values to the
+	 * currently running Taverna.
+	 */
+	private void applySettings() {
+	
+		// Service display
+		if (noPorts.isSelected()){
+        	configuration.setProperty(GraphViewConfiguration.PORT_STYLE, PortStyle.NONE.toString());
+		}
+		else if (allPorts.isSelected()){
+        	configuration.setProperty(GraphViewConfiguration.PORT_STYLE, PortStyle.ALL.toString());
+		}
+		else if (blobs.isSelected()){
+        	configuration.setProperty(GraphViewConfiguration.PORT_STYLE, PortStyle.BLOB.toString());
+		}
+		
+		// Diagram alignment
+		if (vertical.isSelected()){
+        	configuration.setProperty(GraphViewConfiguration.ALIGNMENT, Alignment.VERTICAL.toString());
+		}
+		else if (horizontal.isSelected()){
+        	configuration.setProperty(GraphViewConfiguration.ALIGNMENT, Alignment.HORIZONTAL.toString());
+		}
+		
+		// Animation and its speed
+		if (animation.isSelected()){
+        	configuration.setProperty(GraphViewConfiguration.ANIMATION_ENABLED,
+        			String.valueOf(true));
+		}
+		else{
+        	configuration.setProperty(GraphViewConfiguration.ANIMATION_ENABLED,
+        			String.valueOf(false));
+		}
+		int speed = animationSpeedSlider.getValue();
+		configuration.setProperty(GraphViewConfiguration.ANIMATION_SPEED, String.valueOf(speed));
+	}
+	
+	/**
+	 * Set the shown configuration field values to those currently in use 
+	 * (i.e. last saved configuration).
+	 * 
+	 */
+	private void setFields(GraphViewConfiguration configurable) {
+	
+        PortStyle portStyle = PortStyle.valueOf(configurable.getProperty(GraphViewConfiguration.PORT_STYLE));
+        if (portStyle.equals(PortStyle.NONE)) {
+        	noPorts.setSelected(true);
+        } else if (portStyle.equals(PortStyle.ALL)) {
+        	allPorts.setSelected(true);
+        } else {
+        	blobs.setSelected(true);
+        }
+        
+		Alignment alignment = Alignment.valueOf(configurable.getProperty(GraphViewConfiguration.ALIGNMENT));
+        if (alignment.equals(Alignment.VERTICAL)) {
+        	vertical.setSelected(true);
+        } else {
+        	horizontal.setSelected(true);
+        }
+        
+        boolean animationEnabled = Boolean.parseBoolean(configurable.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
+        animation.setSelected(animationEnabled);
+        
+        Integer animationSpeed = Integer.valueOf(configurable.getProperty(GraphViewConfiguration.ANIMATION_SPEED));
+        if (animationSpeed > ANIMATION_SPEED_MAX) {
+        	animationSpeed = ANIMATION_SPEED_MAX;
+        } else if (animationSpeed < ANIMATION_SPEED_MIN) {
+        	animationSpeed = ANIMATION_SPEED_MIN;
+        }
+        animationSpeedSlider.setValue(animationSpeed);
+        animationSpeedSlider.setEnabled(animationEnabled);
+
+        animationSpeedLabel.setEnabled(animationEnabled);
+	}
+	
     // for testing only
     public static void main(String[] args) {
         JDialog dialog = new JDialog();
