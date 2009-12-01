@@ -17,7 +17,7 @@ public class ServiceDescriptionsConfig extends AbstractConfigurable {
 		return Singleton.instance;
 	}
 
-	private static final String SERVICE_PALETTE = "Service panel";
+	private static final String SERVICE_PALETTE = "Service providers";
 	private static final String CATEGORY = "Services";
 	private static final String UUID = "f0d1ef24-9337-412f-b2c3-220a01e2efd0";
 	private static final String REMOVE_PERMANENTLY = "removePermanently";
