@@ -173,6 +173,7 @@ public class UserRegistrationForm extends JDialog{
 		initComponents();
 	}
 
+	// For testing only
 	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
 		UIManager.setLookAndFeel(UIManager
 				.getSystemLookAndFeelClassName());
