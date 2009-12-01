@@ -264,13 +264,12 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 	    // revalidate();
 		// setDividerLocation(.3);
 
-		// force reference service to be constructed now rather than at first
-		// workflow run
-		getReferenceService();
 		Thread thread = new Thread("Retrieve Previous Runs") {
-
 			@Override
 			public void run() {
+				// force reference service to be constructed now rather than at first
+				// workflow run
+				getReferenceService();
 				retrievePreviousRuns();				
 			}
 			
@@ -388,6 +387,12 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 	 *  placed in a special queue.
 	 */
 	private class DeleteWorkflowRunsThread extends Thread {
+		
+		public DeleteWorkflowRunsThread() {
+			super("Deleting old workflow runs");
+			setDaemon(true);
+		}
+		
         public void run() {
 			try {
 				DataflowRun runToDelete = null;

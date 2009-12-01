@@ -82,8 +82,7 @@ public class AddServiceProviderMenu extends JButton {
 		});
 	}
 
-	private ServiceDescriptionRegistry serviceDescriptionRegistry = ServiceDescriptionRegistryImpl
-			.getInstance();
+	private ServiceDescriptionRegistry serviceDescriptionRegistry;
 
 	@SuppressWarnings("unchecked")
 	private Component createCustomComponent() {
@@ -109,11 +108,14 @@ public class AddServiceProviderMenu extends JButton {
 	}
 
 	public void setServiceDescriptionRegistry(
-			ServiceDescriptionRegistry serviceDescriptionRegistry) {
+			ServiceDescriptionRegistry serviceDescriptionRegistry) {		
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
 	public ServiceDescriptionRegistry getServiceDescriptionRegistry() {
+		if (serviceDescriptionRegistry == null) {
+			return ServiceDescriptionRegistryImpl.getInstance();
+		}
 		return serviceDescriptionRegistry;
 	}
 
