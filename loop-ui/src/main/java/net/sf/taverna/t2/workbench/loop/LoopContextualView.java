@@ -126,20 +126,24 @@ public class LoopContextualView extends ContextualView {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0;
 		gbc.gridy = 1;
+		gbc.weightx = 0.1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 
-		StringBuilder description = new StringBuilder("<html>");
+		StringBuilder description = new StringBuilder("<html><body>");
 		Properties properties = loopLayer.getConfiguration().getProperties();
 		if (properties.getProperty(ActivityGenerator.COMPARISON,
 				ActivityGenerator.CUSTOM_COMPARISON).equals(
 				ActivityGenerator.CUSTOM_COMPARISON)) {
 			Activity<?> condition = loopLayer.getConfiguration().getCondition();
 			if (condition != null) {
-				description.append("Looping using custom conditional<br> ");
+				description.append("Looping using custom conditional ");
 				if (condition instanceof BeanshellActivity) {
 					String script = ((BeanshellActivity)condition).getConfiguration().getScript();
 					if (script != null) {
 						if (script.length() <= 100) {
+							description.append("<pre>\n");
 							description.append(script);
+							description.append("</pre>\n");
 						}
 					}
 				}
@@ -147,22 +151,32 @@ public class LoopContextualView extends ContextualView {
 				description.append("<i>Unconfigured, will not loop</i>");
 			}
 		} else {
-			description.append("The main service will be invoked repeatedly <br>");
-			description.append("until its output ");
+			description.append("The service will be invoked repeatedly ");
+			description.append("until<br> its output <strong>");
 			description.append(properties
 					.getProperty(ActivityGenerator.COMPARE_PORT));
-			description.append(" ");
+			description.append("</strong> ");
 
 			Comparison comparison = ActivityGenerator
 					.getComparisonById(properties
 							.getProperty(ActivityGenerator.COMPARISON));
 			description.append(comparison.getName());
-			description.append("<br> the string <pre>");
+			
+			description.append(" the " + comparison.getValueType() + ": <pre>");
 			description.append(properties
 					.getProperty(ActivityGenerator.COMPARE_VALUE));
 			description.append("</pre>");
+			
+			String delay = properties.getProperty(ActivityGenerator.DELAY, "");
+			try {
+				if (Double.parseDouble(delay) > 0) {
+					description.append("adding a delay of " + delay
+							+ " seconds between loops.");
+				}
+			} catch (NumberFormatException ex) {
+			}
 		}
-		description.append("</html>");
+		description.append("</body></html>");
 
 		panel.add(new JLabel(description.toString()), gbc);
 		gbc.gridy++;
@@ -200,7 +214,7 @@ public class LoopContextualView extends ContextualView {
 			buttonPanel.add(cancelButton);
 
 			dialog.add(buttonPanel, BorderLayout.SOUTH);
-			dialog.setSize(400, 400);
+			dialog.setSize(450, 450);
 			dialog.setLocationRelativeTo(null);
 			dialog.setVisible(true);
 		}
