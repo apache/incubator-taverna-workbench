@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workbench.myexperiment.config;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
 import net.sf.taverna.t2.workbench.configuration.Configurable;
@@ -35,7 +35,7 @@ public class MyExperimentConfiguration extends AbstractConfigurable {
 	private static MyExperimentConfiguration instance = new MyExperimentConfiguration();
   }
 
-  private static Logger logger = Logger.getLogger(MyExperimentConfiguration.class);
+  //private static Logger logger = Logger.getLogger(MyExperimentConfiguration.class);
 
   private Map<String, String> defaultPropertyMap;
 

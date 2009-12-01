@@ -36,25 +36,29 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponent;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
+import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 /**
  * @author Emmanuel Tagarira, Sergejs Aleksejevs, Alan Williams
  */
+@SuppressWarnings("serial")
 public class MyExperimentConfigurationPanel extends JPanel implements ActionListener {
   // CONSTANTS
 
   // components for accessing application's main elements
   private final MainComponent pluginMainComponent = MainComponent.MAIN_COMPONENT;
   private final MyExperimentClient myExperimentClient = MainComponent.MY_EXPERIMENT_CLIENT;
-  private final Logger logger = MainComponent.LOGGER;
+  //private final Logger logger = MainComponent.LOGGER;
 
   // COMPONENTS
   private JTextField tfMyExperimentURL;
@@ -64,10 +68,13 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
   private JCheckBox cbMyStuffFiles;
   private JCheckBox cbMyStuffPacks;
   private JButton bApply;
-
+  private JButton bReset;
+  private JButton bHelp;
+  
   // DATA STORAGE
   private final Component[] pluginTabComponents;
   private final ArrayList<String> alPluginTabComponentNames;
+
 
   public MyExperimentConfigurationPanel() {
 	super();
@@ -94,21 +101,39 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 	Insets insLabel = new Insets(0, 0, 0, 10);
 	Insets insParam = new Insets(0, 3, 5, 3);
 
+	// Title describing what kind of settings we are configuring here
+    JTextArea descriptionText = new JTextArea(
+    "Configure the myExperiment integration functionality");
+    descriptionText.setLineWrap(true);
+    descriptionText.setWrapStyleWord(true);
+    descriptionText.setEditable(false);
+    descriptionText.setFocusable(false);
+    descriptionText.setBorder(new EmptyBorder(10, 10, 10, 10));
+    c.anchor = GridBagConstraints.WEST;
+    c.gridx = 0;
+    c.gridy = 0;
+    c.weightx = 1.0;
+    c.weighty = 0.0;
+    c.fill = GridBagConstraints.HORIZONTAL;
+    jpApiLocation.add(descriptionText, c);
+	
 	c.gridx = 0;
-	c.gridy = 0;
+	c.gridy = 1;
 	c.weightx = 1.0;
-	c.insets = insLabel;
+	//c.insets = insLabel;
 	c.anchor = GridBagConstraints.WEST;
+	c.insets = new Insets(10,0,0,10);
 	jpApiLocation.add(new JLabel("Base URL of myExperiment instance to connect to"), c);
 
-	c.gridy = 1;
-	c.insets = insParam;
+	c.gridy = 2;
+	//c.insets = insParam;
 	c.fill = GridBagConstraints.HORIZONTAL;
+	c.insets = new Insets(0,0,0,0);
 	this.tfMyExperimentURL = new JTextField();
 	this.tfMyExperimentURL.setToolTipText("<html>Here you can specify the base URL of the myExperiment "
-		+ "instance that you wish to connect to.<br/>This allows the plugin to connect not only to the "
-		+ "<b>main myExperiment website</b> (default value:<br/><b>http://www.myexperiment.org</b>) but "
-		+ "also to any other myExperiment instance that might<br/>exist elsewhere.<br/><br/>It is recommended "
+		+ "instance that you wish to connect to.<br>This allows the plugin to connect not only to the "
+		+ "<b>main myExperiment website</b> (default value:<br><b>http://www.myexperiment.org</b>) but "
+		+ "also to any other myExperiment instance that might<br>exist elsewhere.<br><br>It is recommended "
 		+ "that you only change this setting if you are certain in your actions.</html>");
 	jpApiLocation.add(this.tfMyExperimentURL, c);
 
@@ -165,13 +190,15 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 	this.bApply = new JButton("Apply");
 	this.bApply.addActionListener(this);
 
+	this.bReset = new JButton("Reset");
+	this.bReset.addActionListener(this);
+	
+	this.bHelp = new JButton("Help");
+	this.bHelp.addActionListener(this);
+	
 	JPanel jpButtons = new JPanel();
-	jpButtons.setLayout(new GridBagLayout());
-
-	c.gridx = 1;
-	c.gridy = 0;
-	c.weightx = 0;
-	c.insets = insLabel;
+	jpButtons.add(bHelp, c);
+	jpButtons.add(bReset, c);
 	jpButtons.add(bApply, c);
 
 	// PUT EVERYTHING TOGETHER
@@ -196,6 +223,7 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 	jpEverything.add(jpMyStuffPrefs, gbConstraints);
 
 	gbConstraints.gridy++;
+    c.insets = new Insets(10, 0, 0, 0);
 	jpEverything.add(jpButtons, gbConstraints);
 
 	BorderLayout layout = new BorderLayout();
@@ -271,6 +299,12 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 
 	  myExperimentClient.storeSettings();
 	  //	  pluginMainComponent = new MainComponent();
+	}
+	else if (e.getSource().equals(this.bHelp)) {
+		Helper.showHelp(this);
+	}
+	else if (e.getSource().equals(this.bReset)) {
+		initialiseData();
 	}
   }
 }
