@@ -164,8 +164,6 @@ public class Workbench extends JFrame {
 
 		OSXApplication.setListener(osxAppListener);
 
-		
-
 		// Set the size and position of the Workbench to the last
 		// saved values or use the default ones the first time it is launched
 		loadSizeAndLocationPrefs();
@@ -232,9 +230,9 @@ public class Workbench extends JFrame {
 
 	protected void initialize() {
 		setLookAndFeel();
-		
-		// Call the startup hooks		
-		if (!callStartupHooks()){
+
+		// Call the startup hooks
+		if (!callStartupHooks()) {
 			System.exit(0);
 		}
 		makeGUI();
@@ -254,7 +252,7 @@ public class Workbench extends JFrame {
 
 	/**
 	 * Calls the startup methods on all the {@link StartupSPI}s. If any startup
-	 * method returns <code>false</code> (meaning that the Workbench will not 
+	 * method returns <code>false</code> (meaning that the Workbench will not
 	 * function at all) then this method returns <code>false</code>.
 	 */
 	private boolean callStartupHooks() {
@@ -275,7 +273,7 @@ public class Workbench extends JFrame {
 		}
 		return startup;
 	}
-	
+
 	public void exit() {
 		// Save the perspectives to XML files
 		try {
@@ -425,21 +423,7 @@ public class Workbench extends JFrame {
 	}
 
 	private void setLookAndFeel() {
-		// String landf = MyGridConfiguration
-		// .getProperty("taverna.workbench.themeclass");
 		boolean set = false;
-
-		// if (landf != null) {
-		// try {
-		// UIManager.setLookAndFeel(landf);
-		// logger.info("Using " + landf + " Look and Feel");
-		// set = true;
-		// } catch (Exception ex) {
-		// logger.error(
-		// "Error using theme defined by taverna.workbench.themeclass as "
-		// + landf, ex);
-		// }
-		// }
 
 		if (!set && !System.getProperties().containsKey("swing.defaultlaf")) {
 			try {
@@ -447,22 +431,34 @@ public class Workbench extends JFrame {
 						.setLookAndFeel("de.javasoft.plaf.synthetica.SyntheticaStandardLookAndFeel");
 				logger.info("Using Synthetica Look and Feel");
 			} catch (Exception ex) {
-				try {
-					if (!(System.getProperty("os.name").equals("Linux"))) {
-						UIManager.setLookAndFeel(UIManager
-								.getSystemLookAndFeelClassName());
-						logger.info("Using "
-								+ UIManager.getSystemLookAndFeelClassName()
-								+ " Look and Feel");
+				String os = System.getProperty("os.name");
+				if (os.contains("Mac") || os.contains("Windows")) {
+					// For OSX and Windows use the system look and feel
+					String systemLF = UIManager
+					.getSystemLookAndFeelClassName();
+					try {
+						UIManager.setLookAndFeel(systemLF);
+						logger.info("Using system L&F " + systemLF);
 						set = true;
-					} else {
-						logger.info("Using default Look and Feel");
-						set = true;
+					} catch (Exception ex2) {
+						logger.error("Unable to load system look and feel "
+								+ systemLF, ex2);
 					}
-				} catch (Exception ex2) {
-					logger.error("Unable to load default look and feel", ex2);
-				}
+				} else {
+					// The system look and feel on *NIX
+					// (com.sun.java.swing.plaf.gtk.GTKLookAndFeel) looks
+					// like Windows 3.1.. try to use Nimbus (Java 6e10 and 
+					// later before keeping default
+					try {
+						UIManager
+								.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+						logger.info("Using Nimbus look and feel");
+					} catch (Exception e) {
+						logger.info("Using default Look and Feel");
+					}
+					set = true;
 
+				}
 			}
 		}
 	}
