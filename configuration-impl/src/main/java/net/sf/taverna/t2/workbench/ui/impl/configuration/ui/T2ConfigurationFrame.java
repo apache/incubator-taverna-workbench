@@ -22,8 +22,10 @@ package net.sf.taverna.t2.workbench.ui.impl.configuration.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 
-import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -44,20 +46,27 @@ import net.sf.taverna.t2.workbench.helper.Helper;
 import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
-public class T2ConfigurationFrame extends JFrame {
+public class T2ConfigurationFrame extends JFrame{
 	
 	private static Logger logger = Logger.getLogger(T2ConfigurationFrame.class);
 	
 	private static final int FRAME_WIDTH = 700;
-	private static final int FRAME_HEIGHT = 400;
+	private static final int FRAME_HEIGHT = 450;
 	
 	private static JSplitPane splitPane;
+	
+	private static T2ConfigurationFrame INSTANCE;
 		
 	public static T2ConfigurationFrame showFrame() {
-		return new T2ConfigurationFrame();
+		synchronized (T2ConfigurationFrame.class) {
+			if (INSTANCE == null)
+				INSTANCE = new T2ConfigurationFrame();
+		}
+		INSTANCE.setVisible(true);
+		return INSTANCE;
 	}
 	
-	public T2ConfigurationFrame () {
+	private T2ConfigurationFrame () {
 		Helper.setKeyCatcher(this);
 		HelpCollator.registerComponent(this);
 		
@@ -70,7 +79,7 @@ public class T2ConfigurationFrame extends JFrame {
 		JList list = getConfigurationList();
 		JScrollPane jspList = new JScrollPane(list);
 		jspList.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.LOWERED), new EmptyBorder(5,5,5,5)));
-		jspList.setMinimumSize(new Dimension(120, 380));
+		jspList.setMinimumSize(new Dimension(jspList.getPreferredSize().width, jspList.getPreferredSize().height));
 
 		splitPane.setLeftComponent(jspList);
 		splitPane.setRightComponent(new JPanel());
@@ -91,8 +100,6 @@ public class T2ConfigurationFrame extends JFrame {
 	private JList getConfigurationList() {
 		final JList list = new JList();
 			
-		DefaultListModel listModel = new DefaultListModel();
-		list.setModel(listModel);
 		list.addListSelectionListener(new ListSelectionListener() {
 
 			public void valueChanged(ListSelectionEvent e) {
@@ -110,17 +117,26 @@ public class T2ConfigurationFrame extends JFrame {
 			}
 		});
 		
+		ArrayList<ConfigurableItem> arrayList = new ArrayList<ConfigurableItem>();
 		for (ConfigurationUIFactory fac : ConfigurationUIRegistry.getInstance().getConfigurationUIFactories()) {
 			String name=fac.getConfigurable().getName();
 			if (name!=null) {
-				logger.info("Adding configurable for name:"+name);
-				listModel.addElement(new ConfigurableItem(fac));
+				logger.info("Adding configurable for name: "+name);
+				arrayList.add(new ConfigurableItem(fac));
 			}
 			else {
 				logger.warn("The configurable "+fac.getConfigurable().getClass()+" has a null name");
 			}
 		}
-		
+		// Sort the list alphabetically
+		ConfigurableItem[] array = (ConfigurableItem[])arrayList.toArray(new ConfigurableItem[0]);
+		Arrays.sort(array, new Comparator<ConfigurableItem>() {
+
+			public int compare(ConfigurableItem item1, ConfigurableItem item2) {
+				return item1.toString().compareToIgnoreCase(item2.toString());
+			}
+		});
+		list.setListData(array);
 		return list;
 	}
 	
