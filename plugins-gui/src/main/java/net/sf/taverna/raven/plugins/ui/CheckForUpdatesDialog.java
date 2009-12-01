@@ -57,6 +57,7 @@ public class CheckForUpdatesDialog extends JDialog{
 		initComponents();
 	}
 	
+	// For testing
 	public static void main (String[] args){
 		CheckForUpdatesDialog dialog = new CheckForUpdatesDialog();
 		dialog.setVisible(true);
