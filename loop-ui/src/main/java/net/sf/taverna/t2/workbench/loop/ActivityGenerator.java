@@ -51,11 +51,15 @@ import org.apache.log4j.Logger;
 
 public class ActivityGenerator {
 
+	public static final String DEFAULT_DELAY_S = "0.2";
+
+	
 	public static final String COMPARE_PORT = "comparePort";
 	public static final String COMPARISON = "comparison";
 	public static final String CUSTOM_COMPARISON = "custom";
 	public static final String COMPARE_VALUE = "compareValue";
 	public static final String IS_FEED_BACK = "isFeedBack";
+	public static final String DELAY = "delay";
 
 	private static Logger logger = Logger.getLogger(ActivityGenerator.class);
 	private final Properties loopProperties;
@@ -100,16 +104,34 @@ public class ActivityGenerator {
 		return null;
 	}
 
+	@SuppressWarnings("boxing")
 	private String generateScript() {
 		Map<String, String> replacements = new HashMap<String, String>();
 		replacements.put("${loopPort}", Loop.LOOP_PORT);
 		replacements.put("${port}", loopProperties.getProperty(COMPARE_PORT));
 		replacements.put("${value}", beanshellString(loopProperties
 				.getProperty(COMPARE_VALUE)));
-
+		
+		
+		String delaySeconds = loopProperties.getProperty(DELAY, DEFAULT_DELAY_S);
+		Double delay;
+		try {
+			delay = Double.parseDouble(delaySeconds) * 1000;
+		} catch (NumberFormatException ex) {
+			logger.warn("Invalid number for loop delay: " + delaySeconds);
+			delay = 0.0;
+		}
+		delay = Math.max(0.0, delay);
+		
+		replacements.put("${delay}", Integer.toString(delay.intValue()));
+		
 		String template = getComparisonById(
 				loopProperties.getProperty(COMPARISON)).getScriptTemplate();
 
+		template += "\nif (\"true\".matches(${loopPort})) {\n";
+		template += "   Thread.sleep(${delay});\n";
+		template += "}";
+		
 		String script = template;
 		for (Entry<String, String> mapping : replacements.entrySet()) {
 			script = script.replace(mapping.getKey(), mapping.getValue());
