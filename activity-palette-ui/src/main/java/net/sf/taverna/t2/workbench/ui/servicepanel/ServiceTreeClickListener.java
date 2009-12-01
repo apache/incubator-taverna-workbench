@@ -49,6 +49,9 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.ui.servicepanel.actions.RemoveDefaultServicesAction;
+import net.sf.taverna.t2.workbench.ui.servicepanel.actions.RemoveUserServicesAction;
+import net.sf.taverna.t2.workbench.ui.servicepanel.actions.RestoreDefaultServicesAction;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeSelectionModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.TreePanel;
@@ -99,7 +102,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 						logger.info(selectedObject.getClass().getName());
 						if (! (selectedObject instanceof ServiceDescription)) {
 							menu.add(new ShadedLabel("Tree",
-									ShadedLabel.GREEN));
+									ShadedLabel.BLUE));
 							menu.add(new JMenuItem(new AbstractAction(
 									"Expand all", WorkbenchIcons.plusIcon) {
 								public void actionPerformed(ActionEvent evt) {
@@ -126,6 +129,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 								}
 							}));
 						}
+						
 						if (selectedObject instanceof ServiceDescription) {
 							final ServiceDescription sd = (ServiceDescription) selectedObject;
 							menu.add(new ShadedLabel(sd.getName(),
@@ -147,7 +151,8 @@ public class ServiceTreeClickListener extends MouseAdapter {
 									
 								}
 								
-							});						}
+							});		
+						}
 						
 						Set<ServiceDescriptionProvider> providers = new HashSet<ServiceDescriptionProvider>();
 						TreeMap<String,ServiceDescriptionProvider> nameMap = new TreeMap<String, ServiceDescriptionProvider>();
@@ -173,7 +178,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 										continue;
 									}
 									if (first) {
-									menu.add(new ShadedLabel("Remove service provider",
+									menu.add(new ShadedLabel("Remove individual service provider",
 											ShadedLabel.GREEN));
 									first = false;
 									}
@@ -186,6 +191,16 @@ public class ServiceTreeClickListener extends MouseAdapter {
 										
 									});
 								}
+								
+								
+						if (selectedNode.isRoot()){ // Root "Available services"
+								menu.add(new ShadedLabel("Default and added service providers",
+										ShadedLabel.ORANGE));
+								menu.add(new RemoveUserServicesAction());
+								menu.add(new RemoveDefaultServicesAction());
+								menu.add(new RestoreDefaultServicesAction());
+						}
+						
 						menu.show(evt.getComponent(), evt.getX(), evt
 								.getY());
 					}

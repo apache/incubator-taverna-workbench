@@ -18,31 +18,40 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.ui.servicepanel.config;
+package net.sf.taverna.t2.workbench.ui.servicepanel.actions;
 
-import javax.swing.JPanel;
+import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl;
-import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionsConfig;
-import net.sf.taverna.t2.workbench.configuration.Configurable;
-import net.sf.taverna.t2.workbench.configuration.ConfigurationUIFactory;
 
-public class ServiceDescriptionConfigUIFactory implements
-		ConfigurationUIFactory {
-	
-	protected ServiceDescriptionsConfig serviceDescriptionsConfig = ServiceDescriptionsConfig
-			.getInstance();
+@SuppressWarnings("serial")
+public class RemoveUserServicesAction extends AbstractAction {
 
-	public boolean canHandle(String uuid) {
-		return uuid.equals(serviceDescriptionsConfig.getUUID());
+	public RemoveUserServicesAction() {
+		super("Remove all user added service providers");
 	}
 
-	public Configurable getConfigurable() {
-		return serviceDescriptionsConfig;
+	public void actionPerformed(ActionEvent e) {
+		
+		int option = JOptionPane
+				.showConfirmDialog(
+						null,
+						new JLabel("<html><body>You are about to remove all services you have added. <br>Are you REALLY sure you want to do this?</body></html>"),
+						"Confirm service deletion", JOptionPane.YES_NO_CANCEL_OPTION);
+		
+		if (option==JOptionPane.YES_OPTION){
+			ServiceDescriptionRegistry serviceDescRegistry = ServiceDescriptionRegistryImpl.getInstance();
+			for (ServiceDescriptionProvider provider : serviceDescRegistry
+					.getUserAddedServiceProviders()) {
+				serviceDescRegistry.removeServiceDescriptionProvider(provider);
+			}
+		}
 	}
-
-	public JPanel getConfigurationPanel() {
-		return new ServiceDescriptionConfigPanel(serviceDescriptionsConfig, ServiceDescriptionRegistryImpl.getInstance());
-	}
-
 }
+

@@ -18,31 +18,33 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.ui.servicepanel.config;
+package net.sf.taverna.t2.workbench.ui.servicepanel.actions;
 
-import javax.swing.JPanel;
+import java.awt.event.ActionEvent;
 
+import javax.swing.AbstractAction;
+
+import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl;
-import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionsConfig;
-import net.sf.taverna.t2.workbench.configuration.Configurable;
-import net.sf.taverna.t2.workbench.configuration.ConfigurationUIFactory;
 
-public class ServiceDescriptionConfigUIFactory implements
-		ConfigurationUIFactory {
+@SuppressWarnings("serial")
+public class RestoreDefaultServicesAction extends AbstractAction {
+
+	public RestoreDefaultServicesAction() {
+		super("Restore default service providers");
+	}
 	
-	protected ServiceDescriptionsConfig serviceDescriptionsConfig = ServiceDescriptionsConfig
-			.getInstance();
-
-	public boolean canHandle(String uuid) {
-		return uuid.equals(serviceDescriptionsConfig.getUUID());
+	public void actionPerformed(ActionEvent e) {
+		
+		ServiceDescriptionRegistry serviceDescRegistry = ServiceDescriptionRegistryImpl.getInstance();
+		for (ServiceDescriptionProvider provider : serviceDescRegistry.getDefaultServiceDescriptionProviders()) {
+			if (! (provider instanceof ConfigurableServiceProvider)) {
+				continue;
+			}
+			serviceDescRegistry.addServiceDescriptionProvider(provider);
+		}
 	}
-
-	public Configurable getConfigurable() {
-		return serviceDescriptionsConfig;
-	}
-
-	public JPanel getConfigurationPanel() {
-		return new ServiceDescriptionConfigPanel(serviceDescriptionsConfig, ServiceDescriptionRegistryImpl.getInstance());
-	}
-
 }
+
