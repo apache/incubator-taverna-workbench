@@ -472,14 +472,6 @@ public class GraphViewComponent extends WorkflowView {
 			if (! (message instanceof AbstractDataflowEditEvent)) {
 				return;
 			}
-			Runnable doRun = new Runnable() {
-				public void run() {
-					AbstractDataflowEditEvent dataflowEditEvent = (AbstractDataflowEditEvent) message;
-					if (dataflowEditEvent.getDataFlow() == dataflow) {
-						graphController.redraw();
-					}
-				}
-			};
 			Runnable redraw = new Runnable() {
 				public void run() {
 					AbstractDataflowEditEvent dataflowEditEvent = (AbstractDataflowEditEvent) message;
@@ -488,10 +480,12 @@ public class GraphViewComponent extends WorkflowView {
 					}
 				}
 			};
-			// Seems to hang diagram at times.. things not happening in right order?
-			//SwingUtilities.invokeLater(redraw);	
-			// Run it directly for now
-			redraw.run();
+			if (SwingUtilities.isEventDispatchThread()) {
+				redraw.run();
+			} else {
+				// T2-971
+				SwingUtilities.invokeLater(redraw);
+			}
 		}
 	}
 
@@ -528,13 +522,13 @@ public class GraphViewComponent extends WorkflowView {
 		public void notify(Observable<ModelMapEvent> sender,
 				ModelMapEvent message) {
 			ModelMapObserverRunnable runnable = new ModelMapObserverRunnable(message);
-			// Seems to hang diagram at times.. things not happening in right order?		
-			//SwingUtilities.invokeLater(runnable);
-			// instead - run directly
-			runnable.run();
+			if (SwingUtilities.isEventDispatchThread()) {
+				runnable.run();
+			} else {
+				// T2-971
+				SwingUtilities.invokeLater(runnable);
+			}
 		}
-		
-
 	}
 
 	private class MySvgScrollPane extends JSVGScrollPane {
