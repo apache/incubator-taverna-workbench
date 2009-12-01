@@ -20,8 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.httpproxy.config;
 
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
