@@ -51,8 +51,6 @@ import net.sf.taverna.osx.OSXApplication;
 import net.sf.taverna.raven.SplashScreen;
 import net.sf.taverna.raven.appconfig.ApplicationConfig;
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
-import net.sf.taverna.raven.log.ConsoleLog;
-import net.sf.taverna.raven.log.Log;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
