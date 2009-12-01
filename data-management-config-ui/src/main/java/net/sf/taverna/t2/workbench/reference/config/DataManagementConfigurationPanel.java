@@ -35,6 +35,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
@@ -57,7 +58,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 	private JButton helpButton;
 	private JButton resetButton;
 	private JButton applyButton;
-	private DialogTextArea storageText;
+	private JTextArea storageText;
 	private DialogTextArea enableInMemoryTextDisabled;
 
 	public DataManagementConfigurationPanel() {
@@ -80,9 +81,10 @@ public class DataManagementConfigurationPanel extends JPanel {
 		enableProvenanceText.setLineWrap(true);
 		enableProvenanceText.setWrapStyleWord(true);
 		enableProvenanceText.setEditable(false);
+		enableProvenanceText.setFocusable(false);
 		enableProvenanceText.setOpaque(false);
 		enableProvenanceText.setFont(enableProvenanceText.getFont().deriveFont(
-				Font.PLAIN, 10));
+				Font.PLAIN, 11));
 
 		enableInMemory = new JCheckBox("In-memory storage");
 		DialogTextArea enableInMemoryText = new DialogTextArea(
@@ -90,58 +92,66 @@ public class DataManagementConfigurationPanel extends JPanel {
 		enableInMemoryText.setLineWrap(true);
 		enableInMemoryText.setWrapStyleWord(true);
 		enableInMemoryText.setEditable(false);
+		enableInMemoryText.setFocusable(false);
 		enableInMemoryText.setOpaque(false);
 		enableInMemoryText.setFont(enableProvenanceText.getFont().deriveFont(
-				Font.PLAIN, 10));
+				Font.PLAIN, 11));
 
 		enableInMemoryTextDisabled = new DialogTextArea(
-				"It is not possible to modify the data storage settings whilst there are workflow runs in progress, or past workflow runs open");
+				"It is not possible to modify the data storage settings whilst there are workflow runs in progress, or previous workflow runs are open.");
 		enableInMemoryTextDisabled.setLineWrap(true);
 		enableInMemoryTextDisabled.setWrapStyleWord(true);
 		enableInMemoryTextDisabled.setEditable(false);
+		enableInMemoryTextDisabled.setFocusable(false);
 		enableInMemoryTextDisabled.setOpaque(false);
 		enableInMemoryTextDisabled.setFont(enableProvenanceText.getFont()
-				.deriveFont(Font.BOLD, 10));
+				.deriveFont(Font.PLAIN, 11));
 		enableInMemoryTextDisabled.setForeground(Color.RED);
 		enableInMemoryTextDisabled.setVisible(false);
 
-		storageText = new DialogTextArea(
+		storageText = new JTextArea(
 				"Select how Taverna stores the data and provenance produced when a workflow is run. This includes workflow results and intermediate results.");
 		storageText.setLineWrap(true);
 		storageText.setWrapStyleWord(true);
 		storageText.setEditable(false);
+		storageText.setFocusable(false);
 		storageText.setBorder(new EmptyBorder(10, 10, 10, 10));
 
 		JComponent portPanel = createDerbyServerStatusComponent();
 
-		c.anchor = GridBagConstraints.NORTHWEST;
+		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(0, 0, 10, 0);
 		c.gridx = 0;
 		c.gridy = GridBagConstraints.RELATIVE;
-		c.weightx = 1d;
-		c.weighty = 1d;
+		c.weightx = 0.0;
+		c.weighty = 0.0;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		gridbag.setConstraints(storageText, c);
 		add(storageText);
 
 		c.ipady = 0;
 		c.insets = new Insets(0, 0, 5, 0);
+		c.fill = GridBagConstraints.NONE;
 		gridbag.setConstraints(enableProvenance, c);
 		add(enableProvenance);
 
 		c.insets = new Insets(0, 20, 15, 20);
+		c.fill = GridBagConstraints.HORIZONTAL;
 		gridbag.setConstraints(enableProvenanceText, c);
 		add(enableProvenanceText);
 
 		c.insets = new Insets(0, 0, 5, 0);
+		c.fill = GridBagConstraints.NONE;
 		gridbag.setConstraints(enableInMemory, c);
 		add(enableInMemory);
 
 		c.insets = new Insets(0, 20, 15, 20);
+		c.fill = GridBagConstraints.HORIZONTAL;
 		gridbag.setConstraints(enableInMemoryText, c);
 		add(enableInMemoryText);
 
 		c.insets = new Insets(0, 20, 15, 20);
+		c.fill = GridBagConstraints.HORIZONTAL;
 		gridbag.setConstraints(enableInMemoryTextDisabled, c);
 		add(enableInMemoryTextDisabled);
 
@@ -150,6 +160,9 @@ public class DataManagementConfigurationPanel extends JPanel {
 		add(portPanel);
 
 		JPanel buttonPanel = createButtonPanel();
+		c.weightx = 1.0;
+		c.weighty = 1.0;
+		c.fill = GridBagConstraints.BOTH;
 		c.insets = new Insets(0, 0, 5, 0);
 		gridbag.setConstraints(buttonPanel, c);
 		add(buttonPanel);
@@ -173,9 +186,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 				try {
 					connection.close();
 				} catch (SQLException e) {
-					logger
-							.warn(
-									"Unable to close connection to database (or return to pool)",
+					logger.warn("Unable to close connection to database (or return to pool)",
 									e);
 				}
 		}
@@ -184,18 +195,18 @@ public class DataManagementConfigurationPanel extends JPanel {
 			int port = DataManagementConfiguration.getInstance()
 					.getCurrentPort();
 			textArea.setText("The database is currently running on port: "
-					+ port);
+					+ port + ".");
 		} else {
-			textArea
-					.setText("Unable to retrieve a database connection - the database isn't available");
+			textArea.setText("Unable to retrieve a database connection - the database is not available.");
 		}
 
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
 		textArea.setEditable(false);
+		textArea.setFocusable(false);
 		textArea.setOpaque(false);
 		textArea.setAlignmentX(CENTER_ALIGNMENT);
-		textArea.setFont(textArea.getFont().deriveFont(Font.PLAIN, 10));
+		textArea.setFont(textArea.getFont().deriveFont(Font.PLAIN, 11));
 		textArea.setVisible(DataManagementConfiguration.getInstance()
 				.getStartInternalDerbyServer());
 		return textArea;
