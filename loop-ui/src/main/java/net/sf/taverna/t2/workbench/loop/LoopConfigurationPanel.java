@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.loop;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -41,6 +42,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 
 import net.sf.taverna.t2.activities.beanshell.BeanshellActivity;
 import net.sf.taverna.t2.activities.beanshell.BeanshellActivityConfigurationBean;
@@ -52,7 +54,6 @@ import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.loop.comparisons.Comparison;
 import net.sf.taverna.t2.workbench.ui.Utils;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
-import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualViewComponent;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.OutputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
@@ -132,6 +133,7 @@ public class LoopConfigurationPanel extends JPanel {
 			}
 			properties.put(ActivityGenerator.COMPARE_VALUE, valueField
 					.getText());
+			properties.put(ActivityGenerator.DELAY, delayField.getText());
 
 			properties.put(ActivityGenerator.IS_FEED_BACK, Boolean
 					.toString(feedBackCheck.isSelected()));
@@ -159,7 +161,7 @@ public class LoopConfigurationPanel extends JPanel {
 		private final JButton customizeButton;
 
 		public CustomizeAction(JButton customizeButton) {
-			super("Customize");
+			super("Customize condition service");
 			this.customizeButton = customizeButton;
 		}
 
@@ -182,15 +184,16 @@ public class LoopConfigurationPanel extends JPanel {
 					return;
 				}
 				configuration.setCondition(activity);
-			} else if (! (condition instanceof BeanshellActivity)) {
-				logger.warn("Can't configure unknown condition service type " + condition.getClass());
+			} else if (!(condition instanceof BeanshellActivity)) {
+				logger.warn("Can't configure unknown condition service type "
+						+ condition.getClass());
 				return;
 			}
 
-			final BeanshellActivity beanshellActivity = (BeanshellActivity) configuration.getCondition();
+			final BeanshellActivity beanshellActivity = (BeanshellActivity) configuration
+					.getCondition();
 
-			Frame owner = Utils
-					.getParentFrame(LoopConfigurationPanel.this);
+			Frame owner = Utils.getParentFrame(LoopConfigurationPanel.this);
 
 			final BeanshellConfigView beanshellConfigView = new BeanshellConfigView(
 					beanshellActivity);
@@ -216,13 +219,12 @@ public class LoopConfigurationPanel extends JPanel {
 									ActivityGenerator.COMPARISON,
 									ActivityGenerator.CUSTOM_COMPARISON);
 						} catch (ActivityConfigurationException e1) {
-							logger
-									.warn("Can't configure conditional beanshell",
-											e1);
+							logger.warn("Can't configure condition beanshell",
+									e1);
 						}
 					}
 					dialog.setVisible(false);
-					configToUi();					
+					configToUi();
 				}
 
 			});
@@ -278,8 +280,13 @@ public class LoopConfigurationPanel extends JPanel {
 
 		valueField.setText(properties.getProperty(
 				ActivityGenerator.COMPARE_VALUE, ""));
+
+		delayField.setText(properties.getProperty(ActivityGenerator.DELAY,
+				"0.0"));
+
 		feedBackCheck.setSelected(Boolean.parseBoolean(properties
 				.getProperty(ActivityGenerator.IS_FEED_BACK)));
+		updateFeedbackHelp();
 	}
 
 	private void initialise() {
@@ -316,19 +323,29 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 		gbc.gridwidth = 2;
+		gbc.weightx = 0.1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 
 		JLabel helpLabel = new JLabel(
-				"<html><em>"
-						+ "The main service will be invoked repeatedly as<br>"
-						+ "long as the condition service returns a string equal<br>"
-						+ "to 'true' on its output port <code>loop</code>."
+				"<html><body>"
+						+ "The main service will be invoked repeatedly as "
+						+ "long as the <em>customized condition service</em> returns a string equal "
+						+ "to <strong>\"true\"</strong> on its output port <code>loop</code>."
 						+ "<br><br>"
-						+ "Any conditional input ports will be populated with values from<br>"
-						+ "the matching output ports of the main service, <br>"
-						+ "and outputs from the condition service will replace the original<br>"
-						+ "inputs to the main service.</em></html>");
+						+ "Input ports of the condition service will be populated with values from "
+						+ "the <em>corresponding output ports</em> of the main service invocation "
+						+ "(as long as they are also "
+						+ "<strong>connected</strong> in the containing workflow)."
+						+ "<br><br> "
+
+						+ "Any <em>matching "
+						+ "output ports</em> from the condition service will provide the corresponding "
+						+ "<em>inputs</em> to the main service while looping. You will need to provide "
+						+ "the <em>initial inputs</em> from the containing workflow."
+						+ "</body></html>");
 		customPanel.add(helpLabel, gbc);
 
+		gbc.weightx = 0;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.gridx = 0;
 		gbc.gridy++;
@@ -346,6 +363,12 @@ public class LoopConfigurationPanel extends JPanel {
 	protected JLabel valueTypeLabel = new JLabel("the string");
 
 	protected JTextField valueField = new JTextField("", 15);
+
+	protected JLabel delayLabel = new JLabel("adding a delay of ");
+	protected JTextField delayField = new JTextField(
+			ActivityGenerator.DEFAULT_DELAY_S, 4);
+	protected JLabel secondsLabel = new JLabel(" seconds between loops.");
+
 	private JComboBox portCombo;
 	private JComboBox comparisonCombo;
 
@@ -358,53 +381,110 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.anchor = GridBagConstraints.LINE_START;
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		gbc.gridwidth = 2;
-
+		gbc.gridwidth = 3;
+		gbc.weightx = 0.1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 		JLabel invokedRepeatedlyLabel = new JLabel(
-				"The main service will be invoked repeatedly until its output");
+				"<html><body>The main service will be invoked repeatedly until its output</body></html>");
 		configPanel.add(invokedRepeatedlyLabel, gbc);
 		gbc.gridy++;
+		gbc.ipadx = 4;
+		gbc.ipady = 4;
+
+		gbc.weightx = 0.1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridx = 0;
 		gbc.gridwidth = 1;
-
 		List<String> activityOutputPorts = getActivityOutputPorts();
-
 		portCombo = new JComboBox(activityOutputPorts.toArray());
 		configPanel.add(portCombo, gbc);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridx++;
+
+		configPanel.add(new JPanel(), gbc);
 		gbc.gridx++;
 
 		comparisonCombo = new JComboBox(ActivityGenerator.comparisons.toArray());
+		comparisonCombo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Comparison selectedComparison = (Comparison) comparisonCombo
+						.getSelectedItem();
+				if (selectedComparison != null) {
+					valueTypeLabel.setText("the "
+							+ selectedComparison.getValueType());
+				}
+			}
+		});
 		configPanel.add(comparisonCombo, gbc);
 		gbc.gridy++;
 		gbc.gridx = 0;
+		gbc.gridwidth = 2;
+
+		valueTypeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 
 		configPanel.add(valueTypeLabel, gbc);
-		gbc.gridx++;
+		gbc.gridx = 2;
+		gbc.gridwidth = 2;
+		gbc.weightx = 0.1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+
 		configPanel.add(valueField, gbc);
+		gbc.weightx = 0.0;
+
+		delayLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 		gbc.gridy++;
+		gbc.gridwidth = 1;
 		gbc.gridx = 0;
+		configPanel.add(delayLabel, gbc);
+		// gbc.gridy++;
+		// gbc.gridwidth = 2;
+
+		gbc.gridx = 1;
+		delayField.setHorizontalAlignment(JTextField.RIGHT);
+		configPanel.add(delayField, gbc);
+		gbc.gridx = 2;
+		gbc.gridwidth = 1;
+		configPanel.add(secondsLabel, gbc);
+		gbc.gridx = 0;
+		gbc.gridy++;
 
 		if (activityOutputPorts.isEmpty()) {
 			JLabel warningLabel = new JLabel(
-					"<html><strong>Warning:</strong><br>"
-							+ "<i>No output ports detected on the main service,<br>"
-							+ "Cannot use built-in comparisons.</i></html>");
+					"<html><body><strong>Warning:</strong><br>"
+							+ "<i>No output ports detected on the main service, "
+							+ "cannot use built-in comparisons.</i></body></html>");
+			gbc.gridx = 0;
 			gbc.gridwidth = 3;
+			gbc.weightx = 0.1;
 			gbc.fill = GridBagConstraints.BOTH;
 			gbc.gridy++;
 			configPanel.add(warningLabel, gbc);
 			invokedRepeatedlyLabel.setVisible(false);
 			portCombo.setVisible(false);
 			comparisonCombo.setVisible(false);
+			portWarning.setVisible(false);
 			valueTypeLabel.setVisible(false);
 			valueField.setVisible(false);
+			delayField.setVisible(false);
+			delayLabel.setVisible(false);
+			secondsLabel.setVisible(false);
+
 			gbc.gridwidth = 1;
 		}
 
+		gbc.gridy++;
+		gbc.gridx = 0;
+		gbc.weightx = 0.1;
+		gbc.gridwidth = 3;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+
+		configPanel.add(portWarning, gbc);
+
+		gbc.weightx = 0.0;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.gridx = 0;
 		gbc.gridy++;
-		gbc.gridwidth = 2;
+		gbc.gridwidth = 3;
 		gbc.anchor = GridBagConstraints.LAST_LINE_END;
 		JButton customizeButton = new JButton();
 		customizeButton.setAction(new CustomizeAction(customizeButton));
@@ -413,7 +493,7 @@ public class LoopConfigurationPanel extends JPanel {
 		// filler
 		gbc.gridy++;
 		gbc.fill = GridBagConstraints.BOTH;
-		gbc.gridx = 3;
+		gbc.gridx = 4;
 		gbc.weightx = 0.1;
 		gbc.weighty = 0.1;
 		configPanel.add(Box.createGlue(), gbc);
@@ -444,6 +524,10 @@ public class LoopConfigurationPanel extends JPanel {
 
 	protected JCheckBox feedBackCheck = new JCheckBox(
 			"Feed back matching ports");
+	private JLabel portWarning = new JLabel(
+			"<html><body><small>Note that for the looping to be able to check this output, "
+					+ "the <strong>selected service output</strong> must also be <strong>connected</strong> to "
+					+ "another service or workflow output port in the containing workflow.</small></body></html>");
 
 	protected void makeOptions() {
 		optionsPanel.removeAll();
@@ -453,17 +537,50 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.gridy = 0;
 		gbc.weightx = 0.1;
 		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 		optionsPanel.add(feedBackCheck, gbc);
+		feedBackCheck.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				updateFeedbackHelp();
+			}
+		});
+		updateFeedbackHelp();
 
 		gbc.gridy = 1;
-		String help = "<html><small>"
-				+ "If an output port's name "
-				+ "matches that of an input port,<br> "
-				+ "on the next looped invocation the input value will be replaced <br>"
-				+ "with the previous output value of the matching output port."
-				+ "</small></html>";
-		optionsPanel.add(new JLabel(help), gbc);
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		optionsPanel.add(feedbackHelp, gbc);
 	}
+
+	protected void updateFeedbackHelp() {
+		feedbackHelp.setEnabled(feedBackCheck.isSelected());
+		Color color;
+		if (feedBackCheck.isSelected()) {
+			color = valueTypeLabel.getForeground();
+		} else {
+			// Work around
+			// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4303706
+			// and assume gray is the 'disabled' colour in our Look n Feel
+			color = Color.gray;
+		}
+		feedbackHelp.setForeground(color);
+
+	}
+
+	JLabel feedbackHelp = new JLabel(
+			"<html><small>"
+					+ "When looping, any service <em>input ports</em> which <em>names</em> "
+					+ "match those of service <em>output ports</em> will get their inputs "
+					+ "from the matching outputs of the <em>previous invocation</em>. <br>"
+
+					+ "This can be useful if the main service is a <em>nested workflow</em> "
+					+ "which is able to calculate its next input parameters.<br>"
+
+					+ "You will need to provide the <em>initial</em> inputs by "
+					+ "connecting the input ports in the containing workflow. You will also "
+					+ "need to <strong>connect all service output ports</strong> "
+					+ "in the containing workflow.<br>"
+
+					+ "</small></html>");
 
 	protected void makeHeader() {
 		headerPanel.removeAll();
