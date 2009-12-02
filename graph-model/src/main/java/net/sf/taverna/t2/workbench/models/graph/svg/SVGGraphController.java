@@ -64,7 +64,11 @@ public class SVGGraphController extends GraphController {
 
 	private Map<String, List<SVGGraphEdge>> datalinkMap = new HashMap<String, List<SVGGraphEdge>>();
 	
-	private JSVGCanvas svgCanvas;
+	private final JSVGCanvas svgCanvas;
+
+	public JSVGCanvas getSVGCanvas() {
+		return svgCanvas;
+	}
 
 	private SVGDocument svgDocument;
 	

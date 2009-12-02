@@ -49,13 +49,13 @@ import javax.swing.border.TitledBorder;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelDestroyedEvent;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
+import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
+import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.impl.T2DataflowOpener;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -118,8 +118,8 @@ public class GraphViewComponent extends WorkflowView {
 		border.setTitleJustification(TitledBorder.CENTER);
 		setBorder(border);
 
-		ModelMap.getInstance().addObserver(new ModelMapObserver());
-
+		FileManager.getInstance().addObserver(new FileManagerObserver());
+		
 		EditManager.getInstance().addObserver(new EditManagerObserver());
 
 		ActionListener taskPerformer = new ActionListener() {
@@ -489,39 +489,44 @@ public class GraphViewComponent extends WorkflowView {
 		}
 	}
 
-	public class ModelMapObserverRunnable implements Runnable {
-		private final ModelMapEvent message;
+	
+	public class FileManagerObserverRunnable implements Runnable {
+		private final FileManagerEvent message;
 
-		public ModelMapObserverRunnable(ModelMapEvent message) {
+		public FileManagerObserverRunnable(FileManagerEvent message) {
 			this.message = message;
 		}
 
 		public void run() {
-			if (message instanceof ModelDestroyedEvent) {
-				if (message.getOldModel() instanceof Dataflow) {
-					JPanel panel = diagramPanelMap.remove((Dataflow) message
-							.getOldModel());
-					if (panel != null) {
-						remove(panel);
-					}
-					graphControllerMap.remove((Dataflow) message.getOldModel());
+			if (message instanceof ClosedDataflowEvent) {
+				ClosedDataflowEvent closedDataflowEvent = (ClosedDataflowEvent) message;
+				Dataflow dataflow = closedDataflowEvent.getDataflow();
+				JPanel panel = diagramPanelMap.remove((Dataflow) dataflow);
+				if (panel != null) {
+					remove(panel);
 				}
-			} else {
-				if (message.getModelName().equals(
-						ModelMapConstants.CURRENT_DATAFLOW)) {
-					if (message.getNewModel() instanceof Dataflow) {
-						setDataflow((Dataflow) message.getNewModel());
-					}
+				SVGGraphController removedController = graphControllerMap
+						.remove(dataflow);
+				if (removedController != null) {
+					removedController.getSVGCanvas().stopProcessing();
+					removedController.getSVGCanvas()
+							.removeGVTTreeRendererListener(
+									gvtTreeBuilderAdapter);
+					System.out.println("Should have cleaned up a bit!");
 				}
+			} else if (message instanceof SetCurrentDataflowEvent) {
+				SetCurrentDataflowEvent currentDataflowEvent = (SetCurrentDataflowEvent) message;
+				Dataflow dataflow = currentDataflowEvent.getDataflow();
+				setDataflow(dataflow);
 			}
 		}
 	}
 
-	public class ModelMapObserver implements Observer<ModelMap.ModelMapEvent> {
+	public class FileManagerObserver implements Observer<FileManagerEvent> {
 
-		public void notify(Observable<ModelMapEvent> sender,
-				ModelMapEvent message) {
-			ModelMapObserverRunnable runnable = new ModelMapObserverRunnable(message);
+		public void notify(Observable<FileManagerEvent> sender,
+				FileManagerEvent message) {
+			FileManagerObserverRunnable runnable = new FileManagerObserverRunnable(message);
 			if (SwingUtilities.isEventDispatchThread()) {
 				runnable.run();
 			} else {

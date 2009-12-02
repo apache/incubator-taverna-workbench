@@ -48,7 +48,7 @@ public class AutoScrollInteractor extends InteractorAdapter {
 		private static final long serialVersionUID = -295542754718804222L;
 	};
 
-	private Timer timer = new Timer("GraphAutoScrollTimer", true);
+	private static Timer timer = new Timer("GraphAutoScrollTimer", true);
 
 	private TimerTask task;
 
