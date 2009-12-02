@@ -20,20 +20,17 @@
  ******************************************************************************/
 package net.sf.taverna.t2.reference.ui;
 
-import java.util.List;
 import java.util.Map;
 
-import javax.swing.ImageIcon;
+//import javax.swing.ImageIcon;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.InvocationContext;
-import net.sf.taverna.t2.provenance.reporter.ProvenanceReporter;
+import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.reference.ReferenceContext;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
@@ -49,8 +46,8 @@ public class WorkflowLaunchTestApp {
 	private static WorkflowLaunchPanel wlp;
 	
 
-	private static ImageIcon workflowThumbnail = new ImageIcon(
-			WorkflowLaunchTestApp.class.getResource("/workflow.png"));
+	//private static ImageIcon workflowThumbnail = new ImageIcon(
+		//	WorkflowLaunchTestApp.class.getResource("/workflow.png"));
 	
 	private static EditManager editManager = EditManager.getInstance();
 
@@ -73,30 +70,6 @@ public class WorkflowLaunchTestApp {
 		});
 	}
 
-	
-	private static class InvocationContextImpl implements InvocationContext {
-		
-		private final ReferenceService refService;
-
-		public InvocationContextImpl(ReferenceService refService) {
-			this.refService = refService;
-			
-		}
-
-		public ProvenanceReporter getProvenanceReporter() {
-			return null;
-		}
-
-		public ReferenceService getReferenceService() {
-			return refService;
-		}
-
-		public <T> List<? extends T> getEntities(Class<T> arg0) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-		
-	}
 	@SuppressWarnings("serial")
 	private static void createAndShowGUI(ReferenceService referenceService,
 			ReferenceContext referenceContext) throws InvalidDataflowException {
@@ -106,7 +79,7 @@ public class WorkflowLaunchTestApp {
 		
 		Dataflow dataflow = editManager.getEdits().createDataflow();
 		
-		InvocationContext context = new InvocationContextImpl(referenceService);
+		InvocationContext context = new InvocationContextImpl(referenceService, null);
 
 		WorkflowInstanceFacade facade = new EditsImpl().createWorkflowInstanceFacade(
 				dataflow, context, "");
