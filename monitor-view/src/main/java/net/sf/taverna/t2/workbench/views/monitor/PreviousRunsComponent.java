@@ -99,6 +99,8 @@ public class PreviousRunsComponent extends MonitorViewComponent {
 		svgGraphController.setGraphEventManager(new MonitorGraphEventManager(
 				this, provenanceConnector, dataflow, getSessionId()));
 		svgGraphController.redraw();
+		// Previous runs are passive
+		svgGraphController.shutdown();
 		JPanel diagramAndControls = new JPanel();
 		diagramAndControls.setLayout(new BorderLayout());
 		setGraphController(svgGraphController);

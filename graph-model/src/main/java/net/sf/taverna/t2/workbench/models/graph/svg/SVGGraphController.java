@@ -29,7 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import net.sf.taverna.t2.workbench.models.graph.DotWriter;
@@ -66,9 +66,6 @@ public class SVGGraphController extends GraphController {
 	
 	private final JSVGCanvas svgCanvas;
 
-	public JSVGCanvas getSVGCanvas() {
-		return svgCanvas;
-	}
 
 	private SVGDocument svgDocument;
 	
@@ -78,7 +75,7 @@ public class SVGGraphController extends GraphController {
 	
 	private UpdateManager updateManager;
 	
-	private static Executor executor = Executors.newFixedThreadPool(1);
+	private ExecutorService executor = Executors.newFixedThreadPool(1);
 	
 	private boolean drawingDiagram = false;
 	
@@ -133,6 +130,10 @@ public class SVGGraphController extends GraphController {
 		return new SVGGraphNode(this);
 	}
 
+	public JSVGCanvas getSVGCanvas() {
+		return svgCanvas;
+	}
+	
 	public synchronized SVGDocument getSVGDocument() {
 		if (svgDocument == null) {
 			svgDocument = SVGUtil.createSVGDocument();
@@ -355,6 +356,11 @@ public class SVGGraphController extends GraphController {
 	 */
 	public void setAnimationSpeed(int animationSpeed) {
 		this.animationSpeed = animationSpeed;
+	}
+
+	public void shutdown() {
+		getSVGCanvas().stopProcessing();
+		executor.shutdownNow();
 	}
 	
 }

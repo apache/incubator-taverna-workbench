@@ -154,7 +154,7 @@ public class GraphViewComponent extends WorkflowView {
 				.getProperty(GraphViewConfiguration.PORT_STYLE));
 		boolean animationEnabled = Boolean.parseBoolean(configuration
 				.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
-		int animationSpeed = Integer.valueOf(configuration
+		int animationSpeed = Integer.parseInt(configuration
 				.getProperty(GraphViewConfiguration.ANIMATION_SPEED));
 
 		// create an SVG canvas
@@ -438,27 +438,16 @@ public class GraphViewComponent extends WorkflowView {
 	}
 
 	public ImageIcon getIcon() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	public void onDisplay() {
-		// TODO Auto-generated method stub
 	}
 
 	public void onDispose() {
 		if (timer != null) {
 			timer.stop();
 		}
-		// if (svgScrollPane != null) {
-		// svgScrollPane.removeAll();
-		// svgScrollPane = null;
-		// }
-		// if (svgCanvas != null) {
-		// svgCanvas.stopProcessing();
-		// svgCanvas.removeGVTTreeRendererListener(gvtTreeBuilderAdapter);
-		// svgCanvas = null;
-		// }
 	}
 
 	@Override
@@ -508,11 +497,10 @@ public class GraphViewComponent extends WorkflowView {
 				SVGGraphController removedController = graphControllerMap
 						.remove(dataflow);
 				if (removedController != null) {
-					removedController.getSVGCanvas().stopProcessing();
 					removedController.getSVGCanvas()
 							.removeGVTTreeRendererListener(
 									gvtTreeBuilderAdapter);
-					System.out.println("Should have cleaned up a bit!");
+					removedController.shutdown();
 				}
 			} else if (message instanceof SetCurrentDataflowEvent) {
 				SetCurrentDataflowEvent currentDataflowEvent = (SetCurrentDataflowEvent) message;
@@ -537,6 +525,7 @@ public class GraphViewComponent extends WorkflowView {
 	}
 
 	private class MySvgScrollPane extends JSVGScrollPane {
+		private static final long serialVersionUID = 1L;
 
 		public MySvgScrollPane(JSVGCanvas canvas) {
 			super(canvas);

@@ -215,8 +215,11 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 			svgScrollPane.removeAll();
 			svgScrollPane = null;
 		}
+		if (graphController != null) {
+			graphController.shutdown();
+			graphController = null;
+		}
 		if (svgCanvas != null) {
-			svgCanvas.stopProcessing();
 			svgCanvas.removeGVTTreeRendererListener(gvtTreeRendererAdapter);
 			svgCanvas = null;
 		}
