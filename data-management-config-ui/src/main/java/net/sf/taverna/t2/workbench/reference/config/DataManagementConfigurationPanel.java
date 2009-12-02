@@ -26,6 +26,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
 
@@ -40,8 +41,6 @@ import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.helper.Helper;
-import net.sf.taverna.t2.workbench.run.DataflowRunsComponent;
-import net.sf.taverna.t2.workbench.run.DataflowRunsComponentFactory;
 
 import org.apache.log4j.Logger;
 
@@ -98,7 +97,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 				Font.PLAIN, 11));
 
 		enableInMemoryTextDisabled = new DialogTextArea(
-				"It is not possible to modify the data storage settings whilst there are workflow runs in progress, or previous workflow runs are open.");
+				"If you enable in-memory storage of data when provenance collection is turned on then provenance will not be available after you shutdown Taverna as the in-memory data will be lost.");
 		enableInMemoryTextDisabled.setLineWrap(true);
 		enableInMemoryTextDisabled.setWrapStyleWord(true);
 		enableInMemoryTextDisabled.setEditable(false);
@@ -108,7 +107,19 @@ public class DataManagementConfigurationPanel extends JPanel {
 				.deriveFont(Font.PLAIN, 11));
 		enableInMemoryTextDisabled.setForeground(Color.RED);
 		enableInMemoryTextDisabled.setVisible(false);
-
+		enableInMemory.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
+			}
+		});
+		enableProvenance.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
+			}
+		});
+		
 		storageText = new JTextArea(
 				"Select how Taverna stores the data and provenance produced when a workflow is run. This includes workflow results and intermediate results.");
 		storageText.setLineWrap(true);
@@ -232,15 +243,12 @@ public class DataManagementConfigurationPanel extends JPanel {
 				DataManagementConfiguration.ENABLE_PROVENANCE)
 				.equalsIgnoreCase("true"));
 
-		boolean enabled = !workflowInstances();
-		enableInMemory.setEnabled(enabled);
-		enableInMemoryTextDisabled.setVisible(!enabled);
-
+		enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
 	}
 
-	private boolean workflowInstances() {
+	/*private boolean workflowInstances() {
 		return DataflowRunsComponent.getInstance().getRunListCount()>0;
-	}
+	}*/
 
 	private void applySettings() {
 		configuration.setProperty(
@@ -250,6 +258,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 				.valueOf(enableInMemory.isSelected()));
 	}
 
+	@SuppressWarnings("serial")
 	private JPanel createButtonPanel() {
 		final JPanel panel = new JPanel();
 
