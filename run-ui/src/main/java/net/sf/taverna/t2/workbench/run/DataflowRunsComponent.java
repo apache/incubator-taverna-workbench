@@ -292,13 +292,13 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		List<WorkflowInstance> allWorkflowIDs = provenanceAccess
 				.getAllWorkflowIDs();
 		Collections.reverse(allWorkflowIDs);
-		ArrayList<String> topLevelWorkflowRunIds = new ArrayList<String>();
+		/*ArrayList<String> topLevelWorkflowRunIds = new ArrayList<String>();
 		for (WorkflowInstance workflowInstance : allWorkflowIDs){ // get only top level workflow runs, not the nested wf runs
 			topLevelWorkflowRunIds.add(workflowInstance.getWorkflowIdentifier());
 		}
-		removeDuplicate(topLevelWorkflowRunIds);
+		removeDuplicate(topLevelWorkflowRunIds);*/
 		for (WorkflowInstance workflowInstance : allWorkflowIDs) {
-			if (topLevelWorkflowRunIds.contains(workflowInstance.getInstanceID())){
+			//if (topLevelWorkflowRunIds.contains(workflowInstance.getInstanceID())){
 				logger.info("retrieved previous run, workflow id: "
 						+ workflowInstance.getInstanceID() + " date: "
 						+ workflowInstance.getTimestamp());
@@ -328,7 +328,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 					logger.error("Problem with previous run: "
 							+ workflowInstance.getInstanceID() + " " + e);
 				}				
-			}
+			//}
 		}
 	}
 
