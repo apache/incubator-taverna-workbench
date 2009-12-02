@@ -30,7 +30,7 @@ import net.sf.taverna.t2.workbench.ShutdownSPI;
 
 /**
  * Shutdown hook that checks and waits until all previous workflow runs queued for deletion
- * have actually been deleted from the provenance and Reference Service's databases.
+ * have actually been deleted from the provenance and Reference Manager's stores.
  * 
  * @author Alex Nenadic
  *

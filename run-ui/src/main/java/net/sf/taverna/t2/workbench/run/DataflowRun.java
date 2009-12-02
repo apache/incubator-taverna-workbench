@@ -23,7 +23,6 @@ package net.sf.taverna.t2.workbench.run;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Map;
-import java.util.UUID;
 import java.util.Map.Entry;
 
 import net.sf.taverna.t2.facade.ResultListener;
@@ -36,6 +35,7 @@ import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
+import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
@@ -71,8 +71,13 @@ public class DataflowRun {
 	private String runId;
 
 	private ProvenanceConnector connector;
+	
+	private boolean isProvenanceEnabledForRun = true;
+	private boolean isDataSavedInDatabase = true;
+	
+	private ReferenceService referenceService;
 
-	public DataflowRun(Dataflow dataflow, Date date, String sessionID) {
+	public DataflowRun(Dataflow dataflow, Date date, String sessionID, ReferenceService referenceService) {
 		// get the provenance connector and hope it and the reference service
 		// are the correct ones!! ie. the user has not changed something etc
 		// the reference service is needed to dereference the data so if it is
@@ -80,6 +85,7 @@ public class DataflowRun {
 		this.dataflow = dataflow;
 		this.date = date;
 		this.runId = sessionID;
+		this.referenceService = referenceService;
 		String connectorType = DataManagementConfiguration.getInstance()
 				.getConnectorType();
 		for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry
@@ -100,21 +106,18 @@ public class DataflowRun {
 	}
 
 	public DataflowRun(WorkflowInstanceFacade facade,
-			Map<String, T2Reference> inputs, Date date) {
+			Map<String, T2Reference> inputs, Date date, ReferenceService referenceService) {
 		this.date = date;
 		monitorViewComponent = new MonitorViewComponent();
 		this.facade = facade;
 		this.inputs = inputs;
+		this.referenceService = referenceService;
 		this.dataflow = facade.getDataflow();
 		connector = (ProvenanceConnector) (facade
 				.getContext().getProvenanceReporter());
 		monitorViewComponent
 				.setProvenanceConnector(connector);
-		if (connector != null) {
-			this.runId = connector.getSessionID();
-		} else {
-			this.runId = UUID.randomUUID().toString();
-		}
+		this.runId = facade.getWorkflowRunId();
 		resultsComponent = new ResultViewComponent();
 	}
 
@@ -267,4 +270,27 @@ public class DataflowRun {
 		return runId;
 	}
 
+	public void setProvenanceEnabledForRun(boolean isProvenanceEnabledForRun) {
+		this.isProvenanceEnabledForRun = isProvenanceEnabledForRun;
+	}
+
+	public boolean isProvenanceEnabledForRun() {
+		return isProvenanceEnabledForRun;
+	}
+
+	public void setDataSavedInDatabase(boolean dataSavedInDatabase) {
+		this.isDataSavedInDatabase = dataSavedInDatabase;
+	}
+
+	public boolean isDataSavedInDatabase() {
+		return isDataSavedInDatabase;
+	}
+
+	public void setReferenceService(ReferenceService referenceService) {
+		this.referenceService = referenceService;
+	}
+
+	public ReferenceService getReferenceService() {
+		return referenceService;
+	}
 }

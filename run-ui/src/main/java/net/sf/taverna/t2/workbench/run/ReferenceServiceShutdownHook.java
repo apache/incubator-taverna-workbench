@@ -34,7 +34,7 @@ import net.sf.taverna.t2.workbench.ShutdownSPI;
  *
  * @author David Withers
  */
-public class ReferenceServiceShutdown implements ShutdownSPI {
+public class ReferenceServiceShutdownHook implements ShutdownSPI {
 
 	private static WriteQueueAspect referenceCache;
 	
@@ -73,7 +73,7 @@ public class ReferenceServiceShutdown implements ShutdownSPI {
 	}
 
 	public static void setReferenceServiceCache(WriteQueueAspect referenceCache) {
-		ReferenceServiceShutdown.referenceCache = referenceCache;
+		ReferenceServiceShutdownHook.referenceCache = referenceCache;
 	}
 	
 }

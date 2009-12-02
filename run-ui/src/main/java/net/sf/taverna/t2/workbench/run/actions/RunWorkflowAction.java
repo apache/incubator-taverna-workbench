@@ -43,6 +43,7 @@ import net.sf.taverna.t2.annotation.annotationbeans.ExampleValue;
 import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.InvocationContext;
+import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
@@ -79,33 +80,6 @@ import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 import org.apache.log4j.Logger;
 
 public class RunWorkflowAction extends AbstractAction {
-
-	private final class InvocationContextImplementation implements
-			InvocationContext {
-		private final ReferenceService referenceService;
-
-		private final ProvenanceReporter provenanceReporter;
-
-		private InvocationContextImplementation(
-				ReferenceService referenceService,
-				ProvenanceReporter provenanceReporter) {
-			this.referenceService = referenceService;
-			this.provenanceReporter = provenanceReporter;
-		}
-
-		public ReferenceService getReferenceService() {
-			return referenceService;
-		}
-
-		public <T> List<? extends T> getEntities(Class<T> entityType) {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
-		public ProvenanceReporter getProvenanceReporter() {
-			return provenanceReporter;
-		}
-	}
 
 	private static final long serialVersionUID = 1L;
 
@@ -172,7 +146,6 @@ public class RunWorkflowAction extends AbstractAction {
 			// Processor
 			final ReferenceService referenceService = runComponent
 					.getReferenceService();
-			final ReferenceContext referenceContext = null;
 			ProvenanceConnector provenanceConnector = null;
 			
 			// FIXME: All these run-stuff should be done in a general way so it
@@ -202,8 +175,9 @@ public class RunWorkflowAction extends AbstractAction {
 				}
 				
 			}
-			InvocationContextImplementation context = new InvocationContextImplementation(
+			final InvocationContextImpl context = new InvocationContextImpl(
 					referenceService, provenanceConnector);
+			// Workflow run id will be set on the context from the facade
 			if (provenanceConnector != null) {
 				provenanceConnector.setInvocationContext(context);
 			}
@@ -222,7 +196,7 @@ public class RunWorkflowAction extends AbstractAction {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					if (!inputPorts.isEmpty()) {
-						showInputDialog(facade, referenceContext);
+						showInputDialog(facade, context);
 					} else {
 						switchToResultsPerspective();
 						runComponent.runDataflow(facade, (Map) null);

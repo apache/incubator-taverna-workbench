@@ -37,8 +37,8 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 /**
- * Dialog that is popped up during Taverna shutdown if 
- * deleting dataflow runs has not finished yet 
+ * Dialog that is popped up during Taverna shutdown during
+ * clean up of the Reference Manager's database 
  * to let user now why shutdown is taking a while.
  * 
  * Based on Davi Wither's ReferenceServiceShutdownDialog.
@@ -47,7 +47,7 @@ import javax.swing.JProgressBar;
  *
  */
 @SuppressWarnings("serial")
-public class RemoveDataflowRunsShutdownDialog extends JDialog{
+public class ReferenceDatabaseCleanUpShutdownDialog extends JDialog{
 
 	private JProgressBar progressBar;
 
@@ -63,8 +63,8 @@ public class RemoveDataflowRunsShutdownDialog extends JDialog{
 
 	//private long startTime = System.currentTimeMillis();
 
-	public RemoveDataflowRunsShutdownDialog() {
-		super((Frame) null, "Deleting provenance data", true);
+	public ReferenceDatabaseCleanUpShutdownDialog() {
+		super((Frame) null, "Deleting unused data references from database", true);
 		setUndecorated(true);
 		setLocationRelativeTo(null);
 
@@ -85,8 +85,8 @@ public class RemoveDataflowRunsShutdownDialog extends JDialog{
 			public void actionPerformed(ActionEvent e) {
 				int result = JOptionPane
 						.showConfirmDialog(
-								RemoveDataflowRunsShutdownDialog.this,
-								"If you close Taverna now you might corrupt the provenance database.\nAre you sure you want to close now?",
+								ReferenceDatabaseCleanUpShutdownDialog.this,
+								"If you close Taverna now you might corrupt the data reference database.\nAre you sure you want to close now?",
 								"Confirm shutdown", JOptionPane.YES_NO_OPTION,
 								JOptionPane.WARNING_MESSAGE);
 				if (result == JOptionPane.YES_OPTION) {
@@ -104,7 +104,7 @@ public class RemoveDataflowRunsShutdownDialog extends JDialog{
 		});
 
 		JLabel message = new JLabel(
-				"Provenance data is being deleted from the database.");
+				"Data is being deleted from the data reference database.");
 
 		JPanel topPanel = new JPanel(topPanelGridbag);
 		topPanel.setBackground(Color.WHITE);
@@ -155,7 +155,7 @@ public class RemoveDataflowRunsShutdownDialog extends JDialog{
 		gridbag.setConstraints(abortButton, c);
 		add(abortButton);
 
-		setSize(400, 230);
+		setSize(430, 230);
 	}
 	
 	public void setInitialQueueSize(int initialQueueSize) {

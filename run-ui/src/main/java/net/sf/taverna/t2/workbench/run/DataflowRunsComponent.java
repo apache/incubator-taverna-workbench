@@ -30,10 +30,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -55,13 +55,8 @@ import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowInstance;
-import net.sf.taverna.t2.reference.ErrorDocument;
-import net.sf.taverna.t2.reference.IdentifiedList;
 import net.sf.taverna.t2.reference.ReferenceService;
-import net.sf.taverna.t2.reference.ReferenceServiceException;
-import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.reference.T2ReferenceType;
 import net.sf.taverna.t2.reference.impl.WriteQueueAspect;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
@@ -88,6 +83,8 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 	private static DataflowRunsComponent singletonInstance;
 
 	private ReferenceService referenceService;
+
+	private ReferenceService referenceServiceWithDatabase; // for previous runs, we always need the one using database
 
 	private String referenceContext;
 
@@ -270,6 +267,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 				// force reference service to be constructed now rather than at first
 				// workflow run
 				getReferenceService();
+				getReferenceServiceWithDatabase(); // get the Reference Service with database for previous runs
 				retrievePreviousRuns();				
 			}
 			
@@ -277,11 +275,15 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		thread.start();
 		
 		// Start listening for requests for previous workflow runs to be deleted 
-		// from the provenance database
 		Thread deleteWorkflowRunsThread = new DeleteWorkflowRunsThread();
 		deleteWorkflowRunsThread.start();
 	}
 
+	@SuppressWarnings("unchecked")
+	public ArrayList<DataflowRun> getPreviousWFRuns(){
+		return (ArrayList<DataflowRun>) Collections.list(runListModel.elements());
+	}
+	
 	private void retrievePreviousRuns() {
 		String connectorType = DataManagementConfiguration.getInstance()
 				.getConnectorType();
@@ -290,35 +292,52 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		List<WorkflowInstance> allWorkflowIDs = provenanceAccess
 				.getAllWorkflowIDs();
 		Collections.reverse(allWorkflowIDs);
+		ArrayList<String> topLevelWorkflowRunIds = new ArrayList<String>();
+		for (WorkflowInstance workflowInstance : allWorkflowIDs){ // get only top level workflow runs, not the nested wf runs
+			topLevelWorkflowRunIds.add(workflowInstance.getWorkflowIdentifier());
+		}
+		removeDuplicate(topLevelWorkflowRunIds);
 		for (WorkflowInstance workflowInstance : allWorkflowIDs) {
-			logger.info("retrieved previous run, workflow id: "
-					+ workflowInstance.getInstanceID() + " date: "
-					+ workflowInstance.getTimestamp());
-			Timestamp time = Timestamp.valueOf(workflowInstance.getTimestamp());
-			Date date = new Date(time.getTime());
-			try {
-				SAXBuilder builder = new SAXBuilder();
-				Document document = builder.build(new ByteArrayInputStream(workflowInstance.getDataflowBlob()));
-				Element rootElement = document.getRootElement();
-				Dataflow dataflow = XMLDeserializerRegistry.getInstance()
-						.getDeserializer().deserializeDataflow(rootElement);
-				DataflowRun runComponent = new DataflowRun(dataflow, date,
-						workflowInstance.getInstanceID());
-				runListModel.add(runListModel.getSize(), runComponent);
-			} catch (JDOMException e) {
-				logger.error("Problem with previous run: "
-						+ workflowInstance.getInstanceID() + " " + e);
-			} catch (IOException e) {
-				logger.error("Problem with previous run: "
-						+ workflowInstance.getInstanceID() + " " + e);
-			} catch (DeserializationException e) {
-				logger.error("Problem with previous run: "
-						+ workflowInstance.getInstanceID() + " " + e);
-			} catch (EditException e) {
-				logger.error("Problem with previous run: "
-						+ workflowInstance.getInstanceID() + " " + e);
+			if (topLevelWorkflowRunIds.contains(workflowInstance.getInstanceID())){
+				logger.info("retrieved previous run, workflow id: "
+						+ workflowInstance.getInstanceID() + " date: "
+						+ workflowInstance.getTimestamp());
+				Timestamp time = Timestamp.valueOf(workflowInstance.getTimestamp());
+				Date date = new Date(time.getTime());
+				try {
+					SAXBuilder builder = new SAXBuilder();
+					Document document = builder.build(new ByteArrayInputStream(workflowInstance.getDataflowBlob()));
+					Element rootElement = document.getRootElement();
+					Dataflow dataflow = XMLDeserializerRegistry.getInstance()
+							.getDeserializer().deserializeDataflow(rootElement);
+					DataflowRun runComponent = new DataflowRun(dataflow, date,
+							workflowInstance.getInstanceID(), referenceServiceWithDatabase);
+					runComponent.setDataSavedInDatabase(true);
+					runComponent.setProvenanceEnabledForRun(true);
+					runListModel.add(runListModel.getSize(), runComponent);
+				} catch (JDOMException e) {
+					logger.error("Problem with previous run: "
+							+ workflowInstance.getInstanceID() + " " + e);
+				} catch (IOException e) {
+					logger.error("Problem with previous run: "
+							+ workflowInstance.getInstanceID() + " " + e);
+				} catch (DeserializationException e) {
+					logger.error("Problem with previous run: "
+							+ workflowInstance.getInstanceID() + " " + e);
+				} catch (EditException e) {
+					logger.error("Problem with previous run: "
+							+ workflowInstance.getInstanceID() + " " + e);
+				}				
 			}
 		}
+	}
+
+	private static void removeDuplicate(ArrayList arlList)
+	{
+		// List order not maintained
+	   HashSet h = new HashSet(arlList);
+	   arlList.clear();
+	   arlList.addAll(h);
 	}
 
 	public static DataflowRunsComponent getInstance() {
@@ -344,7 +363,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 			try {
 				WriteQueueAspect cache = (WriteQueueAspect) appContext
 						.getBean("t2reference.cache.cacheAspect");
-				ReferenceServiceShutdown.setReferenceServiceCache(cache);
+				ReferenceServiceShutdownHook.setReferenceServiceCache(cache);
 			} catch (NoSuchBeanDefinitionException e) {
 				// ReferenceServiceShutdown.setReferenceServiceCache(null);
 			} catch (ClassCastException e) {
@@ -354,10 +373,28 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		return referenceService;
 
 	}
-
+	
+	private ReferenceService getReferenceServiceWithDatabase() {
+		// Force creation of a Ref. Service that uses database regardless of what current context is
+		// This Ref. Service will be used for previous wf runs to get intermediate results even if
+		// current Ref. Manager uses in-memory store. If current Ref. Manager
+		if (referenceServiceWithDatabase == null){
+			String databasecontext = DataManagementConfiguration.HIBERNATE_CONTEXT;
+			ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
+					databasecontext);
+			referenceServiceWithDatabase = (ReferenceService) appContext
+						.getBean("t2reference.service.referenceService");
+		}
+		return referenceServiceWithDatabase;
+	}
 	public void runDataflow(WorkflowInstanceFacade facade,
 			Map<String, T2Reference> inputs) {
-		DataflowRun runComponent = new DataflowRun(facade, inputs, new Date());
+		DataflowRun runComponent = new DataflowRun(facade, inputs, new Date(), referenceService);
+		runComponent.setProvenanceEnabledForRun(DataManagementConfiguration.getInstance().isProvenanceEnabled());
+		runComponent.setDataSavedInDatabase(DataManagementConfiguration
+				.getInstance().getProperty(
+						DataManagementConfiguration.IN_MEMORY)
+				.equalsIgnoreCase("false"));
 		runListModel.add(0, runComponent);
 		runList.setSelectedIndex(0);
 		runComponent.run();
@@ -407,77 +444,45 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 					// remove it)
 					runToDelete = runsToBeDeletedQueue.peek();
 
-					// Remove provenance data for the run and all references
-					// held by the workflow run from the Reference Manager's database
+					// Remove provenance data for the run (if any) and all 
+					// references held by the workflow run from the Reference Manager's store
 					try {
 						logger.info("Starting deletion of workflow run '"
-										+ runToDelete.toString()
-										+ "' (run id "
-										+ runToDelete.getRunId()
-										+ ") from provenance and Reference Manager's databases.");
-						String connectorType = DataManagementConfiguration
-								.getInstance().getConnectorType();
-						ProvenanceAccess provenanceAccess = new ProvenanceAccess(
-								connectorType);
-						// Remove the run from provenance database
-						Set<String> referencedDataSet = provenanceAccess
-								.removeRun(runToDelete.getRunId());
-						// Get all the references to the data used by the workflow run
-						ArrayList<T2Reference> referencesList = new ArrayList<T2Reference>();
-						for (String referencedData : referencedDataSet) {
-							T2Reference reference = referenceService
-									.referenceFromString(referencedData);
-							referencesList.add(reference);
+								+ runToDelete.toString()
+								+ "' (run id "
+								+ runToDelete.getRunId()
+								+ ").");
+						if (runToDelete.isProvenanceEnabledForRun()){
+							String connectorType = DataManagementConfiguration
+									.getInstance().getConnectorType();
+							ProvenanceAccess provenanceAccess = new ProvenanceAccess(
+									connectorType);
+							// Remove the run from provenance database (if it is stored there at all)
+							provenanceAccess.removeRun(runToDelete.getRunId());
 						}
-						// Delete referenced data from Reference Manager's database						
-						int chunkSize = 100;
-						int startIndex = 0;
-						int listSize = referencesList.size();
-						while (startIndex < listSize) {
-							// Delete in chunks of 100 data references
-							List<T2Reference> chunk = null;
-							if (listSize > startIndex + chunkSize) {
-								chunk = referencesList.subList(startIndex,
-										startIndex + chunkSize);
-							} else {
-								chunk = referencesList.subList(startIndex,listSize);
-							}
-							try {
-								referenceService.delete(chunk);
-							} catch (ReferenceServiceException rex) {
-								// Log the error and continue to delete data
-								logger.error("Failed to delete a list of " + chunk.size()+ " data references " +
-										"when deleting workflow run '"
-														+ runToDelete.toString()
-														+ "' (run id "
-														+ runToDelete.getRunId()
-														+ ") from Reference Manager's database.",
-												rex);
-							}
-							startIndex = startIndex + chunkSize;
-						}
+						// Remove references from the Reference Manager's store (regardless if in-memory or database)
+						runToDelete.getReferenceService().deleteReferencesForWorkflowRun(runToDelete.getRunId());
 						logger.info("Deletion of workflow run '"
 										+ runToDelete.toString()
 										+ "' (run id "
 										+ runToDelete.getRunId()
-										+ ") from provenance and Reference Manager's databases completed.");
+										+ ") from provenance database and Reference Manager's store completed.");
 					} catch (Exception ex) {
 						logger.error("Failed to delete workflow run '"
 								+ runToDelete.toString() + "' (run id "
 								+ runToDelete.getRunId()
-								+ ") from provenance database.", ex);
+								+ ") from provenance database and Reference Manager's store.", ex);
 					} finally {
 						synchronized (runsToBeDeletedQueue) {
 							// Remove the run we have just deleted
 							runsToBeDeletedQueue.removeFirst();
 						}
 					}
+
 				}
 			} catch (InterruptedException ignored) {
 
 			}
         }
     }
-
-
 }
