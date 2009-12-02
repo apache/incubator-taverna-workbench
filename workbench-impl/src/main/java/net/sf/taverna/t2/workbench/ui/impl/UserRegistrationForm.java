@@ -511,7 +511,7 @@ public class UserRegistrationForm extends JDialog{
 		mainPanel.add(purposeScrollPane, gbc);
 		
 		// Terms and conditions
-		termsAndConditionsCheckBox = new JCheckBox();
+		termsAndConditionsCheckBox = new JCheckBox(I_AGREE_TO_THE_TERMS_AND_CONDITIONS);
 		termsAndConditionsCheckBox.setFont(baseFont);
 		termsAndConditionsCheckBox.setBorder(null);
 		termsAndConditionsCheckBox.addKeyListener(new java.awt.event.KeyAdapter() {
@@ -549,7 +549,7 @@ public class UserRegistrationForm extends JDialog{
 		styleSheet.addRule("body {font-family:"+baseFont.getFamily()+"; font-size:9px;}");
 		Document doc = kit.createDefaultDocument();
 		termsAndConditionsURL.setDocument(doc);
-		termsAndConditionsURL.setText("<html><body>"+I_AGREE_TO_THE_TERMS_AND_CONDITIONS+" <a href=\"" + TERMS_AND_CONDITIONS_URL + "\">"
+		termsAndConditionsURL.setText("<html><body><a href=\"" + TERMS_AND_CONDITIONS_URL + "\">"
 				+ TERMS_AND_CONDITIONS_URL
 				+ "</a></body></html>");
 		termsAndConditionsURL.addHyperlinkListener(new HyperlinkListener() {
