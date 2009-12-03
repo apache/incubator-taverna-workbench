@@ -34,6 +34,8 @@ import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -107,7 +109,8 @@ public class RegistrationPanel extends JPanel {
 	private DeleteNodeAction deleteNodeAction = new DeleteNodeAction();
 
 	private int depth;
-	private JSplitPane splitPane;
+	private JSplitPane splitPaneVertical;
+	private JSplitPane splitPaneHorizontal;
 	private final JLabel status;
 	private DialogTextArea descriptionArea;
 	private DialogTextArea exampleArea;
@@ -118,7 +121,6 @@ public class RegistrationPanel extends JPanel {
 
 
 	private String example;
-
 
 	/**
 	 * Construct a new registration panel for an input with the specified depth.
@@ -167,24 +169,33 @@ public class RegistrationPanel extends JPanel {
 		setDescription(description);
 		setExample(example);
 		
-		JPanel headerPanel = new JPanel(new BorderLayout());
-		headerPanel.add(descriptionArea, BorderLayout.NORTH);
-		headerPanel.add(exampleArea, BorderLayout.SOUTH);
-		JPanel headerAndToolBarPane = new JPanel(new BorderLayout());
+		JPanel annotationsPanel = new JPanel();
+		annotationsPanel.setLayout(new BoxLayout(annotationsPanel, BoxLayout.Y_AXIS));
+		JScrollPane descriptionAreaScrollPane = new JScrollPane(descriptionArea);
+		JScrollPane exampleAreaScrollPane = new JScrollPane(exampleArea);
+		annotationsPanel.add(descriptionAreaScrollPane);
+		annotationsPanel.add(Box.createRigidArea(new Dimension(0,5))); // add some empty space
+		annotationsPanel.add(exampleAreaScrollPane);
 		
-		headerAndToolBarPane.add(headerPanel, BorderLayout.NORTH);
-		headerAndToolBarPane.add(createToolBar(), BorderLayout.SOUTH);
+		JToolBar toolbar = createToolBar();
 		
 		textArea = new DialogTextArea();
 		textAreaDocumentListener = new TextAreaDocumentListener(textArea);
 		textArea.setEditable(false);
-		splitPane = new JSplitPane();
-		splitPane.add(new JScrollPane(this.tree), JSplitPane.LEFT);
-		splitPane.add(new JScrollPane(textArea), JSplitPane.RIGHT);
-		splitPane.setDividerLocation(150);
-
-		add(headerAndToolBarPane, BorderLayout.NORTH);
-		add(splitPane, BorderLayout.CENTER);
+		splitPaneHorizontal = new JSplitPane();
+		splitPaneHorizontal.add(new JScrollPane(this.tree), JSplitPane.LEFT);
+		splitPaneHorizontal.add(new JScrollPane(textArea), JSplitPane.RIGHT);
+		splitPaneHorizontal.setDividerLocation(150);
+		JPanel toolbarAndInputsPanel = new JPanel(new BorderLayout());
+		toolbarAndInputsPanel.add(splitPaneHorizontal, BorderLayout.CENTER);
+		toolbarAndInputsPanel.add(toolbar, BorderLayout.NORTH);
+		
+		splitPaneVertical = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		splitPaneVertical.add(annotationsPanel, JSplitPane.TOP);
+		splitPaneVertical.add(toolbarAndInputsPanel, JSplitPane.BOTTOM);
+		splitPaneVertical.setDividerLocation(175);
+		
+		add(splitPaneVertical, BorderLayout.CENTER);
 		
 		// Listen to selections on the tree to enable or disable actions
 		tree.addTreeSelectionListener(new UpdateActionsOnTreeSelection());
@@ -587,6 +598,8 @@ public class RegistrationPanel extends JPanel {
 		else {
 			descriptionArea.setText(NO_PORT_DESCRIPTION);
 		}
+
+		descriptionArea.setCaretPosition(0);
 	}
 
 	public void setExample(String inputExample) {
@@ -597,6 +610,8 @@ public class RegistrationPanel extends JPanel {
 		else {
 			exampleArea.setText(NO_EXAMPLE_VALUE);
 		}		
+
+		exampleArea.setCaretPosition(0);
 	}
 	
 	public void setValue(Object o) {
