@@ -30,7 +30,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -289,16 +288,9 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 				.getConnectorType();
 		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
 
-		List<WorkflowInstance> allWorkflowIDs = provenanceAccess
-				.getAllWorkflowIDs();
-		Collections.reverse(allWorkflowIDs);
-		/*ArrayList<String> topLevelWorkflowRunIds = new ArrayList<String>();
-		for (WorkflowInstance workflowInstance : allWorkflowIDs){ // get only top level workflow runs, not the nested wf runs
-			topLevelWorkflowRunIds.add(workflowInstance.getWorkflowIdentifier());
-		}
-		removeDuplicate(topLevelWorkflowRunIds);*/
-		for (WorkflowInstance workflowInstance : allWorkflowIDs) {
-			//if (topLevelWorkflowRunIds.contains(workflowInstance.getInstanceID())){
+		List<WorkflowInstance> allWorkflowRunIDs = provenanceAccess.listRuns(null, null);
+		for (WorkflowInstance workflowInstance : allWorkflowRunIDs) {
+			if (provenanceAccess.isTopLevelDataflow(workflowInstance.getWorkflowIdentifier())){
 				logger.info("retrieved previous run, workflow id: "
 						+ workflowInstance.getInstanceID() + " date: "
 						+ workflowInstance.getTimestamp());
@@ -328,16 +320,8 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 					logger.error("Problem with previous run: "
 							+ workflowInstance.getInstanceID() + " " + e);
 				}				
-			//}
+			}
 		}
-	}
-
-	private static void removeDuplicate(ArrayList arlList)
-	{
-		// List order not maintained
-	   HashSet h = new HashSet(arlList);
-	   arlList.clear();
-	   arlList.addAll(h);
 	}
 
 	public static DataflowRunsComponent getInstance() {
