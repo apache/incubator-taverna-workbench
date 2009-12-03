@@ -387,8 +387,6 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	c.insets = new Insets(0, spaceBetweenSections, 0, spaceBetweenSections / 2);
 	c.anchor = GridBagConstraints.WEST;
 	c.fill = GridBagConstraints.HORIZONTAL;
-	c.gridwidth = 1;
-	c.gridheight = 1;
 	c.gridx = 0;
 	c.gridy = 0;
 	jpStatusBar.add(jpNavigationButtons, c);
@@ -669,9 +667,8 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
   // *** Callbacks for ComponentListener interface ***
 
   public void componentShown(ComponentEvent e) {
-	// every time the preview browser window is shown, it will start loading a
-	// preview - this state is set in the preview() method; (so this won't have
-	// to be done here)
+	// every time the preview browser window is shown, it will start loading a preview 
+	// - this state is set in the preview() method; (so this won't have to be done here)
 
 	// remove everything from the preview and re-add only the status bar
 	// (this is done so that newly opened preview window won't show the old
@@ -685,8 +682,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	this.setMinimumSize(new Dimension(ResourcePreviewBrowser.PREFERRED_WIDTH, ResourcePreviewBrowser.PREFERRED_HEIGHT));
 
 	// make sure that the dialog box appears centered horizontally relatively to
-	// the main component; also, pad by 30px vertically from the top of the main
-	// component
+	// the main component; also, pad by 30px vertically from the top of the main component
 	int iMainComponentCenterX = (int) Math.round(this.pluginMainComponent.getLocationOnScreen().getX()
 		+ (this.pluginMainComponent.getWidth() / 2));
 	int iPosX = iMainComponentCenterX - (this.getWidth() / 2);

@@ -201,6 +201,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	jpLoginBox.setLayout(new GridBagLayout());
 	GridBagConstraints c = new GridBagConstraints();
 
+	// label "Login to myExp"
 	c.gridwidth = GridBagConstraints.REMAINDER;
 	c.insets = new Insets(0, 0, 15, 0);
 	c.gridx = 0;
@@ -209,47 +210,45 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	jlHeader.setFont(jlHeader.getFont().deriveFont((float) 13.0));
 	jpLoginBox.add(jlHeader, c);
 
-	// reset values back to default
+	// set values
+	c.weightx = 1;
 	c.gridwidth = 1;
-
 	c.anchor = GridBagConstraints.LINE_START;
 	c.insets = new Insets(0, 0, 3, 0);
 	c.ipadx = 10;
-	c.gridx = 0;
-	c.gridy = 1;
-	JLabel lUsername = new JLabel("Username");
+
+	// username label 
+	c.gridy++;
+	JLabel lUsername = new JLabel("myExperiment Username:");
 	lUsername.setLabelFor(tfLogin);
 	jpLoginBox.add(lUsername, c);
 
-	c.insets = new Insets(0, 0, 3, 0);
+	// username field
 	c.gridx = 1;
-	c.gridy = 1;
-	c.weightx = 1;
 	tfLogin = new JTextField(20);
 	tfLogin.addKeyListener(this);
 	tfLogin.addFocusListener(this);
 	jpLoginBox.add(tfLogin, c);
 
-	c.anchor = GridBagConstraints.LINE_START;
-	c.ipadx = 10;
+	// password label
+	c.gridy++;
 	c.gridx = 0;
-	c.gridy = 2;
-	c.weightx = 0;
-	JLabel lPassword = new JLabel("Password");
+	JLabel lPassword = new JLabel("myExperiment Password:");
 	lPassword.setLabelFor(pfPassword);
 	jpLoginBox.add(lPassword, c);
 
+	// password field
 	c.gridx = 1;
-	c.gridy = 2;
-	c.weightx = 1;
 	pfPassword = new JPasswordField(20);
 	pfPassword.addKeyListener(this);
 	pfPassword.addFocusListener(this);
 	jpLoginBox.add(pfPassword, c);
 
+	// remember me checkbox and label
+	c.gridy++;
+	c.insets = new Insets(25, 0, 2, 0);
 	cbRememberMe = new JCheckBox("Remember me");
-	cbRememberMe.setBorder(BorderFactory.createEmptyBorder()); // makes sure
-	// that this is aligned with text fields above
+	cbRememberMe.setBorder(BorderFactory.createEmptyBorder()); // makes sure that this is aligned with text fields above
 	cbRememberMe.addKeyListener(this);
 
 	jclForgetMe = new JClickableLabel("(Forget me)", "forget_me", this, null, SwingConstants.LEFT, "Click to remove your login details from the system");
@@ -260,39 +259,32 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	jpRememberMeForgetMe.add(cbRememberMe);
 	jpRememberMeForgetMe.add(jclForgetMe);
 
-	c.insets = new Insets(5, 0, 3, 0);
-	c.gridwidth = GridBagConstraints.REMAINDER;
-	c.anchor = GridBagConstraints.WEST;
-	c.gridx = 1;
-	c.gridy = 3;
 	jpLoginBox.add(jpRememberMeForgetMe, c);
 
-	c.insets = new Insets(0, 0, 0, 0);
-	c.gridwidth = GridBagConstraints.REMAINDER;
-	c.anchor = GridBagConstraints.WEST;
-	c.gridx = 1;
-	c.gridy = 4;
+	// autologin checkbox and label
+	c.gridy++;
+	c.insets = new Insets(0, 0, 0, 3);
 	cbLoginAutomatically = new JCheckBox("Log in automatically (next time)");
-	cbLoginAutomatically.setBorder(BorderFactory.createEmptyBorder()); // makes
-	// sure that this is aligned with text fields above
+	cbLoginAutomatically.setBorder(BorderFactory.createEmptyBorder()); // makes sure that this is aligned with text fields above
 	cbLoginAutomatically.setPreferredSize(tfLogin.getPreferredSize());
 	cbLoginAutomatically.addActionListener(this);
 	cbLoginAutomatically.addKeyListener(this);
 	jpLoginBox.add(cbLoginAutomatically, c);
 
-	c.gridwidth = GridBagConstraints.REMAINDER;
-	c.anchor = GridBagConstraints.CENTER;
-	c.insets = new Insets(10, 0, 0, 0);
+	// login button
+	c.gridy++;
 	c.gridx = 0;
-	c.gridy = 5;
+	c.anchor = GridBagConstraints.CENTER;
+	c.gridwidth = GridBagConstraints.REMAINDER;
+	c.fill = GridBagConstraints.HORIZONTAL;
+	c.insets = new Insets(10, 0, 0, 0);
 	bLogin = new JButton("Login", new ImageIcon(MyExperimentPerspective.getLocalResourceURL("login_icon")));
 	bLogin.setDefaultCapable(true);
 	bLogin.addKeyListener(this);
 	bLogin.addActionListener(this);
 	jpLoginBox.add(bLogin, c);
 
-	// wrap contents into another panel to allow for some extra border around
-	// the contents
+	// wrap contents into another panel to allow for some extra border around the contents
 	return (jpLoginBox);
   }
 
