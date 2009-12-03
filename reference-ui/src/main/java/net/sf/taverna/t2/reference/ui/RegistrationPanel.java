@@ -154,7 +154,7 @@ public class RegistrationPanel extends JPanel {
 
 		new JPanel(new BorderLayout());
 
-		descriptionArea = new DialogTextArea(NO_PORT_DESCRIPTION, 5, 40);
+		descriptionArea = new DialogTextArea(NO_PORT_DESCRIPTION, 4, 40);
 		descriptionArea.setBorder(new TitledBorder("Port description"));
 		descriptionArea.setEditable(false);
 		descriptionArea.setLineWrap(true);
@@ -193,7 +193,8 @@ public class RegistrationPanel extends JPanel {
 		splitPaneVertical = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		splitPaneVertical.add(annotationsPanel, JSplitPane.TOP);
 		splitPaneVertical.add(toolbarAndInputsPanel, JSplitPane.BOTTOM);
-		splitPaneVertical.setDividerLocation(175);
+		int dividerPosition = (int) Math.round(annotationsPanel.getPreferredSize().getHeight()) + 10;
+		splitPaneVertical.setDividerLocation(dividerPosition);
 		
 		add(splitPaneVertical, BorderLayout.CENTER);
 		
