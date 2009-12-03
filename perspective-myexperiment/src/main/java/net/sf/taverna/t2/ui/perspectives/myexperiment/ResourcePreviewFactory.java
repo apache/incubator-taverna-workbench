@@ -56,13 +56,13 @@ import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Comment;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.File;
+import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Group;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Pack;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.PackItem;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Tag;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.User;
-import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Group;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Workflow;
 
@@ -75,29 +75,28 @@ import org.jdom.Document;
 public class ResourcePreviewFactory {
   // CONSTANTS
   private static final int PREFERRED_LOWER_TABBED_PANE_HEIGHT = 250; // used for
-																	 // all
-																	 // tabbed
-																	 // views
-																	 // inside
-																	 // preview
-																	 // for
-																	 // every
-																	 // resource
-																	 // type
+  // all
+  // tabbed
+  // views
+  // inside
+  // preview
+  // for
+  // every
+  // resource
+  // type
 
-  private MainComponent pluginMainComponent;
-  private MyExperimentClient myExperimentClient;
-  private Logger logger;
+  private final MainComponent pluginMainComponent;
+  private final MyExperimentClient myExperimentClient;
+  private final Logger logger;
 
   // icons which are used in several places in the preview factory
-  private ImageIcon iconWorkflow;
-  private ImageIcon iconFile;
-  private ImageIcon iconPack;
-  private ImageIcon iconUser;
-  private ImageIcon iconGroup;
+  private final ImageIcon iconWorkflow;
+  private final ImageIcon iconFile;
+  private final ImageIcon iconPack;
+  private final ImageIcon iconUser;
+  private final ImageIcon iconGroup;
 
-  public ResourcePreviewFactory(MainComponent component,
-	  MyExperimentClient client, Logger logger) {
+  public ResourcePreviewFactory(MainComponent component, MyExperimentClient client, Logger logger) {
 	super();
 
 	// set main variables to ensure access to myExperiment, logger and the
@@ -107,23 +106,17 @@ public class ResourcePreviewFactory {
 	this.logger = logger;
 
 	// set up the icons
-	iconWorkflow = new ImageIcon(MyExperimentPerspective
-		.getLocalIconURL(Resource.WORKFLOW));
-	iconFile = new ImageIcon(MyExperimentPerspective
-		.getLocalIconURL(Resource.FILE));
-	iconPack = new ImageIcon(MyExperimentPerspective
-		.getLocalIconURL(Resource.PACK));
-	iconUser = new ImageIcon(MyExperimentPerspective
-		.getLocalIconURL(Resource.USER));
-	iconGroup = new ImageIcon(MyExperimentPerspective
-		.getLocalIconURL(Resource.GROUP));
+	iconWorkflow = new ImageIcon(MyExperimentPerspective.getLocalIconURL(Resource.WORKFLOW));
+	iconFile = new ImageIcon(MyExperimentPerspective.getLocalIconURL(Resource.FILE));
+	iconPack = new ImageIcon(MyExperimentPerspective.getLocalIconURL(Resource.PACK));
+	iconUser = new ImageIcon(MyExperimentPerspective.getLocalIconURL(Resource.USER));
+	iconGroup = new ImageIcon(MyExperimentPerspective.getLocalIconURL(Resource.GROUP));
   }
 
   // main worker method - generates the content to be shown in the preview;
   // responsible for parsing the preview action request, fetching data and
   // generating all the content (via helpers)
-  public ResourcePreviewContent createPreview(String action,
-	  EventListener eventHandler) {
+  public ResourcePreviewContent createPreview(String action, EventListener eventHandler) {
 	JPanel panelToPopulate = new JPanel();
 
 	// === PREPROCESSING ===
@@ -144,7 +137,7 @@ public class ResourcePreviewFactory {
 	// 'preview:'
 	action = action.substring(action.indexOf(":") + 1); // remove "preview:"
 	int iType = Integer.parseInt(action.substring(0, action.indexOf(":"))); // get
-																			// type
+	// type
 	action = action.substring(action.indexOf(":") + 1); // remove type
 	String strURI = action; // get URI
 
@@ -155,14 +148,13 @@ public class ResourcePreviewFactory {
 	  // method
 	  // that only fetches required metadata for (individual for each resource
 	  // type)
-	  doc = this.myExperimentClient.getResource(iType, strURI,
-		  Resource.REQUEST_FULL_PREVIEW);
+	  doc = this.myExperimentClient.getResource(iType, strURI, Resource.REQUEST_FULL_PREVIEW);
 	} catch (Exception e) {
-	  logger
-		  .error("Error while fetching resource data from myExperiment to generate a preview.\nResource type: "
-			  + Resource.getResourceTypeName(iType)
-			  + "\nResource URI: "
-			  + strURI + "\nException: " + e);
+	  logger.error("Error while fetching resource data from myExperiment to generate a preview.\nResource type: "
+		  + Resource.getResourceTypeName(iType)
+		  + "\nResource URI: "
+		  + strURI
+		  + "\nException: " + e);
 	}
 
 	// === GENERATING PREVIEW ===
@@ -200,11 +192,9 @@ public class ResourcePreviewFactory {
 
 	  default:
 		// unexpected resource type - can't generate preview
-		this.logger
-			.error("Failed generating preview. Reason: unknown resource type - \""
-				+ Resource.getResourceTypeName(iType) + "\"");
-		panelToPopulate.add(new JLabel(
-			"Cannot generate preview for unknown resource types."));
+		this.logger.error("Failed generating preview. Reason: unknown resource type - \""
+			+ Resource.getResourceTypeName(iType) + "\"");
+		panelToPopulate.add(new JLabel("Cannot generate preview for unknown resource types."));
 		Resource r = new Resource();
 		r.setItemType(iType);
 		r.setTitle("Error: unknown resource type");
@@ -216,8 +206,7 @@ public class ResourcePreviewFactory {
 	return (new ResourcePreviewContent(resource, panelToPopulate));
   }
 
-  private void generateWorkflowPreviewContent(Workflow w,
-	  JPanel panelToPopulate, EventListener eventHandler) {
+  private void generateWorkflowPreviewContent(Workflow w, JPanel panelToPopulate, EventListener eventHandler) {
 	if (w != null) {
 	  try {
 		StringBuffer content = new StringBuffer();
@@ -232,10 +221,10 @@ public class ResourcePreviewFactory {
 			+ w.getVersion() + ")");
 		content.append("</p>");
 
-		content.append("<br/>");
+		content.append("<br>");
 
 		content.append("<p class='info'>");
-		content.append("<b>Type:</b> " + w.getVisibleType() + "<br/><br/>");
+		content.append("<b>Type:</b> " + w.getVisibleType() + "<br><br>");
 		content.append("<b>Uploader:</b> <a href='preview:" + Resource.USER
 			+ ":" + w.getUploader().getURI() + "'>" + w.getUploader().getName()
 			+ "</a><br>");
@@ -246,8 +235,8 @@ public class ResourcePreviewFactory {
 			+ w.getLicense().getText()
 			+ "</a>"
 			+ "&nbsp;<img src='"
-			+ MyExperimentPerspective
-				.getLocalResourceURL("external_link_small_icon") + "' />");
+			+ MyExperimentPerspective.getLocalResourceURL("external_link_small_icon")
+			+ "' />");
 		content.append("</p>");
 
 		content.append("<br>");
@@ -277,8 +266,7 @@ public class ResourcePreviewFactory {
 		HTMLEditorKit kit = new HTMLEditorKit();
 		HTMLDocument doc = (HTMLDocument) (kit.createDefaultDocument());
 		kit.setStyleSheet(this.pluginMainComponent.getStyleSheet());
-		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content
-			.toString());
+		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 
 		// === Now render user's items as Swing components ===
 		// .. TABS for components, tags, comments, credits, attributions ..
@@ -286,31 +274,24 @@ public class ResourcePreviewFactory {
 		JScrollPane spTagsTab = createTagPreviewTab(w.getTags());
 		JScrollPane spCommentsTab = createCommentsPreviewTab(w.getComments());
 		JScrollPane spCreditsTab = createCreditsPreviewTab(w.getCredits());
-		JScrollPane spAttributionsTab = createAttributionsPreviewTab(w
-			.getAttributions());
+		JScrollPane spAttributionsTab = createAttributionsPreviewTab(w.getAttributions());
 
 		// .. ASSEMBLE ALL TABS together
 		JTabbedPane tpTabbedView = new JTabbedPane();
 		tpTabbedView.add("Components", spComponentsTab);
 		tpTabbedView.add("Tags (" + w.getTags().size() + ")", spTagsTab);
-		tpTabbedView.add("Comments (" + w.getComments().size() + ")",
-			spCommentsTab);
-		tpTabbedView.addTab("Credits (" + w.getCredits().size() + ")",
-			spCreditsTab);
-		tpTabbedView.addTab(
-			"Attributions (" + w.getAttributions().size() + ")",
-			spAttributionsTab);
+		tpTabbedView.add("Comments (" + w.getComments().size() + ")", spCommentsTab);
+		tpTabbedView.addTab("Credits (" + w.getCredits().size() + ")", spCreditsTab);
+		tpTabbedView.addTab("Attributions (" + w.getAttributions().size() + ")", spAttributionsTab);
 
 		// PUT EVERYTHING TOGETHER
 		JTextPane tpWorkflowPreview = new JTextPane();
 		tpWorkflowPreview.setEditable(false);
 		tpWorkflowPreview.setEditorKit(kit);
 		tpWorkflowPreview.setDocument(doc);
-		tpWorkflowPreview
-			.addHyperlinkListener((HyperlinkListener) eventHandler);
+		tpWorkflowPreview.addHyperlinkListener((HyperlinkListener) eventHandler);
 
-		JPanel jpFullWorkflowPreview = wrapTextPaneAndTabbedViewIntoFullPreview(
-			tpWorkflowPreview, tpTabbedView);
+		JPanel jpFullWorkflowPreview = wrapTextPaneAndTabbedViewIntoFullPreview(tpWorkflowPreview, tpTabbedView);
 
 		// POPULATE THE GIVEN PANEL
 		panelToPopulate.setLayout(new BorderLayout());
@@ -334,8 +315,7 @@ public class ResourcePreviewFactory {
 	}
   }
 
-  private void generateFilePreviewContent(File f, JPanel panelToPopulate,
-	  EventListener eventHandler) {
+  private void generateFilePreviewContent(File f, JPanel panelToPopulate, EventListener eventHandler) {
 	if (f != null) {
 	  try {
 		StringBuffer content = new StringBuffer();
@@ -352,8 +332,8 @@ public class ResourcePreviewFactory {
 		content.append("<br>");
 
 		content.append("<p class='info'>");
-		content.append("<b>Type:</b> " + f.getVisibleType() + "<br/>");
-		content.append("<b>Filename:</b> " + f.getFilename() + "<br/><br/>");
+		content.append("<b>Type:</b> " + f.getVisibleType() + "<br>");
+		content.append("<b>Filename:</b> " + f.getFilename() + "<br><br>");
 		content.append("<b>Uploader:</b> <a href='preview:" + Resource.USER
 			+ ":" + f.getUploader().getURI() + "'>" + f.getUploader().getName()
 			+ "</a><br>");
@@ -365,8 +345,8 @@ public class ResourcePreviewFactory {
 			+ f.getLicense().getText()
 			+ "</a>"
 			+ "&nbsp;<img src='"
-			+ MyExperimentPerspective
-				.getLocalResourceURL("external_link_small_icon") + "' />");
+			+ MyExperimentPerspective.getLocalResourceURL("external_link_small_icon")
+			+ "' />");
 		content.append("</p>");
 
 		content.append("<br>");
@@ -388,26 +368,21 @@ public class ResourcePreviewFactory {
 		HTMLEditorKit kit = new HTMLEditorKit();
 		HTMLDocument doc = (HTMLDocument) (kit.createDefaultDocument());
 		kit.setStyleSheet(this.pluginMainComponent.getStyleSheet());
-		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content
-			.toString());
+		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 
 		// === Now render group's items as Swing components ===
 		// TABS FOR file's tags, credits, etc
 		JScrollPane spTagsTab = createTagPreviewTab(f.getTags());
 		JScrollPane spCommentsTab = createCommentsPreviewTab(f.getComments());
 		JScrollPane spCreditsTab = createCreditsPreviewTab(f.getCredits());
-		JScrollPane spAttributionsTab = createAttributionsPreviewTab(f
-			.getAttributions());
+		JScrollPane spAttributionsTab = createAttributionsPreviewTab(f.getAttributions());
 
 		// ASSEMBLE tabs into tabbed view
 		JTabbedPane tpTabbedView = new JTabbedPane();
 		tpTabbedView.add("Tags (" + f.getTags().size() + ")", spTagsTab);
-		tpTabbedView.add("Comments (" + f.getComments().size() + ")",
-			spCommentsTab);
-		tpTabbedView.add("Credits (" + f.getCredits().size() + ")",
-			spCreditsTab);
-		tpTabbedView.add("Attributions (" + f.getAttributions().size() + ")",
-			spAttributionsTab);
+		tpTabbedView.add("Comments (" + f.getComments().size() + ")", spCommentsTab);
+		tpTabbedView.add("Credits (" + f.getCredits().size() + ")", spCreditsTab);
+		tpTabbedView.add("Attributions (" + f.getAttributions().size() + ")", spAttributionsTab);
 
 		// PUT EVERYTHING TOGETHER
 		JTextPane tpFilePreview = new JTextPane();
@@ -418,8 +393,8 @@ public class ResourcePreviewFactory {
 
 		JPanel jpFullFilePreview = new JPanel();
 		jpFullFilePreview.setBackground(Color.WHITE); // white background for
-													  // the whole file preview
-													  // panel
+		// the whole file preview
+		// panel
 		jpFullFilePreview.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -432,9 +407,9 @@ public class ResourcePreviewFactory {
 		c.gridy = 1;
 		c.weighty = 1; // will grow in size when the window is resized..
 		c.fill = GridBagConstraints.VERTICAL; // ..and fill all available space
-											  // vertically
+		// vertically
 		c.insets = new Insets(20, 0, 5, 0); // a bit of margin at the top &
-											// bottom
+		// bottom
 		jpFullFilePreview.add(tpTabbedView, c);
 
 		// POPULATE THE GIVEN PANEL
@@ -459,8 +434,7 @@ public class ResourcePreviewFactory {
 	}
   }
 
-  private void generatePackPreviewContent(Pack p, JPanel panelToPopulate,
-	  EventListener eventHandler) {
+  private void generatePackPreviewContent(Pack p, JPanel panelToPopulate, EventListener eventHandler) {
 	if (p != null) {
 	  try {
 		// === Render pack details in HTML format ===
@@ -485,7 +459,7 @@ public class ResourcePreviewFactory {
 		content.append("<b>Last updated at: </b> " + p.getUpdatedAt() + "<br>");
 		content.append("</p>");
 
-		content.append("<br/>");
+		content.append("<br>");
 
 		if (!p.getDescription().equals("")) {
 		  content.append("<p class='desc'>");
@@ -505,8 +479,7 @@ public class ResourcePreviewFactory {
 		HTMLEditorKit kit = new HTMLEditorKit();
 		HTMLDocument doc = (HTMLDocument) (kit.createDefaultDocument());
 		kit.setStyleSheet(this.pluginMainComponent.getStyleSheet());
-		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content
-			.toString());
+		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 
 		// === Now render group's items as Swing components ===
 		// TABS FOR pack items, tags, etc
@@ -516,11 +489,9 @@ public class ResourcePreviewFactory {
 
 		// ASSEMBLE tabs into tabbed view
 		JTabbedPane tpTabbedView = new JTabbedPane();
-		tpTabbedView.addTab("Pack Items (" + p.getItemCount() + ")",
-			spPackItemsTab);
+		tpTabbedView.addTab("Pack Items (" + p.getItemCount() + ")", spPackItemsTab);
 		tpTabbedView.add("Tags (" + p.getTags().size() + ")", spTagsTab);
-		tpTabbedView.add("Comments (" + p.getComments().size() + ")",
-			spCommentsTab);
+		tpTabbedView.add("Comments (" + p.getComments().size() + ")", spCommentsTab);
 
 		// PUT EVERYTHING TOGETHER
 		JTextPane tpPackPreview = new JTextPane();
@@ -531,8 +502,8 @@ public class ResourcePreviewFactory {
 
 		JPanel jpFullPackPreview = new JPanel();
 		jpFullPackPreview.setBackground(Color.WHITE); // white background for
-													  // the whole pack preview
-													  // panel
+		// the whole pack preview
+		// panel
 		jpFullPackPreview.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -545,9 +516,9 @@ public class ResourcePreviewFactory {
 		c.gridy = 1;
 		c.weighty = 1; // will grow in size when the window is resized..
 		c.fill = GridBagConstraints.VERTICAL; // ..and fill all available space
-											  // vertically
+		// vertically
 		c.insets = new Insets(20, 0, 5, 0); // a bit of margin at the top &
-											// bottom
+		// bottom
 		jpFullPackPreview.add(tpTabbedView, c);
 
 		// POPULATE THE GIVEN PANEL
@@ -572,8 +543,7 @@ public class ResourcePreviewFactory {
 	}
   }
 
-  private void generateUserPreviewContent(User u, JPanel panelToPopulate,
-	  EventListener eventHandler) {
+  private void generateUserPreviewContent(User u, JPanel panelToPopulate, EventListener eventHandler) {
 	if (u != null) {
 	  try {
 		// === Render user details in HTML format ===
@@ -596,8 +566,8 @@ public class ResourcePreviewFactory {
 		  strLocation = "<span class='none_text'>Not specified</span>";
 		else
 		  strLocation = u.getCity()
-			  + (u.getCity().length() == 0 || u.getCountry().length() == 0 ? ""
-				  : ", ") + u.getCountry();
+			  + (u.getCity().length() == 0 || u.getCountry().length() == 0 ? "" : ", ")
+			  + u.getCountry();
 		content.append("<b>Location:</b> " + strLocation + "<br>");
 		content.append("<b>Joined at: </b> " + u.getCreatedAt() + "<br>");
 		content.append("<b>Last seen at: </b> " + u.getUpdatedAt() + "<br>");
@@ -618,21 +588,18 @@ public class ResourcePreviewFactory {
 		  // hence need to
 		  // remove any nested <p> or <div> tags to get a proper layout
 		  content.append("<p class='desc'>"
-			  + Util.stripHTML(u.getDescription()) + "<br/><br/></p>");
+			  + Util.stripHTML(u.getDescription()) + "<br><br></p>");
 		} else {
 		  content.append("<span class='none_text'>No description</span>");
 		}
 
 		content.append("<p class='contact_details_header'>Contact Details</p>");
 		content.append("<p class='contact_details'>");
-		content
-			.append("<b>Email: </b>"
-				+ (u.getEmail().length() == 0 ? "<span class='none_text'>Not specified</span>"
-					: u.getEmail()) + "<br/>");
-		content
-			.append("<b>Website: </b>"
-				+ (u.getWebsite().length() == 0 ? "<span class='none_text'>Not specified</span>"
-					: u.getWebsite()));
+		content.append("<b>Email: </b>"
+			+ (u.getEmail().length() == 0 ? "<span class='none_text'>Not specified</span>" : u.getEmail())
+			+ "<br>");
+		content.append("<b>Website: </b>"
+			+ (u.getWebsite().length() == 0 ? "<span class='none_text'>Not specified</span>" : u.getWebsite()));
 		content.append("</p>");
 
 		content.append("</div>");
@@ -641,136 +608,109 @@ public class ResourcePreviewFactory {
 		HTMLEditorKit kit = new HTMLEditorKit();
 		HTMLDocument doc = (HTMLDocument) (kit.createDefaultDocument());
 		kit.setStyleSheet(this.pluginMainComponent.getStyleSheet());
-		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content
-			.toString());
+		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 
 		// === Now render user's items as Swing components ===
 		// .. WORKFLOWS ..
 		JPanel jpWorkflowsTabContent = new JPanel();
-		jpWorkflowsTabContent.setBorder(BorderFactory.createEmptyBorder(5, 10,
-			5, 10));
-		jpWorkflowsTabContent.setLayout(new BoxLayout(jpWorkflowsTabContent,
-			BoxLayout.Y_AXIS));
+		jpWorkflowsTabContent.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+		jpWorkflowsTabContent.setLayout(new BoxLayout(jpWorkflowsTabContent, BoxLayout.Y_AXIS));
 
 		// iterate through all workflows and add all to the panel
-		Iterator<HashMap<String, String>> iWorkflows = u.getWorkflows()
-			.iterator();
+		Iterator<HashMap<String, String>> iWorkflows = u.getWorkflows().iterator();
 		while (iWorkflows.hasNext()) {
 		  HashMap<String, String> hmCurWF = iWorkflows.next();
-		  jpWorkflowsTabContent.add(new JClickableLabel(hmCurWF.get("name"),
-			  "preview:" + Resource.WORKFLOW + ":" + hmCurWF.get("uri"),
-			  pluginMainComponent.getPreviewBrowser(), this.iconWorkflow));
+		  jpWorkflowsTabContent.add(new JClickableLabel(hmCurWF.get("name"), "preview:"
+			  + Resource.WORKFLOW + ":" + hmCurWF.get("uri"), pluginMainComponent.getPreviewBrowser(), this.iconWorkflow));
 		}
 
 		// .. FILES ..
 		JPanel jpFilesTabContent = new JPanel();
-		jpFilesTabContent.setBorder(BorderFactory.createEmptyBorder(5, 10, 5,
-			10));
-		jpFilesTabContent.setLayout(new BoxLayout(jpFilesTabContent,
-			BoxLayout.Y_AXIS));
+		jpFilesTabContent.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+		jpFilesTabContent.setLayout(new BoxLayout(jpFilesTabContent, BoxLayout.Y_AXIS));
 
 		// iterate through all files and add all to the panel
 		Iterator<HashMap<String, String>> iFiles = u.getFiles().iterator();
 		while (iFiles.hasNext()) {
 		  HashMap<String, String> hmCurFile = iFiles.next();
-		  jpFilesTabContent.add(new JClickableLabel(hmCurFile.get("name"),
-			  "preview:" + Resource.FILE + ":" + hmCurFile.get("uri"),
-			  pluginMainComponent.getPreviewBrowser(), this.iconFile));
+		  jpFilesTabContent.add(new JClickableLabel(hmCurFile.get("name"), "preview:"
+			  + Resource.FILE + ":" + hmCurFile.get("uri"), pluginMainComponent.getPreviewBrowser(), this.iconFile));
 		}
 
 		// .. PACKS ..
 		JPanel jpPacksTabContent = new JPanel();
-		jpPacksTabContent.setBorder(BorderFactory.createEmptyBorder(5, 10, 5,
-			10));
-		jpPacksTabContent.setLayout(new BoxLayout(jpPacksTabContent,
-			BoxLayout.Y_AXIS));
+		jpPacksTabContent.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+		jpPacksTabContent.setLayout(new BoxLayout(jpPacksTabContent, BoxLayout.Y_AXIS));
 
 		// iterate through all packs and add all to the panel
 		Iterator<HashMap<String, String>> iPacks = u.getPacks().iterator();
 		while (iPacks.hasNext()) {
 		  HashMap<String, String> hmCurPack = iPacks.next();
-		  jpPacksTabContent.add(new JClickableLabel(hmCurPack.get("name"),
-			  "preview:" + Resource.PACK + ":" + hmCurPack.get("uri"),
-			  pluginMainComponent.getPreviewBrowser(), this.iconPack));
+		  jpPacksTabContent.add(new JClickableLabel(hmCurPack.get("name"), "preview:"
+			  + Resource.PACK + ":" + hmCurPack.get("uri"), pluginMainComponent.getPreviewBrowser(), this.iconPack));
 		}
 
 		// .. FRIENDS ..
 		JPanel jpFriendsTabContent = new JPanel();
-		jpFriendsTabContent.setBorder(BorderFactory.createEmptyBorder(5, 10, 5,
-			10));
-		jpFriendsTabContent.setLayout(new BoxLayout(jpFriendsTabContent,
-			BoxLayout.Y_AXIS));
+		jpFriendsTabContent.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+		jpFriendsTabContent.setLayout(new BoxLayout(jpFriendsTabContent, BoxLayout.Y_AXIS));
 
 		// iterate through all friends and add all to the panel
 		Iterator<HashMap<String, String>> iFriends = u.getFriends().iterator();
 		while (iFriends.hasNext()) {
 		  HashMap<String, String> hmCurFriend = iFriends.next();
-		  jpFriendsTabContent.add(new JClickableLabel(hmCurFriend.get("name"),
-			  "preview:" + Resource.USER + ":" + hmCurFriend.get("uri"),
-			  pluginMainComponent.getPreviewBrowser(), this.iconUser));
+		  jpFriendsTabContent.add(new JClickableLabel(hmCurFriend.get("name"), "preview:"
+			  + Resource.USER + ":" + hmCurFriend.get("uri"), pluginMainComponent.getPreviewBrowser(), this.iconUser));
 		}
 
 		// .. GROUPS ..
 		JPanel jpGroupsTabContent = new JPanel();
-		jpGroupsTabContent.setBorder(BorderFactory.createEmptyBorder(5, 10, 5,
-			10));
-		jpGroupsTabContent.setLayout(new BoxLayout(jpGroupsTabContent,
-			BoxLayout.Y_AXIS));
+		jpGroupsTabContent.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+		jpGroupsTabContent.setLayout(new BoxLayout(jpGroupsTabContent, BoxLayout.Y_AXIS));
 
 		// iterate through all groups and add all to the panel
 		Iterator<HashMap<String, String>> iGroups = u.getGroups().iterator();
 		while (iGroups.hasNext()) {
 		  HashMap<String, String> hmCurGroup = iGroups.next();
-		  jpGroupsTabContent.add(new JClickableLabel(hmCurGroup.get("name"),
-			  "preview:" + Resource.GROUP + ":" + hmCurGroup.get("uri"),
-			  pluginMainComponent.getPreviewBrowser(), this.iconGroup));
+		  jpGroupsTabContent.add(new JClickableLabel(hmCurGroup.get("name"), "preview:"
+			  + Resource.GROUP + ":" + hmCurGroup.get("uri"), pluginMainComponent.getPreviewBrowser(), this.iconGroup));
 		}
 
 		// .. WRAP EVERY TAB content into it's own scroll pane ..
-		Dimension dPreferredTabSize = new Dimension(
-			ResourcePreviewBrowser.PREFERRED_WIDTH - 50,
-			PREFERRED_LOWER_TABBED_PANE_HEIGHT);
+		Dimension dPreferredTabSize = new Dimension(ResourcePreviewBrowser.PREFERRED_WIDTH - 50, PREFERRED_LOWER_TABBED_PANE_HEIGHT);
 
 		JScrollPane spWorkflowsTab = new JScrollPane(jpWorkflowsTabContent);
 		spWorkflowsTab.setBorder(BorderFactory.createEmptyBorder());
 		spWorkflowsTab.setPreferredSize(dPreferredTabSize);
-		spWorkflowsTab.getVerticalScrollBar().setUnitIncrement(
-			ResourcePreviewBrowser.PREFERRED_SCROLL);
+		spWorkflowsTab.getVerticalScrollBar().setUnitIncrement(ResourcePreviewBrowser.PREFERRED_SCROLL);
 
 		JScrollPane spFilesTab = new JScrollPane(jpFilesTabContent);
 		spFilesTab.setBorder(BorderFactory.createEmptyBorder());
 		spFilesTab.setPreferredSize(dPreferredTabSize);
-		spFilesTab.getVerticalScrollBar().setUnitIncrement(
-			ResourcePreviewBrowser.PREFERRED_SCROLL);
+		spFilesTab.getVerticalScrollBar().setUnitIncrement(ResourcePreviewBrowser.PREFERRED_SCROLL);
 
 		JScrollPane spPacksTab = new JScrollPane(jpPacksTabContent);
 		spPacksTab.setBorder(BorderFactory.createEmptyBorder());
 		spPacksTab.setPreferredSize(dPreferredTabSize);
-		spPacksTab.getVerticalScrollBar().setUnitIncrement(
-			ResourcePreviewBrowser.PREFERRED_SCROLL);
+		spPacksTab.getVerticalScrollBar().setUnitIncrement(ResourcePreviewBrowser.PREFERRED_SCROLL);
 
 		JScrollPane spFriendsTab = new JScrollPane(jpFriendsTabContent);
 		spFriendsTab.setBorder(BorderFactory.createEmptyBorder());
 		spFriendsTab.setPreferredSize(dPreferredTabSize);
-		spFriendsTab.getVerticalScrollBar().setUnitIncrement(
-			ResourcePreviewBrowser.PREFERRED_SCROLL);
+		spFriendsTab.getVerticalScrollBar().setUnitIncrement(ResourcePreviewBrowser.PREFERRED_SCROLL);
 
 		JScrollPane spGroupsTab = new JScrollPane(jpGroupsTabContent);
 		spGroupsTab.setBorder(BorderFactory.createEmptyBorder());
 		spGroupsTab.setPreferredSize(dPreferredTabSize);
-		spGroupsTab.getVerticalScrollBar().setUnitIncrement(
-			ResourcePreviewBrowser.PREFERRED_SCROLL);
+		spGroupsTab.getVerticalScrollBar().setUnitIncrement(ResourcePreviewBrowser.PREFERRED_SCROLL);
 
 		// .. ASSEMBLE ALL TABS together
 		JTabbedPane tpTabbedItems = new JTabbedPane();
-		tpTabbedItems.addTab("Workflows (" + u.getWorkflows().size() + ")",
-			spWorkflowsTab);
+		tpTabbedItems.addTab("Workflows (" + u.getWorkflows().size() + ")", spWorkflowsTab);
 		tpTabbedItems.addTab("Files (" + u.getFiles().size() + ")", spFilesTab);
 		tpTabbedItems.addTab("Packs (" + u.getPacks().size() + ")", spPacksTab);
-		tpTabbedItems.addTab("Friends (" + u.getFriends().size() + ")",
-			spFriendsTab);
-		tpTabbedItems.addTab("Groups (" + u.getGroups().size() + ")",
-			spGroupsTab);
+		tpTabbedItems.addTab("Friends (" + u.getFriends().size() + ")", spFriendsTab);
+		tpTabbedItems.addTab("Groups (" + u.getGroups().size() + ")", spGroupsTab);
 
 		// === PUT EVERYTHING TOGETHER ===
 		JTextPane tpUserPreview = new JTextPane();
@@ -781,8 +721,8 @@ public class ResourcePreviewFactory {
 
 		JPanel jpFullUserPreview = new JPanel();
 		jpFullUserPreview.setBackground(Color.WHITE); // white background for
-													  // the whole user preview
-													  // panel
+		// the whole user preview
+		// panel
 		jpFullUserPreview.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -795,9 +735,9 @@ public class ResourcePreviewFactory {
 		c.gridy = 1;
 		c.weighty = 1; // will grow in size when the window is resized..
 		c.fill = GridBagConstraints.VERTICAL; // ..and fill all available space
-											  // vertically
+		// vertically
 		c.insets = new Insets(20, 0, 5, 0); // a bit of margin at the top &
-											// bottom
+		// bottom
 		jpFullUserPreview.add(tpTabbedItems, c);
 
 		// POPULATE THE GIVEN PANEL
@@ -822,8 +762,7 @@ public class ResourcePreviewFactory {
 	}
   }
 
-  private void generateGroupPreviewContent(Group g, JPanel panelToPopulate,
-	  EventListener eventHandler) {
+  private void generateGroupPreviewContent(Group g, JPanel panelToPopulate, EventListener eventHandler) {
 	if (g != null) {
 	  try {
 		// === Render group details in HTML format ===
@@ -866,8 +805,7 @@ public class ResourcePreviewFactory {
 		HTMLEditorKit kit = new HTMLEditorKit();
 		HTMLDocument doc = (HTMLDocument) (kit.createDefaultDocument());
 		kit.setStyleSheet(this.pluginMainComponent.getStyleSheet());
-		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content
-			.toString());
+		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 
 		// === Now render group's items as Swing components ===
 
@@ -878,12 +816,8 @@ public class ResourcePreviewFactory {
 		Iterator<User> iMembers = g.getMembers().iterator();
 		while (iMembers.hasNext()) {
 		  User uCurMember = iMembers.next();
-		  jpMembersTabContent
-			  .add(new JClickableLabel(uCurMember.getName(), "preview:"
-				  + uCurMember.getItemType() + ":" + uCurMember.getURI(),
-				  pluginMainComponent.getPreviewBrowser(), new ImageIcon(
-					  MyExperimentPerspective.getLocalIconURL(uCurMember
-						  .getItemType()))));
+		  jpMembersTabContent.add(new JClickableLabel(uCurMember.getName(), "preview:"
+			  + uCurMember.getItemType() + ":" + uCurMember.getURI(), pluginMainComponent.getPreviewBrowser(), new ImageIcon(MyExperimentPerspective.getLocalIconURL(uCurMember.getItemType()))));
 		}
 
 		// wrap into a standard scroll pane
@@ -896,11 +830,8 @@ public class ResourcePreviewFactory {
 		Iterator<Resource> iSharedItems = g.getSharedItems().iterator();
 		while (iSharedItems.hasNext()) {
 		  Resource rCurItem = iSharedItems.next();
-		  jpSharedItemsTabContent.add(new JClickableLabel(rCurItem.getTitle(),
-			  "preview:" + rCurItem.getItemType() + ":" + rCurItem.getURI(),
-			  pluginMainComponent.getPreviewBrowser(), new ImageIcon(
-				  MyExperimentPerspective.getLocalIconURL(rCurItem
-					  .getItemType()))));
+		  jpSharedItemsTabContent.add(new JClickableLabel(rCurItem.getTitle(), "preview:"
+			  + rCurItem.getItemType() + ":" + rCurItem.getURI(), pluginMainComponent.getPreviewBrowser(), new ImageIcon(MyExperimentPerspective.getLocalIconURL(rCurItem.getItemType()))));
 		}
 
 		// wrap into a standard scroll pane
@@ -912,14 +843,10 @@ public class ResourcePreviewFactory {
 
 		// ASSEMBLE tabs together
 		JTabbedPane tpTabbedItems = new JTabbedPane();
-		tpTabbedItems.addTab("Members (" + g.getMemberCount() + ")",
-			spMembersTabContent);
-		tpTabbedItems.addTab("Shared Items (" + g.getSharedItemCount() + ")",
-			spSharedItemsTabContent);
-		tpTabbedItems.addTab("Tags (" + g.getTags().size() + ")",
-			spTagsTabContent);
-		tpTabbedItems.addTab("Comments (" + g.getComments().size() + ")",
-			spCommentsTab);
+		tpTabbedItems.addTab("Members (" + g.getMemberCount() + ")", spMembersTabContent);
+		tpTabbedItems.addTab("Shared Items (" + g.getSharedItemCount() + ")", spSharedItemsTabContent);
+		tpTabbedItems.addTab("Tags (" + g.getTags().size() + ")", spTagsTabContent);
+		tpTabbedItems.addTab("Comments (" + g.getComments().size() + ")", spCommentsTab);
 
 		// PUT EVERYTHING TOGETHER
 		JTextPane tpGroupPreview = new JTextPane();
@@ -930,8 +857,8 @@ public class ResourcePreviewFactory {
 
 		JPanel jpFullGroupPreview = new JPanel();
 		jpFullGroupPreview.setBackground(Color.WHITE); // white background for
-													   // the whole group
-													   // preview panel
+		// the whole group
+		// preview panel
 		jpFullGroupPreview.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
@@ -944,9 +871,9 @@ public class ResourcePreviewFactory {
 		c.gridy = 1;
 		c.weighty = 1; // will grow in size when the window is resized..
 		c.fill = GridBagConstraints.VERTICAL; // ..and fill all available space
-											  // vertically
+		// vertically
 		c.insets = new Insets(20, 0, 5, 0); // a bit of margin at the top &
-											// bottom
+		// bottom
 		jpFullGroupPreview.add(tpTabbedItems, c);
 
 		// POPULATE THE GIVEN PANEL
@@ -979,8 +906,9 @@ public class ResourcePreviewFactory {
 
 	if (!w.isTavernaWorkflow()) {
 	  // can only display components for Taverna 1 workflows at the moment
-	  JLabel lNotSupported = new JLabel("<html>This is a " + w.getVisibleType()
-	      + " workflow;<br/>myExperiment can only display Taverna workflow components at the moment.</html>");
+	  JLabel lNotSupported = new JLabel("<html>This is a "
+		  + w.getVisibleType()
+		  + " workflow;<br>myExperiment can only display Taverna workflow components at the moment.</html>");
 	  lNotSupported.setFont(lNotSupported.getFont().deriveFont(Font.ITALIC));
 	  lNotSupported.setForeground(Color.GRAY);
 	  jpWorkflowComponentsTabContent.add(lNotSupported);
@@ -988,9 +916,8 @@ public class ResourcePreviewFactory {
 	  // can display components for workflow of this type, but current user is
 	  // not
 	  // allowed to download this workflow - and, hence, to view its components
-	  JLabel lNotAuthorized = new JLabel(
-		  "You are not authorised to download this workflow, "
-			  + "and hence component preview is not available.");
+	  JLabel lNotAuthorized = new JLabel("You are not authorised to download this workflow, "
+		  + "and hence component preview is not available.");
 	  lNotAuthorized.setFont(lNotAuthorized.getFont().deriveFont(Font.ITALIC));
 	  lNotAuthorized.setForeground(Color.GRAY);
 	  jpWorkflowComponentsTabContent.add(lNotAuthorized);
@@ -1002,12 +929,10 @@ public class ResourcePreviewFactory {
 
 	  // ** inputs **
 	  vColumnNames.clear();
-	  vColumnNames
-		  .addAll(Arrays.asList(new String[] { "Name", "Description" }));
+	  vColumnNames.addAll(Arrays.asList(new String[] { "Name", "Description" }));
 
 	  Vector<Vector<String>> vInputsData = new Vector<Vector<String>>();
-	  ArrayList<HashMap<String, String>> inputs = w.getComponents().get(
-		  "inputs");
+	  ArrayList<HashMap<String, String>> inputs = w.getComponents().get("inputs");
 	  if (inputs != null) {
 		for (HashMap<String, String> curInput : inputs) {
 		  Vector<String> vCurData = new Vector<String>();
@@ -1020,8 +945,7 @@ public class ResourcePreviewFactory {
 
 	  JTable jtInputs = new JTable(vInputsData, vColumnNames);
 	  jtInputs.getColumnModel().getColumn(0).setPreferredWidth(100);
-	  jtInputs.getTableHeader().setFont(
-		  jtInputs.getTableHeader().getFont().deriveFont(Font.BOLD));
+	  jtInputs.getTableHeader().setFont(jtInputs.getTableHeader().getFont().deriveFont(Font.BOLD));
 	  JPanel jpInputs = new JPanel();
 	  jpInputs.setLayout(new BorderLayout());
 	  jpInputs.add(jtInputs.getTableHeader(), BorderLayout.NORTH);
@@ -1030,20 +954,18 @@ public class ResourcePreviewFactory {
 	  JPanel jpInputsWithTitle = new JPanel();
 	  jpInputsWithTitle.setBorder(BorderFactory.createEtchedBorder());
 	  jpInputsWithTitle.setLayout(new BorderLayout());
-	  jpInputsWithTitle.add(new ShadedLabel("Workflow input ports (" + vInputsData.size()
-		  + ")", ShadedLabel.BLUE, true), BorderLayout.NORTH);
+	  jpInputsWithTitle.add(new ShadedLabel("Workflow input ports ("
+		  + vInputsData.size() + ")", ShadedLabel.BLUE, true), BorderLayout.NORTH);
 	  if (vInputsData.size() > 0) {
 		jpInputsWithTitle.add(jpInputs, BorderLayout.CENTER);
 	  }
 
 	  // ** processors **
 	  vColumnNames.clear();
-	  vColumnNames.addAll(Arrays.asList(new String[] { "Name", "Type",
-		  "Description" }));
+	  vColumnNames.addAll(Arrays.asList(new String[] { "Name", "Type", "Description" }));
 
 	  Vector<Vector<String>> vProcessorsData = new Vector<Vector<String>>();
-	  ArrayList<HashMap<String, String>> processors = w.getComponents().get(
-		  "processors");
+	  ArrayList<HashMap<String, String>> processors = w.getComponents().get("processors");
 	  if (processors != null) {
 		for (HashMap<String, String> curProcessor : processors) {
 		  Vector<String> vCurData = new Vector<String>();
@@ -1056,8 +978,7 @@ public class ResourcePreviewFactory {
 	  }
 
 	  JTable jtProcessors = new JTable(vProcessorsData, vColumnNames);
-	  jtProcessors.getTableHeader().setFont(
-		  jtProcessors.getTableHeader().getFont().deriveFont(Font.BOLD));
+	  jtProcessors.getTableHeader().setFont(jtProcessors.getTableHeader().getFont().deriveFont(Font.BOLD));
 	  JPanel jpProcessors = new JPanel();
 	  jpProcessors.setLayout(new BorderLayout());
 	  jpProcessors.add(jtProcessors.getTableHeader(), BorderLayout.NORTH);
@@ -1067,8 +988,7 @@ public class ResourcePreviewFactory {
 	  jpProcessorsWithTitle.setBorder(BorderFactory.createEtchedBorder());
 	  jpProcessorsWithTitle.setLayout(new BorderLayout());
 	  jpProcessorsWithTitle.add(new ShadedLabel("Services ("
-		  + vProcessorsData.size() + ")", ShadedLabel.BLUE, true),
-		  BorderLayout.NORTH);
+		  + vProcessorsData.size() + ")", ShadedLabel.BLUE, true), BorderLayout.NORTH);
 	  if (vProcessorsData.size() > 0) {
 		jpProcessorsWithTitle.add(jpProcessors, BorderLayout.CENTER);
 	  }
@@ -1091,8 +1011,7 @@ public class ResourcePreviewFactory {
 
 	  JTable jtLinks = new JTable(vLinksData, vColumnNames);
 	  jtLinks.getColumnModel().getColumn(0).setPreferredWidth(100);
-	  jtLinks.getTableHeader().setFont(
-		  jtLinks.getTableHeader().getFont().deriveFont(Font.BOLD));
+	  jtLinks.getTableHeader().setFont(jtLinks.getTableHeader().getFont().deriveFont(Font.BOLD));
 	  JPanel jpLinks = new JPanel();
 	  jpLinks.setLayout(new BorderLayout());
 	  jpLinks.add(jtLinks.getTableHeader(), BorderLayout.NORTH);
@@ -1101,20 +1020,17 @@ public class ResourcePreviewFactory {
 	  JPanel jpLinksWithTitle = new JPanel();
 	  jpLinksWithTitle.setBorder(BorderFactory.createEtchedBorder());
 	  jpLinksWithTitle.setLayout(new BorderLayout());
-	  jpLinksWithTitle.add(new ShadedLabel("Links (" + vLinksData.size() + ")",
-		  ShadedLabel.BLUE, true), BorderLayout.NORTH);
+	  jpLinksWithTitle.add(new ShadedLabel("Links (" + vLinksData.size() + ")", ShadedLabel.BLUE, true), BorderLayout.NORTH);
 	  if (vLinksData.size() > 0) {
 		jpLinksWithTitle.add(jpLinks, BorderLayout.CENTER);
 	  }
 
 	  // ** outputs **
 	  vColumnNames.clear();
-	  vColumnNames
-		  .addAll(Arrays.asList(new String[] { "Name", "Description" }));
+	  vColumnNames.addAll(Arrays.asList(new String[] { "Name", "Description" }));
 
 	  Vector<Vector<String>> vOutputsData = new Vector<Vector<String>>();
-	  ArrayList<HashMap<String, String>> outputs = w.getComponents().get(
-		  "outputs");
+	  ArrayList<HashMap<String, String>> outputs = w.getComponents().get("outputs");
 	  if (outputs != null) {
 		for (HashMap<String, String> curOutput : outputs) {
 		  Vector<String> vCurData = new Vector<String>();
@@ -1127,8 +1043,7 @@ public class ResourcePreviewFactory {
 
 	  JTable jtOutputs = new JTable(vOutputsData, vColumnNames);
 	  jtOutputs.getColumnModel().getColumn(0).setPreferredWidth(100);
-	  jtOutputs.getTableHeader().setFont(
-		  jtOutputs.getTableHeader().getFont().deriveFont(Font.BOLD));
+	  jtOutputs.getTableHeader().setFont(jtOutputs.getTableHeader().getFont().deriveFont(Font.BOLD));
 	  JPanel jpOutputs = new JPanel();
 	  jpOutputs.setLayout(new BorderLayout());
 	  jpOutputs.add(jtOutputs.getTableHeader(), BorderLayout.NORTH);
@@ -1137,8 +1052,8 @@ public class ResourcePreviewFactory {
 	  JPanel jpOutputsWithTitle = new JPanel();
 	  jpOutputsWithTitle.setBorder(BorderFactory.createEtchedBorder());
 	  jpOutputsWithTitle.setLayout(new BorderLayout());
-	  jpOutputsWithTitle.add(new ShadedLabel("Workflow output ports (" + vOutputsData.size()
-		  + ")", ShadedLabel.BLUE, true), BorderLayout.NORTH);
+	  jpOutputsWithTitle.add(new ShadedLabel("Workflow output ports ("
+		  + vOutputsData.size() + ")", ShadedLabel.BLUE, true), BorderLayout.NORTH);
 	  if (vOutputsData.size() > 0) {
 		jpOutputsWithTitle.add(jpOutputs, BorderLayout.CENTER);
 	  }
@@ -1181,26 +1096,20 @@ public class ResourcePreviewFactory {
 		c.gridx = 0;
 		c.gridy = 3 * iCnt;
 		c.weightx = 1.0;
-		c.insets = (bNoCommentForPrevItem ? new Insets(7, 0, 0, 0)
-			: new Insets(0, 0, 0, 0));
+		c.insets = (bNoCommentForPrevItem ? new Insets(7, 0, 0, 0) : new Insets(0, 0, 0, 0));
 		c.fill = GridBagConstraints.NONE;
 		// item data is stored differently whether the item is internal or
 		// external
 		if (piCurItem.isInternalItem()) {
-		  jpPackItemsTabContent.add(new JClickableLabel(piCurItem.getItem()
-			  .getTitle(), "preview:" + piCurItem.getItem().getItemType() + ":"
-			  + piCurItem.getItem().getURI(), pluginMainComponent
-			  .getPreviewBrowser(), new ImageIcon(MyExperimentPerspective
-			  .getLocalIconURL(piCurItem.getItem().getItemType()))), c);
+		  jpPackItemsTabContent.add(new JClickableLabel(piCurItem.getItem().getTitle(), "preview:"
+			  + piCurItem.getItem().getItemType()
+			  + ":"
+			  + piCurItem.getItem().getURI(), pluginMainComponent.getPreviewBrowser(), new ImageIcon(MyExperimentPerspective.getLocalIconURL(piCurItem.getItem().getItemType()))), c);
 		} else {
-		  jpPackItemsTabContent.add(new JClickableLabel(piCurItem.getTitle(),
-			  piCurItem.getLink(), // link should open up directly in the web
-								   // browser
-			  pluginMainComponent.getPreviewBrowser(), new ImageIcon(
-				  MyExperimentPerspective.getLocalIconURL(piCurItem
-					  .getItemType())), SwingConstants.LEFT, piCurItem
-				  .getTitle()
-				  + " (link: " + piCurItem.getLink() + ")"), c);
+		  jpPackItemsTabContent.add(new JClickableLabel(piCurItem.getTitle(), piCurItem.getLink(), // link should open up directly in the web
+		  // browser
+		  pluginMainComponent.getPreviewBrowser(), new ImageIcon(MyExperimentPerspective.getLocalIconURL(piCurItem.getItemType())), SwingConstants.LEFT, piCurItem.getTitle()
+			  + " (link: " + piCurItem.getLink() + ")"), c);
 		}
 
 		// prepare comment before populating the metadata
@@ -1215,13 +1124,10 @@ public class ResourcePreviewFactory {
 		c1.anchor = GridBagConstraints.NORTHWEST;
 		jpWhoAddedTheItem.setBorder(BorderFactory.createEmptyBorder());
 		jpWhoAddedTheItem.add(new JLabel("Added by "), c1);
-		jpWhoAddedTheItem.add(new JClickableLabel(piCurItem
-			.getUserWhoAddedTheItem().getName(), "preview:" + Resource.USER
-			+ ":" + piCurItem.getUserWhoAddedTheItem().getURI(),
-			pluginMainComponent.getPreviewBrowser()), c1);
+		jpWhoAddedTheItem.add(new JClickableLabel(piCurItem.getUserWhoAddedTheItem().getName(), "preview:"
+			+ Resource.USER + ":" + piCurItem.getUserWhoAddedTheItem().getURI(), pluginMainComponent.getPreviewBrowser()), c1);
 
-		String strAddedOnDate = MyExperimentClient.getShortDateFormatter()
-			.format(piCurItem.getCreatedAt());
+		String strAddedOnDate = MyExperimentClient.getShortDateFormatter().format(piCurItem.getCreatedAt());
 		c1.weightx = 1.0;
 		jpWhoAddedTheItem.add(new JLabel(" [" + strAddedOnDate + "]"), c1);
 
@@ -1242,9 +1148,10 @@ public class ResourcePreviewFactory {
 		  c.weightx = 1.0;
 		  if (iCnt + 1 == p.getItems().size())
 			c.weighty = 1.0; // only if this is the comment for the last item,
-							 // shift all items to the top of the panel
+		  // shift all items to the top of the panel
 
-		  DialogTextArea taCommentText = new DialogTextArea("Comment: " + strComment);
+		  DialogTextArea taCommentText = new DialogTextArea("Comment: "
+			  + strComment);
 		  taCommentText.setOpaque(false);
 		  taCommentText.setEditable(false);
 		  taCommentText.setLineWrap(true);
@@ -1265,10 +1172,7 @@ public class ResourcePreviewFactory {
   }
 
   private JScrollPane createTagPreviewTab(List<Tag> lTags) {
-	TagCloudPanel jpTagTabContent = new TagCloudPanel("Resource tag cloud",
-		TagCloudPanel.TAGCLOUD_TYPE_RESOURCE_PREVIEW, pluginMainComponent
-			.getPreviewBrowser(), pluginMainComponent, myExperimentClient,
-		logger);
+	TagCloudPanel jpTagTabContent = new TagCloudPanel("Resource tag cloud", TagCloudPanel.TAGCLOUD_TYPE_RESOURCE_PREVIEW, pluginMainComponent.getPreviewBrowser(), pluginMainComponent, myExperimentClient, logger);
 	jpTagTabContent.getTagCloudData().clear();
 	jpTagTabContent.getTagCloudData().addAll(lTags);
 	jpTagTabContent.refresh();
@@ -1282,10 +1186,8 @@ public class ResourcePreviewFactory {
 	// still be adjusted accordingly to the preferred size of the outer scroll
 	// pane
 	JScrollPane spTagTabContent = wrapPreviewTabContentIntoScrollPane(jpTagTabContent);
-	spTagTabContent
-		.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-	spTagTabContent
-		.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+	spTagTabContent.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+	spTagTabContent.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
 
 	jpTagTabContent.setPreferredSize(spTagTabContent.getPreferredSize());
 
@@ -1302,15 +1204,14 @@ public class ResourcePreviewFactory {
 	  c.anchor = GridBagConstraints.NORTHWEST;
 
 	  // a placeholder for comments while they are loading
-	  JLabel lLoading = new JLabel("Loading comments...", new ImageIcon(
-		  MyExperimentPerspective.getLocalResourceURL("spinner")),
-		  SwingConstants.LEFT);
+	  JLabel lLoading = new JLabel("Loading comments...", new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner")), SwingConstants.LEFT);
 	  lLoading.setBorder(BorderFactory.createEmptyBorder(10, 5, 10, 10));
 	  c.weightx = 1.0;
 	  c.weighty = 1.0;
 	  jpCommentsTabContent.add(lLoading, c);
 
 	  new Thread("Load comments for preview") {
+		@Override
 		public void run() {
 		  myExperimentClient.updateCommentListWithExtraData(lComments);
 
@@ -1326,18 +1227,16 @@ public class ResourcePreviewFactory {
 				c.weightx = 0;
 				c.weighty = 0;
 				c.gridwidth = 1;
-				JClickableLabel lCommentAuthor = new JClickableLabel(comment
-					.getUser().getName(), "preview:"
-					+ comment.getUser().getItemType() + ":"
-					+ comment.getUser().getURI(), pluginMainComponent
-					.getPreviewBrowser(), iconUser);
+				JClickableLabel lCommentAuthor = new JClickableLabel(comment.getUser().getName(), "preview:"
+					+ comment.getUser().getItemType()
+					+ ":"
+					+ comment.getUser().getURI(), pluginMainComponent.getPreviewBrowser(), iconUser);
 				jpCommentsTabContent.add(lCommentAuthor, c);
 
 				c.gridx = 1;
 				c.gridy = 2 * iCnt;
 				c.weightx = 1.0;
-				String strCommentDate = MyExperimentClient
-					.getShortDateFormatter().format(comment.getCreatedAt());
+				String strCommentDate = MyExperimentClient.getShortDateFormatter().format(comment.getCreatedAt());
 				JLabel lCommentDate = new JLabel(" - [" + strCommentDate + "]");
 				lCommentDate.setBorder(lCommentAuthor.getBorder());
 				jpCommentsTabContent.add(lCommentDate, c);
@@ -1350,10 +1249,8 @@ public class ResourcePreviewFactory {
 				if (iCnt + 1 == lComments.size())
 				  c.weighty = 1.0;
 
-				DialogTextArea taCommentText = new DialogTextArea(Util
-					.stripAllHTML(comment.getComment()));
-				taCommentText.setBorder(BorderFactory.createEmptyBorder(0, 25,
-					10, 25));
+				DialogTextArea taCommentText = new DialogTextArea(Util.stripAllHTML(comment.getComment()));
+				taCommentText.setBorder(BorderFactory.createEmptyBorder(0, 25, 10, 25));
 				taCommentText.setOpaque(false);
 				taCommentText.setEditable(false);
 				taCommentText.setLineWrap(true);
@@ -1382,21 +1279,17 @@ public class ResourcePreviewFactory {
 	}
 
 	JScrollPane spCommentsTabContent = wrapPreviewTabContentIntoScrollPane(jpCommentsTabContent);
-	spCommentsTabContent
-		.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+	spCommentsTabContent.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 	return (spCommentsTabContent);
   }
 
-  private JScrollPane createCreditsPreviewTab(
-	  List<Resource> lCreditedUsersOrGroups) {
+  private JScrollPane createCreditsPreviewTab(List<Resource> lCreditedUsersOrGroups) {
 	JPanel jpCreditsTabContent = createStandardTabContentPanel();
 
 	if (lCreditedUsersOrGroups.size() > 0) {
 	  for (Resource r : lCreditedUsersOrGroups) {
 		jpCreditsTabContent.add(new JClickableLabel(r.getTitle(), "preview:"
-			+ r.getItemType() + ":" + r.getURI(), pluginMainComponent
-			.getPreviewBrowser(), new ImageIcon(MyExperimentPerspective
-			.getLocalIconURL(r.getItemType()))));
+			+ r.getItemType() + ":" + r.getURI(), pluginMainComponent.getPreviewBrowser(), new ImageIcon(MyExperimentPerspective.getLocalIconURL(r.getItemType()))));
 	  }
 	} else {
 	  jpCreditsTabContent.add(Util.generateNoneTextLabel("None"));
@@ -1410,10 +1303,8 @@ public class ResourcePreviewFactory {
 
 	if (lAttributions.size() > 0) {
 	  for (Resource r : lAttributions) {
-		jpAttributionsTabContent.add(new JClickableLabel(r.getTitle(),
-			"preview:" + r.getItemType() + ":" + r.getURI(),
-			pluginMainComponent.getPreviewBrowser(), new ImageIcon(
-				MyExperimentPerspective.getLocalIconURL(r.getItemType()))));
+		jpAttributionsTabContent.add(new JClickableLabel(r.getTitle(), "preview:"
+			+ r.getItemType() + ":" + r.getURI(), pluginMainComponent.getPreviewBrowser(), new ImageIcon(MyExperimentPerspective.getLocalIconURL(r.getItemType()))));
 	  }
 	} else {
 	  jpAttributionsTabContent.add(Util.generateNoneTextLabel("None"));
@@ -1428,35 +1319,29 @@ public class ResourcePreviewFactory {
   private JPanel createStandardTabContentPanel() {
 	JPanel jpTabContentPanel = new JPanel();
 	jpTabContentPanel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-	jpTabContentPanel.setLayout(new BoxLayout(jpTabContentPanel,
-		BoxLayout.Y_AXIS));
+	jpTabContentPanel.setLayout(new BoxLayout(jpTabContentPanel, BoxLayout.Y_AXIS));
 
 	return (jpTabContentPanel);
   }
 
-  private JScrollPane wrapPreviewTabContentIntoScrollPane(
-	  JPanel jpTabContentPanel) {
+  private JScrollPane wrapPreviewTabContentIntoScrollPane(JPanel jpTabContentPanel) {
 	// WRAPS TAB CONTENT into it's own SCROLL PANE ..
-	Dimension dPreferredTabSize = new Dimension(
-		ResourcePreviewBrowser.PREFERRED_WIDTH - 50,
-		PREFERRED_LOWER_TABBED_PANE_HEIGHT);
+	Dimension dPreferredTabSize = new Dimension(ResourcePreviewBrowser.PREFERRED_WIDTH - 50, PREFERRED_LOWER_TABBED_PANE_HEIGHT);
 
 	JScrollPane spTabContent = new JScrollPane(jpTabContentPanel);
 	spTabContent.setBorder(BorderFactory.createEmptyBorder());
 	spTabContent.setPreferredSize(dPreferredTabSize);
-	spTabContent.getVerticalScrollBar().setUnitIncrement(
-		ResourcePreviewBrowser.PREFERRED_SCROLL);
+	spTabContent.getVerticalScrollBar().setUnitIncrement(ResourcePreviewBrowser.PREFERRED_SCROLL);
 
 	return (spTabContent);
   }
 
-  private JPanel wrapTextPaneAndTabbedViewIntoFullPreview(
-	  JTextPane tpHTMLPreview, JTabbedPane tpTabbedView) {
+  private JPanel wrapTextPaneAndTabbedViewIntoFullPreview(JTextPane tpHTMLPreview, JTabbedPane tpTabbedView) {
 	// WRAPS HTML JTextPane PREVIEW AND A JTabbedPane WITH DETAILS INTO A SINGLE
 	// PREVIEW PANEL
 	JPanel jpFullPreview = new JPanel();
 	jpFullPreview.setBackground(Color.WHITE); // white background for the whole
-											  // preview panel
+	// preview panel
 	jpFullPreview.setLayout(new GridBagLayout());
 	GridBagConstraints c = new GridBagConstraints();
 
@@ -1469,7 +1354,7 @@ public class ResourcePreviewFactory {
 	c.gridy = 1;
 	c.weighty = 1; // will grow in size when the window is resized..
 	c.fill = GridBagConstraints.VERTICAL; // ..and fill all available space
-										  // vertically
+	// vertically
 	c.insets = new Insets(20, 0, 5, 0); // a bit of margin at the top & bottom
 	jpFullPreview.add(tpTabbedView, c);
 

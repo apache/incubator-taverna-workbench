@@ -63,10 +63,9 @@ import org.jdom.Element;
  * @author Sergejs Aleksejevs
  */
 public class Util {
-	private static Logger logger = Logger
-	.getLogger(Util.class);
+  private static Logger logger = Logger.getLogger(Util.class);
 
-	// ******** DATA ENCRYPTION ********
+  // ******** DATA ENCRYPTION ********
 
   private static final String PBE_PASSWORD = System.getProperty("user.home");
   private static final String PBE_SALT;
@@ -115,7 +114,7 @@ public class Util {
 	  byte[] encrypted = cipher.doFinal(str.getBytes());
 	  return (encrypted);
 	} catch (Exception e) {
-		logger.error("Could not encrypt and store password");
+	  logger.error("Could not encrypt and store password");
 	  return (new byte[1]);
 	}
 
@@ -452,7 +451,7 @@ public class Util {
   // ******** STRIPPING OUT HTML FROM STRINGS ********
 
   /**
-   * Tiny helper to strip out HTML tags. Basic HTML tags like &nbsp; and <br/>
+   * Tiny helper to strip out HTML tags. Basic HTML tags like &nbsp; and <br>
    * are left in place, because these can be rendered by JLabel. This helps to
    * present HTML content inside JAVA easier.
    */
@@ -463,14 +462,14 @@ public class Util {
 
 	// need to preserve at least all line breaks
 	// (ending and starting paragraph also make a line break)
-	source = source.replaceAll("</p>[\r\n]*<p>", "<br/>");
+	source = source.replaceAll("</p>[\r\n]*<p>", "<br>");
 	source = source.replaceAll("\\<br/?\\>", "[-=BR=-]");
 
 	// strip all HTML
 	source = source.replaceAll("\\<.*?\\>", "");
 
 	// put the line breaks back
-	source = source.replaceAll("\\[-=BR=-\\]", "<br/><br/>");
+	source = source.replaceAll("\\[-=BR=-\\]", "<br><br>");
 
 	return (source);
   }
@@ -487,7 +486,7 @@ public class Util {
 
 	// need to preserve at least all line breaks
 	// (ending and starting paragraph also make a line break)
-	source = source.replaceAll("</p>[\r\n]*<p>", "<br/>");
+	source = source.replaceAll("</p>[\r\n]*<p>", "<br>");
 	source = source.replaceAll("\\<br/?\\>", "\n\n");
 
 	// strip all HTML

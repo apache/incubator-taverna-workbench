@@ -46,7 +46,7 @@ import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
-//import org.apache.log4j.Logger;
+// import org.apache.log4j.Logger;
 
 /**
  * @author Emmanuel Tagarira, Sergejs Aleksejevs, Alan Williams
@@ -70,11 +70,10 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
   private JButton bApply;
   private JButton bReset;
   private JButton bHelp;
-  
+
   // DATA STORAGE
   private final Component[] pluginTabComponents;
   private final ArrayList<String> alPluginTabComponentNames;
-
 
   public MyExperimentConfigurationPanel() {
 	super();
@@ -87,7 +86,6 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 
 	this.initialiseUI();
 	this.initialiseData();
-
   }
 
   private void initialiseUI() {
@@ -102,33 +100,32 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 	Insets insParam = new Insets(0, 3, 5, 3);
 
 	// Title describing what kind of settings we are configuring here
-    JTextArea descriptionText = new JTextArea(
-    "Configure the myExperiment integration functionality");
-    descriptionText.setLineWrap(true);
-    descriptionText.setWrapStyleWord(true);
-    descriptionText.setEditable(false);
-    descriptionText.setFocusable(false);
-    descriptionText.setBorder(new EmptyBorder(10, 10, 10, 10));
-    c.anchor = GridBagConstraints.WEST;
-    c.gridx = 0;
-    c.gridy = 0;
-    c.weightx = 1.0;
-    c.weighty = 0.0;
-    c.fill = GridBagConstraints.HORIZONTAL;
-    jpApiLocation.add(descriptionText, c);
-	
+	JTextArea descriptionText = new JTextArea("Configure the myExperiment integration functionality");
+	descriptionText.setLineWrap(true);
+	descriptionText.setWrapStyleWord(true);
+	descriptionText.setEditable(false);
+	descriptionText.setFocusable(false);
+	descriptionText.setBorder(new EmptyBorder(10, 10, 10, 10));
+	c.anchor = GridBagConstraints.WEST;
+	c.gridx = 0;
+	c.gridy = 0;
+	c.weightx = 1.0;
+	c.weighty = 0.0;
+	c.fill = GridBagConstraints.HORIZONTAL;
+	jpApiLocation.add(descriptionText, c);
+
 	c.gridx = 0;
 	c.gridy = 1;
 	c.weightx = 1.0;
 	//c.insets = insLabel;
 	c.anchor = GridBagConstraints.WEST;
-	c.insets = new Insets(10,0,0,10);
+	c.insets = new Insets(10, 0, 0, 10);
 	jpApiLocation.add(new JLabel("Base URL of myExperiment instance to connect to"), c);
 
 	c.gridy = 2;
 	//c.insets = insParam;
 	c.fill = GridBagConstraints.HORIZONTAL;
-	c.insets = new Insets(0,0,0,0);
+	c.insets = new Insets(0, 0, 0, 0);
 	this.tfMyExperimentURL = new JTextField();
 	this.tfMyExperimentURL.setToolTipText("<html>Here you can specify the base URL of the myExperiment "
 		+ "instance that you wish to connect to.<br>This allows the plugin to connect not only to the "
@@ -192,10 +189,10 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 
 	this.bReset = new JButton("Reset");
 	this.bReset.addActionListener(this);
-	
+
 	this.bHelp = new JButton("Help");
 	this.bHelp.addActionListener(this);
-	
+
 	JPanel jpButtons = new JPanel();
 	jpButtons.add(bHelp, c);
 	jpButtons.add(bReset, c);
@@ -223,7 +220,7 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 	jpEverything.add(jpMyStuffPrefs, gbConstraints);
 
 	gbConstraints.gridy++;
-    c.insets = new Insets(10, 0, 0, 0);
+	c.insets = new Insets(10, 0, 0, 0);
 	jpEverything.add(jpButtons, gbConstraints);
 
 	BorderLayout layout = new BorderLayout();
@@ -233,7 +230,7 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 	if (MyExperimentClient.baseChangedSinceLastStart) {
 	  JPanel jpInfo = new JPanel();
 	  jpInfo.setLayout(new BoxLayout(jpInfo, BoxLayout.Y_AXIS));
-	  String info = "<html>Your myExperiment base url has been modified since Taverna was started;<br/>"
+	  String info = "<html>Your myExperiment base url has been modified since Taverna was started;<br>"
 		  + "this change will not take effect until you restart Taverna.</html>";
 	  jpInfo.add(new JLabel(info, WorkbenchIcons.leafIcon, SwingConstants.LEFT));
 	  this.add(jpInfo, BorderLayout.SOUTH);
@@ -297,14 +294,12 @@ public class MyExperimentConfigurationPanel extends JPanel implements ActionList
 		MyExperimentClient.baseChangedSinceLastStart = true;
 	  }
 
-	  myExperimentClient.storeSettings();
+	  myExperimentClient.storeHistoryAndSettings();
 	  //	  pluginMainComponent = new MainComponent();
-	}
-	else if (e.getSource().equals(this.bHelp)) {
-		Helper.showHelp(this);
-	}
-	else if (e.getSource().equals(this.bReset)) {
-		initialiseData();
+	} else if (e.getSource().equals(this.bHelp)) {
+	  Helper.showHelp(this);
+	} else if (e.getSource().equals(this.bReset)) {
+	  initialiseData();
 	}
   }
 }

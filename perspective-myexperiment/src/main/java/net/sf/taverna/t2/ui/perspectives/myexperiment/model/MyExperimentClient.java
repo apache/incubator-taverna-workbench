@@ -45,6 +45,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
+import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponent;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MyExperimentPerspective;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.SearchEngine.QuerySearchInstance;
 
@@ -236,6 +237,19 @@ public class MyExperimentClient {
 	// completed)
 	this.iniSettings.put(MyExperimentClient.INI_LOGIN, strLogin);
 	this.iniSettings.put(MyExperimentClient.INI_PASSWORD, strPass);
+  }
+
+  public void storeHistoryAndSettings() {
+	this.iniSettings.put(MyExperimentClient.INI_FAVOURITE_SEARCHES, Base64.encodeObject(MainComponent.MAIN_COMPONENT.getSearchTab().getSearchFavouritesList()));
+	this.iniSettings.put(MyExperimentClient.INI_SEARCH_HISTORY, Base64.encodeObject(MainComponent.MAIN_COMPONENT.getSearchTab().getSearchHistory()));
+	this.iniSettings.put(MyExperimentClient.INI_TAG_SEARCH_HISTORY, Base64.encodeObject(MainComponent.MAIN_COMPONENT.getTagBrowserTab().getTagSearchHistory()));
+	this.iniSettings.put(MyExperimentClient.INI_PREVIEWED_ITEMS_HISTORY, Base64.encodeObject(MainComponent.MAIN_COMPONENT.getPreviewBrowser().getPreviewHistory()));
+	this.iniSettings.put(MyExperimentClient.INI_DOWNLOADED_ITEMS_HISTORY, Base64.encodeObject(MainComponent.MAIN_COMPONENT.getHistoryBrowser().getDownloadedItemsHistoryList()));
+	this.iniSettings.put(MyExperimentClient.INI_OPENED_ITEMS_HISTORY, Base64.encodeObject(MainComponent.MAIN_COMPONENT.getHistoryBrowser().getOpenedItemsHistoryList()));
+	this.iniSettings.put(MyExperimentClient.INI_UPLOADED_ITEMS_HISTORY, Base64.encodeObject(MainComponent.MAIN_COMPONENT.getHistoryBrowser().getUploadedItemsHistoryList()));
+	this.iniSettings.put(MyExperimentClient.INI_COMMENTED_ITEMS_HISTORY, Base64.encodeObject(MainComponent.MAIN_COMPONENT.getHistoryBrowser().getCommentedOnItemsHistoryList()));
+
+	storeSettings();
   }
 
   // Simulates a "login" action by verifying that login and password are correct

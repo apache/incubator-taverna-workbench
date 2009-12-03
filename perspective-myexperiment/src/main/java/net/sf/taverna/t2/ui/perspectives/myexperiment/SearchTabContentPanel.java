@@ -62,9 +62,9 @@ public class SearchTabContentPanel extends JPanel implements ActionListener {
   protected final static String ADD_FAVOURITE_SEARCH_INSTANCE = "addFavouriteSearchInstance";
   protected final static String REMOVE_FAVOURITE_SEARCH_INSTANCE = "removeFavouriteSearchInstance";
 
-  private MainComponent pluginMainComponent;
-  private MyExperimentClient myExperimentClient;
-  private Logger logger;
+  private final MainComponent pluginMainComponent;
+  private final MyExperimentClient myExperimentClient;
+  private final Logger logger;
 
   // COMPONENTS
   private JSplitPane spMainSplitPane;
@@ -72,8 +72,8 @@ public class SearchTabContentPanel extends JPanel implements ActionListener {
   private JPanel jpFavouriteSearches;
   private JPanel jpSearchHistory;
   private SearchResultsPanel jpSearchResults;
-  private ImageIcon iconFavourite = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("favourite_icon"));
-  private ImageIcon iconRemove = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("destroy_icon"));
+  private final ImageIcon iconFavourite = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("favourite_icon"));
+  private final ImageIcon iconRemove = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("destroy_icon"));
 
   // Data storage
   private QuerySearchInstance siPreviousSearch;
@@ -81,8 +81,8 @@ public class SearchTabContentPanel extends JPanel implements ActionListener {
   private LinkedList<QuerySearchInstance> llSearchHistory;
 
   // Search components 
-  private SearchEngine searchEngine; // The search engine for executing keyword query searches 
-  private Vector<Long> vCurrentSearchThreadID; // This will keep ID of the current search thread (there will only be one such thread)
+  private final SearchEngine searchEngine; // The search engine for executing keyword query searches 
+  private final Vector<Long> vCurrentSearchThreadID; // This will keep ID of the current search thread (there will only be one such thread)
 
   public SearchTabContentPanel(MainComponent component, MyExperimentClient client, Logger logger) {
 	super();
@@ -225,7 +225,7 @@ public class SearchTabContentPanel extends JPanel implements ActionListener {
 	  this.jpFavouriteSearches.add(Util.generateNoneTextLabel("No favourite searches"), c);
 	} else {
 	  for (int i = this.llFavouriteSearches.size() - 1; i >= 0; i--) {
-		addEntryToSearchListingPanel(this.llFavouriteSearches, i, SEARCH_FROM_FAVOURITES, this.jpFavouriteSearches, this.iconRemove, REMOVE_FAVOURITE_SEARCH_INSTANCE, "<html>Click to remove from your local favourite searches.<br/>"
+		addEntryToSearchListingPanel(this.llFavouriteSearches, i, SEARCH_FROM_FAVOURITES, this.jpFavouriteSearches, this.iconRemove, REMOVE_FAVOURITE_SEARCH_INSTANCE, "<html>Click to remove from your local favourite searches.<br>"
 			+ "(This will not affect your myExperiment profile settings.)</html>");
 	  }
 	}
@@ -250,7 +250,7 @@ public class SearchTabContentPanel extends JPanel implements ActionListener {
 	} else {
 	  for (int i = this.llSearchHistory.size() - 1; i >= 0; i--) {
 		addEntryToSearchListingPanel(this.llSearchHistory, i, SEARCH_FROM_HISTORY, this.jpSearchHistory, this.iconFavourite, ADD_FAVOURITE_SEARCH_INSTANCE, "<html>Click to add to your local favourite"
-			+ " searches - these will be available every time you use Taverna.<br/>(This will not affect your"
+			+ " searches - these will be available every time you use Taverna.<br>(This will not affect your"
 			+ " myExperiment profile settings.)</html>");
 	  }
 	}

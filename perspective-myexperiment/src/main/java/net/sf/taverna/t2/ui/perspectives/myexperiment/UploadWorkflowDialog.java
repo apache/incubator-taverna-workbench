@@ -122,7 +122,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
   }
 
   public UploadWorkflowDialog(JFrame parent, boolean doUpload, Resource resource) {
-	super(parent, "Update workflow information", true);
+	super(parent, (doUpload ? "Upload new workflow version" : "Update workflow information"), true);
 	initVarsAndUI(doUpload, resource);
   }
 
@@ -340,7 +340,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	contentPane.add(createMetadataPanel(), c);
 
 	// buttons
-	this.bUpload = new JButton(updateResource == null ? "Upload Workflow" : "Update Workflow");
+	this.bUpload = new JButton(userRequestedWorkflowUpload ? "Upload Workflow" : "Update Workflow");
 	this.bUpload.setDefaultCapable(true);
 	this.getRootPane().setDefaultButton(this.bUpload);
 	this.bUpload.addActionListener(this);
@@ -522,6 +522,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 				} catch (Exception e) {
 				  lStatusMessage = new JLabel("Error occurred:"
 					  + e.getMessage(), new ImageIcon(MyExperimentPerspective.getLocalResourceURL("failure_icon")), SwingConstants.LEFT);
+				  logger.log(null, e.getCause() + "\n" + e.getMessage());
 				}
 			  }
 			}

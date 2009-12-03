@@ -148,8 +148,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	  this.setLayout(new BorderLayout());
 	  this.add(spMyStuff);
 
-	  // wait until two of the components finish loading and set the status to
-	  // 'ready'
+	  // wait until two of the components finish loading and set the status to 'ready'
 	  // (done in a new thread so that this doesn't freeze the plugin window)
 	  new Thread("Waiting for myStuff data to load") {
 		@Override
@@ -161,7 +160,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 		  }
 		}
 	  }.start();
-	} else {
+	} else { // NOT logged in
 	  // reset status in case of unsuccessful autologin
 	  this.pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), null);
 
@@ -179,6 +178,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 		this.pfPassword.setText(this.myExperimentClient.getSettings().get(MyExperimentClient.INI_PASSWORD).toString());
 		this.cbRememberMe.setSelected(true);
 		this.cbLoginAutomatically.setSelected(this.myExperimentClient.getSettings().get(MyExperimentClient.INI_AUTO_LOGIN).equals("true"));
+		this.myExperimentClient.storeHistoryAndSettings();
 	  }
 
 	  // put everything together (welcome banner + login box)
@@ -318,18 +318,16 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 
 			// check if need to store the login credentials and settings
 			if (bLoginSuccessful) {
-			  // store the settings anyway (for instance, to clear stored
-			  // login/password - when the 'remember me' tick is not checked
-			  // anymore);
+			  // store the settings anyway (for instance, to clear stored login/password 
+			  // - when the 'remember me' tick is not checked anymore);
 			  // however, need to check whether to store login details or not
 			  myExperimentClient.getSettings().put(MyExperimentClient.INI_LOGIN, (cbRememberMe.isSelected() ? tfLogin.getText() : ""));
 			  myExperimentClient.getSettings().put(MyExperimentClient.INI_PASSWORD, (cbRememberMe.isSelected() ? new String(pfPassword.getPassword()) : ""));
 			  myExperimentClient.getSettings().put(MyExperimentClient.INI_REMEMBER_ME, new Boolean(cbRememberMe.isSelected()).toString());
 			  myExperimentClient.getSettings().put(MyExperimentClient.INI_AUTO_LOGIN, new Boolean(cbLoginAutomatically.isSelected()).toString());
-			  myExperimentClient.storeSettings();
+			  myExperimentClient.storeHistoryAndSettings();
 
-			  // if logging in was successful, set the status to the start of
-			  // fetching the data
+			  // if logging in was successful, set the status to the start of fetching the data
 			  pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), "Fetching user data");
 			}
 

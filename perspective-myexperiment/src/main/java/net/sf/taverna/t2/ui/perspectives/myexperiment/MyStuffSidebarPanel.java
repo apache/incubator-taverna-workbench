@@ -133,7 +133,7 @@ public class MyStuffSidebarPanel extends JPanel implements ActionListener {
 
 	String name = "<html>";
 	for (int x = 0; x < currentUser.getName().split(" ").length; x++)
-	  name += currentUser.getName().split(" ")[x] + "<br/>";
+	  name += currentUser.getName().split(" ")[x] + "<br>";
 	name += "</html>";
 
 	JClickableLabel jclUserName = new JClickableLabel(name, "preview:"

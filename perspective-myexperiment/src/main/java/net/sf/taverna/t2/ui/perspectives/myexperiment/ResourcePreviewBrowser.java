@@ -1,6 +1,7 @@
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -263,7 +264,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 			  // remove everything from the preview and re-add all components
 			  // (NB! Removing only CENTER component didn't work properly)
 			  jpMain.removeAll();
-			  jpMain.add(jpStatusBar, BorderLayout.NORTH);
+			  jpMain.add(redrawStatusBar(), BorderLayout.NORTH);
 			  jpMain.add(spContentScroller, BorderLayout.CENTER);
 			  validate();
 			  repaint();
@@ -281,35 +282,41 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 
   private void initialiseUI() {
 	// create the STATUS BAR of the preview window
+	createButtonsForStatusBar();
 
+	// put everything together
+	jpMain = new JPanel();
+	jpMain.setOpaque(true);
+	jpMain.setLayout(new BorderLayout());
+	jpMain.add(redrawStatusBar(), BorderLayout.NORTH);
+
+	// add all content into the main dialog
+	this.getContentPane().add(jpMain);
+
+  }
+
+  private void createButtonsForStatusBar() {
 	// navigation buttons => far left of status bar
-	JPanel jpNavigationButtons = new JPanel();
 	bBack = new JButton(new ImageIcon(MyExperimentPerspective.getLocalResourceURL("back_icon")));
 	bBack.setToolTipText("Back");
 	bBack.addActionListener(this);
 	bBack.setEnabled(false);
-	jpNavigationButtons.add(bBack);
 
 	bForward = new JButton(new ImageIcon(MyExperimentPerspective.getLocalResourceURL("forward_icon")));
 	bForward.setToolTipText("Forward");
 	bForward.addActionListener(this);
 	bForward.setEnabled(false);
-	jpNavigationButtons.add(bForward);
 
 	// refresh buttons => far right of status bar
-	JPanel jpRefreshButtons = new JPanel();
 	bRefresh = new JButton(new ImageIcon(MyExperimentPerspective.getLocalResourceURL("refresh_icon")));
 	bRefresh.setToolTipText("Refresh");
 	bRefresh.addActionListener(this);
-	jpRefreshButtons.add(bRefresh);
 
 	lSpinnerIcon = new JLabel(this.iconSpinner);
-	jpRefreshButtons.add(lSpinnerIcon);
 
 	// ACTION BUTTONS
 	// 'open in myExperiment' button is the only one that is always available,
-	// still will be set available during loading of the preview for consistency
-	// of the UI
+	// still will be set available during loading of the preview for consistency of the UI
 
 	// myExperiment "webby" functions
 	bOpenInMyExp = new JButton(iconOpenInMyExp);
@@ -324,14 +331,40 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	bAddComment.setEnabled(false);
 	bAddComment.addActionListener(this);
 
-	bEditMetadata = new JButton(WorkbenchIcons.editIcon);
+	bEditMetadata = new JButton("Update", WorkbenchIcons.editIcon);
 	bEditMetadata.setEnabled(false);
 	bEditMetadata.addActionListener(this);
 
-	bUpload = new JButton(WorkbenchIcons.upArrowIcon);
+	bUpload = new JButton("Upload", WorkbenchIcons.upArrowIcon);
 	bUpload.setEnabled(false);
 	bUpload.addActionListener(this);
 
+	// functions more specific to taverna
+	bOpenInTaverna = new JButton(WorkbenchIcons.openIcon);
+	bOpenInTaverna.setEnabled(false);
+	bOpenInTaverna.addActionListener(this);
+
+	bImportIntoTaverna = new JButton();
+	bImportIntoTaverna.setEnabled(false);
+	bImportIntoTaverna.addActionListener(this);
+
+	bDownload = new JButton(WorkbenchIcons.saveIcon);
+	bDownload.setEnabled(false);
+	bDownload.addActionListener(this);
+  }
+
+  private JPanel redrawStatusBar() {
+	// far left of button bar
+	JPanel jpNavigationButtons = new JPanel();
+	jpNavigationButtons.add(bBack);
+	jpNavigationButtons.add(bForward);
+
+	// far right of button bar
+	JPanel jpRefreshButtons = new JPanel();
+	jpRefreshButtons.add(bRefresh);
+	jpRefreshButtons.add(lSpinnerIcon);
+
+	// myExperiment buttons: second left of the button bar
 	JPanel jpMyExperimentButtons = new JPanel();
 	jpMyExperimentButtons.add(bOpenInMyExp);
 	jpMyExperimentButtons.add(bAddRemoveFavourite);
@@ -339,58 +372,59 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	jpMyExperimentButtons.add(bEditMetadata);
 	jpMyExperimentButtons.add(bUpload);
 
-	// functions more specific to taverna
-	bOpenInTaverna = new JButton(WorkbenchIcons.openIcon);
-	bOpenInTaverna.setEnabled(false);
-	bOpenInTaverna.addActionListener(this);
-
-	bDownload = new JButton(WorkbenchIcons.saveIcon);
-	bDownload.setEnabled(false);
-	bDownload.addActionListener(this);
-
+	// taverna buttons: second right of the button bar
 	JPanel jpTavernaButtons = new JPanel();
 	jpTavernaButtons.add(bOpenInTaverna);
+	jpTavernaButtons.add(bImportIntoTaverna);
 	jpTavernaButtons.add(bDownload);
 
-	// import buttons
-	bImportIntoTaverna = new JButton();
-	bImportIntoTaverna.setEnabled(false);
-	bImportIntoTaverna.addActionListener(this);
-
-	JPanel jpImportButtons = new JPanel();
-	jpImportButtons.add(bImportIntoTaverna);
-
 	// put all action buttons into a button bar
-	JPanel jpActionButtons = new JPanel();
-	jpActionButtons.setLayout(new GridBagLayout());
+	JPanel jpStatusBar = new JPanel();
+	jpStatusBar.setLayout(new GridBagLayout());
+	int spaceBetweenSections = 40;
+
 	GridBagConstraints c = new GridBagConstraints();
-	c.insets = new Insets(0, 100, 0, 30);
+	c.insets = new Insets(0, spaceBetweenSections, 0, spaceBetweenSections / 2);
+	c.anchor = GridBagConstraints.WEST;
+	c.fill = GridBagConstraints.HORIZONTAL;
+	c.gridwidth = 1;
+	c.gridheight = 1;
 	c.gridx = 0;
 	c.gridy = 0;
-	jpActionButtons.add(jpMyExperimentButtons, c);
+	jpStatusBar.add(jpNavigationButtons, c);
 
 	c.gridx++;
-	c.insets = new Insets(0, 30, 0, 30);
-	jpActionButtons.add(jpTavernaButtons, c);
+	c.insets = new Insets(0, spaceBetweenSections / 2, 0, spaceBetweenSections / 2);
+	jpStatusBar.add(jpMyExperimentButtons, c);
 
 	c.gridx++;
-	c.insets = new Insets(0, 30, 0, 100);
-	jpActionButtons.add(jpImportButtons, c);
+	jpStatusBar.add(jpTavernaButtons, c);
 
-	jpStatusBar = new JPanel();
-	jpStatusBar.setLayout(new BorderLayout());
-	jpStatusBar.add(jpNavigationButtons, BorderLayout.WEST);
-	jpStatusBar.add(jpActionButtons, BorderLayout.CENTER);
-	jpStatusBar.add(jpRefreshButtons, BorderLayout.EAST);
+	c.gridx++;
+	c.insets = new Insets(0, spaceBetweenSections / 2, 0, spaceBetweenSections);
+	jpStatusBar.add(jpRefreshButtons, c);
 
-	// put everything together
-	jpMain = new JPanel();
-	jpMain.setOpaque(true);
-	jpMain.setLayout(new BorderLayout());
-	jpMain.add(jpStatusBar, BorderLayout.NORTH);
+	return jpStatusBar;
 
-	// add all content into the main dialog
-	this.getContentPane().add(jpMain);
+	//	// put all action buttons into a button bar
+	//	JPanel jpActionButtons = new JPanel();
+	//	jpActionButtons.setLayout(new GridBagLayout());
+	//	GridBagConstraints c = new GridBagConstraints();
+	//	double spacing = ResourcePreviewBrowser.PREFERRED_WIDTH * 0.1;
+	//	c.insets = new Insets(0, (int) spacing, 0, (int) spacing / 2);
+	//	c.gridx = 0;
+	//	c.gridy = 0;
+	//	jpActionButtons.add(jpMyExperimentButtons, c);
+	//	
+	//	c.gridx++;
+	//	c.insets = new Insets(0, (int) spacing / 2, 0, (int) spacing);
+	//	jpActionButtons.add(jpTavernaButtons, c);
+	//	
+	//	jpStatusBar = new JPanel();
+	//	jpStatusBar.setLayout(new BorderLayout());
+	//	jpStatusBar.add(jpNavigationButtons, BorderLayout.WEST);
+	//	jpStatusBar.add(jpActionButtons, BorderLayout.CENTER);
+	//	jpStatusBar.add(jpRefreshButtons, BorderLayout.EAST);
   }
 
   private void updateButtonBarState(ResourcePreviewContent content) {
@@ -441,7 +475,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 
 	// "Open in Taverna" - only for Taverna workflows and when download is
 	// allowed for current user (these checks are carried out inside the action)
-	this.bOpenInTaverna.setAction(pluginMainComponent.new LoadResourceInTavernaAction(r, false));
+	this.bOpenInTaverna.setAction(pluginMainComponent.new LoadResourceInTavernaAction(r, true));
 
 	// "Import into Taverna" - only for Taverna workflows and when download is
 	// allowed for current user (these checks are carried out inside the action)
@@ -643,12 +677,12 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	// (this is done so that newly opened preview window won't show the old
 	// preview)
 	jpMain.removeAll();
-	jpMain.add(jpStatusBar, BorderLayout.NORTH);
+	jpMain.add(redrawStatusBar(), BorderLayout.NORTH);
 	repaint();
 
-	// set the size of the dialog box (NB! Size needs to be set before the
-	// position!)
+	// set the size of the dialog box (NB! Size needs to be set before the position!)
 	this.setSize(ResourcePreviewBrowser.PREFERRED_WIDTH, ResourcePreviewBrowser.PREFERRED_HEIGHT);
+	this.setMinimumSize(new Dimension(ResourcePreviewBrowser.PREFERRED_WIDTH, ResourcePreviewBrowser.PREFERRED_HEIGHT));
 
 	// make sure that the dialog box appears centered horizontally relatively to
 	// the main component; also, pad by 30px vertically from the top of the main
@@ -658,10 +692,12 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	int iPosX = iMainComponentCenterX - (this.getWidth() / 2);
 	int iPosY = ((int) this.pluginMainComponent.getLocationOnScreen().getY()) + 30;
 	this.setLocation(iPosX, iPosY);
+
+	myExperimentClient.storeHistoryAndSettings();
   }
 
   public void componentHidden(ComponentEvent e) {
-	// do nothing
+	myExperimentClient.storeHistoryAndSettings();
   }
 
   public void componentResized(ComponentEvent e) {

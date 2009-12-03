@@ -49,7 +49,7 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import org.apache.log4j.Logger;
 
 /**
- * @author Sergejs Aleksejevs, Emmanuel Tagarira 
+ * @author Sergejs Aleksejevs, Emmanuel Tagarira
  */
 public class SearchOptionsPanel extends JPanel implements ItemListener, KeyListener {
   // CONSTANTS
@@ -57,10 +57,10 @@ public class SearchOptionsPanel extends JPanel implements ItemListener, KeyListe
   protected static final int SEARCH_RESULT_LIMIT_INIT = 20;
   protected static final int SEARCH_RESULT_LIMIT_MAX = 100;
 
-  private MainComponent pluginMainComponent;
-  private MyExperimentClient myExperimentClient;
-  private Logger logger;
-  private ActionListener clickHandler;
+  private final MainComponent pluginMainComponent;
+  private final MyExperimentClient myExperimentClient;
+  private final Logger logger;
+  private final ActionListener clickHandler;
 
   // COMPONENTS
   protected JButton bSearch;
@@ -109,11 +109,11 @@ public class SearchOptionsPanel extends JPanel implements ItemListener, KeyListe
 	c.fill = GridBagConstraints.HORIZONTAL;
 	c.weightx = 1.0;
 	tfSearchQuery = new JTextField();
-	tfSearchQuery.setToolTipText("<html>Tips for creating search queries:<br/>1) Use wildcards to make more "
-		+ "flexible queries. Asterisk (<b>*</b>) matches any zero or more<br/>&nbsp;&nbsp;&nbsp;&nbsp;characters (e.g. "
-		+ "<b><i>Seq*</i></b> would match <b><i>Sequence</i></b>), question mark (<b>?</b>) matches any single<br/>"
-		+ "&nbsp;&nbsp;&nbsp;&nbsp;character (e.g. <b><i>Tave?na</i></b> would match <b><i>Taverna</i></b>).<br/>"
-		+ "2) Enclose the <b><i>\"search query\"</i></b> in double quotes to make exact phrase matching, otherwise<br/>"
+	tfSearchQuery.setToolTipText("<html>Tips for creating search queries:<br>1) Use wildcards to make more "
+		+ "flexible queries. Asterisk (<b>*</b>) matches any zero or more<br>&nbsp;&nbsp;&nbsp;&nbsp;characters (e.g. "
+		+ "<b><i>Seq*</i></b> would match <b><i>Sequence</i></b>), question mark (<b>?</b>) matches any single<br>"
+		+ "&nbsp;&nbsp;&nbsp;&nbsp;character (e.g. <b><i>Tave?na</i></b> would match <b><i>Taverna</i></b>).<br>"
+		+ "2) Enclose the <b><i>\"search query\"</i></b> in double quotes to make exact phrase matching, otherwise<br>"
 		+ "&nbsp;&nbsp;&nbsp;&nbsp;items that contain any (or all) words in the <b><i>search query</i></b> will be found.</html>");
 	tfSearchQuery.addKeyListener(this);
 	this.add(tfSearchQuery, c);

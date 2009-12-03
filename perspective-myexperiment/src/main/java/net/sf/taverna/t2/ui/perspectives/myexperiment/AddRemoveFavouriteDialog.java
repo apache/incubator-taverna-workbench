@@ -29,14 +29,12 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.net.HttpURLConnection;
-import java.util.concurrent.CountDownLatch;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
@@ -58,17 +56,17 @@ public class AddRemoveFavouriteDialog extends JDialog implements ActionListener,
   protected static final int OPERATION_FAILED = -1;
 
   // components for accessing application's main elements
-  private MainComponent pluginMainComponent;
-  private MyExperimentClient myExperimentClient;
-  private Logger logger;
+  private final MainComponent pluginMainComponent;
+  private final MyExperimentClient myExperimentClient;
+  private final Logger logger;
 
   // COMPONENTS
   private JButton bAddRemoveFavourite;
   private JButton bCancel;
 
   // STORAGE
-  private Resource resource; // a resource which is being favourited / removed from favourites
-  private boolean bIsFavouriteBeingAdded;
+  private final Resource resource; // a resource which is being favourited / removed from favourites
+  private final boolean bIsFavouriteBeingAdded;
   private int iOperationStatus = OPERATION_CANCELLED;
   private ServerResponse response = null;
 
@@ -108,7 +106,7 @@ public class AddRemoveFavouriteDialog extends JDialog implements ActionListener,
 		+ (this.bIsFavouriteBeingAdded ? "add" : "remove") + " \""
 		+ resource.getTitle() + "\" " + resource.getItemTypeName()
 		+ (this.bIsFavouriteBeingAdded ? " to" : " from")
-		+ " your favourites.<br/><br/>"
+		+ " your favourites.<br><br>"
 		+ "Do you want to proceed?</center></html>");
 	c.gridx = 0;
 	c.gridy = 0;
@@ -191,6 +189,7 @@ public class AddRemoveFavouriteDialog extends JDialog implements ActionListener,
 	  this.repaint();
 
 	  new Thread("Execute add / remove favourite operation") {
+		@Override
 		public void run() {
 		  // *** DO THE REQUIRED ACTION ***
 		  response = (bIsFavouriteBeingAdded ? myExperimentClient.addFavourite(resource) : myExperimentClient.deleteFavourite(resource));
@@ -230,7 +229,7 @@ public class AddRemoveFavouriteDialog extends JDialog implements ActionListener,
 					+ (bIsFavouriteBeingAdded ? "adding" : "removing")
 					+ " the item "
 					+ (bIsFavouriteBeingAdded ? "to" : "from")
-					+ " your favourites:<br/>"
+					+ " your favourites:<br>"
 					+ Util.retrieveReasonFromErrorXMLDocument(response.getResponseBody())
 					+ "</center></html>", new ImageIcon(MyExperimentPerspective.getLocalResourceURL("failure_icon")), SwingConstants.LEFT), c);
 			  }
