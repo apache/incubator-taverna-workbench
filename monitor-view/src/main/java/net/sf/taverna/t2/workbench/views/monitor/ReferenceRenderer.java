@@ -90,7 +90,7 @@ public class ReferenceRenderer extends JLabel implements TableCellRenderer {
 		
 		T2Reference referenceValue = (T2Reference) valueList.get(index);
 
-		setText(" " + index);
+		setText(" " + updateIndex(index));
 
 		if (referenceValue.getReferenceType().equals(
 				(T2ReferenceType.ErrorDocument))) {
@@ -104,6 +104,21 @@ public class ReferenceRenderer extends JLabel implements TableCellRenderer {
 		}
 
 		return this;
+	}
+
+	private static String updateIndex(String key) {
+		key = key.replaceAll("]\\[", ",");
+		key = key.replaceAll("\\[", "");
+		key = key.replaceAll("]", "");
+		String result = "";
+		for (String s : key.split(",")) {
+			String replacement = "";
+			if (!s.equals("")) {
+				replacement = Integer.toString(Integer.valueOf(s) + 1);
+			}
+			result += "[" + replacement + "]";
+		}
+		return result;
 	}
 
 	public void setValueList(Map<String, T2Reference> valueList2) {
