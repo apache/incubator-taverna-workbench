@@ -46,7 +46,7 @@ public class MyExperimentPerspective implements PerspectiveSPI {
   private boolean visible = true;
 
   public ImageIcon getButtonIcon() {
-	URL iconURL = MyExperimentPerspective.getLocalResourceURL("myexp_icon");
+	URL iconURL = MyExperimentPerspective.getLocalResourceURL("myexp_icon16x16");
 	if (iconURL == null) {
 	  return null;
 	} else {
@@ -126,6 +126,8 @@ public class MyExperimentPerspective implements PerspectiveSPI {
 	  strResourcePath += "comment_add.png";
 	else if (strResourceName.equals("myexp_icon"))
 	  strResourcePath += "myexp_icon.png";
+	else if (strResourceName.equals("myexp_icon16x16"))
+		  strResourcePath += "myexp_icon16x16.png";
 	else if (strResourceName.equals("open_in_my_experiment_icon"))
 	  strResourcePath += "open_in_myExperiment.png";
 	else if (strResourceName.equals("login_icon"))
