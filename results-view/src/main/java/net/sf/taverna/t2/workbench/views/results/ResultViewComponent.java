@@ -50,7 +50,6 @@ import javax.swing.JTabbedPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
-import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.facade.ResultListener;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.InvocationContext;
@@ -60,12 +59,10 @@ import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.lineageservice.Dependencies;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
-import net.sf.taverna.t2.provenance.reporter.ProvenanceReporter;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
-import net.sf.taverna.t2.workbench.run.DataflowRun;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPIRegistry;
@@ -75,7 +72,6 @@ import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
 
 import org.apache.log4j.Logger;
-import org.springframework.context.ApplicationContext;
 
 /**
  * This component contains a tabbed pane, where each tab displays results for one of
@@ -181,15 +177,14 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		revalidate();
 	}
 	
-	public void repopulate(DataflowRun run) {
-		this.dataflow = run.getDataflow();
+	public void repopulate(Dataflow dataflow, String runId, ReferenceService referenceService) {
+		this.dataflow = dataflow;
 		
 		String connectorType = DataManagementConfiguration.getInstance()
 		.getConnectorType();
 		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
 		clear();
 		
-		ReferenceService referenceService = run.getReferenceService();
 		InvocationContext dummyContext = new InvocationContextImpl(referenceService, null);
 		saveButtonsPanel.add(new JButton(new SaveAllAction("Save values", this)));
 
@@ -209,7 +204,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort);
 			ResultTreeModel model = resultTab.getResultModel();
 			
-			Dependencies dependencies = provenanceAccess.fetchPortData(run.getRunId(), dataflow.getInternalIdentier(), dataflow.getLocalName(), portName, null);
+			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentier(), dataflow.getLocalName(), portName, null);
 			List<LineageQueryResultRecord> records = dependencies.getRecords();
 			for (LineageQueryResultRecord record : records) {
 
