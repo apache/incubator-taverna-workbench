@@ -1005,6 +1005,13 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 	}
 	
 	/**
+	 * Shut down any processing and update threads related to this controller.
+	 * 
+	 */
+	public void shutdown() {
+	}
+	
+	/**
 	 * Returns true if the default is to expand nested workflows.
 	 *
 	 * @return true if the default is to expand nested workflows

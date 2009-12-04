@@ -25,6 +25,7 @@ import java.awt.BorderLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -93,14 +94,13 @@ public class PreviousRunsComponent extends MonitorViewComponent {
 		svgCanvas.addGVTTreeRendererListener(gvtTreeBuilderAdapter);
 
 		// create a graph controller
-		SVGGraphController svgGraphController = new SVGGraphController(
+		final SVGGraphController svgGraphController = new SVGGraphController(
 				dataflow, true, svgCanvas);
 		svgGraphController.setAnimationSpeed(0);
 		svgGraphController.setGraphEventManager(new MonitorGraphEventManager(
 				this, provenanceConnector, dataflow, getSessionId()));
 		svgGraphController.redraw();
 		// Previous runs are passive
-		svgGraphController.shutdown();
 		JPanel diagramAndControls = new JPanel();
 		diagramAndControls.setLayout(new BorderLayout());
 		setGraphController(svgGraphController);
@@ -115,6 +115,7 @@ public class PreviousRunsComponent extends MonitorViewComponent {
 		add(statusLabel, BorderLayout.SOUTH);
 		setStatus(MonitorViewComponent.Status.COMPLETE);
 		revalidate();
+		
 		// setProvenanceConnector();
 		return null;
 	}

@@ -369,9 +369,15 @@ public class SVGGraphController extends GraphController {
 		this.animationSpeed = animationSpeed;
 	}
 
+	@Override
 	public void shutdown() {
-		getSVGCanvas().stopProcessing();
-		executor.shutdownNow();
+		super.shutdown();
+		executor.execute(new Runnable() {
+			public void run() {
+				getSVGCanvas().stopProcessing();
+				executor.shutdown();
+			}
+		});
 	}
 	
 }
