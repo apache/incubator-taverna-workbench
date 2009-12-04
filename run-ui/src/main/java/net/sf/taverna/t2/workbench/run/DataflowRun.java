@@ -99,6 +99,7 @@ public class DataflowRun {
 			if (connector != null) {
 				connector.init();
 				connector.setSessionID(sessionID);
+				connector.setReferenceService(referenceService); // set the ref. service specific to this run
 			}
 		} catch (Exception except) {
 
@@ -175,13 +176,12 @@ public class DataflowRun {
 		}
 
 	}
-	
 
 
 	@Override
 	public String toString() {
 		return dataflow.getLocalName() + " "
-				+ DateFormat.getTimeInstance().format(date);
+				+ DateFormat.getDateTimeInstance().format(date);
 	}
 
 	@Override

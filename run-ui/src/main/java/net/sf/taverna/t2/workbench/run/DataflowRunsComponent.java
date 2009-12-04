@@ -109,7 +109,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		setDividerLocation(400);
 
 		topPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		topPanel.setDividerLocation(240);
+		topPanel.setDividerLocation(275);
 		topPanel.setBorder(null);
 		setTopComponent(topPanel);
 
@@ -289,6 +289,9 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
 
 		List<WorkflowInstance> allWorkflowRunIDs = provenanceAccess.listRuns(null, null);
+		//List<WorkflowInstance> allWorkflowRunIDs = provenanceAccess.getAllWorkflowIDs();
+		Collections.reverse(allWorkflowRunIDs);
+		
 		for (WorkflowInstance workflowInstance : allWorkflowRunIDs) {
 			if (provenanceAccess.isTopLevelDataflow(workflowInstance.getWorkflowIdentifier())){
 				logger.info("retrieved previous run, workflow id: "
@@ -361,7 +364,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 	private ReferenceService getReferenceServiceWithDatabase() {
 		// Force creation of a Ref. Service that uses database regardless of what current context is
 		// This Ref. Service will be used for previous wf runs to get intermediate results even if
-		// current Ref. Manager uses in-memory store. If current Ref. Manager
+		// current Ref. Manager uses in-memory store. 
 		if (referenceServiceWithDatabase == null){
 			String databasecontext = DataManagementConfiguration.HIBERNATE_CONTEXT;
 			ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
@@ -371,6 +374,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		}
 		return referenceServiceWithDatabase;
 	}
+	
 	public void runDataflow(WorkflowInstanceFacade facade,
 			Map<String, T2Reference> inputs) {
 		DataflowRun runComponent = new DataflowRun(facade, inputs, new Date(), referenceService);

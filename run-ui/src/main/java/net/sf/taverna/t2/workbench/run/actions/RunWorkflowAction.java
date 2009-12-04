@@ -27,14 +27,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
@@ -42,16 +39,14 @@ import net.sf.taverna.t2.annotation.annotationbeans.DescriptiveTitle;
 import net.sf.taverna.t2.annotation.annotationbeans.ExampleValue;
 import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
-import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
-import net.sf.taverna.t2.provenance.reporter.ProvenanceReporter;
-import net.sf.taverna.t2.reference.ReferenceContext;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.ui.InvalidDataflowReport;
 import net.sf.taverna.t2.reference.ui.WorkflowLaunchPanel;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -61,12 +56,8 @@ import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowValidationReport;
-import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.InvalidDataflowException;
-import net.sf.taverna.t2.workflowmodel.TokenProcessingEntity;
 import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
@@ -115,7 +106,7 @@ public class RunWorkflowAction extends AbstractAction {
 					String message = "Could not run workflow "
 							+ dataflow.getLocalName();
 					logger.warn(message);
-					showErrorDialog(ex.getMessage(), message);			
+					InvalidDataflowReport.showErrorDialog(ex.getMessage(), message);			
 				}
 			};
 		};
@@ -141,147 +132,75 @@ public class RunWorkflowAction extends AbstractAction {
 		if (dataflowCopy != null) {
 			WorkflowLaunchPanel.getDataflowCopyMap()
 					.put(dataflowCopy, dataflow);
-			// TODO check if the database has been created and create if needed
-			// if provenance turned on then add an IntermediateProvLayer to each
-			// Processor
-			final ReferenceService referenceService = runComponent
-					.getReferenceService();
-			ProvenanceConnector provenanceConnector = null;
 			
-			// FIXME: All these run-stuff should be done in a general way so it
-			// could also be used when running workflows non-interactively
-			if (DataManagementConfiguration.getInstance().isProvenanceEnabled()) {
-				String connectorType = DataManagementConfiguration
-						.getInstance().getConnectorType();
+			if (dataflowCopy.getInputPorts().isEmpty()){// No input ports - we can run immediately
+				// TODO check if the database has been created and create if needed
+				// if provenance turned on then add an IntermediateProvLayer to each
+				// Processor
+				final ReferenceService referenceService = runComponent
+						.getReferenceService();
+				ProvenanceConnector provenanceConnector = null;
+				
+				// FIXME: All these run-stuff should be done in a general way so it
+				// could also be used when running workflows non-interactively
+				if (DataManagementConfiguration.getInstance().isProvenanceEnabled()) {
+					String connectorType = DataManagementConfiguration
+							.getInstance().getConnectorType();
 
-				for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry
-						.getInstance().getInstances()) {
-					if (connectorType.equalsIgnoreCase(factory
-							.getConnectorType())) {
-						provenanceConnector = factory.getProvenanceConnector();
+					for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry
+							.getInstance().getInstances()) {
+						if (connectorType.equalsIgnoreCase(factory
+								.getConnectorType())) {
+							provenanceConnector = factory.getProvenanceConnector();
+						}
 					}
+
+					// slight change, the init is outside but it also means that the
+					// init call has to ensure that the dbURL is set correctly
+					try {
+						if (provenanceConnector != null) {
+							provenanceConnector.init();
+							provenanceConnector
+									.setReferenceService(referenceService);
+						}
+					} catch (Exception except) {
+
+					}				
 				}
-
-				// slight change, the init is outside but it also means that the
-				// init call has to ensure that the dbURL is set correctly
-				try {
-					if (provenanceConnector != null) {
-						provenanceConnector.init();
-						provenanceConnector
-								.setReferenceService(referenceService);
-					}
-				} catch (Exception except) {
-
+				final InvocationContextImpl context = new InvocationContextImpl(
+						referenceService, provenanceConnector);
+				// Workflow run id will be set on the context from the facade
+				if (provenanceConnector != null) {
+					provenanceConnector.setInvocationContext(context);
 				}
 				
-			}
-			final InvocationContextImpl context = new InvocationContextImpl(
-					referenceService, provenanceConnector);
-			// Workflow run id will be set on the context from the facade
-			if (provenanceConnector != null) {
-				provenanceConnector.setInvocationContext(context);
-			}
-			final WorkflowInstanceFacade facade;
-			try {
-				facade = new EditsImpl().createWorkflowInstanceFacade(
-						dataflowCopy, context, "");
-			} catch (InvalidDataflowException ex) {
-				invalidDataflow(ex.getDataflowValidationReport());
-				return;
-			}
-
-			final List<? extends DataflowInputPort> inputPorts = dataflowCopy
-					.getInputPorts();
-
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					if (!inputPorts.isEmpty()) {
-						showInputDialog(facade, context);
-					} else {
+				final WorkflowInstanceFacade facade;
+				try {
+					facade = new EditsImpl().createWorkflowInstanceFacade(
+							dataflow, context, "");
+				} catch (InvalidDataflowException ex) {
+					InvalidDataflowReport.invalidDataflow(ex.getDataflowValidationReport());
+					return;
+				}		
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
 						switchToResultsPerspective();
 						runComponent.runDataflow(facade, (Map) null);
 					}
-				}
-			});
-
+				});			
+			}
+			else{
+				final Dataflow copy = dataflowCopy;
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						showInputDialog(copy);
+					}
+				});	
+			}
 		} else {
-			showErrorDialog("Unable to make a copy of the workflow to run",
+			InvalidDataflowReport.showErrorDialog("Unable to make a copy of the workflow to run",
 					"Workflow copy failed");
 		}
-	}
-
-	static void invalidDataflow(DataflowValidationReport report) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<html><h3>Workflow failed validation due to:</h3>");
-		sb.append(constructReport(report));
-		showErrorDialog(sb.toString(), "Workflow validation report");
-	}
-
-	static private String constructReport(DataflowValidationReport report) {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<dl>");
-		if (report.isWorkflowIncomplete()){
-			sb.append("<dt><b>Workflow is incomplete</b></dt>");
-			sb.append("<dt><i>(Workflow should contain at least one service or a connected workflow output port)</i>");
-		}
-		List<? extends TokenProcessingEntity> unsatisfiedEntities = report
-				.getUnsatisfiedEntities();
-		if (unsatisfiedEntities.size() > 0) {
-			sb.append("<dt><b>Invalid services</b>");
-			sb
-					.append("<dt><i>(Due to feedback loops in the workflow or upstream errors)</i>");
-			for (TokenProcessingEntity entity : unsatisfiedEntities) {
-				sb.append("<dd>" + entity.getLocalName());
-			}
-		}
-		List<? extends DataflowOutputPort> unresolvedOutputs = report
-				.getUnresolvedOutputs();
-		if (unresolvedOutputs.size() > 0) {
-			boolean foundUnconnected = false;
-			for (DataflowOutputPort dataflowOutputPort : unresolvedOutputs) {
-				Datalink dl = dataflowOutputPort.getInternalInputPort()
-						.getIncomingLink();
-				if (dl == null) {
-					if (!foundUnconnected) {
-						sb.append("<dt><b>Unconnected workflow output ports</b>");
-						sb
-								.append("<dt><i>(Workflow output ports must be connected to a valid link)</i>");
-						foundUnconnected = true;
-					}
-					sb.append("<dd>" + dataflowOutputPort.getName());
-				}
-			}
-		}
-		List<? extends TokenProcessingEntity> failedEntities = report
-				.getFailedEntities();
-		Set<TokenProcessingEntity> invalidDataflowProcessors = report
-				.getInvalidDataflows().keySet();
-		if (failedEntities.size() > 0) {
-			boolean foundfailure = false;
-			for (TokenProcessingEntity entity : failedEntities) {
-				if (!invalidDataflowProcessors.contains(entity)) {
-					if (!foundfailure) {
-						sb.append("<dt><b>Invalid list handling</b>");
-						sb
-								.append("<dt><i>(Generally dot product with different cardinalities)</i>");
-						foundfailure = true;
-					}
-					sb.append("<dd>" + entity.getLocalName());
-				}
-			}
-		}
-
-		Set<Entry<TokenProcessingEntity, DataflowValidationReport>> invalidDataflows = report
-				.getInvalidDataflows().entrySet();
-		if (invalidDataflows.size() > 0) {
-			sb.append("<dt><b>Invalid nested workflows</b>");
-			for (Entry<TokenProcessingEntity, DataflowValidationReport> entry : invalidDataflows) {
-				sb.append("<dd>" + entry.getKey().getLocalName());
-				sb.append(constructReport(entry.getValue()));
-			}
-		}
-		sb.append("</dl>");
-		return sb.toString();
 	}
 
 	private void switchToResultsPerspective() {
@@ -303,12 +222,10 @@ public class RunWorkflowAction extends AbstractAction {
 	private AnnotationTools annotationTools = new AnnotationTools();
 
 	@SuppressWarnings("serial")
-	private void showInputDialog(final WorkflowInstanceFacade facade,
-			ReferenceContext refContext) {
+	private void showInputDialog(Dataflow dataflow) {
 		// Create and set up the window.
 
-		String title = annotationTools.getAnnotationString(
-				facade.getDataflow(), DescriptiveTitle.class, "");
+		String title = annotationTools.getAnnotationString(dataflow, DescriptiveTitle.class, "");
 		String dialogTitle = "Workflow ";
 		if ((title != null) && (!title.equals(""))) {
 			dialogTitle = title + ": ";
@@ -317,13 +234,12 @@ public class RunWorkflowAction extends AbstractAction {
 		final JDialog dialog = new JDialog((JFrame) null, dialogTitle, true);
 		dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-		WorkflowLaunchPanel wlp = new WorkflowLaunchPanel(facade, refContext) {
+		WorkflowLaunchPanel wlp = new WorkflowLaunchPanel(dataflow, runComponent.getReferenceService()) {
 			@Override
 			public void handleLaunch(Map<String, T2Reference> workflowInputs) {
 				switchToResultsPerspective();
-				runComponent.runDataflow(facade, workflowInputs);
+				runComponent.runDataflow(getFacade(), workflowInputs);
 				dialog.dispose();
-
 			}
 
 			@Override
@@ -334,7 +250,7 @@ public class RunWorkflowAction extends AbstractAction {
 		wlp.setOpaque(true); // content panes must be opaque
 
 		List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(
-				facade.getDataflow().getInputPorts());
+				dataflow.getInputPorts());
 		Collections.sort(inputPorts, new PortComparator());
 		for (DataflowInputPort input : inputPorts) {
 			// input.getAnnotations();
@@ -354,15 +270,6 @@ public class RunWorkflowAction extends AbstractAction {
 		dialog.pack();
 		dialog.setLocationRelativeTo(null);
 		dialog.setVisible(true);
-	}
-
-	static private void showErrorDialog(final String message, final String title) {
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				JOptionPane.showMessageDialog(null, message, title,
-						JOptionPane.ERROR_MESSAGE);
-			}
-		});
 	}
 
 }

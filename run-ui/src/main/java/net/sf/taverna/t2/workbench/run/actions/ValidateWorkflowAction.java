@@ -32,29 +32,24 @@ import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
+import net.sf.taverna.t2.reference.ui.InvalidDataflowReport;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
-import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
+//import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
-import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
-import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowValidationReport;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
 public class ValidateWorkflowAction extends AbstractAction {
 
-	private static Logger logger = Logger.getLogger(ValidateWorkflowAction.class);
+	//private static Logger logger = Logger.getLogger(ValidateWorkflowAction.class);
 
 	private static final String VALIDATE_WORKFLOW = "Validate workflow";
 
-	private EditManager editManager = EditManager.getInstance();
+	//private EditManager editManager = EditManager.getInstance();
 
 	private FileManager fileManager = FileManager.getInstance();
 
@@ -82,7 +77,7 @@ public class ValidateWorkflowAction extends AbstractAction {
 		Dataflow dataflow = fileManager.getCurrentDataflow();
 		DataflowValidationReport report = dataflow.checkValidity();
 		if (!report.isValid()) {
-			RunWorkflowAction.invalidDataflow(report);
+			InvalidDataflowReport.invalidDataflow(report);
 			return false;
 		}
 		JOptionPane.showMessageDialog(null, "No problems found", "Workflow validation report",
