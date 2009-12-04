@@ -1,9 +1,12 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
@@ -14,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
@@ -47,6 +51,11 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 
 	private static Logger logger = Logger
 			.getLogger(ActivityConfigurationDialog.class);
+	
+	Dimension minimalSize = null;
+	Dimension buttonPanelSize = null;
+	
+	JPanel buttonPanel;
 
 	public ActivityConfigurationDialog(A a, ActivityConfigurationPanel<A, B> p) {
 		super((Frame) null, "", false, null);
@@ -60,9 +69,9 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setLayout(new BorderLayout());
 
-		add(panel, BorderLayout.NORTH);
+		add(panel, BorderLayout.CENTER);
 
-		JPanel buttonPanel = new JPanel();
+		buttonPanel = new JPanel();
 
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 
@@ -94,6 +103,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		});
 		closeButton.setText("Close");
 		buttonPanel.add(closeButton);
+		buttonPanel.setBorder(new EmptyBorder(5, 20, 5, 5));
 		add(buttonPanel, BorderLayout.SOUTH);
 
 		this.addWindowListener(new WindowAdapter() {
@@ -103,8 +113,16 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 			}
 		});
 		this.pack();
+		minimalSize = this.getSize();
 		this.setLocationRelativeTo(null);
-		this.setResizable(false);
+		this.setResizable(true);
+		this.addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent e) {
+				int newWidth = Math.max(getWidth(), minimalSize.width);
+				int newHeight = Math.max(getHeight(), minimalSize.height);
+				ActivityConfigurationDialog.this.setSize(new Dimension(newWidth, newHeight));
+			}
+		});
 
 		observer = new Observer<EditManagerEvent>() {
 
