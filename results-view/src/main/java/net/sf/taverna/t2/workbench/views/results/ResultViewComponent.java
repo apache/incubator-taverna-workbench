@@ -198,7 +198,6 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		
 		for (DataflowOutputPort dataflowOutputPort : dataflowOutputPorts) {
 			String portName = dataflowOutputPort.getName();
-			System.out.println(portName);
 			// Create a tab containing a tree view of per-port results and a rendering
 			// component for displaying individual results
 			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort);
@@ -209,7 +208,6 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			for (LineageQueryResultRecord record : records) {
 
 				String value = record.getValue();
-				System.err.println(record.getIteration() + "=" + value);
 				T2Reference referenceValue = referenceService
 						.referenceFromString(value);
 				String iteration = record.getIteration();
@@ -222,11 +220,9 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				for (int i = 0; i < parts.length; i++) {
 					elementIndex[i] = Integer.parseInt(parts[i]);
 				}
-//				System.err.println(record.getIteration() + "=" + referenceService.renderIdentifier(referenceValue, String.class, null));
 				WorkflowDataToken token = new WorkflowDataToken("", elementIndex, referenceValue,
 						dummyContext);
 				model.resultTokenProduced(token, portName);
-				logger.error(value);
 			}
 			
 			tabbedPane.add(portName, resultTab);
