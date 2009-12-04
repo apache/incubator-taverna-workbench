@@ -65,6 +65,7 @@ import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
@@ -461,11 +462,31 @@ public class GraphViewComponent extends WorkflowView {
 			if (! (message instanceof AbstractDataflowEditEvent)) {
 				return;
 			}
+
+			boolean animationEnabled = Boolean.parseBoolean(configuration
+					.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
+			final int animationSpeed = (animationEnabled ? Integer.parseInt(configuration
+					.getProperty(GraphViewConfiguration.ANIMATION_SPEED)) : 0);
+			
+			WorkbenchConfiguration workbenchConfig = WorkbenchConfiguration.getInstance();
+				
+			final boolean animationSettingChanged = (animationEnabled != (graphController.getAnimationSpeed() != 0));
+
 			Runnable redraw = new Runnable() {
 				public void run() {
 					AbstractDataflowEditEvent dataflowEditEvent = (AbstractDataflowEditEvent) message;
+
 					if (dataflowEditEvent.getDataFlow() == dataflow) {
-						graphController.redraw();
+						
+						if (graphController.isDotMissing() || animationSettingChanged) {
+							diagramPanelMap.remove(dataflow);
+							setDataflow(dataflow);
+						} else {
+							if (animationSpeed != graphController.getAnimationSpeed()) {
+								graphController.setAnimationSpeed(animationSpeed);
+							}
+							graphController.redraw();							
+						}
 					}
 				}
 			};
