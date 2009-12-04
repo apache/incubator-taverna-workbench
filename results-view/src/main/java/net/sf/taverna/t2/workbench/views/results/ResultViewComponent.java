@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.workbench.views.results;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridLayout;
@@ -29,7 +28,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -42,34 +40,40 @@ import java.util.TreeMap;
 import java.util.WeakHashMap;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
-import javax.swing.border.TitledBorder;
 
+import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.facade.ResultListener;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.invocation.WorkflowDataToken;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
+import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
+import net.sf.taverna.t2.provenance.lineageservice.Dependencies;
+import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
+import net.sf.taverna.t2.provenance.reporter.ProvenanceReporter;
+import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPIRegistry;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
+
+import org.apache.log4j.Logger;
+import org.springframework.context.ApplicationContext;
 
 /**
  * This component contains a tabbed pane, where each tab displays results for one of
@@ -81,6 +85,9 @@ import net.sf.taverna.t2.workflowmodel.EditException;
  *
  */
 public class ResultViewComponent extends JPanel implements UIComponentSPI, ResultListener {
+
+	private static Logger logger = Logger
+	.getLogger(ResultViewComponent.class);
 
 	private static final long serialVersionUID = 988812623494396366L;
 	
@@ -102,6 +109,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 	private JPanel saveButtonsPanel;
 
 	private WorkflowInstanceFacade facade;
+	private Dataflow dataflow;
 		
 	// Registry of all existing 'save results' actions, each one can save results
 	// in a different format
@@ -137,6 +145,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		clear();
 		
 		this.facade = facade;
+		this.dataflow = facade.getDataflow();
 		
 		saveButtonsPanel.add(new JButton(new SaveAllAction("Save values", this)));
 
@@ -164,6 +173,84 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			// This component also listens to the results coming out in order to know
 			// when receiving of results has finished
 			facade.addResultListener(this);
+			
+			tabbedPane.add(portName, resultTab);
+		}
+		revalidate();
+	}
+	
+	public void repopulate(Dataflow dataflow, String runId) {
+		this.dataflow = dataflow;
+		
+		String connectorType = DataManagementConfiguration.getInstance()
+		.getConnectorType();
+		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
+		clear();
+		
+		String context = DataManagementConfiguration.getInstance()
+		.getDatabaseContext();
+		ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
+				context);
+		final ReferenceService referenceService = (ReferenceService) appContext
+				.getBean("t2reference.service.referenceService");
+
+		InvocationContext dummyContext = new InvocationContext() {
+
+			public ProvenanceReporter getProvenanceReporter() {
+				return null;
+			}
+
+			public ReferenceService getReferenceService() {
+				return referenceService;
+			}
+
+			public <T> List<? extends T> getEntities(Class<T> entityType) {
+				return null;
+			}
+			
+		};
+		saveButtonsPanel.add(new JButton(new SaveAllAction("Save values", this)));
+
+		List<DataflowOutputPort> dataflowOutputPorts = new ArrayList<DataflowOutputPort>(dataflow.getOutputPorts());
+		
+		Collections.sort(dataflowOutputPorts, new Comparator<DataflowOutputPort>() {
+
+			public int compare(DataflowOutputPort o1, DataflowOutputPort o2) {
+				return o1.getName().compareTo(o2.getName());
+			}});
+		
+		for (DataflowOutputPort dataflowOutputPort : dataflowOutputPorts) {
+			String portName = dataflowOutputPort.getName();
+			System.out.println(portName);
+			// Create a tab containing a tree view of per-port results and a rendering
+			// component for displaying individual results
+			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort);
+			ResultTreeModel model = resultTab.getResultModel();
+			
+			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentier(), dataflow.getLocalName(), portName, null);
+			List<LineageQueryResultRecord> records = dependencies.getRecords();
+			for (LineageQueryResultRecord record : records) {
+
+				String value = record.getValue();
+				System.err.println(record.getIteration() + "=" + value);
+				T2Reference referenceValue = referenceService
+						.referenceFromString(value);
+				String iteration = record.getIteration();
+				iteration = iteration.replaceAll("\\[\\]", ",");
+				iteration = iteration.replaceAll("\\[", "");
+				iteration = iteration.replaceAll("\\]", "");
+				String[] parts = iteration.split(",");
+				model.depth = parts.length;
+				int[] elementIndex = new int[parts.length];
+				for (int i = 0; i < parts.length; i++) {
+					elementIndex[i] = Integer.parseInt(parts[i]);
+				}
+//				System.err.println(record.getIteration() + "=" + referenceService.renderIdentifier(referenceValue, String.class, null));
+				WorkflowDataToken token = new WorkflowDataToken("", elementIndex, referenceValue,
+						dummyContext);
+				model.resultTokenProduced(token, portName);
+				logger.error(value);
+			}
 			
 			tabbedPane.add(portName, resultTab);
 		}
@@ -201,7 +288,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		 }
 		 if (receivedAll){
 			 HashMap<String, T2Reference> inputValuesMap = new HashMap<String, T2Reference> ();
-				for (DataflowInputPort dataflowInputPort : facade.getDataflow().getInputPorts()) {
+				for (DataflowInputPort dataflowInputPort : dataflow.getInputPorts()) {
 					String name = dataflowInputPort.getName();
 					inputValuesMap.put(name, facade.getPushedDataMap().get(name));
 				}
@@ -272,7 +359,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				}
 				
 			};
-			if (!facade.getDataflow().getInputPorts().isEmpty()) {
+			if (!dataflow.getInputPorts().isEmpty()) {
 				JPanel inputsPanel = new JPanel();
 				inputsPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
 
@@ -280,7 +367,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				inputsPanel.add(new JLabel("Workflow inputs:"));
 				WeakHashMap<String, T2Reference> pushedDataMap = facade.getPushedDataMap();
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
-				for (DataflowInputPort port : facade.getDataflow().getInputPorts()) {
+				for (DataflowInputPort port : dataflow.getInputPorts()) {
 					String portName = port.getName();
 					JCheckBox checkBox = new JCheckBox(portName);
 					checkBox
