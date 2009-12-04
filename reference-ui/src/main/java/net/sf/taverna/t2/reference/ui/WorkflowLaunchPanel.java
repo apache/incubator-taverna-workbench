@@ -43,8 +43,11 @@ import javax.swing.border.TitledBorder;
 import net.sf.taverna.t2.annotation.annotationbeans.Author;
 import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
+import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
-import net.sf.taverna.t2.reference.ReferenceContext;
+import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
+import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
+import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionSPI;
@@ -52,8 +55,11 @@ import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionsSPIRegist
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
+import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.InvalidDataflowException;
+import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
 
 import org.apache.batik.swing.JSVGCanvas;
@@ -102,10 +108,11 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	private final JTabbedPane tabs;
 	private final Map<String, RegistrationPanel> tabComponents = new HashMap<String, RegistrationPanel>();
 
-	private final WorkflowInstanceFacade facade;
-	private final ReferenceService referenceService;
-	private final ReferenceContext referenceContext;
-
+	private WorkflowInstanceFacade facade;
+	private ReferenceService referenceService;
+	private InvocationContextImpl invocationContext;
+	private final Dataflow dataflow;
+	
 	private final static String NO_WORKFLOW_DESCRIPTION = "No description";
 	private static final String NO_WORKFLOW_AUTHOR = "No author";
 
@@ -115,14 +122,16 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	private AnnotationTools annotationTools = new AnnotationTools();
 	private JSVGCanvas createWorkflowGraphic;
 
-	public WorkflowLaunchPanel(final WorkflowInstanceFacade facade,
-			ReferenceContext context) {
+	public WorkflowLaunchPanel(Dataflow dtfl, ReferenceService refService) {
 		super(new BorderLayout());
+		
+		this.dataflow = dtfl;
+		this.referenceService = refService;
+		
 		JPanel workflowPart = new JPanel(new GridLayout(3,1));
 		JPanel portsPart = new JPanel(new BorderLayout());
 
-		createWorkflowGraphic = createWorkflowGraphic(facade
-				.getDataflow());
+		createWorkflowGraphic = createWorkflowGraphic(dataflow);
 		createWorkflowGraphic.setBorder(new TitledBorder("Diagram"));
 		
 		workflowPart.add(createWorkflowGraphic);
@@ -143,35 +152,76 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		
 		workflowPart.add(new JScrollPane(workflowAuthorArea));
 
-		Dataflow key = dataflowCopyMap.get(facade.getDataflow());
+		Dataflow key = dataflowCopyMap.get(dataflow);
 		if (workflowInputPanelMap.containsKey(key)) {
 			inputPanelMap = workflowInputPanelMap.get(key);
 		} else {
 			inputPanelMap = new HashMap<String, RegistrationPanel>();
 			workflowInputPanelMap.put(key, inputPanelMap);
 		}
-		this.facade = facade;
-		this.referenceService = facade.getContext().getReferenceService();
-		this.referenceContext = context;
 
 		launchAction = new AbstractAction(LAUNCH_WORKFLOW, launchIcon) {
 			public void actionPerformed(ActionEvent ae) {
+				
+				// Create provenance connector and facade, similar as in RunWorkflowAction
+				
+				// TODO check if the database has been created and create if needed
+				// if provenance turned on then add an IntermediateProvLayer to each
+				// Processor
+				ProvenanceConnector provenanceConnector = null;
+				
+				// FIXME: All these run-stuff should be done in a general way so it
+				// could also be used when running workflows non-interactively
+				if (DataManagementConfiguration.getInstance().isProvenanceEnabled()) {
+					String connectorType = DataManagementConfiguration
+							.getInstance().getConnectorType();
+
+					for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry
+							.getInstance().getInstances()) {
+						if (connectorType.equalsIgnoreCase(factory
+								.getConnectorType())) {
+							provenanceConnector = factory.getProvenanceConnector();
+						}
+					}
+
+					// slight change, the init is outside but it also means that the
+					// init call has to ensure that the dbURL is set correctly
+					try {
+						if (provenanceConnector != null) {
+							provenanceConnector.init();
+							provenanceConnector
+									.setReferenceService(referenceService);
+						}
+					} catch (Exception except) {
+
+					}				
+				}
+				invocationContext = new InvocationContextImpl(
+						referenceService, provenanceConnector);
+				if (provenanceConnector != null) {
+					provenanceConnector.setInvocationContext(invocationContext);
+				}
+				// Workflow run id will be set on the invocation context from the facade
+				try {
+					facade = new EditsImpl().createWorkflowInstanceFacade(
+							dataflow, invocationContext, "");
+				} catch (InvalidDataflowException ex) {
+					InvalidDataflowReport.invalidDataflow(ex.getDataflowValidationReport());
+					return;
+				}	
+				
 				registerInputs(facade.getDataflow());
 				handleLaunch(inputMap);
 			}
 		};
 
-
 		new JTabbedPane();
 
-		String wfDescription = annotationTools.getAnnotationString(facade
-				.getDataflow(), FreeTextDescription.class, "");
+		String wfDescription = annotationTools.getAnnotationString(dataflow, FreeTextDescription.class, "");
 		setWorkflowDescription(wfDescription);
 
-		String wfAuthor = annotationTools.getAnnotationString(facade
-				.getDataflow(), Author.class, "");
+		String wfAuthor = annotationTools.getAnnotationString(dataflow, Author.class, "");
 		setWorkflowAuthor(wfAuthor);
-
 
 		// Construct tool bar
 		JToolBar toolBar = new JToolBar();
@@ -245,7 +295,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	public void addInput(final String inputName, final int inputDepth,
 			String inputDescription, String inputExample) {
 		// Don't do anything if we already have this tab
-		Dataflow dataflow = dataflowCopyMap.get(facade.getDataflow());
+		Dataflow dataflow = dataflowCopyMap.get(this.dataflow);
 		//workflow input panel has to be there or else something has gone wrong
 		if (workflowInputPanelMap.containsKey(dataflow)) {
 			Map<String, RegistrationPanel> map = workflowInputPanelMap
@@ -292,7 +342,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 			Object userInput = registrationPanel.getUserInput();
 			int inputDepth = registrationPanel.getDepth();
 			T2Reference reference = referenceService.register(userInput,
-					inputDepth, true, referenceContext);
+					inputDepth, true, invocationContext);
 			inputMap.put(input, reference);
 		}
 		Dataflow dataflowOrig = dataflowCopyMap.get(dataflow);
@@ -329,23 +379,6 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		}
 	}
 
-
-//	public void setWorkflowImageComponent(Component workflowImageComponent) {
-//		synchronized (workflowImageComponentHolder) {
-//			workflowImageComponentHolder.removeAll();
-//			workflowImageComponentHolder.add(workflowImageComponent);
-//			workflowImageComponentHolder.invalidate();
-//		}
-//	}
-//
-//	public Component getWorkflowImageComponent() {
-//		try {
-//			return workflowImageComponentHolder.getComponent(0);
-//		} catch (IndexOutOfBoundsException ex) {
-//			return null;
-//		}
-//	}
-
 	public String getWorkflowDescription() {
 		return workflowDescriptionArea.getText();
 	}
@@ -354,6 +387,10 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	protected void finalize() throws Throwable {
 		createWorkflowGraphic.stopProcessing();
 		super.finalize();
+	}
+
+	public WorkflowInstanceFacade getFacade() {
+		return facade;
 	}
 	
 }

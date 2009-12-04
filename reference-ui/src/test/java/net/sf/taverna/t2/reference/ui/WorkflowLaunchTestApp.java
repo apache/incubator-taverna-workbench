@@ -28,16 +28,16 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
-import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
-import net.sf.taverna.t2.invocation.InvocationContext;
-import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
+//import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
+//import net.sf.taverna.t2.invocation.InvocationContext;
+//import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.reference.ReferenceContext;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.InvalidDataflowException;
-import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
+//import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 
 import org.springframework.context.ApplicationContext;
 
@@ -79,12 +79,12 @@ public class WorkflowLaunchTestApp {
 		
 		Dataflow dataflow = editManager.getEdits().createDataflow();
 		
-		InvocationContext context = new InvocationContextImpl(referenceService, null);
+		/*InvocationContext context = new InvocationContextImpl(referenceService, null);
 
 		WorkflowInstanceFacade facade = new EditsImpl().createWorkflowInstanceFacade(
 				dataflow, context, "");
-		
-		wlp = new WorkflowLaunchPanel(facade, referenceContext) {
+		*/
+		wlp = new WorkflowLaunchPanel(dataflow, referenceService) {
 			@Override
 			public void handleLaunch(Map<String, T2Reference> workflowInputs) {
 				System.out.println("Launch...");
