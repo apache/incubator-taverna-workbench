@@ -94,6 +94,8 @@ public class SVGGraphController extends GraphController {
 			"and specify its location\n" +
 			"in the workbench preferences";
 	
+	private boolean dotMissing = false;
+	
 	public SVGGraphController(Dataflow dataflow, boolean interactive, JSVGCanvas svgCanvas) {
 		super(dataflow, interactive, svgCanvas);
 		this.svgCanvas = svgCanvas;
@@ -183,13 +185,22 @@ public class SVGGraphController extends GraphController {
 			}
 		} catch (IOException e) {
 			outputMessage(dotErrorMessage);
-			logger.warn("Couldn't generate dot", e);
+			setDotMissing(true);
+			logger.warn("Couldn't generate dot");
 		} catch (ParseException e) {
 			logger.warn("Couldn't layout graph", e);
 		}
 		return actualBounds;
 	}
 	
+	private void setDotMissing(boolean b) {
+		this.dotMissing = b;
+	}
+
+	public boolean isDotMissing() {
+		return dotMissing;
+	}
+
 	public void setBounds(final Rectangle bounds) {
 		oldBounds = this.bounds;
 		this.bounds = bounds;
