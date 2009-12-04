@@ -22,10 +22,12 @@
 package net.sf.taverna.t2.workbench.views.monitor;
 
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
@@ -171,13 +173,25 @@ public class ProvenanceResultsPanel extends JPanel implements
 		Set<Entry<String, Map<String, T2Reference>>> entrySet = portMap
 				.entrySet();
 
+		Set<String> inputPortNames = new TreeSet<String>();
+		Set<String> outputPortNames = new TreeSet<String>();
 		for (Entry<String, Map<String, T2Reference>> entry : entrySet) {
 
 			Map<String, T2Reference> value = entry.getValue();
 			String key = entry.getKey();
-			createPortTab(key, value);
+			if (inputOutputMap.get(key)) {
+				inputPortNames.add(key);
+			} else {
+				outputPortNames.add(key);
+			}
 		}
-
+		for (String key : inputPortNames) {
+			createPortTab(key, portMap.get(key));
+		}
+		for (String key : outputPortNames) {
+			createPortTab(key, portMap.get(key));
+		}
+		
 		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
 				tabbedPane, getRenderedResultsComponent());
 		tabbedPane.setMinimumSize(new Dimension(300, 300));
@@ -216,38 +230,38 @@ public class ProvenanceResultsPanel extends JPanel implements
 			map.put(iteration, referenceValue);
 		}
 
-		if (tabbedPane == null) {
+//		if (tabbedPane == null) {
 			initView();
-		} else {
-			Set<Entry<String, Map<String, T2Reference>>> entrySet = portMap
-					.entrySet();
-
-			for (Entry<String, Map<String, T2Reference>> entry : entrySet) {
-
-				PortTab portTab = getPortTabMap().get(entry.getKey());
-				if (portTab == null) {
-					createPortTab(entry.getKey(), entry.getValue());
-				} else {
-					portTab.setPortMap(entry.getValue());
-				}
-
-			}
-			// reset the selection since the results may have changed
-			Set<Entry<String, PortTab>> entrySet2 = portTabMap.entrySet();
-			for (Entry<String, PortTab> entry : entrySet2) {
-				entry.getValue().getResultsTable().clearSelection();
-				entry.getValue().getResultsTable().getSelectionModel()
-						.clearSelection();
-				selectedRowMap.put(entry.getValue(), -1);
-				renderedResultsComponent.clearResult();
-				renderedResultsComponent.revalidate();
-				revalidate();
-				repaint();
-			}
-			// oldTab.getResultsTable().clearSelection();
-			// oldTab.getResultsTable().getSelectionModel().clearSelection();
-
-		}
+//		} else {
+//			Set<Entry<String, Map<String, T2Reference>>> entrySet = portMap
+//					.entrySet();
+//
+//			for (Entry<String, Map<String, T2Reference>> entry : entrySet) {
+//
+//				PortTab portTab = getPortTabMap().get(entry.getKey());
+//				if (portTab == null) {
+//					createPortTab(entry.getKey(), entry.getValue());
+//				} else {
+//					portTab.setPortMap(entry.getValue());
+//				}
+//
+//			}
+//			// reset the selection since the results may have changed
+//			Set<Entry<String, PortTab>> entrySet2 = portTabMap.entrySet();
+//			for (Entry<String, PortTab> entry : entrySet2) {
+//				entry.getValue().getResultsTable().clearSelection();
+//				entry.getValue().getResultsTable().getSelectionModel()
+//						.clearSelection();
+//				selectedRowMap.put(entry.getValue(), -1);
+//				renderedResultsComponent.clearResult();
+//				renderedResultsComponent.revalidate();
+//				revalidate();
+//				repaint();
+//			}
+//			// oldTab.getResultsTable().clearSelection();
+//			// oldTab.getResultsTable().getSelectionModel().clearSelection();
+//
+//		}
 
 	}
 
