@@ -61,7 +61,17 @@
 			<artifactId>appconfig</artifactId>
 			<version>${t2.infrastructure.version}</version>
 		</dependency>
-		<!--
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>data-management-config</artifactId>
+			<version>${t2.ui.impl.version}</version>
+		</dependency>
+		<dependency>
+   <groupId>net.sf.taverna.t2.core</groupId>
+    <artifactId>provenanceconnector</artifactId>
+ 			<version>${t2.core.version}</version>
+ 		</dependency>
+ 		<!--
 			<dependency> <groupId>jmimemagic</groupId>
 			<artifactId>jmimemagic</artifactId> <version>0.1.2</version>
 			</dependency>
