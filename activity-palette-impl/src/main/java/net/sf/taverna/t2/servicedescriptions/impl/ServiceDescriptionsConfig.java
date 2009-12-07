@@ -18,6 +18,7 @@ public class ServiceDescriptionsConfig extends AbstractConfigurable {
 	}
 
 	private static final String SERVICE_PALETTE = "Service providers";
+	private static final String SERVICE_PALETTE_PREFIX = "ServiceProviders";
 	private static final String CATEGORY = "Services";
 	private static final String UUID = "f0d1ef24-9337-412f-b2c3-220a01e2efd0";
 	private static final String REMOVE_PERMANENTLY = "removePermanently";
@@ -33,8 +34,12 @@ public class ServiceDescriptionsConfig extends AbstractConfigurable {
 		return defaults;
 	}
 
-	public String getName() {
+	public String getDisplayName() {
 		return SERVICE_PALETTE;
+	}
+	
+	public String getFilePrefix() {
+		return SERVICE_PALETTE_PREFIX;
 	}
 
 	public String getUUID() {
