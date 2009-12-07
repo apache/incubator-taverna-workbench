@@ -41,6 +41,7 @@ import javax.swing.JSplitPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
 
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Base64;
@@ -216,33 +217,33 @@ public class HistoryBrowserTabContentPanel extends JPanel implements ActionListe
 	// create sidebar
 	JPanel jpSidebar = new JPanel();
 	jpSidebar.setLayout(new BoxLayout(jpSidebar, BoxLayout.Y_AXIS));
-
+	Border border = BorderFactory.createEmptyBorder(5, 3, 10, 3);
 	jclPreviewHistory = new JClickableLabel("Previewed Items", "preview_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
-	jclPreviewHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+	jclPreviewHistory.setBorder(border);
 	jpSidebar.add(jclPreviewHistory);
 
 	jclSearchHistory = new JClickableLabel("Search History", "search_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
-	jclSearchHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+	jclSearchHistory.setBorder(border);
 	jpSidebar.add(jclSearchHistory);
 
 	jclTagSearchHistory = new JClickableLabel("Tag Searches Made", "tag_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
-	jclTagSearchHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+	jclTagSearchHistory.setBorder(border);
 	jpSidebar.add(jclTagSearchHistory);
 
 	jclDownloadedItemsHistory = new JClickableLabel("Downloaded Items", "downloads_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
-	jclDownloadedItemsHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+	jclDownloadedItemsHistory.setBorder(border);
 	jpSidebar.add(jclDownloadedItemsHistory);
 
 	jclOpenedItemsHistory = new JClickableLabel("Opened Items", "opened_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
-	jclOpenedItemsHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+	jclOpenedItemsHistory.setBorder(border);
 	jpSidebar.add(jclOpenedItemsHistory);
 
 	jclUploadedItemsHistory = new JClickableLabel("Updated Items", "uploaded_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
-	jclUploadedItemsHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+	jclUploadedItemsHistory.setBorder(border);
 	jpSidebar.add(jclUploadedItemsHistory);
 
 	jclCommentedOnHistory = new JClickableLabel("Items Commented On", "comments_history", this, WorkbenchIcons.editIcon, SwingConstants.LEFT, "tooltip");
-	jclCommentedOnHistory.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+	jclCommentedOnHistory.setBorder(border);
 	jpSidebar.add(jclCommentedOnHistory);
 
 	JPanel jpSidebarContainer = new JPanel();

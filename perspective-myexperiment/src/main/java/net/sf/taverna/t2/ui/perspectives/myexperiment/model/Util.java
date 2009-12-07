@@ -115,6 +115,7 @@ public class Util {
 	  return (encrypted);
 	} catch (Exception e) {
 	  logger.error("Could not encrypt and store password");
+	  logger.error(e.getCause() + "\n" + e.getMessage());
 	  return (new byte[1]);
 	}
 

@@ -22,6 +22,7 @@ package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -135,6 +136,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
 	initialiseUI();
+	this.setMinimumSize(new Dimension(525, 375));
   }
 
   private JPanel createSelectSource() {
@@ -363,8 +365,6 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 	contentPane.add(bCancel, c);
 
 	this.pack();
-	this.setMinimumSize(this.getPreferredSize());
-	this.setMaximumSize(this.getPreferredSize());
 	this.addComponentListener(this);
 
 	gridYPositionForStatusLabel = c.gridy;
@@ -522,7 +522,7 @@ public class UploadWorkflowDialog extends JDialog implements ActionListener, Car
 				} catch (Exception e) {
 				  lStatusMessage = new JLabel("Error occurred:"
 					  + e.getMessage(), new ImageIcon(MyExperimentPerspective.getLocalResourceURL("failure_icon")), SwingConstants.LEFT);
-				  logger.log(null, e.getCause() + "\n" + e.getMessage());
+				  logger.error(e.getCause() + "\n" + e.getMessage());
 				}
 			  }
 			}

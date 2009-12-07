@@ -409,15 +409,13 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	// acion is to be taken
 	if (e.getKeyCode() == KeyEvent.VK_ENTER) {
 	  if (e.getSource().equals(this.tfLogin)) {
-		// ENTER pressed inside 'login' field - shift focus onto the 'password'
-		// field
+		// ENTER pressed inside 'login' field - shift focus onto the 'password' field
 		this.pfPassword.requestFocusInWindow();
 	  } else if (e.getSource().equals(this.pfPassword)
 		  || e.getSource().equals(this.cbRememberMe)
 		  || e.getSource().equals(this.cbLoginAutomatically)
 		  || e.getSource().equals(this.bLogin)) {
-		// ENTER pressed when focus was on the login button, one of checkboxes
-		// or the password field - do logging in
+		// ENTER pressed when focus was on the login button, one of checkboxes or the password field - do logging in
 		actionPerformed(new ActionEvent(this.bLogin, 0, ""));
 	  }
 	}
