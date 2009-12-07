@@ -226,9 +226,9 @@ public class AddServiceProviderAction extends AbstractAction {
 					getServiceDescriptionRegistry().removeObserver(this);
 					getServiceDescriptionRegistry()
 							.removeServiceDescriptionProvider(provider);
-					JOptionPane.showMessageDialog(null, errorMsg.getMessage(),
-							"Can't add provider " + provider,
-							JOptionPane.ERROR_MESSAGE);
+//					JOptionPane.showMessageDialog(null, errorMsg.getMessage(),
+//							"Can't add provider " + provider,
+//							JOptionPane.ERROR_MESSAGE);
 				}
 			} else if (message instanceof ServiceDescriptionProvidedEvent) {
 				ServiceDescriptionProvidedEvent providedMsg = (ServiceDescriptionProvidedEvent) message;
