@@ -246,7 +246,7 @@ public class RenderedResultComponent extends JPanel {
 		context = result.getContext();
 		Identified identified = context.getReferenceService()
 				.resolveIdentifier(t2Reference, null, context);
-		List<MimeType> mimeTypes = null;
+		List<MimeType> mimeTypes = new ArrayList<MimeType>();
 		if (identified instanceof ReferenceSet) {
 			ReferenceSet referenceSet = (ReferenceSet) identified;
 			List<ExternalReferenceSPI> externalReferences = new ArrayList<ExternalReferenceSPI>(
@@ -260,14 +260,25 @@ public class RenderedResultComponent extends JPanel {
 						}
 					});
 			for (ExternalReferenceSPI externalReference : externalReferences) {
-				mimeTypes = ResultsUtils.getMimeTypes(externalReference, context);
+				mimeTypes.addAll(ResultsUtils.getMimeTypes(externalReference, context));
 				if (!mimeTypes.isEmpty()) {
 					break;
 				}
 			}
-			if (mimeTypes.isEmpty()) {
+			
+			if (mimeTypes.isEmpty()) { // If MIME types is empty - add "plain/text" MIME type
 				mimeTypes.add(new MimeType("text/plain"));
 			}
+			else if (mimeTypes.size() == 1 && mimeTypes.get(0).toString().equals("chemical/x-fasta")){
+				// If MIME type is recognised as "chemical/x-fasta" only then this might be an error  
+				// from MIME magic (i.e. sometimes it recognises stuff that is not "chemical/x-fasta" as 
+				// "chemical/x-fasta" and then Seq Vista renderer is used that causes errors) - make sure 
+				// we also add the renderers for "text/plain" and "text/xml" as it is most probably just
+				// normal xml text and push the "chemical/x-fasta" to the bottom of the list.
+				mimeTypes.add(0, new MimeType("text/plain"));
+				mimeTypes.add(1, new MimeType("text/xml"));
+			}
+
 			for (MimeType mimeType:mimeTypes) {
 				List<Renderer> renderersList = rendererRegistry.getRenderersForMimeType(
 						context, t2Reference, mimeType.toString());
