@@ -154,8 +154,12 @@ public class DataManagementConfiguration extends AbstractConfigurable {
     	return getProperty(HIBERNATE_DIALECT);
     }
     
-    public String getName() {
-        return "Data & provenance";
+    public String getDisplayName() {
+        return "Data and provenance";
+    }
+
+    public String getFilePrefix() {
+        return "DataAndProvenance";
     }
 
     public String getUUID() {
