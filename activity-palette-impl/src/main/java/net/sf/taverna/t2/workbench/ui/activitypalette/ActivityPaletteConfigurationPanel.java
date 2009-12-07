@@ -211,7 +211,7 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 				try {
 					ConfigurationManager.getInstance().store(config);
 				} catch (Exception e1) {
-					logger.error("There was an error storing the configuration:"+config.getName()+"(UUID="+config.getUUID()+")",e1);
+					logger.error("There was an error storing the configuration:"+config.getFilePrefix()+"(UUID="+config.getUUID()+")",e1);
 				}
 			}
 			

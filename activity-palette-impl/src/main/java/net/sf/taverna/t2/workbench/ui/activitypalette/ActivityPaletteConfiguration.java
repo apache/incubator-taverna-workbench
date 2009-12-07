@@ -68,8 +68,12 @@ public class ActivityPaletteConfiguration extends AbstractConfigurable {
 		return defaultPropertyMap;
 	}
 
-	public String getName() {
+	public String getDisplayName() {
 		return "Activity Palette";
+	}
+
+	public String getFilePrefix() {
+		return "ActivityPalette";
 	}
 
 	public String getUUID() {
