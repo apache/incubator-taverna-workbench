@@ -177,6 +177,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		removeWorkflowRunsButton.setToolTipText("Remove workflow run(s)");
 		removeWorkflowRunsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+					
 				// Warn user that removing workflow run will 
 				// cause all provenance data for that run to be deleted
 				int option = JOptionPane
@@ -189,6 +190,23 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 				if (option == JOptionPane.CANCEL_OPTION){
 					return;
 				}
+				
+				int[] selectedRunsToDelete = runList.getSelectedIndices();
+				for (int i=0; i < selectedRunsToDelete.length; i++){
+					if (((DataflowRun)runListModel.get(i)).getDataflow().isRunning()){
+						option = JOptionPane
+								.showConfirmDialog(
+										null,
+										new JLabel(
+												"<html><body>Some of the workflow runs you are trying to delete appear not to have finished.<br>Are you sure you want to continue and delete them as well (this is not recommended)?</body></html>"),
+										"Confirm unfinished workflow run deletion",
+										JOptionPane.WARNING_MESSAGE);
+						if (option == JOptionPane.CANCEL_OPTION){
+							return;
+						}
+					}
+				}
+
 				int[] selected = runList.getSelectedIndices();
 				for (int i = selected.length - 1; i >= 0; i--) {
 					final DataflowRun dataflowRunToBeDeleted = (DataflowRun) runListModel
