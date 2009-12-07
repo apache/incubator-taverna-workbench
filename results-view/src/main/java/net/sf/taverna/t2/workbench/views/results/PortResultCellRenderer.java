@@ -29,13 +29,20 @@ public class PortResultCellRenderer extends DefaultTreeCellRenderer {
 			String text = "";
 			ResultTreeNode parent = (ResultTreeNode) value2.getParent();
 			if (value2.getState().equals(ResultTreeNodeState.RESULT_LIST)) {
+				if (value2.getChildCount() == 0) {
+					text = "Empty list";
+				} else {
 				text = "List";
 				if (!parent.getState().equals(ResultTreeNodeState.RESULT_TOP)) {
 					text += "" + (parent.getIndex(value2) + 1);
 				}
-				text += " with " + value2.getLeafCount() + " values";
-				if (value2.getLeafCount() != value2.getChildCount()) {
-					text += " in " + value2.getChildCount() + " sublists";
+				text += " with " + value2.getValueCount() + " value";
+				if (value2.getValueCount() != 1) {
+					text += "s";
+				}
+				if (value2.getSublistCount() > 0) {
+					text += " in " + value2.getSublistCount() + " sublists";
+				}
 				}
 			} else if (value2.getState().equals(ResultTreeNodeState.RESULT_REFERENCE)) {
 				text = "Result " + (parent.getIndex(value2) + 1);

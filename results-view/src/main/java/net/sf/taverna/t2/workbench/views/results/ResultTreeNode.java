@@ -101,5 +101,56 @@ public class ResultTreeNode extends DefaultMutableTreeNode {
 	public boolean isState(ResultTreeNodeState state) {
 		return this.state.equals(state);
 	}
+	
+	public int getValueCount() {
+		int result = 0;
+		if (isState(ResultTreeNodeState.RESULT_REFERENCE)) {
+			result = 1;
+		} else if (isState(ResultTreeNodeState.RESULT_LIST)) {
+			int childCount = this.getChildCount();
+			for (int i = 0; i < childCount; i++) {
+				ResultTreeNode child = (ResultTreeNode) this.getChildAt(i);
+				result += child.getValueCount();
+			}
+		}
+		return result;
+	}
 
+	public int getSublistCount() {
+		int result = 0;
+		if (isState(ResultTreeNodeState.RESULT_LIST)) {
+			int childCount = this.getChildCount();
+			for (int i = 0; i < childCount; i++) {
+				ResultTreeNode child = (ResultTreeNode) this.getChildAt(i);
+				if (child.isState(ResultTreeNodeState.RESULT_LIST)) {
+					result++;
+				}
+			}
+		}
+		return result;
+	}
+
+	public Object getAsObject() {
+		if (isState(ResultTreeNodeState.RESULT_WAITING)) {
+			return (new String("Waiting"));
+		}
+		if (isState(ResultTreeNodeState.RESULT_TOP)) {
+			if (getChildCount() == 0) {
+				return null;
+			}
+			else {
+				return ((ResultTreeNode) getChildAt(0)).getAsObject();
+			}
+		}
+		if (isState(ResultTreeNodeState.RESULT_LIST)) {
+			List result = new ArrayList();
+			for (int i = 0; i < getChildCount(); i++) {
+				ResultTreeNode child = (ResultTreeNode) getChildAt(i);
+				result.add (child.getAsObject());
+			}
+			return result;
+		}
+		Object result = context.getReferenceService().renderIdentifier(reference, Object.class, context);
+		return result;
+	}
 }

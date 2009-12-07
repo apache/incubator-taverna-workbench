@@ -108,6 +108,12 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 
 	private WorkflowInstanceFacade facade;
 	private Dataflow dataflow;
+	
+	private JButton saveButton;
+
+	private String runId;
+
+	private ReferenceService referenceService;
 		
 	// Registry of all existing 'save results' actions, each one can save results
 	// in a different format
@@ -145,7 +151,8 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		this.facade = facade;
 		this.dataflow = facade.getDataflow();
 		
-		saveButtonsPanel.add(new JButton(new SaveAllAction("Save values", this)));
+		saveButton = new JButton(new SaveAllAction("Save values", this));
+		saveButtonsPanel.add(saveButton);
 
 		List<DataflowOutputPort> dataflowOutputPorts = new ArrayList<DataflowOutputPort>(facade
 				.getDataflow().getOutputPorts());
@@ -179,6 +186,10 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 	
 	public void repopulate(Dataflow dataflow, String runId, ReferenceService referenceService) {
 		this.dataflow = dataflow;
+		this.runId = runId;
+		this.referenceService = referenceService;
+		
+		this.dataflow.checkValidity();
 		
 		String connectorType = DataManagementConfiguration.getInstance()
 		.getConnectorType();
@@ -186,7 +197,9 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		clear();
 		
 		InvocationContext dummyContext = new InvocationContextImpl(referenceService, null);
-		saveButtonsPanel.add(new JButton(new SaveAllAction("Save values", this)));
+		context = dummyContext;
+		saveButton = new JButton(new SaveAllAction("Save values", this));
+		saveButtonsPanel.add(saveButton);
 
 		List<DataflowOutputPort> dataflowOutputPorts = new ArrayList<DataflowOutputPort>(dataflow.getOutputPorts());
 		
@@ -211,25 +224,28 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				T2Reference referenceValue = referenceService
 						.referenceFromString(value);
 				String iteration = record.getIteration();
-				iteration = iteration.replaceAll("\\[\\]", ",");
-				iteration = iteration.replaceAll("\\[", "");
-				iteration = iteration.replaceAll("\\]", "");
-				String[] parts = iteration.split(",");
-				model.depth = parts.length;
-				int[] elementIndex = new int[parts.length];
-				for (int i = 0; i < parts.length; i++) {
-					elementIndex[i] = Integer.parseInt(parts[i]);
-				}
+				int[] elementIndex = getElementIndex(iteration);
 				WorkflowDataToken token = new WorkflowDataToken("", elementIndex, referenceValue,
 						dummyContext);
 				model.resultTokenProduced(token, portName);
 			}
-			
 			tabbedPane.add(portName, resultTab);
 		}
 		revalidate();
 	}
 
+	private int[] getElementIndex(String iteration) {
+		iteration = iteration.replaceAll("\\[\\]", ",");
+		iteration = iteration.replaceAll("\\[", "");
+		iteration = iteration.replaceAll("\\]", "");
+		String[] parts = iteration.split(",");
+		int[] elementIndex = new int[parts.length];
+		for (int i = 0; i < parts.length; i++) {
+			elementIndex[i] = Integer.parseInt(parts[i]);
+		}
+		return elementIndex;
+	}
+	
 	public void clear() {
 		saveButtonsPanel.removeAll();
 		tabbedPane.removeAll();
@@ -286,7 +302,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			
 			final JDialog dialog = new JDialog((Frame) null, true);
 			dialog.setResizable(false);
-			dialog.setLocationRelativeTo(null);
+			dialog.setLocationRelativeTo(saveButton);
 			dialog.setTitle("Workflow run data saver");
 			JPanel panel = new JPanel(new BorderLayout());
 			DialogTextArea explanation = new DialogTextArea();
@@ -332,13 +348,14 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				}
 				
 			};
-			if (!dataflow.getInputPorts().isEmpty()) {
+			if ((facade != null) && !dataflow.getInputPorts().isEmpty()) {
 				JPanel inputsPanel = new JPanel();
 				inputsPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
 
 				inputsPanel.setLayout(new GridLayout(0, 1));
 				inputsPanel.add(new JLabel("Workflow inputs:"));
-				WeakHashMap<String, T2Reference> pushedDataMap = facade.getPushedDataMap();
+				WeakHashMap<String, T2Reference> pushedDataMap =  facade.getPushedDataMap();
+
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (DataflowInputPort port : dataflow.getInputPorts()) {
 					String portName = port.getName();
@@ -354,7 +371,19 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 					inputsPanel.add(sortedBoxes.get(portName));
 				}
 				panel.add(inputsPanel, BorderLayout.WEST);
-			}			
+			}
+			WeakHashMap<String, Object> objectMap = new WeakHashMap<String, Object>();
+			if (facade == null) {
+				for (DataflowOutputPort outputPort : dataflow.getOutputPorts()) {
+					PortResultsViewTab tab = (PortResultsViewTab) tabbedPane.getComponent(tabbedPane.indexOfTab(outputPort.getName()));
+					ResultTreeNode root = (ResultTreeNode) tab.resultModel.getRoot();
+					Object o = root.getAsObject();
+					if (o != null) {
+						resultReferencesMap.put(outputPort.getName(), null);
+						objectMap.put(outputPort.getName(), o);
+					}
+				}
+			}
 			if (!resultReferencesMap.isEmpty()) {
 				JPanel outputsPanel = new JPanel();
 				outputsPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
@@ -394,6 +423,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				actionSet.add(action);
 				JButton saveButton = new JButton((AbstractAction) action);
 				action.setChosenReferences(chosenReferences);
+				action.setObjectMap(objectMap);
 				action.setInvocationContext(context);
 				action.setParent(dialog);
 				saveButton.setEnabled(true);

@@ -57,7 +57,7 @@ public class PortResultsViewTab extends JPanel{
 	private Port dataflowOutputPort;
 	
 	// Tree model of results
-	private ResultTreeModel resultModel;
+	ResultTreeModel resultModel;
 	
 	// Rendered result component
 	private RenderedResultComponent renderedResultComponent;
