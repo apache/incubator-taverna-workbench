@@ -26,6 +26,8 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
+import org.apache.log4j.Logger;
+
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 
@@ -41,7 +43,9 @@ public class TextXMLRenderer implements Renderer {
 
 	private float MEGABYTE = 1024 * 1024;
 
-	private int meg = 1048576;
+	//private int meg = 1048576;
+
+	private Logger logger = Logger.getLogger(TextXMLRenderer.class);
 
 	public TextXMLRenderer() {
 		pattern = Pattern.compile(".*text/xml.*");
@@ -96,9 +100,9 @@ public class TextXMLRenderer implements Renderer {
 		try {
 			return new XMLTree(resolve);
 		} catch (Exception ex) {
-			// throw something?
+			logger.error("Could not create the xml tree for result." + ex);
+			return new JTextArea("Could not create the xml tree for result.\n\n" + ex.getCause());
 		}
-		return null;
 	}
 
 	/**
