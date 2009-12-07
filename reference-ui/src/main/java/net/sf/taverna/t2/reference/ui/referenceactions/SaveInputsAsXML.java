@@ -24,10 +24,8 @@ import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -37,11 +35,6 @@ import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
-import net.sf.taverna.t2.reference.ErrorDocument;
-import net.sf.taverna.t2.reference.IdentifiedList;
-import net.sf.taverna.t2.reference.ReferenceServiceException;
-import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.reference.T2ReferenceType;
 import net.sf.taverna.t2.reference.ui.RegistrationPanel;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import org.apache.log4j.Logger;
