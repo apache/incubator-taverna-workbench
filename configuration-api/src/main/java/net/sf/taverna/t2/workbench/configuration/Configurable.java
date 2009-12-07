@@ -41,10 +41,17 @@ public interface Configurable {
 	 * @return a globally unique identifier that ensures that when stored this items configuration details will never clash with another
 	 */
 	String getUUID();
+	
 	/**
 	 * @return a friendly name for the item
 	 */
-	String getName();
+	String getDisplayName();
+	
+	/**
+	 * return a file-system suitable prefix
+	 */
+	String getFilePrefix();
+	
 	/**
 	 * @return a String defining the category of configurations that this item belongs to.
 	 */

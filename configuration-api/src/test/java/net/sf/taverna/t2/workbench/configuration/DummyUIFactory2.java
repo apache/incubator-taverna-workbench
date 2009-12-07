@@ -57,11 +57,6 @@ public class DummyUIFactory2 implements ConfigurationUIFactory {
 			return null;
 		}
 
-		public String getName() {
-			// TODO Auto-generated method stub
-			return null;
-		}
-
 		public String getProperty(String key) {
 			// TODO Auto-generated method stub
 			return null;
@@ -107,6 +102,16 @@ public class DummyUIFactory2 implements ConfigurationUIFactory {
 		}
 
 		public Set<String> getKeys() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public String getDisplayName() {
+			// TODO Auto-generated method stub
+			return null;
+		}
+
+		public String getFilePrefix() {
 			// TODO Auto-generated method stub
 			return null;
 		}

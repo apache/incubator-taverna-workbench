@@ -53,12 +53,16 @@ class DummyConfigurable extends AbstractConfigurable {
 		return defaults;
 	}
 
-	public String getName() {
-		return "dummy";
-	}
-
 	public String getUUID() {
 		return "cheese";
+	}
+
+	public String getDisplayName() {
+		return "dummyName";
+	}
+
+	public String getFilePrefix() {
+		return "dummyPrefix";
 	}
 	
 }

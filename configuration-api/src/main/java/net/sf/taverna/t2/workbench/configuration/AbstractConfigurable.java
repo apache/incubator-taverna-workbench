@@ -63,7 +63,7 @@ public abstract class AbstractConfigurable implements Configurable {
 		try {
 			ConfigurationManager.getInstance().populate(this);
 		} catch (Exception e) {
-			logger.error("There was an error reading the properties for the Configurable:"+getName(),e);
+			logger.error("There was an error reading the properties for the Configurable:"+getFilePrefix(),e);
 		}
 	}
 
@@ -85,7 +85,7 @@ public abstract class AbstractConfigurable implements Configurable {
 		try {
 			ConfigurationManager.getInstance().store(this);
 		} catch (Exception e) {
-			logger.error("There was an error storing the new configuration for: "+this.getName(),e);
+			logger.error("There was an error storing the new configuration for: "+this.getFilePrefix(),e);
 		}
 	}
 

@@ -76,7 +76,7 @@ public class ConfigurationManager {
 		    	}
 		    }
 			File configFile = new File(baseConfigLocation,generateFilename(configurable));
-			logger.info("Storing configuration for "+configurable.getName()+" to "+configFile.getAbsolutePath());
+			logger.info("Storing configuration for "+configurable.getFilePrefix()+" to "+configFile.getAbsolutePath());
 			props.store(new FileOutputStream(configFile), "");
 		} catch (Exception e) {
 			throw new Exception("Configuration storage failed: " + e);
@@ -106,19 +106,19 @@ public class ConfigurationManager {
 				}
 			}
 			else {
-				logger.info("Config file for "+configurable.getName()+" not yet created. Creating with default values.");
+				logger.info("Config file for "+configurable.getFilePrefix()+" not yet created. Creating with default values.");
 				configurable.restoreDefaults();
 				store(configurable);
 			}
 			
 		} catch (Exception e) {
-			logger.error("There was a error reading the configuration file for "+configurable.getName()+", using defaults",e);
+			logger.error("There was a error reading the configuration file for "+configurable.getFilePrefix()+", using defaults",e);
 			configurable.restoreDefaults();
 		}
 	}
 
 	protected String generateFilename(Configurable configurable) {
-		return configurable.getName()+"-"+configurable.getUUID() + ".config";
+		return configurable.getFilePrefix()+"-"+configurable.getUUID() + ".config";
 	}
 
 	/**

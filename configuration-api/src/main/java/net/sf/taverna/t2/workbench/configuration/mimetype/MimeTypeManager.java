@@ -58,12 +58,16 @@ public class MimeTypeManager extends AbstractConfigurable {
 		return map;
 	}
 
-	public String getName() {
+	public String getUUID() {
+		return "b9277fa0-5967-11dd-ae16-0800200c9a66";
+	}
+
+	public String getDisplayName() {
 		return "Mime Type Manager";
 	}
 
-	public String getUUID() {
-		return "b9277fa0-5967-11dd-ae16-0800200c9a66";
+	public String getFilePrefix() {
+		return "MimeTypeManager";
 	}
 
 }

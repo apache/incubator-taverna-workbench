@@ -48,7 +48,7 @@ public class AbstractConfigurableTest {
 	
 	@Test
 	public void testName() {
-		assertEquals("Wrong name","dummy",DummyConfigurable.getInstance().getName());
+		assertEquals("Wrong name","dummyName",DummyConfigurable.getInstance().getDisplayName());
 	}
 	
 	@Test
