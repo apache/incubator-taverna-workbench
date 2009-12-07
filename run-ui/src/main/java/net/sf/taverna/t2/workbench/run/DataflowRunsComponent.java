@@ -308,7 +308,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 
 		List<WorkflowInstance> allWorkflowRunIDs = provenanceAccess.listRuns(null, null);
 		//List<WorkflowInstance> allWorkflowRunIDs = provenanceAccess.getAllWorkflowIDs();
-		Collections.reverse(allWorkflowRunIDs);
+		//Collections.reverse(allWorkflowRunIDs);
 		
 		for (WorkflowInstance workflowInstance : allWorkflowRunIDs) {
 			if (provenanceAccess.isTopLevelDataflow(workflowInstance.getWorkflowIdentifier())){
