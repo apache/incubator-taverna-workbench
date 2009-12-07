@@ -113,9 +113,7 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
     		Map<String, Object> resultMap = new HashMap<String, Object>();
     		for (Iterator<String> i = chosenReferences.keySet().iterator(); i.hasNext();) {
     			String portName = (String) i.next();
-    			T2Reference reference = chosenReferences.get(portName);
-    			Object obj = convertReferencesToObjects(reference);
-    			resultMap.put(portName, obj);
+    			resultMap.put(portName, getObjectForName(portName));
     		}
     		Map<String, DataThing> map = bakeDataThingMap(resultMap);
 

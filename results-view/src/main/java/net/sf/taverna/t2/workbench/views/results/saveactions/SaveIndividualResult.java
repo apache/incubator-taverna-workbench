@@ -100,28 +100,6 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 				}
 			});
 			
-			// Get the MIME type so that we know which file extension to use when saving the result
-			List<MimeType> mimeTypes = new ArrayList<MimeType>();
-			List<String> extensionTypes = new ArrayList<String>();
-			for (ExternalReferenceSPI externalReference : externalReferences) {
-				List<MimeType> mimeTypesList = ResultsUtils.getMimeTypes(externalReference, context);
-				for (MimeType mime:mimeTypesList) {
-					if (!mimeTypes.contains(mime)) {
-						mimeTypes.add(mime);
-					}
-				}
-			}
-			if (mimeTypes.isEmpty()) {
-				mimeTypes.add(new MimeType("text/plain"));
-			}
-			
-			for (MimeType mime:mimeTypes) {
-				String extension = ResultsUtils.getExtension(mime.toString());
-				if (!extensionTypes.contains(extension)) {
-					extensionTypes.add(extension);
-				}
-			}
-			
 			final Object data;
 			try{
 				data = context.getReferenceService().renderIdentifier(resultReference, Object.class, context);
@@ -139,16 +117,6 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 			Preferences prefs = Preferences.userNodeForPackage(getClass());
 			String curDir = prefs.get("currentDir", System.getProperty("user.home"));
 			fc.resetChoosableFileFilters();
-			FileFilter ff = null;
-
-			// Set the file filter if we know the extension
-//			if (!fileExtension.equals("")){
-			String[] extensionTypeArray = new String[extensionTypes.size()];
-			extensionTypes.toArray(extensionTypeArray);
-				ff = new ExtensionFileFilter(extensionTypeArray);
-//				fc.addChoosableFileFilter(ff);
-				fc.setFileFilter(ff);
-//			}
 			fc.setCurrentDirectory(new File(curDir));
 			
 			boolean tryAgain = true;
@@ -161,13 +129,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 					File file = fc.getSelectedFile();
 					// If we know the extension and the user did not use it - append it to the file name
 					if (!file.exists()) {
-						if ((ff != null) && fc.getFileFilter().equals(ff) && !file.getName().contains(".")) {
-							//has to be .txt in the file extension
-							String newFileName = file.getName() + "." + extensionTypeArray[0];
-							file = new File(file.getParentFile(), newFileName);
-						} else {
 							file = new File(file.getParentFile(), file.getName());
-						}
 					}
 					final File finalFile = file;
 

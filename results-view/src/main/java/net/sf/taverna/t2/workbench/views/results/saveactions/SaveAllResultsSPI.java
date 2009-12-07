@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
@@ -60,6 +61,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	protected InvocationContext context = null;
 	protected Map<String, T2Reference> chosenReferences;
 	protected JDialog dialog;
+	private WeakHashMap<String, Object> objectMap;
 
 	/**
 	 * Returns the save result action implementing this interface. The returned
@@ -221,6 +223,19 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 				return list;
 			}	
 	}
+	
+	protected Object getObjectForName(String name) throws Exception {
+		Object result = null;
+		if (objectMap.containsKey(name)) {
+			result = objectMap.get(name);
+		}
+		if (result == null) {
+			T2Reference reference = chosenReferences.get(name);
+			result = convertReferencesToObjects(reference);
+		}
+		return result;
+		
+	}
 
 	/**
 	 * Returns a map of port names to DataThings from a map of port names to a 
@@ -234,6 +249,10 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 			dataThingMap.put(portName, DataThingFactory.bake(resultMap.get(portName)));
 		}
 		return dataThingMap;
+	}
+
+	public void setObjectMap(WeakHashMap<String, Object> objectMap) {
+		this.objectMap = objectMap;
 	}
 
 }
