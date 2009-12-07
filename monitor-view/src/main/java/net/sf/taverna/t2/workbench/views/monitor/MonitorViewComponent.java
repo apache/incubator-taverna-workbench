@@ -94,6 +94,8 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 
 	private GraphMonitor graphMonitor;
 
+	private Dataflow dataflow;
+
 	public MonitorViewComponent() {
 		super(new BorderLayout());
 		setBorder(LineBorder.createGrayLineBorder());
@@ -170,10 +172,16 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 			case RUNNING :
 				statusLabel.setText("Workflow running");
 				statusLabel.setIcon(WorkbenchIcons.workingIcon);
+				if (dataflow != null){ // should not be null really, dataflow should be set before this method is called
+					dataflow.setIsRunning(true);
+				}
 			    break;
 			case COMPLETE :
 				statusLabel.setText("Workflow complete");
 				statusLabel.setIcon(WorkbenchIcons.greentickIcon);
+				if (dataflow != null){// should not be null really, dataflow should be set before this method is called
+					dataflow.setIsRunning(false);
+				}
 			    break;		
 		}
 	}
@@ -186,6 +194,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	}
 
 	public Observer<MonitorMessage> setDataflow(Dataflow dataflow) {
+		this.dataflow = dataflow;
 		SVGGraphController svgGraphController = new SVGGraphController(dataflow, true, svgCanvas);
 		svgGraphController.setGraphEventManager(new MonitorGraphEventManager(this, provenanceConnector, dataflow, getSessionId()));
 		setGraphController(svgGraphController);

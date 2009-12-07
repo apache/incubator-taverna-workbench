@@ -25,7 +25,6 @@ import java.awt.BorderLayout;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -39,7 +38,7 @@ import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 /**
  * Use to display the graph for previous workflow runs and allow the user to
@@ -52,14 +51,16 @@ public class PreviousRunsComponent extends MonitorViewComponent {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger
-			.getLogger(PreviousRunsComponent.class);
+	//private static Logger logger = Logger
+		//	.getLogger(PreviousRunsComponent.class);
 
 	private JLabel statusLabel;
 
 	private GVTTreeRendererAdapter gvtTreeBuilderAdapter;
 
 	private JSVGCanvas svgCanvas;
+	
+	Dataflow dataflow;
 
 	public PreviousRunsComponent() {
 		setLayout(new BorderLayout());
@@ -73,6 +74,7 @@ public class PreviousRunsComponent extends MonitorViewComponent {
 	 */
 	@Override
 	public Observer<MonitorMessage> setDataflow(Dataflow dataflow) {
+		this.dataflow = dataflow;
 		svgCanvas = new JSVGCanvas(null, true, false);
 		svgCanvas.setEnableZoomInteractor(false);
 		svgCanvas.setEnableRotateInteractor(false);
@@ -120,6 +122,7 @@ public class PreviousRunsComponent extends MonitorViewComponent {
 		return null;
 	}
 
+	@SuppressWarnings("serial")
 	private class MySvgScrollPane extends JSVGScrollPane {
 
 		public MySvgScrollPane(JSVGCanvas canvas) {
