@@ -5,12 +5,10 @@ package net.sf.taverna.t2.workbench.views.results;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Label;
 
 import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import net.sf.taverna.t2.reference.T2Reference;
@@ -20,6 +18,7 @@ import net.sf.taverna.t2.workbench.views.results.ResultTreeNode.ResultTreeNodeSt
  * @author alanrw
  *
  */
+@SuppressWarnings("serial")
 public class PortResultCellRenderer extends DefaultTreeCellRenderer {
 	public Component getTreeCellRendererComponent(JTree tree,
 			Object value, boolean selected, boolean expanded,

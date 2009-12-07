@@ -41,6 +41,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
@@ -129,7 +130,7 @@ public class RenderedResultComponent extends JPanel {
 		renderersComboBox.setEnabled(false); // initially disabled
 
 		JPanel resultsTypePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		resultsTypePanel.add(new JLabel("Result Type"));
+		resultsTypePanel.add(new JLabel("Result type"));
 		resultsTypePanel.add(renderersComboBox);
 
 		// 'Save result' buttons panel
@@ -199,6 +200,12 @@ public class RenderedResultComponent extends JPanel {
 						try {
 							component = renderer.getComponent(context
 									.getReferenceService(), t2Reference);
+							if (component instanceof JTextComponent){
+								((JTextComponent)component).setEditable(false);
+							}
+							else if (component instanceof JTree){
+								((JTree)component).setEditable(false);
+							}
 						} catch (RendererException e1) {// maybe this should be
 							// Exception
 							// show the user that something unexpected has
@@ -209,6 +216,7 @@ public class RenderedResultComponent extends JPanel {
 											+ renderer.getClass().getName()
 											+ "\n"
 											+ "Please try with a different renderer if available and consult log for details of problem");
+							((DialogTextArea)component).setEditable(false);
 							logger.warn("Couln not render using "
 									+ renderer.getClass().getName(), e1);
 						}
