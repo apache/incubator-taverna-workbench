@@ -145,13 +145,12 @@ public class HttpProxyConfiguration extends AbstractConfigurable {
 		return defaultPropertyMap;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.sf.taverna.t2.workbench.configuration.Configurable#getName()
-	 */
-	public String getName() {
-		return LauncherHttpProxyConfiguration.getName();
+	public String getDisplayName() {
+		return LauncherHttpProxyConfiguration.getDisplayName();
+	}
+
+	public String getFilePrefix() {
+		return LauncherHttpProxyConfiguration.getFilePrefix();
 	}
 
 	/**
