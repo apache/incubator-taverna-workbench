@@ -50,9 +50,13 @@ public class MyExperimentConfiguration extends AbstractConfigurable {
 	return defaultPropertyMap;
   }
 
-  public String getName() {
+  public String getDisplayName() {
 	return "myExperiment";
   }
+
+  public String getFilePrefix() {
+		return "myExperiment";
+	  }
 
   public String getUUID() {
 	return "d25867g1-6078-22ee-bf27-1911311d0b77";
