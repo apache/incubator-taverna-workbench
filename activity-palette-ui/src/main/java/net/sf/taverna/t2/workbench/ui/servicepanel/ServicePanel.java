@@ -39,6 +39,7 @@ import java.util.TreeSet;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
@@ -50,6 +51,7 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.servicedescriptions.events.AbstractProviderNotification;
 import net.sf.taverna.t2.servicedescriptions.events.PartialServiceDescriptionsNotification;
+import net.sf.taverna.t2.servicedescriptions.events.ProviderErrorNotification;
 import net.sf.taverna.t2.servicedescriptions.events.RemovedProviderEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionProvidedEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
@@ -374,6 +376,10 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				ServiceDescriptionRegistryEvent message) throws Exception {
 			if (message instanceof ServiceDescriptionProvidedEvent) {
 
+			}
+			if (message instanceof ProviderErrorNotification) {
+				ProviderErrorNotification pen = (ProviderErrorNotification) message;
+				JOptionPane.showMessageDialog(ServicePanel.this, pen.getMessage() + "\n" +  pen.getProvider(), "Import service error", JOptionPane.ERROR_MESSAGE);
 			}
 			if (message instanceof AbstractProviderNotification) {
 				AbstractProviderNotification abstractProviderNotification = (AbstractProviderNotification) message;
