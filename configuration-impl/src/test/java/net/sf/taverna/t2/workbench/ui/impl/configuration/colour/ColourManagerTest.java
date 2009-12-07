@@ -68,7 +68,7 @@ public class ColourManagerTest {
 		assertTrue(manager instanceof Configurable);
 
 		assertEquals("wrong category", "colour", manager.getCategory());
-		assertEquals("wrong name", "Colour Management", manager.getName());
+		assertEquals("wrong name", "Colour Management", manager.getDisplayName());
 		assertEquals("wrong UUID", "a2148420-5967-11dd-ae16-0800200c9a66",
 				manager.getUUID());
 		assertNotNull("there is no default property map", manager

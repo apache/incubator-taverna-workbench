@@ -119,7 +119,7 @@ public class T2ConfigurationFrame extends JFrame{
 		
 		ArrayList<ConfigurableItem> arrayList = new ArrayList<ConfigurableItem>();
 		for (ConfigurationUIFactory fac : ConfigurationUIRegistry.getInstance().getConfigurationUIFactories()) {
-			String name=fac.getConfigurable().getName();
+			String name=fac.getConfigurable().getDisplayName();
 			if (name!=null) {
 				logger.info("Adding configurable for name: "+name);
 				arrayList.add(new ConfigurableItem(fac));
@@ -161,7 +161,7 @@ public class T2ConfigurationFrame extends JFrame{
 		
 		@Override
 		public String toString() {
-			return factory.getConfigurable().getName();
+			return factory.getConfigurable().getDisplayName();
 		}
 		
 	}

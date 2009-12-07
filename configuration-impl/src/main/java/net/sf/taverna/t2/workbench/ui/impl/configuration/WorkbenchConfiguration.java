@@ -88,7 +88,11 @@ public class WorkbenchConfiguration extends AbstractConfigurable {
 		return defaultWorkbenchProperties;
 	}
 
-	public String getName() {
+	public String getDisplayName() {
+		return "Workbench";
+	}
+
+	public String getFilePrefix() {
 		return "Workbench";
 	}
 

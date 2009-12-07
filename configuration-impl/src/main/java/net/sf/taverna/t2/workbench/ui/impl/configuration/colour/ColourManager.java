@@ -56,11 +56,12 @@ public class ColourManager extends AbstractConfigurable {
 		return defaultPropertyMap;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.configuration.Configurable#getName()
-	 */
-	public String getName() {
+	public String getDisplayName() {
 		return "Colour Management";
+	}
+
+	public String getFilePrefix() {
+		return "ColourManagement";
 	}
 
 	/**
