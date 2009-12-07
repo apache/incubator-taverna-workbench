@@ -119,6 +119,6 @@ private File configFile;
 	
 	@Test
 	public void testFilename() {
-		assertTrue(configFile.getAbsolutePath().endsWith("dummy-cheese.config"));
+		assertTrue(configFile.getAbsolutePath().endsWith("dummyPrefix-cheese.config"));
 	}
 }
