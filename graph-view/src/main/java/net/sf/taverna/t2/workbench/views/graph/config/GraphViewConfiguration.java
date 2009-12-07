@@ -71,7 +71,11 @@ public class GraphViewConfiguration  extends AbstractConfigurable {
         return defaultPropertyMap;
     }
 
-    public String getName() {
+    public String getDisplayName() {
+        return "Diagram";
+    }
+
+    public String getFilePrefix() {
         return "Diagram";
     }
 
