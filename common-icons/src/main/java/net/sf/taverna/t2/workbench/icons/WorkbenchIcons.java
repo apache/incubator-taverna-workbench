@@ -108,6 +108,7 @@ public class WorkbenchIcons {
 	public static ImageIcon upArrowIcon;
 	public static ImageIcon downArrowIcon;
 	public static ImageIcon tavernaCogs64x64Icon;
+	public static ImageIcon opmIcon;
 
 	static {
 		// Load the image files found in this package into the class.
@@ -233,6 +234,8 @@ public class WorkbenchIcons {
 					.getResource("generic/down-arrow.png"));
 			tavernaCogs64x64Icon = new ImageIcon(c
 					.getResource("generic/taverna_cogs_64x64.png"));
+			opmIcon = new ImageIcon(c
+					.getResource("generic/opmIcon.png"));
 		} catch (Exception ex) {
 			logger.error("Could not create icon", ex);
 		}
