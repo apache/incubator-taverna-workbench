@@ -408,7 +408,7 @@ public class FileManagerImpl extends FileManager {
 			throw new OpenException("Unsupported file type or class "
 					+ fileType + " " + sourceClass);
 		}
-		OpenException lastException = null;
+		Throwable lastException = null;
 		for (DataflowPersistenceHandler handler : handlers) {
 			Collection<FileType> fileTypes;
 			if (unknownFileType) {
@@ -442,8 +442,7 @@ public class FileManagerImpl extends FileManager {
 				}
 			}
 		}
-		throw new OpenException("Could not open workflow " + source + "\n"
-				+ lastException, lastException);
+		throw new OpenException("Could not open workflow " + source + "\n", lastException);
 	}
 	
 	/**
