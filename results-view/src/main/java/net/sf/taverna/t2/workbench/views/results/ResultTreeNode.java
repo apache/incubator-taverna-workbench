@@ -29,7 +29,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
+import net.sf.taverna.t2.reference.ErrorDocument;
+import net.sf.taverna.t2.reference.Identified;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.impl.T2ReferenceImpl;
 
 import org.apache.log4j.Logger;
 
@@ -131,6 +134,14 @@ public class ResultTreeNode extends DefaultMutableTreeNode {
 	}
 
 	public Object getAsObject() {
+		if (reference != null) {
+		Identified identified = context.getReferenceService()
+		.resolveIdentifier(reference, null, context);
+		if (identified instanceof ErrorDocument) {
+			ErrorDocument errorDocument = (ErrorDocument) identified;
+			return errorDocument.getMessage();
+		}
+		}
 		if (isState(ResultTreeNodeState.RESULT_WAITING)) {
 			return (new String("Waiting"));
 		}
