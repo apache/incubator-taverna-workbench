@@ -177,7 +177,7 @@ public class RunWorkflowAction extends AbstractAction {
 				final WorkflowInstanceFacade facade;
 				try {
 					facade = new EditsImpl().createWorkflowInstanceFacade(
-							dataflow, context, "");
+							dataflowCopy, context, "");
 				} catch (InvalidDataflowException ex) {
 					InvalidDataflowReport.invalidDataflow(ex.getDataflowValidationReport());
 					return;
