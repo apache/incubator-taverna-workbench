@@ -52,21 +52,22 @@ import net.sf.taverna.t2.workflowmodel.Port;
 public class PortResultsViewTab extends JPanel{
 	
 	private static final long serialVersionUID = -5531195402446371947L;
-
-	// Output port this panel is displaying results for
-	private Port dataflowOutputPort;
 	
 	// Tree model of results
 	ResultTreeModel resultModel;
 	
 	// Rendered result component
 	private RenderedResultComponent renderedResultComponent;
-	
-	public PortResultsViewTab(Port dataflowOutputPort){
-		super(new BorderLayout());
 
-		this.dataflowOutputPort = dataflowOutputPort;
-		
+	private String portName;
+
+	private int portDepth;
+	
+	public PortResultsViewTab(String portName, int portDepth){
+		super(new BorderLayout());
+		this.portName = portName;
+		this.portDepth = portDepth;
+
 		initComponents();
 	}
 
@@ -78,8 +79,8 @@ public class PortResultsViewTab extends JPanel{
 		JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		
 		// Results tree (containing T2References to all individual results for this port)
-		resultModel =  new ResultTreeModel(dataflowOutputPort.getName(),
-				dataflowOutputPort.getDepth());
+		resultModel =  new ResultTreeModel(portName,
+				portDepth);
 
 		final JTree tree = new JTree(getResultModel());
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
