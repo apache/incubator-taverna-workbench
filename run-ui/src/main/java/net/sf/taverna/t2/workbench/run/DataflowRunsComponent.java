@@ -59,6 +59,7 @@ import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.impl.WriteQueueAspect;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
@@ -153,7 +154,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 
 						DataflowRun dataflowRun = (DataflowRun) selection;
 						topPanel.setBottomComponent(dataflowRun
-								.getMonitorViewComponent());
+								.getOrCreateMonitorViewComponent());
 
 						setBottomComponent(dataflowRun.getResultsComponent());
 						setDividerLocation(location);
@@ -211,7 +212,10 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 				for (int i = selected.length - 1; i >= 0; i--) {
 					final DataflowRun dataflowRunToBeDeleted = (DataflowRun) runListModel
 							.remove(selected[i]);
-					dataflowRunToBeDeleted.getMonitorViewComponent().onDispose();
+					MonitorViewComponent mvc = dataflowRunToBeDeleted.getMonitorViewComponent();
+					if (mvc != null) {
+						mvc.onDispose();
+					}
 					// Add this workflow run to the queue to be deleted
 					synchronized (runsToBeDeletedQueue) {
 						runsToBeDeletedQueue.add(dataflowRunToBeDeleted);

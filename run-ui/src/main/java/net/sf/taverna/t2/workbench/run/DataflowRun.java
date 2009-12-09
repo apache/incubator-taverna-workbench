@@ -239,7 +239,7 @@ public class DataflowRun {
 	 * 
 	 * @return the monitorViewComponent
 	 */
-	public MonitorViewComponent getMonitorViewComponent() {
+	public MonitorViewComponent getOrCreateMonitorViewComponent() {
 		if (monitorViewComponent == null) {
 			monitorViewComponent = new PreviousRunsComponent();
 			monitorViewComponent.setProvenanceConnector(connector);
@@ -253,7 +253,11 @@ public class DataflowRun {
 		}
 		return monitorViewComponent;
 	}
-
+	
+	public MonitorViewComponent getMonitorViewComponent() {
+		return monitorViewComponent;
+	}
+	
 	/**
 	 * Returns the resultsComponent.
 	 * 
