@@ -531,6 +531,11 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			// Get all existing 'Save result' actions
 			List<SaveAllResultsSPI> saveActions = saveAllResultsRegistry.getSaveResultActions();
 			for (SaveAllResultsSPI spi : saveActions){
+				/*if (spi instanceof SaveAllResultsAsOPM){
+				((SaveAllResultsAsOPM)spi).setIsProvenanceEnabledForRun(isProvenanceEnabledForRun);
+				((SaveAllResultsAsOPM)spi).setRunId(runId);
+				((SaveAllResultsAsOPM)spi).setDataflow(dataflow);
+				}*/
 				SaveAllResultsSPI action = (SaveAllResultsSPI) spi.getAction();
 				actionSet.add(action);
 				JButton saveButton = new JButton((AbstractAction) action);
