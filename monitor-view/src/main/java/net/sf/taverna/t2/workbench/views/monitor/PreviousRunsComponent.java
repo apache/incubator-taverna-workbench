@@ -54,13 +54,7 @@ public class PreviousRunsComponent extends MonitorViewComponent {
 	//private static Logger logger = Logger
 		//	.getLogger(PreviousRunsComponent.class);
 
-	private JLabel statusLabel;
-
 	private GVTTreeRendererAdapter gvtTreeBuilderAdapter;
-
-	private JSVGCanvas svgCanvas;
-	
-	Dataflow dataflow;
 
 	public PreviousRunsComponent() {
 		setLayout(new BorderLayout());
