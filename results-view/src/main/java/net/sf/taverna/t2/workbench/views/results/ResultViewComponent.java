@@ -64,18 +64,25 @@ import net.sf.taverna.t2.provenance.lineageservice.Dependencies;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
-import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsOPM;
+// import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsOPM;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPIRegistry;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
+import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializerImpl;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializerImpl;
 
-//import org.apache.log4j.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * This component contains a tabbed pane, where each tab displays results for one of
@@ -88,8 +95,8 @@ import net.sf.taverna.t2.workflowmodel.EditException;
  */
 public class ResultViewComponent extends JPanel implements UIComponentSPI, ResultListener {
 
-	//private static Logger logger = Logger
-	//.getLogger(ResultViewComponent.class);
+	private static Logger logger = Logger
+	.getLogger(ResultViewComponent.class);
 
 	private static final long serialVersionUID = 988812623494396366L;
 	
@@ -128,6 +135,8 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 	// in a different format
 	private static SaveAllResultsSPIRegistry saveAllResultsRegistry = SaveAllResultsSPIRegistry.getInstance();	
 	
+	private HashMap<String, ResultTreeModel> inputPortModelMap = new HashMap<String, ResultTreeModel>();
+	
 	
 	public ResultViewComponent() {
 		super(new BorderLayout());
@@ -165,6 +174,15 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		saveButton = new JButton(new SaveAllAction("Save values", this));
 		saveButtonsPanel.add(saveButton);
 
+		List<DataflowInputPort> dataflowInputPorts = new ArrayList<DataflowInputPort>(facade
+				.getDataflow().getInputPorts());
+		
+		Collections.sort(dataflowInputPorts, new Comparator<DataflowInputPort>() {
+
+			public int compare(DataflowInputPort o1, DataflowInputPort o2) {
+				return o1.getName().compareTo(o2.getName());
+			}});
+		
 		List<DataflowOutputPort> dataflowOutputPorts = new ArrayList<DataflowOutputPort>(facade
 				.getDataflow().getOutputPorts());
 		
@@ -174,6 +192,18 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				return o1.getName().compareTo(o2.getName());
 			}});
 		
+		for (DataflowInputPort dataflowInputPort : dataflowInputPorts) {
+			String portName = dataflowInputPort.getName();
+			
+			// Create a tab containing a tree view of per-port results and a rendering
+			// component for displaying individual results
+			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowInputPort.getName(), dataflowInputPort.getDepth());
+			
+			inputPortModelMap.put(portName, resultTab.getResultModel());
+			
+			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab);
+		}
+
 		for (DataflowOutputPort dataflowOutputPort : dataflowOutputPorts) {
 			String portName = dataflowOutputPort.getName();
 						
@@ -182,7 +212,8 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			
 			// Create a tab containing a tree view of per-port results and a rendering
 			// component for displaying individual results
-			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort);
+			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort.getName(),
+					dataflowOutputPort.getDepth());
 
 			// Per-port tree model listens for results coming out of the data facade
 			facade.addResultListener(resultTab.getResultModel());
@@ -190,7 +221,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			// when receiving of results has finished
 			facade.addResultListener(this);
 			
-			tabbedPane.add(portName, resultTab);
+			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab);
 		}
 		revalidate();
 	}
@@ -211,21 +242,23 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		InvocationContext dummyContext = new InvocationContextImpl(referenceService, null);
 		context = dummyContext;
 		saveButton = new JButton(new SaveAllAction("Save values", this));
+		JButton reloadWorkflowButton = new JButton(new ReloadWorkflowAction("Open workflow", this.dataflow));
 		saveButtonsPanel.add(saveButton);
+		saveButtonsPanel.add(reloadWorkflowButton);
 
-		List<DataflowOutputPort> dataflowOutputPorts = new ArrayList<DataflowOutputPort>(dataflow.getOutputPorts());
+		List<DataflowInputPort> dataflowInputPorts = new ArrayList<DataflowInputPort>(dataflow.getInputPorts());
 		
-		Collections.sort(dataflowOutputPorts, new Comparator<DataflowOutputPort>() {
+		Collections.sort(dataflowInputPorts, new Comparator<DataflowInputPort>() {
 
-			public int compare(DataflowOutputPort o1, DataflowOutputPort o2) {
+			public int compare(DataflowInputPort o1, DataflowInputPort o2) {
 				return o1.getName().compareTo(o2.getName());
 			}});
 		
-		for (DataflowOutputPort dataflowOutputPort : dataflowOutputPorts) {
-			String portName = dataflowOutputPort.getName();
+		for (DataflowInputPort dataflowInputPort : dataflowInputPorts) {
+			String portName = dataflowInputPort.getName();
 			// Create a tab containing a tree view of per-port results and a rendering
 			// component for displaying individual results
-			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort);
+			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowInputPort.getName(), dataflowInputPort.getDepth());
 			ResultTreeModel model = resultTab.getResultModel();
 			
 			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentier(), dataflow.getLocalName(), portName, null);
@@ -241,7 +274,39 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 						dummyContext);
 				model.resultTokenProduced(token, portName);
 			}
-			tabbedPane.add(portName, resultTab);
+			inputPortModelMap.put(portName, resultTab.getResultModel());
+			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab);
+		}
+		
+		List<DataflowOutputPort> dataflowOutputPorts = new ArrayList<DataflowOutputPort>(dataflow.getOutputPorts());
+		
+		Collections.sort(dataflowOutputPorts, new Comparator<DataflowOutputPort>() {
+
+			public int compare(DataflowOutputPort o1, DataflowOutputPort o2) {
+				return o1.getName().compareTo(o2.getName());
+			}});
+		
+		for (DataflowOutputPort dataflowOutputPort : dataflowOutputPorts) {
+			String portName = dataflowOutputPort.getName();
+			// Create a tab containing a tree view of per-port results and a rendering
+			// component for displaying individual results
+			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort.getName(), dataflowOutputPort.getDepth());
+			ResultTreeModel model = resultTab.getResultModel();
+			
+			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentier(), dataflow.getLocalName(), portName, null);
+			List<LineageQueryResultRecord> records = dependencies.getRecords();
+			for (LineageQueryResultRecord record : records) {
+
+				String value = record.getValue();
+				T2Reference referenceValue = referenceService
+						.referenceFromString(value);
+				String iteration = record.getIteration();
+				int[] elementIndex = getElementIndex(iteration);
+				WorkflowDataToken token = new WorkflowDataToken("", elementIndex, referenceValue,
+						dummyContext);
+				model.resultTokenProduced(token, portName);
+			}
+			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab);
 		}
 		revalidate();
 	}
@@ -293,11 +358,8 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 					String name = dataflowInputPort.getName();
 					inputValuesMap.put(name, facade.getPushedDataMap().get(name));
 				}
-			 for (int i=0; i< saveButtonsPanel.getComponents().length; i++){
-					JButton saveButton = (JButton)saveButtonsPanel.getComponent(i);
 					saveButton.setEnabled(true);
 					saveButton.setFocusable(false);
-			}
 		 }
 	}
 	
@@ -329,10 +391,10 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			panel.add(explanation, BorderLayout.NORTH);
 			final Map<String, JCheckBox> inputChecks = new HashMap<String, JCheckBox> ();
 			final Map<String, JCheckBox> outputChecks = new HashMap<String, JCheckBox> ();
-			final Map<JCheckBox, T2Reference> checkReferences =
-				new HashMap<JCheckBox, T2Reference>();
-			final Map<String, T2Reference> chosenReferences =
-				new HashMap<String, T2Reference> ();
+			final Map<JCheckBox, Object> checkReferences =
+				new HashMap<JCheckBox, Object>();
+			final Map<String, Object> chosenReferences =
+				new HashMap<String, Object> ();
 			final Set<SaveAllResultsSPI> actionSet = new HashSet<SaveAllResultsSPI>();
 
 			ItemListener listener = new ItemListener() {
@@ -363,11 +425,11 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				}
 				
 			};
-			
 			JPanel portsPanel = new JPanel();
 			portsPanel.setBorder(new CompoundBorder(new EmptyBorder(new Insets(5,10,5,10)), new EtchedBorder(EtchedBorder.LOWERED)));
 			portsPanel.setLayout(new GridBagLayout());
-			if ((facade != null) && !dataflow.getInputPorts().isEmpty()) {
+			WeakHashMap<String, Object> objectMap = new WeakHashMap<String, Object>();
+			if (!dataflow.getInputPorts().isEmpty()) {
 				GridBagConstraints gbc = new GridBagConstraints();
 				gbc.gridx = 0;
 				gbc.gridy = 0;
@@ -376,44 +438,37 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				gbc.weightx = 1.0;
 				gbc.weighty = 0.0;
 				gbc.insets = new Insets(5,10,5,10);
-				portsPanel.add(new JLabel("Workflow inputs:"), gbc);
-				WeakHashMap<String, T2Reference> pushedDataMap = facade.getPushedDataMap();
+				portsPanel.add(new JLabel("Workflow inputs:"), gbc);				JPanel inputsPanel = new JPanel();
+				WeakHashMap<String, T2Reference> pushedDataMap =  null;
+
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (DataflowInputPort port : dataflow.getInputPorts()) {
 					String portName = port.getName();
+					PortResultsViewTab tab = (PortResultsViewTab) tabbedPane.getComponent(tabbedPane.indexOfTab(portName));
+					ResultTreeNode root = (ResultTreeNode) inputPortModelMap.get(portName).getRoot();
+					Object o = root.getAsObject();
+						objectMap.put(port.getName(), o);
 					JCheckBox checkBox = new JCheckBox(portName);
 					checkBox
 							.setSelected(!resultReferencesMap.containsKey(portName));
-					checkReferences.put(checkBox, pushedDataMap.get(portName));
 					checkBox.addItemListener(listener);
 					inputChecks.put(portName, checkBox);
 					sortedBoxes.put(portName, checkBox);
+					checkReferences.put(checkBox, o);
 				}
 				gbc.insets = new Insets(0,10,0,10);
 				for (String portName : sortedBoxes.keySet()) {
 					gbc.gridy++;
 					portsPanel.add(sortedBoxes.get(portName), gbc);
-				}
 				gbc.gridy++;
 				gbc.fill = GridBagConstraints.BOTH;
 				gbc.weightx = 1.0;
 				gbc.weighty = 1.0;
 				gbc.insets = new Insets(5,10,5,10);
 				portsPanel.add(new JLabel(""), gbc); // empty space
-			}	
-			WeakHashMap<String, Object> objectMap = new WeakHashMap<String, Object>();
-			if (facade == null) {
-				for (DataflowOutputPort outputPort : dataflow.getOutputPorts()) {
-					PortResultsViewTab tab = (PortResultsViewTab) tabbedPane.getComponent(tabbedPane.indexOfTab(outputPort.getName()));
-					ResultTreeNode root = (ResultTreeNode) tab.resultModel.getRoot();
-					Object o = root.getAsObject();
-					if (o != null) {
-						resultReferencesMap.put(outputPort.getName(), null);
-						objectMap.put(outputPort.getName(), o);
-					}
 				}
 			}
-			if (!resultReferencesMap.isEmpty()) {
+			if (!dataflow.getOutputPorts().isEmpty()) {
 				GridBagConstraints gbc = new GridBagConstraints();
 				gbc.gridx = 1;
 				gbc.gridy = 0;
@@ -424,11 +479,17 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				gbc.insets = new Insets(5,10,5,10);
 				portsPanel.add(new JLabel("Workflow outputs:"), gbc);
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
-				for (String portName : resultReferencesMap.keySet()) {
+				for (DataflowOutputPort port : dataflow.getOutputPorts()) {
+					String portName = port.getName();
+						PortResultsViewTab tab = (PortResultsViewTab) tabbedPane.getComponent(tabbedPane.indexOfTab(portName));
+						ResultTreeNode root = (ResultTreeNode) tab.resultModel.getRoot();
+						Object o = root.getAsObject();
+							resultReferencesMap.put(portName, null);
 					JCheckBox checkBox = new JCheckBox(portName);
 					checkBox
-							.setSelected(true);
-					checkReferences.put(checkBox, resultReferencesMap.get(portName));
+								.setSelected(true);
+						
+					checkReferences.put(checkBox, o);
 					checkBox.addItemListener(listener);
 					outputChecks.put(portName, checkBox);
 					sortedBoxes.put(portName, checkBox);
@@ -460,17 +521,10 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			// Get all existing 'Save result' actions
 			List<SaveAllResultsSPI> saveActions = saveAllResultsRegistry.getSaveResultActions();
 			for (SaveAllResultsSPI spi : saveActions){
-				if (spi instanceof SaveAllResultsAsOPM){
-					((SaveAllResultsAsOPM)spi).setIsProvenanceEnabledForRun(isProvenanceEnabledForRun);
-					((SaveAllResultsAsOPM)spi).setRunId(runId);
-					((SaveAllResultsAsOPM)spi).setDataflow(dataflow);
-				}
 				SaveAllResultsSPI action = (SaveAllResultsSPI) spi.getAction();
 				actionSet.add(action);
 				JButton saveButton = new JButton((AbstractAction) action);
 				action.setChosenReferences(chosenReferences);
-				action.setObjectMap(objectMap);
-				action.setInvocationContext(context);
 				action.setParent(dialog);
 				//saveButton.setEnabled(true);
 				buttonsBar.add(saveButton);
@@ -489,6 +543,40 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			dialog.add(panel);
 			dialog.pack();
 			dialog.setVisible(true);
+		}
+		
+	}
+
+	public void pushInputData(WorkflowDataToken token, String portName) {
+		ResultTreeModel model = inputPortModelMap.get(portName);
+		if (model != null) {
+			model.resultTokenProduced(token, portName);
+		}
+	}
+	
+	private class ReloadWorkflowAction extends AbstractAction {
+		private Dataflow dataflow;
+
+		public ReloadWorkflowAction(String name, Dataflow dataflow) {
+			super(name);
+			this.dataflow = dataflow;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			XMLSerializer serialiser = new XMLSerializerImpl();
+			XMLDeserializer deserialiser = new XMLDeserializerImpl();
+			Dataflow dataflowCopy = null;
+			try {
+				dataflowCopy = deserialiser.deserializeDataflow(serialiser
+						.serializeDataflow(dataflow));
+				FileManager.getInstance().openDataflow(dataflowCopy);
+			} catch (SerializationException e1) {
+				logger.error("Unable to copy workflow", e1);
+			} catch (DeserializationException e1) {
+				logger.error("Unable to copy workflow", e1);
+			} catch (EditException e1) {
+				logger.error("Unable to copy workflow", e1);
+			}
 		}
 		
 	}
