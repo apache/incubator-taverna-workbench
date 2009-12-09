@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import java.util.regex.Pattern;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -48,8 +49,12 @@ import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
+import net.sf.taverna.t2.workflowmodel.CompoundEdit;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflowmodel.Edits;
+import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
 
 import org.apache.log4j.Logger;
@@ -208,8 +213,15 @@ public class AnnotatedContextualView extends ContextualView {
 					currentValue = "";
 				}
 				try {
-					Edit<?> edit = annotationTools.setAnnotationString(annotated, annotationClass, currentValue);
-					editManager.doDataflowEdit(fileManager.getCurrentDataflow(), edit);
+					Edits edits = EditsRegistry.getEdits();
+					Dataflow currentDataflow = fileManager.getCurrentDataflow();
+					List<Edit<?>> editList = new ArrayList<Edit<?>>();
+					editList.add(annotationTools.setAnnotationString(annotated, annotationClass, currentValue));
+					if ((annotated == currentDataflow) && (prb.getString(annotationClass.getCanonicalName()).equals("Title"))) {
+						editList.add(edits.getUpdateDataflowNameEdit(currentDataflow,
+								sanitiseName(currentValue)));
+					}
+					editManager.doDataflowEdit(currentDataflow, new CompoundEdit(editList));
 				} catch (EditException e1) {
 					logger.warn("Can't set annotation", e1);
 				}
@@ -217,6 +229,31 @@ public class AnnotatedContextualView extends ContextualView {
 			}
 		}
 
+	}
+
+	/**
+	 * Checks that the name does not have any characters that are invalid for a
+	 * processor name.
+	 * 
+	 * The name must contain only the chars[A-Za-z_0-9].
+	 * 
+	 * @param name
+	 *            the original name
+	 * @return the sanitised name
+	 */
+	private static String sanitiseName(String name) {
+		String result = name;
+		if (Pattern.matches("\\w++", name) == false) {
+			result = "";
+			for (char c : name.toCharArray()) {
+				if (Character.isLetterOrDigit(c) || c == '_') {
+					result += c;
+				} else {
+					result += "_";
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override
