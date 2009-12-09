@@ -22,7 +22,6 @@
 package net.sf.taverna.t2.workbench.views.monitor;
 
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,18 +42,13 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.views.results.RenderedResultComponent;
-
-//import org.apache.log4j.Logger;
-import org.springframework.context.ApplicationContext;
 
 /**
  * Designed to be used in conjunction with the provenance system in Taverna.
@@ -96,6 +90,8 @@ public class ProvenanceResultsPanel extends JPanel implements
 	private RenderedResultComponent renderedResultsComponent = new RenderedResultComponent();
 
 	private JTabbedPane tabbedPane;
+
+	private ReferenceService referenceService;
 
 	public ProvenanceResultsPanel() {
 	}
@@ -196,7 +192,7 @@ public class ProvenanceResultsPanel extends JPanel implements
 				tabbedPane, getRenderedResultsComponent());
 		tabbedPane.setMinimumSize(new Dimension(300, 300));
 		// splitPane.setResizeWeight(1);
-		add(new JLabel("Click on an iteration to view the result"));
+		add(new JLabel("Click on an iteration to view the value"));
 		add(splitPane);
 		getRenderedResultsComponent().setBorder(
 				BorderFactory.createRaisedBevelBorder());
@@ -225,7 +221,7 @@ public class ProvenanceResultsPanel extends JPanel implements
 				map = new HashMap<String, T2Reference>();
 				portMap.put(vname, map);
 			}
-			T2Reference referenceValue = getContext().getReferenceService()
+			T2Reference referenceValue = referenceService
 					.referenceFromString(value);
 			map.put(iteration, referenceValue);
 		}
@@ -266,8 +262,9 @@ public class ProvenanceResultsPanel extends JPanel implements
 	}
 
 	private void createPortTab(String key, Map<String, T2Reference> value) {
+		InvocationContext dummyContext = new InvocationContextImpl(referenceService, null);
 		PortTab portTab = new PortTab(key, value,
-				getRenderedResultsComponent(), getContext());
+				getRenderedResultsComponent(), dummyContext);
 		Boolean input = inputOutputMap.get(key);
 		if (input) {
 			ImageIcon inputPortIcon = WorkbenchIcons.inputIcon;
@@ -286,21 +283,6 @@ public class ProvenanceResultsPanel extends JPanel implements
 
 	public void setContext(InvocationContext context) {
 		this.context = context;
-	}
-
-	public InvocationContext getContext() {
-		if (context == null) {
-			String context = DataManagementConfiguration.getInstance()
-					.getDatabaseContext();
-			ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
-					context);
-			final ReferenceService referenceService = (ReferenceService) appContext
-					.getBean("t2reference.service.referenceService");
-			InvocationContext invContext = new InvocationContextImpl(referenceService, null);
-			this.context = invContext;
-		}
-
-		return context;
 	}
 
 	public void setLineageResultsTableModel(
@@ -331,6 +313,10 @@ public class ProvenanceResultsPanel extends JPanel implements
 
 	public Map<String, PortTab> getPortTabMap() {
 		return portTabMap;
+	}
+
+	public void setReferenceService(ReferenceService referenceService) {
+		this.referenceService = referenceService;
 	}
 
 }
