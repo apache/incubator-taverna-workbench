@@ -250,15 +250,19 @@ public class OpenWorkflowAction extends AbstractAction {
 	 * 
 	 * @param parentComponent
 	 * @param file
-	 * @param ex
+	 * @param throwable
 	 */
 	protected void showErrorMessage(final Component parentComponent,
-			final File file, final Exception ex) {
+			final File file, final Throwable throwable) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
+				Throwable cause = throwable;
+				while (cause.getCause() != null) {
+					cause = cause.getCause();
+				}
 				JOptionPane.showMessageDialog(parentComponent,
-						"Failed to open workflow from " + file + ": \n\n"
-								+ ex.getMessage(), "Warning",
+						"Failed to open workflow from " + file + ": \n"
+								+ cause.getMessage(), "Warning",
 						JOptionPane.WARNING_MESSAGE);
 			}
 		});
