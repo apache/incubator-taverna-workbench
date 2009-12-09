@@ -78,10 +78,6 @@ public class DataflowRun {
 	private ReferenceService referenceService;
 
 	public DataflowRun(Dataflow dataflow, Date date, String sessionID, ReferenceService referenceService) {
-		// get the provenance connector and hope it and the reference service
-		// are the correct ones!! ie. the user has not changed something etc
-		// the reference service is needed to dereference the data so if it is
-		// the 'wrong' one then........
 		this.dataflow = dataflow;
 		this.date = date;
 		this.runId = sessionID;
@@ -118,6 +114,7 @@ public class DataflowRun {
 				.getContext().getProvenanceReporter());
 		monitorViewComponent
 				.setProvenanceConnector(connector);
+		monitorViewComponent.setReferenceService(referenceService);
 		this.runId = facade.getWorkflowRunId();
 		resultsComponent = new ResultViewComponent();
 	}
@@ -167,8 +164,10 @@ public class DataflowRun {
 				T2Reference identifier = entry.getValue();
 				int[] index = new int[] {};
 				try {
-					facade.pushData(new WorkflowDataToken("", index,
-							identifier, facade.getContext()), portName);
+					WorkflowDataToken token = new WorkflowDataToken("", index,
+							identifier, facade.getContext());
+					facade.pushData(token, portName);
+					resultsComponent.pushInputData(token, portName);
 				} catch (TokenOrderException e) {
 					logger.error("Unable to push data", e);
 				}
@@ -244,6 +243,7 @@ public class DataflowRun {
 		if (monitorViewComponent == null) {
 			monitorViewComponent = new PreviousRunsComponent();
 			monitorViewComponent.setProvenanceConnector(connector);
+			monitorViewComponent.setReferenceService(referenceService);
 			monitorObserver = monitorViewComponent.setDataflow(dataflow);
 
 			resultsComponent = new ResultViewComponent();
