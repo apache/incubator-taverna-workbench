@@ -130,7 +130,7 @@ public class RenderedResultComponent extends JPanel {
 		renderersComboBox.setEnabled(false); // initially disabled
 
 		JPanel resultsTypePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		resultsTypePanel.add(new JLabel("Result type"));
+		resultsTypePanel.add(new JLabel("Value type"));
 		resultsTypePanel.add(renderersComboBox);
 
 		// 'Save result' buttons panel
