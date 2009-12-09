@@ -51,7 +51,7 @@ public class RemoveDataflowRunsShutdownDialog extends JDialog{
 
 	private JProgressBar progressBar;
 
-	private JLabel remainingTime;
+	//private JLabel remainingTime;
 
 	private JButton abortButton;
 
@@ -75,8 +75,8 @@ public class RemoveDataflowRunsShutdownDialog extends JDialog{
 
 		progressBar = new JProgressBar();
 		//remainingTime = new JLabel("Time remaining (estimating)");
-		remainingTime = new JLabel("Time remaining");
-		remainingTime.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		//remainingTime = new JLabel("Time remaining");
+		//remainingTime.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		JLabel title = new JLabel("Taverna is waiting to shut down...");
 		title.setFont(title.getFont().deriveFont(Font.BOLD, 14));
 
@@ -132,9 +132,9 @@ public class RemoveDataflowRunsShutdownDialog extends JDialog{
 		gridbag.setConstraints(progressBar, c);
 		add(progressBar);
 
-		c.insets = new Insets(10, 30, 0, 30);
-		gridbag.setConstraints(remainingTime, c);
-		add(remainingTime);
+		//c.insets = new Insets(10, 30, 0, 30);
+		//gridbag.setConstraints(remainingTime, c);
+		//add(remainingTime);
 
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.SOUTHWEST;

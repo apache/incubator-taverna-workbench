@@ -48,7 +48,7 @@ public class ReferenceServiceShutdownDialog extends JDialog {
 
 	private JProgressBar progressBar;
 
-	private JLabel remainingTime;
+	//private JLabel remainingTime;
 
 	private JButton abortButton;
 
@@ -58,7 +58,7 @@ public class ReferenceServiceShutdownDialog extends JDialog {
 
 	private int initialCacheSize;
 
-	private long startTime = System.currentTimeMillis();
+	//private long startTime = System.currentTimeMillis();
 
 	public ReferenceServiceShutdownDialog() {
 		super((Frame) null, "Saving Data", true);
@@ -70,8 +70,8 @@ public class ReferenceServiceShutdownDialog extends JDialog {
 		setLayout(gridbag);
 
 		progressBar = new JProgressBar();
-		remainingTime = new JLabel("Time remaining (estimating)");
-		remainingTime.setFont(new Font("SansSerif", Font.PLAIN, 12));
+		//remainingTime = new JLabel("Time remaining (estimating)");
+		//remainingTime.setFont(new Font("SansSerif", Font.PLAIN, 12));
 		JLabel title = new JLabel("Taverna is waiting to shut down...");
 		title.setFont(title.getFont().deriveFont(Font.BOLD, 14));
 
@@ -127,9 +127,9 @@ public class ReferenceServiceShutdownDialog extends JDialog {
 		gridbag.setConstraints(progressBar, c);
 		add(progressBar);
 
-		c.insets = new Insets(10, 30, 0, 30);
-		gridbag.setConstraints(remainingTime, c);
-		add(remainingTime);
+		//c.insets = new Insets(10, 30, 0, 30);
+		//gridbag.setConstraints(remainingTime, c);
+		//add(remainingTime);
 
 		c.fill = GridBagConstraints.NONE;
 		c.anchor = GridBagConstraints.SOUTHWEST;
@@ -155,16 +155,16 @@ public class ReferenceServiceShutdownDialog extends JDialog {
 
 	public void setInitialCacheSize(int initialCacheSize) {
 		this.initialCacheSize = initialCacheSize;
-		startTime = System.currentTimeMillis();
+		//startTime = System.currentTimeMillis();
 		progressBar.setMaximum(initialCacheSize);
 	}
 
 	public void setCurrentCacheSize(int currentCacheSize) {
-		long elapsedTime = System.currentTimeMillis() - startTime;
+		//long elapsedTime = System.currentTimeMillis() - startTime;
 		int cacheElementsCleared = initialCacheSize - currentCacheSize;
-		long timeLeft = (long) ((elapsedTime / (float) cacheElementsCleared) * currentCacheSize);
+		//long timeLeft = (long) ((elapsedTime / (float) cacheElementsCleared) * currentCacheSize);
 		progressBar.setValue(cacheElementsCleared);
-		remainingTime.setText("Time remaining " + (timeLeft / 1000) + "s");
+		//remainingTime.setText("Time remaining " + (timeLeft / 1000) + "s");
 	}
 
 	/**

@@ -156,7 +156,7 @@ public class DataflowRun {
 		}
 
 		try {
-			resultsComponent.register(facade);
+			resultsComponent.register(facade, isProvenanceEnabledForRun);
 		} catch (EditException e1) {
 			logger.error("Unable to register facade", e1);
 		}
@@ -247,7 +247,7 @@ public class DataflowRun {
 			monitorObserver = monitorViewComponent.setDataflow(dataflow);
 
 			resultsComponent = new ResultViewComponent();
-			resultsComponent.repopulate(getDataflow(), getRunId(), getReferenceService());
+			resultsComponent.repopulate(getDataflow(), getRunId(), getReferenceService(), isProvenanceEnabledForRun);
 			monitorViewComponent.setStatus(MonitorViewComponent.Status.COMPLETE);
 			//		monitorViewComponent.revalidate();
 		}
