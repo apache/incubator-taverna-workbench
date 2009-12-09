@@ -23,7 +23,9 @@ package net.sf.taverna.t2.workbench.views.results;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -47,6 +49,7 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
@@ -64,6 +67,7 @@ import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsOPM;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPIRegistry;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -71,7 +75,7 @@ import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 /**
  * This component contains a tabbed pane, where each tab displays results for one of
@@ -84,8 +88,8 @@ import org.apache.log4j.Logger;
  */
 public class ResultViewComponent extends JPanel implements UIComponentSPI, ResultListener {
 
-	private static Logger logger = Logger
-	.getLogger(ResultViewComponent.class);
+	//private static Logger logger = Logger
+	//.getLogger(ResultViewComponent.class);
 
 	private static final long serialVersionUID = 988812623494396366L;
 	
@@ -114,6 +118,11 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 	private String runId;
 
 	private ReferenceService referenceService;
+
+	// This is needed for "Save data as OPM" action so that we know if
+	// we shoudl try to geth the OPM graph or not (if provanance was not
+	// enabled there is no point in trying to save data as OPM as it will be missing)
+	private boolean isProvenanceEnabledForRun;
 		
 	// Registry of all existing 'save results' actions, each one can save results
 	// in a different format
@@ -143,13 +152,15 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 	public void onDispose() {
 	}
 
-	public void register(WorkflowInstanceFacade facade)
+	public void register(WorkflowInstanceFacade facade, boolean isProvenanceEnabledForRun)
 			throws EditException {
 		
 		clear();
 		
 		this.facade = facade;
 		this.dataflow = facade.getDataflow();
+		this.runId = facade.getWorkflowRunId();
+		this.isProvenanceEnabledForRun = isProvenanceEnabledForRun;
 		
 		saveButton = new JButton(new SaveAllAction("Save values", this));
 		saveButtonsPanel.add(saveButton);
@@ -184,10 +195,11 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		revalidate();
 	}
 	
-	public void repopulate(Dataflow dataflow, String runId, ReferenceService referenceService) {
+	public void repopulate(Dataflow dataflow, String runId, ReferenceService referenceService, boolean isProvenanceEnabledForRun) {
 		this.dataflow = dataflow;
 		this.runId = runId;
 		this.referenceService = referenceService;
+		this.isProvenanceEnabledForRun = isProvenanceEnabledForRun;
 		
 		this.dataflow.checkValidity();
 		
@@ -289,6 +301,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		 }
 	}
 	
+	@SuppressWarnings("serial")
 	private class SaveAllAction extends AbstractAction {
 		
 		private ResultViewComponent parent;
@@ -311,6 +324,8 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			explanation.setEditable(false);
 			explanation.setOpaque(false);
 			explanation.setBorder(new EmptyBorder(5, 20, 5, 20));
+			explanation.setFocusable(false);
+			explanation.setFont(new JLabel().getFont()); // make the font the same as for other components in the dialog
 			panel.add(explanation, BorderLayout.NORTH);
 			final Map<String, JCheckBox> inputChecks = new HashMap<String, JCheckBox> ();
 			final Map<String, JCheckBox> outputChecks = new HashMap<String, JCheckBox> ();
@@ -348,14 +363,21 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				}
 				
 			};
+			
+			JPanel portsPanel = new JPanel();
+			portsPanel.setBorder(new CompoundBorder(new EmptyBorder(new Insets(5,10,5,10)), new EtchedBorder(EtchedBorder.LOWERED)));
+			portsPanel.setLayout(new GridBagLayout());
 			if ((facade != null) && !dataflow.getInputPorts().isEmpty()) {
-				JPanel inputsPanel = new JPanel();
-				inputsPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
-
-				inputsPanel.setLayout(new GridLayout(0, 1));
-				inputsPanel.add(new JLabel("Workflow inputs:"));
-				WeakHashMap<String, T2Reference> pushedDataMap =  facade.getPushedDataMap();
-
+				GridBagConstraints gbc = new GridBagConstraints();
+				gbc.gridx = 0;
+				gbc.gridy = 0;
+				gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+				gbc.fill = GridBagConstraints.HORIZONTAL;
+				gbc.weightx = 1.0;
+				gbc.weighty = 0.0;
+				gbc.insets = new Insets(5,10,5,10);
+				portsPanel.add(new JLabel("Workflow inputs:"), gbc);
+				WeakHashMap<String, T2Reference> pushedDataMap = facade.getPushedDataMap();
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (DataflowInputPort port : dataflow.getInputPorts()) {
 					String portName = port.getName();
@@ -367,11 +389,18 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 					inputChecks.put(portName, checkBox);
 					sortedBoxes.put(portName, checkBox);
 				}
+				gbc.insets = new Insets(0,10,0,10);
 				for (String portName : sortedBoxes.keySet()) {
-					inputsPanel.add(sortedBoxes.get(portName));
+					gbc.gridy++;
+					portsPanel.add(sortedBoxes.get(portName), gbc);
 				}
-				panel.add(inputsPanel, BorderLayout.WEST);
-			}
+				gbc.gridy++;
+				gbc.fill = GridBagConstraints.BOTH;
+				gbc.weightx = 1.0;
+				gbc.weighty = 1.0;
+				gbc.insets = new Insets(5,10,5,10);
+				portsPanel.add(new JLabel(""), gbc); // empty space
+			}	
 			WeakHashMap<String, Object> objectMap = new WeakHashMap<String, Object>();
 			if (facade == null) {
 				for (DataflowOutputPort outputPort : dataflow.getOutputPorts()) {
@@ -385,10 +414,15 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				}
 			}
 			if (!resultReferencesMap.isEmpty()) {
-				JPanel outputsPanel = new JPanel();
-				outputsPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
-				outputsPanel.setLayout(new GridLayout(0, 1));
-				outputsPanel.add(new JLabel("Workflow outputs:"));
+				GridBagConstraints gbc = new GridBagConstraints();
+				gbc.gridx = 1;
+				gbc.gridy = 0;
+				gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+				gbc.fill = GridBagConstraints.HORIZONTAL;
+				gbc.weightx = 1.0;
+				gbc.weighty = 0.0;
+				gbc.insets = new Insets(5,10,5,10);
+				portsPanel.add(new JLabel("Workflow outputs:"), gbc);
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (String portName : resultReferencesMap.keySet()) {
 					JCheckBox checkBox = new JCheckBox(portName);
@@ -399,12 +433,19 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 					outputChecks.put(portName, checkBox);
 					sortedBoxes.put(portName, checkBox);
 				}
+				gbc.insets = new Insets(0,10,0,10);
 				for (String portName : sortedBoxes.keySet()) {
-					outputsPanel.add(sortedBoxes.get(portName));
+					gbc.gridy++;
+					portsPanel.add(sortedBoxes.get(portName), gbc);
 				}
-				
-				panel.add(outputsPanel, BorderLayout.EAST);
+				gbc.gridy++;
+				gbc.fill = GridBagConstraints.BOTH;
+				gbc.weightx = 1.0;
+				gbc.weighty = 1.0;
+				gbc.insets = new Insets(5,10,5,10);
+				portsPanel.add(new JLabel(""), gbc); // empty space
 			}
+			panel.add(portsPanel, BorderLayout.CENTER);
 			chosenReferences.clear();
 			for (JCheckBox checkBox : checkReferences.keySet()) {
 				if (checkBox.isSelected()) {
@@ -419,6 +460,11 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			// Get all existing 'Save result' actions
 			List<SaveAllResultsSPI> saveActions = saveAllResultsRegistry.getSaveResultActions();
 			for (SaveAllResultsSPI spi : saveActions){
+				if (spi instanceof SaveAllResultsAsOPM){
+					((SaveAllResultsAsOPM)spi).setIsProvenanceEnabledForRun(isProvenanceEnabledForRun);
+					((SaveAllResultsAsOPM)spi).setRunId(runId);
+					((SaveAllResultsAsOPM)spi).setDataflow(dataflow);
+				}
 				SaveAllResultsSPI action = (SaveAllResultsSPI) spi.getAction();
 				actionSet.add(action);
 				JButton saveButton = new JButton((AbstractAction) action);
@@ -426,7 +472,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				action.setObjectMap(objectMap);
 				action.setInvocationContext(context);
 				action.setParent(dialog);
-				saveButton.setEnabled(true);
+				//saveButton.setEnabled(true);
 				buttonsBar.add(saveButton);
 			}
 			JButton cancelButton = new JButton("Cancel", WorkbenchIcons.closeIcon);

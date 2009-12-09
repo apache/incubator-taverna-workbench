@@ -55,6 +55,7 @@ import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
  * @author Tom Oinn
  * @author Alex Nenadic
  */
+@SuppressWarnings("serial")
 public abstract class SaveAllResultsSPI extends AbstractAction {
 
 	protected static Logger logger = Logger.getLogger(SaveAllResultsSPI.class);
@@ -187,7 +188,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	protected abstract void saveData(File f) throws Exception;
 
 	/**
-	 * Converts a T2References poining to results to 
+	 * Converts a T2References pointing to results to 
 	 * a list of (lists of ...) dereferenced result objects.
 	 */
 	protected Object convertReferencesToObjects(T2Reference reference) throws Exception {				

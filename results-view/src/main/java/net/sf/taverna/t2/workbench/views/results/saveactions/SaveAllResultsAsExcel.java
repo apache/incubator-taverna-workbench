@@ -20,33 +20,20 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.saveactions;
 
-import java.awt.event.ActionEvent;
 import java.beans.IntrospectionException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
-import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
-import net.sf.taverna.t2.reference.ErrorDocument;
-import net.sf.taverna.t2.reference.IdentifiedList;
-import net.sf.taverna.t2.reference.ReferenceServiceException;
-import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.reference.T2ReferenceType;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -55,7 +42,6 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.embl.ebi.escience.baclava.DataThing;
-import org.embl.ebi.escience.baclava.factory.DataThingFactory;
 import org.embl.ebi.escience.baclava.iterator.BaclavaIterator;
 
 /**

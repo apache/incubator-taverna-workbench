@@ -20,40 +20,23 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.saveactions;
 
-import java.awt.event.ActionEvent;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
-import net.sf.taverna.t2.invocation.InvocationContext;
-import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
-import net.sf.taverna.t2.reference.ErrorDocument;
-import net.sf.taverna.t2.reference.IdentifiedList;
-import net.sf.taverna.t2.reference.ReferenceServiceException;
-import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.reference.T2ReferenceType;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
 
 import org.embl.ebi.escience.baclava.DataThing;
-import org.embl.ebi.escience.baclava.factory.DataThingFactory;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Namespace;
+//import org.jdom.Namespace;
 
+@SuppressWarnings("serial")
 public class SaveAllResultsToFileSystem extends SaveAllResultsSPI {
 
 
-	private static Namespace namespace = Namespace.getNamespace("b","http://org.embl.ebi.escience/baclava/0.1alpha");
+	//private static Namespace namespace = Namespace.getNamespace("b","http://org.embl.ebi.escience/baclava/0.1alpha");
 
 	public SaveAllResultsToFileSystem(){
 		super();

@@ -36,7 +36,6 @@ import net.sf.taverna.t2.spi.SPIRegistry;
  * @author Alex Nenadic
  *  
  */
-@SuppressWarnings("unchecked")
 public class SaveAllResultsSPIRegistry extends SPIRegistry<SaveAllResultsSPI>{
 
 	protected SaveAllResultsSPIRegistry() {

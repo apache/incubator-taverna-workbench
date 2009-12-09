@@ -20,10 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.saveactions;
 
-import java.awt.FlowLayout;
-import java.awt.GridLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.PrintWriter;
@@ -32,14 +28,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.TitledBorder;
 
-import net.sf.taverna.t2.invocation.InvocationContext;
-import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.embl.ebi.escience.baclava.DataThing;
@@ -80,7 +69,7 @@ public class SaveAllResultsAsXML extends SaveAllResultsSPI {
 		
 
 	    
-		// Build the DataThing map from the resultReferencesMap
+		// Build the DataThing map from the chosenReferences
 		// First convert map of references to objects into a map of real result objects
 		Map<String, Object> resultMap = new HashMap<String, Object>();
 		for (Iterator<String> i = chosenReferences.keySet().iterator(); i.hasNext();) {

@@ -50,8 +50,6 @@ import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
 
 import org.apache.log4j.Logger;
 
-import eu.medsea.mimeutil.MimeType;
-
 /**
  * Saves individual result to a file. A T2Reference to the result data is held
  * in the tree node.
