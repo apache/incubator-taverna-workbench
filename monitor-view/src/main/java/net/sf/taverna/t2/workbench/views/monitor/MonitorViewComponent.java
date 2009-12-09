@@ -95,7 +95,7 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 
 	private GraphMonitor graphMonitor;
 
-	private Dataflow dataflow;
+	protected Dataflow dataflow;
 
 	private ReferenceService referenceService;
 
