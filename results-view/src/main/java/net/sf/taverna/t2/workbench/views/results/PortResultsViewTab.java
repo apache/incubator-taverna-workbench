@@ -105,23 +105,6 @@ public class PortResultsViewTab extends JPanel{
 			
 		});
 
-		getResultModel().addTreeModelListener(new TreeModelListener() {
-
-			public void treeNodesChanged(TreeModelEvent e) {
-				tree.expandPath(e.getTreePath());
-				tree.scrollPathToVisible(e.getTreePath());
-			}
-
-			public void treeNodesInserted(TreeModelEvent e) {
-			}
-
-			public void treeNodesRemoved(TreeModelEvent e) {
-			}
-
-			public void treeStructureChanged(TreeModelEvent e) {
-			}
-		});
-		
 		JPanel leftPanel = new JPanel();
 		leftPanel.setLayout(new BorderLayout());
 		leftPanel.add(new JLabel("Click to view values"), BorderLayout.NORTH);
