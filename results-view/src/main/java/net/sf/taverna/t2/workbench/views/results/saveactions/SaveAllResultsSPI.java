@@ -60,9 +60,8 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 
 	protected static Logger logger = Logger.getLogger(SaveAllResultsSPI.class);
 	protected InvocationContext context = null;
-	protected Map<String, T2Reference> chosenReferences;
+	protected Map<String, Object> chosenReferences;
 	protected JDialog dialog;
-	private WeakHashMap<String, Object> objectMap;
 
 	/**
 	 * Returns the save result action implementing this interface. The returned
@@ -91,7 +90,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	 * assumed to be the parent component in the UI which caused this action to
 	 * be created, this allows save dialogs etc to be placed correctly.
 	 */
-	public void setChosenReferences(Map<String, T2Reference> chosenReferences) {
+	public void setChosenReferences(Map<String, Object> chosenReferences) {
 		this.chosenReferences = chosenReferences;
 	}
 
@@ -174,7 +173,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 									saveData(finalFile);
 								}
 							} catch (Exception ex) {
-								JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
+								JOptionPane.showMessageDialog(null, "Problem saving result data" + ex, "Save Result Error",
 										JOptionPane.ERROR_MESSAGE);
 								logger.error("SaveAllResults Error: Problem saving result data", ex);
 							}
@@ -227,12 +226,11 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	
 	protected Object getObjectForName(String name) throws Exception {
 		Object result = null;
-		if (objectMap.containsKey(name)) {
-			result = objectMap.get(name);
+		if (chosenReferences.containsKey(name)) {
+			result = chosenReferences.get(name);
 		}
 		if (result == null) {
-			T2Reference reference = chosenReferences.get(name);
-			result = convertReferencesToObjects(reference);
+			result = "null";
 		}
 		return result;
 		
@@ -251,10 +249,5 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 		}
 		return dataThingMap;
 	}
-
-	public void setObjectMap(WeakHashMap<String, Object> objectMap) {
-		this.objectMap = objectMap;
-	}
-
 }
 
