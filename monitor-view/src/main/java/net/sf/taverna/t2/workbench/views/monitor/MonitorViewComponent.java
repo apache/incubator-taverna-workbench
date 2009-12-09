@@ -48,6 +48,7 @@ import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.provenance.lineageservice.Dependencies;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
+import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
@@ -95,6 +96,8 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 	private GraphMonitor graphMonitor;
 
 	private Dataflow dataflow;
+
+	private ReferenceService referenceService;
 
 	public MonitorViewComponent() {
 		super(new BorderLayout());
@@ -192,6 +195,10 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 			setSessionId(provenanceConnector.getSessionID());			
 		}
 	}
+	
+	public void setReferenceService(ReferenceService referenceService) {
+		this.referenceService = referenceService;
+	}
 
 	public Observer<MonitorMessage> setDataflow(Dataflow dataflow) {
 		this.dataflow = dataflow;
@@ -271,6 +278,10 @@ public class MonitorViewComponent extends JPanel implements UIComponentSPI {
 		}
 	}
 
+	public ReferenceService getReferenceService() {
+		return referenceService;
+	}
+
 }
 
 class MonitorGraphEventManager implements GraphEventManager {
@@ -326,8 +337,8 @@ class MonitorGraphEventManager implements GraphEventManager {
 		topPanel.setLayout(new BorderLayout());
 		JPanel fetchButtonPanel = new JPanel();
 		fetchButtonPanel.setLayout(new BorderLayout());
-		JButton fetchResults = new JButton("Fetch Results");
-		fetchResults.setToolTipText("Retrieve provenance again - in case you need to get any new results");
+		JButton fetchResults = new JButton("Fetch values");
+		fetchResults.setToolTipText("Retrieve provenance again - in case you need to get any new values");
 		fetchButtonPanel.add(fetchResults, BorderLayout.WEST);
 		topPanel.add(fetchButtonPanel);
 		
@@ -339,7 +350,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 				Dependencies fetchPortData = provenanceAccess.fetchPortData(sessionID, targetWorkflowID, localName, null, null);
 				intermediateValues = fetchPortData.getRecords();
 				if (intermediateValues.size() > 0) {
-					frame.setTitle("Intermediate results for "
+					frame.setTitle("Intermediate values for "
 									+ localName);
 					for (LineageQueryResultRecord record : intermediateValues) {
 						logger.info("LQRR: "
@@ -354,7 +365,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 									+ localName
 									+ " nested: " + targetWorkflowID);
 				} else {
-					frame.setTitle("Currently no intermediate results for service "
+					frame.setTitle("Currently no intermediate values for service "
 							+ localName  + ". Click \'Fetch Results\' to try again.");
 					
 				}
@@ -395,6 +406,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 						provResultsPanel = new ProvenanceResultsPanel();
 						provResultsPanel.setContext(provenanceConnector
 								.getInvocationContext());
+						provResultsPanel.setReferenceService(monitorViewComponent.getReferenceService());
 						provenancePanel.add(provResultsPanel,
 								BorderLayout.CENTER);
 
@@ -418,7 +430,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 //											.getIntermediateValues(sessionID,
 //													localName, null, null);
 									if (intermediateValues.size() > 0) {
-										frame.setTitle("Intermediate results for "
+										frame.setTitle("Intermediate values for "
 														+ localName);
 										for (LineageQueryResultRecord record : intermediateValues) {
 											logger.info("LQRR: "
@@ -440,8 +452,8 @@ class MonitorGraphEventManager implements GraphEventManager {
 //												"No results yet",
 //												JOptionPane.INFORMATION_MESSAGE);
 //										frame.setVisible(false);
-										frame.setTitle("Currently no intermediate results for service "
-												+ localName + ". Click \'Fetch Results\' to try again.");
+										frame.setTitle("Currently no intermediate values for service "
+												+ localName + ". Click \'Fetch values\' to try again.");
 										frame.setVisible(true);
 										
 									}
