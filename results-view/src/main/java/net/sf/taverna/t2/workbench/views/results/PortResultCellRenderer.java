@@ -32,7 +32,7 @@ public class PortResultCellRenderer extends DefaultTreeCellRenderer {
 				if (value2.getChildCount() == 0) {
 					text = "Empty list";
 				} else {
-				text = "List";
+				text = "List ";
 				if (!parent.getState().equals(ResultTreeNodeState.RESULT_TOP)) {
 					text += "" + (parent.getIndex(value2) + 1);
 				}
@@ -45,7 +45,7 @@ public class PortResultCellRenderer extends DefaultTreeCellRenderer {
 				}
 				}
 			} else if (value2.getState().equals(ResultTreeNodeState.RESULT_REFERENCE)) {
-				text = "Result " + (parent.getIndex(value2) + 1);
+				text = "Value " + (parent.getIndex(value2) + 1);
 			} else if (value2.getState().equals(ResultTreeNodeState.RESULT_WAITING)) {
 				text = "Waiting for data";
 			}
