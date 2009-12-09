@@ -161,7 +161,19 @@ public class ResultTreeNode extends DefaultMutableTreeNode {
 			}
 			return result;
 		}
-		Object result = context.getReferenceService().renderIdentifier(reference, Object.class, context);
-		return result;
+		if (reference == null) {
+			return null;
+		}
+		if (context.getReferenceService() == null) {
+			return null;
+		}
+		try {
+			Object result = context.getReferenceService().renderIdentifier(reference, Object.class, context);
+			return result;
+		}
+		catch (Exception e) {
+			// Not good to catch exception but
+			return null;
+		}
 	}
 }
