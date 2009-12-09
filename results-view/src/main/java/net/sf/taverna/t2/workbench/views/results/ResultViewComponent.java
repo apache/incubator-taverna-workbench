@@ -136,6 +136,10 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 	private static SaveAllResultsSPIRegistry saveAllResultsRegistry = SaveAllResultsSPIRegistry.getInstance();	
 	
 	private HashMap<String, ResultTreeModel> inputPortModelMap = new HashMap<String, ResultTreeModel>();
+	private HashMap<String, ResultTreeModel> outputPortModelMap = new HashMap<String, ResultTreeModel>();
+	
+	private HashMap<String, Object> inputPortObjectMap = new HashMap<String, Object> ();
+	private HashMap<String, Object> outputPortObjectMap = new HashMap<String, Object> ();
 	
 	
 	public ResultViewComponent() {
@@ -214,6 +218,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			// component for displaying individual results
 			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort.getName(),
 					dataflowOutputPort.getDepth());
+			outputPortModelMap.put(portName, resultTab.getResultModel());
 
 			// Per-port tree model listens for results coming out of the data facade
 			facade.addResultListener(resultTab.getResultModel());
@@ -274,7 +279,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 						dummyContext);
 				model.resultTokenProduced(token, portName);
 			}
-			inputPortModelMap.put(portName, resultTab.getResultModel());
+			inputPortModelMap.put(portName, model);
 			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab);
 		}
 		
@@ -306,6 +311,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 						dummyContext);
 				model.resultTokenProduced(token, portName);
 			}
+			outputPortModelMap.put(portName, model);
 			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab);
 		}
 		revalidate();
@@ -428,7 +434,6 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			JPanel portsPanel = new JPanel();
 			portsPanel.setBorder(new CompoundBorder(new EmptyBorder(new Insets(5,10,5,10)), new EtchedBorder(EtchedBorder.LOWERED)));
 			portsPanel.setLayout(new GridBagLayout());
-			WeakHashMap<String, Object> objectMap = new WeakHashMap<String, Object>();
 			if (!dataflow.getInputPorts().isEmpty()) {
 				GridBagConstraints gbc = new GridBagConstraints();
 				gbc.gridx = 0;
@@ -444,10 +449,12 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (DataflowInputPort port : dataflow.getInputPorts()) {
 					String portName = port.getName();
-					PortResultsViewTab tab = (PortResultsViewTab) tabbedPane.getComponent(tabbedPane.indexOfTab(portName));
-					ResultTreeNode root = (ResultTreeNode) inputPortModelMap.get(portName).getRoot();
-					Object o = root.getAsObject();
-						objectMap.put(port.getName(), o);
+					Object o = inputPortObjectMap.get(portName);
+					if (o == null) {
+						ResultTreeNode root = (ResultTreeNode) inputPortModelMap.get(portName).getRoot();
+						o = root.getAsObject();
+						inputPortObjectMap.put(portName, o);
+					}
 					JCheckBox checkBox = new JCheckBox(portName);
 					checkBox
 							.setSelected(!resultReferencesMap.containsKey(portName));
@@ -481,10 +488,13 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (DataflowOutputPort port : dataflow.getOutputPorts()) {
 					String portName = port.getName();
-						PortResultsViewTab tab = (PortResultsViewTab) tabbedPane.getComponent(tabbedPane.indexOfTab(portName));
-						ResultTreeNode root = (ResultTreeNode) tab.resultModel.getRoot();
-						Object o = root.getAsObject();
-							resultReferencesMap.put(portName, null);
+					Object o = outputPortObjectMap.get(portName);
+					if (o == null) {
+						ResultTreeNode root = (ResultTreeNode) outputPortModelMap.get(portName).getRoot();
+						o = root.getAsObject();
+						outputPortObjectMap.put(portName, o);
+					}
+					resultReferencesMap.put(portName, null);
 					JCheckBox checkBox = new JCheckBox(portName);
 					checkBox
 								.setSelected(true);
