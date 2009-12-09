@@ -114,7 +114,7 @@ public class ReferenceRenderer extends JLabel implements TableCellRenderer {
 		for (String s : key.split(",")) {
 			String replacement = "";
 			if (!s.equals("")) {
-				replacement = Integer.toString(Integer.valueOf(s) + 1);
+				replacement = Integer.toString(Integer.parseInt(s) + 1);
 			}
 			result += "[" + replacement + "]";
 		}
