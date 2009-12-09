@@ -123,7 +123,7 @@ public class PortResultsViewTab extends JPanel{
 		
 		JPanel leftPanel = new JPanel();
 		leftPanel.setLayout(new BorderLayout());
-		leftPanel.add(new JLabel("Click to view results"), BorderLayout.NORTH);
+		leftPanel.add(new JLabel("Click to view values"), BorderLayout.NORTH);
 		leftPanel.add(new JScrollPane(tree), BorderLayout.CENTER);
 		splitPanel.setTopComponent(leftPanel);
 		splitPanel.setBottomComponent(renderedResultComponent);
