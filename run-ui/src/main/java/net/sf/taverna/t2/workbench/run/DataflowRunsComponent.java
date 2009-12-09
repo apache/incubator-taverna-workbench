@@ -240,16 +240,11 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 
 		JPanel hintsPanel = new JPanel();
 		hintsPanel.setLayout(new BorderLayout());
-		hintsPanel.add(new JLabel("Click on a run to see its results"),
+		hintsPanel.add(new JLabel("Click on a run to see its values"),
 				BorderLayout.NORTH);
-		if (DataManagementConfiguration.getInstance().isProvenanceEnabled()) {
-			hintsPanel.add(new JLabel("Click on a service in the diagram"),
+		hintsPanel.add(new JLabel("Click on a service in the diagram"),
 					BorderLayout.CENTER);
-		} else {
-			hintsPanel.add(new JLabel("Enable provenance under preferences"),
-					BorderLayout.CENTER);
-		}
-		hintsPanel.add(new JLabel("to see intermediate results"),
+		hintsPanel.add(new JLabel("to see intermediate values (if available)"),
 				BorderLayout.SOUTH);
 		runListWithHintTopPanel.add(hintsPanel, BorderLayout.SOUTH);
 
@@ -264,14 +259,14 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		JPanel tempMonitorPanel = new JPanel(new BorderLayout());
 		tempMonitorPanel.setBorder(LineBorder.createGrayLineBorder());
 		tempMonitorPanel.setBackground(Color.WHITE);
-		tempMonitorPanel.add(new JLabel("No workflows have been run yet",
+		tempMonitorPanel.add(new JLabel("No workflow run selected",
 				JLabel.CENTER), BorderLayout.CENTER);
 		topPanel.setBottomComponent(tempMonitorPanel);
 
 		JPanel tempResultsPanel = new JPanel(new BorderLayout());
 		tempResultsPanel.setBackground(Color.WHITE);
-		tempResultsPanel.add(new JLabel("Results"), BorderLayout.NORTH);
-		tempResultsPanel.add(new JLabel("No results yet", JLabel.CENTER),
+		tempResultsPanel.add(new JLabel("Values"), BorderLayout.NORTH);
+		tempResultsPanel.add(new JLabel("No values yet", JLabel.CENTER),
 				BorderLayout.CENTER);
 		setBottomComponent(tempResultsPanel);
 
