@@ -73,7 +73,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 	
 	public SaveIndividualResult(){
 		super();
-		putValue(NAME, "Save result");
+		putValue(NAME, "Save value");
 		putValue(SMALL_ICON, WorkbenchIcons.saveIcon);
 	}
 	
