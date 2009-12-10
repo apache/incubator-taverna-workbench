@@ -30,9 +30,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -59,14 +61,18 @@ import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.invocation.WorkflowDataToken;
 import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
+import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.lineageservice.Dependencies;
 import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
+import net.sf.taverna.t2.workbench.ui.impl.Workbench;
+import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 // import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsOPM;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
@@ -75,6 +81,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflowmodel.impl.DataflowImpl;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
@@ -231,7 +238,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		revalidate();
 	}
 	
-	public void repopulate(Dataflow dataflow, String runId, ReferenceService referenceService, boolean isProvenanceEnabledForRun) {
+	public void repopulate(Dataflow dataflow, String runId, Date date, ReferenceService referenceService, boolean isProvenanceEnabledForRun) {
 		this.dataflow = dataflow;
 		this.runId = runId;
 		this.referenceService = referenceService;
@@ -247,7 +254,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		InvocationContext dummyContext = new InvocationContextImpl(referenceService, null);
 		context = dummyContext;
 		saveButton = new JButton(new SaveAllAction("Save values", this));
-		JButton reloadWorkflowButton = new JButton(new ReloadWorkflowAction("Open workflow", this.dataflow));
+		JButton reloadWorkflowButton = new JButton(new ReloadWorkflowAction("Reopen workflow", this.dataflow, date));
 		saveButtonsPanel.add(saveButton);
 		saveButtonsPanel.add(reloadWorkflowButton);
 
@@ -571,20 +578,39 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 	
 	private class ReloadWorkflowAction extends AbstractAction {
 		private Dataflow dataflow;
+		private Date date;
+		
+		PerspectiveSPI designPerspective = null;		
 
-		public ReloadWorkflowAction(String name, Dataflow dataflow) {
+		public ReloadWorkflowAction(String name, Dataflow dataflow, Date date) {
 			super(name);
 			this.dataflow = dataflow;
+			this.date = date;
 		}
 
 		public void actionPerformed(ActionEvent e) {
 			XMLSerializer serialiser = new XMLSerializerImpl();
 			XMLDeserializer deserialiser = new XMLDeserializerImpl();
-			Dataflow dataflowCopy = null;
 			try {
-				dataflowCopy = deserialiser.deserializeDataflow(serialiser
-						.serializeDataflow(dataflow));
-				FileManager.getInstance().openDataflow(dataflowCopy);
+				FileManager manager = FileManager.getInstance();
+				String newName = dataflow.getLocalName() + " "
+				+ DateFormat.getDateTimeInstance().format(date);;
+				Dataflow alreadyOpened = null;
+				for (Dataflow d : manager.getOpenDataflows()) {
+					if (d.getLocalName().equals(newName)) {
+						alreadyOpened = d;
+						break;
+					}
+				}
+				if (alreadyOpened != null) {
+					manager.setCurrentDataflow(alreadyOpened);
+					switchToDesignPerspective();
+				} else {
+					DataflowImpl dataflowCopy = (DataflowImpl) deserialiser.deserializeDataflow(serialiser
+							.serializeDataflow(dataflow));
+					dataflowCopy.setLocalName(newName);
+					manager.openDataflow(dataflowCopy);
+				}
 			} catch (SerializationException e1) {
 				logger.error("Unable to copy workflow", e1);
 			} catch (DeserializationException e1) {
@@ -594,6 +620,21 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			}
 		}
 		
+		private void switchToDesignPerspective() {
+			if (designPerspective == null) {
+				for (PerspectiveSPI perspective : Workbench.getInstance()
+						.getPerspectives().getPerspectives()) {
+					if (perspective.getText().equalsIgnoreCase("design")) {
+						designPerspective = perspective;
+						break;
+					}
+				}
+			}
+			if (designPerspective != null) {
+				ModelMap.getInstance().setModel(
+						ModelMapConstants.CURRENT_PERSPECTIVE, designPerspective);
+			}
+		
+		}
 	}
-
 }
