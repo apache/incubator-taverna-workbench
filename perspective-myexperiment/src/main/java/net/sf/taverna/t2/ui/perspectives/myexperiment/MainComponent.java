@@ -231,7 +231,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	// (NB! Status bar needs to be initialised first, so that it is available to other components immediately!)
 	this.pStatusBar = new PluginStatusBar(this, myExperimentClient, logger);
 	this.pMyStuffContainer = new MyStuffTabContentPanel(this, myExperimentClient, logger);
-	//	this.pExampleWorkflows = new ExampleWorkflowsPanel(this, myExperimentClient, logger);
+	this.pExampleWorkflows = new ExampleWorkflowsPanel(this, myExperimentClient, logger);
 	this.pTagBrowser = new TagBrowserTabContentPanel(this, myExperimentClient, logger);
 	this.pSearchTab = new SearchTabContentPanel(this, myExperimentClient, logger);
 	this.pHistoryBrowserTab = new HistoryBrowserTabContentPanel(this, myExperimentClient, logger);
@@ -240,7 +240,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	this.tpMainTabs = new JTabbedPane();
 	this.tpMainTabs.add("My Stuff", this.pMyStuffContainer);
 	// TODO: implement the starter pack
-	//	this.tpMainTabs.add("Starter Pack", this.pExampleWorkflows);
+	this.tpMainTabs.add("Starter Pack", this.pExampleWorkflows);
 	this.tpMainTabs.add("Tag Browser", this.pTagBrowser);
 	this.tpMainTabs.add("Search", this.pSearchTab);
 	this.tpMainTabs.add("Local History", this.pHistoryBrowserTab);
@@ -297,7 +297,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	  tpMainTabs.setSelectedIndex(Integer.parseInt(myExperimentClient.getSettings().getProperty(MyExperimentClient.INI_DEFAULT_ANONYMOUS_TAB)));
 	}
 
-	//	this.pExampleWorkflows.refresh();
+	this.pExampleWorkflows.refresh();
 	this.pTagBrowser.refresh();
   }
 

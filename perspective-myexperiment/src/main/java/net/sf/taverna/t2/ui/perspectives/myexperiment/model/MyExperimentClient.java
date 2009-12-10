@@ -66,7 +66,7 @@ public class MyExperimentClient {
 	  + " Java/"
 	  + System.getProperty("java.version");
   private static final String INI_FILE_NAME = "myexperiment-plugin.ini";
-  private static final int EXAMPLE_WORKFLOWS_GROUP_ID = 166;
+  private static final int EXAMPLE_WORKFLOWS_PACK_ID = 103;
 
   public static final String INI_BASE_URL = "my_experiment_base_url";
   public static final String INI_LOGIN = "login";
@@ -648,14 +648,17 @@ public class MyExperimentClient {
 	List<Workflow> workflows = new ArrayList<Workflow>();
 
 	try {
-	  String strExampleWorkflowsGroupUrl = this.BASE_URL + "/group.xml?id="
-		  + EXAMPLE_WORKFLOWS_GROUP_ID + "&elements=shared-items";
-	  Document doc = this.doMyExperimentGET(strExampleWorkflowsGroupUrl).getResponseBody();
+	  String strExampleWorkflowsPackUrl = this.BASE_URL + "/pack.xml?id="
+		  + EXAMPLE_WORKFLOWS_PACK_ID + "&elements=internal-pack-items";
+	  Document doc = this.doMyExperimentGET(strExampleWorkflowsPackUrl).getResponseBody();
 
 	  if (doc != null) {
-		List<Element> allWorkflowNodes = doc.getRootElement().getChild("shared-items").getChildren("workflow");
-		for (Element e : allWorkflowNodes) {
-		  Document docCurWorkflow = this.getResource(Resource.WORKFLOW, e.getAttributeValue("uri"), Resource.REQUEST_FULL_LISTING);
+		List<Element> allInternalItems = doc.getRootElement().getChild("internal-pack-items").getChildren("workflow");
+		for (Element e : allInternalItems) {
+			String itemUri = e.getAttributeValue("uri");
+			Document itemDoc = this.doMyExperimentGET(itemUri).getResponseBody();
+			String workflowUri = itemDoc.getRootElement().getChild("item").getChild("workflow").getAttributeValue("uri");
+		  Document docCurWorkflow = this.getResource(Resource.WORKFLOW, workflowUri, Resource.REQUEST_FULL_LISTING);
 		  workflows.add(Workflow.buildFromXML(docCurWorkflow, this.logger));
 		}
 	  }

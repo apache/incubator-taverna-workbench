@@ -122,7 +122,7 @@ public class ExampleWorkflowsPanel extends JPanel implements ActionListener, Cha
 	this.pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), null);
 	this.statusLabel.setText("This will contain example resources to"
 		+ " help get you started in Taverna.  Coming Soon.");
-	//	this.statusLabel.setText(this.workflows.size() + " example workflows found");
+	this.statusLabel.setText(this.workflows.size() + " example workflows found");
 
 	// cannot cast a list of subclass items into a list of superclass items -
 	// hence a new list is created
