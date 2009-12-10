@@ -247,7 +247,7 @@ public class DataflowRun {
 			monitorObserver = monitorViewComponent.setDataflow(dataflow);
 
 			resultsComponent = new ResultViewComponent();
-			resultsComponent.repopulate(getDataflow(), getRunId(), getReferenceService(), isProvenanceEnabledForRun);
+			resultsComponent.repopulate(getDataflow(), getRunId(), getDate(), getReferenceService(), isProvenanceEnabledForRun);
 			monitorViewComponent.setStatus(MonitorViewComponent.Status.COMPLETE);
 			//		monitorViewComponent.revalidate();
 		}
