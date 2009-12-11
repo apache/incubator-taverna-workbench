@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.WeakHashMap;
+import java.util.regex.Pattern;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -593,8 +594,9 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			XMLDeserializer deserialiser = new XMLDeserializerImpl();
 			try {
 				FileManager manager = FileManager.getInstance();
-				String newName = dataflow.getLocalName() + " "
-				+ DateFormat.getDateTimeInstance().format(date);;
+				String newName = dataflow.getLocalName() + "_"
+				+ DateFormat.getDateTimeInstance().format(date);
+				newName = sanitiseName(newName);
 				Dataflow alreadyOpened = null;
 				for (Dataflow d : manager.getOpenDataflows()) {
 					if (d.getLocalName().equals(newName)) {
@@ -637,4 +639,31 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		
 		}
 	}
+	
+	/**
+	 * Checks that the name does not have any characters that are invalid for a
+	 * processor name.
+	 * 
+	 * The name must contain only the chars[A-Za-z_0-9].
+	 * 
+	 * @param name
+	 *            the original name
+	 * @return the sanitised name
+	 */
+	private static String sanitiseName(String name) {
+		String result = name;
+		if (Pattern.matches("\\w++", name) == false) {
+			result = "";
+			for (char c : name.toCharArray()) {
+				if (Character.isLetterOrDigit(c) || c == '_') {
+					result += c;
+				} else {
+					result += "_";
+				}
+			}
+		}
+		return result;
+	}
+
+
 }
