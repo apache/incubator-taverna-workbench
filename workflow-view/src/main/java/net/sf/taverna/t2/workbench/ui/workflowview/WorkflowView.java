@@ -40,6 +40,8 @@ import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
+import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
 import net.sf.taverna.t2.workflowmodel.impl.AddDataflowInputPortEdit;
 import net.sf.taverna.t2.workflowmodel.impl.AddDataflowOutputPortEdit;
 import net.sf.taverna.t2.workflowmodel.impl.AddProcessorEdit;
@@ -215,9 +217,35 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 		List<Edit<?>> editList = new ArrayList<Edit<?>>();
 
 		if (!newName.equals(p.getLocalName())) {
-			Edit renameEdit = EditsRegistry.getEdits().getRenameProcessorEdit(p, newName);
+			Edit renameEdit = edits.getRenameProcessorEdit(p, newName);
 			editList.add(renameEdit);
-		}			
+		}
+		
+		Activity activity = null;
+		if (p.getActivityList().size() > 0) {
+			activity = p.getActivityList().get(0);
+		}
+
+		List<ProcessorInputPort> processorInputPorts = new ArrayList<ProcessorInputPort>();
+		processorInputPorts.addAll(p.getInputPorts());
+		for (ProcessorInputPort port : processorInputPorts) {
+			Edit removePortEdit = edits.getRemoveProcessorInputPortEdit(p, port);
+			editList.add(removePortEdit);
+			if (activity != null) {
+				Edit removePortMapEdit = edits.getRemoveActivityInputPortMappingEdit(activity, port.getName());
+				editList.add(removePortMapEdit);
+			}
+		}
+		List<ProcessorOutputPort> processorOutputPorts = new ArrayList<ProcessorOutputPort>();
+		processorOutputPorts.addAll(p.getOutputPorts());
+		for (ProcessorOutputPort port : processorOutputPorts) {
+			Edit removePortEdit = edits.getRemoveProcessorOutputPortEdit(p, port);
+			editList.add(removePortEdit);
+			if (activity != null) {
+				Edit removePortMapEdit = edits.getRemoveActivityOutputPortMappingEdit(activity, port.getName());
+				editList.add(removePortMapEdit);
+			}
+		}
 		Edit edit = EditsRegistry.getEdits().getAddProcessorEdit(currentDataflow, p);
 		editList.add(edit);
 		EditManager.getInstance().doDataflowEdit(currentDataflow, new CompoundEdit(editList));
