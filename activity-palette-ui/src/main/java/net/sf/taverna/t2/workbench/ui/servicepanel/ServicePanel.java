@@ -372,14 +372,25 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	private final class ServiceDescriptionRegistryObserver implements
 			Observer<ServiceDescriptionRegistryEvent> {
+	    Set<ServiceDescriptionProvider> alreadyComplainedAbout = new HashSet<ServiceDescriptionProvider>();
 		public void notify(Observable<ServiceDescriptionRegistryEvent> sender,
 				ServiceDescriptionRegistryEvent message) throws Exception {
 			if (message instanceof ServiceDescriptionProvidedEvent) {
 
 			}
 			if (message instanceof ProviderErrorNotification) {
-				ProviderErrorNotification pen = (ProviderErrorNotification) message;
-				JOptionPane.showMessageDialog(ServicePanel.this, pen.getMessage() + "\n" +  pen.getProvider(), "Import service error", JOptionPane.ERROR_MESSAGE);
+			        final ProviderErrorNotification pen = (ProviderErrorNotification) message;
+				ServiceDescriptionProvider provider = pen.getProvider();
+				if (!alreadyComplainedAbout.contains(pen)) {
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+				    JOptionPane.showMessageDialog(ServicePanel.this, pen.getMessage() + "\n" +  pen.getProvider(), "Import service error", JOptionPane.ERROR_MESSAGE);
+					}
+			});
+			alreadyComplainedAbout.add(pen);
+				}
+			} else {
+			    alreadyComplainedAbout.remove(pen);
 			}
 			if (message instanceof AbstractProviderNotification) {
 				AbstractProviderNotification abstractProviderNotification = (AbstractProviderNotification) message;
