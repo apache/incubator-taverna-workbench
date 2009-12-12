@@ -49,6 +49,7 @@ import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
+import net.sf.taverna.t2.servicedescriptions.events.AbstractProviderEvent;
 import net.sf.taverna.t2.servicedescriptions.events.AbstractProviderNotification;
 import net.sf.taverna.t2.servicedescriptions.events.PartialServiceDescriptionsNotification;
 import net.sf.taverna.t2.servicedescriptions.events.ProviderErrorNotification;
@@ -381,16 +382,17 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			if (message instanceof ProviderErrorNotification) {
 			        final ProviderErrorNotification pen = (ProviderErrorNotification) message;
 				ServiceDescriptionProvider provider = pen.getProvider();
-				if (!alreadyComplainedAbout.contains(pen)) {
+				if (!alreadyComplainedAbout.contains(provider)) {
+			alreadyComplainedAbout.add(provider);
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 				    JOptionPane.showMessageDialog(ServicePanel.this, pen.getMessage() + "\n" +  pen.getProvider(), "Import service error", JOptionPane.ERROR_MESSAGE);
 					}
 			});
-			alreadyComplainedAbout.add(pen);
 				}
-			} else {
-			    alreadyComplainedAbout.remove(pen);
+			} else if ((message instanceof ServiceDescriptionProvidedEvent) || (message instanceof RemovedProviderEvent)) {
+			    AbstractProviderEvent ape = (AbstractProviderEvent) message;
+			    alreadyComplainedAbout.remove(ape.getProvider());
 			}
 			if (message instanceof AbstractProviderNotification) {
 				AbstractProviderNotification abstractProviderNotification = (AbstractProviderNotification) message;
