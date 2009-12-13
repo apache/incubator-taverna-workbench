@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
 		<artifactId>ui-api</artifactId>
-		<version>0.8-SNAPSHOT</version>
+		<version>1.0</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-api</groupId>
 	<artifactId>edits-api</artifactId>
