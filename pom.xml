@@ -9,7 +9,7 @@
 
 	<groupId>net.sf.taverna.t2</groupId>
 	<artifactId>ui-components</artifactId>
-	<version>0.11-SNAPSHOT</version>
+	<version>1.0</version>
 	<packaging>pom</packaging>
 
 	<name>Taverna 2 UI components</name>
@@ -17,16 +17,16 @@
 
 	<properties>
 		<t2.ui.components.version>${project.version}</t2.ui.components.version>
-		<t2.activities.version>0.10-SNAPSHOT</t2.activities.version>
-		<t2.infrastructure.version>1.13-SNAPSHOT</t2.infrastructure.version>
-		<t2.core.version>0.10-SNAPSHOT</t2.core.version>
-		<t2.reference-core-extensions.version>0.8-SNAPSHOT</t2.reference-core-extensions.version>
-		<t2.lang.version>0.7-SNAPSHOT</t2.lang.version>
-		<t2.compatibility.version>0.10-SNAPSHOT</t2.compatibility.version>
-		<t2.translators.version>0.10-SNAPSHOT</t2.translators.version>
-		<t2.ui.api.version>0.8-SNAPSHOT</t2.ui.api.version>
-		<t2.ui.impl.version>0.10-SNAPSHOT</t2.ui.impl.version>
-		<t2.security.version>0.8-SNAPSHOT</t2.security.version>
+		<t2.activities.version>1.0</t2.activities.version>
+		<t2.infrastructure.version>2.0</t2.infrastructure.version>
+		<t2.core.version>1.0</t2.core.version>
+		<t2.reference-core-extensions.version>1.0</t2.reference-core-extensions.version>
+		<t2.lang.version>1.0</t2.lang.version>
+		<t2.compatibility.version>1.0</t2.compatibility.version>
+		<t2.translators.version>1.0</t2.translators.version>
+		<t2.ui.api.version>1.0</t2.ui.api.version>
+		<t2.ui.impl.version>1.0</t2.ui.impl.version>
+		<t2.security.version>1.0</t2.security.version>
 		<taverna.version>1.7.2.0</taverna.version>
 	</properties>
 
