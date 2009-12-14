@@ -255,9 +255,9 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 		InvocationContext dummyContext = new InvocationContextImpl(referenceService, null);
 		context = dummyContext;
 		saveButton = new JButton(new SaveAllAction("Save values", this));
-		JButton reloadWorkflowButton = new JButton(new ReloadWorkflowAction("Reopen workflow", this.dataflow, date));
+//		JButton reloadWorkflowButton = new JButton(new ReloadWorkflowAction("Reopen workflow", this.dataflow, date));
 		saveButtonsPanel.add(saveButton);
-		saveButtonsPanel.add(reloadWorkflowButton);
+//		saveButtonsPanel.add(reloadWorkflowButton);
 
 		List<DataflowInputPort> dataflowInputPorts = new ArrayList<DataflowInputPort>(dataflow.getInputPorts());
 		
