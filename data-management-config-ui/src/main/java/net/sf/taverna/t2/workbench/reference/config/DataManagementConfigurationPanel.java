@@ -87,7 +87,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 
 		enableInMemory = new JCheckBox("In-memory storage");
 		DialogTextArea enableInMemoryText = new DialogTextArea(
-				"Data will not be stored between workbench sessions. This option is intended for testing only. Only use if your workflows have a low memory requirement. Provenance information is still recorded to a database.");
+				"Data will not be stored between workbench sessions. If you run workflows passing larger amounts of data, try disabling in-memory storage, which can reduce execution performance, but also Taverna's memory consumption. ");
 		enableInMemoryText.setLineWrap(true);
 		enableInMemoryText.setWrapStyleWord(true);
 		enableInMemoryText.setEditable(false);
@@ -105,21 +105,23 @@ public class DataManagementConfigurationPanel extends JPanel {
 		enableInMemoryTextDisabled.setOpaque(false);
 		enableInMemoryTextDisabled.setFont(enableProvenanceText.getFont()
 				.deriveFont(Font.PLAIN, 11));
-		enableInMemoryTextDisabled.setForeground(Color.RED);
+		enableInMemoryTextDisabled.setForeground(Color.RED);		
 		enableInMemoryTextDisabled.setVisible(false);
-		enableInMemory.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
-			}
-		});
-		enableProvenance.addActionListener(new ActionListener() {
-			
-			public void actionPerformed(ActionEvent e) {
-				enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
-			}
-		});
 		
+		// Disable warning as inMemory is default
+		// To re-enable - also see resetFields()
+		
+//		enableInMemory.addActionListener(new ActionListener() {		
+//			public void actionPerformed(ActionEvent e) {
+//				enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
+//			}
+//		});
+//		enableProvenance.addActionListener(new ActionListener() {			
+//			public void actionPerformed(ActionEvent e) {
+//				enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
+//			}
+//		});
+//		
 		storageText = new JTextArea(
 				"Select how Taverna stores the data and provenance produced when a workflow is run. This includes workflow results and intermediate results.");
 		storageText.setLineWrap(true);
@@ -127,6 +129,8 @@ public class DataManagementConfigurationPanel extends JPanel {
 		storageText.setEditable(false);
 		storageText.setFocusable(false);
 		storageText.setBorder(new EmptyBorder(10, 10, 10, 10));
+		storageText.setFont(enableProvenanceText.getFont()
+				.deriveFont(Font.PLAIN, 11));
 
 		JComponent portPanel = createDerbyServerStatusComponent();
 
@@ -242,8 +246,8 @@ public class DataManagementConfigurationPanel extends JPanel {
 		enableProvenance.setSelected(configuration.getProperty(
 				DataManagementConfiguration.ENABLE_PROVENANCE)
 				.equalsIgnoreCase("true"));
-
-		enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
+		
+		//enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
 	}
 
 	/*private boolean workflowInstances() {
