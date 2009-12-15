@@ -131,7 +131,7 @@ public class DataManagementConfiguration extends AbstractConfigurable {
     	
         if (defaultPropertyMap == null) {
             defaultPropertyMap = new HashMap<String, String>();
-            defaultPropertyMap.put(IN_MEMORY, "false");
+            defaultPropertyMap.put(IN_MEMORY, "true");
             defaultPropertyMap.put(ENABLE_PROVENANCE, "true");
             defaultPropertyMap.put(PORT, "1527");
             //defaultPropertyMap.put(DRIVER_CLASS_NAME, "org.apache.derby.jdbc.ClientDriver");
