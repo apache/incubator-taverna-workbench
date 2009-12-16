@@ -21,22 +21,16 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
-import java.util.TreeMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
-import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -59,7 +53,6 @@ import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEv
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
-import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 
 import org.apache.log4j.Logger;
 
@@ -73,6 +66,10 @@ import org.apache.log4j.Logger;
 public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	private static Logger logger = Logger.getLogger(ServicePanel.class);
+
+	private static final int INITIAL_BLANK_OUT_COUNTER = 2;
+
+	public int blankOutCounter = 0;
 
 	public static final String AVAILABLE_SERVICES = "Available services";
 	public static final String MATCHING_SERVIES = "Matching services";
@@ -89,9 +86,6 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 	private TreeUpdaterThread updaterThread;
 
 	private RootFilterTreeNode root = new RootFilterTreeNode(AVAILABLE_SERVICES);
-
-	private static ServiceComparator serviceComparator = new ServiceComparator();
-
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 
 	private ServiceTreePanel serviceTreePanel;
@@ -106,35 +100,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	protected Object updateLock = new Object();
 	
-	private static Comparator servicePathElementComparator = new Comparator() {
-
-		public int compare(Object o1, Object o2) {
-			if ((o1 instanceof String) && (o2 instanceof String)) {
-				String so1 = (String) o1;
-				String so2 = (String) o2;
-				if (o1.equals(ServiceDescription.SERVICE_TEMPLATES)) {
-					return -1;
-				}
-				if (o2.equals(ServiceDescription.SERVICE_TEMPLATES)) {
-					return 1;
-				}
-				if (o1.equals(ServiceDescription.LOCAL_SERVICES)) {
-					return -1;
-				}
-				if (o2.equals(ServiceDescription.LOCAL_SERVICES)) {
-					return 1;
-				}
-				if (o1.equals(MOBY_OBJECTS)) {
-					return -1;
-				}
-				if (o2.equals(MOBY_OBJECTS)) {
-					return 1;
-				}
-			}
-			return o1.toString().compareToIgnoreCase(o2.toString());
-		}
-		
-	};
+	private static ServicePathElementComparator servicePathElementComparator = new ServicePathElementComparator();
 
 	public ServicePanel(ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
@@ -202,6 +168,32 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			}
 			updaterThread = new TreeUpdaterThread();
 			updaterThread.start();
+		}
+	}
+
+	protected static class ServicePathElementComparator implements Comparator {
+		public int compare(Object o1, Object o2) {
+			if ((o1 instanceof String) && (o2 instanceof String)) {
+				if (o1.equals(ServiceDescription.SERVICE_TEMPLATES)) {
+					return -1;
+				}
+				if (o2.equals(ServiceDescription.SERVICE_TEMPLATES)) {
+					return 1;
+				}
+				if (o1.equals(ServiceDescription.LOCAL_SERVICES)) {
+					return -1;
+				}
+				if (o2.equals(ServiceDescription.LOCAL_SERVICES)) {
+					return 1;
+				}
+				if (o1.equals(MOBY_OBJECTS)) {
+					return -1;
+				}
+				if (o2.equals(MOBY_OBJECTS)) {
+					return 1;
+				}
+			}
+			return o1.toString().compareToIgnoreCase(o2.toString());
 		}
 	}
 
@@ -363,37 +355,21 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public static class ServiceComparator implements
-			Comparator<ServiceDescription> {
-		public int compare(ServiceDescription o1, ServiceDescription o2) {
-			return o1.getName().compareTo(o2.getName());
-		}
-	}
-
 	private final class ServiceDescriptionRegistryObserver implements
 			Observer<ServiceDescriptionRegistryEvent> {
-	    Set<ServiceDescriptionProvider> alreadyComplainedAbout = new HashSet<ServiceDescriptionProvider>();
+		Set<ServiceDescriptionProvider> alreadyComplainedAbout = new HashSet<ServiceDescriptionProvider>();
+
 		public void notify(Observable<ServiceDescriptionRegistryEvent> sender,
 				ServiceDescriptionRegistryEvent message) throws Exception {
-			if (message instanceof ServiceDescriptionProvidedEvent) {
-
-			}
 			if (message instanceof ProviderErrorNotification) {
-			        final ProviderErrorNotification pen = (ProviderErrorNotification) message;
-				ServiceDescriptionProvider provider = pen.getProvider();
-				if (!alreadyComplainedAbout.contains(provider)) {
-			alreadyComplainedAbout.add(provider);
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-				    JOptionPane.showMessageDialog(ServicePanel.this, pen.getMessage() + "\n" +  pen.getProvider(), "Import service error", JOptionPane.ERROR_MESSAGE);
-					}
-			});
-				}
-			} else if ((message instanceof ServiceDescriptionProvidedEvent) || (message instanceof RemovedProviderEvent)) {
-			    AbstractProviderEvent ape = (AbstractProviderEvent) message;
-			    alreadyComplainedAbout.remove(ape.getProvider());
+				final ProviderErrorNotification pen = (ProviderErrorNotification) message;
+				reportServiceProviderError(pen);
+			} else if ((message instanceof ServiceDescriptionProvidedEvent)
+					|| (message instanceof RemovedProviderEvent)) {
+				AbstractProviderEvent ape = (AbstractProviderEvent) message;
+				alreadyComplainedAbout.remove(ape.getProvider());
 			}
+
 			if (message instanceof AbstractProviderNotification) {
 				AbstractProviderNotification abstractProviderNotification = (AbstractProviderNotification) message;
 				providerStatus(abstractProviderNotification.getProvider(),
@@ -406,14 +382,33 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				updateTree();
 			}
 			if (message instanceof RemovedProviderEvent) {
-				updateTree();					
+				updateTree();
 			}
+		}
+
+		private void reportServiceProviderError(
+				final ProviderErrorNotification pen) {
+			ServiceDescriptionProvider provider = pen.getProvider();
+
+			if (serviceDescriptionRegistry
+					.getDefaultServiceDescriptionProviders().contains(provider)) {
+				return;
+			}
+			if (alreadyComplainedAbout.contains(provider)) {
+				return;
+			}
+			alreadyComplainedAbout.add(provider);
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					JOptionPane.showMessageDialog(ServicePanel.this, pen
+							.getMessage()
+							+ "\n" + pen.getProvider(), "Import service error",
+							JOptionPane.ERROR_MESSAGE);
+				}
+			});
 		}
 	}
 
-	private static final int INITIAL_BLANK_OUT_COUNTER = 2;
-
-	public int blankOutCounter = 0;
 
 	private final class UpdateStatusLineTask extends TimerTask {
 		@Override
