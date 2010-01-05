@@ -10,7 +10,6 @@
     <namedcomponent>
       <groupid>net.sf.taverna.t2.ui-exts</groupid>
       <artifact>perspective-myexperiment</artifact>
-      <version>1.0</version>
       <classname>net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponentFactory</classname>
       <name>myExperiment Perspective</name>
     </namedcomponent>
