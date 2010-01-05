@@ -15,13 +15,13 @@
 		<repositories />
 		<system>
 			<!-- T2Reference API -->
-		<sys artifact="net.sf.taverna.t2.core:reference-api:1.0" />
+		<sys artifact="net.sf.taverna.t2.core:reference-api:1.1-SNAPSHOT" />
 
 			<!-- T2Platform -->
 			<sys artifact="commons-logging:commons-logging:1.1.1" />
 
 			<!-- Raven -->
-			<sys artifact="uk.org.mygrid.taverna.raven:raven:2.0" />
+			<sys artifact="uk.org.mygrid.taverna.raven:raven:2.1-SNAPSHOT" />
 
 			<!-- Spring + Essential External Modules -->
 			<sys artifact="org.springframework:spring-orm:2.5.4" />

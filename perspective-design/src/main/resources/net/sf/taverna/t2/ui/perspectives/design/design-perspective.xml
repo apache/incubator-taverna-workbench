@@ -51,35 +51,30 @@
     <namedcomponent>
       <groupid>net.sf.taverna.t2.ui-components</groupid>
       <artifact>run-ui</artifact>
-      <version>1.0</version>
       <classname>net.sf.taverna.t2.workbench.run.DataflowRunsComponentFactory</classname>
       <name>Dataflow Runs</name>
     </namedcomponent>
     <namedcomponent>
       <groupid>net.sf.taverna.t2.ui-components</groupid>
       <artifact>activity-palette-ui</artifact>
-      <version>1.0</version>
       <classname>net.sf.taverna.t2.workbench.ui.servicepanel.ServicePanelComponentFactory</classname>
       <name>servicePanel</name>
     </namedcomponent>
     <namedcomponent>
       <groupid>net.sf.taverna.t2.ui-impl</groupid>
       <artifact>contextual-views-impl</artifact>
-      <version>1.0</version>
       <classname>net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualViewComponentFactory</classname>
       <name>contextualView</name>
     </namedcomponent>
     <namedcomponent>
       <groupid>net.sf.taverna.t2.ui-components</groupid>
       <artifact>workflow-explorer</artifact>
-      <version>1.0</version>
       <classname>net.sf.taverna.t2.workbench.ui.workflowexplorer.WorkflowExplorerFactory</classname>
       <name>workflowexplorer</name>
     </namedcomponent>
     <namedcomponent>
       <groupid>net.sf.taverna.t2.ui-components</groupid>
       <artifact>graph-view</artifact>
-      <version>1.0</version>
       <classname>net.sf.taverna.t2.workbench.views.graph.GraphViewComponentFactory</classname>
       <name>graphview</name>
     </namedcomponent>
