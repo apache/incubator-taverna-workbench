@@ -14,23 +14,23 @@ import java.util.List;
 import java.util.Set;
 
 import javax.swing.Action;
-import javax.swing.JComponent;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 
-import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-
-import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.workbench.design.actions.RemoveProcessorAction;
+import net.sf.taverna.t2.workbench.design.actions.RenameProcessorAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
-import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
+import net.sf.taverna.t2.workbench.ui.actions.PasteGraphComponentAction;
+import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
@@ -47,20 +47,17 @@ import net.sf.taverna.t2.workflowmodel.impl.AddDataflowOutputPortEdit;
 import net.sf.taverna.t2.workflowmodel.impl.AddProcessorEdit;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
+import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.DataflowXMLSerializer;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.ProcessorXMLDeserializer;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.ProcessorXMLSerializer;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
-import net.sf.taverna.t2.workbench.ui.actions.PasteGraphComponentAction;
-import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
-import net.sf.taverna.t2.workbench.design.actions.RemoveProcessorAction;
-import net.sf.taverna.t2.workbench.design.actions.RenameProcessorAction;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
+import org.apache.log4j.Logger;
+import org.jdom.Element;
+import org.jdom.JDOMException;
 
 /**
  * 
@@ -325,9 +322,9 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 	
 	private static void rememberSubworkflows(Processor p) throws SerializationException {
 		for (Activity a : p.getActivityList()) {
-			if (a instanceof DataflowActivity) {
-				DataflowActivity da = (DataflowActivity) a;
-				Dataflow df = da.getConfiguration();
+			if (a instanceof NestedDataflow) {
+				NestedDataflow da = (NestedDataflow) a;
+				Dataflow df = da.getNestedDataflow();
 				if (!requiredSubworkflows.containsKey(df.getInternalIdentier())) {
 					requiredSubworkflows.put(df.getInternalIdentier(), DataflowXMLSerializer.getInstance().serializeDataflow(df));
 					for (Processor sp : df.getProcessors()) {

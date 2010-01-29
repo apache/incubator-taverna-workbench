@@ -41,7 +41,6 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
@@ -62,6 +61,7 @@ import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
@@ -393,9 +393,9 @@ class MonitorGraphEventManager implements GraphEventManager {
 						
 							//is it inside a nested workflow?
 							if (parent != null && parent.getDataflowObject() instanceof Processor) {
-								if (((Processor)parent.getDataflowObject()).getActivityList().get(0) instanceof DataflowActivity) {
+								if (((Processor)parent.getDataflowObject()).getActivityList().get(0) instanceof NestedDataflow) {
 									Activity<?> activity = ((Processor)parent.getDataflowObject()).getActivityList().get(0);
-									targetWorkflowID = ((DataflowActivity)activity).getNestedDataflow().getInternalIdentier();
+									targetWorkflowID = ((NestedDataflow)activity).getNestedDataflow().getInternalIdentier();
 								}
 							} else {
 								targetWorkflowID = dataflow.getInternalIdentier();

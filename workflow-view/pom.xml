@@ -83,13 +83,13 @@
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>edits-impl</artifactId>
 			<version>${t2.ui.impl.version}</version>
-		</dependency>
+		</dependency><!--
 		<dependency>
 			<groupId>net.sf.taverna.t2.activities</groupId>
 			<artifactId>dataflow-activity</artifactId>
 			<version>${t2.activities.version}</version>
 		</dependency>
-		<dependency>
+		--><dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>design-ui</artifactId>
 			<version>${project.version}</version>
