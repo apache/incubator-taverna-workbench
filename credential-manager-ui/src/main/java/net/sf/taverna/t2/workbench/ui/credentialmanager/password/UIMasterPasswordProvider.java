@@ -40,9 +40,10 @@ import net.sf.taverna.t2.security.credentialmanager.SetMasterPasswordDialog;
 public class UIMasterPasswordProvider implements MasterPasswordProviderSPI{
 	
 	public int canProvidePassword() {
-		// Low priority - if password was provided e.g. on the command line 
-		// then use that provider and do not pop up this one
-		return 1;
+		if (GraphicsEnvironment.isHeadless()){
+			return -1;
+		}
+		return 100;
 	}
 
 	public String getPassword() {
