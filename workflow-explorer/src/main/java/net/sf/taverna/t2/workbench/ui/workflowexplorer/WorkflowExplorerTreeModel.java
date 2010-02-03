@@ -38,7 +38,7 @@ import net.sf.taverna.t2.workflowmodel.OutputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.impl.ActivityOutputPortImpl;
+import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
 import net.sf.taverna.t2.workflowmodel.utils.NamedWorkflowEntityComparator;
 import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 
@@ -313,7 +313,7 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 			}
 			return null; // The node is inside a nested workflow so just return here
 		}
-		else if (userObject instanceof ActivityOutputPortImpl){
+		else if (userObject instanceof ActivityOutputPort){
 			// This is an output port of a processor (i.e. of its associated activity)
 			// Get the root processors node
 			DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root.getChildAt(2);
@@ -351,7 +351,7 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 					for (int j = 0; j < processor.getChildCount(); j++){
 
 						DefaultMutableTreeNode port_node = (DefaultMutableTreeNode) processor.getChildAt(j);
-						if ((port_node.getUserObject() instanceof ActivityOutputPortImpl) && 
+						if ((port_node.getUserObject() instanceof ActivityOutputPort) && 
 								(((OutputPort) port_node.getUserObject()).equals(userObject))){
 							return new TreePath(port_node.getPath());
 						}
