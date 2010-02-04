@@ -47,7 +47,7 @@ public class MainComponentShutdownHook implements ShutdownSPI {
 	// find instance of main component of the running myExperiment perspective
 	MainComponent mainComponent = null;
 	for (PerspectiveSPI perspective : PerspectiveRegistry.getInstance().getPerspectives()) {
-	  if (perspective.getText().equals(MyExperimentPerspective.PERSPECTIVE_NAME)) {
+	  if (perspective instanceof MyExperimentPerspective) {		  
 		mainComponent = ((MyExperimentPerspective) perspective).getMainComponent();
 		break;
 	  }
