@@ -119,14 +119,17 @@ public class IterationStrategyContextualView extends ContextualView {
 			Content child = asXML.getContent(index);
 			if (child instanceof Element) {
 				Element childElement = (Element) child;
-				if (childElement.getDescendants(new ElementFilter("port")).hasNext()) {
+				if (childElement.getName().equals("port")) {
+					index++;
+				}
+				else if (childElement.getDescendants(new ElementFilter("port")).hasNext()) {
 					stripEmptyElements(childElement);
+					index++;
 				} else {
 					asXML.removeContent(childElement);
 					childCount--;
 				}
 			}
-			index++;
 		}
 	}
 
