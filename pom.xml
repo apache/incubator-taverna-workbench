@@ -9,7 +9,7 @@
 
 	<groupId>net.sf.taverna.t2</groupId>
 	<artifactId>ui-components</artifactId>
-	<version>1.0</version>
+	<version>1.0.1</version>
 	<packaging>pom</packaging>
 
 	<name>Taverna 2 UI components</name>
@@ -26,7 +26,7 @@
 		<t2.translators.version>1.0</t2.translators.version>
 		<t2.ui.api.version>1.0</t2.ui.api.version>
 		<t2.ui.impl.version>1.0</t2.ui.impl.version>
-		<t2.security.version>1.0</t2.security.version>
+		<t2.security.version>1.0.1</t2.security.version>
 		<taverna.version>1.7.2.0</taverna.version>
 	</properties>
 
