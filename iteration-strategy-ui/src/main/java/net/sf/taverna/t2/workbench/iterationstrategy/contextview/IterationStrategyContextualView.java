@@ -53,7 +53,9 @@ import net.sf.taverna.t2.workflowmodel.processor.iteration.impl.IterationStrateg
 import net.sf.taverna.t2.workflowmodel.processor.iteration.impl.IterationStrategyStackImpl;
 
 import org.apache.log4j.Logger;
+import org.jdom.Content;
 import org.jdom.Element;
+import org.jdom.filter.ElementFilter;
 
 /**
  * Contextual view of an {@link IterationStrategyStack}.
@@ -104,9 +106,28 @@ public class IterationStrategyContextualView extends ContextualView {
 	private IterationStrategyStackImpl copyIterationStrategyStack(
 			IterationStrategyStackImpl stack) {
 		Element asXML = stack.asXML();
+		stripEmptyElements(asXML);
 		IterationStrategyStackImpl copyStack = new IterationStrategyStackImpl();
 		copyStack.configureFromElement(asXML);
 		return copyStack;
+	}
+
+	private void stripEmptyElements(Element asXML) {
+		int childCount = asXML.getContent().size();
+		int index = 0;
+		while (index < childCount) {
+			Content child = asXML.getContent(index);
+			if (child instanceof Element) {
+				Element childElement = (Element) child;
+				if (childElement.getDescendants(new ElementFilter("port")).hasNext()) {
+					stripEmptyElements(childElement);
+				} else {
+					asXML.removeContent(childElement);
+					childCount--;
+				}
+			}
+			index++;
+		}
 	}
 
 	private IterationStrategyImpl getIterationStrategy() {
