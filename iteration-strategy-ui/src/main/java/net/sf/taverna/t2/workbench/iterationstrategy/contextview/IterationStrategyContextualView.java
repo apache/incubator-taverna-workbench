@@ -109,6 +109,9 @@ public class IterationStrategyContextualView extends ContextualView {
 		stripEmptyElements(asXML);
 		IterationStrategyStackImpl copyStack = new IterationStrategyStackImpl();
 		copyStack.configureFromElement(asXML);
+		if (copyStack.getStrategies().isEmpty()) {
+			copyStack.addStrategy(new IterationStrategyImpl());
+		}
 		return copyStack;
 	}
 
