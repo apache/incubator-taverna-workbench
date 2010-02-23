@@ -78,7 +78,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 	}
 	
 	public AbstractAction getAction() {
-		return this;
+		return new SaveIndividualResult();
 	}
 	
 	/**
