@@ -22,31 +22,19 @@ package net.sf.taverna.t2.activities.stringconstant.menu;
 
 import java.awt.event.ActionEvent;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JComponent;
-
-import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
-import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
-import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
+
+import org.apache.log4j.Logger;
 
 /**
  * An action to add a string constant activity + a wrapping processor to the workflow.
