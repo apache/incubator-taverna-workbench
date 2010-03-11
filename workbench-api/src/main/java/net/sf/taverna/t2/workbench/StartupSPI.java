@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2009 The University of Manchester   
+ * Copyright (C) 2009-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -21,10 +21,12 @@
 package net.sf.taverna.t2.workbench;
 
 /**
- * SPI for components/plugins that want to be able to perform some configuration on 
- * Workbench startup.
+ * SPI for components/plugins that want to be able to perform some configuration
+ * or similar initialization on Workbench startup.
  * 
+ * @see ShutdownSPI
  * @author Alex Nenadic
+ * @author Stian Soiland-Reyes
  */
 public interface StartupSPI {
 
@@ -32,23 +34,22 @@ public interface StartupSPI {
 	 * Called when the Workbench is starting up for implementations of this
 	 * interface to perform any configuration on start up.
 	 * <p>
-	 * When the configuration process has finished this
-	 * method should return <code>true</code>.
+	 * When the configuration process has finished this method should return
+	 * <code>true</code>.
 	 * <p>
-	 * Return <code>false</code> if and only if failure in this method will cause Workbench 
-	 * not to function at all.
+	 * Return <code>false</code> if and only if failure in this method will
+	 * cause Workbench not to function at all.
 	 * 
 	 */
 	public boolean startup();
 
 	/**
-	 * Provides a hint for the order in which the startup hooks (that implement this interface)
-	 * will be called. Higher the number earlier will the startup hook be
-	 * invoked.
+	 * Provides a hint for the order in which the startup hooks (that implement
+	 * this interface) will be called. The lower the number, the earlier will
+	 * the startup hook be invoked.
 	 * <p>
 	 * Custom plugins are recommended to start with a value > 100.
 	 */
 	public int positionHint();
 
 }
-

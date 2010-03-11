@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2009 The University of Manchester   
+ * Copyright (C) 2009-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -30,7 +30,9 @@ package net.sf.taverna.t2.workbench;
  * <b>NB</b> There is no guarantee that the workbench will actually shut down as
  * the user may decide to abort the shutdown.
  * 
+ * @see ShutdownSPI
  * @author David Withers
+ * @author Stian Soiland-Reyes
  */
 public interface ShutdownSPI {
 
@@ -53,10 +55,10 @@ public interface ShutdownSPI {
 
 	/**
 	 * Provides a hint for the position in the shutdown sequence that shutdown
-	 * should be called. The higher the number the earlier shutdown will be
+	 * should be called. The lower the number the earlier shutdown will be
 	 * called.
 	 * <p>
-	 * Custom plugins are recommended to start with a value > 100.
+	 * Custom plugins are recommended to start with a value < 100.
 	 */
 	public int positionHint();
 
