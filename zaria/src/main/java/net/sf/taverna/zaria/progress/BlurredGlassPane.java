@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -30,13 +30,14 @@ import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
-import net.sf.taverna.raven.log.Log;
+import org.apache.log4j.Logger;
 
 import com.jhlabs.image.BoxBlurFilter;
 
+@SuppressWarnings("serial")
 public class BlurredGlassPane extends JComponent {
 
-	private static Log logger = Log.getLogger(BlurredGlassPane.class);
+	private static Logger logger = Logger.getLogger(BlurredGlassPane.class);
 	private JFrame frame;
 	private boolean active;
 	private BufferedImage blur = null;

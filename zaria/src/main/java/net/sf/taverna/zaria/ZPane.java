@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -33,11 +33,11 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JToolBar;
 
-import net.sf.taverna.raven.log.Log;
 import net.sf.taverna.raven.repository.Artifact;
 import net.sf.taverna.raven.spi.Profile;
 import net.sf.taverna.raven.spi.ProfileFactory;
 
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 /**
@@ -47,9 +47,10 @@ import org.jdom.Element;
  * @author Tom Oinn
  * @author Stian Soiland-Reyes
  */
+@SuppressWarnings("serial")
 public abstract class ZPane extends JComponent implements ZTreeNode {
 
-	private static Log logger = Log.getLogger(ZPane.class);
+	private static Logger logger = Logger.getLogger(ZPane.class);
 
 	/**
 	 * Returns the base element for the ZPane but does not configure it, we

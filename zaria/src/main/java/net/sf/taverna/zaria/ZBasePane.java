@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -34,6 +34,7 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 
+import net.sf.taverna.raven.appconfig.ApplicationConfig;
 import net.sf.taverna.raven.repository.Artifact;
 import net.sf.taverna.raven.repository.ArtifactNotFoundException;
 import net.sf.taverna.raven.repository.ArtifactStateException;
@@ -58,6 +59,7 @@ import org.jdom.Element;
  * @author Tom Oinn
  * @author Stian Soiland-Reyes
  */
+@SuppressWarnings("serial")
 public abstract class ZBasePane extends ZPane {
 
 	private static Logger logger = Logger.getLogger(ZBasePane.class);
@@ -129,6 +131,8 @@ public abstract class ZBasePane extends ZPane {
 				Artifact a = null;
 				if (version != null) {
 					a = new BasicArtifact(groupId, artifactId, version);
+				} else if (! ApplicationConfig.getInstance().isUsingRaven()) {
+					a = new BasicArtifact(groupId, artifactId, "unknown");
 				} else {
 					Profile prof = ProfileFactory.getInstance().getProfile();
 					if (prof != null) {

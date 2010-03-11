@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -199,7 +199,7 @@ public class ZTabbedPane extends ZPane {
 		for (ZTreeNode child : getZChildren()) {
 			child.setEditable(editable);
 		}
-	};
+	}
 
 	public void swap(ZTreeNode oldComponent, ZTreeNode newComponent) {
 		// Find the tab index, if any, of the old component

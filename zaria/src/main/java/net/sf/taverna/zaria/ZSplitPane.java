@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -31,8 +31,7 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JSplitPane;
 
-import net.sf.taverna.raven.log.Log;
-
+import org.apache.log4j.Logger;
 import org.jdom.Element;
 
 /**
@@ -43,7 +42,7 @@ import org.jdom.Element;
 @SuppressWarnings("serial")
 public class ZSplitPane extends ZPane {
 
-	private static Log logger = Log.getLogger(ZSplitPane.class);
+	private static Logger logger = Logger.getLogger(ZSplitPane.class);
 
 	private JSplitPane splitPane = new DividerLocationSplitPane();
 

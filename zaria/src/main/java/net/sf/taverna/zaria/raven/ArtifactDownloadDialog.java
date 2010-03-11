@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -40,6 +40,7 @@ import javax.swing.JTextField;
 import net.sf.taverna.raven.repository.Artifact;
 import net.sf.taverna.raven.repository.BasicArtifact;
 
+@SuppressWarnings("serial")
 public class ArtifactDownloadDialog extends JDialog {
 
 	private static Artifact artifact = null;

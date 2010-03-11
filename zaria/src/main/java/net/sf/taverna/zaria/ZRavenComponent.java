@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -38,7 +38,6 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
-import net.sf.taverna.raven.log.Log;
 import net.sf.taverna.raven.repository.Artifact;
 import net.sf.taverna.raven.repository.ArtifactNotFoundException;
 import net.sf.taverna.raven.repository.ArtifactStateException;
@@ -49,6 +48,7 @@ import net.sf.taverna.raven.spi.ProfileFactory;
 import net.sf.taverna.raven.spi.SpiRegistry;
 import net.sf.taverna.zaria.ZBasePane.NamedRavenComponentSpecifier;
 
+import org.apache.log4j.Logger;
 import org.jdom.Attribute;
 import org.jdom.Element;
 
@@ -62,7 +62,7 @@ import org.jdom.Element;
 @SuppressWarnings("serial")
 public class ZRavenComponent extends ZPane {
 
-	private static Log logger = Log.getLogger(ZRavenComponent.class);
+	private static Logger logger = Logger.getLogger(ZRavenComponent.class);
 	private String spiName = null;
 	private Artifact artifact = null;
 	private String className = null;
