@@ -44,7 +44,7 @@ public class FileMenu extends AbstractMenu {
 
 	public static DummyAction makeAction() {
 		DummyAction action = new DummyAction("File");
-		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_F);
+		action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_F));
 		return action;
 	}
 }

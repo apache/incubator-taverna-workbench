@@ -44,6 +44,7 @@ public class ExitAction extends AbstractMenuAction {
 				10000);
 	}
 
+	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
 		return new AbstractAction("Exit") {

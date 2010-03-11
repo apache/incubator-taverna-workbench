@@ -31,8 +31,6 @@ import javax.swing.KeyStroke;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.helper.Helper;
 
-import org.apache.log4j.Logger;
-
 /**
  * MenuItem for help
  * 
@@ -40,9 +38,6 @@ import org.apache.log4j.Logger;
  *
  */
 public class OnlineHelpMenuAction extends AbstractMenuAction {
-
-	private static Logger logger = Logger
-			.getLogger(OnlineHelpMenuAction.class);
 
 	public OnlineHelpMenuAction() {
 		super(HelpMenu.HELP_URI, 10);
@@ -53,6 +48,7 @@ public class OnlineHelpMenuAction extends AbstractMenuAction {
 		return new OnlineHelpAction();
 	}
 
+	@SuppressWarnings("serial")
 	private final class OnlineHelpAction extends AbstractAction {
 		private OnlineHelpAction() {
 			super("Online help");

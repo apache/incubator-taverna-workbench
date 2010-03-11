@@ -20,7 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.impl.menu;
 
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
@@ -34,12 +33,9 @@ import javax.swing.KeyStroke;
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workbench.ui.impl.WorkbenchPerspectives;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
-
-import org.apache.log4j.Logger;
 
 /**
  * An action that zooms a diagram image
@@ -52,8 +48,6 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class ChangePerspectiveMenuAction extends AbstractMenuAction{
 
-	private static Logger logger = Logger.getLogger(ChangePerspectiveMenuAction.class);
-	
 	private static ModelMap modelMap = ModelMap.getInstance();
 	
 	public static final URI CHANGE_PERSPECTIVE_URI = URI

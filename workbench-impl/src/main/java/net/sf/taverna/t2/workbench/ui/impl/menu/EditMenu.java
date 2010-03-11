@@ -38,7 +38,7 @@ public class EditMenu extends AbstractMenu {
 	
 	public static DummyAction makeAction() {
 		DummyAction action = new DummyAction("Edit");
-		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_E);
+		action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_E));
 		return action;
 	}
 

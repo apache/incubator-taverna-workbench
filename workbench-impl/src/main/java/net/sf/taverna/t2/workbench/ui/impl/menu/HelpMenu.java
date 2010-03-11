@@ -27,7 +27,6 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenu;
 import net.sf.taverna.t2.ui.menu.DefaultMenuBar;
-import net.sf.taverna.t2.ui.menu.AbstractMenuItem.DummyAction;
 
 public class HelpMenu extends AbstractMenu {
 
@@ -40,7 +39,7 @@ public class HelpMenu extends AbstractMenu {
 
 	public static DummyAction makeAction() {
 		DummyAction action = new DummyAction("Help");
-		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_H);
+		action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_H));
 		return action;
 	}
 

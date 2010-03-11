@@ -37,7 +37,7 @@ public class AdvancedMenu extends AbstractMenu {
 	
 	public static DummyAction makeAction() {
 		DummyAction action = new DummyAction("Advanced");
-		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_A);
+		action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_A));
 		return action;
 	}
 
