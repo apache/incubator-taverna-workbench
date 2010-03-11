@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2009-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -44,15 +44,15 @@ public class UserRegistrationHook implements StartupSPI{
 
 
 	public int positionHint() {
-		return 500;
+		return 50;
 	}
 
 	public boolean startup() {
 		
 		 // For Taverna snapshots - do not ask user to register
-		/*if (appName.toLowerCase().contains("snapshot")){
+		if (appName.toLowerCase().contains("snapshot")){
 			return true;
-		}*/
+		}
 		
 		// If there is already user's registration data present - exit.
 		if (registrationDataFile.exists()){
