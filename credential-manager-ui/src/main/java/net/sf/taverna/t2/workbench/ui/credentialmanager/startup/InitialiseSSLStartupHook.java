@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ *  Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -32,6 +32,7 @@ import net.sf.taverna.t2.workbench.StartupSPI;
  * creating HTTPS connections.
  * 
  * @author Alex Nenadic
+ * @author Stian Soiland-Reyes
  *
  */
 public class InitialiseSSLStartupHook implements StartupSPI{
@@ -39,7 +40,7 @@ public class InitialiseSSLStartupHook implements StartupSPI{
 	private Logger logger = Logger.getLogger(InitialiseSSLStartupHook.class);
 
 	public int positionHint() {
-		return 750;
+		return 25;
 	}
 
 	public boolean startup() {
