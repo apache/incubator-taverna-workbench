@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2009-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -32,6 +32,7 @@ import net.sf.taverna.t2.workbench.StartupSPI;
  * Startup hook for checking if there are available updates for Taverna plugins.
  * 
  * @author Alex Nenadic
+ * @author Stian Soiland-Reyes
  *
  */
 public class CheckForUpdatesStartupHook implements StartupSPI{
@@ -46,7 +47,7 @@ public class CheckForUpdatesStartupHook implements StartupSPI{
 
 
 	public int positionHint() {
-		return 100;
+		return 90;
 	}
 
 	public boolean startup() {
