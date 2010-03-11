@@ -19,7 +19,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
 
-package net.sf.taverna.t2.workbench.run;
+package net.sf.taverna.t2.workbench.run.cleanup;
 
 import java.awt.Color;
 import java.awt.Font;

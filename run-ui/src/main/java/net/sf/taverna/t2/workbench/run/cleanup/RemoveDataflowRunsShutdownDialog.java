@@ -18,7 +18,7 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.run;
+package net.sf.taverna.t2.workbench.run.cleanup;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -37,17 +37,17 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
 /**
- * Dialog that is popped up during Taverna shutdown during
- * clean up of the Reference Manager's database 
+ * Dialog that is popped up during Taverna shutdown if 
+ * deleting dataflow runs has not finished yet 
  * to let user now why shutdown is taking a while.
  * 
- * Based on Davi Wither's ReferenceServiceShutdownDialog.
+ * Based on David Wither's ReferenceServiceShutdownDialog.
  * 
  * @author Alex Nenadic
  *
  */
 @SuppressWarnings("serial")
-public class ReferenceDatabaseCleanUpShutdownDialog extends JDialog{
+public class RemoveDataflowRunsShutdownDialog extends JDialog{
 
 	private JProgressBar progressBar;
 
@@ -63,8 +63,8 @@ public class ReferenceDatabaseCleanUpShutdownDialog extends JDialog{
 
 	//private long startTime = System.currentTimeMillis();
 
-	public ReferenceDatabaseCleanUpShutdownDialog() {
-		super((Frame) null, "Deleting unused data references from database", true);
+	public RemoveDataflowRunsShutdownDialog() {
+		super((Frame) null, "Deleting provenance data", true);
 		setUndecorated(true);
 		setLocationRelativeTo(null);
 
@@ -85,8 +85,8 @@ public class ReferenceDatabaseCleanUpShutdownDialog extends JDialog{
 			public void actionPerformed(ActionEvent e) {
 				int result = JOptionPane
 						.showConfirmDialog(
-								ReferenceDatabaseCleanUpShutdownDialog.this,
-								"If you close Taverna now you might corrupt the data reference database.\nAre you sure you want to close now?",
+								RemoveDataflowRunsShutdownDialog.this,
+								"If you close Taverna now you might corrupt the provenance database.\nAre you sure you want to close now?",
 								"Confirm shutdown", JOptionPane.YES_NO_OPTION,
 								JOptionPane.WARNING_MESSAGE);
 				if (result == JOptionPane.YES_OPTION) {
@@ -104,7 +104,7 @@ public class ReferenceDatabaseCleanUpShutdownDialog extends JDialog{
 		});
 
 		JLabel message = new JLabel(
-				"Data is being deleted from the data reference database.");
+				"Provenance data is being deleted from the database.");
 
 		JPanel topPanel = new JPanel(topPanelGridbag);
 		topPanel.setBackground(Color.WHITE);
@@ -155,7 +155,7 @@ public class ReferenceDatabaseCleanUpShutdownDialog extends JDialog{
 		gridbag.setConstraints(abortButton, c);
 		add(abortButton);
 
-		setSize(430, 230);
+		setSize(400, 230);
 	}
 	
 	public void setInitialQueueSize(int initialQueueSize) {

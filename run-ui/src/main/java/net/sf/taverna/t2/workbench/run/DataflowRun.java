@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -20,9 +20,12 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run;
 
+import java.io.ByteArrayInputStream;
+import java.lang.ref.WeakReference;
 import java.text.DateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.WeakHashMap;
 import java.util.Map.Entry;
 
 import net.sf.taverna.t2.facade.ResultListener;
@@ -43,13 +46,22 @@ import net.sf.taverna.t2.workbench.views.monitor.PreviousRunsComponent;
 import net.sf.taverna.t2.workbench.views.results.ResultViewComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializerRegistry;
 
 import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.input.SAXBuilder;
 
+/**
+ * Representation of a dataflow run
+ *
+ */
 public class DataflowRun {
 
-	private static Logger logger = Logger
-	.getLogger(DataflowRun.class);
+	private static Logger logger = Logger.getLogger(DataflowRun.class);
+
+	private static WeakHashMap<String, WeakReference<Dataflow>> loadedDataflows = new WeakHashMap<String, WeakReference<Dataflow>>();
 
 	private WorkflowInstanceFacade facade;
 
@@ -71,17 +83,32 @@ public class DataflowRun {
 	private String runId;
 
 	private ProvenanceConnector connector;
-	
+
 	private boolean isProvenanceEnabledForRun = true;
 	private boolean isDataSavedInDatabase = true;
-	
+
 	private ReferenceService referenceService;
 
-	public DataflowRun(Dataflow dataflow, Date date, String sessionID, ReferenceService referenceService) {
-		this.dataflow = dataflow;
+	private byte[] dataflowBytes = null;
+
+	private String workflowId = null;
+
+	public String getWorkflowId() {
+		return workflowId;
+	}
+
+	public String getWorkflowName() {
+		return workflowName;
+	}
+
+	private String workflowName = "(Unknown)";
+
+	public DataflowRun(Dataflow dataflow, Date date, String sessionID,
+			ReferenceService referenceService) {
 		this.date = date;
 		this.runId = sessionID;
 		this.referenceService = referenceService;
+		setDataflow(dataflow);
 		String connectorType = DataManagementConfiguration.getInstance()
 				.getConnectorType();
 		for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry
@@ -95,7 +122,11 @@ public class DataflowRun {
 			if (connector != null) {
 				connector.init();
 				connector.setSessionID(sessionID);
-				connector.setReferenceService(referenceService); // set the ref. service specific to this run
+				connector.setReferenceService(referenceService); // set the ref.
+				// service
+				// specific
+				// to this
+				// run
 			}
 		} catch (Exception except) {
 
@@ -103,20 +134,28 @@ public class DataflowRun {
 	}
 
 	public DataflowRun(WorkflowInstanceFacade facade,
-			Map<String, T2Reference> inputs, Date date, ReferenceService referenceService) {
+			Map<String, T2Reference> inputs, Date date,
+			ReferenceService referenceService) {
 		this.date = date;
 		monitorViewComponent = new MonitorViewComponent();
 		this.facade = facade;
 		this.inputs = inputs;
 		this.referenceService = referenceService;
-		this.dataflow = facade.getDataflow();
-		connector = (ProvenanceConnector) (facade
-				.getContext().getProvenanceReporter());
-		monitorViewComponent
-				.setProvenanceConnector(connector);
+		setDataflow(facade.getDataflow());
+		connector = (ProvenanceConnector) (facade.getContext()
+				.getProvenanceReporter());
+		monitorViewComponent.setProvenanceConnector(connector);
 		monitorViewComponent.setReferenceService(referenceService);
 		this.runId = facade.getWorkflowRunId();
 		resultsComponent = new ResultViewComponent();
+	}
+
+	public DataflowRun(byte[] dataflowBytes, String workflowId, String workflowName, Date date,
+			String sessionID, ReferenceService referenceService) {
+		this((Dataflow) null, date, sessionID, referenceService);
+		this.dataflowBytes = dataflowBytes;
+		this.workflowId = workflowId;
+		this.workflowName = workflowName;
 	}
 
 	public void run() {
@@ -176,11 +215,9 @@ public class DataflowRun {
 
 	}
 
-
 	@Override
 	public String toString() {
-		return dataflow.getLocalName() + " "
-				+ DateFormat.getDateTimeInstance().format(date);
+		return workflowName + " " + DateFormat.getDateTimeInstance().format(date);
 	}
 
 	@Override
@@ -218,12 +255,53 @@ public class DataflowRun {
 		return true;
 	}
 
-	public Dataflow getDataflow() {
+	public synchronized boolean isDataflowLoaded() {
+		return dataflow != null;
+	}
+
+	public synchronized Dataflow getDataflow() {
+		if (dataflow == null) {
+			// See if another DataflowRun already have loaded this workflow
+			WeakReference<Dataflow> dataflowRef;
+			synchronized (loadedDataflows) {
+				dataflowRef = loadedDataflows.get(workflowId);
+			}
+			if (dataflowRef != null) {
+				dataflow = dataflowRef.get();
+				// Might be null
+			}
+		}
+		if (dataflow == null && dataflowBytes != null) {
+			try {
+				SAXBuilder builder = new SAXBuilder();
+				Document document = builder.build(new ByteArrayInputStream(
+						dataflowBytes));
+				Element rootElement = document.getRootElement();
+				Dataflow loadedDataflow = XMLDeserializerRegistry.getInstance()
+						.getDeserializer().deserializeDataflow(rootElement);
+				logger.debug("Loaded dataflow "
+						+ loadedDataflow.getInternalIdentier() + " for run "
+						+ runId);
+				setDataflow(loadedDataflow);
+			} catch (Exception e) {
+				logger.error("Could not load previous run: " + runId, e);
+				// Avoid second attempt
+				dataflowBytes = null;
+			}
+		}
 		return dataflow;
 	}
 
 	public void setDataflow(Dataflow dataflow) {
 		this.dataflow = dataflow;
+		if (dataflow != null) {
+			this.workflowName = dataflow.getLocalName();
+			this.workflowId = dataflow.getInternalIdentier();
+			synchronized (loadedDataflows) {
+				loadedDataflows.put(this.workflowId,
+						new WeakReference<Dataflow>(dataflow));
+			}
+		}
 	}
 
 	public Date getDate() {
@@ -244,20 +322,22 @@ public class DataflowRun {
 			monitorViewComponent = new PreviousRunsComponent();
 			monitorViewComponent.setProvenanceConnector(connector);
 			monitorViewComponent.setReferenceService(referenceService);
-			monitorObserver = monitorViewComponent.setDataflow(dataflow);
+			monitorObserver = monitorViewComponent.setDataflow(getDataflow());
 
 			resultsComponent = new ResultViewComponent();
-			resultsComponent.repopulate(getDataflow(), getRunId(), getDate(), getReferenceService(), isProvenanceEnabledForRun);
-			monitorViewComponent.setStatus(MonitorViewComponent.Status.COMPLETE);
-			//		monitorViewComponent.revalidate();
+			resultsComponent.repopulate(getDataflow(), getRunId(), getDate(),
+					getReferenceService(), isProvenanceEnabledForRun);
+			monitorViewComponent
+					.setStatus(MonitorViewComponent.Status.COMPLETE);
+			// monitorViewComponent.revalidate();
 		}
 		return monitorViewComponent;
 	}
-	
+
 	public MonitorViewComponent getMonitorViewComponent() {
 		return monitorViewComponent;
 	}
-	
+
 	/**
 	 * Returns the resultsComponent.
 	 * 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2009 The University of Manchester   
+ * Copyright (C) 2009-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -19,7 +19,7 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
 
-package net.sf.taverna.t2.workbench.run;
+package net.sf.taverna.t2.workbench.run.cleanup;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,7 +39,7 @@ public class ReferenceServiceShutdownHook implements ShutdownSPI {
 	private static WriteQueueAspect referenceCache;
 	
 	public int positionHint() {
-		return 50;
+		return 500;
 	}
 
 	public boolean shutdown() {

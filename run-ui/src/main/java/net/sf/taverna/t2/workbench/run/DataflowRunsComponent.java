@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -24,13 +24,10 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +42,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
@@ -58,33 +56,37 @@ import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.impl.WriteQueueAspect;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
+import net.sf.taverna.t2.workbench.run.cleanup.DatabaseCleanup;
+import net.sf.taverna.t2.workbench.run.cleanup.ReferenceServiceShutdownHook;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializerRegistry;
 
 import org.apache.log4j.Logger;
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.ApplicationContext;
 
+/**
+ * Component for keeping and showing dataflow runs.
+ * <p>
+ * <b> FIXME: </b> This class performs a double-role as the GUI component and for
+ * keeping and tidying up in the actual runs. Running, keeping runs, results and
+ * previous runs should be done in a separate non-GUI module.
+ */
 public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger
+	static Logger logger = Logger
 			.getLogger(DataflowRunsComponent.class);
 
 	private static DataflowRunsComponent singletonInstance;
 
 	private ReferenceService referenceService;
 
-	private ReferenceService referenceServiceWithDatabase; // for previous runs, we always need the one using database
+	private ReferenceService referenceServiceWithDatabase; // for previous runs,
+	// we always need
+	// the one using
+	// database
 
 	private String referenceContext;
 
@@ -95,15 +97,8 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 	private JButton removeWorkflowRunsButton;
 
 	private JSplitPane topPanel;
-	
-	// Queue for previous workflow runs to be deleted
-	// The reason for not using LinkedBlockingQueue here is that we need to do a peek first and then remove
-	// in the delete run thread, rather than taking the first element of the queue since
-	// shutdown hook checks if the queue is empty and then pops up a dialog it is taking a while (and if we do
-	// a remove immediately the hook would not detect that there is deletion going on if there was only one element 
-	// in the queue). Peek in LinkedBlockingQueue does not wait so we would have to sync anyway so there is not 
-	// advantage in using it over LinkedList. 
-	private static final LinkedList<DataflowRun> runsToBeDeletedQueue = new LinkedList<DataflowRun>();
+
+	protected LoadPreviousWorkflow loadWorkflowRunThread;
 
 	private DataflowRunsComponent() {
 		super(JSplitPane.VERTICAL_SPLIT);
@@ -151,12 +146,30 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 						setDividerLocation(location);
 						revalidate();
 					} else if (selection instanceof DataflowRun) {
-
-						DataflowRun dataflowRun = (DataflowRun) selection;
-						topPanel.setBottomComponent(dataflowRun
-								.getOrCreateMonitorViewComponent());
-
-						setBottomComponent(dataflowRun.getResultsComponent());
+						final DataflowRun dataflowRun = (DataflowRun) selection;
+						if (!dataflowRun.isDataflowLoaded()) {
+							topPanel.setBottomComponent(new JLabel(
+									"<html>Loading workflow diagram and results for <i>" + dataflowRun.getWorkflowName() +  "</i> for run "
+											+ dataflowRun.getDate() + "</html>"));
+							setBottomComponent(new JPanel());
+							if (loadWorkflowRunThread != null) {
+								loadWorkflowRunThread.interrupt();
+							}
+							loadWorkflowRunThread = new LoadPreviousWorkflow(
+									dataflowRun);
+							loadWorkflowRunThread.start();
+						} else if (dataflowRun.getDataflow() == null) {
+							topPanel.setBottomComponent(new JLabel(
+									"Could not load workflow for run "
+											+ dataflowRun.getRunId()));
+							setBottomComponent(new JPanel());
+						} else {
+							// Everything OK, dataflow already loaded
+							topPanel.setBottomComponent(dataflowRun
+									.getOrCreateMonitorViewComponent());
+							setBottomComponent(dataflowRun
+									.getResultsComponent());
+						}
 						setDividerLocation(location);
 						removeWorkflowRunsButton.setEnabled(true);
 						revalidate();
@@ -172,29 +185,31 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		worklflowRunsLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		worklflowRunsLabel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
 		// button to remove previous workflow runs
-		removeWorkflowRunsButton = new JButton("Remove"); 
+		removeWorkflowRunsButton = new JButton("Remove");
 		removeWorkflowRunsButton.setAlignmentX(JComponent.RIGHT_ALIGNMENT);
 		removeWorkflowRunsButton.setEnabled(false);
 		removeWorkflowRunsButton.setToolTipText("Remove workflow run(s)");
 		removeWorkflowRunsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-					
-				// Warn user that removing workflow run will 
+
+				// Warn user that removing workflow run will
 				// cause all provenance data for that run to be deleted
 				int option = JOptionPane
 						.showConfirmDialog(
 								null,
-								new JLabel("<html><body>Are you sure you want to delete the selected workflow run(s)?<br>" +
-										"Deleting them will remove all provenance data related to the run(s).</body></html>"),
+								new JLabel(
+										"<html><body>Are you sure you want to delete the selected workflow run(s)?<br>"
+												+ "Deleting them will remove all provenance data related to the run(s).</body></html>"),
 								"Confirm workflow run deletion",
 								JOptionPane.OK_CANCEL_OPTION);
-				if (option == JOptionPane.CANCEL_OPTION){
+				if (option == JOptionPane.CANCEL_OPTION) {
 					return;
 				}
-				
+
 				int[] selectedRunsToDelete = runList.getSelectedIndices();
-				for (int i=0; i < selectedRunsToDelete.length; i++){
-					if (((DataflowRun)runListModel.get(i)).getDataflow().isRunning()){
+				for (int i = 0; i < selectedRunsToDelete.length; i++) {
+					if (((DataflowRun) runListModel.get(i)).getDataflow()
+							.isRunning()) {
 						option = JOptionPane
 								.showConfirmDialog(
 										null,
@@ -202,8 +217,11 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 												"<html><body>Some of the workflow runs you are trying to delete appear not to have finished.<br>Are you sure you want to continue and delete them as well (this is not recommended)?</body></html>"),
 										"Confirm unfinished workflow run deletion",
 										JOptionPane.WARNING_MESSAGE);
-						if (option == JOptionPane.CANCEL_OPTION){
+						if (option == JOptionPane.CANCEL_OPTION) {
 							return;
+						} else {
+							// Don't ask again
+							break;
 						}
 					}
 				}
@@ -212,19 +230,12 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 				for (int i = selected.length - 1; i >= 0; i--) {
 					final DataflowRun dataflowRunToBeDeleted = (DataflowRun) runListModel
 							.remove(selected[i]);
-					MonitorViewComponent mvc = dataflowRunToBeDeleted.getMonitorViewComponent();
+					MonitorViewComponent mvc = dataflowRunToBeDeleted
+							.getMonitorViewComponent();
 					if (mvc != null) {
 						mvc.onDispose();
 					}
-					// Add this workflow run to the queue to be deleted
-					synchronized (runsToBeDeletedQueue) {
-						runsToBeDeletedQueue.add(dataflowRunToBeDeleted);
-					}
-				}
-				if (selected.length >0){
-					synchronized (runsToBeDeletedQueue) {
-						runsToBeDeletedQueue.notify();
-					}
+					DatabaseCleanup.getInstance().scheduleDeleteDataflowRun(dataflowRunToBeDeleted, true);					
 				}
 				// Set the first item as selected - if there is one
 				if (runListModel.size() > 0) {
@@ -247,7 +258,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		hintsPanel.add(new JLabel("Click on a run to see its values"),
 				BorderLayout.NORTH);
 		hintsPanel.add(new JLabel("Click on a service in the diagram"),
-					BorderLayout.CENTER);
+				BorderLayout.CENTER);
 		hintsPanel.add(new JLabel("to see intermediate values (if available)"),
 				BorderLayout.SOUTH);
 		runListWithHintTopPanel.add(hintsPanel, BorderLayout.SOUTH);
@@ -274,72 +285,55 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 				BorderLayout.CENTER);
 		setBottomComponent(tempResultsPanel);
 
-	    // revalidate();
+		// revalidate();
 		// setDividerLocation(.3);
 
-		Thread thread = new Thread("Retrieve Previous Runs") {
-			@Override
-			public void run() {
-				// force reference service to be constructed now rather than at first
-				// workflow run
-				getReferenceService();
-				getReferenceServiceWithDatabase(); // get the Reference Service with database for previous runs
-				retrievePreviousRuns();				
-			}
-			
-		};
+		Thread thread = new RetrievePreviousRunsThread();
 		thread.start();
-		
-		// Start listening for requests for previous workflow runs to be deleted 
-		Thread deleteWorkflowRunsThread = new DeleteWorkflowRunsThread();
-		deleteWorkflowRunsThread.start();
+
 	}
 
 	@SuppressWarnings("unchecked")
-	public ArrayList<DataflowRun> getPreviousWFRuns(){
-		return (ArrayList<DataflowRun>) Collections.list(runListModel.elements());
+	public ArrayList<DataflowRun> getPreviousWFRuns() {
+		return (ArrayList<DataflowRun>) Collections.list(runListModel
+				.elements());
 	}
-	
-	private void retrievePreviousRuns() {
+
+	protected void retrievePreviousRuns() {
 		String connectorType = DataManagementConfiguration.getInstance()
 				.getConnectorType();
 		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
 
-		List<WorkflowInstance> allWorkflowRunIDs = provenanceAccess.listRuns(null, null);
-		//List<WorkflowInstance> allWorkflowRunIDs = provenanceAccess.getAllWorkflowIDs();
-		//Collections.reverse(allWorkflowRunIDs);
-		
+		List<WorkflowInstance> allWorkflowRunIDs = provenanceAccess.listRuns(
+				null, null);
+		// List<WorkflowInstance> allWorkflowRunIDs =
+		// provenanceAccess.getAllWorkflowIDs();
+		// Collections.reverse(allWorkflowRunIDs);
+
 		for (WorkflowInstance workflowInstance : allWorkflowRunIDs) {
-			if (provenanceAccess.isTopLevelDataflow(workflowInstance.getWorkflowIdentifier())){
+			DatabaseCleanup databaseCleanup = DatabaseCleanup.getInstance();
+			if (databaseCleanup.isDeletedOrScheduledForDeletion(
+					workflowInstance.getInstanceID())) {
+				continue;
+			}
+			if (provenanceAccess.isTopLevelDataflow(workflowInstance
+					.getWorkflowIdentifier())) {
 				logger.info("retrieved previous run, workflow id: "
 						+ workflowInstance.getInstanceID() + " date: "
 						+ workflowInstance.getTimestamp());
-				Timestamp time = Timestamp.valueOf(workflowInstance.getTimestamp());
+				Timestamp time = Timestamp.valueOf(workflowInstance
+						.getTimestamp());
 				Date date = new Date(time.getTime());
-				try {
-					SAXBuilder builder = new SAXBuilder();
-					Document document = builder.build(new ByteArrayInputStream(workflowInstance.getDataflowBlob()));
-					Element rootElement = document.getRootElement();
-					Dataflow dataflow = XMLDeserializerRegistry.getInstance()
-							.getDeserializer().deserializeDataflow(rootElement);
-					DataflowRun runComponent = new DataflowRun(dataflow, date,
-							workflowInstance.getInstanceID(), referenceServiceWithDatabase);
-					runComponent.setDataSavedInDatabase(true);
-					runComponent.setProvenanceEnabledForRun(true);
-					runListModel.add(runListModel.getSize(), runComponent);
-				} catch (JDOMException e) {
-					logger.error("Problem with previous run: "
-							+ workflowInstance.getInstanceID() + " " + e);
-				} catch (IOException e) {
-					logger.error("Problem with previous run: "
-							+ workflowInstance.getInstanceID() + " " + e);
-				} catch (DeserializationException e) {
-					logger.error("Problem with previous run: "
-							+ workflowInstance.getInstanceID() + " " + e);
-				} catch (EditException e) {
-					logger.error("Problem with previous run: "
-							+ workflowInstance.getInstanceID() + " " + e);
-				}				
+
+				// Do Dataflow parsing on selection, simply pass
+				// wf-bytes and wf id
+				DataflowRun runComponent = new DataflowRun(workflowInstance
+						.getDataflowBlob(), workflowInstance
+						.getWorkflowIdentifier(), workflowInstance.getWorkflowExternalName(), 
+						date, workflowInstance.getInstanceID(), referenceServiceWithDatabase);
+				runComponent.setDataSavedInDatabase(true);
+				runComponent.setProvenanceEnabledForRun(true);
+				runListModel.add(runListModel.getSize(), runComponent);
 			}
 		}
 	}
@@ -377,25 +371,29 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		return referenceService;
 
 	}
-	
-	private ReferenceService getReferenceServiceWithDatabase() {
-		// Force creation of a Ref. Service that uses database regardless of what current context is
-		// This Ref. Service will be used for previous wf runs to get intermediate results even if
-		// current Ref. Manager uses in-memory store. 
-		if (referenceServiceWithDatabase == null){
+
+	public ReferenceService getReferenceServiceWithDatabase() {
+		// Force creation of a Ref. Service that uses database regardless of
+		// what current context is
+		// This Ref. Service will be used for previous wf runs to get
+		// intermediate results even if
+		// current Ref. Manager uses in-memory store.
+		if (referenceServiceWithDatabase == null) {
 			String databasecontext = DataManagementConfiguration.HIBERNATE_CONTEXT;
 			ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
 					databasecontext);
 			referenceServiceWithDatabase = (ReferenceService) appContext
-						.getBean("t2reference.service.referenceService");
+					.getBean("t2reference.service.referenceService");
 		}
 		return referenceServiceWithDatabase;
 	}
-	
+
 	public void runDataflow(WorkflowInstanceFacade facade,
 			Map<String, T2Reference> inputs) {
-		DataflowRun runComponent = new DataflowRun(facade, inputs, new Date(), referenceService);
-		runComponent.setProvenanceEnabledForRun(DataManagementConfiguration.getInstance().isProvenanceEnabled());
+		DataflowRun runComponent = new DataflowRun(facade, inputs, new Date(),
+				referenceService);
+		runComponent.setProvenanceEnabledForRun(DataManagementConfiguration
+				.getInstance().isProvenanceEnabled());
 		runComponent.setDataSavedInDatabase(DataManagementConfiguration
 				.getInstance().getProperty(
 						DataManagementConfiguration.IN_MEMORY)
@@ -419,75 +417,74 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		// TODO Auto-generated method stub
 
 	}
-	
-	public static LinkedList<DataflowRun> getRunsToBeDeletedQueue() {
-		return runsToBeDeletedQueue;
+
+	protected class RetrievePreviousRunsThread extends Thread {
+		private RetrievePreviousRunsThread() {
+			super("Retrieving previous runs");
+		}
+
+		@Override
+		public void run() {
+			// force reference service to be constructed now rather than at
+			// first
+			// workflow run
+			getReferenceService();
+			getReferenceServiceWithDatabase(); // get the Reference Service
+			// with database for
+			// previous runs
+			retrievePreviousRuns();
+		}
 	}
 
 	/**
-	 *  Thread that deletes provenance for previous workflow runs 
-	 *  placed in a special queue.
+	 * Load a workflow from database (in separate thread, as this involves
+	 * parsing the workflow definition)
+	 * 
 	 */
-	private class DeleteWorkflowRunsThread extends Thread {
-		
-		public DeleteWorkflowRunsThread() {
-			super("Deleting old workflow runs");
-			setDaemon(true);
+	protected class LoadPreviousWorkflow extends Thread {
+		private final DataflowRun dataflowRun;
+
+		private LoadPreviousWorkflow(DataflowRun dataflowRun) {
+			super("Loading workflow " + dataflowRun.getRunId());
+			this.dataflowRun = dataflowRun;
 		}
-		
-        public void run() {
-			try {
-				DataflowRun runToDelete = null;
-				while (true) {
-					synchronized (runsToBeDeletedQueue) {
-						// Wait until an element is placed in the queue
-						while (runsToBeDeletedQueue.isEmpty()) {
-							runsToBeDeletedQueue.wait();
-						}
-					}
-					// Retrieve the first element from the queue (but do not
-					// remove it)
-					runToDelete = runsToBeDeletedQueue.peek();
 
-					// Remove provenance data for the run (if any) and all 
-					// references held by the workflow run from the Reference Manager's store
-					try {
-						logger.info("Starting deletion of workflow run '"
-								+ runToDelete.toString()
-								+ "' (run id "
-								+ runToDelete.getRunId()
-								+ ").");
-						if (runToDelete.isProvenanceEnabledForRun()){
-							String connectorType = DataManagementConfiguration
-									.getInstance().getConnectorType();
-							ProvenanceAccess provenanceAccess = new ProvenanceAccess(
-									connectorType);
-							// Remove the run from provenance database (if it is stored there at all)
-							provenanceAccess.removeRun(runToDelete.getRunId());
-						}
-						// Remove references from the Reference Manager's store (regardless if in-memory or database)
-						runToDelete.getReferenceService().deleteReferencesForWorkflowRun(runToDelete.getRunId());
-						logger.info("Deletion of workflow run '"
-										+ runToDelete.toString()
-										+ "' (run id "
-										+ runToDelete.getRunId()
-										+ ") from provenance database and Reference Manager's store completed.");
-					} catch (Exception ex) {
-						logger.error("Failed to delete workflow run '"
-								+ runToDelete.toString() + "' (run id "
-								+ runToDelete.getRunId()
-								+ ") from provenance database and Reference Manager's store.", ex);
-					} finally {
-						synchronized (runsToBeDeletedQueue) {
-							// Remove the run we have just deleted
-							runsToBeDeletedQueue.removeFirst();
-						}
-					}
-
-				}
-			} catch (InterruptedException ignored) {
-
+		public void run() {
+			if (isInterrupted()) {
+				return;
 			}
-        }
-    }
+			// Load Dataflow
+			dataflowRun.getDataflow();
+			if (isInterrupted()) {
+				return;
+			}
+			// Prepare GUI
+			dataflowRun.getOrCreateMonitorViewComponent();
+			if (isInterrupted()) {
+				return;
+			}
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					updateSelection();
+				}
+			});
+		}
+
+		protected void updateSelection() {
+			if (runList.getSelectedValue() != dataflowRun) {
+				// User changed selection meanwhile we loaded
+				return;
+			}
+			if (dataflowRun.getDataflow() != null) {
+				topPanel.setBottomComponent(dataflowRun
+						.getOrCreateMonitorViewComponent());
+				setBottomComponent(dataflowRun.getResultsComponent());
+			} else {
+				topPanel.setBottomComponent(new JLabel(
+						"Could not load workflow for run "
+								+ dataflowRun.getRunId()));
+				setBottomComponent(new JPanel());
+			}
+		}
+	}
 }

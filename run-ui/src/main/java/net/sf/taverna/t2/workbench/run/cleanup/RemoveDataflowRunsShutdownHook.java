@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2009 The University of Manchester   
+ * Copyright (C) 2009-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -18,55 +18,62 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.run;
+package net.sf.taverna.t2.workbench.run.cleanup;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.LinkedList;
 
 import javax.swing.Timer;
 
 import net.sf.taverna.t2.workbench.ShutdownSPI;
 
 /**
- * Shutdown hook that checks and waits until all previous workflow runs queued for deletion
- * have actually been deleted from the provenance and Reference Manager's stores.
+ * Shutdown hook that checks and waits until the current workflow run deletion
+ * is completed before shutting down. (Anything remaining in the queue will be
+ * scheduled for deletion next time Taverna starts by
+ * {@link StoreRunIdsToDeleteLaterShutdownHook})
  * 
  * @author Alex Nenadic
- *
+ * @author Stian Soiland-Reyes
+ * 
  */
 public class RemoveDataflowRunsShutdownHook implements ShutdownSPI{
 
 	public int positionHint() {
 		// We need to finish before Reference Service is shutdown.
-		return 202;
+		return 300;
 	}
 
 	public boolean shutdown() {
 		boolean shutdown = true;
-		final LinkedList<DataflowRun> runsToBeDeletedQueue = DataflowRunsComponent.getRunsToBeDeletedQueue();		
+		final DatabaseCleanup databaseCleanup = DatabaseCleanup.getInstance();
 
-		if (!runsToBeDeletedQueue.isEmpty()) {
-				final RemoveDataflowRunsShutdownDialog dialog = new RemoveDataflowRunsShutdownDialog();
-				dialog.setInitialQueueSize(runsToBeDeletedQueue.size());
-				
-				Timer timer = new Timer(500, new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						dialog.setCurrentQueueSize(runsToBeDeletedQueue.size());
-						if (runsToBeDeletedQueue.isEmpty()) {
-							dialog.setVisible(false);
-						}
+		// Stop please, we can delete the rest on startup
+		databaseCleanup.requestStopDeletionThread();				
+		
+		// But if is stil active we should wait for it 
+		if (databaseCleanup.isDeleteThreadAlive() && ! databaseCleanup.deletionQueue.isEmpty()) {
+			final RemoveDataflowRunsShutdownDialog dialog = new RemoveDataflowRunsShutdownDialog();
+			dialog.setInitialQueueSize(databaseCleanup.deletionQueue.size());
+
+			Timer timer = new Timer(500, new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					dialog.setCurrentQueueSize(databaseCleanup.deletionQueue
+							.size());
+					if (!databaseCleanup.isDeleteThreadAlive()
+							|| databaseCleanup.deletionQueue.isEmpty()) {
+						// thread has finished
+						dialog.setVisible(false);
 					}
-				});
-				timer.start();
+				}
+			});
+			timer.start();
+			dialog.setVisible(true);
 
-				dialog.setVisible(true);
-				
-				timer.stop();
-				shutdown = dialog.confirmShutdown();
-				dialog.dispose();
-
-		} 
+			timer.stop();
+			shutdown = dialog.confirmShutdown();
+			dialog.dispose();
+		}
 		return shutdown;
 		
 	}
