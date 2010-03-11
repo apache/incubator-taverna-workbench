@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -70,6 +70,15 @@ import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Run the current workflow (with input dialogue if needed) and add it to the
+ * list of runs.
+ * <p>
+ * Note that running a workflow will force a serialization and deserialization
+ * of the Dataflow to make a copy of the workflow, allowing further edits to the
+ * current Dataflow without obstructing the run.
+ * 
+ */
 public class RunWorkflowAction extends AbstractAction {
 
 	private static final long serialVersionUID = 1L;
@@ -85,7 +94,7 @@ public class RunWorkflowAction extends AbstractAction {
 		putValue(SMALL_ICON, WorkbenchIcons.runIcon);
 		putValue(NAME, "Run workflow...");
 		putValue(SHORT_DESCRIPTION, "Run the current workflow");
-		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+		putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_R));
 		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R,
 				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 	}
@@ -108,7 +117,7 @@ public class RunWorkflowAction extends AbstractAction {
 					logger.warn(message);
 					InvalidDataflowReport.showErrorDialog(ex.getMessage(), message);			
 				}
-			};
+			}
 		};
 		t.setDaemon(true);
 		t.start();		
@@ -185,7 +194,7 @@ public class RunWorkflowAction extends AbstractAction {
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						switchToResultsPerspective();
-						runComponent.runDataflow(facade, (Map) null);
+						runComponent.runDataflow(facade, (Map<String, T2Reference>) null);
 					}
 				});			
 			}
