@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -65,7 +65,6 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
-import net.sf.taverna.t2.workbench.file.impl.actions.CloseAllWorkflowsAction;
 import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.ui.T2ConfigurationFrame;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
@@ -94,7 +93,6 @@ public class Workbench extends JFrame {
 	private MenuManager menuManager = MenuManager.getInstance();
 	private FileManager fileManager = FileManager.getInstance();
 	private EditManager editManager = EditManager.getInstance();
-	private CloseAllWorkflowsAction closeAllWorkflowsAction = new CloseAllWorkflowsAction();
 
 	private WorkbenchPerspectives perspectives;
 
@@ -262,7 +260,7 @@ public class Workbench extends JFrame {
 		List<StartupSPI> instances = registry.getInstances();
 		Collections.sort(instances, new Comparator<StartupSPI>() {
 			public int compare(StartupSPI o1, StartupSPI o2) {
-				return o2.positionHint() - o1.positionHint();
+				return o1.positionHint() - o2.positionHint();
 			}
 		});
 		for (StartupSPI startupSPI : instances) {
@@ -275,9 +273,15 @@ public class Workbench extends JFrame {
 	}
 
 	public void exit() {
+		if (callShutdownHooks()) {
+			System.exit(0);
+		}
+
+	}
+
+	void savePerspectives() {
 		// Save the perspectives to XML files
 		try {
-
 			PerspectiveSPI currentPerspective = (PerspectiveSPI) ModelMap
 					.getInstance().getModel(
 							ModelMapConstants.CURRENT_PERSPECTIVE);
@@ -288,29 +292,10 @@ public class Workbench extends JFrame {
 			}
 			perspectives.saveAll();
 		} catch (Exception ex) {
-			logger
-					.error(
+			logger.error(
 							"Error saving perspectives when exiting the Workbench.",
 							ex);
 		}
-
-		// Save the current Workbench window size and position to a preferences
-		// file
-		try {
-			storeSizeAndLocationPrefs();
-		} catch (Exception ex) {
-			logger
-					.error(
-							"Error saving the Workbench size and position when exiting the Workbench.",
-							ex);
-		}
-
-		// TODO use the ShutdownSPI for all the shutdown actions
-		if (callShutdownHooks()
-				&& closeAllWorkflowsAction.closeAllWorkflows(this)) {
-			System.exit(0);
-		}
-
 	}
 
 	/**
@@ -329,7 +314,7 @@ public class Workbench extends JFrame {
 		List<ShutdownSPI> instances = registry.getInstances();
 		Collections.sort(instances, new Comparator<ShutdownSPI>() {
 			public int compare(ShutdownSPI o1, ShutdownSPI o2) {
-				return o2.positionHint() - o1.positionHint();
+				return o1.positionHint() - o2.positionHint();
 			}
 		});
 		for (ShutdownSPI shutdownSPI : instances) {
@@ -346,7 +331,7 @@ public class Workbench extends JFrame {
 	 * 
 	 * @throws IOException
 	 */
-	private void storeSizeAndLocationPrefs() throws IOException {
+	void storeSizeAndLocationPrefs() throws IOException {
 
 		// Store the current Workbench window size and position
 		File confDir = new File(appRuntime.getApplicationHomeDir(), "conf");
