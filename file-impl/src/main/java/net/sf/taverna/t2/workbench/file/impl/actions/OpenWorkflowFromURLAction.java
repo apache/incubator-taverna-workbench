@@ -142,7 +142,7 @@ public class OpenWorkflowFromURLAction extends AbstractAction {
 				// else open the workflow as usual
 			}
 			
-			Authenticator.setDefault(authenticator);
+			//Authenticator.setDefault(authenticator);
 			fileManager.openDataflow(null, url);
 			prefs.put("currentUrl", urlString);
 		} catch (Exception ex) {
