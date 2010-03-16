@@ -21,27 +21,27 @@
 package net.sf.taverna.t2.workbench.views.results;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.reference.ErrorDocument;
 import net.sf.taverna.t2.reference.Identified;
 import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.reference.impl.T2ReferenceImpl;
 
 import org.apache.log4j.Logger;
 
+@SuppressWarnings("serial")
 public class ResultTreeNode extends DefaultMutableTreeNode {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ResultTreeNode.class);
 
 	private T2Reference reference;
+	
+	// Remember the index of the last used renderer; use the first one by default
+	private int lastUsedRendererIndex = 0;
 
 	public void setReference(T2Reference reference) {
 		this.reference = reference;
@@ -175,5 +175,13 @@ public class ResultTreeNode extends DefaultMutableTreeNode {
 			// Not good to catch exception but
 			return null;
 		}
+	}
+
+	public void setLastUsedRendererIndex(int index) {
+		this.lastUsedRendererIndex = index;
+	}
+
+	public int getLastUsedRendererIndex() {
+		return lastUsedRendererIndex;
 	}
 }

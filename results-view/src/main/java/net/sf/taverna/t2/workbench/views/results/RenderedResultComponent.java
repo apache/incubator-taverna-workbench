@@ -188,6 +188,7 @@ public class RenderedResultComponent extends JPanel {
 
 		// Enable the combo box
 		renderersComboBox.setEnabled(true);
+		
 		renderersComboBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -196,6 +197,8 @@ public class RenderedResultComponent extends JPanel {
 							&& renderersForMimeType.size() > selectedIndex) {
 						Renderer renderer = renderersForMimeType
 								.get(selectedIndex);
+						// If uses changes the renderer, remember it
+						node.setLastUsedRendererIndex(selectedIndex);
 						JComponent component = null;
 						try {
 							component = renderer.getComponent(context
@@ -304,8 +307,9 @@ public class RenderedResultComponent extends JPanel {
 			}
 			renderersComboBox.setModel(new DefaultComboBoxModel(rendererList));
 			if (renderersForMimeType.size() > 0) {
-				renderersComboBox.setSelectedIndex(-1);
-				renderersComboBox.setSelectedIndex(0);
+				int lastUsedRendererIndex = node.getLastUsedRendererIndex();
+				renderersComboBox.setSelectedIndex(-1);// this will force the itemStateChanged event, which will set the last used renderer index to -1
+				renderersComboBox.setSelectedIndex(lastUsedRendererIndex);
 			}
 		} else if (identified instanceof ErrorDocument) {
 			ErrorDocument errorDocument = (ErrorDocument) identified;
