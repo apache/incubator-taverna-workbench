@@ -13,7 +13,6 @@ public class SetCredManAuthenticatorStartupHook implements StartupSPI {
 
 	public boolean startup() {
 		Authenticator.setDefault(new CredentialManagerAuthenticator());
-		System.out.println("Inserted credman authenticator");
 		return true;
 	}
 
