@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.ui.servicepanel.actions;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyDescriptor;
 import java.util.ArrayList;
 import java.util.List;
@@ -122,9 +123,22 @@ public class AddServiceProviderAction extends AbstractAction {
 		dialog.add(iconPanel, BorderLayout.WEST);
 		dialog.add(buildEditor, BorderLayout.CENTER);
 		JPanel buttonPanel = new JPanel();
-		buttonPanel.add(new JButton(new AddProviderAction(configurationBean,
-				dialog)), BorderLayout.WEST);
+		final AddProviderAction addProviderAction = new AddProviderAction(configurationBean,
+				dialog);
+		JButton addProviderButton = new JButton(addProviderAction);
+		buttonPanel.add(addProviderButton, BorderLayout.WEST);
+		
 		dialog.add(buttonPanel, BorderLayout.SOUTH);
+	    // When user presses "Return" key fire the action on the "Add" button
+		addProviderButton.addKeyListener(new java.awt.event.KeyAdapter() {
+			public void keyPressed(java.awt.event.KeyEvent evt) {
+				if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+					addProviderAction.actionPerformed(null);
+				}
+			}
+		});
+		dialog.getRootPane().setDefaultButton(addProviderButton);
+		
 		// dialog.setSize(buttonPanel.getPreferredSize());
 		dialog.pack();
 		dialog.setLocationRelativeTo(owner);
