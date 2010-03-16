@@ -58,6 +58,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -85,6 +86,7 @@ public class AddPluginSiteFrame extends JDialog {
 	public AddPluginSiteFrame(JDialog parent) {
 		super(parent,true);
 		initialize();
+		this.getRootPane().setDefaultButton(okButton);
 	}
 		
 
@@ -197,15 +199,22 @@ public class AddPluginSiteFrame extends JDialog {
 	public JButton getOKButton() {
 		if (okButton==null) {
 			okButton=new JButton("OK");
-			okButton.addActionListener(new ActionListener() {
+			final ActionListener okAction = new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					name=nameText.getText();
 					url=urlText.getText();
 					setVisible(false);
 					dispose();
-				}				
+				}	
+			};	
+			okButton.addActionListener(okAction);
+		    okButton.addKeyListener(new java.awt.event.KeyAdapter() {
+				public void keyPressed(java.awt.event.KeyEvent evt) {
+					if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+						okAction.actionPerformed(null);
+					}
+				}
 			});
-			
 		}
 		return okButton;
 	}
@@ -213,12 +222,20 @@ public class AddPluginSiteFrame extends JDialog {
 	public JButton getCancelButton() {
 		if (cancelButton==null) {
 			cancelButton=new JButton("Cancel");	
-			cancelButton.addActionListener(new ActionListener() {
+			final ActionListener cancelAction  = new ActionListener() {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					setVisible(false);
 					dispose();
 				}
-			});
+			};
+			cancelButton.addActionListener(cancelAction);
+			cancelButton.addKeyListener(new java.awt.event.KeyAdapter() {
+				public void keyPressed(java.awt.event.KeyEvent evt) {
+					if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
+						cancelAction.actionPerformed(null);
+					}
+				}
+			});	
 		}
 		return cancelButton;
 	}

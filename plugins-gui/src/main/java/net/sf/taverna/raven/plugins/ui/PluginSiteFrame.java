@@ -489,9 +489,12 @@ public class PluginSiteFrame extends JDialog {
 	}
 
 	private final void addPluginSite() {
-		if (addSiteFrame==null) addSiteFrame=new AddPluginSiteFrame(this);
+			
+		addSiteFrame=new AddPluginSiteFrame(this);
+		
 		addSiteFrame.setLocationRelativeTo(this);
 		addSiteFrame.setVisible(true);
+		
 		if (addSiteFrame.getName()!=null) {
 			if (addSiteFrame.getName().length()==0) {
 				JOptionPane.showMessageDialog(this, "You must provide a name for your site.","Error adding update site",JOptionPane.ERROR_MESSAGE);
