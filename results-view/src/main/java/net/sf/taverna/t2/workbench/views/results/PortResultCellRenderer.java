@@ -32,9 +32,9 @@ public class PortResultCellRenderer extends DefaultTreeCellRenderer {
 				if (value2.getChildCount() == 0) {
 					text = "Empty list";
 				} else {
-				text = "List ";
+				text = "List";
 				if (!parent.getState().equals(ResultTreeNodeState.RESULT_TOP)) {
-					text += "" + (parent.getIndex(value2) + 1);
+					text += " " + (parent.getIndex(value2) + 1);
 				}
 				text += " with " + value2.getValueCount() + " value";
 				if (value2.getValueCount() != 1) {

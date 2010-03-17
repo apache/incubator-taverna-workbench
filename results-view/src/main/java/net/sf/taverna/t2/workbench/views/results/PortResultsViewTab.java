@@ -100,7 +100,19 @@ public class PortResultsViewTab extends JPanel{
 		getResultModel().addTreeModelListener(new TreeModelListener() {
 
 			public void treeNodesChanged(TreeModelEvent e) {
+				
 				tree.expandPath(e.getTreePath());
+							
+				// If nothing is currently selected in the tree - select either the
+				// result or the first AVAILABLE item in the result list
+				if (tree.getSelectionRows() == null || tree.getSelectionRows().length == 0){ 			
+					ResultTreeNode parent = (ResultTreeNode)e.getTreePath().getLastPathComponent(); // parent of the changed node(s)
+					int[] indices = e.getChildIndices(); //indexes of the changed node(s)
+					ResultTreeNode firstChild = (ResultTreeNode) parent.getChildAt(indices[0]); // get the first changed node
+					if (firstChild.getState().equals(ResultTreeNode.ResultTreeNodeState.RESULT_REFERENCE)){ // if this is the result node rather than result list placeholder
+						tree.setSelectionPath(new TreePath(firstChild.getPath())); // select this node
+					}
+				}
 			}
 
 			public void treeNodesInserted(TreeModelEvent e) {
