@@ -23,7 +23,6 @@ package net.sf.taverna.t2.workbench.ui.credentialmanager.password;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -35,11 +34,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JPasswordField;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
@@ -258,5 +256,15 @@ public class GetPasswordDialog
         setVisible(false);
         dispose();
     }
+
+	public void setUsername(String username) {
+		this.username = username;
+		jtfUsername.setText(username);
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+		jpfPassword.setText(password);
+	}
 }
 
