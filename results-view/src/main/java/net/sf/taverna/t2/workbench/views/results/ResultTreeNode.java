@@ -39,9 +39,6 @@ public class ResultTreeNode extends DefaultMutableTreeNode {
 	private static Logger logger = Logger.getLogger(ResultTreeNode.class);
 
 	private T2Reference reference;
-	
-	// Remember the index of the last used renderer; use the first one by default
-	private int lastUsedRendererIndex = 0;
 
 	public void setReference(T2Reference reference) {
 		this.reference = reference;
@@ -175,13 +172,5 @@ public class ResultTreeNode extends DefaultMutableTreeNode {
 			// Not good to catch exception but
 			return null;
 		}
-	}
-
-	public void setLastUsedRendererIndex(int index) {
-		this.lastUsedRendererIndex = index;
-	}
-
-	public int getLastUsedRendererIndex() {
-		return lastUsedRendererIndex;
 	}
 }

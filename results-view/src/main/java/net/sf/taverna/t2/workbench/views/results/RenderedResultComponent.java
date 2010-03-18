@@ -21,8 +21,11 @@
 package net.sf.taverna.t2.workbench.views.results;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
@@ -32,13 +35,16 @@ import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.text.JTextComponent;
@@ -55,6 +61,7 @@ import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.renderers.Renderer;
 import net.sf.taverna.t2.renderers.RendererException;
 import net.sf.taverna.t2.renderers.RendererRegistry;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.views.results.ResultTreeNode.ResultTreeNodeState;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPIRegistry;
@@ -73,10 +80,11 @@ import eu.medsea.mimeutil.MimeType;
  * @author Alex Nenadic
  * 
  */
+@SuppressWarnings("serial")
 public class RenderedResultComponent extends JPanel {
 
-	private static final long serialVersionUID = -1958999599453285294L;
-
+	final String ERROR_DOCUMENT = "Error Document";
+	
 	private static Logger logger = Logger
 			.getLogger(RenderedResultComponent.class);
 
@@ -85,20 +93,41 @@ public class RenderedResultComponent extends JPanel {
 
 	// Combo box containing possible result types
 	private JComboBox renderersComboBox;
+	
+	// Button to refresh (re-render) the result, especially needed 
+	// for large results that are not rendered or are
+	// partially rendered and the user wished to re-render them
+	private JButton refreshButton;
 
-	// Result type renderers
-	private List<Renderer> renderersForMimeType;
+	// Preferred result type renderers (the ones recognised to be able to handle the result's MIME type)
+	private List<Renderer> recognisedRenderersForMimeType;
+	
+	// All other result type renderers (the ones not recognised to be able to handle the result's MIME type)
+	// In case user wants to use them.
+	private List<Renderer> otherRenderers;
 
 	// Renderers' registry
-	private RendererRegistry rendererRegistry = new RendererRegistry();
+	static RendererRegistry rendererRegistry = new RendererRegistry();
+	
+	// List of all MIME strings from all available renderers to be used for renderersComboBox. 
+	// Those that come from recognisedRenderersForMimeType are the preferred ones. 
+	// Those from otherRenderers will be greyed-out in the combobox list but could still be used.
+	private String[] mimeList;
+	
+	// List of all available renderers but ordered to match the corresponding MIME type strings in mimeList:
+	// first the preferred renderers from recognisedRenderersForMimeType then the ones from otherRenderers. 
+	private ArrayList<Renderer> rendererList;
+	
+	// Remember the MIME type of the last used renderer; use "text/plain" by default until 
+	// user changes it - then use that one for all result items of the port (in case result
+	// contains a list). "text/plain" will always be added to the mimeList.
+	private String lastUsedMIMEtype = "text/plain"; // text renderer always will be available
 
-
-	// Reference to the object being displayed (contained in the MutableTreeNode
-	// node)
+	// Reference to the object being displayed (contained in the tree node)
 	private T2Reference t2Reference;
 
 	private InvocationContext context;
-
+	
 	// Currently selected node from the ResultViewComponent, if any.
 	private ResultTreeNode node = null;
 
@@ -124,14 +153,25 @@ public class RenderedResultComponent extends JPanel {
 
 		// Results type combo box
 		renderersComboBox = new JComboBox();
-		renderersComboBox.setModel(new DefaultComboBoxModel()); // initially
-																// empty
+		renderersComboBox.setModel(new DefaultComboBoxModel()); // initially empty
+
+		renderersComboBox.setRenderer(new ColorCellRenderer());
 		renderersComboBox.setEditable(false);
 		renderersComboBox.setEnabled(false); // initially disabled
 
 		JPanel resultsTypePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		resultsTypePanel.add(new JLabel("Value type"));
 		resultsTypePanel.add(renderersComboBox);
+		
+		// Refresh (re-render) button
+		refreshButton = new JButton("Refresh", WorkbenchIcons.refreshIcon);
+		refreshButton.setEnabled(false);
+		refreshButton.addActionListener(new ActionListener() {		
+			public void actionPerformed(ActionEvent e) {
+				refreshResult();				
+			}
+		});
+		resultsTypePanel.add(refreshButton);
 
 		// 'Save result' buttons panel
 		saveButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -151,7 +191,7 @@ public class RenderedResultComponent extends JPanel {
 		topPanel.add(resultsTypePanel);
 		topPanel.add(saveButtonsPanel);
 
-		// Rendered results panel - intially empty
+		// Rendered results panel - initially empty
 		renderedResultPanel = new JPanel(new BorderLayout());
 		renderedResultPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
@@ -166,10 +206,12 @@ public class RenderedResultComponent extends JPanel {
 	 */
 	public void setNode(ResultTreeNode node) {
 		this.node = node;
-		if (this.node.isState(ResultTreeNodeState.RESULT_REFERENCE))
+		if (this.node.isState(ResultTreeNodeState.RESULT_REFERENCE)){
 			updateResult();
-		else
+		}
+		else{
 			clearResult();
+		}
 	}
 
 	/**
@@ -177,12 +219,18 @@ public class RenderedResultComponent extends JPanel {
 	 * ResultViewComponent tree.
 	 * 
 	 */
-	@SuppressWarnings( { "serial" })
 	public void updateResult() {
-		renderersForMimeType = new ArrayList<Renderer>();
+		
+		if (recognisedRenderersForMimeType == null){
+			recognisedRenderersForMimeType = new ArrayList<Renderer>();
+		}
+		if (otherRenderers == null){
+			otherRenderers = new ArrayList<Renderer>();
+		}
 
 		ResultTreeNode result = (ResultTreeNode) node;
 
+		// Reference to the result data
 		t2Reference = result.getReference();
 		context = result.getContext();
 
@@ -193,12 +241,14 @@ public class RenderedResultComponent extends JPanel {
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED) {
 					int selectedIndex = renderersComboBox.getSelectedIndex();
-					if (renderersForMimeType != null
-							&& renderersForMimeType.size() > selectedIndex) {
-						Renderer renderer = renderersForMimeType
-								.get(selectedIndex);
-						// If uses changes the renderer, remember it
-						node.setLastUsedRendererIndex(selectedIndex);
+					if (mimeList != null && selectedIndex >= 0) {
+
+						Renderer renderer = rendererList.get(selectedIndex);
+						
+						// Remember the last used renderer - use it for all result items of this port
+						//currentRendererIndex = selectedIndex;
+						lastUsedMIMEtype = mimeList[selectedIndex];
+						
 						JComponent component = null;
 						try {
 							component = renderer.getComponent(context
@@ -244,13 +294,14 @@ public class RenderedResultComponent extends JPanel {
 			saveButton.setEnabled(true);
 		}
 
-		// Reference to the result data
-		t2Reference = result.getReference();
-		context = result.getContext();
 		Identified identified = context.getReferenceService()
 				.resolveIdentifier(t2Reference, null, context);
 		List<MimeType> mimeTypes = new ArrayList<MimeType>();
 		if (identified instanceof ReferenceSet) {
+			
+			// Enable refresh button
+			refreshButton.setEnabled(true);
+			
 			ReferenceSet referenceSet = (ReferenceSet) identified;
 			List<ExternalReferenceSPI> externalReferences = new ArrayList<ExternalReferenceSPI>(
 					referenceSet.getExternalReferences());
@@ -286,35 +337,66 @@ public class RenderedResultComponent extends JPanel {
 				List<Renderer> renderersList = rendererRegistry.getRenderersForMimeType(
 						context, t2Reference, mimeType.toString());
 				for (Renderer renderer:renderersList) {
-					if (!renderersForMimeType.contains(renderer)) {
-						renderersForMimeType.add(renderer);	
+					if (!recognisedRenderersForMimeType.contains(renderer)) {
+						recognisedRenderersForMimeType.add(renderer);	
 					}
 				}
 			}
 			//if there are no renderers then try text/plain
-			if (renderersForMimeType.isEmpty()) {
-				List<Renderer> renderersList = rendererRegistry.getRenderersForMimeType(
+			if (recognisedRenderersForMimeType.isEmpty()) {
+				recognisedRenderersForMimeType = rendererRegistry.getRenderersForMimeType(
 						context, t2Reference, "text/plain");
-				for (Renderer renderer:renderersList) {
-					if (!renderersForMimeType.contains(renderer)) {
-						renderersForMimeType.add(renderer);	
+			}
+			
+			// Add all other available renderers that are not recognised to be able to handle the 
+			// MIME type of the result
+			otherRenderers = rendererRegistry.getInstances();
+			otherRenderers.removeAll(recognisedRenderersForMimeType);
+						
+			mimeList = new String[recognisedRenderersForMimeType.size()
+					+ otherRenderers.size()];
+			rendererList = new ArrayList<Renderer>();
+
+			// First add the ones that can handle the MIME type of the result item
+			for (int i = 0; i < recognisedRenderersForMimeType.size(); i++) {
+				mimeList[i] = recognisedRenderersForMimeType.get(i).getType();
+				rendererList.add(recognisedRenderersForMimeType.get(i));
+			}
+			// Then add the other renderers just in case
+			for (int i = 0; i < otherRenderers.size(); i++) {
+				mimeList[recognisedRenderersForMimeType.size() + i] = otherRenderers
+						.get(i).getType();
+				rendererList.add(otherRenderers.get(i));
+			}
+
+			renderersComboBox.setModel(new DefaultComboBoxModel(mimeList));
+			if (mimeList.length > 0) {
+				int index = 0;
+				
+				// Find the index of the current MIME type
+				// (this index could change as we modify the renderers list but
+				// we should always use the renderer for the current MIME type)
+				for (int i = 0; i< mimeList.length; i++){
+					if (mimeList[i].equals(lastUsedMIMEtype)){
+						index = i;
+						break;
 					}
 				}
-			}
-			Object[] rendererList = new Object[renderersForMimeType.size()];
-			for (int i = 0; i < rendererList.length; i++) {
-				rendererList[i] = renderersForMimeType.get(i).getType();
-			}
-			renderersComboBox.setModel(new DefaultComboBoxModel(rendererList));
-			if (renderersForMimeType.size() > 0) {
-				int lastUsedRendererIndex = node.getLastUsedRendererIndex();
 				renderersComboBox.setSelectedIndex(-1);// this will force the itemStateChanged event, which will set the last used renderer index to -1
-				renderersComboBox.setSelectedIndex(lastUsedRendererIndex);
+				renderersComboBox.setSelectedIndex(index);
+				
 			}
 		} else if (identified instanceof ErrorDocument) {
+			
+			// Disable refresh button
+			refreshButton.setEnabled(false);
+			
 			ErrorDocument errorDocument = (ErrorDocument) identified;
-			renderersForMimeType = null;
-
+			
+			// Reset the renderers as we have an error item
+			recognisedRenderersForMimeType = null;
+			otherRenderers = null;
+			
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode(
 					"Error Trace");
 			ResultsUtils.buildErrorDocumentTree(root, errorDocument, context);
@@ -350,17 +432,34 @@ public class RenderedResultComponent extends JPanel {
 			});
 
 			renderersComboBox.setModel(new DefaultComboBoxModel(
-					new String[] { "Error Document" }));
+					new String[] { ERROR_DOCUMENT }));
 			renderedResultPanel.removeAll();
 			renderedResultPanel.add(errorTree, BorderLayout.CENTER);
 			repaint();
 		}
+		
+	}
+	
+	/**
+	 * Refreshes the result panel using the last used renderer.
+	 */
+	public void refreshResult() {
+		
+		if (((String)renderersComboBox.getSelectedItem()).equals(ERROR_DOCUMENT)){ // skip error document - do not re-render
+			// Refresh button is not enabled when result item is an error but nevertheless check it here
+			return;
+		}
+		
+		int index = renderersComboBox.getSelectedIndex();
+		renderersComboBox.setSelectedIndex(-1);// this will force the itemStateChanged event, which will set the last used renderer index to -1
+		renderersComboBox.setSelectedIndex(index);	// this will refresh the rendered component
 	}
 
 	/**
 	 * Clears the result panel.
 	 */
 	public void clearResult() {
+		refreshButton.setEnabled(false);
 		renderedResultPanel.removeAll();
 
 		// Update the 'save result' buttons appropriately
@@ -380,5 +479,30 @@ public class RenderedResultComponent extends JPanel {
 		revalidate();
 		repaint();
 	}
+	
+	
+	class ColorCellRenderer implements ListCellRenderer {
+		  protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
+
+		  public Component getListCellRendererComponent(JList list, Object value, int index,
+		      boolean isSelected, boolean cellHasFocus) {
+		    JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index,
+		        isSelected, cellHasFocus);
+		    		    
+		    if (value instanceof Color) {
+		      renderer.setBackground((Color) value);
+		    }
+		    
+		    if (recognisedRenderersForMimeType == null){ // error occured
+			    return renderer;
+		    }
+
+			if (value != null && index >= recognisedRenderersForMimeType.size()){ // one of the non-preferred renderers - show it in red
+			    renderer.setForeground(Color.GRAY);
+			}
+
+		    return renderer;
+		  }
+		}
 
 }
