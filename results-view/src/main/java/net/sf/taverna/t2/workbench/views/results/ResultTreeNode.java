@@ -151,7 +151,7 @@ public class ResultTreeNode extends DefaultMutableTreeNode {
 			}
 		}
 		if (isState(ResultTreeNodeState.RESULT_LIST)) {
-			List result = new ArrayList();
+			List<Object> result = new ArrayList<Object>();
 			for (int i = 0; i < getChildCount(); i++) {
 				ResultTreeNode child = (ResultTreeNode) getChildAt(i);
 				result.add (child.getAsObject());

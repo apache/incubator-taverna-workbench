@@ -451,8 +451,9 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 				gbc.weightx = 1.0;
 				gbc.weighty = 0.0;
 				gbc.insets = new Insets(5,10,5,10);
-				portsPanel.add(new JLabel("Workflow inputs:"), gbc);				JPanel inputsPanel = new JPanel();
-				WeakHashMap<String, T2Reference> pushedDataMap =  null;
+				portsPanel.add(new JLabel("Workflow inputs:"), gbc);				
+				//JPanel inputsPanel = new JPanel();
+				//WeakHashMap<String, T2Reference> pushedDataMap =  null;
 
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (DataflowInputPort port : dataflow.getInputPorts()) {
