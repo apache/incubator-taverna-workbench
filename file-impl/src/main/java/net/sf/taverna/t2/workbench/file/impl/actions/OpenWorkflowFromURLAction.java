@@ -62,28 +62,10 @@ public class OpenWorkflowFromURLAction extends AbstractAction {
 
 	private Component component;
 
-	private Authenticator authenticator;
-
 	private FileManager fileManager = FileManager.getInstance();
 
 	public OpenWorkflowFromURLAction(final Component component) {
 		this.component = component;
-		authenticator = new Authenticator() {
-			protected PasswordAuthentication getPasswordAuthentication() {
-				PasswordAuthentication passwordAuthentication = null;
-				
-				PasswordInput input = new PasswordInput((JFrame) component);
-				input.setUrl(getRequestingURL());
-				input.setSize(new Dimension(323, 222));
-				input.setLocationRelativeTo(component);
-				input.setVisible(true);
-
-				if (input.getPassword() != null && input.getUsername() != null) {
-					passwordAuthentication = new PasswordAuthentication(input.getUsername(), input.getPassword().toCharArray());
-				}
-				return passwordAuthentication;
-			}
-		};
 		putValue(SMALL_ICON, WorkbenchIcons.openurlIcon);
 		putValue(NAME, ACTION_NAME);
 		putValue(SHORT_DESCRIPTION, ACTION_DESCRIPTION);
