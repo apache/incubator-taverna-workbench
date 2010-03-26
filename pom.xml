@@ -18,7 +18,7 @@
 	<properties>
 		<t2.ui.impl.version>${project.version}</t2.ui.impl.version>
 		<t2.activities.version>1.1</t2.activities.version>
-		<t2.infrastructure.version>2.0</t2.infrastructure.version>
+		<t2.infrastructure.version>2.1</t2.infrastructure.version>
 		<t2.core.version>1.1</t2.core.version>
 		<t2.lang.version>1.0</t2.lang.version>
 		<t2.compatibility.version>1.1</t2.compatibility.version>
