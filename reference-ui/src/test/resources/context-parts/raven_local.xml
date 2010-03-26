@@ -21,7 +21,7 @@
 			<sys artifact="commons-logging:commons-logging:1.1.1" />
 
 			<!-- Raven -->
-			<sys artifact="net.sf.taverna.t2.infrastructure:raven:2.0" />
+			<sys artifact="net.sf.taverna.t2.infrastructure:raven:2.1" />
 
 			<!-- Spring + Essential External Modules -->
 			<sys artifact="org.springframework:spring-orm:2.5.4" />
