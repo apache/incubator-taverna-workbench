@@ -21,18 +21,14 @@
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.net.Authenticator;
-import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
@@ -124,7 +120,6 @@ public class OpenWorkflowFromURLAction extends AbstractAction {
 				// else open the workflow as usual
 			}
 			
-			//Authenticator.setDefault(authenticator);
 			fileManager.openDataflow(null, url);
 			prefs.put("currentUrl", urlString);
 		} catch (Exception ex) {
