@@ -34,6 +34,7 @@
 		<module>constant-value</module>
 		<module>file-translator</module>
 		<module>loop-ui</module>
+		<module>retry-ui</module>
 		<module>menu-items</module>
 		<module>perspective-myexperiment</module>
 		<module>renderers-exts</module>
