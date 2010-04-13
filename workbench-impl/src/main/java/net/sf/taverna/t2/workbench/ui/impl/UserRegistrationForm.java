@@ -683,7 +683,7 @@ public class UserRegistrationForm extends JDialog{
 			regData.setInstitutionOrCompanyName(institutionOrCompanyTextField.getText());
 			regData.setIndustry(industryTypeTextField.getSelectedItem().toString());
 			regData.setField(fieldTextField.getText());
-			regData.setPurposeOfUsingTaverna(fieldTextField.getText());
+			regData.setPurposeOfUsingTaverna(purposeTextArea.getText());
 			
 			if (postUserRegistrationDataToServer(regData)){
 				saveUserRegistrationData(regData, UserRegistrationHook.registrationDataFile);
