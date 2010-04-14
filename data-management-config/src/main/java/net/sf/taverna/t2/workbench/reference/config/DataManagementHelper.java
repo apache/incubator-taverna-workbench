@@ -122,7 +122,7 @@ public class DataManagementHelper {
 		try {
 			server.shutdown();
 		} catch (Exception e) {
-			logger.error("Error shuttong down theDerby network server",e);
+			logger.error("Error shutting down Derby network server",e);
 		}
 	}
 
