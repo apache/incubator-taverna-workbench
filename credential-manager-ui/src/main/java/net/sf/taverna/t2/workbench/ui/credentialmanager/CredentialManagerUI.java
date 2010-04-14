@@ -126,7 +126,7 @@ public class CredentialManagerUI extends JFrame {
 	private JPanel proxiesTab = new JPanel(new BorderLayout(10, 10));
 
 	// Tab 3: name
-	public static final String PROXIES = "Proxies";
+	public static final String PROXIES = "Proxy certificates";
 
 	// Tab 4: holds trusted certificates table
 	private JPanel trustedCertificatesTab = new JPanel(new BorderLayout(10, 10));

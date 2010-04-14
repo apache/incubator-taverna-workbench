@@ -44,7 +44,7 @@ public class InitialiseSSLStartupHook implements StartupSPI{
 	}
 
 	public boolean startup() {
-		logger.info("Initialising SSL socker factory for SSL connections from Taverna.");
+		logger.info("Initialising SSL socket factory for SSL connections from Taverna.");
 		try {
 			CredentialManager.initialiseSSL();
 		} catch (CMException e) {
