@@ -24,6 +24,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -387,7 +389,7 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 		}
 		return referenceServiceWithDatabase;
 	}
-
+	
 	public void runDataflow(WorkflowInstanceFacade facade,
 			Map<String, T2Reference> inputs) {
 		DataflowRun runComponent = new DataflowRun(facade, inputs, new Date(),
