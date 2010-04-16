@@ -134,19 +134,30 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 		view.add(new JLabel("<html><strong>" + layer.getClass().getSimpleName()
 				+ "</strong></html>"), gbc);
 
-		JButton removeButton = new JButton(new RemoveAction(layer));
+		boolean canBeRecreated = false;
+		for (AddLayerFactorySPI addLayerFactory : addLayerFactories
+				.getInstances()) {
+			if (addLayerFactory.canCreateLayerClass(layer.getClass())) {
+				canBeRecreated = true;
+				break;
+			}
+		}
 		gbc.gridx = 1;
 		gbc.weightx = 0.1;
 		view.add(new JPanel(), gbc); // filler
-		gbc.gridx = 2;
-		gbc.weightx = 0.0;
-		view.add(removeButton, gbc);
-
+		if (canBeRecreated) {
+			JButton removeButton = new JButton(new RemoveAction(layer));
+			gbc.gridx = 2;
+			gbc.weightx = 0.0;
+			view.add(removeButton, gbc);
+		}
+			
 		gbc.gridx = 0;
 		gbc.gridy++;
 
 		if (viewFactory != null) {
 			ContextualView contextualView = viewFactory.getViews(layer).get(0);
+			contextualView.setBackground(view.getBackground());
 			view.add(contextualView, gbc);
 			gbc.gridy++;
 
