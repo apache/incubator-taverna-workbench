@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.retry;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 
@@ -109,6 +110,7 @@ public class RetryContextualView extends ContextualView {
 			}
 		}
 		textArea.setText(text);
+		textArea.setBackground(panel.getBackground());
 		panel.add(textArea, BorderLayout.CENTER);
 		revalidate();
 	}
@@ -121,12 +123,13 @@ public class RetryContextualView extends ContextualView {
 
 	@Override
 	public String getViewTitle() {
-	    return "Retry of fred";
+	    return "Retry of " + retryLayer.getProcessor().getLocalName();
 	}
 
 	protected JPanel createPanel() {
 		JPanel result = new JPanel();
 		result.setLayout(new BorderLayout());
+		result.setOpaque(false);
 
 		
 		return result;
