@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.ui.views.contextualviews;
 import javax.swing.Action;
 
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
 
 /**
  * SPI for adding dispatch stack layers to a processor, such as {@link net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop}.
@@ -37,5 +38,7 @@ public interface AddLayerFactorySPI {
 	public boolean canAddLayerFor(Processor proc);
 
 	public Action getAddLayerActionFor(Processor proc);
+	
+	public boolean canCreateLayerClass(Class<? extends DispatchLayer> class1);
 
 }
