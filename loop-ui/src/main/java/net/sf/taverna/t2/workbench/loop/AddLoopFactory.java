@@ -110,4 +110,8 @@ public class AddLoopFactory implements AddLayerFactorySPI {
 
 		};
 	}
+
+	public boolean canCreateLayerClass(Class<? extends DispatchLayer> c) {
+		return (c.isAssignableFrom(Loop.class));
+	}
 }
