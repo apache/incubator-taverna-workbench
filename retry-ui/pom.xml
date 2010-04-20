@@ -25,15 +25,5 @@
 			<artifactId>edits-impl</artifactId>
 			<version>${t2.ui.impl.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-activities</groupId>
-			<artifactId>beanshell-activity-ui</artifactId>
-			<version>${t2.ui.activities.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>helper</artifactId>
-			<version>${t2.ui.impl.version}</version>
-		</dependency>
 	</dependencies>
 </project>
