@@ -11,8 +11,16 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JDialog;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import org.apache.log4j.Logger;
+
+import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workflowmodel.Edit;
+import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Parallelize;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.ParallelizeConfig;
 
@@ -26,6 +34,14 @@ public class ParallelizeConfigureAction extends AbstractAction {
 	private final Parallelize parallelizeLayer;
 	private final ParallelizeContextualView parallelizeContextualView;
 
+	private EditManager editManager = EditManager.getInstance();
+
+	private Edits edits = EditManager.getInstance().getEdits();
+
+	private FileManager fileManager = FileManager.getInstance();
+
+	private static Logger logger = Logger.getLogger(ParallelizeConfigureAction.class);
+	
 	public ParallelizeConfigureAction(Frame owner, ParallelizeContextualView parallelizeContextualView, Parallelize parallelizeLayer) {
 		super("Configure");
 		this.owner = owner;
@@ -88,9 +104,21 @@ public class ParallelizeConfigureAction extends AbstractAction {
 
 		public void actionPerformed(ActionEvent e) {
 			if (parallelizeConfigurationPanel.validateConfig()) {
-				parallelizeLayer.configure(parallelizeConfigurationPanel.getConfiguration());
-				dialog.setVisible(false);
-				parallelizeContextualView.refreshView();
+				try {
+					Edit edit = edits.getConfigureEdit(parallelizeLayer,
+							parallelizeConfigurationPanel.getConfiguration());
+					editManager.doDataflowEdit(
+							fileManager.getCurrentDataflow(), edit);
+					dialog.setVisible(false);
+					parallelizeContextualView.refreshView();
+				} catch (EditException e1) {
+					logger.warn("Could not configure jobs", e1);
+					JOptionPane.showMessageDialog(owner,
+							"Could not configure jobs",
+							"An error occured when configuring jobs: "
+									+ e1.getMessage(),
+							JOptionPane.ERROR_MESSAGE);
+				}
 			}
 		}
 
