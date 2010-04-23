@@ -177,7 +177,8 @@ public class RenderedResultComponent extends JPanel {
 		refreshButton.setEnabled(false);
 		refreshButton.addActionListener(new ActionListener() {		
 			public void actionPerformed(ActionEvent e) {
-				renderResult();				
+				renderResult();
+				refreshButton.getParent().requestFocusInWindow();// so that the button does not stay focused after it is clicked on and did its action
 			}
 		});
 		resultsTypePanel.add(refreshButton);
@@ -189,8 +190,13 @@ public class RenderedResultComponent extends JPanel {
 		for (SaveIndividualResultSPI action : saveActions) {
 			action.setResultReference(null);
 			action.setInvocationContext(null);
-			JButton saveButton = new JButton(action.getAction());
+			final JButton saveButton = new JButton(action.getAction());
 			saveButton.setEnabled(false);
+			saveButton.addActionListener(new ActionListener() {		
+				public void actionPerformed(ActionEvent e) {
+					saveButton.getParent().requestFocusInWindow();// so that the button does not stay focused after it is clicked on and did its action
+				}
+			});
 			saveButtonsPanel.add(saveButton);
 		}
 

@@ -25,6 +25,7 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
@@ -36,7 +37,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -158,7 +158,15 @@ public abstract class TreePanel extends JPanel {
 		c.gridx = 2;
 		c.gridy = 0;
 		c.weightx = 0.0;
-		topPanel.add(new JButton(new ClearAction()), c);
+		final JButton clearButton = new JButton("Clear");
+		clearButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				searchField.setText("");
+				SwingUtilities.invokeLater(new RunFilter());
+				clearButton.getParent().requestFocusInWindow();// so that the button does not stay focused after it is clicked on and did its action				
+			}
+		});
+		topPanel.add(clearButton, c);
 		
 		c.gridx = 3;
 		c.weightx = 0.2;
@@ -272,17 +280,6 @@ public abstract class TreePanel extends JPanel {
 		}
 		filterTreeModel.setFilter(filter);
 		
-	}
-
-	protected class ClearAction extends AbstractAction {
-		private ClearAction() {
-			super("Clear");
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			searchField.setText("");
-			SwingUtilities.invokeLater(new RunFilter());
-		}
 	}
 
 	protected class ExpandRowRunnable implements Runnable {
