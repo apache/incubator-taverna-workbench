@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.reference.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
@@ -37,7 +38,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
 
 import net.sf.taverna.t2.annotation.annotationbeans.Author;
@@ -82,7 +85,7 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 	private static Logger logger = Logger.getLogger(WorkflowLaunchPanel.class);
 	/**
 	 * Maps original dataflows to their copies - required because the
-	 * WunWorkflowAction copies the dataflow before sending it here so you lose
+	 * RunWorkflowAction copies the dataflow before sending it here so you lose
 	 * the connection with the dataflow that the {@link GraphController} has
 	 */
 	private static Map<Dataflow, Dataflow> dataflowCopyMap = new HashMap<Dataflow, Dataflow>();
@@ -132,7 +135,8 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 		JPanel portsPart = new JPanel(new BorderLayout());
 
 		createWorkflowGraphic = createWorkflowGraphic(dataflow);
-		createWorkflowGraphic.setBorder(new TitledBorder("Diagram"));
+		createWorkflowGraphic.setBorder(new CompoundBorder(new CompoundBorder(new EmptyBorder(0,0,1,0), new LineBorder(
+				Color.GRAY)), new TitledBorder("Diagram")));
 		
 		workflowPart.add(createWorkflowGraphic);
 

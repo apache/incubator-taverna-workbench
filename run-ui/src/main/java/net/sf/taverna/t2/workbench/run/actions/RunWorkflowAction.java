@@ -20,24 +20,18 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.actions;
 
+import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
-import net.sf.taverna.t2.annotation.annotationbeans.DescriptiveTitle;
-import net.sf.taverna.t2.annotation.annotationbeans.ExampleValue;
-import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.lang.ui.ModelMap;
@@ -46,8 +40,10 @@ import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.ui.CopyWorkflowInProgressDialog;
+import net.sf.taverna.t2.reference.ui.CopyWorkflowSwingWorker;
 import net.sf.taverna.t2.reference.ui.InvalidDataflowReport;
-import net.sf.taverna.t2.reference.ui.WorkflowLaunchPanel;
+import net.sf.taverna.t2.reference.ui.WorkflowLaunchWindow;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
@@ -55,23 +51,15 @@ import net.sf.taverna.t2.workbench.run.DataflowRunsComponent;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.InvalidDataflowException;
 import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
-import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializerImpl;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializerImpl;
-import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
-import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
+
 
 /**
- * Run the current workflow (with input dialogue if needed) and add it to the
+ * Run the current workflow (with workflow input dialogue if needed) and add it to the
  * list of runs.
  * <p>
  * Note that running a workflow will force a serialization and deserialization
@@ -88,6 +76,10 @@ public class RunWorkflowAction extends AbstractAction {
 	private DataflowRunsComponent runComponent;
 
 	private PerspectiveSPI resultsPerspective;
+	
+	// A map of workflows and their corresponding WorkflowLaunchWindowS
+	// We only create one window per workflow and then update its content if the workflow gets updated
+	public static WeakHashMap<Dataflow, WorkflowLaunchWindow> workflowLaunchWindowMap = new WeakHashMap<Dataflow, WorkflowLaunchWindow>();
 
 	public RunWorkflowAction() {
 		runComponent = DataflowRunsComponent.getInstance();
@@ -106,9 +98,9 @@ public class RunWorkflowAction extends AbstractAction {
 			return;
 		}
 		final Dataflow dataflow = (Dataflow) model;
-		Thread t = new Thread("Preparing to run workflow "
-				+ dataflow.getLocalName()) {
-			public void run() {
+		//Thread t = new Thread("Preparing to run workflow "
+		//		+ dataflow.getLocalName()) {
+		//	public void run() {
 				try {
 					runDataflow(dataflow);
 				} catch (Exception ex) {
@@ -117,98 +109,138 @@ public class RunWorkflowAction extends AbstractAction {
 					logger.warn(message);
 					InvalidDataflowReport.showErrorDialog(ex.getMessage(), message);			
 				}
-			}
-		};
-		t.setDaemon(true);
-		t.start();		
+		//	}
+		//};
+		//t.setDaemon(true);
+		//t.start();		
 	}
 
-	protected void runDataflow(Dataflow dataflow) {
-		XMLSerializer serialiser = new XMLSerializerImpl();
-		XMLDeserializer deserialiser = new XMLDeserializerImpl();
-		Dataflow dataflowCopy = null;
-		try {
-			dataflowCopy = deserialiser.deserializeDataflow(serialiser
-					.serializeDataflow(dataflow));
-		} catch (SerializationException e1) {
-			logger.error("Unable to copy workflow", e1);
-		} catch (DeserializationException e1) {
-			logger.error("Unable to copy workflow", e1);
-		} catch (EditException e1) {
-			logger.error("Unable to copy workflow", e1);
-		}
+	protected void runDataflow(final Dataflow dataflowOriginal) {
+		
+		// If the workflow has no input ports - we can run immediately
+		if (dataflowOriginal.getInputPorts().isEmpty()) {
 
-		if (dataflowCopy != null) {
-			WorkflowLaunchPanel.getDataflowCopyMap()
-					.put(dataflowCopy, dataflow);
+			// Make a copy of the workflow to run so user can still
+			// modify the original workflow
+			Dataflow dataflowCopy = null;
+
+			// CopyWorkflowSwingWorker will make a copy of the workflow and pop up a
+			// modal dialog that will block the GUI while CopyWorkflowSwingWorker is 
+			// doing it to let the user know that something is being done. Blocking 
+			// of the GUI is needed here so that the user cannot modify the original 
+			// workflow while it is being copied.
+			CopyWorkflowSwingWorker copyWorkflowSwingWorker = new CopyWorkflowSwingWorker(dataflowOriginal);
+
+			CopyWorkflowInProgressDialog dialog = new CopyWorkflowInProgressDialog();
+			copyWorkflowSwingWorker.addPropertyChangeListener(
+				     new SwingWorkerCompletionWaiter(dialog));
+			copyWorkflowSwingWorker.execute();
 			
-			if (dataflowCopy.getInputPorts().isEmpty()){// No input ports - we can run immediately
-				// TODO check if the database has been created and create if needed
-				// if provenance turned on then add an IntermediateProvLayer to each
-				// Processor
-				final ReferenceService referenceService = runComponent
-						.getReferenceService();
-				ProvenanceConnector provenanceConnector = null;
-				
-				// FIXME: All these run-stuff should be done in a general way so it
-				// could also be used when running workflows non-interactively
-				if (DataManagementConfiguration.getInstance().isProvenanceEnabled()) {
-					String connectorType = DataManagementConfiguration
-							.getInstance().getConnectorType();
-
-					for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry
-							.getInstance().getInstances()) {
-						if (connectorType.equalsIgnoreCase(factory
-								.getConnectorType())) {
-							provenanceConnector = factory.getProvenanceConnector();
-						}
-					}
-
-					// slight change, the init is outside but it also means that the
-					// init call has to ensure that the dbURL is set correctly
-					try {
-						if (provenanceConnector != null) {
-							provenanceConnector.init();
-							provenanceConnector
-									.setReferenceService(referenceService);
-						}
-					} catch (Exception except) {
-
-					}				
-				}
-				final InvocationContextImpl context = new InvocationContextImpl(
-						referenceService, provenanceConnector);
-				// Workflow run id will be set on the context from the facade
-				if (provenanceConnector != null) {
-					provenanceConnector.setInvocationContext(context);
-				}
-				
-				final WorkflowInstanceFacade facade;
+			// Give a chance to the SwingWorker to finish so we do not have to display 
+			// the dialog if copying of the workflow is quick (so it won't flicker on the screen)
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// do nothing
+			}
+			if (!copyWorkflowSwingWorker.isDone()){
+				dialog.setVisible(true); // this will block the GUI
+			}
+			boolean userCancelled = dialog.hasUserCancelled(); // see if user cancelled the dialog
+			
+			if (userCancelled){
+				// Stop the CopyWorkflowSwingWorker if it is still working
+				copyWorkflowSwingWorker.cancel(true);
+				// exit
+				return;
+			}
+			else{ 
+				// Get the workflow copy from the copyWorkflowSwingWorker
 				try {
-					facade = new EditsImpl().createWorkflowInstanceFacade(
-							dataflowCopy, context, "");
-				} catch (InvalidDataflowException ex) {
-					InvalidDataflowReport.invalidDataflow(ex.getDataflowValidationReport());
-					return;
-				}		
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						switchToResultsPerspective();
-						runComponent.runDataflow(facade, (Map<String, T2Reference>) null);
+					dataflowCopy = copyWorkflowSwingWorker.get();
+				} catch (Exception e) {
+					dataflowCopy = null;
+					logger.error("Failed to get the workflow copy", e);
+				}
+				
+				if (dataflowCopy != null) {
+					// TODO check if the database has been created and create if
+					// needed if provenance turned on then add an
+					// IntermediateProvLayer to
+					// each Processor
+					final ReferenceService referenceService = runComponent
+							.getReferenceService();
+					ProvenanceConnector provenanceConnector = null;
+
+					// FIXME: All these run-stuff should be done in a general
+					// way so
+					// it could also be used when running workflows
+					// non-interactively
+					if (DataManagementConfiguration.getInstance()
+							.isProvenanceEnabled()) {
+						String connectorType = DataManagementConfiguration
+								.getInstance().getConnectorType();
+
+						for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry
+								.getInstance().getInstances()) {
+							if (connectorType.equalsIgnoreCase(factory
+									.getConnectorType())) {
+								provenanceConnector = factory
+										.getProvenanceConnector();
+							}
+						}
+
+						// slight change, the init is outside but it also means
+						// that
+						// the init call has to ensure that the dbURL is set
+						// correctly
+						try {
+							if (provenanceConnector != null) {
+								provenanceConnector.init();
+								provenanceConnector
+										.setReferenceService(referenceService);
+							}
+						} catch (Exception except) {
+
+						}
 					}
-				});			
-			}
-			else{
-				final Dataflow copy = dataflowCopy;
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						showInputDialog(copy);
+					final InvocationContextImpl context = new InvocationContextImpl(
+							referenceService, provenanceConnector);
+					// Workflow run id will be set on the context from the
+					// facade
+					if (provenanceConnector != null) {
+						provenanceConnector.setInvocationContext(context);
 					}
-				});	
+
+					final WorkflowInstanceFacade facade;
+					try {
+						facade = new EditsImpl().createWorkflowInstanceFacade(
+								dataflowCopy, context, "");
+					} catch (InvalidDataflowException ex) {
+						InvalidDataflowReport.invalidDataflow(ex
+								.getDataflowValidationReport());
+						return;
+					}
+					SwingUtilities.invokeLater(new Runnable() {
+						public void run() {
+							switchToResultsPerspective();
+							runComponent.runDataflow(facade,
+									(Map<String, T2Reference>) null);
+						}
+					});
+				} else { // something went wrong when copying the workflow
+					InvalidDataflowReport.showErrorDialog(
+							"Unable to make a copy of the workflow to run",
+							"Workflow copy failed");
+				}
 			}
-		} else {
-			InvalidDataflowReport.showErrorDialog("Unable to make a copy of the workflow to run",
-					"Workflow copy failed");
+		} 
+		else { // workflow had inputs - show the input dialog
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					showInputDialog(dataflowOriginal);
+				}
+			});
 		}
 	}
 
@@ -228,57 +260,50 @@ public class RunWorkflowAction extends AbstractAction {
 		}
 	}
 
-	private AnnotationTools annotationTools = new AnnotationTools();
-
 	@SuppressWarnings("serial")
-	private void showInputDialog(Dataflow dataflow) {
-		// Create and set up the window.
+	private void showInputDialog(final Dataflow dataflowOriginal) {
+		
+		// Get the WorkflowLauchWindow
+		WorkflowLaunchWindow launchWindow = null;
+		synchronized(dataflowOriginal)
+		{
+			if (workflowLaunchWindowMap.get(dataflowOriginal) == null) {
+				launchWindow = new WorkflowLaunchWindow(dataflowOriginal,
+						runComponent.getReferenceService()) {
 
-		String title = annotationTools.getAnnotationString(dataflow, DescriptiveTitle.class, "");
-		String dialogTitle = "Workflow ";
-		if ((title != null) && (!title.equals(""))) {
-			dialogTitle = title + ": ";
-		}
-		dialogTitle += "input values";
-		final JDialog dialog = new JDialog((JFrame) null, dialogTitle, true);
-		dialog.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					@Override
+					public void handleLaunch(
+							Map<String, T2Reference> workflowInputs) {
+						setState(Frame.ICONIFIED); // minimise the window
+						switchToResultsPerspective();
+						runComponent.runDataflow(getFacade(), workflowInputs);
+					}
 
-		WorkflowLaunchPanel wlp = new WorkflowLaunchPanel(dataflow, runComponent.getReferenceService()) {
-			@Override
-			public void handleLaunch(Map<String, T2Reference> workflowInputs) {
-				switchToResultsPerspective();
-				runComponent.runDataflow(getFacade(), workflowInputs);
-				dialog.dispose();
+					@Override
+					public void handleCancel() {
+						// Keep the window so we do not have to rebuild it again
+						setVisible(false);
+					}
+				};
+
+				// Add this window to the map of the workflow input/launch
+				// windows
+				workflowLaunchWindowMap.put(dataflowOriginal, launchWindow);
+				
+				launchWindow.setLocationRelativeTo(null);
+			} 
+			else {
+				launchWindow = workflowLaunchWindowMap.get(dataflowOriginal);
+				// Update the Reference Service in the case it has changed in
+				// the meantime
+				// (e.g. user switched from in-memory to database)
+				launchWindow.setReferenceService(runComponent
+						.getReferenceService());
 			}
-
-			@Override
-			public void handleCancel() {
-				dialog.dispose();
-			}
-		};
-		wlp.setOpaque(true); // content panes must be opaque
-
-		List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(
-				dataflow.getInputPorts());
-		Collections.sort(inputPorts, new PortComparator());
-		for (DataflowInputPort input : inputPorts) {
-			// input.getAnnotations();
-
-			String portDescription = annotationTools.getAnnotationString(input,
-					FreeTextDescription.class, null);
-			String portExample = annotationTools.getAnnotationString(input,
-					ExampleValue.class, null);
-
-			wlp.addInput(input.getName(), input.getDepth(), portDescription,
-					portExample);
+			
+			// Display the window
+			launchWindow.setVisible(true);
 		}
-
-		dialog.setContentPane(wlp);
-
-		// Display the window.
-		dialog.pack();
-		dialog.setLocationRelativeTo(null);
-		dialog.setVisible(true);
 	}
 
 }

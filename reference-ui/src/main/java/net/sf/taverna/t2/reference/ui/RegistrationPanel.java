@@ -626,4 +626,9 @@ public class RegistrationPanel extends JPanel {
 	public Object getValue() {
 		return treeModel.getAsPojo();
 	}
+
+	public boolean checkUserInput() {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }
