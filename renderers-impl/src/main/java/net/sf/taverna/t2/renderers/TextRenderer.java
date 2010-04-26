@@ -92,11 +92,13 @@ public class TextRenderer implements Renderer {
 					}
 					theTextArea.setText(new String(smallStringBytes));
 					theTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+					theTextArea.setCaretPosition(0);
 					return theTextArea;
 				} else if (response == JOptionPane.CANCEL_OPTION) {
 					theTextArea
 							.setText(new String(
 									"Rendering cancelled due to size of file. Try saving and viewing in an external application"));
+					theTextArea.setCaretPosition(0);
 					return theTextArea;
 				}
 			}
@@ -107,6 +109,7 @@ public class TextRenderer implements Renderer {
 		}
 		try {
 			theTextArea.setText(resolve);
+			theTextArea.setCaretPosition(0);
 			theTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		} catch (Exception e) {
 			throw new RendererException("Unable to create text renderer", e);
