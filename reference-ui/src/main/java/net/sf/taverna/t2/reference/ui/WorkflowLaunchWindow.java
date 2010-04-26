@@ -420,16 +420,19 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(
 				dataflowOriginal.getInputPorts());
 		Collections.sort(inputPorts, new PortComparator());
-		for (DataflowInputPort input : inputPorts) {
-			// input.getAnnotations();
+		// Create tabs for input ports (but only for the one that are connected!)
+		for (DataflowInputPort inputPort : inputPorts) {
 
-			String portDescription = annotationTools.getAnnotationString(
-					input, FreeTextDescription.class, null);
-			String portExample = annotationTools.getAnnotationString(input,
-					ExampleValue.class, null);
-			// add tabs for wf input ports
-			addInput(input.getName(), input.getDepth(),
-					portDescription, portExample);
+			// Is this input port connected to anything?
+			if (dataflowOriginal.isInputPortConnected(inputPort)){			
+				String portDescription = annotationTools.getAnnotationString(
+						inputPort, FreeTextDescription.class, null);
+				String portExample = annotationTools.getAnnotationString(inputPort,
+						ExampleValue.class, null);
+				// add tabs for wf input ports
+				addInput(inputPort.getName(), inputPort.getDepth(), portDescription,
+						portExample);
+			}
 		}
 		
 		portsPart.add(tabsPane, BorderLayout.CENTER);
@@ -448,7 +451,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		
 		pack();		
 	}
-		
+
 	/**
 	 * User clicked the cancel button.
 	 */
