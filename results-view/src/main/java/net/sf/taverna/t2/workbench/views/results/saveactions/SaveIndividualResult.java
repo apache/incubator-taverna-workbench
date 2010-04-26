@@ -98,9 +98,6 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 			});
 			
 			final InputStream dataStream;
-			for (ExternalReferenceSPI externalReference : externalReferences){
-				System.out.println("external SPI: " + externalReference.getClass() + " " + externalReference.toString());
-			}
 						
 			try{
 				// externalReferences must contain at least one element - use the first one, it is the most efficient
@@ -263,13 +260,11 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 	/*private void saveData (File file, Object data) throws Exception{
 		FileOutputStream fos = new FileOutputStream(file);
 		if (data instanceof byte[]) {
-			System.out.println("Saving result data as byte stream.");
 			logger.info("Saving result data as byte stream.");
 			fos.write((byte[]) data);
 			fos.flush();
 			fos.close();
 		} else if (data instanceof String){
-			System.out.println("Saving result data as text.");
 			logger.info("Saving result data as text.");
 			Writer out = new BufferedWriter(new OutputStreamWriter(fos));
 			out.write((String) data);
