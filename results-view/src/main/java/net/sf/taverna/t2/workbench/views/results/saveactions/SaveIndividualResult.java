@@ -21,11 +21,10 @@
 package net.sf.taverna.t2.workbench.views.results.saveactions;
 
 import java.awt.event.ActionEvent;
-import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,10 +38,10 @@ import javax.swing.filechooser.FileFilter;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
+import net.sf.taverna.t2.reference.DereferenceException;
 import net.sf.taverna.t2.reference.ErrorDocument;
 import net.sf.taverna.t2.reference.ExternalReferenceSPI;
 import net.sf.taverna.t2.reference.Identified;
-import net.sf.taverna.t2.reference.ReferenceServiceException;
 import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -98,14 +97,19 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 				}
 			});
 			
-			final Object data;
-			try{
-				data = context.getReferenceService().renderIdentifier(resultReference, Object.class, context);
+			final InputStream dataStream;
+			for (ExternalReferenceSPI externalReference : externalReferences){
+				System.out.println("external SPI: " + externalReference.getClass() + " " + externalReference.toString());
 			}
-			catch(ReferenceServiceException rse){
-				JOptionPane.showMessageDialog(null, "Problem rendering T2Reference when saving the result data", "Save Result Error",
+						
+			try{
+				// externalReferences must contain at least one element - use the first one, it is the most efficient
+				dataStream = externalReferences.get(0).openStream(context);
+			}
+			catch(DereferenceException drse){
+				JOptionPane.showMessageDialog(null, "Problem opening an input stream to the data when saving the result data value", "Save Result Error",
 						JOptionPane.ERROR_MESSAGE);
-				logger.error("SaveIndividualResult Error: Problem rendering T2Reference when saving the result data", rse);
+				logger.error("SaveIndividualResult Error: Problem opening an input stream to the data when saving the result data value", drse);
 				return;				
 			}
 			// All is fine - we have rendered the T2Reference correctly
@@ -144,7 +148,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 								@Override
 								public void run(){
 									try {
-										saveData(finalFile, data);
+										saveData(finalFile, dataStream);
 									} catch (Exception ex) {
 										JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 												JOptionPane.ERROR_MESSAGE);
@@ -163,7 +167,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 							@Override
 							public void run(){
 								try {
-									saveData(finalFile, data);
+									saveData(finalFile, dataStream);
 								} catch (Exception ex) {
 									JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 											JOptionPane.ERROR_MESSAGE);
@@ -221,7 +225,8 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 								@Override
 								public void run(){
 									try {
-										saveData(finalFile, errorString);
+										// We need the data to be saved as an InputStream
+										saveData(finalFile, new ByteArrayInputStream(errorString.getBytes("UTF-8")));
 									} catch (Exception ex) {
 										JOptionPane.showMessageDialog(null, "Problem saving error document", "Save Result Error",
 												JOptionPane.ERROR_MESSAGE);
@@ -240,7 +245,8 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 							@Override
 							public void run(){
 								try {
-									saveData(finalFile, errorString);
+									// We need the data to be saved as an InputStream
+									saveData(finalFile, new ByteArrayInputStream(errorString.getBytes("UTF-8")));
 								} catch (Exception ex) {
 									JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 											JOptionPane.ERROR_MESSAGE);
@@ -254,14 +260,16 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 		}
 	}			
 	
-	private void saveData (File file, Object data) throws Exception{
+	/*private void saveData (File file, Object data) throws Exception{
 		FileOutputStream fos = new FileOutputStream(file);
 		if (data instanceof byte[]) {
+			System.out.println("Saving result data as byte stream.");
 			logger.info("Saving result data as byte stream.");
 			fos.write((byte[]) data);
 			fos.flush();
 			fos.close();
 		} else if (data instanceof String){
+			System.out.println("Saving result data as text.");
 			logger.info("Saving result data as text.");
 			Writer out = new BufferedWriter(new OutputStreamWriter(fos));
 			out.write((String) data);
@@ -269,6 +277,37 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 			out.flush();
 			fos.close();
 			out.close();
+		}
+	}
+	*/
+	
+	private void saveData (File file, InputStream dataStream) throws Exception{
+		
+		logger.info("Saving result value to file " + file.getAbsolutePath());
+		
+		FileOutputStream fos = new FileOutputStream(file);
+		
+		byte[] bytes = new byte[1024];
+		int len;
+		
+		try{
+			while((len = dataStream.read(bytes)) > 0){ //while anything to read
+				fos.write(bytes, 0, len);
+			}
+		}
+		finally {
+			try{
+				dataStream.close();
+			}
+			catch (Exception ex){
+				// Ignore
+			}
+			try{
+				fos.close();
+			}
+			catch (Exception ex){
+				// Ignore
+			}
 		}
 	}
 
