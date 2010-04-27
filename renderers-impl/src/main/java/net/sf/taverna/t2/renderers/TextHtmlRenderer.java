@@ -20,12 +20,24 @@
  ******************************************************************************/
 package net.sf.taverna.t2.renderers;
 
+import java.awt.Color;
+import java.awt.Font;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
+import javax.swing.text.Document;
+import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
+
+import org.apache.log4j.Logger;
+
+import edu.stanford.ejalbert.BrowserLauncher;
 
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
@@ -36,6 +48,8 @@ import net.sf.taverna.t2.reference.T2Reference;
  * @author Ian Dunlop
  */
 public class TextHtmlRenderer implements Renderer {
+
+	private Logger logger = Logger.getLogger(TextHtmlRenderer.class);
 
 	private Pattern pattern;
 
@@ -90,8 +104,45 @@ public class TextHtmlRenderer implements Renderer {
 			}
 
 			try {
-				editorPane = new JEditorPane("text/html", "<pre>" + resolve
-						+ "</pre>");
+				//editorPane = new JEditorPane("text/html", "<pre>" + resolve
+					//	+ "</pre>");
+				
+				Font baseFont = new JLabel("base font").getFont();
+				editorPane = new JEditorPane();
+				editorPane.setEditable(false);
+				editorPane.setBackground(Color.WHITE);
+				editorPane.setFocusable(false);
+				HTMLEditorKit kit = new HTMLEditorKit();
+				editorPane.setEditorKit(kit);
+				StyleSheet styleSheet = kit.getStyleSheet();
+				//styleSheet.addRule("body {font-family:"+baseFont.getFamily()+"; font-size:"+baseFont.getSize()+";}"); // base font looks bigger when rendered as HTML
+				styleSheet.addRule("body {font-family:"+ baseFont.getFamily()+"; font-size:9px;}");
+				Document doc = kit.createDefaultDocument();
+				editorPane.setDocument(doc);
+				editorPane.setText(resolve);
+				editorPane.addHyperlinkListener(new HyperlinkListener() {
+
+					public void hyperlinkUpdate(HyperlinkEvent he) {
+						HyperlinkEvent.EventType type = he.getEventType();
+					    if (type == HyperlinkEvent.EventType.ACTIVATED) {
+							// Open a Web browser
+							try{
+								BrowserLauncher launcher = new BrowserLauncher();
+								String url = he.getDescription();
+								if (url.toLowerCase().startsWith("http://")){
+									launcher.openURLinBrowser(url);
+								}
+								else{
+									launcher.openURLinBrowser("http://"+url);
+								}
+							}catch(Exception ex){
+								logger.error("HTML Renderer: Failed to launch browser to follow a link " + he.getURL().toExternalForm(), ex);
+							}
+					    }				
+					}
+				});
+							
+				
 			} catch (Exception e) {
 				throw new RendererException(
 						"Unable to generate text/html renderer", e);
