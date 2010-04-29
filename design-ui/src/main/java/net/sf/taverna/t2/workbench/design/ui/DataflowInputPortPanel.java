@@ -164,6 +164,11 @@ public class DataflowInputPortPanel extends JPanel {
 	 */
 	public void setPortName(String name) {
 		portNameField.setText(name);
+		// Select the text
+		if (name.length() > 0){
+			portNameField.setSelectionStart(0);
+			portNameField.setSelectionEnd(name.length());
+		}
 	}
 	
 	/**
