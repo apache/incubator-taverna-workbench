@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.activities.stringconstant.servicedescriptions;
 
+import java.net.URI;
+
 import javax.swing.Icon;
 
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
@@ -31,6 +33,9 @@ public class StringConstantTemplateService extends AbstractTemplateService<Strin
 	
 	private static final String STRINGCONSTANT = "String constant";
 
+	private static final URI providerId = URI
+	.create("http://taverna.sf.net/2010/service-provider/stringconstant");
+	
 	@Override
 	public Class<StringConstantActivity> getActivityClass() {
 		return StringConstantActivity.class;
@@ -56,8 +61,13 @@ public class StringConstantTemplateService extends AbstractTemplateService<Strin
 		return "A string value that you can set";
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static ServiceDescription getServiceDescription() {
 		StringConstantTemplateService scts = new StringConstantTemplateService();
 		return scts.templateService;
+	}
+
+	public String getId() {
+		return providerId.toString();
 	}
 }
