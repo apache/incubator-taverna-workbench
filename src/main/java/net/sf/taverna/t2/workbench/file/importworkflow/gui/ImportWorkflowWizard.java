@@ -46,6 +46,7 @@ import net.sf.taverna.t2.workbench.file.impl.actions.OpenWorkflowAction;
 import net.sf.taverna.t2.workbench.file.importworkflow.DataflowMerger;
 import net.sf.taverna.t2.workbench.file.importworkflow.MergeException;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
+import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
@@ -715,6 +716,7 @@ public class ImportWorkflowWizard extends JDialog {
 		return insertedActivity;
 	}
 
+	@SuppressWarnings("serial")
 	protected class ImportWorkflowAction extends AbstractAction implements
 			Runnable {
 		private static final String VALID_NAME_REGEX = "[\\p{L}\\p{Digit}_.]+";
@@ -726,11 +728,12 @@ public class ImportWorkflowWizard extends JDialog {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() instanceof Component) {
+			/*if (e.getSource() instanceof Component) {
 				parentComponent = (Component) e.getSource();
 			} else {
 				parentComponent = null;
-			}
+			}*/
+			parentComponent = Workbench.getInstance();
 			Thread t = new Thread(this, "Import workflow");
 			progressMonitor = new ProgressMonitor(parentComponent,
 					"Importing workflow", "", 0, 100);
