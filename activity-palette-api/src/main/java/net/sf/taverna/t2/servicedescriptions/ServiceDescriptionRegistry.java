@@ -15,7 +15,7 @@ public interface ServiceDescriptionRegistry extends
 			ServiceDescriptionProvider provider);
 
 	public Set<ServiceDescriptionProvider> getDefaultServiceDescriptionProviders();
-	
+
 	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders();
 	
 	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders(ServiceDescription sd);
@@ -43,6 +43,7 @@ public interface ServiceDescriptionRegistry extends
 	public void saveServiceDescriptions();
 
 	public void saveServiceDescriptions(File serviceDescriptionsFile);
-
 	
+	public void exportCurrentServiceDescriptions(File serviceDescriptionsFile);
+
 }

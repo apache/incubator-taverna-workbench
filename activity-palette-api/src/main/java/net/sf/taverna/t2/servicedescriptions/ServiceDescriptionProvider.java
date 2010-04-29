@@ -19,7 +19,6 @@ public interface ServiceDescriptionProvider {
 	 * 
 	 * @param callBack
 	 */
-	@SuppressWarnings("unchecked")
 	public void findServiceDescriptionsAsync(
 			FindServiceDescriptionsCallBack callBack);
 
@@ -53,5 +52,11 @@ public interface ServiceDescriptionProvider {
 	
 	@PropertyAnnotation(expert = true)
 	public abstract Icon getIcon();
+	
+	/**
+	 * Get unique id of this provider.
+	 * @return
+	 */
+	public String getId();
 
 }
