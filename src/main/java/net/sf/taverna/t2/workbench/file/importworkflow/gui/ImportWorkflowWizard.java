@@ -573,8 +573,10 @@ public class ImportWorkflowWizard extends JDialog {
 		buttonBrowse.setText("Browse");
 		j.add(buttonBrowse, gbc);
 
-		radioFile.addActionListener(browseFileOnClick);
-		fieldFile.addActionListener(browseFileOnClick);
+		// This just duplicates things - we already have actions on 
+		// the radioFile and fieldFile that will handle the events
+		//radioFile.addActionListener(browseFileOnClick);
+		//fieldFile.addActionListener(browseFileOnClick);
 		return j;
 	}
 
