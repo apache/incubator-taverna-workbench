@@ -1,5 +1,7 @@
 package net.sf.taverna.t2.activities.dataflow.servicedescriptions;
 
+import java.net.URI;
+
 import javax.swing.Icon;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
@@ -13,6 +15,8 @@ public class DataflowTemplateService extends AbstractTemplateService<Dataflow>{
 	private static final String A_CONFIGURABLE_NESTED_WORKFLOW = "A service that allows you to have one workflow nested within another";
 	private static final String DATAFLOW = "Nested workflow";
 
+	private static final URI providerId = URI
+	.create("http://taverna.sf.net/2010/service-provider/dataflow");
 	@Override
 	public Class<DataflowActivity> getActivityClass() {
 		return DataflowActivity.class;
@@ -36,9 +40,14 @@ public class DataflowTemplateService extends AbstractTemplateService<Dataflow>{
 		return A_CONFIGURABLE_NESTED_WORKFLOW;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static ServiceDescription getServiceDescription() {
 		DataflowTemplateService dts = new DataflowTemplateService();
 		return dts.templateService;
+	}
+
+	public String getId() {
+		return providerId.toString();
 	}
 
 }
