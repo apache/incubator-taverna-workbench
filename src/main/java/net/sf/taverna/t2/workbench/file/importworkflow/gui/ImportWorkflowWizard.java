@@ -587,8 +587,12 @@ public class ImportWorkflowWizard extends JDialog {
 			String name = fileManager.getDataflowName(df);
 			boolean isCurrent = df.equals(fileManager.getCurrentDataflow());
 			if (isCurrent) {
-				name = "<html><body>" + name
-						+ " <i>(current)</i></body></html>";
+				// Wrapping as HTML causes weird drop-down box under MAC, so
+				// we just use normal text
+//				name = "<html><body>" + name
+//						+ " <i>(current)</i></body></html>"; 
+				name = name
+				+ " (current)";
 			}
 			DataflowSelection selection = new DataflowSelection(df, name);
 			openDataflows.add(selection);
