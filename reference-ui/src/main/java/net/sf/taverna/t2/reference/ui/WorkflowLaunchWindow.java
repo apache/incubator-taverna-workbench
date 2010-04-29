@@ -216,9 +216,9 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			windowTitle += "'" + dataflowOriginal.getLocalName() + "' ";
 		}
 		
-		String workflowLocation = fileManager.getDataflowSource(dataflowOriginal).toString();
+		Object workflowLocation = fileManager.getDataflowSource(dataflowOriginal);
 		
-		windowTitle += (workflowLocation == null)? "" : "from " + workflowLocation;
+		windowTitle += (workflowLocation == null)? "" : "from " + workflowLocation.toString();
 	
 		setTitle(windowTitle);
 	}
