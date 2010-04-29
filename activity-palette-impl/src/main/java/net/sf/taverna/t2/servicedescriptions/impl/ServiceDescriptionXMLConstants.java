@@ -10,5 +10,6 @@ public interface ServiceDescriptionXMLConstants {
 	public static final String PROVIDERS = "providers";
 	public static final String SERVICE_DESCRIPTIONS = "serviceDescriptions";
 	public static final String IGNORED_PROVIDERS = "ignoredProviders";
+	public static final String PROVIDER_IDENTIFIER = "providerId";
 
 }

@@ -1,3 +1,23 @@
+/*******************************************************************************
+ * Copyright (C) 2007 The University of Manchester   
+ * 
+ *  Modifications to the initial code base are copyright of their
+ *  respective authors, or their employers as appropriate.
+ * 
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public License
+ *  as published by the Free Software Foundation; either version 2.1 of
+ *  the License, or (at your option) any later version.
+ *    
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
+ *    
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ ******************************************************************************/
 package net.sf.taverna.t2.servicedescriptions.impl;
 
 import java.io.File;
@@ -12,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.taverna.raven.appconfig.ApplicationConfig;
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.lang.observer.MultiCaster;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -63,7 +84,9 @@ public class ServiceDescriptionRegistryImpl implements
 
 	protected static final String CONF_DIR = "conf";
 
-	protected static final String PROVIDERS_FILENAME = "service_providers.xml";
+	protected static final String SERVICE_PROVIDERS_FILENAME = "service_providers.xml";
+
+	private static final String DEFAULT_CONFIGURABLE_SERVICE_PROVIDERS_FILENAME = "default_service_providers.xml";
 
 	static {
 		threadGroup.setMaxPriority(Thread.MIN_PRIORITY);
@@ -72,6 +95,24 @@ public class ServiceDescriptionRegistryImpl implements
 	public static ServiceDescriptionRegistryImpl getInstance() {
 		return Singleton.instance;
 	}
+
+	/**
+	 * Get the Taverna distribution (startup) configuration directory.
+	 */
+	private static File getTavernaStartupConfigurationDirectory() {
+		File distroHome = null;
+		File configDirectory = null;
+		try {
+			distroHome = ApplicationConfig.getInstance().getStartupDir();
+			configDirectory = new File(distroHome,"conf");
+			if (!configDirectory.exists()) {
+				configDirectory.mkdir();
+			}
+		} catch (IOException e) {
+			logger.error("Could not get the Taverna startup directory", e);
+		}
+		return configDirectory;
+	}	
 
 	public static void joinThreads(Collection<? extends Thread> threads,
 			long descriptionThreadTimeoutMs) {
@@ -129,6 +170,17 @@ public class ServiceDescriptionRegistryImpl implements
 
 	private Set<ServiceDescriptionProvider> defaultServiceDescriptionProviders;
 
+	/**
+	 * File containing a list of configured ConfigurableServiceProviders which is used to 
+	 * get the default set of service descriptions together with those provided by 
+	 * AbstractTemplateServiceS. This file is located in the conf directory of the 
+	 * Taverna startup directory.
+	 */
+	private File defaultConfigurableServiceProvidersFile = new File(getTavernaStartupConfigurationDirectory(),
+			DEFAULT_CONFIGURABLE_SERVICE_PROVIDERS_FILENAME);
+
+	private boolean defaultSystemConfigurableProvidersLoaded = false;
+
 	public void addObserver(Observer<ServiceDescriptionRegistryEvent> observer) {
 		observers.addObserver(observer);
 	}
@@ -167,7 +219,7 @@ public class ServiceDescriptionRegistryImpl implements
 		if (!confDir.isDirectory()) {
 			throw new RuntimeException("Invalid directory: " + confDir);
 		}
-		File serviceDescriptionsFile = new File(confDir, PROVIDERS_FILENAME);
+		File serviceDescriptionsFile = new File(confDir, SERVICE_PROVIDERS_FILENAME);
 		return serviceDescriptionsFile;
 	}
 
@@ -179,36 +231,118 @@ public class ServiceDescriptionRegistryImpl implements
 		return providerRegistry;
 	}
 
+	// Fallback to this method that uses hardcoded default services if you cannot read them from
+	// the file.
+//	@SuppressWarnings("unchecked")
+//	public synchronized Set<ServiceDescriptionProvider> getDefaultServiceDescriptionProvidersFallback() {
+//		/*if (defaultServiceDescriptionProviders != null) {
+//			return defaultServiceDescriptionProviders;
+//		}
+//		defaultServiceDescriptionProviders = new HashSet<ServiceDescriptionProvider>();
+//		*/
+//		for (ServiceDescriptionProvider provider : getProviderRegistry()
+//				.getInstances()) {
+//			
+//			/* We do not need these - already loaded them from getDefaultServiceDescriptionProviders()
+//			  if (!(provider instanceof ConfigurableServiceProvider)) {
+//				defaultServiceDescriptionProviders.add(provider);
+//				continue;
+//			}*/
+//			
+//			// Just load the hard coded default configurable service providers
+//			if (provider instanceof ConfigurableServiceProvider){
+//				ConfigurableServiceProvider<Object> template = ((ConfigurableServiceProvider<Object>) provider);
+//				// Get configurations
+//				List<Object> configurables = template.getDefaultConfigurations();
+//				for (Object config : configurables) {
+//					// Make a copy that we can configure
+//					ConfigurableServiceProvider<Object> configurableProvider = template.clone();
+//					try {
+//						configurableProvider.configure(config);
+//					} catch (ConfigurationException e) {
+//						logger.warn("Can't configure provider "
+//								+ configurableProvider + " with " + config);
+//						continue;
+//					}
+//					defaultServiceDescriptionProviders.add(configurableProvider);
+//				}
+//			}
+//		}
+//		return defaultServiceDescriptionProviders;
+//	}
+	
+	// Get the default services.
 	@SuppressWarnings("unchecked")
 	public synchronized Set<ServiceDescriptionProvider> getDefaultServiceDescriptionProviders() {
 		if (defaultServiceDescriptionProviders != null) {
 			return defaultServiceDescriptionProviders;
 		}
 		defaultServiceDescriptionProviders = new HashSet<ServiceDescriptionProvider>();
-		for (ServiceDescriptionProvider provider : getProviderRegistry()
-				.getInstances()) {
-			if (!(provider instanceof ConfigurableServiceProvider)) {
-				defaultServiceDescriptionProviders.add(provider);
-				continue;
-			}
-			// It's a template, we'll need to configure it first
-			ConfigurableServiceProvider template = ((ConfigurableServiceProvider) provider);
-			List<Object> configurables = template.getDefaultConfigurations();
-			for (Object config : configurables) {
-				// Make a copy that we can configure
-				ConfigurableServiceProvider configurableProvider = template
-						.clone();
-				try {
-					configurableProvider.configure(config);
-				} catch (ConfigurationException e) {
-					logger.warn("Can't configure provider "
-							+ configurableProvider + " with " + config);
-					continue;
-				}
-				defaultServiceDescriptionProviders.add(configurableProvider);
+		
+		// Add default configurable service description providers 
+		// from the default_service_providers.xml file
+		ServiceDescriptionDeserializer deserializer = new ServiceDescriptionDeserializer();
+		if (defaultConfigurableServiceProvidersFile.exists()){
+			try {
+				defaultServiceDescriptionProviders.addAll(deserializer
+						.xmlToServiceRegistryForDefaultServices(this,
+								defaultConfigurableServiceProvidersFile));
+				// We have successfully loaded the defaults for system configurable providers.
+				// Note that there are still defaults for third party configurable providers,
+				// which will be loaded below using getDefaultConfigurations().
+				defaultSystemConfigurableProvidersLoaded  = true;
+			} catch (Exception e) {
+				logger.error("Could not load default service providers from "
+						+ defaultConfigurableServiceProvidersFile
+								.getAbsolutePath(), e);
+				
+				// Fallback on the old hardcoded method of loading default system configurable 
+				//  service providers using getDefaultConfigurations().
+				defaultSystemConfigurableProvidersLoaded = false;
 			}
 		}
-		return defaultServiceDescriptionProviders;
+		else{
+			logger.warn("Could not find the file " + defaultConfigurableServiceProvidersFile
+					.getAbsolutePath() + " containing default system service providers. Using the hardcoded list of default system providers.");
+			
+			// Fallback on the old hardcoded method of loading default system configurable 
+			//  service providers using getDefaultConfigurations().
+			defaultSystemConfigurableProvidersLoaded = false;
+		}
+		
+		// Load other default service description providers - template, local workers 
+		// and third party configurable service providers
+		for (ServiceDescriptionProvider provider : getProviderRegistry()
+				.getInstances()) {
+			// Template service providers (beanshell, string constant, etc. )
+			// and providers of local workers.
+			if (!(provider instanceof ConfigurableServiceProvider)) {
+				defaultServiceDescriptionProviders.add(provider);
+			}
+			else{
+				// Default system or third party configurable service description provider.
+				// System ones are read from the default_service_providers.xml file so
+				// getDefaultConfigurations() on them will not have much effect here unless
+				// defaultSystemConfigurableProvidersLoaded is set to false.
+				ConfigurableServiceProvider<Object> template = ((ConfigurableServiceProvider<Object>) provider);
+				// Get configurations
+				List<Object> configurables = template.getDefaultConfigurations();
+				for (Object config : configurables) {
+					// Make a copy that we can configure
+					ConfigurableServiceProvider<Object> configurableProvider = template.clone();
+					try {
+						configurableProvider.configure(config);
+					} catch (ConfigurationException e) {
+						logger.warn("Can't configure provider "
+								+ configurableProvider + " with " + config);
+						continue;
+					}
+					defaultServiceDescriptionProviders.add(configurableProvider);
+				}
+			}
+		}
+		
+		return defaultServiceDescriptionProviders;	
 	}
 
 	public synchronized Set<ServiceDescriptionProvider> getServiceDescriptionProviders() {
@@ -232,9 +366,9 @@ public class ServiceDescriptionRegistryImpl implements
 			if (userRemovedProviders.contains(provider)) {
 				continue;
 			}
-			if (provider instanceof ConfigurableServiceProvider
+			if (provider instanceof ConfigurableServiceProvider<?>
 					&& !serviceDescriptionsConfig.isIncludeDefaults()) {
-				// We'll skip the default configurables
+				// We'll skip the default configurable service provders 
 				continue;
 			}
 			allServiceProviders.add(provider);
@@ -353,6 +487,26 @@ public class ServiceDescriptionRegistryImpl implements
 					+ serviceDescriptionsFile);
 		}
 	}
+	
+	/**
+	 * Exports all configurable service providers (that give service descriptions) 
+	 * currently found in the Service Registry (apart from service templates and 
+	 * local services) regardless of who added them (user or default system providers).
+	 * 
+	 * Unlike {@link #saveServiceDescriptions}, this export does not have the "ignored
+	 * providers" section as this is just a plain export of everything in the Service Registry. 
+	 *  
+	 * @param serviceDescriptionsFile
+	 */
+	public void exportCurrentServiceDescriptions(File serviceDescriptionsFile) {
+		ServiceDescriptionSerializer serializer = new ServiceDescriptionSerializer();
+		try {
+			serializer.exportServiceRegistryToXML(this, serviceDescriptionsFile);
+		} catch (IOException e) {
+			throw new RuntimeException("Could not save service descriptions to "
+					+ serviceDescriptionsFile);
+		}
+	}
 
 	public void setProviderRegistry(
 			SPIRegistry<ServiceDescriptionProvider> providerRegistry) {
@@ -394,6 +548,10 @@ public class ServiceDescriptionRegistryImpl implements
 		}
 	}
 
+	public boolean isDefaultSystemConfigurableProvidersLoaded(){
+		return defaultSystemConfigurableProvidersLoaded;
+	}
+	
 	public class FindDescriptionsCallBack implements
 			FindServiceDescriptionsCallBack {
 		private boolean aborting = false;

@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Set;
 
-import net.sf.taverna.raven.repository.impl.LocalArtifactClassLoader;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
@@ -29,14 +28,10 @@ public class ServiceDescriptionSerializer extends AbstractXMLSerializer
 			throws JDOMException, IOException {
 		Element serviceProviderElem = new Element(PROVIDER,
 				SERVICE_DESCRIPTION_NS);
-		ClassLoader cl = provider.getClass().getClassLoader();
-		if (cl instanceof LocalArtifactClassLoader) {
-			serviceProviderElem
-					.addContent(ravenElement((LocalArtifactClassLoader) cl));
-		}
-		Element classNameElement = new Element(CLASS, T2_WORKFLOW_NAMESPACE);
-		classNameElement.setText(provider.getClass().getName());
-		serviceProviderElem.addContent(classNameElement);
+
+		Element providerIdElem = new Element(PROVIDER_IDENTIFIER, T2_WORKFLOW_NAMESPACE);
+		providerIdElem.setText(provider.getId());
+		serviceProviderElem.addContent(providerIdElem);
 
 		if (provider instanceof ConfigurableServiceProvider) {
 			ConfigurableServiceProvider configurableServiceProvider = (ConfigurableServiceProvider) provider;
@@ -95,6 +90,49 @@ public class ServiceDescriptionSerializer extends AbstractXMLSerializer
 		outputter.output(registryElement, bufferedOutStream);
 		bufferedOutStream.flush();
 		bufferedOutStream.close();
+	}
+	
+	/**
+	 * Export the whole service registry to an xml file, regardless of who 
+	 * added the service provider (user or system default). In this case there 
+	 * will be no "ignored providers" in the saved file.
+	 */
+	public void exportServiceRegistryToXML(ServiceDescriptionRegistry registry,
+			File xmlFile) throws IOException {
+		Element registryElement = exportServiceRegistryToXML(registry);
+		BufferedOutputStream bufferedOutStream = new BufferedOutputStream(
+				new FileOutputStream(xmlFile));
+		XMLOutputter outputter = new XMLOutputter();
+		outputter.setFormat(Format.getPrettyFormat());
+		outputter.output(registryElement, bufferedOutStream);
+		bufferedOutStream.flush();
+		bufferedOutStream.close();
+	}
+	
+	public Element exportServiceRegistryToXML(ServiceDescriptionRegistry registry) {
+		Element serviceDescriptionElem = new Element(SERVICE_DESCRIPTIONS,
+				SERVICE_DESCRIPTION_NS);
+		
+		Element localProvidersElem = new Element(PROVIDERS,
+				SERVICE_DESCRIPTION_NS);
+		serviceDescriptionElem.addContent(localProvidersElem);
+
+		Set<ServiceDescriptionProvider> localProviders = registry
+				.getServiceDescriptionProviders();
+		for (ServiceDescriptionProvider provider : localProviders) {
+			if (provider instanceof ConfigurableServiceProvider<?>){
+				try {
+					localProvidersElem
+							.addContent(serviceProviderToXML(provider));
+				} catch (JDOMException e) {
+					logger.warn("Could not serialize " + provider, e);
+				} catch (IOException e) {
+					logger.warn("Could not serialize " + provider, e);
+				}
+			}
+		}
+		
+		return serviceDescriptionElem;
 	}
 
 }
