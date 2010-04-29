@@ -10,6 +10,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -23,6 +24,8 @@ import javax.swing.tree.TreePath;
 import net.sf.taverna.t2.partition.ActivityItem;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
+import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ExportServiceDescriptionsAction;
+import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ImportServiceDescriptionsAction;
 import net.sf.taverna.t2.workbench.ui.servicepanel.menu.AddServiceProviderMenu;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
