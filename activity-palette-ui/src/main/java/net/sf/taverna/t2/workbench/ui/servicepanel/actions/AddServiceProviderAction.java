@@ -45,6 +45,7 @@ import net.sf.taverna.t2.servicedescriptions.CustomizedConfigurePanelProvider.Cu
 import net.sf.taverna.t2.servicedescriptions.events.ProviderErrorNotification;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionProvidedEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
+import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workflowmodel.ConfigurationException;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -116,7 +117,7 @@ public class AddServiceProviderAction extends AbstractAction {
 			throw new RuntimeException("Can't clone configuration bean", ex);
 		}
 		JPanel buildEditor = buildEditor(configurationBean);
-		JDialog dialog = new JDialog();
+		JDialog dialog = new JDialog(Workbench.getInstance());
 		dialog.setTitle("Add " + confProvider.getName());
 		JPanel iconPanel = new JPanel();
 		iconPanel.add(new JLabel(confProvider.getIcon()), BorderLayout.NORTH);
@@ -141,9 +142,9 @@ public class AddServiceProviderAction extends AbstractAction {
 		
 		// dialog.setSize(buttonPanel.getPreferredSize());
 		dialog.pack();
-		dialog.setLocationRelativeTo(owner);
-		dialog.setLocation(owner.getLocationOnScreen().x + owner.getWidth(),
-				owner.getLocationOnScreen().y + owner.getHeight());
+		dialog.setLocationRelativeTo(Workbench.getInstance());
+//		dialog.setLocation(owner.getLocationOnScreen().x + owner.getWidth(),
+//				owner.getLocationOnScreen().y + owner.getHeight());
 		dialog.setVisible(true);
 	}
 
