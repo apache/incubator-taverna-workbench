@@ -57,6 +57,8 @@ public class SaveInputsAsXML extends AbstractAction implements ReferenceActionSP
 
 	private static final long serialVersionUID = 452360182978773176L;
 
+	private static final String INPUT_DATA_DIR_PROPERTY = "inputDataValuesDir";
+
 	private static Logger logger = Logger.getLogger(SaveInputsAsXML.class);
 
 	private static Namespace namespace = Namespace.getNamespace("b","http://org.embl.ebi.escience/baclava/0.1alpha");
@@ -86,9 +88,12 @@ public class SaveInputsAsXML extends AbstractAction implements ReferenceActionSP
      */
 	public void actionPerformed(ActionEvent e) {
 		
-		JFileChooser fc = new JFileChooser();
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
-		String curDir = prefs.get("currentDir", System.getProperty("user.home"));
+		String curDir = prefs.get(INPUT_DATA_DIR_PROPERTY, System.getProperty("user.home"));
+		
+		JFileChooser fc = new JFileChooser();
+		fc.setDialogTitle("Select file to save input values to");
+		
 		fc.resetChoosableFileFilters();
 		fc.setFileFilter(new ExtensionFileFilter(new String[]{"xml"}));
 		fc.setCurrentDirectory(new File(curDir));
@@ -100,7 +105,7 @@ public class SaveInputsAsXML extends AbstractAction implements ReferenceActionSP
 			int returnVal = fc.showSaveDialog(null);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				
-				prefs.put("currentDir", fc.getCurrentDirectory().toString());
+				prefs.put(INPUT_DATA_DIR_PROPERTY, fc.getCurrentDirectory().toString());
 				File file = fc.getSelectedFile();
 
 				// If the user did not use the .xml extension for the file - append it to the file name now

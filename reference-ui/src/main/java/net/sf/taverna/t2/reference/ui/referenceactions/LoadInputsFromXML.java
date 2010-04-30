@@ -27,10 +27,12 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 
+import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
 import net.sf.taverna.t2.reference.ui.RegistrationPanel;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
@@ -48,6 +50,7 @@ public class LoadInputsFromXML extends AbstractAction implements ReferenceAction
 	 * 
 	 */
 	private static final long serialVersionUID = -5031867688853589341L;
+	private static final String INPUT_DATA_DIR_PROPERTY = "inputDataValuesDir";
 	private Map<String, RegistrationPanel> inputPanelMap;
 	
 	public LoadInputsFromXML(){
@@ -62,10 +65,22 @@ public class LoadInputsFromXML extends AbstractAction implements ReferenceAction
 
 
 	public void actionPerformed(ActionEvent e) {
+		
+		Preferences prefs = Preferences.userNodeForPackage(getClass());
+		String curDir = prefs.get(INPUT_DATA_DIR_PROPERTY, System.getProperty("user.home"));		
+		
 		JFileChooser chooser = new JFileChooser();
+		chooser.setDialogTitle("Select file to load input values from");
+
+		chooser.resetChoosableFileFilters();
+		chooser.setFileFilter(new ExtensionFileFilter(new String[]{"xml"}));
+		chooser.setCurrentDirectory(new File(curDir));
+
 		int returnValue = chooser.showOpenDialog(null);
 
         if (returnValue == JFileChooser.APPROVE_OPTION) {
+			prefs.put(INPUT_DATA_DIR_PROPERTY, chooser.getCurrentDirectory()
+					.toString());
         	try {
             File file = chooser.getSelectedFile();
             InputStreamReader stream;
