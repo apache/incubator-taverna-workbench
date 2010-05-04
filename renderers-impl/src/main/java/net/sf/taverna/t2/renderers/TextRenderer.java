@@ -66,35 +66,52 @@ public class TextRenderer implements Renderer {
 		DialogTextArea theTextArea = new DialogTextArea();
 		String resolve = null;
 		try {
-			resolve = (String) referenceService.renderIdentifier(reference,
-					String.class, null);
-			byte[] bytes = resolve.getBytes();
-			if (bytes.length > meg) {
+			// We know the result is a string but resolving it fails if string is too big, 
+			// try with byte array first?
+			byte[] resolvedBytes = (byte[]) referenceService.renderIdentifier(reference,
+					byte[].class, null); 
+		
+			if (resolvedBytes.length > meg) {
 
 				Object[] options = { "Continue rendering", "Render partial",
 						"Cancel" };
-//allow partial rendering of text files
+				//allow partial rendering of text files
 				int response = JOptionPane
 						.showOptionDialog(
 								null,
 								"Result is approximately "
-										+ bytesToMeg(bytes.length)
+										+ bytesToMeg(resolvedBytes.length)
 										+ " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to cancel, render all of the result, or only the first part?",
 								"Rendering large result",
 								JOptionPane.YES_NO_CANCEL_OPTION,
 								JOptionPane.QUESTION_MESSAGE, null, options,
 								options[2]);
 
-				if (response == JOptionPane.NO_OPTION) {
+				if (response == JOptionPane.YES_OPTION){
+					try {
+						// Resolve it as a string
+//						resolve = (String) referenceService.renderIdentifier(reference,
+//								String.class, null); 
+						resolve = new String(resolvedBytes, "UTF-8");
+						
+						theTextArea.setText(resolve);
+						theTextArea.setCaretPosition(0);
+						theTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+						return theTextArea;
+					} catch (Exception e) {
+						throw new RendererException(
+								"Unable to generate text renderer", e);					}
+				}
+				else if (response == JOptionPane.NO_OPTION) {
 					byte[] smallStringBytes = new byte[1048576];
 					for (int i = 0; i < meg; i++) {
-						smallStringBytes[i] = bytes[i];
+						smallStringBytes[i] = resolvedBytes[i];
 					}
 					theTextArea.setText(new String(smallStringBytes));
 					theTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 					theTextArea.setCaretPosition(0);
 					return theTextArea;
-				} else if (response == JOptionPane.CANCEL_OPTION) {
+				} else {//if (response == JOptionPane.CANCEL_OPTION) { or ESCAPE key pressed
 					theTextArea
 							.setText(new String(
 									"Rendering cancelled due to size of file. Try saving and viewing in an external application"));
@@ -102,20 +119,27 @@ public class TextRenderer implements Renderer {
 					return theTextArea;
 				}
 			}
+			else{ // Data is not too big
+				try {
+					// Resolve it as a string
+//					resolve = (String) referenceService.renderIdentifier(reference,
+//							String.class, null);
+					resolve = new String(resolvedBytes, "UTF-8");
+					
+					theTextArea.setText(resolve);
+					theTextArea.setCaretPosition(0);
+					theTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+					return theTextArea;
+				} catch (Exception e) {
+					throw new RendererException(
+							"Could not render data", e);
+				}
+			}
 		} catch (Exception e1) {
 			// TODO not a string so inform the use about the problem - should
 			// handle this better
-			return new JTextArea("Could not render component due to " + e1);
-		}
-		try {
-			theTextArea.setText(resolve);
-			theTextArea.setCaretPosition(0);
-			theTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
-		} catch (Exception e) {
-			throw new RendererException("Unable to create text renderer", e);
-		}
-
-		return theTextArea;
+			throw new RendererException(
+					"Unable to generate text renderer", e1);			}
 	}
 
 	/**

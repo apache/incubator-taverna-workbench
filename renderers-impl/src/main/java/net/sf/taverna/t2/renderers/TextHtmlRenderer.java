@@ -81,23 +81,26 @@ public class TextHtmlRenderer implements Renderer {
 	public JComponent getComponent(ReferenceService referenceService,
 			T2Reference reference) throws RendererException {
 		try {
-			String resolve = (String) referenceService.renderIdentifier(
-					reference, String.class, null);
+	
+			// We know the result is a string but resolving it fails if string is too big, 
+			// try with byte array first?
+			byte[] resolvedBytes = (byte[]) referenceService.renderIdentifier(reference,
+					byte[].class, null); 
+
 			JEditorPane editorPane = null;
 
-			byte[] bytes = resolve.getBytes();
-			if (bytes.length > meg) {
+			if (resolvedBytes.length > meg) {
 
 				int response = JOptionPane
 						.showConfirmDialog(
 								null,
 								"Result is approximately "
-										+ bytesToMeg(((byte[]) bytes).length)
+										+ bytesToMeg(resolvedBytes.length)
 										+ " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
 								"Render this as text/html?",
 								JOptionPane.YES_NO_OPTION);
 
-				if (response == JOptionPane.NO_OPTION) {
+				if (response != JOptionPane.YES_OPTION) {
 					return new JTextArea(
 							"Rendering cancelled due to size of file. Try saving and viewing in an external application");
 				}
@@ -107,6 +110,11 @@ public class TextHtmlRenderer implements Renderer {
 				//editorPane = new JEditorPane("text/html", "<pre>" + resolve
 					//	+ "</pre>");
 				
+				// Resolve it as a string
+//				String resolve = (String) referenceService.renderIdentifier(
+//						reference, String.class, null);
+				String resolve = new String(resolvedBytes, "UTF-8");
+
 				Font baseFont = new JLabel("base font").getFont();
 				editorPane = new JEditorPane();
 				editorPane.setEditable(false);
@@ -140,16 +148,14 @@ public class TextHtmlRenderer implements Renderer {
 							}
 					    }				
 					}
-				});
-							
-				
+				});			
 			} catch (Exception e) {
 				throw new RendererException(
 						"Unable to generate text/html renderer", e);
 			}
 			return editorPane;
 		} catch (Exception e) {
-			throw new RendererException("Could not resolve " + reference, e);
+			throw new RendererException("Could not render T2 Reference " + reference, e);
 		}
 	}
 

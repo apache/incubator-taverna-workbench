@@ -94,43 +94,36 @@ public class AdvancedImageRenderer implements Renderer
 
 	public JComponent getComponent(ReferenceService referenceService,
 			T2Reference reference) throws RendererException {
-		Object data = null;
+		byte[] data = null;
 		try {
-			data = referenceService.renderIdentifier(reference, byte[].class,
+			data = (byte[])referenceService.renderIdentifier(reference, byte[].class,
 					null);
 		} catch (Exception e) {
-			logger.error("Cannot render identifier", e);
+			throw new RendererException ("Could not render identifier", e);
 		}
-		if (data instanceof byte[]) {
-			//3 megabyte limit for jpeg viewing?
-			if (((byte[])data).length > (meg*4)) {
-				int response = JOptionPane
-				.showConfirmDialog(
-						null,
-						"Image is approximately "  + bytesToMeg(((byte[])data).length) + " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
-						"Render this image?",
-						JOptionPane.YES_NO_OPTION);
-				if (response == JOptionPane.YES_OPTION) {
-					try {
-					    ImageIcon image = new ImageIcon(load((byte[])data));
-					    return (new JLabel(image));						
-					} catch (Exception e) {
-						throw new RendererException("Unable to generate image", e);
-					}
-				} else {
-					return new JTextArea("Rendering cancelled due to size of image. Try saving and viewing in an external application");
-				}
-			}
-			
-			try {
-			    ImageIcon image = new ImageIcon(load((byte[])data));
-			    return (new JLabel(image));				
-			} catch (Exception e) {
-				throw new RendererException("Unable to generate image", e);
+		// 3 megabyte limit for jpeg viewing?
+		if (data.length > (meg * 4)) {
+			int response = JOptionPane
+					.showConfirmDialog(
+							null,
+							"Image is approximately "
+									+ bytesToMeg(data.length)
+									+ " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
+							"Render this image?", JOptionPane.YES_NO_OPTION);
+
+			if (response != JOptionPane.YES_OPTION) { // NO_OPTION or ESCAPE key
+				return new JTextArea(
+						"Rendering cancelled due to size of image. Try saving and viewing in an external application");
 			}
 		}
 
-		return null;
+		try {
+			ImageIcon image = new ImageIcon(load(data));
+			return (new JLabel(image));
+		} catch (Exception e) {
+			throw new RendererException ("Could not render image", e);
+		}
+
 	}
 	
 	/**

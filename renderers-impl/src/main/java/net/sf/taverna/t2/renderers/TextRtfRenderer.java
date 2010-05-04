@@ -68,34 +68,42 @@ public class TextRtfRenderer implements Renderer {
 			T2Reference reference) throws RendererException {
 		try {
 			JEditorPane editorPane = null;
-			String resolve = (String) referenceService.renderIdentifier(
-					reference, String.class, null);
-			try {
-				byte[] bytes = resolve.getBytes();
-				if (bytes.length > meg) {
-					int response = JOptionPane
-							.showConfirmDialog(
-									null,
-									"Result is approximately "
-											+ bytesToMeg(bytes.length)
-											+ " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
-									"Render as rtf?",
-									JOptionPane.YES_NO_OPTION);
-					if (response == JOptionPane.YES_OPTION) {
-						editorPane = new JEditorPane("text/html", resolve);
-					} else {
-						return new JTextArea(
-								"Rendering cancelled due to size of file.  Try saving and viewing in an external application");
-					}
+			
+			// We know the result is a string but resolving it fails if string is too big, 
+			// try with byte array first?
+			byte[] resolvedBytes = (byte[]) referenceService.renderIdentifier(reference,
+					byte[].class, null); 
+
+			if (resolvedBytes.length > meg) {
+				int response = JOptionPane
+						.showConfirmDialog(
+								null,
+								"Result is approximately "
+										+ bytesToMeg(resolvedBytes.length)
+										+ " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
+								"Render as rtf?", JOptionPane.YES_NO_OPTION);
+
+				if (response != JOptionPane.YES_OPTION) {
+					return new JTextArea(
+							"Rendering cancelled due to size of file.  Try saving and viewing in an external application");
 				}
+			}
+
+			try {
+				// Resolve it as a string
+//				String resolve = (String) referenceService.renderIdentifier(
+//						reference, String.class, null);
+				String resolve = new String(resolvedBytes, "UTF-8");
+
+				editorPane = new JEditorPane("text/rtf", resolve);
+				return editorPane;
 			} catch (Exception e) {
 				throw new RendererException(
 						"Unable to create text/rtf renderer", e);
 			}
-			editorPane = new JEditorPane("text/html", resolve);
-			return editorPane;
+
 		} catch (Exception e) {
-			throw new RendererException("Could not resolve " + reference, e);
+			throw new RendererException("Could not render T2 Reference " + reference, e);
 		}
 	}
 /**
