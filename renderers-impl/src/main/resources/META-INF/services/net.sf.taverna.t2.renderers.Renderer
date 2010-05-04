@@ -1,4 +1,4 @@
-net.sf.taverna.t2.renderers.ImageRenderer
+#net.sf.taverna.t2.renderers.ImageRenderer
 net.sf.taverna.t2.renderers.AdvancedImageRenderer
 net.sf.taverna.t2.renderers.TextRenderer
 net.sf.taverna.t2.renderers.TextHtmlRenderer

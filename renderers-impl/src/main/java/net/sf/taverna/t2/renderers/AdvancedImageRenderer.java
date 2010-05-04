@@ -84,7 +84,7 @@ public class AdvancedImageRenderer implements Renderer
 	}
 
 	public String getType() {
-		return "Image (Advanced)";
+		return "Image";
 	}
 
 	public boolean canHandle(ReferenceService referenceService,
