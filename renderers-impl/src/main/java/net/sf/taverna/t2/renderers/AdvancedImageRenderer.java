@@ -158,9 +158,11 @@ public class AdvancedImageRenderer implements Renderer
 		image = PlanarImage.wrapRenderedImage(im).getAsBufferedImage();
 		return image;
 		*/
-		/*System.out.println(Arrays.asList(ImageIO.getReaderMIMETypes()));
+		/*
+		System.out.println("Mime types: " + Arrays.asList(ImageIO.getReaderMIMETypes()));
 		System.out.println(Arrays.asList(ImageIO.getWriterFormatNames()));
-		System.out.println(Arrays.asList(ImageIO.getReaderFormatNames()));*/
+		System.out.println("Can read:" + Arrays.asList(ImageIO.getReaderFormatNames()));
+		 */
 		image = ImageIO.read(new ByteArrayInputStream(data));
 		return image;
 	}
