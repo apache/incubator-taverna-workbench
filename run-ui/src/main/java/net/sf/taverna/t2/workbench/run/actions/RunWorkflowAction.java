@@ -303,6 +303,11 @@ public class RunWorkflowAction extends AbstractAction {
 			
 			// Display the window
 			launchWindow.setVisible(true);
+			// On Win XP setting the window visible seems not to be enough to 
+			// bring the window up if it was minimised previously so we restore it here
+			if (launchWindow.getState() == Frame.ICONIFIED){
+				launchWindow.setState(Frame.NORMAL); // restore the window
+			}
 		}
 	}
 
