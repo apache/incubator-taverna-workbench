@@ -82,7 +82,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 	
 	/**
 	 * Saves a result either as a text or a binary file - depending on the
-	 * retult data type.
+	 * result data type.
 	 */
 	public void actionPerformed(ActionEvent e) {
 		Identified identified = context.getReferenceService().resolveIdentifier(resultReference, null, context);
@@ -100,7 +100,8 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 			final InputStream dataStream;
 						
 			try{
-				// externalReferences must contain at least one element - use the first one, it is the most efficient
+				// externalReferences must contain at least one element - use the first one, 
+				// it is the most efficient
 				dataStream = externalReferences.get(0).openStream(context);
 			}
 			catch(DereferenceException drse){
