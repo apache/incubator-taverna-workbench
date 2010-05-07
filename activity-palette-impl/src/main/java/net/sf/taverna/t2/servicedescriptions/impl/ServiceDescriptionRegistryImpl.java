@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -141,7 +142,8 @@ public class ServiceDescriptionRegistryImpl implements
 	private boolean hasLoadedProviders = false;
 
 	/**
-	 * <code>true</code> while {@link #loadServiceProviders(File)} or
+	 * <code>true</code> while {@link #loadServiceProviders(File)}, 
+	 * {@link #loadServiceProviders(URL)} or
 	 * {@link #loadServiceProviders()} is in progress, avoids triggering
 	 * {@link #saveServiceDescriptions()} on
 	 * {@link #addServiceDescriptionProvider(ServiceDescriptionProvider)} calls.
@@ -431,14 +433,22 @@ public class ServiceDescriptionRegistryImpl implements
 		hasLoadedProviders = true;
 	}
 
-	public void loadServiceProviders(File serviceProviderFile)
+	public void loadServiceProviders(File serviceProvidersFile)
 			throws DeserializationException {
 		ServiceDescriptionDeserializer deserializer = new ServiceDescriptionDeserializer();
 		loading = true;
-		deserializer.xmlToServiceRegistry(this, serviceProviderFile);
+		deserializer.xmlToServiceRegistry(this, serviceProvidersFile);
 		loading = false;
 	}
 
+	public void loadServiceProviders(URL serviceProvidersURL)
+			throws DeserializationException {
+		ServiceDescriptionDeserializer deserializer = new ServiceDescriptionDeserializer();
+		loading = true;
+		deserializer.xmlToServiceRegistry(this, serviceProvidersURL);
+		loading = false;
+	}
+	
 	public void refresh() {
 		updateServiceDescriptions(true, false);
 	}
@@ -669,4 +679,5 @@ public class ServiceDescriptionRegistryImpl implements
 	private static class Singleton {
 		private static final ServiceDescriptionRegistryImpl instance = new ServiceDescriptionRegistryImpl();
 	}
+
 }

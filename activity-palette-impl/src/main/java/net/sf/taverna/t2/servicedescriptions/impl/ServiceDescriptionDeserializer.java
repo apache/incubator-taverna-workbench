@@ -2,7 +2,10 @@ package net.sf.taverna.t2.servicedescriptions.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,25 +28,69 @@ public class ServiceDescriptionDeserializer extends AbstractXMLDeserializer
 		implements ServiceDescriptionXMLConstants {
 
 	public void xmlToServiceRegistry(ServiceDescriptionRegistry registry,
-			File serviceProviderFile) throws DeserializationException {
-		Document document;
-		try {
-			FileInputStream serviceDescriptionStream = new FileInputStream(
-					serviceProviderFile);
-			try {
-				SAXBuilder builder = new SAXBuilder();
-				document = builder.build(serviceDescriptionStream);
-			} finally {
-				serviceDescriptionStream.close();
-			}
-		} catch (JDOMException e) {
-			throw new DeserializationException("Can't deserialize "
-					+ serviceProviderFile);
-		} catch (IOException e) {
-			throw new DeserializationException("Can't read "
-					+ serviceProviderFile);
-		}
+			InputStream serviceDescriptionsInputStream) throws JDOMException, IOException, DeserializationException {
+		
+		Document document = null;
+		SAXBuilder builder = new SAXBuilder();
+		document = builder.build(serviceDescriptionsInputStream);
 		xmlToServiceRegistry(registry, document.getRootElement());
+	}
+	
+	public void xmlToServiceRegistry(ServiceDescriptionRegistry registry,
+			File serviceDescriptionsFile) throws DeserializationException {
+
+		FileInputStream serviceDescriptionFileStream = null;
+		try {
+			serviceDescriptionFileStream = new FileInputStream(
+					serviceDescriptionsFile);
+		}
+		catch(FileNotFoundException ex){
+			throw new DeserializationException("Could not locate file " + serviceDescriptionsFile.getAbsolutePath()+ " containing service descriptions.");
+		}
+		
+		try{
+			xmlToServiceRegistry(registry, serviceDescriptionFileStream);
+		}
+		catch (JDOMException ex1) {
+			throw new DeserializationException("Could not deserialize stream containing service descriptions from " + serviceDescriptionsFile.getAbsolutePath(), ex1);
+		} catch (IOException ex2) {
+			throw new DeserializationException("Could not read stream containing service descriptions from " + serviceDescriptionsFile.getAbsolutePath(), ex2);
+		}
+		finally{
+			try {
+				serviceDescriptionFileStream.close();
+			} catch (IOException e) {
+				// Ignore
+			}
+		}
+	}
+	
+	public void xmlToServiceRegistry(ServiceDescriptionRegistry registry,
+			URL serviceDescriptionsURL) throws DeserializationException {
+
+		InputStream serviceDescriptionInputStream = null;	
+		try {
+			serviceDescriptionInputStream = serviceDescriptionsURL.openStream();
+		}
+		catch(IOException ex){
+			throw new DeserializationException("Could not open URL "+ serviceDescriptionsURL.toString()+" containing service descriptions.");
+		} 
+		
+		try{
+			xmlToServiceRegistry(registry, serviceDescriptionInputStream);
+		}
+		catch (JDOMException ex1) {
+			throw new DeserializationException("Could not deserialize stream containing service descriptions from " + serviceDescriptionsURL.toString(), ex1);
+		} catch (IOException ex2) {
+			throw new DeserializationException("Could not read stream containing service descriptions from " + serviceDescriptionsURL.toString(), ex2);
+		}
+		finally{
+			try {
+				serviceDescriptionInputStream.close();
+			} catch (IOException e) {
+				// Ignore
+			}
+		}
 	}
 
 	@SuppressWarnings("unchecked")
