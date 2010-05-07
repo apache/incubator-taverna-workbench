@@ -25,11 +25,16 @@ import java.awt.Graphics;
 import java.awt.Rectangle;
 
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import net.sf.taverna.t2.reference.ReferenceService;
+import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.T2ReferenceType;
 
+import org.apache.log4j.Logger;
 import org.jmol.adapter.smarter.SmarterJmolAdapter;
 import org.jmol.api.JmolAdapter;
 import org.jmol.api.JmolSimpleViewer;
@@ -41,9 +46,14 @@ import org.jmol.viewer.Viewer;
  * 
  * @author Tom Oinn
  * @author Ian Dunlop
+ * @author Alex Nenadic
  */
 public class JMolRenderer implements Renderer {
 
+	private Logger logger = Logger.getLogger(JMolRenderer.class);
+
+	private int MEGABYTE = 1024 * 1024;
+	
 	public JMolRenderer() {
 	}
 
@@ -97,28 +107,86 @@ public class JMolRenderer implements Renderer {
 
 	public JComponent getComponent(ReferenceService referenceService,
 			T2Reference reference) throws RendererException {
-		JMolPanel panel = new JMolPanel();
-		String coordinateText = null;
-		try {
-			coordinateText = (String) referenceService.renderIdentifier(
-					reference, String.class, null);
-		} catch (Exception e) {
-			throw new RendererException("Could not resolve " + reference, e);
-		}
-		JmolSimpleViewer viewer = null;
-		try {
-			viewer = panel.getViewer();
-			viewer.openStringInline(coordinateText);
-			if (((JmolViewer) viewer).getAtomCount() > 300) {
-				viewer.evalString(proteinScriptString);
-			} else {
-				viewer.evalString(scriptString);
+		
+		// Should be a ReferenceSet
+		if (reference.getReferenceType() == T2ReferenceType.ReferenceSet) {
+			try {
+
+				long approximateSizeInBytes = 0;
+				try {
+					ReferenceSet refSet = referenceService
+							.getReferenceSetService()
+							.getReferenceSet(reference);
+					approximateSizeInBytes = refSet.getApproximateSizeInBytes()
+							.longValue();
+				} catch (Exception ex) {
+					logger
+							.error(
+									"Failed to get the size of the data from Reference Service",
+									ex);
+					return new JTextArea(
+							"Failed to get the size of the data from Reference Service (see error log for more details): \n"
+									+ ex.getMessage());
+				}
+
+				if (approximateSizeInBytes > MEGABYTE) {
+					int response = JOptionPane
+							.showConfirmDialog(
+									null,
+									"Result is approximately "
+											+ bytesToMeg(approximateSizeInBytes)
+											+ " MB in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
+									"Render using JMol?", JOptionPane.YES_NO_OPTION);
+
+					if (response != JOptionPane.YES_OPTION) {
+						return new JTextArea(
+								"Rendering cancelled due to size of data. Try saving and viewing in an external application.");
+					}
+				}
+
+				String resolve = null;
+				try {
+					// Resolve it as a string
+					resolve = (String) referenceService.renderIdentifier(
+							reference, String.class, null);
+				} catch (Exception e) {
+					logger
+							.error(
+									"Reference Service failed to render data as string",
+									e);
+					return new JTextArea(
+							"Reference Service failed to render data as string (see error log for more details): \n"
+									+ e.getMessage());
+				}
+				JMolPanel panel = new JMolPanel();
+				JmolSimpleViewer viewer = null;
+				try {
+					viewer = panel.getViewer();
+					viewer.openStringInline(resolve);
+					if (((JmolViewer) viewer).getAtomCount() > 300) {
+						viewer.evalString(proteinScriptString);
+					} else {
+						viewer.evalString(scriptString);
+					}
+				} catch (Exception e) {
+					logger.error("Failed to create JMol renderer", e);
+					return new JTextArea("Failed to create JMol renderer (see error log for more details): \n"
+							+ e.getMessage());
+				}
+				return panel;
+			} catch (Exception e) {
+				logger.error("Failed to create JMol renderer", e);
+				return new JTextArea("Failed to create JMol renderer: \n"
+						+ e.getMessage());
 			}
-		} catch (Exception e) {
-			throw new RendererException("could not create JMOL Renderer for "
-					+ reference, e);
 		}
-		return panel;
+		else{
+			// Else this is not a ReferenceSet so this is not good
+			logger.error("JMol Renderer: expected data as ReferenceSet but received as "
+					+ reference.getReferenceType().toString());
+			return new JTextArea(
+			"Reference Service failed to obtain the data to render: data is not a ReferenceSet");	
+		}
 	}
 
 	class JMolPanel extends JPanel {
@@ -148,5 +216,16 @@ public class JMolRenderer implements Renderer {
 			g.getClipBounds(rectClip);
 			viewer.renderScreenImage(g, currentSize, rectClip);
 		}
+	}
+	
+	/**
+	 * Work out size of file in megabytes to 1 decimal place
+	 * 
+	 * @param bytes
+	 * @return
+	 */
+	private int bytesToMeg(long bytes) {
+		float f = bytes / MEGABYTE;
+		return Math.round(f);
 	}
 }
