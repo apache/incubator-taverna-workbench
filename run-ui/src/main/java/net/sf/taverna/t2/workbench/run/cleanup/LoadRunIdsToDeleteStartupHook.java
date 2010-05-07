@@ -40,7 +40,6 @@ public class LoadRunIdsToDeleteStartupHook implements StartupSPI {
 
 	public boolean startup() {
 		DatabaseCleanup.getInstance().load();
-		// TODO: Start deletion thread
 		return true;
 	}
 
