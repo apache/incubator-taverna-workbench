@@ -25,10 +25,14 @@ import java.io.IOException;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import net.sf.taverna.t2.reference.ReferenceService;
+import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.T2ReferenceType;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.commons.io.FileUtils;
@@ -41,13 +45,16 @@ import org.apache.log4j.Logger;
  * 
  * @author Mark
  * @author Ian Dunlop
+ * @author Alex Nenadic
  */
 public class SVGRenderer implements Renderer {
 
-	@SuppressWarnings("unused")
+	private int MEGABYTE = 1024 * 1024;
+	
 	private static Logger logger = Logger.getLogger(SVGRenderer.class);
+	
 	private Pattern pattern;
-
+	
 	public SVGRenderer() {
 		pattern = Pattern.compile(".*image/svg[+]xml.*");
 	}
@@ -65,42 +72,112 @@ public class SVGRenderer implements Renderer {
 		return canHandle(mimeType);
 	}
 
+	@SuppressWarnings("serial")
 	public JComponent getComponent(ReferenceService referenceService,
 			T2Reference reference) throws RendererException {
-		final JSVGCanvas svgCanvas = new JSVGCanvas();
-		Object resolve = null;
-		try {
-			resolve = referenceService.renderIdentifier(reference,
-					Object.class, null);
-		} catch (Exception e) {
-			throw new RendererException("Could not resolve " + reference, e);
-		}
-		if (resolve != null && resolve instanceof String && !resolve.equals("")) {
-			String svgContent = (String) resolve;
-			File tmpFile = null;
+		
+		// Should be a ReferenceSet
+		if (reference.getReferenceType() == T2ReferenceType.ReferenceSet) {
 			try {
-				tmpFile = File.createTempFile("taverna", "svg");
-				tmpFile.deleteOnExit();
-				FileUtils.writeStringToFile(tmpFile, svgContent, "utf8");
-			} catch (IOException e) {
-				throw new RendererException("Could not create SVG renderer", e);
-			}
-			try {
-				svgCanvas.setURI(tmpFile.toURI().toASCIIString());
-			} catch (Exception e) {
-				throw new RendererException("Could not create SVG renderer", e);
-			}
-			JPanel jp = new JPanel(){
-				@Override
-				protected void finalize() throws Throwable {
-					svgCanvas.stopProcessing();
-					super.finalize();
+
+				long approximateSizeInBytes = 0;
+				try {
+					ReferenceSet refSet = referenceService
+							.getReferenceSetService()
+							.getReferenceSet(reference);
+					approximateSizeInBytes = refSet.getApproximateSizeInBytes()
+							.longValue();
+				} catch (Exception ex) {
+					logger
+							.error(
+									"Failed to get the size of the data from Reference Service",
+									ex);
+					return new JTextArea(
+							"Failed to get the size of the data from Reference Service (see error log for more details): \n"
+									+ ex.getMessage());
 				}
-			};
-			jp.add(svgCanvas);
-			return jp;
+
+				if (approximateSizeInBytes > MEGABYTE) {
+					int response = JOptionPane
+							.showConfirmDialog(
+									null,
+									"Result is approximately "
+											+ bytesToMeg(approximateSizeInBytes)
+											+ " MB in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
+									"Render as SVG?", JOptionPane.YES_NO_OPTION);
+
+					if (response != JOptionPane.YES_OPTION) {
+						return new JTextArea(
+								"Rendering cancelled due to size of data. Try saving and viewing in an external application.");
+					}
+				}
+
+				String resolve = null;
+				try {
+					// Resolve it as a string
+					resolve = (String) referenceService.renderIdentifier(
+							reference, String.class, null);
+				} catch (Exception e) {
+					logger
+							.error(
+									"Reference Service failed to render data as string",
+									e);
+					return new JTextArea(
+							"Reference Service failed to render data as string (see error log for more details): \n"
+									+ e.getMessage());
+				}
+				
+				final JSVGCanvas svgCanvas = new JSVGCanvas();
+				File tmpFile = null;
+				try {
+					tmpFile = File.createTempFile("taverna", "svg");
+					tmpFile.deleteOnExit();
+					FileUtils.writeStringToFile(tmpFile, resolve, "utf8");
+				} catch (IOException e) {
+					logger
+					.error(
+							"SVG Renderer: Failed to write the data to temporary file",
+							e);
+					return new JTextArea("Failed to write the data to temporary file (see error log for more details): \n"
+							+ e.getMessage());				}
+				try {
+					svgCanvas.setURI(tmpFile.toURI().toASCIIString());
+				} catch (Exception e) {
+					logger.error("Failed to create SVG renderer", e);
+					return new JTextArea("Failed to create SVG renderer (see error log for more details): \n"
+							+ e.getMessage());				}
+				JPanel jp = new JPanel(){
+					@Override
+					protected void finalize() throws Throwable {
+						svgCanvas.stopProcessing();
+						super.finalize();
+					}
+				};
+				jp.add(svgCanvas);
+				return jp;			
+			} catch (Exception e) {
+				logger.error("Failed to create SVG renderer", e);
+				return new JTextArea("Failed to create SVG renderer (see error log for more details): \n"
+						+ e.getMessage());
+			}
 		}
-		return null;
+		else{
+			// Else this is not a ReferenceSet so this is not good
+			logger.error("SVG Renderer: expected data as ReferenceSet but received as "
+					+ reference.getReferenceType().toString());
+			return new JTextArea(
+			"Reference Service failed to obtain the data to render: data is not a ReferenceSet");	
+		}
 	}
 
+	/**
+	 * Work out size of file in megabytes to 1 decimal place
+	 * 
+	 * @param bytes
+	 * @return
+	 */
+	private int bytesToMeg(long bytes) {
+		float f = bytes / MEGABYTE;
+		return Math.round(f);
+	}
 }
