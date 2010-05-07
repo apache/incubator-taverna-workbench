@@ -25,7 +25,7 @@ import net.sf.taverna.t2.partition.ActivityItem;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ExportServiceDescriptionsAction;
-import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ImportServiceDescriptionsAction;
+import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ImportServiceDescriptionsFromFileAction;
 import net.sf.taverna.t2.workbench.ui.servicepanel.menu.AddServiceProviderMenu;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;

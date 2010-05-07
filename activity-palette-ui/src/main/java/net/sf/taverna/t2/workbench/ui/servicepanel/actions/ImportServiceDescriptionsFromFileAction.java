@@ -50,13 +50,13 @@ import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl
  *
  */
 @SuppressWarnings("serial")
-public class ImportServiceDescriptionsAction extends AbstractAction{
+public class ImportServiceDescriptionsFromFileAction extends AbstractAction{
 
 	private static final String IMPORT_SERVICES = "Import services from file";
 	private static final String SERVICE_IMPORT_DIR_PROPERTY = "serviceImportDir";
 	private Logger logger = Logger.getLogger(ExportServiceDescriptionsAction.class);
 	
-	public ImportServiceDescriptionsAction(){
+	public ImportServiceDescriptionsFromFileAction(){
 		super(IMPORT_SERVICES);
 	}
 	

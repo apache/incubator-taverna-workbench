@@ -51,7 +51,8 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ExportServiceDescriptionsAction;
-import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ImportServiceDescriptionsAction;
+import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ImportServiceDescriptionsFromFileAction;
+import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ImportServiceDescriptionsFromURLAction;
 import net.sf.taverna.t2.workbench.ui.servicepanel.actions.RemoveDefaultServicesAction;
 import net.sf.taverna.t2.workbench.ui.servicepanel.actions.RemoveUserServicesAction;
 import net.sf.taverna.t2.workbench.ui.servicepanel.actions.RestoreDefaultServicesAction;
@@ -203,9 +204,10 @@ public class ServiceTreeClickListener extends MouseAdapter {
 								menu.add(new RemoveDefaultServicesAction());
 								menu.add(new RestoreDefaultServicesAction());
 								
-								menu.add(new ShadedLabel("Import/export services from/to file",
+								menu.add(new ShadedLabel("Import/export services",
 										ShadedLabel.halfShade(Color.RED)));
-								menu.add(new ImportServiceDescriptionsAction());
+								menu.add(new ImportServiceDescriptionsFromFileAction());
+								menu.add(new ImportServiceDescriptionsFromURLAction());
 								menu.add(new ExportServiceDescriptionsAction());
 						}
 						
