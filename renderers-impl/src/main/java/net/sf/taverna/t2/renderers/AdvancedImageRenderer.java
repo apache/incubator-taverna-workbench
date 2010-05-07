@@ -21,39 +21,27 @@
 package net.sf.taverna.t2.renderers;
 
 import java.awt.Image;
-/*
-import java.awt.image.BufferedImage;
-import java.awt.image.ImageProducer;
-import java.awt.image.RenderedImage;
-*/
 import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.List;
-//import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
-//import javax.media.jai.PlanarImage;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
-import net.sf.taverna.t2.reference.ReferenceService;
-import net.sf.taverna.t2.reference.T2Reference;
-
 import org.apache.log4j.Logger;
 
-/*
-import com.sun.media.jai.codec.ByteArraySeekableStream;
-import com.sun.media.jai.codec.ImageCodec;
-import com.sun.media.jai.codec.ImageDecoder;
-import com.sun.media.jai.codec.SeekableStream;
-*/
+import net.sf.taverna.t2.reference.ReferenceService;
+import net.sf.taverna.t2.reference.ReferenceSet;
+import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.T2ReferenceType;
 
 /**
  * Advanced renderer for mime type image/* that can render tiff files.
- * Uses Java Advanced Imaging (JAI) API.
+ * Uses Java Advanced Imaging (JAI) ImageIO from https://jai-imageio.dev.java.net/.
  * 
  * @author Alex Nenadic
  * 
@@ -61,15 +49,9 @@ import com.sun.media.jai.codec.SeekableStream;
 public class AdvancedImageRenderer implements Renderer
 
 {
-	private static Logger logger = Logger
-	.getLogger(ImageRenderer.class);
+	private Logger logger = Logger.getLogger(AdvancedImageRenderer.class);
 
-	
-	private float MEGABYTE = 1024*1024;
-	
-	private int meg = 1048576;
-	
-	//private Pattern pattern;
+	private int MEGABYTE = 1024*1024;
 
 	private List<String> mimeTypesList;
 
@@ -94,36 +76,68 @@ public class AdvancedImageRenderer implements Renderer
 
 	public JComponent getComponent(ReferenceService referenceService,
 			T2Reference reference) throws RendererException {
-		byte[] data = null;
-		try {
-			data = (byte[])referenceService.renderIdentifier(reference, byte[].class,
-					null);
-		} catch (Exception e) {
-			throw new RendererException ("Could not render identifier", e);
-		}
-		// 3 megabyte limit for jpeg viewing?
-		if (data.length > (meg * 4)) {
-			int response = JOptionPane
-					.showConfirmDialog(
-							null,
-							"Image is approximately "
-									+ bytesToMeg(data.length)
-									+ " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
-							"Render this image?", JOptionPane.YES_NO_OPTION);
-
-			if (response != JOptionPane.YES_OPTION) { // NO_OPTION or ESCAPE key
+		
+		// Should be a ReferenceSet
+		if (reference.getReferenceType() == T2ReferenceType.ReferenceSet) {
+			
+			long approximateSizeInBytes = 0;
+			try {
+				ReferenceSet refSet = referenceService.getReferenceSetService()
+						.getReferenceSet(reference);
+				approximateSizeInBytes = refSet.getApproximateSizeInBytes()
+						.longValue();
+			} catch (Exception ex) {
+				logger.error("Failed to get the size of the data from Reference Service",
+								ex);
 				return new JTextArea(
-						"Rendering cancelled due to size of image. Try saving and viewing in an external application");
+						"Failed to get the size of the data from Reference Service (see error log for more details): \n" + ex.getMessage());
 			}
-		}
+			
+			// 4 megabyte limit for image viewing?
+			if (approximateSizeInBytes > (MEGABYTE * 4)) {
+				int response = JOptionPane
+						.showConfirmDialog(
+								null,
+								"Image is approximately "
+										+ bytesToMeg(approximateSizeInBytes)
+										+ " MB in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
+								"Render this image?", JOptionPane.YES_NO_OPTION);
 
-		try {
-			ImageIcon image = new ImageIcon(load(data));
-			return (new JLabel(image));
-		} catch (Exception e) {
-			throw new RendererException ("Could not render image", e);
-		}
+				if (response != JOptionPane.YES_OPTION) { // NO_OPTION or ESCAPE key
+					return new JTextArea(
+							"Rendering cancelled due to size of image. Try saving and viewing in an external application.");
+				}
+			}
 
+			byte[] data = null;
+			try{
+				data = (byte[])referenceService.renderIdentifier(reference, byte[].class,
+					null);
+			}
+			catch(Exception e){
+				logger.error(
+						"Reference Service failed to render data as byte array",
+						e);
+				return new JTextArea("Reference Service failed to render data as byte array (see error log for more details): \n" + e.getMessage());
+			}
+			try {
+				Image image = load(data);
+				if (image == null){
+					return new JTextArea(
+							"Data does not seem to contain an image in any of the recognised formats: \n" + Arrays.asList(ImageIO.getWriterFormatNames()));
+				}
+				else{
+					ImageIcon imageIcon = new ImageIcon(image);
+					return (new JLabel(imageIcon));
+				}
+			} catch (Exception e) {
+				logger.error("Failed to create image renderer", e);
+				return new JTextArea(
+						"Failed to create image renderer (see error log for more details): \n" + e.getMessage());
+			}
+		}// Else this is not a ReferenceSet so this is not good
+		logger.error("Advanced Image Renderer: expected data as ReferenceSet but received as " + reference.getReferenceType().toString());
+		return new JTextArea("Reference Service failed to obtain the data to render: data is not a ReferenceSet");	
 	}
 	
 	/**
@@ -133,7 +147,6 @@ public class AdvancedImageRenderer implements Renderer
 	 */
 		private int bytesToMeg(long bytes) {
 		float f = bytes / MEGABYTE;
-		Math.round(f);
 		return Math.round(f);
 	}
 		

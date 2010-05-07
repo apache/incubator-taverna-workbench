@@ -40,7 +40,9 @@ import org.apache.log4j.Logger;
 import edu.stanford.ejalbert.BrowserLauncher;
 
 import net.sf.taverna.t2.reference.ReferenceService;
+import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.T2ReferenceType;
 
 /**
  * Renderer for mime type text/html
@@ -53,9 +55,7 @@ public class TextHtmlRenderer implements Renderer {
 
 	private Pattern pattern;
 
-	private float MEGABYTE = 1024 * 1024;
-
-	private int meg = 1048576;
+	private int MEGABYTE = 1024 * 1024;
 
 	public TextHtmlRenderer() {
 		pattern = Pattern.compile(".*text/html.*");
@@ -80,41 +80,56 @@ public class TextHtmlRenderer implements Renderer {
 
 	public JComponent getComponent(ReferenceService referenceService,
 			T2Reference reference) throws RendererException {
-		try {
-	
-			// We know the result is a string but resolving it fails if string is too big, 
-			// try with byte array first?
-			byte[] resolvedBytes = (byte[]) referenceService.renderIdentifier(reference,
-					byte[].class, null); 
+		
+		// Should be a ReferenceSet
+		if (reference.getReferenceType() == T2ReferenceType.ReferenceSet) {
 
-			JEditorPane editorPane = null;
+			long approximateSizeInBytes = 0;
+			try {
+				ReferenceSet refSet = referenceService.getReferenceSetService()
+						.getReferenceSet(reference);
+				approximateSizeInBytes = refSet.getApproximateSizeInBytes()
+						.longValue();
+			} catch (Exception ex) {
+				logger
+						.error(
+								"Failed to get the size of the data from Reference Service",
+								ex);
+				return new JTextArea(
+						"Failed to get the size of the data from Reference Service (see error log for more details): \n" + ex.getMessage());
+			}
 
-			if (resolvedBytes.length > meg) {
+			if (approximateSizeInBytes > MEGABYTE) {
 
 				int response = JOptionPane
 						.showConfirmDialog(
 								null,
 								"Result is approximately "
-										+ bytesToMeg(resolvedBytes.length)
-										+ " Mb in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
-								"Render this as text/html?",
+										+ bytesToMeg(approximateSizeInBytes)
+										+ " MB in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
+								"Render this as HTML?",
 								JOptionPane.YES_NO_OPTION);
 
 				if (response != JOptionPane.YES_OPTION) {
 					return new JTextArea(
-							"Rendering cancelled due to size of file. Try saving and viewing in an external application");
+							"Rendering cancelled due to size of data. Try saving and viewing in an external application.");
 				}
 			}
 
+			JEditorPane editorPane = null;
+			String resolve = null;
 			try {
-				//editorPane = new JEditorPane("text/html", "<pre>" + resolve
-					//	+ "</pre>");
-				
 				// Resolve it as a string
-//				String resolve = (String) referenceService.renderIdentifier(
-//						reference, String.class, null);
-				String resolve = new String(resolvedBytes, "UTF-8");
+				resolve = (String) referenceService.renderIdentifier(reference,
+						String.class, null);
+			} catch (Exception e) {
+				logger.error(
+						"Reference Service failed to render data as string", e);
+				return new JTextArea(
+						"Reference Service failed to render data as string (see error log for more details): \n" + e.getMessage());
+			}
 
+			try {
 				Font baseFont = new JLabel("base font").getFont();
 				editorPane = new JEditorPane();
 				editorPane.setEditable(false);
@@ -123,8 +138,10 @@ public class TextHtmlRenderer implements Renderer {
 				HTMLEditorKit kit = new HTMLEditorKit();
 				editorPane.setEditorKit(kit);
 				StyleSheet styleSheet = kit.getStyleSheet();
-				//styleSheet.addRule("body {font-family:"+baseFont.getFamily()+"; font-size:"+baseFont.getSize()+";}"); // base font looks bigger when rendered as HTML
-				styleSheet.addRule("body {font-family:"+ baseFont.getFamily()+"; font-size:9px;}");
+				// styleSheet.addRule("body {font-family:"+baseFont.getFamily()+"; font-size:"+baseFont.getSize()+";}");
+				// // base font looks bigger when rendered as HTML
+				styleSheet.addRule("body {font-family:" + baseFont.getFamily()
+						+ "; font-size:9px;}");
 				Document doc = kit.createDefaultDocument();
 				editorPane.setDocument(doc);
 				editorPane.setText(resolve);
@@ -132,30 +149,38 @@ public class TextHtmlRenderer implements Renderer {
 
 					public void hyperlinkUpdate(HyperlinkEvent he) {
 						HyperlinkEvent.EventType type = he.getEventType();
-					    if (type == HyperlinkEvent.EventType.ACTIVATED) {
+						if (type == HyperlinkEvent.EventType.ACTIVATED) {
 							// Open a Web browser
-							try{
+							try {
 								BrowserLauncher launcher = new BrowserLauncher();
 								String url = he.getDescription();
-								if (url.toLowerCase().startsWith("http://")){
+								if (url.toLowerCase().startsWith("http://")) {
 									launcher.openURLinBrowser(url);
+								} else {
+									launcher.openURLinBrowser("http://" + url);
 								}
-								else{
-									launcher.openURLinBrowser("http://"+url);
-								}
-							}catch(Exception ex){
-								logger.error("HTML Renderer: Failed to launch browser to follow a link " + he.getURL().toExternalForm(), ex);
+							} catch (Exception ex) {
+								logger.error(
+										"HTML Renderer: Failed to launch browser to follow a link "
+												+ he.getURL().toExternalForm(),
+										ex);
 							}
-					    }				
+						}
 					}
-				});			
+				});
+				return editorPane;
 			} catch (Exception e) {
-				throw new RendererException(
-						"Unable to generate text/html renderer", e);
+				logger.error("Failed to create HTML renderer", e);
+				return new JTextArea(
+						"Failed to create HTML renderer (see error log for more details): \n" + e.getMessage());
 			}
-			return editorPane;
-		} catch (Exception e) {
-			throw new RendererException("Could not render T2 Reference " + reference, e);
+		}
+		else{
+			// Else this is not a ReferenceSet so this is not good
+			logger.error("HTML Renderer: expected data as ReferenceSet but received as "
+					+ reference.getReferenceType().toString());
+			return new JTextArea(
+					"Reference Service failed to obtain the data to render: data is not a ReferenceSet");	
 		}
 	}
 
@@ -167,7 +192,6 @@ public class TextHtmlRenderer implements Renderer {
 	 */
 	private int bytesToMeg(long bytes) {
 		float f = bytes / MEGABYTE;
-		Math.round(f);
 		return Math.round(f);
 	}
 }
