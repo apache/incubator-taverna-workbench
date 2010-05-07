@@ -1,6 +1,7 @@
 package net.sf.taverna.t2.servicedescriptions;
 
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +33,10 @@ public interface ServiceDescriptionRegistry extends
 
 	public void loadServiceProviders() throws DeserializationException;
 
-	public void loadServiceProviders(File serviceProviderFile)
+	public void loadServiceProviders(File serviceProvidersURL)
+			throws DeserializationException;
+
+	public void loadServiceProviders(URL serviceProvidersURL)
 			throws DeserializationException;
 
 	public void refresh();
