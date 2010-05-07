@@ -291,7 +291,7 @@ public class RenderedResultComponent extends JPanel {
 					break;
 				}
 			}
-
+		
 			if (mimeTypes.isEmpty()) { // If MIME types is empty - add
 										// "plain/text" MIME type
 				mimeTypes.add(new MimeType("text/plain"));
@@ -516,11 +516,11 @@ public class RenderedResultComponent extends JPanel {
 		      renderer.setBackground((Color) value);
 		    }
 		    
-		    if (recognisedRenderersForMimeType == null){ // error occured
+		    if (recognisedRenderersForMimeType == null){ // error occurred
 			    return renderer;
 		    }
 
-			if (value != null && index >= recognisedRenderersForMimeType.size()){ // one of the non-preferred renderers - show it in red
+			if (value != null && index >= recognisedRenderersForMimeType.size()){ // one of the non-preferred renderers - show it in grey
 			    renderer.setForeground(Color.GRAY);
 			}
 

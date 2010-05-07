@@ -222,10 +222,20 @@ public class ResultsUtils {
 				.registerMimeDetector("eu.medsea.mimeutil.detector.ExtraMimeTypes");
 		InputStream inputStream = externalReference.openStream(context);
 		try {
-			byte[] bytes = new byte[64];
+			byte[] bytes = new byte[2048]; // need to read this much if we want to detect SVG using the hack below
 			inputStream.read(bytes);
 			Collection mimeTypes2 = mimeUtil.getMimeTypes(bytes);
 			mimeList.addAll(mimeTypes2);
+			
+			// Hack for SVG that seems not to be recognised
+			String bytesString = new String(bytes, "UTF-8");
+			if (bytesString.contains("http://www.w3.org/2000/svg")){
+				MimeType svgMimeType = new MimeType("image/svg+xml");
+				if (!mimeList.contains(svgMimeType)){
+					mimeList.add(svgMimeType);
+				}
+			}
+			
 		} catch (IOException e) {
 			logger.error("Failed to read from stream to determine mimetype", e);
 		} finally {
