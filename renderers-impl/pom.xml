@@ -42,7 +42,7 @@
 		<dependency>
 			<groupId>org.fife.ui.hex</groupId>
 			<artifactId>hexeditor</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.0.2010-05-07</version>
 		</dependency>
   	</dependencies>
 </project>
