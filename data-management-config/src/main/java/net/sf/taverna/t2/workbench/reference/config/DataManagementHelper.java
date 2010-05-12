@@ -98,7 +98,7 @@ public class DataManagementHelper {
         System.setProperty("derby.drda.minThreads","5");
         System.setProperty("derby.drda.maxThreads",String.valueOf(DataManagementConfiguration.getInstance().getPoolMaxActive()));        
         int port=DataManagementConfiguration.getInstance().getPort();
-        int maxPort = port+10;
+        int maxPort = port+50;
         
         try {
         	System.setProperty("derby.drda.portNumber",String.valueOf(port));
