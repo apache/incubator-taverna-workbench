@@ -34,165 +34,190 @@ import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
 
 public class DataManagementConfiguration extends AbstractConfigurable {
 
-    public static final String IN_MEMORY = "in_memory";
-    public static final String ENABLE_PROVENANCE = "provenance";
-    public static final String CONNECTOR_TYPE = "connector";
-    public static final String PORT = "port";
-    public static final String CURRENT_PORT = "current_port";
-    public static final String REFERENCE_SERVICE_CONTEXT = "referenceService.context";
-    public static final String IN_MEMORY_CONTEXT = "inMemoryReferenceServiceContext.xml";
-    public static final String HIBERNATE_CONTEXT = "hibernateReferenceServiceContext.xml";
-    public static final String HIBERNATE_DIALECT = "dialect";
-    public static final String START_INTERNAL_DERBY = "start_derby";
-    public static final String POOL_MAX_ACTIVE = "pool_max_active";
-    public static final String POOL_MIN_IDLE = "pool_min_idle";
-    public static final String POOL_MAX_IDLE = "pool_max_idle";
-    public static final String DRIVER_CLASS_NAME = "driver";
-    public static final String JDBC_URI = "jdbcuri";
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
-    
-    //FIXME: these should me just mysql & derby - but build & dependency issues is causing the provenance to expect these values:
-    public static final String CONNECTOR_MYSQL="mysql";
-    public static final String CONNECTOR_DERBY="derby";
-    
-    public static final String JNDI_NAME = "jdbc/taverna";
-    
-    private Map<String, String> defaultPropertyMap;
-    private static DataManagementConfiguration instance;
+	public static final String IN_MEMORY = "in_memory";
+	public static final String ENABLE_PROVENANCE = "provenance";
+	public static final String CONNECTOR_TYPE = "connector";
+	public static final String PORT = "port";
+	public static final String CURRENT_PORT = "current_port";
+	public static final String REFERENCE_SERVICE_CONTEXT = "referenceService.context";
+	public static final String IN_MEMORY_CONTEXT = "inMemoryReferenceServiceContext.xml";
+	public static final String HIBERNATE_CONTEXT = "hibernateReferenceServiceContext.xml";
+	public static final String HIBERNATE_DIALECT = "dialect";
+	public static final String START_INTERNAL_DERBY = "start_derby";
+	public static final String POOL_MAX_ACTIVE = "pool_max_active";
+	public static final String POOL_MIN_IDLE = "pool_min_idle";
+	public static final String POOL_MAX_IDLE = "pool_max_idle";
+	public static final String DRIVER_CLASS_NAME = "driver";
+	public static final String JDBC_URI = "jdbcuri";
+	public static final String USERNAME = "username";
+	public static final String PASSWORD = "password";
 
-    public static DataManagementConfiguration getInstance() {
-    	
-        if (instance == null) {
-            instance = new DataManagementConfiguration();
-                        
-            if (instance.getStartInternalDerbyServer()) {
-            	DataManagementHelper.startDerbyNetworkServer();
-            }
-            
-            DataManagementHelper.setupDataSource();
-        }
-        return instance;
-    }
-    
-    public boolean isInMemory() {
-    	return getProperty(IN_MEMORY).equalsIgnoreCase("true");
-    }
-    
-    public void setInMemory(boolean value) {
-    	setProperty(IN_MEMORY,String.valueOf(value));
-    }
+	// FIXME: these should me just mysql & derby - but build & dependency issues
+	// is causing the provenance to expect these values:
+	public static final String CONNECTOR_MYSQL = "mysql";
+	public static final String CONNECTOR_DERBY = "derby";
 
-    public String getDatabaseContext() {
-        if (getProperty(IN_MEMORY).equalsIgnoreCase("true")) {
-            return IN_MEMORY_CONTEXT;
-        } else {
-            return HIBERNATE_CONTEXT;
-        }
-    }
-    
-    public void setDriverClassName(String driverClassName) {
-    	setProperty(DRIVER_CLASS_NAME, driverClassName);
-    }
-    
-    public String getDriverClassName() {
-    	return getProperty(DRIVER_CLASS_NAME);
-    }
-    
-    public boolean isProvenanceEnabled() {            	
-        return getProperty(ENABLE_PROVENANCE).equalsIgnoreCase("true");
-    }
-    
-    public void setStartInternalDerbyServer(boolean value) {
-    	setProperty(START_INTERNAL_DERBY,String.valueOf(value));
-    }
-    
-    public boolean getStartInternalDerbyServer() {
-    	return getProperty(START_INTERNAL_DERBY).equalsIgnoreCase("true");
-    }
-    
-    public int getPort() {
-    	return Integer.valueOf(getProperty(PORT));
-    }
-    
-    public void setCurrentPort(int port) {
-    	setProperty(CURRENT_PORT, String.valueOf(port));
-    }
-    
-    public int getCurrentPort() {
-    	return Integer.valueOf(getProperty(CURRENT_PORT));
-    }
-    
-    public int getPoolMaxActive() {
-    	return Integer.valueOf(getProperty(POOL_MAX_ACTIVE));
-    }
-    
-    public int getPoolMinIdle() {
-    	return Integer.valueOf(getProperty(POOL_MIN_IDLE));
-    }
-    
-    public int getPoolMaxIdle() {
-    	return Integer.valueOf(getProperty(POOL_MAX_IDLE));
-    }
+	public static final String JNDI_NAME = "jdbc/taverna";
 
-    private DataManagementConfiguration() {
-        
-    }
+	private Map<String, String> defaultPropertyMap;
+	private static DataManagementConfiguration instance;
 
-    public String getCategory() {
-        return "general";
-    }
+	private boolean autoSave = true;
 
-    public Map<String, String> getDefaultPropertyMap() {
-    	
-        if (defaultPropertyMap == null) {
-            defaultPropertyMap = new HashMap<String, String>();
-            defaultPropertyMap.put(IN_MEMORY, "true");
-            defaultPropertyMap.put(ENABLE_PROVENANCE, "true");
-            defaultPropertyMap.put(PORT, "1527");
-            //defaultPropertyMap.put(DRIVER_CLASS_NAME, "org.apache.derby.jdbc.ClientDriver");
-            defaultPropertyMap.put(DRIVER_CLASS_NAME, "org.apache.derby.jdbc.EmbeddedDriver");
-            defaultPropertyMap.put(HIBERNATE_DIALECT, "org.hibernate.dialect.DerbyDialect");
-            defaultPropertyMap.put(POOL_MAX_ACTIVE, "50");
-            defaultPropertyMap.put(POOL_MAX_IDLE, "50");
-            defaultPropertyMap.put(POOL_MIN_IDLE, "10");
-            defaultPropertyMap.put(USERNAME,"");
-            defaultPropertyMap.put(PASSWORD,"");            
-            defaultPropertyMap.put(JDBC_URI,"jdbc:derby:t2-database;create=true;upgrade=true");
-            defaultPropertyMap.put(START_INTERNAL_DERBY, "false");
-            
-            defaultPropertyMap.put(CONNECTOR_TYPE,CONNECTOR_DERBY);
-        }
-        return defaultPropertyMap;
-    }
+	public static DataManagementConfiguration getInstance() {
 
-    public String getHibernateDialect() {
-    	return getProperty(HIBERNATE_DIALECT);
-    }
-    
-    public String getDisplayName() {
-        return "Data and provenance";
-    }
+		if (instance == null) {
+			instance = new DataManagementConfiguration();
 
-    public String getFilePrefix() {
-        return "DataAndProvenance";
-    }
+			if (instance.getStartInternalDerbyServer()) {
+				DataManagementHelper.startDerbyNetworkServer();
+			}
 
-    public String getUUID() {
-        return "6BD3F5C1-C68D-4893-8D9B-2F46FA1DDB19";
-    }
-
-
-    public String getConnectorType() {        
-        return getProperty(CONNECTOR_TYPE);
-    }
-
-    
-	public String getJDBCUri() {
-		if (CONNECTOR_DERBY.equals(getConnectorType()) && getStartInternalDerbyServer()) {
-			return "jdbc:derby://localhost:" + getCurrentPort() + "/t2-database;create=true;upgrade=true";			
+			DataManagementHelper.setupDataSource();
 		}
-		else {
+		return instance;
+	}
+
+	public boolean isAutoSave() {
+		return autoSave;
+	}
+
+	public void enableAutoSave() {
+		autoSave = true;
+	}
+
+	public void disableAutoSave() {
+		autoSave = false;
+	}
+
+	@Override
+	protected void store() {
+		if (autoSave) {
+			super.store();
+		}
+	}
+
+	public boolean isInMemory() {
+		return getProperty(IN_MEMORY).equalsIgnoreCase("true");
+	}
+
+	public void setInMemory(boolean value) {
+		setProperty(IN_MEMORY, String.valueOf(value));
+	}
+
+	public String getDatabaseContext() {
+		if (getProperty(IN_MEMORY).equalsIgnoreCase("true")) {
+			return IN_MEMORY_CONTEXT;
+		} else {
+			return HIBERNATE_CONTEXT;
+		}
+	}
+
+	public void setDriverClassName(String driverClassName) {
+		setProperty(DRIVER_CLASS_NAME, driverClassName);
+	}
+
+	public String getDriverClassName() {
+		return getProperty(DRIVER_CLASS_NAME);
+	}
+
+	public boolean isProvenanceEnabled() {
+		return getProperty(ENABLE_PROVENANCE).equalsIgnoreCase("true");
+	}
+
+	public void setStartInternalDerbyServer(boolean value) {
+		setProperty(START_INTERNAL_DERBY, String.valueOf(value));
+	}
+
+	public boolean getStartInternalDerbyServer() {
+		return getProperty(START_INTERNAL_DERBY).equalsIgnoreCase("true");
+	}
+
+	public int getPort() {
+		return Integer.valueOf(getProperty(PORT));
+	}
+
+	public void setCurrentPort(int port) {
+		setProperty(CURRENT_PORT, String.valueOf(port));
+	}
+
+	public int getCurrentPort() {
+		return Integer.valueOf(getProperty(CURRENT_PORT));
+	}
+
+	public int getPoolMaxActive() {
+		return Integer.valueOf(getProperty(POOL_MAX_ACTIVE));
+	}
+
+	public int getPoolMinIdle() {
+		return Integer.valueOf(getProperty(POOL_MIN_IDLE));
+	}
+
+	public int getPoolMaxIdle() {
+		return Integer.valueOf(getProperty(POOL_MAX_IDLE));
+	}
+
+	private DataManagementConfiguration() {
+
+	}
+
+	public String getCategory() {
+		return "general";
+	}
+
+	public Map<String, String> getDefaultPropertyMap() {
+
+		if (defaultPropertyMap == null) {
+			defaultPropertyMap = new HashMap<String, String>();
+			defaultPropertyMap.put(IN_MEMORY, "true");
+			defaultPropertyMap.put(ENABLE_PROVENANCE, "true");
+			defaultPropertyMap.put(PORT, "1527");
+			// defaultPropertyMap.put(DRIVER_CLASS_NAME,
+			// "org.apache.derby.jdbc.ClientDriver");
+			defaultPropertyMap.put(DRIVER_CLASS_NAME,
+					"org.apache.derby.jdbc.EmbeddedDriver");
+			defaultPropertyMap.put(HIBERNATE_DIALECT,
+					"org.hibernate.dialect.DerbyDialect");
+			defaultPropertyMap.put(POOL_MAX_ACTIVE, "50");
+			defaultPropertyMap.put(POOL_MAX_IDLE, "50");
+			defaultPropertyMap.put(POOL_MIN_IDLE, "10");
+			defaultPropertyMap.put(USERNAME, "");
+			defaultPropertyMap.put(PASSWORD, "");
+			defaultPropertyMap.put(JDBC_URI,
+					"jdbc:derby:t2-database;create=true;upgrade=true");
+			defaultPropertyMap.put(START_INTERNAL_DERBY, "false");
+
+			defaultPropertyMap.put(CONNECTOR_TYPE, CONNECTOR_DERBY);
+		}
+		return defaultPropertyMap;
+	}
+
+	public String getHibernateDialect() {
+		return getProperty(HIBERNATE_DIALECT);
+	}
+
+	public String getDisplayName() {
+		return "Data and provenance";
+	}
+
+	public String getFilePrefix() {
+		return "DataAndProvenance";
+	}
+
+	public String getUUID() {
+		return "6BD3F5C1-C68D-4893-8D9B-2F46FA1DDB19";
+	}
+
+	public String getConnectorType() {
+		return getProperty(CONNECTOR_TYPE);
+	}
+
+	public String getJDBCUri() {
+		if (CONNECTOR_DERBY.equals(getConnectorType())
+				&& getStartInternalDerbyServer()) {
+			return "jdbc:derby://localhost:" + getCurrentPort()
+					+ "/t2-database;create=true;upgrade=true";
+		} else {
 			return getProperty(JDBC_URI);
 		}
 	}
@@ -200,7 +225,7 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 	public String getUsername() {
 		return getProperty(USERNAME);
 	}
-	
+
 	public String getPassword() {
 		return getProperty(PASSWORD);
 	}
