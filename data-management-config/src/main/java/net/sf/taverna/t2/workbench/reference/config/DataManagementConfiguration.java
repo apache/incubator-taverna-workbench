@@ -91,6 +91,10 @@ public class DataManagementConfiguration extends AbstractConfigurable {
         return getProperty(ENABLE_PROVENANCE).equalsIgnoreCase("true");
     }
     
+    public void setStartInternalDerbyServer(boolean value) {
+    	setProperty(START_INTERNAL_DERBY,String.valueOf(value));
+    }
+    
     public boolean getStartInternalDerbyServer() {
     	return getProperty(START_INTERNAL_DERBY).equalsIgnoreCase("true");
     }
