@@ -94,7 +94,6 @@ public class DataManagementHelper {
 	public synchronized static void startDerbyNetworkServer() {
 		setDerbyPaths();
 		
-		
         System.setProperty("derby.drda.host","localhost");
         System.setProperty("derby.drda.minThreads","5");
         System.setProperty("derby.drda.maxThreads",String.valueOf(DataManagementConfiguration.getInstance().getPoolMaxActive()));        

@@ -83,6 +83,10 @@ public class DataManagementConfiguration extends AbstractConfigurable {
         }
     }
     
+    public void setDriverClassName(String driverClassName) {
+    	setProperty(DRIVER_CLASS_NAME, driverClassName);
+    }
+    
     public String getDriverClassName() {
     	return getProperty(DRIVER_CLASS_NAME);
     }
