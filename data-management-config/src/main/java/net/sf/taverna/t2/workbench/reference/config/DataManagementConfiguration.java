@@ -74,6 +74,14 @@ public class DataManagementConfiguration extends AbstractConfigurable {
         }
         return instance;
     }
+    
+    public boolean isInMemory() {
+    	return getProperty(IN_MEMORY).equalsIgnoreCase("true");
+    }
+    
+    public void setInMemory(boolean value) {
+    	setProperty(IN_MEMORY,String.valueOf(value));
+    }
 
     public String getDatabaseContext() {
         if (getProperty(IN_MEMORY).equalsIgnoreCase("true")) {
