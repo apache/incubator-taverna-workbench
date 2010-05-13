@@ -112,11 +112,11 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 			return HIBERNATE_CONTEXT;
 		}
 	}
-	
+
 	public void setPort(int port) {
 		setPort(String.valueOf(port));
 	}
-	
+
 	public void setPort(String port) {
 		setProperty(PORT, port);
 	}
@@ -131,6 +131,10 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 
 	public boolean isProvenanceEnabled() {
 		return getProperty(ENABLE_PROVENANCE).equalsIgnoreCase("true");
+	}
+
+	public void setProvenanceEnabled(boolean value) {
+		setProperty(ENABLE_PROVENANCE, String.valueOf(value));
 	}
 
 	public void setStartInternalDerbyServer(boolean value) {
