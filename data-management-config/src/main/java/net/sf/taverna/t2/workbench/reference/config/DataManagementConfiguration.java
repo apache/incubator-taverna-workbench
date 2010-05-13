@@ -112,6 +112,14 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 			return HIBERNATE_CONTEXT;
 		}
 	}
+	
+	public void setPort(int port) {
+		setPort(String.valueOf(port));
+	}
+	
+	public void setPort(String port) {
+		setProperty(PORT, port);
+	}
 
 	public void setDriverClassName(String driverClassName) {
 		setProperty(DRIVER_CLASS_NAME, driverClassName);
