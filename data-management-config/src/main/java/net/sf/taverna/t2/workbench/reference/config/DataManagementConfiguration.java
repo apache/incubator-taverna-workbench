@@ -222,6 +222,10 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 		}
 	}
 
+	public void setJDBCUri(String uri) {
+		setProperty(JDBC_URI, uri);
+	}
+
 	public String getUsername() {
 		return getProperty(USERNAME);
 	}
