@@ -80,6 +80,7 @@ public class WorkbenchIcons {
 	public static ImageIcon nullIcon;
 	public static ImageIcon uninstallIcon;
 	public static ImageIcon workingIcon;
+	public static ImageIcon workingStoppedIcon;
 	public static ImageIcon updateRecommendedIcon;
 	public static ImageIcon updateIcon;
 	public static ImageIcon searchIcon;
@@ -190,6 +191,8 @@ public class WorkbenchIcons {
 					.getResource("generic/uninstall.png"));
 			workingIcon = new ImageIcon(c
 					.getResource("generic/working.gif"));
+			workingStoppedIcon = new ImageIcon(c
+					.getResource("generic/workingStopped.png"));
 			datalinkIcon = new ImageIcon(c
 					.getResource("explorer/datalink.gif"));
 			controlLinkIcon = new ImageIcon(c
