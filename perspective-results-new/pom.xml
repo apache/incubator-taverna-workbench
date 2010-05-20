@@ -7,8 +7,8 @@
 		<version>1.1-SNAPSHOT</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-components</groupId>
-	<artifactId>perspective-results-new</artifactId>
-	<name>Results Perspective New</name>
+	<artifactId>perspective-results</artifactId>
+	<name>Results Perspective</name>
 	<description>Results component for viewing progress of a workflow run, 
 	intermediate and final results, as well as previous workflow runs.</description>
 	<dependencies>
@@ -22,26 +22,11 @@
 			<artifactId>perspective-core</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
-		<!--<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>menu-api</artifactId>
-			<version>${t2.ui.api.version}</version>
-		</dependency>-->
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>common-icons</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
-		<!--<dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
-			<artifactId>design-ui</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		--><!--<dependency>
-			<groupId>net.sf.taverna.t2.infrastructure</groupId>
-			<artifactId>spi-discovery-api</artifactId>
-			<version>${t2.infrastructure.version}</version>
-		</dependency>-->
 		<dependency>
 			<groupId>javax.help</groupId>
 			<artifactId>javahelp</artifactId>

@@ -29,7 +29,7 @@ import org.jdom.Element;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
-public class ResultsPerspectiveNew implements PerspectiveSPI{
+public class ResultsPerspective implements PerspectiveSPI{
 
 	private boolean visible = true;
 	
@@ -38,7 +38,7 @@ public class ResultsPerspectiveNew implements PerspectiveSPI{
 	}
 
 	public InputStream getLayoutInputStream() {
-		return getClass().getResourceAsStream("results-perspective-new.xml");
+		return getClass().getResourceAsStream("results-perspective.xml");
 	}
 
 	public String getText() {
