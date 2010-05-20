@@ -1,0 +1,17 @@
+<basepane>
+  <child>
+    <znode classname="net.sf.taverna.zaria.ZRavenComponent">
+      <namedcomponent scroll="false">
+        <name>Workflow Runs</name>
+      </namedcomponent>
+    </znode>
+  </child>
+  <namedcomponents>
+    <namedcomponent>
+      <groupid>net.sf.taverna.t2.ui-components</groupid>
+      <artifact>perspective-results-new</artifact>
+      <classname>net.sf.taverna.t2.workbench.run.ResultsPerspectiveComponentFactory</classname>
+      <name>Workflow Runs</name>
+    </namedcomponent>
+  </namedcomponents>
+</basepane>
