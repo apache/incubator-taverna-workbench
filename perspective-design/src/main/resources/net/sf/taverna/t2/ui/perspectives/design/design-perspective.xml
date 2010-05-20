@@ -48,13 +48,13 @@
     </znode>
   </child>
   <namedcomponents>
-    <namedcomponent>
+    <!--<namedcomponent>
       <groupid>net.sf.taverna.t2.ui-components</groupid>
       <artifact>run-ui</artifact>
       <classname>net.sf.taverna.t2.workbench.run.DataflowRunsComponentFactory</classname>
       <name>Dataflow Runs</name>
     </namedcomponent>
-    <namedcomponent>
+    --><namedcomponent>
       <groupid>net.sf.taverna.t2.ui-components</groupid>
       <artifact>activity-palette-ui</artifact>
       <classname>net.sf.taverna.t2.workbench.ui.servicepanel.ServicePanelComponentFactory</classname>
