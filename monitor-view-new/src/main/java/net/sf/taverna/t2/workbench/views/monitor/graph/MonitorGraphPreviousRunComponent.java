@@ -27,8 +27,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
 import net.sf.taverna.t2.workbench.views.graph.AutoScrollInteractor;

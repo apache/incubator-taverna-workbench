@@ -43,6 +43,9 @@ import javax.swing.border.LineBorder;
 
 //import net.sf.taverna.t2.lang.observer.Observer;
 //import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
+import net.sf.taverna.t2.lang.observer.MultiCaster;
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.provenance.lineageservice.Dependencies;
@@ -58,6 +61,7 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
+import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
@@ -69,10 +73,14 @@ import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
 
-public class MonitorGraphComponent extends JPanel implements UIComponentSPI {
+public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Observable<WorkflowObjectSelectionMessage> {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(MonitorGraphComponent.class);
+
+	// Multicaster used to notify all interested parties that a selection of 
+	// a workflow object has occurred on the graph.
+	private MultiCaster<WorkflowObjectSelectionMessage> multiCaster = new MultiCaster<WorkflowObjectSelectionMessage>(this);
 
 	private static final long serialVersionUID = 1L;
 
@@ -278,6 +286,22 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI {
 		return referenceService;
 	}
 
+	public void addObserver(Observer<WorkflowObjectSelectionMessage> observer) {
+		multiCaster.addObserver(observer);
+	}
+
+	public void removeObserver(Observer<WorkflowObjectSelectionMessage> observer) {
+		multiCaster.removeObserver(observer);
+	}
+
+	public void triggerWorkflowObjectSelectionEvent(Object workflowObject) {
+		multiCaster.notify(new WorkflowObjectSelectionMessage(workflowObject));
+	}
+
+	public List<Observer<WorkflowObjectSelectionMessage>> getObservers() {
+		return multiCaster.getObservers();
+	}
+
 }
 
 class MonitorGraphEventManager implements GraphEventManager {
@@ -371,6 +395,10 @@ class MonitorGraphEventManager implements GraphEventManager {
 		final JPanel provenancePanel = new JPanel();
 		provenancePanel.setLayout(new BorderLayout());
 		if (provenanceConnector != null) {
+			
+			// Notify anyone interested that a selection occurred on the graph
+			monitorViewComponent.triggerWorkflowObjectSelectionEvent(dataflowObject);
+			
 			if (dataflowObject != null) {
 				if (dataflowObject instanceof Processor) {
 					// Show intermediate processor results

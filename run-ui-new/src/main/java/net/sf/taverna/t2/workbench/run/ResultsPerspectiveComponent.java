@@ -54,7 +54,6 @@ import javax.swing.event.ListSelectionListener;
 import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
-
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.impl.WriteQueueAspect;
@@ -65,7 +64,6 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
 import net.sf.taverna.t2.workbench.views.monitor.graph.MonitorGraphComponent;
 import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressMonitor;
-import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressTreeTable;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;

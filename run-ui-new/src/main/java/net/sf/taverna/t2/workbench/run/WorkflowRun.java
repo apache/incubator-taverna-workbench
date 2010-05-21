@@ -43,6 +43,8 @@ import net.sf.taverna.t2.facade.ResultListener;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.TokenOrderException;
 import net.sf.taverna.t2.invocation.WorkflowDataToken;
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.monitor.MonitorManager;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
@@ -52,6 +54,7 @@ import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
+import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
 import net.sf.taverna.t2.workbench.views.monitor.graph.GraphMonitor;
 import net.sf.taverna.t2.workbench.views.monitor.graph.IntermediateResultsComponent;
 import net.sf.taverna.t2.workbench.views.monitor.graph.MonitorGraphComponent;
@@ -71,10 +74,11 @@ import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
 /**
- * Representation of a workflow run.
+ * Representation of a workflow run. It listens to the selection event on the
+ * graph so that it can show intermediate results if provenance is on.
  *
  */
-public class WorkflowRun {
+public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 
 	private static final String STATUS_FINISHED = "Finished";
 	private static final String STATUS_CANCELLED = "Cancelled";
@@ -98,7 +102,7 @@ public class WorkflowRun {
 	// Interactive progress table
 	private WorkflowRunProgressTreeTable progressRunTable;
 	// Index of the last selected row in the WorkflowRunProgressTreeTable
-	private int lastSelectedTableRow = -1;
+	//private int lastSelectedTableRow = -1;
 	
 	// Tabbed component that contains the progress graph and table
 	private MonitorViewComponent monitorViewComponent;
@@ -204,10 +208,16 @@ public class WorkflowRun {
 		// Start listening for row selections on the table if provenance is enabled 
 		// for a run so we can show intermediate results for processors
 		if (isProvenanceEnabledForRun){
-		    MouseSelectionListener mouseListener = new MouseSelectionListener(progressRunTable);
+		    
+			MouseSelectionListener mouseListener = new MouseSelectionListener(progressRunTable);
 		    KeySelectionListener keyListener = new KeySelectionListener(progressRunTable);
 		    progressRunTable.addMouseListener(mouseListener);
 		    progressRunTable.addKeyListener(keyListener);
+		    
+			// Start observing selections on the graph and progress table 
+		    // so we can show intermediate results
+			progressRunGraph.addObserver(this);
+			progressRunTable.addObserver(this);
 		}
 
 		monitorViewComponent = new MonitorViewComponent();
@@ -415,15 +425,22 @@ public class WorkflowRun {
 			// Create progress table for a previous run
 			progressRunTable = new WorkflowRunProgressTreeTable(new WorkflowRunProgressTreeTableModel(dataflow, connector, referenceService, runId));
 			progressRunTable.setWorkflowStartDate(date);
+			
 			// Start listening for row selections on the table  
 			// so we can show intermediate results for processors. 
-			// Provenance should be enabled as this is a previous run.
+			// Provenance *should be* enabled as this is a previous run.
 			if (isProvenanceEnabledForRun){
 			    MouseSelectionListener mouseListener = new MouseSelectionListener(progressRunTable);
 			    KeySelectionListener keyListener = new KeySelectionListener(progressRunTable);
 			    progressRunTable.addMouseListener(mouseListener);
 			    progressRunTable.addKeyListener(keyListener);
+			    
+				// Start observing selections on the graph and progress table 
+			    // so we can show intermediate results
+				progressRunGraph.addObserver(this);
+				progressRunTable.addObserver(this);
 			}
+
 			monitorViewComponent.setMonitorGraph(progressRunGraph);
 			monitorViewComponent.setMonitorProgressTable(progressRunTable);
 			monitorViewComponent.addWorkflowRunStatusLabel(workflowRunProgressStatusLabel);
@@ -443,46 +460,6 @@ public class WorkflowRun {
 		}
 		return monitorViewComponent;
 	}
-
-	
-//	/**
-//	 * Create the MonitorViewComponent, an interactive component 
-//	 * containing graph where workflow progress can be tracked and which
-//	 * can respond to user clicks on the diagram to trigger showing intermediate
-//	 * or final results in result-view component.
-//	 * 
-//	 * @return the monitorViewComponent
-//	 */
-//	public MonitorGraphComponent getOrCreateMonitorViewComponent() {
-//		if (monitorProgressGraph == null) {
-//			monitorProgressGraph = new MonitorGraphPreviousRunComponent();
-//			monitorProgressGraph.setProvenanceConnector(connector);
-//			monitorProgressGraph.setReferenceService(referenceService);
-//			monitorObserver = monitorProgressGraph.setDataflow(getDataflow());
-//
-//			workflowResultsComponent = new WorkflowResultsComponent();
-//			workflowResultsComponent.repopulate(getDataflow(), getRunId(), getDate(),
-//					getReferenceService(), isProvenanceEnabledForRun);
-//			monitorProgressGraph
-//					.setStatus(MonitorGraphComponent.Status.COMPLETE);
-//			// monitorViewComponent.revalidate();
-//		}
-//		return monitorProgressGraph;
-//	}
-//
-//	/**
-//	 * Create the ProgressReportComponent, a table view over the processors in a workflow
-//	 * containing their status, iterations, starting and finishing times, etc. The component is
-//	 * interactive and can respond to user clicks to trigger showing intermediate
-//	 * or final results in result-view component.
-//	 */
-//	public JTable getOrCreateProgressReportComponent() {
-//		if (monitorProgressTable == null) {
-//			monitorProgressTable = new WorkflowRunProgressTreeTable(new WorkflowRunProgressTreeTableModel(dataflow));
-//			//progressReportComponent = new JTreeTable2(new FileSystemModel());
-//		}
-//		return monitorProgressTable;
-//	}
 	
 	public WorkflowRunProgressMonitor getWorkflowRunProgressMonitor() {
 		return monitorObserverForTable;
@@ -540,40 +517,17 @@ public class WorkflowRun {
 			Point point = e.getPoint();
 			int row = treeTable.rowAtPoint(point);
 
-			if (row == -1 || row == lastSelectedTableRow) {
+			if (row == -1 || row == treeTable.getLastSelectedTableRow()) {
 				return; // nothing selected or we have already shown the right
 				// component last
 				// time
 			}
 			
-			lastSelectedTableRow = row;
+			treeTable.setLastSelectedTableRow(row);
 			Object object = treeTable.getTreeObjectForRow(row);
 			if (object != null) {
-				// User has selected the row with the dataflow itself - show
-				// final results
-				if (object instanceof Dataflow) {
-					ResultsPerspectiveComponent.getInstance()
-							.setBottomComponent(workflowResultsComponent);
-				}
-				// User has selected the row with a processor - show its
-				// intermediate results if provenance is enabled
-				else if (object instanceof Processor) {
-					// if (isProvenanceEnabledForRun){ // we only use this
-					// listener if provenance is enabled so no need to check
-					// here
-					IntermediateResultsComponent intermediateResultsComponent = intermediateResultsComponents
-							.get((Processor) object);
-					if (intermediateResultsComponent == null) {
-						intermediateResultsComponent = new IntermediateResultsComponent();
-						intermediateResultsComponent
-								.setLabel(((Processor) object).getLocalName());
-						intermediateResultsComponents.put((Processor) object,
-								intermediateResultsComponent);
-					}
-					ResultsPerspectiveComponent.getInstance()
-							.setBottomComponent(intermediateResultsComponent);
-					ResultsPerspectiveComponent.getInstance().repaint();
-				}
+				// Notify anyone interested that a selection occurred on the table
+				progressRunTable.triggerWorkflowObjectSelectionEvent(object);
 			}
 		}
 	}
@@ -598,44 +552,18 @@ public class WorkflowRun {
 					row ++;
 				}
 
-				if (row == lastSelectedTableRow) {
+				if (row == treeTable.getLastSelectedTableRow()) {
 					return; // nothing selected or we have already shown the
 							// right
 					// component last
 					// time
 				}
 				
-				lastSelectedTableRow = row;
+				treeTable.setLastSelectedTableRow(row);
 				Object object = treeTable.getTreeObjectForRow(row);
 				if (object != null) {
-					// User has selected the row with the dataflow itself - show
-					// final results
-					if (object instanceof Dataflow) {
-						ResultsPerspectiveComponent.getInstance()
-								.setBottomComponent(workflowResultsComponent);
-					}
-					// User has selected the row with a processor - show its
-					// intermediate results if provenance is enabled
-					else if (object instanceof Processor) {
-						// if (isProvenanceEnabledForRun){ // we only use this
-						// listener if provenance is enabled so no need to check
-						// here
-						IntermediateResultsComponent intermediateResultsComponent = intermediateResultsComponents
-								.get((Processor) object);
-						if (intermediateResultsComponent == null) {
-							intermediateResultsComponent = new IntermediateResultsComponent();
-							intermediateResultsComponent
-									.setLabel(((Processor) object)
-											.getLocalName());
-							intermediateResultsComponents.put(
-									(Processor) object,
-									intermediateResultsComponent);
-						}
-						ResultsPerspectiveComponent.getInstance()
-								.setBottomComponent(
-										intermediateResultsComponent);
-						ResultsPerspectiveComponent.getInstance().repaint();
-					}
+					// Notify anyone interested that a selection occurred on the table
+					progressRunTable.triggerWorkflowObjectSelectionEvent(object);					
 				}
 			}
 		}
@@ -688,6 +616,40 @@ public class WorkflowRun {
 
 	public WorkflowInstanceFacade getFacade() {
 		return facade;
+	}
+
+	public void notify(Observable<WorkflowObjectSelectionMessage> sender,
+			WorkflowObjectSelectionMessage message) throws Exception {
+
+		Object workflowObject = message.getWorkflowObject();
+		if (workflowObject instanceof Dataflow) {
+			ResultsPerspectiveComponent.getInstance()
+					.setBottomComponent(workflowResultsComponent);
+		}
+		// User has selected a processor - show its
+		// intermediate results if provenance is enabled (which it should be!)
+		else if (workflowObject instanceof Processor) {
+			if (isProvenanceEnabledForRun){
+				IntermediateResultsComponent intermediateResultsComponent = intermediateResultsComponents
+						.get((Processor) workflowObject);
+				if (intermediateResultsComponent == null) {
+					intermediateResultsComponent = new IntermediateResultsComponent();
+					intermediateResultsComponent.setLabel(((Processor) workflowObject)
+							.getLocalName());
+					intermediateResultsComponents.put((Processor) workflowObject,
+							intermediateResultsComponent);
+				}
+				ResultsPerspectiveComponent.getInstance().setBottomComponent(
+						intermediateResultsComponent);
+				ResultsPerspectiveComponent.getInstance().repaint();
+			}
+		}
+		
+		// If this came from a selection event on the graph
+		if (sender instanceof MonitorGraphComponent){
+			// Update the selected row on the progress tree
+			progressRunTable.setSelectedRowForObject(workflowObject);
+		}
 	}
 
 }

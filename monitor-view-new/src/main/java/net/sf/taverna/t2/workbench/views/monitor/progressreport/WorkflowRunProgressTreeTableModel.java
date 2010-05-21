@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -77,7 +78,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     // Column types
     @SuppressWarnings("unchecked")
 	static protected Class[] columnTypes = { TreeTableModel.class,
-			String.class, Date.class, Date.class, String.class, String.class, String.class };
+			String.class, String.class, String.class, String.class, String.class, String.class };
     
 	// Table data (maps workflow element nodes to column data associated with them)
 	private Map<DefaultMutableTreeNode, ArrayList<Object>> data = new HashMap<DefaultMutableTreeNode, ArrayList<Object>>();;
@@ -232,13 +233,17 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	public void setStartDateForObject(Object object, Date date) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(date, node, 2);
+		SimpleDateFormat sdf = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss");
+		setValueAt(sdf.format(date), node, 2);
 	}
 	
 	public void setFinishDateForObject(Object object, Date date) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(date, node, 3);
+		SimpleDateFormat sdf = new SimpleDateFormat(
+		"yyyy-MM-dd HH:mm:ss");
+		setValueAt(sdf.format(date), node, 3);
 	}
 	
 	public void setNumberOfIterationsForObject(Object object, Integer iterations) {
