@@ -90,7 +90,12 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	}
 
 	public void onDispose() {
-		updateTimer.cancel();
+		try{
+			updateTimer.cancel();
+		}
+		catch(IllegalStateException ex){ // task seems already cancelled
+			logger.warn("Cannot cancel task: " + updateTimer.toString() + ".Task already seems cancelled", ex);
+		}
 	}
 
 	@Override
@@ -141,8 +146,13 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 							// updateTask.cancel();
 						}
 						updateTask = new UpdateTask();
-						updateTimer.schedule(updateTask, monitorRate,
-								monitorRate);
+						try{
+							updateTimer.schedule(updateTask, monitorRate,
+									monitorRate);
+						}
+						catch(IllegalStateException ex){ // task seems already cancelled
+							// Do nothing
+						}
 					}
 				}
 			}
@@ -185,12 +195,17 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 					// the update task
 					synchronized (this) {
 						if (updateTask != null) {
-							updateTimer.schedule(new TimerTask() {
-								public void run() {
-									updateTask.cancel();
-									updateTask = null;
-								}
-							}, deregisterDelay);
+							try{
+								updateTimer.schedule(new TimerTask() {
+									public void run() {
+										updateTask.cancel();
+										updateTask = null;
+									}
+								}, deregisterDelay);
+							}
+							catch(IllegalStateException ex){ // task seems already cancelled
+								// Do nothing
+							}
 						}
 					}
 				}
@@ -262,11 +277,6 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 			}
 		}
 	}
-	
-	// Set the status label that will be updated from this monitor
-//	public void setWorkflowRunStatusLabel(JLabel workflowRunStatusLabel){
-//		this.workflowRunStatusLabel = workflowRunStatusLabel;
-//	}
 	
 }
 

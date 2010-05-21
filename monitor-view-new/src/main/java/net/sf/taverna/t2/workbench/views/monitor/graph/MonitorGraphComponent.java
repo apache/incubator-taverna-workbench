@@ -85,10 +85,6 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI {
 	
 	protected ProvenanceConnector provenanceConnector;	
 
-	public enum Status {
-		RUNNING, FINISHED
-	}
-
 	private String sessionId;
 
 	protected GVTTreeRendererAdapter gvtTreeRendererAdapter;

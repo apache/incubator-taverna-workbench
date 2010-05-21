@@ -121,12 +121,18 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 					// the update task
 					synchronized (this) {
 						if (updateTask != null) {
-							updateTimer.schedule(new TimerTask() {
-								public void run() {
-									updateTask.cancel();
-									updateTask = null;
-								}
-							}, deregisterDelay);
+							try{
+								updateTimer.schedule(new TimerTask() {
+									public void run() {
+										updateTask.cancel();
+										updateTask = null;
+									}
+								}, deregisterDelay);
+							} catch (IllegalStateException ex) { // task seems
+																	// already
+																	// cancelled
+								// Do nothing
+							}
 						}
 					}
 				}
@@ -148,7 +154,7 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 					if(workflowRunCancelButton != null){
 						workflowRunCancelButton.setEnabled(false);
 					}
-					((WorkflowInstanceFacade)workflowObject).getDataflow().setIsRunning(false);
+					((WorkflowInstanceFacade)workflowObject).setIsRunning(false);
 					
 					// Stop observing monitor messages as workflow has finished running
 					// This observer may have been already removed (in which case the command 
@@ -188,8 +194,13 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 							// updateTask.cancel();
 						}
 						updateTask = new UpdateTask();
-						updateTimer.schedule(updateTask, monitorRate,
-								monitorRate);
+						try{
+							updateTimer.schedule(updateTask, monitorRate,
+									monitorRate);
+						}
+						catch(IllegalStateException ex){ // task seems already cancelled
+							// Do nothing
+						}
 					}
 				}
 			} else if (workflowObject instanceof WorkflowInstanceFacade) {
@@ -203,7 +214,7 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 					workflowRunStatusLabel.setText(STATUS_RUNNING);
 					workflowRunStatusLabel.setIcon(WorkbenchIcons.workingIcon);
 				}
-				((WorkflowInstanceFacade)workflowObject).getDataflow().setIsRunning(true);
+				//((WorkflowInstanceFacade)workflowObject).setIsRunning(true); //not really necessary - this is set when the facade is fired
 			}
 		}
 	}
@@ -300,7 +311,12 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 	}
 
 	public void onDispose() {
-		updateTimer.cancel();
+		try{
+			updateTimer.cancel();
+		}
+		catch(IllegalStateException ex){ // task seems already cancelled
+			logger.warn("Cannot cancel task: " + updateTimer.toString() + ".Task already seems cancelled", ex);
+		}
 	}
 
 	@Override

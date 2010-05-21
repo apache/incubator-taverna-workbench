@@ -140,4 +140,5 @@ public class WorkflowRunProgressTreeTable extends JTreeTable {
 			return null;
 		}
 	}
+	
 }
