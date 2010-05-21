@@ -4,6 +4,12 @@ import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.HierarchyEvent;
+import java.awt.event.HierarchyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -22,6 +28,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -43,6 +51,8 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 @SuppressWarnings("serial")
 public class ContextualViewComponent extends JScrollPane implements UIComponentSPI {
+
+	private static final int DELAY = 250; // delay before contextual view is redrawn
 
 	private Observer<DataflowSelectionMessage> dataflowSelectionListener = new DataflowSelectionListener();
 
@@ -76,6 +86,10 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		
 	private Color[] colors = new Color[] {ShadedLabel.BLUE, ShadedLabel.GREEN, ShadedLabel.ORANGE};
 	int colorIndex = 0;
+	
+	private Timer updateSelectionTimer = null;
+	
+	private Object lastSelectedObject = null;
 
 	public ContextualViewComponent() {
 		Dataflow currentDataflow = fileManager.getCurrentDataflow();
@@ -101,6 +115,8 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	private void initialise() {
 		mainPanel = new JPanel(new GridBagLayout());
 		this.setViewportView(mainPanel);
+		updateSelectionTimer = new Timer(DELAY, updateSelectionListener);
+		updateSelectionTimer.setRepeats(false);
 	}
 
 	public void onDisplay() {
@@ -108,12 +124,15 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 
 	public void onDispose() {
-		// TODO Auto-generated method stub
-
+		updateSelectionTimer.stop();
 	}
 
 	private void updateContextualView(List<ContextualViewFactory> viewFactoriesForBeanType, Object selection) {
-		mainPanel.removeAll();
+		if (selection == lastSelectedObject) {
+			return;
+		}
+		lastSelectedObject = selection;
+		mainPanel = new JPanel(new GridBagLayout());
 		closeables.clear();
 
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -184,21 +203,19 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		gbc.fill = GridBagConstraints.BOTH;
 		mainPanel.add(new JPanel(), gbc);
 		lastSelection = selection;
-		mainPanel.revalidate();
-		mainPanel.repaint();
-		this.revalidate();
-		this.repaint();
+//		mainPanel.revalidate();
+//		mainPanel.repaint();
+		this.setViewportView(mainPanel);
+//		this.revalidate();
+//		this.repaint();
 	}
 
 	private void clearContextualView() {
-
-		// Remove the contextual view panel
-		if (this.mainPanel != null) {
-			mainPanel.removeAll();
-			mainPanel.add(new JLabel("No details available"));
-		}
-		revalidate();
-		repaint();
+		lastSelectedObject = null;
+		mainPanel = new JPanel(new GridBagLayout());
+		mainPanel.add(new JLabel("No details available"));
+		this.setViewportView(mainPanel);
+		this.revalidate();
 	}
 
 	public void updateSelection(Object selectedItem) {
@@ -206,31 +223,47 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		findContextualView(selectedItem);
 
 	}
+	
+	private Runnable updateSelectionRunnable = new Runnable() {
 
-	public void updateSelection() {
+		public void run() {
+			Dataflow dataflow = fileManager.getCurrentDataflow();
 
-		Dataflow dataflow = fileManager.getCurrentDataflow();
-
-		// If there is no currently opened dataflow,
-		// clear the contextual view panel
-		if (dataflow == null) {
-			clearContextualView();
-		} else {
-			DataflowSelectionModel selectionModel = dataflowSelectionManager
-					.getDataflowSelectionModel(dataflow);
-			Set<Object> selection = selectionModel.getSelection();
-
-			// If the dataflow is opened but no component of the dataflow is
-			// selected, clear the contextual view panel
-			if (selection.isEmpty()) {
+			// If there is no currently opened dataflow,
+			// clear the contextual view panel
+			if (dataflow == null) {
 				clearContextualView();
 			} else {
-				Iterator<Object> iterator = selection.iterator();
-				// TODO multiple selections, dataflow contextual view, datalink
-				// contextual view
-				updateSelection(iterator.next());
-			}
+				DataflowSelectionModel selectionModel = dataflowSelectionManager
+						.getDataflowSelectionModel(dataflow);
+				Set<Object> selection = selectionModel.getSelection();
+
+				// If the dataflow is opened but no component of the dataflow is
+				// selected, clear the contextual view panel
+				if (selection.isEmpty()) {
+					clearContextualView();
+				} else {
+					Iterator<Object> iterator = selection.iterator();
+					// TODO multiple selections, dataflow contextual view, datalink
+					// contextual view
+					updateSelection(iterator.next());
+				}
+			}						
 		}
+		
+	};
+	
+	private ActionListener updateSelectionListener = new ActionListener() {
+
+		public void actionPerformed(ActionEvent e) {
+			SwingUtilities.invokeLater(updateSelectionRunnable);
+			
+		}
+		
+	};
+
+	public void updateSelection() {
+			updateSelectionTimer.restart();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -254,6 +287,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 							.getDataflowSelectionModel(dataflow).addObserver(
 									dataflowSelectionListener);
 				}
+				lastSelectedObject = null;
 				updateSelection();
 			}
 		}
@@ -274,6 +308,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 
 		public void notify(Observable<EditManagerEvent> sender,
 				EditManagerEvent message) throws Exception {
+			lastSelectedObject = null;
 			refreshView();
 		}
 
