@@ -10,15 +10,14 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 @SuppressWarnings("unchecked")
 public class AnnotatedContextualViewFactory implements
 		ContextualViewFactory<Annotated> {
 
 	public boolean canHandle(Object selection) {
-		return (selection instanceof Dataflow) ||
-		(selection instanceof DataflowInputPort)  ||
-		(selection instanceof DataflowOutputPort);
+		return ((selection instanceof Annotated) && !(selection instanceof Activity));
 	}
 
 	public List<ContextualView> getViews(Annotated selection) {
