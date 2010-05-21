@@ -64,6 +64,7 @@ import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workbench.report.ReportManager;
 
 /**
  * Workflow Explorer provides a context sensitive tree view of a workflow
@@ -370,15 +371,16 @@ public class WorkflowExplorer extends WorkflowView {
 	 * 
 	 */
 	private JTree createTreeFromWorkflow(final Dataflow workflow){
-		
+
 		// Create a new tree and populate it with the workflow's data
 		final JTree tree = new JTree(new WorkflowExplorerTreeModel(workflow));
 		tree.setRowHeight(18);
+		tree.setLargeModel(true);
 		tree.setEditable(false);
 		tree.setExpandsSelectedPaths(true);
 		tree.setDragEnabled(false);
 		tree.setScrollsOnExpand(false);
-		tree.setCellRenderer(new WorkflowExplorerTreeCellRenderer());
+		tree.setCellRenderer(new WorkflowExplorerTreeCellRenderer(workflow));
 //		tree.setSelectionModel(new WorkflowExplorerTreeSelectionModel());
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
@@ -720,8 +722,9 @@ public class WorkflowExplorer extends WorkflowView {
 						"Workflow Explorer - edit manager message: current workflow edited.") {
 					@Override
 					public void run() {
+						Dataflow d = ((AbstractDataflowEditEvent) message).getDataFlow();
 						// Update the workflow tree to reflect the changes
-						updateWorkflowTree(((AbstractDataflowEditEvent) message).getDataFlow());
+						updateWorkflowTree(d);
 					}
 				}.start();
 			}
