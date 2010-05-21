@@ -508,8 +508,7 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				return;
 			}
 			// Prepare GUI
-			//workflowRun.getOrCreateMonitorViewComponent();
-			//workflowRun.getOrCreateProgressReportComponent();
+			workflowRun.getOrCreateMonitorViewComponent();
 			
 			if (isInterrupted()) {
 				return;
@@ -527,15 +526,6 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				return;
 			}
 			if (workflowRun.getDataflow() != null) {
-				
-				/*JTabbedPane monitorComponent = new JTabbedPane();
-				monitorComponent.add("Graph", workflowRun
-						.getOrCreateMonitorViewComponent()); // graph
-				JScrollPane scrollPane = new JScrollPane(workflowRun
-						.getOrCreateProgressReportComponent(),
-						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-				monitorComponent.add("Progress report", scrollPane); // progress report	*/
 				MonitorViewComponent monitorComponent = workflowRun.getOrCreateMonitorViewComponent();
 				topPanel.setBottomComponent(monitorComponent);
 				setBottomComponent(workflowRun.getResultsComponent());
