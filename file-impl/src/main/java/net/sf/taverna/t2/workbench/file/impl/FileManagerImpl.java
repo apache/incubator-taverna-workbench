@@ -431,7 +431,7 @@ public class FileManagerImpl extends FileManager {
 							candidateFileType, source);
 					Dataflow dataflow = openDataflow.getDataflow();					
 					logger.info("Loaded workflow: " + dataflow.getLocalName()
-							+ " " + dataflow.getInternalIdentier() + " from "
+							+ " " + dataflow.getInternalIdentifier(false) + " from "
 							+ source + " using " + handler);
 					return openDataflow;
 				} catch (OpenException ex) {
@@ -544,7 +544,7 @@ public class FileManagerImpl extends FileManager {
 						fileType, destination);
 				savedDataflow.getDataflow();
 				logger.info("Saved workflow: " + dataflow.getLocalName() + " "
-						+ dataflow.getInternalIdentier() + " to "
+						+ dataflow.getInternalIdentifier(false) + " to "
 						+ savedDataflow.getCanonicalSource() + " using "
 						+ handler);				
 				return savedDataflow;
