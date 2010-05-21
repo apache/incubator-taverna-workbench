@@ -123,7 +123,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	private JLabel workflowRunProgressStatusLabel = new JLabel();
 	private JButton workflowRunPauseButton = new JButton(new PauseWorkflowRunAction()); // pause or resume
 	private JButton workflowRunCancelButton = new JButton(new CancelWorkflowRunAction());
-	private JButton workflowResultsButton = new JButton("Show results");
+	private JButton workflowResultsButton = new JButton(new ShowWorkflowResultsAction());
 
 	private int results = 0;
 
@@ -613,6 +613,27 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			workflowRunPauseButton.setEnabled(false);
 		}
 	}
+	
+	/**
+	 * Action to show the final results of this workflow run.
+	 */
+	@SuppressWarnings("serial")
+	public class ShowWorkflowResultsAction extends AbstractAction {
+
+		public ShowWorkflowResultsAction() {
+			super();
+			putValue(NAME, "Show results");
+		}
+
+		public void actionPerformed(ActionEvent e) {
+
+			if (workflowResultsComponent != null && ResultsPerspectiveComponent.getInstance().getBottomComponent() != workflowResultsComponent) {
+				ResultsPerspectiveComponent.getInstance().setBottomComponent(
+						workflowResultsComponent);
+				progressRunTable.setSelectedRowForObject(dataflow);
+			}
+		}
+	}
 
 	public WorkflowInstanceFacade getFacade() {
 		return facade;
@@ -641,7 +662,6 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				}
 				ResultsPerspectiveComponent.getInstance().setBottomComponent(
 						intermediateResultsComponent);
-				ResultsPerspectiveComponent.getInstance().repaint();
 			}
 		}
 		
