@@ -53,7 +53,7 @@ import javax.swing.event.ListSelectionListener;
 import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
-import net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowInstance;
+import net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowRun;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.impl.WriteQueueAspect;
@@ -306,13 +306,13 @@ public class DataflowRunsComponent extends JSplitPane implements UIComponentSPI 
 				.getConnectorType();
 		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
 
-		List<WorkflowInstance> allWorkflowRunIDs = provenanceAccess.listRuns(
+		List<WorkflowRun> allWorkflowRunIDs = provenanceAccess.listRuns(
 				null, null);
 		// List<WorkflowInstance> allWorkflowRunIDs =
 		// provenanceAccess.getAllWorkflowIDs();
 		// Collections.reverse(allWorkflowRunIDs);
 
-		for (WorkflowInstance workflowInstance : allWorkflowRunIDs) {
+		for (WorkflowRun workflowInstance : allWorkflowRunIDs) {
 			DatabaseCleanup databaseCleanup = DatabaseCleanup.getInstance();
 			if (databaseCleanup.isDeletedOrScheduledForDeletion(
 					workflowInstance.getInstanceID())) {
