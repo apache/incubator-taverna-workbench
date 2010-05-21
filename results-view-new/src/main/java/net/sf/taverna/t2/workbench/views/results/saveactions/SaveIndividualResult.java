@@ -45,7 +45,7 @@ import net.sf.taverna.t2.reference.Identified;
 import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.views.results.workflow.ResultsUtils;
+import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
 
 import org.apache.log4j.Logger;
 

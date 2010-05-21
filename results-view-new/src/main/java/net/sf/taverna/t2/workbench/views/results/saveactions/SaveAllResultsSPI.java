@@ -45,7 +45,7 @@ import net.sf.taverna.t2.reference.IdentifiedList;
 import net.sf.taverna.t2.reference.ReferenceServiceException;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.T2ReferenceType;
-import net.sf.taverna.t2.workbench.views.results.workflow.ResultsUtils;
+import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
 
 /**
  * Implementing classes are capable of storing a collection
