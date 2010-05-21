@@ -428,7 +428,6 @@ public class WorkflowRun {
 			monitorViewComponent.setMonitorProgressTable(progressRunTable);
 			monitorViewComponent.addWorkflowRunStatusLabel(workflowRunProgressStatusLabel);
 			// for previous run status is always "finished" and pause/cancel buttons are disabled
-			dataflow.setIsRunning(false);
 			workflowRunProgressStatusLabel.setText(STATUS_FINISHED);
 			workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.greentickIcon);
 			monitorViewComponent.addWorkflowPauseButton(workflowRunPauseButton);
@@ -485,15 +484,14 @@ public class WorkflowRun {
 //		return monitorProgressTable;
 //	}
 	
+	public WorkflowRunProgressMonitor getWorkflowRunProgressMonitor() {
+		return monitorObserverForTable;
+	}
+	
 	public MonitorGraphComponent getMonitorGraphComponent() {
 		return progressRunGraph;
 	}
 
-	/**
-	 * Returns the resultsComponent.
-	 * 
-	 * @return the resultsComponent
-	 */
 	public WorkflowResultsComponent getResultsComponent() {
 		return workflowResultsComponent;
 	}
@@ -687,4 +685,9 @@ public class WorkflowRun {
 			workflowRunPauseButton.setEnabled(false);
 		}
 	}
+
+	public WorkflowInstanceFacade getFacade() {
+		return facade;
+	}
+
 }

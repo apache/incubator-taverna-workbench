@@ -64,6 +64,8 @@ import net.sf.taverna.t2.workbench.run.cleanup.ReferenceServiceShutdownHook;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
 import net.sf.taverna.t2.workbench.views.monitor.graph.MonitorGraphComponent;
+import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressMonitor;
+import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressTreeTable;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
@@ -108,11 +110,6 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 	// A split pane containing previous runs and workflow run progress 
 	// components (graph and progress report) 
 	private JSplitPane topPanel;
-	
-	// A panel containing final workflow results or intermediate
-	// results, based on which workflow component is clicked on in one of 
-	// the progress components (graph or progress report)
-	private JPanel bottomPanel;
 	
 	// Background thread for loading a previous workflow run
 	protected LoadPreviousWorkflowRunThread loadPreviousWorkflowRunThread;
@@ -256,8 +253,10 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 				int[] selectedRunsToDelete = workflowRunsList.getSelectedIndices();
 				for (int i = 0; i < selectedRunsToDelete.length; i++) {
-					if (((WorkflowRun) workflowRunsListModel.get(i)).getDataflow()
-							.isRunning()) {
+					
+					WorkflowRun wfRun = ((WorkflowRun) workflowRunsListModel.get(i));
+					
+					if (wfRun.getFacade() != null && wfRun.getFacade().isRunning()){
 						option = JOptionPane
 								.showConfirmDialog(
 										null,
@@ -274,14 +273,17 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 					}
 				}
 
-				int[] selected = workflowRunsList.getSelectedIndices();
-				for (int i = selected.length - 1; i >= 0; i--) {
+				for (int i = selectedRunsToDelete.length - 1; i >= 0; i--) {
 					final WorkflowRun workflowRunToBeDeleted = (WorkflowRun) workflowRunsListModel
-							.remove(selected[i]);
+							.remove(selectedRunsToDelete[i]);
 					MonitorGraphComponent mvc = workflowRunToBeDeleted
 							.getMonitorGraphComponent();
 					if (mvc != null) {
 						mvc.onDispose();
+					}
+					WorkflowRunProgressMonitor progressRunMonitor = workflowRunToBeDeleted.getWorkflowRunProgressMonitor();
+					if (progressRunMonitor != null) {
+						progressRunMonitor.onDispose();
 					}
 					DatabaseCleanup.getInstance().scheduleDeleteDataflowRun(workflowRunToBeDeleted, true);					
 				}
