@@ -323,22 +323,24 @@ public class SVGGraphController extends GraphController {
 		if (updateManager == null && !drawingDiagram) {
 			thread.run();
 		} else {
-			executor.execute(new Runnable() {
-				public void run() {
-					while (updateManager == null) {
-						try {
-							Thread.sleep(200);
-						} catch (InterruptedException e) {
+			if (!executor.isShutdown()){
+				executor.execute(new Runnable() {
+					public void run() {
+						while (updateManager == null) {
+							try {
+								Thread.sleep(200);
+							} catch (InterruptedException e) {
+							}
 						}
-					}
-					try {
-						updateManager.getUpdateRunnableQueue().invokeLater(thread);
-					}
-					catch (IllegalStateException e) {
-						logger.error("Update of SVG failed", e);
-					}
-				}			
-			});
+						try {
+							updateManager.getUpdateRunnableQueue().invokeLater(thread);
+						}
+						catch (IllegalStateException e) {
+							logger.error("Update of SVG failed", e);
+						}
+					}			
+				});	
+			}
 		}
 //		if (updateManager == null) {
 //			thread.run();
