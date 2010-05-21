@@ -37,6 +37,7 @@
 		<module>renderers-api</module>
 		<module>workbench-api</module>
 		<module>activity-icons-api</module>
+		<module>report-api</module>
 	</modules>
 	<repositories>
 		<repository>
