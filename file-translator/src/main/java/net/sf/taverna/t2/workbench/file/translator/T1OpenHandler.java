@@ -46,6 +46,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import org.apache.log4j.Logger;
 import org.embl.ebi.escience.scufl.ScuflException;
 import org.embl.ebi.escience.scufl.ScuflModel;
+import org.embl.ebi.escience.scufl.SetOnlineException;
 import org.embl.ebi.escience.scufl.parser.XScuflParser;
 import org.embl.ebi.escience.utils.TavernaSPIRegistry;
 
@@ -142,6 +143,11 @@ public class T1OpenHandler extends AbstractDataflowPersistenceHandler implements
 	protected Dataflow openDataflowStream(InputStream inputStream)
 			throws OpenException {
 		ScuflModel scuflModel = new ScuflModel();
+		try {
+			scuflModel.setOffline(true);
+		} catch (SetOnlineException e1) {
+			logger.error(e1);
+		}
 		try {
 			XScuflParser.populate(inputStream, scuflModel, null);
 		} catch (ScuflException e) {
