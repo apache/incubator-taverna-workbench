@@ -9,7 +9,7 @@
   <namedcomponents>
     <namedcomponent>
       <groupid>net.sf.taverna.t2.ui-components</groupid>
-      <artifact>perspective-results</artifact>
+      <artifact>run-ui</artifact>
       <classname>net.sf.taverna.t2.workbench.run.ResultsPerspectiveComponentFactory</classname>
       <name>Workflow Runs</name>
     </namedcomponent>
