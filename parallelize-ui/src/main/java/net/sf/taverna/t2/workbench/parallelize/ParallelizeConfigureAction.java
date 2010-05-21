@@ -70,7 +70,7 @@ public class ParallelizeConfigureAction extends AbstractAction {
 		buttonPanel.add(cancelButton);
 
 		dialog.add(buttonPanel, BorderLayout.SOUTH);
-		dialog.setSize(450, 450);
+		dialog.pack();
 		dialog.setLocationRelativeTo(null);
 		dialog.setVisible(true);
 	}
