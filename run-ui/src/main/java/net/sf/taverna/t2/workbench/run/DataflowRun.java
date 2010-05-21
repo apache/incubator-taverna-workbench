@@ -226,7 +226,7 @@ public class DataflowRun {
 		int result = 1;
 		result = prime
 				* result
-				+ ((dataflow == null) ? 0 : dataflow.getInternalIdentier()
+				+ ((dataflow == null) ? 0 : dataflow.getInternalIdentifier(false)
 						.hashCode());
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
 		return result;
@@ -244,8 +244,8 @@ public class DataflowRun {
 		if (dataflow == null) {
 			if (other.dataflow != null)
 				return false;
-		} else if (!dataflow.getInternalIdentier().equals(
-				other.dataflow.getInternalIdentier()))
+		} else if (!dataflow.getInternalIdentifier(false).equals(
+				other.dataflow.getInternalIdentifier(false)))
 			return false;
 		if (date == null) {
 			if (other.date != null)
@@ -280,7 +280,7 @@ public class DataflowRun {
 				Dataflow loadedDataflow = XMLDeserializerRegistry.getInstance()
 						.getDeserializer().deserializeDataflow(rootElement);
 				logger.debug("Loaded dataflow "
-						+ loadedDataflow.getInternalIdentier() + " for run "
+						+ loadedDataflow.getInternalIdentifier(false) + " for run "
 						+ runId);
 				setDataflow(loadedDataflow);
 			} catch (Exception e) {
@@ -296,7 +296,7 @@ public class DataflowRun {
 		this.dataflow = dataflow;
 		if (dataflow != null) {
 			this.workflowName = dataflow.getLocalName();
-			this.workflowId = dataflow.getInternalIdentier();
+			this.workflowId = dataflow.getInternalIdentifier();
 			synchronized (loadedDataflows) {
 				loadedDataflows.put(this.workflowId,
 						new WeakReference<Dataflow>(dataflow));
