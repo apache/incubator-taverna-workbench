@@ -21,10 +21,16 @@
 package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 
 import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.event.MouseAdapter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -48,6 +54,13 @@ import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
+import net.sf.taverna.t2.workbench.report.ReportManager;
+import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.visit.VisitReport.Status;
+
+import net.sf.taverna.t2.visit.VisitReport;
+import net.sf.taverna.t2.visit.VisitReport.Status;
+import net.sf.taverna.t2.lang.ui.icons.Icons;
 
 /**
  * Cell renderer for Workflow Explorer tree.
@@ -63,7 +76,14 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 	private ActivityIconManager activityIconManager = ActivityIconManager.getInstance();
 	
 	private final String RUNS_AFTER = " runs after ";
-
+	
+	private Dataflow workflow = null;
+	
+	public WorkflowExplorerTreeCellRenderer(Dataflow workflow) {
+		super();
+		this.workflow = workflow;
+	}
+	
 	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 			boolean sel, boolean expanded, boolean leaf, int row,
@@ -73,32 +93,30 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 				expanded, leaf, row, hasFocus);
 
 		Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
-
+		Status status = ReportManager.getInstance().getStatus(workflow, userObject);
 		WorkflowExplorerTreeCellRenderer renderer = (WorkflowExplorerTreeCellRenderer) result;
 		
 		if (userObject instanceof Dataflow){ //the root node
-			renderer.setIcon(WorkbenchIcons.workflowExplorerIcon);
+			renderer.setIcon(chooseIcon(WorkbenchIcons.workflowExplorerIcon, status));
 			renderer.setText(((Dataflow) userObject).getLocalName());
 		}
 		else if (userObject instanceof DataflowInputPort) {
-			renderer.setIcon(WorkbenchIcons.inputIcon);
+			renderer.setIcon(chooseIcon(WorkbenchIcons.inputIcon, status));
 			renderer.setText(((DataflowInputPort) userObject).getName());
 		} else if (userObject instanceof DataflowOutputPort) {
-			renderer.setIcon(WorkbenchIcons.outputIcon);
+			renderer.setIcon(chooseIcon(WorkbenchIcons.outputIcon, status));
 			renderer.setText(((DataflowOutputPort) userObject).getName());
 		} else if (userObject instanceof Processor) {
+			Processor p = (Processor) userObject;
 			// Get the activity associated with the procesor - currently only
 			// the first one in the list gets displayed
-			List<? extends Activity<?>> activityList = ((Processor) userObject)
-					.getActivityList();
+			List<? extends Activity<?>> activityList = p.getActivityList();
 			String text = ((Processor) userObject).getLocalName();
 			if (!activityList.isEmpty()) {
 				Activity<?> activity = activityList.get(0);
-				Icon icon = activityIconManager.iconForActivity(activity);
+				Icon basicIcon = activityIconManager.iconForActivity(activity);
+				renderer.setIcon(chooseIcon(basicIcon, status));
 
-				if (icon != null) {
-					renderer.setIcon(icon);
-				}
 
 				String extraDescription;
 				try {
@@ -117,15 +135,15 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 		}
 		// Processor's child input port (from the associated activity)
 		else if (userObject instanceof ActivityInputPort) {
-			renderer.setIcon(WorkbenchIcons.inputPortIcon);
+			renderer.setIcon(chooseIcon(WorkbenchIcons.inputPortIcon, status));
 			renderer.setText(((ActivityInputPort) userObject).getName());
 		}
 		// Processor's child output port (from the associated activity)
 		else if (userObject instanceof OutputPort) {
-			renderer.setIcon(WorkbenchIcons.outputPortIcon);
+			renderer.setIcon(chooseIcon(WorkbenchIcons.outputPortIcon, status));
 			renderer.setText(((OutputPort) userObject).getName());
 		} else if (userObject instanceof Datalink) {
-			renderer.setIcon(WorkbenchIcons.datalinkIcon);
+			renderer.setIcon(chooseIcon(WorkbenchIcons.datalinkIcon, status));
 			EventForwardingOutputPort source = ((Datalink) userObject).getSource();
 			String sourceName = findName(source);
 			EventHandlingInputPort sink = ((Datalink) userObject).getSink();
@@ -133,7 +151,7 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			renderer.setText(sourceName
 					+ " -> " + sinkName);
 		} else if (userObject instanceof Condition) {
-			renderer.setIcon(WorkbenchIcons.controlLinkIcon);
+			renderer.setIcon(chooseIcon(WorkbenchIcons.controlLinkIcon, status));
 			String htmlText = "<html><head></head><body>"
 					+ ((Condition) userObject).getTarget().getLocalName()
 					+ " " + RUNS_AFTER  + " "
@@ -143,7 +161,7 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			
 			
 		} else if (userObject instanceof Merge) {
-			renderer.setIcon(WorkbenchIcons.mergeIcon);
+			renderer.setIcon(chooseIcon(WorkbenchIcons.mergeIcon, status));
 			renderer.setText(((Merge) userObject).getLocalName());
 		} else {
 			// It one of the main container nodes (inputs, outputs,
@@ -171,6 +189,18 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 		}
 	}
 
-
-
+	private static Icon chooseIcon (final Icon basicIcon, Status status) {
+		if (status == null) {
+			return basicIcon;
+		}
+		if (status == Status.OK) {
+			return basicIcon;
+		}
+		else if (status == Status.WARNING) {
+			return Icons.warningIcon;
+		} else if (status == Status.SEVERE) {
+			return Icons.severeIcon;
+		}
+		return basicIcon;
+	}
 }
