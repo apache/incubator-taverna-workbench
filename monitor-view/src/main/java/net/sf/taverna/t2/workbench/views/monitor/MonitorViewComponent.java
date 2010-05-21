@@ -395,14 +395,14 @@ class MonitorGraphEventManager implements GraphEventManager {
 							if (parent != null && parent.getDataflowObject() instanceof Processor) {
 								if (((Processor)parent.getDataflowObject()).getActivityList().get(0) instanceof NestedDataflow) {
 									Activity<?> activity = ((Processor)parent.getDataflowObject()).getActivityList().get(0);
-									targetWorkflowID = ((NestedDataflow)activity).getNestedDataflow().getInternalIdentier();
+									targetWorkflowID = ((NestedDataflow)activity).getNestedDataflow().getInternalIdentifier(false);
 								}
 							} else {
-								targetWorkflowID = dataflow.getInternalIdentier();
+								targetWorkflowID = dataflow.getInternalIdentifier(false);
 							}
 //						}
 							
-//						String internalIdentier = dataflow.getInternalIdentier();
+//						String internalIdentifier = dataflow.getInternalIdentifier(false);
 						provResultsPanel = new ProvenanceResultsPanel();
 						provResultsPanel.setContext(provenanceConnector
 								.getInvocationContext());
@@ -475,7 +475,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 						runnable.run();
 //						timer = new Timer(
 //								"Retrieve intermediate results for workflow: "
-//										+ internalIdentier + ", processor: "
+//										+ internalIdentifier + ", processor: "
 //										+ localName);
 //						
 //						timer.schedule(timerTask, 1, 50000);
