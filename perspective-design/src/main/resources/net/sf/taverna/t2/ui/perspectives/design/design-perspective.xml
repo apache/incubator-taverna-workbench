@@ -31,6 +31,14 @@
                         </namedcomponent>
                       </znode>
                     </tab>
+                   <tab>
+                      <title>Reports</title>
+                      <znode classname="net.sf.taverna.zaria.ZRavenComponent">
+                        <namedcomponent scroll="false">
+                          <name>reportView</name>
+                        </namedcomponent>
+                      </znode>
+                    </tab>
                   </tabs>
                 </znode>
               </right>
@@ -65,6 +73,13 @@
       <artifact>contextual-views-impl</artifact>
       <classname>net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualViewComponentFactory</classname>
       <name>contextualView</name>
+    </namedcomponent>
+     <namedcomponent>
+      <groupid>net.sf.taverna.t2.ui-api</groupid>
+      <artifact>report-api</artifact>
+      <classname>net.sf.taverna.t2.workbench.report.view.ReportViewComponentFactory</classname>
+      <version>1.1-SNAPSHOT</version>
+      <name>reportView</name>
     </namedcomponent>
     <namedcomponent>
       <groupid>net.sf.taverna.t2.ui-components</groupid>
