@@ -119,7 +119,7 @@ public class ReportViewTableModel extends DefaultTableModel {
 			if (o instanceof ProcessorPort) {
 				prefix = ((ProcessorPort) o).getProcessor().getLocalName();
 			}
-			if (!prefix.isEmpty()) {
+			if (!(prefix.length()==0)) {
 				prefix += " : ";
 			}
 			return (prefix + ((Port) o).getName());
