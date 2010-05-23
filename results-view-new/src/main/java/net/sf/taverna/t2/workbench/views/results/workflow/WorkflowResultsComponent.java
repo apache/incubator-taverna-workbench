@@ -182,7 +182,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		this.runId = facade.getWorkflowRunId();
 		this.isProvenanceEnabledForRun = isProvenanceEnabledForRun;
 		
-		saveButton = new JButton(new SaveAllAction("Save values", this));
+		saveButton = new JButton(new SaveAllAction("Save all values", this));
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0;
 		gbc.gridy = 0;
