@@ -148,5 +148,5 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 		this.setRowSelectionInterval(row, row);
 		lastSelectedTableRow = row;		
 	}
-	
+
 }
