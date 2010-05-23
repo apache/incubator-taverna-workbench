@@ -318,7 +318,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		int result = 1;
 		result = prime
 				* result
-				+ ((dataflow == null) ? 0 : dataflow.getInternalIdentier()
+				+ ((dataflow == null) ? 0 : dataflow.getInternalIdentifier(false)
 						.hashCode());
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
 		return result;
@@ -336,8 +336,8 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		if (dataflow == null) {
 			if (other.dataflow != null)
 				return false;
-		} else if (!dataflow.getInternalIdentier().equals(
-				other.dataflow.getInternalIdentier()))
+		} else if (!dataflow.getInternalIdentifier(false).equals(
+				other.dataflow.getInternalIdentifier(false)))
 			return false;
 		if (date == null) {
 			if (other.date != null)
@@ -372,7 +372,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				Dataflow loadedDataflow = XMLDeserializerRegistry.getInstance()
 						.getDeserializer().deserializeDataflow(rootElement);
 				logger.debug("Loaded dataflow "
-						+ loadedDataflow.getInternalIdentier() + " for run "
+						+ loadedDataflow.getInternalIdentifier(false) + " for run "
 						+ runId);
 				setDataflow(loadedDataflow);
 			} catch (Exception e) {
@@ -388,7 +388,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		this.dataflow = dataflow;
 		if (dataflow != null) {
 			this.workflowName = dataflow.getLocalName();
-			this.workflowId = dataflow.getInternalIdentier();
+			this.workflowId = dataflow.getInternalIdentifier();
 			synchronized (loadedDataflows) {
 				loadedDataflows.put(this.workflowId,
 						new WeakReference<Dataflow>(dataflow));
@@ -586,11 +586,17 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				putValue(NAME, "Resume");
 				workflowRunProgressStatusLabel.setText(STATUS_PAUSED);
 				workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.workingStoppedIcon);
+				if (facade != null){ // should not be null but check nevertheless
+					facade.pauseWorkflowRun();
+				}
 			} 
 			else if (text.equals("Resume")){
 				putValue(NAME, "Pause");
 				workflowRunProgressStatusLabel.setText(STATUS_RUNNING);
 				workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.workingIcon);
+				if (facade != null){ // should not be null but check nevertheless
+					facade.resumeWorkflowRun();
+				}
 			}	
 		}
 	}
@@ -611,6 +617,13 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.workingStoppedIcon);
 			// Disable the Pause/Resume button
 			workflowRunPauseButton.setEnabled(false);
+			workflowRunCancelButton.setEnabled(false);
+			if (facade != null){ // should not be null but check nevertheless
+				facade.cancelWorkflowRun();
+			}
+			// Stop listening to workflow run's monitors
+			monitorObserverForGraph.onDispose();
+			monitorObserverForTable.onDispose();
 		}
 	}
 	
