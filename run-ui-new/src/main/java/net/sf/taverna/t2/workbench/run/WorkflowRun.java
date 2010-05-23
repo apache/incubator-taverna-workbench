@@ -635,7 +635,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 
 		public ShowWorkflowResultsAction() {
 			super();
-			putValue(NAME, "Show results");
+			putValue(NAME, "Show workflow results");
 		}
 
 		public void actionPerformed(ActionEvent e) {
