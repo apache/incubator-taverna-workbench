@@ -197,7 +197,9 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 				ReportManager.updateReport(dataflow, true);
 			}
 		});
-		this.add(validateButton, BorderLayout.SOUTH);
+		JPanel validateButtonPanel = new JPanel();
+		validateButtonPanel.add(validateButton);
+		this.add(validateButtonPanel, BorderLayout.SOUTH);
 		messagePane.revalidate();
 		this.revalidate();
 		for (int i = 0; i < table.getRowCount(); i++) {
