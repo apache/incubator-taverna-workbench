@@ -248,7 +248,7 @@ public class RunWorkflowAction extends AbstractAction {
 		if (resultsPerspective == null) {
 			for (PerspectiveSPI perspective : Workbench.getInstance()
 					.getPerspectives().getPerspectives()) {
-				if (perspective.getText().equalsIgnoreCase("Results (new)")) {
+				if (perspective.getText().equalsIgnoreCase("Results")) {
 					resultsPerspective = perspective;
 					break;
 				}
