@@ -38,6 +38,7 @@ import java.util.Map.Entry;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.facade.ResultListener;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
@@ -56,12 +57,12 @@ import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
 import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
 import net.sf.taverna.t2.workbench.views.monitor.graph.GraphMonitor;
-import net.sf.taverna.t2.workbench.views.monitor.graph.IntermediateResultsComponent;
 import net.sf.taverna.t2.workbench.views.monitor.graph.MonitorGraphComponent;
 import net.sf.taverna.t2.workbench.views.monitor.graph.MonitorGraphPreviousRunComponent;
 import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressMonitor;
 import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressTreeTable;
 import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressTreeTableModel;
+import net.sf.taverna.t2.workbench.views.results.processor.ProcessorResultsComponent;
 import net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultsComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EditException;
@@ -111,7 +112,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	// as they are becoming available
 	private WorkflowResultsComponent workflowResultsComponent;
 	// Map of intermediate results per processor - this only works if provencance is on
-	private Map<Processor, IntermediateResultsComponent> intermediateResultsComponents = new HashMap<Processor, IntermediateResultsComponent>();
+	private Map<Processor, ProcessorResultsComponent> intermediateResultsComponents = new HashMap<Processor, ProcessorResultsComponent>();
 
 	// Progress monitor for graph
 	private GraphMonitor monitorObserverForGraph;
@@ -223,6 +224,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		monitorViewComponent = new MonitorViewComponent();
 		monitorViewComponent.setMonitorGraph(progressRunGraph);
 		monitorViewComponent.setMonitorProgressTable(progressRunTable);
+		workflowRunProgressStatusLabel.setBorder(new EmptyBorder(0,0,0,10));
 		monitorViewComponent.addWorkflowRunStatusLabel(workflowRunProgressStatusLabel);
 		monitorViewComponent.addWorkflowPauseButton(workflowRunPauseButton);
 		monitorViewComponent.addWorkflowCancelButton(workflowRunCancelButton);
@@ -424,7 +426,6 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 
 			// Create progress table for a previous run
 			progressRunTable = new WorkflowRunProgressTreeTable(new WorkflowRunProgressTreeTableModel(dataflow, connector, referenceService, runId));
-			progressRunTable.setWorkflowStartDate(date);
 			
 			// Start listening for row selections on the table  
 			// so we can show intermediate results for processors. 
@@ -445,6 +446,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			monitorViewComponent.setMonitorProgressTable(progressRunTable);
 			monitorViewComponent.addWorkflowRunStatusLabel(workflowRunProgressStatusLabel);
 			// for previous run status is always "finished" and pause/cancel buttons are disabled
+			workflowRunProgressStatusLabel.setBorder(new EmptyBorder(0,0,0,10));
 			workflowRunProgressStatusLabel.setText(STATUS_FINISHED);
 			workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.greentickIcon);
 			monitorViewComponent.addWorkflowPauseButton(workflowRunPauseButton);
@@ -664,10 +666,10 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		// intermediate results if provenance is enabled (which it should be!)
 		else if (workflowObject instanceof Processor) {
 			if (isProvenanceEnabledForRun){
-				IntermediateResultsComponent intermediateResultsComponent = intermediateResultsComponents
+				ProcessorResultsComponent intermediateResultsComponent = intermediateResultsComponents
 						.get((Processor) workflowObject);
 				if (intermediateResultsComponent == null) {
-					intermediateResultsComponent = new IntermediateResultsComponent();
+					intermediateResultsComponent = new ProcessorResultsComponent((Processor) workflowObject, dataflow, facade, connector, referenceService);
 					intermediateResultsComponent.setLabel(((Processor) workflowObject)
 							.getLocalName());
 					intermediateResultsComponents.put((Processor) workflowObject,
