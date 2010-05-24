@@ -395,9 +395,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 		final JPanel provenancePanel = new JPanel();
 		provenancePanel.setLayout(new BorderLayout());
 		if (provenanceConnector != null) {
-			
-			System.out.println("Selected object on a graph: " + dataflowObject.toString());
-			
+						
 			// Notify anyone interested that a selection occurred on the graph
 			monitorViewComponent.triggerWorkflowObjectSelectionEvent(dataflowObject);
 			

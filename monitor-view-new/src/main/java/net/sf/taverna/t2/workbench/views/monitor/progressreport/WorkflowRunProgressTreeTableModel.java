@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -34,8 +35,10 @@ import net.sf.taverna.t2.lang.ui.treetable.AbstractTreeTableModel;
 import net.sf.taverna.t2.lang.ui.treetable.TreeTableModel;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
+import net.sf.taverna.t2.provenance.lineageservice.utils.Port;
 import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
 import net.sf.taverna.t2.reference.ReferenceService;
+import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
@@ -57,6 +60,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	private static final String STATUS = "Status";	
 	private static final String START_TIME = "Start time";
 	private static final String FINISH_TIME = "Finish time";
+	private static final String AVERAGE_ITERATION_TIME = "Average time per iteration (in ms)";
 	private static final String ITERATIONS = "Total iterations";
 	private static final String ITERATIONS_DONE= "Done iterations";
 	private static final String ITERATIONS_FAILED = "Failed iterations";
@@ -70,6 +74,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 			STATUS, // status of the workflow or processor
 			START_TIME, // start time of workflow or processor
 			FINISH_TIME, // finish time of workflow or processor
+			AVERAGE_ITERATION_TIME, // average time per iteration (in ms)
 			ITERATIONS, // total number of iterations
 			ITERATIONS_DONE, // number of iteration done so far
 			ITERATIONS_FAILED, // number of failed iterations
@@ -78,7 +83,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     // Column types
     @SuppressWarnings("unchecked")
 	static protected Class[] columnTypes = { TreeTableModel.class,
-			String.class, String.class, String.class, String.class, String.class, String.class };
+			String.class, String.class, String.class, String.class, String.class, String.class, String.class };
     
 	// Table data (maps workflow element nodes to column data associated with them)
 	private Map<DefaultMutableTreeNode, ArrayList<Object>> data = new HashMap<DefaultMutableTreeNode, ArrayList<Object>>();;
@@ -89,6 +94,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	private Object referenceService;
 	// For fetching data for past runs from provenance
 	private String workflowRunId;
+	private ProvenanceAccess provenanceAccess;
 	
  	public WorkflowRunProgressTreeTableModel(Dataflow dataflow) {
 
@@ -105,6 +111,8 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		this.provenanceConnector = connector;
 		this.referenceService = refService;
 		this.workflowRunId = workflowRunId;
+		provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
+
 		rootNode = (DefaultMutableTreeNode) this.getRoot();
 		createTree(dataflow, rootNode);	
     }
@@ -114,21 +122,31 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     	// If this is the root of the tree rather than a root of the nested sub-tree
     	if (root.equals(rootNode)){
 			ArrayList<Object> workflowData = new ArrayList<Object>();
+
 			workflowData.add(df.getLocalName()); // name
-			workflowData.add(STATUS_FINISHED); // status
-			workflowData.add(null); // start time
-			workflowData.add(null); // finish time
-			workflowData.add("-"); // no. of iterations
-			workflowData.add("-"); // no. of iterations done so far
-			workflowData.add("-"); // no. of failed iterations
-			
+
     		// If this is an old run - populate the tree from provenance
-    		if (provenanceConnector != null && referenceService != null){
-    			ProvenanceAccess provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
-				workflowData.add(STATUS_FINISHED); // status
+    		if (provenanceConnector != null && referenceService != null && provenanceAccess != null){    			
+    			workflowData.add(STATUS_FINISHED); // status
+    			
+				workflowData.add(null); // wf start time
+				workflowData.add(null); // wf finish time
+				workflowData.add(null); // average running time
+
+    			workflowData.add("-"); // no. of iterations
+    			workflowData.add("-"); // no. of iterations done so far
+    			workflowData.add("-"); // no. of failed iterations
 			}
-    		else{
+    		else{    			
 				workflowData.add(STATUS_PENDING); // status
+    			
+				workflowData.add(null); // wf start time
+				workflowData.add(null); // wf finish time
+				workflowData.add(null); // average running time
+
+    			workflowData.add("-"); // no. of iterations
+    			workflowData.add("-"); // no. of iterations done so far
+    			workflowData.add("-"); // no. of failed iterations
     		}
 			data.put(root, workflowData);
     	}
@@ -140,20 +158,78 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 			processorData.add(processor.getLocalName()); // name
 
     		// If this is an old run - populate the tree from provenance
-    		if (provenanceConnector != null && referenceService != null){
-    			ProvenanceAccess provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
+    		if (provenanceConnector != null && referenceService != null && provenanceAccess != null){
     			List<ProcessorEnactment> processorEnactments = provenanceAccess.getProcessorEnactments(workflowRunId, processor.getLocalName());
     			processorData.add(STATUS_FINISHED); // status
-    			processorData.add(null); // start time
-    			processorData.add(null); // finish time
-    			processorData.add(processorEnactments.size() == 0 ? 1 : processorEnactments.size()); // no. of iterations (if size is 0 - that means only 1 invocation)
-    			processorData.add(processorEnactments.size() == 0 ? 1 : processorEnactments.size()); // no. of iterations done so far
-    			processorData.add("Do not know yet"); // no. of failed iterations
+    			
+    			if (processorEnactments.size() == 0){
+    				processorData.add(null); // start time
+    				processorData.add(null); // finish time
+    				processorData.add(null); // average time per iteration
+    				
+        			processorData.add(processorEnactments.size()); // no. of iterations 
+        			processorData.add(processorEnactments.size()); // no. of iterations done so far
+        			processorData.add("Do not know"); // no. of failed iterations
+    			}
+    			else{
+					Timestamp earliestStartTime = processorEnactments.get(0)
+							.getEnactmentStarted();
+					Timestamp latestFinishTime = processorEnactments.get(0)
+							.getEnactmentEnded();
+					long averageTime = 0;
+					int errors = 0;
+					for (ProcessorEnactment processorEnactment : processorEnactments) {
+						// Get the earliest start time of all invocations
+						Timestamp startTime = processorEnactment
+								.getEnactmentStarted();
+						if (startTime.before(earliestStartTime)) {
+							earliestStartTime = startTime;
+						}
+						// Get the latest finish time of all invocations
+						Timestamp finishTime = processorEnactment
+								.getEnactmentEnded();
+						if (finishTime.after(latestFinishTime)) {
+							latestFinishTime = finishTime;
+						}
+						averageTime += (finishTime.getTime() - startTime
+								.getTime());
+						
+						// Do any outputs of this iteration contain errors?
+						String finalOutputs = processorEnactment.getFinalOutputsDataBindingId();
+						if (finalOutputs != null) {
+							Map<Port, T2Reference> dataBindings = provenanceAccess.getDataBindings(finalOutputs);
+							for (java.util.Map.Entry<Port,T2Reference> entry : dataBindings.entrySet()) {
+								if (entry.getKey().isInputPort()) {
+									continue;
+								}
+								T2Reference t2Ref = entry.getValue();
+								if (t2Ref.containsErrors()) {
+									// only count output errors
+									errors++;
+									break; // we only care if there is at least one error so break the loop here
+								}
+							}
+						}
+					}
+					// Get the average time of invocations (in ms)
+					averageTime = averageTime / processorEnactments.size();
+
+					SimpleDateFormat sdf = new SimpleDateFormat(
+							"yyyy-MM-dd HH:mm:ss");
+					processorData.add(sdf.format(earliestStartTime)); // start time
+					processorData.add(sdf.format(latestFinishTime)); // finish time
+					processorData.add(averageTime); // average time per iteration
+					
+	    			processorData.add(processorEnactments.size()); // no. of iterations 
+	    			processorData.add(processorEnactments.size()); // no. of iterations done so far
+	    			processorData.add(errors); // no. of failed iterations
+    			}
     		}
     		else{ 
     			processorData.add(STATUS_PENDING); // status
     			processorData.add(null); // start time
     			processorData.add(null); // finish time
+    			processorData.add(null); // average time per iteration
     			processorData.add("Calculating..."); // no. of iterations
     			processorData.add("0"); // no. of iterations done so far
     			processorData.add("0"); // no. of failed iterations
@@ -246,22 +322,28 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		setValueAt(sdf.format(date), node, 3);
 	}
 	
+	public void setAverageTimeForObject(Object object, long timeInMiliseconds) {
+		// First get the node for object
+		DefaultMutableTreeNode node = getNodeForObject(object);
+		setValueAt(timeInMiliseconds, node, 4);
+	}
+	
 	public void setNumberOfIterationsForObject(Object object, Integer iterations) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(iterations, node, 4);
-	}
-	
-	public void setNumberOfFailedIterationsForObject(Object object, Integer failedIterations) {
-		// First get the node for object
-		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(failedIterations, node, 6);
+		setValueAt(iterations, node, 5);
 	}
 	
 	public void setNumberOfIterationsDoneSoFarForObject(Object object, Integer doneIterations) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(doneIterations, node, 5);
+		setValueAt(doneIterations, node, 6);
+	}
+	
+	public void setNumberOfFailedIterationsForObject(Object object, Integer failedIterations) {
+		// First get the node for object
+		DefaultMutableTreeNode node = getNodeForObject(object);
+		setValueAt(failedIterations, node, 7);
 	}
 	
 	public DefaultMutableTreeNode getNodeForObject(Object object){
@@ -276,6 +358,3 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	}
 
 }
-
-
-
