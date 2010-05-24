@@ -273,7 +273,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowInputPort.getName(), dataflowInputPort.getDepth());
 			ResultTreeModel model = resultTab.getResultModel();
 			
-			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentier(), dataflow.getLocalName(), portName, null);
+			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentifier(), dataflow.getLocalName(), portName, null);
 			List<LineageQueryResultRecord> records = dependencies.getRecords();
 			for (LineageQueryResultRecord record : records) {
 
@@ -305,7 +305,7 @@ public class ResultViewComponent extends JPanel implements UIComponentSPI, Resul
 			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort.getName(), dataflowOutputPort.getDepth());
 			ResultTreeModel model = resultTab.getResultModel();
 			
-			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentier(), dataflow.getLocalName(), portName, null);
+			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentifier(), dataflow.getLocalName(), portName, null);
 			List<LineageQueryResultRecord> records = dependencies.getRecords();
 			for (LineageQueryResultRecord record : records) {
 

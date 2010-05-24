@@ -95,7 +95,7 @@ public class SaveAllResultsAsOPM extends SaveAllResultsSPI{
 		"<pquery xmlns=\"http://taverna.org.uk/2009/provenance/pquery/\"\n"+
 		"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"+
 		"xsi:schemaLocation=\"http://taverna.org.uk/2009/provenance/pquery/pquery.xsd\">\n"+
-		"<scope workflow=\""+ dataflow.getInternalIdentier() +"\"/>\n"+
+		"<scope workflow=\""+ dataflow.getInternalIdentifier() +"\"/>\n"+
 		"<focus>\n"+
 		"<workflow name=\""+ runId +"\">\n"+
 		"</workflow>\n"+

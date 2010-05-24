@@ -429,7 +429,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 							}
 //						}
 							
-//						String internalIdentifier = dataflow.getInternalIdentier(false);
+//						String internalIdentifier = dataflow.getInternalIdentifier(false);
 						provResultsPanel = new ProvenanceResultsPanel();
 						provResultsPanel.setContext(provenanceConnector
 								.getInvocationContext());
