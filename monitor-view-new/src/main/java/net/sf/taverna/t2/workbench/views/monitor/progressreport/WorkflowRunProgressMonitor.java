@@ -191,7 +191,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				// For some reason total number of iterations is messed up when we update it
 				// from inside the node, so the final number is set here.
 				// If total number of iterations is 0 that means there was just one invocation.
-				int total = node.getTotalNumberOfIterations();
+				int total = workflowRunProgressMonitorNode.getTotalNumberOfIterations();
 				progressTreeTable.setNumberOfIterationsForObject(
 						((Processor) workflowObject), total == 0 ? 1 : total);
 			} else if (workflowObject instanceof Dataflow) {
