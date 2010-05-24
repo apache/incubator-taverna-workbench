@@ -276,7 +276,8 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 							.remove(selectedRunsToDelete[i]);
 					
 					// Stop the workflow run if it still active
-					if (workflowRunToBeDeleted.getFacade().isRunning()){
+					if (workflowRunToBeDeleted.getFacade() != null
+							&& workflowRunToBeDeleted.getFacade().isRunning()) {
 						workflowRunToBeDeleted.getFacade().cancelWorkflowRun();
 					}
 					MonitorGraphComponent mvc = workflowRunToBeDeleted
