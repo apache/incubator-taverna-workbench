@@ -42,7 +42,7 @@ public class ResultsPerspective implements PerspectiveSPI{
 	}
 
 	public String getText() {
-		return "Results (new)";
+		return "Results";
 	}
 
 	public boolean isVisible() {
