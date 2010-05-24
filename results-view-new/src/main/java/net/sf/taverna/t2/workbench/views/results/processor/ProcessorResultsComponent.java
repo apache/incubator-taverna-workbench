@@ -87,62 +87,62 @@ public class ProcessorResultsComponent extends JPanel{
 		
 		// Create results tree				
 		// Is this processor inside a nested workflow?
-		if (processor.getActivityList().get(0) instanceof NestedDataflow) {
-			Activity<?> activity = processor.getActivityList().get(0);
-			targetWorkflowID = ((NestedDataflow)activity).getNestedDataflow().getInternalIdentifier(false);
-			}
-		else {	
-			targetWorkflowID = dataflow.getInternalIdentifier(false);
-		}
-		
-		try {
-			logger.info("Retrieving intermediate results for workflow instance: "
-							+ facade.getWorkflowRunId()
-							+ " processor: "
-							+ processor.getLocalName()
-							+ " nested: " + targetWorkflowID);																
-			
-			ProvenanceAccess provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
-			//TODO use the new provenance access API with the nested workflow if required to get the results
-			
-			List<ProcessorEnactment> processorInvocations = provenanceAccess.getProcessorEnactments(facade.getWorkflowRunId(), processor.getLocalName());
-			for (ProcessorEnactment processorInvocation : processorInvocations){
-				processorInvocation.getIteration();
-			}
-			
-			
-//			Dependencies fetchPortData = provenanceAccess.fetchPortData(facade.getWorkflowRunId(), targetWorkflowID, processor.getLocalName(), null, null);
-//			intermediateValues = fetchPortData.getRecords();
-//
-//			if (intermediateValues.size() > 0) {
-//				for (LineageQueryResultRecord record : intermediateValues) {
-//					logger.info("LQRR: "
-//							+ record.toString());
-//				}
-//				provResultsPanel
-//						.setLineageRecords(intermediateValues);
-//				logger
-//						.info("Intermediate results retrieved for workflow instance: "
-//								+ facade.getWorkflowRunId()
-//								+ " processor: "
-//								+ processor.getLocalName()
-//								+ " nested: " + targetWorkflowID);										
-//			} else {
-//				frame.setTitle("Currently no intermediate values for service "
-//						+ localName + ". Click \'Fetch values\' to try again.");
-//				frame.setVisible(true);
-//				
+//		if (processor.getActivityList().get(0) instanceof NestedDataflow) {
+//			Activity<?> activity = processor.getActivityList().get(0);
+//			targetWorkflowID = ((NestedDataflow)activity).getNestedDataflow().getInternalIdentifier(false);
 //			}
-//
-		} catch (Exception e) {
-			logger.warn("Could not retrieve intermediate results: "
-							+ e.getStackTrace());
-			JOptionPane.showMessageDialog(null,
-					"Could not retrieve intermediate results:\n"
-							+ e,
-					"Problem retrieving results",
-					JOptionPane.ERROR_MESSAGE);
-		}
+//		else {	
+//			targetWorkflowID = dataflow.getInternalIdentifier(false);
+//		}
+//		
+//		try {
+//			logger.info("Retrieving intermediate results for workflow instance: "
+//							+ facade.getWorkflowRunId()
+//							+ " processor: "
+//							+ processor.getLocalName()
+//							+ " nested: " + targetWorkflowID);																
+//			
+//			ProvenanceAccess provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
+//			//TODO use the new provenance access API with the nested workflow if required to get the results
+//			
+//			List<ProcessorEnactment> processorInvocations = provenanceAccess.getProcessorEnactments(facade.getWorkflowRunId(), processor.getLocalName());
+//			for (ProcessorEnactment processorInvocation : processorInvocations){
+//				processorInvocation.getIteration();
+//			}
+//			
+//			
+////			Dependencies fetchPortData = provenanceAccess.fetchPortData(facade.getWorkflowRunId(), targetWorkflowID, processor.getLocalName(), null, null);
+////			intermediateValues = fetchPortData.getRecords();
+////
+////			if (intermediateValues.size() > 0) {
+////				for (LineageQueryResultRecord record : intermediateValues) {
+////					logger.info("LQRR: "
+////							+ record.toString());
+////				}
+////				provResultsPanel
+////						.setLineageRecords(intermediateValues);
+////				logger
+////						.info("Intermediate results retrieved for workflow instance: "
+////								+ facade.getWorkflowRunId()
+////								+ " processor: "
+////								+ processor.getLocalName()
+////								+ " nested: " + targetWorkflowID);										
+////			} else {
+////				frame.setTitle("Currently no intermediate values for service "
+////						+ localName + ". Click \'Fetch values\' to try again.");
+////				frame.setVisible(true);
+////				
+////			}
+////
+//		} catch (Exception e) {
+//			logger.warn("Could not retrieve intermediate results: "
+//							+ e.getStackTrace());
+//			JOptionPane.showMessageDialog(null,
+//					"Could not retrieve intermediate results:\n"
+//							+ e,
+//					"Problem retrieving results",
+//					JOptionPane.ERROR_MESSAGE);
+//		}
 
 		
 		// Start querying provenance from time to time for new results
