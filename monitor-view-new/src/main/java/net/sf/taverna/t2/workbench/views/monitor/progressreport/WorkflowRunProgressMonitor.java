@@ -20,16 +20,15 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-//import javax.swing.JLabel;
-
-//import net.sf.taverna.t2.facade.ResultListener;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -39,7 +38,6 @@ import net.sf.taverna.t2.monitor.MonitorManager.AddPropertiesMessage;
 import net.sf.taverna.t2.monitor.MonitorManager.DeregisterNodeMessage;
 import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
 import net.sf.taverna.t2.monitor.MonitorManager.RegisterNodeMessage;
-//import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
@@ -136,7 +134,9 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				Processor processor = (Processor) workflowObject;
 				WorkflowRunProgressMonitorNode monitorNode = new WorkflowRunProgressMonitorNode(
 						processor, owningProcess, properties, progressTreeTable);
-				processorMonitorNodes.put(owningProcessId, monitorNode);
+				synchronized(processorMonitorNodes) {
+					processorMonitorNodes.put(owningProcessId, monitorNode);
+				}
 			} else if (workflowObject instanceof Dataflow) {
 
 				// outermost dataflow 
@@ -176,11 +176,16 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	public void deregisterNode(String[] owningProcess) {
 		if (owningProcess[0].equals(filter)) {
 			final String owningProcessId = getOwningProcessId(owningProcess);
-			Object workflowObject = workflowObjects.remove(owningProcessId);	
-			WorkflowRunProgressMonitorNode node = processorMonitorNodes.get(owningProcessId);
-			
+			Object workflowObject = workflowObjects.remove(owningProcessId);
+			synchronized(processorMonitorNodes) {
+				WorkflowRunProgressMonitorNode node = processorMonitorNodes.get(owningProcessId);
+			}
 			if (workflowObject instanceof Processor) {
-				processorMonitorNodes.get(owningProcessId).update();
+				WorkflowRunProgressMonitorNode workflowRunProgressMonitorNode;
+				synchronized(processorMonitorNodes) {
+					workflowRunProgressMonitorNode = processorMonitorNodes.get(owningProcessId);
+				}
+				workflowRunProgressMonitorNode.update();
 				progressTreeTable.setFinishDateForObject(((Processor) workflowObject), new Date());
 				progressTreeTable.setStatusForObject(((Processor) workflowObject), STATUS_FINISHED);
 				// For some reason total number of iterations is messed up when we update it
@@ -244,8 +249,11 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	public void addPropertiesToNode(String[] owningProcess,
 			Set<MonitorableProperty<?>> newProperties) {
 		if (owningProcess[0].equals(filter)) {
-			WorkflowRunProgressMonitorNode monitorNode = processorMonitorNodes
-					.get(getOwningProcessId(owningProcess));
+			WorkflowRunProgressMonitorNode monitorNode;
+			synchronized(processorMonitorNodes) {
+				monitorNode = processorMonitorNodes
+						.get(getOwningProcessId(owningProcess));
+			}
 			new Exception().printStackTrace();
 			if (monitorNode != null) {
 				for (MonitorableProperty<?> property : newProperties) {
@@ -272,8 +280,16 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	
 	public class UpdateTask extends TimerTask {
 		public void run() {
-			for (WorkflowRunProgressMonitorNode node : processorMonitorNodes.values()) {
-				node.update();
+			try { 
+				List<WorkflowRunProgressMonitorNode> nodes;
+				synchronized(processorMonitorNodes) {
+					nodes = new ArrayList<WorkflowRunProgressMonitorNode>(processorMonitorNodes.values());
+				}
+				for (WorkflowRunProgressMonitorNode node : nodes) {
+					node.update();
+				}
+			} catch (RuntimeException ex) {
+				logger.error("UpdateTask update failed", ex);
 			}
 		}
 	}
