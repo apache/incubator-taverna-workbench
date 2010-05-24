@@ -299,7 +299,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowInputPort.getName(), dataflowInputPort.getDepth());
 			WorkflowResultTreeModel model = resultTab.getResultModel();
 			
-			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentifier(), dataflow.getLocalName(), portName, null);
+			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentifier(false), dataflow.getLocalName(), portName, null);
 			List<LineageQueryResultRecord> records = dependencies.getRecords();
 			for (LineageQueryResultRecord record : records) {
 
@@ -331,7 +331,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort.getName(), dataflowOutputPort.getDepth());
 			WorkflowResultTreeModel model = resultTab.getResultModel();
 			
-			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentifier(), dataflow.getLocalName(), portName, null);
+			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentifier(false), dataflow.getLocalName(), portName, null);
 			List<LineageQueryResultRecord> records = dependencies.getRecords();
 			for (LineageQueryResultRecord record : records) {
 

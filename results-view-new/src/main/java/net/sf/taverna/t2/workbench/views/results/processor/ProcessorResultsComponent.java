@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2009 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -20,103 +20,138 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.processor;
 
-import java.awt.BorderLayout;
-import java.awt.ComponentOrientation;
-import java.awt.FlowLayout;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.text.DateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.awt.Color;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.WeakHashMap;
-import java.util.regex.Pattern;
 
-import javax.swing.AbstractAction;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
-
-import net.sf.taverna.t2.facade.ResultListener;
-import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
-import net.sf.taverna.t2.invocation.InvocationContext;
-import net.sf.taverna.t2.invocation.WorkflowDataToken;
-import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
-import net.sf.taverna.t2.lang.ui.DialogTextArea;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
-import net.sf.taverna.t2.provenance.lineageservice.Dependencies;
-import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
-import net.sf.taverna.t2.reference.ReferenceService;
-import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
-import net.sf.taverna.t2.workbench.ui.impl.Workbench;
-import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
-import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
-// import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsOPM;
-import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
-import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPIRegistry;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.impl.DataflowImpl;
-import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializerImpl;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializerImpl;
+import javax.swing.border.LineBorder;
 
 import org.apache.log4j.Logger;
 
+import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
+import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
+import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
+import net.sf.taverna.t2.provenance.lineageservice.Dependencies;
+import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
+import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
+import net.sf.taverna.t2.reference.ReferenceService;
+import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
+
 /**
+ * Component that shows intermediate results for a processor, including all
+ * its iterations.
+ * 
+ * @author Alex Nenadic
  *
  */
 @SuppressWarnings("serial")
-public class ProcessorResultsComponent extends JPanel implements UIComponentSPI{
+public class ProcessorResultsComponent extends JPanel{
+
+	
+	private Dataflow dataflow;
+	private Processor processor;
+	private WorkflowInstanceFacade facade;
+	private ProvenanceConnector provenanceConnector;
+	private ReferenceService referenceService;
+	private String targetWorkflowID;
+	
+	private Logger logger = Logger.getLogger(ProcessorResultsComponent.class);
+	private List<LineageQueryResultRecord> intermediateValues;
 
 	public ProcessorResultsComponent(){
 		super();
-		add(new JLabel("Intermediate results"));
-	}
-	
-	public ImageIcon getIcon() {
-		// TODO Auto-generated method stub
-		return null;
+		setBorder(new LineBorder(Color.GREEN));
 	}
 
-	public void onDisplay() {
-		// TODO Auto-generated method stub
+	/**
+	 * Intermediate results viewing component for a currently running
+	 * workflow when provenance is switched on.
+	 */
+	public ProcessorResultsComponent(Processor processor,
+			Dataflow dataflow, WorkflowInstanceFacade facade,
+			ProvenanceConnector connector, ReferenceService referenceService) {
+		super();
+		setBorder(new LineBorder(Color.GREEN));
+		
+		this.dataflow = dataflow;
+		this.processor = processor;
+		this.facade = facade;
+		this.provenanceConnector = connector;
+		this.referenceService = referenceService;
+		
+		// Create results tree				
+		// Is this processor inside a nested workflow?
+		if (processor.getActivityList().get(0) instanceof NestedDataflow) {
+			Activity<?> activity = processor.getActivityList().get(0);
+			targetWorkflowID = ((NestedDataflow)activity).getNestedDataflow().getInternalIdentifier(false);
+			}
+		else {	
+			targetWorkflowID = dataflow.getInternalIdentifier(false);
+		}
+		
+		try {
+			logger.info("Retrieving intermediate results for workflow instance: "
+							+ facade.getWorkflowRunId()
+							+ " processor: "
+							+ processor.getLocalName()
+							+ " nested: " + targetWorkflowID);																
+			
+			ProvenanceAccess provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
+			//TODO use the new provenance access API with the nested workflow if required to get the results
+			
+			List<ProcessorEnactment> processorInvocations = provenanceAccess.getProcessorEnactments(facade.getWorkflowRunId(), processor.getLocalName());
+			for (ProcessorEnactment processorInvocation : processorInvocations){
+				processorInvocation.getIteration();
+			}
+			
+			
+//			Dependencies fetchPortData = provenanceAccess.fetchPortData(facade.getWorkflowRunId(), targetWorkflowID, processor.getLocalName(), null, null);
+//			intermediateValues = fetchPortData.getRecords();
+//
+//			if (intermediateValues.size() > 0) {
+//				for (LineageQueryResultRecord record : intermediateValues) {
+//					logger.info("LQRR: "
+//							+ record.toString());
+//				}
+//				provResultsPanel
+//						.setLineageRecords(intermediateValues);
+//				logger
+//						.info("Intermediate results retrieved for workflow instance: "
+//								+ facade.getWorkflowRunId()
+//								+ " processor: "
+//								+ processor.getLocalName()
+//								+ " nested: " + targetWorkflowID);										
+//			} else {
+//				frame.setTitle("Currently no intermediate values for service "
+//						+ localName + ". Click \'Fetch values\' to try again.");
+//				frame.setVisible(true);
+//				
+//			}
+//
+		} catch (Exception e) {
+			logger.warn("Could not retrieve intermediate results: "
+							+ e.getStackTrace());
+			JOptionPane.showMessageDialog(null,
+					"Could not retrieve intermediate results:\n"
+							+ e,
+					"Problem retrieving results",
+					JOptionPane.ERROR_MESSAGE);
+		}
+
+		
+		// Start querying provenance from time to time for new results
+		// for this processor until it finishes execution and all
+		// its iterations.
 		
 	}
 
-	public void onDispose() {
-		// TODO Auto-generated method stub
-		
+	public void setLabel(String localName) {
+		add(new JLabel("Intermediate results for " + localName));
 	}
-	
 }
