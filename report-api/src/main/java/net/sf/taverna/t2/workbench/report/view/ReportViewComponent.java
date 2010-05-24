@@ -133,7 +133,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		super();
 		reportManager.addObserver(new ReportManagerObserver());
 		initialise();
-		System.err.println("Initially defaultExplanation is editable " + defaultExplanation.isEditable());
+		//System.err.println("Initially defaultExplanation is editable " + defaultExplanation.isEditable());
 	}
 	
 	private void initialise() {
