@@ -69,7 +69,7 @@ public class T2DataflowOpener extends AbstractDataflowPersistenceHandler
 			try {
 				inputStream = new FileInputStream((File) source);
 			} catch (FileNotFoundException e) {
-				throw new OpenException("Could not open file " + source, e);
+				throw new OpenException("Could not open file " + source + ":\n" + e.getLocalizedMessage(), e);
 			}
 		} else if (source instanceof URL) {
 			URL url = ((URL) source);
@@ -82,7 +82,7 @@ public class T2DataflowOpener extends AbstractDataflowPersistenceHandler
 				}
 			} catch (IOException e) {
 				throw new OpenException("Could not open connection to URL "
-						+ source, e);
+						+ source+ ":\n" + e.getLocalizedMessage(), e);
 			}
 			if (url.getProtocol().equalsIgnoreCase("file")) {
 				try {

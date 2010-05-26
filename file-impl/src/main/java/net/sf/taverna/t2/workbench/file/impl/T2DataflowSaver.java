@@ -64,7 +64,7 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 				outStream = new FileOutputStream((File) destination);
 			} catch (FileNotFoundException e) {
 				throw new SaveException("Can't create workflow file "
-						+ destination, e);
+						+ destination + ":\n" + e.getLocalizedMessage(), e);
 			}
 		} else if (destination instanceof OutputStream) {
 			outStream = (OutputStream) destination;
@@ -112,7 +112,7 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 			outputter.output(serialized, bufferedOutStream);
 			bufferedOutStream.flush();
 		} catch (IOException e) {
-			throw new SaveException("Can't write workflow", e);
+			throw new SaveException("Can't write workflow:\n" + e.getLocalizedMessage(), e);
 		}
 	}
 

@@ -195,7 +195,10 @@ public class FileManagerImpl extends FileManager {
 	 */
 	@Override
 	public String getDataflowName(Dataflow dataflow) {
-		Object source = getDataflowSource(dataflow);
+		Object source = null;
+		if (isDataflowOpen(dataflow)) {
+			source = getDataflowSource(dataflow);
+		}
 		String name = dataflow.getLocalName(); 	// Fallback
 		if (source == null) {
 			return name;
@@ -554,7 +557,7 @@ public class FileManagerImpl extends FileManager {
 				lastException = ex;
 			}
 		}
-		throw new SaveException("Could not save to " + destination,
+		throw new SaveException("Could not save to " + destination + ":\n" + lastException.getLocalizedMessage(),
 				lastException);
 	}
 	
