@@ -163,12 +163,18 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 					MonitorManager.getInstance().removeObserver(
 							this);
 				}
-				updateTimer.schedule(new TimerTask() {
-					public void run() {
-						facade.removeResultListener(resultListeners
-								.remove(owningProcessId));
-					}
-				}, deregisterDelay);
+				
+				try{
+					updateTimer.schedule(new TimerTask() {
+						public void run() {
+							facade.removeResultListener(resultListeners
+									.remove(owningProcessId));
+						}
+					}, deregisterDelay);
+				}
+				catch(IllegalStateException ex){ // task seems already cancelled
+					// Do nothing
+				}
 			}
 		}
 	}
@@ -315,7 +321,7 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 			updateTimer.cancel();
 		}
 		catch(IllegalStateException ex){ // task seems already cancelled
-			logger.warn("Cannot cancel task: " + updateTimer.toString() + ".Task already seems cancelled", ex);
+			logger.warn("Cannot cancel task: " + updateTimer.toString() + ". Task already seems cancelled", ex);
 		}
 	}
 
