@@ -26,7 +26,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +36,7 @@ import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
+import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -138,6 +141,47 @@ public class TestNestedDataflowPersistenceHandler {
 				+ "after saving nested workflow", fileManager
 				.isDataflowChanged(dataflow));
 	}
+	
+	@Test(expected=SaveException.class)
+	public void saveFailsParentClosed() throws Exception {
+		Dataflow openedNested = openNested();
+		addDummyProcessor(openedNested);
+		fileManager.closeDataflow(dataflow, false);
+		fileManager.saveDataflow(openedNested, true);
+		fail("Expected SaveException");
+	}
+
+	@Test
+	public void getDataflowName() throws Exception {
+		Dataflow openedNested = openNested();
+		assertEquals("nested in " + dataflow.getLocalName(), fileManager.getDataflowName(openedNested));
+	}
+
+	@Test
+	public void getDataflowNameClosed() throws Exception {
+		Dataflow openedNested = openNested();
+		fileManager.closeDataflow(dataflow, false);
+		assertEquals("nested in " + dataflow.getLocalName(), fileManager.getDataflowName(openedNested));
+	}
+
+	@Test
+	public void getDataflowNameSaved() throws Exception {
+		Dataflow openedNested = openNested();
+		File tempFile = File.createTempFile("taverna", "t2flow");
+		fileManager.saveDataflow(dataflow, T2_FLOW_FILE_TYPE, tempFile, false);
+		assertEquals("nested in " + tempFile, fileManager.getDataflowName(openedNested));
+	}
+
+	@Test
+	public void getDataflowNameSavedClosed() throws Exception {
+		Dataflow openedNested = openNested();
+		File tempFile = File.createTempFile("taverna", "t2flow");
+		fileManager.saveDataflow(dataflow, T2_FLOW_FILE_TYPE, tempFile, false);
+		fileManager.closeDataflow(dataflow, false);
+		assertEquals("nested in " + dataflow.getLocalName(), fileManager.getDataflowName(openedNested));
+	}
+
+	
 
 	private Processor addDummyProcessor(Dataflow openedNested)
 			throws EditException {

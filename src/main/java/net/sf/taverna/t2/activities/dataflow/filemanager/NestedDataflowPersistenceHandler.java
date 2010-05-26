@@ -29,6 +29,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.AbstractDataflowPersistenceHandler;
 import net.sf.taverna.t2.workbench.file.DataflowInfo;
 import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
@@ -134,6 +135,12 @@ public class NestedDataflowPersistenceHandler extends
 					+ destination);
 		}
 		NestedDataflowSource nestedDataflowDestination = (NestedDataflowSource) destination;
+		Dataflow parentDataflow = nestedDataflowDestination.getParentDataflow();
+		if (! FileManager.getInstance().isDataflowOpen(parentDataflow)) {
+			throw new SaveException("Can't save to parent workflow, it's no longer open");
+		}
+			
+		
 		DataflowActivity dataflowActivity = nestedDataflowDestination
 				.getDataflowActivity();
 
@@ -150,7 +157,7 @@ public class NestedDataflowPersistenceHandler extends
 			throw new SaveException("Could not recreate workflow " + dataflow,
 					e);
 		}
-		Dataflow parentDataflow = nestedDataflowDestination.getParentDataflow();
+		
 		List<Processor> dataflowProcessors = findProcessors(parentDataflow, dataflowActivity);
 		List<Edit<?>> editList = new ArrayList<Edit<?>>();
 		editList.add(edits.getConfigureActivityEdit(dataflowActivity, dataflowCopy));
