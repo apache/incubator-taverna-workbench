@@ -24,6 +24,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.ByteArrayInputStream;
@@ -102,8 +103,6 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	
 	// Interactive progress table
 	private WorkflowRunProgressTreeTable progressRunTable;
-	// Index of the last selected row in the WorkflowRunProgressTreeTable
-	//private int lastSelectedTableRow = -1;
 	
 	// Tabbed component that contains the progress graph and table
 	private MonitorViewComponent monitorViewComponent;
@@ -111,7 +110,8 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	// Component that contains final workflow results for all ports, 
 	// as they are becoming available
 	private WorkflowResultsComponent workflowResultsComponent;
-	// Map of intermediate results per processor - this only works if provencance is on
+	
+	// Map of intermediate results per processor - this only works if provenance is on
 	private Map<Processor, ProcessorResultsComponent> intermediateResultsComponents = new HashMap<Processor, ProcessorResultsComponent>();
 
 	// Progress monitor for graph
@@ -543,6 +543,10 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		}
 		public void keyPressed(KeyEvent e) {
 
+			if(e.getKeyCode() == KeyEvent.VK_ENTER){ // consume ENTER key, do nothing
+			         e.consume();
+			}
+			 
 			if(e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN){ // these keys change the row selection
 				int row = treeTable.getSelectedRow(); // this seems to give the previously selected row so we have to adjust it!!!				
 				
@@ -669,9 +673,11 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				ProcessorResultsComponent intermediateResultsComponent = intermediateResultsComponents
 						.get((Processor) workflowObject);
 				if (intermediateResultsComponent == null) {
-					intermediateResultsComponent = new ProcessorResultsComponent((Processor) workflowObject, dataflow, facade, connector, referenceService);
-					intermediateResultsComponent.setLabel(((Processor) workflowObject)
-							.getLocalName());
+					intermediateResultsComponent = new ProcessorResultsComponent(
+							(Processor) workflowObject, dataflow, runId,
+							connector, referenceService);
+//					intermediateResultsComponent.setLabel(((Processor) workflowObject)
+//							.getLocalName());
 					intermediateResultsComponents.put((Processor) workflowObject,
 							intermediateResultsComponent);
 				}

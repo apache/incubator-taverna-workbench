@@ -215,18 +215,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			public int compare(DataflowOutputPort o1, DataflowOutputPort o2) {
 				return o1.getName().compareTo(o2.getName());
 			}});
-		
-		for (DataflowInputPort dataflowInputPort : dataflowInputPorts) {
-			String portName = dataflowInputPort.getName();
-			
-			// Create a tab containing a tree view of per-port results and a rendering
-			// component for displaying individual results
-			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowInputPort.getName(), dataflowInputPort.getDepth());
-			
-			inputPortModelMap.put(portName, resultTab.getResultModel());
-			
-			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab);
-		}
 
 		for (DataflowOutputPort dataflowOutputPort : dataflowOutputPorts) {
 			String portName = dataflowOutputPort.getName();
@@ -247,7 +235,20 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			facade.addResultListener(this);
 			
 			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab);
+		}	
+		
+		for (DataflowInputPort dataflowInputPort : dataflowInputPorts) {
+			String portName = dataflowInputPort.getName();
+			
+			// Create a tab containing a tree view of per-port results and a rendering
+			// component for displaying individual results
+			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowInputPort.getName(), dataflowInputPort.getDepth());
+			
+			inputPortModelMap.put(portName, resultTab.getResultModel());
+			
+			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab);
 		}
+		
 		revalidate();
 	}
 	
@@ -266,7 +267,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		
 		InvocationContext dummyContext = new InvocationContextImpl(referenceService, null);
 		context = dummyContext;
-		saveButton = new JButton(new SaveAllAction("Save values", this));
+		saveButton = new JButton(new SaveAllAction("Save all values", this));
 //		JButton reloadWorkflowButton = new JButton(new ReloadWorkflowAction("Reopen workflow", this.dataflow, date));
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0;
@@ -284,6 +285,37 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		saveButtonsPanel.add(saveButton, gbc);
 //		saveButtonsPanel.add(reloadWorkflowButton);
 
+		List<DataflowOutputPort> dataflowOutputPorts = new ArrayList<DataflowOutputPort>(dataflow.getOutputPorts());
+		
+		Collections.sort(dataflowOutputPorts, new Comparator<DataflowOutputPort>() {
+
+			public int compare(DataflowOutputPort o1, DataflowOutputPort o2) {
+				return o1.getName().compareTo(o2.getName());
+			}});
+		
+		for (DataflowOutputPort dataflowOutputPort : dataflowOutputPorts) {
+			String portName = dataflowOutputPort.getName();
+			// Create a tab containing a tree view of per-port results and a rendering
+			// component for displaying individual results
+			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort.getName(), dataflowOutputPort.getDepth());
+			WorkflowResultTreeModel model = resultTab.getResultModel();
+			
+			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentifier(false), dataflow.getLocalName(), portName, null);
+			List<LineageQueryResultRecord> records = dependencies.getRecords();
+			for (LineageQueryResultRecord record : records) {
+
+				String value = record.getValue();
+				T2Reference referenceValue = referenceService
+						.referenceFromString(value);
+				String iteration = record.getIteration();
+				int[] elementIndex = getElementIndex(iteration);
+				WorkflowDataToken token = new WorkflowDataToken("", elementIndex, referenceValue,
+						dummyContext);
+				model.resultTokenProduced(token, portName);
+			}
+			outputPortModelMap.put(portName, model);
+			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab);
+		}
 		List<DataflowInputPort> dataflowInputPorts = new ArrayList<DataflowInputPort>(dataflow.getInputPorts());
 		
 		Collections.sort(dataflowInputPorts, new Comparator<DataflowInputPort>() {
@@ -316,37 +348,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab);
 		}
 		
-		List<DataflowOutputPort> dataflowOutputPorts = new ArrayList<DataflowOutputPort>(dataflow.getOutputPorts());
-		
-		Collections.sort(dataflowOutputPorts, new Comparator<DataflowOutputPort>() {
-
-			public int compare(DataflowOutputPort o1, DataflowOutputPort o2) {
-				return o1.getName().compareTo(o2.getName());
-			}});
-		
-		for (DataflowOutputPort dataflowOutputPort : dataflowOutputPorts) {
-			String portName = dataflowOutputPort.getName();
-			// Create a tab containing a tree view of per-port results and a rendering
-			// component for displaying individual results
-			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort.getName(), dataflowOutputPort.getDepth());
-			WorkflowResultTreeModel model = resultTab.getResultModel();
-			
-			Dependencies dependencies = provenanceAccess.fetchPortData(runId, dataflow.getInternalIdentifier(false), dataflow.getLocalName(), portName, null);
-			List<LineageQueryResultRecord> records = dependencies.getRecords();
-			for (LineageQueryResultRecord record : records) {
-
-				String value = record.getValue();
-				T2Reference referenceValue = referenceService
-						.referenceFromString(value);
-				String iteration = record.getIteration();
-				int[] elementIndex = getElementIndex(iteration);
-				WorkflowDataToken token = new WorkflowDataToken("", elementIndex, referenceValue,
-						dummyContext);
-				model.resultTokenProduced(token, portName);
-			}
-			outputPortModelMap.put(portName, model);
-			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab);
-		}
 		revalidate();
 	}
 
