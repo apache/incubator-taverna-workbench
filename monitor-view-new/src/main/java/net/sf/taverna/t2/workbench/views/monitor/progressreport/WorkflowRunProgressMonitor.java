@@ -177,9 +177,6 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 		if (owningProcess[0].equals(filter)) {
 			final String owningProcessId = getOwningProcessId(owningProcess);
 			Object workflowObject = workflowObjects.remove(owningProcessId);
-			synchronized(processorMonitorNodes) {
-				WorkflowRunProgressMonitorNode node = processorMonitorNodes.get(owningProcessId);
-			}
 			if (workflowObject instanceof Processor) {
 				WorkflowRunProgressMonitorNode workflowRunProgressMonitorNode;
 				synchronized(processorMonitorNodes) {
