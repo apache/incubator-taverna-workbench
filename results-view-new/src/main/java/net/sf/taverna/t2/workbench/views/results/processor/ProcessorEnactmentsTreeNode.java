@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.views.results.processor;
 
 import java.text.SimpleDateFormat;
+import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -36,17 +37,40 @@ import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
 public class ProcessorEnactmentsTreeNode extends DefaultMutableTreeNode {
 	
 	private ProcessorEnactment processorEnactment;
+	private List<Integer> iteration;
+	private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
+	
 	public ProcessorEnactmentsTreeNode(ProcessorEnactment processorEnactment){
 		super(processorEnactment);
 		this.processorEnactment = processorEnactment;
+		this.iteration = ProcessorEnactmentsTreeModel.iterationToIntegerList(processorEnactment.getIteration());
 	}
 	
 	public String toString(){
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		return processorEnactment.getIteration() + " (Started: "
-		+ sdf.format(processorEnactment.getEnactmentStarted()) + "; Finished: "
-		+ sdf.format(processorEnactment.getEnactmentEnded()) + ")";
+		StringBuilder sb = new StringBuilder();		
+		if (! iteration.isEmpty()) {			
+			// Iteration 3.1.3
+			sb.append("Iteration ");
+			for (Integer index : iteration) {				
+				sb.append(index+1);
+				sb.append(".");
+			}
+			// Remove last .
+			sb.delete(sb.length()-1, sb.length());
+		} else {
+			sb.append("Invocation");
+		}
+		sb.append(" (Started: ");
+		sb.append(ISO_8601.format(processorEnactment.getEnactmentStarted()));
+		if (processorEnactment.getEnactmentEnded() != null) {
+			sb.append("; Finished: ");
+			sb.append(ISO_8601.format(processorEnactment.getEnactmentEnded()));
+		} else {
+			sb.append("; Not finished");
+		}
+		sb.append(")");
+		return sb.toString();
 	}
 
 }

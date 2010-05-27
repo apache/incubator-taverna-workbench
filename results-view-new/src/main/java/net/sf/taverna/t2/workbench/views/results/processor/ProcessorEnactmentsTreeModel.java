@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.processor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -33,6 +34,7 @@ import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
  * results for this processor for this particular enactment (invocation).
  * 
  * @author Alex Nenadic
+ * @author Stian Soiland-Reyes
  *
  */
 @SuppressWarnings("serial")
@@ -43,7 +45,58 @@ public class ProcessorEnactmentsTreeModel extends DefaultTreeModel{
 		super(new DefaultMutableTreeNode("Invocations of processor"));
 		
 		for (ProcessorEnactment processorEnactment : processorEnactments){
-			((DefaultMutableTreeNode) getRoot()).add(new ProcessorEnactmentsTreeNode(processorEnactment));
+			List<Integer> iteration = iterationToIntegerList(processorEnactment.getIteration());
+			DefaultMutableTreeNode parent = getParent(getRoot(), iteration, "Iteration ");
+			int childPos = 0;
+			if (! iteration.isEmpty()) {
+				childPos = iteration.get(iteration.size()-1);
+			}
+			if (parent.getChildCount() > childPos) {
+				parent.remove(childPos);
+			}
+			parent.insert(new ProcessorEnactmentsTreeNode(processorEnactment), childPos);
+		}
+	}
+
+	public static List<Integer> iterationToIntegerList(String iteration) {
+		// Strip []
+		iteration = iteration.substring(1, iteration.length()-1);
+		String[] iterationSlit = iteration.split(",");
+		List<Integer> integers =  new ArrayList<Integer>();
+		for (String index : iterationSlit) {
+			if (index.equals("")) {
+				continue;
+			}
+			integers.add(Integer.valueOf(index));
+		}
+		return integers;
+	}
+
+	@Override
+	public DefaultMutableTreeNode getRoot() {
+		return (DefaultMutableTreeNode) super.getRoot();
+	}
+	
+	private DefaultMutableTreeNode getParent(DefaultMutableTreeNode node, List<Integer> iteration, String prefix) {
+		if (iteration.isEmpty()) {
+			if (node.isRoot()) { return node; }
+			return (DefaultMutableTreeNode) node.getParent();		
+		} else {
+			int childPos = iteration.get(0);
+			int needChildren = childPos+1;
+			String newPrefix = prefix;
+			if (! (prefix.endsWith(" ") || prefix.equals(""))) {
+				// Not for the initial prefix
+				newPrefix = newPrefix + ".";
+			}
+			while (node.getChildCount() < needChildren) {
+				node.add(new DefaultMutableTreeNode(newPrefix + (node.getChildCount()+1)));
+			}
+			DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(childPos);
+		
+			// Iteration 3.1.3
+			newPrefix = newPrefix + (childPos+1); 
+			return getParent(child, iteration.subList(1, iteration.size()), newPrefix);			
 		}
 	}
 }

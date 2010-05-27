@@ -27,6 +27,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
 
 /**
  * A tab containing result tree for an input or output port of a processor 
@@ -103,10 +105,39 @@ public class ProcessorPortResultsViewTab extends JPanel{
 		treePanel.removeAll();
 		treePanel = new JPanel();
 		treePanel.setLayout(new BorderLayout());
+		if (tree == null) {
+			splitPanel.setVisible(false);
+			revalidate();
+			return;
+		} else {
+			splitPanel.setTopComponent(treePanel);
+			splitPanel.setBottomComponent(renderedResultComponent);
+			splitPanel.setVisible(true);
+		}
+		
 		treePanel.add(new JLabel("Click to view values"), BorderLayout.NORTH);
 		treePanel.add(new JScrollPane(resultsTree), BorderLayout.CENTER);
 		splitPanel.setTopComponent(treePanel);
+		TreeModel treeModel = tree.getModel();
+		
+		if (treeModel.getChildCount(treeModel.getRoot()) == 1) {
+			Object child = treeModel.getChild(treeModel.getRoot(), 0);
+			if (treeModel.getChildCount(child) ==0) {
+				Object[] objectPath = new Object[]{
+						treeModel.getRoot(), 
+						child
+				};
+				TreePath path = new TreePath(objectPath);
+				tree.setSelectionPath(path);
+				splitPanel.setTopComponent(new JPanel());
+				splitPanel.setDividerLocation(0);
+			}
+		}
+		
 		revalidate();
+		
+
+		
 	}
 
 	public void setPortName(String portName) {

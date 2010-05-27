@@ -178,6 +178,8 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 							.getEnactmentEnded();
 					long averageTime = 0;
 					int errors = 0;
+					int averageNumberOfProcessors = 0;
+
 					for (ProcessorEnactment processorEnactment : processorEnactments) {
 						// Get the earliest start time of all invocations
 						Timestamp startTime = processorEnactment
@@ -188,11 +190,14 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 						// Get the latest finish time of all invocations
 						Timestamp finishTime = processorEnactment
 								.getEnactmentEnded();
-						if (finishTime.after(latestFinishTime)) {
-							latestFinishTime = finishTime;
+						if (finishTime != null) {
+							if (finishTime.after(latestFinishTime)) {
+								latestFinishTime = finishTime;
+							}
+							averageTime += (finishTime.getTime() - startTime
+									.getTime());
+							averageNumberOfProcessors++;
 						}
-						averageTime += (finishTime.getTime() - startTime
-								.getTime());
 						
 						// Do any outputs of this iteration contain errors?
 						String finalOutputs = processorEnactment.getFinalOutputsDataBindingId();
@@ -212,13 +217,21 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 						}
 					}
 					// Get the average time of invocations (in ms)
-					averageTime = averageTime / processorEnactments.size();
+					if (averageNumberOfProcessors > 0) {
+						averageTime = averageTime / averageNumberOfProcessors;
+					} else {
+						averageTime = -1;
+					}
 
 					SimpleDateFormat sdf = new SimpleDateFormat(
 							"yyyy-MM-dd HH:mm:ss");
 					processorData.add(sdf.format(earliestStartTime)); // start time
 					processorData.add(sdf.format(latestFinishTime)); // finish time
-					processorData.add(averageTime); // average time per iteration
+					if (averageTime > -1) {
+						processorData.add(averageTime + " s"); // average time per iteration
+					} else {
+						processorData.add("-");
+					}
 					
 	    			processorData.add(processorEnactments.size()); // no. of iterations 
 	    			processorData.add(processorEnactments.size()); // no. of iterations done so far

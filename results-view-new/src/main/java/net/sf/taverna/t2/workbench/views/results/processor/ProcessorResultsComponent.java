@@ -275,7 +275,12 @@ public class ProcessorResultsComponent extends JPanel{
 				.getSelectedComponent();
 		if (!processorEnactmentsTree.getSelectionModel().isSelectionEmpty()){ // it is empty initially
 			TreePath selectedPath = processorEnactmentsTree.getSelectionModel().getSelectionPath();
-			ProcessorEnactment processorEnactment = (ProcessorEnactment)((ProcessorEnactmentsTreeNode)selectedPath.getLastPathComponent()).getUserObject();
+			if (! (selectedPath.getLastPathComponent() instanceof ProcessorEnactmentsTreeNode)) {
+				selectedResultTab.setResultsTree(null);
+				return;
+			}
+			ProcessorEnactmentsTreeNode lastPathComponent = (ProcessorEnactmentsTreeNode)selectedPath.getLastPathComponent();
+			ProcessorEnactment processorEnactment = (ProcessorEnactment)lastPathComponent.getUserObject();
 			HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> map = null;
 			if (selectedResultTab.getIsOutputPortTab()){ // output port tab
 				map  = enactmentsToOutputPortData;
@@ -301,7 +306,8 @@ public class ProcessorResultsComponent extends JPanel{
 						renderedResultComponent.clearResult();
 						
 						// Create a tree for this data
-						tree = new JTree(new ProcessorResultsTreeModel((T2Reference)listOfPortData.get(1), referenceService));
+						ProcessorResultsTreeModel treeModel = new ProcessorResultsTreeModel((T2Reference)listOfPortData.get(1), referenceService);
+						tree = new JTree(treeModel);
 						// Remember this triple and its index in the big list so we can 
 						// update the map for this enactment after we have finished iterating
 						index = listOfListsOfPortData.indexOf(listOfPortData);
@@ -328,7 +334,7 @@ public class ProcessorResultsComponent extends JPanel{
 								}
 							}
 
-						});
+						});						
 						triple.set(2, tree); // set the new tree
 					}
 					else{
