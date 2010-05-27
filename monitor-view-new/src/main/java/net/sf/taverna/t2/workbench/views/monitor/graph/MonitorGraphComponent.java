@@ -22,21 +22,13 @@ package net.sf.taverna.t2.workbench.views.monitor.graph;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -46,26 +38,19 @@ import javax.swing.border.LineBorder;
 import net.sf.taverna.t2.lang.observer.MultiCaster;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
-import net.sf.taverna.t2.provenance.lineageservice.Dependencies;
-import net.sf.taverna.t2.provenance.lineageservice.LineageQueryResultRecord;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
 import net.sf.taverna.t2.workbench.models.graph.GraphNode;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
 import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
@@ -311,7 +296,6 @@ class MonitorGraphEventManager implements GraphEventManager {
 	private final ProvenanceConnector provenanceConnector;
 	private final Dataflow dataflow;
 	private String localName;
-	private List<LineageQueryResultRecord> intermediateValues;
 
 	private Runnable runnable;
 	private String sessionID;
@@ -320,7 +304,6 @@ class MonitorGraphEventManager implements GraphEventManager {
 	static int MINIMUM_HEIGHT = 500;
 	static int MINIMUM_WIDTH = 800;
 	private MonitorGraphComponent monitorViewComponent;
-	private ProvenanceResultsPanel provResultsPanel;
 
 	public MonitorGraphEventManager(MonitorGraphComponent monitorViewComponent, ProvenanceConnector provenanceConnector,
 			Dataflow dataflow, String sessionID) {
@@ -337,7 +320,6 @@ class MonitorGraphEventManager implements GraphEventManager {
 			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
 			int screenX, int screenY) {
 		
-
 		Object dataflowObject = graphElement.getDataflowObject();
 		GraphElement parent = graphElement.getParent();
 		if (parent instanceof GraphNode) {
@@ -346,7 +328,10 @@ class MonitorGraphEventManager implements GraphEventManager {
 
 		if (monitorViewComponent.getGraphController().getDataflowSelectionModel() != null) {
 			monitorViewComponent.getGraphController().getDataflowSelectionModel().addSelection(dataflowObject);
-		}
+		}	
+		
+		// Notify anyone interested that a selection occurred on the graph
+		monitorViewComponent.triggerWorkflowObjectSelectionEvent(dataflowObject);
 	}
 
 	public void mouseDown(GraphElement graphElement, short button,

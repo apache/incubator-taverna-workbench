@@ -49,9 +49,6 @@ public class MonitorGraphPreviousRunComponent extends MonitorGraphComponent {
 
 	private static final long serialVersionUID = 1L;
 
-	//private static Logger logger = Logger
-		//	.getLogger(PreviousRunsComponent.class);
-
 	private GVTTreeRendererAdapter gvtTreeBuilderAdapter;
 
 	public MonitorGraphPreviousRunComponent() {
