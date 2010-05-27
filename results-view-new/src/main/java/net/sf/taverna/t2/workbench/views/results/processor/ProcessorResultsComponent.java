@@ -157,7 +157,6 @@ public class ProcessorResultsComponent extends JPanel{
 		this.processor = processor;
 		this.dataflow = dataflow;
 		this.runId = runId;
-		this.provenanceConnector = provenanceConnector;
 		this.referenceService = referenceService;
 		this.facade = facade;
 
@@ -444,96 +443,7 @@ public class ProcessorResultsComponent extends JPanel{
 	public void clear() {
 		tabbedPane.removeAll();
 	}
-
-	@SuppressWarnings("unused")
-	private class ReloadWorkflowAction extends AbstractAction {
-		private Dataflow dataflow;
-		private Date date;
-		
-		PerspectiveSPI designPerspective = null;		
-
-		public ReloadWorkflowAction(String name, Dataflow dataflow, Date date) {
-			super(name);
-			this.dataflow = dataflow;
-			this.date = date;
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			XMLSerializer serialiser = new XMLSerializerImpl();
-			XMLDeserializer deserialiser = new XMLDeserializerImpl();
-			try {
-				FileManager manager = FileManager.getInstance();
-				String newName = dataflow.getLocalName() + "_"
-				+ DateFormat.getDateTimeInstance().format(date);
-				newName = sanitiseName(newName);
-				Dataflow alreadyOpened = null;
-				for (Dataflow d : manager.getOpenDataflows()) {
-					if (d.getLocalName().equals(newName)) {
-						alreadyOpened = d;
-						break;
-					}
-				}
-				if (alreadyOpened != null) {
-					manager.setCurrentDataflow(alreadyOpened);
-					switchToDesignPerspective();
-				} else {
-					DataflowImpl dataflowCopy = (DataflowImpl) deserialiser.deserializeDataflow(serialiser
-							.serializeDataflow(dataflow));
-					dataflowCopy.setLocalName(newName);
-					manager.openDataflow(dataflowCopy);
-				}
-			} catch (SerializationException e1) {
-				logger.error("Unable to copy workflow", e1);
-			} catch (DeserializationException e1) {
-				logger.error("Unable to copy workflow", e1);
-			} catch (EditException e1) {
-				logger.error("Unable to copy workflow", e1);
-			}
-		}
-		
-		private void switchToDesignPerspective() {
-			if (designPerspective == null) {
-				for (PerspectiveSPI perspective : Workbench.getInstance()
-						.getPerspectives().getPerspectives()) {
-					if (perspective.getText().equalsIgnoreCase("design")) {
-						designPerspective = perspective;
-						break;
-					}
-				}
-			}
-			if (designPerspective != null) {
-				ModelMap.getInstance().setModel(
-						ModelMapConstants.CURRENT_PERSPECTIVE, designPerspective);
-			}
-		
-		}
-	}
 	
-	/**
-	 * Checks that the name does not have any characters that are invalid for a
-	 * processor name.
-	 * 
-	 * The name must contain only the chars[A-Za-z_0-9].
-	 * 
-	 * @param name
-	 *            the original name
-	 * @return the sanitised name
-	 */
-	private static String sanitiseName(String name) {
-		String result = name;
-		if (Pattern.matches("\\w++", name) == false) {
-			result = "";
-			for (char c : name.toCharArray()) {
-				if (Character.isLetterOrDigit(c) || c == '_') {
-					result += c;
-				} else {
-					result += "_";
-				}
-			}
-		}
-		return result;
-	}
-
 	public class UpdateTask extends TimerTask {
 
 		public void run() {

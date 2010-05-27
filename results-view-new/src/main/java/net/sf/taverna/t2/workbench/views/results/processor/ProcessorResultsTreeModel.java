@@ -39,7 +39,7 @@ import net.sf.taverna.t2.reference.T2ReferenceType;
 public class ProcessorResultsTreeModel extends DefaultTreeModel{
 	
 	// Tree root
-	ProcessorResultTreeNode root;
+	private ProcessorResultTreeNode root;
 
 	private ReferenceService referenceService;
 
