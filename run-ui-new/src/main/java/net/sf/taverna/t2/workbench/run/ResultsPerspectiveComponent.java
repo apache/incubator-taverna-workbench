@@ -108,8 +108,6 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 	// Background thread for loading a previous workflow run
 	protected LoadPreviousWorkflowRunThread loadPreviousWorkflowRunThread;
 
-
-
 	private static class Singleton {
 		private static ResultsPerspectiveComponent INSTANCE = new ResultsPerspectiveComponent();
 	}
