@@ -24,8 +24,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-//import java.lang.management.ManagementFactory;
-//import java.lang.management.ThreadMXBean;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,10 +79,8 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 	private static final long serialVersionUID = 1L;
 
-	static Logger logger = Logger
+	private static Logger logger = Logger
 			.getLogger(ResultsPerspectiveComponent.class);
-
-	private static ResultsPerspectiveComponent singletonInstance;
 
 	// Current Reference Service
 	private ReferenceService referenceService;
@@ -112,7 +108,17 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 	// Background thread for loading a previous workflow run
 	protected LoadPreviousWorkflowRunThread loadPreviousWorkflowRunThread;
 
-	private ResultsPerspectiveComponent() {
+
+
+	private static class Singleton {
+		private static ResultsPerspectiveComponent INSTANCE = new ResultsPerspectiveComponent();
+	}
+	
+	public static ResultsPerspectiveComponent getInstance() {
+		return Singleton.INSTANCE;
+	}
+	
+	protected ResultsPerspectiveComponent() {
 		super(JSplitPane.VERTICAL_SPLIT);
 		setDividerLocation(400);
 
@@ -181,12 +187,14 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 									+ workflowRun.getDate() + "</html>")); // progress report	
 							topPanel.setBottomComponent(monitorComponent);
 							setBottomComponent(new JPanel());
-							if (loadPreviousWorkflowRunThread != null) {
-								loadPreviousWorkflowRunThread.interrupt();
+							synchronized(this) {
+								if (loadPreviousWorkflowRunThread != null) {
+									loadPreviousWorkflowRunThread.interrupt();
+								}
+								loadPreviousWorkflowRunThread = new LoadPreviousWorkflowRunThread(
+										workflowRun);
+								loadPreviousWorkflowRunThread.start();
 							}
-							loadPreviousWorkflowRunThread = new LoadPreviousWorkflowRunThread(
-									workflowRun);
-							loadPreviousWorkflowRunThread.start();
 						} else if (workflowRun.getDataflow() == null) {					
 							JTabbedPane monitorComponent = new JTabbedPane();
 							monitorComponent.add("Graph", new JLabel(
@@ -393,18 +401,11 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 		}
 	}
 
-	public static ResultsPerspectiveComponent getInstance() {
-		if (singletonInstance == null) {
-			singletonInstance = new ResultsPerspectiveComponent();
-		}
-		return singletonInstance;
-	}
-
 	public long getRunListCount() {
 		return workflowRunsListModel.size();
 	}
 
-	public ReferenceService getReferenceService() {
+	public synchronized ReferenceService getReferenceService() {
 		String context = DataManagementConfiguration.getInstance()
 				.getDatabaseContext();
 		if (!context.equals(referenceContext)) {
@@ -427,7 +428,7 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 	}
 
-	public ReferenceService getReferenceServiceWithDatabase() {
+	public synchronized ReferenceService getReferenceServiceWithDatabase() {
 		// Force creation of a Ref. Service that uses database regardless of
 		// what current context is
 		// This Ref. Service will be used for previous wf runs to get
