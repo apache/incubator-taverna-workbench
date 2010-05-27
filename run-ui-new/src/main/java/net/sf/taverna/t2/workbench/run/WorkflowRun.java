@@ -673,11 +673,18 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				ProcessorResultsComponent intermediateResultsComponent = intermediateResultsComponents
 						.get((Processor) workflowObject);
 				if (intermediateResultsComponent == null) {
-					intermediateResultsComponent = new ProcessorResultsComponent(
-							(Processor) workflowObject, dataflow, runId,
-							connector, referenceService);
-//					intermediateResultsComponent.setLabel(((Processor) workflowObject)
-//							.getLocalName());
+					if (facade != null){ // this is a fresh run (i.e. executed during this Taverna session)
+						// Need to create a timer that will update intermediate results 
+						// periodically until workflow stops running
+						intermediateResultsComponent = new ProcessorResultsComponent(facade, 
+								(Processor) workflowObject, dataflow, runId,
+								connector, referenceService);
+					}
+					else{ // this is an old workflow from provenance - no need to update intermediate
+						intermediateResultsComponent = new ProcessorResultsComponent(
+								(Processor) workflowObject, dataflow, runId,
+								connector, referenceService);
+					}
 					intermediateResultsComponents.put((Processor) workflowObject,
 							intermediateResultsComponent);
 				}
