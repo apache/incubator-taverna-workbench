@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.file.impl;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import net.sf.taverna.t2.lang.observer.MultiCaster;
@@ -57,6 +59,8 @@ import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.file.exceptions.UnsavedException;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+
+import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
 
 import org.apache.log4j.Logger;
 
@@ -380,11 +384,36 @@ public class FileManagerImpl extends FileManager {
 	 */
 	@Override
 	public Dataflow openDataflow(FileType fileType, Object source)
-			throws OpenException {		
-		DataflowInfo openDataflow = openDataflowSilently(fileType, source);
-		Dataflow dataflow = openDataflow.getDataflow();
+			throws OpenException {
+		if (!java.awt.GraphicsEnvironment.isHeadless()) {
+			OpenDataflowRunnable r = new OpenDataflowRunnable(this, fileType, source);
+			if (SwingUtilities.isEventDispatchThread()) {
+				r.run();
+				return r.getDataflow();
+			} else {
+				try {
+					SwingUtilities.invokeAndWait(r);
+				} catch (InterruptedException e) {
+					throw new OpenException("Opening was interrupted", e);
+				}catch (InvocationTargetException e) {
+					throw new OpenException("Opening was interrupted", e);
+				}
+				return r.getDataflow();
+			}
+
+		}
+			 else {
+					return performOpenDataflow(fileType, source);
+				}
+	}
+	
+	public Dataflow performOpenDataflow(FileType fileType, Object source) throws OpenException {
+		DataflowInfo dataflowInfo;
+		Dataflow dataflow;
+		dataflowInfo = openDataflowSilently(fileType, source);
+		dataflow = dataflowInfo.getDataflow();
 		openDataflowInternal(dataflow);
-		getOpenDataflowInfo(dataflow).setOpenedFrom(openDataflow);
+		getOpenDataflowInfo(dataflow).setOpenedFrom(dataflowInfo);
 		observers.notify(new OpenedDataflowEvent(dataflow));
 		return dataflow;
 	}
