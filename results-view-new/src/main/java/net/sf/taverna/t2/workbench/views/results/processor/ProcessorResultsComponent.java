@@ -21,20 +21,15 @@
 package net.sf.taverna.t2.workbench.views.results.processor;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.regex.Pattern;
 
-import javax.swing.AbstractAction;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -51,31 +46,19 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
-import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.provenance.lineageservice.utils.Port;
 import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
-import net.sf.taverna.t2.workbench.ui.impl.Workbench;
-import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
 import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
-import net.sf.taverna.t2.workflowmodel.impl.DataflowImpl;
-import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializerImpl;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializerImpl;
+import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
 
@@ -367,7 +350,24 @@ public class ProcessorResultsComponent extends JPanel{
 	private void populateEnactmentsMaps(){
 		
 		// Get processor enactments (invocations) from provenance
-		List<ProcessorEnactment> processorEnactments = provenanceAccess.getProcessorEnactments(runId, processor.getLocalName());
+		
+		// Get the processors' path for this processor, including all parent nested processors
+		List<Processor> processorsPath = Tools.getNestedPathForProcessor(processor, dataflow);
+		// Create the array of nested processors' names
+		String[] processorNamesPath = null;
+		if (processorsPath != null){ // should not be null really
+			processorNamesPath = new String[processorsPath.size()];
+			int i = 0;
+			for(Processor proc : processorsPath){
+				processorNamesPath[i++] = proc.getLocalName();
+			}
+		}
+		else{ // This should not really happen!
+			processorNamesPath = new String[1];
+			processorNamesPath[0] = processor.getLocalName();
+		}
+				
+		List<ProcessorEnactment> processorEnactments = provenanceAccess.getProcessorEnactments(runId, processorNamesPath);
 
 		for (ProcessorEnactment processorEnactment : processorEnactments) {
 
