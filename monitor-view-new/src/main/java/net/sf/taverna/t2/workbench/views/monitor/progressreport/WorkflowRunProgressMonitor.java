@@ -183,14 +183,22 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 					workflowRunProgressMonitorNode = processorMonitorNodes.get(owningProcessId);
 				}
 				workflowRunProgressMonitorNode.update();
-				progressTreeTable.setFinishDateForObject(((Processor) workflowObject), new Date());
-				progressTreeTable.setStatusForObject(((Processor) workflowObject), STATUS_FINISHED);
+				Date processorFinishDate = new Date();
+				Date processorStartTime = progressTreeTable.getStartDateForObject(((Processor) workflowObject));
+				
 				// For some reason total number of iterations is messed up when we update it
 				// from inside the node, so the final number is set here.
 				// If total number of iterations is 0 that means there was just one invocation.
 				int total = workflowRunProgressMonitorNode.getTotalNumberOfIterations();
 				progressTreeTable.setNumberOfIterationsForObject(
 						((Processor) workflowObject), total == 0 ? 1 : total);
+				
+				progressTreeTable.setFinishDateForObject(((Processor) workflowObject), processorFinishDate);
+				progressTreeTable.setStatusForObject(((Processor) workflowObject), STATUS_FINISHED);
+				if (processorStartTime != null){
+					long averageInvocationTime = (processorFinishDate.getTime() - processorStartTime.getTime())/total;
+					progressTreeTable.setAverageInvocationTimeForObject(((Processor) workflowObject), averageInvocationTime);
+				}
 			} else if (workflowObject instanceof Dataflow) {
 				if (owningProcess.length == 2) {
 					// outermost dataflow finished so schedule a task to cancel
@@ -219,8 +227,15 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				// workflow status should not be set to FINISHED after the nested one has finished
 				// as the main workflow may still be running)
 				if (owningProcess.length == 1){
-					progressTreeTable.setWorkflowFinishDate(new Date());
+					
+					Date workflowFinishDate = new Date();
+					Date workflowStartTime = progressTreeTable.getWorkflowStartDate();
+					progressTreeTable.setWorkflowFinishDate(workflowFinishDate);
 					progressTreeTable.setWorkflowStatus(STATUS_FINISHED);
+					if (workflowStartTime != null){
+						long averageInvocationTime = (workflowFinishDate.getTime() - workflowStartTime.getTime());
+						progressTreeTable.setWorkflowInvocationTime(averageInvocationTime);
+					}
 					
 //					if (workflowRunStatusLabel != null){
 //						workflowRunStatusLabel.setText(STATUS_FINISHED);

@@ -1,5 +1,6 @@
 package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -46,60 +47,50 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 	}
 
 	public void setWorkflowStatus(String status) {	
-		// Setting value seems to deselect the table row 
-		// so we have to remember it and pout it back
 		treeTableModel.setValueAt(status, (DefaultMutableTreeNode)treeTableModel.getRoot(), 1);
 	}
 	
 	public void setWorkflowStartDate(Date date) {	
-		// Setting value seems to deselect the table row 
-		// so we have to remember it and pout it back
 		SimpleDateFormat sdf = new SimpleDateFormat(
 		"yyyy-MM-dd HH:mm:ss");
 		treeTableModel.setValueAt(sdf.format(date), (DefaultMutableTreeNode)treeTableModel.getRoot(), 2);
 	}
 	
 	public void setWorkflowFinishDate(Date date) {
-		// Setting value seems to deselect the table row 
-		// so we have to remember it and pout it back
 		SimpleDateFormat sdf = new SimpleDateFormat(
 		"yyyy-MM-dd HH:mm:ss");
 		treeTableModel.setValueAt(sdf.format(date), (DefaultMutableTreeNode)treeTableModel.getRoot(), 3);
 	}
 	
+	public void setWorkflowInvocationTime(long averageInvocationTime) {
+		treeTableModel.setValueAt(String.valueOf(averageInvocationTime)+ " ms", (DefaultMutableTreeNode)treeTableModel.getRoot(), 4);
+	}
+	
 	public void setStartDateForObject(Object object, Date date){
-		// Setting value seems to deselect the table row 
-		// so we have to remember it and pout it back
 		treeTableModel.setStartDateForObject(object, date);
 	}
 	
 	public void setFinishDateForObject(Object object, Date date){
-		// Setting value seems to deselect the table row 
-		// so we have to remember it and pout it back
 		treeTableModel.setFinishDateForObject(object, date);
+	}
+
+	public void setAverageInvocationTimeForObject(Object object, long averageInvocationTime) {
+		treeTableModel.setAverageInvocationTimeForObject(object, averageInvocationTime);		
 	}
 	
 	public void setNumberOfIterationsForObject(Object object, Integer iterations){
-		// Setting value seems to deselect the table row 
-		// so we have to remember it and pout it back
 		treeTableModel.setNumberOfIterationsForObject(object, iterations);
 	}
 	
 	public void setNumberOfFailedIterationsForObject(Object object, Integer failedIterations){
-		// Setting value seems to deselect the table row 
-		// so we have to remember it and pout it back
 		treeTableModel.setNumberOfFailedIterationsForObject(object, failedIterations);
 	}
 	
 	public void setNumberOfIterationsDoneSoFarForObject(Object object, Integer doneIterations){
-		// Setting value seems to deselect the table row 
-		// so we have to remember it and pout it back
 		treeTableModel.setNumberOfIterationsDoneSoFarForObject(object, doneIterations);
 	}
 
 	public void setStatusForObject(Processor processor, String status) {
-		// Setting value seems to deselect the table row 
-		// so we have to remember it and pout it back
 		treeTableModel.setStatusForObject(processor, status);		
 	}
 
@@ -147,6 +138,26 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 		// Set selected row on the table
 		this.setRowSelectionInterval(row, row);
 		lastSelectedTableRow = row;		
+	}
+
+	public Date getStartDateForObject(Processor processor) {
+		return treeTableModel.getStartDateForObject(processor);
+	}
+
+	public Integer getIterationsNumberForObject(Processor processor) {
+		return treeTableModel.getIterationsNumberForObject(processor);
+	}
+
+	public Date getWorkflowStartDate() {
+		SimpleDateFormat sdf = new SimpleDateFormat(
+		"yyyy-MM-dd HH:mm:ss");
+		String dateString = (String)treeTableModel.getValueAt((DefaultMutableTreeNode)treeTableModel.getRoot(), 2);
+		try {
+			Date date = sdf.parse(dateString);
+			return date;
+		} catch (ParseException e) {
+			return null;
+		}
 	}
 
 }

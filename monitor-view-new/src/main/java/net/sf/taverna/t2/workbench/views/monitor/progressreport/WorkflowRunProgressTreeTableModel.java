@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,6 +36,7 @@ import net.sf.taverna.t2.lang.ui.treetable.AbstractTreeTableModel;
 import net.sf.taverna.t2.lang.ui.treetable.TreeTableModel;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
+import net.sf.taverna.t2.provenance.lineageservice.utils.DataflowInvocation;
 import net.sf.taverna.t2.provenance.lineageservice.utils.Port;
 import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
 import net.sf.taverna.t2.reference.ReferenceService;
@@ -129,9 +131,15 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     		if (provenanceConnector != null && referenceService != null && provenanceAccess != null){    			
     			workflowData.add(STATUS_FINISHED); // status
     			
-				workflowData.add(null); // wf start time
-				workflowData.add(null); // wf finish time
-				workflowData.add(null); // average running time
+				SimpleDateFormat sdf = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss");
+    			DataflowInvocation dataflowInvocation = provenanceAccess.getDataflowInvocation(workflowRunId);
+				Timestamp workflowStartTime = dataflowInvocation.getInvocationStarted();
+    			Timestamp workflowFinishTime = dataflowInvocation.getInvocationEnded();
+    			
+				workflowData.add(sdf.format(workflowStartTime)); // wf start time
+				workflowData.add(sdf.format(workflowFinishTime)); // wf finish time
+				workflowData.add(String.valueOf(workflowFinishTime.getTime() - workflowStartTime.getTime()) + " ms"); // average running time in ms
 
     			workflowData.add("-"); // no. of iterations
     			workflowData.add("-"); // no. of iterations done so far
@@ -228,7 +236,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 					processorData.add(sdf.format(earliestStartTime)); // start time
 					processorData.add(sdf.format(latestFinishTime)); // finish time
 					if (averageTime > -1) {
-						processorData.add(averageTime + " s"); // average time per iteration
+						processorData.add(averageTime + " ms"); // average time per iteration
 					} else {
 						processorData.add("-");
 					}
@@ -335,10 +343,10 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		setValueAt(sdf.format(date), node, 3);
 	}
 	
-	public void setAverageTimeForObject(Object object, long timeInMiliseconds) {
+	public void setAverageInvocationTimeForObject(Object object, long timeInMiliseconds) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(timeInMiliseconds, node, 4);
+		setValueAt(String.valueOf(timeInMiliseconds) + " ms", node, 4);
 	}
 	
 	public void setNumberOfIterationsForObject(Object object, Integer iterations) {
@@ -368,6 +376,32 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 			 }
 		 }
 		 return null;
+	}
+
+	public Date getStartDateForObject(Object object) {
+		// First get the node for object
+		DefaultMutableTreeNode node = getNodeForObject(object);
+		SimpleDateFormat sdf = new SimpleDateFormat(
+				"yyyy-MM-dd HH:mm:ss");
+		String dateString = (String)getValueAt(node, 2);
+		try {
+			Date date = sdf.parse(dateString);
+			return date;
+		} catch (ParseException e) {
+			return null;
+		}
+	}
+
+	public Integer getIterationsNumberForObject(Object object) {
+		// First get the node for object
+		DefaultMutableTreeNode node = getNodeForObject(object);
+		String iterationsNumber = (String)getValueAt(node, 4);
+		try{
+			return Integer.valueOf(iterationsNumber);
+		}
+		catch(Exception ex){
+			return null;
+		}
 	}
 
 }
