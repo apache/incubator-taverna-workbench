@@ -159,17 +159,6 @@ public class ProcessorPredictedBehaviorContextualView extends ContextualView {
 		style += "</style>";
 		return style;
 	}
-	
-	@Override
-	public Action getConfigureAction(Frame owner) {
-		return new AbstractAction("Update prediction") {
-
-			public void actionPerformed(ActionEvent e) {
-				fileManager.getCurrentDataflow().checkValidity();
-				refreshView();
-			}};
-	}
-
 
 	@Override
 	public JComponent getMainFrame() {
