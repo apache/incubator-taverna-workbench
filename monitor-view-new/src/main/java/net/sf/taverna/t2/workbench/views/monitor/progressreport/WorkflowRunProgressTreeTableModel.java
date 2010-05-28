@@ -92,6 +92,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		
 	private DefaultMutableTreeNode rootNode;
 	
+	private Dataflow dataflow;
 	private ProvenanceConnector provenanceConnector;
 	private Object referenceService;
 	// For fetching data for past runs from provenance
@@ -102,6 +103,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 
 		super(new DefaultMutableTreeNode(dataflow));	
 		rootNode = (DefaultMutableTreeNode) this.getRoot();
+		this.dataflow = dataflow;
 		createTree(dataflow, rootNode);	
 	}
 
@@ -110,6 +112,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     public WorkflowRunProgressTreeTableModel(Dataflow dataflow,
 			ProvenanceConnector connector, ReferenceService refService, String workflowRunId) {
 		super(new DefaultMutableTreeNode(dataflow));	
+		this.dataflow = dataflow;
 		this.provenanceConnector = connector;
 		this.referenceService = refService;
 		this.workflowRunId = workflowRunId;
@@ -167,7 +170,24 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 
     		// If this is an old run - populate the tree from provenance
     		if (provenanceConnector != null && referenceService != null && provenanceAccess != null){
-    			List<ProcessorEnactment> processorEnactments = provenanceAccess.getProcessorEnactments(workflowRunId, processor.getLocalName());
+    			
+    			// Get the processors' path for this processor, including all parent nested processors
+    			List<Processor> processorsPath = Tools.getNestedPathForProcessor(processor, dataflow);
+    			// Create the array of nested processors' names
+    			String[] processorNamesPath = null;
+    			if (processorsPath != null){ // should not be null really
+    				processorNamesPath = new String[processorsPath.size()];
+    				int i = 0;
+    				for(Processor proc : processorsPath){
+    					processorNamesPath[i++] = proc.getLocalName();
+    				}
+    			}
+    			else{ // This should not really happen!
+    				processorNamesPath = new String[1];
+    				processorNamesPath[0] = processor.getLocalName();
+    			}
+
+    			List<ProcessorEnactment> processorEnactments = provenanceAccess.getProcessorEnactments(workflowRunId, processorNamesPath);
     			processorData.add(STATUS_FINISHED); // status
     			
     			if (processorEnactments.size() == 0){
