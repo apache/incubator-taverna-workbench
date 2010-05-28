@@ -40,6 +40,8 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowValidationReport;
 
+import net.sf.taverna.t2.workbench.report.ReportManager;
+
 //import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
@@ -75,13 +77,7 @@ public class ValidateWorkflowAction extends AbstractAction {
 	
 	public boolean validateCurrentDataflow(Component parentComponent) {
 		Dataflow dataflow = fileManager.getCurrentDataflow();
-		DataflowValidationReport report = dataflow.checkValidity();
-		if (!report.isValid()) {
-			InvalidDataflowReport.invalidDataflow(report);
-			return false;
-		}
-		JOptionPane.showMessageDialog(null, "No problems found", "Workflow validation report",
-				JOptionPane.INFORMATION_MESSAGE);
+		ReportManager.getInstance().updateReport(dataflow, true);
 		return true;
 	}
 	
