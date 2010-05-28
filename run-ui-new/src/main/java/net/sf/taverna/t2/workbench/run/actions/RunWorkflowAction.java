@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.actions;
 
+import java.awt.Component;
 import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
@@ -29,6 +30,7 @@ import java.util.WeakHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
@@ -53,6 +55,9 @@ import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.InvalidDataflowException;
 import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
+import net.sf.taverna.t2.workbench.report.ReportManager;
+import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
+import net.sf.taverna.t2.visit.VisitReport.Status;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
@@ -98,6 +103,29 @@ public class RunWorkflowAction extends AbstractAction {
 			return;
 		}
 		final Dataflow dataflow = (Dataflow) model;
+		ReportManager reportManager = ReportManager.getInstance();
+		String beforeRunSetting = ReportManagerConfiguration.getInstance().getProperty(ReportManagerConfiguration.BEFORE_RUN);
+		reportManager.updateReport(dataflow, beforeRunSetting.equals(ReportManagerConfiguration.FULL_CHECK));
+		if (!reportManager.isStructurallySound(dataflow)) {
+			JOptionPane.showMessageDialog((Component) (e.getSource()), "The workflow has problems and cannot be run - see reports", "Workflow problems", JOptionPane.ERROR_MESSAGE);
+			Workbench.getInstance().makeNamedComponentVisible("reportView");
+			return;
+		}
+		Status status = reportManager.getStatus(dataflow);
+		if (status.equals(Status.SEVERE)) {
+			int proceed = JOptionPane.showConfirmDialog((Component) (e.getSource()), "The workflow has problems but can still be run - do you want to proceed?", "Workflow problems", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
+			if (proceed != JOptionPane.YES_OPTION) {
+				Workbench.getInstance().makeNamedComponentVisible("reportView");
+				return;				
+			}
+		} else if (status.equals(Status.WARNING)) {
+			int proceed = JOptionPane.showConfirmDialog((Component) (e.getSource()), "The workflow has warnings but can still be run - do you want to proceed?", "Workflow problems", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			if (proceed != JOptionPane.YES_OPTION) {
+				Workbench.getInstance().makeNamedComponentVisible("reportView");
+				return;				
+			}
+			
+		}
 		//Thread t = new Thread("Preparing to run workflow "
 		//		+ dataflow.getLocalName()) {
 		//	public void run() {
@@ -116,6 +144,8 @@ public class RunWorkflowAction extends AbstractAction {
 	}
 
 	protected void runDataflow(final Dataflow dataflowOriginal) {
+		
+		
 		
 		// If the workflow has no input ports - we can run immediately
 		if (dataflowOriginal.getInputPorts().isEmpty()) {
