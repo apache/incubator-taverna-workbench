@@ -58,6 +58,18 @@
 			<artifactId>workflowmodel-impl</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+				<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>configuration-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		
+				<dependency>
+			<groupId>org.jdesktop</groupId>
+			<artifactId>swingworker</artifactId>
+			<version>1.2-2</version>
+		</dependency>
+		
 		
 	</dependencies>
 </project>

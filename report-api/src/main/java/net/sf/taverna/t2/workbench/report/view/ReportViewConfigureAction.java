@@ -23,6 +23,14 @@ import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 public class ReportViewConfigureAction extends AbstractAction {
 
 	private Processor configuredProcessor = null;
+	
+	public ReportViewConfigureAction() {
+		
+	}
+
+	public void setConfiguredProcessor(Processor configuredProcessor) {
+		this.configuredProcessor = configuredProcessor;
+	}
 
 	public ReportViewConfigureAction(Processor p) {
 		super();

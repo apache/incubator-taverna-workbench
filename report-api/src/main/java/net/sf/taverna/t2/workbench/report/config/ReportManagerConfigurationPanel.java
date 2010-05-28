@@ -1,0 +1,285 @@
+/**
+ * 
+ */
+package net.sf.taverna.t2.workbench.report.config;
+
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+
+import javax.swing.AbstractAction;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
+
+import net.sf.taverna.t2.workbench.helper.Helper;
+
+
+/**
+ * @author alanrw
+ *
+ */
+public class ReportManagerConfigurationPanel extends JPanel {
+	
+    private static final String FULL_CHECK = "Full check";
+	private static final String QUICK_CHECK = "Quick check";
+	private static final String NO_CHECKS = "No checks";
+	private static final String DEFAULT_TIMEOUT_STRING = "Default timeout in seconds";
+    private static final String CHECKS_ON_OPEN = "Checks when opening a workflow";
+    private static final String CHECKS_ON_EDIT = "Checks after each edit";
+    private static final String CHECKS_BEFORE_RUN = "Checks before running a workflow";
+
+	private static ReportManagerConfiguration configuration = ReportManagerConfiguration.getInstance();
+	
+    
+	/**
+	 * The size of the field for the JTextFields.
+	 */
+	private static int TEXTFIELD_SIZE = 25;
+
+	private JTextField timeoutField;
+	private JComboBox openCombo;
+	private JComboBox editCombo;
+	private JComboBox runCombo;
+    
+    public ReportManagerConfigurationPanel() {
+    	super();
+		this.setLayout(new GridBagLayout());
+
+		GridBagConstraints gbc = new GridBagConstraints();
+
+		// Title describing what kind of settings we are configuring here
+        JTextArea descriptionText = new JTextArea("Configure if and how reports are generated");
+        descriptionText.setLineWrap(true);
+        descriptionText.setWrapStyleWord(true);
+        descriptionText.setEditable(false);
+        descriptionText.setFocusable(false);
+        descriptionText.setBorder(new EmptyBorder(10, 10, 10, 10));
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        gbc.weighty = 0.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        this.add(descriptionText, gbc);
+        
+        openCombo = new JComboBox(new Object[] {NO_CHECKS, QUICK_CHECK, FULL_CHECK});
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(10,0,0,0);
+        this.add(new JLabel(CHECKS_ON_OPEN), gbc);
+        gbc.gridx = 1;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        this.add(openCombo, gbc);
+        
+        editCombo = new JComboBox(new Object[] {NO_CHECKS, QUICK_CHECK});
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(10,0,0,0);
+        this.add(new JLabel(CHECKS_ON_EDIT), gbc);
+        gbc.gridx = 1;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        this.add(editCombo, gbc);
+        
+        runCombo = new JComboBox(new Object[] {QUICK_CHECK, FULL_CHECK});
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(10,0,0,0);
+        this.add(new JLabel(CHECKS_BEFORE_RUN), gbc);
+        gbc.gridx = 1;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        this.add(runCombo, gbc);
+        
+          timeoutField = new JTextField(TEXTFIELD_SIZE);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(10,0,0,0);
+        this.add(new JLabel(DEFAULT_TIMEOUT_STRING), gbc);
+        gbc.gridx = 1;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        this.add(timeoutField, gbc);
+        
+		// Add buttons panel
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.weightx = 1;
+        gbc.weighty = 1;
+        gbc.gridwidth = 2;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.anchor = GridBagConstraints.SOUTH;
+        gbc.insets = new Insets(10, 0, 0, 0);
+        this.add(createButtonPanel(), gbc);
+
+	 	setFields();
+    }
+
+	/**
+	 * Create the panel to contain the buttons
+	 * 
+	 * @return
+	 */
+	@SuppressWarnings("serial")
+	private JPanel createButtonPanel() {
+		final JPanel panel = new JPanel();
+
+		/**
+		 * The helpButton shows help about the current component
+		 */
+		JButton helpButton = new JButton(new AbstractAction("Help") {
+			public void actionPerformed(ActionEvent arg0) {
+				Helper.showHelp(panel);
+			}
+		});
+		panel.add(helpButton);
+
+		/**
+		 * The resetButton changes the property values shown to those
+		 * corresponding to the configuration currently applied.
+		 */
+		JButton resetButton = new JButton(new AbstractAction("Reset") {
+			public void actionPerformed(ActionEvent arg0) {
+				setFields();
+			}
+		});
+		panel.add(resetButton);
+
+		/**
+		 * The applyButton applies the shown field values to the
+		 * {@link HttpProxyConfiguration} and saves them for future.
+		 */
+		JButton applyButton = new JButton(new AbstractAction("Apply") {
+			public void actionPerformed(ActionEvent arg0) {
+				applySettings();
+				setFields();
+			}
+		});
+		panel.add(applyButton);
+
+		return panel;
+	}
+	
+	/**
+	 * Set the shown field values to those currently in use 
+	 * (i.e. last saved configuration).
+	 */
+	private void setFields() {
+		timeoutField.setText(Integer.toString(Integer.parseInt(configuration.getProperty(ReportManagerConfiguration.TIMEOUT))));
+		
+		String openSetting = configuration.getProperty(ReportManagerConfiguration.ON_OPEN);
+		if (openSetting.equals(ReportManagerConfiguration.NO_CHECK)) {
+			openCombo.setSelectedIndex(0);
+		} else if (openSetting.equals(ReportManagerConfiguration.QUICK_CHECK)) {
+			openCombo.setSelectedIndex(1);
+		} else {
+			openCombo.setSelectedIndex(2);
+		}
+		
+		String editSetting = configuration.getProperty(ReportManagerConfiguration.ON_EDIT);
+		if (editSetting.equals(ReportManagerConfiguration.NO_CHECK)) {
+			editCombo.setSelectedIndex(0);
+		} else if (editSetting.equals(ReportManagerConfiguration.QUICK_CHECK)) {
+			editCombo.setSelectedIndex(1);
+		} else {
+			editCombo.setSelectedIndex(2);
+		}
+		
+		String runSetting = configuration.getProperty(ReportManagerConfiguration.BEFORE_RUN);
+		if (runSetting.equals(ReportManagerConfiguration.QUICK_CHECK)) {
+			runCombo.setSelectedIndex(0);
+		} else {
+			runCombo.setSelectedIndex(1);
+		}
+	}
+	
+	/**
+	 * Save the currently set field values (if valid) to the
+	 * configuration. Also applies those values to the
+	 * currently running Taverna.
+	 */
+	private void applySettings() {
+		if (validateFields()) {
+			saveSettings();
+		}
+	}
+	
+	private boolean validateFields() {
+		return (validateTimeoutField());
+	}
+
+	private boolean validateTimeoutField() {
+		String timeoutText = timeoutField.getText();
+		String errorText = "";
+		int newTimeout = -1;
+		try {
+			newTimeout = Integer.parseInt(timeoutText);
+			if (newTimeout <= 0) {
+				errorText += "The timeout must be greater than zero";
+			}
+		} catch (NumberFormatException e) {
+			errorText += "The timeout must be an integer value";
+		}
+		if (errorText.length() > 0) {
+			JOptionPane.showMessageDialog(this, errorText, "", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * saveSettings saves the specified values for future use.
+	 */
+	private void saveSettings() {
+		configuration.setProperty(ReportManagerConfiguration.TIMEOUT, Integer
+				.toString(Integer.parseInt(timeoutField.getText())));
+
+		int openSetting = openCombo.getSelectedIndex();
+		if (openSetting == 0) {
+			configuration.setProperty(ReportManagerConfiguration.ON_OPEN,
+					ReportManagerConfiguration.NO_CHECK);
+		} else if (openSetting == 1) {
+			configuration.setProperty(ReportManagerConfiguration.ON_OPEN,
+					ReportManagerConfiguration.QUICK_CHECK);
+		} else {
+			configuration.setProperty(ReportManagerConfiguration.ON_OPEN,
+					ReportManagerConfiguration.FULL_CHECK);
+		}
+
+		int editSetting = editCombo.getSelectedIndex();
+		if (editSetting == 0) {
+			configuration.setProperty(ReportManagerConfiguration.ON_EDIT,
+					ReportManagerConfiguration.NO_CHECK);
+		} else {
+			configuration.setProperty(ReportManagerConfiguration.ON_EDIT,
+					ReportManagerConfiguration.QUICK_CHECK);
+		}
+
+		int runSetting = runCombo.getSelectedIndex();
+		if (runSetting == 0) {
+			configuration.setProperty(ReportManagerConfiguration.BEFORE_RUN,
+					ReportManagerConfiguration.QUICK_CHECK);
+		} else {
+			configuration.setProperty(ReportManagerConfiguration.BEFORE_RUN,
+					ReportManagerConfiguration.FULL_CHECK);
+		}
+	}
+
+}

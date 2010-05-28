@@ -15,6 +15,7 @@ import java.io.StringReader;
 
 import java.awt.event.ActionListener;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -87,6 +88,7 @@ import net.sf.taverna.t2.workbench.report.explainer.VisitExplainer;
 import net.sf.taverna.t2.lang.ui.TableSorter;
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.lang.ui.JSplitPaneExt;
+import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
 
 
 /**
@@ -110,35 +112,39 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	private JTable table;
 	private JPanel subPanel = new JPanel();
 	
+	private static final JComponent defaultExplanation = new JLabel("No additional explanation available");
+	private static final JComponent defaultSolution = new JLabel("No suggested solutions");
+	
+	private static final JComponent okExplanation = new JLabel("No problem found");
+	private static final JComponent okSolution = new JLabel("No change necessary");
+	
+	private static final JComponent nothingToExplain = new JLabel("No report selected");
+	private static final JComponent nothingToSolve = new JLabel("No report selected");
+	
 	private JComponent explanation = okExplanation;
 	private JComponent solution = okSolution;
 
-	private static JTextArea defaultExplanation = new ReadOnlyTextArea("No additional explanation available");
-	private static JTextArea defaultSolution = new JTextArea("No suggested solutions");
-	
-	private static JTextArea okExplanation = new JTextArea("No problem found");
-	private static JTextArea okSolution = new JTextArea("No change necessary");
-	
-	private static JTextArea nothingToExplain = new JTextArea("No report selected");
-	private static JTextArea nothingToSolve = new JTextArea("No report selected");
-	
 	private JTabbedPane messagePane;
+	private JScrollPane explanationScrollPane = new JScrollPane();
+	private JScrollPane solutionScrollPane = new JScrollPane();
 	
 	private VisitReport lastSelectedReport = null;
 	
 	private ReportViewTableModel reportViewTableModel;
 	private TableSorter sorter;
+	private ReportViewConfigureAction reportViewConfigureAction = new ReportViewConfigureAction();
 	
 	public ReportViewComponent() {
 		super();
 		reportManager.addObserver(new ReportManagerObserver());
 		initialise();
-		//System.err.println("Initially defaultExplanation is editable " + defaultExplanation.isEditable());
 	}
 	
 	private void initialise() {
 		this.setLayout(new BorderLayout());
 		messagePane = new JTabbedPane();
+		messagePane.addTab("Explanation", explanationScrollPane);
+		messagePane.addTab("Solution", solutionScrollPane);
 		showReport(FileManager.getInstance().getCurrentDataflow());
 	}
 
@@ -161,8 +167,15 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		sorter.sortByColumn(0, false); // sort by decreasing severity
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		table.setRowSelectionAllowed(true);
-		table.getSelectionModel().addListSelectionListener(new TableListener(table, reportViewTableModel, sorter));
+		table.getSelectionModel().addListSelectionListener(
+				new TableListener(table, reportViewTableModel, sorter));
 		table.setSurrendersFocusOnKeystroke(false);
+		table.getInputMap(JInternalFrame.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "configure");
+		table.getInputMap(JInternalFrame.WHEN_FOCUSED).put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "configure");
+
+		table.getActionMap().put("configure", reportViewConfigureAction);
 
 		table.setDefaultRenderer(Status.class, new StatusRenderer());
 
@@ -191,14 +204,51 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		getProblemPanel();
 
 		this.add(subPanel, BorderLayout.CENTER);
-		JButton validateButton = new JButton("Validate");
-		validateButton.addActionListener(new ActionListener() {
+		JButton quickCheckButton = new JButton("Quick check");
+		quickCheckButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ex) {
-				ReportManager.updateReport(dataflow, true);
+				ValidateSwingWorker validateSwingWorker = new ValidateSwingWorker(dataflow, false);
+				ValidateInProgressDialog dialog = new ValidateInProgressDialog();
+				validateSwingWorker.addPropertyChangeListener(
+					     new SwingWorkerCompletionWaiter(dialog));
+				validateSwingWorker.execute();
+				
+				// Give a chance to the SwingWorker to finish so we do not have to display 
+				// the dialog if copying of the workflow is quick (so it won't flicker on the screen)
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					// do nothing
+				}
+				if (!validateSwingWorker.isDone()){
+					dialog.setVisible(true); // this will block the GUI
+				}
+			}
+		});
+		JButton fullCheckButton = new JButton("Full check");
+		fullCheckButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ex) {
+				ValidateSwingWorker validateSwingWorker = new ValidateSwingWorker(dataflow, true);
+				ValidateInProgressDialog dialog = new ValidateInProgressDialog();
+				validateSwingWorker.addPropertyChangeListener(
+					     new SwingWorkerCompletionWaiter(dialog));
+				validateSwingWorker.execute();
+				
+				// Give a chance to the SwingWorker to finish so we do not have to display 
+				// the dialog if copying of the workflow is quick (so it won't flicker on the screen)
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					// do nothing
+				}
+				if (!validateSwingWorker.isDone()){
+					dialog.setVisible(true); // this will block the GUI
+				}
 			}
 		});
 		JPanel validateButtonPanel = new JPanel();
-		validateButtonPanel.add(validateButton);
+		validateButtonPanel.add(quickCheckButton);
+		validateButtonPanel.add(fullCheckButton);
 		this.add(validateButtonPanel, BorderLayout.SOUTH);
 		messagePane.revalidate();
 		this.revalidate();
@@ -223,26 +273,17 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	}
 	
 	private void updateMessages() {
-		int explanationIndex = messagePane.indexOfTab("Explanation");
-		if (explanationIndex == -1) {
-			messagePane.addTab("Explanation", explanation);
-		} else {
-			messagePane.setComponentAt(explanationIndex, explanation);
-		}
-		int solutionIndex = messagePane.indexOfTab("Solution");
-		if (solutionIndex == -1) {
-			messagePane.addTab("Solution", solution);
-		} else {
-			messagePane.setComponentAt(solutionIndex, solution);
-		}
+		explanationScrollPane.setViewportView(wrapComponent(explanation));
+		solutionScrollPane.setViewportView(wrapComponent(solution));
 		messagePane.revalidate();
+		subPanel.revalidate();
+		this.revalidate();
 	}
 	
 	private final class ReportManagerObserver implements
 			Observer<ReportManagerEvent> {
 		public void notify(Observable<ReportManagerEvent> sender,
 				ReportManagerEvent event) throws Exception {
-			// System.err.println("Got an event");
 			Dataflow currentDataflow = FileManager.getInstance()
 					.getCurrentDataflow();
 
@@ -255,6 +296,8 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 							showReport(dataflow);
 						}
 					});
+				} else {
+					System.err.println("Ignoring dataflow event");
 				}
 			}
 		}
@@ -279,11 +322,15 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 				DataflowSelectionModel dsm = DataflowSelectionManager.getInstance().getDataflowSelectionModel(FileManager.getInstance().getCurrentDataflow());
 				dsm.clearSelection();
 				VisitReport vr = reportViewTableModel.getReport(sorter.transposeRow(row));
-				dsm.addSelection(reportViewTableModel.getSubject(sorter.transposeRow(row)));
+				final Object subject = reportViewTableModel.getSubject(sorter.transposeRow(row));
+				dsm.addSelection(subject);
 				updateExplanation(vr);
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						updateMessages();
+						if (subject instanceof Processor) {
+							reportViewConfigureAction.setConfiguredProcessor((Processor) subject);
+						}
 					}
 				});
 			}
@@ -350,5 +397,25 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 			col.setMinWidth(width);
 		}
 
+	}
+	
+	private JPanel wrapComponent(JComponent c) {
+		JPanel result = new JPanel(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.NORTHWEST;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.gridwidth = 2;
+		gbc.weightx = 0.9;
+		result.add(c, gbc);
+		gbc.weightx = 0.9;
+		gbc.weighty = 0.9;
+		gbc.gridx = 0;
+		gbc.gridy++;
+		gbc.gridwidth = 2;
+		gbc.fill = GridBagConstraints.BOTH;
+		result.add(new JPanel(), gbc);
+		return result;
 	}
 }

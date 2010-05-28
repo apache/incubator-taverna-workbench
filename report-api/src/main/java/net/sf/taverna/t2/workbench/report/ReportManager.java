@@ -28,7 +28,9 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.file.events.OpenedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
+import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowValidationReport;
@@ -57,11 +59,16 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 
 		public void notify(Observable<EditManagerEvent> sender,
 				EditManagerEvent message) throws Exception {
+			String onEdit = ReportManagerConfiguration.getInstance().getProperty(ReportManagerConfiguration.ON_EDIT);
 			Dataflow dataflow = FileManager.getInstance().getCurrentDataflow();
 			if (message instanceof AbstractDataflowEditEvent) {
 				AbstractDataflowEditEvent adee = (AbstractDataflowEditEvent) message;
 				if (adee.getDataFlow().equals(dataflow)) {
-					updateReport(dataflow, false);
+					if (onEdit.equals(ReportManagerConfiguration.QUICK_CHECK)) {
+						updateReport(dataflow, false);
+					} else if (onEdit.equals(ReportManagerConfiguration.FULL_CHECK)) {
+						updateReport(dataflow, true);
+					}
 				}
 			}
 		}
@@ -102,6 +109,8 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 				reportMap = new WeakHashMap<Dataflow, Map<Object, Set<VisitReport>>> ();
 				statusMap = new WeakHashMap<Dataflow, Map<Object, Status>>();
 				summaryMap = new WeakHashMap<Dataflow, Map<Object, String>>();
+				
+				ReportManagerConfiguration.getInstance().applySettings();
 			} catch (IndexOutOfBoundsException ex) {
 				throw new IllegalStateException(
 						"Could not find implementation of "
@@ -124,8 +133,6 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 			}
 		}
 	}
-
-
 	
 	public static synchronized void updateReport(Dataflow d, boolean includeTimeConsuming) {
 		Set<VisitReport> oldTimeConsumingReports = null;
@@ -200,27 +207,28 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 						}
 						
 					}
-				} else {
-					boolean nowDisabled = false;
-					for (VisitReport vr : reports) {
-						if (vr.getKind() instanceof HealthCheck) {
-							int resultId = vr.getResultId();
-							if ((resultId == HealthCheck.CONNECTION_PROBLEM) ||
-									(resultId == HealthCheck.IO_PROBLEM) ||
-									(resultId == HealthCheck.INVALID_URL) ||
-									(resultId == HealthCheck.TIME_OUT)) {
-								nowDisabled = true;
-								break;
-							}
-						}
-					}
-					if (nowDisabled) {
-						logger.info(processor.getLocalName() + " is now disabled");
-						Activity replacedActivity = processor.getActivityList().get(0);
-						Activity replacementActivity = new DisabledActivity(replacedActivity);
-							editList.add(edits.getRemoveActivityEdit(processor, replacedActivity));
-							editList.add(edits.getAddActivityEdit(processor, replacementActivity));											}
 				}
+//				else {
+//					boolean nowDisabled = false;
+//					for (VisitReport vr : reports) {
+//						if (vr.getKind() instanceof HealthCheck) {
+//							int resultId = vr.getResultId();
+//							if ((resultId == HealthCheck.CONNECTION_PROBLEM) ||
+//									(resultId == HealthCheck.IO_PROBLEM) ||
+//									(resultId == HealthCheck.INVALID_URL) ||
+//									(resultId == HealthCheck.TIME_OUT)) {
+//								nowDisabled = true;
+//								break;
+//							}
+//						}
+//					}
+//					if (nowDisabled) {
+//						logger.info(processor.getLocalName() + " is now disabled");
+//						Activity replacedActivity = processor.getActivityList().get(0);
+//						Activity replacementActivity = new DisabledActivity(replacedActivity);
+//							editList.add(edits.getRemoveActivityEdit(processor, replacedActivity));
+//							editList.add(edits.getAddActivityEdit(processor, replacementActivity));											}
+//				}
 			}
 		}
 		if (!editList.isEmpty()) {
@@ -247,6 +255,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		}
 		return result;
 	}
+	
 	private synchronized void removeReport(Dataflow d) {
 		reportMap.remove(d);
 		statusMap.remove(d);
@@ -330,6 +339,48 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		return reportMap.get(d);
 	}
 	
+	public static boolean isStructurallySound(Dataflow d) {
+		Map<Object, Set<VisitReport>> objectReports = reportMap.get(d);
+		if (objectReports == null) {
+			return false;
+		}
+		for (Set<VisitReport> visitReportSet : objectReports.values()) {
+			for (VisitReport vr : visitReportSet) {
+				if (vr.getStatus().equals(Status.SEVERE)) {
+					VisitKind vk = vr.getKind();
+					if ((vk instanceof IncompleteDataflowKind) ||
+							(vk instanceof InvalidDataflowKind) ||
+							(vk instanceof UnresolvedOutputKind) ||
+							(vk instanceof FailedEntityKind) ||
+							(vk instanceof UnsatisfiedEntityKind)) {
+						return false;
+					}
+				}
+			}
+		}
+		return true;
+	}
+	
+	public static Status getStatus(Dataflow d) {
+		Map<Object, Set<VisitReport>> objectReports = reportMap.get(d);
+		if (objectReports == null) {
+			return Status.OK;
+		}
+		Status currentStatus = Status.OK;
+		for (Set<VisitReport> visitReportSet : objectReports.values()) {
+			for (VisitReport vr : visitReportSet) {
+				Status status = vr.getStatus();
+				if (status.compareTo(currentStatus) > 0) {
+					currentStatus = status;
+				}
+				if (currentStatus.equals(Status.SEVERE)) {
+					return currentStatus;
+				}
+			}
+		}
+		return currentStatus;
+	}
+	
 	public synchronized Status getStatus(Dataflow d, Object object) {
 		Status result = Status.OK;
 		Map<Object, Status> statusEntry = statusMap.get(d);
@@ -361,13 +412,21 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) throws Exception {
+			String onOpen = ReportManagerConfiguration.getInstance().getProperty(ReportManagerConfiguration.ON_OPEN);
 			if (message instanceof ClosedDataflowEvent) {
 				ReportManager.getInstance().removeReport(((ClosedDataflowEvent) message).getDataflow());
-			}
-			if (message instanceof SetCurrentDataflowEvent) {
+			} else if (message instanceof SetCurrentDataflowEvent) {
 				Dataflow dataflow = ((SetCurrentDataflowEvent) message)
-						.getDataflow();
-				updateReport(dataflow, false);
+				.getDataflow();
+				if (!reportMap.containsKey(dataflow)) {
+					if (!onOpen.equals(ReportManagerConfiguration.NO_CHECK)) {
+						updateReport(dataflow, onOpen.equals(ReportManagerConfiguration.FULL_CHECK));
+					} else {
+						getInstance().multiCaster.notify(new DataflowReportEvent(dataflow));
+					}
+				} else {
+					getInstance().multiCaster.notify(new DataflowReportEvent(dataflow));
+				}				
 			}
 		}
 
