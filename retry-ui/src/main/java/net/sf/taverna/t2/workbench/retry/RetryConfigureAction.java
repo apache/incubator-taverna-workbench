@@ -40,7 +40,7 @@ public class RetryConfigureAction extends AbstractAction {
 	private FileManager fileManager = FileManager.getInstance();
 
 	private static Logger logger = Logger.getLogger(RetryConfigureAction.class);
-
+	
 	public RetryConfigureAction(Frame owner, RetryContextualView retryContextualView, Retry retryLayer) {
 		super("Configure");
 		this.owner = owner;
@@ -109,7 +109,9 @@ public class RetryConfigureAction extends AbstractAction {
 					editManager.doDataflowEdit(
 							fileManager.getCurrentDataflow(), edit);
 					dialog.setVisible(false);
+					if (retryContextualView != null) {
 					retryContextualView.refreshView();
+					}
 				} catch (EditException e1) {
 					logger.warn("Could not configure retries", e1);
 					JOptionPane.showMessageDialog(owner,

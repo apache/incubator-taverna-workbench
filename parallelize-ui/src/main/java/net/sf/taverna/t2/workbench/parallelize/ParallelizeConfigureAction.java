@@ -110,7 +110,9 @@ public class ParallelizeConfigureAction extends AbstractAction {
 					editManager.doDataflowEdit(
 							fileManager.getCurrentDataflow(), edit);
 					dialog.setVisible(false);
+					if (parallelizeContextualView != null) {
 					parallelizeContextualView.refreshView();
+					}
 				} catch (EditException e1) {
 					logger.warn("Could not configure jobs", e1);
 					JOptionPane.showMessageDialog(owner,
