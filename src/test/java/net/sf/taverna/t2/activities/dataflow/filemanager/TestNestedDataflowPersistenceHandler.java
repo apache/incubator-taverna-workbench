@@ -169,7 +169,7 @@ public class TestNestedDataflowPersistenceHandler {
 		Dataflow openedNested = openNested();
 		File tempFile = File.createTempFile("taverna", "t2flow");
 		fileManager.saveDataflow(dataflow, T2_FLOW_FILE_TYPE, tempFile, false);
-		assertEquals("nested in " + tempFile, fileManager.getDataflowName(openedNested));
+		assertEquals("nested in " + tempFile.getCanonicalPath(), fileManager.getDataflowName(openedNested));
 	}
 
 	@Test
