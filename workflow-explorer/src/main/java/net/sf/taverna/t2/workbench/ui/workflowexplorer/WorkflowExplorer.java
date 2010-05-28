@@ -36,6 +36,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -212,11 +213,23 @@ public class WorkflowExplorer extends WorkflowView {
 		
 		// Expand the tree
 		expandAll(wfTree);
-
-		// Repaint the scroll pane containing the tree
-		scrollPane.setViewportView(wfTree);
-		scrollPane.revalidate();
-		scrollPane.repaint();
+		
+		Runnable expandWorkflowTreeRunnable = new Runnable() {
+			public void run() {
+				// Repaint the scroll pane containing the tree
+				scrollPane.setViewportView(wfTree);
+				scrollPane.revalidate();
+				scrollPane.repaint();				
+			}			
+		};
+		
+		if (SwingUtilities.isEventDispatchThread()) {
+			expandWorkflowTreeRunnable.run();		
+		}
+		else {
+			SwingUtilities.invokeLater(expandWorkflowTreeRunnable);
+		}
+		
 	}
 
 	/**
@@ -226,18 +239,29 @@ public class WorkflowExplorer extends WorkflowView {
 		
 		// Set the current workflow to the one we have switched to
 		workflow = df;
-			
-		// Set the tree for the current workflow
-		wfTree = openedWorkflowsTrees.get(workflow);
 		
-		// Repaint the scroll pane containing the tree
-		scrollPane.setViewportView(wfTree);
+		Runnable switchWorkflowTreeRunnable = new Runnable() {
+			public void run() {
+				// Select the node(s) that should be selected (do this after assigning the tree to the scroll pane)
+				setSelectedNodes(wfTree, workflow);
+				// Set the tree for the current workflow
+				wfTree = openedWorkflowsTrees.get(workflow);
+				
+				// Repaint the scroll pane containing the tree
+				scrollPane.setViewportView(wfTree);
+				
+				// Repaint the scroll pane containing the tree
+				scrollPane.revalidate();
+				scrollPane.repaint();			
+			}		
+		};
 		
-		// Select the node(s) that should be selected (do this after assigning the tree to the scroll pane)
-		setSelectedNodes(wfTree, workflow);
-		
-		scrollPane.revalidate();
-		scrollPane.repaint();										
+		if (SwingUtilities.isEventDispatchThread()) {
+			switchWorkflowTreeRunnable.run();
+		}
+		else {
+		SwingUtilities.invokeLater(switchWorkflowTreeRunnable);
+		}
 	}
 	
 	/**
@@ -746,5 +770,4 @@ public class WorkflowExplorer extends WorkflowView {
 			scrollPane.repaint();
 		}
 	}
-
 }
