@@ -13,14 +13,6 @@ public class UnresolvedOutputKind extends ValidationVisitorKind {
 
 	public static final int OUTPUT = 1;
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.annotation.VisitorDescription#getIcon()
-	 */
-	public Icon getIcon() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	private static class Singleton {
 		private static UnresolvedOutputKind instance = new UnresolvedOutputKind();
 	}

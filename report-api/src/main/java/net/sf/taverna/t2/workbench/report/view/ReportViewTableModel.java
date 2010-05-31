@@ -37,20 +37,34 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityPort;
  */
 public class ReportViewTableModel extends DefaultTableModel {
 	
+    public static String ALL_REPORTS = "All";
+    public static String WARNINGS_AND_ERRORS = "Warnings and errors";
+    public static String JUST_ERRORS = "Only errors";
+
 	private ArrayList<VisitReport> reports;
 	
-	public ReportViewTableModel(Map<Object, Set<VisitReport>> reportEntries) {
-		super(new String[] { "Severity", "Type",
+	public ReportViewTableModel(Map<Object, Set<VisitReport>> reportEntries, String shownReports) {
+		super(new String[] { "Severity", "Speed", "Type",
 				"Name", "Description" }, 0);
 		reports = new ArrayList();
 		if (reportEntries != null) {
 			for (Object o : reportEntries.keySet()) {
 				for (VisitReport vr : reportEntries.get(o)) {
 //					if (!vr.getStatus().equals(Status.OK)) {
+				    Status status = vr.getStatus();
+				    if (shownReports.equals(WARNINGS_AND_ERRORS) && status.equals(Status.OK)) {
+					continue;
+				    }
+				    if (shownReports.equals(JUST_ERRORS) && !status.equals(Status.SEVERE)) {
+					continue;
+				    }
 						Object subject = vr.getSubject();
 						this.addRow(new Object[] {
-								vr.getStatus(), getType(subject),
-								getName(subject), vr.getMessage() });
+								vr.getStatus(),
+								(vr.wasTimeConsuming() ? "Full" : "Quick"),
+								getType(subject),
+								getName(subject),
+								vr.getMessage() });
 						reports.add(vr);
 //					}
 				}

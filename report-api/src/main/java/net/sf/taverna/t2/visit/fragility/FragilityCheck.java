@@ -11,8 +11,10 @@ import net.sf.taverna.t2.visit.VisitKind;
  */
 public class FragilityCheck extends VisitKind {
 	
+	public static final int COLLATION = 0;
 	public static final int INVALID_DEPTH = 1;
 	public static final int SOURCE_FRAGILE = 2;
+    public static final int SOURCE_DATATYPE = 3;
 	
 	public Class<FragilityChecker> getVisitorClass() {
 		return FragilityChecker.class;

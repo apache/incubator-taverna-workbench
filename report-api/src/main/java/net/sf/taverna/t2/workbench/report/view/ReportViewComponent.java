@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.io.StringReader;
 
@@ -26,6 +28,7 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.InputMap;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.JInternalFrame;
@@ -90,6 +93,7 @@ import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.lang.ui.JSplitPaneExt;
 import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
 
+import org.apache.log4j.Logger;
 
 /**
  * @author alanrw
@@ -97,6 +101,9 @@ import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
  */
 public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	
+	private static Logger logger = Logger
+			.getLogger(ReportViewComponent.class);
+
 	private static int TABLE_MARGIN = 5;
 	
 	private ReportManager reportManager = ReportManager.getInstance();
@@ -110,103 +117,75 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	private static JSplitPane subSplitPane = new JSplitPane();
 	
 	private JTable table;
-	private JPanel subPanel = new JPanel();
+	private static final JComponent defaultExplanation = new ReadOnlyTextArea("No additional explanation available");
+	private static final JComponent defaultSolution = new ReadOnlyTextArea("No suggested solutions");
 	
-	private static final JComponent defaultExplanation = new JLabel("No additional explanation available");
-	private static final JComponent defaultSolution = new JLabel("No suggested solutions");
+	private static final JComponent okExplanation = new ReadOnlyTextArea("No problem found");
+	private static final JComponent okSolution = new ReadOnlyTextArea("No change necessary");
 	
-	private static final JComponent okExplanation = new JLabel("No problem found");
-	private static final JComponent okSolution = new JLabel("No change necessary");
-	
-	private static final JComponent nothingToExplain = new JLabel("No report selected");
-	private static final JComponent nothingToSolve = new JLabel("No report selected");
+	private static final JComponent nothingToExplain = new ReadOnlyTextArea("No report selected");
+	private static final JComponent nothingToSolve = new ReadOnlyTextArea("No report selected");
 	
 	private JComponent explanation = okExplanation;
 	private JComponent solution = okSolution;
 
 	private JTabbedPane messagePane;
-	private JScrollPane explanationScrollPane = new JScrollPane();
-	private JScrollPane solutionScrollPane = new JScrollPane();
+	private final JScrollPane explanationScrollPane = new JScrollPane();
+	private final JScrollPane solutionScrollPane = new JScrollPane();
 	
 	private VisitReport lastSelectedReport = null;
 	
 	private ReportViewTableModel reportViewTableModel;
 	private TableSorter sorter;
 	private ReportViewConfigureAction reportViewConfigureAction = new ReportViewConfigureAction();
-	
+    private JComboBox shownReports = null;
+    
+    private TableListener tableListener = null;
 	public ReportViewComponent() {
 		super();
 		reportManager.addObserver(new ReportManagerObserver());
 		initialise();
 	}
 	
+    private JScrollPane tableScrollPane;
+
 	private void initialise() {
+	    shownReports = new JComboBox(new String[] {ReportViewTableModel.ALL_REPORTS,
+						       ReportViewTableModel.WARNINGS_AND_ERRORS,
+						       ReportViewTableModel.JUST_ERRORS});
+	    shownReports.setSelectedIndex(0);
+	    shownReports.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent ex) {
+			showReport(FileManager.getInstance()
+					.getCurrentDataflow());
+		    }
+		});
 		this.setLayout(new BorderLayout());
+		JPanel headerPanel = new JPanel();
+		headerPanel.setLayout(new BorderLayout());
+		dataflowName = new JLabel();
+		dataflowName.setText("No workflow");
+
+		headerPanel.add(dataflowName, BorderLayout.WEST);
+		headerPanel.add(shownReports, BorderLayout.EAST);
+		this.add(headerPanel, BorderLayout.NORTH);
+		
+		JSplitPane splitPane = new JSplitPaneExt(JSplitPane.VERTICAL_SPLIT);
+		splitPane.setDividerLocation(0.5);
+		tableScrollPane = new JScrollPane();
+		splitPane.add(tableScrollPane);
+
 		messagePane = new JTabbedPane();
 		messagePane.addTab("Explanation", explanationScrollPane);
 		messagePane.addTab("Solution", solutionScrollPane);
-		showReport(FileManager.getInstance().getCurrentDataflow());
-	}
+		splitPane.add(messagePane);
 
-	
-	public void onDisplay() {
-	}
-
-	public ImageIcon getIcon() {
-		return null;
-	}
-	
-	public void onDispose() {
-
-	}
-	
-	private JTable createTable(Map<Object, Set<VisitReport>> reportEntries) {
-		reportViewTableModel = new ReportViewTableModel(reportEntries);
-		sorter = new TableSorter(reportViewTableModel);
-		JTable table = new JTable(sorter);
-		sorter.sortByColumn(0, false); // sort by decreasing severity
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		table.setRowSelectionAllowed(true);
-		table.getSelectionModel().addListSelectionListener(
-				new TableListener(table, reportViewTableModel, sorter));
-		table.setSurrendersFocusOnKeystroke(false);
-		table.getInputMap(JInternalFrame.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "configure");
-		table.getInputMap(JInternalFrame.WHEN_FOCUSED).put(
-				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "configure");
-
-		table.getActionMap().put("configure", reportViewConfigureAction);
-
-		table.setDefaultRenderer(Status.class, new StatusRenderer());
-
-		sorter.addMouseListenerToHeaderInTable(table);
-		packColumn(table, 0, TABLE_MARGIN, true);
-		packColumn(table, 1, TABLE_MARGIN, true);
-		packColumn(table, 2, TABLE_MARGIN, true);
-		packColumn(table, 3, TABLE_MARGIN, false);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
-		return table;
-	}
-
-	private void showReport(final Dataflow dataflow) {
-		this.removeAll();
-		dataflowName = new JLabel();
-		if (dataflow != null) {
-			dataflowName.setText(dataflow.getLocalName());
-		} else {
-			dataflowName.setText("No workflow");
-		}
-		this.add(dataflowName, BorderLayout.NORTH);
-		table = createTable(reportManager.getReports(dataflow));
-		explanation = nothingToExplain;
-		solution = nothingToSolve;
-		updateMessages();
-		getProblemPanel();
-
-		this.add(subPanel, BorderLayout.CENTER);
+		this.add(splitPane, BorderLayout.CENTER);
 		JButton quickCheckButton = new JButton("Quick check");
 		quickCheckButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ex) {
+			    Dataflow dataflow = FileManager.getInstance()
+				.getCurrentDataflow();
 				ValidateSwingWorker validateSwingWorker = new ValidateSwingWorker(dataflow, false);
 				ValidateInProgressDialog dialog = new ValidateInProgressDialog();
 				validateSwingWorker.addPropertyChangeListener(
@@ -228,6 +207,8 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		JButton fullCheckButton = new JButton("Full check");
 		fullCheckButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent ex) {
+			    Dataflow dataflow = FileManager.getInstance()
+				.getCurrentDataflow();
 				ValidateSwingWorker validateSwingWorker = new ValidateSwingWorker(dataflow, true);
 				ValidateInProgressDialog dialog = new ValidateInProgressDialog();
 				validateSwingWorker.addPropertyChangeListener(
@@ -250,34 +231,119 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		validateButtonPanel.add(quickCheckButton);
 		validateButtonPanel.add(fullCheckButton);
 		this.add(validateButtonPanel, BorderLayout.SOUTH);
-		messagePane.revalidate();
-		this.revalidate();
+
+		explanationScrollPane.addComponentListener(new ComponentListener() {
+			public void componentHidden(ComponentEvent e) {
+			}
+			public void componentMoved(ComponentEvent e) {
+			}
+			public void componentResized(ComponentEvent e) {
+			    if (lastSelectedReport != null) {
+				updateExplanation(lastSelectedReport);
+				updateMessages();
+			    }
+			}
+			public void componentShown(ComponentEvent e) {
+			}
+		    });
+		solutionScrollPane.addComponentListener(new ComponentListener() {
+			public void componentHidden(ComponentEvent e) {
+			}
+			public void componentMoved(ComponentEvent e) {
+			}
+			public void componentResized(ComponentEvent e) {
+			    if (lastSelectedReport != null) {
+				updateExplanation(lastSelectedReport);
+				updateMessages();
+			    }
+			}
+			public void componentShown(ComponentEvent e) {
+			}
+		    });
+		showReport(FileManager.getInstance().getCurrentDataflow());
+	}
+
+	
+	public void onDisplay() {
+	}
+
+	public ImageIcon getIcon() {
+		return null;
+	}
+	
+	public void onDispose() {
+
+	}
+	
+	private JTable createTable(Map<Object, Set<VisitReport>> reportEntries) {
+		reportViewTableModel = new ReportViewTableModel(reportEntries, (String) shownReports.getSelectedItem());
+		if (sorter != null) {
+		    sorter.setModel(reportViewTableModel);
+		} else {
+		    sorter = new TableSorter(reportViewTableModel);
+		}
+		sorter.sortByColumn(0, false); // sort by decreasing severity
+		if (table == null) {
+		    table = new JTable(sorter);
+		    table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		    table.setRowSelectionAllowed(true);
+		    tableListener = new TableListener();
+		    table.getSelectionModel().addListSelectionListener(
+					tableListener);
+		    table.setSurrendersFocusOnKeystroke(false);
+		    table.getInputMap(JInternalFrame.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+				.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "configure");
+		    table.getInputMap(JInternalFrame.WHEN_FOCUSED).put(
+				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "configure");
+
+		    table.getActionMap().put("configure", reportViewConfigureAction);
+
+		    table.setDefaultRenderer(Status.class, new StatusRenderer());
+		    sorter.addMouseListenerToHeaderInTable(table);
+		    table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		}
+		packColumn(table, 0, TABLE_MARGIN, true);
+		packColumn(table, 1, TABLE_MARGIN, true);
+		packColumn(table, 2, TABLE_MARGIN, true);
+		packColumn(table, 3, TABLE_MARGIN, true);
+		packColumn(table, 4, TABLE_MARGIN, false);
+
+		return table;
+	}
+
+	private void showReport(final Dataflow dataflow) {
+		if (dataflow != null) {
+			dataflowName.setText(dataflow.getLocalName());
+		} else {
+			dataflowName.setText("No workflow");
+		}
+
+		table = createTable(reportManager.getReports(dataflow));
+		tableScrollPane.setViewportView(table);
+		boolean found = false;
 		for (int i = 0; i < table.getRowCount(); i++) {
 			VisitReport vr = reportViewTableModel.getReport(sorter.transposeRow(i));
 			if (vr.equals(lastSelectedReport)) {
 				table.setRowSelectionInterval(i, i);
-				return;
+				found = true;
+				break;
 			}
 		}
-	}
-	
-	private void getProblemPanel() {
-		JSplitPane splitPane1 = new JSplitPaneExt(JSplitPane.VERTICAL_SPLIT);
-		splitPane1.setDividerLocation(0.5);
-		splitPane1.add(new JScrollPane(table));
-		splitPane1.add(messagePane);
-		subPanel.removeAll();
-		subPanel.setLayout(new BorderLayout());
-		subPanel.add(splitPane1, BorderLayout.CENTER);
+		if (!found) {
+		    lastSelectedReport = null;
+		    table.clearSelection();
+		}
+		updateExplanation(lastSelectedReport);
+		updateMessages();
+		messagePane.revalidate();
 		this.revalidate();
 	}
 	
 	private void updateMessages() {
-		explanationScrollPane.setViewportView(wrapComponent(explanation));
+	    JPanel explainPanel = wrapComponent(explanation);
+		explanationScrollPane.setViewportView(explainPanel);
 		solutionScrollPane.setViewportView(wrapComponent(solution));
 		messagePane.revalidate();
-		subPanel.revalidate();
-		this.revalidate();
 	}
 	
 	private final class ReportManagerObserver implements
@@ -304,21 +370,13 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	}
 
 	final class TableListener implements ListSelectionListener {
-		private JTable table;
-		private ReportViewTableModel reportViewTableModel;
-		private TableSorter sorter;
-		private int lastSelectedRow = -1;
 		
-		public TableListener(JTable table, ReportViewTableModel reportViewTableModel, TableSorter sorter) {
-			this.table = table;
-			this.reportViewTableModel = reportViewTableModel;
-			this.sorter = sorter;
+		public TableListener() {
 		}
 		
 		public void valueChanged(ListSelectionEvent e) {
 			int row = table.getSelectedRow();
-			if ((row >= 0) && (row != lastSelectedRow)) {
-				lastSelectedRow = row;
+			if (row >= 0) {
 				DataflowSelectionModel dsm = DataflowSelectionManager.getInstance().getDataflowSelectionModel(FileManager.getInstance().getCurrentDataflow());
 				dsm.clearSelection();
 				VisitReport vr = reportViewTableModel.getReport(sorter.transposeRow(row));
@@ -339,6 +397,11 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	
 	private void updateExplanation(VisitReport vr) {
 		lastSelectedReport = vr;
+	    if (vr == null) {
+		explanation = nothingToExplain;
+		solution = nothingToSolve;
+		return;
+	    }
 		if (vr.getStatus().equals(Status.OK)) {
 			explanation = okExplanation;
 			solution = okSolution;
@@ -346,11 +409,29 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		}
 		for (VisitExplainer ve : visitExplainerRegistry.getInstances()) {
 			if (ve.canExplain(vr.getKind(), vr.getResultId())) {
+			    try {
 				explanation = ve.getExplanation(vr);
+			    }
+			    catch (ClassCastException e) {
+				logger.error("Error creating explanation", e);
+				explanation = null;
+			    }
+			    catch (NullPointerException e) {
+				logger.error("Error creating explanation", e);
+				explanation = null;
+			    }
 				if (explanation == null) {
 					explanation = defaultExplanation;
 				}
-				solution = ve.getSolution(vr);
+				try {
+				    solution = ve.getSolution(vr);
+				} catch (ClassCastException e) {
+				    logger.error("Error creating soluttion", e);
+				    solution = null;
+				} catch (NullPointerException e) {
+				    logger.error("Error creating soluttion", e);
+				    solution = null;
+				}
 				if (solution == null) {
 					solution = defaultSolution;
 				}

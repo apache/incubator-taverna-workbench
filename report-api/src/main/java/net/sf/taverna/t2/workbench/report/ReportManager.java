@@ -38,11 +38,14 @@ import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.EditsRegistry;
+import net.sf.taverna.t2.workflowmodel.OutputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.health.HealthCheck;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
+import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
+import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
 
 /**
@@ -183,30 +186,31 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 					}
 				}
 				if (isAlreadyDisabled) {
-					Set<VisitReport> nonDisabledReports = new HashSet<VisitReport>();
-					for (VisitReport vr : reports) {
-						if (vr.getResultId() != HealthCheck.DISABLED) {
-							nonDisabledReports.add(vr);
-						}
+				    Set<VisitReport> nonDisabledReports = new HashSet<VisitReport>();
+				    for (VisitReport vr : reports) {
+					if (vr.getResultId() != HealthCheck.DISABLED) {
+					    nonDisabledReports.add(vr);
 					}
-					Status remainingStatus = VisitReport.getWorstStatus(nonDisabledReports);
-					if (!remainingStatus.equals(Status.SEVERE)) {
-						logger.info(processor.getLocalName() + " is no longer disabled");
-						Activity replacementActivity = disabledActivity.getActivity();
-						try {
-							replacementActivity.configure(disabledActivity.getActivityConfiguration());
-							editList.add(edits.getRemoveActivityEdit(processor, disabledActivity));
-							replacementActivity.getInputPortMapping().clear();
-							replacementActivity.getInputPortMapping().putAll(disabledActivity.getInputPortMapping());
-							replacementActivity.getOutputPortMapping().clear();
-							replacementActivity.getOutputPortMapping().putAll(disabledActivity.getOutputPortMapping());
-							editList.add(edits.getAddActivityEdit(processor, replacementActivity));
-						}
-						catch (ActivityConfigurationException ex) {
-							// ok
-						}
-						
+				    }
+				    Status remainingStatus = VisitReport.getWorstStatus(nonDisabledReports);
+				    if (!remainingStatus.equals(Status.SEVERE)) {
+					logger.info(processor.getLocalName() + " is no longer disabled");
+					Activity<?> replacementActivity = disabledActivity.getActivity();
+					try {
+					    Activity ra = (Activity) replacementActivity;
+					    ra.configure(disabledActivity.getActivityConfiguration());
+					    editList.add(edits.getRemoveActivityEdit(processor, disabledActivity));
+					    replacementActivity.getInputPortMapping().clear();
+					    replacementActivity.getInputPortMapping().putAll(disabledActivity.getInputPortMapping());
+					    replacementActivity.getOutputPortMapping().clear();
+					    replacementActivity.getOutputPortMapping().putAll(disabledActivity.getOutputPortMapping());
+					    editList.add(edits.getAddActivityEdit(processor, replacementActivity));
 					}
+					catch (ActivityConfigurationException ex) {
+					    // ok
+					}
+					
+				    }
 				}
 //				else {
 //					boolean nowDisabled = false;
@@ -294,7 +298,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(IncompleteDataflowKind.getInstance(), d, "Incomplete dataflow", IncompleteDataflowKind.INCOMPLETE_DATAFLOW, VisitReport.Status.SEVERE));
 		}
 		else if (!validationReport.isValid()) {
-			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(InvalidDataflowKind.getInstance(), d, "Invalid dataflow", InvalidDataflowKind.INVALID_DATAFLOW, VisitReport.Status.SEVERE));
+			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(InvalidDataflowKind.getInstance(), d, "Invalid workflow", InvalidDataflowKind.INVALID_DATAFLOW, VisitReport.Status.SEVERE));
 		}
 		fillInReport(reportsEntry, statusEntry, summaryEntry, validationReport);
 	}

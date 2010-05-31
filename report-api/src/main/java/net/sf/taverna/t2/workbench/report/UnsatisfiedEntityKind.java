@@ -6,11 +6,6 @@ public class UnsatisfiedEntityKind extends ValidationVisitorKind {
 
 	public static final int UNSATISFIED_ENTITY = 1;
 
-	public Icon getIcon() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-	
 	private static class Singleton {
 		private static UnsatisfiedEntityKind instance = new UnsatisfiedEntityKind();
 	}

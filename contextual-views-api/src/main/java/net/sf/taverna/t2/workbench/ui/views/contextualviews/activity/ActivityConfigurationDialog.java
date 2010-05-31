@@ -215,13 +215,22 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 
 		if (panel.isConfigurationChanged()) {
 			String relativeName = getRelativeName(owningDataflow, activity);
-			int answer = JOptionPane.showConfirmDialog(this,
-					"Do you want to save the configuration of " + relativeName,
-					relativeName, JOptionPane.YES_NO_CANCEL_OPTION);
-			if (answer == JOptionPane.YES_OPTION) {
+			if (panel.checkValues()) {
+			    int answer = JOptionPane.showConfirmDialog(this,
+								       "Do you want to save the configuration of " + relativeName,
+								       relativeName, JOptionPane.YES_NO_CANCEL_OPTION);
+			    if (answer == JOptionPane.YES_OPTION) {
 				applyConfiguration();
-			} else if (answer == JOptionPane.CANCEL_OPTION) {
+			    } else if (answer == JOptionPane.CANCEL_OPTION) {
 				return false;
+			    }
+			} else {
+			    int answer = JOptionPane.showConfirmDialog(this,
+								       "Do you want to still want to close?",
+								       relativeName, JOptionPane.YES_NO_OPTION);
+			    if (answer == JOptionPane.NO_OPTION) {
+				return false;
+			    }
 			}
 		}
 		ActivityConfigurationAction.clearDialog(activity);

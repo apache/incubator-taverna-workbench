@@ -15,8 +15,4 @@ public class IncompleteDataflowKind extends ValidationVisitorKind {
 		return Singleton.instance;
 	}
 
-	public Icon getIcon() {
-		return null;
-	}
-
 }
