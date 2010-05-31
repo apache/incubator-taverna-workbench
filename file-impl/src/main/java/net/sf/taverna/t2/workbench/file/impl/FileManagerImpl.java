@@ -389,7 +389,6 @@ public class FileManagerImpl extends FileManager {
 			OpenDataflowRunnable r = new OpenDataflowRunnable(this, fileType, source);
 			if (SwingUtilities.isEventDispatchThread()) {
 				r.run();
-				return r.getDataflow();
 			} else {
 				try {
 					SwingUtilities.invokeAndWait(r);
@@ -398,9 +397,12 @@ public class FileManagerImpl extends FileManager {
 				}catch (InvocationTargetException e) {
 					throw new OpenException("Opening was interrupted", e);
 				}
-				return r.getDataflow();
 			}
-
+			OpenException thrownException = r.getException();
+			if (thrownException != null) {
+			    throw (thrownException);
+			}
+			return r.getDataflow();
 		}
 			 else {
 					return performOpenDataflow(fileType, source);

@@ -27,6 +27,7 @@ import org.jdesktop.swingworker.SwingWorker;
 import net.sf.taverna.t2.workbench.file.DataflowInfo;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
+import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 
 public class OpenDataflowSwingWorker extends SwingWorker<Dataflow, Object>{
 
@@ -35,6 +36,7 @@ public class OpenDataflowSwingWorker extends SwingWorker<Dataflow, Object>{
 	private Object source;
 	private FileManagerImpl fileManagerImpl;
 	private Dataflow dataflow;
+    private OpenException e = null;
 
 	public OpenDataflowSwingWorker(FileType fileType, Object source, FileManagerImpl fileManagerImpl){
 		this.fileType = fileType;
@@ -45,11 +47,19 @@ public class OpenDataflowSwingWorker extends SwingWorker<Dataflow, Object>{
 	@Override
 	protected Dataflow doInBackground() throws Exception {
 
+	    try {
 		dataflow = fileManagerImpl.performOpenDataflow(fileType, source);
+	    } catch (OpenException e) {
+		this.e = e;
+	    }
 		return dataflow;
 	}
 
 	public Dataflow getDataflow() {
 		return dataflow;
 	}
+
+    public OpenException getException() {
+	return e;
+    }
 }
