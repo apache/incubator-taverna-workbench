@@ -47,7 +47,6 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
-import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.provenance.lineageservice.utils.Port;
 import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
 import net.sf.taverna.t2.reference.ReferenceService;
@@ -90,7 +89,6 @@ public class ProcessorResultsComponent extends JPanel{
 	// Panel containing the title
 	private JPanel titlePanel;
 	
-	private ProvenanceConnector provenanceConnector;
 	private Processor processor;
 	private Dataflow dataflow;
 	private String runId;
@@ -119,12 +117,11 @@ public class ProcessorResultsComponent extends JPanel{
 	HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> enactmentsToInputPortData;
 	HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> enactmentsToOutputPortData;
 
-	public ProcessorResultsComponent(Processor processor, Dataflow dataflow, String runId, ProvenanceConnector provenanceConnector, ReferenceService referenceService) {
+	public ProcessorResultsComponent(Processor processor, Dataflow dataflow, String runId, ReferenceService referenceService) {
 		super(new BorderLayout());
 		this.processor = processor;
 		this.dataflow = dataflow;
 		this.runId = runId;
-		this.provenanceConnector = provenanceConnector;
 		this.referenceService = referenceService;
 
 		provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
@@ -133,8 +130,7 @@ public class ProcessorResultsComponent extends JPanel{
 	}
 
 	public ProcessorResultsComponent(WorkflowInstanceFacade facade,
-			Processor processor, Dataflow dataflow, String runId,
-			ProvenanceConnector connector, ReferenceService referenceService) {
+			Processor processor, Dataflow dataflow, String runId, ReferenceService referenceService) {
 		
 		super(new BorderLayout());
 		this.processor = processor;
@@ -432,18 +428,6 @@ public class ProcessorResultsComponent extends JPanel{
 				}
 			}		
 		}
-	}
-
-	private int[] getElementIndex(String iteration) {
-		iteration = iteration.replaceAll("\\[\\]", ",");
-		iteration = iteration.replaceAll("\\[", "");
-		iteration = iteration.replaceAll("\\]", "");
-		String[] parts = iteration.split(",");
-		int[] elementIndex = new int[parts.length];
-		for (int i = 0; i < parts.length; i++) {
-			elementIndex[i] = Integer.parseInt(parts[i]);
-		}
-		return elementIndex;
 	}
 	
 	public void clear() {

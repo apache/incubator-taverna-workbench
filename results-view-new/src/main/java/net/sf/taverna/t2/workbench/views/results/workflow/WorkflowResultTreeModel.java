@@ -183,4 +183,29 @@ public class WorkflowResultTreeModel extends DefaultTreeModel implements ResultL
 		
 	}
 
+	// Normally used for past workflow runs where data is obtained from provenance
+	public void createTree(T2Reference t2Ref, InvocationContext context,  WorkflowResultTreeNode parentNode){
+		
+		// If reference contains a list of data references
+		if (t2Ref.getReferenceType() == T2ReferenceType.IdentifiedList) {
+			try {
+				IdentifiedList<T2Reference> list = context.getReferenceService()
+						.getListService().getList(t2Ref);
+				WorkflowResultTreeNode listNode = new WorkflowResultTreeNode(ResultTreeNodeState.RESULT_LIST); // list node
+				listNode.setContext(context);
+				insertNodeInto(listNode, parentNode, 0);
+				for (T2Reference ref : list) {
+					createTree(ref, context, listNode);
+				}
+			} catch (NullPointerException e) {
+				logger .error("Error resolving data entity list "
+						+ t2Ref, e);
+			}
+		} else { // reference to single data or an error
+			// insert data node
+			WorkflowResultTreeNode dataNode = new WorkflowResultTreeNode(t2Ref, context); // data node
+			insertNodeInto(dataNode, parentNode, 0);
+		}	
+	}
+	
 }

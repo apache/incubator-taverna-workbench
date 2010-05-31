@@ -54,6 +54,8 @@ public class PortResultsViewTab extends JPanel{
 	private String portName;
 
 	private int portDepth;
+
+	private JTree tree;
 	
 	public PortResultsViewTab(String portName, int portDepth){
 		super(new BorderLayout());
@@ -74,7 +76,7 @@ public class PortResultsViewTab extends JPanel{
 		resultModel =  new WorkflowResultTreeModel(portName,
 				portDepth);
 
-		final JTree tree = new JTree(getResultModel());
+		tree = new JTree(getResultModel());
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setExpandsSelectedPaths(true);
 		tree.setLargeModel(true);
@@ -144,5 +146,14 @@ public class PortResultsViewTab extends JPanel{
 	 */
 	public WorkflowResultTreeModel getResultModel() {
 		return resultModel;
+	}
+
+	public void expandTree() {
+
+		if (tree != null){
+			for (int row = 0; row < tree.getRowCount(); row ++) {
+			      tree.expandRow(row);
+			 }
+		}
 	}
 }
