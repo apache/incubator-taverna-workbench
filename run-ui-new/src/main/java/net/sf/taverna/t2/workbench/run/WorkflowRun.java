@@ -203,6 +203,9 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		// Create progress table for the current workflow run
 		progressRunTable = new WorkflowRunProgressTreeTable(
 				new WorkflowRunProgressTreeTableModel(facade.getDataflow()));
+		// Do not show the column with total number of iterations as it 
+		// does not gets updated till the end of all iterations so it is pointless
+		progressRunTable.removeColumn(progressRunTable.getColumnModel().getColumn(5));
 		progressRunTable.setWorkflowStartDate(date);
 		progressRunTable.setWorkflowStatus("Running");
 		// Start listening for row selections on the table if provenance is enabled 
@@ -425,6 +428,9 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 
 			// Create progress table for a previous run
 			progressRunTable = new WorkflowRunProgressTreeTable(new WorkflowRunProgressTreeTableModel(dataflow, connector, referenceService, runId));
+			// Do not show the column with total number of iterations as it 
+			// does not gets updated till the end of all iterations so it is pointless
+			progressRunTable.removeColumn(progressRunTable.getColumnModel().getColumn(5));
 			
 			// Start listening for row selections on the table  
 			// so we can show intermediate results for processors. 
@@ -454,10 +460,9 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			workflowRunCancelButton.setEnabled(false);
 			monitorViewComponent.addWorkflowResultsButton(workflowResultsButton);
 			
-			workflowResultsComponent = new WorkflowResultsComponent();
-			workflowResultsComponent.repopulate(getDataflow(), getRunId(), getDate(),
-					getReferenceService(), isProvenanceEnabledForRun);
-			// monitorViewComponent.revalidate();
+			// Results for an old wf run - get the results from provenance 
+			workflowResultsComponent = new WorkflowResultsComponent(dataflow, runId, referenceService);
+
 		}
 		return monitorViewComponent;
 	}
@@ -676,13 +681,11 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 						// Need to create a timer that will update intermediate results 
 						// periodically until workflow stops running
 						intermediateResultsComponent = new ProcessorResultsComponent(facade, 
-								(Processor) workflowObject, dataflow, runId,
-								connector, referenceService);
+								(Processor) workflowObject, dataflow, runId, referenceService);
 					}
 					else{ // this is an old workflow from provenance - no need to update intermediate
 						intermediateResultsComponent = new ProcessorResultsComponent(
-								(Processor) workflowObject, dataflow, runId,
-								connector, referenceService);
+								(Processor) workflowObject, dataflow, runId, referenceService);
 					}
 					intermediateResultsComponents.put((Processor) workflowObject,
 							intermediateResultsComponent);
