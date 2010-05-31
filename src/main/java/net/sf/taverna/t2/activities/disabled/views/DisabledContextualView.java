@@ -3,14 +3,29 @@
  */
 package net.sf.taverna.t2.activities.disabled.views;
 
+import net.sf.taverna.t2.activities.disabled.actions.DisabledActivityConfigurationAction;
+import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
+import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.Edit;
+import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflowmodel.Edits;
+import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.OutputPort;
 
 import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import javax.swing.AbstractAction;
+import javax.swing.JDialog;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import java.beans.Introspector;
 import java.beans.IntrospectionException;
 import java.beans.BeanInfo;
@@ -19,9 +34,19 @@ import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.IllegalAccessException;
 import java.lang.IllegalArgumentException;
+import java.lang.NoSuchMethodException;
 import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.Action;
+
+import org.apache.log4j.Logger;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import net.sf.taverna.t2.lang.uibuilder.UIBuilder;
+
+import com.thoughtworks.xstream.XStream;
 
 /**
  * A DisabledContextualView displays information about a DisabledActivity
@@ -31,6 +56,11 @@ import javax.swing.Action;
  */
 public class DisabledContextualView extends
 		HTMLBasedActivityContextualView<Object> {
+
+	private static Logger logger = Logger
+			.getLogger(DisabledContextualView.class);
+
+    private List<String> fieldNames;
 
 	public DisabledContextualView(DisabledActivity activity) {
 		super(activity);
@@ -73,6 +103,10 @@ public class DisabledContextualView extends
 					try {
 						html += "<tr><td>" + pd.getName() + "</td><td>"
 								+ readMethod.invoke(config) + "</td></tr>";
+						if (fieldNames == null) {
+						    fieldNames = new ArrayList<String>();
+						}
+						fieldNames.add(pd.getName());
 					} catch (IllegalAccessException ex) {
 						// ignore
 					} catch (IllegalArgumentException ex) {
@@ -96,6 +130,12 @@ public class DisabledContextualView extends
 	@Override
 	public int getPreferredPosition() {
 		return 100;
+	}
+
+	@Override
+	public Action getConfigureAction(Frame owner) {
+		return new DisabledActivityConfigurationAction(
+				(DisabledActivity) getActivity(), owner);
 	}
 
 }
