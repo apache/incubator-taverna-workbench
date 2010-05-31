@@ -51,6 +51,9 @@ public class RetryConfigurationPanel extends JPanel {
 		float backoffFactor = -1;
 		try {
 			maxRetries = Integer.parseInt(maxRetriesField.getText());
+			if (maxRetries < 0) {
+			    errorText += "The number of retries must be non-negative.\n";
+			}
 		}
 		catch (NumberFormatException e) {
 			errorText += "The maximum number of retries must be an integer.\n";
