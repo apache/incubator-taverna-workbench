@@ -64,8 +64,8 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	private static final String FINISH_TIME = "Finish time";
 	private static final String AVERAGE_ITERATION_TIME = "Average time per iteration (in ms)";
 	private static final String ITERATIONS = "Total iterations";
-	private static final String ITERATIONS_DONE= "Done iterations";
-	private static final String ITERATIONS_FAILED = "Failed iterations";
+	private static final String ITERATIONS_DONE= "Iterations done";
+	private static final String ITERATIONS_FAILED = "Iterations with errors";
 
 	private static final String STATUS_PENDING = "Pending";
 	private static final String STATUS_FINISHED = "Finished";
