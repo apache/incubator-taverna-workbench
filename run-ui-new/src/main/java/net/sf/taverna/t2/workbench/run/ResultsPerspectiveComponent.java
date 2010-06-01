@@ -374,13 +374,13 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 		for (net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowRun workflowInstance : allWorkflowRunIDs) {
 			DatabaseCleanup databaseCleanup = DatabaseCleanup.getInstance();
 			if (databaseCleanup.isDeletedOrScheduledForDeletion(
-					workflowInstance.getInstanceID())) {
+					workflowInstance.getWorkflowRunId())) {
 				continue;
 			}
 			if (provenanceAccess.isTopLevelDataflow(workflowInstance
-					.getWorkflowIdentifier())) {
-				logger.info("retrieved previous run, workflow id: "
-						+ workflowInstance.getInstanceID() + " date: "
+					.getWorkflowId())) {
+				logger.info("retrieved previous run, workflow run id: "
+						+ workflowInstance.getWorkflowRunId() + " date: "
 						+ workflowInstance.getTimestamp());
 				Timestamp time = Timestamp.valueOf(workflowInstance
 						.getTimestamp());
@@ -390,8 +390,8 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				// wf-bytes and wf id
 				WorkflowRun runComponent = new WorkflowRun(workflowInstance
 						.getDataflowBlob(), workflowInstance
-						.getWorkflowIdentifier(), workflowInstance.getWorkflowExternalName(), 
-						date, workflowInstance.getInstanceID(), referenceServiceWithDatabase);
+						.getWorkflowId(), workflowInstance.getWorkflowExternalName(), 
+						date, workflowInstance.getWorkflowRunId(), referenceServiceWithDatabase);
 				runComponent.setDataSavedInDatabase(true);
 				runComponent.setProvenanceEnabledForRun(true);
 				workflowRunsListModel.add(workflowRunsListModel.getSize(), runComponent);
