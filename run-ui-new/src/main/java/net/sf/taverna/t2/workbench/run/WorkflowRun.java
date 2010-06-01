@@ -261,30 +261,6 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		// Use the empty context by default to root this facade on the monitor
 		// tree
 
-		// Only if this workflow has at least one output port there will be some
-		// results to observe.
-		// Otherwise, we have to find another way of detecting when a workflow
-		// without output ports
-		// has finished running - we do that by observing when all processors
-		// have finished.
-		if (dataflow.getOutputPorts().size() > 0) {
-			facade.addResultListener(new ResultListener() {
-				public void resultTokenProduced(WorkflowDataToken token,
-						String portName) {
-					if (token.getIndex().length == 0) {
-						results++;
-						if (results == dataflow.getOutputPorts().size()) {
-							facade.removeResultListener(this);
-							MonitorManager.getInstance().removeObserver(
-									monitorObserverForGraph);
-							monitorObserverForGraph = null;
-							results = 0;
-						}
-					}
-				}
-			});
-		}
-
 		try {
 			workflowResultsComponent.register(facade, isProvenanceEnabledForRun);
 		} catch (EditException e1) {

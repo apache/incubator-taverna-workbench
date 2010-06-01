@@ -214,6 +214,7 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 
 	public void onDispose() {
 		if (graphMonitor != null) {
+			
 			graphMonitor.onDispose();
 		}
 		if (svgScrollPane != null) {
