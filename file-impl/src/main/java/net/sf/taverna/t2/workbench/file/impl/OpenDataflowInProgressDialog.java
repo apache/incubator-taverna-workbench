@@ -47,9 +47,12 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 @SuppressWarnings("serial")
 public class OpenDataflowInProgressDialog extends JDialog{
 
+
+	private boolean userCancelled = false;
+
 	public OpenDataflowInProgressDialog() {
 		
-		super((Frame) null, "Opening", true);
+		super((Frame) null, "Opening workflow", true);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -64,9 +67,30 @@ public class OpenDataflowInProgressDialog extends JDialog{
 		textPanel.add(text);
 		panel.add(textPanel, BorderLayout.CENTER);
 		
+/**
+ * Cancellation does not work when opening
+ 
+		// Cancel button
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				userCancelled = true;
+				setVisible(false);
+				dispose();
+			}
+		});
+		JPanel cancelButtonPanel = new JPanel();
+		cancelButtonPanel.add(cancelButton);
+		panel.add(cancelButtonPanel, BorderLayout.SOUTH);
+*/
 		setContentPane(panel);
 		setPreferredSize(new Dimension(300, 150));
 
 		pack();		
+	}
+
+	public boolean hasUserCancelled() {
+		return userCancelled;
 	}
 }
