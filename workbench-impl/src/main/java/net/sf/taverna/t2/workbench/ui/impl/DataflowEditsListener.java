@@ -67,7 +67,7 @@ public class DataflowEditsListener implements Observer<EditManagerEvent> {
 			// id and store the old one against the edit that is changing
 			// 'something'
 			Dataflow dataFlow = ((DataflowEditEvent) event).getDataFlow();
-			String internalIdentifier = dataFlow.getInternalIdentifier(false);
+			String internalIdentifier = dataFlow.getIdentifier();
 			Edit<?> edit = event.getEdit();
 			dataflowEditMap.put(edit, internalIdentifier);
 			String newIdentifier = UUID.randomUUID().toString();
@@ -81,7 +81,7 @@ public class DataflowEditsListener implements Observer<EditManagerEvent> {
 			// we want to change it back
 			Edit<?> edit = event.getEdit();
 			Dataflow dataFlow = ((DataFlowRedoEvent) event).getDataFlow();
-			String newId = dataFlow.getInternalIdentifier(false);
+			String newId = dataFlow.getIdentifier();
 
 			String oldId = dataflowEditMap.get(edit);
 			dataflowEditMap.put(edit, newId);
@@ -96,7 +96,7 @@ public class DataflowEditsListener implements Observer<EditManagerEvent> {
 			// we want to change it back
 			Edit<?> edit = event.getEdit();
 			Dataflow dataFlow = ((DataFlowUndoEvent) event).getDataFlow();
-			String newId = dataFlow.getInternalIdentifier(false);
+			String newId = dataFlow.getIdentifier();
 
 			String oldId = dataflowEditMap.get(edit);
 			dataflowEditMap.put(edit, newId);
