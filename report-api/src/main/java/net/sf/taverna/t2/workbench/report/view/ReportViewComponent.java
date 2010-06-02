@@ -155,7 +155,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
     JButton ignoreReportButton;
     
     public static String ALL_INCLUDING_IGNORED = "All reports";
-    public static String ALL_EXCEPT_IGNORED = "All excepted ignored reports";
+    public static String ALL_EXCEPT_IGNORED = "All except ignored reports";
     
 	public ReportViewComponent() {
 		super();
