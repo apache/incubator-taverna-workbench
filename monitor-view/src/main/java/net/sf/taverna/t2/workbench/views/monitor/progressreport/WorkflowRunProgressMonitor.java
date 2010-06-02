@@ -21,8 +21,11 @@
 package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,6 +43,8 @@ import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
 import net.sf.taverna.t2.monitor.MonitorManager.RegisterNodeMessage;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
 
@@ -72,8 +77,13 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 
 	// Map of owning process ids to workflow objects (including the processor,
 	// dataflow and facade objects)
-	private Map<String, Object> workflowObjects = new HashMap<String, Object>();
+	private Map<String, Object> workflowObjects = Collections.synchronizedMap(new HashMap<String, Object>());
 
+	// Map from invocation process ID to start time
+	private static Map<String, Date> activitityInvocationStartTimes = Collections.synchronizedMap(new HashMap<String, Date>());
+	
+	private static Map<String, List<Long>> processorInvocationTimes = Collections.synchronizedMap(new HashMap<String, List<Long>>());
+	
 	//private Map<String, ResultListener> resultListeners = new HashMap<String, ResultListener>();
 
 	private Timer updateTimer = new Timer("Progress table monitor update timer", true);
@@ -130,7 +140,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 			String owningProcessId = getOwningProcessId(owningProcess);
 			workflowObjects.put(owningProcessId, workflowObject);
 			if (workflowObject instanceof Processor) {
-
+				processorInvocationTimes.put(owningProcessId, new ArrayList<Long>());
 				Processor processor = (Processor) workflowObject;
 				WorkflowRunProgressMonitorNode monitorNode = new WorkflowRunProgressMonitorNode(
 						processor, owningProcess, properties, progressTreeTable);
@@ -169,6 +179,8 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 //					workflowRunStatusLabel.setText(STATUS_RUNNING);
 //					workflowRunStatusLabel.setIcon(WorkbenchIcons.workingIcon);
 //				}
+			} else if (workflowObject instanceof Activity<?>) {				
+				activitityInvocationStartTimes.put(owningProcessId, new Date());
 			}
 		}
 	}
@@ -191,12 +203,10 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				// If total number of iterations is 0 that means there was just one invocation.
 				int total = workflowRunProgressMonitorNode.getTotalNumberOfIterations();
 				total = (total == 0) ? 1 : total;
-				progressTreeTable.setNumberOfIterationsForObject(
-						((Processor) workflowObject), total);
-				
 				progressTreeTable.setFinishDateForObject(((Processor) workflowObject), processorFinishDate);
 				progressTreeTable.setStatusForObject(((Processor) workflowObject), STATUS_FINISHED);
-				if (processorStartTime != null){
+				if (processorStartTime != null && processorInvocationTimes.remove(owningProcessId) == null){
+					// Should not really be needed anymore
 					long averageInvocationTime = (processorFinishDate.getTime() - processorStartTime.getTime())/total;
 					progressTreeTable.setAverageInvocationTimeForObject(((Processor) workflowObject), averageInvocationTime);
 				}
@@ -248,13 +258,26 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 					// will have no effect) but in the case the workflow has no outputs
 					// we have to do the removing here.
 					MonitorManager.getInstance().removeObserver(this);
-				}
-//				updateTimer.schedule(new TimerTask() {
-//					public void run() {
-//						facade.removeResultListener(resultListeners
-//								.remove(owningProcessId));
-//					}
-//				}, deregisterDelay);
+				}				
+			} else if (workflowObject instanceof Activity<?>) {
+				Date endTime = new Date();
+				Date startTime = activitityInvocationStartTimes.remove(owningProcessId);
+				String parentProcessId = getOwningProcessId(Arrays.copyOf(owningProcess, owningProcess.length-1));										
+				Object parentObject = workflowObjects.get(parentProcessId);
+				if (parentObject instanceof Processor && startTime != null) {						
+//					Processor processor = (Processor) parentObject;
+					long invocationTime = endTime.getTime() - startTime.getTime();						
+					List<Long> invocationTimes = processorInvocationTimes.get(parentProcessId);
+					invocationTimes.add(invocationTime);
+					long totalTime = 0;
+					for (Long time : invocationTimes) {
+						totalTime += time;
+					}
+					if (! invocationTimes.isEmpty()) {							
+						long averageInvocationTime = totalTime / invocationTimes.size();
+						progressTreeTable.setAverageInvocationTimeForObject(parentObject, averageInvocationTime);
+					}
+				}										
 			}
 		}
 	}
@@ -285,8 +308,13 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	 */
 	private static String getOwningProcessId(String[] owningProcess) {
 		StringBuffer sb = new StringBuffer();
-		for (String string : owningProcess) {
+		Iterator<String> iterator = Arrays.asList(owningProcess).iterator();
+		while (iterator.hasNext()) {
+			String string = iterator.next();			
 			sb.append(string);
+			if (iterator.hasNext()) {
+				sb.append(":");
+			}
 		}
 		return sb.toString();
 	}

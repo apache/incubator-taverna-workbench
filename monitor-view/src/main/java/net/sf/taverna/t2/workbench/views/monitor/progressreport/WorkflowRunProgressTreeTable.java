@@ -14,11 +14,15 @@ import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.treetable.JTreeTable;
 import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
+import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressTreeTableModel.Column;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
 @SuppressWarnings("serial")
 public class WorkflowRunProgressTreeTable extends JTreeTable implements Observable<WorkflowObjectSelectionMessage>{
 
+	private static SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat(
+		"yyyy-MM-dd HH:mm:ss");
+	
 	private WorkflowRunProgressTreeTableModel treeTableModel;
 
 	// Multicaster used to notify all interested parties that a selection of 
@@ -47,23 +51,19 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 	}
 
 	public void setWorkflowStatus(String status) {	
-		treeTableModel.setValueAt(status, (DefaultMutableTreeNode)treeTableModel.getRoot(), 1);
+		treeTableModel.setValueAt(status, (DefaultMutableTreeNode)treeTableModel.getRoot(), Column.STATUS);
 	}
 	
 	public void setWorkflowStartDate(Date date) {	
-		SimpleDateFormat sdf = new SimpleDateFormat(
-		"yyyy-MM-dd HH:mm:ss");
-		treeTableModel.setValueAt(sdf.format(date), (DefaultMutableTreeNode)treeTableModel.getRoot(), 2);
+		treeTableModel.setValueAt(ISO_8601_FORMAT.format(date), (DefaultMutableTreeNode)treeTableModel.getRoot(), Column.START_TIME);
 	}
 	
 	public void setWorkflowFinishDate(Date date) {
-		SimpleDateFormat sdf = new SimpleDateFormat(
-		"yyyy-MM-dd HH:mm:ss");
-		treeTableModel.setValueAt(sdf.format(date), (DefaultMutableTreeNode)treeTableModel.getRoot(), 3);
+		treeTableModel.setValueAt(ISO_8601_FORMAT.format(date), (DefaultMutableTreeNode)treeTableModel.getRoot(), Column.FINISH_TIME);
 	}
 	
 	public void setWorkflowInvocationTime(long averageInvocationTime) {
-		treeTableModel.setValueAt(String.valueOf(averageInvocationTime)+ " ms", (DefaultMutableTreeNode)treeTableModel.getRoot(), 4);
+		treeTableModel.setValueAt(WorkflowRunProgressTreeTableModel.formatMilliseconds(averageInvocationTime), (DefaultMutableTreeNode)treeTableModel.getRoot(), Column.AVERAGE_ITERATION_TIME);
 	}
 	
 	public void setStartDateForObject(Object object, Date date){
@@ -78,8 +78,8 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 		treeTableModel.setAverageInvocationTimeForObject(object, averageInvocationTime);		
 	}
 	
-	public void setNumberOfIterationsForObject(Object object, Integer iterations){
-		treeTableModel.setNumberOfIterationsForObject(object, iterations);
+	public void setNumberOfQueuedIterationsForObject(Object object, Integer iterations){
+		treeTableModel.setNumberOfQueuedIterationsForObject(object, iterations);
 	}
 	
 	public void setNumberOfFailedIterationsForObject(Object object, Integer failedIterations){
@@ -144,16 +144,10 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 		return treeTableModel.getStartDateForObject(processor);
 	}
 
-	public Integer getIterationsNumberForObject(Processor processor) {
-		return treeTableModel.getIterationsNumberForObject(processor);
-	}
-
-	public Date getWorkflowStartDate() {
-		SimpleDateFormat sdf = new SimpleDateFormat(
-		"yyyy-MM-dd HH:mm:ss");
+	public Date getWorkflowStartDate() {		
 		String dateString = (String)treeTableModel.getValueAt((DefaultMutableTreeNode)treeTableModel.getRoot(), 2);
 		try {
-			Date date = sdf.parse(dateString);
+			Date date = ISO_8601_FORMAT.parse(dateString);
 			return date;
 		} catch (ParseException e) {
 			return null;

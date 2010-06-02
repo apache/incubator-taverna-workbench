@@ -21,12 +21,13 @@
 package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
 import java.sql.Timestamp;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -45,6 +46,7 @@ import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
+import net.sf.taverna.t2.workflowmodel.utils.NamedWorkflowEntityComparator;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 /**
@@ -55,37 +57,64 @@ import net.sf.taverna.t2.workflowmodel.utils.Tools;
  * are represented as table columns.
  * 
  * @author Alex Nenadic
+ * @author Stian Soiland-Reyes
  */
 public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 
-	private static final String NAME = "Name";
-	private static final String STATUS = "Status";	
-	private static final String START_TIME = "Start time";
-	private static final String FINISH_TIME = "Finish time";
-	private static final String AVERAGE_ITERATION_TIME = "Average time per iteration (in ms)";
-	private static final String ITERATIONS = "Total iterations";
-	private static final String ITERATIONS_DONE= "Iterations done";
-	private static final String ITERATIONS_FAILED = "Iterations with errors";
+	private static SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat(
+		"yyyy-MM-dd HH:mm:ss");
+	
+	private static final String HOURS = "h";
+	private static final String MINUTES = "m";
+	private static final String SECONDS = "s";
+	private static final String MILLISECONDS = "ms";
+	public static final String NAME = "Name";
+	public static final String STATUS = "Status";	
+	public static final String START_TIME = "Start time";
+	public static final String FINISH_TIME = "Finish time";
+	public static final String AVERAGE_ITERATION_TIME = "Average time per iteration";
+	public static final String ITERATIONS = "Queued iterations";
+	public static final String ITERATIONS_DONE= "Completed iterations";
+	public static final String ITERATIONS_FAILED = "Iterations with errors";
 
-	private static final String STATUS_PENDING = "Pending";
-	private static final String STATUS_FINISHED = "Finished";
+	public static final String STATUS_PENDING = "Pending";
+	public static final String STATUS_FINISHED = "Finished";
 
-	// Column names
-	private String[] columnNames = new String[] {
-			NAME, // name of the workflow or processor
-			STATUS, // status of the workflow or processor
-			START_TIME, // start time of workflow or processor
-			FINISH_TIME, // finish time of workflow or processor
-			AVERAGE_ITERATION_TIME, // average time per iteration (in ms)
-			ITERATIONS, // total number of iterations
-			ITERATIONS_DONE, // number of iteration done so far
-			ITERATIONS_FAILED, // number of failed iterations
-    };
+	public enum Column { 
+		NAME("Name", TreeTableModel.class), 
+		STATUS("Status"), 
+		ITERATIONS_QUEUED("Queued iterations"), 
+		ITERATIONS_DONE("Iterations done"), 
+		ITERATIONS_FAILED("Iterations with errors"),
+		START_TIME("Start time"), 
+		FINISH_TIME("Finish time"), 
+		AVERAGE_ITERATION_TIME("Average time per iteration"); 
+		private final String label;
+		private final Class<?> columnClass;
 
-    // Column types
-    @SuppressWarnings("unchecked")
-	static protected Class[] columnTypes = { TreeTableModel.class,
-			String.class, String.class, String.class, String.class, String.class, String.class, String.class };
+		Column(String label) {
+			this(label, String.class);
+		}
+		
+		Column(String label, Class<?> columnClass) {
+			this.label = label;
+			this.columnClass = columnClass;
+		}
+		
+		public Class<?> getColumnClass() {
+			return columnClass;
+		}
+		public String getLabel() {
+			return label;
+		}
+		
+		@Override
+		public String toString() {
+			return label;
+		}
+	}
+	
+
     
 	// Table data (maps workflow element nodes to column data associated with them)
 	private Map<DefaultMutableTreeNode, ArrayList<Object>> data = new HashMap<DefaultMutableTreeNode, ArrayList<Object>>();;
@@ -121,6 +150,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		rootNode = (DefaultMutableTreeNode) this.getRoot();
 		createTree(dataflow, rootNode);	
     }
+	private final NamedWorkflowEntityComparator namedWorkflowEntitiyComparator = new NamedWorkflowEntityComparator();
 
 	private void createTree(Dataflow df, DefaultMutableTreeNode root) {
     	   	
@@ -134,48 +164,51 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     		if (provenanceConnector != null && referenceService != null && provenanceAccess != null){    			
     			workflowData.add(STATUS_FINISHED); // status
     			
-				SimpleDateFormat sdf = new SimpleDateFormat(
-				"yyyy-MM-dd HH:mm:ss");
+    			workflowData.add("-"); // no. of iterations
+    			workflowData.add("-"); // no. of iterations done so far
+    			workflowData.add("-"); // no. of failed iterations
+    			
+				
     			DataflowInvocation dataflowInvocation = provenanceAccess.getDataflowInvocation(workflowRunId);
 				Timestamp workflowStartTime = dataflowInvocation.getInvocationStarted();
     			Timestamp workflowFinishTime = dataflowInvocation.getInvocationEnded();
     			
     			if (workflowStartTime != null) {
-    				workflowData.add(sdf.format(workflowStartTime));
+    				workflowData.add(ISO_8601_FORMAT.format(workflowStartTime));
     			} else {
     				workflowData.add("-");
     			}
     			if (workflowFinishTime != null) {
-    				workflowData.add(sdf.format(workflowFinishTime)); 
+    				workflowData.add(ISO_8601_FORMAT.format(workflowFinishTime)); 
     			} else {
     				workflowData.add("-");
     			}
     			if (workflowStartTime != null &&  workflowFinishTime != null) {
-    				workflowData.add(String.valueOf(workflowFinishTime.getTime() - workflowStartTime.getTime()) + " ms"); // average running time in ms
+    				workflowData.add(formatMilliseconds(workflowFinishTime.getTime() - workflowStartTime.getTime())); // average running time in ms
     			} else {
     				workflowData.add("-");
     			}
 
-    			workflowData.add("-"); // no. of iterations
-    			workflowData.add("-"); // no. of iterations done so far
-    			workflowData.add("-"); // no. of failed iterations
 			}
     		else{    			
 				workflowData.add(STATUS_PENDING); // status
     			
+    			workflowData.add("-"); // no. of iterations
+    			workflowData.add("-"); // no. of iterations done so far
+    			workflowData.add("-"); // no. of failed iterations
+
 				workflowData.add(null); // wf start time
 				workflowData.add(null); // wf finish time
 				workflowData.add(null); // average running time
 
-    			workflowData.add("-"); // no. of iterations
-    			workflowData.add("-"); // no. of iterations done so far
-    			workflowData.add("-"); // no. of failed iterations
     		}
 			data.put(root, workflowData);
     	}
 
     	// One row for each processor
-		for (Processor processor : df.getProcessors()) {
+		List<Processor> processorsList = new ArrayList<Processor>(df.getProcessors());
+		Collections.sort(processorsList, namedWorkflowEntitiyComparator);
+		for (Processor processor : processorsList){
 			DefaultMutableTreeNode processorNode = new DefaultMutableTreeNode(processor);
 			ArrayList<Object> processorData = new ArrayList<Object>();
 			processorData.add(processor.getLocalName()); // name
@@ -203,13 +236,14 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     			processorData.add(STATUS_FINISHED); // status
     			
     			if (processorEnactments.isEmpty()){
+    				
+        			processorData.add(0); // no. of queued iterations 
+        			processorData.add(processorEnactments.size()); // no. of iterations done so far
+        			processorData.add("Unknown"); // no. of failed iterations
+        			
     				processorData.add(null); // start time
     				processorData.add(null); // finish time
     				processorData.add(null); // average time per iteration
-    				
-        			processorData.add(processorEnactments.size()); // no. of iterations 
-        			processorData.add(processorEnactments.size()); // no. of iterations done so far
-        			processorData.add("Do not know"); // no. of failed iterations
     			}
     			else{
 					Timestamp earliestStartTime = processorEnactments.get(0)
@@ -263,29 +297,29 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 						averageTime = -1;
 					}
 
-					SimpleDateFormat sdf = new SimpleDateFormat(
-							"yyyy-MM-dd HH:mm:ss");
-					processorData.add(sdf.format(earliestStartTime)); // start time
-					processorData.add(sdf.format(latestFinishTime)); // finish time
+
+	    			processorData.add(0); // no. of queued iterations 
+	    			processorData.add(processorEnactments.size()); // no. of iterations done so far
+	    			processorData.add(errors); // no. of failed iterations
+					
+					
+					processorData.add(ISO_8601_FORMAT.format(earliestStartTime)); // start time
+					processorData.add(ISO_8601_FORMAT.format(latestFinishTime)); // finish time
 					if (averageTime > -1) {
-						processorData.add(averageTime + " ms"); // average time per iteration
+						processorData.add(formatMilliseconds(averageTime)); // average time per iteration
 					} else {
 						processorData.add("-");
 					}
-					
-	    			processorData.add(processorEnactments.size()); // no. of iterations 
-	    			processorData.add(processorEnactments.size()); // no. of iterations done so far
-	    			processorData.add(errors); // no. of failed iterations
     			}
     		}
     		else{ 
     			processorData.add(STATUS_PENDING); // status
+    			processorData.add("0"); // no. of queued iterations
+    			processorData.add("0"); // no. of iterations done so far
+    			processorData.add("0"); // no. of failed iterations
     			processorData.add(null); // start time
     			processorData.add(null); // finish time
     			processorData.add(null); // average time per iteration
-    			processorData.add("Calculating..."); // no. of iterations
-    			processorData.add("0"); // no. of iterations done so far
-    			processorData.add("0"); // no. of failed iterations
     		}
 
    			data.put(processorNode, processorData);
@@ -327,19 +361,22 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	//
 
 	public int getColumnCount() {
-		return columnNames.length;
+		return Column.values().length;
 	}
 
 	public String getColumnName(int column) {
-		return columnNames[column];
+		return Column.values()[column].getLabel();
 	}
 
-	public Class getColumnClass(int column) {
-		return columnTypes[column];
+	public Class<?> getColumnClass(int column) {
+		return Column.values()[column].getColumnClass();
 	}
 
-	public Object getValueAt(Object node, int column) {	
-		
+	public Object getValueAt(Object node, Column column) {			
+		return getValueAt(node, column.ordinal());
+	}
+	
+	public Object getValueAt(Object node, int column) {			
 		if (data!= null && data.get(node) != null){
 			return data.get(node).get(column);
 		} 
@@ -347,62 +384,82 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 			return null;
 		}
 	}
-
+	
+	@Override
 	public void setValueAt(Object aValue, Object node, int column) {
 		data.get(node).set(column, aValue);
 		this.fireTreeNodesChanged(node, ((DefaultMutableTreeNode)node).getPath(), null, null);
 	}
 
+	public void setValueAt(Object aValue, Object node, Column column) {
+		setValueAt(aValue, node, column.ordinal());
+	}
+
 	public void setStatusForObject(Object object, String status) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(status, node, 1);		
+		setValueAt(status, node, Column.STATUS);		
 	}
 	
 	public void setStartDateForObject(Object object, Date date) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		SimpleDateFormat sdf = new SimpleDateFormat(
-				"yyyy-MM-dd HH:mm:ss");
-		setValueAt(sdf.format(date), node, 2);
+		setValueAt(ISO_8601_FORMAT.format(date), node, Column.START_TIME);
 	}
 	
 	public void setFinishDateForObject(Object object, Date date) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		SimpleDateFormat sdf = new SimpleDateFormat(
-		"yyyy-MM-dd HH:mm:ss");
-		setValueAt(sdf.format(date), node, 3);
+		setValueAt(ISO_8601_FORMAT.format(date), node, Column.FINISH_TIME);
 	}
 	
 	public void setAverageInvocationTimeForObject(Object object, long timeInMiliseconds) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(String.valueOf(timeInMiliseconds) + " ms", node, 4);
+		setValueAt(formatMilliseconds(timeInMiliseconds), node, Column.AVERAGE_ITERATION_TIME);
+	}
+
+	public static String formatMilliseconds(long timeInMiliseconds) {
+		double timeInSeconds;
+		if (timeInMiliseconds < 1000) {
+			return timeInMiliseconds + " " + MILLISECONDS;
+		}  			
+		NumberFormat numberFormat = NumberFormat.getNumberInstance();
+		numberFormat.setMaximumFractionDigits(1);
+		numberFormat.setMinimumFractionDigits(1);
+		timeInSeconds = timeInMiliseconds / 1000.0;
+		if (timeInSeconds < 60) {
+			return numberFormat.format(timeInSeconds) + " " + SECONDS;
+		} 
+		double timeInMinutes = timeInSeconds / 60.0;
+		if (timeInMinutes < 60) {
+			return numberFormat.format(timeInMinutes) + " " + MINUTES;
+		}
+		double timeInHours = timeInMinutes / 60.0;
+		return numberFormat.format(timeInHours) + " " + HOURS;
+		
 	}
 	
-	public void setNumberOfIterationsForObject(Object object, Integer iterations) {
+	public void setNumberOfQueuedIterationsForObject(Object object, Integer iterations) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(iterations, node, 5);
+		setValueAt(iterations, node, Column.ITERATIONS_QUEUED);
 	}
 	
 	public void setNumberOfIterationsDoneSoFarForObject(Object object, Integer doneIterations) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(doneIterations, node, 6);
+		setValueAt(doneIterations, node, Column.ITERATIONS_DONE);
 	}
 	
 	public void setNumberOfFailedIterationsForObject(Object object, Integer failedIterations) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(failedIterations, node, 7);
+		setValueAt(failedIterations, node, Column.ITERATIONS_FAILED);
 	}
 	
 	public DefaultMutableTreeNode getNodeForObject(Object object){
-		 Iterator<?> iter = data.keySet().iterator();
-		 while (iter.hasNext()) {
-			 DefaultMutableTreeNode node = (DefaultMutableTreeNode)(iter.next());
+		for (DefaultMutableTreeNode node : data.keySet()) {
 			 if (node.getUserObject().equals(object)){
 				 return node;
 			 }
@@ -410,28 +467,16 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		 return null;
 	}
 
+	
 	public Date getStartDateForObject(Object object) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
-		SimpleDateFormat sdf = new SimpleDateFormat(
-				"yyyy-MM-dd HH:mm:ss");
-		String dateString = (String)getValueAt(node, 2);
+	
+		String dateString = (String)getValueAt(node, Column.START_TIME);
 		try {
-			Date date = sdf.parse(dateString);
+			Date date = ISO_8601_FORMAT.parse(dateString);
 			return date;
 		} catch (ParseException e) {
-			return null;
-		}
-	}
-
-	public Integer getIterationsNumberForObject(Object object) {
-		// First get the node for object
-		DefaultMutableTreeNode node = getNodeForObject(object);
-		String iterationsNumber = (String)getValueAt(node, 4);
-		try{
-			return Integer.valueOf(iterationsNumber);
-		}
-		catch(Exception ex){
 			return null;
 		}
 	}

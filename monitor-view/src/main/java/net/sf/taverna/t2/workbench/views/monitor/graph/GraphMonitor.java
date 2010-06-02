@@ -81,9 +81,9 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 
 	private Set<String> datalinks = Collections.synchronizedSet(new HashSet<String>());
 
-	private Map<String, GraphMonitorNode> processors = new HashMap<String, GraphMonitorNode>();
+	private Map<String, GraphMonitorNode> processors = Collections.synchronizedMap(new HashMap<String, GraphMonitorNode>());
 
-	private Map<String, ResultListener> resultListeners = new HashMap<String, ResultListener>();
+	private Map<String, ResultListener> resultListeners = Collections.synchronizedMap(new HashMap<String, ResultListener>());
 
 	private Timer updateTimer = new Timer("GraphMonitor update timer", true);
 

@@ -180,38 +180,20 @@ public class WorkflowRunProgressMonitorNode implements MonitorNode{
 
 		if (queueSizeChanged) {
 			totalJobs = sentJobs + queueSize;
-//			progressTreeTable.setNumberOfIterationsForObject(processor,
-//					totalJobs);
-//			System.out.println("totalJobs for processor ... "
-//					+ getOwningProcessId(owningProcess) + " sendJobs: "
-//					+ sentJobs + " queusSize: " + queueSize + " total "
-//					+ totalJobs);
+			progressTreeTable.setNumberOfQueuedIterationsForObject(processor,
+					queueSize);
 		}
 		if (completedJobsChanged) {
 			progressTreeTable.setNumberOfIterationsDoneSoFarForObject(
 					processor, completedJobs);
 			totalJobs = sentJobs + queueSize;
-//			progressTreeTable.setNumberOfIterationsForObject(processor,
-//					totalJobs);
-//			System.out.println("completedJobs for processor ... "
-//					+ getOwningProcessId(owningProcess) + " " + completedJobs);
 		}
 		if (errorsChanged && errors > 0) {
 			progressTreeTable.setNumberOfFailedIterationsForObject(processor,
 					errors);
-//			System.out.println("errors for processor ... "
-//					+ getOwningProcessId(owningProcess) + " " + errors);
 		}
 	}
-
-	private static String getOwningProcessId(String[] owningProcess) {
-		StringBuffer sb = new StringBuffer();
-		for (String string : owningProcess) {
-			sb.append(string);
-		}
-		return sb.toString();
-	}
-
+	
 	public int getTotalNumberOfIterations() {
 		return totalJobs;
 	}

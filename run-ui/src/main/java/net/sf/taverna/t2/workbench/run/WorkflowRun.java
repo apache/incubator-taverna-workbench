@@ -205,7 +205,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				new WorkflowRunProgressTreeTableModel(facade.getDataflow()));
 		// Do not show the column with total number of iterations as it 
 		// does not gets updated till the end of all iterations so it is pointless
-		progressRunTable.removeColumn(progressRunTable.getColumnModel().getColumn(5));
+		//progressRunTable.removeColumn(progressRunTable.getColumnModel().getColumn(5));
 		progressRunTable.setWorkflowStartDate(date);
 		progressRunTable.setWorkflowStatus("Running");
 		// Start listening for row selections on the table if provenance is enabled 
@@ -406,7 +406,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			progressRunTable = new WorkflowRunProgressTreeTable(new WorkflowRunProgressTreeTableModel(dataflow, connector, referenceService, runId));
 			// Do not show the column with total number of iterations as it 
 			// does not gets updated till the end of all iterations so it is pointless
-			progressRunTable.removeColumn(progressRunTable.getColumnModel().getColumn(5));
+			//progressRunTable.removeColumn(progressRunTable.getColumnModel().getColumn(5));
 			
 			// Start listening for row selections on the table  
 			// so we can show intermediate results for processors. 
