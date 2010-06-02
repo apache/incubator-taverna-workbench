@@ -44,8 +44,8 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 
 	private A activity;
 	private ActivityConfigurationPanel<A, B> panel;
-	private Dataflow owningDataflow;
-	private Processor owningProcessor;
+	protected Dataflow owningDataflow;
+	protected Processor owningProcessor;
 
 	private Observer<EditManagerEvent> observer;
 
@@ -248,4 +248,5 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		super.dispose();
 		EditManager.getInstance().removeObserver(observer);
 	}
+	
 }
