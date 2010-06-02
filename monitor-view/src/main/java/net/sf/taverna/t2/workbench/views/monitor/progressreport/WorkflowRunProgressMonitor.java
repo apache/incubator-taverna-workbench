@@ -44,7 +44,6 @@ import net.sf.taverna.t2.monitor.MonitorManager.RegisterNodeMessage;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
 
@@ -262,7 +261,9 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 			} else if (workflowObject instanceof Activity<?>) {
 				Date endTime = new Date();
 				Date startTime = activitityInvocationStartTimes.remove(owningProcessId);
-				String parentProcessId = getOwningProcessId(Arrays.copyOf(owningProcess, owningProcess.length-1));										
+				List<String> owningProcessList = Arrays.asList(owningProcess);
+				owningProcessList.remove(owningProcess.length-1);
+				String parentProcessId = getOwningProcessId(owningProcessList);										
 				Object parentObject = workflowObjects.get(parentProcessId);
 				if (parentObject instanceof Processor && startTime != null) {						
 //					Processor processor = (Processor) parentObject;
@@ -299,6 +300,9 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 		}
 	}
 
+	private static String getOwningProcessId(String[] owningProcess) {
+		return getOwningProcessId(Arrays.asList(owningProcess));
+	}
 	/**
 	 * Converts the owning process array to a string.
 	 * 
@@ -306,9 +310,9 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	 *            the owning process id
 	 * @return the owning process as a string
 	 */
-	private static String getOwningProcessId(String[] owningProcess) {
+	private static String getOwningProcessId(List<String> owningProcess) {
 		StringBuffer sb = new StringBuffer();
-		Iterator<String> iterator = Arrays.asList(owningProcess).iterator();
+		Iterator<String> iterator = owningProcess.iterator();
 		while (iterator.hasNext()) {
 			String string = iterator.next();			
 			sb.append(string);
