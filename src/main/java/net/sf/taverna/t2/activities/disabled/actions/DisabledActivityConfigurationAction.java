@@ -26,10 +26,18 @@ import java.awt.event.ActionEvent;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.activities.disabled.views.DisabledConfigView;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
+import net.sf.taverna.t2.workflowmodel.CompoundEdit;
+import net.sf.taverna.t2.workflowmodel.Edit;
+import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
+
+
+import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 @SuppressWarnings("serial")
 public class DisabledActivityConfigurationAction extends ActivityConfigurationAction<DisabledActivity, ActivityAndBeanWrapper>{
@@ -57,7 +65,24 @@ public class DisabledActivityConfigurationAction extends ActivityConfigurationAc
 		
 		final DisabledConfigView disabledConfigView = new DisabledConfigView((DisabledActivity)getActivity());
 		final ActivityConfigurationDialog<DisabledActivity, ActivityAndBeanWrapper> dialog =
-			new ActivityConfigurationDialog<DisabledActivity, ActivityAndBeanWrapper>(getActivity(), disabledConfigView);
+			new ActivityConfigurationDialog<DisabledActivity, ActivityAndBeanWrapper>(getActivity(), disabledConfigView) {
+			public boolean closeDialog() {
+				boolean result = super.closeDialog();
+				if (activity.configurationWouldWork()) {
+					Edit e = Tools.getEnableDisabledActivityEdit(super.owningProcessor, activity);
+					if (e != null) {
+						try {
+							EditManager.getInstance().doDataflowEdit(super.owningDataflow,
+									e);
+						}
+						catch (EditException except) {
+							result = false;
+						}
+					}
+				}
+				return result;
+			}
+		};
 
 		ActivityConfigurationAction.setDialog(getActivity(), dialog);	
 		

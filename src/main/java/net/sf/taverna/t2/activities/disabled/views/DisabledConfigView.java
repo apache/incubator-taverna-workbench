@@ -35,6 +35,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -93,44 +95,17 @@ public class DisabledConfigView extends ActivityConfigurationPanel<DisabledActiv
 	    initialise();
 	}
 
-    public boolean checkValues() {
-	Activity<?> a = configuration.getActivity();
-	boolean result = true;
-	try {
-	    Activity aa = (Activity) a;
-	    aa.configure(clonedConfig);
-	    boolean unknownPort = false;
-	    Map<String,String> currentInputPortMap = activity.getInputPortMapping();
-	    for (ActivityInputPort aip : a.getInputPorts()) {
-		if (!currentInputPortMap.containsValue(aip.getName())) {
-		    unknownPort = true;
-		    break;
+	public boolean checkValues() {
+		boolean result = activity.configurationWouldWork(clonedConfig);
+		if (!result) {
+			JOptionPane
+					.showMessageDialog(
+							this,
+							"The new properties are invalid or not consistent with the workflow",
+							"Invalid properties", JOptionPane.WARNING_MESSAGE);
 		}
-	    }
-	    if (!unknownPort) {
-		Map<String,String> currentOutputPortMap = activity.getOutputPortMapping();
-		for (OutputPort aop : a.getOutputPorts()) {
-		    if (!currentOutputPortMap.containsValue(aop.getName())) {
-			unknownPort = true;
-			break;
-		    }
-		}
-	    }
-	    if (unknownPort) {
-		result = false;
-	    }	    
+		return result;
 	}
-	catch (ActivityConfigurationException ex) {
-	    result = false;
-	}
-	if (!result) {
-	    JOptionPane.showMessageDialog(this,
-					  "The new properties are invalid or not consistent with the workflow",
-					  "Invalid properties",
-					  JOptionPane.WARNING_MESSAGE);
-	}
-	return result;
-    }
 
     public void noteConfiguration() {
 	if (isConfigurationChanged()) {
@@ -138,10 +113,6 @@ public class DisabledConfigView extends ActivityConfigurationPanel<DisabledActiv
 	    newConfig.setActivity(configuration.getActivity());
 	    newConfig.setBean(clonedConfig);
 	    configuration = newConfig;
-	    JOptionPane.showMessageDialog(this,
-					  "After setting properties, you need to do a full check to affect servvice availability",
-					  "Full check needed",
-					  JOptionPane.INFORMATION_MESSAGE);
 
 	    XStream xstream = new XStream();
 	    xstream.setClassLoader(configuration.getActivity().getClass().getClassLoader());
