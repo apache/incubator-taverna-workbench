@@ -4,10 +4,13 @@
 package net.sf.taverna.t2.workbench.report.view;
 
 import java.awt.BorderLayout;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.awt.FlowLayout;
 import java.awt.GridBagLayout;
 import java.util.List;
 import java.util.Map;
+import java.util.HashSet;
 import java.util.Set;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentEvent;
@@ -22,7 +25,10 @@ import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.SystemColor;
+import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.Icon;
@@ -33,6 +39,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.JInternalFrame;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JTabbedPane;
 import javax.swing.JLabel;
@@ -42,6 +49,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
@@ -141,6 +149,14 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
     private JComboBox shownReports = null;
     
     private TableListener tableListener = null;
+    
+    private HashSet<VisitReport> ignoredReports = new HashSet<VisitReport>();
+    
+    JButton ignoreReportButton;
+    
+    public static String ALL_INCLUDING_IGNORED = "All reports";
+    public static String ALL_EXCEPT_IGNORED = "All excepted ignored reports";
+    
 	public ReportViewComponent() {
 		super();
 		reportManager.addObserver(new ReportManagerObserver());
@@ -150,10 +166,11 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
     private JScrollPane tableScrollPane;
 
 	private void initialise() {
-	    shownReports = new JComboBox(new String[] {ReportViewTableModel.ALL_REPORTS,
+	    shownReports = new JComboBox(new String[] {ALL_INCLUDING_IGNORED,
+	    		ALL_EXCEPT_IGNORED,
 						       ReportViewTableModel.WARNINGS_AND_ERRORS,
 						       ReportViewTableModel.JUST_ERRORS});
-	    shownReports.setSelectedIndex(0);
+	    shownReports.setSelectedIndex(1);
 	    shownReports.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent ex) {
 			showReport(FileManager.getInstance()
@@ -167,7 +184,13 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		dataflowName.setText("No workflow");
 
 		headerPanel.add(dataflowName, BorderLayout.WEST);
-		headerPanel.add(shownReports, BorderLayout.EAST);
+
+		JPanel shownReportsPanel = new JPanel();
+		shownReportsPanel.setLayout(new BorderLayout());
+		shownReportsPanel.add(new JLabel("Show messages:"), BorderLayout.WEST);
+		shownReportsPanel.add(shownReports, BorderLayout.EAST);
+		headerPanel.add(shownReportsPanel, BorderLayout.EAST);
+
 		this.add(headerPanel, BorderLayout.NORTH);
 		
 		JSplitPane splitPane = new JSplitPaneExt(JSplitPane.VERTICAL_SPLIT);
@@ -181,53 +204,23 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		splitPane.add(messagePane);
 
 		this.add(splitPane, BorderLayout.CENTER);
-		JButton quickCheckButton = new JButton("Quick check");
-		quickCheckButton.addActionListener(new ActionListener() {
+		ignoreReportButton = new JButton(new AbstractAction("Hide report") {
 			public void actionPerformed(ActionEvent ex) {
-			    Dataflow dataflow = FileManager.getInstance()
-				.getCurrentDataflow();
-				ValidateSwingWorker validateSwingWorker = new ValidateSwingWorker(dataflow, false);
-				ValidateInProgressDialog dialog = new ValidateInProgressDialog();
-				validateSwingWorker.addPropertyChangeListener(
-					     new SwingWorkerCompletionWaiter(dialog));
-				validateSwingWorker.execute();
-				
-				// Give a chance to the SwingWorker to finish so we do not have to display 
-				// the dialog if copying of the workflow is quick (so it won't flicker on the screen)
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					// do nothing
-				}
-				if (!validateSwingWorker.isDone()){
-					dialog.setVisible(true); // this will block the GUI
-				}
-			}
+			    if (lastSelectedReport != null) {
+			    	if (ignoredReports.contains(lastSelectedReport)) {
+			    		ignoredReports.remove(lastSelectedReport);
+			    	}
+			    	else {
+			    		ignoredReports.add(lastSelectedReport);
+			    		showReport();
+			    	}
+			    }
+			}			
 		});
-		JButton fullCheckButton = new JButton("Full check");
-		fullCheckButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent ex) {
-			    Dataflow dataflow = FileManager.getInstance()
-				.getCurrentDataflow();
-				ValidateSwingWorker validateSwingWorker = new ValidateSwingWorker(dataflow, true);
-				ValidateInProgressDialog dialog = new ValidateInProgressDialog();
-				validateSwingWorker.addPropertyChangeListener(
-					     new SwingWorkerCompletionWaiter(dialog));
-				validateSwingWorker.execute();
-				
-				// Give a chance to the SwingWorker to finish so we do not have to display 
-				// the dialog if copying of the workflow is quick (so it won't flicker on the screen)
-				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					// do nothing
-				}
-				if (!validateSwingWorker.isDone()){
-					dialog.setVisible(true); // this will block the GUI
-				}
-			}
-		});
+		JButton quickCheckButton = new JButton(new ReportOnWorkflowAction("Quick check", false, true));
+		JButton fullCheckButton = new JButton(new ReportOnWorkflowAction("Full check", true, true));
 		JPanel validateButtonPanel = new JPanel();
+		validateButtonPanel.add(ignoreReportButton);
 		validateButtonPanel.add(quickCheckButton);
 		validateButtonPanel.add(fullCheckButton);
 		this.add(validateButtonPanel, BorderLayout.SOUTH);
@@ -239,8 +232,8 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 			}
 			public void componentResized(ComponentEvent e) {
 			    if (lastSelectedReport != null) {
-				updateExplanation(lastSelectedReport);
-				updateMessages();
+			    	updateExplanation(lastSelectedReport);
+			    	updateMessages();
 			    }
 			}
 			public void componentShown(ComponentEvent e) {
@@ -276,13 +269,15 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	}
 	
 	private JTable createTable(Map<Object, Set<VisitReport>> reportEntries) {
-		reportViewTableModel = new ReportViewTableModel(reportEntries, (String) shownReports.getSelectedItem());
+		reportViewTableModel = new ReportViewTableModel(reportEntries,
+				(String) shownReports.getSelectedItem(),
+				ignoredReports);
 		if (sorter != null) {
 		    sorter.setModel(reportViewTableModel);
 		} else {
 		    sorter = new TableSorter(reportViewTableModel);
+			sorter.sortByColumn(0, false); // sort by decreasing severity
 		}
-		sorter.sortByColumn(0, false); // sort by decreasing severity
 		if (table == null) {
 		    table = new JTable(sorter);
 		    table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -310,6 +305,10 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 
 		return table;
 	}
+	
+	private void showReport() {
+		showReport(FileManager.getInstance().getCurrentDataflow());
+	}
 
 	private void showReport(final Dataflow dataflow) {
 		if (dataflow != null) {
@@ -333,6 +332,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		    lastSelectedReport = null;
 		    table.clearSelection();
 		}
+		sorter.resort(table);
 		updateExplanation(lastSelectedReport);
 		updateMessages();
 		messagePane.revalidate();
@@ -343,7 +343,18 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	    JPanel explainPanel = wrapComponent(explanation);
 		explanationScrollPane.setViewportView(explainPanel);
 		solutionScrollPane.setViewportView(wrapComponent(solution));
-		messagePane.revalidate();
+		if (lastSelectedReport != null) {
+			ignoreReportButton.setEnabled(true);
+			if (ignoredReports.contains(lastSelectedReport)) {
+				ignoreReportButton.setText("Include report");
+			} else {
+				ignoreReportButton.setText("Ignore report");
+			}
+		} else {
+			ignoreReportButton.setEnabled(false);
+			ignoreReportButton.setText("Ignore report");
+		}
+ 		messagePane.revalidate();
 	}
 	
 	private final class ReportManagerObserver implements
@@ -362,8 +373,6 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 							showReport(dataflow);
 						}
 					});
-				} else {
-					System.err.println("Ignoring dataflow event");
 				}
 			}
 		}
@@ -496,7 +505,9 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		gbc.gridy++;
 		gbc.gridwidth = 2;
 		gbc.fill = GridBagConstraints.BOTH;
-		result.add(new JPanel(), gbc);
+		JPanel filler = new JPanel();
+		filler.setBackground(SystemColor.text);
+		result.add(filler, gbc);
 		return result;
 	}
 }

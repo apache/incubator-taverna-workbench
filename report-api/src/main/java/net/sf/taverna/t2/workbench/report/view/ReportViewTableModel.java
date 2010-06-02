@@ -4,8 +4,11 @@
 package net.sf.taverna.t2.workbench.report.view;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -43,13 +46,18 @@ public class ReportViewTableModel extends DefaultTableModel {
 
 	private ArrayList<VisitReport> reports;
 	
-	public ReportViewTableModel(Map<Object, Set<VisitReport>> reportEntries, String shownReports) {
+	public ReportViewTableModel(Map<Object, Set<VisitReport>> reportEntries,
+				String shownReports,
+				HashSet<VisitReport> ignoredReports) {
 		super(new String[] { "Severity", "Speed", "Type",
 				"Name", "Description" }, 0);
 		reports = new ArrayList();
 		if (reportEntries != null) {
 			for (Object o : reportEntries.keySet()) {
 				for (VisitReport vr : reportEntries.get(o)) {
+					if (!shownReports.equals(ReportViewComponent.ALL_INCLUDING_IGNORED) && (ignoredReports.contains(vr))){
+							continue;
+					}
 //					if (!vr.getStatus().equals(Status.OK)) {
 				    Status status = vr.getStatus();
 				    if (shownReports.equals(WARNINGS_AND_ERRORS) && status.equals(Status.OK)) {

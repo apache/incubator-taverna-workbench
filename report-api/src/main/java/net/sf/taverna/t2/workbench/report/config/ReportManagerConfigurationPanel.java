@@ -34,6 +34,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
     private static final String CHECKS_ON_OPEN = "Checks when opening a workflow";
     private static final String CHECKS_ON_EDIT = "Checks after each edit";
     private static final String CHECKS_BEFORE_RUN = "Checks before running a workflow";
+    private static final String QUERY_USER_BEFORE_RUN = "Ask before run";
 
 	private static ReportManagerConfiguration configuration = ReportManagerConfiguration.getInstance();
 	
@@ -47,6 +48,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 	private JComboBox openCombo;
 	private JComboBox editCombo;
 	private JComboBox runCombo;
+	private JComboBox queryBeforeRunCombo;
     
     public ReportManagerConfigurationPanel() {
     	super();
@@ -106,7 +108,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(runCombo, gbc);
         
-          timeoutField = new JTextField(TEXTFIELD_SIZE);
+        timeoutField = new JTextField(TEXTFIELD_SIZE);
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 1;
@@ -117,6 +119,18 @@ public class ReportManagerConfigurationPanel extends JPanel {
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(timeoutField, gbc);
+        
+        queryBeforeRunCombo = new JComboBox(new Object[] {"Never ask", "Ask if errors", "Ask if errors or warnings"});
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(10,0,0,0);
+        this.add(new JLabel(QUERY_USER_BEFORE_RUN), gbc);
+        gbc.gridx = 1;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        this.add(queryBeforeRunCombo, gbc);
         
 		// Add buttons panel
         gbc.gridx = 0;
@@ -208,6 +222,15 @@ public class ReportManagerConfigurationPanel extends JPanel {
 		} else {
 			runCombo.setSelectedIndex(1);
 		}
+		
+		String queryBeforeRunSetting = configuration.getProperty(ReportManagerConfiguration.QUERY_BEFORE_RUN);
+		if (queryBeforeRunSetting.equals(ReportManagerConfiguration.NONE)) {
+			queryBeforeRunCombo.setSelectedIndex(0);
+		} else if (queryBeforeRunSetting.equals(ReportManagerConfiguration.ERRORS)) {
+			queryBeforeRunCombo.setSelectedIndex(1);
+		} else {
+			queryBeforeRunCombo.setSelectedIndex(2);
+		}
 	}
 	
 	/**
@@ -279,6 +302,15 @@ public class ReportManagerConfigurationPanel extends JPanel {
 		} else {
 			configuration.setProperty(ReportManagerConfiguration.BEFORE_RUN,
 					ReportManagerConfiguration.FULL_CHECK);
+		}
+		
+		int queryBeforeRunSetting = queryBeforeRunCombo.getSelectedIndex();
+		if (queryBeforeRunSetting == 0) {
+			configuration.setProperty(ReportManagerConfiguration.QUERY_BEFORE_RUN,  ReportManagerConfiguration.NONE);
+		} else if (queryBeforeRunSetting == 1) {
+			configuration.setProperty(ReportManagerConfiguration.QUERY_BEFORE_RUN, ReportManagerConfiguration.ERRORS);
+		} else {
+			configuration.setProperty(ReportManagerConfiguration.QUERY_BEFORE_RUN, ReportManagerConfiguration.ERRORS_OR_WARNINGS);		
 		}
 	}
 

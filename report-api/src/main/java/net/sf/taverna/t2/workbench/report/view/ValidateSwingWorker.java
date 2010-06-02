@@ -32,16 +32,18 @@ public class ValidateSwingWorker extends SwingWorker<Dataflow, String>{
 	private Logger logger = Logger.getLogger(ValidateSwingWorker.class);
 	private Dataflow dataflow;
 	private final boolean full;
+	private final boolean remember;
 
-	public ValidateSwingWorker(Dataflow dataflow, boolean full){
+	public ValidateSwingWorker(Dataflow dataflow, boolean full, boolean remember){
 		this.dataflow = dataflow;
 		this.full = full;
+		this.remember = remember;
 	}
 	
 	@Override
 	protected Dataflow doInBackground() throws Exception {
 
-		ReportManager.updateReport(dataflow, full);
+		ReportManager.updateReport(dataflow, full, remember);
 		return dataflow;
 	}
 

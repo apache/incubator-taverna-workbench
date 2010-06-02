@@ -26,6 +26,12 @@ public final class ReportManagerConfiguration extends AbstractConfigurable {
 	public static final String QUICK_CHECK = "QuickCheck";
 	public static final String FULL_CHECK = "FullCheck";
 	
+	public static final String NONE = "Do not care";
+	public static final String ERRORS_OR_WARNINGS = "Errors or warnings";
+	public static final String ERRORS = "Errors";
+	
+	public static final String QUERY_BEFORE_RUN = "QUERY_BEFORE_RUN";
+	
     private static ReportManagerConfiguration instance;
     
     private Map<String, String> defaultPropertyMap;
@@ -51,6 +57,7 @@ public final class ReportManagerConfiguration extends AbstractConfigurable {
             defaultPropertyMap.put(ON_EDIT, QUICK_CHECK);
             defaultPropertyMap.put(ON_OPEN, QUICK_CHECK);
             defaultPropertyMap.put(BEFORE_RUN, FULL_CHECK);
+            defaultPropertyMap.put(QUERY_BEFORE_RUN, ERRORS_OR_WARNINGS);
         }
         return defaultPropertyMap;
     }
@@ -72,10 +79,10 @@ public final class ReportManagerConfiguration extends AbstractConfigurable {
 	}
 	
 	public void setProperty(String key, String value) {
-		if (key.equals(TIMEOUT)) {
-			RemoteHealthChecker.setTimeoutInSeconds(Integer.parseInt(value));
-		}
 		super.setProperty(key, value);
+		if (key.equals(TIMEOUT)) {
+			applySettings();
+		}
 	}
 
 }

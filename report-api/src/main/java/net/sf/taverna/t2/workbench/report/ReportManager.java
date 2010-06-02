@@ -48,6 +48,8 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
 
+import net.sf.taverna.t2.workflowmodel.utils.Tools;
+
 /**
  * @author alanrw
  *
@@ -68,9 +70,9 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 				AbstractDataflowEditEvent adee = (AbstractDataflowEditEvent) message;
 				if (adee.getDataFlow().equals(dataflow)) {
 					if (onEdit.equals(ReportManagerConfiguration.QUICK_CHECK)) {
-						updateReport(dataflow, false);
+						updateReport(dataflow, false, true);
 					} else if (onEdit.equals(ReportManagerConfiguration.FULL_CHECK)) {
-						updateReport(dataflow, true);
+						updateReport(dataflow, true, true);
 					}
 				}
 			}
@@ -137,9 +139,9 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		}
 	}
 	
-	public static synchronized void updateReport(Dataflow d, boolean includeTimeConsuming) {
+	public static synchronized void updateReport(Dataflow d, boolean includeTimeConsuming, boolean remember) {
 		Set<VisitReport> oldTimeConsumingReports = null;
-		if (!includeTimeConsuming) {
+		if (remember && !includeTimeConsuming) {
 			oldTimeConsumingReports = getTimeConsumingReports(d);
 		}
 		Map<Object, Set<VisitReport>> reportsEntry = new HashMap<Object, Set<VisitReport>>();
@@ -155,7 +157,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		for (VisitReport vr : newReports) {
 			addReport(reportsEntry, statusEntry, summaryEntry, vr);
 		}
-		if (!includeTimeConsuming) {
+		if (remember && !includeTimeConsuming) {
 			for (VisitReport vr : oldTimeConsumingReports) {
 				addReport(reportsEntry, statusEntry, summaryEntry, vr);
 			}
@@ -193,21 +195,11 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 					}
 				    }
 				    Status remainingStatus = VisitReport.getWorstStatus(nonDisabledReports);
-				    if (!remainingStatus.equals(Status.SEVERE)) {
+				    if (!remainingStatus.equals(Status.SEVERE) && disabledActivity.configurationWouldWork()) {
 					logger.info(processor.getLocalName() + " is no longer disabled");
-					Activity<?> replacementActivity = disabledActivity.getActivity();
-					try {
-					    Activity ra = (Activity) replacementActivity;
-					    ra.configure(disabledActivity.getActivityConfiguration());
-					    editList.add(edits.getRemoveActivityEdit(processor, disabledActivity));
-					    replacementActivity.getInputPortMapping().clear();
-					    replacementActivity.getInputPortMapping().putAll(disabledActivity.getInputPortMapping());
-					    replacementActivity.getOutputPortMapping().clear();
-					    replacementActivity.getOutputPortMapping().putAll(disabledActivity.getOutputPortMapping());
-					    editList.add(edits.getAddActivityEdit(processor, replacementActivity));
-					}
-					catch (ActivityConfigurationException ex) {
-					    // ok
+					Edit e = Tools.getEnableDisabledActivityEdit(processor, disabledActivity);
+					if (e != null) {
+						editList.add(e);
 					}
 					
 				    }
@@ -424,7 +416,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 				.getDataflow();
 				if (!reportMap.containsKey(dataflow)) {
 					if (!onOpen.equals(ReportManagerConfiguration.NO_CHECK)) {
-						updateReport(dataflow, onOpen.equals(ReportManagerConfiguration.FULL_CHECK));
+						updateReport(dataflow, onOpen.equals(ReportManagerConfiguration.FULL_CHECK), true);
 					} else {
 						getInstance().multiCaster.notify(new DataflowReportEvent(dataflow));
 					}

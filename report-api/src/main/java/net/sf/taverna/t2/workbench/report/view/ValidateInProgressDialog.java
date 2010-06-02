@@ -38,8 +38,7 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 /**
- * Dialog that is popped up while we are copying the workflow in 
- * preparation for the workflow execution. This is just to let 
+ * Dialog that is popped up while we are validating the workflow. This is just to let 
  * the user know that Taverna is doing something.
  * 
  * @author Alex Nenadic
@@ -48,9 +47,12 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 @SuppressWarnings("serial")
 public class ValidateInProgressDialog extends JDialog{
 
+
+	private boolean userCancelled = false;
+
 	public ValidateInProgressDialog() {
 		
-		super((Frame) null, "Validating", true);
+		super((Frame) null, "Validating workflow", true);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -64,10 +66,32 @@ public class ValidateInProgressDialog extends JDialog{
 		text.setBorder(new EmptyBorder(10,0,10,0));
 		textPanel.add(text);
 		panel.add(textPanel, BorderLayout.CENTER);
-		
+
+		/**
+		 * Cancellation does not work
+
+		// Cancel button
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				userCancelled = true;
+				setVisible(false);
+				dispose();
+			}
+		});
+		JPanel cancelButtonPanel = new JPanel();
+		cancelButtonPanel.add(cancelButton);
+		panel.add(cancelButtonPanel, BorderLayout.SOUTH);
+*/
 		setContentPane(panel);
 		setPreferredSize(new Dimension(300, 150));
 
 		pack();		
 	}
+
+	public boolean hasUserCancelled() {
+		return userCancelled;
+	}
+
 }
