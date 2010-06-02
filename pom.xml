@@ -39,18 +39,14 @@
 		<module>graph-model</module>
 		<module>graph-view</module>
 		<module>iteration-strategy-ui</module>
-		<!--<module>monitor-view</module>-->	
 		<module>monitor-view</module>
 		<module>perspective-design</module>
-		<!--<module>perspective-results</module>-->		
 		<module>perspective-results</module>			
 		<module>reference-ui</module>
-		<!--<module>results-view</module>
-		<module>run-ui</module>-->
 		<module>results-view</module>
 		<module>run-ui</module>
 		<module>workflow-explorer</module>
-		<module>workflowview</module>
+		<module>workflow-view</module>
 	</modules>
 	<repositories>
 		<repository>
