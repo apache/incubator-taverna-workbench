@@ -36,6 +36,8 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Retry;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.RetryConfig;
 
+import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -82,7 +84,7 @@ public class RetryContextualView extends ContextualView {
 			panel.removeAll();
 		}
 		
-		JTextArea textArea = new JTextArea();
+		JTextArea textArea = new ReadOnlyTextArea();
 		textArea.setEditable(false);
 		String text = "";
 		RetryConfig config = retryLayer.getConfiguration();
