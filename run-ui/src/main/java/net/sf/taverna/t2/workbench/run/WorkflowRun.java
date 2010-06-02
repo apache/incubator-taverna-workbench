@@ -298,7 +298,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		int result = 1;
 		result = prime
 				* result
-				+ ((dataflow == null) ? 0 : dataflow.getInternalIdentifier(false)
+				+ ((dataflow == null) ? 0 : dataflow.getIdentifier()
 						.hashCode());
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
 		return result;
@@ -316,8 +316,8 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		if (dataflow == null) {
 			if (other.dataflow != null)
 				return false;
-		} else if (!dataflow.getInternalIdentifier(false).equals(
-				other.dataflow.getInternalIdentifier(false)))
+		} else if (!dataflow.getIdentifier().equals(
+				other.dataflow.getIdentifier()))
 			return false;
 		if (date == null) {
 			if (other.date != null)
@@ -352,7 +352,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				Dataflow loadedDataflow = XMLDeserializerRegistry.getInstance()
 						.getDeserializer().deserializeDataflow(rootElement);
 				logger.debug("Loaded dataflow "
-						+ loadedDataflow.getInternalIdentifier(false) + " for run "
+						+ loadedDataflow.getIdentifier() + " for run "
 						+ runId);
 				setDataflow(loadedDataflow);
 			} catch (Exception e) {
@@ -368,7 +368,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		this.dataflow = dataflow;
 		if (dataflow != null) {
 			this.workflowName = dataflow.getLocalName();
-			this.workflowId = dataflow.getInternalIdentifier();
+			this.workflowId = dataflow.getIdentifier();
 			synchronized (loadedDataflows) {
 				loadedDataflows.put(this.workflowId,
 						new WeakReference<Dataflow>(dataflow));

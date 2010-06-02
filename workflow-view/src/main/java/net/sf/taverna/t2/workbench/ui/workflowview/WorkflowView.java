@@ -325,8 +325,8 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 			if (a instanceof NestedDataflow) {
 				NestedDataflow da = (NestedDataflow) a;
 				Dataflow df = da.getNestedDataflow();
-				if (!requiredSubworkflows.containsKey(df.getInternalIdentifier(false))) {
-					requiredSubworkflows.put(df.getInternalIdentifier(false), DataflowXMLSerializer.getInstance().serializeDataflow(df));
+				if (!requiredSubworkflows.containsKey(df.getIdentifier())) {
+					requiredSubworkflows.put(df.getIdentifier(), DataflowXMLSerializer.getInstance().serializeDataflow(df));
 					for (Processor sp : df.getProcessors()) {
 						rememberSubworkflows(sp);
 					}
