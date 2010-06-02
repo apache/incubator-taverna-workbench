@@ -40,17 +40,17 @@
 		<module>graph-view</module>
 		<module>iteration-strategy-ui</module>
 		<!--<module>monitor-view</module>-->	
-		<module>monitor-view-new</module>
+		<module>monitor-view</module>
 		<module>perspective-design</module>
 		<!--<module>perspective-results</module>-->		
-		<module>perspective-results-new</module>			
+		<module>perspective-results</module>			
 		<module>reference-ui</module>
 		<!--<module>results-view</module>
 		<module>run-ui</module>-->
-		<module>results-view-new</module>
-		<module>run-ui-new</module>
+		<module>results-view</module>
+		<module>run-ui</module>
 		<module>workflow-explorer</module>
-		<module>workflow-view</module>
+		<module>workflowview</module>
 	</modules>
 	<repositories>
 		<repository>
