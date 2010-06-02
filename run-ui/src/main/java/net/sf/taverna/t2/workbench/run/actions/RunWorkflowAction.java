@@ -56,6 +56,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.InvalidDataflowException;
 import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 import net.sf.taverna.t2.workbench.report.ReportManager;
+import net.sf.taverna.t2.workbench.report.view.ReportOnWorkflowAction;
 import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
 import net.sf.taverna.t2.visit.VisitReport.Status;
 
@@ -104,21 +105,24 @@ public class RunWorkflowAction extends AbstractAction {
 		}
 		final Dataflow dataflow = (Dataflow) model;
 		ReportManager reportManager = ReportManager.getInstance();
-		String beforeRunSetting = ReportManagerConfiguration.getInstance().getProperty(ReportManagerConfiguration.BEFORE_RUN);
-		reportManager.updateReport(dataflow, beforeRunSetting.equals(ReportManagerConfiguration.FULL_CHECK));
+		ReportManagerConfiguration rmc = ReportManagerConfiguration.getInstance();
+		String beforeRunSetting = rmc.getProperty(ReportManagerConfiguration.BEFORE_RUN);
+		ReportOnWorkflowAction action = new ReportOnWorkflowAction("", dataflow, beforeRunSetting.equals(ReportManagerConfiguration.FULL_CHECK), false);
+		action.actionPerformed(e);
 		if (!reportManager.isStructurallySound(dataflow)) {
 			JOptionPane.showMessageDialog((Component) (e.getSource()), "The workflow has problems and cannot be run - see reports", "Workflow problems", JOptionPane.ERROR_MESSAGE);
 			Workbench.getInstance().makeNamedComponentVisible("reportView");
 			return;
 		}
 		Status status = reportManager.getStatus(dataflow);
-		if (status.equals(Status.SEVERE)) {
+		String queryBeforeRunSetting = rmc.getProperty(ReportManagerConfiguration.QUERY_BEFORE_RUN);
+		if (status.equals(Status.SEVERE) && !queryBeforeRunSetting.equals(ReportManagerConfiguration.NONE)) {
 			int proceed = JOptionPane.showConfirmDialog((Component) (e.getSource()), "The workflow has problems but can still be run - do you want to proceed?", "Workflow problems", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
 			if (proceed != JOptionPane.YES_OPTION) {
 				Workbench.getInstance().makeNamedComponentVisible("reportView");
 				return;				
 			}
-		} else if (status.equals(Status.WARNING)) {
+		} else if (status.equals(Status.WARNING) && queryBeforeRunSetting.equals(ReportManagerConfiguration.ERRORS_OR_WARNINGS)) {
 			int proceed = JOptionPane.showConfirmDialog((Component) (e.getSource()), "The workflow has warnings but can still be run - do you want to proceed?", "Workflow problems", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if (proceed != JOptionPane.YES_OPTION) {
 				Workbench.getInstance().makeNamedComponentVisible("reportView");

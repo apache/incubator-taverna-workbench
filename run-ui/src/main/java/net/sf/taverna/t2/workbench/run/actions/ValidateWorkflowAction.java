@@ -41,6 +41,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowValidationReport;
 
 import net.sf.taverna.t2.workbench.report.ReportManager;
+import net.sf.taverna.t2.workbench.report.view.ReportOnWorkflowAction;
 
 //import org.apache.log4j.Logger;
 
@@ -58,30 +59,22 @@ public class ValidateWorkflowAction extends AbstractAction {
 	private ModelMap modelMap = ModelMap.getInstance();
 
 	private ModelMapObserver modelMapObserver = new ModelMapObserver();
+	ReportOnWorkflowAction subAction;
 
 	public ValidateWorkflowAction() {
 		super(VALIDATE_WORKFLOW, WorkbenchIcons.searchIcon);
 		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_V);
 
 		modelMap.addObserver(modelMapObserver);
+		
 		updateEnabledStatus(fileManager.getCurrentDataflow());
+		subAction = new ReportOnWorkflowAction("", true, false);
 	}
 
 	public void actionPerformed(ActionEvent ev) {
-		Component parentComponent = null;
-		if (ev.getSource() instanceof Component) {
-			parentComponent = (Component) ev.getSource();
-		}
-		validateCurrentDataflow(parentComponent);
+		subAction.actionPerformed(ev);
 	}
 	
-	public boolean validateCurrentDataflow(Component parentComponent) {
-		Dataflow dataflow = fileManager.getCurrentDataflow();
-		ReportManager.getInstance().updateReport(dataflow, true);
-		return true;
-	}
-	
-
 	protected void updateEnabledStatus(Dataflow dataflow) {
 		if (dataflow == null) {
 			setEnabled(false);
