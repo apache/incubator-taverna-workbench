@@ -145,7 +145,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     			} else {
     				workflowData.add("-");
     			}
-    			if (workflowStartTime != null) {
+    			if (workflowFinishTime != null) {
     				workflowData.add(sdf.format(workflowFinishTime)); 
     			} else {
     				workflowData.add("-");
