@@ -34,6 +34,7 @@ import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -59,11 +60,13 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
+import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.InvalidDataflowException;
 import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
+import net.sf.taverna.t2.workbench.report.ReportManager;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.log4j.Logger;
@@ -166,7 +169,20 @@ public abstract class WorkflowLaunchPanel extends JPanel {
 
 		launchAction = new AbstractAction(LAUNCH_WORKFLOW, launchIcon) {
 			public void actionPerformed(ActionEvent ae) {
+				String beforeRunSetting = ReportManagerConfiguration.getInstance().getProperty(ReportManagerConfiguration.BEFORE_RUN);
 				
+				ReportManager.getInstance().updateReport(dataflow, beforeRunSetting.equals(ReportManagerConfiguration.FULL_CHECK), false);
+				
+				if (!ReportManager.isStructurallySound(dataflow)) {
+					JOptionPane.showMessageDialog(WorkflowLaunchPanel.this, "The workflow is structurally broken - see reports", "Workflow problem", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+//				if (!ReportManager.isSound(dataflow)) {
+//					int answer = JOptionPane.showConfirmDialog(WorkflowLaunchPanel.this, "The workflow has problems - see report\nDo you still want to run?");
+//					if (answer != JOptionPane.YES_OPTION) {
+//						return;
+//					}
+//				}
 				// Create provenance connector and facade, similar as in RunWorkflowAction
 				
 				// TODO check if the database has been created and create if needed
