@@ -140,9 +140,21 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 				Timestamp workflowStartTime = dataflowInvocation.getInvocationStarted();
     			Timestamp workflowFinishTime = dataflowInvocation.getInvocationEnded();
     			
-				workflowData.add(sdf.format(workflowStartTime)); // wf start time
-				workflowData.add(sdf.format(workflowFinishTime)); // wf finish time
-				workflowData.add(String.valueOf(workflowFinishTime.getTime() - workflowStartTime.getTime()) + " ms"); // average running time in ms
+    			if (workflowStartTime != null) {
+    				workflowData.add(sdf.format(workflowStartTime));
+    			} else {
+    				workflowData.add("-");
+    			}
+    			if (workflowStartTime != null) {
+    				workflowData.add(sdf.format(workflowFinishTime)); 
+    			} else {
+    				workflowData.add("-");
+    			}
+    			if (workflowStartTime != null &&  workflowFinishTime != null) {
+    				workflowData.add(String.valueOf(workflowFinishTime.getTime() - workflowStartTime.getTime()) + " ms"); // average running time in ms
+    			} else {
+    				workflowData.add("-");
+    			}
 
     			workflowData.add("-"); // no. of iterations
     			workflowData.add("-"); // no. of iterations done so far
@@ -190,7 +202,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     			List<ProcessorEnactment> processorEnactments = provenanceAccess.getProcessorEnactments(workflowRunId, processorNamesPath);
     			processorData.add(STATUS_FINISHED); // status
     			
-    			if (processorEnactments.size() == 0){
+    			if (processorEnactments.isEmpty()){
     				processorData.add(null); // start time
     				processorData.add(null); // finish time
     				processorData.add(null); // average time per iteration
