@@ -11,6 +11,7 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 import java.awt.Rectangle;
+import java.awt.SystemColor;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.AbstractAction;
@@ -347,6 +348,8 @@ public class BasicExplainer implements VisitExplainer {
 		String responseCode = (String) (vr.getProperty("responseCode"));
 		if (responseCode == null) {
 			responseCode = "an unexpected response code";
+		} else {
+			responseCode = "response code: " + responseCode;
 		}
 		return createPanel(new Object[]{"Taverna connected to \"" + endpoint + "\" but got back " + responseCode});
 	}
@@ -705,7 +708,7 @@ public class BasicExplainer implements VisitExplainer {
 		    }
 		});
 	}
-	String workedMessage = "If the connection did not work then contact the service provider or workflow creator, else check if you are use a HTTP Proxy and set Taverna's proxy settings";
+	String workedMessage = "If the connection did not work then contact the service provider or workflow creator, else check if you are using a HTTP Proxy and set Taverna's proxy settings";
 	JButton preferencesButton = null;
 	if (endpoint != null) {
 	    preferencesButton = new JButton(new AbstractAction("Change HTTP proxy") {
@@ -714,16 +717,17 @@ public class BasicExplainer implements VisitExplainer {
 		    }
 		});
 	}
-	String editMessage = "If the service has moved then try to edit its properties";
+	String editMessage = null;
 	JButton editButton = null;
 	DisabledActivity da = null;
 	for (Activity a : ((Processor)vr.getSubject()).getActivityList()) {
 	    if (a instanceof DisabledActivity) {
-		da = (DisabledActivity) a;
-		break;
+	    	da = (DisabledActivity) a;
+	    	break;
 	    }
 	}
 	if (da != null) {
+    	editMessage = "If the service has moved then try to edit its properties";
 	    editButton = new JButton(new DisabledActivityConfigurationAction(da, null));
 	}
 	return createPanel(new Object[] {connectMessage,
@@ -930,46 +934,47 @@ public class BasicExplainer implements VisitExplainer {
 	    return createPanel(new Object[] {removeMessage, addSplitterMessage, button, addConnectionMessage});
     }
 
-    private static JPanel createPanel(Object[] components) {
-	JPanel result = new JPanel(new GridBagLayout());
-	GridBagConstraints gbc = new GridBagConstraints();
-	gbc.gridx = 0;
-	gbc.gridy = 0;
-	gbc.anchor = GridBagConstraints.NORTHWEST;
-	gbc.gridwidth = 1;
-	gbc.weightx = 0.9;
-	for (Object o : components) {
-	    if (o == null) {
-		continue;
-	    }
-	    JComponent component = null;
-	    if (o instanceof String) {
-		component = new ReadOnlyTextArea((String) o);
-	    } else if (o instanceof JComponent) {
-		component = (JComponent) o;
-	    } else {
-		logger.error("Unrecognized component " + o.getClass());
-		continue;
-	    }
-	    gbc.gridy++;
-	    if (component instanceof JButton) {
-		gbc.weightx = 0;
+	private static JPanel createPanel(Object[] components) {
+		JPanel result = new JPanel(new GridBagLayout());
+		GridBagConstraints gbc = new GridBagConstraints();
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.anchor = GridBagConstraints.NORTHWEST;
 		gbc.gridwidth = 1;
-		gbc.fill = GridBagConstraints.NONE;
-	    } else {
 		gbc.weightx = 0.9;
-		gbc.gridwidth = 2;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-	    }
-	    result.add(component, gbc);
+		for (Object o : components) {
+			if (o == null) {
+				continue;
+			}
+			JComponent component = null;
+			if (o instanceof String) {
+				component = new ReadOnlyTextArea((String) o);
+			} else if (o instanceof JComponent) {
+				component = (JComponent) o;
+			} else {
+				logger.error("Unrecognized component " + o.getClass());
+				continue;
+			}
+			gbc.gridy++;
+			if (component instanceof JButton) {
+				gbc.weightx = 0;
+				gbc.gridwidth = 1;
+				gbc.fill = GridBagConstraints.NONE;
+			} else {
+				gbc.weightx = 0.9;
+				gbc.gridwidth = 2;
+				gbc.fill = GridBagConstraints.HORIZONTAL;
+			}
+			result.add(component, gbc);
+		}
+//		gbc.weightx = 0.9;
+//		gbc.weighty = 0.9;
+//		gbc.gridx = 0;
+//		gbc.gridy++;
+//		gbc.gridwidth = 2;
+//		gbc.fill = GridBagConstraints.BOTH;
+//		result.add(new JPanel(), gbc);
+		result.setBackground(SystemColor.text);
+		return result;
 	}
-	gbc.weightx = 0.9;
-	gbc.weighty = 0.9;
-	gbc.gridx = 0;
-	gbc.gridy++;
-	gbc.gridwidth = 2;
-	gbc.fill = GridBagConstraints.BOTH;
-	result.add(new JPanel(), gbc);
-	return result;
-    }
 }
