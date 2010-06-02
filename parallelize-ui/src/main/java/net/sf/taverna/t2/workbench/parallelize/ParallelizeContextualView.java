@@ -35,6 +35,8 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Parallelize;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.ParallelizeConfig;
 
+import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
+
 import org.apache.log4j.Logger;
 
 /**
@@ -81,7 +83,7 @@ public class ParallelizeContextualView extends ContextualView {
 			panel.removeAll();
 		}
 		
-		JTextArea textArea = new JTextArea();
+		JTextArea textArea = new ReadOnlyTextArea();
 		textArea.setEditable(false);
 		String text = "";
 		ParallelizeConfig config = parallelizeLayer.getConfiguration();
