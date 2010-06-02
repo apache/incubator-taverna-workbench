@@ -45,6 +45,16 @@ public class OpenDataflowRunnable implements Runnable {
 		if (!openDataflowSwingWorker.isDone()){
 			dialog.setVisible(true); // this will block the GUI
 		}
+		boolean userCancelled = dialog.hasUserCancelled(); // see if user cancelled the dialog
+		
+		if (userCancelled){
+			// Stop the OpenDataflowSwingWorker if it is still working
+			openDataflowSwingWorker.cancel(true);
+			dataflow = null;
+			this.e = new OpenException("Opening was cancelled");
+			// exit
+			return;
+		}
 		dataflow = openDataflowSwingWorker.getDataflow();
 		this.e = openDataflowSwingWorker.getException();
 		}
