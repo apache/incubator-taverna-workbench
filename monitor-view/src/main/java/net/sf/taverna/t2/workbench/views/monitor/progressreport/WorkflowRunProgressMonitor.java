@@ -261,7 +261,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 			} else if (workflowObject instanceof Activity<?>) {
 				Date endTime = new Date();
 				Date startTime = activitityInvocationStartTimes.remove(owningProcessId);
-				List<String> owningProcessList = Arrays.asList(owningProcess);
+				ArrayList<String> owningProcessList = new ArrayList<String>(Arrays.asList(owningProcess));
 				owningProcessList.remove(owningProcess.length-1);
 				String parentProcessId = getOwningProcessId(owningProcessList);										
 				Object parentObject = workflowObjects.get(parentProcessId);
