@@ -407,7 +407,7 @@ public class Workbench extends JFrame {
 		}
 	}
 
-	private void setLookAndFeel() {
+	public void setLookAndFeel() {
 		boolean set = false;
 
 		if (!set && !System.getProperties().containsKey("swing.defaultlaf")) {
