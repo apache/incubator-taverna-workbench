@@ -33,6 +33,7 @@ import javax.swing.JLabel;
 
 import net.sf.taverna.t2.facade.ResultListener;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
+import net.sf.taverna.t2.facade.WorkflowInstanceFacade.State;
 import net.sf.taverna.t2.invocation.WorkflowDataToken;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -61,6 +62,7 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 
 	private static final String STATUS_RUNNING = "Running";
 	private static final String STATUS_FINISHED = "Finished";
+	private static final String STATUS_CANCELLED = "Cancelled";
 	
 	// Workflow run status label - we can only tell of workflow is running
 	// or is finished from inside this monitor. If workfow run is stopped or
@@ -145,8 +147,14 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 				if (owningProcess.length == 1){
 					//monitorGraphComponent.setStatus(Status.FINISHED);
 					if(workflowRunStatusLabel != null){
-						workflowRunStatusLabel.setText(STATUS_FINISHED);
-						workflowRunStatusLabel.setIcon(WorkbenchIcons.greentickIcon);
+						if (facade.getState().equals(State.completed)) {
+							workflowRunStatusLabel.setText(STATUS_FINISHED);
+							workflowRunStatusLabel.setIcon(WorkbenchIcons.greentickIcon);
+						} else if (facade.getState().equals(State.cancelled)) {
+							workflowRunStatusLabel.setText(STATUS_CANCELLED);
+							workflowRunStatusLabel.setIcon(WorkbenchIcons.workingStoppedIcon);
+							
+						}
 					}
 					if(workflowRunPauseButton != null){
 						workflowRunPauseButton.setEnabled(false);
@@ -154,7 +162,6 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 					if(workflowRunCancelButton != null){
 						workflowRunCancelButton.setEnabled(false);
 					}
-					((WorkflowInstanceFacade)workflowObject).setIsRunning(false);
 					
 					// Stop observing monitor messages as workflow has finished running
 					// This observer may have been already removed (in which case the command 

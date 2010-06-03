@@ -51,6 +51,7 @@ import javax.swing.event.ListSelectionListener;
 
 import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
+import net.sf.taverna.t2.facade.WorkflowInstanceFacade.State;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
@@ -260,7 +261,7 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 					
 					WorkflowRun wfRun = ((WorkflowRun) workflowRunsListModel.get(i));
 					
-					if (wfRun.getFacade() != null && wfRun.getFacade().isRunning()){
+					if (wfRun.getFacade() != null && wfRun.getFacade().getState().equals(State.running)){
 						option = JOptionPane
 								.showConfirmDialog(
 										null,
@@ -282,9 +283,13 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 							.remove(selectedRunsToDelete[i]);
 					
 					// Stop the workflow run if it still active
-					if (workflowRunToBeDeleted.getFacade() != null
-							&& workflowRunToBeDeleted.getFacade().isRunning()) {
-						workflowRunToBeDeleted.getFacade().cancelWorkflowRun();
+					WorkflowInstanceFacade facade = workflowRunToBeDeleted.getFacade();
+					if (facade != null) {
+						synchronized (facade) {
+							if (facade.getState().equals(State.running)) {
+								facade.cancelWorkflowRun();
+							}
+						}
 					}
 					MonitorGraphComponent mvc = workflowRunToBeDeleted
 							.getMonitorGraphComponent();

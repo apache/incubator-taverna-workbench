@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
+import net.sf.taverna.t2.facade.WorkflowInstanceFacade.State;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.monitor.MonitorManager;
@@ -54,8 +56,8 @@ import org.apache.log4j.Logger;
  */
 public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 
-//	private static final String STATUS_RUNNING = "Running";
 	private static final String STATUS_FINISHED = "Finished";
+	private static final String STATUS_CANCELLED = "Cancelled";
 
 	// Workflow run status label - we can only tell of workflow is running
 	// or is finished from inside this monitor. If workfow run is stopped or
@@ -232,6 +234,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 			} else if (workflowObject instanceof WorkflowInstanceFacade) {
 				//final WorkflowInstanceFacade facade = (WorkflowInstanceFacade) workflowObject;
 				
+				WorkflowInstanceFacade instanceFacade = (WorkflowInstanceFacade) workflowObject;
 				// Is this the workflow facade for the outer most workflow?
 				// (If it is the facade for one of the contained nested workflows then the
 				// workflow status should not be set to FINISHED after the nested one has finished
@@ -241,7 +244,8 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 					Date workflowFinishDate = new Date();
 					Date workflowStartTime = progressTreeTable.getWorkflowStartDate();
 					progressTreeTable.setWorkflowFinishDate(workflowFinishDate);
-					progressTreeTable.setWorkflowStatus(STATUS_FINISHED);
+					boolean isCancelled = instanceFacade.getState().equals(State.cancelled); 						
+					progressTreeTable.setWorkflowStatus(isCancelled ? STATUS_CANCELLED : STATUS_FINISHED);
 					if (workflowStartTime != null){
 						long averageInvocationTime = (workflowFinishDate.getTime() - workflowStartTime.getTime());
 						progressTreeTable.setWorkflowInvocationTime(averageInvocationTime);
@@ -265,18 +269,20 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				owningProcessList.remove(owningProcess.length-1);
 				String parentProcessId = getOwningProcessId(owningProcessList);										
 				Object parentObject = workflowObjects.get(parentProcessId);
-				if (parentObject instanceof Processor && startTime != null) {						
-//					Processor processor = (Processor) parentObject;
-					long invocationTime = endTime.getTime() - startTime.getTime();						
-					List<Long> invocationTimes = processorInvocationTimes.get(parentProcessId);
-					invocationTimes.add(invocationTime);
-					long totalTime = 0;
-					for (Long time : invocationTimes) {
-						totalTime += time;
-					}
-					if (! invocationTimes.isEmpty()) {							
-						long averageInvocationTime = totalTime / invocationTimes.size();
-						progressTreeTable.setAverageInvocationTimeForObject(parentObject, averageInvocationTime);
+				if (parentObject instanceof Processor) {
+					Processor processor = (Processor) parentObject;
+					if (startTime != null) {
+						long invocationTime = endTime.getTime() - startTime.getTime();						
+						List<Long> invocationTimes = processorInvocationTimes.get(parentProcessId);
+						invocationTimes.add(invocationTime);
+						long totalTime = 0;
+						for (Long time : invocationTimes) {
+							totalTime += time;
+						}
+						if (! invocationTimes.isEmpty()) {							
+							long averageInvocationTime = totalTime / invocationTimes.size();
+							progressTreeTable.setAverageInvocationTimeForObject(parentObject, averageInvocationTime);
+						}
 					}
 				}										
 			}

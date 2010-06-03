@@ -46,6 +46,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
+import net.sf.taverna.t2.facade.WorkflowInstanceFacade.State;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.lineageservice.utils.Port;
 import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
@@ -142,7 +143,7 @@ public class ProcessorResultsComponent extends JPanel{
 		provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
 		
 		// Is this still a running wf - do we need to periodically check with provenance for new results?
-		if (facade.isRunning()){
+		if (facade.getState().equals(State.running)){
 			resultsUpdateNeeded = true;
 		}
 		
@@ -442,7 +443,7 @@ public class ProcessorResultsComponent extends JPanel{
 					populateEnactmentsMaps();		
 					// Update the invocations tree
 					processorEnactmentsTree.setModel(new ProcessorEnactmentsTreeModel(enactmentsGotSoFar));
-					resultsUpdateNeeded = facade.isRunning();
+					resultsUpdateNeeded = facade.getState().equals(State.running);
 				}
 				else{
 					// After we have finished looping - stop the timer
