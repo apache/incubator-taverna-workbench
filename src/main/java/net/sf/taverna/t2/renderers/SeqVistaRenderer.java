@@ -30,6 +30,7 @@ import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.T2ReferenceType;
+import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import cht.svista.SeqVISTA;
 
 /**
@@ -149,6 +150,7 @@ public class SeqVistaRenderer implements Renderer {
 						return new java.awt.Dimension(100, 100);
 					}
 				};
+				Workbench.getInstance().setLookAndFeel();
 				try {
 					vista.loadFromText(resolve, false, seqType, np);
 				} catch (Exception e) {
