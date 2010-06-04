@@ -117,8 +117,19 @@ public class RunWorkflowAction extends AbstractAction {
 		Status status = reportManager.getStatus(dataflow);
 		String queryBeforeRunSetting = rmc.getProperty(ReportManagerConfiguration.QUERY_BEFORE_RUN);
 		if (status.equals(Status.SEVERE) && !queryBeforeRunSetting.equals(ReportManagerConfiguration.NONE)) {
-			int proceed = JOptionPane.showConfirmDialog((Component) (e.getSource()), "The workflow has problems but can still be run - do you want to proceed?", "Workflow problems", JOptionPane.YES_NO_OPTION, JOptionPane.ERROR_MESSAGE);
-			if (proceed != JOptionPane.YES_OPTION) {
+			Object[] options = {"View validation report", "Run anyway"};
+			
+			int proceed = JOptionPane
+					.showOptionDialog(
+							Workbench.getInstance(),
+							"Taverna has detected problems with this workflow. To fix them, please check the validation report.",
+							"Workflow problems",
+							JOptionPane.YES_NO_OPTION,
+							JOptionPane.ERROR_MESSAGE,
+							null,
+							options,
+							options[0]);
+			if (proceed == JOptionPane.YES_OPTION) { // View validation report
 				Workbench.getInstance().makeNamedComponentVisible("reportView");
 				return;				
 			}
