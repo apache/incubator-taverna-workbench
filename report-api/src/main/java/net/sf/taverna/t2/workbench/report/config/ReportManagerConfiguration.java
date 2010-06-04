@@ -63,7 +63,7 @@ public final class ReportManagerConfiguration extends AbstractConfigurable {
     }
 
     public String getDisplayName() {
-        return "Reports";
+        return "Validation report";
     }
 
     public String getFilePrefix() {

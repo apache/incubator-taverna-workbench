@@ -4,107 +4,65 @@
 package net.sf.taverna.t2.workbench.report.view;
 
 import java.awt.BorderLayout;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.FlowLayout;
+import java.awt.Component;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.List;
-import java.util.Map;
-import java.util.HashSet;
-import java.util.Set;
+import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
-import java.io.StringReader;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import java.awt.event.ActionListener;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.SystemColor;
 import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.InputMap;
-import javax.swing.JComboBox;
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
-import javax.swing.JInternalFrame;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JTabbedPane;
+import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableModel;
-import javax.swing.table.TableColumn;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.lang.ui.JSplitPaneExt;
+import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
+import net.sf.taverna.t2.lang.ui.TableSorter;
 import net.sf.taverna.t2.spi.SPIRegistry;
-import net.sf.taverna.t2.visit.VisitKind;
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.visit.VisitReport.Status;
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
-import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.DataflowReportEvent;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.report.ReportManagerEvent;
+import net.sf.taverna.t2.workbench.report.explainer.VisitExplainer;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
-import net.sf.taverna.t2.workflowmodel.Condition;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.Merge;
-import net.sf.taverna.t2.workflowmodel.NamedWorkflowEntity;
-import net.sf.taverna.t2.workflowmodel.Port;
 import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
-import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
-import net.sf.taverna.t2.workflowmodel.ProcessorPort;
-import net.sf.taverna.t2.workflowmodel.TokenProcessingEntity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityPort;
-import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
-import net.sf.taverna.t2.lang.ui.icons.Icons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
-import net.sf.taverna.t2.workbench.report.explainer.VisitExplainer;
-
-import net.sf.taverna.t2.lang.ui.TableSorter;
-import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
-import net.sf.taverna.t2.lang.ui.JSplitPaneExt;
-import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
 
 import org.apache.log4j.Logger;
 
 /**
- * @author alanrw
+ * @author Alan R Williams
  *
  */
 public class ReportViewComponent extends JPanel implements UIComponentSPI {
@@ -131,8 +89,8 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	private static final JComponent okExplanation = new ReadOnlyTextArea("No problem found");
 	private static final JComponent okSolution = new ReadOnlyTextArea("No change necessary");
 	
-	private static final JComponent nothingToExplain = new ReadOnlyTextArea("No report selected");
-	private static final JComponent nothingToSolve = new ReadOnlyTextArea("No report selected");
+	private static final JComponent nothingToExplain = new ReadOnlyTextArea("No message selected");
+	private static final JComponent nothingToSolve = new ReadOnlyTextArea("No message selected");
 	
 	private JComponent explanation = okExplanation;
 	private JComponent solution = okSolution;
@@ -154,8 +112,8 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
     
     JButton ignoreReportButton;
     
-    public static String ALL_INCLUDING_IGNORED = "All reports";
-    public static String ALL_EXCEPT_IGNORED = "All except ignored reports";
+    public static String ALL_INCLUDING_IGNORED = "All";
+    public static String ALL_EXCEPT_IGNORED = "All except ignored";
     
 	public ReportViewComponent() {
 		super();
@@ -204,14 +162,17 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		splitPanel.add(messagePane);
 
 		this.add(splitPanel, BorderLayout.CENTER);
-		ignoreReportButton = new JButton(new AbstractAction("Hide report") {
-			public void actionPerformed(ActionEvent ex) {
+		ignoreReportButton = new JButton(new AbstractAction("Hide message") {
+			public void actionPerformed(ActionEvent ex) {				
 			    if (lastSelectedReport != null) {
 			    	if (ignoredReports.contains(lastSelectedReport)) {
 			    		ignoredReports.remove(lastSelectedReport);
 			    	}
 			    	else {
 			    		ignoredReports.add(lastSelectedReport);
+			    		if (shownReports.getSelectedItem().equals(ALL_INCLUDING_IGNORED)) {
+			    			shownReports.setSelectedItem(ALL_EXCEPT_IGNORED);
+			    		}
 			    		showReport();
 			    	}
 			    }
@@ -317,13 +278,13 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		if (lastSelectedReport != null) {
 			ignoreReportButton.setEnabled(true);
 			if (ignoredReports.contains(lastSelectedReport)) {
-				ignoreReportButton.setText("Include report");
+				ignoreReportButton.setText("Include message");
 			} else {
-				ignoreReportButton.setText("Ignore report");
+				ignoreReportButton.setText("Ignore message");
 			}
 		} else {
 			ignoreReportButton.setEnabled(false);
-			ignoreReportButton.setText("Ignore report");
+			ignoreReportButton.setText("Ignore message");
 		}
  		messagePane.revalidate();
 	}

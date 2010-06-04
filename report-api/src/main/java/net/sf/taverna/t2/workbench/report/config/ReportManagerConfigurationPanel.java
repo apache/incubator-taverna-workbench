@@ -27,10 +27,17 @@ import net.sf.taverna.t2.workbench.helper.Helper;
  */
 public class ReportManagerConfigurationPanel extends JPanel {
 	
-    private static final String FULL_CHECK = "Full check";
-	private static final String QUICK_CHECK = "Quick check";
+    private static final String RESET = "Reset";
+	private static final String APPLY = "Apply";
+	private static final String HELP = "Help";
+	private static final String ASK_ON_ERRORS_OR_WARNINGS = "Ask on errors or warnings";
+	private static final String ASK_ON_ERRORS = "Ask on errors";
+	private static final String DESCRIPTION = "Configure if and how the validation report is generated";
+	private static final String NEVER_ASK = "Never ask";
+	private static final String FULL_CHECKS = "Full checks";
+	private static final String QUICK_CHECKS = "Quick checks";
 	private static final String NO_CHECKS = "No checks";
-	private static final String DEFAULT_TIMEOUT_STRING = "Default timeout in seconds";
+	private static final String DEFAULT_TIMEOUT_STRING = "Reporting timeout in seconds (per service)";
     private static final String CHECKS_ON_OPEN = "Checks when opening a workflow";
     private static final String CHECKS_ON_EDIT = "Checks after each edit";
     private static final String CHECKS_BEFORE_RUN = "Checks before running a workflow";
@@ -57,7 +64,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 		GridBagConstraints gbc = new GridBagConstraints();
 
 		// Title describing what kind of settings we are configuring here
-        JTextArea descriptionText = new JTextArea("Configure if and how reports are generated");
+        JTextArea descriptionText = new JTextArea(DESCRIPTION);
         descriptionText.setLineWrap(true);
         descriptionText.setWrapStyleWord(true);
         descriptionText.setEditable(false);
@@ -72,7 +79,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(descriptionText, gbc);
         
-        openCombo = new JComboBox(new Object[] {NO_CHECKS, QUICK_CHECK, FULL_CHECK});
+        openCombo = new JComboBox(new Object[] {NO_CHECKS, QUICK_CHECKS, FULL_CHECKS});
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 1;
@@ -84,7 +91,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(openCombo, gbc);
         
-        editCombo = new JComboBox(new Object[] {NO_CHECKS, QUICK_CHECK});
+        editCombo = new JComboBox(new Object[] {NO_CHECKS, QUICK_CHECKS});
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 1;
@@ -96,7 +103,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(editCombo, gbc);
         
-        runCombo = new JComboBox(new Object[] {QUICK_CHECK, FULL_CHECK});
+        runCombo = new JComboBox(new Object[] {QUICK_CHECKS, FULL_CHECKS});
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 1;
@@ -120,7 +127,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(timeoutField, gbc);
         
-        queryBeforeRunCombo = new JComboBox(new Object[] {"Never ask", "Ask if errors", "Ask if errors or warnings"});
+        queryBeforeRunCombo = new JComboBox(new Object[] {NEVER_ASK, ASK_ON_ERRORS, ASK_ON_ERRORS_OR_WARNINGS});
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 1;
@@ -158,7 +165,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 		/**
 		 * The helpButton shows help about the current component
 		 */
-		JButton helpButton = new JButton(new AbstractAction("Help") {
+		JButton helpButton = new JButton(new AbstractAction(HELP) {
 			public void actionPerformed(ActionEvent arg0) {
 				Helper.showHelp(panel);
 			}
@@ -169,7 +176,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 		 * The resetButton changes the property values shown to those
 		 * corresponding to the configuration currently applied.
 		 */
-		JButton resetButton = new JButton(new AbstractAction("Reset") {
+		JButton resetButton = new JButton(new AbstractAction(RESET) {
 			public void actionPerformed(ActionEvent arg0) {
 				setFields();
 			}
@@ -180,7 +187,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 		 * The applyButton applies the shown field values to the
 		 * {@link HttpProxyConfiguration} and saves them for future.
 		 */
-		JButton applyButton = new JButton(new AbstractAction("Apply") {
+		JButton applyButton = new JButton(new AbstractAction(APPLY) {
 			public void actionPerformed(ActionEvent arg0) {
 				applySettings();
 				setFields();
