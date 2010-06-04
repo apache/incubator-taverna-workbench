@@ -53,19 +53,23 @@ public class LoopConfigureMenuAction extends AbstractContextualMenuAction {
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new AbstractAction("Looping") {
-			public void actionPerformed(ActionEvent e) {
-				Loop loopLayer = null;
+		return new AbstractAction("Looping...") {
+			public void actionPerformed(ActionEvent e) {				
 				Processor p = (Processor) getContextualSelection().getSelection();
-				loopLayer = getLoopLayer(p);
-				if (loopLayer != null) {
-				LoopConfigureAction loopConfigureAction = new LoopConfigureAction(null, null, loopLayer);
-				loopConfigureAction.actionPerformed(e);
-				}
+				configureLoopLayer(p, e);
 			}
 		};
 	}
 	
+	public static void configureLoopLayer(Processor p, ActionEvent e) {
+		Loop loopLayer = getLoopLayer(p);
+		if (loopLayer != null) {
+			LoopConfigureAction loopConfigureAction = new LoopConfigureAction(null, null, loopLayer);
+			loopConfigureAction.actionPerformed(e);
+		}
+		
+	}
+
 	public static Loop getLoopLayer(Processor p) {
 		Loop result = null;
 		for (DispatchLayer dl : p.getDispatchStack().getLayers()) {

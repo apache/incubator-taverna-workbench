@@ -44,8 +44,6 @@ public class ParallelizeConfigureMenuAction extends AbstractContextualMenuAction
 	private static final URI PARALLELIZE_CONFIGURE_URI = URI
 	.create("http://taverna.sf.net/2008/t2workbench/parallelizeConfigure");
 
-	private static final String PARALLELIZE_CONFIGURE = "Parallelize configure";
-
 	public ParallelizeConfigureMenuAction() {
 		super(configureRunningSection, 10, PARALLELIZE_CONFIGURE_URI);
 	}
@@ -53,7 +51,7 @@ public class ParallelizeConfigureMenuAction extends AbstractContextualMenuAction
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new AbstractAction("Parallel jobs") {
+		return new AbstractAction("Parallel jobs...") {
 			public void actionPerformed(ActionEvent e) {
 				Parallelize parallelizeLayer = null;
 				Processor p = (Processor) getContextualSelection().getSelection();

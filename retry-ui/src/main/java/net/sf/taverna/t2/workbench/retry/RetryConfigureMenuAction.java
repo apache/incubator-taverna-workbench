@@ -53,7 +53,7 @@ public class RetryConfigureMenuAction extends AbstractContextualMenuAction {
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new AbstractAction("Retries") {
+		return new AbstractAction("Retries...") {
 			public void actionPerformed(ActionEvent e) {
 				Retry retryLayer = null;
 				Processor p = (Processor) getContextualSelection().getSelection();
