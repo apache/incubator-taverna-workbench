@@ -68,6 +68,9 @@ import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
+import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
+import net.sf.taverna.t2.workflowmodel.processor.activity.NonExecutableActivity;
+import net.sf.taverna.t2.workflowmodel.processor.activity.UnrecognizedActivity;
 import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
@@ -757,7 +760,17 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		node.setColor(Color.BLACK);
 		node.setLineStyle(LineStyle.SOLID);
 		if (firstActivity != null) {
-			node.setFillColor(GraphColorManager.getFillColor(firstActivity));
+			if (firstActivity instanceof NonExecutableActivity) {
+			    if (firstActivity instanceof DisabledActivity) {
+				node.setFillColor(GraphColorManager.getFillColor(((DisabledActivity)firstActivity).getActivity()));
+			    } else {
+				node.setFillColor(GraphColorManager.getFillColor(firstActivity));
+			    }
+			    node.setOpacity(0.3f);
+			}
+			else {
+			    node.setFillColor(GraphColorManager.getFillColor(firstActivity));
+			}
 		}
 //check whether the nested workflow processors should be clickable or not, if top level workflow then should be clickable regardless
 		if (depth == 0) {
