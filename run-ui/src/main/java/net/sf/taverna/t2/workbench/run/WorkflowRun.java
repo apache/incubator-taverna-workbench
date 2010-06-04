@@ -243,7 +243,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	public void run() {
 
 		monitorObserverForGraph = progressRunGraph.setDataflow(dataflow);
-		monitorObserverForTable = new WorkflowRunProgressMonitor(progressRunTable);
+		monitorObserverForTable = new WorkflowRunProgressMonitor(progressRunTable, facade);
 		// We use the graph monitor to update the workflow run status label, pause and
 		// cancel buttons as this monitor is also used to update the workflow results so we
 		// do it from one place
@@ -574,6 +574,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				if (facade != null){ // should not be null but check nevertheless
 					facade.pauseWorkflowRun();
 				}
+				progressRunTable.setWorkflowPaused();
 			} 
 			else if (text.equals("Resume")){
 				putValue(NAME, "Pause");
@@ -583,6 +584,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				if (facade != null){ // should not be null but check nevertheless
 					facade.resumeWorkflowRun();
 				}
+				progressRunTable.setWorkflowResumed();
 			}	
 		}
 	}
@@ -611,6 +613,9 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			// Stop listening to workflow run's monitors
 			monitorObserverForGraph.onDispose();
 			monitorObserverForTable.onDispose();
+			
+			// Update the progress table to show workflow and processors as cancelled
+			progressRunTable.setWorkflowCancelled();
 		}
 	}
 	
