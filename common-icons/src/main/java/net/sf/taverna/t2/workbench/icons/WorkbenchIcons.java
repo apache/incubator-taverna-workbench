@@ -110,6 +110,7 @@ public class WorkbenchIcons {
 	public static ImageIcon downArrowIcon;
 	public static ImageIcon tavernaCogs64x64Icon;
 	public static ImageIcon opmIcon;
+	public static ImageIcon workflowResultsIcon;
 
 	static {
 		// Load the image files found in this package into the class.
@@ -164,8 +165,8 @@ public class WorkbenchIcons {
 			openIcon = new ImageIcon(c.getResource("generic/open.gif"));
 			openMenuIcon = new ImageIcon(c
 					.getResource("generic/openmenu.gif"));
-			pauseIcon = new ImageIcon(c.getResource("generic/pause.gif"));
-			playIcon = new ImageIcon(c.getResource("generic/play.gif"));
+			pauseIcon = new ImageIcon(c.getResource("generic/pause.png"));
+			playIcon = new ImageIcon(c.getResource("generic/play.png"));
 			stopIcon = new ImageIcon(c.getResource("generic/stop.gif"));
 			breakIcon = new ImageIcon(c.getResource("generic/break.gif"));
 			rbreakIcon = new ImageIcon(c
@@ -200,11 +201,11 @@ public class WorkbenchIcons {
 			mergeIcon = new ImageIcon(c
 					.getResource("explorer/merge.png"));
 			inputIcon = new ImageIcon(c
-					.getResource("explorer/input.png"));
+					.getResource("explorer/workflowInputPort.png"));
 			inputPortIcon = new ImageIcon(c
 					.getResource("explorer/inputport.png"));
 			outputIcon = new ImageIcon(c
-					.getResource("explorer/output.png"));
+					.getResource("explorer/workflowOutputPort.png"));
 			outputPortIcon = new ImageIcon(c
 					.getResource("explorer/outputport.png"));
 			verticalIcon = new ImageIcon(c
@@ -239,6 +240,8 @@ public class WorkbenchIcons {
 					.getResource("generic/taverna_cogs_64x64.png"));
 			opmIcon = new ImageIcon(c
 					.getResource("generic/opmIcon.png"));
+			workflowResultsIcon = new ImageIcon(c
+					.getResource("generic/workflowResults.png"));
 		} catch (Exception ex) {
 			logger.error("Could not create icon", ex);
 		}
