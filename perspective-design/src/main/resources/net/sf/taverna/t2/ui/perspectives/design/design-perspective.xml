@@ -32,7 +32,7 @@
                       </znode>
                     </tab>
                    <tab>
-                      <title>Reports</title>
+                      <title>Validation report</title>
                       <znode classname="net.sf.taverna.zaria.ZRavenComponent">
                         <namedcomponent scroll="false">
                           <name>reportView</name>
