@@ -391,6 +391,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		public SaveAllAction(String name, WorkflowResultsComponent resultViewComponent) {
 			super(name);
 			//this.parent = resultViewComponent;
+			putValue(SMALL_ICON, WorkbenchIcons.saveAllIcon);
 		}
 
 		public void actionPerformed(ActionEvent e) {
