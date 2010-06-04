@@ -39,7 +39,7 @@ public class ShowReportsContextualMenuAction extends AbstractContextualMenuActio
 	private static final ReportManager reportManager = ReportManager.getInstance();
 	private static final FileManager fileManager = FileManager.getInstance();
 	
-	private static final String SHOW_REPORTS = "Show reports";
+	private static final String SHOW_REPORTS = "Show validation report";
 	private String namedComponent = "reportView";
 
 	@SuppressWarnings("unused")
