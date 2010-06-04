@@ -122,7 +122,8 @@ public class BasicExplainer implements VisitExplainer {
 				(resultId == HealthCheck.INVALID_CONFIGURATION) ||
 				(resultId == HealthCheck.NULL_DATATYPE) ||
 				(resultId == HealthCheck.DISABLED) ||
-				(resultId == HealthCheck.DATATYPE_SOURCE))) {
+				(resultId == HealthCheck.DATATYPE_SOURCE) ||
+				(resultId == HealthCheck.UNRECOGNIZED))) {
 			return true;
 		}
 		return false;
@@ -199,7 +200,10 @@ public class BasicExplainer implements VisitExplainer {
 			return explanationDisabled(vr);
 		}
 		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.DATATYPE_SOURCE)) {
-			return explanationDatatypeSoutce(vr);
+			return explanationDatatypeSource(vr);
+		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.UNRECOGNIZED)) {
+			return explanationUnrecognized(vr);
 		}
 		return null;
 	}
@@ -276,6 +280,9 @@ public class BasicExplainer implements VisitExplainer {
 		}
 		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.DATATYPE_SOURCE)) {
 			return solutionDatatypeSource(vr);
+		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.UNRECOGNIZED)) {
+			return solutionUnrecognized(vr);
 		}
 		return null;
 	}
@@ -508,7 +515,7 @@ public class BasicExplainer implements VisitExplainer {
 		return createPanel(new Object[] {message});
 	}
 	
-	private static JComponent explanationDatatypeSoutce(VisitReport vr) {
+	private static JComponent explanationDatatypeSource(VisitReport vr) {
 	    String message = "The data going into ";
 	    String sinkPortName = (String) vr.getProperty("sinkPortName");
 	    if (sinkPortName == null) {
@@ -537,6 +544,11 @@ public class BasicExplainer implements VisitExplainer {
 	
 	private static JComponent explanationBeanshellInvalidScript(VisitReport vr) {
 	    return createPanel(new Object[] {"There are errors in the script of the service.\nWhen the workflow runs, any calls of the service will fail"});
+	}
+	
+	private static JComponent explanationUnrecognized(VisitReport vr) {
+		String message = "Taverna could not recognize the service when the workflow was opened";
+		return createPanel(new Object[] {message});
 	}
 	
     private static JComponent solutionFailedEntity(VisitReport vr) {
@@ -654,7 +666,7 @@ public class BasicExplainer implements VisitExplainer {
 	Processor sourceProcessor = (Processor) vr.getProperty("sourceProcessor");
 	String labelText = "Make ";
 	if (sourceProcessor == null) {
-	    labelText += "the soutce service ";
+	    labelText += "the source service ";
 	} else {
 	    labelText += "\"" + sourceProcessor.getLocalName() + "\" ";
 	}
@@ -932,6 +944,11 @@ public class BasicExplainer implements VisitExplainer {
 	    }
 	    String addConnectionMessage = "Make a connection to a port of the XML splitter";
 	    return createPanel(new Object[] {removeMessage, addSplitterMessage, button, addConnectionMessage});
+    }
+
+    private static JComponent solutionUnrecognized(VisitReport vr) {
+	String message = "Contact the workflow creator to find out what plugins need to be installed";
+	return createPanel(new Object[] {message});
     }
 
 	private static JPanel createPanel(Object[] components) {
