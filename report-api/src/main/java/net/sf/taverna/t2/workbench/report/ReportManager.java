@@ -168,6 +168,66 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		}
 	}
 	
+	public static synchronized void updateObjectReport(Dataflow d, Object o) {
+		Map<Object, Set<VisitReport>> reportsEntry = reportMap.get(d);
+		Map<Object, Status> statusEntry = statusMap.get(d);
+		Map<Object, String> summaryEntry = summaryMap.get(d);
+		if (reportsEntry == null) {
+		    logger.error("Attempt to update reports on an object in a dataflow that has not been checked");
+		}
+		reportsEntry.remove(o);
+		statusEntry.remove(o);
+		summaryEntry.remove(o);
+
+		// Assume o is directly inside d
+		List<Object> ancestry = new ArrayList<Object>();
+		ancestry.add(d);
+		Set<VisitReport> newReports = new HashSet<VisitReport>();
+		traverser.traverse(o, ancestry, newReports, true);
+		for (VisitReport vr : newReports) {
+			addReport(reportsEntry, statusEntry, summaryEntry, vr);
+		}
+		getInstance().multiCaster.notify(new DataflowReportEvent(d));
+		if (o instanceof Processor) {
+		    List<Edit<?>> editList = new ArrayList<Edit<?>>();
+		    checkProcessorDisability((Processor) o, editList);
+		    if (!editList.isEmpty()) {
+			CompoundEdit ce = new CompoundEdit(editList);
+			try {
+			    EditManager editManager = EditManager.getInstance();
+			    Edits edits = editManager.getEdits();
+			    editManager.doDataflowEdit(d, ce);
+			} catch (EditException e) {
+			    logger.error(e);
+			}
+		    }
+		}
+		
+	    }
+
+	private static void checkProcessorDisability(Processor processor, List<Edit<?>> editList) {
+	    boolean isAlreadyDisabled = false;
+	    DisabledActivity disabledActivity = null;
+	    List<? extends Activity<?>> activityList = processor.getActivityList();
+	    for (Activity a : activityList) {
+		if (a instanceof DisabledActivity) {
+		    isAlreadyDisabled = true;
+		    disabledActivity = (DisabledActivity) a;
+		    break;
+		}
+	    }
+	    if (isAlreadyDisabled) {
+		if (disabledActivity.configurationWouldWork()) {
+		    logger.info(processor.getLocalName() + " is no longer disabled");
+		    Edit e = Tools.getEnableDisabledActivityEdit(processor, disabledActivity);
+		    if (e != null) {
+			editList.add(e);
+		    }
+		    
+		}
+	    }
+	}
+
 	private static void checkDisabledActivities(
 			Dataflow d, Map<Object, Set<VisitReport>> reportsEntry) {
 		EditManager editManager = EditManager.getInstance();
@@ -175,56 +235,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		List<Edit<?>> editList = new ArrayList<Edit<?>>();
 		for (Object o : reportsEntry.keySet()) {
 			if (o instanceof Processor) {
-				Set<VisitReport> reports = reportsEntry.get(o);
-				boolean isAlreadyDisabled = false;
-				Processor processor = (Processor) o;
-				DisabledActivity disabledActivity = null;
-				List<? extends Activity<?>> activityList = processor.getActivityList();
-				for (Activity a : activityList) {
-					if (a instanceof DisabledActivity) {
-						isAlreadyDisabled = true;
-						disabledActivity = (DisabledActivity) a;
-						break;
-					}
-				}
-				if (isAlreadyDisabled) {
-				    Set<VisitReport> nonDisabledReports = new HashSet<VisitReport>();
-				    for (VisitReport vr : reports) {
-					if (vr.getResultId() != HealthCheck.DISABLED) {
-					    nonDisabledReports.add(vr);
-					}
-				    }
-				    Status remainingStatus = VisitReport.getWorstStatus(nonDisabledReports);
-				    if (!remainingStatus.equals(Status.SEVERE) && disabledActivity.configurationWouldWork()) {
-					logger.info(processor.getLocalName() + " is no longer disabled");
-					Edit e = Tools.getEnableDisabledActivityEdit(processor, disabledActivity);
-					if (e != null) {
-						editList.add(e);
-					}
-					
-				    }
-				}
-//				else {
-//					boolean nowDisabled = false;
-//					for (VisitReport vr : reports) {
-//						if (vr.getKind() instanceof HealthCheck) {
-//							int resultId = vr.getResultId();
-//							if ((resultId == HealthCheck.CONNECTION_PROBLEM) ||
-//									(resultId == HealthCheck.IO_PROBLEM) ||
-//									(resultId == HealthCheck.INVALID_URL) ||
-//									(resultId == HealthCheck.TIME_OUT)) {
-//								nowDisabled = true;
-//								break;
-//							}
-//						}
-//					}
-//					if (nowDisabled) {
-//						logger.info(processor.getLocalName() + " is now disabled");
-//						Activity replacedActivity = processor.getActivityList().get(0);
-//						Activity replacementActivity = new DisabledActivity(replacedActivity);
-//							editList.add(edits.getRemoveActivityEdit(processor, replacedActivity));
-//							editList.add(edits.getAddActivityEdit(processor, replacementActivity));											}
-//				}
+			    checkProcessorDisability((Processor) o, editList);
 			}
 		}
 		if (!editList.isEmpty()) {
