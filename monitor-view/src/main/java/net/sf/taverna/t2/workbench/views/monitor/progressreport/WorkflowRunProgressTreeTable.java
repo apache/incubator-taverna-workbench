@@ -55,43 +55,50 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 	}
 	
 	public void setWorkflowStartDate(Date date) {	
-		treeTableModel.setValueAt(ISO_8601_FORMAT.format(date), (DefaultMutableTreeNode)treeTableModel.getRoot(), Column.START_TIME);
+		treeTableModel.setValueAt(ISO_8601_FORMAT.format(date),
+				(DefaultMutableTreeNode) treeTableModel.getRoot(),
+				Column.START_TIME);
 	}
 	
 	public void setWorkflowFinishDate(Date date) {
-		treeTableModel.setValueAt(ISO_8601_FORMAT.format(date), (DefaultMutableTreeNode)treeTableModel.getRoot(), Column.FINISH_TIME);
+		treeTableModel.setValueAt(ISO_8601_FORMAT.format(date),
+				(DefaultMutableTreeNode) treeTableModel.getRoot(),
+				Column.FINISH_TIME);
 	}
 	
 	public void setWorkflowInvocationTime(long averageInvocationTime) {
-		treeTableModel.setValueAt(WorkflowRunProgressTreeTableModel.formatMilliseconds(averageInvocationTime), (DefaultMutableTreeNode)treeTableModel.getRoot(), Column.AVERAGE_ITERATION_TIME);
+		treeTableModel.setValueAt(WorkflowRunProgressTreeTableModel
+				.formatMilliseconds(averageInvocationTime),
+				(DefaultMutableTreeNode) treeTableModel.getRoot(),
+				Column.AVERAGE_ITERATION_TIME);
 	}
 	
-	public void setStartDateForObject(Object object, Date date){
-		treeTableModel.setStartDateForObject(object, date);
+	public void setProcessorStartDate(Processor processor, Date date){
+		treeTableModel.setProcessorStartDate(processor, date);
 	}
 	
-	public void setFinishDateForObject(Object object, Date date){
-		treeTableModel.setFinishDateForObject(object, date);
+	public void setProcessorFinishDate(Processor processor, Date date){
+		treeTableModel.setProcessorFinishDate(processor, date);
 	}
 
-	public void setAverageInvocationTimeForObject(Object object, long averageInvocationTime) {
-		treeTableModel.setAverageInvocationTimeForObject(object, averageInvocationTime);		
+	public void setProcessorAverageInvocationTime(Processor processor, long averageInvocationTime) {
+		treeTableModel.setProcessorAverageInvocationTime(processor, averageInvocationTime);		
 	}
 	
-	public void setNumberOfQueuedIterationsForObject(Object object, Integer iterations){
-		treeTableModel.setNumberOfQueuedIterationsForObject(object, iterations);
+	public void setProcessorNumberOfQueuedIterations(Processor processor, Integer iterations){
+		treeTableModel.setProcessorNumberOfQueuedIterations(processor, iterations);
 	}
 	
-	public void setNumberOfFailedIterationsForObject(Object object, Integer failedIterations){
-		treeTableModel.setNumberOfFailedIterationsForObject(object, failedIterations);
+	public void setProcessorNumberOfFailedIterations(Processor processor, Integer failedIterations){
+		treeTableModel.setProcessorNumberOfFailedIterations(processor, failedIterations);
 	}
 	
-	public void setNumberOfIterationsDoneSoFarForObject(Object object, Integer doneIterations){
-		treeTableModel.setNumberOfIterationsDoneSoFarForObject(object, doneIterations);
+	public void setProcessorNumberOfIterationsDoneSoFar(Processor processor, Integer doneIterations){
+		treeTableModel.setProcessorNumberOfIterationsDoneSoFar(processor, doneIterations);
 	}
 
-	public void setStatusForObject(Processor processor, String status) {
-		treeTableModel.setStatusForObject(processor, status);		
+	public void setProcessorStatus(Processor processor, String status) {
+		treeTableModel.setProcessorStatus(processor, status);		
 	}
 
 	// Return object in the tree part of this JTreeTable that corresponds to
@@ -140,8 +147,8 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 		lastSelectedTableRow = row;		
 	}
 
-	public Date getStartDateForObject(Processor processor) {
-		return treeTableModel.getStartDateForObject(processor);
+	public Date getProcessorStartDate(Processor processor) {
+		return treeTableModel.getProcessorStartDate(processor);
 	}
 
 	public Date getWorkflowStartDate() {		
@@ -154,4 +161,44 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 		}
 	}
 
+	// Update the progress table to show workflow and processors as cancelled
+	public void setWorkflowCancelled() {
+
+		setWorkflowStatus(WorkflowRunProgressTreeTableModel.STATUS_CANCELLED);
+		for (Processor processor : treeTableModel.getDataflow().getProcessors()){
+			if (treeTableModel.getProcessorStatus(processor).equals(WorkflowRunProgressTreeTableModel.STATUS_RUNNING) ||
+					treeTableModel.getProcessorStatus(processor).equals(WorkflowRunProgressTreeTableModel.STATUS_PENDING)){
+				setProcessorStatus(processor, WorkflowRunProgressTreeTableModel.STATUS_CANCELLED);
+			}
+		}
+	}
+	
+	// Update the progress table to show workflow and currently running processors as paused.
+	public void setWorkflowPaused() {
+
+		setWorkflowStatus(WorkflowRunProgressTreeTableModel.STATUS_PAUSED);
+		for (Processor processor : treeTableModel.getDataflow().getProcessors()){
+			if (treeTableModel.getProcessorStatus(processor).equals(WorkflowRunProgressTreeTableModel.STATUS_RUNNING) ||
+					treeTableModel.getProcessorStatus(processor).equals(WorkflowRunProgressTreeTableModel.STATUS_PENDING)){
+				setProcessorStatus(processor, WorkflowRunProgressTreeTableModel.STATUS_PAUSED);
+			}
+		}
+	}
+
+	// Update the progress table to show workflow and currently paused processors as running.
+	public void setWorkflowResumed() {
+
+		setWorkflowStatus(WorkflowRunProgressTreeTableModel.STATUS_RUNNING);
+		for (Processor processor : treeTableModel.getDataflow().getProcessors()){
+			if (treeTableModel.getProcessorStatus(processor).equals(WorkflowRunProgressTreeTableModel.STATUS_PAUSED)){
+				if (treeTableModel.getProcessorNumberOfIterationsDoneSoFar(processor) == 0 &&
+						treeTableModel.getProcessorNumberOfQueuedIterations(processor) == 0){
+					setProcessorStatus(processor, WorkflowRunProgressTreeTableModel.STATUS_PENDING);
+				}
+				else{
+					setProcessorStatus(processor, WorkflowRunProgressTreeTableModel.STATUS_RUNNING);
+				}
+			}
+		}
+	}
 }

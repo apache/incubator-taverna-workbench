@@ -79,8 +79,12 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 
 	public static final String STATUS_PENDING = "Pending";
 	public static final String STATUS_FINISHED = "Finished";
+	public static final String STATUS_CANCELLED = "Cancelled";
+	public static final String STATUS_PAUSED = "Paused";
+	public static final String STATUS_RUNNING = "Running";
 
 	public enum Column { 
+		
 		NAME("Name", TreeTableModel.class), 
 		STATUS("Status"), 
 		ITERATIONS_QUEUED("Queued iterations"), 
@@ -89,6 +93,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		START_TIME("Start time"), 
 		FINISH_TIME("Finish time"), 
 		AVERAGE_ITERATION_TIME("Average time per iteration"); 
+		
 		private final String label;
 		private final Class<?> columnClass;
 
@@ -113,8 +118,6 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 			return label;
 		}
 	}
-	
-
     
 	// Table data (maps workflow element nodes to column data associated with them)
 	private Map<DefaultMutableTreeNode, ArrayList<Object>> data = new HashMap<DefaultMutableTreeNode, ArrayList<Object>>();;
@@ -395,25 +398,25 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		setValueAt(aValue, node, column.ordinal());
 	}
 
-	public void setStatusForObject(Object object, String status) {
+	public void setProcessorStatus(Processor processor, String status) {
 		// First get the node for object
-		DefaultMutableTreeNode node = getNodeForObject(object);
+		DefaultMutableTreeNode node = getNodeForObject(processor);
 		setValueAt(status, node, Column.STATUS);		
 	}
 	
-	public void setStartDateForObject(Object object, Date date) {
+	public void setProcessorStartDate(Processor processor, Date date) {
 		// First get the node for object
-		DefaultMutableTreeNode node = getNodeForObject(object);
+		DefaultMutableTreeNode node = getNodeForObject(processor);
 		setValueAt(ISO_8601_FORMAT.format(date), node, Column.START_TIME);
 	}
 	
-	public void setFinishDateForObject(Object object, Date date) {
+	public void setProcessorFinishDate(Processor processor, Date date) {
 		// First get the node for object
-		DefaultMutableTreeNode node = getNodeForObject(object);
+		DefaultMutableTreeNode node = getNodeForObject(processor);
 		setValueAt(ISO_8601_FORMAT.format(date), node, Column.FINISH_TIME);
 	}
 	
-	public void setAverageInvocationTimeForObject(Object object, long timeInMiliseconds) {
+	public void setProcessorAverageInvocationTime(Object object, long timeInMiliseconds) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
 		setValueAt(formatMilliseconds(timeInMiliseconds), node, Column.AVERAGE_ITERATION_TIME);
@@ -440,25 +443,32 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		
 	}
 	
-	public void setNumberOfQueuedIterationsForObject(Object object, Integer iterations) {
+	public void setProcessorNumberOfQueuedIterations(Processor processor, Integer iterations) {
 		// First get the node for object
-		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(iterations, node, Column.ITERATIONS_QUEUED);
+		DefaultMutableTreeNode node = getNodeForObject(processor);
+		setValueAt(iterations.toString(), node, Column.ITERATIONS_QUEUED);
 	}
 	
-	public void setNumberOfIterationsDoneSoFarForObject(Object object, Integer doneIterations) {
+	public void setProcessorNumberOfIterationsDoneSoFar(Processor processor, Integer doneIterations) {
 		// First get the node for object
-		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(doneIterations, node, Column.ITERATIONS_DONE);
+		DefaultMutableTreeNode node = getNodeForObject(processor);
+		setValueAt(doneIterations.toString(), node, Column.ITERATIONS_DONE);
 	}
 	
-	public void setNumberOfFailedIterationsForObject(Object object, Integer failedIterations) {
+	public void setProcessorNumberOfFailedIterations(Processor processor, Integer failedIterations) {
 		// First get the node for object
-		DefaultMutableTreeNode node = getNodeForObject(object);
-		setValueAt(failedIterations, node, Column.ITERATIONS_FAILED);
+		DefaultMutableTreeNode node = getNodeForObject(processor);
+		setValueAt(failedIterations.toString(), node, Column.ITERATIONS_FAILED);
 	}
 	
+	// Get tree node containing the passed object. Root node contains the
+	// workflow object and children contain processor nodes.
 	public DefaultMutableTreeNode getNodeForObject(Object object){
+		
+		if (object == dataflow){ // no need to loop over processors
+			return (DefaultMutableTreeNode)root;
+		}
+		
 		for (DefaultMutableTreeNode node : data.keySet()) {
 			 if (node.getUserObject().equals(object)){
 				 return node;
@@ -468,9 +478,9 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	}
 
 	
-	public Date getStartDateForObject(Object object) {
+	public Date getProcessorStartDate(Processor processor) {
 		// First get the node for object
-		DefaultMutableTreeNode node = getNodeForObject(object);
+		DefaultMutableTreeNode node = getNodeForObject(processor);
 	
 		String dateString = (String)getValueAt(node, Column.START_TIME);
 		try {
@@ -481,4 +491,29 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		}
 	}
 
+	public String getProcessorStatus(Processor processor) {
+		// First get the node for object
+		DefaultMutableTreeNode node = getNodeForObject(processor);
+		return (String)getValueAt(node, Column.STATUS);
+	}
+
+	public int getProcessorNumberOfIterationsDoneSoFar(Processor processor) {
+		// First get the node for object
+		DefaultMutableTreeNode node = getNodeForObject(processor);
+		
+		String iterationsString = (String)getValueAt(node, Column.ITERATIONS_DONE);
+		return Integer.valueOf(iterationsString).intValue();
+	}
+	
+	public int getProcessorNumberOfQueuedIterations(Processor processor) {
+		// First get the node for object
+		DefaultMutableTreeNode node = getNodeForObject(processor);
+		
+		String iterationsString = (String)getValueAt(node, Column.ITERATIONS_QUEUED);
+		return Integer.valueOf(iterationsString).intValue();
+	}
+	
+	public Dataflow getDataflow(){
+		return dataflow;
+	}
 }

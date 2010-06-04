@@ -23,6 +23,9 @@ package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
+
+import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
+import net.sf.taverna.t2.facade.WorkflowInstanceFacade.State;
 import net.sf.taverna.t2.monitor.MonitorNode;
 import net.sf.taverna.t2.monitor.MonitorableProperty;
 import net.sf.taverna.t2.monitor.NoSuchPropertyException;
@@ -70,13 +73,17 @@ public class WorkflowRunProgressMonitorNode implements MonitorNode{
 	// Initially processor has not started yet
 	private boolean processorStarted = false;
 
+	// Facade of this run (needed to check the state of the run when setting node's state)
+	private WorkflowInstanceFacade facade;
+
 	public WorkflowRunProgressMonitorNode(Processor processor,
 			String[] owningProcess, Set<MonitorableProperty<?>> properties,
-			WorkflowRunProgressTreeTable progressTreeTable) {
+			WorkflowRunProgressTreeTable progressTreeTable, WorkflowInstanceFacade facade) {
 		this.properties = properties;
 		this.processor = processor;
 		this.owningProcess = owningProcess;
 		this.progressTreeTable = progressTreeTable;
+		this.facade = facade;
 	}
 
 	public void addMonitorableProperty(MonitorableProperty<?> newProperty) {
@@ -144,8 +151,13 @@ public class WorkflowRunProgressMonitorNode implements MonitorNode{
 									sentJobs = newSentJobs;
 									sentJobsChanged = true;
 									if (!processorStarted) {
-										progressTreeTable.setStartDateForObject(processor, new Date());
-										progressTreeTable.setStatusForObject(processor, STATUS_RUNNING);
+										progressTreeTable.setProcessorStartDate(processor, new Date());
+										// When we pause the run, sometimes we still get the event that
+										// processor's sentJobs changed so the status will change to running
+										// after the wf was paused which is not what we want.
+										if (!facade.getState().equals(State.paused)){
+											progressTreeTable.setProcessorStatus(processor, STATUS_RUNNING);
+										}
 										processorStarted = true;
 									}
 								}
@@ -180,16 +192,16 @@ public class WorkflowRunProgressMonitorNode implements MonitorNode{
 
 		if (queueSizeChanged) {
 			totalJobs = sentJobs + queueSize;
-			progressTreeTable.setNumberOfQueuedIterationsForObject(processor,
+			progressTreeTable.setProcessorNumberOfQueuedIterations(processor,
 					queueSize);
 		}
 		if (completedJobsChanged) {
-			progressTreeTable.setNumberOfIterationsDoneSoFarForObject(
+			progressTreeTable.setProcessorNumberOfIterationsDoneSoFar(
 					processor, completedJobs);
 			totalJobs = sentJobs + queueSize;
 		}
 		if (errorsChanged && errors > 0) {
-			progressTreeTable.setNumberOfFailedIterationsForObject(processor,
+			progressTreeTable.setProcessorNumberOfFailedIterations(processor,
 					errors);
 		}
 	}

@@ -25,7 +25,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -93,9 +92,12 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 
 	// Filter only events for the workflow shown in the progressTreeTable
 	private String filter;
+	
+	private WorkflowInstanceFacade facade;
 
-	public WorkflowRunProgressMonitor(WorkflowRunProgressTreeTable progressTreeTable) {
+	public WorkflowRunProgressMonitor(WorkflowRunProgressTreeTable progressTreeTable, WorkflowInstanceFacade facade) {
 		this.progressTreeTable = progressTreeTable;
+		this.facade = facade;
 	}
 
 	public void onDispose() {
@@ -144,7 +146,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				processorInvocationTimes.put(owningProcessId, new ArrayList<Long>());
 				Processor processor = (Processor) workflowObject;
 				WorkflowRunProgressMonitorNode monitorNode = new WorkflowRunProgressMonitorNode(
-						processor, owningProcess, properties, progressTreeTable);
+						processor, owningProcess, properties, progressTreeTable, facade);
 				synchronized(processorMonitorNodes) {
 					processorMonitorNodes.put(owningProcessId, monitorNode);
 				}
@@ -197,19 +199,19 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				}
 				workflowRunProgressMonitorNode.update();
 				Date processorFinishDate = new Date();
-				Date processorStartTime = progressTreeTable.getStartDateForObject(((Processor) workflowObject));
+				Date processorStartTime = progressTreeTable.getProcessorStartDate(((Processor) workflowObject));
 				
 				// For some reason total number of iterations is messed up when we update it
 				// from inside the node, so the final number is set here.
 				// If total number of iterations is 0 that means there was just one invocation.
 				int total = workflowRunProgressMonitorNode.getTotalNumberOfIterations();
 				total = (total == 0) ? 1 : total;
-				progressTreeTable.setFinishDateForObject(((Processor) workflowObject), processorFinishDate);
-				progressTreeTable.setStatusForObject(((Processor) workflowObject), STATUS_FINISHED);
+				progressTreeTable.setProcessorFinishDate(((Processor) workflowObject), processorFinishDate);
+				progressTreeTable.setProcessorStatus(((Processor) workflowObject), STATUS_FINISHED);
 				if (processorStartTime != null && processorInvocationTimes.remove(owningProcessId) == null){
 					// Should not really be needed anymore
 					long averageInvocationTime = (processorFinishDate.getTime() - processorStartTime.getTime())/total;
-					progressTreeTable.setAverageInvocationTimeForObject(((Processor) workflowObject), averageInvocationTime);
+					progressTreeTable.setProcessorAverageInvocationTime(((Processor) workflowObject), averageInvocationTime);
 				}
 			} else if (workflowObject instanceof Dataflow) {
 				if (owningProcess.length == 2) {
@@ -281,7 +283,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 						}
 						if (! invocationTimes.isEmpty()) {							
 							long averageInvocationTime = totalTime / invocationTimes.size();
-							progressTreeTable.setAverageInvocationTimeForObject(parentObject, averageInvocationTime);
+							progressTreeTable.setProcessorAverageInvocationTime(processor, averageInvocationTime);
 						}
 					}
 				}										
