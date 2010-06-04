@@ -173,9 +173,10 @@ public class SVGGraph extends Graph {
 			final SVGGraphEdge svgGraphEdge = (SVGGraphEdge) edge;
 			graphController.updateSVGDocument(new Runnable() {
 				public void run() {
+				    float opacity = svgGraphEdge.getOpacity();
 					svgGraphEdge.setOpacity(0);
 					mainGroup.appendChild(svgGraphEdge.getSVGElement());
-					svgGraphEdge.setOpacity(1);
+					svgGraphEdge.setOpacity(opacity);
 				}
 			});
 		}
@@ -189,9 +190,11 @@ public class SVGGraph extends Graph {
 			final SVGGraphNode svgGraphNode = (SVGGraphNode) node;
 			graphController.updateSVGDocument(new Runnable() {
 				public void run() {
+				    float opacity = svgGraphNode.getOpacity();
 					svgGraphNode.setOpacity(0);
 					mainGroup.appendChild(svgGraphNode.getSVGElement());
-					svgGraphNode.setOpacity(1);
+					svgGraphNode.setOpacity(opacity);
+					
 				}
 			});
 		}
@@ -204,9 +207,10 @@ public class SVGGraph extends Graph {
 			final SVGGraph svgGraph = (SVGGraph) subgraph;
 			graphController.updateSVGDocument(new Runnable() {
 				public void run() {
+				    float opacity = svgGraph.getOpacity();
 					svgGraph.setOpacity(0);
 					mainGroup.appendChild(svgGraph.getSVGElement());
-					svgGraph.setOpacity(1);
+					svgGraph.setOpacity(opacity);
 				}
 			});
 		}
