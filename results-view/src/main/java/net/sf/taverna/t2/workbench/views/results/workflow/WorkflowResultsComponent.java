@@ -232,7 +232,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			// when receiving of results has finished
 			facade.addResultListener(this);
 			
-			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab);
+			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab, "Output port " + portName);
 		}	
 		
 		for (DataflowInputPort dataflowInputPort : dataflowInputPorts) {
@@ -244,7 +244,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			
 			inputPortTabMap.put(portName, resultTab);
 			
-			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab);
+			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab, "Input port " + portName);
 		}
 		
 		revalidate();
@@ -301,7 +301,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			// component for displaying individual results
 			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort.getName(), dataflowOutputPort.getDepth());		
 			outputPortTabMap.put(portName, resultTab);
-			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab);
+			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab, "Output port " + portName);
 		}
 		
 		List<DataflowInputPort> dataflowInputPorts = new ArrayList<DataflowInputPort>(dataflow.getInputPorts());
@@ -315,7 +315,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			// component for displaying individual results
 			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowInputPort.getName(), dataflowInputPort.getDepth());
 			inputPortTabMap.put(portName, resultTab);
-			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab);
+			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab, "Input port " + portName);
 		}		
 
 		for (java.util.Map.Entry<Port, T2Reference> entry : dataBindings

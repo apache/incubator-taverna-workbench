@@ -195,7 +195,7 @@ public class ProcessorResultsComponent extends JPanel{
 					portName);
 			resultTab.setIsOutputPortTab(true);
 			outputPortTabMap.put(portName, resultTab);
-			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab);
+			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab, "Output port " + portName);
 		}
 
 		// Processor input ports
@@ -214,7 +214,7 @@ public class ProcessorResultsComponent extends JPanel{
 			ProcessorPortResultsViewTab resultTab = new ProcessorPortResultsViewTab(portName);
 			resultTab.setIsOutputPortTab(false);
 			inputPortTabMap.put(portName,resultTab);
-			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab);
+			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab, "Input port " + portName);
 		}
 		
 		// Create the invocations tree
