@@ -24,15 +24,25 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.Icon;
 
 import net.sf.taverna.raven.log.Log;
+import net.sf.taverna.t2.lang.ui.icons.Icons;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
+import net.sf.taverna.t2.visit.VisitReport.Status;
+import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 public class ShowReportsContextualMenuAction extends AbstractContextualMenuAction {
+	private static final ReportManager reportManager = ReportManager.getInstance();
+	private static final FileManager fileManager = FileManager.getInstance();
+	
 	private static final String SHOW_REPORTS = "Show reports";
 	private String namedComponent = "reportView";
 
+	@SuppressWarnings("unused")
 	private static Log logger = Log.getLogger(ShowReportsContextualMenuAction.class);
 
 	public ShowReportsContextualMenuAction() {
@@ -49,7 +59,22 @@ public class ShowReportsContextualMenuAction extends AbstractContextualMenuActio
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new AbstractAction(SHOW_REPORTS) {
+		Dataflow parent;
+		if (getContextualSelection().getParent() instanceof Dataflow) {
+			parent = (Dataflow)getContextualSelection().getParent();
+		} else {
+			parent = fileManager.getCurrentDataflow();
+		}
+		Status status = reportManager.getStatus(parent, getContextualSelection().getSelection());
+		
+		Icon icon = null;
+		if (status == Status.WARNING) {
+			icon = Icons.warningIcon;
+		} else if (status == Status.SEVERE) {
+			icon = Icons.severeIcon;
+		} 
+		
+		return new AbstractAction(SHOW_REPORTS, icon) {
 			public void actionPerformed(ActionEvent e) {
 				Workbench workbench = Workbench.getInstance();
 				workbench.getPerspectives().setWorkflowPerspective();

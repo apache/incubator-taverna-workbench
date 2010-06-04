@@ -55,5 +55,10 @@
 			<artifactId>constant-value</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>report-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+		</dependency>
 	</dependencies>
 </project>
