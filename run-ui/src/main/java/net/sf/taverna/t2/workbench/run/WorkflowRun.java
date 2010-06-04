@@ -40,7 +40,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.facade.ResultListener;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.TokenOrderException;
 import net.sf.taverna.t2.invocation.WorkflowDataToken;
@@ -124,8 +123,6 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	private JButton workflowRunPauseButton = new JButton(new PauseWorkflowRunAction()); // pause or resume
 	private JButton workflowRunCancelButton = new JButton(new CancelWorkflowRunAction());
 	private JButton workflowResultsButton = new JButton(new ShowWorkflowResultsAction());
-
-	private int results = 0;
 
 	private Dataflow dataflow;
 
@@ -564,12 +561,14 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		public PauseWorkflowRunAction (){
 			super();
 			putValue(NAME, "Pause");
+			putValue(SMALL_ICON, WorkbenchIcons.pauseIcon);
 		}
 		
 		public void actionPerformed(ActionEvent e) {
 			String text = (String)getValue(NAME);
 			if (text.equals("Pause")) {
 				putValue(NAME, "Resume");
+				putValue(SMALL_ICON, WorkbenchIcons.playIcon);			
 				workflowRunProgressStatusLabel.setText(STATUS_PAUSED);
 				workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.workingStoppedIcon);
 				if (facade != null){ // should not be null but check nevertheless
@@ -578,6 +577,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			} 
 			else if (text.equals("Resume")){
 				putValue(NAME, "Pause");
+				putValue(SMALL_ICON, WorkbenchIcons.pauseIcon);
 				workflowRunProgressStatusLabel.setText(STATUS_RUNNING);
 				workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.workingIcon);
 				if (facade != null){ // should not be null but check nevertheless
@@ -596,6 +596,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		public CancelWorkflowRunAction (){
 			super();
 			putValue(NAME, "Cancel");
+			putValue(SMALL_ICON, WorkbenchIcons.closeIcon);
 		}
 		
 		public void actionPerformed(ActionEvent e) {
@@ -622,6 +623,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		public ShowWorkflowResultsAction() {
 			super();
 			putValue(NAME, "Show workflow results");
+			putValue(SMALL_ICON, WorkbenchIcons.resultsPerspectiveIcon);
 		}
 
 		public void actionPerformed(ActionEvent e) {
