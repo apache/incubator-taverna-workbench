@@ -193,17 +193,17 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 
 		this.add(headerPanel, BorderLayout.NORTH);
 		
-		JSplitPane splitPane = new JSplitPaneExt(JSplitPane.VERTICAL_SPLIT);
-		splitPane.setDividerLocation(0.5);
+		JPanel splitPanel = new JPanel();
+		splitPanel.setLayout(new GridLayout(2,1));
 		tableScrollPane = new JScrollPane();
-		splitPane.add(tableScrollPane);
+		splitPanel.add(tableScrollPane);
 
 		messagePane = new JTabbedPane();
 		messagePane.addTab("Explanation", explanationScrollPane);
 		messagePane.addTab("Solution", solutionScrollPane);
-		splitPane.add(messagePane);
+		splitPanel.add(messagePane);
 
-		this.add(splitPane, BorderLayout.CENTER);
+		this.add(splitPanel, BorderLayout.CENTER);
 		ignoreReportButton = new JButton(new AbstractAction("Hide report") {
 			public void actionPerformed(ActionEvent ex) {
 			    if (lastSelectedReport != null) {
@@ -224,35 +224,6 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		validateButtonPanel.add(quickCheckButton);
 		validateButtonPanel.add(fullCheckButton);
 		this.add(validateButtonPanel, BorderLayout.SOUTH);
-
-		explanationScrollPane.addComponentListener(new ComponentListener() {
-			public void componentHidden(ComponentEvent e) {
-			}
-			public void componentMoved(ComponentEvent e) {
-			}
-			public void componentResized(ComponentEvent e) {
-			    if (lastSelectedReport != null) {
-			    	updateExplanation(lastSelectedReport);
-			    	updateMessages();
-			    }
-			}
-			public void componentShown(ComponentEvent e) {
-			}
-		    });
-		solutionScrollPane.addComponentListener(new ComponentListener() {
-			public void componentHidden(ComponentEvent e) {
-			}
-			public void componentMoved(ComponentEvent e) {
-			}
-			public void componentResized(ComponentEvent e) {
-			    if (lastSelectedReport != null) {
-				updateExplanation(lastSelectedReport);
-				updateMessages();
-			    }
-			}
-			public void componentShown(ComponentEvent e) {
-			}
-		    });
 		showReport(FileManager.getInstance().getCurrentDataflow());
 	}
 
