@@ -38,6 +38,7 @@ import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.LoopConfigurati
  * @author alanrw
  *
  */
+@SuppressWarnings("serial")
 public class LoopConfigureAction extends AbstractAction {
 	
 	private static Logger logger = Logger.getLogger(LoopConfigureAction.class);
@@ -63,7 +64,7 @@ public class LoopConfigureAction extends AbstractAction {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			String title = "Looping for " + processor.getLocalName();
+			String title = "Looping for service " + processor.getLocalName();
 			final JDialog dialog = new JDialog(owner, title, true);
 			LoopConfigurationPanel loopConfigurationPanel = new LoopConfigurationPanel(
 					processor, loopLayer);

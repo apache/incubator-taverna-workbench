@@ -43,6 +43,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.activities.beanshell.BeanshellActivity;
 import net.sf.taverna.t2.activities.beanshell.BeanshellActivityConfigurationBean;
@@ -70,6 +71,7 @@ import org.apache.log4j.Logger;
  * @author Stian Soiland-Reyes
  * 
  */
+@SuppressWarnings("serial")
 public class LoopConfigurationPanel extends JPanel {
 
 	protected LoopConfiguration configuration;
@@ -91,6 +93,7 @@ public class LoopConfigurationPanel extends JPanel {
 	public LoopConfigurationPanel(Processor processor, Loop loopLayer) {
 		this.processor = processor;
 		this.loopLayer = loopLayer;
+		this.setBorder(new EmptyBorder(10,10,10,10));
 		initialise();
 		setConfiguration(loopLayer.getConfiguration());
 	}
@@ -161,7 +164,7 @@ public class LoopConfigurationPanel extends JPanel {
 		private final JButton customizeButton;
 
 		public CustomizeAction(JButton customizeButton) {
-			super("Customize condition service");
+			super("Customise condition service");
 			this.customizeButton = customizeButton;
 		}
 
@@ -329,7 +332,7 @@ public class LoopConfigurationPanel extends JPanel {
 		JLabel helpLabel = new JLabel(
 				"<html><body>"
 						+ "The main service will be invoked repeatedly as "
-						+ "long as the <em>customized condition service</em> returns a string equal "
+						+ "long as the <em>customised condition service</em> returns a string equal "
 						+ "to <strong>\"true\"</strong> on its output port <code>loop</code>."
 						+ "<br><br>"
 						+ "Input ports of the condition service will be populated with values from "
@@ -367,7 +370,7 @@ public class LoopConfigurationPanel extends JPanel {
 	protected JLabel delayLabel = new JLabel("adding a delay of ");
 	protected JTextField delayField = new JTextField(
 			ActivityGenerator.DEFAULT_DELAY_S, 4);
-	protected JLabel secondsLabel = new JLabel(" seconds between loops.");
+	protected JLabel secondsLabel = new JLabel(" seconds between the loops.");
 
 	private JComboBox portCombo;
 	private JComboBox comparisonCombo;
@@ -385,7 +388,8 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.weightx = 0.1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		JLabel invokedRepeatedlyLabel = new JLabel(
-				"<html><body>The main service will be invoked repeatedly until its output</body></html>");
+				"<html><body>The service will be invoked repeatedly until its output</body></html>");
+		invokedRepeatedlyLabel.setBorder(new EmptyBorder(10,0,10,0)); // give some top and bottom border to the label
 		configPanel.add(invokedRepeatedlyLabel, gbc);
 		gbc.gridy++;
 		gbc.ipadx = 4;
@@ -585,7 +589,7 @@ public class LoopConfigurationPanel extends JPanel {
 	protected void makeHeader() {
 		headerPanel.removeAll();
 		headerPanel.setLayout(new BorderLayout());
-		headerPanel.add(new ShadedLabel("Looping for "
-				+ processor.getLocalName(), ShadedLabel.ORANGE));
+		//headerPanel.add(new ShadedLabel("Looping for service"
+		//		+ processor.getLocalName(), ShadedLabel.ORANGE));
 	}
 }
