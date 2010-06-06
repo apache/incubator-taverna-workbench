@@ -6,9 +6,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.ParallelizeConfig;
 
+@SuppressWarnings("serial")
 public class ParallelizeConfigurationPanel extends JPanel {
 
 	private final ParallelizeConfig configuration;
@@ -17,13 +19,15 @@ public class ParallelizeConfigurationPanel extends JPanel {
 	public ParallelizeConfigurationPanel(ParallelizeConfig configuration) {
 		this.configuration = configuration;
 		this.setLayout(new GridLayout(1,2));
-		
+		this.setBorder(new EmptyBorder(10,10,10,10));
 		populate();
 	}
 
 	public void populate() {
 		this.removeAll();
-		this.add(new JLabel("Maximum number of jobs"));
+		JLabel jobs = new JLabel("Maximum number of jobs");
+		jobs.setBorder(new EmptyBorder(0,0,0,10));
+		this.add(jobs);
 		maxJobsField.setText(Integer.toString(configuration.getMaximumJobs()));
 		this.add(maxJobsField);
 	}

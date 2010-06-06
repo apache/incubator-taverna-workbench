@@ -22,7 +22,6 @@ import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Parallelize;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.ParallelizeConfig;
 
 /**
  * @author alanrw
@@ -50,10 +49,10 @@ public class ParallelizeConfigureAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		String title = "Jobs for " + parallelizeLayer.getProcessor().getLocalName();
+		String title = "Jobs for service " + parallelizeLayer.getProcessor().getLocalName();
 		final JDialog dialog = new JDialog(owner, title, true);
 		ParallelizeConfigurationPanel parallelizeConfigurationPanel = new ParallelizeConfigurationPanel(parallelizeLayer.getConfiguration());
-		dialog.add(parallelizeConfigurationPanel, BorderLayout.NORTH);
+		dialog.add(parallelizeConfigurationPanel, BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
