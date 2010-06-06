@@ -49,10 +49,10 @@ public class RetryConfigureAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		String title = "Retries for " + retryLayer.getProcessor().getLocalName();
+		String title = "Retries for service " + retryLayer.getProcessor().getLocalName();
 		final JDialog dialog = new JDialog(owner, title, true);
 		RetryConfigurationPanel retryConfigurationPanel = new RetryConfigurationPanel(retryLayer.getConfiguration());
-		dialog.add(retryConfigurationPanel, BorderLayout.NORTH);
+		dialog.add(retryConfigurationPanel, BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
