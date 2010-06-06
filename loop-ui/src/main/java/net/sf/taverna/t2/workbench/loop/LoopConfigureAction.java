@@ -85,7 +85,8 @@ public class LoopConfigureAction extends AbstractAction {
 			buttonPanel.add(cancelButton);
 
 			dialog.add(buttonPanel, BorderLayout.SOUTH);
-			dialog.setSize(450, 450);
+			dialog.pack();
+			dialog.setSize(500, 430);
 			dialog.setLocationRelativeTo(null);
 			dialog.setVisible(true);
 		}

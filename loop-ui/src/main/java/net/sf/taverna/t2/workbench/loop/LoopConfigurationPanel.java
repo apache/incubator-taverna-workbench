@@ -26,6 +26,7 @@ import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -380,33 +381,27 @@ public class LoopConfigurationPanel extends JPanel {
 		configPanel.setLayout(new GridBagLayout());
 
 		GridBagConstraints gbc = new GridBagConstraints();
-		// gbc.fill = GridBagConstraints.BOTH;
 		gbc.anchor = GridBagConstraints.LINE_START;
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		gbc.gridwidth = 3;
+		gbc.gridwidth = 4;
 		gbc.weightx = 0.1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		JLabel invokedRepeatedlyLabel = new JLabel(
 				"<html><body>The service will be invoked repeatedly until its output</body></html>");
 		invokedRepeatedlyLabel.setBorder(new EmptyBorder(10,0,10,0)); // give some top and bottom border to the label
 		configPanel.add(invokedRepeatedlyLabel, gbc);
-		gbc.gridy++;
 		gbc.ipadx = 4;
 		gbc.ipady = 4;
 
-		gbc.weightx = 0.1;
+		gbc.weightx = 0.0;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridx = 0;
+		gbc.gridy = 1;
 		gbc.gridwidth = 1;
 		List<String> activityOutputPorts = getActivityOutputPorts();
 		portCombo = new JComboBox(activityOutputPorts.toArray());
 		configPanel.add(portCombo, gbc);
-		gbc.fill = GridBagConstraints.HORIZONTAL;
-		gbc.gridx++;
-
-		configPanel.add(new JPanel(), gbc);
-		gbc.gridx++;
 
 		comparisonCombo = new JComboBox(ActivityGenerator.comparisons.toArray());
 		comparisonCombo.addActionListener(new ActionListener() {
@@ -419,46 +414,48 @@ public class LoopConfigurationPanel extends JPanel {
 				}
 			}
 		});
+		gbc.gridx = 1;
+		gbc.gridy = 1;
 		configPanel.add(comparisonCombo, gbc);
-		gbc.gridy++;
-		gbc.gridx = 0;
-		gbc.gridwidth = 2;
-
-		valueTypeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-
-		configPanel.add(valueTypeLabel, gbc);
+		
 		gbc.gridx = 2;
-		gbc.gridwidth = 2;
-		gbc.weightx = 0.1;
+		gbc.gridy = 1;
+		valueTypeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+		configPanel.add(valueTypeLabel, gbc);
+
+		gbc.gridx = 3;
+		gbc.gridy = 1;
+		gbc.weightx = 0.5; // request all extra space
 		gbc.fill = GridBagConstraints.HORIZONTAL;
-
 		configPanel.add(valueField, gbc);
-		gbc.weightx = 0.0;
 
-		delayLabel.setHorizontalAlignment(SwingConstants.RIGHT);
-		gbc.gridy++;
-		gbc.gridwidth = 1;
 		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.weightx = 0.0;
 		configPanel.add(delayLabel, gbc);
-		// gbc.gridy++;
-		// gbc.gridwidth = 2;
 
 		gbc.gridx = 1;
+		gbc.gridx = 1;
+		gbc.gridy = 2;
+		gbc.weightx = 0.0;
 		delayField.setHorizontalAlignment(JTextField.RIGHT);
 		configPanel.add(delayField, gbc);
+		
 		gbc.gridx = 2;
-		gbc.gridwidth = 1;
+		gbc.gridy = 2;
+		gbc.gridwidth = 2;
+		gbc.weightx = 0.5; // request all extra space
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 		configPanel.add(secondsLabel, gbc);
-		gbc.gridx = 0;
-		gbc.gridy++;
-
+		
 		if (activityOutputPorts.isEmpty()) {
 			JLabel warningLabel = new JLabel(
 					"<html><body><strong>Warning:</strong><br>"
 							+ "<i>No output ports detected on the main service, "
 							+ "cannot use built-in comparisons.</i></body></html>");
 			gbc.gridx = 0;
-			gbc.gridwidth = 3;
+			gbc.gridy++;
+			gbc.gridwidth = 4;
 			gbc.weightx = 0.1;
 			gbc.fill = GridBagConstraints.BOTH;
 			gbc.gridy++;
@@ -472,23 +469,24 @@ public class LoopConfigurationPanel extends JPanel {
 			delayField.setVisible(false);
 			delayLabel.setVisible(false);
 			secondsLabel.setVisible(false);
-
-			gbc.gridwidth = 1;
 		}
 
 		gbc.gridy++;
 		gbc.gridx = 0;
 		gbc.weightx = 0.1;
-		gbc.gridwidth = 3;
+		gbc.gridwidth = 4;
+		gbc.weightx = 0.1;
+		gbc.fill = GridBagConstraints.BOTH;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
-
+		gbc.insets = new Insets(10, 0, 10, 0);
 		configPanel.add(portWarning, gbc);
 
+		gbc.insets = new Insets(0, 0, 0, 0);
 		gbc.weightx = 0.0;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.gridx = 0;
 		gbc.gridy++;
-		gbc.gridwidth = 3;
+		gbc.gridwidth = 4;
 		gbc.anchor = GridBagConstraints.LAST_LINE_END;
 		JButton customizeButton = new JButton();
 		customizeButton.setAction(new CustomizeAction(customizeButton));
@@ -500,6 +498,7 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.gridx = 4;
 		gbc.weightx = 0.1;
 		gbc.weighty = 0.1;
+		gbc.gridwidth = 4;
 		configPanel.add(Box.createGlue(), gbc);
 
 	}
@@ -572,17 +571,17 @@ public class LoopConfigurationPanel extends JPanel {
 
 	JLabel feedbackHelp = new JLabel(
 			"<html><small>"
-					+ "When looping, any service <em>input ports</em> which <em>names</em> "
+					+ "<p>When looping, any service <em>input ports</em> which <em>names</em> "
 					+ "match those of service <em>output ports</em> will get their inputs "
-					+ "from the matching outputs of the <em>previous invocation</em>. <br>"
+					+ "from the matching outputs of the <em>previous invocation</em>.</p><br>"
 
-					+ "This can be useful if the main service is a <em>nested workflow</em> "
-					+ "which is able to calculate its next input parameters.<br>"
+					+ "<p>This can be useful if the main service is a <em>nested workflow</em> "
+					+ "which is able to calculate its next input parameters.</p><br>"
 
-					+ "You will need to provide the <em>initial</em> inputs by "
+					+ "<p>You will need to provide the <em>initial</em> inputs by "
 					+ "connecting the input ports in the containing workflow. You will also "
 					+ "need to <strong>connect all service output ports</strong> "
-					+ "in the containing workflow.<br>"
+					+ "in the containing workflow.</p>"
 
 					+ "</small></html>");
 
