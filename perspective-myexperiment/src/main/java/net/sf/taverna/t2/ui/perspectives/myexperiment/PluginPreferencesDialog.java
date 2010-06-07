@@ -45,13 +45,14 @@ import javax.swing.JTextField;
 
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 import org.apache.log4j.Logger;
 
 /**
  * @author Sergejs Aleksejevs, Emmanuel Tagarira
  */
-public class PluginPreferencesDialog extends JDialog implements ComponentListener, ActionListener {
+public class PluginPreferencesDialog extends HelpEnabledDialog implements ComponentListener, ActionListener {
   // CONSTANTS
 
   // components for accessing application's main elements
@@ -77,7 +78,7 @@ public class PluginPreferencesDialog extends JDialog implements ComponentListene
   private final ArrayList<String> alPluginTabComponentNames;
 
   public PluginPreferencesDialog(JFrame owner, MainComponent component, MyExperimentClient client, Logger logger) {
-	super(owner);
+	super(owner, "Plugin preferences", true);
 
 	// set main variables to ensure access to myExperiment, logger and the parent component
 	this.pluginMainComponent = component;
@@ -86,7 +87,6 @@ public class PluginPreferencesDialog extends JDialog implements ComponentListene
 
 	// set options of the preview dialog box
 	this.addComponentListener(this);
-	this.setModal(true);
 	//this.setIconImage(new ImageIcon(MyExperimentPerspective.getLocalResourceURL("myexp_icon")).getImage());
 
 	// prepare plugin tab names to display in the UI afterwards

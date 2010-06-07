@@ -49,10 +49,9 @@ import javax.swing.border.EmptyBorder;
 import net.sf.taverna.t2.activities.beanshell.BeanshellActivity;
 import net.sf.taverna.t2.activities.beanshell.BeanshellActivityConfigurationBean;
 import net.sf.taverna.t2.activities.beanshell.views.BeanshellConfigView;
-import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.helper.Helper;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.loop.comparisons.Comparison;
 import net.sf.taverna.t2.workbench.ui.Utils;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
@@ -201,9 +200,9 @@ public class LoopConfigurationPanel extends JPanel {
 
 			final BeanshellConfigView beanshellConfigView = new BeanshellConfigView(
 					beanshellActivity);
-			final JDialog dialog = new JDialog(owner, true);
-			dialog.setLayout(new BorderLayout());
-			Helper.setKeyCatcher(dialog);
+			
+			final JDialog dialog = new HelpEnabledDialog(owner, "Customize looping", true);
+			dialog.setLayout(new BorderLayout());		
 			dialog.add(beanshellConfigView, BorderLayout.NORTH);
 			dialog.setSize(600, 600);
 			JPanel buttonPanel = new JPanel();

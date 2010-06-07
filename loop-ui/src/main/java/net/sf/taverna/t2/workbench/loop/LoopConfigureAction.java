@@ -23,6 +23,7 @@ import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
@@ -65,7 +66,7 @@ public class LoopConfigureAction extends AbstractAction {
 
 		public void actionPerformed(ActionEvent e) {
 			String title = "Looping for service " + processor.getLocalName();
-			final JDialog dialog = new JDialog(owner, title, true);
+			final JDialog dialog = new HelpEnabledDialog(owner, title, true);
 			LoopConfigurationPanel loopConfigurationPanel = new LoopConfigurationPanel(
 					processor, loopLayer);
 			dialog.add(loopConfigurationPanel, BorderLayout.CENTER);

@@ -51,6 +51,7 @@ import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.ServerResponse;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 import org.apache.log4j.Logger;
 
@@ -58,7 +59,7 @@ import org.apache.log4j.Logger;
  * @author Sergejs Aleksejevs, Jiten Bhagat
  */
 
-public class AddCommentDialog extends JDialog implements ActionListener, CaretListener, ComponentListener, KeyListener {
+public class AddCommentDialog extends HelpEnabledDialog implements ActionListener, CaretListener, ComponentListener, KeyListener {
   // components for accessing application's main elements
   private MainComponent pluginMainComponent;
   private MyExperimentClient myExperimentClient;
@@ -76,7 +77,8 @@ public class AddCommentDialog extends JDialog implements ActionListener, CaretLi
   private boolean bPostingSuccessful = false;
 
   public AddCommentDialog(JFrame owner, Resource resource, MainComponent component, MyExperimentClient client, Logger logger) {
-	super(owner);
+	super(owner, "Add comment for \"" + resource.getTitle() + "\" "
+			+ resource.getItemTypeName(), true);
 
 	// set main variables to ensure access to myExperiment, logger and the parent component
 	this.pluginMainComponent = component;
@@ -87,10 +89,7 @@ public class AddCommentDialog extends JDialog implements ActionListener, CaretLi
 	this.resource = resource;
 
 	// set options of the 'add comment' dialog box
-	this.setModal(true);
 	this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-	this.setTitle("Add comment for \"" + resource.getTitle() + "\" "
-		+ resource.getItemTypeName());
 	//this.setIconImage(new ImageIcon(MyExperimentPerspective.getLocalResourceURL("myexp_icon")).getImage());
 
 	this.initialiseUI();

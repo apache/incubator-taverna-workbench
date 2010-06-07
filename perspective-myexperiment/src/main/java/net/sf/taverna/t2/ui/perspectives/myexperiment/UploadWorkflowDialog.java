@@ -71,6 +71,7 @@ import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Workflow;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.actions.SaveWorkflowAsAction;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
@@ -79,7 +80,7 @@ import org.apache.log4j.Logger;
 /**
  * @author Emmanuel Tagarira, Sergejs Aleksejevs
  */
-public class UploadWorkflowDialog extends JDialog implements ActionListener,
+public class UploadWorkflowDialog extends HelpEnabledDialog implements ActionListener,
     CaretListener, ComponentListener, KeyListener, FocusListener {
   // components for accessing application's main elements
   private final MainComponent pluginMainComponent = MainComponent.MAIN_COMPONENT;

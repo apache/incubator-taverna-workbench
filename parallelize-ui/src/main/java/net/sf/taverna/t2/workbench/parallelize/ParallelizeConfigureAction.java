@@ -18,6 +18,7 @@ import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
@@ -50,7 +51,7 @@ public class ParallelizeConfigureAction extends AbstractAction {
 
 	public void actionPerformed(ActionEvent e) {
 		String title = "Jobs for service " + parallelizeLayer.getProcessor().getLocalName();
-		final JDialog dialog = new JDialog(owner, title, true);
+		final JDialog dialog = new HelpEnabledDialog(owner, title, true);
 		ParallelizeConfigurationPanel parallelizeConfigurationPanel = new ParallelizeConfigurationPanel(parallelizeLayer.getConfiguration());
 		dialog.add(parallelizeConfigurationPanel, BorderLayout.CENTER);
 

@@ -43,13 +43,14 @@ import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.ServerResponse;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Util;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 import org.apache.log4j.Logger;
 
 /**
  * @author Sergejs Aleksejevs
  */
-public class AddRemoveFavouriteDialog extends JDialog implements ActionListener, ComponentListener {
+public class AddRemoveFavouriteDialog extends HelpEnabledDialog implements ActionListener, ComponentListener {
   // CONSTANTS
   protected static final int OPERATION_SUCCESSFUL = 1;
   protected static final int OPERATION_CANCELLED = 0;
@@ -71,7 +72,9 @@ public class AddRemoveFavouriteDialog extends JDialog implements ActionListener,
   private ServerResponse response = null;
 
   public AddRemoveFavouriteDialog(JFrame owner, boolean isFavouriteAdded, Resource resource, MainComponent component, MyExperimentClient client, Logger logger) {
-	super(owner);
+	super(owner, isFavouriteAdded ? "Add to" : "Remove from"
+	+ " favourites - \"" + resource.getTitle() + "\" "
+	+ resource.getItemTypeName(), true);
 
 	// set main variables to ensure access to myExperiment, logger and the parent component
 	this.pluginMainComponent = component;
@@ -83,11 +86,7 @@ public class AddRemoveFavouriteDialog extends JDialog implements ActionListener,
 	this.resource = resource;
 
 	// set options of the 'add/remove favourite' dialog box
-	this.setModal(true);
 	this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-	this.setTitle((this.bIsFavouriteBeingAdded ? "Add to" : "Remove from")
-		+ " favourites - \"" + resource.getTitle() + "\" "
-		+ resource.getItemTypeName());
 	//this.setIconImage(new ImageIcon(MyExperimentPerspective.getLocalResourceURL("myexp_icon")).getImage());
 
 	this.initialiseUI();

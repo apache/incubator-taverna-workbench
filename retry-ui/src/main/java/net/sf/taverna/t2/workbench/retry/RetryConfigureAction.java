@@ -16,6 +16,7 @@ import javax.swing.JPanel;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
@@ -50,7 +51,7 @@ public class RetryConfigureAction extends AbstractAction {
 
 	public void actionPerformed(ActionEvent e) {
 		String title = "Retries for service " + retryLayer.getProcessor().getLocalName();
-		final JDialog dialog = new JDialog(owner, title, true);
+		final JDialog dialog = new HelpEnabledDialog(owner, title, true);
 		RetryConfigurationPanel retryConfigurationPanel = new RetryConfigurationPanel(retryLayer.getConfiguration());
 		dialog.add(retryConfigurationPanel, BorderLayout.CENTER);
 
