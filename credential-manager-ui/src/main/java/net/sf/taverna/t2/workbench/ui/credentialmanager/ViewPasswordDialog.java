@@ -37,13 +37,15 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+
 /**
  * Dialog used for viewing password.
  * 
  * @author Alexandra Nenadic
  */
 @SuppressWarnings("serial")
-public class ViewPasswordDialog extends JDialog {
+public class ViewPasswordDialog extends HelpEnabledDialog {
 	
 	// Password field 
     private JTextField jtfPassword;

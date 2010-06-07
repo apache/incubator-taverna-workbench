@@ -46,6 +46,7 @@ import net.sf.taverna.t2.servicedescriptions.events.ProviderErrorNotification;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionProvidedEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
 import net.sf.taverna.t2.workbench.MainWindow;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workflowmodel.ConfigurationException;
 
 import org.apache.commons.beanutils.BeanUtils;
@@ -117,8 +118,8 @@ public class AddServiceProviderAction extends AbstractAction {
 			throw new RuntimeException("Can't clone configuration bean", ex);
 		}
 		JPanel buildEditor = buildEditor(configurationBean);
-		JDialog dialog = new JDialog(MainWindow.getMainWindow());
-		dialog.setTitle("Add " + confProvider.getName());
+		String title = "Add " + confProvider.getName();
+		JDialog dialog = new HelpEnabledDialog(MainWindow.getMainWindow(), title, true, null);
 		JPanel iconPanel = new JPanel();
 		iconPanel.add(new JLabel(confProvider.getIcon()), BorderLayout.NORTH);
 		dialog.add(iconPanel, BorderLayout.WEST);

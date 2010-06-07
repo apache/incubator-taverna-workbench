@@ -34,6 +34,8 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.workbench.MainWindow;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 /**
@@ -45,13 +47,13 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
  *
  */
 @SuppressWarnings("serial")
-public class CopyWorkflowInProgressDialog extends JDialog{
+public class CopyWorkflowInProgressDialog extends HelpEnabledDialog {
 
 	private boolean userCancelled = false;
 
 	public CopyWorkflowInProgressDialog() {
 		
-		super((Frame) null, "Initialising workflow run", true);
+		super(MainWindow.getMainWindow(), "Initialising workflow run", true);
 		setLocationRelativeTo(null);
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);

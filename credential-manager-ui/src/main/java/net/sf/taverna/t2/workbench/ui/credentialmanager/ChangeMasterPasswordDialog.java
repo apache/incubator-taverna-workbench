@@ -42,6 +42,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 /**
  * Dialog used for user to change master password for Credential Manager.
@@ -49,7 +50,7 @@ import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class ChangeMasterPasswordDialog extends JDialog {
+public class ChangeMasterPasswordDialog extends HelpEnabledDialog {
 	
     // Previous password entry field 
     private JPasswordField jpfOld;
@@ -67,7 +68,7 @@ public class ChangeMasterPasswordDialog extends JDialog {
 
 	public ChangeMasterPasswordDialog(JFrame parent, String title,
 			boolean modal, String instructions)    {
-        super(parent, title, modal);
+        super(parent, title, modal, null);
         this.instructions = instructions;
         initComponents();
     }

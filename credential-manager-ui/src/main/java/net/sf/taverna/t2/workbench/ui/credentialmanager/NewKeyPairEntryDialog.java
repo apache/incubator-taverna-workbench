@@ -60,6 +60,7 @@ import org.apache.log4j.Logger;
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.GetServiceURLDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
 
@@ -70,8 +71,7 @@ import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-class NewKeyPairEntryDialog extends JDialog
-{
+class NewKeyPairEntryDialog extends HelpEnabledDialog {
 
 	private Logger logger = Logger.getLogger(NewKeyPairEntryDialog.class);
 	

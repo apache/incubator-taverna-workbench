@@ -38,13 +38,15 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+
 /**
  * Dialog used for entering and confirming a password.
  * 
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class GetNewPasswordDialog extends JDialog {
+public class GetNewPasswordDialog extends HelpEnabledDialog {
 
 	// Instructions for user explaining the purpose of the password 
 	private String instructions = null;

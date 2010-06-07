@@ -42,6 +42,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+
 /**
  * Dialog for entering user's username and password for the WSDL service.
  * 
@@ -49,7 +51,7 @@ import javax.swing.border.EtchedBorder;
  */
 @SuppressWarnings("serial")
 public class GetPasswordDialog
-    extends JDialog
+    extends HelpEnabledDialog
 {
 	// Whether we should ask user to save their username and password using Credential Manager
 	private boolean shouldAskUserToSave;

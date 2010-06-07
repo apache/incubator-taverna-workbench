@@ -58,6 +58,7 @@ import javax.security.auth.x500.X500Principal;
 
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 //import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1OctetString;
@@ -73,7 +74,7 @@ import org.bouncycastle.asn1.misc.NetscapeCertType;
  */
 @SuppressWarnings("serial")
 public class ViewCertDetailsDialog
-    extends JDialog
+    extends HelpEnabledDialog
 { 	
 	// Logger
 	//private static Logger logger = Logger.getLogger(ViewCertDetailsDialog.class);

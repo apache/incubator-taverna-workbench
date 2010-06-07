@@ -37,12 +37,14 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+
 /**
  * Dialog to give user feedback about saving the cached reference service data.
  * 
  * @author David Withers
  */
-public class ReferenceServiceShutdownDialog extends JDialog {
+public class ReferenceServiceShutdownDialog extends HelpEnabledDialog {
 
 	private static final long serialVersionUID = 1L;
 

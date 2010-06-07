@@ -41,6 +41,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+
 /**
  * Dialog used for getting a master password for Credential Manager
  * from the users.
@@ -48,7 +50,7 @@ import javax.swing.border.EtchedBorder;
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class GetMasterPasswordDialog extends JDialog {
+public class GetMasterPasswordDialog extends HelpEnabledDialog {
 	
     // Password entry field 
     private JPasswordField jpfPassword;

@@ -36,6 +36,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+
 /**
  * Dialog that is popped up during Taverna shutdown during
  * clean up of the Reference Manager's database 
@@ -47,7 +49,7 @@ import javax.swing.JProgressBar;
  *
  */
 @SuppressWarnings("serial")
-public class ReferenceDatabaseCleanUpShutdownDialog extends JDialog{
+public class ReferenceDatabaseCleanUpShutdownDialog extends HelpEnabledDialog{
 
 	private JProgressBar progressBar;
 

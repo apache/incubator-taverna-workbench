@@ -36,6 +36,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+
 /**
  * Dialog that is popped up during Taverna shutdown if 
  * deleting dataflow runs has not finished yet 
@@ -47,7 +49,7 @@ import javax.swing.JProgressBar;
  *
  */
 @SuppressWarnings("serial")
-public class RemoveDataflowRunsShutdownDialog extends JDialog{
+public class RemoveDataflowRunsShutdownDialog extends HelpEnabledDialog{
 
 	private JProgressBar progressBar;
 

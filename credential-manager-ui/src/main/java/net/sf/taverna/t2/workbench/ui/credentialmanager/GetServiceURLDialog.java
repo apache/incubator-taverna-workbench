@@ -36,13 +36,15 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+
 /**
  * Dialog used for entering a service URL.
  * 
  * @author Alexandra Nenadic
  */
 
-public class GetServiceURLDialog extends JDialog
+public class GetServiceURLDialog extends HelpEnabledDialog
 {
 	
 	private static final long serialVersionUID = -2023348569964325951L;

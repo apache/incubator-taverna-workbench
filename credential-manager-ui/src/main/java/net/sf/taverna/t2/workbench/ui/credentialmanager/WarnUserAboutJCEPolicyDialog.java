@@ -34,7 +34,6 @@ import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -48,6 +47,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 import net.sf.taverna.t2.security.credentialmanager.CMUtil;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -61,7 +61,7 @@ import edu.stanford.ejalbert.BrowserLauncher;
  *
  */
 @SuppressWarnings("serial")
-public class WarnUserAboutJCEPolicyDialog extends JDialog{
+public class WarnUserAboutJCEPolicyDialog extends HelpEnabledDialog {
 	
 	private Logger logger = Logger.getLogger(WarnUserAboutJCEPolicyDialog.class);
 	
