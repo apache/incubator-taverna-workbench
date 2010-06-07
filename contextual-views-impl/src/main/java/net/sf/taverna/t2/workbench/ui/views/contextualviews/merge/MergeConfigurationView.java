@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.FontMetrics;
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,6 @@ import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -26,6 +26,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EventForwardingOutputPort;
@@ -35,7 +36,7 @@ import net.sf.taverna.t2.workflowmodel.TokenProcessingEntity;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 @SuppressWarnings("serial")
-public class MergeConfigurationView extends JDialog{
+public class MergeConfigurationView extends HelpEnabledDialog {
 
 	private Merge merge;
 	
@@ -56,9 +57,7 @@ public class MergeConfigurationView extends JDialog{
 
 	public MergeConfigurationView(Merge merge){
 		
-		super();
-		setTitle("Merge Configuration");
-		setModal(true);
+		super((Frame)null, "Merge Configuration", true);
 		
 		this.merge = merge;
 		// Ordered list of merge's input ports

@@ -38,6 +38,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
@@ -48,7 +50,7 @@ import org.apache.log4j.Logger;
  *
  */
 @SuppressWarnings("serial")
-public class CheckForUpdatesDialog extends JDialog{
+public class CheckForUpdatesDialog extends HelpEnabledDialog {
 	
 	private Logger logger = Logger.getLogger(CheckForUpdatesDialog.class);
 

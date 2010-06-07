@@ -79,13 +79,14 @@ import net.sf.taverna.raven.plugins.PluginManager;
 import net.sf.taverna.raven.plugins.event.PluginEvent;
 import net.sf.taverna.raven.plugins.event.PluginManagerEvent;
 import net.sf.taverna.raven.plugins.event.PluginManagerListener;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 /**
  * GUI component for the <code>PluginManager</code>.
  * 
  * @author David Withers
  */
-public class PluginManagerFrame extends JDialog {
+public class PluginManagerFrame extends HelpEnabledDialog {
 
 	private static final long serialVersionUID = 1L;
 
@@ -115,16 +116,14 @@ public class PluginManagerFrame extends JDialog {
 	 * This is the default constructor
 	 */
 	public PluginManagerFrame(PluginManager pluginManager) {
-		super();
-		this.pluginManager = pluginManager;
-		initialize();
+		this((Frame)null, pluginManager);
 	}
 
 	/**
 	 * This is the default constructor
 	 */
 	public PluginManagerFrame(Frame parent,PluginManager pluginManager) {
-		super(parent);
+		super(parent, "Plugin manager", true);
 		this.pluginManager = pluginManager;
 		initialize();
 	}
@@ -133,7 +132,7 @@ public class PluginManagerFrame extends JDialog {
 	 * This is the default constructor
 	 */
 	public PluginManagerFrame(JDialog parent,PluginManager pluginManager) {
-		super(parent);
+		super(parent, "Plugin manager", true);
 		this.pluginManager = pluginManager;
 		initialize();
 	}

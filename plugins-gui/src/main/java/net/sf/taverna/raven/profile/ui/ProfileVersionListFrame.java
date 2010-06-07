@@ -80,11 +80,12 @@ import net.sf.taverna.raven.profile.ProfileHandler;
 import net.sf.taverna.raven.profile.ProfileUpdateHandler;
 import net.sf.taverna.raven.profile.ProfileVersion;
 import net.sf.taverna.raven.spi.ProfileFactory;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
-public class ProfileVersionListFrame extends JDialog {
+public class ProfileVersionListFrame extends HelpEnabledDialog {
 	
 	private JPanel contentPane = null;
 	private JScrollPane scrollPane = null;
@@ -97,12 +98,11 @@ public class ProfileVersionListFrame extends JDialog {
 			.getLogger(ProfileVersionListFrame.class);
 
 	public ProfileVersionListFrame() {
-		super();
-		initialise();
+		this(null);
 	}
 	
 	public ProfileVersionListFrame(Frame parent) {
-		super(parent,true);
+		super(parent,"Taverna versions", true);
 		initialise();
 	}
 	
@@ -255,7 +255,6 @@ public class ProfileVersionListFrame extends JDialog {
 		}
 		setSize(600,400);		
 		setContentPane(getJContentPane());
-		setTitle("Taverna versions");		
 	}	
 	
 }

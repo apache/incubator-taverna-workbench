@@ -39,9 +39,10 @@ import javax.swing.JTextField;
 
 import net.sf.taverna.raven.repository.Artifact;
 import net.sf.taverna.raven.repository.BasicArtifact;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 @SuppressWarnings("serial")
-public class ArtifactDownloadDialog extends JDialog {
+public class ArtifactDownloadDialog extends HelpEnabledDialog {
 
 	private static Artifact artifact = null;
 	private static ArtifactDownloadDialog dialog;

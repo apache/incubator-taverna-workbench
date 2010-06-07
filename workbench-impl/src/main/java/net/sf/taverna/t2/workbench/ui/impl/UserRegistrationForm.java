@@ -74,6 +74,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.commons.io.FileUtils;
@@ -82,7 +83,7 @@ import org.apache.log4j.Logger;
 import edu.stanford.ejalbert.BrowserLauncher;
 
 @SuppressWarnings("serial")
-public class UserRegistrationForm extends JDialog{
+public class UserRegistrationForm extends HelpEnabledDialog {
 
 	private static final String REGISTRATION_URL = "http://www.mygrid.org.uk/taverna/registration/";
 	

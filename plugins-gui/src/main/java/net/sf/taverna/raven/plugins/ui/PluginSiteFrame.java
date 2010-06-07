@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
+ * Copyright (C) 2007-2010 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -87,13 +87,14 @@ import net.sf.taverna.raven.plugins.Plugin;
 import net.sf.taverna.raven.plugins.PluginManager;
 import net.sf.taverna.raven.plugins.PluginSite;
 import net.sf.taverna.raven.plugins.TavernaPluginSite;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 
 /**
  * 
  * @author David Withers
  */
-public class PluginSiteFrame extends JDialog {	
+public class PluginSiteFrame extends HelpEnabledDialog {	
 
 	private static final long serialVersionUID = 1L;
 
@@ -119,7 +120,7 @@ public class PluginSiteFrame extends JDialog {
 	 * This is the default constructor
 	 */
 	public PluginSiteFrame(Frame owner) {
-		super(owner,true);				
+		super(owner, "Update sites", true);				
 		initialize();
 	}
 	
@@ -127,7 +128,7 @@ public class PluginSiteFrame extends JDialog {
 	 * This is the default constructor
 	 */
 	public PluginSiteFrame(JDialog owner) {
-		super(owner,true);			
+		super(owner, "Update sites", true);
 		initialize();
 	}
 
@@ -141,7 +142,6 @@ public class PluginSiteFrame extends JDialog {
 		this.pluginSites = this.pluginManager.getPluginSites();
 		this.setSize(600, 450);
 		this.setContentPane(getJContentPane());
-		this.setTitle("Update Sites");
 	}
 
 	/**

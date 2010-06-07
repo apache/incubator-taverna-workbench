@@ -32,6 +32,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workbench.MainWindow;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 //import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 
@@ -43,15 +44,14 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
  *
  */
 @SuppressWarnings("serial")
-public class OpenDataflowInProgressDialog extends JDialog{
+public class OpenDataflowInProgressDialog extends HelpEnabledDialog {
 
 
 	private boolean userCancelled = false;
 
 	public OpenDataflowInProgressDialog() {
 		
-		super((Frame) null, "Opening workflow", true);
-		setLocationRelativeTo(MainWindow.getMainWindow());
+		super(MainWindow.getMainWindow(), "Opening workflow", true);
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		

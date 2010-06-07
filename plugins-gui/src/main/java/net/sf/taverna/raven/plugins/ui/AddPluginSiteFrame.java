@@ -67,8 +67,10 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+
 @SuppressWarnings("serial")
-public class AddPluginSiteFrame extends JDialog {
+public class AddPluginSiteFrame extends HelpEnabledDialog {
 
 	private JPanel jContentPane = null;
 	private JButton okButton = null;
@@ -84,7 +86,7 @@ public class AddPluginSiteFrame extends JDialog {
 	 * 
 	 */
 	public AddPluginSiteFrame(JDialog parent) {
-		super(parent,true);
+		super(parent,"Add plugin site", true);
 		initialize();
 		this.getRootPane().setDefaultButton(okButton);
 	}
