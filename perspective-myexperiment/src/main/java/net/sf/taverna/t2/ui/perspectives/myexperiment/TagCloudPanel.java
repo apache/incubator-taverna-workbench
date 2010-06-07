@@ -273,11 +273,8 @@ public class TagCloudPanel extends JPanel implements ChangeListener, ItemListene
 		content.append("<span style='color: gray; font-weight: italic;'>&nbsp;&nbsp;No tags to display</span>");
 	  }
 
-	  HTMLEditorKit kit = new HTMLEditorKit();
+	  HTMLEditorKit kit = new StyledHTMLEditorKit(pluginMainComponent.getStyleSheet());
 	  HTMLDocument doc = (HTMLDocument) (kit.createDefaultDocument());
-
-	  kit.setStyleSheet(this.pluginMainComponent.getStyleSheet());
-
 	  doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 
 	  this.tpTagCloudBody.setEditorKit(kit);

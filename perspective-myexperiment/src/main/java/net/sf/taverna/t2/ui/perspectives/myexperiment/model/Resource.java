@@ -19,10 +19,12 @@ import javax.swing.JTextPane;
 import javax.swing.event.HyperlinkListener;
 import javax.swing.text.html.HTMLDocument;
 import javax.swing.text.html.HTMLEditorKit;
+import javax.swing.text.html.StyleSheet;
 
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponent;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MyExperimentPerspective;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.ResourceListPanel;
+import net.sf.taverna.t2.ui.perspectives.myexperiment.StyledHTMLEditorKit;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -514,10 +516,8 @@ public class Resource implements Comparable<Resource>, Serializable {
 	  content.append("</div>");
 	  content.append("</div>");
 
-	  HTMLEditorKit kit = new HTMLEditorKit();
+	  HTMLEditorKit kit = new StyledHTMLEditorKit(pluginMainComponent.getStyleSheet());
 	  HTMLDocument doc = (HTMLDocument) (kit.createDefaultDocument());
-
-	  kit.setStyleSheet(pluginMainComponent.getStyleSheet());
 
 	  doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 

@@ -126,8 +126,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
     // stylesheet doesn't actually get the styles)
     // NB! This has to be located after all ShadedLabels were initialized to
     // prevent bad layout in them
-    HTMLEditorKit kit = new HTMLEditorKit();
-    kit.setStyleSheet(this.css);
+    HTMLEditorKit kit = new StyledHTMLEditorKit(this.css);
 
     // determine which shutdown operations to use
     if (Util.isRunningInTaverna()) {

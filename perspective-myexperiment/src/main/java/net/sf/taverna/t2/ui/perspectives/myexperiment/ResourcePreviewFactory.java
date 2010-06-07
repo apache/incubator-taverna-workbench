@@ -263,9 +263,8 @@ public class ResourcePreviewFactory {
 		content.append("</div>");
 		content.append("</div>");
 
-		HTMLEditorKit kit = new HTMLEditorKit();
+		HTMLEditorKit kit = new StyledHTMLEditorKit(pluginMainComponent.getStyleSheet());
 		HTMLDocument doc = (HTMLDocument) (kit.createDefaultDocument());
-		kit.setStyleSheet(this.pluginMainComponent.getStyleSheet());
 		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 
 		// === Now render user's items as Swing components ===
@@ -365,9 +364,8 @@ public class ResourcePreviewFactory {
 		content.append("</div>");
 		content.append("</div>");
 
-		HTMLEditorKit kit = new HTMLEditorKit();
+		HTMLEditorKit kit = new StyledHTMLEditorKit(pluginMainComponent.getStyleSheet());
 		HTMLDocument doc = (HTMLDocument) (kit.createDefaultDocument());
-		kit.setStyleSheet(this.pluginMainComponent.getStyleSheet());
 		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 
 		// === Now render group's items as Swing components ===
@@ -476,9 +474,8 @@ public class ResourcePreviewFactory {
 		content.append("</div>");
 		content.append("</div>");
 
-		HTMLEditorKit kit = new HTMLEditorKit();
+		HTMLEditorKit kit = new StyledHTMLEditorKit(pluginMainComponent.getStyleSheet());
 		HTMLDocument doc = (HTMLDocument) (kit.createDefaultDocument());
-		kit.setStyleSheet(this.pluginMainComponent.getStyleSheet());
 		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 
 		// === Now render group's items as Swing components ===
@@ -605,9 +602,8 @@ public class ResourcePreviewFactory {
 		content.append("</div>");
 		content.append("</div>");
 
-		HTMLEditorKit kit = new HTMLEditorKit();
+		HTMLEditorKit kit = new StyledHTMLEditorKit(pluginMainComponent.getStyleSheet());
 		HTMLDocument doc = (HTMLDocument) (kit.createDefaultDocument());
-		kit.setStyleSheet(this.pluginMainComponent.getStyleSheet());
 		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 
 		// === Now render user's items as Swing components ===
@@ -802,9 +798,8 @@ public class ResourcePreviewFactory {
 		content.append("</div>");
 		content.append("</div>");
 
-		HTMLEditorKit kit = new HTMLEditorKit();
+		HTMLEditorKit kit = new StyledHTMLEditorKit(pluginMainComponent.getStyleSheet());
 		HTMLDocument doc = (HTMLDocument) (kit.createDefaultDocument());
-		kit.setStyleSheet(this.pluginMainComponent.getStyleSheet());
 		doc.insertAfterStart(doc.getRootElements()[0].getElement(0), content.toString());
 
 		// === Now render group's items as Swing components ===
