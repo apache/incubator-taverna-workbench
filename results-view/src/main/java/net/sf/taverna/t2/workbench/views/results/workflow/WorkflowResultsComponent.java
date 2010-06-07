@@ -68,6 +68,7 @@ import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 // import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsOPM;
+import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsOPM;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPIRegistry;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -547,11 +548,11 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			// Get all existing 'Save result' actions
 			List<SaveAllResultsSPI> saveActions = saveAllResultsRegistry.getSaveResultActions();
 			for (SaveAllResultsSPI spi : saveActions){
-				/*if (spi instanceof SaveAllResultsAsOPM){
+				if (spi instanceof SaveAllResultsAsOPM){
 				((SaveAllResultsAsOPM)spi).setIsProvenanceEnabledForRun(isProvenanceEnabledForRun);
 				((SaveAllResultsAsOPM)spi).setRunId(runId);
 				((SaveAllResultsAsOPM)spi).setDataflow(dataflow);
-				}*/
+				}
 				SaveAllResultsSPI action = (SaveAllResultsSPI) spi.getAction();
 				actionSet.add(action);
 				JButton saveButton = new JButton((AbstractAction) action);

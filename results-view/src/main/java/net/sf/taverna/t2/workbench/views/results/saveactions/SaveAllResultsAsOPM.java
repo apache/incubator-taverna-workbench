@@ -96,10 +96,10 @@ public class SaveAllResultsAsOPM extends SaveAllResultsSPI{
 		"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\n"+
 		"xsi:schemaLocation=\"http://taverna.org.uk/2009/provenance/pquery/pquery.xsd\">\n"+
 		"<scope workflow=\""+ dataflow.getIdentifier() +"\"/>\n"+
-		"<focus>\n"+
-		"<workflow name=\""+ runId +"\">\n"+
-		"</workflow>\n"+
-		"</focus>\n" +
+//		"<focus>\n"+
+//		"<workflow name=\""+ runId +"\">\n"+
+//		"</workflow>\n"+
+//		"</focus>\n" +
 		"</pquery>";
 
 		logger.info("Query to get the OPM graph:\n" + querySpec);
