@@ -32,6 +32,7 @@
 		<module>contextual-views-api</module>
 		<module>edits-api</module>
 		<module>file-api</module>
+		<module>helper-api</module>
 		<module>menu-api</module>
 		<module>perspective-core</module>
 		<module>renderers-api</module>

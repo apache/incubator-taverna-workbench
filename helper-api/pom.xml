@@ -7,7 +7,7 @@
 		<version>1.1-SNAPSHOT</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-api</groupId>
-	<artifactId>helper</artifactId>
+	<artifactId>helper-api</artifactId>
 	<name>Help System</name>
 	<dependencies>
 		<dependency>
