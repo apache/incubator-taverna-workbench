@@ -257,7 +257,7 @@ public class WorkbenchPerspectives {
 	}
 
 	public void switchPerspective(PerspectiveSPI perspective) {
-		// The currentPerspective test <b>is</b> neccessary to avoid loops :)
+		// The currentPerspective test <b>is</b> necessary to avoid loops :)
 		if (perspective != currentPerspective && basePane.isEditable()) {
 			JOptionPane.showMessageDialog(basePane,
 					"Sorry, unable to change perspectives whilst in edit mode",

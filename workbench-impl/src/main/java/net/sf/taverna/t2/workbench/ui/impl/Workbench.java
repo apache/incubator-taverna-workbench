@@ -57,6 +57,7 @@ import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.ui.perspectives.CustomPerspective;
+import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.ShutdownSPI;
 import net.sf.taverna.t2.workbench.StartupSPI;
@@ -122,6 +123,7 @@ public class Workbench extends JFrame {
 			}
 		}
 		if (initializing) {
+			MainWindow.setMainWindow(Singleton.instance);
 			try {
 				SwingUtilities.invokeAndWait(new Runnable() {
 					public void run() {
@@ -227,6 +229,7 @@ public class Workbench extends JFrame {
 	}
 
 	protected void initialize() {
+		
 		setLookAndFeel();
 
 		// Call the startup hooks

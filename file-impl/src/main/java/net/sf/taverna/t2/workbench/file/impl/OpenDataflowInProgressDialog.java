@@ -31,8 +31,9 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.impl.Workbench;
+//import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 
 /**
  * Dialog that is popped up while we are opening a workflow.
@@ -50,7 +51,7 @@ public class OpenDataflowInProgressDialog extends JDialog{
 	public OpenDataflowInProgressDialog() {
 		
 		super((Frame) null, "Opening workflow", true);
-		setLocationRelativeTo(Workbench.getInstance());
+		setLocationRelativeTo(MainWindow.getMainWindow());
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
