@@ -8,26 +8,12 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-impl</groupId>
 	<artifactId>helper</artifactId>
-	<name>Help System</name>
+	<name>Help System (legacy dependency)</name>
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
+            <groupId>net.sf.taverna.t2.ui-impl</groupId>
+            <artifactId>helper</artifactId>
+            <version>${t2.ui.api.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>javax.help</groupId>
-			<artifactId>javahelp</artifactId>
-		</dependency>
-			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-			</dependency>
 	</dependencies>
 </project>
