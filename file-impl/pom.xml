@@ -10,7 +10,7 @@
 	<artifactId>file-impl</artifactId>
 	<name>File opening implementation</name>
 	<description>
-		Implementation for doing file (ie. workflow) open/save in the
+		Implementation for doing file (i.e. workflow) open/save in the
 		workbench.
 	</description>
 	<dependencies>
@@ -33,6 +33,11 @@
 			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>workflowmodel-api</artifactId>
 			<version>${t2.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>workbench-impl</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
@@ -83,7 +88,7 @@
 			<artifactId>helper</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-						<dependency>
+		<dependency>
 			<groupId>org.jdesktop</groupId>
 			<artifactId>swingworker</artifactId>
 			<version>1.2-2</version>

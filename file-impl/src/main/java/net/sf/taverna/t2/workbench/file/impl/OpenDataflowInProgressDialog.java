@@ -24,10 +24,7 @@ package net.sf.taverna.t2.workbench.file.impl;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -35,7 +32,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 
 /**
  * Dialog that is popped up while we are opening a workflow.
@@ -53,7 +50,7 @@ public class OpenDataflowInProgressDialog extends JDialog{
 	public OpenDataflowInProgressDialog() {
 		
 		super((Frame) null, "Opening workflow", true);
-		setLocationRelativeTo(null);
+		setLocationRelativeTo(Workbench.getInstance());
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
@@ -85,7 +82,7 @@ public class OpenDataflowInProgressDialog extends JDialog{
 		panel.add(cancelButtonPanel, BorderLayout.SOUTH);
 */
 		setContentPane(panel);
-		setPreferredSize(new Dimension(300, 150));
+		setPreferredSize(new Dimension(300, 100));
 
 		pack();		
 	}
