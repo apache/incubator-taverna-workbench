@@ -16,6 +16,7 @@ import net.sf.taverna.t2.lang.ui.treetable.JTreeTable;
 import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
 import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressTreeTableModel.Column;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import static net.sf.taverna.t2.workbench.views.results.processor.ProcessorResultsComponent.formatMilliseconds;
 
 @SuppressWarnings("serial")
 public class WorkflowRunProgressTreeTable extends JTreeTable implements Observable<WorkflowObjectSelectionMessage>{
@@ -67,8 +68,7 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 	}
 	
 	public void setWorkflowInvocationTime(long averageInvocationTime) {
-		treeTableModel.setValueAt(WorkflowRunProgressTreeTableModel
-				.formatMilliseconds(averageInvocationTime),
+		treeTableModel.setValueAt(formatMilliseconds(averageInvocationTime),
 				(DefaultMutableTreeNode) treeTableModel.getRoot(),
 				Column.AVERAGE_ITERATION_TIME);
 	}

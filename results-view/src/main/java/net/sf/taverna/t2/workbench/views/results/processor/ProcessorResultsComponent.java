@@ -21,6 +21,10 @@
 package net.sf.taverna.t2.workbench.views.results.processor;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.sql.Timestamp;
+import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,6 +34,8 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -118,6 +124,8 @@ public class ProcessorResultsComponent extends JPanel{
 	HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> enactmentsToInputPortData;
 	HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> enactmentsToOutputPortData;
 
+	private JLabel iterationLabel;
+
 	public ProcessorResultsComponent(Processor processor, Dataflow dataflow, String runId, ReferenceService referenceService) {
 		super(new BorderLayout());
 		this.processor = processor;
@@ -168,7 +176,20 @@ public class ProcessorResultsComponent extends JPanel{
 		titlePanel = new JPanel(new BorderLayout());
 		titlePanel.setBorder(new EmptyBorder(5,0,5,0));
 		titlePanel.add(new JLabel("Intermediate results for service: " + processor.getLocalName()), BorderLayout.WEST);
+		
+		String title = "<html><body>Intermediate results for the service <b>"			
+				+ processor.getLocalName() + "</b></body></html>";
+		JLabel tableLabel = new JLabel(title);
+		titlePanel.add(tableLabel, BorderLayout.WEST);
+		iterationLabel = new JLabel();
+		int spacing = iterationLabel.getFontMetrics(iterationLabel.getFont()).charWidth(' ');
+		iterationLabel.setBorder(BorderFactory.createEmptyBorder(0, spacing * 5, 0, 0));
+		titlePanel.add(iterationLabel, BorderLayout.CENTER);
 		add(titlePanel, BorderLayout.NORTH);
+
+		tabbedPane = new JTabbedPane();
+
+		
 
 		tabbedPane = new JTabbedPane();
 
@@ -249,6 +270,34 @@ public class ProcessorResultsComponent extends JPanel{
 		splitPane.setTopComponent(enactmentsTreePanel);
 		add(splitPane, BorderLayout.CENTER);
 	}
+
+	private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
+	private static final String HOURS = "h";
+	private static final String MINUTES = "m";
+	private static final String SECONDS = "s";
+	private static final String MILLISECONDS = "ms";
+	
+	public static String formatMilliseconds(long timeInMiliseconds) {
+		double timeInSeconds;
+		if (timeInMiliseconds < 1000) {
+			return timeInMiliseconds + " " + MILLISECONDS;
+		}  			
+		NumberFormat numberFormat = NumberFormat.getNumberInstance();
+		numberFormat.setMaximumFractionDigits(1);
+		numberFormat.setMinimumFractionDigits(1);
+		timeInSeconds = timeInMiliseconds / 1000.0;
+		if (timeInSeconds < 60) {
+			return numberFormat.format(timeInSeconds) + " " + SECONDS;
+		} 
+		double timeInMinutes = timeInSeconds / 60.0;
+		if (timeInMinutes < 60) {
+			return numberFormat.format(timeInMinutes) + " " + MINUTES;
+		}
+		double timeInHours = timeInMinutes / 60.0;
+		return numberFormat.format(timeInHours) + " " + HOURS;
+		
+	}
 	
 	private void setDataTreeForResultTab(){
 		final ProcessorPortResultsViewTab selectedResultTab = (ProcessorPortResultsViewTab) tabbedPane
@@ -261,6 +310,35 @@ public class ProcessorResultsComponent extends JPanel{
 			}
 			ProcessorEnactmentsTreeNode lastPathComponent = (ProcessorEnactmentsTreeNode)selectedPath.getLastPathComponent();
 			ProcessorEnactment processorEnactment = (ProcessorEnactment)lastPathComponent.getUserObject();
+			
+			// Update iterationLabel
+			StringBuffer iterationLabelText = new StringBuffer();
+			// Use <html> so we can match font metrics of titleJLabel
+			iterationLabelText.append("<html><body>");
+			iterationLabelText.append(lastPathComponent);
+			Timestamp started = processorEnactment.getEnactmentStarted();
+			Timestamp ended = processorEnactment.getEnactmentEnded();
+			if (started != null) {
+				iterationLabelText.append(" started ");
+				iterationLabelText.append(ISO_8601.format(started));				
+			}
+			if (ended != null) {
+				if (started != null) {
+					iterationLabelText.append(", ");
+				}
+				iterationLabelText.append(" ended ");
+				iterationLabelText.append(ISO_8601.format(ended));				
+			}
+			if (started != null && ended != null) {
+				long duration = ended.getTime() - started.getTime();
+				iterationLabelText.append(" (");
+				iterationLabelText.append(formatMilliseconds(duration));
+				iterationLabelText.append(")");				
+			}
+			iterationLabelText.append("</body></html>");
+			iterationLabel.setText(iterationLabelText.toString());
+			
+			
 			HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> map = null;
 			if (selectedResultTab.getIsOutputPortTab()){ // output port tab
 				map  = enactmentsToOutputPortData;

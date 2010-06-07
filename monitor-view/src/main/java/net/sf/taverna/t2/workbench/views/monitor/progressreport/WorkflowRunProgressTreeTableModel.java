@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
 import java.sql.Timestamp;
-import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -49,6 +48,10 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 import net.sf.taverna.t2.workflowmodel.utils.NamedWorkflowEntityComparator;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
+
+import static net.sf.taverna.t2.workbench.views.results.processor.ProcessorResultsComponent.formatMilliseconds;
+
+
 /**
  * A TreeTableModel used to display the progress of a workfow run. 
  * Workflow and its processors (some of which may be nested) 
@@ -63,11 +66,6 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 
 	private static SimpleDateFormat ISO_8601_FORMAT = new SimpleDateFormat(
 		"yyyy-MM-dd HH:mm:ss");
-	
-	private static final String HOURS = "h";
-	private static final String MINUTES = "m";
-	private static final String SECONDS = "s";
-	private static final String MILLISECONDS = "ms";
 	public static final String NAME = "Name";
 	public static final String STATUS = "Status";	
 	public static final String START_TIME = "Start time";
@@ -173,8 +171,12 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     			
 				
     			DataflowInvocation dataflowInvocation = provenanceAccess.getDataflowInvocation(workflowRunId);
-				Timestamp workflowStartTime = dataflowInvocation.getInvocationStarted();
-    			Timestamp workflowFinishTime = dataflowInvocation.getInvocationEnded();
+    			Timestamp workflowStartTime = null;
+    			Timestamp workflowFinishTime = null;
+    			if (dataflowInvocation != null) {
+					workflowStartTime = dataflowInvocation.getInvocationStarted();
+					workflowFinishTime = dataflowInvocation.getInvocationEnded();    			
+    			}
     			
     			if (workflowStartTime != null) {
     				workflowData.add(ISO_8601_FORMAT.format(workflowStartTime));
@@ -420,27 +422,6 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(object);
 		setValueAt(formatMilliseconds(timeInMiliseconds), node, Column.AVERAGE_ITERATION_TIME);
-	}
-
-	public static String formatMilliseconds(long timeInMiliseconds) {
-		double timeInSeconds;
-		if (timeInMiliseconds < 1000) {
-			return timeInMiliseconds + " " + MILLISECONDS;
-		}  			
-		NumberFormat numberFormat = NumberFormat.getNumberInstance();
-		numberFormat.setMaximumFractionDigits(1);
-		numberFormat.setMinimumFractionDigits(1);
-		timeInSeconds = timeInMiliseconds / 1000.0;
-		if (timeInSeconds < 60) {
-			return numberFormat.format(timeInSeconds) + " " + SECONDS;
-		} 
-		double timeInMinutes = timeInSeconds / 60.0;
-		if (timeInMinutes < 60) {
-			return numberFormat.format(timeInMinutes) + " " + MINUTES;
-		}
-		double timeInHours = timeInMinutes / 60.0;
-		return numberFormat.format(timeInHours) + " " + HOURS;
-		
 	}
 	
 	public void setProcessorNumberOfQueuedIterations(Processor processor, Integer iterations) {

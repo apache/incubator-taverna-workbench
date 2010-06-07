@@ -20,7 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.processor;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -38,7 +37,7 @@ public class ProcessorEnactmentsTreeNode extends DefaultMutableTreeNode {
 	
 	private ProcessorEnactment processorEnactment;
 	private List<Integer> iteration;
-	private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	//private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	
 	public ProcessorEnactmentsTreeNode(ProcessorEnactment processorEnactment){
@@ -61,7 +60,9 @@ public class ProcessorEnactmentsTreeNode extends DefaultMutableTreeNode {
 		} else {
 			sb.append("Invocation");
 		}
-		sb.append(" (Started: ");
+		
+		/* // Takes too much space 
+		 * sb.append(" (Started: ");
 		sb.append(ISO_8601.format(processorEnactment.getEnactmentStarted()));
 		if (processorEnactment.getEnactmentEnded() != null) {
 			sb.append("; Finished: ");
@@ -70,6 +71,7 @@ public class ProcessorEnactmentsTreeNode extends DefaultMutableTreeNode {
 			sb.append("; Not finished");
 		}
 		sb.append(")");
+		*/
 		return sb.toString();
 	}
 

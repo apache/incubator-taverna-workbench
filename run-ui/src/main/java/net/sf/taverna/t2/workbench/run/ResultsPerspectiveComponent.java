@@ -25,6 +25,7 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -80,6 +81,8 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 	private static final long serialVersionUID = 1L;
 
+	private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	
 	private static Logger logger = Logger
 			.getLogger(ResultsPerspectiveComponent.class);
 
@@ -178,15 +181,18 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 						final WorkflowRun workflowRun = (WorkflowRun) selection;
 						if (!workflowRun.isDataflowLoaded()) {
 							JTabbedPane monitorComponent = new JTabbedPane();
+							String loadingText = "<html><body>Loading workflow diagram and results for <b>"
+									+ workflowRun.getWorkflowName()
+									+ "</b> for run "
+									+ ISO_8601.format(workflowRun.getDate())
+									+ "</body></html>";
 							monitorComponent.add("Graph", new JLabel(
-									"<html>Loading workflow diagram and results for <i>" + workflowRun.getWorkflowName() +  "</i> for run "
-									+ workflowRun.getDate() + "</html>")); // graph
+									loadingText)); // graph
 							monitorComponent.add("Progress report", new JLabel(
-									"<html>Loading workflow diagram and results for <i>" + workflowRun.getWorkflowName() +  "</i> for run "
-									+ workflowRun.getDate() + "</html>")); // progress report	
+									loadingText)); // progress report
 							topPanel.setBottomComponent(monitorComponent);
 							setBottomComponent(new JPanel());
-							synchronized(this) {
+							synchronized (this) {
 								if (loadPreviousWorkflowRunThread != null) {
 									loadPreviousWorkflowRunThread.interrupt();
 								}
@@ -196,12 +202,12 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 							}
 						} else if (workflowRun.getDataflow() == null) {					
 							JTabbedPane monitorComponent = new JTabbedPane();
+							String errorText = "Could not load workflow for run "
+							+ workflowRun.getRunId();
 							monitorComponent.add("Graph", new JLabel(
-									"Could not load workflow for run "
-									+ workflowRun.getRunId())); // graph
+									errorText)); // graph
 							monitorComponent.add("Progress report", new JLabel(
-									"Could not load workflow for run "
-									+ workflowRun.getRunId())); // progress report	
+									errorText)); // progress report	
 							topPanel.setBottomComponent(monitorComponent);	
 							setBottomComponent(new JPanel());
 						} else {
