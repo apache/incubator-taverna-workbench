@@ -26,7 +26,6 @@ import javax.swing.ButtonGroup;
 import javax.swing.ButtonModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -46,6 +45,7 @@ import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.impl.actions.OpenWorkflowAction;
 import net.sf.taverna.t2.workbench.file.importworkflow.DataflowMerger;
 import net.sf.taverna.t2.workbench.file.importworkflow.MergeException;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -58,7 +58,7 @@ import net.sf.taverna.t2.workflowmodel.utils.Tools;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.log4j.Logger;
 
-public class ImportWorkflowWizard extends JDialog {
+public class ImportWorkflowWizard extends HelpEnabledDialog {
 	private static final long serialVersionUID = -8124860319858897065L;
 	protected static FileManager fileManager = FileManager.getInstance();
 	protected static Logger logger = Logger
@@ -101,7 +101,7 @@ public class ImportWorkflowWizard extends JDialog {
 	protected JRadioButton radioCustomDestination;
 
 	public ImportWorkflowWizard(Frame parentFrame) {
-		super(parentFrame, "Import workflow", true);
+		super(parentFrame, "Import workflow", true, null);
 
 		setSize(600, 600);
 		add(makeContentPane(), BorderLayout.CENTER);
