@@ -201,11 +201,11 @@ public class WorkbenchIcons {
 			mergeIcon = new ImageIcon(c
 					.getResource("explorer/merge.png"));
 			inputIcon = new ImageIcon(c
-					.getResource("explorer/workflowInputPort.png"));
+					.getResource("explorer/input.png"));
 			inputPortIcon = new ImageIcon(c
 					.getResource("explorer/inputport.png"));
 			outputIcon = new ImageIcon(c
-					.getResource("explorer/workflowOutputPort.png"));
+					.getResource("explorer/output.png"));
 			outputPortIcon = new ImageIcon(c
 					.getResource("explorer/outputport.png"));
 			verticalIcon = new ImageIcon(c
