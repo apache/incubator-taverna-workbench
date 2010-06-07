@@ -3,10 +3,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
-		<artifactId>ui-impl</artifactId>
+		<artifactId>ui-api</artifactId>
 		<version>1.1-SNAPSHOT</version>
 	</parent>
-	<groupId>net.sf.taverna.t2.ui-impl</groupId>
+	<groupId>net.sf.taverna.t2.ui-api</groupId>
 	<artifactId>helper</artifactId>
 	<name>Help System</name>
 	<dependencies>
