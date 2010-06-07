@@ -19,6 +19,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
@@ -58,7 +59,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 	JPanel buttonPanel;
 
 	public ActivityConfigurationDialog(A a, ActivityConfigurationPanel<A, B> p) {
-		super((Frame) null, "", false, null);
+		super(MainWindow.getMainWindow(), "Configuring " + a.getClass().getSimpleName(), false, null);
 		this.activity = a;
 		this.panel = p;
 
