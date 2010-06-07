@@ -25,6 +25,7 @@ import javax.swing.UIManager;
 import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
+import net.sf.taverna.t2.workbench.MainWindow;
 
 /**
  * 
@@ -80,7 +81,7 @@ public class HelpEnabledDialog extends JDialog {
 	 */
 	public HelpEnabledDialog(Frame owner, String title, boolean modal, String id)
 			throws HeadlessException {
-		super(owner, title, modal);
+		super(owner == null ? MainWindow.getMainWindow() : owner, title, modal);
 		if (id != null) {
 			HelpCollator.registerComponent(this, id);
 		} else if (owner != null) {
@@ -116,6 +117,32 @@ public class HelpEnabledDialog extends JDialog {
 		Helper.setKeyCatcher(this);
 	}
 
+	/**
+	 * Create a HelpEnabledDialog, register it (if possible) with the
+	 * HelpCollator and attach a keycatcher.
+	 * 
+	 * @param owner
+	 * @param title
+	 * @param modal
+	 * @throws HeadlessException
+	 */
+	public HelpEnabledDialog(Frame parent, String title, boolean modal) {
+		this(parent, title, modal, null);
+	}
+
+	/**
+	 * Create a HelpEnabledDialog, register it (if possible) with the
+	 * HelpCollator and attach a keycatcher.
+	 * 
+	 * @param owner
+	 * @param title
+	 * @param modal
+	 * @throws HeadlessException
+	 */
+	public HelpEnabledDialog(Dialog parent, String title, boolean modal) {
+		this(parent, title, modal, null);
+	}
+	
 	/**
 	 * Create a panel containing a message and the specified icon.
 	 * 

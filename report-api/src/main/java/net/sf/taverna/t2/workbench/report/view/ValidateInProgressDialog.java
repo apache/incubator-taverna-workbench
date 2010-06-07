@@ -34,6 +34,8 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.workbench.MainWindow;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
@@ -45,15 +47,14 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
  *
  */
 @SuppressWarnings("serial")
-public class ValidateInProgressDialog extends JDialog{
+public class ValidateInProgressDialog extends HelpEnabledDialog {
 
 
 	private boolean userCancelled = false;
 
 	public ValidateInProgressDialog() {
 		
-		super((Frame) null, "Validating workflow", true);
-		setLocationRelativeTo(null);
+		super(MainWindow.getMainWindow(), "Validating workflow", true, null);		
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		

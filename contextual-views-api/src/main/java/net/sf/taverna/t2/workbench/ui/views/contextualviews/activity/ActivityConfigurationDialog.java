@@ -3,7 +3,6 @@ package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -19,9 +18,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowRedoEvent;
+import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowUndoEvent;
+import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -32,16 +37,10 @@ import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.workbench.edits.EditManager.DataflowEditEvent;
-import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowUndoEvent;
-import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowRedoEvent;
-import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import org.apache.log4j.Logger;
 
 public class ActivityConfigurationDialog<A extends Activity, B extends Object>
-		extends JDialog {
+		extends HelpEnabledDialog {
 
 	private A activity;
 	private ActivityConfigurationPanel<A, B> panel;
