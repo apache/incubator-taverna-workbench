@@ -63,6 +63,7 @@ import net.sf.taverna.t2.provenance.lineageservice.utils.DataflowInvocation;
 import net.sf.taverna.t2.provenance.lineageservice.utils.Port;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
@@ -397,9 +398,9 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 
 		public void actionPerformed(ActionEvent e) {
 			
-			final JDialog dialog = new JDialog((Frame) null, true);
+			final JDialog dialog = new JDialog(MainWindow.getMainWindow(), true);
 			dialog.setResizable(false);
-			dialog.setLocationRelativeTo(Workbench.getInstance());
+			dialog.setLocationRelativeTo(MainWindow.getMainWindow());
 			dialog.setTitle("Workflow run data saver");
 			JPanel panel = new JPanel(new BorderLayout());
 			DialogTextArea explanation = new DialogTextArea();

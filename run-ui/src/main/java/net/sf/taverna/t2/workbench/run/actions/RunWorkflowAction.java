@@ -46,6 +46,7 @@ import net.sf.taverna.t2.reference.ui.CopyWorkflowInProgressDialog;
 import net.sf.taverna.t2.reference.ui.CopyWorkflowSwingWorker;
 import net.sf.taverna.t2.reference.ui.InvalidDataflowReport;
 import net.sf.taverna.t2.reference.ui.WorkflowLaunchWindow;
+import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
@@ -121,7 +122,7 @@ public class RunWorkflowAction extends AbstractAction {
 			
 			int proceed = JOptionPane
 					.showOptionDialog(
-							Workbench.getInstance(),
+							MainWindow.getMainWindow(),
 							"Taverna has detected problems with this workflow. To fix them, please check the validation report.",
 							"Workflow problems",
 							JOptionPane.YES_NO_OPTION,
