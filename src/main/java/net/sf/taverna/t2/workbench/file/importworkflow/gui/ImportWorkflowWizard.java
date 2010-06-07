@@ -37,6 +37,7 @@ import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.activities.dataflow.actions.EditNestedDataflowAction;
+import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.DataflowInfo;
 import net.sf.taverna.t2.workbench.file.FileManager;
@@ -46,7 +47,6 @@ import net.sf.taverna.t2.workbench.file.impl.actions.OpenWorkflowAction;
 import net.sf.taverna.t2.workbench.file.importworkflow.DataflowMerger;
 import net.sf.taverna.t2.workbench.file.importworkflow.MergeException;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
@@ -733,7 +733,7 @@ public class ImportWorkflowWizard extends JDialog {
 			} else {
 				parentComponent = null;
 			}*/
-			parentComponent = Workbench.getInstance();
+			parentComponent = MainWindow.getMainWindow();
 			Thread t = new Thread(this, "Import workflow");
 			progressMonitor = new ProgressMonitor(parentComponent,
 					"Importing workflow", "", 0, 100);
