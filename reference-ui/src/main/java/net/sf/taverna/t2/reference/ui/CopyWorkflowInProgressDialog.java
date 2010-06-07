@@ -35,7 +35,6 @@ import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 /**
  * Dialog that is popped up while we are copying the workflow in 
@@ -82,7 +81,7 @@ public class CopyWorkflowInProgressDialog extends JDialog{
 		panel.add(cancelButtonPanel, BorderLayout.SOUTH);
 
 		setContentPane(panel);
-		setPreferredSize(new Dimension(300, 150));
+		setPreferredSize(new Dimension(300, 130));
 
 		pack();		
 	}
