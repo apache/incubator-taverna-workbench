@@ -64,7 +64,7 @@ public class StringConstantActivityConfigurationAction extends
 					value);
 		if (newValue!=null) {
 			bean.setValue(newValue);
-			ActivityConfigurationDialog.configureActivity(owningDataflow, activity, bean);
+			ActivityConfigurationDialog.configureActivityStatic(owningDataflow, activity, bean);
 		}
 	}
 
