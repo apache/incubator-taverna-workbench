@@ -166,8 +166,7 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 
 		setWorkflowStatus(WorkflowRunProgressTreeTableModel.STATUS_CANCELLED);
 		for (Processor processor : treeTableModel.getDataflow().getProcessors()){
-			if (treeTableModel.getProcessorStatus(processor).equals(WorkflowRunProgressTreeTableModel.STATUS_RUNNING) ||
-					treeTableModel.getProcessorStatus(processor).equals(WorkflowRunProgressTreeTableModel.STATUS_PENDING)){
+			if (!treeTableModel.getProcessorStatus(processor).equals(WorkflowRunProgressTreeTableModel.STATUS_FINISHED)){
 				setProcessorStatus(processor, WorkflowRunProgressTreeTableModel.STATUS_CANCELLED);
 			}
 		}
