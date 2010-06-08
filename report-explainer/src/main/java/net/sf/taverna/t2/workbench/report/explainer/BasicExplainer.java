@@ -334,7 +334,7 @@ public class BasicExplainer implements VisitExplainer {
 	private static JComponent explanationSourceFragile(VisitReport vr) {
 	    ProcessorInputPort pip = (ProcessorInputPort) vr.getProperty("sinkPort");
 	    Processor sourceProcessor = (Processor) vr.getProperty("sourceProcessor");
-	    String message = "A single error into ";
+	    String message = "A single error, if any, into ";
 	    if (pip == null) {
 		message += "an input port ";
 	    } else {
@@ -343,7 +343,8 @@ public class BasicExplainer implements VisitExplainer {
 	    if (sourceProcessor != null) {
 		message += "from \"" + sourceProcessor.getLocalName() + "\"";
 	    }
-	    message += " can cause the service call to fail";
+	    message += " might cause the service call to fail.  ";
+	    message += "If " + pip.getName() + " is unlikely to fail, e.g. if it is a StringConstant, then this warning can be ignored";
 	    return createPanel(new Object[] {message});
 	}
 	
@@ -374,7 +375,7 @@ public class BasicExplainer implements VisitExplainer {
 		if (e == null) {
 			message += "an exception";
 		} else {
-			message += "\"" + e.getMessage() + "\"";
+		    message += e.getClass().getCanonicalName() + ": \"" + e.getMessage() + "\"";
 		}
 		return createPanel(new Object[] {message});
 	}
