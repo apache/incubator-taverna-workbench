@@ -131,12 +131,14 @@ public class RunWorkflowAction extends AbstractAction {
 							options,
 							options[0]);
 			if (proceed == JOptionPane.YES_OPTION) { // View validation report
+				Workbench.getInstance().getPerspectives().setWorkflowPerspective();
 				Workbench.getInstance().makeNamedComponentVisible("reportView");
 				return;				
 			}
 		} else if (status.equals(Status.WARNING) && queryBeforeRunSetting.equals(ReportManagerConfiguration.ERRORS_OR_WARNINGS)) {
 			int proceed = JOptionPane.showConfirmDialog((Component) (e.getSource()), "The workflow has warnings but can still be run - do you want to proceed?", "Workflow problems", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if (proceed != JOptionPane.YES_OPTION) {
+				Workbench.getInstance().getPerspectives().setWorkflowPerspective();
 				Workbench.getInstance().makeNamedComponentVisible("reportView");
 				return;				
 			}
