@@ -20,6 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.activities.disabled.actions;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -27,12 +30,17 @@ import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.activities.disabled.views.DisabledConfigView;
 import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflowmodel.Edits;
+import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
 
@@ -64,28 +72,49 @@ public class DisabledActivityConfigurationAction extends ActivityConfigurationAc
 		}
 		
 		final DisabledConfigView disabledConfigView = new DisabledConfigView((DisabledActivity)getActivity());
-		final ActivityConfigurationDialog<DisabledActivity, ActivityAndBeanWrapper> dialog =
-			new ActivityConfigurationDialog<DisabledActivity, ActivityAndBeanWrapper>(getActivity(), disabledConfigView) {
-			public boolean closeDialog() {
-				boolean result = super.closeDialog();
-				if (activity.configurationWouldWork()) {
-					Edit e = Tools.getEnableDisabledActivityEdit(super.owningProcessor, activity);
-					if (e != null) {
-						try {
-							EditManager.getInstance().doDataflowEdit(super.owningDataflow,
-									e);
-						}
-						catch (EditException except) {
-							result = false;
-						}
-					}
-				}
-				return result;
-			}
-		};
+		final DisabledActivityConfigurationDialog dialog =
+			new DisabledActivityConfigurationDialog(getActivity(), disabledConfigView);
 
 		ActivityConfigurationAction.setDialog(getActivity(), dialog);	
 		
+	}
+
+
+	private class DisabledActivityConfigurationDialog extends ActivityConfigurationDialog<DisabledActivity, ActivityAndBeanWrapper> {
+	    public DisabledActivityConfigurationDialog(DisabledActivity a, DisabledConfigView p) {
+		super (a, p);
+		this.setModal(true);
+		super.applyButton.setEnabled(false);
+		super.applyButton.setVisible(false);
+	    }
+
+
+	public void configureActivity(Dataflow df, Activity a, Object bean) {
+		Edits edits = EditsRegistry.getEdits();
+		Edit<?> configureActivityEdit = edits.getConfigureActivityEdit(a, bean);
+		try {
+			List<Edit<?>> editList = new ArrayList<Edit<?>>();
+			editList.add(configureActivityEdit);
+			Processor p = findProcessor(df, a);
+			if (p != null && p.getActivityList().size() == 1) {
+				editList.add(edits.getMapProcessorPortsForActivityEdit(p));
+			}
+			Edit e = Tools.getEnableDisabledActivityEdit(super.owningProcessor, activity);
+			if (e != null) {
+			    editList.add(e);
+			    EditManager.getInstance().doDataflowEdit(df,
+								     new CompoundEdit(editList));
+			    ReportManager.getInstance().updateObjectReport(super.owningDataflow, super.owningProcessor);
+
+			}
+		} catch (IllegalStateException e) {
+			// TODO Auto-generated catch block
+			logger.error(e);
+		} catch (EditException e) {
+			logger.error(e);
+		}
+	}
+
 	}
 
 }

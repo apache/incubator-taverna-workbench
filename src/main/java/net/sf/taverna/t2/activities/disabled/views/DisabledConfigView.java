@@ -24,6 +24,8 @@ import javax.help.CSH;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
 import java.beans.Introspector;
 import java.beans.IntrospectionException;
 import java.beans.BeanInfo;
@@ -96,15 +98,15 @@ public class DisabledConfigView extends ActivityConfigurationPanel<DisabledActiv
 	}
 
 	public boolean checkValues() {
-		boolean result = activity.configurationWouldWork(clonedConfig);
+	    boolean result = false;
+		result = activity.configurationWouldWork(clonedConfig);
 		if (!result) {
-			JOptionPane
-					.showMessageDialog(
-							this,
-							"The new properties are invalid or not consistent with the workflow",
-							"Invalid properties", JOptionPane.WARNING_MESSAGE);
+		    JOptionPane.showMessageDialog(
+						  this,
+						  "The new properties are invalid or not consistent with the workflow",
+						  "Invalid properties", JOptionPane.WARNING_MESSAGE);
 		}
-		return result;
+	    return result;
 	}
 
     public void noteConfiguration() {
