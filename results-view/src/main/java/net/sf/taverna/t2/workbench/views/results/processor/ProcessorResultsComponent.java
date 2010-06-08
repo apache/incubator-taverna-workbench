@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.workbench.views.results.processor;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -35,7 +34,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -189,15 +187,30 @@ public class ProcessorResultsComponent extends JPanel{
 
 		tabbedPane = new JTabbedPane();
 
-		
-
-		tabbedPane = new JTabbedPane();
-
 		// Create enactment to (port, t2ref, tree) lists maps.
 		enactmentsToInputPortData = new HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>>();
 		enactmentsToOutputPortData = new HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>>();
 		// Populate the above maps with data obtained from provenance.
 		populateEnactmentsMaps();
+
+		// Processor input ports
+		List<ProcessorInputPort> processorInputPorts = new ArrayList<ProcessorInputPort>(
+				processor.getInputPorts());
+		Collections.sort(processorInputPorts,
+				new Comparator<ProcessorInputPort>() {
+
+					public int compare(ProcessorInputPort o1,
+							ProcessorInputPort o2) {
+						return o1.getName().compareTo(o2.getName());
+					}
+				});
+		for (ProcessorInputPort processorInputPort : processorInputPorts) {
+			String portName = processorInputPort.getName();
+			ProcessorPortResultsViewTab resultTab = new ProcessorPortResultsViewTab(portName);
+			resultTab.setIsOutputPortTab(false);
+			inputPortTabMap.put(portName,resultTab);
+			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab, "Input port " + portName);
+		}
 		
 		// Processor output ports
 		List<ProcessorOutputPort> processorOutputPorts = new ArrayList<ProcessorOutputPort>(
@@ -217,25 +230,6 @@ public class ProcessorResultsComponent extends JPanel{
 			resultTab.setIsOutputPortTab(true);
 			outputPortTabMap.put(portName, resultTab);
 			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab, "Output port " + portName);
-		}
-
-		// Processor input ports
-		List<ProcessorInputPort> processorInputPorts = new ArrayList<ProcessorInputPort>(
-				processor.getInputPorts());
-		Collections.sort(processorInputPorts,
-				new Comparator<ProcessorInputPort>() {
-
-					public int compare(ProcessorInputPort o1,
-							ProcessorInputPort o2) {
-						return o1.getName().compareTo(o2.getName());
-					}
-				});
-		for (ProcessorInputPort processorInputPort : processorInputPorts) {
-			String portName = processorInputPort.getName();
-			ProcessorPortResultsViewTab resultTab = new ProcessorPortResultsViewTab(portName);
-			resultTab.setIsOutputPortTab(false);
-			inputPortTabMap.put(portName,resultTab);
-			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab, "Input port " + portName);
 		}
 		
 		// Create the invocations tree
