@@ -4,7 +4,6 @@
 package net.sf.taverna.t2.workbench.report;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import org.apache.log4j.Logger;
 import net.sf.taverna.t2.lang.observer.MultiCaster;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -23,41 +21,27 @@ import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
-import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowUndoEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workbench.file.events.OpenedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowValidationReport;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
-import net.sf.taverna.t2.workflowmodel.OutputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.health.HealthCheck;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
 
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import org.apache.log4j.Logger;
 
 /**
- * @author alanrw
+ * @author Alan R Williams
  *
  */
 public class ReportManager implements Observable<ReportManagerEvent> {
 	
-	private static Logger logger = Logger
-	.getLogger(ReportManager.class);
+	private static final long MAX_AGE_OUTDATED_MILLIS = 1 * 60 * 60 * 1000; // 1 hour
+
+	private static Logger logger = Logger.getLogger(ReportManager.class);
 	
 
 	public static class ReportManagerEditObserver implements Observer<EditManagerEvent> {
@@ -93,6 +77,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 
 	private static Map<Dataflow, Long> lastCheckedMap;
 	private static Map<Dataflow, Long> lastFullCheckedMap;
+	private static Map<Dataflow, String> lastFullCheckedDataflowIdMap;
 
 	private ReportManager() {
 		
@@ -119,6 +104,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 				summaryMap = new WeakHashMap<Dataflow, Map<Object, String>>();
 				lastCheckedMap = new WeakHashMap<Dataflow, Long>();
 				lastFullCheckedMap = new WeakHashMap<Dataflow, Long>();
+				lastFullCheckedDataflowIdMap = new WeakHashMap<Dataflow, String>();
 				
 				ReportManagerConfiguration.getInstance().applySettings();
 			} catch (IndexOutOfBoundsException ex) {
@@ -173,6 +159,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		lastCheckedMap.put(d, time);
 		if (includeTimeConsuming) {
 		    lastFullCheckedMap.put(d, time);
+		    lastFullCheckedDataflowIdMap.put(d, d.getIdentifier());
 		}
 		getInstance().multiCaster.notify(new DataflowReportEvent(d));
 	}
@@ -197,8 +184,6 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 			addReport(reportsEntry, statusEntry, summaryEntry, vr);
 		}
 		long time = System.currentTimeMillis();
-		lastCheckedMap.put(d, time);
-		lastFullCheckedMap.put(d, time);
 	    }
 
 	public static synchronized void updateObjectSetReport(Dataflow d, Set<Object> objects) {
@@ -438,6 +423,23 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 
 	public void removeObserver(Observer<ReportManagerEvent> observer) {
 		multiCaster.removeObserver(observer);
+	}
+
+	public boolean isReportOutdated(Dataflow dataflow) {
+		String lastCheckedId = lastFullCheckedDataflowIdMap.get(dataflow);
+		Long lastCheck = lastFullCheckedMap.get(dataflow);
+		if (lastCheckedId == null || lastCheck == null) {
+			// Unknown, so outdated
+			return true;
+		}
+		if (! lastCheckedId.equals(dataflow.getIdentifier())) {
+			// Workflow changed, so outdaeted
+			return true;
+		}
+		long now = System.currentTimeMillis();
+		long age = now - lastCheck;
+		// Outdated if it is older than the maximum
+		return age > MAX_AGE_OUTDATED_MILLIS;
 	}
 	
 }
