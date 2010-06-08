@@ -86,7 +86,7 @@ public class ValidateInProgressDialog extends HelpEnabledDialog {
 		panel.add(cancelButtonPanel, BorderLayout.SOUTH);
 */
 		setContentPane(panel);
-		setPreferredSize(new Dimension(300, 150));
+		setPreferredSize(new Dimension(300, 100));
 
 		pack();		
 	}
