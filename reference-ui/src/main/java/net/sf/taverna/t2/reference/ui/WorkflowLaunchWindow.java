@@ -257,6 +257,12 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		launchAction = new AbstractAction(LAUNCH_WORKFLOW, launchIcon) {
 			public void actionPerformed(ActionEvent ae) {
 				
+				// First of all - is the workflow valid?				
+				if (! CheckWorkflowStatus.checkWorkflow(dataflowOriginal)) {
+					setVisible(false);
+					return;
+				}
+				
 				// Check if user had entered input values for all input ports -
 				// otherwise there is no point in attempting to run the workflow
 				for (String input : inputMap.keySet()) {

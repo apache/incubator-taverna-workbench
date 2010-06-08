@@ -42,6 +42,7 @@ import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.ui.CheckWorkflowStatus;
 import net.sf.taverna.t2.reference.ui.CopyWorkflowInProgressDialog;
 import net.sf.taverna.t2.reference.ui.CopyWorkflowSwingWorker;
 import net.sf.taverna.t2.reference.ui.InvalidDataflowReport;
@@ -105,48 +106,10 @@ public class RunWorkflowAction extends AbstractAction {
 			return;
 		}
 		final Dataflow dataflow = (Dataflow) model;
-		ReportManager reportManager = ReportManager.getInstance();
-		ReportManagerConfiguration rmc = ReportManagerConfiguration.getInstance();
-		String beforeRunSetting = rmc.getProperty(ReportManagerConfiguration.BEFORE_RUN);
-		ReportOnWorkflowAction action = new ReportOnWorkflowAction("", dataflow, beforeRunSetting.equals(ReportManagerConfiguration.FULL_CHECK), false);
-		action.actionPerformed(e);
-		if (!reportManager.isStructurallySound(dataflow)) {
-			JOptionPane.showMessageDialog((Component) (e.getSource()), "The workflow has problems and cannot be run - see reports", "Workflow problems", JOptionPane.ERROR_MESSAGE);
-			Workbench.getInstance().makeNamedComponentVisible("reportView");
-			return;
-		}
-		Status status = reportManager.getStatus(dataflow);
-		String queryBeforeRunSetting = rmc.getProperty(ReportManagerConfiguration.QUERY_BEFORE_RUN);
-		if (status.equals(Status.SEVERE) && !queryBeforeRunSetting.equals(ReportManagerConfiguration.NONE)) {
-			Object[] options = {"View validation report", "Run anyway"};
-			
-			int proceed = JOptionPane
-					.showOptionDialog(
-							MainWindow.getMainWindow(),
-							"Taverna has detected problems with this workflow. To fix them, please check the validation report.",
-							"Workflow problems",
-							JOptionPane.YES_NO_OPTION,
-							JOptionPane.ERROR_MESSAGE,
-							null,
-							options,
-							options[0]);
-			if (proceed == JOptionPane.YES_OPTION) { // View validation report
-				Workbench.getInstance().getPerspectives().setWorkflowPerspective();
-				Workbench.getInstance().makeNamedComponentVisible("reportView");
-				return;				
-			}
-		} else if (status.equals(Status.WARNING) && queryBeforeRunSetting.equals(ReportManagerConfiguration.ERRORS_OR_WARNINGS)) {
-			int proceed = JOptionPane.showConfirmDialog((Component) (e.getSource()), "The workflow has warnings but can still be run - do you want to proceed?", "Workflow problems", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-			if (proceed != JOptionPane.YES_OPTION) {
-				Workbench.getInstance().getPerspectives().setWorkflowPerspective();
-				Workbench.getInstance().makeNamedComponentVisible("reportView");
-				return;				
-			}
-			
-		}
-		//Thread t = new Thread("Preparing to run workflow "
-		//		+ dataflow.getLocalName()) {
-		//	public void run() {
+		if (CheckWorkflowStatus.checkWorkflow(dataflow)) {
+			//Thread t = new Thread("Preparing to run workflow "
+			//		+ dataflow.getLocalName()) {
+			//	public void run() {
 				try {
 					runDataflow(dataflow);
 				} catch (Exception ex) {
@@ -155,10 +118,11 @@ public class RunWorkflowAction extends AbstractAction {
 					logger.warn(message);
 					InvalidDataflowReport.showErrorDialog(ex.getMessage(), message);			
 				}
-		//	}
-		//};
-		//t.setDaemon(true);
-		//t.start();		
+			//	}
+			//};
+			//t.setDaemon(true);
+			//t.start();		
+		}
 	}
 
 	protected void runDataflow(final Dataflow dataflowOriginal) {
