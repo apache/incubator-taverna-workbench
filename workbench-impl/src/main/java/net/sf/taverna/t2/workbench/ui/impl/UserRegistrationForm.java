@@ -176,8 +176,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 
 	// For testing only
 	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
-		UIManager.setLookAndFeel(UIManager
-				.getSystemLookAndFeelClassName());
+		Workbench.setLookAndFeel();
 		UserRegistrationForm form = new UserRegistrationForm();
 		form.setVisible(true);
 	}

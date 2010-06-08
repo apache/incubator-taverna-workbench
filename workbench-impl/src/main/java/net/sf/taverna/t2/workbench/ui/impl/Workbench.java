@@ -81,6 +81,8 @@ import org.apache.log4j.Logger;
  */
 public class Workbench extends JFrame {
 
+	private static final String NIMBUS = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
+
 	private OSXAppListener osxAppListener = new OSXAppListener();
 
 	private static final String LAUNCHER_LOGO_PNG = "/launcher_logo.png";
@@ -410,45 +412,58 @@ public class Workbench extends JFrame {
 		}
 	}
 
-	public void setLookAndFeel() {
-		boolean set = false;
-
-		if (!set && !System.getProperties().containsKey("swing.defaultlaf")) {
-			try {
-				UIManager
-						.setLookAndFeel("de.javasoft.plaf.synthetica.SyntheticaStandardLookAndFeel");
-				logger.info("Using Synthetica Look and Feel");
-			} catch (Exception ex) {
-				String os = System.getProperty("os.name");
-				if (os.contains("Mac") || os.contains("Windows")) {
-					// For OSX and Windows use the system look and feel
-					String systemLF = UIManager
-					.getSystemLookAndFeelClassName();
-					try {
-						UIManager.setLookAndFeel(systemLF);
-						logger.info("Using system L&F " + systemLF);
-						set = true;
-					} catch (Exception ex2) {
-						logger.error("Unable to load system look and feel "
-								+ systemLF, ex2);
-					}
-				} else {
-					// The system look and feel on *NIX
-					// (com.sun.java.swing.plaf.gtk.GTKLookAndFeel) looks
-					// like Windows 3.1.. try to use Nimbus (Java 6e10 and 
-					// later before keeping default
-					try {
-						UIManager
-								.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-						logger.info("Using Nimbus look and feel");
-					} catch (Exception e) {
-						logger.info("Using default Look and Feel");
-					}
-					set = true;
-
-				}
+	public static void setLookAndFeel() {
+		String defaultLaf = System.getProperty("swing.defaultlaf");
+		if (defaultLaf != null) {
+			try { 
+				UIManager.setLookAndFeel(defaultLaf);
+				return;
+			} catch (Exception e) {
+				logger.info("Can't set requested look and feel -Dswing.defaultlaf=" + defaultLaf, e);
 			}
 		}
+		String os = System.getProperty("os.name");
+		if (os.contains("Mac") || os.contains("Windows")) {
+			// For OSX and Windows use the system look and feel
+			String systemLF = UIManager.getSystemLookAndFeelClassName();
+			try {
+				UIManager.setLookAndFeel(systemLF);
+				logger.info("Using system L&F " + systemLF);
+				return;
+			} catch (Exception ex2) {
+				logger.error("Unable to load system look and feel "
+						+ systemLF, ex2);
+			}
+		}
+		// The system look and feel on *NIX
+		// (com.sun.java.swing.plaf.gtk.GTKLookAndFeel) looks
+		// like Windows 3.1.. try to use Nimbus (Java 6e10 and 
+		// later)
+		try {
+			UIManager.setLookAndFeel(NIMBUS);
+			logger.info("Using Nimbus look and feel");
+			return;
+		} catch (Exception e) {			
+		}
+		
+		// Metal should be better than GTK still
+		try {
+			String crossPlatform = UIManager.getCrossPlatformLookAndFeelClassName();
+			UIManager.setLookAndFeel(crossPlatform);
+			logger.info("Using cross platform Look and Feel " + crossPlatform);
+		} catch (Exception e){
+		}
+		
+		// Final fallback
+		try {
+			String systemLF = UIManager.getSystemLookAndFeelClassName();
+			UIManager.setLookAndFeel(systemLF);
+			logger.info("Using system platform Look and Feel " + systemLF);
+		} catch (Exception e){
+			logger.info("Using default Look and Feel " + UIManager.getLookAndFeel());			
+		}
+		
+		
 	}
 
 	public WorkbenchPerspectives getPerspectives() {
