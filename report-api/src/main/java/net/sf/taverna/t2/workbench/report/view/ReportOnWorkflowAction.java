@@ -40,6 +40,10 @@ public class ReportOnWorkflowAction extends AbstractAction {
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e) {
+		validateWorkflow();
+	}
+	
+	public void validateWorkflow() {
 		Dataflow dataflow;
 		if (specifiedDataflow == null) {
 			dataflow = FileManager.getInstance().getCurrentDataflow();
