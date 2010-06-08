@@ -91,6 +91,9 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 	private static Map<Dataflow, Map<Object, Status>> statusMap;
 	private static Map<Dataflow, Map<Object, String>> summaryMap;
 
+	private static Map<Dataflow, Long> lastCheckedMap;
+	private static Map<Dataflow, Long> lastFullCheckedMap;
+
 	private ReportManager() {
 		
 	}
@@ -114,6 +117,8 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 				reportMap = new WeakHashMap<Dataflow, Map<Object, Set<VisitReport>>> ();
 				statusMap = new WeakHashMap<Dataflow, Map<Object, Status>>();
 				summaryMap = new WeakHashMap<Dataflow, Map<Object, String>>();
+				lastCheckedMap = new WeakHashMap<Dataflow, Long>();
+				lastFullCheckedMap = new WeakHashMap<Dataflow, Long>();
 				
 				ReportManagerConfiguration.getInstance().applySettings();
 			} catch (IndexOutOfBoundsException ex) {
@@ -141,7 +146,9 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 	
 	public static synchronized void updateReport(Dataflow d, boolean includeTimeConsuming, boolean remember) {
 		Set<VisitReport> oldTimeConsumingReports = null;
-		if (remember && !includeTimeConsuming) {
+		long time = System.currentTimeMillis();
+		long expiration = Integer.parseInt(ReportManagerConfiguration.getInstance().getProperty(ReportManagerConfiguration.REPORT_EXPIRATION)) * 60 * 1000;
+		if (remember && !includeTimeConsuming && ((expiration == 0) || ((time - getLastFullCheckedTime(d)) < expiration))) {
 			oldTimeConsumingReports = getTimeConsumingReports(d);
 		}
 		Map<Object, Set<VisitReport>> reportsEntry = new HashMap<Object, Set<VisitReport>>();
@@ -157,18 +164,20 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		for (VisitReport vr : newReports) {
 			addReport(reportsEntry, statusEntry, summaryEntry, vr);
 		}
-		if (remember && !includeTimeConsuming) {
+		if (oldTimeConsumingReports != null) {
 			for (VisitReport vr : oldTimeConsumingReports) {
 				addReport(reportsEntry, statusEntry, summaryEntry, vr);
 			}
 		}
-		getInstance().multiCaster.notify(new DataflowReportEvent(d));
+		time = System.currentTimeMillis();
+		lastCheckedMap.put(d, time);
 		if (includeTimeConsuming) {
-			checkDisabledActivities(d, reportsEntry);
+		    lastFullCheckedMap.put(d, time);
 		}
+		getInstance().multiCaster.notify(new DataflowReportEvent(d));
 	}
 	
-	public static synchronized void updateObjectReport(Dataflow d, Object o) {
+	private static synchronized void updateObjectReportInternal(Dataflow d, Object o) {
 		Map<Object, Set<VisitReport>> reportsEntry = reportMap.get(d);
 		Map<Object, Status> statusEntry = statusMap.get(d);
 		Map<Object, String> summaryEntry = summaryMap.get(d);
@@ -187,66 +196,22 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		for (VisitReport vr : newReports) {
 			addReport(reportsEntry, statusEntry, summaryEntry, vr);
 		}
+		long time = System.currentTimeMillis();
+		lastCheckedMap.put(d, time);
+		lastFullCheckedMap.put(d, time);
+	    }
+
+	public static synchronized void updateObjectSetReport(Dataflow d, Set<Object> objects) {
+		for (Object o : objects) {
+		    updateObjectReportInternal(d, o);
+		}
 		getInstance().multiCaster.notify(new DataflowReportEvent(d));
-		if (o instanceof Processor) {
-		    List<Edit<?>> editList = new ArrayList<Edit<?>>();
-		    checkProcessorDisability((Processor) o, editList);
-		    if (!editList.isEmpty()) {
-			CompoundEdit ce = new CompoundEdit(editList);
-			try {
-			    EditManager editManager = EditManager.getInstance();
-			    Edits edits = editManager.getEdits();
-			    editManager.doDataflowEdit(d, ce);
-			} catch (EditException e) {
-			    logger.error(e);
-			}
-		    }
-		}
-		
 	    }
 
-	private static void checkProcessorDisability(Processor processor, List<Edit<?>> editList) {
-	    boolean isAlreadyDisabled = false;
-	    DisabledActivity disabledActivity = null;
-	    List<? extends Activity<?>> activityList = processor.getActivityList();
-	    for (Activity a : activityList) {
-		if (a instanceof DisabledActivity) {
-		    isAlreadyDisabled = true;
-		    disabledActivity = (DisabledActivity) a;
-		    break;
-		}
+	public static synchronized void updateObjectReport(Dataflow d, Object o) {
+		updateObjectReportInternal(d, o);
+		getInstance().multiCaster.notify(new DataflowReportEvent(d));
 	    }
-	    if (isAlreadyDisabled) {
-		if (disabledActivity.configurationWouldWork()) {
-		    logger.info(processor.getLocalName() + " is no longer disabled");
-		    Edit e = Tools.getEnableDisabledActivityEdit(processor, disabledActivity);
-		    if (e != null) {
-			editList.add(e);
-		    }
-		    
-		}
-	    }
-	}
-
-	private static void checkDisabledActivities(
-			Dataflow d, Map<Object, Set<VisitReport>> reportsEntry) {
-		EditManager editManager = EditManager.getInstance();
-		Edits edits = editManager.getEdits();
-		List<Edit<?>> editList = new ArrayList<Edit<?>>();
-		for (Object o : reportsEntry.keySet()) {
-			if (o instanceof Processor) {
-			    checkProcessorDisability((Processor) o, editList);
-			}
-		}
-		if (!editList.isEmpty()) {
-			CompoundEdit ce = new CompoundEdit(editList);
-			try {
-				editManager.doDataflowEdit(d, ce);
-			} catch (EditException e) {
-				logger.error(e);
-			}
-		}
-	}
 
 	private static Set<VisitReport> getTimeConsumingReports(Dataflow d) {
 		Set<VisitReport> result = new HashSet<VisitReport>();
@@ -270,6 +235,9 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 	}
 	
 	private static synchronized void addReport(Map<Object, Set<VisitReport>> reports, Map<Object, Status> statusEntry, Map<Object, String> summaryEntry, VisitReport newReport) {
+		if (newReport.getCheckTime() == 0) {
+		    newReport.setCheckTime(System.currentTimeMillis());
+		}
 		Object subject = newReport.getSubject();
 		Set<VisitReport> currentReports = reports.get(subject);
 		Status newReportStatus = newReport.getStatus();
@@ -411,6 +379,24 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		return result;
 	}
 	
+	public static synchronized long getLastCheckedTime(Dataflow d) {
+		Long l = lastCheckedMap.get(d);
+		if (l == null) {
+		    return 0;
+		} else {
+		    return l.longValue();
+		}
+	    }
+
+	public static synchronized long getLastFullCheckedTime(Dataflow d) {
+		Long l = lastFullCheckedMap.get(d);
+		if (l == null) {
+		    return 0;
+		} else {
+		    return l.longValue();
+		}
+	    }
+
 	/**
 	 * @author alanrw
 	 *

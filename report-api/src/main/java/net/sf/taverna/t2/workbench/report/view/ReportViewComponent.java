@@ -45,7 +45,6 @@ import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.JSplitPaneExt;
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
-import net.sf.taverna.t2.lang.ui.TableSorter;
 import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.visit.VisitReport.Status;
@@ -103,13 +102,12 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	private VisitReport lastSelectedReport = null;
 	
 	private ReportViewTableModel reportViewTableModel;
-	private TableSorter sorter;
 	private ReportViewConfigureAction reportViewConfigureAction = new ReportViewConfigureAction();
     private JComboBox shownReports = null;
     
     private TableListener tableListener = null;
     
-    private HashSet<VisitReport> ignoredReports = new HashSet<VisitReport>();
+    private VisitReportProxySet ignoredReports = new VisitReportProxySet();
     
     JButton ignoreReportButton;
     
@@ -179,11 +177,11 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 			    }
 			}			
 		});
-		JButton quickCheckButton = new JButton(new ReportOnWorkflowAction("Quick check", false, true));
-		JButton fullCheckButton = new JButton(new ReportOnWorkflowAction("Full check", true, true));
+		//		JButton quickCheckButton = new JButton(new ReportOnWorkflowAction("Quick check", false, true));
+		JButton fullCheckButton = new JButton(new ReportOnWorkflowAction("Validate workflow", true, true));
 		JPanel validateButtonPanel = new JPanel();
 		validateButtonPanel.add(ignoreReportButton);
-		validateButtonPanel.add(quickCheckButton);
+		//		validateButtonPanel.add(quickCheckButton);
 		validateButtonPanel.add(fullCheckButton);
 		this.add(validateButtonPanel, BorderLayout.SOUTH);
 		showReport(FileManager.getInstance().getCurrentDataflow());
@@ -201,18 +199,14 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 
 	}
 	
-	private JTable createTable(Map<Object, Set<VisitReport>> reportEntries) {
-		reportViewTableModel = new ReportViewTableModel(reportEntries,
+    private JTable createTable(Dataflow dataflow,
+			       Map<Object, Set<VisitReport>> reportEntries) {
+	reportViewTableModel = new ReportViewTableModel(dataflow,
+							reportEntries,
 				(String) shownReports.getSelectedItem(),
 				ignoredReports);
-		if (sorter != null) {
-		    sorter.setModel(reportViewTableModel);
-		} else {
-		    sorter = new TableSorter(reportViewTableModel);
-			sorter.sortByColumn(0, false); // sort by decreasing severity
-		}
 		if (table == null) {
-		    table = new JTable(sorter);
+		    table = new JTable(reportViewTableModel);
 		    table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		    table.setRowSelectionAllowed(true);
 		    tableListener = new TableListener();
@@ -227,8 +221,10 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		    table.getActionMap().put("configure", reportViewConfigureAction);
 
 		    table.setDefaultRenderer(Status.class, new StatusRenderer());
-		    sorter.addMouseListenerToHeaderInTable(table);
-		    table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		    table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
+		}
+		else {
+		    table.setModel(reportViewTableModel);
 		}
 		packColumn(table, 0, TABLE_MARGIN, true);
 		packColumn(table, 1, TABLE_MARGIN, true);
@@ -250,11 +246,11 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 			dataflowName.setText("No workflow");
 		}
 
-		table = createTable(reportManager.getReports(dataflow));
+		table = createTable(dataflow, reportManager.getReports(dataflow));
 		tableScrollPane.setViewportView(table);
 		boolean found = false;
 		for (int i = 0; i < table.getRowCount(); i++) {
-			VisitReport vr = reportViewTableModel.getReport(sorter.transposeRow(i));
+			VisitReport vr = reportViewTableModel.getReport(i);
 			if (vr.equals(lastSelectedReport)) {
 				table.setRowSelectionInterval(i, i);
 				found = true;
@@ -265,7 +261,6 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		    lastSelectedReport = null;
 		    table.clearSelection();
 		}
-		sorter.resort(table);
 		updateExplanation(lastSelectedReport);
 		updateMessages();
 		messagePane.revalidate();
@@ -321,8 +316,8 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 			if (row >= 0) {
 				DataflowSelectionModel dsm = DataflowSelectionManager.getInstance().getDataflowSelectionModel(FileManager.getInstance().getCurrentDataflow());
 				dsm.clearSelection();
-				VisitReport vr = reportViewTableModel.getReport(sorter.transposeRow(row));
-				final Object subject = reportViewTableModel.getSubject(sorter.transposeRow(row));
+				VisitReport vr = reportViewTableModel.getReport(row);
+				final Object subject = reportViewTableModel.getSubject(row);
 				dsm.addSelection(subject);
 				updateExplanation(vr);
 				SwingUtilities.invokeLater(new Runnable() {
@@ -443,4 +438,5 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		result.add(filler, gbc);
 		return result;
 	}
+
 }

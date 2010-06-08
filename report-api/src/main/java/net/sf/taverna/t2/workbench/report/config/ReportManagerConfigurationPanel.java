@@ -38,6 +38,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 	private static final String QUICK_CHECKS = "Quick checks";
 	private static final String NO_CHECKS = "No checks";
 	private static final String DEFAULT_TIMEOUT_STRING = "Reporting timeout in seconds (per service)";
+    private static final String REPORT_EXPIRATION_STRING = "Minutes before reports expire - 0 means never";
     private static final String CHECKS_ON_OPEN = "Checks when opening a workflow";
     private static final String CHECKS_ON_EDIT = "Checks after each edit";
     private static final String CHECKS_BEFORE_RUN = "Checks before running a workflow";
@@ -52,6 +53,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 	private static int TEXTFIELD_SIZE = 25;
 
 	private JTextField timeoutField;
+	private JTextField expirationField;
 	private JComboBox openCombo;
 	private JComboBox editCombo;
 	private JComboBox runCombo;
@@ -126,6 +128,18 @@ public class ReportManagerConfigurationPanel extends JPanel {
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(timeoutField, gbc);
+        
+        expirationField = new JTextField(TEXTFIELD_SIZE);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(10,0,0,0);
+        this.add(new JLabel(REPORT_EXPIRATION_STRING), gbc);
+        gbc.gridx = 1;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        this.add(expirationField, gbc);
         
         queryBeforeRunCombo = new JComboBox(new Object[] {NEVER_ASK, ASK_ON_ERRORS, ASK_ON_ERRORS_OR_WARNINGS});
         gbc.gridx = 0;
@@ -204,6 +218,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 	 */
 	private void setFields() {
 		timeoutField.setText(Integer.toString(Integer.parseInt(configuration.getProperty(ReportManagerConfiguration.TIMEOUT))));
+		expirationField.setText(Integer.toString(Integer.parseInt(configuration.getProperty(ReportManagerConfiguration.REPORT_EXPIRATION))));
 		
 		String openSetting = configuration.getProperty(ReportManagerConfiguration.ON_OPEN);
 		if (openSetting.equals(ReportManagerConfiguration.NO_CHECK)) {
@@ -252,7 +267,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 	}
 	
 	private boolean validateFields() {
-		return (validateTimeoutField());
+	    return (validateTimeoutField() && validateExpirationField());
 	}
 
 	private boolean validateTimeoutField() {
@@ -274,12 +289,34 @@ public class ReportManagerConfigurationPanel extends JPanel {
 		return true;
 	}
 
+	private boolean validateExpirationField() {
+		String expirationText = expirationField.getText();
+		String errorText = "";
+		int newExpiration = -1;
+		try {
+			newExpiration = Integer.parseInt(expirationText);
+			if (newExpiration < 0) {
+				errorText += "The expiration delay must be zero or greater";
+			}
+		} catch (NumberFormatException e) {
+			errorText += "The expiration delay must be an integer value";
+		}
+		if (errorText.length() > 0) {
+			JOptionPane.showMessageDialog(this, errorText, "", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		return true;
+	}
+
 	/**
 	 * saveSettings saves the specified values for future use.
 	 */
 	private void saveSettings() {
 		configuration.setProperty(ReportManagerConfiguration.TIMEOUT, Integer
 				.toString(Integer.parseInt(timeoutField.getText())));
+
+		configuration.setProperty(ReportManagerConfiguration.REPORT_EXPIRATION, Integer
+				.toString(Integer.parseInt(expirationField.getText())));
 
 		int openSetting = openCombo.getSelectedIndex();
 		if (openSetting == 0) {

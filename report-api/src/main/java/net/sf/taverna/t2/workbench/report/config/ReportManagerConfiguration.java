@@ -32,6 +32,9 @@ public final class ReportManagerConfiguration extends AbstractConfigurable {
 	
 	public static final String QUERY_BEFORE_RUN = "QUERY_BEFORE_RUN";
 	
+    public static final int DEFAULT_REPORT_EXPIRATION = 0;
+    public static final String REPORT_EXPIRATION = "REPORT_EXPIRATION";
+
     private static ReportManagerConfiguration instance;
     
     private Map<String, String> defaultPropertyMap;
@@ -51,6 +54,7 @@ public final class ReportManagerConfiguration extends AbstractConfigurable {
     }
 
     public Map<String, String> getDefaultPropertyMap() {
+
         if (defaultPropertyMap == null) {
             defaultPropertyMap = new HashMap<String, String>();
             defaultPropertyMap.put(TIMEOUT, Integer.toString(DEFAULT_TIMEOUT));
@@ -58,6 +62,7 @@ public final class ReportManagerConfiguration extends AbstractConfigurable {
             defaultPropertyMap.put(ON_OPEN, QUICK_CHECK);
             defaultPropertyMap.put(BEFORE_RUN, FULL_CHECK);
             defaultPropertyMap.put(QUERY_BEFORE_RUN, ERRORS_OR_WARNINGS);
+            defaultPropertyMap.put(REPORT_EXPIRATION, Integer.toString(DEFAULT_REPORT_EXPIRATION));
         }
         return defaultPropertyMap;
     }

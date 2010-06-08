@@ -77,6 +77,7 @@ public class ProcessorFragilityChecker implements FragilityChecker<Processor> {
 			}
 			boolean listCreation = (sourceProcessorPort.getDepth() < pip.getDepth());
 
+			
 			if ((sourceIterates || (viaMerge != 0)) && listCreation && !sourceRetries) {
 			    VisitReport report = new VisitReport(FragilityCheck.getInstance(), o, "Single error fragile", FragilityCheck.SOURCE_FRAGILE, VisitReport.Status.WARNING);
 			    report.setProperty("sinkPort", pip);
