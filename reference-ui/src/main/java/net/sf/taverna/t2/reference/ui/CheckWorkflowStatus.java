@@ -38,11 +38,13 @@ public class CheckWorkflowStatus {
 		}
 		
 		String beforeRunSetting = reportManagerConfig
-				.getProperty(ReportManagerConfiguration.BEFORE_RUN);
+				.getProperty(ReportManagerConfiguration.BEFORE_RUN);		
 		ReportOnWorkflowAction action = new ReportOnWorkflowAction("",
 				dataflow, beforeRunSetting
 						.equals(ReportManagerConfiguration.FULL_CHECK), false);
-		action.validateWorkflow();
+		if (reportManager.isReportOutdated(dataflow)) {
+			action.validateWorkflow();
+		}
 		if (!reportManager.isStructurallySound(dataflow)) {
 			JOptionPane
 					.showMessageDialog(
