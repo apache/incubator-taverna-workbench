@@ -22,7 +22,6 @@ package net.sf.taverna.t2.workbench.views.results.workflow;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -78,7 +77,7 @@ import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 /**
  * This component contains a tabbed pane, where each tab displays results for one of
@@ -91,8 +90,8 @@ import org.apache.log4j.Logger;
  */
 public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, ResultListener {
 
-	private static Logger logger = Logger
-	.getLogger(WorkflowResultsComponent.class);
+//	private static Logger logger = Logger
+//	.getLogger(WorkflowResultsComponent.class);
 
 	private static final long serialVersionUID = 988812623494396366L;
 	
@@ -199,24 +198,33 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		gbc.anchor = GridBagConstraints.EAST;
 		saveButtonsPanel.add(saveButton, gbc);
 
+		// Input ports
 		List<DataflowInputPort> dataflowInputPorts = new ArrayList<DataflowInputPort>(facade
 				.getDataflow().getInputPorts());
-		
 		Collections.sort(dataflowInputPorts, new Comparator<DataflowInputPort>() {
 
 			public int compare(DataflowInputPort o1, DataflowInputPort o2) {
 				return o1.getName().compareTo(o2.getName());
-			}});
+			}});	
+		for (DataflowInputPort dataflowInputPort : dataflowInputPorts) {
+			String portName = dataflowInputPort.getName();
+			
+			// Create a tab containing a tree view of per-port results and a rendering
+			// component for displaying individual results
+			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowInputPort.getName(), dataflowInputPort.getDepth());
+			
+			inputPortTabMap.put(portName, resultTab);
+			
+			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab, "Input port " + portName);
+		}
 		
+		// Output ports
 		List<DataflowOutputPort> dataflowOutputPorts = new ArrayList<DataflowOutputPort>(facade
 				.getDataflow().getOutputPorts());
-		
 		Collections.sort(dataflowOutputPorts, new Comparator<DataflowOutputPort>() {
-
 			public int compare(DataflowOutputPort o1, DataflowOutputPort o2) {
 				return o1.getName().compareTo(o2.getName());
 			}});
-
 		for (DataflowOutputPort dataflowOutputPort : dataflowOutputPorts) {
 			String portName = dataflowOutputPort.getName();
 						
@@ -236,19 +244,12 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			facade.addResultListener(this);
 			
 			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab, "Output port " + portName);
-		}	
-		
-		for (DataflowInputPort dataflowInputPort : dataflowInputPorts) {
-			String portName = dataflowInputPort.getName();
-			
-			// Create a tab containing a tree view of per-port results and a rendering
-			// component for displaying individual results
-			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowInputPort.getName(), dataflowInputPort.getDepth());
-			
-			inputPortTabMap.put(portName, resultTab);
-			
-			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab, "Input port " + portName);
 		}
+		// Select the first output port tab
+		if (!dataflowOutputPorts.isEmpty()){
+			PortResultsViewTab tab = outputPortTabMap.get(dataflowOutputPorts.get(0).getName());
+			tabbedPane.setSelectedComponent(tab);
+		}	
 		
 		revalidate();
 	}
@@ -293,20 +294,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 					.getDataBindings(outputsDataBindingId));
 		}
 		
-		List<DataflowOutputPort> dataflowOutputPorts = new ArrayList<DataflowOutputPort>(dataflow.getOutputPorts());
-		Collections.sort(dataflowOutputPorts, new Comparator<DataflowOutputPort>() {
-			public int compare(DataflowOutputPort o1, DataflowOutputPort o2) {
-				return o1.getName().compareTo(o2.getName());
-			}});	
-		for (DataflowOutputPort dataflowOutputPort : dataflowOutputPorts) {
-			String portName = dataflowOutputPort.getName();
-			// Create a tab containing a tree view of per-port results and a rendering
-			// component for displaying individual results
-			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort.getName(), dataflowOutputPort.getDepth());		
-			outputPortTabMap.put(portName, resultTab);
-			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab, "Output port " + portName);
-		}
-		
+		// Input ports
 		List<DataflowInputPort> dataflowInputPorts = new ArrayList<DataflowInputPort>(dataflow.getInputPorts());
 		Collections.sort(dataflowInputPorts, new Comparator<DataflowInputPort>() {
 			public int compare(DataflowInputPort o1, DataflowInputPort o2) {
@@ -319,11 +307,30 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowInputPort.getName(), dataflowInputPort.getDepth());
 			inputPortTabMap.put(portName, resultTab);
 			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab, "Input port " + portName);
+		}
+		
+		// Output ports
+		List<DataflowOutputPort> dataflowOutputPorts = new ArrayList<DataflowOutputPort>(dataflow.getOutputPorts());
+		Collections.sort(dataflowOutputPorts, new Comparator<DataflowOutputPort>() {
+			public int compare(DataflowOutputPort o1, DataflowOutputPort o2) {
+				return o1.getName().compareTo(o2.getName());
+			}});	
+		for (DataflowOutputPort dataflowOutputPort : dataflowOutputPorts) {
+			String portName = dataflowOutputPort.getName();
+			// Create a tab containing a tree view of per-port results and a rendering
+			// component for displaying individual results
+			PortResultsViewTab resultTab = new PortResultsViewTab(dataflowOutputPort.getName(), dataflowOutputPort.getDepth());		
+			outputPortTabMap.put(portName, resultTab);
+			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab, "Output port " + portName);
 		}		
+		// Select the first output port tab
+		if (!dataflowOutputPorts.isEmpty()){
+			PortResultsViewTab tab = outputPortTabMap.get(dataflowOutputPorts.get(0).getName());
+			tabbedPane.setSelectedComponent(tab);
+		}
 
 		for (java.util.Map.Entry<Port, T2Reference> entry : dataBindings
-				.entrySet()) {
-			
+				.entrySet()) {		
 			if (entry.getKey().isInputPort()) { // input port
 
 				PortResultsViewTab resultTab = inputPortTabMap.get(entry.getKey().getPortName());
