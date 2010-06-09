@@ -4,21 +4,16 @@
 package net.sf.taverna.t2.workbench.report.view;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Set;
-import java.util.WeakHashMap;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.table.DefaultTableModel;
 
 import net.sf.taverna.t2.visit.VisitReport;
-import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.visit.VisitReport.Status;
+import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workflowmodel.Condition;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;

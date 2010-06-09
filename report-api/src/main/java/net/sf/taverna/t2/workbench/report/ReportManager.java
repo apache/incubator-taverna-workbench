@@ -4,6 +4,7 @@
 package net.sf.taverna.t2.workbench.report;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -39,85 +40,40 @@ import org.apache.log4j.Logger;
  */
 public class ReportManager implements Observable<ReportManagerEvent> {
 	
+	private static class Singleton {
+		private static ReportManager instance = new ReportManager();		
+	}
+	public static ReportManager getInstance() {
+		return Singleton.instance;
+	}
+	
 	private static final long MAX_AGE_OUTDATED_MILLIS = 1 * 60 * 60 * 1000; // 1 hour
-
 	private static Logger logger = Logger.getLogger(ReportManager.class);
 	
-
-	public static class ReportManagerEditObserver implements Observer<EditManagerEvent> {
-
-		public void notify(Observable<EditManagerEvent> sender,
-				EditManagerEvent message) throws Exception {
-			String onEdit = ReportManagerConfiguration.getInstance().getProperty(ReportManagerConfiguration.ON_EDIT);
-			Dataflow dataflow = FileManager.getInstance().getCurrentDataflow();
-			if (message instanceof AbstractDataflowEditEvent) {
-				AbstractDataflowEditEvent adee = (AbstractDataflowEditEvent) message;
-				if (adee.getDataFlow().equals(dataflow)) {
-					if (onEdit.equals(ReportManagerConfiguration.QUICK_CHECK)) {
-						updateReport(dataflow, false, true);
-					} else if (onEdit.equals(ReportManagerConfiguration.FULL_CHECK)) {
-						updateReport(dataflow, true, true);
-					}
-				}
-			}
-		}
-
-	}
-
-	private static ReportManager instance = null;
+	private ReportManagerConfiguration reportManagerConfiguration = ReportManagerConfiguration.getInstance();
+	private List<VisitKind> visitorDescriptions = null;
+	private HierarchyTraverser traverser = null;
+	private Map<Dataflow, Map<Object, Set<VisitReport>>> reportMap = Collections.synchronizedMap(new WeakHashMap<Dataflow, Map<Object, Set<VisitReport>>>());;
+	private Map<Dataflow, Map<Object, Status>> statusMap = Collections.synchronizedMap(new WeakHashMap<Dataflow, Map<Object, Status>>());
+	private Map<Dataflow, Map<Object, String>> summaryMap = Collections.synchronizedMap(new WeakHashMap<Dataflow, Map<Object, String>>());
+	private Map<Dataflow, Long> lastCheckedMap = Collections.synchronizedMap(new WeakHashMap<Dataflow, Long>());
+	private Map<Dataflow, Long> lastFullCheckedMap = Collections.synchronizedMap(new WeakHashMap<Dataflow, Long>());
+	private Map<Dataflow, String> lastFullCheckedDataflowIdMap = Collections.synchronizedMap(new WeakHashMap<Dataflow, String>());
 	
-	private static List<VisitKind> visitorDescriptions = null;
+	private EditManager editManager = EditManager.getInstance();
 	
-	private static Map<Dataflow, Map<Object, Set<VisitReport>>> reportMap = null;
-	
-	private static HierarchyTraverser traverser = null;
-
-	private static Map<Dataflow, Map<Object, Status>> statusMap;
-	private static Map<Dataflow, Map<Object, String>> summaryMap;
-
-	private static Map<Dataflow, Long> lastCheckedMap;
-	private static Map<Dataflow, Long> lastFullCheckedMap;
-	private static Map<Dataflow, String> lastFullCheckedDataflowIdMap;
-
-	private ReportManager() {
-		
-	}
-
-	public static synchronized ReportManager getInstance()
-			throws IllegalStateException {
-		if (instance == null) {
-//			SPIRegistry<ReportManager> registry = new SPIRegistry<ReportManager>(
-//					ReportManager.class);
-			try {
-//				instance = registry.getInstances().get(0);
-				instance = new ReportManager();
-				SPIRegistry<VisitKind> visitorDescriptionRegistry = new SPIRegistry<VisitKind>(VisitKind.class);
-				visitorDescriptions = visitorDescriptionRegistry.getInstances();
-				traverser = new HierarchyTraverser(visitorDescriptions);
-				
-				ReportManagerFileObserver fileObserver = new ReportManagerFileObserver();
-				FileManager.getInstance().addObserver(fileObserver);
-				addEditObserver();
-
-				reportMap = new WeakHashMap<Dataflow, Map<Object, Set<VisitReport>>> ();
-				statusMap = new WeakHashMap<Dataflow, Map<Object, Status>>();
-				summaryMap = new WeakHashMap<Dataflow, Map<Object, String>>();
-				lastCheckedMap = new WeakHashMap<Dataflow, Long>();
-				lastFullCheckedMap = new WeakHashMap<Dataflow, Long>();
-				lastFullCheckedDataflowIdMap = new WeakHashMap<Dataflow, String>();
-				
-				ReportManagerConfiguration.getInstance().applySettings();
-			} catch (IndexOutOfBoundsException ex) {
-				throw new IllegalStateException(
-						"Could not find implementation of "
-								+ ReportManager.class);
-			}
-		}
-		return instance;
+	protected ReportManager() throws IllegalStateException {
+			SPIRegistry<VisitKind> visitorDescriptionRegistry = new SPIRegistry<VisitKind>(VisitKind.class);
+			visitorDescriptions = visitorDescriptionRegistry.getInstances();
+			traverser = new HierarchyTraverser(visitorDescriptions);
+			ReportManagerFileObserver fileObserver = new ReportManagerFileObserver();
+			FileManager.getInstance().addObserver(fileObserver);
+			addEditObserver();
+			reportManagerConfiguration.applySettings();		
 	}
 	
-	private static void addEditObserver() {
-		EditManager editManager = EditManager.getInstance();
+	
+	private void addEditObserver() {		
 		synchronized (editManager) {
 			List<Observer<EditManagerEvent>> currentObservers = editManager.getObservers();
 			for (Observer<EditManagerEvent> o : currentObservers) {
@@ -130,10 +86,10 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		}
 	}
 	
-	public static synchronized void updateReport(Dataflow d, boolean includeTimeConsuming, boolean remember) {
+	public synchronized void updateReport(Dataflow d, boolean includeTimeConsuming, boolean remember) {
 		Set<VisitReport> oldTimeConsumingReports = null;
 		long time = System.currentTimeMillis();
-		long expiration = Integer.parseInt(ReportManagerConfiguration.getInstance().getProperty(ReportManagerConfiguration.REPORT_EXPIRATION)) * 60 * 1000;
+		long expiration = Integer.parseInt(reportManagerConfiguration.getProperty(ReportManagerConfiguration.REPORT_EXPIRATION)) * 60 * 1000;
 		if (remember && !includeTimeConsuming && ((expiration == 0) || ((time - getLastFullCheckedTime(d)) < expiration))) {
 			oldTimeConsumingReports = getTimeConsumingReports(d);
 		}
@@ -161,10 +117,10 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		    lastFullCheckedMap.put(d, time);
 		    lastFullCheckedDataflowIdMap.put(d, d.getIdentifier());
 		}
-		getInstance().multiCaster.notify(new DataflowReportEvent(d));
+		multiCaster.notify(new DataflowReportEvent(d));
 	}
 	
-	private static synchronized void updateObjectReportInternal(Dataflow d, Object o) {
+	private synchronized void updateObjectReportInternal(Dataflow d, Object o) {
 		Map<Object, Set<VisitReport>> reportsEntry = reportMap.get(d);
 		Map<Object, Status> statusEntry = statusMap.get(d);
 		Map<Object, String> summaryEntry = summaryMap.get(d);
@@ -183,22 +139,21 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		for (VisitReport vr : newReports) {
 			addReport(reportsEntry, statusEntry, summaryEntry, vr);
 		}
-		long time = System.currentTimeMillis();
-	    }
+	}
 
-	public static synchronized void updateObjectSetReport(Dataflow d, Set<Object> objects) {
+	public synchronized void updateObjectSetReport(Dataflow d, Set<Object> objects) {
 		for (Object o : objects) {
 		    updateObjectReportInternal(d, o);
 		}
-		getInstance().multiCaster.notify(new DataflowReportEvent(d));
+		multiCaster.notify(new DataflowReportEvent(d));
 	    }
 
-	public static synchronized void updateObjectReport(Dataflow d, Object o) {
+	public synchronized void updateObjectReport(Dataflow d, Object o) {
 		updateObjectReportInternal(d, o);
-		getInstance().multiCaster.notify(new DataflowReportEvent(d));
+		multiCaster.notify(new DataflowReportEvent(d));
 	    }
 
-	private static Set<VisitReport> getTimeConsumingReports(Dataflow d) {
+	private Set<VisitReport> getTimeConsumingReports(Dataflow d) {
 		Set<VisitReport> result = new HashSet<VisitReport>();
 		Map<Object, Set<VisitReport>> currentReports = getReports(d);
 		if (currentReports != null) {
@@ -219,7 +174,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		summaryMap.remove(d);
 	}
 	
-	private static synchronized void addReport(Map<Object, Set<VisitReport>> reports, Map<Object, Status> statusEntry, Map<Object, String> summaryEntry, VisitReport newReport) {
+	private synchronized void addReport(Map<Object, Set<VisitReport>> reports, Map<Object, Status> statusEntry, Map<Object, String> summaryEntry, VisitReport newReport) {
 		if (newReport.getCheckTime() == 0) {
 		    newReport.setCheckTime(System.currentTimeMillis());
 		}
@@ -248,7 +203,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		currentReports.add(newReport);
 	}
 	
-	private static synchronized void validateDataflow(Dataflow d, Map<Object, Set<VisitReport>> reportsEntry, Map<Object, Status> statusEntry, Map<Object, String> summaryEntry) {
+	private synchronized void validateDataflow(Dataflow d, Map<Object, Set<VisitReport>> reportsEntry, Map<Object, Status> statusEntry, Map<Object, String> summaryEntry) {
 		DataflowValidationReport validationReport = d.checkValidity();
 		if (validationReport.isWorkflowIncomplete()) {
 			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(IncompleteDataflowKind.getInstance(), d, "Incomplete dataflow", IncompleteDataflowKind.INCOMPLETE_DATAFLOW, VisitReport.Status.SEVERE));
@@ -259,7 +214,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		fillInReport(reportsEntry, statusEntry, summaryEntry, validationReport);
 	}
 
-	private static synchronized void fillInReport(
+	private synchronized void fillInReport(
 			Map<Object, Set<VisitReport>> reportsEntry,
 			Map<Object, Status> statusEntry,
 			Map<Object, String> summaryEntry, DataflowValidationReport report) {
@@ -295,11 +250,11 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		return result;
 	}
 	
-	public static synchronized Map<Object, Set<VisitReport>> getReports(Dataflow d) {
+	public synchronized Map<Object, Set<VisitReport>> getReports(Dataflow d) {
 		return reportMap.get(d);
 	}
 	
-	public static boolean isStructurallySound(Dataflow d) {
+	public boolean isStructurallySound(Dataflow d) {
 		Map<Object, Set<VisitReport>> objectReports = reportMap.get(d);
 		if (objectReports == null) {
 			return false;
@@ -321,7 +276,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		return true;
 	}
 	
-	public static Status getStatus(Dataflow d) {
+	public Status getStatus(Dataflow d) {
 		Map<Object, Set<VisitReport>> objectReports = reportMap.get(d);
 		if (objectReports == null) {
 			return Status.OK;
@@ -364,7 +319,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		return result;
 	}
 	
-	public static synchronized long getLastCheckedTime(Dataflow d) {
+	public synchronized long getLastCheckedTime(Dataflow d) {
 		Long l = lastCheckedMap.get(d);
 		if (l == null) {
 		    return 0;
@@ -373,7 +328,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		}
 	    }
 
-	public static synchronized long getLastFullCheckedTime(Dataflow d) {
+	public synchronized long getLastFullCheckedTime(Dataflow d) {
 		Long l = lastFullCheckedMap.get(d);
 		if (l == null) {
 		    return 0;
@@ -386,7 +341,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 	 * @author alanrw
 	 *
 	 */
-	public static class ReportManagerFileObserver implements Observer<FileManagerEvent> {
+	public class ReportManagerFileObserver implements Observer<FileManagerEvent> {
 
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) throws Exception {
@@ -440,6 +395,24 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		long age = now - lastCheck;
 		// Outdated if it is older than the maximum
 		return age > MAX_AGE_OUTDATED_MILLIS;
+	}
+	
+	public class ReportManagerEditObserver implements Observer<EditManagerEvent> {
+		public void notify(Observable<EditManagerEvent> sender,
+				EditManagerEvent message) throws Exception {
+			String onEdit = reportManagerConfiguration.getProperty(ReportManagerConfiguration.ON_EDIT);
+			Dataflow dataflow = FileManager.getInstance().getCurrentDataflow();
+			if (message instanceof AbstractDataflowEditEvent) {
+				AbstractDataflowEditEvent adee = (AbstractDataflowEditEvent) message;
+				if (adee.getDataFlow().equals(dataflow)) {
+					if (onEdit.equals(ReportManagerConfiguration.QUICK_CHECK)) {
+						updateReport(dataflow, false, true);
+					} else if (onEdit.equals(ReportManagerConfiguration.FULL_CHECK)) {
+						updateReport(dataflow, true, true);
+					}
+				}
+			}
+		}
 	}
 	
 }

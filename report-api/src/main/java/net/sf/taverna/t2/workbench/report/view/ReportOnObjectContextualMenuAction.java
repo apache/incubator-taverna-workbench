@@ -21,29 +21,19 @@
 package net.sf.taverna.t2.workbench.report.view;
 
 import java.awt.event.ActionEvent;
-
 import java.net.URI;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.Icon;
 
 import net.sf.taverna.raven.log.Log;
-import net.sf.taverna.t2.lang.ui.icons.Icons;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.visit.VisitReport.Status;
-import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
-
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
 

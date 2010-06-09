@@ -11,10 +11,7 @@ import java.awt.GridLayout;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,7 +40,6 @@ import javax.swing.table.TableModel;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.JSplitPaneExt;
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.visit.VisitReport;

@@ -1,6 +1,5 @@
 package net.sf.taverna.t2.workbench.report;
 
-import javax.swing.Icon;
 
 
 public class InvalidDataflowKind extends ValidationVisitorKind {

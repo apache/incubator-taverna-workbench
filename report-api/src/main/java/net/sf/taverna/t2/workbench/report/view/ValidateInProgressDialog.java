@@ -23,12 +23,7 @@ package net.sf.taverna.t2.workbench.report.view;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
@@ -37,7 +32,6 @@ import javax.swing.border.EmptyBorder;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 /**
  * Dialog that is popped up while we are validating the workflow. This is just to let 

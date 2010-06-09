@@ -3,10 +3,9 @@
  */
 package net.sf.taverna.t2.visit.fragility;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -20,7 +19,6 @@ import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
 import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
 import net.sf.taverna.t2.workflowmodel.ProcessorPort;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchStack;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Retry;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.RetryConfig;
 

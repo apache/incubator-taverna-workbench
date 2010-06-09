@@ -35,15 +35,14 @@ public final class ReportManagerConfiguration extends AbstractConfigurable {
     public static final int DEFAULT_REPORT_EXPIRATION = 0;
     public static final String REPORT_EXPIRATION = "REPORT_EXPIRATION";
 
-    private static ReportManagerConfiguration instance;
-    
     private Map<String, String> defaultPropertyMap;
 
+    public static class Singleton {
+    	private static ReportManagerConfiguration instance = new ReportManagerConfiguration();
+    }
+    
 	public static ReportManagerConfiguration getInstance() {
-        if (instance == null) {
-            instance = new ReportManagerConfiguration();
-        }
-        return instance;
+       return Singleton.instance;
     }
 
     private ReportManagerConfiguration() {

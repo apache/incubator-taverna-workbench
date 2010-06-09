@@ -5,15 +5,12 @@ package net.sf.taverna.t2.workbench.report.view;
 
 import java.awt.Component;
 
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import net.sf.taverna.t2.visit.VisitReport.Status;
-
 import net.sf.taverna.t2.lang.ui.icons.Icons;
+import net.sf.taverna.t2.visit.VisitReport.Status;
 
 /**
  * @author alanrw
