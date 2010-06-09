@@ -58,6 +58,7 @@ import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.health.RemoteHealthChecker;
 
 import org.apache.log4j.Logger;
 
@@ -178,7 +179,14 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 			}			
 		});
 		//		JButton quickCheckButton = new JButton(new ReportOnWorkflowAction("Quick check", false, true));
-		JButton fullCheckButton = new JButton(new ReportOnWorkflowAction("Validate workflow", true, true));
+		JButton fullCheckButton = new JButton(new ReportOnWorkflowAction("Validate workflow", true, false){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Full check always starts from scratch
+				RemoteHealthChecker.clearCachedEndpointStatus();
+				super.actionPerformed(e);
+			}
+		});
 		JPanel validateButtonPanel = new JPanel();
 		validateButtonPanel.add(ignoreReportButton);
 		//		validateButtonPanel.add(quickCheckButton);
