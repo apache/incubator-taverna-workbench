@@ -50,9 +50,10 @@ public class ParallelizeConfigureAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		String title = "Jobs for service " + parallelizeLayer.getProcessor().getLocalName();
+		String processorName = parallelizeLayer.getProcessor().getLocalName();
+		String title = "Parallel jobs for service " + processorName;
 		final JDialog dialog = new HelpEnabledDialog(owner, title, true);
-		ParallelizeConfigurationPanel parallelizeConfigurationPanel = new ParallelizeConfigurationPanel(parallelizeLayer.getConfiguration());
+		ParallelizeConfigurationPanel parallelizeConfigurationPanel = new ParallelizeConfigurationPanel(parallelizeLayer.getConfiguration(), processorName);
 		dialog.add(parallelizeConfigurationPanel, BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel();

@@ -87,7 +87,7 @@ public class LoopConfigureAction extends AbstractAction {
 
 			dialog.add(buttonPanel, BorderLayout.SOUTH);
 			dialog.pack();
-			dialog.setSize(500, 430);
+			dialog.setSize(650, 430);
 			dialog.setLocationRelativeTo(null);
 			dialog.setVisible(true);
 		}

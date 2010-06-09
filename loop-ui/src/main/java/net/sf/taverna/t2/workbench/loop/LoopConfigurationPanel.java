@@ -74,6 +74,7 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class LoopConfigurationPanel extends JPanel {
 
+	private static final String DEFAULT_DELAY_S = "0.5";
 	protected LoopConfiguration configuration;
 	private EditManager editManager = EditManager.getInstance();
 
@@ -164,7 +165,7 @@ public class LoopConfigurationPanel extends JPanel {
 		private final JButton customizeButton;
 
 		public CustomizeAction(JButton customizeButton) {
-			super("Customise condition service");
+			super("Customise loop condition");
 			this.customizeButton = customizeButton;
 		}
 
@@ -188,7 +189,7 @@ public class LoopConfigurationPanel extends JPanel {
 				}
 				configuration.setCondition(activity);
 			} else if (!(condition instanceof BeanshellActivity)) {
-				logger.warn("Can't configure unknown condition service type "
+				logger.warn("Can't configure unsupported loop condition of service type "
 						+ condition.getClass());
 				return;
 			}
@@ -280,12 +281,16 @@ public class LoopConfigurationPanel extends JPanel {
 		Comparison comparison = ActivityGenerator
 				.getComparisonById(comparisonId);
 		comparisonCombo.setSelectedItem(comparison);
-
+		if (comparisonCombo.getSelectedIndex() == -1
+				&& comparisonCombo.getModel().getSize() > 0) {
+			comparisonCombo.setSelectedIndex(0);
+		}
+		
 		valueField.setText(properties.getProperty(
 				ActivityGenerator.COMPARE_VALUE, ""));
 
 		delayField.setText(properties.getProperty(ActivityGenerator.DELAY,
-				"0.0"));
+				DEFAULT_DELAY_S));
 
 		feedBackCheck.setSelected(Boolean.parseBoolean(properties
 				.getProperty(ActivityGenerator.IS_FEED_BACK)));
@@ -331,8 +336,9 @@ public class LoopConfigurationPanel extends JPanel {
 
 		JLabel helpLabel = new JLabel(
 				"<html><body>"
-						+ "The main service will be invoked repeatedly as "
-						+ "long as the <em>customised condition service</em> returns a string equal "
+						+ "The service <strong>" + processor.getLocalName() +  "</strong> will be "
+						+ "invoked repeatedly as "
+						+ "long as the <em>customised loop condition</em> returns a string equal "
 						+ "to <strong>\"true\"</strong> on its output port <code>loop</code>."
 						+ "<br><br>"
 						+ "Input ports of the condition service will be populated with values from "
@@ -343,8 +349,8 @@ public class LoopConfigurationPanel extends JPanel {
 
 						+ "Any <em>matching "
 						+ "output ports</em> from the condition service will provide the corresponding "
-						+ "<em>inputs</em> to the main service while looping. You will need to provide "
-						+ "the <em>initial inputs</em> from the containing workflow."
+						+ "<em>inputs</em> to the main service while looping. You will need to connect "
+						+ "the <em>initial inputs</em> in the containing workflow."
 						+ "</body></html>");
 		customPanel.add(helpLabel, gbc);
 
@@ -387,7 +393,9 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.weightx = 0.1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		JLabel invokedRepeatedlyLabel = new JLabel(
-				"<html><body>The service will be invoked repeatedly until its output</body></html>");
+				 
+				"<html><body>The service <strong>" + processor.getLocalName() +  "</strong> " +
+						"will be invoked repeatedly <em>until</em> its output</body></html>");
 		invokedRepeatedlyLabel.setBorder(new EmptyBorder(10,0,10,0)); // give some top and bottom border to the label
 		configPanel.add(invokedRepeatedlyLabel, gbc);
 		gbc.ipadx = 4;
@@ -399,7 +407,7 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.gridy = 1;
 		gbc.gridwidth = 1;
 		List<String> activityOutputPorts = getActivityOutputPorts();
-		portCombo = new JComboBox(activityOutputPorts.toArray());
+		portCombo = new JComboBox(activityOutputPorts.toArray());		
 		configPanel.add(portCombo, gbc);
 
 		comparisonCombo = new JComboBox(ActivityGenerator.comparisons.toArray());
@@ -413,6 +421,9 @@ public class LoopConfigurationPanel extends JPanel {
 				}
 			}
 		});
+		if (comparisonCombo.getSelectedIndex() == -1) {
+			comparisonCombo.setSelectedIndex(0);
+		}
 		gbc.gridx = 1;
 		gbc.gridy = 1;
 		configPanel.add(comparisonCombo, gbc);
@@ -450,8 +461,9 @@ public class LoopConfigurationPanel extends JPanel {
 		if (activityOutputPorts.isEmpty()) {
 			JLabel warningLabel = new JLabel(
 					"<html><body><strong>Warning:</strong><br>"
-							+ "<i>No output ports detected on the main service, "
-							+ "cannot use built-in comparisons.</i></body></html>");
+							+ "<i>No single value output ports detected on the main service, "
+							+ "cannot use built-in comparisons. You may still add a customized " +
+									"looping script</i></body></html>");
 			gbc.gridx = 0;
 			gbc.gridy++;
 			gbc.gridwidth = 4;
@@ -499,7 +511,6 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.weighty = 0.1;
 		gbc.gridwidth = 4;
 		configPanel.add(Box.createGlue(), gbc);
-
 	}
 
 	private Activity<?> getFirstProcessorActivity() {
@@ -518,7 +529,9 @@ public class LoopConfigurationPanel extends JPanel {
 		}
 		List<String> ports = new ArrayList<String>();
 		for (OutputPort outPort : activity.getOutputPorts()) {
-			ports.add(outPort.getName());
+			if (outPort.getDepth() == 0) {
+				ports.add(outPort.getName());
+			}
 		}
 		Collections.sort(ports);
 		return ports;
@@ -527,7 +540,7 @@ public class LoopConfigurationPanel extends JPanel {
 	protected JCheckBox feedBackCheck = new JCheckBox(
 			"Feed back matching ports");
 	private JLabel portWarning = new JLabel(
-			"<html><body><small>Note that for the looping to be able to check this output, "
+			"<html><body><small>Note that for Taverna to be able to check this output, "
 					+ "the <strong>selected service output</strong> must also be <strong>connected</strong> to "
 					+ "another service or workflow output port in the containing workflow.</small></body></html>");
 
@@ -570,17 +583,18 @@ public class LoopConfigurationPanel extends JPanel {
 
 	JLabel feedbackHelp = new JLabel(
 			"<html><small>"
-					+ "<p>When looping, any service <em>input ports</em> which <em>names</em> "
-					+ "match those of service <em>output ports</em> will get their inputs "
-					+ "from the matching outputs of the <em>previous invocation</em>.</p><br>"
+					+ "<p>When looping with <strong>feedback</strong> is enabled, service <em>input ports</em> which "
+					+ "match the <em>port names</em> of service <em>output ports</em> will get the next inputs "
+					+ "from the corresponding output port values of the <em>previous invocation</em>.</p><br>"
 
-					+ "<p>This can be useful if the main service is a <em>nested workflow</em> "
-					+ "which is able to calculate its next input parameters.</p><br>"
+					+ "<p>This can be useful when looping over a <em>nested workflow</em> "
+					+ "which determines its next input parameters.</p><br>"
 
 					+ "<p>You will need to provide the <em>initial</em> inputs by "
-					+ "connecting the input ports in the containing workflow. You will also "
+					+ "connecting all input ports in the containing workflow. You will also "
 					+ "need to <strong>connect all service output ports</strong> "
-					+ "in the containing workflow.</p>"
+					+ "in the containing workflow, in order for the feedback "
+					+ "values to be picked up by the looping.</p>"
 
 					+ "</small></html>");
 

@@ -65,7 +65,7 @@ public class LoopRemoveMenuAction extends AbstractContextualMenuAction {
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new AbstractAction("Remove looping") {
+		return new AbstractAction("Disable looping") {
 			public void actionPerformed(ActionEvent e) {
 				Processor p = (Processor) getContextualSelection().getSelection();
 					Loop loopLayer = LoopConfigureMenuAction.getLoopLayer(p);

@@ -55,7 +55,7 @@ public class LoopAddMenuAction extends AbstractContextualMenuAction {
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new AbstractAction("Add looping...") {
+		return new AbstractAction("Looping...") {
 			public void actionPerformed(ActionEvent e) {
 				Loop loopLayer = null;
 				Processor p = (Processor) getContextualSelection().getSelection();
