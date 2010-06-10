@@ -50,11 +50,9 @@ import net.sf.taverna.t2.activities.beanshell.BeanshellActivity;
 import net.sf.taverna.t2.activities.beanshell.BeanshellActivityConfigurationBean;
 import net.sf.taverna.t2.activities.beanshell.views.BeanshellConfigView;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.loop.comparisons.Comparison;
 import net.sf.taverna.t2.workbench.ui.Utils;
-import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.OutputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
@@ -87,6 +85,19 @@ public class LoopConfigurationPanel extends JPanel {
 	protected JPanel configPanel = new JPanel();
 	protected JPanel customPanel = new JPanel();
 
+	protected JLabel valueTypeLabel = new JLabel("the string");
+
+	protected JTextField valueField = new JTextField("", 15);
+
+	protected JLabel delayLabel = new JLabel("adding a delay of ");
+	protected JTextField delayField = new JTextField(
+			ActivityGenerator.DEFAULT_DELAY_S, 4);
+	protected JLabel secondsLabel = new JLabel(" seconds between the loops.");
+
+	private JComboBox portCombo;
+	private JComboBox comparisonCombo;
+	private JButton customizeButton;
+	
 	protected Loop loopLayer;
 	private Object Comparison;
 	private Activity<?> originalCondition = null;
@@ -160,19 +171,12 @@ public class LoopConfigurationPanel extends JPanel {
 		}
 	}
 
-	private final class CustomizeAction extends AbstractAction {
+	private final class CustomizeAction implements ActionListener {
 
-		private final JButton customizeButton;
-
-		public CustomizeAction(JButton customizeButton) {
-			super("Customise loop condition");
-			this.customizeButton = customizeButton;
-		}
-
-		private DataflowSelectionManager dataflowSelectionManager = DataflowSelectionManager
-				.getInstance();
-
-		private FileManager fileManager = FileManager.getInstance();
+//		public CustomizeAction() {
+//			super();
+//			//putValue(NAME, "Customise loop condition");
+//		}
 
 		public void actionPerformed(ActionEvent e) {
 			uiToConfig();
@@ -360,26 +364,14 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.gridy++;
 		gbc.gridwidth = 1;
 		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-		JButton customizeButton = new JButton();
-		customizeButton.setAction(new CustomizeAction(customizeButton));
+		customizeButton = new JButton("Customise loop condition");
+		customizeButton.addActionListener(new CustomizeAction());
 		customPanel.add(customizeButton, gbc);
 
 		gbc.gridx++;
 		customPanel.add(new JButton(new ResetAction()), gbc);
 
 	}
-
-	protected JLabel valueTypeLabel = new JLabel("the string");
-
-	protected JTextField valueField = new JTextField("", 15);
-
-	protected JLabel delayLabel = new JLabel("adding a delay of ");
-	protected JTextField delayField = new JTextField(
-			ActivityGenerator.DEFAULT_DELAY_S, 4);
-	protected JLabel secondsLabel = new JLabel(" seconds between the loops.");
-
-	private JComboBox portCombo;
-	private JComboBox comparisonCombo;
 
 	protected void makeConfigPanel() {
 		configPanel.removeAll();
@@ -499,8 +491,8 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.gridy++;
 		gbc.gridwidth = 4;
 		gbc.anchor = GridBagConstraints.LAST_LINE_END;
-		JButton customizeButton = new JButton();
-		customizeButton.setAction(new CustomizeAction(customizeButton));
+		customizeButton = new JButton("Customise loop condition");
+		customizeButton.addActionListener(new CustomizeAction());
 		configPanel.add(customizeButton, gbc);
 
 		// filler

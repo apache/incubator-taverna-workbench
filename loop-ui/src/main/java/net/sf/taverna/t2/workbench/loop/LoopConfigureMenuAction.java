@@ -21,13 +21,10 @@
 package net.sf.taverna.t2.workbench.loop;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.net.URI;
-import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workflowmodel.Processor;
@@ -35,9 +32,7 @@ import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
 
 public class LoopConfigureMenuAction extends AbstractContextualMenuAction {
-	
-	
-	
+		
 	public static final URI configureRunningSection = URI
 	.create("http://taverna.sf.net/2009/contextMenu/configureRunning");
 	

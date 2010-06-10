@@ -20,7 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.loop;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 

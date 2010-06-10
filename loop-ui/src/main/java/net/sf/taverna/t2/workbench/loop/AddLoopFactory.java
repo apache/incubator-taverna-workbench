@@ -28,6 +28,7 @@ import javax.swing.Action;
 
 import org.apache.log4j.Logger;
 
+import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI;
@@ -57,11 +58,15 @@ public class AddLoopFactory implements AddLayerFactorySPI {
 		return true;
 	}
 
+	@SuppressWarnings("serial")
 	public Action getAddLayerActionFor(final Processor processor) {
 		return new AbstractAction("Add looping") {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					findLoopLayer();
+					// Pop up the configure loop dialog
+					Loop loopLayer = LoopConfigureMenuAction.getLoopLayer(processor);
+					new LoopConfigureAction(MainWindow.getMainWindow(), null, loopLayer).actionPerformed(e);
 				} catch (EditException e1) {
 					logger.warn("Can't add loop layer", e1);
 				}
