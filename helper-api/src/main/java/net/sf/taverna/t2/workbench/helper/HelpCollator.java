@@ -167,7 +167,10 @@ public final class HelpCollator {
 		if (idMap.containsKey(component)) {
 			logger.info("Registered " + normalizedId);
 		} else {
-			if (hs.getLocalMap().isValidID(normalizedId, hs)) {
+			
+			// If Workbench is started up while there is no network connection - 
+			// hs.getLocalMap() is null for some reason
+			if (hs != null && hs.getLocalMap()!= null && hs.getLocalMap().isValidID(normalizedId, hs)) {
 				idMap.put(component, normalizedId);
 				logger.info("Registered " + normalizedId);
 			} else {
