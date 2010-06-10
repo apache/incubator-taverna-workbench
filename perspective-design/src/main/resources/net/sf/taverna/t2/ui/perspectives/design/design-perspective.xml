@@ -75,8 +75,8 @@
       <name>contextualView</name>
     </namedcomponent>
      <namedcomponent>
-      <groupid>net.sf.taverna.t2.ui-api</groupid>
-      <artifact>report-api</artifact>
+      <groupid>net.sf.taverna.t2.ui-components</groupid>
+      <artifact>report-view</artifact>
       <classname>net.sf.taverna.t2.workbench.report.view.ReportViewComponentFactory</classname>
       <version>1.1-SNAPSHOT</version>
       <name>reportView</name>

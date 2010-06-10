@@ -1,7 +1,7 @@
 /**
  * 
  */
-package net.sf.taverna.t2.workbench.report.config;
+package net.sf.taverna.t2.workbench.report.config.ui;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workbench.helper.Helper;
+import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
 
 
 /**

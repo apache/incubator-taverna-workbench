@@ -18,12 +18,13 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.report.config;
+package net.sf.taverna.t2.workbench.report.config.ui;
 
 import javax.swing.JPanel;
 
 import net.sf.taverna.t2.workbench.configuration.Configurable;
 import net.sf.taverna.t2.workbench.configuration.ConfigurationUIFactory;
+import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
 
 /**
  * ConfigurationFactory for the ReportManagerConfiguration.

@@ -43,6 +43,7 @@
 		<module>perspective-design</module>
 		<module>perspective-results</module>			
 		<module>reference-ui</module>
+		<module>report-view</module>
 		<module>results-view</module>
 		<module>run-ui</module>
 		<module>workflow-explorer</module>
