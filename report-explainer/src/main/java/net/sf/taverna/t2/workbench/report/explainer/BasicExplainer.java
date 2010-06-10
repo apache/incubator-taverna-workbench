@@ -3,43 +3,33 @@
  */
 package net.sf.taverna.t2.workbench.report.explainer;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.GridLayout;
-import java.awt.LayoutManager;
-import java.awt.Rectangle;
 import java.awt.SystemColor;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import javax.swing.AbstractAction;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.Scrollable;
 
-import net.sf.taverna.t2.activities.disabled.actions.DisabledActivityConfigurationAction;
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.activities.dataflow.actions.EditNestedDataflowAction;
-import net.sf.taverna.t2.activities.wsdl.actions.AddXMLInputSplitterAction;
+import net.sf.taverna.t2.activities.disabled.actions.DisabledActivityConfigurationAction;
 import net.sf.taverna.t2.activities.wsdl.InputPortTypeDescriptorActivity;
 import net.sf.taverna.t2.activities.wsdl.xmlsplitter.AddXMLSplitterEdit;
+import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.visit.DataflowCollation;
 import net.sf.taverna.t2.visit.VisitKind;
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.visit.fragility.FragilityCheck;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowOutputAction;
-import net.sf.taverna.t2.workbench.design.actions.RemoveDatalinkAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.FailedEntityKind;
@@ -57,16 +47,14 @@ import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
 import net.sf.taverna.t2.workflowmodel.health.HealthCheck;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Retry;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
-
-import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 
 import org.apache.log4j.Logger;
 
