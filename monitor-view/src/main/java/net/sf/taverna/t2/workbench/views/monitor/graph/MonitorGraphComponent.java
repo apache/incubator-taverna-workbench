@@ -45,12 +45,14 @@ import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
 import net.sf.taverna.t2.workbench.models.graph.GraphNode;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
+import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
 import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.Processor;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
@@ -58,6 +60,11 @@ import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
 
+/**
+ * Use to display the graph for fresh workflow runs and allow the user to
+ * click on processors to see the intermediate results for processors pulled from provenance.
+ *  
+ */
 public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Observable<WorkflowObjectSelectionMessage> {
 
 	@SuppressWarnings("unused")
@@ -193,6 +200,9 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 		this.dataflow = dataflow;
 		SVGGraphController svgGraphController = new SVGGraphController(dataflow, true, svgCanvas);
 		svgGraphController.setGraphEventManager(new MonitorGraphEventManager(this, provenanceConnector, dataflow, getSessionId()));
+		// For selections on the graph
+		svgGraphController.setDataflowSelectionModel(DataflowSelectionManager
+				.getInstance().getDataflowSelectionModel(dataflow));	
 		setGraphController(svgGraphController);
 		graphMonitor = new GraphMonitor(svgGraphController);
 		return graphMonitor;
@@ -236,8 +246,6 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 	protected void finalize() throws Throwable {
 		onDispose();
 	}
-
-
 
 	public void setSessionId(String sessionId) {
 		this.sessionId = sessionId;
@@ -287,7 +295,19 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 	public List<Observer<WorkflowObjectSelectionMessage>> getObservers() {
 		return multiCaster.getObservers();
 	}
-
+	
+	public void setSelectedGraphElementForWorkflowObject(Object workflowObject){
+		// Only select processors, ignore links, ports etc.
+		if (workflowObject instanceof Processor){
+			// Clear previous selection
+			graphController.getDataflowSelectionModel().clearSelection();
+			graphController.getDataflowSelectionModel().addSelection(workflowObject);
+		}
+		else if (workflowObject instanceof Dataflow){
+			// We cannot show dataflow object as selected of the graph so clear previous selection
+			graphController.getDataflowSelectionModel().clearSelection();
+		}
+	}
 }
 
 class MonitorGraphEventManager implements GraphEventManager {
@@ -305,6 +325,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 	static int MINIMUM_HEIGHT = 500;
 	static int MINIMUM_WIDTH = 800;
 	private MonitorGraphComponent monitorViewComponent;
+	private GraphElement previouslySelectedProcessorGraphElement;
 
 	public MonitorGraphEventManager(MonitorGraphComponent monitorViewComponent, ProvenanceConnector provenanceConnector,
 			Dataflow dataflow, String sessionID) {
@@ -322,15 +343,14 @@ class MonitorGraphEventManager implements GraphEventManager {
 			int screenX, int screenY) {
 		
 		Object dataflowObject = graphElement.getDataflowObject();
+		
 		GraphElement parent = graphElement.getParent();
 		if (parent instanceof GraphNode) {
 			   parent = parent.getParent();
-			}
+		}
 
-		if (monitorViewComponent.getGraphController().getDataflowSelectionModel() != null) {
-			monitorViewComponent.getGraphController().getDataflowSelectionModel().addSelection(dataflowObject);
-		}	
-		
+		monitorViewComponent.setSelectedGraphElementForWorkflowObject(dataflowObject);
+	
 		// Notify anyone interested that a selection occurred on the graph
 		monitorViewComponent.triggerWorkflowObjectSelectionEvent(dataflowObject);
 	}

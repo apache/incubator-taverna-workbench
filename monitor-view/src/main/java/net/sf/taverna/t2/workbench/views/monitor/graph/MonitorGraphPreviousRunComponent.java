@@ -29,6 +29,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
+import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.views.graph.AutoScrollInteractor;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
@@ -40,7 +41,7 @@ import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 
 /**
  * Use to display the graph for previous workflow runs and allow the user to
- * click on processors to see the provenance
+ * click on processors to see the intermediate results pulled from provenance.
  * 
  * @author Ian Dunlop
  * 
@@ -87,6 +88,9 @@ public class MonitorGraphPreviousRunComponent extends MonitorGraphComponent {
 		// create a graph controller
 		final SVGGraphController svgGraphController = new SVGGraphController(
 				dataflow, true, svgCanvas);
+		// For selections on the graph
+		svgGraphController.setDataflowSelectionModel(DataflowSelectionManager
+				.getInstance().getDataflowSelectionModel(dataflow));
 		svgGraphController.setAnimationSpeed(0);
 		svgGraphController.setGraphEventManager(new MonitorGraphEventManager(
 				this, provenanceConnector, dataflow, getSessionId()));
