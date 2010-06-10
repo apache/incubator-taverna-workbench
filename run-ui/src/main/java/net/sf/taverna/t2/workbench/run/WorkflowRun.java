@@ -684,6 +684,13 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			// Update the selected row on the progress tree
 			progressRunTable.setSelectedRowForObject(workflowObject);
 		}
+		
+		// If this came from a selection event on the table
+		if (sender instanceof WorkflowRunProgressTreeTable
+				&& (workflowObject instanceof Dataflow || workflowObject instanceof Processor)) {
+			// Update the selected element on the graph
+			progressRunGraph.setSelectedGraphElementForWorkflowObject(workflowObject);
+		}
 	}
 
 }
