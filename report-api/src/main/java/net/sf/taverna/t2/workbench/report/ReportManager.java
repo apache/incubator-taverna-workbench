@@ -206,7 +206,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 	private synchronized void validateDataflow(Dataflow d, Map<Object, Set<VisitReport>> reportsEntry, Map<Object, Status> statusEntry, Map<Object, String> summaryEntry) {
 		DataflowValidationReport validationReport = d.checkValidity();
 		if (validationReport.isWorkflowIncomplete()) {
-			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(IncompleteDataflowKind.getInstance(), d, "Incomplete dataflow", IncompleteDataflowKind.INCOMPLETE_DATAFLOW, VisitReport.Status.SEVERE));
+			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(IncompleteDataflowKind.getInstance(), d, "Incomplete workflow", IncompleteDataflowKind.INCOMPLETE_DATAFLOW, VisitReport.Status.SEVERE));
 		}
 		else if (!validationReport.isValid()) {
 			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(InvalidDataflowKind.getInstance(), d, "Invalid workflow", InvalidDataflowKind.INVALID_DATAFLOW, VisitReport.Status.SEVERE));
@@ -219,13 +219,13 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 			Map<Object, Status> statusEntry,
 			Map<Object, String> summaryEntry, DataflowValidationReport report) {
 		for (Object o : report.getUnresolvedOutputs()) {
-			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(UnresolvedOutputKind.getInstance(), o, "Unresolved output", UnresolvedOutputKind.OUTPUT, VisitReport.Status.SEVERE));
+			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(UnresolvedOutputKind.getInstance(), o, "Invalid workflow output", UnresolvedOutputKind.OUTPUT, VisitReport.Status.SEVERE));
 		}
 		for (Object o : report.getFailedEntities()) {
-			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(FailedEntityKind.getInstance(), o, "Failed entity", FailedEntityKind.FAILED_ENTITY, VisitReport.Status.SEVERE));
+			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(FailedEntityKind.getInstance(), o, "Mismatch of input list depths", FailedEntityKind.FAILED_ENTITY, VisitReport.Status.SEVERE));
 		}
 		for (Object o : report.getUnsatisfiedEntities()) {
-			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(UnsatisfiedEntityKind.getInstance(), o, "Unsatisfied", UnsatisfiedEntityKind.UNSATISFIED_ENTITY, VisitReport.Status.SEVERE));
+			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(UnsatisfiedEntityKind.getInstance(), o, "Unknown prior list depth", UnsatisfiedEntityKind.UNSATISFIED_ENTITY, VisitReport.Status.SEVERE));
 		}
 //		for (DataflowValidationReport subReport : report.getInvalidDataflows().values()) {
 //			fillInReport(descriptionMap, subReport);
