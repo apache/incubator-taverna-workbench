@@ -19,7 +19,7 @@
 		<t2.activities.version>1.2</t2.activities.version>
 		<t2.infrastructure.version>2.2</t2.infrastructure.version>
 		<t2.core.version>1.2</t2.core.version>
-		<t2.lang.version>1.2</t2.lang.version>
+		<t2.lang.version>1.1</t2.lang.version>
 		<t2.compatibility.version>1.2</t2.compatibility.version>
 		<t2.translators.version>1.2</t2.translators.version>
 		<taverna.version>1.7.2.0</taverna.version>
