@@ -67,7 +67,7 @@ public class MyExperimentClient {
       + " Java/"
       + System.getProperty("java.version");
   private static final String INI_FILE_NAME = "myexperiment-plugin.ini";
-  private static final int EXAMPLE_WORKFLOWS_PACK_ID = 103;
+  private static final int EXAMPLE_WORKFLOWS_PACK_ID = 122;
 
   public static final String INI_BASE_URL = "my_experiment_base_url";
   public static final String INI_LOGIN = "login";
