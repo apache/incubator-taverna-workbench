@@ -358,18 +358,19 @@ public class LoopConfigurationPanel extends JPanel {
 						+ "</body></html>");
 		customPanel.add(helpLabel, gbc);
 
-		gbc.weightx = 0;
+		gbc.weightx = 0.1;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.gridx = 0;
 		gbc.gridy++;
 		gbc.gridwidth = 1;
-		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
+		gbc.anchor = GridBagConstraints.EAST;
+		JPanel customiseButtonPanel = new JPanel(new FlowLayout());
+		customiseButtonPanel.setBorder(new EmptyBorder(10,0,0,0));
 		customizeButton = new JButton("Customise loop condition");
 		customizeButton.addActionListener(new CustomizeAction());
-		customPanel.add(customizeButton, gbc);
-
-		gbc.gridx++;
-		customPanel.add(new JButton(new ResetAction()), gbc);
+		customiseButtonPanel.add(customizeButton);
+		customiseButtonPanel.add(new JButton(new ResetAction()));
+		customPanel.add(customiseButtonPanel, gbc);
 
 	}
 
@@ -485,15 +486,17 @@ public class LoopConfigurationPanel extends JPanel {
 		configPanel.add(portWarning, gbc);
 
 		gbc.insets = new Insets(0, 0, 0, 0);
-		gbc.weightx = 0.0;
+		gbc.weightx = 0.1;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.gridx = 0;
 		gbc.gridy++;
 		gbc.gridwidth = 4;
 		gbc.anchor = GridBagConstraints.LAST_LINE_END;
+		JPanel customiseButtonPanel = new JPanel(new FlowLayout());
 		customizeButton = new JButton("Customise loop condition");
 		customizeButton.addActionListener(new CustomizeAction());
-		configPanel.add(customizeButton, gbc);
+		customiseButtonPanel.add(customizeButton);
+		configPanel.add(customiseButtonPanel, gbc);
 
 		// filler
 		gbc.gridy++;
