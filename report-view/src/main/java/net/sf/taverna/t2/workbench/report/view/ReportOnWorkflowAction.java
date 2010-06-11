@@ -85,24 +85,37 @@ public class ReportOnWorkflowAction extends AbstractAction {
 			StringBuffer sb = new StringBuffer();
 			Map<Object, Set<VisitReport>> reports = reportManager
 					.getReports(dataflow);
+			int errorCount = 0;
+			int warningCount = 0;
 			// Find warnings
 			for (Entry<Object, Set<VisitReport>> entry : reports.entrySet()) {
 				for (VisitReport report : entry.getValue()) {
-					if (report.getStatus().equals(status)) {
-						sb.append(entry.getKey());
-						sb.append(" ");
-						sb.append(report);
-					}
+				    if (report.getStatus().equals(Status.SEVERE)) {
+					errorCount++;
+				    } else if (report.getStatus().equals(Status.WARNING)) {
+					warningCount++;
+				    }
 				}
 			}
 			if (status.equals(Status.WARNING)) {
 				messageType = JOptionPane.WARNING_MESSAGE;
-				message = "Validation report contains warnings:\n"
-						+ sb.toString();
+				message = "Validation report contains ";
 			} else { // SEVERE
 				messageType = JOptionPane.ERROR_MESSAGE;
-				message = "Validation report contains errors:\n"
-						+ sb.toString();
+				message = "Validation report contains ";
+			        if (errorCount == 1) {
+				    message += "one error";
+				} else {
+				    message += errorCount + " errors";
+				}
+				if (warningCount != 0) {
+				    message += " and ";
+				}
+			}
+			if (warningCount == 1) {
+			    message += "one warning";
+			} else {
+			    message += warningCount + " warnings";
 			}
 		}
 		JOptionPane.showMessageDialog(MainWindow.getMainWindow(), message,
