@@ -82,13 +82,17 @@ public final class HelpCollator {
 		try {
 			String externalHelpSetURL = prb.getString("externalhelpseturl");
 			hs = new HelpSet(null, new URL(externalHelpSetURL));
+			if (hs.getLocalMap() == null) {
+			    hs = null;
+			    logger.error("Helpset from " + externalHelpSetURL + " local map was null");
+			}
 			logger.info("Read external help set from " + externalHelpSetURL);
 		} catch (MissingResourceException e) {
-			logger.info("No external HelpSet URL specified");
+		    logger.error("No external HelpSet URL specified", e);
 		} catch (MalformedURLException e) {
-			logger.info("External HelpSet URL is malformed");
+		    logger.error("External HelpSet URL is malformed", e);
 		} catch (HelpSetException e) {
-			logger.info("External HelpSet could not be read");
+		    logger.error("External HelpSet could not be read", e);
 		}
 	}
 
@@ -104,7 +108,7 @@ public final class HelpCollator {
 			hs = new HelpSet(null, backupURL);
 			logger.info("Read backup help set");
 		} catch (HelpSetException e) {
-			logger.info("Backup HelpSet could not be read");
+		    logger.error("Backup HelpSet could not be read", e);
 		}
 
 	}
@@ -174,7 +178,7 @@ public final class HelpCollator {
 				idMap.put(component, normalizedId);
 				logger.info("Registered " + normalizedId);
 			} else {
-				logger.info("Refused to register component as " + normalizedId
+				logger.error("Refused to register component as " + normalizedId
 						+ " - not in map");
 			}
 		}
