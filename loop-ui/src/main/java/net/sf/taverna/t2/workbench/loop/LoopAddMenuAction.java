@@ -28,7 +28,6 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
 
 public class LoopAddMenuAction extends AbstractContextualMenuAction {
 	
@@ -51,10 +50,10 @@ public class LoopAddMenuAction extends AbstractContextualMenuAction {
 	protected Action createAction() {
 		return new AbstractAction("Looping...") {
 			public void actionPerformed(ActionEvent e) {
-				Loop loopLayer = null;
+				//Loop loopLayer = null;
 				Processor p = (Processor) getContextualSelection().getSelection();
 				factory.getAddLayerActionFor(p).actionPerformed(e);
-				LoopConfigureMenuAction.configureLoopLayer(p, e);
+				//LoopConfigureMenuAction.configureLoopLayer(p, e); // Configuration dialog pop up is now done from getAddLayerActionFor() 
 			}
 		};
 	}

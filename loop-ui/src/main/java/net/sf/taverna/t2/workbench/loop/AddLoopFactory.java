@@ -63,16 +63,17 @@ public class AddLoopFactory implements AddLayerFactorySPI {
 		return new AbstractAction("Add looping") {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					findLoopLayer();
+					Loop loopLayer = findLoopLayer();
 					// Pop up the configure loop dialog
-					Loop loopLayer = LoopConfigureMenuAction.getLoopLayer(processor);
-					new LoopConfigureAction(MainWindow.getMainWindow(), null, loopLayer).actionPerformed(e);
+					LoopConfigureAction loopConfigureAction = new LoopConfigureAction(
+							MainWindow.getMainWindow(), null, loopLayer);
+					loopConfigureAction.actionPerformed(e);
 				} catch (EditException e1) {
 					logger.warn("Can't add loop layer", e1);
 				}
 			}
 
-			public void findLoopLayer() throws EditException {
+			public Loop findLoopLayer() throws EditException {
 				DispatchStack dispatchStack = processor.getDispatchStack();
 				Loop loopLayer = null;
 				for (DispatchLayer<?> layer : dispatchStack.getLayers()) {
@@ -84,7 +85,7 @@ public class AddLoopFactory implements AddLayerFactorySPI {
 					loopLayer = new Loop();
 					insertLoopLayer(dispatchStack, loopLayer);
 				}
-
+				return loopLayer;
 			}
 
 			private void insertLoopLayer(DispatchStack dispatchStack,
