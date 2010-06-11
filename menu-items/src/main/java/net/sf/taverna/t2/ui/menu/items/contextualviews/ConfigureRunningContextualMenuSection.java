@@ -20,20 +20,11 @@
  **********************************************************************/
 package net.sf.taverna.t2.ui.menu.items.contextualviews;
 
-import java.awt.event.ActionEvent;
 import java.net.URI;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenu;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
 import net.sf.taverna.t2.ui.menu.ContextualSelection;
-import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
-import net.sf.taverna.t2.workbench.ui.impl.Workbench;
-import net.sf.taverna.t2.workflowmodel.Processor;
 
 public class ConfigureRunningContextualMenuSection extends AbstractMenu
 implements ContextualMenuComponent {
