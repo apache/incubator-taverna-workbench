@@ -33,37 +33,4 @@ public class VisitReportProxySet {
 	return elements.contains(proxy);
     }
 
-    class VisitReportProxy {
-
-	Status status;
-	int subjectHashCode;
-	VisitKind kind;
-	String message;
-
-	VisitReportProxy(VisitReport vr) {
-	    this.status = vr.getStatus();
-	    this.subjectHashCode = vr.getSubject().hashCode();
-	    this.kind = vr.getKind();
-	    this.message = vr.getMessage();
-	}
-
-	public boolean equals(Object o) {
-	    if ((o == null) || !(o instanceof VisitReportProxy)) {
-		return false;
-	    }
-	    VisitReportProxy vrp = (VisitReportProxy) o;
-	    return (vrp.status.equals(this.status) &&
-		    (vrp.subjectHashCode == this.subjectHashCode) &&
-		    (vrp.kind.equals(this.kind)) &&
-		    (vrp.message.equals(this.message)));
-	}
-
-	public int hashCode() {
-	    return ((status.hashCode() >> 2) +
-		    (subjectHashCode >> 2) +
-		    (kind.hashCode() >> 2) +
-		    (message.hashCode() >> 2));
-	}
-    }
-
 }
