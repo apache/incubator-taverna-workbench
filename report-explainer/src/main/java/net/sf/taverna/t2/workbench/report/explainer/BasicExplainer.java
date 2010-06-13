@@ -345,7 +345,7 @@ public class BasicExplainer implements VisitExplainer {
 		message += "from \"" + sourceProcessor.getLocalName() + "\"";
 	    }
 	    message += " will cause this service to fail.  ";
-	    message += "If " + pip.getName() + " is unlikely to fail (for example if it is a StringConstant) then this warning can be ignored.";
+	    message += "If " + (sourceProcessor == null ? "the source" : sourceProcessor.getLocalName()) + " is unlikely to fail (for example if it is a StringConstant) then this warning can be ignored.";
 	    return createPanel(new Object[] {message});
 	}
 	
@@ -750,7 +750,7 @@ public class BasicExplainer implements VisitExplainer {
 	if (endpoint != null) {
 	    preferencesButton = new JButton(new AbstractAction("Change HTTP proxy") {
 		    public void actionPerformed(ActionEvent e) {
-			T2ConfigurationFrame.showFrame();
+			T2ConfigurationFrame.showConfiguration("HTTP proxy");
 		    }
 		});
 	}
@@ -794,7 +794,54 @@ public class BasicExplainer implements VisitExplainer {
     }
 
     private static JComponent solutionTimeOut(VisitReport vr) {
-	return createPanel(new Object[] {"Try the service later. If it still does not work, please contact the service provider or workflow creator."});
+	String message = "Try to open ";
+	String endpoint = (String) (vr.getProperty("endpoint"));
+	JButton connectButton = null;
+	if (endpoint == null) {
+	    message += "the endpoint ";
+	} else {
+	    message += "\"" + endpoint + "\" ";
+	    final String end = endpoint;
+	    connectButton = new JButton(new AbstractAction("Open in browser") {
+		    public void actionPerformed(ActionEvent e) {
+			try {
+			    BrowserLauncher launcher = new BrowserLauncher();
+			    launcher.openURLinBrowser(end);
+			}
+			catch (Exception ex) {
+			    logger.error("Failed to open endpoint", ex);
+			}
+		    }
+		});
+	}
+	message += "in a file, or web, browser.";
+	String workedMessage = "If the browser opened the address, then alter the validation timeout in the preferences";
+	JButton preferencesButton = new JButton(new AbstractAction("Change timeout") {
+		    public void actionPerformed(ActionEvent e) {
+			T2ConfigurationFrame.showConfiguration("Validation report");
+		    }
+		});
+        String didNotWorkMessage = "Alternatively, if the browser did not open the address, try later as the service may be temporarily offline.  If the service remains offline, please contact the service provider or workflow creator.";
+    	String editMessage = null;
+	JButton editButton = null;
+	DisabledActivity da = null;
+	for (Activity a : ((Processor)vr.getSubject()).getActivityList()) {
+	    if (a instanceof DisabledActivity) {
+		da = (DisabledActivity) a;
+		break;
+	    }
+	}
+	if (da != null) {
+	    editMessage = "If the service has moved, change the service's properties to its new location.";
+	    editButton = new JButton(new DisabledActivityConfigurationAction(da, null));
+	}
+	return createPanel(new Object[] {message,
+					     connectButton,
+					     workedMessage,
+					 preferencesButton,
+					 didNotWorkMessage,
+					 editMessage,
+					 editButton});
     }
 
     private static JComponent solutionIoProblem(VisitReport vr) {
