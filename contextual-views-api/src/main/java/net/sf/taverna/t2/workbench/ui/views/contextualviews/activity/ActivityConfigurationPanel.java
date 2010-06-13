@@ -37,4 +37,6 @@ public abstract class ActivityConfigurationPanel<A extends Activity, B extends O
 	
 	public abstract boolean checkValues();
 
+    public void whenOpened() {
+    }
 }
