@@ -114,7 +114,7 @@ public class ReportOnWorkflowAction extends AbstractAction {
 			}
 			if (warningCount == 1) {
 			    message += "one warning";
-			} else {
+			} else if (warningCount > 0) {
 			    message += warningCount + " warnings";
 			}
 		}
