@@ -8,6 +8,9 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,6 +31,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.JViewport;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -45,14 +49,19 @@ import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
+import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.report.DataflowReportEvent;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.report.ReportManagerEvent;
 import net.sf.taverna.t2.workbench.report.explainer.VisitExplainer;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.NamedWorkflowEntity;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.health.RemoteHealthChecker;
 
@@ -111,9 +120,16 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
     public static String ALL_INCLUDING_IGNORED = "All";
     public static String ALL_EXCEPT_IGNORED = "All except ignored";
     
+	protected FileManager fileManager = FileManager.getInstance();
+	protected FileManagerObserver fileManagerObserver = new FileManagerObserver();
+	private DataflowSelectionManager openedWorkflowsManager = DataflowSelectionManager
+										.getInstance();
+	private Observer<DataflowSelectionMessage> workflowSelectionListener = new DataflowSelectionListener();
+
 	public ReportViewComponent() {
 		super();
 		reportManager.addObserver(new ReportManagerObserver());
+		fileManager.addObserver(fileManagerObserver);
 		initialise();
 	}
 	
@@ -127,8 +143,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	    shownReports.setSelectedIndex(1);
 	    shownReports.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent ex) {
-			showReport(FileManager.getInstance()
-					.getCurrentDataflow());
+			showReport(fileManager.getCurrentDataflow());
 		    }
 		});
 		this.setLayout(new BorderLayout());
@@ -188,7 +203,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		//		validateButtonPanel.add(quickCheckButton);
 		validateButtonPanel.add(fullCheckButton);
 		this.add(validateButtonPanel, BorderLayout.SOUTH);
-		showReport(FileManager.getInstance().getCurrentDataflow());
+		showReport(fileManager.getCurrentDataflow());
 	}
 
 	
@@ -203,7 +218,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 
 	}
 	
-    private JTable createTable(Dataflow dataflow,
+    private void createTable(Dataflow dataflow,
 			       Map<Object, Set<VisitReport>> reportEntries) {
 	reportViewTableModel = new ReportViewTableModel(dataflow,
 							reportEntries,
@@ -233,33 +248,56 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		packColumn(table, 0, TABLE_MARGIN, true);
 		packColumn(table, 1, TABLE_MARGIN, true);
 		packColumn(table, 2, TABLE_MARGIN, true);
-		packColumn(table, 3, TABLE_MARGIN, true);
+		packColumn(table, 3, TABLE_MARGIN, false);
 		packColumn(table, 4, TABLE_MARGIN, false);
-
-		return table;
 	}
 	
 	private void showReport() {
-		showReport(FileManager.getInstance().getCurrentDataflow());
+		showReport(fileManager.getCurrentDataflow());
 	}
 
 	private void showReport(final Dataflow dataflow) {
 		if (dataflow != null) {
-			dataflowName.setText(dataflow.getLocalName());
+		    String dfName = dataflow.getLocalName();
+		    if (dfName.length() > 20) {
+			dfName = dfName.substring(0,17) + "...";
+		    }
+			dataflowName.setText(dfName);
 		} else {
 			dataflowName.setText("No workflow");
 		}
 
-		table = createTable(dataflow, reportManager.getReports(dataflow));
+		createTable(dataflow, reportManager.getReports(dataflow));
 		tableScrollPane.setViewportView(table);
 		boolean found = false;
-		for (int i = 0; i < table.getRowCount(); i++) {
+		DataflowSelectionModel selectionModel =
+		    openedWorkflowsManager.getDataflowSelectionModel(fileManager.getCurrentDataflow());
+
+		Set<Object> selection = selectionModel.getSelection();
+		Object selectedObject = null;
+		if (selection.size() == 1) {
+		    selectedObject = selection.iterator().next();
+		}
+		if ((lastSelectedReport != null) && (lastSelectedReport.getSubject().equals(selectedObject))) {
+		    VisitReportProxy lastSelectedReportProxy = new VisitReportProxy(lastSelectedReport);
+		    for (int i = 0; i < table.getRowCount(); i++) {
 			VisitReport vr = reportViewTableModel.getReport(i);
-			if (vr.equals(lastSelectedReport)) {
+			VisitReportProxy vrProxy = new VisitReportProxy(vr);
+			if (vrProxy.equals(lastSelectedReportProxy)) {
 				table.setRowSelectionInterval(i, i);
 				found = true;
+				scrollToVisible(i);
 				break;
 			}
+		    }
+		    /*
+		    if (!found) {
+			found = selectSubject(lastSelectedReport.getSubject());
+		    }
+		    */
+		}
+		if ((!found) && (selectedObject != null)) {
+			found = selectSubject(selectedObject);
 		}
 		if (!found) {
 		    lastSelectedReport = null;
@@ -271,6 +309,25 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		this.revalidate();
 	}
 	
+    private boolean selectSubject(Object subject) {
+	int currentlySelected = table.getSelectedRow();
+	if (currentlySelected != -1) {
+	    Object currentSubject = reportViewTableModel.getReport(currentlySelected).getSubject();
+	    if (currentSubject == subject) {
+		return true;
+	    }
+	}
+	for (int i = 0; i < table.getRowCount(); i++) {
+	    VisitReport vr = reportViewTableModel.getReport(i);
+	    if (vr.getSubject() == subject) {
+		table.setRowSelectionInterval(i, i);
+		scrollToVisible(i);
+		return true;
+	    }
+	}
+	return false;
+    }
+
 	private void updateMessages() {
 	    JPanel explainPanel = wrapComponent(explanation);
 		explanationScrollPane.setViewportView(explainPanel);
@@ -293,8 +350,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 			Observer<ReportManagerEvent> {
 		public void notify(Observable<ReportManagerEvent> sender,
 				ReportManagerEvent event) throws Exception {
-			Dataflow currentDataflow = FileManager.getInstance()
-					.getCurrentDataflow();
+			Dataflow currentDataflow = fileManager.getCurrentDataflow();
 
 			if (event instanceof DataflowReportEvent) {
 				DataflowReportEvent dre = (DataflowReportEvent) event;
@@ -310,6 +366,11 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		}
 	}
 
+    private void scrollToVisible(int rowIndex) {
+	Rectangle rect = table.getCellRect(rowIndex, 0, true);
+	table.scrollRectToVisible(rect);
+    }
+
 	final class TableListener implements ListSelectionListener {
 		
 		public TableListener() {
@@ -318,7 +379,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		public void valueChanged(ListSelectionEvent e) {
 			int row = table.getSelectedRow();
 			if (row >= 0) {
-				DataflowSelectionModel dsm = DataflowSelectionManager.getInstance().getDataflowSelectionModel(FileManager.getInstance().getCurrentDataflow());
+				DataflowSelectionModel dsm = DataflowSelectionManager.getInstance().getDataflowSelectionModel(fileManager.getCurrentDataflow());
 				dsm.clearSelection();
 				VisitReport vr = reportViewTableModel.getReport(row);
 				final Object subject = reportViewTableModel.getSubject(row);
@@ -421,6 +482,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 
 	}
 	
+    private static Insets rightGap = new Insets(0,0,20,0);
 	private JPanel wrapComponent(JComponent c) {
 		JPanel result = new JPanel(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -430,6 +492,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.gridwidth = 2;
 		gbc.weightx = 0.9;
+		gbc.insets = rightGap;
 		result.add(c, gbc);
 		gbc.weightx = 0.9;
 		gbc.weighty = 0.9;
@@ -443,4 +506,48 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		return result;
 	}
 
+	/**
+	 * Update workflow explorer when current dataflow changes or closes.
+	 *
+	 */
+	public class FileManagerObserver implements Observer<FileManagerEvent> {
+
+		public void notify(Observable<FileManagerEvent> sender,
+				FileManagerEvent message) throws Exception {
+			
+			if (message instanceof SetCurrentDataflowEvent) { // switched the current workflow 
+
+				final Dataflow newWF = ((SetCurrentDataflowEvent) message).getDataflow(); // the newly switched to workflow
+				if (newWF != null) {
+					openedWorkflowsManager
+							.getDataflowSelectionModel(newWF)
+							.addObserver(workflowSelectionListener);
+				}
+			}	
+		}
+	}
+
+	/**
+	 * Observes events on workflow Selection Manager, i.e. when a workflow node
+	 * is selected in the graph view.
+	 */
+	private final class DataflowSelectionListener implements
+			Observer<DataflowSelectionMessage> {
+
+		public void notify(Observable<DataflowSelectionMessage> sender,
+				DataflowSelectionMessage message) throws Exception {
+
+		    DataflowSelectionModel selectionModel =
+			openedWorkflowsManager.getDataflowSelectionModel(fileManager.getCurrentDataflow());
+
+		    Set<Object> selection = selectionModel.getSelection();
+		    if (selection.size() == 1) {
+			if (!selectSubject(selection.iterator().next())) {
+			    lastSelectedReport = null;
+			    table.clearSelection();
+			}
+			
+		    }
+		}
+	}
 }
