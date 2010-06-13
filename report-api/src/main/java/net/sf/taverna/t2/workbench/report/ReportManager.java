@@ -126,11 +126,18 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		Map<Object, String> summaryEntry = summaryMap.get(d);
 		if (reportsEntry == null) {
 		    logger.error("Attempt to update reports on an object in a dataflow that has not been checked");
+		    reportsEntry = new HashMap<Object, Set<VisitReport>>();
+		    statusEntry = new HashMap<Object, Status>();
+		    summaryEntry = new HashMap<Object, String>();
+		    reportMap.put(d, reportsEntry);
+		    statusMap.put(d, statusEntry);
+		    summaryMap.put(d, summaryEntry);
 		}
-		reportsEntry.remove(o);
-		statusEntry.remove(o);
-		summaryEntry.remove(o);
-
+		else {
+		    reportsEntry.remove(o);
+		    statusEntry.remove(o);
+		    summaryEntry.remove(o);
+		}
 		// Assume o is directly inside d
 		List<Object> ancestry = new ArrayList<Object>();
 		ancestry.add(d);
