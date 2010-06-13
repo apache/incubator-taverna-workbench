@@ -31,6 +31,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.ListModel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -57,6 +58,8 @@ public class T2ConfigurationFrame extends JFrame{
 	
 	private static T2ConfigurationFrame INSTANCE;
 		
+        JList list;
+
 	public static T2ConfigurationFrame showFrame() {
 		synchronized (T2ConfigurationFrame.class) {
 			if (INSTANCE == null)
@@ -66,6 +69,19 @@ public class T2ConfigurationFrame extends JFrame{
 		return INSTANCE;
 	}
 	
+    public static void showConfiguration(String name) {
+	showFrame();
+	ListModel lm = INSTANCE.list.getModel();
+	for (int i = 0; i < lm.getSize(); i++) {
+	    Object o = lm.getElementAt(i);
+	    if (o.toString().equals(name)) {
+		INSTANCE.list.setSelectedIndex(i);
+		return;
+	    }
+	}
+    }
+
+        
 	private T2ConfigurationFrame () {
 		Helper.setKeyCatcher(this);
 		HelpCollator.registerComponent(this);
@@ -76,7 +92,7 @@ public class T2ConfigurationFrame extends JFrame{
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		splitPane.setBorder(new CompoundBorder(new EmptyBorder(10,10,10,10), new EtchedBorder()));
 	
-		JList list = getConfigurationList();
+		list = getConfigurationList();
 		JScrollPane jspList = new JScrollPane(list);
 		jspList.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.LOWERED), new EmptyBorder(5,5,5,5)));
 		jspList.setMinimumSize(new Dimension(jspList.getPreferredSize().width, jspList.getPreferredSize().height));
