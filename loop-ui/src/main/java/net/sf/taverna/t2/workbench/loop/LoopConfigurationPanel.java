@@ -388,7 +388,7 @@ public class LoopConfigurationPanel extends JPanel {
 		JLabel invokedRepeatedlyLabel = new JLabel(
 				 
 				"<html><body>The service <strong>" + processor.getLocalName() +  "</strong> " +
-						"will be invoked repeatedly <em>until</em> its output</body></html>");
+						"will be invoked repeatedly <em>until</em> its output port</body></html>");
 		invokedRepeatedlyLabel.setBorder(new EmptyBorder(10,0,10,0)); // give some top and bottom border to the label
 		configPanel.add(invokedRepeatedlyLabel, gbc);
 		gbc.ipadx = 4;
