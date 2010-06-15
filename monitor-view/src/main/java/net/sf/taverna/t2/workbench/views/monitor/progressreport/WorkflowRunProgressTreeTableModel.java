@@ -464,6 +464,9 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		DefaultMutableTreeNode node = getNodeForObject(processor);
 	
 		String dateString = (String)getValueAt(node, Column.START_TIME);
+		if (dateString == null) {
+			return null;
+		}
 		try {
 			Date date = ISO_8601_FORMAT.parse(dateString);
 			return date;

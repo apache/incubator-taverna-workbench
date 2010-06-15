@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.processor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -35,23 +36,37 @@ import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
 @SuppressWarnings("serial")
 public class ProcessorEnactmentsTreeNode extends DefaultMutableTreeNode {
 	
+	@SuppressWarnings("unused")
 	private ProcessorEnactment processorEnactment;
 	private List<Integer> iteration;
-	//private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	@SuppressWarnings("unused")
+	private List<Integer> parentIteration;
+	private List<Integer> fullIteration;
 
 	
-	public ProcessorEnactmentsTreeNode(ProcessorEnactment processorEnactment){
+	public ProcessorEnactmentsTreeNode(ProcessorEnactment processorEnactment, List<Integer> parentIteration){
 		super(processorEnactment);
 		this.processorEnactment = processorEnactment;
+		this.parentIteration = parentIteration;
 		this.iteration = ProcessorEnactmentsTreeModel.iterationToIntegerList(processorEnactment.getIteration());
+		this.fullIteration = new ArrayList<Integer>();
+		if (parentIteration != null) {
+			fullIteration.addAll(parentIteration);
+		}
+		fullIteration.addAll(iteration);
 	}
 	
 	public String toString(){
+		boolean isNested = getChildCount() > 0;
 		StringBuilder sb = new StringBuilder();		
-		if (! iteration.isEmpty()) {			
+		if (! fullIteration.isEmpty()) {			
 			// Iteration 3.1.3
-			sb.append("Iteration ");
-			for (Integer index : iteration) {				
+			if (isNested || iteration.isEmpty()) {
+				sb.append("Nested iteration ");
+			} else {
+				sb.append("Iteration ");
+			}
+			for (Integer index : fullIteration) {				
 				sb.append(index+1);
 				sb.append(".");
 			}
@@ -59,20 +74,12 @@ public class ProcessorEnactmentsTreeNode extends DefaultMutableTreeNode {
 			sb.delete(sb.length()-1, sb.length());
 		} else {
 			sb.append("Invocation");
-		}
-		
-		/* // Takes too much space 
-		 * sb.append(" (Started: ");
-		sb.append(ISO_8601.format(processorEnactment.getEnactmentStarted()));
-		if (processorEnactment.getEnactmentEnded() != null) {
-			sb.append("; Finished: ");
-			sb.append(ISO_8601.format(processorEnactment.getEnactmentEnded()));
-		} else {
-			sb.append("; Not finished");
-		}
-		sb.append(")");
-		*/
+		}		
 		return sb.toString();
+	}
+
+	public List<Integer> getFullIteration() {
+		return fullIteration;		
 	}
 
 }

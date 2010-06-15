@@ -389,7 +389,7 @@ public class RenderedResultComponent extends JPanel {
 			
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode(
 					"Error Trace");
-			ResultsUtils.buildErrorDocumentTree(root, errorDocument, context);
+			ResultsUtils.buildErrorDocumentTree(root, errorDocument, context.getReferenceService());
 
 			JTree errorTree = new JTree(root);
 			errorTree.setCellRenderer(new DefaultTreeCellRenderer() {
