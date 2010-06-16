@@ -151,7 +151,10 @@ public class WorkflowRunProgressMonitorNode implements MonitorNode{
 									sentJobs = newSentJobs;
 									sentJobsChanged = true;
 									if (!processorStarted) {
-										progressTreeTable.setProcessorStartDate(processor, new Date());
+										if (progressTreeTable.getProcessorStartDate(processor) == null) {
+											// Don't override it if already set
+											progressTreeTable.setProcessorStartDate(processor, new Date());
+										}
 										// When we pause the run, sometimes we still get the event that
 										// processor's sentJobs changed so the status will change to running
 										// after the wf was paused which is not what we want.
