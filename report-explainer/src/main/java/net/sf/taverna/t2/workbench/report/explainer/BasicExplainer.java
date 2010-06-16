@@ -50,6 +50,7 @@ import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Merge;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
+import net.sf.taverna.t2.workflowmodel.TokenProcessingEntity;
 import net.sf.taverna.t2.workflowmodel.health.HealthCheck;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
@@ -632,7 +633,7 @@ public class BasicExplainer implements VisitExplainer {
 	String message = "";
 	Dataflow currentDataflow = FileManager.getInstance().getCurrentDataflow();
 	Tools.ProcessorSplit ps = Tools.splitProcessors(currentDataflow.getProcessors(),
-						 (Processor) (vr.getSubject()));
+						 (TokenProcessingEntity) (vr.getSubject()));
 	Set<Processor> upStream = ps.getUpStream();
 	ReportManager rm = ReportManager.getInstance();
 	boolean plural = false;
