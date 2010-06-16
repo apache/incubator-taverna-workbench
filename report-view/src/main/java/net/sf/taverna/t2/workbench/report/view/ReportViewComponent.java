@@ -414,30 +414,23 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 			    try {
 				explanation = ve.getExplanation(vr);
 			    }
-			    catch (ClassCastException e) {
+			    catch (Exception e) {
 				logger.error("Error creating explanation", e);
 				explanation = null;
 			    }
-			    catch (NullPointerException e) {
-				logger.error("Error creating explanation", e);
-				explanation = null;
+			    if (explanation == null) {
+				explanation = defaultExplanation;
 			    }
-				if (explanation == null) {
-					explanation = defaultExplanation;
-				}
-				try {
-				    solution = ve.getSolution(vr);
-				} catch (ClassCastException e) {
-				    logger.error("Error creating soluttion", e);
-				    solution = null;
-				} catch (NullPointerException e) {
-				    logger.error("Error creating soluttion", e);
-				    solution = null;
-				}
-				if (solution == null) {
-					solution = defaultSolution;
-				}
-				return;
+			    try {
+				solution = ve.getSolution(vr);
+			    } catch (Exception e) {
+				logger.error("Error creating soluttion", e);
+				solution = null;
+			    }
+			    if (solution == null) {
+				solution = defaultSolution;
+			    }
+			    return;
 			}
 		}
 		explanation = defaultExplanation;
@@ -494,6 +487,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		gbc.weightx = 0.9;
 		gbc.insets = rightGap;
 		result.add(c, gbc);
+		c.setBackground(SystemColor.text);
 		gbc.weightx = 0.9;
 		gbc.weighty = 0.9;
 		gbc.gridx = 0;
@@ -502,6 +496,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		gbc.fill = GridBagConstraints.BOTH;
 		JPanel filler = new JPanel();
 		filler.setBackground(SystemColor.text);
+		result.setBackground(SystemColor.text);
 		result.add(filler, gbc);
 		return result;
 	}
