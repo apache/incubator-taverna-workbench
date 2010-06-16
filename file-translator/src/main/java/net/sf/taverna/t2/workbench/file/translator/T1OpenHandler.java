@@ -142,11 +142,7 @@ public class T1OpenHandler extends AbstractDataflowPersistenceHandler implements
 	public DataflowInfo openDataflow(FileType fileType, Object source)
 			throws OpenException {
 	    DataflowInfo result = null;
-	    try {
-		result = openDataflowInMode(fileType, source, false);
-	    } catch (OpenException e) {
-		result = openDataflowInMode(fileType, source, true);
-	    }
+	    result = openDataflowInMode(fileType, source, false);
 	    return result;
 	}
 
