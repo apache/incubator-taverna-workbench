@@ -48,9 +48,11 @@ public class ProcessorEnactmentsTreeModel extends DefaultTreeModel{
 	private Map<ProcessorEnactment, ProcessorEnactmentsTreeNode> processorEnactments = new ConcurrentHashMap<ProcessorEnactment, ProcessorEnactmentsTreeNode>();
 	private Map<String, ProcessorEnactment> processorEnactmentsById = new ConcurrentHashMap<String, ProcessorEnactment>();
 	private static Logger logger = Logger.getLogger(ProcessorEnactmentsTreeModel.class);
+	private final Set<ProcessorEnactment> enactmentsWithErrorOutputs;
 	
-	public ProcessorEnactmentsTreeModel(Set<ProcessorEnactment> enactmentsGotSoFar){
-		super(new DefaultMutableTreeNode("Invocations of processor"));		
+	public ProcessorEnactmentsTreeModel(Set<ProcessorEnactment> enactmentsGotSoFar, Set<ProcessorEnactment> enactmentsWithErrorOutputs){
+		super(new DefaultMutableTreeNode("Invocations of processor"));
+		this.enactmentsWithErrorOutputs = enactmentsWithErrorOutputs;		
 		update(enactmentsGotSoFar);
 	}
 
@@ -64,7 +66,7 @@ public class ProcessorEnactmentsTreeModel extends DefaultTreeModel{
 		}
 		
 	}
-
+	
 	public ProcessorEnactmentsTreeNode addProcessorEnactment(ProcessorEnactment processorEnactment) {
 		ProcessorEnactmentsTreeNode treeNode = processorEnactments.get(processorEnactment);
 		if (treeNode != null) {
@@ -83,11 +85,11 @@ public class ProcessorEnactmentsTreeModel extends DefaultTreeModel{
 			} else {
 				// Use treenode parent instead
 				parentNode = addProcessorEnactment(parentProc);
-				parentIteration = ((ProcessorEnactmentsTreeNode)parentNode).getFullIteration();
+				parentIteration = ((ProcessorEnactmentsTreeNode)parentNode).getIteration();
 			}
 		}
 		
-		DefaultMutableTreeNode nodeToReplace = getNodeFor(parentNode, iteration, "Iteration ");
+		DefaultMutableTreeNode nodeToReplace = getNodeFor(parentNode, iteration);
 		DefaultMutableTreeNode iterationParent = (DefaultMutableTreeNode) nodeToReplace.getParent();
 		int position;
 		if (iterationParent == null) {
@@ -102,7 +104,7 @@ public class ProcessorEnactmentsTreeModel extends DefaultTreeModel{
 			removeNodeFromParent(nodeToReplace);
 		} 
 		
-		ProcessorEnactmentsTreeNode newNode = new ProcessorEnactmentsTreeNode(processorEnactment, parentIteration);
+		ProcessorEnactmentsTreeNode newNode = new ProcessorEnactmentsTreeNode(processorEnactment, parentIteration, enactmentsWithErrorOutputs.contains(processorEnactment));
 		insertNodeInto(newNode, iterationParent, position);
 		processorEnactments.put(processorEnactment, newNode);
 		return newNode;
@@ -127,28 +129,22 @@ public class ProcessorEnactmentsTreeModel extends DefaultTreeModel{
 		return (DefaultMutableTreeNode) super.getRoot();
 	}
 	
-	private DefaultMutableTreeNode getNodeFor(DefaultMutableTreeNode node, List<Integer> iteration, String prefix) {
+	private DefaultMutableTreeNode getNodeFor(DefaultMutableTreeNode node, List<Integer> iteration) {
 		if (iteration.isEmpty()) {
 			return node;
 		}
 		int childPos = iteration.get(0);
-		int needChildren = childPos+1;
-		String newPrefix = prefix;
-		if (! (prefix.endsWith(" ") || prefix.equals(""))) {
-			// Not for the initial prefix
-			newPrefix = newPrefix + ".";
-		}
-		while (node.getChildCount() < needChildren) {
-			DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(newPrefix + (node.getChildCount()+1));
+		int needChildren = childPos+1;	
+		while (node.getChildCount() < needChildren) {			
+			DefaultMutableTreeNode newChild = new IterationTreeNode(iteration);
 			insertNodeInto(newChild, node, node.getChildCount());
 		}
 		DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(childPos);
 	
 		// Iteration 3.1.3
-		newPrefix = newPrefix + (childPos+1); 
 //		if (iteration.size() > 1) {
 			// Recurse next iteration levels
-			return getNodeFor(child, iteration.subList(1, iteration.size()), newPrefix);
+			return getNodeFor(child, iteration.subList(1, iteration.size()));
 //		}
 //		return child;
 	}

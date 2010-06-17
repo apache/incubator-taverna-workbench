@@ -21,6 +21,8 @@
 package net.sf.taverna.t2.workbench.views.results.processor;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -50,6 +52,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -142,9 +145,10 @@ public class ProcessorResultsComponent extends JPanel {
 	// view of the data. Tree is only created on demand - i.e. when user selects
 	// a particular
 	// enactment and a specific port.
-	HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> enactmentsToInputPortData;
-	HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> enactmentsToOutputPortData;
-
+	protected HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> enactmentsToInputPortData;
+	protected HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> enactmentsToOutputPortData;
+	protected Set<ProcessorEnactment> enactmentsWithErrorOutputs = Collections.synchronizedSet(new HashSet<ProcessorEnactment>()); 
+	
 	private JLabel iterationLabel;
 
 	private String processorId = null;
@@ -221,6 +225,7 @@ public class ProcessorResultsComponent extends JPanel {
 		// Create enactment to (port, t2ref, tree) lists maps.
 		enactmentsToInputPortData = new HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>>();
 		enactmentsToOutputPortData = new HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>>();
+		
 		// Populate the above maps with data obtained from provenance.
 		populateEnactmentsMaps();
 
@@ -267,7 +272,7 @@ public class ProcessorResultsComponent extends JPanel {
 		}
 
 		processorEnactmentsTreeModel = new ProcessorEnactmentsTreeModel(
-				enactmentsGotSoFar);
+				enactmentsGotSoFar, enactmentsWithErrorOutputs);
 		processorEnactmentsTree = new JTree(processorEnactmentsTreeModel);
 		processorEnactmentsTree.setRootVisible(false);
 		processorEnactmentsTree.getSelectionModel().setSelectionMode(
@@ -281,6 +286,24 @@ public class ProcessorResultsComponent extends JPanel {
 						setDataTreeForResultTab();
 					}
 				});
+		processorEnactmentsTree.setCellRenderer(new DefaultTreeCellRenderer() {
+			public Component getTreeCellRendererComponent(JTree tree, Object value,
+					boolean selected, boolean expanded, boolean leaf, int row,
+					boolean hasFocus) {
+				super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
+				if (value instanceof IterationTreeNode) {
+					IterationTreeNode iterationTreeNode = (IterationTreeNode) value;
+					if (iterationTreeNode.hasErrors()) {
+						setForeground(Color.RED);
+					}
+					if (value instanceof ProcessorEnactmentsTreeNode && iterationTreeNode.getChildCount() > 0) {
+						// Disabled, Alan prefers the folder
+						// setIcon(WorkbenchIcons.workflowExplorerIcon);
+					}
+				}
+				return this;
+			}
+		});
 
 		// Register a tab change listener
 		tabbedPane.addChangeListener(new ChangeListener() {
@@ -335,18 +358,22 @@ public class ProcessorResultsComponent extends JPanel {
 																				// initially
 			TreePath selectedPath = processorEnactmentsTree.getSelectionModel()
 					.getSelectionPath();
-			if (!(selectedPath.getLastPathComponent() instanceof ProcessorEnactmentsTreeNode)) {
+			Object lastPathComponent = selectedPath.getLastPathComponent();
+			if (!(lastPathComponent instanceof ProcessorEnactmentsTreeNode)) {
 				selectedResultTab.setResultsTree(null);
+				iterationLabel.setText(lastPathComponent + " containing " 
+						+ ((DefaultMutableTreeNode)lastPathComponent).getLeafCount() + " iterations");
 				return;
 			}
-			ProcessorEnactmentsTreeNode lastPathComponent = (ProcessorEnactmentsTreeNode) selectedPath
-					.getLastPathComponent();
-			ProcessorEnactment processorEnactment = (ProcessorEnactment) lastPathComponent
+			ProcessorEnactmentsTreeNode procEnactmentTreeNode = (ProcessorEnactmentsTreeNode) lastPathComponent;
+			ProcessorEnactment processorEnactment = (ProcessorEnactment) procEnactmentTreeNode
 					.getUserObject();
 
 			if (! processorEnactment.getProcessorId().equals(processorId)) {
 				// It's not our processor, must be a nested workflow iteration
 				selectedResultTab.setResultsTree(null);
+				iterationLabel.setText(procEnactmentTreeNode + " containing " 
+						+ procEnactmentTreeNode.getLeafCount() + " iterations");
 				return;
 			}
 
@@ -354,7 +381,7 @@ public class ProcessorResultsComponent extends JPanel {
 			StringBuffer iterationLabelText = new StringBuffer();
 			// Use <html> so we can match font metrics of titleJLabel
 			iterationLabelText.append("<html><body>");
-			iterationLabelText.append(lastPathComponent);
+			iterationLabelText.append(procEnactmentTreeNode);
 			Timestamp started = processorEnactment.getEnactmentStarted();
 			Timestamp ended = processorEnactment.getEnactmentEnded();
 			if (started != null) {
@@ -365,7 +392,11 @@ public class ProcessorResultsComponent extends JPanel {
 				if (started != null) {
 					iterationLabelText.append(", ");
 				}
-				iterationLabelText.append(" ended ");
+				if (procEnactmentTreeNode.containsErrorsInOutputs()) {
+					iterationLabelText.append(" <font color='red'>failed</font> ");
+				} else {
+					iterationLabelText.append(" ended ");
+				}
 				iterationLabelText.append(ISO_8601.format(ended));
 			}
 			if (started != null && ended != null) {
@@ -573,15 +604,17 @@ public class ProcessorResultsComponent extends JPanel {
 					 * user clicks on particular enactment/iteration node).
 					 */
 					ArrayList<Object> dataOnPortList = new ArrayList<Object>();
-					dataOnPortList.add(entry.getKey()); // port
-					dataOnPortList.add(entry.getValue()); // t2Ref
+					Port port = entry.getKey();
+					dataOnPortList.add(port); // port
+					T2Reference t2Reference = entry.getValue();
+					dataOnPortList.add(t2Reference); // t2Ref
 					dataOnPortList.add(null);
 					/*
 					 * tree (will be populated when a user clicks on this
 					 * iteration and this port tab is selected)
 					 */
 
-					if (entry.getKey().isInputPort()) { // Input port
+					if (port.isInputPort()) { // Input port
 						// Have we already created an entry for this enactment
 						// in the map for input ports?
 						// If not - create one now.
@@ -599,6 +632,11 @@ public class ProcessorResultsComponent extends JPanel {
 						enactmentsToInputPortData.put(processorEnactment,
 								listOfPortDataLists);
 					} else { // output port
+						
+						if (t2Reference.containsErrors()) {
+							enactmentsWithErrorOutputs.add(processorEnactment);
+						}
+						
 						// Have we already created an entry for this enactment
 						// in the map for output ports?
 						// If not - create one now.

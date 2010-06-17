@@ -23,8 +23,6 @@ package net.sf.taverna.t2.workbench.views.results.processor;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-
 import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
 
 /**
@@ -34,52 +32,71 @@ import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
  *
  */
 @SuppressWarnings("serial")
-public class ProcessorEnactmentsTreeNode extends DefaultMutableTreeNode {
+public class ProcessorEnactmentsTreeNode extends IterationTreeNode {
 	
-	@SuppressWarnings("unused")
+	private List<Integer> myIteration = new ArrayList<Integer>();
+	private List<Integer> parentIteration = new ArrayList<Integer>();
+
 	private ProcessorEnactment processorEnactment;
-	private List<Integer> iteration;
-	@SuppressWarnings("unused")
-	private List<Integer> parentIteration;
-	private List<Integer> fullIteration;
+	private final boolean containsErrorsInOutputs;
 
-	
-	public ProcessorEnactmentsTreeNode(ProcessorEnactment processorEnactment, List<Integer> parentIteration){
-		super(processorEnactment);
-		this.processorEnactment = processorEnactment;
+	public ProcessorEnactmentsTreeNode(ProcessorEnactment processorEnactment, List<Integer> parentIteration, boolean containsErrorsInOutputs){
+		super();
+		this.containsErrorsInOutputs = containsErrorsInOutputs;
+		setUserObject(processorEnactment);
 		this.parentIteration = parentIteration;
-		this.iteration = ProcessorEnactmentsTreeModel.iterationToIntegerList(processorEnactment.getIteration());
-		this.fullIteration = new ArrayList<Integer>();
-		if (parentIteration != null) {
-			fullIteration.addAll(parentIteration);
-		}
-		fullIteration.addAll(iteration);
+		setProcessorEnactment(processorEnactment);		
 	}
 	
-	public String toString(){
-		boolean isNested = getChildCount() > 0;
-		StringBuilder sb = new StringBuilder();		
-		if (! fullIteration.isEmpty()) {			
-			// Iteration 3.1.3
-			if (isNested || iteration.isEmpty()) {
-				sb.append("Nested iteration ");
-			} else {
-				sb.append("Iteration ");
-			}
-			for (Integer index : fullIteration) {				
-				sb.append(index+1);
-				sb.append(".");
-			}
-			// Remove last .
-			sb.delete(sb.length()-1, sb.length());
-		} else {
-			sb.append("Invocation");
-		}		
-		return sb.toString();
+	public boolean hasErrors() {
+		if (getChildCount() > 0) {
+			return super.hasErrors();
+		}
+		return containsErrorsInOutputs();
+		
 	}
 
-	public List<Integer> getFullIteration() {
-		return fullIteration;		
+
+
+	protected void updateFullIteration() {
+		List<Integer> fullIteration = new ArrayList<Integer>();
+		if (getParentIteration() != null) {
+			fullIteration.addAll(getParentIteration());
+		}
+		fullIteration.addAll(getMyIteration());
+		setIteration(fullIteration);
 	}
+
+	public final List<Integer> getMyIteration() {
+		return myIteration;
+	}
+
+	public final List<Integer> getParentIteration() {
+		return parentIteration;
+	}
+
+	public final ProcessorEnactment getProcessorEnactment() {
+		return processorEnactment;
+	}
+
+	public final void setMyIteration(List<Integer> myIteration) {
+		this.myIteration = myIteration;
+		updateFullIteration();
+	}
+	
+	public final void setParentIteration(List<Integer> parentIteration) {
+		this.parentIteration = parentIteration;
+		updateFullIteration();
+	}
+	
+	public final void setProcessorEnactment(ProcessorEnactment processorEnactment) {
+		this.processorEnactment = processorEnactment;
+		setMyIteration(ProcessorEnactmentsTreeModel.iterationToIntegerList(processorEnactment.getIteration()));
+	}
+
+	public boolean containsErrorsInOutputs() {
+		return containsErrorsInOutputs;
+	}
+	
 
 }
