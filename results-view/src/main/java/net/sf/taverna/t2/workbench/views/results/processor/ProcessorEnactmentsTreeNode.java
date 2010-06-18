@@ -38,12 +38,16 @@ public class ProcessorEnactmentsTreeNode extends IterationTreeNode {
 	private List<Integer> parentIteration = new ArrayList<Integer>();
 
 	private ProcessorEnactment processorEnactment;
-	private final boolean containsErrorsInOutputs;
+	private boolean containsErrorsInOutputs;
+
+
+	public final void setContainsErrorsInOutputs(boolean containsErrorsInOutputs) {
+		this.containsErrorsInOutputs = containsErrorsInOutputs;
+	}
 
 	public ProcessorEnactmentsTreeNode(ProcessorEnactment processorEnactment, List<Integer> parentIteration, boolean containsErrorsInOutputs){
 		super();
 		this.containsErrorsInOutputs = containsErrorsInOutputs;
-		setUserObject(processorEnactment);
 		this.parentIteration = parentIteration;
 		setProcessorEnactment(processorEnactment);		
 	}
@@ -76,7 +80,7 @@ public class ProcessorEnactmentsTreeNode extends IterationTreeNode {
 	}
 
 	public final ProcessorEnactment getProcessorEnactment() {
-		return processorEnactment;
+		return (ProcessorEnactment) getUserObject();
 	}
 
 	public final void setMyIteration(List<Integer> myIteration) {
@@ -90,7 +94,7 @@ public class ProcessorEnactmentsTreeNode extends IterationTreeNode {
 	}
 	
 	public final void setProcessorEnactment(ProcessorEnactment processorEnactment) {
-		this.processorEnactment = processorEnactment;
+		setUserObject(processorEnactment);
 		setMyIteration(ProcessorEnactmentsTreeModel.iterationToIntegerList(processorEnactment.getIteration()));
 	}
 

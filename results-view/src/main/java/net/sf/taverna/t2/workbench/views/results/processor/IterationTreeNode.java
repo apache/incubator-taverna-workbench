@@ -69,7 +69,11 @@ public class IterationTreeNode extends DefaultMutableTreeNode {
 			if (isNested) {
 				sb.append("Nested iteration ");
 			} else {
-				sb.append("Iteration ");
+				if (getUserObject() == null) {
+					sb.append("Waiting for iteration ");
+				} else {
+					sb.append("Iteration ");
+				}
 			}
 			for (Integer index : getIteration()) {				
 				sb.append(index+1);

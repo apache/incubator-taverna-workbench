@@ -145,8 +145,10 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 			if (workflowObject instanceof Processor) {
 				Processor processor = (Processor) workflowObject;
 				processorInvocationTimes.put(processor, new ArrayList<Long>());
+				WorkflowRunProgressMonitorNode parentMonitorNode = findParentMonitorNode(owningProcess);
+				
 				WorkflowRunProgressMonitorNode monitorNode = new WorkflowRunProgressMonitorNode(
-						processor, owningProcess, properties, progressTreeTable, facade);
+						processor, owningProcess, properties, progressTreeTable, facade, parentMonitorNode);
 				synchronized(processorMonitorNodes) {
 					processorMonitorNodes.put(owningProcessId, monitorNode);
 				}
@@ -188,6 +190,24 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 		}
 	}
 	
+	private WorkflowRunProgressMonitorNode findParentMonitorNode(
+			String[] owningProcess) {
+		List<String> parentOwningProcess = Arrays.asList(owningProcess);
+		while (!parentOwningProcess.isEmpty()) {
+			// Remove last element
+			parentOwningProcess = parentOwningProcess.subList(0, parentOwningProcess.size()-1);
+			String parentId = getOwningProcessId(parentOwningProcess);
+			synchronized (processorMonitorNodes) {
+				WorkflowRunProgressMonitorNode parentNode = processorMonitorNodes
+						.get(parentId);
+				if (parentNode != null) {
+					return parentNode;
+				}
+			}
+		}
+		return null;
+	}
+
 	public void deregisterNode(String[] owningProcess) {
 		if (owningProcess[0].equals(filter)) {
 			final String owningProcessId = getOwningProcessId(owningProcess);

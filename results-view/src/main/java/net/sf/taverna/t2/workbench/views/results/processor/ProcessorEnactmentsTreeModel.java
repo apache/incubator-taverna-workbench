@@ -70,6 +70,11 @@ public class ProcessorEnactmentsTreeModel extends DefaultTreeModel{
 	public ProcessorEnactmentsTreeNode addProcessorEnactment(ProcessorEnactment processorEnactment) {
 		ProcessorEnactmentsTreeNode treeNode = processorEnactments.get(processorEnactment);
 		if (treeNode != null) {
+			if (treeNode.getProcessorEnactment() != processorEnactment) {
+				// Update it
+				treeNode.setProcessorEnactment(processorEnactment);				
+			}	
+			treeNode.setContainsErrorsInOutputs(enactmentsWithErrorOutputs.contains(processorEnactment));
 			return treeNode;
 		}
 		
@@ -89,11 +94,11 @@ public class ProcessorEnactmentsTreeModel extends DefaultTreeModel{
 			}
 		}
 		
-		DefaultMutableTreeNode nodeToReplace = getNodeFor(parentNode, iteration);
+		DefaultMutableTreeNode nodeToReplace = getNodeFor(parentNode, iteration, parentIteration);
 		DefaultMutableTreeNode iterationParent = (DefaultMutableTreeNode) nodeToReplace.getParent();
 		int position;
 		if (iterationParent == null) {
-			// It is the root, insert as first child
+			// nodeToReplace is the root, insert as first child
 			iterationParent = getRoot();
 			position = 0;
 		} else {
@@ -129,22 +134,29 @@ public class ProcessorEnactmentsTreeModel extends DefaultTreeModel{
 		return (DefaultMutableTreeNode) super.getRoot();
 	}
 	
-	private DefaultMutableTreeNode getNodeFor(DefaultMutableTreeNode node, List<Integer> iteration) {
-		if (iteration.isEmpty()) {
+	private DefaultMutableTreeNode getNodeFor(DefaultMutableTreeNode node, List<Integer> remainingIteration, List<Integer> parentIteration) {
+		if (remainingIteration.isEmpty()) {
 			return node;
-		}
-		int childPos = iteration.get(0);
+		}		
+		if (parentIteration == null) {
+			parentIteration = new ArrayList<Integer>();
+		} 		
+		int childPos = remainingIteration.get(0);		
 		int needChildren = childPos+1;	
-		while (node.getChildCount() < needChildren) {			
-			DefaultMutableTreeNode newChild = new IterationTreeNode(iteration);
+		while (node.getChildCount() < needChildren) {
+			List<Integer> childIteration = new ArrayList<Integer>(parentIteration);
+			childIteration.add(node.getChildCount());			
+			DefaultMutableTreeNode newChild = new IterationTreeNode(childIteration);
 			insertNodeInto(newChild, node, node.getChildCount());
 		}
 		DefaultMutableTreeNode child = (DefaultMutableTreeNode) node.getChildAt(childPos);
 	
+		List<Integer> childIteration = new ArrayList<Integer>(parentIteration);
+		childIteration.add(childPos);
 		// Iteration 3.1.3
 //		if (iteration.size() > 1) {
 			// Recurse next iteration levels
-			return getNodeFor(child, iteration.subList(1, iteration.size()));
+			return getNodeFor(child, remainingIteration.subList(1, remainingIteration.size()), childIteration);
 //		}
 //		return child;
 	}
