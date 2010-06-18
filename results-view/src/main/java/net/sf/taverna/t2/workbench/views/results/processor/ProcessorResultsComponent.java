@@ -200,7 +200,7 @@ public class ProcessorResultsComponent extends JPanel {
 				updateTimer.cancel();
 			} catch (IllegalStateException ex) { // task seems already cancelled
 				logger.warn("Cannot cancel task: " + updateTimer.toString()
-						+ ".Task already seems cancelled", ex);
+						+ ". Task already seems cancelled", ex);
 			}
 		}
 	}

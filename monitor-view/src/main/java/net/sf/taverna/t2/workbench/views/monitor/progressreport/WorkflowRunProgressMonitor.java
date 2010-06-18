@@ -82,7 +82,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	// Map from invocation process ID to start time
 	private static Map<String, Date> activitityInvocationStartTimes = Collections.synchronizedMap(new HashMap<String, Date>());
 	
-	private static Map<String, List<Long>> processorInvocationTimes = Collections.synchronizedMap(new HashMap<String, List<Long>>());
+	private static Map<Processor, List<Long>> processorInvocationTimes = Collections.synchronizedMap(new HashMap<Processor, List<Long>>());
 	
 	//private Map<String, ResultListener> resultListeners = new HashMap<String, ResultListener>();
 
@@ -143,8 +143,8 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 			String owningProcessId = getOwningProcessId(owningProcess);
 			workflowObjects.put(owningProcessId, workflowObject);
 			if (workflowObject instanceof Processor) {
-				processorInvocationTimes.put(owningProcessId, new ArrayList<Long>());
 				Processor processor = (Processor) workflowObject;
+				processorInvocationTimes.put(processor, new ArrayList<Long>());
 				WorkflowRunProgressMonitorNode monitorNode = new WorkflowRunProgressMonitorNode(
 						processor, owningProcess, properties, progressTreeTable, facade);
 				synchronized(processorMonitorNodes) {
@@ -208,11 +208,6 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				total = (total == 0) ? 1 : total;
 				progressTreeTable.setProcessorFinishDate(((Processor) workflowObject), processorFinishDate);
 				progressTreeTable.setProcessorStatus(((Processor) workflowObject), STATUS_FINISHED);
-				if (processorStartTime != null && processorInvocationTimes.remove(owningProcessId) == null){
-					// Should not really be needed anymore
-					long averageInvocationTime = (processorFinishDate.getTime() - processorStartTime.getTime())/total;
-					progressTreeTable.setProcessorAverageInvocationTime(((Processor) workflowObject), averageInvocationTime);
-				}
 			} else if (workflowObject instanceof Dataflow) {
 				if (owningProcess.length == 2) {
 					// outermost dataflow finished so schedule a task to cancel
@@ -275,7 +270,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 					Processor processor = (Processor) parentObject;
 					if (startTime != null) {
 						long invocationTime = endTime.getTime() - startTime.getTime();						
-						List<Long> invocationTimes = processorInvocationTimes.get(parentProcessId);
+						List<Long> invocationTimes = processorInvocationTimes.get(processor);
 						invocationTimes.add(invocationTime);
 						long totalTime = 0;
 						for (Long time : invocationTimes) {
