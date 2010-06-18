@@ -27,8 +27,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -112,7 +114,6 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     
 	// Table data (maps workflow element nodes to column data associated with them)
 	private Map<DefaultMutableTreeNode, List<Object>> data = new HashMap<DefaultMutableTreeNode, List<Object>>();;
-		
 	private DefaultMutableTreeNode rootNode;
 	
 	private Dataflow dataflow;
@@ -122,11 +123,14 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	private String workflowRunId;
 	private ProvenanceAccess provenanceAccess;
 	
+    private Set<Processor> processors;
+
  	public WorkflowRunProgressTreeTableModel(Dataflow dataflow) {
 
 		super(new DefaultMutableTreeNode(dataflow));	
 		rootNode = (DefaultMutableTreeNode) this.getRoot();
 		this.dataflow = dataflow;
+		processors = new HashSet<Processor>();
 		createTree(dataflow, rootNode);	
 	}
 
@@ -200,6 +204,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		List<Processor> processorsList = new ArrayList<Processor>(df.getProcessors());
 		Collections.sort(processorsList, namedWorkflowEntitiyComparator);
 		for (Processor processor : processorsList){
+		    processors.add(processor);
 			DefaultMutableTreeNode processorNode = new DefaultMutableTreeNode(processor);
 			List<Object> processorData = new ArrayList<Object>(Collections.nCopies(Column.values().length, null));
 			processorData.set(Column.NAME.ordinal(), processor.getLocalName()); // name
@@ -379,8 +384,12 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	@Override
 	public void setValueAt(Object aValue, Object node, int column) {
 		data.get(node).set(column, aValue);
-		this.fireTreeNodesChanged(node, ((DefaultMutableTreeNode)node).getPath(), null, null);
+		//		this.fireTreeNodesChanged(node, ((DefaultMutableTreeNode)node).getPath(), null, null);
 	}
+
+    public void refresh() {
+	this.fireTreeNodesChanged(getRoot(), ((DefaultMutableTreeNode)(getRoot())).getPath(), null, null);
+    }
 
 	public void setValueAt(Object aValue, Object node, Column column) {
 		setValueAt(aValue, node, column.ordinal());
@@ -444,7 +453,10 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		 return null;
 	}
 
-	
+    public Set<Processor> getProcessors() {
+	return Collections.unmodifiableSet(processors);
+    }
+
 	public Date getProcessorStartDate(Processor processor) {
 		// First get the node for object
 		DefaultMutableTreeNode node = getNodeForObject(processor);	

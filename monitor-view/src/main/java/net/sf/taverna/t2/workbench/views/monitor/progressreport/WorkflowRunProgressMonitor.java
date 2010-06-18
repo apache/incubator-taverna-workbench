@@ -67,7 +67,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	
 	private static long deregisterDelay = 1000;
 
-	private static long monitorRate = 300;
+	private static long monitorRate = 1000;
 
 	private final WorkflowRunProgressTreeTable progressTreeTable;
 
@@ -341,6 +341,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				for (WorkflowRunProgressMonitorNode node : nodes) {
 					node.update();
 				}
+				progressTreeTable.refreshTable();
 			} catch (RuntimeException ex) {
 				logger.error("UpdateTask update failed", ex);
 			}

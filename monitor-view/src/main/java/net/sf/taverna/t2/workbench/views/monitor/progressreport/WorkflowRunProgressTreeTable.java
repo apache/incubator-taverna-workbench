@@ -2,10 +2,15 @@ package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
 import static net.sf.taverna.t2.workbench.views.results.processor.ProcessorResultsComponent.formatMilliseconds;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Date;
 import java.util.List;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.SwingUtilities;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
@@ -17,8 +22,13 @@ import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
 import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressTreeTableModel.Column;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
+import org.apache.log4j.Logger;
+
 @SuppressWarnings("serial")
 public class WorkflowRunProgressTreeTable extends JTreeTable implements Observable<WorkflowObjectSelectionMessage>{
+
+	private static Logger logger = Logger
+			.getLogger(WorkflowRunProgressTreeTable.class);
 
 	private WorkflowRunProgressTreeTableModel treeTableModel;
 
@@ -31,11 +41,13 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 	// events - mouse click, key press or mouse click on the progress run graph.
 	private int lastSelectedTableRow = -1;
 
+	private Runnable refreshRunnable = null;
 	public WorkflowRunProgressTreeTable(WorkflowRunProgressTreeTableModel treeTableModel) {
 		super(treeTableModel);
 		
 		this.treeTableModel = treeTableModel;
 
+		final WorkflowRunProgressTreeTableModel model = treeTableModel;
 		this.tree.setCellRenderer(new WorkflowRunProgressTreeCellRenderer());
 		this.tree.setEditable(false);
 		this.tree.setExpandsSelectedPaths(true);
@@ -44,7 +56,25 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 		
 		getTableHeader().setReorderingAllowed(false);
 		//getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		
+
+		refreshRunnable = new Runnable() {
+			public void run() {
+			    model.refresh();
+			}
+		    };
+
+	}
+
+	public void refreshTable() {
+	    try {
+		SwingUtilities.invokeAndWait(refreshRunnable);
+	    }
+	    catch (InterruptedException e) {
+		logger.error("refresh of table interrupted", e);
+	    }
+	    catch (InvocationTargetException e) {
+		logger.error("invocation of table refresh failed", e);
+	    }
 	}
 
 	public void setWorkflowStatus(String status) {	
@@ -155,7 +185,7 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 	public void setWorkflowCancelled() {
 
 		setWorkflowStatus(WorkflowRunProgressTreeTableModel.STATUS_CANCELLED);
-		for (Processor processor : treeTableModel.getDataflow().getProcessors()){
+		for (Processor processor : treeTableModel.getProcessors()){
 			if (!treeTableModel.getProcessorStatus(processor).equals(WorkflowRunProgressTreeTableModel.STATUS_FINISHED)){
 				setProcessorStatus(processor, WorkflowRunProgressTreeTableModel.STATUS_CANCELLED);
 			}
@@ -166,7 +196,7 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 	public void setWorkflowPaused() {
 
 		setWorkflowStatus(WorkflowRunProgressTreeTableModel.STATUS_PAUSED);
-		for (Processor processor : treeTableModel.getDataflow().getProcessors()){
+		for (Processor processor : treeTableModel.getProcessors()){
 			if (treeTableModel.getProcessorStatus(processor).equals(WorkflowRunProgressTreeTableModel.STATUS_RUNNING) ||
 					treeTableModel.getProcessorStatus(processor).equals(WorkflowRunProgressTreeTableModel.STATUS_PENDING)){
 				setProcessorStatus(processor, WorkflowRunProgressTreeTableModel.STATUS_PAUSED);
@@ -178,7 +208,7 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 	public void setWorkflowResumed() {
 
 		setWorkflowStatus(WorkflowRunProgressTreeTableModel.STATUS_RUNNING);
-		for (Processor processor : treeTableModel.getDataflow().getProcessors()){
+		for (Processor processor : treeTableModel.getProcessors()){
 			if (treeTableModel.getProcessorStatus(processor).equals(WorkflowRunProgressTreeTableModel.STATUS_PAUSED)){
 				if (treeTableModel.getProcessorNumberOfIterationsDoneSoFar(processor) == 0 &&
 						treeTableModel.getProcessorNumberOfQueuedIterations(processor) == 0){
