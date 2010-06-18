@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -125,11 +126,11 @@ public class ProcessorResultsComponent extends JPanel {
 	boolean resultsUpdateNeeded = false;
 
 	// Enactments received for this processor
-	private Set<ProcessorEnactment> enactmentsGotSoFar = new HashSet<ProcessorEnactment>();
-	private Set<String> enactmentIdsGotSoFar = new HashSet<String>();
+	private Set<ProcessorEnactment> enactmentsGotSoFar = Collections.synchronizedSet(new HashSet<ProcessorEnactment>());
+	private Set<String> enactmentIdsGotSoFar = Collections.synchronizedSet(new HashSet<String>());
 
-	private HashMap<String, ProcessorPortResultsViewTab> inputPortTabMap = new HashMap<String, ProcessorPortResultsViewTab>();
-	private HashMap<String, ProcessorPortResultsViewTab> outputPortTabMap = new HashMap<String, ProcessorPortResultsViewTab>();
+	private Map<String, ProcessorPortResultsViewTab> inputPortTabMap = new ConcurrentHashMap<String, ProcessorPortResultsViewTab>();
+	private Map<String, ProcessorPortResultsViewTab> outputPortTabMap = new ConcurrentHashMap<String, ProcessorPortResultsViewTab>();
 
 	// All data for intermediate results is pulled from provenance.
 	private ProvenanceAccess provenanceAccess = new ProvenanceAccess(
@@ -145,8 +146,8 @@ public class ProcessorResultsComponent extends JPanel {
 	// view of the data. Tree is only created on demand - i.e. when user selects
 	// a particular
 	// enactment and a specific port.
-	protected HashMap<ProcessorEnactment, List<List<Object>>> enactmentsToInputPortData = new HashMap<ProcessorEnactment, List<List<Object>>>();
-	protected HashMap<ProcessorEnactment, List<List<Object>>> enactmentsToOutputPortData = new HashMap<ProcessorEnactment, List<List<Object>>>();
+	protected Map<ProcessorEnactment, List<List<Object>>> enactmentsToInputPortData = new ConcurrentHashMap<ProcessorEnactment, List<List<Object>>>();
+	protected Map<ProcessorEnactment, List<List<Object>>> enactmentsToOutputPortData = new ConcurrentHashMap<ProcessorEnactment, List<List<Object>>>();
 
 	protected Set<ProcessorEnactment> enactmentsWithErrorOutputs = Collections.synchronizedSet(new HashSet<ProcessorEnactment>()); 
 	
@@ -413,7 +414,7 @@ public class ProcessorResultsComponent extends JPanel {
 			iterationLabelText.append("</body></html>");
 			iterationLabel.setText(iterationLabelText.toString());
 
-			HashMap<ProcessorEnactment, List<List<Object>>> map = null;
+			Map<ProcessorEnactment, List<List<Object>>> map = null;
 			if (selectedResultTab.getIsOutputPortTab()) { // output port tab
 				map = enactmentsToOutputPortData;
 			} else { // input port tab
@@ -515,124 +516,125 @@ public class ProcessorResultsComponent extends JPanel {
 		}
 	}
 
-	protected synchronized void populateEnactmentsMaps() {
-
-		// Get processor enactments (invocations) from provenance
-
-		// Create the array of nested processors' names
-		String[] processorNamesPath = null;
-		if (processorsPath != null) { // should not be null really
-			processorNamesPath = new String[processorsPath.size()];
-			int i = 0;
-			for (Processor proc : processorsPath) {
-				processorNamesPath[i++] = proc.getLocalName();
-			}
-		} else { // This should not really happen!
-			processorNamesPath = new String[1];
-			processorNamesPath[0] = processor.getLocalName();
-		}
-
-		List<ProcessorEnactment> processorEnactmentsStack = provenanceAccess
-				.getProcessorEnactments(runId, processorNamesPath);
-
-		if (processorId == null && ! processorEnactmentsStack.isEmpty()) {
-			// Extract processor ID from very first processorEnactment
-			processorId = processorEnactmentsStack.get(0).getProcessorId();
-		}
-		
-		while (!processorEnactmentsStack.isEmpty()) {
-			// fetch LAST one first, so we'll get the parent's early	
-			ProcessorEnactment processorEnactment = processorEnactmentsStack
-					.remove(processorEnactmentsStack.size() - 1);
-			if (!enactmentsGotSoFar.contains(processorEnactment)) {
-				enactmentsGotSoFar.add(processorEnactment);
-				enactmentIdsGotSoFar.add(processorEnactment
-						.getProcessEnactmentId());
-
-				String parentId = processorEnactment
-						.getParentProcessorEnactmentId();
-				if (parentId != null
-						&& !enactmentIdsGotSoFar.contains(parentId)) {
-					/*
-					 * Also add parent (and their parent, etc) - so that we can
-					 * show the full iteration treeenactmentIdsGotSoFar
-					 */
-				
-					ProcessorEnactment parentEnactment = provenanceAccess
-							.getProcessorEnactment(parentId);
-					if (parentEnactment == null) {
-						logger.error("Could not find parent processor enactment id="
-										+ parentId
-										+ ", skipping "
-										+ processorEnactment);
-						enactmentsGotSoFar.remove(processorEnactment);
-						enactmentIdsGotSoFar.remove(processorEnactment);
-						continue;
-					}					
-					processorEnactmentsStack.add(parentEnactment);
+	protected void populateEnactmentsMaps() {
+		synchronized (enactmentsGotSoFar) {
+			// Get processor enactments (invocations) from provenance
+	
+			// Create the array of nested processors' names
+			String[] processorNamesPath = null;
+			if (processorsPath != null) { // should not be null really
+				processorNamesPath = new String[processorsPath.size()];
+				int i = 0;
+				for (Processor proc : processorsPath) {
+					processorNamesPath[i++] = proc.getLocalName();
 				}
+			} else { // This should not really happen!
+				processorNamesPath = new String[1];
+				processorNamesPath[0] = processor.getLocalName();
+			}
+	
+			List<ProcessorEnactment> processorEnactmentsStack = provenanceAccess
+					.getProcessorEnactments(runId, processorNamesPath);
+	
+			if (processorId == null && ! processorEnactmentsStack.isEmpty()) {
+				// Extract processor ID from very first processorEnactment
+				processorId = processorEnactmentsStack.get(0).getProcessorId();
 			}
 			
-			String initialInputs = processorEnactment
-					.getInitialInputsDataBindingId();
-			String finalOutputs = processorEnactment
-					.getFinalOutputsDataBindingId();
-
-			boolean fetchingInputs = initialInputs != null
-					&& !enactmentsToInputPortData
-							.containsKey(processorEnactment);
-			boolean fetchingOutputs = finalOutputs != null
-					&& !enactmentsToOutputPortData
-							.containsKey(processorEnactment);
-			
-			Map<Port, T2Reference> dataBindings = new HashMap<Port, T2Reference>();
-			
-			if (fetchingInputs) {
-				dataBindings = provenanceAccess.getDataBindings(initialInputs);
-				enactmentsToInputPortData.put(processorEnactment,
-						new ArrayList<List<Object>>());
-			}
-			if (fetchingOutputs) {
-				enactmentsToOutputPortData.put(processorEnactment,
-						new ArrayList<List<Object>>());
-				if (!fetchingInputs || !finalOutputs.equals(initialInputs)) {					
-					dataBindings.putAll(provenanceAccess
-							.getDataBindings(finalOutputs));
-				}
-			}
-
-			for (Entry<Port, T2Reference> entry : dataBindings.entrySet()) {
-				/*
-				 * Create (port, t2Ref, tree) list for this enactment. Tree is
-				 * set to null initially and populated on demand (when user
-				 * clicks on particular enactment/iteration node).
-				 */				
-				List<Object> dataOnPortList = new ArrayList<Object>();
-				Port port = entry.getKey();
-				dataOnPortList.add(port); // port
-				T2Reference t2Reference = entry.getValue();
-				dataOnPortList.add(t2Reference); // t2Ref
-				/*
-				 * tree (will be populated when a user clicks on this iteration
-				 * and this port tab is selected)
-				 */
-				dataOnPortList.add(null); 
-				
-				if (port.isInputPort() && fetchingInputs) { // Input port
-					List<List<Object>> listOfPortDataLists = enactmentsToInputPortData
-							.get(processorEnactment);
-					listOfPortDataLists.add(dataOnPortList); 
-					enactmentsToInputPortData.put(processorEnactment,
-							listOfPortDataLists);
-				} else if (!port.isInputPort() && fetchingOutputs) { // output port
-					if (t2Reference.containsErrors()) {
-						enactmentsWithErrorOutputs.add(processorEnactment);
+			while (!processorEnactmentsStack.isEmpty()) {
+				// fetch LAST one first, so we'll get the parent's early	
+				ProcessorEnactment processorEnactment = processorEnactmentsStack
+						.remove(processorEnactmentsStack.size() - 1);
+				if (!enactmentsGotSoFar.contains(processorEnactment)) {
+					enactmentsGotSoFar.add(processorEnactment);
+					enactmentIdsGotSoFar.add(processorEnactment
+							.getProcessEnactmentId());
+	
+					String parentId = processorEnactment
+							.getParentProcessorEnactmentId();
+					if (parentId != null
+							&& !enactmentIdsGotSoFar.contains(parentId)) {
+						/*
+						 * Also add parent (and their parent, etc) - so that we can
+						 * show the full iteration treeenactmentIdsGotSoFar
+						 */
+					
+						ProcessorEnactment parentEnactment = provenanceAccess
+								.getProcessorEnactment(parentId);
+						if (parentEnactment == null) {
+							logger.error("Could not find parent processor enactment id="
+											+ parentId
+											+ ", skipping "
+											+ processorEnactment);
+							enactmentsGotSoFar.remove(processorEnactment);
+							enactmentIdsGotSoFar.remove(processorEnactment);
+							continue;
+						}					
+						processorEnactmentsStack.add(parentEnactment);
 					}
-					List<List<Object>> listOfPortDataLists = enactmentsToOutputPortData
-							.get(processorEnactment);
-					listOfPortDataLists.add(dataOnPortList);
+				}
+				
+				String initialInputs = processorEnactment
+						.getInitialInputsDataBindingId();
+				String finalOutputs = processorEnactment
+						.getFinalOutputsDataBindingId();
+	
+				boolean fetchingInputs = initialInputs != null
+						&& !enactmentsToInputPortData
+								.containsKey(processorEnactment);
+				boolean fetchingOutputs = finalOutputs != null
+						&& !enactmentsToOutputPortData
+								.containsKey(processorEnactment);
+				
+				Map<Port, T2Reference> dataBindings = new HashMap<Port, T2Reference>();
+				
+				if (fetchingInputs) {
+					dataBindings = provenanceAccess.getDataBindings(initialInputs);
+					enactmentsToInputPortData.put(processorEnactment,
+							new ArrayList<List<Object>>());
+				}
+				if (fetchingOutputs) {
 					enactmentsToOutputPortData.put(processorEnactment,
-							listOfPortDataLists);
+							new ArrayList<List<Object>>());
+					if (!fetchingInputs || !finalOutputs.equals(initialInputs)) {					
+						dataBindings.putAll(provenanceAccess
+								.getDataBindings(finalOutputs));
+					}
+				}
+	
+				for (Entry<Port, T2Reference> entry : dataBindings.entrySet()) {
+					/*
+					 * Create (port, t2Ref, tree) list for this enactment. Tree is
+					 * set to null initially and populated on demand (when user
+					 * clicks on particular enactment/iteration node).
+					 */				
+					List<Object> dataOnPortList = new ArrayList<Object>();
+					Port port = entry.getKey();
+					dataOnPortList.add(port); // port
+					T2Reference t2Reference = entry.getValue();
+					dataOnPortList.add(t2Reference); // t2Ref
+					/*
+					 * tree (will be populated when a user clicks on this iteration
+					 * and this port tab is selected)
+					 */
+					dataOnPortList.add(null); 
+					
+					if (port.isInputPort() && fetchingInputs) { // Input port
+						List<List<Object>> listOfPortDataLists = enactmentsToInputPortData
+								.get(processorEnactment);
+						listOfPortDataLists.add(dataOnPortList); 
+						enactmentsToInputPortData.put(processorEnactment,
+								listOfPortDataLists);
+					} else if (!port.isInputPort() && fetchingOutputs) { // output port
+						if (t2Reference.containsErrors()) {
+							enactmentsWithErrorOutputs.add(processorEnactment);
+						}
+						List<List<Object>> listOfPortDataLists = enactmentsToOutputPortData
+								.get(processorEnactment);
+						listOfPortDataLists.add(dataOnPortList);
+						enactmentsToOutputPortData.put(processorEnactment,
+								listOfPortDataLists);
+					}
 				}
 			}
 		}
