@@ -145,13 +145,16 @@ public class ProcessorResultsComponent extends JPanel {
 	// view of the data. Tree is only created on demand - i.e. when user selects
 	// a particular
 	// enactment and a specific port.
-	protected HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> enactmentsToInputPortData;
-	protected HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> enactmentsToOutputPortData;
+	protected HashMap<ProcessorEnactment, List<List<Object>>> enactmentsToInputPortData = new HashMap<ProcessorEnactment, List<List<Object>>>();
+	protected HashMap<ProcessorEnactment, List<List<Object>>> enactmentsToOutputPortData = new HashMap<ProcessorEnactment, List<List<Object>>>();
+
 	protected Set<ProcessorEnactment> enactmentsWithErrorOutputs = Collections.synchronizedSet(new HashSet<ProcessorEnactment>()); 
 	
 	private JLabel iterationLabel;
 
 	private String processorId = null;
+
+	private List<Processor> processorsPath;
 
 	public ProcessorResultsComponent(Processor processor, Dataflow dataflow,
 			String runId, ReferenceService referenceService) {
@@ -170,6 +173,8 @@ public class ProcessorResultsComponent extends JPanel {
 
 		super(new BorderLayout());
 		this.processor = processor;
+		this.processorsPath = Tools.getNestedPathForProcessor(
+				processor, dataflow);
 		this.dataflow = dataflow;
 		this.runId = runId;
 		this.referenceService = referenceService;
@@ -223,8 +228,8 @@ public class ProcessorResultsComponent extends JPanel {
 		tabbedPane = new JTabbedPane();
 
 		// Create enactment to (port, t2ref, tree) lists maps.
-		enactmentsToInputPortData = new HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>>();
-		enactmentsToOutputPortData = new HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>>();
+		enactmentsToInputPortData = new HashMap<ProcessorEnactment, List<List<Object>>>();
+		enactmentsToOutputPortData = new HashMap<ProcessorEnactment, List<List<Object>>>();
 		
 		// Populate the above maps with data obtained from provenance.
 		populateEnactmentsMaps();
@@ -408,21 +413,21 @@ public class ProcessorResultsComponent extends JPanel {
 			iterationLabelText.append("</body></html>");
 			iterationLabel.setText(iterationLabelText.toString());
 
-			HashMap<ProcessorEnactment, ArrayList<ArrayList<Object>>> map = null;
+			HashMap<ProcessorEnactment, List<List<Object>>> map = null;
 			if (selectedResultTab.getIsOutputPortTab()) { // output port tab
 				map = enactmentsToOutputPortData;
 			} else { // input port tab
 				map = enactmentsToInputPortData;
 			}
-			ArrayList<ArrayList<Object>> listOfListsOfPortData = map
+			List<List<Object>> listOfListsOfPortData = map
 					.get(processorEnactment);
 
 			JTree tree = null;
 			int index = -1;
-			ArrayList<Object> triple = null;
+			List<Object> triple = null;
 			// Get the tree for this port and this enactment and show it on
 			// results tab
-			for (ArrayList<Object> listOfPortData : listOfListsOfPortData) {
+			for (List<Object> listOfPortData : listOfListsOfPortData) {
 				// Find data in the map for this port
 				if (selectedResultTab.getPortName().equals(
 						((Port) listOfPortData.get(0)).getPortName())) {
@@ -510,14 +515,10 @@ public class ProcessorResultsComponent extends JPanel {
 		}
 	}
 
-	private synchronized void populateEnactmentsMaps() {
+	protected synchronized void populateEnactmentsMaps() {
 
 		// Get processor enactments (invocations) from provenance
 
-		// Get the processors' path for this processor, including all parent
-		// nested processors
-		List<Processor> processorsPath = Tools.getNestedPathForProcessor(
-				processor, dataflow);
 		// Create the array of nested processors' names
 		String[] processorNamesPath = null;
 		if (processorsPath != null) { // should not be null really
@@ -531,42 +532,19 @@ public class ProcessorResultsComponent extends JPanel {
 			processorNamesPath[0] = processor.getLocalName();
 		}
 
-		List<ProcessorEnactment> processorEnactments = provenanceAccess
+		List<ProcessorEnactment> processorEnactmentsStack = provenanceAccess
 				.getProcessorEnactments(runId, processorNamesPath);
+
+		if (processorId == null && ! processorEnactmentsStack.isEmpty()) {
+			// Extract processor ID from very first processorEnactment
+			processorId = processorEnactmentsStack.get(0).getProcessorId();
+		}
 		
-		while (!processorEnactments.isEmpty()) {
-			ProcessorEnactment processorEnactment = processorEnactments
-					.remove(processorEnactments.size() - 1);
-			if (processorId == null) {
-				processorId = processorEnactment.getProcessorId();
-			}
-			
-			String initialInputs = processorEnactment
-					.getInitialInputsDataBindingId();
-
-			String finalOutputs = processorEnactment
-					.getFinalOutputsDataBindingId();
-
-			/*
-			 * If enactment has finished i.e. both input and output binding map
-			 * ids are not null
-			 */
-			if (initialInputs != null && finalOutputs != null) {
-				Map<Port, T2Reference> dataBindings = provenanceAccess
-						.getDataBindings(initialInputs);
-				if (!initialInputs.equals(finalOutputs)) {
-					/*
-					 * if initialInputs and finalOutputs map ids are not the
-					 * same - add them together
-					 */
-					dataBindings.putAll(provenanceAccess
-							.getDataBindings(finalOutputs));
-				}
-
-				// Is this a new enactment? If no - skip it.
-				if (enactmentsGotSoFar.contains(processorEnactment)) {
-					continue;
-				}
+		while (!processorEnactmentsStack.isEmpty()) {
+			// fetch LAST one first, so we'll get the parent's early	
+			ProcessorEnactment processorEnactment = processorEnactmentsStack
+					.remove(processorEnactmentsStack.size() - 1);
+			if (!enactmentsGotSoFar.contains(processorEnactment)) {
 				enactmentsGotSoFar.add(processorEnactment);
 				enactmentIdsGotSoFar.add(processorEnactment
 						.getProcessEnactmentId());
@@ -579,81 +557,82 @@ public class ProcessorResultsComponent extends JPanel {
 					 * Also add parent (and their parent, etc) - so that we can
 					 * show the full iteration treeenactmentIdsGotSoFar
 					 */
-					/*
-					 * We'll mark only the ID for now so we don't need to
-					 * re-fetch the parent for next sibling
-					 */
-					enactmentIdsGotSoFar.add(parentId);
+				
 					ProcessorEnactment parentEnactment = provenanceAccess
 							.getProcessorEnactment(parentId);
 					if (parentEnactment == null) {
-						logger
-								.warn("Could not find parent processor enactment id="
+						logger.error("Could not find parent processor enactment id="
 										+ parentId
 										+ ", skipping "
 										+ processorEnactment);
+						enactmentsGotSoFar.remove(processorEnactment);
+						enactmentIdsGotSoFar.remove(processorEnactment);
 						continue;
-					}
-					processorEnactments.add(parentEnactment);
+					}					
+					processorEnactmentsStack.add(parentEnactment);
 				}
+			}
+			
+			String initialInputs = processorEnactment
+					.getInitialInputsDataBindingId();
+			String finalOutputs = processorEnactment
+					.getFinalOutputsDataBindingId();
 
-				for (Entry<Port, T2Reference> entry : dataBindings.entrySet()) {
-					/*
-					 * Create (port, t2Ref, tree) list for this enactment. Tree
-					 * is set to null initially and populated on demand (when
-					 * user clicks on particular enactment/iteration node).
-					 */
-					ArrayList<Object> dataOnPortList = new ArrayList<Object>();
-					Port port = entry.getKey();
-					dataOnPortList.add(port); // port
-					T2Reference t2Reference = entry.getValue();
-					dataOnPortList.add(t2Reference); // t2Ref
-					dataOnPortList.add(null);
-					/*
-					 * tree (will be populated when a user clicks on this
-					 * iteration and this port tab is selected)
-					 */
+			boolean fetchingInputs = initialInputs != null
+					&& !enactmentsToInputPortData
+							.containsKey(processorEnactment);
+			boolean fetchingOutputs = finalOutputs != null
+					&& !enactmentsToOutputPortData
+							.containsKey(processorEnactment);
+			
+			Map<Port, T2Reference> dataBindings = new HashMap<Port, T2Reference>();
+			
+			if (fetchingInputs) {
+				dataBindings = provenanceAccess.getDataBindings(initialInputs);
+				enactmentsToInputPortData.put(processorEnactment,
+						new ArrayList<List<Object>>());
+			}
+			if (fetchingOutputs) {
+				enactmentsToOutputPortData.put(processorEnactment,
+						new ArrayList<List<Object>>());
+				if (!fetchingInputs || !finalOutputs.equals(initialInputs)) {					
+					dataBindings.putAll(provenanceAccess
+							.getDataBindings(finalOutputs));
+				}
+			}
 
-					if (port.isInputPort()) { // Input port
-						// Have we already created an entry for this enactment
-						// in the map for input ports?
-						// If not - create one now.
-						ArrayList<ArrayList<Object>> listOfPortDataLists = null;
-						if (enactmentsToInputPortData.get(processorEnactment) == null) { // input
-																							// port
-							enactmentsToInputPortData.put(processorEnactment,
-									new ArrayList<ArrayList<Object>>());
-						}
-						listOfPortDataLists = enactmentsToInputPortData
-								.get(processorEnactment);
-						listOfPortDataLists.add(dataOnPortList); // add entry
-																	// for this
-																	// port
-						enactmentsToInputPortData.put(processorEnactment,
-								listOfPortDataLists);
-					} else { // output port
-						
-						if (t2Reference.containsErrors()) {
-							enactmentsWithErrorOutputs.add(processorEnactment);
-						}
-						
-						// Have we already created an entry for this enactment
-						// in the map for output ports?
-						// If not - create one now.
-						ArrayList<ArrayList<Object>> listOfPortDataLists = null;
-						if (enactmentsToOutputPortData.get(processorEnactment) == null) { // input
-																							// port
-							enactmentsToOutputPortData.put(processorEnactment,
-									new ArrayList<ArrayList<Object>>());
-						}
-						listOfPortDataLists = enactmentsToOutputPortData
-								.get(processorEnactment);
-						listOfPortDataLists.add(dataOnPortList); // add entry
-																	// for this
-																	// port
-						enactmentsToOutputPortData.put(processorEnactment,
-								listOfPortDataLists);
+			for (Entry<Port, T2Reference> entry : dataBindings.entrySet()) {
+				/*
+				 * Create (port, t2Ref, tree) list for this enactment. Tree is
+				 * set to null initially and populated on demand (when user
+				 * clicks on particular enactment/iteration node).
+				 */				
+				List<Object> dataOnPortList = new ArrayList<Object>();
+				Port port = entry.getKey();
+				dataOnPortList.add(port); // port
+				T2Reference t2Reference = entry.getValue();
+				dataOnPortList.add(t2Reference); // t2Ref
+				/*
+				 * tree (will be populated when a user clicks on this iteration
+				 * and this port tab is selected)
+				 */
+				dataOnPortList.add(null); 
+				
+				if (port.isInputPort() && fetchingInputs) { // Input port
+					List<List<Object>> listOfPortDataLists = enactmentsToInputPortData
+							.get(processorEnactment);
+					listOfPortDataLists.add(dataOnPortList); 
+					enactmentsToInputPortData.put(processorEnactment,
+							listOfPortDataLists);
+				} else if (!port.isInputPort() && fetchingOutputs) { // output port
+					if (t2Reference.containsErrors()) {
+						enactmentsWithErrorOutputs.add(processorEnactment);
 					}
+					List<List<Object>> listOfPortDataLists = enactmentsToOutputPortData
+							.get(processorEnactment);
+					listOfPortDataLists.add(dataOnPortList);
+					enactmentsToOutputPortData.put(processorEnactment,
+							listOfPortDataLists);
 				}
 			}
 		}
