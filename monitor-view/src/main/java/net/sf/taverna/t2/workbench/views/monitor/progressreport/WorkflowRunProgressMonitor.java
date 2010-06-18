@@ -65,7 +65,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	
 	private static Logger logger = Logger.getLogger(WorkflowRunProgressMonitor.class);
 	
-	private static long deregisterDelay = 1000;
+	private static long deregisterDelay = 10000;
 
 	private static long monitorRate = 1000;
 
@@ -101,12 +101,8 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	}
 
 	public void onDispose() {
-		try{
-			updateTimer.cancel();
-		}
-		catch(IllegalStateException ex){ // task seems already cancelled
-			logger.warn("Cannot cancel task: " + updateTimer.toString() + ".Task already seems cancelled", ex);
-		}
+	    updateTimer.cancel();
+	    updateTask.run();
 	}
 
 	@Override
