@@ -133,7 +133,7 @@ public class ProcessorResultsComponent extends JPanel {
 	private Map<String, ProcessorPortResultsViewTab> outputPortTabMap = new ConcurrentHashMap<String, ProcessorPortResultsViewTab>();
 
 	// All data for intermediate results is pulled from provenance.
-	private ProvenanceAccess provenanceAccess = new ProvenanceAccess(
+	private static ProvenanceAccess provenanceAccess = new ProvenanceAccess(
 			DataManagementConfiguration.getInstance().getConnectorType());
 
 	private ProcessorEnactmentsTreeModel processorEnactmentsTreeModel;
