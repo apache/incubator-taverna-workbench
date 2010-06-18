@@ -122,6 +122,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	private JLabel workflowRunProgressStatusLabel = new JLabel();
 	private JButton workflowRunPauseButton = new JButton(new PauseWorkflowRunAction()); // pause or resume
 	private JButton workflowRunCancelButton = new JButton(new CancelWorkflowRunAction());
+	private JButton intermediateValuesButton = new JButton(new RefreshIntermediateValuesAction());
 	private JButton workflowResultsButton = new JButton(new ShowWorkflowResultsAction());
 
 	private Dataflow dataflow;
@@ -227,6 +228,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		monitorViewComponent.addWorkflowRunStatusLabel(workflowRunProgressStatusLabel);
 		monitorViewComponent.addWorkflowPauseButton(workflowRunPauseButton);
 		monitorViewComponent.addWorkflowCancelButton(workflowRunCancelButton);
+		monitorViewComponent.addIntermediateValuesButton(intermediateValuesButton);
 		monitorViewComponent.addWorkflowResultsButton(workflowResultsButton);
 
 		workflowResultsComponent = new WorkflowResultsComponent();
@@ -610,15 +612,35 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			if (facade != null){ // should not be null but check nevertheless
 				facade.cancelWorkflowRun();
 			}
+
 			// Stop listening to workflow run's monitors
 			monitorObserverForGraph.onDispose();
 			monitorObserverForTable.onDispose();
-			
+
 			// Update the progress table to show workflow and processors as cancelled
 			progressRunTable.setWorkflowCancelled();
+			progressRunTable.refreshTable();
 		}
 	}
 	
+	public class RefreshIntermediateValuesAction extends AbstractAction {
+	    public RefreshIntermediateValuesAction() {
+		super();
+		putValue(NAME, "Refresh intermediate values");
+		putValue(SMALL_ICON, WorkbenchIcons.resultsPerspectiveIcon);
+	    }
+
+	    public void actionPerformed(ActionEvent e) {
+
+		Object o = ResultsPerspectiveComponent.getInstance().getBottomComponent();
+		if (o instanceof ProcessorResultsComponent) {
+		    ProcessorResultsComponent prc = (ProcessorResultsComponent) o;
+		    prc.update();
+		}
+		intermediateValuesButton.setSelected(false);
+	    }
+	}
+
 	/**
 	 * Action to show the final results of this workflow run.
 	 */
