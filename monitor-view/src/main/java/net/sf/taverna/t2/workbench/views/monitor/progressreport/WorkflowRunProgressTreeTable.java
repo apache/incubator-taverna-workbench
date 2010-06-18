@@ -67,7 +67,11 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 
 	public void refreshTable() {
 	    try {
-		SwingUtilities.invokeAndWait(refreshRunnable);
+		if (!SwingUtilities.isEventDispatchThread()) {
+		    SwingUtilities.invokeAndWait(refreshRunnable);
+		} else {
+		    refreshRunnable.run();
+		}
 	    }
 	    catch (InterruptedException e) {
 		logger.error("refresh of table interrupted", e);
