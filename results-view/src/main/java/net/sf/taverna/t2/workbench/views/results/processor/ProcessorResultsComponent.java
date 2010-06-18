@@ -34,8 +34,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -73,6 +71,8 @@ import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
+
+import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
 
 /**
  * A component that contains a tabbed pane for displaying inputs and outputs of
@@ -120,9 +120,6 @@ public class ProcessorResultsComponent extends JPanel {
 	private ReferenceService referenceService;
 
 	private WorkflowInstanceFacade facade; // in the case this is a fresh run
-	private UpdateTask updateTask;
-	private Timer updateTimer = new Timer(
-			"Processor (intermediate) results update timer", true);
 	boolean resultsUpdateNeeded = false;
 
 	// Enactments received for this processor
@@ -232,9 +229,6 @@ public class ProcessorResultsComponent extends JPanel {
 		enactmentsToInputPortData = new HashMap<ProcessorEnactment, List<List<Object>>>();
 		enactmentsToOutputPortData = new HashMap<ProcessorEnactment, List<List<Object>>>();
 		
-		// Populate the above maps with data obtained from provenance.
-		populateEnactmentsMaps();
-
 		// Processor input ports
 		List<ProcessorInputPort> processorInputPorts = new ArrayList<ProcessorInputPort>(
 				processor.getInputPorts());
@@ -332,6 +326,8 @@ public class ProcessorResultsComponent extends JPanel {
 				BorderLayout.CENTER);
 		splitPane.setTopComponent(enactmentsTreePanel);
 		add(splitPane, BorderLayout.CENTER);
+
+		update();
 	}
 
 	public static String formatMilliseconds(long timeInMiliseconds) {
@@ -544,7 +540,7 @@ public class ProcessorResultsComponent extends JPanel {
 		return label.toString();
 	}
 
-	protected void populateEnactmentsMaps() {
+	public void populateEnactmentsMaps() {
 		synchronized (enactmentsGotSoFar) {
 			// Get processor enactments (invocations) from provenance
 	
@@ -668,50 +664,37 @@ public class ProcessorResultsComponent extends JPanel {
 		}
 	}
 
+    public void update() {
+	if (resultsUpdateNeeded) {
+	    IntermediateValuesSwingWorker intermediateValuesSwingWorker = new IntermediateValuesSwingWorker(this);
+	    IntermediateValuesInProgressDialog dialog = new IntermediateValuesInProgressDialog();
+	    intermediateValuesSwingWorker.addPropertyChangeListener(new SwingWorkerCompletionWaiter(dialog));
+	    intermediateValuesSwingWorker.execute();
+
+	    try {
+		Thread.sleep(500);
+	    }
+	    catch (InterruptedException e) {
+	    }
+	    if (!intermediateValuesSwingWorker.isDone()) {
+		dialog.setVisible(true);
+	    }
+	    processorEnactmentsTreeModel.update(enactmentsGotSoFar);
+	    DefaultMutableTreeNode firstLeaf = processorEnactmentsTreeModel.getRoot().getFirstLeaf();
+	    if ((firstLeaf != null) && (processorEnactmentsTree.getPathForRow(0) == null)) {
+		processorEnactmentsTree.scrollPathToVisible(new TreePath((Object[])firstLeaf.getPath()));
+	    }
+	    resultsUpdateNeeded = !(facade.getState().equals(State.cancelled) ||
+				    facade.getState().equals(State.completed));
+	    setDataTreeForResultTab();
+	}
+    }
+
 	public void clear() {
 		tabbedPane.removeAll();
 	}
 
-	public class UpdateTask extends TimerTask {		
-		public void run() {
-			try {
-				if (resultsUpdateNeeded) {
-					populateEnactmentsMaps();
-					// Update the invocations tree
-					processorEnactmentsTreeModel.update(enactmentsGotSoFar);
-					DefaultMutableTreeNode firstLeaf = processorEnactmentsTreeModel.getRoot().getFirstLeaf();
-					if (firstLeaf != null && processorEnactmentsTree.getPathForRow(0) == null) {
-						// Show first item
-						processorEnactmentsTree.scrollPathToVisible(new TreePath((Object[])firstLeaf.getPath()));
-					}
-//					processorEnactmentsTree.revalidate();
-					resultsUpdateNeeded = !(facade.getState().equals(
-							State.cancelled) || facade.getState().equals(
-							State.completed));
-				} else {
-					// After we have finished looping - stop the timer
-					try {
-						updateTimer.cancel();
-					} catch (IllegalStateException ex) { // task seems already
-															// cancelled
-						logger.warn("Cannot cancel task: "
-								+ updateTimer.toString()
-								+ ".Task already seems cancelled", ex);
-					}
-				}
-			} catch (RuntimeException ex) {
-				logger.error("UpdateTask update failed", ex);
-			}
-		}
-	}
-
 	public void onDispose() {
-		try {
-			updateTimer.cancel();
-		} catch (IllegalStateException ex) { // task seems already cancelled
-			logger.warn("Could cancel task: " + updateTimer.toString()
-					+ ".Task already seems cancelled.", ex);
-		}
 	}
 
 	@Override
