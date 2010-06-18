@@ -123,14 +123,13 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	private String workflowRunId;
 	private ProvenanceAccess provenanceAccess;
 	
-    private Set<Processor> processors;
+    private Set<Processor> processors = new HashSet<Processor>();
 
  	public WorkflowRunProgressTreeTableModel(Dataflow dataflow) {
 
 		super(new DefaultMutableTreeNode(dataflow));	
 		rootNode = (DefaultMutableTreeNode) this.getRoot();
 		this.dataflow = dataflow;
-		processors = new HashSet<Processor>();
 		createTree(dataflow, rootNode);	
 	}
 
