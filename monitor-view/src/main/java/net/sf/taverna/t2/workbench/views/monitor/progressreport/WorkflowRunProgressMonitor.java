@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.WeakHashMap;
 
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade.State;
@@ -82,7 +83,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	// Map from invocation process ID to start time
 	private static Map<String, Date> activitityInvocationStartTimes = Collections.synchronizedMap(new HashMap<String, Date>());
 	
-	private static Map<Processor, List<Long>> processorInvocationTimes = Collections.synchronizedMap(new HashMap<Processor, List<Long>>());
+	private static Map<Processor, List<Long>> processorInvocationTimes = Collections.synchronizedMap(new WeakHashMap<Processor, List<Long>>());
 	
 	//private Map<String, ResultListener> resultListeners = new HashMap<String, ResultListener>();
 
@@ -140,7 +141,9 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 			workflowObjects.put(owningProcessId, workflowObject);
 			if (workflowObject instanceof Processor) {
 				Processor processor = (Processor) workflowObject;
-				processorInvocationTimes.put(processor, new ArrayList<Long>());
+				if (! processorInvocationTimes.containsKey(processor)) {
+					processorInvocationTimes.put(processor, new ArrayList<Long>());
+				}
 				WorkflowRunProgressMonitorNode parentMonitorNode = findParentMonitorNode(owningProcess);
 				
 				WorkflowRunProgressMonitorNode monitorNode = new WorkflowRunProgressMonitorNode(
@@ -283,17 +286,17 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				String parentProcessId = getOwningProcessId(owningProcessList);										
 				Object parentObject = workflowObjects.get(parentProcessId);
 				if (parentObject instanceof Processor) {
-					Processor processor = (Processor) parentObject;
+					Processor processor = (Processor) parentObject;					
 					if (startTime != null) {
 						long invocationTime = endTime.getTime() - startTime.getTime();						
-						List<Long> invocationTimes = processorInvocationTimes.get(processor);
+						List<Long> invocationTimes = processorInvocationTimes.get(processor);						
 						invocationTimes.add(invocationTime);
 						long totalTime = 0;
 						for (Long time : invocationTimes) {
 							totalTime += time;
 						}
 						if (! invocationTimes.isEmpty()) {							
-							long averageInvocationTime = totalTime / invocationTimes.size();
+							long averageInvocationTime = totalTime / invocationTimes.size();							
 							progressTreeTable.setProcessorAverageInvocationTime(processor, averageInvocationTime);
 						}
 					}
