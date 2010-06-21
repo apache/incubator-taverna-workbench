@@ -185,21 +185,6 @@ public class ProcessorResultsComponent extends JPanel {
 
 		initComponents();
 
-		if (resultsUpdateNeeded) {
-			updateTask = new UpdateTask();
-			try {
-				updateTimer.schedule(updateTask, monitorRate, monitorRate);
-			} catch (IllegalStateException ex) {
-				// task seems already cancelled, Do nothing
-			}
-		} else {
-			try {
-				updateTimer.cancel();
-			} catch (IllegalStateException ex) { // task seems already cancelled
-				logger.warn("Cannot cancel task: " + updateTimer.toString()
-						+ ". Task already seems cancelled", ex);
-			}
-		}
 	}
 
 	public void initComponents() {
