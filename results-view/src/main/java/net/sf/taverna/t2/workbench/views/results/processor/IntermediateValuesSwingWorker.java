@@ -27,6 +27,7 @@ public class IntermediateValuesSwingWorker extends SwingWorker<ProcessorResultsC
 
 	private static Logger logger = Logger.getLogger(IntermediateValuesSwingWorker.class);
 	private ProcessorResultsComponent component;
+	private Exception exception = null;
 
 	public IntermediateValuesSwingWorker(ProcessorResultsComponent component){
 	    this.component = component;
@@ -34,8 +35,16 @@ public class IntermediateValuesSwingWorker extends SwingWorker<ProcessorResultsC
 	
 	@Override
 	protected ProcessorResultsComponent doInBackground() throws Exception {
-	    component.populateEnactmentsMaps();
+	    try {
+		component.populateEnactmentsMaps();
+	    }
+	    catch (Exception e) {
+		this.exception = e;
+	    }
 	    return component;
 	}
 
+	public Exception getException() {
+	    return exception;
+	}
 }
