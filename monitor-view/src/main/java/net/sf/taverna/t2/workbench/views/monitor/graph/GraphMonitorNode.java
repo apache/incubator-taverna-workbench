@@ -155,7 +155,7 @@ public class GraphMonitorNode implements MonitorNode {
 							}
 						}
 					} else if (name[1].equals("errorbounce")) {
-						if (name[2].equals("translated")) {
+						if (name[2].equals("totalTranslated")) {
 							try {
 								int newErrors = (Integer) property
 										.getValue();
