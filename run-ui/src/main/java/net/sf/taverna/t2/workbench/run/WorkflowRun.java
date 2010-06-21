@@ -37,6 +37,8 @@ import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
 
@@ -452,8 +454,15 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		return progressRunGraph;
 	}
 
-	public WorkflowResultsComponent getResultsComponent() {
-		return workflowResultsComponent;
+	public JComponent getResultsComponent() {
+	    int row = progressRunTable.getLastSelectedTableRow();
+	    if (row != -1) {
+		Object object = progressRunTable.getTreeObjectForRow(row);
+		if ((object != null) && (object instanceof Processor)){
+		    return getIntermediateResultsComponent((Processor)object);
+		}
+	    }
+	    return workflowResultsComponent;
 	}
 
 	public void setRunId(String runId) {
@@ -629,7 +638,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	    public RefreshIntermediateValuesAction() {
 		super();
 		putValue(NAME, "Refresh intermediate values");
-		putValue(SMALL_ICON, WorkbenchIcons.resultsPerspectiveIcon);
+		putValue(SMALL_ICON, WorkbenchIcons.refreshIcon);
 	    }
 
 	    public void actionPerformed(ActionEvent e) {
@@ -669,6 +678,24 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		return facade;
 	}
 
+	public ProcessorResultsComponent getIntermediateResultsComponent(Processor p) {
+	    ProcessorResultsComponent intermediateResultsComponent = intermediateResultsComponents
+		.get(p);
+	    if (intermediateResultsComponent == null) {
+		if (facade != null){ // this is a fresh run (i.e. executed during this Taverna session)
+		    // Need to create a timer that will update intermediate results 
+		    // periodically until workflow stops running
+		    intermediateResultsComponent = new ProcessorResultsComponent(facade, 
+										 p, dataflow, runId, referenceService);
+		}
+		else{ // this is an old workflow from provenance - no need to update intermediate
+		    intermediateResultsComponent = new ProcessorResultsComponent(p, dataflow, runId, referenceService);
+		}
+		intermediateResultsComponents.put(p, intermediateResultsComponent);
+	    }
+	    return intermediateResultsComponent;
+	}
+
 	public void notify(Observable<WorkflowObjectSelectionMessage> sender,
 			WorkflowObjectSelectionMessage message) throws Exception {
 
@@ -681,24 +708,8 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		// intermediate results if provenance is enabled (which it should be!)
 		else if (workflowObject instanceof Processor) {
 			if (isProvenanceEnabledForRun){
-				ProcessorResultsComponent intermediateResultsComponent = intermediateResultsComponents
-						.get((Processor) workflowObject);
-				if (intermediateResultsComponent == null) {
-					if (facade != null){ // this is a fresh run (i.e. executed during this Taverna session)
-						// Need to create a timer that will update intermediate results 
-						// periodically until workflow stops running
-						intermediateResultsComponent = new ProcessorResultsComponent(facade, 
-								(Processor) workflowObject, dataflow, runId, referenceService);
-					}
-					else{ // this is an old workflow from provenance - no need to update intermediate
-						intermediateResultsComponent = new ProcessorResultsComponent(
-								(Processor) workflowObject, dataflow, runId, referenceService);
-					}
-					intermediateResultsComponents.put((Processor) workflowObject,
-							intermediateResultsComponent);
-				}
-				ResultsPerspectiveComponent.getInstance().setBottomComponent(
-						intermediateResultsComponent);
+			    ProcessorResultsComponent intermediateResultsComponent = getIntermediateResultsComponent((Processor) workflowObject);
+			    ResultsPerspectiveComponent.getInstance().setBottomComponent(intermediateResultsComponent);
 			}
 		}
 		
