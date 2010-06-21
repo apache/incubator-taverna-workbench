@@ -30,6 +30,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
+import net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState;
 
 import org.apache.log4j.Logger;
 
@@ -49,9 +50,11 @@ public class ProcessorEnactmentsTreeModel extends DefaultTreeModel{
 	private Map<String, ProcessorEnactment> processorEnactmentsById = new ConcurrentHashMap<String, ProcessorEnactment>();
 	private static Logger logger = Logger.getLogger(ProcessorEnactmentsTreeModel.class);
 	private final Set<ProcessorEnactment> enactmentsWithErrorOutputs;
+	private final Set<ProcessorEnactment> enactmentsWithErrorInputs;
 	
-	public ProcessorEnactmentsTreeModel(Set<ProcessorEnactment> enactmentsGotSoFar, Set<ProcessorEnactment> enactmentsWithErrorOutputs){
+	public ProcessorEnactmentsTreeModel(Set<ProcessorEnactment> enactmentsGotSoFar, Set<ProcessorEnactment> enactmentsWithErrorInputs, Set<ProcessorEnactment> enactmentsWithErrorOutputs){
 		super(new DefaultMutableTreeNode("Invocations of processor"));
+		this.enactmentsWithErrorInputs = enactmentsWithErrorInputs;
 		this.enactmentsWithErrorOutputs = enactmentsWithErrorOutputs;		
 		update(enactmentsGotSoFar);
 	}
@@ -69,12 +72,18 @@ public class ProcessorEnactmentsTreeModel extends DefaultTreeModel{
 	
 	public ProcessorEnactmentsTreeNode addProcessorEnactment(ProcessorEnactment processorEnactment) {
 		ProcessorEnactmentsTreeNode treeNode = processorEnactments.get(processorEnactment);
+		boolean containsErrorsInOutputs = enactmentsWithErrorOutputs.contains(processorEnactment);
+		boolean containsErrorsInInputs = enactmentsWithErrorInputs.contains(processorEnactment);
 		if (treeNode != null) {
 			if (treeNode.getProcessorEnactment() != processorEnactment) {
 				// Update it
 				treeNode.setProcessorEnactment(processorEnactment);				
-			}	
-			treeNode.setContainsErrorsInOutputs(enactmentsWithErrorOutputs.contains(processorEnactment));
+			}
+			if (containsErrorsInInputs) {
+				treeNode.setErrorState(ErrorState.INPUT_ERRORS);
+			} else if (containsErrorsInOutputs) {
+				treeNode.setErrorState(ErrorState.OUTPUT_ERRORS);
+			}
 			return treeNode;
 		}
 		
@@ -109,7 +118,15 @@ public class ProcessorEnactmentsTreeModel extends DefaultTreeModel{
 			removeNodeFromParent(nodeToReplace);
 		} 
 		
-		ProcessorEnactmentsTreeNode newNode = new ProcessorEnactmentsTreeNode(processorEnactment, parentIteration, enactmentsWithErrorOutputs.contains(processorEnactment));
+		
+		ProcessorEnactmentsTreeNode newNode = new ProcessorEnactmentsTreeNode(
+				processorEnactment, parentIteration);
+		if (containsErrorsInInputs) {
+			newNode.setErrorState(ErrorState.INPUT_ERRORS);
+		} else if (containsErrorsInOutputs) {
+			newNode.setErrorState(ErrorState.OUTPUT_ERRORS);
+		}
+
 		insertNodeInto(newNode, iterationParent, position);
 		processorEnactments.put(processorEnactment, newNode);
 		return newNode;

@@ -64,6 +64,7 @@ import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
+import net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
@@ -71,7 +72,6 @@ import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
-
 import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
 
 /**
@@ -94,7 +94,6 @@ public class ProcessorResultsComponent extends JPanel {
 	private static final String MINUTES = "m";
 	private static final String SECONDS = "s";
 	private static final String MILLISECONDS = "ms";
-	private static long monitorRate = 500;
 
 	// JSplitPane that contains the invocation list for the processor on the
 	// left and
@@ -146,7 +145,9 @@ public class ProcessorResultsComponent extends JPanel {
 	protected Map<ProcessorEnactment, List<List<Object>>> enactmentsToInputPortData = new ConcurrentHashMap<ProcessorEnactment, List<List<Object>>>();
 	protected Map<ProcessorEnactment, List<List<Object>>> enactmentsToOutputPortData = new ConcurrentHashMap<ProcessorEnactment, List<List<Object>>>();
 
+	protected Set<ProcessorEnactment> enactmentsWithErrorInputs = Collections.synchronizedSet(new HashSet<ProcessorEnactment>());
 	protected Set<ProcessorEnactment> enactmentsWithErrorOutputs = Collections.synchronizedSet(new HashSet<ProcessorEnactment>()); 
+	
 	
 	private JLabel iterationLabel;
 
@@ -260,7 +261,7 @@ public class ProcessorResultsComponent extends JPanel {
 		}
 
 		processorEnactmentsTreeModel = new ProcessorEnactmentsTreeModel(
-				enactmentsGotSoFar, enactmentsWithErrorOutputs);
+				enactmentsGotSoFar, enactmentsWithErrorInputs, enactmentsWithErrorOutputs);
 		processorEnactmentsTree = new JTree(processorEnactmentsTreeModel);
 		processorEnactmentsTree.setRootVisible(false);
 		processorEnactmentsTree.getSelectionModel().setSelectionMode(
@@ -281,8 +282,11 @@ public class ProcessorResultsComponent extends JPanel {
 				super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
 				if (value instanceof IterationTreeNode) {
 					IterationTreeNode iterationTreeNode = (IterationTreeNode) value;
-					if (iterationTreeNode.hasErrors()) {
+					ErrorState errorState = iterationTreeNode.getErrorState();
+					if (errorState.equals(ErrorState.OUTPUT_ERRORS)) {
 						setForeground(Color.RED);
+					} else if (errorState.equals(ErrorState.INPUT_ERRORS)) {
+						setForeground(new Color(0xdd, 0xa7, 0x00));
 					}
 					if (value instanceof ProcessorEnactmentsTreeNode && iterationTreeNode.getChildCount() > 0) {
 						// Disabled, Alan prefers the folder
@@ -493,25 +497,33 @@ public class ProcessorResultsComponent extends JPanel {
 		Timestamp started = processorEnactment.getEnactmentStarted();
 		Timestamp ended = processorEnactment.getEnactmentEnded();
 		if (started != null) {
-			iterationLabelText.append(" started ");
+			if (procEnactmentTreeNode.getErrorState().equals(ErrorState.INPUT_ERRORS)) {
+				iterationLabelText.append(" <font color='#cc9700'>skipped</font> ");
+			} else {
+				iterationLabelText.append(" started ");
+			}
 			iterationLabelText.append(ISO_8601.format(started));
 		}
-		if (ended != null) {
-			if (started != null) {
+		if (ended != null
+				&& !procEnactmentTreeNode.getErrorState().equals(
+						ErrorState.INPUT_ERRORS)) {
+			// Don't show End time if there was input errors 
+			
+			if (started != null) {				
 				iterationLabelText.append(", ");
 			}
-			if (procEnactmentTreeNode.containsErrorsInOutputs()) {
+			if (procEnactmentTreeNode.getErrorState().equals(ErrorState.OUTPUT_ERRORS)) {
 				iterationLabelText.append(" <font color='red'>failed</font> ");
 			} else {
 				iterationLabelText.append(" ended ");
 			}
 			iterationLabelText.append(ISO_8601.format(ended));
-		}
-		if (started != null && ended != null) {
-			long duration = ended.getTime() - started.getTime();
-			iterationLabelText.append(" (");
-			iterationLabelText.append(formatMilliseconds(duration));
-			iterationLabelText.append(")");
+			if (started != null) {
+				long duration = ended.getTime() - started.getTime();
+				iterationLabelText.append(" (");
+				iterationLabelText.append(formatMilliseconds(duration));
+				iterationLabelText.append(")");
+			}
 		}
 		iterationLabelText.append("</body></html>");
 		return iterationLabelText;
@@ -633,6 +645,9 @@ public class ProcessorResultsComponent extends JPanel {
 					dataOnPortList.add(null); 
 					
 					if (port.isInputPort() && fetchingInputs) { // Input port
+						if (t2Reference.containsErrors()) {
+							enactmentsWithErrorInputs.add(processorEnactment);
+						}
 						List<List<Object>> listOfPortDataLists = enactmentsToInputPortData
 								.get(processorEnactment);
 						listOfPortDataLists.add(dataOnPortList); 

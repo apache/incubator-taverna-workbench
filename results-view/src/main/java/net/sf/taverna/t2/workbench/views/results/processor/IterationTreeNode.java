@@ -4,17 +4,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
 
 public class IterationTreeNode extends DefaultMutableTreeNode {
 	private static final long serialVersionUID = -7522904828725470216L;
+	
+	public static enum ErrorState {
+		NO_ERRORS,
+		INPUT_ERRORS,
+		OUTPUT_ERRORS;
+	}
+	
+	private ErrorState errorState = ErrorState.NO_ERRORS;
 
 	private List<Integer> iteration;
-	private boolean hasErrors = false;
-
-	private static Logger logger = Logger.getLogger(IterationTreeNode.class);
 	
 	public IterationTreeNode() {
 		this.setIteration(new ArrayList<Integer>());
@@ -31,33 +37,21 @@ public class IterationTreeNode extends DefaultMutableTreeNode {
 	public List<Integer> getIteration() {
 		return iteration;
 	}
-	
-	public List<Integer> getParentIteration() {
+
+	public IterationTreeNode getParentIterationTreeNode() {
 		TreeNode parentNode = getParent();
 		if (parentNode instanceof IterationTreeNode) {
-			IterationTreeNode iterationTreeNode = (IterationTreeNode) parentNode;
-			return iterationTreeNode.getIteration();
+			return (IterationTreeNode) parentNode;
 		}
-		return null;		
+		return null;
 	}
 	
-	public boolean hasErrors() {
-		if (hasErrors) {
-			return true;
+	public List<Integer> getParentIteration() {
+		IterationTreeNode parentIterationTreeNode = getParentIterationTreeNode();
+		if (parentIterationTreeNode != null) {
+			return parentIterationTreeNode.getIteration();
 		}
-		for (int i=0; i<getChildCount(); i++) {
-			TreeNode child = getChildAt(i);
-			if (! (child instanceof IterationTreeNode)) {
-				logger.error("Unexpected child: " + child);
-				continue;
-			}
-			IterationTreeNode iterationTreeNode = (IterationTreeNode) child;
-			if (iterationTreeNode.hasErrors()) {
-				hasErrors = true;
-				return true;
-			}			
-		}
-		return false;
+		return null;		
 	}
 	
 	
@@ -88,5 +82,30 @@ public class IterationTreeNode extends DefaultMutableTreeNode {
 		}		
 		
 		return sb.toString();
+	}
+
+	public void setErrorState(ErrorState errorState) {
+		this.errorState = errorState;
+		notifyParentErrorState();
+	}
+
+	private void notifyParentErrorState() {
+		IterationTreeNode parentIterationTreeNode = getParentIterationTreeNode();
+		if (parentIterationTreeNode == null) {
+			return;
+		}
+		if (parentIterationTreeNode.getErrorState().compareTo(errorState) < 0) {
+			parentIterationTreeNode.setErrorState(errorState);
+		}
+	}
+
+	@Override
+	public void setParent(MutableTreeNode newParent) {
+		super.setParent(newParent);
+		notifyParentErrorState();
+	}
+	
+	public ErrorState getErrorState() {
+		return errorState;
 	}
 }
