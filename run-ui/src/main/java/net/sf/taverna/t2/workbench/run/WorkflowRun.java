@@ -433,6 +433,8 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			workflowRunPauseButton.setEnabled(false);
 			monitorViewComponent.addWorkflowCancelButton(workflowRunCancelButton);
 			workflowRunCancelButton.setEnabled(false);
+			monitorViewComponent.addIntermediateValuesButton(intermediateValuesButton);
+			intermediateValuesButton.setEnabled(false);
 			monitorViewComponent.addWorkflowResultsButton(workflowResultsButton);
 			
 			// Results for an old wf run - get the results from provenance 
