@@ -158,9 +158,12 @@ public class ProcessorResultsComponent extends JPanel {
 			String runId, ReferenceService referenceService) {
 		super(new BorderLayout());
 		this.processor = processor;
+		this.processorsPath = Tools.getNestedPathForProcessor(
+				processor, dataflow);
 		this.dataflow = dataflow;
 		this.runId = runId;
 		this.referenceService = referenceService;
+		this.facade = null;
 
 		initComponents();
 	}
@@ -196,7 +199,7 @@ public class ProcessorResultsComponent extends JPanel {
 		titlePanel.add(new JLabel("Intermediate results for service: "
 				+ processor.getLocalName()), BorderLayout.WEST);
 
-		String title = "<html><body>Intermediate results for the service <b>"
+		String title = "<html><body>Intermediate values for the service <b>"
 				+ processor.getLocalName() + "</b></body></html>";
 		JLabel tableLabel = new JLabel(title);
 		titlePanel.add(tableLabel, BorderLayout.WEST);
@@ -312,6 +315,7 @@ public class ProcessorResultsComponent extends JPanel {
 		splitPane.setTopComponent(enactmentsTreePanel);
 		add(splitPane, BorderLayout.CENTER);
 
+		resultsUpdateNeeded = true;
 		update();
 	}
 
@@ -664,14 +668,24 @@ public class ProcessorResultsComponent extends JPanel {
 	    if (!intermediateValuesSwingWorker.isDone()) {
 		dialog.setVisible(true);
 	    }
-	    processorEnactmentsTreeModel.update(enactmentsGotSoFar);
-	    DefaultMutableTreeNode firstLeaf = processorEnactmentsTreeModel.getRoot().getFirstLeaf();
-	    if ((firstLeaf != null) && (processorEnactmentsTree.getPathForRow(0) == null)) {
-		processorEnactmentsTree.scrollPathToVisible(new TreePath((Object[])firstLeaf.getPath()));
+	    if (intermediateValuesSwingWorker.getException() != null) {
+		logger.error("Populating enactments failed", intermediateValuesSwingWorker.getException());
 	    }
-	    resultsUpdateNeeded = !(facade.getState().equals(State.cancelled) ||
-				    facade.getState().equals(State.completed));
-	    setDataTreeForResultTab();
+	    else {
+		processorEnactmentsTreeModel.update(enactmentsGotSoFar);
+		DefaultMutableTreeNode firstLeaf = processorEnactmentsTreeModel.getRoot().getFirstLeaf();
+		if ((firstLeaf != null) && (processorEnactmentsTree.getPathForRow(0) == null)) {
+		    processorEnactmentsTree.scrollPathToVisible(new TreePath((Object[])firstLeaf.getPath()));
+		}
+
+		if (facade == null) {
+		    resultsUpdateNeeded = false;
+		} else {
+		    resultsUpdateNeeded = !(facade.getState().equals(State.cancelled) ||
+					    facade.getState().equals(State.completed));
+		}
+		setDataTreeForResultTab();
+	    }
 	}
     }
 
