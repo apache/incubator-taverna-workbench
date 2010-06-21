@@ -668,6 +668,22 @@ public class ProcessorResultsComponent extends JPanel {
 		}
 	}
 
+    public void updateTree() {
+	processorEnactmentsTreeModel.update(enactmentsGotSoFar);
+	DefaultMutableTreeNode firstLeaf = processorEnactmentsTreeModel.getRoot().getFirstLeaf();
+	if ((firstLeaf != null) && (processorEnactmentsTree.getPathForRow(0) == null)) {
+	    processorEnactmentsTree.scrollPathToVisible(new TreePath((Object[])firstLeaf.getPath()));
+	}
+
+	if (facade == null) {
+	    resultsUpdateNeeded = false;
+	} else {
+	    resultsUpdateNeeded = !(facade.getState().equals(State.cancelled) ||
+				    facade.getState().equals(State.completed));
+	}
+	setDataTreeForResultTab();
+    }
+
     public void update() {
 	if (resultsUpdateNeeded) {
 	    IntermediateValuesSwingWorker intermediateValuesSwingWorker = new IntermediateValuesSwingWorker(this);
@@ -687,19 +703,7 @@ public class ProcessorResultsComponent extends JPanel {
 		logger.error("Populating enactments failed", intermediateValuesSwingWorker.getException());
 	    }
 	    else {
-		processorEnactmentsTreeModel.update(enactmentsGotSoFar);
-		DefaultMutableTreeNode firstLeaf = processorEnactmentsTreeModel.getRoot().getFirstLeaf();
-		if ((firstLeaf != null) && (processorEnactmentsTree.getPathForRow(0) == null)) {
-		    processorEnactmentsTree.scrollPathToVisible(new TreePath((Object[])firstLeaf.getPath()));
-		}
-
-		if (facade == null) {
-		    resultsUpdateNeeded = false;
-		} else {
-		    resultsUpdateNeeded = !(facade.getState().equals(State.cancelled) ||
-					    facade.getState().equals(State.completed));
-		}
-		setDataTreeForResultTab();
+		updateTree();
 	    }
 	}
     }
