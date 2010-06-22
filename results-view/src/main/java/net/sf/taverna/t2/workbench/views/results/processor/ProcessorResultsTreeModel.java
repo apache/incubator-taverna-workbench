@@ -58,17 +58,15 @@ public class ProcessorResultsTreeModel extends DefaultTreeModel{
 		
 		// If reference contains a list of data references
 		if (t2Ref.getReferenceType() == T2ReferenceType.IdentifiedList) {
-			try {
-				IdentifiedList<T2Reference> list = referenceService
-						.getListService().getList(t2Ref);
-				ProcessorResultTreeNode listNode = new ProcessorResultTreeNode(list.size()); // list node
-				parentNode.add(listNode);
-				for (T2Reference ref : list) {
-					createTree(ref, listNode);
-				}
-			} catch (NullPointerException e) {
-				logger .error("Error resolving data entity list "
-						+ t2Ref, e);
+			IdentifiedList<T2Reference> list = referenceService
+					.getListService().getList(t2Ref);
+			if (list == null) {
+				logger.error("Could not resolve list " + t2Ref + ", was run with in-memory storage?");
+			}
+			ProcessorResultTreeNode listNode = new ProcessorResultTreeNode(list.size()); // list node
+			parentNode.add(listNode);
+			for (T2Reference ref : list) {
+				createTree(ref, listNode);
 			}
 		} else { // reference to single data or an error
 			insertDataNode(t2Ref, parentNode);
