@@ -598,6 +598,11 @@ public class ProcessorResultsComponent extends JPanel {
 						processorEnactmentsStack.add(parentEnactment);
 					}
 				}
+				if (! processorEnactment.getProcessorId().equals(processorId)) {
+					// A parent processors, no need to fetch their data bindings
+					continue;
+				}
+				
 				
 				String initialInputs = processorEnactment
 						.getInitialInputsDataBindingId();
