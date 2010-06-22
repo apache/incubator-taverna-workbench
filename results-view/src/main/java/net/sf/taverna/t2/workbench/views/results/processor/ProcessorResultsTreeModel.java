@@ -43,17 +43,12 @@ public class ProcessorResultsTreeModel extends DefaultTreeModel{
 
 	private ReferenceService referenceService;
 
-	// Result data
-	private T2Reference t2Reference;
-
 	private Logger logger = Logger.getLogger(ProcessorResultsTreeModel.class);
 	
 	public ProcessorResultsTreeModel(T2Reference t2Reference, ReferenceService referenceService) {
 		
 		super(new ProcessorResultTreeNode());
 		root = (ProcessorResultTreeNode)getRoot();
-
-		this.t2Reference = t2Reference;
 		this.referenceService = referenceService;
 		
 		createTree(t2Reference, root);
@@ -65,7 +60,7 @@ public class ProcessorResultsTreeModel extends DefaultTreeModel{
 		if (t2Ref.getReferenceType() == T2ReferenceType.IdentifiedList) {
 			try {
 				IdentifiedList<T2Reference> list = referenceService
-						.getListService().getList(t2Reference);
+						.getListService().getList(t2Ref);
 				ProcessorResultTreeNode listNode = new ProcessorResultTreeNode(list.size()); // list node
 				parentNode.add(listNode);
 				for (T2Reference ref : list) {
