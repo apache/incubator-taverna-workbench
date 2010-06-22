@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.WeakHashMap;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -113,7 +114,9 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	}
     
 	// Table data (maps workflow element nodes to column data associated with them)
-	private Map<DefaultMutableTreeNode, List<Object>> data = new HashMap<DefaultMutableTreeNode, List<Object>>();;
+	private Map<DefaultMutableTreeNode, List<Object>> data = new HashMap<DefaultMutableTreeNode, List<Object>>();
+	private Map<Object, DefaultMutableTreeNode> nodeForObject = new HashMap<Object, DefaultMutableTreeNode>();
+
 	private DefaultMutableTreeNode rootNode;
 	
 	private Dataflow dataflow;
@@ -196,6 +199,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     			workflowData.set(Column.FINISH_TIME.ordinal(), null); // wf finish time
 
     		}
+    		nodeForObject.put(df, root);
 			data.put(root, workflowData);
     	}
 
@@ -317,6 +321,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     			processorData.set(Column.AVERAGE_ITERATION_TIME.ordinal(),null); // average time per iteration
     		}
 
+    		nodeForObject.put(processor, processorNode);
    			data.put(processorNode, processorData);
 			root.add(processorNode);
 			
@@ -435,21 +440,12 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		DefaultMutableTreeNode node = getNodeForObject(processor);
 		setValueAt(failedIterations.toString(), node, Column.ITERATIONS_FAILED);
 	}
-	
+
+
 	// Get tree node containing the passed object. Root node contains the
 	// workflow object and children contain processor nodes.
 	public DefaultMutableTreeNode getNodeForObject(Object object){
-		
-		if (object == dataflow){ // no need to loop over processors
-			return (DefaultMutableTreeNode)root;
-		}
-		
-		for (DefaultMutableTreeNode node : data.keySet()) {
-			 if (node.getUserObject().equals(object)){
-				 return node;
-			 }
-		 }
-		 return null;
+		return nodeForObject.get(object);
 	}
 
     public Set<Processor> getProcessors() {
