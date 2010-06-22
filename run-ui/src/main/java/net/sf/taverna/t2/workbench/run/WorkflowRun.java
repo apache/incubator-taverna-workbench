@@ -455,6 +455,10 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	}
 
 	public JComponent getResultsComponent() {
+		if (progressRunTable == null) {
+			// still initializing
+			return workflowResultsComponent;
+		}
 	    int row = progressRunTable.getLastSelectedTableRow();
 	    if (row != -1) {
 		Object object = progressRunTable.getTreeObjectForRow(row);
