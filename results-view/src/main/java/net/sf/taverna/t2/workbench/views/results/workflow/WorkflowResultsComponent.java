@@ -73,6 +73,7 @@ import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPIRe
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
+import net.sf.taverna.t2.workflowmodel.DataflowPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
 
 //import org.apache.log4j.Logger;
@@ -128,11 +129,11 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 	// in a different format
 	private static SaveAllResultsSPIRegistry saveAllResultsRegistry = SaveAllResultsSPIRegistry.getInstance();	
 	
-	private HashMap<String, PortResultsViewTab> inputPortTabMap = new HashMap<String, PortResultsViewTab>();
-	private HashMap<String, PortResultsViewTab> outputPortTabMap = new HashMap<String, PortResultsViewTab>();
+	private Map<String, PortResultsViewTab> inputPortTabMap = new HashMap<String, PortResultsViewTab>();
+	private Map<String, PortResultsViewTab> outputPortTabMap = new HashMap<String, PortResultsViewTab>();
 	
-	private HashMap<String, Object> inputPortObjectMap = new HashMap<String, Object> ();
-	private HashMap<String, Object> outputPortObjectMap = new HashMap<String, Object> ();
+	private Map<String, Object> inputPortObjectMap = new HashMap<String, Object> ();
+	private Map<String, Object> outputPortObjectMap = new HashMap<String, Object> ();
 	
 	
 	public WorkflowResultsComponent() {
@@ -350,6 +351,18 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			    resultTab.expandTree(); // tree will be collapsed after reloading
 			}
 		    }
+		}
+	}
+	
+	public void selectWorkflowPortTab(DataflowPort port) {
+		PortResultsViewTab tab;
+		if (port instanceof DataflowInputPort) {
+			tab = inputPortTabMap.get(port.getName());
+		} else {
+			tab = outputPortTabMap.get(port.getName());
+		}
+		if (tab != null) {
+			tabbedPane.setSelectedComponent(tab);
 		}
 	}
 	

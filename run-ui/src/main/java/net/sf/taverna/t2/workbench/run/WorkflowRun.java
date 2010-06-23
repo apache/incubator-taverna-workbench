@@ -66,6 +66,7 @@ import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgr
 import net.sf.taverna.t2.workbench.views.results.processor.ProcessorResultsComponent;
 import net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultsComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.DataflowPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializerRegistry;
@@ -301,7 +302,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				* result
 				+ ((dataflow == null) ? 0 : dataflow.getIdentifier()
 						.hashCode());
-		result = prime * result + ((date == null) ? 0 : date.hashCode());
+		result = prime * result + ((runId == null) ? 0 : runId.hashCode());
 		return result;
 	}
 
@@ -320,10 +321,10 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		} else if (!dataflow.getIdentifier().equals(
 				other.dataflow.getIdentifier()))
 			return false;
-		if (date == null) {
-			if (other.date != null)
+		if (runId == null) {
+			if (other.runId != null)
 				return false;
-		} else if (!date.equals(other.date))
+		} else if (!runId.equals(other.runId))
 			return false;
 		return true;
 	}
@@ -704,17 +705,20 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			WorkflowObjectSelectionMessage message) throws Exception {
 
 		Object workflowObject = message.getWorkflowObject();
-		if (workflowObject instanceof Dataflow) {
+		if (workflowObject instanceof Dataflow || workflowObject instanceof DataflowPort) {
 			ResultsPerspectiveComponent.getInstance()
 					.setBottomComponent(workflowResultsComponent);
-		}
 		// User has selected a processor - show its
 		// intermediate results if provenance is enabled (which it should be!)
-		else if (workflowObject instanceof Processor) {
+		} else if (workflowObject instanceof Processor) {
 			if (isProvenanceEnabledForRun){
 			    ProcessorResultsComponent intermediateResultsComponent = getIntermediateResultsComponent((Processor) workflowObject);
 			    ResultsPerspectiveComponent.getInstance().setBottomComponent(intermediateResultsComponent);
 			}
+		}
+		if (workflowObject instanceof DataflowPort) {
+			DataflowPort dataflowPort = (DataflowPort) workflowObject;
+			workflowResultsComponent.selectWorkflowPortTab(dataflowPort);
 		}
 		
 		// If this came from a selection event on the graph

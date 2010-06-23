@@ -52,6 +52,7 @@ import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
 import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.DataflowPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
 import org.apache.batik.swing.JSVGCanvas;
@@ -298,15 +299,14 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 	
 	public void setSelectedGraphElementForWorkflowObject(Object workflowObject){
 		// Only select processors, ignore links, ports etc.
-		if (workflowObject instanceof Processor){
+		if (workflowObject instanceof Processor || workflowObject instanceof DataflowPort) {
 			// Clear previous selection
 			graphController.getDataflowSelectionModel().clearSelection();
 			graphController.getDataflowSelectionModel().addSelection(workflowObject);
-		}
-		else if (workflowObject instanceof Dataflow){
+		} else {
 			// We cannot show dataflow object as selected of the graph so clear previous selection
 			graphController.getDataflowSelectionModel().clearSelection();
-		}
+		} 
 	}
 }
 
