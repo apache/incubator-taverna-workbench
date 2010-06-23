@@ -29,14 +29,15 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.workbench.configuration.Configurable;
 import net.sf.taverna.t2.workbench.configuration.ConfigurationManager;
 import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -49,15 +50,21 @@ public class WorkbenchConfigurationPanel extends JPanel {
 	private static Logger logger = Logger
 			.getLogger(WorkbenchConfigurationUIFactory.class);
 
-	private JTextField dotLocation = new JTextField(25);
+	private JTextField dotLocation = new JTextField(25);	
+	private JTextField menuItems = new JTextField(10);	
+	private JCheckBox warnInternal = new JCheckBox("Warn on internal errors");
+	private JCheckBox captureConsole = new JCheckBox("Capture output on stdout/stderr");
+
+	private ConfigurationManager configurationManager = ConfigurationManager.getInstance();
+	
+	private WorkbenchConfiguration workbenchConfiguration = WorkbenchConfiguration.getInstance();
 
 	public WorkbenchConfigurationPanel() {
-		
 		super();
-		initComponents(WorkbenchConfiguration.getInstance());
+		initComponents();
 	}
 
-	private void initComponents(Configurable configurable) {
+	private void initComponents() {
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
 		
@@ -85,19 +92,17 @@ public class WorkbenchConfigurationPanel extends JPanel {
         gbc.weighty = 0.0;
         gbc.insets = new Insets(10, 0, 0, 0);
         gbc.fill = GridBagConstraints.NONE;
-        this.add(new JLabel("Dot location"), gbc);
+        this.add(new JLabel("<html><body>Path to Graphviz executable <code>dot</code></body></html>"), gbc);
 
-		dotLocation.setText((String) (configurable
-				.getProperty("taverna.dotlocation")));
+		dotLocation.setText((workbenchConfiguration
+				.getDotLocation()));
         gbc.gridx = 1;
-        gbc.gridy = 1;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(dotLocation, gbc);
 		
 		JButton browseButton=new JButton();
         gbc.gridx = 2;
-        gbc.gridy = 1;
         gbc.weightx = 0.0;
         gbc.fill = GridBagConstraints.NONE;
         this.add(browseButton, gbc);
@@ -124,9 +129,44 @@ public class WorkbenchConfigurationPanel extends JPanel {
 		});
 		browseButton.setIcon(WorkbenchIcons.openIcon);
 		
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        gbc.weightx = 0.0;
+        gbc.weighty = 0.0;
+        gbc.insets = new Insets(10, 0, 0, 0);
+        gbc.fill = GridBagConstraints.NONE;
+        this.add(new JLabel("<html><body>Maximum processors/ports in right-click menu</body></html>"), gbc);
+
+        menuItems.setText(Integer.toString(workbenchConfiguration
+				.getMaxMenuItems()));
+        gbc.gridx = 1;        
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        this.add(menuItems, gbc);
+		
+		
+
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 3;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        warnInternal.setSelected(workbenchConfiguration.getWarnInternalErrors());
+        this.add(warnInternal, gbc);
+
+
+        gbc.gridy++;
+        captureConsole.setSelected(workbenchConfiguration.getCaptureConsole());
+        this.add(captureConsole, gbc);		
+		
+        
+        
+		
 		// Add the buttons panel
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy++;
         gbc.gridwidth = 3;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
@@ -155,25 +195,35 @@ public class WorkbenchConfigurationPanel extends JPanel {
 		 */
 		JButton resetButton = new JButton(new AbstractAction("Reset") {
 			public void actionPerformed(ActionEvent arg0) {
-				resetFields(WorkbenchConfiguration.getInstance());
+				resetFields();
 			}
 		});
 		panel.add(resetButton);
 		
 		JButton applyButton = new JButton(new AbstractAction("Apply") {
 			public void actionPerformed(ActionEvent arg0) {
-				Configurable conf = WorkbenchConfiguration.getInstance();
-				String dotlocation = dotLocation.getText();
-				conf.setProperty("taverna.dotlocation", dotlocation);
+				String menus = menuItems.getText();
 				try {
-					ConfigurationManager.getInstance().store(conf);
+					workbenchConfiguration.setMaxMenuItems(Integer.valueOf(menus));
+				} catch (IllegalArgumentException e) {
+					String message = "Invalid menu items number " + menus + ":\n" + e.getLocalizedMessage();
+					JOptionPane.showMessageDialog(panel, message, "Invalid menu items", JOptionPane.WARNING_MESSAGE);
+					return;
+				}
+				
+				workbenchConfiguration.setCaptureConsole(captureConsole.isSelected());
+				workbenchConfiguration.setWarnInternalErrors(warnInternal.isSelected());
+				workbenchConfiguration.setDotLocation(dotLocation.getText());
+				try {
+					configurationManager.store(workbenchConfiguration);
+					String message = "For the new configuration to be fully applied, it is advised to restart Taverna.";
+					JOptionPane.showMessageDialog(panel, message, "Restart adviced", JOptionPane.INFORMATION_MESSAGE);
 				} catch (Exception e) {
-					logger.error("Error storing updated configuration");
+					logger.error("Error storing updated configuration", e);
 				}
 			}
 		});
 		panel.add(applyButton);
-		
 		return panel;
 	}
 	
@@ -182,9 +232,13 @@ public class WorkbenchConfigurationPanel extends JPanel {
 	 * 
 	 * @param configurable
 	 */
-	private void resetFields(WorkbenchConfiguration configurable) {
-		dotLocation.setText(configurable
-				.getProperty(WorkbenchConfiguration.TAVERNA_DOTLOCATION));
+	private void resetFields() {
+		menuItems.setText(Integer.toString(workbenchConfiguration
+				.getMaxMenuItems()));
+		dotLocation.setText(workbenchConfiguration.getDotLocation());
+        warnInternal.setSelected(workbenchConfiguration.getWarnInternalErrors());
+        captureConsole.setSelected(workbenchConfiguration.getCaptureConsole());
+
 	}
 
 }

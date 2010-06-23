@@ -45,6 +45,9 @@ public class WorkbenchConfiguration extends AbstractConfigurable {
 	private static final int DEFAULT_MAX_MENU_ITEMS = 20;
 	public static final String TAVERNA_DOTLOCATION = "taverna.dotlocation";
 	public static final String MAX_MENU_ITEMS = "taverna.maxmenuitems";
+	public static final String WARN_INTERNAL_ERRORS = "taverna.warninternal";
+	public static final String CAPTURE_CONSOLE = "taverna.captureconsole";
+	
 	
 	private static final String BIN = "bin";
 	private static final String BUNDLE_CONTENTS = "Contents";
@@ -57,6 +60,7 @@ public class WorkbenchConfiguration extends AbstractConfigurable {
 	private static final String MAC_OS_X = "Mac OS X";
 	private static final String WIN32I386 = "win32i386";
 	private static final String WINDOWS = "Windows";
+
 
 	private static class Singleton {
 		public static WorkbenchConfiguration instance = new WorkbenchConfiguration();
@@ -84,6 +88,8 @@ public class WorkbenchConfiguration extends AbstractConfigurable {
 					: getDefaultDotLocation();
 			defaultWorkbenchProperties.put(TAVERNA_DOTLOCATION, dotLocation);
 			defaultWorkbenchProperties.put(MAX_MENU_ITEMS, Integer.toString(DEFAULT_MAX_MENU_ITEMS));
+			defaultWorkbenchProperties.put(WARN_INTERNAL_ERRORS, Boolean.FALSE.toString());
+			defaultWorkbenchProperties.put(CAPTURE_CONSOLE, Boolean.TRUE.toString());
 		}
 		return defaultWorkbenchProperties;
 	}
@@ -98,6 +104,31 @@ public class WorkbenchConfiguration extends AbstractConfigurable {
 
 	public String getUUID() {
 		return uuid;
+	}
+	
+	public boolean getWarnInternalErrors() {
+		String property = getProperty(WARN_INTERNAL_ERRORS);
+		return Boolean.parseBoolean(property);
+	}
+	
+	public boolean getCaptureConsole() {
+		String property = getProperty(CAPTURE_CONSOLE);
+		return Boolean.parseBoolean(property);
+	}
+	
+	public void setWarnInternalErrors(boolean warnInternalErrors) {
+		setProperty(WARN_INTERNAL_ERRORS, Boolean.toString(warnInternalErrors));
+	}
+
+	public void setCaptureConsole(boolean captureConsole) {
+		setProperty(CAPTURE_CONSOLE, Boolean.toString(captureConsole));
+	}
+
+	public void setMaxMenuItems(int maxMenuItems) {
+		if (maxMenuItems < 2) {
+			throw new IllegalArgumentException("Maximum menu items must be at least 2");
+		}
+		setProperty(MAX_MENU_ITEMS, Integer.toString(maxMenuItems));
 	}
 	
 	public int getMaxMenuItems() {
@@ -115,7 +146,15 @@ public class WorkbenchConfiguration extends AbstractConfigurable {
 		// We'll return the default instead
 		return DEFAULT_MAX_MENU_ITEMS;
 	}
+	
+	public String getDotLocation() {
+		return getProperty(TAVERNA_DOTLOCATION);
+	}
 
+	public void setDotLocation(String dotLocation) {
+		setProperty(TAVERNA_DOTLOCATION, dotLocation);
+	}
+	
 	private String getDefaultDotLocation() {
 		File startupDir;
 		try {

@@ -70,6 +70,7 @@ import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.helper.Helper;
+import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.ui.T2ConfigurationFrame;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
@@ -93,6 +94,9 @@ public class Workbench extends JFrame {
 	private static final String LAUNCHER_LOGO_PNG = "/launcher_logo.png";
 
 	private static final long serialVersionUID = 1L;
+	
+	private final PrintStream originalErr = System.err;
+	private final PrintStream originalOut = System.out;
 
 	private static Logger logger = Logger.getLogger(Workbench.class);
 
@@ -101,7 +105,8 @@ public class Workbench extends JFrame {
 	private MenuManager menuManager = MenuManager.getInstance();
 	private FileManager fileManager = FileManager.getInstance();
 	private EditManager editManager = EditManager.getInstance();
-
+	private WorkbenchConfiguration workbenchConfiguration = WorkbenchConfiguration.getInstance();
+	
 	private WorkbenchPerspectives perspectives;
 
 	private JToolBar perspectiveToolBar;
@@ -125,7 +130,12 @@ public class Workbench extends JFrame {
 				style = JOptionPane.ERROR_MESSAGE;
 
 			} else {
-				message = "An unexpected internal error occured:\n" + e;
+				if (e instanceof Exception && 
+				    !(workbenchConfiguration.getWarnInternalErrors())) {
+					// Don't report on Exceptions from other threads by default
+					return;
+				}
+				message = "An unexpected internal error occured in \n" + t + ":\n" + e;
 				title = "Unexpected internal error";
 				style = JOptionPane.WARNING_MESSAGE;
 			}
@@ -289,8 +299,11 @@ public class Workbench extends JFrame {
 	}
 
 	protected void setSystemOutCapture() {
-		final PrintStream originalErr = System.err;
-		final PrintStream originalOut = System.out;
+		
+		if (! workbenchConfiguration.getCaptureConsole()) {
+			return;
+		}
+	
 		Logger systemOutLogger = Logger.getLogger("System.out");
 		Logger systemErrLogger = Logger.getLogger("System.err");
 		
