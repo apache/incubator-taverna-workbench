@@ -124,7 +124,7 @@ public class Workbench extends JFrame {
 			final String title;
 			final int style;
 			if (t.getClass().getName().equals("java.awt.EventDispatchThread")) {
-				message = "The action could not be completed due to an unexpected error:\n"
+				message = "The user action could not be completed due to an unexpected error:\n"
 						+ e;
 				title = "Could not complete user action";
 				style = JOptionPane.ERROR_MESSAGE;

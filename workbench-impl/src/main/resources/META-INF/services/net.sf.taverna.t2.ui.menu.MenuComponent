@@ -13,3 +13,5 @@ net.sf.taverna.t2.workbench.ui.impl.menu.OnlineHelpMenuAction
 
 #net.sf.taverna.t2.workbench.ui.impl.menu.ViewShowMenuSection
 #net.sf.taverna.t2.workbench.ui.impl.menu.ChangePerspectiveMenuAction
+
+net.sf.taverna.t2.workbench.ui.impl.menu.ShowLogsMenuAction
