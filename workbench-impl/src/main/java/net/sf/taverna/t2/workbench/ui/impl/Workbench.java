@@ -118,8 +118,12 @@ public class Workbench extends JFrame {
 	public final class ExceptionHandler implements UncaughtExceptionHandler {
 		public void uncaughtException(Thread t, Throwable e) {
 			logger.error("Uncaught exception in " + t, e);
-			// FIXME: Should check if t is eventDispatchThread - not current
-			// thread
+			if (e instanceof Exception && 
+				    !(workbenchConfiguration.getWarnInternalErrors())) {
+					// User preference disables warnings - but we'll show it anyway
+					// if it is an Error (which is more serious)
+					return;
+				}
 			final String message;
 			final String title;
 			final int style;
@@ -128,13 +132,7 @@ public class Workbench extends JFrame {
 						+ e;
 				title = "Could not complete user action";
 				style = JOptionPane.ERROR_MESSAGE;
-
 			} else {
-				if (e instanceof Exception && 
-				    !(workbenchConfiguration.getWarnInternalErrors())) {
-					// Don't report on Exceptions from other threads by default
-					return;
-				}
 				message = "An unexpected internal error occured in \n" + t + ":\n" + e;
 				title = "Unexpected internal error";
 				style = JOptionPane.WARNING_MESSAGE;
