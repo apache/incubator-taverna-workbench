@@ -178,7 +178,7 @@ public final class HelpCollator {
 				idMap.put(component, normalizedId);
 				logger.info("Registered " + normalizedId);
 			} else {
-				logger.error("Refused to register component as " + normalizedId
+				logger.info("Refused to register component as " + normalizedId
 						+ " - not in map");
 			}
 		}
