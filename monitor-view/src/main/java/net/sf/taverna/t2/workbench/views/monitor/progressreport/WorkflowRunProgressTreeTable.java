@@ -171,9 +171,12 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements Observab
 		// Find the row for the object in the tree
 		DefaultMutableTreeNode node = treeTableModel.getNodeForObject(workflowObject);
 		TreeNode[] path = node.getPath();
+		this.tree.scrollPathToVisible(new TreePath(path));
 		int row = this.tree.getRowForPath(new TreePath(path));
-		// Set selected row on the table
-		this.setRowSelectionInterval(row, row);
+		if (row > 0) {
+			// Set selected row on the table
+			this.setRowSelectionInterval(row, row);
+		}
 		lastSelectedTableRow = row;		
 	}
 
