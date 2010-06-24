@@ -63,7 +63,7 @@ public class ProcessorResultsTreeModel extends DefaultTreeModel{
 			if (list == null) {
 				logger.error("Could not resolve list " + t2Ref + ", was run with in-memory storage?");
 			}
-			ProcessorResultTreeNode listNode = new ProcessorResultTreeNode(list.size()); // list node
+			ProcessorResultTreeNode listNode = new ProcessorResultTreeNode(list.size(), t2Ref, referenceService); // list node
 			parentNode.add(listNode);
 			for (T2Reference ref : list) {
 				createTree(ref, listNode);

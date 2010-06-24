@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.processor;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -29,6 +31,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,6 +41,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.BorderFactory;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -65,6 +69,7 @@ import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState;
+import net.sf.taverna.t2.workbench.views.results.processor.FilteredIterationTreeModel.FilterType;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
@@ -133,6 +138,8 @@ public class ProcessorResultsComponent extends JPanel {
 			DataManagementConfiguration.getInstance().getConnectorType());
 
 	private ProcessorEnactmentsTreeModel processorEnactmentsTreeModel;
+
+	private FilteredIterationTreeModel filteredTreeModel;
 
 	// Map: enactment -> (port, t2Ref, tree).
 	// Each enactment is mapped to a list of 3-element lists. The 3-element list
@@ -262,7 +269,8 @@ public class ProcessorResultsComponent extends JPanel {
 
 		processorEnactmentsTreeModel = new ProcessorEnactmentsTreeModel(
 				enactmentsGotSoFar, enactmentsWithErrorInputs, enactmentsWithErrorOutputs);
-		processorEnactmentsTree = new JTree(processorEnactmentsTreeModel);
+		filteredTreeModel = new FilteredIterationTreeModel(processorEnactmentsTreeModel);
+		processorEnactmentsTree = new JTree(filteredTreeModel);
 		processorEnactmentsTree.setRootVisible(false);
 		processorEnactmentsTree.getSelectionModel().setSelectionMode(
 				TreeSelectionModel.SINGLE_TREE_SELECTION);
@@ -288,10 +296,6 @@ public class ProcessorResultsComponent extends JPanel {
 					} else if (errorState.equals(ErrorState.INPUT_ERRORS)) {
 						setForeground(new Color(0xdd, 0xa7, 0x00));
 					}
-					if (value instanceof ProcessorEnactmentsTreeNode && iterationTreeNode.getChildCount() > 0) {
-						// Disabled, Alan prefers the folder
-						// setIcon(WorkbenchIcons.workflowExplorerIcon);
-					}
 				}
 				return this;
 			}
@@ -307,11 +311,20 @@ public class ProcessorResultsComponent extends JPanel {
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		splitPane.setBottomComponent(tabbedPane);
 
+		final JComboBox filterChoiceBox = new JComboBox(new FilterType[] {FilterType.ALL, FilterType.RESULTS, FilterType.ERRORS, FilterType.SKIPPED});
+		filterChoiceBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    filteredTreeModel.setFilter((FilterType) filterChoiceBox.getSelectedItem());
+			    ProcessorResultsComponent.this.updateTree();
+			}
+		    });
+		
+		filterChoiceBox.setSelectedIndex(0);
 		JPanel enactmentsTreePanel = new JPanel(new BorderLayout());
-		JPanel enactmentsLabelPanel = new JPanel(new BorderLayout());
-		enactmentsLabelPanel.add(new JLabel("Iteration index:"),
+		JPanel enactmentsComboPanel = new JPanel(new BorderLayout());
+		enactmentsComboPanel.add(filterChoiceBox,
 				BorderLayout.WEST);
-		enactmentsTreePanel.add(enactmentsLabelPanel, BorderLayout.NORTH);
+		enactmentsTreePanel.add(enactmentsComboPanel, BorderLayout.NORTH);
 		enactmentsTreePanel.add(new JScrollPane(processorEnactmentsTree,
 				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED),
@@ -348,8 +361,8 @@ public class ProcessorResultsComponent extends JPanel {
 		final ProcessorPortResultsViewTab selectedResultTab = (ProcessorPortResultsViewTab) tabbedPane
 				.getSelectedComponent();
 		if (processorEnactmentsTree.getSelectionModel().isSelectionEmpty()) {
-			// initially empty
-			return;
+		    disableResultTabForNode(selectedResultTab, null);
+		    return;
 		}
 		TreePath selectedPath = processorEnactmentsTree.getSelectionModel()
 				.getSelectionPath();
@@ -409,7 +422,7 @@ public class ProcessorResultsComponent extends JPanel {
 					ProcessorResultsTreeModel treeModel = new ProcessorResultsTreeModel(
 							(T2Reference) listOfPortData.get(1),
 							referenceService);
-					tree = new JTree(treeModel);
+					tree = new JTree(new FilteredProcessorValueTreeModel(treeModel));
 					// Remember this triple and its index in the big list so
 					// we can
 					// update the map for this enactment after we have
@@ -418,14 +431,16 @@ public class ProcessorResultsComponent extends JPanel {
 					triple = listOfPortData;
 					tree.getSelectionModel().setSelectionMode(
 							TreeSelectionModel.SINGLE_TREE_SELECTION);
-					tree.setExpandsSelectedPaths(true);
-					tree.setLargeModel(true);
+					//					tree.setExpandsSelectedPaths(true);
+					//					tree.setLargeModel(true);
 					tree.setRootVisible(false);
 					tree.setCellRenderer(new ProcessorResultCellRenderer());
 					// Expand the whole tree
+					/*
 					for (int row = 0; row < tree.getRowCount(); row++) {
 						tree.expandRow(row);
 					}
+					*/
 					tree
 							.addTreeSelectionListener(new TreeSelectionListener() {
 								public void valueChanged(
@@ -532,11 +547,16 @@ public class ProcessorResultsComponent extends JPanel {
 	private String labelForNode(
 			DefaultMutableTreeNode node) {
 		StringBuffer label = new StringBuffer();
-		label.append(node);
-		if (node.getUserObject() != null) {
+		if (node == null) {
+		    label.append("No selection");
+		}
+		else {
+		    label.append(node);
+		    if (node.getUserObject() != null) {
 			label.append(" containing "); 
 			label.append(node.getLeafCount());
 			label.append(" iterations");
+		    }
 		}
 		return label.toString();
 	}
@@ -673,18 +693,45 @@ public class ProcessorResultsComponent extends JPanel {
 		}
 	}
 
+    private List<TreePath> expandedPaths = new ArrayList<TreePath>();
+    private TreePath selectionPath = null;
+
+    private void rememberPaths() {
+	expandedPaths.clear();
+	for (Enumeration e = processorEnactmentsTree.getExpandedDescendants(new TreePath(filteredTreeModel.getRoot())); (e != null) && e.hasMoreElements();) {
+	    expandedPaths.add((TreePath) e.nextElement());
+	}
+	selectionPath = processorEnactmentsTree.getSelectionPath();
+    }
+
+    private void reinstatePaths() {
+	for (TreePath path : expandedPaths) {
+	    if (filteredTreeModel.isShown((DefaultMutableTreeNode) path.getLastPathComponent())) {
+		processorEnactmentsTree.expandPath(path);
+	    }
+	}
+	if (selectionPath != null) {
+	    if (filteredTreeModel.isShown((DefaultMutableTreeNode) selectionPath.getLastPathComponent())) {
+		    processorEnactmentsTree.setSelectionPath(selectionPath);
+	    }
+	    else {
+		processorEnactmentsTree.clearSelection();
+	    }
+	}
+    }
+
     public void updateTree() {
+	rememberPaths();
 	processorEnactmentsTreeModel.update(enactmentsGotSoFar);
-	DefaultMutableTreeNode firstLeaf = processorEnactmentsTreeModel.getRoot().getFirstLeaf();
+	filteredTreeModel.reload();
+	reinstatePaths();
+	DefaultMutableTreeNode firstLeaf = ((DefaultMutableTreeNode) filteredTreeModel.getRoot()).getFirstLeaf();
 	if ((firstLeaf != null) && (processorEnactmentsTree.getPathForRow(0) == null)) {
 	    processorEnactmentsTree.scrollPathToVisible(new TreePath((Object[])firstLeaf.getPath()));
 	}
 
 	if (facade == null) {
 	    resultsUpdateNeeded = false;
-	} else {
-	    resultsUpdateNeeded = !(facade.getState().equals(State.cancelled) ||
-				    facade.getState().equals(State.completed));
 	}
 	setDataTreeForResultTab();
     }

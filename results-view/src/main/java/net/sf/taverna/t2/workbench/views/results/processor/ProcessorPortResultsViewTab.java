@@ -20,15 +20,24 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.processor;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.awt.BorderLayout;
+import java.util.List;
 
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
+
+import net.sf.taverna.t2.workbench.views.results.processor.FilteredProcessorValueTreeModel.FilterType;
 
 /**
  * A tab containing result tree for an input or output port of a processor 
@@ -56,6 +65,10 @@ public class ProcessorPortResultsViewTab extends JPanel{
 	// Split pane holding the result tree panel on the left 
 	// and rendering component on the right
 	private JSplitPane splitPanel;
+
+    private JComboBox filterChoiceBox;
+
+	private FilteredProcessorValueTreeModel filteredTreeModel;
 
 	public ProcessorPortResultsViewTab(String portName) {
 		this.portName = portName;
@@ -98,6 +111,42 @@ public class ProcessorPortResultsViewTab extends JPanel{
 		return this.isOutputPortTab;
 	}
 
+    private List<TreePath> expandedPaths = new ArrayList<TreePath>();
+    private TreePath selectionPath = null;
+
+    private void rememberPaths() {
+	expandedPaths.clear();
+	for (Enumeration e = resultsTree.getExpandedDescendants(new TreePath(filteredTreeModel.getRoot())); (e != null) && e.hasMoreElements();) {
+	    expandedPaths.add((TreePath) e.nextElement());
+	}
+	selectionPath = resultsTree.getSelectionPath();
+    }
+
+    private void reinstatePaths() {
+	for (TreePath path : expandedPaths) {
+	    if (filteredTreeModel.isShown((DefaultMutableTreeNode) path.getLastPathComponent())) {
+		resultsTree.expandPath(path);
+	    }
+	}
+	if (selectionPath != null) {
+	    if (filteredTreeModel.isShown((DefaultMutableTreeNode) selectionPath.getLastPathComponent())) {
+		    resultsTree.setSelectionPath(selectionPath);
+	    }
+	    else {
+		resultsTree.clearSelection();
+		renderedResultComponent.clearResult();
+	    }
+	}
+    }
+
+    private void updateTree() {
+	filteredTreeModel = (FilteredProcessorValueTreeModel) resultsTree.getModel();
+	filteredTreeModel.setFilter((FilterType) filterChoiceBox.getSelectedItem());
+	rememberPaths();
+	filteredTreeModel.reload();
+	reinstatePaths();
+    }
+
 	public void setResultsTree(JTree tree) {
 
 		resultsTree = tree;
@@ -109,18 +158,35 @@ public class ProcessorPortResultsViewTab extends JPanel{
 			splitPanel.setVisible(false);
 			revalidate();
 			return;
-		} else {
-			splitPanel.setTopComponent(treePanel);
-			splitPanel.setBottomComponent(renderedResultComponent);
-			splitPanel.setVisible(true);
 		}
 		
-		treePanel.add(new JLabel("Click to view values"), BorderLayout.NORTH);
+		TreeModel treeModel = tree.getModel();
+		int childCount = treeModel.getChildCount(treeModel.getRoot());
+		if (childCount == 0) {
+		    splitPanel.setVisible(false);
+		    revalidate();
+		    return;
+		}
+
+		splitPanel.setTopComponent(treePanel);
+		splitPanel.setBottomComponent(renderedResultComponent);
+		splitPanel.setVisible(true);
+		
+		JPanel treeSubPanel = new JPanel();
+		treeSubPanel.setLayout(new BorderLayout());
+		treeSubPanel.add(new JLabel("Click in tree to"), BorderLayout.WEST);
+		filterChoiceBox = new JComboBox(new FilterType[] {FilterType.ALL, FilterType.RESULTS, FilterType.ERRORS});
+		filterChoiceBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    updateTree();
+			}
+		    });
+		treeSubPanel.add(filterChoiceBox);
+		treePanel.add(treeSubPanel, BorderLayout.NORTH);
 		treePanel.add(new JScrollPane(resultsTree), BorderLayout.CENTER);
 		splitPanel.setTopComponent(treePanel);
-		TreeModel treeModel = tree.getModel();
 		
-		if (treeModel.getChildCount(treeModel.getRoot()) == 1) {
+		if (childCount == 1) {
 			Object child = treeModel.getChild(treeModel.getRoot(), 0);
 			if (treeModel.getChildCount(child) ==0) {
 				Object[] objectPath = new Object[]{
@@ -135,8 +201,6 @@ public class ProcessorPortResultsViewTab extends JPanel{
 		}
 		
 		revalidate();
-		
-
 		
 	}
 
