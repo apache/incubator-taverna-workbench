@@ -376,33 +376,34 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				.getConnectorType();
 		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
 
+		
 		List<net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowRun> allWorkflowRunIDs = provenanceAccess.listRuns(
 				null, null);
 		// List<WorkflowInstance> allWorkflowRunIDs =
 		// provenanceAccess.getAllWorkflowIDs();
 		// Collections.reverse(allWorkflowRunIDs);
 
-		for (net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowRun workflowInstance : allWorkflowRunIDs) {
+		for (net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowRun workflowRun : allWorkflowRunIDs) {
 			DatabaseCleanup databaseCleanup = DatabaseCleanup.getInstance();
 			if (databaseCleanup.isDeletedOrScheduledForDeletion(
-					workflowInstance.getWorkflowRunId())) {
+					workflowRun.getWorkflowRunId())) {
 				continue;
 			}
-			if (provenanceAccess.isTopLevelDataflow(workflowInstance
-					.getWorkflowId())) {
+			if (provenanceAccess.isTopLevelDataflow(workflowRun
+					.getWorkflowId(), workflowRun.getWorkflowRunId())) {
 				logger.info("retrieved previous run, workflow run id: "
-						+ workflowInstance.getWorkflowRunId() + " date: "
-						+ workflowInstance.getTimestamp());
-				Timestamp time = Timestamp.valueOf(workflowInstance
+						+ workflowRun.getWorkflowRunId() + " date: "
+						+ workflowRun.getTimestamp());
+				Timestamp time = Timestamp.valueOf(workflowRun
 						.getTimestamp());
 				Date date = new Date(time.getTime());
 
 				// Do Dataflow parsing on selection, simply pass
 				// wf-bytes and wf id
-				WorkflowRun runComponent = new WorkflowRun(workflowInstance
-						.getDataflowBlob(), workflowInstance
-						.getWorkflowId(), workflowInstance.getWorkflowExternalName(), 
-						date, workflowInstance.getWorkflowRunId(), referenceServiceWithDatabase);
+				WorkflowRun runComponent = new WorkflowRun(workflowRun
+						.getDataflowBlob(), workflowRun
+						.getWorkflowId(), workflowRun.getWorkflowExternalName(), 
+						date, workflowRun.getWorkflowRunId(), referenceServiceWithDatabase);
 				runComponent.setDataSavedInDatabase(true);
 				runComponent.setProvenanceEnabledForRun(true);
 				workflowRunsListModel.add(workflowRunsListModel.getSize(), runComponent);
