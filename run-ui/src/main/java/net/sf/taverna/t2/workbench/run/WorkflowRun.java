@@ -653,7 +653,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		    ProcessorResultsComponent prc = (ProcessorResultsComponent) o;
 		    prc.update();
 		}
-		intermediateValuesButton.setSelected(false);
+		((JButton)e.getSource()).getParent().requestFocusInWindow();
 	    }
 	}
 
@@ -676,6 +676,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 						workflowResultsComponent);
 				progressRunTable.setSelectedRowForObject(dataflow);
 			}
+			((JButton)e.getSource()).getParent().requestFocusInWindow();
 		}
 	}
 
