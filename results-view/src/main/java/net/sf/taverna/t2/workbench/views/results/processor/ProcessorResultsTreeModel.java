@@ -73,7 +73,6 @@ public class ProcessorResultsTreeModel extends DefaultTreeModel{
 		}	
 	}
 
-
 	private void insertDataNode(T2Reference t2Ref, ProcessorResultTreeNode parent) {
 		ProcessorResultTreeNode dataNode = new ProcessorResultTreeNode(t2Ref, referenceService); // data node
 		parent.add(dataNode);

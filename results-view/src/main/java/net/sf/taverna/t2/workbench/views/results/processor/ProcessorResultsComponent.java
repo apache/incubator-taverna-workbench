@@ -48,6 +48,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
@@ -431,8 +432,7 @@ public class ProcessorResultsComponent extends JPanel {
 					triple = listOfPortData;
 					tree.getSelectionModel().setSelectionMode(
 							TreeSelectionModel.SINGLE_TREE_SELECTION);
-					//					tree.setExpandsSelectedPaths(true);
-					//					tree.setLargeModel(true);
+					tree.setExpandsSelectedPaths(true);
 					tree.setRootVisible(false);
 					tree.setCellRenderer(new ProcessorResultCellRenderer());
 					// Expand the whole tree
@@ -736,6 +736,12 @@ public class ProcessorResultsComponent extends JPanel {
 	setDataTreeForResultTab();
     }
 
+    private Runnable updateTreeRunnable = new Runnable() {
+	    public void run() {
+		updateTree();
+	    }
+	};
+
     public void update() {
 	if (resultsUpdateNeeded) {
 	    IntermediateValuesSwingWorker intermediateValuesSwingWorker = new IntermediateValuesSwingWorker(this);
@@ -755,7 +761,11 @@ public class ProcessorResultsComponent extends JPanel {
 		logger.error("Populating enactments failed", intermediateValuesSwingWorker.getException());
 	    }
 	    else {
-		updateTree();
+		if (SwingUtilities.isEventDispatchThread()) {
+		    updateTreeRunnable.run();
+		} else {
+		    SwingUtilities.invokeLater(updateTreeRunnable);
+		}
 	    }
 	}
     }

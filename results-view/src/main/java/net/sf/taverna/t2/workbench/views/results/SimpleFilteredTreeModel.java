@@ -30,7 +30,7 @@ public abstract class SimpleFilteredTreeModel extends DefaultTreeModel {
         return null;
     }
  
-    private int getFilteredIndexOfChild(DefaultMutableTreeNode parent, Object child) {
+    protected int getFilteredIndexOfChild(DefaultMutableTreeNode parent, Object child) {
 	int count = -1;
 	for (int i = 0; i < delegate.getChildCount(parent); i++) {
 	    final Object c = delegate.getChild(parent, i);

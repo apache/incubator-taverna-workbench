@@ -38,6 +38,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import net.sf.taverna.t2.workbench.views.results.processor.FilteredProcessorValueTreeModel.FilterType;
+import net.sf.taverna.t2.workbench.views.results.processor.ProcessorResultTreeNode.ProcessorResultTreeNodeState;
 
 /**
  * A tab containing result tree for an input or output port of a processor 
@@ -144,6 +145,7 @@ public class ProcessorPortResultsViewTab extends JPanel{
 	filteredTreeModel.setFilter((FilterType) filterChoiceBox.getSelectedItem());
 	rememberPaths();
 	filteredTreeModel.reload();
+	resultsTree.setModel(filteredTreeModel);
 	reinstatePaths();
     }
 
@@ -188,7 +190,9 @@ public class ProcessorPortResultsViewTab extends JPanel{
 		
 		if (childCount == 1) {
 			Object child = treeModel.getChild(treeModel.getRoot(), 0);
-			if (treeModel.getChildCount(child) ==0) {
+			ProcessorResultTreeNode node = (ProcessorResultTreeNode) child;
+			if (node.getState().equals(ProcessorResultTreeNodeState.RESULT_REFERENCE)) {
+			    if (treeModel.getChildCount(child) ==0) {
 				Object[] objectPath = new Object[]{
 						treeModel.getRoot(), 
 						child
@@ -197,6 +201,7 @@ public class ProcessorPortResultsViewTab extends JPanel{
 				tree.setSelectionPath(path);
 				splitPanel.setTopComponent(new JPanel());
 				splitPanel.setDividerLocation(0);
+			    }
 			}
 		}
 		

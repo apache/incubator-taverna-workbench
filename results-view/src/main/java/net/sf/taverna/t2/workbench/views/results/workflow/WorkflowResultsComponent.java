@@ -337,17 +337,17 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			    WorkflowResultTreeModel treeModel = resultTab.getResultModel();
 			    treeModel.createTree(entry.getValue(), dummyContext, ((WorkflowResultTreeNode) treeModel.getRoot()));				
 			    // Need to refresh the tree model we have just changed by adding result nodes
-			    treeModel.reload();
+			    resultTab.getModel().reload();
 			    resultTab.expandTree(); // tree will be collapsed after reloading
 
 			}
 			else{ // output port
-
+			    System.err.println("Getting resultTab for port " + entry.getKey().getPortName());
 			    PortResultsViewTab resultTab = outputPortTabMap.get(entry.getKey().getPortName());
 			    WorkflowResultTreeModel treeModel = resultTab.getResultModel();
 			    treeModel.createTree(entry.getValue(), dummyContext, ((WorkflowResultTreeNode) treeModel.getRoot()));	
 			    // Need to refresh the tree model we have just changed by adding result nodes
-			    treeModel.reload();
+			    resultTab.getModel().reload();
 			    resultTab.expandTree(); // tree will be collapsed after reloading
 			}
 		    }
