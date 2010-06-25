@@ -99,10 +99,10 @@ public class ReportOnWorkflowAction extends AbstractAction {
 			}
 			if (status.equals(Status.WARNING)) {
 				messageType = JOptionPane.WARNING_MESSAGE;
-				message = "Validation report contains ";
+				message = "Validation reported ";
 			} else { // SEVERE
 				messageType = JOptionPane.ERROR_MESSAGE;
-				message = "Validation report contains ";
+				message = "Validation reported ";
 			        if (errorCount == 1) {
 				    message += "one error";
 				} else {
