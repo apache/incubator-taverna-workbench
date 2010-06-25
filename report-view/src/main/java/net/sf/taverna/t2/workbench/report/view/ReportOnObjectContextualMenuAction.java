@@ -144,10 +144,10 @@ public class ReportOnObjectContextualMenuAction extends AbstractContextualMenuAc
 			}
 			if (status.equals(Status.WARNING)) {
 				messageType = JOptionPane.WARNING_MESSAGE;
-				message = "Reports on " + name + " contain ";
+				message = "Validation of " + name + " reported ";
 			} else { // SEVERE
 				messageType = JOptionPane.ERROR_MESSAGE;
-				message = "Reports on " + name + " contain ";
+				message = "Validation of " + name + " reported ";
 			        if (errorCount == 1) {
 				    message += "one error";
 				} else {
