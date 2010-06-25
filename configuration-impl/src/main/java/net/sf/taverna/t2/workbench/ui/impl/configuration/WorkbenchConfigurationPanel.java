@@ -53,7 +53,7 @@ public class WorkbenchConfigurationPanel extends JPanel {
 	private JTextField dotLocation = new JTextField(25);	
 	private JTextField menuItems = new JTextField(10);	
 	private JCheckBox warnInternal = new JCheckBox("Warn on internal errors");
-	private JCheckBox captureConsole = new JCheckBox("Capture output on stdout/stderr");
+	private JCheckBox captureConsole = new JCheckBox("Capture output on stdout/stderr to log file");
 
 	private ConfigurationManager configurationManager = ConfigurationManager.getInstance();
 	
