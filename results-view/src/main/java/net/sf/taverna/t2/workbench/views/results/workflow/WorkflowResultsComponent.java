@@ -342,7 +342,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 
 			}
 			else{ // output port
-			    System.err.println("Getting resultTab for port " + entry.getKey().getPortName());
 			    PortResultsViewTab resultTab = outputPortTabMap.get(entry.getKey().getPortName());
 			    WorkflowResultTreeModel treeModel = resultTab.getResultModel();
 			    treeModel.createTree(entry.getValue(), dummyContext, ((WorkflowResultTreeNode) treeModel.getRoot()));	
