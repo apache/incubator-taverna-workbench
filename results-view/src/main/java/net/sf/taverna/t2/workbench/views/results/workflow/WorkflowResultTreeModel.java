@@ -191,6 +191,10 @@ public class WorkflowResultTreeModel extends DefaultTreeModel implements ResultL
 			try {
 				IdentifiedList<T2Reference> list = context.getReferenceService()
 						.getListService().getList(t2Ref);
+				if (list == null) {
+					logger.warn("Could not resolve " + t2Ref);
+					return;
+				}
 				WorkflowResultTreeNode listNode = new WorkflowResultTreeNode(t2Ref, context, ResultTreeNodeState.RESULT_LIST); // list node
 				listNode.setContext(context);
 				insertNodeInto(listNode, parentNode, 0);

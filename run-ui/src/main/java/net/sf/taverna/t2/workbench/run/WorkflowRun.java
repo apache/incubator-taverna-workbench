@@ -434,8 +434,11 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			monitorViewComponent.addWorkflowRunStatusLabel(workflowRunProgressStatusLabel);
 			// for previous run status is always "finished" and pause/cancel buttons are disabled
 			workflowRunProgressStatusLabel.setBorder(new EmptyBorder(0,0,0,10));
+
+			
 			workflowRunProgressStatusLabel.setText(STATUS_FINISHED);
 			workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.greentickIcon);
+			
 			monitorViewComponent.addWorkflowPauseButton(workflowRunPauseButton);
 			workflowRunPauseButton.setEnabled(false);
 			monitorViewComponent.addWorkflowCancelButton(workflowRunCancelButton);

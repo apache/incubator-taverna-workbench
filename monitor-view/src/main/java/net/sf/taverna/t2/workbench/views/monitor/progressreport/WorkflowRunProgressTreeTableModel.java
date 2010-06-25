@@ -76,6 +76,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	public static final String STATUS_CANCELLED = "Cancelled";
 	public static final String STATUS_PAUSED = "Paused";
 	public static final String STATUS_RUNNING = "Running";
+	private static final String STATUS_UNKNOWN = "Unknown";
 
 	public enum Column { 
 		
@@ -162,7 +163,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 
     		// If this is an old run - populate the tree from provenance
     		if (provenanceConnector != null && referenceService != null && provenanceAccess != null){    			
-    			workflowData.set(Column.STATUS.ordinal(), STATUS_FINISHED); // status
+    			String workflowStatus = STATUS_UNKNOWN;
     			
     			workflowData.set(Column.ITERATIONS_DONE.ordinal(), "-"); 
     			workflowData.set(Column.ITERATIONS_FAILED.ordinal(), "-");
@@ -173,9 +174,15 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     			Timestamp workflowStartTime = null;
     			Timestamp workflowFinishTime = null;
     			if (dataflowInvocation != null) {
+    				if (dataflowInvocation.getCompleted()) {
+						workflowStatus = STATUS_FINISHED;
+    				} else {
+    					workflowStatus = STATUS_CANCELLED;
+    				}
 					workflowStartTime = dataflowInvocation.getInvocationStarted();
 					workflowFinishTime = dataflowInvocation.getInvocationEnded();    			
     			}
+    			workflowData.set(Column.STATUS.ordinal(), workflowStatus);
     			
     			if (workflowStartTime != null &&  workflowFinishTime != null) {
     				workflowData.set(Column.AVERAGE_ITERATION_TIME.ordinal(), formatMilliseconds(workflowFinishTime.getTime() - workflowStartTime.getTime())); // average running time in ms
@@ -232,7 +239,9 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     			}
 
     			List<ProcessorEnactment> processorEnactments = provenanceAccess.getProcessorEnactments(workflowRunId, processorNamesPath);
-    			processorData.set(Column.STATUS.ordinal(), STATUS_FINISHED); // status
+    			String processorStatus = STATUS_FINISHED;
+    			// FIXME: Should be 'Unknown' for cancelled or unknown workflows
+				processorData.set(Column.STATUS.ordinal(), processorStatus); // status
     			
     			if (processorEnactments.isEmpty()){
     				
