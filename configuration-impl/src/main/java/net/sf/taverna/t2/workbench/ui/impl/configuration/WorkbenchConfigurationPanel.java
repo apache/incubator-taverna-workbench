@@ -79,7 +79,7 @@ public class WorkbenchConfigurationPanel extends JPanel {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.gridwidth = 3;
+        gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.weighty = 0.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -87,22 +87,24 @@ public class WorkbenchConfigurationPanel extends JPanel {
 		
         gbc.gridx = 0;
         gbc.gridy = 1;
-        gbc.gridwidth = 1;
+        gbc.gridwidth = 2;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
-        gbc.insets = new Insets(10, 0, 0, 0);
+        gbc.insets = new Insets(10, 5, 0, 0);
         gbc.fill = GridBagConstraints.NONE;
-        this.add(new JLabel("<html><body>Path to Graphviz executable <code>dot</code></body></html>"), gbc);
+        this.add(new JLabel("<html><body>Path to Graphviz executable <code>dot</code>:</body></html>"), gbc);
 
 		dotLocation.setText((workbenchConfiguration
 				.getDotLocation()));
-        gbc.gridx = 1;
+        gbc.gridy++;
+        gbc.gridwidth = 1;
         gbc.weightx = 1.0;
+        gbc.insets = new Insets(0, 0, 0, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(dotLocation, gbc);
 		
 		JButton browseButton=new JButton();
-        gbc.gridx = 2;
+        gbc.gridx = 1;
         gbc.weightx = 0.0;
         gbc.fill = GridBagConstraints.NONE;
         this.add(browseButton, gbc);
@@ -127,42 +129,39 @@ public class WorkbenchConfigurationPanel extends JPanel {
 				}
 			}
 		});
-		browseButton.setIcon(WorkbenchIcons.openIcon);
-		
+		browseButton.setIcon(WorkbenchIcons.openIcon);	
 
         gbc.gridx = 0;
         gbc.gridy++;
-        gbc.gridwidth = 1;
+        gbc.gridwidth = 2;
         gbc.weightx = 0.0;
         gbc.weighty = 0.0;
-        gbc.insets = new Insets(10, 0, 0, 0);
-        gbc.fill = GridBagConstraints.NONE;
-        this.add(new JLabel("<html><body>Maximum processors/ports in right-click menu</body></html>"), gbc);
+        gbc.insets = new Insets(10, 5, 0, 0);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        this.add(new JLabel("<html><body>Maximum number of services/ports in right-click menu:</body></html>"), gbc);
 
         menuItems.setText(Integer.toString(workbenchConfiguration
 				.getMaxMenuItems()));
-        gbc.gridx = 1;        
+        gbc.gridy++;        
         gbc.weightx = 1.0;
+        gbc.gridwidth = 1;
+        gbc.insets = new Insets(0, 0, 0, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(menuItems, gbc);
 		
-		
-
         gbc.gridx = 0;
         gbc.gridy++;
-        gbc.gridwidth = 3;
+        gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 0, 0, 0);
         warnInternal.setSelected(workbenchConfiguration.getWarnInternalErrors());
         this.add(warnInternal, gbc);
 
-
         gbc.gridy++;
+        gbc.insets = new Insets(0, 0, 10, 0);
         captureConsole.setSelected(workbenchConfiguration.getCaptureConsole());
         this.add(captureConsole, gbc);		
-		
-        
-        
 		
 		// Add the buttons panel
         gbc.gridx = 0;
