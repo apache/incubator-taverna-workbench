@@ -112,7 +112,11 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 
 		this.addWindowListener(new WindowAdapter() {
 
-			public void windowClosing(WindowEvent e) {
+			public void windowOpened(WindowEvent e) {
+			    ActivityConfigurationDialog.this.requestFocusInWindow();
+			    ActivityConfigurationDialog.this.panel.whenOpened();
+			}
+			public void windowClosing(WindowEvent e) {			    
 				closeDialog();
 			}
 		});

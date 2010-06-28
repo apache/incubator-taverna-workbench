@@ -82,6 +82,7 @@ public class HelpEnabledDialog extends JDialog {
 	public HelpEnabledDialog(Frame owner, String title, boolean modal, String id)
 			throws HeadlessException {
 		super(owner == null ? MainWindow.getMainWindow() : owner, title, modal);
+
 		if (id != null) {
 			HelpCollator.registerComponent(this, id);
 		} else if (owner != null) {
@@ -323,4 +324,8 @@ public class HelpEnabledDialog extends JDialog {
 		return result.get(0);
 	}
 
+    public void setVisible(boolean b) {
+	this.setLocationRelativeTo(this.getParent());
+	super.setVisible(b);
+    }
 }

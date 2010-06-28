@@ -45,7 +45,7 @@ public class ProcessorFragilityChecker implements FragilityChecker<Processor> {
 		Dataflow d = (Dataflow) ancestry.get(0);
 		for (ProcessorInputPort pip : o.getInputPorts()) {
 		if (pip.getDepth() == -1) {
-		    result = new VisitReport(FragilityCheck.getInstance(), o, "Invalid depth", FragilityCheck.INVALID_DEPTH, VisitReport.Status.SEVERE);
+		    result = new VisitReport(FragilityCheck.getInstance(), o, "Invalid depth of list", FragilityCheck.INVALID_DEPTH, VisitReport.Status.SEVERE);
 		}
 		else {
 		    int viaMerge = 0;
@@ -77,7 +77,7 @@ public class ProcessorFragilityChecker implements FragilityChecker<Processor> {
 
 			
 			if ((sourceIterates || (viaMerge != 0)) && listCreation && !sourceRetries) {
-			    VisitReport report = new VisitReport(FragilityCheck.getInstance(), o, "Single error fragile", FragilityCheck.SOURCE_FRAGILE, VisitReport.Status.WARNING);
+			    VisitReport report = new VisitReport(FragilityCheck.getInstance(), o, "Breaks on single error", FragilityCheck.SOURCE_FRAGILE, VisitReport.Status.WARNING);
 			    report.setProperty("sinkPort", pip);
 			    report.setProperty("sourceProcessor", sourceProcessor);
 			    reports.add(report);
@@ -90,7 +90,7 @@ public class ProcessorFragilityChecker implements FragilityChecker<Processor> {
 		} else if (reports.size() == 1) {
 		    return (reports.iterator().next());
 		} else {
-		    return new VisitReport(FragilityCheck.getInstance(), o, "Single error fragile", FragilityCheck.SOURCE_FRAGILE, VisitReport.Status.WARNING, reports);
+		    return new VisitReport(FragilityCheck.getInstance(), o, "Breaks on single error", FragilityCheck.SOURCE_FRAGILE, VisitReport.Status.WARNING, reports);
 		}
 	}
 
