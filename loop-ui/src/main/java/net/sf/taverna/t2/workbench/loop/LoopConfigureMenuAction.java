@@ -51,7 +51,7 @@ public class LoopConfigureMenuAction extends AbstractContextualMenuAction {
 		return new AbstractAction("Looping...") {
 			public void actionPerformed(ActionEvent e) {				
 				Processor p = (Processor) getContextualSelection().getSelection();
-				configureLoopLayer(p, e);
+				configureLoopLayer(p, e); 
 			}
 		};
 	}
@@ -62,7 +62,6 @@ public class LoopConfigureMenuAction extends AbstractContextualMenuAction {
 			LoopConfigureAction loopConfigureAction = new LoopConfigureAction(null, null, loopLayer);
 			loopConfigureAction.actionPerformed(e);
 		}
-		
 	}
 
 	public static Loop getLoopLayer(Processor p) {

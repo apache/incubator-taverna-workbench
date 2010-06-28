@@ -71,9 +71,7 @@ public class T1OpenHandler extends AbstractDataflowPersistenceHandler implements
 				File.class);
 	}
 
-	@Override
-	public DataflowInfo openDataflow(FileType fileType, Object source)
-			throws OpenException {
+        private DataflowInfo openDataflowInMode(FileType fileType, Object source, boolean online) throws OpenException {
 
 		TavernaSPIRegistry.setRepository(applicationRuntime
 				.getRavenRepository());
@@ -120,7 +118,7 @@ public class T1OpenHandler extends AbstractDataflowPersistenceHandler implements
 
 		final Dataflow dataflow;
 		try {
-			dataflow = openDataflowStream(inputStream);
+			dataflow = openDataflowStream(inputStream, online);
 		} finally {
 			if (!(source instanceof InputStream)) {
 				// We created the stream, we'll close it
@@ -138,20 +136,32 @@ public class T1OpenHandler extends AbstractDataflowPersistenceHandler implements
 		}
 		return new DataflowInfo(SCUFL_FILE_TYPE, canonicalSource, dataflow,
 				lastModified);
+        }
+
+	@Override
+	public DataflowInfo openDataflow(FileType fileType, Object source)
+			throws OpenException {
+	    DataflowInfo result = null;
+	    result = openDataflowInMode(fileType, source, false);
+	    return result;
 	}
 
-	protected Dataflow openDataflowStream(InputStream inputStream)
+	protected Dataflow openDataflowStream(InputStream inputStream, boolean online)
 			throws OpenException {
 		ScuflModel scuflModel = new ScuflModel();
-		try {
+		if (!online) {
+		    try {
 			scuflModel.setOffline(true);
-		} catch (SetOnlineException e1) {
-			logger.error(e1);
+		    }
+		    catch (SetOnlineException e) {
+			throw new OpenException("Could not go offline", e);
+		    }
 		}
 		try {
-			XScuflParser.populate(inputStream, scuflModel, null);
-		} catch (ScuflException e) {
-			throw new OpenException("Could not parse Scufl file", e);
+		    XScuflParser.populate(inputStream, scuflModel, null);
+		}
+		catch (ScuflException e1) {
+		    throw new OpenException("Could not parse Scufl file", e1);
 		}
 		Dataflow dataflow;
 		try {

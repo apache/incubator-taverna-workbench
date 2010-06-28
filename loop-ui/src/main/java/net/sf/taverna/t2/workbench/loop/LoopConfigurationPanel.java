@@ -342,34 +342,35 @@ public class LoopConfigurationPanel extends JPanel {
 				"<html><body>"
 						+ "The service <strong>" + processor.getLocalName() +  "</strong> will be "
 						+ "invoked repeatedly as "
-						+ "long as the <em>customised loop condition</em> returns a string equal "
+						+ "long as the <em>customized loop condition service</em> returns a string equal "
 						+ "to <strong>\"true\"</strong> on its output port <code>loop</code>."
-						+ "<br><br>"
-						+ "Input ports of the condition service will be populated with values from "
-						+ "the <em>corresponding output ports</em> of the main service invocation "
-						+ "(as long as they are also "
-						+ "<strong>connected</strong> in the containing workflow)."
-						+ "<br><br> "
-
-						+ "Any <em>matching "
-						+ "output ports</em> from the condition service will provide the corresponding "
-						+ "<em>inputs</em> to the main service while looping. You will need to connect "
-						+ "the <em>initial inputs</em> in the containing workflow."
+//						+ "<br><br>"
+//						+ "Input ports of the condition service will be populated with values from "
+//						+ "the <em>corresponding output ports</em> of the main service invocation "
+//						+ "(as long as they are also "
+//						+ "<strong>connected</strong> in the containing workflow)."
+//						+ "<br><br> "
+//
+//						+ "Any <em>matching "
+//						+ "output ports</em> from the condition service will provide the corresponding "
+//						+ "<em>inputs</em> to the main service while looping. You will need to connect "
+//						+ "the <em>initial inputs</em> in the containing workflow."
 						+ "</body></html>");
 		customPanel.add(helpLabel, gbc);
 
-		gbc.weightx = 0;
+		gbc.weightx = 0.1;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.gridx = 0;
 		gbc.gridy++;
 		gbc.gridwidth = 1;
-		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-		customizeButton = new JButton("Customise loop condition");
+		gbc.anchor = GridBagConstraints.EAST;
+		JPanel customiseButtonPanel = new JPanel(new FlowLayout());
+		customiseButtonPanel.setBorder(new EmptyBorder(10,0,0,0));
+		customizeButton = new JButton("Customize loop condition");
 		customizeButton.addActionListener(new CustomizeAction());
-		customPanel.add(customizeButton, gbc);
-
-		gbc.gridx++;
-		customPanel.add(new JButton(new ResetAction()), gbc);
+		customiseButtonPanel.add(customizeButton);
+		customiseButtonPanel.add(new JButton(new ResetAction()));
+		customPanel.add(customiseButtonPanel, gbc);
 
 	}
 
@@ -387,7 +388,7 @@ public class LoopConfigurationPanel extends JPanel {
 		JLabel invokedRepeatedlyLabel = new JLabel(
 				 
 				"<html><body>The service <strong>" + processor.getLocalName() +  "</strong> " +
-						"will be invoked repeatedly <em>until</em> its output</body></html>");
+						"will be invoked repeatedly <em>until</em> its output port</body></html>");
 		invokedRepeatedlyLabel.setBorder(new EmptyBorder(10,0,10,0)); // give some top and bottom border to the label
 		configPanel.add(invokedRepeatedlyLabel, gbc);
 		gbc.ipadx = 4;
@@ -485,15 +486,17 @@ public class LoopConfigurationPanel extends JPanel {
 		configPanel.add(portWarning, gbc);
 
 		gbc.insets = new Insets(0, 0, 0, 0);
-		gbc.weightx = 0.0;
+		gbc.weightx = 0.1;
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.gridx = 0;
 		gbc.gridy++;
 		gbc.gridwidth = 4;
 		gbc.anchor = GridBagConstraints.LAST_LINE_END;
-		customizeButton = new JButton("Customise loop condition");
+		JPanel customiseButtonPanel = new JPanel(new FlowLayout());
+		customizeButton = new JButton("Customize loop condition");
 		customizeButton.addActionListener(new CustomizeAction());
-		configPanel.add(customizeButton, gbc);
+		customiseButtonPanel.add(customizeButton);
+		configPanel.add(customiseButtonPanel, gbc);
 
 		// filler
 		gbc.gridy++;
@@ -530,11 +533,11 @@ public class LoopConfigurationPanel extends JPanel {
 	}
 
 	protected JCheckBox feedBackCheck = new JCheckBox(
-			"Feed back matching ports");
+			"Enable output port to input port feedback");
 	private JLabel portWarning = new JLabel(
-			"<html><body><small>Note that for Taverna to be able to check this output, "
-					+ "the <strong>selected service output</strong> must also be <strong>connected</strong> to "
-					+ "another service or workflow output port in the containing workflow.</small></body></html>");
+			"<html><body><small>Note that for Taverna to be able to execute this loop, "
+					+ "the output port <strong>must</strong> be connected to an input of another service "
+					+ "or a workflow output port.</small></body></html>");
 
 	protected void makeOptions() {
 		optionsPanel.removeAll();
@@ -545,6 +548,7 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.weightx = 0.1;
 		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
+		feedBackCheck.setBorder(new EmptyBorder(0,0,10,0));
 		optionsPanel.add(feedBackCheck, gbc);
 		feedBackCheck.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -575,18 +579,18 @@ public class LoopConfigurationPanel extends JPanel {
 
 	JLabel feedbackHelp = new JLabel(
 			"<html><small>"
-					+ "<p>When looping with <strong>feedback</strong> is enabled, service <em>input ports</em> which "
-					+ "match the <em>port names</em> of service <em>output ports</em> will get the next inputs "
-					+ "from the corresponding output port values of the <em>previous invocation</em>.</p><br>"
+					+ "<p>When feedback is enabled, the value of the output port is used as input " +
+							"the next time the loop in invoked. The input and output ports used for feedback "
+					+ "<strong>must</strong> have the same <strong>name</strong> and <strong>depth</strong>." 
+					+ "</p><br>"
 
-					+ "<p>This can be useful when looping over a <em>nested workflow</em> "
-					+ "which determines its next input parameters.</p><br>"
+					+ "<p>Feedback can be useful for looping over a nested workflow, "
+					+ "where the nested workflow's output determines its next input value.</p><br>"
 
-					+ "<p>You will need to provide the <em>initial</em> inputs by "
-					+ "connecting all input ports in the containing workflow. You will also "
-					+ "need to <strong>connect all service output ports</strong> "
-					+ "in the containing workflow, in order for the feedback "
-					+ "values to be picked up by the looping.</p>"
+					+ "<p>In order to use feedback looping, you must provide an initial value to the input port by "
+					+ "connecting it to the output of a previous service or workflow input port."
+					+ "The output port used as feedback also has to be connected to a downstream service " +
+							"or a workflow output port.</p>"
 
 					+ "</small></html>");
 

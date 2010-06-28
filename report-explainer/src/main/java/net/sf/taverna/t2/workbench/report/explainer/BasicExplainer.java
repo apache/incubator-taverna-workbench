@@ -47,8 +47,10 @@ import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflowmodel.Merge;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
+import net.sf.taverna.t2.workflowmodel.TokenProcessingEntity;
 import net.sf.taverna.t2.workflowmodel.health.HealthCheck;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
@@ -68,6 +70,8 @@ public class BasicExplainer implements VisitExplainer {
 
 	private static Logger logger = Logger
 			.getLogger(BasicExplainer.class);
+
+    private static String PLEASE_CONTACT = "Please contact the service provider or workflow creator.";
 
 	/* (non-Javadoc)
 	 * @see net.sf.taverna.t2.workbench.report.explainer.VisitExplainer#canExplain(net.sf.taverna.t2.visit.VisitKind, int)
@@ -276,23 +280,29 @@ public class BasicExplainer implements VisitExplainer {
 	}
 	
     private static JComponent explanationFailedEntity(VisitReport vr) {
-	Processor p = (Processor) (vr.getSubject());
-	DataflowActivity da = null;
-	for (Activity a : p.getActivityList()) {
-	    if (a instanceof DataflowActivity) {
-		da = (DataflowActivity) a;
-		break;
+	if (vr.getSubject() instanceof Processor) {
+	    Processor p = (Processor) (vr.getSubject());
+	    DataflowActivity da = null;
+	    for (Activity a : p.getActivityList()) {
+		if (a instanceof DataflowActivity) {
+		    da = (DataflowActivity) a;
+		    break;
+		}
 	    }
+	    String message = "There is possibly a problem with the service's list handling";
+	    if (da != null) {
+		message += ", or a problem with the nested workflow";
+	    }
+	    return createPanel(new Object[] {message + "."});
 	}
-	String message = "There is possibly a problem with the service's list handling";
-	if (da != null) {
-	    message += ", or a problem with the nested workflow";
+	else if (vr.getSubject() instanceof Merge) {
+	    return createPanel(new Object[] {"The merge is combining data of different depths."});
 	}
-	return createPanel(new Object[] {message});
+	return null;
     }
 
     private static JComponent explanationInvalidDataflow(VisitReport vr) {
-	return createPanel(new Object[] {"The workflow has problems - see other reports"});
+	return createPanel(new Object[] {"The workflow contains errors - see other reports."});
     }
 
     private static JComponent explanationUnresolvedOutput(VisitReport vr) {
@@ -300,29 +310,33 @@ public class BasicExplainer implements VisitExplainer {
 	Datalink incomingLink = dop.getInternalInputPort().getIncomingLink();
 	String message;
 	if (incomingLink == null) {
-	    message = "The workflow output port is not unconnected";
+	    message = "The workflow output port is not connected.";
 	} else {
-	    message = "The workflow output port is connected to a service or port with problems";
+	    message = "The workflow output port is connected to a service or port that has errors.";
 	}
 	return createPanel(new Object[] {message});
     }
 
     private static JComponent explanationUnsatisfiedEntity(VisitReport vr) {
-	return createPanel(new Object[] {"The service could not be properly checked"});
+	return createPanel(new Object[] {"The service could not be properly checked."});
     }
 
 	private static JComponent explanationDataflowCollation(VisitReport vr) {
-	    return createPanel(new Object[] {"There are problems in the nested workflow"});
+	    if (vr.getStatus().equals(VisitReport.Status.SEVERE)) {
+		return createPanel(new Object[] {"There are errors in the nested workflow."});
+	    } else {
+		return createPanel(new Object[] {"There are warnings in the nested workflow."});
+	    }
 	}
 	
 	private static JComponent explanationDataflowIncomplete(VisitReport vr) {
-	    return createPanel(new Object[] {"A workflow must contain at least one service or at least one output port"});
+	    return createPanel(new Object[] {"A workflow must contain at least one service or at least one output port."});
 	}
 	
 	private static JComponent explanationSourceFragile(VisitReport vr) {
 	    ProcessorInputPort pip = (ProcessorInputPort) vr.getProperty("sinkPort");
 	    Processor sourceProcessor = (Processor) vr.getProperty("sourceProcessor");
-	    String message = "A single error, if any, into ";
+	    String message = "A single error input into ";
 	    if (pip == null) {
 		message += "an input port ";
 	    } else {
@@ -331,8 +345,8 @@ public class BasicExplainer implements VisitExplainer {
 	    if (sourceProcessor != null) {
 		message += "from \"" + sourceProcessor.getLocalName() + "\"";
 	    }
-	    message += " might cause the service call to fail.  ";
-	    message += "If " + pip.getName() + " is unlikely to fail, e.g. if it is a StringConstant, then this warning can be ignored";
+	    message += " will cause this service to fail.  ";
+	    message += "If " + (sourceProcessor == null ? "the source" : sourceProcessor.getLocalName()) + " is unlikely to fail (for example if it is a StringConstant) then this warning can be ignored.";
 	    return createPanel(new Object[] {message});
 	}
 	
@@ -347,11 +361,11 @@ public class BasicExplainer implements VisitExplainer {
 		} else {
 			responseCode = "response code: " + responseCode;
 		}
-		return createPanel(new Object[]{"Taverna connected to \"" + endpoint + "\" but got back " + responseCode});
+		return createPanel(new Object[]{"Taverna connected to \"" + endpoint + "\" but received " + responseCode + ".  The service may still work; for example a DDBJ Blast service generates this response."});
 	}
 	
 	private static JComponent explanationIoProblem(VisitReport vr) {
-		String message = "Connecting to ";
+		String message = "Reading from ";
 		String endpoint = (String) (vr.getProperty("endpoint"));
 		if (endpoint == null) {
 			message += "the endpoint";
@@ -361,11 +375,11 @@ public class BasicExplainer implements VisitExplainer {
 		message += " caused ";
 		Exception e = (Exception) (vr.getProperty("exception"));
 		if (e == null) {
-			message += "an exception";
+			message += "an error";
 		} else {
 		    message += e.getClass().getCanonicalName() + ": \"" + e.getMessage() + "\"";
 		}
-		return createPanel(new Object[] {message});
+		return createPanel(new Object[] {message + "."});
 	}
 	
 	private static JComponent explanationInvalidUrl(VisitReport vr) {
@@ -373,7 +387,7 @@ public class BasicExplainer implements VisitExplainer {
 		if (endpoint == null) {
 			endpoint = "the endpoint";
 		}
-		return createPanel(new Object[] {"Taverna was unable to connect to \"" + endpoint + "\" because it is not a valid URL"});
+		return createPanel(new Object[] {"Taverna was unable to connect to \"" + endpoint + "\" because it is not a valid URL."});
 	}
 	
 	private static JComponent explanationTimeOut(VisitReport vr) {
@@ -385,9 +399,20 @@ public class BasicExplainer implements VisitExplainer {
 		if (timeOutString == null) {
 			timeOutString = " the timeout limit";
 		} else {
-			timeOutString += "ms";
+		    try {
+			Integer timeOut = Integer.parseInt(timeOutString);
+			if (timeOut > 1000) {
+			    timeOutString = Float.toString(timeOut / 1000) + "s";
+			}
+			else {
+			    timeOutString += "ms";
+			}
+		    }
+		    catch (NumberFormatException ex) {
+			timeOutString = " the timeout limit";
+		    }
 		}
-		return createPanel(new Object[] {"Taverna was unable to connect to \"" + endpoint + "\" within " + timeOutString});
+		return createPanel(new Object[] {"Taverna was unable to connect to \"" + endpoint + "\" within " + timeOutString + "."});
 	}
 	
 	private static JComponent explanationMissingDependency(VisitReport vr) {
@@ -413,7 +438,7 @@ public class BasicExplainer implements VisitExplainer {
 			logger.error("Could not get path", e);
 		    }
 		}
-		return createPanel(new Object[] {message});
+		return createPanel(new Object[] {message + "."});
 	}
 	
 	private static JComponent explanationDefaultValue(VisitReport vr) {
@@ -432,7 +457,7 @@ public class BasicExplainer implements VisitExplainer {
 		} else {
 			message += "\"" + e.getMessage() + "\"";
 		}
-		return createPanel(new Object[] {message});
+		return createPanel(new Object[] {message + "."});
 	}
 	
 	private static JComponent explanationNotHTTP(VisitReport vr) {
@@ -442,7 +467,7 @@ public class BasicExplainer implements VisitExplainer {
 		} else {
 			endpoint = "\"" + endpoint + "\"";
 		}
-		return createPanel(new Object[] {endpoint + " may not be accessible if you run the workflow elsewhere"});
+		return createPanel(new Object[] {endpoint + " might not be accessible if you run the workflow on a different machine."});
 	}
 	
 	private static JComponent explanationUnsupportedStyle(VisitReport vr) {
@@ -454,9 +479,9 @@ public class BasicExplainer implements VisitExplainer {
 			kind = style + "/" + use;
 		}
 		if (kind == null) {
-			message += " the kind of message the service uses";
+			message += " the kind of message the service uses.";
 		} else {
-			message += " the \"" + kind + "\" messages the service uses";
+			message += " the \"" + kind + "\" messages that the service uses.";
 		}
 		return createPanel(new Object[] {message});
 	}
@@ -469,23 +494,25 @@ public class BasicExplainer implements VisitExplainer {
 		} else {
 		    operationName = "\"" + operationName + "\"";
 		}
-		return createPanel(new Object[] {message + operationName});
+		return createPanel(new Object[] {message + operationName + "."});
 	}
 	
 	private static JComponent explanationNoEndpoints(VisitReport vr) {
-		String message = "Taverna could not find where to call the operation";
+		String message = "Taverna found the operation ";
 		String operationName = (String) vr.getProperty("operationName");
 		if (operationName == null) {
 		    operationName = "called by the service";
 		} else {
 		    operationName = "\"" + operationName + "\"";
 		}
+		message += operationName;
+		message += " but is unable to call it due to lack of location information.";
 		return createPanel(new Object[] {message + operationName});
 	}
 	
 	private static JComponent explanationInvalidConfiguration(VisitReport vr) {
 		Exception e = (Exception) (vr.getProperty("exception"));
-		String message = "Trying to understand the splitter configuration caused ";
+		String message = "Trying to understand the XML splitter caused ";
 		if (e == null) {
 			message += " an exception";
 		} else {
@@ -495,12 +522,12 @@ public class BasicExplainer implements VisitExplainer {
 	}
 	
 	private static JComponent explanationNullDatatype(VisitReport vr) {
-		String message = "The XML splitter appears to have a NULL datatype";
+		String message = "The XML splitter appears to have a NULL datatype.";
 		return createPanel(new Object[] {message});
 	}
 	
 	private static JComponent explanationDisabled(VisitReport vr) {
-		String message = "Taverna could not contact the service when the workflow was opened";
+		String message = "Taverna could not contact the service when the workflow was opened.";
 		return createPanel(new Object[] {message});
 	}
 	
@@ -527,41 +554,51 @@ public class BasicExplainer implements VisitExplainer {
 		}
 		message += "\"" + sourceName + "\"";
 	    }
-	    message += " may not be XML as required";
+	    message += " may not be XML.  The service requires XML as input.";
 		return createPanel(new Object[] {message});
 	}
 	
 	private static JComponent explanationBeanshellInvalidScript(VisitReport vr) {
-	    return createPanel(new Object[] {"There are errors in the script of the service.\nWhen the workflow runs, any calls of the service will fail"});
+	    Exception e = (Exception) vr.getProperty("exception");
+	    String exceptionMessage = null;
+	    if (e != null) {
+		exceptionMessage = e.getMessage();
+	    }
+	    return createPanel(new Object[] {"There are errors in the script of the service.\nWhen the workflow runs, any calls of the service will fail with error: ", exceptionMessage + "."});
 	}
 	
 	private static JComponent explanationUnrecognized(VisitReport vr) {
-		String message = "Taverna could not recognize the service when the workflow was opened";
+		String message = "Taverna could not recognize the service when the workflow was opened.";
 		return createPanel(new Object[] {message});
 	}
 	
     private static JComponent solutionFailedEntity(VisitReport vr) {
-	Processor p = (Processor) (vr.getSubject());
-	DataflowActivity da = null;
-	for (Activity a : p.getActivityList()) {
-	    if (a instanceof DataflowActivity) {
-		da = (DataflowActivity) a;
-		break;
+	if (vr.getSubject() instanceof Processor) {
+	    Processor p = (Processor) (vr.getSubject());
+	    DataflowActivity da = null;
+	    for (Activity a : p.getActivityList()) {
+		if (a instanceof DataflowActivity) {
+		    da = (DataflowActivity) a;
+		    break;
+		}
 	    }
+	    String message = "Check the list handling of the service, including the predicted behavior of the service's inputs and outputs";
+	    JButton button = null;
+	    if (da != null) {
+		message += ", or edit the nested workflow";
+		button = new JButton();
+		button.setAction(new EditNestedDataflowAction(da));
+		button.setText("Edit \"" + p.getLocalName() + "\"");
+	    }
+	    return createPanel(new Object[] {message + ".", button});
+	} else if (vr.getSubject() instanceof Merge) {
+	    return createPanel(new Object[] {"Check the predicted behaviour of the data being merged."});
 	}
-	String message = "Check the list handling of the service and the predicted behavior of the connections into it";
-	JButton button = null;
-	if (da != null) {
-	    message += ", or change the nested workflow";
-	    button = new JButton();
-	    button.setAction(new EditNestedDataflowAction(da));
-	    button.setText("Edit \"" + p.getLocalName() + "\"");
-	}
-	return createPanel(new Object[] {message, button});
+	return null;
     }
 
     private static JComponent solutionInvalidDataflow(VisitReport vr) {
-	String message = "Fix other problens within the workflow";
+	String message = "Fix the errors within the workflow.";
 	return createPanel(new Object[] {message});
     }
 
@@ -587,7 +624,7 @@ public class BasicExplainer implements VisitExplainer {
 		    }
 		});
 	} else {
-	    message = "Fix the problems with the service the workflow output port is connectd to";
+	    message = "Fix the errors of the service that the output port is connected to.";
 	}
 	return createPanel(new Object[] {message, deleteButton});
     }
@@ -596,7 +633,7 @@ public class BasicExplainer implements VisitExplainer {
 	String message = "";
 	Dataflow currentDataflow = FileManager.getInstance().getCurrentDataflow();
 	Tools.ProcessorSplit ps = Tools.splitProcessors(currentDataflow.getProcessors(),
-						 (Processor) (vr.getSubject()));
+						 (TokenProcessingEntity) (vr.getSubject()));
 	Set<Processor> upStream = ps.getUpStream();
 	ReportManager rm = ReportManager.getInstance();
 	boolean plural = false;
@@ -616,15 +653,15 @@ public class BasicExplainer implements VisitExplainer {
 	    return null;
 	}
 	if (!plural) {
-	    message = "The underlying problem is with" + message;
+	    message = "The underlying error is caused by" + message;
 	} else {
-	    message = "The underlying problems are with" + message;
+	    message = "The underlying errors are caused by" + message;
 	}
-	return createPanel(new Object[] {message});
+	return createPanel(new Object[] {message + "."});
     }
 
     private static JComponent solutionDataflowCollation(VisitReport vr) {
-	String message = "Edit the nested workflow to fix its problems";
+	String message = "Edit the nested workflow to fix its problems.";
 	JButton button = null;
 		Processor p = (Processor) (vr.getSubject());
 		DataflowActivity da = null;
@@ -639,7 +676,7 @@ public class BasicExplainer implements VisitExplainer {
 		    button.setAction(new EditNestedDataflowAction(da));
 		    button.setText("Edit \"" + p.getLocalName() + "\"");
 		}
-		String reminder = "Remember to save the nested workflow";
+		String reminder = "Remember to save the nested workflow.";
 		return createPanel(new Object[] {message, button, reminder});
     }
 
@@ -659,7 +696,7 @@ public class BasicExplainer implements VisitExplainer {
 	} else {
 	    labelText += "\"" + sourceProcessor.getLocalName() + "\" ";
 	}
-	labelText += "more robust by setting it to retry on failure";
+	labelText += "more robust to failure by adding service retries.";
 	JButton button = null;
 	if (sourceProcessor != null) {
 	    Retry retryLayer = null;
@@ -683,7 +720,7 @@ public class BasicExplainer implements VisitExplainer {
 		Processor p = (Processor) (vr.getSubject());
 		button.setAction(new ReportViewConfigureAction(p));
 		button.setText("Configure " + p.getLocalName());
-		return createPanel(new Object[] {"Configure the service by clicking the button below.\nCheck that the script is valid before saving it.",
+		return createPanel(new Object[] {"Edit the service script, checking that the script is valid before saving it.",
 						     button});
 	}
 
@@ -693,9 +730,9 @@ public class BasicExplainer implements VisitExplainer {
 	JButton connectButton = null;
 	if (endpoint == null) {
 	    endpoint = "the endpoint";
-	    connectMessage = "Try to connect to the endpoint";
+	    connectMessage = "Try to connect to the endpoint.";
 	} else {
-	    connectMessage = "Try to connect to " + endpoint + " in a browser";
+	    connectMessage = "Try to connect to " + endpoint + " in a browser.";
 	    final String end = endpoint;
 	    connectButton = new JButton(new AbstractAction("Open in browser") {
 		    public void actionPerformed(ActionEvent e) {
@@ -709,12 +746,12 @@ public class BasicExplainer implements VisitExplainer {
 		    }
 		});
 	}
-	String workedMessage = "If the connection did not work then contact the service provider or workflow creator, else check if you are using a HTTP Proxy and set Taverna's proxy settings";
+	String workedMessage = "If the connection did not work, please contact the service provider or workflow creator.  Alternatively, check if you are using an HTTP Proxy, and edit Taverna's proxy settings.";
 	JButton preferencesButton = null;
 	if (endpoint != null) {
 	    preferencesButton = new JButton(new AbstractAction("Change HTTP proxy") {
 		    public void actionPerformed(ActionEvent e) {
-			T2ConfigurationFrame.showFrame();
+			T2ConfigurationFrame.showConfiguration("HTTP proxy");
 		    }
 		});
 	}
@@ -728,7 +765,7 @@ public class BasicExplainer implements VisitExplainer {
 	    }
 	}
 	if (da != null) {
-    	editMessage = "If the service has moved then try to edit its properties";
+	    editMessage = "If the service has moved, change the service's properties to its new location.";
 	    editButton = new JButton(new DisabledActivityConfigurationAction(da, null));
 	}
 	return createPanel(new Object[] {connectMessage,
@@ -741,8 +778,8 @@ public class BasicExplainer implements VisitExplainer {
     }
 
     private static JComponent solutionInvalidUrl(VisitReport vr) {
-	String message = "Contact the service provider or workflow creator";
-	String editMessage = "If the service has moved then try to edit its properties";
+	String message = "Contact the service provider or workflow creator.";
+    	String editMessage = "If the service has moved, change the service's properties to its new location.";
 	JButton editButton = null;
 	DisabledActivity da = null;
 	for (Activity a : ((Processor)vr.getSubject()).getActivityList()) {
@@ -758,7 +795,54 @@ public class BasicExplainer implements VisitExplainer {
     }
 
     private static JComponent solutionTimeOut(VisitReport vr) {
-	return createPanel(new Object[] {"Try the service later, if it still does not work then contact the service provider or workflow creator"});
+	String message = "Try to open ";
+	String endpoint = (String) (vr.getProperty("endpoint"));
+	JButton connectButton = null;
+	if (endpoint == null) {
+	    message += "the endpoint ";
+	} else {
+	    message += "\"" + endpoint + "\" ";
+	    final String end = endpoint;
+	    connectButton = new JButton(new AbstractAction("Open in browser") {
+		    public void actionPerformed(ActionEvent e) {
+			try {
+			    BrowserLauncher launcher = new BrowserLauncher();
+			    launcher.openURLinBrowser(end);
+			}
+			catch (Exception ex) {
+			    logger.error("Failed to open endpoint", ex);
+			}
+		    }
+		});
+	}
+	message += "in a file, or web, browser.";
+	String workedMessage = "If the browser opened the address, then alter the validation timeout in the preferences";
+	JButton preferencesButton = new JButton(new AbstractAction("Change timeout") {
+		    public void actionPerformed(ActionEvent e) {
+			T2ConfigurationFrame.showConfiguration("Validation report");
+		    }
+		});
+        String didNotWorkMessage = "Alternatively, if the browser did not open the address, try later as the service may be temporarily offline.  If the service remains offline, please contact the service provider or workflow creator.";
+    	String editMessage = null;
+	JButton editButton = null;
+	DisabledActivity da = null;
+	for (Activity a : ((Processor)vr.getSubject()).getActivityList()) {
+	    if (a instanceof DisabledActivity) {
+		da = (DisabledActivity) a;
+		break;
+	    }
+	}
+	if (da != null) {
+	    editMessage = "If the service has moved, change the service's properties to its new location.";
+	    editButton = new JButton(new DisabledActivityConfigurationAction(da, null));
+	}
+	return createPanel(new Object[] {message,
+					     connectButton,
+					     workedMessage,
+					 preferencesButton,
+					 didNotWorkMessage,
+					 editMessage,
+					 editButton});
     }
 
     private static JComponent solutionIoProblem(VisitReport vr) {
@@ -782,9 +866,9 @@ public class BasicExplainer implements VisitExplainer {
 		    }
 		});
 	}
-	message += "in a file or web browser";
-	String elseMessage = "If that does not work then contact the service provider ot workflow creator";
-	String editMessage = "If the service has moved then try to edit its properties";
+	message += "in a file, or web, browser.";
+	String elseMessage = "If that does not work, please contact the service provider or workflow creator.";
+    	String editMessage = "If the service has moved, change the service's properties to its new location.";
 	JButton editButton = null;
 	DisabledActivity da = null;
 	for (Activity a : ((Processor)vr.getSubject()).getActivityList()) {
@@ -826,14 +910,14 @@ public class BasicExplainer implements VisitExplainer {
 		logger.error("Could not get path", e);
 	    }
 	} else {
-	    message += " in the application directory";
+	    message += " in the application directory.";
 	}
-	String elseMessage = "If you do not have the files then contact the workflow creator";
+	String elseMessage = "If you do not have the files, please contact the workflow creator.";
 	return createPanel(new Object[] {message, elseMessage});
     }
 
     private static JComponent solutionDefaultValue(VisitReport vr) {
-	String message = "Set default value of the service by clicking the button";
+	String message = "Change the value of the service by clicking the \"Set value\" button";
 	JButton button = new JButton();
 	Processor p = (Processor) (vr.getSubject());
 	button.setAction(new ReportViewConfigureAction(p));
@@ -842,8 +926,7 @@ public class BasicExplainer implements VisitExplainer {
     }
 
     private static JComponent solutionBadWSDL(VisitReport vr) {
-	String message = "Contact the service provider or workflow creator";
-	return createPanel(new Object[] {message});
+	return createPanel(new Object[] {PLEASE_CONTACT});
     }
 
     private static JComponent solutionNotHTTP(VisitReport vr) {
@@ -853,18 +936,18 @@ public class BasicExplainer implements VisitExplainer {
 	} else {
 	    endpoint = "\"" + endpoint + "\"";
 	}
-	String message = "Move the file at " + endpoint + " to a web server";
+	String message = "Move the file at " + endpoint + " to a web server.";
 	return createPanel(new Object[] {message});
     }
 
     private static JComponent solutionUnsupportedStyle(VisitReport vr) {
-	String message = "Contact the service provider to see if there is an alternative style of service available";
+	String message = "Contact the service provider to see if there is an alternative style of service available.";
 	return createPanel(new Object[] {message});
     }
 
     private static JComponent solutionUnknownOperation(VisitReport vr) {
-	String message = "Contact the service provider to see if the operation has been renamed";
-	String editMessage = "If you know the new name then try to edit the service's properties";
+	String message = "Contact the service provider to see if the operation has been renamed.";
+	String editMessage = "If you know its new name, then please edit the service's properties.";
 	JButton editButton = null;
 	DisabledActivity da = null;
 	for (Activity a : ((Processor)vr.getSubject()).getActivityList()) {
@@ -880,22 +963,19 @@ public class BasicExplainer implements VisitExplainer {
     }
 
     private static JComponent solutionNoEndpoints(VisitReport vr) {
-	String message = "Contact the service provider or workflow creator";
-	return createPanel(new Object[] {message});
+	return createPanel(new Object[] {PLEASE_CONTACT});
     }
 
     private static JComponent solutionInvalidConfiguration(VisitReport vr) {
-	String message = "Contact the service provider or workflow creator";
-	return createPanel(new Object[] {message});
+	return createPanel(new Object[] {PLEASE_CONTACT});
     }
 
     private static JComponent solutionNullDatatype(VisitReport vr) {
-	String message = "Contact the service provider or workflow creator";
-	return createPanel(new Object[] {message});
+	return createPanel(new Object[] {PLEASE_CONTACT});
     }
 
     private static JComponent solutionDisabled(VisitReport vr) {
-	String message = "Perform a full check and fix any connection problems with the service";
+	String message = "Validate the workflow and fix any errors on the service.";
 	return createPanel(new Object[] {message});
     }
 
@@ -904,10 +984,10 @@ public class BasicExplainer implements VisitExplainer {
 	    if (sinkPortName == null) {
 		return null;
 	    }
-	    String removeMessage = "Remove the link to " + "port \"" + sinkPortName + "\"";
+	    String removeMessage = "1. Remove the link to " + "port \"" + sinkPortName + "\"";
 	    ProcessorInputPort pip = (ProcessorInputPort) vr.getProperty("sinkPort");
 	    final InputPortTypeDescriptorActivity a = (InputPortTypeDescriptorActivity) vr.getProperty("activity");
-	    String addSplitterMessage = "Add an XML splitter for " + "port \"" + sinkPortName + "\"";
+	    String addSplitterMessage = "2. Add an XML splitter for " + "port \"" + sinkPortName + "\"";
 	    JButton button = null;
 	    if (pip != null) {
 		Datalink incomingLink = pip.getIncomingLink();
@@ -931,12 +1011,12 @@ public class BasicExplainer implements VisitExplainer {
 });
 		}
 	    }
-	    String addConnectionMessage = "Make a connection to a port of the XML splitter";
+	    String addConnectionMessage = "3. Make a connection to the relevant port of the new XML splitter.";
 	    return createPanel(new Object[] {removeMessage, addSplitterMessage, button, addConnectionMessage});
     }
 
     private static JComponent solutionUnrecognized(VisitReport vr) {
-	String message = "Contact the workflow creator to find out what plugins need to be installed";
+	String message = "Please contact the workflow creator to find out what additional plugins, if any, need to be installed in Taverna.";
 	return createPanel(new Object[] {message});
     }
 
