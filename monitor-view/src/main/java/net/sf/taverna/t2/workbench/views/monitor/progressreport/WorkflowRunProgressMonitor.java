@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.WeakHashMap;
 
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade.State;
@@ -65,9 +66,9 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	
 	private static Logger logger = Logger.getLogger(WorkflowRunProgressMonitor.class);
 	
-	private static long deregisterDelay = 1000;
+	private static long deregisterDelay = 10000;
 
-	private static long monitorRate = 300;
+	private static long monitorRate = 1000;
 
 	private final WorkflowRunProgressTreeTable progressTreeTable;
 
@@ -82,7 +83,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	// Map from invocation process ID to start time
 	private static Map<String, Date> activitityInvocationStartTimes = Collections.synchronizedMap(new HashMap<String, Date>());
 	
-	private static Map<String, List<Long>> processorInvocationTimes = Collections.synchronizedMap(new HashMap<String, List<Long>>());
+	private static Map<Processor, List<Long>> processorInvocationTimes = Collections.synchronizedMap(new WeakHashMap<Processor, List<Long>>());
 	
 	//private Map<String, ResultListener> resultListeners = new HashMap<String, ResultListener>();
 
@@ -101,12 +102,8 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	}
 
 	public void onDispose() {
-		try{
-			updateTimer.cancel();
-		}
-		catch(IllegalStateException ex){ // task seems already cancelled
-			logger.warn("Cannot cancel task: " + updateTimer.toString() + ".Task already seems cancelled", ex);
-		}
+	    updateTimer.cancel();
+	    updateTask.run();
 	}
 
 	@Override
@@ -143,10 +140,14 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 			String owningProcessId = getOwningProcessId(owningProcess);
 			workflowObjects.put(owningProcessId, workflowObject);
 			if (workflowObject instanceof Processor) {
-				processorInvocationTimes.put(owningProcessId, new ArrayList<Long>());
 				Processor processor = (Processor) workflowObject;
+				if (! processorInvocationTimes.containsKey(processor)) {
+					processorInvocationTimes.put(processor, new ArrayList<Long>());
+				}
+				WorkflowRunProgressMonitorNode parentMonitorNode = findParentMonitorNode(owningProcess);
+				
 				WorkflowRunProgressMonitorNode monitorNode = new WorkflowRunProgressMonitorNode(
-						processor, owningProcess, properties, progressTreeTable, facade);
+						processor, owningProcess, properties, progressTreeTable, facade, parentMonitorNode);
 				synchronized(processorMonitorNodes) {
 					processorMonitorNodes.put(owningProcessId, monitorNode);
 				}
@@ -188,6 +189,24 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 		}
 	}
 	
+	private WorkflowRunProgressMonitorNode findParentMonitorNode(
+			String[] owningProcess) {
+		List<String> parentOwningProcess = Arrays.asList(owningProcess);
+		while (!parentOwningProcess.isEmpty()) {
+			// Remove last element
+			parentOwningProcess = parentOwningProcess.subList(0, parentOwningProcess.size()-1);
+			String parentId = getOwningProcessId(parentOwningProcess);
+			synchronized (processorMonitorNodes) {
+				WorkflowRunProgressMonitorNode parentNode = processorMonitorNodes
+						.get(parentId);
+				if (parentNode != null) {
+					return parentNode;
+				}
+			}
+		}
+		return null;
+	}
+
 	public void deregisterNode(String[] owningProcess) {
 		if (owningProcess[0].equals(filter)) {
 			final String owningProcessId = getOwningProcessId(owningProcess);
@@ -208,11 +227,6 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				total = (total == 0) ? 1 : total;
 				progressTreeTable.setProcessorFinishDate(((Processor) workflowObject), processorFinishDate);
 				progressTreeTable.setProcessorStatus(((Processor) workflowObject), STATUS_FINISHED);
-				if (processorStartTime != null && processorInvocationTimes.remove(owningProcessId) == null){
-					// Should not really be needed anymore
-					long averageInvocationTime = (processorFinishDate.getTime() - processorStartTime.getTime())/total;
-					progressTreeTable.setProcessorAverageInvocationTime(((Processor) workflowObject), averageInvocationTime);
-				}
 			} else if (workflowObject instanceof Dataflow) {
 				if (owningProcess.length == 2) {
 					// outermost dataflow finished so schedule a task to cancel
@@ -272,17 +286,17 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				String parentProcessId = getOwningProcessId(owningProcessList);										
 				Object parentObject = workflowObjects.get(parentProcessId);
 				if (parentObject instanceof Processor) {
-					Processor processor = (Processor) parentObject;
+					Processor processor = (Processor) parentObject;					
 					if (startTime != null) {
 						long invocationTime = endTime.getTime() - startTime.getTime();						
-						List<Long> invocationTimes = processorInvocationTimes.get(parentProcessId);
+						List<Long> invocationTimes = processorInvocationTimes.get(processor);						
 						invocationTimes.add(invocationTime);
 						long totalTime = 0;
 						for (Long time : invocationTimes) {
 							totalTime += time;
 						}
 						if (! invocationTimes.isEmpty()) {							
-							long averageInvocationTime = totalTime / invocationTimes.size();
+							long averageInvocationTime = totalTime / invocationTimes.size();							
 							progressTreeTable.setProcessorAverageInvocationTime(processor, averageInvocationTime);
 						}
 					}
@@ -341,6 +355,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				for (WorkflowRunProgressMonitorNode node : nodes) {
 					node.update();
 				}
+				progressTreeTable.refreshTable();
 			} catch (RuntimeException ex) {
 				logger.error("UpdateTask update failed", ex);
 			}

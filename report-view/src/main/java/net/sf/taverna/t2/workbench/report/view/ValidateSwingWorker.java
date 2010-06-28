@@ -63,7 +63,7 @@ public class ValidateSwingWorker extends SwingWorker<Dataflow, String>{
 		return dataflow;
 	}
 
-	private static boolean checkProcessorDisability(Processor processor, Set<VisitReport> reports, List<Edit<?>> editList) {
+	public static boolean checkProcessorDisability(Processor processor, Set<VisitReport> reports, List<Edit<?>> editList) {
 	    boolean isAlreadyDisabled = false;
 	    DisabledActivity disabledActivity = null;
 	    List<? extends Activity<?>> activityList = processor.getActivityList();
@@ -75,7 +75,13 @@ public class ValidateSwingWorker extends SwingWorker<Dataflow, String>{
 		}
 	    }
 	    if (isAlreadyDisabled) {
-		if (disabledActivity.configurationWouldWork()) {
+		int severeCount = 0;
+		for (VisitReport vr : reports) {
+		    if (vr.getStatus().equals(VisitReport.Status.SEVERE)) {
+			severeCount++;
+		    }
+		}
+		if ((severeCount <= 1) && disabledActivity.configurationWouldWork()) {
 		    logger.info(processor.getLocalName() + " is no longer disabled");
 		    Edit e = Tools.getEnableDisabledActivityEdit(processor, disabledActivity);
 		    if (e != null) {

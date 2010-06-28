@@ -48,7 +48,7 @@ public class WorkflowResultTreeModel extends DefaultTreeModel implements ResultL
 	int depthSeen = -1;
 
 	public WorkflowResultTreeModel(String portName, int depth) {
-		super(new WorkflowResultTreeNode(WorkflowResultTreeNode.ResultTreeNodeState.RESULT_TOP));
+		super(new WorkflowResultTreeNode(ResultTreeNodeState.RESULT_TOP));
 		this.portName = portName;
 		this.depth = depth;
 	}
@@ -191,7 +191,11 @@ public class WorkflowResultTreeModel extends DefaultTreeModel implements ResultL
 			try {
 				IdentifiedList<T2Reference> list = context.getReferenceService()
 						.getListService().getList(t2Ref);
-				WorkflowResultTreeNode listNode = new WorkflowResultTreeNode(ResultTreeNodeState.RESULT_LIST); // list node
+				if (list == null) {
+					logger.warn("Could not resolve " + t2Ref);
+					return;
+				}
+				WorkflowResultTreeNode listNode = new WorkflowResultTreeNode(t2Ref, context, ResultTreeNodeState.RESULT_LIST); // list node
 				listNode.setContext(context);
 				insertNodeInto(listNode, parentNode, 0);
 				for (T2Reference ref : list) {
@@ -203,7 +207,7 @@ public class WorkflowResultTreeModel extends DefaultTreeModel implements ResultL
 			}
 		} else { // reference to single data or an error
 			// insert data node
-			WorkflowResultTreeNode dataNode = new WorkflowResultTreeNode(t2Ref, context); // data node
+		    WorkflowResultTreeNode dataNode = new WorkflowResultTreeNode(t2Ref, context, ResultTreeNodeState.RESULT_REFERENCE); // data node
 			insertNodeInto(dataNode, parentNode, 0);
 		}	
 	}

@@ -51,6 +51,8 @@ import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import net.sf.taverna.t2.invocation.InvocationContext;
+import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.reference.ErrorDocument;
 import net.sf.taverna.t2.reference.ExternalReferenceSPI;
@@ -63,6 +65,8 @@ import net.sf.taverna.t2.renderers.RendererException;
 import net.sf.taverna.t2.renderers.RendererRegistry;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
+import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
+import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPIRegistry;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 
 import org.apache.log4j.Logger;
@@ -131,6 +135,15 @@ public class RenderedProcessorResultComponent extends JPanel {
 	List<? extends DataflowOutputPort> dataflowOutputPorts = null;
 
 	private ReferenceService referenceService;
+        private InvocationContext context;
+
+	// Registry of all existing 'save individual result' actions,
+	// e.g. each action can save the result in a different format.
+	private static SaveIndividualResultSPIRegistry saveActionsRegistry = SaveIndividualResultSPIRegistry
+			.getInstance();
+
+	// Panel containing all 'save results' buttons
+	JPanel saveButtonsPanel = null;
 
 	/**
 	 * Creates the component.
@@ -172,10 +185,28 @@ public class RenderedProcessorResultComponent extends JPanel {
 		});
 		resultsTypePanel.add(refreshButton);
 
+		// 'Save result' buttons panel
+		saveButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		List<SaveIndividualResultSPI> saveActions = saveActionsRegistry
+				.getSaveResultActions();
+		for (SaveIndividualResultSPI action : saveActions) {
+			action.setResultReference(null);
+			action.setInvocationContext(null);
+			final JButton saveButton = new JButton(action.getAction());
+			saveButton.setEnabled(false);
+			saveButton.addActionListener(new ActionListener() {		
+				public void actionPerformed(ActionEvent e) {
+					saveButton.getParent().requestFocusInWindow();// so that the button does not stay focused after it is clicked on and did its action
+				}
+			});
+			saveButtonsPanel.add(saveButton);
+		}
+
 		// Top panel contains result type combobox and various save buttons
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.LINE_AXIS));
 		topPanel.add(resultsTypePanel);
+		topPanel.add(saveButtonsPanel);
 
 		// Rendered results panel - initially empty
 		renderedResultPanel = new JPanel(new BorderLayout());
@@ -193,6 +224,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 	public void setNode(ProcessorResultTreeNode node) {
 		this.node = node;
 		this.referenceService = node.getReferenceService();
+		this.context = new InvocationContextImpl(this.referenceService, null);
 		if (this.node.isState(ProcessorResultTreeNode.ProcessorResultTreeNodeState.RESULT_REFERENCE)){
 			updateResult();
 		}
@@ -223,7 +255,19 @@ public class RenderedProcessorResultComponent extends JPanel {
 		// Enable the combo box
 		renderersComboBox.setEnabled(true);
 
-		Identified identified = referenceService.resolveIdentifier(t2Reference, null, null);
+		// Update the 'save result' buttons appropriately as the result node had
+		// changed
+		for (int i = 0; i < saveButtonsPanel.getComponents().length; i++) {
+			JButton saveButton = (JButton) saveButtonsPanel.getComponent(i);
+			SaveIndividualResultSPI action = (SaveIndividualResultSPI) (saveButton
+					.getAction());
+			// Update the action with the new result reference
+			action.setResultReference(t2Reference);
+			action.setInvocationContext(context);
+			saveButton.setEnabled(true);
+		}
+
+		Identified identified = referenceService.resolveIdentifier(t2Reference, null, context);
 
 		if (identified instanceof ReferenceSet) {
 						
@@ -271,7 +315,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 
 			for (MimeType mimeType : mimeTypes) {
 				List<Renderer> renderersList = rendererRegistry
-						.getRenderersForMimeType(referenceService, t2Reference, mimeType
+						.getRenderersForMimeType(context, t2Reference, mimeType
 								.toString());
 				for (Renderer renderer : renderersList) {
 					if (!recognisedRenderersForMimeType.contains(renderer)) {
@@ -282,7 +326,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 			// if there are no renderers then force text/plain
 			if (recognisedRenderersForMimeType.isEmpty()) {
 				recognisedRenderersForMimeType = rendererRegistry
-						.getRenderersForMimeType(referenceService, t2Reference,
+						.getRenderersForMimeType(context, t2Reference,
 								"text/plain");
 			}
 
@@ -346,7 +390,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 			
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode(
 					"Error Trace");
-			ResultsUtils.buildErrorDocumentTree(root, errorDocument, null);
+			ResultsUtils.buildErrorDocumentTree(root, errorDocument, referenceService);
 
 			JTree errorTree = new JTree(root);
 			errorTree.setCellRenderer(new DefaultTreeCellRenderer() {
@@ -441,6 +485,17 @@ public class RenderedProcessorResultComponent extends JPanel {
 	public void clearResult() {
 		refreshButton.setEnabled(false);
 		renderedResultPanel.removeAll();
+
+		// Update the 'save result' buttons appropriately
+		for (int i = 0; i < saveButtonsPanel.getComponents().length; i++) {
+			JButton saveButton = (JButton) saveButtonsPanel.getComponent(i);
+			SaveIndividualResultSPI action = (SaveIndividualResultSPI) (saveButton
+					.getAction());
+			// Update the action
+			action.setResultReference(null);
+			action.setInvocationContext(context);
+			saveButton.setEnabled(false);
+		}
 
 		renderersComboBox.setModel(new DefaultComboBoxModel());
 		renderersComboBox.setEnabled(false);

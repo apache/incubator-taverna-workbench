@@ -43,17 +43,12 @@ public class ProcessorResultsTreeModel extends DefaultTreeModel{
 
 	private ReferenceService referenceService;
 
-	// Result data
-	private T2Reference t2Reference;
-
 	private Logger logger = Logger.getLogger(ProcessorResultsTreeModel.class);
 	
 	public ProcessorResultsTreeModel(T2Reference t2Reference, ReferenceService referenceService) {
 		
 		super(new ProcessorResultTreeNode());
 		root = (ProcessorResultTreeNode)getRoot();
-
-		this.t2Reference = t2Reference;
 		this.referenceService = referenceService;
 		
 		createTree(t2Reference, root);
@@ -63,23 +58,20 @@ public class ProcessorResultsTreeModel extends DefaultTreeModel{
 		
 		// If reference contains a list of data references
 		if (t2Ref.getReferenceType() == T2ReferenceType.IdentifiedList) {
-			try {
-				IdentifiedList<T2Reference> list = referenceService
-						.getListService().getList(t2Reference);
-				ProcessorResultTreeNode listNode = new ProcessorResultTreeNode(list.size()); // list node
-				parentNode.add(listNode);
-				for (T2Reference ref : list) {
-					createTree(ref, listNode);
-				}
-			} catch (NullPointerException e) {
-				logger .error("Error resolving data entity list "
-						+ t2Ref, e);
+			IdentifiedList<T2Reference> list = referenceService
+					.getListService().getList(t2Ref);
+			if (list == null) {
+				logger.error("Could not resolve list " + t2Ref + ", was run with in-memory storage?");
+			}
+			ProcessorResultTreeNode listNode = new ProcessorResultTreeNode(list.size(), t2Ref, referenceService); // list node
+			parentNode.add(listNode);
+			for (T2Reference ref : list) {
+				createTree(ref, listNode);
 			}
 		} else { // reference to single data or an error
 			insertDataNode(t2Ref, parentNode);
 		}	
 	}
-
 
 	private void insertDataNode(T2Reference t2Ref, ProcessorResultTreeNode parent) {
 		ProcessorResultTreeNode dataNode = new ProcessorResultTreeNode(t2Ref, referenceService); // data node

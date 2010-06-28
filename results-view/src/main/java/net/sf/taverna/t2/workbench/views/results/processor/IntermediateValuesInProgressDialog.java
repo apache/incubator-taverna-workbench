@@ -19,37 +19,29 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.report.view;
+package net.sf.taverna.t2.workbench.views.results.processor;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Frame;
 
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.workbench.MainWindow;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
-/**
- * Dialog that is popped up while we are validating the workflow. This is just to let 
- * the user know that Taverna is doing something.
- * 
- * @author Alex Nenadic
- *
- */
 @SuppressWarnings("serial")
-public class ValidateObjectInProgressDialog extends JDialog{
+public class IntermediateValuesInProgressDialog extends HelpEnabledDialog {
 
 
 	private boolean userCancelled = false;
 
-	public ValidateObjectInProgressDialog() {
+	public IntermediateValuesInProgressDialog() {
 		
-		super((Frame) null, "Validating service", true);
-		setLocationRelativeTo(null);
+		super(MainWindow.getMainWindow(), "Fetching intermediate values", true, null);		
 		setResizable(false);
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		
@@ -58,7 +50,7 @@ public class ValidateObjectInProgressDialog extends JDialog{
 		
 		JPanel textPanel = new JPanel();
 		JLabel text = new JLabel(WorkbenchIcons.workingIcon);
-		text.setText("Validating service...");
+		text.setText("Fetching intermediate values...");
 		text.setBorder(new EmptyBorder(10,0,10,0));
 		textPanel.add(text);
 		panel.add(textPanel, BorderLayout.CENTER);

@@ -29,8 +29,6 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import org.apache.commons.beanutils.BeanUtils;
-
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -39,6 +37,8 @@ import net.sf.taverna.t2.workflowmodel.Port;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+
+import org.apache.commons.beanutils.BeanUtils;
 
 /**
  * Cell renderer for Workflow Explorer tree.
@@ -67,8 +67,7 @@ public class WorkflowRunProgressTreeCellRenderer extends DefaultTreeCellRenderer
 		if (userObject instanceof Dataflow){ //the root node
 			renderer.setIcon(WorkbenchIcons.workflowExplorerIcon);
 			renderer.setText(((Dataflow) userObject).getLocalName());
-		}
-		else if (userObject instanceof Processor) {
+		} else if (userObject instanceof Processor) {
 			// Get the activity associated with the procesor - currently only
 			// the first one in the list gets displayed
 			List<? extends Activity<?>> activityList = ((Processor) userObject)

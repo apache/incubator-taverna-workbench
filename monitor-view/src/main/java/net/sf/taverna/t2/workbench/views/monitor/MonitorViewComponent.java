@@ -132,7 +132,7 @@ public class MonitorViewComponent extends JPanel{
 		buttonsPanel.add(workflowRunCancelButton, gbc);			
 	}
 
-	public void addWorkflowResultsButton(JButton workflowResultsButton) {
+	public void addIntermediateValuesButton(JButton intermediateValuesButton) {
 		GridBagConstraints gbc = new GridBagConstraints();
 		
 		gbc.gridx = 3;
@@ -140,6 +140,18 @@ public class MonitorViewComponent extends JPanel{
 
 		gbc.fill = GridBagConstants.NONE;
 		gbc.weightx = 1.0;
+		gbc.anchor = GridBagConstants.EAST;
+		buttonsPanel.add(intermediateValuesButton, gbc);			
+	}
+	
+	public void addWorkflowResultsButton(JButton workflowResultsButton) {
+		GridBagConstraints gbc = new GridBagConstraints();
+		
+		gbc.gridx = 4;
+		gbc.gridy = 0;
+
+		gbc.fill = GridBagConstants.NONE;
+		gbc.weightx = 0.0;
 		gbc.anchor = GridBagConstants.EAST;
 		buttonsPanel.add(workflowResultsButton, gbc);			
 	}

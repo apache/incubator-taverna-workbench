@@ -20,9 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.processor;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.tree.DefaultMutableTreeNode;
 
 import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
 
@@ -33,46 +32,53 @@ import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
  *
  */
 @SuppressWarnings("serial")
-public class ProcessorEnactmentsTreeNode extends DefaultMutableTreeNode {
+public class ProcessorEnactmentsTreeNode extends IterationTreeNode {
 	
-	private ProcessorEnactment processorEnactment;
-	private List<Integer> iteration;
-	//private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private List<Integer> myIteration = new ArrayList<Integer>();
+	private List<Integer> parentIteration = new ArrayList<Integer>();
+	
+	public ProcessorEnactmentsTreeNode(ProcessorEnactment processorEnactment, List<Integer> parentIteration){
+		super();
+		this.parentIteration = parentIteration;
+		setProcessorEnactment(processorEnactment);		
+	}
 
-	
-	public ProcessorEnactmentsTreeNode(ProcessorEnactment processorEnactment){
-		super(processorEnactment);
-		this.processorEnactment = processorEnactment;
-		this.iteration = ProcessorEnactmentsTreeModel.iterationToIntegerList(processorEnactment.getIteration());
+	protected void updateFullIteration() {
+		List<Integer> fullIteration = new ArrayList<Integer>();
+		if (getParentIteration() != null) {
+			fullIteration.addAll(getParentIteration());
+		}
+		fullIteration.addAll(getMyIteration());
+		setIteration(fullIteration);
+	}
+
+	public final List<Integer> getMyIteration() {
+		return myIteration;
+	}
+
+	public final List<Integer> getParentIteration() {
+		return parentIteration;
+	}
+
+	public final ProcessorEnactment getProcessorEnactment() {
+		return (ProcessorEnactment) getUserObject();
+	}
+
+	public final void setMyIteration(List<Integer> myIteration) {
+		this.myIteration = myIteration;
+		updateFullIteration();
 	}
 	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();		
-		if (! iteration.isEmpty()) {			
-			// Iteration 3.1.3
-			sb.append("Iteration ");
-			for (Integer index : iteration) {				
-				sb.append(index+1);
-				sb.append(".");
-			}
-			// Remove last .
-			sb.delete(sb.length()-1, sb.length());
-		} else {
-			sb.append("Invocation");
-		}
-		
-		/* // Takes too much space 
-		 * sb.append(" (Started: ");
-		sb.append(ISO_8601.format(processorEnactment.getEnactmentStarted()));
-		if (processorEnactment.getEnactmentEnded() != null) {
-			sb.append("; Finished: ");
-			sb.append(ISO_8601.format(processorEnactment.getEnactmentEnded()));
-		} else {
-			sb.append("; Not finished");
-		}
-		sb.append(")");
-		*/
-		return sb.toString();
+	public final void setParentIteration(List<Integer> parentIteration) {
+		this.parentIteration = parentIteration;
+		updateFullIteration();
 	}
+	
+	public final void setProcessorEnactment(ProcessorEnactment processorEnactment) {
+		setUserObject(processorEnactment);
+		setMyIteration(ProcessorEnactmentsTreeModel.iterationToIntegerList(processorEnactment.getIteration()));
+	}
+
+
 
 }

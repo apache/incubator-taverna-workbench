@@ -68,8 +68,10 @@ public class ProcessorResultTreeNode extends DefaultMutableTreeNode {
 	}
 	
 	// Create list node
-	public ProcessorResultTreeNode(int listSize) {
+    public ProcessorResultTreeNode(int listSize, T2Reference reference, ReferenceService referenceService) {
 		this.listSize = listSize;
+		this.reference = reference;
+		this.referenceService = referenceService;
 		this.state = ProcessorResultTreeNodeState.RESULT_LIST;
 	}
 

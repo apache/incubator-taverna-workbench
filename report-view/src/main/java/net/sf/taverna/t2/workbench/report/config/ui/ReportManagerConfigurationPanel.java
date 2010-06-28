@@ -39,7 +39,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 	private static final String QUICK_CHECKS = "Quick checks";
 	private static final String NO_CHECKS = "No checks";
 	private static final String DEFAULT_TIMEOUT_STRING = "Reporting timeout in seconds (per service)";
-    private static final String REPORT_EXPIRATION_STRING = "Minutes before reports expire - 0 means never";
+    private static final String REPORT_EXPIRATION_STRING = "Minutes before reports expire; 0 = never";
     private static final String CHECKS_ON_OPEN = "Checks when opening a workflow";
     private static final String CHECKS_ON_EDIT = "Checks after each edit";
     private static final String CHECKS_BEFORE_RUN = "Checks before running a workflow";

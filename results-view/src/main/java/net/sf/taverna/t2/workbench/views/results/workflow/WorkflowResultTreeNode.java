@@ -62,10 +62,10 @@ public class WorkflowResultTreeNode extends DefaultMutableTreeNode {
 		return reference;
 	}
 
-	public WorkflowResultTreeNode(T2Reference reference, InvocationContext context/*, List<String> mimeTypes*/) {
+    public WorkflowResultTreeNode(T2Reference reference, InvocationContext context, ResultTreeNodeState state) {
 		this.reference = reference;
 		this.context = context;
-		this.state = ResultTreeNodeState.RESULT_REFERENCE;
+		this.state = state;
 	}
 	
 	public WorkflowResultTreeNode(ResultTreeNodeState state) {

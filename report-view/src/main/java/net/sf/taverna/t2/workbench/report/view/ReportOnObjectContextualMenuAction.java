@@ -22,13 +22,20 @@ package net.sf.taverna.t2.workbench.report.view;
 
 import java.awt.event.ActionEvent;
 import java.net.URI;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JOptionPane;
 
 import net.sf.taverna.raven.log.Log;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
+import net.sf.taverna.t2.visit.DataflowCollation;
+import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.visit.VisitReport.Status;
+import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
@@ -92,12 +99,75 @@ public class ReportOnObjectContextualMenuAction extends AbstractContextualMenuAc
 				    dialog.setVisible(true); // this will block the GUI
 				}
 
-				Workbench workbench = Workbench.getInstance();
-				workbench.getPerspectives().setWorkflowPerspective();
-				workbench.makeNamedComponentVisible(namedComponent);
+				checkStatus(df, p);
 			    }
 			}
 		};
+	}
+
+	/**
+	 * Check the status and pop up a warning if something is wrong.
+	 * 
+	 */
+    public void checkStatus(Dataflow dataflow, Processor p) {
+	Status status = reportManager.getStatus(dataflow, p);
+		int messageType;
+		String message;
+		String name = p.getLocalName();
+		if (status.equals(Status.OK)) {
+			messageType = JOptionPane.INFORMATION_MESSAGE;
+			message = name + " validated OK.";
+
+		} else {
+			StringBuffer sb = new StringBuffer();
+			Set<VisitReport> immediateReports = reportManager
+			    .getReports(dataflow, p);
+			int errorCount = 0;
+			int warningCount = 0;
+
+			Set<VisitReport> reports = new HashSet<VisitReport>();
+			for (VisitReport report : immediateReports) {
+			    if (report.getKind() instanceof DataflowCollation) {
+				reports.addAll(report.getSubReports());
+			    } else {
+				reports.add(report);
+			    }
+			}
+
+			// Find warnings
+			for (VisitReport report : reports) {
+			    if (report.getStatus().equals(Status.SEVERE)) {
+				errorCount++;
+			    } else if (report.getStatus().equals(Status.WARNING)) {
+				warningCount++;
+			    }
+			}
+			if (status.equals(Status.WARNING)) {
+				messageType = JOptionPane.WARNING_MESSAGE;
+				message = "Validation of " + name + " reported ";
+			} else { // SEVERE
+				messageType = JOptionPane.ERROR_MESSAGE;
+				message = "Validation of " + name + " reported ";
+			        if (errorCount == 1) {
+				    message += "one error";
+				} else {
+				    message += errorCount + " errors";
+				}
+				if (warningCount != 0) {
+				    message += " and ";
+				}
+			}
+			if (warningCount == 1) {
+			    message += "one warning";
+			} else if (warningCount > 0) {
+			    message += warningCount + " warnings";
+			}
+		}
+		JOptionPane.showMessageDialog(MainWindow.getMainWindow(), message,
+				"Service validation", messageType);
+		Workbench workbench = Workbench.getInstance();
+		workbench.getPerspectives().setWorkflowPerspective();
+		workbench.makeNamedComponentVisible(namedComponent);
 	}
 
 }

@@ -20,8 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.workflow;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -31,8 +37,11 @@ import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
+import net.sf.taverna.t2.workbench.views.results.workflow.FilteredWorkflowResultTreeModel.FilterType;
 
 /**
  * A tab containing result tree for an output port and a panel with rendered result
@@ -48,6 +57,8 @@ public class PortResultsViewTab extends JPanel{
 	// Tree model of results
 	WorkflowResultTreeModel resultModel;
 	
+    FilteredWorkflowResultTreeModel filteredTreeModel;
+
 	// Rendered result component
 	private RenderedResultComponent renderedResultComponent;
 
@@ -57,6 +68,8 @@ public class PortResultsViewTab extends JPanel{
 
 	private JTree tree;
 	
+    private JComboBox filterChoiceBox;
+
 	public PortResultsViewTab(String portName, int portDepth){
 		super(new BorderLayout());
 		this.portName = portName;
@@ -76,10 +89,10 @@ public class PortResultsViewTab extends JPanel{
 		resultModel =  new WorkflowResultTreeModel(portName,
 				portDepth);
 
-		tree = new JTree(getResultModel());
+		filteredTreeModel = new FilteredWorkflowResultTreeModel(getResultModel());
+		tree = new JTree(filteredTreeModel);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setExpandsSelectedPaths(true);
-		tree.setLargeModel(true);
 		tree.setRootVisible(false);
 		tree.setCellRenderer(new PortResultCellRenderer());
 		
@@ -99,7 +112,7 @@ public class PortResultsViewTab extends JPanel{
 			
 		});
 
-		getResultModel().addTreeModelListener(new TreeModelListener() {
+		filteredTreeModel.addTreeModelListener(new TreeModelListener() {
 
 			public void treeNodesChanged(TreeModelEvent e) {
 				
@@ -130,7 +143,18 @@ public class PortResultsViewTab extends JPanel{
 		
 		JPanel leftPanel = new JPanel();
 		leftPanel.setLayout(new BorderLayout());
-		leftPanel.add(new JLabel("Click to view values"), BorderLayout.NORTH);
+
+		JPanel treeSubPanel = new JPanel();
+		treeSubPanel.setLayout(new BorderLayout());
+		treeSubPanel.add(new JLabel("Click in tree to"), BorderLayout.WEST);
+		filterChoiceBox = new JComboBox(new FilterType[] {FilterType.ALL, FilterType.RESULTS, FilterType.ERRORS});
+		filterChoiceBox.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    updateTree();
+			}
+		    });
+		treeSubPanel.add(filterChoiceBox);
+		leftPanel.add(treeSubPanel, BorderLayout.NORTH);
 		leftPanel.add(new JScrollPane(tree), BorderLayout.CENTER);
 		splitPanel.setTopComponent(leftPanel);
 		splitPanel.setBottomComponent(renderedResultComponent);
@@ -147,6 +171,46 @@ public class PortResultsViewTab extends JPanel{
 	public WorkflowResultTreeModel getResultModel() {
 		return resultModel;
 	}
+
+    public FilteredWorkflowResultTreeModel getModel() {
+	return filteredTreeModel;
+    }
+
+    private List<TreePath> expandedPaths = new ArrayList<TreePath>();
+    private TreePath selectionPath = null;
+
+    private void rememberPaths() {
+	expandedPaths.clear();
+	for (Enumeration e = tree.getExpandedDescendants(new TreePath(filteredTreeModel.getRoot())); (e != null) && e.hasMoreElements();) {
+	    expandedPaths.add((TreePath) e.nextElement());
+	}
+	selectionPath = tree.getSelectionPath();
+    }
+
+    private void reinstatePaths() {
+	for (TreePath path : expandedPaths) {
+	    if (filteredTreeModel.isShown((DefaultMutableTreeNode) path.getLastPathComponent())) {
+		tree.expandPath(path);
+	    }
+	}
+	if (selectionPath != null) {
+	    if (filteredTreeModel.isShown((DefaultMutableTreeNode) selectionPath.getLastPathComponent())) {
+		    tree.setSelectionPath(selectionPath);
+	    }
+	    else {
+		tree.clearSelection();
+		renderedResultComponent.clearResult();
+	    }
+	}
+    }
+
+    private void updateTree() {
+	filteredTreeModel.setFilter((FilterType) filterChoiceBox.getSelectedItem());
+	rememberPaths();
+	filteredTreeModel.reload();
+	tree.setModel(filteredTreeModel);
+	reinstatePaths();
+    }
 
 	public void expandTree() {
 

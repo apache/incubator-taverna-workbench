@@ -1067,6 +1067,19 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		dataflowExpansion.put(dataflow, expand);
 	}
 
+    private boolean isSingleOutputProcessor(Object dataflowObject) {
+	if (!(dataflowObject instanceof Processor)) {
+	    return false;
+	}
+	Processor p = (Processor) dataflowObject;
+	List<? extends Activity<?>> activities = p.getActivityList();
+	if (activities.size() > 0) {
+	    Set<OutputPort> ports = activities.get(0).getOutputPorts();
+	    return (ports.size() == 1);
+	}
+	return false;
+    }
+
 	public boolean startEdgeCreation(GraphElement graphElement, Point point) {
 		if (!edgeCreationFromSource && !edgeCreationFromSink) {
 			Object dataflowObject = graphElement.getDataflowObject();
@@ -1075,7 +1088,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 					|| dataflowObject instanceof DataflowOutputPort) {
 				edgeCreationSink = graphElement;
 				edgeCreationFromSink = true;
-			} else if (dataflowObject instanceof OutputPort || dataflowObject instanceof DataflowInputPort) {
+			} else if (dataflowObject instanceof OutputPort || dataflowObject instanceof DataflowInputPort || isSingleOutputProcessor(dataflowObject)) {
 				edgeCreationSource = graphElement;
 				edgeCreationFromSource = true;
 			} else if (graphElement instanceof GraphEdge) {
@@ -1222,7 +1235,11 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 				List<? extends Activity<?>> activities = ((Processor) sourceDataflowObject).getActivityList();
 				if (activities.size() > 0) {
 					Set<OutputPort> ports = activities.get(0).getOutputPorts();
-					source = (OutputPort) showPortOptions(new ArrayList<Port>(ports), "output", componentForPopups, point);
+					if (ports.size() == 1) {
+					    source = ports.iterator().next();
+					} else {
+					    source = (OutputPort) showPortOptions(new ArrayList<Port>(ports), "output", componentForPopups, point);
+					}
 				}
 			}
 			if (sinkDataflowObject instanceof InputPort) {

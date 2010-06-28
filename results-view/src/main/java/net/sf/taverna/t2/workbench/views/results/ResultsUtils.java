@@ -35,6 +35,7 @@ import net.sf.taverna.t2.reference.ErrorDocumentService;
 import net.sf.taverna.t2.reference.ExternalReferenceSPI;
 import net.sf.taverna.t2.reference.IdentifiedList;
 import net.sf.taverna.t2.reference.ListService;
+import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.StackTraceElementBean;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.T2ReferenceType;
@@ -107,7 +108,7 @@ public class ResultsUtils {
 			} else if (reference.getReferenceType().equals(
 					T2ReferenceType.IdentifiedList)) {
 				List<ErrorDocument> errorDocuments = getErrorDocuments(
-						reference, context);
+						reference, context.getReferenceService());
 				errDocumentString += "ErrorDocument list " + (++listCounter)
 						+ "\n";
 				for (ErrorDocument causeErrorDocument : errorDocuments) {
@@ -122,7 +123,7 @@ public class ResultsUtils {
 	}
 
 	public static void buildErrorDocumentTree(DefaultMutableTreeNode node,
-			ErrorDocument errorDocument, InvocationContext context) {
+			ErrorDocument errorDocument, ReferenceService referenceService) {
 		DefaultMutableTreeNode child = new DefaultMutableTreeNode(errorDocument);
 		String exceptionMessage = errorDocument.getExceptionMessage();
 		if (exceptionMessage != null && !exceptionMessage.equals("")) {
@@ -145,24 +146,24 @@ public class ResultsUtils {
 		for (T2Reference reference : errorReferences) {
 			if (reference.getReferenceType().equals(
 					T2ReferenceType.ErrorDocument)) {
-				ErrorDocumentService errorDocumentService = context
-						.getReferenceService().getErrorDocumentService();
+				ErrorDocumentService errorDocumentService = referenceService
+						.getErrorDocumentService();
 				ErrorDocument causeErrorDocument = errorDocumentService
 						.getError(reference);
 				if (errorReferences.size() == 1) {
-					buildErrorDocumentTree(node, causeErrorDocument, context);
+					buildErrorDocumentTree(node, causeErrorDocument, referenceService);
 				} else {
-					buildErrorDocumentTree(child, causeErrorDocument, context);
+					buildErrorDocumentTree(child, causeErrorDocument, referenceService);
 				}
 			} else if (reference.getReferenceType().equals(
 					T2ReferenceType.IdentifiedList)) {
 				List<ErrorDocument> errorDocuments = getErrorDocuments(
-						reference, context);
+						reference, referenceService);
 				if (errorDocuments.size() == 1) {
-					buildErrorDocumentTree(node, errorDocuments.get(0), context);
+					buildErrorDocumentTree(node, errorDocuments.get(0), referenceService);
 				} else {
 					for (ErrorDocument errorDocument2 : errorDocuments) {
-						buildErrorDocumentTree(child, errorDocument2, context);
+						buildErrorDocumentTree(child, errorDocument2, referenceService);
 					}
 				}
 			}
@@ -188,20 +189,19 @@ public class ResultsUtils {
 	}
 
 	public static List<ErrorDocument> getErrorDocuments(T2Reference reference,
-			InvocationContext context) {
+			ReferenceService referenceService) {
 		List<ErrorDocument> errorDocuments = new ArrayList<ErrorDocument>();
 		if (reference.getReferenceType().equals(T2ReferenceType.ErrorDocument)) {
-			ErrorDocumentService errorDocumentService = context
-					.getReferenceService().getErrorDocumentService();
+			ErrorDocumentService errorDocumentService = referenceService
+					.getErrorDocumentService();
 			errorDocuments.add(errorDocumentService.getError(reference));
 		} else if (reference.getReferenceType().equals(
 				T2ReferenceType.IdentifiedList)) {
-			ListService listService = context.getReferenceService()
-					.getListService();
+			ListService listService = referenceService.getListService();
 			IdentifiedList<T2Reference> list = listService.getList(reference);
 			for (T2Reference listReference : list) {
 				errorDocuments
-						.addAll(getErrorDocuments(listReference, context));
+						.addAll(getErrorDocuments(listReference, referenceService));
 			}
 		}
 		return errorDocuments;

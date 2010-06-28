@@ -20,9 +20,13 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.report.view;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Processor;
@@ -47,23 +51,17 @@ public class ValidateObjectSwingWorker extends SwingWorker<String, String>{
 	
 	@Override
 	protected String doInBackground() throws Exception {
-
-	    ReportManager.getInstance().updateObjectReport(df, p);
-	    if (p.getActivityList().size() == 1) {
-		Activity a = p.getActivityList().get(0);
-		if (a instanceof DisabledActivity) {
-		    Edit ed = Tools.getEnableDisabledActivityEdit(p, (DisabledActivity) a);
-		    if (ed != null) {
-			try {
-			    EditManager.getInstance().doDataflowEdit(df, ed);
-			    ReportManager.getInstance().updateObjectReport(df, p);
-			}
-			catch (EditException ex) {
-			    logger.error("Enabled of disabled activity failed", ex);
-			}
-		    }
-		    
+	    ReportManager rm = ReportManager.getInstance();
+	    rm.updateObjectReport(df, p);
+	    List<Edit<?>> editList = new ArrayList<Edit<?>>();
+	    try {
+		if (ValidateSwingWorker.checkProcessorDisability(p, rm.getReports(df).get(p), editList)) {
+		    EditManager.getInstance().doDataflowEdit(df, new CompoundEdit(editList));
+		    ReportManager.getInstance().updateObjectReport(df, p);
 		}
+	    }
+	    catch (EditException ex) {
+		logger.error("Enabled of disabled activity failed", ex);
 	    }
 	    return "done";
 	}

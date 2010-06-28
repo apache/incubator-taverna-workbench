@@ -18,10 +18,33 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.run.previousruns;
+package net.sf.taverna.t2.workbench.views.results.processor;
 
-import javax.swing.JPanel;
+import org.apache.log4j.Logger;
+import org.jdesktop.swingworker.SwingWorker;
 
-public class PreviousWorkflowRunsComponent extends JPanel {
+public class IntermediateValuesSwingWorker extends SwingWorker<ProcessorResultsComponent, String>{
 
+	private static Logger logger = Logger.getLogger(IntermediateValuesSwingWorker.class);
+	private ProcessorResultsComponent component;
+	private Exception exception = null;
+
+	public IntermediateValuesSwingWorker(ProcessorResultsComponent component){
+	    this.component = component;
+	}
+	
+	@Override
+	protected ProcessorResultsComponent doInBackground() throws Exception {
+	    try {
+		component.populateEnactmentsMaps();
+	    }
+	    catch (Exception e) {
+		this.exception = e;
+	    }
+	    return component;
+	}
+
+	public Exception getException() {
+	    return exception;
+	}
 }

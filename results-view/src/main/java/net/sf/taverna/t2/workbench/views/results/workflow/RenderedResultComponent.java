@@ -56,6 +56,7 @@ import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.reference.ErrorDocument;
 import net.sf.taverna.t2.reference.ExternalReferenceSPI;
 import net.sf.taverna.t2.reference.Identified;
+import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.renderers.Renderer;
@@ -127,6 +128,7 @@ public class RenderedResultComponent extends JPanel {
 	// Reference to the object being displayed (contained in the tree node)
 	private T2Reference t2Reference;
 
+        private ReferenceService referenceService;
 	private InvocationContext context;
 	
 	// Currently selected node from the ResultViewComponent, if any.
@@ -249,6 +251,7 @@ public class RenderedResultComponent extends JPanel {
 		// Reference to the result data
 		t2Reference = result.getReference();
 		context = result.getContext();
+		referenceService = context.getReferenceService();
 
 		// Enable the combo box
 		renderersComboBox.setEnabled(true);
@@ -265,7 +268,7 @@ public class RenderedResultComponent extends JPanel {
 			saveButton.setEnabled(true);
 		}
 
-		Identified identified = context.getReferenceService()
+		Identified identified = referenceService
 				.resolveIdentifier(t2Reference, null, context);
 		
 		if (identified instanceof ReferenceSet) {
@@ -389,7 +392,7 @@ public class RenderedResultComponent extends JPanel {
 			
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode(
 					"Error Trace");
-			ResultsUtils.buildErrorDocumentTree(root, errorDocument, context);
+			ResultsUtils.buildErrorDocumentTree(root, errorDocument, referenceService);
 
 			JTree errorTree = new JTree(root);
 			errorTree.setCellRenderer(new DefaultTreeCellRenderer() {
