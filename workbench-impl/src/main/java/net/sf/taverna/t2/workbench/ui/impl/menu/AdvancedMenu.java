@@ -29,9 +29,11 @@ import net.sf.taverna.t2.ui.menu.AbstractMenu;
 import net.sf.taverna.t2.ui.menu.DefaultMenuBar;
 
 public class AdvancedMenu extends AbstractMenu {
+	public static final URI ADVANCED_URI = URI
+					.create("http://taverna.sf.net/2008/t2workbench/menu#advanced");
+
 	public AdvancedMenu() {
-		super(DefaultMenuBar.DEFAULT_MENU_BAR, 1000, URI
-				.create("http://taverna.sf.net/2008/t2workbench/menu#advanced"),
+		super(DefaultMenuBar.DEFAULT_MENU_BAR, 1000, ADVANCED_URI,
 				makeAction());
 	}
 	

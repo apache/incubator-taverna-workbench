@@ -24,7 +24,7 @@
 		<t2.compatibility.version>1.2</t2.compatibility.version>
 		<t2.translators.version>1.2</t2.translators.version>
 		<t2.ui.api.version>1.2</t2.ui.api.version>
-		<taverna.version>1.7.2.0</taverna.version>
+		<taverna.version>1.7.2.2</taverna.version>
 	</properties>
 
 	<modules>

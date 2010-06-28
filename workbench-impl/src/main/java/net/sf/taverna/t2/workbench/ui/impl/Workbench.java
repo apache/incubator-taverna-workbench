@@ -29,7 +29,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.Writer;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.Collections;
@@ -40,6 +42,7 @@ import java.util.Properties;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
@@ -67,9 +70,12 @@ import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.helper.Helper;
+import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.ui.T2ConfigurationFrame;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
+import org.apache.log4j.ConsoleAppender;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
@@ -88,6 +94,9 @@ public class Workbench extends JFrame {
 	private static final String LAUNCHER_LOGO_PNG = "/launcher_logo.png";
 
 	private static final long serialVersionUID = 1L;
+	
+	private final PrintStream originalErr = System.err;
+	private final PrintStream originalOut = System.out;
 
 	private static Logger logger = Logger.getLogger(Workbench.class);
 
@@ -96,7 +105,8 @@ public class Workbench extends JFrame {
 	private MenuManager menuManager = MenuManager.getInstance();
 	private FileManager fileManager = FileManager.getInstance();
 	private EditManager editManager = EditManager.getInstance();
-
+	private WorkbenchConfiguration workbenchConfiguration = WorkbenchConfiguration.getInstance();
+	
 	private WorkbenchPerspectives perspectives;
 
 	private JToolBar perspectiveToolBar;
@@ -104,6 +114,38 @@ public class Workbench extends JFrame {
 	private WorkbenchZBasePane basePane;
 
 	private boolean isInitialized = false;
+
+	public final class ExceptionHandler implements UncaughtExceptionHandler {
+		public void uncaughtException(Thread t, Throwable e) {
+			logger.error("Uncaught exception in " + t, e);
+			if (e instanceof Exception && 
+				    !(workbenchConfiguration.getWarnInternalErrors())) {
+					// User preference disables warnings - but we'll show it anyway
+					// if it is an Error (which is more serious)
+					return;
+				}
+			final String message;
+			final String title;
+			final int style;
+			if (t.getClass().getName().equals("java.awt.EventDispatchThread")) {
+				message = "The user action could not be completed due to an unexpected error:\n"
+						+ e;
+				title = "Could not complete user action";
+				style = JOptionPane.ERROR_MESSAGE;
+			} else {
+				message = "An unexpected internal error occured in \n" + t + ":\n" + e;
+				title = "Unexpected internal error";
+				style = JOptionPane.WARNING_MESSAGE;
+			}
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					JOptionPane.showMessageDialog(Workbench.this, message,
+							title, style);
+
+				}
+			});
+		}
+	}
 
 	private class WindowClosingListener extends WindowAdapter {
 		@Override
@@ -231,13 +273,14 @@ public class Workbench extends JFrame {
 	}
 
 	protected void initialize() {
-		
+		setExceptionHandler();
+		setSystemOutCapture();
 		setLookAndFeel();
-
+		
 		// Call the startup hooks
 		if (!callStartupHooks()) {
 			System.exit(0);
-		}
+		}		
 		makeGUI();
 		fileManager.newDataflow();
 		editManager.addObserver(DataflowEditsListener.getInstance());
@@ -251,6 +294,32 @@ public class Workbench extends JFrame {
 		// is set
 		// we make sure we are in the design perspective
 		fileManager.addObserver(new SwitchToWorkflowPerspective());
+	}
+
+	protected void setSystemOutCapture() {
+		
+		if (! workbenchConfiguration.getCaptureConsole()) {
+			return;
+		}
+	
+		Logger systemOutLogger = Logger.getLogger("System.out");
+		Logger systemErrLogger = Logger.getLogger("System.err");
+		
+		try {
+			// This logger stream not loop with log4j > 1.2.13, which has getFollow method
+			ConsoleAppender.class.getMethod("getFollow");
+			System.setOut(new LoggerStream(systemOutLogger, Level.WARN, originalOut));
+		} catch (SecurityException e) {
+		} catch (NoSuchMethodException e) {
+			System.err.println("Not capturing System.out, use log4j >= 1.2.13");
+		}		
+		
+		System.setErr(new LoggerStream(systemErrLogger, Level.ERROR, originalErr));
+				
+	}
+
+	protected void setExceptionHandler() {
+		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
 	}
 
 	/**
@@ -297,8 +366,7 @@ public class Workbench extends JFrame {
 			}
 			perspectives.saveAll();
 		} catch (Exception ex) {
-			logger.error(
-							"Error saving perspectives when exiting the Workbench.",
+			logger.error("Error saving perspectives when exiting the Workbench.",
 							ex);
 		}
 	}

@@ -80,9 +80,9 @@
 			<artifactId>commons-codec</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>helper</artifactId>
-			<version>${project.version}</version>
+            <groupId>net.sf.taverna.t2.ui-api</groupId>
+            <artifactId>helper-api</artifactId>
+            <version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jdesktop</groupId>
