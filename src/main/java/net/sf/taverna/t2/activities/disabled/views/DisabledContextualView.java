@@ -124,7 +124,7 @@ public class DisabledContextualView extends
 
 	@Override
 	public String getViewTitle() {
-		return "Disabled service";
+		return "Unavailable service";
 	}
 
 	@Override
