@@ -95,9 +95,6 @@ public class Workbench extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	
-	private final PrintStream originalErr = System.err;
-	private final PrintStream originalOut = System.out;
-
 	private static Logger logger = Logger.getLogger(Workbench.class);
 
 	private ApplicationRuntime appRuntime = ApplicationRuntime.getInstance();
@@ -274,7 +271,6 @@ public class Workbench extends JFrame {
 
 	protected void initialize() {
 		setExceptionHandler();
-		setSystemOutCapture();
 		setLookAndFeel();
 		
 		// Call the startup hooks
@@ -296,27 +292,6 @@ public class Workbench extends JFrame {
 		fileManager.addObserver(new SwitchToWorkflowPerspective());
 	}
 
-	protected void setSystemOutCapture() {
-		
-		if (! workbenchConfiguration.getCaptureConsole()) {
-			return;
-		}
-	
-		Logger systemOutLogger = Logger.getLogger("System.out");
-		Logger systemErrLogger = Logger.getLogger("System.err");
-		
-		try {
-			// This logger stream not loop with log4j > 1.2.13, which has getFollow method
-			ConsoleAppender.class.getMethod("getFollow");
-			System.setOut(new LoggerStream(systemOutLogger, Level.WARN, originalOut));
-		} catch (SecurityException e) {
-		} catch (NoSuchMethodException e) {
-			System.err.println("Not capturing System.out, use log4j >= 1.2.13");
-		}		
-		
-		System.setErr(new LoggerStream(systemErrLogger, Level.ERROR, originalErr));
-				
-	}
 
 	protected void setExceptionHandler() {
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
