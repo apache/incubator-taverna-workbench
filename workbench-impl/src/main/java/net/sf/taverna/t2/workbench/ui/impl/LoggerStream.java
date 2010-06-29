@@ -106,16 +106,16 @@ public class LoggerStream
          */
          if( issuedWarning == false )
          {
-            String msg = "ERROR: invalid console appender config detected, console stream is looping";
-            try
-            {
-               out.write(msg.getBytes());
-            }
-            catch(IOException ignore)
-            {
-            }
-            issuedWarning = true;
+            String msg = "ERROR: invalid log settings detected, console capturing is looping";
+               //out.write(msg.getBytes());
+           new Exception(msg).printStackTrace((PrintStream)out);
+           issuedWarning = true;
          }
+         // 
+         try {
+			out.write(b, off, len);
+		} catch (IOException e) {
+		}
          return;
       }
 

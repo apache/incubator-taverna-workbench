@@ -1,1 +1,2 @@
 net.sf.taverna.t2.workbench.ui.impl.UserRegistrationHook
+net.sf.taverna.t2.workbench.ui.impl.SetConsoleLoggerStartup
