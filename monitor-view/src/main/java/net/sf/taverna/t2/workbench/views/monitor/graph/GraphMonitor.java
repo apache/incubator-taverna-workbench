@@ -79,7 +79,7 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 
 	private GraphController graphController;
 
-	private Map<String, Object> workflowObjects = new HashMap<String, Object>();
+	private Map<String, Object> workflowObjects = Collections.synchronizedMap(new HashMap<String, Object>());
 
 	private Set<String> datalinks = Collections.synchronizedSet(new HashSet<String>());
 
@@ -268,9 +268,11 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 
 	public class UpdateTask extends TimerTask {
 		public void run() {
+		    synchronized(processors) {
 			for (GraphMonitorNode node : processors.values()) {
 				node.update();
 			}
+		    }
 			synchronized (datalinks) {
 				for (String datalink : datalinks) {
 					graphController.setEdgeActive(datalink, true);
