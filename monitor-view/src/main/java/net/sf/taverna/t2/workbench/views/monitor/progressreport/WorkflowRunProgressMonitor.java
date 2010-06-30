@@ -102,8 +102,12 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 	}
 
 	public void onDispose() {
-	    updateTimer.cancel();
-	    updateTask.run();
+	    if (updateTimer != null) {
+		updateTimer.cancel();
+	    }
+	    if (updateTask != null) {
+		updateTask.run();
+	    }
 	}
 
 	@Override
