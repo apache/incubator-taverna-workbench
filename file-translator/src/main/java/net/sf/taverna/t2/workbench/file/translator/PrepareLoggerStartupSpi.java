@@ -13,6 +13,7 @@ public class PrepareLoggerStartupSpi implements StartupSPI {
 
 	public boolean startup() {
 		// Causes Log4jConfiguration to be initialised
+		System.setProperty("taverna.log4jInitialized", Boolean.toString(true));
 		MyGridConfiguration.getInstance();
 		return true;
 	}
