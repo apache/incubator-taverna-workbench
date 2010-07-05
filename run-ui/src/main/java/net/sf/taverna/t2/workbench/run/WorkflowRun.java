@@ -236,7 +236,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		monitorViewComponent.addIntermediateValuesButton(intermediateValuesButton);
 		monitorViewComponent.addWorkflowResultsButton(workflowResultsButton);
 		intermediateValuesButton.setEnabled(false);
-		workflowResultsButton.setEnabled(false);
+		//		workflowResultsButton.setEnabled(false);
 
 		workflowResultsComponent = new WorkflowResultsComponent();
 	}
@@ -446,7 +446,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			monitorViewComponent.addIntermediateValuesButton(intermediateValuesButton);
 			intermediateValuesButton.setEnabled(false);
 			monitorViewComponent.addWorkflowResultsButton(workflowResultsButton);
-			workflowResultsButton.setEnabled(false);
+			//			workflowResultsButton.setEnabled(false);
 
 			// Results for an old wf run - get the results from provenance 
 			workflowResultsComponent = new WorkflowResultsComponent(dataflow, runId, referenceService);
@@ -679,15 +679,17 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 
 		public void actionPerformed(ActionEvent e) {
 
-			if (workflowResultsComponent != null && ResultsPerspectiveComponent.getInstance().getBottomComponent() != workflowResultsComponent) {
-				ResultsPerspectiveComponent.getInstance().setBottomComponent(
+		    ResultsPerspectiveComponent rpc = ResultsPerspectiveComponent.getInstance();
+			if (workflowResultsComponent != null) {
+				rpc.setBottomComponent(
 						workflowResultsComponent);
 				progressRunTable.setSelectedRowForObject(dataflow);
 				progressRunGraph.setSelectedGraphElementForWorkflowObject(dataflow);
+				rpc.revalidate();
 			}
 			((JButton)e.getSource()).getParent().requestFocusInWindow();
 			intermediateValuesButton.setEnabled(false);
-			workflowResultsButton.setEnabled(false);
+			//			workflowResultsButton.setEnabled(false);
 		}
 	}
 
@@ -721,7 +723,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			ResultsPerspectiveComponent.getInstance()
 					.setBottomComponent(workflowResultsComponent);
 			intermediateValuesButton.setEnabled(false);
-			workflowResultsButton.setEnabled(false);
+			//			workflowResultsButton.setEnabled(false);
 		} else if (workflowObject instanceof Processor) {
 		    // User has selected a processor - show its
 		    // intermediate results if provenance is enabled (which it should be!)
@@ -731,7 +733,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			    if (facade != null) {
 				intermediateValuesButton.setEnabled(true);
 			    }
-			    workflowResultsButton.setEnabled(true);
+			    //			    workflowResultsButton.setEnabled(true);
 			}
 		}
 		if (workflowObject instanceof DataflowPort) {
