@@ -43,12 +43,14 @@ public class ShowLogsMenuAction extends AbstractMenuAction {
 		String path = dir.getAbsolutePath();
 		String os = System.getProperty("os.name");
 		String cmd;
-		
+		boolean isWindows = false;
 		if (os.equals(MAC_OS_X)) {
 			cmd = OPEN;
 		} else if (os.startsWith(WINDOWS)) {
-			cmd = EXPLORER;					
+			cmd = EXPLORER;		
+			isWindows = true;
 		} else {
+			// Assume Unix - best option is gnome-open
 			cmd = GNOME_OPEN;
 		}
 		String[] cmdArray = new String[2];
@@ -61,7 +63,8 @@ public class ShowLogsMenuAction extends AbstractMenuAction {
 			exec.getInputStream().close();
 			exec.getOutputStream().close();
 			exec.waitFor();
-			if (exec.exitValue() == 0) {
+			if (exec.exitValue() == 0 || isWindows && exec.exitValue() == 1) {
+				// explorer.exe thinks 1 means success
 				return;
 			}
 			logger.warn("Exit value from " + cmd + " " + path + ": " + exec.exitValue());
@@ -69,8 +72,9 @@ public class ShowLogsMenuAction extends AbstractMenuAction {
 			logger.warn("Could not call " + cmd + " " + path, ex);
 		}
 		// Fall-back - just show a dialogue with the path
-		JOptionPane.showInputDialog(MainWindow.getMainWindow(), title + "\n",
-				path);
+		JOptionPane.showInputDialog(MainWindow.getMainWindow(), "Copy path from below:", title,
+				JOptionPane.INFORMATION_MESSAGE, null, null,
+                path);
 	}
 
 }
