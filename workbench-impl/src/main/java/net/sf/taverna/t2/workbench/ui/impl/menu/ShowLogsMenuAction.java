@@ -46,7 +46,7 @@ public class ShowLogsMenuAction extends AbstractMenuAction {
 		
 		if (os.equals(MAC_OS_X)) {
 			cmd = OPEN;
-		} else if (os.equals(WINDOWS)) {
+		} else if (os.startsWith(WINDOWS)) {
 			cmd = EXPLORER;					
 		} else {
 			cmd = GNOME_OPEN;
