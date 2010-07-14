@@ -23,6 +23,8 @@ package net.sf.taverna.t2.renderers;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
 
@@ -30,7 +32,6 @@ import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.T2ReferenceType;
-import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import cht.svista.SeqVISTA;
 
 /**
@@ -144,13 +145,21 @@ public class SeqVistaRenderer implements Renderer {
 							"Reference Service failed to render data as string (see error log for more details): \n"
 									+ e.getMessage());
 				}
+				// Save LAF as SeqVista is messing with it
+				LookAndFeel currentLookAndFeel = UIManager.getLookAndFeel();
 				SeqVISTA vista = new SeqVISTA() {
 					@Override
 					public java.awt.Dimension getPreferredSize() {
 						return new java.awt.Dimension(100, 100);
 					}
 				};
-				Workbench.getInstance().setLookAndFeel();
+				// Reset LAF messed up by SeqVista
+				try { 
+					UIManager.setLookAndFeel(currentLookAndFeel);
+				} catch (Exception e) {
+					logger.info("Can't reset look and feel to " + currentLookAndFeel + " after SeqVista renderer messed it up" , e);
+				}
+				
 				try {
 					vista.loadFromText(resolve, false, seqType, np);
 				} catch (Exception e) {
