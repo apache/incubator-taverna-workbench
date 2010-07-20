@@ -22,6 +22,7 @@ package net.sf.taverna.t2.workbench.run;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Timestamp;
@@ -554,4 +555,10 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 			}
 		}
 	}
+
+    public void setBottomComponent(Component comp) {
+	int dividerLocation = this.getDividerLocation();
+	super.setBottomComponent(comp);
+	super.setDividerLocation(dividerLocation);
+    }
 }

@@ -5,10 +5,11 @@
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
 		<artifactId>ui-components</artifactId>
-		<version>1.2</version>
+		<version>1.2.1</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-components</groupId>
 	<artifactId>results-view</artifactId>
+<!--        <version>1.2.1</version> -->
 	<name>Results and outputs from a workflow run</name>
 	<dependencies>
 		<dependency>
@@ -34,7 +35,7 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>graph-view</artifactId>
-			<version>${project.version}</version>
+			<version>1.2</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
