@@ -559,13 +559,17 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
     public void setBottomComponent(Component comp) {
 	int dividerLocation = this.getLastDividerLocation();
 	int height = this.getHeight();
-	int minLocation = height / 20;
-	int maxLocation = minLocation * 19;
-	if (dividerLocation < minLocation) {
-	    dividerLocation = minLocation;
-	}
-	if (dividerLocation > maxLocation) {
-	    dividerLocation = maxLocation;
+	if (height < 1) {
+	    dividerLocation = 400;
+	} else {
+	    int minLocation = height / 20;
+	    int maxLocation = minLocation * 19;
+	    if (dividerLocation < minLocation) {
+		dividerLocation = minLocation;
+	    }
+	    if (dividerLocation > maxLocation) {
+		dividerLocation = maxLocation;
+	    }
 	}
 	super.setBottomComponent(comp);
 	super.setDividerLocation(dividerLocation);
