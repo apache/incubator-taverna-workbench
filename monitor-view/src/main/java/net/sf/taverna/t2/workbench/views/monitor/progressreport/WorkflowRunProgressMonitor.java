@@ -43,6 +43,7 @@ import net.sf.taverna.t2.monitor.MonitorManager.AddPropertiesMessage;
 import net.sf.taverna.t2.monitor.MonitorManager.DeregisterNodeMessage;
 import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
 import net.sf.taverna.t2.monitor.MonitorManager.RegisterNodeMessage;
+import net.sf.taverna.t2.workbench.views.monitor.graph.GraphMonitor;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
@@ -153,7 +154,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				WorkflowRunProgressMonitorNode monitorNode = new WorkflowRunProgressMonitorNode(
 						processor, owningProcess, properties, progressTreeTable, facade, parentMonitorNode);
 				synchronized(processorMonitorNodes) {
-					processorMonitorNodes.put(owningProcessId, monitorNode);
+					processorMonitorNodes.put(GraphMonitor.getProcessorId(owningProcess), monitorNode);
 				}
 			} else if (workflowObject instanceof Dataflow) {
 
@@ -199,7 +200,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 		while (!parentOwningProcess.isEmpty()) {
 			// Remove last element
 			parentOwningProcess = parentOwningProcess.subList(0, parentOwningProcess.size()-1);
-			String parentId = getOwningProcessId(parentOwningProcess);
+			String parentId = GraphMonitor.getProcessorId(parentOwningProcess.toArray(new String[parentOwningProcess.size()]));
 			synchronized (processorMonitorNodes) {
 				WorkflowRunProgressMonitorNode parentNode = processorMonitorNodes
 						.get(parentId);
@@ -218,7 +219,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 			if (workflowObject instanceof Processor) {
 				WorkflowRunProgressMonitorNode workflowRunProgressMonitorNode;
 				synchronized(processorMonitorNodes) {
-					workflowRunProgressMonitorNode = processorMonitorNodes.get(owningProcessId);
+					workflowRunProgressMonitorNode = processorMonitorNodes.get(GraphMonitor.getProcessorId(owningProcess));
 				}
 				workflowRunProgressMonitorNode.update();
 				Date processorFinishDate = new Date();
@@ -315,7 +316,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 			WorkflowRunProgressMonitorNode monitorNode;
 			synchronized(processorMonitorNodes) {
 				monitorNode = processorMonitorNodes
-						.get(getOwningProcessId(owningProcess));
+						.get(GraphMonitor.getProcessorId(owningProcess));
 			}
 			new Exception().printStackTrace();
 			if (monitorNode != null) {
