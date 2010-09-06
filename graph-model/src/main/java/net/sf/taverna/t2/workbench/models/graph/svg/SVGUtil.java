@@ -367,14 +367,14 @@ public class SVGUtil {
 	}
 
 	/**
-	 * Converts a list of points into a string format for a cubic BŽzier curve.
+	 * Converts a list of points into a string format for a cubic Bezier curve.
 	 * 
 	 * For example, "M100,200 C100,100 250,100 250,200". See
 	 * http://www.w3.org/TR/SVG11/paths.html#PathDataCubicBezierCommands.
 	 * 
 	 * @param pointList
-	 *            a list of points that describes a cubic BŽzier curve
-	 * @return a string that describes a cubic BŽzier curve
+	 *            a list of points that describes a cubic Bezier curve
+	 * @return a string that describes a cubic Bezier curve
 	 */
 	public static String getPath(List<Point> pointList) {
 		StringBuilder sb = new StringBuilder();
