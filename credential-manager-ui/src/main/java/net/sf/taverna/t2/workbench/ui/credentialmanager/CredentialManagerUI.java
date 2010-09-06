@@ -244,7 +244,7 @@ public class CredentialManagerUI extends JFrame {
 	}
 
 	/**
-	 * Overrides the Object’s clone method to prevent the singleton object to be
+	 * Overrides the Object's clone method to prevent the singleton object to be
 	 * cloned.
 	 */
 	@Override
