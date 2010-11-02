@@ -161,7 +161,11 @@ public class ServiceTreeClickListener extends MouseAdapter {
 						Set<ServiceDescriptionProvider> providers = new HashSet<ServiceDescriptionProvider>();
 						TreeMap<String,ServiceDescriptionProvider> nameMap = new TreeMap<String, ServiceDescriptionProvider>();
 
-						for (FilterTreeNode leaf : selectedNode.getLeaves()) {
+						if (selectedNode.isRoot()) {
+						    providers = serviceDescriptionRegistry.getServiceDescriptionProviders();
+                                                } else {
+
+						    for (FilterTreeNode leaf : selectedNode.getLeaves()) {
 							if (!leaf.isLeaf()) {
 								logger.info("Not a leaf");
 							}
@@ -171,6 +175,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 								continue;
 							}
 							providers.addAll(serviceDescriptionRegistry.getServiceDescriptionProviders((ServiceDescription) leaf.getUserObject()));
+						    }
 						}
 						for (ServiceDescriptionProvider sdp : providers) {
 							nameMap.put(sdp.toString(), sdp);
