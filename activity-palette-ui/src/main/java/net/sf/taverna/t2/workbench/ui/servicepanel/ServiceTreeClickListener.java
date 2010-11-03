@@ -82,144 +82,152 @@ public class ServiceTreeClickListener extends MouseAdapter {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 	
-	public void mouseClicked(MouseEvent evt) {
+    private void handleMouseEvent(MouseEvent evt) {
 
-		FilterTreeSelectionModel selectionModel = (FilterTreeSelectionModel) tree.getSelectionModel();
-			// Discover the tree row that was clicked on
-			int selRow = tree.getRowForLocation(evt.getX(), evt
-					.getY());
-			if (selRow != -1) {
-				// Get the selection path for the row
-				TreePath selectionPath = tree.getPathForLocation(evt
-						.getX(), evt.getY());
-				if (selectionPath != null) {
-					// Get the selected node
-					final FilterTreeNode selectedNode = (FilterTreeNode) selectionPath
-							.getLastPathComponent();
+	FilterTreeSelectionModel selectionModel = (FilterTreeSelectionModel) tree.getSelectionModel();
+	// Discover the tree row that was clicked on
+	int selRow = tree.getRowForLocation(evt.getX(), evt
+					    .getY());
+	if (selRow != -1) {
+	    // Get the selection path for the row
+	    TreePath selectionPath = tree.getPathForLocation(evt
+							     .getX(), evt.getY());
+	    if (selectionPath != null) {
+		// Get the selected node
+		final FilterTreeNode selectedNode = (FilterTreeNode) selectionPath
+		    .getLastPathComponent();
+		
+		selectionModel.clearSelection();			
+		selectionModel.mySetSelectionPath(selectionPath);
 
-					selectionModel.clearSelection();			
-					selectionModel.mySetSelectionPath(selectionPath);
-
-					if (evt.getButton() == MouseEvent.BUTTON3) {
-						JPopupMenu menu = new JPopupMenu();
-						Object selectedObject = selectedNode.getUserObject();
-						logger.info(selectedObject.getClass().getName());
-						if (! (selectedObject instanceof ServiceDescription)) {
-							menu.add(new ShadedLabel("Tree",
-									ShadedLabel.BLUE));
-							menu.add(new JMenuItem(new AbstractAction(
-									"Expand all", WorkbenchIcons.plusIcon) {
-								public void actionPerformed(ActionEvent evt) {
-									SwingUtilities
-											.invokeLater(new Runnable() {
-
-												public void run() {
-														panel.expandAll(selectedNode, true);
-												}
-											});
-								}
-							}));
-							menu.add(new JMenuItem(new AbstractAction(
-									"Collapse all",
-									WorkbenchIcons.minusIcon) {
-								public void actionPerformed(ActionEvent evt) {
-									SwingUtilities
-											.invokeLater(new Runnable() {
-												public void run() {
-													panel.expandAll(selectedNode, false);
-												}
-
-											});
-								}
-							}));
-						}
+		if (evt.isPopupTrigger()) {
+		    JPopupMenu menu = new JPopupMenu();
+		    Object selectedObject = selectedNode.getUserObject();
+		    logger.info(selectedObject.getClass().getName());
+		    if (! (selectedObject instanceof ServiceDescription)) {
+			menu.add(new ShadedLabel("Tree",
+						 ShadedLabel.BLUE));
+			menu.add(new JMenuItem(new AbstractAction(
+								  "Expand all", WorkbenchIcons.plusIcon) {
+				public void actionPerformed(ActionEvent evt) {
+				    SwingUtilities
+					.invokeLater(new Runnable() {
 						
-						if (selectedObject instanceof ServiceDescription) {
-							final ServiceDescription sd = (ServiceDescription) selectedObject;
-							menu.add(new ShadedLabel(sd.getName(),
-									ShadedLabel.ORANGE));
-							menu.add(new AbstractAction("Add to workflow") {
-
-								public void actionPerformed(ActionEvent e) {
-									Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
-									WorkflowView.importServiceDescription(sd, false);
-									
-								}
-								
-							});
-							menu.add(new AbstractAction("Add to workflow with name...") {
-
-								public void actionPerformed(ActionEvent e) {
-									Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
-									WorkflowView.importServiceDescription(sd, true);
-									
-								}
-								
-							});		
+						public void run() {
+						    panel.expandAll(selectedNode, true);
 						}
-						
-						Set<ServiceDescriptionProvider> providers = new HashSet<ServiceDescriptionProvider>();
-						TreeMap<String,ServiceDescriptionProvider> nameMap = new TreeMap<String, ServiceDescriptionProvider>();
-
-						if (selectedNode.isRoot()) {
-						    providers = serviceDescriptionRegistry.getServiceDescriptionProviders();
-                                                } else {
-
-						    for (FilterTreeNode leaf : selectedNode.getLeaves()) {
-							if (!leaf.isLeaf()) {
-								logger.info("Not a leaf");
-							}
-							if (! (leaf.getUserObject() instanceof ServiceDescription)) {
-								logger.info(leaf.getUserObject().getClass().getCanonicalName());
-								logger.info(leaf.getUserObject().toString());
-								continue;
-							}
-							providers.addAll(serviceDescriptionRegistry.getServiceDescriptionProviders((ServiceDescription) leaf.getUserObject()));
-						    }
-						}
-						for (ServiceDescriptionProvider sdp : providers) {
-							nameMap.put(sdp.toString(), sdp);
-						}
-							boolean first = true;
-								for (String name : nameMap.keySet()) {
-									final ServiceDescriptionProvider sdp = nameMap.get(name);
-									if (!(sdp instanceof ConfigurableServiceProvider)) {
-										continue;
-									}
-									if (first) {
-									menu.add(new ShadedLabel("Remove individual service provider",
-											ShadedLabel.GREEN));
-									first = false;
-									}
-											menu.add(new AbstractAction(name) {
-
-										public void actionPerformed(
-												ActionEvent e) {
-											serviceDescriptionRegistry.removeServiceDescriptionProvider(sdp);
-										}
-										
-									});
-								}
-								
-								
-						if (selectedNode.isRoot()){ // Root "Available services"
-								menu.add(new ShadedLabel("Default and added service providers",
-										ShadedLabel.ORANGE));
-								menu.add(new RemoveUserServicesAction());
-								menu.add(new RemoveDefaultServicesAction());
-								menu.add(new RestoreDefaultServicesAction());
-								
-								menu.add(new ShadedLabel("Import/export services",
-										ShadedLabel.halfShade(Color.RED)));
-								menu.add(new ImportServiceDescriptionsFromFileAction());
-								menu.add(new ImportServiceDescriptionsFromURLAction());
-								menu.add(new ExportServiceDescriptionsAction());
-						}
-						
-						menu.show(evt.getComponent(), evt.getX(), evt
-								.getY());
-					}
+					    });
 				}
+			    }));
+			menu.add(new JMenuItem(new AbstractAction(
+								  "Collapse all",
+								  WorkbenchIcons.minusIcon) {
+				public void actionPerformed(ActionEvent evt) {
+				    SwingUtilities
+					.invokeLater(new Runnable() {
+						public void run() {
+						    panel.expandAll(selectedNode, false);
+						}
+						
+					    });
+				}
+			    }));
+		    }
+						
+		    if (selectedObject instanceof ServiceDescription) {
+			final ServiceDescription sd = (ServiceDescription) selectedObject;
+			menu.add(new ShadedLabel(sd.getName(),
+						 ShadedLabel.ORANGE));
+			menu.add(new AbstractAction("Add to workflow") {
+
+				public void actionPerformed(ActionEvent e) {
+				    Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
+				    WorkflowView.importServiceDescription(sd, false);
+				    
+				}
+								
+			    });
+			menu.add(new AbstractAction("Add to workflow with name...") {
+				
+				public void actionPerformed(ActionEvent e) {
+				    Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
+				    WorkflowView.importServiceDescription(sd, true);
+				    
+				}
+								
+			    });		
+		    }
+						
+		    Set<ServiceDescriptionProvider> providers = new HashSet<ServiceDescriptionProvider>();
+		    TreeMap<String,ServiceDescriptionProvider> nameMap = new TreeMap<String, ServiceDescriptionProvider>();
+
+		    if (selectedNode.isRoot()) {
+			providers = serviceDescriptionRegistry.getServiceDescriptionProviders();
+		    } else {
+
+			for (FilterTreeNode leaf : selectedNode.getLeaves()) {
+			    if (!leaf.isLeaf()) {
+				logger.info("Not a leaf");
+			    }
+			    if (! (leaf.getUserObject() instanceof ServiceDescription)) {
+				logger.info(leaf.getUserObject().getClass().getCanonicalName());
+				logger.info(leaf.getUserObject().toString());
+				continue;
+			    }
+			    providers.addAll(serviceDescriptionRegistry.getServiceDescriptionProviders((ServiceDescription) leaf.getUserObject()));
 			}
+		    }
+		    for (ServiceDescriptionProvider sdp : providers) {
+			nameMap.put(sdp.toString(), sdp);
+		    }
+		    boolean first = true;
+		    for (String name : nameMap.keySet()) {
+			final ServiceDescriptionProvider sdp = nameMap.get(name);
+			if (!(sdp instanceof ConfigurableServiceProvider)) {
+			    continue;
+			}
+			if (first) {
+			    menu.add(new ShadedLabel("Remove individual service provider",
+						     ShadedLabel.GREEN));
+			    first = false;
+			}
+			menu.add(new AbstractAction(name) {
+				
+				public void actionPerformed(
+							    ActionEvent e) {
+				    serviceDescriptionRegistry.removeServiceDescriptionProvider(sdp);
+				}
+				
+			    });
+		    }
+								
+								
+		    if (selectedNode.isRoot()){ // Root "Available services"
+			menu.add(new ShadedLabel("Default and added service providers",
+						 ShadedLabel.ORANGE));
+			menu.add(new RemoveUserServicesAction());
+			menu.add(new RemoveDefaultServicesAction());
+			menu.add(new RestoreDefaultServicesAction());
+								
+			menu.add(new ShadedLabel("Import/export services",
+						 ShadedLabel.halfShade(Color.RED)));
+			menu.add(new ImportServiceDescriptionsFromFileAction());
+			menu.add(new ImportServiceDescriptionsFromURLAction());
+			menu.add(new ExportServiceDescriptionsAction());
+		    }
+						
+		    menu.show(evt.getComponent(), evt.getX(), evt
+			      .getY());
+		}
+	    }
+	}
+    }
+
+	public void mousePressed(MouseEvent evt) {
+	    handleMouseEvent(evt);
+	}
+
+	public void mouseReleased(MouseEvent evt) {
+	    handleMouseEvent(evt);
 	}
 }
