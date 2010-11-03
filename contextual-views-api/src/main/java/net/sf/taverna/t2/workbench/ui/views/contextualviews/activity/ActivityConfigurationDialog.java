@@ -250,7 +250,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 			    }
 			} else {
 			    int answer = JOptionPane.showConfirmDialog(this,
-								       "Do you want to still want to close?",
+								       "Do you still want to close?",
 								       relativeName, JOptionPane.YES_NO_OPTION);
 			    if (answer == JOptionPane.NO_OPTION) {
 				return false;
