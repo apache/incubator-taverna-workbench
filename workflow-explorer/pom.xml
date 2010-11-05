@@ -76,7 +76,7 @@
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
-			<version>1.8.0</version>
+			<version>${commons.beanutils.version}</version>
 		</dependency>
 	</dependencies>
 </project>

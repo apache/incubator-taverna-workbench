@@ -10,9 +10,6 @@
 	<groupId>net.sf.taverna.t2.ui-components</groupId>
 	<artifactId>workflow-view</artifactId>
 	<name>Workflow View</name>
-	<properties>
-		<batik.version>1.7</batik.version>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>

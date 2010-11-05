@@ -719,9 +719,9 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			WorkflowObjectSelectionMessage message) throws Exception {
 
 		Object workflowObject = message.getWorkflowObject();
+		ResultsPerspectiveComponent rpc = ResultsPerspectiveComponent.getInstance();
 		if (workflowObject instanceof Dataflow || workflowObject instanceof DataflowPort) {
-			ResultsPerspectiveComponent.getInstance()
-					.setBottomComponent(workflowResultsComponent);
+			rpc.setBottomComponent(workflowResultsComponent);
 			intermediateValuesButton.setEnabled(false);
 			//			workflowResultsButton.setEnabled(false);
 		} else if (workflowObject instanceof Processor) {
@@ -729,13 +729,14 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		    // intermediate results if provenance is enabled (which it should be!)
 			if (isProvenanceEnabledForRun){
 			    ProcessorResultsComponent intermediateResultsComponent = getIntermediateResultsComponent((Processor) workflowObject);
-			    ResultsPerspectiveComponent.getInstance().setBottomComponent(intermediateResultsComponent);
+			    rpc.setBottomComponent(intermediateResultsComponent);
 			    if (facade != null) {
 				intermediateValuesButton.setEnabled(true);
 			    }
 			    //			    workflowResultsButton.setEnabled(true);
 			}
 		}
+		rpc.revalidate();
 		if (workflowObject instanceof DataflowPort) {
 			DataflowPort dataflowPort = (DataflowPort) workflowObject;
 			workflowResultsComponent.selectWorkflowPortTab(dataflowPort);

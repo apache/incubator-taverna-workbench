@@ -11,10 +11,6 @@
 	<artifactId>data-management-config-ui</artifactId>
 	<name>Data management configuration UI components</name>
 
-	<properties>
-		<spring.version>2.5.4</spring.version>
-		<aspectj.version>1.6.0</aspectj.version>
-	</properties>
 	<dependencies>
 
 		<dependency>

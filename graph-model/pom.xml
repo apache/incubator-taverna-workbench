@@ -26,9 +26,6 @@
 			</plugin>
 		</plugins>
 	</build>
-	<properties>
-		<batik.version>1.7</batik.version>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -123,7 +120,7 @@
 		<dependency>
 			<groupId>commons-beanutils</groupId>
 			<artifactId>commons-beanutils</artifactId>
-			<version>1.7.0</version>
+			<version>${commons.beanutils.version}</version>
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
