@@ -1,0 +1,38 @@
+<plugin>
+  <provider>biocatalogue.org</provider>
+  <identifier>org.biocatalogue.tavernaplugin</identifier>
+  <version>0.2</version><!-- Does not match the workbench version, this is the plugin version -->
+  
+  <name>BioCatalogue plugin</name>
+  <description>Integration with BioCatalogue Web Services Registry</description>
+  <enabled>true</enabled>
+  
+  <repositories>
+    <!-- myGrid repositories and mirrors  -->
+    <repository>http://www.mygrid.org.uk/maven/repository/</repository>
+    <repository>http://bioinf.ncl.ac.uk/mirror/maven/repository/</repository>
+    <repository>http://mirror.omii.ac.uk/maven/repository/</repository>
+
+    <repository>http://www.mygrid.org.uk/maven/snapshot-repository/</repository>
+
+    <!--  Mirror of official maven repository -->
+    <repository>http://www.mygrid.org.uk/maven/repo1/</repository>
+    <repository>http://ibiblio.lsu.edu/main/pub/packages/maven2/</repository>
+    <repository>http://www.eviware.com/repository/maven2/</repository>
+
+    <!-- For core-renderer -->
+    <repository>http://download.java.net/maven/2/</repository>
+  </repositories>
+
+  <profile>
+    <artifact groupId="org.biocatalogue.tavernaplugin"
+    artifactId="perspective-biocatalogue" version="0.2" />
+  </profile>
+
+  <compatibility>
+    <application>
+      <version>2.2.0</version>
+      <version>2.2.1</version>
+    </application>
+  </compatibility>
+</plugin> 
