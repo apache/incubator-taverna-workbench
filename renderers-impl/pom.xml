@@ -37,12 +37,12 @@
   		<dependency>
     		<groupId>net.java.dev.jai-imageio</groupId>
     		<artifactId>jai-imageio-core-standalone</artifactId>
-    		<version>1.2-pre-dr-b04-2010-04-30</version>
+    		<version>${jai.imageio.core.standalone.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fife.ui.hex</groupId>
 			<artifactId>hexeditor</artifactId>
-			<version>1.0.2010-05-07</version>
+			<version>${org.fife.ui.hexeditor.version}</version>
 		</dependency>
   	</dependencies>
 </project>
