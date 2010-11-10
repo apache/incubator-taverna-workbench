@@ -8,7 +8,7 @@ package net.sf.taverna.biocatalogue.model;
  */
 public class SoapOperationIdentity extends SoapServiceIdentity
 {
-  public static final String ACTION_STRING_SEPARATOR = "¬¬¬";
+  public static final String ACTION_STRING_SEPARATOR = "===";
   
   private final String operationName;
   private final String description;
