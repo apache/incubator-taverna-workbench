@@ -113,15 +113,6 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
     }.start();
     
     
-    // register the thread which will perform shutdown operations 
-    if (!Util.isRunningInTaverna())
-    {
-      // NB! This only needs to be done when running outside Taverna, because
-      // ShutdownSPI would automatically replace this in that case.
-      Runtime.getRuntime().addShutdownHook(new MainComponentShutdownHook.MyExperimentClientShutdownThread());
-    }
-    
-    
     // determine what folder is to be used for config files
     if (Util.isRunningInTaverna()) {
       // running inside Taverna - use its default folders for config files and log files

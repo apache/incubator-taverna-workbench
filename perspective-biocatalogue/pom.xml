@@ -146,12 +146,6 @@
 			<version>${log4j.version}</version>
 		</dependency>
 
-		<!-- Launching standard browser with a specified URL -->
-		<dependency>
-			<groupId>BrowserLauncher2</groupId>
-			<artifactId>BrowserLauncher2</artifactId>
-			<version>${browserlauncher.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.apache.xmlbeans</groupId>

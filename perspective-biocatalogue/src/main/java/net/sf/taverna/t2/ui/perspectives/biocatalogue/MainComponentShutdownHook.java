@@ -21,25 +21,6 @@ public class MainComponentShutdownHook implements ShutdownSPI
   
   public boolean shutdown()
   {
-    new MyExperimentClientShutdownThread().start();
-    
-    // "true" means that shutdown operations are complete and Taverna can terminate
-    return true;
-  }
-  
-  
-  /**
-   * Actual shutdown cleaning up, saving settings and flushing caches.
-   */
-  // ************** CLEANUP THREAD *****************
-  protected static class MyExperimentClientShutdownThread extends Thread
-  {
-    public void run()
-    {
-      this.setName("myExperiment Plugin shutdown thread");
-      System.out.println("Starting shutdown operations for BioCatalogue plugin");
-      
-      
       // store services that were added to the Service Panel - both REST and SOAP
       XStream xstream = new XStream();
       BioCataloguePluginConfiguration configuration = BioCataloguePluginConfiguration.getInstance();
@@ -58,8 +39,7 @@ public class MainComponentShutdownHook implements ShutdownSPI
       // close API operation log
       MainComponentFactory.getSharedInstance().getBioCatalogueClient().getAPILogWriter().close();
       
-      System.out.println("BioCatalogue plugin shutdown is completed; terminated...");
-    }
+      return true;
   }
   
 }

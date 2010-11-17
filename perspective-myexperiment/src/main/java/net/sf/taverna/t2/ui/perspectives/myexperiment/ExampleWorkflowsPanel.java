@@ -43,8 +43,6 @@ import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Workflow;
 
-// import edu.stanford.ejalbert.BrowserLauncher;
-
 /**
  * @author Sergejs Aleksejevs, Jiten Bhagat
  */

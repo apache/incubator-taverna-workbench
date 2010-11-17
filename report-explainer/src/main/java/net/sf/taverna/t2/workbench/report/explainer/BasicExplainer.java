@@ -3,12 +3,14 @@
  */
 package net.sf.taverna.t2.workbench.report.explainer;
 
+import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -59,8 +61,6 @@ import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Retry;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
-
-import edu.stanford.ejalbert.BrowserLauncher;
 
 /**
  * @author alanrw
@@ -737,8 +737,7 @@ public class BasicExplainer implements VisitExplainer {
 	    connectButton = new JButton(new AbstractAction("Open in browser") {
 		    public void actionPerformed(ActionEvent e) {
 			try {
-			    BrowserLauncher launcher = new BrowserLauncher();
-			    launcher.openURLinBrowser(end);
+			    Desktop.getDesktop().browse(new URI(end));
 			}
 			catch (Exception ex) {
 			    logger.error("Failed to open endpoint", ex);
@@ -806,8 +805,7 @@ public class BasicExplainer implements VisitExplainer {
 	    connectButton = new JButton(new AbstractAction("Open in browser") {
 		    public void actionPerformed(ActionEvent e) {
 			try {
-			    BrowserLauncher launcher = new BrowserLauncher();
-			    launcher.openURLinBrowser(end);
+			    Desktop.getDesktop().browse(new URI(end));
 			}
 			catch (Exception ex) {
 			    logger.error("Failed to open endpoint", ex);
@@ -857,8 +855,7 @@ public class BasicExplainer implements VisitExplainer {
 	    connectButton = new JButton(new AbstractAction("Open in browser") {
 		    public void actionPerformed(ActionEvent e) {
 			try {
-			    BrowserLauncher launcher = new BrowserLauncher();
-			    launcher.openURLinBrowser(end);
+			    Desktop.getDesktop().browse(new URI(end));
 			}
 			catch (Exception ex) {
 			    logger.error("Failed to open endpoint", ex);

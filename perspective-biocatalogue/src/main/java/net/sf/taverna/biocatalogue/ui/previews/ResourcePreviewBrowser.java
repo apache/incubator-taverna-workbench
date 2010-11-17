@@ -1,6 +1,7 @@
 package net.sf.taverna.biocatalogue.ui.previews;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -8,6 +9,7 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -34,8 +36,6 @@ import net.sf.taverna.biocatalogue.ui.HistoryOrFavouritesBlock.Entry;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponent;
 
 import org.apache.log4j.Logger;
-
-import edu.stanford.ejalbert.BrowserLauncher;
 
 /**
  * A class to show a frame with previews of resources.
@@ -461,8 +461,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hi
     
     // we've got the URL - attempt to open it
     try {
-      BrowserLauncher launcher = new BrowserLauncher();
-      launcher.openURLinBrowser(actualURL);
+	Desktop.getDesktop().browse(new URI(actualURL));
     }
     catch (Exception ex) {
       logger.error("Failed while trying to open the URL in a standard browser; URL was: " +

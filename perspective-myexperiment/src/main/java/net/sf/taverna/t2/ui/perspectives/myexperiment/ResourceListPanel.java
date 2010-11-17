@@ -22,10 +22,12 @@ package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.net.URI;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -37,10 +39,6 @@ import javax.swing.event.HyperlinkListener;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import org.apache.log4j.Logger;
-
-import edu.stanford.ejalbert.BrowserLauncher;
-
-// import edu.stanford.ejalbert.BrowserLauncher;
 
 /**
  * @author Sergejs Aleksejevs, Emmanuel Tagarira, Jiten Bhagat
@@ -96,8 +94,7 @@ public class ResourceListPanel extends JPanel implements HyperlinkListener {
 		if (strAction.startsWith("preview:")) {
 		  this.pluginMainComponent.getPreviewBrowser().preview(strAction);
 		} else {
-		  BrowserLauncher launcher = new BrowserLauncher();
-		  launcher.openURLinBrowser(strAction);
+		    Desktop.getDesktop().browse(new URI(strAction));
 		}
 	  }
 	} catch (Exception ex) {
