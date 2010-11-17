@@ -140,13 +140,6 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
           break;
         }
       }
-    } else {
-      // this registers the thread which will perform shutdown operations;
-      // NB! this only needs to be done when running outside Taverna, because
-      // ShutdownSPI would replace this in that case.
-      MainComponentShutdownHook shutdownHook = new MainComponentShutdownHook();
-      shutdownHook.setLinks(this, this.myExperimentClient, this.logger);
-      Runtime.getRuntime().addShutdownHook(shutdownHook.new MyExperimentClientShutdownThread());
     }
 
     // Do the rest in a separate thread to avoid hanging the GUI.
