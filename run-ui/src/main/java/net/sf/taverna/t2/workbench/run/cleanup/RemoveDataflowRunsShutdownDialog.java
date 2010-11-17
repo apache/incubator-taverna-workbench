@@ -35,6 +35,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.WindowConstants;
 
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
@@ -67,7 +68,7 @@ public class RemoveDataflowRunsShutdownDialog extends HelpEnabledDialog{
 
 	public RemoveDataflowRunsShutdownDialog() {
 		super((Frame) null, "Deleting provenance data", true);
-		setUndecorated(true);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setLocationRelativeTo(null);
 
 		GridBagLayout gridbag = new GridBagLayout();

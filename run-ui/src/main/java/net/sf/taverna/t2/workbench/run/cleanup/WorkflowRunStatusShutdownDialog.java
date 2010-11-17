@@ -33,6 +33,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
@@ -54,7 +55,7 @@ public class WorkflowRunStatusShutdownDialog extends HelpEnabledDialog {
 
 	public WorkflowRunStatusShutdownDialog(int runningWorkflows, int pausedWorkflows) {
 		super((Frame) null, "Workflows still running", true);
-		setUndecorated(true);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setLocationRelativeTo(null);
 
 		GridBagConstraints c = new GridBagConstraints();

@@ -36,6 +36,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.WindowConstants;
 
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
@@ -64,7 +65,7 @@ public class ReferenceServiceShutdownDialog extends HelpEnabledDialog {
 
 	public ReferenceServiceShutdownDialog() {
 		super((Frame) null, "Saving Data", true);
-		setUndecorated(true);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagLayout topPanelGridbag = new GridBagLayout();
