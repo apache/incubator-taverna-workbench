@@ -60,8 +60,6 @@ import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.file.exceptions.UnsavedException;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
-import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
-
 import org.apache.log4j.Logger;
 
 /**
