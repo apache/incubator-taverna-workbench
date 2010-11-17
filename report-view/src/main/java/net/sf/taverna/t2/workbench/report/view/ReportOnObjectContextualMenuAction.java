@@ -38,11 +38,11 @@ import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
+import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
-import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
 
 public class ReportOnObjectContextualMenuAction extends AbstractContextualMenuAction {
 	private static final ReportManager reportManager = ReportManager.getInstance();

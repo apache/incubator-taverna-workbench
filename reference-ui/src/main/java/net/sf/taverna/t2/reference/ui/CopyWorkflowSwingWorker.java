@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.reference.ui;
 
+import javax.swing.SwingWorker;
+
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
@@ -30,7 +32,6 @@ import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializerImpl;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingworker.SwingWorker;
 
 public class CopyWorkflowSwingWorker extends SwingWorker<Dataflow, String>{
 

@@ -60,10 +60,10 @@ import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.report.view.ReportOnWorkflowAction;
 import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
+import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.visit.VisitReport.Status;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
 
 
 /**

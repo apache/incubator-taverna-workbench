@@ -105,12 +105,5 @@
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		
-		<dependency>
-			<groupId>org.jdesktop</groupId>
-			<artifactId>swingworker</artifactId>
-			<version>1.2-2</version>
-		</dependency>
-		
-		
 	</dependencies>
 </project>
