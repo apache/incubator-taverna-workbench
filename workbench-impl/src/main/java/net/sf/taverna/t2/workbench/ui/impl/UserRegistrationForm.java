@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.ui.impl;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -46,6 +47,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -79,8 +81,6 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-
-import edu.stanford.ejalbert.BrowserLauncher;
 
 @SuppressWarnings("serial")
 public class UserRegistrationForm extends HelpEnabledDialog {
@@ -558,8 +558,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 			    if (type == HyperlinkEvent.EventType.ACTIVATED) {
 					// Open a Web browser
 					try{
-						BrowserLauncher launcher = new BrowserLauncher();
-						launcher.openURLinBrowser(TERMS_AND_CONDITIONS_URL);
+					    Desktop.getDesktop().browse(new URI(TERMS_AND_CONDITIONS_URL));
 					}catch(Exception ex){
 						logger.error("User registration: Failed to launch browser to show terms and conditions at " + TERMS_AND_CONDITIONS_URL);
 					}

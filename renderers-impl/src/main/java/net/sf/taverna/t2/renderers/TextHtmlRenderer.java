@@ -21,7 +21,9 @@
 package net.sf.taverna.t2.renderers;
 
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Font;
+import java.net.URI;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
@@ -36,8 +38,6 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 import org.apache.log4j.Logger;
-
-import edu.stanford.ejalbert.BrowserLauncher;
 
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.ReferenceSet;
@@ -152,12 +152,11 @@ public class TextHtmlRenderer implements Renderer {
 						if (type == HyperlinkEvent.EventType.ACTIVATED) {
 							// Open a Web browser
 							try {
-								BrowserLauncher launcher = new BrowserLauncher();
 								String url = he.getDescription();
 								if (url.toLowerCase().startsWith("http://")) {
-									launcher.openURLinBrowser(url);
+								    Desktop.getDesktop().browse(new URI(url));
 								} else {
-									launcher.openURLinBrowser("http://" + url);
+								    Desktop.getDesktop().browse(new URI("http://" + url));
 								}
 							} catch (Exception ex) {
 								logger.error(
