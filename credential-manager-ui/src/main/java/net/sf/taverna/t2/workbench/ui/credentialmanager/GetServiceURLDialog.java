@@ -36,7 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**
  * Dialog used for entering a service URL.
@@ -44,7 +44,7 @@ import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
  * @author Alexandra Nenadic
  */
 
-public class GetServiceURLDialog extends HelpEnabledDialog
+public class GetServiceURLDialog extends NonBlockedHelpEnabledDialog
 {
 	
 	private static final long serialVersionUID = -2023348569964325951L;

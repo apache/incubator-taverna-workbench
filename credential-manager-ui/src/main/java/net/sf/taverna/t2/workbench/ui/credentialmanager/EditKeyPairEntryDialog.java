@@ -47,7 +47,7 @@ import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.GetServiceURLDialog;
 
 import java.util.ArrayList;
@@ -64,7 +64,7 @@ import java.awt.Dimension;
  */
 @SuppressWarnings("serial")
 public class EditKeyPairEntryDialog
-    extends HelpEnabledDialog
+    extends NonBlockedHelpEnabledDialog
 {
 
 	// Service URLs entry list 

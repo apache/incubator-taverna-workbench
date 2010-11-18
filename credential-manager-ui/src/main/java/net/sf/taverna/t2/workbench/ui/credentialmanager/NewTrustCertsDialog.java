@@ -48,7 +48,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
 
 /**
@@ -57,7 +57,7 @@ import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
  * 
  * @author Alex Nenadic
  */
-public class NewTrustCertsDialog extends HelpEnabledDialog {
+public class NewTrustCertsDialog extends NonBlockedHelpEnabledDialog {
 
 	private static final long serialVersionUID = 8702957635188643993L;
 

@@ -36,7 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**
  * Dialog used for entering service url.
@@ -44,7 +44,7 @@ import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class NewKeyPairServiceDialog extends HelpEnabledDialog {
+public class NewKeyPairServiceDialog extends NonBlockedHelpEnabledDialog {
 	// Service URL entry field 
     private JTextField jtfServiceURL;
 

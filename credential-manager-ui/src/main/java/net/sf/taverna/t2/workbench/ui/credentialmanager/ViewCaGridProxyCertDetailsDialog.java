@@ -55,7 +55,7 @@ import javax.security.auth.x500.X500Principal;
 
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.DERBitString;
@@ -69,7 +69,7 @@ import org.bouncycastle.asn1.misc.NetscapeCertType;
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class ViewCaGridProxyCertDetailsDialog extends HelpEnabledDialog { 	
+public class ViewCaGridProxyCertDetailsDialog extends NonBlockedHelpEnabledDialog { 	
 	
 	// Logger
 	//private static Logger logger = Logger.getLogger(ViewCertDetailsDialog.class);

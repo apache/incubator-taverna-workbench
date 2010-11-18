@@ -50,7 +50,7 @@ import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**
  * Dialog used for editing or entering new service URL, username or password of a password entry.
@@ -58,7 +58,7 @@ import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class NewEditPasswordEntryDialog extends HelpEnabledDialog
+public class NewEditPasswordEntryDialog extends NonBlockedHelpEnabledDialog
 {
 	// 'Edit' mode constant - the dialog is in the 'edit' entry mode
 	private static final String EDIT_MODE = "Edit";

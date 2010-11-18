@@ -47,7 +47,7 @@ import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
 import net.sf.taverna.t2.security.credentialmanager.CMUtil;
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -61,7 +61,7 @@ import edu.stanford.ejalbert.BrowserLauncher;
  *
  */
 @SuppressWarnings("serial")
-public class WarnUserAboutJCEPolicyDialog extends HelpEnabledDialog {
+public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 	
 	private Logger logger = Logger.getLogger(WarnUserAboutJCEPolicyDialog.class);
 	

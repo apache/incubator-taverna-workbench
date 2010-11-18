@@ -40,7 +40,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**
  * Dialog used for viewing service URL, username and password.
@@ -48,7 +48,7 @@ import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
  * @author Alex Nenadic
  */
 public class ViewUsernamePasswordEntryDialog
-    extends HelpEnabledDialog
+    extends NonBlockedHelpEnabledDialog
 {
 	private static final long serialVersionUID = -7224904997349644853L;
 

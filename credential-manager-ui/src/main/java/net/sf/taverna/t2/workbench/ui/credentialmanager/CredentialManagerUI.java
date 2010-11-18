@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
 import java.awt.BorderLayout;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Image;
@@ -263,6 +264,8 @@ public class CredentialManagerUI extends JFrame {
 		// Credential Manager as we needed to give user the option from the UI
 		// to cancel
 		credManager = CredentialManager.getInstance(password);
+		
+		this.setModalExclusionType(Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
 
 		// Initialise the UI components
 		initComponents();
