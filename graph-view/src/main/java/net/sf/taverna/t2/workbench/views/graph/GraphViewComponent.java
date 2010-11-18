@@ -111,11 +111,13 @@ public class GraphViewComponent extends WorkflowView {
 
 	private CardLayout cardLayout;
 
+    private TitledBorder border;
+
 	public GraphViewComponent() {
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 
-		TitledBorder border = new TitledBorder("Workflow diagram");
+		border = new TitledBorder("Workflow diagram");
 		border.setTitleJustification(TitledBorder.CENTER);
 		setBorder(border);
 
@@ -395,7 +397,9 @@ public class GraphViewComponent extends WorkflowView {
 		graphController = graphControllerMap.get(dataflow);
 		diagramPanel = diagramPanelMap.get(dataflow);
 		cardLayout.show(this, String.valueOf(diagramPanel.hashCode()));
+		border.setTitle(dataflow.getLocalName());
 		graphController.redraw();
+		this.repaint();
 	}
 
 	/**
@@ -486,6 +490,10 @@ public class GraphViewComponent extends WorkflowView {
 								graphController.setAnimationSpeed(animationSpeed);
 							}
 							graphController.redraw();							
+							if (!dataflow.getLocalName().equals(border.getTitle())) {
+							    border.setTitle(dataflow.getLocalName());
+							    GraphViewComponent.this.repaint();
+							}
 						}
 					}
 				}
@@ -503,7 +511,7 @@ public class GraphViewComponent extends WorkflowView {
 	public class FileManagerObserverRunnable implements Runnable {
 		private final FileManagerEvent message;
 
-		public FileManagerObserverRunnable(FileManagerEvent message) {
+	    public FileManagerObserverRunnable(FileManagerEvent message) {
 			this.message = message;
 		}
 
@@ -535,7 +543,7 @@ public class GraphViewComponent extends WorkflowView {
 
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) {
-			FileManagerObserverRunnable runnable = new FileManagerObserverRunnable(message);
+		    FileManagerObserverRunnable runnable = new FileManagerObserverRunnable(message);
 			if (SwingUtilities.isEventDispatchThread()) {
 				runnable.run();
 			} else {
