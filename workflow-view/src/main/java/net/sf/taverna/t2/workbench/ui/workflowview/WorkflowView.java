@@ -27,6 +27,7 @@ import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.design.actions.RemoveProcessorAction;
 import net.sf.taverna.t2.workbench.design.actions.RenameProcessorAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowUndoEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.actions.PasteGraphComponentAction;
@@ -371,14 +372,14 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 				EditManagerEvent message) throws Exception {
 			Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
 			Edit<?> edit = message.getEdit();
-			considerEdit(edit);
+			considerEdit(edit, message instanceof DataFlowUndoEvent);
 		}
 		
-		private void considerEdit(Edit<?> edit) {
+		private void considerEdit(Edit<?> edit, boolean undoing) {
 			if (edit instanceof CompoundEdit) {
 				CompoundEdit compound = (CompoundEdit) edit;
 				for (Edit e : compound.getChildEdits()) {
-					considerEdit(e);
+				    considerEdit(e, undoing);
 				}
 			} else {
 				Object subject = edit.getSubject();
@@ -386,18 +387,22 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 					DataflowSelectionModel selectionModel = DataflowSelectionManager
 					.getInstance().getDataflowSelectionModel(
 							(Dataflow) edit.getSubject());
-					Object selectedObject = null;
+					Object objectOfEdit = null;
 					if (edit instanceof AddProcessorEdit) {
-						selectedObject = ((AddProcessorEdit) edit).getProcessor();
+						objectOfEdit = ((AddProcessorEdit) edit).getProcessor();
 					} else if (edit instanceof AddDataflowInputPortEdit) {
-						selectedObject = ((AddDataflowInputPortEdit) edit).getDataflowInputPort();
+						objectOfEdit = ((AddDataflowInputPortEdit) edit).getDataflowInputPort();
 					} else if (edit instanceof AddDataflowOutputPortEdit) {
-						selectedObject = ((AddDataflowOutputPortEdit) edit).getDataflowOutputPort();
+						objectOfEdit = ((AddDataflowOutputPortEdit) edit).getDataflowOutputPort();
 					}
-					if (selectedObject != null) {
+					if (objectOfEdit != null) {
+					    if (undoing && selectionModel.getSelection().contains(objectOfEdit)) {
+						selectionModel.clearSelection();
+					    } else {
 						HashSet selection = new HashSet();
-						selection.add(selectedObject);
+						selection.add(objectOfEdit);
 						selectionModel.setSelection(selection);		
+					    }
 					}
 				}
 			}
