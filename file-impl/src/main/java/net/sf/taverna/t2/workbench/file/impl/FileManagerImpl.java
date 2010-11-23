@@ -292,7 +292,7 @@ public class FileManagerImpl extends FileManager {
 		Set<FileType> fileTypes = getPersistanceHandlerRegistry().getOpenFileTypes();
 		if (!fileTypes.isEmpty()) {
 			fileFilters.add(new MultipleFileTypes(fileTypes,
-					"All supported workflow types"));
+					"All supported workflows"));
 		}
 		for (FileType fileType : fileTypes) {
 			fileFilters.add(new FileTypeFileFilter(fileType));
