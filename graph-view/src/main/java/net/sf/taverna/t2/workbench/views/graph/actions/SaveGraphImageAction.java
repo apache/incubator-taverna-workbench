@@ -86,8 +86,8 @@ public class SaveGraphImageAction extends AbstractAction{
 	public SaveGraphImageAction(){
 		super();
 		putValue(SMALL_ICON, WorkbenchIcons.savePNGIcon);
-		putValue(NAME, "Save diagram");	
-		putValue(SHORT_DESCRIPTION, "Save diagram");	
+		putValue(NAME, "Export diagram");	
+		putValue(SHORT_DESCRIPTION, "Export diagram");	
 		
 		modelMap.addObserver(perspectiveObserver);
 	}
@@ -105,7 +105,7 @@ public class SaveGraphImageAction extends AbstractAction{
 			String extension = saveExtensions[i];
 			ImageIcon icon = new ImageIcon(WorkbenchIcons.class
 					.getResource("graph/saveAs" + type.toUpperCase() + ".png"));
-			JMenuItem item = new JMenuItem("Save as " + saveTypeNames[i],
+			JMenuItem item = new JMenuItem("Export as " + saveTypeNames[i],
 					icon);
 			item.addActionListener(new DotInvoker(type, extension));
 			menu.add(item);
@@ -132,12 +132,12 @@ public class SaveGraphImageAction extends AbstractAction{
 				JOptionPane
 				.showMessageDialog(
 						null,
-						"Can't save an empty diagram.",
+						"Can't export an empty diagram.",
 						"Warning", JOptionPane.WARNING_MESSAGE);
 			}
 			else{
 				File file = saveDialogue(null, dataflow, extension,
-						"Save workflow diagram");
+						"Export workflow diagram");
 				if (file != null) {// User did not cancel
 					try {
 						
@@ -175,9 +175,9 @@ public class SaveGraphImageAction extends AbstractAction{
 							
 						}
 					} catch (Exception ex) {
-						logger.warn("GraphViewComponent: Could not save diagram to " + file, ex);
+						logger.warn("GraphViewComponent: Could not export diagram to " + file, ex);
 						JOptionPane.showMessageDialog(null,
-								"Problem saving diagram : \n" + ex.getMessage(),
+								"Problem exporting diagram : \n" + ex.getMessage(),
 								"Error!", JOptionPane.ERROR_MESSAGE);
 					}
 				}
@@ -197,7 +197,7 @@ public class SaveGraphImageAction extends AbstractAction{
 	 * @param extension
 	 *            Extension for filename, such as "jpg"
 	 * @param windowTitle
-	 *            Title for dialogue box, such as "Save workflow diagram"
+	 *            Title for dialogue box, such as "Export workflow diagram"
 	 * @return File instance for the selected abstract filename, or null if the
 	 *         dialogue was cancelled.
 	 */
@@ -244,12 +244,12 @@ public class SaveGraphImageAction extends AbstractAction{
 			
 			int returnVal = fc.showSaveDialog(parentComponent);
 			if (returnVal != JFileChooser.APPROVE_OPTION) {
-				logger.info("GraphViewComponent: Aborting diagram save of " + suggestedFileName);
+				logger.info("GraphViewComponent: Aborting diagram export to " + suggestedFileName);
 				return null;
 			}
 			else{
 				File file = fixExtension(fc.getSelectedFile(), extension);
-				logger.debug("GraphViewComponent: Selected " + file + " for save");
+				logger.debug("GraphViewComponent: Selected " + file + " for export");
 				prefs.put("currentDir", fc.getCurrentDirectory().toString());
 				
 				if (file.exists()){ // File already exists
