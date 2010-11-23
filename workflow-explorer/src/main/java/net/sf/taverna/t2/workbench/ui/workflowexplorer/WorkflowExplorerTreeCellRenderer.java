@@ -21,16 +21,10 @@
 package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 
 import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.event.MouseAdapter;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collection;
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 
 import javax.swing.Icon;
-import javax.swing.JComponent;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -55,11 +49,8 @@ import net.sf.taverna.t2.workflowmodel.ProcessorPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 import net.sf.taverna.t2.workbench.report.ReportManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.visit.VisitReport.Status;
 
-import net.sf.taverna.t2.visit.VisitReport;
-import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.lang.ui.icons.Icons;
 
 /**
@@ -108,7 +99,7 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			renderer.setText(((DataflowOutputPort) userObject).getName());
 		} else if (userObject instanceof Processor) {
 			Processor p = (Processor) userObject;
-			// Get the activity associated with the procesor - currently only
+			// Get the activity associated with the processor - currently only
 			// the first one in the list gets displayed
 			List<? extends Activity<?>> activityList = p.getActivityList();
 			String text = ((Processor) userObject).getLocalName();
@@ -176,19 +167,6 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 		return result;
 	}
 
-	protected String findName(Port port) {		
-		if (port instanceof ProcessorPort) {
-			String sourceProcessorName = ((ProcessorPort)port).getProcessor().getLocalName();
-			return sourceProcessorName + ":" + port.getName();
-		} else if (port instanceof MergePort) {
-			String sourceMergeName = ((MergePort)port).getMerge().getLocalName();
-			return sourceMergeName + ":" + port.getName();
-			
-		} else {
-			return port.getName();
-		}
-	}
-
 	private static Icon chooseIcon (final Icon basicIcon, Status status) {
 		if (status == null) {
 			return basicIcon;
@@ -202,5 +180,18 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			return Icons.severeIcon;
 		}
 		return basicIcon;
+	}
+	
+	private String findName(Port port) {		
+		if (port instanceof ProcessorPort) {
+			String sourceProcessorName = ((ProcessorPort)port).getProcessor().getLocalName();
+			return sourceProcessorName + ":" + port.getName();
+		} else if (port instanceof MergePort) {
+			String sourceMergeName = ((MergePort)port).getMerge().getLocalName();
+			return sourceMergeName + ":" + port.getName();
+			
+		} else {
+			return port.getName();
+		}
 	}
 }
