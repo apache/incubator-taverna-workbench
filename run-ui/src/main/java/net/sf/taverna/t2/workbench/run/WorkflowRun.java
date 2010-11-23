@@ -37,7 +37,6 @@ import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -604,7 +603,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				putValue(NAME, "Resume");
 				putValue(SMALL_ICON, WorkbenchIcons.playIcon);			
 				workflowRunProgressStatusLabel.setText(STATUS_PAUSED);
-				workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.workingStoppedIcon);
+				workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.pauseIcon);
 				if (facade != null){ // should not be null but check nevertheless
 					facade.pauseWorkflowRun();
 				}
@@ -637,7 +636,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		
 		public void actionPerformed(ActionEvent e) {
 			workflowRunProgressStatusLabel.setText(STATUS_CANCELLED);
-			workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.workingStoppedIcon);
+			workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.closeIcon);
 			// Disable the Pause/Resume button
 			workflowRunPauseButton.setEnabled(false);
 			workflowRunCancelButton.setEnabled(false);
