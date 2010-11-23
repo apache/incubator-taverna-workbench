@@ -40,6 +40,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
@@ -53,6 +54,8 @@ import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
@@ -70,6 +73,9 @@ import net.sf.taverna.t2.workflowmodel.DataflowPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializerRegistry;
+import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
+import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
+import net.sf.taverna.t2.workbench.file.impl.DataflowPersistenceHandlerRegistry;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -88,7 +94,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	private static final String STATUS_RUNNING = "Running";
 	private static final String STATUS_PAUSED = "Paused";
 	
-	private static Logger logger = Logger.getLogger(WorkflowRun.class);
+	public static Logger logger = Logger.getLogger(WorkflowRun.class);
 
 	private static WeakHashMap<String, WeakReference<Dataflow>> loadedDataflows = new WeakHashMap<String, WeakReference<Dataflow>>();
 
@@ -235,6 +241,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		monitorViewComponent.addWorkflowCancelButton(workflowRunCancelButton);
 		monitorViewComponent.addIntermediateValuesButton(intermediateValuesButton);
 		monitorViewComponent.addWorkflowResultsButton(workflowResultsButton);
+		monitorViewComponent.addReloadWorkflowButton(new JButton (new ReloadWorkflowAction(facade.getDataflow())));
 		intermediateValuesButton.setEnabled(false);
 		//		workflowResultsButton.setEnabled(false);
 
@@ -446,6 +453,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			monitorViewComponent.addIntermediateValuesButton(intermediateValuesButton);
 			intermediateValuesButton.setEnabled(false);
 			monitorViewComponent.addWorkflowResultsButton(workflowResultsButton);
+			monitorViewComponent.addReloadWorkflowButton(new JButton (new ReloadWorkflowAction(getDataflow())));
 			//			workflowResultsButton.setEnabled(false);
 
 			// Results for an old wf run - get the results from provenance 
@@ -663,6 +671,41 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		}
 		((JButton)e.getSource()).getParent().requestFocusInWindow();
 	    }
+	}
+
+	public class ReloadWorkflowAction extends AbstractAction {
+		private FileManager fileManager = FileManager.getInstance();
+
+		private Dataflow dataflow;
+		
+	    public ReloadWorkflowAction(final Dataflow dataflow) {
+	    	super();
+	    	this.dataflow = dataflow;
+	    	putValue(NAME, "Reload workflow");
+	    	putValue(SMALL_ICON, WorkbenchIcons.refreshIcon);
+	    }
+
+	    public void actionPerformed(ActionEvent e) {
+	    	try {
+	    		String id = dataflow.getIdentifier();
+	    		boolean found = false;
+	    		for (Dataflow d : fileManager.getOpenDataflows()) {
+	    			if (d.getIdentifier().equals(id)) {
+	    				fileManager.setCurrentDataflow(d);
+	    				found = true;
+	    				break;
+	    			}
+	    		}
+		    	if (!found) {
+	    			fileManager.openDataflow(new T2FlowFileType(), dataflow);
+		    	}
+	    	}
+	    	catch (OpenException ex) {
+	    		WorkflowRun.this.logger.error("Failed to reload workflow from run", ex);
+	    	}
+	    	((JButton)e.getSource()).getParent().requestFocusInWindow();
+	    }
+	    
 	}
 
 	/**
