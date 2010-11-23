@@ -58,11 +58,6 @@
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>workbench-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>activity-tools</artifactId>
 			<version>${t2.ui.impl.version}</version>
 		</dependency>
