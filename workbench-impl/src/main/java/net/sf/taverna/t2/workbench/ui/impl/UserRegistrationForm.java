@@ -57,7 +57,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -66,7 +65,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
-import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.border.Border;
 import javax.swing.event.HyperlinkEvent;
@@ -82,6 +80,12 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+/**
+ * User registration form.
+ * 
+ * @author Alex Nenadic
+ * 
+ */
 @SuppressWarnings("serial")
 public class UserRegistrationForm extends HelpEnabledDialog {
 
@@ -114,13 +118,13 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 	private static final String WELCOME = "Welcome to the Taverna User Registration Form";
 	private static final String PLEASE_FILL_IN_THIS_REGISTRATION_FORM = "Please fill in this registration form to let us know that you are using Taverna";
 	
-	private static final String WE_DO = "Note that by registering:\n\n" +
+	private static final String WE_DO = "Note that by registering:\n" +
 					"   \u25CF We do not have access to your data\n" +
 					"   \u25CF We do not have access to your service usage\n" +
 					"   \u25CF You will not be monitored\n" +
 					"   \u25CF We do record the information you provide\n     at registration time";
 	
-	private static final String WHY_REGISTER = "By registering you will:\n\n"
+	private static final String WHY_REGISTER = "By registering you will:\n"
 			+ "   \u25CF Allow us to support you better; future plans will be\n     directed towards solutions Taverna users require\n"
 			+ "   \u25CF Help sustain Taverna development; our continued\n     funding relies on us showing usage\n"
 			+ "   \u25CF (Optionally) Hear about news and product updates";
@@ -135,9 +139,9 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 	
 	private static final String INSTITUTION_COMPANY_NAME = "*Institution/Company name:";
 
-	private static final String FIELD_OF_INVESTIGATION = " Field of investigation:\n (e.g. bioinformatics, chemistry,\n sociology, physics)";
+	private static final String FIELD_OF_INVESTIGATION = " Field of investigation:\n (e.g. bioinformatics)";
 
-	private static final String WHY_YOU_INTEND_TO_USE_TAVERNA = " Please give a brief description of\n why you intend to use Taverna:\n(e.g. genome analysis for\n bacterial strain identification)";
+	private static final String WHY_YOU_INTEND_TO_USE_TAVERNA = " Please give a brief description of\n how you intend to use Taverna:\n(e.g. genome analysis for\n bacterial strain identification)";
 
 	private static String[] industryTypes = { "",
 			"Academia - Life Sciences", "Academia - Social Sciences",
@@ -195,10 +199,10 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		JLabel titleLabel = new JLabel(WELCOME);
 		titleLabel.setFont(baseFont.deriveFont(Font.BOLD, 13.5f));
 		//titleLabel.setBorder(new EmptyBorder(10, 10, 0, 10));
-		JLabel titleIcon = new JLabel(WorkbenchIcons.tavernaCogs64x64Icon);
+		JLabel titleIcon = new JLabel(WorkbenchIcons.tavernaCogs32x32Icon);
 		//titleIcon.setBorder(new EmptyBorder(10, 10, 10, 10));
 		DialogTextArea titleMessage = new DialogTextArea(PLEASE_FILL_IN_THIS_REGISTRATION_FORM);
-		titleMessage.setMargin(new Insets(5, 20, 10, 10));
+		titleMessage.setMargin(new Insets(0, 20, 0, 10));
 		titleMessage.setFont(baseFont);
 		titleMessage.setEditable(false);
 		titleMessage.setFocusable(false);
@@ -230,7 +234,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 2;
-		gbc.insets = new Insets(10, 0, 10, 10);
+		//gbc.insets = new Insets(5, 0, 0, 10);
 		DialogTextArea registrationMessage1 = new DialogTextArea(
 				WHY_REGISTER);
 		registrationMessage1.setMargin(new Insets(0, 10, 0, 0));
@@ -290,7 +294,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 1;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(firstNameTextField, gbc);
 		
 		// Last name
@@ -318,7 +322,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 1;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(lastNameTextField, gbc);
 		
 		// Email address
@@ -331,7 +335,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 1;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(emailLabel, gbc);
 		
 		emailTextField = new JTextField();
@@ -346,7 +350,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 1;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(emailTextField, gbc);
 		
 		// Keep me informed
@@ -375,7 +379,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 2;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(keepMeInformedCheckBox, gbc);
 		
 		// Institution name
@@ -388,7 +392,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 1;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(institutionLabel, gbc);
 		
 		institutionOrCompanyTextField = new JTextField();
@@ -403,7 +407,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 1;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(institutionOrCompanyTextField, gbc);
 		
 		// Industry type
@@ -416,7 +420,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 1;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(industryLabel, gbc);
 		
 		industryTypeTextField = new JComboBox(industryTypes);
@@ -431,7 +435,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 1;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(industryTypeTextField, gbc);
 		
 		// Field of investigation
@@ -447,7 +451,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.LINE_START;
 		gbc.gridwidth = 1;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(fieldLabel, gbc);
 		
 		fieldTextField = new JTextField();
@@ -462,7 +466,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
 		gbc.gridwidth = 1;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(fieldTextField, gbc);
 		
 		// Purpose of using Taverna
@@ -478,7 +482,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.LINE_START;
 		gbc.gridwidth = 1;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(purposeLabel, gbc);
 		
 		purposeTextArea = new JTextArea(5,30);
@@ -507,7 +511,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.FIRST_LINE_START;
 		gbc.gridwidth = 1;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(purposeScrollPane, gbc);
 		
 		// Terms and conditions
@@ -572,7 +576,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.gridwidth = 2;
-		gbc.insets = new Insets(10, 10, 0, 10);
+		gbc.insets = new Insets(5, 10, 0, 10);
 		JPanel termsAndConditionsPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		termsAndConditionsPanel.add(termsAndConditionsCheckBox);
 		termsAndConditionsPanel.add(termsAndConditionsURL);
