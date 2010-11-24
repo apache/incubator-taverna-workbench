@@ -15,5 +15,6 @@ net.sf.taverna.t2.workbench.file.impl.menu.FileCloseAllMenuAction
 net.sf.taverna.t2.workbench.file.impl.toolbar.FileToolbarMenuSection
 net.sf.taverna.t2.workbench.file.impl.toolbar.NewToolbarAction
 net.sf.taverna.t2.workbench.file.impl.toolbar.OpenToolbarAction
+net.sf.taverna.t2.workbench.file.impl.toolbar.OpenWorkflowFromURLToolbarAction
 net.sf.taverna.t2.workbench.file.impl.toolbar.SaveToolbarAction
 net.sf.taverna.t2.workbench.file.impl.toolbar.CloseToolbarAction
