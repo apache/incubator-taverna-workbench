@@ -141,7 +141,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 
 	private static final String FIELD_OF_INVESTIGATION = " Field of investigation:\n (e.g. bioinformatics)";
 
-	private static final String WHY_YOU_INTEND_TO_USE_TAVERNA = " Please give a brief description of\n how you intend to use Taverna:\n(e.g. genome analysis for\n bacterial strain identification)";
+	private static final String WHY_YOU_INTEND_TO_USE_TAVERNA = " A brief description of how you intend\n to use Taverna: (e.g. genome analysis\n for bacterial strain identification)";
 
 	private static String[] industryTypes = { "",
 			"Academia - Life Sciences", "Academia - Social Sciences",
@@ -485,7 +485,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(purposeLabel, gbc);
 		
-		purposeTextArea = new JTextArea(5,30);
+		purposeTextArea = new JTextArea(4,30);
 		purposeTextArea.setFont(baseFont);
 		purposeTextArea.setLineWrap(true);
 		purposeTextArea.setAutoscrolls(true);
