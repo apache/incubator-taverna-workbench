@@ -74,6 +74,7 @@ public class WorkbenchIcons {
 	public static ImageIcon breakIcon;
 	public static ImageIcon rbreakIcon;
 	public static ImageIcon tickIcon;
+	public static ImageIcon untickIcon;
 	public static ImageIcon greentickIcon;
 	public static ImageIcon renameIcon;
 	public static ImageIcon databaseIcon;
@@ -172,7 +173,8 @@ public class WorkbenchIcons {
 			breakIcon = new ImageIcon(c.getResource("generic/break.gif"));
 			rbreakIcon = new ImageIcon(c
 					.getResource("generic/rbreak.gif"));
-			tickIcon = new ImageIcon(c.getResource("generic/tick.gif"));
+			tickIcon = new ImageIcon(c.getResource("generic/tick.png"));
+			untickIcon = new ImageIcon(c.getResource("generic/untick.png"));
 			greentickIcon = new ImageIcon(c.getResource("generic/greentick.png"));
 			renameIcon = new ImageIcon(c
 					.getResource("generic/rename.png"));
