@@ -35,6 +35,7 @@ import net.sf.taverna.biocatalogue.model.Util;
 import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.Tags;
@@ -153,7 +154,9 @@ public class TagCloudPanel extends JPanel implements ChangeListener, ActionListe
     this.jsCloudSizeSlider.setPaintTicks(true);
     this.jsCloudSizeSlider.setPaintLabels(true);
     
-    this.bRefresh = new JButton("Refresh", ResourceManager.getImageIcon(ResourceManager.REFRESH_ICON));
+    //this.bRefresh = new JButton("Refresh", ResourceManager.getImageIcon(ResourceManager.REFRESH_ICON));
+    // Use the standard Taverna refresh icon
+    this.bRefresh = new JButton("Refresh", WorkbenchIcons.refreshIcon);
     this.bSort = new JButton(sortByTagCountsAction);
     
     // *** "Loader" animation ***

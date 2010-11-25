@@ -25,6 +25,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import net.sf.taverna.biocatalogue.model.ResourceManager;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 
 /**
@@ -54,7 +55,8 @@ public class JTriStateTree extends JTree
   private Set<TriStateTreeCheckingListener> checkingListeners;
   
   
-  public JTriStateTree(TriStateTreeNode root)
+  @SuppressWarnings("serial")
+public JTriStateTree(TriStateTreeNode root)
   {
     super(root);
     this.root = root;
@@ -85,7 +87,9 @@ public class JTriStateTree extends JTree
       }
     };
     
-    this.deselectAllAction = new AbstractAction("Deselect all", ResourceManager.getImageIcon(ResourceManager.DESELECT_ALL_ICON))
+//    this.deselectAllAction = new AbstractAction("Deselect all", ResourceManager.getImageIcon(ResourceManager.DESELECT_ALL_ICON))
+    // Use the Taverna untick icon
+    this.deselectAllAction = new AbstractAction("Deselect all", WorkbenchIcons.untickIcon)
     {
       // Tooltip
       { this.putValue(SHORT_DESCRIPTION, "Deselect all nodes in the tree"); }
@@ -96,7 +100,9 @@ public class JTriStateTree extends JTree
     };
     
     
-    this.expandAllAction = new AbstractAction("Expand all", ResourceManager.getImageIcon(ResourceManager.EXPAND_ALL_ICON))
+//    this.expandAllAction = new AbstractAction("Expand all", ResourceManager.getImageIcon(ResourceManager.EXPAND_ALL_ICON))
+    // Use the standard Taverna plus icon
+    this.expandAllAction = new AbstractAction("Expand all", WorkbenchIcons.plusIcon)
     {
       // Tooltip
       { this.putValue(SHORT_DESCRIPTION, "Expand all nodes in the tree"); }
@@ -106,7 +112,9 @@ public class JTriStateTree extends JTree
       }
     };
     
-    this.collapseAllAction = new AbstractAction("Collapse all", ResourceManager.getImageIcon(ResourceManager.COLLAPSE_ALL_ICON))
+//    this.collapseAllAction = new AbstractAction("Collapse all", ResourceManager.getImageIcon(ResourceManager.COLLAPSE_ALL_ICON))
+    // Use the standard Taverna minus icon
+    this.collapseAllAction = new AbstractAction("Collapse all", WorkbenchIcons.minusIcon)
     {
       // Tooltip
       { this.putValue(SHORT_DESCRIPTION, "Collapse all expanded nodes in the tree"); }

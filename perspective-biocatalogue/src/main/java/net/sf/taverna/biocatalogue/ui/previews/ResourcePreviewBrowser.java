@@ -34,6 +34,7 @@ import net.sf.taverna.biocatalogue.ui.JPanelWithOverlay;
 import net.sf.taverna.biocatalogue.ui.HistoryOrFavouritesBlock.Entry;
 
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponent;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
 
@@ -129,7 +130,9 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hi
     jpNavigationButtons.add(bForward);
     
     JPanel jpStatusRefresh = new JPanel();
-    bRefresh = new JButton(ResourceManager.getImageIcon(ResourceManager.REFRESH_ICON));
+    //bRefresh = new JButton(ResourceManager.getImageIcon(ResourceManager.REFRESH_ICON));
+    // Use the standard Taverna refresh icon
+    bRefresh = new JButton(WorkbenchIcons.refreshIcon);
     bRefresh.setToolTipText("Refresh");
     bRefresh.addActionListener(this);
     jpStatusRefresh.add(bRefresh);

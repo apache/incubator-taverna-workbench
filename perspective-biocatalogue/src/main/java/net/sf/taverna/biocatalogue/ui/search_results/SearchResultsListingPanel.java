@@ -129,7 +129,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener, 
   
   private void initialiseUI()
   {
-    this.expandCollapseItemAction = new AbstractAction("Expand selected entry", ResourceManager.getImageIcon(ResourceManager.UNFOLD_ICON))
+    this.expandCollapseItemAction = new AbstractAction("Expand selected entry", ResourceManager.getImageIcon(ResourceManager.UNFOLD_ICON_16x16))
     {
       // Tooltip
       { this.putValue(SHORT_DESCRIPTION, "Expand selected " + typeToPreview.getTypeName() + " entry to see more details."); }
@@ -610,12 +610,12 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener, 
     if (potentialObjectToPreview != null) {
       if (isListEntryExpanded(potentialObjectToPreview)) {
         expandCollapseItemAction.putValue(Action.NAME, "Collapse selected entry");
-        expandCollapseItemAction.putValue(Action.SMALL_ICON, ResourceManager.getImageIcon(ResourceManager.FOLD_ICON));
+        expandCollapseItemAction.putValue(Action.SMALL_ICON, ResourceManager.getImageIcon(ResourceManager.FOLD_ICON_16x16));
         expandCollapseItemAction.putValue(Action.SHORT_DESCRIPTION, "Hide extra information about selected " + typeToPreview.getTypeName() + " and return the list entry to previous state.");
       }
       else {
         expandCollapseItemAction.putValue(Action.NAME, "Expand selected entry");
-        expandCollapseItemAction.putValue(Action.SMALL_ICON, ResourceManager.getImageIcon(ResourceManager.UNFOLD_ICON));
+        expandCollapseItemAction.putValue(Action.SMALL_ICON, ResourceManager.getImageIcon(ResourceManager.UNFOLD_ICON_16x16));
         expandCollapseItemAction.putValue(Action.SHORT_DESCRIPTION, "Load more information about selected " + typeToPreview.getTypeName() + " and show it within this results list.");
       }
     }

@@ -27,6 +27,7 @@ import net.sf.taverna.biocatalogue.model.search.ServiceFilteringSettings;
 import net.sf.taverna.biocatalogue.ui.tristatetree.JTriStateTree;
 import net.sf.taverna.biocatalogue.ui.tristatetree.TriStateTreeCheckingListener;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -103,7 +104,8 @@ public class FilterTreePane extends JPanel implements TriStateTreeCheckingListen
    *         the filtering tree - mainly: saving current filter, reloading filter tree,
    *         expanding/collapsing and selecting/deselecting everything in the tree.
    */
-  private JToolBar createTreeActionToolbar()
+  @SuppressWarnings("serial")
+private JToolBar createTreeActionToolbar()
   {
     // --- actions that this pane additionally enables for the filter tree ---
     this.saveFilterAction = new AbstractAction("Save filter", ResourceManager.getImageIcon(ResourceManager.SAVE_ICON))
@@ -116,7 +118,9 @@ public class FilterTreePane extends JPanel implements TriStateTreeCheckingListen
       }
     };
     
-    this.refreshFiltersAction = new AbstractAction("Refresh filter tree", ResourceManager.getImageIcon(ResourceManager.REFRESH_ICON))
+//    this.refreshFiltersAction = new AbstractAction("Refresh filter tree", ResourceManager.getImageIcon(ResourceManager.REFRESH_ICON))
+    // Use the standard Taverna refresh icon
+    this.refreshFiltersAction = new AbstractAction("Refresh filter tree", WorkbenchIcons.refreshIcon)
     {
       // Tooltip
       { this.putValue(SHORT_DESCRIPTION, "Refresh the filter tree"); }

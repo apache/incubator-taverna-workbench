@@ -127,7 +127,7 @@ public class SearchResultsMainPanel extends JPanel implements ActionListener, Se
 //    });
 //    searchResultsWithSearchHistoryAndFavouritesOverlay.registerOverlayActivationToggleButton(bToggleSearchHistory);
 //    
-//    bRefreshLastSearch = new JButton(ResourceManager.getImageIcon(ResourceManager.REFRESH_ICON));
+//    bRefreshLastSearch = new JButton(WorkbenchIcons.refreshIcon);
 //    bRefreshLastSearch.setToolTipText("Run previous search once again");
 //    bRefreshLastSearch.addActionListener(this);
 //    bRefreshLastSearch.setEnabled(false);

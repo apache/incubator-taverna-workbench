@@ -62,7 +62,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     jlItemTitle.setForeground(Color.decode("#AD0000"));  // very dark red
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
     
-    jlPartOf = new JLabel((resource.isLoading() ? loaderBarAnimationGrey : loaderBarAnimationGreyStill), JLabel.LEFT);
+    jlPartOf = resource.isLoading() ? loaderBarAnimationGrey : loaderBarAnimationGreyStill;
     jlDescription = new JLabel(" ");
     
     return (arrangeLayout(false, false));
@@ -166,7 +166,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
       c.anchor = GridBagConstraints.CENTER;
       c.fill = GridBagConstraints.HORIZONTAL;
       c.weightx = 1.0;
-      this.add(new JLabel(loaderBarAnimationOrange, JLabel.CENTER), c);
+      this.add(loaderBarAnimationOrange, c);
     }
     else
     {

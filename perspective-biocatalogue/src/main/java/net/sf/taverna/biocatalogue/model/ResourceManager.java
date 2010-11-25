@@ -44,6 +44,8 @@ public class ResourceManager
   
   public static final int FOLD_ICON = 40;
   public static final int UNFOLD_ICON = 41;
+  public static final int FOLD_ICON_16x16 = 42;
+  public static final int UNFOLD_ICON_16x16 = 43;
   
   public static final int SERVICE_TYPE_SOAP_ICON = 50;
   public static final int SERVICE_TYPE_REST_ICON = 51;
@@ -137,7 +139,11 @@ public class ResourceManager
       case FOLD_ICON:                         resPath += FOLDS_PATH + "fold.png";
                                               break;
       case UNFOLD_ICON:                       resPath += FOLDS_PATH + "unfold.png";
-                                              break;
+      										  break;
+      case FOLD_ICON_16x16:                   resPath += FOLDS_PATH + "fold_16x16.png";
+      										  break;
+      case UNFOLD_ICON_16x16:                 resPath += FOLDS_PATH + "unfold_16x16.png";                                              
+      										  break;
       case SERVICE_TYPE_SOAP_ICON:            resPath += SERVICE_ICONS_PATH + "service_type_soap.png";
                                               break;
       case SERVICE_TYPE_REST_ICON:            resPath += SERVICE_ICONS_PATH + "service_type_rest.png";

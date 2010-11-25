@@ -25,8 +25,6 @@ import net.sf.taverna.biocatalogue.model.ResourceManager;
 
 import org.biocatalogue.x2009.xml.rest.ResourceLink;
 
-import com.blogspot.rabbit_hole.AnimatedIcon;
-
 
 /**
  * 
@@ -45,9 +43,9 @@ public abstract class ExpandableOnDemandLoadedListCellRenderer extends JPanel im
   
   // list cells are not repainted by Swing by default - hence to use animated GIFs inside cells,
   // need to have a special class that takes care of changing the frames as necessary
-  protected Icon loaderBarAnimationOrange = new AnimatedIcon(ResourceManager.getImageIcon(ResourceManager.BAR_LOADER_ORANGE));
-  protected Icon loaderBarAnimationGrey = new AnimatedIcon(ResourceManager.getImageIcon(ResourceManager.BAR_LOADER_GREY));
-  protected Icon loaderBarAnimationGreyStill = ResourceManager.getImageIcon(ResourceManager.BAR_LOADER_GREY_STILL);
+  protected JLabel loaderBarAnimationOrange = new JLabel(ResourceManager.getImageIcon(ResourceManager.BAR_LOADER_ORANGE), JLabel.CENTER);
+  protected JLabel loaderBarAnimationGrey = new JLabel(ResourceManager.getImageIcon(ResourceManager.BAR_LOADER_GREY), JLabel.CENTER);
+  protected JLabel loaderBarAnimationGreyStill = new JLabel (ResourceManager.getImageIcon(ResourceManager.BAR_LOADER_GREY_STILL), JLabel.CENTER);
   
   
   protected JPanel thisPanel;

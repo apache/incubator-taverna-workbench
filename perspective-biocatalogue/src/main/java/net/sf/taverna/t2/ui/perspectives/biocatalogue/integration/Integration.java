@@ -85,7 +85,7 @@ public class Integration
               myServiceDescription.setDescription(Util.stripAllHTML(soapService.getDescription()));  // TODO - not sure where this is used
               
               if (WorkflowView.importServiceDescription(myServiceDescription, false) != null) {
-                return (new JLabel("Selected " + TYPE.SOAPOperation.getTypeName() + " was successfully added as a processor to the current workflow",
+                return (new JLabel("Selected " + TYPE.SOAPOperation.getTypeName() + " was successfully added to the current workflow",
                                  ResourceManager.getImageIcon(ResourceManager.TICK_ICON), JLabel.CENTER));
               }
               else {
@@ -97,7 +97,7 @@ public class Integration
             catch (URISyntaxException e)
             {
               logger.error("Couldn't add " + TYPE.SOAPOperation + " to the current workflow", e);
-              return (new JLabel("<html>Could not add the selected " + TYPE.SOAPOperation.getTypeName() + " as a processor to the current workflow.<br>" +
+              return (new JLabel("<html>Could not add the selected " + TYPE.SOAPOperation.getTypeName() + " to the current workflow.<br>" +
                                     		"Log file will containt additional details about this error.</html>",
                                     		ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
             }
