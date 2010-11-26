@@ -20,7 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.actions.activity;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
@@ -30,31 +29,26 @@ import javax.swing.JDialog;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
-import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.ClosingDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
+@SuppressWarnings("serial")
 public abstract class ActivityConfigurationAction<A extends Activity<ConfigurationBean>, ConfigurationBean>
 		extends AbstractAction {
 
+	@SuppressWarnings("unchecked")
 	private static WeakHashMap<Activity, ActivityConfigurationDialog> configurationDialogs = new WeakHashMap<Activity, ActivityConfigurationDialog>();
 	
 	
-	private static Logger logger = Logger
-			.getLogger(ActivityConfigurationAction.class);
+//	private static Logger logger = Logger
+	//		.getLogger(ActivityConfigurationAction.class);
 
 	protected A activity;
 	
@@ -70,6 +64,7 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 	}
 
 
+	@SuppressWarnings("unchecked")
 	protected static void setDialog(Activity activity, ActivityConfigurationDialog dialog) {
 		if (listener == null) {
 			listener = new DataflowCloseListener();
@@ -95,6 +90,7 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 		dialog.setVisible(true);
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void clearDialog(Activity activity) {
 		if (configurationDialogs.containsKey(activity)) {
 			ActivityConfigurationDialog currentDialog = configurationDialogs.get(activity);
@@ -106,6 +102,7 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 		}	
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected static void clearDialog(JDialog dialog) {
 		if (configurationDialogs.containsValue(dialog)) {
 			if (dialog.isVisible()) {
@@ -120,6 +117,7 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static boolean closeDialog(Activity activity) {
 		boolean closeIt = true;
 		if (configurationDialogs.containsKey(activity)) {
@@ -134,12 +132,14 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 		return closeIt;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static ActivityConfigurationDialog getDialog(Activity activity) {
 		return configurationDialogs.get(activity);
 	}
 	
 	private static class DataflowCloseListener implements Observer<FileManagerEvent> {
 
+		@SuppressWarnings("unchecked")
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) throws Exception {
 			if (message instanceof ClosingDataflowEvent) {

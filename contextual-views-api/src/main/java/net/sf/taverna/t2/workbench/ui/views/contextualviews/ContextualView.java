@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Frame;
 
 import javax.swing.Action;
@@ -47,6 +46,7 @@ import javax.swing.JPanel;
  * @author Alan R Williams
  * 
  */
+@SuppressWarnings("serial")
 public abstract class ContextualView extends JPanel {
 
 	/**

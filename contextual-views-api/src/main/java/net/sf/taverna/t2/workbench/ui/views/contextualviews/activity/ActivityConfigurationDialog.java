@@ -1,7 +1,6 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -15,7 +14,6 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -41,6 +39,7 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 import org.apache.log4j.Logger;
 
+@SuppressWarnings({ "serial", "unchecked" })
 public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		extends HelpEnabledDialog {
 
@@ -161,7 +160,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 	}
 
 	private void considerEdit(EditManagerEvent message, Edit edit) {
-		boolean result = false;
+		//boolean result = false;
 		if (edit instanceof CompoundEdit) {
 			for (Edit subEdit : ((CompoundEdit) edit).getChildEdits()) {
 				considerEdit(message, subEdit);

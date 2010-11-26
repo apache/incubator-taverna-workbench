@@ -13,6 +13,7 @@ import com.thoughtworks.xstream.XStream;
  * @author alanrw
  *
  */
+@SuppressWarnings({ "serial", "unchecked" })
 public abstract class ActivityConfigurationPanel<A extends Activity, B extends Object> extends JPanel {
 	
 	public abstract boolean isConfigurationChanged();
