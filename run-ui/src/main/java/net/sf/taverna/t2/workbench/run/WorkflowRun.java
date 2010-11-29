@@ -443,7 +443,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 
 			
 			workflowRunProgressStatusLabel.setText(STATUS_FINISHED);
-			workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.greentickIcon);
+			workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.tickIcon);
 			
 			monitorViewComponent.addWorkflowPauseButton(workflowRunPauseButton);
 			workflowRunPauseButton.setEnabled(false);
