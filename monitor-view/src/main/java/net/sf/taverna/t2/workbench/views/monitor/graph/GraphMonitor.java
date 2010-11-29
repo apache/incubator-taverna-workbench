@@ -149,7 +149,7 @@ public class GraphMonitor implements Observer<MonitorMessage> {
 					if(workflowRunStatusLabel != null){
 						if (facade.getState().equals(State.completed)) {
 							workflowRunStatusLabel.setText(STATUS_FINISHED);
-							workflowRunStatusLabel.setIcon(WorkbenchIcons.greentickIcon);
+							workflowRunStatusLabel.setIcon(WorkbenchIcons.tickIcon);
 						} else if (facade.getState().equals(State.cancelled)) {
 							workflowRunStatusLabel.setText(STATUS_CANCELLED);
 							workflowRunStatusLabel.setIcon(WorkbenchIcons.closeIcon);							

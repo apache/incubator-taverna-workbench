@@ -178,7 +178,7 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 //			    break;
 //			case FINISHED :
 //				statusLabel.setText("Workflow finished");
-//				statusLabel.setIcon(WorkbenchIcons.greentickIcon);
+//				statusLabel.setIcon(WorkbenchIcons.tickIcon);
 //				if (dataflow != null){// should not be null really, dataflow should be set before this method is called
 //					dataflow.setIsRunning(false);
 //				}
