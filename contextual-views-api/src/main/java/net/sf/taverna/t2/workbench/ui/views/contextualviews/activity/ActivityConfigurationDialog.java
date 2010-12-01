@@ -39,7 +39,7 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 import org.apache.log4j.Logger;
 
-@SuppressWarnings({ "serial", "unchecked" })
+@SuppressWarnings( { "serial", "unchecked" })
 public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		extends HelpEnabledDialog {
 
@@ -52,16 +52,17 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 
 	protected static Logger logger = Logger
 			.getLogger(ActivityConfigurationDialog.class);
-	
+
 	Dimension minimalSize = null;
 	Dimension buttonPanelSize = null;
-	
+
 	JPanel buttonPanel;
 
 	protected JButton applyButton;
 
 	public ActivityConfigurationDialog(A a, ActivityConfigurationPanel<A, B> p) {
-		super(MainWindow.getMainWindow(), "Configuring " + a.getClass().getSimpleName(), false, null);
+		super(MainWindow.getMainWindow(), "Configuring "
+				+ a.getClass().getSimpleName(), false, null);
 		this.activity = a;
 		this.panel = p;
 
@@ -85,13 +86,13 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 				// happening is that the apply button only becomes available
 				// when the configuration has changed. However, many
 				// configuration panels are not set up to detected changes
-				//				if (panel.isConfigurationChanged()) {
+				// if (panel.isConfigurationChanged()) {
 				if (checkPanelValues()) {
 					applyConfiguration();
 				}
-//				} else {
-//					logger.info("Ignoring apply");
-//				}
+				// } else {
+				// logger.info("Ignoring apply");
+				// }
 			}
 
 		});
@@ -112,10 +113,11 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		this.addWindowListener(new WindowAdapter() {
 
 			public void windowOpened(WindowEvent e) {
-			    ActivityConfigurationDialog.this.requestFocusInWindow();
-			    ActivityConfigurationDialog.this.panel.whenOpened();
+				ActivityConfigurationDialog.this.requestFocusInWindow();
+				ActivityConfigurationDialog.this.panel.whenOpened();
 			}
-			public void windowClosing(WindowEvent e) {			    
+
+			public void windowClosing(WindowEvent e) {
 				closeDialog();
 			}
 		});
@@ -127,7 +129,8 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 			public void componentResized(ComponentEvent e) {
 				int newWidth = Math.max(getWidth(), minimalSize.width);
 				int newHeight = Math.max(getHeight(), minimalSize.height);
-				ActivityConfigurationDialog.this.setSize(new Dimension(newWidth, newHeight));
+				ActivityConfigurationDialog.this.setSize(new Dimension(
+						newWidth, newHeight));
 			}
 		});
 
@@ -148,19 +151,18 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 	}
 
 	private boolean checkPanelValues() {
-	    boolean result = false;
-	    try {
-		this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		result = panel.checkValues();
-	    }
-	    finally {
-		this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-	    }
-	    return result;
+		boolean result = false;
+		try {
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			result = panel.checkValues();
+		} finally {
+			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		}
+		return result;
 	}
 
 	private void considerEdit(EditManagerEvent message, Edit edit) {
-		//boolean result = false;
+		// boolean result = false;
 		if (edit instanceof CompoundEdit) {
 			for (Edit subEdit : ((CompoundEdit) edit).getChildEdits()) {
 				considerEdit(message, subEdit);
@@ -191,10 +193,11 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 	}
 
 	public void configureActivity(Dataflow df, Activity a, Object bean) {
-	    configureActivityStatic(df, a, bean);
+		configureActivityStatic(df, a, bean);
 	}
 
-	public static void configureActivityStatic(Dataflow df, Activity a, Object bean) {
+	public static void configureActivityStatic(Dataflow df, Activity a,
+			Object bean) {
 		Edits edits = EditsRegistry.getEdits();
 		Edit<?> configureActivityEdit = edits.getConfigureActivityEdit(a, bean);
 		try {
@@ -239,21 +242,24 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		if (panel.isConfigurationChanged()) {
 			String relativeName = getRelativeName(owningDataflow, activity);
 			if (checkPanelValues()) {
-			    int answer = JOptionPane.showConfirmDialog(this,
-								       "Do you want to save the configuration of " + relativeName,
-								       relativeName, JOptionPane.YES_NO_CANCEL_OPTION);
-			    if (answer == JOptionPane.YES_OPTION) {
-				applyConfiguration();
-			    } else if (answer == JOptionPane.CANCEL_OPTION) {
-				return false;
-			    }
+				int answer = JOptionPane.showConfirmDialog(this,
+						"Do you want to save the configuration of "
+								+ relativeName, relativeName,
+						JOptionPane.YES_NO_CANCEL_OPTION);
+				if (answer == JOptionPane.YES_OPTION) {
+					applyConfiguration();
+				} else if (answer == JOptionPane.CANCEL_OPTION) {
+					return false;
+				}
 			} else {
-			    int answer = JOptionPane.showConfirmDialog(this,
-								       "Do you still want to close?",
-								       relativeName, JOptionPane.YES_NO_OPTION);
-			    if (answer == JOptionPane.NO_OPTION) {
-				return false;
-			    }
+				int answer = JOptionPane
+						.showConfirmDialog(
+								this,
+								"New configuration could not be saved. Do you still want to close?",
+								relativeName, JOptionPane.YES_NO_OPTION);
+				if (answer == JOptionPane.NO_OPTION) {
+					return false;
+				}
 			}
 		}
 		ActivityConfigurationAction.clearDialog(activity);
@@ -271,5 +277,5 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		super.dispose();
 		EditManager.getInstance().removeObserver(observer);
 	}
-	
+
 }
