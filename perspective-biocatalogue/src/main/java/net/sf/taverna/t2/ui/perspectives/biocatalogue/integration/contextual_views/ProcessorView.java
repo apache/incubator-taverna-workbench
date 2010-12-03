@@ -67,7 +67,7 @@ public class ProcessorView extends ContextualView {
           if (client != null) {
             try {
               SoapOperation soapOperation = client.lookupSoapOperation(operationDetails);
-              if (soapOperation == null) throw new UnknownObjectException("This processor is not registered in BioCatalogue");
+              if (soapOperation == null) throw new UnknownObjectException("This service is not registered in BioCatalogue");
               
               Service parentService = client.getBioCatalogueService(soapOperation.getAncestors().getService().getHref());
               if (parentService == null) throw new UnknownObjectException("Problem while fetching monitoring data from BioCatalogue");
@@ -103,14 +103,14 @@ public class ProcessorView extends ContextualView {
               JLabel jlOperationDescription = new JLabel("<html><b>Description:</b><br>" +
                   (soapOperation.getDescription().length() > 0 ?
                    soapOperation.getDescription() :
-                   "<span style=\"color: gray;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no description is available for this processor</span>")
+                   "<span style=\"color: gray;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no description is available for this service</span>")
                   + "</html>", JLabel.LEFT);
               jlOperationDescription.setAlignmentX(Component.LEFT_ALIGNMENT);
               
               
               // a button to open preview of the service
-              JButton jbLaunchProcessorPreview = new JButton("Detailed Preview");
-              jbLaunchProcessorPreview.setToolTipText("View detailed preview of this processor in a popup window");
+              JButton jbLaunchProcessorPreview = new JButton("Detailed preview");
+              jbLaunchProcessorPreview.setToolTipText("View detailed preview of this service in a popup window");
               jbLaunchProcessorPreview.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                   if (!operationDetails.hasError()) {
@@ -180,7 +180,7 @@ public class ProcessorView extends ContextualView {
 
 	@Override
 	public String getViewTitle() {
-		return "BioCatalogue Information - Processor: " + processor.getLocalName();
+		return "BioCatalogue Information - Service: " + processor.getLocalName();
 	} 
 
 	@Override

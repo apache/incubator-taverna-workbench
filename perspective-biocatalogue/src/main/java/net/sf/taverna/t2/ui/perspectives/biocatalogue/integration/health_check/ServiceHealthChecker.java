@@ -126,7 +126,7 @@ public class ServiceHealthChecker
       itemToCheck.append("service");
     }
     else if (bCheckingWSDLProcessor) {
-      itemToCheck.append("WSDL processor"); 
+      itemToCheck.append("WSDL service"); 
     }
     else if (bCheckingResource) {
       TYPE resourceType = Resource.getResourceTypeFromResourceURL(((ResourceLink)serviceOrSoapOperationToCheck).getHref());
@@ -281,7 +281,7 @@ public class ServiceHealthChecker
     // check if any processors were provided (presumably not all workflow's processors, but only
     // those that the Integration class identified as currently supported by BioCatalogue plugin)
     if (workflowProcessors == null || workflowProcessors.size() == 0) {
-      JOptionPane.showMessageDialog(null, "<html>Current workflow does not contain any processors or none<br>" +
+      JOptionPane.showMessageDialog(null, "<html>Current workflow does not contain any service or none<br>" +
       		"are currently supported by the BioCatalogue plugin.", "BioCatalogue Plugin - Warning", JOptionPane.WARNING_MESSAGE);
       return;
     }
@@ -329,7 +329,7 @@ public class ServiceHealthChecker
     // *** Put everything together ***
     JPanel jpDialogContents = new JPanel(new BorderLayout(10, 5));
     jpDialogContents.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-    jpDialogContents.add(new JLabel("Checking status of the following processors:"), BorderLayout.NORTH);
+    jpDialogContents.add(new JLabel("Checking status of the following services:"), BorderLayout.NORTH);
     jpDialogContents.add(spProcessors, BorderLayout.CENTER);
     jpDialogContents.add(jpCloseButtonPanel, BorderLayout.SOUTH);
     
@@ -370,12 +370,12 @@ public class ServiceHealthChecker
             if (service != null) {
               jcl.setIcon(ServiceMonitoringStatusInterpreter.getStatusIcon(service, true));
               jcl.setToolTipText("<html>Status: " + service.getLatestMonitoringStatus().getMessage() + "<br>" +
-                                 "Click to view detailed status information for this processor.</html>");
+                                 "Click to view detailed status information for this service.</html>");
             }
             else {
               // service data was not fetched - report an error
               jcl.setIcon(ResourceManager.getImageIcon(ResourceManager.CROSS_ICON));
-              jcl.setToolTipText("<html>There was a problem while checking status of this processor.<br>" +
+              jcl.setToolTipText("<html>There was a problem while checking status of this service.<br>" +
               		               "You may try to click on this link to try to fetch the required data again.</html>");
             }
           }

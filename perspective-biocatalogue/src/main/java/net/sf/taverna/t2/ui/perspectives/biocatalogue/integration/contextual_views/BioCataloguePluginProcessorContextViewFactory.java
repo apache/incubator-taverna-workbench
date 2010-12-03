@@ -26,7 +26,7 @@ public class BioCataloguePluginProcessorContextViewFactory implements
 	    boolean canHandleSelection = !opId.hasError();
 		  if (!canHandleSelection) {
 	      Logger.getLogger(BioCataloguePluginProcessorContextViewFactory.class).debug(
-	          "Processor contextual view not shown due to some condition: " + opId.getErrorDetails());
+	          "Service's contextual view not shown due to some condition: " + opId.getErrorDetails());
 	    }
 		  
 		  return (canHandleSelection);

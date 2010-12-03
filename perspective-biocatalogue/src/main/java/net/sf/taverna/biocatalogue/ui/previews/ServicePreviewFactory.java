@@ -678,28 +678,28 @@ public class ServicePreviewFactory
         // *** Right component ***
         // toolbar
         JButton bInsertProcessor = new JButton(ResourceManager.getImageIcon(ResourceManager.ADD_PROCESSOR_TO_WORKFLOW_ICON));
-        bInsertProcessor.setToolTipText("Insert this operation as a processor into the current workflow");
+        bInsertProcessor.setToolTipText("Insert this operation as a service into the current workflow");
         bInsertProcessor.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e)
           {
             if (jlOperationNames.getSelectedValue() == null) {
               JOptionPane.showMessageDialog(null, "Please select an operation to add as a\n" +
-              		"processor into the current workflow.", "BioCatalogue Plugin - Warning", JOptionPane.WARNING_MESSAGE);
+              		"service to the current workflow.", "BioCatalogue Plugin - Warning", JOptionPane.WARNING_MESSAGE);
             }
             else {
-              // add this operation as a processor into the current workflow
+              // add this operation as a service into the current workflow
               final JWaitDialog jwd = new JWaitDialog(MainComponent.dummyOwnerJFrame,
-                  "Adding Processor",
-                  "<html><center>Please wait for a processor to be added into<br>the current workflow.</center></html>");
+                  "Adding service",
+                  "<html><center>Please wait for a service to be added to<br>the current workflow.</center></html>");
               
               final SoapOperationIdentity soapOpToInsertDetails =
                         SoapOperationIdentity.fromActionString(((JClickableLabel)jlOperationNames.getSelectedValue()).getData());
-              new Thread("Adding processor into workflow") {
+              new Thread("Adding service to workflow") {
                 public void run() {
                   // FIXME - instantiate a ResourceLink object with HREF set to the URL of WSDL location
                   //         from soapOpToInsertDetails
 //                  Integration.insertProcessorIntoCurrentWorkflow(soapOpToInsertDetails);
-//                  jwd.waitFinished(new JLabel("The processor was added successfully.",
+//                  jwd.waitFinished(new JLabel("The service was added successfully.",
 //                      ResourceManager.getImageIcon(ResourceManager.TICK_ICON), JLabel.CENTER));
                 }
               }.start();
@@ -711,12 +711,12 @@ public class ServicePreviewFactory
           }
         });
         JButton bFavouriteProcessor = new JButton(ResourceManager.getImageIcon(ResourceManager.ADD_PROCESSOR_AS_FAVOURITE_ICON));
-        bFavouriteProcessor.setToolTipText("Add this operation into the main Taverna Service Panel");
+        bFavouriteProcessor.setToolTipText("Add this operation to the Service Panel");
         bFavouriteProcessor.addActionListener(new ActionListener() {
           public void actionPerformed(ActionEvent e)
           {
             if (jlOperationNames.getSelectedValue() == null) {
-              JOptionPane.showMessageDialog(null, "Please select an operation to add into Service Panel.",
+              JOptionPane.showMessageDialog(null, "Please select an operation to add to the Service Panel.",
                   "BioCatalogue Plugin - Warning", JOptionPane.WARNING_MESSAGE);
             }
             else {

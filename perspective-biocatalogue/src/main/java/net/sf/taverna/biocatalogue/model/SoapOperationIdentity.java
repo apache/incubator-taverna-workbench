@@ -1,7 +1,7 @@
 package net.sf.taverna.biocatalogue.model;
 
 /**
- * Identifies a SOAP operation (or "Processor" in Taverna terms)
+ * Identifies a SOAP operation (or "processor" in Taverna terms)
  * in the most straightforward way - by WSDL location and operation name. 
  * 
  * @author Sergejs Aleksejevs

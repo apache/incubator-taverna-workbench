@@ -12,7 +12,6 @@ import net.sf.taverna.biocatalogue.model.SoapOperationIdentity;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.Integration;
-import net.sf.taverna.t2.workflowmodel.Processor;
 
 
 public class MenuActionProcessorPreview extends AbstractContextualMenuAction {
@@ -21,10 +20,11 @@ public class MenuActionProcessorPreview extends AbstractContextualMenuAction {
     super(BioCatalogueContextualMenuSection.BIOCATALOGUE_MENU_SECTION_ID, 10);
   }
 
-  @Override
+  @SuppressWarnings("serial")
+@Override
   protected Action createAction()
   {
-    Action action = new AbstractAction("Preview Processor") {
+    Action action = new AbstractAction("See service details") {
       public void actionPerformed(ActionEvent e) {
         SoapOperationIdentity soapOperationDetails = Integration.extractSoapOperationDetailsFromProcessorContextualSelection(getContextualSelection());
         
@@ -38,7 +38,7 @@ public class MenuActionProcessorPreview extends AbstractContextualMenuAction {
         }
       }
     };
-    action.putValue(Action.SHORT_DESCRIPTION, "Open preview of this Processor");
+    action.putValue(Action.SHORT_DESCRIPTION, "Open preview for this service");
     return (action);
   }
 

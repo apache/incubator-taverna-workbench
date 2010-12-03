@@ -19,16 +19,17 @@ public class MenuActionProcessorHealthCheck extends AbstractContextualMenuAction
     super(BioCatalogueContextualMenuSection.BIOCATALOGUE_MENU_SECTION_ID, 20);
   }
 
-  @Override
+  @SuppressWarnings("serial")
+@Override
   protected Action createAction()
   {
-    Action action = new AbstractAction("Processor Health Check") {
+    Action action = new AbstractAction("Service Health Check") {
       public void actionPerformed(ActionEvent e) {
         SoapOperationIdentity soapOperationDetails = Integration.extractSoapOperationDetailsFromProcessorContextualSelection(getContextualSelection());
         ServiceHealthChecker.checkWSDLProcessor(soapOperationDetails);
       }
     };
-    action.putValue(Action.SHORT_DESCRIPTION, "Check monitoring status of this Processor");
+    action.putValue(Action.SHORT_DESCRIPTION, "Check monitoring status of this service");
     return (action);
   }
 

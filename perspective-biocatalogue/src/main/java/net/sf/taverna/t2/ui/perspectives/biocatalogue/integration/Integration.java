@@ -90,7 +90,7 @@ public class Integration
               }
               else {
                 return (new JLabel("<html><center>Taverna was unable to add selected " + TYPE.SOAPOperation.getTypeName() + 
-                    " as a processor to the current workflow.<br>This could be because the service is currently not accessible.</center></html>",
+                    " as a service to the current workflow.<br>This could be because the service is currently not accessible.</center></html>",
                     ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
               }
             }
@@ -122,7 +122,7 @@ public class Integration
             
             // prepare result of the operation to be shown in the the waiting dialog window
             String warnings = extractWarningsFromRESTServiceDescription(restServiceDescription, false);
-            JLabel outcomes = new JLabel("<html>Selected " + TYPE.RESTMethod.getTypeName() + " was successfully added as a processor to the current workflow" + warnings + "</html>",
+            JLabel outcomes = new JLabel("<html>Selected " + TYPE.RESTMethod.getTypeName() + " was successfully added to the current workflow" + warnings + "</html>",
                                          ResourceManager.getImageIcon(warnings.length() > 0 ? ResourceManager.WARNING_ICON : ResourceManager.TICK_ICON),
                                          JLabel.CENTER);
             outcomes.setIconTextGap(20);
@@ -133,9 +133,9 @@ public class Integration
             return (new JLabel(e.getMessage(), ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
           }
           catch (Exception e) {
-            logger.error("Failed to fetch required details to add this " + TYPE.RESTMethod + " as a processor into the current workflow.", e);
+            logger.error("Failed to fetch required details to add this " + TYPE.RESTMethod + " as a service to the current workflow.", e);
             return (new JLabel("<html>Failed to fetch required details to add this " + TYPE.RESTMethod.getTypeName() + "<br>" +
-            		                      "as a processor into the current workflow.</html>",
+            		                      "as a service to the current workflow.</html>",
                                       ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
           }
         
@@ -288,26 +288,26 @@ public class Integration
         warnings += "<br><br>BioCatalogue description of this REST method contains more than one<br>" +
                             "representation of the method's outputs - the first one was used.<br>" +
                             "Please check value of the 'Accept' header in the configuration<br>" +
-                            "of the imported processor" + messageSuffix + ".";
+                            "of the imported service" + messageSuffix + ".";
     }
     else if (restServiceDescription.getDataWarnings().contains(RESTServiceDescription.DEFAULT_ACCEPT_HEADER_VALUE)) {
       warnings += "<br><br>BioCatalogue description of this REST method does not contain any<br>" +
                           "representations of the method's outputs - default value was used.<br>" +
                           "Please check value of the 'Accept' header in the configuration<br>" +
-                          "of the imported processor" + messageSuffix + ".";
+                          "of the imported service" + messageSuffix + ".";
     }
     
     if (restServiceDescription.getDataWarnings().contains(RESTServiceDescription.AMBIGUOUS_CONTENT_TYPE_HEADER_VALUE)) {
         warnings += "<br><br>BioCatalogue description of this REST method contains more than one<br>" +
                             "representation of the method's input data - the first one was used.<br>" +
                             "Please check value of the 'Content-Type' header in the configuration<br>" +
-                            "of the imported processor" + messageSuffix + ".";
+                            "of the imported service" + messageSuffix + ".";
     }
     else if (restServiceDescription.getDataWarnings().contains(RESTServiceDescription.DEFAULT_CONTENT_TYPE_HEADER_VALUE)) {
       warnings += "<br><br>BioCatalogue description of this REST method does not contain any<br>" +
                           "representations of the method's input data - default value was used.<br>" +
                           "Please check value of the 'Content-Type' header in the configuration<br>" +
-                          "of the imported processor" + messageSuffix + ".";
+                          "of the imported service" + messageSuffix + ".";
     }
     
     if (warnings.length() > 0) {
@@ -381,7 +381,7 @@ public class Integration
   {
     if (!(contextualSelection.getSelection() instanceof Processor)) {
       return (new SoapOperationIdentity("ERROR: It is only possible to extract " +
-      		"SOAP operation details from a Processor."));
+      		"SOAP operation details from the service."));
     }
     
     // now we know it's a Processor
@@ -426,7 +426,7 @@ public class Integration
   {
     // check that there was a correct contextual selection
     if (!(contextualSelection.getSelection() instanceof Dataflow)) {
-      System.err.println("ERROR: It is only possible to extract supported all processors from a Dataflow.");
+      logger.error("It is only possible to extract supported services from the workflow.");
       return (new ArrayList<SoapProcessorIdentity>());
     }
     

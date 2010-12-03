@@ -43,7 +43,8 @@ public class Resource
   {
     // the order is important - all these types will appear in the user interface
     // in the same order as listed here
-    SOAPOperation (SoapOperation.class, SoapOperations.class, BeansForJSONLiteAPI.SOAPOperationsIndex.class, "WSDL Service", "WSDL Services",
+    @SuppressWarnings("serial")
+	SOAPOperation (SoapOperation.class, SoapOperations.class, BeansForJSONLiteAPI.SOAPOperationsIndex.class, "WSDL service", "WSDL services",
                    "WSDL services can be directly imported into the current workflow or Service Panel",
                    ResourceManager.getIconFromTaverna(ResourceManager.SOAP_OPERATION_ICON), true, true, true, false, true, true, true,
                    SOAPOperationListCellRenderer.class, BioCatalogueClient.API_SOAP_OPERATIONS_URL,
@@ -55,7 +56,8 @@ public class Resource
                    BioCataloguePluginConstants.API_DEFAULT_REQUESTED_SOAP_OPERATION_COUNT_PER_PAGE,
                    BioCatalogueClient.API_SOAP_OPERATION_FILTERS_URL),
                    
-    RESTMethod    (RestMethod.class, RestMethods.class, BeansForJSONLiteAPI.RESTMethodsIndex.class, "REST Service", "REST Services",
+    @SuppressWarnings("serial")
+	RESTMethod    (RestMethod.class, RestMethods.class, BeansForJSONLiteAPI.RESTMethodsIndex.class, "REST service", "REST services",
                    "REST services can be directly imported into the current workflow or Service Panel",
                    ResourceManager.getIconFromTaverna(ResourceManager.REST_METHOD_ICON), true, true, true, false, true, true, true,
                    RESTMethodListCellRenderer.class, BioCatalogueClient.API_REST_METHODS_URL,
@@ -67,7 +69,8 @@ public class Resource
                    BioCataloguePluginConstants.API_DEFAULT_REQUESTED_REST_METHOD_COUNT_PER_PAGE,
                    BioCatalogueClient.API_REST_METHOD_FILTERS_URL),
                    
-    Service       (Service.class, Services.class, BeansForJSONLiteAPI.ServicesIndex.class, "Web Service", "Web Services",
+    @SuppressWarnings("serial")
+	Service       (Service.class, Services.class, BeansForJSONLiteAPI.ServicesIndex.class, "Web service", "Web services",
                    "<html>Web services represent collections of WSDL services or REST services.<br>" +
                          "They cannot be directly imported into the current workflow or Service Panel,<br>" +
                          "but they may contain much more information about individual WSDL or REST<br>" +
@@ -109,8 +112,10 @@ public class Resource
 //                   BioCatalogueClient.API_USER_FILTERS_URL);
     
     
-    private Class xmlbeansGeneratedClass;
-    private Class xmlbeansGeneratedCollectionClass;
+    @SuppressWarnings("unchecked")
+	private Class xmlbeansGeneratedClass;
+    @SuppressWarnings("unchecked")
+	private Class xmlbeansGeneratedCollectionClass;
     private Class<?> jsonLiteAPIBindingBeanClass;
     private String resourceTypeName;
     private String resourceCollectionName;
@@ -130,7 +135,8 @@ public class Resource
     private int apiResourceCountPerIndexPage;
     private String apiResourceCollectionFilters;
     
-    TYPE(Class xmlbeansGeneratedClass, Class xmlbeansGeneratedCollectionClass, Class<?> jsonLiteAPIBindingBeanClass,
+    @SuppressWarnings("unchecked")
+	TYPE(Class xmlbeansGeneratedClass, Class xmlbeansGeneratedCollectionClass, Class<?> jsonLiteAPIBindingBeanClass,
         String resourceTypeName, String resourceCollectionName, String resourceTabTooltip, Icon icon,
         boolean defaultType, boolean suitableForTagSearch, boolean suitableForFiltering, boolean suitableForOpeningInPreviewBrowser,
         boolean suitableForAddingToServicePanel, boolean suitableForAddingToWorkflowDiagram,
@@ -163,7 +169,8 @@ public class Resource
     
     
     
-    public Class getXmlBeansGeneratedClass() {
+    @SuppressWarnings("unchecked")
+	public Class getXmlBeansGeneratedClass() {
       return this.xmlbeansGeneratedClass;
     }
     
@@ -171,7 +178,8 @@ public class Resource
      * @return Class that represents collection of resources of this type,
      *         as represented by XmlBeans.
      */
-    public Class getXmlBeansGeneratedCollectionClass() {
+    @SuppressWarnings("unchecked")
+	public Class getXmlBeansGeneratedCollectionClass() {
       return this.xmlbeansGeneratedCollectionClass;
     }
     
