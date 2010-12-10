@@ -26,7 +26,7 @@ public class JClickableLabel extends JLabel implements MouseListener
   public static final int DEFAULT_HEIGHT = 22;
   
   public static final Color DEFAULT_REGULAR_FOREGROUND_COLOR = Color.BLUE;
-  public static final Color DEFAULT_HOVER_FOREGROUND_COLOR = Color.RED;
+  public static final Color DEFAULT_HOVER_FOREGROUND_COLOR = new Color(133, 53, 53);
   
   
   // This will hold the data which is relevant to processing the 'click' event on this label
