@@ -6,6 +6,11 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -18,6 +23,19 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.apache.log4j.Logger;
+import org.jdom.Document;
+import org.jdom.Element;
+import org.jdom.Namespace;
+import org.jdom.input.SAXBuilder;
+
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.BioCatalogueServiceProvider;
 
@@ -26,22 +44,25 @@ import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.
  * 
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public class BioCataloguePluginConfigurationPanel extends JPanel
 {
-  private BioCataloguePluginConfiguration configuration = 
+	public static final String APPLICATION_XML_MIME_TYPE = "application/xml";
+
+	private BioCataloguePluginConfiguration configuration = 
                           BioCataloguePluginConfiguration.getInstance();
   
   
-  // UI elements
-  JTextField tfBioCatalogueAPIBaseURL;
+	// UI elements
+	JTextField tfBioCatalogueAPIBaseURL;
+
+	private Logger logger = Logger.getLogger(BioCataloguePluginConfigurationPanel.class);
   
   
-  public BioCataloguePluginConfigurationPanel()
-  {
-    initialiseUI();
-    resetFields();
-  }
-  
+	public BioCataloguePluginConfigurationPanel() {
+		initialiseUI();
+		resetFields();
+	}
   
   private void initialiseUI()
   {
@@ -150,57 +171,178 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
    * Saves recent changes to the configuration parameter map.
    * Some input validation is performed as well.
    */
-  private void applyChanges()
-  {
-    // --- BioCatalogue BASE URL ---
-    
-    String candidateBaseURL = tfBioCatalogueAPIBaseURL.getText(); 
-    if (candidateBaseURL.length() == 0) {
-      JOptionPane.showMessageDialog(this, 
-          "BioCatalogue base URL must not be blank", "BioCatalogue Plugin", JOptionPane.WARNING_MESSAGE);
-      tfBioCatalogueAPIBaseURL.requestFocusInWindow();
-      return;
-    }
-    else {
-      try {
-        new URL(candidateBaseURL);
-      }
-      catch (MalformedURLException e) {
-        JOptionPane.showMessageDialog(this, 
-            "Currently set BioCatalogue base URL is not valid - please check your input",
-            "BioCatalogue Plugin", JOptionPane.WARNING_MESSAGE);
-        tfBioCatalogueAPIBaseURL.selectAll();
-        tfBioCatalogueAPIBaseURL.requestFocusInWindow();
-        return;
-      }
-      
-      
-      // check if the base URL has changed from the last saved state
-      if (!candidateBaseURL.equals(configuration.getProperty(BioCataloguePluginConfiguration.BIOCATALOGUE_BASE_URL))) {
-        JOptionPane.showMessageDialog(this, "You have updated the BioCatalogue base URL.\n\n" +
-        		"From now on the new one will be used, however it is advised\n" +
-        		"to restart Taverna for this new setting to take the full effect.\n\n" +
-        		"If you keep using Taverna, any previously made searches, filtering\n" +
-        		"operations and tags in the tag cloud may still use the previous\n" +
-        		"setting.",
-            "BioCatalogue Plugin", JOptionPane.INFORMATION_MESSAGE);
-      }
-      
-      
-      // TODO - implement a test request (e.g. to the base URL where it has some
-      //        basic API details; check the version there or something similar
-      //        this way if it's not the BioCatalogue endpoint, can reject at
-      //        config stage, not usage stage).
-      
-      
-      // the new base URL seems to be valid - can save it into config settings
-      configuration.setProperty(BioCataloguePluginConfiguration.BIOCATALOGUE_BASE_URL, candidateBaseURL);
-      
-      // also update the base URL in the BioCatalogueClient
-      MainComponentFactory.getSharedInstance().getBioCatalogueClient().setBaseURL(candidateBaseURL);
-    }
-      
-  }
+	private void applyChanges() {
+		// --- BioCatalogue BASE URL ---
+
+		String candidateBaseURL = tfBioCatalogueAPIBaseURL.getText();
+		if (candidateBaseURL.length() == 0) {
+			JOptionPane.showMessageDialog(this,
+					"BioCatalogue base URL must not be blank",
+					"BioCatalogue Plugin", JOptionPane.WARNING_MESSAGE);
+			tfBioCatalogueAPIBaseURL.requestFocusInWindow();
+			return;
+		} else {
+			try {
+				new URL(candidateBaseURL);
+			} catch (MalformedURLException e) {
+				JOptionPane
+						.showMessageDialog(
+								this,
+								"Currently set BioCatalogue instance URL is not valid\n." +
+								"Please check the URL and try again.",
+								"BioCatalogue Plugin",
+								JOptionPane.WARNING_MESSAGE);
+				tfBioCatalogueAPIBaseURL.selectAll();
+				tfBioCatalogueAPIBaseURL.requestFocusInWindow();
+				return;
+			}
+
+			// check if the base URL has changed from the last saved state
+			if (!candidateBaseURL
+					.equals(configuration
+							.getProperty(BioCataloguePluginConfiguration.BIOCATALOGUE_BASE_URL))) {
+					// Perform various checks on the new URL
+
+				// Do a GET with "Accept" header set to "application/xml"
+				// We are expecting a 200 OK and an XML doc in return that
+				// contains the BioCataogue version number element.
+				HttpClient httpClient = new DefaultHttpClient();
+				HttpGet httpGet = new HttpGet(candidateBaseURL);
+				httpGet.setHeader("Accept", APPLICATION_XML_MIME_TYPE);
+
+				// Execute the request
+				HttpContext localContext = new BasicHttpContext();
+				HttpResponse httpResponse;
+				try {
+					httpResponse = httpClient.execute(httpGet, localContext);
+				} catch (Exception ex1) {
+					logger.error("BioCatalogue preferences configuration: Failed to do "
+							+ httpGet.getRequestLine(), ex1);
+					// Warn the user
+					JOptionPane.showMessageDialog(this,
+							"Failed to connect to the URL of the BioCatalogue instance.\n"
+									+ "Please check the URL and try again.",
+							"BioCatalogue Plugin",
+							JOptionPane.INFORMATION_MESSAGE);
+					
+					// Release resource
+					httpClient.getConnectionManager().shutdown();
+					
+					tfBioCatalogueAPIBaseURL.requestFocusInWindow();
+					return;
+				}
+
+				if (httpResponse.getStatusLine().getStatusCode() == HttpURLConnection.HTTP_OK) { // HTTP/1.1 200 OK
+					HttpEntity httpEntity = httpResponse.getEntity();
+					String contentType = httpEntity.getContentType().getValue()
+							.toLowerCase().trim();
+					logger
+							.info("BioCatalogue preferences configuration: Got 200 OK when testing BioCatalogue instance by doing "
+									+ httpResponse.getStatusLine()
+									+ ". Content type of response "
+									+ contentType);
+					if (contentType.startsWith(APPLICATION_XML_MIME_TYPE)) {
+						String value = null;
+						Document doc = null;
+						try {
+							value = readResponseBodyAsString(httpEntity)
+									.trim();
+							// Try to read this string into an XML document
+							SAXBuilder builder = new SAXBuilder();
+							byte[] bytes = value.getBytes("UTF-8");
+							doc = builder.build(new ByteArrayInputStream(bytes));
+						} catch (Exception ex2) {
+							logger.error("BioCatalogue preferences configuration: Failed to build an XML document from the response.", ex2);
+							// Warn the user
+							JOptionPane.showMessageDialog(this,
+									"Failed to get the expected response body when testing the BioCatalogue instance.\n"
+											+ "The URL is probably wrong. Please check it and try again.",
+									"BioCatalogue Plugin",
+									JOptionPane.INFORMATION_MESSAGE);
+							tfBioCatalogueAPIBaseURL.requestFocusInWindow();
+							return;
+						}
+						finally{
+							// Release resource
+							httpClient.getConnectionManager().shutdown();
+						}
+						// Get the version element from the XML document
+						/*String acceptedVersion = "...";
+						Element versionElement = doc.getRootElement().getChild("version", Namespace.getNamespace("http://www.biocatalogue.org/2009/xml/rest"));
+						if (versionElement.getText() <some_kind_of_comparison> acceptedVersion){
+							// Warn the user
+							JOptionPane.showMessageDialog(this,
+									"The version of the BioCatalogue instance you are trying to connect to is not supported.\n"
+											+ "Please change the URL and try again.",
+									"BioCatalogue Plugin",
+									JOptionPane.INFORMATION_MESSAGE);
+							tfBioCatalogueAPIBaseURL.requestFocusInWindow();
+							return;				
+						}*/
+					} else {
+						logger
+								.error("BioCatalogue preferences configuration: Failed to get the expected response content type when testing the BioCatalogue instance. "
+										+ httpGet.getRequestLine()
+										+ " returned content type '"
+										+ contentType
+										+ "'; expected response content type is 'application/xml'.");
+						// Warn the user
+						JOptionPane
+								.showMessageDialog(
+										this,
+										"Failed to get the expected response content type when testing the BioCatalogue instance.\n"
+										+ "The URL is probably wrong. Please check it and try again.",
+										"BioCatalogue Plugin",
+										JOptionPane.INFORMATION_MESSAGE);
+						tfBioCatalogueAPIBaseURL.requestFocusInWindow();
+						return;
+					}
+				}
+				else{
+					logger
+							.error("BioCatalogue preferences configuration: Failed to get the expected response status code when testing the BioCatalogue instance. "
+									+ httpGet.getRequestLine()
+									+ " returned the status code "
+									+ httpResponse.getStatusLine()
+											.getStatusCode() + "; expected status code is 200 OK.");
+					// Warn the user
+					JOptionPane
+							.showMessageDialog(
+									this,
+									"Failed to get the expected response status code when testing the BioCatalogue instance.\n"
+									+ "The URL is probably wrong. Please check it and try again.",
+									"BioCatalogue Plugin",
+									JOptionPane.INFORMATION_MESSAGE);
+					tfBioCatalogueAPIBaseURL.requestFocusInWindow();
+					return;					
+				}
+
+				// Warn the user of the changes in the BioCatalogue base URL
+				JOptionPane
+						.showMessageDialog(
+								this,
+								"You have updated the BioCatalogue base URL.\n\n"
+										+ "From now on the new one will be used, however it is advised\n"
+										+ "to restart Taverna for this new setting to take the full effect.\n\n"
+										+ "If you keep using Taverna, any previously made searches, filtering\n"
+										+ "operations and tags in the tag cloud may still use the previous\n"
+										+ "setting.", "BioCatalogue Plugin",
+								JOptionPane.INFORMATION_MESSAGE);
+
+			}
+
+			// the new base URL seems to be valid - can save it into config
+			// settings
+			configuration.setProperty(
+					BioCataloguePluginConfiguration.BIOCATALOGUE_BASE_URL,
+					candidateBaseURL);
+
+			// also update the base URL in the BioCatalogueClient
+			MainComponentFactory.getSharedInstance().getBioCatalogueClient()
+					.setBaseURL(candidateBaseURL);
+		}
+
+	}
   
   
   /**
@@ -213,4 +355,42 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
     theFrame.setLocationRelativeTo(null);
     theFrame.setVisible(true);
   }
+
+	/**
+	 * Worker method that extracts the content of the received HTTP message as a
+	 * string. It also makes use of the charset that is specified in the
+	 * Content-Type header of the received data to read it appropriately.
+	 * 
+	 * @param entity
+	 * @return
+	 * @throws IOException
+	 */
+	// Taken from HTTPRequestHandler in rest-activity by Sergejs Aleksejevs
+	private static String readResponseBodyAsString(HttpEntity entity)
+			throws IOException {
+		// get charset name
+		String charset = null;
+		String contentType = entity.getContentType().getValue().toLowerCase();
+
+		String[] contentTypeParts = contentType.split(";");
+		for (String contentTypePart : contentTypeParts) {
+			contentTypePart = contentTypePart.trim();
+			if (contentTypePart.startsWith("charset=")) {
+				charset = contentTypePart.substring("charset=".length());
+			}
+		}
+
+		// read the data line by line
+		StringBuilder responseBodyString = new StringBuilder();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(entity
+				.getContent(), charset));
+
+		String str;
+		while ((str = reader.readLine()) != null) {
+			responseBodyString.append(str + "\n");
+		}
+
+		return (responseBodyString.toString());
+	}
+  
 }
