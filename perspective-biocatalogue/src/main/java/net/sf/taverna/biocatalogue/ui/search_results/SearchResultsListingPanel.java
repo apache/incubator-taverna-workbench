@@ -48,11 +48,15 @@ import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.Util;
 import net.sf.taverna.biocatalogue.model.search.SearchInstance;
 import net.sf.taverna.biocatalogue.ui.JWaitDialog;
+import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponent;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.Integration;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.health_check.ServiceHealthChecker;
 import net.sf.taverna.t2.workbench.MainWindow;
+import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.workbench.ui.impl.Workbench;
+import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.ResourceLink;
@@ -106,6 +110,9 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 	private ResourceLink potentialObjectToPreview;
 	private final TYPE typeToPreview;
 
+	// Design perspective - some actions require switching to it
+	PerspectiveSPI designPerspective;
+	
 	/**
 	 * @param typeToPreview
 	 *            Resource type that will be previewed in this panel.
@@ -196,6 +203,9 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 						JComponent insertionOutcome = Integration
 								.insertProcesorIntoServicePanel(processorResourceToAdd);
 						jwd.waitFinished(insertionOutcome);
+						
+						// Switch to Design Perspective
+						switchToDesignPerspective();
 					}
 				}.start();
 
@@ -240,6 +250,9 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 						JComponent insertionOutcome = Integration
 								.insertProcessorIntoCurrentWorkflow(processorResourceToAdd);
 						jwd.waitFinished(insertionOutcome);
+
+						// Switch to Design Perspective
+						switchToDesignPerspective();
 					}
 				}.start();
 
@@ -1120,4 +1133,19 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		}
 	}
 
+	private void switchToDesignPerspective() {
+		if (designPerspective == null) {
+			for (PerspectiveSPI perspective : Workbench.getInstance()
+					.getPerspectives().getPerspectives()) {
+				if (perspective.getText().equalsIgnoreCase("design")) {
+					designPerspective = perspective;
+					break;
+				}
+			}
+		}
+		if (designPerspective != null) {
+			ModelMap.getInstance().setModel(
+					ModelMapConstants.CURRENT_PERSPECTIVE, designPerspective);
+		}
+	}
 }
