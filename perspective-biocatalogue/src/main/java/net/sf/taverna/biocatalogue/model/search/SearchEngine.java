@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+//import javax.annotation.Resource;
+
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.CollectionCoreStatistics;
 import org.biocatalogue.x2009.xml.rest.ResourceLink;
@@ -20,6 +22,8 @@ import net.sf.taverna.biocatalogue.model.connectivity.BeansForJSONLiteAPI.Resour
 import net.sf.taverna.biocatalogue.model.search.SearchInstance.TYPE;
 import net.sf.taverna.biocatalogue.ui.search_results.SearchResultsRenderer;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
+
+import net.sf.taverna.biocatalogue.model.Resource;
 
 /**
  * @author Sergejs Aleksejevs
@@ -108,7 +112,6 @@ public class SearchEngine
         break;
     }
     
-    
     // make sure that the URL was generated
     if (requestURL == null) {
       logger.error("Primary search URL couldn't be generated; Search engine must have encountered " +
@@ -116,6 +119,12 @@ public class SearchEngine
       return (null);
     }
     
+    // Sort by name (for REST and SOAP only at the moment. Parent Web services do not have the sort by name facility yet.)
+    if (!searchInstance.getResourceTypeToSearchFor().equals(net.sf.taverna.biocatalogue.model.Resource.TYPE.Service)){
+        requestURL = Util.appendURLParameter(requestURL, "sort_by", "name");
+        requestURL = Util.appendURLParameter(requestURL, "sort_order", "asc");	
+    }
+    logger.info("BioCatalogue Plugin: Request URL for search: " + requestURL);
     
     // append some search-type-independent parameters and return the URL
     requestURL = Util.appendAllURLParameters(requestURL, searchInstance.getResourceTypeToSearchFor().getAPIResourceCollectionIndexAdditionalParameters());

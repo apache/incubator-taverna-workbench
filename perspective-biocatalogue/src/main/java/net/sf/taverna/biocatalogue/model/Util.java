@@ -169,8 +169,8 @@ public class Util
    *                            between the {@link Calendar} instances will be permitted.
    * @return String in the form "XX seconds|minutes|hours|days ago". Proper pluralisation will
    *         be performed on the name of the time unit. <code>null</code> will be returned in
-   *         cases, where one of the {@link Calendar} instances is <code>null</code>, time
-   *         difference between the provided instances is greated than <code>maxDifferenceMillis</code>
+   *         cases where one of the {@link Calendar} instances is <code>null</code>, time
+   *         difference between the provided instances is greater than <code>maxDifferenceMillis</code>
    *         or <code>earlier</code> date is not really earlier than <code>later</code> one.
    */
   public static String getAgoString(Calendar earlier, Calendar later, long maxDifferenceMillis)
