@@ -18,7 +18,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Area;
 import java.util.ArrayList;
-import java.util.Collections;
+//import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -42,7 +42,7 @@ import javax.swing.event.CaretListener;
 import net.sf.taverna.biocatalogue.model.BioCataloguePluginConstants;
 import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
-import net.sf.taverna.biocatalogue.model.Tag;
+//import net.sf.taverna.biocatalogue.model.Tag;
 import net.sf.taverna.biocatalogue.model.Util;
 import net.sf.taverna.biocatalogue.model.search.SearchInstance;
 import net.sf.taverna.biocatalogue.model.search.SearchOptions;
@@ -53,6 +53,7 @@ import net.sf.taverna.biocatalogue.ui.search_results.SearchResultsMainPanel;
  * 
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public class SearchOptionsPanel extends JPanel implements HasDefaultFocusCapability
 {
   // COMPONENTS

@@ -1,19 +1,21 @@
 package net.sf.taverna.t2.ui.perspectives.biocatalogue;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.Color;
+//import java.awt.Component;
 import java.awt.GridLayout;
-import java.util.HashMap;
+//import java.util.HashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
+//import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.border.LineBorder;
+//import javax.swing.event.ChangeEvent;
+//import javax.swing.event.ChangeListener;
 
 import org.apache.log4j.Logger;
 
@@ -22,8 +24,8 @@ import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.Util;
 import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
 import net.sf.taverna.biocatalogue.ui.BioCatalogueExplorationTab;
-import net.sf.taverna.biocatalogue.ui.BioCataloguePluginAbout;
-import net.sf.taverna.biocatalogue.ui.HasDefaultFocusCapability;
+//import net.sf.taverna.biocatalogue.ui.BioCataloguePluginAbout;
+//import net.sf.taverna.biocatalogue.ui.HasDefaultFocusCapability;
 import net.sf.taverna.biocatalogue.ui.previews.ResourcePreviewBrowser;
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -32,19 +34,20 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 /*
  * @author Sergejs Aleksejevs
  */
-public final class MainComponent extends JPanel implements UIComponentSPI, ChangeListener
+@SuppressWarnings("serial")
+public final class MainComponent extends JPanel implements UIComponentSPI //, ChangeListener
 {
-  private static final String windowBaseTitle = "BioCatalogue API Demo";
-  private HashMap<String, String> windowTitleMap;
+//  private static final String windowBaseTitle = "BioCatalogue API Demo";
+//  private HashMap<String, String> windowTitleMap;
   
   private MainComponent pluginPerspectiveMainComponent;
   private BioCatalogueClient client;
   private ResourcePreviewBrowser previewBrowser;
   private final Logger logger = Logger.getLogger(MainComponent.class);
   
-  private JTabbedPane tpMainTabs;
+  //private JTabbedPane tpMainTabs;
   private BioCatalogueExplorationTab jpBioCatalogueExplorationTab;
-  private BioCataloguePluginAbout jpAboutTab;
+//  private BioCataloguePluginAbout jpAboutTab;
   
   public static JFrame dummyOwnerJFrame;
   static {
@@ -137,7 +140,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
     // to be initialised before any other initialisation is done
     client = new BioCatalogueClient();
     previewBrowser = new ResourcePreviewBrowser(pluginPerspectiveMainComponent, client, logger);
-    windowTitleMap = new HashMap<String,String>();
+//    windowTitleMap = new HashMap<String,String>();
 	}
 	
 	private void initialisePerspectiveUI()
@@ -153,14 +156,14 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 	      jpBioCatalogueExplorationTab = new BioCatalogueExplorationTab();
 //	      jpServiceFilteringTab = new ServiceFilteringTab(pluginPerspectiveMainComponent, client, logger);
 //	      jpSearchTab = new SearchTab(pluginPerspectiveMainComponent, client, logger);
-	      jpAboutTab = new BioCataloguePluginAbout(pluginPerspectiveMainComponent, client, logger);
+//	      jpAboutTab = new BioCataloguePluginAbout(pluginPerspectiveMainComponent, client, logger);
 	      
 	      // create main tabs
-	      tpMainTabs = new JTabbedPane();
-	      tpMainTabs.add("Explore BioCatalogue", jpBioCatalogueExplorationTab);
+//	      tpMainTabs = new JTabbedPane();
+//	      tpMainTabs.add("Explore BioCatalogue", jpBioCatalogueExplorationTab);
 //	      tpMainTabs.add("Search", jpSearchTab);
 //	      tpMainTabs.add("Filter Services", jpServiceFilteringTab);
-	      tpMainTabs.add("About", jpAboutTab);
+//	      tpMainTabs.add("About", jpAboutTab);
 	      
 	      SwingUtilities.invokeLater(new Runnable() {
           public void run()
@@ -168,13 +171,14 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
             // add main tabs and the status bar into the perspective
             pluginPerspectiveMainComponent.removeAll();
             pluginPerspectiveMainComponent.setLayout(new BorderLayout());
-            pluginPerspectiveMainComponent.add(tpMainTabs, BorderLayout.CENTER);
+            pluginPerspectiveMainComponent.setBorder(new LineBorder(Color.BLACK));
+            pluginPerspectiveMainComponent.add(jpBioCatalogueExplorationTab, BorderLayout.CENTER);
             
             // everything is prepared -- need to focus default component on the first tab
             // (artificially generate change event on the tabbed pane to perform focus request)
-            tpMainTabs.setSelectedIndex(1);
-            tpMainTabs.addChangeListener(pluginPerspectiveMainComponent);
-            tpMainTabs.setSelectedIndex(0);
+//            tpMainTabs.setSelectedIndex(1);
+//            tpMainTabs.addChangeListener(pluginPerspectiveMainComponent);
+//           tpMainTabs.setSelectedIndex(0);
           }
         });
 	    }
@@ -186,7 +190,8 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
    * @param strTabClassName Class name of the tab which is tested for being active.
    * @return True if specified tab is currently active.
    */
-  private boolean isTabActive(String strTabClassName)
+/*  
+ private boolean isTabActive(String strTabClassName)
   {
     if (tpMainTabs == null) return (false);
     
@@ -201,6 +206,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
     // compare the two class names
     return (strBaseClassName.equals(strCurSelectedTabClassName));
   }
+  */
   
   
   /**
@@ -209,6 +215,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
    * @param c Component that represents one of the tabs in the main tabbed pane.
    *          If <code>c</code> is not found within the components of the tabbed pane, nothing will happen.
    */
+/*  
   public void setTabActive(Component c)
   {
     try {
@@ -218,6 +225,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
       // do nothing, can't activate component which is not in the tabbed pane
     }
   }
+  */
   
   
   /**
@@ -228,6 +236,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
    * @param strTabClassName Class name of the tab, for which window title should be updated.
    * @param strTitle New title to set.
    */
+/* 
   public void setWindowTitle(String strTabClassName, String strTitle)
   {
     // if an anonymous thread within the main tab component class will call
@@ -241,6 +250,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
     // if the specified tab is active, update window title immediately
     if (isTabActive(strBaseClassName)) displayWindowTitle(strBaseClassName);
   }
+  */
   
   
   /** 
@@ -248,6 +258,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
    * 
    * @param strTabClassName Class name of the tab for which the window title is to be set.
    */
+/*
   public void displayWindowTitle(String strTabClassName)
   {
     // if an anonymous thread within the main tab component class will call
@@ -266,7 +277,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
       //this.setTitle(windowBaseTitle);
     }
   }
-  
+  */
   
   // *** Getters for various components ***
   
@@ -296,7 +307,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
   
   // *** Callbacks for ChangeListener interface ***
   
-  public void stateChanged(ChangeEvent e)
+/*  public void stateChanged(ChangeEvent e)
   {
     if (e.getSource().equals(tpMainTabs)) {
       // will get called when selected tab changes - need to focus default component in the active tab
@@ -306,6 +317,6 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
         this.displayWindowTitle(tpMainTabs.getSelectedComponent().getClass().getName());
       }
     }
-  }
+  }*/
 	
 }

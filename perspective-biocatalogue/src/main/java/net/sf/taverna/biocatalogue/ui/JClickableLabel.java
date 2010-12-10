@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 /**
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public class JClickableLabel extends JLabel implements MouseListener
 {
   /**

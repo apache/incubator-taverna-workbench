@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
  * 
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public class BioCatalogueExplorationTab extends JPanel implements HasDefaultFocusCapability
 {
   private final MainComponent pluginPerspectiveMainComponent;

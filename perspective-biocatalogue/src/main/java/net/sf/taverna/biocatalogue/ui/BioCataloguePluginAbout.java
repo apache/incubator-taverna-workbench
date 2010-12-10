@@ -148,7 +148,7 @@ public class BioCataloguePluginAbout extends JPanel implements HasDefaultFocusCa
     
     
     // set default title for the current tab
-    pluginPerspectiveMainComponent.setWindowTitle(this.getClass().getName(), TAB_BASE_TITLE);
+    //pluginPerspectiveMainComponent.setWindowTitle(this.getClass().getName(), TAB_BASE_TITLE);
   }
   
   
