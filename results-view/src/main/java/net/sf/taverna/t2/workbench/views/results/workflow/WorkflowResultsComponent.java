@@ -476,9 +476,9 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				GridBagConstraints gbc = new GridBagConstraints();
 				gbc.gridx = 0;
 				gbc.gridy = 0;
-				gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-				gbc.fill = GridBagConstraints.HORIZONTAL;
-				gbc.weightx = 1.0;
+				gbc.anchor = GridBagConstraints.WEST;
+				gbc.fill = GridBagConstraints.NONE;
+				gbc.weightx = 0.0;
 				gbc.weighty = 0.0;
 				gbc.insets = new Insets(5,10,5,10);
 				portsPanel.add(new JLabel("Workflow inputs:"), gbc);				
@@ -506,21 +506,21 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				for (String portName : sortedBoxes.keySet()) {
 					gbc.gridy++;
 					portsPanel.add(sortedBoxes.get(portName), gbc);
+				}
 				gbc.gridy++;
 				gbc.fill = GridBagConstraints.BOTH;
 				gbc.weightx = 1.0;
 				gbc.weighty = 1.0;
-				gbc.insets = new Insets(5,10,5,10);
+				gbc.insets = new Insets(5, 10, 5, 10);
 				portsPanel.add(new JLabel(""), gbc); // empty space
-				}
 			}
 			if (!dataflow.getOutputPorts().isEmpty()) {
 				GridBagConstraints gbc = new GridBagConstraints();
 				gbc.gridx = 1;
 				gbc.gridy = 0;
-				gbc.anchor = GridBagConstraints.FIRST_LINE_START;
-				gbc.fill = GridBagConstraints.HORIZONTAL;
-				gbc.weightx = 1.0;
+				gbc.anchor = GridBagConstraints.WEST;
+				gbc.fill = GridBagConstraints.NONE;
+				gbc.weightx = 0.0;
 				gbc.weighty = 0.0;
 				gbc.insets = new Insets(5,10,5,10);
 				portsPanel.add(new JLabel("Workflow outputs:"), gbc);
