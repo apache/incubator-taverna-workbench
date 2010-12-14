@@ -18,6 +18,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
 
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.ResourceLink;
@@ -48,7 +49,9 @@ import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
  */
 public class ServiceHealthChecker
 {
-  // deny creation of instances of this class
+    private static Logger logger = Logger.getLogger(ServiceHealthChecker.class);
+
+    // deny creation of instances of this class
   private ServiceHealthChecker() { };
   
   
@@ -133,7 +136,7 @@ public class ServiceHealthChecker
       itemToCheck.append(resourceType.getTypeName());
     }
     
-    // create the wait dialog, but don't make it visible - first need to start the background processin thread
+    // create the wait dialog, but don't make it visible - first need to start the background processing thread
     final JWaitDialog jwd = new JWaitDialog(MainComponent.dummyOwnerJFrame, "Checking "+itemToCheck+" status",
     "Please wait while status of selected "+itemToCheck+" is being checked...");
 
@@ -170,7 +173,7 @@ public class ServiceHealthChecker
             else {
               JOptionPane.showMessageDialog(jwd, "Unexpected resource type - can't execute health check for this",
                   "BioCatalogue Plugin - Error", JOptionPane.ERROR_MESSAGE);
-              Logger.getLogger(ServiceHealthChecker.class).error("Can't perform health check for" + resourceType);
+              	logger.error("Biocatalogue Plugin: Could not perform health check for" + resourceType);
             }
           }
           
@@ -244,13 +247,15 @@ public class ServiceHealthChecker
                 
                 // either way add the overall status on top of everything
                 jpStatusMessages.add(jlOverallStatus, 0);
-                
+                jpStatusMessages.setBorder(new EmptyBorder(10,10,10,10));
+                JScrollPane jspStatusMessages = new JScrollPane(jpStatusMessages);
+                jspStatusMessages.setBorder(BorderFactory.createEmptyBorder());
                 
                 // *** Put everything together ***
                 JPanel jpHealthCheckStatus = new JPanel(new BorderLayout(15, 10));
                 jpHealthCheckStatus.add(new JLabel(ServiceMonitoringStatusInterpreter.getStatusIcon(serviceWithMonitoringData, false)),
                              BorderLayout.WEST);
-                jpHealthCheckStatus.add(jpStatusMessages, BorderLayout.CENTER);
+                jpHealthCheckStatus.add(jspStatusMessages, BorderLayout.CENTER);
                 
                 jwd.setTitle("BioCatalogue Plugin - Monitoring Status");
                 jwd.waitFinished(jpHealthCheckStatus);
@@ -259,7 +264,7 @@ public class ServiceHealthChecker
           });
         }
         catch (Exception e) {
-          e.printStackTrace();
+          logger.error("Biocatalogue Plugin: Error occurred while checking status of selected", e);
           jwd.setTitle("BioCatalogue Plugin - Error");
           jwd.waitFinished(new JLabel("<html>An unexpected error occurred while checking status of selected " +
                                       itemToCheck + "<br>Please see error log for details...",
@@ -345,7 +350,8 @@ public class ServiceHealthChecker
     // everything is prepared, start background process to check status of processors
     final BioCatalogueClient client = MainComponentFactory.getSharedInstance().getBioCatalogueClient();
     new Thread("workflow health check") {
-      public void run() {
+
+	public void run() {
         for (Component c : jpProcessors.getComponents()) {
           if (c instanceof JClickableLabel)
           {
@@ -358,12 +364,12 @@ public class ServiceHealthChecker
               service = client.lookupParentService(soapOperationDetails);
             }
             catch (Exception e) {
-              System.err.println("ERROR: something went wrong while fetching parent Service data for " +
+              logger.error("Biocatalogue Plugin: Something went wrong while fetching parent Service data for " +
                                    (soapOperationDetails == null ? 
                                     "UNKNOWN SOAP OPERATION" :
                                     "(" + soapOperationDetails.getWsdlLocation() + ", " + soapOperationDetails.getOperationName() + ")") +
-                                 "; see details below:");
-              e.printStackTrace();
+                                 "; see details below:", e);
+              //e.printStackTrace();
             }
             
             // if service data was fetched, update the listing to set the data

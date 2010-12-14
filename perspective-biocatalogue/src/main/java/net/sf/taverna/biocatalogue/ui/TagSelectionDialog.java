@@ -49,8 +49,8 @@ public class TagSelectionDialog extends JDialog
                                                     });
     
     bSearch = new JButton("Search");
-    bSearch.setPreferredSize(new Dimension(bSearch.getPreferredSize().width * 2, 
-                                           bSearch.getPreferredSize().height));
+//    bSearch.setPreferredSize(new Dimension(bSearch.getPreferredSize().width * 2, 
+//                                           bSearch.getPreferredSize().height));
     bSearch.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         List<Tag> selectedTags = tagCloudPanel.getCurrentlySelectedTags();
@@ -68,7 +68,7 @@ public class TagSelectionDialog extends JDialog
     });
     
     bCancel = new JButton("Cancel");
-    bCancel.setPreferredSize(bSearch.getPreferredSize());
+//    bCancel.setPreferredSize(bSearch.getPreferredSize());
     bCancel.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         thisDialog.setVisible(false);

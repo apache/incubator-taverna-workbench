@@ -1,6 +1,7 @@
 package net.sf.taverna.biocatalogue.ui;
 
 import java.awt.BorderLayout;
+//import java.awt.Dimension;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -28,7 +29,7 @@ import net.sf.taverna.t2.workbench.MainWindow;
  * Creates a modal non-resizable dialog window.
  * 
  * Intended to be used for operations that consume some
- * time, but the user must wait for the to complete before
+ * time, but the user must wait for them to complete before
  * proceeding.
  * 
  * Initially the dialog shows a specified string message or
@@ -45,6 +46,7 @@ import net.sf.taverna.t2.workbench.MainWindow;
  * 
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public class JWaitDialog extends JDialog
 {
   private static final int DEFAULT_TIMEOUT = 10000;
@@ -134,9 +136,11 @@ public class JWaitDialog extends JDialog
     this.getContentPane().setLayout(new BorderLayout());
     this.getContentPane().add(jpInformationPanel, BorderLayout.CENTER);
     this.getContentPane().add(jlLoaderIcon, BorderLayout.SOUTH);
-    
+
     this.pack();
-    this.setResizable(false);
+    // Set the height of the dialog not to be more than 500; the message is in the scroll pane so that should be OK
+    this.setSize(new Dimension(this.getPreferredSize().width, this.getPreferredSize().height > 500 ? 500 : this.getPreferredSize().height));
+    //    this.setResizable(false);
     this.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
     
     // center this window within the main Taverna Workbench window
@@ -184,7 +188,7 @@ public class JWaitDialog extends JDialog
       
       // the OK button will allow closing the window
       bOK = new JButton("OK");
-      bOK.setPreferredSize(new Dimension(LOADER_ICON.getIconWidth(), (int) (1.5 * LOADER_ICON.getIconHeight())));
+      //bOK.setPreferredSize(new Dimension(LOADER_ICON.getIconWidth(), (int) (1.5 * LOADER_ICON.getIconHeight())));
       bOK.addActionListener(new ActionListener() {
         public void actionPerformed(ActionEvent e) {
           // just remove the window
@@ -220,6 +224,8 @@ public class JWaitDialog extends JDialog
       // update the size of this window - as the inner sizes of components have
       // been likely to change; then center the dialog box within its parent
       this.pack();
+      // Set the height of the dialog not to be more than 500; the message is in the scroll pane so that should be OK
+      this.setSize(new Dimension(this.getPreferredSize().width, this.getPreferredSize().height > 500 ? 500 : this.getPreferredSize().height));
       this.setLocationRelativeTo(MainWindow.getMainWindow());
     }
   }

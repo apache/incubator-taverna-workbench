@@ -64,7 +64,7 @@ public class ServiceFilteringSettingsPreview extends JDialog
     
     // OK button will close the dialog window
     JButton bOK = new JButton("OK");
-    bOK.setPreferredSize(new Dimension((int)(bOK.getPreferredSize().width * 1.5), bOK.getPreferredSize().height));
+   // bOK.setPreferredSize(new Dimension((int)(bOK.getPreferredSize().width * 1.5), bOK.getPreferredSize().height));
     bOK.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         instanceOfSelf.dispose();
