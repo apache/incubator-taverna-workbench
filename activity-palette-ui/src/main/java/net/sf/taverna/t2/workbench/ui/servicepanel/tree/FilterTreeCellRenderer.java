@@ -25,6 +25,8 @@ import java.awt.Component;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+
 @SuppressWarnings("serial")
 public class FilterTreeCellRenderer extends DefaultTreeCellRenderer {
 
@@ -39,6 +41,11 @@ public class FilterTreeCellRenderer extends DefaultTreeCellRenderer {
 		Filter filter = getFilter();
 		if (filter != null) {
 			setText(filter.filterRepresentation(getText()));
+		}
+		if (expanded) {
+			setIcon(WorkbenchIcons.folderOpenIcon);
+		} else {
+			setIcon(WorkbenchIcons.folderClosedIcon);
 		}
 		return this;
 	}
