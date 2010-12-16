@@ -61,7 +61,7 @@ public class TextRtfRenderer implements Renderer {
 	}
 
 	public String getType() {
-		return "Text/Rtf";
+		return "Text/RTF";
 	}
 
 	public boolean canHandle(ReferenceService referenceService,
