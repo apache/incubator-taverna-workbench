@@ -94,6 +94,7 @@ public class PortResultsViewTab extends JPanel{
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setExpandsSelectedPaths(true);
 		tree.setRootVisible(false);
+		tree.setShowsRootHandles(true);
 		tree.setCellRenderer(new PortResultCellRenderer());
 		
 		// Component for rendering individual results

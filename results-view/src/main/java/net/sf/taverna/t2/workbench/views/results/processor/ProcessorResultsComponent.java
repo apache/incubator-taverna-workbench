@@ -273,6 +273,7 @@ public class ProcessorResultsComponent extends JPanel {
 		filteredTreeModel = new FilteredIterationTreeModel(processorEnactmentsTreeModel);
 		processorEnactmentsTree = new JTree(filteredTreeModel);
 		processorEnactmentsTree.setRootVisible(false);
+		processorEnactmentsTree.setShowsRootHandles(true);
 		processorEnactmentsTree.getSelectionModel().setSelectionMode(
 				TreeSelectionModel.SINGLE_TREE_SELECTION);
 		// Start listening for selections in the enactments tree
@@ -434,6 +435,7 @@ public class ProcessorResultsComponent extends JPanel {
 							TreeSelectionModel.SINGLE_TREE_SELECTION);
 					tree.setExpandsSelectedPaths(true);
 					tree.setRootVisible(false);
+					tree.setShowsRootHandles(true);
 					tree.setCellRenderer(new ProcessorResultCellRenderer());
 					// Expand the whole tree
 					/*
