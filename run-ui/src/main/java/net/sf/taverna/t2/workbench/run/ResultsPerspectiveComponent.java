@@ -264,6 +264,13 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				}
 
 				int[] selectedRunsToDelete = workflowRunsList.getSelectedIndices();
+				WorkflowRun nextToSelect = null;
+				if (selectedRunsToDelete.length > 0) {
+					int lastSelectedIndex = selectedRunsToDelete[selectedRunsToDelete.length - 1];
+					if (lastSelectedIndex != workflowRunsListModel.size() - 1) {
+						nextToSelect = (WorkflowRun) workflowRunsListModel.get(lastSelectedIndex + 1);
+					}
+				}
 				for (int i = 0; i < selectedRunsToDelete.length; i++) {
 					
 					WorkflowRun wfRun = ((WorkflowRun) workflowRunsListModel.get(i));
@@ -311,7 +318,14 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				}
 				// Set the first item as selected - if there is one
 				if (workflowRunsListModel.size() > 0) {
-					workflowRunsList.setSelectedIndex(0);
+					int selectedIndex = 0;
+					if (nextToSelect != null) {
+						selectedIndex = workflowRunsListModel.indexOf(nextToSelect);
+						if (selectedIndex < 0) {
+							selectedIndex = 0;
+						}
+					}
+					workflowRunsList.setSelectedIndex(selectedIndex);
 				}
 				System.gc();
 			}
