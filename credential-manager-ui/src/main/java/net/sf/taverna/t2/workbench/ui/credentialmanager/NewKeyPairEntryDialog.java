@@ -34,34 +34,34 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.Iterator;
+//import java.util.HashMap;
+//import java.util.Set;
+//import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.DefaultListModel;
+//import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.BoxLayout;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.CompoundBorder;
+//import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
+//import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
-import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
+//import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
-import net.sf.taverna.t2.workbench.ui.credentialmanager.GetServiceURLDialog;
+//import net.sf.taverna.t2.workbench.ui.credentialmanager.GetServiceURLDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
 
 /**
@@ -73,16 +73,16 @@ import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
 @SuppressWarnings("serial")
 class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
 
-	private Logger logger = Logger.getLogger(NewKeyPairEntryDialog.class);
+	//private Logger logger = Logger.getLogger(NewKeyPairEntryDialog.class);
 	
 	// List of key pairs available for import 
     private JList jltKeyPairs;
 
     // Service URL text field for user to enter
-    private JList jltServiceURLs;
+    //private JList jltServiceURLs;
     
     // Service URL (associated with the key pair)
-    private ArrayList<String> serviceURLs;
+    //private ArrayList<String> serviceURLs;
 
     // PKCS #12 keystore */
     private KeyStore pkcs12KeyStore;
@@ -155,10 +155,10 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
      * 
      * @return list of service URLs
      */
-    public ArrayList<String> getServiceURLs()
-    {
-        return serviceURLs;
-    }
+//    public ArrayList<String> getServiceURLs()
+//    {
+//        return serviceURLs;
+//    }
     
     /**
      * Initialise the dialog's GUI components.
@@ -169,7 +169,7 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
         throws CMException
     {
         // Instructions
-        JLabel jlInstructions = new JLabel("Select a key pair for import:");
+        JLabel jlInstructions = new JLabel("Select a key pair to import:");
         jlInstructions.setFont(new Font(null, Font.PLAIN, 11));
         jlInstructions.setBorder(new EmptyBorder(5,5,5,5));
         JPanel jpInstructions = new JPanel(new BorderLayout());
@@ -187,7 +187,7 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
         });
 
         // Certificate details button
-        final JButton jbCertificateDetails = new JButton("Certificate Details");
+        final JButton jbCertificateDetails = new JButton("Details");
         jbCertificateDetails.setEnabled(false);
         jbCertificateDetails.addActionListener(new ActionListener()
         {
@@ -221,8 +221,8 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         jspKeyPairs.getViewport().setBackground(jltKeyPairs.getBackground());
         
-        // Service URLs list
-        // Label
+ /*
+        // Service URLs list label
         JLabel jlServiceURL = new JLabel ("Service URLs the key pair will be used for:");
         jlServiceURL.setFont(new Font(null, Font.PLAIN, 11));
         jlServiceURL.setBorder(new EmptyBorder(5,5,5,5));           
@@ -279,23 +279,26 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
         jpServiceURLs.add(jlServiceURL, BorderLayout.NORTH);
         jpServiceURLs.add(jspServiceURLs, BorderLayout.CENTER);
         jpServiceURLs.add(jpServiceURLsButtons, BorderLayout.SOUTH);
+        */
         
         // Put all the key pair components together
         JPanel jpKeyPairs = new JPanel(); // BoxLayout
         jpKeyPairs.setLayout(new BoxLayout(jpKeyPairs, BoxLayout.Y_AXIS));
         //jpKeyPairs.setPreferredSize(new Dimension(400, 200));
-        jpKeyPairs.setBorder(new CompoundBorder(new CompoundBorder(
+        /*jpKeyPairs.setBorder(new CompoundBorder(new CompoundBorder(
             new EmptyBorder(5, 5, 5, 5), new EtchedBorder()), new EmptyBorder(
-            5, 5, 5, 5)));
+            5, 5, 5, 5)));*/
+        jpKeyPairs.setBorder(new EmptyBorder(10, 10, 10, 10));
+            
    
         jpInstructions.setAlignmentY(JPanel.LEFT_ALIGNMENT);
         jpKeyPairs.add(jpInstructions);
         jspKeyPairs.setAlignmentY(JPanel.LEFT_ALIGNMENT);
         jpKeyPairs.add(jspKeyPairs);
-        jbCertificateDetails.setAlignmentY(JPanel.RIGHT_ALIGNMENT);
-        jpKeyPairs.add(jbCertificateDetails);
-        jpServiceURLs.setAlignmentY(JPanel.LEFT_ALIGNMENT);
-        jpKeyPairs.add(jpServiceURLs);
+        //jbCertificateDetails.setAlignmentY(JPanel.RIGHT_ALIGNMENT);
+        //jpKeyPairs.add(jbCertificateDetails);
+        //jpServiceURLs.setAlignmentY(JPanel.LEFT_ALIGNMENT);
+        //jpKeyPairs.add(jpServiceURLs);
 
         // Cancel button
         final JButton jbCancel = new JButton("Cancel");
@@ -308,6 +311,7 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
         });
 
         JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        jpButtons.add(jbCertificateDetails);
         jpButtons.add(jbImport);
         jpButtons.add(jbCancel);
 
@@ -423,11 +427,11 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
     public void importPressed()
     {
     	// Get Service URLs
-    	serviceURLs = new ArrayList<String>();
+    	/*serviceURLs = new ArrayList<String>();
     	Enumeration<?> URLs = (((DefaultListModel) jltServiceURLs.getModel()).elements());
     	 for( ; URLs.hasMoreElements(); ){
     		 serviceURLs.add((String) URLs.nextElement());
-    	 }
+    	 }*/
         	
         String sAlias = (String) jltKeyPairs.getSelectedValue();
 
@@ -452,7 +456,7 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
     /**
      * Add Service URL button pressed.
      */
-    public void addServiceURLPressed(){
+   /* public void addServiceURLPressed(){
     	
     	// Display the dialog for entering service URL
     	GetServiceURLDialog dGetServiceURL = new GetServiceURLDialog(this, true);
@@ -500,7 +504,8 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
 					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-    	// Get the lists of URLs for the alias
+    
+		// Get the lists of URLs for the alias
     	HashMap<String, ArrayList<String>> serviceURLsMap = credManager.getServiceURLsforKeyPairs();       	
     	if (serviceURLsMap != null){ // should not be null really (although can be empty). Check anyway.
         	Set<String> aliases = serviceURLsMap.keySet();
@@ -521,17 +526,17 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
        	}
     	
 		// Check if the entered URL is already associated with a password entry in the Keystore
-//       	ArrayList<String> urlList = (ArrayList<String>) ((CredentialManagerUI) this.getParent()).getURLsForPasswords();
-//		// Check if this url list contains the newly entered url
-//		if (urlList.contains(sURL)){
-//    		// Warn the user and exit
-//        	JOptionPane.showMessageDialog(
-//            		this, 
-//            		"The entered URL is already associated with a password entry",
-//        			"Credential Manager Alert",
-//        			JOptionPane.INFORMATION_MESSAGE);
-//        	return;
-//		}    	
+       	ArrayList<String> urlList = (ArrayList<String>) ((CredentialManagerUI) this.getParent()).getURLsForPasswords();
+		// Check if this url list contains the newly entered url
+		if (urlList.contains(sURL)){
+    		// Warn the user and exit
+        	JOptionPane.showMessageDialog(
+            		this, 
+            		"The entered URL is already associated with a password entry",
+        			"Credential Manager Alert",
+        			JOptionPane.INFORMATION_MESSAGE);
+        	return;
+		}    	
     	
     	// Otherwise - the entered URL is not already associated with a different entry in the Keystore, 
 		// so add this URL to the list of URLs for this key pair entry
@@ -541,7 +546,8 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
         jltServiceURLs.setSelectedIndex(index);
         // Insure the newly added URL is visible
         jltServiceURLs.ensureIndexIsVisible(index);
-    }
+   }
+*/
 
     /**
      * Cancel button pressed - close the dialog.
@@ -552,7 +558,7 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
     	// the user pressed 'cancel' after that
     	privateKey = null;
     	certificateChain = null;
-    	serviceURLs = null;
+    	//serviceURLs = null;
         closeDialog();
     }
 

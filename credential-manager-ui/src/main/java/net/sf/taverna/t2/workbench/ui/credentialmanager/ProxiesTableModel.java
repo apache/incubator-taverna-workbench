@@ -151,7 +151,7 @@ public class ProxiesTableModel extends AbstractTableModel implements Observer<Ke
                     data[iCnt][3] = serialNumber;
                     
                     // Populate the modified date column ("UBER" keystore type supports creation date)
-                   	data[iCnt][4] = credManager.getEntryCreationDate(CredentialManager.KEYSTORE, alias);
+                   	//data[iCnt][4] = credManager.getEntryCreationDate(CredentialManager.KEYSTORE, alias);
                     
                     // Populate the invisible alias column
                     data[iCnt][5] = alias; 

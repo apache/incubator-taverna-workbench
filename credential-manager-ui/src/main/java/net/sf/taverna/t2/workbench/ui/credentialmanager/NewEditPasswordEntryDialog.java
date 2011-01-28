@@ -387,7 +387,7 @@ public class NewEditPasswordEntryDialog extends NonBlockedHelpEnabledDialog
 			return false;
 		}
    	
-    	HashMap<String, ArrayList<String>> urlMap = credManager.getServiceURLsforKeyPairs();
+    	HashMap<String, ArrayList<String>> urlMap = null ;//credManager.getServiceURLsforKeyPairs();
        	if (urlMap != null){ // should not be null really (although can be empty). Check anyway.
         	Set<String> aliases = urlMap.keySet();
         	for (Iterator<String> i = aliases.iterator(); i.hasNext(); ){

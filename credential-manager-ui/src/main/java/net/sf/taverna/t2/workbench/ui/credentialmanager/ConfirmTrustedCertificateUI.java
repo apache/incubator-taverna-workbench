@@ -28,7 +28,7 @@ public class ConfirmTrustedCertificateUI implements CredentialProviderSPI {
 
 	public TrustConfirmation shouldTrust(X509Certificate[] chain) {
 		TrustConfirmation trustConfirm = new TrustConfirmation();
-		logger.info("Asking the user if they want to trust certificate.");
+		logger.info("Asking the user if they want to trust a certificate.");
 		// Ask user if they want to trust this service
 		ConfirmTrustedCertificateDialog confirmCertTrustDialog = new ConfirmTrustedCertificateDialog(
 				(Frame) null, "Untrusted HTTPS connection", true,
@@ -45,6 +45,7 @@ public class ConfirmTrustedCertificateUI implements CredentialProviderSPI {
 							"Untrusted HTTPS connection",
 							JOptionPane.INFORMATION_MESSAGE);
 		}
+
 		return trustConfirm;
 	}
 

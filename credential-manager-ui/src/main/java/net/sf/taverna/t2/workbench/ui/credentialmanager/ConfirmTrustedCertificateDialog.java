@@ -37,7 +37,6 @@ import java.math.BigInteger;
 import java.util.HashMap;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -443,7 +442,8 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 		});
 		
 
-		final JButton jbTrustAlways = new JButton("Trust always");
+		//final JButton jbTrustAlways = new JButton("Trust always");
+		final JButton jbTrustAlways = new JButton("Trust");
 		jbTrustAlways.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				trustAlwaysPressed();
@@ -457,7 +457,7 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 			}
 		});
 
-		jpButtons.add(jbTrust);
+		//jpButtons.add(jbTrust);
 		jpButtons.add(jbTrustAlways);
 		jpButtons.add(jbDontTrust);
 

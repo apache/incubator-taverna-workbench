@@ -140,7 +140,7 @@ public class TrustedCertsTableModel extends AbstractTableModel implements Observ
                 data[iCnt][3] = aliasComponents[3];
             	
                 // Populate the modified date column
-                data[iCnt][4] = credManager.getEntryCreationDate(CredentialManager.TRUSTSTORE, alias);
+                //data[iCnt][4] = credManager.getEntryCreationDate(CredentialManager.TRUSTSTORE, alias);
 
                 // Populate the invisible alias column
                 data[iCnt][5] = alias;
