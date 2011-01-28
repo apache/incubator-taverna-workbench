@@ -97,11 +97,11 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 		styleSheet.addRule("body {font-family:"+baseFont.getFamily()+"; font-size:10px;}");
 		Document doc = kit.createDefaultDocument();
 		message.setDocument(doc);
-		message.setText("<html><body>In order for Credential Manager to function properly - you need to install 'Java Cryptography Extension (JCE)<br>" +
-				"Unlimited Strength Jurisdiction Policy'. If you already do not have it, you can get it from:<br><ul>" +
-				"<li><a href=\"http://java.sun.com/javase/downloads/index_jdk5.jsp\">http://java.sun.com/javase/downloads/index_jdk5.jsp</a><b> for Java 5</b></li>" +
-				"<li><a href=\"http://java.sun.com/javase/downloads/index.jsp\">http://java.sun.com/javase/downloads/index.jsp</a><b> for Java 6</b></li></ul>" +	
-				"Installation instructions are contained in the download."+
+		message.setText("<html><body>In order for Taverna's security features to function properly - you need to install<br>" +
+				"'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy'. <br><br>" +
+				"If you already do not have it, for <b>Java 6</b> you can get it from:<br>" +
+				"<a href=\"http://www.oracle.com/technetwork/java/javase/downloads/index.html\">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a><br<br>" +	
+				"Installation instructions are contained in the bundle you download."+
 			"</body><html>");
 		message.addHyperlinkListener(new HyperlinkListener() {
 			public void hyperlinkUpdate(HyperlinkEvent he) {
@@ -152,7 +152,7 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 
 
 	private static final String DO_NOT_WARN_ABOUT_JCE_POLICY = "do_not_warn_about_JCE_policy";
-	public static File doNotWarnUserAboutJCEPolicyFile = new File(CMUtil.getSecurityConfigurationDirectory(),DO_NOT_WARN_ABOUT_JCE_POLICY);
+	public static File doNotWarnUserAboutJCEPolicyFile = new File(CMUtil.getCredentialManagerDefaultDirectory(),DO_NOT_WARN_ABOUT_JCE_POLICY);
 	public static boolean warnedUser = false; // have we already warned user for this run
 	/**
 	 * Warn user that they need to install Java Cryptography 
