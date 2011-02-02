@@ -99,7 +99,7 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 		message.setDocument(doc);
 		message.setText("<html><body>In order for Taverna's security features to function properly - you need to install<br>" +
 				"'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy'. <br><br>" +
-				"If you already do not have it, for <b>Java 6</b> you can get it from:<br>" +
+				"If you do not already have it, for <b>Java 6</b> you can get it from:<br>" +
 				"<a href=\"http://www.oracle.com/technetwork/java/javase/downloads/index.html\">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a><br<br>" +	
 				"Installation instructions are contained in the bundle you download."+
 			"</body><html>");
