@@ -64,7 +64,7 @@ public class CopyOldCredentialManagerDialog
     {
         super((Frame)null, "Older version of Credential Manager detected", true);
         instructions = "<html><body>Taverna has detected an older version ("+previousTavernaVersion+") of Credential Manager<br> that may contain your credentals. " +
-		"Do you wish to import them?<br><br>If yes, please provide your old master password below.<br>Alternatively, you can always add them manually later.</body></html>";
+		"Do you wish to import them?<br><br>If yes, please provide your old master password.<br>It will be used as your new password as well.<br>Alternatively, you can always add credentials manually later.</body></html>";
         initComponents();
     } 
     
@@ -88,7 +88,7 @@ public class CopyOldCredentialManagerDialog
         jlPassword.setBorder(new EmptyBorder(5, 5, 5, 5));  
         jpfPassword = new JPasswordField(15);
         
-        JButton jbImport = new JButton("Import credentials");
+        JButton jbImport = new JButton("Import my credentials");
         jbImport.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
@@ -97,7 +97,7 @@ public class CopyOldCredentialManagerDialog
             }
         });
 
-        JButton jbDontImport = new JButton("Do not import anything now");
+        JButton jbDontImport = new JButton("Do not import anything");
         jbDontImport.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
