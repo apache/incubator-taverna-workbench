@@ -1,6 +1,23 @@
-/**
+/*******************************************************************************
+ * Copyright (C) 2008-2010 The University of Manchester   
  * 
- */
+ *  Modifications to the initial code base are copyright of their
+ *  respective authors, or their employers as appropriate.
+ * 
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public License
+ *  as published by the Free Software Foundation; either version 2.1 of
+ *  the License, or (at your option) any later version.
+ *    
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
+ *    
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ ******************************************************************************/
 package net.sf.taverna.t2.workbench.report.explainer;
 
 import java.awt.Desktop;
@@ -16,6 +33,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.net.ssl.SSLException;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -844,7 +862,25 @@ public class BasicExplainer implements VisitExplainer {
     }
 
     private static JComponent solutionIoProblem(VisitReport vr) {
-	String message = "Try to open ";
+    String message="";	
+	Exception e = (Exception) (vr.getProperty("exception"));
+	if (e != null && e instanceof SSLException){
+	    message += "There was a problem with establishing a HTTPS connection to the service. ";
+		if (e.getMessage().toLowerCase().contains("no trusted certificate found")){
+			message+="Looks like the authenticity of the service could not be confirmed. Check that you have imported the service's certificate under 'Trusted Certificates' in Credential Manager. " +
+    		"If this is a WSDL service, try restarting Taverna to refresh certificates used in HTTPS connections.\n\n";
+		}
+		else if (e.getMessage().toLowerCase().contains("received fatal alert: bad_certificate")){
+			message+= "Looks like you could not be authenticated to the service. Check that you have imported your certificate under 'Your certificates' in Credential Manager. " +
+    		"If this is a WSDL service, try restarting Taverna to refresh certificates used in HTTPS connections.\n\n";
+		}
+		else{
+			message+="Check that you have imported the service's certificate under 'Trusted Certificates' in Credential Manager. " +
+    		"If user authentication is required, also check that you have imported your certificate under 'Your certificates' in Credential Manager. " +
+    		"If this is a WSDL service, try restarting Taverna to refresh certificates used in HTTPS connections.\n\n";
+		}
+	}	
+	message += "Try to open ";
 	String endpoint = (String) (vr.getProperty("endpoint"));
 	JButton connectButton = null;
 	if (endpoint == null) {
@@ -864,8 +900,8 @@ public class BasicExplainer implements VisitExplainer {
 		});
 	}
 	message += "in a file, or web, browser.";
-	String elseMessage = "If that does not work, please contact the service provider or workflow creator.";
-    	String editMessage = "If the service has moved, change the service's properties to its new location.";
+	String elseMessage = message.startsWith("Try to open") ? "If that does not work, please contact the service provider or workflow creator." : null;
+    	String editMessage = message.startsWith("Try to open") ? "If the service has moved, change the service's properties to its new location." : null;
 	JButton editButton = null;
 	DisabledActivity da = null;
 	for (Activity a : ((Processor)vr.getSubject()).getActivityList()) {
