@@ -41,7 +41,7 @@ public class ConfirmTrustedCertificateUI implements CredentialProviderSPI {
 			JOptionPane
 					.showMessageDialog(
 							null,
-							"As you refused to trust this host, you will not be able to its services from a workflow.",
+							"As you refused to trust this host, you will not be able to use its services from a workflow.",
 							"Untrusted HTTPS connection",
 							JOptionPane.INFORMATION_MESSAGE);
 		}
