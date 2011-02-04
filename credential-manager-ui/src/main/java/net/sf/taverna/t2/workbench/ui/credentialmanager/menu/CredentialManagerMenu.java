@@ -24,26 +24,27 @@ import java.net.URI;
 
 import javax.swing.Action;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
 
-import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
+//import net.sf.taverna.t2.security.credentialmanager.CMException;
+//import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.action.CredentialManagerAction;
 
 public class CredentialManagerMenu extends AbstractMenuAction{
 
-	private static Logger logger = Logger.getLogger(CredentialManagerMenu.class);
+	//private static Logger logger = Logger.getLogger(CredentialManagerMenu.class);
 	
 	public CredentialManagerMenu() {
 		super(URI.create("http://taverna.sf.net/2008/t2workbench/menu#advanced"),60);
+		/* This is now done in the initialise SSL startup hook - no need to do it here.
 		// Force initialisation at startup
-		
 		try {
-			CredentialManager.initialiseSSL();
+			CredentialManager.getInstance();
 		} catch (CMException e) {
 			logger.error("Could not initialise SSL properties for SSL connections from Taverna.", e);
 		}
+		*/
 	}
 
 	@Override
