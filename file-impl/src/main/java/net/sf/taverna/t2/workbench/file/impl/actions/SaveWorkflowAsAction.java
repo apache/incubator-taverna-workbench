@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -101,6 +102,29 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		Dataflow dataflow = fileManager.getCurrentDataflow();
 		return saveDataflow(parentComponent, dataflow);
 	}
+	
+	private static String determineFileName(final Dataflow dataflow) {
+		String result;
+		Object source = FileManager.getInstance().getDataflowSource(dataflow);
+		String fileName = null;
+		if (source instanceof File) {
+			fileName = ((File) source).getName();
+			
+		} else if (source instanceof URL) {
+			fileName = ((URL) source).getPath();
+		}
+		if (fileName != null) {
+			int lastIndex = fileName.lastIndexOf(".");
+				if (lastIndex > 0) {
+					fileName = fileName.substring(0, fileName.lastIndexOf("."));
+				}
+			result = fileName;
+		}
+		else {
+			result = dataflow.getLocalName();
+		}
+		return result;
+	}
 
 	public boolean saveDataflow(Component parentComponent, Dataflow dataflow) {
 		fileManager.setCurrentDataflow(dataflow);
@@ -128,10 +152,13 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		fileChooser.setFileFilter(fileFilters.get(0));
 
 		fileChooser.setCurrentDirectory(new File(curDir));
+		
+		File possibleName = new File(determineFileName(dataflow));
 
 		boolean tryAgain = true;
 		while (tryAgain) {
 			tryAgain = false;
+			fileChooser.setSelectedFile(possibleName);
 			int returnVal = fileChooser.showSaveDialog(parentComponent);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				prefs.put("currentDir", fileChooser.getCurrentDirectory()
