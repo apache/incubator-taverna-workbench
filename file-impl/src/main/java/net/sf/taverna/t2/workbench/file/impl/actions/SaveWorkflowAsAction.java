@@ -103,9 +103,9 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		return saveDataflow(parentComponent, dataflow);
 	}
 	
-	private static String determineFileName(final Dataflow dataflow) {
+	private String determineFileName(final Dataflow dataflow) {
 		String result;
-		Object source = FileManager.getInstance().getDataflowSource(dataflow);
+		Object source = fileManager.getDataflowSource(dataflow);
 		String fileName = null;
 		if (source instanceof File) {
 			fileName = ((File) source).getName();
