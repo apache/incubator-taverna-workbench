@@ -66,9 +66,7 @@ public class UIUsernamePasswordProvider implements CredentialProviderSPI {
 		boolean shouldSaveUsernameAndPassword = getPasswordDialog
 				.shouldSaveUsernameAndPassword();
 		if (username == null || password == null) {
-			/*
-			 * user cancelled - any of the above two variables is null
-			 */
+			// user cancelled - any of the above two variables is null
 			return null;
 		}
 

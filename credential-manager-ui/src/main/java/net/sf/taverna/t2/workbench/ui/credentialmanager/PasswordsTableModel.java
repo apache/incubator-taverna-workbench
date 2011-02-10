@@ -55,9 +55,6 @@ public class PasswordsTableModel extends AbstractTableModel implements Observer<
 	
 	private Logger logger = Logger.getLogger(PasswordsTableModel.class);
 
-    /**
-     * Construct a new PasswordsTableModel.
-     */
     public PasswordsTableModel(){
     	
         credManager = null;

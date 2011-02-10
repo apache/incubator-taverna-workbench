@@ -31,7 +31,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.math.BigInteger;
-import java.util.HashMap;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -50,27 +49,20 @@ import javax.swing.JSeparator;
 
 import java.util.ArrayList;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import javax.security.auth.x500.X500Principal;
 
 import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
+import net.sf.taverna.t2.security.credentialmanager.CMUtils;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
-
-//import org.apache.log4j.Logger;
-import org.bouncycastle.asn1.ASN1OctetString;
-import org.bouncycastle.asn1.DERBitString;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.misc.NetscapeCertType;
 
 
 /**
  * Displays the details of a X.509 certificate.
  * 
- * @author Alex Nenadic
+ * Inspired by the Portlecle tool (http://portecle.sourceforge.net/).
+ * and the view certificate dialog from Firefox's Certificate Manager.
  */
 @SuppressWarnings("serial")
 public class ViewCertDetailsDialog
@@ -155,7 +147,7 @@ public class ViewCertDetailsDialog
          	jlIntendedUses.setBorder(new EmptyBorder(5,5,5,5));
          	
          	jtfIntendedUsesValue = new JTextField(45);
-         	jtfIntendedUsesValue.setText(getIntendedUses(intendedUses));
+         	jtfIntendedUsesValue.setText(CMUtils.getIntendedUses(intendedUses));
         	jtfIntendedUsesValue.setEditable(false);
         	jtfIntendedUsesValue.setFont(new Font(null, Font.PLAIN, 11));
              
@@ -181,7 +173,7 @@ public class ViewCertDetailsDialog
         gbc_jlIssuedTo.insets = new Insets(5, 5, 5, 5);//has slightly bigger insets
         // Distinguished Name (DN)
 		String sDN = cert.getSubjectX500Principal().getName(X500Principal.RFC2253);
-		CMX509Util util = new CMX509Util();
+		CMUtils util = new CMUtils();
 		util.parseDN(sDN);       
 		// Extract the CN, O, OU and EMAILADDRESS fields
         String sCN = util.getCN();
@@ -321,9 +313,9 @@ public class ViewCertDetailsDialog
         gbc_jlExpiresOnValue.gridy = 14;
 
         // Fingerprints
-        byte[] bCert;
+        byte[] certBinaryEncoding;
         try {
-            bCert = cert.getEncoded();
+            certBinaryEncoding = cert.getEncoded();
         }
         catch (CertificateEncodingException ex) {
             throw new CMException(
@@ -341,7 +333,7 @@ public class ViewCertDetailsDialog
         jlSHA1Fingerprint.setFont(new Font(null, Font.PLAIN, 11));
         GridBagConstraints gbc_jlSHA1Fingerprint = (GridBagConstraints) gbcLabel.clone();
         gbc_jlSHA1Fingerprint.gridy = 16;
-        JLabel jlSHA1FingerprintValue = new JLabel(getMessageDigest(bCert, "SHA1"));
+        JLabel jlSHA1FingerprintValue = new JLabel(CMUtils.getMessageDigest(certBinaryEncoding, "SHA1"));
         jlSHA1FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
         GridBagConstraints gbc_jlSHA1FingerprintValue = (GridBagConstraints) gbcValue.clone();
         gbc_jlSHA1FingerprintValue.gridy = 16;
@@ -350,7 +342,7 @@ public class ViewCertDetailsDialog
         jlMD5Fingerprint.setFont(new Font(null, Font.PLAIN, 11));
         GridBagConstraints gbc_jlMD5Fingerprint = (GridBagConstraints) gbcLabel.clone();
         gbc_jlMD5Fingerprint.gridy = 17;
-        JLabel jlMD5FingerprintValue = new JLabel(getMessageDigest(bCert, "MD5"));
+        JLabel jlMD5FingerprintValue = new JLabel(CMUtils.getMessageDigest(certBinaryEncoding, "MD5"));
         jlMD5FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
         GridBagConstraints gbc_jlMD5FingerprintValue = (GridBagConstraints) gbcValue.clone();
         gbc_jlMD5FingerprintValue.gridy = 17;
@@ -477,113 +469,11 @@ public class ViewCertDetailsDialog
         });
     }
     
-    /**
-     * Get the digest of a message as a formatted String.
-     *
-     * @param bMessage The message to digest
-     * @param digestType The message digest algorithm
-     * @return The message digest
-     * @throws CMException If there was a problem generating the message
-     * digest
-     */
-    public static String getMessageDigest(byte[] bMessage,
-        String digestType)
-        throws CMException
-    {
-        // Create message digest object using the supplied algorithm
-        MessageDigest messageDigest;
-        try {
-            messageDigest = MessageDigest.getInstance(digestType);
-        }
-        catch (NoSuchAlgorithmException ex) {
-            throw new CMException("Failed to create message digest.", ex);
-        }
-
-        // Create raw message digest
-        byte[] bFingerPrint = messageDigest.digest(bMessage);
-
-        // Place the raw message digest into a StringBuffer as a Hex number
-        StringBuffer strBuff = new StringBuffer(
-            new BigInteger(1, bFingerPrint).toString(16).toUpperCase());
-
-        // Odd number of characters so add in a padding "0"
-        if ((strBuff.length() % 2) != 0) {
-            strBuff.insert(0, '0');
-        }
-
-        // Place colons at every two hex characters
-        if (strBuff.length() > 2) {
-            for (int iCnt = 2; iCnt < strBuff.length(); iCnt += 3) {
-                strBuff.insert(iCnt, ':');
-            }
-        }
-
-        // Return the formatted message digest
-        return strBuff.toString();
-    }
-    
-    /**
-     * Gets the intended certificate uses, i.e. Netscape Certificate Type extension (2.16.840.1.113730.1.1) 
-     * value as a string
-     * @param value Extension value as a DER-encoded OCTET string
-     * @return Extension value as a string
-     */
-    private String getIntendedUses(byte[] value)
-    {
-    	
-        // Netscape Certificate Types (2.16.840.1.113730.1.1)
-        int[] INTENDED_USES = new int[] {
-            NetscapeCertType.sslClient,
-            NetscapeCertType.sslServer,
-            NetscapeCertType.smime,
-            NetscapeCertType.objectSigning,
-            NetscapeCertType.reserved,
-            NetscapeCertType.sslCA,
-            NetscapeCertType.smimeCA,
-            NetscapeCertType.objectSigningCA,
-        };
-        
-        // Netscape Certificate Type strings (2.16.840.1.113730.1.1)
-        HashMap<String, String> INTENDED_USES_STRINGS = new HashMap<String, String> ();
-        INTENDED_USES_STRINGS.put("128", "SSL Client");
-        INTENDED_USES_STRINGS.put("64", "SSL Server");
-        INTENDED_USES_STRINGS.put("32", "S/MIME");
-        INTENDED_USES_STRINGS.put("16", "Object Signing");
-        INTENDED_USES_STRINGS.put("8", "Reserved");
-        INTENDED_USES_STRINGS.put("4", "SSL CA");
-        INTENDED_USES_STRINGS.put("2", "S/MIME CA");
-        INTENDED_USES_STRINGS.put("1", "Object Signing CA");
-        
-        
-        // Get octet string from extension value
-        ASN1OctetString fromByteArray = new DEROctetString(value);
-		byte[] octets = fromByteArray.getOctets();            
-    	DERBitString fromByteArray2 = new DERBitString(octets);
-		int val = new NetscapeCertType(fromByteArray2).intValue();
-        StringBuffer strBuff = new StringBuffer();
-        for (int i = 0, len = INTENDED_USES.length; i < len; i++) {
-            int use = INTENDED_USES[i];
-            if ((val & use) == use) {
-                strBuff.append(INTENDED_USES_STRINGS.get(String.valueOf(use))+", \n");
-            }
-        }
-        // remove the last ", \n" from the end of the buffer
-        String str = strBuff.toString();
-        str = str.substring(0, str.length()-3);
-        return str;
-    }
-    
-    /**
-     * OK button pressed.
-     */
     private void okPressed()
     {
         closeDialog();
     }
 
-    /**
-     * Closes the View Certificate Entry dialog.
-     */
     private void closeDialog()
     {
         setVisible(false);

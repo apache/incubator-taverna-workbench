@@ -17,7 +17,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.CMUtil;
+import net.sf.taverna.t2.security.credentialmanager.CMUtils;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.workbench.StartupSPI;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.WarnUserAboutJCEPolicyDialog;
@@ -46,7 +46,7 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 		logger.info("Checking for previous versions of Credential Manager in older Taverna installations.");
 				
 		// If there are already Keystore or Truststore files present - exit.
-		File currentCredentialManagerDirectory = CMUtil.getCredentialManagerDefaultDirectory();
+		File currentCredentialManagerDirectory = CMUtils.getCredentialManagerDefaultDirectory();
 		File currentKeystoreFile = new File(currentCredentialManagerDirectory, CredentialManager.T2KEYSTORE_FILE);
 		File currentTruststoreFile = new File(currentCredentialManagerDirectory, CredentialManager.T2TRUSTSTORE_FILE);
 		// If the keystore and truststore files are there - the things have already been set up - exit

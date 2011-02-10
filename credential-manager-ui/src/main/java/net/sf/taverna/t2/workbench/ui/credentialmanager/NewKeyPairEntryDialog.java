@@ -34,41 +34,31 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Enumeration;
-//import java.util.HashMap;
-//import java.util.Set;
-//import java.util.Iterator;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-//import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.BoxLayout;
 import javax.swing.ListSelectionModel;
-//import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-//import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 //import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
+import net.sf.taverna.t2.security.credentialmanager.CMUtils;
 //import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
-//import net.sf.taverna.t2.workbench.ui.credentialmanager.GetServiceURLDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
 
 /**
- * Dialog that displays the details of all key pairs from a PKCS #12
- * keystore allowing the user to pick one for import.
- * 
- * @author Alex Nenadic
+ * Allows the user import a key pair from a PKCS #12 file (keystore).
  */
 @SuppressWarnings("serial")
 class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
@@ -76,52 +66,38 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
 	//private Logger logger = Logger.getLogger(NewKeyPairEntryDialog.class);
 	
 	// List of key pairs available for import 
-    private JList jltKeyPairs;
+    private JList keyPairsJList;
 
-    // Service URL text field for user to enter
-    //private JList jltServiceURLs;
-    
-    // Service URL (associated with the key pair)
-    //private ArrayList<String> serviceURLs;
-
-    // PKCS #12 keystore */
+    // PKCS #12 keystore 
     private KeyStore pkcs12KeyStore;
 
-    // Private key part of key pair chosen by the user for import 
+    // Private key part of the key pair chosen by the user for import 
     private Key privateKey;
 
-    // Certificate chain part of key pair chosen by the user for import 
+    // Certificate chain part of the key pair chosen by the user for import 
     private Certificate[] certificateChain;
 
     // Key pair alias to be used for this entry in the Keystore 
     private String alias;
     
-    /**
-     * Creates new form NewKeyPairEntryDialog where the parent is a frame.
-     */
-    public NewKeyPairEntryDialog(JFrame parent, String title, boolean modal, KeyStore pkcs12KS)
+    public NewKeyPairEntryDialog(JFrame parent, String title, boolean modal, KeyStore pkcs12KeyStore)
         throws CMException
     {
         super(parent, title, modal);
-        pkcs12KeyStore = pkcs12KS;
+        this.pkcs12KeyStore = pkcs12KeyStore;
+        initComponents();
+    }
+
+    public NewKeyPairEntryDialog(JDialog parent, String title, boolean modal, KeyStore pkcs12KeyStore)
+        throws CMException
+    {
+        super(parent, title, modal);
+        this.pkcs12KeyStore = pkcs12KeyStore;
         initComponents();
     }
 
     /**
-     * Creates new form NewKeyPairEntryDialog where the parent is a dialog.
-     */
-    public NewKeyPairEntryDialog(JDialog parent, String title, boolean modal, KeyStore pkcs12KS)
-        throws CMException
-    {
-        super(parent, title, modal);
-        pkcs12KeyStore = pkcs12KS;
-        initComponents();
-    }
-
-    /**
-     * Get the private part of the key pair chosen by the user for import.
-     *
-     * @return The private key or null if the user has not chosen a key pair
+     * Get the private part of the key pair.
      */
     public Key getPrivateKey()
     {
@@ -129,11 +105,7 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
     }
 
     /**
-     * Get the certificate chain part of the key pair chosen by the
-     * user for import.
-     *
-     * @return The certificate chain or null if the user has not
-     * chosen a key pair
+     * Get the certificate chain part of the key pair.
      */
     public Certificate[] getCertificateChain()
     {
@@ -141,44 +113,27 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
     }
 
     /**
-     * Get the alias of the key pair chosen by the user for import.
-     * 
-     * @return the alias
+     * Get the keystore alias of the key pair.
      */
     public String getAlias()
     {
         return alias;
     }
     
-    /**
-     * Get the service URLs entered by the user.
-     * 
-     * @return list of service URLs
-     */
-//    public ArrayList<String> getServiceURLs()
-//    {
-//        return serviceURLs;
-//    }
-    
-    /**
-     * Initialise the dialog's GUI components.
-     *
-     * @throws CMException A problem was encountered importing a key pair
-     */
     private void initComponents()
         throws CMException
     {
         // Instructions
-        JLabel jlInstructions = new JLabel("Select a key pair to import:");
-        jlInstructions.setFont(new Font(null, Font.PLAIN, 11));
-        jlInstructions.setBorder(new EmptyBorder(5,5,5,5));
-        JPanel jpInstructions = new JPanel(new BorderLayout());
-        jpInstructions.add(jlInstructions, BorderLayout.WEST);
+        JLabel instructionsLabel = new JLabel("Select a key pair to import:");
+        instructionsLabel.setFont(new Font(null, Font.PLAIN, 11));
+        instructionsLabel.setBorder(new EmptyBorder(5,5,5,5));
+        JPanel instructionsPanel = new JPanel(new BorderLayout());
+        instructionsPanel.add(instructionsLabel, BorderLayout.WEST);
 
         // Import button
-        final JButton jbImport = new JButton("Import");
-        jbImport.setEnabled(false);
-        jbImport.addActionListener(new ActionListener()
+        final JButton importButton = new JButton("Import");
+        importButton.setEnabled(false);
+        importButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -187,9 +142,9 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
         });
 
         // Certificate details button
-        final JButton jbCertificateDetails = new JButton("Details");
-        jbCertificateDetails.setEnabled(false);
-        jbCertificateDetails.addActionListener(new ActionListener()
+        final JButton certificateDetailsButton = new JButton("Details");
+        certificateDetailsButton.setEnabled(false);
+        certificateDetailsButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -198,111 +153,41 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
         });
 
         // List to hold keystore's key pairs
-        jltKeyPairs = new JList();
-        jltKeyPairs.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        jltKeyPairs.addListSelectionListener(new ListSelectionListener()
+        keyPairsJList = new JList();
+        keyPairsJList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        keyPairsJList.addListSelectionListener(new ListSelectionListener()
         {
             public void valueChanged(ListSelectionEvent evt)
             {	
-                if (jltKeyPairs.getSelectedIndex() == -1) {
-                    jbImport.setEnabled(false);
-                    jbCertificateDetails.setEnabled(false);
+                if (keyPairsJList.getSelectedIndex() == -1) {
+                    importButton.setEnabled(false);
+                    certificateDetailsButton.setEnabled(false);
                 }
                 else {
-                    jbImport.setEnabled(true);
-                    jbCertificateDetails.setEnabled(true);
+                    importButton.setEnabled(true);
+                    certificateDetailsButton.setEnabled(true);
                 }
             }
         });
 
         // Put the key list into a scroll pane
-        JScrollPane jspKeyPairs = new JScrollPane(jltKeyPairs,
+        JScrollPane keyPairsScrollPane = new JScrollPane(keyPairsJList,
             JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        jspKeyPairs.getViewport().setBackground(jltKeyPairs.getBackground());
+        keyPairsScrollPane.getViewport().setBackground(keyPairsJList.getBackground());
         
- /*
-        // Service URLs list label
-        JLabel jlServiceURL = new JLabel ("Service URLs the key pair will be used for:");
-        jlServiceURL.setFont(new Font(null, Font.PLAIN, 11));
-        jlServiceURL.setBorder(new EmptyBorder(5,5,5,5));           
-        // New empty service URLs list
-        DefaultListModel jltModel = new DefaultListModel();
-        jltServiceURLs = new JList(jltModel); 
-        // 'Add' service URL button
-        JButton addButton = new JButton("Add");
-        addButton.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent evt)
-            {
-            	addServiceURLPressed();
-            }       	
-        });
-        addButton.setEnabled(true);
-        // 'Remove' service URL button
-        final JButton removeButton = new JButton("Remove");
-        removeButton.addActionListener(new ActionListener(){
-            public void actionPerformed(ActionEvent evt)
-            {
-            	// get selected indices
-            	int[] selected = jltServiceURLs.getSelectedIndices();
-            	for (int i = selected.length -1; i>=0 ; i--){
-            		 ((DefaultListModel) jltServiceURLs.getModel()).remove(selected[i]);
-            	}
-            }       	
-        });
-        removeButton.setEnabled(false);
-        jltServiceURLs.addListSelectionListener(new ListSelectionListener()
-        {
-            public void valueChanged(ListSelectionEvent evt)
-            {
-                if (jltServiceURLs.getSelectedIndex() == -1) {
-                	removeButton.setEnabled(false);
-                }
-                else {
-                	removeButton.setEnabled(true);
-                }
-            }
-        });
-        // Scroll pane for service URLs list
-        JScrollPane jspServiceURLs = new JScrollPane(jltServiceURLs,
-                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        jspServiceURLs.getViewport().setBackground(jltServiceURLs.getBackground());
-        
-        // Panel for Add and Remove buttons
-        JPanel jpServiceURLsButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        jpServiceURLsButtons.add(addButton);
-        jpServiceURLsButtons.add(removeButton);
-        
-        // Panel to hold the list scroll pane and Add/Remove buttons panel
-        JPanel jpServiceURLs = new JPanel(new BorderLayout());
-        jpServiceURLs.add(jlServiceURL, BorderLayout.NORTH);
-        jpServiceURLs.add(jspServiceURLs, BorderLayout.CENTER);
-        jpServiceURLs.add(jpServiceURLsButtons, BorderLayout.SOUTH);
-        */
-        
-        // Put all the key pair components together
-        JPanel jpKeyPairs = new JPanel(); // BoxLayout
-        jpKeyPairs.setLayout(new BoxLayout(jpKeyPairs, BoxLayout.Y_AXIS));
-        //jpKeyPairs.setPreferredSize(new Dimension(400, 200));
-        /*jpKeyPairs.setBorder(new CompoundBorder(new CompoundBorder(
-            new EmptyBorder(5, 5, 5, 5), new EtchedBorder()), new EmptyBorder(
-            5, 5, 5, 5)));*/
-        jpKeyPairs.setBorder(new EmptyBorder(10, 10, 10, 10));
-            
+        JPanel keyPairsPanel = new JPanel();
+        keyPairsPanel.setLayout(new BoxLayout(keyPairsPanel, BoxLayout.Y_AXIS));
+        keyPairsPanel.setBorder(new EmptyBorder(10, 10, 10, 10));      
    
-        jpInstructions.setAlignmentY(JPanel.LEFT_ALIGNMENT);
-        jpKeyPairs.add(jpInstructions);
-        jspKeyPairs.setAlignmentY(JPanel.LEFT_ALIGNMENT);
-        jpKeyPairs.add(jspKeyPairs);
-        //jbCertificateDetails.setAlignmentY(JPanel.RIGHT_ALIGNMENT);
-        //jpKeyPairs.add(jbCertificateDetails);
-        //jpServiceURLs.setAlignmentY(JPanel.LEFT_ALIGNMENT);
-        //jpKeyPairs.add(jpServiceURLs);
+        instructionsPanel.setAlignmentY(JPanel.LEFT_ALIGNMENT);
+        keyPairsPanel.add(instructionsPanel);
+        keyPairsScrollPane.setAlignmentY(JPanel.LEFT_ALIGNMENT);
+        keyPairsPanel.add(keyPairsScrollPane);
 
         // Cancel button
-        final JButton jbCancel = new JButton("Cancel");
-        jbCancel.addActionListener(new ActionListener()
+        final JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -310,17 +195,17 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
             }
         });
 
-        JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        jpButtons.add(jbCertificateDetails);
-        jpButtons.add(jbImport);
-        jpButtons.add(jbCancel);
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonsPanel.add(certificateDetailsButton);
+        buttonsPanel.add(importButton);
+        buttonsPanel.add(cancelButton);
 
         getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(jpKeyPairs, BorderLayout.CENTER);
-        getContentPane().add(jpButtons, BorderLayout.SOUTH);
+        getContentPane().add(keyPairsPanel, BorderLayout.CENTER);
+        getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
         // Populate the list
-        populateList();
+        populateKeyPairList();
 
         addWindowListener(new WindowAdapter()
         {
@@ -332,7 +217,7 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
 
         setResizable(false);
 
-        getRootPane().setDefaultButton(jbImport);
+        getRootPane().setDefaultButton(importButton);
 
         pack();
 
@@ -341,65 +226,58 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
     /**
      * Populate the key pair list with the PKCS #12 keystore's key
      * pair aliases.
-     *
-     * @throws CMException Problem accessing the keystore's entries
      */
-    private void populateList()
+    private void populateKeyPairList()
         throws CMException
     {
         try {
-        	ArrayList<String> vKeyPairAliases = new ArrayList<String>();
+        	ArrayList<String> keyPairAliases = new ArrayList<String>();
 
-            // For each entry in the keystore...
-            for (Enumeration<String> aliases = pkcs12KeyStore.aliases(); aliases.hasMoreElements();)
+        	Enumeration<String> aliases = pkcs12KeyStore.aliases();
+        	while (aliases.hasMoreElements())
             {
-                // Get alias
-                String sAlias = (String) aliases.nextElement();
+                String alias = aliases.nextElement();
 
-                // Add the alias to the list if the entry has a key
-                // and certificates
-                if (pkcs12KeyStore.isKeyEntry(sAlias)) {
-                	pkcs12KeyStore.getKey(sAlias, new char[] {});
-                    Certificate[] certs = pkcs12KeyStore.getCertificateChain(sAlias);
-
+                if (pkcs12KeyStore.isKeyEntry(alias)) { // is it a key entry?
+                	pkcs12KeyStore.getKey(alias, new char[] {});
+                    Certificate[] certs = pkcs12KeyStore.getCertificateChain(alias);
                     if (certs != null && certs.length != 0) {
-                        vKeyPairAliases.add(sAlias);
+                        keyPairAliases.add(alias);
                     }
                 }
             }
 
-            if (vKeyPairAliases.size() > 0) {
-                jltKeyPairs.setListData(vKeyPairAliases.toArray());
-                jltKeyPairs.setSelectedIndex(0);
+            if (keyPairAliases.size() > 0) {
+                keyPairsJList.setListData(keyPairAliases.toArray());
+                keyPairsJList.setSelectedIndex(0);
             }
             else {
-                // No key pairs available...
-                jltKeyPairs.setListData(new String[] { "-- No key pairs present in the Credential Store --" });
-                jltKeyPairs.setEnabled(false);
+                // No key pairs were found - warn the user
+            	JOptionPane.showMessageDialog(
+                		this, 
+                		"No private key pairs were found in the file",
+            			"Credential Manager Alert",
+            			JOptionPane.WARNING_MESSAGE);
             }
         }
         catch (GeneralSecurityException ex) {
-            throw new CMException("Problem occured while accessing PKCS #12 keystore's entries.",
+            throw new CMException("Problem occured while reading the PKCS #12 file.",
                 ex);
         }
     }
 
     /**
-     * 'Certificate Details' button pressed. Display the selected key
-     * pair's certificate.
+     * Display the selected key pair's certificate.
      */
     private void certificateDetailsPressed()
     {
         try {        	
             
-        	String sAlias = (String) jltKeyPairs.getSelectedValue();
-
-            assert sAlias != null;
+        	String alias = (String) keyPairsJList.getSelectedValue();
 
             //Convert the certificate object into an X509Certificate object.
-             X509Certificate cert = CMX509Util.convertCertificate(pkcs12KeyStore.getCertificate(sAlias));
+             X509Certificate cert = CMUtils.convertCertificate(pkcs12KeyStore.getCertificate(alias));
 
-            // Supply the certificate to the view certificate dialog
             ViewCertDetailsDialog viewCertificateDialog = new ViewCertDetailsDialog(this,
             		"Certificate details", 
             		true, 
@@ -409,42 +287,26 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
             viewCertificateDialog.setVisible(true);
             
         }
-        catch (Exception ex) {
-        	
+        catch (Exception ex) {      	
             JOptionPane.showMessageDialog(this,
-                    "Failed to obtain certificate details to show.", 
+                    "Failed to obtain certificate details to show", 
                     "Credential Manager Alert",
                     JOptionPane.WARNING_MESSAGE);
             closeDialog();
         }
     }
 
-
-    /**
-     * Import button pressed by user. Store the selected key pair's
-     * private and public parts and service URLs and close the dialog.
-     */
     public void importPressed()
     {
-    	// Get Service URLs
-    	/*serviceURLs = new ArrayList<String>();
-    	Enumeration<?> URLs = (((DefaultListModel) jltServiceURLs.getModel()).elements());
-    	 for( ; URLs.hasMoreElements(); ){
-    		 serviceURLs.add((String) URLs.nextElement());
-    	 }*/
-        	
-        String sAlias = (String) jltKeyPairs.getSelectedValue();
-
-        assert sAlias != null;
-
+        String alias = (String) keyPairsJList.getSelectedValue();
         try {
-            privateKey = pkcs12KeyStore.getKey(sAlias, new char[] {});
-            certificateChain = pkcs12KeyStore.getCertificateChain(sAlias);
-            alias = sAlias;
+            privateKey = pkcs12KeyStore.getKey(alias, new char[] {});
+            certificateChain = pkcs12KeyStore.getCertificateChain(alias);
+            this.alias = alias;
         }
         catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
-                    "Failed to load the private key and certificate chain from PKCS #12 file.", 
+                    "Failed to load the private key and certificate chain from the PKCS #12 file.", 
                     "Credential Manager Error",
                     JOptionPane.ERROR_MESSAGE);
             closeDialog();
@@ -453,118 +315,15 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
         closeDialog();
     }
     
-    /**
-     * Add Service URL button pressed.
-     */
-   /* public void addServiceURLPressed(){
-    	
-    	// Display the dialog for entering service URL
-    	GetServiceURLDialog dGetServiceURL = new GetServiceURLDialog(this, true);
-        
-    	dGetServiceURL.setLocationRelativeTo(this);
-    	dGetServiceURL.setVisible(true);
-    	    	
-        String sURL = dGetServiceURL.getServiceURL();
-        
-        if (sURL == null){ // user cancelled
-        	return;
-        }
-        
-        if (sURL.length() == 0){ // user entered an empty URL
-       		// Warn the user
-        	JOptionPane.showMessageDialog(
-            		this, 
-            		"Service URL cannot be empty",
-        			"Credential Manager Alert",
-        			JOptionPane.INFORMATION_MESSAGE);
-        	return;
-        }
-        
-    	// Check if the entered URL already exist in the URL list for this key entry
-    	if (((DefaultListModel) jltServiceURLs.getModel()).contains(sURL)){
-
-    		// Warn the user
-        	JOptionPane.showMessageDialog(
-            		this, 
-            		"The entered URL already exists in the list of URLs for this key pair entry",
-        			"Credential Manager Alert",
-        			JOptionPane.INFORMATION_MESSAGE);
-        	return;
-    	}
-		
-		// Check if the entered URL is already associated with another key pair entry in the Keystore       	
-    	CredentialManager credManager = null;
-		try {
-			credManager = CredentialManager.getInstance();
-		} catch (CMException cme) {
-			// Failed to instantiate Credential Manager - warn the user and exit
-			String sMessage = "Failed to instantiate Credential Manager. " + cme.getMessage();
-			logger.error(sMessage, cme);
-			JOptionPane.showMessageDialog(new JFrame(), sMessage,
-					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-    
-		// Get the lists of URLs for the alias
-    	HashMap<String, ArrayList<String>> serviceURLsMap = credManager.getServiceURLsforKeyPairs();       	
-    	if (serviceURLsMap != null){ // should not be null really (although can be empty). Check anyway.
-        	Set<String> aliases = serviceURLsMap.keySet();
-        	for (Iterator<String> i = aliases.iterator(); i.hasNext(); ){
-        		String alias = (String) i.next();
-        		// Check if service URL list for this alias contains the newly entered URL
-        		ArrayList<String> urls = (ArrayList<String>) serviceURLsMap.get(alias);
-        		if (urls.contains(sURL)){
-            		// Warn the user and exit
-                	JOptionPane.showMessageDialog(
-                    		this, 
-                    		"The entered URL is already associated with another key pair entry",
-                			"Credential Manager Alert",
-                			JOptionPane.INFORMATION_MESSAGE);
-                	return;
-        		}    		
-        	 }
-       	}
-    	
-		// Check if the entered URL is already associated with a password entry in the Keystore
-       	ArrayList<String> urlList = (ArrayList<String>) ((CredentialManagerUI) this.getParent()).getURLsForPasswords();
-		// Check if this url list contains the newly entered url
-		if (urlList.contains(sURL)){
-    		// Warn the user and exit
-        	JOptionPane.showMessageDialog(
-            		this, 
-            		"The entered URL is already associated with a password entry",
-        			"Credential Manager Alert",
-        			JOptionPane.INFORMATION_MESSAGE);
-        	return;
-		}    	
-    	
-    	// Otherwise - the entered URL is not already associated with a different entry in the Keystore, 
-		// so add this URL to the list of URLs for this key pair entry
-        ((DefaultListModel) jltServiceURLs.getModel()).addElement(sURL);
-        int index = ((DefaultListModel) jltServiceURLs.getModel()).getSize() - 1;
-        // Element is appended to the list - get its index
-        jltServiceURLs.setSelectedIndex(index);
-        // Insure the newly added URL is visible
-        jltServiceURLs.ensureIndexIsVisible(index);
-   }
-*/
-
-    /**
-     * Cancel button pressed - close the dialog.
-     */
     public void cancelPressed()
     {
-    	// set everything to null, just in case some of the values have been set previously and
-    	// the user pressed 'cancel' after that
+    	// Set everything to null, just in case some of the values have been set previously and
+    	// the user pressed 'cancel' after that.
     	privateKey = null;
     	certificateChain = null;
-    	//serviceURLs = null;
         closeDialog();
     }
 
-    /**
-     * Closes the dialog.
-     */
     private void closeDialog()
     {
         setVisible(false);

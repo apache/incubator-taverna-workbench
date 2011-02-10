@@ -47,19 +47,18 @@ import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
  * 
  * @author Alex Nenadic
  */
+@SuppressWarnings("serial")
 public class ViewUsernamePasswordEntryDialog
     extends NonBlockedHelpEnabledDialog
 {
-	private static final long serialVersionUID = -7224904997349644853L;
-
 	// Service URL field 
-    private JTextField jtfServiceURL;
+    private JTextField serviceURLField;
     
     // Username field 
-    private JTextField jtfUsername;
+    private JTextField usernameField;
     
     // Password field 
-    private JTextField jtfPassword;
+    private JTextField passwordField;
 
     // Service URL value
     private String serviceURL;    
@@ -70,9 +69,6 @@ public class ViewUsernamePasswordEntryDialog
     // Service password value
     private String password;
 
-    /**
-     * Creates new ViewPasswordEntryDialog dialog where the parent is a frame.
-     */
     public ViewUsernamePasswordEntryDialog(JFrame parent, String currentURL, String currentUsername, String currentPassword)
     {
         super(parent, "View username and password for a service", true);
@@ -82,9 +78,6 @@ public class ViewUsernamePasswordEntryDialog
         initComponents();
     }
 
-    /**
-     * Creates new ViewPasswordDialog dialog where the parent is a dialog.
-     */
     public ViewUsernamePasswordEntryDialog(JDialog parent, String currentURL, String currentUsername, String currentPassword)
     {
         super(parent, "View username and password for a service", true);
@@ -94,38 +87,32 @@ public class ViewUsernamePasswordEntryDialog
         initComponents();
     }
 
-    /**
-     * Initialise the dialog's GUI components.
-     */
     private void initComponents()
     {
         getContentPane().setLayout(new BorderLayout());
 
-        JLabel jlServiceURL = new JLabel("Service URL");
-        jlServiceURL.setBorder(new EmptyBorder(0,5,0,0));
-        JLabel jlUsername = new JLabel("Username");
-        jlUsername.setBorder(new EmptyBorder(0,5,0,0));
-        JLabel jlPassword = new JLabel("Password");
-        jlPassword.setBorder(new EmptyBorder(0,5,0,0));
+        JLabel serviceURLLabel = new JLabel("Service URL");
+        serviceURLLabel.setBorder(new EmptyBorder(0,5,0,0));
+        JLabel usernameLabel = new JLabel("Username");
+        usernameLabel.setBorder(new EmptyBorder(0,5,0,0));
+        JLabel passwordLabel = new JLabel("Password");
+        passwordLabel.setBorder(new EmptyBorder(0,5,0,0));
 
         //Populate the fields with values and disable user input
-        jtfServiceURL = new JTextField();
-        jtfServiceURL.setText(serviceURL);
-        jtfServiceURL.setEditable(false);
-        //jtfServiceURL.setBorder(new EmptyBorder(0,0,0,5));
+        serviceURLField = new JTextField();
+        serviceURLField.setText(serviceURL);
+        serviceURLField.setEditable(false);
         
-        jtfUsername = new JTextField(15);
-        jtfUsername.setText(username);
-        jtfUsername.setEditable(false);
-       // jtfUsername.setBorder(new EmptyBorder(0,0,0,5));
+        usernameField = new JTextField(15);
+        usernameField.setText(username);
+        usernameField.setEditable(false);
         
-        jtfPassword = new JTextField(15);
-        jtfPassword.setText(password);
-        jtfPassword.setEditable(false);
-        //jtfPassword.setBorder(new EmptyBorder(0,0,0,5));
+        passwordField = new JTextField(15);
+        passwordField.setText(password);
+        passwordField.setEditable(false);
 
-        JButton jbOK = new JButton("OK");
-        jbOK.addActionListener(new ActionListener()
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -133,16 +120,7 @@ public class ViewUsernamePasswordEntryDialog
             }
         });
         
-//        JButton jbViewPassword = new JButton("View password");
-//        jbViewPassword.addActionListener(new ActionListener()
-//        {
-//            public void actionPerformed(ActionEvent evt)
-//            {
-//            	showPassword();
-//            }
-//        });
-        
-        JPanel jpPassword = new JPanel(new GridBagLayout());
+        JPanel fieldsPanel = new JPanel(new GridBagLayout());
         
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weighty = 0.0;
@@ -153,7 +131,7 @@ public class ViewUsernamePasswordEntryDialog
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 0);
-        jpPassword.add(jlServiceURL, gbc);
+        fieldsPanel.add(serviceURLLabel, gbc);
         
 		gbc.weightx = 1.0;
 		gbc.gridx = 1;
@@ -161,7 +139,7 @@ public class ViewUsernamePasswordEntryDialog
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 5);
-        jpPassword.add(jtfServiceURL, gbc);
+        fieldsPanel.add(serviceURLField, gbc);
         
 		gbc.weightx = 0.0;
 		gbc.gridx = 0;
@@ -169,7 +147,7 @@ public class ViewUsernamePasswordEntryDialog
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 0);
-        jpPassword.add(jlUsername, gbc);
+        fieldsPanel.add(usernameLabel, gbc);
         
 		gbc.weightx = 1.0;
 		gbc.gridx = 1;
@@ -177,7 +155,7 @@ public class ViewUsernamePasswordEntryDialog
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 5);
-        jpPassword.add(jtfUsername, gbc);
+        fieldsPanel.add(usernameField, gbc);
         
 		gbc.weightx = 0.0;
 		gbc.gridx = 0;
@@ -185,7 +163,7 @@ public class ViewUsernamePasswordEntryDialog
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 0);
-        jpPassword.add(jlPassword, gbc);
+        fieldsPanel.add(passwordLabel, gbc);
         
 		gbc.weightx = 1.0;
 		gbc.gridx = 1;
@@ -193,18 +171,17 @@ public class ViewUsernamePasswordEntryDialog
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 5);
-        jpPassword.add(jtfPassword, gbc);
+        fieldsPanel.add(passwordField, gbc);
         
         
-        jpPassword.setBorder(new CompoundBorder(
+        fieldsPanel.setBorder(new CompoundBorder(
                 new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
         
-        JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        jpButtons.add(jbOK);
-       // jpButtons.add(jbViewPassword);
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonsPanel.add(okButton);
         
-        getContentPane().add(jpPassword, BorderLayout.CENTER);
-        getContentPane().add(jpButtons, BorderLayout.SOUTH);
+        getContentPane().add(fieldsPanel, BorderLayout.CENTER);
+        getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
         addWindowListener(new WindowAdapter()
         {
@@ -216,14 +193,11 @@ public class ViewUsernamePasswordEntryDialog
 
        // setResizable(false);
 
-        getRootPane().setDefaultButton(jbOK);
+        getRootPane().setDefaultButton(okButton);
 
         pack();
     }
 
-    /**
-     * Close the dialog.
-     */
     private void closeDialog()
     {
         setVisible(false);

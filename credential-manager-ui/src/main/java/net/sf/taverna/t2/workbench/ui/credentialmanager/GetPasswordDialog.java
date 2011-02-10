@@ -40,7 +40,7 @@ import javax.swing.border.EmptyBorder;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**
- * Dialog used for entering a password.
+ * A general dialog for entering a password.
  * 
  * @author Alex Nenadic
  */
@@ -51,14 +51,11 @@ public class GetPasswordDialog extends NonBlockedHelpEnabledDialog {
 	private String instructions = null;
 	
     // Password entry password field 
-    private JPasswordField jpfPassword;
+    private JPasswordField passwordField;
 
     // Stores the password entered 
     private String password = null;
 
-    /**
-     * Creates new GetPasswordDialog dialog where the parent is a frame.
-     */
     public GetPasswordDialog(JFrame parent, String title, boolean modal, String instr)
     {
         super(parent, title, modal);
@@ -66,9 +63,6 @@ public class GetPasswordDialog extends NonBlockedHelpEnabledDialog {
         initComponents();
     }
 
-    /**
-     * Creates new GetPasswordDialog dialog where the parent is a dialog.
-     */
     public GetPasswordDialog(JDialog parent, String title, boolean modal, String instr)
     {
         super(parent, title, modal);
@@ -76,28 +70,15 @@ public class GetPasswordDialog extends NonBlockedHelpEnabledDialog {
         initComponents();
     }
 
-    /**
-     * Get the password set in the dialog.
-     *
-     * @return The password or null if none was set
-     */
-    public String getPassword()
-    {
-    	return password;
-    }
-
-    /**
-     * Initialise the dialog's GUI components.
-     */
     private void initComponents()
     {
         getContentPane().setLayout(new BorderLayout());
                	
-        JLabel jlPassword = new JLabel("Password");
-        jpfPassword = new JPasswordField(15);
+        JLabel passwordLabel = new JLabel("Password");
+        passwordField = new JPasswordField(15);
 
-        JButton jbOK = new JButton("OK");
-        jbOK.addActionListener(new ActionListener()
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -105,8 +86,8 @@ public class GetPasswordDialog extends NonBlockedHelpEnabledDialog {
             }
         });
 
-        JButton jbCancel = new JButton("Cancel");
-        jbCancel.addActionListener(new ActionListener()
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -115,25 +96,25 @@ public class GetPasswordDialog extends NonBlockedHelpEnabledDialog {
         });
 
              
-        JLabel jlInstructions; // Instructions
+        JLabel instructionsLabel; // Instructions
         if (instructions != null){
-        	jlInstructions = new JLabel (instructions);
-        	jlInstructions.setFont(new Font(null, Font.PLAIN, 11));
-        	jlInstructions.setBorder(new EmptyBorder(5,5,5,5));
-        	getContentPane().add(jlInstructions, BorderLayout.NORTH);
+        	instructionsLabel = new JLabel (instructions);
+        	instructionsLabel.setFont(new Font(null, Font.PLAIN, 11));
+        	instructionsLabel.setBorder(new EmptyBorder(5,5,5,5));
+        	getContentPane().add(instructionsLabel, BorderLayout.NORTH);
         }
         
-        JPanel jpPassword = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        jpPassword.add(jlPassword);
-        jpPassword.add(jpfPassword);
-        jpPassword.setBorder(new EmptyBorder(5, 5, 5, 5));
+        JPanel passwordPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        passwordPanel.add(passwordLabel);
+        passwordPanel.add(passwordField);
+        passwordPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-        JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        jpButtons.add(jbOK);
-        jpButtons.add(jbCancel);
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonsPanel.add(okButton);
+        buttonsPanel.add(cancelButton);
 
-        getContentPane().add(jpPassword, BorderLayout.CENTER);
-        getContentPane().add(jpButtons, BorderLayout.SOUTH);
+        getContentPane().add(passwordPanel, BorderLayout.CENTER);
+        getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
         addWindowListener(new WindowAdapter()
         {
@@ -145,18 +126,27 @@ public class GetPasswordDialog extends NonBlockedHelpEnabledDialog {
 
         setResizable(false);
 
-        getRootPane().setDefaultButton(jbOK);
+        getRootPane().setDefaultButton(okButton);
 
         pack();
     }
 
+
+    /**
+     * Get the password entered in the dialog.
+     */
+    public String getPassword()
+    {
+    	return password;
+    }
+    
     /**
      * Check that the password entered is not empty and 
      * store the entered password.
      */
     private boolean checkPassword()
     {
-        password = new String(jpfPassword.getPassword());
+        password = new String(passwordField.getPassword());
 
         
         if (password.length() == 0) { //password is empty          
@@ -172,9 +162,6 @@ public class GetPasswordDialog extends NonBlockedHelpEnabledDialog {
 
     }
     
-    /**
-     * OK button pressed or otherwise activated.
-     */
     private void okPressed()
     {
         if (checkPassword()) {
@@ -182,18 +169,12 @@ public class GetPasswordDialog extends NonBlockedHelpEnabledDialog {
         }
     }
 
-    /**
-     * Cancel button pressed or otherwise activated.
-     */
     private void cancelPressed()
     {
     	password = null;
         closeDialog();
     }
 
-    /**
-     * Close the dialog.
-     */
     private void closeDialog()
     {
         setVisible(false);

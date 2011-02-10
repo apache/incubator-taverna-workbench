@@ -46,7 +46,7 @@ import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
-import net.sf.taverna.t2.security.credentialmanager.CMUtil;
+import net.sf.taverna.t2.security.credentialmanager.CMUtils;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 import org.apache.commons.io.FileUtils;
@@ -152,7 +152,7 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 
 
 	private static final String DO_NOT_WARN_ABOUT_JCE_POLICY = "do_not_warn_about_JCE_policy";
-	public static File doNotWarnUserAboutJCEPolicyFile = new File(CMUtil.getCredentialManagerDefaultDirectory(),DO_NOT_WARN_ABOUT_JCE_POLICY);
+	public static File doNotWarnUserAboutJCEPolicyFile = new File(CMUtils.getCredentialManagerDefaultDirectory(),DO_NOT_WARN_ABOUT_JCE_POLICY);
 	public static boolean warnedUser = false; // have we already warned user for this run
 	/**
 	 * Warn user that they need to install Java Cryptography 

@@ -53,9 +53,6 @@ public class KeyPairsTableModel extends AbstractTableModel implements Observer<K
     
 	private Logger logger = Logger.getLogger(KeyPairsTableModel.class);
 
-    /**
-     * Construct a new KeyPairsTableModel.
-     */
     public KeyPairsTableModel()
     {
         credManager = null;
@@ -97,7 +94,7 @@ public class KeyPairsTableModel extends AbstractTableModel implements Observer<K
     }
     
     /**
-     * Load the KeyPairsTableModel with the key pair entries from the Keystore. 
+     * Load the table model with the key pair entries from the Keystore. 
      */
     public void load() throws CMException {
         

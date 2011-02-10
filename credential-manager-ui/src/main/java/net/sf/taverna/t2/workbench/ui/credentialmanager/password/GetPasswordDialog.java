@@ -44,73 +44,61 @@ import javax.swing.border.EtchedBorder;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 /**
- * Dialog for entering user's username and password for the WSDL service.
+ * Dialog for entering user's username and password.
  * 
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class GetPasswordDialog
-    extends HelpEnabledDialog
-{
+public class GetPasswordDialog extends HelpEnabledDialog {
+	
 	// Whether we should ask user to save their username and password using Credential Manager
 	private boolean shouldAskUserToSave;
 
     // Username field 
-    private JTextField jtfUsername;
+    private JTextField usernameField;
 
     // Password field 
-    private JPasswordField jpfPassword;
+    private JPasswordField passwordField;
     
     // Whether user wished to save the username and password using Credential Manager
-    private JCheckBox jcbSave;
+    private JCheckBox saveCheckBox;
    
-    // Stores username entered
+    // The entered username
     private String username;
     
-    // Stores password entered
+    // The entered password
     private String password;
 
-    // WSDL service url
-	//private String wsdlURL;
-
+    // Instructions to the user
 	private String instructions;
-
 
     public GetPasswordDialog(String instructions, boolean shouldAskUserToSave)
     {
         super((Frame)null, "Enter username and password", true);
-        //this.wsdlURL = wsdlURL;
         this.instructions = instructions;
         this.shouldAskUserToSave = shouldAskUserToSave;
         initComponents();
     } 
     
-    /**
-     * Initialise the dialog's GUI components.
-     */
     private void initComponents()
     {
         getContentPane().setLayout(new BorderLayout());
 
-        JLabel jlInstructions = new JLabel(instructions);
-//        JTextArea jtaInstructions = new JTextArea(instructions);
-//        jtaInstructions.setEditable(false);
-//        //jtaInstructions.setBackground(this.getBackground());
-//        jtaInstructions.setFont(new Font(null, Font.PLAIN, 11));
-        jlInstructions.setBorder(new EmptyBorder(5, 5, 5, 5));
+        JLabel instructionsLabel = new JLabel(instructions);
+        instructionsLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
         JPanel jpInstructions = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        jpInstructions.add(jlInstructions);
+        jpInstructions.add(instructionsLabel);
         
-        JLabel jlUsername = new JLabel("Username");
-        jlUsername.setBorder(new EmptyBorder(5, 5, 5, 5));
-        JLabel jlPassword = new JLabel("Password");
-        jlPassword.setBorder(new EmptyBorder(5, 5, 5, 5));
+        JLabel usernameLabel = new JLabel("Username");
+        usernameLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        JLabel passwordLabel = new JLabel("Password");
+        passwordLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
               
-        jtfUsername = new JTextField(15);
-        jpfPassword = new JPasswordField(15);
+        usernameField = new JTextField(15);
+        passwordField = new JPasswordField(15);
         
-        JButton jbOK = new JButton("OK");
-        jbOK.addActionListener(new ActionListener()
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -118,8 +106,8 @@ public class GetPasswordDialog
             }
         });
 
-        JButton jbCancel = new JButton("Cancel");
-        jbCancel.addActionListener(new ActionListener()
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -128,38 +116,38 @@ public class GetPasswordDialog
         });
 
         // Central panel with username/password fields and a "Do you want to Save?" checkbox
-        JPanel jpMain = new JPanel(new BorderLayout());
+        JPanel mainPanel = new JPanel(new BorderLayout());
         
-        JPanel jpPassword = new JPanel(new GridLayout(2, 2, 5, 5));
-        jpPassword.add(jlUsername);
-        jpPassword.add(jtfUsername);
-        jpPassword.add(jlPassword);
-        jpPassword.add(jpfPassword);
-        jpMain.add(jpPassword, BorderLayout.CENTER);
+        JPanel passwordPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        passwordPanel.add(usernameLabel);
+        passwordPanel.add(usernameField);
+        passwordPanel.add(passwordLabel);
+        passwordPanel.add(passwordField);
+        mainPanel.add(passwordPanel, BorderLayout.CENTER);
         
         // If user wants to save this username and password
-        jcbSave = new JCheckBox();
-        jcbSave.setBorder(new EmptyBorder(5,5,5,5));
-        jcbSave.setSelected(true);
-        jcbSave.setText("Use Credential Manager to save this username and password");  
+        saveCheckBox = new JCheckBox();
+        saveCheckBox.setBorder(new EmptyBorder(5,5,5,5));
+        saveCheckBox.setSelected(true);
+        saveCheckBox.setText("Use Credential Manager to save this username and password");  
         if (shouldAskUserToSave){
         	JPanel jpSaveCheckBox = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        	jpSaveCheckBox.add(jcbSave);
-        	jpMain.add(jpSaveCheckBox, BorderLayout.SOUTH);
+        	jpSaveCheckBox.add(saveCheckBox);
+        	mainPanel.add(jpSaveCheckBox, BorderLayout.SOUTH);
         }
         
-        jpPassword.setBorder(new CompoundBorder(
+        passwordPanel.setBorder(new CompoundBorder(
                 new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
         
-        JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        jpButtons.add(jbOK);
-        jpButtons.add(jbCancel);
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttonsPanel.add(okButton);
+        buttonsPanel.add(cancelButton);
 
-        jpPassword.setMinimumSize(new Dimension(300,100));
+        passwordPanel.setMinimumSize(new Dimension(300,100));
 
         getContentPane().add(jpInstructions, BorderLayout.NORTH);
-        getContentPane().add(jpMain, BorderLayout.CENTER);
-        getContentPane().add(jpButtons, BorderLayout.SOUTH);
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
+        getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
         addWindowListener(new WindowAdapter()
         {
@@ -171,26 +159,16 @@ public class GetPasswordDialog
 
         setResizable(false);
 
-        getRootPane().setDefaultButton(jbOK);
+        getRootPane().setDefaultButton(okButton);
 
         pack();
     }
     
-    /**
-     * Get the username set in the dialog.
-     *
-     * @return the username
-     */
     public String getUsername()
     {
         return username;
     }
     
-    /**
-     * Get the password set in the dialog.
-     *
-     * @return the password
-     */
     public String getPassword()
     {
     	return password;
@@ -198,15 +176,15 @@ public class GetPasswordDialog
     
     /**
      * Check if user wishes to save username and pasword
-     * using Credential Manager.
+     * using the Credential Manager.
      */
     public boolean shouldSaveUsernameAndPassword(){
-    	return jcbSave.isSelected();
+    	return saveCheckBox.isSelected();
     }
 
     private boolean checkControls()
     {    	
-    	username = jtfUsername.getText();
+    	username = usernameField.getText();
     	if (username.length() == 0){
             JOptionPane.showMessageDialog(this,
                 "Username cannot be empty", 
@@ -215,7 +193,7 @@ public class GetPasswordDialog
             return false;
     	}
     	   	
-    	password = new String(jpfPassword.getPassword());
+    	password = new String(passwordField.getPassword());
     	if (password.length() == 0) { // password empty
             JOptionPane.showMessageDialog(this,
                 "Password cannot be empty", 
@@ -228,9 +206,6 @@ public class GetPasswordDialog
     	return true;
     }
 
-    /**
-     * OK button pressed or otherwise activated.
-     */
     private void okPressed()
     {
         if (checkControls()) {
@@ -238,9 +213,6 @@ public class GetPasswordDialog
         }
     }
 
-    /**
-     * Cancel button pressed or otherwise activated.
-     */
     private void cancelPressed()
     {
     	// Set all fields to null to indicate that cancel button was pressed
@@ -249,9 +221,6 @@ public class GetPasswordDialog
         closeDialog();
     }
 
-    /**
-     * Close the dialog.
-     */
     private void closeDialog()
     {
         setVisible(false);
@@ -260,12 +229,12 @@ public class GetPasswordDialog
 
 	public void setUsername(String username) {
 		this.username = username;
-		jtfUsername.setText(username);
+		usernameField.setText(username);
 	}
 
 	public void setPassword(String password) {
 		this.password = password;
-		jpfPassword.setText(password);
+		passwordField.setText(password);
 	}
 }
 
