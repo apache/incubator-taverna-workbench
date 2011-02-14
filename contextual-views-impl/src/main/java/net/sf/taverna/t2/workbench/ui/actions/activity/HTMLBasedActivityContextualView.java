@@ -32,6 +32,7 @@ import javax.swing.JScrollPane;
 import net.sf.taverna.t2.annotation.AnnotationAssertion;
 import net.sf.taverna.t2.annotation.AnnotationChain;
 import net.sf.taverna.t2.annotation.annotationbeans.HostInstitution;
+import net.sf.taverna.t2.lang.ui.HtmlUtils;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
@@ -46,35 +47,20 @@ public abstract class HTMLBasedActivityContextualView<ConfigBean> extends
 
 	@Override
 	public JComponent getMainFrame() {
-		return panelForHtml(buildHtml());
+		editorPane = HtmlUtils.createEditorPane(buildHtml());
+		return HtmlUtils.panelForHtml(editorPane);
 	}
 
 	private String buildHtml() {
-		String html = "<html><head>" + getStyle() + "</head><body>";
-		html += buildTableOpeningTag();
+		String html = HtmlUtils.getHtmlHead(getBackgroundColour());
+		html += HtmlUtils.buildTableOpeningTag();
 		html += "<tr><th colspan=\"2\">" + getViewTitle() + "</th></tr>";
 		html += getRawTableRowsHtml() + "</table>";
 		html += "</body></html>";
 		return html;
 	}
 
-	private String buildTableOpeningTag() {
-		String result = "<table ";
-		Map<String, String> props = getTableProperties();
-		for (String key : props.keySet()) {
-			result += key + "=\"" + props.get(key) + "\" ";
-		}
-		result += ">";
-		return result;
-	}
-
 	protected abstract String getRawTableRowsHtml();
-
-	protected Map<String, String> getTableProperties() {
-		Map<String, String> result = new HashMap<String, String>();
-		result.put("border", "1");
-		return result;
-	}
 
 	public String getBackgroundColour() {
 		// FIXME would prefer instanceof but no class def found error was thrown
@@ -107,25 +93,7 @@ public abstract class HTMLBasedActivityContextualView<ConfigBean> extends
 		return false;
 	}
 
-	protected String getStyle() {
-		String style = "<style type='text/css'>";
-		style += "table {align:center; border:solid black 1px; background-color:"
-				+ getBackgroundColour()
-				+ ";width:100%; height:100%; overflow:auto;}";
-		style += "</style>";
-		return style;
-	}
 
-	protected JPanel panelForHtml(String html) {
-		JPanel result = new JPanel();
-
-		result.setLayout(new BorderLayout());
-		editorPane = new JEditorPane("text/html", html);
-		editorPane.setEditable(false);
-//		JScrollPane scrollPane = new JScrollPane(editorPane);
-		result.add(editorPane, BorderLayout.CENTER);
-		return result;
-	}
 
 	/**
 	 * Update the html view with the latest information in the configuration

@@ -11,6 +11,7 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 
+import net.sf.taverna.t2.lang.ui.HtmlUtils;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
@@ -37,23 +38,13 @@ public class DataflowContextualView extends ContextualView {
 	 */
 	@Override
 	public JComponent getMainFrame() {
-		return panelForHtml(buildHtml());
-	}
-
-	private JComponent panelForHtml(String html) {
-		final JPanel panel = new JPanel();
-
-		panel.setLayout(new BorderLayout());
-		editorPane = new JEditorPane("text/html", html);
-		editorPane.setEditable(false);
-		panel.add(editorPane, BorderLayout.CENTER);
-		
-		return panel;
+		editorPane = HtmlUtils.createEditorPane(buildHtml());
+		return HtmlUtils.panelForHtml(editorPane);
 	}
 
 	private String buildHtml() {
-		String html = "<html><head>" + getStyle() + "</head><body>";
-		html += buildTableOpeningTag();
+		String html = HtmlUtils.getHtmlHead(getBackgroundColour());
+		html += HtmlUtils.buildTableOpeningTag();
 				
 		html += "<tr><td colspan=\"2\" align=\"center\"><b>Source</b></td></tr>";
 		String source = FileManager.getInstance().getDataflowName(dataflow);
@@ -87,32 +78,12 @@ public class DataflowContextualView extends ContextualView {
 		return html;
 	}
 	
-	private String buildTableOpeningTag() {
-		String result = "<table ";
-		Map<String, String> props = getTableProperties();
-		for (String key : props.keySet()) {
-			result += key + "=\"" + props.get(key) + "\" ";
-		}
-		result += ">";
-		return result;
-	}
-
-	protected Map<String, String> getTableProperties() {
-		Map<String, String> result = new HashMap<String, String>();
-		result.put("border", "1");
-		return result;
-	}
-
-	protected String getStyle() {
-		String backgroundColour = ColourManager
+	public String getBackgroundColour() {
+		return ColourManager
 		.getInstance()
-		.getDefaultPropertyMap().get("net.sf.taverna.t2.workflowmodel.Dataflow"); 
-		String style = "<style type='text/css'>";
-		style += "table {align:center; border:solid black 1px; background-color:\""+backgroundColour+"\";width:100%; height:100%; overflow:auto;}";
-		style += "</style>";
-		return style;
+		.getDefaultPropertyMap().get("net.sf.taverna.t2.workflowmodel.Dataflow");
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView#getPreferredPosition()
 	 */
