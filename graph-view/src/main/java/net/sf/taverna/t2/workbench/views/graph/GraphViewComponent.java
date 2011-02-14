@@ -381,6 +381,19 @@ public class GraphViewComponent extends WorkflowView {
 
 		return toolBar;
 	}
+	
+	private String getBorderTitle(final Dataflow d) {
+		String localName = d.getLocalName();
+		String sourceName = FileManager.getInstance().getDataflowName(d);
+		if (localName.equals(sourceName)) {
+			return localName;
+		}
+		if (sourceName.startsWith(localName + " ")) {
+			return sourceName;
+		}
+		return (localName + " from " + sourceName);
+		
+	}
 
 	/**
 	 * Sets the Dataflow to display in the graph view.
@@ -397,7 +410,7 @@ public class GraphViewComponent extends WorkflowView {
 		graphController = graphControllerMap.get(dataflow);
 		diagramPanel = diagramPanelMap.get(dataflow);
 		cardLayout.show(this, String.valueOf(diagramPanel.hashCode()));
-		border.setTitle(dataflow.getLocalName());
+		border.setTitle(getBorderTitle(dataflow));
 		graphController.redraw();
 		this.repaint();
 	}
@@ -489,9 +502,10 @@ public class GraphViewComponent extends WorkflowView {
 							if (animationSpeed != graphController.getAnimationSpeed()) {
 								graphController.setAnimationSpeed(animationSpeed);
 							}
-							graphController.redraw();							
-							if (!dataflow.getLocalName().equals(border.getTitle())) {
-							    border.setTitle(dataflow.getLocalName());
+							graphController.redraw();
+							String dataflowName = getBorderTitle(dataflow);
+							if (!dataflowName.equals(border.getTitle())) {
+							    border.setTitle(dataflowName);
 							    GraphViewComponent.this.repaint();
 							}
 						}
