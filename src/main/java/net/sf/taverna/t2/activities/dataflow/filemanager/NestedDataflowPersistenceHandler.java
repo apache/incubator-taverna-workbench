@@ -41,6 +41,7 @@ import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflowSource;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
@@ -52,7 +53,7 @@ import org.jdom.Element;
 
 /**
  * Allow opening/saving of a nested workflow sourced from a
- * {@link DataflowActivity} - described by a {@link NestedDataflowSource}.
+ * {@link DataflowActivity} - described by a {@link NestedDataflowActivitySource}.
  * 
  * @author Stian Soiland-Reyes
  * 
@@ -74,12 +75,12 @@ public class NestedDataflowPersistenceHandler extends
 
 	@Override
 	public List<Class<?>> getOpenSourceTypes() {
-		return Arrays.<Class<?>> asList(NestedDataflowSource.class);
+		return Arrays.<Class<?>> asList(NestedDataflowActivitySource.class);
 	}
 
 	@Override
 	public List<Class<?>> getSaveDestinationTypes() {
-		return Arrays.<Class<?>> asList(NestedDataflowSource.class);
+		return Arrays.<Class<?>> asList(NestedDataflowActivitySource.class);
 	}
 
 	@Override
@@ -95,13 +96,13 @@ public class NestedDataflowPersistenceHandler extends
 			throw new IllegalArgumentException("Unsupported file type "
 					+ fileType);
 		}
-		if (!(source instanceof NestedDataflowSource)) {
+		if (!(source instanceof NestedDataflowActivitySource)) {
 			throw new IllegalArgumentException("Unsupported source " + source);
 		}
 
-		NestedDataflowSource nestedDataflowSource = (NestedDataflowSource) source;
+		NestedDataflowActivitySource nestedDataflowSource = (NestedDataflowActivitySource) source;
 		DataflowActivity dataflowActivity = nestedDataflowSource
-				.getDataflowActivity();
+				.getNestedDataflow();
 		Dataflow dataflow = dataflowActivity.getConfiguration();
 		if (dataflow == null) {
 			throw new OpenException("Workflow was null");
@@ -130,11 +131,11 @@ public class NestedDataflowPersistenceHandler extends
 			throw new IllegalArgumentException("Unsupported file type "
 					+ fileType);
 		}
-		if (!(destination instanceof NestedDataflowSource)) {
+		if (!(destination instanceof NestedDataflowActivitySource)) {
 			throw new IllegalArgumentException("Unsupported source "
 					+ destination);
 		}
-		NestedDataflowSource nestedDataflowDestination = (NestedDataflowSource) destination;
+		NestedDataflowActivitySource nestedDataflowDestination = (NestedDataflowActivitySource) destination;
 		Dataflow parentDataflow = nestedDataflowDestination.getParentDataflow();
 		if (! FileManager.getInstance().isDataflowOpen(parentDataflow)) {
 			throw new SaveException("Can't save to parent workflow, it's no longer open");
@@ -142,7 +143,7 @@ public class NestedDataflowPersistenceHandler extends
 			
 		
 		DataflowActivity dataflowActivity = nestedDataflowDestination
-				.getDataflowActivity();
+				.getNestedDataflow();
 
 		Dataflow dataflowCopy;
 		try {
