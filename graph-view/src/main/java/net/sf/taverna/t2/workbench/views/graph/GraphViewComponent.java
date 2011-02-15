@@ -55,6 +55,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.impl.T2DataflowOpener;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
@@ -548,6 +549,8 @@ public class GraphViewComponent extends WorkflowView {
 			} else if (message instanceof SetCurrentDataflowEvent) {
 				SetCurrentDataflowEvent currentDataflowEvent = (SetCurrentDataflowEvent) message;
 				Dataflow dataflow = currentDataflowEvent.getDataflow();
+				setDataflow(dataflow);
+			} else if (message instanceof SavedDataflowEvent) {
 				setDataflow(dataflow);
 			}
 		}
