@@ -49,6 +49,7 @@ import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.file.impl.FileTypeFileFilter;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflowSource;
 
 import org.apache.log4j.Logger;
 
@@ -89,11 +90,24 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		if (e.getSource() instanceof Component) {
 			parentComponent = (Component) e.getSource();
 		}
-		if (fileManager.getCurrentDataflow() == null) {
+		Dataflow dataflow = fileManager.getCurrentDataflow();
+		if (dataflow == null) {
 			JOptionPane.showMessageDialog(parentComponent,
 					"No workflow open yet", "No workflow to save",
 					JOptionPane.ERROR_MESSAGE);
 			return;
+		}
+		Object source = fileManager.getDataflowSource(dataflow);
+		if (source instanceof NestedDataflowSource) {
+			int n = JOptionPane.showConfirmDialog(
+				    parentComponent,
+				    "Saving a nested workflow to a file cuts its link to the parent workflow. Do you want to continue?",
+				    "Nested workflow save",
+				    JOptionPane.YES_NO_OPTION);
+			if (n == JOptionPane.NO_OPTION) {
+				return;
+			}
+
 		}
 		saveCurrentDataflow(parentComponent);
 	}
