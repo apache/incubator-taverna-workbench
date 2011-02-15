@@ -47,7 +47,10 @@ public class DataflowContextualView extends ContextualView {
 		html += HtmlUtils.buildTableOpeningTag();
 				
 		html += "<tr><td colspan=\"2\" align=\"center\"><b>Source</b></td></tr>";
-		String source = FileManager.getInstance().getDataflowName(dataflow);
+		String source = "Newly created";
+		if (FileManager.getInstance().getDataflowSource(dataflow) != null) {
+			source = FileManager.getInstance().getDataflowName(dataflow);
+		}
 		
 		html += "<tr><td colspan=\"2\" align=\"center\">" + source
 					+ "</td></tr>";
@@ -91,13 +94,22 @@ public class DataflowContextualView extends ContextualView {
 	public int getPreferredPosition() {
 		return 100;
 	}
+	
+	private static int MAX_LENGTH = 50;
+	
+	private String limitName(String fullName) {
+		if (fullName.length() > MAX_LENGTH) {
+			return (fullName.substring(0, MAX_LENGTH - 3) + "...");
+		}
+		return fullName;
+	}
 
 	/* (non-Javadoc)
 	 * @see net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView#getViewTitle()
 	 */
 	@Override
 	public String getViewTitle() {
-		return "Workflow " + dataflow.getLocalName();
+		return "Workflow " + limitName(dataflow.getLocalName());
 	}
 
 	/* (non-Javadoc)
