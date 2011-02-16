@@ -52,7 +52,7 @@ public class CopyOldCredentialManagerDialog
 {
 
     // Old Credential Manager master password field 
-    private JPasswordField jpfPassword;
+    private JPasswordField passwordField;
     
     // Stores password entered
     private String password;
@@ -75,21 +75,17 @@ public class CopyOldCredentialManagerDialog
     {
         getContentPane().setLayout(new BorderLayout());
 
-        JLabel jlInstructions = new JLabel(instructions);
-//        JTextArea jtaInstructions = new JTextArea(instructions);
-//        jtaInstructions.setEditable(false);
-//        //jtaInstructions.setBackground(this.getBackground());
-//        jtaInstructions.setFont(new Font(null, Font.PLAIN, 11));
-        jlInstructions.setBorder(new EmptyBorder(5, 5, 5, 5));
+        JLabel instructionsLabel = new JLabel(instructions);
+        instructionsLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
         JPanel jpInstructions = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        jpInstructions.add(jlInstructions);
+        jpInstructions.add(instructionsLabel);
         
-        JLabel jlPassword = new JLabel("Old master password");
-        jlPassword.setBorder(new EmptyBorder(5, 5, 5, 5));  
-        jpfPassword = new JPasswordField(15);
+        JLabel passwordLabel = new JLabel("Old master password");
+        passwordLabel.setBorder(new EmptyBorder(5, 5, 5, 5));  
+        passwordField = new JPasswordField(15);
         
-        JButton jbImport = new JButton("Import my credentials");
-        jbImport.addActionListener(new ActionListener()
+        JButton importButton = new JButton("Import my credentials");
+        importButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -97,8 +93,8 @@ public class CopyOldCredentialManagerDialog
             }
         });
 
-        JButton jbDontImport = new JButton("Do not import anything");
-        jbDontImport.addActionListener(new ActionListener()
+        JButton dontImportButton = new JButton("Do not import anything");
+        dontImportButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -106,25 +102,24 @@ public class CopyOldCredentialManagerDialog
             }
         });
 
-        // Central panel with username/password fields and a "Do you want to Save?" checkbox
-        JPanel jpMain = new JPanel(new BorderLayout());
+        JPanel mainPanel = new JPanel(new BorderLayout());
         
-        JPanel jpPassword = new JPanel(new GridLayout(2, 2, 5, 5));
-        jpPassword.add(jlPassword);
-        jpPassword.add(jpfPassword);
-        jpMain.add(jpPassword, BorderLayout.CENTER);
+        JPanel passwordPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        passwordPanel.add(passwordLabel);
+        passwordPanel.add(passwordField);
+        mainPanel.add(passwordPanel, BorderLayout.CENTER);
                 
-        jpPassword.setBorder(new CompoundBorder(
+        passwordPanel.setBorder(new CompoundBorder(
                 new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
         
         JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        jpButtons.add(jbImport);
-        jpButtons.add(jbDontImport);
+        jpButtons.add(importButton);
+        jpButtons.add(dontImportButton);
 
-        jpPassword.setMinimumSize(new Dimension(300,100));
+        passwordPanel.setMinimumSize(new Dimension(300,100));
 
         getContentPane().add(jpInstructions, BorderLayout.NORTH);
-        getContentPane().add(jpMain, BorderLayout.CENTER);
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
         getContentPane().add(jpButtons, BorderLayout.SOUTH);
 
         addWindowListener(new WindowAdapter()
@@ -137,26 +132,19 @@ public class CopyOldCredentialManagerDialog
 
         setResizable(false);
 
-        getRootPane().setDefaultButton(jbImport);
+        getRootPane().setDefaultButton(importButton);
 
         pack();
     }
 
-    
-    /**
-     * Get the password set in the dialog.
-     */
     public String getPassword()
     {
     	return password;
     }
 
-    /**
-     * Check if an non-empty password was entered.
-     */
     private boolean checkControls()
     {    	
-    	password = new String(jpfPassword.getPassword());
+    	password = new String(passwordField.getPassword());
     	if (password.length() == 0) { // password empty
             JOptionPane.showMessageDialog(this,
                 "Password cannot be empty", 
@@ -181,9 +169,6 @@ public class CopyOldCredentialManagerDialog
         closeDialog();
     }
 
-    /**
-     * Close the dialog.
-     */
     private void closeDialog()
     {
         setVisible(false);
@@ -192,7 +177,7 @@ public class CopyOldCredentialManagerDialog
 
 	public void setPassword(String password) {
 		this.password = password;
-		jpfPassword.setText(password);
+		passwordField.setText(password);
 	}
 }
 

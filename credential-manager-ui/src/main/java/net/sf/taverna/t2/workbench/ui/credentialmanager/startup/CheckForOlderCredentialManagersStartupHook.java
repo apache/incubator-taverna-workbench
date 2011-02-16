@@ -80,29 +80,28 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 			previousTavernaVersion = tavernaDirectory.getName().substring(
 					tavernaDirectory.getName().indexOf("-") + 1);
 			previousTavernaDirectory = tavernaDirectory;
-			File keystoreFile = null;
+
+			File keystoreFile = new File(tavernaDirectory,
+					SECURITY_DIRECTORY_NAME
+					+ System.getProperty("file.separator")
+					+ CredentialManager.T2KEYSTORE_FILE); // .ubr
+			
 			File truststoreFile = null;
+			
 			// For Taverna 2.2 and older
 			if (previousTavernaVersion.contains("2.2")
 					|| previousTavernaVersion.contains("2.1")) {
-				keystoreFile = new File(tavernaDirectory,
-						SECURITY_DIRECTORY_NAME
-								+ System.getProperty("file.separator")
-								+ CredentialManager.OLD_T2KEYSTORE_FILE); // .ubr
 				truststoreFile = new File(tavernaDirectory,
 						SECURITY_DIRECTORY_NAME
 								+ System.getProperty("file.separator")
 								+ CredentialManager.OLD_T2TRUSTSTORE_FILE); // .jks
 			} else { // For Taverna 2.3+
-				keystoreFile = new File(tavernaDirectory,
-						SECURITY_DIRECTORY_NAME
-								+ System.getProperty("file.separator")
-								+ CredentialManager.T2KEYSTORE_FILE); // .jceks
 				truststoreFile = new File(tavernaDirectory,
 						SECURITY_DIRECTORY_NAME
 								+ System.getProperty("file.separator")
-								+ CredentialManager.T2TRUSTSTORE_FILE); // .jceks
+								+ CredentialManager.T2TRUSTSTORE_FILE); // .ubr
 			}
+			
 			if (keystoreFile.exists()) {
 				if (previousKeystoreFile == null) {
 					previousKeystoreFile = keystoreFile;
@@ -139,31 +138,50 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 					if (!currentCredentialManagerDirectory.exists()){
 						currentCredentialManagerDirectory.mkdir();						
 					}
-					// For Taverna 2.2 and older - load the BC-type Keystore with the entered password
-					// and the JKS-type Truststore with the default Truststore password
+					
+					// For Taverna 2.2 and older - load the old BC-type Keystore and store it again
+					// but use the master password for each entry (not just to unlock the Keystore itself).
+					// Then load the JKS-type Truststore with the default Truststore password
+					// then store it as BC-type keystore using the entered (old) password. Then try
+					// to instantiate the Credential Manager with the copied files and old password.
 					if (previousTavernaVersion.contains("2.2") 
 							|| previousTavernaVersion.contains("2.1")){		
 						// Make sure we have added BouncyCastle provider
 				        Security.addProvider(new BouncyCastleProvider()); 
 				        
 				        ///////////////////////////////////////////////
-				       logger.info("Trying to copy over the old Keystore from "+previousKeystoreFile);
+
+					    logger.info("Trying to copy over the old Keystore from "+previousKeystoreFile);
 						KeyStore previousKeystore = null;
 						KeyStore currentKeystore = null;
 						try {
 							previousKeystore = KeyStore.getInstance("UBER", "BC"); //.ubr file
 						} catch (Exception ex) {
 							// The requested keystore type is not available from the provider
-							logger.error("Failed to instantiate a Bouncy Castle 'UBER'-type keystore when trying to copy the old Keystore from "
+							logger.error("Failed to instantiate old Bouncy Castle 'UBER'-type keystore when trying to copy the old Keystore from "
 									+ previousKeystoreFile, ex);
+							// Remove the files
+							try{
+								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+							}
+							catch(Exception ex2){
+								// Ignore - nothing we can do
+							}
 							return true;
 						}
 						try {
-							currentKeystore = KeyStore.getInstance("JCEKS"); // .jceks file
+							currentKeystore = KeyStore.getInstance("UBER", "BC"); //.ubr file
 						} catch (Exception ex) {
 							// The requested keystore type is not available from the provider
-							logger.error("Failed to instantiate a 'JCEKS'-type keystore when trying to copy the old Keystore from "
+							logger.error("Failed to instantiate new Bouncy Castle 'UBER'-type keystore when trying to copy the old Keystore from "
 									+ previousKeystoreFile, ex);
+							// Remove the files
+							try{
+								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+							}
+							catch(Exception ex2){
+								// Ignore - nothing we can do
+							}
 							return true;
 						}
 						// Read the old Keystore
@@ -176,6 +194,13 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 						} catch (Exception ex) {
 							logger.error("Failed to load the old Keystore from "
 									+ previousKeystoreFile +". Possible reason: incorrect password or corrupted file.", ex);
+							// Remove the files
+							try{
+								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+							}
+							catch(Exception ex2){
+								// Ignore - nothing we can do
+							}
 							return true;
 						} finally {
 							if (fis != null) {
@@ -191,9 +216,17 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							currentKeystore.load(null, null);
 						} catch (Exception ex) {
 							logger.error("Failed to create the new Keystore to copy old entries to from " + previousKeystoreFile, ex);
+							// Remove the files
+							try{
+								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+							}
+							catch(Exception ex2){
+								// Ignore - nothing we can do
+							}
 							return true;
 						}
-						// Copy all old entries to the new keystore
+						// Copy all old entries to the new Keystore 
+						// but use the master password when storing the entries !!!
 						try{
 							Enumeration<String> aliases = previousKeystore.aliases();
 							while (aliases.hasMoreElements()){
@@ -201,10 +234,10 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 								try {
 									//logger.info("Copying over an entry (from the old Keystore) with alias: "+alias);
 									Entry entry = previousKeystore.getEntry(alias,
-											new KeyStore.PasswordProtection(null));
+											new KeyStore.PasswordProtection(null)); // previously entries did not have password
 									currentKeystore.setEntry(alias, entry,
 											new KeyStore.PasswordProtection(
-													password.toCharArray()));
+													password.toCharArray())); // use master password for entry password as well
 								} catch (Exception ex) {
 									logger.error(
 											"Failed to copy entry "+alias+" from the old Keystore in "
@@ -220,6 +253,13 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 											+ previousKeystoreFile
 											+ " in order to copy them to the new location in "
 											+ currentKeystoreFile, ex);
+							// Remove the files
+							try{
+								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+							}
+							catch(Exception ex2){
+								// Ignore - nothing we can do
+							}
 							return true;
 						}
 						// Save the new Keystore to the new location (in the current Cred Manager directory)
@@ -245,9 +285,9 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 								}
 							}
 						}
-						
+				        
 				        ///////////////////////////////////////////////						
-					    logger.info("Trying to copy over the old Truststore from " +previousTruststoreFile);
+					    logger.info("Trying to load and store the old Truststore from " +previousTruststoreFile);
 						KeyStore previousTruststore = null;
 						KeyStore currentTruststore = null;
 						try {
@@ -259,12 +299,19 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							return true;
 						}
 						try {
-							currentTruststore = KeyStore.getInstance("JCEKS"); // .jceks file
+							currentTruststore = KeyStore.getInstance("UBER", "BC"); // BC .ubr file
 						} catch (Exception ex) {
 							// The requested keystore type is not available from the
 							// provider
-							logger.error("Failed to instantiate a 'JCEKS'-type keystore when trying to copy the old Truststore from "
+							logger.error("Failed to instantiate a Bouncy Castle 'UBER'-type keystore when trying to copy the old Truststore from "
 									+ previousKeystoreFile, ex);
+							// Remove the files
+							try{
+								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+							}
+							catch(Exception ex2){
+								// Ignore - nothing we can do
+							}
 							return true;
 						}
 						// Read the old Truststore
@@ -277,6 +324,13 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 						} catch (Exception ex) {
 							logger.error("Failed to load the old Truststore from "
 									+ previousTruststoreFile +". Possible reason: incorrect password or corrupted file.", ex);
+							// Remove the files
+							try{
+								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+							}
+							catch(Exception ex2){
+								// Ignore - nothing we can do
+							}	
 							return true;
 						} finally {
 							if (fis2 != null) {
@@ -292,6 +346,13 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							currentTruststore.load(null, null);
 						} catch (Exception ex) {
 							logger.error("Failed to create the new Truststore to copy old entries to from " + previousTruststoreFile, ex);
+							// Remove the files
+							try{
+								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+							}
+							catch(Exception ex2){
+								// Ignore - nothing we can do
+							}
 							return true;
 						}
 						// Copy all old entries to the new Truststore		
@@ -312,6 +373,13 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 						catch(Exception ex2){
 							logger.error("Failed to get aliases for entries in the old Truststore in "
 									+ previousTruststoreFile +" when copying them to the new location in " + currentTruststoreFile, ex2);
+							// Remove the files
+							try{
+								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+							}
+							catch(Exception ex3){
+								// Ignore - nothing we can do
+							}
 							return true;
 						}
 						// Save the old Truststore to the new location (in the current Cred Manager directory)
@@ -344,7 +412,7 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 						}
 						catch (CMException cmex) {
 							logger
-							.error("Failed to instantiate Credential Manager's with the files copied from "
+							.error("Failed to instantiate Credential Manager's with the older files copied from "
 									+ previousTavernaDirectory
 									+ System.getProperty("file.separator") + SECURITY_DIRECTORY_NAME
 									+ " to " + currentCredentialManagerDirectory, cmex);
@@ -355,15 +423,18 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							catch(Exception ex2){
 								// Ignore - nothing we can do
 							}
+							return true;
 						}
 					}
 					// For Taverna 2.3+
 					else{
 						// Just copy the files to the current Cred Manager folder (as they are all 
-						// of the same JCEKS type) and try to instantiate Credential Manager with 
+						// of the same Bouncy Castle UBER type) and try to instantiate Credential Manager with 
 						// the same (old) password, which will hopefully pick up the new keystore files
 						try{
+					        logger.info("Trying to copy over the old Keystore from " + previousKeystoreFile);
 							FileUtils.copyFile(previousKeystoreFile, currentKeystoreFile);
+					        logger.info("Trying to copy over the old Truststore from " + previousTruststoreFile);
 							FileUtils.copyFile(previousTruststoreFile, currentTruststoreFile);
 							CredentialManager.getInstance(password);
 						}
@@ -386,6 +457,13 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 									+ previousTavernaDirectory
 									+ System.getProperty("file.separator") + SECURITY_DIRECTORY_NAME
 									+ " to " + currentCredentialManagerDirectory, cmex);
+							// Remove the files
+							try{
+								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+							}
+							catch(Exception ex2){
+								// Ignore - nothing we can do
+							}
 						}
 					}
 				}	
