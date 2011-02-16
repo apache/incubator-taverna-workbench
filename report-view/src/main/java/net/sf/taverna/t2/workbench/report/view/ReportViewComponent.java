@@ -43,10 +43,10 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+//import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
+//import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -55,7 +55,6 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -98,9 +97,9 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 
 	private JLabel dataflowName;
 	
-	private static JTextArea solutionDescription;
-	private static JTextArea issueDescription;
-	private static JSplitPane subSplitPane = new JSplitPane();
+	//private static JTextArea solutionDescription;
+	//private static JTextArea issueDescription;
+	//private static JSplitPane subSplitPane = new JSplitPane();
 	
 	private JTable table;
 	private static final JComponent defaultExplanation = new ReadOnlyTextArea("No additional explanation available");
@@ -458,7 +457,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	// margin pixels are added to the left and right
 	// (resulting in an additional width of 2*margin pixels).
 	public void packColumn(JTable table, int vColIndex, int margin, boolean fixWidth) {
-		TableModel model = table.getModel();
+		//TableModel model = table.getModel();
 		DefaultTableColumnModel colModel = (DefaultTableColumnModel) table
 				.getColumnModel();
 		TableColumn col = colModel.getColumn(vColIndex);
