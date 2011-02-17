@@ -41,7 +41,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**
  * Dialog for entering user's username and password.
@@ -49,7 +49,7 @@ import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class GetPasswordDialog extends HelpEnabledDialog {
+public class GetPasswordDialog extends NonBlockedHelpEnabledDialog {
 	
 	// Whether we should ask user to save their username and password using Credential Manager
 	private boolean shouldAskUserToSave;
