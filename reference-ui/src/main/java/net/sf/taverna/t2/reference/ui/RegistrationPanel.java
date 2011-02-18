@@ -52,7 +52,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
@@ -103,10 +102,10 @@ public class RegistrationPanel extends JPanel {
 	// folders at each valid collection level
 	private final List<Action> addCollectionActions = new ArrayList<Action>();
 
-	private AddFileAction addFileAction = new AddFileAction();
-	private AddTextAction addTextAction = new AddTextAction();
-	private AddURLAction addUrlAction = new AddURLAction();
-	private DeleteNodeAction deleteNodeAction = new DeleteNodeAction();
+	private AddFileAction addFileAction = null;
+	private AddTextAction addTextAction = null;
+	private AddURLAction addUrlAction = null;
+	private DeleteNodeAction deleteNodeAction = null;
 
 	private int depth;
 	private JSplitPane splitPaneVertical;
@@ -216,13 +215,26 @@ public class RegistrationPanel extends JPanel {
 		comp.setToolTipText("Remove the currently selected input");
 		toolBar.add(comp);
 		JButton comp2 = new JButton(addTextAction);
-		comp2.setToolTipText("Add a new input value");
+		if (depth == 0) {
+			comp2.setToolTipText("Set the input value");
+		} else {
+			comp2.setToolTipText("Add a new input value");
+		}
+		
 		toolBar.add(comp2);
 		JButton comp3 = new JButton(addFileAction);
-		comp3.setToolTipText("Add an input value from a file");
+		if (depth == 0) {
+			comp3.setToolTipText("Set the input value from a file");						
+		} else {
+			comp3.setToolTipText("Add an input value from a file");			
+		}
 		toolBar.add(comp3);
 		JButton comp4 = new JButton(addUrlAction);
-		comp4.setToolTipText("Load an input value from a URL");
+		if (depth == 0) {
+			comp4.setToolTipText("Load the input value from a URL");						
+		} else {
+			comp4.setToolTipText("Load an input value from a URL");			
+		}
 		toolBar.add(comp4);
 		// Do lists...
 		if (!addCollectionActions.isEmpty()) {
@@ -265,6 +277,11 @@ public class RegistrationPanel extends JPanel {
 	}
 
 	private void buildActions() {
+		addFileAction = new AddFileAction();
+		addTextAction = new AddTextAction();
+		addUrlAction = new AddURLAction();
+		deleteNodeAction = new DeleteNodeAction();
+
 		if (treeModel.getDepth() > 1) {
 			for (int i = 1; i < treeModel.getDepth(); i++) {
 				final int depth = i;
@@ -280,11 +297,11 @@ public class RegistrationPanel extends JPanel {
 	 * 
 	 * @return
 	 */
-	private MutableTreeNode getSelectedNode() {
-		MutableTreeNode node = null;
+	private DefaultMutableTreeNode getSelectedNode() {
+		DefaultMutableTreeNode node = null;
 		TreePath selectionPath = tree.getSelectionPath();
 		if (selectionPath != null) {
-			node = (MutableTreeNode) selectionPath.getLastPathComponent();
+			node = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
 		}
 		return node;
 	}
@@ -296,6 +313,39 @@ public class RegistrationPanel extends JPanel {
 		} else {
 			status.setForeground(Color.black);
 		}
+	}
+	
+	private void updateEditorPane(DefaultMutableTreeNode selection) {
+		textArea.setEditable(false);
+		textAreaDocumentListener.setSelection(null);
+		
+		if (selection == null) {
+			textArea.setText("No selection");
+			return;
+		}
+		if (!selection.isLeaf()) {
+			textArea.setText("List selected");
+			return;
+		}
+		Object selectedUserObject = selection.getUserObject();
+		if (selectedUserObject == null) {
+			textArea.setText("List selected");
+			return;
+		}
+		if (selectedUserObject instanceof String) {
+			textArea.setText((String) selection.getUserObject());
+			textAreaDocumentListener.setSelection(selection);
+			textArea.setEditable(true);
+			textArea.requestFocusInWindow();
+			textArea.selectAll();
+		} else if (selectedUserObject instanceof File) {
+			textArea.setText("File : " + selection.getUserObject());
+		} else if (selectedUserObject instanceof URL) {
+			textArea.setText("URL : " + selection.getUserObject());
+		} else {
+			textArea.setText(selection.getUserObject().toString());
+		}
+		
 	}
 
 	private final class UpdateEditorPaneOnSelection implements
@@ -314,39 +364,12 @@ public class RegistrationPanel extends JPanel {
 
 			oldSelectionPath = selectionPath;
 			
-			textArea.setEditable(false);
-			textAreaDocumentListener.setSelection(null);
+			DefaultMutableTreeNode selection = null;
 			
-			if (selectionPath == null) {
-				textArea.setText("No selection");
-				return;
+			if (selectionPath != null) {
+				selection = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
 			}
-			DefaultMutableTreeNode selection = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
-			if (!selection.isLeaf()) {
-				textArea.setText("List selected");
-			}
-			if (selection == null) {
-				textArea.setText("No selection");
-				return;
-			}
-			Object selectedUserObject = selection.getUserObject();
-			if (selectedUserObject == null) {
-				textArea.setText("List selected");
-				return;
-			}
-			if (selectedUserObject instanceof String) {
-				textArea.setText((String) selection.getUserObject());
-				textAreaDocumentListener.setSelection(selection);
-				textArea.setEditable(true);
-				textArea.requestFocusInWindow();
-				textArea.selectAll();
-			} else if (selectedUserObject instanceof File) {
-				textArea.setText("File : " + selection.getUserObject());
-			} else if (selectedUserObject instanceof URL) {
-				textArea.setText("URL : " + selection.getUserObject());
-			} else {
-				textArea.setText(selection.getUserObject().toString());
-			}
+			updateEditorPane(selection);
 		}
 			
 
@@ -366,8 +389,8 @@ public class RegistrationPanel extends JPanel {
 
 		@SuppressWarnings("unused")
 		public void actionPerformed(ActionEvent ae) {
-			MutableTreeNode parent = (MutableTreeNode) treeModel.getRoot();
-			MutableTreeNode selection = getSelectedNode();
+			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) treeModel.getRoot();
+			DefaultMutableTreeNode selection = getSelectedNode();
 			if (selection != null) {
 				parent = selection;
 			}
@@ -381,7 +404,7 @@ public class RegistrationPanel extends JPanel {
 	public class UpdateActionsOnTreeSelection implements
 			TreeSelectionListener {
 		public void valueChanged(TreeSelectionEvent e) {
-			MutableTreeNode selectedNode = (MutableTreeNode) tree
+			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree
 					.getLastSelectedPathComponent();
 			if (selectedNode == null) {
 				// Selection cleared
@@ -399,7 +422,7 @@ public class RegistrationPanel extends JPanel {
 	public class AddFileAction extends AbstractAction {
 
 		public AddFileAction() {
-			super("Add file location(s)...", addFileIcon);
+			super((depth == 0 ? "Set" : "Add") + " file location...", addFileIcon);
 		}
 		
 		@SuppressWarnings("unused")
@@ -419,7 +442,7 @@ public class RegistrationPanel extends JPanel {
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				prefs.put("currentDir", fileChooser.getCurrentDirectory()
 						.toString());
-				MutableTreeNode node = getSelectedNode();
+				DefaultMutableTreeNode node = getSelectedNode();
 
 				for (File file : fileChooser.getSelectedFiles()) {
 					if (!file.isDirectory()) {
@@ -459,12 +482,12 @@ public class RegistrationPanel extends JPanel {
 	 */
 	public class AddTextAction extends AbstractAction {
 		public AddTextAction() {
-			super("New value", addTextIcon);
+			super((depth == 0 ? "Set" : "Add") + " value", addTextIcon);
 		}
 		
 		@SuppressWarnings("unused")
 		public void actionPerformed(ActionEvent e) {
-			MutableTreeNode node = getSelectedNode();
+			DefaultMutableTreeNode node = getSelectedNode();
 			String newValue;
 			if (example != null && example.length() > 0) {
 				newValue = example;
@@ -478,10 +501,11 @@ public class RegistrationPanel extends JPanel {
 		}
 	}
 
-	private DefaultMutableTreeNode addPojo (MutableTreeNode node, Object newValue, int position) {
-		DefaultMutableTreeNode added = treeModel.addPojoStructure(node,
+	private DefaultMutableTreeNode addPojo (DefaultMutableTreeNode node, Object newValue, int position) {
+		DefaultMutableTreeNode added = treeModel.addPojoStructure(node, node,
 				newValue, position);
 		tree.setSelectionPath(new TreePath(added.getPath()));
+		updateEditorPane(added);
 		return added;
 	}
 	
@@ -490,7 +514,7 @@ public class RegistrationPanel extends JPanel {
 		private static final String URL_REGEX = "http:\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?";
 
 		public AddURLAction() {
-			super("Add URL ...", addUrlIcon);
+			super((depth == 0 ? "Set" : "Add") + " URL ...", addUrlIcon);
 		}
 		
 		@SuppressWarnings("unused")
@@ -517,7 +541,7 @@ public class RegistrationPanel extends JPanel {
 					if (url.getProtocol().equalsIgnoreCase("http")) {
 						prefs.put("currentUrl", urlString);
 
-						MutableTreeNode node = getSelectedNode();
+						DefaultMutableTreeNode node = getSelectedNode();
 
 						DefaultMutableTreeNode added = addPojo(node, url, 0);
 						setStatus("Added URL : " + url.toExternalForm(),
@@ -543,10 +567,22 @@ public class RegistrationPanel extends JPanel {
 			setEnabled(false);
 		}
 		public void actionPerformed(ActionEvent e) {
-			MutableTreeNode node = (MutableTreeNode) tree.getSelectionPath()
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getSelectionPath()
 					.getLastPathComponent();
+				DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+				DefaultMutableTreeNode previousChild = null;
+				if (parent != null) {
+					int index = parent.getIndex(node);
+					if (index > 0) {
+						previousChild = (DefaultMutableTreeNode) parent.getChildAt(index - 1);
+					}
+				}
 				treeModel.removeNodeFromParent(node);
-				tree.setSelectionPath(null);
+				if (previousChild == null) {
+					tree.setSelectionPath(null);
+				} else {
+					tree.setSelectionPath(new TreePath(previousChild.getPath()));
+				}
 				setStatus("Deleted node", null);
 		}
 	}
@@ -556,7 +592,7 @@ public class RegistrationPanel extends JPanel {
 		
 		private final DialogTextArea textArea;
 
-		private MutableTreeNode selection;
+		private DefaultMutableTreeNode selection;
 		
 		 		public TextAreaDocumentListener(DialogTextArea textArea) {
 			this.textArea = textArea;
@@ -567,7 +603,7 @@ public class RegistrationPanel extends JPanel {
                /**
 		 * @param selection the selection to set
 		 */
-		public void setSelection(MutableTreeNode selection) {
+		public void setSelection(DefaultMutableTreeNode selection) {
 			this.selection = selection;
 		}
 

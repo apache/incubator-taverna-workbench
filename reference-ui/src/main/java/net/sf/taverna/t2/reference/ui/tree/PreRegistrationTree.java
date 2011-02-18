@@ -133,7 +133,7 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 					List<File> fileList) {
 				for (File f : fileList) {
 					if (f.isDirectory() == false) {
-						model.addPojoStructure(target, f, 0);
+						model.addPojoStructure(target, target, f, 0);
 					} else {
 						if (model.getDepth() < 1) {
 							setStatusMessage(
@@ -149,7 +149,7 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 								children.add(child);
 							}
 						}
-						model.addPojoStructure(target, children, 1);
+						model.addPojoStructure(target, target, children, 1);
 					}
 				}
 			}
@@ -157,7 +157,7 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 			@Override
 			public void handleUrlDrop(MutableTreeNode target, URL url) {
 				if (url.getProtocol().equalsIgnoreCase("http")) {
-					model.addPojoStructure(target, url, 0);
+					model.addPojoStructure(target, target, url, 0);
 					setStatusMessage("Added URL : " + url.toExternalForm(),
 							false);
 				} else {
@@ -168,7 +168,7 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 
 			@Override
 			public void handleStringDrop(MutableTreeNode target, String string) {
-				model.addPojoStructure(target, string, 0);
+				model.addPojoStructure(target, target, string, 0);
 				setStatusMessage("Added string from drag and drop", false);
 			}
 		};
