@@ -58,6 +58,8 @@ public class DataManagementConfigurationPanel extends JPanel {
 	private JButton resetButton;
 	private JButton applyButton;
 	private JTextArea storageText;
+	private JTextArea exposeDatanatureText;
+	private JCheckBox exposeDatanatureBox;
 	private DialogTextArea enableInMemoryTextDisabled;
 
 	public DataManagementConfigurationPanel() {
@@ -173,6 +175,27 @@ public class DataManagementConfigurationPanel extends JPanel {
 		c.insets = new Insets(0, 20, 15, 20);
 		gridbag.setConstraints(portPanel, c);
 		add(portPanel);
+		
+		c.insets = new Insets(0, 0, 5, 0);
+		c.fill = GridBagConstraints.NONE;
+		exposeDatanatureBox = new JCheckBox("Allow setting of input port data type");
+		gridbag.setConstraints(exposeDatanatureBox, c);
+		add(exposeDatanatureBox);
+
+		exposeDatanatureText = new JTextArea(
+		"Select if you want to control how Taverna handles files read as input data");
+		exposeDatanatureText.setLineWrap(true);
+		exposeDatanatureText.setWrapStyleWord(true);
+		exposeDatanatureText.setEditable(false);
+		exposeDatanatureText.setFocusable(false);
+		exposeDatanatureText.setOpaque(false);
+		exposeDatanatureText.setFont(enableProvenanceText.getFont()
+		.deriveFont(Font.PLAIN, 11));
+
+		c.insets = new Insets(0, 20, 15, 20);
+		c.fill = GridBagConstraints.HORIZONTAL;
+		gridbag.setConstraints(exposeDatanatureText, c);
+		add(exposeDatanatureText);
 
 		JPanel buttonPanel = createButtonPanel();
 		c.weightx = 1.0;
@@ -246,6 +269,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		enableProvenance.setSelected(configuration.getProperty(
 				DataManagementConfiguration.ENABLE_PROVENANCE)
 				.equalsIgnoreCase("true"));
+		exposeDatanatureBox.setSelected(configuration.isExposeDatanature());
 		
 		//enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
 	}
@@ -260,6 +284,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 						.valueOf(enableProvenance.isSelected()));
 		configuration.setProperty(DataManagementConfiguration.IN_MEMORY, String
 				.valueOf(enableInMemory.isSelected()));
+		configuration.setExposeDatanature(exposeDatanatureBox.isSelected());
 	}
 
 	@SuppressWarnings("serial")
