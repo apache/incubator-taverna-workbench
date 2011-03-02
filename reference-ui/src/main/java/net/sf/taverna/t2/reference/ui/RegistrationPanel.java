@@ -23,13 +23,18 @@ package net.sf.taverna.t2.reference.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
@@ -39,14 +44,19 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
+import javax.swing.SpinnerListModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -56,8 +66,13 @@ import javax.swing.tree.TreePath;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
+import net.sf.taverna.t2.reference.ReferencedDataNature;
+import net.sf.taverna.t2.reference.impl.external.file.FileReference;
+import net.sf.taverna.t2.reference.impl.external.http.HttpReference;
 import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTree;
 import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTreeModel;
+
+import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 
 import org.apache.log4j.Logger;
 
@@ -117,9 +132,20 @@ public class RegistrationPanel extends JPanel {
 	private final PreRegistrationTree tree;
 	private final PreRegistrationTreeModel treeModel;
 	private TextAreaDocumentListener textAreaDocumentListener;
-
+	
+	private JSpinner datatypeSpinner;
+	private JSpinner charsetSpinner;
+	private static Charset utf8 = Charset.forName("UTF-8");
 
 	private String example;
+	
+	private DataManagementConfiguration config = DataManagementConfiguration.getInstance();
+	
+	private boolean exposedDatanature = false;
+	
+	private static String UNKNOWN = "UNKNOWN";
+	
+	private static Map<String, String> charsetNameMap = new HashMap<String, String>();
 
 	/**
 	 * Construct a new registration panel for an input with the specified depth.
@@ -178,12 +204,22 @@ public class RegistrationPanel extends JPanel {
 		
 		JToolBar toolbar = createToolBar();
 		
+		JPanel textAreaPanel = new JPanel();
+		textAreaPanel.setLayout(new BorderLayout());
+		
 		textArea = new DialogTextArea();
 		textAreaDocumentListener = new TextAreaDocumentListener(textArea);
 		textArea.setEditable(false);
+		
+		textAreaPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+		if (config.isExposeDatanature()) {
+			textAreaPanel.add(createTypeAccessory(), BorderLayout.SOUTH);
+			exposedDatanature = true;
+		}
+		
 		splitPaneHorizontal = new JSplitPane();
 		splitPaneHorizontal.add(new JScrollPane(this.tree), JSplitPane.LEFT);
-		splitPaneHorizontal.add(new JScrollPane(textArea), JSplitPane.RIGHT);
+		splitPaneHorizontal.add(textAreaPanel, JSplitPane.RIGHT);
 		splitPaneHorizontal.setDividerLocation(150);
 		JPanel toolbarAndInputsPanel = new JPanel(new BorderLayout());
 		toolbarAndInputsPanel.add(splitPaneHorizontal, BorderLayout.CENTER);
@@ -205,6 +241,82 @@ public class RegistrationPanel extends JPanel {
 		setStatus("Drag to re-arrange, or drag files, URLs, or text to add",
 				null);
 		add(status, BorderLayout.SOUTH);
+	}
+	
+	private static List<String> charsetNames() {
+		List<String> result = new ArrayList<String> ();
+		result.add(UNKNOWN);
+
+		for (String name : Charset.availableCharsets().keySet()) {
+			String upperCase = name.toUpperCase();
+			result.add(upperCase);
+			charsetNameMap.put(upperCase, name);
+		}
+		Collections.sort(result);
+		return result;
+	}
+	
+	private static SpinnerListModel datatypeModel = new SpinnerListModel(new ReferencedDataNature[] {ReferencedDataNature.UNKNOWN, ReferencedDataNature.TEXT, ReferencedDataNature.BINARY});
+	private static SpinnerListModel charsetModel = new SpinnerListModel(charsetNames());
+	
+	private JPanel createTypeAccessory() {
+		JPanel result = new JPanel();
+		result.setLayout(new GridLayout(0,2));
+		result.add(new JLabel("Data type:"));
+		datatypeSpinner = new JSpinner(datatypeModel);
+		datatypeSpinner.setValue(ReferencedDataNature.UNKNOWN);
+		datatypeSpinner.setEnabled(false);
+		result.add(datatypeSpinner);
+		result.add(new JLabel("Character Set:"));
+		charsetSpinner = new JSpinner(charsetModel);
+		charsetSpinner.setValue(UNKNOWN);
+		charsetSpinner.setEnabled(false);
+		datatypeSpinner.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				DefaultMutableTreeNode selectedNode = getSelectedNode();
+				Object selectedUserObject = null;
+				if (selectedNode != null) {
+					selectedUserObject = selectedNode.getUserObject();
+				}
+				ReferencedDataNature nature = (ReferencedDataNature) datatypeSpinner.getValue();
+				if (nature.equals(ReferencedDataNature.UNKNOWN)) {
+					charsetSpinner.setEnabled(false);
+				} else if (nature.equals(ReferencedDataNature.TEXT)) {
+					charsetSpinner.setEnabled(true);
+				} else if (nature.equals(ReferencedDataNature.BINARY)) {
+					charsetSpinner.setEnabled(false);
+				}
+				if (selectedUserObject instanceof FileReference) {
+					FileReference ref = (FileReference) selectedUserObject;
+					ref.setDataNature(nature);
+				}
+			}});
+		charsetSpinner.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				DefaultMutableTreeNode selectedNode = getSelectedNode();
+				Object selectedUserObject = null;
+				if (selectedNode != null) {
+					selectedUserObject = selectedNode.getUserObject();
+				}
+				String cSet = (String) charsetSpinner.getValue();
+				if (selectedUserObject instanceof FileReference) {
+					FileReference ref = (FileReference) selectedUserObject;
+					if (cSet.equals(UNKNOWN)) {
+						ref.setCharset(null);
+					} else {
+						ref.setCharset(charsetNameMap.get(cSet));
+					}
+				}				
+			}
+			
+		});
+
+		result.add(charsetSpinner);
+		return result;
 	}
 	
 	private JToolBar createToolBar() {
@@ -315,21 +427,50 @@ public class RegistrationPanel extends JPanel {
 		}
 	}
 	
+	private void setCharsetSpinner(String charsetName) {
+		if (charsetName == null) {
+			charsetSpinner.setValue(UNKNOWN);
+			return;
+		}
+		String cName = charsetName.toUpperCase();
+		if (charsetNames().contains(cName)) {
+			charsetSpinner.setValue(cName);
+		} else {
+			charsetSpinner.setValue(UNKNOWN);			
+		}
+	}
+	
 	private void updateEditorPane(DefaultMutableTreeNode selection) {
 		textArea.setEditable(false);
 		textAreaDocumentListener.setSelection(null);
 		
 		if (selection == null) {
 			textArea.setText("No selection");
+			if (exposedDatanature) {
+				datatypeSpinner.setEnabled(false);
+				datatypeSpinner.setValue(ReferencedDataNature.UNKNOWN);
+				charsetSpinner.setEnabled(false);
+				setCharsetSpinner(null);
+			}
 			return;
 		}
 		if (!selection.isLeaf()) {
 			textArea.setText("List selected");
+			if (exposedDatanature) {
+				datatypeSpinner.setEnabled(false);
+				datatypeSpinner.setValue(ReferencedDataNature.UNKNOWN);
+				charsetSpinner.setEnabled(false);
+				setCharsetSpinner(null);
+			}
 			return;
 		}
 		Object selectedUserObject = selection.getUserObject();
 		if (selectedUserObject == null) {
 			textArea.setText("List selected");
+			if (exposedDatanature) {
+				datatypeSpinner.setEnabled(false);
+				datatypeSpinner.setValue(ReferencedDataNature.UNKNOWN);
+			}
 			return;
 		}
 		if (selectedUserObject instanceof String) {
@@ -338,10 +479,34 @@ public class RegistrationPanel extends JPanel {
 			textArea.setEditable(true);
 			textArea.requestFocusInWindow();
 			textArea.selectAll();
-		} else if (selectedUserObject instanceof File) {
-			textArea.setText("File : " + selection.getUserObject());
-		} else if (selectedUserObject instanceof URL) {
-			textArea.setText("URL : " + selection.getUserObject());
+			if (exposedDatanature) {
+				datatypeSpinner.setEnabled(false);
+				datatypeSpinner.setValue(ReferencedDataNature.TEXT);
+				charsetSpinner.setEnabled(false);
+				setCharsetSpinner(utf8.name());
+			}
+		} else if (selectedUserObject instanceof FileReference) {
+			FileReference ref = (FileReference) selectedUserObject;
+			textArea.setText("File : " + ref.getFilePath());
+			if (exposedDatanature) {
+				datatypeSpinner.setEnabled(true);
+				datatypeSpinner.setValue(ref.getDataNature());
+				setCharsetSpinner(ref.getCharset());
+				if (ref.getDataNature().equals(ReferencedDataNature.TEXT)) {
+					charsetSpinner.setEnabled(true);
+				} else {
+					charsetSpinner.setEnabled(false);
+				}
+			}
+		} else if (selectedUserObject instanceof HttpReference) {
+			HttpReference ref = (HttpReference) selectedUserObject;
+			textArea.setText("URL : " + ref.getHttpUrlString());
+			if (exposedDatanature) {
+				datatypeSpinner.setEnabled(false);
+				datatypeSpinner.setValue(ref.getDataNature());
+				charsetSpinner.setEnabled(false);
+				setCharsetSpinner(ref.getCharset());
+			}
 		} else {
 			textArea.setText(selection.getUserObject().toString());
 		}
@@ -447,7 +612,9 @@ public class RegistrationPanel extends JPanel {
 				for (File file : fileChooser.getSelectedFiles()) {
 					if (!file.isDirectory()) {
 						
-						DefaultMutableTreeNode added = addPojo(node, file, 0);
+						FileReference ref = new FileReference(file);
+						ref.setCharset(Charset.defaultCharset().name());
+						DefaultMutableTreeNode added = addPojo(node, ref, 0);
 						setStatus("Added file : " + file.getPath(),
 								null);
 					} else {
@@ -461,10 +628,12 @@ public class RegistrationPanel extends JPanel {
 						// Try to handle directories as flat lists, don't
 						// nest
 						// any deeper for now.
-						List<File> children = new ArrayList<File>();
+						List<FileReference> children = new ArrayList<FileReference>();
 						for (File child : file.listFiles()) {
 							if (child.isFile()) {
-								children.add(child);
+								FileReference ref = new FileReference((File) child);
+								ref.setCharset(Charset.defaultCharset().name());
+								children.add(ref);
 							}
 						}
 						DefaultMutableTreeNode added = addPojo(node, children, 1);
@@ -539,12 +708,14 @@ public class RegistrationPanel extends JPanel {
 				try {
 					URL url = new URL(urlString);
 					if (url.getProtocol().equalsIgnoreCase("http")) {
+						HttpReference ref = new HttpReference();
+						ref.setHttpUrlString(urlString);
 						prefs.put("currentUrl", urlString);
 
 						DefaultMutableTreeNode node = getSelectedNode();
 
-						DefaultMutableTreeNode added = addPojo(node, url, 0);
-						setStatus("Added URL : " + url.toExternalForm(),
+						DefaultMutableTreeNode added = addPojo(node, ref, 0);
+						setStatus("Added URL : " + ref.getHttpUrlString(),
 								null);
 					} else {
 						setStatus("Only http URLs are supported for now.",
