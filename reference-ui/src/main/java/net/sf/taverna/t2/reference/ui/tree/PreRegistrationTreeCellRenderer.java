@@ -30,6 +30,9 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
+import net.sf.taverna.t2.reference.impl.external.file.FileReference;
+import net.sf.taverna.t2.reference.impl.external.http.HttpReference;
+
 /**
  * A cell renderer for the pre-registration tree model, with appropriate
  * rendering for inline strings, web URLs and files. The renderer doesn't
@@ -83,12 +86,22 @@ public class PreRegistrationTreeCellRenderer extends DefaultTreeCellRenderer {
 						byte[] bytes = (byte[]) userObject;
 						setIcon(binaryIcon);
 						setText("byte[] " + getHumanReadableSize(bytes.length));
-					} else if (userObject instanceof File) {
+					} else if (userObject instanceof FileReference) {
 						setIcon(fileIcon);
-						setText(((File) userObject).getName());
-					} else if (userObject instanceof URL) {
+						File f = ((FileReference) userObject).getFile();
+						if (f != null) {
+							setText(f.getName());
+						} else {
+							setText("?");
+						}
+					} else if (userObject instanceof HttpReference) {
 						setIcon(urlIcon);
-						setText(((URL) userObject).getHost());
+						URL url = ((HttpReference) userObject).getHttpUrl();
+						if (url != null) {
+							setText(url.getHost());
+						} else {
+							setText("?");
+						}
 					}
 				} else {
 					if (expanded) {
