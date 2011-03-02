@@ -22,6 +22,7 @@ package net.sf.taverna.t2.reference.ui.tree;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
+
+import net.sf.taverna.t2.reference.AbstractExternalReference;
+import net.sf.taverna.t2.reference.ExternalReferenceSPI;
+import net.sf.taverna.t2.reference.impl.external.file.FileReference;
+import net.sf.taverna.t2.reference.impl.external.http.HttpReference;
 
 import org.apache.log4j.Logger;
 
@@ -130,8 +136,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 			}
 			return result;
 		} else {
-			if (userObject instanceof String || userObject instanceof File
-					|| userObject instanceof URL
+			if (userObject instanceof String || userObject instanceof ExternalReferenceSPI
 					|| userObject instanceof byte[]) {
 				return userObject;
 			} else {
@@ -218,12 +223,31 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 					addPojoStructure(newTarget, preceding, child, depth - 1);
 				}
 				return newTarget;
-			} else {
-				// Append to the target node
+			} else if (pojo instanceof String) {
 				DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(pojo);
 				insertNodeInto(newChild, parent,
 						position);
-				return newChild;
+				return newChild;				
+			} else {
+				AbstractExternalReference ref = null;
+				if (pojo instanceof AbstractExternalReference) {
+					ref = (AbstractExternalReference) pojo;
+				}
+				else if (pojo instanceof File) {
+					ref = new FileReference((File) pojo);
+					((FileReference)ref).setCharset(Charset.defaultCharset().name());
+				} else if (pojo instanceof URL) {
+					ref = new HttpReference();
+					((HttpReference)ref).setHttpUrlString(((URL) pojo).toString());
+				}
+				if (ref != null) {
+					// Append to the target node
+					DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(ref);
+					insertNodeInto(newChild, parent,
+							position);
+					return newChild;
+				}
+				return null;
 			}
 		} else {
 			// Can we really reach this code?
