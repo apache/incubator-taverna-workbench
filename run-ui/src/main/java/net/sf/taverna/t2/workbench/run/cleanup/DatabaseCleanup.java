@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.reference.ReferenceService;
@@ -77,7 +78,7 @@ public class DatabaseCleanup {
 
 	private static Logger logger = Logger.getLogger(DatabaseCleanup.class);
 
-	protected Queue<String> deletionQueue = new ConcurrentLinkedQueue<String>();
+	protected LinkedBlockingQueue<String> deletionQueue = new LinkedBlockingQueue<String>();
 
 	protected Set<String> inQueueOrDeleted = Collections
 			.synchronizedSet(new HashSet<String>());
