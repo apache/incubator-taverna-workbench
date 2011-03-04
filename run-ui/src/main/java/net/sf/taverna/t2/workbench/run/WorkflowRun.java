@@ -244,7 +244,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		intermediateValuesButton.setEnabled(false);
 		//		workflowResultsButton.setEnabled(false);
 
-		workflowResultsComponent = new WorkflowResultsComponent();
+		workflowResultsComponent = new WorkflowResultsComponent(referenceService);
 	}
 
 	public WorkflowRun(byte[] dataflowBytes, String workflowId, String workflowName, Date date,
