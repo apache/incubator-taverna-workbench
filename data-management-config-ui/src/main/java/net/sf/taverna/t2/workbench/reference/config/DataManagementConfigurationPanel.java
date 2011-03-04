@@ -33,8 +33,10 @@ import java.sql.SQLException;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
@@ -61,6 +63,8 @@ public class DataManagementConfigurationPanel extends JPanel {
 	private JTextArea exposeDatanatureText;
 	private JCheckBox exposeDatanatureBox;
 	private DialogTextArea enableInMemoryTextDisabled;
+	private JComboBox snapshotRunBox;
+	private JComboBox tidyRunBox;
 
 	public DataManagementConfigurationPanel() {
 
@@ -75,38 +79,22 @@ public class DataManagementConfigurationPanel extends JPanel {
 	private GridBagLayout generateGridBagLayout() {
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
+		
+		Font dialogFont = this.getFont()
+		.deriveFont(Font.PLAIN, 11);
 
 		enableProvenance = new JCheckBox("Enable provenance capture");
-		DialogTextArea enableProvenanceText = new DialogTextArea(
-				"Disabling provenance will prevent you from being able to view intermediate results, but does give a performance benefit.");
-		enableProvenanceText.setLineWrap(true);
-		enableProvenanceText.setWrapStyleWord(true);
-		enableProvenanceText.setEditable(false);
-		enableProvenanceText.setFocusable(false);
-		enableProvenanceText.setOpaque(false);
-		enableProvenanceText.setFont(enableProvenanceText.getFont().deriveFont(
-				Font.PLAIN, 11));
+		DialogTextArea enableProvenanceText = createTextArea(
+				"Disabling provenance will prevent you from being able to view intermediate results, but does give a performance benefit.", dialogFont);
 
 		enableInMemory = new JCheckBox("In-memory storage");
-		DialogTextArea enableInMemoryText = new DialogTextArea(
-				"Data will not be stored between workbench sessions. If you run workflows passing larger amounts of data, try disabling in-memory storage, which can reduce execution performance, but also Taverna's memory consumption. ");
-		enableInMemoryText.setLineWrap(true);
-		enableInMemoryText.setWrapStyleWord(true);
-		enableInMemoryText.setEditable(false);
-		enableInMemoryText.setFocusable(false);
-		enableInMemoryText.setOpaque(false);
-		enableInMemoryText.setFont(enableProvenanceText.getFont().deriveFont(
-				Font.PLAIN, 11));
+		DialogTextArea enableInMemoryText = createTextArea(
+				"Data will not be stored between workbench sessions. If you run workflows passing larger amounts of data, try disabling in-memory storage, which can reduce execution performance, but also Taverna's memory consumption. ",
+				dialogFont);
 
-		enableInMemoryTextDisabled = new DialogTextArea(
-				"If you enable in-memory storage of data when provenance collection is turned on then provenance will not be available after you shutdown Taverna as the in-memory data will be lost.");
-		enableInMemoryTextDisabled.setLineWrap(true);
-		enableInMemoryTextDisabled.setWrapStyleWord(true);
-		enableInMemoryTextDisabled.setEditable(false);
-		enableInMemoryTextDisabled.setFocusable(false);
-		enableInMemoryTextDisabled.setOpaque(false);
-		enableInMemoryTextDisabled.setFont(enableProvenanceText.getFont()
-				.deriveFont(Font.PLAIN, 11));
+		enableInMemoryTextDisabled = createTextArea(
+				"If you enable in-memory storage of data when provenance collection is turned on then provenance will not be available after you shutdown Taverna as the in-memory data will be lost.",
+				dialogFont);
 		enableInMemoryTextDisabled.setForeground(Color.RED);		
 		enableInMemoryTextDisabled.setVisible(false);
 		
@@ -124,15 +112,9 @@ public class DataManagementConfigurationPanel extends JPanel {
 //			}
 //		});
 //		
-		storageText = new JTextArea(
-				"Select how Taverna stores the data and provenance produced when a workflow is run. This includes workflow results and intermediate results.");
-		storageText.setLineWrap(true);
-		storageText.setWrapStyleWord(true);
-		storageText.setEditable(false);
-		storageText.setFocusable(false);
-		storageText.setBorder(new EmptyBorder(10, 10, 10, 10));
-		storageText.setFont(enableProvenanceText.getFont()
-				.deriveFont(Font.PLAIN, 11));
+		storageText = createTextArea(
+				"Select how Taverna stores the data and provenance produced when a workflow is run. This includes workflow results and intermediate results.",
+				dialogFont);
 
 		JComponent portPanel = createDerbyServerStatusComponent();
 
@@ -182,20 +164,37 @@ public class DataManagementConfigurationPanel extends JPanel {
 		gridbag.setConstraints(exposeDatanatureBox, c);
 		add(exposeDatanatureBox);
 
-		exposeDatanatureText = new JTextArea(
-		"Select if you want to control how Taverna handles files read as input data");
-		exposeDatanatureText.setLineWrap(true);
-		exposeDatanatureText.setWrapStyleWord(true);
-		exposeDatanatureText.setEditable(false);
-		exposeDatanatureText.setFocusable(false);
-		exposeDatanatureText.setOpaque(false);
-		exposeDatanatureText.setFont(enableProvenanceText.getFont()
-		.deriveFont(Font.PLAIN, 11));
+		exposeDatanatureText = createTextArea(
+		"Select if you want to control how Taverna handles files read as input data", dialogFont);
 
 		c.insets = new Insets(0, 20, 15, 20);
 		c.fill = GridBagConstraints.HORIZONTAL;
 		gridbag.setConstraints(exposeDatanatureText, c);
 		add(exposeDatanatureText);
+		
+		c.insets = new Insets(0, 0, 5, 0);
+		c.fill = GridBagConstraints.NONE;
+		snapshotRunBox = new JComboBox(new Object[] {DataManagementConfiguration.NEVER, DataManagementConfiguration.WHEN_ASKED, DataManagementConfiguration.ALWAYS});
+		gridbag.setConstraints(snapshotRunBox, c);
+        this.add(snapshotRunBox);
+        
+		c.insets = new Insets(0, 20, 15, 20);
+		c.fill = GridBagConstraints.HORIZONTAL;
+      DialogTextArea snapshotRunLabel = createTextArea("Snapshot values that might change after the run", dialogFont);
+        gridbag.setConstraints(snapshotRunLabel, c);
+        this.add(snapshotRunLabel);
+        
+		c.insets = new Insets(0, 0, 5, 0);
+		c.fill = GridBagConstraints.NONE;
+        tidyRunBox = new JComboBox(new Object[] {DataManagementConfiguration.NEVER, DataManagementConfiguration.WHEN_ASKED, DataManagementConfiguration.ALWAYS});
+        gridbag.setConstraints(tidyRunBox, c);
+        this.add(tidyRunBox);
+		c.insets = new Insets(0, 20, 15, 20);
+		c.fill = GridBagConstraints.HORIZONTAL;
+          DialogTextArea tidyRunLabel = createTextArea("Delete temporary data after the run", dialogFont);
+        gridbag.setConstraints(tidyRunLabel, c);
+        this.add(tidyRunLabel);
+      
 
 		JPanel buttonPanel = createButtonPanel();
 		c.weightx = 1.0;
@@ -205,6 +204,19 @@ public class DataManagementConfigurationPanel extends JPanel {
 		gridbag.setConstraints(buttonPanel, c);
 		add(buttonPanel);
 		return gridbag;
+	}
+	
+	private DialogTextArea createTextArea(String s, Font f) {
+		DialogTextArea result = new DialogTextArea(
+		s);
+		result.setLineWrap(true);
+		result.setWrapStyleWord(true);
+		result.setEditable(false);
+		result.setFocusable(false);
+		result.setOpaque(false);
+		result.setFont(f);
+		return result;
+		
 	}
 
 	private JComponent createDerbyServerStatusComponent() {
@@ -270,6 +282,8 @@ public class DataManagementConfigurationPanel extends JPanel {
 				DataManagementConfiguration.ENABLE_PROVENANCE)
 				.equalsIgnoreCase("true"));
 		exposeDatanatureBox.setSelected(configuration.isExposeDatanature());
+		snapshotRunBox.setSelectedItem(configuration.getSnapshotRun());
+		tidyRunBox.setSelectedItem(configuration.getTidyRun());
 		
 		//enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
 	}
@@ -285,6 +299,8 @@ public class DataManagementConfigurationPanel extends JPanel {
 		configuration.setProperty(DataManagementConfiguration.IN_MEMORY, String
 				.valueOf(enableInMemory.isSelected()));
 		configuration.setExposeDatanature(exposeDatanatureBox.isSelected());
+		configuration.setSnapshotRun((String) snapshotRunBox.getSelectedItem());
+		configuration.setTidyRun((String) tidyRunBox.getSelectedItem());
 	}
 
 	@SuppressWarnings("serial")
