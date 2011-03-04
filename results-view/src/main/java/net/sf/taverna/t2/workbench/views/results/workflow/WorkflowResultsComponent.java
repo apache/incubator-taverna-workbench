@@ -30,6 +30,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -60,8 +61,11 @@ import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.lineageservice.utils.DataflowInvocation;
 import net.sf.taverna.t2.provenance.lineageservice.utils.Port;
+import net.sf.taverna.t2.reference.ExternalReferenceSPI;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.impl.external.object.InlineByteArrayReference;
+import net.sf.taverna.t2.reference.impl.external.object.InlineStringReference;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -90,7 +94,8 @@ import net.sf.taverna.t2.workflowmodel.EditException;
 public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, ResultListener {
 
 //	private static Logger logger = Logger
-//	.getLogger(WorkflowResultsComponent.class);
+	//	.getLogger(WorkflowResultsComponent.class);
+
 
 	private static final long serialVersionUID = 988812623494396366L;
 	
@@ -115,6 +120,10 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 	private Dataflow dataflow;
 	
 	private JButton saveButton;
+	
+	private JButton snapshotButton;
+	
+	private JButton tidyButton;
 
 	private String runId;
 
@@ -135,11 +144,22 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 	private Map<String, Object> inputPortObjectMap = new HashMap<String, Object> ();
 	private Map<String, Object> outputPortObjectMap = new HashMap<String, Object> ();
 	
+	private SnapshotAction snapshotAction = new SnapshotAction("Snapshot values");
 	
-	public WorkflowResultsComponent() {
+	private TidyRunAction tidyAction = new TidyRunAction("Tidy values");
+	
+	private String snapshotRunSetting;
+	private String tidyRunSetting;
+	
+	
+	public WorkflowResultsComponent(ReferenceService referenceService) {
 		super(new BorderLayout());
+		this.referenceService = referenceService;
 		setBorder(new EtchedBorder());
 		tabbedPane = new JTabbedPane();
+		DataManagementConfiguration config = DataManagementConfiguration.getInstance();
+		snapshotRunSetting = config.getSnapshotRun();
+		tidyRunSetting = config.getTidyRun();
 		saveButtonsPanel = new JPanel(new GridBagLayout());
 		add(saveButtonsPanel, BorderLayout.NORTH);
 		add(tabbedPane, BorderLayout.CENTER);
@@ -148,12 +168,13 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 	// Constructor used for showing results for an old run when data
 	// is obtained from provenance
 	public WorkflowResultsComponent(Dataflow dataflow, String runId,
-			ReferenceService referenceService) {
-		this();
+			ReferenceService rs) {
+		this(rs);
 		this.dataflow = dataflow;
 		this.runId = runId;
-		this.referenceService = referenceService;
 		this.isProvenanceEnabledForRun = true; // for a previous run provenance is always turned on
+		snapshotRunSetting = DataManagementConfiguration.WHEN_ASKED;
+		tidyRunSetting = DataManagementConfiguration.WHEN_ASKED;
 		populateResultsFromProvenance();
 	}
 
@@ -170,6 +191,46 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 
 	public void onDispose() {
 	}
+	
+	private void populateSaveButtonsPanel() {
+		GridBagConstraints gbc = new GridBagConstraints();
+		
+		
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.weightx = 1.0;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.insets = new Insets(0,10,0,0);
+		saveButtonsPanel.add(new JLabel("Workflow results"), gbc);
+		
+		if (snapshotRunSetting.equals(DataManagementConfiguration.WHEN_ASKED)) {	
+			snapshotButton = new JButton(snapshotAction);
+			snapshotButton.setEnabled(false);
+		gbc.gridx++;
+		gbc.gridy = 0;
+		gbc.weightx = 0.0;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.EAST;
+		saveButtonsPanel.add(snapshotButton, gbc);
+		}
+
+		if (tidyRunSetting.equals(DataManagementConfiguration.WHEN_ASKED)) {
+		tidyButton = new JButton(tidyAction);
+		tidyButton.setEnabled(false);
+		gbc.gridx++;
+		saveButtonsPanel.add(tidyButton, gbc);
+		}
+
+		saveButton = new JButton(new SaveAllAction("Save all values", this));
+		gbc.gridx++;
+		gbc.gridy = 0;
+		gbc.weightx = 0.0;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = GridBagConstraints.EAST;
+		saveButtonsPanel.add(saveButton, gbc);
+		
+	}
 
 	public void register(WorkflowInstanceFacade facade, boolean isProvenanceEnabledForRun)
 			throws EditException {
@@ -181,22 +242,15 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		this.runId = facade.getWorkflowRunId();
 		this.isProvenanceEnabledForRun = isProvenanceEnabledForRun;
 		
-		saveButton = new JButton(new SaveAllAction("Save all values", this));
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 1.0;
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.insets = new Insets(0,10,0,0);
-		saveButtonsPanel.add(new JLabel("Workflow results"), gbc);
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 0.0;
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.anchor = GridBagConstraints.EAST;
-		saveButtonsPanel.add(saveButton, gbc);
+		populateSaveButtonsPanel();
+		
 
+		if (!referenceService.getMutableIdentifiersForWorkflowRun(runId).isEmpty()) {
+			snapshotButton.setEnabled(true);
+		}
+		if (!referenceService.getTidiableIdentifiersForWorkflowRun(runId).isEmpty()) {
+			tidyButton.setEnabled(true);
+		}
 		// Input ports
 		List<DataflowInputPort> dataflowInputPorts = new ArrayList<DataflowInputPort>(facade
 				.getDataflow().getInputPorts());
@@ -261,21 +315,19 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		InvocationContext dummyContext = new InvocationContextImpl(referenceService, null);
 		context = dummyContext;
 		
-		saveButton = new JButton(new SaveAllAction("Save all values", this));
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 1.0;
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.insets = new Insets(0,10,0,0);
-		saveButtonsPanel.add(new JLabel("Workflow results"), gbc);
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.weightx = 0.0;
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.anchor = GridBagConstraints.EAST;
-		saveButtonsPanel.add(saveButton, gbc);
+		populateSaveButtonsPanel();
+		Set<T2Reference> mutableReferences = referenceService
+		.getMutableIdentifiersForWorkflowRun(runId);
+		if (!mutableReferences.isEmpty()) {
+			snapshotButton.setEnabled(true);
+			snapshotButton.setFocusable(false);
+		}
+		Set<T2Reference> tidiableReferences = referenceService
+		.getTidiableIdentifiersForWorkflowRun(runId);
+		if (!tidiableReferences.isEmpty()) {			
+				tidyButton.setEnabled(true);
+				tidyButton.setFocusable(false);
+		}
 
 		// Get data for inputs and outputs ports
 		DataflowInvocation dataflowInvocation = provenanceAccess.getDataflowInvocation(runId);
@@ -399,9 +451,34 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				for (DataflowInputPort dataflowInputPort : dataflow.getInputPorts()) {
 					String name = dataflowInputPort.getName();
 					inputValuesMap.put(name, facade.getPushedDataMap().get(name));
+			}
+			saveButton.setEnabled(true);
+			saveButton.setFocusable(false);
+			if (!snapshotRunSetting.equals(DataManagementConfiguration.NEVER)) {
+				Set<T2Reference> mutableReferences = referenceService
+					.getMutableIdentifiersForWorkflowRun(runId);
+				if (!mutableReferences.isEmpty()) {
+					if (snapshotRunSetting.equals(DataManagementConfiguration.ALWAYS)) {
+						snapshotRun();
+					}
+					else {
+						snapshotButton.setEnabled(true);
+						snapshotButton.setFocusable(false);
+					}
 				}
-					saveButton.setEnabled(true);
-					saveButton.setFocusable(false);
+			}
+			if (!tidyRunSetting.equals(DataManagementConfiguration.NEVER)) {
+				Set<T2Reference> tidiableReferences = referenceService
+				.getTidiableIdentifiersForWorkflowRun(runId);
+				if (!tidiableReferences.isEmpty()) {
+					if (tidyRunSetting.equals(DataManagementConfiguration.ALWAYS)) {
+						tidyRun();
+					} else {				
+						tidyButton.setEnabled(true);
+						tidyButton.setFocusable(false);
+					}
+				}
+			}
 		 }
 	}
 	
@@ -608,93 +685,68 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		}
 	}
 	
-//	private class ReloadWorkflowAction extends AbstractAction {
-//		private Dataflow dataflow;
-//		private Date date;
-//		
-//		PerspectiveSPI designPerspective = null;		
-//
-//		public ReloadWorkflowAction(String name, Dataflow dataflow, Date date) {
-//			super(name);
-//			this.dataflow = dataflow;
-//			this.date = date;
-//		}
-//
-//		public void actionPerformed(ActionEvent e) {
-//			XMLSerializer serialiser = new XMLSerializerImpl();
-//			XMLDeserializer deserialiser = new XMLDeserializerImpl();
-//			try {
-//				FileManager manager = FileManager.getInstance();
-//				String newName = dataflow.getLocalName() + "_"
-//				+ DateFormat.getDateTimeInstance().format(date);
-//				newName = sanitiseName(newName);
-//				Dataflow alreadyOpened = null;
-//				for (Dataflow d : manager.getOpenDataflows()) {
-//					if (d.getLocalName().equals(newName)) {
-//						alreadyOpened = d;
-//						break;
-//					}
-//				}
-//				if (alreadyOpened != null) {
-//					manager.setCurrentDataflow(alreadyOpened);
-//					switchToDesignPerspective();
-//				} else {
-//					DataflowImpl dataflowCopy = (DataflowImpl) deserialiser.deserializeDataflow(serialiser
-//							.serializeDataflow(dataflow));
-//					dataflowCopy.setLocalName(newName);
-//					manager.openDataflow(dataflowCopy);
-//				}
-//			} catch (SerializationException e1) {
-//				logger.error("Unable to copy workflow", e1);
-//			} catch (DeserializationException e1) {
-//				logger.error("Unable to copy workflow", e1);
-//			} catch (EditException e1) {
-//				logger.error("Unable to copy workflow", e1);
-//			}
-//		}
-//		
-//		private void switchToDesignPerspective() {
-//			if (designPerspective == null) {
-//				for (PerspectiveSPI perspective : Workbench.getInstance()
-//						.getPerspectives().getPerspectives()) {
-//					if (perspective.getText().equalsIgnoreCase("design")) {
-//						designPerspective = perspective;
-//						break;
-//					}
-//				}
-//			}
-//			if (designPerspective != null) {
-//				ModelMap.getInstance().setModel(
-//						ModelMapConstants.CURRENT_PERSPECTIVE, designPerspective);
-//			}
-//		
-//		}
-//	}
-//	
-//	/**
-//	 * Checks that the name does not have any characters that are invalid for a
-//	 * processor name.
-//	 * 
-//	 * The name must contain only the chars[A-Za-z_0-9].
-//	 * 
-//	 * @param name
-//	 *            the original name
-//	 * @return the sanitised name
-//	 */
-//	private static String sanitiseName(String name) {
-//		String result = name;
-//		if (Pattern.matches("\\w++", name) == false) {
-//			result = "";
-//			for (char c : name.toCharArray()) {
-//				if (Character.isLetterOrDigit(c) || c == '_') {
-//					result += c;
-//				} else {
-//					result += "_";
-//				}
-//			}
-//		}
-//		return result;
-//	}
+	private static Set desiredClasses = new HashSet(Arrays.asList(new Class[] {InlineStringReference.class, InlineByteArrayReference.class}));
+	
+	private void snapshotRun() {
+		referenceService.snapshotWorkflowRun(desiredClasses, runId);
+		if (snapshotButton != null) {
+			snapshotButton.setEnabled(false);
+		}
+		if (tidyButton != null) {
+			Set<T2Reference> tidiableReferences = referenceService
+			.getTidiableIdentifiersForWorkflowRun(runId);
+			if (!tidiableReferences.isEmpty()) {
+				tidyButton.setEnabled(true);
+			} else {
+				System.err.println("No tidiable references");
+			}
+		}
+	}
+
+	/**
+	 * @author alanrw
+	 *
+	 */
+	public class SnapshotAction extends AbstractAction {
+		
+		public SnapshotAction(String name) {
+			super(name);
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			snapshotRun();
+		}
+	}
+	
+	private void tidyRun() {
+		referenceService.tidyWorkflowRun(runId);
+		if (tidyButton != null) {
+			tidyButton.setEnabled(false);
+		}
+	}
+
+	/**
+	 * @author alanrw
+	 *
+	 */
+	public class TidyRunAction extends AbstractAction {
+
+		public TidyRunAction(String name) {
+			super(name);
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			tidyRun();
+		}
+	}
 
 
 }
