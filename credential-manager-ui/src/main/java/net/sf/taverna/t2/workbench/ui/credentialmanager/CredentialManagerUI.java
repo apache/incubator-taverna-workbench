@@ -24,6 +24,7 @@ import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Frame;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -848,6 +849,15 @@ public class CredentialManagerUI extends JFrame {
 	 */
 	public void newPasswordForService(String serviceURL) {
 
+		// As this method can be called from outside of Credential Manager UI, 
+		// e.g. from wsdl-activity-ui or rshell-activity-ui to pop up a dialog to
+		// ask the user for username and password, we also want to make sure the 
+		// main Credential Manager UI Dialog is visible as it may be clearer to the
+		// user what is going on
+		if (!this.isVisible() || this.getState()==Frame.ICONIFIED){
+			this.setVisible(true);
+		}
+		
 		// Make sure password tab is selected as this method may
 		// be called from outside of Credential Manager UI.
 		keyStoreTabbedPane.setSelectedComponent(passwordsTab);
@@ -858,6 +868,10 @@ public class CredentialManagerUI extends JFrame {
 		// Loop until the user cancels or enters everything correctly
 		while (true) {
 
+//			if(!this.isVisible()){ // if Cred Man UI is already showing but e.g. obscured by another window or minimised
+//				// Do not bring it up!
+//			} // actually we now want to show it as it makes it clearer to the user what is going on
+			
 			// Let the user insert a new password entry for the given service
 			// URL (by specifying username and password)
 			NewEditPasswordEntryDialog newPasswordDialog = new NewEditPasswordEntryDialog(
