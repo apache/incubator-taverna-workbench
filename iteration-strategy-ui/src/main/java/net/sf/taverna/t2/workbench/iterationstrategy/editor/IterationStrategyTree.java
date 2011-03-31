@@ -20,16 +20,20 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.iterationstrategy.editor;
 
+import java.util.Enumeration;
+
 import javax.swing.ImageIcon;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.taverna.t2.workbench.iterationstrategy.IterationStrategyIcons;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategy;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.impl.IterationStrategyImpl;
 
 public class IterationStrategyTree extends JTree implements UIComponentSPI {
 
@@ -55,13 +59,20 @@ public class IterationStrategyTree extends JTree implements UIComponentSPI {
 	}
 
 	public synchronized void setIterationStrategy(
-			IterationStrategyImpl theStrategy) {
+			IterationStrategy theStrategy) {
 		if (theStrategy != this.strategy) {
 			this.strategy = theStrategy;
 			TreeNode terminal = theStrategy.getTerminalNode();
 			setModel(new DefaultTreeModel(terminal));
+			this.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+			expandTree();
 			revalidate();
 		}
+	}
+	
+	protected synchronized void refreshModel() {
+		this.getModel().nodeStructureChanged(strategy.getTerminalNode());
+		expandTree();
 	}
 
 	@Override
@@ -76,6 +87,19 @@ public class IterationStrategyTree extends JTree implements UIComponentSPI {
 					"Model must be a DefaultTreeModel");
 		}
 		super.setModel(newModel);
+	}
+
+	protected void expandTree() {  
+		DefaultMutableTreeNode root =  
+	        (DefaultMutableTreeNode)this.getModel().getRoot();  
+	    Enumeration e = root.breadthFirstEnumeration();  
+	    while(e.hasMoreElements()) {  
+	        DefaultMutableTreeNode node =  
+	            (DefaultMutableTreeNode)e.nextElement();  
+	        if(node.isLeaf()) continue;  
+	        int row = this.getRowForPath(new TreePath(node.getPath()));  
+	        this.expandRow(row);  
+	    }  
 	}
 
 }
