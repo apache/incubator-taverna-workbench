@@ -52,9 +52,9 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.iterationstrategy.IterationStrategyIcons;
 import net.sf.taverna.t2.workflowmodel.processor.iteration.CrossProduct;
 import net.sf.taverna.t2.workflowmodel.processor.iteration.DotProduct;
+import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategy;
 import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategyNode;
 import net.sf.taverna.t2.workflowmodel.processor.iteration.TerminalNode;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.impl.IterationStrategyImpl;
 
 import org.apache.log4j.Logger;
 
@@ -99,7 +99,7 @@ public class IterationStrategyEditorControl extends JPanel {
 
 	private IterationStrategyNode selectedNode = null;
 
-	private IterationStrategyEditor tree;
+	private IterationStrategyTree tree;
 
 	protected AddCrossAction addCross = new AddCrossAction();
 	protected AddDotAction addDot = new AddDotAction();
@@ -119,11 +119,14 @@ public class IterationStrategyEditorControl extends JPanel {
 	protected ImageIcon arrowRight = new ImageIcon(new CArrowImage(ICON_SIZE,
 			ICON_SIZE, CArrowImage.ARROW_RIGHT));
 
+	private final IterationStrategy strategy;
+
 	/**
 	 * Create a new panel from the supplied iteration strategy
 	 */
-	public IterationStrategyEditorControl(IterationStrategyImpl strategy) {
+	public IterationStrategyEditorControl(IterationStrategy strategy) {
 
+		this.strategy = strategy;
 		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
 
 		// Create the components
@@ -173,7 +176,7 @@ public class IterationStrategyEditorControl extends JPanel {
 		add(treePane);
 	}
 
-	public void setIterationStrategy(IterationStrategyImpl iterationStrategy) {
+	public void setIterationStrategy(IterationStrategy iterationStrategy) {
 		tree.setIterationStrategy(iterationStrategy);
 		disableButtons();
 		selectNode(null);
@@ -216,8 +219,7 @@ public class IterationStrategyEditorControl extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			CrossProduct newNode = new CrossProduct();
 			newNode.setParent(selectedNode);
-			DefaultTreeModel model = tree.getModel();
-			model.nodeStructureChanged(selectedNode);
+			tree.refreshModel();
 		}
 	}
 
@@ -236,8 +238,7 @@ public class IterationStrategyEditorControl extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			DotProduct newNode = new DotProduct();
 			newNode.setParent(selectedNode);
-			DefaultTreeModel model = tree.getModel();
-			model.nodeStructureChanged(selectedNode);
+			tree.refreshModel();
 		}
 	}
 
@@ -249,7 +250,7 @@ public class IterationStrategyEditorControl extends JPanel {
 			selectedNode = selectedObject;
 			if (selectedObject instanceof CrossProduct
 					|| selectedObject instanceof DotProduct) {
-				if (selectedObject.getParent() == null) {
+				if ((selectedObject.getParent() == null) || (selectedObject.getParent() instanceof TerminalNode)) {
 					remove.setEnabled(false);
 				} else {
 					remove.setEnabled(true);
@@ -302,18 +303,17 @@ public class IterationStrategyEditorControl extends JPanel {
 			DefaultTreeModel model = tree.getModel();
 			if (selectedNode.getParent() == null) {
 				model.setRoot(newNode);
-				model.nodeStructureChanged(newNode);
+				tree.refreshModel();
 				newNode.setParent(null);
 			} else {
 				IterationStrategyNode parent = selectedNode.getParent();
 				int index = parent.getIndex(selectedNode);
 				selectedNode.setParent(null);
 				parent.insert(newNode, index);
-				model.nodeStructureChanged(parent);
+				tree.refreshModel();
 			}
 
 			selectNode(newNode);
-			tree.setAllNodesExpanded();
 		}
 
 	}
@@ -328,9 +328,10 @@ public class IterationStrategyEditorControl extends JPanel {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			// strategy.normalize();
+			strategy.normalize();
 			// Expand all the nodes in the tree
-			tree.setAllNodesExpanded();
+			DefaultTreeModel model = tree.getModel();
+			tree.refreshModel();
 		}
 	}
 
@@ -360,7 +361,7 @@ public class IterationStrategyEditorControl extends JPanel {
 				nodeToMove.setParent(oldParent);
 			}
 			nodeToBeRemoved.setParent(null);
-			model.nodeStructureChanged(oldParent);
+			tree.refreshModel();
 			// Disable the various buttons, as the current selection
 			// is now invalid.
 			remove.setEnabled(false);
@@ -381,7 +382,7 @@ public class IterationStrategyEditorControl extends JPanel {
 			DefaultTreeModel model = tree.getModel();
 
 			IterationStrategyNode aboveNode = aboveSelectedNode();
-			if (aboveNode == null) {
+			if ((aboveNode == null) || ((aboveNode instanceof TerminalNode) && (aboveNode.getChildCount() > 0))) {
 				logger.warn("Can't move above top");
 				return;
 			}
@@ -391,19 +392,19 @@ public class IterationStrategyEditorControl extends JPanel {
 				// Siblings
 				int aboveChildIndex = selectedParent.getIndex(aboveNode);
 				selectedParent.insert(selectedNode, aboveChildIndex);
-				model.nodeStructureChanged(selectedParent);
+				tree.refreshModel();
 				selectNode(selectedNode);
 			} else if (aboveNode.equals(selectedParent)) {
 				if (aboveParent instanceof TerminalNode
 						&& selectedNode.getAllowsChildren()) {
 					aboveNode.setParent(selectedNode);
 					selectedNode.setParent(aboveParent);
-					model.nodeStructureChanged(selectedParent);
+					tree.refreshModel();
 					selectNode(selectedNode);
-				} else {
+				} else if (!(aboveParent instanceof TerminalNode)){
 					int aboveChildIndex = aboveParent.getIndex(aboveNode);
 					aboveParent.insert(selectedNode, aboveChildIndex);
-					model.nodeStructureChanged(aboveParent);
+					tree.refreshModel();
 					selectNode(selectedNode);
 				}
 			} else {
