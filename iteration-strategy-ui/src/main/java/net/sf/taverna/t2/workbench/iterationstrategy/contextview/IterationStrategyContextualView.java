@@ -23,29 +23,19 @@
  */
 package net.sf.taverna.t2.workbench.iterationstrategy.contextview;
 
-import java.awt.BorderLayout;
-import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
-import net.sf.taverna.t2.workbench.iterationstrategy.editor.IterationStrategyEditorControl;
 import net.sf.taverna.t2.workbench.iterationstrategy.editor.IterationStrategyTree;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategy;
 import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategyStack;
@@ -68,15 +58,56 @@ public class IterationStrategyContextualView extends ContextualView {
 	private static Logger logger = Logger
 			.getLogger(IterationStrategyContextualView.class);
 
-	private EditManager editManager = EditManager.getInstance();
+	private static EditManager editManager = EditManager.getInstance();
 
 	private FileManager fileManager = FileManager.getInstance();
 
-	private IterationStrategyStackImpl iterationStack;
+	private IterationStrategyStack iterationStack;
 
 	private final Processor processor;
 
 	private IterationStrategyTree strategyTree = new IterationStrategyTree();
+	
+	static {
+		
+// This should be enabled and modified for T2-822
+/*		editManager.addObserver(new Observer<EditManagerEvent> () {
+			
+			private void examineEdit(Edit edit) {
+				if (edit instanceof ConnectDatalinkEdit) {
+					processConnectDatalinkEdit((ConnectDatalinkEdit) edit);
+				}
+				if (edit instanceof CompoundEdit) {
+					processCompoundEdit((CompoundEdit) edit);
+				}
+			}
+			
+			private void processConnectDatalinkEdit(ConnectDatalinkEdit edit) {
+				Datalink d = ((ConnectDatalinkEdit) edit).getSubject();
+				EventHandlingInputPort sink = d.getSink();
+				if (sink instanceof ProcessorInputPort) {
+					ProcessorInputPort pip = (ProcessorInputPort) sink;
+					Processor p = pip.getProcessor();
+					final HelpEnabledDialog dialog = new IterationStrategyConfigurationDialog(null, p, copyIterationStrategyStack(p.getIterationStrategy()));		
+					dialog.setVisible(true);
+				}				
+			}
+			
+			private void processCompoundEdit(CompoundEdit edit) {
+				for (Edit e : edit.getChildEdits()) {
+					examineEdit(e);
+				}
+			}
+
+			@Override
+			public void notify(Observable<EditManagerEvent> sender,
+					EditManagerEvent message) throws Exception {
+				if (!(message instanceof DataflowEditEvent)) {
+					return;
+				}
+				examineEdit(message.getEdit());
+			}});*/
+	}
 
 	public IterationStrategyContextualView(Processor processor) {
 		if (processor == null || processor.getIterationStrategy() == null) {
@@ -100,12 +131,12 @@ public class IterationStrategyContextualView extends ContextualView {
 	@Override
 	public void refreshView() {
 		refreshIterationStrategyStack();
-		strategyTree.setIterationStrategy(getIterationStrategy());
+		strategyTree.setIterationStrategy(getIterationStrategy(iterationStack));
 	}
 
-	private IterationStrategyStackImpl copyIterationStrategyStack(
-			IterationStrategyStackImpl stack) {
-		Element asXML = stack.asXML();
+	public static IterationStrategyStack copyIterationStrategyStack(
+			IterationStrategyStack stack) {
+		Element asXML = ((IterationStrategyStackImpl)stack).asXML();
 		stripEmptyElements(asXML);
 		IterationStrategyStackImpl copyStack = new IterationStrategyStackImpl();
 		copyStack.configureFromElement(asXML);
@@ -115,7 +146,7 @@ public class IterationStrategyContextualView extends ContextualView {
 		return copyStack;
 	}
 
-	private void stripEmptyElements(Element asXML) {
+	private static void stripEmptyElements(Element asXML) {
 		int childCount = asXML.getContent().size();
 		int index = 0;
 		while (index < childCount) {
@@ -136,8 +167,8 @@ public class IterationStrategyContextualView extends ContextualView {
 		}
 	}
 
-	private IterationStrategyImpl getIterationStrategy() {
-		List<? extends IterationStrategy> strategies = iterationStack
+	public static IterationStrategy getIterationStrategy(IterationStrategyStack iStack) {
+		List<? extends IterationStrategy> strategies = iStack
 				.getStrategies();
 		if (strategies.isEmpty()) {
 			throw new IllegalStateException("Empty iteration stack");
@@ -182,98 +213,13 @@ public class IterationStrategyContextualView extends ContextualView {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			String title = "List handling for " + processor.getLocalName();
-			final HelpEnabledDialog dialog = new HelpEnabledDialog(owner, title, true, null);
-			IterationStrategyImpl iterationStrategy = getIterationStrategy();
-			IterationStrategyEditorControl iterationStrategyEditorControl = new IterationStrategyEditorControl(
-					iterationStrategy);
-			dialog.add(iterationStrategyEditorControl, BorderLayout.CENTER);
-
-			JPanel buttonPanel = new JPanel();
-			buttonPanel.setLayout(new FlowLayout());
-
-			JButton okButton = new JButton(new OKAction(dialog));
-			buttonPanel.add(okButton);
-
-			JButton resetButton = new JButton(new ResetAction(
-					iterationStrategyEditorControl));
-			buttonPanel.add(resetButton);
-
-			JButton cancelButton = new JButton(new CancelAction(dialog));
-			buttonPanel.add(cancelButton);
-
-			dialog.add(buttonPanel, BorderLayout.SOUTH);
-			dialog.setSize(400, 400);
+			final HelpEnabledDialog dialog = new IterationStrategyConfigurationDialog(owner, processor, iterationStack);		
 			dialog.setVisible(true);
+			refreshView();
 		}
 
-		private final class CancelAction extends AbstractAction {
-			private final JDialog dialog;
 
-			private CancelAction(JDialog dialog) {
-				super("Cancel");
-				this.dialog = dialog;
-			}
 
-			public void actionPerformed(ActionEvent e) {
-				dialog.setVisible(false);
-				refreshView();
-			}
-
-		}
-
-		private final class OKAction extends AbstractAction {
-			private final JDialog dialog;
-
-			private OKAction(JDialog dialog) {
-				super("OK");
-				this.dialog = dialog;
-			}
-
-			public void actionPerformed(ActionEvent e) {
-				Edits edits = editManager.getEdits();
-				try {
-					Edit<?> edit = edits.getSetIterationStrategyStackEdit(
-							processor,
-							copyIterationStrategyStack(iterationStack));
-					editManager.doDataflowEdit(
-							fileManager.getCurrentDataflow(), edit);
-					dialog.setVisible(false);
-					refreshView();
-				} catch (RuntimeException ex) {
-					logger.warn("Could not set list handling", ex);
-					JOptionPane.showMessageDialog(owner,
-							"Can't set list handling",
-							"An error occured when setting list handling: "
-									+ ex.getMessage(),
-							JOptionPane.ERROR_MESSAGE);
-				} catch (EditException ex) {
-					logger.warn("Could not set list handling", ex);
-					JOptionPane.showMessageDialog(owner,
-							"Can't set list handling",
-							"An error occured when setting list handling: "
-									+ ex.getMessage(),
-							JOptionPane.ERROR_MESSAGE);
-				}
-			}
-		}
-
-		private final class ResetAction extends AbstractAction {
-			private final IterationStrategyEditorControl strategyEditorControl;
-
-			private ResetAction(
-					IterationStrategyEditorControl strategyEditorControl) {
-				super("Reset");
-				this.strategyEditorControl = strategyEditorControl;
-			}
-
-			public void actionPerformed(ActionEvent e) {
-				refreshView();
-				strategyEditorControl
-						.setIterationStrategy(getIterationStrategy());
-			}
-
-		}
 	}
 
 	@Override
