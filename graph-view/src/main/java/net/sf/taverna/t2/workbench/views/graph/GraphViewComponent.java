@@ -60,8 +60,8 @@ import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.impl.T2DataflowOpener;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
+import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
@@ -103,6 +103,8 @@ public class GraphViewComponent extends WorkflowView {
 	public static Map<Dataflow, SVGGraphController> graphControllerMap = new HashMap<Dataflow, SVGGraphController>();
 
 	public static Map<Dataflow, JPanel> diagramPanelMap = new HashMap<Dataflow, JPanel>();
+
+	public static Map<Dataflow, Action[]> diagramActionsMap = new HashMap<Dataflow, Action[]>();
 
 	private Dataflow dataflow;
 
@@ -245,6 +247,8 @@ public class GraphViewComponent extends WorkflowView {
 		zoomOutAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomOutIcon);
 		zoomOutButton.setAction(zoomOutAction);
 
+		diagramActionsMap.put(graphController.getDataflow(), new Action[] {resetDiagramAction, zoomInAction, zoomOutAction});
+		
 		toolBar.add(resetDiagramButton);
 		toolBar.add(zoomInButton);
 		toolBar.add(zoomOutButton);
@@ -410,6 +414,12 @@ public class GraphViewComponent extends WorkflowView {
 		}
 		graphController = graphControllerMap.get(dataflow);
 		diagramPanel = diagramPanelMap.get(dataflow);
+		Action[] actions = diagramActionsMap.get(dataflow);
+		if (actions != null && actions.length == 3) {
+			ResetDiagramAction.setDesignAction(actions[0]);
+			ZoomInAction.setDesignAction(actions[1]);
+			ZoomOutAction.setDesignAction(actions[2]);
+		}
 		cardLayout.show(this, String.valueOf(diagramPanel.hashCode()));
 		border.setTitle(getBorderTitle(dataflow));
 		graphController.redraw();
@@ -546,6 +556,7 @@ public class GraphViewComponent extends WorkflowView {
 									gvtTreeBuilderAdapter);
 					removedController.shutdown();
 				}
+				diagramActionsMap.remove(dataflow);
 			} else if (message instanceof SetCurrentDataflowEvent) {
 				SetCurrentDataflowEvent currentDataflowEvent = (SetCurrentDataflowEvent) message;
 				Dataflow dataflow = currentDataflowEvent.getDataflow();

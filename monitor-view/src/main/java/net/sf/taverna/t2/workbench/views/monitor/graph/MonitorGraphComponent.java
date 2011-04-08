@@ -96,6 +96,8 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 
 	private ReferenceService referenceService;
 
+	private Action resetDiagramAction, zoomInAction, zoomOutAction;
+
 	public MonitorGraphComponent() {
 		super(new BorderLayout());
 		setBorder(LineBorder.createGrayLineBorder());
@@ -142,19 +144,19 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 		JButton zoomOutButton = new JButton();
 		zoomOutButton.setBorder(new EmptyBorder(0, 2, 0, 2));
 		
-		Action resetDiagramAction = svgCanvas.new ResetTransformAction();
+		resetDiagramAction = svgCanvas.new ResetTransformAction();
 		ResetDiagramAction.setResultsAction(resetDiagramAction);
 		resetDiagramAction.putValue(Action.SHORT_DESCRIPTION, "Reset Diagram");
 		resetDiagramAction.putValue(Action.SMALL_ICON, WorkbenchIcons.refreshIcon);
 		resetDiagramButton.setAction(resetDiagramAction);
 
-		Action zoomInAction = svgCanvas.new ZoomAction(1.2);
+		zoomInAction = svgCanvas.new ZoomAction(1.2);
 		ZoomInAction.setResultsAction(zoomInAction);
 		zoomInAction.putValue(Action.SHORT_DESCRIPTION, "Zoom In");
 		zoomInAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomInIcon);
 		zoomInButton.setAction(zoomInAction);
 
-		Action zoomOutAction = svgCanvas.new ZoomAction(1/1.2);
+		zoomOutAction = svgCanvas.new ZoomAction(1/1.2);
 		ZoomOutAction.setResultsAction(zoomOutAction);
 		zoomOutAction.putValue(Action.SHORT_DESCRIPTION, "Zoom Out");
 		zoomOutAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomOutIcon);
@@ -207,6 +209,18 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 		setGraphController(svgGraphController);
 		graphMonitor = new GraphMonitor(svgGraphController);
 		return graphMonitor;
+	}
+
+	public Action getResetDiagramAction() {
+		return resetDiagramAction;
+	}
+
+	public Action getZoomInAction() {
+		return zoomInAction;
+	}
+
+	public Action getZoomOutAction() {
+		return zoomOutAction;
 	}
 
 	public ImageIcon getIcon() {
