@@ -62,6 +62,9 @@ import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.run.cleanup.DatabaseCleanup;
 import net.sf.taverna.t2.workbench.run.cleanup.ReferenceServiceShutdownHook;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
+import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
+import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
 import net.sf.taverna.t2.workbench.views.monitor.graph.MonitorGraphComponent;
 import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressMonitor;
@@ -143,9 +146,12 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 					int location = getDividerLocation();
 
-					if (selection == null) { // there is no workflow items in
-						// the list
-
+					if (selection == null) {
+						// there is no workflow items in the list
+						ResetDiagramAction.setResultsAction(null);
+						ZoomInAction.setResultsAction(null);
+						ZoomOutAction.setResultsAction(null);
+						
 						JPanel tempMonitorPanel = new JPanel(new BorderLayout());
 						tempMonitorPanel.setBorder(LineBorder
 								.createGrayLineBorder());
@@ -202,6 +208,10 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 								loadPreviousWorkflowRunThread.start();
 							}
 						} else if (workflowRun.getDataflow() == null) {					
+							ResetDiagramAction.setResultsAction(null);
+							ZoomInAction.setResultsAction(null);
+							ZoomOutAction.setResultsAction(null);
+
 							JTabbedPane monitorComponent = new JTabbedPane();
 							String errorText = "Could not load workflow for run "
 							+ workflowRun.getRunId();
@@ -225,6 +235,13 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 							topPanel.setBottomComponent(monitorComponent);	
 							setBottomComponent(workflowRun
 									.getResultsComponent());
+							
+							MonitorGraphComponent monitorGraph = monitorComponent.getMonitorGraph();
+							if (monitorGraph != null) {
+								ResetDiagramAction.setResultsAction(monitorGraph.getResetDiagramAction());
+								ZoomInAction.setResultsAction(monitorGraph.getZoomInAction());
+								ZoomOutAction.setResultsAction(monitorGraph.getZoomOutAction());
+							}
 						}
 						setDividerLocation(location);
 						removeWorkflowRunsButton.setEnabled(true);
