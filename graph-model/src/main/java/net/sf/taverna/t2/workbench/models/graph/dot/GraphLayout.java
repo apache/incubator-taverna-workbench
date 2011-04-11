@@ -173,7 +173,9 @@ public class GraphLayout implements DOTParserVisitor {
 				graph.setSize(rect.getSize());
 				graph.setPosition(rect.getLocation());
 			} else if ("lp".equalsIgnoreCase(node.getName())) {
-				graph.setLabelPosition(getPoint(node.getValue()));
+				if (bounds != null) {
+					graph.setLabelPosition(getPoint(node.getValue()));
+				}
 			}
 		} else if (data instanceof GraphNode) {
 			GraphNode graphNode = (GraphNode) data;
