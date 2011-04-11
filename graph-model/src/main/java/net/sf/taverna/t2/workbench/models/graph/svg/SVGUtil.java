@@ -209,7 +209,7 @@ public class SVGUtil {
 			dotLocation = "dot";
 		}
 		logger.debug("Invoking dot...");
-		Process dotProcess = Runtime.getRuntime().exec(new String[] { dotLocation, "-Tdot" });
+		Process dotProcess = Runtime.getRuntime().exec(new String[] { dotLocation, "-Tdot", "-Glp=0,0" });
 		StreamDevourer devourer = new StreamDevourer(dotProcess.getInputStream());
 		devourer.start();
 		// Must create an error devourer otherwise stderr fills up and the
