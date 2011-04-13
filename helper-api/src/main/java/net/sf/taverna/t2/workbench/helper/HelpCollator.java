@@ -4,8 +4,11 @@
 package net.sf.taverna.t2.workbench.helper;
 
 import java.awt.Component;
+import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -21,6 +24,9 @@ import javax.help.TryMap;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
+
+import net.sf.taverna.raven.spi.Profile;
+import net.sf.taverna.raven.spi.ProfileFactory;
 
 import org.apache.log4j.Logger;
 
@@ -42,11 +48,6 @@ public final class HelpCollator {
 	 * than one.
 	 */
 	private static HelpCollator instance = null;
-
-	/**
-	 * The PropertyResourceBundle that holds the settings
-	 */
-	private static PropertyResourceBundle prb = null;
 
 	/**
 	 * The HelpSet that is being used.
@@ -75,12 +76,25 @@ public final class HelpCollator {
 	 */
 	private static boolean emptyHelp = true;
 
+	private static URLConnection connection;
+	
+	private static int TIMEOUT = 5000;
+	
+	private static Profile profile = ProfileFactory.getInstance().getProfile();
+	private static String version = profile.getVersion();
+	private static String externalHelpSetURL = "http://www.taverna.org.uk/helpset/" + version + "/helpset.hs";
+
 	/**
 	 * Attempt to read the up-to-date HelpSet from the web
 	 */
 	private static void readExternalHelpSet() {
 		try {
-			String externalHelpSetURL = prb.getString("externalhelpseturl");
+			URL url = new URL(externalHelpSetURL);
+		
+			connection = url.openConnection();
+			connection.setReadTimeout(TIMEOUT);
+			connection.setConnectTimeout(TIMEOUT);
+			connection.connect();
 			hs = new HelpSet(null, new URL(externalHelpSetURL));
 			if (hs.getLocalMap() == null) {
 			    hs = null;
@@ -93,6 +107,17 @@ public final class HelpCollator {
 		    logger.error("External HelpSet URL is malformed", e);
 		} catch (HelpSetException e) {
 		    logger.error("External HelpSet could not be read", e);
+		} catch (IOException e) {
+			logger.error("IOException reading External HelpSet", e);
+		}
+		finally {
+			try {
+				if ((connection != null) && (connection.getInputStream() != null)) {
+					connection.getInputStream().close();
+				}
+			} catch (IOException e) {
+				logger.error("Unable to close connection", e);
+			}
 		}
 	}
 
@@ -119,8 +144,6 @@ public final class HelpCollator {
 	 */
 	public static void initialize() {
 		if (!initialized) {
-			prb = (PropertyResourceBundle) ResourceBundle
-					.getBundle("helpcollator");
 			readExternalHelpSet();
 			if (hs == null) {
 				readBackupHelpSet();
