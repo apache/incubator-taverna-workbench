@@ -29,8 +29,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 
 import javax.swing.JButton;
+//import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -38,6 +40,9 @@ import javax.swing.JPasswordField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
@@ -50,6 +55,7 @@ import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 public class CopyOldCredentialManagerDialog
     extends HelpEnabledDialog
 {
+	private Logger logger = Logger.getLogger(CopyOldCredentialManagerDialog.class);
 
     // Old Credential Manager master password field 
     private JPasswordField passwordField;
@@ -60,6 +66,8 @@ public class CopyOldCredentialManagerDialog
     // Text for the user to explain what this dialog is about
     private String instructions;
     
+	//private JCheckBox doNotAskMeToImportAgainCheckBox;
+
     public CopyOldCredentialManagerDialog(String previousTavernaVersion)
     {
         super((Frame)null, "Older version of Credential Manager detected", true);
@@ -102,19 +110,31 @@ public class CopyOldCredentialManagerDialog
             }
         });
 
+        JButton askMeLaterButton = new JButton("Ask me later");
+        askMeLaterButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent evt)
+            {
+                askMeLaterPressed();
+            }
+        });
+        
         JPanel mainPanel = new JPanel(new BorderLayout());
         
         JPanel passwordPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         passwordPanel.add(passwordLabel);
         passwordPanel.add(passwordField);
-        mainPanel.add(passwordPanel, BorderLayout.CENTER);
-                
+		//doNotAskMeToImportAgainCheckBox = new JCheckBox("Do not ask me again");
+		//doNotAskMeToImportAgainCheckBox.setBorder(new EmptyBorder(0,10,0,0));
         passwordPanel.setBorder(new CompoundBorder(
-                new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
-        
+                new EmptyBorder(10, 10, 5, 10), new EtchedBorder()));
+		mainPanel.add(passwordPanel, BorderLayout.CENTER);
+		//mainPanel.add(doNotAskMeToImportAgainCheckBox, BorderLayout.SOUTH);                
+
         JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         jpButtons.add(importButton);
         jpButtons.add(dontImportButton);
+        jpButtons.add(askMeLaterButton);
 
         passwordPanel.setMinimumSize(new Dimension(300,100));
 
@@ -158,7 +178,17 @@ public class CopyOldCredentialManagerDialog
     private void importPressed()
     {
         if (checkControls()) {
-            closeDialog();
+        	// Set the "do not ask again" flag
+    		try {
+    			FileUtils
+    					.touch(CheckForOlderCredentialManagersStartupHook.doNotAskToImportOldCredentialManagerFile);
+    		} catch (IOException ioex) {
+    			logger
+    					.error(
+    							"Failed to touch the 'Do not ask me to import old Credential Manager file.",
+    							ioex);
+    		}
+    		closeDialog();
         }
     }
 
@@ -166,9 +196,26 @@ public class CopyOldCredentialManagerDialog
     {
     	// Set password to null to indicate that "Do not import" button was pressed
     	password = null;
+    	// Set the "do not ask again" flag
+		try {
+			FileUtils
+					.touch(CheckForOlderCredentialManagersStartupHook.doNotAskToImportOldCredentialManagerFile);
+		} catch (IOException ioex) {
+			logger
+					.error(
+							"Failed to touch the 'Do not ask me to import old Credential Manager file.",
+							ioex);
+		}
         closeDialog();
     }
 
+    private void askMeLaterPressed()
+    {
+    	// Set password to null to indicate that the user does not wan to import now
+    	password = null;
+        closeDialog();
+    }
+    
     private void closeDialog()
     {
         setVisible(false);

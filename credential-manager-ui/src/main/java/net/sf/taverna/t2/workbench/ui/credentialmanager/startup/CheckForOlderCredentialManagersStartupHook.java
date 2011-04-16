@@ -11,6 +11,8 @@ import java.security.Security;
 import java.security.KeyStore.Entry;
 import java.util.Enumeration;
 
+import javax.swing.JOptionPane;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -36,6 +38,10 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 
 	private final String SECURITY_DIRECTORY_NAME = "security";
 	
+	public static final String DO_NOT_ASK_TO_IMPORT_OLD_CREDENTIAL_MANAGER = "do_not_ask_to_import_old_credential_manager";
+	public static File doNotAskToImportOldCredentialManagerFile = new File(CMUtils.getCredentialManagerDefaultDirectory(),DO_NOT_ASK_TO_IMPORT_OLD_CREDENTIAL_MANAGER);
+
+	
 	@Override
 	public int positionHint() {
 		return 20; // run this before initialise SSL hook
@@ -45,6 +51,12 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 	public boolean startup() {
 		logger.info("Checking for previous versions of Credential Manager in older Taverna installations.");
 				
+		// Do not pop up a dialog if we are running headlessly.
+		// If we have warned the user and they do not want us to remind them again - exit.
+		if (GraphicsEnvironment.isHeadless() || doNotAskToImportOldCredentialManagerFile.exists()){
+			return true;
+		}
+		
 		// If there are already Keystore or Truststore files present - exit.
 		File currentCredentialManagerDirectory = CMUtils.getCredentialManagerDefaultDirectory();
 		File currentKeystoreFile = new File(currentCredentialManagerDirectory, CredentialManager.T2KEYSTORE_FILE);
@@ -123,19 +135,19 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 		// Found previous keystore/truststore files - ask user if they want to copy them
 		// but only if we are not in a headless environment
 		if (previousTruststoreFile != null && previousKeystoreFile != null){ 
-			if (!GraphicsEnvironment.isHeadless()){
-				// Pop up a warning about Java Cryptography Extension (JCE)
-				// Unlimited Strength Jurisdiction Policy - this code is currently the
-				// first thing to touch security and Credential Manager so 
-				// make sure we warn the user early
-				WarnUserAboutJCEPolicyDialog.warnUserAboutJCEPolicy();
-				
-				CopyOldCredentialManagerDialog copyDialog = new CopyOldCredentialManagerDialog(previousTavernaVersion);
+			// Pop up a warning about Java Cryptography Extension (JCE)
+			// Unlimited Strength Jurisdiction Policy - this code is currently the
+			// first thing to touch security and Credential Manager so 
+			// make sure we warn the user early
+			WarnUserAboutJCEPolicyDialog.warnUserAboutJCEPolicy();
+			
+			CopyOldCredentialManagerDialog copyDialog = new CopyOldCredentialManagerDialog(previousTavernaVersion);
+			while(true){ //loop in case user enters wrong password
 				copyDialog.setVisible(true);
 				String password = copyDialog.getPassword(); 
 				if (password != null){ // user wants us to copy their old credentials
 					// Create the Cred Manager folder, if it does not exist
-					if (!currentCredentialManagerDirectory.exists()){
+					if (!currentCredentialManagerDirectory.exists()){ // should exist by now as we have called warnUserAboutJCEPolicy() previously
 						currentCredentialManagerDirectory.mkdir();						
 					}
 					
@@ -160,14 +172,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							// The requested keystore type is not available from the provider
 							logger.error("Failed to instantiate old Bouncy Castle 'UBER'-type keystore when trying to copy the old Keystore from "
 									+ previousKeystoreFile, ex);
-							// Remove the files
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
-							}
-							catch(Exception ex2){
-								// Ignore - nothing we can do
-							}
-							return true;
+							JOptionPane.showMessageDialog(null, "Failed to instantiate the old Keystore", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						}
 						try {
 							currentKeystore = KeyStore.getInstance("UBER", "BC"); //.ubr file
@@ -175,14 +181,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							// The requested keystore type is not available from the provider
 							logger.error("Failed to instantiate new Bouncy Castle 'UBER'-type keystore when trying to copy the old Keystore from "
 									+ previousKeystoreFile, ex);
-							// Remove the files
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
-							}
-							catch(Exception ex2){
-								// Ignore - nothing we can do
-							}
-							return true;
+							JOptionPane.showMessageDialog(null, "Failed to instantiate the new Keystore", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						}
 						// Read the old Keystore
 						FileInputStream fis = null;
@@ -191,18 +191,18 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							fis = new FileInputStream(previousKeystoreFile);
 							// Load the old Keystore from the file
 							previousKeystore.load(fis, password.toCharArray());
-						} catch (Exception ex) {
+						} catch (IOException ex) {
 							logger.error("Failed to load the old Keystore from "
 									+ previousKeystoreFile +". Possible reason: incorrect password or corrupted file.", ex);
-							// Remove the files
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
-							}
-							catch(Exception ex2){
-								// Ignore - nothing we can do
-							}
-							return true;
-						} finally {
+							JOptionPane.showMessageDialog(null, "Failed to load credentials from the old Keystore. Possible reason: incorrect password.", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							continue;
+						} 
+						catch(Exception ex2){
+							logger.error("Failed to load the old Keystore from "
+									+ previousKeystoreFile, ex2);
+							JOptionPane.showMessageDialog(null, "Failed to load credentials from the old Keystore.", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
+						}finally {
 							if (fis != null) {
 								try {
 									fis.close();
@@ -216,14 +216,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							currentKeystore.load(null, null);
 						} catch (Exception ex) {
 							logger.error("Failed to create the new Keystore to copy old entries to from " + previousKeystoreFile, ex);
-							// Remove the files
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
-							}
-							catch(Exception ex2){
-								// Ignore - nothing we can do
-							}
-							return true;
+							JOptionPane.showMessageDialog(null, "Failed to load the new Keystore", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						}
 						// Copy all old entries to the new Keystore 
 						// but use the master password when storing the entries !!!
@@ -253,14 +247,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 											+ previousKeystoreFile
 											+ " in order to copy them to the new location in "
 											+ currentKeystoreFile, ex);
-							// Remove the files
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
-							}
-							catch(Exception ex2){
-								// Ignore - nothing we can do
-							}
-							return true;
+							JOptionPane.showMessageDialog(null, "Failed to copy the old credentials to the new Keystore", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						}
 						// Save the new Keystore to the new location (in the current Cred Manager directory)
 						FileOutputStream fos = null;
@@ -268,14 +256,10 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							fos = new FileOutputStream(currentKeystoreFile);
 							currentKeystore.store(fos, password.toCharArray());
 						} catch (Exception ex) {
-							logger.error("Failed to saved the new Keystore when copying from the old location in "+previousKeystoreFile + " to the new location in "+ currentKeystoreFile, ex);
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
-							}
-							catch(Exception ex2){
-								// Ignore - nothing we can do
-							}
-							return true;
+							logger.error("Failed to save the new Keystore when copying from the old location in "+previousKeystoreFile + " to the new location in "+ currentKeystoreFile, ex);
+							FileUtils.deleteQuietly(currentKeystoreFile);
+							JOptionPane.showMessageDialog(null, "Failed to save the new Keystore", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						} finally {
 							if (fos != null) {
 								try {
@@ -296,7 +280,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							// The requested keystore type is not available from the  provider
 							logger.error("Failed to instantiate a 'JKS'-type keystore when trying to copy the old Truststore from "
 									+ previousTruststoreFile, ex);
-							return true;
+							JOptionPane.showMessageDialog(null, "Failed to instantiate the old Truststore", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						}
 						try {
 							currentTruststore = KeyStore.getInstance("UBER", "BC"); // BC .ubr file
@@ -305,14 +290,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							// provider
 							logger.error("Failed to instantiate a Bouncy Castle 'UBER'-type keystore when trying to copy the old Truststore from "
 									+ previousKeystoreFile, ex);
-							// Remove the files
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
-							}
-							catch(Exception ex2){
-								// Ignore - nothing we can do
-							}
-							return true;
+							JOptionPane.showMessageDialog(null, "Failed to instantiate the new Truststore", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						}
 						// Read the old Truststore
 						FileInputStream fis2 = null;
@@ -324,14 +303,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 						} catch (Exception ex) {
 							logger.error("Failed to load the old Truststore from "
 									+ previousTruststoreFile +". Possible reason: incorrect password or corrupted file.", ex);
-							// Remove the files
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
-							}
-							catch(Exception ex2){
-								// Ignore - nothing we can do
-							}	
-							return true;
+							JOptionPane.showMessageDialog(null, "Failed to load trusted certificates from the old Truststore", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);	
+							break;
 						} finally {
 							if (fis2 != null) {
 								try {
@@ -346,14 +319,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							currentTruststore.load(null, null);
 						} catch (Exception ex) {
 							logger.error("Failed to create the new Truststore to copy old entries to from " + previousTruststoreFile, ex);
-							// Remove the files
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
-							}
-							catch(Exception ex2){
-								// Ignore - nothing we can do
-							}
-							return true;
+							JOptionPane.showMessageDialog(null, "Failed to create the new empty Truststore", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						}
 						// Copy all old entries to the new Truststore		
 						try{
@@ -373,14 +340,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 						catch(Exception ex2){
 							logger.error("Failed to get aliases for entries in the old Truststore in "
 									+ previousTruststoreFile +" when copying them to the new location in " + currentTruststoreFile, ex2);
-							// Remove the files
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
-							}
-							catch(Exception ex3){
-								// Ignore - nothing we can do
-							}
-							return true;
+							JOptionPane.showMessageDialog(null, "Failed to copy the old trusted certificates to the new Truststore", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						}
 						// Save the old Truststore to the new location (in the current Cred Manager directory)
 						FileOutputStream fos2 = null;
@@ -389,13 +350,9 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							currentTruststore.store(fos2, password.toCharArray());
 						} catch (Exception ex) {
 							logger.error("Failed to saved the new Truststore when copying from the old location in "+previousTruststoreFile + " to the new location in "+ currentTruststoreFile, ex);
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
-							}
-							catch(Exception ex2){
-								// Ignore - nothing we can do
-							}
-							return true;
+							FileUtils.deleteQuietly(currentTruststoreFile);
+							JOptionPane.showMessageDialog(null, "Failed to save the new Truststore", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						} finally {
 							if (fos2 != null) {
 								try {
@@ -406,7 +363,7 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							}
 						}
 						
-						// Try to instantiate the Credential Manager
+						// Try to instantiate Credential Manager
 						try{
 							CredentialManager.getInstance(password);
 						}
@@ -423,7 +380,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							catch(Exception ex2){
 								// Ignore - nothing we can do
 							}
-							return true;
+							JOptionPane.showMessageDialog(null, "Failed to instantiate new Credential Manager with the old credentials and trusted certificates", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						}
 					}
 					// For Taverna 2.3+
@@ -436,6 +394,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							FileUtils.copyFile(previousKeystoreFile, currentKeystoreFile);
 					        logger.info("Trying to copy over the old Truststore from " + previousTruststoreFile);
 							FileUtils.copyFile(previousTruststoreFile, currentTruststoreFile);
+							
+							// Try to instantiate Credential Manager
 							CredentialManager.getInstance(password);
 						}
 						catch(IOException ex){
@@ -451,6 +411,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							catch(Exception ex2){
 								// Ignore - nothing we can do
 							}
+							JOptionPane.showMessageDialog(null, "Failed to copy the old Keystore and Truststore with credentials and trusted certificates", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						} catch (CMException cmex) {
 							logger
 							.error("Failed to instantiate Credential Manager's with the older files copied from "
@@ -464,11 +426,19 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							catch(Exception ex2){
 								// Ignore - nothing we can do
 							}
+							JOptionPane.showMessageDialog(null, "Failed to instantiate new Credential Manager with the old credentials and trusted certificates", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+							break;
 						}
 					}
-				}	
+				}
+				else{
+					break;
+				}
+				
+				// If we are here - all is good - break from the loop
+				break;
 			}
-		}		
+		}
 		return true;
 	}
 
