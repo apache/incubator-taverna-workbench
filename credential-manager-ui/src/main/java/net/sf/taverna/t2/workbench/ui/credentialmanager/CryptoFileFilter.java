@@ -22,14 +22,24 @@ package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.filechooser.FileFilter;
 
 /**
  * File filter for filtering against various file extensions. Crypto files
- * normally contain a private key (and optionally its certificate chain)
- * or a public key certificate (and optionally its certificate chain).
+ * normally contain a private key (and optionally its certificate chain) or a
+ * public key certificate (and optionally its certificate chain).
+ * 
+ * .p12 or .pfx are PKCS #12 keystore files containing private key and its
+ * public key (+cert chain); .pem are ASN.1 PEM-encoded files containing one (or
+ * more concatenated) public key certificate(s); .der are ASN.1 DER-encoded
+ * files containing one public key certificate; .cer are CER-encoded files
+ * containing one ore more DER-encoded certificates; .crt files are either
+ * encoded as binary DER or as ASCII PEM. .p7 and .p7c are PKCS #7 certificate
+ * chain files (i.e. SignedData structure without data, just certificate(s)).
  */
 public class CryptoFileFilter extends FileFilter 
 {
@@ -37,30 +47,21 @@ public class CryptoFileFilter extends FileFilter
 	private String description;
 	
 	// Array of file extensions to filter against
-	private ArrayList<String> exts = new ArrayList<String>();
-	
-    /**
-     * Construct a CryptoFileFilter for a set of related file extensions.
-     */
+	private List<String> exts = new ArrayList<String>();
+
     public CryptoFileFilter(String [] extList, String desc)
     {
-        for (int i = 0; i < extList.length; i++) {
-            addType (extList[i]);
-        }
+    	exts = Arrays.asList(extList);
         this.description = desc;
     }
 
-	private void addType(String s) {
-		exts.add(s);
-	}
-
-	public boolean accept(File f) {
-		if (f.isDirectory()) {
+	public boolean accept(File file) {
+		if (file.isDirectory()) {
 			return true;
-		} else if (f.isFile()) {
+		} else if (file.isFile()) {
 			Iterator<String> it = exts.iterator();
 			while (it.hasNext()) {
-				if (f.getName().toLowerCase().endsWith((String) it.next()))
+				if (file.getName().toLowerCase().endsWith((String) it.next()))
 					return true;
 			}
 		}

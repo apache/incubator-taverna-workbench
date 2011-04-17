@@ -38,11 +38,11 @@ import java.math.BigInteger;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+//import javax.swing.JTextField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
-import javax.swing.JSeparator;
+//import javax.swing.JSeparator;
 
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
@@ -130,33 +130,37 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 		// Netscape Certificate Type non-critical extension (if any)
 		// defines the intended uses of the certificate - to make it look like
 		// Firefox's view certificate dialog
-		byte[] intendedUses = cert.getExtensionValue("2.16.840.1.113730.1.1"); // Netscape Certificate Type OID
-		JLabel intendedUsesLabel = null;
-		JTextField intendedUsesTextField = null;
-		JPanel intendedUsesPanel = null;
-		GridBagConstraints gbc_intendedUsesLabel = null;
-		if (intendedUses != null) {
-			intendedUsesLabel = new JLabel(
-					"This certificate has been approved for the following uses:");
-			intendedUsesLabel.setFont(new Font(null, Font.BOLD, 11));
-			intendedUsesLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-			intendedUsesTextField = new JTextField(45);
-			intendedUsesTextField.setText(CMUtils.getIntendedUses(intendedUses));
-			intendedUsesTextField.setEditable(false);
-			intendedUsesTextField.setFont(new Font(null, Font.PLAIN, 11));
-
-			intendedUsesPanel = new JPanel(new BorderLayout());
-			intendedUsesPanel.add(intendedUsesLabel, BorderLayout.NORTH);
-			intendedUsesPanel.add(intendedUsesTextField, BorderLayout.CENTER);
-			JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
-			intendedUsesPanel.add(separator, BorderLayout.SOUTH);
-
-			gbc_intendedUsesLabel = (GridBagConstraints) gbc_labels.clone();
-			gbc_intendedUsesLabel.gridy = 0;
-			gbc_intendedUsesLabel.gridwidth = 2; // takes two columns
-			gbc_intendedUsesLabel.insets = new Insets(5, 5, 5, 5);// has slightly bigger insets
-		}
+        // From openssl's documentation: "The [above] extension is non standard, Netscape 
+        // specific and largely obsolete. Their use in new applications is discouraged."
+        // TODO replace with "basicConstraints, keyUsage and extended key usage extensions 
+        // which are now used instead."
+//		byte[] intendedUses = cert.getExtensionValue("2.16.840.1.113730.1.1"); // Netscape Certificate Type OID
+//		JLabel intendedUsesLabel = null;
+//		JTextField intendedUsesTextField = null;
+//		JPanel intendedUsesPanel = null;
+//		GridBagConstraints gbc_intendedUsesLabel = null;
+//		if (intendedUses != null) {
+//			intendedUsesLabel = new JLabel(
+//					"This certificate has been approved for the following uses:");
+//			intendedUsesLabel.setFont(new Font(null, Font.BOLD, 11));
+//			intendedUsesLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
+//
+//			intendedUsesTextField = new JTextField(45);
+//			intendedUsesTextField.setText(CMUtils.getIntendedCertificateUses(intendedUses));
+//			intendedUsesTextField.setEditable(false);
+//			intendedUsesTextField.setFont(new Font(null, Font.PLAIN, 11));
+//
+//			intendedUsesPanel = new JPanel(new BorderLayout());
+//			intendedUsesPanel.add(intendedUsesLabel, BorderLayout.NORTH);
+//			intendedUsesPanel.add(intendedUsesTextField, BorderLayout.CENTER);
+//			JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+//			intendedUsesPanel.add(separator, BorderLayout.SOUTH);
+//
+//			gbc_intendedUsesLabel = (GridBagConstraints) gbc_labels.clone();
+//			gbc_intendedUsesLabel.gridy = 0;
+//			gbc_intendedUsesLabel.gridwidth = 2; // takes two columns
+//			gbc_intendedUsesLabel.insets = new Insets(5, 5, 5, 5);// has slightly bigger insets
+//		}
 
 		// Issued To
 		JLabel issuedToLabel = new JLabel("Issued To");
@@ -334,6 +338,7 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 		// Fingerprints
 		byte[] binaryCertificateEncoding = new byte[0];
 		try {
+			// each certificate has one binary encoding; for X.509 certs it is DER
 			binaryCertificateEncoding = cert.getEncoded();
 		} catch (CertificateEncodingException ex) {
 			logger.error("Could not get the encoded form of the certificate.", ex);
@@ -352,7 +357,7 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 		GridBagConstraints gbc_sha1FingerprintLabel = (GridBagConstraints) gbc_labels
 				.clone();
 		gbc_sha1FingerprintLabel.gridy = 16;
-		JLabel sha1FingerprintValue = new JLabel(CMUtils.getMessageDigest(binaryCertificateEncoding,
+		JLabel sha1FingerprintValue = new JLabel(CMUtils.getMessageDigestAsFormattedString(binaryCertificateEncoding,
 				"SHA1"));
 		sha1FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
 		GridBagConstraints gbc_sha1FingerprintValue = (GridBagConstraints) gbc_values
@@ -365,7 +370,7 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 				.clone();
 		gbc_md5FingerprinLabel.gridy = 17;
 		JLabel md5FingerprintValue = new JLabel(
-				CMUtils.getMessageDigest(binaryCertificateEncoding, "MD5"));
+				CMUtils.getMessageDigestAsFormattedString(binaryCertificateEncoding, "MD5"));
 		md5FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
 		GridBagConstraints gbc_md5FingerprintValue = (GridBagConstraints) gbc_values
 				.clone();
@@ -383,9 +388,9 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 		certificatePanel.setBorder(new CompoundBorder(new EmptyBorder(15, 15, 15,
 				15), new EtchedBorder()));
 
-		if (intendedUses != null) {
-			certificatePanel.add(intendedUsesPanel, gbc_intendedUsesLabel);
-		}
+//		if (intendedUses != null) {
+//			certificatePanel.add(intendedUsesPanel, gbc_intendedUsesLabel);
+//		}
 		certificatePanel.add(issuedToLabel, gbc_issuedTo); // Issued To
 		certificatePanel.add(subjectCNLabel, gbc_subjectCNLabel);
 		certificatePanel.add(subjectCNValue, gbc_subjectCNValue);

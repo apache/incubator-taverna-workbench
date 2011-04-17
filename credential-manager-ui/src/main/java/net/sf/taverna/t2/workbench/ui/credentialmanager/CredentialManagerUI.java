@@ -712,7 +712,7 @@ public class CredentialManagerUI extends JFrame {
 		// double-clicked
 		table.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
-				handleTableDoubleClick(evt);
+				tableDoubleClick(evt);
 			}
 		});
 
@@ -1279,13 +1279,13 @@ public class CredentialManagerUI extends JFrame {
 	private void exportKeyPair() {
 
 		// Which key pair entry has been selected?
-		int iRow = keyPairsTable.getSelectedRow();
-		if (iRow == -1) { // no row currently selected
+		int selectedRow = keyPairsTable.getSelectedRow();
+		if (selectedRow == -1) { // no row currently selected
 			return;
 		}
 
 		// Get the key pair entry's Keystore alias
-		String alias = (String) keyPairsTable.getModel().getValueAt(iRow, 6);
+		String alias = (String) keyPairsTable.getModel().getValueAt(selectedRow, 6);
 
 		// Let the user choose a PKCS #12 file (keystore) to export public and
 		// private key pair to
@@ -1407,8 +1407,6 @@ public class CredentialManagerUI extends JFrame {
 		try {
 			fis = new FileInputStream(certFile);
 			CertificateFactory cf = CertificateFactory.getInstance("X.509");
-			// The following should be able to load PKCS #7 certificate chain
-			// files as well as ASN.1 DER or PEM-encoded (sequences of) certificates
 			Collection<? extends Certificate> c = cf.generateCertificates(fis);
 			Iterator<? extends Certificate> i = c.iterator();
 			while (i.hasNext()) {
@@ -1508,13 +1506,13 @@ public class CredentialManagerUI extends JFrame {
 			return false;
 		}
 
-		// Get the trust certificate entry's Keystore alias
+		// Get the trusted certificate entry's Keystore alias
 		String alias = (String) trustedCertsTable.getModel()
 				.getValueAt(selectedRow, 3);
 		// the alias column is invisible so we get the value from the table
 		// model
 
-		// Let the user choose a file to export public and private key pair to
+		// Let the user choose a file to export to
 		File exportFile = selectImportExportFile("Select a file to export to", // title
 				new String[] { ".pem" }, // array of file extensions for the
 				// file filter
@@ -1613,10 +1611,10 @@ public class CredentialManagerUI extends JFrame {
 	}
 
 	/**
-	 * Handles double click on the tables. If it has occurred, show the
-	 * details of the entry that was clicked on.
+	 * If double click on a table occured - show the
+	 * details of the table entry.
 	 */
-	private void handleTableDoubleClick(MouseEvent evt) {
+	private void tableDoubleClick(MouseEvent evt) {
 		if (evt.getClickCount() > 1) { // is it a double click?
 
 			// Which row was clicked on (if any)?
@@ -1639,13 +1637,7 @@ public class CredentialManagerUI extends JFrame {
 
 	/**
 	 * Lets the user select a file to export to or import from a key pair or a
-	 * certificate. The file types are filtered according to their extensions:
-	 * .p12 or .pfx are PKCS #12 keystore files containing private key and its
-	 * public key (+cert chain); .pem are ASN.1 PEM-encoded files containing one
-	 * (or more concatenated) public key certificate(s); .der are ASN.1
-	 * DER-encoded files containing one public key certificate; .cer are
-	 * CER-encoded files containing one ore more DER-encoded certificates; .crt 
-	 * files are either encoded as binary DER or as ASCII PEM.
+	 * certificate. 
 	 */
 	private File selectImportExportFile(String title, String[] filter,
 			String description, String approveButtonText, String prefString) {

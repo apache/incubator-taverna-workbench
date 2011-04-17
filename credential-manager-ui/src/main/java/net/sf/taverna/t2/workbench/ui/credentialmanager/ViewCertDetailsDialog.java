@@ -40,12 +40,12 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+//import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
-import javax.swing.JSeparator;
+//import javax.swing.JSeparator;
 
 import java.util.ArrayList;
 
@@ -134,35 +134,39 @@ public class ViewCertDetailsDialog
         
         // Netscape Certificate Type non-critical extension (if any)
         // defines the intended uses of the certificate - to make it look like 
-        // firefox's view certificate dialog
-        byte[] intendedUses = cert.getExtensionValue("2.16.840.1.113730.1.1"); //Netscape Certificate Type OID/*
-        JLabel jlIntendedUses = null;
-        JTextField jtfIntendedUsesValue = null;
-        JPanel jpUses = null;
-        GridBagConstraints gbc_jpUses = null;
-        if (intendedUses != null)
-        {
-         	jlIntendedUses = new JLabel("This certificate has been approved for the following uses:");
-         	jlIntendedUses.setFont(new Font(null, Font.BOLD, 11));
-         	jlIntendedUses.setBorder(new EmptyBorder(5,5,5,5));
-         	
-         	jtfIntendedUsesValue = new JTextField(45);
-         	jtfIntendedUsesValue.setText(CMUtils.getIntendedUses(intendedUses));
-        	jtfIntendedUsesValue.setEditable(false);
-        	jtfIntendedUsesValue.setFont(new Font(null, Font.PLAIN, 11));
-             
-        	jpUses = new JPanel(new BorderLayout()); 
-        	jpUses.add(jlIntendedUses, BorderLayout.NORTH);
-        	jpUses.add(jtfIntendedUsesValue, BorderLayout.CENTER);
-        	JSeparator jsp = new JSeparator(JSeparator.HORIZONTAL);
-        	jpUses.add(jsp, BorderLayout.SOUTH);
-        	
-        	gbc_jpUses = (GridBagConstraints) gbcLabel.clone();
-        	gbc_jpUses.gridy = 0;
-        	gbc_jpUses.gridwidth = 2; //takes two columns
-        	gbc_jpUses.insets = new Insets(5, 5, 5, 5);//has slightly bigger insets
-
-        }
+        // firefox's view certificate dialog.
+        // From openssl's documentation: "The [above] extension is non standard, Netscape 
+        // specific and largely obsolete. Their use in new applications is discouraged."
+        // TODO replace with "basicConstraints, keyUsage and extended key usage extensions 
+        // which are now used instead."
+//        byte[] intendedUses = cert.getExtensionValue("2.16.840.1.113730.1.1"); //Netscape Certificate Type OID/*
+//        JLabel jlIntendedUses = null;
+//        JTextField jtfIntendedUsesValue = null;
+//        JPanel jpUses = null;
+//        GridBagConstraints gbc_jpUses = null;
+//        if (intendedUses != null)
+//        {
+//         	jlIntendedUses = new JLabel("This certificate has been approved for the following uses:");
+//         	jlIntendedUses.setFont(new Font(null, Font.BOLD, 11));
+//         	jlIntendedUses.setBorder(new EmptyBorder(5,5,5,5));
+//         	
+//         	jtfIntendedUsesValue = new JTextField(45);
+//         	jtfIntendedUsesValue.setText(CMUtils.getIntendedCertificateUses(intendedUses));
+//        	jtfIntendedUsesValue.setEditable(false);
+//        	jtfIntendedUsesValue.setFont(new Font(null, Font.PLAIN, 11));
+//             
+//        	jpUses = new JPanel(new BorderLayout()); 
+//        	jpUses.add(jlIntendedUses, BorderLayout.NORTH);
+//        	jpUses.add(jtfIntendedUsesValue, BorderLayout.CENTER);
+//        	JSeparator jsp = new JSeparator(JSeparator.HORIZONTAL);
+//        	jpUses.add(jsp, BorderLayout.SOUTH);
+//        	
+//        	gbc_jpUses = (GridBagConstraints) gbcLabel.clone();
+//        	gbc_jpUses.gridy = 0;
+//        	gbc_jpUses.gridwidth = 2; //takes two columns
+//        	gbc_jpUses.insets = new Insets(5, 5, 5, 5);//has slightly bigger insets
+//
+//        }
 
         //Issued To
         JLabel jlIssuedTo = new JLabel("Issued To");
@@ -333,7 +337,7 @@ public class ViewCertDetailsDialog
         jlSHA1Fingerprint.setFont(new Font(null, Font.PLAIN, 11));
         GridBagConstraints gbc_jlSHA1Fingerprint = (GridBagConstraints) gbcLabel.clone();
         gbc_jlSHA1Fingerprint.gridy = 16;
-        JLabel jlSHA1FingerprintValue = new JLabel(CMUtils.getMessageDigest(certBinaryEncoding, "SHA1"));
+        JLabel jlSHA1FingerprintValue = new JLabel(CMUtils.getMessageDigestAsFormattedString(certBinaryEncoding, "SHA1"));
         jlSHA1FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
         GridBagConstraints gbc_jlSHA1FingerprintValue = (GridBagConstraints) gbcValue.clone();
         gbc_jlSHA1FingerprintValue.gridy = 16;
@@ -342,7 +346,7 @@ public class ViewCertDetailsDialog
         jlMD5Fingerprint.setFont(new Font(null, Font.PLAIN, 11));
         GridBagConstraints gbc_jlMD5Fingerprint = (GridBagConstraints) gbcLabel.clone();
         gbc_jlMD5Fingerprint.gridy = 17;
-        JLabel jlMD5FingerprintValue = new JLabel(CMUtils.getMessageDigest(certBinaryEncoding, "MD5"));
+        JLabel jlMD5FingerprintValue = new JLabel(CMUtils.getMessageDigestAsFormattedString(certBinaryEncoding, "MD5"));
         jlMD5FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
         GridBagConstraints gbc_jlMD5FingerprintValue = (GridBagConstraints) gbcValue.clone();
         gbc_jlMD5FingerprintValue.gridy = 17;
@@ -359,9 +363,9 @@ public class ViewCertDetailsDialog
         jpCertificate.setBorder(new CompoundBorder(
             new EmptyBorder(15, 15, 15, 15), new EtchedBorder()));
 
-        if (intendedUses != null){
-        	jpCertificate.add(jpUses, gbc_jpUses);
-        }
+//        if (intendedUses != null){
+//        	jpCertificate.add(jpUses, gbc_jpUses);
+//        }
         jpCertificate.add(jlIssuedTo, gbc_jlIssuedTo); // Issued To
         jpCertificate.add(jlCN, gbc_jlCN);
         jpCertificate.add(jlCNValue, gbc_jlCNValue);
