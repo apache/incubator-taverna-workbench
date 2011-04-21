@@ -71,6 +71,8 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class AnnotatedContextualView extends ContextualView {
 
+	public static final String VIEW_TITLE = "Annotations";
+
 	private static Logger logger = Logger
 			.getLogger(AnnotatedContextualView.class);
 
@@ -135,7 +137,7 @@ public class AnnotatedContextualView extends ContextualView {
 	 */
 	@Override
 	public String getViewTitle() {
-		return "Annotations";
+		return VIEW_TITLE;
 	}
 
 	public void refreshView() {
