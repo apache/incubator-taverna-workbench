@@ -66,6 +66,12 @@
     		<artifactId>provenanceconnector</artifactId>
  			<version>${t2.core.version}</version>
  		</dependency>
+		<dependency>
+  			<groupId>net.sf.taverna.t2</groupId>
+    		<artifactId>provenance-client</artifactId>
+ 			<version>${t2.provenance-client.version}</version>
+ 		</dependency>
+
  		<dependency>
  			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>reference-core-extensions</artifactId>
