@@ -46,6 +46,7 @@ import net.sf.taverna.t2.reference.ReferenceServiceException;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.T2ReferenceType;
 import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 /**
  * Implementing classes are capable of storing a collection
@@ -61,6 +62,17 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	protected InvocationContext context = null;
 	protected Map<String, Object> chosenReferences;
 	protected JDialog dialog;
+	private boolean isProvenanceEnabledForRun;
+	private String runId;
+	private Dataflow dataflow;
+
+	public final String getRunId() {
+		return runId;
+	}
+
+	public final Dataflow getDataflow() {
+		return dataflow;
+	}
 
 	/**
 	 * Returns the save result action implementing this interface. The returned
@@ -247,6 +259,22 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 			dataThingMap.put(portName, DataThingFactory.bake(resultMap.get(portName)));
 		}
 		return dataThingMap;
+	}
+
+	public void setRunId(String runId) {
+		this.runId = runId;
+	}
+
+	public void setDataflow(Dataflow dataflow) {
+		this.dataflow = dataflow;
+	}
+
+	public void setProvenanceEnabledForRun(boolean isProvenanceEnabledForRun) {
+		this.isProvenanceEnabledForRun = isProvenanceEnabledForRun;
+	}
+
+	public boolean isProvenanceEnabledForRun() {
+		return isProvenanceEnabledForRun;
 	}
 }
 

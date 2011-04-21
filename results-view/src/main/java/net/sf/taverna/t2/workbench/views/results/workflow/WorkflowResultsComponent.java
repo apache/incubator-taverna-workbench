@@ -41,6 +41,7 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -516,7 +517,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				new HashMap<JCheckBox, Object>();
 			final Map<String, Object> chosenReferences =
 				new HashMap<String, Object> ();
-			final Set<SaveAllResultsSPI> actionSet = new HashSet<SaveAllResultsSPI>();
+			final Set<Action> actionSet = new HashSet<Action>();
 
 			ItemListener listener = new ItemListener() {
 
@@ -647,16 +648,16 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			// Get all existing 'Save result' actions
 			List<SaveAllResultsSPI> saveActions = saveAllResultsRegistry.getSaveResultActions();
 			for (SaveAllResultsSPI spi : saveActions){
-				if (spi instanceof SaveAllResultsAsOPM){
-				((SaveAllResultsAsOPM)spi).setIsProvenanceEnabledForRun(isProvenanceEnabledForRun);
-				((SaveAllResultsAsOPM)spi).setRunId(runId);
-				((SaveAllResultsAsOPM)spi).setDataflow(dataflow);
-				}
-				SaveAllResultsSPI action = (SaveAllResultsSPI) spi.getAction();
+				spi.setProvenanceEnabledForRun(isProvenanceEnabledForRun);
+				spi.setRunId(runId);
+				spi.setDataflow(dataflow);
+				AbstractAction action = spi.getAction();
 				actionSet.add(action);
 				JButton saveButton = new JButton((AbstractAction) action);
-				action.setChosenReferences(chosenReferences);
-				action.setParent(dialog);
+				if (action instanceof SaveAllResultsSPI) {
+					((SaveAllResultsSPI)action).setChosenReferences(chosenReferences);
+					((SaveAllResultsSPI)action).setParent(dialog);					
+				}
 				//saveButton.setEnabled(true);
 				buttonsBar.add(saveButton);
 			}
