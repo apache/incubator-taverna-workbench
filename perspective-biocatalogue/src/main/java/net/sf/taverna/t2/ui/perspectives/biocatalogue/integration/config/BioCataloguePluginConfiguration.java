@@ -38,7 +38,7 @@ public class BioCataloguePluginConfiguration extends AbstractConfigurable
   public Map<String,String> getDefaultPropertyMap() {
     if (defaultPropertyMap == null) {
       defaultPropertyMap = new HashMap<String,String>();
-      defaultPropertyMap.put(BIOCATALOGUE_BASE_URL, BioCatalogueClient.DEFAULT_API_SANDBOX_BASE_URL);
+      defaultPropertyMap.put(BIOCATALOGUE_BASE_URL, BioCatalogueClient.DEFAULT_API_LIVE_SERVER_BASE_URL);
     }
     return defaultPropertyMap;
   }

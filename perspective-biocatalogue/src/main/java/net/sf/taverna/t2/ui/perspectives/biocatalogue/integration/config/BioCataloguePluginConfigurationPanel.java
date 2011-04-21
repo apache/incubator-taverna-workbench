@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProxySelector;
 import java.net.URL;
 
 import javax.swing.BorderFactory;
@@ -25,15 +26,18 @@ import javax.swing.JTextField;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+//import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
 import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.Namespace;
+//import org.jdom.Element;
+//import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
@@ -49,6 +53,11 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 {
 	public static final String APPLICATION_XML_MIME_TYPE = "application/xml";
 
+	public static String PROXY_HOST = "http.proxyHost";
+	public static String PROXY_PORT = "http.proxyPort";
+	public static String PROXY_USERNAME = "http.proxyUser";
+	public static String PROXY_PASSWORD = "http.proxyPassword";
+	
 	private BioCataloguePluginConfiguration configuration = 
                           BioCataloguePluginConfiguration.getInstance();
   
@@ -206,7 +215,27 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 				// Do a GET with "Accept" header set to "application/xml"
 				// We are expecting a 200 OK and an XML doc in return that
 				// contains the BioCataogue version number element.
-				HttpClient httpClient = new DefaultHttpClient();
+				DefaultHttpClient httpClient = new DefaultHttpClient();
+				
+				// Set the proxy settings, if any
+				if (System.getProperty(PROXY_HOST) != null
+						&& !System.getProperty(PROXY_HOST).equals("")) {
+					// Instruct HttpClient to use the standard
+					// JRE proxy selector to obtain proxy information
+					ProxySelectorRoutePlanner routePlanner = new ProxySelectorRoutePlanner(
+							httpClient.getConnectionManager().getSchemeRegistry(), ProxySelector
+									.getDefault());
+					httpClient.setRoutePlanner(routePlanner);
+					// Do we need to authenticate the user to the proxy?
+					if (System.getProperty(PROXY_USERNAME) != null
+							&& !System.getProperty(PROXY_USERNAME).equals("")) {
+						// Add the proxy username and password to the list of credentials
+						httpClient.getCredentialsProvider().setCredentials(
+								new AuthScope(System.getProperty(PROXY_HOST),Integer.parseInt(System.getProperty(PROXY_PORT))),
+								new UsernamePasswordCredentials(System.getProperty(PROXY_USERNAME), System.getProperty(PROXY_PASSWORD)));
+					}
+				}
+				
 				HttpGet httpGet = new HttpGet(candidateBaseURL);
 				httpGet.setHeader("Accept", APPLICATION_XML_MIME_TYPE);
 
