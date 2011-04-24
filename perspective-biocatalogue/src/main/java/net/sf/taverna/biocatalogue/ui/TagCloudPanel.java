@@ -550,7 +550,7 @@ public class TagCloudPanel extends JPanel implements ChangeListener, ActionListe
       // tag cloud HTML document prepared - render it within the XHTML panel
       try {
         StringToInputStreamConverter converter = new StringToInputStreamConverter(content.toString());
-        xhtmlTagCloudPanel.setDocument(converter.getInputStream(), System.getProperty("user.dir"));
+        xhtmlTagCloudPanel.setDocument(converter.getInputStream(), "file://"+System.getProperty("user.dir"));
         xhtmlTagCloudPanel.validate();
         converter.closeAllStreams();  // close all streams
       }
