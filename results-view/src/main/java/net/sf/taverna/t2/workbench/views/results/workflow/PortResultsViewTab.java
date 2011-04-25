@@ -106,7 +106,7 @@ public class PortResultsViewTab extends JPanel{
 				TreePath selectionPath = e.getNewLeadSelectionPath();
 				if (selectionPath != null) {
 					// Get the selected node
-					final Object selectedNode = selectionPath.getLastPathComponent();				
+					final Object selectedNode = selectionPath.getLastPathComponent();
 					renderedResultComponent.setNode((WorkflowResultTreeNode)selectedNode);
 				}
 			}
