@@ -20,7 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.renderers;
 
-import java.awt.Font;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
@@ -29,7 +28,7 @@ import javax.swing.JTextArea;
 
 import org.apache.log4j.Logger;
 
-import net.sf.taverna.t2.lang.ui.DialogTextArea;
+import net.sf.taverna.t2.lang.ui.LineWrappingTextArea;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
@@ -72,7 +71,7 @@ public class TextRenderer implements Renderer {
 		// Should be a ReferenceSet
 		if (reference.getReferenceType() == T2ReferenceType.ReferenceSet) {
 			try {
-				DialogTextArea theTextArea = new DialogTextArea();
+				LineWrappingTextArea theTextArea;
 				long approximateSizeInBytes = 0;
 				try {
 					ReferenceSet refSet = referenceService
@@ -125,10 +124,11 @@ public class TextRenderer implements Renderer {
 											+ e.getMessage());
 						}
 
-						theTextArea.setText(resolve);
-						theTextArea.setCaretPosition(0);
-						theTextArea.setFont(new Font("Monospaced", Font.PLAIN,
-								12));
+						theTextArea = new LineWrappingTextArea(resolve);
+//						theTextArea.setText(resolve);
+//						theTextArea.setCaretPosition(0);
+//						theTextArea.setFont(new Font("Monospaced", Font.PLAIN,
+//								12));
 						return theTextArea;
 
 					} else if (response == JOptionPane.NO_OPTION) {
@@ -154,18 +154,15 @@ public class TextRenderer implements Renderer {
 						for (int i = 0; i < MEGABYTE; i++) {
 							smallStringBytes[i] = resolvedBytes[i];
 						}
-						theTextArea.setText(new String(smallStringBytes));
-						theTextArea.setFont(new Font("Monospaced", Font.PLAIN,
-								12));
-						theTextArea.setCaretPosition(0);
+						theTextArea = new LineWrappingTextArea(new String(smallStringBytes));
+//						theTextArea.setText(new String(smallStringBytes));
+//						theTextArea.setFont(new Font("Monospaced", Font.PLAIN,
+//								12));
+//						theTextArea.setCaretPosition(0);
 						return theTextArea;
 					} else {// if (response == JOptionPane.CANCEL_OPTION) or
 						// ESCAPE key pressed
-						theTextArea
-								.setText(new String(
-										"Rendering cancelled due to size of data. Try saving and viewing in an external application."));
-						theTextArea.setCaretPosition(0);
-						return theTextArea;
+						return new JTextArea("Rendering cancelled due to size of data. Try saving and viewing in an external application.");
 					}
 				} else { // Data is not too big
 					String resolve = null;
@@ -182,9 +179,10 @@ public class TextRenderer implements Renderer {
 								"Reference Service failed to render data as string (see error log for more details): \n"
 										+ e.getMessage());
 					}
-					theTextArea.setText(resolve);
-					theTextArea.setCaretPosition(0);
-					theTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+					theTextArea = new LineWrappingTextArea(resolve);
+//					theTextArea.setText(resolve);
+//					theTextArea.setCaretPosition(0);
+//					theTextArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
 					return theTextArea;
 				}
 			} catch (Exception e1) {
