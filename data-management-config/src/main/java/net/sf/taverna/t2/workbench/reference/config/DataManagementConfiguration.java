@@ -52,10 +52,6 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
 	
-	public static final String NEVER = "Never";
-	public static final String WHEN_ASKED = "When asked";
-	public static final String ALWAYS = "Always";
-	
 	public static final String EXPOSE_DATANATURE = "taverna.exposedatanature";
 
 	// FIXME: these should me just mysql & derby - but build & dependency issues
