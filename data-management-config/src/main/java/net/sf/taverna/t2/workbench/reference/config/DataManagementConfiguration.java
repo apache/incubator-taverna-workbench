@@ -57,8 +57,6 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 	public static final String ALWAYS = "Always";
 	
 	public static final String EXPOSE_DATANATURE = "taverna.exposedatanature";
-	public static final String SNAPSHOT_RUN = "taverna.snapshotrun";
-	public static final String TIDY_RUN = "taverna.tidyrun";
 
 	// FIXME: these should me just mysql & derby - but build & dependency issues
 	// is causing the provenance to expect these values:
@@ -184,22 +182,6 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 	public int getPoolMaxIdle() {
 		return Integer.valueOf(getProperty(POOL_MAX_IDLE));
 	}
-	
-	public String getSnapshotRun() {
-		return getProperty(SNAPSHOT_RUN);
-	}
-	
-	public String getTidyRun() {
-		return getProperty(TIDY_RUN);
-	}
-	
-	public void setSnapshotRun(String value) {
-		setProperty(SNAPSHOT_RUN, value);
-	}
-	
-	public void setTidyRun(String value) {
-		setProperty(TIDY_RUN, value);
-	}
 
 	private DataManagementConfiguration() {
 
@@ -233,8 +215,6 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 
 			defaultPropertyMap.put(CONNECTOR_TYPE, CONNECTOR_DERBY);
 			defaultPropertyMap.put(EXPOSE_DATANATURE, "false");
-			defaultPropertyMap.put(SNAPSHOT_RUN, WHEN_ASKED);
-			defaultPropertyMap.put(TIDY_RUN, WHEN_ASKED);
 		}
 		return defaultPropertyMap;
 	}
