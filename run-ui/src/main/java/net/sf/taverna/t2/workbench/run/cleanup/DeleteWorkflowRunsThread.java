@@ -20,12 +20,13 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.cleanup;
 
-import java.util.Queue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.reference.ReferenceService;
+import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
+import net.sf.taverna.t2.workflowmodel.RunDeletionListener;
 
 import org.apache.log4j.Logger;
 
@@ -38,6 +39,8 @@ public class DeleteWorkflowRunsThread extends Thread {
 	private static Logger logger = Logger
 			.getLogger(DeleteWorkflowRunsThread.class);
 	protected boolean active = true;
+	
+	private static SPIRegistry<RunDeletionListener> runDeletionListenerRegistry = new SPIRegistry(RunDeletionListener.class);
 
 	public DeleteWorkflowRunsThread() {
 		super("Deleting old workflow runs");
@@ -84,6 +87,8 @@ public class DeleteWorkflowRunsThread extends Thread {
 							+ runToDelete
 							+ "' from provenance database and Reference Manager's store completed.";
 					logger.info(message);
+					
+					informDeletionListeners(runToDelete);
 				} catch (Exception ex) {
 					String message = "Failed to delete workflow run '"
 							+ runToDelete
@@ -95,6 +100,12 @@ public class DeleteWorkflowRunsThread extends Thread {
 			}
 		} catch (InterruptedException ignored) {
 			return;
+		}
+	}
+	
+	private void informDeletionListeners(String runToDelete) {
+		for (RunDeletionListener c : runDeletionListenerRegistry.getInstances()) {
+			c.deleteRun(runToDelete);
 		}
 	}
 }
