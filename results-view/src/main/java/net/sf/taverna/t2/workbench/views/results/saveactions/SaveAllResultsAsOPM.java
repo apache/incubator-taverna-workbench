@@ -65,7 +65,7 @@ public class SaveAllResultsAsOPM extends SaveAllResultsSPI {
 	 * Save as XML file in the OPM format.
 	 */
 	@Override
-	protected void saveData(File file) throws Exception {
+	protected void saveData(File file) throws IOException {
 
 		String connectorType = DataManagementConfiguration.getInstance()
 				.getConnectorType();

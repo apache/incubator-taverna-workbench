@@ -106,6 +106,8 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 	// The map contains a mapping for each port to a T2Reference pointing to the port's result(s)
 	private HashMap<String, T2Reference> resultReferencesMap = new HashMap<String, T2Reference>();
 	
+	private HashMap<String, T2Reference> inputReferencesMap = new HashMap<String, T2Reference> ();
+	
 	// Per-port boolean values indicating if all results have been received per port
 	private HashMap<String, Boolean> receivedAllResultsForPort = new HashMap<String, Boolean>();
 	
@@ -121,10 +123,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 	private Dataflow dataflow;
 	
 	private JButton saveButton;
-	
-	private JButton snapshotButton;
-	
-	private JButton tidyButton;
 
 	private String runId;
 
@@ -142,25 +140,11 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 	private Map<String, PortResultsViewTab> inputPortTabMap = new HashMap<String, PortResultsViewTab>();
 	private Map<String, PortResultsViewTab> outputPortTabMap = new HashMap<String, PortResultsViewTab>();
 	
-	private Map<String, Object> inputPortObjectMap = new HashMap<String, Object> ();
-	private Map<String, Object> outputPortObjectMap = new HashMap<String, Object> ();
-	
-	private SnapshotAction snapshotAction = new SnapshotAction("Snapshot values");
-	
-	private TidyRunAction tidyAction = new TidyRunAction("Tidy values");
-	
-	private String snapshotRunSetting;
-	private String tidyRunSetting;
-	
-	
 	public WorkflowResultsComponent(ReferenceService referenceService) {
 		super(new BorderLayout());
 		this.referenceService = referenceService;
 		setBorder(new EtchedBorder());
 		tabbedPane = new JTabbedPane();
-		DataManagementConfiguration config = DataManagementConfiguration.getInstance();
-		snapshotRunSetting = config.getSnapshotRun();
-		tidyRunSetting = config.getTidyRun();
 		saveButtonsPanel = new JPanel(new GridBagLayout());
 		add(saveButtonsPanel, BorderLayout.NORTH);
 		add(tabbedPane, BorderLayout.CENTER);
@@ -174,8 +158,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		this.dataflow = dataflow;
 		this.runId = runId;
 		this.isProvenanceEnabledForRun = true; // for a previous run provenance is always turned on
-		snapshotRunSetting = DataManagementConfiguration.WHEN_ASKED;
-		tidyRunSetting = DataManagementConfiguration.WHEN_ASKED;
 		populateResultsFromProvenance();
 	}
 
@@ -205,24 +187,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		gbc.insets = new Insets(0,10,0,0);
 		saveButtonsPanel.add(new JLabel("Workflow results"), gbc);
 		
-		if (snapshotRunSetting.equals(DataManagementConfiguration.WHEN_ASKED)) {	
-			snapshotButton = new JButton(snapshotAction);
-			snapshotButton.setEnabled(false);
-		gbc.gridx++;
-		gbc.gridy = 0;
-		gbc.weightx = 0.0;
-		gbc.fill = GridBagConstraints.NONE;
-		gbc.anchor = GridBagConstraints.EAST;
-		saveButtonsPanel.add(snapshotButton, gbc);
-		}
-
-		if (tidyRunSetting.equals(DataManagementConfiguration.WHEN_ASKED)) {
-		tidyButton = new JButton(tidyAction);
-		tidyButton.setEnabled(false);
-		gbc.gridx++;
-		saveButtonsPanel.add(tidyButton, gbc);
-		}
-
 		saveButton = new JButton(new SaveAllAction("Save all values", this));
 		gbc.gridx++;
 		gbc.gridy = 0;
@@ -245,13 +209,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		
 		populateSaveButtonsPanel();
 		
-
-		if (!referenceService.getMutableIdentifiersForWorkflowRun(runId).isEmpty()) {
-			snapshotButton.setEnabled(true);
-		}
-		if (!referenceService.getTidiableIdentifiersForWorkflowRun(runId).isEmpty()) {
-			tidyButton.setEnabled(true);
-		}
 		// Input ports
 		List<DataflowInputPort> dataflowInputPorts = new ArrayList<DataflowInputPort>(facade
 				.getDataflow().getInputPorts());
@@ -317,18 +274,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		context = dummyContext;
 		
 		populateSaveButtonsPanel();
-		Set<T2Reference> mutableReferences = referenceService
-		.getMutableIdentifiersForWorkflowRun(runId);
-		if (!mutableReferences.isEmpty()) {
-			snapshotButton.setEnabled(true);
-			snapshotButton.setFocusable(false);
-		}
-		Set<T2Reference> tidiableReferences = referenceService
-		.getTidiableIdentifiersForWorkflowRun(runId);
-		if (!tidiableReferences.isEmpty()) {			
-				tidyButton.setEnabled(true);
-				tidyButton.setFocusable(false);
-		}
 
 		// Get data for inputs and outputs ports
 		DataflowInvocation dataflowInvocation = provenanceAccess.getDataflowInvocation(runId);
@@ -448,38 +393,13 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		 	}
 		 }
 		 if (receivedAll){
-			 HashMap<String, T2Reference> inputValuesMap = new HashMap<String, T2Reference> ();
+
 				for (DataflowInputPort dataflowInputPort : dataflow.getInputPorts()) {
 					String name = dataflowInputPort.getName();
-					inputValuesMap.put(name, facade.getPushedDataMap().get(name));
+					inputReferencesMap.put(name, facade.getPushedDataMap().get(name));
 			}
 			saveButton.setEnabled(true);
 			saveButton.setFocusable(false);
-			if (!snapshotRunSetting.equals(DataManagementConfiguration.NEVER)) {
-				Set<T2Reference> mutableReferences = referenceService
-					.getMutableIdentifiersForWorkflowRun(runId);
-				if (!mutableReferences.isEmpty()) {
-					if (snapshotRunSetting.equals(DataManagementConfiguration.ALWAYS)) {
-						snapshotRun();
-					}
-					else {
-						snapshotButton.setEnabled(true);
-						snapshotButton.setFocusable(false);
-					}
-				}
-			}
-			if (!tidyRunSetting.equals(DataManagementConfiguration.NEVER)) {
-				Set<T2Reference> tidiableReferences = referenceService
-				.getTidiableIdentifiersForWorkflowRun(runId);
-				if (!tidiableReferences.isEmpty()) {
-					if (tidyRunSetting.equals(DataManagementConfiguration.ALWAYS)) {
-						tidyRun();
-					} else {				
-						tidyButton.setEnabled(true);
-						tidyButton.setFocusable(false);
-					}
-				}
-			}
 		 }
 	}
 	
@@ -513,10 +433,10 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			panel.add(explanation, BorderLayout.NORTH);
 			final Map<String, JCheckBox> inputChecks = new HashMap<String, JCheckBox> ();
 			final Map<String, JCheckBox> outputChecks = new HashMap<String, JCheckBox> ();
-			final Map<JCheckBox, Object> checkReferences =
-				new HashMap<JCheckBox, Object>();
-			final Map<String, Object> chosenReferences =
-				new HashMap<String, Object> ();
+			final Map<JCheckBox, T2Reference> checkReferences =
+				new HashMap<JCheckBox, T2Reference>();
+			final Map<String, T2Reference> chosenReferences =
+				new HashMap<String, T2Reference> ();
 			final Set<Action> actionSet = new HashSet<Action>();
 
 			ItemListener listener = new ItemListener() {
@@ -566,11 +486,10 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (DataflowInputPort port : dataflow.getInputPorts()) {
 					String portName = port.getName();
-					Object o = inputPortObjectMap.get(portName);
+					T2Reference o = inputReferencesMap.get(portName);
 					if (o == null) {
 						WorkflowResultTreeNode root = (WorkflowResultTreeNode) inputPortTabMap.get(portName).getResultModel().getRoot();
-						o = root.getAsObject();
-						inputPortObjectMap.put(portName, o);
+						o = root.getReference();
 					}
 					JCheckBox checkBox = new JCheckBox(portName);
 					checkBox
@@ -605,13 +524,12 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (DataflowOutputPort port : dataflow.getOutputPorts()) {
 					String portName = port.getName();
-					Object o = outputPortObjectMap.get(portName);
+					T2Reference o = resultReferencesMap.get(portName);
 					if (o == null) {
 						WorkflowResultTreeNode root = (WorkflowResultTreeNode) outputPortTabMap.get(portName).getResultModel().getRoot();
-						o = root.getAsObject();
-						outputPortObjectMap.put(portName, o);
+						o = root.getReference();
 					}
-					resultReferencesMap.put(portName, null);
+//					resultReferencesMap.put(portName, null);
 					JCheckBox checkBox = new JCheckBox(portName);
 					checkBox
 								.setSelected(true);
@@ -656,7 +574,8 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				JButton saveButton = new JButton((AbstractAction) action);
 				if (action instanceof SaveAllResultsSPI) {
 					((SaveAllResultsSPI)action).setChosenReferences(chosenReferences);
-					((SaveAllResultsSPI)action).setParent(dialog);					
+					((SaveAllResultsSPI)action).setParent(dialog);			
+					((SaveAllResultsSPI)action).setInvocationContext(context);
 				}
 				//saveButton.setEnabled(true);
 				buttonsBar.add(saveButton);
@@ -683,69 +602,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		WorkflowResultTreeModel model = inputPortTabMap.get(portName).getResultModel();
 		if (model != null) {
 			model.resultTokenProduced(token, portName);
-		}
-	}
-	
-	private static Set desiredClasses = new HashSet(Arrays.asList(new Class[] {InlineStringReference.class, InlineByteArrayReference.class}));
-	
-	private void snapshotRun() {
-		referenceService.snapshotWorkflowRun(desiredClasses, runId);
-		if (snapshotButton != null) {
-			snapshotButton.setEnabled(false);
-		}
-		if (tidyButton != null) {
-			Set<T2Reference> tidiableReferences = referenceService
-			.getTidiableIdentifiersForWorkflowRun(runId);
-			if (!tidiableReferences.isEmpty()) {
-				tidyButton.setEnabled(true);
-			} else {
-				System.err.println("No tidiable references");
-			}
-		}
-	}
-
-	/**
-	 * @author alanrw
-	 *
-	 */
-	public class SnapshotAction extends AbstractAction {
-		
-		public SnapshotAction(String name) {
-			super(name);
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			snapshotRun();
-		}
-	}
-	
-	private void tidyRun() {
-		referenceService.tidyWorkflowRun(runId);
-		if (tidyButton != null) {
-			tidyButton.setEnabled(false);
-		}
-	}
-
-	/**
-	 * @author alanrw
-	 *
-	 */
-	public class TidyRunAction extends AbstractAction {
-
-		public TidyRunAction(String name) {
-			super(name);
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			tidyRun();
 		}
 	}
 

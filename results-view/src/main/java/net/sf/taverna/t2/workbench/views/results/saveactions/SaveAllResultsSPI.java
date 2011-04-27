@@ -22,6 +22,7 @@ package net.sf.taverna.t2.workbench.views.results.saveactions;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -60,7 +61,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 
 	protected static Logger logger = Logger.getLogger(SaveAllResultsSPI.class);
 	protected InvocationContext context = null;
-	protected Map<String, Object> chosenReferences;
+	protected Map<String, T2Reference> chosenReferences;
 	protected JDialog dialog;
 	private boolean isProvenanceEnabledForRun;
 	private String runId;
@@ -101,7 +102,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	 * assumed to be the parent component in the UI which caused this action to
 	 * be created, this allows save dialogs etc to be placed correctly.
 	 */
-	public void setChosenReferences(Map<String, Object> chosenReferences) {
+	public void setChosenReferences(Map<String, T2Reference> chosenReferences) {
 		this.chosenReferences = chosenReferences;
 	}
 
@@ -195,13 +196,13 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 		}  
 	}
 	
-	protected abstract void saveData(File f) throws Exception;
+	protected abstract void saveData(File f) throws IOException;
 
 	/**
-	 * Converts a T2References pointing to results to 
-	 * a list of (lists of ...) dereferenced result objects.
+	 * Converts a T2Reference pointing to results to 
+	 * a list of (lists of ...) dereferenced result object.
 	 */
-	protected Object convertReferencesToObjects(T2Reference reference) throws Exception {				
+	private Object convertReferenceToObject(T2Reference reference) {				
 	
 			if (reference.getReferenceType() == T2ReferenceType.ReferenceSet){
 				// Dereference the object
@@ -212,7 +213,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 				catch(ReferenceServiceException rse){
 					String message = "Problem rendering T2Reference in convertReferencesToObjects().";
 					logger.error("SaveAllResultsAsXML Error: "+ message, rse);
-					throw new Exception(message);
+					throw rse;
 				}
 				return dataValue;
 			}
@@ -229,16 +230,16 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 				
 				for (int j=0; j<identifiedList.size(); j++){
 					T2Reference ref = identifiedList.get(j);
-					list.add(convertReferencesToObjects(ref));
+					list.add(convertReferenceToObject(ref));
 				}
 				return list;
 			}	
 	}
 	
-	protected Object getObjectForName(String name) throws Exception {
+	protected Object getObjectForName(String name) {
 		Object result = null;
 		if (chosenReferences.containsKey(name)) {
-			result = chosenReferences.get(name);
+			result = convertReferenceToObject(chosenReferences.get(name));
 		}
 		if (result == null) {
 			result = "null";

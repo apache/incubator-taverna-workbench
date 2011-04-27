@@ -60,8 +60,19 @@ public class WorkflowResultTreeNode extends DefaultMutableTreeNode {
 	}
 
 	public T2Reference getReference() {
-		return reference;
+		if (isState(ResultTreeNodeState.RESULT_TOP)) {
+			if (getChildCount() == 0) {
+				return null;
+			}
+			else {
+				return ((WorkflowResultTreeNode) getChildAt(0)).getReference();
+			}
+		}
+		else {
+			return reference;
+		}
 	}
+
 
     public WorkflowResultTreeNode(T2Reference reference, InvocationContext context, ResultTreeNodeState state) {
 		this.reference = reference;

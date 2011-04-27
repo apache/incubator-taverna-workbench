@@ -22,6 +22,7 @@ package net.sf.taverna.t2.workbench.views.results.saveactions;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,9 +30,11 @@ import java.util.Map;
 
 import javax.swing.AbstractAction;
 
+import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.embl.ebi.escience.baclava.DataThing;
+import org.embl.ebi.escience.baclava.factory.DataThingFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -64,22 +67,15 @@ public class SaveAllResultsAsXML extends SaveAllResultsSPI {
 	
 	/**
 	 * Saves the result data to an XML Baclava file. 
+	 * @throws IOException 
 	 */
-	protected void saveData(File file) throws Exception{
+	protected void saveData(File file) throws IOException {
 		
 
 	    
-		// Build the DataThing map from the chosenReferences
-		// First convert map of references to objects into a map of real result objects
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		for (Iterator<String> i = chosenReferences.keySet().iterator(); i.hasNext();) {
-			String portName = (String) i.next();
-   			resultMap.put(portName, getObjectForName(portName));
-   		}
-		Map<String, DataThing> dataThings = bakeDataThingMap(resultMap);
-		
+	
 		// Build the string containing the XML document from the result map
-		Document doc = getDataDocument(dataThings);
+		Document doc = getDataDocument();
 	    XMLOutputter xo = new XMLOutputter(Format.getPrettyFormat());
 	    String xmlString = xo.outputString(doc);
 	    PrintWriter out = new PrintWriter(new FileWriter(file));
@@ -92,15 +88,17 @@ public class SaveAllResultsAsXML extends SaveAllResultsSPI {
 	 * Returns a org.jdom.Document from a map of port named to DataThingS containing
 	 * the port's results.
 	 */
-	public static Document getDataDocument(Map<String, DataThing> dataThings) {
+	public Document getDataDocument() {
 		Element rootElement = new Element("dataThingMap", namespace);
 		Document theDocument = new Document(rootElement);
-		for (Iterator<String> i = dataThings.keySet().iterator(); i.hasNext();) {
-			String key = (String) i.next();
-			DataThing value = (DataThing) dataThings.get(key);
-			Element dataThingElement = new Element("dataThing", namespace);
-			dataThingElement.setAttribute("key", key);
-			dataThingElement.addContent(value.getElement());
+		// Build the DataThing map from the chosenReferences
+		// First convert map of references to objects into a map of real result objects
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+		for (String portName : chosenReferences.keySet()) {
+			DataThing thing = DataThingFactory.bake(getObjectForName(portName));
+ 			Element dataThingElement = new Element("dataThing", namespace);
+			dataThingElement.setAttribute("key", portName);
+			dataThingElement.addContent(thing.getElement());
 			rootElement.addContent(dataThingElement);
 		}
 		return theDocument;

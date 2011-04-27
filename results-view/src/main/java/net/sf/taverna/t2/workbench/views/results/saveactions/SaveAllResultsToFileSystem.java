@@ -21,22 +21,18 @@
 package net.sf.taverna.t2.workbench.views.results.saveactions;
 
 import java.io.File;
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.Iterator;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.embl.ebi.escience.baclava.DataThing;
-//import org.jdom.Namespace;
+import org.embl.ebi.escience.baclava.factory.DataThingFactory;
 
 @SuppressWarnings("serial")
 public class SaveAllResultsToFileSystem extends SaveAllResultsSPI {
-
-
-	//private static Namespace namespace = Namespace.getNamespace("b","http://org.embl.ebi.escience/baclava/0.1alpha");
 
 	public SaveAllResultsToFileSystem(){
 		super();
@@ -51,22 +47,14 @@ public class SaveAllResultsToFileSystem extends SaveAllResultsSPI {
 	
 	/**
 	 * Saves the result data as a file structure 
+	 * @throws IOException 
 	 */
-	protected void saveData(File file) throws Exception{
+	protected void saveData(File file) throws IOException {
 		
 
-	    
-		// Build the DataThing map from the resultReferencesMap
 		// First convert map of references to objects into a map of real result objects
-		Map<String, Object> resultMap = new HashMap<String, Object>();
-		for (Iterator<String> i = chosenReferences.keySet().iterator(); i.hasNext();) {
-			String portName = (String) i.next();
-  			resultMap.put(portName, getObjectForName(portName));
-  		}
-		Map<String, DataThing> dataThings = bakeDataThingMap(resultMap);
-		
-		for (String portName : dataThings.keySet()) {
-			DataThing thing = dataThings.get(portName);
+		for (String portName : chosenReferences.keySet()) {
+ 			DataThing thing = DataThingFactory.bake(getObjectForName(portName));
 			thing.writeToFileSystem(file, portName);
 		}
 	}
