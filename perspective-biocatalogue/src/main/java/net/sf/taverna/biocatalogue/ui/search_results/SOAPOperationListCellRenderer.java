@@ -27,6 +27,7 @@ import org.biocatalogue.x2009.xml.rest.SoapOutput;
  * 
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListCellRenderer
 {
   private JLabel jlTypeIcon;

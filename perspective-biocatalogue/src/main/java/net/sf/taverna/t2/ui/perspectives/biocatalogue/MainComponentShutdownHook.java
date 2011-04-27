@@ -26,7 +26,7 @@ public class MainComponentShutdownHook implements ShutdownSPI
       BioCataloguePluginConfiguration configuration = BioCataloguePluginConfiguration.getInstance();
       configuration.setProperty(
           BioCataloguePluginConfiguration.SOAP_OPERATIONS_IN_SERVICE_PANEL,
-          xstream.toXML(BioCatalogueServiceProvider.getRegistereSOAPOperations()));
+          xstream.toXML(BioCatalogueServiceProvider.getRegisteredSOAPOperations()));
       configuration.setProperty(
           BioCataloguePluginConfiguration.REST_METHODS_IN_SERVICE_PANEL,
           xstream.toXML(BioCatalogueServiceProvider.getRegisteredRESTMethods()));

@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -30,6 +29,7 @@ import org.biocatalogue.x2009.xml.rest.ResourceLink;
  * 
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public abstract class ExpandableOnDemandLoadedListCellRenderer extends JPanel implements ListCellRenderer
 {
   protected static final int DESCRIPTION_MAX_LENGTH_COLLAPSED = 90;

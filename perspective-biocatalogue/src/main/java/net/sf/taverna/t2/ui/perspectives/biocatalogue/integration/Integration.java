@@ -12,6 +12,8 @@ import javax.swing.JLabel;
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.ResourceLink;
 import org.biocatalogue.x2009.xml.rest.RestMethod;
+import org.biocatalogue.x2009.xml.rest.Service;
+import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
 import org.biocatalogue.x2009.xml.rest.SoapOperation;
 import org.biocatalogue.x2009.xml.rest.SoapService;
 
@@ -221,6 +223,66 @@ public class Integration
                               ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
   }
   
+  /**
+   * Inserts all operations of the given parent SOAP or REST Web service resource link
+   * into Service Panel. Works for SOAP operations only at the moment.
+   * 
+   * @return Outcome of inserting operations into Service Panel as a
+   *         HTML-formatted string (with no opening and closing HTML tags).
+   */
+  public static JComponent insertAllOperationsIntoServicePanel(ResourceLink serviceResource)
+  {
+		// Check if this type of resource is a parent SOAP Web service
+		// whose operations can be added to the Service Panel
+		TYPE resourceType = Resource
+				.getResourceTypeFromResourceURL(serviceResource.getHref());
+		if (resourceType == TYPE.Service){
+			Service service = (Service)serviceResource;			
+		    if (service.getServiceTechnologyTypes() != null && service.getServiceTechnologyTypes().getTypeList().size() > 0)
+		    {
+		    	// If SOAP-styled service
+		    	if (service.getServiceTechnologyTypes().getTypeArray(0).intValue() == ServiceTechnologyType.INT_SOAP){
+		    		// For some reason service does not contain details about its variants - get the service summary which does
+		    		Service serviceSummary = null;
+		    	    try {
+						serviceSummary = MainComponentFactory.getSharedInstance().getBioCatalogueClient().getBioCatalogueServiceSummary(service.getHref());
+					} catch (Exception e1) {
+				          logger.error("Failed to fetch required service variants details to add this SOAP Web service into the Service Panel.", e1);
+				            return (new JLabel("Failed to fetch required details to add this " +
+				                               "SOAP Web service into the Service Panel.", ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
+					}
+		    		
+		    		// We are looking for a SOAP service variant here (can be 1 or more)
+					// Just get the first SOAP variant for now (could be more - alternative WSDL URLs?)
+					if (serviceSummary.getVariants() == null || serviceSummary.getVariants().getSoapServiceList().isEmpty()){
+						// Should not be but hey
+				          logger.error("The service variants were null when trying to add SOAP Web service "+service.getHref()+" into the Service Panel.");
+				          return (new JLabel("Failed to fetch the WSDL location of this " +
+				                               "SOAP Web service.", ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
+					}
+		    		SoapService soapService = serviceSummary.getVariants().getSoapServiceList().get(0); 
+
+		    		// Get the WSDL URL of the SOAP service
+		    		String wsdlURL = soapService.getWsdlLocation();
+		    	  
+		    		// Import this WSDL into Service panel - it will add all the SOAP operations
+		            if (BioCatalogueServiceProvider.registerNewWSDLService(wsdlURL)){
+		                return (new JLabel("Operation(s) of the SOAP service have been successfully added to the Service Panel.", 
+	                               ResourceManager.getImageIcon(ResourceManager.TICK_ICON), JLabel.CENTER));	
+		            }
+		            else{
+				          return (new JLabel("Failed to insert the operations of the SOAP service " +
+	                               " to the Service Panel.", ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
+		            }
+		      }
+		    }
+			
+		}
+
+    return (new JLabel("<html>It is not possible to add resources of the provided type<br>" +
+                              "into the Service Panel.</html>",
+                              ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
+  }
   
   /**
    * Instantiates a {@link RESTServiceDescription} object from the {@link RestMethod}

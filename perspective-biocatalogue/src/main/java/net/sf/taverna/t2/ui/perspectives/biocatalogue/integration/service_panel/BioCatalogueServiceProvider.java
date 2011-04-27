@@ -1,21 +1,29 @@
 package net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.Icon;
+import javax.wsdl.Operation;
+import javax.wsdl.WSDLException;
+import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
+import org.xml.sax.SAXException;
 
 import com.thoughtworks.xstream.XStream;
 
 import net.sf.taverna.biocatalogue.model.SoapOperationIdentity;
 import net.sf.taverna.biocatalogue.model.Util;
+import net.sf.taverna.t2.activities.wsdl.WSDLActivityHealthChecker;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.BioCataloguePerspective;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.config.BioCataloguePluginConfiguration;
+import net.sf.taverna.wsdl.parser.UnknownOperationException;
+import net.sf.taverna.wsdl.parser.WSDLParser;
 
 public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
 {
@@ -144,6 +152,87 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
 	    
 	}
 	
+	/**
+	 * Adds a SOAP/WSDL service and all of its operations into the Taverna's Service Panel.
+	 */
+	public static boolean registerNewWSDLService(String wsdlURL)
+	{
+	  if (BioCatalogueServiceProvider.instanceOfSelf == null || wsdlURL == null)
+	  {
+	    // the service provider hasn't been initialised yet
+	    // OR not all details available
+	    return (false);
+	  }
+	  else
+	  {
+		  // Do the same thing as in the WSDL service provider
+			callBack.status("BioCatalogue service provider: Parsing wsdl: " + wsdlURL);
+			WSDLParser parser = null;
+			try {
+				parser = new WSDLParser(wsdlURL);
+				List<Operation> operations = parser.getOperations();
+				callBack.status("Found " + operations.size() + " WSDL operations of service "
+						+ wsdlURL);
+				List<WSDLServiceDescFromBioCatalogue> items = new ArrayList<WSDLServiceDescFromBioCatalogue>();
+				for (Operation operation : operations) {
+					WSDLServiceDescFromBioCatalogue item;
+					try {
+						String operationName = operation.getName();
+						String operationDesc = parser.getOperationDocumentation(operationName);
+						String use = parser.getUse(operationName);
+						String style = parser.getStyle();
+						if (!WSDLActivityHealthChecker.checkStyleAndUse(style, use)) {
+							logger.warn("Unsupported style and use combination " + style + "/" + use + " for operation " + operationName + " from " + wsdlURL);
+							continue;
+						}
+						item = new WSDLServiceDescFromBioCatalogue(wsdlURL, operationName, operationDesc);
+						items.add(item);
+						
+					    // Record the newly added operation in the internal list
+						SoapOperationIdentity soapOperationDetails = new SoapOperationIdentity(wsdlURL, operationName, operationDesc);
+					    registeredSOAPOperations.add(soapOperationDetails);
+					} catch (UnknownOperationException e) {
+						String message = "Encountered an unexpected operation name:"
+								+ operation.getName();
+						callBack.fail(message, e);
+					    return false;
+					}
+				}
+				callBack.partialResults(items);
+				callBack.finished();
+				return true;
+			} catch (ParserConfigurationException e) {
+				String message = "Error configuring the WSDL parser";
+				callBack.fail(message, e);
+			    return false;
+			} catch (WSDLException e) {
+				String message = "There was an error with the wsdl: " + wsdlURL;
+				callBack.fail(message, e);
+			    return false;
+			} catch (IOException e) {
+				String message = "There was an IO error parsing the wsdl: " + wsdlURL
+						+ " Possible reason: the wsdl location was incorrect.";
+				callBack.fail(message, e);
+			    return false;
+			} catch (SAXException e) {
+				String message = "There was an error with the XML in the wsdl: "
+						+ wsdlURL;
+				callBack.fail(message, e);
+			    return false;
+			} catch (IllegalArgumentException e) { // a problem with the wsdl url
+				String message = "There was an error with the wsdl: " + wsdlURL + " "
+						+ "Possible reason: the wsdl location was incorrect.";
+				callBack.fail(message, e);
+			    return false;
+			} catch (Exception e) { // anything else we did not expect
+				String message = "There was an error with the wsdl: " + wsdlURL;
+				callBack.fail(message, e);
+			    return false;
+			}
+		}
+	    
+	}
+	
 	
 	public static boolean registerNewRESTMethod(RESTServiceDescription restServiceDescription)
 	{
@@ -162,7 +251,7 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
 	}
 	
 	
-	public static List<SoapOperationIdentity> getRegistereSOAPOperations() {
+	public static List<SoapOperationIdentity> getRegisteredSOAPOperations() {
 	  return (registeredSOAPOperations);
 	}
 	

@@ -38,6 +38,7 @@ import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.health_check.S
  * 
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRenderer
 {
   private JLabel jlTypeIcon;

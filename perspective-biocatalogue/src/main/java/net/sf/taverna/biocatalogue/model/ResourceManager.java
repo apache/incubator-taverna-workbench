@@ -100,7 +100,8 @@ public class ResourceManager
   public static final int ADD_PROCESSOR_TO_WORKFLOW_ICON = 395;
   public static final int ADD_PROCESSOR_AS_FAVOURITE_ICON = 396;
   public static final int EXECUTE_HEALTH_CHECK_ICON = 397;
-  
+  public static final int ADD_ALL_SERVICES_AS_FAVOURITE_ICON = 398;
+
   public static final int SELECT_ALL_ICON = 400;
   public static final int DESELECT_ALL_ICON = 405;
   public static final int EXPAND_ALL_ICON = 410;
@@ -238,6 +239,8 @@ public class ResourceManager
                                               break;
       case ADD_PROCESSOR_AS_FAVOURITE_ICON:   resPath += FAMFAMFAM_PATH + "star.png";
                                               break;
+      case ADD_ALL_SERVICES_AS_FAVOURITE_ICON:resPath += FAMFAMFAM_PATH + "multiple_star.png";
+      										  break;                          
       case EXECUTE_HEALTH_CHECK_ICON:         resPath += FAMFAMFAM_PATH + "information.png";
                                               break;                                        
       case SELECT_ALL_ICON:                   resPath += FAMFAMFAM_PATH + "tick.png";

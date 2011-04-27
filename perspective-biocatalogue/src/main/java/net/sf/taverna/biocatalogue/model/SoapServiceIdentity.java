@@ -36,7 +36,7 @@ public class SoapServiceIdentity
    *         in a JOptionPane or printed (in other words defining a
    *         sensible way of displaying itself), which has details of
    *         an error that has occurred which prevented from populating
-   *         this instance with the actual details of ther SOAP service.
+   *         this instance with the actual details of their SOAP service.
    */
   public Object getErrorDetails() {
     return (errorDetails);

@@ -10,7 +10,6 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
@@ -26,7 +25,6 @@ import javax.swing.DefaultListModel;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
@@ -60,8 +58,8 @@ import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.ResourceLink;
-
-import edu.stanford.ejalbert.BrowserLauncher;
+import org.biocatalogue.x2009.xml.rest.Service;
+import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
 
 /**
  * This class is responsible for producing search results listing panel. It only
@@ -98,6 +96,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 	private Action addToWorkflowDiagramAction;
 	private Action openInBioCatalogueAction;
 	private Action doHealthCheckAction;
+	private Action addAllOperationsToServicePanelAction;
 
 	// search status and actions on selected items in the list
 	private JToolBar tbSelectedItemActions;
@@ -135,7 +134,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		this.setPreferredSize(new Dimension(800, 400));
 	}
 
-	@SuppressWarnings("serial")
 	private void initialiseUI() {
 		this.expandCollapseItemAction = new AbstractAction(
 				"Expand selected entry", ResourceManager
@@ -177,7 +175,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 			{
 				this.putValue(SHORT_DESCRIPTION, "Add selected "
 						+ typeToPreview.getTypeName()
-						+ " to the Service Panel in Design Perspective");
+						+ " to the Service Panel");
 			}
 
 			public void actionPerformed(ActionEvent e) {
@@ -193,15 +191,62 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 				new Thread("Adding " + typeToPreview.getTypeName()
 						+ " into Service Panel") {
 					public void run() {
-						// if it is the expanded that we are looking at, need to
-						// extract the 'accociated'
-						// object to actually add as a processor
+						// if it is the expanded that we are looking at, need to extract
+						// the 'associated' object
 						ResourceLink processorResourceToAdd = (potentialObjectToPreview instanceof LoadingExpandedResource ? ((LoadingExpandedResource) potentialObjectToPreview)
 								.getAssociatedObj()
 								: potentialObjectToPreview);
 
 						JComponent insertionOutcome = Integration
 								.insertProcesorIntoServicePanel(processorResourceToAdd);
+						jwd.waitFinished(insertionOutcome);
+						
+						// Switch to Design Perspective
+						switchToDesignPerspective();
+					}
+				}.start();
+
+				// NB! The modal dialog window needs to be made visible after
+				// the background
+				// process (i.e. adding a processor) has already been started!
+				jwd.setVisible(true);
+			}
+		};
+
+		// For a parent Web service, action to add all operations to the Service Panel.
+		// Works for SOAP services at the moment.
+		this.addAllOperationsToServicePanelAction = new AbstractAction(
+				"Add all operations to Service Panel",
+				ResourceManager
+						.getImageIcon(ResourceManager.ADD_ALL_SERVICES_AS_FAVOURITE_ICON)) {
+			// Tooltip
+			{
+				this.putValue(SHORT_DESCRIPTION, "Add all operations of the selected "
+						+ typeToPreview.getTypeName()
+						+ " to the Service Panel");
+			}
+
+			public void actionPerformed(ActionEvent e) {
+				final JWaitDialog jwd = new JWaitDialog(
+						MainComponent.dummyOwnerJFrame,
+						"BioCatalogue Plugin - Adding "
+								+ typeToPreview.getTypeName(),
+						"<html><center>Please wait for selected "
+								+ typeToPreview.getTypeName()
+								+ " details to be fetched from BioCatalogue<br>"
+								+ "and to be added into the Service Panel.</center></html>");
+
+				new Thread("Adding all operations of " + typeToPreview.getTypeName()
+						+ " to the Service Panel") {
+					public void run() {
+						// if it is the expanded that we are looking at, need to extract
+						// the 'associated' object
+						ResourceLink resourceLink = (potentialObjectToPreview instanceof LoadingExpandedResource ? ((LoadingExpandedResource) potentialObjectToPreview)
+								.getAssociatedObj()
+								: potentialObjectToPreview);						
+
+						JComponent insertionOutcome = Integration
+								.insertAllOperationsIntoServicePanel(resourceLink);
 						jwd.waitFinished(insertionOutcome);
 						
 						// Switch to Design Perspective
@@ -240,9 +285,8 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 				new Thread("Adding " + typeToPreview.getTypeName()
 						+ " into workflow") {
 					public void run() {
-						// if it is the expanded that we are looking at, need to
-						// extract the 'accociated'
-						// object to actually add as a processor
+						// if it is the expanded that we are looking at, need to extract
+						// the 'associated' object
 						ResourceLink processorResourceToAdd = (potentialObjectToPreview instanceof LoadingExpandedResource ? ((LoadingExpandedResource) potentialObjectToPreview)
 								.getAssociatedObj()
 								: potentialObjectToPreview);
@@ -298,8 +342,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 
 			public void actionPerformed(ActionEvent e) {
 				// if it is the expanded that we are looking at, need to extract
-				// the 'accociated'
-				// object to actually add as a processor
+				// the 'associated' object
 				ResourceLink resourceForHealthCheck = (potentialObjectToPreview instanceof LoadingExpandedResource ? ((LoadingExpandedResource) potentialObjectToPreview)
 						.getAssociatedObj()
 						: potentialObjectToPreview);
@@ -319,6 +362,11 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		}
 		if (typeToPreview.isSuitableForAddingToServicePanel()) {
 			tbSelectedItemActions.add(addToServicePanelAction);
+		}
+		// Is this is a panel for parent Web services, so we can add an action to 
+		// add all their SOAP/REST operations to the Service Panel (currently only for SOAP).
+		if (typeToPreview == TYPE.Service){
+			tbSelectedItemActions.add(addAllOperationsToServicePanelAction);
 		}
 		if (typeToPreview.isSuitableForAddingToWorkflowDiagram()) {
 			tbSelectedItemActions.add(addToWorkflowDiagramAction);
@@ -406,6 +454,30 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
 						doHealthCheckAction
 								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
+						
+						// Is this a parent "Web service"?
+						if (potentialObjectToPreview instanceof Service){
+							Service service = (Service)potentialObjectToPreview;			
+						    // Service type
+						    if (service.getServiceTechnologyTypes() != null && service.getServiceTechnologyTypes().getTypeList().size() > 0)
+						    {
+						      if (service.getServiceTechnologyTypes().getTypeArray(0).intValue() == ServiceTechnologyType.INT_SOAP)
+						      {			
+									addAllOperationsToServicePanelAction.setEnabled(true);
+						      }
+						      else {
+									addAllOperationsToServicePanelAction.setEnabled(false);
+						      }
+						    }
+						    else {
+						      // Can't tell the type - disable the button
+								addAllOperationsToServicePanelAction.setEnabled(false);						    							
+						    }							
+						}
+						else{
+							addAllOperationsToServicePanelAction.setEnabled(false);
+						}
+					    
 						return;
 					}
 				}
@@ -526,6 +598,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		this.addToWorkflowDiagramAction.setEnabled(false);
 		this.openInBioCatalogueAction.setEnabled(false);
 		this.doHealthCheckAction.setEnabled(false);
+		this.addAllOperationsToServicePanelAction.setEnabled(false);
 	}
 
 	/**
@@ -1143,6 +1216,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 				}
 			}
 		}
+		
 		if (designPerspective != null) {
 			ModelMap.getInstance().setModel(
 					ModelMapConstants.CURRENT_PERSPECTIVE, designPerspective);
