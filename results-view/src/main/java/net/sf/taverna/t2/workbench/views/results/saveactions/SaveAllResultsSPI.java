@@ -43,6 +43,7 @@ import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
 import net.sf.taverna.t2.reference.ErrorDocument;
 import net.sf.taverna.t2.reference.IdentifiedList;
+import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.ReferenceServiceException;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.T2ReferenceType;
@@ -60,6 +61,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 public abstract class SaveAllResultsSPI extends AbstractAction {
 
 	protected static Logger logger = Logger.getLogger(SaveAllResultsSPI.class);
+	protected ReferenceService referenceService;
 	protected InvocationContext context = null;
 	protected Map<String, T2Reference> chosenReferences;
 	protected JDialog dialog;
@@ -276,6 +278,13 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 
 	public boolean isProvenanceEnabledForRun() {
 		return isProvenanceEnabledForRun;
+	}
+
+	/**
+	 * @param referenceService the referenceService to set
+	 */
+	public void setReferenceService(ReferenceService referenceService) {
+		this.referenceService = referenceService;
 	}
 }
 

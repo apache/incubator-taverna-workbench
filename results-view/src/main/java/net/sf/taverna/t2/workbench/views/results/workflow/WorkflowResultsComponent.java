@@ -575,6 +575,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				if (action instanceof SaveAllResultsSPI) {
 					((SaveAllResultsSPI)action).setChosenReferences(chosenReferences);
 					((SaveAllResultsSPI)action).setParent(dialog);			
+					((SaveAllResultsSPI)action).setReferenceService(referenceService);
 					((SaveAllResultsSPI)action).setInvocationContext(context);
 				}
 				//saveButton.setEnabled(true);
