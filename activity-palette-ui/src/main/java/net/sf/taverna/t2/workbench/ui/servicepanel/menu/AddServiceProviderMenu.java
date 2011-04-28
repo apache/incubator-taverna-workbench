@@ -95,11 +95,15 @@ public class AddServiceProviderMenu extends JButton {
 						.getUnconfiguredServiceProviders());
 		Collections.sort(providers,  new ServiceProviderComparator());
 		for (ConfigurableServiceProvider provider : providers) {
-			AddServiceProviderAction addAction = new AddServiceProviderAction(
-					provider, this);
-			addAction.setServiceDescriptionRegistry(getServiceDescriptionRegistry());
-			addServiceMenu.add(addAction);
-			isEmpty = false;
+			// Skip BioCatalogue's ConfigurableServiceProviderS as they should
+			// not be used to add servcie directlry but rather though the BioCatalogue perspective 
+			if (!provider.getName().toLowerCase().contains("biocatalogue")){
+				AddServiceProviderAction addAction = new AddServiceProviderAction(
+						provider, this);
+				addAction.setServiceDescriptionRegistry(getServiceDescriptionRegistry());
+				addServiceMenu.add(addAction);
+				isEmpty = false;	
+			}
 		}
 		if (isEmpty) {
 			addServiceMenu.setEnabled(false);
