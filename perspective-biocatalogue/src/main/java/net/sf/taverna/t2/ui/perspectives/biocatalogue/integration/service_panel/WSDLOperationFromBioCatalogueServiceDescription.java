@@ -12,7 +12,27 @@ import net.sf.taverna.t2.activities.wsdl.servicedescriptions.WSDLActivityIcon;
 import net.sf.taverna.t2.lang.beans.PropertyAnnotation;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 
-public class WSDLServiceDescFromBioCatalogue extends ServiceDescription
+/*******************************************************************************
+ * Copyright (C) 2008-2010 The University of Manchester   
+ * 
+ *  Modifications to the initial code base are copyright of their
+ *  respective authors, or their employers as appropriate.
+ * 
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public License
+ *  as published by the Free Software Foundation; either version 2.1 of
+ *  the License, or (at your option) any later version.
+ *    
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
+ *    
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ ******************************************************************************/
+public class WSDLOperationFromBioCatalogueServiceDescription extends ServiceDescription<WSDLActivityConfigurationBean>
 {
   private static final int SHORT_DESCRIPTION_MAX_LENGTH = 200;
   
@@ -24,14 +44,14 @@ public class WSDLServiceDescFromBioCatalogue extends ServiceDescription
   private final String description;
   
   
-  public WSDLServiceDescFromBioCatalogue(String wsdlLocation, String operationName, String description)
+  public WSDLOperationFromBioCatalogueServiceDescription(String wsdlLocation, String operationName, String description)
   {
     this.wsdlLocation = wsdlLocation;
     this.operationName = operationName;
     this.description = description;
   }
   
-  public WSDLServiceDescFromBioCatalogue(SoapOperationIdentity soapOpearationIdentity)
+  public WSDLOperationFromBioCatalogueServiceDescription(SoapOperationIdentity soapOpearationIdentity)
   {
     this.wsdlLocation = soapOpearationIdentity.getWsdlLocation();
     this.operationName = soapOpearationIdentity.getOperationName();
@@ -45,7 +65,7 @@ public class WSDLServiceDescFromBioCatalogue extends ServiceDescription
 	}
 
 	@Override
-	public Object getActivityConfiguration() {
+	public WSDLActivityConfigurationBean getActivityConfiguration() {
 		WSDLActivityConfigurationBean bean = new WSDLActivityConfigurationBean();
 		bean.setOperation(operationName);
 		bean.setWsdl(wsdlLocation);
@@ -63,8 +83,8 @@ public class WSDLServiceDescFromBioCatalogue extends ServiceDescription
 	}
 
 	/**
-	 * Truncates the description if necessary to {@link WSDLServiceDescFromBioCatalogue#SHORT_DESCRIPTION_MAX_LENGTH} --
-	 * to get full description, use {@link WSDLServiceDescFromBioCatalogue#getFullDescription()}
+	 * Truncates the description if necessary to {@link WSDLOperationFromBioCatalogueServiceDescription#SHORT_DESCRIPTION_MAX_LENGTH} --
+	 * to get full description, use {@link WSDLOperationFromBioCatalogueServiceDescription#getFullDescription()}
 	 */
 	public String getDescription() {
     if (this.description != null && this.description.length() > SHORT_DESCRIPTION_MAX_LENGTH) {
@@ -82,7 +102,7 @@ public class WSDLServiceDescFromBioCatalogue extends ServiceDescription
 	
 	@Override
 	public List<String> getPath() {
-		return Arrays.asList(BioCatalogueServiceProvider.PROVIDER_NAME, "WSDL @ " + this.wsdlLocation);
+		return Arrays.asList(BioCatalogueWSDLOperationServiceProvider.PROVIDER_NAME, "WSDL @ " + this.wsdlLocation);
 	}
 	
 	@Override

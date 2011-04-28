@@ -32,8 +32,10 @@ import net.sf.taverna.t2.activities.wsdl.WSDLActivity;
 import net.sf.taverna.t2.activities.wsdl.servicedescriptions.WSDLServiceDescription;
 import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
-import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.BioCatalogueServiceProvider;
-import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.RESTServiceDescription;
+import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.BioCatalogueRESTServiceProvider;
+import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.BioCatalogueWSDLOperationServiceProvider;
+import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.RESTFromBioCatalogueServiceDescription;
+import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.WSDLOperationFromBioCatalogueServiceDescription;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -119,7 +121,7 @@ public class Integration
                                                 getBioCatalogueRestMethod(processorResource.getHref());
             
             // actual import of the service into the workflow
-            RESTServiceDescription restServiceDescription = createRESTServiceDescriptionFromRESTMethod(restMethod);
+            RESTFromBioCatalogueServiceDescription restServiceDescription = createRESTServiceDescriptionFromRESTMethod(restMethod);
             WorkflowView.importServiceDescription(restServiceDescription, false);
             
             // prepare result of the operation to be shown in the the waiting dialog window
@@ -172,7 +174,8 @@ public class Integration
             SoapService soapService = MainComponentFactory.getSharedInstance().getBioCatalogueClient().
                                         getBioCatalogueSoapService(soapOp.getAncestors().getSoapService().getHref());
             SoapOperationIdentity soapOpId = new SoapOperationIdentity(soapService.getWsdlLocation(), soapOp.getName(), Util.stripAllHTML(soapOp.getDescription()));
-            BioCatalogueServiceProvider.registerNewWSDLOperation(soapOpId);
+            WSDLOperationFromBioCatalogueServiceDescription wsdlOperationDescription = new WSDLOperationFromBioCatalogueServiceDescription(soapOpId);
+            BioCatalogueWSDLOperationServiceProvider.registerWSDLOperation(wsdlOperationDescription, null);
             
             return (new JLabel("Selected SOAP operation has been successfully added to the Service Panel.", 
                                ResourceManager.getImageIcon(ResourceManager.TICK_ICON), JLabel.CENTER));
@@ -188,10 +191,10 @@ public class Integration
             // received object may only contain limited data, therefore need to fetch full details first
             RestMethod restMethod = MainComponentFactory.getSharedInstance().getBioCatalogueClient().
                                                   getBioCatalogueRestMethod(processorResource.getHref());
-            RESTServiceDescription restServiceDescription = createRESTServiceDescriptionFromRESTMethod(restMethod);
+            RESTFromBioCatalogueServiceDescription restServiceDescription = createRESTServiceDescriptionFromRESTMethod(restMethod);
             
             // actual insertion of the REST method into Service Panel
-            BioCatalogueServiceProvider.registerNewRESTMethod(restServiceDescription);
+            BioCatalogueRESTServiceProvider.registerNewRESTMethod(restServiceDescription, null);
             
             // prepare result of the operation to be shown in the the waiting dialog window
             String warnings = extractWarningsFromRESTServiceDescription(restServiceDescription, true);
@@ -265,8 +268,8 @@ public class Integration
 		    		// Get the WSDL URL of the SOAP service
 		    		String wsdlURL = soapService.getWsdlLocation();
 		    	  
-		    		// Import this WSDL into Service panel - it will add all the SOAP operations
-		            if (BioCatalogueServiceProvider.registerNewWSDLService(wsdlURL)){
+		    		// Import this WSDL into Service panel - it will add all of its operations
+		            if (BioCatalogueWSDLOperationServiceProvider.registerWSDLService(wsdlURL, null)){
 		                return (new JLabel("Operation(s) of the SOAP service have been successfully added to the Service Panel.", 
 	                               ResourceManager.getImageIcon(ResourceManager.TICK_ICON), JLabel.CENTER));	
 		            }
@@ -285,18 +288,18 @@ public class Integration
   }
   
   /**
-   * Instantiates a {@link RESTServiceDescription} object from the {@link RestMethod}
+   * Instantiates a {@link RESTFromBioCatalogueServiceDescription} object from the {@link RestMethod}
    * XML data obtained from BioCatalogue API.
    * 
    * @param restMethod
    * @return
    */
-  public static RESTServiceDescription createRESTServiceDescriptionFromRESTMethod(RestMethod restMethod) throws UnsupportedHTTPMethodException
+  public static RESTFromBioCatalogueServiceDescription createRESTServiceDescriptionFromRESTMethod(RestMethod restMethod) throws UnsupportedHTTPMethodException
   {
     // if the type of the HTTP method is not supported, an exception will be throws
     HTTP_METHOD httpMethod = HTTPMethodInterpreter.getHTTPMethodForRESTActivity(restMethod.getHttpMethodType());
     
-    RESTServiceDescription restServiceDescription = new RESTServiceDescription();
+    RESTFromBioCatalogueServiceDescription restServiceDescription = new RESTFromBioCatalogueServiceDescription();
     restServiceDescription.setServiceName(Resource.getDisplayNameForResource(restMethod));
     restServiceDescription.setDescription(Util.stripAllHTML(restMethod.getDescription()));
     restServiceDescription.setHttpMethod(httpMethod);
@@ -305,23 +308,23 @@ public class Integration
     int outputRepresentationCount = restMethod.getOutputs().getRepresentations().getRestRepresentationList().size();
     if (outputRepresentationCount > 0) {
       if (outputRepresentationCount > 1) {
-        restServiceDescription.getDataWarnings().add(RESTServiceDescription.AMBIGUOUS_ACCEPT_HEADER_VALUE);
+        restServiceDescription.getDataWarnings().add(RESTFromBioCatalogueServiceDescription.AMBIGUOUS_ACCEPT_HEADER_VALUE);
       }
       restServiceDescription.setAcceptHeaderValue(restMethod.getOutputs().getRepresentations().getRestRepresentationList().get(0).getContentType());
     }
     else {
-      restServiceDescription.getDataWarnings().add(RESTServiceDescription.DEFAULT_ACCEPT_HEADER_VALUE);
+      restServiceDescription.getDataWarnings().add(RESTFromBioCatalogueServiceDescription.DEFAULT_ACCEPT_HEADER_VALUE);
     }
     
     int inputRepresentationCount = restMethod.getInputs().getRepresentations().getRestRepresentationList().size();
     if (inputRepresentationCount > 0) {
       if (inputRepresentationCount > 1) {
-        restServiceDescription.getDataWarnings().add(RESTServiceDescription.AMBIGUOUS_CONTENT_TYPE_HEADER_VALUE);
+        restServiceDescription.getDataWarnings().add(RESTFromBioCatalogueServiceDescription.AMBIGUOUS_CONTENT_TYPE_HEADER_VALUE);
       }
       restServiceDescription.setOutgoingContentType(restMethod.getInputs().getRepresentations().getRestRepresentationList().get(0).getContentType());
     }
     else if (RESTActivity.hasMessageBodyInputPort(httpMethod)) {
-      restServiceDescription.getDataWarnings().add(RESTServiceDescription.DEFAULT_CONTENT_TYPE_HEADER_VALUE);
+      restServiceDescription.getDataWarnings().add(RESTFromBioCatalogueServiceDescription.DEFAULT_CONTENT_TYPE_HEADER_VALUE);
     }
     
     return (restServiceDescription);
@@ -329,16 +332,16 @@ public class Integration
   
   
   /**
-   * @param restServiceDescription {@link RESTServiceDescription} to process.
+   * @param restServiceDescription {@link RESTFromBioCatalogueServiceDescription} to process.
    * @param addingToServicePanel <code>true</code> indicates that the warning messages
    *                             will assume that the processor is added to the service panel;
    *                             <code>false</code> would mean that the processor is added to
    *                             the current workflow.
    * @return An HTML-formatted string (with no opening-closing HTML tags) that lists
-   *         any warnings that have been recorded during the {@link RESTServiceDescription}
+   *         any warnings that have been recorded during the {@link RESTFromBioCatalogueServiceDescription}
    *         object creation. Empty string will be returned if there are no warnings.
    */
-  public static String extractWarningsFromRESTServiceDescription(RESTServiceDescription restServiceDescription,
+  public static String extractWarningsFromRESTServiceDescription(RESTFromBioCatalogueServiceDescription restServiceDescription,
       boolean addingToServicePanel)
   {
     String messageSuffix = addingToServicePanel ?
@@ -346,26 +349,26 @@ public class Integration
                            "";
     
     String warnings = "";
-    if (restServiceDescription.getDataWarnings().contains(RESTServiceDescription.AMBIGUOUS_ACCEPT_HEADER_VALUE)) {
+    if (restServiceDescription.getDataWarnings().contains(RESTFromBioCatalogueServiceDescription.AMBIGUOUS_ACCEPT_HEADER_VALUE)) {
         warnings += "<br><br>BioCatalogue description of this REST method contains more than one<br>" +
                             "representation of the method's outputs - the first one was used.<br>" +
                             "Please check value of the 'Accept' header in the configuration<br>" +
                             "of the imported service" + messageSuffix + ".";
     }
-    else if (restServiceDescription.getDataWarnings().contains(RESTServiceDescription.DEFAULT_ACCEPT_HEADER_VALUE)) {
+    else if (restServiceDescription.getDataWarnings().contains(RESTFromBioCatalogueServiceDescription.DEFAULT_ACCEPT_HEADER_VALUE)) {
       warnings += "<br><br>BioCatalogue description of this REST method does not contain any<br>" +
                           "representations of the method's outputs - default value was used.<br>" +
                           "Please check value of the 'Accept' header in the configuration<br>" +
                           "of the imported service" + messageSuffix + ".";
     }
     
-    if (restServiceDescription.getDataWarnings().contains(RESTServiceDescription.AMBIGUOUS_CONTENT_TYPE_HEADER_VALUE)) {
+    if (restServiceDescription.getDataWarnings().contains(RESTFromBioCatalogueServiceDescription.AMBIGUOUS_CONTENT_TYPE_HEADER_VALUE)) {
         warnings += "<br><br>BioCatalogue description of this REST method contains more than one<br>" +
                             "representation of the method's input data - the first one was used.<br>" +
                             "Please check value of the 'Content-Type' header in the configuration<br>" +
                             "of the imported service" + messageSuffix + ".";
     }
-    else if (restServiceDescription.getDataWarnings().contains(RESTServiceDescription.DEFAULT_CONTENT_TYPE_HEADER_VALUE)) {
+    else if (restServiceDescription.getDataWarnings().contains(RESTFromBioCatalogueServiceDescription.DEFAULT_CONTENT_TYPE_HEADER_VALUE)) {
       warnings += "<br><br>BioCatalogue description of this REST method does not contain any<br>" +
                           "representations of the method's input data - default value was used.<br>" +
                           "Please check value of the 'Content-Type' header in the configuration<br>" +

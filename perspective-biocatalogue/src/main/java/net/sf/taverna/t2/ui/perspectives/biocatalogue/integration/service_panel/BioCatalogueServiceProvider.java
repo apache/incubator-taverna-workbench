@@ -33,7 +33,7 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
   private static FindServiceDescriptionsCallBack callBack;
   
   private static List<SoapOperationIdentity> registeredSOAPOperations;
-  private static List<RESTServiceDescription> registeredRESTMethods;
+  private static List<RESTFromBioCatalogueServiceDescription> registeredRESTMethods;
   
   private static Logger logger = Logger.getLogger(BioCatalogueServiceProvider.class);
   
@@ -76,7 +76,7 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
     // prepare the correct format of data for initialisation
     List<ServiceDescription> results = new ArrayList<ServiceDescription>();
     for (SoapOperationIdentity opId : registeredSOAPOperations) {
-      results.add(new WSDLServiceDescFromBioCatalogue(opId));
+      results.add(new WSDLOperationFromBioCatalogueServiceDescription(opId));
     }
     
     
@@ -88,8 +88,8 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
                                 xstream.fromXML(loadedRESTMethodsXMLString));
     
     registeredRESTMethods = (loadedRESTMethods == null || !(loadedRESTMethods instanceof List<?>) ?
-                             new ArrayList<RESTServiceDescription>() :
-                             (List<RESTServiceDescription>)loadedRESTMethods);
+                             new ArrayList<RESTFromBioCatalogueServiceDescription>() :
+                             (List<RESTFromBioCatalogueServiceDescription>)loadedRESTMethods);
     logger.info("Deserialised " + registeredRESTMethods.size() + Util.pluraliseNoun("REST method", registeredRESTMethods.size()));
     
     results.addAll(registeredRESTMethods);
@@ -145,7 +145,7 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
 	    registeredSOAPOperations.add(soapOperationDetails);
 	    
 	    // add the provided operation to the Service Panel
-	    ServiceDescription service = new WSDLServiceDescFromBioCatalogue(soapOperationDetails);
+	    ServiceDescription service = new WSDLOperationFromBioCatalogueServiceDescription(soapOperationDetails);
 	    BioCatalogueServiceProvider.callBack.partialResults(Collections.singletonList(service));
 	    return (true);
 	  }
@@ -173,9 +173,9 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
 				List<Operation> operations = parser.getOperations();
 				callBack.status("Found " + operations.size() + " WSDL operations of service "
 						+ wsdlURL);
-				List<WSDLServiceDescFromBioCatalogue> items = new ArrayList<WSDLServiceDescFromBioCatalogue>();
+				List<WSDLOperationFromBioCatalogueServiceDescription> items = new ArrayList<WSDLOperationFromBioCatalogueServiceDescription>();
 				for (Operation operation : operations) {
-					WSDLServiceDescFromBioCatalogue item;
+					WSDLOperationFromBioCatalogueServiceDescription item;
 					try {
 						String operationName = operation.getName();
 						String operationDesc = parser.getOperationDocumentation(operationName);
@@ -185,7 +185,7 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
 							logger.warn("Unsupported style and use combination " + style + "/" + use + " for operation " + operationName + " from " + wsdlURL);
 							continue;
 						}
-						item = new WSDLServiceDescFromBioCatalogue(wsdlURL, operationName, operationDesc);
+						item = new WSDLOperationFromBioCatalogueServiceDescription(wsdlURL, operationName, operationDesc);
 						items.add(item);
 						
 					    // Record the newly added operation in the internal list
@@ -234,7 +234,7 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
 	}
 	
 	
-	public static boolean registerNewRESTMethod(RESTServiceDescription restServiceDescription)
+	public static boolean registerNewRESTMethod(RESTFromBioCatalogueServiceDescription restServiceDescription)
 	{
 	  if (restServiceDescription == null) {
 	    return (false);
@@ -255,7 +255,7 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
 	  return (registeredSOAPOperations);
 	}
 	
-	public static List<RESTServiceDescription> getRegisteredRESTMethods() {
+	public static List<RESTFromBioCatalogueServiceDescription> getRegisteredRESTMethods() {
     return (registeredRESTMethods);
   }
   

@@ -106,28 +106,30 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
     
     c.gridy++;
     c.insets = new Insets(30, 0, 0, 0);
-    JButton bForgetStoredServices = new JButton("Forget services added to Service Panel by BioCatalogue Plugin");
-    bForgetStoredServices.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e)
-      {
-        int response = JOptionPane.showConfirmDialog(null, // no way T2ConfigurationFrame instance can be obtained to be used as a parent...
-                                       "Are you sure you want to clear all SOAP operations and REST methods\n" +
-                                       "that were added to the Service Panel by the BioCatalogue Plugin?\n\n" +
-                                       "This action is permanent is cannot be undone.\n\n" +
-                                       "Do you want to proceed?", "BioCatalogue Plugin", JOptionPane.YES_NO_OPTION);
-        
-        if (response == JOptionPane.YES_OPTION)
-        {
-          BioCatalogueServiceProvider.clearRegisteredServices();
-          JOptionPane.showMessageDialog(null,  // no way T2ConfigurationFrame instance can be obtained to be used as a parent...
-                          "Stored services have been successfully cleared, but will remain\n" +
-                          "being shown in Service Panel during this session.\n\n" +
-                          "They will not appear in the Service Panel after you restart Taverna.",
-                          "BioCatalogue Plugin", JOptionPane.INFORMATION_MESSAGE);
-        }
-      }
-    });
-    this.add(bForgetStoredServices, c);
+    // We are not removing BioCatalogue services from its config panel any more - 
+    // they are being handled by the Taverna's Service Registry
+//    JButton bForgetStoredServices = new JButton("Forget services added to Service Panel by BioCatalogue Plugin");
+//    bForgetStoredServices.addActionListener(new ActionListener() {
+//      public void actionPerformed(ActionEvent e)
+//      {
+//        int response = JOptionPane.showConfirmDialog(null, // no way T2ConfigurationFrame instance can be obtained to be used as a parent...
+//                                       "Are you sure you want to clear all SOAP operations and REST methods\n" +
+//                                       "that were added to the Service Panel by the BioCatalogue Plugin?\n\n" +
+//                                       "This action is permanent is cannot be undone.\n\n" +
+//                                       "Do you want to proceed?", "BioCatalogue Plugin", JOptionPane.YES_NO_OPTION);
+//        
+//        if (response == JOptionPane.YES_OPTION)
+//        {
+//          BioCatalogueServiceProvider.clearRegisteredServices();
+//          JOptionPane.showMessageDialog(null,  // no way T2ConfigurationFrame instance can be obtained to be used as a parent...
+//                          "Stored services have been successfully cleared, but will remain\n" +
+//                          "being shown in Service Panel during this session.\n\n" +
+//                          "They will not appear in the Service Panel after you restart Taverna.",
+//                          "BioCatalogue Plugin", JOptionPane.INFORMATION_MESSAGE);
+//        }
+//      }
+//    });
+//    this.add(bForgetStoredServices, c);
     
     
     JButton bLoadDefaults = new JButton("Load Defaults");

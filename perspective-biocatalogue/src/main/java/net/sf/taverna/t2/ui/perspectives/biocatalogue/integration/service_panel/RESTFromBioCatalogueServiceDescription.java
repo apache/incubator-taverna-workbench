@@ -21,7 +21,27 @@ import net.sf.taverna.t2.activities.rest.ui.servicedescription.RESTActivityIcon;
  * 
  * @author Sergejs Aleksejevs
  */
-public class RESTServiceDescription extends ServiceDescription<RESTActivityConfigurationBean>
+/*******************************************************************************
+ * Copyright (C) 2008-2010 The University of Manchester   
+ * 
+ *  Modifications to the initial code base are copyright of their
+ *  respective authors, or their employers as appropriate.
+ * 
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public License
+ *  as published by the Free Software Foundation; either version 2.1 of
+ *  the License, or (at your option) any later version.
+ *    
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
+ *    
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ ******************************************************************************/
+public class RESTFromBioCatalogueServiceDescription extends ServiceDescription<RESTActivityConfigurationBean>
 {
   private static final int SHORT_DESCRIPTION_MAX_LENGTH = 200;
   
@@ -44,7 +64,7 @@ public class RESTServiceDescription extends ServiceDescription<RESTActivityConfi
 	 * Constructor instantiates config bean and pre-populates
 	 * it with default values.
 	 */
-	public RESTServiceDescription()
+	public RESTFromBioCatalogueServiceDescription()
 	{
 	  // apply default name in case it won't be set manually later
 	  this.serviceName = "REST Service";
@@ -90,8 +110,8 @@ public class RESTServiceDescription extends ServiceDescription<RESTActivityConfi
 	
 	
 	/**
-   * Truncates the description if necessary to {@link WSDLServiceDescFromBioCatalogue#SHORT_DESCRIPTION_MAX_LENGTH} --
-   * to get full description, use {@link WSDLServiceDescFromBioCatalogue#getFullDescription()}
+   * Truncates the description if necessary to {@link WSDLOperationFromBioCatalogueServiceDescription#SHORT_DESCRIPTION_MAX_LENGTH} --
+   * to get full description, use {@link WSDLOperationFromBioCatalogueServiceDescription#getFullDescription()}
    */
   public String getDescription() {
     if (this.description != null && this.description.length() > SHORT_DESCRIPTION_MAX_LENGTH) {
@@ -118,7 +138,7 @@ public class RESTServiceDescription extends ServiceDescription<RESTActivityConfi
 	@Override
 	public List<String> getPath() {
 		// For deeper paths you may return several strings
-		return Arrays.asList(BioCatalogueServiceProvider.PROVIDER_NAME, "REST Service @ " + serviceConfigBean.getUrlSignature());
+		return Arrays.asList(BioCatalogueRESTServiceProvider.PROVIDER_NAME, "REST @ " + serviceConfigBean.getUrlSignature());
 	}
 
 	/**
