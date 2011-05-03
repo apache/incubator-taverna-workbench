@@ -7,13 +7,14 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
+import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.raven.appconfig.config.Log4JConfiguration;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.MainWindow;
 
 import org.apache.log4j.Logger;
 
-public class ShowLogsMenuAction extends AbstractMenuAction {
+public class ShowLogsAndDataMenuAction extends AbstractMenuAction {
 	
 	private static final String OPEN = "open";
 	private static final String EXPLORER = "explorer";
@@ -21,20 +22,20 @@ public class ShowLogsMenuAction extends AbstractMenuAction {
 	private static final String WINDOWS = "Windows";
 	private static final String MAC_OS_X = "Mac OS X";
 
-	public ShowLogsMenuAction() {
+	public ShowLogsAndDataMenuAction() {
 		super(AdvancedMenu.ADVANCED_URI, 200);
 	}
 	
-	private static Logger logger = Logger.getLogger(ShowLogsMenuAction.class);
+	private static Logger logger = Logger.getLogger(ShowLogsAndDataMenuAction.class);
 	
 	@Override
 	protected Action createAction() {
-		return new AbstractAction("Show log folder") {
+		return new AbstractAction("Show logs and data folder") {
 			private static final long serialVersionUID = 1L;
 
 			public void actionPerformed(ActionEvent e) {
-				File logDir = Log4JConfiguration.getInstance().getLogDir();
-				showDirectory(logDir, "Taverna log folder");
+				File logsAndDataDir = ApplicationRuntime.getInstance().getApplicationHomeDir();
+				showDirectory(logsAndDataDir, "Taverna logs and data folder");
 			}
 		};
 	}
