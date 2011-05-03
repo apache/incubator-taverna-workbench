@@ -210,7 +210,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 				// Dereference the object
 				Object dataValue;
 				try{
-					dataValue = context.getReferenceService().renderIdentifier(reference, Object.class, context);
+					dataValue = referenceService.renderIdentifier(reference, Object.class, context);
 				}
 				catch(ReferenceServiceException rse){
 					String message = "Problem rendering T2Reference in convertReferencesToObjects().";
@@ -221,13 +221,12 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 			}
 			else if (reference.getReferenceType() == T2ReferenceType.ErrorDocument){
 				// Dereference the ErrorDocument and convert it to some string representation
-				ErrorDocument errorDocument = (ErrorDocument)context.getReferenceService().resolveIdentifier(reference, null, context);
+				ErrorDocument errorDocument = (ErrorDocument)referenceService.resolveIdentifier(reference, null, context);
 				String errorString = ResultsUtils.buildErrorDocumentString(errorDocument, context);
 				return errorString;
 			}
 			else { // it is an IdentifiedList<T2Reference> - go recursively
-				IdentifiedList<T2Reference> identifiedList = context
-				.getReferenceService().getListService().getList(reference);
+				IdentifiedList<T2Reference> identifiedList = referenceService.getListService().getList(reference);
 				List<Object> list = new ArrayList<Object>();
 				
 				for (int j=0; j<identifiedList.size(); j++){
