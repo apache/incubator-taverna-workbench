@@ -38,6 +38,7 @@ import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -46,13 +47,18 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.ListCellRenderer;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreeCellRenderer;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
@@ -74,6 +80,8 @@ import net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 
 import org.apache.log4j.Logger;
+
+import sun.swing.DefaultLookup;
 
 import eu.medsea.mimeutil.MimeType;
 
@@ -436,44 +444,59 @@ public class RenderedResultComponent extends JPanel {
 			recognisedRenderersForMimeType = null;
 			otherRenderers = null;
 			
-			DefaultMutableTreeNode root = new DefaultMutableTreeNode(
-					"Error Trace");
-			ResultsUtils.buildErrorDocumentTree(root, errorDocument, referenceService);
+			// If there is no exception message, e.g. service returned error as HTML document but no 
+			// actual exception occurred - do not build the error tree just show the message text
+			// This is because multiline text is not being showed properly in the JTree
+			JTextArea errorTextArea = null;
+			JTree errorTree = null;
+			if (errorDocument.getExceptionMessage() == null || errorDocument.getExceptionMessage().equals("")){
+				// If there is no exception message, there will be no stack trace nor child errors either
+				// so we are OK just to show the actual message from the error document
+				errorTextArea = new JTextArea(errorDocument.getMessage());
+				errorTextArea.setEditable(false);
+			}
+			else{
+				DefaultMutableTreeNode root = new DefaultMutableTreeNode("Error Trace");
+				ResultsUtils.buildErrorDocumentTree(root, errorDocument,
+						referenceService);
 
-			JTree errorTree = new JTree(root);
-			errorTree.setCellRenderer(new DefaultTreeCellRenderer() {
+				errorTree = new JTree(root);
+				errorTree.setCellRenderer(new DefaultTreeCellRenderer() {
 
-				public Component getTreeCellRendererComponent(JTree tree,
-						Object value, boolean selected, boolean expanded,
-						boolean leaf, int row, boolean hasFocus) {
-					Component renderer = null;
-					if (value instanceof DefaultMutableTreeNode) {
-						DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) value;
-						Object userObject = treeNode.getUserObject();
-						if (userObject instanceof ErrorDocument) {
-							ErrorDocument errorDocument = (ErrorDocument) userObject;
-							renderer = super.getTreeCellRendererComponent(tree,
-									errorDocument.getMessage(), selected,
-									expanded, leaf, row, hasFocus);
+					public Component getTreeCellRendererComponent(JTree tree,
+							Object value, boolean selected, boolean expanded,
+							boolean leaf, int row, boolean hasFocus) {
+						Component renderer = null;
+						if (value instanceof DefaultMutableTreeNode) {
+							DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) value;
+							Object userObject = treeNode.getUserObject();
+							if (userObject instanceof ErrorDocument) {
+								ErrorDocument errorDocument = (ErrorDocument) userObject;
+								renderer = super
+										.getTreeCellRendererComponent(tree,
+												errorDocument.getMessage(),
+												selected, expanded, leaf, row,
+												hasFocus);						
+							}
 						}
+						if (renderer == null) {
+							renderer = super.getTreeCellRendererComponent(tree,
+									value, selected, expanded, leaf, row,
+									hasFocus);
+						}
+						if (renderer instanceof JLabel) {
+							JLabel label = (JLabel) renderer;
+							label.setIcon(null);
+						}
+						return renderer;
 					}
-					if (renderer == null) {
-						renderer = super.getTreeCellRendererComponent(tree,
-								value, selected, expanded, leaf, row, hasFocus);
-					}
-					if (renderer instanceof JLabel) {
-						JLabel label = (JLabel) renderer;
-						label.setIcon(null);
-					}
-					return renderer;
-				}
-
-			});
+				});
+			}						
 
 			renderersComboBox.setModel(new DefaultComboBoxModel(
 					new String[] { ERROR_DOCUMENT }));
 			renderedResultPanel.removeAll();
-			renderedResultPanel.add(errorTree, BorderLayout.CENTER);
+			renderedResultPanel.add(errorTextArea != null ? errorTextArea : errorTree, BorderLayout.CENTER);
 			repaint();
 		}
 		
