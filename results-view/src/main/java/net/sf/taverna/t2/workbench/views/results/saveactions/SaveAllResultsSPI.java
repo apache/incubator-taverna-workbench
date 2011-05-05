@@ -210,7 +210,12 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 				// Dereference the object
 				Object dataValue;
 				try{
-					dataValue = referenceService.renderIdentifier(reference, Object.class, context);
+					try {
+						dataValue = referenceService.renderIdentifier(reference, String.class, context);
+					}
+					catch (ReferenceServiceException e) {
+						dataValue = referenceService.renderIdentifier(reference, byte[].class, context);
+					}
 				}
 				catch(ReferenceServiceException rse){
 					String message = "Problem rendering T2Reference in convertReferencesToObjects().";
