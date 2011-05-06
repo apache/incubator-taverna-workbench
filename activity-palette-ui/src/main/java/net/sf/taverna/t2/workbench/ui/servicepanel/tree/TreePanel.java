@@ -68,6 +68,7 @@ public abstract class TreePanel extends JPanel {
 	private String noMatchingObjectsString = "";
 
 	private TreeExpandCollapseListener treeExpandListener = new TreeExpandCollapseListener();
+	private Object filterLock = new Object();
 	
 	private static Logger logger = Logger
 	.getLogger(TreePanel.class);
@@ -200,32 +201,39 @@ public abstract class TreePanel extends JPanel {
 		return new FilterTreeCellRenderer();
 	}
 
-	public synchronized void runFilter() throws InterruptedException,
+	public void runFilter() throws InterruptedException,
 			InvocationTargetException {
-		tree.removeTreeExpansionListener(treeExpandListener);
-		String text = searchField.getText();
-		final FilterTreeNode root = (FilterTreeNode) tree.getModel().getRoot();
-		if (text.length() == 0) {
-			setFilter(null);
-					root.setUserObject(getAvailableObjectsString());
-					filterTreeModel.nodeChanged(root);
-			for (List<Object> tp : expandedPaths) {
-//				for (int i = 0; i < tp.length; i++) {
-//					logger.info("Trying to expand " + tp[i].toString());
-//				}
-				tree.expandPath(filterTreeModel.getTreePathForObjectPath(tp));
-			}
-		} else {
-			setFilter(createFilter(text));
-			if (root.getChildCount() > 0) {
-				root.setUserObject(getMatchingObjectsString());
-				} else {
-					root.setUserObject(getNoMatchingObjectsString());
+		/* Special lock object, don't do a synchronized model, as the lock on
+		 * JComponent might deadlock when painting the
+		 * panel - see comments at
+		 * http://www.mygrid.org.uk/dev/issues/browse/T2-1438
+		 */
+		synchronized (filterLock) {
+			tree.removeTreeExpansionListener(treeExpandListener);
+			String text = searchField.getText();
+			final FilterTreeNode root = (FilterTreeNode) tree.getModel().getRoot();
+			if (text.length() == 0) {
+				setFilter(null);
+						root.setUserObject(getAvailableObjectsString());
+						filterTreeModel.nodeChanged(root);
+				for (List<Object> tp : expandedPaths) {
+	//				for (int i = 0; i < tp.length; i++) {
+	//					logger.info("Trying to expand " + tp[i].toString());
+	//				}
+					tree.expandPath(filterTreeModel.getTreePathForObjectPath(tp));
 				}
-			filterTreeModel.nodeChanged(root);
-			expandTreePaths();
+			} else {
+				setFilter(createFilter(text));
+				if (root.getChildCount() > 0) {
+					root.setUserObject(getMatchingObjectsString());
+					} else {
+						root.setUserObject(getNoMatchingObjectsString());
+					}
+				filterTreeModel.nodeChanged(root);
+				expandTreePaths();
+			}
+			tree.addTreeExpansionListener(treeExpandListener);
 		}
-		tree.addTreeExpansionListener(treeExpandListener);
 	}
 
 	/**
