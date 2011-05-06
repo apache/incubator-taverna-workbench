@@ -35,10 +35,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.reference.ReferenceService;
@@ -78,7 +76,7 @@ public class DatabaseCleanup {
 
 	private static Logger logger = Logger.getLogger(DatabaseCleanup.class);
 
-	protected LinkedBlockingQueue<String> deletionQueue = new LinkedBlockingQueue<String>();
+	protected ConcurrentLinkedQueue<String> deletionQueue = new ConcurrentLinkedQueue<String>();
 
 	protected Set<String> inQueueOrDeleted = Collections
 			.synchronizedSet(new HashSet<String>());
@@ -103,6 +101,9 @@ public class DatabaseCleanup {
 			boolean startDeletion) {
 		if (inQueueOrDeleted.add(workflowRunId)) {
 			deletionQueue.offer(workflowRunId);
+			//synchronized (deletionQueue) {
+//				deletionQueue.notify();
+			//}
 		}
 		synchronized (this) {
 			if (startDeletion

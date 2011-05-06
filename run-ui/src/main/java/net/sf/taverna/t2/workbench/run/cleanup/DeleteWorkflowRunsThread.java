@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.cleanup;
 
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.Queue;
 
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.reference.ReferenceService;
@@ -60,11 +60,20 @@ public class DeleteWorkflowRunsThread extends Thread {
 
 		try {
 			while (active) {
-				LinkedBlockingQueue<String> queue = databaseCleanup.deletionQueue;
-				
+				Queue<String> queue = databaseCleanup.deletionQueue;
+
+				synchronized (queue) {
+					// Wait until an element is placed in the queue
+					while (queue.isEmpty()) {
+						queue.wait();
+						if (!active) {
+							return;
+						}
+					}
+				}
 				// Retrieve the first element from the queue (but do not
 				// remove it)
-				String runToDelete = queue.take();
+				String runToDelete = queue.peek();
 				
 				// Remove provenance data for the run (if any) and all
 				// references held by the workflow run from the Reference
@@ -94,8 +103,8 @@ public class DeleteWorkflowRunsThread extends Thread {
 							+ runToDelete
 							+ "' from provenance database and Reference Manager's store.";
 					logger.error(message, ex);
-				} finally {
-					queue.poll(); // Remove from queue, even if deletion failed
+				 } finally {
+					 queue.poll(); // Remove from queue, even if deletion failed
 				}
 			}
 		} catch (InterruptedException ignored) {
