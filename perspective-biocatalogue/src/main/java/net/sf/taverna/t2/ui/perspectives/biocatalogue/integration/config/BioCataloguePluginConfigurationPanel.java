@@ -35,13 +35,11 @@ import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 import org.apache.log4j.Logger;
+import org.jdom.Attribute;
 import org.jdom.Document;
-//import org.jdom.Element;
-//import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
-import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.BioCatalogueServiceProvider;
 
 
 /**
@@ -58,6 +56,13 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 	public static String PROXY_USERNAME = "http.proxyUser";
 	public static String PROXY_PASSWORD = "http.proxyPassword";
 	
+	// 1.0.0b and higher until the first digit changes, as according to "Semantic Versioning" 
+	// from http://www.biocatalogue.org/wiki/doku.php?id=public:api:changelog
+	// "Major version X (X.y.z | X > 0) MUST be incremented if any backwards 
+	// incompatible changes are introduced to the public API. It MAY include minor and patch level changes."
+	public static String[] MIN_SUPPORTED_BIOCATALOGUE_API_VERSION = {"1", "0", "0b"}; // major, minor and patch versions
+	public static String API_VERSION = "apiVersion";
+
 	private BioCataloguePluginConfiguration configuration = 
                           BioCataloguePluginConfiguration.getInstance();
   
@@ -65,8 +70,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 	// UI elements
 	JTextField tfBioCatalogueAPIBaseURL;
 
-	private Logger logger = Logger.getLogger(BioCataloguePluginConfigurationPanel.class);
-  
+	private Logger logger = Logger.getLogger(BioCataloguePluginConfigurationPanel.class);  
   
 	public BioCataloguePluginConfigurationPanel() {
 		initialiseUI();
@@ -298,18 +302,27 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 							httpClient.getConnectionManager().shutdown();
 						}
 						// Get the version element from the XML document
-						/*String acceptedVersion = "...";
-						Element versionElement = doc.getRootElement().getChild("version", Namespace.getNamespace("http://www.biocatalogue.org/2009/xml/rest"));
-						if (versionElement.getText() <some_kind_of_comparison> acceptedVersion){
-							// Warn the user
-							JOptionPane.showMessageDialog(this,
-									"The version of the BioCatalogue instance you are trying to connect to is not supported.\n"
-											+ "Please change the URL and try again.",
-									"BioCatalogue Plugin",
-									JOptionPane.INFORMATION_MESSAGE);
-							tfBioCatalogueAPIBaseURL.requestFocusInWindow();
-							return;				
-						}*/
+						Attribute apiVersionAttribute = doc.getRootElement().getAttribute(API_VERSION);
+						if (apiVersionAttribute != null){
+							String apiVersion = apiVersionAttribute.getValue();
+							String versions[] = apiVersion.split("[.]");
+							String majorVersion = versions[0];
+							String minorVersion = versions[1];
+							//String patchVersion = versions[2]; // we are not comparing the patch versions
+							if (!(Integer.getInteger(MIN_SUPPORTED_BIOCATALOGUE_API_VERSION[0]) == Integer.getInteger(majorVersion) && 
+									Integer.getInteger(MIN_SUPPORTED_BIOCATALOGUE_API_VERSION[1]) <= Integer.getInteger(minorVersion))){
+								// Warn the user
+								JOptionPane
+										.showMessageDialog(
+												this,
+												"The version of the BioCatalogue instance you are trying to connect to is not supported.\n"
+														+ "Please change the URL and try again.",
+												"BioCatalogue Plugin",
+												JOptionPane.INFORMATION_MESSAGE);
+								tfBioCatalogueAPIBaseURL.requestFocusInWindow();
+								return;		
+							}
+						} // if null - we'll try to do our best to connect to BioCatalogue anyway
 					} else {
 						logger
 								.error("BioCatalogue preferences configuration: Failed to get the expected response content type when testing the BioCatalogue instance. "
