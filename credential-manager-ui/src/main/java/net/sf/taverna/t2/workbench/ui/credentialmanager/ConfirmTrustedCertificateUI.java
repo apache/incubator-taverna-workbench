@@ -33,6 +33,10 @@ import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
 
 import org.apache.log4j.Logger;
 
+/**
+ * @author Stian Soiland-Reyes
+ * 
+ */
 public class ConfirmTrustedCertificateUI implements CredentialProviderSPI {
 
 	private static Logger logger = Logger
