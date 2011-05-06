@@ -100,11 +100,11 @@ public class DatabaseCleanup {
 	protected void addToDeletionQueue(String workflowRunId,
 			boolean startDeletion) {
 		if (inQueueOrDeleted.add(workflowRunId)) {
-			deletionQueue.offer(workflowRunId);
-			//synchronized (deletionQueue) {
-//				deletionQueue.notify();
-			//}
+			deletionQueue.offer(workflowRunId);		
 		}
+		synchronized (deletionQueue) {
+			deletionQueue.notify();
+		}	
 		synchronized (this) {
 			if (startDeletion
 					&& (deleteWorkflowRunsThread == null || !deleteWorkflowRunsThread

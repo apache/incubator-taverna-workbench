@@ -64,7 +64,7 @@ public class DeleteWorkflowRunsThread extends Thread {
 
 				synchronized (queue) {
 					// Wait until an element is placed in the queue
-					while (queue.isEmpty()) {
+					while (queue.isEmpty()) {						
 						queue.wait();
 						if (!active) {
 							return;
