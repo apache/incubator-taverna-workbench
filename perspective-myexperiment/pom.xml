@@ -31,13 +31,7 @@
 				http://www.mygrid.org.uk/maven/snapshot-repository
 			</url>
 		</repository>
-		<repository>
-			<id>trianacode-maven-repos</id>
-			<url>http://trianacode.org/maven</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
+		
 	</repositories>
 
 	<dependencies>
