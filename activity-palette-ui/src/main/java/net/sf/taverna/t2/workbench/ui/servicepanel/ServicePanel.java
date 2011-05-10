@@ -219,9 +219,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					try {
-						synchronized (serviceTreePanel) {
 							serviceTreePanel.runFilter();
-						}
 						} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 							logger.error("", e);
