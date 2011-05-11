@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="ProcessorDispatchStackContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorDispatchStackContextualViewFactory" />
+	<bean id="ProcessorPredictedBehaviorContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorPredictedBehaviorContextualViewFactory" />
+	<bean id="ProcessorActivitiesContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorActivitiesContextualViewFactory" />
+
+</beans>

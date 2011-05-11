@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="ResultsPerspectiveComponentFactory" class="net.sf.taverna.t2.workbench.run.ResultsPerspectiveComponentFactory" />
+
+	<bean id="LoadRunIdsToDeleteStartupHook" class="net.sf.taverna.t2.workbench.run.cleanup.LoadRunIdsToDeleteStartupHook" />
+
+	<bean id="ResultsPerspectiveComponent" class="net.sf.taverna.t2.workbench.run.ResultsPerspectiveComponent" />
+
+	<bean id="FileRunMenuAction" class="net.sf.taverna.t2.workbench.run.menu.FileRunMenuAction" />
+	<bean id="FileValidateMenuAction" class="net.sf.taverna.t2.workbench.run.menu.FileValidateMenuAction" />
+	<bean id="FileRunMenuSection" class="net.sf.taverna.t2.workbench.run.menu.FileRunMenuSection" />
+	<bean id="RunToolbarSection" class="net.sf.taverna.t2.workbench.run.toolbar.RunToolbarSection" />
+	<bean id="RunToolbarAction" class="net.sf.taverna.t2.workbench.run.toolbar.RunToolbarAction" />
+
+	<bean id="ReferenceDatabaseCleanUpShutdownHook" class="net.sf.taverna.t2.workbench.run.cleanup.ReferenceDatabaseCleanUpShutdownHook" />
+	<bean id="ReferenceServiceShutdownHook" class="net.sf.taverna.t2.workbench.run.cleanup.ReferenceServiceShutdownHook" />
+	<bean id="RemoveDataflowRunsShutdownHook" class="net.sf.taverna.t2.workbench.run.cleanup.RemoveDataflowRunsShutdownHook" />
+	<bean id="StoreRunIdsToDeleteLaterShutdownHook" class="net.sf.taverna.t2.workbench.run.cleanup.StoreRunIdsToDeleteLaterShutdownHook" />
+	<bean id="WorkflowRunStatusShutdownHook" class="net.sf.taverna.t2.workbench.run.cleanup.WorkflowRunStatusShutdownHook" />
+
+</beans>
