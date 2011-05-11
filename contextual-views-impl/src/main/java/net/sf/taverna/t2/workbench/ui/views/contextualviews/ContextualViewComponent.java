@@ -71,7 +71,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 
 	protected Map<JPanel, SectionLabel> panelToLabelMap = new HashMap<JPanel, SectionLabel>();
 	
-	private String lastOpenedSectionName = null;
+	private String lastOpenedSectionName = "";
 
 	private JPanel mainPanel;
 	
@@ -375,7 +375,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 	
 	public synchronized void openSection(JPanel sectionToOpen) {
-		lastOpenedSectionName = null;
+		lastOpenedSectionName = "";
 		for (Entry<JPanel, SectionLabel> entry : panelToLabelMap.entrySet()) {
 			JPanel section = entry.getKey();
 			SectionLabel sectionLabel = entry.getValue();
