@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/osgi" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                      http://www.springframework.org/schema/beans/spring-beans.xsd
+                      http://www.springframework.org/schema/osgi 
+                      http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
+	<service ref="ActivityInputPortSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="SetConstantInputPortValueMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ConnectInputPortMenuActions" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ActivityOutputPortSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ConnectOutputPortMenuActions" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ConditionSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="RemoveConditionMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ConfigureRunningContextualMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ShowDetailsMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ShowDetailsContextualMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ShowConfigureMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ShowReportsContextualMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="CreateInputMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="CreateOutputMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="InsertSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="WorkflowServiceTemplatesSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="EditSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ConfigureSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="PasteMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="LinkSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="RemoveLinkMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="MergeSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="RemoveMergeMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ConnectDataflowInputPortMenuActions" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ConnectDataflowOutputPortMenuActions" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="EditDataflowInputPortMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="EditDataflowOutputPortMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="RemoveDataflowInputPortMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="RemoveDataflowOutputPortMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="WorkflowInputPortSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="WorkflowOutputPortSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ConditionMenuActions" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ProcessorSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="RenameProcessorMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="RemoveProcessorMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+
+</beans:beans>

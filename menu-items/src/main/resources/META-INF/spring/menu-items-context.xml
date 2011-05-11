@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="ActivityInputPortSection" class="net.sf.taverna.t2.ui.menu.items.activityport.ActivityInputPortSection" />
+	<bean id="SetConstantInputPortValueMenuAction" class="net.sf.taverna.t2.ui.menu.items.activityport.SetConstantInputPortValueMenuAction" />
+	<bean id="ConnectInputPortMenuActions" class="net.sf.taverna.t2.ui.menu.items.activityport.ConnectInputPortMenuActions" />
+	<bean id="ActivityOutputPortSection" class="net.sf.taverna.t2.ui.menu.items.activityport.ActivityOutputPortSection" />
+	<bean id="ConnectOutputPortMenuActions" class="net.sf.taverna.t2.ui.menu.items.activityport.ConnectOutputPortMenuActions" />
+	<bean id="ConditionSection" class="net.sf.taverna.t2.ui.menu.items.condition.ConditionSection" />
+	<bean id="RemoveConditionMenuAction" class="net.sf.taverna.t2.ui.menu.items.condition.RemoveConditionMenuAction" />
+	<bean id="ConfigureRunningContextualMenuSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureRunningContextualMenuSection" />
+	<bean id="ShowDetailsMenuAction" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ShowDetailsMenuAction" />
+	<bean id="ShowDetailsContextualMenuAction" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ShowDetailsContextualMenuAction" />
+	<bean id="ShowConfigureMenuAction" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ShowConfigureMenuAction" />
+	<bean id="ShowReportsContextualMenuAction" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ShowReportsContextualMenuAction" />
+	<bean id="CreateInputMenuAction" class="net.sf.taverna.t2.ui.menu.items.dataflow.CreateInputMenuAction" />
+	<bean id="CreateOutputMenuAction" class="net.sf.taverna.t2.ui.menu.items.dataflow.CreateOutputMenuAction" />
+	<bean id="InsertSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.InsertSection" />
+	<bean id="WorkflowServiceTemplatesSection" class="net.sf.taverna.t2.ui.menu.items.dataflow.WorkflowServiceTemplatesSection" />
+	<bean id="EditSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.EditSection" />
+	<bean id="ConfigureSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureSection" />
+	<bean id="PasteMenuAction" class="net.sf.taverna.t2.ui.menu.items.contextualviews.PasteMenuAction" />
+	<bean id="LinkSection" class="net.sf.taverna.t2.ui.menu.items.link.LinkSection" />
+	<bean id="RemoveLinkMenuAction" class="net.sf.taverna.t2.ui.menu.items.link.RemoveLinkMenuAction" />
+	<bean id="MergeSection" class="net.sf.taverna.t2.ui.menu.items.merge.MergeSection" />
+	<bean id="RemoveMergeMenuAction" class="net.sf.taverna.t2.ui.menu.items.merge.RemoveMergeMenuAction" />
+	<bean id="ConnectDataflowInputPortMenuActions" class="net.sf.taverna.t2.ui.menu.items.ports.ConnectDataflowInputPortMenuActions" />
+	<bean id="ConnectDataflowOutputPortMenuActions" class="net.sf.taverna.t2.ui.menu.items.ports.ConnectDataflowOutputPortMenuActions" />
+	<bean id="EditDataflowInputPortMenuAction" class="net.sf.taverna.t2.ui.menu.items.ports.EditDataflowInputPortMenuAction" />
+	<bean id="EditDataflowOutputPortMenuAction" class="net.sf.taverna.t2.ui.menu.items.ports.EditDataflowOutputPortMenuAction" />
+	<bean id="RemoveDataflowInputPortMenuAction" class="net.sf.taverna.t2.ui.menu.items.ports.RemoveDataflowInputPortMenuAction" />
+	<bean id="RemoveDataflowOutputPortMenuAction" class="net.sf.taverna.t2.ui.menu.items.ports.RemoveDataflowOutputPortMenuAction" />
+	<bean id="WorkflowInputPortSection" class="net.sf.taverna.t2.ui.menu.items.ports.WorkflowInputPortSection" />
+	<bean id="WorkflowOutputPortSection" class="net.sf.taverna.t2.ui.menu.items.ports.WorkflowOutputPortSection" />
+	<bean id="ConditionMenuActions" class="net.sf.taverna.t2.ui.menu.items.processor.ConditionMenuActions" />
+	<bean id="ProcessorSection" class="net.sf.taverna.t2.ui.menu.items.processor.ProcessorSection" />
+	<bean id="RenameProcessorMenuAction" class="net.sf.taverna.t2.ui.menu.items.processor.RenameProcessorMenuAction" />
+	<bean id="RemoveProcessorMenuAction" class="net.sf.taverna.t2.ui.menu.items.processor.RemoveProcessorMenuAction" />
+
+</beans>
