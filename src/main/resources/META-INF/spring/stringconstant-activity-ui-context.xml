@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="StringConstantActivityIcon" class="net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantActivityIcon" />
+
+	<bean id="StringConstantTemplateService" class="net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService" />
+
+	<bean id="AddStringConstantTemplateAction" class="net.sf.taverna.t2.activities.stringconstant.menu.AddStringConstantTemplateAction" />
+	<bean id="AddStringConstantTemplateMenuAction" class="net.sf.taverna.t2.activities.stringconstant.menu.AddStringConstantTemplateMenuAction" />
+	<bean id="ConfigureStringConstantMenuAction" class="net.sf.taverna.t2.activities.stringconstant.menu.ConfigureStringConstantMenuAction" />
+
+	<bean id="StringConstantActivityViewFactory" class="net.sf.taverna.t2.activities.stringconstant.views.StringConstantActivityViewFactory" />
+
+</beans>
