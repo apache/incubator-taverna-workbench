@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="UserRegistrationHook" class="net.sf.taverna.t2.workbench.ui.impl.UserRegistrationHook" />
+	<bean id="SetConsoleLoggerStartup" class="net.sf.taverna.t2.workbench.ui.impl.SetConsoleLoggerStartup" />
+
+	<bean id="WorkbenchLauncher" class="net.sf.taverna.t2.workbench.ui.impl.WorkbenchLauncher" />
+
+	<bean id="FileMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.FileMenu" />
+	<bean id="ExitAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.ExitAction" />
+	<bean id="EditMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.EditMenu" />
+	<bean id="AdvancedMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.AdvancedMenu" />
+	<bean id="DisplayPerspectivesMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.DisplayPerspectivesMenu" />
+	<bean id="EditPerspectivesMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.EditPerspectivesMenu" />
+	<bean id="HelpMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.HelpMenu" />
+	<bean id="OnlineHelpMenuAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.OnlineHelpMenuAction" />
+	<bean id="ShowLogsMenuAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.ShowLogsMenuAction" />
+
+	<bean id="StoreWindowStateOnShutdown" class="net.sf.taverna.t2.workbench.ui.impl.StoreWindowStateOnShutdown" />
+
+</beans>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="ContextualViewComponentFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualViewComponentFactory" />
+
+	<bean id="OutputPortContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.outputport.OutputPortContextualViewFactory" />
+	<bean id="InputPortContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.inputport.InputPortContextualViewFactory" />
+	<bean id="DataflowOutputPortContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflowoutputport.DataflowOutputPortContextualViewFactory" />
+	<bean id="DataflowInputPortContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflowinputport.DataflowInputPortContextualViewFactory" />
+	<bean id="DatalinkContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.datalink.DatalinkContextualViewFactory" />
+	<bean id="ConditionContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.condition.ConditionContextualViewFactory" />
+	<bean id="MergeContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.merge.MergeContextualViewFactory" />
+	<bean id="AnnotatedContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.annotated.AnnotatedContextualViewFactory" />
+
+</beans>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                      http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<bean id="FileCloseMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileCloseMenuAction" />
+	<bean id="FileNewMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileNewMenuAction" />
+	<bean id="FileOpenMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileOpenMenuAction" />
+	<bean id="FileOpenFromURLMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileOpenFromURLMenuAction" />
+	<bean id="FileOpenMenuSection" class="net.sf.taverna.t2.workbench.file.impl.menu.FileOpenMenuSection" />
+	<bean id="FileOpenRecentMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileOpenRecentMenuAction" />
+	<bean id="FileSaveMenuSection" class="net.sf.taverna.t2.workbench.file.impl.menu.FileSaveMenuSection" />
+	<bean id="FileSaveMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileSaveMenuAction" />
+	<bean id="FileSaveAllMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileSaveAllMenuAction" />
+	<bean id="FileSaveAsMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileSaveAsMenuAction" />
+	<bean id="WorkflowsMenu" class="net.sf.taverna.t2.workbench.file.impl.menu.WorkflowsMenu" />
+	<bean id="FileCloseAllMenuAction" class="net.sf.taverna.t2.workbench.file.impl.menu.FileCloseAllMenuAction" />
+	<bean id="FileToolbarMenuSection" class="net.sf.taverna.t2.workbench.file.impl.toolbar.FileToolbarMenuSection" />
+	<bean id="NewToolbarAction" class="net.sf.taverna.t2.workbench.file.impl.toolbar.NewToolbarAction" />
+	<bean id="OpenToolbarAction" class="net.sf.taverna.t2.workbench.file.impl.toolbar.OpenToolbarAction" />
+	<bean id="SaveToolbarAction" class="net.sf.taverna.t2.workbench.file.impl.toolbar.SaveToolbarAction" />
+	<bean id="CloseToolbarAction" class="net.sf.taverna.t2.workbench.file.impl.toolbar.CloseToolbarAction" />
+
+	<bean id="T2DataflowOpener" class="net.sf.taverna.t2.workbench.file.impl.T2DataflowOpener" />
+	<bean id="T2DataflowSaver" class="net.sf.taverna.t2.workbench.file.impl.T2DataflowSaver" />
+
+	<bean id="CloseWorkflowsOnShutdown" class="net.sf.taverna.t2.workbench.file.impl.hooks.CloseWorkflowsOnShutdown" />
+
+	<bean id="FileManagerImpl" class="net.sf.taverna.t2.workbench.file.impl.FileManagerImpl" />
+
+</beans>
