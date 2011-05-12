@@ -113,6 +113,7 @@ public class WorkbenchIcons {
 	public static ImageIcon tavernaCogs32x32Icon;
 	public static ImageIcon opmIcon;
 	public static ImageIcon workflowResultsIcon;
+	public static ImageIcon normalizeIcon;
 
 	static {
 		// Load the image files found in this package into the class.
@@ -247,6 +248,7 @@ public class WorkbenchIcons {
 					.getResource("generic/opmIcon.png"));
 			workflowResultsIcon = new ImageIcon(c
 					.getResource("generic/workflowResults.png"));
+			normalizeIcon = new ImageIcon(c.getResource("generic/normalize.png"));
 		} catch (Exception ex) {
 			logger.error("Could not create icon", ex);
 		}
