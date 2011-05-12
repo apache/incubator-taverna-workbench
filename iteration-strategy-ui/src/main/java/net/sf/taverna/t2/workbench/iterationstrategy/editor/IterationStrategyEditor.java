@@ -21,11 +21,10 @@
 package net.sf.taverna.t2.workbench.iterationstrategy.editor;
 
 import java.awt.GraphicsEnvironment;
-import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.image.BufferedImage;
+//import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 import javax.swing.DropMode;
@@ -44,14 +43,14 @@ import net.sf.taverna.t2.workflowmodel.processor.iteration.TerminalNode;
 
 import org.apache.log4j.Logger;
 
+@SuppressWarnings("serial")
 public class IterationStrategyEditor extends IterationStrategyTree implements
 		UIComponentSPI {
 
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger
 			.getLogger(IterationStrategyEditor.class);
 
-	private BufferedImage imgGhost; // The 'drag image'
+	//private BufferedImage imgGhost; // The 'drag image'
 
 	// mouse was clicked
 

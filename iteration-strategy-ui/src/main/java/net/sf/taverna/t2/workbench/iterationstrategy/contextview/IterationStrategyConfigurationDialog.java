@@ -4,6 +4,7 @@
 package net.sf.taverna.t2.workbench.iterationstrategy.contextview;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -26,12 +27,12 @@ import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategy;
 import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategyStack;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.impl.IterationStrategyImpl;
 
 /**
  * @author alanrw
  *
  */
+@SuppressWarnings("serial")
 public class IterationStrategyConfigurationDialog extends HelpEnabledDialog {
 	
 	private static Logger logger = Logger
@@ -73,7 +74,8 @@ public class IterationStrategyConfigurationDialog extends HelpEnabledDialog {
 		buttonPanel.add(cancelButton);
 
 		this.add(buttonPanel, BorderLayout.SOUTH);
-		this.setSize(400, 400);
+		this.pack();
+		this.setSize(new Dimension(getPreferredSize().width, getPreferredSize().height > 400 ? 400 : getPreferredSize().height));
 	}
 
 	private final class OKAction extends AbstractAction {
