@@ -197,7 +197,7 @@ public class ResourceManager
                                               break;
       case WSDL_DOCUMENT_ICON:                resPath += FAMFAMFAM_PATH + "page_white_code.png";
                                               break;                                        
-      case OPEN_IN_BIOCATALOGUE_ICON:         resPath += "open_in_BioCatalogue.png";
+      case OPEN_IN_BIOCATALOGUE_ICON:         resPath += FAMFAMFAM_PATH + "magnifier.png";
                                               break;
       case SEARCH_ICON:                       resPath += FAMFAMFAM_PATH + "magnifier.png";
                                               break;
@@ -235,7 +235,7 @@ public class ResourceManager
                                               break;
       case SUGGESTION_TO_USER_ICON:           resPath += FAMFAMFAM_PATH + "lightbulb.png";
                                               break;
-      case ADD_PROCESSOR_TO_WORKFLOW_ICON:    resPath += FAMFAMFAM_PATH + "application_form_add.png";
+      case ADD_PROCESSOR_TO_WORKFLOW_ICON:    resPath += "open_in_BioCatalogue.png";
                                               break;
       case ADD_PROCESSOR_AS_FAVOURITE_ICON:   resPath += FAMFAMFAM_PATH + "star.png";
                                               break;
