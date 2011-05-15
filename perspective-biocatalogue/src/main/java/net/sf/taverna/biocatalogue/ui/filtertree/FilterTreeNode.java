@@ -9,6 +9,7 @@ import net.sf.taverna.biocatalogue.ui.tristatetree.TriStateTreeNode;
  * 
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public class FilterTreeNode extends TriStateTreeNode
 {
   private String type; 

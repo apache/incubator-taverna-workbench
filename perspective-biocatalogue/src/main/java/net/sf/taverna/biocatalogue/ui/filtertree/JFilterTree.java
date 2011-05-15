@@ -1,6 +1,8 @@
 package net.sf.taverna.biocatalogue.ui.filtertree;
 
 import java.awt.event.MouseEvent;
+import java.util.HashMap;
+import java.util.Map;
 
 import net.sf.taverna.biocatalogue.ui.tristatetree.JTriStateTree;
 import net.sf.taverna.biocatalogue.ui.tristatetree.TriStateTreeNode;
@@ -15,9 +17,16 @@ import net.sf.taverna.biocatalogue.ui.tristatetree.TriStateTreeNode;
  * 
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public class JFilterTree extends JTriStateTree
 {
   
+  private static Map<String, String> nameSpaceToOntologyMap = new HashMap<String, String>(){
+      {
+          put("http://www.mygrid.org.uk/ontology", "mygrid-domain-ontology");
+      }
+  };
+
   public JFilterTree(TriStateTreeNode root) {
     super(root);
   }
@@ -39,6 +48,20 @@ public class JFilterTree extends JTriStateTree
     }
     
     return super.getToolTipText(e);
+  }
+  
+  public static String getOntologyFromNamespace(String namespace){
+	  if (namespace == null){
+		  return null;
+	  }
+	  else{
+		  if (nameSpaceToOntologyMap.containsKey(namespace)){
+			  return nameSpaceToOntologyMap.get(namespace);
+		  }
+		  else{
+			  return null;
+		  }
+	  }
   }
   
 }

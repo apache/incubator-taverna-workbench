@@ -54,6 +54,7 @@ import org.xhtmlrenderer.swing.LinkListener;
  * 
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public class TagCloudPanel extends JPanel implements ChangeListener, ActionListener, ComponentListener
 {
   // CONSTANTS

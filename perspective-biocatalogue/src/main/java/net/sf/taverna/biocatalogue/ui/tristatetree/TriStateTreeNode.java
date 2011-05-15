@@ -15,6 +15,7 @@ import javax.swing.tree.TreeNode;
  * 
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public class TriStateTreeNode extends DefaultMutableTreeNode
 {
   private TriStateCheckBox.State state;

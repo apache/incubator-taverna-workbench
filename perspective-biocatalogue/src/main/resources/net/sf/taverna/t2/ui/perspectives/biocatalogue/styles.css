@@ -271,6 +271,10 @@ div.tag_cloud a.unselected_ontological_term {
 	border-color: transparent transparent #000099 transparent;
 }
 
+#ontological_term{
+    color:#3090C7	; /*Deep Sky Blue3*/
+}
+
 div.tag_cloud a.selected {
 	border-style: solid;
 	border-width: 2px;
