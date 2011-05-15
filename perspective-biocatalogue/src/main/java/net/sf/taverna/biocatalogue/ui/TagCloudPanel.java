@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -207,7 +208,7 @@ public class TagCloudPanel extends JPanel implements ChangeListener, ActionListe
     }
     xhtmlTagCloudPanel.addMouseTrackingListener(new HoverListener() {
       public void onMouseOver(BasicPanel panel, Box box) {
-        if (box.getElement().getTagName() == "a") {
+        if (box.getElement().getTagName() == "a" || box.getElement().getTagName() == "span") {
           // when mouse is hovered over a tag, display Swing tooltip over the XHTML panel
           // with details of that tag
           String tagURI = box.getElement().getAttribute("href").substring(BioCataloguePluginConstants.ACTION_TAG_SEARCH_PREFIX.length());
@@ -358,7 +359,7 @@ public class TagCloudPanel extends JPanel implements ChangeListener, ActionListe
     c.gridx++;
     c.weightx = 0;
     c.anchor = GridBagConstraints.CENTER;
-    jpTagCloudControlPanel.add(this.bSort, c);
+    //jpTagCloudControlPanel.add(this.bSort, c);
     
     c.gridx++;
     jpTagCloudControlPanel.add(this.bRefresh, c);
@@ -435,18 +436,21 @@ public class TagCloudPanel extends JPanel implements ChangeListener, ActionListe
   
   public void repopulate()
   {
-    // we've received the values for the tag cloud, can enable the sort actions
-    sortByTagNameAction.setEnabled(true);
-    sortByTagCountsAction.setEnabled(true);
-    
-    // sort the tag cloud based on the user selection
-    if (bSort.getAction().equals(sortByTagCountsAction)) {
-      Collections.sort(this.tcData.getTags(), new Tag.AlphanumericComparator());
-    }
-    else {
-      Collections.sort(this.tcData.getTags(), new Tag.ReversePopularityComparator());
-    }
-    
+//    // we've received the values for the tag cloud, can enable the sort actions
+//    sortByTagNameAction.setEnabled(true);
+//    sortByTagCountsAction.setEnabled(true);
+//    
+//    // sort the tag cloud based on the user selection
+//    if (bSort.getAction().equals(sortByTagCountsAction)) {
+//      Collections.sort(this.tcData.getTags(), new Tag.AlphanumericComparator());
+//    }
+//    else {
+//      Collections.sort(this.tcData.getTags(), new Tag.ReversePopularityComparator());
+//    }
+	  
+	  //Sort the cloud alphabetically
+	  Collections.sort(this.tcData.getTags(), new Tag.AlphabeticalIgnoreCaseComparator());
+
     
     // TODO - re-enable
     //    logger.debug("Building '" + this.strTitle + "' tag cloud...");
@@ -485,7 +489,9 @@ public class TagCloudPanel extends JPanel implements ChangeListener, ActionListe
         for (int step = TAGCLOUD_MAJOR_TICK_SPACING, i = 1; i < tcData.getTotalExistingTagCount(); i++) {
           sliderLabels.put(step * i, new JLabel("" + step * i));
         }
-        sliderLabels.put(tcData.getTotalExistingTagCount(), new JLabel("All tags"));
+        JLabel allTagsLabel = new JLabel("All");
+        allTagsLabel.setBorder(new EmptyBorder(0, 0, 0, 0));
+        sliderLabels.put(tcData.getTotalExistingTagCount(), allTagsLabel);
         
         this.jsCloudSizeSlider.setLabelTable(sliderLabels);
         this.jsCloudSizeSlider.setMaximum(tcData.getTotalExistingTagCount());
@@ -533,9 +539,11 @@ public class TagCloudPanel extends JPanel implements ChangeListener, ActionListe
 
           content.append("<a style=\"font-size: " + fontSize + "pt;\"" +
                            " class=\"" + (selectedTags.contains(t) ? "selected" : "unselected") + 
-                                         (t.getTagNamespace() != null ? "_ontological_term" : "") + "\"" +
+                                         /*(t.getTagNamespace() != null ? "_ontological_term" : "") +*/ "\"" +
           		             " href=\"" + BioCataloguePluginConstants.ACTION_TAG_SEARCH_PREFIX + t.getTagURI() +
-          		             "\">" + t.getTagDisplayName() + "</a>");
+          		             "\">" + t.getTagDisplayName() + 
+          		             //"<span " + (t.getTagNamespace() != null ? "id=\"ontological_term\"> ("+t.getTagNamespace()+")" : ">") + "</span>" + 
+          		             "</a>");
         }
         
         content.append("<br/>");

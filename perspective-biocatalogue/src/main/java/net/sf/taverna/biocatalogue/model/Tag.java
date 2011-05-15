@@ -94,7 +94,14 @@ public class Tag implements Serializable
   }
   
   public String getTagDisplayName() {
-    return tagDisplayName;
+	  
+	  if (getTagNamespace() != null && getTagNamespace().length()>0){
+		    return tagDisplayName + " (" + getTagNamespace() + ")"; // add ontology in brackets
+	  }
+	  else{
+		  return tagDisplayName;
+	  }
+	  //return tagDisplayName;
   }
   
   
@@ -159,6 +166,17 @@ public class Tag implements Serializable
     }
   }
 	
+	public static class AlphabeticalIgnoreCaseComparator implements Comparator<Tag>
+	  {
+	    public AlphabeticalIgnoreCaseComparator() {
+	      super();
+	    }
+	    
+	    public int compare(Tag t1, Tag t2) {
+	      // full tag names are unique on BioCatalogue
+	      return (t1.getTagDisplayName().compareToIgnoreCase(t2.getTagDisplayName()));
+	    }
+	  }
 	
 	/**
    * This makes sure that things like instanceOf() and remove() in List interface
