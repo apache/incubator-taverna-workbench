@@ -209,7 +209,7 @@ public class TagCloudPanel extends JPanel implements ChangeListener, ActionListe
     }
     xhtmlTagCloudPanel.addMouseTrackingListener(new HoverListener() {
       public void onMouseOver(BasicPanel panel, Box box) {
-        if (box.getElement().getTagName() == "a" || box.getElement().getTagName() == "span") {
+        if (box.getElement().getTagName() == "a") {
           // when mouse is hovered over a tag, display Swing tooltip over the XHTML panel
           // with details of that tag
           String tagURI = box.getElement().getAttribute("href").substring(BioCataloguePluginConstants.ACTION_TAG_SEARCH_PREFIX.length());
@@ -217,6 +217,15 @@ public class TagCloudPanel extends JPanel implements ChangeListener, ActionListe
           if (hoveredOverTag != null) {
             xhtmlTagCloudPanel.setToolTipText(hoveredOverTag.getTagCloudTooltip());
           }
+        }
+        else if (box.getElement().getTagName() == "span" && box.getElement().getParentNode().getNodeName().equals("a")){ 
+        	// <span> element inside <a> element containing the ontology name
+			String parentElementURI = box.getElement().getParentNode().getAttributes().getNamedItem("href").getNodeValue();
+            String tagURI = parentElementURI.substring(BioCataloguePluginConstants.ACTION_TAG_SEARCH_PREFIX.length());
+            Tag hoveredOverTag = tcData.getTagByTagURI(tagURI);
+            if (hoveredOverTag != null) {
+              xhtmlTagCloudPanel.setToolTipText(hoveredOverTag.getTagCloudTooltip());
+            }	
         }
       }
       public void onMouseOut(BasicPanel panel, Box box) {
@@ -538,11 +547,18 @@ public class TagCloudPanel extends JPanel implements ChangeListener, ActionListe
             fontSize = TAGCLOUD_MAX_FONTSIZE;
           }
 
+          String tagName;
+    	  if (t.getTagNamespace() != null && t.getTagNamespace().length()>0){
+    		  tagName = t.getTagDisplayName() + " <span id=\"ontological_term\">&lt;" + t.getTagNamespace() + "&gt;</span>"; // add ontology in brackets
+    	  }
+    	  else{
+    		  tagName =  t.getTagDisplayName();
+    	  }
           content.append("<a style=\"font-size: " + fontSize + "pt;\"" +
                            " class=\"" + (selectedTags.contains(t) ? "selected" : "unselected") + 
                                          /*(t.getTagNamespace() != null ? "_ontological_term" : "") +*/ "\"" +
           		             " href=\"" + BioCataloguePluginConstants.ACTION_TAG_SEARCH_PREFIX + t.getTagURI() +
-          		             "\">" + t.getTagDisplayName() + 
+          		             "\">" + tagName + 
           		             //"<span " + (t.getTagNamespace() != null ? "id=\"ontological_term\"> ("+t.getTagNamespace()+")" : ">") + "</span>" + 
           		             "</a>");
         }

@@ -94,14 +94,7 @@ public class Tag implements Serializable
   }
   
   public String getTagDisplayName() {
-	  
-	  if (getTagNamespace() != null && getTagNamespace().length()>0){
-		    return tagDisplayName + " (" + getTagNamespace() + ")"; // add ontology in brackets
-	  }
-	  else{
-		  return tagDisplayName;
-	  }
-	  //return tagDisplayName;
+	  return tagDisplayName;
   }
   
   

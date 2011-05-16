@@ -92,7 +92,6 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
     TYPE resourceType = determineResourceType(itemToRender);
     Service service = (Service)itemToRender;;
     
-    
     // service type
     if (service.getServiceTechnologyTypes() != null && service.getServiceTechnologyTypes().getTypeList().size() > 0)
     {

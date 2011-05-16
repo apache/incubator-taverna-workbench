@@ -281,7 +281,7 @@ private JToolBar createTreeActionToolbar()
             new FilterTreeNode("<html><span color=\"black\"" /*(FilterTreeNode.isTagWithNamespaceNode(filterCategory, f.getUrlValue()) ? " style=\"text-decoration: underline;\"" : "") */ + ">" +
                                StringEscapeUtils.escapeHtml(f.getName()) + "</span>" +
                                /*(FilterTreeNode.isTagWithNamespaceNode(filterCategory, f.getUrlValue()) ? "<span color=\"gray\">&nbsp;("+f.getCount().intValue()+")</span></html>" : "</html>"),*/
-                               (ontology != null ? "<span color=\"gray\">&nbsp;("+ ontology +")</span></html>" : "</html>"),
+                               (ontology != null ? "<span color=\"#3090C7\"> &lt;"+ ontology +"&gt;</span></html>" : "</html>"),
                                filterCategory, f.getUrlValue());
           addFilterChildren(fNode, filterCategory, f.getFilterList());
 
