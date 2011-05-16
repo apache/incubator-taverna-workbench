@@ -24,8 +24,10 @@ public class JFilterTree extends JTriStateTree
   private static Map<String, String> nameSpaceToOntologyMap = new HashMap<String, String>(){
       {
           put("http://www.mygrid.org.uk/ontology", "mygrid-domain-ontology");
+          put("http://www.mygrid.org.uk/mygrid-moby-service", "mygrid-service-ontology");
       }
   };
+ 
 
   public JFilterTree(TriStateTreeNode root) {
     super(root);
