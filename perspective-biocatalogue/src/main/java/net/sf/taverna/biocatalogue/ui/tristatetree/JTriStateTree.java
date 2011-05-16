@@ -31,6 +31,7 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 /**
  * @author Sergejs Aleksejevs
  */
+@SuppressWarnings("serial")
 public class JTriStateTree extends JTree
 {
   // This is used to manage location and padding of tooltips on long items
@@ -87,9 +88,8 @@ public JTriStateTree(TriStateTreeNode root)
       }
     };
     
-//    this.deselectAllAction = new AbstractAction("Deselect all", ResourceManager.getImageIcon(ResourceManager.DESELECT_ALL_ICON))
     // Use the Taverna untick icon
-    this.deselectAllAction = new AbstractAction("Deselect all", WorkbenchIcons.untickIcon)
+    this.deselectAllAction = new AbstractAction("Deselect all", ResourceManager.getImageIcon(ResourceManager.UNCHECKED_ICON))
     {
       // Tooltip
       { this.putValue(SHORT_DESCRIPTION, "Deselect all nodes in the tree"); }
@@ -126,14 +126,13 @@ public JTriStateTree(TriStateTreeNode root)
     
     
     // populate the popup menu with created menu items
-    contextualMenuActions = Arrays.asList(new Action[] {expandAllAction, collapseAllAction,
-                                                        selectAllAction, deselectAllAction});
+    contextualMenuActions = Arrays.asList(new Action[] {expandAllAction, collapseAllAction, deselectAllAction});
     
     contextualMenu = new JPopupMenu();
     contextualMenu.add(expandAllAction);
     contextualMenu.add(collapseAllAction);
     contextualMenu.add(new JPopupMenu.Separator());
-    contextualMenu.add(selectAllAction);
+    //contextualMenu.add(selectAllAction);
     contextualMenu.add(deselectAllAction);
     
     

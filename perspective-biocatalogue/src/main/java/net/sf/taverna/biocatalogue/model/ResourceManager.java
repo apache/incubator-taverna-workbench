@@ -55,6 +55,7 @@ public class ResourceManager
   public static final int TRISTATE_CHECKBOX_CHECKED_ICON = 80;
   public static final int TRISTATE_CHECKBOX_PARTIAL_ICON = 82;
   public static final int TRISTATE_CHECKBOX_UNCHECKED_ICON = 85;
+  public static final int UNCHECKED_ICON = 86;
   
   public static final int SERVICE_STATUS_PASSED_ICON = 100;
   public static final int SERVICE_STATUS_PASSED_ICON_LARGE = 101;
@@ -177,6 +178,8 @@ public class ResourceManager
                                               break;
       case TRISTATE_CHECKBOX_UNCHECKED_ICON:  resPath += TRISTATE_TREE_ICONS_PATH + "tristate_checkbox_unchecked.png";
                                               break;
+      case UNCHECKED_ICON:  				  resPath += "unchecked.png";
+      										  break;
       case UNKNOWN_RESOURCE_TYPE_ICON:        resPath += FAMFAMFAM_PATH + "grey_circle.png";
                                               break;                                        
       case USER_ICON:                         resPath += FAMFAMFAM_PATH + "user.png";
