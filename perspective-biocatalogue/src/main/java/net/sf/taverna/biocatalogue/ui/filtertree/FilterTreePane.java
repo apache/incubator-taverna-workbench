@@ -268,48 +268,51 @@ private JToolBar createTreeActionToolbar()
       private void addFilterChildren(FilterTreeNode root, String filterCategory, List<Filter> filterList) {
         for (Filter f : filterList) {
         	
-        	// Is this an ontological term?
-        	String ontology = null;
-            if (FilterTreeNode.isTagWithNamespaceNode(filterCategory, f.getUrlValue()))
-            {
-            	String nameAndNamespace = f.getUrlValue().substring(1, f.getUrlValue().length() - 1);
-            	String[] namePlusNamespace = nameAndNamespace.split("#");
-          		ontology = JFilterTree.getOntologyFromNamespace(namePlusNamespace[0]);
-            }
-        	
-          FilterTreeNode fNode =
-            new FilterTreeNode("<html><span color=\"black\"" /*(FilterTreeNode.isTagWithNamespaceNode(filterCategory, f.getUrlValue()) ? " style=\"text-decoration: underline;\"" : "") */ + ">" +
+					// Is this an ontological term?
+					String ontology = null;
+					if (FilterTreeNode.isTagWithNamespaceNode(filterCategory, f
+							.getUrlValue())) {
+						String nameAndNamespace = f.getUrlValue().substring(1,
+								f.getUrlValue().length() - 1);
+						String[] namePlusNamespace = nameAndNamespace
+								.split("#");
+						ontology = JFilterTree
+								.getOntologyFromNamespace(namePlusNamespace[0]);
+					}
+
+					FilterTreeNode fNode = new FilterTreeNode("<html><span color=\"black\"" /*(FilterTreeNode.isTagWithNamespaceNode(filterCategory, f.getUrlValue()) ? " style=\"text-decoration: underline;\"" : "") */ + ">" +
                                StringEscapeUtils.escapeHtml(f.getName()) + "</span>" +
                                /*(FilterTreeNode.isTagWithNamespaceNode(filterCategory, f.getUrlValue()) ? "<span color=\"gray\">&nbsp;("+f.getCount().intValue()+")</span></html>" : "</html>"),*/
                                (ontology != null ? "<span color=\"#3090C7\"> &lt;"+ ontology +"&gt;</span></html>" : "</html>"),
                                filterCategory, f.getUrlValue());
-          addFilterChildren(fNode, filterCategory, f.getFilterList());
+					addFilterChildren(fNode, filterCategory, f.getFilterList());
+         
+					// Insert the node into the (alphabetically) sorted children nodes
+					List<FilterTreeNode> children = Collections.list(root.children());
+					// Search for the index the new node should be inserted at
+					int index = Collections.binarySearch(children, fNode,
+							new Comparator<FilterTreeNode>() {
+								@Override
+								public int compare(FilterTreeNode o1,
+										FilterTreeNode o2) {
+									String str1 = ((String) o1.getUserObject())
+											.toString();
+									String str2 = ((String) o2.getUserObject())
+											.toString();
+									return (str1.compareToIgnoreCase(str2));
+								}
+							});
 
-          // Get the children of the node, insert the new node, 
-          // sort then re-insert in the tree
-          // We should not really be manipulating JTree directly, rather via
-          // its model but no time to fix it now.
-          List<FilterTreeNode> children = Collections.list(root.children());
-          children.add(fNode);
-          Collections.sort(children, new Comparator<FilterTreeNode>(){
-			@Override
-			public int compare(FilterTreeNode o1, FilterTreeNode o2) {
-				String str1 = ((String) o1.getUserObject()).toString();
-				String str2 = ((String) o2.getUserObject()).toString();
-			    return (str1.compareToIgnoreCase(str2));
-			} 
-          });
-          root.removeAllChildren();
-          for (FilterTreeNode node : children){
-              root.add(node);        	  
-          }
-          
-          //root.add(fNode);
-        }
-      }
-      
-    }.start();
-  }
+					if (index < 0){ // not found - index will be equal to -insertion-point -1
+						index = -index - 1;
+					}// else node with the same name found in the array - insert it at that position
+			        root.insert(fNode, index);
+
+			        //root.add(fNode);
+        		}
+      		} 
+    	}.start();
+  	}
   
   
   private void saveCurrentFilter()
