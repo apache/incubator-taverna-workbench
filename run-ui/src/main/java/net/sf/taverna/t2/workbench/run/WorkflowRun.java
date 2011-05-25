@@ -57,6 +57,7 @@ import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
+import net.sf.taverna.t2.workbench.run.cleanup.DatabaseCleanup;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
 import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
 import net.sf.taverna.t2.workbench.views.monitor.graph.GraphMonitor;
@@ -503,6 +504,9 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 
 	public void setDataSavedInDatabase(boolean dataSavedInDatabase) {
 		this.isDataSavedInDatabase = dataSavedInDatabase;
+		if (!dataSavedInDatabase) {
+			DatabaseCleanup.getInstance().scheduleDeleteDataflowRunOnRestart(getRunId());
+		}
 	}
 
 	public boolean isDataSavedInDatabase() {
