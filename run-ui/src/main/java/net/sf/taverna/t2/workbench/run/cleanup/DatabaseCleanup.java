@@ -31,6 +31,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -77,6 +78,8 @@ public class DatabaseCleanup {
 	private static Logger logger = Logger.getLogger(DatabaseCleanup.class);
 
 	protected ConcurrentLinkedQueue<String> deletionQueue = new ConcurrentLinkedQueue<String>();
+	
+	private ArrayList<String> deletionOnRestartList = new ArrayList<String>();
 
 	protected Set<String> inQueueOrDeleted = Collections
 			.synchronizedSet(new HashSet<String>());
@@ -88,6 +91,7 @@ public class DatabaseCleanup {
 
 	public void scheduleDeleteDataflowRun(WorkflowRun run, boolean startDeletion) {
 		String runId = run.getRunId();
+		deletionOnRestartList.remove(runId);
 		runToReferenceService.put(runId, run.getReferenceService());
 		scheduleDeleteDataflowRun(runId, startDeletion);
 	}
@@ -95,6 +99,20 @@ public class DatabaseCleanup {
 	public void scheduleDeleteDataflowRun(String workflowRunId,
 			boolean startDeletion) {
 		addToDeletionQueue(workflowRunId, startDeletion);
+	}
+	
+	public void scheduleDeleteDataflowRunOnRestart(String workflowRunId) {
+		synchronized (deletionQueue) {
+			if (deletionQueue.contains(workflowRunId)) {
+				return;
+			}
+		}
+		synchronized (deletionOnRestartList) {
+				if (!deletionOnRestartList.contains(workflowRunId)) {
+					deletionOnRestartList.add(workflowRunId);
+				}		
+		}
+		
 	}
 
 	protected void addToDeletionQueue(String workflowRunId,
@@ -141,6 +159,10 @@ public class DatabaseCleanup {
 		}
 		try {
 			for (String wfRunId : deletionQueue) {
+				writer.write(wfRunId);
+				writer.newLine();
+			}
+			for (String wfRunId : deletionOnRestartList) {
 				writer.write(wfRunId);
 				writer.newLine();
 			}
