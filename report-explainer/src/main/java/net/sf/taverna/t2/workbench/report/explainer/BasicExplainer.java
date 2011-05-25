@@ -133,7 +133,9 @@ public class BasicExplainer implements VisitExplainer {
 				(resultId == HealthCheck.NULL_DATATYPE) ||
 				(resultId == HealthCheck.DISABLED) ||
 				(resultId == HealthCheck.DATATYPE_SOURCE) ||
-				(resultId == HealthCheck.UNRECOGNIZED))) {
+				(resultId == HealthCheck.UNRECOGNIZED) ||
+				(resultId == HealthCheck.LOOP_CONNECTION) ||
+				(resultId == HealthCheck.UNMANAGED_LOCATION))) {
 			return true;
 		}
 		return false;
@@ -215,6 +217,12 @@ public class BasicExplainer implements VisitExplainer {
 		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.UNRECOGNIZED)) {
 			return explanationUnrecognized(vr);
 		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.LOOP_CONNECTION)) {
+			return explanationLoopConnection(vr);
+		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.UNMANAGED_LOCATION)) {
+			return explanationUnmanagedLocation(vr);
+		}
 		return null;
 	}
 
@@ -294,10 +302,16 @@ public class BasicExplainer implements VisitExplainer {
 		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.UNRECOGNIZED)) {
 			return solutionUnrecognized(vr);
 		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.LOOP_CONNECTION)) {
+			return solutionLoopConnection(vr);
+		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.UNMANAGED_LOCATION)) {
+			return solutionUnmanagedLocation(vr);
+		}
 		return null;
 	}
 	
-    private static JComponent explanationFailedEntity(VisitReport vr) {
+ 	private static JComponent explanationFailedEntity(VisitReport vr) {
 	if (vr.getSubject() instanceof Processor) {
 	    Processor p = (Processor) (vr.getSubject());
 	    DataflowActivity da = null;
@@ -590,6 +604,15 @@ public class BasicExplainer implements VisitExplainer {
 		return createPanel(new Object[] {message});
 	}
 	
+	private static JComponent explanationLoopConnection(VisitReport vr) {
+		return createPanel(new Object[] {"Port \"" + vr.getProperty("portname") + "\" must be connected"});
+	}
+	
+	private static JComponent explanationUnmanagedLocation(VisitReport vr) {
+	    return createPanel(new Object[] {"The external tool service is configured to run on a location that is not currently known to the Location Manager. It is a good idea to change it to a known location"});
+	}
+
+
     private static JComponent solutionFailedEntity(VisitReport vr) {
 	if (vr.getSubject() instanceof Processor) {
 	    Processor p = (Processor) (vr.getSubject());
@@ -1052,6 +1075,21 @@ public class BasicExplainer implements VisitExplainer {
 	String message = "Please contact the workflow creator to find out what additional plugins, if any, need to be installed in Taverna.";
 	return createPanel(new Object[] {message});
     }
+
+    private static JComponent solutionLoopConnection(VisitReport vr) {
+		return createPanel(new Object[] {"Connect port \"" + vr.getProperty("portname") + "\""});
+	}
+    
+	private static JComponent solutionUnmanagedLocation(VisitReport vr) {
+		JButton button = new JButton();
+		Processor p = (Processor) (vr.getSubject());
+		button.setAction(new ReportViewConfigureAction(p));
+		button.setText("Configure " + p.getLocalName());
+		return createPanel(new Object[] {"Change the run locaton of the service",
+						     button});
+	}
+
+
 
 	private static JPanel createPanel(Object[] components) {
 		JPanel result = new JPanel(new GridBagLayout());
