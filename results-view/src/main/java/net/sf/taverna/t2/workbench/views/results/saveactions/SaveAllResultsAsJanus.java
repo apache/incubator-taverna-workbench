@@ -68,7 +68,7 @@ public class SaveAllResultsAsJanus extends SaveAllResultsSPI {
 
 		String connectorType = DataManagementConfiguration.getInstance()
 				.getConnectorType();
-		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
+		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType, getContext());
 		ProvenanceExporter export = new ProvenanceExporter(provenanceAccess);
 		BufferedOutputStream outStream = new BufferedOutputStream(
 				new FileOutputStream(file));		

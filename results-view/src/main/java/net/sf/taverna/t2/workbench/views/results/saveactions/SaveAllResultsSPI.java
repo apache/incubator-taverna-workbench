@@ -276,6 +276,22 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 		this.dataflow = dataflow;
 	}
 
+	public ReferenceService getReferenceService() {
+		return referenceService;
+	}
+
+	public InvocationContext getContext() {
+		return context;
+	}
+
+	public Map<String, T2Reference> getChosenReferences() {
+		return chosenReferences;
+	}
+
+	public JDialog getDialog() {
+		return dialog;
+	}
+
 	public void setProvenanceEnabledForRun(boolean isProvenanceEnabledForRun) {
 		this.isProvenanceEnabledForRun = isProvenanceEnabledForRun;
 	}
