@@ -764,10 +764,20 @@ public class WorkflowExplorer extends WorkflowView {
 
 		public void notify(Observable<DataflowSelectionMessage> sender,
 				DataflowSelectionMessage message) throws Exception {
-
-			setSelectedNodes(wfTree, workflow);
-			scrollPane.revalidate();
-			scrollPane.repaint();
+			Runnable dataflowSelectionRunnable = new Runnable() {
+				public void run() {
+					setSelectedNodes(wfTree, workflow);
+					scrollPane.revalidate();
+					scrollPane.repaint();					
+				}			
+			};
+			
+			if (SwingUtilities.isEventDispatchThread()) {
+				dataflowSelectionRunnable.run();		
+			}
+			else {
+				SwingUtilities.invokeLater(dataflowSelectionRunnable);
+			}
 		}
 	}
 }
