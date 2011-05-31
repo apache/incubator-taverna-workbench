@@ -449,14 +449,14 @@ public class RenderedResultComponent extends JPanel {
 			// This is because multiline text is not being showed properly in the JTree
 			JTextArea errorTextArea = null;
 			JTree errorTree = null;
-			if (errorDocument.getExceptionMessage() == null || errorDocument.getExceptionMessage().equals("")){
+/*			if (errorDocument.getExceptionMessage() == null || errorDocument.getExceptionMessage().equals("")){
 				// If there is no exception message, there will be no stack trace nor child errors either
 				// so we are OK just to show the actual message from the error document
 				errorTextArea = new JTextArea(errorDocument.getMessage());
 				errorTextArea.setEditable(false);
 			}
 			else{
-				DefaultMutableTreeNode root = new DefaultMutableTreeNode("Error Trace");
+*/				DefaultMutableTreeNode root = new DefaultMutableTreeNode("Error Trace");
 				ResultsUtils.buildErrorDocumentTree(root, errorDocument,
 						referenceService);
 
@@ -491,14 +491,14 @@ public class RenderedResultComponent extends JPanel {
 						return renderer;
 					}
 				});
-			}						
+/*			}			*/			
 
 			renderersComboBox.setModel(new DefaultComboBoxModel(
 					new String[] { ERROR_DOCUMENT }));
 			renderedResultPanel.removeAll();
 			renderedResultPanel.add(errorTextArea != null ? errorTextArea : errorTree, BorderLayout.CENTER);
 			repaint();
-		}
+		} 
 		
 	}
 	
