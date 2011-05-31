@@ -91,8 +91,8 @@ public class AnnotatedContextualView extends ContextualView {
 
 	private static String MISSING_VALUE = "Type here to give details";
 
-	private static int DEFAULT_AREA_WIDTH = 29;
-	private static int DEFAULT_AREA_ROWS = 5;
+	private static int DEFAULT_AREA_WIDTH = 60;
+	private static int DEFAULT_AREA_ROWS = 8;
 	
 	private FileManager fileManager = FileManager.getInstance();
 	private EditManager editManager = EditManager.getInstance();
@@ -171,7 +171,7 @@ public class AnnotatedContextualView extends ContextualView {
 	
 
 	
-	private DialogTextArea createTextArea(final Class<?> c, final String value) {
+	private JScrollPane createTextArea(final Class<?> c, final String value) {
 		classToCurrentValueMap.put(c, value);
 		DialogTextArea area = new DialogTextArea(value);
 		area.setFocusable(true);
@@ -183,7 +183,7 @@ public class AnnotatedContextualView extends ContextualView {
 		classToAreaMap.put(c, area);
 		logger.info("Adding to map " + c.getCanonicalName() + "("
 				+ c.hashCode() + ") to " + area.hashCode());
-		return area;
+		return new JScrollPane(area);
 	}
 
 	private class TextAreaFocusListener implements FocusListener {
