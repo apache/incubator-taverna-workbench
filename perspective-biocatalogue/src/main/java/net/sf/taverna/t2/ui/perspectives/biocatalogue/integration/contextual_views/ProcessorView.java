@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.activation.UnknownObjectException;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -76,9 +77,8 @@ public class ProcessorView extends ContextualView {
               // *** managed to get all necessary data successfully - present it ***
               
               // create status update panel
-              JClickableLabel jclServiceStatus = new JClickableLabel(
-                  "Latest monitoring status:", "testOperationStatus",
-                  new ActionListener() {
+              JButton jclServiceStatus = new JButton(
+                  new AbstractAction("Check monitoring status") {
                     public void actionPerformed(ActionEvent e) {
                       ServiceHealthChecker.checkWSDLProcessor(operationDetails);
                     }
@@ -88,9 +88,9 @@ public class ProcessorView extends ContextualView {
               JPanel jpStatusMessage = new JPanel();
               jpStatusMessage.setAlignmentY(Component.CENTER_ALIGNMENT);
               jpStatusMessage.setLayout(new BoxLayout(jpStatusMessage, BoxLayout.Y_AXIS));
-              jpStatusMessage.add(jclServiceStatus);
               jpStatusMessage.add(jlStatusMessage);
-              
+              jpStatusMessage.add(jclServiceStatus);
+                           
               JPanel jpServiceStatus = new JPanel();
               jpServiceStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
               jpServiceStatus.setLayout(new BoxLayout(jpServiceStatus, BoxLayout.X_AXIS));
@@ -133,11 +133,11 @@ public class ProcessorView extends ContextualView {
               JPanel jpInnerPane = new JPanel();
               jpInnerPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
               jpInnerPane.setLayout(new BoxLayout(jpInnerPane, BoxLayout.Y_AXIS));
-              jpInnerPane.add(jpServiceStatus);
-              jpInnerPane.add(Box.createVerticalStrut(10));
               jpInnerPane.add(jlOperationDescription);
               jpInnerPane.add(Box.createVerticalStrut(10));
-              jpInnerPane.add(jpPreviewButtonPanel);
+              jpInnerPane.add(jpServiceStatus);
+              jpInnerPane.add(Box.createVerticalStrut(10));
+ //             jpInnerPane.add(jpPreviewButtonPanel);
               
               JScrollPane spInnerPane = new JScrollPane(jpInnerPane);
               
