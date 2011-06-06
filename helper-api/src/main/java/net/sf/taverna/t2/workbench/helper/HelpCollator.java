@@ -17,10 +17,12 @@ import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.help.BadIDException;
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
 import javax.help.JHelp;
 import javax.help.TryMap;
+import javax.help.Map.ID;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -82,7 +84,7 @@ public final class HelpCollator {
 	
 	private static Profile profile = ProfileFactory.getInstance().getProfile();
 	private static String version = profile.getVersion();
-	private static String externalHelpSetURL = "http://www.taverna.org.uk/helpset/" + version + "/helpset.hs";
+	private static String externalHelpSetURL = "http://www.mygrid.org.uk/taverna/helpset/" + "2.3-SNAPSHOT" + "/helpset.hs";
 
 	/**
 	 * Attempt to read the up-to-date HelpSet from the web
@@ -169,15 +171,15 @@ public final class HelpCollator {
 	public static boolean isEmptyHelp() {
 		return emptyHelp;
 	}
-
-	/**
-	 * Create the JHelp for the HelpSet that is found
-	 * 
-	 * @return
-	 */
-	public static JHelp getJHelp() {
+	
+	public static URL getURLFromID(String id) throws BadIDException, MalformedURLException {
 		initialize();
-		return new JHelp(hs);
+		logger.info("Looking for id: " + id);
+		ID theId = ID.create(id, hs);
+		if (theId == null) {
+			return null;
+		}
+		return (hs.getCombinedMap().getURLFromID(theId));	
 	}
 
 	/**
@@ -248,7 +250,7 @@ public final class HelpCollator {
 	static String getHelpID(Component c) {
 		initialize();
 		boolean found = false;
-		String result = "home";
+		String result = null;
 		if (c instanceof JTree) {
 			String idInTree = getHelpIDInTree((JTree) c);
 			if (idInTree != null) {
