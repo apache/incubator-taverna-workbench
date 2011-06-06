@@ -122,10 +122,15 @@ public class XMLTree extends JTree {
 	}
 
 	public XMLTree(Document document) {
+		this(document.getRootElement());
+	}
+	
+	public XMLTree(Element element) {
 		super();
-		init(document.getRootElement());
+		init(element);
 		revalidate();
 	}
+
 
 	private void init(Content content) {
 		rootElement = (Element) content;
