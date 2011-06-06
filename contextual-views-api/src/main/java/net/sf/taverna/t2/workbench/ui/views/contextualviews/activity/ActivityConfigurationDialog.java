@@ -27,6 +27,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowUndoEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -78,6 +79,14 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		buttonPanel = new JPanel();
 
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		
+		JButton helpButton = new JButton(new AbstractAction("Help") {
+
+			public void actionPerformed(ActionEvent e) {
+				Helper.showHelp(ActivityConfigurationDialog.this.panel);
+			}});
+		
+		buttonPanel.add(helpButton);
 
 		applyButton = new JButton(new AbstractAction() {
 
