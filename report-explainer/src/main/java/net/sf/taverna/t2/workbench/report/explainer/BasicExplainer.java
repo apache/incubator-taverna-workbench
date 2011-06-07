@@ -70,6 +70,7 @@ import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Merge;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
+import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
 import net.sf.taverna.t2.workflowmodel.TokenProcessingEntity;
 import net.sf.taverna.t2.workflowmodel.health.HealthCheck;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
@@ -135,7 +136,8 @@ public class BasicExplainer implements VisitExplainer {
 				(resultId == HealthCheck.DATATYPE_SOURCE) ||
 				(resultId == HealthCheck.UNRECOGNIZED) ||
 				(resultId == HealthCheck.LOOP_CONNECTION) ||
-				(resultId == HealthCheck.UNMANAGED_LOCATION))) {
+				(resultId == HealthCheck.UNMANAGED_LOCATION) ||
+				(resultId == HealthCheck.INCOMPATIBLE_MIMETYPES))) {
 			return true;
 		}
 		return false;
@@ -223,6 +225,9 @@ public class BasicExplainer implements VisitExplainer {
 		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.UNMANAGED_LOCATION)) {
 			return explanationUnmanagedLocation(vr);
 		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.INCOMPATIBLE_MIMETYPES)) {
+			return explanationIncompatibleMimetypes(vr);
+		}
 		return null;
 	}
 
@@ -307,6 +312,9 @@ public class BasicExplainer implements VisitExplainer {
 		}
 		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.UNMANAGED_LOCATION)) {
 			return solutionUnmanagedLocation(vr);
+		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.INCOMPATIBLE_MIMETYPES)) {
+			return solutionIncompatibleMimetypes(vr);
 		}
 		return null;
 	}
@@ -610,6 +618,24 @@ public class BasicExplainer implements VisitExplainer {
 	
 	private static JComponent explanationUnmanagedLocation(VisitReport vr) {
 	    return createPanel(new Object[] {"The external tool service is configured to run on a location that is not currently known to the Location Manager. It is a good idea to change it to a known location"});
+	}
+
+	private static JComponent explanationIncompatibleMimetypes(VisitReport vr) {
+		ProcessorInputPort pip = (ProcessorInputPort) vr.getProperty("sinkPort");
+		ProcessorOutputPort pop = (ProcessorOutputPort) vr.getProperty("sourcePort");
+		Processor sourceProcessor = (Processor) vr.getProperty("sourceProcessor");
+		String message = "The data";
+		if (pop != null) {
+			message += " from port \"" + pop.getName() + "\"";
+			if (sourceProcessor != null) {
+				message += " of service \"" + sourceProcessor.getLocalName() + "\"";
+			}
+		}
+		if (pip != null) {
+			message += " into port \"" + pip.getName() + "\"";
+		}
+		message += " does not have a compatible mime type";
+	    return createPanel(new Object[] {message});
 	}
 
 
@@ -1087,6 +1113,34 @@ public class BasicExplainer implements VisitExplainer {
 		button.setText("Configure " + p.getLocalName());
 		return createPanel(new Object[] {"Change the run locaton of the service",
 						     button});
+	}
+
+	private static JComponent solutionIncompatibleMimetypes(VisitReport vr) {
+		JButton sinkButton = new JButton();
+		Processor sinkProcessor = (Processor) (vr.getProperty("sinkProcessor"));
+		Processor sourceProcessor = (Processor) vr.getProperty("sourceProcessor");
+		sinkButton.setAction(new ReportViewConfigureAction(sinkProcessor));
+		sinkButton.setText("Configure " + sinkProcessor.getLocalName());
+		JButton sourceButton = new JButton();
+		sourceButton.setAction(new ReportViewConfigureAction(sourceProcessor));
+		sourceButton.setText("Configure " + sourceProcessor.getLocalName());
+		
+		JButton deleteLinkButton =new JButton();
+		final Datalink link = (Datalink) vr.getProperty("link");
+	    final Dataflow d = FileManager.getInstance().getCurrentDataflow();
+	    deleteLinkButton.setAction(new AbstractAction ("Remove link") {
+		    public void actionPerformed(ActionEvent e) {
+			Edit removeLinkEdit = Tools.getDisconnectDatalinkAndRemovePortsEdit(link);
+			try {
+			    EditManager.getInstance().doDataflowEdit(d, removeLinkEdit);
+			} catch (EditException ex) {
+			    logger.error("Could not perform edit", ex);
+		}
+		    }
+});
+
+		return createPanel(new Object[] {"Change the source or destination mimetype or remove the link",
+						     sourceButton, sinkButton, deleteLinkButton});
 	}
 
 
