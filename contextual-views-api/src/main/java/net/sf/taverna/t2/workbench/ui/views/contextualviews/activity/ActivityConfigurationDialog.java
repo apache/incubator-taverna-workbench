@@ -20,6 +20,7 @@ import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.lang.ui.DeselectingButton;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowRedoEvent;
@@ -80,7 +81,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		
-		JButton helpButton = new JButton(new AbstractAction("Help") {
+		JButton helpButton = new DeselectingButton("Help", new AbstractAction() {
 
 			public void actionPerformed(ActionEvent e) {
 				Helper.showHelp(ActivityConfigurationDialog.this.panel);
@@ -88,7 +89,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		
 		buttonPanel.add(helpButton);
 
-		applyButton = new JButton(new AbstractAction() {
+		applyButton = new DeselectingButton("Apply", new AbstractAction() {
 
 			public void actionPerformed(ActionEvent e) {
 				// For the moment it always does an apply as what should be
@@ -105,16 +106,14 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 			}
 
 		});
-		applyButton.setText("Apply");
 
 		buttonPanel.add(applyButton);
-		JButton closeButton = new JButton(new AbstractAction() {
+		JButton closeButton = new DeselectingButton("Close", new AbstractAction() {
 
 			public void actionPerformed(ActionEvent e) {
 				closeDialog();
 			}
 		});
-		closeButton.setText("Close");
 		buttonPanel.add(closeButton);
 		buttonPanel.setBorder(new EmptyBorder(5, 20, 5, 5));
 		add(buttonPanel, BorderLayout.SOUTH);
