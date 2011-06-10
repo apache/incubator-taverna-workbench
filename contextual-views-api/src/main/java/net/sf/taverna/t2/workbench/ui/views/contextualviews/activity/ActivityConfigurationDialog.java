@@ -271,6 +271,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 				}
 			}
 		}
+		panel.whenClosed();
 		ActivityConfigurationAction.clearDialog(activity);
 
 		return true;
