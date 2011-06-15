@@ -71,9 +71,6 @@ public class SaveAllResultsAsXML extends SaveAllResultsSPI {
 	 */
 	protected void saveData(File file) throws IOException {
 		
-
-	    
-	
 		// Build the string containing the XML document from the result map
 		Document doc = getDataDocument();
 	    XMLOutputter xo = new XMLOutputter(Format.getPrettyFormat());
@@ -91,9 +88,6 @@ public class SaveAllResultsAsXML extends SaveAllResultsSPI {
 	public Document getDataDocument() {
 		Element rootElement = new Element("dataThingMap", namespace);
 		Document theDocument = new Document(rootElement);
-		// Build the DataThing map from the chosenReferences
-		// First convert map of references to objects into a map of real result objects
-		Map<String, Object> resultMap = new HashMap<String, Object>();
 		for (String portName : chosenReferences.keySet()) {
 			DataThing thing = DataThingFactory.bake(getObjectForName(portName));
  			Element dataThingElement = new Element("dataThing", namespace);
