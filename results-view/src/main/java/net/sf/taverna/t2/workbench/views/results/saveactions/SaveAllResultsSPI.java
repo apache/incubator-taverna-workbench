@@ -254,20 +254,6 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 		
 	}
 
-	/**
-	 * Returns a map of port names to DataThings from a map of port names to a 
-	 * list of (lists of ...) result objects.
-	 */
-	protected Map<String, DataThing> bakeDataThingMap(Map<String, Object> resultMap) {
-		
-		Map<String, DataThing> dataThingMap = new HashMap<String, DataThing>();
-		for (Iterator<String> i = resultMap.keySet().iterator(); i.hasNext();) {
-			String portName = (String) i.next();
-			dataThingMap.put(portName, DataThingFactory.bake(resultMap.get(portName)));
-		}
-		return dataThingMap;
-	}
-
 	public void setRunId(String runId) {
 		this.runId = runId;
 	}
