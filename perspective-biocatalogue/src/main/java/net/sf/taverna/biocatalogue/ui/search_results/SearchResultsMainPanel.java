@@ -19,18 +19,14 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
-import javax.swing.JToolBar;
 
-import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
+import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 import net.sf.taverna.biocatalogue.model.search.SearchInstance;
 import net.sf.taverna.biocatalogue.model.search.SearchInstanceTracker;
 import net.sf.taverna.biocatalogue.model.search.SearchOptions;
 import net.sf.taverna.biocatalogue.model.search.ServiceFilteringSettings;
-import net.sf.taverna.biocatalogue.ui.JPanelWithOverlay;
-import net.sf.taverna.biocatalogue.ui.SearchHistoryAndFavouritesPanel;
 import net.sf.taverna.biocatalogue.ui.filtertree.FilterTreePane;
-import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponent;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
 
 import org.apache.log4j.Logger;
@@ -48,7 +44,6 @@ import org.apache.log4j.Logger;
  */
 public class SearchResultsMainPanel extends JPanel implements ActionListener, SearchInstanceTracker
 {
-  private final MainComponent pluginPerspectiveMainComponent;
   private final SearchResultsMainPanel instanceOfSelf;
   private Logger logger;
   
@@ -67,11 +62,6 @@ public class SearchResultsMainPanel extends JPanel implements ActionListener, Se
   // COMPONENTS
   private JTabbedPane tabbedSearchResultPanel;
   
-  private JPanelWithOverlay searchResultsWithSearchHistoryAndFavouritesOverlay;
-  private SearchHistoryAndFavouritesPanel searchHistoryAndFavouritesPanel;
-  
-  // toolbar and action buttons for it
-  private JToolBar tbSearchActions;
   protected JToggleButton bToggleSearchHistory;
   protected JButton bRefreshLastSearch;
   protected JButton bClearSearchResults;
@@ -80,7 +70,7 @@ public class SearchResultsMainPanel extends JPanel implements ActionListener, Se
   public SearchResultsMainPanel()
   {
     this.instanceOfSelf = this;
-    this.pluginPerspectiveMainComponent = MainComponentFactory.getSharedInstance();
+    MainComponentFactory.getSharedInstance();
     this.logger = Logger.getLogger(SearchResultsMainPanel.class);
     
     this.currentSearchInstances = new HashMap<TYPE,SearchInstance>();
@@ -99,54 +89,14 @@ public class SearchResultsMainPanel extends JPanel implements ActionListener, Se
     // create a panel for tabbed listings of search results
     this.tabbedSearchResultPanel = new JTabbedPane();
     reloadResultTabsFromMap();
-    
-    // FIXME - create the overlay with search history
-//    // create panel with search history and favourite searches -
-//    // wrap both of them into a panel with overlay
-//    searchHistoryAndFavouritesPanel = new SearchHistoryAndFavouritesPanel(this);
-//    searchResultsWithSearchHistoryAndFavouritesOverlay = 
-//      new JPanelWithOverlay(tabbedSearchResultPanel, searchHistoryAndFavouritesPanel, JPanelWithOverlay.HORIZONTAL_SPLIT, false, true, true);
-    
+       
     // pack all main components together
     JPanel jpMainResultsPanel = new JPanel(new BorderLayout());
     jpMainResultsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 3));
     
-    // FIXME - delete next line and reenable one below it to place the overlay over the main tabbed results panel 
     jpMainResultsPanel.add(tabbedSearchResultPanel, BorderLayout.CENTER);
-//    jpMainResultsPanel.add(searchResultsWithSearchHistoryAndFavouritesOverlay, BorderLayout.CENTER);
     
     
-    // --- Create action toolbar ---
-    // FIXME - create action toolbar!
-//    bToggleSearchHistory = new JToggleButton(ResourceManager.getImageIcon(ResourceManager.HISTORY_ICON));
-//    bToggleSearchHistory.setToolTipText("View your favourite searches and search history");
-//    bToggleSearchHistory.addActionListener(new ActionListener() {
-//      public void actionPerformed(ActionEvent e) {
-//        searchResultsWithSearchHistoryAndFavouritesOverlay.setOverlayVisible(bToggleSearchHistory.isSelected());
-//      }
-//    });
-//    searchResultsWithSearchHistoryAndFavouritesOverlay.registerOverlayActivationToggleButton(bToggleSearchHistory);
-//    
-//    bRefreshLastSearch = new JButton(WorkbenchIcons.refreshIcon);
-//    bRefreshLastSearch.setToolTipText("Run previous search once again");
-//    bRefreshLastSearch.addActionListener(this);
-//    bRefreshLastSearch.setEnabled(false);
-//    
-//    bClearSearchResults = new JButton(ResourceManager.getImageIcon(ResourceManager.CLEAR_ICON));
-//    bClearSearchResults.setToolTipText("Clear the search results (and stop current search if it is running)");
-//    bClearSearchResults.addActionListener(this);
-//    bClearSearchResults.setEnabled(false);
-//    
-//    tbSearchActions = new JToolBar(JToolBar.VERTICAL);
-//    tbSearchActions.setBorderPainted(true);
-//    tbSearchActions.setBorder(BorderFactory.createEmptyBorder(5, 0, 0, 3));
-//    tbSearchActions.setFloatable(false);
-//    tbSearchActions.addSeparator(new Dimension(0, 31));  // creates vertical spacing, so that toolbar buttons start at the top of results tabbed pane
-//    tbSearchActions.add(bToggleSearchHistory);
-//    tbSearchActions.addSeparator();
-//    tbSearchActions.add(bRefreshLastSearch);
-//    tbSearchActions.add(bClearSearchResults);
-
     // --- Put together all parts ---
     // main components in the middle, toolbar on the right
     this.setMinimumSize(new Dimension(450, 50));
@@ -321,12 +271,12 @@ public class SearchResultsMainPanel extends JPanel implements ActionListener, Se
         SearchInstance si = null;
         switch (searchOptions.getSearchType()) {
           case QuerySearch: si = new SearchInstance(searchOptions.getSearchString(), resourceType);
-                            resetAllFilterPanes();
+                            resetAllFilterPanes(searchOptions.getSearchString());
                             break;
                             
           case TagSearch:   if (resourceType.isSuitableForTagSearch()) {
                               si = new SearchInstance(searchOptions.getSearchTags(), resourceType);
-                              resetAllFilterPanes();
+                              resetAllFilterPanes(searchOptions.getSearchString());
                             }
                             else {
                               // FIXME implement this... - show "no results" in the appropriate tab
@@ -369,27 +319,7 @@ public class SearchResultsMainPanel extends JPanel implements ActionListener, Se
       logger.error("Error while searching via BioCatalogue API. Error details attached.", e);
     }
     
-    
-    
-    // FIXME
-//    // search was initiated - allow to re-run it at any time now
-//    bRefreshLastSearch.setEnabled(true);
-//    
-//    // NB! this is required for search to be treated as "new" one - it could be that
-//    //     this method is called as a search from history/favourites, but this *must*
-//    //     appear as a new search either way
-//    searchInstance.clearSearchResults();
-//    
-//    // store these search settings as the current search
-//    this.siPreviousSearch = searchInstance;
-//    
-//    // update search history (but only do so when working within the Search Tab)
-//    this.searchHistoryAndFavouritesPanel.addToSearchHistory(searchInstance);
-//    
-//    // now call another worker method to perform the remainder of search operations
-//    // which are common for new searches and fetching more results
-//    startSearch(searchOptions);
-  }
+}
   
   
   
@@ -399,12 +329,16 @@ public class SearchResultsMainPanel extends JPanel implements ActionListener, Se
    * 
    * To be used for resetting all filter panes when the new query / tag
    * search starts.
+ * @param queryString 
    */
-  private void resetAllFilterPanes() {
+  private void resetAllFilterPanes(String queryString) {
     for (FilterTreePane filterTreePane : this.currentFilterPanes.values()) {
       if (filterTreePane != null) {
         filterTreePane.clearSelection();
         filterTreePane.collapseAll();
+        if ((queryString != null) && !queryString.isEmpty()) {
+        	filterTreePane.applyQueryString(queryString);
+        }
       }
     }
   }
@@ -463,25 +397,7 @@ public class SearchResultsMainPanel extends JPanel implements ActionListener, Se
   protected FilterTreePane getFilterTreePaneFor(TYPE resourceType) {
     return (this.currentFilterPanes.get(resourceType));
   }
-  
-  
-  /**
-   * @return An instance of the JPanel that holds search history,
-   *         favourite searches and filters.
-   */
-  public SearchHistoryAndFavouritesPanel getHistoryAndFavouritesPanel() {
-    return (this.searchHistoryAndFavouritesPanel);
-  }
-  
-  
-  /**
-   * @return An instance of the JPanel with the overlay of search history and
-   *         favourite searches.
-   */
-  public JPanelWithOverlay getHistoryAndFavouritesOverlayPanel() {
-    return (this.searchResultsWithSearchHistoryAndFavouritesOverlay);
-  }
-  
+    
   
   // *** Callback for ActionListener interface ***
   

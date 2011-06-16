@@ -46,7 +46,7 @@ public class Resource
     @SuppressWarnings("serial")
 	SOAPOperation (SoapOperation.class, SoapOperations.class, BeansForJSONLiteAPI.SOAPOperationsIndex.class, "WSDL service", "WSDL services",
                    "WSDL services can be directly imported into the current workflow or Service Panel",
-                   ResourceManager.getIconFromTaverna(ResourceManager.SOAP_OPERATION_ICON), true, true, true, false, true, true, true,
+                   ResourceManager.getIconFromTaverna(ResourceManager.SOAP_OPERATION_ICON), true, true, true, false, true, true, true, true,
                    SOAPOperationListCellRenderer.class, BioCatalogueClient.API_SOAP_OPERATIONS_URL,
                    new HashMap<String,String>() {{
                    }},
@@ -59,7 +59,7 @@ public class Resource
     @SuppressWarnings("serial")
 	RESTMethod    (RestMethod.class, RestMethods.class, BeansForJSONLiteAPI.RESTMethodsIndex.class, "REST service", "REST services",
                    "REST services can be directly imported into the current workflow or Service Panel",
-                   ResourceManager.getIconFromTaverna(ResourceManager.REST_METHOD_ICON), true, true, true, false, true, true, true,
+                   ResourceManager.getIconFromTaverna(ResourceManager.REST_METHOD_ICON), true, true, true, false, true, false, true, true,
                    RESTMethodListCellRenderer.class, BioCatalogueClient.API_REST_METHODS_URL,
                    new HashMap<String,String>() {{
                    }},
@@ -67,28 +67,28 @@ public class Resource
                      put(BioCatalogueClient.API_PER_PAGE_PARAMETER, ""+BioCataloguePluginConstants.API_DEFAULT_REQUESTED_REST_METHOD_COUNT_PER_PAGE);
                    }},
                    BioCataloguePluginConstants.API_DEFAULT_REQUESTED_REST_METHOD_COUNT_PER_PAGE,
-                   BioCatalogueClient.API_REST_METHOD_FILTERS_URL),
+                   BioCatalogueClient.API_REST_METHOD_FILTERS_URL); //,
                    
-    @SuppressWarnings("serial")
-	Service       (Service.class, Services.class, BeansForJSONLiteAPI.ServicesIndex.class, "Web service", "Web services",
-                   "<html>Web services represent collections of WSDL services or REST services.<br>" +
-                         "They cannot be directly imported into the current workflow or Service Panel,<br>" +
-                         "but they may contain much more information about individual WSDL or REST<br>" +
-                         "services and also provide some context for their usage.</html>",
-                   ResourceManager.getImageIcon(ResourceManager.SERVICE_ICON), true, true, true, false, false, false, true,
-                   ServiceListCellRenderer.class, BioCatalogueClient.API_SERVICES_URL, 
-                   new HashMap<String,String>(BioCatalogueClient.API_INCLUDE_SUMMARY) {{
-                   }},
-                   new HashMap<String,String>() {{
-                     put(BioCatalogueClient.API_PER_PAGE_PARAMETER, ""+BioCataloguePluginConstants.API_DEFAULT_REQUESTED_WEB_SERVICE_COUNT_PER_PAGE);
-                   }},
-                   BioCataloguePluginConstants.API_DEFAULT_REQUESTED_WEB_SERVICE_COUNT_PER_PAGE,
-                   BioCatalogueClient.API_SERVICE_FILTERS_URL); //,
-                   
-    // TODO - the following two resource types have been disabled, as no actions for them can be done yet
+    // TODO - the following resource types have been disabled, as no actions for them can be done yet
     //        -- they are still to be implemented; if the following types are uncommented, they will be
     //        automatically searchable and visible in BioCatalogue Exploration tab; ListCellRenderers, however,
     //        would need to be added first.
+//    @SuppressWarnings("serial")
+//	Service       (Service.class, Services.class, BeansForJSONLiteAPI.ServicesIndex.class, "Web service", "Web services",
+//                   "<html>Web services represent collections of WSDL services or REST services.<br>" +
+//                         "They cannot be directly imported into the current workflow or Service Panel,<br>" +
+//                         "but they may contain much more information about individual WSDL or REST<br>" +
+//                         "services and also provide some context for their usage.</html>",
+//                   ResourceManager.getImageIcon(ResourceManager.SERVICE_ICON), true, true, true, false, false, false, true,
+//                   ServiceListCellRenderer.class, BioCatalogueClient.API_SERVICES_URL, 
+//                   new HashMap<String,String>(BioCatalogueClient.API_INCLUDE_SUMMARY) {{
+//                   }},
+//                   new HashMap<String,String>() {{
+//                     put(BioCatalogueClient.API_PER_PAGE_PARAMETER, ""+BioCataloguePluginConstants.API_DEFAULT_REQUESTED_WEB_SERVICE_COUNT_PER_PAGE);
+//                   }},
+//                   BioCataloguePluginConstants.API_DEFAULT_REQUESTED_WEB_SERVICE_COUNT_PER_PAGE,
+//                   BioCatalogueClient.API_SERVICE_FILTERS_URL),
+//                   
 //    ServiceProvider (ServiceProvider.class, ServiceProviders.class, BeansForJSONLiteAPI.ServiceProvidersIndex.class, "Service Provider", "Service Providers", "",
 //                     ResourceManager.getImageIcon(ResourceManager.SERVICE_PROVIDER_ICON), false, false, false, false, false, false, false,
 //                     ServiceProviderListCellRenderer.class, BioCatalogueClient.API_SERVICE_PROVIDERS_URL,
@@ -134,12 +134,13 @@ public class Resource
     private Map<String,String> apiResourceCollectionIndexAdditionalParameters;
     private int apiResourceCountPerIndexPage;
     private String apiResourceCollectionFilters;
+	private final boolean suitableForAddingAllToServicePanel;
     
     @SuppressWarnings("unchecked")
 	TYPE(Class xmlbeansGeneratedClass, Class xmlbeansGeneratedCollectionClass, Class<?> jsonLiteAPIBindingBeanClass,
         String resourceTypeName, String resourceCollectionName, String resourceTabTooltip, Icon icon,
         boolean defaultType, boolean suitableForTagSearch, boolean suitableForFiltering, boolean suitableForOpeningInPreviewBrowser,
-        boolean suitableForAddingToServicePanel, boolean suitableForAddingToWorkflowDiagram,
+        boolean suitableForAddingToServicePanel, boolean suitableForAddingAllToServicePanel, boolean suitableForAddingToWorkflowDiagram,
         boolean suitableForHealthCheck, Class<? extends ListCellRenderer> resultListingCellRendererClass,
         String apiResourceCollectionIndex, Map<String,String> apiResourceCollectionIndexSingleExpandedResourceAdditionalParameters,
         Map<String,String> apiResourceCollectionIndexAdditionalParameters, int apiResourceCountPerIndexListingPage,
@@ -157,6 +158,7 @@ public class Resource
       this.suitableForFiltering = suitableForFiltering;
       this.suitableForOpeningInPreviewBrowser = suitableForOpeningInPreviewBrowser;
       this.suitableForAddingToServicePanel = suitableForAddingToServicePanel;
+	this.suitableForAddingAllToServicePanel = suitableForAddingAllToServicePanel;
       this.suitableForAddingToWorkflowDiagram = suitableForAddingToWorkflowDiagram;
       this.suitableForHealthCheck = suitableForHealthCheck;
       this.resultListingCellRendererClass = resultListingCellRendererClass;
@@ -368,6 +370,15 @@ public class Resource
       }
       return (-1);
     }
+
+
+
+	/**
+	 * @return the suitableForAddingAllToServicePanel
+	 */
+	public boolean isSuitableForAddingAllToServicePanel() {
+		return suitableForAddingAllToServicePanel;
+	}
     
   };
   
@@ -430,14 +441,17 @@ public class Resource
   {
     String pureURL = extractPureResourceURLFromPreviewActionCommand(url);
     
-    if (pureURL.startsWith(BioCatalogueClient.API_SERVICES_URL))               return(TYPE.Service);
-    else if (pureURL.startsWith(BioCatalogueClient.API_SOAP_OPERATIONS_URL))   return(TYPE.SOAPOperation);
-    else if (pureURL.startsWith(BioCatalogueClient.API_REST_METHODS_URL))      return(TYPE.RESTMethod);
+//    if (pureURL.startsWith(BioCatalogueClient.API_SERVICES_URL))               return(TYPE.Service);
+//    else
+    if (pureURL.startsWith(BioCatalogueClient.API_SOAP_OPERATIONS_URL)) {
+    	return(TYPE.SOAPOperation);
+    }
+    if (pureURL.startsWith(BioCatalogueClient.API_REST_METHODS_URL)) {
+    	return(TYPE.RESTMethod);
+    }
 //    else if (pureURL.startsWith(BioCatalogueClient.API_SERVICE_PROVIDERS_URL)) return(TYPE.ServiceProvider);   // TODO - re-enable these lines as soon as ServiceProvider and User type are started to be used
 //    else if (pureURL.startsWith(BioCatalogueClient.API_USERS_URL))             return(TYPE.User);
-    else {
       return (null);
-    }
   }
   
   

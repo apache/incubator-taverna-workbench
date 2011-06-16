@@ -46,10 +46,6 @@ import org.biocatalogue.x2009.xml.rest.Filters;
 @SuppressWarnings("serial")
 public class FilterTreePane extends JPanel implements TriStateTreeCheckingListener
 {
-  // FIXME - should be true and need to implement the whole mechanism of saving filters
-  private static final boolean ENABLE_SAVING_FILTERS = false;
-  
-  
   private TYPE resourceType;
   private String filtersURL;
   private BioCatalogueClient client;
@@ -58,9 +54,6 @@ public class FilterTreePane extends JPanel implements TriStateTreeCheckingListen
   private FilterTreePane thisPanel;
   
   private JToolBar tbFilterTreeToolbar;
-  private Action saveFilterAction;
-  private Action refreshFiltersAction;
-  
   
   private JPanel jpFilters = null;
   private JFilterTree filterTree;  // tree component to display filter selections
@@ -74,7 +67,7 @@ public class FilterTreePane extends JPanel implements TriStateTreeCheckingListen
     
     this.resourceType = resourceType;
     this.filtersURL = resourceType.getAPIResourceCollectionFiltersURL();
-    this.client = MainComponentFactory.getSharedInstance().getBioCatalogueClient();
+    this.client = BioCatalogueClient.getInstance();
     this.logger = Logger.getLogger(this.getClass());
     
     initialiseUI();
@@ -109,28 +102,7 @@ public class FilterTreePane extends JPanel implements TriStateTreeCheckingListen
    */
 private JToolBar createTreeActionToolbar()
   {
-    // --- actions that this pane additionally enables for the filter tree ---
-    this.saveFilterAction = new AbstractAction("Save filter", ResourceManager.getImageIcon(ResourceManager.SAVE_ICON))
-    {
-      // Tooltip
-      { this.putValue(SHORT_DESCRIPTION, "Save current filter"); }
-      
-      public void actionPerformed(ActionEvent e) {
-        saveCurrentFilter();
-      }
-    };
-    
-//    this.refreshFiltersAction = new AbstractAction("Refresh filter tree", ResourceManager.getImageIcon(ResourceManager.REFRESH_ICON))
-    // Use the standard Taverna refresh icon
-    this.refreshFiltersAction = new AbstractAction("Refresh filter tree", WorkbenchIcons.refreshIcon)
-    {
-      // Tooltip
-      { this.putValue(SHORT_DESCRIPTION, "Refresh the filter tree"); }
-      
-      public void actionPerformed(ActionEvent e) {
-        loadFiltersAndBuildTheTree();
-      }
-    };
+     
     
     // the actual toolbar - no actions are added to it yet: done in a separate method
     JToolBar tbTreeActions = new JToolBar(JToolBar.HORIZONTAL);
@@ -145,14 +117,10 @@ private JToolBar createTreeActionToolbar()
   /**
    * Resets the action toolbar to the original state.
    */
-  private void resetTreeActionToolbar()
+  public void resetTreeActionToolbar()
   {
-    saveFilterAction.setEnabled(false);
-    refreshFiltersAction.setEnabled(false);
     
     tbFilterTreeToolbar.removeAll();
-    if (ENABLE_SAVING_FILTERS) { tbFilterTreeToolbar.add(saveFilterAction); }
-    tbFilterTreeToolbar.add(refreshFiltersAction);
     tbFilterTreeToolbar.repaint();
   }
   
@@ -223,13 +191,7 @@ private JToolBar createTreeActionToolbar()
           filterTree.setLargeModel(true);        // potentially can have many filters!
           filterTree.addCheckingListener(thisPanel);
           
-          
-          // Add custom functionality to the tree - ability to reload the filters and save the current filter
-          filterTree.getContextualMenu().insert(new JPopupMenu.Separator(), 0);
-          filterTree.getContextualMenu().insert(refreshFiltersAction, 0);
-          if (ENABLE_SAVING_FILTERS) { filterTree.getContextualMenu().insert(saveFilterAction, 0); }
-          
-          
+                   
           // insert the created tree view into the filters panel
           jpFilters.removeAll();
           jpFilters.setLayout(new GridLayout(0,1));
@@ -239,15 +201,13 @@ private JToolBar createTreeActionToolbar()
           
           // add actions from the contextual menu of the filter tree into the toolbar
           // that replicates those plus adds additional ones in this panel
-          tbFilterTreeToolbar.add(new JToolBar.Separator());
+          tbFilterTreeToolbar.removeAll();
           for (Action a : filterTree.getContextualMenuActions()) {
             tbFilterTreeToolbar.add(a);
           }
           
           
           // enable all actions
-          saveFilterAction.setEnabled(true);
-          refreshFiltersAction.setEnabled(true);
           filterTree.enableAllContextualMenuAction(true);
         }
         catch (Exception e) {
@@ -281,7 +241,7 @@ private JToolBar createTreeActionToolbar()
 					}
 
 					FilterTreeNode fNode = new FilterTreeNode("<html><span color=\"black\"" /*(FilterTreeNode.isTagWithNamespaceNode(filterCategory, f.getUrlValue()) ? " style=\"text-decoration: underline;\"" : "") */ + ">" +
-                               StringEscapeUtils.escapeHtml(f.getName()) + "</span>" +
+                               StringEscapeUtils.escapeHtml(f.getName()) + "(" + f.getCount() + ")" + "</span>" +
                                /*(FilterTreeNode.isTagWithNamespaceNode(filterCategory, f.getUrlValue()) ? "<span color=\"gray\">&nbsp;("+f.getCount().intValue()+")</span></html>" : "</html>"),*/
                                (ontology != null ? "<span color=\"#3090C7\"> &lt;"+ ontology +"&gt;</span></html>" : "</html>"),
                                filterCategory, f.getUrlValue());
@@ -313,34 +273,6 @@ private JToolBar createTreeActionToolbar()
       		} 
     	}.start();
   	}
-  
-  
-  private void saveCurrentFilter()
-  {
-    // check if there is any selection in the filter tree
-    if (filterTree.getRootsOfCheckedPaths().isEmpty()) {
-      JOptionPane.showMessageDialog(null, "No filtering criteria are currently specified.\n" +
-          "Please choose required criteria from the filtering tree and try again.",
-          BioCataloguePluginConstants.APP_VISIBLE_NAME, JOptionPane.WARNING_MESSAGE);
-      return;
-    }
-    
-    String filterName = null;
-    do {
-      // keep asking for the filter name until users clicks
-      // "cancel" button or actually inputs a valid name
-      filterName = JOptionPane.showInputDialog("Please choose a name for the current filter");
-    } while (filterName != null && filterName.length() == 0);
-    
-    // if filter name was entered, store it
-    if (filterName != null) {
-      JOptionPane.showMessageDialog(null, "ERROR: not implemented!!!");  // TODO - fix saving the filters
-//      System.err.println("\nOnly saves filter itself, but not other search criteria - e.g. term / tag.\n");
-//      ServiceFilteringSettings currentFilter = new ServiceFilteringSettings(filterName, filterTree);
-//      SearchInstance filteringSearchInstance = new SearchInstance(new SearchInstance("", true, false, false, false), currentFilter);
-//      searchResultsMainPanel.getHistoryAndFavouritesPanel().addToFavouriteFilters(filteringSearchInstance);
-    }
-  }
   
   
   /**
@@ -380,6 +312,10 @@ private JToolBar createTreeActionToolbar()
     }
   }
   
+  public void applyQueryString(final String queryString) {
+	    this.filtersURL = resourceType.getAPIResourceCollectionFiltersURL() + "?q=" + queryString;
+	    loadFiltersAndBuildTheTree();
+  }
   
   /**
    * Used for making preferred height of the search status label

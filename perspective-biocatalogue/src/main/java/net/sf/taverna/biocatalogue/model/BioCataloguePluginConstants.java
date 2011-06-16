@@ -2,6 +2,8 @@ package net.sf.taverna.biocatalogue.model;
 
 import java.io.File;
 
+import net.sf.taverna.raven.appconfig.ApplicationRuntime;
+
 /**
  * This class contains the collection of important constants,
  * which are used throughout the BioCatalogue plugin.
@@ -71,6 +73,6 @@ public class BioCataloguePluginConstants
    * These are set in MainComponent.initialiseEnvironment()
    */
   
-  public static File CONFIG_FILE_FOLDER = null;
-  public static File LOG_FILE_FOLDER = null;
+  public static File CONFIG_FILE_FOLDER = new File(ApplicationRuntime.getInstance().getApplicationHomeDir(), "conf");
+  public static File LOG_FILE_FOLDER = new File(ApplicationRuntime.getInstance().getApplicationHomeDir(), "logs");
 }

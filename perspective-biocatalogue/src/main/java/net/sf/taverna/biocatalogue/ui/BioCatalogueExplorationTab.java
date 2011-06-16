@@ -41,7 +41,7 @@ public class BioCatalogueExplorationTab extends JPanel implements HasDefaultFocu
     this.thisPanel = this;
     
     this.pluginPerspectiveMainComponent = MainComponentFactory.getSharedInstance();
-    this.client = pluginPerspectiveMainComponent.getBioCatalogueClient();
+    this.client = BioCatalogueClient.getInstance();
     this.logger = Logger.getLogger(this.getClass());
     
     initialiseUI();

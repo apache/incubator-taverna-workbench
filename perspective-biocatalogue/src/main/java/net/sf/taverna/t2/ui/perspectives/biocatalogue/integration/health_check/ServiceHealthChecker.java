@@ -144,7 +144,7 @@ public class ServiceHealthChecker
       public void run() {
         try
         {
-          BioCatalogueClient client = MainComponentFactory.getSharedInstance().getBioCatalogueClient();
+          BioCatalogueClient client = BioCatalogueClient.getInstance();
           Service serviceMonitoringData = null;
           
           // attempt to get monitoring data from BioCatalogue - for this need to identify what type of
@@ -159,10 +159,11 @@ public class ServiceHealthChecker
             String resourceURL = ((ResourceLink)serviceOrSoapOperationToCheck).getHref();
             TYPE resourceType = Resource.getResourceTypeFromResourceURL(resourceURL);
             
-            if (resourceType == TYPE.Service) {
-              serviceMonitoringData = client.getBioCatalogueServiceMonitoringData(resourceURL);
-            }
-            else if (resourceType == TYPE.SOAPOperation) {
+//            if (resourceType == TYPE.Service) {
+//              serviceMonitoringData = client.getBioCatalogueServiceMonitoringData(resourceURL);
+//            }
+//            else
+            	if (resourceType == TYPE.SOAPOperation) {
               String parentServiceURL = ((SoapOperation)serviceOrSoapOperationToCheck).getAncestors().getService().getHref();
               serviceMonitoringData = client.getBioCatalogueServiceMonitoringData(parentServiceURL);
             }
@@ -276,121 +277,4 @@ public class ServiceHealthChecker
     jwd.setVisible(true);
   }
   
-  
-  // =====================================================================================================
-  //                      *** Health Check of a Collection of Processors ***
-  // =====================================================================================================
-  
-  public static void checkAllProcessorsInTheWorkflow(List<SoapProcessorIdentity> workflowProcessors)
-  {
-    // check if any processors were provided (presumably not all workflow's processors, but only
-    // those that the Integration class identified as currently supported by BioCatalogue plugin)
-    if (workflowProcessors == null || workflowProcessors.size() == 0) {
-      JOptionPane.showMessageDialog(null, "<html>Current workflow does not contain any service or none<br>" +
-      		"are currently supported by the BioCatalogue plugin.", "BioCatalogue Plugin - Warning", JOptionPane.WARNING_MESSAGE);
-      return;
-    }
-    
-    
-    // *** Create a dialog window to show the health check process ***
-    final JDialog jdWorkflowHealthCheckDialog = new JDialog(MainComponent.dummyOwnerJFrame);
-    
-    // there are processors to check - construct a dialog window for this
-    final JPanel jpProcessors = new JPanel();
-    jpProcessors.setBackground(Color.WHITE);
-    jpProcessors.setBorder(BorderFactory.createEmptyBorder(7, 7, 7, 7));
-    jpProcessors.setLayout(new BoxLayout(jpProcessors, BoxLayout.Y_AXIS));
-    for (SoapProcessorIdentity proc : workflowProcessors)
-    {
-      jpProcessors.add(
-        new JClickableLabel(proc.getLocalName(), proc.toActionString(),
-                            new ActionListener() {
-                              public void actionPerformed(ActionEvent e) {
-                                ServiceHealthChecker.checkWSDLProcessor(SoapOperationIdentity.fromActionString(e.getActionCommand()));
-                              }
-                            },
-                            ResourceManager.getImageIcon(ResourceManager.SPINNER),
-                            JLabel.LEFT, "Click to view detailed status information for this processor"));
-    }
-    
-    JScrollPane spProcessors = new JScrollPane(jpProcessors);
-    spProcessors.getVerticalScrollBar().setUnitIncrement(BioCataloguePluginConstants.DEFAULT_SCROLL);
-    spProcessors.setPreferredSize(new Dimension(100, 100));
-    
-    
-    // close button
-    JButton bClose = new JButton("Close");
-    bClose.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        jdWorkflowHealthCheckDialog.dispose();
-      }
-    });
-    bClose.setDefaultCapable(true);
-    jdWorkflowHealthCheckDialog.getRootPane().setDefaultButton(bClose);
-    
-    JPanel jpCloseButtonPanel = new JPanel();
-    jpCloseButtonPanel.add(bClose);
-    
-    // *** Put everything together ***
-    JPanel jpDialogContents = new JPanel(new BorderLayout(10, 5));
-    jpDialogContents.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-    jpDialogContents.add(new JLabel("Checking status of the following services:"), BorderLayout.NORTH);
-    jpDialogContents.add(spProcessors, BorderLayout.CENTER);
-    jpDialogContents.add(jpCloseButtonPanel, BorderLayout.SOUTH);
-    
-    // *** Insert contents into JDialog and set its properties ***
-    jdWorkflowHealthCheckDialog.setTitle("Workflow Health Check");
-    jdWorkflowHealthCheckDialog.getContentPane().add(jpDialogContents);
-    jdWorkflowHealthCheckDialog.pack();
-    
-    jdWorkflowHealthCheckDialog.setLocationRelativeTo(MainComponentFactory.getSharedInstance());
-    jdWorkflowHealthCheckDialog.setModal(true);
-    
-    
-    // everything is prepared, start background process to check status of processors
-    final BioCatalogueClient client = MainComponentFactory.getSharedInstance().getBioCatalogueClient();
-    new Thread("workflow health check") {
-
-	public void run() {
-        for (Component c : jpProcessors.getComponents()) {
-          if (c instanceof JClickableLabel)
-          {
-            JClickableLabel jcl = (JClickableLabel)c;
-            
-            // use data in JClickableLabel (SOAP operation name and WSDL location) to get data about that service
-            SoapOperationIdentity soapOperationDetails = SoapOperationIdentity.fromActionString(jcl.getData());
-            Service service = null;
-            try {
-              service = client.lookupParentService(soapOperationDetails);
-            }
-            catch (Exception e) {
-              logger.error("Biocatalogue Plugin: Something went wrong while fetching parent Service data for " +
-                                   (soapOperationDetails == null ? 
-                                    "UNKNOWN SOAP OPERATION" :
-                                    "(" + soapOperationDetails.getWsdlLocation() + ", " + soapOperationDetails.getOperationName() + ")") +
-                                 "; see details below:", e);
-              //e.printStackTrace();
-            }
-            
-            // if service data was fetched, update the listing to set the data
-            if (service != null) {
-              jcl.setIcon(ServiceMonitoringStatusInterpreter.getStatusIcon(service, true));
-              jcl.setToolTipText("<html>Status: " + service.getLatestMonitoringStatus().getMessage() + "<br>" +
-                                 "Click to view detailed status information for this service.</html>");
-            }
-            else {
-              // service data was not fetched - report an error
-              jcl.setIcon(ResourceManager.getImageIcon(ResourceManager.CROSS_ICON));
-              jcl.setToolTipText("<html>There was a problem while checking status of this service.<br>" +
-              		               "You may try to click on this link to try to fetch the required data again.</html>");
-            }
-          }
-        }
-      }
-    }.start();
-    
-    
-    // finally, show the dialog window
-    jdWorkflowHealthCheckDialog.setVisible(true);
-  }
 }

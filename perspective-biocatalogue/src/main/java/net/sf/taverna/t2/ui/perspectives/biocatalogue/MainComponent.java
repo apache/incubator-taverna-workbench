@@ -2,34 +2,24 @@ package net.sf.taverna.t2.ui.perspectives.biocatalogue;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-//import java.awt.Component;
 import java.awt.GridLayout;
-//import java.util.HashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-//import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 import javax.swing.border.LineBorder;
-//import javax.swing.event.ChangeEvent;
-//import javax.swing.event.ChangeListener;
-
-import org.apache.log4j.Logger;
 
 import net.sf.taverna.biocatalogue.model.BioCataloguePluginConstants;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.Util;
-import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
 import net.sf.taverna.biocatalogue.ui.BioCatalogueExplorationTab;
-//import net.sf.taverna.biocatalogue.ui.BioCataloguePluginAbout;
-//import net.sf.taverna.biocatalogue.ui.HasDefaultFocusCapability;
-import net.sf.taverna.biocatalogue.ui.previews.ResourcePreviewBrowser;
-import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+
+import org.apache.log4j.Logger;
 
 /*
  * @author Sergejs Aleksejevs
@@ -41,8 +31,6 @@ public final class MainComponent extends JPanel implements UIComponentSPI //, Ch
 //  private HashMap<String, String> windowTitleMap;
   
   private MainComponent pluginPerspectiveMainComponent;
-  private BioCatalogueClient client;
-  private ResourcePreviewBrowser previewBrowser;
   private final Logger logger = Logger.getLogger(MainComponent.class);
   
   //private JTabbedPane tpMainTabs;
@@ -117,14 +105,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI //, Ch
     
     
     // determine what folder is to be used for config files
-    if (Util.isRunningInTaverna()) {
-      // running inside Taverna - use its default folders for config files and log files
-      BioCataloguePluginConstants.CONFIG_FILE_FOLDER =
-        new java.io.File(ApplicationRuntime.getInstance().getApplicationHomeDir(), "conf");
-      BioCataloguePluginConstants.LOG_FILE_FOLDER =
-        new java.io.File(ApplicationRuntime.getInstance().getApplicationHomeDir(), "logs");
-    }
-    else {
+    if (!Util.isRunningInTaverna()) {
       // running outside Taverna, place config file and log into the user's home directory
       BioCataloguePluginConstants.CONFIG_FILE_FOLDER = 
         new java.io.File(System.getProperty("user.home"), BioCataloguePluginConstants.CONFIG_FILE_FOLDER_WHEN_RUNNING_STANDALONE);
@@ -138,8 +119,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI //, Ch
     
     // these components must be accessed by all other components, hence need
     // to be initialised before any other initialisation is done
-    client = new BioCatalogueClient();
-    previewBrowser = new ResourcePreviewBrowser(pluginPerspectiveMainComponent, client, logger);
+
 //    windowTitleMap = new HashMap<String,String>();
 	}
 	
@@ -288,23 +268,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI //, Ch
   public BioCatalogueExplorationTab getBioCatalogueExplorationTab() {
     return (this.jpBioCatalogueExplorationTab);
   }
-  
-  
-  /**
-   * @return An initialised and ready to use instance of BioCatalogue client or null.
-   */
-  public BioCatalogueClient getBioCatalogueClient() {
-    return (this.client);
-  }
-  
-  /**
-   * @return An initialised and ready to use instance of <code>ResourcePreviewBrowser</code>.
-   */
-  public ResourcePreviewBrowser getPreviewBrowser() {
-    return (this.previewBrowser);
-  }
-  
-  
+    
   // *** Callbacks for ChangeListener interface ***
   
 /*  public void stateChanged(ChangeEvent e)

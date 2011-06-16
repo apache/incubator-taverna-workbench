@@ -30,7 +30,7 @@ import net.sf.taverna.biocatalogue.model.Resource;
  */
 public class SearchEngine
 {
-  protected Logger logger;
+  private static Logger logger = Logger.getLogger(SearchEngine.class);
   
   protected SearchInstance searchInstance;
   protected final BioCatalogueClient client;
@@ -44,10 +44,9 @@ public class SearchEngine
                               CountDownLatch doneSignal,
                               SearchResultsRenderer renderer)
   {
-    this.logger = Logger.getLogger(this.getClass());
     
     this.searchInstance = searchInstance;
-    this.client = MainComponentFactory.getSharedInstance().getBioCatalogueClient();
+    this.client = BioCatalogueClient.getInstance();
     this.activeSearchInstanceTracker = activeSearchInstanceTracker;
     this.doneSignal = doneSignal;
     this.renderer = renderer;
@@ -120,15 +119,15 @@ public class SearchEngine
     }
     
     // Sort by name (for REST and SOAP only at the moment. Parent Web services do not have the sort by name facility yet.)
-    if (!searchInstance.getResourceTypeToSearchFor().equals(net.sf.taverna.biocatalogue.model.Resource.TYPE.Service)){
+//    if (!searchInstance.getResourceTypeToSearchFor().equals(net.sf.taverna.biocatalogue.model.Resource.TYPE.Service)){
         requestURL = Util.appendURLParameter(requestURL, "sort_by", "name");
-        requestURL = Util.appendURLParameter(requestURL, "sort_order", "asc");	
-    }
+        requestURL = Util.appendURLParameter(requestURL, "sort_order", "asc");
+        requestURL = Util.appendURLParameter(requestURL, "include", "ancestors");
+//    }
     logger.info("BioCatalogue Plugin: Request URL for search: " + requestURL);
     
     // append some search-type-independent parameters and return the URL
     requestURL = Util.appendAllURLParameters(requestURL, searchInstance.getResourceTypeToSearchFor().getAPIResourceCollectionIndexAdditionalParameters());
-    
     return (new BioCatalogueAPIRequest(requestType, requestURL, requestData));
   }
   

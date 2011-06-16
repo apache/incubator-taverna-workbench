@@ -89,7 +89,7 @@ public class BioCatalogueClient
   // API URLs
   public static final String DEFAULT_API_SANDBOX_BASE_URL = "http://sandbox.biocatalogue.org";
   public static final String DEFAULT_API_TEST_SERVER_BASE_URL = "http://test.biocatalogue.org";
-  public static final String DEFAULT_API_LIVE_SERVER_BASE_URL = "http://www.biocatalogue.org";
+  public static final String DEFAULT_API_LIVE_SERVER_BASE_URL = "http://sandbox.biocatalogue.org";
   
   private static String BASE_URL;    // BioCatalogue base URL to use (can be updated at runtime)
   
@@ -109,7 +109,7 @@ public class BioCatalogueClient
   
   // URL modifiers
   public static final Map<String,String> API_INCLUDE_SUMMARY = Collections.singletonMap("include","summary");          // for fetching Service
-  public static final Map<String,String> API_INCLUDE_ANCESTORS = Collections.singletonMap("include", "ancestors");     // for fetching SOAP Operations and REST Methods
+  public static final Map<String,String> API_INCLUDE_ANCESTORS = Collections.singletonMap("include", "ancestors,inputs,outputs");     // for fetching SOAP Operations and REST Methods
   public static final String[] API_SORT_BY_NAME = {"sort","name"};                   // for tag cloud
   public static final String[] API_SORT_BY_COUNTS = {"sort","counts"};               // for tag cloud
   public static final String[] API_ALSO_INPUTS_OUTPUTS = {"also","inputs,outputs"};  // for annotations on SOAP operation
@@ -154,9 +154,10 @@ public class BioCatalogueClient
   // the logger
   private Logger logger = Logger.getLogger(BioCatalogueClient.class);
   
+  private static BioCatalogueClient INSTANCE;
   
   // default constructor
-  public BioCatalogueClient()
+  private BioCatalogueClient()
   {
     // TODO: load any config settings (if necessary)
     
@@ -176,14 +177,19 @@ public class BioCatalogueClient
       }
       catch (NullPointerException e) {
         pwAPILogWriter = new PrintWriter(System.out, true);
-        System.err.println("ERROR: Folder to log API operation details is unknown (using System.out instead)... Details:");
-        e.printStackTrace();
+        logger.error("ERROR: Folder to log API operation details is unknown (using System.out instead)... Details:", e);
       }
       catch (FileNotFoundException e) {
-        System.err.println("ERROR: Couldn't open API operation log file... Details:");
-        e.printStackTrace();
+        logger.error("ERROR: Couldn't open API operation log file... Details:", e);
       }
     }
+  }
+  
+  public static synchronized BioCatalogueClient getInstance() {
+	  if (INSTANCE == null) {
+		  INSTANCE = new BioCatalogueClient();
+	  }
+	  return INSTANCE;
   }
   
   

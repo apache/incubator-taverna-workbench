@@ -2,6 +2,7 @@ package net.sf.taverna.biocatalogue.ui.search_results;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -15,6 +16,7 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -44,6 +46,7 @@ import net.sf.taverna.biocatalogue.model.Resource;
 import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.Util;
+import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
 import net.sf.taverna.biocatalogue.model.search.SearchInstance;
 import net.sf.taverna.biocatalogue.ui.JWaitDialog;
 import net.sf.taverna.t2.lang.ui.ModelMap;
@@ -91,7 +94,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 	// contextual menu
 	private JPopupMenu contextualMenu;
 	private Action expandCollapseItemAction;
-	private Action previewItemAction;
 	private Action addToServicePanelAction;
 	private Action addToWorkflowDiagramAction;
 	private Action openInBioCatalogueAction;
@@ -150,22 +152,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 			}
 		};
 
-		this.previewItemAction = new AbstractAction("Preview", ResourceManager
-				.getImageIcon(ResourceManager.PREVIEW_ICON)) {
-			// Tooltip
-			{
-				this.putValue(SHORT_DESCRIPTION,
-						"Load and preview information about selected "
-								+ typeToPreview.getTypeName()
-								+ " in a separate window.");
-			}
-
-			public void actionPerformed(ActionEvent e) {
-				pluginPerspectiveMainComponent.getPreviewBrowser().preview(
-						BioCataloguePluginConstants.ACTION_PREVIEW_RESOURCE
-								+ potentialObjectToPreview.getHref());
-			}
-		};
 
 		this.addToServicePanelAction = new AbstractAction(
 				"Add to Service Panel",
@@ -320,8 +306,14 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 			}
 
 			public void actionPerformed(ActionEvent e) {
-				pluginPerspectiveMainComponent.getPreviewBrowser()
-						.openInWebBrowser(potentialObjectToPreview.getHref());
+				String hrefString = potentialObjectToPreview.getHref();
+				   try {
+						Desktop.getDesktop().browse(new URI(hrefString));
+					    }
+					    catch (Exception ex) {
+					      logger.error("Failed while trying to open the URL in a standard browser; URL was: " +
+					           hrefString + "\nException was: " + ex + "\n" + ex.getStackTrace());
+					    };
 			}
 		};
 
@@ -357,16 +349,11 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 				5, 3));
 		tbSelectedItemActions.setFloatable(false);
 		tbSelectedItemActions.add(expandCollapseItemAction);
-		if (typeToPreview.isSuitableForOpeningInPreviewBrowser()) {
-			tbSelectedItemActions.add(previewItemAction);
-		}
 		if (typeToPreview.isSuitableForAddingToServicePanel()) {
 			tbSelectedItemActions.add(addToServicePanelAction);
 		}
-		// Is this is a panel for parent Web services, so we can add an action to 
-		// add all their SOAP/REST operations to the Service Panel (currently only for SOAP).
-		if (typeToPreview == TYPE.Service){
-			tbSelectedItemActions.add(addAllOperationsToServicePanelAction);
+		if (typeToPreview.isSuitableForAddingAllToServicePanel()) {
+		tbSelectedItemActions.add(addAllOperationsToServicePanelAction);
 		}
 		if (typeToPreview.isSuitableForAddingToWorkflowDiagram()) {
 			tbSelectedItemActions.add(addToWorkflowDiagramAction);
@@ -444,39 +431,16 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 						// clicked on is beyond the initial 'loading' state
 						expandCollapseItemAction
 								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
-						previewItemAction
-								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
 						addToServicePanelAction
 								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
+						addAllOperationsToServicePanelAction
+						.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
 						addToWorkflowDiagramAction
 								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
 						openInBioCatalogueAction
 								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
 						doHealthCheckAction
 								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
-						
-						// Is this a parent "Web service"?
-						if (potentialObjectToPreview instanceof Service){
-							Service service = (Service)potentialObjectToPreview;			
-						    // Service type
-						    if (service.getServiceTechnologyTypes() != null && service.getServiceTechnologyTypes().getTypeList().size() > 0)
-						    {
-						      if (service.getServiceTechnologyTypes().getTypeArray(0).intValue() == ServiceTechnologyType.INT_SOAP)
-						      {			
-									addAllOperationsToServicePanelAction.setEnabled(true);
-						      }
-						      else {
-									addAllOperationsToServicePanelAction.setEnabled(false);
-						      }
-						    }
-						    else {
-						      // Can't tell the type - disable the button
-								addAllOperationsToServicePanelAction.setEnabled(false);						    							
-						    }							
-						}
-						else{
-							addAllOperationsToServicePanelAction.setEnabled(false);
-						}
 					    
 						return;
 					}
@@ -485,8 +449,8 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 				// disable actions if nothing is selected in the list or if
 				// selection is still "adjusting"
 				expandCollapseItemAction.setEnabled(false);
-				previewItemAction.setEnabled(false);
 				addToServicePanelAction.setEnabled(false);
+				addAllOperationsToServicePanelAction.setEnabled(false);
 				addToWorkflowDiagramAction.setEnabled(false);
 				openInBioCatalogueAction.setEnabled(false);
 				doHealthCheckAction.setEnabled(false);
@@ -518,11 +482,9 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 
 		contextualMenu = new JPopupMenu();
 		contextualMenu.add(expandCollapseItemAction);
-		if (typeToPreview.isSuitableForOpeningInPreviewBrowser()) {
-			contextualMenu.add(previewItemAction);
-		}
 		if (typeToPreview.isSuitableForAddingToServicePanel()) {
 			contextualMenu.add(addToServicePanelAction);
+			contextualMenu.add(addAllOperationsToServicePanelAction);
 		}
 		if (typeToPreview.isSuitableForAddingToWorkflowDiagram()) {
 			contextualMenu.add(addToWorkflowDiagramAction);
@@ -593,7 +555,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 
 		// disable the toolbar actions
 		this.expandCollapseItemAction.setEnabled(false);
-		this.previewItemAction.setEnabled(false);
 		this.addToServicePanelAction.setEnabled(false);
 		this.addToWorkflowDiagramAction.setEnabled(false);
 		this.openInBioCatalogueAction.setEnabled(false);
@@ -901,15 +862,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 					expandCollapseListEntry(selIndex);
 				}
 			}
-
-			// *** double-click with the left mouse button - show preview of
-			// that item ***
-			if (e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1) {
-				String itemURL = getResourceSelectedInJList().getHref();
-				pluginPerspectiveMainComponent.getPreviewBrowser().preview(
-						BioCataloguePluginConstants.ACTION_PREVIEW_RESOURCE
-								+ itemURL);
-			}
 		}
 	}
 
@@ -1044,8 +996,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 				final SearchInstance siForWhichLoadingIsMade = parentMainSearchResultsPanel
 						.getCurrentSearchInstance(resourceType);
 				try {
-					final ResourceLink fullResourceData = MainComponentFactory
-							.getSharedInstance().getBioCatalogueClient()
+					final ResourceLink fullResourceData = BioCatalogueClient.getInstance()
 							.getBioCatalogueResource(
 									resourceType.getXmlBeansGeneratedClass(),
 									resourceURL);

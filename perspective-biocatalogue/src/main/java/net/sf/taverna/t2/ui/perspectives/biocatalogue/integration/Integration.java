@@ -12,15 +12,18 @@ import javax.swing.JLabel;
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.ResourceLink;
 import org.biocatalogue.x2009.xml.rest.RestMethod;
+import org.biocatalogue.x2009.xml.rest.RestService;
 import org.biocatalogue.x2009.xml.rest.Service;
 import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
 import org.biocatalogue.x2009.xml.rest.SoapOperation;
 import org.biocatalogue.x2009.xml.rest.SoapService;
+import org.biocatalogue.x2009.xml.rest.Service.Variants;
 
 import net.sf.taverna.biocatalogue.model.HTTPMethodInterpreter;
 import net.sf.taverna.biocatalogue.model.HTTPMethodInterpreter.UnsupportedHTTPMethodException;
 import net.sf.taverna.biocatalogue.model.Resource;
 import net.sf.taverna.biocatalogue.model.Resource.TYPE;
+import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.SoapOperationIdentity;
 import net.sf.taverna.biocatalogue.model.SoapOperationPortIdentity;
@@ -77,7 +80,7 @@ public class Integration
         case SOAPOperation:
           SoapOperation soapOp = (SoapOperation) processorResource;
           try {
-            SoapService soapService = MainComponentFactory.getSharedInstance().getBioCatalogueClient().
+            SoapService soapService = BioCatalogueClient.getInstance().
                                         getBioCatalogueSoapService(soapOp.getAncestors().getSoapService().getHref());
             
             try {
@@ -117,7 +120,7 @@ public class Integration
         case RESTMethod:
           // received object may only contain limited data, therefore need to fetch full details first
           try {
-            RestMethod restMethod = MainComponentFactory.getSharedInstance().getBioCatalogueClient().
+            RestMethod restMethod = BioCatalogueClient.getInstance().
                                                 getBioCatalogueRestMethod(processorResource.getHref());
             
             // actual import of the service into the workflow
@@ -171,7 +174,7 @@ public class Integration
         case SOAPOperation:
           SoapOperation soapOp = (SoapOperation) processorResource;
           try {
-            SoapService soapService = MainComponentFactory.getSharedInstance().getBioCatalogueClient().
+            SoapService soapService = BioCatalogueClient.getInstance().
                                         getBioCatalogueSoapService(soapOp.getAncestors().getSoapService().getHref());
             SoapOperationIdentity soapOpId = new SoapOperationIdentity(soapService.getWsdlLocation(), soapOp.getName(), Util.stripAllHTML(soapOp.getDescription()));
             WSDLOperationFromBioCatalogueServiceDescription wsdlOperationDescription = new WSDLOperationFromBioCatalogueServiceDescription(soapOpId);
@@ -189,7 +192,7 @@ public class Integration
         case RESTMethod:
           try {
             // received object may only contain limited data, therefore need to fetch full details first
-            RestMethod restMethod = MainComponentFactory.getSharedInstance().getBioCatalogueClient().
+            RestMethod restMethod = BioCatalogueClient.getInstance().
                                                   getBioCatalogueRestMethod(processorResource.getHref());
             RESTFromBioCatalogueServiceDescription restServiceDescription = createRESTServiceDescriptionFromRESTMethod(restMethod);
             
@@ -239,54 +242,46 @@ public class Integration
 		// whose operations can be added to the Service Panel
 		TYPE resourceType = Resource
 				.getResourceTypeFromResourceURL(serviceResource.getHref());
-		if (resourceType == TYPE.Service){
-			Service service = (Service)serviceResource;			
-		    if (service.getServiceTechnologyTypes() != null && service.getServiceTechnologyTypes().getTypeList().size() > 0)
-		    {
-		    	// If SOAP-styled service
-		    	if (service.getServiceTechnologyTypes().getTypeArray(0).intValue() == ServiceTechnologyType.INT_SOAP){
-		    		// For some reason service does not contain details about its variants - get the service summary which does
-		    		Service serviceSummary = null;
-		    	    try {
-						serviceSummary = MainComponentFactory.getSharedInstance().getBioCatalogueClient().getBioCatalogueServiceSummary(service.getHref());
-					} catch (Exception e1) {
-				          logger.error("Failed to fetch required service variants details to add this SOAP Web service into the Service Panel.", e1);
-				            return (new JLabel("Failed to fetch required details to add this " +
-				                               "SOAP Web service into the Service Panel.", ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
-					}
-		    		
-		    		// We are looking for a SOAP service variant here (can be 1 or more)
-					// Just get the first SOAP variant for now (could be more - alternative WSDL URLs?)
-					if (serviceSummary.getVariants() == null || serviceSummary.getVariants().getSoapServiceList().isEmpty()){
-						// Should not be but hey
-				          logger.error("The service variants were null when trying to add SOAP Web service "+service.getHref()+" into the Service Panel.");
-				          return (new JLabel("Failed to fetch the WSDL location of this " +
-				                               "SOAP Web service.", ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
-					}
-		    		SoapService soapService = serviceSummary.getVariants().getSoapServiceList().get(0); 
+		
+		Service service = null;
+		if (resourceType == TYPE.SOAPOperation) {
+			SoapService soapService = ((SoapOperation) serviceResource)
+					.getAncestors().getSoapService();
 
-		    		// Get the WSDL URL of the SOAP service
-		    		String wsdlURL = soapService.getWsdlLocation();
-		    	  
-		    		// Import this WSDL into Service panel - it will add all of its operations
-		            if (BioCatalogueWSDLOperationServiceProvider.registerWSDLService(wsdlURL, null)){
-		                return (new JLabel("Operation(s) of the SOAP service have been successfully added to the Service Panel.", 
-	                               ResourceManager.getImageIcon(ResourceManager.TICK_ICON), JLabel.CENTER));	
-		            }
-		            else{
-				          return (new JLabel("Failed to insert the operations of the SOAP service " +
-	                               " to the Service Panel.", ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
-		            }
-		      }
-		    }
-			
+			// Get the WSDL URL of the SOAP service
+			String wsdlURL = soapService.getWsdlLocation();
+
+			// Import this WSDL into Service panel - it will add all
+			// of
+			// its operations
+			if (BioCatalogueWSDLOperationServiceProvider.registerWSDLService(
+					wsdlURL, null)) {
+				return (new JLabel(
+						"Operation(s) of the SOAP service have been successfully added to the Service Panel.",
+						ResourceManager.getImageIcon(ResourceManager.TICK_ICON),
+						JLabel.CENTER));
+			} else {
+				return (new JLabel(
+						"Failed to insert the operations of the SOAP service "
+								+ " to the Service Panel.", ResourceManager
+								.getImageIcon(ResourceManager.ERROR_ICON),
+						JLabel.CENTER));
+			}
+		} else if (resourceType == TYPE.RESTMethod) {
+			RestService restService = ((RestMethod) serviceResource)
+			.getAncestors().getRestService();
+			for (RestMethod method : restService.getMethods().getRestMethodList()) {
+				
+			}
 		}
 
-    return (new JLabel("<html>It is not possible to add resources of the provided type<br>" +
-                              "into the Service Panel.</html>",
-                              ResourceManager.getImageIcon(ResourceManager.ERROR_ICON), JLabel.CENTER));
-  }
-  
+		return (new JLabel(
+				"<html>It is not possible to add resources of the provided type<br>"
+						+ "into the Service Panel.</html>", ResourceManager
+						.getImageIcon(ResourceManager.ERROR_ICON),
+				JLabel.CENTER));
+	}
+
   /**
    * Instantiates a {@link RESTFromBioCatalogueServiceDescription} object from the {@link RestMethod}
    * XML data obtained from BioCatalogue API.

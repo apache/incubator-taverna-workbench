@@ -17,16 +17,14 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
-
-import org.biocatalogue.x2009.xml.rest.Service;
-import org.biocatalogue.x2009.xml.rest.SoapOperation;
 
 import net.sf.taverna.biocatalogue.model.BioCataloguePluginConstants;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.SoapOperationIdentity;
 import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
-import net.sf.taverna.biocatalogue.ui.JClickableLabel;
+import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.Integration;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.health_check.ServiceHealthChecker;
@@ -34,10 +32,18 @@ import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.health_check.S
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
+import org.apache.log4j.Logger;
+import org.biocatalogue.x2009.xml.rest.Service;
+import org.biocatalogue.x2009.xml.rest.SoapOperation;
+
 
 public class ProcessorView extends ContextualView {
 	private final Processor processor;
 	private JPanel jPanel;
+	
+	private static Logger logger = Logger.getLogger(ProcessorView.class);
+	
+
 
 	public ProcessorView(Processor processor) {
 		this.processor = processor;
@@ -50,28 +56,38 @@ public class ProcessorView extends ContextualView {
 		initView();
 	}
 	
+
+	
 	@Override
 	public JComponent getMainFrame()
 	{
-	  new Thread("loading output port data") {
+	  Thread t = new Thread("loading processor data") {
       public void run() {
         final SoapOperationIdentity operationDetails = Integration.extractSoapOperationDetailsFromProcessor(processor);
         
         if (operationDetails.hasError()) {
-          jPanel.removeAll();
-          jPanel.add(new JLabel(operationDetails.getErrorDetails().toString(),
-                                UIManager.getIcon("OptionPane.warningIcon"), JLabel.CENTER));
+        	SwingUtilities.invokeLater(new RefreshThread(new JLabel(operationDetails.getErrorDetails().toString(),
+                    UIManager.getIcon("OptionPane.warningIcon"), JLabel.CENTER)));
+           return;
         }
         else {
-          BioCatalogueClient client = MainComponentFactory.getSharedInstance().getBioCatalogueClient();
+          BioCatalogueClient client = BioCatalogueClient.getInstance();
           
           if (client != null) {
             try {
               SoapOperation soapOperation = client.lookupSoapOperation(operationDetails);
-              if (soapOperation == null) throw new UnknownObjectException("This service is not registered in BioCatalogue");
+              if (soapOperation == null) {
+            	  SwingUtilities.invokeLater(new RefreshThread(new JLabel("This service is not registered in BioCatalogue",
+                          UIManager.getIcon("OptionPane.warningIcon"), JLabel.CENTER)));
+                 return;
+              }
               
               Service parentService = client.getBioCatalogueService(soapOperation.getAncestors().getService().getHref());
-              if (parentService == null) throw new UnknownObjectException("Problem while fetching monitoring data from BioCatalogue");
+              if (parentService == null) {
+               	  SwingUtilities.invokeLater(new RefreshThread(new JLabel("Problem while fetching monitoring data from BioCatalogue",
+                          UIManager.getIcon("OptionPane.warningIcon"), JLabel.CENTER)));
+                 return;
+              }
               
               
               // *** managed to get all necessary data successfully - present it ***
@@ -83,7 +99,7 @@ public class ProcessorView extends ContextualView {
                       ServiceHealthChecker.checkWSDLProcessor(operationDetails);
                     }
                   });
-              JLabel jlStatusMessage = new JLabel("<html>" + parentService.getLatestMonitoringStatus().getMessage() + "</html>");
+              JLabel jlStatusMessage = new JLabel(parentService.getLatestMonitoringStatus().getMessage());
               
               JPanel jpStatusMessage = new JPanel();
               jpStatusMessage.setAlignmentY(Component.CENTER_ALIGNMENT);
@@ -100,34 +116,13 @@ public class ProcessorView extends ContextualView {
               
               
               // operation description
-              JLabel jlOperationDescription = new JLabel("<html><b>Description:</b><br>" +
-                  (soapOperation.getDescription().length() > 0 ?
-                   soapOperation.getDescription() :
-                   "<span style=\"color: gray;\">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;no description is available for this service</span>")
-                  + "</html>", JLabel.LEFT);
-              jlOperationDescription.setAlignmentX(Component.LEFT_ALIGNMENT);
-              
-              
-              // a button to open preview of the service
-              JButton jbLaunchProcessorPreview = new JButton("Detailed preview");
-              jbLaunchProcessorPreview.setToolTipText("View detailed preview of this service in a popup window");
-              jbLaunchProcessorPreview.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                  if (!operationDetails.hasError()) {
-                    MainComponentFactory.getSharedInstance().getPreviewBrowser().preview(
-                        BioCataloguePluginConstants.ACTION_PREVIEW_SOAP_OPERATION_AFTER_LOOKUP + operationDetails.toActionString());
-                  }
-                  else {
-                    // this error message comes from Integration class extracting SOAP operation details from the contextual selection
-                    JOptionPane.showMessageDialog(null, operationDetails.getErrorDetails(), "BioCatalogue Plugin - Error", JOptionPane.WARNING_MESSAGE);
-                  }
-                }
-              });
-              
-              JPanel jpPreviewButtonPanel = new JPanel();
-              jpPreviewButtonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-              jpPreviewButtonPanel.add(jbLaunchProcessorPreview);
-              
+              String operationDescription = (soapOperation.getDescription().length() > 0 ?
+                      soapOperation.getDescription() :
+                      "No description is available for this service");
+
+              ReadOnlyTextArea jlOperationDescription = new ReadOnlyTextArea(operationDescription);
+ 
+              jlOperationDescription.setAlignmentX(Component.LEFT_ALIGNMENT);              
               
               // put everything together
               JPanel jpInnerPane = new JPanel();
@@ -137,50 +132,45 @@ public class ProcessorView extends ContextualView {
               jpInnerPane.add(Box.createVerticalStrut(10));
               jpInnerPane.add(jpServiceStatus);
               jpInnerPane.add(Box.createVerticalStrut(10));
- //             jpInnerPane.add(jpPreviewButtonPanel);
               
               JScrollPane spInnerPane = new JScrollPane(jpInnerPane);
               
-              jPanel.removeAll();
-              jPanel.add(spInnerPane);
-              jPanel.setPreferredSize(new Dimension(200,130));
-            }
+              SwingUtilities.invokeLater(new RefreshThread(spInnerPane));
+              return;
+           }
             catch (UnknownObjectException e) {
-              // either SoapOperation or its parent Service was not found in BioCatalogue - regular case
-              jPanel.removeAll();
-              jPanel.add(new JLabel(e.getMessage(),
-                                    UIManager.getIcon("OptionPane.informationIcon"), JLabel.CENTER));
-            }
+            	SwingUtilities.invokeLater(new RefreshThread(new JLabel(e.getMessage(),
+                        UIManager.getIcon("OptionPane.informationIcon"), JLabel.CENTER)));
+            	return;
+             }
             catch (Exception e) {
               // a real error occurred while fetching data about selected processor
-              System.err.println("ERROR: unexpected problem while trying to ");
-              e.printStackTrace();
-              jPanel.removeAll();
-              jPanel.add(new JLabel("<html>An unknown problem has prevented BioCatalogue Plugin from loading this preview</html>",
-                                    UIManager.getIcon("OptionPane.errorIcon"), JLabel.CENTER));
+             logger.error("ERROR: unexpected problem while trying to ", e);
+             SwingUtilities.invokeLater(new RefreshThread(new JLabel("An unknown problem has prevented BioCatalogue Plugin from loading this preview",
+                     UIManager.getIcon("OptionPane.errorIcon"), JLabel.CENTER)));
+             return;
             }
           }
           else {
-            jPanel.removeAll();
-            jPanel.add(new JLabel("<html><center>BioCatalogue Plugin has not initialised yet. Please wait and try again.</center></html>",
-                                  UIManager.getIcon("OptionPane.warningIcon"), JLabel.CENTER));
-          }
+        	  SwingUtilities.invokeLater(new RefreshThread(new JLabel("BioCatalogue Plugin has not initialised yet. Please wait and try again.",
+                                  UIManager.getIcon("OptionPane.warningIcon"), JLabel.CENTER)));
+        	  return;
+         }
         }
-        
-        refreshView();
       }
-	  }.start();
+	  };
 		
 	  jPanel.removeAll();
-    jPanel.setPreferredSize(new Dimension(200,50));
+    jPanel.setPreferredSize(new Dimension(200,200));
     jPanel.setLayout(new GridLayout());
     jPanel.add(new JLabel(ResourceManager.getImageIcon(ResourceManager.BAR_LOADER_ORANGE), JLabel.CENTER));
+	  t.start();
 		return jPanel;
 	}
 
 	@Override
 	public String getViewTitle() {
-		return "BioCatalogue Information - Service: " + processor.getLocalName();
+		return "BioCatalogue Information";
 	} 
 
 	@Override
@@ -195,6 +185,22 @@ public class ProcessorView extends ContextualView {
 	@Override
 	public int getPreferredPosition() {
 		return BioCataloguePluginConstants.CONTEXTUAL_VIEW_PREFERRED_POSITION;
+	}
+	
+	class RefreshThread extends Thread {
+		private final Component component;
+
+		public RefreshThread (Component component) {
+			this.component = component;		
+		}
+		
+		public void run() {
+			jPanel.removeAll();
+			if (component != null) {
+				jPanel.add(component);
+			}
+			refreshView();
+		}
 	}
 
 }

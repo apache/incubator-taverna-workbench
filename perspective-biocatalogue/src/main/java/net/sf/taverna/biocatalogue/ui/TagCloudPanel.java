@@ -134,7 +134,7 @@ public class TagCloudPanel extends JPanel implements ChangeListener, ActionListe
     this.iType = iTagCloudType;
     this.iSelectionMode = iSelectionMode;
     this.clickHandler = clickHandler;
-    this.client = MainComponentFactory.getSharedInstance().getBioCatalogueClient();
+    this.client = BioCatalogueClient.getInstance();
     this.logger = Logger.getLogger(this.getClass());
     
     // initialise "actions" for sorting the tag cloud

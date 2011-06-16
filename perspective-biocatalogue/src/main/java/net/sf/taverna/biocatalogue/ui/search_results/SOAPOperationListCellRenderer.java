@@ -17,9 +17,13 @@ import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.Util;
 
+import org.biocatalogue.x2009.xml.rest.Service;
+import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
 import org.biocatalogue.x2009.xml.rest.SoapInput;
 import org.biocatalogue.x2009.xml.rest.SoapOperation;
 import org.biocatalogue.x2009.xml.rest.SoapOutput;
+import org.biocatalogue.x2009.xml.rest.SoapService;
+import org.biocatalogue.x2009.xml.rest.SoapOperation.Ancestors;
 
 
 /**
@@ -79,12 +83,24 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
   protected GridBagConstraints prepareLoadedCollapsedEntry(Object itemToRender, boolean expandedView)
   {
     TYPE resourceType = determineResourceType(itemToRender);
-    SoapOperation soapOp = (SoapOperation)itemToRender;;
+    SoapOperation soapOp = (SoapOperation)itemToRender;
     
-    jlTypeIcon = new JLabel(resourceType.getIcon());
+    Ancestors ancestors = soapOp.getAncestors();
+    Service service = ancestors.getService();
+    String title = Resource.getDisplayNameForResource(soapOp);
     
-    jlItemTitle = new JLabel(Resource.getDisplayNameForResource(soapOp), JLabel.LEFT);
-    jlItemTitle.setForeground(Color.decode("#AD0000"));  // very dark red
+    if (service.isSetArchived()) {
+    	jlTypeIcon = new JLabel(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
+    	title = title + " - this operation is archived and probably cannot be used";
+    } else if (service.getServiceTechnologyTypes().getTypeList().contains(ServiceTechnologyType.SOAPLAB)) {
+       	jlTypeIcon = new JLabel(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
+    	title = title + " - this operation can only be used as part of a SoapLab service";
+     }
+    else {
+    	jlTypeIcon = new JLabel(resourceType.getIcon());
+    }
+    
+    jlItemTitle = new JLabel(title, JLabel.LEFT);
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
     
     jlPartOf = new JLabel("<html><b>Part of: </b>" + soapOp.getAncestors().getSoapService().getResourceName() + "</html>");

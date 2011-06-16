@@ -1,13 +1,8 @@
 package net.sf.taverna.biocatalogue.test;
 
-import java.io.InputStreamReader;
-
-import com.google.gson.Gson;
-
 import net.sf.taverna.biocatalogue.model.Resource;
-import net.sf.taverna.biocatalogue.model.Util;
-import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
 import net.sf.taverna.biocatalogue.model.connectivity.BeansForJSONLiteAPI;
+import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
 
 public class GSONTest_forSoapOperationsIndex
 {
@@ -18,7 +13,7 @@ public class GSONTest_forSoapOperationsIndex
    */
   public static void main(String[] args) throws Exception
   {
-    BioCatalogueClient client = new BioCatalogueClient(); 
+    BioCatalogueClient client = BioCatalogueClient.getInstance(); 
     
     String url = BioCatalogueClient.API_SOAP_OPERATIONS_URL;
 //    url = Util.appendURLParameter(url, "q", "blast");

@@ -205,7 +205,7 @@ public class TestAPICaller extends JFrame implements ActionListener {
   		  tpOutputPane.setText("Initialising BioCatalogue client...");
   		  BioCatalogueClient client = null;
         try {
-          client = new BioCatalogueClient();
+          client = BioCatalogueClient.getInstance();
         }
         catch (Exception e) {
           e.printStackTrace();

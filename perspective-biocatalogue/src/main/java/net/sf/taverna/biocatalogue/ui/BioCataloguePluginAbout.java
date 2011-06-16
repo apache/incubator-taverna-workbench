@@ -2,9 +2,11 @@ package net.sf.taverna.biocatalogue.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
 
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -127,8 +129,14 @@ public class BioCataloguePluginAbout extends JPanel implements HasDefaultFocusCa
     		                     "A web page with the feedback form will be displayed.</html>");
     bFeedback.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-        pluginPerspectiveMainComponent.getPreviewBrowser().
-          openInWebBrowser("http://www.taverna.org.uk/about/contact-us/feedback?product=BioCataloguePlugin");
+    	  String target = "http://www.taverna.org.uk/about/contact-us/feedback?product=BioCataloguePlugin";
+		   try {
+				Desktop.getDesktop().browse(new URI(target));
+			    }
+			    catch (Exception ex) {
+			      logger.error("Failed while trying to open the URL in a standard browser; URL was: " +
+			           target + "\nException was: " + ex + "\n" + ex.getStackTrace());
+			    };
       }
     });
     

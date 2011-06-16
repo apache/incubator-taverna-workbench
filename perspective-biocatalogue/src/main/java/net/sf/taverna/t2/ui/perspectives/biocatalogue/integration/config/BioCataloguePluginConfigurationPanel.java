@@ -39,6 +39,7 @@ import org.jdom.Attribute;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 
+import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
 
 
@@ -382,7 +383,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 					candidateBaseURL);
 
 			// also update the base URL in the BioCatalogueClient
-			MainComponentFactory.getSharedInstance().getBioCatalogueClient()
+			BioCatalogueClient.getInstance()
 					.setBaseURL(candidateBaseURL);
 		}
 

@@ -12,6 +12,7 @@ import org.biocatalogue.x2009.xml.rest.TestScript;
 
 import net.sf.taverna.biocatalogue.model.SoapOperationIdentity;
 import net.sf.taverna.biocatalogue.model.Util;
+import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
 import net.sf.taverna.t2.activities.wsdl.WSDLActivity;
 import net.sf.taverna.t2.activities.wsdl.WSDLActivityConfigurationBean;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
@@ -49,8 +50,7 @@ public class BioCatalogueWSDLActivityHealthChecker implements HealthChecker<WSDL
     
     try {
       // make BioCatalogue API request to fetch the data
-      Service serviceWithMonitoringData = MainComponentFactory.getSharedInstance().
-                                          getBioCatalogueClient().lookupParentServiceMonitoringData(soapOpIdentity);
+      Service serviceWithMonitoringData = BioCatalogueClient.getInstance().lookupParentServiceMonitoringData(soapOpIdentity);
       MonitoringStatusLabel.Enum serviceStatusLabel = null;
       
       
