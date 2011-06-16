@@ -21,6 +21,7 @@ import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
 
 import net.sf.taverna.biocatalogue.model.BioCataloguePluginConstants;
+import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 import net.sf.taverna.biocatalogue.model.search.SearchOptions;
 import net.sf.taverna.biocatalogue.ui.search_results.SearchResultsMainPanel;
@@ -60,10 +61,10 @@ private JTextField tfSearchQuery;
     
     c.gridx = 0;
     c.gridy = 0;
-       
-    c.gridx++;
-    c.weightx = 1.0;
-    c.fill = GridBagConstraints.HORIZONTAL;
+    c.weightx = 0.0;
+    c.fill = GridBagConstraints.NONE;
+    
+    
     this.tfSearchQuery = new JTextField(30);
     this.tfSearchQuery.setToolTipText(
         "<html>&nbsp;Tips for creating search queries:<br>" +
@@ -72,6 +73,7 @@ private JTextField tfSearchQuery;
         "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;character (e.g. <b><i>Bla?t</i></b> would match <b><i>Blast</i></b>).<br>" +
         "&nbsp;2) Enclose the <b><i>\"search query\"</i></b> in double quotes to make exact phrase matching, otherwise<br>" +
         "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;items that contain any (or all) words in the <b><i>search query</i></b> will be found.</html>");
+    
     this.tfSearchQuery.addFocusListener(new FocusListener() {
       public void focusGained(FocusEvent e) {
         tfSearchQuery.selectAll();
@@ -87,13 +89,18 @@ private JTextField tfSearchQuery;
         }
       }
     });
-    this.tfSearchQuery.addCaretListener(new CaretListener() {
-      public void caretUpdate(CaretEvent e) {
-        // enable search button if search query is present; disable otherwise
-        bSearch.setEnabled(getSearchQuery().length() > 0);
-      }
-    });
-    this.add(tfSearchQuery, c);
+    JButton jbClearSearch = new DeselectingButton(new AbstractAction("Clear") {
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			tfSearchQuery.setText("");
+			clearSearch();
+		}}, "");
+    jbClearSearch.setIcon(ResourceManager.getImageIcon(ResourceManager.CLEAR_ICON));
+    
+    this.add(jbClearSearch, c);
+    c.gridx++;
+   this.add(tfSearchQuery, c);
     
     
     // --- Search button ---
@@ -101,26 +108,29 @@ private JTextField tfSearchQuery;
     c.gridx++;
     c.weightx = 0;
     c.fill = GridBagConstraints.NONE;
-    this.bSearch = new JButton("Search");
-    this.bSearch.setEnabled(false);      // will be enabled automatically when search query is typed in
-    this.bSearch.setToolTipText(tfSearchQuery.getToolTipText());
-    this.bSearch.setPreferredSize(new Dimension(bSearch.getPreferredSize().width * 2, bSearch.getPreferredSize().height));
-    this.bSearch.addActionListener(new ActionListener() {
-      public void actionPerformed(ActionEvent e) {
-        if (getSearchQuery().length() == 0) {
-          JOptionPane.showMessageDialog(null, "Please specify your search query", "Search - No search query", JOptionPane.WARNING_MESSAGE);
-          thisPanel.focusDefaultComponent();
+    c.anchor = GridBagConstraints.EAST;
+    this.bSearch = new DeselectingButton("Search",
+    		new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+          if (getSearchQuery().length() == 0) {
+            clearSearch();
+          }
+          else {
+            // search query available - collect data about the current search and execute it
+            tabbedSearchResultsPanel.startNewSearch(thisPanel.getState());
+          }
         }
-        else {
-          // search query available - collect data about the current search and execute it
-          tabbedSearchResultsPanel.startNewSearch(thisPanel.getState());
-        }
-      }
-    });
+      },
+      tfSearchQuery.getToolTipText());
+    this.bSearch.setIcon(ResourceManager.getImageIcon(ResourceManager.SEARCH_ICON));
     this.add(bSearch, c);
     
 }
    
+  private void clearSearch() {
+	  tabbedSearchResultsPanel.clearSearch();
+      thisPanel.focusDefaultComponent();
+  }
   
   /**
    * Saves the current state of the search options into a single {@link SearchOptions} object.

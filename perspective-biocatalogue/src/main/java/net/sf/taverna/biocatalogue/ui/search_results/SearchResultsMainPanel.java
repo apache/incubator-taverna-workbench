@@ -471,5 +471,20 @@ public class SearchResultsMainPanel extends JPanel implements ActionListener, Se
   public synchronized SearchInstance getCurrentSearchInstance(TYPE searchType) {
     return this.currentSearchInstances.get(searchType);
   }
+
+
+public void clearSearch() {
+	clearPreviousSearchInstances();
+    for (SearchResultsListingPanel listingPanel : searchResultListings.values()) {
+    	listingPanel.resetSearchResultsListing(true);
+    }
+    for (TYPE t : searchResultListings.keySet()) {
+    	setDefaultTitleForTab(t);
+    }
+    
+    for (FilterTreePane treePanel : currentFilterPanes.values()) {
+    	treePanel.reset();
+    }
+}
   
 }

@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 import net.sf.taverna.biocatalogue.model.LoadingExpandedResource;
@@ -16,6 +17,7 @@ import net.sf.taverna.biocatalogue.model.Resource;
 import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.Util;
+import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.health_check.ServiceMonitoringStatusInterpreter;
 
 import org.biocatalogue.x2009.xml.rest.Service;
 import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
@@ -35,8 +37,10 @@ import org.biocatalogue.x2009.xml.rest.SoapOperation.Ancestors;
 public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListCellRenderer
 {
   private JLabel jlTypeIcon;
+  private JLabel jlItemStatus;
   private JLabel jlItemTitle;
   private JLabel jlPartOf;
+  private JLabel jlWsdlLocation;
   private JLabel jlDescription;
   
   private GridBagConstraints c;
@@ -61,11 +65,13 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
     LoadingResource resource = (LoadingResource)itemToRender;
     
     jlTypeIcon = new JLabel(resourceType.getIcon());
-    
-    jlItemTitle = new JLabel(Resource.getDisplayNameForResource(resource), JLabel.LEFT);
+    jlItemStatus = new JLabel(new ImageIcon(ResourceManager.getResourceLocalURL(ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE)));
+       
+    jlItemTitle = new JLabel("<html>" + Resource.getDisplayNameForResource(resource) + "<font color=\"gray\"><i>- fetching more information</i></font></html>", JLabel.LEFT);
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
    
-    jlPartOf = resource.isLoading() ? loaderBarAnimationGrey : loaderBarAnimationGreyStill;
+    jlPartOf = new JLabel(" ");
+    jlWsdlLocation = new JLabel(" ");
     jlDescription = new JLabel(" ");
     
     return (arrangeLayout(false, false));
@@ -85,24 +91,30 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
     SoapOperation soapOp = (SoapOperation)itemToRender;
     
     Ancestors ancestors = soapOp.getAncestors();
+    SoapService soapService = ancestors.getSoapService();
     Service service = ancestors.getService();
-    String title = Resource.getDisplayNameForResource(soapOp);
+    String title = "<html>" + Resource.getDisplayNameForResource(soapOp);
     
     if (soapOp.isSetArchived() || service.isSetArchived()) {
     	jlTypeIcon = new JLabel(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
-    	title = title + " - this operation is archived and probably cannot be used";
+    	title = title + "<i> - this operation is archived and probably cannot be used</i></html>";
     } else if (service.getServiceTechnologyTypes().getTypeList().contains(ServiceTechnologyType.SOAPLAB)) {
        	jlTypeIcon = new JLabel(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
-    	title = title + " - this operation can only be used as part of a SoapLab service";
-     }
+    	title = title + "<i> - this operation can only be used as part of a SoapLab service</i></html>";
+    }
     else {
     	jlTypeIcon = new JLabel(resourceType.getIcon());
-    }
+    	title = title + "</html>";
+   }
     
+    // service status
+    jlItemStatus = new JLabel(new ImageIcon(ServiceMonitoringStatusInterpreter.getStatusIconURL(service, false)));
     jlItemTitle = new JLabel(title, JLabel.LEFT);
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
     
     jlPartOf = new JLabel("<html><b>Part of: </b>" + soapOp.getAncestors().getSoapService().getResourceName() + "</html>");
+    
+    jlWsdlLocation = new JLabel("<html><b>WSDL location: </b>" + soapService.getWsdlLocation() + "</html>");
     
     int descriptionMaxLength = (expandedView ? DESCRIPTION_MAX_LENGTH_EXPANDED : DESCRIPTION_MAX_LENGTH_COLLAPSED);
     String strDescription = (soapOp.getDescription() == null || soapOp.getDescription().length() == 0 ?
@@ -126,45 +138,55 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
    */
   private GridBagConstraints arrangeLayout(boolean showActionButtons, boolean expanded)
   {
-    // POPULATE PANEL WITH PREPARED COMPONENTS
-    this.setLayout(new GridBagLayout());
-    c = new GridBagConstraints();
-    c.anchor = GridBagConstraints.NORTHWEST;
-    c.fill = GridBagConstraints.HORIZONTAL;
-    
-    c.gridx = 0;
-    c.gridy = 0;
-    c.weightx = 0;
-    c.insets = new Insets(8, 6, 6, 3);
-    this.add(jlTypeIcon, c);
-    
-    c.gridx++;
-    c.weightx = 1.0;
-    c.insets = new Insets(8, 3, 6, 3);
-    this.add(jlItemTitle, c);
-    
-    if (showActionButtons) {
-      c.gridx++;
-      c.gridheight = 3;
-      c.weightx = 0;
-      c.weighty = 1.0;
-      jlExpand = new JLabel(ResourceManager.getImageIcon((expanded ? ResourceManager.FOLD_ICON : ResourceManager.UNFOLD_ICON)));
-      this.add(jlExpand, c);
-    }
-    
-    c.gridx = 1;
-    c.gridy++;
-    c.gridheight = 1;
-    c.weightx = 1.0;
-    c.weighty = 0;
-    c.insets = new Insets(3, 3, 3, 3);
-    this.add(jlPartOf, c);
-    
-    c.gridy++;
-    c.insets = new Insets(3, 3, 8, 3);
-    this.add(jlDescription, c);
-    
-    return (c);
+	   // POPULATE PANEL WITH PREPARED COMPONENTS
+	    this.setLayout(new GridBagLayout());
+	    c = new GridBagConstraints();
+	    c.anchor = GridBagConstraints.NORTHWEST;
+	    c.fill = GridBagConstraints.HORIZONTAL;
+	    
+	    c.gridx = 0;
+	    c.gridy = 0;
+	    c.weightx = 0;
+	    c.insets = new Insets(8, 6, 6, 3);
+	    this.add(jlTypeIcon, c);
+	    
+	    c.gridx++;
+	    c.weightx = 1.0;
+	    c.insets = new Insets(8, 3, 6, 3);
+	    this.add(jlItemTitle, c);
+	    
+	    c.gridx++;
+	    c.gridheight = 5;
+	    c.weightx = 0;
+	    c.weighty = 1.0;
+	    this.add(jlItemStatus, c);	    
+	    
+	    if (showActionButtons) {
+	      c.gridx++;
+	      c.gridheight = 5;
+	      c.weightx = 0;
+	      c.weighty = 1.0;
+	      jlExpand = new JLabel(ResourceManager.getImageIcon((expanded ? ResourceManager.FOLD_ICON : ResourceManager.UNFOLD_ICON)));
+	      this.add(jlExpand, c);
+	    }
+	    
+	    c.gridx = 1;
+	    c.gridy++;
+	    c.gridheight = 1;
+	    c.weightx = 0;
+	    c.weighty = 0;
+	    c.insets = new Insets(3, 3, 8, 3);
+	    this.add(jlPartOf, c);
+	    
+	    c.gridy++;
+	    c.insets = new Insets(3, 3, 8, 3);
+	    this.add(jlWsdlLocation, c);
+	    
+	    c.gridy++;
+	    c.insets = new Insets(3, 3, 8, 3);
+	    this.add(jlDescription, c);
+	    
+	    return (c);
   }
   
   
@@ -221,5 +243,25 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
       this.add(new JLabel(soapOutputs), c);
     }
   }
+
+
+@Override
+boolean shouldBeHidden(Object itemToRender) {
+	if (!(itemToRender instanceof SoapOperation)) {
+		return false;
+	}
+	SoapOperation soapOp = (SoapOperation) itemToRender;
+	   Ancestors ancestors = soapOp.getAncestors();
+	    Service service = ancestors.getService();
+	    if (soapOp.isSetArchived() || service.isSetArchived()) {
+	    	return true;
+	    } else if (service.getServiceTechnologyTypes().getTypeList().contains(ServiceTechnologyType.SOAPLAB)) {
+	       	return true;
+	    }
+	    else {
+	    	return false;
+	   }
+
+}
   
 }

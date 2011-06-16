@@ -23,6 +23,9 @@ import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
 
 import org.biocatalogue.x2009.xml.rest.ResourceLink;
+import org.biocatalogue.x2009.xml.rest.Service;
+import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
+import org.biocatalogue.x2009.xml.rest.SoapOperation.Ancestors;
 
 
 /**
@@ -115,7 +118,13 @@ public abstract class ExpandableOnDemandLoadedListCellRenderer extends JPanel im
     
     
     // MAKE SURE CELL SELECTION WORKS AS DESIRED
-    if (isSelected) {
+    if (shouldBeHidden(itemToRender)) {
+        this.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(3, 4, 3, 4, list.getBackground()),
+                BorderFactory.createLineBorder(Color.DARK_GRAY)));
+        setBackground(list.getBackground());
+        setForeground(list.getBackground());
+    }
+    else if (isSelected) {
       this.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createMatteBorder(3, 4, 3, 4, list.getBackground()),
                                                         BorderFactory.createLineBorder(Color.DARK_GRAY)));
         setBackground(Color.decode("#BAE8FF"));         // very light blue colour
@@ -218,5 +227,7 @@ public abstract class ExpandableOnDemandLoadedListCellRenderer extends JPanel im
       return (null);
     }
   }
+  
+  abstract boolean shouldBeHidden(Object itemToRender);
   
 }

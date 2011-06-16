@@ -205,9 +205,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 						.getImageIcon(ResourceManager.ADD_ALL_SERVICES_AS_FAVOURITE_ICON)) {
 			// Tooltip
 			{
-				this.putValue(SHORT_DESCRIPTION, "Add all operations of the selected "
-						+ typeToPreview.getTypeName()
-						+ " to the Service Panel");
+				this.putValue(SHORT_DESCRIPTION, "Add all associated services to the Service Panel");
 			}
 
 			public void actionPerformed(ActionEvent e) {
@@ -401,14 +399,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 				.getResultListingCellRenderer());
 		jlResultsListing.addMouseListener(this);
 		jlResultsListing.addMouseMotionListener(this);
-		jlResultsListing.setBackground(Color.decode("#ECE9D8")); // default
-																	// "grey"
-																	// background
-																	// colour
-																	// that is
-																	// used in
-																	// all
-																	// windows
+		jlResultsListing.setBackground(thisPanel.getBackground());
 
 		jlResultsListing.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		jlResultsListing.addListSelectionListener(new ListSelectionListener() {
@@ -525,14 +516,13 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 	 *            <code>false</code> to be used when resetting the panel after
 	 *            perfoming the search, but not finding any results.
 	 */
-	protected void resetSearchResultsListing(boolean showSuggestion) {
+	public void resetSearchResultsListing(boolean showSuggestion) {
 		setSearchStatusText("No searches were made yet", false);
 
 		String labelText = "<html><center>"
 				+ (showSuggestion ? "You can find "
 						+ this.typeToPreview.getCollectionName()
-						+ " by typing a search query or choosing<br>"
-						+ "several tags at the top of the panel."
+						+ " by typing a search query."
 						+ (this.typeToPreview.isSuitableForFiltering() ? "<br><br>Alternatively, you can select some filters from the tree on the left."
 								: "")
 						: "There are no "

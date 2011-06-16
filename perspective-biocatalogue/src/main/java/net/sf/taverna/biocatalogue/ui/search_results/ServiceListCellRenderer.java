@@ -280,5 +280,11 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
       this.add(new JLabel(locationString),c);
     }
   }
+
+
+@Override
+boolean shouldBeHidden(Object itemToRender) {
+	return false;
+}
   
 }

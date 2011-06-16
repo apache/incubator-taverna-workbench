@@ -3,6 +3,8 @@ package net.sf.taverna.biocatalogue.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -62,9 +64,22 @@ public class BioCatalogueExplorationTab extends JPanel implements HasDefaultFocu
     this.tabbedSearchResultsPanel = new SearchResultsMainPanel();
     this.searchOptionsPanel = new SearchOptionsPanel(tabbedSearchResultsPanel);
     
-    this.setLayout(new BorderLayout(0, 10));
-    this.add(searchOptionsPanel, BorderLayout.NORTH);
-    this.add(tabbedSearchResultsPanel, BorderLayout.CENTER);
+    this.setLayout(new GridBagLayout());
+    GridBagConstraints c = new GridBagConstraints();
+    
+    c.gridx = 0;
+    c.gridy = 0;
+    c.weightx = 0.0;
+    c.fill = GridBagConstraints.NONE;
+    c.anchor = GridBagConstraints.EAST;
+    
+    this.add(searchOptionsPanel, c);
+    
+    c.gridy++;
+    c.weightx = c.weighty = 1.0;
+    c.fill = GridBagConstraints.BOTH;
+    c.anchor = GridBagConstraints.CENTER;
+    this.add(tabbedSearchResultsPanel, c);
     
     this.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10));
   }

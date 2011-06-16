@@ -241,7 +241,7 @@ private JToolBar createTreeActionToolbar()
 					}
 
 					FilterTreeNode fNode = new FilterTreeNode("<html><span color=\"black\"" /*(FilterTreeNode.isTagWithNamespaceNode(filterCategory, f.getUrlValue()) ? " style=\"text-decoration: underline;\"" : "") */ + ">" +
-                               StringEscapeUtils.escapeHtml(f.getName()) + "(" + f.getCount() + ")" + "</span>" +
+                               StringEscapeUtils.escapeHtml(f.getName()) + " (" + f.getCount() + ")" + "</span>" +
                                /*(FilterTreeNode.isTagWithNamespaceNode(filterCategory, f.getUrlValue()) ? "<span color=\"gray\">&nbsp;("+f.getCount().intValue()+")</span></html>" : "</html>"),*/
                                (ontology != null ? "<span color=\"#3090C7\"> &lt;"+ ontology +"&gt;</span></html>" : "</html>"),
                                filterCategory, f.getUrlValue());
@@ -338,5 +338,11 @@ private JToolBar createTreeActionToolbar()
     MainComponentFactory.getSharedInstance().getBioCatalogueExplorationTab().getTabbedSearchResultsPanel().
         startNewFiltering(resourceType, new ServiceFilteringSettings(filterTree));
   }
+
+
+public void reset() {
+    this.filtersURL = resourceType.getAPIResourceCollectionFiltersURL();
+	loadFiltersAndBuildTheTree();
+}
   
 }

@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 import net.sf.taverna.biocatalogue.model.LoadingExpandedResource;
@@ -16,6 +17,7 @@ import net.sf.taverna.biocatalogue.model.Resource;
 import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.Util;
+import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.health_check.ServiceMonitoringStatusInterpreter;
 
 import org.biocatalogue.x2009.xml.rest.RestMethod;
 import org.biocatalogue.x2009.xml.rest.RestMethod.Ancestors;
@@ -24,6 +26,7 @@ import org.biocatalogue.x2009.xml.rest.RestParameter;
 import org.biocatalogue.x2009.xml.rest.RestRepresentation;
 import org.biocatalogue.x2009.xml.rest.Service;
 import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
+import org.biocatalogue.x2009.xml.rest.SoapOperation;
 
 
 /**
@@ -34,6 +37,7 @@ import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
 public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCellRenderer
 {
   private JLabel jlTypeIcon;
+  private JLabel jlItemStatus;
   private JLabel jlItemTitle;
   private JLabel jlPartOf;
   private JLabel jlDescription;
@@ -61,11 +65,12 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     LoadingResource resource = (LoadingResource)itemToRender;
     
     jlTypeIcon = new JLabel(resourceType.getIcon());
+    jlItemStatus = new JLabel(new ImageIcon(ResourceManager.getResourceLocalURL(ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE)));
     
-    jlItemTitle = new JLabel(Resource.getDisplayNameForResource(resource), JLabel.LEFT);
+    jlItemTitle = new JLabel("<html>" + Resource.getDisplayNameForResource(resource) + "<font color=\"gray\"><i>- fetching more information</i></font></html>", JLabel.LEFT);
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
    
-    jlPartOf = resource.isLoading() ? loaderBarAnimationGrey : loaderBarAnimationGreyStill;
+    jlPartOf = new JLabel("");
     jlDescription = new JLabel(" ");
     
     return (arrangeLayout(false, false));
@@ -86,17 +91,20 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     
     Ancestors ancestors = restMethod.getAncestors();
     Service service = ancestors.getService();
-    String title = Resource.getDisplayNameForResource(restMethod);
+    String title = "<html>" + Resource.getDisplayNameForResource(restMethod);
 
     if (restMethod.isSetArchived() || service.isSetArchived()) {
     	jlTypeIcon = new JLabel(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
-    	title = title + " - this operation is archived and probably cannot be used";
+    	title = title + "<i> - this operation is archived and probably cannot be used</i></html>";
     }
     else {
     	jlTypeIcon = new JLabel(resourceType.getIcon());
+    	title = title + "</html>";
     }
     
-    jlItemTitle = new JLabel(Resource.getDisplayNameForResource(restMethod), JLabel.LEFT);
+    // service status
+    jlItemStatus = new JLabel(new ImageIcon(ServiceMonitoringStatusInterpreter.getStatusIconURL(service, false)));
+    jlItemTitle = new JLabel(title, JLabel.LEFT);
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
     
     jlPartOf = new JLabel("<html><b>Part of: </b>" + restMethod.getAncestors().getRestService().getResourceName() + "</html>");
@@ -139,6 +147,12 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     c.insets = new Insets(8, 3, 6, 3);
     this.add(jlItemTitle, c);
     
+    c.gridx++;
+    c.gridheight = 3;
+    c.weightx = 0;
+    c.weighty = 1.0;
+    this.add(jlItemStatus, c);	    
+
     if (showActionButtons) {
       c.gridx++;
       c.gridheight = 3;
@@ -153,7 +167,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     c.gridheight = 1;
     c.weightx = 1.0;
     c.weighty = 0;
-    c.insets = new Insets(3, 3, 3, 3);
+    c.insets = new Insets(3, 3, 8, 3);
     this.add(jlPartOf, c);
     
     c.gridy++;
@@ -244,5 +258,27 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
       this.add(new JLabel(outputRerpresentations), c);
     }
   }
+
+
+
+@Override
+boolean shouldBeHidden(Object itemToRender) {
+	if (!(itemToRender instanceof RestMethod)) {
+		return false;
+	}
+    RestMethod restMethod = (RestMethod)itemToRender;;
+    
+    Ancestors ancestors = restMethod.getAncestors();
+    Service service = ancestors.getService();
+    String title = Resource.getDisplayNameForResource(restMethod);
+
+    if (restMethod.isSetArchived() || service.isSetArchived()) {
+    	return true;
+    }
+    else {
+    	return false;
+    }
+
+}
   
 }
