@@ -77,8 +77,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		SearchResultsRenderer, MouseMotionListener {
 	public static final int SEARCH_STATUS_TOOLTIP_LINE_LENGTH = 65;
 
-	// main elements
-	private final MainComponent pluginPerspectiveMainComponent;
 	private final Logger logger;
 	private final SearchResultsMainPanel parentMainSearchResultsPanel;
 
@@ -127,7 +125,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 
 		this.typeToPreview = typeToPreview;
 		this.parentMainSearchResultsPanel = parentMainSearchResultsPanel;
-		this.pluginPerspectiveMainComponent = MainComponentFactory
+		MainComponentFactory
 				.getSharedInstance();
 		this.logger = Logger.getLogger(this.getClass());
 
@@ -1107,54 +1105,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 						+ si.getResourceTypeToSearchFor().getCollectionName());
 			}
 		});
-	}
-
-	// *** Specialised JList class ***
-
-	/**
-	 * This is a modification over the regular JList. The only difference is
-	 * that the tooltip will be shown directly below the row over which the
-	 * mouse currently hovers.
-	 * 
-	 * @author Sergejs Aleksejevs
-	 */
-	private class JListWithPositionedToolTip extends JList {
-		// can't easily get width of cursor from Java - this will be used to pad
-		// the tooltip exactly to the right of the cursor
-		private static final int CURSOR_WIDTH = 12;
-
-		// the following 2 variables help decide whether the mouse has
-		// moved within the row for which the tooltip is currently shown or
-		// not - in the first case, position of the tooltip will stay the same;
-		// in the second it will be updated
-		private int indexOflastRowWithTooltip = -1;
-		private Point lastToolTipLocation = null;
-
-		public JListWithPositionedToolTip(ListModel listModel) {
-			super(listModel);
-		}
-
-		public Point getToolTipLocation(MouseEvent e) {
-			int iListRowIdx = locationToIndex(e.getPoint());
-			if (iListRowIdx != -1) {
-				// mouse is over one of the rows
-				if (iListRowIdx == indexOflastRowWithTooltip) {
-					// keep old tooltip position
-					return (lastToolTipLocation);
-				} else {
-					// calculate new tooltip position
-					indexOflastRowWithTooltip = iListRowIdx;
-					lastToolTipLocation = new Point(e.getX() + CURSOR_WIDTH,
-							(int) getCellBounds(iListRowIdx, iListRowIdx)
-									.getMaxY());
-					return (lastToolTipLocation);
-				}
-			} else {
-				// let ToolTipManager decide where to display the tooltip if it
-				// will be shown
-				return (null);
-			}
-		}
 	}
 
 	private void switchToDesignPerspective() {

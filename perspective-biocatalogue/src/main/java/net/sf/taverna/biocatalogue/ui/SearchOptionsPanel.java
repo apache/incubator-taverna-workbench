@@ -39,7 +39,6 @@ public class SearchOptionsPanel extends JPanel implements HasDefaultFocusCapabil
   
 private JTextField tfSearchQuery;
   private JButton bSearch;
-  private JButton tagCloudButton;
   
   private final SearchResultsMainPanel tabbedSearchResultsPanel;
   
@@ -120,21 +119,7 @@ private JTextField tfSearchQuery;
     });
     this.add(bSearch, c);
     
-    
-    // --- Clickable label that invokes tag cloud selection dialog ---
-    
-    c.gridx = 2;
-    c.gridy++;
-    c.weightx = 0;
-    c.anchor = GridBagConstraints.WEST;
-    this.tagCloudButton = new DeselectingButton(new AbstractAction("Choose tags") {
-          public void actionPerformed(ActionEvent e) {
-            TagSelectionDialog tagSelectionDialog = new TagSelectionDialog(Arrays.asList(TYPE.values()));
-            tagSelectionDialog.setVisible(true);
-          }
-        });
-    this.add(tagCloudButton, c);
-  }
+}
    
   
   /**

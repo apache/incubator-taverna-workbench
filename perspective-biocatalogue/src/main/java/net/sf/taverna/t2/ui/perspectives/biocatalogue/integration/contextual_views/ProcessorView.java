@@ -1,10 +1,15 @@
 package net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.contextual_views;
 
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
 import java.rmi.activation.UnknownObjectException;
 
 import javax.swing.AbstractAction;
@@ -24,6 +29,7 @@ import net.sf.taverna.biocatalogue.model.BioCataloguePluginConstants;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.SoapOperationIdentity;
 import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
+import net.sf.taverna.t2.lang.ui.DeselectingButton;
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.Integration;
@@ -75,7 +81,7 @@ public class ProcessorView extends ContextualView {
           
           if (client != null) {
             try {
-              SoapOperation soapOperation = client.lookupSoapOperation(operationDetails);
+              final SoapOperation soapOperation = client.lookupSoapOperation(operationDetails);
               if (soapOperation == null) {
             	  SwingUtilities.invokeLater(new RefreshThread(new JLabel("This service is not registered in BioCatalogue",
                           UIManager.getIcon("OptionPane.warningIcon"), JLabel.CENTER)));
@@ -93,27 +99,15 @@ public class ProcessorView extends ContextualView {
               // *** managed to get all necessary data successfully - present it ***
               
               // create status update panel
-              JButton jclServiceStatus = new JButton(
+              JButton jclServiceStatus = new DeselectingButton(
                   new AbstractAction("Check monitoring status") {
                     public void actionPerformed(ActionEvent e) {
                       ServiceHealthChecker.checkWSDLProcessor(operationDetails);
                     }
                   });
+              jclServiceStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
               JLabel jlStatusMessage = new JLabel(parentService.getLatestMonitoringStatus().getMessage());
-              
-              JPanel jpStatusMessage = new JPanel();
-              jpStatusMessage.setAlignmentY(Component.CENTER_ALIGNMENT);
-              jpStatusMessage.setLayout(new BoxLayout(jpStatusMessage, BoxLayout.Y_AXIS));
-              jpStatusMessage.add(jlStatusMessage);
-              jpStatusMessage.add(jclServiceStatus);
-                           
-              JPanel jpServiceStatus = new JPanel();
-              jpServiceStatus.setAlignmentX(Component.LEFT_ALIGNMENT);
-              jpServiceStatus.setLayout(new BoxLayout(jpServiceStatus, BoxLayout.X_AXIS));
-              jpServiceStatus.add(new JLabel(ServiceMonitoringStatusInterpreter.getStatusIcon(parentService, false)));
-              jpServiceStatus.add(Box.createHorizontalStrut(10));
-              jpServiceStatus.add(jpStatusMessage);
-              
+              jlStatusMessage.setAlignmentX(Component.LEFT_ALIGNMENT);             
               
               // operation description
               String operationDescription = (soapOperation.getDescription().length() > 0 ?
@@ -124,15 +118,44 @@ public class ProcessorView extends ContextualView {
  
               jlOperationDescription.setAlignmentX(Component.LEFT_ALIGNMENT);              
               
-              // put everything together
+              // a button to open preview of the service
+              JButton jbLaunchProcessorPreview = new DeselectingButton("Show on BioCatalogue",
+            		  new ActionListener() {
+                  public void actionPerformed(ActionEvent e) {
+                    if (!operationDetails.hasError()) {
+                  	  String hrefString = soapOperation.getHref();
+     				   try {
+  						Desktop.getDesktop().browse(new URI(hrefString));
+  					    }
+  					    catch (Exception ex) {
+  					      logger.error("Failed while trying to open the URL in a standard browser; URL was: " +
+  					           hrefString + "\nException was: " + ex + "\n" + ex.getStackTrace());
+  					    };
+                    }
+                    else {
+                      // this error message comes from Integration class extracting SOAP operation details from the contextual selection
+                      JOptionPane.showMessageDialog(null, operationDetails.getErrorDetails(), "BioCatalogue Plugin - Error", JOptionPane.WARNING_MESSAGE);
+                    }
+                  }
+                },
+                "View this service on BioCatalogue");
+              
+              JPanel jpPreviewButtonPanel = new JPanel();
+              jpPreviewButtonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+              jbLaunchProcessorPreview.setAlignmentX(Component.LEFT_ALIGNMENT);
+ //             jpPreviewButtonPanel.add(jbLaunchProcessorPreview);
+             // put everything together
               JPanel jpInnerPane = new JPanel();
               jpInnerPane.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
               jpInnerPane.setLayout(new BoxLayout(jpInnerPane, BoxLayout.Y_AXIS));
               jpInnerPane.add(jlOperationDescription);
               jpInnerPane.add(Box.createVerticalStrut(10));
-              jpInnerPane.add(jpServiceStatus);
+              jpInnerPane.add(jlStatusMessage);
               jpInnerPane.add(Box.createVerticalStrut(10));
-              
+              jpInnerPane.add(jclServiceStatus);
+              jpInnerPane.add(Box.createVerticalStrut(10));
+              jpInnerPane.add(jbLaunchProcessorPreview);
+             
               JScrollPane spInnerPane = new JScrollPane(jpInnerPane);
               
               SwingUtilities.invokeLater(new RefreshThread(spInnerPane));

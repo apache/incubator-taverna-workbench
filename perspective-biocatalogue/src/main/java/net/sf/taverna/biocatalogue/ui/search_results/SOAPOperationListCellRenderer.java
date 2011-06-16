@@ -63,9 +63,8 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
     jlTypeIcon = new JLabel(resourceType.getIcon());
     
     jlItemTitle = new JLabel(Resource.getDisplayNameForResource(resource), JLabel.LEFT);
-    jlItemTitle.setForeground(Color.decode("#AD0000"));  // very dark red
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
-    
+   
     jlPartOf = resource.isLoading() ? loaderBarAnimationGrey : loaderBarAnimationGreyStill;
     jlDescription = new JLabel(" ");
     
@@ -89,7 +88,7 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
     Service service = ancestors.getService();
     String title = Resource.getDisplayNameForResource(soapOp);
     
-    if (service.isSetArchived()) {
+    if (soapOp.isSetArchived() || service.isSetArchived()) {
     	jlTypeIcon = new JLabel(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
     	title = title + " - this operation is archived and probably cannot be used";
     } else if (service.getServiceTechnologyTypes().getTypeList().contains(ServiceTechnologyType.SOAPLAB)) {

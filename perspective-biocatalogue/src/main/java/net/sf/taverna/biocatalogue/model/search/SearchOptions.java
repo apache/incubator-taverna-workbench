@@ -6,7 +6,6 @@ import java.util.List;
 import net.sf.taverna.biocatalogue.model.Tag;
 import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 import net.sf.taverna.biocatalogue.ui.SearchOptionsPanel;
-import net.sf.taverna.biocatalogue.ui.TagSelectionDialog;
 
 /**
  * Instances of this class can store the state of the

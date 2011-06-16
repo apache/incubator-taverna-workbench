@@ -18,8 +18,12 @@ import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.Util;
 
 import org.biocatalogue.x2009.xml.rest.RestMethod;
+import org.biocatalogue.x2009.xml.rest.RestMethod.Ancestors;
+
 import org.biocatalogue.x2009.xml.rest.RestParameter;
 import org.biocatalogue.x2009.xml.rest.RestRepresentation;
+import org.biocatalogue.x2009.xml.rest.Service;
+import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
 
 
 /**
@@ -59,9 +63,8 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     jlTypeIcon = new JLabel(resourceType.getIcon());
     
     jlItemTitle = new JLabel(Resource.getDisplayNameForResource(resource), JLabel.LEFT);
-    jlItemTitle.setForeground(Color.decode("#AD0000"));  // very dark red
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
-    
+   
     jlPartOf = resource.isLoading() ? loaderBarAnimationGrey : loaderBarAnimationGreyStill;
     jlDescription = new JLabel(" ");
     
@@ -81,10 +84,19 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     TYPE resourceType = determineResourceType(itemToRender);
     RestMethod restMethod = (RestMethod)itemToRender;;
     
-    jlTypeIcon = new JLabel(resourceType.getIcon());
+    Ancestors ancestors = restMethod.getAncestors();
+    Service service = ancestors.getService();
+    String title = Resource.getDisplayNameForResource(restMethod);
+
+    if (restMethod.isSetArchived() || service.isSetArchived()) {
+    	jlTypeIcon = new JLabel(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
+    	title = title + " - this operation is archived and probably cannot be used";
+    }
+    else {
+    	jlTypeIcon = new JLabel(resourceType.getIcon());
+    }
     
     jlItemTitle = new JLabel(Resource.getDisplayNameForResource(restMethod), JLabel.LEFT);
-    jlItemTitle.setForeground(Color.decode("#AD0000"));  // very dark red
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
     
     jlPartOf = new JLabel("<html><b>Part of: </b>" + restMethod.getAncestors().getRestService().getResourceName() + "</html>");
