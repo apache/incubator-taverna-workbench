@@ -81,15 +81,15 @@ public class BioCatalogueWSDLActivityHealthChecker implements HealthChecker<WSDL
         serviceStatusLabel = serviceWithMonitoringData.getLatestMonitoringStatus().getLabel();
         switch (serviceStatusLabel.intValue()) {
           case MonitoringStatusLabel.INT_PASSED:
-            visitReportLabel = "BioCatalogue: all tests passed " + agoString;
-            visitReportExplanation = "BioCatalogue reports that all available tests for this WSDL service have " +
+            visitReportLabel = "Service Catalogue: all tests passed " + agoString;
+            visitReportExplanation = "The Service Catalogue reports that all available tests for this WSDL service have " +
             		                     "been successful. They have been last executed " + agoString;
             status = Status.OK;
             break;
                   
           case MonitoringStatusLabel.INT_WARNING:
           case MonitoringStatusLabel.INT_FAILED:
-            visitReportLabel = "BioCatalogue: some tests failed " + agoString;
+            visitReportLabel = "Service Catalogue: some tests failed " + agoString;
             visitReportExplanation = "Some test scripts for this WSDL service have failed";
             
             // only extract data about failing test scripts
@@ -112,11 +112,11 @@ public class BioCatalogueWSDLActivityHealthChecker implements HealthChecker<WSDL
             return (null);
                   
           default:
-            visitReportLabel = "BioCatalogue: unknown monitoring status received - \"" + serviceStatusLabel.toString() + "\"";
-            visitReportExplanation = "BioCatalogue has returned a new monitoring status for this service: \"" +
+            visitReportLabel = "Service Catalogue: unknown monitoring status received - \"" + serviceStatusLabel.toString() + "\"";
+            visitReportExplanation = "The Service Catalogue has returned a new monitoring status for this service: \"" +
                                      serviceStatusLabel.toString() + "\"\n\n" +
-                                     "It has never been used before and probably indicates a change in the BioCatalogue API. " +
-                                     "Please report this issue to the BioCatalogue developers.";
+                                     "It has never been used before and probably indicates a change in the Service Catalogue API. " +
+                                     "Please report this issue to the Service Catalogue developers.";
             status = Status.WARNING;
             break;
         }
@@ -159,7 +159,7 @@ public class BioCatalogueWSDLActivityHealthChecker implements HealthChecker<WSDL
           
           // only proceed if this test wasn't run too long ago
           if (agoString != null) {
-            String label = "BioCatalogue: \"" + testScript.getName() + "\" test script " + test.getLatestStatus().getLabel();
+            String label = "Service Catalogue: \"" + testScript.getName() + "\" test script " + test.getLatestStatus().getLabel();
             VisitReport report = new VisitReport(BioCatalogueWSDLActivityHealthCheck.getInstance(), activity, 
                 label, BioCatalogueWSDLActivityHealthCheck.MESSAGE_IN_VISIT_REPORT,
                 ServiceMonitoringStatusInterpreter.translateBioCatalogueStatusForTaverna(test.getLatestStatus().getLabel()));

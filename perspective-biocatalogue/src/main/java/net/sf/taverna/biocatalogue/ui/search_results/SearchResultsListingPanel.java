@@ -165,11 +165,11 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 			public void actionPerformed(ActionEvent e) {
 				final JWaitDialog jwd = new JWaitDialog(
 						MainComponent.dummyOwnerJFrame,
-						"BioCatalogue Plugin - Adding "
+						"Service Catalogue Plugin - Adding "
 								+ typeToPreview.getTypeName(),
 						"<html><center>Please wait for selected "
 								+ typeToPreview.getTypeName()
-								+ " details to be fetched from BioCatalogue<br>"
+								+ " details to be fetched from the Service Catalogue<br>"
 								+ "and to be added into the Service Panel.</center></html>");
 
 				new Thread("Adding " + typeToPreview.getTypeName()
@@ -211,11 +211,11 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 			public void actionPerformed(ActionEvent e) {
 				final JWaitDialog jwd = new JWaitDialog(
 						MainComponent.dummyOwnerJFrame,
-						"BioCatalogue Plugin - Adding "
+						"Service Catalogue Plugin - Adding "
 								+ typeToPreview.getTypeName(),
 						"<html><center>Please wait for selected "
 								+ typeToPreview.getTypeName()
-								+ " details to be fetched from BioCatalogue<br>"
+								+ " details to be fetched from the Service Catalogue<br>"
 								+ "and to be added into the Service Panel.</center></html>");
 
 				new Thread("Adding all operations of " + typeToPreview.getTypeName()
@@ -257,11 +257,11 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 			public void actionPerformed(ActionEvent e) {
 				final JWaitDialog jwd = new JWaitDialog(
 						MainComponent.dummyOwnerJFrame,
-						"BioCatalogue Plugin - Adding "
+						"Service Catalogue Plugin - Adding "
 								+ typeToPreview.getTypeName(),
 						"<html><center>Please wait for selected "
 								+ typeToPreview.getTypeName()
-								+ " details to be fetched from BioCatalogue<br>"
+								+ " details to be fetched from the Service Catalogue<br>"
 								+ "and to be added into the current workflow.</center></html>");
 
 				new Thread("Adding " + typeToPreview.getTypeName()
@@ -290,14 +290,14 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		};
 
 		this.openInBioCatalogueAction = new AbstractAction(
-				"Open in BioCatalogue",
+				"Open in the Service Catalogue",
 				ResourceManager
 						.getImageIcon(ResourceManager.OPEN_IN_BIOCATALOGUE_ICON)) {
 			// Tooltip
 			{
 				this.putValue(SHORT_DESCRIPTION, "<html>View selected "
 						+ typeToPreview.getTypeName()
-						+ " on the BioCatalogue Web site.<br>"
+						+ " on the Service Catalogue Web site.<br>"
 						+ "This will open your standard Web browser.</html>");
 			}
 
@@ -325,7 +325,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 								"<html>Fetch the latest monitoring data for selected "
 										+ typeToPreview.getTypeName()
 										+ ".<br>"
-										+ "Data will be obtained from BioCatalogue and displayed in a popup window.</html>");
+										+ "Data will be obtained from the Service Catalogue and displayed in a popup window.</html>");
 			}
 
 			public void actionPerformed(ActionEvent e) {
@@ -691,7 +691,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 									thisPanel, pageToFetchNumber);
 						} catch (Exception e) {
 							System.err
-									.println("\n\nError while searching via BioCatalogue API. Error details:");
+									.println("\n\nError while searching via the Service Catalogue API. Error details:");
 							e.printStackTrace();
 						}
 					}
@@ -1015,7 +1015,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 									MainWindow.getMainWindow(),
 									"Unexpected error while trying "
 											+ "to load additional details for the selected list entry",
-									"BioCatalogue Plugin",
+									"Service Catalogue Plugin",
 									JOptionPane.ERROR_MESSAGE);
 					logger.error(
 							"Unexpected error while trying to load additional details for a "

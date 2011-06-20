@@ -71,7 +71,7 @@ public class ServiceHealthChecker
     else {
       // for some reason the URL of the service wasn't provided...
       JOptionPane.showMessageDialog(null, "Cannot provide monitoring status for this service - " +
-      		                          "unknown service URL", "BioCatalogue Plugin - Error", JOptionPane.ERROR_MESSAGE);
+      		                          "unknown service URL", "Service Catalogue Error", JOptionPane.ERROR_MESSAGE);
     }
   }
   
@@ -87,7 +87,7 @@ public class ServiceHealthChecker
     else {
       // for some reason resource object wasn't provided...
       JOptionPane.showMessageDialog(null, "Cannot provide monitoring status - " +
-                                    "null reference received", "BioCatalogue Plugin - Error", JOptionPane.ERROR_MESSAGE);
+                                    "null reference received", "Service Catalogue Error", JOptionPane.ERROR_MESSAGE);
     }
   }
   
@@ -106,7 +106,7 @@ public class ServiceHealthChecker
     }
     else {
       // this error message comes from Integration class extracting SOAP operation details from the contextual selection
-      JOptionPane.showMessageDialog(null, soapOperationDetails.getErrorDetails(), "BioCatalogue Plugin - Error", JOptionPane.WARNING_MESSAGE);
+      JOptionPane.showMessageDialog(null, soapOperationDetails.getErrorDetails(), "Service Catalogue Error", JOptionPane.WARNING_MESSAGE);
     }
   }
   
@@ -173,8 +173,8 @@ public class ServiceHealthChecker
             }
             else {
               JOptionPane.showMessageDialog(jwd, "Unexpected resource type - can't execute health check for this",
-                  "BioCatalogue Plugin - Error", JOptionPane.ERROR_MESSAGE);
-              	logger.error("Biocatalogue Plugin: Could not perform health check for" + resourceType);
+                  "Service Catalogue Error", JOptionPane.ERROR_MESSAGE);
+              	logger.error("Service Catalogue: Could not perform health check for" + resourceType);
             }
           }
           
@@ -184,13 +184,13 @@ public class ServiceHealthChecker
           SwingUtilities.invokeLater(new Runnable() {
             public void run() {
               if (serviceWithMonitoringData == null) {
-                jwd.setTitle("BioCatalogue Plugin - Information");
-                jwd.waitFinished(new JLabel("There is no information about this "+itemToCheck+" in BioCatalogue",
+                jwd.setTitle("Service Catalogue - Information");
+                jwd.waitFinished(new JLabel("There is no information about this "+itemToCheck+" in the Service Catalogue",
                     UIManager.getIcon("OptionPane.informationIcon"), JLabel.CENTER));
               }
               else if (serviceWithMonitoringData.getLatestMonitoringStatus() == null) {
-                jwd.setTitle("BioCatalogue Plugin - Warning");
-                jwd.waitFinished(new JLabel("This "+itemToCheck+" is known to BioCatalogue, but no monitoring data was available.",
+                jwd.setTitle("Service Catalogue Warning");
+                jwd.waitFinished(new JLabel("This "+itemToCheck+" is known to the Service Catalogue, but no monitoring data was available.",
                     UIManager.getIcon("OptionPane.warningIcon"), JLabel.CENTER));
               }
               else
@@ -258,15 +258,15 @@ public class ServiceHealthChecker
                              BorderLayout.WEST);
                 jpHealthCheckStatus.add(jspStatusMessages, BorderLayout.CENTER);
                 
-                jwd.setTitle("BioCatalogue Plugin - Monitoring Status");
+                jwd.setTitle("Service Catalogue - Monitoring Status");
                 jwd.waitFinished(jpHealthCheckStatus);
               }
             }
           });
         }
         catch (Exception e) {
-          logger.error("Biocatalogue Plugin: Error occurred while checking status of selected", e);
-          jwd.setTitle("BioCatalogue Plugin - Error");
+          logger.error("Service Catalogue: Error occurred while checking status of selected", e);
+          jwd.setTitle("Service Catalogue - Error");
           jwd.waitFinished(new JLabel("<html>An unexpected error occurred while checking status of selected " +
                                       itemToCheck + "<br>Please see error log for details...",
                                       UIManager.getIcon("OptionPane.errorIcon"), JLabel.CENTER));

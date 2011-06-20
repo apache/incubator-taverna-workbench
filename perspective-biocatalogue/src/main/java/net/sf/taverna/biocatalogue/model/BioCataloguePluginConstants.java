@@ -12,13 +12,13 @@ import net.sf.taverna.raven.appconfig.ApplicationRuntime;
  */
 public class BioCataloguePluginConstants
 {
-  public static final String APP_VISIBLE_NAME = "BioCatalogue Plugin";
-  public static final String APP_PREFIX = "T2BioCataloguePlugin:";
+  public static final String APP_VISIBLE_NAME = "Service Catalogue Plugin";
+  public static final String APP_PREFIX = "T2ServiceCataloguePlugin:";
   
   
   public static final boolean PERFORM_API_RESPONSE_TIME_LOGGING = true;
   public static final boolean PERFORM_API_XML_DATA_BINDING_TIME_LOGGING = true;
-  public static final String API_OPERATION_LOG_FILENAME = "biocatalogue_api.log";
+  public static final String API_OPERATION_LOG_FILENAME = "service_catalogue_api.log";
   
   
   public static final int DEFAULT_SCROLL = 15;               // default vertical scroll increment to be used in all JScrollPane instances within the plugin
@@ -53,7 +53,7 @@ public class BioCataloguePluginConstants
   
   
   
-  public static final String CONFIG_FILE_FOLDER_WHEN_RUNNING_STANDALONE = ".Taverna2-BioCatalogue Plugin";
+  public static final String CONFIG_FILE_FOLDER_WHEN_RUNNING_STANDALONE = ".Taverna2-ServiceCatalogue Plugin";
   
 
   

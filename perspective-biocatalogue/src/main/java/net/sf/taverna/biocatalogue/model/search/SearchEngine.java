@@ -124,7 +124,7 @@ public class SearchEngine
         requestURL = Util.appendURLParameter(requestURL, "sort_order", "asc");
         requestURL = Util.appendURLParameter(requestURL, "include", "ancestors");
 //    }
-    logger.info("BioCatalogue Plugin: Request URL for search: " + requestURL);
+    logger.info("Service Catalogue Plugin: Request URL for search: " + requestURL);
     
     // append some search-type-independent parameters and return the URL
     requestURL = Util.appendAllURLParameters(requestURL, searchInstance.getResourceTypeToSearchFor().getAPIResourceCollectionIndexAdditionalParameters());

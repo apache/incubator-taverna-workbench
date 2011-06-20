@@ -345,26 +345,26 @@ public class Integration
     
     String warnings = "";
     if (restServiceDescription.getDataWarnings().contains(RESTFromBioCatalogueServiceDescription.AMBIGUOUS_ACCEPT_HEADER_VALUE)) {
-        warnings += "<br><br>BioCatalogue description of this REST method contains more than one<br>" +
+        warnings += "<br><br>Service Catalogue description of this REST method contains more than one<br>" +
                             "representation of the method's outputs - the first one was used.<br>" +
                             "Please check value of the 'Accept' header in the configuration<br>" +
                             "of the imported service" + messageSuffix + ".";
     }
     else if (restServiceDescription.getDataWarnings().contains(RESTFromBioCatalogueServiceDescription.DEFAULT_ACCEPT_HEADER_VALUE)) {
-      warnings += "<br><br>BioCatalogue description of this REST method does not contain any<br>" +
+      warnings += "<br><br>Service Catalogue description of this REST method does not contain any<br>" +
                           "representations of the method's outputs - default value was used.<br>" +
                           "Please check value of the 'Accept' header in the configuration<br>" +
                           "of the imported service" + messageSuffix + ".";
     }
     
     if (restServiceDescription.getDataWarnings().contains(RESTFromBioCatalogueServiceDescription.AMBIGUOUS_CONTENT_TYPE_HEADER_VALUE)) {
-        warnings += "<br><br>BioCatalogue description of this REST method contains more than one<br>" +
+        warnings += "<br><br>Service Catalogue description of this REST method contains more than one<br>" +
                             "representation of the method's input data - the first one was used.<br>" +
                             "Please check value of the 'Content-Type' header in the configuration<br>" +
                             "of the imported service" + messageSuffix + ".";
     }
     else if (restServiceDescription.getDataWarnings().contains(RESTFromBioCatalogueServiceDescription.DEFAULT_CONTENT_TYPE_HEADER_VALUE)) {
-      warnings += "<br><br>BioCatalogue description of this REST method does not contain any<br>" +
+      warnings += "<br><br>Service Catalogue description of this REST method does not contain any<br>" +
                           "representations of the method's input data - default value was used.<br>" +
                           "Please check value of the 'Content-Type' header in the configuration<br>" +
                           "of the imported service" + messageSuffix + ".";
@@ -472,7 +472,7 @@ public class Integration
         return (new SoapOperationIdentity(a.getConfiguration().getWsdl(), a.getConfiguration().getOperation(), null));
       }
       else {
-        return (new SoapOperationIdentity("BioCatalogue Plugin only works with WSDL Activities at the moment"));
+        return (new SoapOperationIdentity("Service Catalogue integration only works with WSDL Activities at the moment"));
       }
     }
   }

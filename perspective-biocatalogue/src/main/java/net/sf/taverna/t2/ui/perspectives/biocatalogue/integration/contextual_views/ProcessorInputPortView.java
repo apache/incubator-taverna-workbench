@@ -124,7 +124,7 @@ public class ProcessorInputPortView extends ContextualView
 
 	@Override
 	public String getViewTitle() {
-		return "BioCatalogue Information - Input port: " + inputPort.getName();
+		return "Service Catalogue Information";
 	} 
 
 	@Override

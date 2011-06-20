@@ -41,10 +41,10 @@ import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl
 public class BioCatalogueRESTServiceProvider extends
 	AbstractConfigurableServiceProvider<RESTFromBioCatalogueServiceDescription> {
 
-	public static final String PROVIDER_NAME = "BioCatalogue - selected services";
+	public static final String PROVIDER_NAME = "Service Catalogue - selected services";
 	  
 	private static final URI providerId = URI
-	.create("http://taverna.sf.net/2010/service-provider/biocatalogue/rest");
+	.create("http://taverna.sf.net/2010/service-provider/servicecatalogue/rest");
 	
 	private static Logger logger = Logger.getLogger(BioCatalogueRESTServiceProvider.class);
 
@@ -65,7 +65,7 @@ public class BioCatalogueRESTServiceProvider extends
 	@Override
 	public void findServiceDescriptionsAsync(
 			FindServiceDescriptionsCallBack callBack) {
-	    callBack.status("Starting BioCatalogue REST Service Provider");
+	    callBack.status("Starting Service Catalogue REST Service Provider");
 		registerNewRESTMethod(getConfiguration(), callBack);
 	}
 
@@ -82,12 +82,12 @@ public class BioCatalogueRESTServiceProvider extends
 
 	@Override
 	public String getName() {
-		return "BioCatalogue REST";
+		return "Service Catalogue REST";
 	}
 	
 	@Override
 	public String toString() {
-		return "BioCatalogue REST service " + getConfiguration().getName();
+		return "Service Catalogue REST service " + getConfiguration().getName();
 	}
 	
 	public static boolean registerNewRESTMethod(

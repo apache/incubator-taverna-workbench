@@ -74,15 +74,15 @@ public class BioCataloguePluginAbout extends JPanel implements HasDefaultFocusCa
     StringBuilder sbAbout = new StringBuilder();
     sbAbout.append("<html>" +
                      "<body>" +
-                       "<h2>BioCatalogue Plugin - version: 0.1 (alpha)</h2>" +
+                       "<h2>Service Catalogue Plugin - version: 0.1 (alpha)</h2>" +
                        "<p>" +
-                         "The BioCatalogue plugin is intended to provide access to the data held in the " +
-                         "BioCatalogue Web Services Registry directly from Taverna Workbench. For more information " +
+                         "The Service Catalogue plugin is intended to provide access to the data held in a " +
+                         "Service Catalogue Web Services Registry directly from Taverna Workbench. For more information " +
                          "please see help pages by clicking the \"View Help\" button above. Also, please leave your " +
                          "comments and suggestions by clicking \"Leave Feedback\" button." +
                        "</p>" +
                        "<p>" +
-                         "<b>Note:</b> This is an incomplete version of the BioCatalogue plugin. " +
+                         "<b>Note:</b> This is an incomplete version of the Service Catalogue plugin. " +
                          "You may see notifications that certain pieces of functionality have not been " +
                          "implemented yet; some features are not yet fully stable, which means that " +
                          "occasionally you may see unexpected error messages." +
@@ -93,7 +93,7 @@ public class BioCataloguePluginAbout extends JPanel implements HasDefaultFocusCa
                        "</p>" +
                        "<hr/>" +
                        "<p style=\"margin-top: 3em;\">" +
-                         "The BioCatalogue plugin uses Silk icon set (v1.3) by Mark James:<br/>" +
+                         "The Service Catalogue plugin uses Silk icon set (v1.3) by Mark James:<br/>" +
                          "http://www.famfamfam.com/lab/icons/silk/" +
                      "</p>" +
                      "</body>" +
@@ -129,7 +129,7 @@ public class BioCataloguePluginAbout extends JPanel implements HasDefaultFocusCa
     		                     "A web page with the feedback form will be displayed.</html>");
     bFeedback.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
-    	  String target = "http://www.taverna.org.uk/about/contact-us/feedback?product=BioCataloguePlugin";
+    	  String target = "http://www.taverna.org.uk/about/contact-us/feedback?product=ServiceCataloguePlugin";
 		   try {
 				Desktop.getDesktop().browse(new URI(target));
 			    }
@@ -147,7 +147,7 @@ public class BioCataloguePluginAbout extends JPanel implements HasDefaultFocusCa
         Helper.showHelp(bHelp);
       }
     });
-    HelpCollator.registerComponent(bHelp, "biocatalogue-plugin");
+    HelpCollator.registerComponent(bHelp, "servicecatalogue-plugin");
     
     JPanel jpActionButtons = new JPanel();
     jpActionButtons.add(bHelp);

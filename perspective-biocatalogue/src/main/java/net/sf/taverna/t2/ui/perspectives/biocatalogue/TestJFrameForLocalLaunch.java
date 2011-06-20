@@ -27,7 +27,7 @@ public class TestJFrameForLocalLaunch extends JFrame implements ComponentListene
   {
     // set window title and icon
 	  this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-	  this.setTitle("BioCatalogue API Demo"/* TODO - windowBaseTitle */);
+	  this.setTitle("Service Catalogue API Demo"/* TODO - windowBaseTitle */);
     this.setIconImage(ResourceManager.getImageIcon(ResourceManager.FAVICON).getImage());
     this.addComponentListener(this);
     

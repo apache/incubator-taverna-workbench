@@ -27,7 +27,7 @@ import net.sf.taverna.wsdl.parser.WSDLParser;
 
 public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
 {
-  public static final String PROVIDER_NAME = "BioCatalogue - selected services";
+  public static final String PROVIDER_NAME = "Service Catalogue - selected services";
   
   private static BioCatalogueServiceProvider instanceOfSelf = null;
   private static FindServiceDescriptionsCallBack callBack;
@@ -46,7 +46,7 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
   public void findServiceDescriptionsAsync(FindServiceDescriptionsCallBack callBack)
 	{
 		BioCatalogueServiceProvider.callBack = callBack;
-    callBack.status("Starting BioCatalogue Service Provider");
+    callBack.status("Starting Service Catalogue Service Provider");
 		
     // --- Initilise the service provider with stored services ---
     
@@ -116,7 +116,7 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
 	}
 	
 	public String getId() {
-    return "http://www.taverna.org.uk/2010/services/biocatalogue";
+    return "http://www.taverna.org.uk/2010/services/servicecatalogue";
   }
 	
 	
@@ -166,7 +166,7 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
 	  else
 	  {
 		  // Do the same thing as in the WSDL service provider
-			callBack.status("BioCatalogue service provider: Parsing wsdl: " + wsdlURL);
+			callBack.status("Service Catalogue service provider: Parsing wsdl: " + wsdlURL);
 			WSDLParser parser = null;
 			try {
 				parser = new WSDLParser(wsdlURL);

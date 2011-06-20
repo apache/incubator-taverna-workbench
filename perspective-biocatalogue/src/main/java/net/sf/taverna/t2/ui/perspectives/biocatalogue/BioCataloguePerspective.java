@@ -34,7 +34,7 @@ public class BioCataloguePerspective implements PerspectiveSPI
 	}
 
 	public String getText() {
-		return "BioCatalogue";
+		return "Service Catalogue";
 	}
 
 	public boolean isVisible() {

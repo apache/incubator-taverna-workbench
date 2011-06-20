@@ -24,7 +24,7 @@ public class BioCatalogueContextualMenuSection extends AbstractMenuSection imple
 
   
   public static final URI BIOCATALOGUE_MENU_SECTION_ID = URI.create("http://biocatalogue.org/2010/contextMenu/biocatalogue_section");
-  private static final String SECTION_TITLE = "BioCatalogue";
+  private static final String SECTION_TITLE = "Service Catalogue";
   
   private ContextualSelection contextualSelection;
   

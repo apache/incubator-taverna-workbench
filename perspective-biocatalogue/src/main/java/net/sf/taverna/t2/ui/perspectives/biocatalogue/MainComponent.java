@@ -129,7 +129,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI //, Ch
 	  this.setLayout(new GridLayout(1,1));
 	  this.add(new JLabel(ResourceManager.getImageIcon(ResourceManager.BAR_LOADER_ORANGE)));
 	  
-	  new Thread("Initialise BioCatalogue Perspective UI")
+	  new Thread("Initialise Service Catalogue Perspective UI")
 	  {
 	    public void run() {
 	      // create all tabs prior to putting them inside the tabbed pane

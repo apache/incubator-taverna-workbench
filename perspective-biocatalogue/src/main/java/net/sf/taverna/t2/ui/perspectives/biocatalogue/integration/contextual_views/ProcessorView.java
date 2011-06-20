@@ -83,14 +83,14 @@ public class ProcessorView extends ContextualView {
             try {
               final SoapOperation soapOperation = client.lookupSoapOperation(operationDetails);
               if (soapOperation == null) {
-            	  SwingUtilities.invokeLater(new RefreshThread(new JLabel("This service is not registered in BioCatalogue",
+            	  SwingUtilities.invokeLater(new RefreshThread(new JLabel("This service is not registered in the Service Catalogue",
                           UIManager.getIcon("OptionPane.warningIcon"), JLabel.CENTER)));
                  return;
               }
               
               Service parentService = client.getBioCatalogueService(soapOperation.getAncestors().getService().getHref());
               if (parentService == null) {
-               	  SwingUtilities.invokeLater(new RefreshThread(new JLabel("Problem while fetching monitoring data from BioCatalogue",
+               	  SwingUtilities.invokeLater(new RefreshThread(new JLabel("Problem while fetching monitoring data from the Service Catalogue",
                           UIManager.getIcon("OptionPane.warningIcon"), JLabel.CENTER)));
                  return;
               }
@@ -119,7 +119,7 @@ public class ProcessorView extends ContextualView {
               jlOperationDescription.setAlignmentX(Component.LEFT_ALIGNMENT);              
               
               // a button to open preview of the service
-              JButton jbLaunchProcessorPreview = new DeselectingButton("Show on BioCatalogue",
+              JButton jbLaunchProcessorPreview = new DeselectingButton("Show on the Service Catalogue",
             		  new ActionListener() {
                   public void actionPerformed(ActionEvent e) {
                     if (!operationDetails.hasError()) {
@@ -134,11 +134,11 @@ public class ProcessorView extends ContextualView {
                     }
                     else {
                       // this error message comes from Integration class extracting SOAP operation details from the contextual selection
-                      JOptionPane.showMessageDialog(null, operationDetails.getErrorDetails(), "BioCatalogue Plugin - Error", JOptionPane.WARNING_MESSAGE);
+                      JOptionPane.showMessageDialog(null, operationDetails.getErrorDetails(), "Service Catalogue Error", JOptionPane.WARNING_MESSAGE);
                     }
                   }
                 },
-                "View this service on BioCatalogue");
+                "View this service on the Service Catalogue");
               
               JPanel jpPreviewButtonPanel = new JPanel();
               jpPreviewButtonPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
@@ -169,13 +169,13 @@ public class ProcessorView extends ContextualView {
             catch (Exception e) {
               // a real error occurred while fetching data about selected processor
              logger.error("ERROR: unexpected problem while trying to ", e);
-             SwingUtilities.invokeLater(new RefreshThread(new JLabel("An unknown problem has prevented BioCatalogue Plugin from loading this preview",
+             SwingUtilities.invokeLater(new RefreshThread(new JLabel("An unknown problem has prevented Taverna from loading this preview",
                      UIManager.getIcon("OptionPane.errorIcon"), JLabel.CENTER)));
              return;
             }
           }
           else {
-        	  SwingUtilities.invokeLater(new RefreshThread(new JLabel("BioCatalogue Plugin has not initialised yet. Please wait and try again.",
+        	  SwingUtilities.invokeLater(new RefreshThread(new JLabel("Service Catalogue integration has not initialised yet. Please wait and try again.",
                                   UIManager.getIcon("OptionPane.warningIcon"), JLabel.CENTER)));
         	  return;
          }
@@ -193,7 +193,7 @@ public class ProcessorView extends ContextualView {
 
 	@Override
 	public String getViewTitle() {
-		return "BioCatalogue Information";
+		return "Service Catalogue Information";
 	} 
 
 	@Override

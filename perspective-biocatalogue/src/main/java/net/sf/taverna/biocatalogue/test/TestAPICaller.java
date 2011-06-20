@@ -50,7 +50,7 @@ public class TestAPICaller extends JFrame implements ActionListener {
 	 */
 	private void initialize() {
         this.setSize(new Dimension(515, 321));
-        this.setTitle("Test BioCatalogue API Caller");
+        this.setTitle("Test Service Catalogue API Caller");
         this.setContentPane(getJContentPane());
 		
         this.bSubmitRequest.setDefaultCapable(true);
@@ -202,7 +202,7 @@ public class TestAPICaller extends JFrame implements ActionListener {
 		final String urlFinal = url;
 		new Thread("making request") {
   		public void run() {
-  		  tpOutputPane.setText("Initialising BioCatalogue client...");
+  		  tpOutputPane.setText("Initialising Service Catalogue client...");
   		  BioCatalogueClient client = null;
         try {
           client = BioCatalogueClient.getInstance();

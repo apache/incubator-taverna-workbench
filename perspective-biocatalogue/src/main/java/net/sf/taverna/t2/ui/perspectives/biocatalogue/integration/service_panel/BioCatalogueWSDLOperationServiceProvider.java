@@ -59,10 +59,10 @@ public class BioCatalogueWSDLOperationServiceProvider extends
 		super(new WSDLOperationFromBioCatalogueServiceDescription(new SoapOperationIdentity("", "", "")));
 	}
 	
-	public static final String PROVIDER_NAME = "BioCatalogue - selected services";
+	public static final String PROVIDER_NAME = "Service Catalogue - selected services";
 	  
 	private static final URI providerId = URI
-	.create("http://taverna.sf.net/2010/service-provider/biocatalogue/wsdl");
+	.create("http://taverna.sf.net/2010/service-provider/servicecatalogue/wsdl");
 	
 	private static Logger logger = Logger.getLogger(BioCatalogueRESTServiceProvider.class);
 
@@ -74,7 +74,7 @@ public class BioCatalogueWSDLOperationServiceProvider extends
 	@Override
 	public void findServiceDescriptionsAsync(
 			FindServiceDescriptionsCallBack callBack) {
-	    callBack.status("Starting BioCatalogue WSDL Service Provider");
+	    callBack.status("Starting Service Catalogue WSDL Service Provider");
 		registerWSDLOperation(getConfiguration(), callBack);
 	}
 
@@ -90,12 +90,12 @@ public class BioCatalogueWSDLOperationServiceProvider extends
 
 	@Override
 	public String getName() {
-		return "BioCatalogue WSDL";
+		return "Service Catalogue WSDL";
 	}
 	
 	@Override
 	public String toString() {
-		return "BioCatalogue WSDL service " + getConfiguration().getName();
+		return "Service Catalogue WSDL service " + getConfiguration().getName();
 	}
 	
 	public static boolean registerWSDLOperation(

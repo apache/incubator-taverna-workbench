@@ -72,7 +72,7 @@ public class BioCatalogueClient
   // ******* CONSTANTS *******
   // plugin details
   public static final String PLUGIN_VERSION = "0.1.1";
-  public static final String PLUGIN_USER_AGENT = "Taverna2-BioCatalogue-plugin/" +
+  public static final String PLUGIN_USER_AGENT = "Taverna2-ServiceCatalogue-plugin/" +
                                                  PLUGIN_VERSION +
                                                  " Java/" + System.getProperty("java.version");
   
@@ -163,7 +163,7 @@ public class BioCatalogueClient
     
     // load the BioCatalogue API base URL from the plugin's configuration settings
     this.setBaseURL(BioCataloguePluginConfiguration.getInstance().
-            getProperty(BioCataloguePluginConfiguration.BIOCATALOGUE_BASE_URL));
+            getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL));
     
     // open API operation log file, if necessary
     if (BioCataloguePluginConstants.PERFORM_API_RESPONSE_TIME_LOGGING || 

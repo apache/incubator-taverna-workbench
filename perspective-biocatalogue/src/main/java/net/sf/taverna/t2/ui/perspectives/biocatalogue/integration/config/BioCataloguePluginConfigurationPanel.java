@@ -88,7 +88,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
     
     c.gridx = 0;
     c.gridy = 0;
-    JTextArea taDescription = new JTextArea("Configure the BioCatalogue integration functionality");
+    JTextArea taDescription = new JTextArea("Configure the Service Catalogue integration functionality");
     taDescription.setFont(taDescription.getFont().deriveFont(Font.PLAIN, 11));
     taDescription.setLineWrap(true);
     taDescription.setWrapStyleWord(true);
@@ -100,7 +100,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
     
     c.gridy++;
     c.insets = new Insets(20, 0, 0, 0);
-    JLabel jlBioCatalogueAPIBaseURL = new JLabel("Base URL of BioCatalogue instance to connect to:");
+    JLabel jlBioCatalogueAPIBaseURL = new JLabel("Base URL of the Service Catalogue instance to connect to:");
     this.add(jlBioCatalogueAPIBaseURL, c);
     
     c.gridy++;
@@ -173,14 +173,14 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
    * Resets all fields to the last saved configuration.
    */
   private void resetFields() {
-    tfBioCatalogueAPIBaseURL.setText(configuration.getProperty(BioCataloguePluginConfiguration.BIOCATALOGUE_BASE_URL));
+    tfBioCatalogueAPIBaseURL.setText(configuration.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL));
   }
   
   /**
    * Resets all fields to the default values.
    */
   private void loadDefaults() {
-    tfBioCatalogueAPIBaseURL.setText(configuration.getDefaultProperty(BioCataloguePluginConfiguration.BIOCATALOGUE_BASE_URL));
+    tfBioCatalogueAPIBaseURL.setText(configuration.getDefaultProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL));
   }
   
   /**
@@ -193,8 +193,8 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 		String candidateBaseURL = tfBioCatalogueAPIBaseURL.getText();
 		if (candidateBaseURL.length() == 0) {
 			JOptionPane.showMessageDialog(this,
-					"BioCatalogue base URL must not be blank",
-					"BioCatalogue Plugin", JOptionPane.WARNING_MESSAGE);
+					"Service Catalogue base URL must not be blank",
+					"Service Catalogue Configuration", JOptionPane.WARNING_MESSAGE);
 			tfBioCatalogueAPIBaseURL.requestFocusInWindow();
 			return;
 		} else {
@@ -204,9 +204,9 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 				JOptionPane
 						.showMessageDialog(
 								this,
-								"Currently set BioCatalogue instance URL is not valid\n." +
+								"Currently set Service Catalogue instance URL is not valid\n." +
 								"Please check the URL and try again.",
-								"BioCatalogue Plugin",
+								"Service Catalogue Configuration",
 								JOptionPane.WARNING_MESSAGE);
 				tfBioCatalogueAPIBaseURL.selectAll();
 				tfBioCatalogueAPIBaseURL.requestFocusInWindow();
@@ -216,7 +216,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 			// check if the base URL has changed from the last saved state
 			if (!candidateBaseURL
 					.equals(configuration
-							.getProperty(BioCataloguePluginConfiguration.BIOCATALOGUE_BASE_URL))) {
+							.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL))) {
 					// Perform various checks on the new URL
 
 				// Do a GET with "Accept" header set to "application/xml"
@@ -252,13 +252,13 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 				try {
 					httpResponse = httpClient.execute(httpGet, localContext);
 				} catch (Exception ex1) {
-					logger.error("BioCatalogue preferences configuration: Failed to do "
+					logger.error("Service Catalogue preferences configuration: Failed to do "
 							+ httpGet.getRequestLine(), ex1);
 					// Warn the user
 					JOptionPane.showMessageDialog(this,
-							"Failed to connect to the URL of the BioCatalogue instance.\n"
+							"Failed to connect to the URL of the Service Catalogue instance.\n"
 									+ "Please check the URL and try again.",
-							"BioCatalogue Plugin",
+							"Service Catalogue Configuration",
 							JOptionPane.INFORMATION_MESSAGE);
 					
 					// Release resource
@@ -273,7 +273,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 					String contentType = httpEntity.getContentType().getValue()
 							.toLowerCase().trim();
 					logger
-							.info("BioCatalogue preferences configuration: Got 200 OK when testing BioCatalogue instance by doing "
+							.info("Service Catalogue preferences configuration: Got 200 OK when testing the Service Catalogue instance by doing "
 									+ httpResponse.getStatusLine()
 									+ ". Content type of response "
 									+ contentType);
@@ -288,12 +288,12 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 							byte[] bytes = value.getBytes("UTF-8");
 							doc = builder.build(new ByteArrayInputStream(bytes));
 						} catch (Exception ex2) {
-							logger.error("BioCatalogue preferences configuration: Failed to build an XML document from the response.", ex2);
+							logger.error("Service Catalogue preferences configuration: Failed to build an XML document from the response.", ex2);
 							// Warn the user
 							JOptionPane.showMessageDialog(this,
-									"Failed to get the expected response body when testing the BioCatalogue instance.\n"
+									"Failed to get the expected response body when testing the Service Catalogue instance.\n"
 											+ "The URL is probably wrong. Please check it and try again.",
-									"BioCatalogue Plugin",
+									"Service Catalogue Configuration",
 									JOptionPane.INFORMATION_MESSAGE);
 							tfBioCatalogueAPIBaseURL.requestFocusInWindow();
 							return;
@@ -309,24 +309,34 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 							String versions[] = apiVersion.split("[.]");
 							String majorVersion = versions[0];
 							String minorVersion = versions[1];
+							try {
 							//String patchVersion = versions[2]; // we are not comparing the patch versions
-							if (!(Integer.getInteger(MIN_SUPPORTED_BIOCATALOGUE_API_VERSION[0]) == Integer.getInteger(majorVersion) && 
-									Integer.getInteger(MIN_SUPPORTED_BIOCATALOGUE_API_VERSION[1]) <= Integer.getInteger(minorVersion))){
+							String nm = MIN_SUPPORTED_BIOCATALOGUE_API_VERSION[0];
+							String nm2 = MIN_SUPPORTED_BIOCATALOGUE_API_VERSION[1];
+							Integer integer = Integer.parseInt(nm);
+							Integer integer2 = Integer.parseInt(majorVersion);
+							Integer integer3 = Integer.parseInt(nm2);
+							Integer integer4 = Integer.parseInt(minorVersion);
+							if (!(integer == integer2 && 
+									integer3 <= integer4)){
 								// Warn the user
 								JOptionPane
 										.showMessageDialog(
 												this,
-												"The version of the BioCatalogue instance you are trying to connect to is not supported.\n"
+												"The version of the Service Catalogue instance you are trying to connect to is not supported.\n"
 														+ "Please change the URL and try again.",
-												"BioCatalogue Plugin",
+												"Service Catalogue Configuration",
 												JOptionPane.INFORMATION_MESSAGE);
 								tfBioCatalogueAPIBaseURL.requestFocusInWindow();
 								return;		
 							}
+							} catch (Exception e) {
+								logger.error(e);
+							}
 						} // if null - we'll try to do our best to connect to BioCatalogue anyway
 					} else {
 						logger
-								.error("BioCatalogue preferences configuration: Failed to get the expected response content type when testing the BioCatalogue instance. "
+								.error("Service Catalogue preferences configuration: Failed to get the expected response content type when testing the Service Catalogue instance. "
 										+ httpGet.getRequestLine()
 										+ " returned content type '"
 										+ contentType
@@ -335,9 +345,9 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 						JOptionPane
 								.showMessageDialog(
 										this,
-										"Failed to get the expected response content type when testing the BioCatalogue instance.\n"
+										"Failed to get the expected response content type when testing the Service Catalogue instance.\n"
 										+ "The URL is probably wrong. Please check it and try again.",
-										"BioCatalogue Plugin",
+										"Service Catalogue Plugin",
 										JOptionPane.INFORMATION_MESSAGE);
 						tfBioCatalogueAPIBaseURL.requestFocusInWindow();
 						return;
@@ -345,7 +355,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 				}
 				else{
 					logger
-							.error("BioCatalogue preferences configuration: Failed to get the expected response status code when testing the BioCatalogue instance. "
+							.error("Service Catalogue preferences configuration: Failed to get the expected response status code when testing the Service Catalogue instance. "
 									+ httpGet.getRequestLine()
 									+ " returned the status code "
 									+ httpResponse.getStatusLine()
@@ -354,9 +364,9 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 					JOptionPane
 							.showMessageDialog(
 									this,
-									"Failed to get the expected response status code when testing the BioCatalogue instance.\n"
+									"Failed to get the expected response status code when testing the Service Catalogue instance.\n"
 									+ "The URL is probably wrong. Please check it and try again.",
-									"BioCatalogue Plugin",
+									"Service Catalogue Configuration",
 									JOptionPane.INFORMATION_MESSAGE);
 					tfBioCatalogueAPIBaseURL.requestFocusInWindow();
 					return;					
@@ -366,12 +376,9 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 				JOptionPane
 						.showMessageDialog(
 								this,
-								"You have updated the BioCatalogue base URL.\n\n"
-										+ "From now on the new one will be used, however it is advised\n"
-										+ "to restart Taverna for this new setting to take the full effect.\n\n"
-										+ "If you keep using Taverna, any previously made searches, filtering\n"
-										+ "operations and tags in the tag cloud may still use the previous\n"
-										+ "setting.", "BioCatalogue Plugin",
+								"You have updated the Service Catalogue base URL.\n"
+										+ "This does not take effect until you restart Taverna.",
+										"Service catalogue Configuration",
 								JOptionPane.INFORMATION_MESSAGE);
 
 			}
@@ -379,12 +386,12 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 			// the new base URL seems to be valid - can save it into config
 			// settings
 			configuration.setProperty(
-					BioCataloguePluginConfiguration.BIOCATALOGUE_BASE_URL,
+					BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL,
 					candidateBaseURL);
 
-			// also update the base URL in the BioCatalogueClient
+/*			// also update the base URL in the BioCatalogueClient
 			BioCatalogueClient.getInstance()
-					.setBaseURL(candidateBaseURL);
+					.setBaseURL(candidateBaseURL);*/
 		}
 
 	}

@@ -44,6 +44,9 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
   
   private GridBagConstraints c;
   
+  private static Resource.TYPE resourceType = Resource.TYPE.RESTMethod;
+
+  
   
   public RESTMethodListCellRenderer() {
     /* do nothing */
@@ -61,7 +64,6 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
    */
   protected GridBagConstraints prepareInitiallyLoadingEntry(Object itemToRender)
   {
-    TYPE resourceType = determineResourceType(itemToRender);
     LoadingResource resource = (LoadingResource)itemToRender;
     
     jlTypeIcon = new JLabel(resourceType.getIcon());
@@ -86,7 +88,6 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
    */
   protected GridBagConstraints prepareLoadedCollapsedEntry(Object itemToRender, boolean expandedView)
   {
-    TYPE resourceType = determineResourceType(itemToRender);
     RestMethod restMethod = (RestMethod)itemToRender;;
     
     Ancestors ancestors = restMethod.getAncestors();

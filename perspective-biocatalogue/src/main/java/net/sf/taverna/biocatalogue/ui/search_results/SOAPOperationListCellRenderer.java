@@ -25,6 +25,8 @@ import org.biocatalogue.x2009.xml.rest.SoapInput;
 import org.biocatalogue.x2009.xml.rest.SoapOperation;
 import org.biocatalogue.x2009.xml.rest.SoapOutput;
 import org.biocatalogue.x2009.xml.rest.SoapService;
+import org.biocatalogue.x2009.xml.rest.Service.ServiceTechnologyTypes;
+import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType.Enum;
 import org.biocatalogue.x2009.xml.rest.SoapOperation.Ancestors;
 
 
@@ -45,6 +47,8 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
   
   private GridBagConstraints c;
   
+  private static Resource.TYPE resourceType = Resource.TYPE.SOAPOperation;
+  
   
   public SOAPOperationListCellRenderer() {
     /* do nothing */
@@ -61,7 +65,6 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
    */
   protected GridBagConstraints prepareInitiallyLoadingEntry(Object itemToRender)
   {
-    TYPE resourceType = determineResourceType(itemToRender);
     LoadingResource resource = (LoadingResource)itemToRender;
     
     jlTypeIcon = new JLabel(resourceType.getIcon());
@@ -87,7 +90,6 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
    */
   protected GridBagConstraints prepareLoadedCollapsedEntry(Object itemToRender, boolean expandedView)
   {
-    TYPE resourceType = determineResourceType(itemToRender);
     SoapOperation soapOp = (SoapOperation)itemToRender;
     
     Ancestors ancestors = soapOp.getAncestors();
@@ -98,7 +100,7 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
     if (soapOp.isSetArchived() || service.isSetArchived()) {
     	jlTypeIcon = new JLabel(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
     	title = title + "<i> - this operation is archived and probably cannot be used</i></html>";
-    } else if (service.getServiceTechnologyTypes().getTypeList().contains(ServiceTechnologyType.SOAPLAB)) {
+    } else if (isSoapLab(service)) {
        	jlTypeIcon = new JLabel(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
     	title = title + "<i> - this operation can only be used as part of a SoapLab service</i></html>";
     }
@@ -130,6 +132,21 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
     
     return (arrangeLayout(true, expandedView));
   }
+
+
+private boolean isSoapLab(Service service) {
+	boolean result = false;
+	ServiceTechnologyTypes serviceTechnologyTypes = service.getServiceTechnologyTypes();
+	if (serviceTechnologyTypes == null) {
+		return result;
+	}
+	List<Enum> typeList = serviceTechnologyTypes.getTypeList();
+	if (typeList == null) {
+		return result;
+	}
+	result = typeList.contains(ServiceTechnologyType.SOAPLAB);
+	return result;
+}
   
   
   /**
@@ -255,7 +272,7 @@ boolean shouldBeHidden(Object itemToRender) {
 	    Service service = ancestors.getService();
 	    if (soapOp.isSetArchived() || service.isSetArchived()) {
 	    	return true;
-	    } else if (service.getServiceTechnologyTypes().getTypeList().contains(ServiceTechnologyType.SOAPLAB)) {
+	    } else if (isSoapLab(service)) {
 	       	return true;
 	    }
 	    else {

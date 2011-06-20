@@ -8,6 +8,7 @@ import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.visit.VisitReport.Status;
 
+import org.biocatalogue.x2009.xml.rest.MonitoringStatus;
 import org.biocatalogue.x2009.xml.rest.MonitoringStatusLabel;
 import org.biocatalogue.x2009.xml.rest.Service;
 
@@ -39,7 +40,13 @@ public class ServiceMonitoringStatusInterpreter
    */
   public static URL getStatusIconURL(Service serviceWithMonitoringData, boolean listingIconRequired)
   {
-    MonitoringStatusLabel.Enum serviceStatusLabel = serviceWithMonitoringData.getLatestMonitoringStatus().getLabel();
+    MonitoringStatus latestMonitoringStatus = serviceWithMonitoringData.getLatestMonitoringStatus();
+    if (latestMonitoringStatus == null) {
+    	return ResourceManager.getResourceLocalURL((listingIconRequired ?
+                ResourceManager.SERVICE_STATUS_UNCHECKED_ICON :
+                    ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE));
+    }
+	MonitoringStatusLabel.Enum serviceStatusLabel = latestMonitoringStatus.getLabel();
     
     switch (serviceStatusLabel.intValue()) {
       case MonitoringStatusLabel.INT_PASSED:

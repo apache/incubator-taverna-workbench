@@ -305,7 +305,7 @@ public class Resource
         JOptionPane.showMessageDialog(MainWindow.getMainWindow(), 
             "The plugin was unable to instantiate ListCellRenderer for " + this.getCollectionName() + ".\n\n" +
             "This is likely to make the plugin crash or at least be unable to display search results for\n" +
-            "items of this type.\n\nPlease try to restart Taverna.", "BioCatalogue Plugin", JOptionPane.ERROR_MESSAGE);
+            "items of this type.\n\nPlease try to restart Taverna.", "Service Catalogue Plugin", JOptionPane.ERROR_MESSAGE);
         return null;
       }
     }
@@ -500,7 +500,7 @@ public class Resource
       return (resource.getResourceName());
     }
     else {
-      return ("ERROR: ITEM NOT RECOGNISED - Item is of known generic type from the BioCatalogue Plugin, but not specifically recognised" + resource.toString());
+      return ("ERROR: ITEM NOT RECOGNISED - Item is of known generic type from the Service Catalogue Plugin, but not specifically recognised" + resource.toString());
     }
   }
   

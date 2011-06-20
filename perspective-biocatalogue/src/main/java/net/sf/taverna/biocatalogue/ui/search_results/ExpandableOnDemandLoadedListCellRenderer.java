@@ -6,10 +6,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -57,8 +60,7 @@ public abstract class ExpandableOnDemandLoadedListCellRenderer extends JPanel im
   
   protected JLabel jlExpand;
   protected static Rectangle expandRect;
-
-  
+    
   public ExpandableOnDemandLoadedListCellRenderer()
   {
     this.thisPanel = this;

@@ -316,7 +316,7 @@ public class SearchResultsMainPanel extends JPanel implements ActionListener, Se
       }
     }
     catch (Exception e) {
-      logger.error("Error while searching via BioCatalogue API. Error details attached.", e);
+      logger.error("Error while searching via the Service Catalogue API. Error details attached.", e);
     }
     
 }
