@@ -76,7 +76,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
     
     jlDescription = resource.isLoading() ? loaderBarAnimationGrey : loaderBarAnimationGreyStill;
     
-    return (arrangeLayout(false, false));
+    return (arrangeLayout(false));
   }
   
   
@@ -87,7 +87,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
    *                     fragment of the expanded list entry for this SOAP operation / REST method.
    * @return
    */
-  protected GridBagConstraints prepareLoadedCollapsedEntry(Object itemToRender, boolean expandedView)
+  protected GridBagConstraints prepareLoadedEntry(Object itemToRender)
   {
     TYPE resourceType = determineResourceType(itemToRender);
     Service service = (Service)itemToRender;;
@@ -122,7 +122,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
     jlItemTitle.setForeground(Color.decode("#AD0000"));  // very dark red
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
     
-    int descriptionMaxLength = (expandedView ? DESCRIPTION_MAX_LENGTH_EXPANDED : DESCRIPTION_MAX_LENGTH_COLLAPSED);
+    int descriptionMaxLength = DESCRIPTION_MAX_LENGTH_EXPANDED;
     String strDescription = (service.getDescription() == null || service.getDescription().length() == 0 ?
                              "<font color=\"gray\">no description</font>" :
                              Util.stripAllHTML(service.getDescription()));
@@ -134,7 +134,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
     strDescription = "<html><b>Description: </b>" + strDescription + "</html>";
     jlDescription = new JLabel(strDescription);
     
-    return (arrangeLayout(true, expandedView));
+    return (arrangeLayout(true));
   }
   
   
@@ -142,7 +142,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
    * @return Final state of the {@link GridBagConstraints} instance
    *         that was used to lay out components in the panel.
    */
-  private GridBagConstraints arrangeLayout(boolean showActionButtons, boolean expanded)
+  private GridBagConstraints arrangeLayout(boolean showActionButtons)
   {
     // POPULATE PANEL WITH PREPARED COMPONENTS
     this.setLayout(new GridBagLayout());
@@ -170,7 +170,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
       c.gridheight = 3;
       c.weightx = 0;
       c.weighty = 1.0;
-      jlExpand = new JLabel(ResourceManager.getImageIcon((expanded ? ResourceManager.FOLD_ICON : ResourceManager.UNFOLD_ICON)));
+      jlExpand = new JLabel(ResourceManager.getImageIcon(ResourceManager.FOLD_ICON));
       this.add(jlExpand, c);
     }
     
@@ -179,7 +179,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
     c.gridheight = 1;
     c.weightx = 1.0;
     c.weighty = 0;
-    c.insets = new Insets(3, 3, (expanded ? 3 : 12), 3);
+    c.insets = new Insets(3, 3, 3, 3);
     this.add(jlDescription, c);
     
     return (c);
@@ -190,7 +190,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
   protected void prepareLoadingExpandedEntry(Object itemToRender)
   {
     LoadingExpandedResource expandedResource = (LoadingExpandedResource) itemToRender;
-    GridBagConstraints c = prepareLoadedCollapsedEntry(expandedResource.getAssociatedObj(), true);
+    GridBagConstraints c = prepareLoadedEntry(expandedResource.getAssociatedObj());
     
     if (expandedResource.isLoading())
     {

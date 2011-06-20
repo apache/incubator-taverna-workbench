@@ -91,7 +91,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 
 	// contextual menu
 	private JPopupMenu contextualMenu;
-	private Action expandCollapseItemAction;
 	private Action addToServicePanelAction;
 	private Action addToWorkflowDiagramAction;
 	private Action openInBioCatalogueAction;
@@ -135,21 +134,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 	}
 
 	private void initialiseUI() {
-		this.expandCollapseItemAction = new AbstractAction(
-				"Expand selected entry", ResourceManager
-						.getImageIcon(ResourceManager.UNFOLD_ICON_16x16)) {
-			// Tooltip
-			{
-				this.putValue(SHORT_DESCRIPTION, "Expand selected "
-						+ typeToPreview.getTypeName()
-						+ " entry to see more details.");
-			}
-
-			public void actionPerformed(ActionEvent e) {
-				expandCollapseListEntry(jlResultsListing.getSelectedIndex());
-			}
-		};
-
 
 		this.addToServicePanelAction = new AbstractAction(
 				"Add to Service Panel",
@@ -344,7 +328,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		tbSelectedItemActions.setBorder(BorderFactory.createEmptyBorder(5, 5,
 				5, 3));
 		tbSelectedItemActions.setFloatable(false);
-		tbSelectedItemActions.add(expandCollapseItemAction);
 		if (typeToPreview.isSuitableForAddingToServicePanel()) {
 			tbSelectedItemActions.add(addToServicePanelAction);
 		}
@@ -410,16 +393,10 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 					potentialObjectToPreview = getResourceSelectedInJList();
 
 					if (potentialObjectToPreview != null) {
-						// selection has changed - update state of the
-						// expand/collapse action for the
-						// newly selected list entry
-						updateExpandCollapseActionBasedOnTheStateOfSelectedItem();
 
 						// only enable actions in the menu if the list entry
 						// that is being
 						// clicked on is beyond the initial 'loading' state
-						expandCollapseItemAction
-								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
 						addToServicePanelAction
 								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
 						addAllOperationsToServicePanelAction
@@ -437,7 +414,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 
 				// disable actions if nothing is selected in the list or if
 				// selection is still "adjusting"
-				expandCollapseItemAction.setEnabled(false);
 				addToServicePanelAction.setEnabled(false);
 				addAllOperationsToServicePanelAction.setEnabled(false);
 				addToWorkflowDiagramAction.setEnabled(false);
@@ -470,7 +446,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		// *** Create CONTEXTUAL MENU ***
 
 		contextualMenu = new JPopupMenu();
-		contextualMenu.add(expandCollapseItemAction);
 		if (typeToPreview.isSuitableForAddingToServicePanel()) {
 			contextualMenu.add(addToServicePanelAction);
 			contextualMenu.add(addAllOperationsToServicePanelAction);
@@ -542,7 +517,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		this.validate();
 
 		// disable the toolbar actions
-		this.expandCollapseItemAction.setEnabled(false);
 		this.addToServicePanelAction.setEnabled(false);
 		this.addToWorkflowDiagramAction.setEnabled(false);
 		this.openInBioCatalogueAction.setEnabled(false);
@@ -720,94 +694,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 	}
 
 	/**
-	 * Expands or collapses currently selected entry in the search results list.
-	 * 
-	 * @param selectedIndex
-	 *            Index of the row currently selected in the results JList.
-	 */
-	private void expandCollapseListEntry(int selectedIndex) {
-		if (selectedIndex != -1) {
-			ResourceLink resourceToExpand = getResourceSelectedInJList();
-			if (isListEntryExpanded(resourceToExpand)) {
-				// need to collapse...
-				searchInstance.getSearchResults().getFoundItems().set(
-						selectedIndex,
-						((LoadingExpandedResource) resourceToExpand)
-								.getAssociatedObj());
-			} else {
-				// need to expand and load additional data...
-				searchInstance.getSearchResults().getFoundItems().set(
-						selectedIndex,
-						new LoadingExpandedResource(resourceToExpand));
-				loadAdditionalDataToExpandListEntry(selectedIndex,
-						resourceToExpand);
-			}
-
-			// refresh UI either way - data listeners *must* stay enabled to
-			// make sure
-			// that the size of the updated entry in the list does indeed update
-			renderFurtherResults(searchInstance, selectedIndex, 1, false);
-
-			// refresh the UI of the action itself
-			updateExpandCollapseActionBasedOnTheStateOfSelectedItem();
-		}
-	}
-
-	/**
-	 * Helper method which updates the state of the expand-collapse action based
-	 * on the current state of the selected item in the search results listing.
-	 * 
-	 * The method is called when selection in the listing changes and also right
-	 * after a selected entry was expanded/collapsed.
-	 */
-	private void updateExpandCollapseActionBasedOnTheStateOfSelectedItem() {
-		// update value to be used in contextual menu click handler to act on
-		// the just-selected entry
-		potentialObjectToPreview = getResourceSelectedInJList();
-
-		// update action for expanding / collapsing the current entry -
-		// depending on the state of selected item
-		if (potentialObjectToPreview != null) {
-			if (isListEntryExpanded(potentialObjectToPreview)) {
-				expandCollapseItemAction.putValue(Action.NAME,
-						"Collapse selected entry");
-				expandCollapseItemAction.putValue(Action.SMALL_ICON,
-						ResourceManager
-								.getImageIcon(ResourceManager.FOLD_ICON_16x16));
-				expandCollapseItemAction
-						.putValue(
-								Action.SHORT_DESCRIPTION,
-								"Hide extra information about selected "
-										+ typeToPreview.getTypeName()
-										+ " and return the list entry to previous state.");
-			} else {
-				expandCollapseItemAction.putValue(Action.NAME,
-						"Expand selected entry");
-				expandCollapseItemAction
-						.putValue(
-								Action.SMALL_ICON,
-								ResourceManager
-										.getImageIcon(ResourceManager.UNFOLD_ICON_16x16));
-				expandCollapseItemAction.putValue(Action.SHORT_DESCRIPTION,
-						"Load more information about selected "
-								+ typeToPreview.getTypeName()
-								+ " and show it within this results list.");
-			}
-		}
-	}
-
-	/**
-	 * Checks whether {@link ResourceLink} object corresponding to an entry in
-	 * the search results list is representing an expanded or collapsed state.
-	 * 
-	 * @param resource
-	 * @return
-	 */
-	private boolean isListEntryExpanded(ResourceLink resource) {
-		return (resource instanceof LoadingExpandedResource);
-	}
-
-	/**
 	 * Tests whether {@link ResourceLink} object corresponding to an entry in
 	 * the search results list is in the state where only the first (initial)
 	 * fragment of data was loaded (through BioCatalogue LITE JSON API) that
@@ -820,37 +706,10 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		return (resource instanceof LoadingResource);
 	}
 
-	/**
-	 * See
-	 * {@link SearchResultsListingPanel#isListEntryOnlyWithInitialDetails(ResourceLink)}
-	 */
-	private boolean isListEntryOnlyWithInitialDetails(int rowIndex) {
-		if (rowIndex < 0 || rowIndex >= resultsListingModel.getSize()) {
-			// invalid list index
-			return false;
-		}
-
-		return (isListEntryOnlyWithInitialDetails((ResourceLink) resultsListingModel
-				.get(rowIndex)));
-	}
 
 	// ***** Callbacks for MouseListener *****
 
 	public void mouseClicked(MouseEvent e) {
-		// if mouse clicked on one of the tabbed results lists and one of the
-		// items was selected
-		if (e.getSource().equals(jlResultsListing)
-				&& getResourceSelectedInJList() != null) {
-			// *** single click with the left mouse button - possibly need to
-			// expand the item ***
-			if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1) {
-				int selIndex = jlResultsListing.getSelectedIndex();
-				if (selIndex != -1 && isMouseOverExpandLink(selIndex, e)) {
-					// "EXPAND/COLLAPSE" clicked on selected row
-					expandCollapseListEntry(selIndex);
-				}
-			}
-		}
 	}
 
 	public void mouseEntered(MouseEvent e) { /* NOT IN USE */
@@ -874,56 +733,9 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 	// ***** Callbacks for MouseMotionListener *****
 
 	public void mouseMoved(MouseEvent e) {
-		int rowIndex = jlResultsListing.locationToIndex(e.getPoint());
-		if (rowIndex < resultsListingModel.getSize()
-				&& isMouseOverExpandLink(rowIndex, e)) {
-			jlResultsListing
-					.setToolTipText((isListEntryExpanded((ResourceLink) resultsListingModel
-							.get(rowIndex)) ? "Collapse" : "Expand")
-							+ " this entry");
-		} else {
-			jlResultsListing.setToolTipText(null);
-		}
 	}
 
 	public void mouseDragged(MouseEvent e) { /* do nothing */
-	}
-
-	private boolean isMouseOverExpandLink(int rowIndex, MouseEvent e) {
-		if (rowIndex != -1 && rowIndex < resultsListingModel.getSize()
-				&& !isListEntryOnlyWithInitialDetails(rowIndex)) {
-			// coordinates of the specified row's panel inside JList
-			Rectangle selectedRowRect = jlResultsListing.getCellBounds(
-					rowIndex, rowIndex);
-
-			// translate coordinates of the click from JList's coordinates into
-			// coordinates
-			// of the selected row's panel
-			Point clickPoint = e.getPoint();
-			clickPoint
-					.translate(-1 * selectedRowRect.x, -1 * selectedRowRect.y);
-
-			// stored value of the Rectangle filled by the expand/collapse link
-			// is the
-			// negative offset from the top-right corner of the list entry panel
-			// --
-			// need to calculate the position of the expected link in real
-			// coordinates
-			//
-			// deep copy is necessary, because we don't want to modify the
-			// actual values stored
-			// in the ExpandableOnDemandLoadedListCellRenderer (as new
-			// calculations will be necessary if the
-			// size of the window changes)
-			Rectangle targetRect = (Rectangle) Util
-					.deepCopy(ExpandableOnDemandLoadedListCellRenderer
-							.getExpandRect());
-			targetRect.translate(selectedRowRect.width, 0);
-
-			return (targetRect.contains(clickPoint));
-		} else {
-			return (false);
-		}
 	}
 
 	/**
@@ -954,77 +766,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 			// show the contextual menu
 			this.contextualMenu.show(e.getComponent(), e.getX(), e.getY());
 		}
-	}
-
-	/**
-	 * Loads additional details for a selected search results list entry that is
-	 * being "expanded".
-	 * 
-	 * @param indexInList
-	 *            Index of the selected entry in the list.
-	 * @param resource
-	 *            Resource that corresponds to the selected entry in the list.
-	 */
-	private void loadAdditionalDataToExpandListEntry(final int indexInList,
-			final ResourceLink resource) {
-		new Thread("load additional data for resource") {
-			public void run() {
-				String resourceURL = resource.getHref();
-				final TYPE resourceType = Resource
-						.getResourceTypeFromResourceURL(resourceURL);
-
-				// don't forget to add any additional URL parameters - these are
-				// now known based on the resource TYPE:
-				resourceURL = Util
-						.appendAllURLParameters(
-								resourceURL,
-								resourceType
-										.getResourceCollectionIndexSingleExpandedResourceAdditionalParameters());
-
-				final SearchInstance siForWhichLoadingIsMade = parentMainSearchResultsPanel
-						.getCurrentSearchInstance(resourceType);
-				try {
-					final ResourceLink fullResourceData = BioCatalogueClient.getInstance()
-							.getBioCatalogueResource(
-									resourceType.getXmlBeansGeneratedClass(),
-									resourceURL);
-
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							// only update results if the search instance for
-							// which these additional details
-							// were loaded is still the active one
-							if (parentMainSearchResultsPanel
-									.isCurrentSearchInstance(resourceType,
-											siForWhichLoadingIsMade)) {
-								LoadingExpandedResource expandedResource = new LoadingExpandedResource(
-										fullResourceData);
-								expandedResource.setLoading(false);
-
-								searchInstance.getSearchResults()
-										.getFoundItems().set(indexInList,
-												expandedResource);
-								renderFurtherResults(searchInstance,
-										indexInList, 1, false);
-							}
-						}
-					});
-				} catch (Exception e) {
-					JOptionPane
-							.showMessageDialog(
-									MainWindow.getMainWindow(),
-									"Unexpected error while trying "
-											+ "to load additional details for the selected list entry",
-									"Service Catalogue Plugin",
-									JOptionPane.ERROR_MESSAGE);
-					logger.error(
-							"Unexpected error while trying to load additional details for a "
-									+ resourceType.getTypeName()
-									+ " list entry", e);
-				}
-			}
-		}.start();
-
 	}
 
 	// *** Callbacks for SearchResultsRenderer ***

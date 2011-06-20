@@ -6,13 +6,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Rectangle;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -22,13 +19,10 @@ import javax.swing.SwingUtilities;
 import net.sf.taverna.biocatalogue.model.LoadingExpandedResource;
 import net.sf.taverna.biocatalogue.model.LoadingResource;
 import net.sf.taverna.biocatalogue.model.Resource;
-import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
+import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 
 import org.biocatalogue.x2009.xml.rest.ResourceLink;
-import org.biocatalogue.x2009.xml.rest.Service;
-import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
-import org.biocatalogue.x2009.xml.rest.SoapOperation.Ancestors;
 
 
 /**
@@ -105,14 +99,9 @@ public abstract class ExpandableOnDemandLoadedListCellRenderer extends JPanel im
     
     // real data about some resource: details, but in the collapsed form
     else if (isInstanceOfResourceType(itemToRender)) {
-      prepareLoadedCollapsedEntry(itemToRender, false);
+      prepareLoadedEntry(itemToRender);
     }
-    
-    // resource that's been expanded for more details
-    else if (itemToRender instanceof LoadingExpandedResource) {
-      prepareLoadingExpandedEntry(itemToRender);
-    }
-    
+       
     // error case - unknown resource...
     else {
       prepareUnknownResourceTypeEntry();
@@ -172,10 +161,7 @@ public abstract class ExpandableOnDemandLoadedListCellRenderer extends JPanel im
    *                     fragment of the expanded list entry for this SOAP operation / REST method.
    * @return
    */
-  protected abstract GridBagConstraints prepareLoadedCollapsedEntry(Object itemToRender, boolean expandedView);
-  
-  
-  protected abstract void prepareLoadingExpandedEntry(Object itemToRender);
+  protected abstract GridBagConstraints prepareLoadedEntry(Object itemToRender);
   
   
   private void prepareUnknownResourceTypeEntry()

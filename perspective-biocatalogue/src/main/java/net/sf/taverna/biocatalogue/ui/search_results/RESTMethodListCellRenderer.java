@@ -36,11 +36,16 @@ import org.biocatalogue.x2009.xml.rest.SoapOperation;
  */
 public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCellRenderer
 {
-  private JLabel jlTypeIcon;
-  private JLabel jlItemStatus;
-  private JLabel jlItemTitle;
-  private JLabel jlPartOf;
-  private JLabel jlDescription;
+  private JLabel jlTypeIcon = new JLabel();
+  private JLabel jlItemStatus = new JLabel();
+  private JLabel jlItemTitle = new JLabel("X");
+  private JLabel jlPartOf = new JLabel("X");
+  private JLabel jlDescription = new JLabel("X");
+  private JLabel jlMethodType = new JLabel("X");
+  private JLabel jlUrlTemplate = new JLabel("X");
+  private JLabel jlMethodParameters = new JLabel("X");
+  private JLabel jlInputRepresentations = new JLabel("X");
+  private JLabel jlOutputRepresentations = new JLabel("X");
   
   private GridBagConstraints c;
   
@@ -49,7 +54,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
   
   
   public RESTMethodListCellRenderer() {
-    /* do nothing */
+	   jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
   }
   
   
@@ -66,16 +71,20 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
   {
     LoadingResource resource = (LoadingResource)itemToRender;
     
-    jlTypeIcon = new JLabel(resourceType.getIcon());
-    jlItemStatus = new JLabel(new ImageIcon(ResourceManager.getResourceLocalURL(ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE)));
+    jlTypeIcon.setIcon(resourceType.getIcon());
+    jlItemStatus.setIcon(new ImageIcon(ResourceManager.getResourceLocalURL(ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE)));
     
-    jlItemTitle = new JLabel("<html>" + Resource.getDisplayNameForResource(resource) + "<font color=\"gray\"><i>- fetching more information</i></font></html>", JLabel.LEFT);
-    jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
-   
-    jlPartOf = new JLabel("");
-    jlDescription = new JLabel(" ");
+    jlItemTitle.setText("<html>" + Resource.getDisplayNameForResource(resource) + "<font color=\"gray\"><i>- fetching more information</i></font></html>");
     
-    return (arrangeLayout(false, false));
+    jlPartOf.setText("");
+    jlDescription.setText(" ");
+    jlMethodType.setText(" ");
+    jlUrlTemplate.setText(" ");
+    jlMethodParameters.setText(" ");
+    jlInputRepresentations.setText(" ");
+    jlOutputRepresentations.setText(" ");
+    
+    return (arrangeLayout());
   }
   
   
@@ -86,7 +95,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
    *                     fragment of the expanded list entry for this SOAP operation / REST method.
    * @return
    */
-  protected GridBagConstraints prepareLoadedCollapsedEntry(Object itemToRender, boolean expandedView)
+  protected GridBagConstraints prepareLoadedEntry(Object itemToRender)
   {
     RestMethod restMethod = (RestMethod)itemToRender;;
     
@@ -95,22 +104,21 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     String title = "<html>" + Resource.getDisplayNameForResource(restMethod);
 
     if (restMethod.isSetArchived() || service.isSetArchived()) {
-    	jlTypeIcon = new JLabel(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
+    	jlTypeIcon.setIcon(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
     	title = title + "<i> - this operation is archived and probably cannot be used</i></html>";
     }
     else {
-    	jlTypeIcon = new JLabel(resourceType.getIcon());
+    	jlTypeIcon.setIcon(resourceType.getIcon());
     	title = title + "</html>";
     }
     
     // service status
-    jlItemStatus = new JLabel(new ImageIcon(ServiceMonitoringStatusInterpreter.getStatusIconURL(service, false)));
-    jlItemTitle = new JLabel(title, JLabel.LEFT);
-    jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
+    jlItemStatus.setIcon(new ImageIcon(ServiceMonitoringStatusInterpreter.getStatusIconURL(service, false)));
+    jlItemTitle.setText(title);
+     
+    jlPartOf.setText("<html><b>Part of: </b>" + restMethod.getAncestors().getRestService().getResourceName() + "</html>");
     
-    jlPartOf = new JLabel("<html><b>Part of: </b>" + restMethod.getAncestors().getRestService().getResourceName() + "</html>");
-    
-    int descriptionMaxLength = (expandedView ? DESCRIPTION_MAX_LENGTH_EXPANDED : DESCRIPTION_MAX_LENGTH_COLLAPSED);
+    int descriptionMaxLength = DESCRIPTION_MAX_LENGTH_EXPANDED;
     String strDescription = (restMethod.getDescription() == null || restMethod.getDescription().length() == 0 ?
                              "<font color=\"gray\">no description</font>" :
                              Util.stripAllHTML(restMethod.getDescription()));
@@ -119,9 +127,51 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
       strDescription = strDescription.substring(0, descriptionMaxLength) + "<font color=\"gray\">(...)</font>";
     }
     strDescription = "<html><b>Description: </b>" + strDescription + "</html>";
-    jlDescription = new JLabel(strDescription);
+    jlDescription.setText(strDescription);
     
-    return (arrangeLayout(true, expandedView));
+    jlMethodType.setText("<html><b>HTTP Method: </b>" + restMethod.getHttpMethodType().toString() + "</html>");
+    jlUrlTemplate.setText("<html><b>URL Template: </b>" + restMethod.getUrlTemplate() + "</html>");
+    
+    List<String> names = new ArrayList<String>();
+    for (RestParameter restParameter : restMethod.getInputs().getParameters().getRestParameterList()) {
+      names.add(restParameter.getName() + (restParameter.getIsOptional() ? " (optional)" : ""));
+    }
+    
+    String methodParameters = "<b>" + names.size() + " " + Util.pluraliseNoun("Parameter", names.size()) + "</b>";
+    if(names.size() > 0) {
+      methodParameters += ": " + Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false);
+    }
+    methodParameters = "<html>" + methodParameters + "</html>";
+    jlMethodParameters.setText(methodParameters);
+    
+       names.clear();
+      for (RestRepresentation restRepresentation : restMethod.getInputs().getRepresentations().getRestRepresentationList()) {
+        names.add(restRepresentation.getContentType());
+      }
+      
+      String inputRepresentations = "<b>" + names.size() + " " + Util.pluraliseNoun("Input representation", names.size()) + "</b>";
+      if(names.size() > 0) {
+        inputRepresentations += ": " + Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false);
+      }
+      inputRepresentations = "<html>" + inputRepresentations + "</html>";
+      
+      jlInputRepresentations.setText(inputRepresentations);
+
+      // output representations
+      names.clear();
+      for (RestRepresentation restRepresentation : restMethod.getOutputs().getRepresentations().getRestRepresentationList()) {
+        names.add(restRepresentation.getContentType());
+      }
+      
+      String outputRepresentations = "<b>" + names.size() + " " + Util.pluraliseNoun("Output representation", names.size()) + "</b>";
+      if(names.size() > 0) {
+        outputRepresentations += ": " + Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false);
+      }
+      outputRepresentations = "<html>" + outputRepresentations + "</html>";
+      
+      jlOutputRepresentations.setText(outputRepresentations);
+    
+    return (arrangeLayout());
   }
   
   
@@ -129,7 +179,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
    * @return Final state of the {@link GridBagConstraints} instance
    *         that was used to lay out components in the panel.
    */
-  private GridBagConstraints arrangeLayout(boolean showActionButtons, boolean expanded)
+  private GridBagConstraints arrangeLayout()
   {
     // POPULATE PANEL WITH PREPARED COMPONENTS
     this.setLayout(new GridBagLayout());
@@ -149,119 +199,38 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     this.add(jlItemTitle, c);
     
     c.gridx++;
-    c.gridheight = 3;
+    c.gridheight = 8;
     c.weightx = 0;
     c.weighty = 1.0;
-    this.add(jlItemStatus, c);	    
-
-    if (showActionButtons) {
-      c.gridx++;
-      c.gridheight = 3;
-      c.weightx = 0;
-      c.weighty = 1.0;
-      jlExpand = new JLabel(ResourceManager.getImageIcon((expanded ? ResourceManager.FOLD_ICON : ResourceManager.UNFOLD_ICON)));
-      this.add(jlExpand, c);
-    }
+    this.add(jlItemStatus, c);
     
     c.gridx = 1;
     c.gridy++;
     c.gridheight = 1;
     c.weightx = 1.0;
     c.weighty = 0;
-    c.insets = new Insets(3, 3, 8, 3);
     this.add(jlPartOf, c);
     
     c.gridy++;
-    c.insets = new Insets(3, 3, 8, 3);
     this.add(jlDescription, c);
     
+    c.gridy++;
+    this.add(jlMethodType, c);
+    
+    c.gridy++;
+    this.add(jlUrlTemplate, c);
+    
+    c.gridy++;
+    this.add(jlMethodParameters, c);
+    
+    c.gridy++;
+    this.add(jlInputRepresentations, c);
+    
+    c.gridy++;
+    this.add(jlOutputRepresentations, c);
     return (c);
   }
   
-  
-  
-  protected void prepareLoadingExpandedEntry(Object itemToRender)
-  {
-    LoadingExpandedResource expandedResource = (LoadingExpandedResource) itemToRender;
-    GridBagConstraints c = prepareLoadedCollapsedEntry(expandedResource.getAssociatedObj(), true);
-    
-    if (expandedResource.isLoading())
-    {
-      c.gridx = 0;
-      c.gridy++;
-      c.gridwidth = 3;
-      c.anchor = GridBagConstraints.CENTER;
-      c.fill = GridBagConstraints.HORIZONTAL;
-      c.weightx = 1.0;
-      this.add(loaderBarAnimationOrange, c);
-    }
-    else
-    {
-      // *** additional data for this REST method ***
-      RestMethod restMethod = (RestMethod) expandedResource.getAssociatedObj();
-      
-      // HTTP method
-      c.gridy++;
-      this.add(new JLabel("<html><b>HTTP Method: </b>" + restMethod.getHttpMethodType().toString() + "</html>"), c);
-      
-      // URL template
-      c.gridy++;
-      this.add(new JLabel("<html><b>URL Template: </b>" + restMethod.getUrlTemplate() + "</html>"), c);
-      
-      
-      // add REST method parameters
-      List<String> names = new ArrayList<String>();
-      for (RestParameter restParameter : restMethod.getInputs().getParameters().getRestParameterList()) {
-        names.add(restParameter.getName() + (restParameter.getIsOptional() ? " (optional)" : ""));
-      }
-      
-      String methodParameters = "<b>" + names.size() + " " + Util.pluraliseNoun("Parameter", names.size()) + "</b>";
-      if(names.size() > 0) {
-        methodParameters += ": " + Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false);
-      }
-      methodParameters = "<html>" + methodParameters + "</html>";
-      
-      c.gridy++;
-      this.add(new JLabel(methodParameters), c);
-      
-      
-      // input representations (e.g. content types of data that can be sent)
-      if (restMethod.getInputs().getRepresentations().getRestRepresentationList().size() > 0)
-      {
-        names.clear();
-        for (RestRepresentation restRepresentation : restMethod.getInputs().getRepresentations().getRestRepresentationList()) {
-          names.add(restRepresentation.getContentType());
-        }
-        
-        String inputRerpresentations = "<b>" + names.size() + " " + Util.pluraliseNoun("Input representation", names.size()) + "</b>";
-        if(names.size() > 0) {
-          inputRerpresentations += ": " + Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false);
-        }
-        inputRerpresentations = "<html>" + inputRerpresentations + "</html>";
-        
-        c.gridy++;
-        this.add(new JLabel(inputRerpresentations), c);
-      }
-      
-      // output representations
-      names.clear();
-      for (RestRepresentation restRepresentation : restMethod.getOutputs().getRepresentations().getRestRepresentationList()) {
-        names.add(restRepresentation.getContentType());
-      }
-      
-      String outputRerpresentations = "<b>" + names.size() + " " + Util.pluraliseNoun("Output representation", names.size()) + "</b>";
-      if(names.size() > 0) {
-        outputRerpresentations += ": " + Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false);
-      }
-      outputRerpresentations = "<html>" + outputRerpresentations + "</html>";
-      
-      c.gridy++;
-      this.add(new JLabel(outputRerpresentations), c);
-    }
-  }
-
-
-
 @Override
 boolean shouldBeHidden(Object itemToRender) {
 	if (!(itemToRender instanceof RestMethod)) {
