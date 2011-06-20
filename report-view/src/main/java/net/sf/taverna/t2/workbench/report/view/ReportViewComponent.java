@@ -58,6 +58,7 @@ import javax.swing.table.TableColumn;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.lang.ui.DeselectingButton;
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.visit.VisitReport;
@@ -186,7 +187,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		splitPanel.add(messagePane);
 
 		this.add(splitPanel, BorderLayout.CENTER);
-		ignoreReportButton = new JButton(new AbstractAction("Hide message") {
+		ignoreReportButton = new DeselectingButton("Hide message", new AbstractAction() {
 			public void actionPerformed(ActionEvent ex) {				
 			    if (lastSelectedReport != null) {
 			    	if (ignoredReports.contains(lastSelectedReport)) {
@@ -203,7 +204,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 			}			
 		});
 		//		JButton quickCheckButton = new JButton(new ReportOnWorkflowAction("Quick check", false, true));
-		JButton fullCheckButton = new JButton(new ReportOnWorkflowAction("Validate workflow", true, false){
+		JButton fullCheckButton = new DeselectingButton("Validate workflow", new ReportOnWorkflowAction("Validate workflow", true, false){
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Full check always starts from scratch
