@@ -177,7 +177,7 @@ public class MyExperimentClient {
   }
 
   // loads all plugin settings from the INI file
-  public void loadSettings() {
+  public synchronized void loadSettings() {
     try {
       // === READ SETTINGS ===
       FileInputStream fIniInputStream = new FileInputStream(new java.io.File(
@@ -226,7 +226,7 @@ public class MyExperimentClient {
   }
 
   // writes all plugin settings to the INI file
-  public void storeSettings() {
+  private void storeSettings() {
     // === ENCRYPT LOGIN AND PASSWORD ===
     // it's important to do this before writing these values into the INI file
     String strLogin = this.iniSettings.get(MyExperimentClient.INI_LOGIN)
