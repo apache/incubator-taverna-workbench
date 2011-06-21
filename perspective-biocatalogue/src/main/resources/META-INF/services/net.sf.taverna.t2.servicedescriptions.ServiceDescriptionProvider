@@ -1,2 +1,2 @@
-net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.BioCatalogueWSDLOperationServiceProvider
-net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.BioCatalogueRESTServiceProvider
+#net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.BioCatalogueWSDLOperationServiceProvider
+#net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.service_panel.BioCatalogueRESTServiceProvider
