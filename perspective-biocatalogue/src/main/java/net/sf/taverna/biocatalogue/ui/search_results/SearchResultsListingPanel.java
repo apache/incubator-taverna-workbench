@@ -805,7 +805,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 
 	public void renderFurtherResults(SearchInstance si, int startIndex,
 			int count) {
-		renderFurtherResults(si, startIndex, count, true);
+		renderFurtherResults(si, startIndex, count, false);
 	}
 
 	public void renderFurtherResults(final SearchInstance si,
