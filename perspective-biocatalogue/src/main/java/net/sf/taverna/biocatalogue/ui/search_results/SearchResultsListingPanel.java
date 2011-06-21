@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
+import javax.swing.ListCellRenderer;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -110,6 +111,8 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 
 	// Design perspective - some actions require switching to it
 	PerspectiveSPI designPerspective;
+
+	private ListCellRenderer listingCellRenderer;
 	
 	/**
 	 * @param typeToPreview
@@ -123,6 +126,8 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		this.thisPanel = this;
 
 		this.typeToPreview = typeToPreview;
+		listingCellRenderer = this.typeToPreview
+		.getResultListingCellRenderer();
 		this.parentMainSearchResultsPanel = parentMainSearchResultsPanel;
 		MainComponentFactory
 				.getSharedInstance();
@@ -378,8 +383,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		resultsListingModel = new DefaultListModel();
 		jlResultsListing = new JList(resultsListingModel);
 		jlResultsListing.setDoubleBuffered(true);
-		jlResultsListing.setCellRenderer(this.typeToPreview
-				.getResultListingCellRenderer());
+		jlResultsListing.setCellRenderer(listingCellRenderer);
 		jlResultsListing.addMouseListener(this);
 		jlResultsListing.addMouseMotionListener(this);
 		jlResultsListing.setBackground(thisPanel.getBackground());
@@ -397,16 +401,18 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 						// only enable actions in the menu if the list entry
 						// that is being
 						// clicked on is beyond the initial 'loading' state
+						boolean shown = !isListEntryOnlyWithInitialDetails(potentialObjectToPreview);
+						boolean shownAndNotArchived = shown && !isArchived(potentialObjectToPreview);
 						addToServicePanelAction
-								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
+								.setEnabled(shownAndNotArchived);
 						addAllOperationsToServicePanelAction
-						.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
+						.setEnabled(shownAndNotArchived);
 						addToWorkflowDiagramAction
-								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
+								.setEnabled(shownAndNotArchived);
 						openInBioCatalogueAction
-								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
+								.setEnabled(shown);
 						doHealthCheckAction
-								.setEnabled(!isListEntryOnlyWithInitialDetails(potentialObjectToPreview));
+								.setEnabled(shown);
 					    
 						return;
 					}
@@ -704,6 +710,14 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 	 */
 	private boolean isListEntryOnlyWithInitialDetails(ResourceLink resource) {
 		return (resource instanceof LoadingResource);
+	}
+	
+	private boolean isArchived(ResourceLink resource) {
+		if (listingCellRenderer instanceof ExpandableOnDemandLoadedListCellRenderer) {
+			ExpandableOnDemandLoadedListCellRenderer r = (ExpandableOnDemandLoadedListCellRenderer) listingCellRenderer;
+			return r.shouldBeHidden(resource);
+		}
+		return false;
 	}
 
 
