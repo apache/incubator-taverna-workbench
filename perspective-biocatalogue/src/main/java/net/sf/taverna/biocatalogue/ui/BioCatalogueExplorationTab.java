@@ -5,9 +5,11 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.LayoutFocusTraversalPolicy;
 
@@ -64,18 +66,31 @@ public class BioCatalogueExplorationTab extends JPanel implements HasDefaultFocu
     this.tabbedSearchResultsPanel = new SearchResultsMainPanel();
     this.searchOptionsPanel = new SearchOptionsPanel(tabbedSearchResultsPanel);
     
+    
     this.setLayout(new GridBagLayout());
     GridBagConstraints c = new GridBagConstraints();
     
     c.gridx = 0;
     c.gridy = 0;
     c.weightx = 0.0;
+    c.anchor = GridBagConstraints.WEST;
+    c.insets = new Insets(3,10,3,10);
+    String baseString= "<html><b>Using service catalogue at </b>" + client.getBaseURL() + "</html>";
+    this.add(new JLabel(baseString), c);
+
+    
+    c.gridx = 1;
+    c.gridy = 0;
+    c.weightx = 0.1;
     c.fill = GridBagConstraints.NONE;
     c.anchor = GridBagConstraints.EAST;
     
     this.add(searchOptionsPanel, c);
     
+    c.insets = new Insets(0,0,0,0);
     c.gridy++;
+    c.gridx = 0;
+    c.gridwidth = 2;
     c.weightx = c.weighty = 1.0;
     c.fill = GridBagConstraints.BOTH;
     c.anchor = GridBagConstraints.CENTER;
