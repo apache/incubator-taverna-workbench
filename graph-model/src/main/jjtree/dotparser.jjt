@@ -241,7 +241,7 @@ void node_id(NamedNode namedNode) #NodeId :
 void port(NamedNode namedNode) #Port :
 {Token t;}
 {
-    <COLON> t=<ID>{namedNode.setPort(t.image);}
+   <COLON> (LOOKAHEAD(2) t=<ID>{namedNode.setPort(t.image);} <COLON> <ID> | <ID>)
 }
 
 void edge_stmt() #EdgeStatement :
