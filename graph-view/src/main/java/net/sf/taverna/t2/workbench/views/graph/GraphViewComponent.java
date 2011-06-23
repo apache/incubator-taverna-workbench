@@ -390,14 +390,20 @@ public class GraphViewComponent extends WorkflowView {
 	private String getBorderTitle(final Dataflow d) {
 		String localName = d.getLocalName();
 		String sourceName = FileManager.getInstance().getDataflowName(d);
+		String result = "";
 		if (localName.equals(sourceName)) {
-			return localName;
+			result = localName;
 		}
-		if (sourceName.startsWith(localName + " ")) {
-			return sourceName;
+		else if (sourceName.startsWith(localName + " ")) {
+			result = sourceName;
 		}
-		return (localName + " from " + sourceName);
-		
+		else {
+			result = localName + " from " + sourceName;
+		}
+		if (result.length() > 60) {
+			result = result.substring(0, 57) + "...";
+		}
+		return result;
 	}
 
 	/**
