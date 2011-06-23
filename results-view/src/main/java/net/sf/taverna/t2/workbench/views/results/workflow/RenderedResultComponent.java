@@ -58,7 +58,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.results.ResultsUtils;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
-import net.sf.taverna.t2.lang.ui.LineWrappingTextArea;
 import net.sf.taverna.t2.reference.ErrorDocument;
 import net.sf.taverna.t2.reference.ExternalReferenceSPI;
 import net.sf.taverna.t2.reference.Identified;
@@ -214,14 +213,14 @@ public class RenderedResultComponent extends JPanel {
 					return;
 				}
 				Component component = renderedResultPanel.getComponent(0);
-	        	if (component instanceof LineWrappingTextArea){
+	        	if (component instanceof DialogTextArea){
 	        		if (e.getStateChange() == ItemEvent.SELECTED) {
-			        	((LineWrappingTextArea)component).wrapText();
-						nodeToWrapSelection.put(node.hashCode(), Boolean.TRUE);						
+						nodeToWrapSelection.put(node.hashCode(), Boolean.TRUE);	
+						renderResult();
 			        }	        
 			        else{
-			        	((LineWrappingTextArea)component).unwrapText();
 						nodeToWrapSelection.put(node.hashCode(), Boolean.FALSE);						
+						renderResult();
 			        }
 	        	}
 			}
@@ -530,13 +529,12 @@ public class RenderedResultComponent extends JPanel {
 			try {
 				component = renderer.getComponent(context
 						.getReferenceService(), t2Reference);
-				if (component instanceof LineWrappingTextArea){
-					((LineWrappingTextArea)component).setEditable(false);
+				if (component instanceof DialogTextArea){
 					if (wrapTextCheckBox.isSelected()){
-						((LineWrappingTextArea)component).wrapText();
+						((JTextArea) component).setLineWrap(wrapTextCheckBox.isSelected());
 					}
 				}
-				else if (component instanceof JTextComponent){
+				if (component instanceof JTextComponent){
 					((JTextComponent)component).setEditable(false);
 				}
 				else if (component instanceof JTree){
