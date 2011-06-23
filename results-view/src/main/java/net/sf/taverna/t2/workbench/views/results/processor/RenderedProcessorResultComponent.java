@@ -31,18 +31,22 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
@@ -85,6 +89,8 @@ import eu.medsea.mimeutil.MimeType;
 @SuppressWarnings("serial")
 public class RenderedProcessorResultComponent extends JPanel {
 
+	private static final String WRAP_TEXT = "Wrap text";
+
 	final String ERROR_DOCUMENT = "Error Document";
 	
 	private static Logger logger = Logger
@@ -125,11 +131,19 @@ public class RenderedProcessorResultComponent extends JPanel {
 	// contains a list). "text/plain" will always be added to the mimeList.
 	private String lastUsedMIMEtype = "text/plain"; // text renderer will always be available
 
+	// If result is "text/plain" - provide possibility to wrap wide text
+	private JCheckBox wrapTextCheckBox;
+
 	// Reference to the object being displayed (contained in the tree node)
 	private T2Reference t2Reference;
 	
 	// Currently selected node from the ResultViewComponent, if any.
 	private ProcessorResultTreeNode node = null;
+
+	// In case the node can be rendered as "text/plain", map the hash code of the node
+	// to the wrap text check box selection value for that node (that remembers if user wanted the text wrapped or not).
+	// We are using hash code as using node's user object might be too large.
+	private Map<Integer, Boolean> nodeToWrapSelection = new HashMap<Integer, Boolean>();
 
 	// List of all output ports - needs to be passed to 'save result' actions.
 	List<? extends DataflowOutputPort> dataflowOutputPorts = null;
@@ -185,7 +199,34 @@ public class RenderedProcessorResultComponent extends JPanel {
 		});
 		resultsTypePanel.add(refreshButton);
 
-		// 'Save result' buttons panel
+		// Check box for wrapping text if result is of type "text/plain"
+		wrapTextCheckBox = new JCheckBox(WRAP_TEXT);
+		wrapTextCheckBox.setVisible(false);
+		wrapTextCheckBox.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				// Should have only one child component holding the rendered result
+	        	// Check for empty just as well
+				if (renderedResultPanel.getComponents().length==0){
+					return;
+				}
+				Component component = renderedResultPanel.getComponent(0);
+	        	if (component instanceof DialogTextArea){
+	        		if (e.getStateChange() == ItemEvent.SELECTED) {
+						nodeToWrapSelection.put(node.hashCode(), Boolean.TRUE);	
+						renderResult();
+			        }	        
+			        else{
+						nodeToWrapSelection.put(node.hashCode(), Boolean.FALSE);						
+						renderResult();
+			        }
+	        	}
+			}
+		});
+
+		resultsTypePanel.add(wrapTextCheckBox);
+ 		// 'Save result' buttons panel
 		saveButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		List<SaveIndividualResultSPI> saveActions = saveActionsRegistry
 				.getSaveResultActions();
@@ -447,6 +488,20 @@ public class RenderedProcessorResultComponent extends JPanel {
 
 			Renderer renderer = rendererList.get(selectedIndex);
 			
+			if (renderer.getType().equals("Text")){ // if the result is "text/plain"
+				// We use node's hash code as the key in the nodeToWrapCheckBox 
+				// map as node's user object may be too large
+				if (nodeToWrapSelection.get(node.hashCode()) == null){
+					// initially not selected
+					nodeToWrapSelection.put(node.hashCode(), Boolean.FALSE);						
+				}
+				wrapTextCheckBox.setSelected(nodeToWrapSelection.get(node.hashCode()));
+				wrapTextCheckBox.setVisible(true);
+			}
+			else{
+				wrapTextCheckBox.setVisible(false);					
+			}
+
 			// Remember the last used renderer - use it for all result items of this port
 			//currentRendererIndex = selectedIndex;
 			lastUsedMIMEtype = mimeList[selectedIndex];
@@ -454,6 +509,11 @@ public class RenderedProcessorResultComponent extends JPanel {
 			JComponent component = null;
 			try {
 				component = renderer.getComponent(referenceService, t2Reference);
+				if (component instanceof DialogTextArea){
+					if (wrapTextCheckBox.isSelected()){
+						((JTextArea) component).setLineWrap(wrapTextCheckBox.isSelected());
+					}
+				}
 				if (component instanceof JTextComponent){
 					((JTextComponent)component).setEditable(false);
 				}
