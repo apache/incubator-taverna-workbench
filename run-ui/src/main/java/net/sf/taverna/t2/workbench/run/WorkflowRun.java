@@ -684,7 +684,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	    public ReloadWorkflowAction(final Dataflow dataflow) {
 	    	super();
 	    	this.dataflow = dataflow;
-	    	putValue(NAME, "Reload workflow");
+	    	putValue(NAME, "Edit executed workflow");
 	    	putValue(SMALL_ICON, WorkbenchIcons.refreshIcon);
 	    }
 
