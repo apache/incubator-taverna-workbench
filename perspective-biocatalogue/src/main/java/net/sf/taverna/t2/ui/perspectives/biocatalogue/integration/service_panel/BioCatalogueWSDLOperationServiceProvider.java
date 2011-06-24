@@ -64,7 +64,7 @@ public class BioCatalogueWSDLOperationServiceProvider extends
 	private static final URI providerId = URI
 	.create("http://taverna.sf.net/2010/service-provider/servicecatalogue/wsdl");
 	
-	private static Logger logger = Logger.getLogger(BioCatalogueRESTServiceProvider.class);
+	private static Logger logger = Logger.getLogger(BioCatalogueWSDLOperationServiceProvider.class);
 
 	@Override
 	protected List<? extends Object> getIdentifyingData() {
