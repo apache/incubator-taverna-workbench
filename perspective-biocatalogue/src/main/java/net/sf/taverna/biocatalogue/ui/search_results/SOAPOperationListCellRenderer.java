@@ -15,8 +15,10 @@ import net.sf.taverna.biocatalogue.model.LoadingResource;
 import net.sf.taverna.biocatalogue.model.Resource;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.Util;
+import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.health_check.ServiceMonitoringStatusInterpreter;
 
+import org.apache.commons.lang.StringUtils;
 import org.biocatalogue.x2009.xml.rest.Service;
 import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
 import org.biocatalogue.x2009.xml.rest.SoapInput;
@@ -36,12 +38,13 @@ import org.biocatalogue.x2009.xml.rest.SoapOperation.Ancestors;
 @SuppressWarnings("serial")
 public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListCellRenderer
 {
-  private JLabel jlTypeIcon = new JLabel();
+	
+	private JLabel jlTypeIcon = new JLabel();
   private JLabel jlItemStatus = new JLabel();
   private JLabel jlItemTitle = new JLabel("X");
   private JLabel jlPartOf = new JLabel("X");
   private JLabel jlWsdlLocation = new JLabel("X");
-  private JLabel jlDescription = new JLabel("X");
+  private ReadOnlyTextArea jlDescription = new ReadOnlyTextArea(5,80);
   private JLabel jlSoapInputs = new JLabel("X");
   private JLabel jlSoapOutputs = new JLabel("X");
   
@@ -52,6 +55,9 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
   
   public SOAPOperationListCellRenderer() {
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
+    jlDescription.setOpaque(false);
+    jlDescription.setLineWrap(true);
+    jlDescription.setWrapStyleWord(true);
   }
   
   
@@ -68,13 +74,13 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
     LoadingResource resource = (LoadingResource)itemToRender;
     
     jlTypeIcon.setIcon(resourceType.getIcon());
-    jlItemStatus.setIcon(new ImageIcon(ResourceManager.getResourceLocalURL(ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE)));
+    jlItemStatus.setIcon(ResourceManager.getImageIcon(ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE));
        
     jlItemTitle.setText("<html>" + Resource.getDisplayNameForResource(resource) + "<font color=\"gray\"><i>- fetching more information</i></font></html>");
    
     jlPartOf.setText(" ");
     jlWsdlLocation.setText(" ");
-    jlDescription.setText(" ");
+    jlDescription.setText("");
     jlSoapInputs.setText(" ");
     jlSoapOutputs.setText(" ");
    
@@ -85,11 +91,12 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
   /**
    * 
    * @param itemToRender
+ * @param selected 
    * @param expandedView <code>true</code> to indicate that this method generates the top
    *                     fragment of the expanded list entry for this SOAP operation / REST method.
    * @return
    */
-  protected GridBagConstraints prepareLoadedEntry(Object itemToRender)
+  protected GridBagConstraints prepareLoadedEntry(Object itemToRender, boolean selected)
   {
     SoapOperation soapOp = (SoapOperation)itemToRender;
     
@@ -111,24 +118,18 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
    }
     
     // service status
-    jlItemStatus.setIcon(new ImageIcon(ServiceMonitoringStatusInterpreter.getStatusIconURL(service, false)));
+    jlItemStatus.setIcon(ServiceMonitoringStatusInterpreter.getStatusIcon(service, false));
     jlItemTitle.setText(title);
     
     jlPartOf.setText("<html><b>Part of: </b>" + soapOp.getAncestors().getSoapService().getResourceName() + "</html>");
     
     jlWsdlLocation.setText("<html><b>WSDL location: </b>" + soapService.getWsdlLocation() + "</html>");
     
-    int descriptionMaxLength = DESCRIPTION_MAX_LENGTH_EXPANDED;
-    String strDescription = (soapOp.getDescription() == null || soapOp.getDescription().length() == 0 ?
-                             "<font color=\"gray\">no description</font>" :
+        String strDescription = (soapOp.getDescription() == null || soapOp.getDescription().length() == 0 ?
+                             "No description" :
                              Util.stripAllHTML(soapOp.getDescription()));
     
-    strDescription = Util.ensureLineLengthWithinString(strDescription, LINE_LENGTH, false);
-    if (strDescription.length() > descriptionMaxLength) {
-      strDescription = strDescription.substring(0, descriptionMaxLength) + "<font color=\"gray\">(...)</font>";
-    }
-    strDescription = "<html><b>Description: </b>" + strDescription + "</html>";
-    jlDescription.setText(strDescription);
+            jlDescription.setText(strDescription);
     
     // add SOAP inputs
     List<String> names = new ArrayList<String>();
@@ -218,12 +219,15 @@ private boolean isSoapLab(Service service) {
 	    c.gridy++;
 	    this.add(jlWsdlLocation, c);
 	    
+	    c.fill = GridBagConstraints.NONE;
 	    c.gridy++;
 	    this.add(jlDescription, c);
 	    
+	    c.fill = GridBagConstraints.HORIZONTAL;
 	    c.gridy++;
 	    this.add(jlSoapInputs, c);
 	    
+	    c.fill = GridBagConstraints.HORIZONTAL;
 	    c.gridy++;
 	    this.add(jlSoapOutputs, c);
 	    

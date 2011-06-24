@@ -87,7 +87,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
    *                     fragment of the expanded list entry for this SOAP operation / REST method.
    * @return
    */
-  protected GridBagConstraints prepareLoadedEntry(Object itemToRender)
+  protected GridBagConstraints prepareLoadedEntry(Object itemToRender, boolean selected)
   {
     TYPE resourceType = determineResourceType(itemToRender);
     Service service = (Service)itemToRender;;
@@ -116,7 +116,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
     
     
     // service status
-    jlItemStatus = new JLabel(new ImageIcon(ServiceMonitoringStatusInterpreter.getStatusIconURL(service, true)));
+    jlItemStatus = new JLabel(ServiceMonitoringStatusInterpreter.getStatusIcon(service, true));
     
     jlItemTitle = new JLabel(Resource.getDisplayNameForResource(service), JLabel.LEFT);
     jlItemTitle.setForeground(Color.decode("#AD0000"));  // very dark red
@@ -190,7 +190,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
   protected void prepareLoadingExpandedEntry(Object itemToRender)
   {
     LoadingExpandedResource expandedResource = (LoadingExpandedResource) itemToRender;
-    GridBagConstraints c = prepareLoadedEntry(expandedResource.getAssociatedObj());
+    GridBagConstraints c = prepareLoadedEntry(expandedResource.getAssociatedObj(), false);
     
     if (expandedResource.isLoading())
     {

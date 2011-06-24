@@ -20,13 +20,7 @@ public class BioCataloguePerspective implements PerspectiveSPI
 
 	public ImageIcon getButtonIcon()
 	{
-	  URL iconURL = ResourceManager.getResourceLocalURL(ResourceManager.FAVICON);
-    
-	  if (iconURL == null) {
-	    return null;
-	  } else {
-	    return new ImageIcon(iconURL);
-    }
+		return ResourceManager.getImageIcon(ResourceManager.FAVICON);
 	}
 
 	public InputStream getLayoutInputStream() {

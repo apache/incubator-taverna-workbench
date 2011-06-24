@@ -328,15 +328,15 @@ public class Util
 
         // need to preserve at least all line breaks
         // (ending and starting paragraph also make a line break)
-        source = source.replaceAll("</p>[\r\n]*<p>", "<br>");
+        source = source.replaceAll("</p>[\r\n]*<p>", "<br/>");
         source = source.replaceAll("\\<br/?\\>", "[-=BR=-]");
 
         // strip all HTML
         source = source.replaceAll("\\<.*?\\>", "");
 
         // put the line breaks back
-        source = source.replaceAll("\\[-=BR=-\\]", "<br><br>");
-
+        source = source.replaceAll("\\[-=BR=-\\]", "<br/>");
+        source = source.replaceAll("\\n", "<br/>");
         return (source);
   }
 
@@ -352,8 +352,10 @@ public class Util
 
         // need to preserve at least all line breaks
         // (ending and starting paragraph also make a line break)
-        source = source.replaceAll("</p>[\r\n]*<p>", "<br>");
-        source = source.replaceAll("\\<br/?\\>", "\n\n");
+        source = source.replaceAll("</p>[\r\n]*<p>", "<br/>");
+        source = source.replaceAll("[\\s]+", " ");
+        source = source.replaceAll("\\<br/?\\>", "\n");
+        source = source.replaceAll("\n ", "\n");
 
         // strip all HTML
         source = source.replaceAll("\\<.*?\\>", ""); // any HTML tags

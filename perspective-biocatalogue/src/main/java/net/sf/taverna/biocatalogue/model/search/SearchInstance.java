@@ -481,4 +481,10 @@ public class SearchInstance implements Comparable<SearchInstance>, Serializable
     return (SearchInstance)Util.deepCopy(this);
   }
   
+  public boolean isEmptySearch() {
+	  return ((searchString == null) || searchString.isEmpty()) &&
+	  ((searchTags == null) || searchTags.isEmpty()) &&
+			  ((filteringSettings == null) || (filteringSettings.getNumberOfFilteringCriteria() == 0));
+  }
+  
 }

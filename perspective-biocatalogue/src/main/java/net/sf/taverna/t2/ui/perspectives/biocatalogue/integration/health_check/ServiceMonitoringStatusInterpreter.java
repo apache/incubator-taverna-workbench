@@ -3,6 +3,7 @@ package net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.health_check;
 import java.net.URL;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.t2.visit.VisitReport;
@@ -22,27 +23,16 @@ public class ServiceMonitoringStatusInterpreter
   
   
   /**
-   * @param service
-   * @param listingIconRequired True to get a small icon suitable for a JList entry;
-   *                            false to get a larger icon.
-   * @return
-   */
-  public static Icon getStatusIcon(Service service, boolean listingIconRequired) {
-    return ResourceManager.getImageIcon(getStatusIconURL(service, listingIconRequired));
-  }
-  
-  
-  /**
    * @param serviceWithMonitoringData
    * @param listingIconRequired True to get a small icon suitable for a JList entry;
    *                            false to get a larger icon.
    * @return
    */
-  public static URL getStatusIconURL(Service serviceWithMonitoringData, boolean listingIconRequired)
+  public static ImageIcon getStatusIcon(Service serviceWithMonitoringData, boolean listingIconRequired)
   {
     MonitoringStatus latestMonitoringStatus = serviceWithMonitoringData.getLatestMonitoringStatus();
     if (latestMonitoringStatus == null) {
-    	return ResourceManager.getResourceLocalURL((listingIconRequired ?
+    	return ResourceManager.getImageIcon((listingIconRequired ?
                 ResourceManager.SERVICE_STATUS_UNCHECKED_ICON :
                     ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE));
     }
@@ -50,23 +40,23 @@ public class ServiceMonitoringStatusInterpreter
     
     switch (serviceStatusLabel.intValue()) {
       case MonitoringStatusLabel.INT_PASSED:
-              return ResourceManager.getResourceLocalURL((listingIconRequired ?
+              return ResourceManager.getImageIcon((listingIconRequired ?
                                                           ResourceManager.SERVICE_STATUS_PASSED_ICON :
                                                           ResourceManager.SERVICE_STATUS_PASSED_ICON_LARGE));
       case MonitoringStatusLabel.INT_WARNING:
-              return ResourceManager.getResourceLocalURL((listingIconRequired ?
+              return ResourceManager.getImageIcon((listingIconRequired ?
                                                           ResourceManager.SERVICE_STATUS_WARNING_ICON :
                                                           ResourceManager.SERVICE_STATUS_WARNING_ICON_LARGE));
       case MonitoringStatusLabel.INT_FAILED:
-              return ResourceManager.getResourceLocalURL((listingIconRequired ?
+              return ResourceManager.getImageIcon((listingIconRequired ?
                                                           ResourceManager.SERVICE_STATUS_FAILED_ICON :
                                                           ResourceManager.SERVICE_STATUS_FAILED_ICON_LARGE));
       case MonitoringStatusLabel.INT_UNCHECKED:
-              return ResourceManager.getResourceLocalURL((listingIconRequired ?
+              return ResourceManager.getImageIcon((listingIconRequired ?
                                                           ResourceManager.SERVICE_STATUS_UNCHECKED_ICON :
                                                           ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE));
       default:
-              return (ResourceManager.getResourceLocalURL(ResourceManager.SERVICE_STATUS_UNKNOWN_ICON));
+              return (ResourceManager.getImageIcon(ResourceManager.SERVICE_STATUS_UNKNOWN_ICON));
     }
     
   }

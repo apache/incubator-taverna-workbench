@@ -16,7 +16,6 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
-import net.sf.taverna.biocatalogue.model.LoadingExpandedResource;
 import net.sf.taverna.biocatalogue.model.LoadingResource;
 import net.sf.taverna.biocatalogue.model.Resource;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
@@ -99,7 +98,7 @@ public abstract class ExpandableOnDemandLoadedListCellRenderer extends JPanel im
     
     // real data about some resource: details, but in the collapsed form
     else if (isInstanceOfResourceType(itemToRender)) {
-      prepareLoadedEntry(itemToRender);
+      prepareLoadedEntry(itemToRender, isSelected);
     }
        
     // error case - unknown resource...
@@ -126,7 +125,6 @@ public abstract class ExpandableOnDemandLoadedListCellRenderer extends JPanel im
         setBackground(Color.WHITE);
         setForeground(list.getForeground());
     }
-    
     
     this.revalidate();
     
@@ -157,11 +155,12 @@ public abstract class ExpandableOnDemandLoadedListCellRenderer extends JPanel im
   /**
    * 
    * @param itemToRender
+ * @param isSelected 
    * @param expandedView <code>true</code> to indicate that this method generates the top
    *                     fragment of the expanded list entry for this SOAP operation / REST method.
    * @return
    */
-  protected abstract GridBagConstraints prepareLoadedEntry(Object itemToRender);
+  protected abstract GridBagConstraints prepareLoadedEntry(Object itemToRender, boolean isSelected);
   
   
   private void prepareUnknownResourceTypeEntry()

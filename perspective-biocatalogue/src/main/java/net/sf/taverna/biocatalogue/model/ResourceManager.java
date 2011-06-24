@@ -8,6 +8,7 @@ import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.net.URL;
+import java.util.HashMap;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -267,23 +268,20 @@ public class ResourceManager
   }
   
   
-  public static URL getResourceLocalURL(int resourceId) {
+  private static URL getResourceLocalURL(int resourceId) {
     return (BioCataloguePerspective.class.getResource(getResourceRelPath(resourceId)));
   }
   
+  private static HashMap<Integer, ImageIcon> iconMap = new HashMap<Integer, ImageIcon>();
+  
   public static ImageIcon getImageIcon(int iconId)
   {
-    try
-    {
-      // attempt to return an icon that was requested
-      return (new ImageIcon(getResourceLocalURL(iconId)));
-    }
-    catch (NullPointerException e)
-    {
-      // if the regular operation was impossible, return a default
-      // icon to avoid an NullPointerException being thrown
-      return (drawMissingIcon());
-    }
+	  ImageIcon result = iconMap.get(iconId);
+	  if (result == null) {
+		  result = new ImageIcon(getResourceLocalURL(iconId));
+		  iconMap.put(iconId, result);
+	  }
+	  return result;
   }
   
   public static ImageIcon getImageIcon(URL resourceLocalURL) {

@@ -1,6 +1,5 @@
 package net.sf.taverna.biocatalogue.ui.search_results;
 
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -8,25 +7,20 @@ import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
-import net.sf.taverna.biocatalogue.model.LoadingExpandedResource;
 import net.sf.taverna.biocatalogue.model.LoadingResource;
 import net.sf.taverna.biocatalogue.model.Resource;
-import net.sf.taverna.biocatalogue.model.Resource.TYPE;
 import net.sf.taverna.biocatalogue.model.ResourceManager;
 import net.sf.taverna.biocatalogue.model.Util;
+import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.health_check.ServiceMonitoringStatusInterpreter;
 
 import org.biocatalogue.x2009.xml.rest.RestMethod;
-import org.biocatalogue.x2009.xml.rest.RestMethod.Ancestors;
-
 import org.biocatalogue.x2009.xml.rest.RestParameter;
 import org.biocatalogue.x2009.xml.rest.RestRepresentation;
 import org.biocatalogue.x2009.xml.rest.Service;
-import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
-import org.biocatalogue.x2009.xml.rest.SoapOperation;
+import org.biocatalogue.x2009.xml.rest.RestMethod.Ancestors;
 
 
 /**
@@ -40,7 +34,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
   private JLabel jlItemStatus = new JLabel();
   private JLabel jlItemTitle = new JLabel("X");
   private JLabel jlPartOf = new JLabel("X");
-  private JLabel jlDescription = new JLabel("X");
+  private ReadOnlyTextArea jlDescription = new ReadOnlyTextArea(5, 80);
   private JLabel jlMethodType = new JLabel("X");
   private JLabel jlUrlTemplate = new JLabel("X");
   private JLabel jlMethodParameters = new JLabel("X");
@@ -55,6 +49,9 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
   
   public RESTMethodListCellRenderer() {
 	   jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
+	    jlDescription.setOpaque(false);
+	    jlDescription.setLineWrap(true);
+	    jlDescription.setWrapStyleWord(true);
   }
   
   
@@ -72,7 +69,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     LoadingResource resource = (LoadingResource)itemToRender;
     
     jlTypeIcon.setIcon(resourceType.getIcon());
-    jlItemStatus.setIcon(new ImageIcon(ResourceManager.getResourceLocalURL(ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE)));
+    jlItemStatus.setIcon(ResourceManager.getImageIcon(ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE));
     
     jlItemTitle.setText("<html>" + Resource.getDisplayNameForResource(resource) + "<font color=\"gray\"><i>- fetching more information</i></font></html>");
     
@@ -95,7 +92,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
    *                     fragment of the expanded list entry for this SOAP operation / REST method.
    * @return
    */
-  protected GridBagConstraints prepareLoadedEntry(Object itemToRender)
+  protected GridBagConstraints prepareLoadedEntry(Object itemToRender, boolean selected)
   {
     RestMethod restMethod = (RestMethod)itemToRender;;
     
@@ -113,20 +110,14 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     }
     
     // service status
-    jlItemStatus.setIcon(new ImageIcon(ServiceMonitoringStatusInterpreter.getStatusIconURL(service, false)));
+    jlItemStatus.setIcon(ServiceMonitoringStatusInterpreter.getStatusIcon(service, false));
     jlItemTitle.setText(title);
      
     jlPartOf.setText("<html><b>Part of: </b>" + restMethod.getAncestors().getRestService().getResourceName() + "</html>");
     
-    int descriptionMaxLength = DESCRIPTION_MAX_LENGTH_EXPANDED;
     String strDescription = (restMethod.getDescription() == null || restMethod.getDescription().length() == 0 ?
                              "<font color=\"gray\">no description</font>" :
                              Util.stripAllHTML(restMethod.getDescription()));
-    strDescription = Util.ensureLineLengthWithinString(strDescription, LINE_LENGTH, false);
-    if (strDescription.length() > descriptionMaxLength) {
-      strDescription = strDescription.substring(0, descriptionMaxLength) + "<font color=\"gray\">(...)</font>";
-    }
-    strDescription = "<html><b>Description: </b>" + strDescription + "</html>";
     jlDescription.setText(strDescription);
     
     jlMethodType.setText("<html><b>HTTP Method: </b>" + restMethod.getHttpMethodType().toString() + "</html>");
@@ -211,9 +202,11 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     c.weighty = 0;
     this.add(jlPartOf, c);
     
+    c.fill = GridBagConstraints.NONE;
     c.gridy++;
     this.add(jlDescription, c);
     
+    c.fill = GridBagConstraints.HORIZONTAL;
     c.gridy++;
     this.add(jlMethodType, c);
     

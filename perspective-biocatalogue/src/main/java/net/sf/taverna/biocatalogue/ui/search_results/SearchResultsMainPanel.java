@@ -294,6 +294,11 @@ public class SearchResultsMainPanel extends JPanel implements ActionListener, Se
                             break;
         }
         
+        if (si.isEmptySearch()) {
+        	clearListingPanels();
+        	return;
+        }
+        
         // Record 'this' search instance and set it as the new "primary" one for
         // this resource type;
         // (this way it if a new search thread starts afterwards, it is possible to
@@ -472,16 +477,19 @@ public class SearchResultsMainPanel extends JPanel implements ActionListener, Se
     return this.currentSearchInstances.get(searchType);
   }
 
-
-public void clearSearch() {
-	clearPreviousSearchInstances();
+public void clearListingPanels() {
     for (SearchResultsListingPanel listingPanel : searchResultListings.values()) {
     	listingPanel.resetSearchResultsListing(true);
     }
     for (TYPE t : searchResultListings.keySet()) {
     	setDefaultTitleForTab(t);
     }
-    
+	
+}
+
+public void clearSearch() {
+	clearPreviousSearchInstances();
+	clearListingPanels();
     for (FilterTreePane treePanel : currentFilterPanes.values()) {
     	treePanel.reset();
     }
