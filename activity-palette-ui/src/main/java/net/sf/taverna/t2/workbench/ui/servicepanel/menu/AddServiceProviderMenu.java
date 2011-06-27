@@ -96,8 +96,8 @@ public class AddServiceProviderMenu extends JButton {
 		Collections.sort(providers,  new ServiceProviderComparator());
 		for (ConfigurableServiceProvider provider : providers) {
 			// Skip BioCatalogue's ConfigurableServiceProviderS as they should
-			// not be used to add servcie directlry but rather though the BioCatalogue perspective 
-			if (!provider.getName().toLowerCase().contains("biocatalogue")){
+			// not be used to add servcie directlry but rather though the Service Catalogue perspective 
+			if (!provider.getName().toLowerCase().contains("servicecatalogue")){
 				AddServiceProviderAction addAction = new AddServiceProviderAction(
 						provider, this);
 				addAction.setServiceDescriptionRegistry(getServiceDescriptionRegistry());
