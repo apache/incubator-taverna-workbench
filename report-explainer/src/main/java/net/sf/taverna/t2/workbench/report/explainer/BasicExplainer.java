@@ -401,7 +401,7 @@ public class BasicExplainer implements VisitExplainer {
 		} else {
 			responseCode = "response code: " + responseCode;
 		}
-		return createPanel(new Object[]{"Taverna connected to \"" + endpoint + "\" but received " + responseCode + ".  The service may still work; for example a DDBJ Blast service generates this response."});
+		return createPanel(new Object[]{"Taverna connected to \"" + endpoint + "\" but received " + responseCode + ".  The service may still work."});
 	}
 	
 	private static JComponent explanationIoProblem(VisitReport vr) {
