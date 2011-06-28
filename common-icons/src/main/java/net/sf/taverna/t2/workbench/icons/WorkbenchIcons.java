@@ -114,7 +114,12 @@ public class WorkbenchIcons {
 	public static ImageIcon opmIcon;
 	public static ImageIcon workflowResultsIcon;
 	public static ImageIcon normalizeIcon;
+	public static ImageIcon errorMessageIcon;
+	public static ImageIcon infoMessageIcon;
+	public static ImageIcon questionMessageIcon;
+	public static ImageIcon warningMessageIcon;
 
+	
 	static {
 		// Load the image files found in this package into the class.
 		try {
@@ -249,6 +254,12 @@ public class WorkbenchIcons {
 			workflowResultsIcon = new ImageIcon(c
 					.getResource("generic/workflowResults.png"));
 			normalizeIcon = new ImageIcon(c.getResource("generic/normalize.png"));
+			
+			errorMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-error-icon.png"));
+			infoMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-info-icon.png"));
+			questionMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-question-icon.png"));
+			warningMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-warning-icon.png"));
+			
 		} catch (Exception ex) {
 			logger.error("Could not create icon", ex);
 		}
