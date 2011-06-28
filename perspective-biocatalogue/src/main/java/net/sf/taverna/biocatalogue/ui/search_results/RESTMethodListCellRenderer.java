@@ -116,7 +116,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     jlPartOf.setText("<html><b>Part of: </b>" + restMethod.getAncestors().getRestService().getResourceName() + "</html>");
     
     String strDescription = (restMethod.getDescription() == null || restMethod.getDescription().length() == 0 ?
-                             "<font color=\"gray\">no description</font>" :
+                             "No description" :
                              Util.stripAllHTML(restMethod.getDescription()));
     jlDescription.setText(strDescription);
     
