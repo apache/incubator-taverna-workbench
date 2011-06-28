@@ -30,6 +30,7 @@ import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.client.ProvenanceExporter;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 
 /**
@@ -44,7 +45,7 @@ public class SaveAllResultsAsJanus extends SaveAllResultsSPI {
 	public SaveAllResultsAsJanus() {
 		super();
 		putValue(NAME, "Save as Janus (experimental)");
-		//putValue(SMALL_ICON, WorkbenchIcons.janusIcon);
+		putValue(SMALL_ICON, WorkbenchIcons.janusIcon);
 	}
 
 	@Override
