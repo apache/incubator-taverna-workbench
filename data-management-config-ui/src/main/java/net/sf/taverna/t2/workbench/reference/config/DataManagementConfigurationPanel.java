@@ -178,7 +178,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		
 		c.insets = new Insets(0, 0, 5, 0);
 		c.fill = GridBagConstraints.NONE;
-		exposeDatanatureBox = new JCheckBox("Allow setting of input port data type");
+		exposeDatanatureBox = new JCheckBox("Allow setting of input data encoding");
 		gridbag.setConstraints(exposeDatanatureBox, c);
 		add(exposeDatanatureBox);
 
