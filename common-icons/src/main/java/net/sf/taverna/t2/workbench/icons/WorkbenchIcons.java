@@ -112,6 +112,7 @@ public class WorkbenchIcons {
 	public static ImageIcon tavernaCogs64x64Icon;
 	public static ImageIcon tavernaCogs32x32Icon;
 	public static ImageIcon opmIcon;
+	public static ImageIcon janusIcon;
 	public static ImageIcon workflowResultsIcon;
 	public static ImageIcon normalizeIcon;
 	public static ImageIcon errorMessageIcon;
@@ -251,6 +252,8 @@ public class WorkbenchIcons {
 					.getResource("generic/taverna_cogs_32x32.png"));
 			opmIcon = new ImageIcon(c
 					.getResource("generic/opmIcon.png"));
+			janusIcon = new ImageIcon(c
+					.getResource("generic/janus.png"));
 			workflowResultsIcon = new ImageIcon(c
 					.getResource("generic/workflowResults.png"));
 			normalizeIcon = new ImageIcon(c.getResource("generic/normalize.png"));
