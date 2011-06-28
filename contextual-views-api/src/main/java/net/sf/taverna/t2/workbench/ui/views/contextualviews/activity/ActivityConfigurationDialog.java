@@ -252,7 +252,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 			if (checkPanelValues()) {
 				int answer = JOptionPane.showConfirmDialog(this,
 						"Do you want to save the configuration of "
-								+ relativeName, relativeName,
+								+ relativeName +"?", relativeName,
 						JOptionPane.YES_NO_CANCEL_OPTION);
 				if (answer == JOptionPane.YES_OPTION) {
 					applyConfiguration();
