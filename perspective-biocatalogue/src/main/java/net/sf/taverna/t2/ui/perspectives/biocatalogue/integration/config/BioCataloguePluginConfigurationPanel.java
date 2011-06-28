@@ -311,14 +311,14 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 							String minorVersion = versions[1];
 							try {
 							//String patchVersion = versions[2]; // we are not comparing the patch versions
-							String nm = MIN_SUPPORTED_BIOCATALOGUE_API_VERSION[0];
-							String nm2 = MIN_SUPPORTED_BIOCATALOGUE_API_VERSION[1];
-							Integer integer = Integer.parseInt(nm);
-							Integer integer2 = Integer.parseInt(majorVersion);
-							Integer integer3 = Integer.parseInt(nm2);
-							Integer integer4 = Integer.parseInt(minorVersion);
-							if (!(integer == integer2 && 
-									integer3 <= integer4)){
+							String supportedMajorVersion = MIN_SUPPORTED_BIOCATALOGUE_API_VERSION[0];
+							String supportedMinorVersion = MIN_SUPPORTED_BIOCATALOGUE_API_VERSION[1];
+							Integer iSupportedMajorVersion = Integer.parseInt(supportedMajorVersion);
+							Integer iMajorVersion = Integer.parseInt(majorVersion);
+							Integer iSupportedMinorVersion = Integer.parseInt(supportedMinorVersion);
+							Integer iMinorVersion = Integer.parseInt(minorVersion);
+							if (!(iSupportedMajorVersion == iMajorVersion && 
+									iSupportedMinorVersion <= iMinorVersion)){
 								// Warn the user
 								JOptionPane
 										.showMessageDialog(
