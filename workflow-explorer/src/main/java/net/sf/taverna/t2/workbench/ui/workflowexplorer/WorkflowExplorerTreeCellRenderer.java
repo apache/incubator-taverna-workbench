@@ -22,6 +22,7 @@ package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 
 import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -88,7 +89,11 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 		WorkflowExplorerTreeCellRenderer renderer = (WorkflowExplorerTreeCellRenderer) result;
 		
 		if (userObject instanceof Dataflow){ //the root node
-			renderer.setIcon(chooseIcon(WorkbenchIcons.workflowExplorerIcon, status));
+			if (!hasGrandChildren((DefaultMutableTreeNode) value)) {
+				renderer.setIcon(WorkbenchIcons.workflowExplorerIcon);
+			} else {
+				renderer.setIcon(chooseIcon(WorkbenchIcons.workflowExplorerIcon, status));
+			}
 			renderer.setText(((Dataflow) userObject).getLocalName());
 		}
 		else if (userObject instanceof DataflowInputPort) {
@@ -180,6 +185,16 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			return Icons.severeIcon;
 		}
 		return basicIcon;
+	}
+	
+	private static boolean hasGrandChildren(DefaultMutableTreeNode node) {
+		int childCount = node.getChildCount();
+		for (int i = 0; i < childCount; i++) {
+			if (node.getChildAt(i).getChildCount() > 0) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private String findName(Port port) {		
