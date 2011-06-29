@@ -51,7 +51,7 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 	private static Logger logger = Logger.getLogger(AddStringConstantTemplateAction.class);
 
 	public AddStringConstantTemplateAction(){
-		super(insertSection, 70);
+		super(insertSection, 800);
 	}
 
 	@Override

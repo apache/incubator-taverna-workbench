@@ -60,7 +60,7 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 	private static Logger logger = Logger.getLogger(AddStringConstantTemplateMenuAction.class);
 
 	public AddStringConstantTemplateMenuAction(){
-		super(InsertMenu.INSERT, 25, ADD_STRING_CONSTANT_URI);
+		super(InsertMenu.INSERT, 800, ADD_STRING_CONSTANT_URI);
 	}
 
 	@Override
