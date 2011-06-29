@@ -16,7 +16,7 @@ public class MergeWorkflowMenuAction extends AbstractMenuAction {
 			.create("http://taverna.sf.net/2008/t2workbench/menu#insert");
 
 	public MergeWorkflowMenuAction() {
-		super(INSERT_URI, 40, IMPORT_URI);
+		super(INSERT_URI, 2000, IMPORT_URI);
 	}
 
 	@Override
