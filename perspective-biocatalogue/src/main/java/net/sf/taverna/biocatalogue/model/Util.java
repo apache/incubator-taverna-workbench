@@ -25,13 +25,20 @@ import javax.swing.JLabel;
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.BioCataloguePerspective;
 
+import org.apache.log4j.Logger;
+
 /**
  * Class containing various reusable helper methods.
  * 
  * @author Sergejs Aleksejevs
  */
 public class Util
+
+
 {
+	
+	private static Logger logger = Logger.getLogger(Util.class);
+
   
   /**
    * Makes sure that one component (for example, a window) is centered horizontally and vertically
@@ -551,8 +558,7 @@ public class Util
     }
     catch (Exception e)
     {
-      System.err.println("\nCouldn't append parameter ('" + name + "', '" + value + "') to the URL: " + url); 
-      e.printStackTrace();
+      logger.error("\nCouldn't append parameter ('" + name + "', '" + value + "') to the URL: " + url, e); 
       return (null);
     }
   }
@@ -628,8 +634,7 @@ public class Util
     catch (MalformedURLException e)
     {
       // some problem occurred - report it; can't return any data in this case
-      System.err.println("Couldn't parse parameters of a URL: " + url + "; details below:");
-      e.printStackTrace();
+      logger.error("Couldn't parse parameters of a URL: " + url + "; details below:", e);
       return null;
     }
   }
@@ -802,8 +807,7 @@ public class Util
       }
       catch(Exception e)
       {
-         System.err.println("ERROR: couldn't perform deep copy of " + objectToCopy.getClass() + " instance; details:\n");
-         e.printStackTrace();
+         logger.error("Could not perform deep copy of " + objectToCopy.getClass() + " instance", e);
       }
       finally
       {
@@ -812,8 +816,7 @@ public class Util
       }
     }
     catch (Exception e) {
-      System.err.println("ERROR: couldn't close object streams during deep copy of " + objectToCopy.getClass() + " instance; details:\n");
-      e.printStackTrace();
+      logger.error("Could not close object streams during deep copy of " + objectToCopy.getClass() + " instance");
     }
     
     // Error occurred - couldn't produce the deep copy...

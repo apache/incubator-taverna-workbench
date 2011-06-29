@@ -61,7 +61,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel
 	// from http://www.biocatalogue.org/wiki/doku.php?id=public:api:changelog
 	// "Major version X (X.y.z | X > 0) MUST be incremented if any backwards 
 	// incompatible changes are introduced to the public API. It MAY include minor and patch level changes."
-	public static String[] MIN_SUPPORTED_BIOCATALOGUE_API_VERSION = {"1", "0", "0b"}; // major, minor and patch versions
+	public static String[] MIN_SUPPORTED_BIOCATALOGUE_API_VERSION = {"1", "1", "0"}; // major, minor and patch versions
 	public static String API_VERSION = "apiVersion";
 
 	private BioCataloguePluginConfiguration configuration = 

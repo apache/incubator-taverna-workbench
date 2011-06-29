@@ -164,8 +164,7 @@ public class SearchEngine
       }
     }
     catch (Exception e) {
-      System.err.println("ERROR: Couldn't execute initial phase of a search by query, details below:");
-      e.printStackTrace();
+      logger.error("ERROR: Couldn't execute initial phase of a search by query, details below:", e);
     }
     
     // no matter if search was completed or interrupted by a new search, notify the caller  // FIXME - is this needed?

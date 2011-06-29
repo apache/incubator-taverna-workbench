@@ -97,8 +97,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI //, Ch
           Class.forName("org.xhtmlrenderer.simple.XHTMLPanel");
         }
         catch (ClassNotFoundException e) {
-          System.err.println("\nProblem while pre-loading classes for FlyingSaucer XHTML renderer... Error message below:");
-          e.printStackTrace();
+          logger.error("Problem while pre-loading classes for FlyingSaucer XHTML renderer", e);
         }
       }
     }.start();

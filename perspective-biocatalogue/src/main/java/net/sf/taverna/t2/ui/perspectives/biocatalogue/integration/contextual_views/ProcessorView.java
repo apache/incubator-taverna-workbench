@@ -129,7 +129,7 @@ public class ProcessorView extends ContextualView {
   					    }
   					    catch (Exception ex) {
   					      logger.error("Failed while trying to open the URL in a standard browser; URL was: " +
-  					           hrefString + "\nException was: " + ex + "\n" + ex.getStackTrace());
+  					           hrefString, ex);
   					    };
                     }
                     else {

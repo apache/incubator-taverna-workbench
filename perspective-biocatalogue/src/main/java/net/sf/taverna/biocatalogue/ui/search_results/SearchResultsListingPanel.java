@@ -62,6 +62,7 @@ import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.ResourceLink;
+import org.biocatalogue.x2009.xml.rest.RestMethod;
 import org.biocatalogue.x2009.xml.rest.Service;
 import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
 
@@ -78,7 +79,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		SearchResultsRenderer, MouseMotionListener {
 	public static final int SEARCH_STATUS_TOOLTIP_LINE_LENGTH = 65;
 
-	private final Logger logger;
+	private static final Logger logger = Logger.getLogger(SearchResultsListingPanel.class);
 	private final SearchResultsMainPanel parentMainSearchResultsPanel;
 
 	// currently displayed search results
@@ -131,7 +132,6 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 		this.parentMainSearchResultsPanel = parentMainSearchResultsPanel;
 		MainComponentFactory
 				.getSharedInstance();
-		this.logger = Logger.getLogger(this.getClass());
 
 		initialiseUI();
 
@@ -337,7 +337,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 			tbSelectedItemActions.add(addToServicePanelAction);
 		}
 		if (typeToPreview.isSuitableForAddingAllToServicePanel()) {
-		tbSelectedItemActions.add(addAllOperationsToServicePanelAction);
+			tbSelectedItemActions.add(addAllOperationsToServicePanelAction);
 		}
 		if (typeToPreview.isSuitableForAddingToWorkflowDiagram()) {
 			tbSelectedItemActions.add(addToWorkflowDiagramAction);
@@ -406,7 +406,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 						addToServicePanelAction
 								.setEnabled(shownAndNotArchived);
 						addAllOperationsToServicePanelAction
-						.setEnabled(shownAndNotArchived);
+						.setEnabled(shownAndNotArchived && !(potentialObjectToPreview instanceof RestMethod));
 						addToWorkflowDiagramAction
 								.setEnabled(shownAndNotArchived);
 						openInBioCatalogueAction
@@ -670,9 +670,8 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 									parentMainSearchResultsPanel, latch,
 									thisPanel, pageToFetchNumber);
 						} catch (Exception e) {
-							System.err
-									.println("\n\nError while searching via the Service Catalogue API. Error details:");
-							e.printStackTrace();
+							logger.error("Error while searching via the Service Catalogue API", e);
+
 						}
 					}
 				}.start();
