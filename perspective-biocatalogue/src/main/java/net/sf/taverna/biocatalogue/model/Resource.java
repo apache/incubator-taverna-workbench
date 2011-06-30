@@ -303,9 +303,8 @@ public class Resource
         Logger.getLogger(Resource.class).error("Unable to instantiate search results ListCellRenderer for " +
                                                this.getCollectionName(), e);
         JOptionPane.showMessageDialog(MainWindow.getMainWindow(), 
-            "The plugin was unable to instantiate ListCellRenderer for " + this.getCollectionName() + ".\n\n" +
-            "This is likely to make the plugin crash or at least be unable to display search results for\n" +
-            "items of this type.\n\nPlease try to restart Taverna.", "Service Catalogue Plugin", JOptionPane.ERROR_MESSAGE);
+            "Taverna was unable to instantiate ListCellRenderer for " + this.getCollectionName() + ".\n\n" +
+            "This may make Taverna unstable.", "Service Catalogue Plugin", JOptionPane.ERROR_MESSAGE);
         return null;
       }
     }
