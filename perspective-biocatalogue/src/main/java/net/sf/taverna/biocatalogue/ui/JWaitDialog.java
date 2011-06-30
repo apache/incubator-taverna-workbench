@@ -157,7 +157,7 @@ public class JWaitDialog extends JDialog
           new TimerTask() {
             public void run() {
               waitFinished(new JLabel("<html><center>The operation did not complete within the " +
-              		                    "allocated time.<br>Please try again.</center></html>",
+              		                    "allocated time.</center></html>",
               		                    UIManager.getIcon("OptionPane.warningIcon"), JLabel.CENTER));
               hasTimedOut = true;
             }
