@@ -56,11 +56,11 @@ import net.sf.taverna.t2.facade.ResultListener;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.invocation.WorkflowDataToken;
-import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.lineageservice.utils.DataflowInvocation;
 import net.sf.taverna.t2.provenance.lineageservice.utils.Port;
+import net.sf.taverna.t2.provenance.reporter.ProvenanceReporter;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.MainWindow;
@@ -137,7 +137,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 	
 	public WorkflowResultsComponent(ReferenceService referenceService) {
 		super(new BorderLayout());
-		this.referenceService = referenceService;
+		this.referenceService = referenceService;		
 		setBorder(new EtchedBorder());
 		tabbedPane = new JTabbedPane();
 		saveButtonsPanel = new JPanel(new GridBagLayout());
@@ -265,8 +265,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		String connectorType = DataManagementConfiguration.getInstance().getConnectorType();
 		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
 		
-		InvocationContext dummyContext = new InvocationContextImpl(referenceService, null);
-		context = dummyContext;
 		
 		populateSaveButtonsPanel();
 
@@ -328,7 +326,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 
 			    PortResultsViewTab resultTab = inputPortTabMap.get(entry.getKey().getPortName());
 			    WorkflowResultTreeModel treeModel = resultTab.getResultModel();
-			    treeModel.createTree(entry.getValue(), dummyContext, ((WorkflowResultTreeNode) treeModel.getRoot()));				
+			    treeModel.createTree(entry.getValue(), getContext(), ((WorkflowResultTreeNode) treeModel.getRoot()));				
 			    // Need to refresh the tree model we have just changed by adding result nodes
 			    resultTab.getModel().reload();
 			    resultTab.expandTree(); // tree will be collapsed after reloading
@@ -337,7 +335,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			else{ // output port
 			    PortResultsViewTab resultTab = outputPortTabMap.get(entry.getKey().getPortName());
 			    WorkflowResultTreeModel treeModel = resultTab.getResultModel();
-			    treeModel.createTree(entry.getValue(), dummyContext, ((WorkflowResultTreeNode) treeModel.getRoot()));	
+			    treeModel.createTree(entry.getValue(), getContext(), ((WorkflowResultTreeNode) treeModel.getRoot()));	
 			    // Need to refresh the tree model we have just changed by adding result nodes
 			    resultTab.getModel().reload();
 			    resultTab.expandTree(); // tree will be collapsed after reloading
@@ -346,6 +344,18 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		}
 	}
 	
+	public InvocationContext getContext() {
+		if (context == null) {
+			InvocationContext dummyContext = new DummyContext(referenceService);
+			context = dummyContext;
+		}
+		return context;
+	}
+
+	public void setContext(InvocationContext context) {
+		this.context = context;
+	}
+
 	public void selectWorkflowPortTab(DataflowPort port) {
 		PortResultsViewTab tab;
 		if (port instanceof DataflowInputPort) {
@@ -365,10 +375,11 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 
 	public void resultTokenProduced(WorkflowDataToken token, String portName) {
 		
-		// Set the invocation context the first time you get the chance
-		if (context == null)
-			context = token.getContext();
-		
+		if (context == null || context instanceof DummyContext) {
+			// Set the real invocation context		
+			setContext(token.getContext());
+		}
+			
 		// If we have finished receiving results - token.getIndex().length is 0
 		if (token.getIndex().length == 0){
 			receivedAllResultsForPort.put(portName, new Boolean(Boolean.TRUE));
@@ -571,7 +582,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 					((SaveAllResultsSPI)action).setChosenReferences(chosenReferences);
 					((SaveAllResultsSPI)action).setParent(dialog);			
 					((SaveAllResultsSPI)action).setReferenceService(referenceService);
-					((SaveAllResultsSPI)action).setInvocationContext(context);
+					((SaveAllResultsSPI)action).setInvocationContext(getContext());
 				}
 				//saveButton.setEnabled(true);
 				buttonsBar.add(saveButton);

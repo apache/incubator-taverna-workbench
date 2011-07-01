@@ -90,6 +90,7 @@ import net.sf.taverna.t2.workbench.views.results.processor.FilteredIterationTree
 import net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPIRegistry;
+import net.sf.taverna.t2.workbench.views.results.workflow.DummyContext;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
@@ -997,7 +998,7 @@ public class ProcessorResultsComponent extends JPanel {
 					((SaveAllResultsSPI)action).setChosenReferences(chosenReferences);
 					((SaveAllResultsSPI)action).setParent(dialog);			
 					((SaveAllResultsSPI)action).setReferenceService(referenceService);
-					((SaveAllResultsSPI)action).setInvocationContext(null);
+					((SaveAllResultsSPI)action).setInvocationContext(new DummyContext(referenceService));
 				}
 				//saveButton.setEnabled(true);
 				buttonsBar.add(saveButton);
