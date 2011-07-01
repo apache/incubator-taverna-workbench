@@ -37,10 +37,10 @@ public class BioCataloguePerspective implements PerspectiveSPI
 
 	public int positionHint()
 	{
-	  // this determines position of myExperiment perspective in the
+	  // this determines position of perspective in the
     // bar with perspective buttons (currently makes it the last in
     // the list)
-    return 30;
+    return 40;
 	}
 
 	public void setVisible(boolean visible) {

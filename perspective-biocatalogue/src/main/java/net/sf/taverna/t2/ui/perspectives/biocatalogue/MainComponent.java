@@ -66,7 +66,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI //, Ch
 
 	@Override
 	public String getName() {
-		return "myExperiment Perspective Main Component";
+		return "Service Catalogue Perspective Main Component";
 	}
 
 	public void onDisplay() {

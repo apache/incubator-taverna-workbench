@@ -40,7 +40,7 @@ public class MainComponentFactory implements UIComponentFactorySPI
 	}
 
 	public String getName() {
-		return "myExperiment Main Component Factory";
+		return "Service Catalogue Main Component Factory";
 	}
 
 }
