@@ -104,7 +104,7 @@ public class IterationStrategyEditor extends IterationStrategyTree implements
        
         public boolean canImport(TransferHandler.TransferSupport support) {  
             if(!support.isDrop()) {
-            	System.err.println("isDrop not supported");
+            	logger.error("isDrop not supported");
                 return false;  
             }  
 
