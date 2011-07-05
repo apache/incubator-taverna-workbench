@@ -78,7 +78,7 @@
       <groupid>net.sf.taverna.t2.ui-components</groupid>
       <artifact>report-view</artifact>
       <classname>net.sf.taverna.t2.workbench.report.view.ReportViewComponentFactory</classname>
-      <version>1.3-SNAPSHOT</version>
+      <version>1.3</version>
       <name>reportView</name>
     </namedcomponent>
     <namedcomponent>
