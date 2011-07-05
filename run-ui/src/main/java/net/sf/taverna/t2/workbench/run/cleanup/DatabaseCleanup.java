@@ -99,6 +99,9 @@ public class DatabaseCleanup {
 	public void scheduleDeleteDataflowRun(String workflowRunId,
 			boolean startDeletion) {
 		addToDeletionQueue(workflowRunId, startDeletion);
+		synchronized (deletionOnRestartList) {
+			deletionOnRestartList.remove(workflowRunId);	
+		}
 	}
 	
 	public void scheduleDeleteDataflowRunOnRestart(String workflowRunId) {
@@ -138,7 +141,7 @@ public class DatabaseCleanup {
 
 	protected void persist() {
 		File runToDeleteFile = getRunToDeleteFile();
-		if (deletionQueue.isEmpty()) {
+		if (deletionQueue.isEmpty() && deletionOnRestartList.isEmpty()) {
 			runToDeleteFile.delete();
 			return;
 		}
