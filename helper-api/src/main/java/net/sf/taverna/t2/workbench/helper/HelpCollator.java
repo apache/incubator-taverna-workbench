@@ -84,7 +84,7 @@ public final class HelpCollator {
 	
 	private static Profile profile = ProfileFactory.getInstance().getProfile();
 	private static String version = profile.getVersion();
-	private static String externalHelpSetURL = "http://www.mygrid.org.uk/taverna/helpset/" + "2.3-SNAPSHOT" + "/helpset.hs";
+	private static String externalHelpSetURL = "http://www.mygrid.org.uk/taverna/helpset/" + version + "/helpset.hs";
 
 	/**
 	 * Attempt to read the up-to-date HelpSet from the web
