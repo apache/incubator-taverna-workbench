@@ -99,8 +99,11 @@ private JTextField tfSearchQuery;
     jbClearSearch.setIcon(ResourceManager.getImageIcon(ResourceManager.CLEAR_ICON));
     
     this.add(jbClearSearch, c);
+    
     c.gridx++;
-   this.add(tfSearchQuery, c);
+    c.fill = GridBagConstraints.HORIZONTAL;
+    c.weightx = 0.1;
+    this.add(tfSearchQuery, c);
     
     
     // --- Search button ---

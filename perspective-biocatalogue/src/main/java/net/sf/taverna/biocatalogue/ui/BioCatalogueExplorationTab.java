@@ -82,8 +82,9 @@ public class BioCatalogueExplorationTab extends JPanel implements HasDefaultFocu
     c.gridx = 1;
     c.gridy = 0;
     c.weightx = 0.1;
-    c.fill = GridBagConstraints.NONE;
+    c.fill = GridBagConstraints.HORIZONTAL;
     c.anchor = GridBagConstraints.EAST;
+    c.insets = new Insets(3,30,3,10);
     
     this.add(searchOptionsPanel, c);
     
