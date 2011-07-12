@@ -160,32 +160,23 @@ public class DotWriter {
 		GraphNode sink = edge.getSink();
 		String sourceId = "\"" + source.getId() + "\"";
 		String sinkId = "\"" + sink.getId() + "\"";
-		String ports = source.getId() + sink.getId();
 		
 		if (source.getParent() instanceof GraphNode) {
 			GraphNode parent = (GraphNode) source.getParent();
-//			if (parent.getShape().equals(Shape.RECORD)) {
-				if (alignment.equals(Alignment.HORIZONTAL)) {
-				    //TODO try seting the compass point with a newer version of dot
-					sourceId = "\"" + parent.getId() + "\":" + sourceId;
-				} else {
-					sourceId = "\"" + parent.getId() + "\":" + sourceId;
-				}
-//			} else {
-//				sourceId = "\"" + parent.getId() + "\"";
-//			}
+			sourceId = "\"" + parent.getId() + "\":" + sourceId;
 		}
 		if (sink.getParent() instanceof GraphNode) {
 			GraphNode parent = (GraphNode) sink.getParent();
-//			if (parent.getShape().equals(Shape.RECORD)) {
-				if (alignment.equals(Alignment.HORIZONTAL)) {
-					sinkId = "\"" + parent.getId() + "\":" + sinkId;
-				} else {
-					sinkId = "\"" + parent.getId() + "\":" + sinkId;
-				}
-//			} else {
-//				sinkId = "\"" + parent.getId() + "\"";
-//			}
+			sinkId = "\"" + parent.getId() + "\":" + sinkId;
+		}
+	    //the compass point is required with newer versions of dot (e.g. 2.26.3)
+		//but is not compatible with older versions (e.g. 1.3)
+		if (alignment.equals(Alignment.HORIZONTAL)) {
+			sourceId = sourceId + ":e";
+			sinkId = sinkId + ":w";
+		} else {
+			sourceId = sourceId + ":s";
+			sinkId = sinkId + ":n";			
 		}
 		writeLine(indent + sourceId + " -> " + sinkId + " [");
 		writeLine(indent + " arrowhead=\"" + edge.getArrowHeadStyle().toString().toLowerCase() + "\"");
@@ -193,11 +184,7 @@ public class DotWriter {
 		if (edge.getColor() != null) {
 			writeLine(indent + " color=\"" + getHexValue(edge.getColor()) + "\"");
 		}
-		
-		//hack to force the port names through to the SVG so we can
-		//work out which SVG edge maps to which graph edge
-//		writeLine(indent + " URL=\"" + ports + "\"");
-		
+				
 		writeLine(indent + "]");
 	}
 

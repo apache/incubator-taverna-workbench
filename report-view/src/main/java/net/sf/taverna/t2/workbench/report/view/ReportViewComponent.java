@@ -1,6 +1,23 @@
-/**
+/*******************************************************************************
+ * Copyright (C) 2008-2010 The University of Manchester   
  * 
- */
+ *  Modifications to the initial code base are copyright of their
+ *  respective authors, or their employers as appropriate.
+ * 
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public License
+ *  as published by the Free Software Foundation; either version 2.1 of
+ *  the License, or (at your option) any later version.
+ *    
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
+ *    
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ ******************************************************************************/
 package net.sf.taverna.t2.workbench.report.view;
 
 import java.awt.BorderLayout;
@@ -9,7 +26,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
@@ -27,11 +43,10 @@ import javax.swing.JInternalFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
+//import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.JViewport;
+//import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -40,16 +55,15 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableModel;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.lang.ui.DeselectingButton;
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.report.DataflowReportEvent;
@@ -61,7 +75,6 @@ import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.NamedWorkflowEntity;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.health.RemoteHealthChecker;
 
@@ -71,6 +84,7 @@ import org.apache.log4j.Logger;
  * @author Alan R Williams
  *
  */
+@SuppressWarnings("serial")
 public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	
 	private static Logger logger = Logger
@@ -84,9 +98,9 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 
 	private JLabel dataflowName;
 	
-	private static JTextArea solutionDescription;
-	private static JTextArea issueDescription;
-	private static JSplitPane subSplitPane = new JSplitPane();
+	//private static JTextArea solutionDescription;
+	//private static JTextArea issueDescription;
+	//private static JSplitPane subSplitPane = new JSplitPane();
 	
 	private JTable table;
 	private static final JComponent defaultExplanation = new ReadOnlyTextArea("No additional explanation available");
@@ -173,7 +187,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		splitPanel.add(messagePane);
 
 		this.add(splitPanel, BorderLayout.CENTER);
-		ignoreReportButton = new JButton(new AbstractAction("Hide message") {
+		ignoreReportButton = new DeselectingButton("Hide message", new AbstractAction() {
 			public void actionPerformed(ActionEvent ex) {				
 			    if (lastSelectedReport != null) {
 			    	if (ignoredReports.contains(lastSelectedReport)) {
@@ -190,7 +204,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 			}			
 		});
 		//		JButton quickCheckButton = new JButton(new ReportOnWorkflowAction("Quick check", false, true));
-		JButton fullCheckButton = new JButton(new ReportOnWorkflowAction("Validate workflow", true, false){
+		JButton fullCheckButton = new DeselectingButton("Validate workflow", new ReportOnWorkflowAction("Validate workflow", true, false){
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// Full check always starts from scratch
@@ -444,7 +458,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 	// margin pixels are added to the left and right
 	// (resulting in an additional width of 2*margin pixels).
 	public void packColumn(JTable table, int vColIndex, int margin, boolean fixWidth) {
-		TableModel model = table.getModel();
+		//TableModel model = table.getModel();
 		DefaultTableColumnModel colModel = (DefaultTableColumnModel) table
 				.getColumnModel();
 		TableColumn col = colModel.getColumn(vColIndex);

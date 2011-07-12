@@ -48,7 +48,7 @@ public class InitialiseSSLStartupHook implements StartupSPI{
 		try {
 			CredentialManager.initialiseSSL();
 		} catch (CMException e) {
-			logger.error("Could not initialise SSL socket factory and Taverna's Truststore for SSL connections from Taverna.", e);
+			logger.error("Could not initialise the SSL socket factory (for creating SSL connections) using Taverna's keystores.", e);
 		}
 		return true;
 	}

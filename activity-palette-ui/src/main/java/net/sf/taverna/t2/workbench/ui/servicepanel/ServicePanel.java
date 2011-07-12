@@ -219,7 +219,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					try {
-						serviceTreePanel.runFilter();
+							serviceTreePanel.runFilter();
 						} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 							logger.error("", e);
@@ -249,16 +249,18 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 					}
 					currentPath = pathEntry;
 				}
-				TreeMap<String, ServiceDescription> services = (TreeMap<String, ServiceDescription>) pathEntry
+				TreeMap<String, Set<ServiceDescription>> services = (TreeMap<String, Set<ServiceDescription>>) pathEntry
 						.get(SERVICES);
 				if (services == null) {
-					services = new TreeMap<String, ServiceDescription>();
+					services = new TreeMap<String, Set<ServiceDescription>>();
 					pathEntry.put(SERVICES, services);
 				}
 				String serviceDescriptionName = serviceDescription.getName();
 				if (!services.containsKey(serviceDescriptionName)) {
-					services.put(serviceDescriptionName, serviceDescription);
+					Set<ServiceDescription> serviceSet = new HashSet<ServiceDescription>();
+					services.put(serviceDescriptionName, serviceSet);
 				}
+				services.get(serviceDescriptionName).add(serviceDescription);
 			}
 			return paths;
 		}
@@ -282,10 +284,10 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			}
 
 			TreeSet<Comparable> paths = new TreeSet<Comparable>(servicePathElementComparator);
-			TreeMap<String, ServiceDescription> services = (TreeMap<String, ServiceDescription>) pathMap
+			TreeMap<String, Set<ServiceDescription>> services = (TreeMap<String, Set<ServiceDescription>>) pathMap
 			.get(SERVICES);
 			if (services == null) {
-				services = new TreeMap<String, ServiceDescription>();
+				services = new TreeMap<String, Set<ServiceDescription>>();
 			}
 			paths.addAll(pathMap.keySet());
 			paths.addAll(services.keySet());
@@ -297,16 +299,18 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				if (pathElement.equals(SERVICES)) {
 					continue;
 				}
-				FilterTreeNode childNode;
+				Set<FilterTreeNode> childNodes = new HashSet<FilterTreeNode> ();
 				if (services.containsKey(pathElement)) {
-					childNode = new ServiceFilterTreeNode(services.get(pathElement));
+					for (ServiceDescription sd : services.get(pathElement)) {
+						childNodes.add (new ServiceFilterTreeNode(sd));
+					}
 				} else {
-					childNode = new PathElementFilterTreeNode((String)pathElement);
+					childNodes.add(new PathElementFilterTreeNode((String)pathElement));
 				}
 				SwingUtilities
-						.invokeLater(new AddNodeRunnable(node, childNode));
-				if (pathMap.containsKey(pathElement)) {
-					populateChildren(childNode, (Map) pathMap.get(pathElement));
+						.invokeLater(new AddNodeRunnable(node, childNodes));
+				if ((pathMap.containsKey(pathElement)) && !childNodes.isEmpty()){
+					populateChildren(childNodes.iterator().next(), (Map) pathMap.get(pathElement));
 				}
 			}
 //			if (!services.isEmpty()) {
@@ -326,19 +330,21 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		
 
 		public class AddNodeRunnable implements Runnable {
-			private final FilterTreeNode node;
+			private final Set< FilterTreeNode> nodes;
 			private final FilterTreeNode root;
 
-			public AddNodeRunnable(FilterTreeNode root, FilterTreeNode node) {
+			public AddNodeRunnable(FilterTreeNode root, Set<FilterTreeNode> nodes) {
 				this.root = root;
-				this.node = node;
+				this.nodes = nodes;
 			}
 
 			public void run() {
 				if (aborting) {
 					return;
 				}
-				root.add(node);
+				for (FilterTreeNode n : nodes) {
+					root.add(n);
+				}
 			}
 		}
 	}

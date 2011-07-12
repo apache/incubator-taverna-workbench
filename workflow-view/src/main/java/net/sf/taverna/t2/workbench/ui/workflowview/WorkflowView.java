@@ -1,6 +1,7 @@
 package net.sf.taverna.t2.workbench.ui.workflowview;
 
 import java.awt.Component;
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -17,6 +18,7 @@ import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -27,11 +29,13 @@ import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.design.actions.RemoveProcessorAction;
 import net.sf.taverna.t2.workbench.design.actions.RenameProcessorAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowUndoEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.actions.PasteGraphComponentAction;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.ui.workflowview.ShowExceptionRunnable;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -82,6 +86,9 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 	private static HashMap<String, Element> requiredSubworkflows = new HashMap<String, Element>();
 	
 	private static ChangeObserver observer = null;
+	
+	private static String UNABLE_TO_ADD_SERVICE = "Unable to add service";
+	private static String UNABLE_TO_COPY_SERVICE = "Unable to copy service";
 
 	/**
 	 * Create a WorkflowView and set it up to receive services.
@@ -135,12 +142,15 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 			editManager
 					.doDataflowEdit(currentDataflow, new CompoundEdit(editList));
 	} catch (EditException e) {
+		showException(UNABLE_TO_ADD_SERVICE, e);
 		logger.warn("Could not add processor : edit error", e);
 		p = null;
 	} catch (InstantiationException e) {
+		showException(UNABLE_TO_ADD_SERVICE,e);
 		logger.warn("Could not add processor : edit error", e);
 		p = null;
 	} catch (IllegalAccessException e) {
+		showException(UNABLE_TO_ADD_SERVICE,e);
 		logger.error(e);
 	}
 	
@@ -189,8 +199,10 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 				ServiceDescription data = (ServiceDescription) t.getTransferData(serviceDescriptionDataFlavor);
 				importServiceDescription(data, false);
 			} catch (UnsupportedFlavorException e) {
+				showException(UNABLE_TO_ADD_SERVICE,e);
 				logger.error(e);
 			} catch (IOException e) {
+				showException(UNABLE_TO_ADD_SERVICE,e);
 				logger.error(e);
 			}
 			
@@ -247,20 +259,28 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 		editList.add(edit);
 		EditManager.getInstance().doDataflowEdit(currentDataflow, new CompoundEdit(editList));
 		} catch (ActivityConfigurationException e) {
+			showException(UNABLE_TO_ADD_SERVICE,e);
 			logger.error(e);
 		} catch (EditException e) {
+			showException(UNABLE_TO_ADD_SERVICE,e);
 			logger.error(e);
 		} catch (ClassNotFoundException e) {
+			showException(UNABLE_TO_ADD_SERVICE,e);
 			logger.error(e);
 		} catch (InstantiationException e) {
+			showException(UNABLE_TO_ADD_SERVICE,e);
 			logger.error(e);
 		} catch (IllegalAccessException e) {
+			showException(UNABLE_TO_ADD_SERVICE,e);
 			logger.error(e);
 		} catch (DeserializationException e) {
+			showException(UNABLE_TO_ADD_SERVICE,e);
 			logger.error(e);
 		} catch (UnsupportedFlavorException e) {
+			showException(UNABLE_TO_ADD_SERVICE,e);
 			logger.error(e);
 		} catch (IOException e) {
+			showException(UNABLE_TO_ADD_SERVICE,e);
 			logger.error(e);
 		}
 	}
@@ -310,13 +330,12 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 			Toolkit.getDefaultToolkit().getSystemClipboard().setContents(t, null);
 			PasteGraphComponentAction.getInstance().setEnabled(true);
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
+			showException(UNABLE_TO_COPY_SERVICE, e1);
 			logger.error(e1);
 		} catch (JDOMException e1) {
-			// TODO Auto-generated catch block
-			logger.error(e1);
+			logger.error(UNABLE_TO_COPY_SERVICE, e1);
 		} catch (SerializationException e) {
-			logger.error(e);
+			logger.error(UNABLE_TO_COPY_SERVICE, e);
 		}
 	}
 	
@@ -371,14 +390,14 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 				EditManagerEvent message) throws Exception {
 			Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
 			Edit<?> edit = message.getEdit();
-			considerEdit(edit);
+			considerEdit(edit, message instanceof DataFlowUndoEvent);
 		}
 		
-		private void considerEdit(Edit<?> edit) {
+		private void considerEdit(Edit<?> edit, boolean undoing) {
 			if (edit instanceof CompoundEdit) {
 				CompoundEdit compound = (CompoundEdit) edit;
 				for (Edit e : compound.getChildEdits()) {
-					considerEdit(e);
+				    considerEdit(e, undoing);
 				}
 			} else {
 				Object subject = edit.getSubject();
@@ -386,22 +405,32 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 					DataflowSelectionModel selectionModel = DataflowSelectionManager
 					.getInstance().getDataflowSelectionModel(
 							(Dataflow) edit.getSubject());
-					Object selectedObject = null;
+					Object objectOfEdit = null;
 					if (edit instanceof AddProcessorEdit) {
-						selectedObject = ((AddProcessorEdit) edit).getProcessor();
+						objectOfEdit = ((AddProcessorEdit) edit).getProcessor();
 					} else if (edit instanceof AddDataflowInputPortEdit) {
-						selectedObject = ((AddDataflowInputPortEdit) edit).getDataflowInputPort();
+						objectOfEdit = ((AddDataflowInputPortEdit) edit).getDataflowInputPort();
 					} else if (edit instanceof AddDataflowOutputPortEdit) {
-						selectedObject = ((AddDataflowOutputPortEdit) edit).getDataflowOutputPort();
+						objectOfEdit = ((AddDataflowOutputPortEdit) edit).getDataflowOutputPort();
 					}
-					if (selectedObject != null) {
+					if (objectOfEdit != null) {
+					    if (undoing && selectionModel.getSelection().contains(objectOfEdit)) {
+						selectionModel.clearSelection();
+					    } else {
 						HashSet selection = new HashSet();
-						selection.add(selectedObject);
+						selection.add(objectOfEdit);
 						selectionModel.setSelection(selection);		
+					    }
 					}
 				}
 			}
 		}
 		
+	}
+	
+	private static void showException(String message, Exception e) {
+		if (!GraphicsEnvironment.isHeadless()) {
+			SwingUtilities.invokeLater(new ShowExceptionRunnable(message, e));
+		}
 	}
 }

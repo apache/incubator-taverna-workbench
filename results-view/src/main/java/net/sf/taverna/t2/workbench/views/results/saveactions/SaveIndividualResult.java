@@ -37,6 +37,7 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
+import net.sf.taverna.t2.lang.results.ResultsUtils;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
 import net.sf.taverna.t2.reference.DereferenceException;
 import net.sf.taverna.t2.reference.ErrorDocument;
@@ -45,8 +46,8 @@ import net.sf.taverna.t2.reference.Identified;
 import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -146,7 +147,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 								@Override
 								public void run(){
 									try {
-										saveData(finalFile, dataStream);
+										IOUtils.copyLarge(dataStream, new FileOutputStream(finalFile));
 									} catch (Exception ex) {
 										JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 												JOptionPane.ERROR_MESSAGE);
@@ -165,7 +166,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 							@Override
 							public void run(){
 								try {
-									saveData(finalFile, dataStream);
+									IOUtils.copyLarge(dataStream, new FileOutputStream(finalFile));
 								} catch (Exception ex) {
 									JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 											JOptionPane.ERROR_MESSAGE);
@@ -223,8 +224,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 								@Override
 								public void run(){
 									try {
-										// We need the data to be saved as an InputStream
-										saveData(finalFile, new ByteArrayInputStream(errorString.getBytes("UTF-8")));
+										IOUtils.copyLarge(new ByteArrayInputStream(errorString.getBytes("UTF-8")), new FileOutputStream(finalFile));
 									} catch (Exception ex) {
 										JOptionPane.showMessageDialog(null, "Problem saving error document", "Save Result Error",
 												JOptionPane.ERROR_MESSAGE);
@@ -243,8 +243,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 							@Override
 							public void run(){
 								try {
-									// We need the data to be saved as an InputStream
-									saveData(finalFile, new ByteArrayInputStream(errorString.getBytes("UTF-8")));
+									IOUtils.copyLarge(new ByteArrayInputStream(errorString.getBytes("UTF-8")), new FileOutputStream(finalFile));
 								} catch (Exception ex) {
 									JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 											JOptionPane.ERROR_MESSAGE);
@@ -257,55 +256,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 			}			
 		}
 	}			
-	
-	/*private void saveData (File file, Object data) throws Exception{
-		FileOutputStream fos = new FileOutputStream(file);
-		if (data instanceof byte[]) {
-			logger.info("Saving result data as byte stream.");
-			fos.write((byte[]) data);
-			fos.flush();
-			fos.close();
-		} else if (data instanceof String){
-			logger.info("Saving result data as text.");
-			Writer out = new BufferedWriter(new OutputStreamWriter(fos));
-			out.write((String) data);
-			fos.flush();
-			out.flush();
-			fos.close();
-			out.close();
-		}
-	}
-	*/
-	
-	private void saveData (File file, InputStream dataStream) throws Exception{
-		
-		logger.info("Saving result value to file " + file.getAbsolutePath());
-		
-		FileOutputStream fos = new FileOutputStream(file);
-		
-		byte[] bytes = new byte[1024];
-		int len;
-		
-		try{
-			while((len = dataStream.read(bytes)) > 0){ //while anything to read
-				fos.write(bytes, 0, len);
-			}
-		}
-		finally {
-			try{
-				dataStream.close();
-			}
-			catch (Exception ex){
-				// Ignore
-			}
-			try{
-				fos.close();
-			}
-			catch (Exception ex){
-				// Ignore
-			}
-		}
-	}
+
 
 	// Must be called before actionPerformed()
 	public void setResultReference(T2Reference reference) {

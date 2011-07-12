@@ -94,6 +94,7 @@ public class PortResultsViewTab extends JPanel{
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setExpandsSelectedPaths(true);
 		tree.setRootVisible(false);
+		tree.setShowsRootHandles(true);
 		tree.setCellRenderer(new PortResultCellRenderer());
 		
 		// Component for rendering individual results
@@ -105,7 +106,7 @@ public class PortResultsViewTab extends JPanel{
 				TreePath selectionPath = e.getNewLeadSelectionPath();
 				if (selectionPath != null) {
 					// Get the selected node
-					final Object selectedNode = selectionPath.getLastPathComponent();				
+					final Object selectedNode = selectionPath.getLastPathComponent();
 					renderedResultComponent.setNode((WorkflowResultTreeNode)selectedNode);
 				}
 			}

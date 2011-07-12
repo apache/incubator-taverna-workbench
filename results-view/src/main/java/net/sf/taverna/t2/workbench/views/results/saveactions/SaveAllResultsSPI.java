@@ -22,10 +22,7 @@ package net.sf.taverna.t2.workbench.views.results.saveactions;
 
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
+import java.io.IOException;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -34,18 +31,14 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import org.apache.log4j.Logger;
-import org.embl.ebi.escience.baclava.DataThing;
-import org.embl.ebi.escience.baclava.factory.DataThingFactory;
-
 import net.sf.taverna.t2.invocation.InvocationContext;
+import net.sf.taverna.t2.lang.results.ResultsUtils;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
-import net.sf.taverna.t2.reference.ErrorDocument;
-import net.sf.taverna.t2.reference.IdentifiedList;
-import net.sf.taverna.t2.reference.ReferenceServiceException;
+import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.reference.T2ReferenceType;
-import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
+
+import org.apache.log4j.Logger;
 
 /**
  * Implementing classes are capable of storing a collection
@@ -58,9 +51,21 @@ import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
 public abstract class SaveAllResultsSPI extends AbstractAction {
 
 	protected static Logger logger = Logger.getLogger(SaveAllResultsSPI.class);
+	protected ReferenceService referenceService;
 	protected InvocationContext context = null;
-	protected Map<String, Object> chosenReferences;
+	protected Map<String, T2Reference> chosenReferences;
 	protected JDialog dialog;
+	private boolean isProvenanceEnabledForRun;
+	private String runId;
+	private Dataflow dataflow;
+
+	public final String getRunId() {
+		return runId;
+	}
+
+	public final Dataflow getDataflow() {
+		return dataflow;
+	}
 
 	/**
 	 * Returns the save result action implementing this interface. The returned
@@ -89,7 +94,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	 * assumed to be the parent component in the UI which caused this action to
 	 * be created, this allows save dialogs etc to be placed correctly.
 	 */
-	public void setChosenReferences(Map<String, Object> chosenReferences) {
+	public void setChosenReferences(Map<String, T2Reference> chosenReferences) {
 		this.chosenReferences = chosenReferences;
 	}
 
@@ -183,50 +188,12 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 		}  
 	}
 	
-	protected abstract void saveData(File f) throws Exception;
-
-	/**
-	 * Converts a T2References pointing to results to 
-	 * a list of (lists of ...) dereferenced result objects.
-	 */
-	protected Object convertReferencesToObjects(T2Reference reference) throws Exception {				
+	protected abstract void saveData(File f) throws IOException;
 	
-			if (reference.getReferenceType() == T2ReferenceType.ReferenceSet){
-				// Dereference the object
-				Object dataValue;
-				try{
-					dataValue = context.getReferenceService().renderIdentifier(reference, Object.class, context);
-				}
-				catch(ReferenceServiceException rse){
-					String message = "Problem rendering T2Reference in convertReferencesToObjects().";
-					logger.error("SaveAllResultsAsXML Error: "+ message, rse);
-					throw new Exception(message);
-				}
-				return dataValue;
-			}
-			else if (reference.getReferenceType() == T2ReferenceType.ErrorDocument){
-				// Dereference the ErrorDocument and convert it to some string representation
-				ErrorDocument errorDocument = (ErrorDocument)context.getReferenceService().resolveIdentifier(reference, null, context);
-				String errorString = ResultsUtils.buildErrorDocumentString(errorDocument, context);
-				return errorString;
-			}
-			else { // it is an IdentifiedList<T2Reference> - go recursively
-				IdentifiedList<T2Reference> identifiedList = context
-				.getReferenceService().getListService().getList(reference);
-				List<Object> list = new ArrayList<Object>();
-				
-				for (int j=0; j<identifiedList.size(); j++){
-					T2Reference ref = identifiedList.get(j);
-					list.add(convertReferencesToObjects(ref));
-				}
-				return list;
-			}	
-	}
-	
-	protected Object getObjectForName(String name) throws Exception {
+	protected Object getObjectForName(String name) {
 		Object result = null;
 		if (chosenReferences.containsKey(name)) {
-			result = chosenReferences.get(name);
+			result = ResultsUtils.convertReferenceToObject(chosenReferences.get(name),getReferenceService(),getContext());
 		}
 		if (result == null) {
 			result = "null";
@@ -235,18 +202,43 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 		
 	}
 
+	public void setRunId(String runId) {
+		this.runId = runId;
+	}
+
+	public void setDataflow(Dataflow dataflow) {
+		this.dataflow = dataflow;
+	}
+
+	public ReferenceService getReferenceService() {
+		return referenceService;
+	}
+
+	public InvocationContext getContext() {
+		return context;
+	}
+
+	public Map<String, T2Reference> getChosenReferences() {
+		return chosenReferences;
+	}
+
+	public JDialog getDialog() {
+		return dialog;
+	}
+
+	public void setProvenanceEnabledForRun(boolean isProvenanceEnabledForRun) {
+		this.isProvenanceEnabledForRun = isProvenanceEnabledForRun;
+	}
+
+	public boolean isProvenanceEnabledForRun() {
+		return isProvenanceEnabledForRun;
+	}
+
 	/**
-	 * Returns a map of port names to DataThings from a map of port names to a 
-	 * list of (lists of ...) result objects.
+	 * @param referenceService the referenceService to set
 	 */
-	protected Map<String, DataThing> bakeDataThingMap(Map<String, Object> resultMap) {
-		
-		Map<String, DataThing> dataThingMap = new HashMap<String, DataThing>();
-		for (Iterator<String> i = resultMap.keySet().iterator(); i.hasNext();) {
-			String portName = (String) i.next();
-			dataThingMap.put(portName, DataThingFactory.bake(resultMap.get(portName)));
-		}
-		return dataThingMap;
+	public void setReferenceService(ReferenceService referenceService) {
+		this.referenceService = referenceService;
 	}
 }
 

@@ -453,9 +453,17 @@ public class WorkflowExplorer extends WorkflowView {
 		
 		tree.addMouseListener(new MouseAdapter() {
 
-			public void mouseClicked(MouseEvent evt) {
+			public void mousePressed(MouseEvent evt) {
+			    handleMouseEvent(evt);
+			}
+
+			public void mouseReleased(MouseEvent evt) {
+			    handleMouseEvent(evt);
+			}
+
+			private void handleMouseEvent(MouseEvent evt) {
 				
-				if (evt.getButton() != MouseEvent.BUTTON3) {
+			    if (!evt.isPopupTrigger()) {
 					return;
 				}
 
@@ -486,51 +494,47 @@ public class WorkflowExplorer extends WorkflowView {
 						if ((selectedNode.getUserObject() instanceof String) && (selectionPath.getPathCount() == 2)) {
 							selectionModel.clearSelection();
 							tree
-									.getSelectionModel()
-									.setSelectionPath(selectionPath);
+							    .getSelectionModel()
+							    .setSelectionPath(selectionPath);
 
-							// If this was a right click - show a pop-up
-							// menu as well if there is one defined
-							if (evt.getButton() == MouseEvent.BUTTON3) {
-								if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.PROCESSORS)){
-									JPopupMenu menu = new JPopupMenu();
-									menu.add(new ShadedLabel("Tree", PURPLISH));
-									menu.add(new JMenuItem(new AbstractAction("Expand", WorkbenchIcons.plusIcon) {
-										public void actionPerformed(ActionEvent evt) {
-											expandAscendants(tree, selectedNode);
-										}
-									}));
-									menu.add(new JMenuItem(new AbstractAction("Collapse", WorkbenchIcons.minusIcon) {
-										public void actionPerformed(ActionEvent evt) {
-											collapseAscendants(tree, selectedNode);
-										}
-									}));
-									menu.show(evt.getComponent(), evt.getX(),
-											evt.getY());
-								}
-								else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.INPUTS)){
-									JPopupMenu menu = new JPopupMenu();
-									menu.add(new ShadedLabel("Workflow input ports", ShadedLabel.GREEN));
-									menu.add(new JMenuItem(new AbstractAction("Add workflow input port", WorkbenchIcons.inputIcon) {
+							if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.PROCESSORS)){
+							    JPopupMenu menu = new JPopupMenu();
+							    menu.add(new ShadedLabel("Tree", PURPLISH));
+							    menu.add(new JMenuItem(new AbstractAction("Expand", WorkbenchIcons.plusIcon) {
+								    public void actionPerformed(ActionEvent evt) {
+									expandAscendants(tree, selectedNode);
+								    }
+								}));
+							    menu.add(new JMenuItem(new AbstractAction("Collapse", WorkbenchIcons.minusIcon) {
+								    public void actionPerformed(ActionEvent evt) {
+									collapseAscendants(tree, selectedNode);
+								    }
+								}));
+							    menu.show(evt.getComponent(), evt.getX(),
+								      evt.getY());
+							}
+							else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.INPUTS)){
+							    JPopupMenu menu = new JPopupMenu();
+							    menu.add(new ShadedLabel("Workflow input ports", ShadedLabel.GREEN));
+							    menu.add(new JMenuItem(new AbstractAction("Add workflow input port", WorkbenchIcons.inputIcon) {
 
-										public void actionPerformed(ActionEvent evt) {
-											new AddDataflowInputAction((Dataflow) ((DefaultMutableTreeNode) tree.getModel().getRoot()).getUserObject(), wfTree.getParent()).actionPerformed(evt);
-										}
-									}));
-									menu.show(evt.getComponent(), evt.getX(),
-											evt.getY());
-								}
-								else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.OUTPUTS)){ 
-									JPopupMenu menu = new JPopupMenu();
-									menu.add(new ShadedLabel("Workflow output ports", ShadedLabel.GREEN));
-									menu.add(new JMenuItem(new AbstractAction("Add workflow output port", WorkbenchIcons.outputIcon) {
-										public void actionPerformed(ActionEvent evt) {
-											new AddDataflowOutputAction((Dataflow) ((DefaultMutableTreeNode) tree.getModel().getRoot()).getUserObject(), wfTree.getParent()).actionPerformed(evt);
-										}
-									}));
-									menu.show(evt.getComponent(), evt.getX(),
-											evt.getY());
-								}
+								    public void actionPerformed(ActionEvent evt) {
+									new AddDataflowInputAction((Dataflow) ((DefaultMutableTreeNode) tree.getModel().getRoot()).getUserObject(), wfTree.getParent()).actionPerformed(evt);
+								    }
+								}));
+							    menu.show(evt.getComponent(), evt.getX(),
+								      evt.getY());
+							}
+							else if (selectedNode.getUserObject().equals(WorkflowExplorerTreeModel.OUTPUTS)){ 
+							    JPopupMenu menu = new JPopupMenu();
+							    menu.add(new ShadedLabel("Workflow output ports", ShadedLabel.GREEN));
+							    menu.add(new JMenuItem(new AbstractAction("Add workflow output port", WorkbenchIcons.outputIcon) {
+								    public void actionPerformed(ActionEvent evt) {
+									new AddDataflowOutputAction((Dataflow) ((DefaultMutableTreeNode) tree.getModel().getRoot()).getUserObject(), wfTree.getParent()).actionPerformed(evt);
+								    }
+								}));
+							    menu.show(evt.getComponent(), evt.getX(),
+								      evt.getY());
 							}
 							
 						} else { // a 'real' workflow component or the 'whole' workflow (i.e. the tree root) was clicked on
@@ -552,37 +556,33 @@ public class WorkflowExplorer extends WorkflowView {
 								selectionModel.addSelection(selectedNode
 										.getUserObject());
 
-								// If this was a right click - show a pop-up
-								// menu as well if there is one defined
-								if (evt.getButton() == MouseEvent.BUTTON3) {
 
-									// Show a contextual pop-up menu
-									JPopupMenu menu = menuManager
-											.createContextMenu(workflow,
-													selectedNode.getUserObject(),
-													wfTree.getParent());
-									if (menu == null) {
-										menu = new JPopupMenu();
-									}
-									if (selectedNode.getUserObject() instanceof Dataflow){
-										menu.add(new ShadedLabel("Tree", PURPLISH));
-										// Action to expand the whole tree
-										menu.add(new JMenuItem(new AbstractAction("Expand all", WorkbenchIcons.plusIcon) {
-											public void actionPerformed(ActionEvent evt) {
-												expandAll(tree);
-											}
-										}));
-										// Action to collapse the whole tree
-										menu.add(new JMenuItem(new AbstractAction("Collapse all", WorkbenchIcons.minusIcon) {
-											public void actionPerformed(ActionEvent evt) {
-												collapseAll(tree);
-											}
-										}));
-									}
-									
-									menu.show(evt.getComponent(), evt.getX(),
-											evt.getY());
+								// Show a contextual pop-up menu
+								JPopupMenu menu = menuManager
+								    .createContextMenu(workflow,
+										       selectedNode.getUserObject(),
+										       wfTree.getParent());
+								if (menu == null) {
+								    menu = new JPopupMenu();
 								}
+								if (selectedNode.getUserObject() instanceof Dataflow){
+								    menu.add(new ShadedLabel("Tree", PURPLISH));
+								    // Action to expand the whole tree
+								    menu.add(new JMenuItem(new AbstractAction("Expand all", WorkbenchIcons.plusIcon) {
+									    public void actionPerformed(ActionEvent evt) {
+										expandAll(tree);
+									    }
+									}));
+								    // Action to collapse the whole tree
+								    menu.add(new JMenuItem(new AbstractAction("Collapse all", WorkbenchIcons.minusIcon) {
+									    public void actionPerformed(ActionEvent evt) {
+										collapseAll(tree);
+									    }
+									}));
+								}
+									
+								menu.show(evt.getComponent(), evt.getX(),
+									  evt.getY());
 							}
 						}
 					}
@@ -764,10 +764,20 @@ public class WorkflowExplorer extends WorkflowView {
 
 		public void notify(Observable<DataflowSelectionMessage> sender,
 				DataflowSelectionMessage message) throws Exception {
-
-			setSelectedNodes(wfTree, workflow);
-			scrollPane.revalidate();
-			scrollPane.repaint();
+			Runnable dataflowSelectionRunnable = new Runnable() {
+				public void run() {
+					setSelectedNodes(wfTree, workflow);
+					scrollPane.revalidate();
+					scrollPane.repaint();					
+				}			
+			};
+			
+			if (SwingUtilities.isEventDispatchThread()) {
+				dataflowSelectionRunnable.run();		
+			}
+			else {
+				SwingUtilities.invokeLater(dataflowSelectionRunnable);
+			}
 		}
 	}
 }

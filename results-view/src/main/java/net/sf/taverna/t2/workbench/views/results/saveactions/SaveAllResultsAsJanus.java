@@ -34,18 +34,18 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 
 /**
- * Saves results in OPM (Open Provenance Model) format.
+ * Saves results in Janus format.
  * 
  * @author Alex Nenadic
  * 
  */
 @SuppressWarnings("serial")
-public class SaveAllResultsAsOPM extends SaveAllResultsSPI {
+public class SaveAllResultsAsJanus extends SaveAllResultsSPI {
 
-	public SaveAllResultsAsOPM() {
+	public SaveAllResultsAsJanus() {
 		super();
-		putValue(NAME, "Save as OPM (experimental)");
-		putValue(SMALL_ICON, WorkbenchIcons.opmIcon);
+		putValue(NAME, "Save as Janus (experimental)");
+		putValue(SMALL_ICON, WorkbenchIcons.janusIcon);
 	}
 
 	@Override
@@ -74,12 +74,12 @@ public class SaveAllResultsAsOPM extends SaveAllResultsSPI {
 		BufferedOutputStream outStream = new BufferedOutputStream(
 				new FileOutputStream(file));		
 		try {
-			export.exportAsOPMRDF(getRunId(), outStream);
+			export.exportAsJanusRDF(getRunId(), outStream);
 		} catch (Exception e) {
-			logger.error("Failed to save the OPM graph to " + file, e);
+			logger.error("Failed to save the Janus graph to " + file, e);
 			JOptionPane.showMessageDialog(null,
-					"Failed to save the OPM graph to " + file,
-					"Failed to save OPM graph", JOptionPane.ERROR_MESSAGE);
+					"Failed to save the Janus graph to " + file,
+					"Failed to save Janus graph", JOptionPane.ERROR_MESSAGE);
 		} finally {
 			try {
 				outStream.close();

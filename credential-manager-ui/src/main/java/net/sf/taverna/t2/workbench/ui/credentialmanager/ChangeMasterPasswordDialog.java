@@ -31,7 +31,6 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -42,28 +41,28 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**
- * Dialog used for user to change master password for Credential Manager.
- * 
- * @author Alex Nenadic
+ * Dialog used by users to change their 
+ * master password for the Credential Manager.
  */
 @SuppressWarnings("serial")
-public class ChangeMasterPasswordDialog extends HelpEnabledDialog {
+public class ChangeMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
 	
-    // Previous password entry field 
-    private JPasswordField jpfOld;
+    // Old password entry field 
+    private JPasswordField oldPasswordField;
     
-    // First password entry field 
-    private JPasswordField jpfFirst;
+    // New password entry field 
+    private JPasswordField newPasswordField;
 
-    // Password confirmation entry field 
-    private JPasswordField jpfConfirm;
+    // New password confirmation entry field 
+    private JPasswordField newPasswordConfirmField;
 
-    // Stores the password entered 
+    // The entered new password 
     private String password = null;
     
+    // Instructions to the users as to what to do in the dialog
     private String instructions;
 
 	public ChangeMasterPasswordDialog(JFrame parent, String title,
@@ -73,51 +72,47 @@ public class ChangeMasterPasswordDialog extends HelpEnabledDialog {
         initComponents();
     }
 
-    /**
-     * Initialise the dialog's GUI components.
-     */
     private void initComponents()
     {
         getContentPane().setLayout(new BorderLayout());
 
-        JLabel jlInstructions = new JLabel (instructions);
-    	jlInstructions.setFont(new Font(null, Font.PLAIN, 11));
+        JLabel instructionsLabel = new JLabel (instructions);
+    	instructionsLabel.setFont(new Font(null, Font.PLAIN, 11));
     	
-    	JPanel jpInstructions = new JPanel();
-    	jpInstructions.setLayout(new BoxLayout(jpInstructions, BoxLayout.Y_AXIS));
-    	jpInstructions.add(jlInstructions);
-    	jpInstructions.setBorder(new EmptyBorder(10,5,10,0)); 
+    	JPanel instructionsPanel = new JPanel();
+    	instructionsPanel.setLayout(new BoxLayout(instructionsPanel, BoxLayout.Y_AXIS));
+    	instructionsPanel.add(instructionsLabel);
+    	instructionsPanel.setBorder(new EmptyBorder(10,5,10,0)); 
 
-        JLabel jlOld = new JLabel("Old master password");
-        jlOld.setBorder(new EmptyBorder(0,5,0,0));
+        JLabel oldPasswordLabel = new JLabel("Old master password");
+        oldPasswordLabel.setBorder(new EmptyBorder(0,5,0,0));
         
-        JLabel jlFirst = new JLabel("New master password");
-        jlFirst.setBorder(new EmptyBorder(0,5,0,0));
+        JLabel newPasswordLabel = new JLabel("New master password");
+        newPasswordLabel.setBorder(new EmptyBorder(0,5,0,0));
 
-        JLabel jlConfirm = new JLabel("Confirm new master password");
-        jlConfirm.setBorder(new EmptyBorder(0,5,0,0));
+        JLabel newPasswordConfirmLabel = new JLabel("Confirm new master password");
+        newPasswordConfirmLabel.setBorder(new EmptyBorder(0,5,0,0));
 
-        jpfOld = new JPasswordField(15);
-        jpfFirst = new JPasswordField(15);
-        jpfConfirm = new JPasswordField(15);
+        oldPasswordField = new JPasswordField(15);
+        newPasswordField = new JPasswordField(15);
+        newPasswordConfirmField = new JPasswordField(15);
         
         JPanel jpPassword = new JPanel(new GridLayout(0, 2, 5, 5));
-        jpPassword.add(jlOld);
-        jpPassword.add(jpfOld);
-        jpPassword.add(jlFirst);
-        jpPassword.add(jpfFirst);
-        jpPassword.add(jlConfirm);
-        jpPassword.add(jpfConfirm);
+        jpPassword.add(oldPasswordLabel);
+        jpPassword.add(oldPasswordField);
+        jpPassword.add(newPasswordLabel);
+        jpPassword.add(newPasswordField);
+        jpPassword.add(newPasswordConfirmLabel);
+        jpPassword.add(newPasswordConfirmField);
         
-        JPanel jpMain = new JPanel(new BorderLayout());
-        jpMain.setBorder(new CompoundBorder(
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(new CompoundBorder(
                 new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
-        jpMain.add(jpInstructions, BorderLayout.NORTH);
-        jpMain.add(jpPassword, BorderLayout.CENTER);
+        mainPanel.add(instructionsPanel, BorderLayout.NORTH);
+        mainPanel.add(jpPassword, BorderLayout.CENTER);
         
-
-        JButton jbOK = new JButton("OK");
-        jbOK.addActionListener(new ActionListener()
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -125,20 +120,20 @@ public class ChangeMasterPasswordDialog extends HelpEnabledDialog {
             }
         });
 
-        JButton jbCancel = new JButton("Cancel");
-        jbCancel.addActionListener(new ActionListener()
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
                 cancelPressed();
             }
         });
-        JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        jpButtons.add(jbOK);
-        jpButtons.add(jbCancel);
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonsPanel.add(okButton);
+        buttonsPanel.add(cancelButton);
         
-        getContentPane().add(jpMain, BorderLayout.CENTER);
-        getContentPane().add(jpButtons, BorderLayout.SOUTH);
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
+        getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
         addWindowListener(new WindowAdapter()
         {
@@ -150,13 +145,13 @@ public class ChangeMasterPasswordDialog extends HelpEnabledDialog {
 
         setResizable(false);
 
-        getRootPane().setDefaultButton(jbOK);
+        getRootPane().setDefaultButton(okButton);
 
         pack();
     }
 
     /**
-     * Get the password set in the dialog or null if none was set
+     * Get the password set in the dialog or null if none was set.
      */
     public String getPassword()
     {
@@ -164,21 +159,15 @@ public class ChangeMasterPasswordDialog extends HelpEnabledDialog {
     }
     
     /**
-     * Check the following:
-     * <ul>
-     * 	   <li> that the user has provided correct previous password
-     *     <li>that the user has supplied and confirmed a password
-     *     <li>that the password's match
-     *     <li>that the passwords are not empty
-     * </ul>
-     * and stores the new password in this object.
+     * Check that the user has provided the correct old master password,
+     * that the user has supplied the new password and confirmed it and 
+     * that it is not empty. If all is OK, stores the new password in 
+     * the password field.
      *
-     * @return true, if the user's dialog entry matches the above criteria,
-     *         false otherwise
      */
     private boolean checkPassword()
     {
-    	String oldPassword = new String (jpfOld.getPassword());
+    	String oldPassword = new String (oldPasswordField.getPassword());
     	
     	 if (oldPassword.length()== 0) { //old password must not be empty
              JOptionPane.showMessageDialog(this,
@@ -203,14 +192,14 @@ public class ChangeMasterPasswordDialog extends HelpEnabledDialog {
 			return false;
 		}
     	
-        String sFirstPassword = new String(jpfFirst.getPassword());
-        String sConfirmPassword = new String(jpfConfirm.getPassword());
+        String newPassword = new String(newPasswordField.getPassword());
+        String newPasswordConfirm = new String(newPasswordConfirmField.getPassword());
 
-        if ((sFirstPassword.equals(sConfirmPassword)) && (sFirstPassword.length()!= 0)) { //passwords match and not empty
-            password = sFirstPassword;
+        if ((newPassword.equals(newPasswordConfirm)) && (newPassword.length()!= 0)) { //passwords match and not empty
+            password = newPassword;
             return true;
         }
-        else if ((sFirstPassword.equals(sConfirmPassword)) && (sFirstPassword.length() == 0)) { //passwords match but are empty
+        else if ((newPassword.equals(newPasswordConfirm)) && (newPassword.length() == 0)) { //passwords match but are empty
             JOptionPane.showMessageDialog(this,
                     "The new master password cannot be empty", 
                     "Credential Manager Warning",
@@ -229,9 +218,6 @@ public class ChangeMasterPasswordDialog extends HelpEnabledDialog {
         }
     }
 
-    /**
-     * OK button pressed or otherwise activated.
-     */
     private void okPressed()
     {
         if (checkPassword()) {
@@ -239,20 +225,14 @@ public class ChangeMasterPasswordDialog extends HelpEnabledDialog {
         }
     }
 
-    /**
-     * Cancel button pressed or otherwise activated.
-     */
     private void cancelPressed()
     {
     	// Set the password to null as it might have changed in the meantime 
-    	// if user entered something previously
+    	// if user entered something then cancelled.
     	password = null;
         closeDialog();
     }
 
-    /**
-     * Close the dialog.
-     */
     private void closeDialog()
     {
         setVisible(false);

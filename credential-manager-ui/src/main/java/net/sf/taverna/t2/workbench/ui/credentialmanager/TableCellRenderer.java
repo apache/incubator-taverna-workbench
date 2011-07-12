@@ -21,8 +21,8 @@
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
 import java.awt.Component;
-import java.text.DateFormat;
-import java.util.Date;
+//import java.text.DateFormat;
+//import java.util.Date;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -31,15 +31,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI;
-import net.sf.taverna.t2.workbench.ui.credentialmanager.KeyPairsTableModel;
-import net.sf.taverna.t2.workbench.ui.credentialmanager.PasswordsTableModel;
+//import net.sf.taverna.t2.workbench.ui.credentialmanager.KeyPairsTableModel;
+//import net.sf.taverna.t2.workbench.ui.credentialmanager.PasswordsTableModel;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.TableCellRenderer;
-import net.sf.taverna.t2.workbench.ui.credentialmanager.TrustedCertsTableModel;
+//import net.sf.taverna.t2.workbench.ui.credentialmanager.TrustedCertsTableModel;
 
 /**
  * Custom cell renderer for the cells of the tables displaying Keystore/Truststore contents.
  * 
- * @author Alexandra Nenadic
+ * @author Alex Nenadic
  */
 public class TableCellRenderer
     extends DefaultTableCellRenderer
@@ -56,15 +56,7 @@ public class TableCellRenderer
 	"/images/table/trustcert_entry.png"));
 
     /**
-     * Returns the rendered cell for the supplied value and column.
-     *
-     * @param jtKeyStore The JTable
-     * @param value The value to assign to the cell
-     * @param bIsSelected True if cell is selected
-     * @param iRow The row of the cell to render
-     * @param iCol The column of the cell to render
-     * @param bHasFocus If true, render cell appropriately
-     * @return The renderered cell
+     * Get the rendered cell for the supplied value and column.
      */
     public Component getTableCellRendererComponent(JTable jtKeyStoreTable,
         Object value, boolean bIsSelected, boolean bHasFocus, int iRow,
@@ -85,10 +77,6 @@ public class TableCellRenderer
                 else if (CredentialManagerUI.KEY_PAIR_ENTRY_TYPE.equals(value)) { 
                     icon = keypairEntryIcon; //key pair entry image
                 }
-                // The cell is in the first column of Proxies table
-                else if (CredentialManagerUI.PROXY_ENTRY_TYPE.equals(value)) { 
-                    icon = keypairEntryIcon; //key pair entry image
-                }
                 //The cell is in the first column of Trusted Certificates table
                 else if (CredentialManagerUI.TRUST_CERT_ENTRY_TYPE.equals(value)) { 
                     icon = trustcertEntryIcon; //trust. certificate entry image
@@ -101,9 +89,8 @@ public class TableCellRenderer
                 
             }
             // Last Modified column - format date (if date supplied)        
-            else if (((jtKeyStoreTable.getModel() instanceof PasswordsTableModel) && (iCol == 3)) || 
+            /*else if (((jtKeyStoreTable.getModel() instanceof PasswordsTableModel) && (iCol == 3)) || 
             	((jtKeyStoreTable.getModel() instanceof KeyPairsTableModel) && (iCol == 4))||
-            	((jtKeyStoreTable.getModel() instanceof ProxiesTableModel) && (iCol == 4))||
             	((jtKeyStoreTable.getModel() instanceof TrustedCertsTableModel) && (iCol == 4))){
             	if (value instanceof Date) {
             		// Include timezone
@@ -113,8 +100,8 @@ public class TableCellRenderer
             	else {
             		cell.setText(value.toString());
             	}
-            }
-            // Other columns - just use their text
+            }*/
+            // Other columns - just use their text values
             else { 
             	cell.setText(value.toString());     	
             }

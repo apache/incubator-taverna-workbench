@@ -8,11 +8,10 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
-import javax.swing.tree.TreeNode;
  
 import net.sf.taverna.t2.workbench.views.results.SimpleFilteredTreeModel;
-import net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState;
 
+@SuppressWarnings("serial")
 public class FilteredWorkflowResultTreeModel extends SimpleFilteredTreeModel implements TreeModelListener{
  
     public enum FilterType {

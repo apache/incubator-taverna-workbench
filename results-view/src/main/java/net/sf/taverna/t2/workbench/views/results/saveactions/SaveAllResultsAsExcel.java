@@ -27,9 +27,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 import javax.swing.AbstractAction;
 
@@ -42,6 +39,7 @@ import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.embl.ebi.escience.baclava.DataThing;
+import org.embl.ebi.escience.baclava.factory.DataThingFactory;
 import org.embl.ebi.escience.baclava.iterator.BaclavaIterator;
 
 /**
@@ -74,8 +72,12 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 	}
 	
 	
-	protected void saveData(File f) throws Exception {
-	    generateSheet();
+	protected void saveData(File f) throws IOException {
+	    try {
+			generateSheet();
+		} catch (IntrospectionException e) {
+			throw new IOException(e);
+		}
         saveSheet(f);		
 	}
 	
@@ -85,34 +87,27 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
      * All of the results are shown in the same spreadsheet, but in 
      * different columns. Flat lists are shown vertically, 2d lists
      * as a matrix, and deeper lists are flattened to 2d. 
+     * @throws IntrospectionException 
      * @throws Exception 
      */
-    void generateSheet() throws Exception {
+    void generateSheet() throws IntrospectionException {
             wb = new HSSFWorkbook();
             setStyles();
             sheet = wb.createSheet("Workflow results");
             sheet.setDisplayGridlines(false);
             int currentCol = 0;
             
-    		// Build the DataThing map from the resultReferencesMap
-    		// First convert map of references to objects into a map of real result objects
-    		Map<String, Object> resultMap = new HashMap<String, Object>();
-    		for (Iterator<String> i = chosenReferences.keySet().iterator(); i.hasNext();) {
-    			String portName = (String) i.next();
-    			resultMap.put(portName, getObjectForName(portName));
-    		}
-    		Map<String, DataThing> map = bakeDataThingMap(resultMap);
 
-            for (String resultName : map.keySet()) {
-                    logger.debug("Output for : " + resultName);
-                    DataThing resultValue = map.get(resultName);
+    		for (String portName : chosenReferences.keySet()) {
+                    logger.debug("Output for : " + portName);
+                    DataThing resultValue =  DataThingFactory.bake(getObjectForName(portName));;
                     // Check whether there's a textual type
                     Boolean textualType = isTextual(resultValue.getDataObject());
                     if (textualType == null || !textualType) { 
                             continue;
                     }
                     logger.debug("Output is textual");
-                    getCell(currentCol, 0).setCellValue(resultName);
+                    getCell(currentCol, 0).setCellValue(portName);
                     getCell(currentCol, 0).setCellStyle(headingStyle);
                     int numCols = 1;
                     int numRows = 1;
@@ -309,7 +304,7 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
      * @throws FileNotFoundException
      * @throws IOException
      */
-    void saveSheet(File file) throws FileNotFoundException, IOException {
+    void saveSheet(File file) throws IOException {
             FileOutputStream fos = new FileOutputStream(file);
             wb.write(fos);
             fos.close();

@@ -24,7 +24,9 @@ import java.util.Queue;
 
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.reference.ReferenceService;
+import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
+import net.sf.taverna.t2.workflowmodel.RunDeletionListener;
 
 import org.apache.log4j.Logger;
 
@@ -37,6 +39,8 @@ public class DeleteWorkflowRunsThread extends Thread {
 	private static Logger logger = Logger
 			.getLogger(DeleteWorkflowRunsThread.class);
 	protected boolean active = true;
+	
+	private static SPIRegistry<RunDeletionListener> runDeletionListenerRegistry = new SPIRegistry(RunDeletionListener.class);
 
 	public DeleteWorkflowRunsThread() {
 		super("Deleting old workflow runs");
@@ -57,11 +61,12 @@ public class DeleteWorkflowRunsThread extends Thread {
 		try {
 			while (active) {
 				Queue<String> queue = databaseCleanup.deletionQueue;
+
 				synchronized (queue) {
 					// Wait until an element is placed in the queue
-					while (queue.isEmpty()) {
+					while (queue.isEmpty()) {						
 						queue.wait();
-						if (! active) {
+						if (!active) {
 							return;
 						}
 					}
@@ -69,7 +74,7 @@ public class DeleteWorkflowRunsThread extends Thread {
 				// Retrieve the first element from the queue (but do not
 				// remove it)
 				String runToDelete = queue.peek();
-
+				
 				// Remove provenance data for the run (if any) and all
 				// references held by the workflow run from the Reference
 				// Manager's store
@@ -91,17 +96,25 @@ public class DeleteWorkflowRunsThread extends Thread {
 							+ runToDelete
 							+ "' from provenance database and Reference Manager's store completed.";
 					logger.info(message);
+					
+					informDeletionListeners(runToDelete);
 				} catch (Exception ex) {
 					String message = "Failed to delete workflow run '"
 							+ runToDelete
 							+ "' from provenance database and Reference Manager's store.";
 					logger.error(message, ex);
-				} finally {
-					queue.poll(); // Remove from queue, even if deletion failed
+				 } finally {
+					 queue.poll(); // Remove from queue, even if deletion failed
 				}
 			}
 		} catch (InterruptedException ignored) {
 			return;
+		}
+	}
+	
+	private void informDeletionListeners(String runToDelete) {
+		for (RunDeletionListener c : runDeletionListenerRegistry.getInstances()) {
+			c.deleteRun(runToDelete);
 		}
 	}
 }

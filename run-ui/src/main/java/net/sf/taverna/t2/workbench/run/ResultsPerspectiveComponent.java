@@ -22,6 +22,7 @@ package net.sf.taverna.t2.workbench.run;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Timestamp;
@@ -61,6 +62,9 @@ import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.run.cleanup.DatabaseCleanup;
 import net.sf.taverna.t2.workbench.run.cleanup.ReferenceServiceShutdownHook;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
+import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
+import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
 import net.sf.taverna.t2.workbench.views.monitor.graph.MonitorGraphComponent;
 import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressMonitor;
@@ -142,9 +146,12 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 					int location = getDividerLocation();
 
-					if (selection == null) { // there is no workflow items in
-						// the list
-
+					if (selection == null) {
+						// there is no workflow items in the list
+						ResetDiagramAction.setResultsAction(null);
+						ZoomInAction.setResultsAction(null);
+						ZoomOutAction.setResultsAction(null);
+						
 						JPanel tempMonitorPanel = new JPanel(new BorderLayout());
 						tempMonitorPanel.setBorder(LineBorder
 								.createGrayLineBorder());
@@ -201,6 +208,10 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 								loadPreviousWorkflowRunThread.start();
 							}
 						} else if (workflowRun.getDataflow() == null) {					
+							ResetDiagramAction.setResultsAction(null);
+							ZoomInAction.setResultsAction(null);
+							ZoomOutAction.setResultsAction(null);
+
 							JTabbedPane monitorComponent = new JTabbedPane();
 							String errorText = "Could not load workflow for run "
 							+ workflowRun.getRunId();
@@ -224,6 +235,13 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 							topPanel.setBottomComponent(monitorComponent);	
 							setBottomComponent(workflowRun
 									.getResultsComponent());
+							
+							MonitorGraphComponent monitorGraph = monitorComponent.getMonitorGraph();
+							if (monitorGraph != null) {
+								ResetDiagramAction.setResultsAction(monitorGraph.getResetDiagramAction());
+								ZoomInAction.setResultsAction(monitorGraph.getZoomInAction());
+								ZoomOutAction.setResultsAction(monitorGraph.getZoomOutAction());
+							}
 						}
 						setDividerLocation(location);
 						removeWorkflowRunsButton.setEnabled(true);
@@ -263,6 +281,13 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				}
 
 				int[] selectedRunsToDelete = workflowRunsList.getSelectedIndices();
+				WorkflowRun nextToSelect = null;
+				if (selectedRunsToDelete.length > 0) {
+					int lastSelectedIndex = selectedRunsToDelete[selectedRunsToDelete.length - 1];
+					if (lastSelectedIndex != workflowRunsListModel.size() - 1) {
+						nextToSelect = (WorkflowRun) workflowRunsListModel.get(lastSelectedIndex + 1);
+					}
+				}
 				for (int i = 0; i < selectedRunsToDelete.length; i++) {
 					
 					WorkflowRun wfRun = ((WorkflowRun) workflowRunsListModel.get(i));
@@ -310,7 +335,14 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				}
 				// Set the first item as selected - if there is one
 				if (workflowRunsListModel.size() > 0) {
-					workflowRunsList.setSelectedIndex(0);
+					int selectedIndex = 0;
+					if (nextToSelect != null) {
+						selectedIndex = workflowRunsListModel.indexOf(nextToSelect);
+						if (selectedIndex < 0) {
+							selectedIndex = 0;
+						}
+					}
+					workflowRunsList.setSelectedIndex(selectedIndex);
 				}
 				System.gc();
 			}
@@ -553,5 +585,24 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				setBottomComponent(new JPanel());
 			}
 		}
+	}
+	
+	public void setBottomComponent(Component comp) {
+		int dividerLocation = this.getDividerLocation();
+		int height = this.getHeight();
+		if (height < 1) {
+			dividerLocation = 400;
+		} else {
+			int minLocation = height / 20;
+			int maxLocation = minLocation * 19;
+			if (dividerLocation < minLocation) {
+				dividerLocation = minLocation;
+			}
+			if (dividerLocation > maxLocation) {
+				dividerLocation = maxLocation;
+			}
+		}
+		super.setBottomComponent(comp);
+		super.setDividerLocation(dividerLocation);
 	}
 }

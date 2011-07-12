@@ -70,6 +70,7 @@ import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
+import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
@@ -82,7 +83,6 @@ import net.sf.taverna.t2.lang.observer.Observer;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.log4j.Logger;
-import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
 import org.w3c.dom.svg.SVGDocument;
 
 /**

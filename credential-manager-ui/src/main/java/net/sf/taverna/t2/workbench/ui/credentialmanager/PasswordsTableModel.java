@@ -55,9 +55,6 @@ public class PasswordsTableModel extends AbstractTableModel implements Observer<
 	
 	private Logger logger = Logger.getLogger(PasswordsTableModel.class);
 
-    /**
-     * Construct a new PasswordsTableModel.
-     */
     public PasswordsTableModel(){
     	
         credManager = null;
@@ -145,7 +142,7 @@ public class PasswordsTableModel extends AbstractTableModel implements Observer<
                 data[iCnt][2] = username;
                
                 // Populate the last modified date column ("UBER" keystore type supports creation date)
-                data[iCnt][3] = credManager.getEntryCreationDate(CredentialManager.KEYSTORE, alias);
+                //data[iCnt][3] = credManager.getEntryCreationDate(CredentialManager.KEYSTORE, alias);
                 
                 // Populate the invisible password column
                 data[iCnt][4] = password; 

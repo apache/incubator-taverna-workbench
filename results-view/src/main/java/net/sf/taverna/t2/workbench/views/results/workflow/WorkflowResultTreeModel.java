@@ -197,7 +197,7 @@ public class WorkflowResultTreeModel extends DefaultTreeModel implements ResultL
 				}
 				WorkflowResultTreeNode listNode = new WorkflowResultTreeNode(t2Ref, context, ResultTreeNodeState.RESULT_LIST); // list node
 				listNode.setContext(context);
-				insertNodeInto(listNode, parentNode, 0);
+				insertNodeInto(listNode, parentNode, parentNode.getChildCount());
 				for (T2Reference ref : list) {
 					createTree(ref, context, listNode);
 				}
@@ -208,7 +208,7 @@ public class WorkflowResultTreeModel extends DefaultTreeModel implements ResultL
 		} else { // reference to single data or an error
 			// insert data node
 		    WorkflowResultTreeNode dataNode = new WorkflowResultTreeNode(t2Ref, context, ResultTreeNodeState.RESULT_REFERENCE); // data node
-			insertNodeInto(dataNode, parentNode, 0);
+			insertNodeInto(dataNode, parentNode, parentNode.getChildCount());
 		}	
 	}
 	

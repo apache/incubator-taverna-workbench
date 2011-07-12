@@ -20,11 +20,17 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.processor;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -37,11 +43,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -49,6 +61,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ChangeEvent;
@@ -62,15 +75,22 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade.State;
+import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.provenance.lineageservice.utils.Port;
 import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.workbench.MainWindow;
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
-import net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState;
+import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.views.results.processor.FilteredIterationTreeModel.FilterType;
+import net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState;
+import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
+import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPIRegistry;
+import net.sf.taverna.t2.workbench.views.results.workflow.DummyContext;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
@@ -78,7 +98,6 @@ import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
 
 /**
  * A component that contains a tabbed pane for displaying inputs and outputs of
@@ -158,10 +177,17 @@ public class ProcessorResultsComponent extends JPanel {
 	
 	
 	private JLabel iterationLabel;
+	
+	// Registry of all existing 'save results' actions, each one can save results
+	// in a different format
+	private static SaveAllResultsSPIRegistry saveAllResultsRegistry = SaveAllResultsSPIRegistry.getInstance();	
+	
+	private JButton saveAllButton;
 
 	private String processorId = null;
 
 	private List<Processor> processorsPath;
+	private ProcessorEnactmentsTreeNode procEnactmentTreeNode = null;
 
 	public ProcessorResultsComponent(Processor processor, Dataflow dataflow,
 			String runId, ReferenceService referenceService) {
@@ -218,6 +244,11 @@ public class ProcessorResultsComponent extends JPanel {
 		iterationLabel.setBorder(BorderFactory.createEmptyBorder(0,
 				spacing * 5, 0, 0));
 		titlePanel.add(iterationLabel, BorderLayout.CENTER);
+		
+		saveAllButton = new JButton(new SaveAllAction("Save iteration values", this));
+		saveAllButton.setEnabled(false);
+		
+		titlePanel.add(saveAllButton, BorderLayout.EAST);
 		add(titlePanel, BorderLayout.NORTH);
 
 		tabbedPane = new JTabbedPane();
@@ -273,6 +304,7 @@ public class ProcessorResultsComponent extends JPanel {
 		filteredTreeModel = new FilteredIterationTreeModel(processorEnactmentsTreeModel);
 		processorEnactmentsTree = new JTree(filteredTreeModel);
 		processorEnactmentsTree.setRootVisible(false);
+		processorEnactmentsTree.setShowsRootHandles(true);
 		processorEnactmentsTree.getSelectionModel().setSelectionMode(
 				TreeSelectionModel.SINGLE_TREE_SELECTION);
 		// Start listening for selections in the enactments tree
@@ -373,7 +405,7 @@ public class ProcessorResultsComponent extends JPanel {
 			disableResultTabForNode(selectedResultTab, (DefaultMutableTreeNode)lastPathComponent);
 			return;
 		}
-		ProcessorEnactmentsTreeNode procEnactmentTreeNode = (ProcessorEnactmentsTreeNode) lastPathComponent;
+		procEnactmentTreeNode = (ProcessorEnactmentsTreeNode) lastPathComponent;
 		ProcessorEnactment processorEnactment = (ProcessorEnactment) procEnactmentTreeNode
 				.getUserObject();
 
@@ -387,6 +419,7 @@ public class ProcessorResultsComponent extends JPanel {
 		StringBuffer iterationLabelText = labelForProcEnactment(
 				procEnactmentTreeNode, processorEnactment);
 		iterationLabel.setText(iterationLabelText.toString());
+		saveAllButton.setEnabled(true);
 
 		Map<ProcessorEnactment, List<List<Object>>> map = null;
 		if (selectedResultTab.getIsOutputPortTab()) { // output port tab
@@ -434,6 +467,7 @@ public class ProcessorResultsComponent extends JPanel {
 							TreeSelectionModel.SINGLE_TREE_SELECTION);
 					tree.setExpandsSelectedPaths(true);
 					tree.setRootVisible(false);
+					tree.setShowsRootHandles(true);
 					tree.setCellRenderer(new ProcessorResultCellRenderer());
 					// Expand the whole tree
 					/*
@@ -500,6 +534,7 @@ public class ProcessorResultsComponent extends JPanel {
 		selectedResultTab.setResultsTree(null);
 		String label = labelForNode(lastPathComponent);				
 		iterationLabel.setText(label);
+		saveAllButton.setEnabled(false);
 	}
 
 	private StringBuffer labelForProcEnactment(
@@ -781,4 +816,209 @@ public class ProcessorResultsComponent extends JPanel {
 	protected void finalize() throws Throwable {
 		onDispose();
 	}
+	
+	@SuppressWarnings("serial")
+	private class SaveAllAction extends AbstractAction {
+		
+		//private WorkflowResultsComponent parent;
+
+		public SaveAllAction(String name, ProcessorResultsComponent resultViewComponent) {
+			super(name);
+			//this.parent = resultViewComponent;
+			putValue(SMALL_ICON, WorkbenchIcons.saveAllIcon);
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			
+			ProcessorEnactment processorEnactment = (ProcessorEnactment) procEnactmentTreeNode
+			.getUserObject();
+			
+			String initialInputs = processorEnactment
+				.getInitialInputsDataBindingId();
+			String finalOutputs = processorEnactment
+				.getFinalOutputsDataBindingId();
+			
+			Map<String, T2Reference> inputBindings = new TreeMap<String, T2Reference> ();
+			for (Entry<Port, T2Reference> entry : provenanceAccess.getDataBindings(initialInputs).entrySet()) {
+				inputBindings.put (entry.getKey().getPortName(), entry.getValue());
+			}
+			Map<String, T2Reference> outputBindings = new TreeMap<String, T2Reference> ();
+			for (Entry<Port, T2Reference> entry : provenanceAccess.getDataBindings(finalOutputs).entrySet()) {
+				outputBindings.put (entry.getKey().getPortName(), entry.getValue());
+			}
+			
+			String title = "Service iteration data saver";
+			
+			final JDialog dialog = new HelpEnabledDialog(MainWindow.getMainWindow(), title, true);
+			dialog.setResizable(false);
+			dialog.setLocationRelativeTo(MainWindow.getMainWindow());
+			JPanel panel = new JPanel(new BorderLayout());
+			DialogTextArea explanation = new DialogTextArea();
+			explanation.setText("Select the service input and output ports to save the associated data");
+			explanation.setColumns(40);
+			explanation.setEditable(false);
+			explanation.setOpaque(false);
+			explanation.setBorder(new EmptyBorder(5, 20, 5, 20));
+			explanation.setFocusable(false);
+			explanation.setFont(new JLabel().getFont()); // make the font the same as for other components in the dialog
+			panel.add(explanation, BorderLayout.NORTH);
+			final Map<String, JCheckBox> inputChecks = new HashMap<String, JCheckBox> ();
+			final Map<String, JCheckBox> outputChecks = new HashMap<String, JCheckBox> ();
+			final Map<JCheckBox, T2Reference> checkReferences =
+				new HashMap<JCheckBox, T2Reference>();
+			final Map<String, T2Reference> chosenReferences =
+				new HashMap<String, T2Reference> ();
+			final Set<Action> actionSet = new HashSet<Action>();
+
+			ItemListener listener = new ItemListener() {
+
+				public void itemStateChanged(ItemEvent e) {
+					JCheckBox source = (JCheckBox) e.getItemSelectable();
+					if (inputChecks.containsValue(source)) {
+						if (source.isSelected()) {
+							if (outputChecks.containsKey(source.getText())) {
+								outputChecks.get(source.getText()).setSelected(false);
+							}
+						}
+					}
+					if (outputChecks.containsValue(source)) {
+						if (source.isSelected()) {
+							if (inputChecks.containsKey(source.getText())) {
+								inputChecks.get(source.getText()).setSelected(false);
+							}
+						}
+					}
+					chosenReferences.clear();
+					for (JCheckBox checkBox : checkReferences.keySet()) {
+						if (checkBox.isSelected()) {
+							chosenReferences.put(checkBox.getText(),
+									checkReferences.get(checkBox));
+						}
+					}
+				}
+				
+			};
+			JPanel portsPanel = new JPanel();
+			portsPanel.setBorder(new CompoundBorder(new EmptyBorder(new Insets(5,10,5,10)), new EtchedBorder(EtchedBorder.LOWERED)));
+			portsPanel.setLayout(new GridBagLayout());
+			if (!inputBindings.isEmpty()) {
+				GridBagConstraints gbc = new GridBagConstraints();
+				gbc.gridx = 0;
+				gbc.gridy = 0;
+				gbc.anchor = GridBagConstraints.WEST;
+				gbc.fill = GridBagConstraints.NONE;
+				gbc.weightx = 0.0;
+				gbc.weighty = 0.0;
+				gbc.insets = new Insets(5,10,5,10);
+				portsPanel.add(new JLabel("Iteration inputs:"), gbc);				
+				//JPanel inputsPanel = new JPanel();
+				//WeakHashMap<String, T2Reference> pushedDataMap =  null;
+
+				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
+				for (Entry<String, T2Reference> inputEntry : inputBindings.entrySet()) {
+					String portName = inputEntry.getKey();
+					T2Reference o = inputEntry.getValue();
+					JCheckBox checkBox = new JCheckBox(portName);
+					checkBox
+							.setSelected(!outputBindings.containsKey(portName));
+					checkBox.addItemListener(listener);
+					inputChecks.put(portName, checkBox);
+					sortedBoxes.put(portName, checkBox);
+					checkReferences.put(checkBox, o);
+				}
+				gbc.insets = new Insets(0,10,0,10);
+				for (String portName : sortedBoxes.keySet()) {
+					gbc.gridy++;
+					portsPanel.add(sortedBoxes.get(portName), gbc);
+				}
+				gbc.gridy++;
+				gbc.fill = GridBagConstraints.BOTH;
+				gbc.weightx = 1.0;
+				gbc.weighty = 1.0;
+				gbc.insets = new Insets(5, 10, 5, 10);
+				portsPanel.add(new JLabel(""), gbc); // empty space
+			}
+			if (!outputBindings.isEmpty()) {
+				GridBagConstraints gbc = new GridBagConstraints();
+				gbc.gridx = 1;
+				gbc.gridy = 0;
+				gbc.anchor = GridBagConstraints.WEST;
+				gbc.fill = GridBagConstraints.NONE;
+				gbc.weightx = 0.0;
+				gbc.weighty = 0.0;
+				gbc.insets = new Insets(5,10,5,10);
+				portsPanel.add(new JLabel("Iteration outputs:"), gbc);
+				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
+				for (Entry<String, T2Reference> outputEntry : outputBindings.entrySet()) {
+					String portName = outputEntry.getKey();
+					T2Reference o = outputEntry.getValue();
+					JCheckBox checkBox = new JCheckBox(portName);
+					checkBox
+								.setSelected(true);
+						
+					checkReferences.put(checkBox, o);
+					checkBox.addItemListener(listener);
+					outputChecks.put(portName, checkBox);
+					sortedBoxes.put(portName, checkBox);
+				}
+				gbc.insets = new Insets(0,10,0,10);
+				for (String portName : sortedBoxes.keySet()) {
+					gbc.gridy++;
+					portsPanel.add(sortedBoxes.get(portName), gbc);
+				}
+				gbc.gridy++;
+				gbc.fill = GridBagConstraints.BOTH;
+				gbc.weightx = 1.0;
+				gbc.weighty = 1.0;
+				gbc.insets = new Insets(5,10,5,10);
+				portsPanel.add(new JLabel(""), gbc); // empty space
+			}
+			panel.add(portsPanel, BorderLayout.CENTER);
+			chosenReferences.clear();
+			for (JCheckBox checkBox : checkReferences.keySet()) {
+				if (checkBox.isSelected()) {
+					chosenReferences.put(checkBox.getText(),
+							checkReferences.get(checkBox));
+				}
+			}
+
+
+			JPanel buttonsBar = new JPanel();
+			buttonsBar.setLayout(new FlowLayout());
+			// Get all existing 'Save result' actions
+			List<SaveAllResultsSPI> saveActions = saveAllResultsRegistry.getSaveResultActions();
+			for (SaveAllResultsSPI spi : saveActions){
+				spi.setProvenanceEnabledForRun(false);
+				spi.setRunId(runId);
+				spi.setDataflow(null);
+				AbstractAction action = spi.getAction();
+				actionSet.add(action);
+				JButton saveButton = new JButton((AbstractAction) action);
+				if (action instanceof SaveAllResultsSPI) {
+					((SaveAllResultsSPI)action).setChosenReferences(chosenReferences);
+					((SaveAllResultsSPI)action).setParent(dialog);			
+					((SaveAllResultsSPI)action).setReferenceService(referenceService);
+					((SaveAllResultsSPI)action).setInvocationContext(new DummyContext(referenceService));
+				}
+				//saveButton.setEnabled(true);
+				buttonsBar.add(saveButton);
+			}
+			JButton cancelButton = new JButton("Cancel", WorkbenchIcons.closeIcon);
+			cancelButton.addActionListener(new ActionListener() {
+
+				public void actionPerformed(ActionEvent e) {
+					dialog.setVisible(false);
+				}
+				
+			});
+			buttonsBar.add(cancelButton);
+			panel.add(buttonsBar, BorderLayout.SOUTH);
+			panel.revalidate();
+			dialog.add(panel);
+			dialog.pack();
+			dialog.setVisible(true);
+		}
+		
+	}
+
 }

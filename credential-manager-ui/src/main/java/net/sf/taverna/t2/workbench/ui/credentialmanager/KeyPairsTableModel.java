@@ -53,9 +53,6 @@ public class KeyPairsTableModel extends AbstractTableModel implements Observer<K
     
 	private Logger logger = Logger.getLogger(KeyPairsTableModel.class);
 
-    /**
-     * Construct a new KeyPairsTableModel.
-     */
     public KeyPairsTableModel()
     {
         credManager = null;
@@ -97,7 +94,7 @@ public class KeyPairsTableModel extends AbstractTableModel implements Observer<K
     }
     
     /**
-     * Load the KeyPairsTableModel with the key pair entries from the Keystore. 
+     * Load the table model with the key pair entries from the Keystore. 
      */
     public void load() throws CMException {
         
@@ -143,10 +140,10 @@ public class KeyPairsTableModel extends AbstractTableModel implements Observer<K
                 data[iCnt][3] = aliasComponents[3];
                 
                 // Populate the modified date column ("UBER" keystore type supports creation date)
-               	data[iCnt][4] = credManager.getEntryCreationDate(CredentialManager.KEYSTORE, alias);
+               	//data[iCnt][4] = credManager.getEntryCreationDate(CredentialManager.KEYSTORE, alias);
 
                 // Populate the invisible URLs list column
-                data[iCnt][5] = credManager.getServiceURLsForKeyPair(alias);   
+                //data[iCnt][5] = credManager.getServiceURLsForKeyPair(alias);   
                 
                 // Populate the invisible alias column
                 data[iCnt][6] = alias;  

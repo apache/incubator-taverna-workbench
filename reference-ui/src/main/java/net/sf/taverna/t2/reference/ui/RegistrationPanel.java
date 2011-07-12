@@ -23,13 +23,18 @@ package net.sf.taverna.t2.reference.ui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
@@ -39,26 +44,35 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JToolBar;
+import javax.swing.SpinnerListModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
+import net.sf.taverna.t2.reference.ReferencedDataNature;
+import net.sf.taverna.t2.reference.impl.external.file.FileReference;
+import net.sf.taverna.t2.reference.impl.external.http.HttpReference;
 import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTree;
 import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTreeModel;
+
+import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 
 import org.apache.log4j.Logger;
 
@@ -103,10 +117,10 @@ public class RegistrationPanel extends JPanel {
 	// folders at each valid collection level
 	private final List<Action> addCollectionActions = new ArrayList<Action>();
 
-	private AddFileAction addFileAction = new AddFileAction();
-	private AddTextAction addTextAction = new AddTextAction();
-	private AddURLAction addUrlAction = new AddURLAction();
-	private DeleteNodeAction deleteNodeAction = new DeleteNodeAction();
+	private AddFileAction addFileAction = null;
+	private AddTextAction addTextAction = null;
+	private AddURLAction addUrlAction = null;
+	private DeleteNodeAction deleteNodeAction = null;
 
 	private int depth;
 	private JSplitPane splitPaneVertical;
@@ -118,9 +132,20 @@ public class RegistrationPanel extends JPanel {
 	private final PreRegistrationTree tree;
 	private final PreRegistrationTreeModel treeModel;
 	private TextAreaDocumentListener textAreaDocumentListener;
-
+	
+	private JSpinner datatypeSpinner;
+	private JSpinner charsetSpinner;
+	private static Charset utf8 = Charset.forName("UTF-8");
 
 	private String example;
+	
+	private DataManagementConfiguration config = DataManagementConfiguration.getInstance();
+	
+	private boolean exposedDatanature = false;
+	
+	private static String UNKNOWN = "UNKNOWN";
+	
+	private static Map<String, String> charsetNameMap = new HashMap<String, String>();
 
 	/**
 	 * Construct a new registration panel for an input with the specified depth.
@@ -179,12 +204,22 @@ public class RegistrationPanel extends JPanel {
 		
 		JToolBar toolbar = createToolBar();
 		
+		JPanel textAreaPanel = new JPanel();
+		textAreaPanel.setLayout(new BorderLayout());
+		
 		textArea = new DialogTextArea();
 		textAreaDocumentListener = new TextAreaDocumentListener(textArea);
 		textArea.setEditable(false);
+		
+		textAreaPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
+		if (config.isExposeDatanature()) {
+			textAreaPanel.add(createTypeAccessory(), BorderLayout.SOUTH);
+			exposedDatanature = true;
+		}
+		
 		splitPaneHorizontal = new JSplitPane();
 		splitPaneHorizontal.add(new JScrollPane(this.tree), JSplitPane.LEFT);
-		splitPaneHorizontal.add(new JScrollPane(textArea), JSplitPane.RIGHT);
+		splitPaneHorizontal.add(textAreaPanel, JSplitPane.RIGHT);
 		splitPaneHorizontal.setDividerLocation(150);
 		JPanel toolbarAndInputsPanel = new JPanel(new BorderLayout());
 		toolbarAndInputsPanel.add(splitPaneHorizontal, BorderLayout.CENTER);
@@ -208,6 +243,82 @@ public class RegistrationPanel extends JPanel {
 		add(status, BorderLayout.SOUTH);
 	}
 	
+	private static List<String> charsetNames() {
+		List<String> result = new ArrayList<String> ();
+		result.add(UNKNOWN);
+
+		for (String name : Charset.availableCharsets().keySet()) {
+			String upperCase = name.toUpperCase();
+			result.add(upperCase);
+			charsetNameMap.put(upperCase, name);
+		}
+		Collections.sort(result);
+		return result;
+	}
+	
+	private static SpinnerListModel datatypeModel = new SpinnerListModel(new ReferencedDataNature[] {ReferencedDataNature.UNKNOWN, ReferencedDataNature.TEXT, ReferencedDataNature.BINARY});
+	private static SpinnerListModel charsetModel = new SpinnerListModel(charsetNames());
+	
+	private JPanel createTypeAccessory() {
+		JPanel result = new JPanel();
+		result.setLayout(new GridLayout(0,2));
+		result.add(new JLabel("Data type:"));
+		datatypeSpinner = new JSpinner(datatypeModel);
+		datatypeSpinner.setValue(ReferencedDataNature.UNKNOWN);
+		datatypeSpinner.setEnabled(false);
+		result.add(datatypeSpinner);
+		result.add(new JLabel("Character Set:"));
+		charsetSpinner = new JSpinner(charsetModel);
+		charsetSpinner.setValue(UNKNOWN);
+		charsetSpinner.setEnabled(false);
+		datatypeSpinner.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				DefaultMutableTreeNode selectedNode = getSelectedNode();
+				Object selectedUserObject = null;
+				if (selectedNode != null) {
+					selectedUserObject = selectedNode.getUserObject();
+				}
+				ReferencedDataNature nature = (ReferencedDataNature) datatypeSpinner.getValue();
+				if (nature.equals(ReferencedDataNature.UNKNOWN)) {
+					charsetSpinner.setEnabled(false);
+				} else if (nature.equals(ReferencedDataNature.TEXT)) {
+					charsetSpinner.setEnabled(true);
+				} else if (nature.equals(ReferencedDataNature.BINARY)) {
+					charsetSpinner.setEnabled(false);
+				}
+				if (selectedUserObject instanceof FileReference) {
+					FileReference ref = (FileReference) selectedUserObject;
+					ref.setDataNature(nature);
+				}
+			}});
+		charsetSpinner.addChangeListener(new ChangeListener() {
+
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				DefaultMutableTreeNode selectedNode = getSelectedNode();
+				Object selectedUserObject = null;
+				if (selectedNode != null) {
+					selectedUserObject = selectedNode.getUserObject();
+				}
+				String cSet = (String) charsetSpinner.getValue();
+				if (selectedUserObject instanceof FileReference) {
+					FileReference ref = (FileReference) selectedUserObject;
+					if (cSet.equals(UNKNOWN)) {
+						ref.setCharset(null);
+					} else {
+						ref.setCharset(charsetNameMap.get(cSet));
+					}
+				}				
+			}
+			
+		});
+
+		result.add(charsetSpinner);
+		return result;
+	}
+	
 	private JToolBar createToolBar() {
 		JToolBar toolBar = new JToolBar();
 		buildActions();
@@ -216,13 +327,26 @@ public class RegistrationPanel extends JPanel {
 		comp.setToolTipText("Remove the currently selected input");
 		toolBar.add(comp);
 		JButton comp2 = new JButton(addTextAction);
-		comp2.setToolTipText("Add a new input value");
+		if (depth == 0) {
+			comp2.setToolTipText("Set the input value");
+		} else {
+			comp2.setToolTipText("Add a new input value");
+		}
+		
 		toolBar.add(comp2);
 		JButton comp3 = new JButton(addFileAction);
-		comp3.setToolTipText("Add an input value from a file");
+		if (depth == 0) {
+			comp3.setToolTipText("Set the input value from a file");						
+		} else {
+			comp3.setToolTipText("Add an input value from a file");			
+		}
 		toolBar.add(comp3);
 		JButton comp4 = new JButton(addUrlAction);
-		comp4.setToolTipText("Load an input value from a URL");
+		if (depth == 0) {
+			comp4.setToolTipText("Load the input value from a URL");						
+		} else {
+			comp4.setToolTipText("Load an input value from a URL");			
+		}
 		toolBar.add(comp4);
 		// Do lists...
 		if (!addCollectionActions.isEmpty()) {
@@ -265,6 +389,11 @@ public class RegistrationPanel extends JPanel {
 	}
 
 	private void buildActions() {
+		addFileAction = new AddFileAction();
+		addTextAction = new AddTextAction();
+		addUrlAction = new AddURLAction();
+		deleteNodeAction = new DeleteNodeAction();
+
 		if (treeModel.getDepth() > 1) {
 			for (int i = 1; i < treeModel.getDepth(); i++) {
 				final int depth = i;
@@ -280,11 +409,11 @@ public class RegistrationPanel extends JPanel {
 	 * 
 	 * @return
 	 */
-	private MutableTreeNode getSelectedNode() {
-		MutableTreeNode node = null;
+	private DefaultMutableTreeNode getSelectedNode() {
+		DefaultMutableTreeNode node = null;
 		TreePath selectionPath = tree.getSelectionPath();
 		if (selectionPath != null) {
-			node = (MutableTreeNode) selectionPath.getLastPathComponent();
+			node = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
 		}
 		return node;
 	}
@@ -296,6 +425,92 @@ public class RegistrationPanel extends JPanel {
 		} else {
 			status.setForeground(Color.black);
 		}
+	}
+	
+	private void setCharsetSpinner(String charsetName) {
+		if (charsetName == null) {
+			charsetSpinner.setValue(UNKNOWN);
+			return;
+		}
+		String cName = charsetName.toUpperCase();
+		if (charsetNames().contains(cName)) {
+			charsetSpinner.setValue(cName);
+		} else {
+			charsetSpinner.setValue(UNKNOWN);			
+		}
+	}
+	
+	private void updateEditorPane(DefaultMutableTreeNode selection) {
+		textArea.setEditable(false);
+		textAreaDocumentListener.setSelection(null);
+		
+		if (selection == null) {
+			textArea.setText("No selection");
+			if (exposedDatanature) {
+				datatypeSpinner.setEnabled(false);
+				datatypeSpinner.setValue(ReferencedDataNature.UNKNOWN);
+				charsetSpinner.setEnabled(false);
+				setCharsetSpinner(null);
+			}
+			return;
+		}
+		if (!selection.isLeaf()) {
+			textArea.setText("List selected");
+			if (exposedDatanature) {
+				datatypeSpinner.setEnabled(false);
+				datatypeSpinner.setValue(ReferencedDataNature.UNKNOWN);
+				charsetSpinner.setEnabled(false);
+				setCharsetSpinner(null);
+			}
+			return;
+		}
+		Object selectedUserObject = selection.getUserObject();
+		if (selectedUserObject == null) {
+			textArea.setText("List selected");
+			if (exposedDatanature) {
+				datatypeSpinner.setEnabled(false);
+				datatypeSpinner.setValue(ReferencedDataNature.UNKNOWN);
+			}
+			return;
+		}
+		if (selectedUserObject instanceof String) {
+			textArea.setText((String) selection.getUserObject());
+			textAreaDocumentListener.setSelection(selection);
+			textArea.setEditable(true);
+			textArea.requestFocusInWindow();
+			textArea.selectAll();
+			if (exposedDatanature) {
+				datatypeSpinner.setEnabled(false);
+				datatypeSpinner.setValue(ReferencedDataNature.TEXT);
+				charsetSpinner.setEnabled(false);
+				setCharsetSpinner(utf8.name());
+			}
+		} else if (selectedUserObject instanceof FileReference) {
+			FileReference ref = (FileReference) selectedUserObject;
+			textArea.setText("File : " + ref.getFilePath());
+			if (exposedDatanature) {
+				datatypeSpinner.setEnabled(true);
+				datatypeSpinner.setValue(ref.getDataNature());
+				setCharsetSpinner(ref.getCharset());
+				if (ref.getDataNature().equals(ReferencedDataNature.TEXT)) {
+					charsetSpinner.setEnabled(true);
+				} else {
+					charsetSpinner.setEnabled(false);
+				}
+			}
+		} else if (selectedUserObject instanceof HttpReference) {
+			HttpReference ref = (HttpReference) selectedUserObject;
+			textArea.setText("URL : " + ref.getHttpUrlString());
+			if (exposedDatanature) {
+				datatypeSpinner.setEnabled(false);
+				datatypeSpinner.setValue(ref.getDataNature());
+				charsetSpinner.setEnabled(false);
+				setCharsetSpinner(ref.getCharset());
+			}
+		} else {
+			textArea.setText(selection.getUserObject().toString());
+		}
+		
 	}
 
 	private final class UpdateEditorPaneOnSelection implements
@@ -314,39 +529,12 @@ public class RegistrationPanel extends JPanel {
 
 			oldSelectionPath = selectionPath;
 			
-			textArea.setEditable(false);
-			textAreaDocumentListener.setSelection(null);
+			DefaultMutableTreeNode selection = null;
 			
-			if (selectionPath == null) {
-				textArea.setText("No selection");
-				return;
+			if (selectionPath != null) {
+				selection = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
 			}
-			DefaultMutableTreeNode selection = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
-			if (!selection.isLeaf()) {
-				textArea.setText("List selected");
-			}
-			if (selection == null) {
-				textArea.setText("No selection");
-				return;
-			}
-			Object selectedUserObject = selection.getUserObject();
-			if (selectedUserObject == null) {
-				textArea.setText("List selected");
-				return;
-			}
-			if (selectedUserObject instanceof String) {
-				textArea.setText((String) selection.getUserObject());
-				textAreaDocumentListener.setSelection(selection);
-				textArea.setEditable(true);
-				textArea.requestFocusInWindow();
-				textArea.selectAll();
-			} else if (selectedUserObject instanceof File) {
-				textArea.setText("File : " + selection.getUserObject());
-			} else if (selectedUserObject instanceof URL) {
-				textArea.setText("URL : " + selection.getUserObject());
-			} else {
-				textArea.setText(selection.getUserObject().toString());
-			}
+			updateEditorPane(selection);
 		}
 			
 
@@ -366,8 +554,8 @@ public class RegistrationPanel extends JPanel {
 
 		@SuppressWarnings("unused")
 		public void actionPerformed(ActionEvent ae) {
-			MutableTreeNode parent = (MutableTreeNode) treeModel.getRoot();
-			MutableTreeNode selection = getSelectedNode();
+			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) treeModel.getRoot();
+			DefaultMutableTreeNode selection = getSelectedNode();
 			if (selection != null) {
 				parent = selection;
 			}
@@ -381,7 +569,7 @@ public class RegistrationPanel extends JPanel {
 	public class UpdateActionsOnTreeSelection implements
 			TreeSelectionListener {
 		public void valueChanged(TreeSelectionEvent e) {
-			MutableTreeNode selectedNode = (MutableTreeNode) tree
+			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) tree
 					.getLastSelectedPathComponent();
 			if (selectedNode == null) {
 				// Selection cleared
@@ -399,7 +587,7 @@ public class RegistrationPanel extends JPanel {
 	public class AddFileAction extends AbstractAction {
 
 		public AddFileAction() {
-			super("Add file location(s)...", addFileIcon);
+			super((depth == 0 ? "Set" : "Add") + " file location...", addFileIcon);
 		}
 		
 		@SuppressWarnings("unused")
@@ -419,12 +607,14 @@ public class RegistrationPanel extends JPanel {
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				prefs.put("currentDir", fileChooser.getCurrentDirectory()
 						.toString());
-				MutableTreeNode node = getSelectedNode();
+				DefaultMutableTreeNode node = getSelectedNode();
 
 				for (File file : fileChooser.getSelectedFiles()) {
 					if (!file.isDirectory()) {
 						
-						DefaultMutableTreeNode added = addPojo(node, file, 0);
+						FileReference ref = new FileReference(file);
+						ref.setCharset(Charset.defaultCharset().name());
+						DefaultMutableTreeNode added = addPojo(node, ref, 0);
 						setStatus("Added file : " + file.getPath(),
 								null);
 					} else {
@@ -438,10 +628,12 @@ public class RegistrationPanel extends JPanel {
 						// Try to handle directories as flat lists, don't
 						// nest
 						// any deeper for now.
-						List<File> children = new ArrayList<File>();
+						List<FileReference> children = new ArrayList<FileReference>();
 						for (File child : file.listFiles()) {
 							if (child.isFile()) {
-								children.add(child);
+								FileReference ref = new FileReference((File) child);
+								ref.setCharset(Charset.defaultCharset().name());
+								children.add(ref);
 							}
 						}
 						DefaultMutableTreeNode added = addPojo(node, children, 1);
@@ -459,12 +651,12 @@ public class RegistrationPanel extends JPanel {
 	 */
 	public class AddTextAction extends AbstractAction {
 		public AddTextAction() {
-			super("New value", addTextIcon);
+			super((depth == 0 ? "Set" : "Add") + " value", addTextIcon);
 		}
 		
 		@SuppressWarnings("unused")
 		public void actionPerformed(ActionEvent e) {
-			MutableTreeNode node = getSelectedNode();
+			DefaultMutableTreeNode node = getSelectedNode();
 			String newValue;
 			if (example != null && example.length() > 0) {
 				newValue = example;
@@ -478,10 +670,11 @@ public class RegistrationPanel extends JPanel {
 		}
 	}
 
-	private DefaultMutableTreeNode addPojo (MutableTreeNode node, Object newValue, int position) {
-		DefaultMutableTreeNode added = treeModel.addPojoStructure(node,
+	private DefaultMutableTreeNode addPojo (DefaultMutableTreeNode node, Object newValue, int position) {
+		DefaultMutableTreeNode added = treeModel.addPojoStructure(node, node,
 				newValue, position);
 		tree.setSelectionPath(new TreePath(added.getPath()));
+		updateEditorPane(added);
 		return added;
 	}
 	
@@ -490,7 +683,7 @@ public class RegistrationPanel extends JPanel {
 		private static final String URL_REGEX = "http:\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?";
 
 		public AddURLAction() {
-			super("Add URL ...", addUrlIcon);
+			super((depth == 0 ? "Set" : "Add") + " URL ...", addUrlIcon);
 		}
 		
 		@SuppressWarnings("unused")
@@ -515,12 +708,14 @@ public class RegistrationPanel extends JPanel {
 				try {
 					URL url = new URL(urlString);
 					if (url.getProtocol().equalsIgnoreCase("http")) {
+						HttpReference ref = new HttpReference();
+						ref.setHttpUrlString(urlString);
 						prefs.put("currentUrl", urlString);
 
-						MutableTreeNode node = getSelectedNode();
+						DefaultMutableTreeNode node = getSelectedNode();
 
-						DefaultMutableTreeNode added = addPojo(node, url, 0);
-						setStatus("Added URL : " + url.toExternalForm(),
+						DefaultMutableTreeNode added = addPojo(node, ref, 0);
+						setStatus("Added URL : " + ref.getHttpUrlString(),
 								null);
 					} else {
 						setStatus("Only http URLs are supported for now.",
@@ -543,10 +738,22 @@ public class RegistrationPanel extends JPanel {
 			setEnabled(false);
 		}
 		public void actionPerformed(ActionEvent e) {
-			MutableTreeNode node = (MutableTreeNode) tree.getSelectionPath()
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getSelectionPath()
 					.getLastPathComponent();
+				DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+				DefaultMutableTreeNode previousChild = null;
+				if (parent != null) {
+					int index = parent.getIndex(node);
+					if (index > 0) {
+						previousChild = (DefaultMutableTreeNode) parent.getChildAt(index - 1);
+					}
+				}
 				treeModel.removeNodeFromParent(node);
-				tree.setSelectionPath(null);
+				if (previousChild == null) {
+					tree.setSelectionPath(null);
+				} else {
+					tree.setSelectionPath(new TreePath(previousChild.getPath()));
+				}
 				setStatus("Deleted node", null);
 		}
 	}
@@ -556,7 +763,7 @@ public class RegistrationPanel extends JPanel {
 		
 		private final DialogTextArea textArea;
 
-		private MutableTreeNode selection;
+		private DefaultMutableTreeNode selection;
 		
 		 		public TextAreaDocumentListener(DialogTextArea textArea) {
 			this.textArea = textArea;
@@ -567,7 +774,7 @@ public class RegistrationPanel extends JPanel {
                /**
 		 * @param selection the selection to set
 		 */
-		public void setSelection(MutableTreeNode selection) {
+		public void setSelection(DefaultMutableTreeNode selection) {
 			this.selection = selection;
 		}
 

@@ -94,14 +94,14 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 	
 	@SuppressWarnings("unchecked")
 	protected Component createCustomComponent() {
-		saveDiagramMenu = new JMenu("Save diagram");
-		saveDiagramMenu.setToolTipText("Open this menu to save diagram in various formats");
+		saveDiagramMenu = new JMenu("Export diagram");
+		saveDiagramMenu.setToolTipText("Open this menu to export the diagram in various formats");
 		for (int i = 0; i < saveTypes.length; i++) {
 			String type = saveTypes[i];
 			String extension = saveExtensions[i];
 			ImageIcon icon = new ImageIcon(WorkbenchIcons.class
 					.getResource("graph/saveAs" + type.toUpperCase() + ".png"));
-			JMenuItem item = new JMenuItem("Save as " + saveTypeNames[i],
+			JMenuItem item = new JMenuItem("Export as " + saveTypeNames[i],
 					icon);
 			item.addActionListener(new DotInvoker(type, extension));
 			modelMap.addObserver(perspectiveObserver);
@@ -129,12 +129,12 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 				JOptionPane
 				.showMessageDialog(
 						null,
-						"Can't save an empty diagram.",
+						"Cannot export an empty diagram.",
 						"Warning", JOptionPane.WARNING_MESSAGE);
 			}
 			else{
 				File file = saveDialogue(null, dataflow, extension,
-						"Save workflow diagram");
+						"Export workflow diagram");
 				if (file != null) {// User did not cancel
 					try {
 						
@@ -172,7 +172,7 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 							
 						}
 					} catch (Exception ex) {
-						logger.warn("GraphViewComponent: Could not save diagram to " + file, ex);
+						logger.warn("GraphViewComponent: Could not export diagram to " + file, ex);
 						JOptionPane.showMessageDialog(null,
 								"Problem saving diagram : \n" + ex.getMessage(),
 								"Error!", JOptionPane.ERROR_MESSAGE);
@@ -241,12 +241,12 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 			
 			int returnVal = fc.showSaveDialog(parentComponent);
 			if (returnVal != JFileChooser.APPROVE_OPTION) {
-				logger.info("GraphViewComponent: Aborting diagram save of " + suggestedFileName);
+				logger.info("GraphViewComponent: Aborting diagram export to " + suggestedFileName);
 				return null;
 			}
 			else{
 				File file = fixExtension(fc.getSelectedFile(), extension);
-				logger.debug("GraphViewComponent: Selected " + file + " for save");
+				logger.debug("GraphViewComponent: Selected " + file + " as export target");
 				prefs.put("currentDir", fc.getCurrentDirectory().toString());
 				
 				if (file.exists()){ // File already exists

@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.swing.SwingWorker;
 
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.workbench.edits.EditManager;
@@ -40,7 +41,6 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingworker.SwingWorker;
 
 public class ValidateSwingWorker extends SwingWorker<Dataflow, String>{
 

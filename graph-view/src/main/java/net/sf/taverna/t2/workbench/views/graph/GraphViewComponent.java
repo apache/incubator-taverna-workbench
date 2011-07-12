@@ -55,12 +55,13 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.impl.T2DataflowOpener;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
+import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
@@ -103,6 +104,8 @@ public class GraphViewComponent extends WorkflowView {
 
 	public static Map<Dataflow, JPanel> diagramPanelMap = new HashMap<Dataflow, JPanel>();
 
+	public static Map<Dataflow, Action[]> diagramActionsMap = new HashMap<Dataflow, Action[]>();
+
 	private Dataflow dataflow;
 
 	private Timer timer;
@@ -111,11 +114,13 @@ public class GraphViewComponent extends WorkflowView {
 
 	private CardLayout cardLayout;
 
+    private TitledBorder border;
+
 	public GraphViewComponent() {
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 
-		TitledBorder border = new TitledBorder("Workflow diagram");
+		border = new TitledBorder("Workflow diagram");
 		border.setTitleJustification(TitledBorder.CENTER);
 		setBorder(border);
 
@@ -242,6 +247,8 @@ public class GraphViewComponent extends WorkflowView {
 		zoomOutAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomOutIcon);
 		zoomOutButton.setAction(zoomOutAction);
 
+		diagramActionsMap.put(graphController.getDataflow(), new Action[] {resetDiagramAction, zoomInAction, zoomOutAction});
+		
 		toolBar.add(resetDiagramButton);
 		toolBar.add(zoomInButton);
 		toolBar.add(zoomOutButton);
@@ -379,6 +386,25 @@ public class GraphViewComponent extends WorkflowView {
 
 		return toolBar;
 	}
+	
+	private String getBorderTitle(final Dataflow d) {
+		String localName = d.getLocalName();
+		String sourceName = FileManager.getInstance().getDataflowName(d);
+		String result = "";
+		if (localName.equals(sourceName)) {
+			result = localName;
+		}
+		else if (sourceName.startsWith(localName + " ")) {
+			result = sourceName;
+		}
+		else {
+			result = localName + " from " + sourceName;
+		}
+		if (result.length() > 60) {
+			result = result.substring(0, 57) + "...";
+		}
+		return result;
+	}
 
 	/**
 	 * Sets the Dataflow to display in the graph view.
@@ -394,8 +420,16 @@ public class GraphViewComponent extends WorkflowView {
 		}
 		graphController = graphControllerMap.get(dataflow);
 		diagramPanel = diagramPanelMap.get(dataflow);
+		Action[] actions = diagramActionsMap.get(dataflow);
+		if (actions != null && actions.length == 3) {
+			ResetDiagramAction.setDesignAction(actions[0]);
+			ZoomInAction.setDesignAction(actions[1]);
+			ZoomOutAction.setDesignAction(actions[2]);
+		}
 		cardLayout.show(this, String.valueOf(diagramPanel.hashCode()));
+		border.setTitle(getBorderTitle(dataflow));
 		graphController.redraw();
+		this.repaint();
 	}
 
 	/**
@@ -485,7 +519,12 @@ public class GraphViewComponent extends WorkflowView {
 							if (animationSpeed != graphController.getAnimationSpeed()) {
 								graphController.setAnimationSpeed(animationSpeed);
 							}
-							graphController.redraw();							
+							graphController.redraw();
+							String dataflowName = getBorderTitle(dataflow);
+							if (!dataflowName.equals(border.getTitle())) {
+							    border.setTitle(dataflowName);
+							    GraphViewComponent.this.repaint();
+							}
 						}
 					}
 				}
@@ -503,7 +542,7 @@ public class GraphViewComponent extends WorkflowView {
 	public class FileManagerObserverRunnable implements Runnable {
 		private final FileManagerEvent message;
 
-		public FileManagerObserverRunnable(FileManagerEvent message) {
+	    public FileManagerObserverRunnable(FileManagerEvent message) {
 			this.message = message;
 		}
 
@@ -523,9 +562,12 @@ public class GraphViewComponent extends WorkflowView {
 									gvtTreeBuilderAdapter);
 					removedController.shutdown();
 				}
+				diagramActionsMap.remove(dataflow);
 			} else if (message instanceof SetCurrentDataflowEvent) {
 				SetCurrentDataflowEvent currentDataflowEvent = (SetCurrentDataflowEvent) message;
 				Dataflow dataflow = currentDataflowEvent.getDataflow();
+				setDataflow(dataflow);
+			} else if (message instanceof SavedDataflowEvent) {
 				setDataflow(dataflow);
 			}
 		}
@@ -535,7 +577,7 @@ public class GraphViewComponent extends WorkflowView {
 
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) {
-			FileManagerObserverRunnable runnable = new FileManagerObserverRunnable(message);
+		    FileManagerObserverRunnable runnable = new FileManagerObserverRunnable(message);
 			if (SwingUtilities.isEventDispatchThread()) {
 				runnable.run();
 			} else {

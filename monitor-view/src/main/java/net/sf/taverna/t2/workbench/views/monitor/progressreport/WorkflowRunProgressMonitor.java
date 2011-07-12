@@ -274,7 +274,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 					
 //					if (workflowRunStatusLabel != null){
 //						workflowRunStatusLabel.setText(STATUS_FINISHED);
-//						workflowRunStatusLabel.setIcon(WorkbenchIcons.greentickIcon);
+//						workflowRunStatusLabel.setIcon(WorkbenchIcons.tickIcon);
 //					}
 					
 					// Stop observing monitor messages as workflow has finished running

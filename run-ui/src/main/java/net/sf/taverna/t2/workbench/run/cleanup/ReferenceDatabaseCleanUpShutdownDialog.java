@@ -35,6 +35,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.WindowConstants;
 
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
@@ -67,7 +68,7 @@ public class ReferenceDatabaseCleanUpShutdownDialog extends HelpEnabledDialog{
 
 	public ReferenceDatabaseCleanUpShutdownDialog() {
 		super((Frame) null, "Deleting unused data references from database", true);
-		setUndecorated(true);
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		setLocationRelativeTo(null);
 
 		GridBagLayout gridbag = new GridBagLayout();

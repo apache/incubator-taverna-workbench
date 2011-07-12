@@ -21,7 +21,7 @@
 package net.sf.taverna.t2.workbench.views.results.processor;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingworker.SwingWorker;
+import javax.swing.SwingWorker;
 
 public class IntermediateValuesSwingWorker extends SwingWorker<ProcessorResultsComponent, String>{
 

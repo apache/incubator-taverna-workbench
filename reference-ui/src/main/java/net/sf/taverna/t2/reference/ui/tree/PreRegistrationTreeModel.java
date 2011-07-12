@@ -22,6 +22,7 @@ package net.sf.taverna.t2.reference.ui.tree;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +30,11 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
+
+import net.sf.taverna.t2.reference.AbstractExternalReference;
+import net.sf.taverna.t2.reference.ExternalReferenceSPI;
+import net.sf.taverna.t2.reference.impl.external.file.FileReference;
+import net.sf.taverna.t2.reference.impl.external.http.HttpReference;
 
 import org.apache.log4j.Logger;
 
@@ -130,8 +136,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 			}
 			return result;
 		} else {
-			if (userObject instanceof String || userObject instanceof File
-					|| userObject instanceof URL
+			if (userObject instanceof String || userObject instanceof ExternalReferenceSPI
 					|| userObject instanceof byte[]) {
 				return userObject;
 			} else {
@@ -164,62 +169,85 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	 * the model is maintained. If specified as null the target is assumed to be
 	 * the root node.
 	 * 
-	 * @param target
+	 * @param parent
 	 * @param pojo
 	 * @param depth
 	 */
 	@SuppressWarnings("unchecked")
-	public synchronized DefaultMutableTreeNode addPojoStructure(MutableTreeNode target,
+	public synchronized DefaultMutableTreeNode addPojoStructure(MutableTreeNode parent, MutableTreeNode preceding,
 			Object pojo, int depth) {
 		// Firstly check for a null target and set the root node to be the
 		// target if so.
-		if (target == null) {
-			target = (MutableTreeNode) getRoot();
+		if (parent == null) {
+			parent = (MutableTreeNode) getRoot();
 		}
 		// Now ensure that the target node has the correct depth. The target
 		// node must have depth of (depth - 1) to be correct, this means we can
 		// add the collection in place without any problems.
-		int targetDepth = getNodeDepth(target);
-
+		int targetDepth = getNodeDepth(parent);
+		
 		if (targetDepth > (depth + 1)) {
 			// Need to traverse down the structure to find an appropriate parent
 			// node, creating empty nodes as we go if required.
-			if (target.getChildCount() == 0) {
-				insertNodeInto(new DefaultMutableTreeNode(null), target, 0);
+			if (parent.getChildCount() == 0) {
+				insertNodeInto(new DefaultMutableTreeNode(null), parent, 0);
 			}
-			return addPojoStructure((MutableTreeNode) target.getChildAt(0), pojo,
+			return addPojoStructure((MutableTreeNode) parent.getChildAt(0), preceding, pojo,
 					depth);
 		} else if (targetDepth < (depth + 1)) {
 			// Need to traverse up the structure to find an appropriate parent
 			// node
-			if (target.getParent() == null) {
+			if (parent.getParent() == null) {
 				throw new IllegalArgumentException(
 						"Can't add this pojo, depths are not compatible.");
 			}
-			return addPojoStructure((MutableTreeNode) target.getParent(), pojo, depth);
+			return addPojoStructure((MutableTreeNode) parent.getParent(), preceding, pojo, depth);
 		} else if (targetDepth == (depth + 1)) {
 			// Found an appropriate parent node, we can insert at position 0
 			// here. If this is the root node then we need to clear it first,
 			// the root can only have zero or one child nodes.
-			if (target == getRoot()) {
-				if (target.getChildCount() == 1) {
-					removeNodeFromParent((MutableTreeNode) target.getChildAt(0));
+			if (parent == getRoot()) {
+				if (parent.getChildCount() == 1) {
+					removeNodeFromParent((MutableTreeNode) parent.getChildAt(0));
 				}
 			}
-			int children = target.getChildCount();
+			int children = parent.getChildCount();
+			int position = children;
+			if ((preceding != null) && (preceding.getParent() != null) && preceding.getParent().equals(parent)) {
+				position = parent.getIndex(preceding) + 1;
+			}
 			if (pojo instanceof List) {
 				DefaultMutableTreeNode newTarget = new DefaultMutableTreeNode(null);
-				insertNodeInto(newTarget, target, children);
+				insertNodeInto(newTarget, parent, position);
 				for (Object child : (List<Object>) pojo) {
-					addPojoStructure(newTarget, child, depth - 1);
+					addPojoStructure(newTarget, preceding, child, depth - 1);
 				}
 				return newTarget;
-			} else {
-				// Append to the target node
+			} else if (pojo instanceof String) {
 				DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(pojo);
-				insertNodeInto(newChild, target,
-						children);
-				return newChild;
+				insertNodeInto(newChild, parent,
+						position);
+				return newChild;				
+			} else {
+				AbstractExternalReference ref = null;
+				if (pojo instanceof AbstractExternalReference) {
+					ref = (AbstractExternalReference) pojo;
+				}
+				else if (pojo instanceof File) {
+					ref = new FileReference((File) pojo);
+					((FileReference)ref).setCharset(Charset.defaultCharset().name());
+				} else if (pojo instanceof URL) {
+					ref = new HttpReference();
+					((HttpReference)ref).setHttpUrlString(((URL) pojo).toString());
+				}
+				if (ref != null) {
+					// Append to the target node
+					DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(ref);
+					insertNodeInto(newChild, parent,
+							position);
+					return newChild;
+				}
+				return null;
 			}
 		} else {
 			// Can we really reach this code?

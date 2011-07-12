@@ -31,11 +31,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -77,7 +77,9 @@ public class DatabaseCleanup {
 
 	private static Logger logger = Logger.getLogger(DatabaseCleanup.class);
 
-	protected Queue<String> deletionQueue = new ConcurrentLinkedQueue<String>();
+	protected ConcurrentLinkedQueue<String> deletionQueue = new ConcurrentLinkedQueue<String>();
+	
+	private ArrayList<String> deletionOnRestartList = new ArrayList<String>();
 
 	protected Set<String> inQueueOrDeleted = Collections
 			.synchronizedSet(new HashSet<String>());
@@ -89,6 +91,7 @@ public class DatabaseCleanup {
 
 	public void scheduleDeleteDataflowRun(WorkflowRun run, boolean startDeletion) {
 		String runId = run.getRunId();
+		deletionOnRestartList.remove(runId);
 		runToReferenceService.put(runId, run.getReferenceService());
 		scheduleDeleteDataflowRun(runId, startDeletion);
 	}
@@ -96,13 +99,33 @@ public class DatabaseCleanup {
 	public void scheduleDeleteDataflowRun(String workflowRunId,
 			boolean startDeletion) {
 		addToDeletionQueue(workflowRunId, startDeletion);
+		synchronized (deletionOnRestartList) {
+			deletionOnRestartList.remove(workflowRunId);	
+		}
+	}
+	
+	public void scheduleDeleteDataflowRunOnRestart(String workflowRunId) {
+		synchronized (deletionQueue) {
+			if (deletionQueue.contains(workflowRunId)) {
+				return;
+			}
+		}
+		synchronized (deletionOnRestartList) {
+				if (!deletionOnRestartList.contains(workflowRunId)) {
+					deletionOnRestartList.add(workflowRunId);
+				}		
+		}
+		
 	}
 
 	protected void addToDeletionQueue(String workflowRunId,
 			boolean startDeletion) {
 		if (inQueueOrDeleted.add(workflowRunId)) {
-			deletionQueue.offer(workflowRunId);
+			deletionQueue.offer(workflowRunId);		
 		}
+		synchronized (deletionQueue) {
+			deletionQueue.notify();
+		}	
 		synchronized (this) {
 			if (startDeletion
 					&& (deleteWorkflowRunsThread == null || !deleteWorkflowRunsThread
@@ -118,7 +141,7 @@ public class DatabaseCleanup {
 
 	protected void persist() {
 		File runToDeleteFile = getRunToDeleteFile();
-		if (deletionQueue.isEmpty()) {
+		if (deletionQueue.isEmpty() && deletionOnRestartList.isEmpty()) {
 			runToDeleteFile.delete();
 			return;
 		}
@@ -139,6 +162,10 @@ public class DatabaseCleanup {
 		}
 		try {
 			for (String wfRunId : deletionQueue) {
+				writer.write(wfRunId);
+				writer.newLine();
+			}
+			for (String wfRunId : deletionOnRestartList) {
 				writer.write(wfRunId);
 				writer.newLine();
 			}

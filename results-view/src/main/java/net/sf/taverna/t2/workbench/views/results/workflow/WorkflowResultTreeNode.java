@@ -28,6 +28,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.reference.ErrorDocument;
 import net.sf.taverna.t2.reference.Identified;
+import net.sf.taverna.t2.reference.ReferenceServiceException;
 import net.sf.taverna.t2.reference.T2Reference;
 
 import org.apache.log4j.Logger;
@@ -59,8 +60,19 @@ public class WorkflowResultTreeNode extends DefaultMutableTreeNode {
 	}
 
 	public T2Reference getReference() {
-		return reference;
+		if (isState(ResultTreeNodeState.RESULT_TOP)) {
+			if (getChildCount() == 0) {
+				return null;
+			}
+			else {
+				return ((WorkflowResultTreeNode) getChildAt(0)).getReference();
+			}
+		}
+		else {
+			return reference;
+		}
 	}
+
 
     public WorkflowResultTreeNode(T2Reference reference, InvocationContext context, ResultTreeNodeState state) {
 		this.reference = reference;
@@ -165,12 +177,15 @@ public class WorkflowResultTreeNode extends DefaultMutableTreeNode {
 			return null;
 		}
 		try {
-			Object result = context.getReferenceService().renderIdentifier(reference, Object.class, context);
-			return result;
+			return context.getReferenceService().renderIdentifier(reference, String.class, context);
 		}
-		catch (Exception e) {
-			// Not good to catch exception but
-			return null;
+		catch (ReferenceServiceException e) {
+			try {
+				return context.getReferenceService().renderIdentifier(reference, byte[].class, context);
+			}
+			catch (ReferenceServiceException ex) {
+				return null;
+			}
 		}
 	}
 }

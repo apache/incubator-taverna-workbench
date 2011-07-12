@@ -34,57 +34,48 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.math.BigInteger;
-import java.util.HashMap;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
+//import javax.swing.JTextField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
-import javax.swing.JSeparator;
+//import javax.swing.JSeparator;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import javax.security.auth.x500.X500Principal;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.security.credentialmanager.CMUtils;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 import org.apache.log4j.Logger;
-import org.bouncycastle.asn1.ASN1OctetString;
-import org.bouncycastle.asn1.DERBitString;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.misc.NetscapeCertType;
 
 /**
  * Displays the details of a X.509 certificate and asks user if they want to
- * trust it.
- * 
- * @author Alex Nenadic
+ * trust it. This is normally invoked by the Taverna's TrustManager when trying 
+ * to confirm the trust in the remote server during SSL handshake.
  */
 @SuppressWarnings("serial")
-public class ConfirmTrustedCertificateDialog extends HelpEnabledDialog {
+public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog {
 	
 	private static Logger logger = Logger.getLogger(ConfirmTrustedCertificateDialog.class);
 
-	// Stores certificate to display
+	// The certificate to display
 	private X509Certificate cert;
 
-	// Stores user's decision as whether to trust this service's certificate or not.
+	// User's decision as whether to trust this service's certificate or not
 	private boolean shouldTrust;
 
+	// Should the decision also be saved in Credential Manager (actually - 
+	// it is always saved now as it was really hard to implement trusting for
+	// one connection only - so we can either "trust" or "not" trust but not "trust once".)
 	private boolean shouldSave = false;
 
-	/**
-	 * Creates new ConfirmTrustedCertificateDialog where parent is a Frame.
-	 */
 	public ConfirmTrustedCertificateDialog(Frame parent, String title,
 			boolean modal, X509Certificate crt){
 		super(parent, title, modal);
@@ -92,9 +83,6 @@ public class ConfirmTrustedCertificateDialog extends HelpEnabledDialog {
 		initComponents();
 	}
 	
-	/**
-	 * Creates new ConfirmTrustedCertificateDialog where parent is a Dialog.
-	 */
 	public ConfirmTrustedCertificateDialog(Dialog parent, String title,
 			boolean modal, X509Certificate crt)
 			throws CMException {
@@ -103,9 +91,6 @@ public class ConfirmTrustedCertificateDialog extends HelpEnabledDialog {
 		initComponents();
 	}
 
-	/**
-	 * Initialise the dialog's GUI components.
-	 */
 	private void initComponents(){
 		
 		// title panel
@@ -127,102 +112,106 @@ public class ConfirmTrustedCertificateDialog extends HelpEnabledDialog {
 
 		// Grid Bag Constraints templates for labels (column 1) and
 		// values (column 2) of certificate details
-		GridBagConstraints gbcLabel = new GridBagConstraints();
-		gbcLabel.gridx = 0;
-		gbcLabel.ipadx = 20;
-		gbcLabel.gridwidth = 1;
-		gbcLabel.gridheight = 1;
-		gbcLabel.insets = new Insets(2, 15, 2, 2);
-		gbcLabel.anchor = GridBagConstraints.LINE_START;
+		GridBagConstraints gbc_labels = new GridBagConstraints();
+		gbc_labels.gridx = 0;
+		gbc_labels.ipadx = 20;
+		gbc_labels.gridwidth = 1;
+		gbc_labels.gridheight = 1;
+		gbc_labels.insets = new Insets(2, 15, 2, 2);
+		gbc_labels.anchor = GridBagConstraints.LINE_START;
 
-		GridBagConstraints gbcValue = new GridBagConstraints();
-		gbcValue.gridx = 1;
-		gbcValue.gridwidth = 1;
-		gbcValue.gridheight = 1;
-		gbcValue.insets = new Insets(2, 5, 2, 2);
-		gbcValue.anchor = GridBagConstraints.LINE_START;
+		GridBagConstraints gbc_values = new GridBagConstraints();
+		gbc_values.gridx = 1;
+		gbc_values.gridwidth = 1;
+		gbc_values.gridheight = 1;
+		gbc_values.insets = new Insets(2, 5, 2, 2);
+		gbc_values.anchor = GridBagConstraints.LINE_START;
 
 		// Netscape Certificate Type non-critical extension (if any)
 		// defines the intended uses of the certificate - to make it look like
-		// firefox's view certificate dialog
-		byte[] intendedUses = cert.getExtensionValue("2.16.840.1.113730.1.1"); // Netscape Certificate Type OID
-		JLabel jlIntendedUses = null;
-		JTextField jtfIntendedUsesValue = null;
-		JPanel jpUses = null;
-		GridBagConstraints gbc_jpUses = null;
-		if (intendedUses != null) {
-			jlIntendedUses = new JLabel(
-					"This certificate has been approved for the following uses:");
-			jlIntendedUses.setFont(new Font(null, Font.BOLD, 11));
-			jlIntendedUses.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-			jtfIntendedUsesValue = new JTextField(45);
-			jtfIntendedUsesValue.setText(getIntendedUses(intendedUses));
-			jtfIntendedUsesValue.setEditable(false);
-			jtfIntendedUsesValue.setFont(new Font(null, Font.PLAIN, 11));
-
-			jpUses = new JPanel(new BorderLayout());
-			jpUses.add(jlIntendedUses, BorderLayout.NORTH);
-			jpUses.add(jtfIntendedUsesValue, BorderLayout.CENTER);
-			JSeparator jsp = new JSeparator(JSeparator.HORIZONTAL);
-			jpUses.add(jsp, BorderLayout.SOUTH);
-
-			gbc_jpUses = (GridBagConstraints) gbcLabel.clone();
-			gbc_jpUses.gridy = 0;
-			gbc_jpUses.gridwidth = 2; // takes two columns
-			gbc_jpUses.insets = new Insets(5, 5, 5, 5);// has slightly bigger insets
-		}
+		// Firefox's view certificate dialog
+        // From openssl's documentation: "The [above] extension is non standard, Netscape 
+        // specific and largely obsolete. Their use in new applications is discouraged."
+        // TODO replace with "basicConstraints, keyUsage and extended key usage extensions 
+        // which are now used instead."
+//		byte[] intendedUses = cert.getExtensionValue("2.16.840.1.113730.1.1"); // Netscape Certificate Type OID
+//		JLabel intendedUsesLabel = null;
+//		JTextField intendedUsesTextField = null;
+//		JPanel intendedUsesPanel = null;
+//		GridBagConstraints gbc_intendedUsesLabel = null;
+//		if (intendedUses != null) {
+//			intendedUsesLabel = new JLabel(
+//					"This certificate has been approved for the following uses:");
+//			intendedUsesLabel.setFont(new Font(null, Font.BOLD, 11));
+//			intendedUsesLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
+//
+//			intendedUsesTextField = new JTextField(45);
+//			intendedUsesTextField.setText(CMUtils.getIntendedCertificateUses(intendedUses));
+//			intendedUsesTextField.setEditable(false);
+//			intendedUsesTextField.setFont(new Font(null, Font.PLAIN, 11));
+//
+//			intendedUsesPanel = new JPanel(new BorderLayout());
+//			intendedUsesPanel.add(intendedUsesLabel, BorderLayout.NORTH);
+//			intendedUsesPanel.add(intendedUsesTextField, BorderLayout.CENTER);
+//			JSeparator separator = new JSeparator(JSeparator.HORIZONTAL);
+//			intendedUsesPanel.add(separator, BorderLayout.SOUTH);
+//
+//			gbc_intendedUsesLabel = (GridBagConstraints) gbc_labels.clone();
+//			gbc_intendedUsesLabel.gridy = 0;
+//			gbc_intendedUsesLabel.gridwidth = 2; // takes two columns
+//			gbc_intendedUsesLabel.insets = new Insets(5, 5, 5, 5);// has slightly bigger insets
+//		}
 
 		// Issued To
-		JLabel jlIssuedTo = new JLabel("Issued To");
-		jlIssuedTo.setFont(new Font(null, Font.BOLD, 11));
-		GridBagConstraints gbc_jlIssuedTo = (GridBagConstraints) gbcLabel
+		JLabel issuedToLabel = new JLabel("Issued To");
+		issuedToLabel.setFont(new Font(null, Font.BOLD, 11));
+		GridBagConstraints gbc_issuedTo = (GridBagConstraints) gbc_labels
 				.clone();
-		gbc_jlIssuedTo.gridy = 1;
-		gbc_jlIssuedTo.gridwidth = 2; // takes two columns
-		gbc_jlIssuedTo.insets = new Insets(5, 5, 5, 5);// has slightly bigger insets
-		// Distinguished Name (DN)
-		String sDN = cert.getSubjectX500Principal().getName(
+		gbc_issuedTo.gridy = 1;
+		gbc_issuedTo.gridwidth = 2; // takes two columns
+		gbc_issuedTo.insets = new Insets(5, 5, 5, 5);// has slightly bigger insets
+		// Subject's Distinguished Name (DN)
+		String subjectDN = cert.getSubjectX500Principal().getName(
 				X500Principal.RFC2253);
-		CMX509Util util = new CMX509Util();
-		util.parseDN(sDN);
+		CMUtils util = new CMUtils();
+		util.parseDN(subjectDN);
 		// Extract the CN, O, OU and EMAILADDRESS fields
-		String sCN = util.getCN();
-		String sOrg = util.getO();
-		String sOU = util.getOU();
-		titleMessage.setText("The service host " + sCN + " requires HTTPS connection and has identified itself with the certificate below.\n" +
+		String subjectCN = util.getCN();
+		String subjectOrg = util.getO();
+		String subjectOU = util.getOU();
+		titleMessage.setText("The service host " + subjectCN + " requires HTTPS connection and has identified itself with the certificate below.\n" +
 				"Do you want to trust this service? (Refusing to trust means you will not be able to invoke services on this host from a workflow.)");
-		// String sEMAILADDRESS = CMX509Util.getEmilAddress();
-		// Common Name (CN)
-		JLabel jlCN = new JLabel("Common Name (CN)");
-		jlCN.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlCN = (GridBagConstraints) gbcLabel.clone();
-		gbc_jlCN.gridy = 2;
-		JLabel jlCNValue = new JLabel(sCN);
-		jlCNValue.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlCNValue = (GridBagConstraints) gbcValue
+		// String sEMAILADDRESS = CMUtils.getEmilAddress();
+		// Subject's Common Name (CN)
+		JLabel subjectCNLabel = new JLabel("Common Name (CN)");
+		subjectCNLabel.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_subjectCNLabel = (GridBagConstraints) gbc_labels.clone();
+		gbc_subjectCNLabel.gridy = 2;
+		JLabel subjectCNValue = new JLabel(subjectCN);
+		subjectCNValue.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_subjectCNValue = (GridBagConstraints) gbc_values
 				.clone();
-		gbc_jlCNValue.gridy = 2;
-		// Organisation (O)
-		JLabel jlOrg = new JLabel("Organisation (O)");
-		jlOrg.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlOrg = (GridBagConstraints) gbcLabel.clone();
-		gbc_jlOrg.gridy = 3;
-		JLabel jlOrgValue = new JLabel(sOrg);
-		jlOrgValue.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlOrgValue = (GridBagConstraints) gbcValue
+		gbc_subjectCNValue.gridy = 2;
+		// Subject's Organisation (O)
+		JLabel subjectOrgLabel = new JLabel("Organisation (O)");
+		subjectOrgLabel.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_subjectOrgLabel = (GridBagConstraints) gbc_labels.clone();
+		gbc_subjectOrgLabel.gridy = 3;
+		JLabel subjectOrgValue = new JLabel(subjectOrg);
+		subjectOrgValue.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_subjectOrgValue = (GridBagConstraints) gbc_values
 				.clone();
-		gbc_jlOrgValue.gridy = 3;
-		// Organisation Unit (OU)
-		JLabel jlOU = new JLabel("Organisation Unit (OU)");
-		jlOU.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlOU = (GridBagConstraints) gbcLabel.clone();
-		gbc_jlOU.gridy = 4;
-		JLabel jlOUValue = new JLabel(sOU);
-		jlOUValue.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlOUValue = (GridBagConstraints) gbcValue
+		gbc_subjectOrgValue.gridy = 3;
+		// Subject's Organisation Unit (OU)
+		JLabel subjectOULabel = new JLabel("Organisation Unit (OU)");
+		subjectOULabel.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_subjectOULabel = (GridBagConstraints) gbc_labels.clone();
+		gbc_subjectOULabel.gridy = 4;
+		JLabel subjectOUValue = new JLabel(subjectOU);
+		subjectOUValue.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_subjectOUValue = (GridBagConstraints) gbc_values
 				.clone();
-		gbc_jlOUValue.gridy = 4;
+		gbc_subjectOUValue.gridy = 4;
 		// E-mail Address
 		// JLabel jlEmail = new JLabel("E-mail Address");
 		// jlEmail.setFont(new Font(null, Font.PLAIN, 11));
@@ -235,11 +224,11 @@ public class ConfirmTrustedCertificateDialog extends HelpEnabledDialog {
 		// gbcValue.clone();
 		// gbc_jlEmailValue.gridy = 5;
 		// Serial Number
-		JLabel jlSN = new JLabel("Serial Number");
-		jlSN.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlSN = (GridBagConstraints) gbcLabel.clone();
-		gbc_jlSN.gridy = 6;
-		JLabel jlSNValue = new JLabel();
+		JLabel snLabel = new JLabel("Serial Number");
+		snLabel.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_snLabel = (GridBagConstraints) gbc_labels.clone();
+		gbc_snLabel.gridy = 6;
+		JLabel snValue = new JLabel();
 		// Get the hexadecimal serial number
 		StringBuffer strBuff = new StringBuffer(new BigInteger(1, cert
 				.getSerialNumber().toByteArray()).toString(16).toUpperCase());
@@ -249,224 +238,224 @@ public class ConfirmTrustedCertificateDialog extends HelpEnabledDialog {
 				strBuff.insert(iCnt, ':');
 			}
 		}
-		jlSNValue.setText(strBuff.toString());
-		jlSNValue.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlSNValue = (GridBagConstraints) gbcValue
+		snValue.setText(strBuff.toString());
+		snValue.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_snValue = (GridBagConstraints) gbc_values
 				.clone();
-		gbc_jlSNValue.gridy = 6;
-		// Version
-		JLabel jlVersion = new JLabel("Version");
-		jlVersion.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlVersion = (GridBagConstraints) gbcLabel
+		gbc_snValue.gridy = 6;
+		// Certificate version number
+		JLabel versionLabel = new JLabel("Version");
+		versionLabel.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_versionLabel = (GridBagConstraints) gbc_labels
 				.clone();
-		gbc_jlVersion.gridy = 7;
-		JLabel jlVersionValue = new JLabel(Integer.toString(cert.getVersion()));
-		jlVersionValue.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlVersionValue = (GridBagConstraints) gbcValue
+		gbc_versionLabel.gridy = 7;
+		JLabel versionValue = new JLabel(Integer.toString(cert.getVersion()));
+		versionValue.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_versionValue = (GridBagConstraints) gbc_values
 				.clone();
-		gbc_jlVersionValue.gridy = 7;
+		gbc_versionValue.gridy = 7;
 
 		// Issued By
-		JLabel jlIssuedBy = new JLabel("Issued By");
-		jlIssuedBy.setFont(new Font(null, Font.BOLD, 11));
-		GridBagConstraints gbc_jlIssuedBy = (GridBagConstraints) gbcLabel
+		JLabel issuedByLabel = new JLabel("Issued By");
+		issuedByLabel.setFont(new Font(null, Font.BOLD, 11));
+		GridBagConstraints gbc_issuedByLabel = (GridBagConstraints) gbc_labels
 				.clone();
-		gbc_jlIssuedBy.gridy = 8;
-		gbc_jlIssuedBy.gridwidth = 2; // takes two columns
-		gbc_jlIssuedBy.insets = new Insets(5, 5, 5, 5);// has slightly bigger
+		gbc_issuedByLabel.gridy = 8;
+		gbc_issuedByLabel.gridwidth = 2; // takes two columns
+		gbc_issuedByLabel.insets = new Insets(5, 5, 5, 5);// has slightly bigger
 														// insets
-		// Distinguished Name (DN)
-		String iDN = cert.getIssuerX500Principal().getName(
+		// Issuer's Distinguished Name (DN)
+		String issuerDN = cert.getIssuerX500Principal().getName(
 				X500Principal.RFC2253);
-		util.parseDN(iDN);
-		// Extract the CN, O and OU fields
-		String iCN = util.getCN();
-		String iOrg = util.getO();
-		String iOU = util.getOU();
-		// Common Name (CN)
-		JLabel jlICN = new JLabel("Common Name (CN)");
-		jlICN.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlICN = (GridBagConstraints) gbcLabel.clone();
-		gbc_jlICN.gridy = 9;
-		JLabel jlICNValue = new JLabel(iCN);
-		jlICNValue.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlICNValue = (GridBagConstraints) gbcValue
+		util.parseDN(issuerDN);
+		// Extract the CN, O and OU fields for the issuer
+		String issuerCN = util.getCN();
+		String issuerOrg = util.getO();
+		String issuerOU = util.getOU();
+		// Issuer's Common Name (CN)
+		JLabel issuerCNLabel = new JLabel("Common Name (CN)");
+		issuerCNLabel.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_issuerCNLabel = (GridBagConstraints) gbc_labels.clone();
+		gbc_issuerCNLabel.gridy = 9;
+		JLabel issuerCNValue = new JLabel(issuerCN);
+		issuerCNValue.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_issuerCNValue = (GridBagConstraints) gbc_values
 				.clone();
-		gbc_jlICNValue.gridy = 9;
-		// Organisation (O)
-		JLabel jlIOrg = new JLabel("Organisation (O)");
-		jlIOrg.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlIOrg = (GridBagConstraints) gbcLabel.clone();
-		gbc_jlIOrg.gridy = 10;
-		JLabel jlIOrgValue = new JLabel(iOrg);
-		jlIOrgValue.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlIOrgValue = (GridBagConstraints) gbcValue
+		gbc_issuerCNValue.gridy = 9;
+		// Issuer's Organisation (O)
+		JLabel issuerOrgLabel = new JLabel("Organisation (O)");
+		issuerOrgLabel.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_issuerOrgLabel = (GridBagConstraints) gbc_labels.clone();
+		gbc_issuerOrgLabel.gridy = 10;
+		JLabel issuerOrgValue = new JLabel(issuerOrg);
+		issuerOrgValue.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_issuerOrgValue = (GridBagConstraints) gbc_values
 				.clone();
-		gbc_jlIOrgValue.gridy = 10;
-		// Organisation Unit (OU)
-		JLabel jlIOU = new JLabel("Organisation Unit (OU)");
-		jlIOU.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlIOU = (GridBagConstraints) gbcLabel.clone();
-		gbc_jlIOU.gridy = 11;
-		JLabel jlIOUValue = new JLabel(iOU);
-		jlIOUValue.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlIOUValue = (GridBagConstraints) gbcValue
+		gbc_issuerOrgValue.gridy = 10;
+		// Issuer's Organisation Unit (OU)
+		JLabel issuerOULabel = new JLabel("Organisation Unit (OU)");
+		issuerOULabel.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_issuerOULabel = (GridBagConstraints) gbc_labels.clone();
+		gbc_issuerOULabel.gridy = 11;
+		JLabel issuerOUValue = new JLabel(issuerOU);
+		issuerOUValue.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_issuerOUValue = (GridBagConstraints) gbc_values
 				.clone();
-		gbc_jlIOUValue.gridy = 11;
+		gbc_issuerOUValue.gridy = 11;
+		
 		// Validity
-		JLabel jlValidity = new JLabel("Validity");
-		jlValidity.setFont(new Font(null, Font.BOLD, 11));
-		GridBagConstraints gbc_jlValidity = (GridBagConstraints) gbcLabel
+		JLabel validityLabel = new JLabel("Validity");
+		validityLabel.setFont(new Font(null, Font.BOLD, 11));
+		GridBagConstraints gbc_validityLabel = (GridBagConstraints) gbc_labels
 				.clone();
-		gbc_jlValidity.gridy = 12;
-		gbc_jlValidity.gridwidth = 2; // takes two columns
-		gbc_jlValidity.insets = new Insets(5, 5, 5, 5);// has slightly bigger
+		gbc_validityLabel.gridy = 12;
+		gbc_validityLabel.gridwidth = 2; // takes two columns
+		gbc_validityLabel.insets = new Insets(5, 5, 5, 5);// has slightly bigger
 														// insets
 		// Issued On
-		JLabel jlIssuedOn = new JLabel("Issued On");
-		jlIssuedOn.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlIssuedOn = (GridBagConstraints) gbcLabel
+		JLabel issuedOnLabel = new JLabel("Issued On");
+		issuedOnLabel.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_issuedOnLabel = (GridBagConstraints) gbc_labels
 				.clone();
-		gbc_jlIssuedOn.gridy = 13;
-		JLabel jlIssuedOnValue = new JLabel(cert.getNotBefore().toString());
-		jlIssuedOnValue.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlIssuedOnValue = (GridBagConstraints) gbcValue
+		gbc_issuedOnLabel.gridy = 13;
+		JLabel issuedOnValue = new JLabel(cert.getNotBefore().toString());
+		issuedOnValue.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_issuedOnValue = (GridBagConstraints) gbc_values
 				.clone();
-		gbc_jlIssuedOnValue.gridy = 13;
+		gbc_issuedOnValue.gridy = 13;
 		// Expires On
-		JLabel jlExpiresOn = new JLabel("Expires On");
-		jlExpiresOn.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlExpiresOn = (GridBagConstraints) gbcLabel
+		JLabel expiresOnLabel = new JLabel("Expires On");
+		expiresOnLabel.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_expiresOnLabel = (GridBagConstraints) gbc_labels
 				.clone();
-		gbc_jlExpiresOn.gridy = 14;
-		JLabel jlExpiresOnValue = new JLabel(cert.getNotAfter().toString());
-		jlExpiresOnValue.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlExpiresOnValue = (GridBagConstraints) gbcValue
+		gbc_expiresOnLabel.gridy = 14;
+		JLabel expiresOnValue = new JLabel(cert.getNotAfter().toString());
+		expiresOnValue.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_expiresOnValue = (GridBagConstraints) gbc_values
 				.clone();
-		gbc_jlExpiresOnValue.gridy = 14;
+		gbc_expiresOnValue.gridy = 14;
 
 		// Fingerprints
-		byte[] bCert = new byte[0];
+		byte[] binaryCertificateEncoding = new byte[0];
 		try {
-			bCert = cert.getEncoded();
+			// each certificate has one binary encoding; for X.509 certs it is DER
+			binaryCertificateEncoding = cert.getEncoded();
 		} catch (CertificateEncodingException ex) {
 			logger.error("Could not get the encoded form of the certificate.", ex);
 		}
-		JLabel jlFingerprints = new JLabel("Fingerprints");
-		jlFingerprints.setFont(new Font(null, Font.BOLD, 11));
-		GridBagConstraints gbc_jlFingerprints = (GridBagConstraints) gbcLabel
+		JLabel fingerprintsLabel = new JLabel("Fingerprints");
+		fingerprintsLabel.setFont(new Font(null, Font.BOLD, 11));
+		GridBagConstraints gbc_fingerprintsLabel = (GridBagConstraints) gbc_labels
 				.clone();
-		gbc_jlFingerprints.gridy = 15;
-		gbc_jlFingerprints.gridwidth = 2; // takes two columns
-		gbc_jlFingerprints.insets = new Insets(5, 5, 5, 5);// has slightly
+		gbc_fingerprintsLabel.gridy = 15;
+		gbc_fingerprintsLabel.gridwidth = 2; // takes two columns
+		gbc_fingerprintsLabel.insets = new Insets(5, 5, 5, 5);// has slightly
 															// bigger insets
 		// SHA-1 Fingerprint
-		JLabel jlSHA1Fingerprint = new JLabel("SHA1 Fingerprint");
-		jlSHA1Fingerprint.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlSHA1Fingerprint = (GridBagConstraints) gbcLabel
+		JLabel sha1FingerprintLabel = new JLabel("SHA1 Fingerprint");
+		sha1FingerprintLabel.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_sha1FingerprintLabel = (GridBagConstraints) gbc_labels
 				.clone();
-		gbc_jlSHA1Fingerprint.gridy = 16;
-		JLabel jlSHA1FingerprintValue = new JLabel(getMessageDigest(bCert,
+		gbc_sha1FingerprintLabel.gridy = 16;
+		JLabel sha1FingerprintValue = new JLabel(CMUtils.getMessageDigestAsFormattedString(binaryCertificateEncoding,
 				"SHA1"));
-		jlSHA1FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlSHA1FingerprintValue = (GridBagConstraints) gbcValue
+		sha1FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_sha1FingerprintValue = (GridBagConstraints) gbc_values
 				.clone();
-		gbc_jlSHA1FingerprintValue.gridy = 16;
+		gbc_sha1FingerprintValue.gridy = 16;
 		// MD5 Fingerprint
-		JLabel jlMD5Fingerprint = new JLabel("MD5 Fingerprint");
-		jlMD5Fingerprint.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlMD5Fingerprint = (GridBagConstraints) gbcLabel
+		JLabel md5FingerprintLabel = new JLabel("MD5 Fingerprint");
+		md5FingerprintLabel.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_md5FingerprinLabel = (GridBagConstraints) gbc_labels
 				.clone();
-		gbc_jlMD5Fingerprint.gridy = 17;
-		JLabel jlMD5FingerprintValue = new JLabel(
-				getMessageDigest(bCert, "MD5"));
-		jlMD5FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
-		GridBagConstraints gbc_jlMD5FingerprintValue = (GridBagConstraints) gbcValue
+		gbc_md5FingerprinLabel.gridy = 17;
+		JLabel md5FingerprintValue = new JLabel(
+				CMUtils.getMessageDigestAsFormattedString(binaryCertificateEncoding, "MD5"));
+		md5FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
+		GridBagConstraints gbc_md5FingerprintValue = (GridBagConstraints) gbc_values
 				.clone();
-		gbc_jlMD5FingerprintValue.gridy = 17;
+		gbc_md5FingerprintValue.gridy = 17;
 
 		// Empty label to add a bit space at the bottom of the panel
-		// to make it look like firefox's view certificate dialog
-		JLabel jlEmpty = new JLabel("");
-		GridBagConstraints gbc_jlEmpty = (GridBagConstraints) gbcLabel.clone();
-		gbc_jlEmpty.gridy = 18;
-		gbc_jlEmpty.gridwidth = 2; // takes two columns
-		gbc_jlEmpty.ipady = 40;
+		// to make it look like Firefox's view certificate dialog
+		JLabel emptyLabel = new JLabel("");
+		GridBagConstraints gbc_emptyLabel = (GridBagConstraints) gbc_labels.clone();
+		gbc_emptyLabel.gridy = 18;
+		gbc_emptyLabel.gridwidth = 2; // takes two columns
+		gbc_emptyLabel.ipady = 40;
 
-		JPanel jpCertificate = new JPanel(new GridBagLayout());
-		jpCertificate.setBorder(new CompoundBorder(new EmptyBorder(15, 15, 15,
+		JPanel certificatePanel = new JPanel(new GridBagLayout());
+		certificatePanel.setBorder(new CompoundBorder(new EmptyBorder(15, 15, 15,
 				15), new EtchedBorder()));
 
-		if (intendedUses != null) {
-			jpCertificate.add(jpUses, gbc_jpUses);
-		}
-		jpCertificate.add(jlIssuedTo, gbc_jlIssuedTo); // Issued To
-		jpCertificate.add(jlCN, gbc_jlCN);
-		jpCertificate.add(jlCNValue, gbc_jlCNValue);
-		jpCertificate.add(jlOrg, gbc_jlOrg);
-		jpCertificate.add(jlOrgValue, gbc_jlOrgValue);
-		jpCertificate.add(jlOU, gbc_jlOU);
-		jpCertificate.add(jlOUValue, gbc_jlOUValue);
+//		if (intendedUses != null) {
+//			certificatePanel.add(intendedUsesPanel, gbc_intendedUsesLabel);
+//		}
+		certificatePanel.add(issuedToLabel, gbc_issuedTo); // Issued To
+		certificatePanel.add(subjectCNLabel, gbc_subjectCNLabel);
+		certificatePanel.add(subjectCNValue, gbc_subjectCNValue);
+		certificatePanel.add(subjectOrgLabel, gbc_subjectOrgLabel);
+		certificatePanel.add(subjectOrgValue, gbc_subjectOrgValue);
+		certificatePanel.add(subjectOULabel, gbc_subjectOULabel);
+		certificatePanel.add(subjectOUValue, gbc_subjectOUValue);
 		// jpCertificate.add(jlEmail, gbc_jlEmail);
 		// jpCertificate.add(jlEmailValue, gbc_jlEmailValue);
-		jpCertificate.add(jlSN, gbc_jlSN);
-		jpCertificate.add(jlSNValue, gbc_jlSNValue);
-		jpCertificate.add(jlVersion, gbc_jlVersion);
-		jpCertificate.add(jlVersionValue, gbc_jlVersionValue);
-		jpCertificate.add(jlIssuedBy, gbc_jlIssuedBy); // Issued By
-		jpCertificate.add(jlICN, gbc_jlICN);
-		jpCertificate.add(jlICNValue, gbc_jlICNValue);
-		jpCertificate.add(jlIOrg, gbc_jlIOrg);
-		jpCertificate.add(jlIOrgValue, gbc_jlIOrgValue);
-		jpCertificate.add(jlIOU, gbc_jlIOU);
-		jpCertificate.add(jlIOUValue, gbc_jlIOUValue);
-		jpCertificate.add(jlValidity, gbc_jlValidity); // Validity
-		jpCertificate.add(jlIssuedOn, gbc_jlIssuedOn);
-		jpCertificate.add(jlIssuedOnValue, gbc_jlIssuedOnValue);
-		jpCertificate.add(jlExpiresOn, gbc_jlExpiresOn);
-		jpCertificate.add(jlExpiresOnValue, gbc_jlExpiresOnValue);
-		jpCertificate.add(jlFingerprints, gbc_jlFingerprints); // Fingerprints
-		jpCertificate.add(jlSHA1Fingerprint, gbc_jlSHA1Fingerprint);
-		jpCertificate.add(jlSHA1FingerprintValue, gbc_jlSHA1FingerprintValue);
-		jpCertificate.add(jlMD5Fingerprint, gbc_jlMD5Fingerprint);
-		jpCertificate.add(jlMD5FingerprintValue, gbc_jlMD5FingerprintValue);
-		jpCertificate.add(jlEmpty, gbc_jlEmpty); // Empty label to get some vertical space on the frame
+		certificatePanel.add(snLabel, gbc_snLabel);
+		certificatePanel.add(snValue, gbc_snValue);
+		certificatePanel.add(versionLabel, gbc_versionLabel);
+		certificatePanel.add(versionValue, gbc_versionValue);
+		certificatePanel.add(issuedByLabel, gbc_issuedByLabel); // Issued By
+		certificatePanel.add(issuerCNLabel, gbc_issuerCNLabel);
+		certificatePanel.add(issuerCNValue, gbc_issuerCNValue);
+		certificatePanel.add(issuerOrgLabel, gbc_issuerOrgLabel);
+		certificatePanel.add(issuerOrgValue, gbc_issuerOrgValue);
+		certificatePanel.add(issuerOULabel, gbc_issuerOULabel);
+		certificatePanel.add(issuerOUValue, gbc_issuerOUValue);
+		certificatePanel.add(validityLabel, gbc_validityLabel); // Validity
+		certificatePanel.add(issuedOnLabel, gbc_issuedOnLabel);
+		certificatePanel.add(issuedOnValue, gbc_issuedOnValue);
+		certificatePanel.add(expiresOnLabel, gbc_expiresOnLabel);
+		certificatePanel.add(expiresOnValue, gbc_expiresOnValue);
+		certificatePanel.add(fingerprintsLabel, gbc_fingerprintsLabel); // Fingerprints
+		certificatePanel.add(sha1FingerprintLabel, gbc_sha1FingerprintLabel);
+		certificatePanel.add(sha1FingerprintValue, gbc_sha1FingerprintValue);
+		certificatePanel.add(md5FingerprintLabel, gbc_md5FingerprinLabel);
+		certificatePanel.add(md5FingerprintValue, gbc_md5FingerprintValue);
+		certificatePanel.add(emptyLabel, gbc_emptyLabel); // Empty label to get some vertical space on the frame
 
 		// OK button
-		JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 
-		final JButton jbTrust = new JButton("Trust once");
-		jbTrust.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent evt) {
-				trustPressed();
-			}
-		});
+//		final JButton trustButton = new JButton("Trust once");
+//		trustButton.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent evt) {
+//				trustPressed();
+//			}
+//		});
 		
-
-		final JButton jbTrustAlways = new JButton("Trust always");
-		jbTrustAlways.addActionListener(new ActionListener() {
+		//final JButton trustAlwaysButton = new JButton("Trust always");
+		final JButton trustAlwaysButton = new JButton("Trust");
+		trustAlwaysButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				trustAlwaysPressed();
 			}
 		});
 		
-		final JButton jbDontTrust = new JButton("Do not trust");
-		jbDontTrust.addActionListener(new ActionListener() {
+		final JButton dontTrustButton = new JButton("Do not trust");
+		dontTrustButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
 				dontTrustPressed();
 			}
 		});
 
-		jpButtons.add(jbTrust);
-		jpButtons.add(jbTrustAlways);
-		jpButtons.add(jbDontTrust);
+		//jpButtons.add(trustButton);
+		buttonsPanel.add(trustAlwaysButton);
+		buttonsPanel.add(dontTrustButton);
 
-		// Put it all together
 		getContentPane().add(titlePanel, BorderLayout.NORTH);
-		getContentPane().add(jpCertificate, BorderLayout.CENTER);
-		getContentPane().add(jpButtons, BorderLayout.SOUTH);
+		getContentPane().add(certificatePanel, BorderLayout.CENTER);
+		getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
-		// Resizing wreaks havoc
 		setResizable(false);
 
 		addWindowListener(new WindowAdapter() {
@@ -475,132 +464,30 @@ public class ConfirmTrustedCertificateDialog extends HelpEnabledDialog {
 			}
 		});
 
-		getRootPane().setDefaultButton(jbTrust);
+		getRootPane().setDefaultButton(trustAlwaysButton);
 
 		pack();
 	}
 
-	/**
-	 * Get the digest of a message as a formatted String.
-	 * 
-	 * @param bMessage
-	 *            The message to digest
-	 * @param digestType
-	 *            The message digest algorithm
-	 * @return The message digest
-	 */
-	public static String getMessageDigest(byte[] bMessage, String digestType) {
-		// Create message digest object using the supplied algorithm
-		MessageDigest messageDigest;
-		try {
-			messageDigest = MessageDigest.getInstance(digestType);
-		} catch (NoSuchAlgorithmException ex) {
-			logger.error("Failed to create message digest.", ex);
-			return "";
-		}
-
-		// Create raw message digest
-		byte[] bFingerPrint = messageDigest.digest(bMessage);
-
-		// Place the raw message digest into a StringBuffer as a Hex number
-		StringBuffer strBuff = new StringBuffer(new BigInteger(1, bFingerPrint)
-				.toString(16).toUpperCase());
-
-		// Odd number of characters so add in a padding "0"
-		if ((strBuff.length() % 2) != 0) {
-			strBuff.insert(0, '0');
-		}
-
-		// Place colons at every two hex characters
-		if (strBuff.length() > 2) {
-			for (int iCnt = 2; iCnt < strBuff.length(); iCnt += 3) {
-				strBuff.insert(iCnt, ':');
-			}
-		}
-
-		// Return the formatted message digest
-		return strBuff.toString();
-	}
-
-	/**
-	 * Gets the intended certificate uses, i.e. Netscape Certificate Type
-	 * extension (2.16.840.1.113730.1.1) value as a string
-	 * 
-	 * @param value
-	 *            Extension value as a DER-encoded OCTET string
-	 * @return Extension value as a string
-	 */
-	private String getIntendedUses(byte[] value) {
-
-		// Netscape Certificate Types (2.16.840.1.113730.1.1)
-		int[] INTENDED_USES = new int[] { NetscapeCertType.sslClient,
-				NetscapeCertType.sslServer, NetscapeCertType.smime,
-				NetscapeCertType.objectSigning, NetscapeCertType.reserved,
-				NetscapeCertType.sslCA, NetscapeCertType.smimeCA,
-				NetscapeCertType.objectSigningCA, };
-
-		// Netscape Certificate Type strings (2.16.840.1.113730.1.1)
-		HashMap<String, String> INTENDED_USES_STRINGS = new HashMap<String, String>();
-		INTENDED_USES_STRINGS.put("128", "SSL Client");
-		INTENDED_USES_STRINGS.put("64", "SSL Server");
-		INTENDED_USES_STRINGS.put("32", "S/MIME");
-		INTENDED_USES_STRINGS.put("16", "Object Signing");
-		INTENDED_USES_STRINGS.put("8", "Reserved");
-		INTENDED_USES_STRINGS.put("4", "SSL CA");
-		INTENDED_USES_STRINGS.put("2", "S/MIME CA");
-		INTENDED_USES_STRINGS.put("1", "Object Signing CA");
-
-		// Get octet string from extension value
-		ASN1OctetString fromByteArray = new DEROctetString(value);
-		byte[] octets = fromByteArray.getOctets();
-		DERBitString fromByteArray2 = new DERBitString(octets);
-		int val = new NetscapeCertType(fromByteArray2).intValue();
-		StringBuffer strBuff = new StringBuffer();
-		for (int i = 0, len = INTENDED_USES.length; i < len; i++) {
-			int use = INTENDED_USES[i];
-			if ((val & use) == use) {
-				strBuff.append(INTENDED_USES_STRINGS.get(String.valueOf(use))
-						+ ", \n");
-			}
-		}
-		// remove the last ", \n" from the end of the buffer
-		String str = strBuff.toString();
-		str = str.substring(0, str.length() - 3);
-		return str;
-	}
-
-	/**
-	 * 'Trust' button pressed.
-	 */
-	private void trustPressed() {
-		shouldTrust = true;
-		shouldSave = false;
-		closeDialog();
-	}
+//	private void trustPressed() {
+//		shouldTrust = true;
+//		shouldSave = false;
+//		closeDialog();
+//	}
 	
 	
-	/**
-	 * 'Trust' button pressed.
-	 */
 	private void trustAlwaysPressed() {
 		shouldTrust = true;
 		shouldSave  = true;
 		closeDialog();
 	}
 	
-
-	/**
-	 * 'Do not trust' button pressed.
-	 */
 	private void dontTrustPressed() {
 		shouldTrust = false;
 		shouldSave = false;
 		closeDialog();
 	}	
 	
-	/**
-	 * Closes the dialog.
-	 */
 	public void closeDialog() {
 		setVisible(false);
 		dispose();

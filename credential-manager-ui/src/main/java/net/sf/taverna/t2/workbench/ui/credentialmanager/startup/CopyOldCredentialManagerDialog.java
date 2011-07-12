@@ -18,7 +18,7 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.ui.credentialmanager.password;
+package net.sf.taverna.t2.workbench.ui.credentialmanager.startup;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -29,57 +29,56 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.IOException;
 
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
+//import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
-import javax.swing.JTextField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
-import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
+import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
+
+import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 /**
- * Dialog for entering user's username and password.
+ * Dialog for asking user if they wanted to import the content of an older version of Credential Manager files.
  * 
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class GetPasswordDialog extends NonBlockedHelpEnabledDialog {
-	
-	// Whether we should ask user to save their username and password using Credential Manager
-	private boolean shouldAskUserToSave;
+public class CopyOldCredentialManagerDialog
+    extends HelpEnabledDialog
+{
+	private Logger logger = Logger.getLogger(CopyOldCredentialManagerDialog.class);
 
-    // Username field 
-    private JTextField usernameField;
-
-    // Password field 
+    // Old Credential Manager master password field 
     private JPasswordField passwordField;
     
-    // Whether user wished to save the username and password using Credential Manager
-    private JCheckBox saveCheckBox;
-   
-    // The entered username
-    private String username;
-    
-    // The entered password
+    // Stores password entered
     private String password;
 
-    // Instructions to the user
-	private String instructions;
+    // Text for the user to explain what this dialog is about
+    private String instructions;
+    
+	//private JCheckBox doNotAskMeToImportAgainCheckBox;
 
-    public GetPasswordDialog(String instructions, boolean shouldAskUserToSave)
+    public CopyOldCredentialManagerDialog(String previousTavernaVersion)
     {
-        super((Frame)null, "Enter username and password", true);
-        this.instructions = instructions;
-        this.shouldAskUserToSave = shouldAskUserToSave;
+        super((Frame)null, "Older version of Credential Manager detected", true);
+        instructions = "<html><body>Taverna has detected an older version ("+previousTavernaVersion+") of Credential Manager<br> that may contain your credentals. " +
+		"Do you wish to import them?<br><br>If yes, please provide your old master password.<br>It will be used as your new password as well.<br>Alternatively, you can always add credentials manually later.</body></html>";
         initComponents();
     } 
     
+    /**
+     * Initialise the dialog's GUI components.
+     */
     private void initComponents()
     {
         getContentPane().setLayout(new BorderLayout());
@@ -89,65 +88,59 @@ public class GetPasswordDialog extends NonBlockedHelpEnabledDialog {
         JPanel jpInstructions = new JPanel(new FlowLayout(FlowLayout.LEFT));
         jpInstructions.add(instructionsLabel);
         
-        JLabel usernameLabel = new JLabel("Username");
-        usernameLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
-        JLabel passwordLabel = new JLabel("Password");
-        passwordLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
-              
-        usernameField = new JTextField(15);
+        JLabel passwordLabel = new JLabel("Old master password");
+        passwordLabel.setBorder(new EmptyBorder(5, 5, 5, 5));  
         passwordField = new JPasswordField(15);
         
-        JButton okButton = new JButton("OK");
-        okButton.addActionListener(new ActionListener()
+        JButton importButton = new JButton("Import my credentials");
+        importButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
-                okPressed();
+                importPressed();
             }
         });
 
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(new ActionListener()
+        JButton dontImportButton = new JButton("Do not import anything");
+        dontImportButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
-                cancelPressed();
+                dontImportPressed();
             }
         });
 
-        // Central panel with username/password fields and a "Do you want to Save?" checkbox
+        JButton askMeLaterButton = new JButton("Ask me later");
+        askMeLaterButton.addActionListener(new ActionListener()
+        {
+            public void actionPerformed(ActionEvent evt)
+            {
+                askMeLaterPressed();
+            }
+        });
+        
         JPanel mainPanel = new JPanel(new BorderLayout());
         
         JPanel passwordPanel = new JPanel(new GridLayout(2, 2, 5, 5));
-        passwordPanel.add(usernameLabel);
-        passwordPanel.add(usernameField);
         passwordPanel.add(passwordLabel);
         passwordPanel.add(passwordField);
-        mainPanel.add(passwordPanel, BorderLayout.CENTER);
-        
-        // If user wants to save this username and password
-        saveCheckBox = new JCheckBox();
-        saveCheckBox.setBorder(new EmptyBorder(5,5,5,5));
-        saveCheckBox.setSelected(true);
-        saveCheckBox.setText("Use Credential Manager to save this username and password");  
-        if (shouldAskUserToSave){
-        	JPanel jpSaveCheckBox = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        	jpSaveCheckBox.add(saveCheckBox);
-        	mainPanel.add(jpSaveCheckBox, BorderLayout.SOUTH);
-        }
-        
+		//doNotAskMeToImportAgainCheckBox = new JCheckBox("Do not ask me again");
+		//doNotAskMeToImportAgainCheckBox.setBorder(new EmptyBorder(0,10,0,0));
         passwordPanel.setBorder(new CompoundBorder(
-                new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
-        
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        buttonsPanel.add(okButton);
-        buttonsPanel.add(cancelButton);
+                new EmptyBorder(10, 10, 5, 10), new EtchedBorder()));
+		mainPanel.add(passwordPanel, BorderLayout.CENTER);
+		//mainPanel.add(doNotAskMeToImportAgainCheckBox, BorderLayout.SOUTH);                
+
+        JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        jpButtons.add(importButton);
+        jpButtons.add(dontImportButton);
+        jpButtons.add(askMeLaterButton);
 
         passwordPanel.setMinimumSize(new Dimension(300,100));
 
         getContentPane().add(jpInstructions, BorderLayout.NORTH);
         getContentPane().add(mainPanel, BorderLayout.CENTER);
-        getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+        getContentPane().add(jpButtons, BorderLayout.SOUTH);
 
         addWindowListener(new WindowAdapter()
         {
@@ -159,78 +152,75 @@ public class GetPasswordDialog extends NonBlockedHelpEnabledDialog {
 
         setResizable(false);
 
-        getRootPane().setDefaultButton(okButton);
+        getRootPane().setDefaultButton(importButton);
 
         pack();
     }
-    
-    public String getUsername()
-    {
-        return username;
-    }
-    
+
     public String getPassword()
     {
     	return password;
     }
-    
-    /**
-     * Check if user wishes to save username and pasword
-     * using the Credential Manager.
-     */
-    public boolean shouldSaveUsernameAndPassword(){
-    	return saveCheckBox.isSelected();
-    }
 
     private boolean checkControls()
     {    	
-    	username = usernameField.getText();
-    	if (username.length() == 0){
-            JOptionPane.showMessageDialog(this,
-                "Username cannot be empty", 
-                "Warning",
-                JOptionPane.WARNING_MESSAGE);            
-            return false;
-    	}
-    	   	
     	password = new String(passwordField.getPassword());
     	if (password.length() == 0) { // password empty
             JOptionPane.showMessageDialog(this,
                 "Password cannot be empty", 
                 "Warning",
                 JOptionPane.WARNING_MESSAGE);
-
             return false;        	
-        }
-   	
+        } 	
     	return true;
     }
 
-    private void okPressed()
+    private void importPressed()
     {
         if (checkControls()) {
-            closeDialog();
+        	// Set the "do not ask again" flag
+    		try {
+    			FileUtils
+    					.touch(CheckForOlderCredentialManagersStartupHook.doNotAskToImportOldCredentialManagerFile);
+    		} catch (IOException ioex) {
+    			logger
+    					.error(
+    							"Failed to touch the 'Do not ask me to import old Credential Manager file.",
+    							ioex);
+    		}
+    		closeDialog();
         }
     }
 
-    private void cancelPressed()
+    private void dontImportPressed()
     {
-    	// Set all fields to null to indicate that cancel button was pressed
-    	username = null;
+    	// Set password to null to indicate that "Do not import" button was pressed
     	password = null;
+    	// Set the "do not ask again" flag
+		try {
+			FileUtils
+					.touch(CheckForOlderCredentialManagersStartupHook.doNotAskToImportOldCredentialManagerFile);
+		} catch (IOException ioex) {
+			logger
+					.error(
+							"Failed to touch the 'Do not ask me to import old Credential Manager file.",
+							ioex);
+		}
         closeDialog();
     }
 
+    private void askMeLaterPressed()
+    {
+    	// Set password to null to indicate that the user does not wan to import now
+    	password = null;
+        closeDialog();
+    }
+    
     private void closeDialog()
     {
         setVisible(false);
         dispose();
     }
-
-	public void setUsername(String username) {
-		this.username = username;
-		usernameField.setText(username);
-	}
 
 	public void setPassword(String password) {
 		this.password = password;

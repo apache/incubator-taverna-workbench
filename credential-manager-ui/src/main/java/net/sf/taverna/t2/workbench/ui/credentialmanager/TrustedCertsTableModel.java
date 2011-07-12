@@ -53,10 +53,6 @@ public class TrustedCertsTableModel extends AbstractTableModel implements Observ
 	
 	private Logger logger = Logger.getLogger(TrustedCertsTableModel.class);
 
-	
-    /**
-     * Construct a new TrustCertsTableModel.
-     */
     public TrustedCertsTableModel() {
         credManager = null;
         try{
@@ -119,33 +115,33 @@ public class TrustedCertsTableModel extends AbstractTableModel implements Observ
 
             // Iterate through the sorted aliases, retrieving the trusted certificate 
             // entries and populating the table model
-            int iCnt = 0;
+            int i = 0;
             for (String alias : sortedAliases.values()){
                 // Populate the type column - it is set with an integer
                 // but a custom cell renderer will cause a suitable icon
                 // to be displayed
-                data[iCnt][0] = CredentialManagerUI.TRUST_CERT_ENTRY_TYPE;
+                data[i][0] = CredentialManagerUI.TRUST_CERT_ENTRY_TYPE;
                 
                 // Split the alias string to extract owner, issuer and serial number 
                 // alias = "trustedcert#<CERT_SUBJECT_COMMON_NAME>"#"<CERT_ISSUER_COMMON_NAME>"#"<CERT_SERIAL_NUMBER>
                 String[] aliasComponents = alias.split("#");
        
                 // Populate the owner column extracted from the alias
-                data[iCnt][1] = aliasComponents[1];
+                data[i][1] = aliasComponents[1];
                 
                 // Populate the issuer column extracted from the alias
-                data[iCnt][2] = aliasComponents[2];
+                data[i][2] = aliasComponents[2];
                 
                 // Populate the serial number column extracted from the alias
-                data[iCnt][3] = aliasComponents[3];
+                data[i][3] = aliasComponents[3];
             	
                 // Populate the modified date column
-                data[iCnt][4] = credManager.getEntryCreationDate(CredentialManager.TRUSTSTORE, alias);
+                //data[iCnt][4] = credManager.getEntryCreationDate(CredentialManager.TRUSTSTORE, alias);
 
                 // Populate the invisible alias column
-                data[iCnt][5] = alias;
+                data[i][5] = alias;
                 
-                iCnt ++;
+                i++;
             }
         }
         catch (CMException cme){
@@ -157,8 +153,6 @@ public class TrustedCertsTableModel extends AbstractTableModel implements Observ
     
     /**
      * Get the number of columns in the table.
-     *
-     * @return The number of columns
      */
     public int getColumnCount()
     {
@@ -167,8 +161,6 @@ public class TrustedCertsTableModel extends AbstractTableModel implements Observ
 
     /**
      * Get the number of rows in the table.
-     *
-     * @return The number of rows
      */
     public int getRowCount()
     {
@@ -177,9 +169,6 @@ public class TrustedCertsTableModel extends AbstractTableModel implements Observ
 
     /**
      * Get the name of the column at the given position.
-     *
-     * @param iCol The column position
-     * @return The column name
      */
     public String getColumnName(int iCol)
     {
@@ -188,10 +177,6 @@ public class TrustedCertsTableModel extends AbstractTableModel implements Observ
 
     /**
      * Get the cell value at the given row and column position.
-     *
-     * @param iRow The row position
-     * @param iCol The column position
-     * @return The cell value
      */
     public Object getValueAt(int iRow, int iCol)
     {
@@ -200,9 +185,6 @@ public class TrustedCertsTableModel extends AbstractTableModel implements Observ
 
     /**
      * Get the class at of the cells at the given column position.
-     *
-     * @param iCol The column position
-     * @return The column cells' class
      */
     public Class<? extends Object> getColumnClass(int iCol)
     {
@@ -211,10 +193,6 @@ public class TrustedCertsTableModel extends AbstractTableModel implements Observ
 
     /**
      * Is the cell at the given row and column position editable?
-     *
-     * @param iRow The row position
-     * @param iCol The column position
-     * @return True if the cell is editable, false otherwise
      */
     public boolean isCellEditable(int iRow, int iCol)
     {

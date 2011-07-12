@@ -20,22 +20,22 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.actions;
 
-import java.awt.Component;
 import java.awt.Frame;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
@@ -47,24 +47,21 @@ import net.sf.taverna.t2.reference.ui.CopyWorkflowInProgressDialog;
 import net.sf.taverna.t2.reference.ui.CopyWorkflowSwingWorker;
 import net.sf.taverna.t2.reference.ui.InvalidDataflowReport;
 import net.sf.taverna.t2.reference.ui.WorkflowLaunchWindow;
-import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
+import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.run.ResultsPerspectiveComponent;
+import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.InvalidDataflowException;
 import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
-import net.sf.taverna.t2.workbench.report.ReportManager;
-import net.sf.taverna.t2.workbench.report.view.ReportOnWorkflowAction;
-import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
-import net.sf.taverna.t2.visit.VisitReport.Status;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
-
 
 /**
  * Run the current workflow (with workflow input dialogue if needed) and add it to the
@@ -87,7 +84,7 @@ public class RunWorkflowAction extends AbstractAction {
 	
 	// A map of workflows and their corresponding WorkflowLaunchWindowS
 	// We only create one window per workflow and then update its content if the workflow gets updated
-	public static WeakHashMap<Dataflow, WorkflowLaunchWindow> workflowLaunchWindowMap = new WeakHashMap<Dataflow, WorkflowLaunchWindow>();
+	private static HashMap<Dataflow, WorkflowLaunchWindow> workflowLaunchWindowMap = new HashMap<Dataflow, WorkflowLaunchWindow>();
 
 	public RunWorkflowAction() {
 		resultsPerspectiveComponent = ResultsPerspectiveComponent.getInstance();
@@ -97,6 +94,13 @@ public class RunWorkflowAction extends AbstractAction {
 		putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_R));
 		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R,
 				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		FileManager.getInstance().addObserver(new Observer<FileManagerEvent>() {
+			public void notify(Observable<FileManagerEvent> sender, FileManagerEvent message) throws Exception {
+				if (message instanceof ClosedDataflowEvent) {	
+					workflowLaunchWindowMap.remove(((ClosedDataflowEvent) message).getDataflow());
+				}
+			}
+		});
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -279,7 +283,8 @@ public class RunWorkflowAction extends AbstractAction {
 		WorkflowLaunchWindow launchWindow = null;
 		synchronized(dataflowOriginal)
 		{
-			if (workflowLaunchWindowMap.get(dataflowOriginal) == null) {
+			WorkflowLaunchWindow savedLaunchWindow = workflowLaunchWindowMap.get(dataflowOriginal);
+			if (savedLaunchWindow == null) {
 				launchWindow = new WorkflowLaunchWindow(dataflowOriginal,
 						resultsPerspectiveComponent.getReferenceService()) {
 
@@ -305,7 +310,7 @@ public class RunWorkflowAction extends AbstractAction {
 				launchWindow.setLocationRelativeTo(null);
 			} 
 			else {
-				launchWindow = workflowLaunchWindowMap.get(dataflowOriginal);
+				launchWindow = savedLaunchWindow;
 				// Update the Reference Service in the case it has changed in
 				// the meantime
 				// (e.g. user switched from in-memory to database)

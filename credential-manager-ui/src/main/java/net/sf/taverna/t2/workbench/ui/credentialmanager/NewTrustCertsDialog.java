@@ -47,67 +47,51 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.sf.taverna.t2.security.credentialmanager.CMX509Util;
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.security.credentialmanager.CMUtils;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
 
 /**
- * Dialog that displays the details of all trusted certificates
- * keystore allowing the user to pick one or more for import.
- * 
- * @author Alex Nenadic
+ * Allows the user to import one or more trusted certificates from a file.
  */
-public class NewTrustCertsDialog extends HelpEnabledDialog {
+@SuppressWarnings("serial")
+public class NewTrustCertsDialog extends NonBlockedHelpEnabledDialog {
 
-	private static final long serialVersionUID = 8702957635188643993L;
+    private JList trustedCertsJList;
 
-	/** List of trusted certs available for import */
-    private JList jltTrustCerts;
-
-    /** List of trusted certs available for import */
-    private ArrayList<X509Certificate> availableTrustCerts = new ArrayList<X509Certificate>();
+	// List of trusted certs read from the file and available for import
+    private ArrayList<X509Certificate> availableTrustedCerts = new ArrayList<X509Certificate>();
     
-    /** List of trusted certs selected for import */
-    private ArrayList<X509Certificate> selectedTrustCerts;
+    // List of trusted certs selected for import
+    private ArrayList<X509Certificate> selectedTrustedCerts;
     
-    /**
-     * Creates new form NewTrustCertsDialog where the parent is a frame.
-     */
     public NewTrustCertsDialog(JFrame parent, String title, boolean modal, ArrayList<X509Certificate> lCerts)
     {
         super(parent, title, modal);
-        //System.arraycopy(lCerts, 0, trustCerts, 0, lCerts.length);
-        availableTrustCerts = lCerts;
+        availableTrustedCerts = lCerts;
         initComponents();
     }
     
-    /**
-     * Creates new form NewTrustCertsDialog where the parent is a frame.
-     */
     public NewTrustCertsDialog(JDialog parent, String title, boolean modal, ArrayList<X509Certificate> lCerts)
     {
         super(parent, title, modal);
-        //System.arraycopy(lCerts, 0, trustCerts, 0, lCerts.length);
-        availableTrustCerts = lCerts;
+        availableTrustedCerts = lCerts;
         initComponents();
     }
 
-    /**
-     * Initialise the dialog's GUI components.
-     */
     private void initComponents()
     {
         // Instructions
-        JLabel jlInstructions = new JLabel("Select one or more certificates for import:");
-        jlInstructions.setFont(new Font(null, Font.PLAIN, 11));
-        jlInstructions.setBorder(new EmptyBorder(5,5,5,5));
-        JPanel jpInstructions = new JPanel(new BorderLayout());
-        jpInstructions.add(jlInstructions, BorderLayout.WEST);
+        JLabel instructionsLabel = new JLabel("Select one or more certificates for import:");
+        instructionsLabel.setFont(new Font(null, Font.PLAIN, 11));
+        instructionsLabel.setBorder(new EmptyBorder(5,5,5,5));
+        JPanel instructionsPanel = new JPanel(new BorderLayout());
+        instructionsPanel.add(instructionsLabel, BorderLayout.WEST);
 
         // Import button
-        final JButton jbImport = new JButton("Import");
-        jbImport.setEnabled(false);
-        jbImport.addActionListener(new ActionListener()
+        final JButton importButton = new JButton("Import");
+        importButton.setEnabled(false);
+        importButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -116,9 +100,9 @@ public class NewTrustCertsDialog extends HelpEnabledDialog {
         });
 
         // Certificate details button
-        final JButton jbCertificateDetails = new JButton("Certificate Details");
-        jbCertificateDetails.setEnabled(false);
-        jbCertificateDetails.addActionListener(new ActionListener()
+        final JButton certificateDetailsButton = new JButton("Certificate Details");
+        certificateDetailsButton.setEnabled(false);
+        certificateDetailsButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -126,63 +110,59 @@ public class NewTrustCertsDialog extends HelpEnabledDialog {
             }
         });
 
-        // List to hold trusted certs' aliases
-        jltTrustCerts = new JList();
-        jltTrustCerts.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
-        jltTrustCerts.addListSelectionListener(new ListSelectionListener()
+        // List with trusted certs' aliases
+        trustedCertsJList = new JList();
+        trustedCertsJList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
+        trustedCertsJList.addListSelectionListener(new ListSelectionListener()
         {
             public void valueChanged(ListSelectionEvent evt)
-            {
-            	
-                if (jltTrustCerts.getSelectedIndex() == -1) {
-                    jbImport.setEnabled(false);
-                    jbCertificateDetails.setEnabled(false);
+            {           	
+                if (trustedCertsJList.getSelectedIndex() == -1) {
+                    importButton.setEnabled(false);
+                    certificateDetailsButton.setEnabled(false);
                 }
                 else {
-                    jbImport.setEnabled(true);
-                    jbCertificateDetails.setEnabled(true);
+                    importButton.setEnabled(true);
+                    certificateDetailsButton.setEnabled(true);
                 }
             }
         });
-        // Populate the list
-        // Get the certificate subjects' CNs
+        // Populate the list - get the certificate subjects' CNs
         ArrayList<String> cns = new ArrayList<String>();
-        for (int i = 0; i < availableTrustCerts.size(); i++){
-        	
-    		String DN = ((X509Certificate) availableTrustCerts.get(i)).getSubjectX500Principal().getName(X500Principal.RFC2253);
-    		CMX509Util util = new CMX509Util();
-    		util.parseDN(DN);
+        for (int i = 0; i < availableTrustedCerts.size(); i++){        	
     		
-        	String CN = util.getCN();
-        	cns.add(i, CN);
+        	String subjectDN = ((X509Certificate) availableTrustedCerts.get(i)).getSubjectX500Principal().getName(X500Principal.RFC2253);
+    		CMUtils util = new CMUtils();
+    		util.parseDN(subjectDN);
+    		
+        	String subjectCN = util.getCN();
+        	cns.add(i, subjectCN);
         }
-        jltTrustCerts.setListData(cns.toArray());
-        jltTrustCerts.setSelectedIndex(0);
+        trustedCertsJList.setListData(cns.toArray());
+        trustedCertsJList.setSelectedIndex(0);
 
         // Put the list into a scroll pane
-        JScrollPane jspTrustCerts = new JScrollPane(jltTrustCerts,
+        JScrollPane trustedCertsScrollPanel = new JScrollPane(trustedCertsJList,
             JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        jspTrustCerts.getViewport().setBackground(jltTrustCerts.getBackground());
+        trustedCertsScrollPanel.getViewport().setBackground(trustedCertsJList.getBackground());
         
-        // Put all the trusted cert components together
-        JPanel jpTrustCerts = new JPanel(); // BoxLayout
-        jpTrustCerts.setLayout(new BoxLayout(jpTrustCerts, BoxLayout.Y_AXIS));
-        //jpKeyPairs.setPreferredSize(new Dimension(400, 200));
-        jpTrustCerts.setBorder(new CompoundBorder(new CompoundBorder(
+        JPanel trustedCertsPanel = new JPanel(); 
+        trustedCertsPanel.setLayout(new BoxLayout(trustedCertsPanel, BoxLayout.Y_AXIS));
+        trustedCertsPanel.setBorder(new CompoundBorder(new CompoundBorder(
             new EmptyBorder(5, 5, 5, 5), new EtchedBorder()), new EmptyBorder(
             5, 5, 5, 5)));
    
-        jpInstructions.setAlignmentY(JPanel.LEFT_ALIGNMENT);
-        jpTrustCerts.add(jpInstructions);
-        jspTrustCerts.setAlignmentY(JPanel.LEFT_ALIGNMENT);
-        jpTrustCerts.add(jspTrustCerts);
-        jbCertificateDetails.setAlignmentY(JPanel.RIGHT_ALIGNMENT);
-        jpTrustCerts.add(jbCertificateDetails);
+        instructionsPanel.setAlignmentY(JPanel.LEFT_ALIGNMENT);
+        trustedCertsPanel.add(instructionsPanel);
+        trustedCertsScrollPanel.setAlignmentY(JPanel.LEFT_ALIGNMENT);
+        trustedCertsPanel.add(trustedCertsScrollPanel);
+        certificateDetailsButton.setAlignmentY(JPanel.RIGHT_ALIGNMENT);
+        trustedCertsPanel.add(certificateDetailsButton);
 
         // Cancel button
-        final JButton jbCancel = new JButton("Cancel");
-        jbCancel.addActionListener(new ActionListener()
+        final JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -191,11 +171,11 @@ public class NewTrustCertsDialog extends HelpEnabledDialog {
         });
 
         JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        jpButtons.add(jbImport);
-        jpButtons.add(jbCancel);
+        jpButtons.add(importButton);
+        jpButtons.add(cancelButton);
 
         getContentPane().setLayout(new BorderLayout());
-        getContentPane().add(jpTrustCerts, BorderLayout.CENTER);
+        getContentPane().add(trustedCertsPanel, BorderLayout.CENTER);
         getContentPane().add(jpButtons, BorderLayout.SOUTH);
 
         addWindowListener(new WindowAdapter()
@@ -208,25 +188,22 @@ public class NewTrustCertsDialog extends HelpEnabledDialog {
 
         setResizable(false);
 
-        getRootPane().setDefaultButton(jbImport);
+        getRootPane().setDefaultButton(importButton);
 
         pack();
-
     }
 
     /**
-     * Certificate Details button pressed.  Display the selected key
-     * pair's certificate.
+     * Shows the selected key pair's certificate.
      */
     private void certificateDetailsPressed()
     {
         try {        	
         	
-        	int i = jltTrustCerts.getSelectedIndex();
+        	int i = trustedCertsJList.getSelectedIndex();
             
-        	X509Certificate cert = (X509Certificate) availableTrustCerts.get(i);
+        	X509Certificate cert = (X509Certificate) availableTrustedCerts.get(i);
 
-            // Supply the certificate to the view certificate dialog
             ViewCertDetailsDialog viewCertificateDialog = new ViewCertDetailsDialog(this,
             		"Certificate details", 
             		true, 
@@ -238,54 +215,43 @@ public class NewTrustCertsDialog extends HelpEnabledDialog {
         }
         catch (Exception ex) {
             JOptionPane.showMessageDialog(this,
-                    "Failed to obtain certificate details to show.", 
+                    "Failed to obtain certificate details to show", 
                     "Credential Manager Alert",
                     JOptionPane.WARNING_MESSAGE);
             closeDialog();
-
         }
     }
 
     /**
      * Get the trusted certificates selected for import.
-     *
-     * @return The array of trusted certificates selected for import
      */
     public ArrayList<X509Certificate> getTrustedCertificates()
     {
-    	return selectedTrustCerts;
+    	return selectedTrustedCerts;
     }
 
    
     /**
-     * Import button pressed by user. Store the selected trusted certs
-     * and close the dialog.
+     * Store the selected trusted certs.
      */
     public void importPressed()
     {
-    	int[] selectedValues = jltTrustCerts.getSelectedIndices();
-    	selectedTrustCerts = new ArrayList<X509Certificate>();
+    	int[] selectedValues = trustedCertsJList.getSelectedIndices();
+    	selectedTrustedCerts = new ArrayList<X509Certificate>();
     	for (int i= 0; i < selectedValues.length; i++){
-    		selectedTrustCerts.add(availableTrustCerts.get(selectedValues[i]));
+    		selectedTrustedCerts.add(availableTrustedCerts.get(selectedValues[i]));
     	}
 
         closeDialog();
     }
 
-    
-    /**
-     * Cancel button pressed - close the dialog.
-     */
     public void cancelPressed()
     {
-    	// Set selectedTrustCerts to null to indicate that user cancelled
-    	selectedTrustCerts = null;
+    	// Set selectedTrustCerts to null to indicate that user has cancelled the import
+    	selectedTrustedCerts = null;
         closeDialog();
     }
 
-    /**
-     * Closes the dialog.
-     */
     private void closeDialog()
     {
         setVisible(false);

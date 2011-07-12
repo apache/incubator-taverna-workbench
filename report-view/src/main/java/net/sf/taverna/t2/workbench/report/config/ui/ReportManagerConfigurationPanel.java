@@ -18,6 +18,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.lang.ui.DeselectingButton;
 import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
 
@@ -180,7 +181,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 		/**
 		 * The helpButton shows help about the current component
 		 */
-		JButton helpButton = new JButton(new AbstractAction(HELP) {
+		JButton helpButton = new DeselectingButton(HELP, new AbstractAction() {
 			public void actionPerformed(ActionEvent arg0) {
 				Helper.showHelp(panel);
 			}
@@ -191,7 +192,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 		 * The resetButton changes the property values shown to those
 		 * corresponding to the configuration currently applied.
 		 */
-		JButton resetButton = new JButton(new AbstractAction(RESET) {
+		JButton resetButton = new DeselectingButton(RESET, new AbstractAction() {
 			public void actionPerformed(ActionEvent arg0) {
 				setFields();
 			}
@@ -202,7 +203,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 		 * The applyButton applies the shown field values to the
 		 * {@link HttpProxyConfiguration} and saves them for future.
 		 */
-		JButton applyButton = new JButton(new AbstractAction(APPLY) {
+		JButton applyButton = new DeselectingButton(APPLY, new AbstractAction() {
 			public void actionPerformed(ActionEvent arg0) {
 				applySettings();
 				setFields();

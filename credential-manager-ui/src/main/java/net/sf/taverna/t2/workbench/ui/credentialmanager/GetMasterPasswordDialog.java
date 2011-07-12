@@ -32,7 +32,6 @@ import java.awt.event.WindowEvent;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -41,7 +40,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**
  * Dialog used for getting a master password for Credential Manager
@@ -50,20 +49,17 @@ import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class GetMasterPasswordDialog extends HelpEnabledDialog {
+public class GetMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
 	
     // Password entry field 
-    private JPasswordField jpfPassword;
+    private JPasswordField passwordField;
 
-    // Stores the password entered 
+    // The entered password
     private String password = null;
     
     // Text giving user the instructions what to do in the dialog
     private String instructions;
 
-    /**
-     * Creates new GetNewPasswordDialog where the parent is a frame.
-     */
     public GetMasterPasswordDialog(String instructions)
     {
         super((Frame)null, "Enter master password", true);
@@ -71,37 +67,34 @@ public class GetMasterPasswordDialog extends HelpEnabledDialog {
         initComponents();
     }
 
-    /**
-     * Initialise the dialog's GUI components.
-     */
     private void initComponents()
     {
         getContentPane().setLayout(new BorderLayout());
 
-        JLabel jlInstructions = new JLabel (instructions);
-    	jlInstructions.setFont(new Font(null, Font.PLAIN, 11));
+        JLabel instructionsLabel = new JLabel (instructions);
+    	instructionsLabel.setFont(new Font(null, Font.PLAIN, 11));
     	
-    	JPanel jpInstructions = new JPanel();
-    	jpInstructions.setLayout(new BoxLayout(jpInstructions, BoxLayout.Y_AXIS));
-    	jpInstructions.add(jlInstructions);
-    	jpInstructions.setBorder(new EmptyBorder(10,5,10,0));
+    	JPanel instructionsPanel = new JPanel();
+    	instructionsPanel.setLayout(new BoxLayout(instructionsPanel, BoxLayout.Y_AXIS));
+    	instructionsPanel.add(instructionsLabel);
+    	instructionsPanel.setBorder(new EmptyBorder(10,5,10,0));
         
-        JLabel jlPassword = new JLabel("Password");
-        jlPassword.setBorder(new EmptyBorder(0,5,0,0));
+        JLabel passwordLabel = new JLabel("Password");
+        passwordLabel.setBorder(new EmptyBorder(0,5,0,0));
 
-        jpfPassword = new JPasswordField(15);
-        JPanel jpPassword = new JPanel(new GridLayout(1, 1, 5, 5));
-        jpPassword.add(jlPassword);
-        jpPassword.add(jpfPassword);
+        passwordField = new JPasswordField(15);
+        JPanel passwordPanel = new JPanel(new GridLayout(1, 1, 5, 5));
+        passwordPanel.add(passwordLabel);
+        passwordPanel.add(passwordField);
         
-        JPanel jpMain = new JPanel(new BorderLayout());
-        jpMain.setBorder(new CompoundBorder(
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.setBorder(new CompoundBorder(
                 new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
-        jpMain.add(jpInstructions, BorderLayout.NORTH);
-        jpMain.add(jpPassword, BorderLayout.CENTER);
+        mainPanel.add(instructionsPanel, BorderLayout.NORTH);
+        mainPanel.add(passwordPanel, BorderLayout.CENTER);
 
-        JButton jbOK = new JButton("OK");
-        jbOK.addActionListener(new ActionListener()
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -109,20 +102,20 @@ public class GetMasterPasswordDialog extends HelpEnabledDialog {
             }
         });
 
-        JButton jbCancel = new JButton("Cancel");
-        jbCancel.addActionListener(new ActionListener()
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
                 cancelPressed();
             }
         });
-        JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        jpButtons.add(jbOK);
-        jpButtons.add(jbCancel);
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonsPanel.add(okButton);
+        buttonsPanel.add(cancelButton);
         
-        getContentPane().add(jpMain, BorderLayout.CENTER);
-        getContentPane().add(jpButtons, BorderLayout.SOUTH);
+        getContentPane().add(mainPanel, BorderLayout.CENTER);
+        getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
         addWindowListener(new WindowAdapter()
         {
@@ -134,13 +127,13 @@ public class GetMasterPasswordDialog extends HelpEnabledDialog {
 
         setResizable(false);
 
-        getRootPane().setDefaultButton(jbOK);
+        getRootPane().setDefaultButton(okButton);
 
         pack();
     }
 
     /**
-     * Get the password set in the dialog or null if none was set
+     * Get the password entered in the dialog.
      */
     public String getPassword()
     {
@@ -148,12 +141,11 @@ public class GetMasterPasswordDialog extends HelpEnabledDialog {
     }
     
     /**
-     * Check that the password entered is not empty and 
-     * store the entered password.
+     * Check that the entered password is not empty and store the entered password.
      */
     private boolean checkPassword()
     {
-       password = new String(jpfPassword.getPassword());
+       password = new String(passwordField.getPassword());
 
        if (password.length() == 0) { //password is empty          
             JOptionPane.showMessageDialog(this,
@@ -167,9 +159,6 @@ public class GetMasterPasswordDialog extends HelpEnabledDialog {
         }
     }
 
-    /**
-     * OK button pressed or otherwise activated.
-     */
     private void okPressed()
     {
         if (checkPassword()) {
@@ -177,20 +166,14 @@ public class GetMasterPasswordDialog extends HelpEnabledDialog {
         }
     }
 
-    /**
-     * Cancel button pressed or otherwise activated.
-     */
     private void cancelPressed()
     {
     	// Set the password to null as it might have changed in the meantime 
-    	// if user entered something previously
+    	// if user entered something then cancelled.
     	password = null;
         closeDialog();
     }
 
-    /**
-     * Close the dialog.
-     */
     private void closeDialog()
     {
         setVisible(false);

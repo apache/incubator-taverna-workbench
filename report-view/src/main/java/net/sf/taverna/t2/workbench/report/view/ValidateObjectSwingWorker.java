@@ -23,6 +23,8 @@ package net.sf.taverna.t2.workbench.report.view;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.SwingWorker;
+
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -35,7 +37,6 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
-import org.jdesktop.swingworker.SwingWorker;
 
 public class ValidateObjectSwingWorker extends SwingWorker<String, String>{
 

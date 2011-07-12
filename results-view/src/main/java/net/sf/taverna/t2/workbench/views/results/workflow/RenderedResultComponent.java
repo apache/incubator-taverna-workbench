@@ -31,18 +31,22 @@ import java.awt.event.ItemListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.EmptyBorder;
@@ -52,6 +56,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
+import net.sf.taverna.t2.lang.results.ResultsUtils;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.reference.ErrorDocument;
 import net.sf.taverna.t2.reference.ExternalReferenceSPI;
@@ -63,7 +68,6 @@ import net.sf.taverna.t2.renderers.Renderer;
 import net.sf.taverna.t2.renderers.RendererException;
 import net.sf.taverna.t2.renderers.RendererRegistry;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.views.results.ResultsUtils;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPIRegistry;
 import net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState;
@@ -84,6 +88,8 @@ import eu.medsea.mimeutil.MimeType;
  */
 @SuppressWarnings("serial")
 public class RenderedResultComponent extends JPanel {
+
+	private static final String WRAP_TEXT = "Wrap text";
 
 	final String ERROR_DOCUMENT = "Error Document";
 	
@@ -125,14 +131,22 @@ public class RenderedResultComponent extends JPanel {
 	// contains a list). "text/plain" will always be added to the mimeList.
 	private String lastUsedMIMEtype = "text/plain"; // text renderer will always be available
 
+	// If result is "text/plain" - provide possibility to wrap wide text
+	private JCheckBox wrapTextCheckBox;
+
 	// Reference to the object being displayed (contained in the tree node)
 	private T2Reference t2Reference;
 
-        private ReferenceService referenceService;
+    private ReferenceService referenceService;
 	private InvocationContext context;
 	
 	// Currently selected node from the ResultViewComponent, if any.
 	private WorkflowResultTreeNode node = null;
+	
+	// In case the node can be rendered as "text/plain", map the hash code of the node
+	// to the wrap text check box selection value for that node (that remembers if user wanted the text wrapped or not).
+	// We are using hash code as using node's user object might be too large.
+	private Map<Integer, Boolean> nodeToWrapSelection = new HashMap<Integer, Boolean>();
 
 	// List of all output ports - needs to be passed to 'save result' actions.
 	List<? extends DataflowOutputPort> dataflowOutputPorts = null;
@@ -185,6 +199,34 @@ public class RenderedResultComponent extends JPanel {
 			}
 		});
 		resultsTypePanel.add(refreshButton);
+		
+		// Check box for wrapping text if result is of type "text/plain"
+		wrapTextCheckBox = new JCheckBox(WRAP_TEXT);
+		wrapTextCheckBox.setVisible(false);
+		wrapTextCheckBox.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				// Should have only one child component holding the rendered result
+	        	// Check for empty just as well
+				if (renderedResultPanel.getComponents().length==0){
+					return;
+				}
+				Component component = renderedResultPanel.getComponent(0);
+	        	if (component instanceof DialogTextArea){
+	        		if (e.getStateChange() == ItemEvent.SELECTED) {
+						nodeToWrapSelection.put(node.hashCode(), Boolean.TRUE);	
+						renderResult();
+			        }	        
+			        else{
+						nodeToWrapSelection.put(node.hashCode(), Boolean.FALSE);						
+						renderResult();
+			        }
+	        	}
+			}
+		});
+
+		resultsTypePanel.add(wrapTextCheckBox);
 
 		// 'Save result' buttons panel
 		saveButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -224,6 +266,7 @@ public class RenderedResultComponent extends JPanel {
 	 */
 	public void setNode(WorkflowResultTreeNode node) {
 		this.node = node;
+		
 		if (this.node.isState(ResultTreeNodeState.RESULT_REFERENCE)){
 			updateResult();
 		}
@@ -384,52 +427,70 @@ public class RenderedResultComponent extends JPanel {
 			// Disable refresh button
 			refreshButton.setEnabled(false);
 			
+			// Hide wrap text check box - only works for actual data
+			wrapTextCheckBox.setVisible(false);
+
 			ErrorDocument errorDocument = (ErrorDocument) identified;
 			
 			// Reset the renderers as we have an error item
 			recognisedRenderersForMimeType = null;
 			otherRenderers = null;
 			
-			DefaultMutableTreeNode root = new DefaultMutableTreeNode(
-					"Error Trace");
-			ResultsUtils.buildErrorDocumentTree(root, errorDocument, referenceService);
+			// If there is no exception message, e.g. service returned error as HTML document but no 
+			// actual exception occurred - do not build the error tree just show the message text
+			// This is because multiline text is not being showed properly in the JTree
+			JTextArea errorTextArea = null;
+			JTree errorTree = null;
+/*			if (errorDocument.getExceptionMessage() == null || errorDocument.getExceptionMessage().equals("")){
+				// If there is no exception message, there will be no stack trace nor child errors either
+				// so we are OK just to show the actual message from the error document
+				errorTextArea = new JTextArea(errorDocument.getMessage());
+				errorTextArea.setEditable(false);
+			}
+			else{
+*/				DefaultMutableTreeNode root = new DefaultMutableTreeNode("Error Trace");
+				ResultsUtils.buildErrorDocumentTree(root, errorDocument,
+						referenceService);
 
-			JTree errorTree = new JTree(root);
-			errorTree.setCellRenderer(new DefaultTreeCellRenderer() {
+				errorTree = new JTree(root);
+				errorTree.setCellRenderer(new DefaultTreeCellRenderer() {
 
-				public Component getTreeCellRendererComponent(JTree tree,
-						Object value, boolean selected, boolean expanded,
-						boolean leaf, int row, boolean hasFocus) {
-					Component renderer = null;
-					if (value instanceof DefaultMutableTreeNode) {
-						DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) value;
-						Object userObject = treeNode.getUserObject();
-						if (userObject instanceof ErrorDocument) {
-							ErrorDocument errorDocument = (ErrorDocument) userObject;
-							renderer = super.getTreeCellRendererComponent(tree,
-									errorDocument.getMessage(), selected,
-									expanded, leaf, row, hasFocus);
+					public Component getTreeCellRendererComponent(JTree tree,
+							Object value, boolean selected, boolean expanded,
+							boolean leaf, int row, boolean hasFocus) {
+						Component renderer = null;
+						if (value instanceof DefaultMutableTreeNode) {
+							DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) value;
+							Object userObject = treeNode.getUserObject();
+							if (userObject instanceof ErrorDocument) {
+								ErrorDocument errorDocument = (ErrorDocument) userObject;
+								renderer = super
+										.getTreeCellRendererComponent(tree,
+												errorDocument.getMessage(),
+												selected, expanded, leaf, row,
+												hasFocus);						
+							}
 						}
+						if (renderer == null) {
+							renderer = super.getTreeCellRendererComponent(tree,
+									value, selected, expanded, leaf, row,
+									hasFocus);
+						}
+						if (renderer instanceof JLabel) {
+							JLabel label = (JLabel) renderer;
+							label.setIcon(null);
+						}
+						return renderer;
 					}
-					if (renderer == null) {
-						renderer = super.getTreeCellRendererComponent(tree,
-								value, selected, expanded, leaf, row, hasFocus);
-					}
-					if (renderer instanceof JLabel) {
-						JLabel label = (JLabel) renderer;
-						label.setIcon(null);
-					}
-					return renderer;
-				}
-
-			});
+				});
+/*			}			*/			
 
 			renderersComboBox.setModel(new DefaultComboBoxModel(
 					new String[] { ERROR_DOCUMENT }));
 			renderedResultPanel.removeAll();
-			renderedResultPanel.add(errorTree, BorderLayout.CENTER);
+			renderedResultPanel.add(errorTextArea != null ? errorTextArea : errorTree, BorderLayout.CENTER);
 			repaint();
-		}
+		} 
 		
 	}
 	
@@ -446,7 +507,20 @@ public class RenderedResultComponent extends JPanel {
 		if (mimeList != null && selectedIndex >= 0) {
 
 			Renderer renderer = rendererList.get(selectedIndex);
-			
+						
+			if (renderer.getType().equals("Text")){ // if the result is "text/plain"
+				// We use node's hash code as the key in the nodeToWrapCheckBox 
+				// map as node's user object may be too large
+				if (nodeToWrapSelection.get(node.hashCode()) == null){
+					// initially not selected
+					nodeToWrapSelection.put(node.hashCode(), Boolean.FALSE);						
+				}
+				wrapTextCheckBox.setSelected(nodeToWrapSelection.get(node.hashCode()));
+				wrapTextCheckBox.setVisible(true);
+			}
+			else{
+				wrapTextCheckBox.setVisible(false);					
+			}
 			// Remember the last used renderer - use it for all result items of this port
 			//currentRendererIndex = selectedIndex;
 			lastUsedMIMEtype = mimeList[selectedIndex];
@@ -455,6 +529,11 @@ public class RenderedResultComponent extends JPanel {
 			try {
 				component = renderer.getComponent(context
 						.getReferenceService(), t2Reference);
+				if (component instanceof DialogTextArea){
+					if (wrapTextCheckBox.isSelected()){
+						((JTextArea) component).setLineWrap(wrapTextCheckBox.isSelected());
+					}
+				}
 				if (component instanceof JTextComponent){
 					((JTextComponent)component).setEditable(false);
 				}
@@ -487,6 +566,7 @@ public class RenderedResultComponent extends JPanel {
 	 */
 	public void clearResult() {
 		refreshButton.setEnabled(false);
+		wrapTextCheckBox.setVisible(false);
 		renderedResultPanel.removeAll();
 
 		// Update the 'save result' buttons appropriately

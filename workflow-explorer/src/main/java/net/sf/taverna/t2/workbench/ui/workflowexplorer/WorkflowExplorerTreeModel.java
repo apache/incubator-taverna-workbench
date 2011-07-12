@@ -39,6 +39,7 @@ import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
+import net.sf.taverna.t2.workflowmodel.utils.DatalinkComparator;
 import net.sf.taverna.t2.workflowmodel.utils.NamedWorkflowEntityComparator;
 import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 
@@ -75,8 +76,9 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 	public static final String MERGES = "Merges";
 
 	private final PortComparator portComparator = new PortComparator();
-	private final NamedWorkflowEntityComparator namedWorkflowEntitiyComparator = new NamedWorkflowEntityComparator();
-	
+	private final NamedWorkflowEntityComparator namedWorkflowEntityComparator = new NamedWorkflowEntityComparator();
+	private final DatalinkComparator datalinkComparator = new DatalinkComparator();
+
 	/* Root of the tree. */
 	private DefaultMutableTreeNode rootNode;
 	
@@ -125,7 +127,7 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 	
 		// Populate the workflow's processors (which in turn can contain a nested workflow).
 		List<Processor> processorsList = new ArrayList<Processor>(df.getProcessors());
-		Collections.sort(processorsList, namedWorkflowEntitiyComparator);
+		Collections.sort(processorsList, namedWorkflowEntityComparator);
 		for (Processor processor : processorsList){
 			DefaultMutableTreeNode processorNode = new DefaultMutableTreeNode(
 					processor);
@@ -155,7 +157,8 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 		
 		// Populate the workflow's data links.
 		List<? extends Datalink> datalinksList = (List<? extends Datalink>) df.getLinks();
-		// TODO: Sort datalinks - but by what?
+		Collections.sort(datalinksList, datalinkComparator);
+		
 		for (Datalink datalink: datalinksList) {
 			datalinks.add(new DefaultMutableTreeNode(datalink));
 		}
@@ -172,7 +175,7 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 		
 		// Populate the workflow's merges.
 		List<Merge> mergesList = new ArrayList<Merge>(df.getMerges());
-		Collections.sort(mergesList, namedWorkflowEntitiyComparator);
+		Collections.sort(mergesList, namedWorkflowEntityComparator);
 		for (Merge merge: mergesList) {
 			merges.add(new DefaultMutableTreeNode(merge));
 		}

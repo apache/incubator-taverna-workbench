@@ -83,7 +83,7 @@ public class DefaultGraphEventManager implements GraphEventManager {
 		}
 		
 		// If this was a right click - show a pop-up as well
-		if (button == 2) { 
+		if ((button == 2) || ctrlKey) { 
 			menu = null;
 			if (dataflowObject instanceof Processor) {
 				final Processor processor = (Processor) dataflowObject;

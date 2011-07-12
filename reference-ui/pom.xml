@@ -15,10 +15,6 @@
 		construction and registration of new entities through a UI
 		component and the rendering of existing persisted entities
 	</description>
-	<properties>
-		<spring.version>2.5.4</spring.version>
-		<aspectj.version>1.6.0</aspectj.version>
-	</properties>
 
 	<dependencies>
 		<dependency>
@@ -42,7 +38,6 @@
 			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>reference-core-extensions</artifactId>
 			<version>${t2.reference-core-extensions.version}</version>
-			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>
@@ -85,10 +80,6 @@
 			<version>${t2.lang.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.jdesktop</groupId>
-			<artifactId>swingworker</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
 		</dependency>
@@ -96,7 +87,7 @@
 		<dependency>
 			<groupId>commons-logging</groupId>
 			<artifactId>commons-logging</artifactId>
-			<version>1.1.1</version>
+			<version>${commons.logging.version}</version>
 		</dependency>
 
 		<dependency>
@@ -141,7 +132,7 @@
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate</artifactId>
-			<version>3.2.5.ga.raven</version>
+			<version>${hibernate.version}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.transaction</groupId>

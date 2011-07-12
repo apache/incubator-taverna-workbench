@@ -29,10 +29,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -50,18 +47,19 @@ import org.apache.log4j.Logger;
 
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
-import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**
- * Dialog used for editing or entering new service URL, username or password of a password entry.
+ * Dialog used for editing or entering new service URL, username or password for
+ * a password entry.
  * 
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class NewEditPasswordEntryDialog extends HelpEnabledDialog
+public class NewEditPasswordEntryDialog extends NonBlockedHelpEnabledDialog
 {
 	// 'Edit' mode constant - the dialog is in the 'edit' entry mode
-	private static final String EDIT_MODE = "Edit";
+	private static final String EDIT_MODE = "EDIT";
 	
 	// 'New' mode constant - the dialog is in the 'new' entry mode
 	private static final String NEW_MODE = "NEW";
@@ -70,19 +68,21 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
 	String mode;
   
     // Service URL field
-    private JTextField jtfServiceURL;
+    private JTextField serviceURLField;
     
     // Username field
-    private JTextField jtfUsername;
+    private JTextField usernameField;
     
     // First password entry field
-    private JPasswordField jpfFirstPassword;
+    private JPasswordField passwordField;
 
     // Password confirmation entry field
-    private JPasswordField jpfConfirmPassword;
+    private JPasswordField passwordConfirmField;
 
     // Stores service URL entered 
     private String serviceURL;    
+    // Stores previous service URL for EDIT_MODE 
+    private String serviceURLOld; 
     
     // Stores username entered 
     private String username;
@@ -92,9 +92,6 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
     
     private Logger logger = Logger.getLogger(NewEditPasswordEntryDialog.class);
 
-    /**
-     * Creates new NewEditPasswordEntryDialog dialog where parent is a frame.
-     */
     public NewEditPasswordEntryDialog(JFrame parent, String title,
 			boolean modal, String currentURL, String currentUsername,
 			String currentPassword)
@@ -109,13 +106,11 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
         }
         else{
             mode = EDIT_MODE; // dialog is for editing an existing entry
+            serviceURLOld = currentURL;
         }
         initComponents();
     }
 
-    /**
-     * Creates new NewEditPasswordEntryDialog dialog where parent is a dialog.
-     */
     public NewEditPasswordEntryDialog(JDialog parent, String title, boolean modal, String currentURL, String currentUsername, String currentPassword)
     {
         super(parent, title, modal);
@@ -128,84 +123,49 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
         }
         else{
             mode = EDIT_MODE; // dialog is for editing existing entry
+            serviceURLOld = currentURL;
         }
         initComponents();
     }
-    
-    
-    /**
-     * Get the username set in the dialog.
-     *
-     * @return the username
-     */
-    public String getUsername()
-    {
-        return username;
-    }
-    
-    /**
-     * Get the service URL set in the dialog.
-     *
-     * @return the service URL
-     */
-    public String getServiceURL()
-    {
-        return serviceURL;
-    }
-    
-    /**
-     * Get the password set in the dialog.
-     *
-     * @return the password
-     */
-    public String getPassword()
-    {
-    	return password;
-    }
-    
-    
-    /**
-     * Initialise the dialog's GUI components.
-     */
+
     private void initComponents()
     {
         getContentPane().setLayout(new BorderLayout());
 
-        JLabel jlServiceURL = new JLabel("Service URL");
-        jlServiceURL.setBorder(new EmptyBorder(0,5,0,0));
+        JLabel serviceURLLabel = new JLabel("Service URL");
+        serviceURLLabel.setBorder(new EmptyBorder(0,5,0,0));
         
-        JLabel jlUsername = new JLabel("Username");
-        jlUsername.setBorder(new EmptyBorder(0,5,0,0));
+        JLabel usernameLabel = new JLabel("Username");
+        usernameLabel.setBorder(new EmptyBorder(0,5,0,0));
         
-        JLabel jlFirstPassword = new JLabel("Password");
-        jlFirstPassword.setBorder(new EmptyBorder(0,5,0,0));
+        JLabel passwordLabel = new JLabel("Password");
+        passwordLabel.setBorder(new EmptyBorder(0,5,0,0));
         
-        JLabel jlConfirmPassword = new JLabel("Confirm password");
-        jlConfirmPassword.setBorder(new EmptyBorder(0,5,0,0));
+        JLabel passwordConfirmLabel = new JLabel("Confirm password");
+        passwordConfirmLabel.setBorder(new EmptyBorder(0,5,0,0));
                
-        jtfServiceURL = new JTextField();
+        serviceURLField = new JTextField();
         //jtfServiceURL.setBorder(new EmptyBorder(0,0,0,5));
 
-        jtfUsername = new JTextField(15);
+        usernameField = new JTextField(15);
         //jtfUsername.setBorder(new EmptyBorder(0,0,0,5));
 
-        jpfFirstPassword = new JPasswordField(15);
+        passwordField = new JPasswordField(15);
         //jpfFirstPassword.setBorder(new EmptyBorder(0,0,0,5));
 
-        jpfConfirmPassword = new JPasswordField(15);
+        passwordConfirmField = new JPasswordField(15);
         //jpfConfirmPassword.setBorder(new EmptyBorder(0,0,0,5));
 
-        
         //If in EDIT_MODE - populate the fields with current values
         if (mode.equals(EDIT_MODE)){
-            jtfServiceURL.setText(serviceURL);
-            jtfUsername.setText(username);     
-            jpfFirstPassword.setText(password);
-            jpfConfirmPassword.setText(password);
+            serviceURLField.setText(serviceURL);
+            usernameField.setText(username);     
+            passwordField.setText(password);
+            passwordConfirmField.setText(password);
         }
         
-        JButton jbOK = new JButton("OK");
-        jbOK.addActionListener(new ActionListener()
+        JButton okButton = new JButton("OK");
+        okButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -213,8 +173,8 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
             }
         });
 
-        JButton jbCancel = new JButton("Cancel");
-        jbCancel.addActionListener(new ActionListener()
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(new ActionListener()
         {
             public void actionPerformed(ActionEvent evt)
             {
@@ -222,7 +182,7 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
             }
         });
 
-        JPanel jpPassword = new JPanel(new GridBagLayout());
+        JPanel passwordPanel = new JPanel(new GridBagLayout());
         
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weighty = 0.0;
@@ -233,7 +193,7 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 0);
-        jpPassword.add(jlServiceURL, gbc);
+        passwordPanel.add(serviceURLLabel, gbc);
         
 		gbc.weightx = 1.0;
 		gbc.gridx = 1;
@@ -241,7 +201,7 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 5);
-        jpPassword.add(jtfServiceURL, gbc);
+        passwordPanel.add(serviceURLField, gbc);
         
 		gbc.weightx = 0.0;
 		gbc.gridx = 0;
@@ -249,7 +209,7 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 0);
-        jpPassword.add(jlUsername, gbc);
+        passwordPanel.add(usernameLabel, gbc);
         
 		gbc.weightx = 1.0;
 		gbc.gridx = 1;
@@ -257,7 +217,7 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 5);
-        jpPassword.add(jtfUsername, gbc);
+        passwordPanel.add(usernameField, gbc);
         
 		gbc.weightx = 0.0;
 		gbc.gridx = 0;
@@ -265,7 +225,7 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 0);
-        jpPassword.add(jlFirstPassword, gbc);
+        passwordPanel.add(passwordLabel, gbc);
         
 		gbc.weightx = 1.0;
 		gbc.gridx = 1;
@@ -273,7 +233,7 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 5);
-        jpPassword.add(jpfFirstPassword, gbc);
+        passwordPanel.add(passwordField, gbc);
         
 		gbc.weightx = 0.0;
 		gbc.gridx = 0;
@@ -281,7 +241,7 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
 		gbc.fill = GridBagConstraints.NONE;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 0);
-        jpPassword.add(jlConfirmPassword, gbc);
+        passwordPanel.add(passwordConfirmLabel, gbc);
         
 		gbc.weightx = 1.0;
 		gbc.gridx = 1;
@@ -289,17 +249,17 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		gbc.anchor = GridBagConstraints.WEST;
 		gbc.insets = new Insets(5, 10, 0, 5);
-        jpPassword.add(jpfConfirmPassword, gbc);
+        passwordPanel.add(passwordConfirmField, gbc);
         
-        jpPassword.setBorder(new CompoundBorder(
+        passwordPanel.setBorder(new CompoundBorder(
                 new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
         
-        JPanel jpButtons = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        jpButtons.add(jbOK);
-        jpButtons.add(jbCancel);
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonsPanel.add(okButton);
+        buttonsPanel.add(cancelButton);
 
-        getContentPane().add(jpPassword, BorderLayout.CENTER);
-        getContentPane().add(jpButtons, BorderLayout.SOUTH);
+        getContentPane().add(passwordPanel, BorderLayout.CENTER);
+        getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
         addWindowListener(new WindowAdapter()
         {
@@ -311,26 +271,43 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
 
         //setResizable(false);
 
-        getRootPane().setDefaultButton(jbOK);
+        getRootPane().setDefaultButton(okButton);
 
         pack();
     }
 
     /**
-     * Checks for the following:
-     * <ul>
-     *     <li>That the user has supplied a non empty service URL
-     *     <li>That the user has supplied a non empty username
-     *     <li>That the user has supplied and confirmed a non empty password
-     *     <li>That the entry with the same URL already does not exist in the Keystore
-     * </ul>
-     * and stores the new password in this object.
-     *
-     * @return true - if the user's dialog entry matches the above criteria, false otherwise
+     * Get the username entered in the dialog.
+     */
+    public String getUsername()
+    {
+        return username;
+    }
+    
+    /**
+     * Get the service URL entered in the dialog.
+     */
+    public String getServiceURL()
+    {
+        return serviceURL;
+    }
+    
+    /**
+     * Get the password entered in the dialog.
+     */
+    public String getPassword()
+    {
+    	return password;
+    }
+    
+    /**
+     * Checks that the user has entered a non-empty service URL, a non-empty username,
+     * a non-empty password and that an entry with the same URL already does not already 
+     * exist in the Keystore. Store the new password.
      */
     private boolean checkControls()
     {
-    	serviceURL = new String(jtfServiceURL.getText());
+    	serviceURL = new String(serviceURLField.getText());
     	if (serviceURL.length() == 0) {
             JOptionPane.showMessageDialog(this,
                 "Service URL cannot be empty", 
@@ -340,7 +317,7 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
             return false;
     	}
     	
-    	username = new String(jtfUsername.getText());
+    	username = new String(usernameField.getText());
     	if (username.length() == 0){
             JOptionPane.showMessageDialog(this,
                 "Username cannot be empty", 
@@ -350,13 +327,13 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
             return false;
     	}
     	   	
-    	String sFirstPassword = new String(jpfFirstPassword.getPassword());
-        String sConfirmPassword = new String(jpfConfirmPassword.getPassword());
+    	String firstPassword = new String(passwordField.getPassword());
+        String confirmPassword = new String(passwordConfirmField.getPassword());
 
-    	if ((sFirstPassword.length() > 0) && (sFirstPassword.equals(sConfirmPassword))) { // passwords the same and non-empty
-    		password = sFirstPassword;
+    	if ((firstPassword.length() > 0) && (firstPassword.equals(confirmPassword))) { // passwords the same and non-empty
+    		password = firstPassword;
         }
-        else if ((sFirstPassword.length() == 0) && (sFirstPassword.equals(sConfirmPassword))){ // passwords match but are empty
+        else if ((firstPassword.length() == 0) && (firstPassword.equals(confirmPassword))){ // passwords match but are empty
 
             JOptionPane.showMessageDialog(this,
                 "Password cannot be empty", 
@@ -374,44 +351,41 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
             return false;            	
         }
     	
-		// Check if the entered URL is already associated with another key pair entry in the Keystore
-    	CredentialManager credManager = null;
+		// Check if the entered service URL is already associated with another password entry in the Keystore
+    	CredentialManager credentialManager = null;
+    	List<String> urlList = null;
     	try {
-			credManager = CredentialManager.getInstance();
+    		credentialManager = CredentialManager.getInstance();
+			urlList = credentialManager.getServiceURLsforAllUsernameAndPasswordPairs();
 		} catch (CMException cme) {
 			// Failed to instantiate Credential Manager - warn the user and exit
-			String exMessage = "Failed to instantiate Credential Manager";
+			String exMessage = "Failed to instantiate Credential Manager to check for duplicate service URLs.";
 			logger.error(exMessage, cme);
 			JOptionPane.showMessageDialog(new JFrame(), exMessage,
 					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
 			return false;
 		}
    	
-    	HashMap<String, ArrayList<String>> urlMap = credManager.getServiceURLsforKeyPairs();
-       	if (urlMap != null){ // should not be null really (although can be empty). Check anyway.
-        	Set<String> aliases = urlMap.keySet();
-        	for (Iterator<String> i = aliases.iterator(); i.hasNext(); ){
-        		String alias = (String) i.next();
-        		// Check if url list for this alias contains the newly entered url
-        		ArrayList<String> urls = (ArrayList<String>) urlMap.get(alias);
-        		if (urls.contains(serviceURL)){
-            		// Warn the user and exit
-                	JOptionPane.showMessageDialog(
-                    		this, 
-                    		"The entered URL is already associated with another key pair entry",
-                			"Credential Manager Alert",
-                			JOptionPane.INFORMATION_MESSAGE);
-                	return false;
-        		}    		
-        	 }
+       	if (urlList != null){ // should not be null really (although can be empty). Check anyway.
+       		if (mode.equals(EDIT_MODE)){ // edit mode
+            	// Remove the current entry's service URL from the list
+                urlList.remove(serviceURLOld);      
+       		}
+
+   			if (urlList.contains(serviceURL)){ // found another entry for this service URL
+        		// Warn the user and exit
+            	JOptionPane.showMessageDialog(
+                		this, 
+                		"The entered service URL is already associated with another password entry",
+            			"Credential Manager Alert",
+            			JOptionPane.WARNING_MESSAGE);
+            	return false;
+			}
        	}
     	
     	return true;
     }
 
-    /**
-     * OK button pressed or otherwise activated.
-     */
     private void okPressed()
     {
         if (checkControls()) {
@@ -419,9 +393,6 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
         }
     }
 
-    /**
-     * Cancel button pressed or otherwise activated.
-     */
     private void cancelPressed()
     {
     	// Set all fields to null to indicate that cancel button was pressed
@@ -431,9 +402,6 @@ public class NewEditPasswordEntryDialog extends HelpEnabledDialog
         closeDialog();
     }
 
-    /**
-     * Close the dialog.
-     */
     private void closeDialog()
     {
         setVisible(false);
