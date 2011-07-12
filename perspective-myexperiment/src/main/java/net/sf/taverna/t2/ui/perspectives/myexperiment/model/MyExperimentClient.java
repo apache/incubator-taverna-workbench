@@ -67,7 +67,7 @@ public class MyExperimentClient {
       + " Java/"
       + System.getProperty("java.version");
   private static final String INI_FILE_NAME = "myexperiment-plugin.ini";
-  private static final int EXAMPLE_WORKFLOWS_PACK_ID = 122;
+  private static final int EXAMPLE_WORKFLOWS_PACK_ID = 192;
 
   public static final String INI_BASE_URL = "my_experiment_base_url";
   public static final String INI_LOGIN = "login";
@@ -177,7 +177,7 @@ public class MyExperimentClient {
   }
 
   // loads all plugin settings from the INI file
-  public void loadSettings() {
+  public synchronized void loadSettings() {
     try {
       // === READ SETTINGS ===
       FileInputStream fIniInputStream = new FileInputStream(new java.io.File(
@@ -226,7 +226,7 @@ public class MyExperimentClient {
   }
 
   // writes all plugin settings to the INI file
-  public void storeSettings() {
+  private void storeSettings() {
     // === ENCRYPT LOGIN AND PASSWORD ===
     // it's important to do this before writing these values into the INI file
     String strLogin = this.iniSettings.get(MyExperimentClient.INI_LOGIN)

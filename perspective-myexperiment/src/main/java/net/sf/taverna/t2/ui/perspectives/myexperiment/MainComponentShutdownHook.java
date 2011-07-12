@@ -56,7 +56,16 @@ public class MainComponentShutdownHook implements ShutdownSPI {
 	// if myExperiment perspective wasn't initialised, no shutdown operations are required / possible
 	if (mainComponent != null) {
 	  this.setLinks(mainComponent, mainComponent.getMyExperimentClient(), mainComponent.getLogger());
-	  new MyExperimentClientShutdownThread().start();
+	  logger.debug("Starting shutdown operations for myExperiment plugin");
+
+	  try {
+		myExperimentClient.storeHistoryAndSettings();
+	  } catch (Exception e) {
+		logger.error("Failed while serializing myExperiment plugin settings:\n"
+			+ e);
+	  }
+
+	  logger.debug("myExperiment plugin shutdown is completed; terminated...");
 	}
 
 	// "true" means that shutdown operations are complete and Taverna can terminate
@@ -70,27 +79,6 @@ public class MainComponentShutdownHook implements ShutdownSPI {
 	this.pluginMainComponent = component;
 	this.myExperimentClient = client;
 	this.logger = logger;
-  }
-
-  /**
-   * Actual shutdown cleaning up, saving settings and flushing caches.
-   */
-  // ************** CLEANUP THREAD *****************
-  protected class MyExperimentClientShutdownThread extends Thread {
-	@Override
-	public void run() {
-	  this.setName("myExperiment Plugin shutdown thread");
-	  logger.debug("Starting shutdown operations for myExperiment plugin");
-
-	  try {
-		myExperimentClient.storeHistoryAndSettings();
-	  } catch (Exception e) {
-		logger.error("Failed while serializing myExperiment plugin settings:\n"
-			+ e);
-	  }
-
-	  logger.debug("myExperiment plugin shutdown is completed; terminated...");
-	}
   }
 
 }

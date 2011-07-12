@@ -26,6 +26,8 @@ package net.sf.taverna.t2.ui.perspectives.myexperiment;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.io.ByteArrayInputStream;
+import java.awt.Desktop;
+import java.net.URI;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
@@ -54,8 +56,6 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializationConstants;
 
 import org.apache.log4j.Logger;
-
-import edu.stanford.ejalbert.BrowserLauncher;
 
 /**
  * @author Sergejs Aleksejevs, Emmanuel Tagarira, Jiten Bhagat
@@ -140,13 +140,6 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
           break;
         }
       }
-    } else {
-      // this registers the thread which will perform shutdown operations;
-      // NB! this only needs to be done when running outside Taverna, because
-      // ShutdownSPI would replace this in that case.
-      MainComponentShutdownHook shutdownHook = new MainComponentShutdownHook();
-      shutdownHook.setLinks(this, this.myExperimentClient, this.logger);
-      Runtime.getRuntime().addShutdownHook(shutdownHook.new MyExperimentClientShutdownThread());
     }
 
     // Do the rest in a separate thread to avoid hanging the GUI.
@@ -375,8 +368,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
 
     public void actionPerformed(ActionEvent actionEvent) {
       try {
-        BrowserLauncher launcher = new BrowserLauncher();
-        launcher.openURLinBrowser(resource.getResource() + "/download");
+	  Desktop.getDesktop().browse(new URI(resource.getResource() + "/download"));
 
         // update downloaded items history making sure that:
         // - there's only one occurrence of this item in the history;

@@ -480,8 +480,8 @@ public class Resource implements Comparable<Resource>, Serializable {
 	  }
 
 	  content.append("<td>");
-	  content.append("</td>");
 	  content.append("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
+	  content.append("</td>");
 	  content.append("<td valign='top' style='margin-bottom: 10px;'>");
 
 	  if (this.getDescription() != null && this.getDescription().length() > 0) {

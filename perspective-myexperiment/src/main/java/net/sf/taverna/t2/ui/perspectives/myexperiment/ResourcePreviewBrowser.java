@@ -1,6 +1,7 @@
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -9,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.EventListener;
 import java.util.List;
@@ -30,8 +32,6 @@ import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
-
-import edu.stanford.ejalbert.BrowserLauncher;
 
 /**
  * @author Sergejs Aleksejevs, Emmanuel Tagarira
@@ -528,8 +528,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 		this.preview(strAction);
 	  } else {
 		try {
-		  BrowserLauncher launcher = new BrowserLauncher();
-		  launcher.openURLinBrowser(strAction);
+		    Desktop.getDesktop().browse(new URI(strAction));
 		} catch (Exception ex) {
 		  logger.error("Failed while trying to open the URL in a standard browser; URL was: "
 			  + strAction + "\nException was: " + ex);
@@ -571,8 +570,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	} else if (e.getSource().equals(this.bOpenInMyExp)) {
 	  // "Open in myExperiment" button clicked
 	  try {
-		BrowserLauncher launcher = new BrowserLauncher();
-		launcher.openURLinBrowser(this.rpcContent.getResourceURL());
+	      Desktop.getDesktop().browse(new URI(this.rpcContent.getResourceURL()));
 	  } catch (Exception ex) {
 		logger.error("Failed while trying to open the URL in a standard browser; URL was: "
 			+ this.rpcContent.getResourceURL() + "\nException was: " + ex);
@@ -648,8 +646,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	  } else {
 		// show the link otherwise
 		try {
-		  BrowserLauncher launcher = new BrowserLauncher();
-		  launcher.openURLinBrowser(e.getActionCommand());
+		    Desktop.getDesktop().browse(new URI(e.getActionCommand()));
 		} catch (Exception ex) {
 		  logger.error("Failed while trying to open the URL in a standard browser; URL was: "
 			  + e.getActionCommand() + "\nException was: " + ex);

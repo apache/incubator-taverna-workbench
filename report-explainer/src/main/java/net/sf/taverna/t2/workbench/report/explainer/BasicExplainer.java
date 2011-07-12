@@ -1,19 +1,39 @@
-/**
+/*******************************************************************************
+ * Copyright (C) 2008-2010 The University of Manchester   
  * 
- */
+ *  Modifications to the initial code base are copyright of their
+ *  respective authors, or their employers as appropriate.
+ * 
+ *  This program is free software; you can redistribute it and/or
+ *  modify it under the terms of the GNU Lesser General Public License
+ *  as published by the Free Software Foundation; either version 2.1 of
+ *  the License, or (at your option) any later version.
+ *    
+ *  This program is distributed in the hope that it will be useful, but
+ *  WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ *  Lesser General Public License for more details.
+ *    
+ *  You should have received a copy of the GNU Lesser General Public
+ *  License along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ ******************************************************************************/
 package net.sf.taverna.t2.workbench.report.explainer;
 
+import java.awt.Desktop;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import javax.net.ssl.SSLException;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -50,6 +70,7 @@ import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Merge;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
+import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
 import net.sf.taverna.t2.workflowmodel.TokenProcessingEntity;
 import net.sf.taverna.t2.workflowmodel.health.HealthCheck;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
@@ -59,8 +80,6 @@ import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Retry;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
-
-import edu.stanford.ejalbert.BrowserLauncher;
 
 /**
  * @author alanrw
@@ -115,7 +134,10 @@ public class BasicExplainer implements VisitExplainer {
 				(resultId == HealthCheck.NULL_DATATYPE) ||
 				(resultId == HealthCheck.DISABLED) ||
 				(resultId == HealthCheck.DATATYPE_SOURCE) ||
-				(resultId == HealthCheck.UNRECOGNIZED))) {
+				(resultId == HealthCheck.UNRECOGNIZED) ||
+				(resultId == HealthCheck.LOOP_CONNECTION) ||
+				(resultId == HealthCheck.UNMANAGED_LOCATION) ||
+				(resultId == HealthCheck.INCOMPATIBLE_MIMETYPES))) {
 			return true;
 		}
 		return false;
@@ -197,6 +219,15 @@ public class BasicExplainer implements VisitExplainer {
 		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.UNRECOGNIZED)) {
 			return explanationUnrecognized(vr);
 		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.LOOP_CONNECTION)) {
+			return explanationLoopConnection(vr);
+		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.UNMANAGED_LOCATION)) {
+			return explanationUnmanagedLocation(vr);
+		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.INCOMPATIBLE_MIMETYPES)) {
+			return explanationIncompatibleMimetypes(vr);
+		}
 		return null;
 	}
 
@@ -276,10 +307,19 @@ public class BasicExplainer implements VisitExplainer {
 		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.UNRECOGNIZED)) {
 			return solutionUnrecognized(vr);
 		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.LOOP_CONNECTION)) {
+			return solutionLoopConnection(vr);
+		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.UNMANAGED_LOCATION)) {
+			return solutionUnmanagedLocation(vr);
+		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.INCOMPATIBLE_MIMETYPES)) {
+			return solutionIncompatibleMimetypes(vr);
+		}
 		return null;
 	}
 	
-    private static JComponent explanationFailedEntity(VisitReport vr) {
+ 	private static JComponent explanationFailedEntity(VisitReport vr) {
 	if (vr.getSubject() instanceof Processor) {
 	    Processor p = (Processor) (vr.getSubject());
 	    DataflowActivity da = null;
@@ -361,7 +401,7 @@ public class BasicExplainer implements VisitExplainer {
 		} else {
 			responseCode = "response code: " + responseCode;
 		}
-		return createPanel(new Object[]{"Taverna connected to \"" + endpoint + "\" but received " + responseCode + ".  The service may still work; for example a DDBJ Blast service generates this response."});
+		return createPanel(new Object[]{"Taverna connected to \"" + endpoint + "\" but received " + responseCode + ".  The service may still work."});
 	}
 	
 	private static JComponent explanationIoProblem(VisitReport vr) {
@@ -572,6 +612,33 @@ public class BasicExplainer implements VisitExplainer {
 		return createPanel(new Object[] {message});
 	}
 	
+	private static JComponent explanationLoopConnection(VisitReport vr) {
+		return createPanel(new Object[] {"Port \"" + vr.getProperty("portname") + "\" must be connected"});
+	}
+	
+	private static JComponent explanationUnmanagedLocation(VisitReport vr) {
+	    return createPanel(new Object[] {"The external tool service is configured to run on a location that is not currently known to the Location Manager. It is a good idea to change it to a known location"});
+	}
+
+	private static JComponent explanationIncompatibleMimetypes(VisitReport vr) {
+		ProcessorInputPort pip = (ProcessorInputPort) vr.getProperty("sinkPort");
+		ProcessorOutputPort pop = (ProcessorOutputPort) vr.getProperty("sourcePort");
+		Processor sourceProcessor = (Processor) vr.getProperty("sourceProcessor");
+		String message = "The data";
+		if (pop != null) {
+			message += " from port \"" + pop.getName() + "\"";
+			if (sourceProcessor != null) {
+				message += " of service \"" + sourceProcessor.getLocalName() + "\"";
+			}
+		}
+		if (pip != null) {
+			message += " into port \"" + pip.getName() + "\"";
+		}
+		message += " does not have a compatible mime type";
+	    return createPanel(new Object[] {message});
+	}
+
+
     private static JComponent solutionFailedEntity(VisitReport vr) {
 	if (vr.getSubject() instanceof Processor) {
 	    Processor p = (Processor) (vr.getSubject());
@@ -737,8 +804,7 @@ public class BasicExplainer implements VisitExplainer {
 	    connectButton = new JButton(new AbstractAction("Open in browser") {
 		    public void actionPerformed(ActionEvent e) {
 			try {
-			    BrowserLauncher launcher = new BrowserLauncher();
-			    launcher.openURLinBrowser(end);
+			    Desktop.getDesktop().browse(new URI(end));
 			}
 			catch (Exception ex) {
 			    logger.error("Failed to open endpoint", ex);
@@ -806,8 +872,7 @@ public class BasicExplainer implements VisitExplainer {
 	    connectButton = new JButton(new AbstractAction("Open in browser") {
 		    public void actionPerformed(ActionEvent e) {
 			try {
-			    BrowserLauncher launcher = new BrowserLauncher();
-			    launcher.openURLinBrowser(end);
+			    Desktop.getDesktop().browse(new URI(end));
 			}
 			catch (Exception ex) {
 			    logger.error("Failed to open endpoint", ex);
@@ -846,7 +911,25 @@ public class BasicExplainer implements VisitExplainer {
     }
 
     private static JComponent solutionIoProblem(VisitReport vr) {
-	String message = "Try to open ";
+    String message="";	
+	Exception e = (Exception) (vr.getProperty("exception"));
+	if (e != null && e instanceof SSLException){
+	    message += "There was a problem with establishing a HTTPS connection to the service. ";
+		if (e.getMessage().toLowerCase().contains("no trusted certificate found")){
+			message+="Looks like the authenticity of the service could not be confirmed. Check that you have imported the service's certificate under 'Trusted Certificates' in Credential Manager. " +
+    		"If this is a WSDL service, try restarting Taverna to refresh certificates used in HTTPS connections.\n\n";
+		}
+		else if (e.getMessage().toLowerCase().contains("received fatal alert: bad_certificate")){
+			message+= "Looks like you could not be authenticated to the service. Check that you have imported your certificate under 'Your certificates' in Credential Manager. " +
+    		"If this is a WSDL service, try restarting Taverna to refresh certificates used in HTTPS connections.\n\n";
+		}
+		else{
+			message+="Check that you have imported the service's certificate under 'Trusted Certificates' in Credential Manager. " +
+    		"If user authentication is required, also check that you have imported your certificate under 'Your certificates' in Credential Manager. " +
+    		"If this is a WSDL service, try restarting Taverna to refresh certificates used in HTTPS connections.\n\n";
+		}
+	}	
+	message += "Try to open ";
 	String endpoint = (String) (vr.getProperty("endpoint"));
 	JButton connectButton = null;
 	if (endpoint == null) {
@@ -857,8 +940,7 @@ public class BasicExplainer implements VisitExplainer {
 	    connectButton = new JButton(new AbstractAction("Open in browser") {
 		    public void actionPerformed(ActionEvent e) {
 			try {
-			    BrowserLauncher launcher = new BrowserLauncher();
-			    launcher.openURLinBrowser(end);
+			    Desktop.getDesktop().browse(new URI(end));
 			}
 			catch (Exception ex) {
 			    logger.error("Failed to open endpoint", ex);
@@ -867,8 +949,8 @@ public class BasicExplainer implements VisitExplainer {
 		});
 	}
 	message += "in a file, or web, browser.";
-	String elseMessage = "If that does not work, please contact the service provider or workflow creator.";
-    	String editMessage = "If the service has moved, change the service's properties to its new location.";
+	String elseMessage = message.startsWith("Try to open") ? "If that does not work, please contact the service provider or workflow creator." : null;
+    	String editMessage = message.startsWith("Try to open") ? "If the service has moved, change the service's properties to its new location." : null;
 	JButton editButton = null;
 	DisabledActivity da = null;
 	for (Activity a : ((Processor)vr.getSubject()).getActivityList()) {
@@ -1019,6 +1101,49 @@ public class BasicExplainer implements VisitExplainer {
 	String message = "Please contact the workflow creator to find out what additional plugins, if any, need to be installed in Taverna.";
 	return createPanel(new Object[] {message});
     }
+
+    private static JComponent solutionLoopConnection(VisitReport vr) {
+		return createPanel(new Object[] {"Connect port \"" + vr.getProperty("portname") + "\""});
+	}
+    
+	private static JComponent solutionUnmanagedLocation(VisitReport vr) {
+		JButton button = new JButton();
+		Processor p = (Processor) (vr.getSubject());
+		button.setAction(new ReportViewConfigureAction(p));
+		button.setText("Configure " + p.getLocalName());
+		return createPanel(new Object[] {"Change the run locaton of the service",
+						     button});
+	}
+
+	private static JComponent solutionIncompatibleMimetypes(VisitReport vr) {
+		JButton sinkButton = new JButton();
+		Processor sinkProcessor = (Processor) (vr.getProperty("sinkProcessor"));
+		Processor sourceProcessor = (Processor) vr.getProperty("sourceProcessor");
+		sinkButton.setAction(new ReportViewConfigureAction(sinkProcessor));
+		sinkButton.setText("Configure " + sinkProcessor.getLocalName());
+		JButton sourceButton = new JButton();
+		sourceButton.setAction(new ReportViewConfigureAction(sourceProcessor));
+		sourceButton.setText("Configure " + sourceProcessor.getLocalName());
+		
+		JButton deleteLinkButton =new JButton();
+		final Datalink link = (Datalink) vr.getProperty("link");
+	    final Dataflow d = FileManager.getInstance().getCurrentDataflow();
+	    deleteLinkButton.setAction(new AbstractAction ("Remove link") {
+		    public void actionPerformed(ActionEvent e) {
+			Edit removeLinkEdit = Tools.getDisconnectDatalinkAndRemovePortsEdit(link);
+			try {
+			    EditManager.getInstance().doDataflowEdit(d, removeLinkEdit);
+			} catch (EditException ex) {
+			    logger.error("Could not perform edit", ex);
+		}
+		    }
+});
+
+		return createPanel(new Object[] {"Change the source or destination mimetype or remove the link",
+						     sourceButton, sinkButton, deleteLinkButton});
+	}
+
+
 
 	private static JPanel createPanel(Object[] components) {
 		JPanel result = new JPanel(new GridBagLayout());
