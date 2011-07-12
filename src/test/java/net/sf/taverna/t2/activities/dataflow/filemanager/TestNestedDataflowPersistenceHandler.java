@@ -44,6 +44,7 @@ import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflowSource;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -193,7 +194,7 @@ public class TestNestedDataflowPersistenceHandler {
 	}
 
 	private Dataflow openNested() throws OpenException {
-		NestedDataflowSource nestedDataflowSource = new NestedDataflowSource(
+		NestedDataflowSource nestedDataflowSource = new NestedDataflowActivitySource(
 				dataflow, nestedDataflowActivity);
 		Dataflow openedNested = fileManager.openDataflow(T2_FLOW_FILE_TYPE,
 				nestedDataflowSource);

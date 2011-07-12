@@ -257,26 +257,23 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	 * @throws InterruptedException
 	 */
 	protected void updateWorkflowGraphic(final JSVGCanvas svgCanvas,
-			Dataflow dataflow) {
-		invokeAndWait(new Runnable() {
-			public void run() {
-				// Set it to blank while reloading
-				svgCanvas.setSVGDocument(null);
-			}
-		});
-		if (dataflow == null) {
-			// Already set to blank
-			return;
+			final Dataflow dataflow) {
+		try {
+			SwingUtilities.invokeAndWait(new Runnable() {
+				public void run() {
+					// Set it to blank while reloading
+					svgCanvas.setSVGDocument(null);
+					if (dataflow != null) {
+						SVGGraphController currentWfGraphController = new SVGGraphController(
+								dataflow, false, svgCanvas);
+					}
+				}
+			});
+		} catch (InterruptedException e) {
+//			logger.error(e);
+		} catch (InvocationTargetException e) {
+//			logger.error(e);
 		}
-		SVGGraphController currentWfGraphController = new SVGGraphController(
-				dataflow, false, svgCanvas);
-		//final SVGDocument generateSVGDocument = currentWfGraphController
-			//	.getSVGDocument();
-//		invokeAndWait(new Runnable() {
-	//		public void run() {
-		//		svgCanvas.setDocument(generateSVGDocument);
-		//	}
-		//});
 	}
 
 	/**

@@ -48,7 +48,7 @@ public class ImportWorkflowMenuAction extends
 			.getLogger(ImportWorkflowMenuAction.class);
 
 	public ImportWorkflowMenuAction() {
-		super(insertSection, 40);
+		super(insertSection, 400);
 	}
 
 	@Override
@@ -61,7 +61,7 @@ public class ImportWorkflowMenuAction extends
 	protected Action createAction() {
 		ImportWorkflowAction myAction = new ImportWorkflowAction();
 		// Just "Workflow" as we go under the "Insert" menu
-		myAction.putValue(Action.NAME, "Workflow");
+		myAction.putValue(Action.NAME, "Nested workflow");
 		return myAction;
 	}
 

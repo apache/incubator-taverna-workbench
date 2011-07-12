@@ -29,6 +29,7 @@ import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflowSource;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 /**
@@ -39,19 +40,19 @@ import net.sf.taverna.t2.workflowmodel.utils.Tools;
  * @author Stian Soiland-Reyes
  * 
  */
-public class NestedDataflowSource {
+public class NestedDataflowActivitySource implements NestedDataflowSource<DataflowActivity> {
 
-	private final DataflowActivity dataflowActivity;
+	public final DataflowActivity dataflowActivity;
 
-	private final Dataflow parentDataflow;
+	public final Dataflow parentDataflow;
 
-	public NestedDataflowSource(Dataflow parentDataflow,
+	public NestedDataflowActivitySource(Dataflow parentDataflow,
 			DataflowActivity dataflowActivity) {
 		this.parentDataflow = parentDataflow;
 		this.dataflowActivity = dataflowActivity;
 	}
 
-	public DataflowActivity getDataflowActivity() {
+	public DataflowActivity getNestedDataflow() {
 		return dataflowActivity;
 	}
 
@@ -75,7 +76,7 @@ public class NestedDataflowSource {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		final NestedDataflowSource other = (NestedDataflowSource) obj;
+		final NestedDataflowActivitySource other = (NestedDataflowActivitySource) obj;
 		if (dataflowActivity == null) {
 			if (other.dataflowActivity != null)
 				return false;
@@ -99,7 +100,7 @@ public class NestedDataflowSource {
 		//sb.append("Nested workflow");
 		
 		Collection<Processor> processors = Tools.getProcessorsWithActivity(getParentDataflow(),
-				getDataflowActivity());
+				getNestedDataflow());
 		if (! processors.isEmpty()) {
 			Processor processor = processors.iterator().next();
 			//sb.append(' ');

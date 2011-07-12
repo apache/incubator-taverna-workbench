@@ -10,11 +10,12 @@ import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
-import net.sf.taverna.t2.activities.dataflow.filemanager.NestedDataflowSource;
+import net.sf.taverna.t2.activities.dataflow.filemanager.NestedDataflowActivitySource;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflowSource;
 
 import org.apache.log4j.Logger;
 
@@ -42,7 +43,7 @@ public class EditNestedDataflowAction extends AbstractAction {
 	}
 
 	public void openNestedWorkflow(final Component parentComponent) {
-		NestedDataflowSource nestedDataflowSource = new NestedDataflowSource(
+		NestedDataflowSource nestedDataflowSource = new NestedDataflowActivitySource(
 				getFileManager().getCurrentDataflow(), dataflowActivity);
 
 		Dataflow alreadyOpen = getFileManager()

@@ -57,7 +57,7 @@ public class AddNestedWorkflowMenuAction extends AbstractMenuAction {
 			.getLogger(AddNestedWorkflowMenuAction.class);
 
 	public AddNestedWorkflowMenuAction() {
-		super(InsertMenu.INSERT, 21, ADD_NESTED_WORKFLOW_URI);
+		super(InsertMenu.INSERT, 400, ADD_NESTED_WORKFLOW_URI);
 	}
 
 	@Override
