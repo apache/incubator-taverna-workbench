@@ -86,7 +86,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		}
 	}
 	
-	public synchronized void updateReport(Dataflow d, boolean includeTimeConsuming, boolean remember) {
+	public void updateReport(Dataflow d, boolean includeTimeConsuming, boolean remember) {
 		Set<VisitReport> oldTimeConsumingReports = null;
 		long time = System.currentTimeMillis();
 		long expiration = Integer.parseInt(reportManagerConfiguration.getProperty(ReportManagerConfiguration.REPORT_EXPIRATION)) * 60 * 1000;
@@ -120,7 +120,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		multiCaster.notify(new DataflowReportEvent(d));
 	}
 	
-	private synchronized void updateObjectReportInternal(Dataflow d, Object o) {
+	private void updateObjectReportInternal(Dataflow d, Object o) {
 		Map<Object, Set<VisitReport>> reportsEntry = reportMap.get(d);
 		Map<Object, Status> statusEntry = statusMap.get(d);
 		Map<Object, String> summaryEntry = summaryMap.get(d);
@@ -148,14 +148,14 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		}
 	}
 
-	public synchronized void updateObjectSetReport(Dataflow d, Set<Object> objects) {
+	public void updateObjectSetReport(Dataflow d, Set<Object> objects) {
 		for (Object o : objects) {
 		    updateObjectReportInternal(d, o);
 		}
 		multiCaster.notify(new DataflowReportEvent(d));
 	    }
 
-	public synchronized void updateObjectReport(Dataflow d, Object o) {
+	public void updateObjectReport(Dataflow d, Object o) {
 		updateObjectReportInternal(d, o);
 		multiCaster.notify(new DataflowReportEvent(d));
 	    }
@@ -175,13 +175,13 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		return result;
 	}
 	
-	private synchronized void removeReport(Dataflow d) {
+	private void removeReport(Dataflow d) {
 		reportMap.remove(d);
 		statusMap.remove(d);
 		summaryMap.remove(d);
 	}
 	
-	private synchronized void addReport(Map<Object, Set<VisitReport>> reports, Map<Object, Status> statusEntry, Map<Object, String> summaryEntry, VisitReport newReport) {
+	private void addReport(Map<Object, Set<VisitReport>> reports, Map<Object, Status> statusEntry, Map<Object, String> summaryEntry, VisitReport newReport) {
 		if (newReport.getCheckTime() == 0) {
 		    newReport.setCheckTime(System.currentTimeMillis());
 		}
@@ -210,7 +210,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		currentReports.add(newReport);
 	}
 	
-	private synchronized void validateDataflow(Dataflow d, Map<Object, Set<VisitReport>> reportsEntry, Map<Object, Status> statusEntry, Map<Object, String> summaryEntry) {
+	private void validateDataflow(Dataflow d, Map<Object, Set<VisitReport>> reportsEntry, Map<Object, Status> statusEntry, Map<Object, String> summaryEntry) {
 		DataflowValidationReport validationReport = d.checkValidity();
 		if (validationReport.isWorkflowIncomplete()) {
 			addReport(reportsEntry, statusEntry, summaryEntry, new VisitReport(IncompleteDataflowKind.getInstance(), d, "Incomplete workflow", IncompleteDataflowKind.INCOMPLETE_DATAFLOW, VisitReport.Status.SEVERE));
@@ -221,7 +221,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		fillInReport(reportsEntry, statusEntry, summaryEntry, validationReport);
 	}
 
-	private synchronized void fillInReport(
+	private void fillInReport(
 			Map<Object, Set<VisitReport>> reportsEntry,
 			Map<Object, Status> statusEntry,
 			Map<Object, String> summaryEntry, DataflowValidationReport report) {
@@ -239,7 +239,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 //		}
 	}
 	
-	public synchronized Set<VisitReport> getReports(Dataflow d, Object object) {
+	public Set<VisitReport> getReports(Dataflow d, Object object) {
 		Set<VisitReport> result = new HashSet<VisitReport>();
 		Map<Object, Set<VisitReport>> objectReports = reportMap.get(d);
 		if (objectReports != null) {
@@ -257,7 +257,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		return result;
 	}
 	
-	public synchronized Map<Object, Set<VisitReport>> getReports(Dataflow d) {
+	public Map<Object, Set<VisitReport>> getReports(Dataflow d) {
 		return reportMap.get(d);
 	}
 	
@@ -303,7 +303,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		return currentStatus;
 	}
 	
-	public synchronized Status getStatus(Dataflow d, Object object) {
+	public Status getStatus(Dataflow d, Object object) {
 		Status result = Status.OK;
 		Map<Object, Status> statusEntry = statusMap.get(d);
 		if (statusEntry != null) {
@@ -315,7 +315,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		return result;
 	}
 	
-	public synchronized String getSummaryMessage(Dataflow d, Object object) {
+	public String getSummaryMessage(Dataflow d, Object object) {
 		String result = null;
 		if (!getStatus(d, object).equals(Status.OK)) {
 			Map<Object, String> summaryEntry = summaryMap.get(d);
@@ -326,7 +326,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		return result;
 	}
 	
-	public synchronized long getLastCheckedTime(Dataflow d) {
+	public long getLastCheckedTime(Dataflow d) {
 		Long l = lastCheckedMap.get(d);
 		if (l == null) {
 		    return 0;
@@ -335,7 +335,7 @@ public class ReportManager implements Observable<ReportManagerEvent> {
 		}
 	    }
 
-	public synchronized long getLastFullCheckedTime(Dataflow d) {
+	public long getLastFullCheckedTime(Dataflow d) {
 		Long l = lastFullCheckedMap.get(d);
 		if (l == null) {
 		    return 0;

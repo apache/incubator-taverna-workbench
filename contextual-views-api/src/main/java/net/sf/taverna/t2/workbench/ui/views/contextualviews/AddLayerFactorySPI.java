@@ -39,6 +39,7 @@ public interface AddLayerFactorySPI {
 
 	public Action getAddLayerActionFor(Processor proc);
 	
+	@SuppressWarnings("unchecked")
 	public boolean canCreateLayerClass(Class<? extends DispatchLayer> class1);
 
 }

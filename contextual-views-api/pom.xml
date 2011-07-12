@@ -49,11 +49,6 @@
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>workbench-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>helper-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>		
@@ -71,7 +66,7 @@
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
-			<version>1.2.1</version>
+			<version>${xstream.version}</version>
 		</dependency>
 
 	</dependencies>

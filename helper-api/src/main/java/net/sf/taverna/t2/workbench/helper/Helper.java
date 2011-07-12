@@ -6,13 +6,19 @@ package net.sf.taverna.t2.workbench.helper;
 import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.help.BadIDException;
 import javax.help.JHelp;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -35,10 +41,6 @@ import org.apache.log4j.Logger;
  */
 public final class Helper {
 	private static Helper instance;
-	private static JDialog dialog;
-	private static JHelp jhelp;
-	private static Map<Container, JDialog> dialogMap;
-	private static Dimension oldSize = new Dimension(1000, 500);
 
 	private static Logger logger = Logger.getLogger(Helper.class);
 
@@ -46,9 +48,6 @@ public final class Helper {
 	 * Create a Helper and initialize the static variables.
 	 */
 	private Helper() {
-		jhelp = HelpCollator.getJHelp();
-		dialogMap = new HashMap<Container, JDialog>();
-		dialog = createDialog(null);
 	}
 
 	/**
@@ -64,40 +63,6 @@ public final class Helper {
 		return instance;
 	}
 
-	/**
-	 * Initialize the current JDialog with the current JHelp. Attempt to set its
-	 * size.
-	 * 
-	 * @param d
-	 */
-	private static void initializeDialog(JDialog d) {
-		d.add(jhelp);
-		d.setPreferredSize(oldSize);
-		d.setSize(oldSize);
-	}
-
-	/**
-	 * Create a JDialog belonging to the specified container and showing the
-	 * current JHelp presentation. Remember the JDialog in the dialogMap.
-	 * 
-	 * @param rootpanecontainer
-	 * @return
-	 */
-	private static JDialog createDialog(RootPaneContainer rootpanecontainer) {
-		JDialog result = null;
-		if (rootpanecontainer instanceof JFrame) {
-			result = new JDialog((JFrame) rootpanecontainer);
-			dialogMap.put((Container) rootpanecontainer, result);
-		} else if (rootpanecontainer instanceof JDialog) {
-			result = new JDialog((JDialog) rootpanecontainer);
-			dialogMap.put((Container) rootpanecontainer, result);
-		} else {
-			result = new JDialog();
-		}
-		initializeDialog(result);
-
-		return result;
-	}
 
 	/**
 	 * Show in the current dialog the entry (if any) corresponding to the
@@ -107,12 +72,21 @@ public final class Helper {
 	 */
 	private static void showID(String id) {
 		getInstance();
-		if (dialog == null) {
-			dialog = createDialog(null);
-		}
-		dialog.setVisible(true);
-		if (!HelpCollator.isEmptyHelp()) {
-			jhelp.setCurrentID(id);
+		URL result;
+		try {
+			result = HelpCollator.getURLFromID(id);
+			if (result == null) {
+				result = HelpCollator.getURLFromID("home");
+			}
+			Desktop.getDesktop().browse(result.toURI());
+		} catch (BadIDException e) {
+			logger.error(e);
+		} catch (MalformedURLException e) {
+			logger.error(e);
+		} catch (IOException e) {
+			logger.error(e);
+		} catch (URISyntaxException e) {
+			logger.error(e);
 		}
 	}
 
@@ -201,20 +175,6 @@ public final class Helper {
 	static void showHelpWithinContainer(
 			final RootPaneContainer rootpanecontainer, final Component c) {
 		getInstance();
-		if ((dialog == null) || !dialog.getOwner().equals(rootpanecontainer)) {
-			if (dialog != null) {
-				dialog.setVisible(false);
-				oldSize = dialog.getSize();
-				logger.info("Size of dialog was x=" + oldSize.width + " y="
-						+ oldSize.height);
-			}
-			if (dialogMap.containsKey(rootpanecontainer)) {
-				dialog = dialogMap.get(rootpanecontainer);
-				initializeDialog(dialog);
-			} else {
-				dialog = createDialog(rootpanecontainer);
-			}
-		}
 		showHelp(c);
 
 	}

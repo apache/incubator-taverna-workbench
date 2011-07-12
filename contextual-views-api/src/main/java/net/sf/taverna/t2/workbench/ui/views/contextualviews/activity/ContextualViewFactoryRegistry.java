@@ -25,10 +25,7 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-
-import javax.swing.event.ListSelectionEvent;
 
 import net.sf.taverna.t2.spi.SPIRegistry;
 

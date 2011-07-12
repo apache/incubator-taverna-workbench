@@ -74,6 +74,7 @@ public class WorkbenchIcons {
 	public static ImageIcon breakIcon;
 	public static ImageIcon rbreakIcon;
 	public static ImageIcon tickIcon;
+	public static ImageIcon untickIcon;
 	public static ImageIcon greentickIcon;
 	public static ImageIcon renameIcon;
 	public static ImageIcon databaseIcon;
@@ -109,9 +110,17 @@ public class WorkbenchIcons {
 	public static ImageIcon upArrowIcon;
 	public static ImageIcon downArrowIcon;
 	public static ImageIcon tavernaCogs64x64Icon;
+	public static ImageIcon tavernaCogs32x32Icon;
 	public static ImageIcon opmIcon;
+	public static ImageIcon janusIcon;
 	public static ImageIcon workflowResultsIcon;
+	public static ImageIcon normalizeIcon;
+	public static ImageIcon errorMessageIcon;
+	public static ImageIcon infoMessageIcon;
+	public static ImageIcon questionMessageIcon;
+	public static ImageIcon warningMessageIcon;
 
+	
 	static {
 		// Load the image files found in this package into the class.
 		try {
@@ -171,7 +180,8 @@ public class WorkbenchIcons {
 			breakIcon = new ImageIcon(c.getResource("generic/break.gif"));
 			rbreakIcon = new ImageIcon(c
 					.getResource("generic/rbreak.gif"));
-			tickIcon = new ImageIcon(c.getResource("generic/tick.gif"));
+			tickIcon = new ImageIcon(c.getResource("generic/tick.png"));
+			untickIcon = new ImageIcon(c.getResource("generic/untick.png"));
 			greentickIcon = new ImageIcon(c.getResource("generic/greentick.png"));
 			renameIcon = new ImageIcon(c
 					.getResource("generic/rename.png"));
@@ -238,10 +248,21 @@ public class WorkbenchIcons {
 					.getResource("generic/down-arrow.png"));
 			tavernaCogs64x64Icon = new ImageIcon(c
 					.getResource("generic/taverna_cogs_64x64.png"));
+			tavernaCogs32x32Icon = new ImageIcon(c
+					.getResource("generic/taverna_cogs_32x32.png"));
 			opmIcon = new ImageIcon(c
 					.getResource("generic/opmIcon.png"));
+			janusIcon = new ImageIcon(c
+					.getResource("generic/janus.png"));
 			workflowResultsIcon = new ImageIcon(c
 					.getResource("generic/workflowResults.png"));
+			normalizeIcon = new ImageIcon(c.getResource("generic/normalize.png"));
+			
+			errorMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-error-icon.png"));
+			infoMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-info-icon.png"));
+			questionMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-question-icon.png"));
+			warningMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-warning-icon.png"));
+			
 		} catch (Exception ex) {
 			logger.error("Could not create icon", ex);
 		}
