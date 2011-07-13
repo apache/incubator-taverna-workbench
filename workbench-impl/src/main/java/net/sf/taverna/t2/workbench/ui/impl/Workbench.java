@@ -29,7 +29,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.Writer;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -70,12 +69,11 @@ import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.helper.Helper;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.ui.T2ConfigurationFrame;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
@@ -272,11 +270,18 @@ public class Workbench extends JFrame {
 	protected void initialize() {
 		setExceptionHandler();
 		setLookAndFeel();
-		
+
+		// Set icons for Error, Information, Question and Warning messages
+		UIManager.put("OptionPane.errorIcon", WorkbenchIcons.errorMessageIcon);
+		UIManager.put("OptionPane.informationIcon", WorkbenchIcons.infoMessageIcon);
+		UIManager.put("OptionPane.questionIcon", WorkbenchIcons.questionMessageIcon);
+		UIManager.put("OptionPane.warningIcon", WorkbenchIcons.warningMessageIcon);  
+
 		// Call the startup hooks
 		if (!callStartupHooks()) {
 			System.exit(0);
 		}		
+				
 		makeGUI();
 		fileManager.newDataflow();
 		editManager.addObserver(DataflowEditsListener.getInstance());
@@ -504,9 +509,7 @@ public class Workbench extends JFrame {
 			logger.info("Using system platform Look and Feel " + systemLF);
 		} catch (Exception e){
 			logger.info("Using default Look and Feel " + UIManager.getLookAndFeel());			
-		}
-		
-		
+		}	
 	}
 
 	public WorkbenchPerspectives getPerspectives() {

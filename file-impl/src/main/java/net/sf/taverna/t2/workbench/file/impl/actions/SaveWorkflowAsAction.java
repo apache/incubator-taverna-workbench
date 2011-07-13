@@ -26,6 +26,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.net.URL;
 import java.util.List;
 import java.util.prefs.Preferences;
 
@@ -48,6 +49,7 @@ import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.file.impl.FileTypeFileFilter;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflowSource;
 
 import org.apache.log4j.Logger;
 
@@ -88,11 +90,24 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		if (e.getSource() instanceof Component) {
 			parentComponent = (Component) e.getSource();
 		}
-		if (fileManager.getCurrentDataflow() == null) {
+		Dataflow dataflow = fileManager.getCurrentDataflow();
+		if (dataflow == null) {
 			JOptionPane.showMessageDialog(parentComponent,
 					"No workflow open yet", "No workflow to save",
 					JOptionPane.ERROR_MESSAGE);
 			return;
+		}
+		Object source = fileManager.getDataflowSource(dataflow);
+		if (source instanceof NestedDataflowSource) {
+			int n = JOptionPane.showConfirmDialog(
+				    parentComponent,
+				    "Saving a nested workflow to a file cuts its link to the parent workflow. Do you want to continue?",
+				    "Nested workflow save",
+				    JOptionPane.YES_NO_OPTION);
+			if (n == JOptionPane.NO_OPTION) {
+				return;
+			}
+
 		}
 		saveCurrentDataflow(parentComponent);
 	}
@@ -100,6 +115,29 @@ public class SaveWorkflowAsAction extends AbstractAction {
 	public boolean saveCurrentDataflow(Component parentComponent) {
 		Dataflow dataflow = fileManager.getCurrentDataflow();
 		return saveDataflow(parentComponent, dataflow);
+	}
+	
+	private String determineFileName(final Dataflow dataflow) {
+		String result;
+		Object source = fileManager.getDataflowSource(dataflow);
+		String fileName = null;
+		if (source instanceof File) {
+			fileName = ((File) source).getName();
+			
+		} else if (source instanceof URL) {
+			fileName = ((URL) source).getPath();
+		}
+		if (fileName != null) {
+			int lastIndex = fileName.lastIndexOf(".");
+				if (lastIndex > 0) {
+					fileName = fileName.substring(0, fileName.lastIndexOf("."));
+				}
+			result = fileName;
+		}
+		else {
+			result = dataflow.getLocalName();
+		}
+		return result;
 	}
 
 	public boolean saveDataflow(Component parentComponent, Dataflow dataflow) {
@@ -128,10 +166,13 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		fileChooser.setFileFilter(fileFilters.get(0));
 
 		fileChooser.setCurrentDirectory(new File(curDir));
+		
+		File possibleName = new File(determineFileName(dataflow));
 
 		boolean tryAgain = true;
 		while (tryAgain) {
 			tryAgain = false;
+			fileChooser.setSelectedFile(possibleName);
 			int returnVal = fileChooser.showSaveDialog(parentComponent);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
 				prefs.put("currentDir", fileChooser.getCurrentDirectory()

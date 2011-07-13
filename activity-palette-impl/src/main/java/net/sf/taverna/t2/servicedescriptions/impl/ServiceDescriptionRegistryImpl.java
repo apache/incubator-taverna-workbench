@@ -349,7 +349,7 @@ public class ServiceDescriptionRegistryImpl implements
 
 	public synchronized Set<ServiceDescriptionProvider> getServiceDescriptionProviders() {
 		if (allServiceProviders != null) {
-			return allServiceProviders;
+			return new HashSet<ServiceDescriptionProvider>(allServiceProviders);
 		}
 		allServiceProviders = new HashSet<ServiceDescriptionProvider>(
 				userAddedProviders);

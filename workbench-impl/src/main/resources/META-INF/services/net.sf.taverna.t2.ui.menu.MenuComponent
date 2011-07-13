@@ -10,8 +10,9 @@ net.sf.taverna.t2.workbench.ui.impl.menu.EditPerspectivesMenu
 
 net.sf.taverna.t2.workbench.ui.impl.menu.HelpMenu
 net.sf.taverna.t2.workbench.ui.impl.menu.OnlineHelpMenuAction
+net.sf.taverna.t2.workbench.ui.impl.menu.FeedbackMenuAction
 
 #net.sf.taverna.t2.workbench.ui.impl.menu.ViewShowMenuSection
 #net.sf.taverna.t2.workbench.ui.impl.menu.ChangePerspectiveMenuAction
 
-net.sf.taverna.t2.workbench.ui.impl.menu.ShowLogsMenuAction
+net.sf.taverna.t2.workbench.ui.impl.menu.ShowLogsAndDataMenuAction

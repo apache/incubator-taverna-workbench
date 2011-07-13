@@ -38,7 +38,7 @@ public class CloseToolbarAction extends AbstractMenuAction {
 			.create("http://taverna.sf.net/2008/t2workbench/menu#fileToolbarClose");
 
 	public CloseToolbarAction() {
-		super(FileToolbarMenuSection.FILE_TOOLBAR_SECTION, 40, FILE_CLOSE_URI);
+		super(FileToolbarMenuSection.FILE_TOOLBAR_SECTION, 30, FILE_CLOSE_URI);
 	}
 
 	@Override

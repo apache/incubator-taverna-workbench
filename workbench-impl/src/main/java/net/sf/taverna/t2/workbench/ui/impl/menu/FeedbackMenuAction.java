@@ -18,27 +18,57 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.file.impl.toolbar;
+package net.sf.taverna.t2.workbench.ui.impl.menu;
 
+import java.awt.Desktop;
+import java.awt.event.ActionEvent;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.workbench.file.impl.actions.SaveWorkflowAction;
 
-public class SaveToolbarAction extends AbstractMenuAction {
+import org.apache.log4j.Logger;
 
-	private static final URI FILE_SAVE_URI = URI
-			.create("http://taverna.sf.net/2008/t2workbench/menu#fileToolbarSave");
+/**
+ * MenuItem for feedback
+ * 
+ * @author alanrw
+ *
+ */
+public class FeedbackMenuAction extends AbstractMenuAction {
+	
+	private static Logger logger = Logger.getLogger(FeedbackMenuAction.class);
+	
+	private static String FEEDBACK_URL = "http://www.taverna.org.uk/about/contact-us/feedback/";
 
-	public SaveToolbarAction() {
-		super(FileToolbarMenuSection.FILE_TOOLBAR_SECTION, 40, FILE_SAVE_URI);
+	public FeedbackMenuAction() {
+		super(HelpMenu.HELP_URI, 20);
 	}
 
 	@Override
 	protected Action createAction() {
-		return new SaveWorkflowAction();
+		return new FeedbackAction();
+	}
+
+	@SuppressWarnings("serial")
+	private final class FeedbackAction extends AbstractAction {
+		private FeedbackAction() {
+			super("Contact us");
+		}
+
+		public void actionPerformed(ActionEvent e) {
+				try {
+					Desktop.getDesktop().browse(new URI(FEEDBACK_URL));
+				} catch (IOException e1) {
+					logger.error("Unable to open URL", e1);
+				} catch (URISyntaxException e1) {
+					logger.error("Invalid URL syntax", e1);
+				}
+		}
 	}
 
 }

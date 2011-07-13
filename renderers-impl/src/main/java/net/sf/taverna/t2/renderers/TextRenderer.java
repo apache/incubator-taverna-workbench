@@ -73,6 +73,8 @@ public class TextRenderer implements Renderer {
 		if (reference.getReferenceType() == T2ReferenceType.ReferenceSet) {
 			try {
 				DialogTextArea theTextArea = new DialogTextArea();
+				theTextArea.setWrapStyleWord(true);
+				theTextArea.setEditable(false);
 				long approximateSizeInBytes = 0;
 				try {
 					ReferenceSet refSet = referenceService

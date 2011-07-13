@@ -46,6 +46,7 @@ import net.sf.taverna.t2.workbench.ui.Utils;
 import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
+import net.sf.taverna.t2.workbench.ui.views.contextualviews.annotated.AnnotatedContextualView;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
@@ -68,15 +69,13 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	
 	GridBagConstraints gbc;
 
-	protected Map<JPanel, SectionLabel> closeables = new HashMap<JPanel, SectionLabel>();
+	protected Map<JPanel, SectionLabel> panelToLabelMap = new HashMap<JPanel, SectionLabel>();
 	
-	private int openChild = -1;
+	private String lastOpenedSectionName = "";
 
 	private JPanel mainPanel;
 	
 	private List<JPanel> shownComponents = null;
-	
-	private Object lastSelection = null;
 	
 	private static Comparator<ContextualView> viewComparator = new Comparator<ContextualView> () {
 
@@ -133,7 +132,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		}
 		lastSelectedObject = selection;
 		mainPanel = new JPanel(new GridBagLayout());
-		closeables.clear();
+		panelToLabelMap.clear();
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0;
@@ -142,6 +141,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		
 		gbc.gridy = 0;
 		JPanel firstPanel = null;
+		JPanel lastOpenedSection = null;
 		shownComponents = new ArrayList<JPanel>();
 		List<ContextualView> views = new ArrayList<ContextualView>();
 		for (ContextualViewFactory cvf: viewFactoriesForBeanType) {
@@ -156,7 +156,10 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 				mainPanel.add(label, gbc);
 				gbc.gridy++;
 				JPanel subPanel = new JPanel();
-				subPanel.setLayout(new GridBagLayout());
+				if (view.getViewTitle().equals(lastOpenedSectionName)) {
+				    lastOpenedSection = subPanel;
+				}
+ 				subPanel.setLayout(new GridBagLayout());
 
 				GridBagConstraints constraints = new GridBagConstraints();
 				constraints.gridx = 0;
@@ -188,21 +191,24 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 				gbc.gridy++;
 				if (viewFactoriesForBeanType.size() != 1) {
 					makeCloseable(subPanel, label);
+				} else {
+				    lastOpenedSectionName = label.getText();
+				    lastOpenedSection = subPanel;
+				    panelToLabelMap.put(subPanel, label);
+				    subPanel.setVisible(false);
 				}
 			}
-			if ((lastSelection != selection)
-					|| ((openChild == -1) && (firstPanel != null))) {
-				openSection(firstPanel);
-			} else {
-				openSection(shownComponents.get(openChild));
-			}
+			if (lastOpenedSection != null) {
+			    openSection(lastOpenedSection);
+			} else if (firstPanel != null) {
+			    openSection(firstPanel);
+ 			}
 		} else {
 			mainPanel.add(new JLabel("No details available"));
 		}
 		gbc.weighty = 0.1;
 		gbc.fill = GridBagConstraints.BOTH;
 		mainPanel.add(new JPanel(), gbc);
-		lastSelection = selection;
 //		mainPanel.revalidate();
 //		mainPanel.repaint();
 		this.setViewportView(mainPanel);
@@ -227,28 +233,12 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	private Runnable updateSelectionRunnable = new Runnable() {
 
 		public void run() {
-			Dataflow dataflow = fileManager.getCurrentDataflow();
-
-			// If there is no currently opened dataflow,
-			// clear the contextual view panel
-			if (dataflow == null) {
+			Object selection = getSelection();
+			if (selection == null) {
 				clearContextualView();
 			} else {
-				DataflowSelectionModel selectionModel = dataflowSelectionManager
-						.getDataflowSelectionModel(dataflow);
-				Set<Object> selection = selectionModel.getSelection();
-
-				// If the dataflow is opened but no component of the dataflow is
-				// selected, clear the contextual view panel
-				if (selection.isEmpty()) {
-					clearContextualView();
-				} else {
-					Iterator<Object> iterator = selection.iterator();
-					// TODO multiple selections, dataflow contextual view, datalink
-					// contextual view
-					updateSelection(iterator.next());
-				}
-			}						
+				updateSelection(selection);
+			}	
 		}
 		
 	};
@@ -264,6 +254,27 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 
 	public void updateSelection() {
 			updateSelectionTimer.restart();
+	}
+	
+	private Object getSelection() {
+		Dataflow dataflow = fileManager.getCurrentDataflow();
+
+		// If there is no currently opened dataflow,
+		// clear the contextual view panel
+		if (dataflow == null) {
+			return null;
+		}
+			DataflowSelectionModel selectionModel = dataflowSelectionManager
+					.getDataflowSelectionModel(dataflow);
+			Set<Object> selection = selectionModel.getSelection();
+
+			// If the dataflow is opened but no component of the dataflow is
+			// selected, clear the contextual view panel
+			if (selection.isEmpty()) {
+				return null;
+			} else {
+				return selection.iterator().next();
+			}						
 	}
 
 	@SuppressWarnings("unchecked")
@@ -308,8 +319,11 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 
 		public void notify(Observable<EditManagerEvent> sender,
 				EditManagerEvent message) throws Exception {
-			lastSelectedObject = null;
-			refreshView();
+			Object selection = getSelection();
+			if ((selection != lastSelectedObject) || !lastOpenedSectionName.equals(AnnotatedContextualView.VIEW_TITLE)){
+				lastSelectedObject = null;
+				refreshView();
+			}
 		}
 
 	}
@@ -340,8 +354,8 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 
 	private void makeCloseable(JPanel panel, SectionLabel label) {
 		panel.setVisible(false);
-		if (closeables.get(panel) != label) {
-			closeables.put(panel, label);
+		if (panelToLabelMap.get(panel) != label) {
+			panelToLabelMap.put(panel, label);
 			// Only add mouse listener once
 			label.addMouseListener(new SectionOpener(panel));
 		}
@@ -361,8 +375,8 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 	
 	public synchronized void openSection(JPanel sectionToOpen) {
-		openChild = -1;
-		for (Entry<JPanel, SectionLabel> entry : closeables.entrySet()) {
+		lastOpenedSectionName = "";
+		for (Entry<JPanel, SectionLabel> entry : panelToLabelMap.entrySet()) {
 			JPanel section = entry.getKey();
 			SectionLabel sectionLabel = entry.getValue();
 			
@@ -371,7 +385,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 			} else {
 				section.setVisible(! section.isVisible());
 				if (section.isVisible()) {
-					openChild = shownComponents.indexOf(sectionToOpen);
+					lastOpenedSectionName = sectionLabel.getText();
 				}
 			}
 			sectionLabel.setExpanded(section.isVisible());

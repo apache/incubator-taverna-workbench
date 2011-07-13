@@ -25,20 +25,20 @@ import java.net.URI;
 import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.workbench.file.impl.actions.SaveWorkflowAction;
+import net.sf.taverna.t2.workbench.file.impl.actions.OpenWorkflowFromURLAction;
 
-public class SaveToolbarAction extends AbstractMenuAction {
+public class OpenWorkflowFromURLToolbarAction extends AbstractMenuAction {
 
-	private static final URI FILE_SAVE_URI = URI
-			.create("http://taverna.sf.net/2008/t2workbench/menu#fileToolbarSave");
+	private static final URI FILE_OPEN_FROM_URL_URI = URI
+			.create("http://taverna.sf.net/2008/t2workbench/menu#fileToolbarOpenFromURL");
 
-	public SaveToolbarAction() {
-		super(FileToolbarMenuSection.FILE_TOOLBAR_SECTION, 40, FILE_SAVE_URI);
+	public OpenWorkflowFromURLToolbarAction() {
+		super(FileToolbarMenuSection.FILE_TOOLBAR_SECTION, 25, FILE_OPEN_FROM_URL_URI);
 	}
 
 	@Override
 	protected Action createAction() {
-		return new SaveWorkflowAction();
+		return new OpenWorkflowFromURLAction(null);
 	}
 
 }

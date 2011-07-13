@@ -3,11 +3,14 @@
  */
 package net.sf.taverna.t2.workbench.file.impl;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import javax.swing.SwingWorker;
+
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
+import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-
-import org.jdesktop.swingworker.SwingWorkerCompletionWaiter;
 
 /**
  * @author alanrw
@@ -30,9 +33,8 @@ public class OpenDataflowRunnable implements Runnable {
 	
 	public void run() {
 		OpenDataflowSwingWorker openDataflowSwingWorker = new OpenDataflowSwingWorker(fileType, source, fileManager);
-		OpenDataflowInProgressDialog dialog = new OpenDataflowInProgressDialog();
-		openDataflowSwingWorker.addPropertyChangeListener(
-			     new SwingWorkerCompletionWaiter(dialog));
+		final OpenDataflowInProgressDialog dialog = new OpenDataflowInProgressDialog();
+		openDataflowSwingWorker.addPropertyChangeListener(new SwingWorkerCompletionWaiter(dialog));
 		openDataflowSwingWorker.execute();
 		
 		// Give a chance to the SwingWorker to finish so we do not have to display 

@@ -51,6 +51,8 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 	public static final String JDBC_URI = "jdbcuri";
 	public static final String USERNAME = "username";
 	public static final String PASSWORD = "password";
+	
+	public static final String EXPOSE_DATANATURE = "taverna.exposedatanature";
 
 	// FIXME: these should me just mysql & derby - but build & dependency issues
 	// is causing the provenance to expect these values:
@@ -103,6 +105,14 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 
 	public void setInMemory(boolean value) {
 		setProperty(IN_MEMORY, String.valueOf(value));
+	}
+	
+	public boolean isExposeDatanature() {
+		return getProperty(EXPOSE_DATANATURE).equalsIgnoreCase("true");
+	}
+	
+	public void setExposeDatanature(boolean exposeDatanature) {
+		setProperty(EXPOSE_DATANATURE, String.valueOf(exposeDatanature));		
 	}
 
 	public String getDatabaseContext() {
@@ -200,6 +210,7 @@ public class DataManagementConfiguration extends AbstractConfigurable {
 			defaultPropertyMap.put(START_INTERNAL_DERBY, "false");
 
 			defaultPropertyMap.put(CONNECTOR_TYPE, CONNECTOR_DERBY);
+			defaultPropertyMap.put(EXPOSE_DATANATURE, "false");
 		}
 		return defaultPropertyMap;
 	}

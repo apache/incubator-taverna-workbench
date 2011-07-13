@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.impl;
 
+import java.awt.GraphicsEnvironment;
 import java.io.File;
 import java.io.FileFilter;
 import java.util.Date;
@@ -49,6 +50,9 @@ public class UserRegistrationHook implements StartupSPI{
 
 	public boolean startup() {
 		
+		if (GraphicsEnvironment.isHeadless()){
+			return true; // if we are running headlessly just return
+		}
 		 // For Taverna snapshots - do not ask user to register
 		if (appName.toLowerCase().contains("snapshot")){
 			return true;
@@ -84,12 +88,13 @@ public class UserRegistrationHook implements StartupSPI{
 		final File appHomeDirectory = ApplicationRuntime.getInstance().getApplicationHomeDir();
 		File parentDirectory = appHomeDirectory.getParentFile();
 	    FileFilter fileFilter = new FileFilter() {
-	        public boolean accept(File file) {
-	        	
-				return (!file.getName().equals(appHomeDirectory.getName())) // Exclude Taverna home directory for this app
+	        public boolean accept(File file) {	        	
+				return (!file.getName().equals(appHomeDirectory.getName()) // Exclude Taverna home directory for this app
 						&& file.isDirectory()
-						&& file.getName().toLowerCase().startsWith("taverna")
-						&& (!file.getName().toLowerCase().contains("snapshot"));
+						&& file.getName().toLowerCase().startsWith("taverna-") 
+						&& !file.getName().toLowerCase().contains("snapshot") // exclude snapshots
+						&& !file.getName().toLowerCase().contains("cmd") // exclude command line tool
+						&& !file.getName().toLowerCase().contains("dataviewer")); // exclude dataviewer
 	        }
 	    };
 		File[] tavernaDirectories = parentDirectory.listFiles(fileFilter);

@@ -2,7 +2,9 @@
 net.sf.taverna.t2.renderers.AdvancedImageRenderer
 net.sf.taverna.t2.renderers.HexBinaryRenderer
 net.sf.taverna.t2.renderers.TextRenderer
-net.sf.taverna.t2.renderers.TextHtmlRenderer
+#net.sf.taverna.t2.renderers.TextHtmlRenderer
 net.sf.taverna.t2.renderers.TextRtfRenderer
 net.sf.taverna.t2.renderers.TextXMLRenderer
 #net.sf.taverna.t2.renderers.AWTComponentRenderer
+
+

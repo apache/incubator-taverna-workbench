@@ -32,6 +32,7 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 
+import net.sf.taverna.t2.lang.ui.HtmlUtils;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
@@ -65,7 +66,8 @@ public class MergeContextualView extends ContextualView{
 
 	@Override
 	public JComponent getMainFrame() {
-		return panelForHtml(buildHtml());
+		editorPane = HtmlUtils.createEditorPane(buildHtml());
+		return this.panelForHtml(editorPane);
 	}
 	
 	@Override
@@ -85,8 +87,8 @@ public class MergeContextualView extends ContextualView{
 	}
 
 	private String buildHtml() {
-		String html = "<html><head>" + getStyle() + "</head><body>";
-		html += buildTableOpeningTag();
+		String html = HtmlUtils.getHtmlHead(getBackgroundColour());
+		html += HtmlUtils.buildTableOpeningTag();
 		html += "<tr><td colspan=\"2\"><b>" + getViewTitle() + "</b></td></tr>";
 		html += "<tr><td colspan=\"2\"><b>Ordered incoming links (entity.port -> merge)</b></td></tr>";
 
@@ -121,38 +123,10 @@ public class MergeContextualView extends ContextualView{
 		return html;
 	}
 
-	private String buildTableOpeningTag() {
-		String result = "<table ";
-		Map<String, String> props = getTableProperties();
-		for (String key : props.keySet()) {
-			result += key + "=\"" + props.get(key) + "\" ";
-		}
-		result += ">";
-		return result;
-	}
-
-	protected Map<String, String> getTableProperties() {
-		Map<String, String> result = new HashMap<String, String>();
-		result.put("border", "1");
-		return result;
-	}
-
-	protected String getStyle() {
-		String backgroundColour = ColourManager
-		.getInstance()
-		.getDefaultPropertyMap().get("net.sf.taverna.t2.workflowmodel.Merge"); 
-		String style = "<style type='text/css'>";
-		style += "table {align:center; border:solid black 1px; background-color:\""+backgroundColour+"\";width:100%; height:100%; overflow:auto;}";
-		style += "</style>";
-		return style;
-	}
-
-	protected JPanel panelForHtml(String html) {
+	protected JPanel panelForHtml(JEditorPane editorPane) {
 		final JPanel panel = new JPanel();
 
 		panel.setLayout(new BorderLayout());
-		editorPane = new JEditorPane("text/html", html);
-		editorPane.setEditable(false);
 		panel.add(editorPane, BorderLayout.CENTER);
 		
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -173,6 +147,13 @@ public class MergeContextualView extends ContextualView{
 		
 		return panel;
 	}
+
+	public String getBackgroundColour() {
+		return ColourManager
+		.getInstance()
+		.getDefaultPropertyMap().get("net.sf.taverna.t2.workflowmodel.Merge");
+	}
+	
 
 	@Override
 	public int getPreferredPosition() {
