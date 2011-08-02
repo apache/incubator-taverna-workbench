@@ -1,58 +1,36 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.activities.disabled.views;
+
+import java.awt.Frame;
+import java.beans.BeanInfo;
+import java.beans.IntrospectionException;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.Action;
 
 import net.sf.taverna.t2.activities.disabled.actions.DisabledActivityConfigurationAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.OutputPort;
-
-import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import javax.swing.AbstractAction;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import java.beans.Introspector;
-import java.beans.IntrospectionException;
-import java.beans.BeanInfo;
-import java.beans.PropertyDescriptor;
-
-import java.lang.reflect.Method;
-import java.lang.IllegalAccessException;
-import java.lang.IllegalArgumentException;
-import java.lang.NoSuchMethodException;
-import java.lang.reflect.InvocationTargetException;
-
-import javax.swing.Action;
+import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
+import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
 
 import org.apache.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.sf.taverna.t2.lang.uibuilder.UIBuilder;
-
-import com.thoughtworks.xstream.XStream;
-
 /**
  * A DisabledContextualView displays information about a DisabledActivity
- * 
+ *
  * @author alanrw
- * 
+ *
  */
 public class DisabledContextualView extends
 		HTMLBasedActivityContextualView<Object> {
@@ -62,8 +40,15 @@ public class DisabledContextualView extends
 
     private List<String> fieldNames;
 
-	public DisabledContextualView(DisabledActivity activity) {
+	private final EditManager editManager;
+	private final FileManager fileManager;
+	private final ReportManager reportManager;
+
+	public DisabledContextualView(DisabledActivity activity, EditManager editManager, FileManager fileManager, ReportManager reportManager) {
 		super(activity);
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.reportManager = reportManager;
 		init();
 	}
 
@@ -73,7 +58,7 @@ public class DisabledContextualView extends
 	/**
 	 * The table for the DisabledActivity shows its ports and the information
 	 * within the offline Activity's configuration.
-	 * 
+	 *
 	 * @return
 	 */
 	@Override
@@ -135,7 +120,7 @@ public class DisabledContextualView extends
 	@Override
 	public Action getConfigureAction(Frame owner) {
 		return new DisabledActivityConfigurationAction(
-				(DisabledActivity) getActivity(), owner);
+				(DisabledActivity) getActivity(), owner, editManager, fileManager, reportManager);
 	}
 
 }
