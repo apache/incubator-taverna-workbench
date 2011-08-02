@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -28,7 +28,9 @@ import java.util.Set;
 
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
 import net.sf.taverna.t2.workbench.design.ui.DataflowOutputPortPanel;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
@@ -46,11 +48,11 @@ public class AddDataflowOutputAction extends DataflowEditAction {
 
 	private static Logger logger = Logger.getLogger(AddDataflowOutputAction.class);
 
-	public AddDataflowOutputAction(Dataflow dataflow, Component component) {
-		super(dataflow, component);
+	public AddDataflowOutputAction(Dataflow dataflow, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+		super(dataflow, component, editManager, dataflowSelectionManager);
 		putValue(SMALL_ICON, WorkbenchIcons.outputIcon);
-		putValue(NAME, "Workflow output port");	
-		putValue(SHORT_DESCRIPTION, "Add workflow output port");		
+		putValue(NAME, "Workflow output port");
+		putValue(SHORT_DESCRIPTION, "Add workflow output port");
 	}
 
 	public void actionPerformed(ActionEvent event) {
@@ -61,7 +63,7 @@ public class AddDataflowOutputAction extends DataflowEditAction {
 			}
 
 			DataflowOutputPortPanel inputPanel = new DataflowOutputPortPanel();
-			
+
 			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
 					"Add Workflow Output Port", inputPanel);
 			vuid.addTextComponentValidation(inputPanel.getPortNameField(),

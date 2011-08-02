@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.report.view;
 
@@ -14,6 +14,7 @@ import javax.swing.table.DefaultTableModel;
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.report.ReportManager;
+import net.sf.taverna.t2.workbench.report.impl.ReportManagerImpl;
 import net.sf.taverna.t2.workflowmodel.Condition;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
@@ -37,14 +38,15 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityPort;
  *
  */
 public class ReportViewTableModel extends DefaultTableModel {
-	
+
     public static String ALL_REPORTS = "All";
     public static String WARNINGS_AND_ERRORS = "Warnings and errors";
     public static String JUST_ERRORS = "Only errors";
 
 	private ArrayList<VisitReport> reports;
-	
+
     private Dataflow dataflow;
+	private final ReportManager reportManager;
 
     private static Comparator<VisitReport> descriptionComparator = new Comparator<VisitReport>() {
 	public int compare(VisitReport o1, VisitReport o2) {
@@ -141,10 +143,11 @@ public class ReportViewTableModel extends DefaultTableModel {
     public ReportViewTableModel(Dataflow df,
 				Map<Object, Set<VisitReport>> reportEntries,
 				String shownReports,
-				VisitReportProxySet ignoredReports) {
+				VisitReportProxySet ignoredReports, ReportManager reportManager) {
 		super(new String[] { "Severity", "Age", "Type",
 				"Name", "Description" }, 0);
 		this.dataflow = df;
+		this.reportManager = reportManager;
 		reports = new ArrayList();
 		if (reportEntries != null) {
 			for (Object o : reportEntries.keySet()) {
@@ -174,13 +177,13 @@ public class ReportViewTableModel extends DefaultTableModel {
 			    vr.getMessage() });
 		}
 	}
-	
+
     private String calculateTimeDifference(VisitReport vr) {
 	if (!vr.wasTimeConsuming()) {
 	    return "-";
 	}
 	long time = vr.getCheckTime();
-	long dataflowTime = ReportManager.getInstance().getLastCheckedTime(this.dataflow);
+	long dataflowTime = reportManager.getLastCheckedTime(this.dataflow);
 	long difference = dataflowTime - time;
 	if (difference < 1000) {
 	    return "-";
@@ -198,22 +201,22 @@ public class ReportViewTableModel extends DefaultTableModel {
 	public Object getSubject(int rowIndex) {
 		return reports.get(rowIndex).getSubject();
 	}
-	
+
 	public VisitReport getReport(int rowIndex) {
 		return reports.get(rowIndex);
 	}
-	
+
 	public Class getColumnClass(int columnIndex) {
 		if (columnIndex == 0) {
 			return Status.class;
 		}
 		return String.class;
 	}
-	
+
 	public boolean isCellEditable(int row, int column) {
 		return false;
 	}
-	
+
 
 	private static String getType(Object o) {
 		if (o instanceof Dataflow) {
@@ -245,7 +248,7 @@ public class ReportViewTableModel extends DefaultTableModel {
 		}
 		return "?";
 		}
-	
+
 	private static String getName(Object o) {
 		if (o instanceof NamedWorkflowEntity) {
 			return ((NamedWorkflowEntity) o).getLocalName();

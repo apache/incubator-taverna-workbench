@@ -4,44 +4,43 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.MainWindow;
+import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
 import net.sf.taverna.t2.workbench.report.view.ReportOnWorkflowAction;
-import net.sf.taverna.t2.workbench.ui.impl.Workbench;
+import net.sf.taverna.t2.workbench.ui.Workbench;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 public class CheckWorkflowStatus {
-	
+
 	private static final long RUN_ANYWAY_EXPIRE_MILLIS = 60*60*1000; // 1 hour
 
-	protected static Map<String, Date> runAnyways = Collections.synchronizedMap(new HashMap<String, Date>()); 
-	private static ReportManager reportManager = ReportManager.getInstance();
-	
+	protected static Map<String, Date> runAnyways = Collections.synchronizedMap(new HashMap<String, Date>());
+
 	private static ReportManagerConfiguration reportManagerConfig = ReportManagerConfiguration.getInstance();
-	
-	@SuppressWarnings("static-access")
-	public static boolean checkWorkflow(Dataflow dataflow) {
+
+	public static boolean checkWorkflow(Dataflow dataflow, Workbench workbench, EditManager editManager, FileManager fileManager, ReportManager reportManager) {
 		synchronized (runAnyways) {
 			Date runAnyway = runAnyways.remove(dataflow.getIdentifier());
 			Date now = new Date();
 			if (runAnyway != null && (now.getTime() - runAnyway.getTime()) < RUN_ANYWAY_EXPIRE_MILLIS) {
 				// new expiration time (remember we removed it above)
 				runAnyways.put(dataflow.getIdentifier(), new Date());
-				return true;		
+				return true;
 			}
 		}
-		
+
 		String beforeRunSetting = reportManagerConfig
-				.getProperty(ReportManagerConfiguration.BEFORE_RUN);		
+				.getProperty(ReportManagerConfiguration.BEFORE_RUN);
 		ReportOnWorkflowAction action = new ReportOnWorkflowAction("",
 				dataflow, beforeRunSetting
-						.equals(ReportManagerConfiguration.FULL_CHECK), false);
+						.equals(ReportManagerConfiguration.FULL_CHECK), false, editManager, fileManager, reportManager, workbench);
 		if (reportManager.isReportOutdated(dataflow)) {
 			action.validateWorkflow();
 		}
@@ -51,7 +50,7 @@ public class CheckWorkflowStatus {
 							MainWindow.getMainWindow(),
 							"The workflow has problems and cannot be run - see reports",
 							"Workflow problems", JOptionPane.ERROR_MESSAGE);
-			showReport();
+			showReport(workbench);
 			return false;
 		}
 		Status status = reportManager.getStatus(dataflow);
@@ -71,7 +70,7 @@ public class CheckWorkflowStatus {
 							JOptionPane.ERROR_MESSAGE, null, options,
 							options[0]);
 			if (proceed == JOptionPane.YES_OPTION) { // View validation report
-				showReport();
+				showReport(workbench);
 				return false;
 			} else {
 				runAnyways.put(dataflow.getIdentifier(), new Date());
@@ -84,7 +83,7 @@ public class CheckWorkflowStatus {
 							+ "- do you want to proceed?", "Workflow problems",
 					JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 			if (proceed != JOptionPane.YES_OPTION) {
-				showReport();
+				showReport(workbench);
 				return false;
 			} else {
 				runAnyways.put(dataflow.getIdentifier(), new Date());
@@ -93,8 +92,8 @@ public class CheckWorkflowStatus {
 		return true;
 	}
 
-	private static void showReport() {		
-		Workbench.getInstance().getPerspectives().setWorkflowPerspective();
-		Workbench.getInstance().makeNamedComponentVisible("reportView");
+	private static void showReport(Workbench workbench) {
+		workbench.getPerspectives().setWorkflowPerspective();
+		workbench.makeNamedComponentVisible("reportView");
 	}
 }

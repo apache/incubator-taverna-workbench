@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007-2010 The University of Manchester   
- * 
+ * Copyright (C) 2007-2010 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -32,14 +32,13 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.Map.Entry;
+import java.util.WeakHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
@@ -53,11 +52,15 @@ import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
+import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
+import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.run.cleanup.DatabaseCleanup;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
 import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
 import net.sf.taverna.t2.workbench.views.monitor.graph.GraphMonitor;
@@ -72,10 +75,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializerRegistry;
-import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
-import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
-import net.sf.taverna.t2.workbench.file.impl.DataflowPersistenceHandlerRegistry;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -87,13 +87,13 @@ import org.jdom.input.SAXBuilder;
  * graph so that it can show intermediate results if provenance is on.
  *
  */
-public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
+public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage> {
 
 	private static final String STATUS_FINISHED = "Finished";
 	private static final String STATUS_CANCELLED = "Cancelled";
 	private static final String STATUS_RUNNING = "Running";
 	private static final String STATUS_PAUSED = "Paused";
-	
+
 	public static Logger logger = Logger.getLogger(WorkflowRun.class);
 
 	private static WeakHashMap<String, WeakReference<Dataflow>> loadedDataflows = new WeakHashMap<String, WeakReference<Dataflow>>();
@@ -107,29 +107,32 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 
 	// Interactive progress graph
 	private MonitorGraphComponent progressRunGraph;
-	
+
 	// Interactive progress table
 	private WorkflowRunProgressTreeTable progressRunTable;
-	
+
 	// Tabbed component that contains the progress graph and table
 	private MonitorViewComponent monitorViewComponent;
 
-	// Component that contains final workflow results for all ports, 
+	// Component that contains final workflow results for all ports,
 	// as they are becoming available
 	private WorkflowResultsComponent workflowResultsComponent;
-	
-	// Map of intermediate results per processor - this only works if provenance is on
+
+	// Map of intermediate results per processor - this only works if provenance
+	// is on
 	private Map<Processor, ProcessorResultsComponent> intermediateResultsComponents = new HashMap<Processor, ProcessorResultsComponent>();
 
 	// Progress monitor for graph
 	private GraphMonitor monitorObserverForGraph;
-	
+
 	// Progress monitor for progress report table
 	private WorkflowRunProgressMonitor monitorObserverForTable;
-	
+
 	// Workflow run progress status and pause/resume and cancel buttons
 	private JLabel workflowRunProgressStatusLabel = new JLabel();
-	private JButton workflowRunPauseButton = new JButton(new PauseWorkflowRunAction()); // pause or resume
+	private JButton workflowRunPauseButton = new JButton(new PauseWorkflowRunAction()); // pause
+																						// or
+																						// resume
 	private JButton workflowRunCancelButton = new JButton(new CancelWorkflowRunAction());
 	private AbstractAction intermediateValuesAction = new RefreshIntermediateValuesAction();
 	private JButton intermediateValuesButton = new JButton(intermediateValuesAction);
@@ -161,17 +164,28 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	}
 
 	private String workflowName = "(Unknown)";
+	private final EditManager editManager;
+	private final MenuManager menuManager;
+	private final DataflowSelectionManager dataflowSelectionManager;
+	private final XMLDeserializer xmlDeserializer;
+	private final FileManager fileManager;
 
 	public WorkflowRun(Dataflow dataflow, Date date, String sessionID,
-			ReferenceService referenceService) {
+			ReferenceService referenceService, EditManager editManager, FileManager fileManager,
+			MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager,
+			XMLDeserializer xmlDeserializer) {
 		this.date = date;
 		this.runId = sessionID;
 		this.referenceService = referenceService;
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.menuManager = menuManager;
+		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.xmlDeserializer = xmlDeserializer;
 		setDataflow(dataflow);
-		String connectorType = DataManagementConfiguration.getInstance()
-				.getConnectorType();
-		for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry
-				.getInstance().getInstances()) {
+		String connectorType = DataManagementConfiguration.getInstance().getConnectorType();
+		for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry.getInstance()
+				.getInstances()) {
 			if (connectorType.equalsIgnoreCase(factory.getConnectorType())) {
 				connector = factory.getProvenanceConnector();
 			}
@@ -192,42 +206,50 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		}
 	}
 
-	public WorkflowRun(WorkflowInstanceFacade facade,
-			Map<String, T2Reference> inputs, Date date,
-			ReferenceService referenceService) {
+	public WorkflowRun(WorkflowInstanceFacade facade, Map<String, T2Reference> inputs, Date date,
+			ReferenceService referenceService, EditManager editManager, FileManager fileManager,
+			MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager,
+			XMLDeserializer xmlDeserializer) {
 		this.date = date;
-		
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.menuManager = menuManager;
+		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.xmlDeserializer = xmlDeserializer;
+
 		// Create graph monitor for the current run
-		progressRunGraph = new MonitorGraphComponent();
+		progressRunGraph = new MonitorGraphComponent(editManager, menuManager,
+				dataflowSelectionManager);
 		this.facade = facade;
 		this.inputs = inputs;
 		this.referenceService = referenceService;
 		setDataflow(facade.getDataflow());
-		connector = (ProvenanceConnector) (facade.getContext()
-				.getProvenanceReporter());
+		connector = (ProvenanceConnector) (facade.getContext().getProvenanceReporter());
 		progressRunGraph.setProvenanceConnector(connector);
 		progressRunGraph.setReferenceService(referenceService);
 		this.runId = facade.getWorkflowRunId();
 
 		// Create progress table for the current workflow run
-		progressRunTable = new WorkflowRunProgressTreeTable(
-				new WorkflowRunProgressTreeTableModel(facade.getDataflow()));
-		// Do not show the column with total number of iterations as it 
-		// does not gets updated till the end of all iterations so it is pointless
-		//progressRunTable.removeColumn(progressRunTable.getColumnModel().getColumn(5));
+		progressRunTable = new WorkflowRunProgressTreeTable(new WorkflowRunProgressTreeTableModel(
+				facade.getDataflow()));
+		// Do not show the column with total number of iterations as it
+		// does not gets updated till the end of all iterations so it is
+		// pointless
+		// progressRunTable.removeColumn(progressRunTable.getColumnModel().getColumn(5));
 		progressRunTable.setWorkflowStartDate(date);
 		progressRunTable.setWorkflowStatus("Running");
-		// Start listening for row selections on the table if provenance is enabled 
+		// Start listening for row selections on the table if provenance is
+		// enabled
 		// for a run so we can show intermediate results for processors
-		if (isProvenanceEnabledForRun){
-		    
+		if (isProvenanceEnabledForRun) {
+
 			MouseSelectionListener mouseListener = new MouseSelectionListener(progressRunTable);
-		    KeySelectionListener keyListener = new KeySelectionListener(progressRunTable);
-		    progressRunTable.addMouseListener(mouseListener);
-		    progressRunTable.addKeyListener(keyListener);
-		    
-			// Start observing selections on the graph and progress table 
-		    // so we can show intermediate results
+			KeySelectionListener keyListener = new KeySelectionListener(progressRunTable);
+			progressRunTable.addMouseListener(mouseListener);
+			progressRunTable.addKeyListener(keyListener);
+
+			// Start observing selections on the graph and progress table
+			// so we can show intermediate results
 			progressRunGraph.addObserver(this);
 			progressRunTable.addObserver(this);
 		}
@@ -235,22 +257,26 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		monitorViewComponent = new MonitorViewComponent();
 		monitorViewComponent.setMonitorGraph(progressRunGraph);
 		monitorViewComponent.setMonitorProgressTable(progressRunTable);
-		workflowRunProgressStatusLabel.setBorder(new EmptyBorder(0,0,0,10));
+		workflowRunProgressStatusLabel.setBorder(new EmptyBorder(0, 0, 0, 10));
 		monitorViewComponent.addWorkflowRunStatusLabel(workflowRunProgressStatusLabel);
 		monitorViewComponent.addWorkflowPauseButton(workflowRunPauseButton);
 		monitorViewComponent.addWorkflowCancelButton(workflowRunCancelButton);
 		monitorViewComponent.addIntermediateValuesButton(intermediateValuesButton);
 		monitorViewComponent.addWorkflowResultsButton(workflowResultsButton);
-		monitorViewComponent.addReloadWorkflowButton(new JButton (new ReloadWorkflowAction(facade.getDataflow())));
+		monitorViewComponent.addReloadWorkflowButton(new JButton(new ReloadWorkflowAction(facade
+				.getDataflow())));
 		intermediateValuesButton.setEnabled(false);
-		//		workflowResultsButton.setEnabled(false);
+		// workflowResultsButton.setEnabled(false);
 
 		workflowResultsComponent = new WorkflowResultsComponent(referenceService);
 	}
 
 	public WorkflowRun(byte[] dataflowBytes, String workflowId, String workflowName, Date date,
-			String sessionID, ReferenceService referenceService) {
-		this((Dataflow) null, date, sessionID, referenceService);
+			String sessionID, ReferenceService referenceService, EditManager editManager,
+			FileManager fileManager, MenuManager menuManager,
+			DataflowSelectionManager dataflowSelectionManager, XMLDeserializer xmlDeserializer) {
+		this((Dataflow) null, date, sessionID, referenceService, editManager, fileManager,
+				menuManager, dataflowSelectionManager, xmlDeserializer);
 		this.dataflowBytes = dataflowBytes;
 		this.workflowId = workflowId;
 		this.workflowName = workflowName;
@@ -260,8 +286,10 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 
 		monitorObserverForGraph = progressRunGraph.setDataflow(dataflow);
 		monitorObserverForTable = new WorkflowRunProgressMonitor(progressRunTable, facade);
-		// We use the graph monitor to update the workflow run status label, pause and
-		// cancel buttons as this monitor is also used to update the workflow results so we
+		// We use the graph monitor to update the workflow run status label,
+		// pause and
+		// cancel buttons as this monitor is also used to update the workflow
+		// results so we
 		// do it from one place
 		monitorObserverForGraph.setWorkflowRunStatusLabel(workflowRunProgressStatusLabel);
 		monitorObserverForGraph.setWorkflowRunPauseButton(workflowRunPauseButton);
@@ -270,7 +298,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		// resultsComponent.setContext(context);
 		MonitorManager.getInstance().addObserver(monitorObserverForGraph);
 		MonitorManager.getInstance().addObserver(monitorObserverForTable);
-		
+
 		// Use the empty context by default to root this facade on the monitor
 		// tree
 
@@ -286,8 +314,8 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				T2Reference identifier = entry.getValue();
 				int[] index = new int[] {};
 				try {
-					WorkflowDataToken token = new WorkflowDataToken("", index,
-							identifier, facade.getContext());
+					WorkflowDataToken token = new WorkflowDataToken("", index, identifier,
+							facade.getContext());
 					facade.pushData(token, portName);
 					workflowResultsComponent.pushInputData(token, portName);
 				} catch (TokenOrderException e) {
@@ -300,8 +328,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 
 	@Override
 	public String toString() {
-		SimpleDateFormat sdf = new SimpleDateFormat(
-				"yyyy-MM-dd HH:mm:ss");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		return workflowName + " " + sdf.format(date);
 	}
 
@@ -309,10 +336,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime
-				* result
-				+ ((dataflow == null) ? 0 : dataflow.getIdentifier()
-						.hashCode());
+		result = prime * result + ((dataflow == null) ? 0 : dataflow.getIdentifier().hashCode());
 		result = prime * result + ((runId == null) ? 0 : runId.hashCode());
 		return result;
 	}
@@ -329,8 +353,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		if (dataflow == null) {
 			if (other.dataflow != null)
 				return false;
-		} else if (!dataflow.getIdentifier().equals(
-				other.dataflow.getIdentifier()))
+		} else if (!dataflow.getIdentifier().equals(other.dataflow.getIdentifier()))
 			return false;
 		if (runId == null) {
 			if (other.runId != null)
@@ -359,13 +382,10 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		if (dataflow == null && dataflowBytes != null) {
 			try {
 				SAXBuilder builder = new SAXBuilder();
-				Document document = builder.build(new ByteArrayInputStream(
-						dataflowBytes));
+				Document document = builder.build(new ByteArrayInputStream(dataflowBytes));
 				Element rootElement = document.getRootElement();
-				Dataflow loadedDataflow = XMLDeserializerRegistry.getInstance()
-						.getDeserializer().deserializeDataflow(rootElement);
-				logger.debug("Loaded dataflow "
-						+ loadedDataflow.getIdentifier() + " for run "
+				Dataflow loadedDataflow = xmlDeserializer.deserializeDataflow(rootElement);
+				logger.debug("Loaded dataflow " + loadedDataflow.getIdentifier() + " for run "
 						+ runId);
 				setDataflow(loadedDataflow);
 			} catch (Exception e) {
@@ -383,8 +403,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			this.workflowName = dataflow.getLocalName();
 			this.workflowId = dataflow.getIdentifier();
 			synchronized (loadedDataflows) {
-				loadedDataflows.put(this.workflowId,
-						new WeakReference<Dataflow>(dataflow));
+				loadedDataflows.put(this.workflowId, new WeakReference<Dataflow>(dataflow));
 			}
 		}
 	}
@@ -398,40 +417,44 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	}
 
 	/**
-	 * Create the MonitorViewComponent, an interactive component 
-	 * containing a graph and a progress table where workflow progress 
-	 * can be tracked and which can respond to user clicks to trigger 
-	 * showing intermediate or final results in the result-view component.
-	 * 
+	 * Create the MonitorViewComponent, an interactive component containing a
+	 * graph and a progress table where workflow progress can be tracked and
+	 * which can respond to user clicks to trigger showing intermediate or final
+	 * results in the result-view component.
+	 *
 	 * @return the monitorViewComponent
 	 */
 	public MonitorViewComponent getOrCreateMonitorViewComponent() {
 		if (monitorViewComponent == null) {
 			monitorViewComponent = new MonitorViewComponent();
-			
+
 			// Create graph monitor for a previous run
-			progressRunGraph = new MonitorGraphPreviousRunComponent();
+			progressRunGraph = new MonitorGraphPreviousRunComponent(editManager, menuManager,
+					dataflowSelectionManager);
 			progressRunGraph.setProvenanceConnector(connector);
 			progressRunGraph.setReferenceService(referenceService);
 			monitorObserverForGraph = progressRunGraph.setDataflow(getDataflow());
 
 			// Create progress table for a previous run
-			progressRunTable = new WorkflowRunProgressTreeTable(new WorkflowRunProgressTreeTableModel(dataflow, connector, referenceService, runId));
-			// Do not show the column with total number of iterations as it 
-			// does not gets updated till the end of all iterations so it is pointless
-			//progressRunTable.removeColumn(progressRunTable.getColumnModel().getColumn(5));
-			
-			// Start listening for row selections on the table  
-			// so we can show intermediate results for processors. 
+			progressRunTable = new WorkflowRunProgressTreeTable(
+					new WorkflowRunProgressTreeTableModel(dataflow, connector, referenceService,
+							runId));
+			// Do not show the column with total number of iterations as it
+			// does not gets updated till the end of all iterations so it is
+			// pointless
+			// progressRunTable.removeColumn(progressRunTable.getColumnModel().getColumn(5));
+
+			// Start listening for row selections on the table
+			// so we can show intermediate results for processors.
 			// Provenance *should be* enabled as this is a previous run.
-			if (isProvenanceEnabledForRun){
-			    MouseSelectionListener mouseListener = new MouseSelectionListener(progressRunTable);
-			    KeySelectionListener keyListener = new KeySelectionListener(progressRunTable);
-			    progressRunTable.addMouseListener(mouseListener);
-			    progressRunTable.addKeyListener(keyListener);
-			    
-				// Start observing selections on the graph and progress table 
-			    // so we can show intermediate results
+			if (isProvenanceEnabledForRun) {
+				MouseSelectionListener mouseListener = new MouseSelectionListener(progressRunTable);
+				KeySelectionListener keyListener = new KeySelectionListener(progressRunTable);
+				progressRunTable.addMouseListener(mouseListener);
+				progressRunTable.addKeyListener(keyListener);
+
+				// Start observing selections on the graph and progress table
+				// so we can show intermediate results
 				progressRunGraph.addObserver(this);
 				progressRunTable.addObserver(this);
 			}
@@ -439,13 +462,13 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			monitorViewComponent.setMonitorGraph(progressRunGraph);
 			monitorViewComponent.setMonitorProgressTable(progressRunTable);
 			monitorViewComponent.addWorkflowRunStatusLabel(workflowRunProgressStatusLabel);
-			// for previous run status is always "finished" and pause/cancel buttons are disabled
-			workflowRunProgressStatusLabel.setBorder(new EmptyBorder(0,0,0,10));
+			// for previous run status is always "finished" and pause/cancel
+			// buttons are disabled
+			workflowRunProgressStatusLabel.setBorder(new EmptyBorder(0, 0, 0, 10));
 
-			
 			workflowRunProgressStatusLabel.setText(STATUS_FINISHED);
 			workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.tickIcon);
-			
+
 			monitorViewComponent.addWorkflowPauseButton(workflowRunPauseButton);
 			workflowRunPauseButton.setEnabled(false);
 			monitorViewComponent.addWorkflowCancelButton(workflowRunCancelButton);
@@ -453,20 +476,22 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			monitorViewComponent.addIntermediateValuesButton(intermediateValuesButton);
 			intermediateValuesButton.setEnabled(false);
 			monitorViewComponent.addWorkflowResultsButton(workflowResultsButton);
-			monitorViewComponent.addReloadWorkflowButton(new JButton (new ReloadWorkflowAction(getDataflow())));
-			//			workflowResultsButton.setEnabled(false);
+			monitorViewComponent.addReloadWorkflowButton(new JButton(new ReloadWorkflowAction(
+					getDataflow())));
+			// workflowResultsButton.setEnabled(false);
 
-			// Results for an old wf run - get the results from provenance 
-			workflowResultsComponent = new WorkflowResultsComponent(dataflow, runId, referenceService);
+			// Results for an old wf run - get the results from provenance
+			workflowResultsComponent = new WorkflowResultsComponent(dataflow, runId,
+					referenceService);
 
 		}
 		return monitorViewComponent;
 	}
-	
+
 	public WorkflowRunProgressMonitor getWorkflowRunProgressMonitor() {
 		return monitorObserverForTable;
 	}
-	
+
 	public MonitorGraphComponent getMonitorGraphComponent() {
 		return progressRunGraph;
 	}
@@ -476,14 +501,14 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			// still initializing
 			return workflowResultsComponent;
 		}
-	    int row = progressRunTable.getLastSelectedTableRow();
-	    if (row != -1) {
-		Object object = progressRunTable.getTreeObjectForRow(row);
-		if ((object != null) && (object instanceof Processor)){
-		    return getIntermediateResultsComponent((Processor)object);
+		int row = progressRunTable.getLastSelectedTableRow();
+		if (row != -1) {
+			Object object = progressRunTable.getTreeObjectForRow(row);
+			if ((object != null) && (object instanceof Processor)) {
+				return getIntermediateResultsComponent((Processor) object);
+			}
 		}
-	    }
-	    return workflowResultsComponent;
+		return workflowResultsComponent;
 	}
 
 	public void setRunId(String runId) {
@@ -522,12 +547,13 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	}
 
 	private class MouseSelectionListener extends MouseAdapter {
-		
+
 		WorkflowRunProgressTreeTable treeTable;
 
-		public MouseSelectionListener(WorkflowRunProgressTreeTable treeTable){
+		public MouseSelectionListener(WorkflowRunProgressTreeTable treeTable) {
 			this.treeTable = treeTable;
 		}
+
 		public void mousePressed(MouseEvent e) {
 
 			Point point = e.getPoint();
@@ -538,38 +564,49 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 				// component last
 				// time
 			}
-			
+
 			treeTable.setLastSelectedTableRow(row);
 			Object object = treeTable.getTreeObjectForRow(row);
 			if (object != null) {
-				// Notify anyone interested that a selection occurred on the table
+				// Notify anyone interested that a selection occurred on the
+				// table
 				progressRunTable.triggerWorkflowObjectSelectionEvent(object);
 			}
 		}
 	}
-	
+
 	private class KeySelectionListener extends KeyAdapter {
-		
+
 		WorkflowRunProgressTreeTable treeTable;
 
-		public KeySelectionListener(WorkflowRunProgressTreeTable treeTable){
+		public KeySelectionListener(WorkflowRunProgressTreeTable treeTable) {
 			this.treeTable = treeTable;
 		}
+
 		public void keyPressed(KeyEvent e) {
 
-			if(e.getKeyCode() == KeyEvent.VK_ENTER){ // consume ENTER key, do nothing
-			         e.consume();
+			if (e.getKeyCode() == KeyEvent.VK_ENTER) { // consume ENTER key, do
+														// nothing
+				e.consume();
 			}
-			 
-			if(e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN){ // these keys change the row selection
-				int row = treeTable.getSelectedRow(); // this seems to give the previously selected row so we have to adjust it!!!				
-				
+
+			if (e.getKeyCode() == KeyEvent.VK_UP || e.getKeyCode() == KeyEvent.VK_DOWN) { // these
+																							// keys
+																							// change
+																							// the
+																							// row
+																							// selection
+				int row = treeTable.getSelectedRow(); // this seems to give the
+														// previously selected
+														// row so we have to
+														// adjust it!!!
+
 				// row always have to be 0 <= row < treeTable.getRowCount() - 1
-				if (e.getKeyCode() == KeyEvent.VK_UP && row > 0){
-					row --;
+				if (e.getKeyCode() == KeyEvent.VK_UP && row > 0) {
+					row--;
 				}
-				if (e.getKeyCode() == KeyEvent.VK_DOWN && row < treeTable.getRowCount() - 1 ){
-					row ++;
+				if (e.getKeyCode() == KeyEvent.VK_DOWN && row < treeTable.getRowCount() - 1) {
+					row++;
 				}
 
 				if (row == treeTable.getLastSelectedTableRow()) {
@@ -578,51 +615,53 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 					// component last
 					// time
 				}
-				
+
 				treeTable.setLastSelectedTableRow(row);
 				Object object = treeTable.getTreeObjectForRow(row);
 				if (object != null) {
-					// Notify anyone interested that a selection occurred on the table
-					progressRunTable.triggerWorkflowObjectSelectionEvent(object);					
+					// Notify anyone interested that a selection occurred on the
+					// table
+					progressRunTable.triggerWorkflowObjectSelectionEvent(object);
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * Action to pause/resume this workflow run.
 	 */
 	@SuppressWarnings("serial")
 	public class PauseWorkflowRunAction extends AbstractAction {
 
-		public PauseWorkflowRunAction (){
+		public PauseWorkflowRunAction() {
 			super();
 			putValue(NAME, "Pause");
 			putValue(SMALL_ICON, WorkbenchIcons.pauseIcon);
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
-			String text = (String)getValue(NAME);
+			String text = (String) getValue(NAME);
 			if (text.equals("Pause")) {
 				putValue(NAME, "Resume");
-				putValue(SMALL_ICON, WorkbenchIcons.playIcon);			
+				putValue(SMALL_ICON, WorkbenchIcons.playIcon);
 				workflowRunProgressStatusLabel.setText(STATUS_PAUSED);
 				workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.pauseIcon);
-				if (facade != null){ // should not be null but check nevertheless
+				if (facade != null) { // should not be null but check
+										// nevertheless
 					facade.pauseWorkflowRun();
 				}
 				progressRunTable.setWorkflowPaused();
-			} 
-			else if (text.equals("Resume")){
+			} else if (text.equals("Resume")) {
 				putValue(NAME, "Pause");
 				putValue(SMALL_ICON, WorkbenchIcons.pauseIcon);
 				workflowRunProgressStatusLabel.setText(STATUS_RUNNING);
 				workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.workingIcon);
-				if (facade != null){ // should not be null but check nevertheless
+				if (facade != null) { // should not be null but check
+										// nevertheless
 					facade.resumeWorkflowRun();
 				}
 				progressRunTable.setWorkflowResumed();
-			}	
+			}
 		}
 	}
 
@@ -631,20 +670,20 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	 */
 	@SuppressWarnings("serial")
 	public class CancelWorkflowRunAction extends AbstractAction {
-		
-		public CancelWorkflowRunAction (){
+
+		public CancelWorkflowRunAction() {
 			super();
 			putValue(NAME, "Cancel");
 			putValue(SMALL_ICON, WorkbenchIcons.closeIcon);
 		}
-		
+
 		public void actionPerformed(ActionEvent e) {
 			workflowRunProgressStatusLabel.setText(STATUS_CANCELLED);
 			workflowRunProgressStatusLabel.setIcon(WorkbenchIcons.closeIcon);
 			// Disable the Pause/Resume button
 			workflowRunPauseButton.setEnabled(false);
 			workflowRunCancelButton.setEnabled(false);
-			if (facade != null){ // should not be null but check nevertheless
+			if (facade != null) { // should not be null but check nevertheless
 				facade.cancelWorkflowRun();
 			}
 
@@ -652,63 +691,62 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			monitorObserverForGraph.onDispose();
 			monitorObserverForTable.onDispose();
 
-			// Update the progress table to show workflow and processors as cancelled
+			// Update the progress table to show workflow and processors as
+			// cancelled
 			progressRunTable.setWorkflowCancelled();
 			progressRunTable.refreshTable();
 		}
 	}
-	
+
 	public class RefreshIntermediateValuesAction extends AbstractAction {
-	    public RefreshIntermediateValuesAction() {
-		super();
-		putValue(NAME, "Refresh intermediate values");
-		putValue(SMALL_ICON, WorkbenchIcons.refreshIcon);
-	    }
-
-	    public void actionPerformed(ActionEvent e) {
-
-		Object o = ResultsPerspectiveComponent.getInstance().getBottomComponent();
-		if (o instanceof ProcessorResultsComponent) {
-		    ProcessorResultsComponent prc = (ProcessorResultsComponent) o;
-		    prc.update();
+		public RefreshIntermediateValuesAction() {
+			super();
+			putValue(NAME, "Refresh intermediate values");
+			putValue(SMALL_ICON, WorkbenchIcons.refreshIcon);
 		}
-		((JButton)e.getSource()).getParent().requestFocusInWindow();
-	    }
+
+		public void actionPerformed(ActionEvent e) {
+
+			Object o = ResultsPerspectiveComponent.getInstance().getBottomComponent();
+			if (o instanceof ProcessorResultsComponent) {
+				ProcessorResultsComponent prc = (ProcessorResultsComponent) o;
+				prc.update();
+			}
+			((JButton) e.getSource()).getParent().requestFocusInWindow();
+		}
 	}
 
 	public class ReloadWorkflowAction extends AbstractAction {
-		private FileManager fileManager = FileManager.getInstance();
 
 		private Dataflow dataflow;
-		
-	    public ReloadWorkflowAction(final Dataflow dataflow) {
-	    	super();
-	    	this.dataflow = dataflow;
-	    	putValue(NAME, "Edit executed workflow");
-	    	putValue(SMALL_ICON, WorkbenchIcons.refreshIcon);
-	    }
 
-	    public void actionPerformed(ActionEvent e) {
-	    	try {
-	    		String id = dataflow.getIdentifier();
-	    		boolean found = false;
-	    		for (Dataflow d : fileManager.getOpenDataflows()) {
-	    			if (d.getIdentifier().equals(id)) {
-	    				fileManager.setCurrentDataflow(d);
-	    				found = true;
-	    				break;
-	    			}
-	    		}
-		    	if (!found) {
-	    			fileManager.openDataflow(new T2FlowFileType(), dataflow);
-		    	}
-	    	}
-	    	catch (OpenException ex) {
-	    		WorkflowRun.this.logger.error("Failed to reload workflow from run", ex);
-	    	}
-	    	((JButton)e.getSource()).getParent().requestFocusInWindow();
-	    }
-	    
+		public ReloadWorkflowAction(final Dataflow dataflow) {
+			super();
+			this.dataflow = dataflow;
+			putValue(NAME, "Edit executed workflow");
+			putValue(SMALL_ICON, WorkbenchIcons.refreshIcon);
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			try {
+				String id = dataflow.getIdentifier();
+				boolean found = false;
+				for (Dataflow d : fileManager.getOpenDataflows()) {
+					if (d.getIdentifier().equals(id)) {
+						fileManager.setCurrentDataflow(d);
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					fileManager.openDataflow(new T2FlowFileType(), dataflow);
+				}
+			} catch (OpenException ex) {
+				WorkflowRun.this.logger.error("Failed to reload workflow from run", ex);
+			}
+			((JButton) e.getSource()).getParent().requestFocusInWindow();
+		}
+
 	}
 
 	/**
@@ -725,17 +763,16 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 
 		public void actionPerformed(ActionEvent e) {
 
-		    ResultsPerspectiveComponent rpc = ResultsPerspectiveComponent.getInstance();
+			ResultsPerspectiveComponent rpc = ResultsPerspectiveComponent.getInstance();
 			if (workflowResultsComponent != null) {
-				rpc.setBottomComponent(
-						workflowResultsComponent);
+				rpc.setBottomComponent(workflowResultsComponent);
 				progressRunTable.setSelectedRowForObject(dataflow);
 				progressRunGraph.setSelectedGraphElementForWorkflowObject(dataflow);
 				rpc.revalidate();
 			}
-			((JButton)e.getSource()).getParent().requestFocusInWindow();
+			((JButton) e.getSource()).getParent().requestFocusInWindow();
 			intermediateValuesButton.setEnabled(false);
-			//			workflowResultsButton.setEnabled(false);
+			// workflowResultsButton.setEnabled(false);
 		}
 	}
 
@@ -744,21 +781,23 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 	}
 
 	public ProcessorResultsComponent getIntermediateResultsComponent(Processor p) {
-	    ProcessorResultsComponent intermediateResultsComponent = intermediateResultsComponents
-		.get(p);
-	    if (intermediateResultsComponent == null) {
-		if (facade != null){ // this is a fresh run (i.e. executed during this Taverna session)
-		    // Need to create a timer that will update intermediate results 
-		    // periodically until workflow stops running
-		    intermediateResultsComponent = new ProcessorResultsComponent(facade, 
-										 p, dataflow, runId, referenceService);
+		ProcessorResultsComponent intermediateResultsComponent = intermediateResultsComponents
+				.get(p);
+		if (intermediateResultsComponent == null) {
+			if (facade != null) { // this is a fresh run (i.e. executed during
+									// this Taverna session)
+				// Need to create a timer that will update intermediate results
+				// periodically until workflow stops running
+				intermediateResultsComponent = new ProcessorResultsComponent(facade, p, dataflow,
+						runId, referenceService);
+			} else { // this is an old workflow from provenance - no need to
+						// update intermediate
+				intermediateResultsComponent = new ProcessorResultsComponent(p, dataflow, runId,
+						referenceService);
+			}
+			intermediateResultsComponents.put(p, intermediateResultsComponent);
 		}
-		else{ // this is an old workflow from provenance - no need to update intermediate
-		    intermediateResultsComponent = new ProcessorResultsComponent(p, dataflow, runId, referenceService);
-		}
-		intermediateResultsComponents.put(p, intermediateResultsComponent);
-	    }
-	    return intermediateResultsComponent;
+		return intermediateResultsComponent;
 	}
 
 	public void notify(Observable<WorkflowObjectSelectionMessage> sender,
@@ -769,17 +808,18 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 		if (workflowObject instanceof Dataflow || workflowObject instanceof DataflowPort) {
 			rpc.setBottomComponent(workflowResultsComponent);
 			intermediateValuesButton.setEnabled(false);
-			//			workflowResultsButton.setEnabled(false);
+			// workflowResultsButton.setEnabled(false);
 		} else if (workflowObject instanceof Processor) {
-		    // User has selected a processor - show its
-		    // intermediate results if provenance is enabled (which it should be!)
-			if (isProvenanceEnabledForRun){
-			    ProcessorResultsComponent intermediateResultsComponent = getIntermediateResultsComponent((Processor) workflowObject);
-			    rpc.setBottomComponent(intermediateResultsComponent);
-			    if (facade != null) {
-				intermediateValuesButton.setEnabled(true);
-			    }
-			    //			    workflowResultsButton.setEnabled(true);
+			// User has selected a processor - show its
+			// intermediate results if provenance is enabled (which it should
+			// be!)
+			if (isProvenanceEnabledForRun) {
+				ProcessorResultsComponent intermediateResultsComponent = getIntermediateResultsComponent((Processor) workflowObject);
+				rpc.setBottomComponent(intermediateResultsComponent);
+				if (facade != null) {
+					intermediateValuesButton.setEnabled(true);
+				}
+				// workflowResultsButton.setEnabled(true);
 			}
 		}
 		rpc.revalidate();
@@ -787,14 +827,14 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage>{
 			DataflowPort dataflowPort = (DataflowPort) workflowObject;
 			workflowResultsComponent.selectWorkflowPortTab(dataflowPort);
 		}
-		
+
 		// If this came from a selection event on the graph
 		if (sender instanceof MonitorGraphComponent
 				&& (workflowObject instanceof Dataflow || workflowObject instanceof Processor)) {
 			// Update the selected row on the progress tree
 			progressRunTable.setSelectedRowForObject(workflowObject);
 		}
-		
+
 		// If this came from a selection event on the table
 		if (sender instanceof WorkflowRunProgressTreeTable
 				&& (workflowObject instanceof Dataflow || workflowObject instanceof Processor)) {

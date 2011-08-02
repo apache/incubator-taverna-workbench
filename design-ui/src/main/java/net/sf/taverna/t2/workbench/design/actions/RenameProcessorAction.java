@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -28,7 +28,9 @@ import java.util.Set;
 
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
 import net.sf.taverna.t2.workbench.design.ui.ProcessorPanel;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Processor;
@@ -37,7 +39,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Action for renaming a processor.
- * 
+ *
  * @author David Withers
  */
 public class RenameProcessorAction extends DataflowEditAction {
@@ -48,11 +50,11 @@ public class RenameProcessorAction extends DataflowEditAction {
 
 	private Processor processor;
 
-	public RenameProcessorAction(Dataflow dataflow, Processor processor, Component component) {
-		super(dataflow, component);
+	public RenameProcessorAction(Dataflow dataflow, Processor processor, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+		super(dataflow, component, editManager, dataflowSelectionManager);
 		this.processor = processor;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
-		putValue(NAME, "Rename service...");		
+		putValue(NAME, "Rename service...");
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -65,7 +67,7 @@ public class RenameProcessorAction extends DataflowEditAction {
 			}
 
 			ProcessorPanel inputPanel = new ProcessorPanel();
-			
+
 			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
 					"Rename service", inputPanel);
 			vuid.addTextComponentValidation(inputPanel.getProcessorNameField(),
@@ -80,7 +82,7 @@ public class RenameProcessorAction extends DataflowEditAction {
 				String processorName = inputPanel.getProcessorName();
 				editManager.doDataflowEdit(dataflow, edits.getRenameProcessorEdit(processor, processorName));
 			}
-		
+
 		} catch (EditException e1) {
 			logger.debug("Rename service (processor) failed", e1);
 		}

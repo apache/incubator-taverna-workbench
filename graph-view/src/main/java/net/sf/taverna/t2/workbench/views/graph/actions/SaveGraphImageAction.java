@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -63,7 +63,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 /**
  * An action that saves graph diagram image.
- * 
+ *
  * @author Alex Nenadic
  * @author Tom Oinn
  *
@@ -72,32 +72,38 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 public class SaveGraphImageAction extends AbstractAction{
 
 	private static Logger logger = Logger.getLogger(SaveGraphImageAction.class);
-	
+
 	private static ModelMap modelMap = ModelMap.getInstance();
 
 	/* Perspective switch observer */
 	private CurrentPerspectiveObserver perspectiveObserver = new CurrentPerspectiveObserver();
-	
+
 	private String[] saveTypes = { "dot", "png", "svg", "ps", "ps2" };
 	private String[] saveExtensions = { "dot", "png", "svg", "ps", "ps" };
 	private String[] saveTypeNames = { "dot text", "PNG bitmap",
 			"scalable vector graphics", "postscript", "postscript for PDF" };
-	
-	public SaveGraphImageAction(){
+
+	private final MenuManager menuManager;
+
+	private final FileManager fileManager;
+
+	public SaveGraphImageAction(FileManager fileManager, MenuManager menuManager){
 		super();
+		this.fileManager = fileManager;
+		this.menuManager = menuManager;
 		putValue(SMALL_ICON, WorkbenchIcons.savePNGIcon);
-		putValue(NAME, "Export diagram");	
-		putValue(SHORT_DESCRIPTION, "Export diagram");	
-		
+		putValue(NAME, "Export diagram");
+		putValue(SHORT_DESCRIPTION, "Export diagram");
+
 		modelMap.addObserver(perspectiveObserver);
 	}
-	
+
 	public void actionPerformed(ActionEvent e) {
 		JPopupMenu menu = createSaveDiagramMenu();
-		Component parent = MenuManager.getInstance().getComponentByURI(SaveGraphImageToolbarAction.SAVE_GRAPH_IMAGE_TOOLBAR_URI);
+		Component parent = menuManager.getComponentByURI(SaveGraphImageToolbarAction.SAVE_GRAPH_IMAGE_TOOLBAR_URI);
 		menu.show(parent, 0, parent.getHeight());
 	}
-	
+
 	JPopupMenu createSaveDiagramMenu() {
 		JPopupMenu menu = new JPopupMenu();
 		for (int i = 0; i < saveTypes.length; i++) {
@@ -112,7 +118,7 @@ public class SaveGraphImageAction extends AbstractAction{
 		}
 		return menu;
 	}
-	
+
 	class DotInvoker implements ActionListener {
 		String type = "dot";
 		String extension = "dot";
@@ -127,7 +133,7 @@ public class SaveGraphImageAction extends AbstractAction{
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			Dataflow dataflow = FileManager.getInstance().getCurrentDataflow();
+			Dataflow dataflow = fileManager.getCurrentDataflow();
 			if (dataflow == null) {
 				JOptionPane
 				.showMessageDialog(
@@ -140,9 +146,9 @@ public class SaveGraphImageAction extends AbstractAction{
 						"Export workflow diagram");
 				if (file != null) {// User did not cancel
 					try {
-						
+
 						SVGGraphController graphController = GraphViewComponent.graphControllerMap.get(dataflow);
-						
+
 						if (type.equals("dot")) {
 							// Just write out the dot text, no processing required
 							PrintWriter out = new PrintWriter(new FileWriter(file));
@@ -150,7 +156,7 @@ public class SaveGraphImageAction extends AbstractAction{
 							dotWriter.writeGraph(graphController.getGraph());
 							out.flush();
 							out.close();
-						} 
+						}
 						else{
 							String dotLocation = (String)WorkbenchConfiguration.getInstance().getProperty("taverna.dotlocation");
 							if (dotLocation == null) {
@@ -159,20 +165,20 @@ public class SaveGraphImageAction extends AbstractAction{
 							logger.debug("GraphViewComponent: Invoking dot...");
 							Process dotProcess = Runtime.getRuntime().exec(
 									new String[] { dotLocation, "-T" + type });
-						
+
 							FileOutputStream fos = new FileOutputStream(file);
-						
+
 							StringWriter stringWriter = new StringWriter();
 							DotWriter dotWriter = new DotWriter(stringWriter);
 							dotWriter.writeGraph(graphController.getGraph());
-							
+
 							OutputStream dotOut = dotProcess.getOutputStream();
 							dotOut.write(SVGUtil.getDot(stringWriter.toString()).getBytes());
 							dotOut.flush();
 							dotOut.close();
 							new StreamDevourer(dotProcess.getErrorStream()).start();
 							new StreamCopier(dotProcess.getInputStream(), fos).start();
-							
+
 						}
 					} catch (Exception ex) {
 						logger.warn("GraphViewComponent: Could not export diagram to " + file, ex);
@@ -184,12 +190,12 @@ public class SaveGraphImageAction extends AbstractAction{
 			}
 		}
 	}
-	
+
 	/**
-	 * Pop up a save dialogue relating to the given workflow. This method can be 
-	 * used, for example, for saving the workflow diagram as .png, and will use 
+	 * Pop up a save dialogue relating to the given workflow. This method can be
+	 * used, for example, for saving the workflow diagram as .png, and will use
 	 * the existing workflow title as a base for suggesting a filename.
-	 * 
+	 *
 	 * @param parentComponent
 	 *            Parent component for dialogue window
 	 * @param model
@@ -211,7 +217,7 @@ public class SaveGraphImageAction extends AbstractAction{
 				.get("currentDir", System.getProperty("user.home"));
 		String suggestedFileName = "";
 		// Get the source the workflow was loaded from - can be File, URL, or InputStream
-		Object source  = FileManager.getInstance().getDataflowSource(dataflow);
+		Object source  = fileManager.getDataflowSource(dataflow);
 		if (source instanceof File){
 			suggestedFileName = ((File)source).getName();
 			// remove the file extension
@@ -225,7 +231,7 @@ public class SaveGraphImageAction extends AbstractAction{
 		else{
 			// We cannot suggest the file name if workflow was read from an InputStream
 		}
-		
+
 		fc.setDialogTitle(windowTitle);
 		fc.resetChoosableFileFilters();
 		fc.setFileFilter(new ExtensionFileFilter(new String[] { extension }));
@@ -236,12 +242,12 @@ public class SaveGraphImageAction extends AbstractAction{
 			// Suggest a filename from the workflow file name
 			fc.setSelectedFile(new File(curDir, suggestedFileName + "." + extension));
 		}
-		
+
 		// Do the "Do you want to overwrite?" if user selected an already existing file
 		boolean tryAgain = true;
 		while (tryAgain) {
 			tryAgain = false;
-			
+
 			int returnVal = fc.showSaveDialog(parentComponent);
 			if (returnVal != JFileChooser.APPROVE_OPTION) {
 				logger.info("GraphViewComponent: Aborting diagram export to " + suggestedFileName);
@@ -251,14 +257,14 @@ public class SaveGraphImageAction extends AbstractAction{
 				File file = fixExtension(fc.getSelectedFile(), extension);
 				logger.debug("GraphViewComponent: Selected " + file + " for export");
 				prefs.put("currentDir", fc.getCurrentDirectory().toString());
-				
+
 				if (file.exists()){ // File already exists
 					// Ask the user if they want to overwrite the file
 					String msg = file.getAbsolutePath() + " already exists. Do you want to overwrite it?";
 					int ret = JOptionPane.showConfirmDialog(
 							null, msg, "File already exists",
 							JOptionPane.YES_NO_OPTION);
-					
+
 					if (ret == JOptionPane.YES_OPTION) {
 						return file;
 					}
@@ -266,19 +272,19 @@ public class SaveGraphImageAction extends AbstractAction{
 						tryAgain = true;
 					}
 				}
-				else{ 
+				else{
 					return file;
 				}
 			}
 		}
 		return null; // should not get to here, but java was complaining
 	}
-	
+
 	/**
-	 * Make sure given File has the given extension. If it has no extension, 
-	 * a new File instance will be returned. Otherwise, the passed instance is 
+	 * Make sure given File has the given extension. If it has no extension,
+	 * a new File instance will be returned. Otherwise, the passed instance is
 	 * returned unchanged.
-	 * 
+	 *
 	 * @param file
 	 *            File which extension is to be checked
 	 * @param extension

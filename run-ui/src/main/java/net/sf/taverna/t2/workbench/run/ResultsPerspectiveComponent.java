@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007-2010 The University of Manchester   
- * 
+ * Copyright (C) 2007-2010 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -51,16 +51,17 @@ import javax.swing.border.LineBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade.State;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.reference.impl.WriteQueueAspect;
+import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.run.cleanup.DatabaseCleanup;
-import net.sf.taverna.t2.workbench.run.cleanup.ReferenceServiceShutdownHook;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
@@ -68,37 +69,32 @@ import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
 import net.sf.taverna.t2.workbench.views.monitor.graph.MonitorGraphComponent;
 import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressMonitor;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.NoSuchBeanDefinitionException;
-import org.springframework.context.ApplicationContext;
 
 /**
- * Component for keeping and showing workflow runs and 
- * workflow final/intermediate results as well as workflow run progress report.
+ * Component for keeping and showing workflow runs and workflow
+ * final/intermediate results as well as workflow run progress report.
  * <p>
- * <b> FIXME: </b> This class performs a double-role as the GUI component and for
- * keeping and tidying up in the actual runs. Running, keeping runs, results and
- * previous runs should be done in a separate non-GUI module.
+ * <b> FIXME: </b> This class performs a double-role as the GUI component and
+ * for keeping and tidying up in the actual runs. Running, keeping runs, results
+ * and previous runs should be done in a separate non-GUI module.
  */
 public class ResultsPerspectiveComponent extends JSplitPane implements UIComponentSPI {
 
 	private static final long serialVersionUID = 1L;
 
 	private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-	
-	private static Logger logger = Logger
-			.getLogger(ResultsPerspectiveComponent.class);
+
+	private static Logger logger = Logger.getLogger(ResultsPerspectiveComponent.class);
 
 	// Current Reference Service
 	private ReferenceService referenceService;
 
-	// Reference Service using the database storage, 
+	// Reference Service using the database storage,
 	// needed for previous runs that are always store in the database
 	private ReferenceService referenceServiceWithDatabase;
-
-	// Current ReferenceContext
-	private String referenceContext;
 
 	// List model for previous workflow runs
 	private DefaultListModel workflowRunsListModel;
@@ -109,21 +105,31 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 	// A button to remove previous runs
 	private JButton removeWorkflowRunsButton;
 
-	// A split pane containing previous runs and workflow run progress 
-	// components (graph and progress report) 
+	// A split pane containing previous runs and workflow run progress
+	// components (graph and progress report)
 	private JSplitPane topPanel;
-	
+
 	// Background thread for loading a previous workflow run
 	protected LoadPreviousWorkflowRunThread loadPreviousWorkflowRunThread;
+
+	private EditManager editManager;
+
+	private FileManager fileManager;
+
+	private MenuManager menuManager;
+
+	private DataflowSelectionManager dataflowSelectionManager;
+
+	private XMLDeserializer xmlDeserializer;
 
 	private static class Singleton {
 		private static ResultsPerspectiveComponent INSTANCE = new ResultsPerspectiveComponent();
 	}
-	
+
 	public static ResultsPerspectiveComponent getInstance() {
 		return Singleton.INSTANCE;
 	}
-	
+
 	protected ResultsPerspectiveComponent() {
 		super(JSplitPane.VERTICAL_SPLIT);
 		setDividerLocation(400);
@@ -136,8 +142,7 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 		workflowRunsListModel = new DefaultListModel();
 		workflowRunsList = new JList(workflowRunsListModel);
 		workflowRunsList.setBorder(new EmptyBorder(5, 5, 5, 5));
-		workflowRunsList
-				.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		workflowRunsList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		// workflowRunList.setSelectedIndex(0);
 		workflowRunsList.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent e) {
@@ -151,34 +156,30 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 						ResetDiagramAction.setResultsAction(null);
 						ZoomInAction.setResultsAction(null);
 						ZoomOutAction.setResultsAction(null);
-						
+
 						JPanel tempMonitorPanel = new JPanel(new BorderLayout());
-						tempMonitorPanel.setBorder(LineBorder
-								.createGrayLineBorder());
+						tempMonitorPanel.setBorder(LineBorder.createGrayLineBorder());
 						tempMonitorPanel.setBackground(Color.WHITE);
-						tempMonitorPanel.add(new JLabel(
-								"No workflows runs available", JLabel.CENTER),
-								BorderLayout.CENTER);
-						
+						tempMonitorPanel.add(new JLabel("No workflows runs available",
+								JLabel.CENTER), BorderLayout.CENTER);
+
 						JPanel tempMonitorPanel2 = new JPanel(new BorderLayout());
-						tempMonitorPanel2.setBorder(LineBorder
-								.createGrayLineBorder());
+						tempMonitorPanel2.setBorder(LineBorder.createGrayLineBorder());
 						tempMonitorPanel2.setBackground(Color.WHITE);
-						tempMonitorPanel2.add(new JLabel(
-								"No workflows runs available", JLabel.CENTER),
-								BorderLayout.CENTER);
-						
+						tempMonitorPanel2.add(new JLabel("No workflows runs available",
+								JLabel.CENTER), BorderLayout.CENTER);
+
 						JTabbedPane monitorComponent = new JTabbedPane();
-						monitorComponent.add("Graph",tempMonitorPanel); // graph
-						monitorComponent.add("Progress report", tempMonitorPanel2); // progress report	
+						monitorComponent.add("Graph", tempMonitorPanel); // graph
+						monitorComponent.add("Progress report", tempMonitorPanel2); // progress
+																					// report
 						topPanel.setBottomComponent(monitorComponent);
-						
+
 						JPanel tempResultsPanel = new JPanel(new BorderLayout());
 						tempResultsPanel.setBackground(Color.WHITE);
-						tempResultsPanel.add(new JLabel("Results"),
-								BorderLayout.NORTH);
-						tempResultsPanel.add(new JLabel("No results available",
-								JLabel.CENTER), BorderLayout.CENTER);
+						tempResultsPanel.add(new JLabel("Results"), BorderLayout.NORTH);
+						tempResultsPanel.add(new JLabel("No results available", JLabel.CENTER),
+								BorderLayout.CENTER);
 						setBottomComponent(tempResultsPanel);
 
 						removeWorkflowRunsButton.setEnabled(false);
@@ -191,12 +192,10 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 							String loadingText = "<html><body>Loading workflow diagram and results for <b>"
 									+ workflowRun.getWorkflowName()
 									+ "</b> for run "
-									+ ISO_8601.format(workflowRun.getDate())
-									+ "</body></html>";
-							monitorComponent.add("Graph", new JLabel(
-									loadingText)); // graph
-							monitorComponent.add("Progress report", new JLabel(
-									loadingText)); // progress report
+									+ ISO_8601.format(workflowRun.getDate()) + "</body></html>";
+							monitorComponent.add("Graph", new JLabel(loadingText)); // graph
+							monitorComponent.add("Progress report", new JLabel(loadingText)); // progress
+																								// report
 							topPanel.setBottomComponent(monitorComponent);
 							setBottomComponent(new JPanel());
 							synchronized (this) {
@@ -207,38 +206,42 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 										workflowRun);
 								loadPreviousWorkflowRunThread.start();
 							}
-						} else if (workflowRun.getDataflow() == null) {					
+						} else if (workflowRun.getDataflow() == null) {
 							ResetDiagramAction.setResultsAction(null);
 							ZoomInAction.setResultsAction(null);
 							ZoomOutAction.setResultsAction(null);
 
 							JTabbedPane monitorComponent = new JTabbedPane();
 							String errorText = "Could not load workflow for run "
-							+ workflowRun.getRunId();
-							monitorComponent.add("Graph", new JLabel(
-									errorText)); // graph
-							monitorComponent.add("Progress report", new JLabel(
-									errorText)); // progress report	
-							topPanel.setBottomComponent(monitorComponent);	
+									+ workflowRun.getRunId();
+							monitorComponent.add("Graph", new JLabel(errorText)); // graph
+							monitorComponent.add("Progress report", new JLabel(errorText)); // progress
+																							// report
+							topPanel.setBottomComponent(monitorComponent);
 							setBottomComponent(new JPanel());
 						} else {
 							// Everything OK, dataflow already loaded
-							/*JTabbedPane monitorComponent = new JTabbedPane();
-							monitorComponent.add("Graph", workflowRun
-									.getOrCreateMonitorViewComponent()); // graph
-							JScrollPane scrollPane = new JScrollPane(workflowRun
-									.getOrCreateProgressReportComponent(),
-									JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-									JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-							monitorComponent.add("Progress report", scrollPane); // progress report	*/
-							MonitorViewComponent monitorComponent = workflowRun.getOrCreateMonitorViewComponent();
-							topPanel.setBottomComponent(monitorComponent);	
-							setBottomComponent(workflowRun
-									.getResultsComponent());
-							
+							/*
+							 * JTabbedPane monitorComponent = new JTabbedPane();
+							 * monitorComponent.add("Graph", workflowRun
+							 * .getOrCreateMonitorViewComponent()); // graph
+							 * JScrollPane scrollPane = new
+							 * JScrollPane(workflowRun
+							 * .getOrCreateProgressReportComponent(),
+							 * JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+							 * JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+							 * monitorComponent.add("Progress report",
+							 * scrollPane); // progress report
+							 */
+							MonitorViewComponent monitorComponent = workflowRun
+									.getOrCreateMonitorViewComponent();
+							topPanel.setBottomComponent(monitorComponent);
+							setBottomComponent(workflowRun.getResultsComponent());
+
 							MonitorGraphComponent monitorGraph = monitorComponent.getMonitorGraph();
 							if (monitorGraph != null) {
-								ResetDiagramAction.setResultsAction(monitorGraph.getResetDiagramAction());
+								ResetDiagramAction.setResultsAction(monitorGraph
+										.getResetDiagramAction());
 								ZoomInAction.setResultsAction(monitorGraph.getZoomInAction());
 								ZoomOutAction.setResultsAction(monitorGraph.getZoomOutAction());
 							}
@@ -274,8 +277,7 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 								new JLabel(
 										"<html><body>Are you sure you want to delete the selected workflow run(s)?<br>"
 												+ "Deleting them will remove all provenance data related to the run(s).</body></html>"),
-								"Confirm workflow run deletion",
-								JOptionPane.OK_CANCEL_OPTION);
+								"Confirm workflow run deletion", JOptionPane.OK_CANCEL_OPTION);
 				if (option == JOptionPane.CANCEL_OPTION) {
 					return;
 				}
@@ -285,14 +287,16 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				if (selectedRunsToDelete.length > 0) {
 					int lastSelectedIndex = selectedRunsToDelete[selectedRunsToDelete.length - 1];
 					if (lastSelectedIndex != workflowRunsListModel.size() - 1) {
-						nextToSelect = (WorkflowRun) workflowRunsListModel.get(lastSelectedIndex + 1);
+						nextToSelect = (WorkflowRun) workflowRunsListModel
+								.get(lastSelectedIndex + 1);
 					}
 				}
 				for (int i = 0; i < selectedRunsToDelete.length; i++) {
-					
+
 					WorkflowRun wfRun = ((WorkflowRun) workflowRunsListModel.get(i));
-					
-					if (wfRun.getFacade() != null && wfRun.getFacade().getState().equals(State.running)){
+
+					if (wfRun.getFacade() != null
+							&& wfRun.getFacade().getState().equals(State.running)) {
 						option = JOptionPane
 								.showConfirmDialog(
 										null,
@@ -312,7 +316,7 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				for (int i = selectedRunsToDelete.length - 1; i >= 0; i--) {
 					final WorkflowRun workflowRunToBeDeleted = (WorkflowRun) workflowRunsListModel
 							.remove(selectedRunsToDelete[i]);
-					
+
 					// Stop the workflow run if it still active
 					WorkflowInstanceFacade facade = workflowRunToBeDeleted.getFacade();
 					if (facade != null) {
@@ -322,16 +326,17 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 							}
 						}
 					}
-					MonitorGraphComponent mvc = workflowRunToBeDeleted
-							.getMonitorGraphComponent();
+					MonitorGraphComponent mvc = workflowRunToBeDeleted.getMonitorGraphComponent();
 					if (mvc != null) {
 						mvc.onDispose();
 					}
-					WorkflowRunProgressMonitor progressRunMonitor = workflowRunToBeDeleted.getWorkflowRunProgressMonitor();
+					WorkflowRunProgressMonitor progressRunMonitor = workflowRunToBeDeleted
+							.getWorkflowRunProgressMonitor();
 					if (progressRunMonitor != null) {
 						progressRunMonitor.onDispose();
 					}
-					DatabaseCleanup.getInstance().scheduleDeleteDataflowRun(workflowRunToBeDeleted, true);					
+					DatabaseCleanup.getInstance().scheduleDeleteDataflowRun(workflowRunToBeDeleted,
+							true);
 				}
 				// Set the first item as selected - if there is one
 				if (workflowRunsListModel.size() > 0) {
@@ -347,7 +352,7 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				System.gc();
 			}
 		});
-		
+
 		JPanel workflowRunListTopPanel = new JPanel();
 		workflowRunListTopPanel.setLayout(new BorderLayout());
 		workflowRunListTopPanel.add(worklflowRunsLabel, BorderLayout.WEST);
@@ -359,12 +364,9 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 		JPanel hintsPanel = new JPanel();
 		hintsPanel.setLayout(new BorderLayout());
-		hintsPanel.add(new JLabel("Click on a run to see its values"),
-				BorderLayout.NORTH);
-		hintsPanel.add(new JLabel("Click on a service in the diagram"),
-				BorderLayout.CENTER);
-		hintsPanel.add(new JLabel("to see intermediate values (if available)"),
-				BorderLayout.SOUTH);
+		hintsPanel.add(new JLabel("Click on a run to see its values"), BorderLayout.NORTH);
+		hintsPanel.add(new JLabel("Click on a service in the diagram"), BorderLayout.CENTER);
+		hintsPanel.add(new JLabel("to see intermediate values (if available)"), BorderLayout.SOUTH);
 		workflowRunListWithHintTopPanel.add(hintsPanel, BorderLayout.SOUTH);
 
 		workflowRunsListPanel.add(workflowRunListWithHintTopPanel, BorderLayout.NORTH);
@@ -378,15 +380,14 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 		JPanel tempMonitorPanel = new JPanel(new BorderLayout());
 		tempMonitorPanel.setBorder(LineBorder.createGrayLineBorder());
 		tempMonitorPanel.setBackground(Color.WHITE);
-		tempMonitorPanel.add(new JLabel("No workflow run selected",
-				JLabel.CENTER), BorderLayout.CENTER);
+		tempMonitorPanel.add(new JLabel("No workflow run selected", JLabel.CENTER),
+				BorderLayout.CENTER);
 		topPanel.setBottomComponent(tempMonitorPanel);
 
 		JPanel tempResultsPanel = new JPanel(new BorderLayout());
 		tempResultsPanel.setBackground(Color.WHITE);
 		tempResultsPanel.add(new JLabel("Values"), BorderLayout.NORTH);
-		tempResultsPanel.add(new JLabel("No values yet", JLabel.CENTER),
-				BorderLayout.CENTER);
+		tempResultsPanel.add(new JLabel("No values yet", JLabel.CENTER), BorderLayout.CENTER);
 		setBottomComponent(tempResultsPanel);
 
 		// revalidate();
@@ -399,43 +400,37 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 	@SuppressWarnings("unchecked")
 	public ArrayList<WorkflowRun> getPreviousWorkflowRuns() {
-		return (ArrayList<WorkflowRun>) Collections.list(workflowRunsListModel
-				.elements());
+		return (ArrayList<WorkflowRun>) Collections.list(workflowRunsListModel.elements());
 	}
 
 	protected void retrievePreviousWorkflowRunsFromDatabase() {
-		String connectorType = DataManagementConfiguration.getInstance()
-				.getConnectorType();
+		String connectorType = DataManagementConfiguration.getInstance().getConnectorType();
 		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
 
-		
-		List<net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowRun> allWorkflowRunIDs = provenanceAccess.listRuns(
-				null, null);
+		List<net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowRun> allWorkflowRunIDs = provenanceAccess
+				.listRuns(null, null);
 		// List<WorkflowInstance> allWorkflowRunIDs =
 		// provenanceAccess.getAllWorkflowIDs();
 		// Collections.reverse(allWorkflowRunIDs);
 
 		for (net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowRun workflowRun : allWorkflowRunIDs) {
 			DatabaseCleanup databaseCleanup = DatabaseCleanup.getInstance();
-			if (databaseCleanup.isDeletedOrScheduledForDeletion(
-					workflowRun.getWorkflowRunId())) {
+			if (databaseCleanup.isDeletedOrScheduledForDeletion(workflowRun.getWorkflowRunId())) {
 				continue;
 			}
-			if (provenanceAccess.isTopLevelDataflow(workflowRun
-					.getWorkflowId(), workflowRun.getWorkflowRunId())) {
+			if (provenanceAccess.isTopLevelDataflow(workflowRun.getWorkflowId(),
+					workflowRun.getWorkflowRunId())) {
 				logger.info("retrieved previous run, workflow run id: "
-						+ workflowRun.getWorkflowRunId() + " date: "
-						+ workflowRun.getTimestamp());
-				Timestamp time = Timestamp.valueOf(workflowRun
-						.getTimestamp());
+						+ workflowRun.getWorkflowRunId() + " date: " + workflowRun.getTimestamp());
+				Timestamp time = Timestamp.valueOf(workflowRun.getTimestamp());
 				Date date = new Date(time.getTime());
 
 				// Do Dataflow parsing on selection, simply pass
 				// wf-bytes and wf id
-				WorkflowRun runComponent = new WorkflowRun(workflowRun
-						.getDataflowBlob(), workflowRun
-						.getWorkflowId(), workflowRun.getWorkflowExternalName(), 
-						date, workflowRun.getWorkflowRunId(), referenceServiceWithDatabase);
+				WorkflowRun runComponent = new WorkflowRun(workflowRun.getDataflowBlob(),
+						workflowRun.getWorkflowId(), workflowRun.getWorkflowExternalName(), date,
+						workflowRun.getWorkflowRunId(), referenceServiceWithDatabase, editManager,
+						fileManager, menuManager, dataflowSelectionManager, xmlDeserializer);
 				runComponent.setDataSavedInDatabase(true);
 				runComponent.setProvenanceEnabledForRun(true);
 				workflowRunsListModel.add(workflowRunsListModel.getSize(), runComponent);
@@ -447,27 +442,12 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 		return workflowRunsListModel.size();
 	}
 
-	public synchronized ReferenceService getReferenceService() {
-		String context = DataManagementConfiguration.getInstance()
-				.getDatabaseContext();
-		if (!context.equals(referenceContext)) {
-			referenceContext = context;
-			ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
-					context);
-			referenceService = (ReferenceService) appContext
-					.getBean("t2reference.service.referenceService");
-			try {
-				WriteQueueAspect cache = (WriteQueueAspect) appContext
-						.getBean("t2reference.cache.cacheAspect");
-				ReferenceServiceShutdownHook.setReferenceServiceCache(cache);
-			} catch (NoSuchBeanDefinitionException e) {
-				// ReferenceServiceShutdown.setReferenceServiceCache(null);
-			} catch (ClassCastException e) {
-				// ReferenceServiceShutdown.setReferenceServiceCache(null);
-			}
-		}
+	public ReferenceService getReferenceService() {
 		return referenceService;
+	}
 
+	public void setReferenceService(ReferenceService referenceService) {
+		this.referenceService = referenceService;
 	}
 
 	public synchronized ReferenceService getReferenceServiceWithDatabase() {
@@ -478,24 +458,21 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 		// current Ref. Manager uses in-memory store.
 		if (referenceServiceWithDatabase == null) {
 			String databasecontext = DataManagementConfiguration.HIBERNATE_CONTEXT;
-			ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
-					databasecontext);
-			referenceServiceWithDatabase = (ReferenceService) appContext
-					.getBean("t2reference.service.referenceService");
+//			ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
+//					databasecontext);
+//			referenceServiceWithDatabase = (ReferenceService) appContext
+//					.getBean("t2reference.service.referenceService");
 		}
 		return referenceServiceWithDatabase;
 	}
-	
-	public void runWorkflow(WorkflowInstanceFacade facade,
-			Map<String, T2Reference> inputs) {
-		WorkflowRun workflowRun = new WorkflowRun(facade, inputs, new Date(),
-				referenceService);
-		workflowRun.setProvenanceEnabledForRun(DataManagementConfiguration
-				.getInstance().isProvenanceEnabled());
-		workflowRun.setDataSavedInDatabase(DataManagementConfiguration
-				.getInstance().getProperty(
-						DataManagementConfiguration.IN_MEMORY)
-				.equalsIgnoreCase("false"));
+
+	public void runWorkflow(WorkflowInstanceFacade facade, Map<String, T2Reference> inputs) {
+		WorkflowRun workflowRun = new WorkflowRun(facade, inputs, new Date(), referenceService, editManager,
+				fileManager, menuManager, dataflowSelectionManager, xmlDeserializer);
+		workflowRun.setProvenanceEnabledForRun(DataManagementConfiguration.getInstance()
+				.isProvenanceEnabled());
+		workflowRun.setDataSavedInDatabase(DataManagementConfiguration.getInstance()
+				.getProperty(DataManagementConfiguration.IN_MEMORY).equalsIgnoreCase("false"));
 		workflowRunsListModel.add(0, workflowRun);
 		workflowRunsList.setSelectedIndex(0);
 		workflowRun.run();
@@ -516,6 +493,26 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 	}
 
+	public void setEditManager(EditManager editManager) {
+		this.editManager = editManager;
+	}
+
+	public void setFileManager(FileManager fileManager) {
+		this.fileManager = fileManager;
+	}
+
+	public void setMenuManager(MenuManager menuManager) {
+		this.menuManager = menuManager;
+	}
+
+	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
+		this.dataflowSelectionManager = dataflowSelectionManager;
+	}
+
+	public void setXmlDeserializer(XMLDeserializer xmlDeserializer) {
+		this.xmlDeserializer = xmlDeserializer;
+	}
+
 	protected class RetrievePreviousWorkflowRunsThread extends Thread {
 		private RetrievePreviousWorkflowRunsThread() {
 			super("Retrieving previous workflow runs");
@@ -523,10 +520,6 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 		@Override
 		public void run() {
-			// force reference service to be constructed now rather than at
-			// first
-			// workflow run
-			getReferenceService();
 			getReferenceServiceWithDatabase(); // get the Reference Service
 			// with database for
 			// previous runs
@@ -537,7 +530,7 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 	/**
 	 * Load a workflow run from database (in separate thread, as this involves
 	 * parsing the workflow definition).
-	 * 
+	 *
 	 */
 	protected class LoadPreviousWorkflowRunThread extends Thread {
 		private final WorkflowRun workflowRun;
@@ -558,7 +551,7 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 			}
 			// Prepare GUI
 			workflowRun.getOrCreateMonitorViewComponent();
-			
+
 			if (isInterrupted()) {
 				return;
 			}
@@ -575,18 +568,18 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				return;
 			}
 			if (workflowRun.getDataflow() != null) {
-				MonitorViewComponent monitorComponent = workflowRun.getOrCreateMonitorViewComponent();
+				MonitorViewComponent monitorComponent = workflowRun
+						.getOrCreateMonitorViewComponent();
 				topPanel.setBottomComponent(monitorComponent);
 				setBottomComponent(workflowRun.getResultsComponent());
 			} else {
-				topPanel.setBottomComponent(new JLabel(
-						"Could not load workflow for run "
-								+ workflowRun.getRunId()));
+				topPanel.setBottomComponent(new JLabel("Could not load workflow for run "
+						+ workflowRun.getRunId()));
 				setBottomComponent(new JPanel());
 			}
 		}
 	}
-	
+
 	public void setBottomComponent(Component comp) {
 		int dividerLocation = this.getDividerLocation();
 		int height = this.getHeight();

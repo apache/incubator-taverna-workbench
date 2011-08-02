@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -46,7 +46,7 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 
 /**
  * Manager for handling UI events on GraphElements.
- * 
+ *
  * @author David Withers
  */
 public class DefaultGraphEventManager implements GraphEventManager {
@@ -56,8 +56,8 @@ public class DefaultGraphEventManager implements GraphEventManager {
 	private Component component;
 
 	private JPopupMenu menu;
-	
-	private MenuManager menuManager = MenuManager.getInstance();
+
+	private MenuManager menuManager;
 
 	/**
 	 * Constructs a new instance of GraphEventManager.
@@ -65,9 +65,10 @@ public class DefaultGraphEventManager implements GraphEventManager {
 	 * @param graphController
 	 * @param component component to use when displaying popup menus
 	 */
-	public DefaultGraphEventManager(GraphController graphController, Component component) {
+	public DefaultGraphEventManager(GraphController graphController, Component component, MenuManager menuManager) {
 		this.graphController = graphController;
 		this.component = component;
+		this.menuManager = menuManager;
 	}
 
 	/* (non-Javadoc)
@@ -76,14 +77,14 @@ public class DefaultGraphEventManager implements GraphEventManager {
 	public void mouseClicked(final GraphElement graphElement, short button,
 			boolean altKey, boolean ctrlKey, boolean metaKey, final int x, final int y, int screenX, int screenY) {
 		Object dataflowObject = graphElement.getDataflowObject();
-		
+
 		// For both left and right click - add to selection model
 		if (graphController.getDataflowSelectionModel() != null) {
 			graphController.getDataflowSelectionModel().addSelection(dataflowObject);
 		}
-		
+
 		// If this was a right click - show a pop-up as well
-		if ((button == 2) || ctrlKey) { 
+		if ((button == 2) || ctrlKey) {
 			menu = null;
 			if (dataflowObject instanceof Processor) {
 				final Processor processor = (Processor) dataflowObject;
@@ -110,8 +111,8 @@ public class DefaultGraphEventManager implements GraphEventManager {
 							}
 						}));
 					}
-					if (!processor.getActivityList().isEmpty() && 
-							processor.getActivityList().get(0) instanceof NestedDataflow) {						
+					if (!processor.getActivityList().isEmpty() &&
+							processor.getActivityList().get(0) instanceof NestedDataflow) {
 						final NestedDataflow nestedDataflow = (NestedDataflow) processor.getActivityList().get(0);
 						menu.addSeparator();
 						menu.add(new JMenuItem(new AbstractAction("Show nested workflow") {
@@ -147,7 +148,7 @@ public class DefaultGraphEventManager implements GraphEventManager {
 										graphController.startEdgeCreation(sourceNode, new Point(x, y));
 									}
 
-								}));	
+								}));
 							}
 						}
 					}
@@ -181,8 +182,8 @@ public class DefaultGraphEventManager implements GraphEventManager {
 						}
 					}
 				} else if (graphElement instanceof Graph) {
-					if (!processor.getActivityList().isEmpty() && 
-							processor.getActivityList().get(0) instanceof NestedDataflow) {						
+					if (!processor.getActivityList().isEmpty() &&
+							processor.getActivityList().get(0) instanceof NestedDataflow) {
 						final NestedDataflow nestedDataflow = (NestedDataflow) processor.getActivityList().get(0);
 						menu.addSeparator();
 						menu.add(new JMenuItem(new AbstractAction("Hide nested workflow") {

@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007-2010 The University of Manchester   
- * 
+ * Copyright (C) 2007-2010 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -48,14 +48,16 @@ import net.sf.taverna.t2.reference.ui.CopyWorkflowSwingWorker;
 import net.sf.taverna.t2.reference.ui.InvalidDataflowReport;
 import net.sf.taverna.t2.reference.ui.WorkflowLaunchWindow;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
+import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.run.ResultsPerspectiveComponent;
 import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
-import net.sf.taverna.t2.workbench.ui.impl.Workbench;
+import net.sf.taverna.t2.workbench.ui.Workbench;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.InvalidDataflowException;
@@ -64,13 +66,13 @@ import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 import org.apache.log4j.Logger;
 
 /**
- * Run the current workflow (with workflow input dialogue if needed) and add it to the
- * list of runs.
+ * Run the current workflow (with workflow input dialogue if needed) and add it
+ * to the list of runs.
  * <p>
  * Note that running a workflow will force a serialization and deserialization
  * of the Dataflow to make a copy of the workflow, allowing further edits to the
  * current Dataflow without obstructing the run.
- * 
+ *
  */
 public class RunWorkflowAction extends AbstractAction {
 
@@ -81,22 +83,37 @@ public class RunWorkflowAction extends AbstractAction {
 	private ResultsPerspectiveComponent resultsPerspectiveComponent;
 
 	private PerspectiveSPI resultsPerspective;
-	
+
 	// A map of workflows and their corresponding WorkflowLaunchWindowS
-	// We only create one window per workflow and then update its content if the workflow gets updated
+	// We only create one window per workflow and then update its content if the
+	// workflow gets updated
 	private static HashMap<Dataflow, WorkflowLaunchWindow> workflowLaunchWindowMap = new HashMap<Dataflow, WorkflowLaunchWindow>();
 
-	public RunWorkflowAction() {
+	private final EditManager editManager;
+
+	private final FileManager fileManager;
+
+	private final ReportManager reportManager;
+
+	private final Workbench workbench;
+
+	public RunWorkflowAction(EditManager editManager, FileManager fileManager,
+			ReportManager reportManager, Workbench workbench) {
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.reportManager = reportManager;
+		this.workbench = workbench;
 		resultsPerspectiveComponent = ResultsPerspectiveComponent.getInstance();
 		putValue(SMALL_ICON, WorkbenchIcons.runIcon);
 		putValue(NAME, "Run workflow...");
 		putValue(SHORT_DESCRIPTION, "Run the current workflow");
 		putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_R));
-		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R,
-				Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		FileManager.getInstance().addObserver(new Observer<FileManagerEvent>() {
-			public void notify(Observable<FileManagerEvent> sender, FileManagerEvent message) throws Exception {
-				if (message instanceof ClosedDataflowEvent) {	
+		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit
+				.getDefaultToolkit().getMenuShortcutKeyMask()));
+		fileManager.addObserver(new Observer<FileManagerEvent>() {
+			public void notify(Observable<FileManagerEvent> sender, FileManagerEvent message)
+					throws Exception {
+				if (message instanceof ClosedDataflowEvent) {
 					workflowLaunchWindowMap.remove(((ClosedDataflowEvent) message).getDataflow());
 				}
 			}
@@ -104,35 +121,31 @@ public class RunWorkflowAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		Object model = ModelMap.getInstance().getModel(
-				ModelMapConstants.CURRENT_DATAFLOW);
+		Object model = ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
 		if (!(model instanceof Dataflow)) {
 			return;
 		}
 		final Dataflow dataflow = (Dataflow) model;
-		if (CheckWorkflowStatus.checkWorkflow(dataflow)) {
-			//Thread t = new Thread("Preparing to run workflow "
-			//		+ dataflow.getLocalName()) {
-			//	public void run() {
-				try {
-					runDataflow(dataflow);
-				} catch (Exception ex) {
-					String message = "Could not run workflow "
-							+ dataflow.getLocalName();
-					logger.warn(message);
-					InvalidDataflowReport.showErrorDialog(ex.getMessage(), message);			
-				}
-			//	}
-			//};
-			//t.setDaemon(true);
-			//t.start();		
+		if (CheckWorkflowStatus.checkWorkflow(dataflow, workbench, editManager, fileManager,reportManager)) {
+			// Thread t = new Thread("Preparing to run workflow "
+			// + dataflow.getLocalName()) {
+			// public void run() {
+			try {
+				runDataflow(dataflow);
+			} catch (Exception ex) {
+				String message = "Could not run workflow " + dataflow.getLocalName();
+				logger.warn(message);
+				InvalidDataflowReport.showErrorDialog(ex.getMessage(), message);
+			}
+			// }
+			// };
+			// t.setDaemon(true);
+			// t.start();
 		}
 	}
 
 	protected void runDataflow(final Dataflow dataflowOriginal) {
-		
-		
-		
+
 		// If the workflow has no input ports - we can run immediately
 		if (dataflowOriginal.getInputPorts().isEmpty()) {
 
@@ -140,37 +153,45 @@ public class RunWorkflowAction extends AbstractAction {
 			// modify the original workflow
 			Dataflow dataflowCopy = null;
 
-			// CopyWorkflowSwingWorker will make a copy of the workflow and pop up a
-			// modal dialog that will block the GUI while CopyWorkflowSwingWorker is 
-			// doing it to let the user know that something is being done. Blocking 
-			// of the GUI is needed here so that the user cannot modify the original 
+			// CopyWorkflowSwingWorker will make a copy of the workflow and pop
+			// up a
+			// modal dialog that will block the GUI while
+			// CopyWorkflowSwingWorker is
+			// doing it to let the user know that something is being done.
+			// Blocking
+			// of the GUI is needed here so that the user cannot modify the
+			// original
 			// workflow while it is being copied.
-			CopyWorkflowSwingWorker copyWorkflowSwingWorker = new CopyWorkflowSwingWorker(dataflowOriginal);
+			CopyWorkflowSwingWorker copyWorkflowSwingWorker = new CopyWorkflowSwingWorker(
+					dataflowOriginal);
 
 			CopyWorkflowInProgressDialog dialog = new CopyWorkflowInProgressDialog();
-			copyWorkflowSwingWorker.addPropertyChangeListener(
-				     new SwingWorkerCompletionWaiter(dialog));
+			copyWorkflowSwingWorker.addPropertyChangeListener(new SwingWorkerCompletionWaiter(
+					dialog));
 			copyWorkflowSwingWorker.execute();
-			
-			// Give a chance to the SwingWorker to finish so we do not have to display 
-			// the dialog if copying of the workflow is quick (so it won't flicker on the screen)
+
+			// Give a chance to the SwingWorker to finish so we do not have to
+			// display
+			// the dialog if copying of the workflow is quick (so it won't
+			// flicker on the screen)
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				// do nothing
 			}
-			if (!copyWorkflowSwingWorker.isDone()){
+			if (!copyWorkflowSwingWorker.isDone()) {
 				dialog.setVisible(true); // this will block the GUI
 			}
-			boolean userCancelled = dialog.hasUserCancelled(); // see if user cancelled the dialog
-			
-			if (userCancelled){
+			boolean userCancelled = dialog.hasUserCancelled(); // see if user
+																// cancelled the
+																// dialog
+
+			if (userCancelled) {
 				// Stop the CopyWorkflowSwingWorker if it is still working
 				copyWorkflowSwingWorker.cancel(true);
 				// exit
 				return;
-			}
-			else{ 
+			} else {
 				// Get the workflow copy from the copyWorkflowSwingWorker
 				try {
 					dataflowCopy = copyWorkflowSwingWorker.get();
@@ -178,7 +199,7 @@ public class RunWorkflowAction extends AbstractAction {
 					dataflowCopy = null;
 					logger.error("Failed to get the workflow copy", e);
 				}
-				
+
 				if (dataflowCopy != null) {
 					// TODO check if the database has been created and create if
 					// needed if provenance turned on then add an
@@ -192,17 +213,14 @@ public class RunWorkflowAction extends AbstractAction {
 					// way so
 					// it could also be used when running workflows
 					// non-interactively
-					if (DataManagementConfiguration.getInstance()
-							.isProvenanceEnabled()) {
-						String connectorType = DataManagementConfiguration
-								.getInstance().getConnectorType();
+					if (DataManagementConfiguration.getInstance().isProvenanceEnabled()) {
+						String connectorType = DataManagementConfiguration.getInstance()
+								.getConnectorType();
 
 						for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry
 								.getInstance().getInstances()) {
-							if (connectorType.equalsIgnoreCase(factory
-									.getConnectorType())) {
-								provenanceConnector = factory
-										.getProvenanceConnector();
+							if (connectorType.equalsIgnoreCase(factory.getConnectorType())) {
+								provenanceConnector = factory.getProvenanceConnector();
 							}
 						}
 
@@ -213,8 +231,7 @@ public class RunWorkflowAction extends AbstractAction {
 						try {
 							if (provenanceConnector != null) {
 								provenanceConnector.init();
-								provenanceConnector
-										.setReferenceService(referenceService);
+								provenanceConnector.setReferenceService(referenceService);
 							}
 						} catch (Exception except) {
 
@@ -230,11 +247,10 @@ public class RunWorkflowAction extends AbstractAction {
 
 					final WorkflowInstanceFacade facade;
 					try {
-						facade = new EditsImpl().createWorkflowInstanceFacade(
-								dataflowCopy, context, "");
+						facade = new EditsImpl().createWorkflowInstanceFacade(dataflowCopy,
+								context, "");
 					} catch (InvalidDataflowException ex) {
-						InvalidDataflowReport.invalidDataflow(ex
-								.getDataflowValidationReport());
+						InvalidDataflowReport.invalidDataflow(ex.getDataflowValidationReport());
 						return;
 					}
 					SwingUtilities.invokeLater(new Runnable() {
@@ -246,12 +262,10 @@ public class RunWorkflowAction extends AbstractAction {
 					});
 				} else { // something went wrong when copying the workflow
 					InvalidDataflowReport.showErrorDialog(
-							"Unable to make a copy of the workflow to run",
-							"Workflow copy failed");
+							"Unable to make a copy of the workflow to run", "Workflow copy failed");
 				}
 			}
-		} 
-		else { // workflow had inputs - show the input dialog
+		} else { // workflow had inputs - show the input dialog
 			SwingUtilities.invokeLater(new Runnable() {
 				public void run() {
 					showInputDialog(dataflowOriginal);
@@ -262,8 +276,7 @@ public class RunWorkflowAction extends AbstractAction {
 
 	private void switchToResultsPerspective() {
 		if (resultsPerspective == null) {
-			for (PerspectiveSPI perspective : Workbench.getInstance()
-					.getPerspectives().getPerspectives()) {
+			for (PerspectiveSPI perspective : workbench.getPerspectives().getPerspectives()) {
 				if (perspective.getText().equalsIgnoreCase("Results")) {
 					resultsPerspective = perspective;
 					break;
@@ -271,26 +284,25 @@ public class RunWorkflowAction extends AbstractAction {
 			}
 		}
 		if (resultsPerspective != null) {
-			ModelMap.getInstance().setModel(
-					ModelMapConstants.CURRENT_PERSPECTIVE, resultsPerspective);
+			ModelMap.getInstance().setModel(ModelMapConstants.CURRENT_PERSPECTIVE,
+					resultsPerspective);
 		}
 	}
 
 	@SuppressWarnings("serial")
 	private void showInputDialog(final Dataflow dataflowOriginal) {
-		
+
 		// Get the WorkflowLauchWindow
 		WorkflowLaunchWindow launchWindow = null;
-		synchronized(dataflowOriginal)
-		{
+		synchronized (dataflowOriginal) {
 			WorkflowLaunchWindow savedLaunchWindow = workflowLaunchWindowMap.get(dataflowOriginal);
 			if (savedLaunchWindow == null) {
 				launchWindow = new WorkflowLaunchWindow(dataflowOriginal,
-						resultsPerspectiveComponent.getReferenceService()) {
+						resultsPerspectiveComponent.getReferenceService(), editManager,
+						fileManager, reportManager, workbench) {
 
 					@Override
-					public void handleLaunch(
-							Map<String, T2Reference> workflowInputs) {
+					public void handleLaunch(Map<String, T2Reference> workflowInputs) {
 						resultsPerspectiveComponent.runWorkflow(getFacade(), workflowInputs);
 						setState(Frame.ICONIFIED); // minimise the window
 						switchToResultsPerspective();
@@ -306,23 +318,22 @@ public class RunWorkflowAction extends AbstractAction {
 				// Add this window to the map of the workflow input/launch
 				// windows
 				workflowLaunchWindowMap.put(dataflowOriginal, launchWindow);
-				
+
 				launchWindow.setLocationRelativeTo(null);
-			} 
-			else {
+			} else {
 				launchWindow = savedLaunchWindow;
 				// Update the Reference Service in the case it has changed in
 				// the meantime
 				// (e.g. user switched from in-memory to database)
-				launchWindow.setReferenceService(resultsPerspectiveComponent
-						.getReferenceService());
+				launchWindow.setReferenceService(resultsPerspectiveComponent.getReferenceService());
 			}
-			
+
 			// Display the window
 			launchWindow.setVisible(true);
-			// On Win XP setting the window visible seems not to be enough to 
-			// bring the window up if it was minimised previously so we restore it here
-			if (launchWindow.getState() == Frame.ICONIFIED){
+			// On Win XP setting the window visible seems not to be enough to
+			// bring the window up if it was minimised previously so we restore
+			// it here
+			if (launchWindow.getState() == Frame.ICONIFIED) {
 				launchWindow.setState(Frame.NORMAL); // restore the window
 			}
 		}

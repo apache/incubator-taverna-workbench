@@ -1,68 +1,51 @@
 /*******************************************************************************
- * Copyright (C) 2007-2008 The University of Manchester   
- * 
+ * Copyright (C) 2007-2008 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.processor;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
-import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.iterationstrategy.contextview.IterationStrategyContextualView;
 import net.sf.taverna.t2.workbench.ui.Utils;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
-import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
-import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchStack;
 
@@ -70,10 +53,10 @@ import org.apache.log4j.Logger;
 
 /**
  * View of a processor, including it's iteration stack, activities, etc.
- * 
+ *
  * @author Stian Soiland-Reyes
  * @author Alan R Williams
- * 
+ *
  */
 public class ProcessorDispatchStackContextualView extends ContextualView {
 
@@ -83,35 +66,35 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 
 	private static final long serialVersionUID = -5916300049123653585L;
 
-	private EditManager editManager = EditManager.getInstance();
+	private EditManager editManager;
 
-	private Edits edits = editManager.getEdits();
-
-	private FileManager fileManager = FileManager.getInstance();
+	private FileManager fileManager;
 
 	private ContextualViewFactoryRegistry viewFactoryRegistry = ContextualViewFactoryRegistry
 			.getInstance();
-	
+
 	protected SPIRegistry<AddLayerFactorySPI> addLayerFactories = new SPIRegistry<AddLayerFactorySPI>(
 			AddLayerFactorySPI.class);
-	
+
 	protected JPanel mainPanel = new JPanel();
 
 	protected Processor processor;
-	
-	public ProcessorDispatchStackContextualView(Processor processor) {
+
+	public ProcessorDispatchStackContextualView(Processor processor, EditManager editManager, FileManager fileManager) {
 		super();
 		this.processor = processor;
+		this.editManager = editManager;
+		this.fileManager = fileManager;
 		initialise();
 		initView();
 	}
-	
+
 	@Override
 	public void refreshView() {
 		initialise();
 		this.revalidate();
 	}
-	
+
 	private JPanel getLayerView(DispatchLayer<?> layer) {
 
 		ContextualViewFactory<DispatchLayer<?>> viewFactory = null;
@@ -151,7 +134,7 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 			gbc.weightx = 0.0;
 			view.add(removeButton, gbc);
 		}
-			
+
 		gbc.gridx = 0;
 		gbc.gridy++;
 
@@ -237,7 +220,7 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			Edit<Processor> edit = edits.getDefaultDispatchStackEdit(processor);
+			Edit<Processor> edit = editManager.getEdits().getDefaultDispatchStackEdit(processor);
 			try {
 				editManager.doDataflowEdit(fileManager.getCurrentDataflow(),
 						edit);
@@ -247,7 +230,7 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 			}
 		}
 	}
-	
+
 	protected class RemoveAction extends AbstractAction {
 
 		private final DispatchLayer<?> layer;
@@ -259,7 +242,7 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			Edit<DispatchStack> deleteEdit = edits.getDeleteDispatchLayerEdit(
+			Edit<DispatchStack> deleteEdit = editManager.getEdits().getDeleteDispatchLayerEdit(
 					processor.getDispatchStack(), layer);
 			// TODO: Should warn before removing "essential" layers
 			try {

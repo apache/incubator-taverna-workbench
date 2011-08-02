@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -33,19 +33,19 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-//import net.sf.taverna.t2.lang.observer.Observer;
-//import net.sf.taverna.t2.monitor.MonitorManager.MonitorMessage;
 import net.sf.taverna.t2.lang.observer.MultiCaster;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.reference.ReferenceService;
+import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
 import net.sf.taverna.t2.workbench.models.graph.GraphNode;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
@@ -64,14 +64,14 @@ import org.apache.log4j.Logger;
 /**
  * Use to display the graph for fresh workflow runs and allow the user to
  * click on processors to see the intermediate results for processors pulled from provenance.
- *  
+ *
  */
 public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Observable<WorkflowObjectSelectionMessage> {
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(MonitorGraphComponent.class);
 
-	// Multicaster used to notify all interested parties that a selection of 
+	// Multicaster used to notify all interested parties that a selection of
 	// a workflow object has occurred on the graph.
 	private MultiCaster<WorkflowObjectSelectionMessage> multiCaster = new MultiCaster<WorkflowObjectSelectionMessage>(this);
 
@@ -81,10 +81,10 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 
 	protected JSVGCanvas svgCanvas;
 	protected JSVGScrollPane svgScrollPane;
-	
+
 	protected JLabel statusLabel;
-	
-	protected ProvenanceConnector provenanceConnector;	
+
+	protected ProvenanceConnector provenanceConnector;
 
 	private String sessionId;
 
@@ -98,8 +98,17 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 
 	private Action resetDiagramAction, zoomInAction, zoomOutAction;
 
-	public MonitorGraphComponent() {
+	protected final EditManager editManager;
+
+	protected final MenuManager menuManager;
+
+	protected final DataflowSelectionManager dataflowSelectionManager;
+
+	public MonitorGraphComponent(EditManager editManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager) {
 		super(new BorderLayout());
+		this.editManager = editManager;
+		this.menuManager = menuManager;
+		this.dataflowSelectionManager = dataflowSelectionManager;
 		setBorder(LineBorder.createGrayLineBorder());
 
 		svgCanvas = new JSVGCanvas();
@@ -114,36 +123,36 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 			}
 		};
 		svgCanvas.addGVTTreeRendererListener(gvtTreeRendererAdapter);
-		
+
 		JPanel diagramAndControls = new JPanel();
 		diagramAndControls.setLayout(new BorderLayout());
-		
+
 		svgScrollPane = new MySvgScrollPane(svgCanvas);
 		diagramAndControls.add(graphActionsToolbar(), BorderLayout.NORTH);
 		diagramAndControls.add(svgScrollPane, BorderLayout.CENTER);
-		
+
 		add(diagramAndControls, BorderLayout.CENTER);
-		
+
 		statusLabel = new JLabel();
 		statusLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		
+
 		//add(statusLabel, BorderLayout.SOUTH);
-		
+
 //		setProvenanceConnector();
 	}
-	
+
 	protected JToolBar graphActionsToolbar() {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setAlignmentX(Component.LEFT_ALIGNMENT);
 		toolBar.setFloatable(false);
-		
+
 		JButton resetDiagramButton = new JButton();
 		resetDiagramButton.setBorder(new EmptyBorder(0, 2, 0, 2));
 		JButton zoomInButton = new JButton();
 		zoomInButton.setBorder(new EmptyBorder(0, 2, 0, 2));
 		JButton zoomOutButton = new JButton();
 		zoomOutButton.setBorder(new EmptyBorder(0, 2, 0, 2));
-		
+
 		resetDiagramAction = svgCanvas.new ResetTransformAction();
 		ResetDiagramAction.setResultsAction(resetDiagramAction);
 		resetDiagramAction.putValue(Action.SHORT_DESCRIPTION, "Reset Diagram");
@@ -184,28 +193,27 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 //				if (dataflow != null){// should not be null really, dataflow should be set before this method is called
 //					dataflow.setIsRunning(false);
 //				}
-//			    break;		
+//			    break;
 //		}
 //	}
-	
+
 	public void setProvenanceConnector(ProvenanceConnector connector) {
 		if (connector != null) {
 			provenanceConnector = connector;
-			setSessionId(provenanceConnector.getSessionID());			
+			setSessionId(provenanceConnector.getSessionID());
 		}
 	}
-	
+
 	public void setReferenceService(ReferenceService referenceService) {
 		this.referenceService = referenceService;
 	}
 
 	public GraphMonitor setDataflow(Dataflow dataflow) {
 		this.dataflow = dataflow;
-		SVGGraphController svgGraphController = new SVGGraphController(dataflow, true, svgCanvas);
+		SVGGraphController svgGraphController = new SVGGraphController(dataflow, true, svgCanvas, editManager, menuManager);
 		svgGraphController.setGraphEventManager(new MonitorGraphEventManager(this, provenanceConnector, dataflow, getSessionId()));
 		// For selections on the graph
-		svgGraphController.setDataflowSelectionModel(DataflowSelectionManager
-				.getInstance().getDataflowSelectionModel(dataflow));	
+		svgGraphController.setDataflowSelectionModel(dataflowSelectionManager.getDataflowSelectionModel(dataflow));
 		setGraphController(svgGraphController);
 		graphMonitor = new GraphMonitor(svgGraphController);
 		return graphMonitor;
@@ -239,7 +247,7 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 
 	public void onDispose() {
 		if (graphMonitor != null) {
-			
+
 			graphMonitor.onDispose();
 		}
 		if (svgScrollPane != null) {
@@ -254,7 +262,7 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 			svgCanvas.removeGVTTreeRendererListener(gvtTreeRendererAdapter);
 			svgCanvas = null;
 		}
-		
+
 	}
 
 	@Override
@@ -284,7 +292,7 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 		public MySvgScrollPane(JSVGCanvas canvas) {
 			super(canvas);
 		}
-		
+
 		public void reset() {
 			super.resizeScrollBars();
 			super.reset();
@@ -310,7 +318,7 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 	public List<Observer<WorkflowObjectSelectionMessage>> getObservers() {
 		return multiCaster.getObservers();
 	}
-	
+
 	public void setSelectedGraphElementForWorkflowObject(Object workflowObject){
 		// Only select processors, ignore links, ports etc.
 		if (workflowObject instanceof Processor || workflowObject instanceof DataflowPort) {
@@ -320,7 +328,7 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 		} else {
 			// We cannot show dataflow object as selected of the graph so clear previous selection
 			graphController.getDataflowSelectionModel().clearSelection();
-		} 
+		}
 	}
 }
 
@@ -355,16 +363,16 @@ class MonitorGraphEventManager implements GraphEventManager {
 	public void mouseClicked(final GraphElement graphElement, short button,
 			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
 			int screenX, int screenY) {
-		
+
 		Object dataflowObject = graphElement.getDataflowObject();
-		
+
 		GraphElement parent = graphElement.getParent();
 		if (parent instanceof GraphNode) {
 			   parent = parent.getParent();
 		}
 
 		monitorViewComponent.setSelectedGraphElementForWorkflowObject(dataflowObject);
-	
+
 		// Notify anyone interested that a selection occurred on the graph
 		monitorViewComponent.triggerWorkflowObjectSelectionEvent(dataflowObject);
 	}

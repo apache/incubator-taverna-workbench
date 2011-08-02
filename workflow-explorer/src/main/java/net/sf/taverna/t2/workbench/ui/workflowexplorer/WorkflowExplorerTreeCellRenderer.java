@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -22,7 +22,6 @@ package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 
 import java.awt.Component;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -30,10 +29,11 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import org.apache.commons.beanutils.BeanUtils;
-
+import net.sf.taverna.t2.lang.ui.icons.Icons;
+import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workflowmodel.Condition;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
@@ -49,16 +49,14 @@ import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workbench.report.ReportManager;
-import net.sf.taverna.t2.visit.VisitReport.Status;
 
-import net.sf.taverna.t2.lang.ui.icons.Icons;
+import org.apache.commons.beanutils.BeanUtils;
 
 /**
  * Cell renderer for Workflow Explorer tree.
- * 
+ *
  * @author Alex Nenadic
- * 
+ *
  */
 
 public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
@@ -66,16 +64,18 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 	private static final long serialVersionUID = -1326663036193567147L;
 
 	private ActivityIconManager activityIconManager = ActivityIconManager.getInstance();
-	
+
 	private final String RUNS_AFTER = " runs after ";
-	
+
 	private Dataflow workflow = null;
-	
-	public WorkflowExplorerTreeCellRenderer(Dataflow workflow) {
+	private final ReportManager reportManager;
+
+	public WorkflowExplorerTreeCellRenderer(Dataflow workflow, ReportManager reportManager) {
 		super();
 		this.workflow = workflow;
+		this.reportManager = reportManager;
 	}
-	
+
 	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 			boolean sel, boolean expanded, boolean leaf, int row,
@@ -85,9 +85,9 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 				expanded, leaf, row, hasFocus);
 
 		Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
-		Status status = ReportManager.getInstance().getStatus(workflow, userObject);
+		Status status = reportManager.getStatus(workflow, userObject);
 		WorkflowExplorerTreeCellRenderer renderer = (WorkflowExplorerTreeCellRenderer) result;
-		
+
 		if (userObject instanceof Dataflow){ //the root node
 			if (!hasGrandChildren((DefaultMutableTreeNode) value)) {
 				renderer.setIcon(WorkbenchIcons.workflowExplorerIcon);
@@ -154,8 +154,8 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 					+ ((Condition) userObject).getControl().getLocalName()
 					+ "</body></html>";
 			renderer.setText(htmlText);
-			
-			
+
+
 		} else if (userObject instanceof Merge) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.mergeIcon, status));
 			renderer.setText(((Merge) userObject).getLocalName());
@@ -186,7 +186,7 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 		}
 		return basicIcon;
 	}
-	
+
 	private static boolean hasGrandChildren(DefaultMutableTreeNode node) {
 		int childCount = node.getChildCount();
 		for (int i = 0; i < childCount; i++) {
@@ -196,15 +196,15 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 		}
 		return false;
 	}
-	
-	private String findName(Port port) {		
+
+	private String findName(Port port) {
 		if (port instanceof ProcessorPort) {
 			String sourceProcessorName = ((ProcessorPort)port).getProcessor().getLocalName();
 			return sourceProcessorName + ":" + port.getName();
 		} else if (port instanceof MergePort) {
 			String sourceMergeName = ((MergePort)port).getMerge().getLocalName();
 			return sourceMergeName + ":" + port.getName();
-			
+
 		} else {
 			return port.getName();
 		}

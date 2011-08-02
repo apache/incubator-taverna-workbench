@@ -1,12 +1,12 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.report.view;
 
 import java.awt.event.ActionEvent;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
@@ -14,45 +14,57 @@ import javax.swing.JOptionPane;
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.MainWindow;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
-import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
+import net.sf.taverna.t2.workbench.ui.Workbench;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 /**
  * @author alanrw
- * 
+ *
  */
 public class ReportOnWorkflowAction extends AbstractAction {
 
 	private final boolean includeTimeConsuming;
 	private final boolean remember;
 	private Dataflow specifiedDataflow;
+	private static final String namedComponent = "reportView";
 
-	private FileManager fileManager = FileManager.getInstance();
-	private ReportManager reportManager = ReportManager.getInstance();
-	private String namedComponent = "reportView";
+	private final FileManager fileManager;
+	private final ReportManager reportManager;
+	private final Workbench workbench;
+	private final EditManager editManager;
 
-	public ReportOnWorkflowAction(String name, boolean includeTimeConsuming,
-			boolean remember) {
+	public ReportOnWorkflowAction(String name, boolean includeTimeConsuming, boolean remember,
+			EditManager editManager, FileManager fileManager, ReportManager reportManager, Workbench workbench) {
 		super(name);
 		this.includeTimeConsuming = includeTimeConsuming;
 		this.remember = remember;
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.reportManager = reportManager;
+		this.workbench = workbench;
 		this.specifiedDataflow = null;
 	}
 
-	public ReportOnWorkflowAction(String name, Dataflow dataflow,
-			boolean includeTimeConsuming, boolean remember) {
+	public ReportOnWorkflowAction(String name, Dataflow dataflow, boolean includeTimeConsuming,
+			boolean remember, EditManager editManager, FileManager fileManager, ReportManager reportManager,
+			Workbench workbench) {
 		super(name);
 		this.specifiedDataflow = dataflow;
 		this.includeTimeConsuming = includeTimeConsuming;
 		this.remember = remember;
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.reportManager = reportManager;
+		this.workbench = workbench;
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */
@@ -64,7 +76,7 @@ public class ReportOnWorkflowAction extends AbstractAction {
 
 	/**
 	 * Check the status and pop up a warning if something is wrong.
-	 * 
+	 *
 	 */
 	public void checkStatus() {
 		Dataflow dataflow;
@@ -82,18 +94,17 @@ public class ReportOnWorkflowAction extends AbstractAction {
 
 		} else {
 			StringBuffer sb = new StringBuffer();
-			Map<Object, Set<VisitReport>> reports = reportManager
-					.getReports(dataflow);
+			Map<Object, Set<VisitReport>> reports = reportManager.getReports(dataflow);
 			int errorCount = 0;
 			int warningCount = 0;
 			// Find warnings
 			for (Entry<Object, Set<VisitReport>> entry : reports.entrySet()) {
 				for (VisitReport report : entry.getValue()) {
-				    if (report.getStatus().equals(Status.SEVERE)) {
-					errorCount++;
-				    } else if (report.getStatus().equals(Status.WARNING)) {
-					warningCount++;
-				    }
+					if (report.getStatus().equals(Status.SEVERE)) {
+						errorCount++;
+					} else if (report.getStatus().equals(Status.WARNING)) {
+						warningCount++;
+					}
 				}
 			}
 			if (status.equals(Status.WARNING)) {
@@ -102,31 +113,30 @@ public class ReportOnWorkflowAction extends AbstractAction {
 			} else { // SEVERE
 				messageType = JOptionPane.ERROR_MESSAGE;
 				message = "Validation reported ";
-			        if (errorCount == 1) {
-				    message += "one error";
+				if (errorCount == 1) {
+					message += "one error";
 				} else {
-				    message += errorCount + " errors";
+					message += errorCount + " errors";
 				}
 				if (warningCount != 0) {
-				    message += " and ";
+					message += " and ";
 				}
 			}
 			if (warningCount == 1) {
-			    message += "one warning";
+				message += "one warning";
 			} else if (warningCount > 0) {
-			    message += warningCount + " warnings";
+				message += warningCount + " warnings";
 			}
 		}
-		JOptionPane.showMessageDialog(MainWindow.getMainWindow(), message,
-				"Workflow validation", messageType);
-		Workbench workbench = Workbench.getInstance();
+		JOptionPane.showMessageDialog(MainWindow.getMainWindow(), message, "Workflow validation",
+				messageType);
 		workbench.getPerspectives().setWorkflowPerspective();
 		workbench.makeNamedComponentVisible(namedComponent);
 	}
 
 	/**
 	 * Perform validation on workflow.
-	 * 
+	 *
 	 * @return <code>true</code> if the validation was not cancelled.
 	 */
 	public boolean validateWorkflow() {
@@ -136,12 +146,10 @@ public class ReportOnWorkflowAction extends AbstractAction {
 		} else {
 			dataflow = specifiedDataflow;
 		}
-		ValidateSwingWorker validateSwingWorker = new ValidateSwingWorker(
-				dataflow, includeTimeConsuming, remember);
+		ValidateSwingWorker validateSwingWorker = new ValidateSwingWorker(dataflow,
+				includeTimeConsuming, remember, editManager, reportManager);
 		ValidateInProgressDialog dialog = new ValidateInProgressDialog();
-		validateSwingWorker
-				.addPropertyChangeListener(new SwingWorkerCompletionWaiter(
-						dialog));
+		validateSwingWorker.addPropertyChangeListener(new SwingWorkerCompletionWaiter(dialog));
 		validateSwingWorker.execute();
 
 		// Give a chance to the SwingWorker to finish so we do not have to

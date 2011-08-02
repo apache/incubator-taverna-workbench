@@ -9,27 +9,28 @@
 	<groupId>net.sf.taverna.t2.ui-components</groupId>
 	<artifactId>perspective-results</artifactId>
 	<name>Results Perspective</name>
-	<description>Results component for viewing progress of a workflow run, 
+	<description>Results component for viewing progress of a workflow run,
 	intermediate and final results, as well as previous workflow runs.</description>
 	<dependencies>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>perspective-core</artifactId>
-			<version>${t2.ui.api.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>common-icons</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>workbench-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>javax.help</groupId>
 			<artifactId>javahelp</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

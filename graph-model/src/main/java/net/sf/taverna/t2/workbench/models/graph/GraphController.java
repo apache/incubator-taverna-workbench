@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -37,6 +37,7 @@ import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphEdge.ArrowStyle;
@@ -54,7 +55,6 @@ import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.EventForwardingOutputPort;
 import net.sf.taverna.t2.workflowmodel.EventHandlingInputPort;
 import net.sf.taverna.t2.workflowmodel.InputPort;
@@ -76,8 +76,8 @@ import net.sf.taverna.t2.workflowmodel.utils.Tools;
 import org.apache.log4j.Logger;
 
 /**
- * 
- * 
+ *
+ *
  * @author David Withers
  */
 public abstract class GraphController implements
@@ -169,9 +169,9 @@ public abstract class GraphController implements
 
 	private Map<Port, Processor> portToProcessor = new HashMap<Port, Processor>();
 
-	private Edits edits = EditsRegistry.getEdits();
+	private Edits edits;
 
-	private EditManager editManager = EditManager.getInstance();
+	private EditManager editManager;
 
 	private Dataflow dataflow;
 
@@ -211,21 +211,23 @@ public abstract class GraphController implements
 	private final PortComparator portComparator = new PortComparator();
 
 	public GraphController(Dataflow dataflow, boolean interactive,
-			Component componentForPopups) {
+			Component componentForPopups, EditManager editManager, MenuManager menuManager) {
 		this(dataflow, interactive, componentForPopups, Alignment.VERTICAL,
-				PortStyle.NONE);
+				PortStyle.NONE, editManager, menuManager);
 	}
 
 	public GraphController(Dataflow dataflow, boolean interactive,
 			Component componentForPopups, Alignment alignment,
-			PortStyle portStyle) {
+			PortStyle portStyle, EditManager editManager, MenuManager menuManager) {
 		this.dataflow = dataflow;
 		this.interactive = interactive;
 		this.componentForPopups = componentForPopups;
 		this.alignment = alignment;
 		this.portStyle = portStyle;
+		this.editManager = editManager;
+		edits = editManager.getEdits();
 		this.graphEventManager = new DefaultGraphEventManager(this,
-				componentForPopups);
+				componentForPopups, menuManager);
 		graph = generateGraph();
 	}
 
@@ -251,7 +253,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Generates a graph model of a dataflow.
-	 * 
+	 *
 	 * @return
 	 */
 	public Graph generateGraph() {
@@ -993,7 +995,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns the dataflow.
-	 * 
+	 *
 	 * @return the dataflow
 	 */
 	public Dataflow getDataflow() {
@@ -1002,7 +1004,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns the dataflowSelectionModel.
-	 * 
+	 *
 	 * @return the dataflowSelectionModel
 	 */
 	public DataflowSelectionModel getDataflowSelectionModel() {
@@ -1011,7 +1013,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Sets the dataflowSelectionModel.
-	 * 
+	 *
 	 * @param dataflowSelectionModel
 	 *            the new dataflowSelectionModel
 	 */
@@ -1026,7 +1028,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Sets the proportion of the node's jobs that have been completed.
-	 * 
+	 *
 	 * @param nodeId
 	 *            the id of the node
 	 * @param complete
@@ -1045,7 +1047,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns the alignment.
-	 * 
+	 *
 	 * @return the alignment
 	 */
 	public Alignment getAlignment() {
@@ -1054,7 +1056,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns the portStyle.
-	 * 
+	 *
 	 * @return the portStyle
 	 */
 	public PortStyle getPortStyle() {
@@ -1063,7 +1065,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns the portStyle for a processor.
-	 * 
+	 *
 	 * @return the portStyle for a processor
 	 */
 	public PortStyle getPortStyle(Processor processor) {
@@ -1076,7 +1078,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Sets the alignment.
-	 * 
+	 *
 	 * @param alignment
 	 *            the new alignment
 	 */
@@ -1086,7 +1088,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Sets the portStyle.
-	 * 
+	 *
 	 * @param style
 	 *            the new portStyle
 	 */
@@ -1097,7 +1099,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Sets the portStyle for a processor.
-	 * 
+	 *
 	 * @param style
 	 *            the new portStyle for the processor
 	 */
@@ -1107,14 +1109,14 @@ public abstract class GraphController implements
 
 	/**
 	 * Shut down any processing and update threads related to this controller.
-	 * 
+	 *
 	 */
 	public void shutdown() {
 	}
 
 	/**
 	 * Returns true if the default is to expand nested workflows.
-	 * 
+	 *
 	 * @return true if the default is to expand nested workflows
 	 */
 	public boolean expandNestedDataflows() {
@@ -1123,7 +1125,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns true if the nested dataflow should be expanded.
-	 * 
+	 *
 	 * @param dataflow
 	 * @return true if the nested dataflow should be expanded
 	 */
@@ -1137,7 +1139,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Sets the default for expanding nested workflows.
-	 * 
+	 *
 	 * @param expand
 	 *            the default for expanding nested workflows
 	 */
@@ -1148,7 +1150,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Sets whether the nested dataflow should be expanded.
-	 * 
+	 *
 	 * @param expand
 	 *            whether the nested dataflow should be expanded
 	 * @param dataflow
@@ -1483,7 +1485,7 @@ public abstract class GraphController implements
 							editList.add(addProcessorInputEdit);
 						}
 						editList.add(Tools.getCreateAndConnectDatalinkEdit(
-								dataflow, output, input));
+								dataflow, output, input, edits));
 						edit = new CompoundEdit(editList);
 					}
 				} else {
@@ -1532,7 +1534,7 @@ public abstract class GraphController implements
 						}
 						editList.add(Tools.getMoveDatalinkSinkEdit(dataflow,
 								(Datalink) edgeMoveElement.getDataflowObject(),
-								input));
+								input, edits));
 						edit = new CompoundEdit(editList);
 					}
 				}
@@ -1622,7 +1624,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns the GraphEventManager.
-	 * 
+	 *
 	 * @return the GraphEventManager
 	 */
 	public GraphEventManager getGraphEventManager() {
@@ -1631,7 +1633,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Sets the GraphEventManager.
-	 * 
+	 *
 	 * @param graphEventManager
 	 *            the new GraphEventManager
 	 */

@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2009 The University of Manchester   
- * 
+ * Copyright (C) 2009 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -27,9 +27,11 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
-import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.views.graph.AutoScrollInteractor;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
@@ -37,14 +39,13 @@ import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
-//import org.apache.log4j.Logger;
 
 /**
  * Use to display the graph for previous workflow runs and allow the user to
  * click on processors to see the intermediate results pulled from provenance.
- * 
+ *
  * @author Ian Dunlop
- * 
+ *
  */
 public class MonitorGraphPreviousRunComponent extends MonitorGraphComponent {
 
@@ -52,7 +53,8 @@ public class MonitorGraphPreviousRunComponent extends MonitorGraphComponent {
 
 	private GVTTreeRendererAdapter gvtTreeBuilderAdapter;
 
-	public MonitorGraphPreviousRunComponent() {
+	public MonitorGraphPreviousRunComponent(EditManager editManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager) {
+		super(editManager, menuManager, dataflowSelectionManager);
 		setLayout(new BorderLayout());
 
 	}
@@ -69,7 +71,7 @@ public class MonitorGraphPreviousRunComponent extends MonitorGraphComponent {
 		svgCanvas.setEnableZoomInteractor(false);
 		svgCanvas.setEnableRotateInteractor(false);
 		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
-		svgCanvas.setTransferHandler(new ServiceTransferHandler());
+		svgCanvas.setTransferHandler(new ServiceTransferHandler(editManager, menuManager, dataflowSelectionManager));
 
 		AutoScrollInteractor asi = new AutoScrollInteractor(svgCanvas);
 		svgCanvas.addMouseListener(asi);
@@ -87,10 +89,9 @@ public class MonitorGraphPreviousRunComponent extends MonitorGraphComponent {
 
 		// create a graph controller
 		final SVGGraphController svgGraphController = new SVGGraphController(
-				dataflow, true, svgCanvas);
+				dataflow, true, svgCanvas, editManager, menuManager);
 		// For selections on the graph
-		svgGraphController.setDataflowSelectionModel(DataflowSelectionManager
-				.getInstance().getDataflowSelectionModel(dataflow));
+		svgGraphController.setDataflowSelectionModel(dataflowSelectionManager.getDataflowSelectionModel(dataflow));
 		svgGraphController.setAnimationSpeed(0);
 		svgGraphController.setGraphEventManager(new MonitorGraphEventManager(
 				this, provenanceConnector, dataflow, getSessionId()));
@@ -110,7 +111,7 @@ public class MonitorGraphPreviousRunComponent extends MonitorGraphComponent {
 		//add(statusLabel, BorderLayout.SOUTH);
 		//setStatus(MonitorGraphComponent.Status.FINISHED);
 		revalidate();
-		
+
 		// setProvenanceConnector();
 		return null;
 	}

@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -49,6 +49,7 @@ import javax.swing.border.TitledBorder;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
@@ -64,9 +65,8 @@ import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
-import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
-import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
@@ -81,11 +81,11 @@ import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
 
 /**
- * 
+ *
  * @author David Withers
  * @author Alex Nenadic
  * @author Tom Oinn
- * 
+ *
  */
 public class GraphViewComponent extends WorkflowView {
 
@@ -116,7 +116,20 @@ public class GraphViewComponent extends WorkflowView {
 
     private TitledBorder border;
 
-	public GraphViewComponent() {
+	private final EditManager editManager;
+
+	private final FileManager fileManager;
+
+	private final MenuManager menuManager;
+
+	private final DataflowSelectionManager dataflowSelectionManager;
+
+	public GraphViewComponent(EditManager editManager, FileManager fileManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager) {
+		super(editManager, dataflowSelectionManager);
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.menuManager = menuManager;
+		this.dataflowSelectionManager = dataflowSelectionManager;
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 
@@ -124,9 +137,9 @@ public class GraphViewComponent extends WorkflowView {
 		border.setTitleJustification(TitledBorder.CENTER);
 		setBorder(border);
 
-		FileManager.getInstance().addObserver(new FileManagerObserver());
-		
-		EditManager.getInstance().addObserver(new EditManagerObserver());
+		fileManager.addObserver(new FileManagerObserver());
+
+		editManager.addObserver(new EditManagerObserver());
 
 		ActionListener taskPerformer = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -168,7 +181,7 @@ public class GraphViewComponent extends WorkflowView {
 		svgCanvas.setEnableZoomInteractor(false);
 		svgCanvas.setEnableRotateInteractor(false);
 		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
-		svgCanvas.setTransferHandler(new ServiceTransferHandler());
+		svgCanvas.setTransferHandler(new ServiceTransferHandler(editManager, menuManager, dataflowSelectionManager));
 
 		AutoScrollInteractor asi = new AutoScrollInteractor(svgCanvas);
 		svgCanvas.addMouseListener(asi);
@@ -187,9 +200,9 @@ public class GraphViewComponent extends WorkflowView {
 
 		// create a graph controller
 		SVGGraphController svgGraphController = new SVGGraphController(
-				dataflow, false, svgCanvas, alignment, portStyle);
-		svgGraphController.setDataflowSelectionModel(DataflowSelectionManager
-				.getInstance().getDataflowSelectionModel(dataflow));
+				dataflow, false, svgCanvas, alignment, portStyle, editManager, menuManager);
+		svgGraphController.setDataflowSelectionModel(dataflowSelectionManager
+				.getDataflowSelectionModel(dataflow));
 		svgGraphController.setAnimationSpeed(animationEnabled ? animationSpeed
 				: 0);
 
@@ -248,7 +261,7 @@ public class GraphViewComponent extends WorkflowView {
 		zoomOutButton.setAction(zoomOutAction);
 
 		diagramActionsMap.put(graphController.getDataflow(), new Action[] {resetDiagramAction, zoomInAction, zoomOutAction});
-		
+
 		toolBar.add(resetDiagramButton);
 		toolBar.add(zoomInButton);
 		toolBar.add(zoomOutButton);
@@ -386,10 +399,10 @@ public class GraphViewComponent extends WorkflowView {
 
 		return toolBar;
 	}
-	
+
 	private String getBorderTitle(final Dataflow d) {
 		String localName = d.getLocalName();
-		String sourceName = FileManager.getInstance().getDataflowName(d);
+		String sourceName = fileManager.getDataflowName(d);
 		String result = "";
 		if (localName.equals(sourceName)) {
 			result = localName;
@@ -408,7 +421,7 @@ public class GraphViewComponent extends WorkflowView {
 
 	/**
 	 * Sets the Dataflow to display in the graph view.
-	 * 
+	 *
 	 * @param dataflow
 	 */
 	public void setDataflow(Dataflow dataflow) {
@@ -434,7 +447,7 @@ public class GraphViewComponent extends WorkflowView {
 
 	/**
 	 * Returns the dataflow.
-	 * 
+	 *
 	 * @return the dataflow
 	 */
 	public Dataflow getDataflow() {
@@ -450,7 +463,7 @@ public class GraphViewComponent extends WorkflowView {
 				"/Applications/Taverna-1.7.1.app/Contents/MacOS/dot");
 		// System.setProperty("taverna.dotlocation", "/opt/local/bin/dot");
 
-		GraphViewComponent graphView = new GraphViewComponent();
+		GraphViewComponent graphView = new GraphViewComponent(null, null, null, null);
 
 		T2DataflowOpener t2DataflowOpener = new T2DataflowOpener();
 		InputStream stream = GraphViewComponent.class
@@ -501,9 +514,7 @@ public class GraphViewComponent extends WorkflowView {
 					.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
 			final int animationSpeed = (animationEnabled ? Integer.parseInt(configuration
 					.getProperty(GraphViewConfiguration.ANIMATION_SPEED)) : 0);
-			
-			WorkbenchConfiguration workbenchConfig = WorkbenchConfiguration.getInstance();
-				
+
 			final boolean animationSettingChanged = (animationEnabled != (graphController.getAnimationSpeed() != 0));
 
 			Runnable redraw = new Runnable() {
@@ -511,7 +522,7 @@ public class GraphViewComponent extends WorkflowView {
 					AbstractDataflowEditEvent dataflowEditEvent = (AbstractDataflowEditEvent) message;
 
 					if (dataflowEditEvent.getDataFlow() == dataflow) {
-						
+
 						if (graphController.isDotMissing() || animationSettingChanged) {
 							diagramPanelMap.remove(dataflow);
 							setDataflow(dataflow);
@@ -538,7 +549,7 @@ public class GraphViewComponent extends WorkflowView {
 		}
 	}
 
-	
+
 	public class FileManagerObserverRunnable implements Runnable {
 		private final FileManagerEvent message;
 

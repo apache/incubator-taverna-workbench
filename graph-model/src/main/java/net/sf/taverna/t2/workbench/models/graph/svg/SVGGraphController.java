@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -32,6 +32,8 @@ import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.models.graph.DotWriter;
 import net.sf.taverna.t2.workbench.models.graph.Graph;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
@@ -42,6 +44,7 @@ import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.dot.GraphLayout;
 import net.sf.taverna.t2.workbench.models.graph.dot.ParseException;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.Edits;
 
 import org.apache.batik.bridge.UpdateManager;
 import org.apache.batik.dom.svg.SVGOMAnimationElement;
@@ -63,41 +66,41 @@ public class SVGGraphController extends GraphController {
 	private static Logger logger = Logger.getLogger(SVGGraphController.class);
 
 	private Map<String, List<SVGGraphEdge>> datalinkMap = new HashMap<String, List<SVGGraphEdge>>();
-	
+
 	private final JSVGCanvas svgCanvas;
 
 
 	private SVGDocument svgDocument;
-	
+
 	private GraphLayout graphLayout = new GraphLayout();
 
 	private EdgeLine edgeLine;
-	
+
 	private UpdateManager updateManager;
-	
+
 	private ExecutorService executor = Executors.newFixedThreadPool(1);
-	
+
 	private boolean drawingDiagram = false;
-	
+
 	private int animationSpeed;
-	
+
 	private Rectangle bounds, oldBounds;
-	
+
 	private SVGOMAnimationElement animateBounds;
 
 	static final Timer timer = new Timer("SVG Graph controller timer", true);
-	
+
 	private static final String dotErrorMessage = "Cannot draw diagram(s)\n" +
 			"\n" +
 			"Install dot as described\n" +
 			"at http://www.taverna.org.uk\n" +
 			"and specify its location\n" +
 			"in the workbench preferences";
-	
+
 	private boolean dotMissing = false;
-	
-	public SVGGraphController(Dataflow dataflow, boolean interactive, JSVGCanvas svgCanvas) {
-		super(dataflow, interactive, svgCanvas);
+
+	public SVGGraphController(Dataflow dataflow, boolean interactive, JSVGCanvas svgCanvas, EditManager editManager, MenuManager menuManager) {
+		super(dataflow, interactive, svgCanvas, editManager, menuManager);
 		this.svgCanvas = svgCanvas;
 		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
 			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
@@ -108,8 +111,8 @@ public class SVGGraphController extends GraphController {
 		svgCanvas.setDocument(getSVGDocument());
 	}
 
-	public SVGGraphController(Dataflow dataflow, boolean interactive, JSVGCanvas svgCanvas, Alignment alignment, PortStyle portStyle) {
-		super(dataflow, interactive, svgCanvas, alignment, portStyle);
+	public SVGGraphController(Dataflow dataflow, boolean interactive, JSVGCanvas svgCanvas, Alignment alignment, PortStyle portStyle, EditManager editManager, MenuManager menuManager) {
+		super(dataflow, interactive, svgCanvas, alignment, portStyle, editManager, menuManager);
 		this.svgCanvas = svgCanvas;
 		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
 			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
@@ -135,21 +138,21 @@ public class SVGGraphController extends GraphController {
 	public JSVGCanvas getSVGCanvas() {
 		return svgCanvas;
 	}
-	
+
 	public synchronized SVGDocument getSVGDocument() {
 		if (svgDocument == null) {
 			svgDocument = SVGUtil.createSVGDocument();
 		}
 		return svgDocument;
 	}
-	
+
 	public void redraw() {
 		Graph graph = generateGraph();
 		Rectangle actualBounds = layoutGraph(graph, svgCanvas.getBounds());
 		setBounds(actualBounds);
 		transformGraph(getGraph(), graph);
 	}
-	
+
 	private void layoutSVGDocument(Rectangle bounds) {
 		animateBounds = SVGUtil.createAnimationElement(this, SVGConstants.SVG_ANIMATE_TAG,
 				SVGConstants.SVG_VIEW_BOX_ATTRIBUTE, null);
@@ -164,12 +167,12 @@ public class SVGGraphController extends GraphController {
 			svgElement.appendChild(graphElement);
 
 			setBounds(layoutGraph(graph, bounds));
-				
+
 			edgeLine = EdgeLine.createAndAdd(getSVGDocument(), this);
 		}
 		drawingDiagram = true;
 	}
-	
+
 	public Rectangle layoutGraph(Graph graph, Rectangle bounds) {
 		Rectangle actualBounds = null;
 		bounds = new Rectangle(bounds);
@@ -192,7 +195,7 @@ public class SVGGraphController extends GraphController {
 		}
 		return actualBounds;
 	}
-	
+
 	private void setDotMissing(boolean b) {
 		this.dotMissing = b;
 	}
@@ -221,7 +224,7 @@ public class SVGGraphController extends GraphController {
 			}
 		});
 	}
-		
+
 	private void outputMessage(final String message) {
 		SVGSVGElement svgElement = getSVGDocument().getRootElement();
 		String[] parts = message.split("\n");
@@ -234,12 +237,12 @@ public class SVGGraphController extends GraphController {
 			error.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
 			error.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, "red");
 			error.appendChild(errorsText);
-			svgElement.appendChild(error);		
+			svgElement.appendChild(error);
 		}
 		bounds = new Rectangle(300, parts.length * 60 + 200);
 		svgCanvas.setDocument(getSVGDocument());
 	}
-	
+
 	public void setUpdateManager(UpdateManager updateManager) {
 		this.updateManager = updateManager;
 		drawingDiagram = false;
@@ -314,11 +317,11 @@ public class SVGGraphController extends GraphController {
 	public Element createElement(String tag) {
 		return getSVGDocument().createElementNS(SVGUtil.svgNS, tag);
 	}
-	
+
 	public Text createText(String text) {
 		return getSVGDocument().createTextNode(text);
 	}
-	
+
 	public void updateSVGDocument(final Runnable thread) {
 		if (updateManager == null && !drawingDiagram) {
 			thread.run();
@@ -338,8 +341,8 @@ public class SVGGraphController extends GraphController {
 						catch (IllegalStateException e) {
 							logger.error("Update of SVG failed", e);
 						}
-					}			
-				});	
+					}
+				});
 			}
 		}
 //		if (updateManager == null) {
@@ -355,7 +358,7 @@ public class SVGGraphController extends GraphController {
 
 	/**
 	 * Returns the animation speed in milliseconds.
-	 * 
+	 *
 	 * @return the animation speed in milliseconds
 	 */
 	public int getAnimationSpeed() {
@@ -364,7 +367,7 @@ public class SVGGraphController extends GraphController {
 
 	/**
 	 * Sets the animation speed in milliseconds. A value of 0 turns off animation.
-	 * 
+	 *
 	 * @param animationSpeed the animation speed in milliseconds
 	 */
 	public void setAnimationSpeed(int animationSpeed) {
@@ -381,7 +384,7 @@ public class SVGGraphController extends GraphController {
 			}
 		});
 	}
-	
+
 }
 
 class EdgeLine {
@@ -393,7 +396,7 @@ class EdgeLine {
 	private Element line;
 
 	private Element pointer;
-	
+
 	private SVGGraphController graphController;
 
 	private EdgeLine(SVGGraphController graphController) {
@@ -498,5 +501,5 @@ class EdgeLine {
 			}
 		);
 	}
-	
+
 }

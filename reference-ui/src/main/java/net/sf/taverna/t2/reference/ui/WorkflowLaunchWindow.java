@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -70,7 +70,9 @@ import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
+import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
+import net.sf.taverna.t2.workbench.ui.Workbench;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
@@ -89,10 +91,10 @@ import org.w3c.dom.svg.SVGDocument;
  * A simple workflow launch window, uses a tabbed layout to display a set of
  * named RegistrationPanel instances, and a 'run workflow' button. Also
  * shows a pane contining a picture of the workflow, the author and the description.
- * 
+ *
  * We use one WorkflowLaunchWindow per workflow, multiple runs of the same workflow get the
  * same window.
- * 
+ *
  * @author Tom Oinn
  * @author David Withers
  * @author Stian Soiland-Reyes
@@ -115,20 +117,20 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	// A map of input port names to input registration panels (from the previous run of the same workflow, if any)
 	private Map<String, RegistrationPanel> inputPanelMap =  new HashMap<String, RegistrationPanel>();
-	
+
 	// A map of input port names to T2ReferenceS of the input values (the ones entered for the previous run of the same workflow)
 	private final Map<String, T2Reference> inputMap = new HashMap<String, T2Reference>();
-	
+
 	// A pane holding various tabs for workflow input ports
 	private JTabbedPane tabsPane;
-	
+
 	private WorkflowInstanceFacade facade;
 	private ReferenceService referenceService;
 	private InvocationContext invocationContext;
-	
+
 	// Original workflow (we create a copy of it when we actually push the 'Run' button)
 	private Dataflow dataflowOriginal;
-	
+
 	private static final String NO_WORKFLOW_DESCRIPTION = "No description";
 	private static final String NO_WORKFLOW_AUTHOR = "No author";
 
@@ -137,16 +139,16 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	private AnnotationTools annotationTools = new AnnotationTools();
 	private JSVGCanvas createWorkflowGraphic;
-	
-	// Whether the original workflow has been modified in the design perspective so we know to 
+
+	// Whether the original workflow has been modified in the design perspective so we know to
 	// refresh this dialog
 	private boolean workflowModified = false;
 
 	// Observer of workflow closing events so we can dispose off the window
-	private FileManager fileManager = FileManager.getInstance();
+	private FileManager fileManager;
 	private FileManagerObserver fileManagerObserver = new FileManagerObserver();
 
-	private EditManager editManager = EditManager.getInstance();
+	private EditManager editManager;
 	private EditManagerObserver editManagerObserver = new EditManagerObserver();
 
 	private JPanel overallPanel;
@@ -155,38 +157,46 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	private JPanel portsPart;
 
-	public WorkflowLaunchWindow(Dataflow dataflowOriginal, ReferenceService refService) {
+	private final Workbench workbench;
+
+	private final ReportManager reportManager;
+
+	public WorkflowLaunchWindow(Dataflow dataflowOriginal, ReferenceService refService, EditManager editManager, FileManager fileManager, ReportManager reportManager, Workbench workbench) {
 		super();
-		
+
 		this.dataflowOriginal = dataflowOriginal;
 		this.referenceService = refService;
-		
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.reportManager = reportManager;
+		this.workbench = workbench;
+
 		initComponents();
-		
+
 		// Handle refreshing the frame when it receives focus
 		this.addWindowFocusListener(new WindowAdapter() {
-			
+
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
 				if (workflowModified){
 
 					// Clear all previous components
 					getContentPane().removeAll();
-					
+
 					// Redraw the window
 					initComponents();
 
 					overallPanel.revalidate();
 					overallPanel.repaint();
-					
-					workflowModified = false;			
-				}	
+
+					workflowModified = false;
+				}
 			}
 		});
-		
+
 		// Handle window closing
 		this.addWindowListener(new WindowAdapter(){
-			
+
 			@Override
 		    public void windowClosing(WindowEvent winEvt) {
 				handleCancel(); // do not dispose the window, just hide it
@@ -195,12 +205,12 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 		// Start observing workflow closing events on File Manager
 		fileManager.addObserver(fileManagerObserver);
-		
+
 		// Start observing edit workflow events on Edit Manager
 		editManager.addObserver(editManagerObserver);
 
 	}
-	
+
 	/**
 	 * Set the title of the window to contain the workflow name and
 	 * its file/url location so that users can easily identify which
@@ -215,19 +225,19 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		else{
 			windowTitle += "'" + dataflowOriginal.getLocalName() + "' ";
 		}
-		
+
 		Object workflowLocation = fileManager.getDataflowSource(dataflowOriginal);
-		
+
 		windowTitle += (workflowLocation == null)? "" : "from " + workflowLocation.toString();
-	
+
 		setTitle(windowTitle);
 	}
-	
+
 	/**
 	 * Draw the components of the frame.
 	 */
 	public void initComponents(){
-			
+
 		setWindowTitle();
 
 		workflowPart = new JPanel(new GridLayout(3,1));
@@ -235,7 +245,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 		createWorkflowGraphic = createWorkflowGraphic(dataflowOriginal);
 		createWorkflowGraphic.setBorder(new TitledBorder("Diagram"));
-		
+
 		workflowPart.add(new JScrollPane(createWorkflowGraphic));
 
 		workflowDescriptionArea = new DialogTextArea(NO_WORKFLOW_DESCRIPTION, 5, 40);
@@ -243,7 +253,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		workflowDescriptionArea.setEditable(false);
 		workflowDescriptionArea.setLineWrap(true);
 		workflowDescriptionArea.setWrapStyleWord(true);
-		
+
 		workflowPart.add(new JScrollPane(workflowDescriptionArea));
 
 		workflowAuthorArea = new DialogTextArea(NO_WORKFLOW_AUTHOR, 1, 40);
@@ -251,18 +261,18 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		workflowAuthorArea.setEditable(false);
 		workflowAuthorArea.setLineWrap(true);
 		workflowAuthorArea.setWrapStyleWord(true);
-		
+
 		workflowPart.add(new JScrollPane(workflowAuthorArea));
 
 		launchAction = new AbstractAction(LAUNCH_WORKFLOW, launchIcon) {
 			public void actionPerformed(ActionEvent ae) {
-				
-				// First of all - is the workflow valid?				
-				if (! CheckWorkflowStatus.checkWorkflow(dataflowOriginal)) {
+
+				// First of all - is the workflow valid?
+				if (! CheckWorkflowStatus.checkWorkflow(dataflowOriginal, workbench, editManager, fileManager, reportManager)) {
 					setVisible(false);
 					return;
 				}
-				
+
 				// Check if user had entered input values for all input ports -
 				// otherwise there is no point in attempting to run the workflow
 				for (String input : inputMap.keySet()) {
@@ -273,24 +283,24 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 						// exit
 						return;
 					}
-				}			
-				
+				}
+
 				// Make a copy of the workflow to run so user can still
 				// modify the original workflow
 				Dataflow dataflowCopy = null;
 
 				// CopyWorkflowSwingWorker will make a copy of the workflow and pop up a
-				// modal dialog that will block the GUI while CopyWorkflowSwingWorker is 
-				// doing it to let the user know that something is being done. Blocking 
-				// of the GUI is needed here so that the user cannot modify the original 
+				// modal dialog that will block the GUI while CopyWorkflowSwingWorker is
+				// doing it to let the user know that something is being done. Blocking
+				// of the GUI is needed here so that the user cannot modify the original
 				// workflow while it is being copied.
 				CopyWorkflowSwingWorker copyWorkflowSwingWorker = new CopyWorkflowSwingWorker(dataflowOriginal);
 				CopyWorkflowInProgressDialog dialog = new CopyWorkflowInProgressDialog();
 				copyWorkflowSwingWorker.addPropertyChangeListener(
 					     new SwingWorkerCompletionWaiter(dialog));
 				copyWorkflowSwingWorker.execute();
-				
-				// Give a chance to the SwingWorker to finish so we do not have to display 
+
+				// Give a chance to the SwingWorker to finish so we do not have to display
 				// the dialog if copying of the workflow is quick (so it won't flicker on the screen)
 				try {
 					Thread.sleep(500);
@@ -308,7 +318,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 					// exit
 					return;
 				}
-				else{ 
+				else{
 					// Get the workflow copy from the CopyWorkflowSwingWorker
 					try {
 						dataflowCopy = copyWorkflowSwingWorker.get();
@@ -316,7 +326,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 						dataflowCopy = null;
 						logger.error("Failed to get the workflow copy", e);
 					}
-					
+
 					if (dataflowCopy == null) {
 						InvalidDataflowReport.showErrorDialog(
 								"Unable to make a copy of the workflow to run",
@@ -332,7 +342,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 						// if provenance turned on then add an IntermediateProvLayer to each
 						// Processor
 						ProvenanceConnector provenanceConnector = null;
-					
+
 						// FIXME: All these run-stuff should be done in a general way so it
 						// could also be used when running workflows non-interactively
 						if (DataManagementConfiguration.getInstance().isProvenanceEnabled()) {
@@ -360,7 +370,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 								}
 							} catch (Exception except) {
 
-							}			
+							}
 						}
 						invocationContext = new InvocationContextImpl(
 								referenceService, provenanceConnector);
@@ -403,7 +413,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				handleCancel();
 			}}));
-		
+
 		JToolBar loadButtonsBar = new JToolBar();
 		loadButtonsBar.setFloatable(false);
 		ReferenceActionsSPIRegistry spiRegistry = ReferenceActionsSPIRegistry.getInstance();
@@ -413,16 +423,16 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			JButton loadButton = new JButton((AbstractAction) action);
 			loadButtonsBar.add(loadButton);
 		}
-		
+
 		JPanel toolBarPanel = new JPanel(new BorderLayout());
 		toolBarPanel.add(loadButtonsBar, BorderLayout.WEST);
 		toolBarPanel.add(toolBar, BorderLayout.EAST);
 		toolBarPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
 		portsPart.add(toolBarPanel, BorderLayout.SOUTH);
-		
+
 		// Construct tab container - tabs will be populated based on the wf input ports
 		tabsPane = new JTabbedPane();
-		
+
 		List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(
 				dataflowOriginal.getInputPorts());
 		Collections.sort(inputPorts, new PortComparator());
@@ -430,7 +440,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		for (DataflowInputPort inputPort : inputPorts) {
 
 			// Is this input port connected to anything?
-			if (dataflowOriginal.isInputPortConnected(inputPort)){			
+			if (dataflowOriginal.isInputPortConnected(inputPort)){
 				String portDescription = annotationTools.getAnnotationString(
 						inputPort, FreeTextDescription.class, null);
 				String portExample = annotationTools.getAnnotationString(inputPort,
@@ -440,12 +450,12 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 						portExample);
 			}
 		}
-		
+
 		portsPart.add(tabsPane, BorderLayout.CENTER);
-		
+
 		workflowPart.setPreferredSize(new Dimension(300,500));
 		portsPart.setPreferredSize(new Dimension(500,500));
-		
+
 		overallPanel = new JPanel();
 		overallPanel.setLayout(new BoxLayout(overallPanel, BoxLayout.X_AXIS));
 
@@ -454,8 +464,8 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 		setLayout(new BorderLayout());
 		getContentPane().add(new JScrollPane(overallPanel), BorderLayout.CENTER);
-		
-		pack();		
+
+		pack();
 	}
 
 	/**
@@ -467,7 +477,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	/**
 	 * Creates an SVGCanvas loaded with the SVGDocument for the Dataflow.
-	 * 
+	 *
 	 * @param dataflow
 	 * @return
 	 */
@@ -521,7 +531,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	}
 
 	private void registerInputs() {
-		
+
 		for (String input : inputMap.keySet()) {
 			RegistrationPanel registrationPanel = inputPanelMap.get(input);
 			Object userInput = registrationPanel.getUserInput();
@@ -535,14 +545,14 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	/**
 	 * Called when the run workflow action has been performed
-	 * 
+	 *
 	 * @param workflowInputs
 	 *            a map of named inputs in the form of T2Reference instances
 	 */
 	public abstract void handleLaunch(Map<String, T2Reference> workflowInputs);
-	
+
 	public abstract void handleCancel();
-	
+
 	private static void selectTopOfTextArea(DialogTextArea textArea) {
 		textArea.setSelectionStart(0);
 		textArea.setSelectionEnd(0);
@@ -585,7 +595,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) throws Exception {
 			if (message instanceof ClosedDataflowEvent
-				&& ((ClosedDataflowEvent) message).getDataflow() == dataflowOriginal) {	
+				&& ((ClosedDataflowEvent) message).getDataflow() == dataflowOriginal) {
 				// Remove listeners of various events
 				editManager.removeObserver(editManagerObserver);
 				fileManager.removeObserver(fileManagerObserver);
@@ -594,11 +604,11 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			}
 		}
 	}
-	
+
 	public class EditManagerObserver implements Observer<EditManagerEvent> {
 		public void notify(Observable<EditManagerEvent> sender,
 				final EditManagerEvent message) throws Exception {
-			
+
 			if (message instanceof AbstractDataflowEditEvent
 					&& ((AbstractDataflowEditEvent) message).getDataFlow() == dataflowOriginal) {
 				workflowModified = true;

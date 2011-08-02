@@ -1,19 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="ResultsPerspectiveComponentFactory" class="net.sf.taverna.t2.workbench.run.ResultsPerspectiveComponentFactory" />
+	<bean id="ResultsPerspectiveComponentFactory" class="net.sf.taverna.t2.workbench.run.ResultsPerspectiveComponentFactory">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+			<property name="menuManager" ref="menuManager" />
+			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="xmlDeserializer" ref="xmlDeserializer" />
+			<property name="referenceService" ref="referenceService" />
+	</bean>
 
 	<bean id="LoadRunIdsToDeleteStartupHook" class="net.sf.taverna.t2.workbench.run.cleanup.LoadRunIdsToDeleteStartupHook" />
 
-	<bean id="ResultsPerspectiveComponent" class="net.sf.taverna.t2.workbench.run.ResultsPerspectiveComponent" />
-
-	<bean id="FileRunMenuAction" class="net.sf.taverna.t2.workbench.run.menu.FileRunMenuAction" />
-	<bean id="FileValidateMenuAction" class="net.sf.taverna.t2.workbench.run.menu.FileValidateMenuAction" />
+	<bean id="FileRunMenuAction" class="net.sf.taverna.t2.workbench.run.menu.FileRunMenuAction">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+			<property name="reportManager" ref="reportManager" />
+			<property name="workbench" ref="workbench" />
+	</bean>
+	<bean id="FileValidateMenuAction" class="net.sf.taverna.t2.workbench.run.menu.FileValidateMenuAction">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+			<property name="reportManager" ref="reportManager" />
+			<property name="workbench" ref="workbench" />
+	</bean>
 	<bean id="FileRunMenuSection" class="net.sf.taverna.t2.workbench.run.menu.FileRunMenuSection" />
 	<bean id="RunToolbarSection" class="net.sf.taverna.t2.workbench.run.toolbar.RunToolbarSection" />
-	<bean id="RunToolbarAction" class="net.sf.taverna.t2.workbench.run.toolbar.RunToolbarAction" />
+	<bean id="RunToolbarAction" class="net.sf.taverna.t2.workbench.run.toolbar.RunToolbarAction">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+			<property name="reportManager" ref="reportManager" />
+			<property name="workbench" ref="workbench" />
+	</bean>
 
 	<bean id="ReferenceDatabaseCleanUpShutdownHook" class="net.sf.taverna.t2.workbench.run.cleanup.ReferenceDatabaseCleanUpShutdownHook" />
 	<bean id="ReferenceServiceShutdownHook" class="net.sf.taverna.t2.workbench.run.cleanup.ReferenceServiceShutdownHook" />

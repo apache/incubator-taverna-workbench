@@ -30,23 +30,12 @@
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>reference-impl</artifactId>
-			<version>${t2.core.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>reference-core-extensions</artifactId>
 			<version>${t2.reference-core-extensions.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>workflowmodel-api</artifactId>
-			<version>${t2.core.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-impl</artifactId>
 			<version>${t2.core.version}</version>
 		</dependency>
 		<dependency>
@@ -95,24 +84,27 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-orm</artifactId>
 			<version>${spring.version}</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 			<version>${spring.version}</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-aop</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
 			<version>${spring.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -128,7 +120,6 @@
 			<version>${aspectj.version}</version>
 			<scope>test</scope>
 		</dependency>
-
 		<dependency>
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate</artifactId>
@@ -156,12 +147,6 @@
 
 
 
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jdbc</artifactId>
-			<version>${spring.version}</version>
-			<scope>test</scope>
-		</dependency>
 
 
 	</dependencies>

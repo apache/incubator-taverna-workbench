@@ -1,25 +1,25 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.iterationstrategy.contextview;
 
@@ -49,30 +49,30 @@ import org.jdom.filter.ElementFilter;
 
 /**
  * Contextual view of an {@link IterationStrategyStack}.
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
 public class IterationStrategyContextualView extends ContextualView {
 
 	private static Logger logger = Logger
 			.getLogger(IterationStrategyContextualView.class);
 
-	private static EditManager editManager = EditManager.getInstance();
+	private EditManager editManager;
 
-	private FileManager fileManager = FileManager.getInstance();
+	private FileManager fileManager;
 
 	private IterationStrategyStack iterationStack;
 
 	private final Processor processor;
 
 	private IterationStrategyTree strategyTree = new IterationStrategyTree();
-	
+
 	static {
-		
+
 // This should be enabled and modified for T2-822
 /*		editManager.addObserver(new Observer<EditManagerEvent> () {
-			
+
 			private void examineEdit(Edit edit) {
 				if (edit instanceof ConnectDatalinkEdit) {
 					processConnectDatalinkEdit((ConnectDatalinkEdit) edit);
@@ -81,18 +81,18 @@ public class IterationStrategyContextualView extends ContextualView {
 					processCompoundEdit((CompoundEdit) edit);
 				}
 			}
-			
+
 			private void processConnectDatalinkEdit(ConnectDatalinkEdit edit) {
 				Datalink d = ((ConnectDatalinkEdit) edit).getSubject();
 				EventHandlingInputPort sink = d.getSink();
 				if (sink instanceof ProcessorInputPort) {
 					ProcessorInputPort pip = (ProcessorInputPort) sink;
 					Processor p = pip.getProcessor();
-					final HelpEnabledDialog dialog = new IterationStrategyConfigurationDialog(null, p, copyIterationStrategyStack(p.getIterationStrategy()));		
+					final HelpEnabledDialog dialog = new IterationStrategyConfigurationDialog(null, p, copyIterationStrategyStack(p.getIterationStrategy()));
 					dialog.setVisible(true);
-				}				
+				}
 			}
-			
+
 			private void processCompoundEdit(CompoundEdit edit) {
 				for (Edit e : edit.getChildEdits()) {
 					examineEdit(e);
@@ -109,12 +109,14 @@ public class IterationStrategyContextualView extends ContextualView {
 			}});*/
 	}
 
-	public IterationStrategyContextualView(Processor processor) {
+	public IterationStrategyContextualView(Processor processor, EditManager editManager, FileManager fileManager) {
 		if (processor == null || processor.getIterationStrategy() == null) {
 			throw new NullPointerException(
 					"Iteration strategy stack can't be null");
 		}
 		this.processor = processor;
+		this.editManager = editManager;
+		this.fileManager = fileManager;
 		refreshIterationStrategyStack();
 		initView();
 	}
@@ -213,7 +215,7 @@ public class IterationStrategyContextualView extends ContextualView {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			final HelpEnabledDialog dialog = new IterationStrategyConfigurationDialog(owner, processor, iterationStack);		
+			final HelpEnabledDialog dialog = new IterationStrategyConfigurationDialog(owner, processor, iterationStack, editManager, fileManager);
 			dialog.setVisible(true);
 			refreshView();
 		}

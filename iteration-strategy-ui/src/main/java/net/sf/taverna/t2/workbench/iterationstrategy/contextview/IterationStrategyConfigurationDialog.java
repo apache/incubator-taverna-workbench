@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.iterationstrategy.contextview;
 
@@ -15,8 +15,6 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
-
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
@@ -28,19 +26,20 @@ import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategy;
 import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategyStack;
 
+import org.apache.log4j.Logger;
+
 /**
  * @author alanrw
  *
  */
 @SuppressWarnings("serial")
 public class IterationStrategyConfigurationDialog extends HelpEnabledDialog {
-	
+
 	private static Logger logger = Logger
 	.getLogger(IterationStrategyConfigurationDialog.class);
 
-	private EditManager editManager = EditManager.getInstance();
-
-	private FileManager fileManager = FileManager.getInstance();
+	private final EditManager editManager;
+	private final FileManager fileManager;
 
 
 	private final Frame owner;
@@ -49,11 +48,13 @@ public class IterationStrategyConfigurationDialog extends HelpEnabledDialog {
 
 	private IterationStrategyStack workingStack;
 
-	public IterationStrategyConfigurationDialog(Frame owner, Processor processor, IterationStrategyStack iStack) {
+	public IterationStrategyConfigurationDialog(Frame owner, Processor processor, IterationStrategyStack iStack, EditManager editManager, FileManager fileManager) {
 		super (owner, "List handling for " + processor.getLocalName(), true, null);
 		this.owner = owner;
 		this.processor = processor;
 		this.originalStack = iStack;
+		this.editManager = editManager;
+		this.fileManager = fileManager;
 		this.workingStack = IterationStrategyContextualView.copyIterationStrategyStack(originalStack);
 		IterationStrategy iterationStrategy = IterationStrategyContextualView.getIterationStrategy(workingStack);
 		IterationStrategyEditorControl iterationStrategyEditorControl = new IterationStrategyEditorControl(
@@ -112,7 +113,7 @@ public class IterationStrategyConfigurationDialog extends HelpEnabledDialog {
 			}
 		}
 	}
-	
+
 	private final class ResetAction extends AbstractAction {
 		private final IterationStrategyEditorControl strategyEditorControl;
 

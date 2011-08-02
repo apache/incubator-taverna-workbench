@@ -1,15 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="CopyProcessorMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CopyProcessorMenuAction" />
-	<bean id="CopyGraphComponentMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CopyGraphComponentMenuAction" />
-	<bean id="PasteGraphComponentMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.PasteGraphComponentMenuAction" />
+	<bean id="CopyProcessorMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CopyProcessorMenuAction">
+			<property name="editManager" ref="editManager" />
+			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	</bean>
+	<bean id="CopyGraphComponentMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CopyGraphComponentMenuAction">
+			<property name="fileManager" ref="fileManager" />
+			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	</bean>
+	<bean id="PasteGraphComponentMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.PasteGraphComponentMenuAction">
+			<property name="editManager" ref="editManager" />
+			<property name="menuManager" ref="menuManager" />
+			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	</bean>
 	<bean id="CutProcessorMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CutProcessorMenuAction" />
-	<bean id="CutGraphComponentMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CutGraphComponentMenuAction" />
-	<bean id="CutToolbarAction" class="net.sf.taverna.t2.workbench.ui.toolbar.CutToolbarAction" />
-	<bean id="CopyToolbarAction" class="net.sf.taverna.t2.workbench.ui.toolbar.CopyToolbarAction" />
-	<bean id="PasteToolbarAction" class="net.sf.taverna.t2.workbench.ui.toolbar.PasteToolbarAction" />
+	<bean id="CutGraphComponentMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CutGraphComponentMenuAction">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	</bean>
+	<bean id="CutToolbarAction" class="net.sf.taverna.t2.workbench.ui.toolbar.CutToolbarAction">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	</bean>
+	<bean id="CopyToolbarAction" class="net.sf.taverna.t2.workbench.ui.toolbar.CopyToolbarAction">
+			<property name="fileManager" ref="fileManager" />
+			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	</bean>
+	<bean id="PasteToolbarAction" class="net.sf.taverna.t2.workbench.ui.toolbar.PasteToolbarAction">
+			<property name="editManager" ref="editManager" />
+			<property name="menuManager" ref="menuManager" />
+			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	</bean>
 
 </beans>
