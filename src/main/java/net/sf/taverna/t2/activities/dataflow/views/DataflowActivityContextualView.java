@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -31,6 +31,8 @@ import javax.swing.JPanel;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.activities.dataflow.actions.EditNestedDataflowAction;
+import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
 import net.sf.taverna.t2.workbench.file.importworkflow.actions.ReplaceNestedWorkflowAction;
@@ -50,7 +52,19 @@ public class DataflowActivityContextualView extends
 
 	private T2FlowFileType T2_FLOW_FILE_TYPE = new T2FlowFileType();
 
-	private FileManager fileManager = FileManager.getInstance();
+	private final EditManager editManager;
+
+	private final FileManager fileManager;
+
+	private final MenuManager menuManager;
+
+	public DataflowActivityContextualView(Activity<?> activity,
+			EditManager editManager, FileManager fileManager, MenuManager menuManager) {
+		super(activity);
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.menuManager = menuManager;
+	}
 
 	@Override
 	public DataflowActivity getActivity() {
@@ -61,19 +75,15 @@ public class DataflowActivityContextualView extends
 	public JComponent getMainFrame() {
 		JComponent mainFrame = super.getMainFrame();
 		JButton viewWorkflowButton = new JButton("Edit workflow");
-		viewWorkflowButton.addActionListener(new EditNestedDataflowAction(getActivity()));
+		viewWorkflowButton.addActionListener(new EditNestedDataflowAction(getActivity(), fileManager));
 		JButton configureButton = new JButton(new ReplaceNestedWorkflowAction(
-						getActivity()));
+						getActivity(), editManager, fileManager, menuManager));
 		configureButton.setIcon(null);
 		JPanel flowPanel = new JPanel(new FlowLayout());
 		flowPanel.add(viewWorkflowButton);
 		flowPanel.add(configureButton);
 		mainFrame.add(flowPanel, BorderLayout.SOUTH);
 		return mainFrame;
-	}
-
-	public DataflowActivityContextualView(Activity<?> activity) {
-		super(activity);
 	}
 
 	@Override

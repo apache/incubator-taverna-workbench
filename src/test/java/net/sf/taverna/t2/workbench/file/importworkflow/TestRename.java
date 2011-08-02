@@ -1,7 +1,8 @@
 package net.sf.taverna.t2.workbench.file.importworkflow;
 
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
+import net.sf.taverna.t2.workflowmodel.Edits;
+import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 
 import org.junit.Test;
 
@@ -9,7 +10,7 @@ public class TestRename extends AbstractTestHelper {
 
 	@Test
 	public void mergePintoP() throws Exception {
-		DataflowMerger merger = new DataflowMerger(p);
+		DataflowMerger merger = new DataflowMerger(p, new EditsImpl());
 		merger.getMergeEdit(p).doEdit();
 		Dataflow merged = p;
 
@@ -22,9 +23,10 @@ public class TestRename extends AbstractTestHelper {
 
 	@Test
 	public void mergePintoPintoP() throws Exception {
-		// Don't put p in constructor, or we would get exponential merging!	
-		Dataflow merged = EditsRegistry.getEdits().createDataflow();
-		DataflowMerger merger = new DataflowMerger(merged);
+		// Don't put p in constructor, or we would get exponential merging!
+		Edits edits = new EditsImpl();
+		Dataflow merged = edits.createDataflow();
+		DataflowMerger merger = new DataflowMerger(merged,edits);
 		merger.getMergeEdit(p).doEdit();
 		merger.getMergeEdit(p).doEdit();
 		merger.getMergeEdit(p).doEdit();
@@ -39,9 +41,10 @@ public class TestRename extends AbstractTestHelper {
 
 	@Test
 	public void mergePintoPWithPrefix() throws Exception {
-		// Don't put p in constructor, or we would get exponential merging!	
-		Dataflow merged = EditsRegistry.getEdits().createDataflow();
-		DataflowMerger merger = new DataflowMerger(merged);
+		// Don't put p in constructor, or we would get exponential merging!
+		Edits edits = new EditsImpl();
+		Dataflow merged = edits.createDataflow();
+		DataflowMerger merger = new DataflowMerger(merged, edits);
 		merger.getMergeEdit(p).doEdit();
 		merger.getMergeEdit(p, "fish_").doEdit();
 		merger.getMergeEdit(p, "soup_").doEdit();
@@ -53,5 +56,5 @@ public class TestRename extends AbstractTestHelper {
 				"fish_i->fish_P.inputlist", "fish_P.outputlist->fish_o",
 				"soup_i->soup_P.inputlist", "soup_P.outputlist->soup_o");
 	}
-	
+
 }

@@ -5,28 +5,29 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.gui.ImportWorkflowWizard;
 import net.sf.taverna.t2.workbench.ui.Utils;
 
 /**
  * An action for merging two workflows
- * 
+ *
  * @author Stian Soiland-Reyes
  *
  */
 public class MergeWorkflowAction extends AbstractAction {
 	private static final long serialVersionUID = -2242979457902699028L;
+	private final EditManager editManager;
+	private final FileManager fileManager;
+	private final MenuManager menuManager;
 
-	protected static class Singleton {
-		protected static MergeWorkflowAction instance = new MergeWorkflowAction();
-	}
-
-	public static MergeWorkflowAction getInstance() {
-		return Singleton.instance;
-	}
-
-	public MergeWorkflowAction() {
+	public MergeWorkflowAction(EditManager editManager, FileManager fileManager, MenuManager menuManager) {
 		super("Merge workflow");
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.menuManager = menuManager;
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -36,7 +37,7 @@ public class MergeWorkflowAction extends AbstractAction {
 		} else {
 			parentComponent = null;
 		}
-		ImportWorkflowWizard wizard = new ImportWorkflowWizard(Utils.getParentFrame(parentComponent));
+		ImportWorkflowWizard wizard = new ImportWorkflowWizard(Utils.getParentFrame(parentComponent), editManager, fileManager, menuManager);
 		wizard.setNestedEnabled(false);
 		wizard.setVisible(true);
 	}

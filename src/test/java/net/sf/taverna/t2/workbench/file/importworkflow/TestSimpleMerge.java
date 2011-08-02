@@ -6,9 +6,9 @@ import static org.junit.Assert.assertSame;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
+import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ public class TestSimpleMerge extends AbstractTestHelper {
 				"i->P.inputlist", "P.outputlist->o");
 		assertHasConditionals(merged, "A;B");
 	}
-	
+
 	private void checkCopiedFromP(Dataflow merged) {
 		Processor newProcP = findProcessor(merged, "P");
 		Processor originalProcP = findProcessor(p, "P");
@@ -37,7 +37,7 @@ public class TestSimpleMerge extends AbstractTestHelper {
 		DataflowInputPort newInI = findInputPort(merged, "i");
 		assertEquals(0, newInI.getDepth());
 		assertEquals(0, newInI.getGranularInputDepth());
-				
+
 		DataflowInputPort originalInI = findInputPort(p, "i");
 		assertNotSame("Did not copy port 'i'", originalInI, newInI);
 		assertSame("Not linked to new port", inp.getIncomingLink().getSource(),
@@ -45,30 +45,31 @@ public class TestSimpleMerge extends AbstractTestHelper {
 		assertNotSame("Still linked to old port", inp.getIncomingLink().getSource(),
 				originalInI.getInternalOutputPort());
 	}
-	
-	
+
+
 	@Test
 	public void mergeAbcAndPIntoNew() throws Exception {
-		Edits edit = EditsRegistry.getEdits();
-		Dataflow merged = edit.createDataflow();
-		DataflowMerger merger = new DataflowMerger(merged);
+		Edits edits = new EditsImpl();
+		Dataflow merged = edits.createDataflow();
+		DataflowMerger merger = new DataflowMerger(merged, edits);
 		merger.getMergeEdit(abc).doEdit();
-		
+
 		assertNotSame(abc, merged);
 		merger.getMergeEdit(p).doEdit();
 
-		
+
 		// Assert abc and p were not modified
 		checkAbc();
 		checkP();
-		
+
 		checkMergedAbcP(merged);
 		checkCopiedFromP(merged);
 	}
 
 	@Test
 	public void mergePintoAbc() throws Exception {
-		DataflowMerger merger = new DataflowMerger(abc);
+		Edits edits = new EditsImpl();
+		DataflowMerger merger = new DataflowMerger(abc, edits);
 		Dataflow merged = abc;
 
 		merger.getMergeEdit(p).doEdit();
@@ -77,11 +78,12 @@ public class TestSimpleMerge extends AbstractTestHelper {
 		// Assert P did not change
 		checkP();
 	}
-	
+
 	@Test
 	public void mergeAbcintoP() throws Exception {
+		Edits edits = new EditsImpl();
 		Dataflow merged = p;
-		DataflowMerger merger = new DataflowMerger(merged);
+		DataflowMerger merger = new DataflowMerger(merged, edits);
 		merger.getMergeEdit(abc).doEdit();
 
 		checkMergedAbcP(merged);

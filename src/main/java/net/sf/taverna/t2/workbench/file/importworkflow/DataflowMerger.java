@@ -15,7 +15,6 @@ import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.EventForwardingOutputPort;
 import net.sf.taverna.t2.workflowmodel.EventHandlingInputPort;
 import net.sf.taverna.t2.workflowmodel.Merge;
@@ -33,17 +32,17 @@ import net.sf.taverna.t2.workflowmodel.utils.Tools;
  * <p>
  * The merge is performed as a series of edit, inserting a copy of the source
  * workflow into the destination workflow.
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
 public class DataflowMerger {
 
-	private static Edits edits = EditsRegistry.getEdits();
+	private Edits edits;
 
 	/**
 	 * Make a copy of a dataflow by serializing and deserializing.
-	 * 
+	 *
 	 * @param source
 	 *            Dataflow to copy
 	 * @return A copy of the dataflow.
@@ -67,12 +66,13 @@ public class DataflowMerger {
 
 	/**
 	 * Construct a {@link DataflowMerger} for the given destination dataflow.
-	 * 
+	 *
 	 * @param destinationDataflow
 	 *            Dataflow to be merged into
 	 */
-	public DataflowMerger(Dataflow destinationDataflow) {
+	public DataflowMerger(Dataflow destinationDataflow, Edits edits) {
 		this.dataflow = destinationDataflow;
+		this.edits = edits;
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class DataflowMerger {
 	 * <p>
 	 * Internally a copy is made of the source dataflow, to avoid modifying the
 	 * links and processors.
-	 * 
+	 *
 	 * @param sourceDataflow
 	 *            Dataflow to merge from
 	 * @return An edit that can perform and undo the insertion of the components
@@ -100,7 +100,7 @@ public class DataflowMerger {
 	 * <p>
 	 * Internally a copy is made of the source dataflow, to avoid modifying the
 	 * links and processors.
-	 * 
+	 *
 	 * @param sourceDataflow
 	 *            Dataflow to merge from
 	 * @param prefix

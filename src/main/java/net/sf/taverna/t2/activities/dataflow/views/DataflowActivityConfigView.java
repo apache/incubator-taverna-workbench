@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -49,7 +49,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
+import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
@@ -65,7 +65,7 @@ public class DataflowActivityConfigView extends JPanel {
 	private static Logger logger = Logger
 			.getLogger(DataflowActivityConfigView.class);
 
-	private FileManager fileManager = FileManager.getInstance();
+	private FileManager fileManager;
 
 	private DataflowActivity dataflowActivity;
 
@@ -77,6 +77,8 @@ public class DataflowActivityConfigView extends JPanel {
 
 	private Processor createProcessor;
 
+	private EditManager editManager;
+
 	public boolean isConfigChanged() {
 		return configChanged;
 	}
@@ -85,8 +87,10 @@ public class DataflowActivityConfigView extends JPanel {
 		this.configChanged = configChanged;
 	}
 
-	public DataflowActivityConfigView(DataflowActivity dataflow) {
+	public DataflowActivityConfigView(DataflowActivity dataflow, EditManager editManager, FileManager fileManager) {
 		this.dataflowActivity = dataflow;
+		this.editManager = editManager;
+		this.fileManager = fileManager;
 		init();
 	}
 
@@ -109,32 +113,31 @@ public class DataflowActivityConfigView extends JPanel {
 					try {
 						dataflowActivity.configure(dataflow);
 					} catch (ActivityConfigurationException e1) {
-						
+
 						logger.error("Unable to configure activity", e1);
 					}
 					addSelectedDataflowToCurrentDataflow(dataflow);
 					// observe the file manager in case this dataflow gets
 					// altered
-					
-					EditManager.getInstance().addObserver(new Observer<EditManagerEvent>(){
+
+					editManager.addObserver(new Observer<EditManagerEvent>(){
 
 						public void notify(Observable<EditManagerEvent> sender,
 								EditManagerEvent message) throws Exception {
 							if (message instanceof AbstractDataflowEditEvent) {
 								AbstractDataflowEditEvent dataflowEdit = (AbstractDataflowEditEvent) message;
-								
+
 								if (dataflowEdit.getDataFlow().equals(dataflowActivity.getConfiguration())) {
 									// Reconfigure in case ports have changed
 									dataflowActivity.configure(dataflowEdit.getDataFlow());
-									EditsRegistry.getEdits()
-									.getMapProcessorPortsForActivityEdit(
+									editManager.getEdits().getMapProcessorPortsForActivityEdit(
 											createProcessor);
 								}
 							}
-							
+
 						}});
-					FileManager.getInstance().openDataflow(dataflow);
-					
+					fileManager.openDataflow(dataflow);
+
 				}
 				actionListener.actionPerformed(e);
 			}
@@ -179,7 +182,7 @@ public class DataflowActivityConfigView extends JPanel {
 	/**
 	 * Get the user to select a t2flow (ie a serialised T2 dataflow) to add as a
 	 * nested dataflow
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean selectDataflow() {
@@ -226,7 +229,7 @@ public class DataflowActivityConfigView extends JPanel {
 	/**
 	 * Use the T2 deserialiser to turn the {@link #selectedFile} dataflow File
 	 * into a T2 dataflow object
-	 * 
+	 *
 	 * @return
 	 */
 	private Dataflow deserialiseSelectedDataflow() {
@@ -272,20 +275,20 @@ public class DataflowActivityConfigView extends JPanel {
 	 * opened). Add the configured dataflow activity to this processor. Then use
 	 * the {@link EditManager} to add the processor to the main dataflow so that
 	 * any GUI updates are forced
-	 * 
+	 *
 	 * @param dataflow
 	 */
 	private void addSelectedDataflowToCurrentDataflow(Dataflow dataflow) {
-		createProcessor = EditsRegistry.getEdits().createProcessor(
+		Edits edits = editManager.getEdits();
+		createProcessor = edits.createProcessor(
 				dataflow.getLocalName());
 		try {
-			EditsRegistry.getEdits().getAddActivityEdit(createProcessor,
+			edits.getAddActivityEdit(createProcessor,
 					dataflowActivity).doEdit();
-			EditManager.getInstance().doDataflowEdit(
+			editManager.doDataflowEdit(
 					(Dataflow) ModelMap.getInstance().getModel(
 							ModelMapConstants.CURRENT_DATAFLOW),
-					EditsRegistry.getEdits()
-							.getMapProcessorPortsForActivityEdit(
+							edits.getMapProcessorPortsForActivityEdit(
 									createProcessor));
 
 		} catch (EditException e) {

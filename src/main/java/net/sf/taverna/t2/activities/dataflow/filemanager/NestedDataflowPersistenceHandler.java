@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -38,10 +38,7 @@ import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflowSource;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
@@ -54,9 +51,9 @@ import org.jdom.Element;
 /**
  * Allow opening/saving of a nested workflow sourced from a
  * {@link DataflowActivity} - described by a {@link NestedDataflowActivitySource}.
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
 public class NestedDataflowPersistenceHandler extends
 		AbstractDataflowPersistenceHandler implements
@@ -64,9 +61,9 @@ public class NestedDataflowPersistenceHandler extends
 
 	private static final T2FlowFileType T2_FLOW_FILE_TYPE = new T2FlowFileType();
 
-	private EditManager editManager = EditManager.getInstance();
+	private EditManager editManager;
 
-	private Edits edits = editManager.getEdits();
+	private FileManager fileManager;
 
 	@Override
 	public List<FileType> getOpenFileTypes() {
@@ -137,11 +134,11 @@ public class NestedDataflowPersistenceHandler extends
 		}
 		NestedDataflowActivitySource nestedDataflowDestination = (NestedDataflowActivitySource) destination;
 		Dataflow parentDataflow = nestedDataflowDestination.getParentDataflow();
-		if (! FileManager.getInstance().isDataflowOpen(parentDataflow)) {
+		if (! fileManager.isDataflowOpen(parentDataflow)) {
 			throw new SaveException("Can't save to parent workflow, it's no longer open");
 		}
-			
-		
+
+
 		DataflowActivity dataflowActivity = nestedDataflowDestination
 				.getNestedDataflow();
 
@@ -158,12 +155,12 @@ public class NestedDataflowPersistenceHandler extends
 			throw new SaveException("Could not recreate workflow " + dataflow,
 					e);
 		}
-		
+
 		List<Processor> dataflowProcessors = findProcessors(parentDataflow, dataflowActivity);
 		List<Edit<?>> editList = new ArrayList<Edit<?>>();
-		editList.add(edits.getConfigureActivityEdit(dataflowActivity, dataflowCopy));
+		editList.add(editManager.getEdits().getConfigureActivityEdit(dataflowActivity, dataflowCopy));
 		for (Processor dataflowProcessor : dataflowProcessors) {
-			editList.add(edits.getMapProcessorPortsForActivityEdit(dataflowProcessor));
+			editList.add(editManager.getEdits().getMapProcessorPortsForActivityEdit(dataflowProcessor));
 		}
 		try {
 			editManager.doDataflowEdit(parentDataflow, new CompoundEdit(editList));
@@ -200,5 +197,14 @@ public class NestedDataflowPersistenceHandler extends
 		}
 		return processors;
 	}
-	
+
+	public void setEditManager(EditManager editManager) {
+		this.editManager = editManager;
+	}
+
+	public void setFileManager(FileManager fileManager) {
+		this.fileManager = fileManager;
+	}
+
+
 }

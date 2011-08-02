@@ -6,6 +6,9 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import net.sf.taverna.t2.activities.dataflow.servicedescriptions.DataflowActivityIcon;
+import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.gui.ImportWorkflowWizard;
 import net.sf.taverna.t2.workbench.ui.Utils;
 
@@ -13,23 +16,21 @@ import net.sf.taverna.t2.workbench.ui.Utils;
  * A general version of {@link AddNestedWorkflowAction} and
  * {@link MergeWorkflowAction} that allows the user to choose which action to
  * perform.
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
 public class ImportWorkflowAction extends AbstractAction {
 	private static final long serialVersionUID = -2242979457902699028L;
+	private final EditManager editManager;
+	private final FileManager fileManager;
+	private final MenuManager menuManager;
 
-	protected static class Singleton {
-		protected static ImportWorkflowAction instance = new ImportWorkflowAction();
-	}
-
-	public static ImportWorkflowAction getInstance() {
-		return Singleton.instance;
-	}
-
-	public ImportWorkflowAction() {
+	public ImportWorkflowAction(EditManager editManager, FileManager fileManager, MenuManager menuManager) {
 		super("Import workflow", DataflowActivityIcon.getDataflowIcon());
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.menuManager = menuManager;
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -40,7 +41,7 @@ public class ImportWorkflowAction extends AbstractAction {
 			parentComponent = null;
 		}
 		ImportWorkflowWizard wizard = new ImportWorkflowWizard(Utils
-				.getParentFrame(parentComponent));
+				.getParentFrame(parentComponent), editManager, fileManager, menuManager);
 		wizard.setVisible(true);
 	}
 

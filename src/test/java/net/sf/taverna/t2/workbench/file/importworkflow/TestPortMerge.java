@@ -3,6 +3,7 @@ package net.sf.taverna.t2.workbench.file.importworkflow;
 import static org.junit.Assert.*;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EventForwardingOutputPort;
+import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 
 import org.junit.Test;
 
@@ -10,7 +11,7 @@ public class TestPortMerge extends AbstractTestHelper {
 
 	@Test
 	public void mergeQintoP() throws Exception {
-		DataflowMerger merger = new DataflowMerger(p);
+		DataflowMerger merger = new DataflowMerger(p, new EditsImpl());
 		merger.getMergeEdit(q).doEdit();
 		Dataflow merged = p;
 		checkQ();

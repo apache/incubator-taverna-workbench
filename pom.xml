@@ -11,6 +11,11 @@
 	<name>Taverna 2 Dataflow Activity UI</name>
 	<dependencies>
 		<dependency>
+			<groupId>net.sf.taverna.t2.activities</groupId>
+			<artifactId>dataflow-activity</artifactId>
+			<version>${t2.activities.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>activity-icons-api</artifactId>
 			<version>${t2.ui.api.version}</version>
@@ -26,14 +31,14 @@
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>contextual-views-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>file-api</artifactId>
+			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>activity-tools</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>edits-api</artifactId>
+			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
@@ -44,10 +49,28 @@
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>graph-view</artifactId>
 			<version>${t2.ui.components.version}</version>
-		</dependency>		<dependency>
+		</dependency>
+
+		<dependency>
 			<groupId>javax.help</groupId>
 			<artifactId>javahelp</artifactId>
 			<version>${javahelp.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>contextual-views-impl</artifactId>
+			<version>${t2.ui.impl.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>activity-tools</artifactId>
+			<version>${t2.ui.impl.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>helper</artifactId>
+			<version>${t2.ui.impl.version}</version>
 		</dependency>
 
 		<!--  testing dependencies -->
@@ -57,34 +80,21 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.activities</groupId>
-			<artifactId>dataflow-activity</artifactId>
-			<version>${t2.activities.version}</version>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>file-impl</artifactId>
+			<version>${t2.ui.impl.version}</version>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>helper</artifactId>
+			<artifactId>edits-impl</artifactId>
 			<version>${t2.ui.impl.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>file-api</artifactId>
-			<version>${t2.ui.api.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>edits-api</artifactId>
-			<version>${t2.ui.api.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.activities</groupId>
 			<artifactId>localworker-activity</artifactId>
 			<version>${t2.activities.version}</version>
-			<type>jar</type>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

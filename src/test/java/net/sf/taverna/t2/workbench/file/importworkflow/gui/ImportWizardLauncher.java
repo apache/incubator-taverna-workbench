@@ -6,11 +6,11 @@ import javax.swing.UIManager;
 public class ImportWizardLauncher {
 
 	public static void main(String[] args) throws Exception {
-		
+
 		UIManager.setLookAndFeel(UIManager
 				.getSystemLookAndFeelClassName());
-		
-		ImportWorkflowWizard s = new ImportWorkflowWizard(null);
+
+		ImportWorkflowWizard s = new ImportWorkflowWizard(null, null, null, null);
 		s.setVisible(true);
 	}
 }

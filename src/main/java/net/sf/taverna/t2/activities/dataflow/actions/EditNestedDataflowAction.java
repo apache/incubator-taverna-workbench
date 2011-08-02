@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.activities.dataflow.actions;
 
@@ -25,11 +25,12 @@ public class EditNestedDataflowAction extends AbstractAction {
 			.getLogger(EditNestedDataflowAction.class);
 	private static final T2FlowFileType T2_FLOW_FILE_TYPE = new T2FlowFileType();
 	private final DataflowActivity dataflowActivity;
-	private FileManager fileManager = FileManager.getInstance();
+	private final FileManager fileManager;
 
-	public EditNestedDataflowAction(DataflowActivity activity) {
+	public EditNestedDataflowAction(DataflowActivity activity, FileManager fileManager) {
 		super("Edit nested workflow");
 		this.dataflowActivity = activity;
+		this.fileManager = fileManager;
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -44,18 +45,18 @@ public class EditNestedDataflowAction extends AbstractAction {
 
 	public void openNestedWorkflow(final Component parentComponent) {
 		NestedDataflowSource nestedDataflowSource = new NestedDataflowActivitySource(
-				getFileManager().getCurrentDataflow(), dataflowActivity);
+				fileManager.getCurrentDataflow(), dataflowActivity, fileManager);
 
-		Dataflow alreadyOpen = getFileManager()
+		Dataflow alreadyOpen = fileManager
 				.getDataflowBySource(nestedDataflowSource);
 		if (alreadyOpen != null) {
 			// The nested workflow is already opened - switch to it
-			getFileManager().setCurrentDataflow(alreadyOpen);
+			fileManager.setCurrentDataflow(alreadyOpen);
 			return;
 		}
 
 		try {
-			getFileManager().openDataflow(T2_FLOW_FILE_TYPE, nestedDataflowSource);
+			fileManager.openDataflow(T2_FLOW_FILE_TYPE, nestedDataflowSource);
 		} catch (OpenException e1) {
 			logger.error("Could not open nested workflow from service "
 					+ dataflowActivity, e1);
@@ -69,11 +70,4 @@ public class EditNestedDataflowAction extends AbstractAction {
 		}
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
-	public FileManager getFileManager() {
-		return fileManager;
-	}
 }

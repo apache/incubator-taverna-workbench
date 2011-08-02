@@ -36,6 +36,7 @@ import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.activities.dataflow.actions.EditNestedDataflowAction;
+import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.DataflowInfo;
@@ -60,9 +61,9 @@ import org.apache.log4j.Logger;
 
 public class ImportWorkflowWizard extends HelpEnabledDialog {
 	private static final long serialVersionUID = -8124860319858897065L;
-	protected static FileManager fileManager = FileManager.getInstance();
 	protected static Logger logger = Logger
 			.getLogger(ImportWorkflowWizard.class);
+	protected FileManager fileManager;
 	protected BrowseFileOnClick browseFileOnClick = new BrowseFileOnClick();
 	protected JButton buttonBrowse;
 	protected JComboBox chooseDataflow;
@@ -99,9 +100,13 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	protected JRadioButton actionMerge;
 	protected JRadioButton radioCustomSource;
 	protected JRadioButton radioCustomDestination;
+	private final MenuManager menuManager;
 
-	public ImportWorkflowWizard(Frame parentFrame) {
+	public ImportWorkflowWizard(Frame parentFrame, EditManager editManager, FileManager fileManager, MenuManager menuManager) {
 		super(parentFrame, "Import workflow", true, null);
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.menuManager = menuManager;
 
 		setSize(600, 600);
 		add(makeContentPane(), BorderLayout.CENTER);
@@ -127,7 +132,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	/**
 	 * Silly workaround to avoid
 	 * "Cannot call invokeAndWait from the event dispatcher thread" exception.
-	 * 
+	 *
 	 * @param runnable
 	 */
 	public static void invokeAndWait(Runnable runnable) {
@@ -208,7 +213,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 
 	protected void updateSourcePreview() {
 		updateWorkflowGraphic(previewSource, sourceDataflow);
-	} 
+	}
 
 	protected void updateFooter() {
 		prefixField.setVisible(mergeEnabled);
@@ -239,7 +244,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 
 		radioNew.setVisible(nestedEnabled);
 		radioNew.setEnabled(actionNested.isSelected());
-		
+
 		if (actionNested.isSelected() && sourceSelection.getSelection() == null) {
 			// Preselect the new workflow
 			radioNew.setSelected(true);
@@ -250,7 +255,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 
 	/**
 	 * Create a PNG image of the workflow and place inside an ImageIcon
-	 * 
+	 *
 	 * @param dataflow
 	 * @return
 	 * @throws InvocationTargetException
@@ -265,7 +270,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 					svgCanvas.setSVGDocument(null);
 					if (dataflow != null) {
 						SVGGraphController currentWfGraphController = new SVGGraphController(
-								dataflow, false, svgCanvas);
+								dataflow, false, svgCanvas, editManager, menuManager);
 					}
 				}
 			});
@@ -282,8 +287,8 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	 * {@link DataflowOpenerThread} performs the updates. If a
 	 * DataflowOpenerThread is already running, it will be interrupted and
 	 * stopped.
-	 * 
-	 * 
+	 *
+	 *
 	 * @param parentComponent
 	 *            The parent component for showing dialogues
 	 * @param background
@@ -551,7 +556,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		gbc.gridx = 1;
 		gbc.weightx = 0.0;
 		gbc.fill = GridBagConstraints.NONE;
-		buttonBrowse = new JButton(new OpenWorkflowAction() {
+		buttonBrowse = new JButton(new OpenWorkflowAction(fileManager) {
 			@Override
 			public void openWorkflows(Component parentComponent, File[] files,
 					FileType fileType, OpenCallback openCallback) {
@@ -571,7 +576,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		buttonBrowse.setText("Browse");
 		j.add(buttonBrowse, gbc);
 
-		// This just duplicates things - we already have actions on 
+		// This just duplicates things - we already have actions on
 		// the radioFile and fieldFile that will handle the events
 		//radioFile.addActionListener(browseFileOnClick);
 		//fieldFile.addActionListener(browseFileOnClick);
@@ -588,7 +593,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 				// Wrapping as HTML causes weird drop-down box under MAC, so
 				// we just use normal text
 //				name = "<html><body>" + name
-//						+ " <i>(current)</i></body></html>"; 
+//						+ " <i>(current)</i></body></html>";
 				name = name
 				+ " (current)";
 			}
@@ -684,7 +689,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		return j;
 	}
 
-	private EditManager editManager = EditManager.getInstance();
+	private EditManager editManager;
 
 	private Edits edits = editManager.getEdits();
 	private Dataflow customSourceDataFlow = null;
@@ -708,7 +713,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		CompoundEdit edit = new CompoundEdit(editList);
 		return edit;
 	}
-	
+
 	protected DataflowActivity getInsertedActivity() {
 		return insertedActivity;
 	}
@@ -797,20 +802,20 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 						"Could not import workflows",
 						JOptionPane.WARNING_MESSAGE);
 			}
-			
+
 			DataflowActivity inserted = getInsertedActivity();
-			if (radioNew.isSelected()) {				
+			if (radioNew.isSelected()) {
 				progressMonitor.setNote("Opening new nested workflow for editing");
 				progressMonitor.setProgress(90);
 				// To 'force' the progress bar dialogue to appear
-				new EditNestedDataflowAction(inserted).openNestedWorkflow(parentComponent);
+				new EditNestedDataflowAction(inserted, fileManager).openNestedWorkflow(parentComponent);
 			}
 			progressMonitor.setProgress(100);
 		}
 
 		protected void merge() {
 			progressMonitor.setProgress(10);
-			DataflowMerger merger = new DataflowMerger(destinationDataflow);
+			DataflowMerger merger = new DataflowMerger(destinationDataflow, edits);
 			progressMonitor.setProgress(25);
 			progressMonitor.setNote("Planning workflow merging");
 
@@ -892,7 +897,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 				merge();
 			} else if (actionNested.isSelected()) {
 				nested();
-			} 
+			}
 		}
 	}
 
@@ -957,7 +962,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 			if (selection == null) {
 				chosenDataflow = null;
 			} else if (selection.equals(radioNewDestination.getModel())) {
-				chosenDataflow = EditManager.getInstance().getEdits()
+				chosenDataflow = editManager.getEdits()
 						.createDataflow();
 			} else if (selection.equals(radioOpenDestination.getModel())) {
 				DataflowSelection chosen = (DataflowSelection) destinationAlreadyOpen
@@ -1005,7 +1010,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 			if (selection == null) {
 				chosenDataflow = null;
 			} else if (selection.equals(radioNew.getModel())) {
-				chosenDataflow = EditManager.getInstance().getEdits()
+				chosenDataflow = editManager.getEdits()
 						.createDataflow();
 			} else if (selection.equals(radioFile.getModel())) {
 				final String filePath = fieldFile.getText();
