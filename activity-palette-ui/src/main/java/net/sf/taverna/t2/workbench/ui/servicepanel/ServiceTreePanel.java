@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
@@ -10,7 +10,6 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 
-import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -24,8 +23,9 @@ import javax.swing.tree.TreePath;
 import net.sf.taverna.t2.partition.ActivityItem;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
-import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ExportServiceDescriptionsAction;
-import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ImportServiceDescriptionsFromFileAction;
+import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.servicepanel.menu.AddServiceProviderMenu;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
@@ -41,9 +41,20 @@ public class ServiceTreePanel extends TreePanel {
 
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-	public ServiceTreePanel(FilterTreeModel treeModel, ServiceDescriptionRegistry serviceDescriptionRegistry) {
+	private final EditManager editManager;
+
+	private final MenuManager menuManager;
+
+	private final DataflowSelectionManager dataflowSelectionManager;
+
+	public ServiceTreePanel(FilterTreeModel treeModel,
+			ServiceDescriptionRegistry serviceDescriptionRegistry, EditManager editManager,
+			MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager) {
 		super(treeModel);
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
+		this.editManager = editManager;
+		this.menuManager = menuManager;
+		this.dataflowSelectionManager = dataflowSelectionManager;
 	}
 
 	@Override
@@ -57,21 +68,22 @@ public class ServiceTreePanel extends TreePanel {
 		SwingUtilities.invokeLater(new Runnable() {
 
 			public void run() {
-				tree.addMouseListener(new ServiceTreeClickListener(tree,ServiceTreePanel.this, serviceDescriptionRegistry));
+				tree.addMouseListener(new ServiceTreeClickListener(tree, ServiceTreePanel.this,
+						serviceDescriptionRegistry, editManager, menuManager, dataflowSelectionManager));
 			}
-			
+
 		});
-	
+
 	}
 
 	@Override
 	protected Component createExtraComponent() {
 		JComponent buttonPanel = new JPanel(new FlowLayout());
 		buttonPanel.add(new AddServiceProviderMenu());
-//		buttonPanel.add(new JButton(new RefreshProviderRegistryAction()));
+		// buttonPanel.add(new JButton(new RefreshProviderRegistryAction()));
 		return buttonPanel;
 	}
-	
+
 	@Override
 	public Filter createFilter(String text) {
 		return new ServiceFilter(text, filterTreeModel.getRoot());
@@ -83,15 +95,13 @@ public class ServiceTreePanel extends TreePanel {
 	}
 
 	public static class AvoidRootCollapse implements TreeWillExpandListener {
-		public void treeWillCollapse(TreeExpansionEvent event)
-				throws ExpandVetoException {
+		public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
 			if (event.getPath().getPathCount() == 1) {
 				throw new ExpandVetoException(event, "Can't collapse root");
 			}
 		}
 
-		public void treeWillExpand(TreeExpansionEvent event)
-				throws ExpandVetoException {
+		public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
 		}
 	}
 
@@ -122,11 +132,8 @@ public class ServiceTreePanel extends TreePanel {
 							DataFlavor[] flavors = new DataFlavor[1];
 							DataFlavor flavor = null;
 							try {
-								flavor = new DataFlavor(
-										DataFlavor.javaJVMLocalObjectMimeType
-												+ ";class="
-												+ ServiceDescription.class
-														.getCanonicalName(),
+								flavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType
+										+ ";class=" + ServiceDescription.class.getCanonicalName(),
 										"ServiceDescription", getClass().getClassLoader());
 							} catch (ClassNotFoundException e) {
 								logger.error("Error casting Dataflavor", e);
@@ -138,11 +145,8 @@ public class ServiceTreePanel extends TreePanel {
 						public boolean isDataFlavorSupported(DataFlavor flavor) {
 							DataFlavor thisFlavor = null;
 							try {
-								thisFlavor = new DataFlavor(
-										DataFlavor.javaJVMLocalObjectMimeType
-												+ ";class="
-												+ ServiceDescription.class
-														.getCanonicalName(),
+								thisFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType
+										+ ";class=" + ServiceDescription.class.getCanonicalName(),
 										"ServiceDescription", getClass().getClassLoader());
 							} catch (ClassNotFoundException e) {
 								logger.error("Error casting Dataflavor", e);
