@@ -19,6 +19,7 @@
 
 	<modules>
 		<module>activity-palette-api</module>
+		<module>activity-tools</module>
 		<module>common-icons</module>
 		<module>configuration-api</module>
 		<module>contextual-views-api</module>
@@ -26,7 +27,7 @@
 		<module>file-api</module>
 		<module>helper-api</module>
 		<module>menu-api</module>
-		<module>perspective-core</module>
+		<!-- <module>perspective-core</module> -->
 		<module>renderers-api</module>
 		<module>workbench-api</module>
 		<module>activity-icons-api</module>
