@@ -16,27 +16,23 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.jdom</groupId>
-			<artifactId>jdom</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.infrastructure</groupId>
-			<artifactId>spi-discovery-api</artifactId>
-			<version>${t2.infrastructure.version}</version>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>common-icons</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.infrastructure</groupId>
 			<artifactId>appconfig</artifactId>
 			<version>${t2.infrastructure.version}</version>
 		</dependency>
+
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>common-icons</artifactId>
-			<version>${project.version}</version>
+			<groupId>org.jdom</groupId>
+			<artifactId>jdom</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
 		</dependency>
 	</dependencies>
 </project>

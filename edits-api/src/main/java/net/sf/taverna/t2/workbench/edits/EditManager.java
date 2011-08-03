@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -22,12 +22,11 @@ package net.sf.taverna.t2.workbench.edits;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.spi.SPIRegistry;
+import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 
 /**
  * Manager that can handle {@link Edit edits} for a {@link Dataflow}.
@@ -50,42 +49,17 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
  * {@link Observable#addObserver(net.sf.taverna.t2.lang.observer.Observer) add an observer}
  * you can be notified on {@link DataflowEditEvent edits},
  * {@link DataFlowUndoEvent undoes} and {@link DataFlowRedoEvent redoes}.
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
-public abstract class EditManager implements Observable<EditManagerEvent> {
-
-	private static EditManager instance;
-
-	/**
-	 * Get the {@link EditManager} implementation singleton as discovered
-	 * through an {@link SPIRegistry}.
-	 * 
-	 * @throws IllegalStateException
-	 *             If no implementation was found.
-	 * @return Discovered {@link EditManager} implementation singleton.
-	 */
-	public static synchronized EditManager getInstance()
-			throws IllegalStateException {
-		if (instance == null) {
-			SPIRegistry<EditManager> registry = new SPIRegistry<EditManager>(
-					EditManager.class);
-			try {
-				instance = registry.getInstances().get(0);
-			} catch (IndexOutOfBoundsException ex) {
-				throw new IllegalStateException(
-						"Could not find implementation of " + EditManager.class);
-			}
-		}
-		return instance;
-	}
+public interface EditManager extends Observable<EditManagerEvent> {
 
 	/**
 	 * <code>true</code> if {@link #redoDataflowEdit(Dataflow)} on the given
 	 * dataflow would redo the last undone edit. If there are no previous edits,
 	 * return <code>false</code>.
-	 * 
+	 *
 	 * @param dataflow
 	 *            {@link Dataflow} which last affecting edit is to be undone
 	 * @return <code>true</code if and only if {@link #redoDataflowEdit(Dataflow)} would undo
@@ -96,7 +70,7 @@ public abstract class EditManager implements Observable<EditManagerEvent> {
 	 * <code>true</code> if {@link #undoDataflowEdit(Dataflow)} on the given
 	 * dataflow would undo the last edit. If there are no previous edits, return
 	 * <code>false</code>.
-	 * 
+	 *
 	 * @param dataflow
 	 *            {@link Dataflow} which last affecting edit is to be undone
 	 * @return <code>true</code if {@link #undoDataflowEdit(Dataflow)} would undo
@@ -115,7 +89,7 @@ public abstract class EditManager implements Observable<EditManagerEvent> {
 	 * no longer be {@link EditManager#redoDataflowEdit(Dataflow) redone} after
 	 * calling this method.
 	 * </p>
-	 * 
+	 *
 	 * @see EditManager#undoDataflowEdit(Dataflow)
 	 * @param dataflow
 	 *            {@link Dataflow} this edit is affecting
@@ -130,7 +104,7 @@ public abstract class EditManager implements Observable<EditManagerEvent> {
 	/**
 	 * Get an implementation of {@link Edits} from where {@link Edit} objects
 	 * can be created.
-	 * 
+	 *
 	 * @return An {@link Edits} implementation.
 	 */
 	public abstract Edits getEdits();
@@ -148,7 +122,7 @@ public abstract class EditManager implements Observable<EditManagerEvent> {
 	 * {@link Dataflow}, or if no edits have been undone yet. No action would
 	 * be taken in these cases.
 	 * </p>
-	 * 
+	 *
 	 * @param dataflow
 	 *            {@link Dataflow} which last affecting edit is to be redone
 	 * @throws EditException
@@ -172,7 +146,7 @@ public abstract class EditManager implements Observable<EditManagerEvent> {
 	 * </p>
 	 * <p>
 	 * Undoes can be redone using {@link #redoDataflowEdit(Dataflow)}.
-	 * 
+	 *
 	 * @param dataflow
 	 *            {@link Dataflow} which last affecting edit is to be undone
 	 */
@@ -182,7 +156,7 @@ public abstract class EditManager implements Observable<EditManagerEvent> {
 	 * An event about an {@link Edit} on a {@link Dataflow}, accessible through
 	 * {@link AbstractDataflowEditEvent#getEdit()} and
 	 * {@link AbstractDataflowEditEvent#getDataFlow()}.
-	 * 
+	 *
 	 */
 	public static abstract class AbstractDataflowEditEvent implements
 			EditManagerEvent {
@@ -201,7 +175,7 @@ public abstract class EditManager implements Observable<EditManagerEvent> {
 
 		/**
 		 * The {@link Dataflow} this event affected.
-		 * 
+		 *
 		 * @return A {@link Dataflow}
 		 */
 		public Dataflow getDataFlow() {
@@ -211,7 +185,7 @@ public abstract class EditManager implements Observable<EditManagerEvent> {
 		/**
 		 * The {@link Edit} that was performed, undoed or redone on the
 		 * {@link #getDataFlow() dataflow}.
-		 * 
+		 *
 		 * @return An {@link Edit}
 		 */
 		public Edit<?> getEdit() {
@@ -222,7 +196,7 @@ public abstract class EditManager implements Observable<EditManagerEvent> {
 	/**
 	 * An event sent when an {@link Edit} has been performed on a
 	 * {@link Dataflow}.
-	 * 
+	 *
 	 */
 	public static class DataflowEditEvent extends AbstractDataflowEditEvent {
 		public DataflowEditEvent(Dataflow dataFlow, Edit<?> edit) {
@@ -233,7 +207,7 @@ public abstract class EditManager implements Observable<EditManagerEvent> {
 	/**
 	 * An event sent when a previously undone {@link Edit} has been redone on a
 	 * {@link Dataflow}.
-	 * 
+	 *
 	 */
 	public static class DataFlowRedoEvent extends AbstractDataflowEditEvent {
 		public DataFlowRedoEvent(Dataflow dataFlow, Edit<?> edit) {
@@ -243,7 +217,7 @@ public abstract class EditManager implements Observable<EditManagerEvent> {
 
 	/**
 	 * An event sent when an {@link Edit} has been undone on a {@link Dataflow}.
-	 * 
+	 *
 	 */
 	public static class DataFlowUndoEvent extends AbstractDataflowEditEvent {
 		public DataFlowUndoEvent(Dataflow dataFlow, Edit<?> edit) {

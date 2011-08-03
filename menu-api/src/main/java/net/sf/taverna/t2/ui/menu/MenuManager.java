@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -33,7 +33,6 @@ import javax.swing.JToolBar;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.ui.menu.MenuComponent.MenuType;
 import net.sf.taverna.t2.ui.menu.MenuManager.MenuManagerEvent;
 
@@ -74,36 +73,11 @@ import net.sf.taverna.t2.ui.menu.MenuManager.MenuManagerEvent;
  * See the package level documentation for more information about how to specify
  * menu elements.
  * </p>
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
-public abstract class MenuManager implements Observable<MenuManagerEvent> {
-
-	private static MenuManager instance;
-
-	/**
-	 * Get the {@link MenuManager} implementation singleton as discovered
-	 * through an {@link SPIRegistry}.
-	 * 
-	 * @throws IllegalStateException
-	 *             If no implementation was found.
-	 * @return Discovered {@link MenuManager} implementation singleton.
-	 */
-	public static synchronized MenuManager getInstance()
-			throws IllegalStateException {
-		if (instance == null) {
-			SPIRegistry<MenuManager> registry = new SPIRegistry<MenuManager>(
-					MenuManager.class);
-			try {
-				instance = registry.getInstances().get(0);
-			} catch (IndexOutOfBoundsException ex) {
-				throw new IllegalStateException(
-						"Could not find implementation of " + MenuManager.class);
-			}
-		}
-		return instance;
-	}
+public interface MenuManager extends Observable<MenuManagerEvent> {
 
 	/**
 	 * Add the items from the list of menu items to the parent menu with
@@ -126,7 +100,7 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 * <p>
 	 * Note that this is a utility method that does not mandate the use of the
 	 * {@link MenuManager} structure for the menu.
-	 * 
+	 *
 	 * @param menuItems
 	 *            {@link JMenuItem}s to be inserted
 	 * @param parentMenu
@@ -155,7 +129,7 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 * Thus, the items can choose if they want to be
 	 * {@link MenuComponent#isEnabled() visible} or not for a given selection,
 	 * and return an action that is bound it to the selection.
-	 * 
+	 *
 	 * @param parent
 	 *            The parent object of the selected object, for instance a
 	 *            {@link net.sf.taverna.t2.workflowmodel.Dataflow Dataflow}.
@@ -181,7 +155,7 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 * update the menubar if {@link #update()} is called (manually or
 	 * automatically when the SPI is updated).
 	 * </p>
-	 * 
+	 *
 	 * @return A {@link JMenuBar} populated with the items belonging to the
 	 *         default menu bar
 	 */
@@ -200,7 +174,7 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 * update the menubar if {@link #update()} is called (manually or
 	 * automatically when the SPI is updated).
 	 * </p>
-	 * 
+	 *
 	 * @param id
 	 *            The {@link URI} identifying the menu bar
 	 * @return A {@link JMenuBar} populated with the items belonging to the
@@ -217,7 +191,7 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 * update the toolbar if {@link #update()} is called (manually or
 	 * automatically when the SPI is updated).
 	 * </p>
-	 * 
+	 *
 	 * @return A {@link JToolBar} populated with the items belonging to the
 	 *         default tool bar
 	 */
@@ -237,7 +211,7 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 * update the toolbar if {@link #update()} is called (manually or
 	 * automatically when the SPI is updated).
 	 * </p>
-	 * 
+	 *
 	 * @param id
 	 *            The {@link URI} identifying the tool bar
 	 * @return A {@link JToolBar} populated with the items belonging to the
@@ -257,12 +231,12 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 * "File" menu with {@link MenuComponent#getId()} ==
 	 * <code>http://example.com/menu#file</code>, calling:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * Component fileMenu = getComponentByURI(URI
 	 * 		.create(&quot;http://example.com/menu#file&quot;));
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * would return the {@link JMenu} last created for "File". Note that "last
 	 * created" could mean both the last call to {@link #createMenuBar()} and
@@ -278,7 +252,7 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 * {@link WeakReference weak references}, <code>null</code> is returned
 	 * instead.
 	 * </p>
-	 * 
+	 *
 	 * @see #getURIByComponent(Component)
 	 * @param id
 	 *            {@link URI} of menu item as returned by
@@ -310,7 +284,7 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 * <p>
 	 * If the component is unknown, <code>null</code> is returned instead.
 	 * </p>
-	 * 
+	 *
 	 * @see #getComponentByURI(URI)
 	 * @param component
 	 *            {@link Component} that was previously created by the
@@ -348,7 +322,7 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	 * before the update has been performed fully, synchronize on the menu
 	 * manager:
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * MenuManager menuManager = MenuManager.getInstance();
 	 * synchronized (menuManager) {
@@ -362,10 +336,10 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 	/**
 	 * Abstract class for events sent to {@link Observer observers} of the menu
 	 * manager.
-	 * 
+	 *
 	 * @see UpdatedMenuManagerEvent
 	 * @author Stian Soiland-Reyes
-	 * 
+	 *
 	 */
 	public static abstract class MenuManagerEvent {
 	}
@@ -388,6 +362,6 @@ public abstract class MenuManager implements Observable<MenuManagerEvent> {
 		public Component makeComponent();
 	}
 
-	
+
 
 }

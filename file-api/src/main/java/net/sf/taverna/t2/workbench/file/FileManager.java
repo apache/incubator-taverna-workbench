@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -30,7 +30,6 @@ import javax.swing.filechooser.FileFilter;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
@@ -63,7 +62,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
  * <p>
  * If a dataflow was previously opened from a saveable destination or previously
  * saved using {@link #saveDataflow(Dataflow, FileType, Object, boolean)
- * 
+ *
  * {@link #saveDataflow(Dataflow, boolean)} can be used to resave to that
  * destination.
  * </p>
@@ -92,39 +91,12 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
  * The implementation of this FileManager can be discovered using
  * {@link #getInstance()}.
  * </p>
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
-public abstract class FileManager implements Observable<FileManagerEvent> {
+public interface FileManager extends Observable<FileManagerEvent> {
 
-	/**
-	 * SPI instance discovered by {@link #getInstance()}
-	 */
-	private static FileManager instance;
-
-	/**
-	 * Get the {@link FileManager} implementation singleton as discovered
-	 * through an {@link SPIRegistry}.
-	 * 
-	 * @throws IllegalStateException
-	 *             If no implementation was found
-	 * @return Discovered {@link FileManager} implementation singleton
-	 */
-	public static synchronized FileManager getInstance()
-			throws IllegalStateException {
-		if (instance == null) {
-			SPIRegistry<FileManager> registry = new SPIRegistry<FileManager>(
-					FileManager.class);
-			try {
-				instance = registry.getInstances().get(0);
-			} catch (IndexOutOfBoundsException ex) {
-				throw new IllegalStateException(
-						"Could not find implementation of " + FileManager.class);
-			}
-		}
-		return instance;
-	}
 
 	/**
 	 * True if {@link #saveDataflow(Dataflow, boolean)} can save the workflow,
@@ -132,7 +104,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * {@link DataflowPersistenceHandler} that can save to
 	 * {@link #getDataflowSource(Dataflow)} using
 	 * {@link #getDataflowType(Dataflow)}.
-	 * 
+	 *
 	 * @see #saveDataflow(Dataflow, boolean)
 	 * @param dataflow
 	 *            The dataflow to check
@@ -161,7 +133,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * Listeners registered using {@link Observable#addObserver(Observer)} will
 	 * be notified with an {@link ClosedDataflowEvent}.
 	 * </p>
-	 * 
+	 *
 	 * @param dataflow
 	 *            {@link Dataflow} to close
 	 * @param failOnUnsaved
@@ -184,7 +156,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * or the {@link net.sf.taverna.t2.lang.ui.ModelMap} using the key
 	 * {@link net.sf.taverna.t2.workbench.ModelMapConstants#CURRENT_DATAFLOW}.
 	 * </p>
-	 * 
+	 *
 	 * @return The current dataflow, or <code>null</code> if no dataflow is
 	 *         current
 	 */
@@ -192,7 +164,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 
 	/**
 	 * Get the dataflow that was opened from or last saved to the given source.
-	 * 
+	 *
 	 * @param source
 	 *            The source as opened with or saved to
 	 *            {@link #openDataflow(FileType, Object)}
@@ -200,7 +172,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 *         dataflow found.
 	 */
 	public abstract Dataflow getDataflowBySource(Object source);
-	
+
 	/**
 	 * Get a name to represent this dataflow.
 	 * <p>
@@ -213,13 +185,13 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * The returned name can be used in listings like the Workflows menu, but is
 	 * not guaranteed to be unique. (For instance a workflow could be opened
 	 * twice from the same source).
-	 * 
+	 *
 	 * @param dataflow
 	 *            Workflow to get the name for
 	 * @return The deduced workflow name
 	 */
 	public abstract String getDataflowName(Dataflow dataflow);
-	
+
 	/**
 	 * Get the last opened/saved source/destination for the given dataflow.
 	 * <p>
@@ -232,7 +204,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * with {@link #newDataflow()} or {@link #openDataflow(Dataflow)}), return
 	 * <code>null</code>.
 	 * </p>
-	 * 
+	 *
 	 * @param dataflow
 	 *            {@link Dataflow} which file is to be returned
 	 * @return The last opened/saved source for the given dataflow, or
@@ -253,7 +225,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * with {@link #newDataflow()} or {@link #openDataflow(Dataflow)}), return
 	 * <code>null</code>.
 	 * </p>
-	 * 
+	 *
 	 * @param dataflow
 	 *            {@link Dataflow} which file is to be returned
 	 * @return The last opened/saved {@link FileType} for the given dataflow, or
@@ -265,7 +237,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * Get the list of currently open dataflows. This list of dataflows are
 	 * typically displayed in the UI in the "Workflows" menu to allow switching
 	 * the {@link #getCurrentDataflow() current dataflow}.
-	 * 
+	 *
 	 * @return A copy of the {@link List} of open {@link Dataflow}s
 	 */
 	public abstract List<Dataflow> getOpenDataflows();
@@ -273,7 +245,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	/**
 	 * Get a list of {@link FileFilter}s for supported {@link FileType}s that
 	 * can be opened with any source class.
-	 * 
+	 *
 	 * @return A {@link List} of {@link FileFilter}s supported by
 	 *         {@link #openDataflow(FileType, Object)}
 	 */
@@ -282,7 +254,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	/**
 	 * Get a list of {@link FileFilter}s for supported {@link FileType}s that
 	 * can be opened with given source class.
-	 * 
+	 *
 	 * @param sourceClass
 	 *            Source class that can be opened from
 	 * @return A {@link List} of {@link FileFilter}s supported by
@@ -293,7 +265,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	/**
 	 * Get a list of {@link FileFilter}s for supported {@link FileType}s that
 	 * can be saved to any destination class.
-	 * 
+	 *
 	 * @return A {@link List} of {@link FileFilter}s supported by
 	 *         {@link #saveDataflow(Dataflow, FileType, Object, boolean)
 
@@ -303,7 +275,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	/**
 	 * Get a list of {@link FileFilter}s for supported {@link FileType}s that
 	 * can be saved to the given destination class.
-	 * 
+	 *
 	 * @param destinationClass
 	 *            Destination class that can be saved to
 	 * @return A {@link List} of {@link FileFilter}s supported by
@@ -312,12 +284,12 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 */
 	public abstract List<FileFilter> getSaveFileFilters(
 			Class<?> destinationClass);
-	
+
 	/**
 	 * Return <code>true</code> if the dataflow has been changed (through the
 	 * {@link EditManager} or {@link #setDataflowChanged(Dataflow, boolean)})
 	 * since last save.
-	 * 
+	 *
 	 * @param dataflow
 	 *            Dataflow which changed status is to be checked
 	 * @return <code>true</code> if the dataflow has been changed since last
@@ -328,7 +300,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	/**
 	 * True if the given dataflow has been opened and is in
 	 * {@link #getOpenDataflows()}.
-	 * 
+	 *
 	 * @param dataflow
 	 *            Dataflow to check
 	 * @return <code>true</code> if dataflow is open
@@ -348,7 +320,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * {@link #saveDataflow(Dataflow, boolean)}, only
 	 * {@link #saveDataflow(Dataflow, FileType, Object, boolean)}.
 	 * </p>
-	 * 
+	 *
 	 * @return The newly opened blank {@link Dataflow}
 	 */
 	public abstract Dataflow newDataflow();
@@ -376,7 +348,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * If there is only one workflow open before opening this workflow, and it
 	 * is an unchanged blank workflow, the blank workflow will be closed.
 	 * </p>
-	 * 
+	 *
 	 * @param dataflow
 	 *            {@link Dataflow} instance that is to be added as an open
 	 *            dataflow
@@ -399,7 +371,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * If there is only one workflow open before opening this workflow, and it
 	 * is an unchanged blank workflow, the blank workflow will be closed.
 	 * </p>
-	 * 
+	 *
 	 * @param fileType
 	 *            The filetype, for instance
 	 *            {@link net.sf.taverna.t2.workbench.file.impl.T2FlowFileType}.
@@ -409,7 +381,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 *            The source, for instance a {@link File} or {@link URL}. The
 	 *            source type must be supported by an implementation of
 	 *            DataflowPersistenceHandler.
-	 * 
+	 *
 	 * @return The opened {@link Dataflow}.
 	 * @throws OpenException
 	 *             If there was no matching DataflowPersistenceHandler found or
@@ -418,7 +390,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 */
 	public abstract Dataflow openDataflow(FileType fileType, Object source)
 			throws OpenException;
-	
+
 	/**
 	 * Open a dataflow from a source silently. The dataflow will not be listed
 	 * as open, and will not be made the current workflow.
@@ -430,7 +402,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * <p>
 	 * Listeners will <strong>not</strong> be notified.
 	 * </p>
-	 * 
+	 *
 	 * @param fileType
 	 *            The filetype, for instance
 	 *            {@link net.sf.taverna.t2.workbench.file.impl.T2FlowFileType}.
@@ -440,7 +412,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 *            The source, for instance a {@link File} or {@link URL}. The
 	 *            source type must be supported by an implementation of
 	 *            DataflowPersistenceHandler.
-	 * 
+	 *
 	 * @return The {@link DataflowInfo} describing the opened dataflow.
 	 * @throws OpenException
 	 *             If there was no matching DataflowPersistenceHandler found or
@@ -459,7 +431,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * Listeners registered using {@link Observable#addObserver(Observer)} will
 	 * be notified with an {@link SavedDataflowEvent}.
 	 * </p>
-	 * 
+	 *
 	 * @param dataflow
 	 *            Dataflow to save. Dataflow must have been opened with
 	 *            {@link #openDataflow(FileType, Object)} or saved using
@@ -493,7 +465,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * Listeners registered using {@link Observable#addObserver(Observer)} will
 	 * be notified with an {@link SavedDataflowEvent}.
 	 * </p>
-	 * 
+	 *
 	 * @param dataflow
 	 *            {@link Dataflow} to be saved
 	 * @param fileType
@@ -539,7 +511,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * isDataflowChanged() etc will not be affected - as if the silent save
 	 * never happened.
 	 * </p>
-	 * 
+	 *
 	 * @param dataflow
 	 *            {@link Dataflow} to be saved
 	 * @param fileType
@@ -588,7 +560,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * Note, the dataflow must already be open. If this is not the case, use one
 	 * of the openDataflow() methods or
 	 * {@link #setCurrentDataflow(Dataflow, boolean)}.
-	 * 
+	 *
 	 * @see #setCurrentDataflow(Dataflow, boolean)
 	 * @param dataflow
 	 *            {@link Dataflow} to be made current
@@ -609,7 +581,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * <p>
 	 * Unless <code>openIfNeeded</code> is <code>true</code>, the dataflow must
 	 * already be open.
-	 * 
+	 *
 	 * @see #setCurrentDataflow(Dataflow, boolean)
 	 * @param dataflow
 	 *            {@link Dataflow} to be made current
@@ -626,7 +598,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * This method can be used if the dataflow has been changed outside the
 	 * {@link EditManager}.
 	 * </p>
-	 * 
+	 *
 	 * @param dataflow
 	 *            Dataflow which is to be marked
 	 * @param isChanged
@@ -640,26 +612,7 @@ public abstract class FileManager implements Observable<FileManagerEvent> {
 	 * from or saved to. The code for this method was devised based on
 	 * {@link net.sf.taverna.t2.workbench.file.impl.T2DataflowOpener#openDataflow(FileType fileType, Object source)}.
 	 */
-	public static Object getCanonical(Object source)
-			throws IllegalArgumentException, URISyntaxException, IOException {
-		
-		Object canonicalSource = source;
-		
-		if (source instanceof URL){
-			URL url = ((URL) source);
-			if (url.getProtocol().equalsIgnoreCase("file")) {
-				canonicalSource = new File(url.toURI());
-			}
-		}
-		
-		if (canonicalSource instanceof File) {
-			canonicalSource = ((File)canonicalSource).getCanonicalFile();
-		}
-		return canonicalSource;
-	}
-
-
-
-	
+	public abstract Object getCanonical(Object source)
+			throws IllegalArgumentException, URISyntaxException, IOException;
 
 }

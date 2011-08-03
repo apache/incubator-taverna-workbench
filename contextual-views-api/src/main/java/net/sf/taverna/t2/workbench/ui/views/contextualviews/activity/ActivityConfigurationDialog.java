@@ -35,7 +35,6 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
@@ -61,14 +60,16 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 	JPanel buttonPanel;
 
 	protected JButton applyButton;
+	private final EditManager editManager;
 
-	public ActivityConfigurationDialog(A a, ActivityConfigurationPanel<A, B> p) {
+	public ActivityConfigurationDialog(A a, ActivityConfigurationPanel<A, B> p, EditManager editManager, FileManager fileManager) {
 		super(MainWindow.getMainWindow(), "Configuring "
 				+ a.getClass().getSimpleName(), false, null);
 		this.activity = a;
 		this.panel = p;
+		this.editManager = editManager;
 
-		owningDataflow = FileManager.getInstance().getCurrentDataflow();
+		owningDataflow = fileManager.getCurrentDataflow();
 		owningProcessor = findProcessor(owningDataflow, a);
 
 		this.setTitle(getRelativeName(owningDataflow, activity));
@@ -80,13 +81,13 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		buttonPanel = new JPanel();
 
 		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		
+
 		JButton helpButton = new DeselectingButton("Help", new AbstractAction() {
 
 			public void actionPerformed(ActionEvent e) {
 				Helper.showHelp(ActivityConfigurationDialog.this.panel);
 			}});
-		
+
 		buttonPanel.add(helpButton);
 
 		applyButton = new DeselectingButton("Apply", new AbstractAction() {
@@ -155,7 +156,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 				considerEdit(message, edit);
 			}
 		};
-		EditManager.getInstance().addObserver(observer);
+		editManager.addObserver(observer);
 	}
 
 	private boolean checkPanelValues() {
@@ -201,12 +202,12 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 	}
 
 	public void configureActivity(Dataflow df, Activity a, Object bean) {
-		configureActivityStatic(df, a, bean);
+		configureActivityStatic(df, a, bean, editManager);
 	}
 
 	public static void configureActivityStatic(Dataflow df, Activity a,
-			Object bean) {
-		Edits edits = EditsRegistry.getEdits();
+			Object bean, EditManager editManager) {
+		Edits edits = editManager.getEdits();
 		Edit<?> configureActivityEdit = edits.getConfigureActivityEdit(a, bean);
 		try {
 			List<Edit<?>> editList = new ArrayList<Edit<?>>();
@@ -215,7 +216,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 			if (p != null && p.getActivityList().size() == 1) {
 				editList.add(edits.getMapProcessorPortsForActivityEdit(p));
 			}
-			EditManager.getInstance().doDataflowEdit(df,
+			editManager.doDataflowEdit(df,
 					new CompoundEdit(editList));
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
@@ -284,7 +285,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 
 	public void dispose() {
 		super.dispose();
-		EditManager.getInstance().removeObserver(observer);
+		editManager.removeObserver(observer);
 	}
 
 }

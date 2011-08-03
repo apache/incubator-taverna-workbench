@@ -1,45 +1,38 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.helper;
 
 import java.awt.Component;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.MissingResourceException;
-import java.util.PropertyResourceBundle;
-import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.help.BadIDException;
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
-import javax.help.JHelp;
-import javax.help.TryMap;
 import javax.help.Map.ID;
+import javax.help.TryMap;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import net.sf.taverna.raven.spi.Profile;
-import net.sf.taverna.raven.spi.ProfileFactory;
-
 import org.apache.log4j.Logger;
 
 /**
- * 
+ *
  * This class loads the HelpSet and also deals with the registration of ids and
  * the decoding from a Component to the corresponding id. These two sets of
  * functionality should possibly be separated.
- * 
+ *
  * @author alanrw
- * 
+ *
  */
 public final class HelpCollator {
 
@@ -79,11 +72,12 @@ public final class HelpCollator {
 	private static boolean emptyHelp = true;
 
 	private static URLConnection connection;
-	
+
 	private static int TIMEOUT = 5000;
-	
-	private static Profile profile = ProfileFactory.getInstance().getProfile();
-	private static String version = profile.getVersion();
+
+//	private static Profile profile = ProfileFactory.getInstance().getProfile();
+	private static String version = "fix-me";//profile.getVersion();
+	// TODO find a better way to find the version
 	private static String externalHelpSetURL = "http://www.mygrid.org.uk/taverna/helpset/" + version + "/helpset.hs";
 
 	/**
@@ -92,7 +86,7 @@ public final class HelpCollator {
 	private static void readExternalHelpSet() {
 		try {
 			URL url = new URL(externalHelpSetURL);
-		
+
 			connection = url.openConnection();
 			connection.setReadTimeout(TIMEOUT);
 			connection.setConnectTimeout(TIMEOUT);
@@ -165,13 +159,13 @@ public final class HelpCollator {
 
 	/**
 	 * Indicates if an empty HelpSet is being used
-	 * 
+	 *
 	 * @return
 	 */
 	public static boolean isEmptyHelp() {
 		return emptyHelp;
 	}
-	
+
 	public static URL getURLFromID(String id) throws BadIDException, MalformedURLException {
 		initialize();
 		logger.info("Looking for id: " + id);
@@ -179,13 +173,13 @@ public final class HelpCollator {
 		if (theId == null) {
 			return null;
 		}
-		return (hs.getCombinedMap().getURLFromID(theId));	
+		return (hs.getCombinedMap().getURLFromID(theId));
 	}
 
 	/**
 	 * Register a component under the specified id. The method checks that the
 	 * id is known to the HelpSet's map.
-	 * 
+	 *
 	 * @param component
 	 * @param id
 	 */
@@ -196,8 +190,8 @@ public final class HelpCollator {
 		if (idMap.containsKey(component)) {
 			logger.info("Registered " + normalizedId);
 		} else {
-			
-			// If Workbench is started up while there is no network connection - 
+
+			// If Workbench is started up while there is no network connection -
 			// hs.getLocalMap() is null for some reason
 			if (hs != null && hs.getLocalMap()!= null && hs.getLocalMap().isValidID(normalizedId, hs)) {
 				idMap.put(component, normalizedId);
@@ -213,7 +207,7 @@ public final class HelpCollator {
 	 * Register a component. Since no id is specified, the HelpCollator takes
 	 * the canonical name of the component's class. This is useful when an
 	 * explicit hierarchy-based approach has been taken.
-	 * 
+	 *
 	 * @param component
 	 */
 	public static void registerComponent(Component component) {
@@ -226,7 +220,7 @@ public final class HelpCollator {
 	/**
 	 * Register a component based upon its parent's class and a suffix
 	 * indicating the component's purpose in the parent.
-	 * 
+	 *
 	 * @param component
 	 * @param parent
 	 * @param suffix
@@ -243,7 +237,7 @@ public final class HelpCollator {
 	/**
 	 * Try to find an id for the Component. This code should be re-written when
 	 * we have more experience in how to couple the UI and HelpSets.
-	 * 
+	 *
 	 * @param c
 	 * @return
 	 */
@@ -290,7 +284,7 @@ public final class HelpCollator {
 	/**
 	 * Change the input String into an id that contains only alphanumeric
 	 * characters or hyphens.
-	 * 
+	 *
 	 * @param input
 	 * @return
 	 */
@@ -303,7 +297,7 @@ public final class HelpCollator {
 	 * If help is sought on part of a JTree, then this method attempts to find a
 	 * node of the tree that can be mapped to an id. The possibilities are ad
 	 * hoc and should be re-examined when more experience is gained.
-	 * 
+	 *
 	 * @param c
 	 * @return
 	 */

@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -45,13 +45,13 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 
 	@SuppressWarnings("unchecked")
 	private static WeakHashMap<Activity, ActivityConfigurationDialog> configurationDialogs = new WeakHashMap<Activity, ActivityConfigurationDialog>();
-	
-	
+
+
 //	private static Logger logger = Logger
 	//		.getLogger(ActivityConfigurationAction.class);
 
 	protected A activity;
-	
+
 	private static DataflowCloseListener listener;
 
 	public ActivityConfigurationAction(A activity) {
@@ -65,16 +65,16 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 
 
 	@SuppressWarnings("unchecked")
-	protected static void setDialog(Activity activity, ActivityConfigurationDialog dialog) {
+	protected static void setDialog(Activity activity, ActivityConfigurationDialog dialog, FileManager fileManager) {
 		if (listener == null) {
 			listener = new DataflowCloseListener();
 			// Ensure that the DataflowCloseListener is the first notified listener.  Otherwise you cannot save the configurations.
-			List<Observer<FileManagerEvent>> existingListeners = FileManager.getInstance().getObservers();			
-			FileManager.getInstance().addObserver(listener);
+			List<Observer<FileManagerEvent>> existingListeners = fileManager.getObservers();
+			fileManager.addObserver(listener);
 			for (Observer<FileManagerEvent> observer : existingListeners) {
 				if (!observer.equals(listener)) {
-					FileManager.getInstance().removeObserver(observer);
-					FileManager.getInstance().addObserver(observer);
+					fileManager.removeObserver(observer);
+					fileManager.addObserver(observer);
 				}
 			}
 		}
@@ -89,7 +89,7 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 		configurationDialogs.put(activity, dialog);
 		dialog.setVisible(true);
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static void clearDialog(Activity activity) {
 		if (configurationDialogs.containsKey(activity)) {
@@ -99,9 +99,9 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 			}
 			configurationDialogs.remove(activity);
 			currentDialog.dispose();
-		}	
+		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	protected static void clearDialog(JDialog dialog) {
 		if (configurationDialogs.containsValue(dialog)) {
@@ -116,7 +116,7 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 			dialog.dispose();
 		}
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static boolean closeDialog(Activity activity) {
 		boolean closeIt = true;
@@ -131,12 +131,12 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 		}
 		return closeIt;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static ActivityConfigurationDialog getDialog(Activity activity) {
 		return configurationDialogs.get(activity);
 	}
-	
+
 	private static class DataflowCloseListener implements Observer<FileManagerEvent> {
 
 		@SuppressWarnings("unchecked")
@@ -157,8 +157,8 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 					}
 				}
 			}
-			
+
 		}
-		
+
 	}
 }
