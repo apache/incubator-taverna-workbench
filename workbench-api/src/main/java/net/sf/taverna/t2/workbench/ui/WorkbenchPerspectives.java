@@ -20,19 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.List;
-
-import javax.swing.JMenu;
 
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
 public interface WorkbenchPerspectives {
-
-	public JMenu getDisplayPerspectivesMenu();
-
-	public void saveAll() throws FileNotFoundException, IOException;
 
 	/**
 	 * Ensures that the current perspective is an instance of

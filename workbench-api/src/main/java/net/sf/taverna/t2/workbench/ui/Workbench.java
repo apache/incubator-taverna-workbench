@@ -32,8 +32,6 @@ public interface Workbench {
 
 	public WorkbenchPerspectives getPerspectives();
 
-	public void savePerspectives();
-
 	public void storeSizeAndLocationPrefs() throws IOException;
 
 }
