@@ -25,6 +25,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -39,13 +40,13 @@ import net.sf.taverna.t2.workflowmodel.utils.Tools;
 public class MergeConfigurationView extends HelpEnabledDialog {
 
 	private Merge merge;
-	
+
 	// Ordered list of merge's input ports
 	private List<MergeInputPort> inputPortsList;
-	
+
 	// Ordered list of labels for links towards merge's ports to be displayed to the user
 	private DefaultListModel labelListModel;
-	
+
 	// JList that displays the labelListModel
 	JList list;
 
@@ -55,22 +56,28 @@ public class MergeConfigurationView extends HelpEnabledDialog {
 	// Button to push the link down the list
 	private JButton downButton;
 
-	public MergeConfigurationView(Merge merge){
-		
+	private final EditManager editManager;
+
+	private final FileManager fileManager;
+
+	public MergeConfigurationView(Merge merge, EditManager editManager, FileManager fileManager){
+
 		super((Frame)null, "Merge Configuration", true);
-		
+
 		this.merge = merge;
+		this.editManager = editManager;
+		this.fileManager = fileManager;
 		// Ordered list of merge's input ports
 		inputPortsList = new ArrayList<MergeInputPort>(merge.getInputPorts());
-		// Generate labels for the input ports (label displays a link from a workflow entity 
+		// Generate labels for the input ports (label displays a link from a workflow entity
 		// towards the merge's input port)
 		labelListModel = new DefaultListModel();
 		String maxLabel = "Order of incoming links (entity.port -> merge):"+"Push";
-		for (MergeInputPort mergeInputPort : inputPortsList){	
+		for (MergeInputPort mergeInputPort : inputPortsList){
 			EventForwardingOutputPort sourcePort = mergeInputPort.getIncomingLink().getSource();
-			// Get the name TokenProcessingEntity (Processor or another Merge or Dataflow) and 
+			// Get the name TokenProcessingEntity (Processor or another Merge or Dataflow) and
 			// its port that contains the source EventForwardingOutputPort
-			Dataflow workflow = FileManager.getInstance().getCurrentDataflow();
+			Dataflow workflow = fileManager.getCurrentDataflow();
 			TokenProcessingEntity entity = Tools.getTokenProcessingEntityWithEventForwardingOutputPort(sourcePort, workflow);
 			if (entity != null){
 				String link = entity.getLocalName() + "."
@@ -80,18 +87,18 @@ public class MergeConfigurationView extends HelpEnabledDialog {
 				labelListModel.addElement(link);
 			}
 		}
-			
+
 		initComponents();
 	}
-	
+
 	private void initComponents() {
-		
+
         getContentPane().setLayout(new BorderLayout());
 
         JPanel listPanel = new JPanel();
         listPanel.setLayout(new BorderLayout());
         listPanel.setBorder(new CompoundBorder(new EmptyBorder(10,10,10,10), new EtchedBorder()));
-        
+
         JLabel title = new JLabel("<html><body><b>Order of incoming links (entity.port -> merge):</b></body></html>");
         title.setBorder(new EmptyBorder(5,5,5,5));
         listPanel.add(title, BorderLayout.NORTH);
@@ -118,7 +125,7 @@ public class MergeConfigurationView extends HelpEnabledDialog {
 				}
 				else {
 					upButton.setEnabled(true); // any other element in the list
-					downButton.setEnabled(true);			
+					downButton.setEnabled(true);
 				}
 			}});
 
@@ -128,17 +135,17 @@ public class MergeConfigurationView extends HelpEnabledDialog {
         listScroller.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
         listScroller.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         // Set the size of scroll pane to make all list items visible
-		FontMetrics fm = listScroller.getFontMetrics(this.getFont());  
+		FontMetrics fm = listScroller.getFontMetrics(this.getFont());
 		int listScrollerHeight = fm.getHeight()*(labelListModel.size()) + 75; //+75 just in case
         listScroller.setPreferredSize(new Dimension(listScroller
 				.getPreferredSize().width, Math.max(listScrollerHeight,
-				listScroller.getPreferredSize().height)));  
+				listScroller.getPreferredSize().height)));
 		listPanel.add(listScroller, BorderLayout.CENTER);
-		
-		JPanel upDownButtonPanel = new JPanel(); 
+
+		JPanel upDownButtonPanel = new JPanel();
 		upDownButtonPanel.setLayout(new BoxLayout(upDownButtonPanel, BoxLayout.Y_AXIS));
 		upDownButtonPanel.setBorder(new EmptyBorder(5,5,5,5));
-		
+
 		upButton = new JButton(new AbstractAction(){
 			public void actionPerformed(ActionEvent e) {
 				int index = list.getSelectedIndex();
@@ -151,7 +158,7 @@ public class MergeConfigurationView extends HelpEnabledDialog {
 					MergeInputPort port = inputPortsList.get(index);
 					inputPortsList.set(index, inputPortsList.get(index - 1));
 					inputPortsList.set(index - 1, port);
-					// Make the pushed item selected 
+					// Make the pushed item selected
 					list.setSelectedIndex(index - 1);
 					// Refresh the list
 					listScroller.repaint();
@@ -167,7 +174,7 @@ public class MergeConfigurationView extends HelpEnabledDialog {
 		upButton.setHorizontalAlignment(SwingConstants.LEFT);
 		upButton.setEnabled(false);
 		upDownButtonPanel.add(upButton);
-		
+
 		downButton = new JButton(new AbstractAction(){
 			public void actionPerformed(ActionEvent e) {
 				int index = list.getSelectedIndex();
@@ -180,12 +187,12 @@ public class MergeConfigurationView extends HelpEnabledDialog {
 					MergeInputPort port = inputPortsList.get(index);
 					inputPortsList.set(index, inputPortsList.get(index + 1));
 					inputPortsList.set(index + 1, port);
-					// Make the pushed item selected 
+					// Make the pushed item selected
 					list.setSelectedIndex(index + 1);
 					// Refresh the list
-					list.repaint();	
+					list.repaint();
 					listScroller.revalidate();
-				}					
+				}
 			}});
 		downButton.setIcon(WorkbenchIcons.downArrowIcon);
 		downButton.setText("Down");
@@ -196,22 +203,22 @@ public class MergeConfigurationView extends HelpEnabledDialog {
 		downButton.setHorizontalAlignment(SwingConstants.LEFT);
 		downButton.setEnabled(false);
 		upButton.setPreferredSize(downButton.getPreferredSize()); // set the up button to be of the same size as down button
-		upButton.setMaximumSize(downButton.getPreferredSize()); 
+		upButton.setMaximumSize(downButton.getPreferredSize());
 		upButton.setMinimumSize(downButton.getPreferredSize());
 		upDownButtonPanel.add(downButton);
-		
+
 		listPanel.add(upDownButtonPanel, BorderLayout.EAST);
 
-		
+
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-       
+
 		JButton jbOK = new JButton("OK");
         jbOK.addActionListener(new AbstractAction()
         {
 			public void actionPerformed(ActionEvent e) {
-				
-				new MergeConfigurationAction(merge, inputPortsList).actionPerformed(e);
-		        closeDialog();			
+
+				new MergeConfigurationAction(merge, inputPortsList, editManager, fileManager).actionPerformed(e);
+		        closeDialog();
 			}
 
         });
@@ -221,17 +228,17 @@ public class MergeConfigurationView extends HelpEnabledDialog {
         {
 
 			public void actionPerformed(ActionEvent e) {
-		        closeDialog();			
+		        closeDialog();
 			}
 
         });
-        
+
         buttonPanel.add(jbOK);
         buttonPanel.add(jbCancel);
 
         getContentPane().add(listPanel, BorderLayout.CENTER);
         getContentPane().add(buttonPanel, BorderLayout.SOUTH);
-        
+
         pack();
 	}
 

@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -49,9 +49,9 @@ import org.apache.log4j.Logger;
 /**
  * An action for opening a workflow from a file. All file types exposed by the
  * {@link FileManager} as compatible with the {@link File} type are supported.
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
 public class OpenWorkflowAction extends AbstractAction {
 
@@ -63,16 +63,17 @@ public class OpenWorkflowAction extends AbstractAction {
 
 	public final OpenCallback DUMMY_OPEN_CALLBACK = new OpenCallbackAdapter();
 
-	private FileManager fileManager = FileManager.getInstance();
+	protected FileManager fileManager;
 
-	public OpenWorkflowAction() {
+	public OpenWorkflowAction(FileManager fileManager) {
 		super(OPEN_WORKFLOW, WorkbenchIcons.openIcon);
+		this.fileManager = fileManager;
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_O,
 						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_O);
 	}
-	
+
 
 
 	/**
@@ -94,11 +95,11 @@ public class OpenWorkflowAction extends AbstractAction {
 	 * Note that the file opening occurs in a separate thread. If you want to
 	 * check if the file was opened or not, which workflow was opened, etc, use
 	 * {@link #openWorkflows(Component, OpenCallback)} instead.
-	 * 
+	 *
 	 * @see #openWorkflows(Component, OpenCallback)
 	 * @param parentComponent
 	 *            The UI parent component to use for pop up dialogues
-	 * 
+	 *
 	 * @return <code>false</code> if no files were selected or the dialogue was
 	 *         cancelled, or <code>true</code> if the process of opening one or
 	 *         more files has been started.
@@ -109,7 +110,7 @@ public class OpenWorkflowAction extends AbstractAction {
 
 	/**
 	 * Open an array of workflow files.
-	 * 
+	 *
 	 * @param parentComponent
 	 *            Parent component for UI dialogues
 	 * @param files
@@ -131,7 +132,7 @@ public class OpenWorkflowAction extends AbstractAction {
 		for (final File file : files) {
 
 			try {
-				Object canonicalSource = FileManager.getCanonical(file);
+				Object canonicalSource = fileManager.getCanonical(file);
 				Dataflow alreadyOpen = fileManager.getDataflowBySource(canonicalSource);
 				if (alreadyOpen != null) {
 					// The workflow from the same source is already opened -
@@ -180,7 +181,7 @@ public class OpenWorkflowAction extends AbstractAction {
 
 	/**
 	 * Pop up an Open-dialogue to select one or more workflow files to open.
-	 * 
+	 *
 	 * @param parentComponent
 	 *            The UI parent component to use for pop up dialogues
 	 * @param openCallback
@@ -246,7 +247,7 @@ public class OpenWorkflowAction extends AbstractAction {
 
 	/**
 	 * Show an error message if a file could not be opened
-	 * 
+	 *
 	 * @param parentComponent
 	 * @param file
 	 * @param throwable
@@ -275,15 +276,15 @@ public class OpenWorkflowAction extends AbstractAction {
 	 * {@link OpenWorkflowAction#openWorkflows(Component, OpenCallback)} and
 	 * {@link OpenWorkflowAction#openWorkflows(Component, File[], FileType, OpenCallback)}
 	 * as file opening happens in a separate thread.
-	 * 
+	 *
 	 * @author Stian Soiland-Reyes
-	 * 
+	 *
 	 */
 	public interface OpenCallback {
 
 		/**
 		 * Called before a dataflow is to be opened from the given file
-		 * 
+		 *
 		 * @param file
 		 *            File which dataflow is to be opened
 		 */
@@ -292,7 +293,7 @@ public class OpenWorkflowAction extends AbstractAction {
 		/**
 		 * Called if an exception happened while attempting to open the
 		 * dataflow.
-		 * 
+		 *
 		 * @param file
 		 *            File which was attempted to be opened
 		 * @param ex
@@ -305,7 +306,7 @@ public class OpenWorkflowAction extends AbstractAction {
 		/**
 		 * Called when a dataflow has been successfully opened. The dataflow
 		 * will be registered in {@link FileManager#getOpenDataflows()}.
-		 * 
+		 *
 		 * @param file
 		 *            File from which dataflow was opened
 		 * @param dataflow
@@ -316,9 +317,9 @@ public class OpenWorkflowAction extends AbstractAction {
 
 	/**
 	 * Adapter for {@link OpenCallback}
-	 * 
+	 *
 	 * @author Stian Soiland-Reyes
-	 * 
+	 *
 	 */
 	public static class OpenCallbackAdapter implements OpenCallback {
 		/**
@@ -366,9 +367,9 @@ public class OpenWorkflowAction extends AbstractAction {
 	/**
 	 * A wrapper for {@link OpenCallback} implementations that logs exceptions
 	 * thrown without disrupting the caller of the callback.
-	 * 
+	 *
 	 * @author Stian Soiland-Reyes
-	 * 
+	 *
 	 */
 	protected class ErrorLoggingOpenCallbackWrapper implements OpenCallback {
 
@@ -416,5 +417,5 @@ public class OpenWorkflowAction extends AbstractAction {
 		}
 
 	}
-	
+
 }

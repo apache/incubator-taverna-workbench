@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007-2010 The University of Manchester   
- * 
+ * Copyright (C) 2007-2010 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -21,8 +21,10 @@
 package net.sf.taverna.t2.workbench.file.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,11 +66,11 @@ import org.apache.log4j.Logger;
 
 /**
  * Implementation of {@link FileManager}
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
-public class FileManagerImpl extends FileManager {
+public class FileManagerImpl implements FileManager {
 	private static Logger logger = Logger.getLogger(FileManagerImpl.class);
 
 	/**
@@ -78,7 +80,7 @@ public class FileManagerImpl extends FileManager {
 	 */
 	private Dataflow blankDataflow = null;
 
-	private EditManager editManager = EditManager.getInstance();
+	private EditManager editManager;
 
 	private EditManagerObserver editManagerObserver = new EditManagerObserver();
 
@@ -99,7 +101,8 @@ public class FileManagerImpl extends FileManager {
 		return DataflowPersistenceHandlerRegistry.getInstance();
 	}
 
-	public FileManagerImpl() {
+	public FileManagerImpl(EditManager editManager) {
+		this.editManager = editManager;
 		editManager.addObserver(editManagerObserver);
 		modelMap.addObserver(modelMapObserver);
 	}
@@ -107,7 +110,7 @@ public class FileManagerImpl extends FileManager {
 	/**
 	 * Add an observer to be notified of {@link FileManagerEvent}s, such as
 	 * {@link OpenedDataflowEvent} and {@link SavedDataflowEvent}.
-	 * 
+	 *
 	 * {@inheritDoc}
 	 */
 	public void addObserver(Observer<FileManagerEvent> observer) {
@@ -191,7 +194,7 @@ public class FileManagerImpl extends FileManager {
 		// Not found
 		return null;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -221,11 +224,11 @@ public class FileManagerImpl extends FileManager {
 			}
 			if (! toStringMethod.equals(toStringMethodFromObject)) {
 				return source.toString();
-			} 
+			}
 		}
 		return name;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -251,7 +254,7 @@ public class FileManagerImpl extends FileManager {
 
 	/**
 	 * Get the {@link OpenDataflowInfo} for the given dataflow
-	 * 
+	 *
 	 * @throws NullPointerException
 	 *             if the dataflow was <code>null</code>
 	 * @throws IllegalArgumentException
@@ -372,7 +375,7 @@ public class FileManagerImpl extends FileManager {
 	 */
 	@Override
 	public void openDataflow(Dataflow dataflow) {
-		
+
 		openDataflowInternal(dataflow);
 		observers.notify(new OpenedDataflowEvent(dataflow));
 	}
@@ -406,7 +409,7 @@ public class FileManagerImpl extends FileManager {
 					return performOpenDataflow(fileType, source);
 				}
 	}
-	
+
 	public Dataflow performOpenDataflow(FileType fileType, Object source) throws OpenException {
 		DataflowInfo dataflowInfo;
 		Dataflow dataflow;
@@ -425,7 +428,7 @@ public class FileManagerImpl extends FileManager {
 
 		Set<DataflowPersistenceHandler> handlers;
 		Class<? extends Object> sourceClass = source.getClass();
-		
+
 		boolean unknownFileType = (fileType == null);
 		if (unknownFileType) {
 			handlers = getPersistanceHandlerRegistry()
@@ -449,7 +452,7 @@ public class FileManagerImpl extends FileManager {
 			}
 			for (FileType candidateFileType : fileTypes) {
 				if (unknownFileType && (source instanceof File)) {
-					// If source is file but fileType was not explicitly set from the 
+					// If source is file but fileType was not explicitly set from the
 					// open workflow dialog - check the file extension and decide which
 					// handler to use based on that (so that we do not loop though all handlers)
 					File file = (File) source;
@@ -457,11 +460,11 @@ public class FileManagerImpl extends FileManager {
 						continue;
 					}
 				}
-				
+
 				try {
 					DataflowInfo openDataflow = handler.openDataflow(
 							candidateFileType, source);
-					Dataflow dataflow = openDataflow.getDataflow();					
+					Dataflow dataflow = openDataflow.getDataflow();
 					logger.info("Loaded workflow: " + dataflow.getLocalName()
 							+ " " + dataflow.getIdentifier() + " from "
 							+ source + " using " + handler);
@@ -475,10 +478,10 @@ public class FileManagerImpl extends FileManager {
 		}
 		throw new OpenException("Could not open workflow " + source + "\n", lastException);
 	}
-	
+
 	/**
 	 * Mark the dataflow as opened, and close the blank dataflow if needed.
-	 * 
+	 *
 	 * @param dataflow
 	 *            Dataflow that has been opened
 	 */
@@ -539,7 +542,7 @@ public class FileManagerImpl extends FileManager {
 		getOpenDataflowInfo(dataflow).setSavedTo(savedDataflow);
 		observers.notify(new SavedDataflowEvent(dataflow));
 	}
-	
+
 
 	@Override
 	public DataflowInfo saveDataflowSilently(Dataflow dataflow, FileType fileType,
@@ -578,7 +581,7 @@ public class FileManagerImpl extends FileManager {
 				logger.info("Saved workflow: " + dataflow.getLocalName() + " "
 						+ dataflow.getIdentifier() + " to "
 						+ savedDataflow.getCanonicalSource() + " using "
-						+ handler);				
+						+ handler);
 				return savedDataflow;
 			} catch (SaveException ex) {
 				logger.warn("Could not save to " + destination + " using "
@@ -589,7 +592,7 @@ public class FileManagerImpl extends FileManager {
 		throw new SaveException("Could not save to " + destination + ":\n" + lastException.getLocalizedMessage(),
 				lastException);
 	}
-	
+
 
 	/**
 	 * {@inheritDoc}
@@ -627,13 +630,31 @@ public class FileManagerImpl extends FileManager {
 		}
 	}
 
+	public Object getCanonical(Object source)
+			throws IllegalArgumentException, URISyntaxException, IOException {
+
+		Object canonicalSource = source;
+
+		if (source instanceof URL){
+			URL url = ((URL) source);
+			if (url.getProtocol().equalsIgnoreCase("file")) {
+				canonicalSource = new File(url.toURI());
+			}
+		}
+
+		if (canonicalSource instanceof File) {
+			canonicalSource = ((File)canonicalSource).getCanonicalFile();
+		}
+		return canonicalSource;
+	}
+
 	/**
 	 * Observe the {@link EditManager} for changes to open dataflows. A change
 	 * of an open workflow would set it as changed using
 	 * {@link FileManagerImpl#setDataflowChanged(Dataflow, boolean)}.
-	 * 
+	 *
 	 * @author Stian Soiland-Reyes
-	 * 
+	 *
 	 */
 	private final class EditManagerObserver implements
 			Observer<EditManagerEvent> {
@@ -657,9 +678,9 @@ public class FileManagerImpl extends FileManager {
 	 * Observes the {@link ModelMap} for the ModelMapConstants.CURRENT_DATAFLOW.
 	 * Make sure that the dataflow is opened and notifies observers with a
 	 * SetCurrentDataflowEvent.
-	 * 
+	 *
 	 * @author Stian Soiland-Reyes
-	 * 
+	 *
 	 */
 	private final class ModelMapObserver implements Observer<ModelMapEvent> {
 		public void notify(Observable<ModelMapEvent> sender,
@@ -677,7 +698,7 @@ public class FileManagerImpl extends FileManager {
 		}
 	}
 
-	
 
-	
+
+
 }

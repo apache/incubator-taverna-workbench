@@ -55,7 +55,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 
 	private static final String CONF = "conf";
 
-	private static FileManager fileManager = FileManager.getInstance();
+	private FileManager fileManager;
 
 	private static Logger logger = Logger
 			.getLogger(FileOpenRecentMenuAction.class);
@@ -70,8 +70,9 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 
 	private Thread loadRecentThread;
 
-	public FileOpenRecentMenuAction() {
+	public FileOpenRecentMenuAction(FileManager fileManager) {
 		super(FileOpenMenuSection.FILE_OPEN_SECTION_URI, 30, RECENT_URI);
+		this.fileManager = fileManager;
 		fileManager.addObserver(this);
 	}
 
@@ -111,7 +112,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 							+ dataflowSource);
 			return;
 		}
-		synchronized (recents) {			
+		synchronized (recents) {
 			Recent recent = new Recent((Serializable) dataflowSource, dataflowType);
 			if (recents.contains(recent)) {
 				recents.remove(recent);
@@ -167,7 +168,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		synchronized (recents) {
 			recents.clear();
 			RecentDeserializer deserialiser = new RecentDeserializer();
-			try { 
+			try {
 				recents.addAll(deserialiser.deserializeRecent(document
 						.getRootElement()));
 			} catch (Exception e) {
@@ -195,7 +196,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 					// Remove excess entries
 					recents.subList(MAX_ITEMS, recents.size()).clear();
 				}
-				serializedRecent = serializer.serializeRecent(recents);				
+				serializedRecent = serializer.serializeRecent(recents);
 			}
 			outputStream = new BufferedOutputStream(new FileOutputStream(
 					recentFile));
@@ -228,8 +229,8 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 			for (Recent recent : recents) {
 				if (++items >= MAX_ITEMS) {
 					break;
-				}				
-				OpenRecentAction openRecentAction = new OpenRecentAction(recent);
+				}
+				OpenRecentAction openRecentAction = new OpenRecentAction(recent, fileManager);
 				if (fileManager.getDataflowBySource(recent.getDataflowSource()) != null) {
 					openRecentAction.setEnabled(false);
 				} // else setEnabled(true)
@@ -249,9 +250,11 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 			Runnable {
 		private final Recent recent;
 		private Component component = null;
+		private final FileManager fileManager;
 
-		public OpenRecentAction(Recent recent) {
+		public OpenRecentAction(Recent recent, FileManager fileManager) {
 			this.recent = recent;
+			this.fileManager = fileManager;
 			Serializable source = recent.getDataflowSource();
 			String name;
 			if (source instanceof File) {
@@ -338,7 +341,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 			}
 			return new RecentFileType();
 		}
-		
+
 		public Recent(Serializable dataflowSource, FileType dataflowType) {
 			this.setDataflowSource(dataflowSource);
 			if (dataflowType != null) {

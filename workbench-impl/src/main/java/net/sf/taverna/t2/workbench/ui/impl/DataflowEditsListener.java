@@ -21,35 +21,21 @@ import org.apache.log4j.Logger;
  * Listens out for any edits on a dataflow and changes its internal id (or back
  * to the old one in the case of redo/undo). Is first created when the workbench
  * is initialised
- * 
+ *
  * @author Ian Dunlop
- * 
+ *
  */
 public class DataflowEditsListener implements Observer<EditManagerEvent> {
 
-	private static Logger logger = Logger
-			.getLogger(DataflowEditsListener.class);
+	private static Logger logger = Logger.getLogger(DataflowEditsListener.class);
 
 	private Map<Edit<?>, String> dataflowEditMap;
 	private Edits edits;
 
-	private DataflowEditsListener() {
+	public DataflowEditsListener(Edits edits) {
 		super();
-		edits = EditManager.getInstance().getEdits();
+		this.edits = edits;
 		dataflowEditMap = new HashMap<Edit<?>, String>();
-	}
-	
-	private static class Singleton {
-		private static DataflowEditsListener instance = new DataflowEditsListener();
-	}
-
-	/**
-	 * Returns a singleton instance of this listener
-	 * 
-	 * @return
-	 */
-	public static DataflowEditsListener getInstance() {
-		return Singleton.instance;
 	}
 
 	/**

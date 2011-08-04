@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -32,26 +32,28 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 
 import org.apache.log4j.Logger;
 
 /**
  * Implementation of {@link EditManager}.
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
-public class EditManagerImpl extends EditManager {
+public class EditManagerImpl implements EditManager {
 
-	private MultiCaster<EditManagerEvent> multiCaster = new MultiCaster<EditManagerEvent>(
-			this);
-
-	protected Map<Dataflow, DataflowEdits> editsForDataflow = new HashMap<Dataflow, DataflowEdits>();
-	
 	private static Logger logger = Logger.getLogger(EditManagerImpl.class);
-	
 
+	private Edits edits;
+
+	private MultiCaster<EditManagerEvent> multiCaster = new MultiCaster<EditManagerEvent>(this);
+
+	private Map<Dataflow, DataflowEdits> editsForDataflow = new HashMap<Dataflow, DataflowEdits>();
+
+	public EditManagerImpl(Edits edits) {
+		this.edits = edits;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -99,7 +101,7 @@ public class EditManagerImpl extends EditManager {
 	 */
 	@Override
 	public Edits getEdits() {
-		return new EditsImpl();
+		return edits;
 	}
 
 	/**
@@ -156,7 +158,7 @@ public class EditManagerImpl extends EditManager {
 
 	/**
 	 * Get the set of edits for a given dataflow, creating if neccessary.
-	 * 
+	 *
 	 * @param dataflow
 	 *            Dataflow the edits relate to
 	 * @return A {@link DataflowEdits} instance to keep edits for the given
@@ -173,9 +175,9 @@ public class EditManagerImpl extends EditManager {
 
 	/**
 	 * A set of edits and undoes for a {@link Dataflow}
-	 * 
+	 *
 	 * @author Stian Soiland-Reyes
-	 * 
+	 *
 	 */
 	public class DataflowEdits {
 		/**
@@ -192,7 +194,7 @@ public class EditManagerImpl extends EditManager {
 		 * <p>
 		 * This can later be retrieved using {@link #getLastEdit()}. After
 		 * calling this {@link #canRedo()} will be false.
-		 * 
+		 *
 		 * @param edit
 		 *            {@link Edit} that has been undone
 		 */
@@ -208,7 +210,7 @@ public class EditManagerImpl extends EditManager {
 		 * <p>
 		 * This method works like {@link #addEdit(Edit)} except that instead of
 		 * removing all possible redoes, only the given {@link Edit} is removed.
-		 * 
+		 *
 		 * @param edit
 		 *            {@link Edit} that has been redone
 		 */
@@ -227,7 +229,7 @@ public class EditManagerImpl extends EditManager {
 		 * {@link #getLastEdit()}, after calling this method
 		 * {@link #getLastEdit()} will return the previous edit or
 		 * {@link #canUndo()} will be false if there are no more edits.
-		 * 
+		 *
 		 * @param edit
 		 *            {@link Edit} that has been undone
 		 */
@@ -243,7 +245,7 @@ public class EditManagerImpl extends EditManager {
 
 		/**
 		 * True if there are undone events that can be redone.
-		 * 
+		 *
 		 * @return <code>true</code> if there are undone events
 		 */
 		public boolean canRedo() {
@@ -253,7 +255,7 @@ public class EditManagerImpl extends EditManager {
 		/**
 		 * True if there are edits that can be undone and later added with
 		 * {@link #addUndo(Edit)}.
-		 * 
+		 *
 		 * @return <code>true</code> if there are edits that can be undone
 		 */
 		public boolean canUndo() {
@@ -263,12 +265,12 @@ public class EditManagerImpl extends EditManager {
 		/**
 		 * Get the last edit that can be undone. This edit was the last one to
 		 * be added with {@link #addEdit(Edit)} or {@link #addRedo(Edit)}.
-		 * 
+		 *
 		 * @return The last added {@link Edit}
 		 * @throws IllegalStateException
 		 *             If there are no more edits (Check with {@link #canUndo()}
 		 *             first)
-		 * 
+		 *
 		 */
 		public synchronized Edit<?> getLastEdit() throws IllegalStateException {
 			if (edits.isEmpty()) {
@@ -281,12 +283,12 @@ public class EditManagerImpl extends EditManager {
 		/**
 		 * Get the last edit that can be redone. This edit was the last one to
 		 * be added with {@link #addUndo(Edit)}.
-		 * 
+		 *
 		 * @return The last undone {@link Edit}
 		 * @throws IllegalStateException
 		 *             If there are no more edits (Check with {@link #canRedo()}
 		 *             first)
-		 * 
+		 *
 		 */
 		public synchronized Edit<?> getLastUndo() throws IllegalStateException {
 			if (undoes.isEmpty()) {
@@ -299,7 +301,7 @@ public class EditManagerImpl extends EditManager {
 		/**
 		 * Add an edit or redo. Common functionallity called by
 		 * {@link #addEdit(Edit)} and {@link #addRedo(Edit)}.
-		 * 
+		 *
 		 * @see #addEdit(Edit)
 		 * @see #addRedo(Edit)
 		 * @param edit

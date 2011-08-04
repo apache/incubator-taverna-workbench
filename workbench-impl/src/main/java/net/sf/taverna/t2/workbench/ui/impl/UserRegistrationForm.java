@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -76,21 +76,22 @@ import javax.swing.text.html.StyleSheet;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.ui.Workbench;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
 /**
  * User registration form.
- * 
+ *
  * @author Alex Nenadic
- * 
+ *
  */
 @SuppressWarnings("serial")
 public class UserRegistrationForm extends HelpEnabledDialog {
 
 	private static final String REGISTRATION_URL = "http://www.mygrid.org.uk/taverna/registration/";
-	
+
 	public static String TAVERNA_VERSION_PROPERTY_NAME = "Taverna version";
 	public static String FIRST_NAME_PROPERTY_NAME = "First name";
 	public static String LAST_NAME_PROPERTY_NAME = "Last name";
@@ -100,7 +101,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 	public static String FIELD_PROPERTY_NAME = "Field of investigation";
 	public static String PURPOSE_PROPERTY_NAME = "Purpose of using Taverna";
 	public static String KEEP_ME_INFORMED_PROPERTY_NAME = "Keep me informed by email";
-	
+
 	public static String TAVERNA_REGISTRATION_POST_PARAMETER_NAME = "taverna_registration";
 	public static String TAVERNA_VERSION_POST_PARAMETER_NAME = "taverna_version";
 	public static String FIRST_NAME_POST_PARAMETER_NAME = "first_name";
@@ -111,19 +112,19 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 	public static String FIELD_POST_PARAMETER_NAME = "field";
 	public static String PURPOSE_POST_PARAMETER_NAME = "purpose";
 	public static String KEEP_ME_INFORMED_POST_PARAMETER_PROPERTY_NAME = "keep_me_informed";
-	
+
 	private static String TRUE = Boolean.TRUE.toString();
 	private static String FALSE = Boolean.FALSE.toString();
 
 	private static final String WELCOME = "Welcome to the Taverna User Registration Form";
 	private static final String PLEASE_FILL_IN_THIS_REGISTRATION_FORM = "Please fill in this registration form to let us know that you are using Taverna";
-	
+
 	private static final String WE_DO = "Note that by registering:\n" +
 					"   \u25CF We do not have access to your data\n" +
 					"   \u25CF We do not have access to your service usage\n" +
 					"   \u25CF You will not be monitored\n" +
 					"   \u25CF We do record the information you provide\n     at registration time";
-	
+
 	private static final String WHY_REGISTER = "By registering you will:\n"
 			+ "   \u25CF Allow us to support you better; future plans will be\n     directed towards solutions Taverna users require\n"
 			+ "   \u25CF Help sustain Taverna development; our continued\n     funding relies on us showing usage\n"
@@ -134,9 +135,9 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 	private static final String LAST_NAME = "*Last name:";
 
 	private static final String EMAIL_ADDRESS = "*Email address:";
-	
+
 	private static final String KEEP_ME_INFORMED = "Keep me informed of news and product updates via email";
-	
+
 	private static final String INSTITUTION_COMPANY_NAME = "*Institution/Company name:";
 
 	private static final String FIELD_OF_INVESTIGATION = " Field of investigation:\n (e.g. bioinformatics)";
@@ -147,13 +148,13 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 			"Academia - Life Sciences", "Academia - Social Sciences",
 			"Academia - Physical Sciences", "Academia - Environmental Sciences",
 			"Academia - Other", "Industry - Biotechnology",
-			"Industry - Pharmaceutical", "Industry - Engineering", 
+			"Industry - Pharmaceutical", "Industry - Engineering",
 			"Industry - Other", "Healthcare Services",
 			"Goverment and Public Sector", "Other" };
-	
+
 	private static final String I_AGREE_TO_THE_TERMS_AND_CONDITIONS = "I agree to the terms and conditions of registration at";
 	private static final String TERMS_AND_CONDITIONS_URL = "http://www.taverna.org.uk/legal/terms";
-	
+
 	private Logger logger = Logger.getLogger(UserRegistrationForm.class);
 	private UserRegistrationData previousRegistrationData;
 	private JTextField firstNameTextField;
@@ -166,12 +167,12 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 	private JTextArea purposeTextArea;
 	private JCheckBox termsAndConditionsCheckBox;
 
-	
+
 	public UserRegistrationForm(){
 		super((Frame)null,"Taverna User Registration", true);
     	initComponents();
 	}
-	
+
 	public UserRegistrationForm(File previousRegistrationDataFile) {
 		super((Frame)null,"Taverna User Registration", true);
 		previousRegistrationData = loadUserRegistrationData(previousRegistrationDataFile);
@@ -180,18 +181,18 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 
 	// For testing only
 	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
-		Workbench.setLookAndFeel();
+		WorkbenchImpl.setLookAndFeel();
 		UserRegistrationForm form = new UserRegistrationForm();
 		form.setVisible(true);
 	}
-	
+
 	private void initComponents() {
 
-		JPanel mainPanel = new JPanel((new GridBagLayout()));	
-		
+		JPanel mainPanel = new JPanel((new GridBagLayout()));
+
 		// Base font for all components on the form
 		Font baseFont = new JLabel("base font").getFont().deriveFont(11f);
-		
+
 		// Title panel
 		JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		titlePanel.setBackground(Color.WHITE);
@@ -214,7 +215,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		titlePanel.add(titleIcon);
 		titlePanel.add(messagePanel);
 		addDivider(titlePanel, SwingConstants.BOTTOM, true);
-		
+
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.weightx = 1.0;
 		gbc.weighty = 0.0;
@@ -225,7 +226,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 2;
 		//gbc.insets = new Insets(5, 10, 0, 0);
 		mainPanel.add(titlePanel, gbc);
-		
+
 		// Registration messages
 		gbc.weightx = 0.0;
 		gbc.weighty = 0.0;
@@ -255,7 +256,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		registrationMessagePanel.add(registrationMessage2);
 		addDivider(registrationMessagePanel, SwingConstants.BOTTOM, true);
 		mainPanel.add(registrationMessagePanel, gbc);
-		
+
 		// Mandatory label
 //		JLabel mandatoryLabel = new JLabel("* Mandatory fields");
 //		mandatoryLabel.setFont(baseFont);
@@ -268,9 +269,9 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 //		gbc.gridwidth = 2;
 //		gbc.insets = new Insets(0, 10, 0, 20);
 //		mainPanel.add(mandatoryLabel, gbc);
-		
+
 		// First name
-		JLabel firstNameLabel = new JLabel(FIRST_NAME);		
+		JLabel firstNameLabel = new JLabel(FIRST_NAME);
 		firstNameLabel.setFont(baseFont);
 		gbc.weightx = 0.0;
 		gbc.weighty = 0.0;
@@ -281,7 +282,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(0, 10, 0, 10);
 		mainPanel.add(firstNameLabel, gbc);
-		
+
 		firstNameTextField = new JTextField();
 		firstNameTextField.setFont(baseFont);
 		if (previousRegistrationData!=null){
@@ -296,7 +297,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(firstNameTextField, gbc);
-		
+
 		// Last name
 		JLabel lastNameLabel = new JLabel(LAST_NAME);
 		lastNameLabel.setFont(baseFont);
@@ -309,7 +310,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(0, 10, 0, 10);
 		mainPanel.add(lastNameLabel, gbc);
-		
+
 		lastNameTextField = new JTextField();
 		lastNameTextField.setFont(baseFont);
 		if (previousRegistrationData!=null){
@@ -324,7 +325,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(lastNameTextField, gbc);
-		
+
 		// Email address
 		JLabel emailLabel = new JLabel(EMAIL_ADDRESS);
 		emailLabel.setFont(baseFont);
@@ -337,7 +338,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(emailLabel, gbc);
-		
+
 		emailTextField = new JTextField();
 		emailTextField.setFont(baseFont);
 		if (previousRegistrationData!=null){
@@ -352,7 +353,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(emailTextField, gbc);
-		
+
 		// Keep me informed
 		keepMeInformedCheckBox = new JCheckBox(KEEP_ME_INFORMED);
 		keepMeInformedCheckBox.setFont(baseFont);
@@ -381,7 +382,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 2;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(keepMeInformedCheckBox, gbc);
-		
+
 		// Institution name
 		JLabel institutionLabel = new JLabel(INSTITUTION_COMPANY_NAME);
 		institutionLabel.setFont(baseFont);
@@ -394,7 +395,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(institutionLabel, gbc);
-		
+
 		institutionOrCompanyTextField = new JTextField();
 		institutionOrCompanyTextField.setFont(baseFont);
 		if (previousRegistrationData!=null){
@@ -409,7 +410,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(institutionOrCompanyTextField, gbc);
-		
+
 		// Industry type
 		JLabel industryLabel = new JLabel(" Industry type:");
 		industryLabel.setFont(baseFont);
@@ -422,7 +423,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(industryLabel, gbc);
-		
+
 		industryTypeTextField = new JComboBox(industryTypes);
 		industryTypeTextField.setFont(baseFont);
 		if (previousRegistrationData!=null){
@@ -437,7 +438,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(industryTypeTextField, gbc);
-		
+
 		// Field of investigation
 		JTextArea fieldLabel = new JTextArea(FIELD_OF_INVESTIGATION);
 		fieldLabel.setFont(baseFont);
@@ -453,7 +454,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(fieldLabel, gbc);
-		
+
 		fieldTextField = new JTextField();
 		fieldTextField.setFont(baseFont);
 		if (previousRegistrationData!=null){
@@ -468,7 +469,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(fieldTextField, gbc);
-		
+
 		// Purpose of using Taverna
 		JTextArea purposeLabel = new JTextArea(WHY_YOU_INTEND_TO_USE_TAVERNA);
 		purposeLabel.setFont(baseFont);
@@ -484,7 +485,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(purposeLabel, gbc);
-		
+
 		purposeTextArea = new JTextArea(4,30);
 		purposeTextArea.setFont(baseFont);
 		purposeTextArea.setLineWrap(true);
@@ -503,7 +504,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 				}
 			}
 		});
-		JScrollPane purposeScrollPane = new JScrollPane(purposeTextArea); 
+		JScrollPane purposeScrollPane = new JScrollPane(purposeTextArea);
 		gbc.weightx = 1.0;
 		gbc.weighty = 0.0;
 		gbc.gridx = 1;
@@ -513,7 +514,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 1;
 		gbc.insets = new Insets(5, 10, 0, 10);
 		mainPanel.add(purposeScrollPane, gbc);
-		
+
 		// Terms and conditions
 		termsAndConditionsCheckBox = new JCheckBox(I_AGREE_TO_THE_TERMS_AND_CONDITIONS);
 		termsAndConditionsCheckBox.setFont(baseFont);
@@ -540,8 +541,8 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.gridwidth = 2;
 		gbc.insets = new Insets(10, 10, 0, 0);
 		mainPanel.add(termsAndConditionsCheckBox, gbc);*/
-		
-		// Terms and conditions link	
+
+		// Terms and conditions link
 		JEditorPane termsAndConditionsURL = new JEditorPane();
 		termsAndConditionsURL.setEditable(false);
 		termsAndConditionsURL.setBackground(this.getBackground());
@@ -566,7 +567,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 					}catch(Exception ex){
 						logger.error("User registration: Failed to launch browser to show terms and conditions at " + TERMS_AND_CONDITIONS_URL);
 					}
-			    }				
+			    }
 			}
 		});
 		gbc.weightx = 0.0;
@@ -581,7 +582,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		termsAndConditionsPanel.add(termsAndConditionsCheckBox);
 		termsAndConditionsPanel.add(termsAndConditionsURL);
 		mainPanel.add(termsAndConditionsPanel, gbc);
-		
+
 		// Button panel
 		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		JButton registerButton = new JButton("Register");
@@ -632,7 +633,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		buttonPanel.add(registerButton);
 		buttonPanel.add(remindMeLaterButton);
 		buttonPanel.add(doNotRegisterButton);
-		addDivider(buttonPanel, SwingConstants.TOP, true);		
+		addDivider(buttonPanel, SwingConstants.TOP, true);
 		gbc.gridx = 0;
 		gbc.gridy = 14;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -653,14 +654,14 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 				(dimension.height - abounds.height) / 2);
 		setSize(getPreferredSize());
 	}
-	
+
 	protected void remindMeLater() {
 	       try {
 	            FileUtils.touch(UserRegistrationHook.remindMeLaterFile);
 	        } catch (IOException ioex) {
 	        	logger.error("Failed to touch the 'Remind me later' file at user registration.", ioex);
 	        }
-		closeDialog();		
+		closeDialog();
 	}
 
 	protected void doNotRegister() {
@@ -672,7 +673,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 	        } catch (IOException ioex) {
 	        	logger.error("Failed to touch the 'Do not register me' file at user registration.", ioex);
 	        }
-		closeDialog();		
+		closeDialog();
 	}
 
 	protected void register() {
@@ -687,7 +688,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 			regData.setIndustry(industryTypeTextField.getSelectedItem().toString());
 			regData.setField(fieldTextField.getText());
 			regData.setPurposeOfUsingTaverna(purposeTextArea.getText());
-			
+
 			if (postUserRegistrationDataToServer(regData)){
 				saveUserRegistrationData(regData, UserRegistrationHook.registrationDataFile);
 				if (UserRegistrationHook.remindMeLaterFile.exists()){
@@ -695,11 +696,11 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 				}
 		    	closeDialog();
 			}
-		}		
+		}
 	}
 
 	protected boolean validateForm() {
-		
+
 		String errorMessage = "";
 		if (firstNameTextField.getText().length()==0){ // Empty first name field
 			errorMessage += "Please provide your first name.<br>";
@@ -728,10 +729,10 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 			return false;
 		}
 	}
-	
+
 	public UserRegistrationData loadUserRegistrationData(File propertiesFile){
-		
-		UserRegistrationData regData = new UserRegistrationData();  
+
+		UserRegistrationData regData = new UserRegistrationData();
 		Properties props = new Properties();
 
 		// Try to retrieve data from file
@@ -753,15 +754,15 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		}
         return regData;
 	}
-	
+
 	/**
 	 * Post registration data to our server.
 	 */
 	private boolean postUserRegistrationDataToServer(UserRegistrationData regData) {
 
 		String parameters = "";
-		
-		// The 'submit' parameter - to let the server-side script know we are submitting 
+
+		// The 'submit' parameter - to let the server-side script know we are submitting
         // the user's registration form - all other requests will be silently ignored
 		try{
 			parameters = URLEncoder.encode(TAVERNA_REGISTRATION_POST_PARAMETER_NAME, "UTF-8") + "=" + URLEncoder.encode("submit", "UTF-8"); // value does not matter
@@ -794,7 +795,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		try{
 			URL url = new URL(server);
 			URLConnection conn = url.openConnection();
-			// Set timeout to e.g. 7 seconds, otherwise we might hang too long 
+			// Set timeout to e.g. 7 seconds, otherwise we might hang too long
 			// if server is not responding and it will block Taverna
 			conn.setConnectTimeout(7000);
 			// Set connection parameters
@@ -834,7 +835,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 			return true;
 		}
 		// Catch some runtime exceptions
-		catch(ConnectException ceex){ //the connection was refused remotely (e.g. no process is listening on the remote address/port). 
+		catch(ConnectException ceex){ //the connection was refused remotely (e.g. no process is listening on the remote address/port).
 			logger.error("User registration failed: Registration server is not listening of the specified url.", ceex);
 			JOptionPane
 			.showMessageDialog(
@@ -845,7 +846,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 			return false;
 		}
 		// Catch some runtime exceptions
-		catch(SocketTimeoutException stex){ //timeout has occurred on a socket read or accept. 
+		catch(SocketTimeoutException stex){ //timeout has occurred on a socket read or accept.
 			logger.error("User registration failed: Socket timeout occurred.", stex);
 			JOptionPane
 			.showMessageDialog(
@@ -875,7 +876,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 			return false;
 		}
 	}
-	
+
 	private void saveUserRegistrationData(UserRegistrationData regData, File propertiesFile){
 		Properties props = new Properties();
 		props.setProperty(TAVERNA_VERSION_PROPERTY_NAME, regData.getTavernaVersion());
@@ -905,14 +906,14 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 
 	/**
 	 * Adds a light gray or etched border to the top or bottom of a JComponent.
-	 * 
+	 *
 	 * @author David Withers
 	 * @param component
 	 */
 	protected void addDivider(JComponent component, final int position, final boolean etched) {
 		component.setBorder(new Border() {
 			private final Color borderColor = new Color(.6f, .6f, .6f);
-			
+
 			public Insets getBorderInsets(Component c) {
 				if (position == SwingConstants.TOP) {
 					return new Insets(5, 0, 0, 0);

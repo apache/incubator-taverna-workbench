@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans xmlns="http://www.springframework.org/schema/osgi" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:beans="http://www.springframework.org/schema/beans"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd
-                      http://www.springframework.org/schema/osgi 
+                      http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
 	<service ref="FileCloseMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
@@ -21,6 +21,7 @@
 	<service ref="FileToolbarMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
 	<service ref="NewToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
 	<service ref="OpenToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="OpenWorkflowFromURLToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
 	<service ref="SaveToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
 	<service ref="CloseToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
 
@@ -30,5 +31,7 @@
 	<service ref="CloseWorkflowsOnShutdown" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />
 
 	<service ref="FileManagerImpl" interface="net.sf.taverna.t2.workbench.file.FileManager" />
+
+	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 
 </beans:beans>

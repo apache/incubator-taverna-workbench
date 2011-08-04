@@ -15,36 +15,14 @@
 	</description>
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>file-api</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.infrastructure</groupId>
-			<artifactId>spi-discovery-api</artifactId>
-			<version>${t2.infrastructure.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-api</artifactId>
-			<version>${t2.core.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>edits-impl</artifactId>
-			<version>${project.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-impl</artifactId>
-			<version>${t2.core.version}</version>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>helper-api</artifactId>
+			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
@@ -57,10 +35,9 @@
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.activities</groupId>
-			<artifactId>beanshell-activity</artifactId>
-			<version>${t2.activities.version}</version>
-			<scope>test</scope>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>workflowmodel-api</artifactId>
+			<version>${t2.core.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
@@ -79,10 +56,29 @@
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 		</dependency>
+
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>helper-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<artifactId>edits-impl</artifactId>
+			<version>${project.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>workflowmodel-impl</artifactId>
+			<version>${t2.core.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.activities</groupId>
+			<artifactId>beanshell-activity</artifactId>
+			<version>${t2.activities.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

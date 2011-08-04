@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -51,17 +51,15 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class SaveWorkflowAction extends AbstractAction {
 
-	private final SaveWorkflowAsAction saveWorkflowAsAction = new SaveWorkflowAsAction();
-
 	private static Logger logger = Logger.getLogger(SaveWorkflowAction.class);
 
 	private static final String SAVE_WORKFLOW = "Save workflow";
 
-	private EditManager editManager = EditManager.getInstance();
+	private final SaveWorkflowAsAction saveWorkflowAsAction;
 
 	private EditManagerObserver editManagerObserver = new EditManagerObserver();
 
-	private FileManager fileManager = FileManager.getInstance();
+	private FileManager fileManager;
 
 	private FileManagerObserver fileManagerObserver = new FileManagerObserver();
 
@@ -69,8 +67,10 @@ public class SaveWorkflowAction extends AbstractAction {
 
 	private ModelMapObserver modelMapObserver = new ModelMapObserver();
 
-	public SaveWorkflowAction() {
+	public SaveWorkflowAction(EditManager editManager, FileManager fileManager) {
 		super(SAVE_WORKFLOW, WorkbenchIcons.saveIcon);
+		this.fileManager = fileManager;
+		saveWorkflowAsAction = new SaveWorkflowAsAction(fileManager);
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_S,
 						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
@@ -88,12 +88,12 @@ public class SaveWorkflowAction extends AbstractAction {
 		}
 		saveCurrentDataflow(parentComponent);
 	}
-	
+
 	public boolean saveCurrentDataflow(Component parentComponent) {
 		Dataflow dataflow = fileManager.getCurrentDataflow();
 		return saveDataflow(parentComponent, dataflow);
 	}
-	
+
 
 	public boolean saveDataflow(Component parentComponent, Dataflow dataflow) {
 		if (!fileManager.canSaveWithoutDestination(dataflow)) {
@@ -115,7 +115,7 @@ public class SaveWorkflowAction extends AbstractAction {
 						+ " has been changed from elsewhere, "
 						+ "are you sure you want to overwrite?";
 				int ret = JOptionPane.showConfirmDialog(parentComponent, msg,
-						"Workflow changed", JOptionPane.YES_NO_CANCEL_OPTION);	
+						"Workflow changed", JOptionPane.YES_NO_CANCEL_OPTION);
 				if (ret == JOptionPane.YES_OPTION) {
 					fileManager.saveDataflow(dataflow, false);
 					logger.info("Saved workflow " + dataflow
@@ -176,7 +176,7 @@ public class SaveWorkflowAction extends AbstractAction {
 			}
 		}
 	}
-	
+
 	private final class ModelMapObserver implements Observer<ModelMapEvent> {
 		public void notify(Observable<ModelMapEvent> sender,
 				ModelMapEvent message) throws Exception {

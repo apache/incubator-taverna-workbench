@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -48,18 +48,22 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
  * The action {@link Observer observes} the {@link EditManager} and
  * {@link ModelMap} to enable/disable the action depending on if undo/redo is
  * possible or not.
- * 
+ *
  * @author Stian Soiland-Reyes
  */
 public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
+
+	protected EditManager editManager;
 
 	public AbstractUndoMenuAction(int position) {
 		super(UndoMenuSection.UNDO_SECTION_URI, position);
 	}
 
-	protected abstract class AbstractUndoAction extends AbstractAction {
+	public void setEditManager(EditManager editManager) {
+		this.editManager = editManager;
+	}
 
-		EditManager editManager = EditManager.getInstance();
+	protected abstract class AbstractUndoAction extends AbstractAction {
 
 		ModelMap modelMap = ModelMap.getInstance();
 
@@ -108,7 +112,7 @@ public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
 		/**
 		 * Retrieve the current dataflow from the {@link ModelMap}, or
 		 * <code>null</code> if no workflow is active.
-		 * 
+		 *
 		 * @return The current {@link Dataflow}
 		 */
 		protected Dataflow getCurrentDataflow() {
@@ -120,7 +124,7 @@ public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
 		 * Return <code>true</code> if the action should be enabled when the
 		 * given {@link Dataflow} is the current, ie. if it's undoable or
 		 * redoable.
-		 * 
+		 *
 		 * @param dataflow
 		 *            Current {@link Dataflow}
 		 * @return <code>true</code> if the action should be enabled.
@@ -130,7 +134,7 @@ public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
 		/**
 		 * Called by {@link #actionPerformed(ActionEvent)} when the current
 		 * dataflow is not <code>null</code>.
-		 * 
+		 *
 		 * @param dataflow
 		 *            {@link Dataflow} on which to undo or redo
 		 */
@@ -139,7 +143,7 @@ public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
 		/**
 		 * Update the status if there's been an edit done on the current
 		 * workflow.
-		 * 
+		 *
 		 */
 		protected class EditManagerObserver implements
 				Observer<EditManagerEvent> {
@@ -159,7 +163,7 @@ public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
 
 		/**
 		 * Update the status when the current dataflow or the current perspective changes.
-		 * 
+		 *
 		 */
 		protected class ModelMapObserver implements Observer<ModelMapEvent> {
 			public void notify(Observable<ModelMapEvent> sender,

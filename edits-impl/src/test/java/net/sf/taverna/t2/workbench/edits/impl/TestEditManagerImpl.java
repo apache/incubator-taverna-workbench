@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -56,7 +56,7 @@ public class TestEditManagerImpl {
 
 	@Test
 	public void addProcessor() throws Exception {
-		EditManager editManager = EditManager.getInstance();
+		EditManager editManager = new EditManagerImpl(new EditsImpl());
 		editManager.addObserver(editManagerObserver);
 
 		Edits edits = editManager.getEdits();
@@ -86,7 +86,7 @@ public class TestEditManagerImpl {
 
 	@Test
 	public void undoAddProcessor() throws Exception {
-		EditManager editManager = EditManager.getInstance();
+		EditManager editManager = new EditManagerImpl(new EditsImpl());
 		editManager.addObserver(editManagerObserver);
 
 		Edits edits = editManager.getEdits();
@@ -111,10 +111,10 @@ public class TestEditManagerImpl {
 				.getEdit());
 		assertFalse("Edit was still applied", edit.isApplied());
 	}
-	
+
 	@Test
 	public void multipleUndoesRedoes() throws Exception {
-		EditManager editManager = EditManager.getInstance();
+		EditManager editManager = new EditManagerImpl(new EditsImpl());
 		editManager.addObserver(editManagerObserver);
 
 		Dataflow dataflowA = createDataflow();
@@ -126,12 +126,12 @@ public class TestEditManagerImpl {
 		Processor processorA3 = createProcessor();
 		Processor processorB1 = createProcessor();
 		Processor processorC1 = createProcessor();
-		
-		
+
+
 		Edits edits = editManager.getEdits();
 		Edit<Dataflow> edit = edits.getAddProcessorEdit(dataflowA, processorA1);
 		editManager.doDataflowEdit(dataflowA, edit);
-		
+
 		edit = edits.getAddProcessorEdit(dataflowB, processorB1);
 		editManager.doDataflowEdit(dataflowB, edit);
 
@@ -141,11 +141,11 @@ public class TestEditManagerImpl {
 		edit = edits.getAddProcessorEdit(dataflowC, processorC1);
 		editManager.doDataflowEdit(dataflowC, edit);
 
-		
+
 		edit = edits.getAddProcessorEdit(dataflowA, processorA3);
 		editManager.doDataflowEdit(dataflowA, edit);
 
-		
+
 
 		assertFalse("Did not add processors", dataflowA.getProcessors().isEmpty());
 		assertEquals(3, dataflowA.getProcessors().size());
@@ -165,7 +165,7 @@ public class TestEditManagerImpl {
 		editManager.undoDataflowEdit(dataflowC); // extra one
 		assertFalse(editManager.canUndoDataflowEdit(dataflowC));
 
-		
+
 		assertEquals(1, dataflowB.getProcessors().size());
 		assertEquals(0, dataflowC.getProcessors().size());
 
@@ -173,7 +173,7 @@ public class TestEditManagerImpl {
 		assertEquals(0, dataflowA.getProcessors().size());
 		assertEquals(0, dataflowB.getProcessors().size());
 		assertEquals(0, dataflowC.getProcessors().size());
-		
+
 		editManager.redoDataflowEdit(dataflowA);
 		assertEquals(1, dataflowA.getProcessors().size());
 
@@ -184,7 +184,7 @@ public class TestEditManagerImpl {
 		assertEquals(3, dataflowA.getProcessors().size());
 
 		// does not affect it
-		editManager.redoDataflowEdit(dataflowA); 
+		editManager.redoDataflowEdit(dataflowA);
 		assertEquals(3, dataflowA.getProcessors().size());
 		assertEquals(0, dataflowB.getProcessors().size());
 		assertEquals(0, dataflowC.getProcessors().size());
@@ -192,14 +192,14 @@ public class TestEditManagerImpl {
 
 	@Test
 	public void emptyUndoDoesNotFail() throws Exception {
-		EditManager editManager = EditManager.getInstance();
+		EditManager editManager = new EditManagerImpl(new EditsImpl());
 		editManager.addObserver(editManagerObserver);
 		editManager.undoDataflowEdit(dataflow);
 	}
 
 	@Test
 	public void extraUndoesDoesNotFail() throws Exception {
-		EditManager editManager = EditManager.getInstance();
+		EditManager editManager = new EditManagerImpl(new EditsImpl());
 		editManager.addObserver(editManagerObserver);
 
 		Edits edits = editManager.getEdits();
@@ -215,7 +215,7 @@ public class TestEditManagerImpl {
 
 	@Test
 	public void getEditManager() throws Exception {
-		EditManager editManager = EditManager.getInstance();
+		EditManager editManager = new EditManagerImpl(new EditsImpl());
 		Edits edits = editManager.getEdits();
 		assertTrue("Edits was not an instance of EditsImpl",
 				edits instanceof EditsImpl);

@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -38,13 +38,7 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import net.sf.taverna.raven.appconfig.ApplicationRuntime;
-import net.sf.taverna.raven.repository.Repository;
-import net.sf.taverna.raven.repository.impl.LocalArtifactClassLoader;
-import net.sf.taverna.raven.spi.SpiRegistry;
 import net.sf.taverna.t2.annotation.Annotated;
-import net.sf.taverna.t2.annotation.AppliesTo;
-import net.sf.taverna.t2.annotation.annotationbeans.AbstractTextualValueAssertion;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
@@ -53,20 +47,18 @@ import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
 
 import org.apache.log4j.Logger;
 
 /**
- * 
+ *
  * This is a ContextualView that should be able to display and allow editing of
  * Annotation information for any Annotated. At the moment it is only used for
  * Dataflow.
- * 
+ *
  * @author Alan R Williams
- * 
+ *
  */
 @SuppressWarnings("serial")
 public class AnnotatedContextualView extends ContextualView {
@@ -77,7 +69,7 @@ public class AnnotatedContextualView extends ContextualView {
 			.getLogger(AnnotatedContextualView.class);
 
 	private AnnotationTools annotationTools = new AnnotationTools();
-	
+
 	/**
 	 * The object to which the Annotations apply
 	 */
@@ -93,31 +85,30 @@ public class AnnotatedContextualView extends ContextualView {
 
 	private static int DEFAULT_AREA_WIDTH = 60;
 	private static int DEFAULT_AREA_ROWS = 8;
-	
-	private FileManager fileManager = FileManager.getInstance();
-	private EditManager editManager = EditManager.getInstance();
 
+	private FileManager fileManager;
+	private EditManager editManager;
 
 	@SuppressWarnings("unchecked")
 	private static Map<Annotated, JPanel> annotatedToPanelMap = new HashMap<Annotated, JPanel>();
 
-
-	
-	public AnnotatedContextualView(Annotated<?> annotated) {
+	public AnnotatedContextualView(Annotated<?> annotated, EditManager editManager, FileManager fileManager) {
 		super();
+		this.editManager = editManager;
+		this.fileManager = fileManager;
 		prb = (PropertyResourceBundle) ResourceBundle
 				.getBundle("annotatedcontextualview");
 		this.annotated = annotated;
 		classToAreaMap = new HashMap<Class<?>, DialogTextArea>();
 		classToCurrentValueMap = new HashMap<Class<?>, String>();
-		
+
 		initView();
 	}
 
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seenet.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView#
 	 * getMainFrame()
 	 */
@@ -131,7 +122,7 @@ public class AnnotatedContextualView extends ContextualView {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @seenet.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView#
 	 * getViewTitle()
 	 */
@@ -168,9 +159,9 @@ public class AnnotatedContextualView extends ContextualView {
 			annotatedView.add(scrollPane);
 		}
 	}
-	
 
-	
+
+
 	private JScrollPane createTextArea(final Class<?> c, final String value) {
 		classToCurrentValueMap.put(c, value);
 		DialogTextArea area = new DialogTextArea(value);
@@ -215,12 +206,11 @@ public class AnnotatedContextualView extends ContextualView {
 					currentValue = "";
 				}
 				try {
-					Edits edits = EditsRegistry.getEdits();
 					Dataflow currentDataflow = fileManager.getCurrentDataflow();
 					List<Edit<?>> editList = new ArrayList<Edit<?>>();
-					editList.add(annotationTools.setAnnotationString(annotated, annotationClass, currentValue));
+					editList.add(annotationTools.setAnnotationString(annotated, annotationClass, currentValue, editManager.getEdits()));
 					if ((annotated == currentDataflow) && (prb.getString(annotationClass.getCanonicalName()).equals("Title"))) {
-						editList.add(edits.getUpdateDataflowNameEdit(currentDataflow,
+						editList.add(editManager.getEdits().getUpdateDataflowNameEdit(currentDataflow,
 								sanitiseName(currentValue)));
 					}
 					editManager.doDataflowEdit(currentDataflow, new CompoundEdit(editList));
@@ -236,9 +226,9 @@ public class AnnotatedContextualView extends ContextualView {
 	/**
 	 * Checks that the name does not have any characters that are invalid for a
 	 * processor name.
-	 * 
+	 *
 	 * The name must contain only the chars[A-Za-z_0-9].
-	 * 
+	 *
 	 * @param name
 	 *            the original name
 	 * @return the sanitised name

@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -40,6 +40,7 @@ import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.edits.impl.EditManagerImpl;
 import net.sf.taverna.t2.workbench.file.DataflowInfo;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
@@ -48,6 +49,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 
 import org.junit.After;
 import org.junit.Before;
@@ -90,21 +92,14 @@ public class FileManagerTest {
 	}
 
 	@Test
-	public void getFileManagerInstance() {
-		FileManager instance = FileManager.getInstance();
-		assertTrue("FileManager instance not a FileManagerImpl",
-				instance instanceof FileManagerImpl);
-	}
-
-	@Test
 	public void isChanged() throws Exception {
 		Dataflow dataflow = openDataflow();
 		assertFalse("Dataflow should not have changed", fileManager
 				.isDataflowChanged(dataflow));
 
 		// Do a change
-		EditManager editManager = EditManager.getInstance();
-		Edits edits = editManager.getEdits();
+		Edits edits = new EditsImpl();
+		EditManager editManager = new EditManagerImpl(edits);
 		Processor emptyProcessor = edits.createProcessor("emptyProcessor");
 		Edit<Dataflow> addProcessorEdit = edits.getAddProcessorEdit(dataflow,
 				emptyProcessor);
@@ -127,8 +122,8 @@ public class FileManagerTest {
 	public void isChangedWithUndo() throws Exception {
 		Dataflow dataflow = openDataflow();
 		// Do a change
-		EditManager editManager = EditManager.getInstance();
-		Edits edits = editManager.getEdits();
+		Edits edits = new EditsImpl();
+		EditManager editManager = new EditManagerImpl(edits);
 		Processor emptyProcessor = edits.createProcessor("emptyProcessor");
 		Edit<Dataflow> addProcessorEdit = edits.getAddProcessorEdit(dataflow,
 				emptyProcessor);
@@ -177,13 +172,13 @@ public class FileManagerTest {
 	/**
 	 * Always uses a <strong>new</strong> file manager instead of the instance
 	 * one from {@link FileManager#getInstance()}.
-	 * 
+	 *
 	 * @see #getFileManagerInstance()
-	 * 
+	 *
 	 */
 	@Before
 	public void makeFileManager() {
-		fileManager = new FileManagerImpl();
+		fileManager = new FileManagerImpl(new EditManagerImpl(new EditsImpl()));
 	}
 
 	@Test
@@ -202,17 +197,17 @@ public class FileManagerTest {
 		assertEquals("currentDataflow", event.getModelName());
 		assertEquals(dataflow, event.getNewModel());
 	}
-	
+
 	@Test
 	public void openSilently() throws Exception {
 		assertTrue("ModelMapObserver already contained messages",
 				modelMapObserver.messages.isEmpty());
 		URL url = getClass().getResource(DUMMY_WORKFLOW_T2FLOW);
 		DataflowInfo info = fileManager.openDataflowSilently(T2_FLOW_FILE_TYPE, url);
-		
+
 		Dataflow dataflow = info.getDataflow();
 		assertNotNull("Dataflow was not loaded", dataflow);
-		
+
 		assertNotSame("Loaded dataflow was set as current dataflow",
 				dataflow, modelmap.getModel(ModelMapConstants.CURRENT_DATAFLOW));
 		assertTrue("ModelMapObserver contained unexpected messages",
@@ -285,16 +280,16 @@ public class FileManagerTest {
 		dataflowFile.deleteOnExit();
 		dataflowFile.delete();
 		assertFalse("File should not exist", dataflowFile.isFile());
-		
+
 		fileManager.saveDataflowSilently(dataflow, T2_FLOW_FILE_TYPE, dataflowFile, false);
 		assertTrue("File should exist", dataflowFile.isFile());
-		
+
 		assertTrue("ModelMapObserver contained unexpected messages",
 				modelMapObserver.messages.isEmpty());
 
 	}
-	
-	
+
+
 	@Test
 	public void saveOverwriteAgain() throws Exception {
 		Dataflow dataflow = openDataflow();
@@ -304,8 +299,8 @@ public class FileManagerTest {
 		// File did NOT exist, should not fail
 		fileManager.saveDataflow(dataflow, T2_FLOW_FILE_TYPE, dataflowFile, true);
 
-		EditManager editManager = EditManager.getInstance();
-		Edits edits = editManager.getEdits();
+		Edits edits = new EditsImpl();
+		EditManager editManager = new EditManagerImpl(edits);
 
 		Processor processor = dataflow.getProcessors().get(0);
 		Edit<Processor> renameEdit = edits.getRenameProcessorEdit(processor,

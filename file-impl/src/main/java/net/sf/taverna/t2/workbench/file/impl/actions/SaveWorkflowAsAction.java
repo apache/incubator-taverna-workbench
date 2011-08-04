@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -21,9 +21,7 @@
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
 import java.awt.Component;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URL;
@@ -70,12 +68,13 @@ public class SaveWorkflowAsAction extends AbstractAction {
 
 	private static Logger logger = Logger.getLogger(SaveWorkflowAsAction.class);
 
-	private FileManager fileManager = FileManager.getInstance();
+	private FileManager fileManager;
 
 	private ModelMap modelMap = ModelMap.getInstance();
 
-	public SaveWorkflowAsAction() {
+	public SaveWorkflowAsAction(FileManager fileManager) {
 		super(SAVE_WORKFLOW_AS, WorkbenchIcons.saveAsIcon);
+		this.fileManager = fileManager;
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
 		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
@@ -116,14 +115,14 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		Dataflow dataflow = fileManager.getCurrentDataflow();
 		return saveDataflow(parentComponent, dataflow);
 	}
-	
+
 	private String determineFileName(final Dataflow dataflow) {
 		String result;
 		Object source = fileManager.getDataflowSource(dataflow);
 		String fileName = null;
 		if (source instanceof File) {
 			fileName = ((File) source).getName();
-			
+
 		} else if (source instanceof URL) {
 			fileName = ((URL) source).getPath();
 		}
@@ -150,7 +149,7 @@ public class SaveWorkflowAsAction extends AbstractAction {
 
 		fileChooser.resetChoosableFileFilters();
 		fileChooser.setAcceptAllFileFilterUsed(false);
-		
+
 		List<FileFilter> fileFilters = fileManager
 				.getSaveFileFilters(File.class);
 		if (fileFilters.isEmpty()) {
@@ -166,7 +165,7 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		fileChooser.setFileFilter(fileFilters.get(0));
 
 		fileChooser.setCurrentDirectory(new File(curDir));
-		
+
 		File possibleName = new File(determineFileName(dataflow));
 
 		boolean tryAgain = true;

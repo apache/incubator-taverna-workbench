@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -30,8 +30,8 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
 import java.util.Map.Entry;
+import java.util.WeakHashMap;
 
 import javax.help.CSH;
 import javax.swing.AbstractButton;
@@ -49,11 +49,8 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.observer.MultiCaster;
-import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
-import net.sf.taverna.t2.spi.SPIRegistry;
-import net.sf.taverna.t2.spi.SPIRegistry.SPIRegistryEvent;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.AbstractMenuOptionGroup;
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
@@ -63,25 +60,25 @@ import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
 import net.sf.taverna.t2.ui.menu.DefaultMenuBar;
 import net.sf.taverna.t2.ui.menu.DefaultToolBar;
 import net.sf.taverna.t2.ui.menu.MenuComponent;
-import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.ui.menu.MenuComponent.MenuType;
+import net.sf.taverna.t2.ui.menu.MenuManager;
 
 import org.apache.log4j.Logger;
 
 /**
  * Implementation of {@link MenuManager}.
- * 
+ *
  * {@inheritDoc}
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
-public class MenuManagerImpl extends MenuManager {
+public class MenuManagerImpl implements MenuManager {
 
 	private static Logger logger = Logger.getLogger(MenuManagerImpl.class);
 
 	private boolean needsUpdate;
-	
+
 	/**
 	 * Cache used by {@link #getURIByComponent(Component)}
 	 */
@@ -98,12 +95,6 @@ public class MenuManagerImpl extends MenuManager {
 	 * {@link #findChildren()}.
 	 */
 	private HashMap<URI, List<MenuComponent>> menuElementTree;
-
-	/**
-	 * SPI registry of found {@link MenuComponent} implementations.
-	 */
-	private SPIRegistry<MenuComponent> menuRegistry = new SPIRegistry<MenuComponent>(
-			MenuComponent.class);
 
 	/**
 	 * Multicaster to distribute messages to {@link Observer}s of this menu
@@ -136,14 +127,13 @@ public class MenuManagerImpl extends MenuManager {
 	// Note: Not reset by #resetCollections()
 	private Map<URI, List<WeakReference<Component>>> uriToPublishedComponents = new HashMap<URI, List<WeakReference<Component>>>();
 
-	private MenuRegistryObserver menuRegistryObserver = new MenuRegistryObserver();
+	private List<MenuComponent> menuComponents = new ArrayList<MenuComponent>();
 
 	/**
 	 * Construct the MenuManagerImpl. Observes the SPI registry and does an
 	 * initial {@link #update()}.
 	 */
 	public MenuManagerImpl() {
-		menuRegistry.addObserver(menuRegistryObserver);
 		multiCaster = new MultiCaster<MenuManagerEvent>(this);
 		needsUpdate = true;
 	}
@@ -184,14 +174,14 @@ public class MenuManagerImpl extends MenuManager {
 			index = toIndex;
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public void addObserver(Observer<MenuManagerEvent> observer) {
 		multiCaster.addObserver(observer);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -311,7 +301,7 @@ public class MenuManagerImpl extends MenuManager {
 	/**
 	 * Add a {@link JMenu} to the list of components as described by the menu
 	 * component. If there are no children, the menu is not added.
-	 * 
+	 *
 	 * @param components
 	 *            List of components where to add the created {@link JMenu}
 	 * @param menuComponent
@@ -350,7 +340,7 @@ public class MenuManagerImpl extends MenuManager {
 	 * Add <code>null</code> to the list of components, meaning that a separator
 	 * is to be created. Subsequent separators are ignored, and if there are no
 	 * components on the list already no separator will be added.
-	 * 
+	 *
 	 * @param components
 	 *            List of components
 	 */
@@ -369,7 +359,7 @@ public class MenuManagerImpl extends MenuManager {
 	/**
 	 * Add an {@link AbstractMenuOptionGroup option group} to the list of
 	 * components
-	 * 
+	 *
 	 * @param components
 	 *            List of components where to add the created {@link JMenu}
 	 * @param optionGroupId
@@ -410,7 +400,7 @@ public class MenuManagerImpl extends MenuManager {
 
 	/**
 	 * Add a section to a list of components.
-	 * 
+	 *
 	 * @param components
 	 *            List of components
 	 * @param sectionId
@@ -421,7 +411,7 @@ public class MenuManagerImpl extends MenuManager {
 	private void addSection(List<Component> components, URI sectionId,
 			MenuOptions menuOptions) {
 		List<Component> childComponents = makeComponents(sectionId, menuOptions);
-		
+
 
 		MenuComponent sectionDef = uriToMenuElement.get(sectionId);
 		addNullSeparator(components);
@@ -457,7 +447,7 @@ public class MenuManagerImpl extends MenuManager {
 	/**
 	 * Remove the last <code>null</code> separator from the list of components
 	 * if it's present.
-	 * 
+	 *
 	 * @param components
 	 *            List of components
 	 */
@@ -474,7 +464,7 @@ public class MenuManagerImpl extends MenuManager {
 	 * Perform the actual update, called by {@link #update()}. Reset all the
 	 * collections, refresh from SPI, modify any previously published components
 	 * and notify any observers.
-	 * 
+	 *
 	 */
 	protected synchronized void doUpdate() {
 		resetCollections();
@@ -486,10 +476,10 @@ public class MenuManagerImpl extends MenuManager {
 	/**
 	 * Find all children for all known menu components. Populates
 	 * {@link #uriToMenuElement}.
-	 * 
+	 *
 	 */
 	protected void findChildren() {
-		for (MenuComponent menuElement : menuRegistry.getInstances()) {
+		for (MenuComponent menuElement : menuComponents) {
 			uriToMenuElement.put(menuElement.getId(), menuElement);
 			logger.debug("Found menu element " + menuElement.getId() + " "
 					+ menuElement);
@@ -512,7 +502,7 @@ public class MenuManagerImpl extends MenuManager {
 	/**
 	 * Get the children which have the given URI specified as their parent, or
 	 * an empty list if no children exist.
-	 * 
+	 *
 	 * @param id
 	 *            The {@link URI} of the parent
 	 * @return The {@link List} of {@link MenuComponent} which have the given
@@ -530,7 +520,7 @@ public class MenuManagerImpl extends MenuManager {
 	/**
 	 * Make the list of Swing {@link Component}s that are the children of the
 	 * given {@link URI}.
-	 * 
+	 *
 	 * @param id
 	 *            The {@link URI} of the parent which children are to be made
 	 * @param menuOptions
@@ -626,7 +616,7 @@ public class MenuManagerImpl extends MenuManager {
 	 * <p>
 	 * Existing elements on the menu bar will be removed.
 	 * </p>
-	 * 
+	 *
 	 * @param menuBar
 	 *            The {@link JMenuBar} to update
 	 * @param id
@@ -658,7 +648,7 @@ public class MenuManagerImpl extends MenuManager {
 	 * <p>
 	 * Existing elements on the menu bar will be removed.
 	 * </p>
-	 * 
+	 *
 	 * @param popupMenu
 	 *            The {@link JPopupMenu} to update
 	 * @param id
@@ -694,7 +684,7 @@ public class MenuManagerImpl extends MenuManager {
 	 * <p>
 	 * Existing elements on the tool bar will be removed.
 	 * </p>
-	 * 
+	 *
 	 * @param toolbar
 	 *            The {@link JToolBar} to update
 	 * @param id
@@ -734,7 +724,7 @@ public class MenuManagerImpl extends MenuManager {
 	/**
 	 * Register a component that has been created. Such a component can be
 	 * resolved through {@link #getComponentByURI(URI)}.
-	 * 
+	 *
 	 * @param id
 	 *            The {@link URI} that defined the component
 	 * @param component
@@ -747,7 +737,7 @@ public class MenuManagerImpl extends MenuManager {
 	/**
 	 * Register a component that has been created. Such a component can be
 	 * resolved through {@link #getComponentByURI(URI)}.
-	 * 
+	 *
 	 * @param id
 	 *            The {@link URI} that defined the component
 	 * @param component
@@ -775,7 +765,7 @@ public class MenuManagerImpl extends MenuManager {
 
 	/**
 	 * Reset all collections
-	 * 
+	 *
 	 */
 	protected synchronized void resetCollections() {
 		menuElementTree = new HashMap<URI, List<MenuComponent>>();
@@ -789,7 +779,7 @@ public class MenuManagerImpl extends MenuManager {
 	 * the help document. Note that the component (ie. the
 	 * {@link AbstractMenuAction} must have an ID for an registration to take
 	 * place.
-	 * 
+	 *
 	 * @param component
 	 *            The {@link Component} to set help string for
 	 * @param componentId
@@ -806,7 +796,7 @@ public class MenuManagerImpl extends MenuManager {
 	/**
 	 * Make an {@link AbstractButton} be configured in a "toolbar-like" way, for
 	 * instance showing only the icon.
-	 * 
+	 *
 	 * @param actionButton
 	 *            Button to toolbarise
 	 */
@@ -832,7 +822,7 @@ public class MenuManagerImpl extends MenuManager {
 	 * Update all components that have been published using
 	 * {@link #createMenuBar()} and similar. Content of such componenents will
 	 * be removed and replaced by fresh components.
-	 * 
+	 *
 	 */
 	protected void updatePublishedComponents() {
 		for (Entry<URI, List<WeakReference<Component>>> entry : uriToPublishedComponents
@@ -855,10 +845,14 @@ public class MenuManagerImpl extends MenuManager {
 		}
 	}
 
+	public void setMenuComponents(List<MenuComponent> menuComponents) {
+		this.menuComponents = menuComponents;
+	}
+
 	/**
 	 * {@link Comparator} that can order {@link MenuComponent}s by their
 	 * {@link MenuComponent#getPositionHint()}.
-	 * 
+	 *
 	 */
 	protected static class MenuElementComparator implements
 			Comparator<MenuComponent> {
@@ -868,28 +862,11 @@ public class MenuManagerImpl extends MenuManager {
 	}
 
 	/**
-	 * Update menus when {@link SPIRegistry} is updated.
-	 * 
-	 */
-	protected class MenuRegistryObserver implements Observer<SPIRegistryEvent> {
-		public void notify(Observable<SPIRegistryEvent> sender,
-				SPIRegistryEvent message) throws Exception {
-			if (message.equals(SPIRegistry.UPDATED)) {
-				// Note: If needsUpdate is true we don't need to do update() as it will
-				// be called on the first create*() call anyway
-				if (! needsUpdate) {
-					update();
-				}
-			}
-		}
-	}
-
-	/**
 	 * Various options for
 	 * {@link MenuManagerImpl#makeComponents(URI, MenuOptions)} and friends.
-	 * 
+	 *
 	 * @author Stian Soiland-Reyes
-	 * 
+	 *
 	 */
 	public static class MenuOptions {
 		private boolean isToolbar = false;
