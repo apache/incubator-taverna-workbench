@@ -23,7 +23,7 @@ package net.sf.taverna.t2.workbench.ui.zaria;
 import java.util.Comparator;
 
 import javax.swing.ImageIcon;
-import javax.swing.JPanel;
+import javax.swing.JComponent;
 
 /**
  * SPI representing UI perspectives.
@@ -40,11 +40,11 @@ public interface PerspectiveSPI {
 	public String getID();
 
 	/**
-	 * Returns the panel containing the perspective.
+	 * Returns the component containing the perspective.
 	 *
-	 * @return the panel containing the perspective
+	 * @return the component containing the perspective
 	 */
-	public JPanel getPanel();
+	public JComponent getPanel();
 
 	/**
 	 * Returns the icon image for the toolbar button
