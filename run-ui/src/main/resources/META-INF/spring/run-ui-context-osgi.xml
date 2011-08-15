@@ -6,7 +6,7 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="ResultsPerspectiveComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" />
+	<service ref="ResultsPerspective" interface="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI" />
 
 	<service ref="LoadRunIdsToDeleteStartupHook" interface="net.sf.taverna.t2.workbench.StartupSPI" />
 
