@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -39,6 +39,7 @@ import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workbench.configuration.ConfigurationManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
@@ -50,24 +51,25 @@ public class WorkbenchConfigurationPanel extends JPanel {
 	private static Logger logger = Logger
 			.getLogger(WorkbenchConfigurationUIFactory.class);
 
-	private JTextField dotLocation = new JTextField(25);	
-	private JTextField menuItems = new JTextField(10);	
+	private JTextField dotLocation = new JTextField(25);
+	private JTextField menuItems = new JTextField(10);
 	private JCheckBox warnInternal = new JCheckBox("Warn on internal errors");
 	private JCheckBox captureConsole = new JCheckBox("Capture output on stdout/stderr to log file");
 
 	private ConfigurationManager configurationManager = ConfigurationManager.getInstance();
-	
-	private WorkbenchConfiguration workbenchConfiguration = WorkbenchConfiguration.getInstance();
 
-	public WorkbenchConfigurationPanel() {
+	private final WorkbenchConfiguration workbenchConfiguration;
+
+	public WorkbenchConfigurationPanel(WorkbenchConfiguration workbenchConfiguration) {
 		super();
+		this.workbenchConfiguration = workbenchConfiguration;
 		initComponents();
 	}
 
 	private void initComponents() {
 		this.setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
-		
+
 		// Title describing what kind of settings we are configuring here
         JTextArea descriptionText = new JTextArea(
         "General Workbench configuration");
@@ -84,7 +86,7 @@ public class WorkbenchConfigurationPanel extends JPanel {
         gbc.weighty = 0.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(descriptionText, gbc);
-		
+
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
@@ -102,34 +104,34 @@ public class WorkbenchConfigurationPanel extends JPanel {
         gbc.insets = new Insets(0, 0, 0, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(dotLocation, gbc);
-		
+
 		JButton browseButton=new JButton();
         gbc.gridx = 1;
         gbc.weightx = 0.0;
         gbc.fill = GridBagConstraints.NONE;
         this.add(browseButton, gbc);
 		browseButton.setAction(new AbstractAction() {
-			
+
 			public void actionPerformed(ActionEvent e) {
 				System.setProperty("com.apple.macos.use-file-dialog-packages", "false");
 				JFileChooser fileChooser = new JFileChooser();
 				fileChooser.putClientProperty("JFileChooser.appBundleIsTraversable", "always");
 				fileChooser.putClientProperty("JFileChooser.packageIsTraversable", "always");
-				
+
 				fileChooser.setDialogTitle("Browse for dot");
 
 				fileChooser.resetChoosableFileFilters();
 				fileChooser.setAcceptAllFileFilterUsed(false);
-				
+
 				fileChooser.setMultiSelectionEnabled(false);
-				
+
 				int returnVal = fileChooser.showOpenDialog(WorkbenchConfigurationPanel.this);
 				if (returnVal==JFileChooser.APPROVE_OPTION) {
 					dotLocation.setText(fileChooser.getSelectedFile().getAbsolutePath());
 				}
 			}
 		});
-		browseButton.setIcon(WorkbenchIcons.openIcon);	
+		browseButton.setIcon(WorkbenchIcons.openIcon);
 
         gbc.gridx = 0;
         gbc.gridy++;
@@ -142,13 +144,13 @@ public class WorkbenchConfigurationPanel extends JPanel {
 
         menuItems.setText(Integer.toString(workbenchConfiguration
 				.getMaxMenuItems()));
-        gbc.gridy++;        
+        gbc.gridy++;
         gbc.weightx = 1.0;
         gbc.gridwidth = 1;
         gbc.insets = new Insets(0, 0, 0, 0);
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(menuItems, gbc);
-		
+
         gbc.gridx = 0;
         gbc.gridy++;
         gbc.gridwidth = 2;
@@ -161,8 +163,8 @@ public class WorkbenchConfigurationPanel extends JPanel {
         gbc.gridy++;
         gbc.insets = new Insets(0, 0, 10, 0);
         captureConsole.setSelected(workbenchConfiguration.getCaptureConsole());
-        this.add(captureConsole, gbc);		
-		
+        this.add(captureConsole, gbc);
+
 		// Add the buttons panel
         gbc.gridx = 0;
         gbc.gridy++;
@@ -173,11 +175,11 @@ public class WorkbenchConfigurationPanel extends JPanel {
         gbc.anchor = GridBagConstraints.SOUTH;
 		this.add(getButtonsPanel(), gbc);
 	}
-	
+
 	private Component getButtonsPanel() {
 		final JPanel panel = new JPanel();
-		panel.setLayout(new FlowLayout(FlowLayout.CENTER));	
-		
+		panel.setLayout(new FlowLayout(FlowLayout.CENTER));
+
 		/**
 		 * The helpButton shows help about the current component
 		 */
@@ -198,7 +200,7 @@ public class WorkbenchConfigurationPanel extends JPanel {
 			}
 		});
 		panel.add(resetButton);
-		
+
 		JButton applyButton = new JButton(new AbstractAction("Apply") {
 			public void actionPerformed(ActionEvent arg0) {
 				String menus = menuItems.getText();
@@ -209,7 +211,7 @@ public class WorkbenchConfigurationPanel extends JPanel {
 					JOptionPane.showMessageDialog(panel, message, "Invalid menu items", JOptionPane.WARNING_MESSAGE);
 					return;
 				}
-				
+
 				workbenchConfiguration.setCaptureConsole(captureConsole.isSelected());
 				workbenchConfiguration.setWarnInternalErrors(warnInternal.isSelected());
 				workbenchConfiguration.setDotLocation(dotLocation.getText());
@@ -225,10 +227,10 @@ public class WorkbenchConfigurationPanel extends JPanel {
 		panel.add(applyButton);
 		return panel;
 	}
-	
+
 	/**
 	 * Resets the shown field values to those currently set (last saved) in the configuration.
-	 * 
+	 *
 	 * @param configurable
 	 */
 	private void resetFields() {

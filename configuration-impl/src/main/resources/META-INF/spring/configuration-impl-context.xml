@@ -3,7 +3,12 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="WorkbenchConfigurationUIFactory" class="net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfigurationUIFactory" />
+	<bean id="WorkbenchConfigurationUIFactory" class="net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfigurationUIFactory">
+		<property name="configurationUIFactories">
+			<ref local="WorkbenchConfigurationImpl"/>
+		</property>
+	</bean>
+
 
 	<bean id="WorkbenchPreferencesSection" class="net.sf.taverna.t2.workbench.ui.impl.configuration.ui.WorkbenchPreferencesSection" />
 	<bean id="WorkbenchConfigurationMenu" class="net.sf.taverna.t2.workbench.ui.impl.configuration.ui.WorkbenchConfigurationMenu">
@@ -11,5 +16,7 @@
 	</bean>
 
 	<bean id="ColourManagerImpl" class="net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManagerImpl" />
+
+	<bean id="WorkbenchConfigurationImpl" class="net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfigurationImpl" />
 
 </beans>

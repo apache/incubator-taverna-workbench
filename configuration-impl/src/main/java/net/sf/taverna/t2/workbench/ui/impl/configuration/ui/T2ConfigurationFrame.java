@@ -47,7 +47,7 @@ import net.sf.taverna.t2.workbench.helper.Helper;
 import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
-public class T2ConfigurationFrame extends JFrame{
+public class T2ConfigurationFrame extends JFrame {
 
 	private static Logger logger = Logger.getLogger(T2ConfigurationFrame.class);
 
@@ -58,9 +58,10 @@ public class T2ConfigurationFrame extends JFrame{
 
 	private static T2ConfigurationFrame INSTANCE;
 
-        JList list;
+	JList list;
 
-	public static T2ConfigurationFrame showFrame(List<ConfigurationUIFactory> configurationUIFactories) {
+	public static T2ConfigurationFrame showFrame(
+			List<ConfigurationUIFactory> configurationUIFactories) {
 		synchronized (T2ConfigurationFrame.class) {
 			if (INSTANCE == null)
 				INSTANCE = new T2ConfigurationFrame(configurationUIFactories);
@@ -69,47 +70,51 @@ public class T2ConfigurationFrame extends JFrame{
 		return INSTANCE;
 	}
 
-    public static void showConfiguration(String name, List<ConfigurationUIFactory> configurationUIFactories) {
-	showFrame(configurationUIFactories);
-	ListModel lm = INSTANCE.list.getModel();
-	for (int i = 0; i < lm.getSize(); i++) {
-	    Object o = lm.getElementAt(i);
-	    if (o.toString().equals(name)) {
-		INSTANCE.list.setSelectedIndex(i);
-		return;
-	    }
+	public static void showConfiguration(String name,
+			List<ConfigurationUIFactory> configurationUIFactories) {
+		showFrame(configurationUIFactories);
+		ListModel lm = INSTANCE.list.getModel();
+		for (int i = 0; i < lm.getSize(); i++) {
+			Object o = lm.getElementAt(i);
+			if (o.toString().equals(name)) {
+				INSTANCE.list.setSelectedIndex(i);
+				return;
+			}
+		}
 	}
-    }
 
-
-	private T2ConfigurationFrame (List<ConfigurationUIFactory> configurationUIFactories) {
+	private T2ConfigurationFrame(List<ConfigurationUIFactory> configurationUIFactories) {
 		Helper.setKeyCatcher(this);
 		HelpCollator.registerComponent(this);
 
 		setLayout(new BorderLayout());
 
-		// Split pane to hold list of properties (on the left) and their configurable options (on the right)
+		// Split pane to hold list of properties (on the left) and their
+		// configurable options (on the right)
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		splitPane.setBorder(new CompoundBorder(new EmptyBorder(10,10,10,10), new EtchedBorder()));
+		splitPane
+				.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
 
 		list = getConfigurationList(configurationUIFactories);
 		JScrollPane jspList = new JScrollPane(list);
-		jspList.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.LOWERED), new EmptyBorder(5,5,5,5)));
-		jspList.setMinimumSize(new Dimension(jspList.getPreferredSize().width, jspList.getPreferredSize().height));
+		jspList.setBorder(new CompoundBorder(new BevelBorder(BevelBorder.LOWERED), new EmptyBorder(
+				5, 5, 5, 5)));
+		jspList.setMinimumSize(new Dimension(jspList.getPreferredSize().width, jspList
+				.getPreferredSize().height));
 
 		splitPane.setLeftComponent(jspList);
 		splitPane.setRightComponent(new JPanel());
 		splitPane.setDividerSize(0);
 
-		//select first item if one exists
-		if (list.getModel().getSize()>0) {
+		// select first item if one exists
+		if (list.getModel().getSize() > 0) {
 			list.setSelectedValue(list.getModel().getElementAt(0), true);
 		}
 
 		add(splitPane);
 
 		pack();
-		setSize(new Dimension(FRAME_WIDTH,FRAME_HEIGHT));
+		setSize(new Dimension(FRAME_WIDTH, FRAME_HEIGHT));
 		setVisible(true);
 	}
 
@@ -120,32 +125,36 @@ public class T2ConfigurationFrame extends JFrame{
 
 			public void valueChanged(ListSelectionEvent e) {
 				if (list.getSelectedValue() instanceof ConfigurableItem) {
-					ConfigurableItem item = (ConfigurableItem)list.getSelectedValue();
+					ConfigurableItem item = (ConfigurableItem) list.getSelectedValue();
 					setMainPanel(item.getPanel());
 				}
 
-				// Keep the split pane's divider at its current position - but looks ugly
-				// The problem with divider moving from its current position after selecting an
-				// item from the list on the left is that the right hand side panels are loaded dynamically
-				// and it seems there is nothing we can do about it - it's just the JSplitPane's behaviour
-				//splitPane.setDividerLocation(splitPane.getLastDividerLocation());
+				// Keep the split pane's divider at its current position - but
+				// looks ugly
+				// The problem with divider moving from its current position
+				// after selecting an
+				// item from the list on the left is that the right hand side
+				// panels are loaded dynamically
+				// and it seems there is nothing we can do about it - it's just
+				// the JSplitPane's behaviour
+				// splitPane.setDividerLocation(splitPane.getLastDividerLocation());
 
 			}
 		});
 
 		ArrayList<ConfigurableItem> arrayList = new ArrayList<ConfigurableItem>();
 		for (ConfigurationUIFactory fac : configurationUIFactories) {
-			String name=fac.getConfigurable().getDisplayName();
-			if (name!=null) {
-				logger.info("Adding configurable for name: "+name);
+			String name = fac.getConfigurable().getDisplayName();
+			if (name != null) {
+				logger.info("Adding configurable for name: " + name);
 				arrayList.add(new ConfigurableItem(fac));
-			}
-			else {
-				logger.warn("The configurable "+fac.getConfigurable().getClass()+" has a null name");
+			} else {
+				logger.warn("The configurable " + fac.getConfigurable().getClass()
+						+ " has a null name");
 			}
 		}
 		// Sort the list alphabetically
-		ConfigurableItem[] array = (ConfigurableItem[])arrayList.toArray(new ConfigurableItem[0]);
+		ConfigurableItem[] array = (ConfigurableItem[]) arrayList.toArray(new ConfigurableItem[0]);
 		Arrays.sort(array, new Comparator<ConfigurableItem>() {
 
 			public int compare(ConfigurableItem item1, ConfigurableItem item2) {
@@ -157,12 +166,11 @@ public class T2ConfigurationFrame extends JFrame{
 	}
 
 	private void setMainPanel(JPanel panel) {
-		panel.setBorder(new EmptyBorder(15,15,15,15));
+		panel.setBorder(new EmptyBorder(15, 15, 15, 15));
 		splitPane.setRightComponent(panel);
 	}
 
 	class ConfigurableItem {
-
 
 		private final ConfigurationUIFactory factory;
 
