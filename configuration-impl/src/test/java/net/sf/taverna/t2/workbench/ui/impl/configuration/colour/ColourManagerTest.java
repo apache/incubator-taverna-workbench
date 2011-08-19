@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -31,6 +31,7 @@ import java.util.UUID;
 
 import net.sf.taverna.t2.workbench.configuration.Configurable;
 import net.sf.taverna.t2.workbench.configuration.ConfigurationManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -47,24 +48,16 @@ public class ColourManagerTest {
 	}
 
 	@Test
-	public void testGetInstance() throws Exception {
-		ColourManager manager = ColourManager.getInstance();
-		assertNotNull(manager);
-		ColourManager manager2 = ColourManager.getInstance();
-		assertSame("They should be the same instance", manager, manager2);
-	}
-
-	@Test
 	public void testGetPreferredColourEqualsWhite() throws Exception {
 		String dummy = new String();
 
-		Color c = ColourManager.getInstance().getPreferredColour(dummy);
+		Color c = new ColourManagerImpl().getPreferredColour(dummy);
 		assertEquals("The default colour should be WHITE", Color.WHITE, c);
 	}
 
 	@Test
 	public void testConfigurableness() throws Exception {
-		ColourManager manager = ColourManager.getInstance();
+		ColourManager manager = new ColourManagerImpl();
 		assertTrue(manager instanceof Configurable);
 
 		assertEquals("wrong category", "colour", manager.getCategory());
@@ -78,7 +71,7 @@ public class ColourManagerTest {
 	@Test
 	public void saveAsWrongArrayType() throws Exception {
 		String dummy = "";
-		ColourManager manager = ColourManager.getInstance();
+		ColourManager manager = new ColourManagerImpl();
 		manager.setProperty(dummy.getClass().getCanonicalName(), "#ffffff");
 
 		ConfigurationManager instance = ConfigurationManager.getInstance();
