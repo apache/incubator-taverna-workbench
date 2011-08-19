@@ -96,9 +96,10 @@ public class FileManagerImpl implements FileManager {
 	 */
 	private LinkedHashMap<Dataflow, OpenDataflowInfo> openDataflowInfos = new LinkedHashMap<Dataflow, OpenDataflowInfo>();
 
+	private DataflowPersistenceHandlerRegistry dataflowPersistenceHandlerRegistry;
+
 	public DataflowPersistenceHandlerRegistry getPersistanceHandlerRegistry() {
-		// Delay initialization of handlers
-		return DataflowPersistenceHandlerRegistry.getInstance();
+		return dataflowPersistenceHandlerRegistry;
 	}
 
 	public FileManagerImpl(EditManager editManager) {
@@ -646,6 +647,10 @@ public class FileManagerImpl implements FileManager {
 			canonicalSource = ((File)canonicalSource).getCanonicalFile();
 		}
 		return canonicalSource;
+	}
+
+	public void setDataflowPersistenceHandlerRegistry(DataflowPersistenceHandlerRegistry dataflowPersistenceHandlerRegistry) {
+		this.dataflowPersistenceHandlerRegistry = dataflowPersistenceHandlerRegistry;
 	}
 
 	/**

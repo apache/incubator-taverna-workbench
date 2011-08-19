@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -27,9 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
 import net.sf.taverna.t2.workbench.file.FileType;
 
@@ -38,16 +35,11 @@ import org.apache.commons.collections.map.LazyMap;
 import org.apache.commons.lang.ClassUtils;
 
 // TODO: Cache lookups / build one massive structure
-public class DataflowPersistenceHandlerRegistry extends
-		SPIRegistry<DataflowPersistenceHandler> {
+public class DataflowPersistenceHandlerRegistry {
 
 	private static final MapFactory MAP_FACTORY = new MapFactory();
 
 	private static final SetFactory SET_FACTORY = new SetFactory();
-
-	public static DataflowPersistenceHandlerRegistry getInstance() {
-		return DataflowPersistenceHandlerRegistryHolder.SINGLETON;
-	}
 
 	@SuppressWarnings("unchecked")
 	protected static List<Class<?>> findAllParentClasses(
@@ -68,11 +60,9 @@ public class DataflowPersistenceHandlerRegistry extends
 	private Map<FileType, Map<Class<?>, Set<DataflowPersistenceHandler>>> saveFileClassToHandler;
 	private Map<FileType, Set<DataflowPersistenceHandler>> saveFileToHandler;
 
-	protected DataflowPersistenceHandlerRegistry() {
-		super(DataflowPersistenceHandler.class);
-		addObserver(new SPIRegistryObserver());
-		// Force an update
-		getInstances();
+	private List<DataflowPersistenceHandler> dataflowPersistenceHandlers;
+
+	public DataflowPersistenceHandlerRegistry() {
 	}
 
 	public Set<FileType> getOpenFileTypes() {
@@ -196,7 +186,7 @@ public class DataflowPersistenceHandlerRegistry extends
 
 	private synchronized void updateColletions() {
 		createCollections();
-		for (DataflowPersistenceHandler handler : this.getInstances()) {
+		for (DataflowPersistenceHandler handler : dataflowPersistenceHandlers) {
 			for (FileType openFileType : handler.getOpenFileTypes()) {
 				Set<DataflowPersistenceHandler> set = openFileToHandler
 						.get(openFileType);
@@ -225,8 +215,8 @@ public class DataflowPersistenceHandlerRegistry extends
 		}
 	}
 
-	private static class DataflowPersistenceHandlerRegistryHolder {
-		private final static DataflowPersistenceHandlerRegistry SINGLETON = new DataflowPersistenceHandlerRegistry();
+	public void setDataflowPersistenceHandlers(List<DataflowPersistenceHandler> dataflowPersistenceHandlers) {
+		this.dataflowPersistenceHandlers = dataflowPersistenceHandlers;
 	}
 
 	private static class MapFactory implements Factory {
@@ -240,15 +230,6 @@ public class DataflowPersistenceHandlerRegistry extends
 		@SuppressWarnings("unchecked")
 		public Object create() {
 			return new LinkedHashSet();
-		}
-	}
-
-	private class SPIRegistryObserver implements Observer<SPIRegistryEvent> {
-		public void notify(Observable<SPIRegistryEvent> sender,
-				SPIRegistryEvent message) {
-			if (message == SPIRegistry.UPDATED) {
-				updateColletions();
-			}
 		}
 	}
 

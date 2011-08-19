@@ -34,4 +34,8 @@
 
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 
+	<list id="dataflowPersistenceHandlers" interface="net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler" cardinality="0..N">
+		<listener ref="DataflowPersistenceHandlerRegistry" bind-method="updateColletions" unbind-method="updateColletions" />
+	</list>
+
 </beans:beans>

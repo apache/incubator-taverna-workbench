@@ -101,6 +101,14 @@
 
 	<bean id="FileManagerImpl" class="net.sf.taverna.t2.workbench.file.impl.FileManagerImpl">
     	<constructor-arg ref="editManager" />
+    	<property name="DataflowPersistenceHandlerRegistry">
+    		<ref local="DataflowPersistenceHandlerRegistry"/>
+    	</property>
 	</bean>
+
+	<bean id="DataflowPersistenceHandlerRegistry" class="net.sf.taverna.t2.workbench.file.impl.DataflowPersistenceHandlerRegistry">
+    	<property name="dataflowPersistenceHandlers" ref="dataflowPersistenceHandlers" />
+	</bean>
+
 
 </beans>
