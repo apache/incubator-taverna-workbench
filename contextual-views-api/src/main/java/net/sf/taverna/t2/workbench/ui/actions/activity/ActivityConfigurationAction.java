@@ -32,10 +32,10 @@ import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosingDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
 
 //import org.apache.log4j.Logger;
 
@@ -54,9 +54,9 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 
 	private static DataflowCloseListener listener;
 
-	public ActivityConfigurationAction(A activity) {
+	public ActivityConfigurationAction(A activity, ActivityIconManager activityIconManager) {
 		this.activity = activity;
-		putValue(SMALL_ICON, ActivityIconManager.getInstance().iconForActivity(activity));
+		putValue(SMALL_ICON, activityIconManager.iconForActivity(activity));
 	}
 
 	protected A getActivity() {
