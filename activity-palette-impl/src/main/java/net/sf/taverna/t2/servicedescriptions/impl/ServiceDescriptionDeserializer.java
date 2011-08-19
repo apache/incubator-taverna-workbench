@@ -13,12 +13,10 @@ import java.util.List;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
-import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.workflowmodel.ConfigurationException;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.AbstractXMLDeserializer;
 
-//import org.apache.log4j.Logger;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -27,15 +25,21 @@ import org.jdom.input.SAXBuilder;
 public class ServiceDescriptionDeserializer extends AbstractXMLDeserializer
 		implements ServiceDescriptionXMLConstants {
 
+	private List<ServiceDescriptionProvider> serviceDescriptionProviders;
+
+	public ServiceDescriptionDeserializer(List<ServiceDescriptionProvider> serviceDescriptionProviders) {
+		this.serviceDescriptionProviders = serviceDescriptionProviders;
+	}
+
 	public void xmlToServiceRegistry(ServiceDescriptionRegistry registry,
 			InputStream serviceDescriptionsInputStream) throws JDOMException, IOException, DeserializationException {
-		
+
 		Document document = null;
 		SAXBuilder builder = new SAXBuilder();
 		document = builder.build(serviceDescriptionsInputStream);
 		xmlToServiceRegistry(registry, document.getRootElement());
 	}
-	
+
 	public void xmlToServiceRegistry(ServiceDescriptionRegistry registry,
 			File serviceDescriptionsFile) throws DeserializationException {
 
@@ -47,7 +51,7 @@ public class ServiceDescriptionDeserializer extends AbstractXMLDeserializer
 		catch(FileNotFoundException ex){
 			throw new DeserializationException("Could not locate file " + serviceDescriptionsFile.getAbsolutePath()+ " containing service descriptions.");
 		}
-		
+
 		try{
 			xmlToServiceRegistry(registry, serviceDescriptionFileStream);
 		}
@@ -64,18 +68,18 @@ public class ServiceDescriptionDeserializer extends AbstractXMLDeserializer
 			}
 		}
 	}
-	
+
 	public void xmlToServiceRegistry(ServiceDescriptionRegistry registry,
 			URL serviceDescriptionsURL) throws DeserializationException {
 
-		InputStream serviceDescriptionInputStream = null;	
+		InputStream serviceDescriptionInputStream = null;
 		try {
 			serviceDescriptionInputStream = serviceDescriptionsURL.openStream();
 		}
 		catch(IOException ex){
 			throw new DeserializationException("Could not open URL "+ serviceDescriptionsURL.toString()+" containing service descriptions.");
-		} 
-		
+		}
+
 		try{
 			xmlToServiceRegistry(registry, serviceDescriptionInputStream);
 		}
@@ -105,7 +109,7 @@ public class ServiceDescriptionDeserializer extends AbstractXMLDeserializer
 				registry.addServiceDescriptionProvider(serviceProvider);
 			}
 		}
-		
+
 		Element ignoredProvidersElem = rootElement.getChild(IGNORED_PROVIDERS,
 				SERVICE_DESCRIPTION_NS);
 		if (ignoredProvidersElem != null) {
@@ -114,7 +118,7 @@ public class ServiceDescriptionDeserializer extends AbstractXMLDeserializer
 				ServiceDescriptionProvider serviceProvider = xmlToProvider(providerElem);
 				registry.removeServiceDescriptionProvider(serviceProvider);
 			}
-		}		
+		}
 	}
 
 	//private static Logger logger = Logger.getLogger(ServiceDescriptionDeserializer.class);
@@ -126,9 +130,7 @@ public class ServiceDescriptionDeserializer extends AbstractXMLDeserializer
 		Element providerIdElem = providerElem.getChild(PROVIDER_IDENTIFIER, T2_WORKFLOW_NAMESPACE);
 		String providerId = providerIdElem.getTextTrim();
 		ServiceDescriptionProvider provider = null;
-		ServiceDescriptionRegistryImpl serviceDescriptionRegistry = ServiceDescriptionRegistryImpl.getInstance();
-		SPIRegistry<ServiceDescriptionProvider> providerRegistry = serviceDescriptionRegistry.getProviderRegistry();
-		for ( ServiceDescriptionProvider serviceProvider: providerRegistry.getInstances()){
+		for ( ServiceDescriptionProvider serviceProvider: serviceDescriptionProviders){
 			if (serviceProvider.getId().equals(providerId)){
 				provider = serviceProvider;
 				break;
@@ -139,7 +141,7 @@ public class ServiceDescriptionDeserializer extends AbstractXMLDeserializer
 					+ providerId);
 		}
 
-		// So we know the service provider now, but we need a separate instance of 
+		// So we know the service provider now, but we need a separate instance of
 		// that provider for each providerElem. E.g. we can have 2 or more WSDL provider
 		// elements and need to return a separate provider instance for each as they
 		// will have different configurations.
@@ -156,7 +158,7 @@ public class ServiceDescriptionDeserializer extends AbstractXMLDeserializer
 			throw new DeserializationException(
 					"Not a ServiceDescriptionProvider: " + provider.getClass(), e);
 		}
-		
+
 		// This class loader will know how to load the config bean for the given provider
 		ClassLoader classLoader = provider.getClass().getClassLoader();
 		Object configBean = createBean(providerElem, classLoader);
@@ -196,13 +198,13 @@ public class ServiceDescriptionDeserializer extends AbstractXMLDeserializer
 			throw new DeserializationException("Can't read "
 					+ defaultConfigurableServiceProvidersFile);
 		}
-		return xmlToServiceRegistryForDefaultServices(registry, document.getRootElement());		
+		return xmlToServiceRegistryForDefaultServices(registry, document.getRootElement());
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public List<ServiceDescriptionProvider> xmlToServiceRegistryForDefaultServices(ServiceDescriptionRegistry registry,
 			Element rootElement) throws DeserializationException {
-		
+
 		List<ServiceDescriptionProvider> providersList = new ArrayList<ServiceDescriptionProvider>();
 		Element providersElem = rootElement.getChild(PROVIDERS,
 				SERVICE_DESCRIPTION_NS);
