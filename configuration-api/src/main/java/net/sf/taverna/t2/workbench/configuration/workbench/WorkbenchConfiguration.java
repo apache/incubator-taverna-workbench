@@ -18,22 +18,31 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.activityicons;
+package net.sf.taverna.t2.workbench.configuration.workbench;
 
-import javax.swing.Icon;
-
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workbench.configuration.Configurable;
 
 /**
- * Manager for activities' icons.
+ *
  *
  * @author David Withers
  */
-public interface ActivityIconManager {
+public interface WorkbenchConfiguration extends Configurable {
 
-	/** Returns an icon for the Activity. */
-	public Icon iconForActivity(Activity<?> activity);
+	public boolean getCaptureConsole();
 
-	public void resetIcon(Activity activity);
+	public void setCaptureConsole(boolean captureConsole);
+
+	public boolean getWarnInternalErrors();
+
+	public void setWarnInternalErrors(boolean warnInternalErrors);
+
+	public int getMaxMenuItems();
+
+	public void setMaxMenuItems(int maxMenuItems);
+
+	public String getDotLocation();
+
+	public void setDotLocation(String dotLocation);
 
 }
