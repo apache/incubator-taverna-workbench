@@ -31,9 +31,9 @@ import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 
 import net.sf.taverna.t2.lang.ui.HtmlUtils;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Datalink;
@@ -58,11 +58,13 @@ public class MergeContextualView extends ContextualView{
 	private JEditorPane editorPane;
 	private final EditManager editManager;
 	private final FileManager fileManager;
+	private final ColourManager colourManager;
 
-	public MergeContextualView(Merge merge, EditManager editManager, FileManager fileManager) {
+	public MergeContextualView(Merge merge, EditManager editManager, FileManager fileManager, ColourManager colourManager) {
 		this.merge = merge;
 		this.editManager = editManager;
 		this.fileManager = fileManager;
+		this.colourManager = colourManager;
 		workflow = fileManager.getCurrentDataflow();
 		initView();
 	}
@@ -152,9 +154,7 @@ public class MergeContextualView extends ContextualView{
 	}
 
 	public String getBackgroundColour() {
-		return ColourManager
-		.getInstance()
-		.getDefaultPropertyMap().get("net.sf.taverna.t2.workflowmodel.Merge");
+		return colourManager.getDefaultPropertyMap().get("net.sf.taverna.t2.workflowmodel.Merge");
 	}
 
 

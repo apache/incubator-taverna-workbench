@@ -27,16 +27,18 @@ import net.sf.taverna.t2.annotation.AnnotationAssertion;
 import net.sf.taverna.t2.annotation.AnnotationChain;
 import net.sf.taverna.t2.annotation.annotationbeans.HostInstitution;
 import net.sf.taverna.t2.lang.ui.HtmlUtils;
-import net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 @SuppressWarnings("serial")
 public abstract class HTMLBasedActivityContextualView<ConfigBean> extends
 		ActivityContextualView<ConfigBean> {
 	private JEditorPane editorPane;
+	private final ColourManager colourManager;
 
-	public HTMLBasedActivityContextualView(Activity<?> activity) {
+	public HTMLBasedActivityContextualView(Activity<?> activity, ColourManager colourManager) {
 		super(activity);
+		this.colourManager = colourManager;
 	}
 
 	@Override
@@ -62,14 +64,12 @@ public abstract class HTMLBasedActivityContextualView<ConfigBean> extends
 		if (getActivity().getClass().getName().equalsIgnoreCase(
 				"net.sf.taverna.t2.activities.localworker.LocalworkerActivity")) {
 			if (checkAnnotations()) {
-				String colour = (String) ColourManager
-						.getInstance()
-						.getProperty(
+				String colour = (String) colourManager.getProperty(
 								"net.sf.taverna.t2.activities.beanshell.BeanshellActivity");
 				return colour;
 			}
 		}
-		String colour = (String) ColourManager.getInstance().getProperty(getActivity().getClass().getName());
+		String colour = (String) colourManager.getProperty(getActivity().getClass().getName());
 		return colour == null ? "#ffffff" : colour;
 	}
 

@@ -48,7 +48,8 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 @SuppressWarnings("serial")
 public class ContextualViewComponent extends JScrollPane implements UIComponentSPI {
 
-	private static final int DELAY = 250; // delay before contextual view is redrawn
+	private static final int DELAY = 250; // delay before contextual view is
+											// redrawn
 
 	private Observer<DataflowSelectionMessage> dataflowSelectionListener = new DataflowSelectionListener();
 
@@ -56,9 +57,10 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	private EditManagerObserver editManagerObserver = new EditManagerObserver();
 	private FileManagerObserver fileManagerObserver = new FileManagerObserver();
 	private DataflowSelectionManager dataflowSelectionManager;
+	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
 
 	/** Keep list of views in case you want to go back or forward between them */
-//	private List<ContextualView> views = new ArrayList<ContextualView>();
+	// private List<ContextualView> views = new ArrayList<ContextualView>();
 
 	GridBagConstraints gbc;
 
@@ -70,20 +72,23 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 
 	private List<JPanel> shownComponents = null;
 
-	private static Comparator<ContextualView> viewComparator = new Comparator<ContextualView> () {
+	private static Comparator<ContextualView> viewComparator = new Comparator<ContextualView>() {
 
 		public int compare(ContextualView o1, ContextualView o2) {
 			return (o1.getPreferredPosition() - o2.getPreferredPosition());
-		}};
+		}
+	};
 
-	private Color[] colors = new Color[] {ShadedLabel.BLUE, ShadedLabel.GREEN, ShadedLabel.ORANGE};
+	private Color[] colors = new Color[] { ShadedLabel.BLUE, ShadedLabel.GREEN, ShadedLabel.ORANGE };
 	int colorIndex = 0;
 
 	private Timer updateSelectionTimer = null;
 
 	private Object lastSelectedObject = null;
 
-	public ContextualViewComponent(EditManager editManager, FileManager fileManager, DataflowSelectionManager dataflowSelectionManager) {
+	public ContextualViewComponent(EditManager editManager, FileManager fileManager,
+			DataflowSelectionManager dataflowSelectionManager,
+			ContextualViewFactoryRegistry contextualViewFactoryRegistry) {
 		this.fileManager = fileManager;
 		this.dataflowSelectionManager = dataflowSelectionManager;
 		Dataflow currentDataflow = fileManager.getCurrentDataflow();
@@ -121,7 +126,8 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		updateSelectionTimer.stop();
 	}
 
-	private void updateContextualView(List<ContextualViewFactory> viewFactoriesForBeanType, Object selection) {
+	private void updateContextualView(List<ContextualViewFactory> viewFactoriesForBeanType,
+			Object selection) {
 		if (selection == lastSelectedObject) {
 			return;
 		}
@@ -139,22 +145,21 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		JPanel lastOpenedSection = null;
 		shownComponents = new ArrayList<JPanel>();
 		List<ContextualView> views = new ArrayList<ContextualView>();
-		for (ContextualViewFactory cvf: viewFactoriesForBeanType) {
+		for (ContextualViewFactory cvf : viewFactoriesForBeanType) {
 			views.addAll(cvf.getViews(selection));
 		}
 		Collections.sort(views, viewComparator);
 		colorIndex = 0;
 		if (!views.isEmpty()) {
 			for (ContextualView view : views) {
-				SectionLabel label = new SectionLabel(view.getViewTitle(),
-						nextColor());
+				SectionLabel label = new SectionLabel(view.getViewTitle(), nextColor());
 				mainPanel.add(label, gbc);
 				gbc.gridy++;
 				JPanel subPanel = new JPanel();
 				if (view.getViewTitle().equals(lastOpenedSectionName)) {
-				    lastOpenedSection = subPanel;
+					lastOpenedSection = subPanel;
 				}
- 				subPanel.setLayout(new GridBagLayout());
+				subPanel.setLayout(new GridBagLayout());
 
 				GridBagConstraints constraints = new GridBagConstraints();
 				constraints.gridx = 0;
@@ -169,8 +174,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 				Action configureAction = view.getConfigureAction(frame);
 				if (configureAction != null) {
 					JButton configureButton = new JButton(configureAction);
-					if (configureButton.getText() == null
-							|| configureButton.getText().equals("")) {
+					if (configureButton.getText() == null || configureButton.getText().equals("")) {
 						configureButton.setText("Configure");
 					}
 					constraints.gridy++;
@@ -187,28 +191,28 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 				if (viewFactoriesForBeanType.size() != 1) {
 					makeCloseable(subPanel, label);
 				} else {
-				    lastOpenedSectionName = label.getText();
-				    lastOpenedSection = subPanel;
-				    panelToLabelMap.put(subPanel, label);
-				    subPanel.setVisible(false);
+					lastOpenedSectionName = label.getText();
+					lastOpenedSection = subPanel;
+					panelToLabelMap.put(subPanel, label);
+					subPanel.setVisible(false);
 				}
 			}
 			if (lastOpenedSection != null) {
-			    openSection(lastOpenedSection);
+				openSection(lastOpenedSection);
 			} else if (firstPanel != null) {
-			    openSection(firstPanel);
- 			}
+				openSection(firstPanel);
+			}
 		} else {
 			mainPanel.add(new JLabel("No details available"));
 		}
 		gbc.weighty = 0.1;
 		gbc.fill = GridBagConstraints.BOTH;
 		mainPanel.add(new JPanel(), gbc);
-//		mainPanel.revalidate();
-//		mainPanel.repaint();
+		// mainPanel.revalidate();
+		// mainPanel.repaint();
 		this.setViewportView(mainPanel);
-//		this.revalidate();
-//		this.repaint();
+		// this.revalidate();
+		// this.repaint();
 	}
 
 	private void clearContextualView() {
@@ -248,7 +252,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	};
 
 	public void updateSelection() {
-			updateSelectionTimer.restart();
+		updateSelectionTimer.restart();
 	}
 
 	private Object getSelection() {
@@ -259,39 +263,34 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		if (dataflow == null) {
 			return null;
 		}
-			DataflowSelectionModel selectionModel = dataflowSelectionManager
-					.getDataflowSelectionModel(dataflow);
-			Set<Object> selection = selectionModel.getSelection();
+		DataflowSelectionModel selectionModel = dataflowSelectionManager
+				.getDataflowSelectionModel(dataflow);
+		Set<Object> selection = selectionModel.getSelection();
 
-			// If the dataflow is opened but no component of the dataflow is
-			// selected, clear the contextual view panel
-			if (selection.isEmpty()) {
-				return null;
-			} else {
-				return selection.iterator().next();
-			}
+		// If the dataflow is opened but no component of the dataflow is
+		// selected, clear the contextual view panel
+		if (selection.isEmpty()) {
+			return null;
+		} else {
+			return selection.iterator().next();
+		}
 	}
 
 	@SuppressWarnings("unchecked")
 	private void findContextualView(Object selection) {
-		ContextualViewFactoryRegistry reg = ContextualViewFactoryRegistry
-				.getInstance();
-		List<ContextualViewFactory> viewFactoriesForBeanType = reg
+		List<ContextualViewFactory> viewFactoriesForBeanType = contextualViewFactoryRegistry
 				.getViewFactoriesForObject(selection);
 		updateContextualView(viewFactoriesForBeanType, selection);
 	}
 
-	private final class FileManagerObserver implements
-			Observer<FileManagerEvent> {
-		public void notify(Observable<FileManagerEvent> sender,
-				FileManagerEvent event) throws Exception {
+	private final class FileManagerObserver implements Observer<FileManagerEvent> {
+		public void notify(Observable<FileManagerEvent> sender, FileManagerEvent event)
+				throws Exception {
 			if (event instanceof SetCurrentDataflowEvent) {
-				Dataflow dataflow = ((SetCurrentDataflowEvent) event)
-						.getDataflow();
+				Dataflow dataflow = ((SetCurrentDataflowEvent) event).getDataflow();
 				if (dataflow != null) {
-					dataflowSelectionManager
-							.getDataflowSelectionModel(dataflow).addObserver(
-									dataflowSelectionListener);
+					dataflowSelectionManager.getDataflowSelectionModel(dataflow).addObserver(
+							dataflowSelectionListener);
 				}
 				lastSelectedObject = null;
 				updateSelection();
@@ -299,8 +298,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		}
 	}
 
-	private final class DataflowSelectionListener implements
-			Observer<DataflowSelectionMessage> {
+	private final class DataflowSelectionListener implements Observer<DataflowSelectionMessage> {
 
 		public void notify(Observable<DataflowSelectionMessage> sender,
 				DataflowSelectionMessage message) throws Exception {
@@ -309,13 +307,13 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 
 	}
 
-	private final class EditManagerObserver implements
-			Observer<EditManagerEvent> {
+	private final class EditManagerObserver implements Observer<EditManagerEvent> {
 
-		public void notify(Observable<EditManagerEvent> sender,
-				EditManagerEvent message) throws Exception {
+		public void notify(Observable<EditManagerEvent> sender, EditManagerEvent message)
+				throws Exception {
 			Object selection = getSelection();
-			if ((selection != lastSelectedObject) || !lastOpenedSectionName.equals(AnnotatedContextualView.VIEW_TITLE)){
+			if ((selection != lastSelectedObject)
+					|| !lastOpenedSectionName.equals(AnnotatedContextualView.VIEW_TITLE)) {
 				lastSelectedObject = null;
 				refreshView();
 			}
@@ -338,6 +336,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 			add(expand, 0);
 			setExpanded(true);
 		}
+
 		public void setExpanded(boolean expanded) {
 			if (expanded) {
 				expand.setIcon(WorkbenchIcons.minusIcon);
@@ -378,7 +377,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 			if (section != sectionToOpen) {
 				section.setVisible(false);
 			} else {
-				section.setVisible(! section.isVisible());
+				section.setVisible(!section.isVisible());
 				if (section.isVisible()) {
 					lastOpenedSectionName = sectionLabel.getText();
 				}
@@ -389,7 +388,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		this.repaint();
 	}
 
-	private Color nextColor () {
+	private Color nextColor() {
 		if (colorIndex >= colors.length) {
 			colorIndex = 0;
 		}

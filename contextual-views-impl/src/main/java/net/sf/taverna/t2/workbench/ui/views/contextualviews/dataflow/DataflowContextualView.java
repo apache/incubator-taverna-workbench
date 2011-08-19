@@ -7,8 +7,8 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 
 import net.sf.taverna.t2.lang.ui.HtmlUtils;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
@@ -23,10 +23,12 @@ public class DataflowContextualView extends ContextualView {
 	private Dataflow dataflow;
 	private JEditorPane editorPane;
 	private final FileManager fileManager;
+	private final ColourManager colourManager;
 
-	public DataflowContextualView(Dataflow dataflow, FileManager fileManager) {
+	public DataflowContextualView(Dataflow dataflow, FileManager fileManager, ColourManager colourManager) {
 		this.dataflow = dataflow;
 		this.fileManager = fileManager;
+		this.colourManager = colourManager;
 		initView();
 	}
 
@@ -79,9 +81,7 @@ public class DataflowContextualView extends ContextualView {
 	}
 
 	public String getBackgroundColour() {
-		return ColourManager
-		.getInstance()
-		.getDefaultPropertyMap().get("net.sf.taverna.t2.workflowmodel.Dataflow");
+		return colourManager.getDefaultPropertyMap().get("net.sf.taverna.t2.workflowmodel.Dataflow");
 	}
 
 	/* (non-Javadoc)

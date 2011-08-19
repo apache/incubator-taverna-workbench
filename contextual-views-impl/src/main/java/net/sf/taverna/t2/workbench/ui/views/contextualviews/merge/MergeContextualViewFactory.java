@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.ui.views.contextualviews.merge;
 import java.util.Arrays;
 import java.util.List;
 
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
@@ -41,13 +42,14 @@ public class MergeContextualViewFactory implements
 
 	private EditManager editManager;
 	private FileManager fileManager;
+	private ColourManager colourManager;
 
 	public boolean canHandle(Object object) {
 		return object instanceof Merge;
 	}
 
 	public List<ContextualView> getViews(Merge merge) {
-		return Arrays.asList(new ContextualView[] {new MergeContextualView(merge, editManager, fileManager)});
+		return Arrays.asList(new ContextualView[] {new MergeContextualView(merge, editManager, fileManager, colourManager)});
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -56,6 +58,10 @@ public class MergeContextualViewFactory implements
 
 	public void setFileManager(FileManager fileManager) {
 		this.fileManager = fileManager;
+	}
+
+	public void setColourManager(ColourManager colourManager) {
+		this.colourManager = colourManager;
 	}
 
 }
