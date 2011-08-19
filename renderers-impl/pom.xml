@@ -17,33 +17,31 @@
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
 			<artifactId>ui</artifactId>
 			<version>${t2.lang.version}</version>
 		</dependency>
+
 		<dependency>
-			<groupId>BrowserLauncher2</groupId>
-			<artifactId>BrowserLauncher2</artifactId>
-			<version>1.3</version>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>com.springsource.org.apache.commons.io</artifactId>
+			<version>1.4.0</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>net.java.dev.jai-imageio</groupId>
 			<artifactId>jai-imageio-core-standalone</artifactId>
 			<version>${jai.imageio.core.standalone.version}</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>org.fife.ui.hex</groupId>
 			<artifactId>hexeditor</artifactId>
 			<version>${org.fife.ui.hexeditor.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

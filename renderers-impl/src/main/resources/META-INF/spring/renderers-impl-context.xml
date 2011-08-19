@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="AdvancedImageRenderer" class="net.sf.taverna.t2.renderers.AdvancedImageRenderer" />
@@ -9,5 +9,10 @@
 	<bean id="TextHtmlRenderer" class="net.sf.taverna.t2.renderers.TextHtmlRenderer" />
 	<bean id="TextRtfRenderer" class="net.sf.taverna.t2.renderers.TextRtfRenderer" />
 	<bean id="TextXMLRenderer" class="net.sf.taverna.t2.renderers.TextXMLRenderer" />
+
+	<bean id="RendererRegistry" class="net.sf.taverna.t2.renderers.impl.RendererRegistryImpl">
+			<property name="renderers" ref="renderers" />
+	</bean>
+
 
 </beans>
