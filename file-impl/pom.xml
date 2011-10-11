@@ -84,5 +84,11 @@
 			<artifactId>helper-api</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>${commons.io.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 </project>
