@@ -854,7 +854,7 @@ public class MyExperimentClient {
    *         was specified.
    */
   public Document getUserContributions(User user, int iResourceType,
-      int iRequestType) {
+      int iRequestType, int page) {
     Document doc = null;
     String strURL = BASE_URL;
     String strElements = "&elements=";
@@ -874,6 +874,10 @@ public class MyExperimentClient {
           strURL += "/packs.xml?owner=";
           strElements += Workflow.getRequiredAPIElements(iRequestType);
           break;
+      }
+      
+      if (page != 0) {
+    	  strElements += "&num=100&page=" + page;
       }
 
       // create final query URL and retrieve data
