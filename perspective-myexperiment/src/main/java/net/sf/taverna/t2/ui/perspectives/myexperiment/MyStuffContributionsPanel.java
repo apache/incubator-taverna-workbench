@@ -211,41 +211,53 @@ public class MyStuffContributionsPanel extends JPanel implements ActionListener 
 		try {
 		  final ArrayList<Workflow> alWorkflowInstances = new ArrayList<Workflow>();
 		  if (alVisiblePanels.contains(jpMyWorkflows)) {
-			// fetch all user workflows
-			Document doc = myExperimentClient.getUserContributions(myExperimentClient.getCurrentUser(), Resource.WORKFLOW, Resource.REQUEST_SHORT_LISTING);
-			if (doc != null) {
-			  List<Element> foundElements = doc.getRootElement().getChildren();
-			  for (Element e : foundElements) {
-				Workflow wfCurrent = Workflow.buildFromXML(e, logger);
-				alWorkflowInstances.add(wfCurrent);
-			  }
-			}
+			boolean anyMore = true;
+			for (int page = 1; anyMore; page++) {
+				// fetch all user workflows
+				Document doc = myExperimentClient.getUserContributions(myExperimentClient.getCurrentUser(), Resource.WORKFLOW, Resource.REQUEST_SHORT_LISTING, page);
+				if (doc != null) {
+					List<Element> foundElements = doc.getRootElement().getChildren();
+					anyMore = !foundElements.isEmpty();
+					for (Element e : foundElements) {
+						Workflow wfCurrent = Workflow.buildFromXML(e, logger);
+						alWorkflowInstances.add(wfCurrent);
+					}
+				}
+				}
 		  }
 
 		  final ArrayList<File> alFileInstances = new ArrayList<File>();
 		  if (alVisiblePanels.contains(jpMyFiles)) {
+				boolean anyMore = true;
+				for (int page = 1; anyMore; page++) {
 			// fetch all user files
-			Document doc = myExperimentClient.getUserContributions(myExperimentClient.getCurrentUser(), Resource.FILE, Resource.REQUEST_SHORT_LISTING);
+			Document doc = myExperimentClient.getUserContributions(myExperimentClient.getCurrentUser(), Resource.FILE, Resource.REQUEST_SHORT_LISTING, page);
 			if (doc != null) {
 			  List<Element> foundElements = doc.getRootElement().getChildren();
+				anyMore = !foundElements.isEmpty();
 			  for (Element e : foundElements) {
 				File fCurrent = File.buildFromXML(e, logger);
 				alFileInstances.add(fCurrent);
 			  }
 			}
+				}
 		  }
 
 		  final ArrayList<Pack> alPackInstances = new ArrayList<Pack>();
 		  if (alVisiblePanels.contains(jpMyPacks)) {
+				boolean anyMore = true;
+				for (int page = 1; anyMore; page++) {
 			// fetch all user packs
-			Document doc = myExperimentClient.getUserContributions(myExperimentClient.getCurrentUser(), Resource.PACK, Resource.REQUEST_SHORT_LISTING);
+			Document doc = myExperimentClient.getUserContributions(myExperimentClient.getCurrentUser(), Resource.PACK, Resource.REQUEST_SHORT_LISTING, page);
 			if (doc != null) {
 			  List<Element> foundElements = doc.getRootElement().getChildren();
+				anyMore = !foundElements.isEmpty();
 			  for (Element e : foundElements) {
 				Pack pCurrent = Pack.buildFromXML(e, myExperimentClient, logger);
 				alPackInstances.add(pCurrent);
 			  }
 			}
+				}
 		  }
 
 		  SwingUtilities.invokeLater(new Runnable() {
