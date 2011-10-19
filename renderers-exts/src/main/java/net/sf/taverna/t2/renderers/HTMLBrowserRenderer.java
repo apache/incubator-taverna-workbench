@@ -20,6 +20,8 @@ package net.sf.taverna.t2.renderers;
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
+import java.awt.Desktop;
+import java.awt.HeadlessException;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -45,10 +47,6 @@ public class HTMLBrowserRenderer implements Renderer
 {
     private Logger logger = Logger.getLogger(HTMLBrowserRenderer.class);
     private Pattern pattern;
-
-    static final String[] browsers =
-    { "google-chrome", "firefox", "opera", "epiphany", "konqueror", "conkeror",
-            "midori", "kazehakase", "mozilla" };
 
     public HTMLBrowserRenderer()
     {
@@ -109,55 +107,15 @@ public class HTMLBrowserRenderer implements Renderer
         // Start Web browser
         try
         {
-            // Mimic code java.awt.Desktop.getDesktop().browse() for Java 5
-            Class<?> d = Class.forName("java.awt.Desktop");
-            d.getDeclaredMethod("browse", new Class[]
-            { java.net.URI.class }).invoke(
-                    d.getDeclaredMethod("getDesktop").invoke(null),
-                    new Object[] { htmlFile.toURI() });
-        } catch (Exception e)
+            Desktop.getDesktop().open(htmlFile);
+        } catch (HeadlessException e)
         {
-            logger.error("Failed to show HTML file using Desktop class "
-                    + e.toString());
 
-            try
-            {
-                String osName = System.getProperty("os.name");
-                if (osName.startsWith("Mac OS"))
-                {
-                    Class.forName("com.apple.eio.FileManager")
-                            .getDeclaredMethod("openURL", new Class[]
-                            { String.class }).invoke(null, new Object[]
-                            { htmlFile.getAbsolutePath() });
-                } 
-                else if (osName.startsWith("Windows"))
-                    Runtime.getRuntime().exec(
-                            "rundll32 url.dll,FileProtocolHandler " + htmlFile.toURI().toString());
-                else
-                //Assume Unix or Linux
-                {
-                    String browser = null;
-                    for (String b : browsers)
-                        if (browser == null
-                                && Runtime.getRuntime().exec(new String[]
-                                { "which", b }).getInputStream().read() != -1)
-                            Runtime.getRuntime().exec(new String[]
-                            { browser = b, htmlFile.toURI().toString() });
-
-                    if (browser == null)
-                    {
-                        logger.error("Cannot find a Web browser for your operating system");
-                        return new JEditorPane("text/html",
-                                "Cannot find a Web browser for your operating system");
-                    }
-                }
-            }catch (Exception ex)
-            {
-                logger.error("Error attempting to launch Web browser");
-                return new JEditorPane("text/html",
-                        "Error attempting to launch Web browser\n" + ex.toString());
-            }
-        }
+        } catch (IOException e) {
+            return new JEditorPane("text/html",
+                    "Error attempting to launch Web browser\n" + e.toString());
+			
+		}
 
         editorPane = new JEditorPane("text/plain",
         "Launching a Web browser ...");
