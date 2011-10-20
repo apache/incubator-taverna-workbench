@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 
 import org.apache.log4j.Logger;
 
@@ -41,6 +43,8 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
  * 
  */
 public class CheckForNoticeStartupHook implements StartupSPI {
+
+	private static final String MAIL_ADDRESS = "support@mygrid.org.uk";
 
 	private static Logger logger = Logger
 			.getLogger(CheckForNoticeStartupHook.class);
@@ -125,9 +129,19 @@ public class CheckForNoticeStartupHook implements StartupSPI {
 		}
 
 		if ((message != null) && (noticeTime != -1)) {
+			if (message.indexOf(MAIL_ADDRESS) == -1) {
+				return true;
+			}
 			if (noticeTime > lastCheckedTime) {
+				
+				JTextArea messageArea = new JTextArea(message, 10, 30);
+				messageArea.setOpaque(false);
+				messageArea.setEditable(false);
+				JScrollPane messageScroll = new JScrollPane(messageArea);
+				messageScroll.getViewport().setOpaque(false);
+				messageScroll.setOpaque(false);
 				// Show the notice dialog
-				JOptionPane.showMessageDialog(null, message, "Taverna notice",
+				JOptionPane.showMessageDialog(null, messageScroll, "Taverna notice",
 						JOptionPane.INFORMATION_MESSAGE,
 						WorkbenchIcons.tavernaCogs64x64Icon);
 				try {
