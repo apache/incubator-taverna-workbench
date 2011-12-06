@@ -94,9 +94,9 @@ public class MyExperimentClient {
 
   // universal date formatter
   private static final DateFormat DATE_FORMATTER = new SimpleDateFormat(
-      "EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH);
+      "yyyy-MM-dd HH:mm:ss Z");
   private static final DateFormat SHORT_DATE_FORMATTER = new SimpleDateFormat(
-      "HH:mm 'on' dd/MM/yyyy", Locale.ENGLISH);
+      "yyyy-MM-dd HH:mm:ss Z");
 
   // SETTINGS
   private String BASE_URL; // myExperiment base URL to use
