@@ -274,7 +274,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
     Object oAutoLogin = this.myExperimentClient.getSettings().get(MyExperimentClient.INI_AUTO_LOGIN);
     if (oAutoLogin != null && oAutoLogin.equals("true")) {
       this.getStatusBar().setStatus(this.getMyStuffTab().getClass().getName(), "Performing autologin");
-      this.myExperimentClient.doLoginFromStoredCredentials();
+      this.myExperimentClient.doLogin();
       this.getStatusBar().setStatus(this.getMyStuffTab().getClass().getName(), "Autologin finished. Fetching user data");
     }
 

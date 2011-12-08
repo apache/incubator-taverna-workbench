@@ -29,6 +29,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.DateFormat;
@@ -46,6 +47,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
+import net.sf.taverna.t2.security.credentialmanager.CMException;
+import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
+import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponent;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MyExperimentPerspective;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.SearchEngine.QuerySearchInstance;
@@ -70,9 +74,6 @@ public class MyExperimentClient {
   private static final int EXAMPLE_WORKFLOWS_PACK_ID = 192;
 
   public static final String INI_BASE_URL = "my_experiment_base_url";
-  public static final String INI_LOGIN = "login";
-  public static final String INI_PASSWORD = "password";
-  public static final String INI_REMEMBER_ME = "remember_me";
   public static final String INI_AUTO_LOGIN = "auto_login";
   public static final String INI_FAVOURITE_SEARCHES = "favourite_searches";
   public static final String INI_SEARCH_HISTORY = "search_history";
@@ -92,12 +93,18 @@ public class MyExperimentClient {
 
   public static boolean baseChangedSinceLastStart = false;
 
-  // universal date formatter
+  // old format
   private static final DateFormat DATE_FORMATTER = new SimpleDateFormat(
+	      "EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH);
+	  private static final DateFormat SHORT_DATE_FORMATTER = new SimpleDateFormat(
+	      "HH:mm 'on' dd/MM/yyyy", Locale.ENGLISH);
+
+  // universal date formatter
+  /*private static final DateFormat DATE_FORMATTER = new SimpleDateFormat(
       "yyyy-MM-dd HH:mm:ss Z");
   private static final DateFormat SHORT_DATE_FORMATTER = new SimpleDateFormat(
       "yyyy-MM-dd HH:mm:ss Z");
-
+*/
   // SETTINGS
   private String BASE_URL; // myExperiment base URL to use
   private java.io.File fIniFileDir; // a folder, where the INI file will be
@@ -188,38 +195,10 @@ public class MyExperimentClient {
       // set BASE_URL if from INI settings
       this.BASE_URL = this.iniSettings.getProperty(INI_BASE_URL);
 
-      // === DECRYPT LOGIN AND PASSWORD ===
-      // settings are now read, decrypt login and password before proceeding -
-      // these are encrypted, then Base64 encoded
-      Object oEnctryptedLogin = this.iniSettings
-          .get(MyExperimentClient.INI_LOGIN);
-      String strEncryptedLogin = (oEnctryptedLogin == null ? ""
-          : oEnctryptedLogin.toString());
-      String strLogin = new String(Util.decrypt(new String(Base64
-          .decode(strEncryptedLogin))));
-
-      Object oEncryptedPassword = this.iniSettings
-          .get(MyExperimentClient.INI_PASSWORD);
-      String strEncryptedPassword = (oEncryptedPassword == null ? ""
-          : oEncryptedPassword.toString());
-      String strPassword = new String(Util.decrypt(new String(Base64
-          .decode(strEncryptedPassword))));
-
-      this.iniSettings.put(MyExperimentClient.INI_LOGIN, strLogin);
-      this.iniSettings.put(MyExperimentClient.INI_PASSWORD, strPassword);
-
-      // for security, nullify the variables
-      strLogin = null;
-      strPassword = null;
     } catch (FileNotFoundException e) {
       this.logger
           .debug("myExperiment plugin INI file was not found, defaults will be used.");
 
-      // make sure that in this case login and password are still set in the
-      // "read" settings
-      // (just putting empty strings as values)
-      this.iniSettings.put(MyExperimentClient.INI_LOGIN, "");
-      this.iniSettings.put(MyExperimentClient.INI_PASSWORD, "");
     } catch (IOException e) {
       this.logger.error("Error on reading settings from INI file:\n" + e);
     }
@@ -227,16 +206,6 @@ public class MyExperimentClient {
 
   // writes all plugin settings to the INI file
   private void storeSettings() {
-    // === ENCRYPT LOGIN AND PASSWORD ===
-    // it's important to do this before writing these values into the INI file
-    String strLogin = this.iniSettings.get(MyExperimentClient.INI_LOGIN)
-        .toString();
-    String strPass = this.iniSettings.get(MyExperimentClient.INI_PASSWORD)
-        .toString();
-    this.iniSettings.put(MyExperimentClient.INI_LOGIN, Base64.encodeBytes(Util
-        .encrypt(strLogin)));
-    this.iniSettings.put(MyExperimentClient.INI_PASSWORD, Base64
-        .encodeBytes(Util.encrypt(strPass)));
 
     // === STORE THE SETTINGS ===
     try {
@@ -250,13 +219,6 @@ public class MyExperimentClient {
           + e);
     }
 
-    // === REVERT TO UNENCRYPTED VALUES ===
-    // (as the storeSettings() can be called multiple times during the run-time
-    // of the program,
-    // it is crucial to restore the unencrypted values after write operation is
-    // completed)
-    this.iniSettings.put(MyExperimentClient.INI_LOGIN, strLogin);
-    this.iniSettings.put(MyExperimentClient.INI_PASSWORD, strPass);
   }
 
   public void storeHistoryAndSettings() {
@@ -287,70 +249,18 @@ public class MyExperimentClient {
 
     storeSettings();
   }
+  
+	private UsernamePassword getUserPass(String urlString) {
+		try {
+			URI userpassUrl = URI.create(urlString);
+			final UsernamePassword userAndPass = CredentialManager.getInstance().getUsernameAndPasswordForService(userpassUrl, true, null);
+			return userAndPass;
+		} catch (CMException e) {
+			throw new RuntimeException("Error in Taverna Credential Manager", e);
+		}
+	}
 
-  // Simulates a "login" action by verifying that login and password are correct
-  // and storing the "logged in" state
-  // if successful. Stored authentication details will be submitted with all
-  // further server requests, hence
-  // appearing as a real logging in to the user.
-  public boolean doLogin(String strLogin, String strPassword) throws Exception {
-    // Base64 encode login and password - then store these in an instance
-    // variable
-    AUTH_STRING = Base64.encodeBytes((strLogin + ":" + strPassword).getBytes());
-
-    // open the connection and add authentication data to the request
-    URL url = new URL(BASE_URL + "/whoami.xml");
-    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-    conn.setRequestProperty("User-Agent", PLUGIN_USER_AGENT);
-    conn.setRequestProperty("Authorization", "Basic " + AUTH_STRING);
-
-    // check server's response
-    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-      // authentication was successful, store success state
-      // (NB! This needs to go before further calls to myExperiment API -
-      // otherwise it will not be possible to fetch even the avatar
-      // of current user because of authorisation.)
-      LOGGED_IN = true;
-
-      // can fetch the 'current user' - get current user URI from current
-      // response
-      BufferedReader reader = new BufferedReader(new InputStreamReader(conn
-          .getInputStream()));
-      Document doc = new SAXBuilder().build(new InputSource(reader));
-      reader.close();
-      String currentUserURI = doc.getRootElement().getAttributeValue("uri");
-
-      // fetch the actual current user data and build instance from that
-      this.current_user = this.fetchCurrentUser(currentUserURI);
-
-      // return success state
-      return (true);
-    } else if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
-      // authentication failed with expected response code
-      return (false);
-    } else {
-      // unexpected response code - raise an exception
-      throw new IOException("Received unexpected HTTP response code ("
-          + conn.getResponseCode() + ") while testing login credentials at "
-          + BASE_URL + "/whoami.xml");
-    }
-  }
-
-  public void doLoginFromStoredCredentials() {
-    // check that some non-null values exist for login / password at all
-    Object oLogin = this.iniSettings.get(MyExperimentClient.INI_LOGIN);
-    Object oPassword = this.iniSettings.get(MyExperimentClient.INI_PASSWORD);
-    if (oLogin == null || oPassword == null) return;
-
-    // don't do auto-login if login or password is blank
-    String strLogin = oLogin.toString();
-    String strPassword = oPassword.toString();
-    if (strLogin.length() == 0 || strPassword.length() == 0) return;
-
-    // set the system to the "logged in" state from INI file properties
-    this.LOGGED_IN = true;
-    this.AUTH_STRING = Base64.encodeBytes((strLogin + ":" + strPassword)
-        .getBytes());
+  public boolean doLogin() {
 
     // check if the stored credentials are valid
     Document doc = null;
@@ -377,23 +287,35 @@ public class MyExperimentClient {
           new Boolean(false).toString());
 
       javax.swing.JOptionPane.showMessageDialog(null,
-          "Your myExperiment login details that were stored\n"
-              + "in the configuration file  appear to be incorrect.\n"
-              + "The auto-login feature has been disabled - please\n"
-              + " check your details and log in manually.");
+          "Your myExperiment login details appear to be incorrect.\n"
+              + "Please check your details.");
+      return false;
     } else {
+  	  UsernamePassword userPass = getUserPass(this.BASE_URL);
+	  
+      if (userPass == null) {
+      	return false;
+      }
+
+      // set the system to the "logged in" state from INI file properties
+      this.LOGGED_IN = true;
+      this.AUTH_STRING = Base64.encodeBytes((userPass.getUsername() + ":" + userPass.getPasswordAsString())
+          .getBytes());
+
       // login credentials were verified successfully; load current user
       String strCurrentUserURI = doc.getRootElement().getAttributeValue("uri");
       try {
         this.current_user = this.fetchCurrentUser(strCurrentUserURI);
         this.logger
             .debug("Logged in to myExperiment successfully with credentials that were loaded from INI file.");
+        return true;
       } catch (Exception e) {
         // this is highly unlikely because the login credentials were validated
         // successfully just before this
         this.logger.error("Couldn't fetch user data from myExperiment ("
             + strCurrentUserURI
-            + ") while making login from stored credentials. Exception:\n" + e);
+            + ")", e);
+        return false;
       }
     }
   }
