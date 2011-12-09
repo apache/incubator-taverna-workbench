@@ -22,6 +22,7 @@ package net.sf.taverna.t2.reference.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -274,6 +275,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 						return;
 					}
 				}			
+				setState(Frame.ICONIFIED);
 				
 				// Make a copy of the workflow to run so user can still
 				// modify the original workflow
