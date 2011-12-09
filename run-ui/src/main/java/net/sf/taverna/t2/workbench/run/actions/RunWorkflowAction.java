@@ -292,7 +292,6 @@ public class RunWorkflowAction extends AbstractAction {
 					public void handleLaunch(
 							Map<String, T2Reference> workflowInputs) {
 						resultsPerspectiveComponent.runWorkflow(getFacade(), workflowInputs);
-						setState(Frame.ICONIFIED); // minimise the window
 						switchToResultsPerspective();
 					}
 
