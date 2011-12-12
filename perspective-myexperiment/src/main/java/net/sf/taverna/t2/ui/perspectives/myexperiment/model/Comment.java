@@ -104,7 +104,6 @@ public class Comment extends Resource {
 	  return (null);
 
 	Comment c = new Comment();
-	DateFormat DATE_FORMATTER = MyExperimentClient.getDateFormatter();
 
 	try {
 	  Element root = doc.getRootElement();
@@ -126,7 +125,7 @@ public class Comment extends Resource {
 
 	  String createdAt = root.getChildText("created-at");
 	  if (createdAt != null && !createdAt.equals("")) {
-		c.setCreatedAt(DATE_FORMATTER.parse(createdAt));
+		c.setCreatedAt(MyExperimentClient.parseDate(createdAt));
 	  }
 
 	  logger.debug("Found information for comment with ID: " + c.getID()

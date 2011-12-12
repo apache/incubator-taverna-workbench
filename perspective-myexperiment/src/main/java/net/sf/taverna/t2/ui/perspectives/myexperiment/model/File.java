@@ -157,7 +157,6 @@ public class File extends Resource {
 	  return (null);
 
 	File f = new File();
-	DateFormat DATE_FORMATTER = MyExperimentClient.getDateFormatter();
 
 	try {
 	  // Access type
@@ -194,13 +193,13 @@ public class File extends Resource {
 	  // Created at
 	  String createdAt = docRootElement.getChildText("created-at");
 	  if (createdAt != null && !createdAt.equals("")) {
-		f.setCreatedAt(DATE_FORMATTER.parse(createdAt));
+		f.setCreatedAt(MyExperimentClient.parseDate(createdAt));
 	  }
 
 	  // Updated at
 	  String updatedAt = docRootElement.getChildText("updated-at");
 	  if (updatedAt != null && !updatedAt.equals("")) {
-		f.setUpdatedAt(DATE_FORMATTER.parse(updatedAt));
+		f.setUpdatedAt(MyExperimentClient.parseDate(updatedAt));
 	  }
 
 	  // License

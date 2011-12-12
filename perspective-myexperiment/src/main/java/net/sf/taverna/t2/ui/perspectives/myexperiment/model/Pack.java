@@ -136,7 +136,6 @@ public class Pack extends Resource
     if(docRootElement == null) return(null);
     
     Pack p = new Pack();
-    DateFormat DATE_FORMATTER = MyExperimentClient.getDateFormatter();
     
     try {
       // Access type
@@ -169,13 +168,13 @@ public class Pack extends Resource
       // Created at
       String createdAt = docRootElement.getChildText("created-at");
       if (createdAt != null && !createdAt.equals("")) {
-        p.setCreatedAt(DATE_FORMATTER.parse(createdAt));
+        p.setCreatedAt(MyExperimentClient.parseDate(createdAt));
       }
       
       // Updated at
       String updatedAt = docRootElement.getChildText("updated-at");
       if (updatedAt != null && !updatedAt.equals("")) {
-        p.setUpdatedAt(DATE_FORMATTER.parse(updatedAt));
+        p.setUpdatedAt(MyExperimentClient.parseDate(updatedAt));
       }
       
       // Tags

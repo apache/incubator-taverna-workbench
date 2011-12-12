@@ -33,15 +33,18 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
@@ -94,17 +97,15 @@ public class MyExperimentClient {
   public static boolean baseChangedSinceLastStart = false;
 
   // old format
-  private static final DateFormat DATE_FORMATTER = new SimpleDateFormat(
+  private static final DateFormat OLD_DATE_FORMATTER = new SimpleDateFormat(
 	      "EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH);
-	  private static final DateFormat SHORT_DATE_FORMATTER = new SimpleDateFormat(
+	  private static final DateFormat OLD_SHORT_DATE_FORMATTER = new SimpleDateFormat(
 	      "HH:mm 'on' dd/MM/yyyy", Locale.ENGLISH);
 
   // universal date formatter
-  /*private static final DateFormat DATE_FORMATTER = new SimpleDateFormat(
+  private static final DateFormat NEW_DATE_FORMATTER = new SimpleDateFormat(
       "yyyy-MM-dd HH:mm:ss Z");
-  private static final DateFormat SHORT_DATE_FORMATTER = new SimpleDateFormat(
-      "yyyy-MM-dd HH:mm:ss Z");
-*/
+
   // SETTINGS
   private String BASE_URL; // myExperiment base URL to use
   private java.io.File fIniFileDir; // a folder, where the INI file will be
@@ -263,15 +264,34 @@ public class MyExperimentClient {
   public boolean doLogin() {
 
     // check if the stored credentials are valid
+	  ServerResponse response = null;
     Document doc = null;
     try {
-      doc = this.doMyExperimentGET(this.BASE_URL + "/whoami.xml")
-          .getResponseBody();
+//    	CredentialManager.getInstance().getUsernameAndPasswordForService(new URI(this.BASE_URL), true, null);
+    	response = this.doMyExperimentGET(this.BASE_URL + "/whoami.xml");
     } catch (Exception e) {
       this.logger
           .error("Error while attempting to verify login credentials from INI file:\n"
               + e);
     }
+
+	
+	if (response.getResponseCode() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+		try {
+			List<String> toDelete = CredentialManager.getInstance().getServiceURLsforAllUsernameAndPasswordPairs();
+			for (String uri : toDelete) {
+				if (uri.startsWith(BASE_URL)) {
+					CredentialManager.getInstance().deleteUsernameAndPasswordForService(uri);
+				}
+			}
+//			CredentialManager.getInstance().resetAuthCache();
+			doc = null;
+		} catch (Exception e) {
+			logger.error(e);
+		}
+	} else {
+		doc = response.getResponseBody();
+	}
 
     // verify outcomes
     if (doc == null) {
@@ -291,7 +311,7 @@ public class MyExperimentClient {
               + "Please check your details.");
       return false;
     } else {
-  	  UsernamePassword userPass = getUserPass(this.BASE_URL);
+  	  UsernamePassword userPass = getUserPass(this.BASE_URL + "/whoami.xml");
 	  
       if (userPass == null) {
       	return false;
@@ -852,13 +872,13 @@ public class MyExperimentClient {
 
       for (Tag t : tags) {
         doc = this.getResource(Resource.TAG, t.getURI(),
-            Resource.REQUEST_DEFAULT_FROM_API);
+            Resource.REQUEST_ALL_DATA);
         Element rootElement = doc.getRootElement();
         t.setCount(Integer.parseInt(rootElement.getChild("count").getText()));
       }
     } catch (Exception e) {
       logger
-          .error("Failed while getting tag application counts when turning tag list into tag cloud data");
+          .error("Failed while getting tag application counts when turning tag list into tag cloud data", e);
     }
   }
 
@@ -900,7 +920,7 @@ public class MyExperimentClient {
 
       for (Comment c : comments) {
         doc = this.getResource(Resource.COMMENT, c.getURI(),
-            Resource.REQUEST_DEFAULT_FROM_API);
+            Resource.REQUEST_ALL_DATA);
         Element rootElement = doc.getRootElement();
 
         Element userElement = rootElement.getChild("author");
@@ -913,11 +933,11 @@ public class MyExperimentClient {
 
         String createdAt = rootElement.getChildText("created-at");
         if (createdAt != null && !createdAt.equals("")) {
-          c.setCreatedAt(DATE_FORMATTER.parse(createdAt));
+          c.setCreatedAt(MyExperimentClient.parseDate(createdAt));
         }
       }
     } catch (Exception e) {
-      logger.error("Failed while updating comment list for preview");
+      logger.error("Failed while updating comment list for preview", e);
     }
   }
 
@@ -1152,13 +1172,28 @@ public class MyExperimentClient {
       return (new ServerResponse(ServerResponse.LOCAL_FAILURE, null));
     }
   }
-
-  public static DateFormat getDateFormatter() {
-    return (MyExperimentClient.DATE_FORMATTER);
+  
+  public static Date parseDate(String date) {
+	  Date result = null;
+	  try {
+		  result = OLD_DATE_FORMATTER.parse(date);
+	  } catch (ParseException e) {
+		  try {
+			  result = OLD_SHORT_DATE_FORMATTER.parse(date);
+		  }
+		  catch (ParseException e1) {
+			  try {
+				  result = NEW_DATE_FORMATTER.parse(date);
+			  } catch (ParseException e2) {
+				  result = null;
+			  }
+		  }
+	  }
+	  return result;
   }
-
-  public static DateFormat getShortDateFormatter() {
-    return (MyExperimentClient.SHORT_DATE_FORMATTER);
+  
+  public static String formatDate(Date date) {
+	  return NEW_DATE_FORMATTER.format(date);
   }
 
   /**

@@ -255,7 +255,6 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 
 			  // if logging in was successful, set the status to the start of fetching the data
 			  pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), "Fetching user data");
-			}
 
 			SwingUtilities.invokeLater(new Runnable() {
 			  public void run() {
@@ -288,10 +287,12 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 				} else {
 				  // couldn't login - display error message
 				  pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), null);
-				  javax.swing.JOptionPane.showMessageDialog(null, "Couldn't login to myExperiment - please check your login details", "myExperiment Plugin - Couldn't Login", JOptionPane.ERROR_MESSAGE);
+				  javax.swing.JOptionPane.showMessageDialog(null, "Unable to login to myExperiment - please check your login details", "myExperiment Plugin - Couldn't Login", JOptionPane.ERROR_MESSAGE);
 				}
 			  }
 			});
+			}
+
 		  } catch (Exception ex) {
 			logger.error("Exception on attempt to login to myExperiment:\n", ex);
 		  }

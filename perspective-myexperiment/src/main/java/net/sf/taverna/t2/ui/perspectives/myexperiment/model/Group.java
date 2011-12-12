@@ -135,8 +135,7 @@ public class Group extends Resource
     if(docRootElement == null) return(null);
     
     Group g = new Group();
-    DateFormat DATE_FORMATTER = MyExperimentClient.getDateFormatter();
-    
+
     try {
       // URI
       g.setURI(docRootElement.getAttributeValue("uri"));
@@ -165,13 +164,13 @@ public class Group extends Resource
       // Created at
       String createdAt = docRootElement.getChildText("created-at");
       if (createdAt != null && !createdAt.equals("")) {
-        g.setCreatedAt(DATE_FORMATTER.parse(createdAt));
+        g.setCreatedAt(MyExperimentClient.parseDate(createdAt));
       }
       
       // Updated at
       String updatedAt = docRootElement.getChildText("updated-at");
       if (updatedAt != null && !updatedAt.equals("")) {
-        g.setUpdatedAt(DATE_FORMATTER.parse(updatedAt));
+        g.setUpdatedAt(MyExperimentClient.parseDate(updatedAt));
       }
       
       
