@@ -71,6 +71,8 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class AnnotatedContextualView extends ContextualView {
 
+	private static final int WORKFLOW_NAME_LENGTH = 20;
+
 	public static final String VIEW_TITLE = "Annotations";
 
 	private static Logger logger = Logger
@@ -219,7 +221,7 @@ public class AnnotatedContextualView extends ContextualView {
 					Dataflow currentDataflow = fileManager.getCurrentDataflow();
 					List<Edit<?>> editList = new ArrayList<Edit<?>>();
 					editList.add(annotationTools.setAnnotationString(annotated, annotationClass, currentValue));
-					if ((annotated == currentDataflow) && (prb.getString(annotationClass.getCanonicalName()).equals("Title"))) {
+					if ((annotated == currentDataflow) && (prb.getString(annotationClass.getCanonicalName()).equals("Title")) &&!currentValue.isEmpty()) {
 						editList.add(edits.getUpdateDataflowNameEdit(currentDataflow,
 								sanitiseName(currentValue)));
 					}
@@ -245,15 +247,19 @@ public class AnnotatedContextualView extends ContextualView {
 	 */
 	private static String sanitiseName(String name) {
 		String result = name;
-		if (Pattern.matches("\\w++", name) == false) {
-			result = "";
-			for (char c : name.toCharArray()) {
+		if (result.length() > WORKFLOW_NAME_LENGTH) {
+			result = result.substring(0,WORKFLOW_NAME_LENGTH);
+		}
+		if (Pattern.matches("\\w++", result) == false) {
+			String temp = "";
+			for (char c : result.toCharArray()) {
 				if (Character.isLetterOrDigit(c) || c == '_') {
-					result += c;
+					temp += c;
 				} else {
-					result += "_";
+					temp += "_";
 				}
 			}
+			result = temp;
 		}
 		return result;
 	}
