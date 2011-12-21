@@ -49,6 +49,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.text.JTextComponent;
@@ -71,8 +72,11 @@ import net.sf.taverna.t2.renderers.RendererRegistry;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPIRegistry;
+import net.sf.taverna.t2.workbench.views.results.workflow.RenderedResultComponent;
+import net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import eu.medsea.mimeutil.MimeType;
@@ -266,12 +270,17 @@ public class RenderedProcessorResultComponent extends JPanel {
 		this.node = node;
 		this.referenceService = node.getReferenceService();
 		this.context = new InvocationContextImpl(this.referenceService, null);
-		if (this.node.isState(ProcessorResultTreeNode.ProcessorResultTreeNodeState.RESULT_REFERENCE)){
-			updateResult();
-		}
-		else{
-			clearResult();
-		}
+		
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				if (RenderedProcessorResultComponent.this.node
+						.isState(ProcessorResultTreeNode.ProcessorResultTreeNodeState.RESULT_REFERENCE)) {
+					updateResult();
+				} else {
+					clearResult();
+				}
+			}
+		});
 	}
 
 	/**
@@ -446,10 +455,9 @@ public class RenderedProcessorResultComponent extends JPanel {
 						DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) value;
 						Object userObject = treeNode.getUserObject();
 						if (userObject instanceof ErrorDocument) {
-							ErrorDocument errorDocument = (ErrorDocument) userObject;
 							renderer = super.getTreeCellRendererComponent(tree,
-									errorDocument.getMessage(), selected,
-									expanded, leaf, row, hasFocus);
+									"<html>" + StringEscapeUtils.escapeHtml(((ErrorDocument) userObject).getMessage()) + "</html>", selected, expanded, leaf, row,
+									hasFocus);
 						}
 					}
 					if (renderer == null) {

@@ -49,6 +49,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.ListCellRenderer;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.text.JTextComponent;
@@ -73,6 +74,7 @@ import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResul
 import net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import eu.medsea.mimeutil.MimeType;
@@ -267,12 +269,16 @@ public class RenderedResultComponent extends JPanel {
 	public void setNode(WorkflowResultTreeNode node) {
 		this.node = node;
 		
-		if (this.node.isState(ResultTreeNodeState.RESULT_REFERENCE)){
-			updateResult();
-		}
-		else{
-			clearResult();
-		}
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				if (RenderedResultComponent.this.node
+						.isState(ResultTreeNodeState.RESULT_REFERENCE)) {
+					updateResult();
+				} else {
+					clearResult();
+				}
+			}
+		});
 	}
 
 	/**
@@ -463,12 +469,9 @@ public class RenderedResultComponent extends JPanel {
 							DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) value;
 							Object userObject = treeNode.getUserObject();
 							if (userObject instanceof ErrorDocument) {
-								ErrorDocument errorDocument = (ErrorDocument) userObject;
-								renderer = super
-										.getTreeCellRendererComponent(tree,
-												errorDocument.getMessage(),
-												selected, expanded, leaf, row,
-												hasFocus);						
+								renderer = super.getTreeCellRendererComponent(tree,
+										"<html>" + StringEscapeUtils.escapeHtml(((ErrorDocument) userObject).getMessage()) + "</html>", selected, expanded, leaf, row,
+										hasFocus);
 							}
 						}
 						if (renderer == null) {
