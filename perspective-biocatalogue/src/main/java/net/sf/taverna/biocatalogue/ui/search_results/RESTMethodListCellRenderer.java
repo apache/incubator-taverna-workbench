@@ -16,6 +16,7 @@ import net.sf.taverna.biocatalogue.model.Util;
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.health_check.ServiceMonitoringStatusInterpreter;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.biocatalogue.x2009.xml.rest.RestMethod;
 import org.biocatalogue.x2009.xml.rest.RestParameter;
 import org.biocatalogue.x2009.xml.rest.RestRepresentation;
@@ -34,7 +35,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
   private JLabel jlItemStatus = new JLabel();
   private JLabel jlItemTitle = new JLabel("X");
   private JLabel jlPartOf = new JLabel("X");
-  private ReadOnlyTextArea jlDescription = new ReadOnlyTextArea(5, 80);
+  private ReadOnlyTextArea jtDescription = new ReadOnlyTextArea(5, 80);
   private JLabel jlMethodType = new JLabel("X");
   private JLabel jlUrlTemplate = new JLabel("X");
   private JLabel jlMethodParameters = new JLabel("X");
@@ -49,9 +50,9 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
   
   public RESTMethodListCellRenderer() {
 	   jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
-	    jlDescription.setOpaque(false);
-	    jlDescription.setLineWrap(true);
-	    jlDescription.setWrapStyleWord(true);
+	    jtDescription.setOpaque(false);
+	    jtDescription.setLineWrap(true);
+	    jtDescription.setWrapStyleWord(true);
   }
   
   
@@ -71,10 +72,10 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     jlTypeIcon.setIcon(resourceType.getIcon());
     jlItemStatus.setIcon(ResourceManager.getImageIcon(ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE));
     
-    jlItemTitle.setText("<html>" + Resource.getDisplayNameForResource(resource) + "<font color=\"gray\"><i>- fetching more information</i></font></html>");
+    jlItemTitle.setText("<html>" + StringEscapeUtils.escapeHtml(Resource.getDisplayNameForResource(resource)) + "<font color=\"gray\"><i>- fetching more information</i></font></html>");
     
     jlPartOf.setText("");
-    jlDescription.setText(" ");
+    jtDescription.setText(" ");
     jlMethodType.setText(" ");
     jlUrlTemplate.setText(" ");
     jlMethodParameters.setText(" ");
@@ -98,7 +99,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     
     Ancestors ancestors = restMethod.getAncestors();
     Service service = ancestors.getService();
-    String title = "<html>" + Resource.getDisplayNameForResource(restMethod);
+    String title = "<html>" + StringEscapeUtils.escapeHtml(Resource.getDisplayNameForResource(restMethod));
 
     if (restMethod.isSetArchived() || service.isSetArchived()) {
     	jlTypeIcon.setIcon(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
@@ -117,11 +118,11 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     
     String strDescription = (restMethod.getDescription() == null || restMethod.getDescription().length() == 0 ?
                              "No description" :
-                             Util.stripAllHTML(restMethod.getDescription()));
-    jlDescription.setText(strDescription);
+                            	 Util.stripAllHTML(restMethod.getDescription()));
+    jtDescription.setText(strDescription);
     
-    jlMethodType.setText("<html><b>HTTP Method: </b>" + restMethod.getHttpMethodType().toString() + "</html>");
-    jlUrlTemplate.setText("<html><b>URL Template: </b>" + restMethod.getUrlTemplate() + "</html>");
+    jlMethodType.setText("<html><b>HTTP Method: </b>" + StringEscapeUtils.escapeHtml(restMethod.getHttpMethodType().toString()) + "</html>");
+    jlUrlTemplate.setText("<html><b>URL Template: </b>" + StringEscapeUtils.escapeHtml(restMethod.getUrlTemplate()) + "</html>");
     
     List<String> names = new ArrayList<String>();
     for (RestParameter restParameter : restMethod.getInputs().getParameters().getRestParameterList()) {
@@ -130,7 +131,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     
     String methodParameters = "<b>" + names.size() + " " + Util.pluraliseNoun("Parameter", names.size()) + "</b>";
     if(names.size() > 0) {
-      methodParameters += ": " + Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false);
+      methodParameters += ": " + StringEscapeUtils.escapeHtml(Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false));
     }
     methodParameters = "<html>" + methodParameters + "</html>";
     jlMethodParameters.setText(methodParameters);
@@ -142,7 +143,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
       
       String inputRepresentations = "<b>" + names.size() + " " + Util.pluraliseNoun("Input representation", names.size()) + "</b>";
       if(names.size() > 0) {
-        inputRepresentations += ": " + Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false);
+        inputRepresentations += ": " + StringEscapeUtils.escapeHtml(Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false));
       }
       inputRepresentations = "<html>" + inputRepresentations + "</html>";
       
@@ -156,7 +157,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
       
       String outputRepresentations = "<b>" + names.size() + " " + Util.pluraliseNoun("Output representation", names.size()) + "</b>";
       if(names.size() > 0) {
-        outputRepresentations += ": " + Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false);
+        outputRepresentations += ": " + StringEscapeUtils.escapeHtml(Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false));
       }
       outputRepresentations = "<html>" + outputRepresentations + "</html>";
       
@@ -204,7 +205,7 @@ public class RESTMethodListCellRenderer extends ExpandableOnDemandLoadedListCell
     
     c.fill = GridBagConstraints.NONE;
     c.gridy++;
-    this.add(jlDescription, c);
+    this.add(jtDescription, c);
     
     c.fill = GridBagConstraints.HORIZONTAL;
     c.gridy++;

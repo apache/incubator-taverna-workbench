@@ -12,6 +12,7 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.biocatalogue.x2009.xml.rest.Location;
 import org.biocatalogue.x2009.xml.rest.ResourceLinkWithString;
 import org.biocatalogue.x2009.xml.rest.Service;
@@ -123,11 +124,11 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
     
     int descriptionMaxLength = DESCRIPTION_MAX_LENGTH_EXPANDED;
-    String strDescription = (service.getDescription() == null || service.getDescription().length() == 0 ?
+    String strDescription = Util.stripAllHTML(service.getDescription());
+    strDescription = (strDescription == null || strDescription.length() == 0 ?
                              "<font color=\"gray\">no description</font>" :
-                             Util.stripAllHTML(service.getDescription()));
+                            	 StringEscapeUtils.escapeHtml(Util.ensureLineLengthWithinString(strDescription, LINE_LENGTH, false)));
     
-    strDescription = Util.ensureLineLengthWithinString(strDescription, LINE_LENGTH, false);
     if (strDescription.length() > descriptionMaxLength) {
       strDescription = strDescription.substring(0, descriptionMaxLength) + "<font color=\"gray\">(...)</font>";
     }
@@ -216,7 +217,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
         for (ResourceLinkWithString category : service.getSummary().getCategoryList()) {
           categoryNames.add(category.getStringValue());
         }
-        categoryString = "<html><b>" + Util.pluraliseNoun("Category", categoryCount) + ": </b>" + Util.join(categoryNames, ", ") + "</html>";
+        categoryString = "<html><b>" + Util.pluraliseNoun("Category", categoryCount) + ": </b>" + StringEscapeUtils.escapeHtml(Util.join(categoryNames, ", ")) + "</html>";
       }
       else {
         categoryString = "<html><b>Category: </b><font color=\"gray\">unknown</font></html>";
@@ -231,7 +232,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
       String endpointString = "";
       if (endpointCount > 0) {
         endpointString = "<html><b>" + Util.pluraliseNoun("Endpoint", endpointCount) + ": </b>" +
-                                Util.join(service.getSummary().getEndpointList(), ", ") + "</html>";
+        StringEscapeUtils.escapeHtml(Util.join(service.getSummary().getEndpointList(), ", ")) + "</html>";
       }
       else {
         endpointString = "<html><b>Endpoint: </b><font color=\"gray\">unknown</font></html>";
@@ -249,7 +250,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
         for (Provider serviceProvider : service.getSummary().getProviderList()) {
           providerNames.add(serviceProvider.getName());
         }
-        providerString = "<html><b>" + Util.pluraliseNoun("Provider", providerCount) + ": </b>" + Util.join(providerNames, ", ") + "</html>";
+        providerString = "<html><b>" + Util.pluraliseNoun("Provider", providerCount) + ": </b>" + StringEscapeUtils.escapeHtml(Util.join(providerNames, ", ")) + "</html>";
       }
       else {
         providerString = "<html><b>Provider: </b><font color=\"gray\">unknown</font></html>";
@@ -272,7 +273,7 @@ public class ServiceListCellRenderer extends ExpandableOnDemandLoadedListCellRen
         }
       }
       locationString = "<html><b>" + Util.pluraliseNoun("Location", locations.size()) + ": </b>" +
-      (locations.size() > 0 ? Util.join(locations, "; ") : "<font color=\"gray\">unknown</font>") +
+      (locations.size() > 0 ? StringEscapeUtils.escapeHtml(Util.join(locations, "; ")) : "<font color=\"gray\">unknown</font>") +
       "</html>";
       
       c.gridy++;

@@ -18,6 +18,7 @@ import net.sf.taverna.biocatalogue.model.Util;
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.health_check.ServiceMonitoringStatusInterpreter;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.biocatalogue.x2009.xml.rest.Service;
 import org.biocatalogue.x2009.xml.rest.ServiceTechnologyType;
@@ -44,7 +45,7 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
   private JLabel jlItemTitle = new JLabel("X");
   private JLabel jlPartOf = new JLabel("X");
   private JLabel jlWsdlLocation = new JLabel("X");
-  private ReadOnlyTextArea jlDescription = new ReadOnlyTextArea(5,80);
+  private ReadOnlyTextArea jtDescription = new ReadOnlyTextArea(5,80);
   private JLabel jlSoapInputs = new JLabel("X");
   private JLabel jlSoapOutputs = new JLabel("X");
   
@@ -55,9 +56,9 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
   
   public SOAPOperationListCellRenderer() {
     jlItemTitle.setFont(jlItemTitle.getFont().deriveFont(Font.PLAIN, jlItemTitle.getFont().getSize() + 2));
-    jlDescription.setOpaque(false);
-    jlDescription.setLineWrap(true);
-    jlDescription.setWrapStyleWord(true);
+    jtDescription.setOpaque(false);
+    jtDescription.setLineWrap(true);
+    jtDescription.setWrapStyleWord(true);
   }
   
   
@@ -76,11 +77,11 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
     jlTypeIcon.setIcon(resourceType.getIcon());
     jlItemStatus.setIcon(ResourceManager.getImageIcon(ResourceManager.SERVICE_STATUS_UNCHECKED_ICON_LARGE));
        
-    jlItemTitle.setText("<html>" + Resource.getDisplayNameForResource(resource) + "<font color=\"gray\"><i>- fetching more information</i></font></html>");
+    jlItemTitle.setText("<html>" + StringEscapeUtils.escapeHtml(Resource.getDisplayNameForResource(resource)) + "<font color=\"gray\"><i>- fetching more information</i></font></html>");
    
     jlPartOf.setText(" ");
     jlWsdlLocation.setText(" ");
-    jlDescription.setText("");
+    jtDescription.setText("");
     jlSoapInputs.setText(" ");
     jlSoapOutputs.setText(" ");
    
@@ -103,33 +104,33 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
     Ancestors ancestors = soapOp.getAncestors();
     SoapService soapService = ancestors.getSoapService();
     Service service = ancestors.getService();
-    String title = "<html>" + Resource.getDisplayNameForResource(soapOp);
+    String title = StringEscapeUtils.escapeHtml(Resource.getDisplayNameForResource(soapOp));
     
     if (soapOp.isSetArchived() || service.isSetArchived()) {
     	jlTypeIcon.setIcon(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
-    	title = title + "<i> - this operation is archived and probably cannot be used</i></html>";
+    	title = "<html>" + title + "<i> - this operation is archived and probably cannot be used</i></html>";
     } else if (isSoapLab(service)) {
        	jlTypeIcon.setIcon(ResourceManager.getImageIcon(ResourceManager.WARNING_ICON));
-    	title = title + "<i> - this operation can only be used as part of a SoapLab service</i></html>";
+    	title = "<html>" + title + "<i> - this operation can only be used as part of a SoapLab service</i></html>";
     }
     else {
     	jlTypeIcon.setIcon(resourceType.getIcon());
-    	title = title + "</html>";
+    	title = "<html>" + title + "</html>";
    }
     
     // service status
     jlItemStatus.setIcon(ServiceMonitoringStatusInterpreter.getStatusIcon(service, false));
     jlItemTitle.setText(title);
     
-    jlPartOf.setText("<html><b>Part of: </b>" + soapOp.getAncestors().getSoapService().getResourceName() + "</html>");
+    jlPartOf.setText("<html><b>Part of: </b>" + StringEscapeUtils.escapeHtml(soapOp.getAncestors().getSoapService().getResourceName()) + "</html>");
     
     jlWsdlLocation.setText("<html><b>WSDL location: </b>" + soapService.getWsdlLocation() + "</html>");
     
         String strDescription = (soapOp.getDescription() == null || soapOp.getDescription().length() == 0 ?
                              "No description" :
-                             Util.stripAllHTML(soapOp.getDescription()));
+                            	 Util.stripAllHTML(soapOp.getDescription()));
     
-            jlDescription.setText(strDescription);
+            jtDescription.setText(strDescription);
     
     // add SOAP inputs
     List<String> names = new ArrayList<String>();
@@ -139,7 +140,7 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
     
     String soapInputs = "<b>" + names.size() + " " + Util.pluraliseNoun("Input", names.size()) + "</b>";
     if(names.size() > 0) {
-      soapInputs += ": " + Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false);
+      soapInputs += ": " + StringEscapeUtils.escapeHtml(Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false));
     }
     soapInputs = "<html>" + soapInputs + "</html>";
     jlSoapInputs.setText(soapInputs);
@@ -156,7 +157,7 @@ public class SOAPOperationListCellRenderer extends ExpandableOnDemandLoadedListC
     
     String soapOutputs = "<b>" + names.size() + " " + Util.pluraliseNoun("Output", names.size()) + "</b>";
     if(names.size() > 0) {
-      soapOutputs += ": " + Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false);
+      soapOutputs += ": " + StringEscapeUtils.escapeHtml(Util.ensureLineLengthWithinString(Util.join(names, ", "), LINE_LENGTH, false));
     }
     soapOutputs = "<html>" + soapOutputs + "</html>";
     jlSoapOutputs.setText(soapOutputs);
@@ -221,7 +222,7 @@ private boolean isSoapLab(Service service) {
 	    
 	    c.fill = GridBagConstraints.NONE;
 	    c.gridy++;
-	    this.add(jlDescription, c);
+	    this.add(jtDescription, c);
 	    
 	    c.fill = GridBagConstraints.HORIZONTAL;
 	    c.gridy++;

@@ -9,6 +9,7 @@ import java.util.List;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.ResourceLink;
 import org.biocatalogue.x2009.xml.rest.RestMethod;
@@ -89,7 +90,7 @@ public class Integration
               myServiceDescription.setUse("literal"); // or "encoded"
               myServiceDescription.setStyle("document"); // or "rpc"
               myServiceDescription.setURI(new URI(soapService.getWsdlLocation()));
-              myServiceDescription.setDescription(Util.stripAllHTML(soapService.getDescription()));  // TODO - not sure where this is used
+              myServiceDescription.setDescription(StringEscapeUtils.escapeHtml(soapService.getDescription()));  // TODO - not sure where this is used
               
               if (WorkflowView.importServiceDescription(myServiceDescription, false) != null) {
                 return (new JLabel("Selected " + TYPE.SOAPOperation.getTypeName() + " was successfully added to the current workflow",
@@ -176,7 +177,7 @@ public class Integration
           try {
             SoapService soapService = BioCatalogueClient.getInstance().
                                         getBioCatalogueSoapService(soapOp.getAncestors().getSoapService().getHref());
-            SoapOperationIdentity soapOpId = new SoapOperationIdentity(soapService.getWsdlLocation(), soapOp.getName(), Util.stripAllHTML(soapOp.getDescription()));
+            SoapOperationIdentity soapOpId = new SoapOperationIdentity(soapService.getWsdlLocation(), soapOp.getName(), StringEscapeUtils.escapeHtml(soapOp.getDescription()));
             WSDLOperationFromBioCatalogueServiceDescription wsdlOperationDescription = new WSDLOperationFromBioCatalogueServiceDescription(soapOpId);
             BioCatalogueWSDLOperationServiceProvider.registerWSDLOperation(wsdlOperationDescription, null);
             
@@ -296,7 +297,7 @@ public class Integration
     
     RESTFromBioCatalogueServiceDescription restServiceDescription = new RESTFromBioCatalogueServiceDescription();
     restServiceDescription.setServiceName(Resource.getDisplayNameForResource(restMethod));
-    restServiceDescription.setDescription(Util.stripAllHTML(restMethod.getDescription()));
+    restServiceDescription.setDescription(StringEscapeUtils.escapeHtml(restMethod.getDescription()));
     restServiceDescription.setHttpMethod(httpMethod);
     restServiceDescription.setURLSignature(restMethod.getUrlTemplate());
     
