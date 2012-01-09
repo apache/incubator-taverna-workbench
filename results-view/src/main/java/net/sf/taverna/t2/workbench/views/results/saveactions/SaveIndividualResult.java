@@ -147,7 +147,10 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 								@Override
 								public void run(){
 									try {
-										IOUtils.copyLarge(dataStream, new FileOutputStream(finalFile));
+										FileOutputStream fileOutputStream = new FileOutputStream(finalFile);
+										IOUtils.copyLarge(dataStream, fileOutputStream);
+										fileOutputStream.close();
+										dataStream.close();
 									} catch (Exception ex) {
 										JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 												JOptionPane.ERROR_MESSAGE);
@@ -166,7 +169,10 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 							@Override
 							public void run(){
 								try {
-									IOUtils.copyLarge(dataStream, new FileOutputStream(finalFile));
+									FileOutputStream fileOutputStream = new FileOutputStream(finalFile);
+									IOUtils.copyLarge(dataStream, fileOutputStream);
+									fileOutputStream.close();
+									dataStream.close();
 								} catch (Exception ex) {
 									JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 											JOptionPane.ERROR_MESSAGE);
@@ -224,7 +230,9 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 								@Override
 								public void run(){
 									try {
-										IOUtils.copyLarge(new ByteArrayInputStream(errorString.getBytes("UTF-8")), new FileOutputStream(finalFile));
+										FileOutputStream fileOutputStream = new FileOutputStream(finalFile);
+										IOUtils.copyLarge(new ByteArrayInputStream(errorString.getBytes("UTF-8")), fileOutputStream);
+										fileOutputStream.close();
 									} catch (Exception ex) {
 										JOptionPane.showMessageDialog(null, "Problem saving error document", "Save Result Error",
 												JOptionPane.ERROR_MESSAGE);
@@ -243,7 +251,9 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 							@Override
 							public void run(){
 								try {
-									IOUtils.copyLarge(new ByteArrayInputStream(errorString.getBytes("UTF-8")), new FileOutputStream(finalFile));
+									FileOutputStream fileOutputStream = new FileOutputStream(finalFile);
+									IOUtils.copyLarge(new ByteArrayInputStream(errorString.getBytes("UTF-8")), fileOutputStream);
+									fileOutputStream.close();
 								} catch (Exception ex) {
 									JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 											JOptionPane.ERROR_MESSAGE);

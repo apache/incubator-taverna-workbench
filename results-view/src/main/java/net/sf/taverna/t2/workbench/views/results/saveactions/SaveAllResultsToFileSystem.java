@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.views.results.saveactions;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -170,8 +171,17 @@ public class SaveAllResultsToFileSystem extends SaveAllResultsSPI {
 				}
 				File targetFile = new File(destination.toString()
 						+ File.separatorChar + name + fileExtension);
-				IOUtils.copyLarge(externalReferences.get(0)
-						.openStream(context), new FileOutputStream(targetFile));
+				FileOutputStream fileOutputStream = new FileOutputStream(targetFile);
+				InputStream openStream = externalReferences.get(0)
+						.openStream(context);
+				IOUtils.copyLarge(openStream, fileOutputStream);
+				try {
+					openStream.close();
+					fileOutputStream.close();
+				}
+				catch (IOException e) {
+					logger.error(e);
+				}
 				return targetFile;
 			} else {
 				File targetFile = new File(destination.toString()
