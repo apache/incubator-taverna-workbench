@@ -186,7 +186,7 @@ public class SaveAllResultsToFileSystem extends SaveAllResultsSPI {
 			} else {
 				File targetFile = new File(destination.toString()
 						+ File.separatorChar + name + ".err");
-				FileUtils.writeStringToFile(targetFile, ((ErrorDocument) identified).getMessage());
+				FileUtils.writeStringToFile(targetFile, ResultsUtils.buildErrorDocumentString((ErrorDocument)identified, context));
 				return targetFile;
 			}
 
