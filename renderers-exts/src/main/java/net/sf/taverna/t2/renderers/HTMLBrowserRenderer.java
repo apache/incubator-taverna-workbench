@@ -110,9 +110,12 @@ public class HTMLBrowserRenderer implements Renderer
             Desktop.getDesktop().open(htmlFile);
         } catch (HeadlessException e)
         {
-
-        } catch (IOException e) {
+            logger.error("Error attempting to launch Web browser", e);
             return new JEditorPane("text/html",
+                    "Error attempting to launch Web browser\n" + e.toString());
+        } catch (IOException e) {
+           logger.error("Error attempting to launch Web browser", e);
+           return new JEditorPane("text/html",
                     "Error attempting to launch Web browser\n" + e.toString());
 			
 		}
