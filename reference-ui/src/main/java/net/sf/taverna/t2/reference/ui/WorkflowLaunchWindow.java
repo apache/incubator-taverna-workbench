@@ -450,7 +450,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			}
 		}
 		
-		// This is needed to ensure that 
+		// This is needed to ensure that deleted ports are removed
 		Set<String> toRemove = new HashSet<String>();
 		for (String n : inputMap.keySet()) {
 			if (!inputNames.contains(n)) {
