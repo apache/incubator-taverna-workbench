@@ -30,8 +30,10 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -428,6 +430,9 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(
 				dataflowOriginal.getInputPorts());
 		Collections.sort(inputPorts, new PortComparator());
+		
+		Set<String> inputNames = new HashSet<String>();
+		
 		// Create tabs for input ports (but only for the one that are connected!)
 		for (DataflowInputPort inputPort : inputPorts) {
 
@@ -438,9 +443,22 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 				String portExample = annotationTools.getAnnotationString(inputPort,
 						ExampleValue.class, null);
 				// add tabs for wf input ports
-				addInput(inputPort.getName(), inputPort.getDepth(), portDescription,
+				String name = inputPort.getName();
+				inputNames.add(name);
+				addInput(name, inputPort.getDepth(), portDescription,
 						portExample);
 			}
+		}
+		
+		// This is needed to ensure that 
+		Set<String> toRemove = new HashSet<String>();
+		for (String n : inputMap.keySet()) {
+			if (!inputNames.contains(n)) {
+				toRemove.add(n);
+			}
+		}
+		for (String n : toRemove) {
+			inputMap.remove(n);
 		}
 		
 		portsPart.add(tabsPane, BorderLayout.CENTER);
