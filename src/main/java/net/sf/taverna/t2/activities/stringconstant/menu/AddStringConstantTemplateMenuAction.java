@@ -52,7 +52,7 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 
-	private static final String ADD_STRING_CONSTANT = "String constant";
+	private static final String ADD_STRING_CONSTANT = "Text constant";
 
 	private static final URI ADD_STRING_CONSTANT_URI = URI
 	.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuAddStringConstant");
