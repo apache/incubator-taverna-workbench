@@ -680,7 +680,7 @@ public class RegistrationPanel extends JPanel {
 	
 	public class AddURLAction extends AbstractAction {
 
-		private static final String URL_REGEX = "http:\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?";
+		private static final String URL_REGEX = "http(s)?:\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?";
 
 		public AddURLAction() {
 			super((depth == 0 ? "Set" : "Add") + " URL ...", addUrlIcon);
@@ -698,7 +698,7 @@ public class RegistrationPanel extends JPanel {
 					"Add an http URL", urlPanel);
 			vuid.addTextComponentValidation(
 							urlPanel.getUrlField(), "Set the URL.",
-							null, "",URL_REGEX,	"Not a valid http URL.");
+							null, "",URL_REGEX,	"Not a valid HTTP or HTTPS URL.");
 			vuid.setSize(new Dimension(400, 200));
 
 			urlPanel.setUrl(currentUrl);
@@ -707,7 +707,7 @@ public class RegistrationPanel extends JPanel {
 				String urlString = urlPanel.getUrl();
 				try {
 					URL url = new URL(urlString);
-					if (url.getProtocol().equalsIgnoreCase("http")) {
+					if (url.getProtocol().equalsIgnoreCase("http") || url.getProtocol().equalsIgnoreCase("https") ) {
 						HttpReference ref = new HttpReference();
 						ref.setHttpUrlString(urlString);
 						prefs.put("currentUrl", urlString);
@@ -718,7 +718,7 @@ public class RegistrationPanel extends JPanel {
 						setStatus("Added URL : " + ref.getHttpUrlString(),
 								null);
 					} else {
-						setStatus("Only http URLs are supported for now.",
+						setStatus("Only HTTP and HTTPS URLs are supported for now.",
 								null);
 					}
 				} catch (MalformedURLException e1) {
