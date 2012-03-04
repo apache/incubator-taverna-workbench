@@ -124,32 +124,12 @@ public final class HelpCollator {
 	}
 
 	/**
-	 * Attempt to read the backup HelpSet included in Taverna
-	 */
-	private static void readBackupHelpSet() {
-		try {
-			URL backupURL = HelpCollator.class.getResource("backupHelpSet.hs");
-			if (backupURL == null) {
-				logger.info("could not find backupHelpSet resource");
-			}
-			hs = new HelpSet(null, backupURL);
-			logger.info("Read backup help set");
-		} catch (HelpSetException e) {
-		    logger.error("Backup HelpSet could not be read", e);
-		}
-
-	}
-
-	/**
 	 * This methods creates a HelpSet based upon, in priority, the external
-	 * HelpSet, the backup HelpSet a newly created empty HelpSet.
+	 * HelpSet, then a newly created empty HelpSet.
 	 */
 	public static void initialize() {
 		if (!initialized) {
 			readExternalHelpSet();
-			if (hs == null) {
-				readBackupHelpSet();
-			}
 			if (hs == null) {
 				hs = new HelpSet();
 				hs.setLocalMap(new TryMap());
