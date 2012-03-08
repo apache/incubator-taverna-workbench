@@ -1570,6 +1570,7 @@ public abstract class GraphController implements
 			for (Port port : ports) {
 				portNames.add(port.getName());
 			}
+			Collections.sort(portNames);
 			String portName = (String) JOptionPane.showInputDialog(component,
 					"Select an " + portType + " port", "Port Chooser",
 					JOptionPane.PLAIN_MESSAGE, null, portNames.toArray(),
