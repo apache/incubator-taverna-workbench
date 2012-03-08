@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.annotated;
 
+import java.awt.BorderLayout;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
@@ -46,15 +48,18 @@ import net.sf.taverna.t2.annotation.Annotated;
 import net.sf.taverna.t2.annotation.AppliesTo;
 import net.sf.taverna.t2.annotation.annotationbeans.AbstractTextualValueAssertion;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
+import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
+import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualViewComponent;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.EditsRegistry;
+import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.ParallelizeConfig;
 import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
 
 import org.apache.log4j.Logger;
@@ -78,18 +83,15 @@ public class AnnotatedContextualView extends ContextualView {
 	private static Logger logger = Logger
 			.getLogger(AnnotatedContextualView.class);
 
-	private AnnotationTools annotationTools = new AnnotationTools();
+	private static AnnotationTools annotationTools = new AnnotationTools();
 	
 	/**
 	 * The object to which the Annotations apply
 	 */
 	private Annotated<?> annotated;
-	private JPanel annotatedView;
 
-	private PropertyResourceBundle prb;
-
-	private Map<Class<?>, DialogTextArea> classToAreaMap;
-	private Map<Class<?>, String> classToCurrentValueMap;
+	private static PropertyResourceBundle prb = (PropertyResourceBundle) ResourceBundle
+	.getBundle("annotatedcontextualview");;
 
 	private static String MISSING_VALUE = "Type here to give details";
 
@@ -99,6 +101,9 @@ public class AnnotatedContextualView extends ContextualView {
 	private FileManager fileManager = FileManager.getInstance();
 	private EditManager editManager = EditManager.getInstance();
 
+	private boolean isStandalone = false;
+
+	private JPanel panel;
 
 	@SuppressWarnings("unchecked")
 	private static Map<Annotated, JPanel> annotatedToPanelMap = new HashMap<Annotated, JPanel>();
@@ -107,16 +112,34 @@ public class AnnotatedContextualView extends ContextualView {
 	
 	public AnnotatedContextualView(Annotated<?> annotated) {
 		super();
-		prb = (PropertyResourceBundle) ResourceBundle
-				.getBundle("annotatedcontextualview");
 		this.annotated = annotated;
-		classToAreaMap = new HashMap<Class<?>, DialogTextArea>();
-		classToCurrentValueMap = new HashMap<Class<?>, String>();
-		
+		initialise();
 		initView();
 	}
 
+	public AnnotatedContextualView(Annotated<?> annotated, boolean standAlone) {
+		super();
+		this.isStandalone = standAlone;
+		this.annotated = annotated;
+		initialise();
+		initView();
+	}
+	
+	public void refreshView() {
+			initialise();
+	}
 
+	private void initialise() {
+		if (panel == null) {
+			panel = new JPanel();
+			panel.setLayout(new BoxLayout(panel,
+					BoxLayout.Y_AXIS));
+		} else {
+			panel.removeAll();
+		}
+		populatePanel();
+		revalidate();
+	}
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -125,10 +148,7 @@ public class AnnotatedContextualView extends ContextualView {
 	 */
 	@Override
 	public JComponent getMainFrame() {
-		refreshView();
-		annotatedView.setVisible(true);
-		annotatedView.requestFocus();
-		return annotatedView;
+		return panel;
 	}
 
 	/*
@@ -141,40 +161,29 @@ public class AnnotatedContextualView extends ContextualView {
 	public String getViewTitle() {
 		return VIEW_TITLE;
 	}
-
-	public void refreshView() {
-		if (annotatedToPanelMap.containsKey(annotated)) {
-			annotatedView = annotatedToPanelMap.get(annotated);
-		} else {
-			annotatedView = new JPanel();
-			annotatedToPanelMap.put(annotated, annotatedView);
-			annotatedView.setLayout(new BoxLayout(annotatedView,
-					BoxLayout.Y_AXIS));
-			JPanel scrollPanel = new JPanel();
-			scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
-			annotatedView.setBorder(new EmptyBorder(5, 5, 5, 5));
-			for (Class<?> c : annotationTools.getAnnotatingClasses(annotated)) {
-				String name = "";
-				try {
-					name = prb.getString(c.getCanonicalName());
-				} catch (MissingResourceException e) {
-					name = c.getCanonicalName();
-				}
-				JPanel subPanel = new JPanel();
-				subPanel.setBorder(new TitledBorder(name));
-				String value = annotationTools.getAnnotationString(annotated, c, MISSING_VALUE);
-				subPanel.add(createTextArea(c, value));
-				scrollPanel.add(subPanel);
+	
+	public void populatePanel() {
+		JPanel scrollPanel = new JPanel();
+		scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
+		panel.setBorder(new EmptyBorder(5, 5, 5, 5));
+		for (Class<?> c : annotationTools.getAnnotatingClasses(annotated)) {
+			String name = "";
+			try {
+				name = prb.getString(c.getCanonicalName());
+			} catch (MissingResourceException e) {
+				name = c.getCanonicalName();
 			}
-			JScrollPane scrollPane = new JScrollPane(scrollPanel);
-			annotatedView.add(scrollPane);
+			JPanel subPanel = new JPanel();
+			subPanel.setBorder(new TitledBorder(name));
+			String value = annotationTools.getAnnotationString(annotated, c, MISSING_VALUE);
+			subPanel.add(createTextArea(c, value));
+			scrollPanel.add(subPanel);
 		}
+		JScrollPane scrollPane = new JScrollPane(scrollPanel);
+		panel.add(scrollPane);
 	}
 	
-
-	
 	private JScrollPane createTextArea(final Class<?> c, final String value) {
-		classToCurrentValueMap.put(c, value);
 		DialogTextArea area = new DialogTextArea(value);
 		area.setFocusable(true);
 		area.addFocusListener(new TextAreaFocusListener(area, c));
@@ -182,9 +191,6 @@ public class AnnotatedContextualView extends ContextualView {
 		area.setRows(DEFAULT_AREA_ROWS);
 		area.setLineWrap(true);
 		area.setWrapStyleWord(true);
-		classToAreaMap.put(c, area);
-		logger.info("Adding to map " + c.getCanonicalName() + "("
-				+ c.hashCode() + ") to " + area.hashCode());
 		return new JScrollPane(area);
 	}
 
@@ -225,7 +231,11 @@ public class AnnotatedContextualView extends ContextualView {
 						editList.add(edits.getUpdateDataflowNameEdit(currentDataflow,
 								sanitiseName(currentValue)));
 					}
+					if (!isStandalone) {
+						ContextualViewComponent.selfGenerated = true;
+					}
 					editManager.doDataflowEdit(currentDataflow, new CompoundEdit(editList));
+					ContextualViewComponent.selfGenerated = false;
 				} catch (EditException e1) {
 					logger.warn("Can't set annotation", e1);
 				}
