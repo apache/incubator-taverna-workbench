@@ -42,3 +42,4 @@ net.sf.taverna.t2.ui.menu.items.processor.ProcessorSection
 net.sf.taverna.t2.ui.menu.items.processor.RenameProcessorMenuAction
 net.sf.taverna.t2.ui.menu.items.processor.RemoveProcessorMenuAction
 
+net.sf.taverna.t2.ui.menu.items.annotated.AnnotatedConfigureMenuAction
