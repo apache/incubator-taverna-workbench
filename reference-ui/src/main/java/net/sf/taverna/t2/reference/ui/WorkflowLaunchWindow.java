@@ -111,6 +111,10 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	private final ImageIcon launchIcon = new ImageIcon(getClass().getResource(
 			"/icons/start_task.gif"));
+	
+	private static final ImageIcon addTextIcon = new ImageIcon(
+			RegistrationPanel.class.getResource("/icons/addtext_co.gif"));
+
 
 	// An action enabled when all inputs are enabled and used to trigger the
 	// handleLaunch method
@@ -398,9 +402,28 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		String wfAuthor = annotationTools.getAnnotationString(dataflowOriginal, Author.class, "");
 		setWorkflowAuthor(wfAuthor);
 
+		Action useExamplesAction = new AbstractAction ("Use examples", addTextIcon) {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(
+                        dataflowOriginal.getInputPorts());
+                // Create tabs for input ports (but only for the one that are connected!)
+                for (DataflowInputPort inputPort : inputPorts) {
+                    RegistrationPanel rp = inputPanelMap.get(inputPort.getName());
+                    Object example = rp.getExample();
+                    if ((example != null) && (inputPort.getDepth() == 0) && (rp.getValue() == null)) {
+                        rp.setValue(example);
+                    }
+                }
+            }};
+
+        JButton useExamplesButton = new JButton(useExamplesAction);
+        useExamplesButton.setToolTipText("Use the example value (if any) for ports that you have not set a value for");
 		// Construct tool bar
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
+		toolBar.add(useExamplesButton);
 		toolBar.add(new JButton(launchAction));
 		toolBar.add(new JButton(new AbstractAction("Cancel", WorkbenchIcons.closeIcon) {
 
@@ -418,10 +441,11 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			loadButtonsBar.add(loadButton);
 		}
 		
+		
 		JPanel toolBarPanel = new JPanel(new BorderLayout());
 		toolBarPanel.add(loadButtonsBar, BorderLayout.WEST);
 		toolBarPanel.add(toolBar, BorderLayout.EAST);
-		toolBarPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
+		toolBarPanel.setBorder(new EmptyBorder(5, 10, 5, 20));
 		portsPart.add(toolBarPanel, BorderLayout.SOUTH);
 		
 		// Construct tab container - tabs will be populated based on the wf input ports
@@ -464,10 +488,11 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		portsPart.add(tabsPane, BorderLayout.CENTER);
 		
 		workflowPart.setPreferredSize(new Dimension(300,500));
-		portsPart.setPreferredSize(new Dimension(500,500));
+		portsPart.setPreferredSize(new Dimension(650,500));
 		
 		overallPanel = new JPanel();
 		overallPanel.setLayout(new BoxLayout(overallPanel, BoxLayout.X_AXIS));
+		
 
 		overallPanel.add(workflowPart);
 		overallPanel.add(portsPart);
