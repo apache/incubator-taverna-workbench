@@ -838,4 +838,11 @@ public class RegistrationPanel extends JPanel {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+	/**
+	 * @return the example
+	 */
+	public String getExample() {
+		return example;
+	}
 }
