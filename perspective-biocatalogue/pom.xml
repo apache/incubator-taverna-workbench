@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>net.sf.taverna.t2</groupId>
 		<artifactId>ui-exts</artifactId>
-		<version>1.4-SNAPSHOT</version>
+		<version>1.4</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-exts</groupId>
 	<artifactId>perspective-biocatalogue</artifactId>
@@ -188,7 +188,7 @@
 			anymore because of lincesing (GPL) and wasn't looking very good.
 			<dependency> <groupId>it.cnr.imaa.essi</groupId>
 			<artifactId>lablib-checkboxtree</artifactId>
-			<version>3.2-SNAPSHOT</version> </dependency>
+			<version>3.2</version> </dependency>
 		-->
 		
 		
