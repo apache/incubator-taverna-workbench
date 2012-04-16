@@ -55,6 +55,7 @@ import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.lang.uibuilder.UIBuilder;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 public class DisabledConfigView extends ActivityConfigurationPanel<DisabledActivity, ActivityAndBeanWrapper> {
 
@@ -77,7 +78,7 @@ public class DisabledConfigView extends ActivityConfigurationPanel<DisabledActiv
 				    this,
 				    "net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.DisabledConfigView");
 		configuration = activity.getConfiguration();
-		XStream xstream = new XStream();
+		XStream xstream = new XStream(new DomDriver());
 		Activity a = configuration.getActivity();
 		xstream.setClassLoader(a.getClass().getClassLoader());
 		Object origConfig = configuration.getBean();
@@ -116,7 +117,7 @@ public class DisabledConfigView extends ActivityConfigurationPanel<DisabledActiv
 	    newConfig.setBean(clonedConfig);
 	    configuration = newConfig;
 
-	    XStream xstream = new XStream();
+	    XStream xstream = new XStream(new DomDriver());
 	    xstream.setClassLoader(configuration.getActivity().getClass().getClassLoader());
 	    
 	    origConfigXML = xstream.toXML(clonedConfig);
@@ -129,7 +130,7 @@ public class DisabledConfigView extends ActivityConfigurationPanel<DisabledActiv
     }
 
     public boolean isConfigurationChanged() {
-	XStream xstream = new XStream();
+	XStream xstream = new XStream(new DomDriver());
 	xstream.setClassLoader(configuration.getActivity().getClass().getClassLoader());
 	return (!xstream.toXML(clonedConfig).equals(origConfigXML));
     }
