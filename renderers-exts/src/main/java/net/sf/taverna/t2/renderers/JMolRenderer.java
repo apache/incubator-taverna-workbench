@@ -69,7 +69,7 @@ public class JMolRenderer implements Renderer {
 	// // resolve = facade.resolve(entityIdentifier, String.class);
 	// // } catch (RetrievalException e) {
 	// // throw new RendererException(
-	// // "Could not resolve " + entityIdentifier + " (probably is not a JMOL
+	// // "Could not resolve " + entityIdentifier + " (probably is not a Jmol
 	// file");
 	// // } catch (NotFoundException e) {
 	// // throw new RendererException("Data Manager Could not find "
@@ -97,7 +97,7 @@ public class JMolRenderer implements Renderer {
 	static final String scriptString = "select *; spacefill 0.4; wireframe 0.2; colour cpk;";
 
 	public String getType() {
-		return "JMol";
+		return "Jmol";
 	}
 
 	public boolean canHandle(ReferenceService referenceService,
@@ -136,7 +136,7 @@ public class JMolRenderer implements Renderer {
 									"Result is approximately "
 											+ bytesToMeg(approximateSizeInBytes)
 											+ " MB in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
-									"Render using JMol?", JOptionPane.YES_NO_OPTION);
+									"Render using Jmol?", JOptionPane.YES_NO_OPTION);
 
 					if (response != JOptionPane.YES_OPTION) {
 						return new JTextArea(
@@ -158,7 +158,7 @@ public class JMolRenderer implements Renderer {
 							"Reference Service failed to render data as string (see error log for more details): \n"
 									+ e.getMessage());
 				}
-				JMolPanel panel = new JMolPanel();
+				JmolPanel panel = new JmolPanel();
 				JmolSimpleViewer viewer = null;
 				try {
 					viewer = panel.getViewer();
@@ -169,27 +169,27 @@ public class JMolRenderer implements Renderer {
 						viewer.evalString(scriptString);
 					}
 				} catch (Exception e) {
-					logger.error("Failed to create JMol renderer", e);
-					return new JTextArea("Failed to create JMol renderer (see error log for more details): \n"
+					logger.error("Failed to create Jmol renderer", e);
+					return new JTextArea("Failed to create Jmol renderer (see error log for more details): \n"
 							+ e.getMessage());
 				}
 				return panel;
 			} catch (Exception e) {
-				logger.error("Failed to create JMol renderer", e);
-				return new JTextArea("Failed to create JMol renderer: \n"
+				logger.error("Failed to create Jmol renderer", e);
+				return new JTextArea("Failed to create Jmol renderer: \n"
 						+ e.getMessage());
 			}
 		}
 		else{
 			// Else this is not a ReferenceSet so this is not good
-			logger.error("JMol Renderer: expected data as ReferenceSet but received as "
+			logger.error("Jmol Renderer: expected data as ReferenceSet but received as "
 					+ reference.getReferenceType().toString());
 			return new JTextArea(
 			"Reference Service failed to obtain the data to render: data is not a ReferenceSet");	
 		}
 	}
 
-	class JMolPanel extends JPanel {
+	class JmolPanel extends JPanel {
 		/**
 		 * 
 		 */
@@ -197,7 +197,7 @@ public class JMolRenderer implements Renderer {
 		JmolSimpleViewer viewer;
 		JmolAdapter adapter;
 
-		JMolPanel() {
+		JmolPanel() {
 			adapter = new SmarterJmolAdapter(null);
 			viewer = Viewer.allocateJmolSimpleViewer(this, adapter);
 			// viewer = JmolSimpleViewer.allocateSimpleViewer(this, adapter);
