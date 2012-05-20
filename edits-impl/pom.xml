@@ -8,6 +8,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-impl</groupId>
 	<artifactId>edits-impl</artifactId>
+	<packaging>bundle</packaging>
 	<name>Edits implementation</name>
 	<description>
 		Implementation for doing workflow edits and undo.

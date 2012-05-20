@@ -5,8 +5,7 @@
 	<parent>
 		<artifactId>taverna-parent</artifactId>
 		<groupId>net.sf.taverna</groupId>
-		<version>3.0-SNAPSHOT</version>
-        <relativePath>../../taverna-parent/pom.xml</relativePath>
+		<version>3.0.1-SNAPSHOT</version>
 	</parent>
 
 	<groupId>net.sf.taverna.t2</groupId>
@@ -24,7 +23,7 @@
 		<module>edits-impl</module>
 		<module>file-impl</module>
 		<module>helper</module>
-		<module>httpproxy-config</module>
+		<!-- <module>httpproxy-config</module> -->
 		<module>menu-impl</module>
 		<!-- <module>plugins-gui</module> -->
 		<module>renderers-impl</module>
@@ -61,12 +60,6 @@
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
-				<groupId>junit</groupId>
-				<artifactId>junit</artifactId>
-				<version>${junit.version}</version>
-				<scope>test</scope>
-			</dependency>
-			<dependency>
 				<groupId>javax.help</groupId>
 				<artifactId>javahelp</artifactId>
 				<version>${javahelp.version}</version>
@@ -82,34 +75,10 @@
 				<version>${log4j.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>commons-io</groupId>
-				<artifactId>commons-io</artifactId>
-				<version>${commons.io.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-codec</groupId>
-				<artifactId>commons-codec</artifactId>
-				<version>${commons.codec.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-collections</groupId>
-				<artifactId>commons-collections</artifactId>
-				<version>${commons.collections.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>commons-lang</groupId>
-				<artifactId>commons-lang</artifactId>
-				<version>${commons.lang.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>javax.mail</groupId>
-				<artifactId>mail</artifactId>
-				<version>${mail.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.jdom</groupId>
-				<artifactId>jdom</artifactId>
-				<version>${jdom.version}</version>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${junit.version}</version>
+				<scope>test</scope>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

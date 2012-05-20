@@ -9,6 +9,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-impl</groupId>
 	<artifactId>renderers-impl</artifactId>
+	<packaging>bundle</packaging>
 	<name>Renderers Implementation</name>
 	<dependencies>
 		<dependency>
@@ -25,7 +26,7 @@
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>com.springsource.org.apache.commons.io</artifactId>
-			<version>1.4.0</version>
+			<version>${commons.io.version}</version>
 		</dependency>
 		<!-- <dependency>
 			<groupId>net.java.dev.jai-imageio</groupId>
@@ -35,7 +36,7 @@
 		<dependency>
 			<groupId>org.fife.ui.hex</groupId>
 			<artifactId>hexeditor</artifactId>
-			<version>${org.fife.ui.hexeditor.version}</version>
+			<version>1.1-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

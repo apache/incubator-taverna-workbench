@@ -9,6 +9,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-impl</groupId>
 	<artifactId>contextual-views-impl</artifactId>
+	<packaging>bundle</packaging>
 	<name>Contextual Views Implementation</name>
 	<description>Contextual views for the activities
 	</description>

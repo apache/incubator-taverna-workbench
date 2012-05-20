@@ -8,6 +8,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-impl</groupId>
 	<artifactId>httpproxy-config</artifactId>
+	<packaging>bundle</packaging>
 	<name>HTTP Proxy configuration</name>
 	<dependencies>
 		<dependency>
@@ -16,15 +17,20 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>configuration-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<groupId>uk.org.taverna.configuration</groupId>
+			<artifactId>taverna-configuration-api</artifactId>
+			<version>${taverna.configuration.version}</version>
 		</dependency>
-      <dependency>
-            <groupId>axis</groupId>
-            <artifactId>axis</artifactId>
-            <version>1.4</version>
-        </dependency>
+		<!-- <dependency>
+			<groupId>uk.org.taverna.configuration</groupId>
+			<artifactId>taverna-app-configuration-api</artifactId>
+			<version>${taverna.configuration.version}</version>
+		</dependency> -->
+		<dependency>
+			<groupId>org.apache.axis</groupId>
+			<artifactId>com.springsource.org.apache.axis</artifactId>
+			<version>1.4.0</version>
+		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>helper</artifactId>

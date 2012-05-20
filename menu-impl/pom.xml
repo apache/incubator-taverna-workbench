@@ -8,8 +8,23 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-impl</groupId>
 	<artifactId>menu-impl</artifactId>
+	<packaging>bundle</packaging>
 	<name>Menu generation implementation</name>
 	<description>The main workbench ui</description>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<configuration>
+					<instructions>
+						<Embed-Dependency>javahelp</Embed-Dependency>
+						<Import-Package>org.jdesktop.jdic.browser;resolution:=optional,*</Import-Package>
+					</instructions>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 	<dependencies>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
