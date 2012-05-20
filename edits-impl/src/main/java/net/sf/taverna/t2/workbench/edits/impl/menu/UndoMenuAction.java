@@ -40,8 +40,8 @@ public class UndoMenuAction extends AbstractUndoMenuAction {
 
 	private static Logger logger = Logger.getLogger(UndoMenuAction.class);
 
-	public UndoMenuAction() {
-		super(10);
+	public UndoMenuAction(EditManager editManager) {
+		super(10, editManager);
 	}
 
 	@Override

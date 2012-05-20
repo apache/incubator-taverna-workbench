@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -42,9 +42,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
-import net.sf.taverna.t2.workbench.configuration.Configurable;
-import net.sf.taverna.t2.workbench.configuration.ConfigurationManager;
-
 import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
@@ -52,7 +49,7 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 
 	private static Logger logger = Logger
 			.getLogger(ActivityPaletteConfigurationPanel.class);
-	
+
 	private Map<String,List<String>> values = new HashMap<String, List<String>>();
 	private Map<String,String> names = new HashMap<String, String>();
 	private DefaultComboBoxModel model;
@@ -61,14 +58,16 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 	private String selectedKey;
 
 	private JButton deleteTypeButton;
-	
-	
-	public ActivityPaletteConfigurationPanel() {
+
+	private final ActivityPaletteConfiguration config;
+
+
+	public ActivityPaletteConfigurationPanel(ActivityPaletteConfiguration config) {
 		super();
-		
-		ActivityPaletteConfiguration config = ActivityPaletteConfiguration.getInstance();
+		this.config = config;
+
 		setLayout(new BorderLayout());
-		
+
 		model = new DefaultComboBoxModel();
 		for (String key : config.getInternalPropertyMap().keySet()) {
 			if (key.startsWith("taverna.")) {
@@ -82,11 +81,11 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 			}
 		}
 		deleteTypeButton = new JButton("Delete");
-		
+
 		final JButton addTypeButton = new JButton("Add");
 		final JComboBox comboBox = new JComboBox(model);
 		comboBox.setRenderer(new DefaultListCellRenderer() {
-			
+
 			@Override
 			public Component getListCellRendererComponent(JList list,
 					Object value, int index, boolean isSelected,
@@ -100,13 +99,13 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 				return super.getListCellRendererComponent(list, value, index, isSelected,
 						cellHasFocus);
 			}
-			
+
 		});
-		
+
 		deleteTypeButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				
+
 					String displayText=names.get("name."+selectedKey);
 					if (displayText==null) displayText=selectedKey;
 					int ret=JOptionPane.showConfirmDialog(ActivityPaletteConfigurationPanel.this,"Are you sure you wish to remove the type "+displayText+" ?","Confirm removal",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
@@ -116,11 +115,11 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 						model.removeElement(selectedKey);
 						comboBox.setSelectedIndex(0);
 					}
-				
+
 			}
-			
+
 		});
-		
+
 		addTypeButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -135,9 +134,9 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 					}
 				}
 			}
-			
+
 		});
-		
+
 		comboBox.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -153,9 +152,9 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 					}
 				}
 			}
-			
+
 		});
-		
+
 		JPanel propertySelectionPanel = new JPanel();
 		propertySelectionPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 		propertySelectionPanel.add(new JLabel("Activity type:"));
@@ -163,26 +162,26 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 		propertySelectionPanel.add(addTypeButton);
 		propertySelectionPanel.add(deleteTypeButton);
 		add(propertySelectionPanel,BorderLayout.NORTH);
-		
+
 		JPanel listPanel = new JPanel();
 		listPanel.setLayout(new BorderLayout());
 		listModel=new DefaultListModel();
 		propertyListItems = new JList(listModel);
 		propertyListItems.setBorder(new BevelBorder(BevelBorder.LOWERED));
-		
-		
+
+
 		listPanel.add(propertyListItems,BorderLayout.CENTER);
 		listPanel.add(listButtons(),BorderLayout.EAST);
-		
+
 		add(listPanel,BorderLayout.CENTER);
-		
+
 		add(applyButtonPanel(),BorderLayout.SOUTH);
-		
+
 		if (model.getSize()>0) {
 			comboBox.setSelectedItem(model.getElementAt(0));
 		}
 	}
-	
+
 
 	private void populateList(List<String> selectedList) {
 		listModel.removeAllElements();
@@ -190,16 +189,15 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 			listModel.addElement(item);
 		}
 	}
-	
+
 	private JPanel applyButtonPanel() {
 		JPanel applyPanel = new JPanel();
 		applyPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
 		JButton applyButton = new JButton("Apply");
-		
+
 		applyButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
-				Configurable config = ActivityPaletteConfiguration.getInstance();
 				config.getInternalPropertyMap().clear();
 				for (String key : values.keySet()) {
 					List<String> properties = values.get(key);
@@ -208,19 +206,19 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 				for (String key : names.keySet()) {
 					config.setProperty(key, names.get(key));
 				}
-				try {
-					ConfigurationManager.getInstance().store(config);
-				} catch (Exception e1) {
-					logger.error("There was an error storing the configuration:"+config.getFilePrefix()+"(UUID="+config.getUUID()+")",e1);
-				}
+//				try {
+//					ConfigurationManager.getInstance().store(config);
+//				} catch (Exception e1) {
+//					logger.error("There was an error storing the configuration:"+config.getFilePrefix()+"(UUID="+config.getUUID()+")",e1);
+//				}
 			}
-			
+
 		});
-		
+
 		applyPanel.add(applyButton);
 		return applyPanel;
 	}
-	
+
 	private JPanel listButtons() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel,BoxLayout.Y_AXIS));
@@ -235,9 +233,9 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 					deleteTypeButton.setEnabled(false);
 				}
 			}
-			
+
 		});
-		
+
 		JButton deleteButton = new JButton("-");
 		deleteButton.addActionListener(new ActionListener() {
 
@@ -251,17 +249,17 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 						deleteTypeButton.setEnabled(true);
 					}
 				}
-				
+
 			}
-			
+
 		});
-		
+
 		panel.add(addButton);
 		panel.add(deleteButton);
-		
+
 		return panel;
 	}
-	
+
 /*	private JButton getAddTypeButton() {
 		JButton result = new JButton("Add");
 		result.addActionListener(new ActionListener() {
@@ -278,7 +276,7 @@ public class ActivityPaletteConfigurationPanel extends JPanel {
 					}
 				}
 			}
-			
+
 		});
 		return result;
 	}

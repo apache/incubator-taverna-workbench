@@ -38,7 +38,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.workbench.configuration.ConfigurationManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -55,8 +54,6 @@ public class WorkbenchConfigurationPanel extends JPanel {
 	private JTextField menuItems = new JTextField(10);
 	private JCheckBox warnInternal = new JCheckBox("Warn on internal errors");
 	private JCheckBox captureConsole = new JCheckBox("Capture output on stdout/stderr to log file");
-
-	private ConfigurationManager configurationManager = ConfigurationManager.getInstance();
 
 	private final WorkbenchConfiguration workbenchConfiguration;
 
@@ -216,7 +213,6 @@ public class WorkbenchConfigurationPanel extends JPanel {
 				workbenchConfiguration.setWarnInternalErrors(warnInternal.isSelected());
 				workbenchConfiguration.setDotLocation(dotLocation.getText());
 				try {
-					configurationManager.store(workbenchConfiguration);
 					String message = "For the new configuration to be fully applied, it is advised to restart Taverna.";
 					JOptionPane.showMessageDialog(panel, message, "Restart adviced", JOptionPane.INFORMATION_MESSAGE);
 				} catch (Exception e) {

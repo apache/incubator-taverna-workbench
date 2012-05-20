@@ -167,24 +167,36 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 	private JTextArea purposeTextArea;
 	private JCheckBox termsAndConditionsCheckBox;
 
+	private final File registrationDataFile;
+	private final File remindMeLaterFile;
+	private final File doNotRegisterMeFile;
+	private final String appName;
 
-	public UserRegistrationForm(){
+	public UserRegistrationForm(String appName, File registrationDataFile, File doNotRegisterMeFile, File remindMeLaterFile){
 		super((Frame)null,"Taverna User Registration", true);
+		this.appName = appName;
+		this.registrationDataFile = registrationDataFile;
+		this.doNotRegisterMeFile = doNotRegisterMeFile;
+		this.remindMeLaterFile = remindMeLaterFile;
     	initComponents();
 	}
 
-	public UserRegistrationForm(File previousRegistrationDataFile) {
+	public UserRegistrationForm(String appName, File previousRegistrationDataFile, File registrationDataFile, File doNotRegisterMeFile, File remindMeLaterFile) {
 		super((Frame)null,"Taverna User Registration", true);
+		this.appName = appName;
+		this.registrationDataFile = registrationDataFile;
+		this.doNotRegisterMeFile = doNotRegisterMeFile;
+		this.remindMeLaterFile = remindMeLaterFile;
 		previousRegistrationData = loadUserRegistrationData(previousRegistrationDataFile);
 		initComponents();
 	}
 
 	// For testing only
-	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
-		WorkbenchImpl.setLookAndFeel();
-		UserRegistrationForm form = new UserRegistrationForm();
-		form.setVisible(true);
-	}
+//	public static void main(String[] args) throws ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException{
+//		WorkbenchImpl.setLookAndFeel();
+//		UserRegistrationForm form = new UserRegistrationForm();
+//		form.setVisible(true);
+//	}
 
 	private void initComponents() {
 
@@ -657,7 +669,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 
 	protected void remindMeLater() {
 	       try {
-	            FileUtils.touch(UserRegistrationHook.remindMeLaterFile);
+	            FileUtils.touch(remindMeLaterFile);
 	        } catch (IOException ioex) {
 	        	logger.error("Failed to touch the 'Remind me later' file at user registration.", ioex);
 	        }
@@ -666,9 +678,9 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 
 	protected void doNotRegister() {
 	       try {
-	            FileUtils.touch(UserRegistrationHook.doNotRegisterMeFile);
-				if (UserRegistrationHook.remindMeLaterFile.exists()){
-					UserRegistrationHook.remindMeLaterFile.delete();
+	            FileUtils.touch(doNotRegisterMeFile);
+				if (remindMeLaterFile.exists()){
+					remindMeLaterFile.delete();
 				}
 	        } catch (IOException ioex) {
 	        	logger.error("Failed to touch the 'Do not register me' file at user registration.", ioex);
@@ -679,7 +691,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 	protected void register() {
 		if (validateForm()){
 			UserRegistrationData regData = new UserRegistrationData();
-			regData.setTavernaVersion(UserRegistrationHook.appName);
+			regData.setTavernaVersion(appName);
 			regData.setFirstName(firstNameTextField.getText());
 			regData.setLastName(lastNameTextField.getText());
 			regData.setEmailAddress(emailTextField.getText());
@@ -690,9 +702,9 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 			regData.setPurposeOfUsingTaverna(purposeTextArea.getText());
 
 			if (postUserRegistrationDataToServer(regData)){
-				saveUserRegistrationData(regData, UserRegistrationHook.registrationDataFile);
-				if (UserRegistrationHook.remindMeLaterFile.exists()){
-					UserRegistrationHook.remindMeLaterFile.delete();
+				saveUserRegistrationData(regData, registrationDataFile);
+				if (remindMeLaterFile.exists()){
+					remindMeLaterFile.delete();
 				}
 		    	closeDialog();
 			}

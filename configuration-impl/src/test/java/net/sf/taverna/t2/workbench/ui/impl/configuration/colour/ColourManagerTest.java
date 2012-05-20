@@ -29,35 +29,41 @@ import java.awt.Color;
 import java.io.File;
 import java.util.UUID;
 
-import net.sf.taverna.t2.workbench.configuration.Configurable;
-import net.sf.taverna.t2.workbench.configuration.ConfigurationManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.org.taverna.configuration.Configurable;
+import uk.org.taverna.configuration.ConfigurationManager;
+import uk.org.taverna.configuration.app.impl.ApplicationConfigurationImpl;
+import uk.org.taverna.configuration.impl.ConfigurationManagerImpl;
+
 public class ColourManagerTest {
+
+	private ConfigurationManagerImpl configurationManager;
 
 	@Before
 	public void setup() {
-		ConfigurationManager manager = ConfigurationManager.getInstance();
+		configurationManager = new ConfigurationManagerImpl(new ApplicationConfigurationImpl());
+
 		File f = new File(System.getProperty("java.io.tmpdir"));
 		File d = new File(f, UUID.randomUUID().toString());
 		d.mkdir();
-		manager.setBaseConfigLocation(d);
+		configurationManager.setBaseConfigLocation(d);
 	}
 
 	@Test
 	public void testGetPreferredColourEqualsWhite() throws Exception {
 		String dummy = new String();
 
-		Color c = new ColourManagerImpl().getPreferredColour(dummy);
+		Color c = new ColourManagerImpl(configurationManager).getPreferredColour(dummy);
 		assertEquals("The default colour should be WHITE", Color.WHITE, c);
 	}
 
 	@Test
 	public void testConfigurableness() throws Exception {
-		ColourManager manager = new ColourManagerImpl();
+		ColourManager manager = new ColourManagerImpl(configurationManager);
 		assertTrue(manager instanceof Configurable);
 
 		assertEquals("wrong category", "colour", manager.getCategory());
@@ -71,16 +77,15 @@ public class ColourManagerTest {
 	@Test
 	public void saveAsWrongArrayType() throws Exception {
 		String dummy = "";
-		ColourManager manager = new ColourManagerImpl();
+		ColourManager manager = new ColourManagerImpl(configurationManager);
 		manager.setProperty(dummy.getClass().getCanonicalName(), "#ffffff");
 
-		ConfigurationManager instance = ConfigurationManager.getInstance();
 		File baseLoc = File.createTempFile("test", "scratch");
 		baseLoc.delete();
 		assertTrue("Could not make directory " + baseLoc, baseLoc.mkdir());
-		instance.setBaseConfigLocation(baseLoc);
-		instance.store(manager);
-		instance.populate(manager);
+		configurationManager.setBaseConfigLocation(baseLoc);
+		configurationManager.store(manager);
+		configurationManager.populate(manager);
 		manager.getPreferredColour(dummy);
 	}
 

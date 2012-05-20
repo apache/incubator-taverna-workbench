@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -27,34 +27,23 @@ import java.util.Properties;
 import org.apache.axis.AxisProperties;
 import org.apache.log4j.Logger;
 
-import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
+import uk.org.taverna.configuration.AbstractConfigurable;
+import uk.org.taverna.configuration.ConfigurationManager;
+
 import net.sf.taverna.raven.launcher.LauncherHttpProxyConfiguration;
 
 /**
  * Configuration for the HTTP Proxy.
- * 
+ *
  * @author Alan R Williams
  */
 public class HttpProxyConfiguration extends AbstractConfigurable {
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger
-			.getLogger(HttpProxyConfiguration.class);
+	private static Logger logger = Logger.getLogger(HttpProxyConfiguration.class);
 
-	/**
-	 * Only present to please Configurable
-	 */
-	private Map<String, String> defaultPropertyMap;
+	private Map<String, String> defaultPropertyMap = new HashMap<String, String>();
 
-	/**
-	 * The instance of the HttpProxyConfiguration. In theory Taverna could be
-	 * extended to use multiple instances.
-	 */
-
-	private static class Singleton {
-		private static HttpProxyConfiguration instance = new HttpProxyConfiguration();
-	}
-	
 	/**
 	 * String constants inherited from LauncherHttpProxyConfiguration. This just
 	 * simplified the code somewhat.
@@ -84,20 +73,11 @@ public class HttpProxyConfiguration extends AbstractConfigurable {
 	public static String NON_PROXY_HOSTS = LauncherHttpProxyConfiguration.NON_PROXY_HOSTS;
 
 	/**
-	 * Returns the singleton instance of HttpProxyConfiguration
-	 * 
-	 * @return
-	 */
-	public static HttpProxyConfiguration getInstance() {
-		return Singleton.instance;
-	}
-
-	/**
 	 * Construct a new HttpProxyConfiguration and copy the settings from the
 	 * LauncherHttpProxyConfiguration
 	 */
-	private HttpProxyConfiguration() {
-		super();
+	private HttpProxyConfiguration(ConfigurationManager configurationManager) {
+		super(configurationManager);
 		LauncherHttpProxyConfiguration c = LauncherHttpProxyConfiguration
 				.getInstance();
 		setProperty(SYSTEM_PROXY_HOST, c.getOriginalSystemSetting(PROXY_HOST));
@@ -122,26 +102,11 @@ public class HttpProxyConfiguration extends AbstractConfigurable {
 		changeProxySettings();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see net.sf.taverna.t2.workbench.configuration.Configurable#getCategory()
-	 */
 	public String getCategory() {
 		return "general";
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * net.sf.taverna.t2.workbench.configuration.Configurable#getDefaultPropertyMap
-	 * ()
-	 */
 	public Map<String, String> getDefaultPropertyMap() {
-		if (defaultPropertyMap == null) {
-			defaultPropertyMap = new HashMap<String, String>();
-		}
 		return defaultPropertyMap;
 	}
 
@@ -157,7 +122,7 @@ public class HttpProxyConfiguration extends AbstractConfigurable {
 	 * Change the java System property specified by the key to the given value.
 	 * If the value is null then clear the property. Also sets the corresponding
 	 * AxisPropert.
-	 * 
+	 *
 	 * @param key
 	 * @param value
 	 */
@@ -181,9 +146,6 @@ public class HttpProxyConfiguration extends AbstractConfigurable {
 		LauncherHttpProxyConfiguration.getInstance().changeProxySettings(props);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.configuration.Configurable#getUUID()
-	 */
 	public String getUUID() {
 		return LauncherHttpProxyConfiguration.getUUID();
 	}

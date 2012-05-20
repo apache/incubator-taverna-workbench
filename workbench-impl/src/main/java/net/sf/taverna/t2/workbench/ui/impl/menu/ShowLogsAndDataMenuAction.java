@@ -7,34 +7,36 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
-import net.sf.taverna.raven.appconfig.ApplicationRuntime;
-import net.sf.taverna.raven.appconfig.config.Log4JConfiguration;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.MainWindow;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.configuration.app.ApplicationConfiguration;
+
 public class ShowLogsAndDataMenuAction extends AbstractMenuAction {
-	
+
 	private static final String OPEN = "open";
 	private static final String EXPLORER = "explorer";
 	private static final String GNOME_OPEN = "gnome-open";
 	private static final String WINDOWS = "Windows";
 	private static final String MAC_OS_X = "Mac OS X";
 
+	private ApplicationConfiguration applicationConfiguration;
+
 	public ShowLogsAndDataMenuAction() {
 		super(AdvancedMenu.ADVANCED_URI, 200);
 	}
-	
+
 	private static Logger logger = Logger.getLogger(ShowLogsAndDataMenuAction.class);
-	
+
 	@Override
 	protected Action createAction() {
 		return new AbstractAction("Show logs and data folder") {
 			private static final long serialVersionUID = 1L;
 
 			public void actionPerformed(ActionEvent e) {
-				File logsAndDataDir = ApplicationRuntime.getInstance().getApplicationHomeDir();
+				File logsAndDataDir = applicationConfiguration.getApplicationHomeDir();
 				showDirectory(logsAndDataDir, "Taverna logs and data folder");
 			}
 		};
@@ -48,7 +50,7 @@ public class ShowLogsAndDataMenuAction extends AbstractMenuAction {
 		if (os.equals(MAC_OS_X)) {
 			cmd = OPEN;
 		} else if (os.startsWith(WINDOWS)) {
-			cmd = EXPLORER;		
+			cmd = EXPLORER;
 			isWindows = true;
 		} else {
 			// Assume Unix - best option is gnome-open
@@ -76,6 +78,10 @@ public class ShowLogsAndDataMenuAction extends AbstractMenuAction {
 		JOptionPane.showInputDialog(MainWindow.getMainWindow(), "Copy path from below:", title,
 				JOptionPane.INFORMATION_MESSAGE, null, null,
                 path);
+	}
+
+	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+		this.applicationConfiguration = applicationConfiguration;
 	}
 
 }

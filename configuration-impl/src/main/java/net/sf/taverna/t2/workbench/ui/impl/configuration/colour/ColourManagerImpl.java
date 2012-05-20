@@ -24,7 +24,9 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
+import uk.org.taverna.configuration.AbstractConfigurable;
+import uk.org.taverna.configuration.ConfigurationManager;
+
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 
 /**
@@ -41,17 +43,16 @@ public class ColourManagerImpl extends AbstractConfigurable implements ColourMan
 	private Map<String, String> defaultPropertyMap;
 	private Map<Object,Color> cachedColours;
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.configuration.Configurable#getCategory()
-	 */
+	public ColourManagerImpl(ConfigurationManager configurationManager) {
+		super(configurationManager);
+		initialiseDefaults();
+	}
+
 	@Override
 	public String getCategory() {
 		return "colour";
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.configuration.Configurable#getDefaultPropertyMap()
-	 */
 	@Override
 	public Map<String, String> getDefaultPropertyMap() {
 		if (defaultPropertyMap==null) initialiseDefaults();
@@ -74,10 +75,6 @@ public class ColourManagerImpl extends AbstractConfigurable implements ColourMan
 	@Override
 	public String getUUID() {
 		return "a2148420-5967-11dd-ae16-0800200c9a66";
-	}
-
-	public ColourManagerImpl() {
-		initialiseDefaults();
 	}
 
 	private void initialiseDefaults() {

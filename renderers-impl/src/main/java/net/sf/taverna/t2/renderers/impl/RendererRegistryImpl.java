@@ -70,6 +70,10 @@ public class RendererRegistryImpl implements RendererRegistry {
 		return list;
 	}
 
+	public List<Renderer> getRenderers() {
+		return renderers;
+	}
+
 	public void setRenderers(List<Renderer> renderers) {
 		this.renderers = renderers;
 	}

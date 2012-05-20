@@ -40,11 +40,12 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.sf.taverna.t2.workbench.configuration.ConfigurationUIFactory;
 import net.sf.taverna.t2.workbench.helper.HelpCollator;
 import net.sf.taverna.t2.workbench.helper.Helper;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.configuration.ConfigurationUIFactory;
 
 @SuppressWarnings("serial")
 public class T2ConfigurationFrame extends JFrame {

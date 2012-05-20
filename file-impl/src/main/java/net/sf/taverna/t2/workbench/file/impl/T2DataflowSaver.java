@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -39,17 +39,19 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializerImpl;
-import net.sf.taverna.raven.appconfig.ApplicationConfig;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+
+import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
 public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 		implements DataflowPersistenceHandler {
 
 	private static final T2FlowFileType T2_FLOW_FILE_TYPE = new T2FlowFileType();
 	private static Logger logger = Logger.getLogger(T2DataflowSaver.class);
+	private ApplicationConfiguration applicationConfiguration;
 
 	@Override
 	public DataflowInfo saveDataflow(Dataflow dataflow, FileType fileType,
@@ -100,7 +102,7 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 		XMLOutputter outputter = new XMLOutputter();
 
 		XMLSerializer serialiser = new XMLSerializerImpl();
-		serialiser.setProducedBy(ApplicationConfig.getInstance().getName());
+		serialiser.setProducedBy(applicationConfiguration.getName());
 		Element serialized;
 		try {
 			serialized = serialiser.serializeDataflow(dataflow);
@@ -157,13 +159,17 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 		if (! lastFile.getAbsoluteFile().equals(file)) {
 			return true;
 		}
-		
-		
+
+
 		Date lastModified = new Date(file.lastModified());
 		if (lastModified.equals(lastDataflowInfo.getLastModified())) {
 			return false;
 		}
 		return true;
+	}
+
+	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+		this.applicationConfiguration = applicationConfiguration;
 	}
 
 }

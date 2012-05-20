@@ -41,8 +41,8 @@ public class RedoMenuAction extends AbstractUndoMenuAction {
 
 	private static Logger logger = Logger.getLogger(RedoMenuAction.class);
 
-	public RedoMenuAction() {
-		super(20);
+	public RedoMenuAction(EditManager editManager) {
+		super(20, editManager);
 	}
 
 	@Override

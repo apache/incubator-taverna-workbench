@@ -21,15 +21,16 @@
 package net.sf.taverna.t2.workbench.ui.impl.configuration;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
+
 import org.apache.log4j.Logger;
 
-import net.sf.taverna.raven.appconfig.ApplicationConfig;
-import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
-import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
+import uk.org.taverna.configuration.AbstractConfigurable;
+import uk.org.taverna.configuration.ConfigurationManager;
+import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
 /**
  * An implementation of Configurable for general Workbench configuration
@@ -62,9 +63,15 @@ public class WorkbenchConfigurationImpl extends AbstractConfigurable implements 
 	private static final String WIN32I386 = "win32i386";
 	private static final String WINDOWS = "Windows";
 
+	private  ApplicationConfiguration applicationConfiguration;
 
-	private static ApplicationConfig appConfig = ApplicationConfig
-			.getInstance();
+	/**
+	 * Constructs a new <code>WorkbenchConfigurationImpl</code>.
+	 * @param configurationManager
+	 */
+	public WorkbenchConfigurationImpl(ConfigurationManager configurationManager) {
+		super(configurationManager);
+	}
 
 	Map<String, String> defaultWorkbenchProperties = null;
 	Map<String, String> workbenchProperties = new HashMap<String, String>();
@@ -162,10 +169,8 @@ public class WorkbenchConfigurationImpl extends AbstractConfigurable implements 
 	}
 
 	private String getDefaultDotLocation() {
-		File startupDir;
-		try {
-			startupDir = appConfig.getStartupDir();
-		} catch (IOException e) {
+		File startupDir = applicationConfiguration.getStartupDir();
+		if (startupDir == null) {
 			return DOT_FALLBACK;
 		}
 		String os = System.getProperty("os.name");
@@ -190,6 +195,15 @@ public class WorkbenchConfigurationImpl extends AbstractConfigurable implements 
 			}
 		}
 		return DOT_FALLBACK;
+	}
+
+	/**
+	 * Sets the applicationConfiguration.
+	 *
+	 * @param applicationConfiguration the new value of applicationConfiguration
+	 */
+	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+		this.applicationConfiguration = applicationConfiguration;
 	}
 
 }

@@ -32,6 +32,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
@@ -46,13 +47,13 @@ import javax.swing.WindowConstants;
 
 import net.sf.taverna.osx.OSXAdapter;
 import net.sf.taverna.osx.OSXApplication;
-import net.sf.taverna.raven.SplashScreen;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.ShutdownSPI;
 import net.sf.taverna.t2.workbench.StartupSPI;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
@@ -62,11 +63,12 @@ import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 import net.sf.taverna.t2.workbench.ui.WorkbenchPerspectives;
-import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
-import net.sf.taverna.t2.workbench.ui.impl.configuration.ui.T2ConfigurationFrame;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.configuration.ConfigurationUIFactory;
+import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
 /**
  * The main workbench frame.
@@ -93,33 +95,40 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	private FileManager fileManager;
 	private EditManager editManager;
 	private WorkbenchConfiguration workbenchConfiguration;
+	private ApplicationConfiguration applicationConfiguration;
 	private WorkbenchPerspectives workbenchPerspectives;
+	private List<ConfigurationUIFactory> configurationUIFactories;
 
 	private JToolBar perspectiveToolBar;
 
 	private List<StartupSPI> startupHooks;
 	private List<ShutdownSPI> shutdownHooks;
+	private final List<PerspectiveSPI> perspectives;
 
-	public WorkbenchImpl(List<StartupSPI> startupHooks, List<ShutdownSPI> shutdownHooks) {
+	public WorkbenchImpl(List<StartupSPI> startupHooks, List<ShutdownSPI> shutdownHooks, List<PerspectiveSPI> perspectives) {
+		this.perspectives = perspectives;
+		System.out.println("Constructing workbench");
 		this.startupHooks = startupHooks;
 		this.shutdownHooks = shutdownHooks;
 		MainWindow.setMainWindow(this);
-		try {
-			SwingUtilities.invokeAndWait(new Runnable() {
-				public void run() {
-					initialize();
-				}
-			});
-		} catch (InterruptedException e) {
-			throw new RuntimeException(
-					"Interrupted while initializing workbench", e);
-		} catch (InvocationTargetException e) {
-			throw new RuntimeException("Could not initialize workbench", e
-					.getCause());
-		}
+//		try {
+//			SwingUtilities.invokeAndWait(new Runnable() {
+//				public void run() {
+//					System.out.println("Calling initialize");
+//					initialize();
+//				}
+//			});
+//		} catch (InterruptedException e) {
+//			throw new RuntimeException(
+//					"Interrupted while initializing workbench", e);
+//		} catch (InvocationTargetException e) {
+//			throw new RuntimeException("Could not initialize workbench", e
+//					.getCause());
+//		}
 	}
 
 	protected void initialize() {
+		System.out.println("Initialize workbench");
 		setExceptionHandler();
 		setLookAndFeel();
 
@@ -130,6 +139,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		UIManager.put("OptionPane.warningIcon", WorkbenchIcons.warningMessageIcon);
 
 		// Call the startup hooks
+		System.out.println("Calling startup hooks");
 		if (!callStartupHooks()) {
 			System.exit(0);
 		}
@@ -137,16 +147,18 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		makeGUI();
 		fileManager.newDataflow();
 		editManager.addObserver(new DataflowEditsListener(editManager.getEdits()));
-		SplashScreen splash = SplashScreen.getSplashScreen();
-		if (splash != null) {
-			splash.setClosable();
-			splash.requestClose();
-		}
+//		SplashScreen splash = SplashScreen.getSplashScreen();
+//		if (splash != null) {
+//			splash.setClosable();
+//			splash.requestClose();
+//		}
 
 		// Register a listener with FileManager so whenever a current workflow
 		// is set
 		// we make sure we are in the design perspective
 		fileManager.addObserver(new SwitchToWorkflowPerspective());
+		System.out.println("Making frame visible");
+		setVisible(true);
 	}
 
 	private void makeGUI() {
@@ -162,8 +174,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 			ImageIcon imageIcon = new ImageIcon(launcherLogo);
 			setIconImage(imageIcon.getImage());
 		}
-//		setTitle(appConfig.getTitle());
-		setTitle("TODO : Fix application config");
+		setTitle(applicationConfiguration.getTitle());
 
 		OSXApplication.setListener(osxAppListener);
 
@@ -222,12 +233,10 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		CardLayout perspectiveLayout = new CardLayout();
 		JPanel perspectivePanel = new JPanel(perspectiveLayout);
 		workbenchPerspectives = new WorkbenchPerspectivesImpl(perspectiveToolBar, perspectivePanel, perspectiveLayout);
+		workbenchPerspectives.setPerspectives(perspectives);
 		return perspectivePanel;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.ui.impl.Workbench#makeNamedComponentVisible(java.lang.String)
-	 */
 	@Override
 	public void makeNamedComponentVisible(String componentName) {
 //		basePane.makeNamedComponentVisible(componentName);
@@ -381,9 +390,6 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.ui.impl.Workbench#getPerspectives()
-	 */
 	@Override
 	public WorkbenchPerspectives getPerspectives() {
 		return workbenchPerspectives;
@@ -401,17 +407,24 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		this.editManager = editManager;
 	}
 
-	public void setPerspectives(List<PerspectiveSPI> perspectives) {
-		workbenchPerspectives.setPerspectives(perspectives);
-	}
+//	public void setPerspectiveList(List<PerspectiveSPI> perspectives) {
+//		workbenchPerspectives.setPerspectives(perspectives);
+//	}
 
-	public void refreshPerspectives() {
+	public void refreshPerspectives(Object service, Map properties) {
 		workbenchPerspectives.refreshPerspectives();
 	}
 
-	public void setWorkbenchConfiguration(
-			WorkbenchConfiguration workbenchConfiguration) {
+	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
 		this.workbenchConfiguration = workbenchConfiguration;
+	}
+
+	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+		this.applicationConfiguration = applicationConfiguration;
+	}
+
+	public void setConfigurationUIFactories(List<ConfigurationUIFactory> configurationUIFactories) {
+		this.configurationUIFactories = configurationUIFactories;
 	}
 
 	public final class ExceptionHandler implements UncaughtExceptionHandler {
@@ -475,10 +488,9 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		public boolean hasPreferences() {
 			return true;
 		}
-
 		@Override
 		public boolean handlePreferences() {
-			T2ConfigurationFrame.showFrame();
+//			T2ConfigurationFrame.showFrame(configurationUIFactories);
 			return true;
 		}
 

@@ -24,42 +24,51 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
+import java.util.UUID;
 
-import net.sf.taverna.t2.workbench.configuration.ConfigurationManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManagerImpl;
 
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import uk.org.taverna.configuration.app.impl.ApplicationConfigurationImpl;
+import uk.org.taverna.configuration.impl.ConfigurationManagerImpl;
+
 public class ConfigurationManagerTest {
+
+	ConfigurationManagerImpl configurationManager;
+
+	@Before
+	public void setup() {
+		configurationManager = new ConfigurationManagerImpl(new ApplicationConfigurationImpl());
+	}
 
 	@Test
 	public void createConfigManager() {
-		ConfigurationManager instance = ConfigurationManager.getInstance();
-		assertNotNull("Config Manager should not be null", instance);
+		assertNotNull("Config Manager should not be null", configurationManager);
 	}
 
 	@Ignore("Hardcoded /Users/Ian") //FIXME: update test to work using File.createTempFile(...)
 	@Test
 	public void populateConfigOfColourmanager() {
-		ColourManager manager= new ColourManagerImpl();
+		ColourManager manager= new ColourManagerImpl(null);
 
 		manager.setProperty("colour.first", "25");
 		manager.setProperty("colour.second", "223");
 
-		ConfigurationManager instance = ConfigurationManager.getInstance();
-		instance.setBaseConfigLocation(new File("/Users/Ian/scratch"));
+		configurationManager.setBaseConfigLocation(new File("/Users/Ian/scratch"));
 		try {
-			instance.store(manager);
+			configurationManager.store(manager);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 
-		ColourManager manager2 = new ColourManagerImpl();
+		ColourManager manager2 = new ColourManagerImpl(configurationManager);
 
 		try {
-			instance.populate(manager2);
+			configurationManager.populate(manager2);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -74,19 +83,21 @@ public class ConfigurationManagerTest {
 	@Test
 	public void saveColoursForDummyColourable() {
 		String dummy = "";
-		ColourManager manager=new ColourManagerImpl();
+		ColourManager manager=new ColourManagerImpl(configurationManager);
 		manager.setProperty(dummy.getClass().getCanonicalName(), "#000000");
 
-		ConfigurationManager instance = ConfigurationManager.getInstance();
-		instance.setBaseConfigLocation(new File(System.getProperty("java.io.tmpdir")+File.separatorChar+"scratch"));
+		File f = new File(System.getProperty("java.io.tmpdir"));
+		File d = new File(f, UUID.randomUUID().toString());
+		d.mkdir();
+		configurationManager.setBaseConfigLocation(d);
 		try {
-			instance.store(manager);
+			configurationManager.store(manager);
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 
 		try {
-			instance.populate(manager);
+			configurationManager.populate(manager);
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

@@ -55,13 +55,14 @@ public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
 
 	protected EditManager editManager;
 
-	public AbstractUndoMenuAction(int position) {
+	public AbstractUndoMenuAction(int position, EditManager editManager) {
 		super(UndoMenuSection.UNDO_SECTION_URI, position);
-	}
-
-	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
+
+//	public void setEditManager(EditManager editManager) {
+//		this.editManager = editManager;
+//	}
 
 	protected abstract class AbstractUndoAction extends AbstractAction {
 

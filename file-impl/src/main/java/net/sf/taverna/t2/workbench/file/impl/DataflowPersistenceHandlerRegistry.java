@@ -184,7 +184,17 @@ public class DataflowPersistenceHandlerRegistry {
 		return saveFileClassToHandler;
 	}
 
-	private synchronized void updateColletions() {
+	/**
+	 * Bind method for SpringDM.
+	 *
+	 * @param service
+	 * @param properties
+	 */
+	public void update(Object service, Map properties) {
+		updateColletions();
+	}
+
+	public synchronized void updateColletions() {
 		createCollections();
 		for (DataflowPersistenceHandler handler : dataflowPersistenceHandlers) {
 			for (FileType openFileType : handler.getOpenFileTypes()) {

@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -40,27 +40,26 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
-import net.sf.taverna.t2.workbench.configuration.ConfigurationManager;
 import net.sf.taverna.t2.workbench.helper.Helper;
 
 import org.apache.log4j.Logger;
 
 /**
  * @author alanrw
- * 
+ *
  *         The HttpProxyConfigurationPanel provides the user interface to a
  *         {@link HttpProxyConfiguration} to determine how HTTP Connections are
  *         made by Taverna.
- * 
+ *
  */
 /**
  * @author alanrw
- * 
+ *
  */
 public class HttpProxyConfigurationPanel extends JPanel {
 
 	/**
-	 * 
+	 *
 	 */
 	static final long serialVersionUID = 3668473431971125038L;
 
@@ -115,7 +114,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	 * Populates the panel with a representation of the current HTTP proxy
 	 * settings for the specified {@link HttpProxyConfiguration} and also the
 	 * capability to alter them.
-	 * 
+	 *
 	 * @param configurable
 	 * @return
 	 */
@@ -128,7 +127,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints gbc = new GridBagConstraints();
-		
+
 		// Title describing what kind of settings we are configuring here
         JTextArea descriptionText = new JTextArea("HTTP proxy configuration");
         descriptionText.setLineWrap(true);
@@ -144,7 +143,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
         gbc.weighty = 0.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(descriptionText, gbc);
-        
+
 		/**
 		 * Generate the three radio buttons and put them in a group. Each
 		 * button is bound to an action that alters the shownOption and
@@ -219,7 +218,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
         gbc.gridwidth = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(proxyHostField, gbc);
-	
+
 		proxyPortField = new JTextField(TEXTFIELD_SIZE);
         gbc.gridx = 0;
         gbc.gridy = 5;
@@ -269,7 +268,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.NONE;
         gbc.insets = new Insets(10, 0, 0, 0);
-        this.add(new JLabel("Non-proxy hosts"), gbc);	
+        this.add(new JLabel("Non-proxy hosts"), gbc);
         gbc.gridx = 0;
         gbc.gridy = 9;
         gbc.weightx = 1.0;
@@ -278,7 +277,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
         gbc.insets = new Insets(0, 0, 0, 0);
         gbc.fill = GridBagConstraints.BOTH;
         this.add(nonProxyScrollPane, gbc);
-		
+
 		// Add buttons panel
         gbc.gridx = 0;
         gbc.gridy = 10;
@@ -297,7 +296,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	 * Populate the fields in the property panel according to which option is
 	 * being shown and the stored values within the
 	 * {@link HttpProxyConfiguration}.
-	 * 
+	 *
 	 * @param configurable
 	 */
 	private void populateFields(HttpProxyConfiguration configurable) {
@@ -355,7 +354,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 
 	/**
 	 * Create the panel to contain the buttons
-	 * 
+	 *
 	 * @return
 	 */
 	@SuppressWarnings("serial")
@@ -438,7 +437,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	/**
 	 * Validates and, where appropriate formats, the properties values specified
 	 * for HTTP Proxy configuration.
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean validateFields() {
@@ -454,10 +453,10 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	/**
 	 * Checks that, if a value is specified for non-proxy hosts then a proxy
 	 * host has also been specified.
-	 * 
+	 *
 	 * Formats the non-proxy hosts string so that if the user has entered the
 	 * hosts on separate lines, then the stored values are separated by bars.
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean validateNonProxyHostsArea() {
@@ -476,7 +475,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	/**
 	 * Checks that, if a password has been specified, then a user has also been
 	 * specified.
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean validatePasswordField() {
@@ -492,7 +491,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	/**
 	 * Checks that if a user has been specified, then a host has also been
 	 * specified.
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean validateUserField() {
@@ -508,10 +507,10 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	/**
 	 * Checks that if a port has been specified then a host has also been
 	 * specified. Checks that the port number is a non-negative integer.
-	 * 
+	 *
 	 * If the port has not been specified, then if a host has been specified,
 	 * the default value 80 is used.
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean validatePortField() {
@@ -545,7 +544,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	 * Checks if the targetValue has been specified. If not then a message is
 	 * displayed indicating that the dependent cannot be specified with the
 	 * target.
-	 * 
+	 *
 	 * @param dependent
 	 * @param target
 	 * @param targetValue
@@ -565,7 +564,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	/**
 	 * Could validate the host field e.g. by establishing a connection.
 	 * Currently no validation is done.
-	 * 
+	 *
 	 * @return
 	 */
 	private boolean validateHostField() {
@@ -588,7 +587,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	}
 
 	/**
-	 * Set the shown field values to those currently in use 
+	 * Set the shown field values to those currently in use
 	 * (i.e. last saved configuration).
 	 */
 	private void setFields(HttpProxyConfiguration configurable) {

@@ -27,8 +27,9 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import uk.org.taverna.configuration.ConfigurationUIFactory;
+
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.workbench.configuration.ConfigurationUIFactory;
 
 public class WorkbenchConfigurationMenu extends AbstractMenuAction {
 

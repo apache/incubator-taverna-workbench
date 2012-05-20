@@ -24,7 +24,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
@@ -47,6 +46,8 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
+import uk.org.taverna.configuration.app.ApplicationConfiguration;
+
 public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		Observer<FileManagerEvent> {
 
@@ -56,6 +57,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 	private static final String CONF = "conf";
 
 	private FileManager fileManager;
+	private ApplicationConfiguration applicationConfiguration;
 
 	private static Logger logger = Logger
 			.getLogger(FileOpenRecentMenuAction.class);
@@ -142,8 +144,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 	}
 
 	protected synchronized void loadRecent() {
-		File confDir = new File(ApplicationRuntime.getInstance()
-				.getApplicationHomeDir(), CONF);
+		File confDir = new File(applicationConfiguration.getApplicationHomeDir(), CONF);
 		confDir.mkdir();
 		File recentFile = new File(confDir, RECENT_WORKFLOWS_XML);
 		if (!recentFile.isFile()) {
@@ -180,8 +181,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 	}
 
 	protected synchronized void saveRecent() {
-		File confDir = new File(ApplicationRuntime.getInstance()
-				.getApplicationHomeDir(), CONF);
+		File confDir = new File(applicationConfiguration.getApplicationHomeDir(), CONF);
 		confDir.mkdir();
 		File recentFile = new File(confDir, RECENT_WORKFLOWS_XML);
 
@@ -429,5 +429,10 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 			return beanAsElement;
 		}
 	}
+
+	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+		this.applicationConfiguration = applicationConfiguration;
+	}
+
 
 }

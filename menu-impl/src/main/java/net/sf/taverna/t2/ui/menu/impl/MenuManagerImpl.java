@@ -298,6 +298,10 @@ public class MenuManagerImpl implements MenuManager {
 		}
 	}
 
+	public void update(Object service, Map properties) {
+		update();
+	}
+
 	/**
 	 * Add a {@link JMenu} to the list of components as described by the menu
 	 * component. If there are no children, the menu is not added.
