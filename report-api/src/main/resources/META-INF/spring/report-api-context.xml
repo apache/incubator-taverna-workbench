@@ -11,6 +11,7 @@
     	<constructor-arg ref="editManager" />
     	<constructor-arg ref="fileManager" />
     	<constructor-arg ref="visitors" />
+		<constructor-arg ref="configurationManager"/>
 	</bean>
 
 </beans>
