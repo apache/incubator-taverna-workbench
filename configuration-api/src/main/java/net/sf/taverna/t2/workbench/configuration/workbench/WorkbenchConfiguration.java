@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.configuration.workbench;
 
-import net.sf.taverna.t2.workbench.configuration.Configurable;
+import uk.org.taverna.configuration.Configurable;
 
 /**
  *

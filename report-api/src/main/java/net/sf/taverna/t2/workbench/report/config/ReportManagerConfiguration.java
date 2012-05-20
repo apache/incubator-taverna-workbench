@@ -1,12 +1,14 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.report.config;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
+import uk.org.taverna.configuration.AbstractConfigurable;
+import uk.org.taverna.configuration.ConfigurationManager;
+
 import net.sf.taverna.t2.workflowmodel.health.RemoteHealthChecker;
 
 /**
@@ -14,39 +16,32 @@ import net.sf.taverna.t2.workflowmodel.health.RemoteHealthChecker;
  *
  */
 public final class ReportManagerConfiguration extends AbstractConfigurable {
-	
+
 	public static final String TIMEOUT = "TIMEOUT";
 	public static final String ON_EDIT = "ON_EDIT";
 	public static final String ON_OPEN = "ON_OPEN";
 	public static final String BEFORE_RUN = "BEFORE_RUN";
-	
+
 	private static final int DEFAULT_TIMEOUT = 10;
-	
+
 	public static final String NO_CHECK = "NoCheck";
 	public static final String QUICK_CHECK = "QuickCheck";
 	public static final String FULL_CHECK = "FullCheck";
-	
+
 	public static final String NONE = "Do not care";
 	public static final String ERRORS_OR_WARNINGS = "Errors or warnings";
 	public static final String ERRORS = "Errors";
-	
+
 	public static final String QUERY_BEFORE_RUN = "QUERY_BEFORE_RUN";
-	
+
     public static final int DEFAULT_REPORT_EXPIRATION = 0;
     public static final String REPORT_EXPIRATION = "REPORT_EXPIRATION";
 
     private Map<String, String> defaultPropertyMap;
 
-    public static class Singleton {
-    	private static ReportManagerConfiguration instance = new ReportManagerConfiguration();
-    }
-    
-	public static ReportManagerConfiguration getInstance() {
-       return Singleton.instance;
-    }
-
-    private ReportManagerConfiguration() {
-    }
+	public ReportManagerConfiguration(ConfigurationManager configurationManager) {
+		super(configurationManager);
+	}
 
     public String getCategory() {
         return "general";
@@ -77,11 +72,11 @@ public final class ReportManagerConfiguration extends AbstractConfigurable {
 	public String getUUID() {
 		return "F86378E5-0EC4-4DE9-8A55-6098595413DC";
 	}
-	
+
 	public void applySettings() {
 		RemoteHealthChecker.setTimeoutInSeconds(Integer.parseInt(this.getProperty(TIMEOUT)));
 	}
-	
+
 	public void setProperty(String key, String value) {
 		super.setProperty(key, value);
 		if (key.equals(TIMEOUT)) {

@@ -18,9 +18,9 @@ public interface ServiceDescriptionRegistry extends
 	public Set<ServiceDescriptionProvider> getDefaultServiceDescriptionProviders();
 
 	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders();
-	
+
 	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders(ServiceDescription sd);
-	
+
 	@SuppressWarnings("unchecked")
 	public Set<ServiceDescription> getServiceDescriptions();
 
@@ -47,7 +47,9 @@ public interface ServiceDescriptionRegistry extends
 	public void saveServiceDescriptions();
 
 	public void saveServiceDescriptions(File serviceDescriptionsFile);
-	
+
 	public void exportCurrentServiceDescriptions(File serviceDescriptionsFile);
+
+	public boolean isDefaultSystemConfigurableProvidersLoaded();
 
 }

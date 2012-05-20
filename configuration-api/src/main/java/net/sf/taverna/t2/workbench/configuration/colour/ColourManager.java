@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workbench.configuration.colour;
 
 import java.awt.Color;
 
-import net.sf.taverna.t2.workbench.configuration.Configurable;
+import uk.org.taverna.configuration.Configurable;
 
 /**
  *

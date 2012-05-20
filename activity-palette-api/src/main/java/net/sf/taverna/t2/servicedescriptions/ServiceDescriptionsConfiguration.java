@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester
+ * Copyright (C) 2012 The University of Manchester
  *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -18,22 +18,23 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.configuration.mimetype;
-
-import java.util.Map;
+package net.sf.taverna.t2.servicedescriptions;
 
 import uk.org.taverna.configuration.Configurable;
 
-public interface MimeTypeManager extends Configurable {
+/**
+ *
+ *
+ * @author David Withers
+ */
+public interface ServiceDescriptionsConfiguration extends Configurable {
 
-	public String getCategory();
+	public boolean isIncludeDefaults();
 
-	public Map<String, String> getDefaultPropertyMap();
+	public void setIncludeDefaults(boolean includeDefaults);
 
-	public String getUUID();
+	public boolean isRemovePermanently();
 
-	public String getDisplayName();
-
-	public String getFilePrefix();
+	public void setRemovePermanently(boolean removePermanently);
 
 }
