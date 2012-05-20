@@ -8,6 +8,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-api</groupId>
 	<artifactId>activity-tools</artifactId>
+	<packaging>bundle</packaging>
 	<name>Activity tools</name>
 	<description>Tools useful for ui-activitys</description>
 	<dependencies>

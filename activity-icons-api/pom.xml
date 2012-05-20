@@ -8,6 +8,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-api</groupId>
 	<artifactId>activity-icons-api</artifactId>
+	<packaging>bundle</packaging>
 	<name>Activity icon manager API</name>
 	<dependencies>
 		<dependency>

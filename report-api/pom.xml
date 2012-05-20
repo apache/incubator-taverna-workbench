@@ -9,6 +9,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-api</groupId>
 	<artifactId>report-api</artifactId>
+	<packaging>bundle</packaging>
 	<name>Reporting API</name>
 	<description>
 		API for creating reports about dataflows in the workbench.
@@ -35,9 +36,9 @@
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>configuration-api</artifactId>
-			<version>${project.version}</version>
+			<groupId>uk.org.taverna.configuration</groupId>
+			<artifactId>taverna-configuration-api</artifactId>
+			<version>${taverna.configuration.version}</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -8,6 +8,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-api</groupId>
 	<artifactId>file-api</artifactId>
+	<packaging>bundle</packaging>
 	<name>File opening API</name>
 	<description>
 		API for doing file (ie. workflow) open/save in the workbench.

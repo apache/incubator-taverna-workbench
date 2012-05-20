@@ -9,6 +9,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-api</groupId>
 	<artifactId>menu-api</artifactId>
+	<packaging>bundle</packaging>
 	<name>Menu generation API</name>
 	<description>An SPI system for building UI menues</description>
 	<dependencies>

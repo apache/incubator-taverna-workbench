@@ -8,6 +8,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-api</groupId>
 	<artifactId>edits-api</artifactId>
+	<packaging>bundle</packaging>
 	<name>Edits API</name>
 	<description>API for doing workflow edits and undo.</description>
 	<dependencies>
