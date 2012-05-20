@@ -5,6 +5,19 @@
 
 	<bean name="ServiceDescriptionRegistryImpl" class="net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl">
 		<property name="serviceDescriptionProviders" ref="serviceDescriptionProviders" />
+		<property name="applicationConfiguration" ref="applicationConfiguration" />
+		<property name="serviceDescriptionsConfig">
+		 	<ref local="ServiceDescriptionsConfig"/>
+		</property>
 	</bean>
+
+	<bean id="ServiceDescriptionsConfigurationImpl" class="net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionsConfigurationImpl">
+		<constructor-arg ref="configurationManager"/>
+	</bean>
+
+	<!-- Don't think ActivityPalette is still used -->
+	<!-- <bean id="ActivityPaletteConfiguration" class="net.sf.taverna.t2.workbench.ui.activitypalette.ActivityPaletteConfiguration">
+		<constructor-arg ref="configurationManager"/>
+	</bean> -->
 
 </beans>

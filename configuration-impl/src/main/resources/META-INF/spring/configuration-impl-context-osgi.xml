@@ -6,14 +6,17 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="WorkbenchConfigurationUIFactory" interface="net.sf.taverna.t2.workbench.configuration.ConfigurationUIFactory" />
+	<service ref="WorkbenchConfigurationUIFactory" interface="uk.org.taverna.configuration.ConfigurationUIFactory" />
 
 	<service ref="WorkbenchPreferencesSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
 	<service ref="WorkbenchConfigurationMenu" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
 
-	<service ref="ColourManagerImpl" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
-	<service ref="WorkbenchConfigurationImpl" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
+	<service ref="ColourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
+	<service ref="WorkbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
+	<service ref="MimeTypeManager" interface="net.sf.taverna.t2.workbench.configuration.mimetype.MimeTypeManager" />
 
-	<list id="configurationUIFactories" interface="net.sf.taverna.t2.workbench.configuration.ConfigurationUIFactory" cardinality="0..N"/>
+	<reference id="configurationManager" interface="uk.org.taverna.configuration.ConfigurationManager" />
+	<reference id="applicationConfiguration" interface="uk.org.taverna.configuration.app.ApplicationConfiguration" />
+	<list id="configurationUIFactories" interface="uk.org.taverna.configuration.ConfigurationUIFactory" cardinality="0..N"/>
 
 </beans:beans>

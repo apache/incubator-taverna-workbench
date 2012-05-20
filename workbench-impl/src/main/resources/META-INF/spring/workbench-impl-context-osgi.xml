@@ -27,6 +27,8 @@
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
 	<reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
+	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
+	<reference id="applicationConfiguration" interface="uk.org.taverna.configuration.app.ApplicationConfiguration" />
 
 	<list id="perspectives" interface="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI" cardinality="0..N" comparator-ref="PerspectiveComparator">
 		<listener ref="Workbench" bind-method="refreshPerspectives" unbind-method="refreshPerspectives" />
@@ -34,5 +36,7 @@
 
 	<list id="startupHooks" interface="net.sf.taverna.t2.workbench.StartupSPI" cardinality="0..N" comparator-ref="StartupComparator"/>
 	<list id="shutdownHooks" interface="net.sf.taverna.t2.workbench.ShutdownSPI" cardinality="0..N" comparator-ref="ShutdownComparator"/>
+
+	<list id="configurationUIFactories" interface="uk.org.taverna.configuration.ConfigurationUIFactory" cardinality="0..N"/>
 
 </beans:beans>

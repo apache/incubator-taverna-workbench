@@ -33,9 +33,10 @@
 	<service ref="FileManagerImpl" interface="net.sf.taverna.t2.workbench.file.FileManager" />
 
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
+	<reference id="applicationConfiguration" interface="uk.org.taverna.configuration.app.ApplicationConfiguration" />
 
 	<list id="dataflowPersistenceHandlers" interface="net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler" cardinality="0..N">
-		<listener ref="DataflowPersistenceHandlerRegistry" bind-method="updateColletions" unbind-method="updateColletions" />
+		<listener ref="DataflowPersistenceHandlerRegistry" bind-method="update" unbind-method="update" />
 	</list>
 
 </beans:beans>

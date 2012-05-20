@@ -7,7 +7,10 @@
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
 	<service ref="ServiceDescriptionRegistryImpl" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry"/>
+	<service ref="ServiceDescriptionsConfigurationImpl" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionsConfig"/>
 
+	<reference id="configurationManager" interface="uk.org.taverna.configuration.ConfigurationManager" />
+	<reference id="applicationConfiguration" interface="uk.org.taverna.configuration.app.ApplicationConfiguration" />
 	<list id="serviceDescriptionProviders" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider" cardinality="0..N"/>
 
 </beans:beans>

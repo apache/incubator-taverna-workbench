@@ -3,8 +3,12 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="UserRegistrationHook" class="net.sf.taverna.t2.workbench.ui.impl.UserRegistrationHook" />
-	<bean id="SetConsoleLoggerStartup" class="net.sf.taverna.t2.workbench.ui.impl.SetConsoleLoggerStartup" />
+	<bean id="UserRegistrationHook" class="net.sf.taverna.t2.workbench.ui.impl.UserRegistrationHook">
+		<property name="applicationConfiguration" ref="applicationConfiguration"/>
+	</bean>
+	<bean id="SetConsoleLoggerStartup" class="net.sf.taverna.t2.workbench.ui.impl.SetConsoleLoggerStartup">
+		<constructor-arg ref="workbenchConfiguration" />
+	</bean>
 
 	<!-- <bean id="WorkbenchLauncher" class="net.sf.taverna.t2.workbench.ui.impl.WorkbenchLauncher" /> -->
 
@@ -19,7 +23,9 @@
 	<bean id="HelpMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.HelpMenu" />
 	<bean id="OnlineHelpMenuAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.OnlineHelpMenuAction" />
 	<bean id="FeedbackMenuAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.FeedbackMenuAction" />
-	<bean id="ShowLogsAndDataMenuAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.ShowLogsAndDataMenuAction" />
+	<bean id="ShowLogsAndDataMenuAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.ShowLogsAndDataMenuAction">
+		<property name="applicationConfiguration" ref="applicationConfiguration"/>
+	</bean>
 
 	<bean id="StoreWindowStateOnShutdown" class="net.sf.taverna.t2.workbench.ui.impl.StoreWindowStateOnShutdown">
 		<property name="workbench">
@@ -27,18 +33,21 @@
 		</property>
 	</bean>
 
-	<bean id="Workbench" class="net.sf.taverna.t2.workbench.ui.impl.WorkbenchImpl">
+	<bean id="Workbench" class="net.sf.taverna.t2.workbench.ui.impl.WorkbenchImpl" init-method="initialize">
 		<constructor-arg ref="startupHooks"/>
 		<constructor-arg ref="shutdownHooks"/>
+		<constructor-arg ref="perspectives"/>
 		<property name="editManager" ref="editManager"/>
 		<property name="fileManager" ref="fileManager"/>
 		<property name="menuManager" ref="menuManager"/>
-		<property name="perspectives" ref="perspectives"/>
-		<property name="perspectives" ref="perspectives"/>
+		<!-- <property name="perspectiveList" ref="perspectives"/> -->
+		<property name="configurationUIFactories" ref="configurationUIFactories"/>
+		<property name="workbenchConfiguration" ref="workbenchConfiguration"/>
+		<property name="applicationConfiguration" ref="applicationConfiguration"/>
 	</bean>
 
-	<bean id="PerspectiveComparator" class="net.sf.taverna.t2.workbench.ui.PerspectiveSPI.PerspectiveComparator" />
-	<bean id="StartupComparator" class="net.sf.taverna.t2.workbench.StartupSPI.StartupComparator" />
-	<bean id="ShutdownComparator" class="net.sf.taverna.t2.workbench.ShutdownSPI.ShutdownComparator" />
+	<bean id="PerspectiveComparator" class="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI$PerspectiveComparator" />
+	<bean id="StartupComparator" class="net.sf.taverna.t2.workbench.StartupSPI$StartupComparator" />
+	<bean id="ShutdownComparator" class="net.sf.taverna.t2.workbench.ShutdownSPI$ShutdownComparator" />
 
 </beans>
