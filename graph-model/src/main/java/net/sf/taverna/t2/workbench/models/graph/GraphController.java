@@ -1566,19 +1566,20 @@ public abstract class GraphController implements
 		} else if (ports.size() == 1) {
 			result = ports.get(0);
 		} else {
+			ArrayList<Port> sortedPorts = new ArrayList<Port>(ports);
+			Collections.sort(sortedPorts, portComparator);
 			List<String> portNames = new ArrayList<String>();
-			for (Port port : ports) {
+			for (Port port : sortedPorts) {
 				portNames.add(port.getName());
 			}
-			Collections.sort(portNames);
 			String portName = (String) JOptionPane.showInputDialog(component,
 					"Select an " + portType + " port", "Port Chooser",
 					JOptionPane.PLAIN_MESSAGE, null, portNames.toArray(),
 					portNames.get(0));
 			if ((portName != null) && (portName.length() > 0)) {
 				int index = portNames.indexOf(portName);
-				if (index >= 0 && index < ports.size()) {
-					result = ports.get(index);
+				if (index >= 0 && index < sortedPorts.size()) {
+					result = sortedPorts.get(index);
 				}
 			}
 		}
