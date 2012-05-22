@@ -24,6 +24,9 @@ import java.awt.Frame;
 
 import javax.swing.Action;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.actions.StringConstantActivityConfigurationAction;
@@ -31,6 +34,8 @@ import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextu
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 public class StringConstantActivityContextualView extends HTMLBasedActivityContextualView<StringConstantConfigurationBean> {
+	
+	private static int MAX_LENGTH=80;
 
 	private static final long serialVersionUID = -553974544001808511L;
 
@@ -46,7 +51,9 @@ public class StringConstantActivityContextualView extends HTMLBasedActivityConte
 
 	@Override
 	protected String getRawTableRowsHtml() {
-		String html = "<tr><td>Value</td><td>"+getConfigBean().getValue()+"</td></tr>";
+		String v = StringUtils.abbreviate(getConfigBean().getValue(), MAX_LENGTH);
+		v = StringEscapeUtils.escapeHtml(v);
+		String html = "<tr><td>Value</td><td>"+v+"</td></tr>";
 		return html;
 	}
 
