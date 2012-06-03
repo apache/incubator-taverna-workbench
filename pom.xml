@@ -30,6 +30,7 @@
 		<!-- <module>update-manager</module> -->
 		<module>workbench-impl</module>
 		<!-- <module>zaria</module> -->
+		<module>report-impl</module>
 	</modules>
 	<repositories>
 		<repository>
