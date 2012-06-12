@@ -24,6 +24,7 @@
 	<reference id="dataflowSelectionManager" interface="net.sf.taverna.t2.workbench.ui.DataflowSelectionManager" />
 	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
 
+	<list id="annotationBeans" interface="net.sf.taverna.t2.annotation.AnnotationBeanSPI" />
 	<list id="contextualViewFactories" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" cardinality="0..N" />
 
 </beans:beans>

@@ -31,6 +31,7 @@ import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
+import javax.naming.AuthenticationNotSupportedException;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -39,6 +40,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
 import net.sf.taverna.t2.annotation.Annotated;
+import net.sf.taverna.t2.annotation.AnnotationBeanSPI;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
@@ -92,10 +94,14 @@ public class AnnotatedContextualView extends ContextualView {
 	@SuppressWarnings("unchecked")
 	private static Map<Annotated, JPanel> annotatedToPanelMap = new HashMap<Annotated, JPanel>();
 
-	public AnnotatedContextualView(Annotated<?> annotated, EditManager editManager, FileManager fileManager) {
+	private final List<AnnotationBeanSPI> annotationBeans;
+
+	public AnnotatedContextualView(Annotated<?> annotated, EditManager editManager,
+			FileManager fileManager, List<AnnotationBeanSPI> annotationBeans) {
 		super();
 		this.editManager = editManager;
 		this.fileManager = fileManager;
+		this.annotationBeans = annotationBeans;
 		prb = (PropertyResourceBundle) ResourceBundle
 				.getBundle("annotatedcontextualview");
 		this.annotated = annotated;
@@ -142,7 +148,7 @@ public class AnnotatedContextualView extends ContextualView {
 			JPanel scrollPanel = new JPanel();
 			scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
 			annotatedView.setBorder(new EmptyBorder(5, 5, 5, 5));
-			for (Class<?> c : annotationTools.getAnnotatingClasses(annotated)) {
+			for (Class<?> c : annotationTools.getAnnotatingClasses(annotationBeans, annotated)) {
 				String name = "";
 				try {
 					name = prb.getString(c.getCanonicalName());
@@ -151,7 +157,7 @@ public class AnnotatedContextualView extends ContextualView {
 				}
 				JPanel subPanel = new JPanel();
 				subPanel.setBorder(new TitledBorder(name));
-				String value = annotationTools.getAnnotationString(annotated, c, MISSING_VALUE);
+				String value = AnnotationTools.getAnnotationString(annotated, c, MISSING_VALUE);
 				subPanel.add(createTextArea(c, value));
 				scrollPanel.add(subPanel);
 			}

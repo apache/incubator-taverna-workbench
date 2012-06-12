@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="ContextualViewComponentFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualViewComponentFactory">
+	<bean id="ContextualViewComponentFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.impl.ContextualViewComponentFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
@@ -32,6 +32,7 @@
 	<bean id="AnnotatedContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.annotated.AnnotatedContextualViewFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
+			<property name="annotationBeans" ref ="annotationBeans"/>
 	</bean>
 	<bean id="DataflowContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflow.DataflowContextualViewFactory">
 			<property name="fileManager" ref="fileManager" />

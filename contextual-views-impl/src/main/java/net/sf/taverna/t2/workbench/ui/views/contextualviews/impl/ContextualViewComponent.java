@@ -1,4 +1,4 @@
-package net.sf.taverna.t2.workbench.ui.views.contextualviews;
+package net.sf.taverna.t2.workbench.ui.views.contextualviews.impl;
 
 import java.awt.Color;
 import java.awt.Frame;
@@ -39,6 +39,7 @@ import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.Utils;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.annotated.AnnotatedContextualView;
@@ -91,6 +92,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 			ContextualViewFactoryRegistry contextualViewFactoryRegistry) {
 		this.fileManager = fileManager;
 		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.contextualViewFactoryRegistry = contextualViewFactoryRegistry;
 		Dataflow currentDataflow = fileManager.getCurrentDataflow();
 
 		DataflowSelectionModel selectionModel = dataflowSelectionManager

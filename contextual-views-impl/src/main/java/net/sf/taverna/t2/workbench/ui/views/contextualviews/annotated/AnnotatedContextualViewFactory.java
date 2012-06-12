@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.sf.taverna.t2.annotation.Annotated;
+import net.sf.taverna.t2.annotation.AnnotationBeanSPI;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
@@ -16,13 +17,14 @@ public class AnnotatedContextualViewFactory implements
 
 	private EditManager editManager;
 	private FileManager fileManager;
+	private List<AnnotationBeanSPI> annotationBeans;
 
 	public boolean canHandle(Object selection) {
 		return ((selection instanceof Annotated) && !(selection instanceof Activity));
 	}
 
 	public List<ContextualView> getViews(Annotated selection) {
-		return Arrays.asList(new ContextualView[] {new AnnotatedContextualView((Annotated) selection, editManager, fileManager)});
+		return Arrays.asList(new ContextualView[] {new AnnotatedContextualView((Annotated) selection, editManager, fileManager, annotationBeans)});
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -31,6 +33,10 @@ public class AnnotatedContextualViewFactory implements
 
 	public void setFileManager(FileManager fileManager) {
 		this.fileManager = fileManager;
+	}
+
+	public void setAnnotationBeans(List<AnnotationBeanSPI> annotationBeans) {
+		this.annotationBeans = annotationBeans;
 	}
 
 }
