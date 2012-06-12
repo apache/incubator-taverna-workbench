@@ -1,5 +1,6 @@
 package net.sf.taverna.t2.servicedescriptions;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -20,6 +21,10 @@ public abstract class AbstractTemplateService<ConfigType> implements
 	}
 
 	public abstract Icon getIcon();
+
+	public URI getActivityURI() {
+		return null;
+	}
 
 	public abstract Class<? extends Activity<ConfigType>> getActivityClass();
 
@@ -50,6 +55,11 @@ public abstract class AbstractTemplateService<ConfigType> implements
 		}
 
 		@Override
+		public URI getActivityURI() {
+			return AbstractTemplateService.this.getActivityURI();
+		}
+
+		@Override
 		public Class<? extends Activity<ConfigType>> getActivityClass() {
 			return AbstractTemplateService.this.getActivityClass();
 		}
@@ -58,7 +68,7 @@ public abstract class AbstractTemplateService<ConfigType> implements
 		public ConfigType getActivityConfiguration() {
 			return AbstractTemplateService.this.getActivityConfiguration();
 		}
-		
+
 		public String getDescription() {
 			return AbstractTemplateService.this.getDescription();
 		}
@@ -73,5 +83,5 @@ public abstract class AbstractTemplateService<ConfigType> implements
 		// Default to an empty string
 		return "";
 	}
-	
+
 }

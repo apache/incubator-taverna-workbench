@@ -1,5 +1,6 @@
 package net.sf.taverna.t2.servicedescriptions;
 
+import java.net.URI;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -18,6 +19,7 @@ public abstract class ServiceDescription<ConfigType> extends IdentifiedObject {
 	private static final String NAME = "Name";
 	private static final String SERVICE_CONFIGURATION = "Service configuration";
 	private static final String SERVICE_IMPLEMENTATION_CLASS = "Service implementation class";
+	private static final String SERVICE_IMPLEMENTATION_URI = "Service implementation URI";
 	private static final String DESCRIPTION = "Description";
 
 	public static final String LOCAL_SERVICES = "Local services";
@@ -25,6 +27,11 @@ public abstract class ServiceDescription<ConfigType> extends IdentifiedObject {
 	private String description = "";
 
 	private static Logger logger = Logger.getLogger(ServiceDescription.class);
+
+	@PropertyAnnotation(expert = true, displayName = SERVICE_IMPLEMENTATION_URI)
+	public URI getActivityURI() {
+		return null;
+	}
 
 	@PropertyAnnotation(expert = true, displayName = SERVICE_IMPLEMENTATION_CLASS)
 	public abstract Class<? extends Activity<ConfigType>> getActivityClass();
@@ -68,7 +75,7 @@ public abstract class ServiceDescription<ConfigType> extends IdentifiedObject {
 	 * Any addition edit that needs to be performed upon insertion of an
 	 * instance of the ServiceDescription into the Dataflow withi nthe specified
 	 * Processor
-	 * 
+	 *
 	 * @param dataflow
 	 * @param p
 	 * @param a
