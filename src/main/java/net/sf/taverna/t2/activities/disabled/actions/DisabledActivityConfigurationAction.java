@@ -29,10 +29,10 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.activities.disabled.views.DisabledConfigView;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
-import net.sf.taverna.t2.workbench.report.impl.ReportManagerImpl;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
@@ -46,15 +46,18 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 @SuppressWarnings("serial")
-public class DisabledActivityConfigurationAction extends ActivityConfigurationAction<DisabledActivity, ActivityAndBeanWrapper>{
+public class DisabledActivityConfigurationAction extends
+		ActivityConfigurationAction<DisabledActivity, ActivityAndBeanWrapper> {
 
 	public static final String FIX_DISABLED = "Edit properties";
 	private final EditManager editManager;
 	private final FileManager fileManager;
 	private final ReportManager reportManager;
 
-	public DisabledActivityConfigurationAction(DisabledActivity activity, Frame owner, EditManager editManager, FileManager fileManager, ReportManager reportManager) {
-		super(activity);
+	public DisabledActivityConfigurationAction(DisabledActivity activity, Frame owner,
+			EditManager editManager, FileManager fileManager, ReportManager reportManager,
+			ActivityIconManager activityIconManager) {
+		super(activity, activityIconManager);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.reportManager = reportManager;
@@ -62,61 +65,62 @@ public class DisabledActivityConfigurationAction extends ActivityConfigurationAc
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		ActivityConfigurationDialog currentDialog = ActivityConfigurationAction.getDialog(getActivity());
+		ActivityConfigurationDialog currentDialog = ActivityConfigurationAction
+				.getDialog(getActivity());
 		if (currentDialog != null) {
 			currentDialog.toFront();
 			return;
 		}
 		int answer = JOptionPane.showConfirmDialog((Component) e.getSource(),
-							   "Directly editing properties can be dangerous. Are you sure you want to proceed?",
-							   "Confirm editing",
-							   JOptionPane.YES_NO_OPTION);
+				"Directly editing properties can be dangerous. Are you sure you want to proceed?",
+				"Confirm editing", JOptionPane.YES_NO_OPTION);
 		if (answer != JOptionPane.YES_OPTION) {
-		    return;
+			return;
 		}
 
-		final DisabledConfigView disabledConfigView = new DisabledConfigView((DisabledActivity)getActivity());
-		final DisabledActivityConfigurationDialog dialog =
-			new DisabledActivityConfigurationDialog(getActivity(), disabledConfigView);
+		final DisabledConfigView disabledConfigView = new DisabledConfigView(
+				(DisabledActivity) getActivity());
+		final DisabledActivityConfigurationDialog dialog = new DisabledActivityConfigurationDialog(
+				getActivity(), disabledConfigView);
 
 		ActivityConfigurationAction.setDialog(getActivity(), dialog, fileManager);
 
 	}
 
-
-	private class DisabledActivityConfigurationDialog extends ActivityConfigurationDialog<DisabledActivity, ActivityAndBeanWrapper> {
-	    public DisabledActivityConfigurationDialog(DisabledActivity a, DisabledConfigView p) {
-		super (a, p, editManager, fileManager);
-		this.setModal(true);
-		super.applyButton.setEnabled(false);
-		super.applyButton.setVisible(false);
-	    }
-
-
-	public void configureActivity(Dataflow df, Activity a, Object bean) {
-		Edit<?> configureActivityEdit = editManager.getEdits().getConfigureActivityEdit(a, bean);
-		try {
-			List<Edit<?>> editList = new ArrayList<Edit<?>>();
-			editList.add(configureActivityEdit);
-			Processor p = findProcessor(df, a);
-			if (p != null && p.getActivityList().size() == 1) {
-				editList.add(editManager.getEdits().getMapProcessorPortsForActivityEdit(p));
-			}
-			Edit e = Tools.getEnableDisabledActivityEdit(super.owningProcessor, activity, editManager.getEdits());
-			if (e != null) {
-			    editList.add(e);
-			    editManager.doDataflowEdit(df,
-								     new CompoundEdit(editList));
-			    reportManager.updateObjectReport(super.owningDataflow, super.owningProcessor);
-
-			}
-		} catch (IllegalStateException e) {
-			// TODO Auto-generated catch block
-			logger.error(e);
-		} catch (EditException e) {
-			logger.error(e);
+	private class DisabledActivityConfigurationDialog extends
+			ActivityConfigurationDialog<DisabledActivity, ActivityAndBeanWrapper> {
+		public DisabledActivityConfigurationDialog(DisabledActivity a, DisabledConfigView p) {
+			super(a, p, editManager, fileManager);
+			this.setModal(true);
+			super.applyButton.setEnabled(false);
+			super.applyButton.setVisible(false);
 		}
-	}
+
+		public void configureActivity(Dataflow df, Activity a, Object bean) {
+			Edit<?> configureActivityEdit = editManager.getEdits()
+					.getConfigureActivityEdit(a, bean);
+			try {
+				List<Edit<?>> editList = new ArrayList<Edit<?>>();
+				editList.add(configureActivityEdit);
+				Processor p = findProcessor(df, a);
+				if (p != null && p.getActivityList().size() == 1) {
+					editList.add(editManager.getEdits().getMapProcessorPortsForActivityEdit(p));
+				}
+				Edit e = Tools.getEnableDisabledActivityEdit(super.owningProcessor, activity,
+						editManager.getEdits());
+				if (e != null) {
+					editList.add(e);
+					editManager.doDataflowEdit(df, new CompoundEdit(editList));
+					reportManager.updateObjectReport(super.owningDataflow, super.owningProcessor);
+
+				}
+			} catch (IllegalStateException e) {
+				// TODO Auto-generated catch block
+				logger.error(e);
+			} catch (EditException e) {
+				logger.error(e);
+			}
+		}
 
 	}
 

@@ -13,5 +13,7 @@
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
 	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" />
+	<reference id="activityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
+	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
 
 </beans:beans>

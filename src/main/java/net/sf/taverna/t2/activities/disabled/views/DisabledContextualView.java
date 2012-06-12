@@ -16,6 +16,8 @@ import java.util.List;
 import javax.swing.Action;
 
 import net.sf.taverna.t2.activities.disabled.actions.DisabledActivityConfigurationAction;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
@@ -32,23 +34,25 @@ import org.apache.log4j.Logger;
  * @author alanrw
  *
  */
-public class DisabledContextualView extends
-		HTMLBasedActivityContextualView<Object> {
+public class DisabledContextualView extends HTMLBasedActivityContextualView<Object> {
 
-	private static Logger logger = Logger
-			.getLogger(DisabledContextualView.class);
+	private static Logger logger = Logger.getLogger(DisabledContextualView.class);
 
-    private List<String> fieldNames;
+	private List<String> fieldNames;
 
 	private final EditManager editManager;
 	private final FileManager fileManager;
 	private final ReportManager reportManager;
+	private final ActivityIconManager activityIconManager;
 
-	public DisabledContextualView(DisabledActivity activity, EditManager editManager, FileManager fileManager, ReportManager reportManager) {
-		super(activity);
+	public DisabledContextualView(DisabledActivity activity, EditManager editManager,
+			FileManager fileManager, ReportManager reportManager, ColourManager colourManager,
+			ActivityIconManager activityIconManager) {
+		super(activity, colourManager);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.reportManager = reportManager;
+		this.activityIconManager = activityIconManager;
 		init();
 	}
 
@@ -56,29 +60,24 @@ public class DisabledContextualView extends
 	}
 
 	/**
-	 * The table for the DisabledActivity shows its ports and the information
-	 * within the offline Activity's configuration.
+	 * The table for the DisabledActivity shows its ports and the information within the offline
+	 * Activity's configuration.
 	 *
 	 * @return
 	 */
 	@Override
 	protected String getRawTableRowsHtml() {
 		String html = "";
-		html = html + "<tr><th>Input Port Name</th><th>Port depth</th>"
-				+ "</tr>";
+		html = html + "<tr><th>Input Port Name</th><th>Port depth</th>" + "</tr>";
 		for (ActivityInputPort aip : getActivity().getInputPorts()) {
-			html = html + "<tr><td>" + aip.getName() + "</td><td>"
-					+ aip.getDepth() + "</td></tr>";
+			html = html + "<tr><td>" + aip.getName() + "</td><td>" + aip.getDepth() + "</td></tr>";
 		}
-		html = html + "<tr><th>Output Port Name</th><th>Port depth</th>"
-				+ "</tr>";
+		html = html + "<tr><th>Output Port Name</th><th>Port depth</th>" + "</tr>";
 		for (OutputPort aop : getActivity().getOutputPorts()) {
-			html = html + "<tr><td>" + aop.getName() + "</td><td>"
-					+ aop.getDepth() + "</td></tr>";
+			html = html + "<tr><td>" + aop.getName() + "</td><td>" + aop.getDepth() + "</td></tr>";
 		}
 
-		Object config = ((DisabledActivity) getActivity()).getConfiguration()
-				.getBean();
+		Object config = ((DisabledActivity) getActivity()).getConfiguration().getBean();
 		try {
 			html += "<tr><th>Property Name</th><th>Property Value</th></tr>";
 			BeanInfo beanInfo = Introspector.getBeanInfo(config.getClass());
@@ -86,10 +85,10 @@ public class DisabledContextualView extends
 				Method readMethod = pd.getReadMethod();
 				if ((readMethod != null) && !(pd.getName().equals("class"))) {
 					try {
-						html += "<tr><td>" + pd.getName() + "</td><td>"
-								+ readMethod.invoke(config) + "</td></tr>";
+						html += "<tr><td>" + pd.getName() + "</td><td>" + readMethod.invoke(config)
+								+ "</td></tr>";
 						if (fieldNames == null) {
-						    fieldNames = new ArrayList<String>();
+							fieldNames = new ArrayList<String>();
 						}
 						fieldNames.add(pd.getName());
 					} catch (IllegalAccessException ex) {
@@ -119,8 +118,8 @@ public class DisabledContextualView extends
 
 	@Override
 	public Action getConfigureAction(Frame owner) {
-		return new DisabledActivityConfigurationAction(
-				(DisabledActivity) getActivity(), owner, editManager, fileManager, reportManager);
+		return new DisabledActivityConfigurationAction((DisabledActivity) getActivity(), owner,
+				editManager, fileManager, reportManager, activityIconManager);
 	}
 
 }

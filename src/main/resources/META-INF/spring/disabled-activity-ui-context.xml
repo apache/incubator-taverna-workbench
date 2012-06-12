@@ -7,12 +7,15 @@
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="reportManager" ref="reportManager" />
+			<property name="activityIconManager" ref="activityIconManager" />
 	</bean>
 
 	<bean id="DisabledActivityViewFactory" class="net.sf.taverna.t2.activities.disabled.views.DisabledActivityViewFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="reportManager" ref="reportManager" />
+			<property name="activityIconManager" ref="activityIconManager" />
+			<property name="colourManager" ref="colourManager" />
 	</bean>
 
 </beans>
