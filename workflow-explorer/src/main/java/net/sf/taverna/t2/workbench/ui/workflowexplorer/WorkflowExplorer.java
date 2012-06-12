@@ -43,10 +43,13 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
+import uk.org.taverna.platform.capability.api.ActivityService;
+
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowInputAction;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowOutputAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
@@ -66,10 +69,9 @@ import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 /**
- * Workflow Explorer provides a context sensitive tree view of a workflow
- * (showing its inputs, outputs, processors, datalinks, etc.). Selection of a
- * node in the Model Explorer tree and a right-click leads to context sensitive
- * options appearing in a pop-up menu.
+ * Workflow Explorer provides a context sensitive tree view of a workflow (showing its inputs,
+ * outputs, processors, datalinks, etc.). Selection of a node in the Model Explorer tree and a
+ * right-click leads to context sensitive options appearing in a pop-up menu.
  *
  * @author Alex Nenadic
  *
@@ -97,8 +99,8 @@ public class WorkflowExplorer extends WorkflowView {
 	private JTree wfTree;
 
 	/*
-	 * Current workflow's selection model event observer - telling us what is
-	 * the currently selected object in the current workflow.
+	 * Current workflow's selection model event observer - telling us what is the currently selected
+	 * object in the current workflow.
 	 */
 	private Observer<DataflowSelectionMessage> workflowSelectionListener = new DataflowSelectionListener();
 
@@ -112,6 +114,8 @@ public class WorkflowExplorer extends WorkflowView {
 	protected EditManagerObserver editManagerObserver = new EditManagerObserver();
 
 	private final ReportManager reportManager;
+
+	private final ActivityIconManager activityIconManager;
 
 	public ImageIcon getIcon() {
 		return null;
@@ -131,17 +135,22 @@ public class WorkflowExplorer extends WorkflowView {
 
 	/**
 	 * Constructs the Workflow Explorer.
+	 * @param activityService
 	 */
 	public WorkflowExplorer(EditManager editManager, FileManager fileManager,
-			MenuManager menuManager, ReportManager reportManager, DataflowSelectionManager dataflowSelectionManager) {
+			MenuManager menuManager, ReportManager reportManager,
+			DataflowSelectionManager dataflowSelectionManager,
+			ActivityIconManager activityIconManager, ActivityService activityService) {
 
-		super(editManager, dataflowSelectionManager);
+		super(editManager, dataflowSelectionManager, activityService);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
 		this.reportManager = reportManager;
 		openedWorkflowsManager = dataflowSelectionManager;
-		this.setTransferHandler(new ServiceTransferHandler(editManager, menuManager, dataflowSelectionManager));
+		this.activityIconManager = activityIconManager;
+		this.setTransferHandler(new ServiceTransferHandler(editManager, menuManager,
+				dataflowSelectionManager));
 
 		// Create a tree that will represent a view over the current workflow
 		// Initially, there is no workflow opened, so we create an empty tree,
@@ -165,7 +174,8 @@ public class WorkflowExplorer extends WorkflowView {
 
 	private void assignWfTree(JTree tree) {
 		wfTree = tree;
-		wfTree.setTransferHandler(new ServiceTransferHandler(editManager, menuManager, openedWorkflowsManager));
+		wfTree.setTransferHandler(new ServiceTransferHandler(editManager, menuManager,
+				openedWorkflowsManager));
 	}
 
 	/**
@@ -259,9 +269,9 @@ public class WorkflowExplorer extends WorkflowView {
 	}
 
 	/**
-	 * Gets called when the current workflow is edited, or when a parent
-	 * workflow of a nested workflow is edited due to saved changes in the
-	 * nested workflow (which is the current workflow).
+	 * Gets called when the current workflow is edited, or when a parent workflow of a nested
+	 * workflow is edited due to saved changes in the nested workflow (which is the current
+	 * workflow).
 	 */
 	public void updateWorkflowTree(Dataflow df) {
 
@@ -326,11 +336,10 @@ public class WorkflowExplorer extends WorkflowView {
 	}
 
 	/**
-	 * Copies the expansion state of the old tree starting from the given node
-	 * in the old tree to the new tree starting from the new node. We normally
-	 * use it starting from the root nodes of both trees when an update has
-	 * happened to the tree and we want to preserve the expansion state in the
-	 * updated tree.
+	 * Copies the expansion state of the old tree starting from the given node in the old tree to
+	 * the new tree starting from the new node. We normally use it starting from the root nodes of
+	 * both trees when an update has happened to the tree and we want to preserve the expansion
+	 * state in the updated tree.
 	 */
 	@SuppressWarnings("unchecked")
 	private void copyExpansionState(JTree oldTree, DefaultMutableTreeNode oldNode, JTree newTree,
@@ -382,8 +391,8 @@ public class WorkflowExplorer extends WorkflowView {
 	}
 
 	/**
-	 * Returns a child of a given node that contains the same user object as the
-	 * one passed to the method.
+	 * Returns a child of a given node that contains the same user object as the one passed to the
+	 * method.
 	 */
 	@SuppressWarnings("unchecked")
 	private DefaultMutableTreeNode findChildWithUserObject(DefaultMutableTreeNode node,
@@ -413,7 +422,7 @@ public class WorkflowExplorer extends WorkflowView {
 		tree.setExpandsSelectedPaths(true);
 		tree.setDragEnabled(false);
 		tree.setScrollsOnExpand(false);
-		tree.setCellRenderer(new WorkflowExplorerTreeCellRenderer(workflow, reportManager));
+		tree.setCellRenderer(new WorkflowExplorerTreeCellRenderer(workflow, reportManager, activityIconManager));
 		// tree.setSelectionModel(new WorkflowExplorerTreeSelectionModel());
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
@@ -619,9 +628,8 @@ public class WorkflowExplorer extends WorkflowView {
 	}
 
 	/**
-	 * Sets the currently selected node(s) based on the workflow selection
-	 * model, i.e. the node(s) currently selected in the workflow graph view
-	 * also become selected in the tree view.
+	 * Sets the currently selected node(s) based on the workflow selection model, i.e. the node(s)
+	 * currently selected in the workflow graph view also become selected in the tree view.
 	 */
 	private void setSelectedNodes(JTree tree, Dataflow wf) {
 
@@ -756,10 +764,9 @@ public class WorkflowExplorer extends WorkflowView {
 	}
 
 	/**
-	 * Update workflow tree on edits to the workflow. Gets called when either
-	 * current workflow is edited or when current workflow is a nested workflow
-	 * that had been edited and then saved which will trigger update to the
-	 * parent workflow which is not the current workflow.
+	 * Update workflow tree on edits to the workflow. Gets called when either current workflow is
+	 * edited or when current workflow is a nested workflow that had been edited and then saved
+	 * which will trigger update to the parent workflow which is not the current workflow.
 	 *
 	 */
 	public class EditManagerObserver implements Observer<EditManagerEvent> {
@@ -783,8 +790,8 @@ public class WorkflowExplorer extends WorkflowView {
 	}
 
 	/**
-	 * Observes events on workflow Selection Manager, i.e. when a workflow node
-	 * is selected in the graph view.
+	 * Observes events on workflow Selection Manager, i.e. when a workflow node is selected in the
+	 * graph view.
 	 */
 	private final class DataflowSelectionListener implements Observer<DataflowSelectionMessage> {
 

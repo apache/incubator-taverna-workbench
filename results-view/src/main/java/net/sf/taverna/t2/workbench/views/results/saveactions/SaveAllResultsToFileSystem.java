@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -30,7 +30,6 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.lang.results.ResultsUtils;
 import net.sf.taverna.t2.reference.ErrorDocument;
 import net.sf.taverna.t2.reference.ExternalReferenceSPI;
 import net.sf.taverna.t2.reference.Identified;
@@ -38,6 +37,7 @@ import net.sf.taverna.t2.reference.IdentifiedList;
 import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.ReferencedDataNature;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.results.ResultsUtils;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.commons.io.FileUtils;
@@ -53,25 +53,25 @@ public class SaveAllResultsToFileSystem extends SaveAllResultsSPI {
 		putValue(NAME, "Save as directory");
 		putValue(SMALL_ICON, WorkbenchIcons.saveAllIcon);
 	}
-	
+
 	public AbstractAction getAction() {
 		return new SaveAllResultsToFileSystem();
 	}
-	
-	
+
+
 	/**
-	 * Saves the result data as a file structure 
-	 * @throws IOException 
+	 * Saves the result data as a file structure
+	 * @throws IOException
 	 */
 	protected void saveData(File file) throws IOException {
-		
+
 
 		// First convert map of references to objects into a map of real result objects
 		for (String portName : chosenReferences.keySet()) {
 			writeToFileSystem(chosenReferences.get(portName), file, portName);
 		}
 	}
-	
+
 	public File writeToFileSystem(T2Reference ref, File destination, String name)
 			throws IOException {
 		Identified identified = referenceService.resolveIdentifier(ref, null,
@@ -83,7 +83,7 @@ public class SaveAllResultsToFileSystem extends SaveAllResultsSPI {
 		} else if (identified instanceof ErrorDocument) {
 			fileExtension = ".err";
 		}
-		
+
 		File writtenFile = writeObjectToFileSystem(destination, name,
 				ref, fileExtension);
 		return writtenFile;
@@ -182,7 +182,7 @@ public class SaveAllResultsToFileSystem extends SaveAllResultsSPI {
 
 		}
 	}
-	
+
 	@Override
 	protected String getFilter() {
 		return null;

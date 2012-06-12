@@ -53,6 +53,7 @@ import javax.swing.event.ListSelectionListener;
 
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade.State;
+import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
@@ -74,12 +75,12 @@ import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
 import org.apache.log4j.Logger;
 
 /**
- * Component for keeping and showing workflow runs and workflow
- * final/intermediate results as well as workflow run progress report.
+ * Component for keeping and showing workflow runs and workflow final/intermediate results as well
+ * as workflow run progress report.
  * <p>
- * <b> FIXME: </b> This class performs a double-role as the GUI component and
- * for keeping and tidying up in the actual runs. Running, keeping runs, results
- * and previous runs should be done in a separate non-GUI module.
+ * <b> FIXME: </b> This class performs a double-role as the GUI component and for keeping and
+ * tidying up in the actual runs. Running, keeping runs, results and previous runs should be done in
+ * a separate non-GUI module.
  */
 public class ResultsPerspectiveComponent extends JSplitPane implements UIComponentSPI {
 
@@ -122,16 +123,12 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 	private XMLDeserializer xmlDeserializer;
 
-	private static class Singleton {
-		private static ResultsPerspectiveComponent INSTANCE = new ResultsPerspectiveComponent();
-	}
+	private final List<ProvenanceConnectorFactory> provenanceConnectorFactories;
 
-	public static ResultsPerspectiveComponent getInstance() {
-		return Singleton.INSTANCE;
-	}
-
-	protected ResultsPerspectiveComponent() {
+	protected ResultsPerspectiveComponent(
+			List<ProvenanceConnectorFactory> provenanceConnectorFactories) {
 		super(JSplitPane.VERTICAL_SPLIT);
+		this.provenanceConnectorFactories = provenanceConnectorFactories;
 		setDividerLocation(400);
 
 		topPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -224,14 +221,12 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 							/*
 							 * JTabbedPane monitorComponent = new JTabbedPane();
 							 * monitorComponent.add("Graph", workflowRun
-							 * .getOrCreateMonitorViewComponent()); // graph
-							 * JScrollPane scrollPane = new
-							 * JScrollPane(workflowRun
-							 * .getOrCreateProgressReportComponent(),
+							 * .getOrCreateMonitorViewComponent()); // graph JScrollPane scrollPane
+							 * = new JScrollPane(workflowRun .getOrCreateProgressReportComponent(),
 							 * JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 							 * JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-							 * monitorComponent.add("Progress report",
-							 * scrollPane); // progress report
+							 * monitorComponent.add("Progress report", scrollPane); // progress
+							 * report
 							 */
 							MonitorViewComponent monitorComponent = workflowRun
 									.getOrCreateMonitorViewComponent();
@@ -405,7 +400,8 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 	protected void retrievePreviousWorkflowRunsFromDatabase() {
 		String connectorType = DataManagementConfiguration.getInstance().getConnectorType();
-		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
+		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType,
+				provenanceConnectorFactories);
 
 		List<net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowRun> allWorkflowRunIDs = provenanceAccess
 				.listRuns(null, null);
@@ -458,17 +454,17 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 		// current Ref. Manager uses in-memory store.
 		if (referenceServiceWithDatabase == null) {
 			String databasecontext = DataManagementConfiguration.HIBERNATE_CONTEXT;
-//			ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
-//					databasecontext);
-//			referenceServiceWithDatabase = (ReferenceService) appContext
-//					.getBean("t2reference.service.referenceService");
+			// ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
+			// databasecontext);
+			// referenceServiceWithDatabase = (ReferenceService) appContext
+			// .getBean("t2reference.service.referenceService");
 		}
 		return referenceServiceWithDatabase;
 	}
 
 	public void runWorkflow(WorkflowInstanceFacade facade, Map<String, T2Reference> inputs) {
-		WorkflowRun workflowRun = new WorkflowRun(facade, inputs, new Date(), referenceService, editManager,
-				fileManager, menuManager, dataflowSelectionManager, xmlDeserializer);
+		WorkflowRun workflowRun = new WorkflowRun(facade, inputs, new Date(), referenceService,
+				editManager, fileManager, menuManager, dataflowSelectionManager, xmlDeserializer);
 		workflowRun.setProvenanceEnabledForRun(DataManagementConfiguration.getInstance()
 				.isProvenanceEnabled());
 		workflowRun.setDataSavedInDatabase(DataManagementConfiguration.getInstance()
@@ -528,8 +524,8 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 	}
 
 	/**
-	 * Load a workflow run from database (in separate thread, as this involves
-	 * parsing the workflow definition).
+	 * Load a workflow run from database (in separate thread, as this involves parsing the workflow
+	 * definition).
 	 *
 	 */
 	protected class LoadPreviousWorkflowRunThread extends Thread {

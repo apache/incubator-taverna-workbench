@@ -23,12 +23,10 @@ package net.sf.taverna.t2.workbench.views.graph;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,7 +36,6 @@ import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -50,6 +47,8 @@ import javax.swing.border.TitledBorder;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
@@ -58,8 +57,6 @@ import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
-import net.sf.taverna.t2.workbench.file.impl.T2DataflowOpener;
-import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
@@ -80,6 +77,8 @@ import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.platform.capability.api.ActivityService;
+
 /**
  *
  * @author David Withers
@@ -93,17 +92,12 @@ public class GraphViewComponent extends WorkflowView {
 
 	private static Logger logger = Logger.getLogger(GraphViewComponent.class);
 
-	private static GraphViewConfiguration configuration = GraphViewConfiguration
-			.getInstance();
-
 	private SVGGraphController graphController;
 
 	private JPanel diagramPanel;
 
 	public static Map<Dataflow, SVGGraphController> graphControllerMap = new HashMap<Dataflow, SVGGraphController>();
-
 	public static Map<Dataflow, JPanel> diagramPanelMap = new HashMap<Dataflow, JPanel>();
-
 	public static Map<Dataflow, Action[]> diagramActionsMap = new HashMap<Dataflow, Action[]>();
 
 	private Dataflow dataflow;
@@ -117,19 +111,24 @@ public class GraphViewComponent extends WorkflowView {
     private TitledBorder border;
 
 	private final EditManager editManager;
-
 	private final FileManager fileManager;
-
 	private final MenuManager menuManager;
-
 	private final DataflowSelectionManager dataflowSelectionManager;
+	private final ColourManager colourManager;
+	private final WorkbenchConfiguration workbenchConfiguration;
+	private final GraphViewConfiguration configuration;
 
-	public GraphViewComponent(EditManager editManager, FileManager fileManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager) {
-		super(editManager, dataflowSelectionManager);
+	public GraphViewComponent(EditManager editManager, FileManager fileManager, MenuManager menuManager,
+			DataflowSelectionManager dataflowSelectionManager, ColourManager colourManager,
+			WorkbenchConfiguration workbenchConfiguration, GraphViewConfiguration configuration, ActivityService activityService) {
+		super(editManager, dataflowSelectionManager, activityService);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
 		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.colourManager = colourManager;
+		this.workbenchConfiguration = workbenchConfiguration;
+		this.configuration = configuration;
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 
@@ -200,7 +199,7 @@ public class GraphViewComponent extends WorkflowView {
 
 		// create a graph controller
 		SVGGraphController svgGraphController = new SVGGraphController(
-				dataflow, false, svgCanvas, alignment, portStyle, editManager, menuManager);
+				dataflow, false, svgCanvas, alignment, portStyle, editManager, menuManager, colourManager, workbenchConfiguration);
 		svgGraphController.setDataflowSelectionModel(dataflowSelectionManager
 				.getDataflowSelectionModel(dataflow));
 		svgGraphController.setAnimationSpeed(animationEnabled ? animationSpeed
@@ -457,28 +456,28 @@ public class GraphViewComponent extends WorkflowView {
 	/**
 	 * For testing only
 	 */
-	public static void main(String[] args) throws Exception {
-		System.setProperty("raven.eclipse", "true");
-		System.setProperty("taverna.dotlocation",
-				"/Applications/Taverna-1.7.1.app/Contents/MacOS/dot");
-		// System.setProperty("taverna.dotlocation", "/opt/local/bin/dot");
-
-		GraphViewComponent graphView = new GraphViewComponent(null, null, null, null);
-
-		T2DataflowOpener t2DataflowOpener = new T2DataflowOpener();
-		InputStream stream = GraphViewComponent.class
-				.getResourceAsStream("/nested_iteration.t2flow");
-		Dataflow dataflow = t2DataflowOpener.openDataflow(new T2FlowFileType(),
-				stream).getDataflow();
-
-		JFrame frame = new JFrame();
-		frame.add(graphView);
-		frame.setPreferredSize(new Dimension(600, 800));
-		frame.pack();
-		graphView.setDataflow(dataflow);
-		frame.setVisible(true);
-
-	}
+//	public static void main(String[] args) throws Exception {
+//		System.setProperty("raven.eclipse", "true");
+//		System.setProperty("taverna.dotlocation",
+//				"/Applications/Taverna-1.7.1.app/Contents/MacOS/dot");
+//		// System.setProperty("taverna.dotlocation", "/opt/local/bin/dot");
+//
+//		GraphViewComponent graphView = new GraphViewComponent(null, null, null, null);
+//
+//		T2DataflowOpener t2DataflowOpener = new T2DataflowOpener();
+//		InputStream stream = GraphViewComponent.class
+//				.getResourceAsStream("/nested_iteration.t2flow");
+//		Dataflow dataflow = t2DataflowOpener.openDataflow(new T2FlowFileType(),
+//				stream).getDataflow();
+//
+//		JFrame frame = new JFrame();
+//		frame.add(graphView);
+//		frame.setPreferredSize(new Dimension(600, 800));
+//		frame.pack();
+//		graphView.setDataflow(dataflow);
+//		frame.setVisible(true);
+//
+//	}
 
 	@Override
 	public String getName() {

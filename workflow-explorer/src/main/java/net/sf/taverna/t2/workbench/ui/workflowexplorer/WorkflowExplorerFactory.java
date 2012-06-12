@@ -22,7 +22,10 @@ package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 
 import javax.swing.ImageIcon;
 
+import uk.org.taverna.platform.capability.api.ActivityService;
+
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
@@ -36,16 +39,19 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
  * @author Alex Nenadic
  *
  */
-public class WorkflowExplorerFactory implements UIComponentFactorySPI{
+public class WorkflowExplorerFactory implements UIComponentFactorySPI {
 
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
 	private ReportManager reportManager;
 	private DataflowSelectionManager dataflowSelectionManager;
+	private ActivityIconManager activityIconManager;
+	private ActivityService activityService;
 
 	public UIComponentSPI getComponent() {
-		return new WorkflowExplorer(editManager, fileManager, menuManager, reportManager, dataflowSelectionManager);
+		return new WorkflowExplorer(editManager, fileManager, menuManager, reportManager,
+				dataflowSelectionManager, activityIconManager, activityService);
 	}
 
 	public ImageIcon getIcon() {
@@ -74,6 +80,14 @@ public class WorkflowExplorerFactory implements UIComponentFactorySPI{
 
 	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
 		this.dataflowSelectionManager = dataflowSelectionManager;
+	}
+
+	public void setActivityIconManager(ActivityIconManager activityIconManager) {
+		this.activityIconManager = activityIconManager;
+	}
+
+	public void setActivityService(ActivityService activityService) {
+		this.activityService = activityService;
 	}
 
 }

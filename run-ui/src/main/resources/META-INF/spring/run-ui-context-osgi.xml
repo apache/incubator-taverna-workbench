@@ -28,7 +28,10 @@
 	<reference id="dataflowSelectionManager" interface="net.sf.taverna.t2.workbench.ui.DataflowSelectionManager" />
 	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" />
 	<reference id="workbench" interface="net.sf.taverna.t2.workbench.ui.Workbench" />
-	<reference id="xmlDeserializer" interface="net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer" />
+	<reference id="xmlDeserializer" interface="net.sf.taverna.t2.workflowmodel.serialization.xml.impl.XMLDeserializer" />
 	<reference id="referenceService" interface="net.sf.taverna.t2.reference.ReferenceService" />
+	<reference id="databaseConfiguration" interface="uk.org.taverna.configuration.database.DatabaseConfiguration" />
+
+	<list id="provenanceConnectorFactories" interface="net.sf.taverna.t2.provenance.ProvenanceConnectorFactory" />
 
 </beans:beans>

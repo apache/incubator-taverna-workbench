@@ -16,5 +16,9 @@
 	<service ref="SaveAllResultsAsXML" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
 	<service ref="SaveAllResultsAsExcel" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
 	<service ref="SaveAllResultsToFileSystem" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
+	<service ref="SaveAllResultsAsOPM" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
+	<service ref="SaveAllResultsAsJanus" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
+
+	<list id="provenanceConnectorFactories" interface="net.sf.taverna.t2.provenance.ProvenanceConnectorFactory" />
 
 </beans:beans>

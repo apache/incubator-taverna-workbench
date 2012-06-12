@@ -31,6 +31,7 @@ import java.lang.ref.WeakReference;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
@@ -48,7 +49,6 @@ import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.monitor.MonitorManager;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
-import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
@@ -56,7 +56,6 @@ import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
-import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.run.cleanup.DatabaseCleanup;
@@ -82,9 +81,11 @@ import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
 
+import uk.org.taverna.configuration.database.DatabaseConfiguration;
+
 /**
- * Representation of a workflow run. It listens to the selection event on the
- * graph so that it can show intermediate results if provenance is on.
+ * Representation of a workflow run. It listens to the selection event on the graph so that it can
+ * show intermediate results if provenance is on.
  *
  */
 public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage> {
@@ -169,11 +170,13 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage> {
 	private final DataflowSelectionManager dataflowSelectionManager;
 	private final XMLDeserializer xmlDeserializer;
 	private final FileManager fileManager;
+	private final DatabaseConfiguration databaseConfiguration;
 
 	public WorkflowRun(Dataflow dataflow, Date date, String sessionID,
 			ReferenceService referenceService, EditManager editManager, FileManager fileManager,
 			MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager,
-			XMLDeserializer xmlDeserializer) {
+			XMLDeserializer xmlDeserializer, List<ProvenanceConnectorFactory> provenanceConnectorFactories,
+			DatabaseConfiguration databaseConfiguration) {
 		this.date = date;
 		this.runId = sessionID;
 		this.referenceService = referenceService;
@@ -182,10 +185,10 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage> {
 		this.menuManager = menuManager;
 		this.dataflowSelectionManager = dataflowSelectionManager;
 		this.xmlDeserializer = xmlDeserializer;
+		this.databaseConfiguration = databaseConfiguration;
 		setDataflow(dataflow);
-		String connectorType = DataManagementConfiguration.getInstance().getConnectorType();
-		for (ProvenanceConnectorFactory factory : ProvenanceConnectorFactoryRegistry.getInstance()
-				.getInstances()) {
+		String connectorType = databaseConfiguration.getConnectorType();
+		for (ProvenanceConnectorFactory factory : provenanceConnectorFactories) {
 			if (connectorType.equalsIgnoreCase(factory.getConnectorType())) {
 				connector = factory.getProvenanceConnector();
 			}
@@ -417,10 +420,9 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage> {
 	}
 
 	/**
-	 * Create the MonitorViewComponent, an interactive component containing a
-	 * graph and a progress table where workflow progress can be tracked and
-	 * which can respond to user clicks to trigger showing intermediate or final
-	 * results in the result-view component.
+	 * Create the MonitorViewComponent, an interactive component containing a graph and a progress
+	 * table where workflow progress can be tracked and which can respond to user clicks to trigger
+	 * showing intermediate or final results in the result-view component.
 	 *
 	 * @return the monitorViewComponent
 	 */

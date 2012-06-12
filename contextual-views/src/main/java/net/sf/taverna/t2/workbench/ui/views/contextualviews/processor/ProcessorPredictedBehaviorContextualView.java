@@ -20,23 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.processor;
 
-import java.awt.Frame;
-import java.awt.event.ActionEvent;
 import java.util.List;
 import java.util.Set;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 
-import net.sf.taverna.t2.spi.SPIRegistry;
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workflowmodel.Datalink;
 import net.sf.taverna.t2.workflowmodel.Processor;
@@ -63,19 +54,13 @@ public class ProcessorPredictedBehaviorContextualView extends ContextualView {
 	private static Logger logger = Logger
 			.getLogger(ProcessorPredictedBehaviorContextualView.class);
 
-	private FileManager fileManager;
-
-	protected SPIRegistry<AddLayerFactorySPI> addLayerFactories = new SPIRegistry<AddLayerFactorySPI>(
-			AddLayerFactorySPI.class);
-
 	protected JPanel mainPanel = new JPanel();
 
 	protected Processor processor;
 
-	public ProcessorPredictedBehaviorContextualView(Processor processor, FileManager fileManager) {
+	public ProcessorPredictedBehaviorContextualView(Processor processor) {
 		super();
 		this.processor = processor;
-		this.fileManager = fileManager;
 		refreshView();
 		initView();
 	}

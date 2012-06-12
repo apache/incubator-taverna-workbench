@@ -33,6 +33,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.models.graph.DotWriter;
 import net.sf.taverna.t2.workbench.models.graph.Graph;
@@ -99,9 +101,13 @@ public class SVGGraphController extends GraphController {
 
 	private boolean dotMissing = false;
 
-	public SVGGraphController(Dataflow dataflow, boolean interactive, JSVGCanvas svgCanvas, EditManager editManager, MenuManager menuManager) {
-		super(dataflow, interactive, svgCanvas, editManager, menuManager);
+	private final WorkbenchConfiguration workbenchConfiguration;
+
+	public SVGGraphController(Dataflow dataflow, boolean interactive, JSVGCanvas svgCanvas, EditManager editManager,
+			MenuManager menuManager, ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
+		super(dataflow, interactive, svgCanvas, editManager, menuManager, colourManager);
 		this.svgCanvas = svgCanvas;
+		this.workbenchConfiguration = workbenchConfiguration;
 		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
 			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
 				setUpdateManager(SVGGraphController.this.svgCanvas.getUpdateManager());
@@ -111,9 +117,11 @@ public class SVGGraphController extends GraphController {
 		svgCanvas.setDocument(getSVGDocument());
 	}
 
-	public SVGGraphController(Dataflow dataflow, boolean interactive, JSVGCanvas svgCanvas, Alignment alignment, PortStyle portStyle, EditManager editManager, MenuManager menuManager) {
-		super(dataflow, interactive, svgCanvas, alignment, portStyle, editManager, menuManager);
+	public SVGGraphController(Dataflow dataflow, boolean interactive, JSVGCanvas svgCanvas, Alignment alignment,
+			PortStyle portStyle, EditManager editManager, MenuManager menuManager, ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
+		super(dataflow, interactive, svgCanvas, alignment, portStyle, editManager, menuManager, colourManager);
 		this.svgCanvas = svgCanvas;
+		this.workbenchConfiguration = workbenchConfiguration;
 		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
 			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
 				setUpdateManager(SVGGraphController.this.svgCanvas.getUpdateManager());
@@ -180,7 +188,7 @@ public class SVGGraphController extends GraphController {
 		DotWriter dotWriter = new DotWriter(stringWriter);
 		try {
 			dotWriter.writeGraph(graph);
-			String layout = SVGUtil.getDot(stringWriter.toString());
+			String layout = SVGUtil.getDot(stringWriter.toString(), workbenchConfiguration);
 			if (layout.equals("")) {
 				logger.warn("Invalid dot returned");
 			} else {

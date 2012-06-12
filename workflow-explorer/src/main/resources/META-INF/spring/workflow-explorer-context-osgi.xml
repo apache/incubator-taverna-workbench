@@ -13,5 +13,7 @@
 	<reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
 	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" />
 	<reference id="dataflowSelectionManager" interface="net.sf.taverna.t2.workbench.ui.DataflowSelectionManager" />
+	<reference id="activityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
+	<reference id="activityService" interface="uk.org.taverna.platform.capability.api.ActivityService" />
 
 </beans:beans>

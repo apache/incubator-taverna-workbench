@@ -14,7 +14,6 @@ import javax.swing.table.DefaultTableModel;
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.report.ReportManager;
-import net.sf.taverna.t2.workbench.report.impl.ReportManagerImpl;
 import net.sf.taverna.t2.workflowmodel.Condition;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;

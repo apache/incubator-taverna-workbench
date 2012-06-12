@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -37,7 +37,6 @@ import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
-import net.sf.taverna.t2.lang.results.ResultsUtils;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
 import net.sf.taverna.t2.reference.DereferenceException;
 import net.sf.taverna.t2.reference.ErrorDocument;
@@ -45,6 +44,7 @@ import net.sf.taverna.t2.reference.ExternalReferenceSPI;
 import net.sf.taverna.t2.reference.Identified;
 import net.sf.taverna.t2.reference.ReferenceSet;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.results.ResultsUtils;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.commons.io.IOUtils;
@@ -53,7 +53,7 @@ import org.apache.log4j.Logger;
 /**
  * Saves individual result to a file. A T2Reference to the result data is held
  * in the tree node.
- * 
+ *
  * @author Alex Nenadic
  * @author Alan R Williams
  *
@@ -61,35 +61,35 @@ import org.apache.log4j.Logger;
 public class SaveIndividualResult extends AbstractAction implements SaveIndividualResultSPI{
 
 	private static final long serialVersionUID = 4588945388830291235L;
-	
+
 	private static Logger logger = Logger.getLogger(SaveIndividualResult.class);
 
 	/**
 	 * T2Reference pointing to the result to be saved.
 	 */
 	private T2Reference resultReference = null;
-	
+
 	private InvocationContext context = null;
-	
+
 	public SaveIndividualResult(){
 		super();
 		putValue(NAME, "Save value");
 		putValue(SMALL_ICON, WorkbenchIcons.saveIcon);
 	}
-	
+
 	public AbstractAction getAction() {
 		return new SaveIndividualResult();
 	}
-	
+
 	/**
 	 * Saves a result either as a text or a binary file - depending on the
 	 * result data type.
 	 */
 	public void actionPerformed(ActionEvent e) {
 		Identified identified = context.getReferenceService().resolveIdentifier(resultReference, null, context);
-		
+
 		if (identified instanceof ReferenceSet) { // Node contains an external reference to data
-		
+
 			ReferenceSet referenceSet = (ReferenceSet) identified;
 			List<ExternalReferenceSPI> externalReferences = new ArrayList<ExternalReferenceSPI>(referenceSet.getExternalReferences());
 			Collections.sort(externalReferences, new Comparator<ExternalReferenceSPI>() {
@@ -97,11 +97,11 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 					return (int) (o1.getResolutionCost() - o2.getResolutionCost());
 				}
 			});
-			
+
 			final InputStream dataStream;
-						
+
 			try{
-				// externalReferences must contain at least one element - use the first one, 
+				// externalReferences must contain at least one element - use the first one,
 				// it is the most efficient
 				dataStream = externalReferences.get(0).openStream(context);
 			}
@@ -109,23 +109,23 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 				JOptionPane.showMessageDialog(null, "Problem opening an input stream to the data when saving the result data value", "Save Result Error",
 						JOptionPane.ERROR_MESSAGE);
 				logger.error("SaveIndividualResult Error: Problem opening an input stream to the data when saving the result data value", drse);
-				return;				
+				return;
 			}
 			// All is fine - we have rendered the T2Reference correctly
-			
+
 			// Popup a save dialog and allow the user to store the data to disc
 			JFileChooser fc = new JFileChooser();
 			Preferences prefs = Preferences.userNodeForPackage(getClass());
 			String curDir = prefs.get("currentDir", System.getProperty("user.home"));
 			fc.resetChoosableFileFilters();
 			fc.setCurrentDirectory(new File(curDir));
-			
+
 			boolean tryAgain = true;
 			while (tryAgain) {
 				tryAgain = false;
 				int returnVal = fc.showSaveDialog(null);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					
+
 					prefs.put("currentDir", fc.getCurrentDirectory().toString());
 					File file = fc.getSelectedFile();
 					// If we know the extension and the user did not use it - append it to the file name
@@ -140,7 +140,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 						int ret = JOptionPane.showConfirmDialog(
 								null, msg, "File already exists",
 								JOptionPane.YES_NO_OPTION);
-						
+
 						if (ret == JOptionPane.YES_OPTION) {
 							// Do this in separate thread to avoid hanging UI
 							new Thread("SaveIndividualResult: Saving results to " + finalFile){
@@ -176,29 +176,29 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 						}.start();
 					}
 				}
-			}	
+			}
 		} else if (identified instanceof ErrorDocument) { // Node contains a reference to ErrorDocument
 			// Save ErrorDocument as text
 			final String errorString = ResultsUtils.buildErrorDocumentString((ErrorDocument)identified, context);
-			
+
 			// Popup a save dialog and allow the user to store the data to disc
 			JFileChooser fc = new JFileChooser();
 			Preferences prefs = Preferences.userNodeForPackage(getClass());
 			String curDir = prefs.get("currentDir", System.getProperty("user.home"));
 			fc.resetChoosableFileFilters();
 			FileFilter ff = new ExtensionFileFilter(new String[] { "txt" });
-			fc.setFileFilter(ff);			
+			fc.setFileFilter(ff);
 			fc.setCurrentDirectory(new File(curDir));
-			
+
 			boolean tryAgain = true;
 			while (tryAgain) {
 				tryAgain = false;
 				int returnVal = fc.showSaveDialog(null);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					
+
 					prefs.put("currentDir", fc.getCurrentDirectory().toString());
 					File file = fc.getSelectedFile();
-										
+
 					// If user did not use the file extension - append it to the file name
 					if (!file.exists()) {
 						if (fc.getFileFilter().equals(ff) && !file.getName().contains(".")) {
@@ -217,7 +217,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 						int ret = JOptionPane.showConfirmDialog(
 								null, msg, "File already exists",
 								JOptionPane.YES_NO_OPTION);
-						
+
 						if (ret == JOptionPane.YES_OPTION) {
 							// Do this in separate thread to avoid hanging UI
 							new Thread("SaveIndividualResult: Saving error document to " + file){
@@ -253,9 +253,9 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 						}.start();
 					}
 				}
-			}			
+			}
 		}
-	}			
+	}
 
 
 	// Must be called before actionPerformed()

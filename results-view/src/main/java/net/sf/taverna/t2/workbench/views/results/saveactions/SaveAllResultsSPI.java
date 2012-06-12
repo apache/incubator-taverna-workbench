@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -32,10 +32,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
-import net.sf.taverna.t2.lang.results.ResultsUtils;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.results.ResultsUtils;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
@@ -43,7 +43,7 @@ import org.apache.log4j.Logger;
 /**
  * Implementing classes are capable of storing a collection
  * of T2References held in a result map.
- * 
+ *
  * @author Tom Oinn
  * @author Alex Nenadic
  */
@@ -101,7 +101,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	public void setParent(JDialog dialog) {
 		this.dialog = dialog;
 	}
-	
+
 	protected abstract String getFilter();
 
 	/**
@@ -109,9 +109,9 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	 * set to the specified XML file.
 	 */
 	public void actionPerformed(ActionEvent e) {
-		
+
 		dialog.setVisible(false);
-		
+
 		JFileChooser fc = new JFileChooser();
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
 		String curDir = prefs.get("currentDir", System.getProperty("user.home"));
@@ -121,16 +121,16 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 		}
 		fc.setCurrentDirectory(new File(curDir));
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		
+
 		boolean tryAgain = true;
 		while (tryAgain) {
 			tryAgain = false;
 			int returnVal = fc.showSaveDialog(null);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				
+
 				prefs.put("currentDir", fc.getCurrentDirectory().toString());
 				File file = fc.getSelectedFile();
-	
+
 				if (getFilter() != null) {
 					// If the user did not use the .xml extension for the file - append it to the file name now
 					if (!file.getName().toLowerCase().endsWith("." + getFilter())) {
@@ -139,14 +139,14 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 					}
 				}
 				final File finalFile = file;
-				
+
 				if (file.exists()){ // File already exists
 					// Ask the user if they want to overwrite the file
 					String msg = file.getAbsolutePath() + " already exists. Do you want to overwrite it?";
 					int ret = JOptionPane.showConfirmDialog(
 							null, msg, "File already exists",
 							JOptionPane.YES_NO_OPTION);
-					
+
 					if (ret == JOptionPane.YES_OPTION) {
 						// Do this in separate thread to avoid hanging UI
 						new Thread("SaveAllResults: Saving results to " + finalFile){
@@ -159,7 +159,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 									JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 											JOptionPane.ERROR_MESSAGE);
 									logger.error("SaveAllResults Error: Problem saving result data", ex);
-								}	
+								}
 							}
 						}.start();
 					}
@@ -168,7 +168,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 					}
 				}
 				else{ // File does not already exist
-					
+
 					// Do this in separate thread to avoid hanging UI
 					new Thread("SaveAllResults: Saving results to " + finalFile){
 						public void run(){
@@ -185,11 +185,11 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 					}.start();
 				}
 			}
-		}  
+		}
 	}
-	
+
 	protected abstract void saveData(File f) throws IOException;
-	
+
 	protected Object getObjectForName(String name) {
 		Object result = null;
 		if (chosenReferences.containsKey(name)) {
@@ -199,7 +199,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 			result = "null";
 		}
 		return result;
-		
+
 	}
 
 	public void setRunId(String runId) {

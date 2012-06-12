@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -35,7 +35,7 @@ import javax.swing.border.EmptyBorder;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
-import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionsConfig;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionsConfiguration;
 import net.sf.taverna.t2.workbench.helper.Helper;
 
 @SuppressWarnings("serial")
@@ -43,12 +43,12 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 
 	private static final String REMOVE_PERMANENTLY = "Allow permanent removal of default service providers";
 	private static final String INCLUDE_DEFAULTS = "Include default service providers";
-	private final ServiceDescriptionsConfig config;
+	private final ServiceDescriptionsConfiguration config;
 	private JCheckBox includeDefaults;
 	private JCheckBox removePermanently;
 	private final ServiceDescriptionRegistry serviceDescRegistry;
 
-	public ServiceDescriptionConfigPanel(ServiceDescriptionsConfig config,
+	public ServiceDescriptionConfigPanel(ServiceDescriptionsConfiguration config,
 			ServiceDescriptionRegistry serviceDescRegistry) {
 		this.config = config;
 		this.serviceDescRegistry = serviceDescRegistry;
@@ -60,7 +60,7 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 		setLayout(new GridBagLayout());
 
 		GridBagConstraints gbc = new GridBagConstraints();
-		
+
 		// Title describing what kind of settings we are configuring here
 		JTextArea descriptionText = new JTextArea(
 				"Configure behaviour of default service providers in Service Panel");
@@ -88,7 +88,7 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 		gbc.gridy = 2;
         gbc.insets = new Insets(0, 0, 0, 0);
 		add(removePermanently, gbc);
-		
+
 		// Filler
 		gbc.gridx = 0;
 		gbc.gridy = 3;
@@ -97,13 +97,13 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 		gbc.fill = GridBagConstraints.BOTH;
         gbc.insets = new Insets(10, 0, 0, 0);
 		add(createButtonPanel(), gbc);
-		
+
 		setFields(config);
 	}
-	
+
 	/**
 	 * Create the panel to contain the buttons
-	 * 
+	 *
 	 * @return
 	 */
 	private JPanel createButtonPanel() {
@@ -125,7 +125,7 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 		 */
 		JButton resetButton = new JButton(new AbstractAction("Reset") {
 			public void actionPerformed(ActionEvent arg0) {
-				setFields(ServiceDescriptionsConfig.getInstance());
+				setFields(config);
 			}
 		});
 		panel.add(resetButton);
@@ -137,14 +137,14 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 		JButton applyButton = new JButton(new AbstractAction("Apply") {
 			public void actionPerformed(ActionEvent arg0) {
 				applySettings();
-				setFields(ServiceDescriptionsConfig.getInstance());
+				setFields(config);
 			}
 		});
 		panel.add(applyButton);
 
 		return panel;
 	}
-	
+
 	protected void applySettings() {
 		// Include default service providers
 		config.setIncludeDefaults(includeDefaults.isSelected());
@@ -159,17 +159,17 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 				serviceDescRegistry.removeServiceDescriptionProvider(provider);
 			}
 		}
-		
+
 		// Allow permanent removal of default service providers
 		config.setRemovePermanently(removePermanently.isSelected());
 	}
 
 	/**
-	 * Set the shown configuration field values to those currently in use 
+	 * Set the shown configuration field values to those currently in use
 	 * (i.e. last saved configuration).
-	 * 
+	 *
 	 */
-	private void setFields(ServiceDescriptionsConfig configurable) {
+	private void setFields(ServiceDescriptionsConfiguration configurable) {
 		includeDefaults.setSelected(configurable.isIncludeDefaults());
 		removePermanently.setSelected(configurable.isRemovePermanently());
 	}

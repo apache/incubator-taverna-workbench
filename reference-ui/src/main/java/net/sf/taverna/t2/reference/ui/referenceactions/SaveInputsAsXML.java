@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -33,13 +33,13 @@ import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
+import net.sf.taverna.t2.baclava.DataThing;
+import net.sf.taverna.t2.baclava.factory.DataThingFactory;
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
 import net.sf.taverna.t2.reference.ui.RegistrationPanel;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import org.apache.log4j.Logger;
-import org.embl.ebi.escience.baclava.DataThing;
-import org.embl.ebi.escience.baclava.factory.DataThingFactory;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.Namespace;
@@ -49,7 +49,7 @@ import org.jdom.output.XMLOutputter;
 /**
  * Stores the entire map of result objects to disk
  * as a single XML data document.
- * 
+ *
  * @author Tom Oinn
  * @author Alex Nenadic
  */
@@ -66,17 +66,17 @@ public class SaveInputsAsXML extends AbstractAction implements ReferenceActionSP
 	private InvocationContext context = null;
 
 	private Map<String, RegistrationPanel> inputPanelMap;
-	
+
 	public SaveInputsAsXML(){
 		super();
 		putValue(NAME, "Save values");
 		putValue(SMALL_ICON, WorkbenchIcons.xmlNodeIcon);
 	}
-	
+
 	public AbstractAction getAction() {
 		return new SaveInputsAsXML();
 	}
-	
+
 	// Must be called before actionPerformed()
 	public void setInvocationContext(InvocationContext context) {
 		this.context = context;
@@ -87,24 +87,24 @@ public class SaveInputsAsXML extends AbstractAction implements ReferenceActionSP
      * set to the specified XML file.
      */
 	public void actionPerformed(ActionEvent e) {
-		
+
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
 		String curDir = prefs.get(INPUT_DATA_DIR_PROPERTY, System.getProperty("user.home"));
-		
+
 		JFileChooser fc = new JFileChooser();
 		fc.setDialogTitle("Select file to save input values to");
-		
+
 		fc.resetChoosableFileFilters();
 		fc.setFileFilter(new ExtensionFileFilter(new String[]{"xml"}));
 		fc.setCurrentDirectory(new File(curDir));
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		
+
 		boolean tryAgain = true;
 		while (tryAgain) {
 			tryAgain = false;
 			int returnVal = fc.showSaveDialog(null);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				
+
 				prefs.put(INPUT_DATA_DIR_PROPERTY, fc.getCurrentDirectory().toString());
 				File file = fc.getSelectedFile();
 
@@ -115,14 +115,14 @@ public class SaveInputsAsXML extends AbstractAction implements ReferenceActionSP
 				}
 
 				final File finalFile = file;
-				
+
 				if (file.exists()){ // File already exists
 					// Ask the user if they want to overwrite the file
 					String msg = file.getAbsolutePath() + " already exists. Do you want to overwrite it?";
 					int ret = JOptionPane.showConfirmDialog(
 							null, msg, "File already exists",
 							JOptionPane.YES_NO_OPTION);
-					
+
 					if (ret == JOptionPane.YES_OPTION) {
 						// Do this in separate thread to avoid hanging UI
 						new Thread("Save(InputsAsXML: Saving inputs to " + finalFile){
@@ -135,7 +135,7 @@ public class SaveInputsAsXML extends AbstractAction implements ReferenceActionSP
 									JOptionPane.showMessageDialog(null, "Problem saving input data", "Save Inputs Error",
 											JOptionPane.ERROR_MESSAGE);
 									logger.error("SaveInputsAsXML Error: Problem saving input data", ex);
-								}	
+								}
 							}
 						}.start();
 					}
@@ -144,7 +144,7 @@ public class SaveInputsAsXML extends AbstractAction implements ReferenceActionSP
 					}
 				}
 				else{ // File does not already exist
-					
+
 					// Do this in separate thread to avoid hanging UI
 					new Thread("SaveInputsAsXML: Saving inputs to " + finalFile){
 						public void run(){
@@ -161,14 +161,14 @@ public class SaveInputsAsXML extends AbstractAction implements ReferenceActionSP
 					}.start();
 				}
 			}
-		}  
-	}		
-	
+		}
+	}
+
 	/**
-	 * Saves the input data to an XML Baclava file. 
+	 * Saves the input data to an XML Baclava file.
 	 */
 	private void saveData(File file) throws Exception{
-	    
+
 		// Build the DataThing map from the inputPanelMap
 		Map<String, Object> valueMap = new HashMap<String, Object>();
 		for (Iterator<String> i = inputPanelMap.keySet().iterator(); i.hasNext();) {
@@ -180,7 +180,7 @@ public class SaveInputsAsXML extends AbstractAction implements ReferenceActionSP
 			}
 		}
 		Map<String, DataThing> dataThings = bakeDataThingMap(valueMap);
-		
+
 		// Build the string containing the XML document from the panel map
 		Document doc = getDataDocument(dataThings);
 	    XMLOutputter xo = new XMLOutputter(Format.getPrettyFormat());
@@ -190,13 +190,13 @@ public class SaveInputsAsXML extends AbstractAction implements ReferenceActionSP
 	    out.flush();
 	    out.close();
 	}
-	
+
 	/**
-	 * Returns a map of port names to DataThings from a map of port names to a 
+	 * Returns a map of port names to DataThings from a map of port names to a
 	 * list of (lists of ...) result objects.
 	 */
 	Map<String, DataThing> bakeDataThingMap(Map<String, Object> resultMap){
-		
+
 		Map<String, DataThing> dataThingMap = new HashMap<String, DataThing>();
 		for (Iterator<String> i = resultMap.keySet().iterator(); i.hasNext();) {
 			String portName = (String) i.next();
@@ -204,7 +204,7 @@ public class SaveInputsAsXML extends AbstractAction implements ReferenceActionSP
 		}
 		return dataThingMap;
 	}
-	
+
 	/**
 	 * Returns a org.jdom.Document from a map of port named to DataThingS containing
 	 * the port's results.

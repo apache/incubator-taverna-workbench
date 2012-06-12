@@ -1,25 +1,26 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.TreeMap;
 
@@ -32,44 +33,41 @@ import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.security.credentialmanager.KeystoreChangedEvent;
+import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI;
 
 import org.apache.log4j.Logger;
 
 /**
- * The table model used to display the Keystore's username/password 
+ * The table model used to display the Keystore's username/password
  * pair entries.
- * 
+ *
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
 public class PasswordsTableModel extends AbstractTableModel implements Observer<KeystoreChangedEvent> {
 
-	// Column names 
+	// Column names
     private String[] columnNames;
 
     // Table data
     private Object[][] data;
 
 	private CredentialManager credManager;
-	
+
 	private Logger logger = Logger.getLogger(PasswordsTableModel.class);
 
-    public PasswordsTableModel(){
-    	
-        credManager = null;
-        try{
-        	credManager = CredentialManager.getInstance();
-        }
-        catch (CMException cme){
+    public PasswordsTableModel(CredentialManager credentialManager){
+        credManager = credentialManager;
+        if (credentialManager == null) {
 			// Failed to instantiate Credential Manager - warn the user and exit
-			String sMessage = "Failed to instantiate Credential Manager. " + cme.getMessage();
+			String sMessage = "Failed to instantiate Credential Manager. ";
 			logger.error("CM GUI: "+ sMessage);
 			JOptionPane.showMessageDialog(new JFrame(), sMessage,
 					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
 			return;
         }
-        
+
     	data = new Object[0][0];
         columnNames = new String[] {
                 "Entry Type", // type of the Keystore entry
@@ -79,7 +77,7 @@ public class PasswordsTableModel extends AbstractTableModel implements Observer<
                 "Password", // the invisible column holding the password value of the password entry in the Keystore
         		"Alias" // the invisible column holding the Keystore alias of the entry
         };
-        
+
         try {
 			load();
 		} catch (CMException cme) {
@@ -89,22 +87,22 @@ public class PasswordsTableModel extends AbstractTableModel implements Observer<
 					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-        
+
         // Start observing changes to the Keystore
         credManager.addObserver(this);
     }
-    
+
     /**
-     * Load the PasswordsTableModel with the password entries from the Keystore. 
+     * Load the PasswordsTableModel with the password entries from the Keystore.
      */
     public void load() throws CMException
     {
     	try{
             // Place password entries' aliases in a tree map to sort them
-            TreeMap<String, String> sortedAliases = new TreeMap<String, String>();  
-            	
-            ArrayList<String> aliases = credManager.getAliases(CredentialManager.KEYSTORE);
-            
+            TreeMap<String, String> sortedAliases = new TreeMap<String, String>();
+
+            ArrayList<String> aliases = credManager.getAliases(CredentialManager.KeystoreType.KEYSTORE);
+
            	for (String alias: aliases){
         		// We are only interested in username/password entries here.
         		// Alias for such entries is constructed as "password#"<SERVICE_URL> where
@@ -121,35 +119,35 @@ public class PasswordsTableModel extends AbstractTableModel implements Observer<
             // entries and populating the table model
             int iCnt = 0;
             for (String alias : sortedAliases.values()){
-                
+
                 // Populate the type column - it is set with an integer
                 // but a custom cell renderer will cause a suitable icon
                 // to be displayed
                 data[iCnt][0] = CredentialManagerUI.PASSWORD_ENTRY_TYPE;
 
-                // Populate the service URL column as a substring of alias 
+                // Populate the service URL column as a substring of alias
                 // from the first occurrence of '#' till the end of the string
                 String serviceURL = alias.substring(alias.indexOf('#')+1);
                 data[iCnt][1] = serviceURL;
-                
+
                 // Get the username and password pair from the Keystore. They
                 // are returned in a single string in format <USERNAME><SEPARATOR_CHARACTER><PASSWORD>
-                String[] unpassPair = credManager.getUsernameAndPasswordForService(serviceURL);
-            	String username = unpassPair[0];
-            	String password = unpassPair[1];
+                UsernamePassword usernamePassword = credManager.getUsernameAndPasswordForService(URI.create(serviceURL), false, "");
+            	String username = usernamePassword.getUsername();
+            	String password = usernamePassword.getPasswordAsString();
 
                 // Populate the username column
                 data[iCnt][2] = username;
-               
+
                 // Populate the last modified date column ("UBER" keystore type supports creation date)
                 //data[iCnt][3] = credManager.getEntryCreationDate(CredentialManager.KEYSTORE, alias);
-                
+
                 // Populate the invisible password column
-                data[iCnt][4] = password; 
-                
+                data[iCnt][4] = password;
+
                 // Populate the invisible alias column
                 data[iCnt][5] = alias;
-                
+
                 iCnt++;
             }
 
@@ -159,7 +157,7 @@ public class PasswordsTableModel extends AbstractTableModel implements Observer<
 			throw cme;
     	}
     }
-    
+
     /**
      * Get the number of columns in the table.
      */
@@ -211,12 +209,12 @@ public class PasswordsTableModel extends AbstractTableModel implements Observer<
 
 	public void notify(Observable<KeystoreChangedEvent> sender,
 			KeystoreChangedEvent message) throws Exception {
-		
+
 		// reload the table
-		if (message.keystoreType.equals(CredentialManager.KEYSTORE)){
+		if (message.keystoreType.equals(CredentialManager.KeystoreType.KEYSTORE)){
 			load();
 		}
-	}    
+	}
 
 }
 

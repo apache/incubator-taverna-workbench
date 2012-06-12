@@ -31,6 +31,7 @@ import java.awt.SystemColor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,7 +59,6 @@ import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.DeselectingButton;
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
-import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.visit.VisitReport.Status;
@@ -94,8 +94,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 
 	private ReportManager reportManager;
 
-	private static SPIRegistry<VisitExplainer> visitExplainerRegistry = new SPIRegistry<VisitExplainer>(
-			VisitExplainer.class);
+	private List<VisitExplainer> visitExplainers;
 
 	private JLabel dataflowName;
 
@@ -149,7 +148,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 
 	public ReportViewComponent(EditManager editManager, FileManager fileManager, MenuManager menuManager,
 			ReportManager reportManager, Workbench workbench,
-			DataflowSelectionManager dataflowSelectionManager) {
+			DataflowSelectionManager dataflowSelectionManager, List<VisitExplainer> visitExplainers) {
 		super();
 		this.editManager = editManager;
 		this.fileManager = fileManager;
@@ -157,6 +156,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 		this.reportManager = reportManager;
 		this.workbench = workbench;
 		openedWorkflowsManager = dataflowSelectionManager;
+		this.visitExplainers = visitExplainers;
 		reportManager.addObserver(new ReportManagerObserver());
 		fileManager.addObserver(fileManagerObserver);
 		initialise();
@@ -432,7 +432,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 			solution = okSolution;
 			return;
 		}
-		for (VisitExplainer ve : visitExplainerRegistry.getInstances()) {
+		for (VisitExplainer ve : visitExplainers) {
 			if (ve.canExplain(vr.getKind(), vr.getResultId())) {
 				try {
 					explanation = ve.getExplanation(vr);

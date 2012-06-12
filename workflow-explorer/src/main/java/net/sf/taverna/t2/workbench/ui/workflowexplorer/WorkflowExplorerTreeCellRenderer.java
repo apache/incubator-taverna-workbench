@@ -63,40 +63,40 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	private static final long serialVersionUID = -1326663036193567147L;
 
-	private ActivityIconManager activityIconManager = ActivityIconManager.getInstance();
+	private final ActivityIconManager activityIconManager;
 
 	private final String RUNS_AFTER = " runs after ";
 
 	private Dataflow workflow = null;
 	private final ReportManager reportManager;
 
-	public WorkflowExplorerTreeCellRenderer(Dataflow workflow, ReportManager reportManager) {
+	public WorkflowExplorerTreeCellRenderer(Dataflow workflow, ReportManager reportManager,
+			ActivityIconManager activityIconManager) {
 		super();
 		this.workflow = workflow;
 		this.reportManager = reportManager;
+		this.activityIconManager = activityIconManager;
 	}
 
 	@Override
-	public Component getTreeCellRendererComponent(JTree tree, Object value,
-			boolean sel, boolean expanded, boolean leaf, int row,
-			boolean hasFocus) {
+	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel,
+			boolean expanded, boolean leaf, int row, boolean hasFocus) {
 
-		Component result = super.getTreeCellRendererComponent(tree, value, sel,
-				expanded, leaf, row, hasFocus);
+		Component result = super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf,
+				row, hasFocus);
 
 		Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
 		Status status = reportManager.getStatus(workflow, userObject);
 		WorkflowExplorerTreeCellRenderer renderer = (WorkflowExplorerTreeCellRenderer) result;
 
-		if (userObject instanceof Dataflow){ //the root node
+		if (userObject instanceof Dataflow) { // the root node
 			if (!hasGrandChildren((DefaultMutableTreeNode) value)) {
 				renderer.setIcon(WorkbenchIcons.workflowExplorerIcon);
 			} else {
 				renderer.setIcon(chooseIcon(WorkbenchIcons.workflowExplorerIcon, status));
 			}
 			renderer.setText(((Dataflow) userObject).getLocalName());
-		}
-		else if (userObject instanceof DataflowInputPort) {
+		} else if (userObject instanceof DataflowInputPort) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.inputIcon, status));
 			renderer.setText(((DataflowInputPort) userObject).getName());
 		} else if (userObject instanceof DataflowOutputPort) {
@@ -113,11 +113,9 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 				Icon basicIcon = activityIconManager.iconForActivity(activity);
 				renderer.setIcon(chooseIcon(basicIcon, status));
 
-
 				String extraDescription;
 				try {
-					extraDescription = BeanUtils.getProperty(activity,
-							"extraDescription");
+					extraDescription = BeanUtils.getProperty(activity, "extraDescription");
 					text += " - " + extraDescription;
 				} catch (IllegalAccessException e) {
 					// no problem
@@ -144,17 +142,13 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			String sourceName = findName(source);
 			EventHandlingInputPort sink = ((Datalink) userObject).getSink();
 			String sinkName = findName(sink);
-			renderer.setText(sourceName
-					+ " -> " + sinkName);
+			renderer.setText(sourceName + " -> " + sinkName);
 		} else if (userObject instanceof Condition) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.controlLinkIcon, status));
 			String htmlText = "<html><head></head><body>"
-					+ ((Condition) userObject).getTarget().getLocalName()
-					+ " " + RUNS_AFTER  + " "
-					+ ((Condition) userObject).getControl().getLocalName()
-					+ "</body></html>";
+					+ ((Condition) userObject).getTarget().getLocalName() + " " + RUNS_AFTER + " "
+					+ ((Condition) userObject).getControl().getLocalName() + "</body></html>";
 			renderer.setText(htmlText);
-
 
 		} else if (userObject instanceof Merge) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.mergeIcon, status));
@@ -172,14 +166,13 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 		return result;
 	}
 
-	private static Icon chooseIcon (final Icon basicIcon, Status status) {
+	private static Icon chooseIcon(final Icon basicIcon, Status status) {
 		if (status == null) {
 			return basicIcon;
 		}
 		if (status == Status.OK) {
 			return basicIcon;
-		}
-		else if (status == Status.WARNING) {
+		} else if (status == Status.WARNING) {
 			return Icons.warningIcon;
 		} else if (status == Status.SEVERE) {
 			return Icons.severeIcon;
@@ -199,10 +192,10 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	private String findName(Port port) {
 		if (port instanceof ProcessorPort) {
-			String sourceProcessorName = ((ProcessorPort)port).getProcessor().getLocalName();
+			String sourceProcessorName = ((ProcessorPort) port).getProcessor().getLocalName();
 			return sourceProcessorName + ":" + port.getName();
 		} else if (port instanceof MergePort) {
-			String sourceMergeName = ((MergePort)port).getMerge().getLocalName();
+			String sourceMergeName = ((MergePort) port).getMerge().getLocalName();
 			return sourceMergeName + ":" + port.getName();
 
 		} else {

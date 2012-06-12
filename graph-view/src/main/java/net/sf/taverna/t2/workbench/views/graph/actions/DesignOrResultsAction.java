@@ -26,7 +26,6 @@ import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
-import net.sf.taverna.t2.ui.perspectives.results.ResultsPerspective;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 
@@ -59,7 +58,7 @@ public abstract class DesignOrResultsAction extends AbstractAction {
 			if (message.getModelName().equals(
 					ModelMapConstants.CURRENT_PERSPECTIVE)) {
 				lastPerspective = message.getNewModel();
-				if ((lastPerspective instanceof WorkflowPerspective) || (lastPerspective instanceof ResultsPerspective)) {
+				if ((lastPerspective instanceof WorkflowPerspective) || (lastPerspective.getClass().getName().equals("net.sf.taverna.t2.workbench.run.ResultsPerspective"))) {
 					setEnabled(true);
 				}
 				else{
@@ -74,7 +73,7 @@ public abstract class DesignOrResultsAction extends AbstractAction {
 	}
 
 	protected boolean isResultsPerspective() {
-		return (isShowingPerspective() && (lastPerspective instanceof ResultsPerspective));
+		return (isShowingPerspective() && (lastPerspective.getClass().getName().equals("net.sf.taverna.t2.workbench.run.ResultsPerspective")));
 
 	}
 	protected boolean isShowingPerspective() {

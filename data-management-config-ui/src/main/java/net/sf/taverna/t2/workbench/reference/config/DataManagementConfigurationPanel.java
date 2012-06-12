@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -44,13 +44,16 @@ import net.sf.taverna.t2.workbench.helper.Helper;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.configuration.database.DatabaseConfiguration;
+import uk.org.taverna.configuration.database.DatabaseManager;
+
 public class DataManagementConfigurationPanel extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	private DataManagementConfiguration configuration = DataManagementConfiguration
-			.getInstance();
-	private final static Logger logger = Logger
-			.getLogger(DataManagementConfigurationPanel.class);
+	private final static Logger logger = Logger.getLogger(DataManagementConfigurationPanel.class);
+
+	private DatabaseConfiguration configuration;
+	private DatabaseManager databaseManager;
 
 	JCheckBox enableProvenance;
 	JCheckBox enableInMemory;
@@ -62,14 +65,13 @@ public class DataManagementConfigurationPanel extends JPanel {
 	private JCheckBox exposeDatanatureBox;
 	private DialogTextArea enableInMemoryTextDisabled;
 
-	public DataManagementConfigurationPanel() {
+	public DataManagementConfigurationPanel(DatabaseConfiguration configuration, DatabaseManager databaseManager) {
+		this.configuration = configuration;
+		this.databaseManager = databaseManager;
 
 		GridBagLayout gridbag = generateGridBagLayout();
-
 		setLayout(gridbag);
-
 		resetFields();
-
 	}
 
 	private GridBagLayout generateGridBagLayout() {
@@ -107,23 +109,23 @@ public class DataManagementConfigurationPanel extends JPanel {
 		enableInMemoryTextDisabled.setOpaque(false);
 		enableInMemoryTextDisabled.setFont(enableProvenanceText.getFont()
 				.deriveFont(Font.PLAIN, 11));
-		enableInMemoryTextDisabled.setForeground(Color.RED);		
+		enableInMemoryTextDisabled.setForeground(Color.RED);
 		enableInMemoryTextDisabled.setVisible(false);
-		
+
 		// Disable warning as inMemory is default
 		// To re-enable - also see resetFields()
-		
-//		enableInMemory.addActionListener(new ActionListener() {		
+
+//		enableInMemory.addActionListener(new ActionListener() {
 //			public void actionPerformed(ActionEvent e) {
 //				enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
 //			}
 //		});
-//		enableProvenance.addActionListener(new ActionListener() {			
+//		enableProvenance.addActionListener(new ActionListener() {
 //			public void actionPerformed(ActionEvent e) {
 //				enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
 //			}
 //		});
-//		
+//
 		storageText = new JTextArea(
 				"Select how Taverna stores the data and provenance produced when a workflow is run. This includes workflow results and intermediate results.");
 		storageText.setLineWrap(true);
@@ -175,7 +177,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		c.insets = new Insets(0, 20, 15, 20);
 		gridbag.setConstraints(portPanel, c);
 		add(portPanel);
-		
+
 		c.insets = new Insets(0, 0, 5, 0);
 		c.fill = GridBagConstraints.NONE;
 		exposeDatanatureBox = new JCheckBox("Allow setting of input data encoding");
@@ -214,8 +216,8 @@ public class DataManagementConfigurationPanel extends JPanel {
 		boolean running = false;
 
 		try {
-			running = DataManagementHelper.isRunning();
-			connection = DataManagementHelper.openConnection();
+			running = databaseManager.isRunning();
+			connection = databaseManager.getConnection();
 
 		} catch (Exception e) {
 			running = false;
@@ -230,8 +232,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		}
 
 		if (running) {
-			int port = DataManagementConfiguration.getInstance()
-					.getCurrentPort();
+			int port = configuration.getCurrentPort();
 			textArea.setText("The database is currently running on port: "
 					+ port + ".");
 		} else {
@@ -245,32 +246,25 @@ public class DataManagementConfigurationPanel extends JPanel {
 		textArea.setOpaque(false);
 		textArea.setAlignmentX(CENTER_ALIGNMENT);
 		textArea.setFont(textArea.getFont().deriveFont(Font.PLAIN, 11));
-		textArea.setVisible(DataManagementConfiguration.getInstance()
-				.getStartInternalDerbyServer());
+		textArea.setVisible(configuration.getStartInternalDerbyServer());
 		return textArea;
 	}
 
 	// for testing only
-	public static void main(String[] args) {
-		JDialog dialog = new JDialog();
-		dialog.add(new DataManagementConfigurationPanel());
-		dialog.setModal(true);
-		dialog.setSize(500, 300);
-		dialog.setVisible(true);
-		System.exit(0);
-	}
+//	public static void main(String[] args) {
+//		JDialog dialog = new JDialog();
+//		dialog.add(new DataManagementConfigurationPanel());
+//		dialog.setModal(true);
+//		dialog.setSize(500, 300);
+//		dialog.setVisible(true);
+//		System.exit(0);
+//	}
 
 	public void resetFields() {
-
-		enableInMemory
-				.setSelected(configuration.getProperty(
-						DataManagementConfiguration.IN_MEMORY)
-						.equalsIgnoreCase("true"));
-		enableProvenance.setSelected(configuration.getProperty(
-				DataManagementConfiguration.ENABLE_PROVENANCE)
-				.equalsIgnoreCase("true"));
+		enableInMemory.setSelected(configuration.isInMemory());
+		enableProvenance.setSelected(configuration.isProvenanceEnabled());
 		exposeDatanatureBox.setSelected(configuration.isExposeDatanature());
-		
+
 		//enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
 	}
 
@@ -279,11 +273,8 @@ public class DataManagementConfigurationPanel extends JPanel {
 	}*/
 
 	private void applySettings() {
-		configuration.setProperty(
-				DataManagementConfiguration.ENABLE_PROVENANCE, String
-						.valueOf(enableProvenance.isSelected()));
-		configuration.setProperty(DataManagementConfiguration.IN_MEMORY, String
-				.valueOf(enableInMemory.isSelected()));
+		configuration.setProvenanceEnabled(enableProvenance.isSelected());
+		configuration.setInMemory(enableInMemory.isSelected());
 		configuration.setExposeDatanature(exposeDatanatureBox.isSelected());
 	}
 

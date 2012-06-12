@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -30,6 +30,9 @@ import java.util.Collection;
 
 import javax.swing.AbstractAction;
 
+import net.sf.taverna.t2.baclava.DataThing;
+import net.sf.taverna.t2.baclava.factory.DataThingFactory;
+import net.sf.taverna.t2.baclava.iterator.BaclavaIterator;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -38,21 +41,18 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.hssf.util.HSSFColor;
-import org.embl.ebi.escience.baclava.DataThing;
-import org.embl.ebi.escience.baclava.factory.DataThingFactory;
-import org.embl.ebi.escience.baclava.iterator.BaclavaIterator;
 
 /**
  * Stores the entire map of result objects to disk
  * as a single XML data document.
- * 
+ *
  * @author Tom Oinn
  */
 public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 
 
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -2759817859804112070L;
 
@@ -66,29 +66,29 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 		putValue(NAME, "Save as Excel");
 		putValue(SMALL_ICON, WorkbenchIcons.saveIcon);
 	}
-	
+
 	public AbstractAction getAction() {
 		return new SaveAllResultsAsExcel();
 	}
-	
-	
+
+
 	protected void saveData(File f) throws IOException {
 	    try {
 			generateSheet();
 		} catch (IntrospectionException e) {
 			throw new IOException(e);
 		}
-        saveSheet(f);		
+        saveSheet(f);
 	}
-	
+
     /**
      * Generate the Excel sheet from the DataThing's in the map.
-     * 
-     * All of the results are shown in the same spreadsheet, but in 
+     *
+     * All of the results are shown in the same spreadsheet, but in
      * different columns. Flat lists are shown vertically, 2d lists
-     * as a matrix, and deeper lists are flattened to 2d. 
-     * @throws IntrospectionException 
-     * @throws Exception 
+     * as a matrix, and deeper lists are flattened to 2d.
+     * @throws IntrospectionException
+     * @throws Exception
      */
     void generateSheet() throws IntrospectionException {
             wb = new HSSFWorkbook();
@@ -96,14 +96,14 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
             sheet = wb.createSheet("Workflow results");
             sheet.setDisplayGridlines(false);
             int currentCol = 0;
-            
+
 
     		for (String portName : chosenReferences.keySet()) {
                     logger.debug("Output for : " + portName);
                     DataThing resultValue =  DataThingFactory.bake(getObjectForName(portName));;
                     // Check whether there's a textual type
                     Boolean textualType = isTextual(resultValue.getDataObject());
-                    if (textualType == null || !textualType) { 
+                    if (textualType == null || !textualType) {
                             continue;
                     }
                     logger.debug("Output is textual");
@@ -137,7 +137,7 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
                                             columnOffset = location[location.length-1];
                                             numCols = Math.max(numCols, columnOffset + 1);
                                     }
-                                    logger.debug("Storing in cell " + (currentCol+columnOffset) + 
+                                    logger.debug("Storing in cell " + (currentCol+columnOffset) +
                                                            " " + currentRow + ": " + containedValue);
                                     getCell(currentCol + columnOffset, currentRow).setCellValue(containedValue);
                                     if (isFlat) {
@@ -157,7 +157,7 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
                     currentCol += numCols + 1;
             }
     }
-    
+
     void setStyle(int currentCol, int column, int row) {
         if (!hasValue(column, row)) {
                 return;
@@ -230,18 +230,18 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
      * <p>
      * Traverse down the Collection o if possible, and check the tree of collection at the deepest level.
      * </p>
-     * 
+     *
      * @param o Object to check
-     * @return true if o is a String or is a Collection that contains a string at the deepest level. 
+     * @return true if o is a String or is a Collection that contains a string at the deepest level.
      * false if o is not a String or Collection, or if it is a collection that contains non-strings.
-     * null if o is a Collection, but it is empty or contains nothing but Collections.    
-     * 
+     * null if o is a Collection, but it is empty or contains nothing but Collections.
+     *
      */
     Boolean isTextual(Object o) {
             if (o instanceof String) {
                     // We dug down and found a string. Hurray!
                     return true;
-            } 
+            }
             if (o instanceof Collection) {
                     for (Object child : (Collection) o) {
                             Boolean isTxt = isTextual(child);
@@ -251,7 +251,7 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
                             }
                             return isTxt;
                     }
-                    // We looped through and found just empty collections 
+                    // We looped through and found just empty collections
                     // (or we are an empty collection), we don't know
                     return null;
             }
@@ -261,7 +261,7 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 
     /**
      * Get a cell at the given coordinates, create it if needed.
-     * 
+     *
      * @param column
      * @param row
      * @return
@@ -279,8 +279,8 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
     }
 
     /**
-     * Check if a cell has a value. 
-     * 
+     * Check if a cell has a value.
+     *
      * @param column
      * @param row
      * @return
@@ -298,8 +298,8 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
     }
 
     /**
-     * Save the generated worksheet to a file 
-     * 
+     * Save the generated worksheet to a file
+     *
      * @param file to save to
      * @throws FileNotFoundException
      * @throws IOException

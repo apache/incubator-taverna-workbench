@@ -6,10 +6,12 @@
 	<bean id="ProcessorDispatchStackContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorDispatchStackContextualViewFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
+			<property name="contextualViewFactoryRegistry" ref="contextualViewFactoryRegistry" />
+			<property name="addLayerFactories" ref="addLayerFactories" />
 	</bean>
-	<bean id="ProcessorPredictedBehaviorContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorPredictedBehaviorContextualViewFactory">
-			<property name="fileManager" ref="fileManager" />
+	<bean id="ProcessorPredictedBehaviorContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorPredictedBehaviorContextualViewFactory" />
+	<bean id="ProcessorActivitiesContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorActivitiesContextualViewFactory">
+			<property name="contextualViewFactoryRegistry" ref="contextualViewFactoryRegistry" />
 	</bean>
-	<bean id="ProcessorActivitiesContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorActivitiesContextualViewFactory" />
 
 </beans>

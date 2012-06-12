@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -44,31 +44,34 @@ import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**
- * Dialog used by users to change their 
+ * Dialog used by users to change their
  * master password for the Credential Manager.
  */
 @SuppressWarnings("serial")
 public class ChangeMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
-	
-    // Old password entry field 
+
+    // Old password entry field
     private JPasswordField oldPasswordField;
-    
-    // New password entry field 
+
+    // New password entry field
     private JPasswordField newPasswordField;
 
-    // New password confirmation entry field 
+    // New password confirmation entry field
     private JPasswordField newPasswordConfirmField;
 
-    // The entered new password 
+    // The entered new password
     private String password = null;
-    
+
     // Instructions to the users as to what to do in the dialog
     private String instructions;
 
+	private final CredentialManager credentialManager;
+
 	public ChangeMasterPasswordDialog(JFrame parent, String title,
-			boolean modal, String instructions)    {
+			boolean modal, String instructions, CredentialManager credentialManager)    {
         super(parent, title, modal, null);
         this.instructions = instructions;
+		this.credentialManager = credentialManager;
         initComponents();
     }
 
@@ -78,15 +81,15 @@ public class ChangeMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
 
         JLabel instructionsLabel = new JLabel (instructions);
     	instructionsLabel.setFont(new Font(null, Font.PLAIN, 11));
-    	
+
     	JPanel instructionsPanel = new JPanel();
     	instructionsPanel.setLayout(new BoxLayout(instructionsPanel, BoxLayout.Y_AXIS));
     	instructionsPanel.add(instructionsLabel);
-    	instructionsPanel.setBorder(new EmptyBorder(10,5,10,0)); 
+    	instructionsPanel.setBorder(new EmptyBorder(10,5,10,0));
 
         JLabel oldPasswordLabel = new JLabel("Old master password");
         oldPasswordLabel.setBorder(new EmptyBorder(0,5,0,0));
-        
+
         JLabel newPasswordLabel = new JLabel("New master password");
         newPasswordLabel.setBorder(new EmptyBorder(0,5,0,0));
 
@@ -96,7 +99,7 @@ public class ChangeMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
         oldPasswordField = new JPasswordField(15);
         newPasswordField = new JPasswordField(15);
         newPasswordConfirmField = new JPasswordField(15);
-        
+
         JPanel jpPassword = new JPanel(new GridLayout(0, 2, 5, 5));
         jpPassword.add(oldPasswordLabel);
         jpPassword.add(oldPasswordField);
@@ -104,13 +107,13 @@ public class ChangeMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
         jpPassword.add(newPasswordField);
         jpPassword.add(newPasswordConfirmLabel);
         jpPassword.add(newPasswordConfirmField);
-        
+
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBorder(new CompoundBorder(
                 new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
         mainPanel.add(instructionsPanel, BorderLayout.NORTH);
         mainPanel.add(jpPassword, BorderLayout.CENTER);
-        
+
         JButton okButton = new JButton("OK");
         okButton.addActionListener(new ActionListener()
         {
@@ -131,7 +134,7 @@ public class ChangeMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         buttonsPanel.add(okButton);
         buttonsPanel.add(cancelButton);
-        
+
         getContentPane().add(mainPanel, BorderLayout.CENTER);
         getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
 
@@ -157,41 +160,41 @@ public class ChangeMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
     {
     	return password;
     }
-    
+
     /**
      * Check that the user has provided the correct old master password,
-     * that the user has supplied the new password and confirmed it and 
-     * that it is not empty. If all is OK, stores the new password in 
+     * that the user has supplied the new password and confirmed it and
+     * that it is not empty. If all is OK, stores the new password in
      * the password field.
      *
      */
     private boolean checkPassword()
     {
     	String oldPassword = new String (oldPasswordField.getPassword());
-    	
+
     	 if (oldPassword.length()== 0) { //old password must not be empty
              JOptionPane.showMessageDialog(this,
-                     "You must provide your current master password", 
+                     "You must provide your current master password",
                      "Credential Manager Warning",
-                     JOptionPane.WARNING_MESSAGE);             
+                     JOptionPane.WARNING_MESSAGE);
              return false;
          }
     	try {
-			if (!CredentialManager.confirmMasterPassword(oldPassword)){
+			if (!credentialManager.confirmMasterPassword(oldPassword)){
 			    JOptionPane.showMessageDialog(this,
-			            "You have provided an incorrect master password", 
+			            "You have provided an incorrect master password",
 			            "Credential Manager Warning",
 			            JOptionPane.WARNING_MESSAGE);
 			        return false;
 			}
 		} catch (Exception e) {
 		    JOptionPane.showMessageDialog(this,
-		            "Credential Manager could not verify your current master password", 
+		            "Credential Manager could not verify your current master password",
 		            "Credential Manager Warning",
 		            JOptionPane.WARNING_MESSAGE);
 			return false;
 		}
-    	
+
         String newPassword = new String(newPasswordField.getPassword());
         String newPasswordConfirm = new String(newPasswordConfirmField.getPassword());
 
@@ -201,7 +204,7 @@ public class ChangeMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
         }
         else if ((newPassword.equals(newPasswordConfirm)) && (newPassword.length() == 0)) { //passwords match but are empty
             JOptionPane.showMessageDialog(this,
-                    "The new master password cannot be empty", 
+                    "The new master password cannot be empty",
                     "Credential Manager Warning",
                     JOptionPane.WARNING_MESSAGE);
 
@@ -210,7 +213,7 @@ public class ChangeMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
         else{ // passwords do not match
 
         	JOptionPane.showMessageDialog(this,
-       			"Passwords do not match", 
+       			"Passwords do not match",
        			"Credential Manager Warning",
        			JOptionPane.WARNING_MESSAGE);
 
@@ -227,7 +230,7 @@ public class ChangeMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
 
     private void cancelPressed()
     {
-    	// Set the password to null as it might have changed in the meantime 
+    	// Set the password to null as it might have changed in the meantime
     	// if user entered something then cancelled.
     	password = null;
         closeDialog();

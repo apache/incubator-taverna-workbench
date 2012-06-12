@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2008 The University of Manchester   
- * 
+ * Copyright (C) 2008 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -27,7 +27,8 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.taverna.raven.log.Log;
+import org.apache.log4j.Logger;
+
 import net.sf.taverna.t2.workbench.models.graph.Graph;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.GraphEdge;
@@ -41,21 +42,21 @@ import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
  * @author David Withers
  */
 public class GraphLayout implements DOTParserVisitor {
-	
-	private static Log logger = Log.getLogger(GraphLayout.class);
+
+	private static Logger logger = Logger.getLogger(GraphLayout.class);
 
 	private static final int BORDER = 10;
-	
+
 	private Rectangle bounds;
-	
+
 	private Rectangle requiredBounds;
-		
+
 	private GraphController graphController;
-	
+
 	private int xOffset;
-	
+
 	private int yOffset;
-	
+
 	public Rectangle layoutGraph(GraphController graphController, Graph graph, String laidOutDot, Rectangle requiredBounds) throws ParseException {
 		this.graphController = graphController;
 		this.requiredBounds = requiredBounds;
@@ -63,14 +64,14 @@ public class GraphLayout implements DOTParserVisitor {
 		bounds = null;
 		xOffset = 0;
 		yOffset = 0;
-		
+
 //		logger.error(laidOutDot);
 		DOTParser parser = new DOTParser(new StringReader(laidOutDot));
 		parser.parse().jjtAccept(this, graph);
-		
+
 //		int xOffset = (bounds.width - bounds.width) / 2;
 //		int yOffset = (bounds.height - bounds.height) / 2;
-		
+
 		return new Rectangle(xOffset, yOffset, bounds.width, bounds.height);
 	}
 

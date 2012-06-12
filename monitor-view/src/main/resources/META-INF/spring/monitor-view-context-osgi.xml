@@ -11,5 +11,7 @@
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
 	<reference id="dataflowSelectionManager" interface="net.sf.taverna.t2.workbench.ui.DataflowSelectionManager" />
+	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
+	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
 
 </beans:beans>

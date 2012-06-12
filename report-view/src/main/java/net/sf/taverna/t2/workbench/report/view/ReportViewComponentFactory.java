@@ -3,12 +3,15 @@
  */
 package net.sf.taverna.t2.workbench.report.view;
 
+import java.util.List;
+
 import javax.swing.ImageIcon;
 
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
+import net.sf.taverna.t2.workbench.report.explainer.VisitExplainer;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
@@ -26,9 +29,11 @@ public class ReportViewComponentFactory implements UIComponentFactorySPI {
 	private Workbench workbench;
 	private DataflowSelectionManager dataflowSelectionManager;
 	private MenuManager menuManager;
+	private List<VisitExplainer> visitExplainers;
 
 	public UIComponentSPI getComponent() {
-		return new ReportViewComponent(editManager, fileManager, menuManager, reportManager, workbench, dataflowSelectionManager);
+		return new ReportViewComponent(editManager, fileManager, menuManager, reportManager,
+				workbench, dataflowSelectionManager, visitExplainers);
 	}
 
 	public ImageIcon getIcon() {
@@ -61,6 +66,10 @@ public class ReportViewComponentFactory implements UIComponentFactorySPI {
 
 	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
 		this.dataflowSelectionManager = dataflowSelectionManager;
+	}
+
+	public void setVisitExplainers(List<VisitExplainer> visitExplainers) {
+		this.visitExplainers = visitExplainers;
 	}
 
 }

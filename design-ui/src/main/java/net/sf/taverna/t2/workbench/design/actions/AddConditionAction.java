@@ -51,12 +51,12 @@ public class AddConditionAction extends DataflowEditAction {
 
 	public AddConditionAction(Dataflow dataflow, Processor control, Processor target,
 			Component component, EditManager editManager,
-			DataflowSelectionManager dataflowSelectionManager) {
+			DataflowSelectionManager dataflowSelectionManager, ActivityIconManager activityIconManager) {
 		super(dataflow, component, editManager, dataflowSelectionManager);
 		this.control = control;
 		this.target = target;
 		Activity<?> activity = control.getActivityList().get(0);
-		Icon activityIcon = ActivityIconManager.getInstance().iconForActivity(activity);
+		Icon activityIcon = activityIconManager.iconForActivity(activity);
 		putValue(SMALL_ICON, activityIcon);
 		putValue(NAME, control.getLocalName());
 	}

@@ -22,12 +22,17 @@ package net.sf.taverna.t2.workbench.views.graph;
 
 import javax.swing.ImageIcon;
 
+import uk.org.taverna.platform.capability.api.ActivityService;
+
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+import net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration;
 
 /**
  *
@@ -40,12 +45,17 @@ public class GraphViewComponentFactory implements UIComponentFactorySPI {
 	private FileManager fileManager;
 	private MenuManager menuManager;
 	private DataflowSelectionManager dataflowSelectionManager;
+	private ColourManager colourManager;
+	private WorkbenchConfiguration workbenchConfiguration;
+	private GraphViewConfiguration graphViewConfiguration;
+	private ActivityService activityService;
 
 	/* (non-Javadoc)
 	 * @see net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI#getComponent()
 	 */
 	public UIComponentSPI getComponent() {
-		return new GraphViewComponent(editManager, fileManager, menuManager, dataflowSelectionManager);
+		return new GraphViewComponent(editManager, fileManager, menuManager,
+				dataflowSelectionManager, colourManager, workbenchConfiguration, graphViewConfiguration, activityService);
 	}
 
 	/* (non-Javadoc)
@@ -77,6 +87,22 @@ public class GraphViewComponentFactory implements UIComponentFactorySPI {
 
 	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
 		this.dataflowSelectionManager = dataflowSelectionManager;
+	}
+
+	public void setColourManager(ColourManager colourManager) {
+		this.colourManager = colourManager;
+	}
+
+	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+		this.workbenchConfiguration = workbenchConfiguration;
+	}
+
+	public void setGraphViewConfiguration(GraphViewConfiguration graphViewConfiguration) {
+		this.graphViewConfiguration = graphViewConfiguration;
+	}
+
+	public void setActivityService(ActivityService activityService) {
+		this.activityService = activityService;
 	}
 
 }

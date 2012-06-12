@@ -48,12 +48,12 @@ import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.DotWriter;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil;
-import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 import net.sf.taverna.t2.workbench.views.graph.actions.SaveGraphImageAction;
@@ -86,6 +86,7 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 			"scalable vector graphics", "postscript", "postscript for PDF" };
 
 	private FileManager fileManager;
+	private WorkbenchConfiguration workbenchConfiguration;
 
 	public static final URI SAVE_GRAPH_IMAGE_MENU_URI = URI
 	.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuSaveGraphImage");
@@ -155,7 +156,7 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 							out.close();
 						}
 						else{
-							String dotLocation = (String)WorkbenchConfiguration.getInstance().getProperty("taverna.dotlocation");
+							String dotLocation = (String) workbenchConfiguration.getProperty("taverna.dotlocation");
 							if (dotLocation == null) {
 								dotLocation = "dot";
 							}
@@ -170,7 +171,7 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 							dotWriter.writeGraph(graphController.generateGraph());
 
 							OutputStream dotOut = dotProcess.getOutputStream();
-							dotOut.write(SVGUtil.getDot(stringWriter.toString()).getBytes());
+							dotOut.write(SVGUtil.getDot(stringWriter.toString(), workbenchConfiguration).getBytes());
 							dotOut.flush();
 							dotOut.close();
 							new StreamDevourer(dotProcess.getErrorStream()).start();
@@ -296,6 +297,10 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 		// Append the extension (keep the existing one)
 		String name = file.getName();
 		return new File(file.getParent(), name + "." + extension);
+	}
+
+	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
 	/**

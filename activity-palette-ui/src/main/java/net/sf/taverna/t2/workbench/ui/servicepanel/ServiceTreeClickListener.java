@@ -214,15 +214,15 @@ public class ServiceTreeClickListener extends MouseAdapter {
 					if (selectedNode.isRoot()) { // Root "Available services"
 						menu.add(new ShadedLabel("Default and added service providers",
 								ShadedLabel.ORANGE));
-						menu.add(new RemoveUserServicesAction());
-						menu.add(new RemoveDefaultServicesAction());
-						menu.add(new RestoreDefaultServicesAction());
+						menu.add(new RemoveUserServicesAction(serviceDescriptionRegistry));
+						menu.add(new RemoveDefaultServicesAction(serviceDescriptionRegistry));
+						menu.add(new RestoreDefaultServicesAction(serviceDescriptionRegistry));
 
 						menu.add(new ShadedLabel("Import/export services", ShadedLabel
 								.halfShade(Color.RED)));
-						menu.add(new ImportServiceDescriptionsFromFileAction());
-						menu.add(new ImportServiceDescriptionsFromURLAction());
-						menu.add(new ExportServiceDescriptionsAction());
+						menu.add(new ImportServiceDescriptionsFromFileAction(serviceDescriptionRegistry));
+						menu.add(new ImportServiceDescriptionsFromURLAction(serviceDescriptionRegistry));
+						menu.add(new ExportServiceDescriptionsAction(serviceDescriptionRegistry));
 					}
 
 					menu.show(evt.getComponent(), evt.getX(), evt.getY());

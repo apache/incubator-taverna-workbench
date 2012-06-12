@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -72,16 +72,16 @@ import net.sf.taverna.t2.reference.impl.external.http.HttpReference;
 import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTree;
 import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTreeModel;
 
-import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
-
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.configuration.database.DatabaseConfiguration;
 
 /**
  * A JPanel containing a pre-registration tree along with a toolbar for adding
  * collections, strings, files and url's directly rather than through drag and
  * drop on the tree. Any runtime exceptions thrown within this method are
  * trapped and displayed as error messages in the status bar.
- * 
+ *
  * @author Tom Oinn
  * @author David Withers
  */
@@ -97,7 +97,7 @@ public class RegistrationPanel extends JPanel {
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(RegistrationPanel.class);
 
-	
+
 	private static final ImageIcon addFileIcon = new ImageIcon(
 			RegistrationPanel.class.getResource("/icons/topic.gif"));
 	private static final ImageIcon addListIcon = new ImageIcon(
@@ -132,34 +132,35 @@ public class RegistrationPanel extends JPanel {
 	private final PreRegistrationTree tree;
 	private final PreRegistrationTreeModel treeModel;
 	private TextAreaDocumentListener textAreaDocumentListener;
-	
+
 	private JSpinner datatypeSpinner;
 	private JSpinner charsetSpinner;
 	private static Charset utf8 = Charset.forName("UTF-8");
 
 	private String example;
-	
-	private DataManagementConfiguration config = DataManagementConfiguration.getInstance();
-	
+
+	private DatabaseConfiguration config;
+
 	private boolean exposedDatanature = false;
-	
+
 	private static String UNKNOWN = "UNKNOWN";
-	
+
 	private static Map<String, String> charsetNameMap = new HashMap<String, String>();
 
 	/**
 	 * Construct a new registration panel for an input with the specified depth.
-	 * 
+	 *
 	 * @param depth
 	 *            Depth of the POJO to construct from this panel
-	 * @param example 
+	 * @param example
 	 * @param inputDescription
 	 * @param inputName
 	 */
-	public RegistrationPanel(int depth, String name, String description, String example) {
+	public RegistrationPanel(int depth, String name, String description, String example, DatabaseConfiguration databaseConfiguration) {
 		super(new BorderLayout());
 		this.depth = depth;
 		this.example = example;
+		config = databaseConfiguration;
 		tree = new PreRegistrationTree(depth, name) {
 			@Override
 			public void setStatusMessage(String message, boolean isError) {
@@ -174,7 +175,7 @@ public class RegistrationPanel extends JPanel {
 
 		final UpdateEditorPaneOnSelection treeSelectionListener = new UpdateEditorPaneOnSelection();
 		tree.addTreeSelectionListener(treeSelectionListener);
-		
+
 		tree.setRootVisible(false);
 
 		new JPanel(new BorderLayout());
@@ -184,16 +185,16 @@ public class RegistrationPanel extends JPanel {
 		descriptionArea.setEditable(false);
 		descriptionArea.setLineWrap(true);
 		descriptionArea.setWrapStyleWord(true);
-		
+
 		exampleArea = new DialogTextArea(NO_EXAMPLE_VALUE, 2, 40);
 		exampleArea.setBorder(new TitledBorder("Example value"));
 		exampleArea.setEditable(false);
 		exampleArea.setLineWrap(true);
 		exampleArea.setWrapStyleWord(true);
-		
+
 		setDescription(description);
 		setExample(example);
-		
+
 		JPanel annotationsPanel = new JPanel();
 		annotationsPanel.setLayout(new BoxLayout(annotationsPanel, BoxLayout.Y_AXIS));
 		JScrollPane descriptionAreaScrollPane = new JScrollPane(descriptionArea);
@@ -201,22 +202,22 @@ public class RegistrationPanel extends JPanel {
 		annotationsPanel.add(descriptionAreaScrollPane);
 		annotationsPanel.add(Box.createRigidArea(new Dimension(0,5))); // add some empty space
 		annotationsPanel.add(exampleAreaScrollPane);
-		
+
 		JToolBar toolbar = createToolBar();
-		
+
 		JPanel textAreaPanel = new JPanel();
 		textAreaPanel.setLayout(new BorderLayout());
-		
+
 		textArea = new DialogTextArea();
 		textAreaDocumentListener = new TextAreaDocumentListener(textArea);
 		textArea.setEditable(false);
-		
+
 		textAreaPanel.add(new JScrollPane(textArea), BorderLayout.CENTER);
 		if (config.isExposeDatanature()) {
 			textAreaPanel.add(createTypeAccessory(), BorderLayout.SOUTH);
 			exposedDatanature = true;
 		}
-		
+
 		splitPaneHorizontal = new JSplitPane();
 		splitPaneHorizontal.add(new JScrollPane(this.tree), JSplitPane.LEFT);
 		splitPaneHorizontal.add(textAreaPanel, JSplitPane.RIGHT);
@@ -224,15 +225,15 @@ public class RegistrationPanel extends JPanel {
 		JPanel toolbarAndInputsPanel = new JPanel(new BorderLayout());
 		toolbarAndInputsPanel.add(splitPaneHorizontal, BorderLayout.CENTER);
 		toolbarAndInputsPanel.add(toolbar, BorderLayout.NORTH);
-		
+
 		splitPaneVertical = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		splitPaneVertical.add(annotationsPanel, JSplitPane.TOP);
 		splitPaneVertical.add(toolbarAndInputsPanel, JSplitPane.BOTTOM);
 		int dividerPosition = (int) Math.round(annotationsPanel.getPreferredSize().getHeight()) + 10;
 		splitPaneVertical.setDividerLocation(dividerPosition);
-		
+
 		add(splitPaneVertical, BorderLayout.CENTER);
-		
+
 		// Listen to selections on the tree to enable or disable actions
 		tree.addTreeSelectionListener(new UpdateActionsOnTreeSelection());
 		status = new JLabel();
@@ -242,7 +243,7 @@ public class RegistrationPanel extends JPanel {
 				null);
 		add(status, BorderLayout.SOUTH);
 	}
-	
+
 	private static List<String> charsetNames() {
 		List<String> result = new ArrayList<String> ();
 		result.add(UNKNOWN);
@@ -255,10 +256,10 @@ public class RegistrationPanel extends JPanel {
 		Collections.sort(result);
 		return result;
 	}
-	
+
 	private static SpinnerListModel datatypeModel = new SpinnerListModel(new ReferencedDataNature[] {ReferencedDataNature.UNKNOWN, ReferencedDataNature.TEXT, ReferencedDataNature.BINARY});
 	private static SpinnerListModel charsetModel = new SpinnerListModel(charsetNames());
-	
+
 	private JPanel createTypeAccessory() {
 		JPanel result = new JPanel();
 		result.setLayout(new GridLayout(0,2));
@@ -310,15 +311,15 @@ public class RegistrationPanel extends JPanel {
 					} else {
 						ref.setCharset(charsetNameMap.get(cSet));
 					}
-				}				
+				}
 			}
-			
+
 		});
 
 		result.add(charsetSpinner);
 		return result;
 	}
-	
+
 	private JToolBar createToolBar() {
 		JToolBar toolBar = new JToolBar();
 		buildActions();
@@ -332,20 +333,20 @@ public class RegistrationPanel extends JPanel {
 		} else {
 			comp2.setToolTipText("Add a new input value");
 		}
-		
+
 		toolBar.add(comp2);
 		JButton comp3 = new JButton(addFileAction);
 		if (depth == 0) {
-			comp3.setToolTipText("Set the input value from a file");						
+			comp3.setToolTipText("Set the input value from a file");
 		} else {
-			comp3.setToolTipText("Add an input value from a file");			
+			comp3.setToolTipText("Add an input value from a file");
 		}
 		toolBar.add(comp3);
 		JButton comp4 = new JButton(addUrlAction);
 		if (depth == 0) {
-			comp4.setToolTipText("Load the input value from a URL");						
+			comp4.setToolTipText("Load the input value from a URL");
 		} else {
-			comp4.setToolTipText("Load an input value from a URL");			
+			comp4.setToolTipText("Load an input value from a URL");
 		}
 		toolBar.add(comp4);
 		// Do lists...
@@ -405,8 +406,8 @@ public class RegistrationPanel extends JPanel {
 	}
 
 	/**
-	 * 
-	 * 
+	 *
+	 *
 	 * @return
 	 */
 	private DefaultMutableTreeNode getSelectedNode() {
@@ -426,7 +427,7 @@ public class RegistrationPanel extends JPanel {
 			status.setForeground(Color.black);
 		}
 	}
-	
+
 	private void setCharsetSpinner(String charsetName) {
 		if (charsetName == null) {
 			charsetSpinner.setValue(UNKNOWN);
@@ -436,14 +437,14 @@ public class RegistrationPanel extends JPanel {
 		if (charsetNames().contains(cName)) {
 			charsetSpinner.setValue(cName);
 		} else {
-			charsetSpinner.setValue(UNKNOWN);			
+			charsetSpinner.setValue(UNKNOWN);
 		}
 	}
-	
+
 	private void updateEditorPane(DefaultMutableTreeNode selection) {
 		textArea.setEditable(false);
 		textAreaDocumentListener.setSelection(null);
-		
+
 		if (selection == null) {
 			textArea.setText("No selection");
 			if (exposedDatanature) {
@@ -510,14 +511,14 @@ public class RegistrationPanel extends JPanel {
 		} else {
 			textArea.setText(selection.getUserObject().toString());
 		}
-		
+
 	}
 
 	private final class UpdateEditorPaneOnSelection implements
 			TreeSelectionListener {
-		
+
 		TreePath oldSelectionPath = null;
-		
+
 		public void setSelectionPath(TreePath selectionPath) {
 			if (oldSelectionPath != null) {
 				DefaultMutableTreeNode lastPathComponent = (DefaultMutableTreeNode) oldSelectionPath
@@ -528,22 +529,22 @@ public class RegistrationPanel extends JPanel {
 			}
 
 			oldSelectionPath = selectionPath;
-			
+
 			DefaultMutableTreeNode selection = null;
-			
+
 			if (selectionPath != null) {
 				selection = (DefaultMutableTreeNode) selectionPath.getLastPathComponent();
 			}
 			updateEditorPane(selection);
 		}
-			
 
-		
+
+
 		public void valueChanged(TreeSelectionEvent e) {
 			setSelectionPath(e.getNewLeadSelectionPath());
 		}
 	}
-	
+
 	public class NewListAction extends AbstractAction {
 		private final int depth;
 
@@ -589,7 +590,7 @@ public class RegistrationPanel extends JPanel {
 		public AddFileAction() {
 			super((depth == 0 ? "Set" : "Add") + " file location...", addFileIcon);
 		}
-		
+
 		@SuppressWarnings("unused")
 		public void actionPerformed(ActionEvent e) {
 			JFileChooser fileChooser = new JFileChooser();
@@ -611,7 +612,7 @@ public class RegistrationPanel extends JPanel {
 
 				for (File file : fileChooser.getSelectedFiles()) {
 					if (!file.isDirectory()) {
-						
+
 						FileReference ref = new FileReference(file);
 						ref.setCharset(Charset.defaultCharset().name());
 						DefaultMutableTreeNode added = addPojo(node, ref, 0);
@@ -653,7 +654,7 @@ public class RegistrationPanel extends JPanel {
 		public AddTextAction() {
 			super((depth == 0 ? "Set" : "Add") + " value", addTextIcon);
 		}
-		
+
 		@SuppressWarnings("unused")
 		public void actionPerformed(ActionEvent e) {
 			DefaultMutableTreeNode node = getSelectedNode();
@@ -663,9 +664,9 @@ public class RegistrationPanel extends JPanel {
 			} else {
 				newValue = NEW_VALUE;
 			}
-			
+
 			DefaultMutableTreeNode added = addPojo(node, newValue, 0);
-			
+
 			setStatus("Added new value.  Edit value on right.", null);
 		}
 	}
@@ -677,7 +678,7 @@ public class RegistrationPanel extends JPanel {
 		updateEditorPane(added);
 		return added;
 	}
-	
+
 	public class AddURLAction extends AbstractAction {
 
 		private static final String URL_REGEX = "http:\\/\\/(\\w+:{0,1}\\w*@)?(\\S+)(:[0-9]+)?(\\/|\\/([\\w#!:.?+=&%@!\\-\\/]))?";
@@ -685,7 +686,7 @@ public class RegistrationPanel extends JPanel {
 		public AddURLAction() {
 			super((depth == 0 ? "Set" : "Add") + " URL ...", addUrlIcon);
 		}
-		
+
 		@SuppressWarnings("unused")
 		public void actionPerformed(ActionEvent e) {
 			Preferences prefs = Preferences.userNodeForPackage(getClass());
@@ -758,19 +759,19 @@ public class RegistrationPanel extends JPanel {
 		}
 	}
 
-	
+
 	private class TextAreaDocumentListener implements DocumentListener {
-		
+
 		private final DialogTextArea textArea;
 
 		private DefaultMutableTreeNode selection;
-		
+
 		 		public TextAreaDocumentListener(DialogTextArea textArea) {
 			this.textArea = textArea;
 			textArea.getDocument().addDocumentListener(this);
 			this.setSelection(null);
 		}
-		
+
                /**
 		 * @param selection the selection to set
 		 */
@@ -783,7 +784,7 @@ public class RegistrationPanel extends JPanel {
             selection.setUserObject(textArea.getText());
             treeModel.nodeChanged(selection);
 			}
-			
+
 		}
 				public void insertUpdate(DocumentEvent e) {
 					updateSelection();
@@ -817,19 +818,19 @@ public class RegistrationPanel extends JPanel {
 		}
 		else {
 			exampleArea.setText(NO_EXAMPLE_VALUE);
-		}		
+		}
 
 		exampleArea.setCaretPosition(0);
 	}
-	
+
 	public void setValue(Object o) {
 		addPojo(null, o, 0);
 	}
-	
+
 	public void setValue(Object o, int depth) {
 		addPojo(null, o, depth);
 	}
-	
+
 	public Object getValue() {
 		return treeModel.getAsPojo();
 	}

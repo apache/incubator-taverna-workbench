@@ -20,9 +20,12 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run;
 
+import java.util.List;
+
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
+import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
@@ -40,6 +43,7 @@ public class ResultsPerspective implements PerspectiveSPI {
 	private DataflowSelectionManager dataflowSelectionManager;
 	private XMLDeserializer xmlDeserializer;
 	private ReferenceService referenceService;
+	private List<ProvenanceConnectorFactory> provenanceConnectorFactories;
 
 	private ResultsPerspectiveComponent resultsPerspectiveComponent;
 
@@ -51,7 +55,7 @@ public class ResultsPerspective implements PerspectiveSPI {
 	@Override
 	public JComponent getPanel() {
 		if (resultsPerspectiveComponent == null) {
-			resultsPerspectiveComponent = ResultsPerspectiveComponent.getInstance();
+			resultsPerspectiveComponent = new ResultsPerspectiveComponent(provenanceConnectorFactories);
 			resultsPerspectiveComponent.setEditManager(editManager);
 			resultsPerspectiveComponent.setFileManager(fileManager);
 			resultsPerspectiveComponent.setMenuManager(menuManager);
@@ -100,6 +104,10 @@ public class ResultsPerspective implements PerspectiveSPI {
 
 	public void setReferenceService(ReferenceService referenceService) {
 		this.referenceService = referenceService;
+	}
+
+	public void setProvenanceConnectorFactories(List<ProvenanceConnectorFactory> provenanceConnectorFactories) {
+		this.provenanceConnectorFactories = provenanceConnectorFactories;
 	}
 
 }

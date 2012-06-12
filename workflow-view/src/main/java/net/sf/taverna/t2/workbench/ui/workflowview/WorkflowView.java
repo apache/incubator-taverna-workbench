@@ -53,14 +53,17 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationE
 import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.DataflowXMLSerializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.ProcessorXMLDeserializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.ProcessorXMLSerializer;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.DataflowXMLSerializer;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.ProcessorXMLDeserializer;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.ProcessorXMLSerializer;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
+
+import uk.org.taverna.platform.capability.api.ActivityNotFoundException;
+import uk.org.taverna.platform.capability.api.ActivityService;
 
 /**
  *
@@ -85,13 +88,18 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI {
 	private static String UNABLE_TO_ADD_SERVICE = "Unable to add service";
 	private static String UNABLE_TO_COPY_SERVICE = "Unable to copy service";
 
+	private static ActivityService activityService = null;
+
 	/**
 	 * Create a WorkflowView and set it up to receive services.
 	 */
-	public WorkflowView(EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+	public WorkflowView(EditManager editManager, DataflowSelectionManager dataflowSelectionManager, ActivityService activityService) {
 		super();
 		if (observer == null) {
 			observer = new ChangeObserver(editManager, dataflowSelectionManager);
+		}
+		if (WorkflowView.activityService == null) {
+			WorkflowView.activityService = activityService;
 		}
 		setFocusable(true);
 		if (serviceDescriptionDataFlavor == null) {
@@ -118,7 +126,11 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI {
 		Dataflow currentDataflow = (Dataflow) ModelMap.getInstance().getModel(
 				ModelMapConstants.CURRENT_DATAFLOW);
 		try {
-			activity = (Activity) sd.getActivityClass().newInstance();
+			if (activityService != null && sd.getActivityURI() != null) {
+				activity = activityService.createActivity(sd.getActivityURI(), null);
+			} else {
+				activity = (Activity) sd.getActivityClass().newInstance();
+			}
 			String name = sd.getName().replace(' ', '_');
 			name = Tools.uniqueProcessorName(name, currentDataflow);
 			List<Edit<?>> editList = new ArrayList<Edit<?>>();
@@ -144,6 +156,12 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI {
 			logger.warn("Could not add processor : edit error", e);
 			p = null;
 		} catch (IllegalAccessException e) {
+			showException(UNABLE_TO_ADD_SERVICE, e);
+			logger.error(e);
+		} catch (uk.org.taverna.platform.capability.api.ActivityConfigurationException e) {
+			showException(UNABLE_TO_ADD_SERVICE, e);
+			logger.error(e);
+		} catch (ActivityNotFoundException e) {
 			showException(UNABLE_TO_ADD_SERVICE, e);
 			logger.error(e);
 		}

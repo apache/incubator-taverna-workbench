@@ -26,13 +26,14 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.edits.impl.toolbar.EditToolbarSection;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.CutGraphComponentAction;
 
 public class CutToolbarAction extends AbstractMenuAction {
 
+	private static final URI EDIT_TOOLBAR_SECTION = URI
+			.create("http://taverna.sf.net/2008/t2workbench/menu#editToolbarSection");
 	private static final URI EDIT_TOOLBAR_CUT_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#editToolbarCut");
 
@@ -41,7 +42,7 @@ public class CutToolbarAction extends AbstractMenuAction {
 	private DataflowSelectionManager dataflowSelectionManager;
 
 	public CutToolbarAction() {
-		super(EditToolbarSection.EDIT_TOOLBAR_SECTION, 30, EDIT_TOOLBAR_CUT_URI);
+		super(EDIT_TOOLBAR_SECTION, 30, EDIT_TOOLBAR_CUT_URI);
 	}
 
 	@Override

@@ -9,12 +9,38 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-components</groupId>
 	<artifactId>results-view</artifactId>
+	<packaging>bundle</packaging>
 	<name>Results and outputs from a workflow run</name>
 	<dependencies>
 		<dependency>
-			<groupId>uk.org.mygrid.taverna.baclava</groupId>
-			<artifactId>baclava-core</artifactId>
-			<version>${taverna.version}</version>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>workflowmodel-impl</artifactId>
+			<version>${t2.core.version}</version>
+		</dependency>
+ 		<dependency>
+ 			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>reference-core-extensions</artifactId>
+			<version>${t2.reference-core-extensions.version}</version>
+ 		</dependency>
+		<dependency>
+  			<groupId>net.sf.taverna.t2.core</groupId>
+    		<artifactId>provenanceconnector</artifactId>
+ 			<version>${t2.core.version}</version>
+ 		</dependency>
+		<dependency>
+  			<groupId>net.sf.taverna.t2</groupId>
+    		<artifactId>provenance-client</artifactId>
+ 			<version>1.0-SNAPSHOT</version>
+ 		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2</groupId>
+			<artifactId>results</artifactId>
+			<version>${t2.lang.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2</groupId>
+			<artifactId>baclava</artifactId>
+			<version>${t2.baclava.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
@@ -42,50 +68,25 @@
 			<version>${t2.lang.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>results</artifactId>
-			<version>${t2.lang.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-impl</artifactId>
-			<version>${t2.core.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>renderers-api</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.infrastructure</groupId>
-			<artifactId>appconfig</artifactId>
-			<version>${t2.infrastructure.version}</version>
+			<groupId>uk.org.taverna.configuration</groupId>
+			<artifactId>taverna-app-configuration-api</artifactId>
+			<version>${taverna.configuration.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>data-management-config</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<groupId>uk.org.taverna.configuration</groupId>
+			<artifactId>taverna-database-configuration-api</artifactId>
+			<version>${taverna.configuration.version}</version>
 		</dependency>
-		<dependency>
-  			<groupId>net.sf.taverna.t2.core</groupId>
-    		<artifactId>provenanceconnector</artifactId>
- 			<version>${t2.core.version}</version>
- 		</dependency>
-		<dependency>
-  			<groupId>net.sf.taverna.t2</groupId>
-    		<artifactId>provenance-client</artifactId>
- 			<version>${t2.provenance-client.version}</version>
- 		</dependency>
 
- 		<dependency>
- 			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>reference-core-extensions</artifactId>
-			<version>${t2.reference-core-extensions.version}</version>
- 		</dependency>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>${poi.version}</version>
-		</dependency>		
+		</dependency>
 	</dependencies>
 </project>

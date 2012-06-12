@@ -25,8 +25,10 @@ import java.util.List;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
+import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
 
 /**
@@ -41,13 +43,17 @@ public class ProcessorDispatchStackContextualViewFactory implements
 
 	private EditManager editManager;
 	private FileManager fileManager;
+	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
+	private List<AddLayerFactorySPI> addLayerFactories;
 
 	public boolean canHandle(Object selection) {
 		return selection instanceof Processor;
 	}
 
 	public List<ContextualView> getViews(Processor selection) {
-		return Arrays.asList(new ContextualView[] {new ProcessorDispatchStackContextualView(selection, editManager, fileManager)});
+		return Arrays.asList(new ContextualView[] { new ProcessorDispatchStackContextualView(
+				selection, editManager, fileManager, contextualViewFactoryRegistry,
+				addLayerFactories) });
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -56,6 +62,15 @@ public class ProcessorDispatchStackContextualViewFactory implements
 
 	public void setFileManager(FileManager fileManager) {
 		this.fileManager = fileManager;
+	}
+
+	public void setContextualViewFactoryRegistry(
+			ContextualViewFactoryRegistry contextualViewFactoryRegistry) {
+		this.contextualViewFactoryRegistry = contextualViewFactoryRegistry;
+	}
+
+	public void setAddLayerFactories(List<AddLayerFactorySPI> addLayerFactories) {
+		this.addLayerFactories = addLayerFactories;
 	}
 
 }

@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -57,7 +57,6 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
-import net.sf.taverna.t2.lang.results.ResultsUtils;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.reference.ErrorDocument;
 import net.sf.taverna.t2.reference.ExternalReferenceSPI;
@@ -68,9 +67,9 @@ import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.renderers.Renderer;
 import net.sf.taverna.t2.renderers.RendererException;
 import net.sf.taverna.t2.renderers.RendererRegistry;
+import net.sf.taverna.t2.results.ResultsUtils;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
-import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPIRegistry;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 
 import org.apache.log4j.Logger;
@@ -81,10 +80,10 @@ import eu.medsea.mimeutil.MimeType;
  * Creates a component that renders an individual result from an output port.
  * The component can render the result according to the renderers existing for
  * the output port's MIME type or display an error document.
- * 
+ *
  * @author Ian Dunlop
  * @author Alex Nenadic
- * 
+ *
  */
 @SuppressWarnings("serial")
 public class RenderedProcessorResultComponent extends JPanel {
@@ -92,7 +91,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 	private static final String WRAP_TEXT = "Wrap text";
 
 	final String ERROR_DOCUMENT = "Error Document";
-	
+
 	private static Logger logger = Logger
 			.getLogger(RenderedProcessorResultComponent.class);
 
@@ -101,32 +100,32 @@ public class RenderedProcessorResultComponent extends JPanel {
 
 	// Combo box containing possible result types
 	private JComboBox renderersComboBox;
-	
-	// Button to refresh (re-render) the result, especially needed 
+
+	// Button to refresh (re-render) the result, especially needed
 	// for large results that are not rendered or are
 	// partially rendered and the user wished to re-render them
 	private JButton refreshButton;
 
 	// Preferred result type renderers (the ones recognised to be able to handle the result's MIME type)
 	private List<Renderer> recognisedRenderersForMimeType;
-	
+
 	// All other result type renderers (the ones not recognised to be able to handle the result's MIME type)
 	// In case user wants to use them.
 	private List<Renderer> otherRenderers;
 
 	// Renderers' registry
-	static RendererRegistry rendererRegistry = new RendererRegistry();
-	
-	// List of all MIME strings from all available renderers to be used for renderersComboBox. 
-	// Those that come from recognisedRenderersForMimeType are the preferred ones. 
+	private final RendererRegistry rendererRegistry;
+
+	// List of all MIME strings from all available renderers to be used for renderersComboBox.
+	// Those that come from recognisedRenderersForMimeType are the preferred ones.
 	// Those from otherRenderers will be greyed-out in the combobox list but could still be used.
 	private String[] mimeList;
-	
+
 	// List of all available renderers but ordered to match the corresponding MIME type strings in mimeList:
-	// first the preferred renderers from recognisedRenderersForMimeType then the ones from otherRenderers. 
+	// first the preferred renderers from recognisedRenderersForMimeType then the ones from otherRenderers.
 	private ArrayList<Renderer> rendererList;
-	
-	// Remember the MIME type of the last used renderer; use "text/plain" by default until 
+
+	// Remember the MIME type of the last used renderer; use "text/plain" by default until
 	// user changes it - then use that one for all result items of the port (in case result
 	// contains a list). "text/plain" will always be added to the mimeList.
 	private String lastUsedMIMEtype = "text/plain"; // text renderer will always be available
@@ -136,7 +135,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 
 	// Reference to the object being displayed (contained in the tree node)
 	private T2Reference t2Reference;
-	
+
 	// Currently selected node from the ResultViewComponent, if any.
 	private ProcessorResultTreeNode node = null;
 
@@ -151,10 +150,9 @@ public class RenderedProcessorResultComponent extends JPanel {
 	private ReferenceService referenceService;
         private InvocationContext context;
 
-	// Registry of all existing 'save individual result' actions,
+	// List of all existing 'save individual result' actions,
 	// e.g. each action can save the result in a different format.
-	private static SaveIndividualResultSPIRegistry saveActionsRegistry = SaveIndividualResultSPIRegistry
-			.getInstance();
+	private final List<SaveIndividualResultSPI> saveActions;
 
 	// Panel containing all 'save results' buttons
 	JPanel saveButtonsPanel = null;
@@ -162,8 +160,10 @@ public class RenderedProcessorResultComponent extends JPanel {
 	/**
 	 * Creates the component.
 	 */
-	public RenderedProcessorResultComponent() {
+	public RenderedProcessorResultComponent(RendererRegistry rendererRegistry, List<SaveIndividualResultSPI> saveActions) {
 
+		this.rendererRegistry = rendererRegistry;
+		this.saveActions = saveActions;
 		setLayout(new BorderLayout());
 		setBorder(new EtchedBorder());
 
@@ -174,7 +174,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 		renderersComboBox.setRenderer(new ColorCellRenderer());
 		renderersComboBox.setEditable(false);
 		renderersComboBox.setEnabled(false); // initially disabled
-		
+
 		// Set the new listener - listen for changes in the currently selected renderer
 		renderersComboBox.addItemListener(new ItemListener() {
 			public void itemStateChanged(ItemEvent e) {
@@ -187,11 +187,11 @@ public class RenderedProcessorResultComponent extends JPanel {
 		JPanel resultsTypePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		resultsTypePanel.add(new JLabel("Value type"));
 		resultsTypePanel.add(renderersComboBox);
-		
+
 		// Refresh (re-render) button
 		refreshButton = new JButton("Refresh", WorkbenchIcons.refreshIcon);
 		refreshButton.setEnabled(false);
-		refreshButton.addActionListener(new ActionListener() {		
+		refreshButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				renderResult();
 				refreshButton.getParent().requestFocusInWindow();// so that the button does not stay focused after it is clicked on and did its action
@@ -203,7 +203,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 		wrapTextCheckBox = new JCheckBox(WRAP_TEXT);
 		wrapTextCheckBox.setVisible(false);
 		wrapTextCheckBox.addItemListener(new ItemListener() {
-			
+
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				// Should have only one child component holding the rendered result
@@ -214,11 +214,11 @@ public class RenderedProcessorResultComponent extends JPanel {
 				Component component = renderedResultPanel.getComponent(0);
 	        	if (component instanceof DialogTextArea){
 	        		if (e.getStateChange() == ItemEvent.SELECTED) {
-						nodeToWrapSelection.put(node.hashCode(), Boolean.TRUE);	
+						nodeToWrapSelection.put(node.hashCode(), Boolean.TRUE);
 						renderResult();
-			        }	        
+			        }
 			        else{
-						nodeToWrapSelection.put(node.hashCode(), Boolean.FALSE);						
+						nodeToWrapSelection.put(node.hashCode(), Boolean.FALSE);
 						renderResult();
 			        }
 	        	}
@@ -228,14 +228,12 @@ public class RenderedProcessorResultComponent extends JPanel {
 		resultsTypePanel.add(wrapTextCheckBox);
  		// 'Save result' buttons panel
 		saveButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		List<SaveIndividualResultSPI> saveActions = saveActionsRegistry
-				.getSaveResultActions();
 		for (SaveIndividualResultSPI action : saveActions) {
 			action.setResultReference(null);
 			action.setInvocationContext(null);
 			final JButton saveButton = new JButton(action.getAction());
 			saveButton.setEnabled(false);
-			saveButton.addActionListener(new ActionListener() {		
+			saveButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					saveButton.getParent().requestFocusInWindow();// so that the button does not stay focused after it is clicked on and did its action
 				}
@@ -277,10 +275,10 @@ public class RenderedProcessorResultComponent extends JPanel {
 	/**
 	 * Update the component based on the node selected from the
 	 * ResultViewComponent tree.
-	 * 
+	 *
 	 */
 	public void updateResult() {
-		
+
 		if (recognisedRenderersForMimeType == null){
 			recognisedRenderersForMimeType = new ArrayList<Renderer>();
 		}
@@ -311,10 +309,10 @@ public class RenderedProcessorResultComponent extends JPanel {
 		Identified identified = referenceService.resolveIdentifier(t2Reference, null, context);
 
 		if (identified instanceof ReferenceSet) {
-						
+
 			// Enable refresh button
 			refreshButton.setEnabled(true);
-			
+
 			List<MimeType> mimeTypes = new ArrayList<MimeType>();
 			ReferenceSet referenceSet = (ReferenceSet) identified;
 			List<ExternalReferenceSPI> externalReferences = new ArrayList<ExternalReferenceSPI>(
@@ -334,7 +332,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 					break;
 				}
 			}
-		
+
 			if (mimeTypes.isEmpty()) { // If MIME types is empty - add
 										// "plain/text" MIME type
 				mimeTypes.add(new MimeType("text/plain"));
@@ -374,7 +372,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 			// Add all other available renderers that are not recognised to be
 			// able to handle the
 			// MIME type of the result
-			otherRenderers = rendererRegistry.getInstances();
+			otherRenderers = rendererRegistry.getRenderers();
 			otherRenderers.removeAll(recognisedRenderersForMimeType);
 
 			mimeList = new String[recognisedRenderersForMimeType.size()
@@ -409,33 +407,33 @@ public class RenderedProcessorResultComponent extends JPanel {
 
 				int previousindex = renderersComboBox.getSelectedIndex();
 				renderersComboBox.setSelectedIndex(index);
-				// force rendering as setSelectedIndex will not fire an 
-				// itemstatechanged event if previousindex == index and we still need 
-				// render the result as we may have switched from a different result item in 
+				// force rendering as setSelectedIndex will not fire an
+				// itemstatechanged event if previousindex == index and we still need
+				// render the result as we may have switched from a different result item in
 				// a result list but the renderer index stayed the same
-				if (previousindex == index) { 
+				if (previousindex == index) {
 					renderResult(); // draw the rendered result component
 				}
 			}
 
 		} else if (identified instanceof ErrorDocument) {
-			
+
 			// Disable refresh button
 			refreshButton.setEnabled(false);
-			
+
 			ErrorDocument errorDocument = (ErrorDocument) identified;
-			
+
 			// Reset the renderers as we have an error item
 			recognisedRenderersForMimeType = null;
 			otherRenderers = null;
-			
+
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode(
 				"Error Trace");
-			
+
 			ResultsUtils.buildErrorDocumentTree(root, errorDocument, referenceService);
-			
+
 			JTree errorTree = new JTree(root);
-			
+
 			errorTree.setCellRenderer(new DefaultTreeCellRenderer() {
 
 				public Component getTreeCellRendererComponent(JTree tree,
@@ -471,41 +469,41 @@ public class RenderedProcessorResultComponent extends JPanel {
 			renderedResultPanel.add(errorTree, BorderLayout.CENTER);
 			repaint();
 		}
-		
+
 	}
-	
+
 	/**
 	 * Renders the result panel using the last used renderer.
 	 */
 	public void renderResult() {
-		
+
 		if (((String)renderersComboBox.getSelectedItem()).equals(ERROR_DOCUMENT)){ // skip error documents - do not (re)render
 			return;
 		}
-		
+
 		int selectedIndex = renderersComboBox.getSelectedIndex();
 		if (mimeList != null && selectedIndex >= 0) {
 
 			Renderer renderer = rendererList.get(selectedIndex);
-			
+
 			if (renderer.getType().equals("Text")){ // if the result is "text/plain"
-				// We use node's hash code as the key in the nodeToWrapCheckBox 
+				// We use node's hash code as the key in the nodeToWrapCheckBox
 				// map as node's user object may be too large
 				if (nodeToWrapSelection.get(node.hashCode()) == null){
 					// initially not selected
-					nodeToWrapSelection.put(node.hashCode(), Boolean.FALSE);						
+					nodeToWrapSelection.put(node.hashCode(), Boolean.FALSE);
 				}
 				wrapTextCheckBox.setSelected(nodeToWrapSelection.get(node.hashCode()));
 				wrapTextCheckBox.setVisible(true);
 			}
 			else{
-				wrapTextCheckBox.setVisible(false);					
+				wrapTextCheckBox.setVisible(false);
 			}
 
 			// Remember the last used renderer - use it for all result items of this port
 			//currentRendererIndex = selectedIndex;
 			lastUsedMIMEtype = mimeList[selectedIndex];
-			
+
 			JComponent component = null;
 			try {
 				component = renderer.getComponent(referenceService, t2Reference);
@@ -540,7 +538,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 			revalidate();
 		}
 	}
-	
+
 	/**
 	 * Clears the result panel.
 	 */
@@ -565,8 +563,8 @@ public class RenderedProcessorResultComponent extends JPanel {
 		revalidate();
 		repaint();
 	}
-	
-	
+
+
 	class ColorCellRenderer implements ListCellRenderer {
 		  protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 
@@ -574,11 +572,11 @@ public class RenderedProcessorResultComponent extends JPanel {
 		      boolean isSelected, boolean cellHasFocus) {
 		    JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index,
 		        isSelected, cellHasFocus);
-		    		    
+
 		    if (value instanceof Color) {
 		      renderer.setBackground((Color) value);
 		    }
-		    
+
 		    if (recognisedRenderersForMimeType == null){ // error occurred
 			    return renderer;
 		    }

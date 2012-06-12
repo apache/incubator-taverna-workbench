@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2009-2010 The University of Manchester   
- * 
+ * Copyright (C) 2009-2010 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -21,35 +21,29 @@
 package net.sf.taverna.t2.workbench.ui.credentialmanager.password;
 
 import java.awt.GraphicsEnvironment;
-import java.net.URI;
-import java.security.cert.X509Certificate;
 
 import javax.swing.JFrame;
 
-import net.sf.taverna.t2.security.credentialmanager.CredentialProviderSPI;
-import net.sf.taverna.t2.security.credentialmanager.TrustConfirmation;
-import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
+import uk.org.taverna.configuration.app.ApplicationConfiguration;
+
+import net.sf.taverna.t2.security.credentialmanager.JavaTruststorePasswordProvider;
+import net.sf.taverna.t2.security.credentialmanager.MasterPasswordProvider;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.GetMasterPasswordDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.SetMasterPasswordDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.WarnUserAboutJCEPolicyDialog;
 
 /**
  * A UI pop-up that asks user for a master password for Credential Manager.
- * 
+ *
  * @author Alex Nenadic
  * @author Stian Soiland-Reyes
- * 
+ *
  */
-public class UIMasterPasswordProvider implements CredentialProviderSPI {
+public class UIMasterPasswordProvider implements MasterPasswordProvider, JavaTruststorePasswordProvider {
 
-	public boolean canProvideMasterPassword() {
-		return !GraphicsEnvironment.isHeadless();
-	}
+	private ApplicationConfiguration applicationConfiguration;
 
-	public boolean canProvideJavaTruststorePassword() {
-		return !GraphicsEnvironment.isHeadless();
-	}
-
+	@Override
 	public String getJavaTruststorePassword() {
 		if (GraphicsEnvironment.isHeadless()) {
 			return null;
@@ -64,11 +58,11 @@ public class UIMasterPasswordProvider implements CredentialProviderSPI {
 		return javaTruststorePassword;
 	}
 
-	public int getProviderPriority() {
-		// TODO Auto-generated method stub
-		return 100;
+	@Override
+	public void setJavaTruststorePassword(String password) {
 	}
 
+	@Override
 	public String getMasterPassword(boolean firstTime) {
 
 		// Check if this Taverna run is headless (i.e. Taverna Server or Taverna
@@ -81,8 +75,8 @@ public class UIMasterPasswordProvider implements CredentialProviderSPI {
 
 		// Pop up a warning about Java Cryptography Extension (JCE)
 		// Unlimited Strength Jurisdiction Policy
-		WarnUserAboutJCEPolicyDialog.warnUserAboutJCEPolicy();
-		
+		WarnUserAboutJCEPolicyDialog.warnUserAboutJCEPolicy(applicationConfiguration);
+
 		if (firstTime) {
 			// Ask user to set the master password for Credential Manager (only
 			// the first time)
@@ -102,20 +96,22 @@ public class UIMasterPasswordProvider implements CredentialProviderSPI {
 		}
 	}
 
-	public boolean canHandleTrustConfirmation(X509Certificate[] chain) {
-		return false;
+	@Override
+	public void setMasterPassword(String password) {
 	}
 
-	public boolean canProvideUsernamePassword(URI serviceURI) {
-		return false;
+	@Override
+	public int getProviderPriority() {
+		return 100;
 	}
 
-	public UsernamePassword getUsernamePassword(URI serviceURI,
-			String requestingPrompt) {
-		return null;
+	/**
+	 * Sets the applicationConfiguration.
+	 *
+	 * @param applicationConfiguration the new value of applicationConfiguration
+	 */
+	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+		this.applicationConfiguration = applicationConfiguration;
 	}
 
-	public TrustConfirmation shouldTrust(X509Certificate[] chain) {
-		return null;
-	}
 }

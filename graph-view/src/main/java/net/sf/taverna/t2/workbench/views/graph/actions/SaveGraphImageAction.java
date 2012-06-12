@@ -39,9 +39,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 
-import org.apache.log4j.Logger;
-
-import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 import net.sf.taverna.t2.lang.io.StreamCopier;
 import net.sf.taverna.t2.lang.io.StreamDevourer;
 import net.sf.taverna.t2.lang.observer.Observable;
@@ -51,15 +48,18 @@ import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.DotWriter;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil;
-import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
+import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 import net.sf.taverna.t2.workbench.views.graph.toolbar.SaveGraphImageToolbarAction;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+
+import org.apache.log4j.Logger;
 
 /**
  * An action that saves graph diagram image.
@@ -87,10 +87,12 @@ public class SaveGraphImageAction extends AbstractAction{
 
 	private final FileManager fileManager;
 
-	public SaveGraphImageAction(FileManager fileManager, MenuManager menuManager){
+	private final WorkbenchConfiguration workbenchConfiguration;
+
+	public SaveGraphImageAction(FileManager fileManager, MenuManager menuManager, WorkbenchConfiguration workbenchConfiguration) {
 		super();
 		this.fileManager = fileManager;
-		this.menuManager = menuManager;
+		this.menuManager = menuManager;		this.workbenchConfiguration = workbenchConfiguration;
 		putValue(SMALL_ICON, WorkbenchIcons.savePNGIcon);
 		putValue(NAME, "Export diagram");
 		putValue(SHORT_DESCRIPTION, "Export diagram");
@@ -158,7 +160,7 @@ public class SaveGraphImageAction extends AbstractAction{
 							out.close();
 						}
 						else{
-							String dotLocation = (String)WorkbenchConfiguration.getInstance().getProperty("taverna.dotlocation");
+							String dotLocation = (String) workbenchConfiguration.getProperty("taverna.dotlocation");
 							if (dotLocation == null) {
 								dotLocation = "dot";
 							}
@@ -173,7 +175,7 @@ public class SaveGraphImageAction extends AbstractAction{
 							dotWriter.writeGraph(graphController.getGraph());
 
 							OutputStream dotOut = dotProcess.getOutputStream();
-							dotOut.write(SVGUtil.getDot(stringWriter.toString()).getBytes());
+							dotOut.write(SVGUtil.getDot(stringWriter.toString(), workbenchConfiguration).getBytes());
 							dotOut.flush();
 							dotOut.close();
 							new StreamDevourer(dotProcess.getErrorStream()).start();

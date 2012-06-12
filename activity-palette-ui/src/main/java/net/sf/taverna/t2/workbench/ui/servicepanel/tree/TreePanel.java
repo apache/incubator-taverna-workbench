@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007-2009 The University of Manchester   
- * 
+ * Copyright (C) 2007-2009 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -62,20 +62,19 @@ public abstract class TreePanel extends JPanel {
 	protected JTextField searchField = new JTextField(SEARCH_WIDTH);
 	protected JTree tree = new JTree();
 	protected JScrollPane treeScrollPane;
-	
+
 	private String availableObjectsString = "";
 	private String matchingObjectsString = "";
 	private String noMatchingObjectsString = "";
 
 	private TreeExpandCollapseListener treeExpandListener = new TreeExpandCollapseListener();
 	private Object filterLock = new Object();
-	
+
 	private static Logger logger = Logger
 	.getLogger(TreePanel.class);
 
 	public TreePanel(FilterTreeModel treeModel) {
 		filterTreeModel = treeModel;
-		initialize();
 	}
 
 	public void expandTreePaths() throws InterruptedException,
@@ -104,11 +103,11 @@ public abstract class TreePanel extends JPanel {
 
 	public void expandAll(FilterTreeNode node, boolean expand) {
         FilterTreeNode root = (FilterTreeNode) tree.getModel().getRoot();
-    
+
         // Traverse tree from root
         expandAll(new TreePath(node.getPath()), expand);
     }
-	
+
     private void expandAll(TreePath parent, boolean expand) {
         // Traverse children
         FilterTreeNode node = (FilterTreeNode) parent.getLastPathComponent();
@@ -119,7 +118,7 @@ public abstract class TreePanel extends JPanel {
                 expandAll(path, expand);
             }
         }
-    
+
         // Expansion or collapse must be done bottom-up
         if (expand) {
             tree.expandPath(parent);
@@ -135,7 +134,7 @@ public abstract class TreePanel extends JPanel {
 		tree.addTreeExpansionListener(treeExpandListener);
 		tree.setCellRenderer(createCellRenderer());
 		tree.setSelectionModel(new FilterTreeSelectionModel());
-		
+
 		JPanel topPanel = new JPanel();
 		topPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
@@ -153,7 +152,7 @@ public abstract class TreePanel extends JPanel {
 		c.gridy = 0;
 		c.weightx = 1.0;
 		topPanel.add(searchField, c);
-		
+
 
 		c.fill = GridBagConstraints.NONE;
 		c.gridx = 2;
@@ -164,20 +163,20 @@ public abstract class TreePanel extends JPanel {
 			public void actionPerformed(ActionEvent e) {
 				searchField.setText("");
 				SwingUtilities.invokeLater(new RunFilter());
-				clearButton.getParent().requestFocusInWindow();// so that the button does not stay focused after it is clicked on and did its action				
+				clearButton.getParent().requestFocusInWindow();// so that the button does not stay focused after it is clicked on and did its action
 			}
 		});
 		topPanel.add(clearButton, c);
-		
+
 		c.gridx = 3;
 		c.weightx = 0.2;
 		topPanel.add(new JPanel(), c);
-		
+
 		JPanel topExtraPanel = new JPanel();
 		topExtraPanel.setLayout(new BorderLayout());
 
 		topExtraPanel.add(topPanel, BorderLayout.NORTH);
-		
+
 		Component extraComponent = createExtraComponent();
 		if (extraComponent != null) {
 			JPanel extraPanel  = new JPanel();
@@ -185,7 +184,7 @@ public abstract class TreePanel extends JPanel {
 			extraPanel.add(extraComponent, BorderLayout.WEST);
 			topExtraPanel.add(extraPanel, BorderLayout.CENTER);
 	}
-	
+
 		add(topExtraPanel, BorderLayout.NORTH);
 
 		add(treeScrollPane, BorderLayout.CENTER);
@@ -287,7 +286,7 @@ public abstract class TreePanel extends JPanel {
 			((FilterTreeCellRenderer)tree.getCellRenderer()).setFilter(filter);
 		}
 		filterTreeModel.setFilter(filter);
-		
+
 	}
 
 	protected class ExpandRowRunnable implements Runnable {
@@ -302,7 +301,7 @@ public abstract class TreePanel extends JPanel {
 		}
 
 	}
-	
+
 	protected class RunFilter implements Runnable {
 		public void run() {
 			Filter oldFilter = filterTreeModel.getCurrentFilter();
@@ -322,7 +321,7 @@ public abstract class TreePanel extends JPanel {
 	protected class SearchFieldKeyAdapter extends KeyAdapter {
 		private final Runnable runFilterRunnable;
 		Timer timer = new Timer("Search field timer", true);
-		
+
 		private SearchFieldKeyAdapter() {
 			this.runFilterRunnable = new RunFilter();
 		}
@@ -341,7 +340,7 @@ public abstract class TreePanel extends JPanel {
 	}
 
 	protected class TreeExpandCollapseListener implements TreeExpansionListener {
-		
+
 		private void noteExpansions() {
 			expandedPaths.clear();
 			TreePath rootPath = new TreePath(filterTreeModel.getRoot());
@@ -356,7 +355,7 @@ public abstract class TreePanel extends JPanel {
 				}
 				expandedPaths.add(userObjects);
 			}
-			
+
 		}
 
 		public void treeCollapsed(TreeExpansionEvent event) {

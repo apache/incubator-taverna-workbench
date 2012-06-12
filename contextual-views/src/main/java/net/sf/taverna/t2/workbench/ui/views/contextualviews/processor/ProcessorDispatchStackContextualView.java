@@ -34,7 +34,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.sf.taverna.t2.spi.SPIRegistry;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -60,9 +59,7 @@ import org.apache.log4j.Logger;
  */
 public class ProcessorDispatchStackContextualView extends ContextualView {
 
-	@SuppressWarnings("unused")
-	private static Logger logger = Logger
-			.getLogger(ProcessorDispatchStackContextualView.class);
+	private static Logger logger = Logger.getLogger(ProcessorDispatchStackContextualView.class);
 
 	private static final long serialVersionUID = -5916300049123653585L;
 
@@ -70,21 +67,23 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 
 	private FileManager fileManager;
 
-	private ContextualViewFactoryRegistry viewFactoryRegistry = ContextualViewFactoryRegistry
-			.getInstance();
+	private ContextualViewFactoryRegistry viewFactoryRegistry;
 
-	protected SPIRegistry<AddLayerFactorySPI> addLayerFactories = new SPIRegistry<AddLayerFactorySPI>(
-			AddLayerFactorySPI.class);
+	protected List<AddLayerFactorySPI> addLayerFactories;
 
 	protected JPanel mainPanel = new JPanel();
 
 	protected Processor processor;
 
-	public ProcessorDispatchStackContextualView(Processor processor, EditManager editManager, FileManager fileManager) {
+	public ProcessorDispatchStackContextualView(Processor processor, EditManager editManager,
+			FileManager fileManager, ContextualViewFactoryRegistry contextualViewFactoryRegistry,
+			List<AddLayerFactorySPI> addLayerFactories) {
 		super();
 		this.processor = processor;
 		this.editManager = editManager;
 		this.fileManager = fileManager;
+		viewFactoryRegistry = contextualViewFactoryRegistry;
+		this.addLayerFactories = addLayerFactories;
 		initialise();
 		initView();
 	}
@@ -99,11 +98,11 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 
 		ContextualViewFactory<DispatchLayer<?>> viewFactory = null;
 
-			List<ContextualViewFactory> factories = viewFactoryRegistry
-			.getViewFactoriesForObject(layer);
-			if (!factories.isEmpty()) {
-				viewFactory = factories.get(0);
-			}
+		List<ContextualViewFactory> factories = viewFactoryRegistry
+				.getViewFactoriesForObject(layer);
+		if (!factories.isEmpty()) {
+			viewFactory = factories.get(0);
+		}
 
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -118,8 +117,7 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 				+ "</strong></html>"), gbc);
 
 		boolean canBeRecreated = false;
-		for (AddLayerFactorySPI addLayerFactory : addLayerFactories
-				.getInstances()) {
+		for (AddLayerFactorySPI addLayerFactory : addLayerFactories) {
 			if (addLayerFactory.canCreateLayerClass(layer.getClass())) {
 				canBeRecreated = true;
 				break;
@@ -148,8 +146,7 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 			Action configureAction = contextualView.getConfigureAction(frame);
 			if (configureAction != null) {
 				JButton configureButton = new JButton(configureAction);
-				if (configureButton.getText() == null
-						|| configureButton.getText().equals("")) {
+				if (configureButton.getText() == null || configureButton.getText().equals("")) {
 					configureButton.setText("Configure");
 				}
 				gbc.fill = GridBagConstraints.NONE;
@@ -172,8 +169,7 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 		gbc.gridx = 0;
 		gbc.weightx = 0.1;
 
-		List<DispatchLayer<?>> layers = processor.getDispatchStack()
-				.getLayers();
+		List<DispatchLayer<?>> layers = processor.getDispatchStack().getLayers();
 		for (DispatchLayer<?> layer : layers) {
 			gbc.anchor = GridBagConstraints.LINE_START;
 			gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -182,18 +178,15 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 		}
 
 		if (layers.isEmpty()) {
-			mainPanel.add(new JLabel(
-					"<html><i>Warning: No dispatch stack</i></html>"), gbc);
+			mainPanel.add(new JLabel("<html><i>Warning: No dispatch stack</i></html>"), gbc);
 			mainPanel.add(new JButton(new AddDefaultStackAction()), gbc);
 		}
 
 		gbc.fill = GridBagConstraints.NONE;
 		// Buttons for adding new layers
-		for (AddLayerFactorySPI addLayerFactory : addLayerFactories
-				.getInstances()) {
+		for (AddLayerFactorySPI addLayerFactory : addLayerFactories) {
 			if (addLayerFactory.canAddLayerFor(processor)) {
-				JButton addButton = new JButton(addLayerFactory
-						.getAddLayerActionFor(processor));
+				JButton addButton = new JButton(addLayerFactory.getAddLayerActionFor(processor));
 				mainPanel.add(addButton, gbc);
 			}
 		}
@@ -222,8 +215,7 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 		public void actionPerformed(ActionEvent e) {
 			Edit<Processor> edit = editManager.getEdits().getDefaultDispatchStackEdit(processor);
 			try {
-				editManager.doDataflowEdit(fileManager.getCurrentDataflow(),
-						edit);
+				editManager.doDataflowEdit(fileManager.getCurrentDataflow(), edit);
 				refreshView();
 			} catch (EditException ex) {
 				logger.warn("Could not create default stack", ex);
@@ -246,8 +238,7 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 					processor.getDispatchStack(), layer);
 			// TODO: Should warn before removing "essential" layers
 			try {
-				editManager.doDataflowEdit(fileManager.getCurrentDataflow(),
-						deleteEdit);
+				editManager.doDataflowEdit(fileManager.getCurrentDataflow(), deleteEdit);
 				refreshView();
 			} catch (EditException ex) {
 				logger.warn("Could not remove layer " + layer, ex);
@@ -259,6 +250,5 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 	public int getPreferredPosition() {
 		return 400;
 	}
-
 
 }

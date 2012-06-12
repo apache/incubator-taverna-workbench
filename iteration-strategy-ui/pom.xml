@@ -8,22 +8,13 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-components</groupId>
 	<artifactId>iteration-strategy-ui</artifactId>
+	<packaging>bundle</packaging>
 	<name>Menu generation API</name>
 	<description>An SPI system for building UI menues</description>
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.infrastructure</groupId>
-			<artifactId>spi-discovery-api</artifactId>
-			<version>${t2.infrastructure.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>workflowmodel-api</artifactId>
-			<version>${t2.core.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-impl</artifactId>
 			<version>${t2.core.version}</version>
 		</dependency>
 		<dependency>
@@ -42,37 +33,38 @@
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>file-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>edits-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>contextual-views-api</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>helper-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+		</dependency>
+
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>workflowmodel-impl</artifactId>
 			<version>${t2.core.version}</version>
-			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>helper</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>file-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>edits-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>

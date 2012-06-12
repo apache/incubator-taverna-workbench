@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -32,12 +32,12 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 
+import net.sf.taverna.t2.baclava.DataThing;
+import net.sf.taverna.t2.baclava.factory.DataThingXMLFactory;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
 import net.sf.taverna.t2.reference.ui.RegistrationPanel;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
-import org.embl.ebi.escience.baclava.DataThing;
-import org.embl.ebi.escience.baclava.factory.DataThingXMLFactory;
 import org.jdom.Document;
 import org.jdom.input.SAXBuilder;
 
@@ -45,30 +45,30 @@ import org.jdom.input.SAXBuilder;
  * Loads a set of input values from an XML document
  */
 public class LoadInputsFromXML extends AbstractAction implements ReferenceActionSPI {
-	
+
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -5031867688853589341L;
 	private static final String INPUT_DATA_DIR_PROPERTY = "inputDataValuesDir";
 	private Map<String, RegistrationPanel> inputPanelMap;
-	
+
 	public LoadInputsFromXML(){
 		super();
 		putValue(NAME, "Load previous values");
 		putValue(SMALL_ICON, WorkbenchIcons.xmlNodeIcon);
 	}
-	
+
 	public AbstractAction getAction() {
 		return new LoadInputsFromXML();
 	}
 
 
 	public void actionPerformed(ActionEvent e) {
-		
+
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
-		String curDir = prefs.get(INPUT_DATA_DIR_PROPERTY, System.getProperty("user.home"));		
-		
+		String curDir = prefs.get(INPUT_DATA_DIR_PROPERTY, System.getProperty("user.home"));
+
 		JFileChooser chooser = new JFileChooser();
 		chooser.setDialogTitle("Select file to load input values from");
 
@@ -98,7 +98,7 @@ public class LoadInputsFromXML extends AbstractAction implements ReferenceAction
                 		panel.setValue(o, objectDepth);
                 	}
            	}
-             	
+
             }
         	}
         	catch (Exception ex) {
@@ -110,14 +110,14 @@ public class LoadInputsFromXML extends AbstractAction implements ReferenceAction
 	public void setInputPanelMap(Map<String, RegistrationPanel> inputPanelMap) {
 		this.inputPanelMap = inputPanelMap;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private int getObjectDepth(Object o) {
 		int result = 0;
 		if (o instanceof Iterable) {
 			result++;
 			Iterator i = ((Iterable) o).iterator();
-			
+
 			if (i.hasNext()) {
 				Object child = i.next();
 				result = result + getObjectDepth(child);

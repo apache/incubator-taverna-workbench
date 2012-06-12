@@ -20,7 +20,6 @@ import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
 
-import net.sf.taverna.t2.partition.ActivityItem;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.ui.menu.MenuManager;
@@ -55,6 +54,7 @@ public class ServiceTreePanel extends TreePanel {
 		this.editManager = editManager;
 		this.menuManager = menuManager;
 		this.dataflowSelectionManager = dataflowSelectionManager;
+		initialize();
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class ServiceTreePanel extends TreePanel {
 	@Override
 	protected Component createExtraComponent() {
 		JComponent buttonPanel = new JPanel(new FlowLayout());
-		buttonPanel.add(new AddServiceProviderMenu());
+		buttonPanel.add(new AddServiceProviderMenu(serviceDescriptionRegistry));
 		// buttonPanel.add(new JButton(new RefreshProviderRegistryAction()));
 		return buttonPanel;
 	}

@@ -1,78 +1,121 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="GraphViewConfigurationUIFactory" class="net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfigurationUIFactory" />
-
-	<bean id="GraphViewComponentFactory" class="net.sf.taverna.t2.workbench.views.graph.GraphViewComponentFactory">
-			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
-			<property name="menuManager" ref="menuManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	<bean id="graphViewConfiguration"
+		class="net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration">
+		<constructor-arg name="configurationManager" ref="configurationManager" />
 	</bean>
 
-	<bean id="GraphEditToolbarSection" class="net.sf.taverna.t2.workbench.views.graph.toolbar.GraphEditToolbarSection" />
-	<bean id="GraphDeleteToolbarSection" class="net.sf.taverna.t2.workbench.views.graph.toolbar.GraphDeleteToolbarSection" />
-	<bean id="GraphSaveToolbarSection" class="net.sf.taverna.t2.workbench.views.graph.toolbar.GraphSaveToolbarSection" />
-	<bean id="AddWFInputToolbarAction" class="net.sf.taverna.t2.workbench.views.graph.toolbar.AddWFInputToolbarAction">
-			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	<bean id="GraphViewConfigurationUIFactory"
+		class="net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfigurationUIFactory">
+		<property name="graphViewConfiguration">
+			<ref local="graphViewConfiguration" />
+		</property>
 	</bean>
-	<bean id="AddWFOutputToolbarAction" class="net.sf.taverna.t2.workbench.views.graph.toolbar.AddWFOutputToolbarAction">
-			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+
+	<bean id="GraphViewComponentFactory"
+		class="net.sf.taverna.t2.workbench.views.graph.GraphViewComponentFactory">
+		<property name="editManager" ref="editManager" />
+		<property name="fileManager" ref="fileManager" />
+		<property name="menuManager" ref="menuManager" />
+		<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+		<property name="colourManager" ref="colourManager" />
+		<property name="workbenchConfiguration" ref="workbenchConfiguration" />
+		<property name="graphViewConfiguration">
+			<ref local="graphViewConfiguration" />
+		</property>
 	</bean>
-	<bean id="RenameWFInputOutputProcessorToolbarAction" class="net.sf.taverna.t2.workbench.views.graph.toolbar.RenameWFInputOutputProcessorToolbarAction">
-			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+
+	<bean id="GraphEditToolbarSection"
+		class="net.sf.taverna.t2.workbench.views.graph.toolbar.GraphEditToolbarSection" />
+	<bean id="GraphDeleteToolbarSection"
+		class="net.sf.taverna.t2.workbench.views.graph.toolbar.GraphDeleteToolbarSection" />
+	<bean id="GraphSaveToolbarSection"
+		class="net.sf.taverna.t2.workbench.views.graph.toolbar.GraphSaveToolbarSection" />
+	<bean id="AddWFInputToolbarAction"
+		class="net.sf.taverna.t2.workbench.views.graph.toolbar.AddWFInputToolbarAction">
+		<property name="editManager" ref="editManager" />
+		<property name="fileManager" ref="fileManager" />
+		<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
-	<bean id="DeleteGraphComponentToolbarAction" class="net.sf.taverna.t2.workbench.views.graph.toolbar.DeleteGraphComponentToolbarAction">
-			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	<bean id="AddWFOutputToolbarAction"
+		class="net.sf.taverna.t2.workbench.views.graph.toolbar.AddWFOutputToolbarAction">
+		<property name="editManager" ref="editManager" />
+		<property name="fileManager" ref="fileManager" />
+		<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
-	<bean id="SaveGraphImageToolbarAction" class="net.sf.taverna.t2.workbench.views.graph.toolbar.SaveGraphImageToolbarAction">
-			<property name="fileManager" ref="fileManager" />
-			<property name="menuManager" ref="menuManager" />
+	<bean id="RenameWFInputOutputProcessorToolbarAction"
+		class="net.sf.taverna.t2.workbench.views.graph.toolbar.RenameWFInputOutputProcessorToolbarAction">
+		<property name="editManager" ref="editManager" />
+		<property name="fileManager" ref="fileManager" />
+		<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
-	<bean id="DiagramMenu" class="net.sf.taverna.t2.workbench.views.graph.menu.DiagramMenu" />
-	<bean id="DiagramSaveMenuSection" class="net.sf.taverna.t2.workbench.views.graph.menu.DiagramSaveMenuSection" />
-	<bean id="DiagramZoomMenuSection" class="net.sf.taverna.t2.workbench.views.graph.menu.DiagramZoomMenuSection" />
-	<bean id="GraphMenuSection" class="net.sf.taverna.t2.workbench.views.graph.menu.GraphMenuSection" />
-	<bean id="GraphCopyMenuSection" class="net.sf.taverna.t2.workbench.views.graph.menu.GraphCopyMenuSection" />
-	<bean id="GraphEditMenuSection" class="net.sf.taverna.t2.workbench.views.graph.menu.GraphEditMenuSection" />
-	<bean id="GraphDeleteMenuSection" class="net.sf.taverna.t2.workbench.views.graph.menu.GraphDeleteMenuSection" />
-	<bean id="GraphDetailsMenuSection" class="net.sf.taverna.t2.workbench.views.graph.menu.GraphDetailsMenuSection" />
+	<bean id="DeleteGraphComponentToolbarAction"
+		class="net.sf.taverna.t2.workbench.views.graph.toolbar.DeleteGraphComponentToolbarAction">
+		<property name="editManager" ref="editManager" />
+		<property name="fileManager" ref="fileManager" />
+		<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	</bean>
+	<bean id="SaveGraphImageToolbarAction"
+		class="net.sf.taverna.t2.workbench.views.graph.toolbar.SaveGraphImageToolbarAction">
+		<property name="fileManager" ref="fileManager" />
+		<property name="menuManager" ref="menuManager" />
+		<property name="workbenchConfiguration" ref="workbenchConfiguration" />
+	</bean>
+	<bean id="DiagramMenu"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.DiagramMenu" />
+	<bean id="DiagramSaveMenuSection"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.DiagramSaveMenuSection" />
+	<bean id="DiagramZoomMenuSection"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.DiagramZoomMenuSection" />
+	<bean id="GraphMenuSection"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.GraphMenuSection" />
+	<bean id="GraphCopyMenuSection"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.GraphCopyMenuSection" />
+	<bean id="GraphEditMenuSection"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.GraphEditMenuSection" />
+	<bean id="GraphDeleteMenuSection"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.GraphDeleteMenuSection" />
+	<bean id="GraphDetailsMenuSection"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.GraphDetailsMenuSection" />
 	<bean id="InsertMenu" class="net.sf.taverna.t2.workbench.views.graph.menu.InsertMenu" />
-	<bean id="AddWFInputMenuAction" class="net.sf.taverna.t2.workbench.views.graph.menu.AddWFInputMenuAction">
-			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	<bean id="AddWFInputMenuAction"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.AddWFInputMenuAction">
+		<property name="editManager" ref="editManager" />
+		<property name="fileManager" ref="fileManager" />
+		<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
-	<bean id="AddWFOutputMenuAction" class="net.sf.taverna.t2.workbench.views.graph.menu.AddWFOutputMenuAction">
-			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	<bean id="AddWFOutputMenuAction"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.AddWFOutputMenuAction">
+		<property name="editManager" ref="editManager" />
+		<property name="fileManager" ref="fileManager" />
+		<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
-	<bean id="RenameWFInputOutputProcessorMenuAction" class="net.sf.taverna.t2.workbench.views.graph.menu.RenameWFInputOutputProcessorMenuAction">
-			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	<bean id="RenameWFInputOutputProcessorMenuAction"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.RenameWFInputOutputProcessorMenuAction">
+		<property name="editManager" ref="editManager" />
+		<property name="fileManager" ref="fileManager" />
+		<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
-	<bean id="DeleteGraphComponentMenuAction" class="net.sf.taverna.t2.workbench.views.graph.menu.DeleteGraphComponentMenuAction">
-			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	<bean id="DeleteGraphComponentMenuAction"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.DeleteGraphComponentMenuAction">
+		<property name="editManager" ref="editManager" />
+		<property name="fileManager" ref="fileManager" />
+		<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
-	<bean id="SaveGraphImageSubMenu" class="net.sf.taverna.t2.workbench.views.graph.menu.SaveGraphImageSubMenu">
-			<property name="fileManager" ref="fileManager" />
+	<bean id="SaveGraphImageSubMenu"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.SaveGraphImageSubMenu">
+		<property name="fileManager" ref="fileManager" />
+		<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 	</bean>
-	<bean id="ZoomInMenuAction" class="net.sf.taverna.t2.workbench.views.graph.menu.ZoomInMenuAction" />
-	<bean id="ZoomOutMenuAction" class="net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutMenuAction" />
-	<bean id="ResetDiagramMenuAction" class="net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramMenuAction" />
+	<bean id="ZoomInMenuAction"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.ZoomInMenuAction" />
+	<bean id="ZoomOutMenuAction"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutMenuAction" />
+	<bean id="ResetDiagramMenuAction"
+		class="net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramMenuAction" />
 
 </beans>

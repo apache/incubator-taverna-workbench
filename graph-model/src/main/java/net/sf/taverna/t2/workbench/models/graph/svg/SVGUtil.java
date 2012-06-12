@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -40,15 +40,15 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import net.sf.taverna.t2.lang.io.StreamDevourer;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.models.graph.GraphShapeElement.Shape;
-import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
 
 import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.dom.svg.SVGOMAnimationElement;
 import org.apache.batik.dom.svg.SVGOMPoint;
-import org.apache.batik.transcoder.TranscoderException;
-import org.apache.batik.transcoder.svg2svg.PrettyPrinter;
+//import org.apache.batik.transcoder.TranscoderException;
+//import org.apache.batik.transcoder.svg2svg.PrettyPrinter;
 import org.apache.batik.util.SMILConstants;
 import org.apache.batik.util.SVGConstants;
 import org.apache.batik.util.XMLResourceDescriptor;
@@ -63,7 +63,7 @@ import org.w3c.dom.svg.SVGMatrix;
 
 /**
  * Utility methods.
- * 
+ *
  * @author David Withers
  */
 public class SVGUtil {
@@ -92,7 +92,7 @@ public class SVGUtil {
 
 	/**
 	 * Creates a new SVGDocument.
-	 * 
+	 *
 	 * @return a new SVGDocument
 	 */
 	public static SVGDocument createSVGDocument() {
@@ -103,7 +103,7 @@ public class SVGUtil {
 	/**
 	 * Converts a point in screen coordinates to a point in document
 	 * coordinates.
-	 * 
+	 *
 	 * @param locatable
 	 * @param screenPoint
 	 *            the point in screen coordinates
@@ -117,54 +117,54 @@ public class SVGUtil {
 
 	/**
 	 * Writes SVG to the console. For debugging only.
-	 * 
+	 *
 	 * @param svgDocument
 	 *            the document to output
 	 */
-	public static void writeSVG(SVGDocument svgDocument) {
-		writeSVG(svgDocument, new OutputStreamWriter(System.out));
-	}
+//	public static void writeSVG(SVGDocument svgDocument) {
+//		writeSVG(svgDocument, new OutputStreamWriter(System.out));
+//	}
 
 	/**
 	 * Writes SVG to an output stream.
-	 * 
+	 *
 	 * @param svgDocument
 	 *            the document to output
 	 * @param writer
 	 *            the stream to write the document to
 	 */
-	public static void writeSVG(SVGDocument svgDocument, Writer writer) {
-		StringWriter sw = new StringWriter();
-		try {
-			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			Transformer transformer = transformerFactory.newTransformer();
-			Node node = svgDocument.getDocumentElement();
-			Source src = new DOMSource(node);
-			Result dest = new StreamResult(sw);
-			transformer.transform(src, dest);
-
-			PrettyPrinter pp = new PrettyPrinter();
-			pp.print(new StringReader(sw.toString()), writer);
-		} catch (TransformerConfigurationException e) {
-			e.printStackTrace(new PrintWriter(writer));
-		} catch (TransformerException e) {
-			e.printStackTrace(new PrintWriter(writer));
-		} catch (TranscoderException e) {
-			e.printStackTrace(new PrintWriter(writer));
-		} catch (IOException e) {
-			e.printStackTrace(new PrintWriter(writer));
-		}
-	}
+//	public static void writeSVG(SVGDocument svgDocument, Writer writer) {
+//		StringWriter sw = new StringWriter();
+//		try {
+//			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+//			Transformer transformer = transformerFactory.newTransformer();
+//			Node node = svgDocument.getDocumentElement();
+//			Source src = new DOMSource(node);
+//			Result dest = new StreamResult(sw);
+//			transformer.transform(src, dest);
+//
+//			PrettyPrinter pp = new PrettyPrinter();
+//			pp.print(new StringReader(sw.toString()), writer);
+//		} catch (TransformerConfigurationException e) {
+//			e.printStackTrace(new PrintWriter(writer));
+//		} catch (TransformerException e) {
+//			e.printStackTrace(new PrintWriter(writer));
+//		} catch (TranscoderException e) {
+//			e.printStackTrace(new PrintWriter(writer));
+//		} catch (IOException e) {
+//			e.printStackTrace(new PrintWriter(writer));
+//		}
+//	}
 
 	/**
 	 * Generates an SVGDocument from DOT text by calling out to GraphViz.
-	 * 
+	 *
 	 * @param dotText
 	 * @return an SVGDocument
 	 * @throws IOException
 	 */
-	public static SVGDocument getSVG(String dotText) throws IOException {
-		String dotLocation = (String) WorkbenchConfiguration.getInstance().getProperty(
+	public static SVGDocument getSVG(String dotText, WorkbenchConfiguration workbenchConfiguration) throws IOException {
+		String dotLocation = (String) workbenchConfiguration.getProperty(
 				"taverna.dotlocation");
 		if (dotLocation == null) {
 			dotLocation = "dot";
@@ -196,14 +196,14 @@ public class SVGUtil {
 	/**
 	 * Generates DOT text with layout information from DOT text by calling out
 	 * to GraphViz.
-	 * 
+	 *
 	 * @param dotText
 	 *            dot text
 	 * @return dot text with layout information
 	 * @throws IOException
 	 */
-	public static String getDot(String dotText) throws IOException {
-		String dotLocation = (String) WorkbenchConfiguration.getInstance().getProperty(
+	public static String getDot(String dotText, WorkbenchConfiguration workbenchConfiguration) throws IOException {
+		String dotLocation = (String) workbenchConfiguration.getProperty(
 				"taverna.dotlocation");
 		if (dotLocation == null) {
 			dotLocation = "dot";
@@ -229,7 +229,7 @@ public class SVGUtil {
 	/**
 	 * Returns the hex value for a <code>Color</code>. If color is null "none"
 	 * is returned.
-	 * 
+	 *
 	 * @param color
 	 *            the <code>Color</code> to convert to hex code
 	 * @return the hex value
@@ -246,7 +246,7 @@ public class SVGUtil {
 	/**
 	 * Calculates the angle to rotate an arrow head to be placed on the end of a
 	 * line.
-	 * 
+	 *
 	 * @param line
 	 *            the line to calculate the arrow head angle from
 	 * @return the angle to rotate an arrow head
@@ -262,7 +262,7 @@ public class SVGUtil {
 	/**
 	 * Calculates the angle to rotate an arrow head to be placed on the end of a
 	 * line.
-	 * 
+	 *
 	 * @param pointList
 	 *            the list of <code>Point</code>s to calculate the arrow head
 	 *            angle from
@@ -289,7 +289,7 @@ public class SVGUtil {
 	/**
 	 * Calculates the angle to rotate an arrow head to be placed on the end of a
 	 * line.
-	 * 
+	 *
 	 * @param x1
 	 *            the x coordinate of the start of the line
 	 * @param y1
@@ -310,7 +310,7 @@ public class SVGUtil {
 	/**
 	 * Calculates the points that make up the polygon for the specified
 	 * {@link Shape}.
-	 * 
+	 *
 	 * @param shape
 	 *            the <code>Shape</code> to calculate points for
 	 * @param width
@@ -354,7 +354,7 @@ public class SVGUtil {
 	/**
 	 * Appends x y coordinates to a <code>StringBuilder</code> in the format
 	 * "x,y ".
-	 * 
+	 *
 	 * @param stringBuilder
 	 *            the <code>StringBuilder</code> to append the point to
 	 * @param x
@@ -368,10 +368,10 @@ public class SVGUtil {
 
 	/**
 	 * Converts a list of points into a string format for a cubic Bezier curve.
-	 * 
+	 *
 	 * For example, "M100,200 C100,100 250,100 250,200". See
 	 * http://www.w3.org/TR/SVG11/paths.html#PathDataCubicBezierCommands.
-	 * 
+	 *
 	 * @param pointList
 	 *            a list of points that describes a cubic Bezier curve
 	 * @return a string that describes a cubic Bezier curve
@@ -394,7 +394,7 @@ public class SVGUtil {
 
 	/**
 	 * Creates an animation element.
-	 * 
+	 *
 	 * @param graphController
 	 *            the SVGGraphController to use to create the animation element
 	 * @param elementType
@@ -421,7 +421,7 @@ public class SVGUtil {
 
 	/**
 	 * Adds an animation to the SVG element and starts the animation.
-	 * 
+	 *
 	 * @param animate
 	 *            that animation element
 	 * @param element
@@ -453,7 +453,7 @@ public class SVGUtil {
 	 * is shorter than <code>size</code> the last point is repeated. If
 	 * <code>pointList</code> is longer than <code>size</code> points at the end
 	 * of the list are removed.
-	 * 
+	 *
 	 * @param pointList
 	 *            the path to adjust
 	 * @param size

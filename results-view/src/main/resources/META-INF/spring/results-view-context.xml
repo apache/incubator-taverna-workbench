@@ -13,5 +13,11 @@
 	<bean id="SaveAllResultsAsXML" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsXML" />
 	<bean id="SaveAllResultsAsExcel" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsExcel" />
 	<bean id="SaveAllResultsToFileSystem" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsToFileSystem" />
+	<bean id="SaveAllResultsAsOPM" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsOPM">
+		<property name="provenanceConnectorFactories" ref="provenanceConnectorFactories" />
+	</bean>
+	<bean id="SaveAllResultsAsJanus" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsJanus">
+		<property name="provenanceConnectorFactories" ref="provenanceConnectorFactories" />
+	</bean>
 
 </beans>

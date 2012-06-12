@@ -3,12 +3,16 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="ServiceDescriptionConfigUIFactory" class="net.sf.taverna.t2.workbench.ui.servicepanel.config.ServiceDescriptionConfigUIFactory" />
+	<bean id="ServiceDescriptionConfigUIFactory" class="net.sf.taverna.t2.workbench.ui.servicepanel.config.ServiceDescriptionConfigUIFactory">
+			<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
+			<property name="serviceDescriptionsConfiguration" ref="serviceDescriptionsConfiguration" />
+	</bean>
 
 	<bean id="ServicePanelComponentFactory" class="net.sf.taverna.t2.workbench.ui.servicepanel.ServicePanelComponentFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
 	</bean>
 
 </beans>

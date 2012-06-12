@@ -29,7 +29,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
-import net.sf.taverna.raven.log.Log;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.visit.DataflowCollation;
 import net.sf.taverna.t2.visit.VisitReport;
@@ -42,6 +41,8 @@ import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
+
+import org.apache.log4j.Logger;
 
 
 public class ReportOnObjectContextualMenuAction extends AbstractContextualMenuAction {
@@ -57,7 +58,7 @@ public class ReportOnObjectContextualMenuAction extends AbstractContextualMenuAc
 			.create("http://taverna.sf.net/2009/contextMenu/configure");
 
 	@SuppressWarnings("unused")
-	private static Log logger = Log.getLogger(ReportOnObjectContextualMenuAction.class);
+	private static Logger logger = Logger.getLogger(ReportOnObjectContextualMenuAction.class);
 
 	public ReportOnObjectContextualMenuAction() {
 		super(configureSection, 43);

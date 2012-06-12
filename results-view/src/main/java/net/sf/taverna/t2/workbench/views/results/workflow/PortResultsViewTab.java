@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -41,22 +41,24 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import net.sf.taverna.t2.renderers.RendererRegistry;
+import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
 import net.sf.taverna.t2.workbench.views.results.workflow.FilteredWorkflowResultTreeModel.FilterType;
 
 /**
  * A tab containing result tree for an output port and a panel with rendered result
  * of the currently selected node in the tree.
- * 
+ *
  * @author Alex Nenadic
  *
  */
 public class PortResultsViewTab extends JPanel{
-	
+
 	private static final long serialVersionUID = -5531195402446371947L;
-	
+
 	// Tree model of results
 	WorkflowResultTreeModel resultModel;
-	
+
     FilteredWorkflowResultTreeModel filteredTreeModel;
 
 	// Rendered result component
@@ -67,24 +69,30 @@ public class PortResultsViewTab extends JPanel{
 	private int portDepth;
 
 	private JTree tree;
-	
+
     private JComboBox filterChoiceBox;
 
-	public PortResultsViewTab(String portName, int portDepth){
+	private final RendererRegistry rendererRegistry;
+
+	private final List<SaveIndividualResultSPI> saveActions;
+
+	public PortResultsViewTab(String portName, int portDepth, RendererRegistry rendererRegistry, List<SaveIndividualResultSPI> saveActions) {
 		super(new BorderLayout());
 		this.portName = portName;
 		this.portDepth = portDepth;
+		this.rendererRegistry = rendererRegistry;
+		this.saveActions = saveActions;
 
 		initComponents();
 	}
 
 	private void initComponents() {
-		
-		// Split pane containing a tree with all results from an output port and 
-		// rendered result component for individual result rendered currently selected 
+
+		// Split pane containing a tree with all results from an output port and
+		// rendered result component for individual result rendered currently selected
 		// from the tree
 		JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		
+
 		// Results tree (containing T2References to all individual results for this port)
 		resultModel =  new WorkflowResultTreeModel(portName,
 				portDepth);
@@ -96,9 +104,9 @@ public class PortResultsViewTab extends JPanel{
 		tree.setRootVisible(false);
 		tree.setShowsRootHandles(true);
 		tree.setCellRenderer(new PortResultCellRenderer());
-		
+
 		// Component for rendering individual results
-		renderedResultComponent = new RenderedResultComponent(); 
+		renderedResultComponent = new RenderedResultComponent(rendererRegistry, saveActions);
 
 		tree.addTreeSelectionListener(new TreeSelectionListener() {
 
@@ -110,19 +118,19 @@ public class PortResultsViewTab extends JPanel{
 					renderedResultComponent.setNode((WorkflowResultTreeNode)selectedNode);
 				}
 			}
-			
+
 		});
 
 		filteredTreeModel.addTreeModelListener(new TreeModelListener() {
 
 			public void treeNodesChanged(TreeModelEvent e) {
-				
+
 				tree.expandPath(e.getTreePath());
-							
+
 				// If nothing is currently selected in the tree - select either the
 				// result or the first AVAILABLE item in the result list
 				/*
-				if (tree.getSelectionRows() == null || tree.getSelectionRows().length == 0){ 			
+				if (tree.getSelectionRows() == null || tree.getSelectionRows().length == 0){
 					ResultTreeNode parent = (ResultTreeNode)e.getTreePath().getLastPathComponent(); // parent of the changed node(s)
 					int[] indices = e.getChildIndices(); //indexes of the changed node(s)
 					ResultTreeNode firstChild = (ResultTreeNode) parent.getChildAt(indices[0]); // get the first changed node
@@ -141,7 +149,7 @@ public class PortResultsViewTab extends JPanel{
 			public void treeStructureChanged(TreeModelEvent e) {
 			}
 		});
-		
+
 		JPanel leftPanel = new JPanel();
 		leftPanel.setLayout(new BorderLayout());
 
@@ -160,10 +168,10 @@ public class PortResultsViewTab extends JPanel{
 		splitPanel.setTopComponent(leftPanel);
 		splitPanel.setBottomComponent(renderedResultComponent);
 		splitPanel.setDividerLocation(400);
-		
+
 		// Add all to main panel
 		add(splitPanel, BorderLayout.CENTER);
-		
+
 	}
 
 	/**

@@ -28,6 +28,8 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
@@ -53,8 +55,9 @@ public class MonitorGraphPreviousRunComponent extends MonitorGraphComponent {
 
 	private GVTTreeRendererAdapter gvtTreeBuilderAdapter;
 
-	public MonitorGraphPreviousRunComponent(EditManager editManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager) {
-		super(editManager, menuManager, dataflowSelectionManager);
+	public MonitorGraphPreviousRunComponent(EditManager editManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager,
+			ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
+		super(editManager, menuManager, dataflowSelectionManager, colourManager, workbenchConfiguration);
 		setLayout(new BorderLayout());
 
 	}
@@ -89,7 +92,7 @@ public class MonitorGraphPreviousRunComponent extends MonitorGraphComponent {
 
 		// create a graph controller
 		final SVGGraphController svgGraphController = new SVGGraphController(
-				dataflow, true, svgCanvas, editManager, menuManager);
+				dataflow, true, svgCanvas, editManager, menuManager, colourManager, workbenchConfiguration);
 		// For selections on the graph
 		svgGraphController.setDataflowSelectionModel(dataflowSelectionManager.getDataflowSelectionModel(dataflow));
 		svgGraphController.setAnimationSpeed(0);

@@ -26,6 +26,7 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.views.graph.actions.SaveGraphImageAction;
 
@@ -40,6 +41,7 @@ public class SaveGraphImageToolbarAction extends AbstractMenuAction {
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphToolbarSaveGraphImage");
 	private FileManager fileManager;
 	private MenuManager menuManager;
+	private WorkbenchConfiguration workbenchConfiguration;
 
 	public SaveGraphImageToolbarAction() {
 		super(GraphSaveToolbarSection.GRAPH_SAVE_TOOLBAR_SECTION, 10, SAVE_GRAPH_IMAGE_TOOLBAR_URI);
@@ -47,7 +49,7 @@ public class SaveGraphImageToolbarAction extends AbstractMenuAction {
 
 	@Override
 	protected Action createAction() {
-		return new SaveGraphImageAction(fileManager, menuManager);
+		return new SaveGraphImageAction(fileManager, menuManager, workbenchConfiguration);
 	}
 
 	public void setFileManager(FileManager fileManager) {
@@ -56,6 +58,10 @@ public class SaveGraphImageToolbarAction extends AbstractMenuAction {
 
 	public void setMenuManager(MenuManager menuManager) {
 		this.menuManager = menuManager;
+	}
+
+	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
 }

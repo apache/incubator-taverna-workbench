@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2009 The University of Manchester   
- * 
+ * Copyright (C) 2009 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -57,26 +57,27 @@ public class GraphViewConfigurationPanel extends JPanel {
     private static final int ANIMATION_SPEED_MIN = 100;
     private static final int ANIMATION_SPEED_MAX = 3100;
 
-    private static GraphViewConfiguration configuration = GraphViewConfiguration.getInstance();
+    private GraphViewConfiguration configuration;
 
 	private JRadioButton noPorts;
 
 	private JRadioButton allPorts;
 
 	private JRadioButton blobs;
-	
+
 	private JRadioButton vertical;
 
 	private JRadioButton horizontal;
-	
+
 	private JCheckBox animation;
 
 	private JLabel animationSpeedLabel;
 
 	private JSlider animationSpeedSlider;
 
-    public GraphViewConfigurationPanel() {
-        GridBagLayout gridbag = new GridBagLayout();
+    public GraphViewConfigurationPanel(GraphViewConfiguration configuration) {
+        this.configuration = configuration;
+		GridBagLayout gridbag = new GridBagLayout();
         GridBagConstraints c = new GridBagConstraints();
         setLayout(gridbag);
 
@@ -118,7 +119,7 @@ public class GraphViewConfigurationPanel extends JPanel {
         animation = new JCheckBox("Enable animation");
 
         animationSpeedLabel = new JLabel("Animation speed");
-        
+
         animationSpeedSlider = new JSlider(ANIMATION_SPEED_MIN, ANIMATION_SPEED_MAX);
         animationSpeedSlider.setMajorTickSpacing(500);
         animationSpeedSlider.setMinorTickSpacing(100);
@@ -126,7 +127,7 @@ public class GraphViewConfigurationPanel extends JPanel {
         animationSpeedSlider.setPaintLabels(true);
         animationSpeedSlider.setInverted(true);
         animationSpeedSlider.setSnapToTicks(true);
- 
+
         Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
         labelTable.put(new Integer(ANIMATION_SPEED_MIN), new JLabel("Fast"));
         labelTable.put(new Integer(((ANIMATION_SPEED_MAX - ANIMATION_SPEED_MIN) / 2) + ANIMATION_SPEED_MIN), new JLabel("Medium"));
@@ -139,23 +140,23 @@ public class GraphViewConfigurationPanel extends JPanel {
          		animationSpeedLabel.setEnabled(animationEnabled);
          		animationSpeedSlider.setEnabled(animationEnabled);
             }
-        });	
-        
+        });
+
         // Set current configuration values
         setFields(configuration);
-        
+
         c.anchor = GridBagConstraints.WEST;
         c.gridx = 0;
         c.gridwidth = GridBagConstraints.REMAINDER;
         c.weightx = 1d;
         c.weighty = 0d;
         c.fill = GridBagConstraints.HORIZONTAL;
-        
+
         add(descriptionText, c);
 
         c.insets = new Insets(10, 0, 10, 0);
         add(defaultLayoutLabel, c);
-        
+
         c.insets = new Insets(0, 20, 0, 0);
         c.gridwidth = 1;
         c.weightx = 0d;
@@ -180,7 +181,7 @@ public class GraphViewConfigurationPanel extends JPanel {
         c.insets = new Insets(20, 0, 10, 0);
         c.gridx = 0;
         add(defaultAlignmentLabel, c);
-        
+
         c.insets = new Insets(0, 20, 0, 0);
         c.gridx = 0;
         c.gridwidth = 1;
@@ -205,12 +206,12 @@ public class GraphViewConfigurationPanel extends JPanel {
 
         c.insets = new Insets(0, 20, 0, 0);
         add(animationSpeedLabel, c);
-        
+
         c.insets = new Insets(0, 20, 10, 30);
         c.anchor = GridBagConstraints.NORTHWEST;
         c.weighty = 0d;
         add(animationSpeedSlider, c);
-        
+
         // Buttons
         c.gridx = 0;
         c.insets = new Insets(0, 20, 10, 30);
@@ -243,7 +244,7 @@ public class GraphViewConfigurationPanel extends JPanel {
 		 */
 		JButton resetButton = new JButton(new AbstractAction("Reset") {
 			public void actionPerformed(ActionEvent arg0) {
-				setFields(GraphViewConfiguration.getInstance());
+				setFields(configuration);
 			}
 		});
 		panel.add(resetButton);
@@ -255,7 +256,7 @@ public class GraphViewConfigurationPanel extends JPanel {
 		JButton applyButton = new JButton(new AbstractAction("Apply") {
 			public void actionPerformed(ActionEvent arg0) {
 				applySettings();
-				setFields(GraphViewConfiguration.getInstance());
+				setFields(configuration);
 			}
 		});
 		panel.add(applyButton);
@@ -269,7 +270,7 @@ public class GraphViewConfigurationPanel extends JPanel {
 	 * currently running Taverna.
 	 */
 	private void applySettings() {
-	
+
 		// Service display
 		if (noPorts.isSelected()){
         	configuration.setProperty(GraphViewConfiguration.PORT_STYLE, PortStyle.NONE.toString());
@@ -280,7 +281,7 @@ public class GraphViewConfigurationPanel extends JPanel {
 		else if (blobs.isSelected()){
         	configuration.setProperty(GraphViewConfiguration.PORT_STYLE, PortStyle.BLOB.toString());
 		}
-		
+
 		// Diagram alignment
 		if (vertical.isSelected()){
         	configuration.setProperty(GraphViewConfiguration.ALIGNMENT, Alignment.VERTICAL.toString());
@@ -288,7 +289,7 @@ public class GraphViewConfigurationPanel extends JPanel {
 		else if (horizontal.isSelected()){
         	configuration.setProperty(GraphViewConfiguration.ALIGNMENT, Alignment.HORIZONTAL.toString());
 		}
-		
+
 		// Animation and its speed
 		if (animation.isSelected()){
         	configuration.setProperty(GraphViewConfiguration.ANIMATION_ENABLED,
@@ -301,14 +302,14 @@ public class GraphViewConfigurationPanel extends JPanel {
 		int speed = animationSpeedSlider.getValue();
 		configuration.setProperty(GraphViewConfiguration.ANIMATION_SPEED, String.valueOf(speed));
 	}
-	
+
 	/**
-	 * Set the shown configuration field values to those currently in use 
+	 * Set the shown configuration field values to those currently in use
 	 * (i.e. last saved configuration).
-	 * 
+	 *
 	 */
 	private void setFields(GraphViewConfiguration configurable) {
-	
+
         PortStyle portStyle = PortStyle.valueOf(configurable.getProperty(GraphViewConfiguration.PORT_STYLE));
         if (portStyle.equals(PortStyle.NONE)) {
         	noPorts.setSelected(true);
@@ -317,17 +318,17 @@ public class GraphViewConfigurationPanel extends JPanel {
         } else {
         	blobs.setSelected(true);
         }
-        
+
 		Alignment alignment = Alignment.valueOf(configurable.getProperty(GraphViewConfiguration.ALIGNMENT));
         if (alignment.equals(Alignment.VERTICAL)) {
         	vertical.setSelected(true);
         } else {
         	horizontal.setSelected(true);
         }
-        
+
         boolean animationEnabled = Boolean.parseBoolean(configurable.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
         animation.setSelected(animationEnabled);
-        
+
         Integer animationSpeed = Integer.valueOf(configurable.getProperty(GraphViewConfiguration.ANIMATION_SPEED));
         if (animationSpeed > ANIMATION_SPEED_MAX) {
         	animationSpeed = ANIMATION_SPEED_MAX;
@@ -339,15 +340,15 @@ public class GraphViewConfigurationPanel extends JPanel {
 
         animationSpeedLabel.setEnabled(animationEnabled);
 	}
-	
+
     // for testing only
     public static void main(String[] args) {
         JDialog dialog = new JDialog();
-        dialog.add(new GraphViewConfigurationPanel());
+        dialog.add(new GraphViewConfigurationPanel(null));
         dialog.setModal(true);
         dialog.setSize(500, 400);
         dialog.setVisible(true);
         System.exit(0);
     }
-    
+
 }

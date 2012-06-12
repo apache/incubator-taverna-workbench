@@ -39,6 +39,8 @@ import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
@@ -104,11 +106,18 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 
 	protected final DataflowSelectionManager dataflowSelectionManager;
 
-	public MonitorGraphComponent(EditManager editManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager) {
+	protected final ColourManager colourManager;
+
+	protected final WorkbenchConfiguration workbenchConfiguration;
+
+	public MonitorGraphComponent(EditManager editManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager,
+			ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
 		super(new BorderLayout());
 		this.editManager = editManager;
 		this.menuManager = menuManager;
 		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.colourManager = colourManager;
+		this.workbenchConfiguration = workbenchConfiguration;
 		setBorder(LineBorder.createGrayLineBorder());
 
 		svgCanvas = new JSVGCanvas();
@@ -210,7 +219,7 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 
 	public GraphMonitor setDataflow(Dataflow dataflow) {
 		this.dataflow = dataflow;
-		SVGGraphController svgGraphController = new SVGGraphController(dataflow, true, svgCanvas, editManager, menuManager);
+		SVGGraphController svgGraphController = new SVGGraphController(dataflow, true, svgCanvas, editManager, menuManager, colourManager, workbenchConfiguration);
 		svgGraphController.setGraphEventManager(new MonitorGraphEventManager(this, provenanceConnector, dataflow, getSessionId()));
 		// For selections on the graph
 		svgGraphController.setDataflowSelectionModel(dataflowSelectionManager.getDataflowSelectionModel(dataflow));

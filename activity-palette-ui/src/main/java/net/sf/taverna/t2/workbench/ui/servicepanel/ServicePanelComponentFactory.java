@@ -23,7 +23,6 @@ package net.sf.taverna.t2.workbench.ui.servicepanel;
 import javax.swing.ImageIcon;
 
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
-import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
@@ -37,8 +36,7 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
  */
 public class ServicePanelComponentFactory implements UIComponentFactorySPI {
 
-	private ServiceDescriptionRegistry serviceDescriptionRegistry = ServiceDescriptionRegistryImpl
-			.getInstance();
+	private ServiceDescriptionRegistry serviceDescriptionRegistry;
 	private EditManager editManager;
 	private MenuManager menuManager;
 	private DataflowSelectionManager dataflowSelectionManager;
@@ -55,13 +53,8 @@ public class ServicePanelComponentFactory implements UIComponentFactorySPI {
 		return "Service panel";
 	}
 
-	public void setServiceDescriptionRegistry(
-			ServiceDescriptionRegistry serviceDescriptionRegistry) {
+	public void setServiceDescriptionRegistry(ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
-	}
-
-	public ServiceDescriptionRegistry getServiceDescriptionRegistry() {
-		return serviceDescriptionRegistry;
 	}
 
 	public void setEditManager(EditManager editManager) {

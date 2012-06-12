@@ -23,8 +23,6 @@ package net.sf.taverna.t2.workbench.ui.views.contextualviews.processor;
 import java.util.Arrays;
 import java.util.List;
 
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workflowmodel.Processor;
@@ -38,18 +36,12 @@ import net.sf.taverna.t2.workflowmodel.Processor;
 public class ProcessorPredictedBehaviorContextualViewFactory implements
 		ContextualViewFactory<Processor> {
 
-	private FileManager fileManager;
-
 	public boolean canHandle(Object selection) {
 		return selection instanceof Processor;
 	}
 
 	public List<ContextualView> getViews(Processor selection) {
-		return Arrays.asList(new ContextualView[] {new ProcessorPredictedBehaviorContextualView(selection, fileManager)});
-	}
-
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
+		return Arrays.asList(new ContextualView[] {new ProcessorPredictedBehaviorContextualView(selection)});
 	}
 
 }

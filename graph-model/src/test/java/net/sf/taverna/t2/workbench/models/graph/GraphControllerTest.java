@@ -24,8 +24,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 
-import net.sf.taverna.t2.activities.testutils.TranslatorTestHelper;
-import net.sf.taverna.t2.compatibility.WorkflowModelTranslator;
 import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
@@ -33,7 +31,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class GraphControllerTest extends TranslatorTestHelper {
+public class GraphControllerTest {
 
 	Dataflow dataflow;
 
@@ -41,10 +39,10 @@ public class GraphControllerTest extends TranslatorTestHelper {
 
 	@Before
 	public void setUp() throws Exception {
-		System.setProperty("raven.eclipse", "true");
-		setUpRavenRepository();
-		dataflow = WorkflowModelTranslator.doTranslation(loadScufl("nested_iteration.xml"));
-		graphController = new GraphController(dataflow, false, null, null, null) {
+//		System.setProperty("raven.eclipse", "true");
+//		setUpRavenRepository();
+//		dataflow = WorkflowModelTranslator.doTranslation(loadScufl("nested_iteration.xml"));
+		graphController = new GraphController(dataflow, false, null, null, null, null) {
 
 			public GraphEdge createGraphEdge() {
 				return new GraphEdge(this);

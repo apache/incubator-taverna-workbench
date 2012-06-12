@@ -3,10 +3,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="CopyProcessorMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CopyProcessorMenuAction">
-			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
-	</bean>
+	<bean id="CopyProcessorMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CopyProcessorMenuAction" />
 	<bean id="CopyGraphComponentMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CopyGraphComponentMenuAction">
 			<property name="fileManager" ref="fileManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
@@ -16,7 +13,10 @@
 			<property name="menuManager" ref="menuManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
-	<bean id="CutProcessorMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CutProcessorMenuAction" />
+	<bean id="CutProcessorMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CutProcessorMenuAction">
+			<property name="editManager" ref="editManager" />
+			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+	</bean>
 	<bean id="CutGraphComponentMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CutGraphComponentMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />

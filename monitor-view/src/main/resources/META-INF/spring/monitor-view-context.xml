@@ -7,6 +7,8 @@
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="colourManager" ref="colourManager" />
+			<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 	</bean>
 
 </beans>

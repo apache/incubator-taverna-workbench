@@ -38,6 +38,7 @@ import javax.swing.JOptionPane;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphEdge.ArrowStyle;
@@ -210,21 +211,24 @@ public abstract class GraphController implements
 
 	private final PortComparator portComparator = new PortComparator();
 
+	private final ColourManager colourManager;
+
 	public GraphController(Dataflow dataflow, boolean interactive,
-			Component componentForPopups, EditManager editManager, MenuManager menuManager) {
+			Component componentForPopups, EditManager editManager, MenuManager menuManager, ColourManager colourManager) {
 		this(dataflow, interactive, componentForPopups, Alignment.VERTICAL,
-				PortStyle.NONE, editManager, menuManager);
+				PortStyle.NONE, editManager, menuManager, colourManager);
 	}
 
 	public GraphController(Dataflow dataflow, boolean interactive,
 			Component componentForPopups, Alignment alignment,
-			PortStyle portStyle, EditManager editManager, MenuManager menuManager) {
+			PortStyle portStyle, EditManager editManager, MenuManager menuManager, ColourManager colourManager) {
 		this.dataflow = dataflow;
 		this.interactive = interactive;
 		this.componentForPopups = componentForPopups;
 		this.alignment = alignment;
 		this.portStyle = portStyle;
 		this.editManager = editManager;
+		this.colourManager = colourManager;
 		edits = editManager.getEdits();
 		this.graphEventManager = new DefaultGraphEventManager(this,
 				componentForPopups, menuManager);
@@ -835,14 +839,14 @@ public abstract class GraphController implements
 				if (firstActivity instanceof DisabledActivity) {
 					node.setFillColor(GraphColorManager
 							.getFillColor(((DisabledActivity) firstActivity)
-									.getActivity()));
+									.getActivity(), colourManager));
 				} else {
 					node.setFillColor(GraphColorManager
-							.getFillColor(firstActivity));
+							.getFillColor(firstActivity, colourManager));
 				}
 				node.setOpacity(0.3f);
 			} else {
-				node.setFillColor(GraphColorManager.getFillColor(firstActivity));
+				node.setFillColor(GraphColorManager.getFillColor(firstActivity, colourManager));
 			}
 		}
 		// check whether the nested workflow processors should be clickable or

@@ -6,7 +6,7 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="ReportManagerConfigurationUIFactory" interface="net.sf.taverna.t2.workbench.configuration.ConfigurationUIFactory" />
+	<service ref="ReportManagerConfigurationUIFactory" interface="uk.org.taverna.configuration.ConfigurationUIFactory" />
 
 	<service ref="ReportViewComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" />
 
@@ -18,5 +18,8 @@
 	<reference id="dataflowSelectionManager" interface="net.sf.taverna.t2.workbench.ui.DataflowSelectionManager" />
 	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" />
 	<reference id="workbench" interface="net.sf.taverna.t2.workbench.ui.Workbench" />
+	<reference id="reportManagerConfiguration" interface="net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration" />
+
+	<list id="visitExplainers" interface="net.sf.taverna.t2.workbench.report.explainer.VisitExplainer" cardinality="0..N"/>
 
 </beans:beans>

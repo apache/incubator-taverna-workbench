@@ -27,12 +27,13 @@ import javax.swing.Action;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.edits.impl.toolbar.EditToolbarSection;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.PasteGraphComponentAction;
 
 public class PasteToolbarAction extends AbstractMenuAction {
 
+	private static final URI EDIT_TOOLBAR_SECTION = URI
+			.create("http://taverna.sf.net/2008/t2workbench/menu#editToolbarSection");
 	private static final URI EDIT_TOOLBAR_PASTE_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#editToolbarPaste");
 	private EditManager editManager;
@@ -40,7 +41,7 @@ public class PasteToolbarAction extends AbstractMenuAction {
 	private DataflowSelectionManager dataflowSelectionManager;
 
 	public PasteToolbarAction() {
-		super(EditToolbarSection.EDIT_TOOLBAR_SECTION, 50, EDIT_TOOLBAR_PASTE_URI);
+		super(EDIT_TOOLBAR_SECTION, 50, EDIT_TOOLBAR_PASTE_URI);
 	}
 
 	@Override

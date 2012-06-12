@@ -10,6 +10,7 @@
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 			<property name="xmlDeserializer" ref="xmlDeserializer" />
 			<property name="referenceService" ref="referenceService" />
+			<property name="provenanceConnectorFactories" ref="provenanceConnectorFactories" />
 	</bean>
 
 	<bean id="LoadRunIdsToDeleteStartupHook" class="net.sf.taverna.t2.workbench.run.cleanup.LoadRunIdsToDeleteStartupHook" />

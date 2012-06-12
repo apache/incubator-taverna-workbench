@@ -3,7 +3,10 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="ReportManagerConfigurationUIFactory" class="net.sf.taverna.t2.workbench.report.config.ui.ReportManagerConfigurationUIFactory" />
+	<bean id="ReportManagerConfigurationUIFactory" class="net.sf.taverna.t2.workbench.report.config.ui.ReportManagerConfigurationUIFactory">
+			<property name="reportManagerConfiguration" ref="reportManagerConfiguration" />
+	</bean>
+
 
 	<bean id="ReportViewComponentFactory" class="net.sf.taverna.t2.workbench.report.view.ReportViewComponentFactory">
 			<property name="editManager" ref="editManager" />
@@ -12,6 +15,7 @@
 			<property name="reportManager" ref="reportManager" />
 			<property name="workbench" ref="workbench" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="visitExplainers" ref="visitExplainers" />
 	</bean>
 
 	<bean id="ReportOnObjectContextualMenuAction" class="net.sf.taverna.t2.workbench.report.view.ReportOnObjectContextualMenuAction">

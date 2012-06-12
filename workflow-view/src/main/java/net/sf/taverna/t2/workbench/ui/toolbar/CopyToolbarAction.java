@@ -25,13 +25,14 @@ import java.net.URI;
 import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.workbench.edits.impl.toolbar.EditToolbarSection;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.CopyGraphComponentAction;
 
 public class CopyToolbarAction extends AbstractMenuAction {
 
+	private static final URI EDIT_TOOLBAR_SECTION = URI
+			.create("http://taverna.sf.net/2008/t2workbench/menu#editToolbarSection");
 	private static final URI EDIT_TOOLBAR_COPY_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#editToolbarCopy");
 
@@ -39,7 +40,7 @@ public class CopyToolbarAction extends AbstractMenuAction {
 	private DataflowSelectionManager dataflowSelectionManager;
 
 	public CopyToolbarAction() {
-		super(EditToolbarSection.EDIT_TOOLBAR_SECTION, 40, EDIT_TOOLBAR_COPY_URI);
+		super(EDIT_TOOLBAR_SECTION, 40, EDIT_TOOLBAR_COPY_URI);
 	}
 
 	@Override
