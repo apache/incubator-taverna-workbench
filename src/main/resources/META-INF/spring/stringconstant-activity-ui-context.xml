@@ -11,20 +11,25 @@
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="activityIconManager" ref="activityIconManager" />
 	</bean>
 	<bean id="AddStringConstantTemplateMenuAction" class="net.sf.taverna.t2.activities.stringconstant.menu.AddStringConstantTemplateMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="activityIconManager" ref="activityIconManager" />
 	</bean>
 	<bean id="ConfigureStringConstantMenuAction" class="net.sf.taverna.t2.activities.stringconstant.menu.ConfigureStringConstantMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
+			<property name="activityIconManager" ref="activityIconManager" />
 	</bean>
 
 	<bean id="StringConstantActivityViewFactory" class="net.sf.taverna.t2.activities.stringconstant.views.StringConstantActivityViewFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
+			<property name="activityIconManager" ref="activityIconManager" />
+			<property name="colourManager" ref="colourManager" />
 	</bean>
 
 </beans>

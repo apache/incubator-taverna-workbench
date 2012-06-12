@@ -29,6 +29,7 @@ import javax.swing.JOptionPane;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantActivityIcon;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
@@ -47,8 +48,10 @@ public class StringConstantActivityConfigurationAction extends
 
 	private final FileManager fileManager;
 
-	public StringConstantActivityConfigurationAction(StringConstantActivity activity,Frame owner, EditManager editManager, FileManager fileManager) {
-		super(activity);
+	public StringConstantActivityConfigurationAction(StringConstantActivity activity, Frame owner,
+			EditManager editManager, FileManager fileManager,
+			ActivityIconManager activityIconManager) {
+		super(activity, activityIconManager);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		putValue(Action.NAME, CONFIGURE_STRINGCONSTANT);
@@ -60,17 +63,14 @@ public class StringConstantActivityConfigurationAction extends
 		String value = getActivity().getConfiguration().getValue();
 		Dataflow owningDataflow = fileManager.getCurrentDataflow();
 
-		String newValue =
-			(String) JOptionPane.showInputDialog(owner,
-					"Enter value",
-					ActivityConfigurationDialog.getRelativeName(owningDataflow, activity),
-					JOptionPane.QUESTION_MESSAGE,
-					StringConstantActivityIcon.getStringConstantIcon(),
-					null,
-					value);
-		if (newValue!=null) {
+		String newValue = (String) JOptionPane.showInputDialog(owner, "Enter value",
+				ActivityConfigurationDialog.getRelativeName(owningDataflow, activity),
+				JOptionPane.QUESTION_MESSAGE, StringConstantActivityIcon.getStringConstantIcon(),
+				null, value);
+		if (newValue != null) {
 			bean.setValue(newValue);
-			ActivityConfigurationDialog.configureActivityStatic(owningDataflow, activity, bean, editManager);
+			ActivityConfigurationDialog.configureActivityStatic(owningDataflow, activity, bean,
+					editManager);
 		}
 	}
 

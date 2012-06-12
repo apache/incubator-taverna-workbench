@@ -49,21 +49,8 @@ public class TestStringConstantContextualView {
 	}
 
 	@Test
-	public void testDisovery() throws Exception {
-		List<ContextualViewFactory> viewFactoriesForBeanType = ContextualViewFactoryRegistry.getInstance().getViewFactoriesForObject(activity);
-		assertTrue("The stringconstant view factory should not be empty", !viewFactoriesForBeanType.isEmpty());
-		StringConstantActivityViewFactory factory = null;
-		for (ContextualViewFactory cvf : viewFactoriesForBeanType) {
-			if (cvf instanceof StringConstantActivityViewFactory) {
-				factory = (StringConstantActivityViewFactory) cvf;
-			}
-		}
-		assertTrue("No strongconstant view factory", factory != null);
-	}
-
-	@Test
 	public void testGetConfigureAction() throws Exception {
-		ContextualView view = new StringConstantActivityContextualView(activity, null, null);
+		ContextualView view = new StringConstantActivityContextualView(activity, null, null, null, null);
 		assertNotNull("The action should not be null",view.getConfigureAction(null));
 		assertTrue("Should be a StringConstantActivityConfigurationAction",view.getConfigureAction(null) instanceof StringConstantActivityConfigurationAction);
 	}

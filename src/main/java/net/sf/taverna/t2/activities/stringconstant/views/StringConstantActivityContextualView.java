@@ -27,21 +27,28 @@ import javax.swing.Action;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.actions.StringConstantActivityConfigurationAction;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
-public class StringConstantActivityContextualView extends HTMLBasedActivityContextualView<StringConstantConfigurationBean> {
+public class StringConstantActivityContextualView extends
+		HTMLBasedActivityContextualView<StringConstantConfigurationBean> {
 
 	private static final long serialVersionUID = -553974544001808511L;
 	private final EditManager editManager;
 	private final FileManager fileManager;
+	private final ActivityIconManager activityIconManager;
 
-	public StringConstantActivityContextualView(Activity<?> activity, EditManager editManager, FileManager fileManager) {
-		super(activity);
+	public StringConstantActivityContextualView(Activity<?> activity, EditManager editManager,
+			FileManager fileManager, ActivityIconManager activityIconManager,
+			ColourManager colourManager) {
+		super(activity, colourManager);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
+		this.activityIconManager = activityIconManager;
 	}
 
 	@Override
@@ -49,16 +56,17 @@ public class StringConstantActivityContextualView extends HTMLBasedActivityConte
 		return "String constant";
 	}
 
-
 	@Override
 	protected String getRawTableRowsHtml() {
-		String html = "<tr><td>Value</td><td>"+getConfigBean().getValue()+"</td></tr>";
+		String html = "<tr><td>Value</td><td>" + getConfigBean().getValue() + "</td></tr>";
 		return html;
 	}
 
 	@Override
 	public Action getConfigureAction(Frame owner) {
-		return new StringConstantActivityConfigurationAction((StringConstantActivity)getActivity(),owner, editManager, fileManager);
+		return new StringConstantActivityConfigurationAction(
+				(StringConstantActivity) getActivity(), owner, editManager, fileManager,
+				activityIconManager);
 	}
 
 	@Override
@@ -67,5 +75,3 @@ public class StringConstantActivityContextualView extends HTMLBasedActivityConte
 	}
 
 }
-
-

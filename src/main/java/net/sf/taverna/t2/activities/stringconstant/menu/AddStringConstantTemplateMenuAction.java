@@ -52,7 +52,7 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 	private static final String ADD_STRING_CONSTANT = "String constant";
 
 	private static final URI ADD_STRING_CONSTANT_URI = URI
-	.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuAddStringConstant");
+			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuAddStringConstant");
 
 	private EditManager editManager;
 
@@ -60,9 +60,11 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 
 	private DataflowSelectionManager dataflowSelectionManager;
 
-//	private static Logger logger = Logger.getLogger(AddStringConstantTemplateMenuAction.class);
+	private ActivityIconManager activityIconManager;
 
-	public AddStringConstantTemplateMenuAction(){
+	// private static Logger logger = Logger.getLogger(AddStringConstantTemplateMenuAction.class);
+
+	public AddStringConstantTemplateMenuAction() {
 		super(InsertMenu.INSERT, 800, ADD_STRING_CONSTANT_URI);
 	}
 
@@ -74,19 +76,21 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 	protected class AddStringConstantMenuAction extends DesignOnlyAction {
 		AddStringConstantMenuAction() {
 			super();
-			putValue(SMALL_ICON, ActivityIconManager.getInstance()
-					.iconForActivity(new StringConstantActivity()));
+			putValue(SMALL_ICON, activityIconManager.iconForActivity(new StringConstantActivity()));
 			putValue(NAME, ADD_STRING_CONSTANT);
 			putValue(SHORT_DESCRIPTION, ADD_STRING_CONSTANT);
-			putValue(Action.ACCELERATOR_KEY,
-					KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
+			putValue(
+					Action.ACCELERATOR_KEY,
+					KeyStroke.getKeyStroke(KeyEvent.VK_S, InputEvent.SHIFT_DOWN_MASK
+							| InputEvent.ALT_DOWN_MASK));
 
 		}
 
 		public void actionPerformed(ActionEvent e) {
 
-			WorkflowView.importServiceDescription(StringConstantTemplateService.getServiceDescription(),
-					false, editManager, menuManager, dataflowSelectionManager);
+			WorkflowView.importServiceDescription(
+					StringConstantTemplateService.getServiceDescription(), false, editManager,
+					menuManager, dataflowSelectionManager);
 
 		}
 	}
@@ -103,5 +107,8 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 		this.dataflowSelectionManager = dataflowSelectionManager;
 	}
 
-}
+	public void setActivityIconManager(ActivityIconManager activityIconManager) {
+		this.activityIconManager = activityIconManager;
+	}
 
+}

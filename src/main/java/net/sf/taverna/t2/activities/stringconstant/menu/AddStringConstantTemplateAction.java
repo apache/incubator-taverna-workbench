@@ -46,34 +46,35 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 public class AddStringConstantTemplateAction extends AbstractContextualMenuAction {
 
 	private static final URI insertSection = URI
-	.create("http://taverna.sf.net/2009/contextMenu/insert");
+			.create("http://taverna.sf.net/2009/contextMenu/insert");
 	private EditManager editManager;
 	private MenuManager menuManager;
 	private DataflowSelectionManager dataflowSelectionManager;
+	private ActivityIconManager activityIconManager;
 
-//	private static Logger logger = Logger.getLogger(AddStringConstantTemplateAction.class);
+	// private static Logger logger = Logger.getLogger(AddStringConstantTemplateAction.class);
 
-	public AddStringConstantTemplateAction(){
+	public AddStringConstantTemplateAction() {
 		super(insertSection, 800);
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof Dataflow;
+		return super.isEnabled() && getContextualSelection().getSelection() instanceof Dataflow;
 	}
 
 	@Override
 	protected Action createAction() {
-		AbstractAction action = new AbstractAction("String constant", ActivityIconManager.getInstance()
-				.iconForActivity(new StringConstantActivity())){
+		AbstractAction action = new AbstractAction("String constant",
+				activityIconManager.iconForActivity(new StringConstantActivity())) {
 
-					public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent e) {
 
-						WorkflowView.importServiceDescription(StringConstantTemplateService.getServiceDescription(),
-								false, editManager, menuManager, dataflowSelectionManager);
+				WorkflowView.importServiceDescription(
+						StringConstantTemplateService.getServiceDescription(), false, editManager,
+						menuManager, dataflowSelectionManager);
 
-					}
+			}
 
 		};
 		return action;
@@ -91,5 +92,8 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 		this.dataflowSelectionManager = dataflowSelectionManager;
 	}
 
-}
+	public void setActivityIconManager(ActivityIconManager activityIconManager) {
+		this.activityIconManager = activityIconManager;
+	}
 
+}
