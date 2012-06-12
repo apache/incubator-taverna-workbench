@@ -6,6 +6,8 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.actions.MergeWorkflowAction;
@@ -21,6 +23,8 @@ public class MergeWorkflowMenuAction extends AbstractMenuAction {
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
+	private ColourManager colourManager;
+	private WorkbenchConfiguration workbenchConfiguration;
 
 	public MergeWorkflowMenuAction() {
 		super(INSERT_URI, 2000, IMPORT_URI);
@@ -28,7 +32,8 @@ public class MergeWorkflowMenuAction extends AbstractMenuAction {
 
 	@Override
 	protected Action createAction() {
-		return new MergeWorkflowAction(editManager, fileManager, menuManager);
+		return new MergeWorkflowAction(editManager, fileManager, menuManager, colourManager,
+				workbenchConfiguration);
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -41,6 +46,14 @@ public class MergeWorkflowMenuAction extends AbstractMenuAction {
 
 	public void setMenuManager(MenuManager menuManager) {
 		this.menuManager = menuManager;
+	}
+
+	public void setColourManager(ColourManager colourManager) {
+		this.colourManager = colourManager;
+	}
+
+	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
 }

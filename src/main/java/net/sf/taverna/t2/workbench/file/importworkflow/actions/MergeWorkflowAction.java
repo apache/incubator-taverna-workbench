@@ -6,6 +6,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.gui.ImportWorkflowWizard;
@@ -22,12 +24,18 @@ public class MergeWorkflowAction extends AbstractAction {
 	private final EditManager editManager;
 	private final FileManager fileManager;
 	private final MenuManager menuManager;
+	private final ColourManager colourManager;
+	private final WorkbenchConfiguration workbenchConfiguration;
 
-	public MergeWorkflowAction(EditManager editManager, FileManager fileManager, MenuManager menuManager) {
+	public MergeWorkflowAction(EditManager editManager, FileManager fileManager,
+			MenuManager menuManager, ColourManager colourManager,
+			WorkbenchConfiguration workbenchConfiguration) {
 		super("Merge workflow");
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
+		this.colourManager = colourManager;
+		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -37,7 +45,9 @@ public class MergeWorkflowAction extends AbstractAction {
 		} else {
 			parentComponent = null;
 		}
-		ImportWorkflowWizard wizard = new ImportWorkflowWizard(Utils.getParentFrame(parentComponent), editManager, fileManager, menuManager);
+		ImportWorkflowWizard wizard = new ImportWorkflowWizard(
+				Utils.getParentFrame(parentComponent), editManager, fileManager, menuManager,
+				colourManager, workbenchConfiguration);
 		wizard.setNestedEnabled(false);
 		wizard.setVisible(true);
 	}

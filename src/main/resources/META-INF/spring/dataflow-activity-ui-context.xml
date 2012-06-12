@@ -13,21 +13,30 @@
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="menuManager" ref="menuManager" />
+			<property name="activityIconManager" ref="activityIconManager" />
+			<property name="colourManager" ref="colourManager" />
+			<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 	</bean>
 	<bean id="AddNestedWorkflowMenuAction" class="net.sf.taverna.t2.workbench.file.importworkflow.menu.AddNestedWorkflowMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="menuManager" ref="menuManager" />
+			<property name="colourManager" ref="colourManager" />
+			<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 	</bean>
 	<bean id="ImportWorkflowMenuAction" class="net.sf.taverna.t2.workbench.file.importworkflow.menu.ImportWorkflowMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="menuManager" ref="menuManager" />
+			<property name="colourManager" ref="colourManager" />
+			<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 	</bean>
 	<bean id="MergeWorkflowMenuAction" class="net.sf.taverna.t2.workbench.file.importworkflow.menu.MergeWorkflowMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="menuManager" ref="menuManager" />
+			<property name="colourManager" ref="colourManager" />
+			<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 	</bean>
 	<bean id="EditNestedDataflowMenuAction" class="net.sf.taverna.t2.activities.dataflow.menu.EditNestedDataflowMenuAction">
 			<property name="fileManager" ref="fileManager" />
@@ -42,6 +51,9 @@
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="menuManager" ref="menuManager" />
+			<property name="activityIconManager" ref="activityIconManager" />
+			<property name="colourManager" ref="colourManager" />
+			<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 	</bean>
 
 </beans>

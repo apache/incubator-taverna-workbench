@@ -10,7 +10,7 @@ public class ImportWizardLauncher {
 		UIManager.setLookAndFeel(UIManager
 				.getSystemLookAndFeelClassName());
 
-		ImportWorkflowWizard s = new ImportWorkflowWizard(null, null, null, null);
+		ImportWorkflowWizard s = new ImportWorkflowWizard(null, null, null, null, null, null);
 		s.setVisible(true);
 	}
 }

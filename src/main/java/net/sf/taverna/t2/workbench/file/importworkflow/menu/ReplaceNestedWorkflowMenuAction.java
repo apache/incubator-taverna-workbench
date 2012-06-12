@@ -4,7 +4,10 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.activitytools.AbstractConfigureActivityMenuAction;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.actions.ReplaceNestedWorkflowAction;
@@ -15,6 +18,9 @@ public class ReplaceNestedWorkflowMenuAction extends
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
+	private ActivityIconManager activityIconManager;
+	private ColourManager colourManager;
+	private WorkbenchConfiguration workbenchConfiguration;
 
 	public ReplaceNestedWorkflowMenuAction() {
 		super(DataflowActivity.class);
@@ -22,8 +28,9 @@ public class ReplaceNestedWorkflowMenuAction extends
 
 	@Override
 	protected Action createAction() {
-		ReplaceNestedWorkflowAction configAction = new ReplaceNestedWorkflowAction(
-				findActivity(), editManager, fileManager, menuManager);
+		ReplaceNestedWorkflowAction configAction = new ReplaceNestedWorkflowAction(findActivity(),
+				editManager, fileManager, menuManager, activityIconManager, colourManager,
+				workbenchConfiguration);
 		addMenuDots(configAction);
 		return configAction;
 	}
@@ -38,6 +45,18 @@ public class ReplaceNestedWorkflowMenuAction extends
 
 	public void setMenuManager(MenuManager menuManager) {
 		this.menuManager = menuManager;
+	}
+
+	public void setActivityIconManager(ActivityIconManager activityIconManager) {
+		this.activityIconManager = activityIconManager;
+	}
+
+	public void setColourManager(ColourManager colourManager) {
+		this.colourManager = colourManager;
+	}
+
+	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
 }

@@ -53,7 +53,7 @@ import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.DataflowXMLDeserializer;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.DataflowXMLDeserializer;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;

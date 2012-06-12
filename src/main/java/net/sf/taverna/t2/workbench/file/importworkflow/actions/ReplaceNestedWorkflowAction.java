@@ -5,6 +5,9 @@ import java.awt.event.ActionEvent;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.gui.ImportWorkflowWizard;
@@ -21,11 +24,20 @@ public class ReplaceNestedWorkflowAction extends
 	private final FileManager fileManager;
 	private final MenuManager menuManager;
 
-	public ReplaceNestedWorkflowAction(DataflowActivity activity, EditManager editManager, FileManager fileManager, MenuManager menuManager) {
-		super(activity);
+	private final ColourManager colourManager;
+
+	private final WorkbenchConfiguration workbenchConfiguration;
+
+	public ReplaceNestedWorkflowAction(DataflowActivity activity, EditManager editManager,
+			FileManager fileManager, MenuManager menuManager,
+			ActivityIconManager activityIconManager, ColourManager colourManager,
+			WorkbenchConfiguration workbenchConfiguration) {
+		super(activity, activityIconManager);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
+		this.colourManager = colourManager;
+		this.workbenchConfiguration = workbenchConfiguration;
 		putValue(NAME, "Replace nested workflow");
 	}
 
@@ -36,15 +48,14 @@ public class ReplaceNestedWorkflowAction extends
 		} else {
 			parentComponent = null;
 		}
-		ImportWorkflowWizard wizard = new ImportWorkflowWizard(Utils
-				.getParentFrame(parentComponent), editManager, fileManager, menuManager) {
+		ImportWorkflowWizard wizard = new ImportWorkflowWizard(
+				Utils.getParentFrame(parentComponent), editManager, fileManager, menuManager,
+				colourManager, workbenchConfiguration) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected Edit<?> makeInsertNestedWorkflowEdit(Dataflow nestedFlow,
-					String name) {
-				return editManager.getEdits()
-						.getConfigureActivityEdit(getActivity(), nestedFlow);
+			protected Edit<?> makeInsertNestedWorkflowEdit(Dataflow nestedFlow, String name) {
+				return editManager.getEdits().getConfigureActivityEdit(getActivity(), nestedFlow);
 			}
 
 			@Override

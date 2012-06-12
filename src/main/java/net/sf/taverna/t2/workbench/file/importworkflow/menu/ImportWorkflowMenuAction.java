@@ -26,6 +26,8 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.actions.ImportWorkflowAction;
@@ -40,18 +42,18 @@ import org.apache.log4j.Logger;
  * @author Stian Soiland-Reyes
  *
  */
-public class ImportWorkflowMenuAction extends
-		AbstractContextualMenuAction {
+public class ImportWorkflowMenuAction extends AbstractContextualMenuAction {
 
 	private static final URI insertSection = URI
 			.create("http://taverna.sf.net/2009/contextMenu/insert");
 
-	private static Logger logger = Logger
-			.getLogger(ImportWorkflowMenuAction.class);
+	private static Logger logger = Logger.getLogger(ImportWorkflowMenuAction.class);
 
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
+	private ColourManager colourManager;
+	private WorkbenchConfiguration workbenchConfiguration;
 
 	public ImportWorkflowMenuAction() {
 		super(insertSection, 400);
@@ -59,13 +61,13 @@ public class ImportWorkflowMenuAction extends
 
 	@Override
 	public boolean isEnabled() {
-		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof Dataflow;
+		return super.isEnabled() && getContextualSelection().getSelection() instanceof Dataflow;
 	}
 
 	@Override
 	protected Action createAction() {
-		ImportWorkflowAction myAction = new ImportWorkflowAction(editManager, fileManager, menuManager);
+		ImportWorkflowAction myAction = new ImportWorkflowAction(editManager, fileManager,
+				menuManager, colourManager, workbenchConfiguration);
 		// Just "Workflow" as we go under the "Insert" menu
 		myAction.putValue(Action.NAME, "Nested workflow");
 		return myAction;
@@ -81,6 +83,14 @@ public class ImportWorkflowMenuAction extends
 
 	public void setMenuManager(MenuManager menuManager) {
 		this.menuManager = menuManager;
+	}
+
+	public void setColourManager(ColourManager colourManager) {
+		this.colourManager = colourManager;
+	}
+
+	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
 }

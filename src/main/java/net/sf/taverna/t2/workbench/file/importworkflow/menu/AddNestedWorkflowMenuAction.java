@@ -29,6 +29,8 @@ import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.actions.AddNestedWorkflowAction;
@@ -57,6 +59,8 @@ public class AddNestedWorkflowMenuAction extends AbstractMenuAction {
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
+	private ColourManager colourManager;
+	private WorkbenchConfiguration workbenchConfiguration;
 
 	public AddNestedWorkflowMenuAction() {
 		super(InsertMenu.INSERT, 400, ADD_NESTED_WORKFLOW_URI);
@@ -64,7 +68,8 @@ public class AddNestedWorkflowMenuAction extends AbstractMenuAction {
 
 	@Override
 	protected Action createAction() {
-		AddNestedWorkflowAction a = new AddNestedWorkflowAction(editManager, fileManager, menuManager);
+		AddNestedWorkflowAction a = new AddNestedWorkflowAction(editManager, fileManager,
+				menuManager, colourManager, workbenchConfiguration);
 		// Override name to avoid "Add "
 		a.putValue(Action.NAME, ADD_NESTED_WORKFLOW);
 		a.putValue(Action.SHORT_DESCRIPTION, ADD_NESTED_WORKFLOW);
@@ -85,6 +90,14 @@ public class AddNestedWorkflowMenuAction extends AbstractMenuAction {
 
 	public void setMenuManager(MenuManager menuManager) {
 		this.menuManager = menuManager;
+	}
+
+	public void setColourManager(ColourManager colourManager) {
+		this.colourManager = colourManager;
+	}
+
+	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
 }

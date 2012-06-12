@@ -23,7 +23,7 @@ import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorPort;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializerImpl;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.XMLDeserializerImpl;
 
 import org.jdom.Document;
 import org.jdom.JDOMException;

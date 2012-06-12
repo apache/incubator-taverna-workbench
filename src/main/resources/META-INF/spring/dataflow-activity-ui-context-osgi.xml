@@ -24,5 +24,8 @@
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
 	<reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
 	<reference id="edits" interface="net.sf.taverna.t2.workflowmodel.Edits" />
+	<reference id="activityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
+	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
+	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
 
 </beans:beans>

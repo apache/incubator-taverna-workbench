@@ -32,6 +32,9 @@ import javax.swing.JPanel;
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.activities.dataflow.actions.EditNestedDataflowAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
@@ -42,13 +45,11 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 import org.apache.log4j.Logger;
 
-public class DataflowActivityContextualView extends
-		HTMLBasedActivityContextualView<Dataflow> {
+public class DataflowActivityContextualView extends HTMLBasedActivityContextualView<Dataflow> {
 
 	private static final long serialVersionUID = -552783425303398911L;
 
-	static Logger logger = Logger
-			.getLogger(DataflowActivityContextualView.class);
+	static Logger logger = Logger.getLogger(DataflowActivityContextualView.class);
 
 	private T2FlowFileType T2_FLOW_FILE_TYPE = new T2FlowFileType();
 
@@ -58,12 +59,22 @@ public class DataflowActivityContextualView extends
 
 	private final MenuManager menuManager;
 
-	public DataflowActivityContextualView(Activity<?> activity,
-			EditManager editManager, FileManager fileManager, MenuManager menuManager) {
-		super(activity);
+	private final ActivityIconManager activityIconManager;
+
+	private final ColourManager colourManager;
+
+	private final WorkbenchConfiguration workbenchConfiguration;
+
+	public DataflowActivityContextualView(Activity<?> activity, EditManager editManager,
+			FileManager fileManager, MenuManager menuManager,
+			ActivityIconManager activityIconManager, ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
+		super(activity, colourManager);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
+		this.activityIconManager = activityIconManager;
+		this.colourManager = colourManager;
+		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
 	@Override
@@ -75,9 +86,10 @@ public class DataflowActivityContextualView extends
 	public JComponent getMainFrame() {
 		JComponent mainFrame = super.getMainFrame();
 		JButton viewWorkflowButton = new JButton("Edit workflow");
-		viewWorkflowButton.addActionListener(new EditNestedDataflowAction(getActivity(), fileManager));
-		JButton configureButton = new JButton(new ReplaceNestedWorkflowAction(
-						getActivity(), editManager, fileManager, menuManager));
+		viewWorkflowButton.addActionListener(new EditNestedDataflowAction(getActivity(),
+				fileManager));
+		JButton configureButton = new JButton(new ReplaceNestedWorkflowAction(getActivity(),
+				editManager, fileManager, menuManager, activityIconManager, colourManager, workbenchConfiguration));
 		configureButton.setIcon(null);
 		JPanel flowPanel = new JPanel(new FlowLayout());
 		flowPanel.add(viewWorkflowButton);

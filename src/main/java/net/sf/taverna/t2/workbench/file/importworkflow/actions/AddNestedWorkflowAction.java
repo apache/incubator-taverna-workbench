@@ -7,6 +7,8 @@ import javax.swing.AbstractAction;
 
 import net.sf.taverna.t2.activities.dataflow.servicedescriptions.DataflowActivityIcon;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.gui.ImportWorkflowWizard;
@@ -23,12 +25,18 @@ public class AddNestedWorkflowAction extends AbstractAction {
 	private final EditManager editManager;
 	private final FileManager fileManager;
 	private final MenuManager menuManager;
+	private final ColourManager colourManager;
+	private final WorkbenchConfiguration workbenchConfiguration;
 
-	public AddNestedWorkflowAction(EditManager editManager, FileManager fileManager, MenuManager menuManager) {
+	public AddNestedWorkflowAction(EditManager editManager, FileManager fileManager,
+			MenuManager menuManager, ColourManager colourManager,
+			WorkbenchConfiguration workbenchConfiguration) {
 		super("Add nested workflow", DataflowActivityIcon.getDataflowIcon());
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
+		this.colourManager = colourManager;
+		this.workbenchConfiguration = workbenchConfiguration;
 
 	}
 
@@ -39,7 +47,9 @@ public class AddNestedWorkflowAction extends AbstractAction {
 		} else {
 			parentComponent = null;
 		}
-		ImportWorkflowWizard wizard = new ImportWorkflowWizard(Utils.getParentFrame(parentComponent), editManager, fileManager, menuManager);
+		ImportWorkflowWizard wizard = new ImportWorkflowWizard(
+				Utils.getParentFrame(parentComponent), editManager, fileManager, menuManager,
+				colourManager, workbenchConfiguration);
 		wizard.setMergeEnabled(false);
 		wizard.setVisible(true);
 	}

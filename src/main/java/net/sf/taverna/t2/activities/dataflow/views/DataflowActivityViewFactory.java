@@ -25,6 +25,9 @@ import java.util.List;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
@@ -35,6 +38,9 @@ public class DataflowActivityViewFactory implements ContextualViewFactory<Datafl
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
+	private ColourManager colourManager;
+	private ActivityIconManager activityIconManager;
+	private WorkbenchConfiguration workbenchConfiguration;
 
 	public boolean canHandle(Object object) {
 		return object instanceof DataflowActivity;
@@ -42,7 +48,7 @@ public class DataflowActivityViewFactory implements ContextualViewFactory<Datafl
 
 	public List<ContextualView> getViews(DataflowActivity activity) {
 		return Arrays.asList(new ContextualView[] { new DataflowActivityContextualView(activity,
-				editManager, fileManager, menuManager) });
+				editManager, fileManager, menuManager, activityIconManager, colourManager, workbenchConfiguration) });
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -55,6 +61,18 @@ public class DataflowActivityViewFactory implements ContextualViewFactory<Datafl
 
 	public void setMenuManager(MenuManager menuManager) {
 		this.menuManager = menuManager;
+	}
+
+	public void setActivityIconManager(ActivityIconManager activityIconManager) {
+		this.activityIconManager = activityIconManager;
+	}
+
+	public void setColourManager(ColourManager colourManager) {
+		this.colourManager = colourManager;
+	}
+
+	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
 }
