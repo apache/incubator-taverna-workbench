@@ -9,7 +9,7 @@ import java.util.Set;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.AbstractXMLSerializer;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.AbstractXMLSerializer;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;

@@ -85,42 +85,6 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 
 	private static final String DEFAULT_CONFIGURABLE_SERVICE_PROVIDERS_FILENAME = "default_service_providers.xml";
 
-	static {
-		threadGroup.setMaxPriority(Thread.MIN_PRIORITY);
-	}
-
-	/**
-	 * Get the Taverna distribution (startup) configuration directory.
-	 */
-	private File getTavernaStartupConfigurationDirectory() {
-		File distroHome = null;
-		File configDirectory = null;
-		distroHome = applicationConfiguration.getStartupDir();
-		configDirectory = new File(distroHome, "conf");
-		if (!configDirectory.exists()) {
-			configDirectory.mkdir();
-		}
-		return configDirectory;
-	}
-
-	public static void joinThreads(Collection<? extends Thread> threads,
-			long descriptionThreadTimeoutMs) {
-		long finishJoinBy = System.currentTimeMillis() + descriptionThreadTimeoutMs;
-		for (Thread thread : threads) {
-			// No shorter timeout than 1 ms (thread.join(0) waits forever!)
-			long timeout = Math.max(1, finishJoinBy - System.currentTimeMillis());
-			try {
-				thread.join(timeout);
-			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
-				return;
-			}
-			if (thread.isAlive()) {
-				logger.debug("Thread did not finish " + thread);
-			}
-		}
-	}
-
 	/**
 	 * <code>false</code> until first call to {@link #loadServiceProviders()} - which is done by
 	 * first call to {@link #getServiceDescriptionProviders()}.
@@ -161,11 +125,52 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 	 * default set of service descriptions together with those provided by AbstractTemplateServiceS.
 	 * This file is located in the conf directory of the Taverna startup directory.
 	 */
-	private File defaultConfigurableServiceProvidersFile = new File(
-			getTavernaStartupConfigurationDirectory(),
-			DEFAULT_CONFIGURABLE_SERVICE_PROVIDERS_FILENAME);
+	private File defaultConfigurableServiceProvidersFile;
 
 	private boolean defaultSystemConfigurableProvidersLoaded = false;
+
+	static {
+		threadGroup.setMaxPriority(Thread.MIN_PRIORITY);
+	}
+
+	public ServiceDescriptionRegistryImpl(ApplicationConfiguration applicationConfiguration) {
+		this.applicationConfiguration = applicationConfiguration;
+		defaultConfigurableServiceProvidersFile = new File(getTavernaStartupConfigurationDirectory(),
+				DEFAULT_CONFIGURABLE_SERVICE_PROVIDERS_FILENAME);
+	}
+
+	/**
+	 * Get the Taverna distribution (startup) configuration directory.
+	 */
+	private File getTavernaStartupConfigurationDirectory() {
+		File distroHome = null;
+		File configDirectory = null;
+		distroHome = applicationConfiguration.getStartupDir();
+		configDirectory = new File(distroHome, "conf");
+		if (!configDirectory.exists()) {
+			configDirectory.mkdir();
+		}
+		return configDirectory;
+	}
+
+	public static void joinThreads(Collection<? extends Thread> threads,
+			long descriptionThreadTimeoutMs) {
+		long finishJoinBy = System.currentTimeMillis() + descriptionThreadTimeoutMs;
+		for (Thread thread : threads) {
+			// No shorter timeout than 1 ms (thread.join(0) waits forever!)
+			long timeout = Math.max(1, finishJoinBy - System.currentTimeMillis());
+			try {
+				thread.join(timeout);
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt();
+				return;
+			}
+			if (thread.isAlive()) {
+				logger.debug("Thread did not finish " + thread);
+			}
+		}
+	}
+
 
 	public void addObserver(Observer<ServiceDescriptionRegistryEvent> observer) {
 		observers.addObserver(observer);
@@ -495,7 +500,7 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 		}
 	}
 
-	public void setServiceDescriptionProviders(
+	public void setServiceDescriptionProvidersList(
 			List<ServiceDescriptionProvider> serviceDescriptionProviders) {
 		this.serviceDescriptionProviders = serviceDescriptionProviders;
 	}
@@ -544,15 +549,6 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 	 */
 	public void setServiceDescriptionsConfig(ServiceDescriptionsConfiguration serviceDescriptionsConfig) {
 		this.serviceDescriptionsConfig = serviceDescriptionsConfig;
-	}
-
-	/**
-	 * Sets the applicationConfiguration.
-	 *
-	 * @param applicationConfiguration the new value of applicationConfiguration
-	 */
-	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
-		this.applicationConfiguration = applicationConfiguration;
 	}
 
 	public class FindDescriptionsCallBack implements FindServiceDescriptionsCallBack {

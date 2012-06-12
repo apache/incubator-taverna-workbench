@@ -4,10 +4,10 @@
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean name="ServiceDescriptionRegistryImpl" class="net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl">
-		<property name="serviceDescriptionProviders" ref="serviceDescriptionProviders" />
-		<property name="applicationConfiguration" ref="applicationConfiguration" />
+		<constructor-arg name="applicationConfiguration" ref="applicationConfiguration" />
+		<property name="serviceDescriptionProvidersList" ref="serviceDescriptionProviders" />
 		<property name="serviceDescriptionsConfig">
-		 	<ref local="ServiceDescriptionsConfig"/>
+		 	<ref local="ServiceDescriptionsConfigurationImpl"/>
 		</property>
 	</bean>
 

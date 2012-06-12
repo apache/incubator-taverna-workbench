@@ -15,7 +15,7 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workflowmodel.ConfigurationException;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.AbstractXMLDeserializer;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.AbstractXMLDeserializer;
 
 import org.jdom.Document;
 import org.jdom.Element;

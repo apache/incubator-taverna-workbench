@@ -21,7 +21,7 @@
 package net.sf.taverna.t2.workbench.file.impl;
 
 import net.sf.taverna.t2.workbench.file.FileType;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializationConstants;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.XMLSerializationConstants;
 
 public class T2FlowFileType extends FileType {
 

@@ -38,7 +38,7 @@ import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializerImpl;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.XMLSerializerImpl;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;

@@ -36,8 +36,8 @@ import net.sf.taverna.t2.workbench.file.events.OpenedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.AbstractXMLDeserializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.AbstractXMLSerializer;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.AbstractXMLDeserializer;
+import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.AbstractXMLSerializer;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;

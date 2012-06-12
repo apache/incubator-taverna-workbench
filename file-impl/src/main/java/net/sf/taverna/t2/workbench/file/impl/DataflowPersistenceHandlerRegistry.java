@@ -191,7 +191,9 @@ public class DataflowPersistenceHandlerRegistry {
 	 * @param properties
 	 */
 	public void update(Object service, Map properties) {
-		updateColletions();
+		if (dataflowPersistenceHandlers != null) {
+			updateColletions();
+		}
 	}
 
 	public synchronized void updateColletions() {

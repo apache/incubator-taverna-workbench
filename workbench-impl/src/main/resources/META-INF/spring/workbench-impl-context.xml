@@ -40,10 +40,13 @@
 		<property name="editManager" ref="editManager"/>
 		<property name="fileManager" ref="fileManager"/>
 		<property name="menuManager" ref="menuManager"/>
-		<!-- <property name="perspectiveList" ref="perspectives"/> -->
 		<property name="configurationUIFactories" ref="configurationUIFactories"/>
 		<property name="workbenchConfiguration" ref="workbenchConfiguration"/>
 		<property name="applicationConfiguration" ref="applicationConfiguration"/>
+	</bean>
+
+	<bean id="DataflowSelectionManager" class="net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManagerImpl">
+		<constructor-arg ref="fileManager"/>
 	</bean>
 
 	<bean id="PerspectiveComparator" class="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI$PerspectiveComparator" />

@@ -299,6 +299,7 @@ public class MenuManagerImpl implements MenuManager {
 	}
 
 	public void update(Object service, Map properties) {
+		needsUpdate = true;
 		update();
 	}
 
