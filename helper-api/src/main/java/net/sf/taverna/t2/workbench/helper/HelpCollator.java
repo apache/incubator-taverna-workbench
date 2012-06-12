@@ -76,7 +76,7 @@ public final class HelpCollator {
 	private static int TIMEOUT = 5000;
 
 //	private static Profile profile = ProfileFactory.getInstance().getProfile();
-	private static String version = "fix-me";//profile.getVersion();
+	private static String version = "NO-VERSION";//profile.getVersion();
 	// TODO find a better way to find the version
 	private static String externalHelpSetURL = "http://www.mygrid.org.uk/taverna/helpset/" + version + "/helpset.hs";
 

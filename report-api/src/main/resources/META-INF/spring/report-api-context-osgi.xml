@@ -6,16 +6,8 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="ProcessorFragilityChecker" interface="net.sf.taverna.t2.visit.fragility.FragilityChecker" />
+	<!-- <service ref="ProcessorFragilityChecker" interface="net.sf.taverna.t2.visit.fragility.FragilityChecker" /> -->
 
-	<service ref="FragilityCheck" interface="net.sf.taverna.t2.visit.VisitKind" />
-
-	<service ref="ReportMangerImpl" interface="net.sf.taverna.t2.workbench.report.ReportManager" />
-
-	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
-	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
-	<reference id="configurationManager" interface="uk.org.taverna.configuration.ConfigurationManager" />
-
-	<set id="visitors" interface="net.sf.taverna.t2.visit.Visitor" cardinality="0..N" />
+	<!-- <service ref="FragilityCheck" interface="net.sf.taverna.t2.visit.VisitKind" /> -->
 
 </beans:beans>
