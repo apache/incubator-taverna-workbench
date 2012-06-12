@@ -1,26 +1,21 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.activities.unrecognized.views;
 
-import org.jdom.Element;
-
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.UnrecognizedActivity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
 import net.sf.taverna.t2.workflowmodel.OutputPort;
+import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
+import net.sf.taverna.t2.workflowmodel.processor.activity.UnrecognizedActivity;
 
 import org.apache.log4j.Logger;
 
 /**
  * A UnrecognizedContextualView displays information about a UnrecognizedActivity
- * 
+ *
  * @author alanrw
- * 
+ *
  */
 public class UnrecognizedContextualView extends
 		HTMLBasedActivityContextualView<Object> {
@@ -28,8 +23,8 @@ public class UnrecognizedContextualView extends
 	private static Logger logger = Logger
 			.getLogger(UnrecognizedContextualView.class);
 
-	public UnrecognizedContextualView(UnrecognizedActivity activity) {
-		super(activity);
+	public UnrecognizedContextualView(UnrecognizedActivity activity, ColourManager colourManager) {
+		super(activity, colourManager);
 		init();
 	}
 
@@ -39,7 +34,7 @@ public class UnrecognizedContextualView extends
 	/**
 	 * The table for the UnrecognizedActivity shows its ports and the information
 	 * within the offline Activity's configuration.
-	 * 
+	 *
 	 * @return
 	 */
 	@Override

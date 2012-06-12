@@ -3,21 +3,25 @@ package net.sf.taverna.t2.activities.unrecognized.views;
 import java.util.Arrays;
 import java.util.List;
 
-import net.sf.taverna.t2.workflowmodel.processor.activity.UnrecognizedActivity;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
+import net.sf.taverna.t2.workflowmodel.processor.activity.UnrecognizedActivity;
 
 /**
- * 
+ *
  * This class generates a contextual view for a UnrecognizedActivity
+ *
  * @author alanrw
  *
  */
-public class UnrecognizedActivityViewFactory implements ContextualViewFactory<UnrecognizedActivity>{
+public class UnrecognizedActivityViewFactory implements ContextualViewFactory<UnrecognizedActivity> {
+
+	private ColourManager colourManager;
 
 	/**
 	 * The factory can handle a UnrecognizedActivity
-	 * 
+	 *
 	 * @param object
 	 * @return
 	 */
@@ -25,15 +29,19 @@ public class UnrecognizedActivityViewFactory implements ContextualViewFactory<Un
 		return object.getClass().isAssignableFrom(UnrecognizedActivity.class);
 	}
 
-	
 	/**
 	 * Return a contextual view that can display information about a UnrecognizedActivity
-	 * 
+	 *
 	 * @param activity
 	 * @return
 	 */
 	public List<ContextualView> getViews(UnrecognizedActivity activity) {
-		return Arrays.asList(new ContextualView[] {new UnrecognizedContextualView(activity)});
+		return Arrays.asList(new ContextualView[] { new UnrecognizedContextualView(activity,
+				colourManager) });
+	}
+
+	public void setColourManager(ColourManager colourManager) {
+		this.colourManager = colourManager;
 	}
 
 }
