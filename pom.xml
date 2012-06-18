@@ -8,6 +8,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-activities</groupId>
 	<artifactId>stringconstant-activity-ui</artifactId>
+	<packaging>bundle</packaging>
 	<name>Taverna 2 StringConstant Activity UI</name>
 	<dependencies>
 		<dependency>
@@ -21,21 +22,25 @@
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>menu-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>net.sf.taverna.t2.activities</groupId>
 			<artifactId>stringconstant-activity</artifactId>
 			<version>${t2.activities.version}</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>contextual-views-impl</artifactId>
 			<version>${t2.ui.impl.version}</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>contextual-views-api</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>workflow-view</artifactId>
@@ -46,6 +51,7 @@
 			<artifactId>graph-view</artifactId>
 			<version>${t2.ui.components.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -57,11 +63,11 @@
 			<version>${t2.ui.impl.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>activity-tools</artifactId>
 			<version>${t2.ui.api.version}</version>
-		</dependency>
+		</dependency> -->
 
 	</dependencies>
 </project>

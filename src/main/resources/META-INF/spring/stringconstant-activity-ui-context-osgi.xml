@@ -10,9 +10,9 @@
 
 	<service ref="StringConstantTemplateService" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider" />
 
-	<service ref="AddStringConstantTemplateAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="AddStringConstantTemplateMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ConfigureStringConstantMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="AddStringConstantTemplateAction" auto-export="interfaces" />
+	<service ref="AddStringConstantTemplateMenuAction" auto-export="interfaces" />
+	<service ref="ConfigureStringConstantMenuAction" auto-export="interfaces" />
 
 	<service ref="StringConstantActivityViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 

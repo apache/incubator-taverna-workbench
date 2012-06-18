@@ -31,13 +31,12 @@ import javax.swing.KeyStroke;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
+import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-import net.sf.taverna.t2.workbench.views.graph.actions.DesignOnlyAction;
-import net.sf.taverna.t2.workbench.views.graph.menu.InsertMenu;
 
 /**
  * An action to add a string constant activity + a wrapping processor to the workflow.
@@ -48,6 +47,9 @@ import net.sf.taverna.t2.workbench.views.graph.menu.InsertMenu;
  */
 @SuppressWarnings("serial")
 public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
+
+	private static final URI INSERT = URI
+			.create("http://taverna.sf.net/2008/t2workbench/menu#insert");
 
 	private static final String ADD_STRING_CONSTANT = "String constant";
 
@@ -65,7 +67,7 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 	// private static Logger logger = Logger.getLogger(AddStringConstantTemplateMenuAction.class);
 
 	public AddStringConstantTemplateMenuAction() {
-		super(InsertMenu.INSERT, 800, ADD_STRING_CONSTANT_URI);
+		super(INSERT, 800, ADD_STRING_CONSTANT_URI);
 	}
 
 	@Override
