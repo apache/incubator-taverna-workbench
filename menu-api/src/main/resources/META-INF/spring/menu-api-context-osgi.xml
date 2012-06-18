@@ -6,8 +6,8 @@
                       http://www.springframework.org/schema/osgi 
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="DefaultMenuBar" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="DefaultToolBar" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="DefaultContextualMenu" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="DefaultMenuBar" auto-export="interfaces" />
+	<service ref="DefaultToolBar" auto-export="interfaces" />
+	<service ref="DefaultContextualMenu" auto-export="interfaces" />
 
 </beans:beans>
