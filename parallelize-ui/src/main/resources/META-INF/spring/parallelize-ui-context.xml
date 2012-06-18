@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="ParallelizeConfigureMenuAction" class="net.sf.taverna.t2.workbench.parallelize.ParallelizeConfigureMenuAction" />
+	<bean id="ParallelizeConfigureMenuAction" class="net.sf.taverna.t2.workbench.parallelize.ParallelizeConfigureMenuAction">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+	</bean>
 
-	<bean id="ParallelizeContextualViewFactory" class="net.sf.taverna.t2.workbench.parallelize.ParallelizeContextualViewFactory" />
+	<bean id="ParallelizeContextualViewFactory" class="net.sf.taverna.t2.workbench.parallelize.ParallelizeContextualViewFactory">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+	</bean>
 
 </beans>

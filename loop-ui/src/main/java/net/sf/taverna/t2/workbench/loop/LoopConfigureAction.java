@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.loop;
 
@@ -41,249 +41,220 @@ import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.LoopConfigurati
  */
 @SuppressWarnings("serial")
 public class LoopConfigureAction extends AbstractAction {
-	
+
 	private static Logger logger = Logger.getLogger(LoopConfigureAction.class);
-	
-	private EditManager editManager = EditManager.getInstance();
 
-	private FileManager fileManager = FileManager.getInstance();
+	private final EditManager editManager;
+	private final FileManager fileManager;
+	private final Edits edits;
 
-	private Edits edits = EditManager.getInstance().getEdits();
+	private final Frame owner;
+	private final Loop loopLayer;
+	private final LoopContextualView contextualView;
+	private final Processor processor;
 
-	
-		private final Frame owner;
-		private final Loop loopLayer;
-		private final LoopContextualView contextualView;
-		private final Processor processor;
 
-		protected LoopConfigureAction(Frame owner, LoopContextualView contextualView, Loop loopLayer) {
-			super("Configure");
-			this.owner = owner;
-			this.contextualView = contextualView;
-			this.loopLayer = loopLayer;
-			this.processor = loopLayer.getProcessor();
+	protected LoopConfigureAction(Frame owner, LoopContextualView contextualView, Loop loopLayer,
+			EditManager editManager, FileManager fileManager) {
+		super("Configure");
+		this.owner = owner;
+		this.contextualView = contextualView;
+		this.loopLayer = loopLayer;
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		edits = editManager.getEdits();
+		this.processor = loopLayer.getProcessor();
+	}
+
+	public void actionPerformed(ActionEvent e) {
+		String title = "Looping for service " + processor.getLocalName();
+		final JDialog dialog = new HelpEnabledDialog(owner, title, true);
+		LoopConfigurationPanel loopConfigurationPanel = new LoopConfigurationPanel(processor,
+				loopLayer);
+		dialog.add(loopConfigurationPanel, BorderLayout.CENTER);
+
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new FlowLayout());
+
+		JButton okButton = new JButton(new OKAction(dialog, loopConfigurationPanel));
+		buttonPanel.add(okButton);
+
+		JButton resetButton = new JButton(new ResetAction(loopConfigurationPanel));
+		buttonPanel.add(resetButton);
+
+		JButton cancelButton = new JButton(new CancelAction(dialog));
+		buttonPanel.add(cancelButton);
+
+		dialog.add(buttonPanel, BorderLayout.SOUTH);
+		dialog.pack();
+		dialog.setSize(650, 430);
+		dialog.setLocationRelativeTo(null);
+		dialog.setVisible(true);
+	}
+
+	protected class CancelAction extends AbstractAction {
+		private final JDialog dialog;
+
+		protected CancelAction(JDialog dialog) {
+			super("Cancel");
+			this.dialog = dialog;
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			String title = "Looping for service " + processor.getLocalName();
-			final JDialog dialog = new HelpEnabledDialog(owner, title, true);
-			LoopConfigurationPanel loopConfigurationPanel = new LoopConfigurationPanel(
-					processor, loopLayer);
-			dialog.add(loopConfigurationPanel, BorderLayout.CENTER);
-
-			JPanel buttonPanel = new JPanel();
-			buttonPanel.setLayout(new FlowLayout());
-
-			JButton okButton = new JButton(new OKAction(dialog,
-					loopConfigurationPanel));
-			buttonPanel.add(okButton);
-
-			JButton resetButton = new JButton(new ResetAction(
-					loopConfigurationPanel));
-			buttonPanel.add(resetButton);
-
-			JButton cancelButton = new JButton(new CancelAction(dialog));
-			buttonPanel.add(cancelButton);
-
-			dialog.add(buttonPanel, BorderLayout.SOUTH);
-			dialog.pack();
-			dialog.setSize(650, 430);
-			dialog.setLocationRelativeTo(null);
-			dialog.setVisible(true);
-		}
-
-		protected class CancelAction extends AbstractAction {
-			private final JDialog dialog;
-
-			protected CancelAction(JDialog dialog) {
-				super("Cancel");
-				this.dialog = dialog;
-			}
-
-			public void actionPerformed(ActionEvent e) {
-				dialog.setVisible(false);
-				if (contextualView != null) {
+			dialog.setVisible(false);
+			if (contextualView != null) {
 				contextualView.refreshView();
-				}
 			}
-
 		}
 
-		protected class OKAction extends AbstractAction {
-			private final JDialog dialog;
-			private final LoopConfigurationPanel loopConfigurationPanel;
+	}
 
-			protected OKAction(JDialog dialog,
-					LoopConfigurationPanel loopConfigurationPanel) {
-				super("OK");
-				this.dialog = dialog;
-				this.loopConfigurationPanel = loopConfigurationPanel;
-			}
+	protected class OKAction extends AbstractAction {
+		private final JDialog dialog;
+		private final LoopConfigurationPanel loopConfigurationPanel;
 
-			public void actionPerformed(ActionEvent e) {
-				try {
+		protected OKAction(JDialog dialog, LoopConfigurationPanel loopConfigurationPanel) {
+			super("OK");
+			this.dialog = dialog;
+			this.loopConfigurationPanel = loopConfigurationPanel;
+		}
 
-					List<Edit<?>> compoundEdit = new ArrayList<Edit<?>>();
-					LoopConfiguration configuration = loopConfigurationPanel
-							.getConfiguration();
-					compoundEdit.add(edits.getConfigureEdit(loopLayer,
-							configuration));
-					compoundEdit.addAll(checkPortMappings(configuration
-							.getCondition()));
-
-					editManager.doDataflowEdit(
-							fileManager.getCurrentDataflow(), new CompoundEdit(
-									compoundEdit));
-					dialog.setVisible(false);
-					if (contextualView != null) {
-					contextualView.refreshView();
-					}
-				} catch (RuntimeException ex) {
-					logger.warn("Could not configure looping", ex);
-					JOptionPane.showMessageDialog(owner,
-							"Could not configure looping",
-							"An error occured when configuring looping: "
-									+ ex.getMessage(),
-							JOptionPane.ERROR_MESSAGE);
-				} catch (EditException ex) {
-					logger.warn("Could not configure looping", ex);
-					JOptionPane.showMessageDialog(owner,
-							"Could not configure looping",
-							"An error occured when configuring looping: "
-									+ ex.getMessage(),
-							JOptionPane.ERROR_MESSAGE);
-				}
-			}
-
-			protected List<Edit<?>> checkPortMappings(
-					Activity<?> conditionActivity) {
+		public void actionPerformed(ActionEvent e) {
+			try {
 
 				List<Edit<?>> compoundEdit = new ArrayList<Edit<?>>();
-				if (processor.getActivityList().isEmpty()) {
-					return compoundEdit;
-				}
-				Set<String> newInputs = new HashSet<String>();
-				Set<String> newOutputs = new HashSet<String>();
+				LoopConfiguration configuration = loopConfigurationPanel.getConfiguration();
+				compoundEdit.add(edits.getConfigureEdit(loopLayer, configuration));
+				compoundEdit.addAll(checkPortMappings(configuration.getCondition()));
 
-				Activity<?> firstProcessorActivity;
-				firstProcessorActivity = processor.getActivityList().get(0);
-				if (conditionActivity != null) {
-					for (OutputPort condOutPort : conditionActivity
-							.getOutputPorts()) {
-						String portName = condOutPort.getName();
-						Map<String, String> mapping = firstProcessorActivity
-								.getInputPortMapping();
-						if (!mapping.containsKey(portName)) {
-							if (mapping.containsKey(portName)) {
-								logger.warn("Can't re-map input for "
-										+ "conditional output " + portName);
-							}
-							for (InputPort inputPort : firstProcessorActivity
-									.getInputPorts()) {
-								if (inputPort.equals(portName)) {
-									Edit<Activity<?>> edit = edits
-											.getAddActivityInputPortMappingEdit(
-													firstProcessorActivity,
-													portName, portName);
-									compoundEdit.add(edit);
-									newInputs.add(portName);
-								}
-							}
-						}
-					}
-					for (InputPort condInPort : conditionActivity
-							.getInputPorts()) {
-						String portName = condInPort.getName();
-						Map<String, String> mapping = firstProcessorActivity
-								.getOutputPortMapping();
-						if (!mapping.containsValue(portName)) {
-							for (OutputPort outputPort : firstProcessorActivity
-									.getOutputPorts()) {
-								if (outputPort.equals(portName)) {
-									if (mapping.containsKey(portName)) {
-										logger.warn("Can't re-map output for "
-												+ "conditional input "
-												+ portName);
-									}
-									Edit<Activity<?>> edit = edits
-											.getAddActivityOutputPortMappingEdit(
-													firstProcessorActivity,
-													portName, portName);
-									logger
-											.info("Mapping for conditional non-outgoing activity port binding "
-													+ portName);
-									compoundEdit.add(edit);
-									newOutputs.add(portName);
-								}
-							}
-						}
-					}
+				editManager.doDataflowEdit(fileManager.getCurrentDataflow(), new CompoundEdit(
+						compoundEdit));
+				dialog.setVisible(false);
+				if (contextualView != null) {
+					contextualView.refreshView();
 				}
-				// Remove any stale bindings that no longer match neither
-				// conditional activity or the processor output ports
-				for (String processorIn : firstProcessorActivity
-						.getInputPortMapping().keySet()) {
-					if (newInputs.contains(processorIn)) {
-						continue;
-					}
-					boolean foundMatch = false;
-					for (InputPort processorPort : processor.getInputPorts()) {
-						if (processorPort.getName().equals(processorIn)) {
-							foundMatch = true;
-							break;
-						}
-					}
-					if (!foundMatch) {
-						Edit<Activity<?>> edit = edits
-								.getRemoveActivityInputPortMappingEdit(
-										firstProcessorActivity, processorIn);
-						logger.info("Removing stale input port binding "
-								+ processorIn);
-						compoundEdit.add(edit);
-					}
-				}
-				for (String processorOut : firstProcessorActivity
-						.getOutputPortMapping().keySet()) {
-					if (newInputs.contains(processorOut)) {
-						continue;
-					}
-					boolean foundMatch = false;
-					for (OutputPort processorPort : processor.getOutputPorts()) {
-						if (processorPort.getName().equals(processorOut)) {
-							foundMatch = true;
-							break;
-						}
-					}
-					if (!foundMatch) {
-						Edit<Activity<?>> edit = edits
-								.getRemoveActivityOutputPortMappingEdit(
-										firstProcessorActivity, processorOut);
-						logger.info("Removing stale output port binding "
-								+ processorOut);
-						compoundEdit.add(edit);
-					}
-				}
+			} catch (RuntimeException ex) {
+				logger.warn("Could not configure looping", ex);
+				JOptionPane.showMessageDialog(owner, "Could not configure looping",
+						"An error occured when configuring looping: " + ex.getMessage(),
+						JOptionPane.ERROR_MESSAGE);
+			} catch (EditException ex) {
+				logger.warn("Could not configure looping", ex);
+				JOptionPane.showMessageDialog(owner, "Could not configure looping",
+						"An error occured when configuring looping: " + ex.getMessage(),
+						JOptionPane.ERROR_MESSAGE);
+			}
+		}
 
+		protected List<Edit<?>> checkPortMappings(Activity<?> conditionActivity) {
+
+			List<Edit<?>> compoundEdit = new ArrayList<Edit<?>>();
+			if (processor.getActivityList().isEmpty()) {
 				return compoundEdit;
 			}
-		}
+			Set<String> newInputs = new HashSet<String>();
+			Set<String> newOutputs = new HashSet<String>();
 
-		protected class ResetAction extends AbstractAction {
-			private LoopConfigurationPanel loopConfigurationPanel;
-
-			protected ResetAction(LoopConfigurationPanel loopConfigurationPanel) {
-				super("Reset");
-				this.loopConfigurationPanel = loopConfigurationPanel;
-			}
-
-			public void actionPerformed(ActionEvent e) {
-				if (contextualView != null) {
-				contextualView.refreshView();
+			Activity<?> firstProcessorActivity;
+			firstProcessorActivity = processor.getActivityList().get(0);
+			if (conditionActivity != null) {
+				for (OutputPort condOutPort : conditionActivity.getOutputPorts()) {
+					String portName = condOutPort.getName();
+					Map<String, String> mapping = firstProcessorActivity.getInputPortMapping();
+					if (!mapping.containsKey(portName)) {
+						if (mapping.containsKey(portName)) {
+							logger.warn("Can't re-map input for " + "conditional output "
+									+ portName);
+						}
+						for (InputPort inputPort : firstProcessorActivity.getInputPorts()) {
+							if (inputPort.equals(portName)) {
+								Edit<Activity<?>> edit = edits.getAddActivityInputPortMappingEdit(
+										firstProcessorActivity, portName, portName);
+								compoundEdit.add(edit);
+								newInputs.add(portName);
+							}
+						}
+					}
 				}
-				loopConfigurationPanel.setConfiguration(loopLayer
-						.getConfiguration());
+				for (InputPort condInPort : conditionActivity.getInputPorts()) {
+					String portName = condInPort.getName();
+					Map<String, String> mapping = firstProcessorActivity.getOutputPortMapping();
+					if (!mapping.containsValue(portName)) {
+						for (OutputPort outputPort : firstProcessorActivity.getOutputPorts()) {
+							if (outputPort.equals(portName)) {
+								if (mapping.containsKey(portName)) {
+									logger.warn("Can't re-map output for " + "conditional input "
+											+ portName);
+								}
+								Edit<Activity<?>> edit = edits.getAddActivityOutputPortMappingEdit(
+										firstProcessorActivity, portName, portName);
+								logger.info("Mapping for conditional non-outgoing activity port binding "
+										+ portName);
+								compoundEdit.add(edit);
+								newOutputs.add(portName);
+							}
+						}
+					}
+				}
+			}
+			// Remove any stale bindings that no longer match neither
+			// conditional activity or the processor output ports
+			for (String processorIn : firstProcessorActivity.getInputPortMapping().keySet()) {
+				if (newInputs.contains(processorIn)) {
+					continue;
+				}
+				boolean foundMatch = false;
+				for (InputPort processorPort : processor.getInputPorts()) {
+					if (processorPort.getName().equals(processorIn)) {
+						foundMatch = true;
+						break;
+					}
+				}
+				if (!foundMatch) {
+					Edit<Activity<?>> edit = edits.getRemoveActivityInputPortMappingEdit(
+							firstProcessorActivity, processorIn);
+					logger.info("Removing stale input port binding " + processorIn);
+					compoundEdit.add(edit);
+				}
+			}
+			for (String processorOut : firstProcessorActivity.getOutputPortMapping().keySet()) {
+				if (newInputs.contains(processorOut)) {
+					continue;
+				}
+				boolean foundMatch = false;
+				for (OutputPort processorPort : processor.getOutputPorts()) {
+					if (processorPort.getName().equals(processorOut)) {
+						foundMatch = true;
+						break;
+					}
+				}
+				if (!foundMatch) {
+					Edit<Activity<?>> edit = edits.getRemoveActivityOutputPortMappingEdit(
+							firstProcessorActivity, processorOut);
+					logger.info("Removing stale output port binding " + processorOut);
+					compoundEdit.add(edit);
+				}
 			}
 
+			return compoundEdit;
 		}
+	}
+
+	protected class ResetAction extends AbstractAction {
+		private LoopConfigurationPanel loopConfigurationPanel;
+
+		protected ResetAction(LoopConfigurationPanel loopConfigurationPanel) {
+			super("Reset");
+			this.loopConfigurationPanel = loopConfigurationPanel;
+		}
+
+		public void actionPerformed(ActionEvent e) {
+			if (contextualView != null) {
+				contextualView.refreshView();
+			}
+			loopConfigurationPanel.setConfiguration(loopLayer.getConfiguration());
+		}
+
+	}
 
 }

@@ -1,45 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans:beans xmlns="http://www.springframework.org/schema/osgi" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:beans="http://www.springframework.org/schema/beans"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd
-                      http://www.springframework.org/schema/osgi 
+                      http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="ActivityInputPortSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="SetConstantInputPortValueMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ConnectInputPortMenuActions" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ActivityOutputPortSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ConnectOutputPortMenuActions" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ConditionSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RemoveConditionMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ConfigureRunningContextualMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ShowDetailsMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ShowDetailsContextualMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ShowConfigureMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ShowReportsContextualMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="CreateInputMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="CreateOutputMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="InsertSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="WorkflowServiceTemplatesSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="EditSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ConfigureSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="PasteMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="LinkSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RemoveLinkMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="MergeSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RemoveMergeMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ConnectDataflowInputPortMenuActions" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ConnectDataflowOutputPortMenuActions" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="EditDataflowInputPortMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="EditDataflowOutputPortMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RemoveDataflowInputPortMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RemoveDataflowOutputPortMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="WorkflowInputPortSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="WorkflowOutputPortSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ConditionMenuActions" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ProcessorSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RenameProcessorMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RemoveProcessorMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ActivityInputPortSection" auto-export="interfaces" />
+	<service ref="ActivityOutputPortSection" auto-export="interfaces" />
+	<service ref="ConditionMenuActions" auto-export="interfaces" />
+	<service ref="ConditionSection" auto-export="interfaces" />
+	<service ref="ConfigureRunningContextualMenuSection" auto-export="interfaces" />
+	<service ref="ConfigureSection" auto-export="interfaces" />
+	<service ref="ConnectDataflowInputPortMenuActions" auto-export="interfaces" />
+	<service ref="ConnectDataflowOutputPortMenuActions" auto-export="interfaces" />
+	<service ref="ConnectInputPortMenuActions" auto-export="interfaces" />
+	<service ref="ConnectOutputPortMenuActions" auto-export="interfaces" />
+	<service ref="CreateInputMenuAction" auto-export="interfaces" />
+	<service ref="CreateOutputMenuAction" auto-export="interfaces" />
+	<service ref="EditDataflowInputPortMenuAction" auto-export="interfaces" />
+	<service ref="EditDataflowOutputPortMenuAction" auto-export="interfaces" />
+	<service ref="EditSection" auto-export="interfaces" />
+	<service ref="InsertSection" auto-export="interfaces" />
+	<service ref="LinkSection" auto-export="interfaces" />
+	<service ref="MergeSection" auto-export="interfaces" />
+	<service ref="PasteMenuAction" auto-export="interfaces" />
+	<service ref="ProcessorSection" auto-export="interfaces" />
+	<service ref="RemoveConditionMenuAction" auto-export="interfaces" />
+	<service ref="RemoveDataflowInputPortMenuAction" auto-export="interfaces" />
+	<service ref="RemoveDataflowOutputPortMenuAction" auto-export="interfaces" />
+	<service ref="RemoveLinkMenuAction" auto-export="interfaces" />
+	<service ref="RemoveMergeMenuAction" auto-export="interfaces" />
+	<service ref="RemoveProcessorMenuAction" auto-export="interfaces" />
+	<service ref="RenameProcessorMenuAction" auto-export="interfaces" />
+	<service ref="SetConstantInputPortValueMenuAction" auto-export="interfaces" />
+	<service ref="ShowConfigureMenuAction" auto-export="interfaces" />
+	<service ref="ShowDetailsContextualMenuAction" auto-export="interfaces" />
+	<service ref="ShowDetailsMenuAction" auto-export="interfaces" />
+	<service ref="ShowReportsContextualMenuAction" auto-export="interfaces" />
+	<service ref="WorkflowInputPortSection" auto-export="interfaces" />
+	<service ref="WorkflowOutputPortSection" auto-export="interfaces" />
+	<service ref="WorkflowServiceTemplatesSection" auto-export="interfaces" />
+
+	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
+	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
+	<reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
+	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" />
+	<reference id="dataflowSelectionManager" interface="net.sf.taverna.t2.workbench.ui.DataflowSelectionManager" />
+	<reference id="workbench" interface="net.sf.taverna.t2.workbench.ui.Workbench" />
+	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
+	<reference id="activityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
+	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
 
 </beans:beans>

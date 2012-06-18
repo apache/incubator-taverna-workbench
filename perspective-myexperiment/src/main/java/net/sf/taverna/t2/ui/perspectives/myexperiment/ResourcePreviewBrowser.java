@@ -29,6 +29,7 @@ import javax.swing.event.HyperlinkListener;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Base64;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.Resource;
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
@@ -83,8 +84,9 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
   private final ImageIcon iconAddComment = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("add_comment_icon"));
   private final ImageIcon iconSpinner = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner"));
   private final ImageIcon iconSpinnerStopped = new ImageIcon(MyExperimentPerspective.getLocalResourceURL("spinner_stopped"));
+  private final FileManager fileManager;
 
-  public ResourcePreviewBrowser(MainComponent component, MyExperimentClient client, Logger logger) {
+  public ResourcePreviewBrowser(MainComponent component, MyExperimentClient client, Logger logger, FileManager fileManager) {
 	super();
 
 	// set main variables to ensure access to myExperiment, logger and the
@@ -92,6 +94,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	this.pluginMainComponent = component;
 	this.myExperimentClient = client;
 	this.logger = logger;
+	this.fileManager = fileManager;
 
 	// initialise previewed items history
 	String strPreviewedItemsHistory = (String) myExperimentClient.getSettings().get(MyExperimentClient.INI_PREVIEWED_ITEMS_HISTORY);
@@ -124,7 +127,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
   /**
    * As opposed to getPreviewHistory() which returns full history of previewed
    * resources, this helper method only retrieves the current history stack.
-   * 
+   *
    * Example: if a user was to view the following items - A -> B -> C B <- C B
    * -> D, the full history would be [A,C,B,D]; current history stack would be
    * [A,B,D] - note how item C was "forgotten" (this works the same way as all
@@ -149,11 +152,11 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
   /**
    * This method is a launcher for the real worker method ('createPreview()')
    * that does all the job.
-   * 
+   *
    * The purpose of having this method is to manage history. This method is to
    * be called every time when a "new" preview is requested. This will add a new
    * link to the CurrentHistory stack.
-   * 
+   *
    * Clicks on "Back" and "Forward" buttons will only need to advance the
    * counter of the current position in the CurrentHistory. Therefore, these
    * will directly call 'createPreview()'.
@@ -413,11 +416,11 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	//	c.gridx = 0;
 	//	c.gridy = 0;
 	//	jpActionButtons.add(jpMyExperimentButtons, c);
-	//	
+	//
 	//	c.gridx++;
 	//	c.insets = new Insets(0, (int) spacing / 2, 0, (int) spacing);
 	//	jpActionButtons.add(jpTavernaButtons, c);
-	//	
+	//
 	//	jpStatusBar = new JPanel();
 	//	jpStatusBar.setLayout(new BorderLayout());
 	//	jpStatusBar.add(jpNavigationButtons, BorderLayout.WEST);
@@ -579,7 +582,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	  /* ************************************************************************* */
 	  Resource resource = this.rpcContent.getResource();
 	  if (resource.getItemTypeName().equals("Workflow")) {
-		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this, true, resource);
+		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this, true, resource, fileManager);
 
 		if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
 		  // "true" has been returned so update the resource
@@ -589,7 +592,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
 	} else if (e.getSource().equals(this.bEditMetadata)) {
 	  Resource resource = this.rpcContent.getResource();
 	  if (resource.getItemTypeName().equals("Workflow")) {
-		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this, false, resource);
+		UploadWorkflowDialog uploadWorkflowDialog = new UploadWorkflowDialog(this, false, resource, fileManager);
 
 		if (uploadWorkflowDialog.launchUploadDialogAndPostIfRequired()) {
 		  // "true" has been returned so update the resource
@@ -664,7 +667,7 @@ public class ResourcePreviewBrowser extends JFrame implements ActionListener, Hy
   // *** Callbacks for ComponentListener interface ***
 
   public void componentShown(ComponentEvent e) {
-	// every time the preview browser window is shown, it will start loading a preview 
+	// every time the preview browser window is shown, it will start loading a preview
 	// - this state is set in the preview() method; (so this won't have to be done here)
 
 	// remove everything from the preview and re-add only the status bar

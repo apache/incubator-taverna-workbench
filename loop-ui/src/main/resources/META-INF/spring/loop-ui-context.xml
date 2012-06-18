@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="AddLoopFactory" class="net.sf.taverna.t2.workbench.loop.AddLoopFactory" />
+	<bean id="AddLoopFactory" class="net.sf.taverna.t2.workbench.loop.AddLoopFactory">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+	</bean>
 
-	<bean id="LoopConfigureMenuAction" class="net.sf.taverna.t2.workbench.loop.LoopConfigureMenuAction" />
-	<bean id="LoopAddMenuAction" class="net.sf.taverna.t2.workbench.loop.LoopAddMenuAction" />
-	<bean id="LoopRemoveMenuAction" class="net.sf.taverna.t2.workbench.loop.LoopRemoveMenuAction" />
+	<bean id="LoopConfigureMenuAction" class="net.sf.taverna.t2.workbench.loop.LoopConfigureMenuAction">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+	</bean>
+	<bean id="LoopAddMenuAction" class="net.sf.taverna.t2.workbench.loop.LoopAddMenuAction">
+			<property name="addLoopFactory">
+				<ref local="AddLoopFactory"/>
+			</property>
+	</bean>
+	<bean id="LoopRemoveMenuAction" class="net.sf.taverna.t2.workbench.loop.LoopRemoveMenuAction">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+	</bean>
 
-	<bean id="LoopContextualViewFactory" class="net.sf.taverna.t2.workbench.loop.LoopContextualViewFactory" />
+	<bean id="LoopContextualViewFactory" class="net.sf.taverna.t2.workbench.loop.LoopContextualViewFactory">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+	</bean>
 
 </beans>

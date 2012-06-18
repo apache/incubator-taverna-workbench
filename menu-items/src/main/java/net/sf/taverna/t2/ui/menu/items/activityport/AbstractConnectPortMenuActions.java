@@ -23,13 +23,15 @@ import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.ui.menu.MenuManager.ComponentFactory;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
+import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.impl.configuration.WorkbenchConfiguration;
-import net.sf.taverna.t2.workbench.ui.impl.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowPort;
+import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.EventForwardingOutputPort;
 import net.sf.taverna.t2.workflowmodel.EventHandlingInputPort;
 import net.sf.taverna.t2.workflowmodel.InputPort;
@@ -49,13 +51,13 @@ public abstract class AbstractConnectPortMenuActions extends AbstractMenuCustom
 
 	protected NamedWorkflowEntityComparator processorComparator = new NamedWorkflowEntityComparator();
 	protected PortComparator portComparator = new PortComparator();
-	protected ActivityIconManager activityIconManager = ActivityIconManager
-			.getInstance();
+	protected ActivityIconManager activityIconManager;
 	protected ContextualSelection contextualSelection;
-	protected MenuManager menuManager = MenuManager.getInstance();
-	protected WorkbenchConfiguration workbenchConfiguration = WorkbenchConfiguration
-			.getInstance();
-	protected ColourManager colourManager = ColourManager.getInstance();
+	protected MenuManager menuManager;
+	protected WorkbenchConfiguration workbenchConfiguration;
+	protected ColourManager colourManager;
+	protected Edits edits;
+	private EditManager editManager;
 
 	public static final String CONNECT_AS_INPUT_TO = "Connect as input to...";
 	public static final String CONNECT_WITH_OUTPUT_FROM = "Connect with output from...";
@@ -138,14 +140,14 @@ public abstract class AbstractConnectPortMenuActions extends AbstractMenuCustom
 				EventForwardingOutputPort internalOutputPort = ((DataflowInputPort) dataflowInput)
 						.getInternalOutputPort();
 				connectPortsAction = new ConnectPortsAction(dataflow,
-						internalOutputPort, (InputPort) port);
+						internalOutputPort, (InputPort) port, editManager);
 				connectPortsAction.putValue(Action.SMALL_ICON,
 						WorkbenchIcons.inputIcon);
 			} else if (dataflowInput instanceof DataflowOutputPort) {
 				EventHandlingInputPort internalInputPort = ((DataflowOutputPort) dataflowInput)
 						.getInternalInputPort();
 				connectPortsAction = new ConnectPortsAction(dataflow,
-						(OutputPort) port, internalInputPort);
+						(OutputPort) port, internalInputPort, editManager);
 				connectPortsAction.putValue(Action.SMALL_ICON,
 						WorkbenchIcons.outputIcon);
 				if (internalInputPort.getIncomingLink() != null) {
@@ -189,7 +191,7 @@ public abstract class AbstractConnectPortMenuActions extends AbstractMenuCustom
 
 		CreateAndConnectDataflowPortAction newDataflowPortAction = new CreateAndConnectDataflowPortAction(
 				dataflow, port, suggestedName, contextualSelection
-						.getRelativeToComponent());
+						.getRelativeToComponent(), editManager);
 		if (port instanceof InputPort) {
 			newDataflowPortAction
 			.putValue(Action.NAME, NEW_WORKFLOW_INPUT_PORT);
@@ -246,12 +248,12 @@ public abstract class AbstractConnectPortMenuActions extends AbstractMenuCustom
 				ConnectPortsAction connectPortsAction;
 				if (outputPort instanceof OutputPort) {
 					connectPortsAction = new ConnectPortsAction(dataflow,
-							(OutputPort) outputPort, (InputPort) targetPort);
+							(OutputPort) outputPort, (InputPort) targetPort, editManager);
 					connectPortsAction.putValue(Action.SMALL_ICON,
 							WorkbenchIcons.outputPortIcon);
 				} else {
 					connectPortsAction = new ConnectPortsAction(dataflow,
-							(OutputPort) targetPort, (InputPort) outputPort);
+							(OutputPort) targetPort, (InputPort) outputPort, editManager);
 					connectPortsAction.putValue(Action.SMALL_ICON,
 							WorkbenchIcons.inputPortIcon);
 				}
@@ -351,6 +353,26 @@ public abstract class AbstractConnectPortMenuActions extends AbstractMenuCustom
 			}
 		}
 		return allPorts;
+	}
+
+	public void setEditManager(EditManager editManager) {
+		this.editManager = editManager;
+	}
+
+	public void setMenuManager(MenuManager menuManager) {
+		this.menuManager = menuManager;
+	}
+
+	public void setActivityIconManager(ActivityIconManager activityIconManager) {
+		this.activityIconManager = activityIconManager;
+	}
+
+	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+		this.workbenchConfiguration = workbenchConfiguration;
+	}
+
+	public void setColourManager(ColourManager colourManager) {
+		this.colourManager = colourManager;
 	}
 
 }

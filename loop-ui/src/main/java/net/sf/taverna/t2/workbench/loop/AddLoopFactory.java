@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2008 The University of Manchester   
- * 
+ * Copyright (C) 2008 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -26,16 +26,12 @@ import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import org.apache.log4j.Logger;
-
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.EditsRegistry;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchStack;
@@ -43,9 +39,13 @@ import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.ErrorBounce;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Parallelize;
 
+import org.apache.log4j.Logger;
+
 public class AddLoopFactory implements AddLayerFactorySPI {
 
 	private static Logger logger = Logger.getLogger(AddLoopFactory.class);
+	private EditManager editManager;
+	private FileManager fileManager;
 
 	public boolean canAddLayerFor(Processor proc) {
 		DispatchStack dispatchStack = proc.getDispatchStack();
@@ -66,7 +66,7 @@ public class AddLoopFactory implements AddLayerFactorySPI {
 					Loop loopLayer = findLoopLayer();
 					// Pop up the configure loop dialog
 					LoopConfigureAction loopConfigureAction = new LoopConfigureAction(
-							MainWindow.getMainWindow(), null, loopLayer);
+							MainWindow.getMainWindow(), null, loopLayer, editManager, fileManager);
 					loopConfigureAction.actionPerformed(e);
 				} catch (EditException e1) {
 					logger.warn("Can't add loop layer", e1);
@@ -90,8 +90,6 @@ public class AddLoopFactory implements AddLayerFactorySPI {
 
 			private void insertLoopLayer(DispatchStack dispatchStack,
 					Loop loopLayer) throws EditException {
-				Edits edits = EditsRegistry.getEdits();
-
 				// TODO: Make a real Edit for inserting layer
 				List<DispatchLayer<?>> layers = dispatchStack.getLayers();
 				int loopLayerPosition = 0;
@@ -107,9 +105,7 @@ public class AddLoopFactory implements AddLayerFactorySPI {
 						break;
 					}
 				}
-				final EditManager editManager = EditManager.getInstance();
-				final FileManager fileManager = FileManager.getInstance();
-				Edit<DispatchStack> edit = edits.getAddDispatchLayerEdit(dispatchStack, loopLayer,
+				Edit<DispatchStack> edit = editManager.getEdits().getAddDispatchLayerEdit(dispatchStack, loopLayer,
 						loopLayerPosition);
 				editManager.doDataflowEdit(fileManager.getCurrentDataflow(), edit);
 			}
@@ -120,4 +116,13 @@ public class AddLoopFactory implements AddLayerFactorySPI {
 	public boolean canCreateLayerClass(Class<? extends DispatchLayer> c) {
 		return (c.isAssignableFrom(Loop.class));
 	}
+
+	public void setEditManager(EditManager editManager) {
+		this.editManager = editManager;
+	}
+
+	public void setFileManager(FileManager fileManager) {
+		this.fileManager = fileManager;
+	}
+
 }

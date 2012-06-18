@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.retry;
 
@@ -19,7 +19,6 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Retry;
 
 import org.apache.log4j.Logger;
@@ -33,37 +32,36 @@ public class RetryConfigureAction extends AbstractAction {
 	private Frame owner;
 	private final Retry retryLayer;
 	private final RetryContextualView retryContextualView;
-	
-	private EditManager editManager = EditManager.getInstance();
 
-	private Edits edits = EditManager.getInstance().getEdits();
-
-	private FileManager fileManager = FileManager.getInstance();
+	private EditManager editManager;
+	private FileManager fileManager;
 
 	private static Logger logger = Logger.getLogger(RetryConfigureAction.class);
-	
-	public RetryConfigureAction(Frame owner, RetryContextualView retryContextualView, Retry retryLayer) {
+
+	public RetryConfigureAction(Frame owner, RetryContextualView retryContextualView,
+			Retry retryLayer, EditManager editManager, FileManager fileManager) {
 		super("Configure");
 		this.owner = owner;
 		this.retryContextualView = retryContextualView;
 		this.retryLayer = retryLayer;
+		this.editManager = editManager;
+		this.fileManager = fileManager;
 	}
 
 	public void actionPerformed(ActionEvent e) {
 		String title = "Retries for service " + retryLayer.getProcessor().getLocalName();
 		final JDialog dialog = new HelpEnabledDialog(owner, title, true);
-		RetryConfigurationPanel retryConfigurationPanel = new RetryConfigurationPanel(retryLayer.getConfiguration());
+		RetryConfigurationPanel retryConfigurationPanel = new RetryConfigurationPanel(
+				retryLayer.getConfiguration());
 		dialog.add(retryConfigurationPanel, BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
 
-		JButton okButton = new JButton(new OKAction(dialog,
-				retryConfigurationPanel));
+		JButton okButton = new JButton(new OKAction(dialog, retryConfigurationPanel));
 		buttonPanel.add(okButton);
 
-		JButton resetButton = new JButton(new ResetAction(
-				retryConfigurationPanel));
+		JButton resetButton = new JButton(new ResetAction(retryConfigurationPanel));
 		buttonPanel.add(resetButton);
 
 		JButton cancelButton = new JButton(new CancelAction(dialog));
@@ -95,8 +93,7 @@ public class RetryConfigureAction extends AbstractAction {
 		private final RetryConfigurationPanel retryConfigurationPanel;
 		private final JDialog dialog;
 
-		public OKAction(JDialog dialog,
-				RetryConfigurationPanel retryConfigurationPanel) {
+		public OKAction(JDialog dialog, RetryConfigurationPanel retryConfigurationPanel) {
 			super("OK");
 			this.dialog = dialog;
 			this.retryConfigurationPanel = retryConfigurationPanel;
@@ -105,20 +102,17 @@ public class RetryConfigureAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			if (retryConfigurationPanel.validateConfig()) {
 				try {
-					Edit edit = edits.getConfigureEdit(retryLayer,
+					Edit edit = editManager.getEdits().getConfigureEdit(retryLayer,
 							retryConfigurationPanel.getConfiguration());
-					editManager.doDataflowEdit(
-							fileManager.getCurrentDataflow(), edit);
+					editManager.doDataflowEdit(fileManager.getCurrentDataflow(), edit);
 					dialog.setVisible(false);
 					if (retryContextualView != null) {
-					retryContextualView.refreshView();
+						retryContextualView.refreshView();
 					}
 				} catch (EditException e1) {
 					logger.warn("Could not configure retries", e1);
-					JOptionPane.showMessageDialog(owner,
-							"Could not configure retries",
-							"An error occured when configuring retries: "
-									+ e1.getMessage(),
+					JOptionPane.showMessageDialog(owner, "Could not configure retries",
+							"An error occured when configuring retries: " + e1.getMessage(),
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -141,6 +135,5 @@ public class RetryConfigureAction extends AbstractAction {
 		}
 
 	}
-
 
 }

@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2008 The University of Manchester   
- * 
+ * Copyright (C) 2008 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -35,7 +35,6 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.loop.comparisons.Comparison;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
@@ -44,9 +43,9 @@ import org.apache.log4j.Logger;
 
 /**
  * View of a processor, including it's iteration stack, activities, etc.
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
 public class LoopContextualView extends ContextualView {
 
@@ -54,11 +53,8 @@ public class LoopContextualView extends ContextualView {
 
 	private static Logger logger = Logger.getLogger(LoopContextualView.class);
 
-	private EditManager editManager = EditManager.getInstance();
-
-	private FileManager fileManager = FileManager.getInstance();
-
-	private Edits edits = EditManager.getInstance().getEdits();
+	private EditManager editManager;
+	private FileManager fileManager;
 
 	private Loop loopLayer;
 
@@ -66,9 +62,11 @@ public class LoopContextualView extends ContextualView {
 
 	private Processor processor;
 
-	public LoopContextualView(Loop loopLayer) {
+	public LoopContextualView(Loop loopLayer, EditManager editManager, FileManager fileManager) {
 		super();
 		this.loopLayer = loopLayer;
+		this.editManager = editManager;
+		this.fileManager = fileManager;
 		processor = loopLayer.getProcessor();
 		initialise();
 		initView();
@@ -76,7 +74,7 @@ public class LoopContextualView extends ContextualView {
 
 	@Override
 	public Action getConfigureAction(Frame owner) {
-		return new LoopConfigureAction(owner, this, loopLayer);
+		return new LoopConfigureAction(owner, this, loopLayer, editManager, fileManager);
 	}
 
 	@Override
@@ -143,12 +141,12 @@ public class LoopContextualView extends ContextualView {
 					.getComparisonById(properties
 							.getProperty(ActivityGenerator.COMPARISON));
 			description.append(comparison.getName());
-			
+
 			description.append(" the " + comparison.getValueType() + ": <pre>");
 			description.append(properties
 					.getProperty(ActivityGenerator.COMPARE_VALUE));
 			description.append("</pre>");
-			
+
 			String delay = properties.getProperty(ActivityGenerator.DELAY, "");
 			try {
 				if (Double.parseDouble(delay) > 0) {

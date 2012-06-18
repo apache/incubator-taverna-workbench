@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2008 The University of Manchester   
- * 
+ * Copyright (C) 2008 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -35,14 +35,20 @@ import javax.swing.JPanel;
 import net.sf.taverna.t2.activities.beanshell.BeanshellActivity;
 import net.sf.taverna.t2.activities.beanshell.BeanshellActivityConfigurationBean;
 import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.edits.impl.EditManagerImpl;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager;
-import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualViewComponent;
+import net.sf.taverna.t2.workbench.file.impl.FileManagerImpl;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManagerImpl;
+import net.sf.taverna.t2.workbench.ui.views.contextualviews.impl.ContextualViewComponent;
+import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
+import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.impl.ContextualViewFactoryRegistryImpl;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 
 /**
  * A standalone application to show contextual views
@@ -50,22 +56,23 @@ import net.sf.taverna.t2.workflowmodel.Processor;
  * The application shows a JFrame containing a contextual view, together with
  * buttons which will select items in the {@link DataflowSelectionManager} for a
  * (rather) empty current dataflow.
- * 
+ *
  * @author Stian Soiland-Reyes.
- * 
+ *
  */
 public class ShowContextualView {
 
 	public static void main(String[] args) throws Exception {
-		new ShowContextualView().showFrame();
+		EditManager editManager = new EditManagerImpl(new EditsImpl());
+		FileManager fileManager = new FileManagerImpl(editManager);
+		ContextualViewFactoryRegistry contextualViewFactoryRegistry = new ContextualViewFactoryRegistryImpl();
+		new ShowContextualView(editManager, fileManager, new DataflowSelectionManagerImpl(fileManager), contextualViewFactoryRegistry).showFrame();
 	}
 
-	private DataflowSelectionManager dataflowSelectionManager = DataflowSelectionManager
-			.getInstance();
-
-	private FileManager fileManager = FileManager.getInstance();
-
-	private EditManager editManager = EditManager.getInstance();
+	private DataflowSelectionManager dataflowSelectionManager;
+	private FileManager fileManager;
+	private EditManager editManager;
+	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
 
 	private Processor processor;
 
@@ -73,7 +80,11 @@ public class ShowContextualView {
 
 	private Dataflow currentDataflow;
 
-	public ShowContextualView() throws EditException {
+	public ShowContextualView(EditManager editManager, FileManager fileManager, final DataflowSelectionManager dataflowSelectionManager, ContextualViewFactoryRegistry contextualViewFactoryRegistry) throws EditException {
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.contextualViewFactoryRegistry = contextualViewFactoryRegistry;
 		currentDataflow = fileManager.newDataflow();
 		makeProcessor();
 
@@ -117,7 +128,7 @@ public class ShowContextualView {
 
 	protected void showFrame() {
 		JFrame frame = new JFrame(getClass().getName());
-		ContextualViewComponent contextualViewComponent = new ContextualViewComponent();
+		ContextualViewComponent contextualViewComponent = new ContextualViewComponent(editManager, fileManager, dataflowSelectionManager, contextualViewFactoryRegistry);
 		frame.add(contextualViewComponent, BorderLayout.CENTER);
 
 		frame.add(makeSelectionButtons(), BorderLayout.NORTH);

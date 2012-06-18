@@ -1,19 +1,19 @@
 /*******************************************************************************
  * Copyright (C) 2009 The University of Manchester
- * 
+ *
  * Modifications to the initial code base are copyright of their respective
  * authors, or their employers as appropriate.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU Lesser General Public License as published by the Free
  * Software Foundation; either version 2.1 of the License, or (at your option)
  * any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -53,6 +53,7 @@ import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
+import net.sf.taverna.t2.workbench.file.FileManager;
 
 import org.apache.log4j.Logger;
 
@@ -82,8 +83,9 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
   // "return to" type of thing, so that after a certain action has been done,
   // it is possible to switch to another tab in this tabbed view
   protected JComponent cTabContentComponentToSwitchToAfterLogin = null;
+  private final FileManager fileManager;
 
-  public MyStuffTabContentPanel(MainComponent component, MyExperimentClient client, Logger logger) {
+  public MyStuffTabContentPanel(MainComponent component, MyExperimentClient client, Logger logger, FileManager fileManager) {
 	super();
 
 	// set main variables to ensure access to myExperiment, logger and the
@@ -91,6 +93,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	this.pluginMainComponent = component;
 	this.myExperimentClient = client;
 	this.logger = logger;
+	this.fileManager = fileManager;
   }
 
   public void createAndInitialiseInnerComponents() {
@@ -101,7 +104,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	// based on the current status (logged in / anonymous user), decide which
 	// components to create and display
 	if (this.myExperimentClient.isLoggedIn()) {
-	  jpSidebar = new MyStuffSidebarPanel(pluginMainComponent, myExperimentClient, logger);
+	  jpSidebar = new MyStuffSidebarPanel(pluginMainComponent, myExperimentClient, logger, fileManager);
 	  JPanel jpSidebarContainer = new JPanel();
 	  jpSidebarContainer.setLayout(new BorderLayout());
 	  jpSidebarContainer.add(jpSidebar, BorderLayout.NORTH);
@@ -217,7 +220,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	c.insets = new Insets(0, 0, 3, 0);
 	c.ipadx = 10;
 
-	// username label 
+	// username label
 	c.gridy++;
 	JLabel lUsername = new JLabel("myExperiment Username:");
 	lUsername.setLabelFor(tfLogin);
@@ -310,7 +313,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 
 			// check if need to store the login credentials and settings
 			if (bLoginSuccessful) {
-			  // store the settings anyway (for instance, to clear stored login/password 
+			  // store the settings anyway (for instance, to clear stored login/password
 			  // - when the 'remember me' tick is not checked anymore);
 			  // however, need to check whether to store login details or not
 			  myExperimentClient.getSettings().put(MyExperimentClient.INI_LOGIN, (cbRememberMe.isSelected() ? tfLogin.getText() : ""));

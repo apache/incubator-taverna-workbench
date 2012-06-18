@@ -31,46 +31,10 @@
 				http://www.mygrid.org.uk/maven/snapshot-repository
 			</url>
 		</repository>
-		
+
 	</repositories>
 
 	<dependencies>
-		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.infrastructure</groupId>
-			<artifactId>launcher</artifactId>
-			<version>${t2.infrastructure.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.infrastructure</groupId>
-			<artifactId>appconfig</artifactId>
-			<version>${t2.infrastructure.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-impl</artifactId>
-			<version>${t2.core.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.activities</groupId>
-			<artifactId>dataflow-activity</artifactId>
-			<version>${t2.activities.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>configuration-api</artifactId>
-			<version>${t2.ui.api.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>perspective-core</artifactId>
-			<version>${t2.ui.api.version}</version>
-		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>menu-api</artifactId>
@@ -92,23 +56,35 @@
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>file-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.taverna.t2.ui-activities</groupId>
 			<artifactId>dataflow-activity-ui</artifactId>
 			<version>${t2.ui.activities.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.lang</groupId>
+			<artifactId>ui</artifactId>
+			<version>${t2.lang.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>uk.org.taverna.configuration</groupId>
+			<artifactId>taverna-configuration-api</artifactId>
+			<version>${taverna.configuration.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>uk.org.taverna.configuration</groupId>
+			<artifactId>taverna-app-configuration-api</artifactId>
+			<version>${taverna.configuration.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>org.jdom</groupId>
-			<artifactId>jdom</artifactId>
+			<artifactId>com.springsource.org.jdom</artifactId>
+			<version>${jdom.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
+			<groupId>org.apache.log4j</groupId>
+			<artifactId>com.springsource.org.apache.log4j</artifactId>
 		</dependency>
 	</dependencies>
 </project>

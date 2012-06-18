@@ -40,21 +40,15 @@
 				http://www.mygrid.org.uk/maven/snapshot-repository
 			</url>
 		</repository>
-		
-		
 	</repositories>
-	
+
 	<dependencies>
+		<!-- <dependency> <groupId>net.sf.taverna.t2.ui-api</groupId> <artifactId>perspective-core</artifactId>
+			<version>${t2.ui.api.version}</version> </dependency> -->
 		<dependency>
-			<groupId>net.sf.taverna.t2.infrastructure</groupId>
-			<artifactId>appconfig</artifactId>
-			<version>${t2.infrastructure.version}</version>
-		</dependency>
-		
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>perspective-core</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<groupId>net.sf.taverna.t2.core</groupId>
+			<artifactId>workflowmodel-impl</artifactId>
+			<version>${t2.core.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
@@ -72,78 +66,56 @@
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
-			<!--
-				required for providing contextual views in the bottom-left area of
-				Design perspective
-			-->
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>contextual-views-api</artifactId>
-			<version>${t2.ui.api.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		
-		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
 			<artifactId>ui</artifactId>
 			<version>${t2.lang.version}</version>
 		</dependency>
-		
+		<!-- required for providing contextual views in the bottom-left area of
+			Design perspective -->
 		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-impl</artifactId>
-			<version>${t2.core.version}</version>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>contextual-views-api</artifactId>
+			<version>${t2.ui.api.version}</version>
 		</dependency>
-
+		<!-- required for inserting a SOAP processor into the current workflow -->
 		<dependency>
-			<!-- required for inserting a SOAP processor into the current workflow -->
 			<groupId>net.sf.taverna.t2.ui-activities</groupId>
 			<artifactId>wsdl-activity-ui</artifactId>
 			<version>${t2.ui.activities.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
-		
+		<!-- required for importing REST processors into the current workflow -->
 		<dependency>
-			<!-- required for importing REST processors into the current workflow -->
 			<groupId>net.sf.taverna.t2.ui-activities</groupId>
 			<artifactId>rest-activity-ui</artifactId>
-			<version>${t2.activities.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
+			<version>${t2.ui.activities.version}</version>
 		</dependency>
-		
+		<!-- required for inserting a processor into the current workflow -->
 		<dependency>
-			<!-- required for inserting a processor into the current workflow -->
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>workflow-view</artifactId>
 			<version>${t2.ui.components.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
 		</dependency>
-		
+		<!-- required registering with and opening help window -->
 		<dependency>
-			<!-- required registering with and opening help window -->
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>helper</artifactId>
 			<version>${t2.ui.impl.version}</version>
-			<type>jar</type>
-			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>uk.org.taverna.configuration</groupId>
+			<artifactId>taverna-app-configuration-api</artifactId>
+			<version>${taverna.configuration.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.jdom</groupId>
-			<artifactId>jdom</artifactId>
+			<artifactId>com.springsource.org.jdom</artifactId>
 			<version>${jdom.version}</version>
 		</dependency>
-
 		<dependency>
-			<groupId>log4j</groupId>
-			<artifactId>log4j</artifactId>
-			<version>${log4j.version}</version>
+			<groupId>org.apache.log4j</groupId>
+			<artifactId>com.springsource.org.apache.log4j</artifactId>
 		</dependency>
-
-
 		<dependency>
 			<groupId>org.apache.xmlbeans</groupId>
 			<artifactId>xmlbeans</artifactId>
@@ -151,54 +123,42 @@
 		</dependency>
 
 		<!-- FlyingSaucer XHTML Renderer -->
-		<!-- (it is critical to use version R8, not any earlier ones - e.g. R8pre2, etc.) -->
+		<!-- (it is critical to use version R8, not any earlier ones - e.g. R8pre2,
+			etc.) -->
 		<dependency>
 			<groupId>org.xhtmlrenderer</groupId>
 			<artifactId>core-renderer</artifactId>
 			<version>${org.xhtmlrenderer.core-renderer.version}</version>
 			<exclusions>
-                <exclusion>
-                  <groupId>bouncycastle</groupId>
-                  <artifactId>bcprov-jdk14</artifactId>
-                </exclusion>
-                <exclusion>
-                  <groupId>bouncycastle</groupId>
-                  <artifactId>bcmail-jdk14</artifactId>
-                </exclusion>
+				<exclusion>
+					<groupId>bouncycastle</groupId>
+					<artifactId>bcprov-jdk14</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>bouncycastle</groupId>
+					<artifactId>bcmail-jdk14</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
 		<!-- At least StringEscapeUtils class is used from this library -->
 		<dependency>
-			<groupId>commons-lang</groupId>
-			<artifactId>commons-lang</artifactId>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>com.springsource.org.apache.commons.lang</artifactId>
 			<version>${commons.lang.version}</version>
 		</dependency>
 
-		<!--  Gson: Java to Json conversion -->
+		<!-- Gson: Java to Json conversion -->
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>${gson.version}</version>
-			<scope>compile</scope>
 		</dependency>
-
-		<!--
-			This is a dependency for a tri-state node checkbox tree; not used
-			anymore because of lincesing (GPL) and wasn't looking very good.
-			<dependency> <groupId>it.cnr.imaa.essi</groupId>
-			<artifactId>lablib-checkboxtree</artifactId>
-			<version>3.2-SNAPSHOT</version> </dependency>
-		-->
-		
-		
-		
 	</dependencies>
 
 	<build>
-		<!-- Adds "xmlbeans:xmlbeans" Maven2 goal to compile the
-		     API binding classes from XSD schema.
-		-->
+		<!-- Adds "xmlbeans:xmlbeans" Maven2 goal to compile the API binding classes
+			from XSD schema. -->
 		<plugins>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -213,19 +173,16 @@
 				</executions>
 				<inherited>true</inherited>
 				<configuration>
-					<!-- "javaSource=1.5" is required to make use of generics and have getXXXList() methods available, not just getXXXArrray() -->
+					<!-- "javaSource=1.5" is required to make use of generics and have getXXXList()
+						methods available, not just getXXXArrray() -->
 					<javaSource>1.5</javaSource>
 					<download>true</download>
 					<schemaDirectory>src/main/xsd</schemaDirectory>
 					<!-- Default is target/generated-sources/xmlbeans - which the Maven
-					    plugin should be able to add to the Project classpath -->
-					<!-- 
-					 <sourceGenerationDirectory>src/main/java</sourceGenerationDirectory>
-					 -->
+						plugin should be able to add to the Project classpath -->
+					<!-- <sourceGenerationDirectory>src/main/java</sourceGenerationDirectory> -->
 				</configuration>
 			</plugin>
 		</plugins>
 	</build>
-
-
 </project>

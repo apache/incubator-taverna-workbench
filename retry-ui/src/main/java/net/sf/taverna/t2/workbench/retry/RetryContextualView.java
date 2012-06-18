@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2008 The University of Manchester   
- * 
+ * Copyright (C) 2008 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -21,57 +21,56 @@
 package net.sf.taverna.t2.workbench.retry;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Frame;
-import java.awt.event.ActionEvent;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Retry;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.RetryConfig;
-
-import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 
 import org.apache.log4j.Logger;
 
 /**
  * View of a processor, including it's iteration stack, activities, etc.
- * 
+ *
  * @author Alan R Williams
- * 
+ *
  */
 public class RetryContextualView extends ContextualView {
 
 	private static Logger logger = Logger.getLogger(RetryContextualView.class);
 
-	private EditManager editManager = EditManager.getInstance();
-
 	private Retry retryLayer;
 
 	private JPanel panel;
 
-    //	private Processor processor;
+	private final EditManager editManager;
 
-	public RetryContextualView(Retry retryLayer) {
+	private final FileManager fileManager;
+
+	// private Processor processor;
+
+	public RetryContextualView(Retry retryLayer, EditManager editManager, FileManager fileManager) {
 		super();
 		this.retryLayer = retryLayer;
-		//		processor = retryLayer.getProcessor();
+		this.editManager = editManager;
+		this.fileManager = fileManager;
+		// processor = retryLayer.getProcessor();
 		initialise();
 		initView();
 	}
 
-    /*
-	@Override
-	public Action getConfigureAction(Frame owner) {
-		return new ConfigureAction(owner);
-	}
-    */
+	/*
+	 * @Override public Action getConfigureAction(Frame owner) { return new
+	 * ConfigureAction(owner); }
+	 */
 	@Override
 	public void refreshView() {
 		initialise();
@@ -83,7 +82,7 @@ public class RetryContextualView extends ContextualView {
 		} else {
 			panel.removeAll();
 		}
-		
+
 		JTextArea textArea = new ReadOnlyTextArea();
 		textArea.setEditable(false);
 		String text = "";
@@ -103,7 +102,7 @@ public class RetryContextualView extends ContextualView {
 			} else {
 				int maxDelay = config.getMaxDelay();
 				text += "The first delay is " + initialDelay + "ms";
-				int noMaxDelay = (int) (initialDelay * Math.pow(backoffFactor,maxRetries - 1));
+				int noMaxDelay = (int) (initialDelay * Math.pow(backoffFactor, maxRetries - 1));
 				if (noMaxDelay < maxDelay) {
 					maxDelay = noMaxDelay;
 				}
@@ -117,7 +116,6 @@ public class RetryContextualView extends ContextualView {
 		revalidate();
 	}
 
-	
 	@Override
 	public JComponent getMainFrame() {
 		return panel;
@@ -125,7 +123,7 @@ public class RetryContextualView extends ContextualView {
 
 	@Override
 	public String getViewTitle() {
-	    return "Retry of " + retryLayer.getProcessor().getLocalName();
+		return "Retry of " + retryLayer.getProcessor().getLocalName();
 	}
 
 	protected JPanel createPanel() {
@@ -133,10 +131,9 @@ public class RetryContextualView extends ContextualView {
 		result.setLayout(new BorderLayout());
 		result.setOpaque(false);
 
-		
 		return result;
 	}
-	
+
 	@Override
 	public int getPreferredPosition() {
 		return 400;
@@ -144,8 +141,7 @@ public class RetryContextualView extends ContextualView {
 
 	@Override
 	public Action getConfigureAction(Frame owner) {
-		return new RetryConfigureAction(owner, this, this.retryLayer);
+		return new RetryConfigureAction(owner, this, this.retryLayer, editManager, fileManager);
 	}
-
 
 }

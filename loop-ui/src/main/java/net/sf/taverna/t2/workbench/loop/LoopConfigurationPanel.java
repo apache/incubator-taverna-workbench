@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2008 The University of Manchester   
- * 
+ * Copyright (C) 2008 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -49,11 +49,9 @@ import javax.swing.border.EmptyBorder;
 import net.sf.taverna.t2.activities.beanshell.BeanshellActivity;
 import net.sf.taverna.t2.activities.beanshell.BeanshellActivityConfigurationBean;
 import net.sf.taverna.t2.activities.beanshell.views.BeanshellConfigView;
-import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.loop.comparisons.Comparison;
 import net.sf.taverna.t2.workbench.ui.Utils;
-import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.OutputPort;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
@@ -65,18 +63,15 @@ import org.apache.log4j.Logger;
 
 /**
  * UI for {@link LoopConfiguration}
- * 
+ *
  * @author Stian Soiland-Reyes
- * 
+ *
  */
 @SuppressWarnings("serial")
 public class LoopConfigurationPanel extends JPanel {
 
 	private static final String DEFAULT_DELAY_S = "0.5";
 	protected LoopConfiguration configuration;
-	private EditManager editManager = EditManager.getInstance();
-
-	private Edits edits = editManager.getEdits();
 
 	protected final Processor processor;
 
@@ -97,7 +92,7 @@ public class LoopConfigurationPanel extends JPanel {
 	private JComboBox portCombo;
 	private JComboBox comparisonCombo;
 	private JButton customizeButton;
-	
+
 	protected Loop loopLayer;
 	private Object Comparison;
 	private Activity<?> originalCondition = null;
@@ -205,9 +200,9 @@ public class LoopConfigurationPanel extends JPanel {
 
 			final BeanshellConfigView beanshellConfigView = new BeanshellConfigView(
 					beanshellActivity);
-			
+
 			final JDialog dialog = new HelpEnabledDialog(owner, "Customize looping", true);
-			dialog.setLayout(new BorderLayout());		
+			dialog.setLayout(new BorderLayout());
 			dialog.add(beanshellConfigView, BorderLayout.NORTH);
 			dialog.setSize(600, 600);
 			JPanel buttonPanel = new JPanel();
@@ -289,7 +284,7 @@ public class LoopConfigurationPanel extends JPanel {
 				&& comparisonCombo.getModel().getSize() > 0) {
 			comparisonCombo.setSelectedIndex(0);
 		}
-		
+
 		valueField.setText(properties.getProperty(
 				ActivityGenerator.COMPARE_VALUE, ""));
 
@@ -386,7 +381,7 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.weightx = 0.1;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		JLabel invokedRepeatedlyLabel = new JLabel(
-				 
+
 				"<html><body>The service <strong>" + processor.getLocalName() +  "</strong> " +
 						"will be invoked repeatedly <em>until</em> its output port</body></html>");
 		invokedRepeatedlyLabel.setBorder(new EmptyBorder(10,0,10,0)); // give some top and bottom border to the label
@@ -400,7 +395,7 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.gridy = 1;
 		gbc.gridwidth = 1;
 		List<String> activityOutputPorts = getActivityOutputPorts();
-		portCombo = new JComboBox(activityOutputPorts.toArray());		
+		portCombo = new JComboBox(activityOutputPorts.toArray());
 		configPanel.add(portCombo, gbc);
 
 		comparisonCombo = new JComboBox(ActivityGenerator.comparisons.toArray());
@@ -420,7 +415,7 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.gridx = 1;
 		gbc.gridy = 1;
 		configPanel.add(comparisonCombo, gbc);
-		
+
 		gbc.gridx = 2;
 		gbc.gridy = 1;
 		valueTypeLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -443,14 +438,14 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.weightx = 0.0;
 		delayField.setHorizontalAlignment(JTextField.RIGHT);
 		configPanel.add(delayField, gbc);
-		
+
 		gbc.gridx = 2;
 		gbc.gridy = 2;
 		gbc.gridwidth = 2;
 		gbc.weightx = 0.5; // request all extra space
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		configPanel.add(secondsLabel, gbc);
-		
+
 		if (activityOutputPorts.isEmpty()) {
 			JLabel warningLabel = new JLabel(
 					"<html><body><strong>Warning:</strong><br>"
@@ -581,7 +576,7 @@ public class LoopConfigurationPanel extends JPanel {
 			"<html><small>"
 					+ "<p>When feedback is enabled, the value of the output port is used as input " +
 							"the next time the loop in invoked. The input and output ports used for feedback "
-					+ "<strong>must</strong> have the same <strong>name</strong> and <strong>depth</strong>." 
+					+ "<strong>must</strong> have the same <strong>name</strong> and <strong>depth</strong>."
 					+ "</p><br>"
 
 					+ "<p>Feedback can be useful for looping over a nested workflow, "

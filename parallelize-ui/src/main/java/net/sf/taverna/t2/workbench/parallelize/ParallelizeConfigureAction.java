@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.parallelize;
 
@@ -14,15 +14,14 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
-
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Parallelize;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author alanrw
@@ -34,19 +33,18 @@ public class ParallelizeConfigureAction extends AbstractAction {
 	private final Parallelize parallelizeLayer;
 	private final ParallelizeContextualView parallelizeContextualView;
 
-	private EditManager editManager = EditManager.getInstance();
-
-	private Edits edits = EditManager.getInstance().getEdits();
-
-	private FileManager fileManager = FileManager.getInstance();
+	private EditManager editManager;
+	private FileManager fileManager;
 
 	private static Logger logger = Logger.getLogger(ParallelizeConfigureAction.class);
-	
-	public ParallelizeConfigureAction(Frame owner, ParallelizeContextualView parallelizeContextualView, Parallelize parallelizeLayer) {
+
+	public ParallelizeConfigureAction(Frame owner, ParallelizeContextualView parallelizeContextualView, Parallelize parallelizeLayer, EditManager editManager, FileManager fileManager) {
 		super("Configure");
 		this.owner = owner;
 		this.parallelizeContextualView = parallelizeContextualView;
 		this.parallelizeLayer = parallelizeLayer;
+		this.editManager = editManager;
+		this.fileManager = fileManager;
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -106,7 +104,7 @@ public class ParallelizeConfigureAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			if (parallelizeConfigurationPanel.validateConfig()) {
 				try {
-					Edit edit = edits.getConfigureEdit(parallelizeLayer,
+					Edit edit = editManager.getEdits().getConfigureEdit(parallelizeLayer,
 							parallelizeConfigurationPanel.getConfiguration());
 					editManager.doDataflowEdit(
 							fileManager.getCurrentDataflow(), edit);
