@@ -35,7 +35,7 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 public class StringConstantActivityContextualView extends HTMLBasedActivityContextualView<StringConstantConfigurationBean> {
 	
-	private static int MAX_LENGTH=80;
+	private static int MAX_LENGTH=100;
 
 	private static final long serialVersionUID = -553974544001808511L;
 
