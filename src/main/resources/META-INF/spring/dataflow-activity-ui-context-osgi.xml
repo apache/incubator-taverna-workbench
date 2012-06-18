@@ -10,11 +10,11 @@
 
 	<service ref="DataflowTemplateService" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider" />
 
-	<service ref="ReplaceNestedWorkflowMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="AddNestedWorkflowMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ImportWorkflowMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="MergeWorkflowMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="EditNestedDataflowMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ReplaceNestedWorkflowMenuAction" auto-export="interfaces" />
+	<service ref="AddNestedWorkflowMenuAction" auto-export="interfaces" />
+	<service ref="ImportWorkflowMenuAction" auto-export="interfaces" />
+	<service ref="MergeWorkflowMenuAction" auto-export="interfaces" />
+	<service ref="EditNestedDataflowMenuAction" auto-export="interfaces" />
 
 	<service ref="NestedDataflowPersistenceHandler" interface="net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler" />
 
