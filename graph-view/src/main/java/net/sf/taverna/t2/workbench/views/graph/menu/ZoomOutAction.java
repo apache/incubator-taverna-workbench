@@ -30,12 +30,12 @@ import javax.swing.Action;
 import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.lang.ui.ModelMap;
+import net.sf.taverna.t2.ui.menu.DesignOrResultsAction;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
-import net.sf.taverna.t2.workbench.views.graph.actions.DesignOrResultsAction;
 
 public class ZoomOutAction extends DesignOrResultsAction {
 

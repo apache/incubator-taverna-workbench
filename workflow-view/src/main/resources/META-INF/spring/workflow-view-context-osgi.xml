@@ -6,14 +6,14 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="CopyProcessorMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="CopyGraphComponentMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="PasteGraphComponentMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="CutProcessorMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="CutGraphComponentMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="CutToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="CopyToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="PasteToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="CopyProcessorMenuAction" auto-export="interfaces" />
+	<service ref="CopyGraphComponentMenuAction" auto-export="interfaces" />
+	<service ref="PasteGraphComponentMenuAction" auto-export="interfaces" />
+	<service ref="CutProcessorMenuAction" auto-export="interfaces" />
+	<service ref="CutGraphComponentMenuAction" auto-export="interfaces" />
+	<service ref="CutToolbarAction" auto-export="interfaces" />
+	<service ref="CopyToolbarAction" auto-export="interfaces" />
+	<service ref="PasteToolbarAction" auto-export="interfaces" />
 
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />

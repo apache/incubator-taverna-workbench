@@ -10,11 +10,11 @@
 
 	<service ref="LoadRunIdsToDeleteStartupHook" interface="net.sf.taverna.t2.workbench.StartupSPI" />
 
-	<service ref="FileRunMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileValidateMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileRunMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RunToolbarSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RunToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="FileRunMenuAction" auto-export="interfaces" />
+	<service ref="FileValidateMenuAction" auto-export="interfaces" />
+	<service ref="FileRunMenuSection" auto-export="interfaces" />
+	<service ref="RunToolbarSection" auto-export="interfaces" />
+	<service ref="RunToolbarAction" auto-export="interfaces" />
 
 	<service ref="ReferenceDatabaseCleanUpShutdownHook" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />
 	<service ref="ReferenceServiceShutdownHook" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />

@@ -27,6 +27,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
+import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowInputAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;

@@ -10,31 +10,31 @@
 
 	<service ref="GraphViewComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" />
 
-	<service ref="GraphEditToolbarSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="GraphDeleteToolbarSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="GraphSaveToolbarSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="AddWFInputToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="AddWFOutputToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RenameWFInputOutputProcessorToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="DeleteGraphComponentToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="SaveGraphImageToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="DiagramMenu" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="DiagramSaveMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="DiagramZoomMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="GraphMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="GraphCopyMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="GraphEditMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="GraphDeleteMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="GraphDetailsMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="InsertMenu" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="AddWFInputMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="AddWFOutputMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RenameWFInputOutputProcessorMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="DeleteGraphComponentMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="SaveGraphImageSubMenu" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ZoomInMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ZoomOutMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ResetDiagramMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="GraphEditToolbarSection" auto-export="interfaces" />
+	<service ref="GraphDeleteToolbarSection" auto-export="interfaces" />
+	<service ref="GraphSaveToolbarSection" auto-export="interfaces" />
+	<service ref="AddWFInputToolbarAction" auto-export="interfaces" />
+	<service ref="AddWFOutputToolbarAction" auto-export="interfaces" />
+	<service ref="RenameWFInputOutputProcessorToolbarAction" auto-export="interfaces" />
+	<service ref="DeleteGraphComponentToolbarAction" auto-export="interfaces" />
+	<service ref="SaveGraphImageToolbarAction" auto-export="interfaces" />
+	<service ref="DiagramMenu" auto-export="interfaces" />
+	<service ref="DiagramSaveMenuSection" auto-export="interfaces" />
+	<service ref="DiagramZoomMenuSection" auto-export="interfaces" />
+	<service ref="GraphMenuSection" auto-export="interfaces" />
+	<service ref="GraphCopyMenuSection" auto-export="interfaces" />
+	<service ref="GraphEditMenuSection" auto-export="interfaces" />
+	<service ref="GraphDeleteMenuSection" auto-export="interfaces" />
+	<service ref="GraphDetailsMenuSection" auto-export="interfaces" />
+	<service ref="InsertMenu" auto-export="interfaces" />
+	<service ref="AddWFInputMenuAction" auto-export="interfaces" />
+	<service ref="AddWFOutputMenuAction" auto-export="interfaces" />
+	<service ref="RenameWFInputOutputProcessorMenuAction" auto-export="interfaces" />
+	<service ref="DeleteGraphComponentMenuAction" auto-export="interfaces" />
+	<service ref="SaveGraphImageSubMenu" auto-export="interfaces" />
+	<service ref="ZoomInMenuAction" auto-export="interfaces" />
+	<service ref="ZoomOutMenuAction" auto-export="interfaces" />
+	<service ref="ResetDiagramMenuAction" auto-export="interfaces" />
 
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />

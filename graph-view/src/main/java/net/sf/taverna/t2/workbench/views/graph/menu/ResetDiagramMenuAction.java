@@ -26,8 +26,8 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
+import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.views.graph.actions.DesignOnlyAction;
 
 import org.apache.log4j.Logger;
 

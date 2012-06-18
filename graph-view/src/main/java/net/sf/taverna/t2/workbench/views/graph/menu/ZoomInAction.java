@@ -30,9 +30,9 @@ import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 
+import net.sf.taverna.t2.ui.menu.DesignOrResultsAction;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
-import net.sf.taverna.t2.workbench.views.graph.actions.DesignOrResultsAction;
 
 public class ZoomInAction extends DesignOrResultsAction {
 	
