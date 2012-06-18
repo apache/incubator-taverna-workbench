@@ -6,7 +6,7 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="ConfigureDisabledMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="ConfigureDisabledMenuAction" auto-export="interfaces" />
 
 	<service ref="DisabledActivityViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 
