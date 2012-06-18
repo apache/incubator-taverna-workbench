@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -291,6 +292,7 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				String parentProcessId = getOwningProcessId(owningProcessList);										
 				Object parentObject = workflowObjects.get(parentProcessId);
 				if (parentObject instanceof Processor) {
+					try {
 					Processor processor = (Processor) parentObject;					
 					if (startTime != null) {
 						long invocationTime = endTime.getTime() - startTime.getTime();						
@@ -304,6 +306,9 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 							long averageInvocationTime = totalTime / invocationTimes.size();							
 							progressTreeTable.setProcessorAverageInvocationTime(processor, averageInvocationTime);
 						}
+					}
+					} catch (ConcurrentModificationException e) {
+						logger.error("Concurrency problem calculating times", e);
 					}
 				}										
 			}
