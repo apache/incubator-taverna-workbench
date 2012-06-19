@@ -6,12 +6,12 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="UndoMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="UndoMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RedoMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="EditToolbarSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="UndoToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="RedoToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="UndoMenuSection" auto-export="interfaces" />
+	<service ref="UndoMenuAction" auto-export="interfaces" />
+	<service ref="RedoMenuAction" auto-export="interfaces" />
+	<service ref="EditToolbarSection" auto-export="interfaces" />
+	<service ref="UndoToolbarAction" auto-export="interfaces" />
+	<service ref="RedoToolbarAction" auto-export="interfaces" />
 
 	<service ref="EditManagerImpl" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 

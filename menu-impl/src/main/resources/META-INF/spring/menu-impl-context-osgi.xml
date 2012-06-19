@@ -8,7 +8,7 @@
 
 	<service ref="MenuManagerImpl" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
 
-	<list id="menuComponents" interface="net.sf.taverna.t2.ui.menu.MenuComponent" cardinality="0..N">
+	<list id="menuComponents" interface="net.sf.taverna.t2.ui.menu.MenuComponent" cardinality="0..N" greedy-proxying="true">
 		<listener ref="MenuManagerImpl" bind-method="update" unbind-method="update" />
 	</list>
 

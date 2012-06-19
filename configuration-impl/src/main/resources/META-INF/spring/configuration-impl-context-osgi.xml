@@ -8,8 +8,8 @@
 
 	<service ref="WorkbenchConfigurationUIFactory" interface="uk.org.taverna.configuration.ConfigurationUIFactory" />
 
-	<service ref="WorkbenchPreferencesSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="WorkbenchConfigurationMenu" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="WorkbenchPreferencesSection" auto-export="interfaces" />
+	<service ref="WorkbenchConfigurationMenu" auto-export="interfaces" />
 
 	<service ref="ColourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
 	<service ref="WorkbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />

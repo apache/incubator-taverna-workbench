@@ -6,24 +6,24 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="FileCloseMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileNewMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileOpenMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileOpenFromURLMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileOpenMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileOpenRecentMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileSaveMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileSaveMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileSaveAllMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileSaveAsMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="WorkflowsMenu" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileCloseAllMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FileToolbarMenuSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="NewToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="OpenToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="OpenWorkflowFromURLToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="SaveToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="CloseToolbarAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="FileCloseMenuAction" auto-export="interfaces" />
+	<service ref="FileNewMenuAction" auto-export="interfaces" />
+	<service ref="FileOpenMenuAction" auto-export="interfaces" />
+	<service ref="FileOpenFromURLMenuAction" auto-export="interfaces" />
+	<service ref="FileOpenMenuSection" auto-export="interfaces" />
+	<service ref="FileOpenRecentMenuAction" auto-export="interfaces" />
+	<service ref="FileSaveMenuSection" auto-export="interfaces" />
+	<service ref="FileSaveMenuAction" auto-export="interfaces" />
+	<service ref="FileSaveAllMenuAction" auto-export="interfaces" />
+	<service ref="FileSaveAsMenuAction" auto-export="interfaces" />
+	<service ref="WorkflowsMenu" auto-export="interfaces" />
+	<service ref="FileCloseAllMenuAction" auto-export="interfaces" />
+	<service ref="FileToolbarMenuSection" auto-export="interfaces" />
+	<service ref="NewToolbarAction" auto-export="interfaces" />
+	<service ref="OpenToolbarAction" auto-export="interfaces" />
+	<service ref="OpenWorkflowFromURLToolbarAction" auto-export="interfaces" />
+	<service ref="SaveToolbarAction" auto-export="interfaces" />
+	<service ref="CloseToolbarAction" auto-export="interfaces" />
 
 	<service ref="T2DataflowOpener" interface="net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler" />
 	<service ref="T2DataflowSaver" interface="net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler" />

@@ -6,8 +6,8 @@
                       http://www.springframework.org/schema/osgi 
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="PluginMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="UpdatesAvailableMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="UpdatesToolbarSection" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="PluginMenuAction" auto-export="interfaces" />
+	<service ref="UpdatesAvailableMenuAction" auto-export="interfaces" />
+	<service ref="UpdatesToolbarSection" auto-export="interfaces" />
 
 </beans:beans>

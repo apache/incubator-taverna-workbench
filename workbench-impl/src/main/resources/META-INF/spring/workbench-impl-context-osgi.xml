@@ -11,14 +11,14 @@
 
 	<!-- <service ref="WorkbenchLauncher" interface="net.sf.taverna.raven.launcher.Launchable" /> -->
 
-	<service ref="FileMenu" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ExitAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="EditMenu" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="AdvancedMenu" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="HelpMenu" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="OnlineHelpMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="FeedbackMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
-	<service ref="ShowLogsAndDataMenuAction" interface="net.sf.taverna.t2.ui.menu.MenuComponent" />
+	<service ref="FileMenu" auto-export="interfaces" />
+	<service ref="ExitAction" auto-export="interfaces" />
+	<service ref="EditMenu" auto-export="interfaces" />
+	<service ref="AdvancedMenu" auto-export="interfaces" />
+	<service ref="HelpMenu" auto-export="interfaces" />
+	<service ref="OnlineHelpMenuAction" auto-export="interfaces" />
+	<service ref="FeedbackMenuAction" auto-export="interfaces" />
+	<service ref="ShowLogsAndDataMenuAction" auto-export="interfaces" />
 
 	<service ref="StoreWindowStateOnShutdown" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />
 
