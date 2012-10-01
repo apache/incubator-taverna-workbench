@@ -41,11 +41,12 @@
 			<version>${t2.core.version}</version>
 		</dependency>
 		<!-- Dependency on impl because FileOpenRecentMenuAction uses AbstractXMLSerializer -->
-		<dependency>
+		<!-- Also defined as test dependency that overrrides this -->
+		<!-- <dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>workflowmodel-impl</artifactId>
 			<version>${t2.core.version}</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
 			<artifactId>ui</artifactId>
@@ -88,7 +89,7 @@
 			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>workflowmodel-impl</artifactId>
 			<version>${t2.core.version}</version>
-			<scope>test</scope>
+			<!-- <scope>test</scope> -->
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.activities</groupId>
