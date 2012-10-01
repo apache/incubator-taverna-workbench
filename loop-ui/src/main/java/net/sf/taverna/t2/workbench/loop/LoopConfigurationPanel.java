@@ -178,7 +178,7 @@ public class LoopConfigurationPanel extends JPanel {
 
 			Activity<?> condition = configuration.getCondition();
 			if (condition == null) {
-				BeanshellActivity activity = new BeanshellActivity();
+				BeanshellActivity activity = new BeanshellActivity(null);
 				try {
 					activity
 							.configure(new BeanshellActivityConfigurationBean());

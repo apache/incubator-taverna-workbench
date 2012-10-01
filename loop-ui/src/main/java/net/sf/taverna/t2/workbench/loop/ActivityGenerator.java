@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2008 The University of Manchester   
- * 
+ * Copyright (C) 2008 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -53,7 +53,7 @@ public class ActivityGenerator {
 
 	public static final String DEFAULT_DELAY_S = "0.2";
 
-	
+
 	public static final String COMPARE_PORT = "comparePort";
 	public static final String COMPARISON = "comparison";
 	public static final String CUSTOM_COMPARISON = "custom";
@@ -72,7 +72,7 @@ public class ActivityGenerator {
 	}
 
 	protected Activity<?> generateActivity() {
-		BeanshellActivity beanshell = new BeanshellActivity();
+		BeanshellActivity beanshell = new BeanshellActivity(null);
 		BeanshellActivityConfigurationBean beanshellConfig = generateBeanshellConfig();
 		try {
 			beanshell.configure(beanshellConfig);
@@ -111,8 +111,8 @@ public class ActivityGenerator {
 		replacements.put("${port}", loopProperties.getProperty(COMPARE_PORT));
 		replacements.put("${value}", beanshellString(loopProperties
 				.getProperty(COMPARE_VALUE)));
-		
-		
+
+
 		String delaySeconds = loopProperties.getProperty(DELAY, DEFAULT_DELAY_S);
 		Double delay;
 		try {
@@ -122,16 +122,16 @@ public class ActivityGenerator {
 			delay = 0.0;
 		}
 		delay = Math.max(0.0, delay);
-		
+
 		replacements.put("${delay}", Integer.toString(delay.intValue()));
-		
+
 		String template = getComparisonById(
 				loopProperties.getProperty(COMPARISON)).getScriptTemplate();
 
 		template += "\nif (\"true\".matches(${loopPort})) {\n";
 		template += "   Thread.sleep(${delay});\n";
 		template += "}";
-		
+
 		String script = template;
 		for (Entry<String, String> mapping : replacements.entrySet()) {
 			script = script.replace(mapping.getKey(), mapping.getValue());
