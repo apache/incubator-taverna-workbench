@@ -10,8 +10,10 @@ import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
 import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class TestSimpleMerge extends AbstractTestHelper {
 
 	private void checkMergedAbcP(Dataflow merged) {

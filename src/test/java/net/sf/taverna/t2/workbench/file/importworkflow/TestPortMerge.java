@@ -5,8 +5,10 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.EventForwardingOutputPort;
 import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
+@Ignore
 public class TestPortMerge extends AbstractTestHelper {
 
 	@Test

@@ -50,6 +50,7 @@ import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflowSource;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -58,6 +59,7 @@ import org.junit.Test;
  * @author Stian Soiland-Reyes
  *
  */
+@Ignore
 public class TestNestedDataflowPersistenceHandler {
 
 	private static final String DUMMY = "dummy";
