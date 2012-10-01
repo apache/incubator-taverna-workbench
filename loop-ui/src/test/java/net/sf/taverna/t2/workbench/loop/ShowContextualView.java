@@ -99,7 +99,7 @@ public class ShowContextualView {
 		editManager.doDataflowEdit(currentDataflow, edits
 				.getDefaultDispatchStackEdit(processor));
 
-		BeanshellActivity beanshell = new BeanshellActivity();
+		BeanshellActivity beanshell = new BeanshellActivity(null);
 		BeanshellActivityConfigurationBean beanshellConfig = new BeanshellActivityConfigurationBean();
 		editManager.doDataflowEdit(currentDataflow, edits
 				.getConfigureActivityEdit(beanshell, beanshellConfig));
