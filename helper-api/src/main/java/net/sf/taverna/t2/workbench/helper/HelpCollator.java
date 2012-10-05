@@ -4,7 +4,9 @@
 package net.sf.taverna.t2.workbench.helper;
 
 import java.awt.Component;
+
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -19,6 +21,7 @@ import javax.help.HelpSet;
 import javax.help.HelpSetException;
 import javax.help.Map.ID;
 import javax.help.TryMap;
+import javax.help.Map.ID;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -115,35 +118,24 @@ public final class HelpCollator {
 				logger.error("Unable to close connection", e);
 			}
 		}
-	}
-
-	/**
-	 * Attempt to read the backup HelpSet included in Taverna
-	 */
-	private static void readBackupHelpSet() {
-		try {
-			URL backupURL = HelpCollator.class.getResource("backupHelpSet.hs");
-			if (backupURL == null) {
-				logger.info("could not find backupHelpSet resource");
+		finally {
+			try {
+				if ((connection != null) && (connection.getInputStream() != null)) {
+					connection.getInputStream().close();
+				}
+			} catch (IOException e) {
+				logger.error("Unable to close connection", e);
 			}
-			hs = new HelpSet(null, backupURL);
-			logger.info("Read backup help set");
-		} catch (HelpSetException e) {
-		    logger.error("Backup HelpSet could not be read", e);
 		}
-
 	}
 
 	/**
 	 * This methods creates a HelpSet based upon, in priority, the external
-	 * HelpSet, the backup HelpSet a newly created empty HelpSet.
+	 * HelpSet, then a newly created empty HelpSet.
 	 */
 	public static void initialize() {
 		if (!initialized) {
 			readExternalHelpSet();
-			if (hs == null) {
-				readBackupHelpSet();
-			}
 			if (hs == null) {
 				hs = new HelpSet();
 				hs.setLocalMap(new TryMap());
