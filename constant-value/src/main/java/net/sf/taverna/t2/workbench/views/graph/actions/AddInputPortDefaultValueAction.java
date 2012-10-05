@@ -30,6 +30,7 @@ import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
+import net.sf.taverna.t2.activities.stringconstant.views.StringConstantConfigView;
 import net.sf.taverna.t2.workbench.design.actions.DataflowEditAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -43,6 +44,7 @@ import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
 import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
@@ -70,16 +72,21 @@ public class AddInputPortDefaultValueAction extends DataflowEditAction {
 
 	public void actionPerformed(ActionEvent e) {
 		try {
-			String defaultValue = JOptionPane.showInputDialog(component,"Enter string value",null);
-			if (defaultValue != null) {
+
+			StringConstantActivity strConstActivity = new StringConstantActivity();
+			StringConstantConfigurationBean strConstConfBean = new StringConstantConfigurationBean();
+				strConstActivity.configure(strConstConfBean);
+			StringConstantConfigView configView = new StringConstantConfigView(strConstActivity);
+
+			int answer = JOptionPane.showConfirmDialog(component, configView, "Text constant value", JOptionPane.OK_CANCEL_OPTION);
+			if (answer != JOptionPane.CANCEL_OPTION) {
+				
+				configView.noteConfiguration();
+				strConstConfBean = configView.getConfiguration();
 
 				// List of all edits to be done
 				List<Edit<?>> editList = new ArrayList<Edit<?>>();
 
-				// Create new string constant activity with the given default value
-				StringConstantActivity strConstActivity = new StringConstantActivity();
-				StringConstantConfigurationBean strConstConfBean = new StringConstantConfigurationBean();
-				strConstConfBean.setValue(defaultValue);
 				editList.add(edits.getConfigureActivityEdit(strConstActivity, strConstConfBean));
 
 				// Create new string constant processor - also check for duplicate processor names
@@ -134,6 +141,8 @@ public class AddInputPortDefaultValueAction extends DataflowEditAction {
 
 			}
 		} catch (EditException ex) {
+			logger.error("Adding default value for input port failed", ex);
+		} catch (ActivityConfigurationException ex) {
 			logger.error("Adding default value for input port failed", ex);
 		}
 	}
