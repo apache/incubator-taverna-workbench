@@ -63,8 +63,8 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 		OutputStream outStream;
 		if (destination instanceof File) {
 			try {
-				outStream = new FileOutputStream((File) destination);
-			} catch (FileNotFoundException e) {
+				outStream = new SafeFileOutputStream((File) destination);
+			} catch (IOException e) {
 				throw new SaveException("Can't create workflow file "
 						+ destination + ":\n" + e.getLocalizedMessage(), e);
 			}
@@ -74,12 +74,17 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 			throw new IllegalArgumentException("Unsupported destination type "
 					+ destination.getClass());
 		}
+		boolean saved = false;
 		try {
 			saveDataflowToStream(dataflow, outStream);
+			saved = true;
 		} finally {
 			if (!(destination instanceof OutputStream)) {
 				// Only close if we opened the stream
 				try {
+					if (! saved && outStream instanceof SafeFileOutputStream) {
+						((SafeFileOutputStream) outStream).rollback();
+					}
 					outStream.close();
 				} catch (IOException e) {
 					logger.warn("Could not close stream", e);
