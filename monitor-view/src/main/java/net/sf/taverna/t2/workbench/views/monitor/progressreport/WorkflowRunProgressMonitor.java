@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -291,19 +292,29 @@ public class WorkflowRunProgressMonitor implements Observer<MonitorMessage> {
 				String parentProcessId = getOwningProcessId(owningProcessList);										
 				Object parentObject = workflowObjects.get(parentProcessId);
 				if (parentObject instanceof Processor) {
-					Processor processor = (Processor) parentObject;					
-					if (startTime != null) {
-						long invocationTime = endTime.getTime() - startTime.getTime();						
-						List<Long> invocationTimes = processorInvocationTimes.get(processor);						
-						invocationTimes.add(invocationTime);
-						long totalTime = 0;
-						for (Long time : invocationTimes) {
-							totalTime += time;
+					try {
+						Processor processor = (Processor) parentObject;
+						if (startTime != null) {
+							long invocationTime = endTime.getTime()
+									- startTime.getTime();
+							List<Long> invocationTimes = processorInvocationTimes
+									.get(processor);
+							invocationTimes.add(invocationTime);
+							long totalTime = 0;
+							for (Long time : invocationTimes) {
+								totalTime += time;
+							}
+							if (!invocationTimes.isEmpty()) {
+								long averageInvocationTime = totalTime
+										/ invocationTimes.size();
+								progressTreeTable
+										.setProcessorAverageInvocationTime(
+												processor,
+												averageInvocationTime);
+							}
 						}
-						if (! invocationTimes.isEmpty()) {							
-							long averageInvocationTime = totalTime / invocationTimes.size();							
-							progressTreeTable.setProcessorAverageInvocationTime(processor, averageInvocationTime);
-						}
+				} catch (ConcurrentModificationException e) {
+						logger.error("Concurrency problem calculating times", e);
 					}
 				}										
 			}
