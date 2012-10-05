@@ -86,6 +86,8 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	private Timer updateSelectionTimer = null;
 
 	private Object lastSelectedObject = null;
+	
+	public static boolean selfGenerated = false;
 
 	public ContextualViewComponent(EditManager editManager, FileManager fileManager,
 			DataflowSelectionManager dataflowSelectionManager,
@@ -315,7 +317,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 				throws Exception {
 			Object selection = getSelection();
 			if ((selection != lastSelectedObject)
-					|| !lastOpenedSectionName.equals(AnnotatedContextualView.VIEW_TITLE)) {
+					|| !selfGenerated) {
 				lastSelectedObject = null;
 				refreshView();
 			}
