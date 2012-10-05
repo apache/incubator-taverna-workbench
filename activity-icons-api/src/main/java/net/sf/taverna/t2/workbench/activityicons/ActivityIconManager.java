@@ -20,9 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.activityicons;
 
+import java.net.URI;
+
 import javax.swing.Icon;
 
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import uk.org.taverna.scufl2.api.activity.Activity;
 
 /**
  * Manager for activities' icons.
@@ -32,8 +34,10 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 public interface ActivityIconManager {
 
 	/** Returns an icon for the Activity. */
-	public Icon iconForActivity(Activity<?> activity);
+	public Icon iconForActivity(URI activityType);
 
-	public void resetIcon(Activity activity);
+	public Icon iconForActivity(Activity activity);
+
+	public void resetIcon(URI activityType);
 
 }

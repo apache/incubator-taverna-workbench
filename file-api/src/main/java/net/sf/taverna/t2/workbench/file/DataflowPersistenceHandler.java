@@ -26,11 +26,10 @@ import java.util.Collection;
 
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
- * An {@link SPIRegistry SPI} of a handler for opening or saving dataflows from
- * the {@link FileManager}.
+ * A handler for opening or saving WorkflowBundle from the {@link FileManager}.
  * <p>
  * </p>
  *
@@ -78,7 +77,7 @@ public interface DataflowPersistenceHandler {
 
 	/**
 	 * A collection of supported file types for
-	 * {@link #saveDataflow(Dataflow, FileType, Object)}, or an empty collection
+	 * {@link #saveDataflow(WorkflowBundle, FileType, Object)}, or an empty collection
 	 * if saving is not supported by this handler.
 	 *
 	 * @return A collection of supported {@link FileType}s for saving.
@@ -97,18 +96,18 @@ public interface DataflowPersistenceHandler {
 	 *            {@link FileType} determining which serialisation method has
 	 *            been used
 	 * @param source
-	 *            Source for reading the Dataflow
-	 * @return {@link DataflowInfo} describing the opened dataflow, including
-	 *         the dataflow itself
+	 *            Source for reading the WorkflowBundle
+	 * @return {@link DataflowInfo} describing the opened WorkflowBundle, including
+	 *         the WorkflowBundle itself
 	 * @throws OpenException
-	 *             If the dataflow could not be read, parsed or opened for any
+	 *             If the WorkflowBundle could not be read, parsed or opened for any
 	 *             reason.
 	 */
 	public DataflowInfo openDataflow(FileType fileType, Object source)
 			throws OpenException;
 
 	/**
-	 * Save a dataflow to a destination of the given {@link FileType}.
+	 * Save a WorkflowBundle to a destination of the given {@link FileType}.
 	 * <p>
 	 * The {@link FileType} will be equal to one of the types from
 	 * {@link #getSaveFileTypes()}, and the destination class will be one that
@@ -116,40 +115,40 @@ public interface DataflowPersistenceHandler {
 	 * {@link #getSaveDestinationTypes()}.
 	 *
 	 * @param dataflow
-	 *            {@link Dataflow} to be saved
+	 *            {@link WorkflowBundle} to be saved
 	 * @param fileType
 	 *            {@link FileType} determining which serialisation method to use
 	 * @param destination
-	 *            Destination for writing the Dataflow
-	 * @return {@link DataflowInfo} describing the saved dataflow, including the
-	 *         dataflow itself
+	 *            Destination for writing the WorkflowBundle
+	 * @return {@link DataflowInfo} describing the saved WorkflowBundle, including the
+	 *         WorkflowBundle itself
 	 * @throws OpenException
-	 *             If the dataflow could not be read, parsed or opened for any
+	 *             If the WorkflowBundle could not be read, parsed or opened for any
 	 *             reason.
 	 */
-	public DataflowInfo saveDataflow(Dataflow dataflow, FileType fileType,
+	public DataflowInfo saveDataflow(WorkflowBundle dataflow, FileType fileType,
 			Object destination) throws SaveException;
 
 	/**
 	 * Return <code>true</code> if a call to
-	 * {@link #saveDataflow(Dataflow, FileType, Object)} would overwrite the
+	 * {@link #saveDataflow(WorkflowBundle, FileType, Object)} would overwrite the
 	 * destination, and the destination is different from last
 	 * {@link #openDataflow(FileType, Object)} or
-	 * {@link #saveDataflow(Dataflow, FileType, Object)} of the given dataflow.
+	 * {@link #saveDataflow(WorkflowBundle, FileType, Object)} of the given dataflow.
 	 *
 	 * @param dataflow
-	 *            {@link Dataflow} that is to be saved
+	 *            {@link WorkflowBundle} that is to be saved
 	 * @param fileType
-	 *            {@link FileType} for saving dataflow
+	 *            {@link FileType} for saving WorkflowBundle
 	 * @param destination
-	 *            destination for writing dataflow
+	 *            destination for writing WorkflowBundle
 	 * @param lastDataflowInfo
 	 *            last provided {@link DataflowInfo} returned by
 	 *            {@link #openDataflow(FileType, Object)} or
-	 *            {@link #saveDataflow(Dataflow, FileType, Object)}. (but not
+	 *            {@link #saveDataflow(WorkflowBundle, FileType, Object)}. (but not
 	 *            necessarily from this handler)
 	 * @return <code>true</code> if the save would overwrite
 	 */
-	public boolean wouldOverwriteDataflow(Dataflow dataflow, FileType fileType,
+	public boolean wouldOverwriteDataflow(WorkflowBundle dataflow, FileType fileType,
 			Object destination, DataflowInfo lastDataflowInfo);
 }

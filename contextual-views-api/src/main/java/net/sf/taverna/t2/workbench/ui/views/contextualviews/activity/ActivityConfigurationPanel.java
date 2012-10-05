@@ -1,11 +1,11 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 
 import javax.swing.JPanel;
 
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -13,13 +13,12 @@ import com.thoughtworks.xstream.XStream;
  * @author alanrw
  *
  */
-@SuppressWarnings({ "serial", "unchecked" })
-public abstract class ActivityConfigurationPanel<A extends Activity, B extends Object> extends JPanel {
-	
+public abstract class ActivityConfigurationPanel extends JPanel {
+
 	public abstract boolean isConfigurationChanged();
 
-	public abstract B getConfiguration();
-	
+	public abstract Configuration getConfiguration();
+
 	public abstract void noteConfiguration();
 
 	protected String convertBeanToString(Object bean) {
@@ -27,7 +26,7 @@ public abstract class ActivityConfigurationPanel<A extends Activity, B extends O
 		xstream.setClassLoader(bean.getClass().getClassLoader());
 		return xstream.toXML(bean);
 	}
-	
+
 	protected Object cloneBean(Object bean) {
 		XStream xstream = new XStream();
 		xstream.setClassLoader(bean.getClass().getClassLoader());
@@ -35,7 +34,7 @@ public abstract class ActivityConfigurationPanel<A extends Activity, B extends O
 	}
 
 	public abstract void refreshConfiguration();
-	
+
 	public abstract boolean checkValues();
 
     public void whenOpened() {

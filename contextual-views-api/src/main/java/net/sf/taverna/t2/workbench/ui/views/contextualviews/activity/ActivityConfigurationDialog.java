@@ -22,6 +22,9 @@ import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.DeselectingButton;
 import net.sf.taverna.t2.workbench.MainWindow;
+import net.sf.taverna.t2.workbench.edits.CompoundEdit;
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowRedoEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowUndoEvent;
@@ -30,23 +33,23 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workflow.edits.ConfigureEdit;
 
 import org.apache.log4j.Logger;
 
-@SuppressWarnings( { "serial", "unchecked" })
-public class ActivityConfigurationDialog<A extends Activity, B extends Object>
-		extends HelpEnabledDialog {
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 
-	private A activity;
-	private ActivityConfigurationPanel<A, B> panel;
-	protected Dataflow owningDataflow;
+public class ActivityConfigurationDialog extends HelpEnabledDialog {
+
+	private Activity activity;
+	private ActivityConfigurationPanel panel;
+	protected WorkflowBundle owningWorkflowBundle;
 	protected Processor owningProcessor;
 
 	private Observer<EditManagerEvent> observer;
@@ -62,17 +65,19 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 	protected JButton applyButton;
 	private final EditManager editManager;
 
-	public ActivityConfigurationDialog(A a, ActivityConfigurationPanel<A, B> p, EditManager editManager, FileManager fileManager) {
+	private static Scufl2Tools scufl2Tools = new Scufl2Tools();
+
+	public ActivityConfigurationDialog(Activity a, ActivityConfigurationPanel p, EditManager editManager, FileManager fileManager) {
 		super(MainWindow.getMainWindow(), "Configuring "
 				+ a.getClass().getSimpleName(), false, null);
 		this.activity = a;
 		this.panel = p;
 		this.editManager = editManager;
 
-		owningDataflow = fileManager.getCurrentDataflow();
-		owningProcessor = findProcessor(owningDataflow, a);
+		owningWorkflowBundle = fileManager.getCurrentDataflow();
+		owningProcessor = findProcessor(a);
 
-		this.setTitle(getRelativeName(owningDataflow, activity));
+		this.setTitle(getRelativeName(owningWorkflowBundle, activity));
 		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setLayout(new BorderLayout());
 
@@ -180,10 +185,12 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 			Object subject = edit.getSubject();
 			if (subject == owningProcessor) {
 				// panel.reevaluate();
-				setTitle(getRelativeName(owningDataflow, activity));
-			} else if (subject == owningDataflow) {
-				if (!owningDataflow.getProcessors().contains(owningProcessor)) {
-					ActivityConfigurationAction.clearDialog(activity);
+				setTitle(getRelativeName(owningWorkflowBundle, activity));
+			} else if (subject == owningWorkflowBundle) {
+				for (Workflow workflow : owningWorkflowBundle.getWorkflows()) {
+					if (!workflow.getProcessors().contains(owningProcessor)) {
+						ActivityConfigurationAction.clearDialog(activity);
+					}
 				}
 			} else if (subject == activity) {
 				if (message instanceof DataFlowUndoEvent) {
@@ -197,27 +204,26 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		}
 	}
 
-	protected void configureActivity(B configurationBean) {
-		configureActivity(owningDataflow, activity, configurationBean);
+	protected void configureActivity(Configuration configuration) {
+		configureActivity(owningWorkflowBundle, activity, configuration);
 	}
 
-	public void configureActivity(Dataflow df, Activity a, Object bean) {
-		configureActivityStatic(df, a, bean, editManager);
+	public void configureActivity(WorkflowBundle workflowBundle, Activity activity, Configuration configuration) {
+		configureActivityStatic(workflowBundle, activity, configuration, editManager);
 	}
 
-	public static void configureActivityStatic(Dataflow df, Activity a,
-			Object bean, EditManager editManager) {
-		Edits edits = editManager.getEdits();
-		Edit<?> configureActivityEdit = edits.getConfigureActivityEdit(a, bean);
+	public static void configureActivityStatic(WorkflowBundle workflowBundle, Activity activity,
+			Configuration configuration, EditManager editManager) {
+		Edit<Activity> configureActivityEdit = new ConfigureEdit(activity, configuration);
 		try {
 			List<Edit<?>> editList = new ArrayList<Edit<?>>();
 			editList.add(configureActivityEdit);
-			Processor p = findProcessor(df, a);
-			if (p != null && p.getActivityList().size() == 1) {
-				editList.add(edits.getMapProcessorPortsForActivityEdit(p));
+			Processor p = findProcessor(activity);
+			if (p != null) {
+				// TODO how does port binding work for scufl2?
+//				editList.add(edits.getMapProcessorPortsForActivityEdit(p));
 			}
-			editManager.doDataflowEdit(df,
-					new CompoundEdit(editList));
+			editManager.doDataflowEdit(workflowBundle, new CompoundEdit(editList));
 		} catch (IllegalStateException e) {
 			// TODO Auto-generated catch block
 			logger.error(e);
@@ -226,21 +232,20 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 		}
 	}
 
-	protected static Processor findProcessor(Dataflow df, Activity activity) {
-		for (Processor processor : df.getProcessors()) {
-			if (processor.getActivityList().contains(activity))
-				return processor;
+	protected static Processor findProcessor(Activity activity) {
+		for (ProcessorBinding processorBinding : scufl2Tools.processorBindingsToActivity(activity)) {
+			return processorBinding.getBoundProcessor();
 		}
 		return null;
 	}
 
-	public static String getRelativeName(Dataflow df, Activity activity) {
+	public static String getRelativeName(WorkflowBundle workflowBundle, Activity activity) {
 		String result = "";
-		if (df != null) {
-			result += df.getLocalName();
-			Processor p = findProcessor(df, activity);
+		if (workflowBundle != null) {
+			result += workflowBundle.getName();
+			Processor p = findProcessor(activity);
 			if (p != null) {
-				result += (":" + p.getLocalName());
+				result += (":" + p.getName());
 			}
 		}
 		return result;
@@ -249,7 +254,7 @@ public class ActivityConfigurationDialog<A extends Activity, B extends Object>
 	public boolean closeDialog() {
 
 		if (panel.isConfigurationChanged()) {
-			String relativeName = getRelativeName(owningDataflow, activity);
+			String relativeName = getRelativeName(owningWorkflowBundle, activity);
 			if (checkPanelValues()) {
 				int answer = JOptionPane.showConfirmDialog(this,
 						"Do you want to save the configuration of "

@@ -7,10 +7,9 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 
-public abstract class AbstractTemplateService<ConfigType> implements
-		ServiceDescriptionProvider {
+public abstract class AbstractTemplateService implements ServiceDescriptionProvider {
 
 	protected TemplateServiceDescription templateService = new TemplateServiceDescription();
 
@@ -26,12 +25,10 @@ public abstract class AbstractTemplateService<ConfigType> implements
 		return null;
 	}
 
-	public abstract Class<? extends Activity<ConfigType>> getActivityClass();
+	public abstract Configuration getActivityConfiguration();
 
-	public abstract ConfigType getActivityConfiguration();
+	public class TemplateServiceDescription extends ServiceDescription {
 
-	public class TemplateServiceDescription extends
-			ServiceDescription<ConfigType> {
 		public Icon getIcon() {
 			return AbstractTemplateService.this.getIcon();
 		}
@@ -60,12 +57,7 @@ public abstract class AbstractTemplateService<ConfigType> implements
 		}
 
 		@Override
-		public Class<? extends Activity<ConfigType>> getActivityClass() {
-			return AbstractTemplateService.this.getActivityClass();
-		}
-
-		@Override
-		public ConfigType getActivityConfiguration() {
+		public Configuration getActivityConfiguration() {
 			return AbstractTemplateService.this.getActivityConfiguration();
 		}
 

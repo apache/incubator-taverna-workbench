@@ -33,11 +33,9 @@ public interface ServiceDescriptionRegistry extends
 
 	public void loadServiceProviders() throws DeserializationException;
 
-	public void loadServiceProviders(File serviceProvidersURL)
-			throws DeserializationException;
+	public void loadServiceProviders(File serviceProvidersURL) throws DeserializationException;
 
-	public void loadServiceProviders(URL serviceProvidersURL)
-			throws DeserializationException;
+	public void loadServiceProviders(URL serviceProvidersURL) throws DeserializationException;
 
 	public void refresh();
 

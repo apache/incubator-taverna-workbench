@@ -21,29 +21,28 @@
 package net.sf.taverna.t2.workbench.ui.actions.activity;
 
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 
 /**
  * A contextual view specific to an Activity.
- * <p>
- * Through the generic type the activity is associated with a given ConfigBean that is used internally
- * to define the activity. This is the bean that is used to configure the Activity itself.
  * </p>
  * Concrete subclasses must initialise the view by calling initView().
  * <p>
- * The implementation provides a view based upon the properties set in the ConfigBean
+ * The implementation provides a view based upon the properties set in the Configuration
  * </p>
  *
  * @author Stuart Owen
  * @author Ian Dunlop
  *
- * @param <ConfigBean> - the ConfigBean that the Activity for this view is associated with
  * @see Activity
  * @see ContextualView
  */
-public abstract class ActivityContextualView<ConfigBean> extends ContextualView {
+public abstract class ActivityContextualView extends ContextualView {
 
-	private Activity<?> activity;
+	private Activity activity;
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	/**
 	 * Constructs an instance of the view.
@@ -52,18 +51,17 @@ public abstract class ActivityContextualView<ConfigBean> extends ContextualView 
 	 * </p>
 	 * @param activity
 	 */
-	public ActivityContextualView(Activity<?> activity) {
+	public ActivityContextualView(Activity activity) {
 		super();
 		this.activity = activity;
 	}
 
-	public Activity<?> getActivity() {
+	public Activity getActivity() {
 		return this.activity;
 	}
 
-	@SuppressWarnings("unchecked")
-	public ConfigBean getConfigBean() {
-		return (ConfigBean)activity.getConfiguration();
+	public Configuration getConfigBean() {
+		return scufl2Tools.configurationFor(activity, activity.getParent());
 	}
 
 	public abstract void refreshView();

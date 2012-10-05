@@ -33,38 +33,32 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosingDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-
-//import org.apache.log4j.Logger;
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
+import uk.org.taverna.scufl2.api.profiles.Profile;
 
 @SuppressWarnings("serial")
-public abstract class ActivityConfigurationAction<A extends Activity<ConfigurationBean>, ConfigurationBean>
-		extends AbstractAction {
+public abstract class ActivityConfigurationAction extends AbstractAction {
 
-	@SuppressWarnings("unchecked")
 	private static WeakHashMap<Activity, ActivityConfigurationDialog> configurationDialogs = new WeakHashMap<Activity, ActivityConfigurationDialog>();
 
-
-//	private static Logger logger = Logger
-	//		.getLogger(ActivityConfigurationAction.class);
-
-	protected A activity;
+	protected Activity activity;
 
 	private static DataflowCloseListener listener;
 
-	public ActivityConfigurationAction(A activity, ActivityIconManager activityIconManager) {
+	public ActivityConfigurationAction(Activity activity, ActivityIconManager activityIconManager) {
 		this.activity = activity;
-		putValue(SMALL_ICON, activityIconManager.iconForActivity(activity));
+		putValue(SMALL_ICON, activityIconManager.iconForActivity(activity.getConfigurableType()));
 	}
 
-	protected A getActivity() {
+	protected Activity getActivity() {
 		return activity;
 	}
 
-
-	@SuppressWarnings("unchecked")
 	protected static void setDialog(Activity activity, ActivityConfigurationDialog dialog, FileManager fileManager) {
 		if (listener == null) {
 			listener = new DataflowCloseListener();
@@ -90,7 +84,6 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 		dialog.setVisible(true);
 	}
 
-	@SuppressWarnings("unchecked")
 	public static void clearDialog(Activity activity) {
 		if (configurationDialogs.containsKey(activity)) {
 			ActivityConfigurationDialog currentDialog = configurationDialogs.get(activity);
@@ -102,7 +95,6 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected static void clearDialog(JDialog dialog) {
 		if (configurationDialogs.containsValue(dialog)) {
 			if (dialog.isVisible()) {
@@ -117,7 +109,6 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	public static boolean closeDialog(Activity activity) {
 		boolean closeIt = true;
 		if (configurationDialogs.containsKey(activity)) {
@@ -132,14 +123,14 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 		return closeIt;
 	}
 
-	@SuppressWarnings("unchecked")
 	public static ActivityConfigurationDialog getDialog(Activity activity) {
 		return configurationDialogs.get(activity);
 	}
 
 	private static class DataflowCloseListener implements Observer<FileManagerEvent> {
 
-		@SuppressWarnings("unchecked")
+		private Scufl2Tools scufl2Tools = new Scufl2Tools();
+
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) throws Exception {
 			if (message instanceof ClosingDataflowEvent) {
@@ -147,13 +138,16 @@ public abstract class ActivityConfigurationAction<A extends Activity<Configurati
 				if (closingDataflowEvent.isAbortClose()) {
 					return;
 				}
-				Dataflow dataflow = ((ClosingDataflowEvent) message).getDataflow();
-				for (Processor p : dataflow.getProcessors()) {
-					for (Activity a : p.getActivityList()) {
-						if (!closeDialog(a)) {
+				WorkflowBundle workflowBundle = ((ClosingDataflowEvent) message).getDataflow();
+				Profile profile = workflowBundle.getMainProfile();
+				for (Workflow workflow : workflowBundle.getWorkflows()) {
+					for (Processor p : workflow.getProcessors()) {
+						ProcessorBinding processorBinding = scufl2Tools.processorBindingForProcessor(p, profile);
+						Activity activity = processorBinding.getBoundActivity();
+						if (!closeDialog(activity)) {
 							closingDataflowEvent.setAbortClose(true);
-							return;
 						}
+
 					}
 				}
 			}

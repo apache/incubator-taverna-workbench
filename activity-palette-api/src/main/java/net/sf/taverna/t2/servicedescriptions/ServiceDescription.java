@@ -6,19 +6,20 @@ import java.util.List;
 import javax.swing.Icon;
 
 import net.sf.taverna.t2.lang.beans.PropertyAnnotation;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workbench.edits.Edit;
 
 import org.apache.log4j.Logger;
 
-public abstract class ServiceDescription<ConfigType> extends IdentifiedObject {
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+
+public abstract class ServiceDescription extends IdentifiedObject {
 
 	public static final String SERVICE_TEMPLATES = "Service templates";
 	private static final String NAME = "Name";
 	private static final String SERVICE_CONFIGURATION = "Service configuration";
-	private static final String SERVICE_IMPLEMENTATION_CLASS = "Service implementation class";
 	private static final String SERVICE_IMPLEMENTATION_URI = "Service implementation URI";
 	private static final String DESCRIPTION = "Description";
 
@@ -33,11 +34,8 @@ public abstract class ServiceDescription<ConfigType> extends IdentifiedObject {
 		return null;
 	}
 
-	@PropertyAnnotation(expert = true, displayName = SERVICE_IMPLEMENTATION_CLASS)
-	public abstract Class<? extends Activity<ConfigType>> getActivityClass();
-
 	@PropertyAnnotation(expert = true, displayName = SERVICE_CONFIGURATION)
-	public abstract ConfigType getActivityConfiguration();
+	public abstract Configuration getActivityConfiguration();
 
 	@PropertyAnnotation(displayName = DESCRIPTION)
 	public String getDescription() {
@@ -81,7 +79,7 @@ public abstract class ServiceDescription<ConfigType> extends IdentifiedObject {
 	 * @param a
 	 * @return
 	 */
-	public Edit getInsertionEdit(Dataflow dataflow, Processor p, Activity a) {
+	public Edit getInsertionEdit(Workflow dataflow, Processor p, Activity a) {
 		return null;
 	}
 

@@ -20,14 +20,16 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.activityicons.impl;
 
+import java.net.URI;
 import java.util.List;
 import java.util.WeakHashMap;
 
 import javax.swing.Icon;
 
+import uk.org.taverna.scufl2.api.activity.Activity;
+
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconSPI;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 /**
  * Manager for activities' icons.
@@ -39,26 +41,26 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 public class ActivityIconManagerImpl implements ActivityIconManager{
 
 	// Cache of already obtained icons; maps activities to their icons
-	private WeakHashMap<Activity<?>, Icon> iconsMap = new WeakHashMap<Activity<?>, Icon>();
+	private WeakHashMap<URI, Icon> iconsMap = new WeakHashMap<URI, Icon>();
 
 	private List<ActivityIconSPI> activityIcons;
 
 	/** Returns an icon for the Activity. */
-	public Icon iconForActivity(Activity<?> activity) {
-		Icon icon = iconsMap.get(activity);
+	public Icon iconForActivity(URI activityType) {
+		Icon icon = iconsMap.get(activityType);
 		if (icon == null) {
 			int bestScore = ActivityIconSPI.NO_ICON;
 			ActivityIconSPI bestSPI = null;
 			for (ActivityIconSPI spi : activityIcons) {
-				int spiScore = spi.canProvideIconScore(activity);
+				int spiScore = spi.canProvideIconScore(activityType);
 				if (spiScore > bestScore) {
 					bestSPI = spi;
 					bestScore = spiScore;
 				}
 			}
 			if (bestSPI != null) {
-				icon = bestSPI.getIcon(activity);
-				iconsMap.put(activity, icon);
+				icon = bestSPI.getIcon(activityType);
+				iconsMap.put(activityType, icon);
 				return icon;
 			}
 			else{
@@ -69,12 +71,16 @@ public class ActivityIconManagerImpl implements ActivityIconManager{
 		}
 	}
 
-	public void resetIcon(Activity activity) {
-		Icon icon = iconsMap.get(activity);
+	public Icon iconForActivity(Activity activity) {
+		return iconForActivity(activity.getConfigurableType());
+	}
+
+	public void resetIcon(URI activityType) {
+		Icon icon = iconsMap.get(activityType);
 		if (icon != null) {
-			iconsMap.remove(activity);
+			iconsMap.remove(activityType);
 		}
-		iconForActivity(activity);
+		iconForActivity(activityType);
 	}
 
 	public void setActivityIcons(List<ActivityIconSPI> activityIcons) {

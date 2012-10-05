@@ -1,18 +1,17 @@
 package net.sf.taverna.t2.workbench.ui;
 
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 public interface DataflowSelectionManager {
 
 	/**
-	 * Returns the <code>DataflowSelectionModel</code> for the dataflow.
+	 * Returns the <code>DataflowSelectionModel</code> for the WorkflowBundle.
 	 *
 	 * @param dataflow
-	 * @return the <code>DataflowSelectionModel</code> for the dataflow
+	 * @return the <code>DataflowSelectionModel</code> for the WorkflowBundle
 	 */
-	public DataflowSelectionModel getDataflowSelectionModel(Dataflow dataflow);
+	public DataflowSelectionModel getDataflowSelectionModel(WorkflowBundle dataflow);
 
-	public void removeDataflowSelectionModel(Dataflow dataflow);
+	public void removeDataflowSelectionModel(WorkflowBundle dataflow);
 
 }

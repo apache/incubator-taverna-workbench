@@ -4,8 +4,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import net.sf.taverna.t2.workflowmodel.ConfigurationException;
-
 public abstract class AbstractConfigurableServiceProvider<ConfigType> extends IdentifiedObject
 		implements ConfigurableServiceProvider<ConfigType> {
 
@@ -16,7 +14,7 @@ public abstract class AbstractConfigurableServiceProvider<ConfigType> extends Id
 
 	/**
 	 * Construct configurable service provider.
-	 * 
+	 *
 	 * @param configTemplate
 	 *            Template configuration
 	 */
@@ -50,17 +48,12 @@ public abstract class AbstractConfigurableServiceProvider<ConfigType> extends Id
 
 		ConfigType configuration = getConfiguration();
 		if (configuration != null) {
-			try {
-				provider.configure(configuration);
-			} catch (ConfigurationException ex) {
-				throw new RuntimeException("Can't configure clone", ex);
-			}
+			provider.configure(configuration);
 		}
 		return provider;
 	}
 
-	public synchronized void configure(ConfigType conf)
-			throws ConfigurationException {
+	public synchronized void configure(ConfigType conf) {
 		if (conf == null) {
 			throw new NullPointerException("Config can't be null");
 		}
