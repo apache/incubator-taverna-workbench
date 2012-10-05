@@ -24,6 +24,9 @@ import java.awt.Frame;
 
 import javax.swing.Action;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.actions.StringConstantActivityConfigurationAction;
@@ -41,6 +44,7 @@ public class StringConstantActivityContextualView extends
 	private final EditManager editManager;
 	private final FileManager fileManager;
 	private final ActivityIconManager activityIconManager;
+	private static final int MAX_LENGTH = 100;
 
 	public StringConstantActivityContextualView(Activity<?> activity, EditManager editManager,
 			FileManager fileManager, ActivityIconManager activityIconManager,
@@ -53,12 +57,14 @@ public class StringConstantActivityContextualView extends
 
 	@Override
 	public String getViewTitle() {
-		return "String constant";
+		return "Text constant";
 	}
 
 	@Override
 	protected String getRawTableRowsHtml() {
-		String html = "<tr><td>Value</td><td>" + getConfigBean().getValue() + "</td></tr>";
+		String v = StringUtils.abbreviate(getConfigBean().getValue(), MAX_LENGTH);
+		v = StringEscapeUtils.escapeHtml(v);
+		String html = "<tr><td>Value</td><td>"+v+"</td></tr>";
 		return html;
 	}
 

@@ -31,7 +31,9 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 
 public class StringConstantTemplateService extends AbstractTemplateService<StringConstantConfigurationBean>{
 
-	private static final String STRINGCONSTANT = "String constant";
+	public static final String DEFAULT_VALUE = "Add your own value here";
+
+	private static final String STRINGCONSTANT = "Text constant";
 
 	private static final URI providerId = URI
 	.create("http://taverna.sf.net/2010/service-provider/stringconstant");
@@ -49,7 +51,7 @@ public class StringConstantTemplateService extends AbstractTemplateService<Strin
 	@Override
 	public StringConstantConfigurationBean getActivityConfiguration() {
 		StringConstantConfigurationBean stringConstantConfigurationBean = new StringConstantConfigurationBean();
-		stringConstantConfigurationBean.setValue("Add your own value here");
+		stringConstantConfigurationBean.setValue(DEFAULT_VALUE);
 		return stringConstantConfigurationBean;
 	}
 

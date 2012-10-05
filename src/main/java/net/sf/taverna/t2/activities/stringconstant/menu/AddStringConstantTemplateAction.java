@@ -65,8 +65,8 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 
 	@Override
 	protected Action createAction() {
-		AbstractAction action = new AbstractAction("String constant",
-				activityIconManager.iconForActivity(new StringConstantActivity())) {
+	AbstractAction action = new AbstractAction("Text constant", ActivityIconManager.getInstance()
+		.iconForActivity(new StringConstantActivity())){
 
 			public void actionPerformed(ActionEvent e) {
 
