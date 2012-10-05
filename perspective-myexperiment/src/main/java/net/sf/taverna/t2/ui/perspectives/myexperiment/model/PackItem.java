@@ -112,7 +112,6 @@ public class PackItem extends Resource {
 	  return (null);
 
 	PackItem p = new PackItem();
-	DateFormat DATE_FORMATTER = MyExperimentClient.getDateFormatter();
 
 	try {
 	  Element root = doc.getRootElement();
@@ -140,7 +139,7 @@ public class PackItem extends Resource {
 	  // Date when the item was added to the pack
 	  String createdAt = root.getChildText("created-at");
 	  if (createdAt != null && !createdAt.equals("")) {
-		p.setCreatedAt(DATE_FORMATTER.parse(createdAt));
+		p.setCreatedAt(MyExperimentClient.parseDate(createdAt));
 	  }
 
 	  // Comment

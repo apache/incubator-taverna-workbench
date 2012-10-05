@@ -60,18 +60,14 @@ import org.apache.log4j.Logger;
 /**
  * @author Sergejs Aleksejevs, Emmanuel Tagarira, Jiten Bhagat
  */
-public class MyStuffTabContentPanel extends JPanel implements ActionListener, KeyListener, FocusListener {
+public class MyStuffTabContentPanel extends JPanel implements ActionListener, KeyListener {
   private final MainComponent pluginMainComponent;
   private final MyExperimentClient myExperimentClient;
   private final Logger logger;
 
   // components that should be accessible from anywhere in this class
   private JButton bLogin;
-  private JTextField tfLogin;
-  private JPasswordField pfPassword;
-  private JCheckBox cbRememberMe;
   private JCheckBox cbLoginAutomatically;
-  private JClickableLabel jclForgetMe;
   private MyStuffSidebarPanel jpSidebar;
   public JSplitPane spMyStuff;
 
@@ -173,26 +169,11 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	  GridBagConstraints c = new GridBagConstraints();
 	  jpLoginBoxContainer.add(createLoginBox(), c);
 
-	  // check if login credentials are stored in the INI file;
-	  // if this is the case, populate the box
-	  Object oRememberMe = this.myExperimentClient.getSettings().get(MyExperimentClient.INI_REMEMBER_ME);
-	  if (oRememberMe != null && oRememberMe.equals("true")) {
-		this.tfLogin.setText(this.myExperimentClient.getSettings().get(MyExperimentClient.INI_LOGIN).toString());
-		this.pfPassword.setText(this.myExperimentClient.getSettings().get(MyExperimentClient.INI_PASSWORD).toString());
-		this.cbRememberMe.setSelected(true);
-		this.cbLoginAutomatically.setSelected(this.myExperimentClient.getSettings().get(MyExperimentClient.INI_AUTO_LOGIN).equals("true"));
-		this.myExperimentClient.storeHistoryAndSettings();
-	  }
-
 	  // put everything together (welcome banner + login box)
 	  this.setLayout(new BorderLayout());
 	  this.add(new ShadedLabel("Welcome to the myExperiment plugin. Please note that you can still use other tabs even "
 		  + "if you don't have a user profile yet!", ShadedLabel.BLUE), BorderLayout.NORTH);
 	  this.add(jpLoginBoxContainer, BorderLayout.CENTER);
-
-	  // this will ensure that login is selected and focused
-	  this.tfLogin.selectAll();
-	  this.tfLogin.requestFocusInWindow();
 	}
   }
 
@@ -220,56 +201,11 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	c.insets = new Insets(0, 0, 3, 0);
 	c.ipadx = 10;
 
-	// username label
-	c.gridy++;
-	JLabel lUsername = new JLabel("myExperiment Username:");
-	lUsername.setLabelFor(tfLogin);
-	jpLoginBox.add(lUsername, c);
-
-	// username field
-	c.gridx = 1;
-	tfLogin = new JTextField(20);
-	tfLogin.addKeyListener(this);
-	tfLogin.addFocusListener(this);
-	jpLoginBox.add(tfLogin, c);
-
-	// password label
-	c.gridy++;
-	c.gridx = 0;
-	JLabel lPassword = new JLabel("myExperiment Password:");
-	lPassword.setLabelFor(pfPassword);
-	jpLoginBox.add(lPassword, c);
-
-	// password field
-	c.gridx = 1;
-	pfPassword = new JPasswordField(20);
-	pfPassword.addKeyListener(this);
-	pfPassword.addFocusListener(this);
-	jpLoginBox.add(pfPassword, c);
-
-	// remember me checkbox and label
-	c.gridy++;
-	c.insets = new Insets(25, 0, 2, 0);
-	cbRememberMe = new JCheckBox("Remember me");
-	cbRememberMe.setBorder(BorderFactory.createEmptyBorder()); // makes sure that this is aligned with text fields above
-	cbRememberMe.addKeyListener(this);
-
-	jclForgetMe = new JClickableLabel("(Forget me)", "forget_me", this, null, SwingConstants.LEFT, "Click to remove your login details from the system");
-	jclForgetMe.setBorder(BorderFactory.createEmptyBorder(0, 6, 0, 4));
-
-	JPanel jpRememberMeForgetMe = new JPanel();
-	jpRememberMeForgetMe.setLayout(new BoxLayout(jpRememberMeForgetMe, BoxLayout.X_AXIS));
-	jpRememberMeForgetMe.add(cbRememberMe);
-	jpRememberMeForgetMe.add(jclForgetMe);
-
-	jpLoginBox.add(jpRememberMeForgetMe, c);
-
 	// autologin checkbox and label
 	c.gridy++;
 	c.insets = new Insets(0, 0, 0, 3);
 	cbLoginAutomatically = new JCheckBox("Log in automatically (next time)");
 	cbLoginAutomatically.setBorder(BorderFactory.createEmptyBorder()); // makes sure that this is aligned with text fields above
-	cbLoginAutomatically.setPreferredSize(tfLogin.getPreferredSize());
 	cbLoginAutomatically.addActionListener(this);
 	cbLoginAutomatically.addKeyListener(this);
 	jpLoginBox.add(cbLoginAutomatically, c);
@@ -309,22 +245,19 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 
 		  try {
 			// do the actual "logging in"
-			boolean bLoginSuccessful = myExperimentClient.doLogin(tfLogin.getText(), new String(pfPassword.getPassword()));
+			boolean bLoginSuccessful = myExperimentClient.doLogin();
 
 			// check if need to store the login credentials and settings
 			if (bLoginSuccessful) {
 			  // store the settings anyway (for instance, to clear stored login/password
 			  // - when the 'remember me' tick is not checked anymore);
 			  // however, need to check whether to store login details or not
-			  myExperimentClient.getSettings().put(MyExperimentClient.INI_LOGIN, (cbRememberMe.isSelected() ? tfLogin.getText() : ""));
-			  myExperimentClient.getSettings().put(MyExperimentClient.INI_PASSWORD, (cbRememberMe.isSelected() ? new String(pfPassword.getPassword()) : ""));
-			  myExperimentClient.getSettings().put(MyExperimentClient.INI_REMEMBER_ME, new Boolean(cbRememberMe.isSelected()).toString());
+
 			  myExperimentClient.getSettings().put(MyExperimentClient.INI_AUTO_LOGIN, new Boolean(cbLoginAutomatically.isSelected()).toString());
 			  myExperimentClient.storeHistoryAndSettings();
 
 			  // if logging in was successful, set the status to the start of fetching the data
 			  pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), "Fetching user data");
-			}
 
 			SwingUtilities.invokeLater(new Runnable() {
 			  public void run() {
@@ -357,38 +290,17 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 				} else {
 				  // couldn't login - display error message
 				  pluginMainComponent.getStatusBar().setStatus(this.getClass().getName(), null);
-				  javax.swing.JOptionPane.showMessageDialog(null, "Couldn't login to myExperiment - please check your login details", "myExperiment Plugin - Couldn't Login", JOptionPane.ERROR_MESSAGE);
+				  javax.swing.JOptionPane.showMessageDialog(null, "Unable to login to myExperiment - please check your login details", "myExperiment Plugin - Couldn't Login", JOptionPane.ERROR_MESSAGE);
 				}
 			  }
 			});
+			}
+
 		  } catch (Exception ex) {
 			logger.error("Exception on attempt to login to myExperiment:\n", ex);
 		  }
 		}
 	  }.start();
-
-	} else if (e.getSource().equals(cbLoginAutomatically)) {
-	  // is "Log in automatically" check box was checked - make sure that
-	  // "Remember me" is also checked
-	  if (cbLoginAutomatically.isSelected())
-		cbRememberMe.setSelected(true);
-	} else if (e.getSource().equals(jclForgetMe)) {
-	  // request to "forget" login credentials
-	  // (do so after user confirmation)
-	  if (JOptionPane.showConfirmDialog(null, "This will remove a local record of your login credentials.\nYou will have to login "
-		  + "manually next time when you choose to do so.\n\nDo you want to proceed?", "myExperiment Plugin - Confirmation Required", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-		// remove the values from the form
-		this.tfLogin.setText("");
-		this.pfPassword.setText("");
-		this.cbRememberMe.setSelected(false);
-		this.cbLoginAutomatically.setSelected(false);
-
-		// remove the values from settings
-		myExperimentClient.getSettings().put(MyExperimentClient.INI_LOGIN, "");
-		myExperimentClient.getSettings().put(MyExperimentClient.INI_PASSWORD, "");
-		myExperimentClient.getSettings().put(MyExperimentClient.INI_REMEMBER_ME, new Boolean(false).toString());
-		myExperimentClient.getSettings().put(MyExperimentClient.INI_AUTO_LOGIN, new Boolean(false).toString());
-	  }
 
 	} else if (e.getSource().equals(this.jpSidebar.bRefreshMyStuff)) {
 	  // this will re-fetch all user profile data and repopulate the whole of the 'My Stuff' tab
@@ -411,12 +323,7 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	// ENTER pressed - check which element is the source and determine what
 	// acion is to be taken
 	if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-	  if (e.getSource().equals(this.tfLogin)) {
-		// ENTER pressed inside 'login' field - shift focus onto the 'password' field
-		this.pfPassword.requestFocusInWindow();
-	  } else if (e.getSource().equals(this.pfPassword)
-		  || e.getSource().equals(this.cbRememberMe)
-		  || e.getSource().equals(this.cbLoginAutomatically)
+	  if (e.getSource().equals(this.cbLoginAutomatically)
 		  || e.getSource().equals(this.bLogin)) {
 		// ENTER pressed when focus was on the login button, one of checkboxes or the password field - do logging in
 		actionPerformed(new ActionEvent(this.bLogin, 0, ""));
@@ -430,18 +337,6 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 
   public void keyTyped(KeyEvent e) {
 	// do nothing
-  }
-
-  // *** Callbacks for FocusListener interface ***
-  public void focusGained(FocusEvent e) {
-	if (e.getSource().equals(this.tfLogin)
-		|| e.getSource().equals(this.pfPassword)) {
-	  ((JTextField) e.getSource()).selectAll();
-	}
-  }
-
-  public void focusLost(FocusEvent arg0) {
-	// not in use
   }
 
 }

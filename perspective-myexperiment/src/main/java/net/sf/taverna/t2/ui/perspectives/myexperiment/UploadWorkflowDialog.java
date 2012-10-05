@@ -279,6 +279,9 @@ public class UploadWorkflowDialog extends HelpEnabledDialog implements ActionLis
 			licenseText[x] = License.getInstance(License.SUPPORTED_TYPES[x]).getText();
 
 		jcbLicences = new JComboBox(licenseText);
+    String defaultLicenseText = License.getInstance(License.DEFAULT_LICENSE)
+    .getText();
+    jcbLicences.setSelectedItem(defaultLicenseText);
 
 		if (this.updateResource != null) { // adding a new workflow
 			Workflow wf = (Workflow) this.updateResource;

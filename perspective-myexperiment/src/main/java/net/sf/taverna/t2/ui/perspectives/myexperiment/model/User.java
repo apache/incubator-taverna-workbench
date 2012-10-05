@@ -198,7 +198,6 @@ public class User extends Resource {
 
 	// create instance and parse the XML otherwise
 	User user = new User();
-	DateFormat DATE_FORMATTER = MyExperimentClient.getDateFormatter();
 
 	try {
 	  // store all simple values
@@ -228,13 +227,13 @@ public class User extends Resource {
 	  // Created at
 	  String createdAt = docRootElement.getChildText("created-at");
 	  if (createdAt != null && !createdAt.equals("")) {
-		user.setCreatedAt(DATE_FORMATTER.parse(createdAt));
+		user.setCreatedAt(MyExperimentClient.parseDate(createdAt));
 	  }
 
 	  // Updated at
 	  String updatedAt = docRootElement.getChildText("updated-at");
 	  if (updatedAt != null && !updatedAt.equals("")) {
-		user.setUpdatedAt(DATE_FORMATTER.parse(updatedAt));
+		user.setUpdatedAt(MyExperimentClient.parseDate(updatedAt));
 	  }
 
 	  // store workflows

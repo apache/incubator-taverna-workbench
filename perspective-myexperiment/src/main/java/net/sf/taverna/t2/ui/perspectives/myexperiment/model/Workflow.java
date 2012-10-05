@@ -231,7 +231,6 @@ public class Workflow extends Resource {
 	  return (null);
 
 	Workflow w = new Workflow();
-	DateFormat DATE_FORMATTER = MyExperimentClient.getDateFormatter();
 
 	try {
 	  // Access type
@@ -271,13 +270,13 @@ public class Workflow extends Resource {
 	  // Created at
 	  String createdAt = docRootElement.getChildText("created-at");
 	  if (createdAt != null && !createdAt.equals("")) {
-		w.setCreatedAt(DATE_FORMATTER.parse(createdAt));
+		w.setCreatedAt(MyExperimentClient.parseDate(createdAt));
 	  }
 
 	  // Updated at
 	  String updatedAt = docRootElement.getChildText("updated-at");
 	  if (updatedAt != null && !updatedAt.equals("")) {
-		w.setUpdatedAt(DATE_FORMATTER.parse(updatedAt));
+		w.setUpdatedAt(MyExperimentClient.parseDate(updatedAt));
 	  }
 
 	  // Preview

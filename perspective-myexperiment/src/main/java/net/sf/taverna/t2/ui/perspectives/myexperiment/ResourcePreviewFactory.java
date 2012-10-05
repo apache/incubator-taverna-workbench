@@ -1122,7 +1122,7 @@ public class ResourcePreviewFactory {
 		jpWhoAddedTheItem.add(new JClickableLabel(piCurItem.getUserWhoAddedTheItem().getName(), "preview:"
 			+ Resource.USER + ":" + piCurItem.getUserWhoAddedTheItem().getURI(), pluginMainComponent.getPreviewBrowser()), c1);
 
-		String strAddedOnDate = MyExperimentClient.getShortDateFormatter().format(piCurItem.getCreatedAt());
+		String strAddedOnDate = MyExperimentClient.formatDate(piCurItem.getCreatedAt());
 		c1.weightx = 1.0;
 		jpWhoAddedTheItem.add(new JLabel(" [" + strAddedOnDate + "]"), c1);
 
@@ -1231,7 +1231,7 @@ public class ResourcePreviewFactory {
 				c.gridx = 1;
 				c.gridy = 2 * iCnt;
 				c.weightx = 1.0;
-				String strCommentDate = MyExperimentClient.getShortDateFormatter().format(comment.getCreatedAt());
+				String strCommentDate = MyExperimentClient.formatDate(comment.getCreatedAt());
 				JLabel lCommentDate = new JLabel(" - [" + strCommentDate + "]");
 				lCommentDate.setBorder(lCommentAuthor.getBorder());
 				jpCommentsTabContent.add(lCommentDate, c);
