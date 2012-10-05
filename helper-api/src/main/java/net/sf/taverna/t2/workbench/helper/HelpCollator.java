@@ -118,15 +118,6 @@ public final class HelpCollator {
 				logger.error("Unable to close connection", e);
 			}
 		}
-		finally {
-			try {
-				if ((connection != null) && (connection.getInputStream() != null)) {
-					connection.getInputStream().close();
-				}
-			} catch (IOException e) {
-				logger.error("Unable to close connection", e);
-			}
-		}
 	}
 
 	/**
