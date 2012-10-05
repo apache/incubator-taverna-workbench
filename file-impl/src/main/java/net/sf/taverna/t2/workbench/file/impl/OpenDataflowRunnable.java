@@ -1,43 +1,39 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.file.impl;
-
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-import javax.swing.SwingWorker;
 
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * @author alanrw
  *
  */
 public class OpenDataflowRunnable implements Runnable {
-	
+
 	private final FileManagerImpl fileManager;
 	private final FileType fileType;
 	private final Object source;
-	
-	private Dataflow dataflow;
+
+	private WorkflowBundle dataflow;
 
     private OpenException e;
 	public OpenDataflowRunnable (FileManagerImpl fileManager, FileType fileType, Object source) {
 		this.fileManager = fileManager;
 		this.fileType = fileType;
-		this.source = source;				
+		this.source = source;
 	}
-	
+
 	public void run() {
 		OpenDataflowSwingWorker openDataflowSwingWorker = new OpenDataflowSwingWorker(fileType, source, fileManager);
 		final OpenDataflowInProgressDialog dialog = new OpenDataflowInProgressDialog();
 		openDataflowSwingWorker.addPropertyChangeListener(new SwingWorkerCompletionWaiter(dialog));
 		openDataflowSwingWorker.execute();
-		
-		// Give a chance to the SwingWorker to finish so we do not have to display 
+
+		// Give a chance to the SwingWorker to finish so we do not have to display
 		// the dialog
 		try {
 			Thread.sleep(500);
@@ -48,7 +44,7 @@ public class OpenDataflowRunnable implements Runnable {
 			dialog.setVisible(true); // this will block the GUI
 		}
 		boolean userCancelled = dialog.hasUserCancelled(); // see if user cancelled the dialog
-		
+
 		if (userCancelled){
 			// Stop the OpenDataflowSwingWorker if it is still working
 			openDataflowSwingWorker.cancel(true);
@@ -61,7 +57,7 @@ public class OpenDataflowRunnable implements Runnable {
 		this.e = openDataflowSwingWorker.getException();
 		}
 
-public Dataflow getDataflow() {
+public WorkflowBundle getDataflow() {
 	return dataflow;
 }
 

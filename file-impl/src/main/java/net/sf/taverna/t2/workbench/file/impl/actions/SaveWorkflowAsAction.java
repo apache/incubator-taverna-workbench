@@ -46,10 +46,10 @@ import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.file.impl.FileTypeFileFilter;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflowSource;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 public class SaveWorkflowAsAction extends AbstractAction {
 
@@ -58,8 +58,8 @@ public class SaveWorkflowAsAction extends AbstractAction {
 				ModelMapEvent message) throws Exception {
 			if (message.getModelName().equals(
 					ModelMapConstants.CURRENT_DATAFLOW)) {
-				Dataflow dataflow = (Dataflow) message.getNewModel();
-				updateEnabledStatus(dataflow);
+				WorkflowBundle workflowBundle = (WorkflowBundle) message.getNewModel();
+				updateEnabledStatus(workflowBundle);
 			}
 		}
 	}
@@ -80,7 +80,7 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
 
 		modelMap.addObserver(new ModelMapObserver());
-		updateEnabledStatus((Dataflow) modelMap
+		updateEnabledStatus((WorkflowBundle) modelMap
 				.getModel(ModelMapConstants.CURRENT_DATAFLOW));
 	}
 
@@ -89,36 +89,37 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		if (e.getSource() instanceof Component) {
 			parentComponent = (Component) e.getSource();
 		}
-		Dataflow dataflow = fileManager.getCurrentDataflow();
-		if (dataflow == null) {
+		WorkflowBundle workflowBundle = fileManager.getCurrentDataflow();
+		if (workflowBundle == null) {
 			JOptionPane.showMessageDialog(parentComponent,
 					"No workflow open yet", "No workflow to save",
 					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		Object source = fileManager.getDataflowSource(dataflow);
-		if (source instanceof NestedDataflowSource) {
-			int n = JOptionPane.showConfirmDialog(
-				    parentComponent,
-				    "Saving a nested workflow to a file cuts its link to the parent workflow. Do you want to continue?",
-				    "Nested workflow save",
-				    JOptionPane.YES_NO_OPTION);
-			if (n == JOptionPane.NO_OPTION) {
-				return;
-			}
-
-		}
+		Object source = fileManager.getDataflowSource(workflowBundle);
+		//TODO Decide how to handle nested workflows
+//		if (source instanceof NestedDataflowSource) {
+//			int n = JOptionPane.showConfirmDialog(
+//				    parentComponent,
+//				    "Saving a nested workflow to a file cuts its link to the parent workflow. Do you want to continue?",
+//				    "Nested workflow save",
+//				    JOptionPane.YES_NO_OPTION);
+//			if (n == JOptionPane.NO_OPTION) {
+//				return;
+//			}
+//
+//		}
 		saveCurrentDataflow(parentComponent);
 	}
 
 	public boolean saveCurrentDataflow(Component parentComponent) {
-		Dataflow dataflow = fileManager.getCurrentDataflow();
-		return saveDataflow(parentComponent, dataflow);
+		WorkflowBundle workflowBundle = fileManager.getCurrentDataflow();
+		return saveDataflow(parentComponent, workflowBundle);
 	}
 
-	private String determineFileName(final Dataflow dataflow) {
+	private String determineFileName(final WorkflowBundle workflowBundle) {
 		String result;
-		Object source = fileManager.getDataflowSource(dataflow);
+		Object source = fileManager.getDataflowSource(workflowBundle);
 		String fileName = null;
 		if (source instanceof File) {
 			fileName = ((File) source).getName();
@@ -134,13 +135,13 @@ public class SaveWorkflowAsAction extends AbstractAction {
 			result = fileName;
 		}
 		else {
-			result = dataflow.getLocalName();
+			result = workflowBundle.getName();
 		}
 		return result;
 	}
 
-	public boolean saveDataflow(Component parentComponent, Dataflow dataflow) {
-		fileManager.setCurrentDataflow(dataflow);
+	public boolean saveDataflow(Component parentComponent, WorkflowBundle workflowBundle) {
+		fileManager.setCurrentDataflow(workflowBundle);
 		JFileChooser fileChooser = new JFileChooser();
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
 		String curDir = prefs
@@ -153,7 +154,7 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		List<FileFilter> fileFilters = fileManager
 				.getSaveFileFilters(File.class);
 		if (fileFilters.isEmpty()) {
-			logger.warn("No file types found for saving workflow " + dataflow);
+			logger.warn("No file types found for saving workflow " + workflowBundle);
 			JOptionPane.showMessageDialog(parentComponent,
 					"No file types found for saving workflow.", "Error",
 					JOptionPane.ERROR_MESSAGE);
@@ -166,7 +167,7 @@ public class SaveWorkflowAsAction extends AbstractAction {
 
 		fileChooser.setCurrentDirectory(new File(curDir));
 
-		File possibleName = new File(determineFileName(dataflow));
+		File possibleName = new File(determineFileName(workflowBundle));
 
 		boolean tryAgain = true;
 		while (tryAgain) {
@@ -190,8 +191,8 @@ public class SaveWorkflowAsAction extends AbstractAction {
 				try {
 					try {
 						fileManager
-								.saveDataflow(dataflow, fileType, file, true);
-						logger.info("Saved workflow " + dataflow + " to "
+								.saveDataflow(workflowBundle, fileType, file, true);
+						logger.info("Saved workflow " + workflowBundle + " to "
 								+ file);
 						return true;
 					} catch (OverwriteException ex) {
@@ -202,9 +203,9 @@ public class SaveWorkflowAsAction extends AbstractAction {
 								parentComponent, msg, "File already exists",
 								JOptionPane.YES_NO_CANCEL_OPTION);
 						if (ret == JOptionPane.YES_OPTION) {
-							fileManager.saveDataflow(dataflow, fileType, file,
+							fileManager.saveDataflow(workflowBundle, fileType, file,
 									false);
-							logger.info("Saved workflow " + dataflow
+							logger.info("Saved workflow " + workflowBundle
 									+ " by overwriting " + file);
 							return true;
 						} else if (ret == JOptionPane.NO_OPTION) {
@@ -228,8 +229,8 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		return false;
 	}
 
-	protected void updateEnabledStatus(Dataflow dataflow) {
-		if (dataflow == null) {
+	protected void updateEnabledStatus(WorkflowBundle workflowBundle) {
+		if (workflowBundle == null) {
 			setEnabled(false);
 		} else {
 			setEnabled(true);

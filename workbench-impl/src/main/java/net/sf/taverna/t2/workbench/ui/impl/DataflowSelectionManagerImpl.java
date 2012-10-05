@@ -31,7 +31,7 @@ import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Manages the mapping between Dataflows and DataflowSelectionModels.
@@ -41,7 +41,7 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
  */
 public class DataflowSelectionManagerImpl implements DataflowSelectionManager {
 
-	private Map<Dataflow, DataflowSelectionModel> dataflowSelectionModelMap = new HashMap<Dataflow, DataflowSelectionModel>();
+	private Map<WorkflowBundle, DataflowSelectionModel> dataflowSelectionModelMap = new HashMap<WorkflowBundle, DataflowSelectionModel>();
 
 	private FileManagerObserver fileManagerObserver = new FileManagerObserver();
 
@@ -53,7 +53,7 @@ public class DataflowSelectionManagerImpl implements DataflowSelectionManager {
 	 * @see net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager#getDataflowSelectionModel(net.sf.taverna.t2.workflowmodel.Dataflow)
 	 */
 	@Override
-	public DataflowSelectionModel getDataflowSelectionModel(Dataflow dataflow) {
+	public DataflowSelectionModel getDataflowSelectionModel(WorkflowBundle dataflow) {
 		DataflowSelectionModel selectionModel;
 		synchronized (dataflowSelectionModelMap) {
 			selectionModel = dataflowSelectionModelMap.get(dataflow);
@@ -71,7 +71,7 @@ public class DataflowSelectionManagerImpl implements DataflowSelectionManager {
 	 * @see net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManager#removeDataflowSelectionModel(net.sf.taverna.t2.workflowmodel.Dataflow)
 	 */
 	@Override
-	public void removeDataflowSelectionModel(Dataflow dataflow) {
+	public void removeDataflowSelectionModel(WorkflowBundle dataflow) {
 		DataflowSelectionModel selectionModel = dataflowSelectionModelMap
 				.get(dataflow);
 		if (selectionModel == null) {

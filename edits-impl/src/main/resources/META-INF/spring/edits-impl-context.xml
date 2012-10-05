@@ -26,8 +26,6 @@
 		</constructor-arg>
 	</bean>
 
-	<bean id="EditManagerImpl" class="net.sf.taverna.t2.workbench.edits.impl.EditManagerImpl">
-    	<constructor-arg ref="edits" />
-	</bean>
+	<bean id="EditManagerImpl" class="net.sf.taverna.t2.workbench.edits.impl.EditManagerImpl" />
 
 </beans>

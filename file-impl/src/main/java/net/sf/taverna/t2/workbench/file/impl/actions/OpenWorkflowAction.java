@@ -42,9 +42,10 @@ import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.impl.FileTypeFileFilter;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * An action for opening a workflow from a file. All file types exposed by the
@@ -133,7 +134,7 @@ public class OpenWorkflowAction extends AbstractAction {
 
 			try {
 				Object canonicalSource = fileManager.getCanonical(file);
-				Dataflow alreadyOpen = fileManager.getDataflowBySource(canonicalSource);
+				WorkflowBundle alreadyOpen = fileManager.getDataflowBySource(canonicalSource);
 				if (alreadyOpen != null) {
 					// The workflow from the same source is already opened -
 					// ask the user if they want to switch to it or open another copy;
@@ -162,8 +163,8 @@ public class OpenWorkflowAction extends AbstractAction {
 				}
 
 				callback.aboutToOpenDataflow(file);
-				Dataflow dataflow = fileManager.openDataflow(fileType, file);
-				callback.openedDataflow(file, dataflow);
+				WorkflowBundle workflowBundle = fileManager.openDataflow(fileType, file);
+				callback.openedDataflow(file, workflowBundle);
 			} catch (final RuntimeException ex) {
 				logger.warn("Failed to open workflow from " + file, ex);
 				if (!callback.couldNotOpenDataflow(file, ex)) {
@@ -283,16 +284,16 @@ public class OpenWorkflowAction extends AbstractAction {
 	public interface OpenCallback {
 
 		/**
-		 * Called before a dataflow is to be opened from the given file
+		 * Called before a workflowBundle is to be opened from the given file
 		 *
 		 * @param file
-		 *            File which dataflow is to be opened
+		 *            File which workflowBundle is to be opened
 		 */
 		public void aboutToOpenDataflow(File file);
 
 		/**
 		 * Called if an exception happened while attempting to open the
-		 * dataflow.
+		 * workflowBundle.
 		 *
 		 * @param file
 		 *            File which was attempted to be opened
@@ -304,15 +305,15 @@ public class OpenWorkflowAction extends AbstractAction {
 		public boolean couldNotOpenDataflow(File file, Exception ex);
 
 		/**
-		 * Called when a dataflow has been successfully opened. The dataflow
+		 * Called when a workflowBundle has been successfully opened. The workflowBundle
 		 * will be registered in {@link FileManager#getOpenDataflows()}.
 		 *
 		 * @param file
-		 *            File from which dataflow was opened
-		 * @param dataflow
-		 *            Dataflow that was opened
+		 *            File from which workflowBundle was opened
+		 * @param workflowBundle
+		 *            WorkflowBundle that was opened
 		 */
-		public void openedDataflow(File file, Dataflow dataflow);
+		public void openedDataflow(File file, WorkflowBundle workflowBundle);
 	}
 
 	/**
@@ -338,7 +339,7 @@ public class OpenWorkflowAction extends AbstractAction {
 		/**
 		 * {@inheritDoc}
 		 */
-		public void openedDataflow(File file, Dataflow dataflow) {
+		public void openedDataflow(File file, WorkflowBundle workflowBundle) {
 		}
 	}
 
@@ -407,9 +408,9 @@ public class OpenWorkflowAction extends AbstractAction {
 		/**
 		 * {@inheritDoc}
 		 */
-		public void openedDataflow(File file, Dataflow dataflow) {
+		public void openedDataflow(File file, WorkflowBundle workflowBundle) {
 			try {
-				wrapped.openedDataflow(file, dataflow);
+				wrapped.openedDataflow(file, workflowBundle);
 			} catch (RuntimeException wrapperEx) {
 				logger.warn("Failed OpenCallback " + wrapped
 						+ ".openedDataflow(File, Dataflow)", wrapperEx);

@@ -18,38 +18,26 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.ui.views.contextualviews.datalink;
+package net.sf.taverna.t2.workbench.file.impl;
 
-import java.util.Arrays;
-import java.util.List;
+import net.sf.taverna.t2.workbench.file.FileType;
+import uk.org.taverna.scufl2.rdfxml.RDFXMLReader;
 
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import uk.org.taverna.scufl2.api.core.DataLink;
+public class WorkflowBundleFileType extends FileType {
 
-/**
- * A factory of contextual views for dataflow's datalinks.
- *
- * @author Alex Nenadic
- *
- */
-public class DatalinkContextualViewFactory implements
-		ContextualViewFactory<DataLink> {
-
-	private FileManager fileManager;
-
-	public boolean canHandle(Object object) {
-		return object instanceof Datalink;
+	@Override
+	public String getDescription() {
+		return "Taverna 3 workflow";
 	}
 
-	public List<ContextualView> getViews(DataLink datalink) {
-		return Arrays.asList(new ContextualView[] {new DatalinkContextualView(datalink, fileManager)});
+	@Override
+	public String getExtension() {
+		return "wfbundle";
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
+	@Override
+	public String getMimeType() {
+		return RDFXMLReader.APPLICATION_VND_TAVERNA_SCUFL2_WORKFLOW_BUNDLE;
 	}
 
 }

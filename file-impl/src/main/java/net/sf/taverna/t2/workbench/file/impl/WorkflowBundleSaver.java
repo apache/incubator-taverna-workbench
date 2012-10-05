@@ -35,26 +35,23 @@ import net.sf.taverna.t2.workbench.file.DataflowInfo;
 import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.XMLSerializerImpl;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
-import org.jdom.output.XMLOutputter;
 
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.io.WorkflowBundleIO;
+import uk.org.taverna.scufl2.api.io.WriterException;
+import uk.org.taverna.scufl2.rdfxml.RDFXMLReader;
 
-public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
+public class WorkflowBundleSaver extends AbstractDataflowPersistenceHandler
 		implements DataflowPersistenceHandler {
 
-	private static final T2FlowFileType T2_FLOW_FILE_TYPE = new T2FlowFileType();
-	private static Logger logger = Logger.getLogger(T2DataflowSaver.class);
-	private ApplicationConfiguration applicationConfiguration;
+	private static final WorkflowBundleFileType WF_BUNDLE_FILE_TYPE = new WorkflowBundleFileType();
+	private static Logger logger = Logger.getLogger(WorkflowBundleSaver.class);
+	private WorkflowBundleIO workflowBundleIO;
 
 	@Override
-	public DataflowInfo saveDataflow(Dataflow dataflow, FileType fileType,
+	public DataflowInfo saveDataflow(WorkflowBundle workflowBundle, FileType fileType,
 			Object destination) throws SaveException {
 		if (!getSaveFileTypes().contains(fileType)) {
 			throw new IllegalArgumentException("Unsupported file type "
@@ -63,8 +60,8 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 		OutputStream outStream;
 		if (destination instanceof File) {
 			try {
-				outStream = new SafeFileOutputStream((File) destination);
-			} catch (IOException e) {
+				outStream = new FileOutputStream((File) destination);
+			} catch (FileNotFoundException e) {
 				throw new SaveException("Can't create workflow file "
 						+ destination + ":\n" + e.getLocalizedMessage(), e);
 			}
@@ -74,17 +71,12 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 			throw new IllegalArgumentException("Unsupported destination type "
 					+ destination.getClass());
 		}
-		boolean saved = false;
 		try {
-			saveDataflowToStream(dataflow, outStream);
-			saved = true;
+			saveDataflowToStream(workflowBundle, outStream);
 		} finally {
 			if (!(destination instanceof OutputStream)) {
 				// Only close if we opened the stream
 				try {
-					if (! saved && outStream instanceof SafeFileOutputStream) {
-						((SafeFileOutputStream) outStream).rollback();
-					}
 					outStream.close();
 				} catch (IOException e) {
 					logger.warn("Could not close stream", e);
@@ -93,31 +85,21 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 		}
 
 		if (destination instanceof File) {
-			return new FileDataflowInfo(T2_FLOW_FILE_TYPE, (File) destination,
-					dataflow);
+			return new FileDataflowInfo(WF_BUNDLE_FILE_TYPE, (File) destination,
+					workflowBundle);
 		}
-		return new DataflowInfo(T2_FLOW_FILE_TYPE, destination, dataflow);
+		return new DataflowInfo(WF_BUNDLE_FILE_TYPE, destination, workflowBundle);
 
 	}
 
-	protected void saveDataflowToStream(Dataflow dataflow,
+	protected void saveDataflowToStream(WorkflowBundle workflowBundle,
 			OutputStream fileOutStream) throws SaveException {
-		BufferedOutputStream bufferedOutStream = new BufferedOutputStream(
-				fileOutStream);
-		XMLOutputter outputter = new XMLOutputter();
-
-		XMLSerializer serialiser = new XMLSerializerImpl();
-		serialiser.setProducedBy(applicationConfiguration.getName());
-		Element serialized;
+		BufferedOutputStream bufferedOutStream = new BufferedOutputStream(fileOutStream);
 		try {
-			serialized = serialiser.serializeDataflow(dataflow);
-		} catch (SerializationException e) {
-			throw new SaveException("Could not serialize " + dataflow, e);
-		}
-
-		try {
-			outputter.output(serialized, bufferedOutStream);
-			bufferedOutStream.flush();
+			workflowBundleIO.writeBundle(workflowBundle, fileOutStream,
+					RDFXMLReader.APPLICATION_VND_TAVERNA_SCUFL2_WORKFLOW_BUNDLE);
+		} catch (WriterException e) {
+			throw new SaveException("Can't write workflow:\n" + e.getLocalizedMessage(), e);
 		} catch (IOException e) {
 			throw new SaveException("Can't write workflow:\n" + e.getLocalizedMessage(), e);
 		}
@@ -125,7 +107,7 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 
 	@Override
 	public List<FileType> getSaveFileTypes() {
-		return Arrays.<FileType> asList(T2_FLOW_FILE_TYPE);
+		return Arrays.<FileType> asList(WF_BUNDLE_FILE_TYPE);
 	}
 
 	@Override
@@ -134,7 +116,7 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 	}
 
 	@Override
-	public boolean wouldOverwriteDataflow(Dataflow dataflow, FileType fileType,
+	public boolean wouldOverwriteDataflow(WorkflowBundle workflowBundle, FileType fileType,
 			Object destination, DataflowInfo lastDataflowInfo) {
 		if (!getSaveFileTypes().contains(fileType)) {
 			throw new IllegalArgumentException("Unsupported file type "
@@ -173,8 +155,8 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 		return true;
 	}
 
-	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
-		this.applicationConfiguration = applicationConfiguration;
+	public void setWorkflowBundleIO(WorkflowBundleIO workflowBundleIO) {
+		this.workflowBundleIO = workflowBundleIO;
 	}
 
 }

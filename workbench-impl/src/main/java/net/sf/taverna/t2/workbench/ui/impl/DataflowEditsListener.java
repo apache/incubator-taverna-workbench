@@ -1,21 +1,22 @@
 package net.sf.taverna.t2.workbench.ui.impl;
 
+import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowRedoEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowUndoEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.DataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.Edits;
+import net.sf.taverna.t2.workflow.edits.UpdateDataflowInternalIdentifierEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Listens out for any edits on a dataflow and changes its internal id (or back
@@ -29,13 +30,11 @@ public class DataflowEditsListener implements Observer<EditManagerEvent> {
 
 	private static Logger logger = Logger.getLogger(DataflowEditsListener.class);
 
-	private Map<Edit<?>, String> dataflowEditMap;
-	private Edits edits;
+	private Map<Edit<?>, URI> dataflowEditMap;
 
-	public DataflowEditsListener(Edits edits) {
+	public DataflowEditsListener() {
 		super();
-		this.edits = edits;
-		dataflowEditMap = new HashMap<Edit<?>, String>();
+		dataflowEditMap = new HashMap<Edit<?>, URI>();
 	}
 
 	/**
@@ -52,12 +51,12 @@ public class DataflowEditsListener implements Observer<EditManagerEvent> {
 			// the dataflow has been edited in some way so change its internal
 			// id and store the old one against the edit that is changing
 			// 'something'
-			Dataflow dataFlow = ((DataflowEditEvent) event).getDataFlow();
-			String internalIdentifier = dataFlow.getIdentifier();
+			WorkflowBundle dataFlow = ((DataflowEditEvent) event).getDataFlow();
+			URI internalIdentifier = dataFlow.getGlobalBaseURI();
 			Edit<?> edit = event.getEdit();
 			dataflowEditMap.put(edit, internalIdentifier);
-			String newIdentifier = UUID.randomUUID().toString();
-			edits.getUpdateDataflowInternalIdentifierEdit(dataFlow,
+			URI newIdentifier = WorkflowBundle.generateIdentifier();
+			new UpdateDataflowInternalIdentifierEdit(dataFlow,
 					newIdentifier).doEdit();
 			logger.debug("Workflow edit, id changed from: " + internalIdentifier
 					+ " to " + newIdentifier);
@@ -66,13 +65,13 @@ public class DataflowEditsListener implements Observer<EditManagerEvent> {
 			// change the id back to the old one and store the new one in case
 			// we want to change it back
 			Edit<?> edit = event.getEdit();
-			Dataflow dataFlow = ((DataFlowRedoEvent) event).getDataFlow();
-			String newId = dataFlow.getIdentifier();
+			WorkflowBundle dataFlow = ((DataFlowRedoEvent) event).getDataFlow();
+			URI newId = dataFlow.getGlobalBaseURI();
 
-			String oldId = dataflowEditMap.get(edit);
+			URI oldId = dataflowEditMap.get(edit);
 			dataflowEditMap.put(edit, newId);
 
-			edits.getUpdateDataflowInternalIdentifierEdit(dataFlow, oldId)
+			new UpdateDataflowInternalIdentifierEdit(dataFlow, oldId)
 					.doEdit();
 			logger.debug("Workflow edit, id changed from: " + newId + " to "
 					+ oldId);
@@ -81,13 +80,13 @@ public class DataflowEditsListener implements Observer<EditManagerEvent> {
 			// change the id back to the old one and store the new one in case
 			// we want to change it back
 			Edit<?> edit = event.getEdit();
-			Dataflow dataFlow = ((DataFlowUndoEvent) event).getDataFlow();
-			String newId = dataFlow.getIdentifier();
+			WorkflowBundle dataFlow = ((DataFlowUndoEvent) event).getDataFlow();
+			URI newId = dataFlow.getGlobalBaseURI();
 
-			String oldId = dataflowEditMap.get(edit);
+			URI oldId = dataflowEditMap.get(edit);
 			dataflowEditMap.put(edit, newId);
 
-			edits.getUpdateDataflowInternalIdentifierEdit(dataFlow, oldId)
+			new UpdateDataflowInternalIdentifierEdit(dataFlow, oldId)
 					.doEdit();
 			logger.debug("Workflow edit, id changed from: " + newId + " to "
 					+ oldId);

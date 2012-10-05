@@ -18,38 +18,23 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.ui.views.contextualviews.datalink;
-
-import java.util.Arrays;
-import java.util.List;
-
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import uk.org.taverna.scufl2.api.core.DataLink;
-
 /**
- * A factory of contextual views for dataflow's datalinks.
- *
- * @author Alex Nenadic
  *
  */
-public class DatalinkContextualViewFactory implements
-		ContextualViewFactory<DataLink> {
+package net.sf.taverna.t2.workbench.file.impl;
 
-	private FileManager fileManager;
+import java.io.File;
 
-	public boolean canHandle(Object object) {
-		return object instanceof Datalink;
+import javax.swing.filechooser.FileFilter;
+
+public class WorkflowBundleFileFilter extends FileFilter {
+	@Override
+	public boolean accept(final File file) {
+		return file.getName().toLowerCase().endsWith(".wfbundle");
 	}
 
-	public List<ContextualView> getViews(DataLink datalink) {
-		return Arrays.asList(new ContextualView[] {new DatalinkContextualView(datalink, fileManager)});
+	@Override
+	public String getDescription() {
+		return "Taverna 3 workflows";
 	}
-
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
 }

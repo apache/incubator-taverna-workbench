@@ -35,9 +35,10 @@ import javax.swing.KeyStroke;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 public class CloseAllWorkflowsAction extends AbstractAction {
 
@@ -69,13 +70,13 @@ public class CloseAllWorkflowsAction extends AbstractAction {
 
 	public boolean closeAllWorkflows(Component parentComponent) {
 		// Close in reverse so we can save nested workflows first
-		List<Dataflow> dataflows = fileManager.getOpenDataflows();
+		List<WorkflowBundle> workflowBundles = fileManager.getOpenDataflows();
 
-		Collections.reverse(dataflows);
+		Collections.reverse(workflowBundles);
 
-		for (Dataflow dataflow : dataflows) {
+		for (WorkflowBundle workflowBundle : workflowBundles) {
 			boolean success = closeWorkflowAction.closeWorkflow(
-					parentComponent, dataflow);
+					parentComponent, workflowBundle);
 			if (!success) {
 				return false;
 			}

@@ -39,7 +39,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * A AbstractMenuAction used as a superclass for {@link UndoMenuAction} and
@@ -93,9 +93,9 @@ public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
 		 * {@inheritDoc}
 		 */
 		public void actionPerformed(ActionEvent e) {
-			Dataflow dataflow = getCurrentDataflow();
-			if (dataflow != null) {
-				performUndoOrRedo(dataflow);
+			WorkflowBundle workflowBundle = getCurrentDataflow();
+			if (workflowBundle != null) {
+				performUndoOrRedo(workflowBundle);
 			}
 		}
 
@@ -103,11 +103,11 @@ public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
 		 * Check if action should be enabled or disabled and update its status.
 		 */
 		public void updateStatus() {
-			Dataflow dataflow = getCurrentDataflow();
-			if (dataflow == null) {
+			WorkflowBundle workflowBundle = getCurrentDataflow();
+			if (workflowBundle == null) {
 				setEnabled(false);
 			}
-			setEnabled(isActive(dataflow));
+			setEnabled(isActive(workflowBundle));
 		}
 
 		/**
@@ -116,9 +116,8 @@ public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
 		 *
 		 * @return The current {@link Dataflow}
 		 */
-		protected Dataflow getCurrentDataflow() {
-			return (Dataflow) modelMap
-					.getModel(ModelMapConstants.CURRENT_DATAFLOW);
+		protected WorkflowBundle getCurrentDataflow() {
+			return (WorkflowBundle) modelMap.getModel(ModelMapConstants.CURRENT_DATAFLOW);
 		}
 
 		/**
@@ -130,7 +129,7 @@ public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
 		 *            Current {@link Dataflow}
 		 * @return <code>true</code> if the action should be enabled.
 		 */
-		protected abstract boolean isActive(Dataflow dataflow);
+		protected abstract boolean isActive(WorkflowBundle workflowBundle);
 
 		/**
 		 * Called by {@link #actionPerformed(ActionEvent)} when the current
@@ -139,7 +138,7 @@ public abstract class AbstractUndoMenuAction extends AbstractMenuAction {
 		 * @param dataflow
 		 *            {@link Dataflow} on which to undo or redo
 		 */
-		protected abstract void performUndoOrRedo(Dataflow dataflow);
+		protected abstract void performUndoOrRedo(WorkflowBundle workflowBundle);
 
 		/**
 		 * Update the status if there's been an edit done on the current

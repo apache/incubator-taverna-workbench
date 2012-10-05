@@ -26,9 +26,11 @@ import java.io.File;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workbench.file.impl.actions.OpenWorkflowAction.OpenCallback;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * An action for opening a nested workflow from a file.
@@ -61,8 +63,8 @@ public class OpenNestedWorkflowAction extends OpenWorkflowAction {
 
 			try {
 				callback.aboutToOpenDataflow(file);
-				Dataflow dataflow = fileManager.openDataflow(fileType, file);
-				callback.openedDataflow(file, dataflow);
+				WorkflowBundle workflowBundle = fileManager.openDataflow(fileType, file);
+				callback.openedDataflow(file, workflowBundle);
 			} catch (final RuntimeException ex) {
 				logger.warn("Could not open workflow from " + file, ex);
 				if (!callback.couldNotOpenDataflow(file, ex)) {

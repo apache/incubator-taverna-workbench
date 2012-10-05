@@ -24,10 +24,10 @@ import javax.swing.Action;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Undo the last {@link Edit} done on the current workflow using the
@@ -48,18 +48,18 @@ public class UndoMenuAction extends AbstractUndoMenuAction {
 	protected Action createAction() {
 		return new AbstractUndoAction("Undo") {
 			@Override
-			protected boolean isActive(Dataflow dataflow) {
-				return editManager.canUndoDataflowEdit(dataflow);
+			protected boolean isActive(WorkflowBundle workflowBundle) {
+				return editManager.canUndoDataflowEdit(workflowBundle);
 			}
 
 			@Override
-			protected void performUndoOrRedo(Dataflow dataflow) {
+			protected void performUndoOrRedo(WorkflowBundle workflowBundle) {
 				try {
-					editManager.undoDataflowEdit(dataflow);
+					editManager.undoDataflowEdit(workflowBundle);
 				} catch (RuntimeException e) {
-					logger.warn("Could not undo for " + dataflow, e);
+					logger.warn("Could not undo for " + workflowBundle, e);
 					JOptionPane.showMessageDialog(null,
-							"Could not undo for workflow " + dataflow + ":\n"
+							"Could not undo for workflow " + workflowBundle + ":\n"
 									+ e, "Could not undo",
 							JOptionPane.ERROR_MESSAGE);
 				}

@@ -31,24 +31,24 @@ import java.util.UUID;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowRedoEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowUndoEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.DataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
+import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
 
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class TestEditManagerImpl {
 
-	private Dataflow dataflow;
+	private Workflow dataflow;
 
 	private EditManagerObserver editManagerObserver = new EditManagerObserver();
 
@@ -56,19 +56,17 @@ public class TestEditManagerImpl {
 
 	@Test
 	public void addProcessor() throws Exception {
-		EditManager editManager = new EditManagerImpl(new EditsImpl());
+		EditManager editManager = new EditManagerImpl();
 		editManager.addObserver(editManagerObserver);
 
-		Edits edits = editManager.getEdits();
-		Edit<Dataflow> edit = edits.getAddProcessorEdit(dataflow, processor);
+		Edit<Workflow> edit = new AddProcessorEdit(dataflow, processor);
 		assertFalse("Edit was already applied", edit.isApplied());
 		assertTrue("Did already add processor", dataflow.getProcessors()
 				.isEmpty());
 
-		editManager.doDataflowEdit(dataflow, edit);
+		editManager.doDataflowEdit(dataflow.getParent(), edit);
 		assertTrue("Edit was not applied", edit.isApplied());
-		assertEquals("Did not add processor", processor, dataflow
-				.getProcessors().get(0));
+		assertEquals("Did not add processor", processor, dataflow.getProcessors().first());
 
 		// Should have received the edit event
 		assertEquals("Incorrect number of events", 1,
@@ -78,7 +76,7 @@ public class TestEditManagerImpl {
 				event instanceof DataflowEditEvent);
 		DataflowEditEvent dataEditEvent = (DataflowEditEvent) event;
 		assertEquals("Event did not have correct workflow", dataflow,
-				dataEditEvent.getDataFlow());
+				dataEditEvent.getDataFlow().getWorkflows().first());
 		assertEquals("Event did not have correct edit", edit, dataEditEvent
 				.getEdit());
 
@@ -86,15 +84,14 @@ public class TestEditManagerImpl {
 
 	@Test
 	public void undoAddProcessor() throws Exception {
-		EditManager editManager = new EditManagerImpl(new EditsImpl());
+		EditManager editManager = new EditManagerImpl();
 		editManager.addObserver(editManagerObserver);
 
-		Edits edits = editManager.getEdits();
-		Edit<Dataflow> edit = edits.getAddProcessorEdit(dataflow, processor);
-		editManager.doDataflowEdit(dataflow, edit);
+		Edit<Workflow> edit = new AddProcessorEdit(dataflow, processor);
+		editManager.doDataflowEdit(dataflow.getParent(), edit);
 
 		assertFalse("Did not add processor", dataflow.getProcessors().isEmpty());
-		editManager.undoDataflowEdit(dataflow);
+		editManager.undoDataflowEdit(dataflow.getParent());
 		assertTrue("Did not undo add processor", dataflow.getProcessors()
 				.isEmpty());
 
@@ -106,7 +103,7 @@ public class TestEditManagerImpl {
 				event instanceof DataFlowUndoEvent);
 		DataFlowUndoEvent dataEditEvent = (DataFlowUndoEvent) event;
 		assertEquals("Event did not have correct workflow", dataflow,
-				dataEditEvent.getDataFlow());
+				dataEditEvent.getDataFlow().getWorkflows().first());
 		assertEquals("Event did not have correct edit", edit, dataEditEvent
 				.getEdit());
 		assertFalse("Edit was still applied", edit.isApplied());
@@ -114,12 +111,12 @@ public class TestEditManagerImpl {
 
 	@Test
 	public void multipleUndoesRedoes() throws Exception {
-		EditManager editManager = new EditManagerImpl(new EditsImpl());
+		EditManager editManager = new EditManagerImpl();
 		editManager.addObserver(editManagerObserver);
 
-		Dataflow dataflowA = createDataflow();
-		Dataflow dataflowB = createDataflow();
-		Dataflow dataflowC = createDataflow();
+		Workflow dataflowA = createDataflow();
+		Workflow dataflowB = createDataflow();
+		Workflow dataflowC = createDataflow();
 
 		Processor processorA1 = createProcessor();
 		Processor processorA2 = createProcessor();
@@ -127,64 +124,61 @@ public class TestEditManagerImpl {
 		Processor processorB1 = createProcessor();
 		Processor processorC1 = createProcessor();
 
+		Edit<Workflow> edit = new AddProcessorEdit(dataflowA, processorA1);
+		editManager.doDataflowEdit(dataflowA.getParent(), edit);
 
-		Edits edits = editManager.getEdits();
-		Edit<Dataflow> edit = edits.getAddProcessorEdit(dataflowA, processorA1);
-		editManager.doDataflowEdit(dataflowA, edit);
+		edit = new AddProcessorEdit(dataflowB, processorB1);
+		editManager.doDataflowEdit(dataflowB.getParent(), edit);
 
-		edit = edits.getAddProcessorEdit(dataflowB, processorB1);
-		editManager.doDataflowEdit(dataflowB, edit);
+		edit = new AddProcessorEdit(dataflowA, processorA2);
+		editManager.doDataflowEdit(dataflowA.getParent(), edit);
 
-		edit = edits.getAddProcessorEdit(dataflowA, processorA2);
-		editManager.doDataflowEdit(dataflowA, edit);
+		edit = new AddProcessorEdit(dataflowC, processorC1);
+		editManager.doDataflowEdit(dataflowC.getParent(), edit);
 
-		edit = edits.getAddProcessorEdit(dataflowC, processorC1);
-		editManager.doDataflowEdit(dataflowC, edit);
-
-
-		edit = edits.getAddProcessorEdit(dataflowA, processorA3);
-		editManager.doDataflowEdit(dataflowA, edit);
+		edit = new AddProcessorEdit(dataflowA, processorA3);
+		editManager.doDataflowEdit(dataflowA.getParent(), edit);
 
 
 
 		assertFalse("Did not add processors", dataflowA.getProcessors().isEmpty());
 		assertEquals(3, dataflowA.getProcessors().size());
-		editManager.undoDataflowEdit(dataflowA);
+		editManager.undoDataflowEdit(dataflowA.getParent());
 		assertEquals(2, dataflowA.getProcessors().size());
-		editManager.undoDataflowEdit(dataflowA);
+		editManager.undoDataflowEdit(dataflowA.getParent());
 		assertEquals(1, dataflowA.getProcessors().size());
-		editManager.undoDataflowEdit(dataflowA);
+		editManager.undoDataflowEdit(dataflowA.getParent());
 		assertEquals(0, dataflowA.getProcessors().size());
 
 		assertEquals(1, dataflowB.getProcessors().size());
 		assertEquals(1, dataflowC.getProcessors().size());
 
-		assertTrue(editManager.canUndoDataflowEdit(dataflowC));
-		editManager.undoDataflowEdit(dataflowC);
-		assertFalse(editManager.canUndoDataflowEdit(dataflowC));
-		editManager.undoDataflowEdit(dataflowC); // extra one
-		assertFalse(editManager.canUndoDataflowEdit(dataflowC));
+		assertTrue(editManager.canUndoDataflowEdit(dataflowC.getParent()));
+		editManager.undoDataflowEdit(dataflowC.getParent());
+		assertFalse(editManager.canUndoDataflowEdit(dataflowC.getParent()));
+		editManager.undoDataflowEdit(dataflowC.getParent()); // extra one
+		assertFalse(editManager.canUndoDataflowEdit(dataflowC.getParent()));
 
 
 		assertEquals(1, dataflowB.getProcessors().size());
 		assertEquals(0, dataflowC.getProcessors().size());
 
-		editManager.undoDataflowEdit(dataflowB);
+		editManager.undoDataflowEdit(dataflowB.getParent());
 		assertEquals(0, dataflowA.getProcessors().size());
 		assertEquals(0, dataflowB.getProcessors().size());
 		assertEquals(0, dataflowC.getProcessors().size());
 
-		editManager.redoDataflowEdit(dataflowA);
+		editManager.redoDataflowEdit(dataflowA.getParent());
 		assertEquals(1, dataflowA.getProcessors().size());
 
-		editManager.redoDataflowEdit(dataflowA);
+		editManager.redoDataflowEdit(dataflowA.getParent());
 		assertEquals(2, dataflowA.getProcessors().size());
 
-		editManager.redoDataflowEdit(dataflowA);
+		editManager.redoDataflowEdit(dataflowA.getParent());
 		assertEquals(3, dataflowA.getProcessors().size());
 
 		// does not affect it
-		editManager.redoDataflowEdit(dataflowA);
+		editManager.redoDataflowEdit(dataflowA.getParent());
 		assertEquals(3, dataflowA.getProcessors().size());
 		assertEquals(0, dataflowB.getProcessors().size());
 		assertEquals(0, dataflowC.getProcessors().size());
@@ -192,49 +186,42 @@ public class TestEditManagerImpl {
 
 	@Test
 	public void emptyUndoDoesNotFail() throws Exception {
-		EditManager editManager = new EditManagerImpl(new EditsImpl());
+		EditManager editManager = new EditManagerImpl();
 		editManager.addObserver(editManagerObserver);
-		editManager.undoDataflowEdit(dataflow);
+		editManager.undoDataflowEdit(dataflow.getParent());
 	}
 
 	@Test
 	public void extraUndoesDoesNotFail() throws Exception {
-		EditManager editManager = new EditManagerImpl(new EditsImpl());
+		EditManager editManager = new EditManagerImpl();
 		editManager.addObserver(editManagerObserver);
 
-		Edits edits = editManager.getEdits();
-		Edit<Dataflow> edit = edits.getAddProcessorEdit(dataflow, processor);
-		editManager.doDataflowEdit(dataflow, edit);
+		Edit<Workflow> edit = new AddProcessorEdit(dataflow, processor);
+		editManager.doDataflowEdit(dataflow.getParent(), edit);
 
 		assertFalse("Did not add processor", dataflow.getProcessors().isEmpty());
-		editManager.undoDataflowEdit(dataflow);
+		editManager.undoDataflowEdit(dataflow.getParent());
 		assertTrue("Did not undo add processor", dataflow.getProcessors()
 				.isEmpty());
-		editManager.undoDataflowEdit(dataflow);
+		editManager.undoDataflowEdit(dataflow.getParent());
 	}
-
-	@Test
-	public void getEditManager() throws Exception {
-		EditManager editManager = new EditManagerImpl(new EditsImpl());
-		Edits edits = editManager.getEdits();
-		assertTrue("Edits was not an instance of EditsImpl",
-				edits instanceof EditsImpl);
-	}
-
 
 	@Before
 	public void makeDataflow() {
 		dataflow = createDataflow();
 	}
 
-	protected Dataflow createDataflow() {
-		Edits edits = new EditsImpl();
-		return edits.createDataflow();
+	protected Workflow createDataflow() {
+		WorkflowBundle workflowBundle = new WorkflowBundle();
+		Workflow workflow = new Workflow();
+		workflow.setParent(workflowBundle);
+		return workflow;
 	}
 
 	protected Processor createProcessor() {
-		Edits edits = new EditsImpl();
-		return edits.createProcessor("proc-" + UUID.randomUUID());
+		Processor processor = new Processor();
+		processor.setName("proc-" + UUID.randomUUID());
+		return processor;
 	}
 
 	@Before

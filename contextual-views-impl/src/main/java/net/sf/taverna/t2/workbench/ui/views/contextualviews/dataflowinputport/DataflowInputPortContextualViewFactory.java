@@ -26,7 +26,7 @@ import java.util.List;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
 
 /**
  * A factory of contextual views for dataflow's input ports.
@@ -35,15 +35,15 @@ import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
  *
  */
 public class DataflowInputPortContextualViewFactory implements
-		ContextualViewFactory<DataflowInputPort> {
+		ContextualViewFactory<InputWorkflowPort> {
 
 	private FileManager fileManager;
 
 	public boolean canHandle(Object object) {
-		return object instanceof DataflowInputPort;
+		return object instanceof InputWorkflowPort;
 	}
 
-	public List<ContextualView> getViews(DataflowInputPort inputport) {
+	public List<ContextualView> getViews(InputWorkflowPort inputport) {
 		return Arrays.asList(new ContextualView[] {new DataflowInputPortContextualView(inputport, fileManager)});
 	}
 

@@ -34,9 +34,10 @@ import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * An action for opening a workflow from a url.
@@ -93,7 +94,7 @@ public class OpenWorkflowFromURLAction extends AbstractAction {
 			URL url = new URL(urlString);
 
 			Object canonicalSource = fileManager.getCanonical(url);
-			Dataflow alreadyOpen = fileManager.getDataflowBySource(canonicalSource);
+			WorkflowBundle alreadyOpen = fileManager.getDataflowBySource(canonicalSource);
 			if (alreadyOpen != null) {
 				// The workflow from the same source is already opened -
 				// ask the user if they want to switch to it or open another copy;

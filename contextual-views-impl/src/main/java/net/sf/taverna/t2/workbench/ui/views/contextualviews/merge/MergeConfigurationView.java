@@ -25,67 +25,46 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import uk.org.taverna.scufl2.api.core.DataLink;
+
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.EventForwardingOutputPort;
-import net.sf.taverna.t2.workflowmodel.Merge;
-import net.sf.taverna.t2.workflowmodel.MergeInputPort;
-import net.sf.taverna.t2.workflowmodel.TokenProcessingEntity;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 @SuppressWarnings("serial")
 public class MergeConfigurationView extends HelpEnabledDialog {
 
-	private Merge merge;
+	private List<DataLink> dataLinks;
+	private List<DataLink> reorderedDataLinks;
 
-	// Ordered list of merge's input ports
-	private List<MergeInputPort> inputPortsList;
-
-	// Ordered list of labels for links towards merge's ports to be displayed to the user
+	// Ordered list of labels for dataLinks to be displayed to the user
 	private DefaultListModel labelListModel;
 
 	// JList that displays the labelListModel
 	JList list;
 
-	// Button to push the link up the list
+	// Button to push the dataLink up the list
 	private JButton upButton;
 
-	// Button to push the link down the list
+	// Button to push the dataLink down the list
 	private JButton downButton;
 
 	private final EditManager editManager;
 
 	private final FileManager fileManager;
 
-	public MergeConfigurationView(Merge merge, EditManager editManager, FileManager fileManager){
+	public MergeConfigurationView(List<DataLink> dataLinks, EditManager editManager, FileManager fileManager){
 
 		super((Frame)null, "Merge Configuration", true);
 
-		this.merge = merge;
+		this.dataLinks = new ArrayList<DataLink>(dataLinks);
+		reorderedDataLinks = new ArrayList<DataLink>(dataLinks);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
-		// Ordered list of merge's input ports
-		inputPortsList = new ArrayList<MergeInputPort>(merge.getInputPorts());
-		// Generate labels for the input ports (label displays a link from a workflow entity
-		// towards the merge's input port)
 		labelListModel = new DefaultListModel();
-		String maxLabel = "Order of incoming links (entity.port -> merge):"+"Push";
-		for (MergeInputPort mergeInputPort : inputPortsList){
-			EventForwardingOutputPort sourcePort = mergeInputPort.getIncomingLink().getSource();
-			// Get the name TokenProcessingEntity (Processor or another Merge or Dataflow) and
-			// its port that contains the source EventForwardingOutputPort
-			Dataflow workflow = fileManager.getCurrentDataflow();
-			TokenProcessingEntity entity = Tools.getTokenProcessingEntityWithEventForwardingOutputPort(sourcePort, workflow);
-			if (entity != null){
-				String link = entity.getLocalName() + "."
-						+ sourcePort.getName() + " -> " + merge.getLocalName();
-				if (link.length() > maxLabel.length())
-					maxLabel = link;
-				labelListModel.addElement(link);
-			}
+		for (DataLink dataLink : dataLinks) {
+			labelListModel.addElement(dataLink.toString());
 		}
 
 		initComponents();
@@ -99,7 +78,7 @@ public class MergeConfigurationView extends HelpEnabledDialog {
         listPanel.setLayout(new BorderLayout());
         listPanel.setBorder(new CompoundBorder(new EmptyBorder(10,10,10,10), new EtchedBorder()));
 
-        JLabel title = new JLabel("<html><body><b>Order of incoming links (entity.port -> merge):</b></body></html>");
+        JLabel title = new JLabel("<html><body><b>Order of incoming links</b></body></html>");
         title.setBorder(new EmptyBorder(5,5,5,5));
         listPanel.add(title, BorderLayout.NORTH);
 
@@ -154,10 +133,10 @@ public class MergeConfigurationView extends HelpEnabledDialog {
 					String label = (String) labelListModel.elementAt(index);
 					labelListModel.set(index, labelListModel.get(index - 1));
 					labelListModel.set(index - 1, label);
-					// Swap the merge's ports
-					MergeInputPort port = inputPortsList.get(index);
-					inputPortsList.set(index, inputPortsList.get(index - 1));
-					inputPortsList.set(index - 1, port);
+					// Swap the dataLinks
+					DataLink dataLink = reorderedDataLinks.get(index);
+					reorderedDataLinks.set(index, reorderedDataLinks.get(index - 1));
+					reorderedDataLinks.set(index - 1, dataLink);
 					// Make the pushed item selected
 					list.setSelectedIndex(index - 1);
 					// Refresh the list
@@ -183,10 +162,10 @@ public class MergeConfigurationView extends HelpEnabledDialog {
 					String label = (String) labelListModel.elementAt(index);
 					labelListModel.set(index, labelListModel.get(index + 1));
 					labelListModel.set(index + 1, label);
-					// Swap the merge's ports
-					MergeInputPort port = inputPortsList.get(index);
-					inputPortsList.set(index, inputPortsList.get(index + 1));
-					inputPortsList.set(index + 1, port);
+					// Swap the dataLinks
+					DataLink dataLink = reorderedDataLinks.get(index);
+					reorderedDataLinks.set(index, reorderedDataLinks.get(index + 1));
+					reorderedDataLinks.set(index + 1, dataLink);
 					// Make the pushed item selected
 					list.setSelectedIndex(index + 1);
 					// Refresh the list
@@ -217,7 +196,7 @@ public class MergeConfigurationView extends HelpEnabledDialog {
         {
 			public void actionPerformed(ActionEvent e) {
 
-				new MergeConfigurationAction(merge, inputPortsList, editManager, fileManager).actionPerformed(e);
+				new MergeConfigurationAction(dataLinks, reorderedDataLinks, editManager, fileManager).actionPerformed(e);
 		        closeDialog();
 			}
 

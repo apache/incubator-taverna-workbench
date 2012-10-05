@@ -38,9 +38,10 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 @SuppressWarnings("serial")
 public class SaveAllWorkflowsAction extends AbstractAction {
@@ -92,12 +93,12 @@ public class SaveAllWorkflowsAction extends AbstractAction {
 
 	public void saveAllDataflows(Component parentComponent) {
 		// Save in reverse so we save nested workflows first
-		List<Dataflow> dataflows = fileManager.getOpenDataflows();
-		Collections.reverse(dataflows);
+		List<WorkflowBundle> workflowBundles = fileManager.getOpenDataflows();
+		Collections.reverse(workflowBundles);
 
-		for (Dataflow dataflow : dataflows) {
+		for (WorkflowBundle workflowBundle : workflowBundles) {
 			boolean success = saveWorkflowAction.saveDataflow(parentComponent,
-					dataflow);
+					workflowBundle);
 			if (!success) {
 				break;
 			}

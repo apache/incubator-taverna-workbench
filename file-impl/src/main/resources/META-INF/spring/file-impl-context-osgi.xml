@@ -26,7 +26,9 @@
 	<service ref="CloseToolbarAction" auto-export="interfaces" />
 
 	<service ref="T2DataflowOpener" interface="net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler" />
-	<service ref="T2DataflowSaver" interface="net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler" />
+
+	<service ref="WorkflowBundleOpener" interface="net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler" />
+	<service ref="WorkflowBundleSaver" interface="net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler" />
 
 	<service ref="CloseWorkflowsOnShutdown" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />
 
@@ -34,6 +36,7 @@
 
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="applicationConfiguration" interface="uk.org.taverna.configuration.app.ApplicationConfiguration" />
+	<reference id="workflowBundleIO" interface="uk.org.taverna.scufl2.api.io.WorkflowBundleIO" />
 
 	<list id="dataflowPersistenceHandlers" interface="net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler" cardinality="0..N">
 		<listener ref="DataflowPersistenceHandlerRegistry" bind-method="update" unbind-method="update" />

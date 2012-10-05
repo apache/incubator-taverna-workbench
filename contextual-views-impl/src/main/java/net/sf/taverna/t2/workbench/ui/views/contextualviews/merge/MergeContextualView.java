@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.ui.views.contextualviews.merge;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -35,14 +36,9 @@ import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.EventForwardingOutputPort;
-import net.sf.taverna.t2.workflowmodel.EventHandlingInputPort;
-import net.sf.taverna.t2.workflowmodel.Merge;
-import net.sf.taverna.t2.workflowmodel.MergeInputPort;
-import net.sf.taverna.t2.workflowmodel.TokenProcessingEntity;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.DataLink;
 
 /**
  * Contextual view for a {@link Merge}.
@@ -53,15 +49,19 @@ import net.sf.taverna.t2.workflowmodel.utils.Tools;
 @SuppressWarnings("serial")
 public class MergeContextualView extends ContextualView{
 
-	private Merge merge;
-	private Dataflow workflow;
+	private DataLink dataLink;
+	private List<DataLink> datalinks;
+	private WorkflowBundle workflow;
 	private JEditorPane editorPane;
 	private final EditManager editManager;
 	private final FileManager fileManager;
 	private final ColourManager colourManager;
 
-	public MergeContextualView(Merge merge, EditManager editManager, FileManager fileManager, ColourManager colourManager) {
-		this.merge = merge;
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
+
+	public MergeContextualView(DataLink dataLink, EditManager editManager, FileManager fileManager, ColourManager colourManager) {
+		this.dataLink = dataLink;
+		datalinks = scufl2Tools.datalinksTo(dataLink.getSendsTo());
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.colourManager = colourManager;
@@ -77,7 +77,7 @@ public class MergeContextualView extends ContextualView{
 
 	@Override
 	public String getViewTitle() {
-		return "Merge " + merge.getLocalName();
+		return "Merge Position";
 	}
 
 
@@ -95,32 +95,12 @@ public class MergeContextualView extends ContextualView{
 		String html = HtmlUtils.getHtmlHead(getBackgroundColour());
 		html += HtmlUtils.buildTableOpeningTag();
 		html += "<tr><td colspan=\"2\"><b>" + getViewTitle() + "</b></td></tr>";
-		html += "<tr><td colspan=\"2\"><b>Ordered incoming links (entity.port -> merge)</b></td></tr>";
+		html += "<tr><td colspan=\"2\"><b>Ordered incoming links</b></td></tr>";
 
 		int counter = 1;
-		for (MergeInputPort mergeInputPort : merge.getInputPorts()){
-			EventForwardingOutputPort sourcePort = mergeInputPort.getIncomingLink().getSource();
-			// Get the name TokenProcessingEntity (Processor or another Merge or Dataflow) and
-			// its port that contains the source EventForwardingOutputPort
-			TokenProcessingEntity entity = Tools.getTokenProcessingEntityWithEventForwardingOutputPort(sourcePort, workflow);
-			if (entity != null){
-				html += "<tr><td>"+ (counter++) + ".</td><td>" + entity.getLocalName() + "."
-						+ sourcePort.getName() + " -> " + merge.getLocalName()
-						+ "</td></tr>";
-			}
 
-		}
-
-		html += "<tr><td colspan=\"2\"><b>Outgoing link (merge -> entity.port)</b></td></tr>";
-		Object[] links = merge.getOutputPort().getOutgoingLinks().toArray();
-		// There will be only one link in the set
-		EventHandlingInputPort targetPort = ((Datalink) links[0]).getSink();
-		TokenProcessingEntity entity = Tools.getTokenProcessingEntityWithEventHandlingInputPort(targetPort,workflow);
-		// Find the other part of the link (if any - could have been deleted)
-		if (entity != null){
-			html += "<tr><td>1.</td><td>" + merge.getLocalName() + " -> "
-					+ entity.getLocalName() + "." + targetPort.getName()
-					+ "</td></tr>";
+		for (DataLink datalink : datalinks){
+			html += "<tr><td>"+ (counter++) + ".</td><td>" + datalink + "</td></tr>";
 		}
 
 		html += "</table>";
@@ -139,7 +119,7 @@ public class MergeContextualView extends ContextualView{
 		JButton configureButton = new JButton(new AbstractAction(){
 
 			public void actionPerformed(ActionEvent e) {
-				MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(merge, editManager, fileManager);
+				MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(datalinks, editManager, fileManager);
 				mergeConfigurationView.setLocationRelativeTo(panel);
 				mergeConfigurationView.setVisible(true);
 			}

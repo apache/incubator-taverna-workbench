@@ -34,9 +34,10 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.exceptions.UnsavedException;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 public class CloseWorkflowAction extends AbstractAction {
 
@@ -64,25 +65,25 @@ public class CloseWorkflowAction extends AbstractAction {
 		closeWorkflow(parentComponent, fileManager.getCurrentDataflow());
 	}
 
-	public boolean closeWorkflow(Component parentComponent, Dataflow dataflow) {
-		if (dataflow == null) {
+	public boolean closeWorkflow(Component parentComponent, WorkflowBundle workflowBundle) {
+		if (workflowBundle == null) {
 			logger.warn("Attempted to close a null workflow");
 			return false;
 		}
 
 		try {
-			return fileManager.closeDataflow(dataflow, true);
+			return fileManager.closeDataflow(workflowBundle, true);
 		} catch (UnsavedException e1) {
-			fileManager.setCurrentDataflow(dataflow);
+			fileManager.setCurrentDataflow(workflowBundle);
 			String msg = "Do you want to save changes before closing the workflow "
-					+ fileManager.getDataflowName(dataflow) + "?";
+					+ fileManager.getDataflowName(workflowBundle) + "?";
 			int ret = JOptionPane.showConfirmDialog(parentComponent, msg,
 					"Save workflow?", JOptionPane.YES_NO_CANCEL_OPTION);
 			if (ret == JOptionPane.CANCEL_OPTION || ret == JOptionPane.CLOSED_OPTION) {
 				return false;
 			} else if (ret == JOptionPane.NO_OPTION) {
 				try {
-					fileManager.closeDataflow(dataflow, false);
+					fileManager.closeDataflow(workflowBundle, false);
 					return true;
 				} catch (UnsavedException e2) {
 					logger.error("Unexpected UnsavedException while "
@@ -90,11 +91,11 @@ public class CloseWorkflowAction extends AbstractAction {
 					return false;
 				}
 			} else if (ret == JOptionPane.YES_OPTION) {
-				boolean saved = saveWorkflowAction.saveDataflow(parentComponent, dataflow);
+				boolean saved = saveWorkflowAction.saveDataflow(parentComponent, workflowBundle);
 				if (! saved) {
 					return false;
 				}
-				return closeWorkflow(parentComponent, dataflow);
+				return closeWorkflow(parentComponent, workflowBundle);
 			} else {
 				logger.error("Unknown return from JOptionPane: " + ret);
 				return false;

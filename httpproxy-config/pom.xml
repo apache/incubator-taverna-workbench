@@ -36,10 +36,10 @@
 			<artifactId>helper</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 		<groupId>net.sf.taverna.t2.infrastructure</groupId>
 	    <artifactId>launcher</artifactId>
 		<version>${t2.infrastructure.version}</version>
-	    </dependency>
+	    </dependency> -->
  	</dependencies>
 </project>

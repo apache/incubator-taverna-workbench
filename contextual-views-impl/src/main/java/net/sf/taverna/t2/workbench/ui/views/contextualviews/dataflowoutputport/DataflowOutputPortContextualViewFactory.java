@@ -27,6 +27,7 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * A factory of contextual views for dataflow's output ports.
@@ -35,7 +36,7 @@ import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
  *
  */
 public class DataflowOutputPortContextualViewFactory implements
-		ContextualViewFactory<DataflowOutputPort> {
+		ContextualViewFactory<OutputWorkflowPort> {
 
 	private FileManager fileManager;
 
@@ -43,7 +44,7 @@ public class DataflowOutputPortContextualViewFactory implements
 		return object instanceof DataflowOutputPort;
 	}
 
-	public List<ContextualView> getViews(DataflowOutputPort outputport) {
+	public List<ContextualView> getViews(OutputWorkflowPort outputport) {
 		return Arrays.asList(new ContextualView[] {new DataflowOutputPortContextualView(outputport, fileManager)});
 	}
 

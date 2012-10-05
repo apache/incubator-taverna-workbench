@@ -45,17 +45,17 @@ import net.sf.taverna.t2.annotation.Annotated;
 import net.sf.taverna.t2.annotation.AnnotationBeanSPI;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
+import net.sf.taverna.t2.workbench.edits.CompoundEdit;
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.impl.ContextualViewComponent;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  *
@@ -77,7 +77,8 @@ public class AnnotatedContextualView extends ContextualView {
 	private static Logger logger = Logger
 			.getLogger(AnnotatedContextualView.class);
 
-	private static AnnotationTools annotationTools = new AnnotationTools();
+	// TODO convert to scufl2
+//	private static AnnotationTools annotationTools = new AnnotationTools();
 
 	/**
 	 * The object to which the Annotations apply
@@ -118,7 +119,7 @@ public class AnnotatedContextualView extends ContextualView {
 		initialise();
 		initView();
 	}
-	
+
 	public void refreshView() {
 			initialise();
 	}
@@ -156,24 +157,25 @@ public class AnnotatedContextualView extends ContextualView {
 		return VIEW_TITLE;
 	}
 
-	
+
 	public void populatePanel() {
 		JPanel scrollPanel = new JPanel();
 		scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
 		panel.setBorder(new EmptyBorder(5, 5, 5, 5));
-		for (Class<?> c : annotationTools.getAnnotatingClasses(annotated)) {
-			String name = "";
-			try {
-				name = prb.getString(c.getCanonicalName());
-			} catch (MissingResourceException e) {
-				name = c.getCanonicalName();
-			}
-			JPanel subPanel = new JPanel();
-			subPanel.setBorder(new TitledBorder(name));
-			String value = annotationTools.getAnnotationString(annotated, c, MISSING_VALUE);
-			subPanel.add(createTextArea(c, value));
-			scrollPanel.add(subPanel);
-		}
+		// TODO convert to scufl2
+//		for (Class<?> c : annotationTools.getAnnotatingClasses(annotated)) {
+//			String name = "";
+//			try {
+//				name = prb.getString(c.getCanonicalName());
+//			} catch (MissingResourceException e) {
+//				name = c.getCanonicalName();
+//			}
+//			JPanel subPanel = new JPanel();
+//			subPanel.setBorder(new TitledBorder(name));
+//			String value = annotationTools.getAnnotationString(annotated, c, MISSING_VALUE);
+//			subPanel.add(createTextArea(c, value));
+//			scrollPanel.add(subPanel);
+//		}
 		JScrollPane scrollPane = new JScrollPane(scrollPanel);
 		panel.add(scrollPane);
 	}
@@ -222,13 +224,14 @@ public class AnnotatedContextualView extends ContextualView {
 					currentValue = "";
 				}
 				try {
-					Dataflow currentDataflow = fileManager.getCurrentDataflow();
+					WorkflowBundle currentDataflow = fileManager.getCurrentDataflow();
 					List<Edit<?>> editList = new ArrayList<Edit<?>>();
-					editList.add(annotationTools.setAnnotationString(annotated, annotationClass, currentValue, editManager.getEdits()));
-					if ((annotated == currentDataflow) && (prb.getString(annotationClass.getCanonicalName()).equals("Title")) &&!currentValue.isEmpty()) {
-						editList.add(editManager.getEdits().getUpdateDataflowNameEdit(currentDataflow,
-								sanitiseName(currentValue)));
-					}
+					// TODO convert to scufl2
+//					editList.add(annotationTools.setAnnotationString(annotated, annotationClass, currentValue, editManager.getEdits()));
+//					if ((annotated == currentDataflow) && (prb.getString(annotationClass.getCanonicalName()).equals("Title")) &&!currentValue.isEmpty()) {
+//						editList.add(editManager.getEdits().getUpdateDataflowNameEdit(currentDataflow,
+//								sanitiseName(currentValue)));
+//					}
 					if (!isStandalone) {
 						ContextualViewComponent.selfGenerated = true;
 					}

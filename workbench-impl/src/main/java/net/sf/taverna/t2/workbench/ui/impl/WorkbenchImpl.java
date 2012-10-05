@@ -146,7 +146,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 
 		makeGUI();
 		fileManager.newDataflow();
-		editManager.addObserver(new DataflowEditsListener(editManager.getEdits()));
+		editManager.addObserver(new DataflowEditsListener());
 //		SplashScreen splash = SplashScreen.getSplashScreen();
 //		if (splash != null) {
 //			splash.setClosable();

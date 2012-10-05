@@ -23,12 +23,13 @@ package net.sf.taverna.t2.workbench.edits.impl.menu;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Redo the previous {@link Edit} done on the current workflow using the
@@ -49,24 +50,24 @@ public class RedoMenuAction extends AbstractUndoMenuAction {
 	protected Action createAction() {
 		return new AbstractUndoAction("Redo") {
 			@Override
-			protected boolean isActive(Dataflow dataflow) {
-				return editManager.canRedoDataflowEdit(dataflow);
+			protected boolean isActive(WorkflowBundle workflowBundle) {
+				return editManager.canRedoDataflowEdit(workflowBundle);
 			}
 
 			@Override
-			protected void performUndoOrRedo(Dataflow dataflow) {
+			protected void performUndoOrRedo(WorkflowBundle workflowBundle) {
 				try {
-					editManager.redoDataflowEdit(dataflow);
+					editManager.redoDataflowEdit(workflowBundle);
 				} catch (EditException e) {
-					logger.warn("Could not redo for " + dataflow, e);
+					logger.warn("Could not redo for " + workflowBundle, e);
 					JOptionPane.showMessageDialog(null,
-							"Could not redo for workflow " + dataflow + ":\n"
+							"Could not redo for workflow " + workflowBundle + ":\n"
 									+ e, "Could not redo",
 							JOptionPane.ERROR_MESSAGE);
 				} catch (RuntimeException e) {
-					logger.warn("Could not redo for " + dataflow, e);
+					logger.warn("Could not redo for " + workflowBundle, e);
 					JOptionPane.showMessageDialog(null,
-							"Could not redo for workflow " + dataflow + ":\n"
+							"Could not redo for workflow " + workflowBundle + ":\n"
 									+ e, "Could not redo",
 							JOptionPane.ERROR_MESSAGE);
 				}

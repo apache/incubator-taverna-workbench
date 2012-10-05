@@ -25,7 +25,7 @@ import java.util.List;
 
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
+import uk.org.taverna.scufl2.api.port.InputActivityPort;
 
 /**
  * A factory of contextual views for dataflow proessor's (i.e. its associated
@@ -35,13 +35,13 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
  *
  */
 public class InputPortContextualViewFactory implements
-		ContextualViewFactory<ActivityInputPort> {
+		ContextualViewFactory<InputActivityPort> {
 
 	public boolean canHandle(Object object) {
-		return object instanceof ActivityInputPort;
+		return object instanceof InputActivityPort;
 	}
 
-	public List<ContextualView> getViews(ActivityInputPort inputport) {
+	public List<ContextualView> getViews(InputActivityPort inputport) {
 		return Arrays.asList(new ContextualView[] {new InputPortContextualView(inputport)});
 	}
 

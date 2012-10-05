@@ -27,8 +27,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import uk.org.taverna.scufl2.api.port.InputActivityPort;
+
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 
 /**
  * Contextual view for dataflow procerssor's input ports.
@@ -36,14 +37,14 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
  * @author Alex Nenadic
  *
  */
-public class InputPortContextualView extends ContextualView{
+public class InputPortContextualView extends ContextualView {
 
 	private static final long serialVersionUID = -7743029534480678624L;
 
-	private ActivityInputPort inputPort;
+	private InputActivityPort inputPort;
 	private JPanel inputPortView;
 
-	public InputPortContextualView(ActivityInputPort inputport) {
+	public InputPortContextualView(InputActivityPort inputport) {
 		this.inputPort = inputport;
 		initView();
 	}

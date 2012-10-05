@@ -27,13 +27,13 @@ import java.util.Map;
 
 import net.sf.taverna.t2.lang.observer.MultiCaster;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Implementation of {@link EditManager}.
@@ -45,15 +45,9 @@ public class EditManagerImpl implements EditManager {
 
 	private static Logger logger = Logger.getLogger(EditManagerImpl.class);
 
-	private Edits edits;
-
 	private MultiCaster<EditManagerEvent> multiCaster = new MultiCaster<EditManagerEvent>(this);
 
-	private Map<Dataflow, DataflowEdits> editsForDataflow = new HashMap<Dataflow, DataflowEdits>();
-
-	public EditManagerImpl(Edits edits) {
-		this.edits = edits;
-	}
+	private Map<WorkflowBundle, DataflowEdits> editsForDataflow = new HashMap<WorkflowBundle, DataflowEdits>();
 
 	/**
 	 * {@inheritDoc}
@@ -66,7 +60,7 @@ public class EditManagerImpl implements EditManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean canRedoDataflowEdit(Dataflow dataflow) {
+	public boolean canRedoDataflowEdit(WorkflowBundle dataflow) {
 		DataflowEdits edits = getEditsForDataflow(dataflow);
 		return edits.canRedo();
 	}
@@ -75,7 +69,7 @@ public class EditManagerImpl implements EditManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean canUndoDataflowEdit(Dataflow dataflow) {
+	public boolean canUndoDataflowEdit(WorkflowBundle dataflow) {
 		DataflowEdits edits = getEditsForDataflow(dataflow);
 		return edits.canUndo();
 	}
@@ -84,7 +78,7 @@ public class EditManagerImpl implements EditManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void doDataflowEdit(Dataflow dataflow, Edit<?> edit)
+	public void doDataflowEdit(WorkflowBundle dataflow, Edit<?> edit)
 			throws EditException {
 		// We do the edit before we notify the observers
 		DataflowEdits edits = getEditsForDataflow(dataflow);
@@ -99,14 +93,6 @@ public class EditManagerImpl implements EditManager {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public Edits getEdits() {
-		return edits;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	public List<Observer<EditManagerEvent>> getObservers() {
 		return multiCaster.getObservers();
 	}
@@ -115,7 +101,7 @@ public class EditManagerImpl implements EditManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void redoDataflowEdit(Dataflow dataflow) throws EditException {
+	public void redoDataflowEdit(WorkflowBundle dataflow) throws EditException {
 		DataflowEdits edits = getEditsForDataflow(dataflow);
 		Edit<?> edit;
 		synchronized (edits) {
@@ -141,7 +127,7 @@ public class EditManagerImpl implements EditManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void undoDataflowEdit(Dataflow dataflow) {
+	public void undoDataflowEdit(WorkflowBundle dataflow) {
 		DataflowEdits edits = getEditsForDataflow(dataflow);
 		Edit<?> edit;
 		synchronized (edits) {
@@ -164,7 +150,7 @@ public class EditManagerImpl implements EditManager {
 	 * @return A {@link DataflowEdits} instance to keep edits for the given
 	 *         dataflow
 	 */
-	protected synchronized DataflowEdits getEditsForDataflow(Dataflow dataflow) {
+	protected synchronized DataflowEdits getEditsForDataflow(WorkflowBundle dataflow) {
 		DataflowEdits edits = editsForDataflow.get(dataflow);
 		if (edits == null) {
 			edits = new DataflowEdits();

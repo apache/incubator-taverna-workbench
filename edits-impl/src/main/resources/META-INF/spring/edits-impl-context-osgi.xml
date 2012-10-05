@@ -15,6 +15,4 @@
 
 	<service ref="EditManagerImpl" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 
-	<reference id="edits" interface="net.sf.taverna.t2.workflowmodel.Edits" />
-
 </beans:beans>

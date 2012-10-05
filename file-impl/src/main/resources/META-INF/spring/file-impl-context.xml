@@ -90,9 +90,15 @@
 		</constructor-arg>
     </bean>
 
-	<bean id="T2DataflowOpener" class="net.sf.taverna.t2.workbench.file.impl.T2DataflowOpener" />
-	<bean id="T2DataflowSaver" class="net.sf.taverna.t2.workbench.file.impl.T2DataflowSaver">
-			<property name="applicationConfiguration" ref="applicationConfiguration"/>
+	<bean id="T2DataflowOpener" class="net.sf.taverna.t2.workbench.file.impl.T2DataflowOpener">
+			<property name="workflowBundleIO" ref="workflowBundleIO"/>
+	</bean>
+
+	<bean id="WorkflowBundleOpener" class="net.sf.taverna.t2.workbench.file.impl.WorkflowBundleOpener">
+			<property name="workflowBundleIO" ref="workflowBundleIO"/>
+	</bean>
+	<bean id="WorkflowBundleSaver" class="net.sf.taverna.t2.workbench.file.impl.WorkflowBundleSaver">
+			<property name="workflowBundleIO" ref="workflowBundleIO"/>
 	</bean>
 
 	<bean id="CloseWorkflowsOnShutdown" class="net.sf.taverna.t2.workbench.file.impl.hooks.CloseWorkflowsOnShutdown">

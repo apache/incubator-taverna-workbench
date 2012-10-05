@@ -23,13 +23,13 @@ package net.sf.taverna.t2.workbench.ui.views.contextualviews.merge;
 import java.util.Arrays;
 import java.util.List;
 
+import uk.org.taverna.scufl2.api.core.DataLink;
+
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.Merge;
 
 /**
  * A factory of contextual views for dataflow's merges.
@@ -37,18 +37,17 @@ import net.sf.taverna.t2.workflowmodel.Merge;
  * @author Alex Nenadic
  *
  */
-public class MergeContextualViewFactory implements
-		ContextualViewFactory<Merge> {
+public class MergeContextualViewFactory implements ContextualViewFactory<DataLink> {
 
 	private EditManager editManager;
 	private FileManager fileManager;
 	private ColourManager colourManager;
 
 	public boolean canHandle(Object object) {
-		return object instanceof Merge;
+		return object instanceof DataLink && ((DataLink) object).getMergePosition() != null;
 	}
 
-	public List<ContextualView> getViews(Merge merge) {
+	public List<ContextualView> getViews(DataLink merge) {
 		return Arrays.asList(new ContextualView[] {new MergeContextualView(merge, editManager, fileManager, colourManager)});
 	}
 

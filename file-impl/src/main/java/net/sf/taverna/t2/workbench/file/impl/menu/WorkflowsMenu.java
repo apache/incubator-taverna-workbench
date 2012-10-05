@@ -41,7 +41,8 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.AbstractDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class WorkflowsMenu extends AbstractMenuCustom {
 
@@ -83,19 +84,19 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 		ButtonGroup workflowsGroup = new ButtonGroup();
 
 		int i = 0;
-		Dataflow currentDataflow = fileManager.getCurrentDataflow();
-		for (final Dataflow dataflow : fileManager.getOpenDataflows()) {
+		WorkflowBundle currentDataflow = fileManager.getCurrentDataflow();
+		for (final WorkflowBundle workflowBundle : fileManager.getOpenDataflows()) {
 
 
-			String name = fileManager.getDataflowName(dataflow);
-			if (fileManager.isDataflowChanged(dataflow)) {
+			String name = fileManager.getDataflowName(workflowBundle);
+			if (fileManager.isDataflowChanged(workflowBundle)) {
 				name = "*" + name;
 			}
 			// A counter
 			name = ++i + " " + name;
 
 			SwitchWorkflowAction switchWorkflowAction = new SwitchWorkflowAction(
-					name, dataflow);
+					name, workflowBundle);
 			if (i < 10) {
 				switchWorkflowAction.putValue(Action.MNEMONIC_KEY,
 						new Integer(KeyEvent.VK_0 + i));
@@ -104,7 +105,7 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 			JRadioButtonMenuItem switchWorkflowMenuItem = new JRadioButtonMenuItem(
 					switchWorkflowAction);
 			workflowsGroup.add(switchWorkflowMenuItem);
-			if (dataflow.equals(currentDataflow)) {
+			if (workflowBundle.equals(currentDataflow)) {
 				switchWorkflowMenuItem.setSelected(true);
 			}
 			workflowsMenu.add(switchWorkflowMenuItem);
@@ -151,15 +152,15 @@ public class WorkflowsMenu extends AbstractMenuCustom {
 	}
 
 	private final class SwitchWorkflowAction extends AbstractAction {
-		private final Dataflow dataflow;
+		private final WorkflowBundle workflowBundle;
 
-		private SwitchWorkflowAction(String name, Dataflow dataflow) {
+		private SwitchWorkflowAction(String name, WorkflowBundle workflowBundle) {
 			super(name);
-			this.dataflow = dataflow;
+			this.workflowBundle = workflowBundle;
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			fileManager.setCurrentDataflow(dataflow);
+			fileManager.setCurrentDataflow(workflowBundle);
 		}
 	}
 }

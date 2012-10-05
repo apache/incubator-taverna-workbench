@@ -1,4 +1,4 @@
-<workflow xmlns="http://taverna.sf.net/2008/xml/t2flow">
+<workflow xmlns="http://taverna.sf.net/2008/xml/t2flow" version="1" producedBy="test">
 	<dataflow id="ec0991ba-275c-49ed-b1d6-38534180fb7c" role="top">
 		<name>simple_workflow_with_input</name>
 		<inputPorts>

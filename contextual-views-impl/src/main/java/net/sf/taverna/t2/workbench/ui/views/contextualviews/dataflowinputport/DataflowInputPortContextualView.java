@@ -31,9 +31,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 
 /**
  * Contextual view for dataflow's input ports.
@@ -44,11 +45,11 @@ import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
 public class DataflowInputPortContextualView extends ContextualView{
 
 	private static final long serialVersionUID = -8746856072335775933L;
-	private DataflowInputPort dataflowInputPort;
+	private InputWorkflowPort dataflowInputPort;
 	private JPanel dataflowInputPortView;
 	private FileManager fileManager;
 
-	public DataflowInputPortContextualView(DataflowInputPort inputport, FileManager fileManager) {
+	public DataflowInputPortContextualView(InputWorkflowPort inputport, FileManager fileManager) {
 		this.dataflowInputPort = inputport;
 		this.fileManager = fileManager;
 		initView();
@@ -78,7 +79,7 @@ public class DataflowInputPortContextualView extends ContextualView{
 		return new AbstractAction("Update prediction") {
 
 			public void actionPerformed(ActionEvent e) {
-				fileManager.getCurrentDataflow().checkValidity();
+//				fileManager.getCurrentDataflow().checkValidity();
 				refreshView();
 			}};
 	}

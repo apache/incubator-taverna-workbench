@@ -44,11 +44,10 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.io.ReaderException;
 import uk.org.taverna.scufl2.api.io.WorkflowBundleIO;
 
-public class T2DataflowOpener extends AbstractDataflowPersistenceHandler
+public class WorkflowBundleOpener extends AbstractDataflowPersistenceHandler
 		implements DataflowPersistenceHandler {
-	private static final T2FlowFileType T2_FLOW_FILE_TYPE = new T2FlowFileType();
-	private static Logger logger = Logger.getLogger(T2DataflowOpener.class);
-
+	private static final WorkflowBundleFileType WF_BUNDLE_FILE_TYPE = new WorkflowBundleFileType();
+	private static Logger logger = Logger.getLogger(WorkflowBundleOpener.class);
 	private WorkflowBundleIO workflowBundleIO;
 
 	@Override
@@ -109,18 +108,18 @@ public class T2DataflowOpener extends AbstractDataflowPersistenceHandler
 			}
 		}
 		if (canonicalSource instanceof File) {
-			return new FileDataflowInfo(T2_FLOW_FILE_TYPE,
+			return new FileDataflowInfo(WF_BUNDLE_FILE_TYPE,
 					(File) canonicalSource, workflowBundle);
 		}
-		return new DataflowInfo(T2_FLOW_FILE_TYPE, canonicalSource, workflowBundle,
+		return new DataflowInfo(WF_BUNDLE_FILE_TYPE, canonicalSource, workflowBundle,
 				lastModified);
 	}
 
-	protected WorkflowBundle openDataflowStream(InputStream workflowXMLstream)
+	protected WorkflowBundle openDataflowStream(InputStream inputStream)
 			throws OpenException {
 		WorkflowBundle workflowBundle;
 		try {
-			workflowBundle = workflowBundleIO.readBundle(workflowXMLstream, null);
+			workflowBundle = workflowBundleIO.readBundle(inputStream, null);
 		} catch (ReaderException e) {
 			throw new OpenException("Could not read the workflow", e);
 		} catch (IOException e) {
@@ -132,7 +131,7 @@ public class T2DataflowOpener extends AbstractDataflowPersistenceHandler
 
 	@Override
 	public List<FileType> getOpenFileTypes() {
-		return Arrays.<FileType> asList(new T2FlowFileType());
+		return Arrays.<FileType> asList(WF_BUNDLE_FILE_TYPE);
 	}
 
 	@Override

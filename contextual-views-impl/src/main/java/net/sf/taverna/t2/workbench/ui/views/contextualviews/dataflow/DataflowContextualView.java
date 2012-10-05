@@ -10,9 +10,9 @@ import net.sf.taverna.t2.lang.ui.HtmlUtils;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * @author alanrw
@@ -20,12 +20,12 @@ import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
  */
 public class DataflowContextualView extends ContextualView {
 
-	private Dataflow dataflow;
+	private Workflow dataflow;
 	private JEditorPane editorPane;
 	private final FileManager fileManager;
 	private final ColourManager colourManager;
 
-	public DataflowContextualView(Dataflow dataflow, FileManager fileManager, ColourManager colourManager) {
+	public DataflowContextualView(Workflow dataflow, FileManager fileManager, ColourManager colourManager) {
 		this.dataflow = dataflow;
 		this.fileManager = fileManager;
 		this.colourManager = colourManager;
@@ -47,8 +47,8 @@ public class DataflowContextualView extends ContextualView {
 
 		html += "<tr><td colspan=\"2\" align=\"center\"><b>Source</b></td></tr>";
 		String source = "Newly created";
-		if (fileManager.getDataflowSource(dataflow) != null) {
-			source = fileManager.getDataflowName(dataflow);
+		if (fileManager.getDataflowSource(dataflow.getParent()) != null) {
+			source = fileManager.getDataflowName(dataflow.getParent());
 		}
 
 		html += "<tr><td colspan=\"2\" align=\"center\">" + source
@@ -58,7 +58,7 @@ public class DataflowContextualView extends ContextualView {
 			+ "<tr><th>Input Port Name</th>"
 				+	"<th>Depth</th>"
 				+"</tr>";
-			for (DataflowInputPort dip : dataflow.getInputPorts()) {
+			for (InputWorkflowPort dip : dataflow.getInputPorts()) {
 				html = html + "<tr><td>" + dip.getName() + "</td><td>"
 						+ (dip.getDepth() < 0 ? "invalid/unpredicted" : dip.getDepth()) + "</td></tr>";
 			}
@@ -68,9 +68,9 @@ public class DataflowContextualView extends ContextualView {
 					+ "<tr><th>Output Port Name</th>"
 						+	"<th>Depth</th>"
 						+"</tr>";
-			for (DataflowOutputPort dop : dataflow.getOutputPorts()) {
+			for (OutputWorkflowPort dop : dataflow.getOutputPorts()) {
 				html = html + "<tr><td>" + dop.getName() + "</td><td>"
-						+ (dop.getDepth() < 0 ? "invalid/unpredicted" : dop.getDepth()) + "</td>"
+						+ /*(dop.getDepth() < 0 ?*/ "invalid/unpredicted" /*: dop.getDepth())*/ + "</td>"
 						+ "</tr>";
 			}
 		}
@@ -106,7 +106,7 @@ public class DataflowContextualView extends ContextualView {
 	 */
 	@Override
 	public String getViewTitle() {
-		return "Workflow " + limitName(dataflow.getLocalName());
+		return "Workflow " + limitName(dataflow.getName());
 	}
 
 	/* (non-Javadoc)

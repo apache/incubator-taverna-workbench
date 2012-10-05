@@ -80,20 +80,20 @@ public class ColourManagerImpl extends AbstractConfigurable implements ColourMan
 	private void initialiseDefaults() {
 		defaultPropertyMap=new HashMap<String, String>();
 		cachedColours=new HashMap<Object, Color>();
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.apiconsumer.ApiConsumerActivity", "#98fb98");//palegreen
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.beanshell.BeanshellActivity", "#deb887");//burlywood2
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.biomart.BiomartActivity", "#d1eeee");//lightcyan2
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.biomoby.BiomobyActivity", "#ffb90f");//darkgoldenrod1
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.biomoby.BiomobyObjectActivity", "#ffd700");//gold
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.biomoby.MobyParseDatatypeActivity", "#ffffff");//white
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.dataflow.DataflowActivity", "#ffc0cb");//pink
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.rshell.RshellActivity", "#648faa");//slightly lighter than steelblue4
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.soaplab.SoaplabActivity", "#fafad2");//lightgoldenrodyellow
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.stringconstant.StringConstantActivity", "#b0c4de");//lightsteelblue
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.wsdl.WSDLActivity", "#a2cd5a");//darkolivegreen3
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.localworker.LocalworkerActivity", "#d15fee"); //mediumorchid2
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.wsdl.xmlsplitter.XMLInputSplitterActivity", "#ab92ea"); //light purple non standard
-		defaultPropertyMap.put("net.sf.taverna.t2.activities.wsdl.xmlsplitter.XMLOutputSplitterActivity", "#ab92ea"); //light purple non-standard
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/apiconsumer", "#98fb98");//palegreen
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/beanshell", "#deb887");//burlywood2
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/biomart", "#d1eeee");//lightcyan2
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/biomoby/service", "#ffb90f");//darkgoldenrod1
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/biomoby/object", "#ffd700");//gold
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/biomoby/parser", "#ffffff");//white
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/nested-workflow", "#ffc0cb");//pink
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/rshell", "#648faa");//slightly lighter than steelblue4
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/soaplab", "#fafad2");//lightgoldenrodyellow
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/constant", "#b0c4de");//lightsteelblue
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/wsdl", "#a2cd5a");//darkolivegreen3
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/localworker", "#d15fee"); //mediumorchid2
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/xml-splitter/in", "#ab92ea"); //light purple non standard
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/xml-splitter/out", "#ab92ea"); //light purple non-standard
 		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.Merge", "#77aadd");
 		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.Processor", "#a1c69d"); // ShadedLabel.Green
 		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.ProcessorPort", "#8070ff"); // purplish

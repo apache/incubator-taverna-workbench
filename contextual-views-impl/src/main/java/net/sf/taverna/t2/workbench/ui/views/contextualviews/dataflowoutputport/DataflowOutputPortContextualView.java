@@ -31,9 +31,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
+
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 
 /**
  * Contextual view for dataflow's output ports.
@@ -44,11 +45,11 @@ import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 public class DataflowOutputPortContextualView extends ContextualView {
 
 	private static final long serialVersionUID = 5496014085110553051L;
-	private DataflowOutputPort dataflowOutputPort;
+	private OutputWorkflowPort dataflowOutputPort;
 	private JPanel dataflowOutputPortView;
 	private FileManager fileManager;
 
-	public DataflowOutputPortContextualView(DataflowOutputPort outputport, FileManager fileManager) {
+	public DataflowOutputPortContextualView(OutputWorkflowPort outputport, FileManager fileManager) {
 		this.dataflowOutputPort = outputport;
 		this.fileManager = fileManager;
 		initView();
@@ -69,7 +70,8 @@ public class DataflowOutputPortContextualView extends ContextualView {
 	public void refreshView() {
 		dataflowOutputPortView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		dataflowOutputPortView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel label = new JLabel (getTextFromDepth("port", dataflowOutputPort.getDepth()));
+//		JLabel label = new JLabel (getTextFromDepth("port", dataflowOutputPort.getDepth()));
+		JLabel label = new JLabel ("Fix depth for OutputWorkflowPort");
 		dataflowOutputPortView.add(label);
 	}
 
@@ -78,7 +80,7 @@ public class DataflowOutputPortContextualView extends ContextualView {
 		return new AbstractAction("Update prediction") {
 
 			public void actionPerformed(ActionEvent e) {
-				fileManager.getCurrentDataflow().checkValidity();
+//				fileManager.getCurrentDataflow().checkValidity();
 				refreshView();
 			}};
 	}

@@ -35,7 +35,6 @@ import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.OpenedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.AbstractXMLDeserializer;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.AbstractXMLSerializer;
 
@@ -47,6 +46,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		Observer<FileManagerEvent> {
@@ -84,7 +84,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		if ((message instanceof OpenedDataflowEvent)
 				|| (message instanceof SavedDataflowEvent)) {
 			AbstractDataflowEvent dataflowEvent = (AbstractDataflowEvent) message;
-			Dataflow dataflow = dataflowEvent.getDataflow();
+			WorkflowBundle dataflow = dataflowEvent.getDataflow();
 			Object dataflowSource = fileManager.getDataflowSource(dataflow);
 			FileType dataflowType = fileManager.getDataflowType(dataflow);
 			addRecent(dataflowSource, dataflowType);

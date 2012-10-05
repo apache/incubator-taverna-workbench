@@ -33,12 +33,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.sf.taverna.t2.activities.beanshell.BeanshellActivity;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.impl.EditManagerImpl;
 import net.sf.taverna.t2.workbench.file.DataflowInfo;
@@ -46,25 +46,33 @@ import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
+import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
+import net.sf.taverna.t2.workflow.edits.RenameProcessorEdit;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-@Ignore("Need to rewrite to use SCUFL2 and Platform")
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.io.WorkflowBundleIO;
+import uk.org.taverna.scufl2.api.io.WorkflowBundleReader;
+import uk.org.taverna.scufl2.api.io.WorkflowBundleWriter;
+import uk.org.taverna.scufl2.rdfxml.RDFXMLReader;
+import uk.org.taverna.scufl2.rdfxml.RDFXMLWriter;
+import uk.org.taverna.scufl2.translator.t2flow.T2FlowReader;
+
 public class FileManagerTest {
 
+	private static final WorkflowBundleFileType WF_BUNDLE_FILE_TYPE = new WorkflowBundleFileType();
 	private static final T2FlowFileType T2_FLOW_FILE_TYPE = new T2FlowFileType();
 
 	private static final String DUMMY_WORKFLOW_T2FLOW = "dummy-workflow.t2flow";
 
 	private FileManagerImpl fileManager;
+	private EditManager editManager;
 
 	private ModelMap modelmap = ModelMap.getInstance();
 	private final ModelMapObserver modelMapObserver = new ModelMapObserver();
@@ -73,21 +81,21 @@ public class FileManagerTest {
 	public void close() throws Exception {
 		assertTrue("Non-empty set of open dataflows", fileManager
 				.getOpenDataflows().isEmpty());
-		Dataflow dataflow = openDataflow();
+		WorkflowBundle dataflow = openDataflow();
 		assertEquals("Unexpected list of open dataflows", Arrays
 				.asList(dataflow), fileManager.getOpenDataflows());
 		fileManager.closeDataflow(dataflow, true);
 		assertNotSame(dataflow, fileManager.getOpenDataflows().get(0));
 		assertTrue("Did not insert empty dataflow after close", fileManager
-				.getOpenDataflows().get(0).getProcessors().isEmpty());
+				.getOpenDataflows().get(0).getMainWorkflow().getProcessors().isEmpty());
 	}
 
 	@Test
 	public void openRemovesEmptyDataflow() throws Exception {
-		Dataflow newDataflow = fileManager.newDataflow();
+		WorkflowBundle newDataflow = fileManager.newDataflow();
 		assertEquals("Unexpected list of open dataflows", Arrays
 				.asList(newDataflow), fileManager.getOpenDataflows());
-		Dataflow dataflow = openDataflow();
+		WorkflowBundle dataflow = openDataflow();
 		// Should have removed newDataflow
 		assertEquals("Unexpected list of open dataflows", Arrays
 				.asList(dataflow), fileManager.getOpenDataflows());
@@ -95,15 +103,13 @@ public class FileManagerTest {
 
 	@Test
 	public void isChanged() throws Exception {
-		Dataflow dataflow = openDataflow();
+		WorkflowBundle dataflow = openDataflow();
 		assertFalse("Dataflow should not have changed", fileManager
 				.isDataflowChanged(dataflow));
 
 		// Do a change
-		Edits edits = new EditsImpl();
-		EditManager editManager = new EditManagerImpl(edits);
-		Processor emptyProcessor = edits.createProcessor("emptyProcessor");
-		Edit<Dataflow> addProcessorEdit = edits.getAddProcessorEdit(dataflow,
+		Processor emptyProcessor = new Processor();
+		Edit<Workflow> addProcessorEdit = new AddProcessorEdit(dataflow.getMainWorkflow(),
 				emptyProcessor);
 		editManager.doDataflowEdit(dataflow, addProcessorEdit);
 		assertTrue("Dataflow should have changed", fileManager
@@ -114,7 +120,7 @@ public class FileManagerTest {
 		dataflowFile.deleteOnExit();
 		dataflowFile.delete();
 
-		fileManager.saveDataflow(dataflow, T2_FLOW_FILE_TYPE, dataflowFile, false);
+		fileManager.saveDataflow(dataflow, WF_BUNDLE_FILE_TYPE, dataflowFile, false);
 		assertFalse("Dataflow should no longer be marked as changed",
 				fileManager.isDataflowChanged(dataflow));
 	}
@@ -122,12 +128,10 @@ public class FileManagerTest {
 	@Ignore("Undo support for ischanged not yet implemented")
 	@Test
 	public void isChangedWithUndo() throws Exception {
-		Dataflow dataflow = openDataflow();
+		WorkflowBundle dataflow = openDataflow();
 		// Do a change
-		Edits edits = new EditsImpl();
-		EditManager editManager = new EditManagerImpl(edits);
-		Processor emptyProcessor = edits.createProcessor("emptyProcessor");
-		Edit<Dataflow> addProcessorEdit = edits.getAddProcessorEdit(dataflow,
+		Processor emptyProcessor = new Processor();
+		Edit<Workflow> addProcessorEdit = new AddProcessorEdit(dataflow.getMainWorkflow(),
 				emptyProcessor);
 		editManager.doDataflowEdit(dataflow, addProcessorEdit);
 		assertTrue("Dataflow should have changed", fileManager
@@ -144,14 +148,14 @@ public class FileManagerTest {
 		File dataflowFile = File.createTempFile("test", ".t2flow");
 		dataflowFile.deleteOnExit();
 		dataflowFile.delete();
-		fileManager.saveDataflow(dataflow, T2_FLOW_FILE_TYPE, dataflowFile, false);
+		fileManager.saveDataflow(dataflow, WF_BUNDLE_FILE_TYPE, dataflowFile, false);
 		assertFalse("Dataflow should no longer be marked as changed",
 				fileManager.isDataflowChanged(dataflow));
 
 		editManager.undoDataflowEdit(dataflow);
 		assertTrue("Dataflow should have changed after undo", fileManager
 				.isDataflowChanged(dataflow));
-		fileManager.saveDataflow(dataflow, T2_FLOW_FILE_TYPE, dataflowFile, false);
+		fileManager.saveDataflow(dataflow, WF_BUNDLE_FILE_TYPE, dataflowFile, false);
 		editManager.redoDataflowEdit(dataflow);
 		assertTrue("Dataflow should have changed after redo after save",
 				fileManager.isDataflowChanged(dataflow));
@@ -161,7 +165,7 @@ public class FileManagerTest {
 	public void isListed() throws Exception {
 		assertTrue("Non-empty set of open data flows", fileManager
 				.getOpenDataflows().isEmpty());
-		Dataflow dataflow = openDataflow();
+		WorkflowBundle dataflow = openDataflow();
 		assertEquals("Unexpected list of open dataflows", Arrays
 				.asList(dataflow), fileManager.getOpenDataflows());
 	}
@@ -180,9 +184,21 @@ public class FileManagerTest {
 	 */
 	@Before
 	public void makeFileManager() {
-		fileManager = new FileManagerImpl(new EditManagerImpl(new EditsImpl()));
+		System.setProperty("java.awt.headless", "true");
+		editManager = new EditManagerImpl();
+		fileManager = new FileManagerImpl(editManager);
+		WorkflowBundleIO workflowBundleIO = new WorkflowBundleIO();
+		workflowBundleIO.setReaders(Arrays.<WorkflowBundleReader>asList(new RDFXMLReader(), new T2FlowReader()));
+		workflowBundleIO.setWriters(Arrays.<WorkflowBundleWriter>asList(new RDFXMLWriter()));
+		T2DataflowOpener t2DataflowOpener = new T2DataflowOpener();
+		t2DataflowOpener.setWorkflowBundleIO(workflowBundleIO);
+		WorkflowBundleOpener workflowBundleOpener = new WorkflowBundleOpener();
+		workflowBundleOpener.setWorkflowBundleIO(workflowBundleIO);
+		WorkflowBundleSaver workflowBundleSaver = new WorkflowBundleSaver();
+		workflowBundleSaver.setWorkflowBundleIO(workflowBundleIO);
 		DataflowPersistenceHandlerRegistry dataflowPersistenceHandlerRegistry = new DataflowPersistenceHandlerRegistry();
-		dataflowPersistenceHandlerRegistry.setDataflowPersistenceHandlers(Arrays.asList(new DataflowPersistenceHandler[] {new T2DataflowOpener(), new T2DataflowSaver()}));
+		dataflowPersistenceHandlerRegistry.setDataflowPersistenceHandlers(Arrays.asList(
+				new DataflowPersistenceHandler[] {t2DataflowOpener, workflowBundleOpener, workflowBundleSaver}));
 		dataflowPersistenceHandlerRegistry.updateColletions();
 		fileManager.setDataflowPersistenceHandlerRegistry(dataflowPersistenceHandlerRegistry);
 	}
@@ -191,7 +207,7 @@ public class FileManagerTest {
 	public void open() throws Exception {
 		assertTrue("ModelMapObserver already contained messages",
 				modelMapObserver.messages.isEmpty());
-		Dataflow dataflow = openDataflow();
+		WorkflowBundle dataflow = openDataflow();
 		assertNotNull("Dataflow was not loaded", dataflow);
 		assertEquals("Loaded dataflow was not set as current dataflow",
 				dataflow, modelmap.getModel(ModelMapConstants.CURRENT_DATAFLOW));
@@ -211,7 +227,7 @@ public class FileManagerTest {
 		URL url = getClass().getResource(DUMMY_WORKFLOW_T2FLOW);
 		DataflowInfo info = fileManager.openDataflowSilently(T2_FLOW_FILE_TYPE, url);
 
-		Dataflow dataflow = info.getDataflow();
+		WorkflowBundle dataflow = info.getDataflow();
 		assertNotNull("Dataflow was not loaded", dataflow);
 
 		assertNotSame("Loaded dataflow was set as current dataflow",
@@ -222,53 +238,55 @@ public class FileManagerTest {
 
 	@Test
 	public void canSaveDataflow() throws Exception {
-		Dataflow savedDataflow = openDataflow();
+		WorkflowBundle savedDataflow = openDataflow();
 		File dataflowFile = File.createTempFile("test", ".t2flow");
 		dataflowFile.deleteOnExit();
 		dataflowFile.delete();
-		fileManager.saveDataflow(savedDataflow, T2_FLOW_FILE_TYPE, dataflowFile, true);
+		fileManager.saveDataflow(savedDataflow, WF_BUNDLE_FILE_TYPE, dataflowFile, true);
 		assertTrue(fileManager.canSaveWithoutDestination(savedDataflow));
 		fileManager.saveDataflow(savedDataflow, true);
 		fileManager.closeDataflow(savedDataflow, true);
 
-		Dataflow otherFlow = fileManager.openDataflow(T2_FLOW_FILE_TYPE, dataflowFile.toURI()
+		WorkflowBundle otherFlow = fileManager.openDataflow(WF_BUNDLE_FILE_TYPE, dataflowFile.toURI()
 				.toURL());
 		assertTrue(fileManager.canSaveWithoutDestination(otherFlow));
 	}
 
+	@Ignore
 	@Test
 	public void save() throws Exception {
-		Dataflow savedDataflow = openDataflow();
+		WorkflowBundle savedDataflow = openDataflow();
 		File dataflowFile = File.createTempFile("test", ".t2flow");
 		dataflowFile.deleteOnExit();
 		dataflowFile.delete();
 		assertFalse("File should not exist", dataflowFile.isFile());
-		fileManager.saveDataflow(savedDataflow, T2_FLOW_FILE_TYPE, dataflowFile, false);
+		fileManager.saveDataflow(savedDataflow, WF_BUNDLE_FILE_TYPE, dataflowFile, false);
 		assertTrue("File should exist", dataflowFile.isFile());
-		Dataflow loadedDataflow = fileManager.openDataflow(T2_FLOW_FILE_TYPE, dataflowFile.toURI()
+		WorkflowBundle loadedDataflow = fileManager.openDataflow(WF_BUNDLE_FILE_TYPE, dataflowFile.toURI()
 				.toURL());
 		assertNotSame("Dataflow was not reopened", savedDataflow,
 				loadedDataflow);
 		assertEquals("Unexpected number of processors in saved dataflow", 1,
-				savedDataflow.getProcessors().size());
+				savedDataflow.getMainWorkflow().getProcessors().size());
 		assertEquals("Unexpected number of processors in loaded dataflow", 1,
-				loadedDataflow.getProcessors().size());
+				loadedDataflow.getMainWorkflow().getProcessors().size());
 
-		Processor savedProcessor = savedDataflow.getProcessors().get(0);
-		Processor loadedProcessor = loadedDataflow.getProcessors().get(0);
+		Processor savedProcessor = savedDataflow.getMainWorkflow().getProcessors().first();
+		Processor loadedProcessor = loadedDataflow.getMainWorkflow().getProcessors().first();
 		assertEquals("Loaded processor had wrong name", savedProcessor
-				.getLocalName(), loadedProcessor.getLocalName());
+				.getName(), loadedProcessor.getName());
 
-		BeanshellActivity savedActivity = (BeanshellActivity) savedProcessor
-				.getActivityList().get(0);
-		BeanshellActivity loadedActivity = (BeanshellActivity) loadedProcessor
-				.getActivityList().get(0);
-		String savedScript = savedActivity.getConfiguration().getScript();
-		String loadedScript = loadedActivity.getConfiguration().getScript();
-		assertEquals("Unexpected saved script",
-				"String output = input + \"XXX\";", savedScript);
-		assertEquals("Loaded script did not matched saved script", savedScript,
-				loadedScript);
+		// TODO convert to scufl2
+//		BeanshellActivity savedActivity = (BeanshellActivity) savedProcessor
+//				.getActivityList().get(0);
+//		BeanshellActivity loadedActivity = (BeanshellActivity) loadedProcessor
+//				.getActivityList().get(0);
+//		String savedScript = savedActivity.getConfiguration().getScript();
+//		String loadedScript = loadedActivity.getConfiguration().getScript();
+//		assertEquals("Unexpected saved script",
+//				"String output = input + \"XXX\";", savedScript);
+//		assertEquals("Loaded script did not matched saved script", savedScript,
+//				loadedScript);
 	}
 
 	@Test
@@ -278,7 +296,7 @@ public class FileManagerTest {
 
 		URL url = getClass().getResource(DUMMY_WORKFLOW_T2FLOW);
 		DataflowInfo info = fileManager.openDataflowSilently(T2_FLOW_FILE_TYPE, url);
-		Dataflow dataflow = info.getDataflow();
+		WorkflowBundle dataflow = info.getDataflow();
 		assertTrue("ModelMapObserver contained unexpected messages",
 				modelMapObserver.messages.isEmpty());
 
@@ -287,7 +305,7 @@ public class FileManagerTest {
 		dataflowFile.delete();
 		assertFalse("File should not exist", dataflowFile.isFile());
 
-		fileManager.saveDataflowSilently(dataflow, T2_FLOW_FILE_TYPE, dataflowFile, false);
+		fileManager.saveDataflowSilently(dataflow, WF_BUNDLE_FILE_TYPE, dataflowFile, false);
 		assertTrue("File should exist", dataflowFile.isFile());
 
 		assertTrue("ModelMapObserver contained unexpected messages",
@@ -295,33 +313,30 @@ public class FileManagerTest {
 
 	}
 
-
+	@Ignore
 	@Test
 	public void saveOverwriteAgain() throws Exception {
-		Dataflow dataflow = openDataflow();
+		WorkflowBundle dataflow = openDataflow();
 		File dataflowFile = File.createTempFile("test", ".t2flow");
 		dataflowFile.delete();
 		dataflowFile.deleteOnExit();
 		// File did NOT exist, should not fail
-		fileManager.saveDataflow(dataflow, T2_FLOW_FILE_TYPE, dataflowFile, true);
+		fileManager.saveDataflow(dataflow, WF_BUNDLE_FILE_TYPE, dataflowFile, true);
 
-		Edits edits = new EditsImpl();
-		EditManager editManager = new EditManagerImpl(edits);
-
-		Processor processor = dataflow.getProcessors().get(0);
-		Edit<Processor> renameEdit = edits.getRenameProcessorEdit(processor,
-				processor.getLocalName() + "-changed");
+		Processor processor = dataflow.getMainWorkflow().getProcessors().first();
+		Edit<Processor> renameEdit = new RenameProcessorEdit(processor,
+				processor.getName() + "-changed");
 		editManager.doDataflowEdit(dataflow, renameEdit);
 
 		// Last save was OURs, so should *not* fail - even if we now use
 		// the specific saveDataflow() method
-		fileManager.saveDataflow(dataflow, T2_FLOW_FILE_TYPE, dataflowFile, true);
+		fileManager.saveDataflow(dataflow, WF_BUNDLE_FILE_TYPE, dataflowFile, true);
 
 		//Thread.sleep(1500);
-		Dataflow otherFlow = openDataflow();
+		WorkflowBundle otherFlow = openDataflow();
 		// Saving another flow to same file should still fail
 		try {
-			fileManager.saveDataflow(otherFlow,T2_FLOW_FILE_TYPE, dataflowFile, true);
+			fileManager.saveDataflow(otherFlow,WF_BUNDLE_FILE_TYPE, dataflowFile, true);
 			fail("Should have thrown OverwriteException");
 		} catch (OverwriteException ex) {
 			// Expected
@@ -331,22 +346,22 @@ public class FileManagerTest {
 	@Test(expected = OverwriteException.class)
 	public void saveOverwriteWarningFails() throws Exception {
 		@SuppressWarnings("unused")
-		Dataflow dataflow = openDataflow();
+		WorkflowBundle dataflow = openDataflow();
 		File dataflowFile = File.createTempFile("test", ".t2flow");
 		dataflowFile.deleteOnExit();
 		// Should fail as file already exists
-		fileManager.saveDataflow(dataflow, T2_FLOW_FILE_TYPE, dataflowFile, true);
+		fileManager.saveDataflow(dataflow, WF_BUNDLE_FILE_TYPE, dataflowFile, true);
 	}
 
 	@Test
 	public void saveOverwriteWarningWorks() throws Exception {
 		@SuppressWarnings("unused")
-		Dataflow dataflow = openDataflow();
+		WorkflowBundle dataflow = openDataflow();
 		File dataflowFile = File.createTempFile("test", ".t2flow");
 		dataflowFile.delete();
 		dataflowFile.deleteOnExit();
 		// File did NOT exist, should not fail
-		fileManager.saveDataflow(dataflow, T2_FLOW_FILE_TYPE, dataflowFile, true);
+		fileManager.saveDataflow(dataflow, WF_BUNDLE_FILE_TYPE, dataflowFile, true);
 	}
 
 	@After
@@ -354,9 +369,12 @@ public class FileManagerTest {
 		modelmap.removeObserver(modelMapObserver);
 	}
 
-	protected Dataflow openDataflow() throws OpenException {
+	protected WorkflowBundle openDataflow() throws OpenException {
 		URL url = getClass().getResource(DUMMY_WORKFLOW_T2FLOW);
-		return fileManager.openDataflow(T2_FLOW_FILE_TYPE, url);
+		assertNotNull(url);
+		WorkflowBundle dataflow = fileManager.openDataflow(T2_FLOW_FILE_TYPE, url);
+		assertNotNull(dataflow);
+		return dataflow;
 	}
 
 	private final class ModelMapObserver implements Observer<ModelMapEvent> {

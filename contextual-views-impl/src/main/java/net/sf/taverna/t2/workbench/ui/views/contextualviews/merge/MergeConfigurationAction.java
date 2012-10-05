@@ -25,18 +25,19 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Merge;
-import net.sf.taverna.t2.workflowmodel.MergeInputPort;
+import net.sf.taverna.t2.workflow.edits.ReorderMergePositionsEdit;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.DataLink;
+
 /**
- * Configuration action for a {@link Merge}. This action changes the order of
+ * Configuration action for a Merge. This action changes the order of
  * merge's incoming ports.
  *
  * @author Alex Nenadic
@@ -48,31 +49,28 @@ public class MergeConfigurationAction extends AbstractAction {
 	private static Logger logger = Logger
 	.getLogger(MergeConfigurationAction.class);
 
-	private Merge merge;
-	private List<MergeInputPort> reorderedInputPortsList;
+	private final List<DataLink> reorderedDataLinksList;
+	private final List<DataLink> datalinks;
 
 	private final EditManager editManager;
 
 	private final FileManager fileManager;
 
-	MergeConfigurationAction(Merge merge,
-			List<MergeInputPort> reorderedInputPortsList, EditManager editManager, FileManager fileManager) {
-		super();
-		this.merge = merge;
-		this.reorderedInputPortsList = reorderedInputPortsList;
+
+	MergeConfigurationAction(List<DataLink> datalinks, List<DataLink> reorderedDataLinksList, EditManager editManager, FileManager fileManager) {
+		this.datalinks = datalinks;
+		this.reorderedDataLinksList = reorderedDataLinksList;
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		Edit<?> reorderMergeInputPortsEdit = editManager.getEdits()
-				.getReorderMergeInputPortsEdit(merge, reorderedInputPortsList);
+		Edit<List<DataLink>> reorderMergeInputPortsEdit = new ReorderMergePositionsEdit(datalinks, reorderedDataLinksList);
 
-		Dataflow currentDataflow = fileManager
-				.getCurrentDataflow();
+		WorkflowBundle currentWorkflowBundle = fileManager.getCurrentDataflow();
 
 		try {
-			editManager.doDataflowEdit(currentDataflow,
+			editManager.doDataflowEdit(currentWorkflowBundle,
 					reorderMergeInputPortsEdit);
 		} catch (IllegalStateException ex1) {
 			logger.error("Could not configure merge", ex1);

@@ -31,9 +31,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
+import uk.org.taverna.scufl2.api.core.DataLink;
+
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.Datalink;
 
 /**
  * Contextual view for dataflow's datalinks.
@@ -46,12 +47,12 @@ public class DatalinkContextualView extends ContextualView {
 
 	private static final long serialVersionUID = -5031256519235454876L;
 
-	private Datalink datalink;
+	private DataLink datalink;
 	private JPanel datalinkView;
 	private final FileManager fileManager;
 
 
-	public DatalinkContextualView(Datalink datalink, FileManager fileManager) {
+	public DatalinkContextualView(DataLink datalink, FileManager fileManager) {
 		this.datalink = datalink;
 		this.fileManager = fileManager;
 		initView();
@@ -65,7 +66,7 @@ public class DatalinkContextualView extends ContextualView {
 
 	@Override
 	public String getViewTitle() {
-		return "Data link: " + datalink.getSource().getName() + " -> " + datalink.getSink().getName();
+		return "Data link: " + datalink.getReceivesFrom().getName() + " -> " + datalink.getSendsTo().getName();
 	}
 
 	@Override
@@ -73,7 +74,8 @@ public class DatalinkContextualView extends ContextualView {
 
 		datalinkView = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		datalinkView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel label = new JLabel (getTextFromDepth("link", datalink.getResolvedDepth()));
+//		JLabel label = new JLabel (getTextFromDepth("link", datalink.getResolvedDepth()));
+		JLabel label = new JLabel ("Fix DataLink resolved depth");
 		datalinkView.add(label);
 
 	}
@@ -83,7 +85,7 @@ public class DatalinkContextualView extends ContextualView {
 		return new AbstractAction("Update prediction") {
 
 			public void actionPerformed(ActionEvent e) {
-				fileManager.getCurrentDataflow().checkValidity();
+//				fileManager.getCurrentDataflow().checkValidity();
 				refreshView();
 			}};
 	}

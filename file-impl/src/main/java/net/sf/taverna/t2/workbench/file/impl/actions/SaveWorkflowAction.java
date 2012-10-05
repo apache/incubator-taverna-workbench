@@ -44,9 +44,10 @@ import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 @SuppressWarnings("serial")
 public class SaveWorkflowAction extends AbstractAction {
@@ -90,54 +91,54 @@ public class SaveWorkflowAction extends AbstractAction {
 	}
 
 	public boolean saveCurrentDataflow(Component parentComponent) {
-		Dataflow dataflow = fileManager.getCurrentDataflow();
-		return saveDataflow(parentComponent, dataflow);
+		WorkflowBundle workflowBundle = fileManager.getCurrentDataflow();
+		return saveDataflow(parentComponent, workflowBundle);
 	}
 
 
-	public boolean saveDataflow(Component parentComponent, Dataflow dataflow) {
-		if (!fileManager.canSaveWithoutDestination(dataflow)) {
-			return saveWorkflowAsAction.saveDataflow(parentComponent, dataflow);
+	public boolean saveDataflow(Component parentComponent, WorkflowBundle workflowBundle) {
+		if (!fileManager.canSaveWithoutDestination(workflowBundle)) {
+			return saveWorkflowAsAction.saveDataflow(parentComponent, workflowBundle);
 		}
 		try {
 			try {
-				fileManager.saveDataflow(dataflow, true);
-				Object dataflowSource = fileManager.getDataflowSource(dataflow);
-				logger.info("Saved workflow " + dataflow + " to "
-						+ dataflowSource);
+				fileManager.saveDataflow(workflowBundle, true);
+				Object workflowBundleSource = fileManager.getDataflowSource(workflowBundle);
+				logger.info("Saved workflow " + workflowBundle + " to "
+						+ workflowBundleSource);
 				return true;
 			} catch (OverwriteException ex) {
-				Object dataflowSource = fileManager.getDataflowSource(dataflow);
+				Object workflowBundleSource = fileManager.getDataflowSource(workflowBundle);
 				logger.info("Workflow was changed on source: "
-								+ dataflowSource);
-				fileManager.setCurrentDataflow(dataflow);
-				String msg = "Workflow destination " + dataflowSource
+								+ workflowBundleSource);
+				fileManager.setCurrentDataflow(workflowBundle);
+				String msg = "Workflow destination " + workflowBundleSource
 						+ " has been changed from elsewhere, "
 						+ "are you sure you want to overwrite?";
 				int ret = JOptionPane.showConfirmDialog(parentComponent, msg,
 						"Workflow changed", JOptionPane.YES_NO_CANCEL_OPTION);
 				if (ret == JOptionPane.YES_OPTION) {
-					fileManager.saveDataflow(dataflow, false);
-					logger.info("Saved workflow " + dataflow
-							+ " by overwriting " + dataflowSource);
+					fileManager.saveDataflow(workflowBundle, false);
+					logger.info("Saved workflow " + workflowBundle
+							+ " by overwriting " + workflowBundleSource);
 					return true;
 				} else if (ret == JOptionPane.NO_OPTION) {
 					// Pop up Save As instead to choose another name
 					return saveWorkflowAsAction.saveDataflow(parentComponent,
-							dataflow);
+							workflowBundle);
 				} else {
-					logger.info("Aborted overwrite of " + dataflowSource);
+					logger.info("Aborted overwrite of " + workflowBundleSource);
 					return false;
 				}
 			}
 		} catch (SaveException ex) {
-			logger.warn("Could not save workflow " + dataflow, ex);
+			logger.warn("Could not save workflow " + workflowBundle, ex);
 			JOptionPane.showMessageDialog(parentComponent,
 					"Could not save workflow: \n\n" + ex.getMessage(),
 					"Warning", JOptionPane.WARNING_MESSAGE);
 			return false;
 		} catch (RuntimeException ex) {
-			logger.warn("Could not save workflow " + dataflow, ex);
+			logger.warn("Could not save workflow " + workflowBundle, ex);
 			JOptionPane.showMessageDialog(parentComponent,
 					"Could not save workflow: \n\n" + ex.getMessage(),
 					"Warning", JOptionPane.WARNING_MESSAGE);
@@ -145,11 +146,11 @@ public class SaveWorkflowAction extends AbstractAction {
 		}
 	}
 
-	protected void updateEnabledStatus(Dataflow dataflow) {
-		if (dataflow == null) {
+	protected void updateEnabledStatus(WorkflowBundle workflowBundle) {
+		if (workflowBundle == null) {
 			setEnabled(false);
 		} else {
-			setEnabled(fileManager.isDataflowChanged(dataflow));
+			setEnabled(fileManager.isDataflowChanged(workflowBundle));
 		}
 	}
 
@@ -158,10 +159,10 @@ public class SaveWorkflowAction extends AbstractAction {
 		public void notify(Observable<EditManagerEvent> sender,
 				EditManagerEvent message) throws Exception {
 			if (message instanceof AbstractDataflowEditEvent) {
-				Dataflow dataflow = ((AbstractDataflowEditEvent) message)
+				WorkflowBundle workflowBundle = ((AbstractDataflowEditEvent) message)
 						.getDataFlow();
-				if (dataflow == fileManager.getCurrentDataflow()) {
-					updateEnabledStatus(dataflow);
+				if (workflowBundle == fileManager.getCurrentDataflow()) {
+					updateEnabledStatus(workflowBundle);
 				}
 			}
 		}
@@ -182,8 +183,8 @@ public class SaveWorkflowAction extends AbstractAction {
 				ModelMapEvent message) throws Exception {
 			if (message.getModelName().equals(
 					ModelMapConstants.CURRENT_DATAFLOW)) {
-				Dataflow dataflow = (Dataflow) message.getNewModel();
-				updateEnabledStatus(dataflow);
+				WorkflowBundle workflowBundle = (WorkflowBundle) message.getNewModel();
+				updateEnabledStatus(workflowBundle);
 			}
 		}
 	}
