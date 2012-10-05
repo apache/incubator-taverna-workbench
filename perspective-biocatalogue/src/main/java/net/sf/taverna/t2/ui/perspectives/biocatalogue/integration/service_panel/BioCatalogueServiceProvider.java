@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.xml.sax.SAXException;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import net.sf.taverna.biocatalogue.model.SoapOperationIdentity;
 import net.sf.taverna.biocatalogue.model.Util;
@@ -55,7 +56,7 @@ public class BioCatalogueServiceProvider implements ServiceDescriptionProvider
     //     as it would attempt to use the default one, which wouldn't know about the
     //     plugin's classes
     logger.info("Starting to deserialise the list of services stored in the configuration file");
-    XStream xstream = new XStream();
+    XStream xstream = new XStream(new DomDriver());
     xstream.setClassLoader(BioCataloguePerspective.class.getClassLoader());
     
     BioCataloguePluginConfiguration configuration = BioCataloguePluginConfiguration.getInstance();

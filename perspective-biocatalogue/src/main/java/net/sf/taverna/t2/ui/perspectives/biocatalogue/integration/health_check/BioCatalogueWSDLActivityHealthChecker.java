@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.MonitoringStatusLabel;
 import org.biocatalogue.x2009.xml.rest.Service;
@@ -167,8 +168,8 @@ public class BioCatalogueWSDLActivityHealthChecker implements HealthChecker<WSDL
             report.setProperty(BioCatalogueWSDLActivityHealthCheck.OPERATION_NAME_PROPERTY, activity.getConfiguration().getOperation());
             report.setProperty(BioCatalogueWSDLActivityHealthCheck.EXPLANATION_MSG_PROPERTY,
                                "This test was last executed " + agoString + "." +
-                               "\n\n" + Util.stripAllHTML(test.getLatestStatus().getMessage()) +
-                               "\n\n---- Test script description ----\n" + Util.stripAllHTML(testScript.getDescription()));
+                               "\n\n" + StringEscapeUtils.escapeHtml(test.getLatestStatus().getMessage()) +
+                               "\n\n---- Test script description ----\n" + StringEscapeUtils.escapeHtml(testScript.getDescription()));
             
             subReports.add(report);
           }

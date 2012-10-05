@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
 
 import net.sf.taverna.biocatalogue.model.SoapOperationIdentity;
 
@@ -17,7 +18,7 @@ public class XStreamTest
     processors.add(new SoapOperationIdentity("http://www.test.com/test.wsdl", "aa", null));
     processors.add(new SoapOperationIdentity("http://www.example.com/example.wsdl", "bb", null));
     
-    XStream xstream = new XStream();
+    XStream xstream = new XStream(new DomDriver());
     String xml = xstream.toXML(processors);
     
     System.out.println(xml);

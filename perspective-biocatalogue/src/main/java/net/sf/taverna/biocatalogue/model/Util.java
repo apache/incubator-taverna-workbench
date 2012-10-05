@@ -25,6 +25,7 @@ import javax.swing.JLabel;
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.BioCataloguePerspective;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -291,19 +292,6 @@ public class Util
   }
   
   /**
-   * Generates a JLabel with a "none-text" style - i.e. the text will be grayed out and in italics.
-   */
-  public static JLabel generateNoneTextLabel(String strLabel)
-  {
-    JLabel lNoneText = new JLabel(strLabel);
-    lNoneText.setFont(lNoneText.getFont().deriveFont(Font.ITALIC));
-    lNoneText.setForeground(Color.GRAY);
-    lNoneText.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-    return (lNoneText);
-  }
-  
-  
-  /**
    * Determines whether the plugin is running as a standalone JFrame or inside Taverna Workbench.
    * This is a naive test, based only on the fact that Taverna uses Raven ApplicationRuntime.
    */
@@ -322,57 +310,12 @@ public class Util
   
   
   // === STRIPPING OUT HTML FROM STRINGS ===
-
-  /**
-   * Tiny helper to strip out HTML tags. Basic HTML tags like &nbsp; and <br>
-   * are left in place, because these can be rendered by JLabel. This helps to
-   * present HTML content inside JAVA easier.
-   */
-  public static String stripHTML(String source) {
-        // don't do anything if not string is provided
-        if (source == null)
-          return ("");
-
-        // need to preserve at least all line breaks
-        // (ending and starting paragraph also make a line break)
-        source = source.replaceAll("</p>[\r\n]*<p>", "<br/>");
-        source = source.replaceAll("\\<br/?\\>", "[-=BR=-]");
-
-        // strip all HTML
-        source = source.replaceAll("\\<.*?\\>", "");
-
-        // put the line breaks back
-        source = source.replaceAll("\\[-=BR=-\\]", "<br/>");
-        source = source.replaceAll("\\n", "<br/>");
-        return (source);
+  
+  public static String prepareStringForComponent(String source) {
+	  return "<html>" + StringEscapeUtils.escapeHtml(source) + "</html>";
   }
 
-  /**
-   * Tiny helper to strip out all HTML tags. This will not leave any HTML tags
-   * at all (so that the content can be displayed in DialogTextArea - and the
-   * like - components. This helps to present HTML content inside JAVA easier.
-   */
-  public static String stripAllHTML(String source) {
-        // don't do anything if not string is provided
-        if (source == null)
-          return ("");
 
-        // need to preserve at least all line breaks
-        // (ending and starting paragraph also make a line break)
-        source = source.replaceAll("</p>[\r\n]*<p>", "<br/>");
-        source = source.replaceAll("[\\s]+", " ");
-        source = source.replaceAll("\\<br/?\\>", "\n");
-        source = source.replaceAll("\n ", "\n");
-
-        // strip all HTML
-        source = source.replaceAll("\\<.*?\\>", ""); // any HTML tags
-        source = source.replaceAll("&\\w{1,4};", ""); // this is for things like "&nbsp;", "&gt;", etc
-
-        return (source);
-  }
-
-  
-  
   /*
    * === The following section is providing URL handling methods. ===
    */
@@ -385,6 +328,31 @@ public class Util
   public static String appendStringBeforeParametersOfURL(String url, String strToAppend) {
     return (appendStringBeforeParametersOfURL(url, strToAppend, false));
   }
+  
+  /**
+   * Tiny helper to strip out all HTML tags. This will not leave any HTML tags
+   * at all (so that the content can be displayed in DialogTextArea - and the
+   * like - components. This helps to present HTML content inside JAVA easier.
+   */
+  public static String stripAllHTML(String source) {
+        // don't do anything if not string is provided
+        if (source == null)
+          return ("");
+   
+        // need to preserve at least all line breaks
+        // (ending and starting paragraph also make a line break)
+        source = source.replaceAll("</p>[\r\n]*<p>", "<br/>");
+        source = source.replaceAll("[\\s]+", " ");
+        source = source.replaceAll("\\<br/?\\>", "\n");
+        source = source.replaceAll("\n ", "\n");
+
+       // strip all HTML
+        source = source.replaceAll("\\<.*?\\>", ""); // any HTML tags
+        source = source.replaceAll("&\\w{1,4};", ""); // this is for things like "&nbsp;", "&gt;", etc
+
+        return (source);
+  }
+
   
   /**
    * Appends given string at the end of the provided URL just before the list of parameters in the url.
