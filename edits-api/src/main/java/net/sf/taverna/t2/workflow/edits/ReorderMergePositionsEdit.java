@@ -24,32 +24,36 @@ import java.util.List;
 
 import net.sf.taverna.t2.workbench.edits.EditException;
 import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.port.ReceiverPort;
 
 /**
- *
+ * Change datalink merge positions based on ordered list of data links.
  *
  * @author David Withers
+ * @author Stian Soiland-Reyes
  */
-public class ReorderMergePositionsEdit extends AbstractEdit<List<DataLink>> {
+public class ReorderMergePositionsEdit extends AbstractEdit<ReceiverPort> {
 
 	private List<DataLink> newMergePositions;
+	private final List<DataLink> oldMergePositions;
 
 	public ReorderMergePositionsEdit(List<DataLink> dataLinks, List<DataLink> newMergePositions) {
-		super(dataLinks);
+		super(dataLinks.get(0).getSendsTo());
+		this.oldMergePositions = dataLinks;
 		this.newMergePositions = newMergePositions;
 	}
 
 	@Override
-	protected void doEditAction(List<DataLink> dataLinks) throws EditException {
+	protected void doEditAction(ReceiverPort subject) throws EditException {
 		for (int i = 0; i < newMergePositions.size(); i++) {
 			newMergePositions.get(i).setMergePosition(i);
 		}
 	}
 
 	@Override
-	protected void undoEditAction(List<DataLink> dataLinks) {
-		for (int i = 0; i < dataLinks.size(); i++) {
-			dataLinks.get(i).setMergePosition(i);
+	protected void undoEditAction(ReceiverPort subject) {
+		for (int i = 0; i < oldMergePositions.size(); i++) {
+			oldMergePositions.get(i).setMergePosition(i);
 		}
 	}
 

@@ -23,6 +23,8 @@ package net.sf.taverna.t2.workbench.edits;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.org.taverna.scufl2.api.common.WorkflowBean;
+
 /**
  * Implementation of Edit which contains an ordered list of child edits. Child
  * edits are applied collectively and in order, any failure in any child edit
@@ -32,7 +34,7 @@ import java.util.List;
  * @author Tom Oinn
  * 
  */
-public class CompoundEdit implements Edit<Object> {
+public class CompoundEdit implements Edit<WorkflowBean> {
 
 	private final transient List<Edit<?>> childEdits;
 
@@ -63,7 +65,7 @@ public class CompoundEdit implements Edit<Object> {
 	 * the exception is rethrown as the cause of a new EditException from the
 	 * CompoundEdit
 	 */
-	public synchronized Object doEdit() throws EditException {
+	public synchronized WorkflowBean doEdit() throws EditException {
 		if (isApplied()) {
 			throw new EditException("Cannot apply an edit more than once!");
 		}

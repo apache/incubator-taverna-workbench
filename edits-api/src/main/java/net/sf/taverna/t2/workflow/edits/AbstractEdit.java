@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workflow.edits;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.common.WorkflowBean;
 
 
 /**
@@ -34,7 +35,7 @@ import uk.org.taverna.scufl2.api.common.Scufl2Tools;
  * @param <Subject>
  *            Subject of this edit
  */
-public abstract class AbstractEdit<Subject> implements Edit<Subject> {
+public abstract class AbstractEdit<Subject extends WorkflowBean> implements Edit<Subject> {
 
 	private boolean applied = false;
 	protected Subject subject;
