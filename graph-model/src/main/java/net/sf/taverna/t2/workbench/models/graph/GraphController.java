@@ -999,7 +999,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns the dataflow.
-	 *
+	 * 
 	 * @return the dataflow
 	 */
 	public Dataflow getDataflow() {
@@ -1008,7 +1008,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns the dataflowSelectionModel.
-	 *
+	 * 
 	 * @return the dataflowSelectionModel
 	 */
 	public DataflowSelectionModel getDataflowSelectionModel() {
@@ -1051,7 +1051,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns the alignment.
-	 *
+	 * 
 	 * @return the alignment
 	 */
 	public Alignment getAlignment() {
@@ -1060,7 +1060,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns the portStyle.
-	 *
+	 * 
 	 * @return the portStyle
 	 */
 	public PortStyle getPortStyle() {
@@ -1069,7 +1069,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns the portStyle for a processor.
-	 *
+	 * 
 	 * @return the portStyle for a processor
 	 */
 	public PortStyle getPortStyle(Processor processor) {
@@ -1120,7 +1120,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns true if the default is to expand nested workflows.
-	 *
+	 * 
 	 * @return true if the default is to expand nested workflows
 	 */
 	public boolean expandNestedDataflows() {
@@ -1129,7 +1129,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns true if the nested dataflow should be expanded.
-	 *
+	 * 
 	 * @param dataflow
 	 * @return true if the nested dataflow should be expanded
 	 */
@@ -1158,7 +1158,7 @@ public abstract class GraphController implements
 	 * @param expand
 	 *            whether the nested dataflow should be expanded
 	 * @param dataflow
-	 *            he nested dataflow
+	 *            the nested dataflow
 	 */
 	public void setExpandNestedDataflow(Dataflow dataflow, boolean expand) {
 		dataflowExpansion.put(dataflow, expand);
@@ -1572,20 +1572,23 @@ public abstract class GraphController implements
 		} else if (ports.size() == 1) {
 			result = ports.get(0);
 		} else {
-			List<String> portNames = new ArrayList<String>();
-			for (Port port : ports) {
-				portNames.add(port.getName());
-			}
-			String portName = (String) JOptionPane.showInputDialog(component,
-					"Select an " + portType + " port", "Port Chooser",
-					JOptionPane.PLAIN_MESSAGE, null, portNames.toArray(),
-					portNames.get(0));
-			if ((portName != null) && (portName.length() > 0)) {
-				int index = portNames.indexOf(portName);
-				if (index >= 0 && index < ports.size()) {
-					result = ports.get(index);
-				}
-			}
+			ArrayList<Port> sortedPorts = new ArrayList<Port>(ports);
+            Collections.sort(sortedPorts, portComparator);
+            List<String> portNames = new ArrayList<String>();
+            for (Port port : sortedPorts) {
+                    portNames.add(port.getName());
+            }
+            String portName = (String) JOptionPane.showInputDialog(component,
+                            "Select an " + portType + " port", "Port Chooser",
+                            JOptionPane.PLAIN_MESSAGE, null, portNames.toArray(),
+                            portNames.get(0));
+            if ((portName != null) && (portName.length() > 0)) {
+                    int index = portNames.indexOf(portName);
+                    if (index >= 0 && index < sortedPorts.size()) {
+                            result = sortedPorts.get(index);
+                    }
+            }
+
 		}
 		return result;
 
@@ -1628,7 +1631,7 @@ public abstract class GraphController implements
 
 	/**
 	 * Returns the GraphEventManager.
-	 *
+	 * 
 	 * @return the GraphEventManager
 	 */
 	public GraphEventManager getGraphEventManager() {
