@@ -22,6 +22,7 @@ package net.sf.taverna.t2.reference.ui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -29,8 +30,10 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -72,6 +75,7 @@ import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.ui.Workbench;
+import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
@@ -109,6 +113,10 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	private final ImageIcon launchIcon = new ImageIcon(getClass().getResource(
 			"/icons/start_task.gif"));
+	
+	private static final ImageIcon addTextIcon = new ImageIcon(
+			RegistrationPanel.class.getResource("/icons/addtext_co.gif"));
+
 
 	// An action enabled when all inputs are enabled and used to trigger the
 	// handleLaunch method
@@ -298,8 +306,9 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 						// exit
 						return;
 					}
-				}
-
+				}			
+				setState(Frame.ICONIFIED);
+				
 				// Make a copy of the workflow to run so user can still
 				// modify the original workflow
 				Dataflow dataflowCopy = null;
@@ -413,9 +422,28 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		String wfAuthor = annotationTools.getAnnotationString(dataflowOriginal, Author.class, "");
 		setWorkflowAuthor(wfAuthor);
 
+		Action useExamplesAction = new AbstractAction ("Use examples", addTextIcon) {
+
+            @Override
+            public void actionPerformed(ActionEvent arg0) {
+                List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(
+                        dataflowOriginal.getInputPorts());
+                // Create tabs for input ports (but only for the one that are connected!)
+                for (DataflowInputPort inputPort : inputPorts) {
+                    RegistrationPanel rp = inputPanelMap.get(inputPort.getName());
+                    Object example = rp.getExample();
+                    if ((example != null) && (inputPort.getDepth() == 0) && (rp.getValue() == null)) {
+                        rp.setValue(example);
+                    }
+                }
+            }};
+
+        JButton useExamplesButton = new JButton(useExamplesAction);
+        useExamplesButton.setToolTipText("Use the example value (if any) for ports that you have not set a value for");
 		// Construct tool bar
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
+		toolBar.add(useExamplesButton);
 		toolBar.add(new JButton(launchAction));
 		toolBar.add(new JButton(new AbstractAction("Cancel", WorkbenchIcons.closeIcon) {
 
@@ -433,10 +461,11 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			loadButtonsBar.add(loadButton);
 		}
 
+		
 		JPanel toolBarPanel = new JPanel(new BorderLayout());
 		toolBarPanel.add(loadButtonsBar, BorderLayout.WEST);
 		toolBarPanel.add(toolBar, BorderLayout.EAST);
-		toolBarPanel.setBorder(new EmptyBorder(5, 20, 5, 20));
+		toolBarPanel.setBorder(new EmptyBorder(5, 10, 5, 20));
 		portsPart.add(toolBarPanel, BorderLayout.SOUTH);
 
 		// Construct tab container - tabs will be populated based on the wf input ports
@@ -445,6 +474,9 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(
 				dataflowOriginal.getInputPorts());
 		Collections.sort(inputPorts, new PortComparator());
+		
+		Set<String> inputNames = new HashSet<String>();
+		
 		// Create tabs for input ports (but only for the one that are connected!)
 		for (DataflowInputPort inputPort : inputPorts) {
 
@@ -455,17 +487,33 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 				String portExample = annotationTools.getAnnotationString(inputPort,
 						ExampleValue.class, null);
 				// add tabs for wf input ports
-				addInput(inputPort.getName(), inputPort.getDepth(), portDescription, portExample);
+
+				String name = inputPort.getName();
+				inputNames.add(name);
+				addInput(name, inputPort.getDepth(), portDescription,
+						portExample);
 			}
 		}
 
+		// This is needed to ensure that deleted ports are removed
+		Set<String> toRemove = new HashSet<String>();
+		for (String n : inputMap.keySet()) {
+			if (!inputNames.contains(n)) {
+				toRemove.add(n);
+			}
+		}
+		for (String n : toRemove) {
+			inputMap.remove(n);
+		}
+		
 		portsPart.add(tabsPane, BorderLayout.CENTER);
 
-		workflowPart.setPreferredSize(new Dimension(300, 500));
-		portsPart.setPreferredSize(new Dimension(500, 500));
-
+		workflowPart.setPreferredSize(new Dimension(300,500));
+		portsPart.setPreferredSize(new Dimension(650,500));
+		
 		overallPanel = new JPanel();
 		overallPanel.setLayout(new BoxLayout(overallPanel, BoxLayout.X_AXIS));
+		
 
 		overallPanel.add(workflowPart);
 		overallPanel.add(portsPart);
