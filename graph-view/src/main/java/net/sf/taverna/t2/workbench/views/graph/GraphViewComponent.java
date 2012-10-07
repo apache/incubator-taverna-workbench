@@ -137,7 +137,13 @@ public class GraphViewComponent extends WorkflowView {
 		border.setTitleJustification(TitledBorder.CENTER);
 		setBorder(border);
 
-		fileManager.addObserver(new FileManagerObserver());
+		FileManagerObserver fileManagerObserver = new FileManagerObserver();
+		fileManager.addObserver(fileManagerObserver);
+		try {
+			fileManagerObserver.notify(fileManager, new SetCurrentDataflowEvent(fileManager.getCurrentDataflow()));
+		} catch (Exception e) {
+			logger.warn("Could not notify " + fileManagerObserver, e);
+		}
 
 		editManager.addObserver(new EditManagerObserver());
 
