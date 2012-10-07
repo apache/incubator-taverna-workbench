@@ -25,11 +25,13 @@ import java.net.URI;
 import javax.swing.Icon;
 
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
-import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.servicedescriptions.AbstractTemplateService;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 
-public class StringConstantTemplateService extends AbstractTemplateService<StringConstantConfigurationBean>{
+public class StringConstantTemplateService extends AbstractTemplateService {
+
+	public static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
 
 	public static final String DEFAULT_VALUE = "Add your own value here";
 
@@ -44,15 +46,11 @@ public class StringConstantTemplateService extends AbstractTemplateService<Strin
 	}
 
 	@Override
-	public Class<StringConstantActivity> getActivityClass() {
-		return StringConstantActivity.class;
-	}
-
-	@Override
-	public StringConstantConfigurationBean getActivityConfiguration() {
-		StringConstantConfigurationBean stringConstantConfigurationBean = new StringConstantConfigurationBean();
-		stringConstantConfigurationBean.setValue(DEFAULT_VALUE);
-		return stringConstantConfigurationBean;
+	public Configuration getActivityConfiguration() {
+		Configuration configuration = new Configuration();
+		configuration.setConfigurableType(ACTIVITY_TYPE.resolve("#Config"));
+		configuration.getPropertyResource().addPropertyAsString(ACTIVITY_TYPE.resolve("#string"), DEFAULT_VALUE);
+		return configuration;
 	}
 
 	@Override
@@ -68,7 +66,6 @@ public class StringConstantTemplateService extends AbstractTemplateService<Strin
 		return "A string value that you can set";
 	}
 
-	@SuppressWarnings("unchecked")
 	public static ServiceDescription getServiceDescription() {
 		StringConstantTemplateService scts = new StringConstantTemplateService();
 		return scts.templateService;

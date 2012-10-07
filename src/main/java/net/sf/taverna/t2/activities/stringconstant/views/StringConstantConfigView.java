@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.activities.stringconstant.views;
 
@@ -12,6 +12,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URI;
 import java.util.Collections;
 
 import javax.help.CSH;
@@ -24,6 +25,10 @@ import javax.swing.JTextPane;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.property.PropertyException;
+
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
@@ -34,27 +39,26 @@ import net.sf.taverna.t2.lang.ui.LinePainter;
 import net.sf.taverna.t2.lang.ui.NoWrapEditorKit;
 import net.sf.taverna.t2.visit.VisitReport;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationPanel;
-import net.sf.taverna.t2.workflowmodel.health.HealthCheck;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
 
 /**
  * @author alanrw
  *
  */
-public class StringConstantConfigView extends ActivityConfigurationPanel<StringConstantActivity, StringConstantConfigurationBean> {
-	
+public class StringConstantConfigView extends ActivityConfigurationPanel {
+
 	/** The configuration bean used to configure the activity */
-	private StringConstantConfigurationBean configuration;
-	
+	private Configuration configuration;
+
 	/** The text */
 	private JEditorPane scriptTextArea;
 
-	private StringConstantActivity activity;
-	
 	private static final Color LINE_COLOR = new Color(225,225,225);
-	
-	public StringConstantConfigView(StringConstantActivity activity) {
+
+	private final Activity activity;
+
+	public StringConstantConfigView(Activity activity, Configuration configuration) {
 		this.activity = activity;
+		this.configuration = configuration;
 		setLayout(new GridBagLayout());
 		initialise();
 		this.addAncestorListener(new AncestorListener() {
@@ -67,16 +71,16 @@ public class StringConstantConfigView extends ActivityConfigurationPanel<StringC
 			@Override
 			public void ancestorMoved(AncestorEvent event) {
 				// TODO Auto-generated method stub
-				
+
 			}
 
 			@Override
 			public void ancestorRemoved(AncestorEvent event) {
 				// TODO Auto-generated method stub
-				
+
 			}});
 	}
-	
+
     public void whenOpened() {
     	scriptTextArea.requestFocus();
     	if (scriptTextArea.getText().equals(StringConstantTemplateService.DEFAULT_VALUE)) {
@@ -89,27 +93,26 @@ public class StringConstantConfigView extends ActivityConfigurationPanel<StringC
 		.setHelpIDString(
 				this,
 				"net.sf.taverna.t2.activities.stringconstant.views.StringConstantConfigView");
-		configuration = activity.getConfiguration();
-		
+
 		setBorder(javax.swing.BorderFactory.createTitledBorder(null, null,
 				javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
 				javax.swing.border.TitledBorder.DEFAULT_POSITION,
 				new java.awt.Font("Lucida Grande", 1, 12)));
-		
+
 		JPanel scriptEditPanel = new JPanel(new BorderLayout());
-		
+
 		scriptTextArea = new JTextPane();
 		new LinePainter(scriptTextArea, LINE_COLOR);
 
 		// NOTE: Due to T2-1145 - always set editor kit BEFORE setDocument
 		scriptTextArea.setEditorKit( new NoWrapEditorKit() );
 		scriptTextArea.setFont(new Font("Monospaced",Font.PLAIN,14));
-		scriptTextArea.setText(configuration.getValue());
+		scriptTextArea.setText(getValue(configuration));
 		scriptTextArea.setCaretPosition(0);
 		scriptTextArea.setPreferredSize(new Dimension(200, 100));
-		
+
 		scriptEditPanel.add(new LineEnabledTextPanel(scriptTextArea), BorderLayout.CENTER);
-		
+
 		GridBagConstraints outerConstraint = new GridBagConstraints();
 		outerConstraint.anchor = GridBagConstraints.FIRST_LINE_START;
 		outerConstraint.gridx = 0;
@@ -119,7 +122,7 @@ public class StringConstantConfigView extends ActivityConfigurationPanel<StringC
 		outerConstraint.weighty = 0.1;
 		outerConstraint.weightx = 0.1;
 		add(scriptEditPanel, outerConstraint);
-		
+
 		JButton loadScriptButton = new JButton("Load text");
 		loadScriptButton.setToolTipText("Load text from a file");
 		loadScriptButton.addActionListener(new ActionListener() {
@@ -156,16 +159,16 @@ public class StringConstantConfigView extends ActivityConfigurationPanel<StringC
 		buttonPanel.add(loadScriptButton);
 		buttonPanel.add(saveRScriptButton);
 		buttonPanel.add(clearScriptButton);
-		
+
 		scriptEditPanel.add(buttonPanel, BorderLayout.SOUTH);
 		setPreferredSize(new Dimension(600,500));
 		this.validate();
-		
+
 	}
-	
+
 	/**
 	 * Method for clearing the script
-	 * 
+	 *
 	 */
 	private void cleaText() {
 		if (JOptionPane.showConfirmDialog(this,
@@ -183,13 +186,13 @@ public class StringConstantConfigView extends ActivityConfigurationPanel<StringC
 	}
 
 	@Override
-	public StringConstantConfigurationBean getConfiguration() {
+	public Configuration getConfiguration() {
 		return configuration;
 	}
 
 	@Override
 	public boolean isConfigurationChanged() {
-		return !scriptTextArea.getText().equals(configuration.getValue());
+		return !scriptTextArea.getText().equals(getValue(configuration));
 	}
 
 	@Override
@@ -197,16 +200,30 @@ public class StringConstantConfigView extends ActivityConfigurationPanel<StringC
 		configuration = makeConfiguration();
 	}
 
-	private StringConstantConfigurationBean makeConfiguration() {
-		StringConstantConfigurationBean newConfig = new StringConstantConfigurationBean();
-		newConfig.setValue(scriptTextArea.getText());
-		return newConfig;
+	private Configuration makeConfiguration() {
+		URI activityURI = StringConstantTemplateService.ACTIVITY_TYPE;
+		Configuration configuration = new Configuration();
+		configuration.setConfigurableType(activityURI.resolve("#Config"));
+		configuration.setConfigures(activity);
+		configuration.getPropertyResource().addPropertyAsString(StringConstantTemplateService.ACTIVITY_TYPE.resolve("#string"), scriptTextArea.getText());
+		return configuration;
+	}
+
+	private String getValue(Configuration configuration) {
+		String value = null;
+		try {
+			value = configuration.getPropertyResource().getPropertyAsString(StringConstantTemplateService.ACTIVITY_TYPE.resolve("#string"));
+		} catch (PropertyException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return value;
 	}
 
 	@Override
 	public void refreshConfiguration() {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 }

@@ -23,6 +23,8 @@ package net.sf.taverna.t2.activities.stringconstant.views;
 import java.util.Arrays;
 import java.util.List;
 
+import uk.org.taverna.scufl2.api.activity.Activity;
+
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
@@ -31,8 +33,7 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 
-public class StringConstantActivityViewFactory implements
-		ContextualViewFactory<StringConstantActivity> {
+public class StringConstantActivityViewFactory implements ContextualViewFactory<Activity> {
 
 	private EditManager editManager;
 	private FileManager fileManager;
@@ -43,7 +44,7 @@ public class StringConstantActivityViewFactory implements
 		return object instanceof StringConstantActivity;
 	}
 
-	public List<ContextualView> getViews(StringConstantActivity activity) {
+	public List<ContextualView> getViews(Activity activity) {
 		return Arrays.asList(new ContextualView[] { new StringConstantActivityContextualView(
 				activity, editManager, fileManager, activityIconManager, colourManager) });
 	}

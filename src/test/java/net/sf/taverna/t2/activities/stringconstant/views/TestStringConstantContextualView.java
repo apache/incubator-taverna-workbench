@@ -22,26 +22,21 @@ package net.sf.taverna.t2.activities.stringconstant.views;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
-import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.actions.StringConstantActivityConfigurationAction;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import uk.org.taverna.scufl2.api.activity.Activity;
+
 public class TestStringConstantContextualView {
-	Activity<?> activity;
+	Activity activity;
 
 	@Before
-	public void setup() throws ActivityConfigurationException {
-		activity=new StringConstantActivity();
-		StringConstantConfigurationBean b=new StringConstantConfigurationBean();
-		b.setValue("elvis");
-		((StringConstantActivity)activity).configure(b);
+	public void setup() {
+		activity = new Activity();
 	}
 
 	@Test @Ignore

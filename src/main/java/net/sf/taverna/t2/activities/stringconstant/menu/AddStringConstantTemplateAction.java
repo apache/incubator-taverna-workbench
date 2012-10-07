@@ -26,7 +26,6 @@ import java.net.URI;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
@@ -65,8 +64,8 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 
 	@Override
 	protected Action createAction() {
-	AbstractAction action = new AbstractAction("Text constant", ActivityIconManager.getInstance()
-		.iconForActivity(new StringConstantActivity())){
+		AbstractAction action = new AbstractAction("Text constant",
+				activityIconManager.iconForActivity(StringConstantTemplateService.ACTIVITY_TYPE)) {
 
 			public void actionPerformed(ActionEvent e) {
 

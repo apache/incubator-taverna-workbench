@@ -78,7 +78,7 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 	protected class AddStringConstantMenuAction extends DesignOnlyAction {
 		AddStringConstantMenuAction() {
 			super();
-			putValue(SMALL_ICON, activityIconManager.iconForActivity(new StringConstantActivity()));
+			putValue(SMALL_ICON, activityIconManager.iconForActivity(StringConstantTemplateService.ACTIVITY_TYPE));
 			putValue(NAME, ADD_STRING_CONSTANT);
 			putValue(SHORT_DESCRIPTION, ADD_STRING_CONSTANT);
 			putValue(

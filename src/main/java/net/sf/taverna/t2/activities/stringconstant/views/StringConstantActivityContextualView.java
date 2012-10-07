@@ -27,26 +27,28 @@ import javax.swing.Action;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
-import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.actions.StringConstantActivityConfigurationAction;
+import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.property.PropertyException;
+import uk.org.taverna.scufl2.api.property.PropertyResource;
 
-public class StringConstantActivityContextualView extends
-		HTMLBasedActivityContextualView<StringConstantConfigurationBean> {
+public class StringConstantActivityContextualView extends HTMLBasedActivityContextualView {
 
 	private static final long serialVersionUID = -553974544001808511L;
+
 	private final EditManager editManager;
 	private final FileManager fileManager;
 	private final ActivityIconManager activityIconManager;
 	private static final int MAX_LENGTH = 100;
 
-	public StringConstantActivityContextualView(Activity<?> activity, EditManager editManager,
+	public StringConstantActivityContextualView(Activity activity, EditManager editManager,
 			FileManager fileManager, ActivityIconManager activityIconManager,
 			ColourManager colourManager) {
 		super(activity, colourManager);
@@ -62,16 +64,23 @@ public class StringConstantActivityContextualView extends
 
 	@Override
 	protected String getRawTableRowsHtml() {
-		String v = StringUtils.abbreviate(getConfigBean().getValue(), MAX_LENGTH);
-		v = StringEscapeUtils.escapeHtml(v);
-		String html = "<tr><td>Value</td><td>"+v+"</td></tr>";
+		PropertyResource propertyResource = getConfigBean().getPropertyResource();
+		String value;
+		try {
+			value = propertyResource.getPropertyAsString(StringConstantTemplateService.ACTIVITY_TYPE.resolve("#string"));
+		} catch (PropertyException e) {
+			value = "Error finding value";
+		}
+		value = StringUtils.abbreviate(value, MAX_LENGTH);
+		value = StringEscapeUtils.escapeHtml(value);
+		String html = "<tr><td>Value</td><td>" + value + "</td></tr>";
 		return html;
 	}
 
 	@Override
 	public Action getConfigureAction(Frame owner) {
 		return new StringConstantActivityConfigurationAction(
-				(StringConstantActivity) getActivity(), owner, editManager, fileManager,
+				getActivity(), owner, editManager, fileManager,
 				activityIconManager);
 	}
 

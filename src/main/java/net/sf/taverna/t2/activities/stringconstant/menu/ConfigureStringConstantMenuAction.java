@@ -2,22 +2,21 @@ package net.sf.taverna.t2.activities.stringconstant.menu;
 
 import javax.swing.Action;
 
-import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.actions.StringConstantActivityConfigurationAction;
+import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.activitytools.AbstractConfigureActivityMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 
-public class ConfigureStringConstantMenuAction extends
-		AbstractConfigureActivityMenuAction<StringConstantActivity> {
+public class ConfigureStringConstantMenuAction extends AbstractConfigureActivityMenuAction {
 
 	private EditManager editManager;
 	private FileManager fileManager;
 	private ActivityIconManager activityIconManager;
 
 	public ConfigureStringConstantMenuAction() {
-		super(StringConstantActivity.class);
+		super(StringConstantTemplateService.ACTIVITY_TYPE);
 	}
 
 	@Override
