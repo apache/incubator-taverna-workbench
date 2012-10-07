@@ -28,14 +28,16 @@ import java.util.Set;
 
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
 import net.sf.taverna.t2.workbench.design.ui.DataflowOutputPortPanel;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflow.edits.AddDataflowOutputPortEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * Action for adding an output port to the dataflow.
@@ -48,7 +50,7 @@ public class AddDataflowOutputAction extends DataflowEditAction {
 
 	private static Logger logger = Logger.getLogger(AddDataflowOutputAction.class);
 
-	public AddDataflowOutputAction(Dataflow dataflow, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+	public AddDataflowOutputAction(Workflow dataflow, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
 		super(dataflow, component, editManager, dataflowSelectionManager);
 		putValue(SMALL_ICON, WorkbenchIcons.outputIcon);
 		putValue(NAME, "Workflow output port");
@@ -58,7 +60,7 @@ public class AddDataflowOutputAction extends DataflowEditAction {
 	public void actionPerformed(ActionEvent event) {
 		try {
 			Set<String> usedOutputPorts = new HashSet<String>();
-			for (DataflowOutputPort outputPort : dataflow.getOutputPorts()) {
+			for (OutputWorkflowPort outputPort : dataflow.getOutputPorts()) {
 				usedOutputPorts.add(outputPort.getName());
 			}
 
@@ -74,8 +76,9 @@ public class AddDataflowOutputAction extends DataflowEditAction {
 
 			if (vuid.show(component)) {
 				String portName = inputPanel.getPortName();
-				DataflowOutputPort dataflowOutputPort = edits.createDataflowOutputPort(portName, dataflow);
-				editManager.doDataflowEdit(dataflow, edits.getAddDataflowOutputPortEdit(dataflow, dataflowOutputPort));
+				OutputWorkflowPort dataflowOutputPort = new OutputWorkflowPort();
+				dataflowOutputPort.setName(portName);
+				editManager.doDataflowEdit(dataflow.getParent(), new AddDataflowOutputPortEdit(dataflow, dataflowOutputPort));
 			}
 		} catch (EditException e) {
 			logger.debug("Create workflow output port failed", e);

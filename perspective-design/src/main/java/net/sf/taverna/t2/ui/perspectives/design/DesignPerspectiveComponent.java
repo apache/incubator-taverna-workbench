@@ -70,9 +70,9 @@ public class DesignPerspectiveComponent extends JSplitPane {
 		leftComponent.setLeftComponent((Component) servicePanelComponentFactory.getComponent());
 
 		JTabbedPane rightComponent = new JTabbedPane();
-		rightComponent.addTab("Workflow explorer", (Component) workflowExplorerFactory.getComponent());
-		rightComponent.addTab("Details", (Component) contextualViewComponentFactory.getComponent());
-		rightComponent.addTab("Validation report",  (Component) reportViewComponentFactory.getComponent());
+//		rightComponent.addTab("Workflow explorer", (Component) workflowExplorerFactory.getComponent());
+//		rightComponent.addTab("Details", (Component) contextualViewComponentFactory.getComponent());
+//		rightComponent.addTab("Validation report",  (Component) reportViewComponentFactory.getComponent());
 		leftComponent.setRightComponent(rightComponent);
 
 		return leftComponent;

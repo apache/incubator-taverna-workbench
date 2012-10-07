@@ -29,7 +29,6 @@ import javax.swing.Action;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
-import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
@@ -41,14 +40,14 @@ import net.sf.taverna.t2.workbench.design.actions.RenameProcessorAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * An action that allows user to rename workflow input, output or
@@ -89,15 +88,14 @@ public class RenameWFInputOutputProcessorAction extends AbstractAction{
 		modelMap.addObserver(new Observer<ModelMap.ModelMapEvent>() {
 			public void notify(Observable<ModelMapEvent> sender, ModelMapEvent message) {
 				if (message.getModelName().equals(ModelMapConstants.CURRENT_DATAFLOW)) {
-					if (message.getNewModel() instanceof Dataflow) {
-
+					if (message.getNewModel() instanceof WorkflowBundle) {
 						// Update the buttons status as current dataflow has changed
-						updateStatus((Dataflow) message.getNewModel());
+						updateStatus((WorkflowBundle) message.getNewModel());
 
 						// Remove the workflow selection model listener from the previous (if any)
 						// and add to the new workflow (if any)
-						Dataflow oldFlow = (Dataflow) message.getOldModel();
-						Dataflow newFlow = (Dataflow) message.getNewModel();
+						WorkflowBundle oldFlow = (WorkflowBundle) message.getOldModel();
+						WorkflowBundle newFlow = (WorkflowBundle) message.getNewModel();
 						if (oldFlow != null) {
 							dataflowSelectionManager.getDataflowSelectionModel(oldFlow)
 									.removeObserver(workflowSelectionObserver);
@@ -115,7 +113,7 @@ public class RenameWFInputOutputProcessorAction extends AbstractAction{
 
 	public void actionPerformed(ActionEvent e) {
 
-		Dataflow dataflow = fileManager.getCurrentDataflow();
+		WorkflowBundle dataflow = fileManager.getCurrentDataflow();
 		DataflowSelectionModel dataFlowSelectionModel = dataflowSelectionManager.getDataflowSelectionModel(dataflow);
 		// Get selected port
 		Set<Object> selectedWFComponents = dataFlowSelectionModel
@@ -129,19 +127,22 @@ public class RenameWFInputOutputProcessorAction extends AbstractAction{
 		}
 		else{
 			Object selectedWFComponent = selectedWFComponents.toArray()[0];
-			if (selectedWFComponent instanceof DataflowInputPort) {
-				new EditDataflowInputPortAction(dataflow,
-						(DataflowInputPort) selectedWFComponent, null, editManager, dataflowSelectionManager)
+			if (selectedWFComponent instanceof InputWorkflowPort) {
+				InputWorkflowPort port = (InputWorkflowPort) selectedWFComponent;
+				new EditDataflowInputPortAction(port.getParent(),
+						port, null, editManager, dataflowSelectionManager)
 						.actionPerformed(e);
 			}
-			else if (selectedWFComponent instanceof DataflowOutputPort){
-				new EditDataflowOutputPortAction(dataflow,
-						(DataflowOutputPort) selectedWFComponent, null, editManager, dataflowSelectionManager)
+			else if (selectedWFComponent instanceof OutputWorkflowPort){
+				OutputWorkflowPort port = (OutputWorkflowPort) selectedWFComponent;
+				new EditDataflowOutputPortAction(port.getParent(),
+						port, null, editManager, dataflowSelectionManager)
 						.actionPerformed(e);
 			}
 			else if (selectedWFComponent instanceof Processor){
-				new RenameProcessorAction(dataflow,
-						(Processor) selectedWFComponent, null, editManager, dataflowSelectionManager)
+				Processor processor = (Processor) selectedWFComponent;
+				new RenameProcessorAction(processor.getParent(),
+						processor, null, editManager, dataflowSelectionManager)
 						.actionPerformed(e);
 			}
 			else{ // should not happen as the button will be disabled otherwise, but ...
@@ -157,7 +158,7 @@ public class RenameWFInputOutputProcessorAction extends AbstractAction{
 	/**
 	 * Check if action should be enabled or disabled and update its status.
 	 */
-	public void updateStatus(Dataflow dataflow) {
+	public void updateStatus(WorkflowBundle dataflow) {
 
 		DataflowSelectionModel selectionModel = dataflowSelectionManager.getDataflowSelectionModel(dataflow);
 
@@ -171,8 +172,8 @@ public class RenameWFInputOutputProcessorAction extends AbstractAction{
 			// Take the first selected item - we only support single selections anyway
 			Object selected = selection.toArray()[0];
 			if ((selected instanceof Processor) ||
-					(selected instanceof DataflowInputPort) ||
-					(selected instanceof DataflowOutputPort)){
+					(selected instanceof InputWorkflowPort) ||
+					(selected instanceof OutputWorkflowPort)){
 				setEnabled(true);
 			}
 			else{

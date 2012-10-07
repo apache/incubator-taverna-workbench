@@ -38,15 +38,13 @@ import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguratio
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.models.graph.DotWriter;
 import net.sf.taverna.t2.workbench.models.graph.Graph;
+import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.GraphEdge;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphNode;
-import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.dot.GraphLayout;
 import net.sf.taverna.t2.workbench.models.graph.dot.ParseException;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edits;
 
 import org.apache.batik.bridge.UpdateManager;
 import org.apache.batik.dom.svg.SVGOMAnimationElement;
@@ -63,6 +61,8 @@ import org.w3c.dom.svg.SVGElement;
 import org.w3c.dom.svg.SVGPoint;
 import org.w3c.dom.svg.SVGSVGElement;
 
+import uk.org.taverna.scufl2.api.core.Workflow;
+
 public class SVGGraphController extends GraphController {
 
 	private static Logger logger = Logger.getLogger(SVGGraphController.class);
@@ -70,7 +70,6 @@ public class SVGGraphController extends GraphController {
 	private Map<String, List<SVGGraphEdge>> datalinkMap = new HashMap<String, List<SVGGraphEdge>>();
 
 	private final JSVGCanvas svgCanvas;
-
 
 	private SVGDocument svgDocument;
 
@@ -103,7 +102,7 @@ public class SVGGraphController extends GraphController {
 
 	private final WorkbenchConfiguration workbenchConfiguration;
 
-	public SVGGraphController(Dataflow dataflow, boolean interactive, JSVGCanvas svgCanvas, EditManager editManager,
+	public SVGGraphController(Workflow dataflow, boolean interactive, JSVGCanvas svgCanvas, EditManager editManager,
 			MenuManager menuManager, ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
 		super(dataflow, interactive, svgCanvas, editManager, menuManager, colourManager);
 		this.svgCanvas = svgCanvas;
@@ -117,7 +116,7 @@ public class SVGGraphController extends GraphController {
 		svgCanvas.setDocument(getSVGDocument());
 	}
 
-	public SVGGraphController(Dataflow dataflow, boolean interactive, JSVGCanvas svgCanvas, Alignment alignment,
+	public SVGGraphController(Workflow dataflow, boolean interactive, JSVGCanvas svgCanvas, Alignment alignment,
 			PortStyle portStyle, EditManager editManager, MenuManager menuManager, ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
 		super(dataflow, interactive, svgCanvas, alignment, portStyle, editManager, menuManager, colourManager);
 		this.svgCanvas = svgCanvas;

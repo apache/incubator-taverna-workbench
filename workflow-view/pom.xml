@@ -28,13 +28,13 @@
 			<version>${t2.lang.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-api</artifactId>
-			<version>${t2.core.version}</version>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>workbench-api</artifactId>
+			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>workbench-api</artifactId>
+			<artifactId>edits-api</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
@@ -63,15 +63,14 @@
 			<version>${platform.version}</version>
 		</dependency>
 		<dependency>
-				<groupId>org.apache.log4j</groupId>
-				<artifactId>com.springsource.org.apache.log4j</artifactId>
+			<groupId>uk.org.taverna.scufl2</groupId>
+			<artifactId>scufl2-api</artifactId>
+			<version>${scufl2.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-impl</artifactId>
-			<version>${t2.core.version}</version>
+			<groupId>org.apache.log4j</groupId>
+			<artifactId>com.springsource.org.apache.log4j</artifactId>
 		</dependency>
-
 	</dependencies>
 </project>

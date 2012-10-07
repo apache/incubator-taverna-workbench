@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.models.graph;
 import java.awt.Component;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
+import java.net.URI;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -33,16 +34,10 @@ import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
-import net.sf.taverna.t2.workflowmodel.Condition;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.Merge;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 
 /**
  * Manager for handling UI events on GraphElements.
@@ -51,6 +46,9 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
  */
 public class DefaultGraphEventManager implements GraphEventManager {
 
+	private static final URI NESTED_WORKFLOW_URI = URI
+			.create("http://ns.taverna.org.uk/2010/activity/nested-workflow");
+
 	private GraphController graphController;
 
 	private Component component;
@@ -58,6 +56,8 @@ public class DefaultGraphEventManager implements GraphEventManager {
 	private JPopupMenu menu;
 
 	private MenuManager menuManager;
+
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	/**
 	 * Constructs a new instance of GraphEventManager.
@@ -85,10 +85,16 @@ public class DefaultGraphEventManager implements GraphEventManager {
 
 		// If this was a right click - show a pop-up as well
 		if ((button == 2) || ctrlKey) {
-			menu = null;
+			if (dataflowObject == null) {
+				menu = menuManager.createContextMenu(graphController.getWorkflow(), graphController.getWorkflow(), component);
+			} else {
+				menu = menuManager.createContextMenu(graphController.getWorkflow(), dataflowObject, component);
+			}
 			if (dataflowObject instanceof Processor) {
 				final Processor processor = (Processor) dataflowObject;
-				menu = menuManager.createContextMenu(graphController.getDataflow(), processor, component);
+				ProcessorBinding processorBinding = scufl2Tools.processorBindingForProcessor(processor, graphController.getProfile());
+				final Activity activity = processorBinding.getBoundActivity();
+				menu = menuManager.createContextMenu(graphController.getWorkflow(), processor, component);
 				if (menu == null) {
 					menu = new JPopupMenu();
 				}
@@ -111,13 +117,11 @@ public class DefaultGraphEventManager implements GraphEventManager {
 							}
 						}));
 					}
-					if (!processor.getActivityList().isEmpty() &&
-							processor.getActivityList().get(0) instanceof NestedDataflow) {
-						final NestedDataflow nestedDataflow = (NestedDataflow) processor.getActivityList().get(0);
+					if (activity.getConfigurableType().equals(NESTED_WORKFLOW_URI)) {
 						menu.addSeparator();
 						menu.add(new JMenuItem(new AbstractAction("Show nested workflow") {
 							public void actionPerformed(ActionEvent arg0) {
-								graphController.setExpandNestedDataflow(nestedDataflow.getNestedDataflow(), true);
+								graphController.setExpandNestedDataflow(activity, true);
 								graphController.redraw();
 							}
 						}));
@@ -182,42 +186,16 @@ public class DefaultGraphEventManager implements GraphEventManager {
 						}
 					}
 				} else if (graphElement instanceof Graph) {
-					if (!processor.getActivityList().isEmpty() &&
-							processor.getActivityList().get(0) instanceof NestedDataflow) {
-						final NestedDataflow nestedDataflow = (NestedDataflow) processor.getActivityList().get(0);
+					if (activity.getConfigurableType().equals(NESTED_WORKFLOW_URI)) {
 						menu.addSeparator();
 						menu.add(new JMenuItem(new AbstractAction("Hide nested workflow") {
 							public void actionPerformed(ActionEvent arg0) {
-								graphController.setExpandNestedDataflow(nestedDataflow.getNestedDataflow(), false);
+								graphController.setExpandNestedDataflow(activity, false);
 								graphController.redraw();
 							}
 						}));
 					}
 				}
-			} else if (dataflowObject instanceof Merge) {
-				Dataflow dataflow = graphController.getDataflow();
-				menu = menuManager.createContextMenu(dataflow, dataflowObject, component);
-			} else if (dataflowObject instanceof DataflowInputPort) {
-				Dataflow dataflow = graphController.getDataflow();
-				menu = menuManager.createContextMenu(dataflow, dataflowObject, component);
-			} else if (dataflowObject instanceof DataflowOutputPort) {
-				Dataflow dataflow = graphController.getDataflow();
-				menu = menuManager.createContextMenu(dataflow, dataflowObject, component);
-			} else if (dataflowObject instanceof ActivityInputPort) {
-				Dataflow dataflow = graphController.getDataflow();
-				menu = menuManager.createContextMenu(dataflow, dataflowObject, component);
-			} else if (dataflowObject instanceof ActivityOutputPort) {
-				Dataflow dataflow = graphController.getDataflow();
-				menu = menuManager.createContextMenu(dataflow, dataflowObject, component);
-			} else if (dataflowObject instanceof Datalink) {
-				Dataflow dataflow = graphController.getDataflow();
-				menu = menuManager.createContextMenu(dataflow, dataflowObject, component);
-			} else if (dataflowObject instanceof Condition) {
-				Dataflow dataflow = graphController.getDataflow();
-				menu = menuManager.createContextMenu(dataflow, dataflowObject, component);
-			} else if (dataflowObject instanceof Dataflow || dataflowObject == null) {
-				Dataflow dataflow = graphController.getDataflow();
-				menu = menuManager.createContextMenu(dataflow, dataflow, component);
 			}
 			if (menu != null) {
 				final Point p = new Point(screenX, screenY);

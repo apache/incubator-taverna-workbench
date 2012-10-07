@@ -27,14 +27,14 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import net.sf.taverna.t2.workbench.models.graph.Graph;
+import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.GraphEdge;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphNode;
-import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
+
+import org.apache.log4j.Logger;
 
 /**
  * Lays out a graph from a DOT layout.

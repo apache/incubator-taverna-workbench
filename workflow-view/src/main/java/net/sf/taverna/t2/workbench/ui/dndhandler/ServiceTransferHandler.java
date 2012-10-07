@@ -37,9 +37,10 @@ import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * TransferHandler for accepting ActivityAndBeanWrapper object dropped on the
@@ -56,7 +57,7 @@ public class ServiceTransferHandler extends TransferHandler {
 	private static Logger logger = Logger
 			.getLogger(ServiceTransferHandler.class);
 
-	private Dataflow currentDataflow;
+	private WorkflowBundle currentDataflow;
 
 	private DataFlavor serviceDescriptionDataFlavor;
 
@@ -72,14 +73,14 @@ public class ServiceTransferHandler extends TransferHandler {
 		ModelMap.getInstance().addObserver(new Observer<ModelMap.ModelMapEvent>() {
 			public void notify(Observable<ModelMapEvent> sender, ModelMapEvent message) {
 				if (message.getModelName().equals(ModelMapConstants.CURRENT_DATAFLOW)) {
-					if (message.getNewModel() instanceof Dataflow) {
-						currentDataflow = ((Dataflow) message.getNewModel());
+					if (message.getNewModel() instanceof WorkflowBundle) {
+						currentDataflow = ((WorkflowBundle) message.getNewModel());
 					}
 				}
 			}
 		});
 
-		currentDataflow = (Dataflow) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
+		currentDataflow = (WorkflowBundle) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
 
 		try {
 			serviceDescriptionDataFlavor = new DataFlavor(

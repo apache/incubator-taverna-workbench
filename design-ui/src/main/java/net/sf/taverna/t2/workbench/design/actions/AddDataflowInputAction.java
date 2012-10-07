@@ -28,14 +28,16 @@ import java.util.Set;
 
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
 import net.sf.taverna.t2.workbench.design.ui.DataflowInputPortPanel;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflow.edits.AddDataflowInputPortEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
 
 /**
  * Action for adding an input port to the dataflow.
@@ -48,7 +50,7 @@ public class AddDataflowInputAction extends DataflowEditAction {
 
 	private static Logger logger = Logger.getLogger(AddDataflowInputAction.class);
 
-	public AddDataflowInputAction(Dataflow dataflow, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+	public AddDataflowInputAction(Workflow dataflow, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
 		super(dataflow, component, editManager, dataflowSelectionManager);
 		putValue(SMALL_ICON, WorkbenchIcons.inputIcon);
 		putValue(NAME, "Workflow input port");
@@ -58,7 +60,7 @@ public class AddDataflowInputAction extends DataflowEditAction {
 	public void actionPerformed(ActionEvent event) {
 		try {
 			Set<String> usedInputPorts = new HashSet<String>();
-			for (DataflowInputPort inputPort : dataflow.getInputPorts()) {
+			for (InputWorkflowPort inputPort : dataflow.getInputPorts()) {
 				usedInputPorts.add(inputPort.getName());
 			}
 
@@ -79,8 +81,10 @@ public class AddDataflowInputAction extends DataflowEditAction {
 			if (vuid.show(component)) {
 				String portName = inputPanel.getPortName();
 				int portDepth = inputPanel.getPortDepth();
-				DataflowInputPort dataflowInputPort = edits.createDataflowInputPort(portName, portDepth, portDepth, dataflow);
-				editManager.doDataflowEdit(dataflow, edits.getAddDataflowInputPortEdit(dataflow, dataflowInputPort));
+				InputWorkflowPort dataflowInputPort = new InputWorkflowPort();
+				dataflowInputPort.setName(portName);
+				dataflowInputPort.setDepth(portDepth);
+				editManager.doDataflowEdit(dataflow.getParent(), new AddDataflowInputPortEdit(dataflow, dataflowInputPort));
 			}
 		} catch (EditException e) {
 			logger.warn("Adding a new workflow input port failed");

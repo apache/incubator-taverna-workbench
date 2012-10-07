@@ -26,14 +26,18 @@ import java.awt.event.ActionEvent;
 import javax.swing.Icon;
 
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workflow.edits.AddControlLinkEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.core.BlockingControlLink;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 
 /**
  * Action for adding a condition to the dataflow.
@@ -46,27 +50,32 @@ public class AddConditionAction extends DataflowEditAction {
 
 	private static Logger logger = Logger.getLogger(AddConditionAction.class);
 
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
+
 	private Processor control;
 	private Processor target;
 
-	public AddConditionAction(Dataflow dataflow, Processor control, Processor target,
+	public AddConditionAction(Workflow dataflow, Processor control, Processor target,
 			Component component, EditManager editManager,
 			DataflowSelectionManager dataflowSelectionManager, ActivityIconManager activityIconManager) {
 		super(dataflow, component, editManager, dataflowSelectionManager);
 		this.control = control;
 		this.target = target;
-		Activity<?> activity = control.getActivityList().get(0);
-		Icon activityIcon = activityIconManager.iconForActivity(activity);
+		ProcessorBinding processorBinding = scufl2Tools.processorBindingForProcessor(control, dataflow.getParent().getMainProfile());
+		Icon activityIcon = activityIconManager.iconForActivity(processorBinding.getBoundActivity().getConfigurableType());
 		putValue(SMALL_ICON, activityIcon);
-		putValue(NAME, control.getLocalName());
+		putValue(NAME, control.getName());
 	}
 
 	public void actionPerformed(ActionEvent event) {
 		try {
-			editManager.doDataflowEdit(dataflow, edits.getCreateConditionEdit(control, target));
+			BlockingControlLink controlLink = new BlockingControlLink();
+			controlLink.setUntilFinished(control);
+			controlLink.setBlock(target);
+			editManager.doDataflowEdit(dataflow.getParent(), new AddControlLinkEdit(dataflow, controlLink));
 		} catch (EditException e) {
-			logger.debug("Create control link between '" + control.getLocalName() + "' and '"
-					+ target.getLocalName() + "' failed");
+			logger.debug("Create control link between '" + control.getName() + "' and '"
+					+ target.getName() + "' failed");
 		}
 
 	}

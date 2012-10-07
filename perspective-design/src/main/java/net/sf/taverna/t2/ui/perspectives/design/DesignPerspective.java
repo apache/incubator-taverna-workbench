@@ -20,29 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.design;
 
-import java.util.List;
-
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 
-import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
-import net.sf.taverna.t2.ui.menu.MenuManager;
-import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
-import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
-import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
-import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.report.ReportManager;
-import net.sf.taverna.t2.workbench.report.explainer.VisitExplainer;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workbench.ui.Workbench;
-import net.sf.taverna.t2.workbench.ui.servicepanel.ServicePanelComponentFactory;
-import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
-import net.sf.taverna.t2.workbench.views.graph.GraphViewComponentFactory;
 
 public class DesignPerspective implements PerspectiveSPI, WorkflowPerspective {
 

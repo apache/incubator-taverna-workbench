@@ -25,15 +25,16 @@ import static org.junit.Assert.assertEquals;
 import java.io.IOException;
 
 import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import uk.org.taverna.scufl2.api.core.Workflow;
+
 public class GraphControllerTest {
 
-	Dataflow dataflow;
+	Workflow dataflow;
 
 	GraphController graphController;
 

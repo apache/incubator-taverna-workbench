@@ -6,12 +6,12 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="DesignPerspective" interface="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI" />
+	<service ref="DesignPerspective" auto-export="interfaces" />
 
 	<reference id="graphViewComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" bean-name="GraphViewComponentFactory" />
 	<reference id="servicePanelComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" bean-name="ServicePanelComponentFactory"/>
-	<reference id="contextualViewComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" bean-name="ContextualViewComponentFactory"/>
-	<reference id="workflowExplorerFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" bean-name="WorkflowExplorerFactory"/>
-	<reference id="reportViewComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" bean-name="ReportViewComponentFactory"/>
+	<!-- <reference id="contextualViewComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" bean-name="ContextualViewComponentFactory"/> -->
+	<!-- <reference id="workflowExplorerFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" bean-name="WorkflowExplorerFactory"/> -->
+	<!-- <reference id="reportViewComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" bean-name="ReportViewComponentFactory"/> -->
 
 </beans:beans>

@@ -34,23 +34,25 @@ import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.report.ReportManager;
-import net.sf.taverna.t2.workflowmodel.Condition;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.EventForwardingOutputPort;
-import net.sf.taverna.t2.workflowmodel.EventHandlingInputPort;
-import net.sf.taverna.t2.workflowmodel.Merge;
-import net.sf.taverna.t2.workflowmodel.MergePort;
-import net.sf.taverna.t2.workflowmodel.OutputPort;
-import net.sf.taverna.t2.workflowmodel.Port;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.ProcessorPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 
 import org.apache.commons.beanutils.BeanUtils;
+
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.core.BlockingControlLink;
+import uk.org.taverna.scufl2.api.core.ControlLink;
+import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputActivityPort;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.OutputPort;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.Port;
+import uk.org.taverna.scufl2.api.port.ProcessorPort;
+import uk.org.taverna.scufl2.api.port.ReceiverPort;
+import uk.org.taverna.scufl2.api.port.SenderPort;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 
 /**
  * Cell renderer for Workflow Explorer tree.
@@ -67,10 +69,12 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	private final String RUNS_AFTER = " runs after ";
 
-	private Dataflow workflow = null;
+	private Workflow workflow = null;
 	private final ReportManager reportManager;
 
-	public WorkflowExplorerTreeCellRenderer(Dataflow workflow, ReportManager reportManager,
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
+
+	public WorkflowExplorerTreeCellRenderer(Workflow workflow, ReportManager reportManager,
 			ActivityIconManager activityIconManager) {
 		super();
 		this.workflow = workflow;
@@ -86,30 +90,32 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 				row, hasFocus);
 
 		Object userObject = ((DefaultMutableTreeNode) value).getUserObject();
-		Status status = reportManager.getStatus(workflow, userObject);
+		// TODO rewrite report manager to use scufl2 validation
+		// Status status = reportManager.getStatus(workflow, userObject);
+		Status status = Status.OK;
 		WorkflowExplorerTreeCellRenderer renderer = (WorkflowExplorerTreeCellRenderer) result;
 
-		if (userObject instanceof Dataflow) { // the root node
+		if (userObject instanceof Workflow) { // the root node
 			if (!hasGrandChildren((DefaultMutableTreeNode) value)) {
 				renderer.setIcon(WorkbenchIcons.workflowExplorerIcon);
 			} else {
 				renderer.setIcon(chooseIcon(WorkbenchIcons.workflowExplorerIcon, status));
 			}
-			renderer.setText(((Dataflow) userObject).getLocalName());
-		} else if (userObject instanceof DataflowInputPort) {
+			renderer.setText(((Workflow) userObject).getName());
+		} else if (userObject instanceof InputWorkflowPort) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.inputIcon, status));
-			renderer.setText(((DataflowInputPort) userObject).getName());
-		} else if (userObject instanceof DataflowOutputPort) {
+			renderer.setText(((InputWorkflowPort) userObject).getName());
+		} else if (userObject instanceof OutputWorkflowPort) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.outputIcon, status));
-			renderer.setText(((DataflowOutputPort) userObject).getName());
+			renderer.setText(((OutputWorkflowPort) userObject).getName());
 		} else if (userObject instanceof Processor) {
 			Processor p = (Processor) userObject;
 			// Get the activity associated with the processor - currently only
 			// the first one in the list gets displayed
-			List<? extends Activity<?>> activityList = p.getActivityList();
-			String text = ((Processor) userObject).getLocalName();
-			if (!activityList.isEmpty()) {
-				Activity<?> activity = activityList.get(0);
+			List<ProcessorBinding> processorbindings = scufl2Tools.processorBindingsForProcessor(p, p.getParent().getParent().getMainProfile());
+			String text = p.getName();
+			if (!processorbindings.isEmpty()) {
+				Activity activity = processorbindings.get(0).getBoundActivity();
 				Icon basicIcon = activityIconManager.iconForActivity(activity);
 				renderer.setIcon(chooseIcon(basicIcon, status));
 
@@ -128,31 +134,28 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			renderer.setText(text);
 		}
 		// Processor's child input port (from the associated activity)
-		else if (userObject instanceof ActivityInputPort) {
+		else if (userObject instanceof InputActivityPort) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.inputPortIcon, status));
-			renderer.setText(((ActivityInputPort) userObject).getName());
+			renderer.setText(((InputActivityPort) userObject).getName());
 		}
 		// Processor's child output port (from the associated activity)
 		else if (userObject instanceof OutputPort) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.outputPortIcon, status));
 			renderer.setText(((OutputPort) userObject).getName());
-		} else if (userObject instanceof Datalink) {
+		} else if (userObject instanceof DataLink) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.datalinkIcon, status));
-			EventForwardingOutputPort source = ((Datalink) userObject).getSource();
+			SenderPort source = ((DataLink) userObject).getReceivesFrom();
 			String sourceName = findName(source);
-			EventHandlingInputPort sink = ((Datalink) userObject).getSink();
+			ReceiverPort sink = ((DataLink) userObject).getSendsTo();
 			String sinkName = findName(sink);
 			renderer.setText(sourceName + " -> " + sinkName);
-		} else if (userObject instanceof Condition) {
+		} else if (userObject instanceof BlockingControlLink) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.controlLinkIcon, status));
 			String htmlText = "<html><head></head><body>"
-					+ ((Condition) userObject).getTarget().getLocalName() + " " + RUNS_AFTER + " "
-					+ ((Condition) userObject).getControl().getLocalName() + "</body></html>";
+					+ ((BlockingControlLink) userObject).getBlock().getName() + " " + RUNS_AFTER + " "
+					+ ((BlockingControlLink) userObject).getUntilFinished().getName() + "</body></html>";
 			renderer.setText(htmlText);
 
-		} else if (userObject instanceof Merge) {
-			renderer.setIcon(chooseIcon(WorkbenchIcons.mergeIcon, status));
-			renderer.setText(((Merge) userObject).getLocalName());
 		} else {
 			// It one of the main container nodes (inputs, outputs,
 			// processors, datalinks) or a nested workflow node
@@ -192,12 +195,8 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	private String findName(Port port) {
 		if (port instanceof ProcessorPort) {
-			String sourceProcessorName = ((ProcessorPort) port).getProcessor().getLocalName();
+			String sourceProcessorName = ((ProcessorPort) port).getParent().getName();
 			return sourceProcessorName + ":" + port.getName();
-		} else if (port instanceof MergePort) {
-			String sourceMergeName = ((MergePort) port).getMerge().getLocalName();
-			return sourceMergeName + ":" + port.getName();
-
 		} else {
 			return port.getName();
 		}

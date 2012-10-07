@@ -31,10 +31,11 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Processor;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * Action for copying a processor.
@@ -47,7 +48,7 @@ public class CutProcessorAction extends AbstractAction {
 
 	private Processor processor;
 
-	private Dataflow dataflow;
+	private Workflow dataflow;
 
 	private Component component;
 
@@ -55,7 +56,7 @@ public class CutProcessorAction extends AbstractAction {
 
 	private final DataflowSelectionManager dataflowSelectionManager;
 
-	public CutProcessorAction(Dataflow dataflow, Processor processor, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+	public CutProcessorAction(Workflow dataflow, Processor processor, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
 		this.dataflow = dataflow;
 		this.processor = processor;
 		this.component = component;

@@ -28,14 +28,16 @@ import java.util.Set;
 
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
 import net.sf.taverna.t2.workbench.design.ui.ProcessorPanel;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflow.edits.RenameProcessorEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * Action for renaming a processor.
@@ -50,7 +52,7 @@ public class RenameProcessorAction extends DataflowEditAction {
 
 	private Processor processor;
 
-	public RenameProcessorAction(Dataflow dataflow, Processor processor, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+	public RenameProcessorAction(Workflow dataflow, Processor processor, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
 		super(dataflow, component, editManager, dataflowSelectionManager);
 		this.processor = processor;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
@@ -61,8 +63,8 @@ public class RenameProcessorAction extends DataflowEditAction {
 		try {
 			Set<String> usedProcessors = new HashSet<String>();
 			for (Processor usedProcessor : dataflow.getProcessors()) {
-				if (!usedProcessor.getLocalName().equals(processor.getLocalName())) {
-					usedProcessors.add(usedProcessor.getLocalName());
+				if (!usedProcessor.getName().equals(processor.getName())) {
+					usedProcessors.add(usedProcessor.getName());
 				}
 			}
 
@@ -76,11 +78,11 @@ public class RenameProcessorAction extends DataflowEditAction {
 					"Invalid service name.");
 			vuid.setSize(new Dimension(400, 200));
 
-			inputPanel.setProcessorName(processor.getLocalName());
+			inputPanel.setProcessorName(processor.getName());
 
 			if (vuid.show(component)) {
 				String processorName = inputPanel.getProcessorName();
-				editManager.doDataflowEdit(dataflow, edits.getRenameProcessorEdit(processor, processorName));
+				editManager.doDataflowEdit(dataflow.getParent(), new RenameProcessorEdit(processor, processorName));
 			}
 
 		} catch (EditException e1) {

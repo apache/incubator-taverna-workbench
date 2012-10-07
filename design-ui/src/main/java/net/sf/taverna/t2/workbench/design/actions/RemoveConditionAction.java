@@ -23,14 +23,16 @@ package net.sf.taverna.t2.workbench.design.actions;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Condition;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflow.edits.RemoveControlLinkEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.ControlLink;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * Action for removing a condition from the dataflow.
@@ -43,19 +45,19 @@ public class RemoveConditionAction extends DataflowEditAction {
 
 	private static Logger logger = Logger.getLogger(RemoveConditionAction.class);
 
-	private Condition condition;
+	private ControlLink controlLink;
 
-	public RemoveConditionAction(Dataflow dataflow, Condition condition, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+	public RemoveConditionAction(Workflow dataflow, ControlLink controlLink, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
 		super(dataflow, component, editManager, dataflowSelectionManager);
-		this.condition = condition;
+		this.controlLink = controlLink;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
 		putValue(NAME, "Delete control link");
 	}
 
 	public void actionPerformed(ActionEvent e) {
 		try {
-			editManager.doDataflowEdit(dataflow, edits.getRemoveConditionEdit(condition.getControl(), condition.getTarget()));
-			dataflowSelectionModel.removeSelection(condition);
+			editManager.doDataflowEdit(dataflow.getParent(), new RemoveControlLinkEdit(dataflow, controlLink));
+			dataflowSelectionModel.removeSelection(controlLink);
 		} catch (EditException e1) {
 			logger.debug("Delete control link failed", e1);
 		}

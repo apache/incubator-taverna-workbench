@@ -42,6 +42,8 @@ import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+
 import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
@@ -63,7 +65,6 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeSelectionModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.TreePanel;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 /**
  * @author alanrw
@@ -148,7 +149,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 						menu.add(new AbstractAction("Add to workflow") {
 
 							public void actionPerformed(ActionEvent e) {
-								Dataflow currentDataflow = (Dataflow) ModelMap.getInstance()
+								WorkflowBundle currentDataflow = (WorkflowBundle) ModelMap.getInstance()
 										.getModel(ModelMapConstants.CURRENT_DATAFLOW);
 								WorkflowView.importServiceDescription(sd, false, editManager, menuManager, dataflowSelectionManager);
 
@@ -158,7 +159,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 						menu.add(new AbstractAction("Add to workflow with name...") {
 
 							public void actionPerformed(ActionEvent e) {
-								Dataflow currentDataflow = (Dataflow) ModelMap.getInstance()
+								WorkflowBundle currentDataflow = (WorkflowBundle) ModelMap.getInstance()
 										.getModel(ModelMapConstants.CURRENT_DATAFLOW);
 								WorkflowView.importServiceDescription(sd, true, editManager, menuManager, dataflowSelectionManager);
 

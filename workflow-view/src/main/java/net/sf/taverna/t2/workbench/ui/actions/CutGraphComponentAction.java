@@ -42,10 +42,12 @@ import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Processor;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * An action that copies the selected graph component.
@@ -66,7 +68,7 @@ public class CutGraphComponentAction extends AbstractAction{
 
 	private static Logger logger = Logger.getLogger(CutGraphComponentAction.class);
 
-	private Dataflow dataflow;
+	private WorkflowBundle dataflow;
 	private Processor processor;
 
 	private final EditManager editManager;
@@ -92,15 +94,15 @@ public class CutGraphComponentAction extends AbstractAction{
 	modelMap.addObserver(new Observer<ModelMap.ModelMapEvent>() {
 		public void notify(Observable<ModelMapEvent> sender, ModelMapEvent message) {
 			if (message.getModelName().equals(ModelMapConstants.CURRENT_DATAFLOW)) {
-				if (message.getNewModel() instanceof Dataflow) {
+				if (message.getNewModel() instanceof WorkflowBundle) {
 
 					// Update the buttons status as current dataflow has changed
-					updateStatus((Dataflow) message.getNewModel());
+					updateStatus((WorkflowBundle) message.getNewModel());
 
 					// Remove the workflow selection model listener from the previous (if any)
 					// and add to the new workflow (if any)
-					Dataflow oldFlow = (Dataflow) message.getOldModel();
-					Dataflow newFlow = (Dataflow) message.getNewModel();
+					WorkflowBundle oldFlow = (WorkflowBundle) message.getOldModel();
+					WorkflowBundle newFlow = (WorkflowBundle) message.getNewModel();
 					if (oldFlow != null) {
 						dataflowSelectionManager.getDataflowSelectionModel(oldFlow)
 								.removeObserver(workflowSelectionObserver);
@@ -119,7 +121,7 @@ public class CutGraphComponentAction extends AbstractAction{
 /**
  * Check if action should be enabled or disabled and update its status.
  */
-public void updateStatus(Dataflow dataflow) {
+public void updateStatus(WorkflowBundle dataflow) {
 
 	DataflowSelectionModel selectionModel = dataflowSelectionManager.getDataflowSelectionModel(dataflow);
 
@@ -144,7 +146,7 @@ public void updateStatus(Dataflow dataflow) {
 }
 
 	public void actionPerformed(ActionEvent e) {
-		WorkflowView.cutProcessor(dataflow, processor, null, editManager, dataflowSelectionManager);
+		WorkflowView.cutProcessor(processor.getParent(), processor, null, editManager, dataflowSelectionManager);
 	}
 
 	/**

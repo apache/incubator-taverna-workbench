@@ -24,20 +24,21 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
+import net.sf.taverna.t2.workbench.edits.CompoundEdit;
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import net.sf.taverna.t2.workflow.edits.RemoveDataLinkEdit;
+import net.sf.taverna.t2.workflow.edits.RemoveDataflowInputPortEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
 
 /**
  * Action for removing an input port from the dataflow.
@@ -50,9 +51,9 @@ public class RemoveDataflowInputPortAction extends DataflowEditAction {
 
 	private static Logger logger = Logger.getLogger(RemoveDataflowInputPortAction.class);
 
-	private DataflowInputPort port;
+	private InputWorkflowPort port;
 
-	public RemoveDataflowInputPortAction(Dataflow dataflow, DataflowInputPort port, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+	public RemoveDataflowInputPortAction(Workflow dataflow, InputWorkflowPort port, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
 		super(dataflow, component, editManager, dataflowSelectionManager);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
@@ -61,16 +62,16 @@ public class RemoveDataflowInputPortAction extends DataflowEditAction {
 
 	public void actionPerformed(ActionEvent e) {
 		try {
-			Set<? extends Datalink> datalinks = port.getInternalOutputPort().getOutgoingLinks();
+			List<DataLink> datalinks = scufl2Tools.datalinksFrom(port);
 			if (datalinks.isEmpty()) {
-				editManager.doDataflowEdit(dataflow, edits.getRemoveDataflowInputPortEdit(dataflow, port));
+				editManager.doDataflowEdit(dataflow.getParent(), new RemoveDataflowInputPortEdit(dataflow, port));
 			} else {
 				List<Edit<?>> editList = new ArrayList<Edit<?>>();
-				for (Datalink datalink : datalinks) {
-					editList.add(Tools.getDisconnectDatalinkAndRemovePortsEdit(datalink, edits));
+				for (DataLink datalink : datalinks) {
+					editList.add(new RemoveDataLinkEdit(dataflow, datalink));
 				}
-				editList.add(edits.getRemoveDataflowInputPortEdit(dataflow, port));
-				editManager.doDataflowEdit(dataflow, new CompoundEdit(editList));
+				editList.add(new RemoveDataflowInputPortEdit(dataflow, port));
+				editManager.doDataflowEdit(dataflow.getParent(), new CompoundEdit(editList));
 			}
 			dataflowSelectionModel.removeSelection(port);
 		} catch (EditException e1) {

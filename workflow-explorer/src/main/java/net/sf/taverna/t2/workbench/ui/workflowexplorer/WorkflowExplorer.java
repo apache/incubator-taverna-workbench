@@ -44,6 +44,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import uk.org.taverna.platform.capability.api.ActivityService;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -66,7 +68,6 @@ import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 /**
  * Workflow Explorer provides a context sensitive tree view of a workflow (showing its inputs,
@@ -90,10 +91,10 @@ public class WorkflowExplorer extends WorkflowView {
 	private MenuManager menuManager;
 
 	/* Currently selected workflow (to be displayed in the Workflow Explorer). */
-	private Dataflow workflow;
+	private Workflow workflow;
 
 	/* Map of trees for all opened workflows. */
-	private Map<Dataflow, JTree> openedWorkflowsTrees = new HashMap<Dataflow, JTree>();
+	private Map<Workflow, JTree> openedWorkflowsTrees = new HashMap<Workflow, JTree>();
 
 	/* Tree representation of the currently selected workflow. */
 	private JTree wfTree;
@@ -205,7 +206,7 @@ public class WorkflowExplorer extends WorkflowView {
 	/**
 	 * Gets called when a workflow is opened or a new (empty) one created.
 	 */
-	public void createWorkflowTree(Dataflow df) {
+	public void createWorkflowTree(Workflow df) {
 
 		// Set the current workflow
 		workflow = df;
@@ -239,7 +240,7 @@ public class WorkflowExplorer extends WorkflowView {
 	/**
 	 * Switch the current workflow to a previously opened workflow.
 	 */
-	private void switchWorkflowTree(Dataflow df) {
+	private void switchWorkflowTree(Workflow df) {
 
 		// Set the current workflow to the one we have switched to
 		workflow = df;
@@ -273,7 +274,7 @@ public class WorkflowExplorer extends WorkflowView {
 	 * workflow is edited due to saved changes in the nested workflow (which is the current
 	 * workflow).
 	 */
-	public void updateWorkflowTree(Dataflow df) {
+	public void updateWorkflowTree(Workflow df) {
 
 		// Create the new tree from the updated workflow
 		JTree newTree = createTreeFromWorkflow(df);
@@ -306,7 +307,7 @@ public class WorkflowExplorer extends WorkflowView {
 		// the same as workflow df then this is just an update to the current
 		// workflow so
 		// we have to update and redraw the workflow tree.
-		if (df.equals(fileManager.getCurrentDataflow())) { // this was an update
+		if (df.getParent().equals(fileManager.getCurrentDataflow())) { // this was an update
 															// on the current
 															// workflow
 
@@ -412,7 +413,7 @@ public class WorkflowExplorer extends WorkflowView {
 	/**
 	 *
 	 */
-	private JTree createTreeFromWorkflow(final Dataflow workflow) {
+	private JTree createTreeFromWorkflow(final Workflow workflow) {
 
 		// Create a new tree and populate it with the workflow's data
 		final JTree tree = new JTree(new WorkflowExplorerTreeModel(workflow));
@@ -433,7 +434,7 @@ public class WorkflowExplorer extends WorkflowView {
 							.getLastPathComponent();
 
 					DataflowSelectionModel selectionModel = openedWorkflowsManager
-							.getDataflowSelectionModel(workflow);
+							.getDataflowSelectionModel(workflow.getParent());
 
 					// If the node that was clicked on was inputs,
 					// outputs, services, data links, control links or
@@ -505,7 +506,7 @@ public class WorkflowExplorer extends WorkflowView {
 						// This will cause the node to become selected (from
 						// the selection listener's code)
 						DataflowSelectionModel selectionModel = openedWorkflowsManager
-								.getDataflowSelectionModel(workflow);
+								.getDataflowSelectionModel(workflow.getParent());
 
 						// If the node that was clicked on was inputs,
 						// outputs, services, data links, control links or
@@ -544,7 +545,7 @@ public class WorkflowExplorer extends WorkflowView {
 
 									public void actionPerformed(ActionEvent evt) {
 										new AddDataflowInputAction(
-												(Dataflow) ((DefaultMutableTreeNode) tree
+												(Workflow) ((DefaultMutableTreeNode) tree
 														.getModel().getRoot()).getUserObject(),
 												wfTree.getParent(), editManager,
 												openedWorkflowsManager).actionPerformed(evt);
@@ -559,7 +560,7 @@ public class WorkflowExplorer extends WorkflowView {
 										"Add workflow output port", WorkbenchIcons.outputIcon) {
 									public void actionPerformed(ActionEvent evt) {
 										new AddDataflowOutputAction(
-												(Dataflow) ((DefaultMutableTreeNode) tree
+												(Workflow) ((DefaultMutableTreeNode) tree
 														.getModel().getRoot()).getUserObject(),
 												wfTree.getParent(), editManager,
 												openedWorkflowsManager).actionPerformed(evt);
@@ -598,7 +599,7 @@ public class WorkflowExplorer extends WorkflowView {
 								if (menu == null) {
 									menu = new JPopupMenu();
 								}
-								if (selectedNode.getUserObject() instanceof Dataflow) {
+								if (selectedNode.getUserObject() instanceof Workflow) {
 									menu.add(new ShadedLabel("Tree", PURPLISH));
 									// Action to expand the whole tree
 									menu.add(new JMenuItem(new AbstractAction("Expand all",
@@ -631,10 +632,10 @@ public class WorkflowExplorer extends WorkflowView {
 	 * Sets the currently selected node(s) based on the workflow selection model, i.e. the node(s)
 	 * currently selected in the workflow graph view also become selected in the tree view.
 	 */
-	private void setSelectedNodes(JTree tree, Dataflow wf) {
+	private void setSelectedNodes(JTree tree, Workflow wf) {
 
 		DataflowSelectionModel selectionModel = openedWorkflowsManager
-				.getDataflowSelectionModel(wf);
+				.getDataflowSelectionModel(wf.getParent());
 
 		// List of all selected objects in the graph view
 		Set<Object> selection = selectionModel.getSelection();
@@ -723,8 +724,8 @@ public class WorkflowExplorer extends WorkflowView {
 																// workflow
 				// Remove the workflow selection model listener from the
 				// previous (if any) and add to the new workflow (if any)
-				Dataflow oldWF = workflow; // previous workflow
-				final Dataflow newWF = ((SetCurrentDataflowEvent) message).getDataflow(); // the
+				WorkflowBundle oldWF = workflow.getParent(); // previous workflow
+				final WorkflowBundle newWF = ((SetCurrentDataflowEvent) message).getDataflow(); // the
 																							// newly
 																							// switched
 																							// to
@@ -747,15 +748,14 @@ public class WorkflowExplorer extends WorkflowView {
 						// If the workflow tree has already been created -
 						// switch to it
 						if (openedWorkflowsTrees.containsKey(newWF)) {
-							switchWorkflowTree(newWF);
+							switchWorkflowTree(newWF.getMainWorkflow());
 						} else { // otherwise create a new tree for the workflow
-							createWorkflowTree(newWF);
+							createWorkflowTree(newWF.getMainWorkflow());
 						}
 					}
 				}.start();
-			} else if (message instanceof ClosedDataflowEvent) { // closed the
-																	// current
-																	// workflow
+			} else if (message instanceof ClosedDataflowEvent) {
+				// closed the current workflow
 				// Remove the closed workflow tree from the map of opened
 				// workflow trees
 				openedWorkflowsTrees.remove(((ClosedDataflowEvent) message).getDataflow());
@@ -780,9 +780,9 @@ public class WorkflowExplorer extends WorkflowView {
 				new Thread("Workflow Explorer - edit manager message: current workflow edited.") {
 					@Override
 					public void run() {
-						Dataflow d = ((AbstractDataflowEditEvent) message).getDataFlow();
+						WorkflowBundle workflowBundle = ((AbstractDataflowEditEvent) message).getDataFlow();
 						// Update the workflow tree to reflect the changes
-						updateWorkflowTree(d);
+						updateWorkflowTree(workflowBundle.getMainWorkflow());
 					}
 				}.start();
 			}

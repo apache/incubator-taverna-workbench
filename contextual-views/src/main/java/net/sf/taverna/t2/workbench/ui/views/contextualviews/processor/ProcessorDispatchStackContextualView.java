@@ -34,6 +34,8 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -42,13 +44,13 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchStack;
+import net.sf.taverna.t2.workflow.edits.DeleteDispatchLayerEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStack;
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
 
 /**
  * View of a processor, including it's iteration stack, activities, etc.
@@ -94,9 +96,9 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 		this.revalidate();
 	}
 
-	private JPanel getLayerView(DispatchLayer<?> layer) {
+	private JPanel getLayerView(DispatchStackLayer layer) {
 
-		ContextualViewFactory<DispatchLayer<?>> viewFactory = null;
+		ContextualViewFactory<DispatchStackLayer> viewFactory = null;
 
 		List<ContextualViewFactory> factories = viewFactoryRegistry
 				.getViewFactoriesForObject(layer);
@@ -169,17 +171,15 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 		gbc.gridx = 0;
 		gbc.weightx = 0.1;
 
-		List<DispatchLayer<?>> layers = processor.getDispatchStack().getLayers();
-		for (DispatchLayer<?> layer : layers) {
+		for (DispatchStackLayer layer : processor.getDispatchStack()) {
 			gbc.anchor = GridBagConstraints.LINE_START;
 			gbc.fill = GridBagConstraints.HORIZONTAL;
 			JPanel view = getLayerView(layer);
 			mainPanel.add(view, gbc);
 		}
 
-		if (layers.isEmpty()) {
-			mainPanel.add(new JLabel("<html><i>Warning: No dispatch stack</i></html>"), gbc);
-			mainPanel.add(new JButton(new AddDefaultStackAction()), gbc);
+		if (processor.getDispatchStack() == null) {
+			mainPanel.add(new JLabel("<html><i>Default dispatch stack</i></html>"), gbc);
 		}
 
 		gbc.fill = GridBagConstraints.NONE;
@@ -206,35 +206,18 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 		return "Advanced";
 	}
 
-	private final class AddDefaultStackAction extends AbstractAction {
-
-		public AddDefaultStackAction() {
-			super("Add default stack");
-		}
-
-		public void actionPerformed(ActionEvent e) {
-			Edit<Processor> edit = editManager.getEdits().getDefaultDispatchStackEdit(processor);
-			try {
-				editManager.doDataflowEdit(fileManager.getCurrentDataflow(), edit);
-				refreshView();
-			} catch (EditException ex) {
-				logger.warn("Could not create default stack", ex);
-			}
-		}
-	}
-
 	protected class RemoveAction extends AbstractAction {
 
-		private final DispatchLayer<?> layer;
+		private final DispatchStackLayer layer;
 
-		public RemoveAction(DispatchLayer<?> layer) {
+		public RemoveAction(DispatchStackLayer layer) {
 			this.layer = layer;
 			putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
 			putValue(SHORT_DESCRIPTION, "Remove layer");
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			Edit<DispatchStack> deleteEdit = editManager.getEdits().getDeleteDispatchLayerEdit(
+			Edit<DispatchStack> deleteEdit = new DeleteDispatchLayerEdit(
 					processor.getDispatchStack(), layer);
 			// TODO: Should warn before removing "essential" layers
 			try {

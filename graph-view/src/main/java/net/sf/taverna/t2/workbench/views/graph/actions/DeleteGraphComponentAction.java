@@ -37,7 +37,6 @@ import net.sf.taverna.t2.workbench.design.actions.RemoveConditionAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveDataflowInputPortAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveDataflowOutputPortAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveDatalinkAction;
-import net.sf.taverna.t2.workbench.design.actions.RemoveMergeAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveProcessorAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
@@ -46,13 +45,12 @@ import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
-import net.sf.taverna.t2.workflowmodel.Condition;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.Merge;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.ControlLink;
+import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * An action that deletes the selected graph component.
@@ -93,15 +91,15 @@ public class DeleteGraphComponentAction extends AbstractAction{
 		modelMap.addObserver(new Observer<ModelMap.ModelMapEvent>() {
 			public void notify(Observable<ModelMapEvent> sender, ModelMapEvent message) {
 				if (message.getModelName().equals(ModelMapConstants.CURRENT_DATAFLOW)) {
-					if (message.getNewModel() instanceof Dataflow) {
+					if (message.getNewModel() instanceof WorkflowBundle) {
 
 						// Update the buttons status as current dataflow has changed
-						updateStatus((Dataflow) message.getNewModel());
+						updateStatus((WorkflowBundle) message.getNewModel());
 
 						// Remove the workflow selection model listener from the previous (if any)
 						// and add to the new workflow (if any)
-						Dataflow oldFlow = (Dataflow) message.getOldModel();
-						Dataflow newFlow = (Dataflow) message.getNewModel();
+						WorkflowBundle oldFlow = (WorkflowBundle) message.getOldModel();
+						WorkflowBundle newFlow = (WorkflowBundle) message.getNewModel();
 						if (oldFlow != null) {
 							dataflowSelectionManager.getDataflowSelectionModel(oldFlow)
 									.removeObserver(workflowSelectionObserver);
@@ -118,40 +116,40 @@ public class DeleteGraphComponentAction extends AbstractAction{
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		Dataflow dataflow = fileManager.getCurrentDataflow();
+		WorkflowBundle dataflow = fileManager.getCurrentDataflow();
 		DataflowSelectionModel dataFlowSelectionModel = dataflowSelectionManager.getDataflowSelectionModel(dataflow);
 		// Get all selected components
 		Set<Object> selectedWFComponents = dataFlowSelectionModel
 				.getSelection();
 		for (Object selectedWFComponent : selectedWFComponents) {
 			if (selectedWFComponent instanceof Processor) {
-				new RemoveProcessorAction(dataflow,
-						(Processor) selectedWFComponent, null, editManager, dataflowSelectionManager)
+				Processor processor = (Processor) selectedWFComponent;
+				new RemoveProcessorAction(processor.getParent(),
+						processor, null, editManager, dataflowSelectionManager)
 						.actionPerformed(e);
 			}
-			else if (selectedWFComponent instanceof Datalink){
-				new RemoveDatalinkAction(dataflow,
-						(Datalink) selectedWFComponent, null, editManager, dataflowSelectionManager)
+			else if (selectedWFComponent instanceof DataLink) {
+				DataLink dataLink = (DataLink) selectedWFComponent;
+				new RemoveDatalinkAction(dataLink.getParent(),
+						dataLink, null, editManager, dataflowSelectionManager)
 						.actionPerformed(e);
 			}
-			else if (selectedWFComponent instanceof Merge){
-				new RemoveMergeAction(dataflow,
-						(Merge) selectedWFComponent, null, editManager, dataflowSelectionManager)
+			else if (selectedWFComponent instanceof InputWorkflowPort) {
+				InputWorkflowPort port = (InputWorkflowPort) selectedWFComponent;
+				new RemoveDataflowInputPortAction(port.getParent(),
+						port, null, editManager, dataflowSelectionManager)
 						.actionPerformed(e);
 			}
-			else if (selectedWFComponent instanceof DataflowInputPort){
-				new RemoveDataflowInputPortAction(dataflow,
-						(DataflowInputPort) selectedWFComponent, null, editManager, dataflowSelectionManager)
+			else if (selectedWFComponent instanceof OutputWorkflowPort) {
+				OutputWorkflowPort port = (OutputWorkflowPort) selectedWFComponent;
+				new RemoveDataflowOutputPortAction(port.getParent(),
+						port, null, editManager, dataflowSelectionManager)
 						.actionPerformed(e);
 			}
-			else if (selectedWFComponent instanceof DataflowOutputPort){
-				new RemoveDataflowOutputPortAction(dataflow,
-						(DataflowOutputPort) selectedWFComponent, null, editManager, dataflowSelectionManager)
-						.actionPerformed(e);
-			}
-			else if (selectedWFComponent instanceof Condition){
-				new RemoveConditionAction(dataflow,
-						(Condition) selectedWFComponent, null, editManager, dataflowSelectionManager)
+			else if (selectedWFComponent instanceof ControlLink) {
+				ControlLink controlLink = (ControlLink) selectedWFComponent;
+				new RemoveConditionAction(controlLink.getParent(),
+						controlLink, null, editManager, dataflowSelectionManager)
 						.actionPerformed(e);
 			}
 		}
@@ -160,7 +158,7 @@ public class DeleteGraphComponentAction extends AbstractAction{
 	/**
 	 * Check if action should be enabled or disabled and update its status.
 	 */
-	public void updateStatus(Dataflow dataflow) {
+	public void updateStatus(WorkflowBundle dataflow) {
 
 		DataflowSelectionModel selectionModel = dataflowSelectionManager.getDataflowSelectionModel(dataflow);
 
@@ -174,11 +172,10 @@ public class DeleteGraphComponentAction extends AbstractAction{
 			// Take the first selected item - we only support single selections anyway
 			Object selected = selection.toArray()[0];
 			if ((selected instanceof Processor) ||
-					(selected instanceof DataflowInputPort) ||
-					(selected instanceof DataflowOutputPort) ||
-					(selected instanceof Datalink) ||
-					(selected instanceof Merge) ||
-					(selected instanceof Condition)){
+					(selected instanceof InputWorkflowPort) ||
+					(selected instanceof OutputWorkflowPort) ||
+					(selected instanceof DataLink) ||
+					(selected instanceof ControlLink)){
 				setEnabled(true);
 			}
 			else{

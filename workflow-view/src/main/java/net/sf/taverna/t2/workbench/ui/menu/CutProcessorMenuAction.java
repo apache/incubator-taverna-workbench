@@ -25,12 +25,13 @@ import java.net.URI;
 
 import javax.swing.Action;
 
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.CutProcessorAction;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Processor;
 
 public class CutProcessorMenuAction extends AbstractContextualMenuAction {
 
@@ -45,7 +46,7 @@ public class CutProcessorMenuAction extends AbstractContextualMenuAction {
 
 	@Override
 	protected Action createAction() {
-		Dataflow dataflow = (Dataflow) getContextualSelection().getParent();
+		Workflow dataflow = (Workflow) getContextualSelection().getParent();
 		Processor processor = (Processor) getContextualSelection()
 				.getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();

@@ -69,7 +69,6 @@ import net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
@@ -78,6 +77,8 @@ import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.platform.capability.api.ActivityService;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  *
@@ -96,11 +97,11 @@ public class GraphViewComponent extends WorkflowView {
 
 	private JPanel diagramPanel;
 
-	public static Map<Dataflow, SVGGraphController> graphControllerMap = new HashMap<Dataflow, SVGGraphController>();
-	public static Map<Dataflow, JPanel> diagramPanelMap = new HashMap<Dataflow, JPanel>();
-	public static Map<Dataflow, Action[]> diagramActionsMap = new HashMap<Dataflow, Action[]>();
+	public static Map<WorkflowBundle, SVGGraphController> graphControllerMap = new HashMap<WorkflowBundle, SVGGraphController>();
+	public static Map<WorkflowBundle, JPanel> diagramPanelMap = new HashMap<WorkflowBundle, JPanel>();
+	public static Map<WorkflowBundle, Action[]> diagramActionsMap = new HashMap<WorkflowBundle, Action[]>();
 
-	private Dataflow dataflow;
+	private WorkflowBundle workflowBundle;
 
 	private Timer timer;
 
@@ -162,7 +163,7 @@ public class GraphViewComponent extends WorkflowView {
 
 	}
 
-	private JPanel createDiagramPanel(Dataflow dataflow) {
+	private JPanel createDiagramPanel(WorkflowBundle workflowBundle) {
 		JPanel diagramPanel = new JPanel(new BorderLayout());
 
 		// get the default diagram settings
@@ -199,16 +200,16 @@ public class GraphViewComponent extends WorkflowView {
 
 		// create a graph controller
 		SVGGraphController svgGraphController = new SVGGraphController(
-				dataflow, false, svgCanvas, alignment, portStyle, editManager, menuManager, colourManager, workbenchConfiguration);
+				workflowBundle.getMainWorkflow(), false, svgCanvas, alignment, portStyle, editManager, menuManager, colourManager, workbenchConfiguration);
 		svgGraphController.setDataflowSelectionModel(dataflowSelectionManager
-				.getDataflowSelectionModel(dataflow));
+				.getDataflowSelectionModel(workflowBundle));
 		svgGraphController.setAnimationSpeed(animationEnabled ? animationSpeed
 				: 0);
 
-		graphControllerMap.put(dataflow, svgGraphController);
+		graphControllerMap.put(workflowBundle, svgGraphController);
 
 		// Toolbar with actions related to graph
-		JToolBar graphActionsToolbar = graphActionsToolbar(svgGraphController,
+		JToolBar graphActionsToolbar = graphActionsToolbar(workflowBundle, svgGraphController,
 				svgCanvas, alignment, portStyle);
 		graphActionsToolbar.setAlignmentX(Component.LEFT_ALIGNMENT);
 		graphActionsToolbar.setFloatable(false);
@@ -228,7 +229,7 @@ public class GraphViewComponent extends WorkflowView {
 	}
 
 	@SuppressWarnings("serial")
-	private JToolBar graphActionsToolbar(
+	private JToolBar graphActionsToolbar(WorkflowBundle workflowBundle,
 			final SVGGraphController graphController, JSVGCanvas svgCanvas,
 			Alignment alignment, PortStyle portStyle) {
 		JToolBar toolBar = new JToolBar();
@@ -259,7 +260,7 @@ public class GraphViewComponent extends WorkflowView {
 		zoomOutAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomOutIcon);
 		zoomOutButton.setAction(zoomOutAction);
 
-		diagramActionsMap.put(graphController.getDataflow(), new Action[] {resetDiagramAction, zoomInAction, zoomOutAction});
+		diagramActionsMap.put(workflowBundle, new Action[] {resetDiagramAction, zoomInAction, zoomOutAction});
 
 		toolBar.add(resetDiagramButton);
 		toolBar.add(zoomInButton);
@@ -287,7 +288,7 @@ public class GraphViewComponent extends WorkflowView {
 		noPorts.setAction(new AbstractAction() {
 
 			public void actionPerformed(ActionEvent arg0) {
-				graphController.setPortStyle(GraphController.PortStyle.NONE);
+				graphController.setPortStyle(PortStyle.NONE);
 				graphController.redraw();
 			}
 
@@ -301,7 +302,7 @@ public class GraphViewComponent extends WorkflowView {
 		allPorts.setAction(new AbstractAction() {
 
 			public void actionPerformed(ActionEvent arg0) {
-				graphController.setPortStyle(GraphController.PortStyle.ALL);
+				graphController.setPortStyle(PortStyle.ALL);
 				graphController.redraw();
 			}
 
@@ -315,7 +316,7 @@ public class GraphViewComponent extends WorkflowView {
 		blobs.setAction(new AbstractAction() {
 
 			public void actionPerformed(ActionEvent arg0) {
-				graphController.setPortStyle(GraphController.PortStyle.BLOB);
+				graphController.setPortStyle(PortStyle.BLOB);
 				graphController.redraw();
 			}
 
@@ -399,9 +400,9 @@ public class GraphViewComponent extends WorkflowView {
 		return toolBar;
 	}
 
-	private String getBorderTitle(final Dataflow d) {
-		String localName = d.getLocalName();
-		String sourceName = fileManager.getDataflowName(d);
+	private String getBorderTitle(final WorkflowBundle workflowBundle) {
+		String localName = workflowBundle.getName();
+		String sourceName = fileManager.getDataflowName(workflowBundle);
 		String result = "";
 		if (localName.equals(sourceName)) {
 			result = localName;
@@ -423,8 +424,8 @@ public class GraphViewComponent extends WorkflowView {
 	 *
 	 * @param dataflow
 	 */
-	public void setDataflow(Dataflow dataflow) {
-		this.dataflow = dataflow;
+	public void setDataflow(WorkflowBundle dataflow) {
+		this.workflowBundle = dataflow;
 		if (!diagramPanelMap.containsKey(dataflow)) {
 			JPanel newDiagramPanel = createDiagramPanel(dataflow);
 			add(newDiagramPanel, String.valueOf(newDiagramPanel.hashCode()));
@@ -449,8 +450,8 @@ public class GraphViewComponent extends WorkflowView {
 	 *
 	 * @return the dataflow
 	 */
-	public Dataflow getDataflow() {
-		return dataflow;
+	public WorkflowBundle getDataflow() {
+		return workflowBundle;
 	}
 
 	/**
@@ -520,17 +521,17 @@ public class GraphViewComponent extends WorkflowView {
 				public void run() {
 					AbstractDataflowEditEvent dataflowEditEvent = (AbstractDataflowEditEvent) message;
 
-					if (dataflowEditEvent.getDataFlow() == dataflow) {
+					if (dataflowEditEvent.getDataFlow() == workflowBundle) {
 
 						if (graphController.isDotMissing() || animationSettingChanged) {
-							diagramPanelMap.remove(dataflow);
-							setDataflow(dataflow);
+							diagramPanelMap.remove(workflowBundle);
+							setDataflow(workflowBundle);
 						} else {
 							if (animationSpeed != graphController.getAnimationSpeed()) {
 								graphController.setAnimationSpeed(animationSpeed);
 							}
 							graphController.redraw();
-							String dataflowName = getBorderTitle(dataflow);
+							String dataflowName = getBorderTitle(workflowBundle);
 							if (!dataflowName.equals(border.getTitle())) {
 							    border.setTitle(dataflowName);
 							    GraphViewComponent.this.repaint();
@@ -559,8 +560,8 @@ public class GraphViewComponent extends WorkflowView {
 		public void run() {
 			if (message instanceof ClosedDataflowEvent) {
 				ClosedDataflowEvent closedDataflowEvent = (ClosedDataflowEvent) message;
-				Dataflow dataflow = closedDataflowEvent.getDataflow();
-				JPanel panel = diagramPanelMap.remove((Dataflow) dataflow);
+				WorkflowBundle dataflow = closedDataflowEvent.getDataflow();
+				JPanel panel = diagramPanelMap.remove(dataflow);
 				if (panel != null) {
 					remove(panel);
 				}
@@ -575,10 +576,10 @@ public class GraphViewComponent extends WorkflowView {
 				diagramActionsMap.remove(dataflow);
 			} else if (message instanceof SetCurrentDataflowEvent) {
 				SetCurrentDataflowEvent currentDataflowEvent = (SetCurrentDataflowEvent) message;
-				Dataflow dataflow = currentDataflowEvent.getDataflow();
+				WorkflowBundle dataflow = currentDataflowEvent.getDataflow();
 				setDataflow(dataflow);
 			} else if (message instanceof SavedDataflowEvent) {
-				setDataflow(dataflow);
+				setDataflow(workflowBundle);
 			}
 		}
 	}

@@ -25,21 +25,26 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.taverna.t2.workbench.edits.CompoundEdit;
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Condition;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
-import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import net.sf.taverna.t2.workflow.edits.RemoveControlLinkEdit;
+import net.sf.taverna.t2.workflow.edits.RemoveDataLinkEdit;
+import net.sf.taverna.t2.workflow.edits.RemoveProcessorEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.common.NamedSet;
+import uk.org.taverna.scufl2.api.core.BlockingControlLink;
+import uk.org.taverna.scufl2.api.core.ControlLink;
+import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
 
 /**
  * Action for removing a processor from the dataflow.
@@ -54,7 +59,7 @@ public class RemoveProcessorAction extends DataflowEditAction {
 
 	private Processor processor;
 
-	public RemoveProcessorAction(Dataflow dataflow, Processor processor, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+	public RemoveProcessorAction(Workflow dataflow, Processor processor, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
 		super(dataflow, component, editManager, dataflowSelectionManager);
 		this.processor = processor;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
@@ -63,34 +68,33 @@ public class RemoveProcessorAction extends DataflowEditAction {
 
 	public void actionPerformed(ActionEvent e) {
 		try {
-			List<? extends ProcessorInputPort> inputPorts = processor.getInputPorts();
-			List<? extends ProcessorOutputPort> outputPorts = processor.getOutputPorts();
-			List<? extends Condition> controlledPreconditions = processor.getControlledPreconditionList();
-			List<? extends Condition> preconditions = processor.getPreconditionList();
+			NamedSet<InputProcessorPort> inputPorts = processor.getInputPorts();
+			NamedSet<OutputProcessorPort> outputPorts = processor.getOutputPorts();
+			List<BlockingControlLink> controlLinksBlocking = scufl2Tools.controlLinksBlocking(processor);
+			List<BlockingControlLink> controlLinksWaitingFor = scufl2Tools.controlLinksWaitingFor(processor);
 			List<Edit<?>> editList = new ArrayList<Edit<?>>();
-			for (ProcessorInputPort inputPort : inputPorts) {
-				Datalink datalink = inputPort.getIncomingLink();
-				if (datalink != null) {
-					editList.add(Tools.getDisconnectDatalinkAndRemovePortsEdit(datalink, edits));
+			for (InputProcessorPort inputPort : inputPorts) {
+				for (DataLink datalink : scufl2Tools.datalinksTo(inputPort)) {
+					editList.add(new RemoveDataLinkEdit(dataflow, datalink));
 				}
 			}
-			for (ProcessorOutputPort outputPort : outputPorts) {
-				for (Datalink datalink : outputPort.getOutgoingLinks()) {
-					editList.add(Tools.getDisconnectDatalinkAndRemovePortsEdit(datalink, edits));
+			for (OutputProcessorPort outputPort : outputPorts) {
+				for (DataLink datalink : scufl2Tools.datalinksFrom(outputPort)) {
+					editList.add(new RemoveDataLinkEdit(dataflow, datalink));
 				}
 			}
-			for (Condition condition : controlledPreconditions) {
-				editList.add(edits.getRemoveConditionEdit(condition.getControl(), condition.getTarget()));
+			for (ControlLink controlLink : controlLinksBlocking) {
+				editList.add(new RemoveControlLinkEdit(dataflow, controlLink));
 			}
-			for (Condition condition : preconditions) {
-				editList.add(edits.getRemoveConditionEdit(condition.getControl(), condition.getTarget()));
+			for (ControlLink controlLink : controlLinksWaitingFor) {
+				editList.add(new RemoveControlLinkEdit(dataflow, controlLink));
 			}
 
 			if (editList.isEmpty()) {
-				editManager.doDataflowEdit(dataflow, edits.getRemoveProcessorEdit(dataflow, processor));
+				editManager.doDataflowEdit(dataflow.getParent(), new RemoveProcessorEdit(dataflow, processor));
 			} else {
-				editList.add(edits.getRemoveProcessorEdit(dataflow, processor));
-				editManager.doDataflowEdit(dataflow, new CompoundEdit(editList));
+				editList.add(new RemoveProcessorEdit(dataflow, processor));
+				editManager.doDataflowEdit(dataflow.getParent(), new CompoundEdit(editList));
 			}
 			dataflowSelectionModel.removeSelection(processor);
 		} catch (EditException e1) {

@@ -22,11 +22,13 @@ package net.sf.taverna.t2.workbench.models.graph;
 
 import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 import org.apache.commons.beanutils.PropertyUtils;
+
+import uk.org.taverna.scufl2.api.activity.Activity;
 
 /**
  * Manages the colour of elements in a graph.
@@ -35,6 +37,9 @@ import org.apache.commons.beanutils.PropertyUtils;
  * @author Start Owen
  */
 public class GraphColorManager {
+
+	private static final String BEANSHELL = "http://ns.taverna.org.uk/2010/activity/beanshell";
+	private static final String LOCALWORKER = "http://ns.taverna.org.uk/2010/activity/localworker";
 
 	private static Color[] subGraphFillColors = new Color[] {
 			Color.decode("#ffffff"), Color.decode("#f0f8ff"),
@@ -50,15 +55,13 @@ public class GraphColorManager {
 	 *
 	 * @return the colour associated with the Activity
 	 */
-	public static Color getFillColor(Activity<?> activity, ColourManager colourManager) {
+	public static Color getFillColor(Activity activity, ColourManager colourManager) {
 
-		if (activity.getClass().getName().equals(
-				"net.sf.taverna.t2.activities.localworker.LocalworkerActivity")) {
+		if (activity.getConfigurableType().equals(LOCALWORKER)) {
 			try {
 				// To avoid compile time dependency - read isAltered property as bean
 				if (Boolean.TRUE.equals(PropertyUtils.getProperty(activity, "altered"))) {
-					Color colour = colourManager.getPreferredColour(
-									"net.sf.taverna.t2.activities.beanshell.BeanshellActivity");
+					Color colour = colourManager.getPreferredColour(BEANSHELL);
 					return colour;
 				}
 			} catch (IllegalAccessException e) {
@@ -67,8 +70,7 @@ public class GraphColorManager {
 			}
 
 		}
-		Color colour = colourManager.getPreferredColour(
-				activity.getClass().getName());
+		Color colour = colourManager.getPreferredColour(activity.getConfigurableType().toASCIIString());
 		return colour;
 	}
 

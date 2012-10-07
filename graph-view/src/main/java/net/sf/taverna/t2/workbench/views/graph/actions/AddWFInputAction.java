@@ -33,7 +33,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * An action that adds a workflow input.
@@ -62,8 +62,8 @@ public class AddWFInputAction extends DesignOnlyAction{
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		Dataflow dataflow = fileManager.getCurrentDataflow();
-		new AddDataflowInputAction(dataflow, null, editManager, dataflowSelectionManager).actionPerformed(e);
+		WorkflowBundle dataflow = fileManager.getCurrentDataflow();
+		new AddDataflowInputAction(dataflow.getMainWorkflow(), null, editManager, dataflowSelectionManager).actionPerformed(e);
 	}
 
 

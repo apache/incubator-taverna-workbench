@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -25,7 +25,7 @@ import java.awt.Point;
 
 /**
  * An element of a graph.
- * 
+ *
  * @author David Withers
  */
 public abstract class GraphElement {
@@ -35,35 +35,35 @@ public abstract class GraphElement {
 	}
 
 	private String id;
-	
+
 	private String label;
-	
+
 	private Point labelPosition;
 
 	private LineStyle lineStyle = LineStyle.SOLID;
-	
+
 	private Color color = Color.BLACK;
-	
+
 	private Color fillColor;
-	
+
 	private float opacity = 1f;
-	
+
 	private GraphElement parent;
-	
+
 	private boolean selected;
-	
+
 	private boolean active;
-	
+
 	private boolean interactive;
-	
+
 	private boolean visible = true;
-	
+
 	private boolean filtered;
-	
+
 	private Object dataflowObject;
-	
+
 	protected GraphController graphController;
-	
+
 	protected float completed;
 
 	protected int iteration;
@@ -73,7 +73,7 @@ public abstract class GraphElement {
 	protected GraphElement(GraphController graphController) {
 		this.graphController = graphController;
 	}
-	
+
 	/**
 	 * Returns the eventManager.
 	 *
@@ -254,7 +254,7 @@ public abstract class GraphElement {
 	public void setSelected(boolean selected) {
 		this.selected = selected;
 	}
-	
+
 	/**
 	 * Returns the iteration.
 	 *
@@ -302,7 +302,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the completed value.
-	 * 
+	 *
 	 * @param completed
 	 */
 	public void setCompleted(float completed) {
@@ -428,5 +428,5 @@ public abstract class GraphElement {
 		}
 		return true;
 	}
-	
+
 }

@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -25,20 +25,20 @@ import java.util.List;
 
 /**
  * A node of a graph that can optionally contain other graphs.
- * 
+ *
  * @author David Withers
  */
 
 public class GraphNode extends GraphShapeElement {
 
 	private List<GraphNode> sourceNodes = new ArrayList<GraphNode>();
-	
+
 	private List<GraphNode> sinkNodes = new ArrayList<GraphNode>();
 
 	private Graph graph;
-	
+
 	private boolean expanded;
-	
+
 	/**
 	 * Constructs a new instance of Node.
 	 *
@@ -49,7 +49,7 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Adds a sink node.
-	 * 
+	 *
 	 * @param sinkNode the sink node to add
 	 */
 	public void addSinkNode(GraphNode sinkNode) {
@@ -59,7 +59,7 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Adds a source node.
-	 * 
+	 *
 	 * @param sourceNode the source node to add
 	 */
 	public void addSourceNode(GraphNode sourceNode) {
@@ -93,7 +93,7 @@ public class GraphNode extends GraphShapeElement {
 	public List<GraphNode> getSourceNodes() {
 		return sourceNodes;
 	}
-	
+
 	/**
 	 * Returns true if this node is expanded to show the contained graph.
 	 *
@@ -102,10 +102,10 @@ public class GraphNode extends GraphShapeElement {
 	public boolean isExpanded() {
 		return expanded;
 	}
-	
+
 	/**
 	 * Removes a sink node.
-	 * 
+	 *
 	 * @param sinkNode the node to remove
 	 * @return true if the node was removed, false otherwise
 	 */
@@ -115,7 +115,7 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Removes a source node.
-	 * 
+	 *
 	 * @param sourceNode the node to remove
 	 * @return true if the node was removed, false otherwise
 	 */

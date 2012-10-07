@@ -30,16 +30,19 @@ import java.util.Set;
 
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
 import net.sf.taverna.t2.workbench.design.ui.DataflowInputPortPanel;
+import net.sf.taverna.t2.workbench.edits.CompoundEdit;
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflow.edits.ChangeDataflowInputPortDepthEdit;
+import net.sf.taverna.t2.workflow.edits.RenameDataflowInputPortEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
 
 /**
  * Action for editing a dataflow input port.
@@ -53,10 +56,10 @@ public class EditDataflowInputPortAction extends DataflowEditAction {
 	private static Logger logger = Logger
 			.getLogger(EditDataflowInputPortAction.class);
 
-	private DataflowInputPort port;
+	private InputWorkflowPort port;
 
-	public EditDataflowInputPortAction(Dataflow dataflow,
-			DataflowInputPort port, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+	public EditDataflowInputPortAction(Workflow dataflow,
+			InputWorkflowPort port, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
 		super(dataflow, component, editManager, dataflowSelectionManager);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
@@ -66,7 +69,7 @@ public class EditDataflowInputPortAction extends DataflowEditAction {
 	public void actionPerformed(ActionEvent e) {
 		try {
 			Set<String> usedInputPorts = new HashSet<String>();
-			for (DataflowInputPort usedInputPort : dataflow.getInputPorts()) {
+			for (InputWorkflowPort usedInputPort : dataflow.getInputPorts()) {
 				if (!usedInputPort.getName().equals(port.getName())) {
 					usedInputPorts.add(usedInputPort.getName());
 				}
@@ -91,17 +94,16 @@ public class EditDataflowInputPortAction extends DataflowEditAction {
 				List<Edit<?>> editList = new ArrayList<Edit<?>>();
 				String portName = inputPanel.getPortName();
 				if (!portName.equals(port.getName())) {
-					editList.add(edits.getRenameDataflowInputPortEdit(port, portName));
+					editList.add(new RenameDataflowInputPortEdit(port, portName));
 				}
 				int portDepth = inputPanel.getPortDepth();
 				if (portDepth != port.getDepth()) {
-					editList.add(edits.getChangeDataflowInputPortDepthEdit(port, portDepth));
-					editList.add(edits.getChangeDataflowInputPortGranularDepthEdit(port, portDepth));
+					editList.add(new ChangeDataflowInputPortDepthEdit(port, portDepth));
 				}
 				if (editList.size() == 1) {
-					editManager.doDataflowEdit(dataflow, editList.get(0));
+					editManager.doDataflowEdit(dataflow.getParent(), editList.get(0));
 				} else if (editList.size() > 1) {
-					editManager.doDataflowEdit(dataflow, new CompoundEdit(editList));
+					editManager.doDataflowEdit(dataflow.getParent(), new CompoundEdit(editList));
 				}
 			}
 		} catch (EditException e1) {

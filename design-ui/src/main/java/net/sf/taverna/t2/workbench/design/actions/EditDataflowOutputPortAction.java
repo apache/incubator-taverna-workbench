@@ -28,14 +28,16 @@ import java.util.Set;
 
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
 import net.sf.taverna.t2.workbench.design.ui.DataflowOutputPortPanel;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.EditException;
+import net.sf.taverna.t2.workflow.edits.RenameDataflowOutputPortEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * Action for editing a dataflow output port.
@@ -48,9 +50,9 @@ public class EditDataflowOutputPortAction extends DataflowEditAction {
 
 	private static Logger logger = Logger.getLogger(EditDataflowOutputPortAction.class);
 
-	private DataflowOutputPort port;
+	private OutputWorkflowPort port;
 
-	public EditDataflowOutputPortAction(Dataflow dataflow, DataflowOutputPort port, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+	public EditDataflowOutputPortAction(Workflow dataflow, OutputWorkflowPort port, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
 		super(dataflow, component, editManager, dataflowSelectionManager);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
@@ -60,7 +62,7 @@ public class EditDataflowOutputPortAction extends DataflowEditAction {
 	public void actionPerformed(ActionEvent e) {
 		try {
 			Set<String> usedOutputPorts = new HashSet<String>();
-			for (DataflowOutputPort usedOutputPort : dataflow.getOutputPorts()) {
+			for (OutputWorkflowPort usedOutputPort : dataflow.getOutputPorts()) {
 				if (!usedOutputPort.getName().equals(port.getName())) {
 					usedOutputPorts.add(usedOutputPort.getName());
 				}
@@ -80,7 +82,7 @@ public class EditDataflowOutputPortAction extends DataflowEditAction {
 
 			if (vuid.show(component)) {
 				String portName = inputPanel.getPortName();
-				editManager.doDataflowEdit(dataflow, edits.getRenameDataflowOutputPortEdit(port, portName));
+				editManager.doDataflowEdit(dataflow.getParent(), new RenameDataflowOutputPortEdit(port, portName));
 			}
 		} catch (EditException e1) {
 			logger.debug("Rename workflow output port failed", e1);

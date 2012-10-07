@@ -57,9 +57,10 @@ import net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 import net.sf.taverna.t2.workbench.views.graph.toolbar.SaveGraphImageToolbarAction;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * An action that saves graph diagram image.
@@ -135,7 +136,7 @@ public class SaveGraphImageAction extends AbstractAction{
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			Dataflow dataflow = fileManager.getCurrentDataflow();
+			WorkflowBundle dataflow = fileManager.getCurrentDataflow();
 			if (dataflow == null) {
 				JOptionPane
 				.showMessageDialog(
@@ -210,7 +211,7 @@ public class SaveGraphImageAction extends AbstractAction{
 	 *         dialogue was cancelled.
 	 */
 	private File saveDialogue(Component parentComponent,
-			Dataflow dataflow, String extension, String windowTitle) {
+			WorkflowBundle dataflow, String extension, String windowTitle) {
 
 		JFileChooser fc = new JFileChooser();
 		Preferences prefs = Preferences
