@@ -65,7 +65,7 @@ public class MergeConfigurationAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		Edit<List<DataLink>> reorderMergeInputPortsEdit = new ReorderMergePositionsEdit(datalinks, reorderedDataLinksList);
+		ReorderMergePositionsEdit reorderMergeInputPortsEdit = new ReorderMergePositionsEdit(datalinks, reorderedDataLinksList);
 
 		WorkflowBundle currentWorkflowBundle = fileManager.getCurrentDataflow();
 
