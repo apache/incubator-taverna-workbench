@@ -252,7 +252,6 @@ public class FileManagerTest {
 		assertTrue(fileManager.canSaveWithoutDestination(otherFlow));
 	}
 
-	@Ignore
 	@Test
 	public void save() throws Exception {
 		WorkflowBundle savedDataflow = openDataflow();
@@ -313,7 +312,6 @@ public class FileManagerTest {
 
 	}
 
-	@Ignore
 	@Test
 	public void saveOverwriteAgain() throws Exception {
 		WorkflowBundle dataflow = openDataflow();
