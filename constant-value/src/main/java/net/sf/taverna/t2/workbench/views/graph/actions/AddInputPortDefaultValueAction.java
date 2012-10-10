@@ -22,33 +22,36 @@ package net.sf.taverna.t2.workbench.views.graph.actions;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
-import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.views.StringConstantConfigView;
 import net.sf.taverna.t2.workbench.design.actions.DataflowEditAction;
+import net.sf.taverna.t2.workbench.edits.CompoundEdit;
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
-import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import net.sf.taverna.t2.workflow.edits.AddActivityEdit;
+import net.sf.taverna.t2.workflow.edits.AddActivityOutputPortMappingEdit;
+import net.sf.taverna.t2.workflow.edits.AddDataLinkEdit;
+import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
+import net.sf.taverna.t2.workflow.edits.ConfigureEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+import uk.org.taverna.scufl2.api.port.OutputActivityPort;
+import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
 
 /**
  * Action for adding a default value to an input port of a processor.
@@ -61,10 +64,12 @@ public class AddInputPortDefaultValueAction extends DataflowEditAction {
 
 	private static Logger logger = Logger.getLogger(AddInputPortDefaultValueAction.class);
 
-	private ActivityInputPort inputPort;
+	private static final URI STRING_CONSTANT = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
 
-	public AddInputPortDefaultValueAction(Dataflow dataflow, ActivityInputPort inputPort, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
-		super(dataflow, component, editManager, dataflowSelectionManager);
+	private InputProcessorPort inputPort;
+
+	public AddInputPortDefaultValueAction(Workflow workflow, InputProcessorPort inputPort, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+		super(workflow, component, editManager, dataflowSelectionManager);
 		this.inputPort = inputPort;
 		putValue(SMALL_ICON, WorkbenchIcons.inputValueIcon);
 		putValue(NAME, "Set constant value");
@@ -72,77 +77,62 @@ public class AddInputPortDefaultValueAction extends DataflowEditAction {
 
 	public void actionPerformed(ActionEvent e) {
 		try {
+			String defaultValue = JOptionPane.showInputDialog(component,"Enter string value",null);
+			if (defaultValue != null) {
 
-			StringConstantActivity strConstActivity = new StringConstantActivity();
-			StringConstantConfigurationBean strConstConfBean = new StringConstantConfigurationBean();
-				strConstActivity.configure(strConstConfBean);
-			StringConstantConfigView configView = new StringConstantConfigView(strConstActivity);
+			Activity strConstActivity = new Activity();
+			strConstActivity.setConfigurableType(STRING_CONSTANT);
+			Configuration strConstConfBean = new Configuration();
+			strConstConfBean.setConfigurableType(STRING_CONSTANT.resolve("#Config"));
+			strConstConfBean.setConfigures(strConstActivity);
+			strConstConfBean.getPropertyResource().addPropertyAsString(STRING_CONSTANT.resolve("#string"), defaultValue);
+			StringConstantConfigView configView = new StringConstantConfigView(strConstActivity, strConstConfBean);
 
 			int answer = JOptionPane.showConfirmDialog(component, configView, "Text constant value", JOptionPane.OK_CANCEL_OPTION);
 			if (answer != JOptionPane.CANCEL_OPTION) {
-				
+
 				configView.noteConfiguration();
 				strConstConfBean = configView.getConfiguration();
 
 				// List of all edits to be done
 				List<Edit<?>> editList = new ArrayList<Edit<?>>();
 
-				editList.add(edits.getConfigureActivityEdit(strConstActivity, strConstConfBean));
+				// Create new string constant activity with the given default value
+				editList.add(new ConfigureEdit(strConstActivity, strConstConfBean));
 
-				// Create new string constant processor - also check for duplicate processor names
-				String suggestedProcessorName = inputPort.getName() +"_value";
-				HashSet<String> procesorNames = new HashSet<String>();
-				for (Processor processor : dataflow.getProcessors()) {
-					procesorNames.add(processor.getLocalName());
-				}
-				int counter = 1;
-				String base = suggestedProcessorName;
-				while (procesorNames.contains(suggestedProcessorName)){
-						suggestedProcessorName = base + "_" + counter++;
-				}
-				Processor strConstProcessor = edits.createProcessor(suggestedProcessorName);
+				OutputActivityPort outputActivityPort = new OutputActivityPort(strConstActivity, "value");
+				outputActivityPort.setDepth(0);
+				outputActivityPort.setGranularDepth(0);
+
+				// Create new string constant processor
+				Processor strConstProcessor = new Processor();
+				strConstProcessor.setName(inputPort.getName() +"_value");
 
 				// Set the processor's activity
-				Edit<Processor> processorEdit = edits.getAddActivityEdit(strConstProcessor, strConstActivity);
+				Edit<Processor> processorEdit = new AddActivityEdit(strConstProcessor, strConstActivity);
 				editList.add(processorEdit);
 
 				// Create the output port for string constant processor to correspond to the
 				// string constant activity's output port called "value"
-				ProcessorOutputPort strConstProcessorOutputPort =
-						edits.createProcessorOutputPort(strConstProcessor, "value", 0, 0); // this port is the source of the datalink
-				editList.add(edits.getAddProcessorOutputPortEdit(strConstProcessor, strConstProcessorOutputPort));
-				editList.add(edits.getAddActivityOutputPortMappingEdit(strConstActivity, "value", "value"));
+				OutputProcessorPort strConstProcessorOutputPort = new OutputProcessorPort(strConstProcessor, "value");
+				strConstProcessorOutputPort.setDepth(0);
+				strConstProcessorOutputPort.setGranularDepth(0);
+				editList.add(new AddActivityOutputPortMappingEdit(strConstActivity, strConstProcessorOutputPort, outputActivityPort));
 
-				editList.add(edits.getDefaultDispatchStackEdit(strConstProcessor));
-				editList.add(edits.getAddProcessorEdit(dataflow, strConstProcessor));
-
-				// Create the input port for the sink (i.e. target) processor to correspond to the
-				// passed activity input port
-				HashSet<Processor> processorsWithInputPort = (HashSet<Processor>) Tools.getProcessorsWithActivityInputPort(dataflow, inputPort);
-				Processor sinkProcessor = (Processor) (processorsWithInputPort.toArray()[0]);
-				ProcessorInputPort sinkProcessorInputPort =
-					edits.createProcessorInputPort(sinkProcessor, inputPort.getName(), inputPort.getDepth()); // this port is the sink of the datalink
-				Activity<?> sinkActivity = null;
-				for (Activity<?> procActivity : sinkProcessor.getActivityList()){
-					if (procActivity.getInputPorts().contains(inputPort)) { // found it
-						sinkActivity = procActivity;
-						break;
-					}
-				}
-				editList.add(edits.getAddProcessorInputPortEdit(sinkProcessor, sinkProcessorInputPort));
-				editList.add(edits.getAddActivityInputPortMappingEdit(sinkActivity, inputPort.getName(), inputPort.getName()));
+				editList.add(new AddProcessorEdit(dataflow, strConstProcessor));
 
 				// Add a data link between the string constant processor's output port
 				// and the processor containing the passed inputPort.
-				Datalink datalink = edits.createDatalink(strConstProcessorOutputPort,sinkProcessorInputPort);
-				editList.add(edits.getConnectDatalinkEdit(datalink));
+				DataLink datalink = new DataLink();
+				datalink.setReceivesFrom(strConstProcessorOutputPort);
+				datalink.setSendsTo(inputPort);
+				editList.add(new AddDataLinkEdit(dataflow, datalink));
 
-				editManager.doDataflowEdit(dataflow,  new CompoundEdit(editList));
+				editManager.doDataflowEdit(dataflow.getParent(),  new CompoundEdit(editList));
 
 			}
+			}
 		} catch (EditException ex) {
-			logger.error("Adding default value for input port failed", ex);
-		} catch (ActivityConfigurationException ex) {
 			logger.error("Adding default value for input port failed", ex);
 		}
 	}

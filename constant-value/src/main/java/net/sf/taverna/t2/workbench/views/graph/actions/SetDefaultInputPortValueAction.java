@@ -27,6 +27,11 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
@@ -39,13 +44,6 @@ import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.EventHandlingInputPort;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 /**
  * An action that sets a default value to a processor's input port, in case
@@ -69,6 +67,8 @@ public class SetDefaultInputPortValueAction extends AbstractAction{
 	private final FileManager fileManager;
 	private final DataflowSelectionManager dataflowSelectionManager;
 
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
+
 	public SetDefaultInputPortValueAction(EditManager editManager, FileManager fileManager, final DataflowSelectionManager dataflowSelectionManager){
 		super();
 		this.editManager = editManager;
@@ -84,15 +84,15 @@ public class SetDefaultInputPortValueAction extends AbstractAction{
 		ModelMap.getInstance().addObserver(new Observer<ModelMap.ModelMapEvent>() {
 			public void notify(Observable<ModelMapEvent> sender, ModelMapEvent message) {
 				if (message.getModelName().equals(ModelMapConstants.CURRENT_DATAFLOW)) {
-					if (message.getNewModel() instanceof Dataflow) {
+					if (message.getNewModel() instanceof Workflow) {
 
 						// Update the buttons status as current dataflow has changed
-						updateStatus((Dataflow) message.getNewModel());
+						updateStatus((WorkflowBundle) message.getNewModel());
 
 						// Remove the workflow selection model listener from the previous (if any)
 						// and add to the new workflow (if any)
-						Dataflow oldFlow = (Dataflow) message.getOldModel();
-						Dataflow newFlow = (Dataflow) message.getNewModel();
+						WorkflowBundle oldFlow = (WorkflowBundle) message.getOldModel();
+						WorkflowBundle newFlow = (WorkflowBundle) message.getNewModel();
 						if (oldFlow != null) {
 							dataflowSelectionManager.getDataflowSelectionModel(oldFlow)
 									.removeObserver(workflowSelectionObserver);
@@ -109,11 +109,10 @@ public class SetDefaultInputPortValueAction extends AbstractAction{
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		Dataflow dataflow = fileManager.getCurrentDataflow();
-		DataflowSelectionModel dataFlowSelectionModel = dataflowSelectionManager.getDataflowSelectionModel(dataflow);
+		WorkflowBundle workflowBundle = fileManager.getCurrentDataflow();
+		DataflowSelectionModel dataFlowSelectionModel = dataflowSelectionManager.getDataflowSelectionModel(workflowBundle);
 		// Get selected port
-		Set<Object> selectedWFComponents = dataFlowSelectionModel
-				.getSelection();
+		Set<Object> selectedWFComponents = dataFlowSelectionModel.getSelection();
 		if (selectedWFComponents.size() > 1){
 			JOptionPane
 					.showMessageDialog(
@@ -123,9 +122,9 @@ public class SetDefaultInputPortValueAction extends AbstractAction{
 		}
 		else{
 			Object selectedWFComponent = selectedWFComponents.toArray()[0];
-			if (selectedWFComponent instanceof ActivityInputPort) {
-				new AddInputPortDefaultValueAction(dataflow,
-						(ActivityInputPort) selectedWFComponent, null, editManager, dataflowSelectionManager)
+			if (selectedWFComponent instanceof InputProcessorPort) {
+				new AddInputPortDefaultValueAction(workflowBundle.getMainWorkflow(),
+						(InputProcessorPort) selectedWFComponent, null, editManager, dataflowSelectionManager)
 						.actionPerformed(e);
 			}
 		}
@@ -134,9 +133,9 @@ public class SetDefaultInputPortValueAction extends AbstractAction{
 	/**
 	 * Check if action should be enabled or disabled and update its status.
 	 */
-	public void updateStatus(Dataflow dataflow) {
+	public void updateStatus(WorkflowBundle workflowBundle) {
 
-		DataflowSelectionModel selectionModel = dataflowSelectionManager.getDataflowSelectionModel(dataflow);
+		DataflowSelectionModel selectionModel = dataflowSelectionManager.getDataflowSelectionModel(workflowBundle);
 
 		// List of all selected objects in the graph view
 		Set<Object> selection = selectionModel.getSelection();
@@ -147,44 +146,9 @@ public class SetDefaultInputPortValueAction extends AbstractAction{
 		else{
 			// Take the first selected item - we only support single selections anyway
 			Object selected = selection.toArray()[0];
-			if ((selected instanceof ActivityInputPort)){
-
-				// If this activity input port is not already connected to something - enable the button
-
-				ActivityInputPort activityInputPort = (ActivityInputPort) selected;
-				Collection<Processor> processors = Tools.getProcessorsWithActivityInputPort(dataflow, activityInputPort);
-				// Hopefully there will be only one
-				if (processors.size() > 0){
-					Processor processor =(Processor) (processors.toArray())[0];
-					Activity<?> activity = null;
-					for (int i = 0; i< processor.getActivityList().size(); i++){
-						if (processor.getActivityList().get(i).getInputPorts().contains(activityInputPort)){ // found the activity containing the input port
-							activity = processor.getActivityList().get(i);
-							break;
-						}
-					}
-
-					if (activity != null){
-						// Get the processor input port corresponding to the activity input port
-						EventHandlingInputPort processorInputPort = Tools.getProcessorInputPort(processor, activity, activityInputPort);
-						for(Datalink datalink : dataflow.getLinks()){
-							if (datalink.getSink().equals(processorInputPort)){
-								setEnabled(false); // The input port is already connected - disable the button
-								return;
-							}
-						}
-						setEnabled(true);
-					}
-					else{
-						setEnabled(false);
-					}
-				}
-				else{
-					setEnabled(false);
-				}
-			}
-			else{
-				setEnabled(false);
+			if (selected instanceof InputProcessorPort) {
+				// If this input port is not already connected to something - enable the button
+				setEnabled(scufl2Tools.datalinksTo((InputProcessorPort) selected).isEmpty());
 			}
 		}
 	}
