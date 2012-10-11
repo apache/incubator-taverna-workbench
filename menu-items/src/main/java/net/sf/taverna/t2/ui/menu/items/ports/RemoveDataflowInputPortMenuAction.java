@@ -28,8 +28,8 @@ import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveDataflowInputPortAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
 
 public class RemoveDataflowInputPortMenuAction extends
 		AbstractContextualMenuAction {
@@ -44,17 +44,17 @@ public class RemoveDataflowInputPortMenuAction extends
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof DataflowInputPort
-				&& getContextualSelection().getParent() instanceof Dataflow;
+				&& getContextualSelection().getSelection() instanceof InputWorkflowPort
+				&& getContextualSelection().getParent() instanceof Workflow;
 	}
 
 	@Override
 	protected Action createAction() {
-		Dataflow dataflow = (Dataflow) getContextualSelection().getParent();
-		DataflowInputPort inport = (DataflowInputPort) getContextualSelection()
+		Workflow workflow = (Workflow) getContextualSelection().getParent();
+		InputWorkflowPort inport = (InputWorkflowPort) getContextualSelection()
 				.getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();
-		return new RemoveDataflowInputPortAction(dataflow, inport, component, editManager, dataflowSelectionManager);
+		return new RemoveDataflowInputPortAction(workflow, inport, component, editManager, dataflowSelectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {

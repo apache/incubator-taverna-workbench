@@ -8,6 +8,7 @@
 
 	<service ref="ActivityInputPortSection" auto-export="interfaces" />
 	<service ref="ActivityOutputPortSection" auto-export="interfaces" />
+	<service ref="AnnotatedConfigureMenuAction" auto-export="interfaces" />
 	<service ref="ConditionMenuActions" auto-export="interfaces" />
 	<service ref="ConditionSection" auto-export="interfaces" />
 	<service ref="ConfigureRunningContextualMenuSection" auto-export="interfaces" />
@@ -23,14 +24,12 @@
 	<service ref="EditSection" auto-export="interfaces" />
 	<service ref="InsertSection" auto-export="interfaces" />
 	<service ref="LinkSection" auto-export="interfaces" />
-	<service ref="MergeSection" auto-export="interfaces" />
 	<service ref="PasteMenuAction" auto-export="interfaces" />
 	<service ref="ProcessorSection" auto-export="interfaces" />
 	<service ref="RemoveConditionMenuAction" auto-export="interfaces" />
 	<service ref="RemoveDataflowInputPortMenuAction" auto-export="interfaces" />
 	<service ref="RemoveDataflowOutputPortMenuAction" auto-export="interfaces" />
 	<service ref="RemoveLinkMenuAction" auto-export="interfaces" />
-	<service ref="RemoveMergeMenuAction" auto-export="interfaces" />
 	<service ref="RemoveProcessorMenuAction" auto-export="interfaces" />
 	<service ref="RenameProcessorMenuAction" auto-export="interfaces" />
 	<service ref="SetConstantInputPortValueMenuAction" auto-export="interfaces" />
@@ -45,11 +44,13 @@
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
 	<reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
-	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" />
+	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" cardinality="0..1" />
 	<reference id="dataflowSelectionManager" interface="net.sf.taverna.t2.workbench.ui.DataflowSelectionManager" />
 	<reference id="workbench" interface="net.sf.taverna.t2.workbench.ui.Workbench" />
 	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
 	<reference id="activityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
 	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
+
+	<list id="annotationBeans" interface="net.sf.taverna.t2.annotation.AnnotationBeanSPI"/>
 
 </beans:beans>

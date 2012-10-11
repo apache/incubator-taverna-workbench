@@ -28,9 +28,8 @@ import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveConditionAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Condition;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edits;
+import uk.org.taverna.scufl2.api.core.ControlLink;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class RemoveConditionMenuAction extends AbstractContextualMenuAction {
 
@@ -44,17 +43,17 @@ public class RemoveConditionMenuAction extends AbstractContextualMenuAction {
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof Condition
-				&& getContextualSelection().getParent() instanceof Dataflow;
+				&& getContextualSelection().getSelection() instanceof ControlLink
+				&& getContextualSelection().getParent() instanceof Workflow;
 	}
 
 	@Override
 	protected Action createAction() {
-		Dataflow dataflow = (Dataflow) getContextualSelection().getParent();
-		Condition condition = (Condition) getContextualSelection()
+		Workflow dataflow = (Workflow) getContextualSelection().getParent();
+		ControlLink controlLink = (ControlLink) getContextualSelection()
 				.getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();
-		return new RemoveConditionAction(dataflow, condition, component, editManager, dataflowSelectionManager);
+		return new RemoveConditionAction(dataflow, controlLink, component, editManager, dataflowSelectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {

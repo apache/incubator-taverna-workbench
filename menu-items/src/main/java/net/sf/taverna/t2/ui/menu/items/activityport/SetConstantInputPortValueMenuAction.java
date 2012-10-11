@@ -27,8 +27,8 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.views.graph.actions.SetDefaultInputPortValueAction;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputActivityPort;
 
 public class SetConstantInputPortValueMenuAction extends
 		AbstractContextualMenuAction {
@@ -43,18 +43,18 @@ public class SetConstantInputPortValueMenuAction extends
 
 	@Override
 	public synchronized Action getAction() {
-		Dataflow dataflow = (Dataflow) getContextualSelection().getParent();
+		Workflow dataflow = (Workflow) getContextualSelection().getParent();
 		SetDefaultInputPortValueAction action = (SetDefaultInputPortValueAction) super
 				.getAction();
-		action.updateStatus(dataflow);
+		action.updateStatus(dataflow.getParent());
 		return action;
 	}
 
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof ActivityInputPort
-				&& getContextualSelection().getParent() instanceof Dataflow;
+				&& getContextualSelection().getSelection() instanceof InputActivityPort
+				&& getContextualSelection().getParent() instanceof Workflow;
 	}
 
 	@Override

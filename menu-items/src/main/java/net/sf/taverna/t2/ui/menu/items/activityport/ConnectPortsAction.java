@@ -24,41 +24,45 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.InputPort;
-import net.sf.taverna.t2.workflowmodel.OutputPort;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import net.sf.taverna.t2.workflow.edits.AddDataLinkEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.ReceiverPort;
+import uk.org.taverna.scufl2.api.port.SenderPort;
 
 @SuppressWarnings("serial")
 public class ConnectPortsAction extends AbstractAction {
 	private static Logger logger = Logger.getLogger(ConnectPortsAction.class);
-	private final Dataflow dataflow;
-	private final InputPort inputPort;
-	private final OutputPort outputPort;
+	private final Workflow workflow;
+	private final ReceiverPort receiverPort;
+	private final SenderPort senderPort;
 	private final EditManager editManager;
 
-	public ConnectPortsAction(Dataflow dataflow,
-			OutputPort outputPort, InputPort inputPort, EditManager editManager) {
-		super("Connect " + inputPort.getName() + " to " + outputPort.getName());
-		this.dataflow = dataflow;
-		this.inputPort = inputPort;
-		this.outputPort = outputPort;
+	public ConnectPortsAction(Workflow workflow,
+			SenderPort senderPort, ReceiverPort receiverPort, EditManager editManager) {
+		super("Connect " + senderPort.getName() + " to " + receiverPort.getName());
+		this.workflow = workflow;
+		this.receiverPort = receiverPort;
+		this.senderPort = senderPort;
 		this.editManager = editManager;
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		Edit<?> edit = Tools.getCreateAndConnectDatalinkEdit(dataflow,
-				outputPort, inputPort, editManager.getEdits());
+		DataLink dataLink = new DataLink();
+		dataLink.setReceivesFrom(senderPort);
+		dataLink.setSendsTo(receiverPort);
+		Edit<Workflow> edit = new AddDataLinkEdit(workflow, dataLink);
 		try {
-			editManager.doDataflowEdit(dataflow, edit);
+			editManager.doDataflowEdit(workflow.getParent(), edit);
 		} catch (EditException ex) {
-			logger.warn("Can't create connection between " + inputPort
-					+ " and " + outputPort, ex);
+			logger.warn("Can't create connection between " + senderPort
+					+ " and " + receiverPort, ex);
 		}
 	}
 }

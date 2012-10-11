@@ -27,7 +27,7 @@ import net.sf.taverna.t2.ui.menu.items.contextualviews.InsertSection;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowOutputAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class CreateOutputMenuAction extends AbstractContextualMenuAction {
 
@@ -41,12 +41,12 @@ public class CreateOutputMenuAction extends AbstractContextualMenuAction {
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof Dataflow;
+				&& getContextualSelection().getSelection() instanceof Workflow;
 	}
 
 	@Override
 	protected Action createAction() {
-		return new AddDataflowOutputAction((Dataflow) getContextualSelection()
+		return new AddDataflowOutputAction((Workflow) getContextualSelection()
 				.getSelection(), getContextualSelection()
 				.getRelativeToComponent(), editManager, dataflowSelectionManager);
 	}

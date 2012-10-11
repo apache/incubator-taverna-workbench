@@ -10,6 +10,11 @@
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 			<property name="activityIconManager" ref="activityIconManager" />
 	</bean>
+	<bean id="AnnotatedConfigureMenuAction" class="net.sf.taverna.t2.ui.menu.items.annotated.AnnotatedConfigureMenuAction">
+			<property name="editManager" ref="editManager" />
+			<property name="fileManager" ref="fileManager" />
+			<property name="annotationBeans" ref="annotationBeans" />
+	</bean>
 	<bean id="ConditionSection" class="net.sf.taverna.t2.ui.menu.items.condition.ConditionSection" />
 	<bean id="ConfigureRunningContextualMenuSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureRunningContextualMenuSection" />
 	<bean id="ConfigureSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureSection" />
@@ -60,7 +65,6 @@
 	<bean id="EditSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.EditSection" />
 	<bean id="InsertSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.InsertSection" />
 	<bean id="LinkSection" class="net.sf.taverna.t2.ui.menu.items.link.LinkSection" />
-	<bean id="MergeSection" class="net.sf.taverna.t2.ui.menu.items.merge.MergeSection" />
 	<bean id="PasteMenuAction" class="net.sf.taverna.t2.ui.menu.items.contextualviews.PasteMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
@@ -80,10 +84,6 @@
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
 	<bean id="RemoveLinkMenuAction" class="net.sf.taverna.t2.ui.menu.items.link.RemoveLinkMenuAction">
-			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
-	</bean>
-	<bean id="RemoveMergeMenuAction" class="net.sf.taverna.t2.ui.menu.items.merge.RemoveMergeMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>

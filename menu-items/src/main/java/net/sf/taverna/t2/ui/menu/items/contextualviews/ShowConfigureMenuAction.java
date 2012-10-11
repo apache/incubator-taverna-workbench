@@ -26,6 +26,7 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.net.URI;
+import java.util.List;
 import java.util.Set;
 
 import javax.swing.Action;
@@ -43,13 +44,15 @@ import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.merge.MergeConfigurationView;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.Merge;
-import net.sf.taverna.t2.workflowmodel.Processor;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 
 public class ShowConfigureMenuAction extends AbstractMenuAction {
 
@@ -72,6 +75,8 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 	private DataflowSelectionManager dataflowSelectionManager;
 
 	private MenuManager menuManager;
+
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	public ShowConfigureMenuAction() {
 		super(GRAPH_DETAILS_MENU_SECTION, 20, SHOW_CONFIGURE_URI);
@@ -112,8 +117,8 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 
 		}
 		public void actionPerformed(ActionEvent e) {
-			Dataflow dataflow = fileManager.getCurrentDataflow();
-			DataflowSelectionModel dataFlowSelectionModel = dataflowSelectionManager.getDataflowSelectionModel(dataflow);
+			WorkflowBundle workflowBundle = fileManager.getCurrentDataflow();
+			DataflowSelectionModel dataFlowSelectionModel = dataflowSelectionManager.getDataflowSelectionModel(workflowBundle);
 			// Get selected port
 			Set<Object> selectedWFComponents = dataFlowSelectionModel
 					.getSelection();
@@ -122,21 +127,24 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 				if (component instanceof Processor) {
 					Action action = WorkflowView.getConfigureAction((Processor) component, menuManager);
 					if (action != null) {
-					action.actionPerformed(e);
+						action.actionPerformed(e);
 					}
-				} else if (component instanceof Merge) {
-					Merge merge = (Merge) component;
-						MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(merge, editManager, fileManager);
-						mergeConfigurationView.setLocationRelativeTo(null);
-						mergeConfigurationView.setVisible(true);
-				} else if (component instanceof DataflowInputPort) {
-					DataflowInputPort port = (DataflowInputPort) component;
-					new EditDataflowInputPortAction(dataflow,
+				} else if (component instanceof DataLink) {
+					DataLink dataLink = (DataLink) component;
+					if (dataLink.getMergePosition() != null) {
+					List<DataLink> datalinks = scufl2Tools.datalinksTo(dataLink.getSendsTo());
+					MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(datalinks, editManager, fileManager);
+					mergeConfigurationView.setLocationRelativeTo(null);
+					mergeConfigurationView.setVisible(true);
+					}
+				} else if (component instanceof InputWorkflowPort) {
+					InputWorkflowPort port = (InputWorkflowPort) component;
+					new EditDataflowInputPortAction(port.getParent(),
 							port, null, editManager, dataflowSelectionManager)
 							.actionPerformed(e);
-				} else if (component instanceof DataflowOutputPort) {
-					DataflowOutputPort port = (DataflowOutputPort) component;
-					new EditDataflowOutputPortAction(dataflow, port, null, editManager, dataflowSelectionManager).actionPerformed(e);
+				} else if (component instanceof OutputWorkflowPort) {
+					OutputWorkflowPort port = (OutputWorkflowPort) component;
+					new EditDataflowOutputPortAction(port.getParent(), port, null, editManager, dataflowSelectionManager).actionPerformed(e);
 				}
 			}
 		}

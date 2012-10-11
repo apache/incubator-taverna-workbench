@@ -29,8 +29,8 @@ import net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureSection;
 import net.sf.taverna.t2.workbench.design.actions.RenameProcessorAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class RenameProcessorMenuAction extends AbstractContextualMenuAction {
 
@@ -45,16 +45,16 @@ public class RenameProcessorMenuAction extends AbstractContextualMenuAction {
 	public boolean isEnabled() {
 		return super.isEnabled()
 				&& getContextualSelection().getSelection() instanceof Processor
-				&& getContextualSelection().getParent() instanceof Dataflow;
+				&& getContextualSelection().getParent() instanceof Workflow;
 	}
 
 	@Override
 	protected Action createAction() {
-		Dataflow dataflow = (Dataflow) getContextualSelection().getParent();
+		Workflow workflow = (Workflow) getContextualSelection().getParent();
 		Processor processor = (Processor) getContextualSelection()
 				.getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();
-		return new RenameProcessorAction(dataflow, processor, component, editManager, dataflowSelectionManager);
+		return new RenameProcessorAction(workflow, processor, component, editManager, dataflowSelectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {

@@ -22,8 +22,8 @@ package net.sf.taverna.t2.ui.menu.items.processor;
 
 import java.awt.Component;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -38,19 +38,18 @@ import net.sf.taverna.t2.workbench.design.actions.AddConditionAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.utils.NamedWorkflowEntityComparator;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class ConditionMenuActions extends AbstractMenuCustom implements
 		ContextualMenuComponent {
 
 	private ContextualSelection contextualSelection;
-	private ArrayList<Processor> processors;
 	private EditManager editManager;
 	private DataflowSelectionManager dataflowSelectionManager;
 	private ActivityIconManager activityIconManager;
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	public ConditionMenuActions() {
 		super(ConfigureSection.configureSection, 80 );
@@ -64,7 +63,7 @@ public class ConditionMenuActions extends AbstractMenuCustom implements
 	public boolean isEnabled() {
 		return super.isEnabled()
 				&& getContextualSelection().getSelection() instanceof Processor
-				&& getContextualSelection().getParent() instanceof Dataflow;
+				&& getContextualSelection().getParent() instanceof Workflow;
 	}
 
 	public void setContextualSelection(ContextualSelection contextualSelection) {
@@ -75,12 +74,12 @@ public class ConditionMenuActions extends AbstractMenuCustom implements
 	@Override
 	protected Component createCustomComponent() {
 
-		Dataflow dataflow = (Dataflow) getContextualSelection().getParent();
+		Workflow workflow = (Workflow) getContextualSelection().getParent();
 		Processor processor = (Processor) getContextualSelection()
 				.getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();
 
-		List<AddConditionAction> conditions = getAddConditionActions(dataflow,
+		List<AddConditionAction> conditions = getAddConditionActions(workflow,
 				processor, component);
 		if (conditions.isEmpty()) {
 			return null;
@@ -96,13 +95,10 @@ public class ConditionMenuActions extends AbstractMenuCustom implements
 	}
 
 	protected List<AddConditionAction> getAddConditionActions(
-			Dataflow dataflow, Processor targetProcessor, Component component) {
+			Workflow workflow, Processor targetProcessor, Component component) {
 		List<AddConditionAction> actions = new ArrayList<AddConditionAction>();
-		processors = new ArrayList<Processor>(Tools.possibleUpStreamProcessors(
-				dataflow, targetProcessor));
-		Collections.sort(processors, new NamedWorkflowEntityComparator());
-		for (Processor processor : processors) {
-			actions.add(new AddConditionAction(dataflow, processor,
+		for (Processor processor : scufl2Tools.possibleUpStreamProcessors(workflow, targetProcessor)) {
+			actions.add(new AddConditionAction(workflow, processor,
 					targetProcessor, component, editManager, dataflowSelectionManager, activityIconManager));
 		}
 		return actions;

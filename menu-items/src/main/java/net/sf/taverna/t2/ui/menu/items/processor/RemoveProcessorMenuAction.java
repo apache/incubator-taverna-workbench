@@ -28,8 +28,8 @@ import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveProcessorAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class RemoveProcessorMenuAction extends AbstractContextualMenuAction {
 
@@ -44,16 +44,16 @@ public class RemoveProcessorMenuAction extends AbstractContextualMenuAction {
 	public boolean isEnabled() {
 		return super.isEnabled()
 				&& getContextualSelection().getSelection() instanceof Processor
-				&& getContextualSelection().getParent() instanceof Dataflow;
+				&& getContextualSelection().getParent() instanceof Workflow;
 	}
 
 	@Override
 	protected Action createAction() {
-		Dataflow dataflow = (Dataflow) getContextualSelection().getParent();
+		Workflow workflow = (Workflow) getContextualSelection().getParent();
 		Processor processor = (Processor) getContextualSelection()
 				.getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();
-		return new RemoveProcessorAction(dataflow, processor, component, editManager, dataflowSelectionManager);
+		return new RemoveProcessorAction(workflow, processor, component, editManager, dataflowSelectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {

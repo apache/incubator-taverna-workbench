@@ -32,9 +32,11 @@ import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.Workbench;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class ShowReportsContextualMenuAction extends AbstractContextualMenuAction {
 
@@ -61,13 +63,17 @@ public class ShowReportsContextualMenuAction extends AbstractContextualMenuActio
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		Dataflow parent;
-		if (getContextualSelection().getParent() instanceof Dataflow) {
-			parent = (Dataflow)getContextualSelection().getParent();
+		WorkflowBundle parent;
+		if (getContextualSelection().getParent() instanceof Workflow) {
+			parent = ((Workflow)getContextualSelection().getParent()).getParent();
 		} else {
 			parent = fileManager.getCurrentDataflow();
 		}
-		Status status = reportManager.getStatus(parent, getContextualSelection().getSelection());
+		Status status = Status.OK;
+
+		if (reportManager != null) {
+//			status = reportManager.getStatus(parent, getContextualSelection().getSelection());
+		}
 
 		Icon icon = null;
 		if (status == Status.WARNING) {

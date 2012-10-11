@@ -33,20 +33,27 @@ import javax.swing.AbstractAction;
 import net.sf.taverna.t2.lang.ui.ValidatingUserInputDialog;
 import net.sf.taverna.t2.workbench.design.ui.DataflowInputPortPanel;
 import net.sf.taverna.t2.workbench.design.ui.DataflowOutputPortPanel;
+import net.sf.taverna.t2.workbench.edits.CompoundEdit;
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.InputPort;
-import net.sf.taverna.t2.workflowmodel.OutputPort;
-import net.sf.taverna.t2.workflowmodel.Port;
+import net.sf.taverna.t2.workflow.edits.AddDataLinkEdit;
+import net.sf.taverna.t2.workflow.edits.AddDataflowInputPortEdit;
+import net.sf.taverna.t2.workflow.edits.AddDataflowOutputPortEdit;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.DepthPort;
+import uk.org.taverna.scufl2.api.port.InputPort;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.OutputPort;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.Port;
+import uk.org.taverna.scufl2.api.port.ReceiverPort;
+import uk.org.taverna.scufl2.api.port.SenderPort;
 
 /**
  * Action to create a dataflow input/output port and connect it to the specified
@@ -75,42 +82,39 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 	private static final String DUPLICATE_WORKFLOW_INPUT_PORT_NAME = "Duplicate workflow input port name.";
 	private static final String SET_THE_WORKFLOW_INPUT_PORT_NAME = "Set the workflow input port name.";
 	private static final String ADD_WORKFLOW_INPUT_PORT = "Add workflow input port";
-	private static Logger logger = Logger
-			.getLogger(CreateAndConnectDataflowPortAction.class);
-	private final Dataflow dataflow;
+	private static Logger logger = Logger.getLogger(CreateAndConnectDataflowPortAction.class);
+	private final Workflow workflow;
 
 	private final Port port;
 	private final String suggestedName;
 	private final Component parentComponent;
 	private final EditManager editManager;
-	private Edits edits;
 
 	/**
-	 * Action for creating a dataflow input/output port and linking it to the
+	 * Action for creating a Workflow input/output port and linking it to the
 	 * specified port.
 	 * <p>
-	 * If the provided port is an InputPort (in a Processor or Activity) then a
-	 * dataflow OutputPort will be created and linked. Vice versa, if the
-	 * provided port is an OutputPort, a dataflow InputPort will be created.
+	 * If the provided port is an InputPort then a
+	 * Workflow OutputPort will be created and linked. Vice versa, if the
+	 * provided port is an OutputPort, a Workflow InputPort will be created.
 	 *
-	 * @param dataflow
-	 *            Dataflow where to create the dataflow input/output port
+	 * @param workflow
+	 *            Workflow where to create the Workflow input/output port
 	 * @param port
-	 *            Existing Processor or Activity port to connect to
+	 *            Existing Processor port to connect to
 	 * @param suggestedName
 	 *            suggested port name
 	 * @param parentComponent
 	 *            Component to be parent of any pop-ups
 	 */
-	public CreateAndConnectDataflowPortAction(Dataflow dataflow, Port port,
+	public CreateAndConnectDataflowPortAction(Workflow workflow, Port port,
 			String suggestedName, Component parentComponent, EditManager editManager) {
 		super("Connect to new workflow port");
-		this.dataflow = dataflow;
+		this.workflow = workflow;
 		this.port = port;
 		this.suggestedName = suggestedName;
 		this.parentComponent = parentComponent;
 		this.editManager = editManager;
-		edits = editManager.getEdits();
 		if (!(port instanceof InputPort || port instanceof OutputPort)) {
 			throw new IllegalArgumentException("Port " + port
 					+ " must be either an InputPort or OutputPort");
@@ -118,20 +122,24 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if (port instanceof InputPort) {
-			String portName = Tools.uniquePortName(suggestedName, dataflow
-					.getInputPorts());
-			DataflowInputPort dataflowInputPort = edits
-					.createDataflowInputPort(portName, port.getDepth(), port
-							.getDepth(), dataflow);
-			showDialogue(dataflowInputPort);
+		if (port instanceof ReceiverPort) {
+			InputWorkflowPort inputWorkflowPort = new InputWorkflowPort();
+			inputWorkflowPort.setName(suggestedName);
+			workflow.getInputPorts().addWithUniqueName(inputWorkflowPort);
+			workflow.getInputPorts().remove(inputWorkflowPort);
+			if (port instanceof DepthPort) {
+				inputWorkflowPort.setDepth(((DepthPort) port).getDepth());
+			} else {
+				inputWorkflowPort.setDepth(0);
+			}
+			showDialogue(inputWorkflowPort);
 
-		} else if (port instanceof OutputPort) {
-			String portName = Tools.uniquePortName(suggestedName, dataflow
-					.getOutputPorts());
-			DataflowOutputPort dataflowOutputPort = edits
-					.createDataflowOutputPort(portName, dataflow);
-			showDialogue(dataflowOutputPort);
+		} else if (port instanceof SenderPort) {
+			OutputWorkflowPort outputWorkflowPort = new OutputWorkflowPort();
+			outputWorkflowPort.setName(suggestedName);
+			workflow.getOutputPorts().addWithUniqueName(outputWorkflowPort);
+			workflow.getOutputPorts().remove(outputWorkflowPort);
+			showDialogue(outputWorkflowPort);
 		} else {
 			throw new IllegalStateException("Port " + port
 					+ " must be either an InputPort or OutputPort");
@@ -139,9 +147,9 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 
 	}
 
-	protected void showDialogue(DataflowInputPort portTemplate) {
+	protected void showDialogue(InputWorkflowPort portTemplate) {
 		Set<String> usedInputPorts = new HashSet<String>();
-		for (DataflowInputPort usedInputPort : dataflow.getInputPorts()) {
+		for (InputWorkflowPort usedInputPort : workflow.getInputPorts()) {
 			usedInputPorts.add(usedInputPort.getName());
 		}
 		DataflowInputPortPanel inputPanel = new DataflowInputPortPanel();
@@ -162,20 +170,18 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 		inputPanel.setPortDepth(portTemplate.getDepth());
 
 		if (vuid.show(parentComponent)) {
-			DataflowInputPort dataflowInputPort = edits
-					.createDataflowInputPort(inputPanel.getPortName(),
-							inputPanel.getPortDepth(), inputPanel
-									.getPortDepth(), dataflow);
+			InputWorkflowPort inputWorkflowPort = new InputWorkflowPort();
+			inputWorkflowPort.setName(inputPanel.getPortName());
+			inputWorkflowPort.setDepth(inputPanel.getPortDepth());
 			List<Edit<?>> editList = new ArrayList<Edit<?>>();
-			editList.add(edits.getAddDataflowInputPortEdit(dataflow,
-					dataflowInputPort));
-			editList.add(Tools
-					.getCreateAndConnectDatalinkEdit(dataflow,
-							dataflowInputPort.getInternalOutputPort(),
-							(InputPort) port, edits));
+			editList.add(new AddDataflowInputPortEdit(workflow, inputWorkflowPort));
+			DataLink dataLink = new DataLink();
+			dataLink.setReceivesFrom(inputWorkflowPort);
+			dataLink.setSendsTo((ReceiverPort) port);
+			editList.add(new AddDataLinkEdit(workflow, dataLink));
 			try {
 				CompoundEdit compoundEdit = new CompoundEdit(editList);
-				editManager.doDataflowEdit(dataflow, compoundEdit);
+				editManager.doDataflowEdit(workflow.getParent(), compoundEdit);
 			} catch (EditException ex) {
 				logger.warn("Can't create or connect new input port", ex);
 			}
@@ -183,9 +189,9 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 		}
 	}
 
-	protected void showDialogue(DataflowOutputPort portTemplate) {
+	protected void showDialogue(OutputWorkflowPort portTemplate) {
 		Set<String> usedOutputPorts = new HashSet<String>();
-		for (DataflowOutputPort usedInputPort : dataflow.getOutputPorts()) {
+		for (OutputWorkflowPort usedInputPort : workflow.getOutputPorts()) {
 			usedOutputPorts.add(usedInputPort.getName());
 		}
 		DataflowOutputPortPanel outputPanel = new DataflowOutputPortPanel();
@@ -200,18 +206,17 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 		outputPanel.setPortName(portTemplate.getName());
 
 		if (vuid.show(parentComponent)) {
+			OutputWorkflowPort outputWorkflowPort = new OutputWorkflowPort();
+			outputWorkflowPort.setName(outputPanel.getPortName());
 			List<Edit<?>> editList = new ArrayList<Edit<?>>();
-			DataflowOutputPort dataflowOutputPort = edits
-					.createDataflowOutputPort(outputPanel.getPortName(),
-							dataflow);
-			editList.add(edits.getAddDataflowOutputPortEdit(dataflow,
-					dataflowOutputPort));
-			editList.add(Tools.getCreateAndConnectDatalinkEdit(dataflow,
-					(OutputPort) port, dataflowOutputPort
-							.getInternalInputPort(), edits));
+			editList.add(new AddDataflowOutputPortEdit(workflow, outputWorkflowPort));
+			DataLink dataLink = new DataLink();
+			dataLink.setReceivesFrom((SenderPort) port);
+			dataLink.setSendsTo(outputWorkflowPort);
+			editList.add(new AddDataLinkEdit(workflow, dataLink));
 			try {
 				CompoundEdit compoundEdit = new CompoundEdit(editList);
-				editManager.doDataflowEdit(dataflow, compoundEdit);
+				editManager.doDataflowEdit(workflow.getParent(), compoundEdit);
 			} catch (EditException ex) {
 				logger.warn("Can't create or connect new workflow output port", ex);
 			}
