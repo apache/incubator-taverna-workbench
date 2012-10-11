@@ -23,7 +23,6 @@
 		<module>file-api</module>
 		<module>helper-api</module>
 		<module>menu-api</module>
-		<!-- <module>perspective-core</module> -->
 		<module>renderers-api</module>
 		<module>workbench-api</module>
 		<module>activity-icons-api</module>
