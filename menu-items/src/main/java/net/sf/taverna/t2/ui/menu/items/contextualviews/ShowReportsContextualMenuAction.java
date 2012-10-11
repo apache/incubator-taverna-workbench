@@ -28,15 +28,16 @@ import javax.swing.Icon;
 
 import net.sf.taverna.t2.lang.ui.icons.Icons;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
-import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.scufl2.api.common.WorkflowBean;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.validation.Status;
 
 public class ShowReportsContextualMenuAction extends AbstractContextualMenuAction {
 
@@ -70,9 +71,8 @@ public class ShowReportsContextualMenuAction extends AbstractContextualMenuActio
 			parent = fileManager.getCurrentDataflow();
 		}
 		Status status = Status.OK;
-
 		if (reportManager != null) {
-//			status = reportManager.getStatus(parent, getContextualSelection().getSelection());
+			status = reportManager.getStatus(parent.getMainProfile(), (WorkflowBean) getContextualSelection().getSelection());
 		}
 
 		Icon icon = null;

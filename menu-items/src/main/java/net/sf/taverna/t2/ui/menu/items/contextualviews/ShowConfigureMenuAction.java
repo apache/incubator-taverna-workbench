@@ -132,10 +132,10 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 				} else if (component instanceof DataLink) {
 					DataLink dataLink = (DataLink) component;
 					if (dataLink.getMergePosition() != null) {
-					List<DataLink> datalinks = scufl2Tools.datalinksTo(dataLink.getSendsTo());
-					MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(datalinks, editManager, fileManager);
-					mergeConfigurationView.setLocationRelativeTo(null);
-					mergeConfigurationView.setVisible(true);
+						List<DataLink> datalinks = scufl2Tools.datalinksTo(dataLink.getSendsTo());
+						MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(datalinks, editManager, fileManager);
+						mergeConfigurationView.setLocationRelativeTo(null);
+						mergeConfigurationView.setVisible(true);
 					}
 				} else if (component instanceof InputWorkflowPort) {
 					InputWorkflowPort port = (InputWorkflowPort) component;
