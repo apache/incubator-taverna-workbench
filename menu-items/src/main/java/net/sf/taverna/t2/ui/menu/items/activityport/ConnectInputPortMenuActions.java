@@ -21,8 +21,8 @@
 package net.sf.taverna.t2.ui.menu.items.activityport;
 
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 
 public class ConnectInputPortMenuActions extends AbstractConnectPortMenuActions
 		implements ContextualMenuComponent {
@@ -34,8 +34,8 @@ public class ConnectInputPortMenuActions extends AbstractConnectPortMenuActions
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof ActivityInputPort
-				&& getContextualSelection().getParent() instanceof Dataflow;
+				&& getContextualSelection().getSelection() instanceof InputProcessorPort
+				&& getContextualSelection().getParent() instanceof Workflow;
 	}
 
 }

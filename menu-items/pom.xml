@@ -13,11 +13,6 @@
 	<name>Additional menu items</name>
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-api</artifactId>
-			<version>${t2.core.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
 			<artifactId>ui</artifactId>
 			<version>${t2.lang.version}</version>
@@ -47,12 +42,12 @@
 			<artifactId>workflow-view</artifactId>
 			<version>${t2.ui.components.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-exts</groupId>
-			<artifactId>constant-value</artifactId>
-			<version>${project.version}</version>
-		</dependency>
 
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-activities</groupId>
+			<artifactId>stringconstant-activity-ui</artifactId>
+			<version>${t2.ui.activities.version}</version>
+		</dependency>
 		<!-- TODO remove dependencies on implementations -->
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>

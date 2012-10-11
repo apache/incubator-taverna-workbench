@@ -18,37 +18,42 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  **********************************************************************/
-package net.sf.taverna.t2.ui.menu.items.dataflow;
+package net.sf.taverna.t2.ui.menu.items.controllink;
+
+import java.awt.Component;
 
 import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
-import net.sf.taverna.t2.ui.menu.items.contextualviews.InsertSection;
-import net.sf.taverna.t2.workbench.design.actions.AddDataflowOutputAction;
+import net.sf.taverna.t2.workbench.design.actions.RemoveConditionAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import uk.org.taverna.scufl2.api.core.ControlLink;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
-public class CreateOutputMenuAction extends AbstractContextualMenuAction {
+public class RemoveConditionMenuAction extends AbstractContextualMenuAction {
 
 	private EditManager editManager;
 	private DataflowSelectionManager dataflowSelectionManager;
 
-	public CreateOutputMenuAction() {
-		super(InsertSection.insertSection, 20);
+	public RemoveConditionMenuAction() {
+		super(ConditionSection.conditionSection, 10);
 	}
 
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof Workflow;
+				&& getContextualSelection().getSelection() instanceof ControlLink
+				&& getContextualSelection().getParent() instanceof Workflow;
 	}
 
 	@Override
 	protected Action createAction() {
-		return new AddDataflowOutputAction((Workflow) getContextualSelection()
-				.getSelection(), getContextualSelection()
-				.getRelativeToComponent(), editManager, dataflowSelectionManager);
+		Workflow dataflow = (Workflow) getContextualSelection().getParent();
+		ControlLink controlLink = (ControlLink) getContextualSelection()
+				.getSelection();
+		Component component = getContextualSelection().getRelativeToComponent();
+		return new RemoveConditionAction(dataflow, controlLink, component, editManager, dataflowSelectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {

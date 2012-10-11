@@ -23,7 +23,6 @@ package net.sf.taverna.t2.ui.menu.items.processor;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;

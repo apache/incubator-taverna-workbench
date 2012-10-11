@@ -5,8 +5,8 @@ net.sf.taverna.t2.ui.menu.items.activityport.ConnectInputPortMenuActions
 net.sf.taverna.t2.ui.menu.items.activityport.ActivityOutputPortSection
 net.sf.taverna.t2.ui.menu.items.activityport.ConnectOutputPortMenuActions
 
-net.sf.taverna.t2.ui.menu.items.condition.ConditionSection
-net.sf.taverna.t2.ui.menu.items.condition.RemoveConditionMenuAction
+net.sf.taverna.t2.ui.menu.items.controllink.ConditionSection
+net.sf.taverna.t2.ui.menu.items.controllink.RemoveConditionMenuAction
 
 net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureRunningContextualMenuSection
 net.sf.taverna.t2.ui.menu.items.contextualviews.ShowDetailsMenuAction
@@ -14,16 +14,16 @@ net.sf.taverna.t2.ui.menu.items.contextualviews.ShowDetailsContextualMenuAction
 net.sf.taverna.t2.ui.menu.items.contextualviews.ShowConfigureMenuAction
 net.sf.taverna.t2.ui.menu.items.contextualviews.ShowReportsContextualMenuAction
 
-net.sf.taverna.t2.ui.menu.items.dataflow.CreateInputMenuAction
-net.sf.taverna.t2.ui.menu.items.dataflow.CreateOutputMenuAction
+net.sf.taverna.t2.ui.menu.items.workflow.CreateInputMenuAction
+net.sf.taverna.t2.ui.menu.items.workflow.CreateOutputMenuAction
 net.sf.taverna.t2.ui.menu.items.contextualviews.InsertSection
-net.sf.taverna.t2.ui.menu.items.dataflow.WorkflowServiceTemplatesSection
+net.sf.taverna.t2.ui.menu.items.workflow.WorkflowServiceTemplatesSection
 net.sf.taverna.t2.ui.menu.items.contextualviews.EditSection
 net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureSection
 net.sf.taverna.t2.ui.menu.items.contextualviews.PasteMenuAction
 
-net.sf.taverna.t2.ui.menu.items.link.LinkSection
-net.sf.taverna.t2.ui.menu.items.link.RemoveLinkMenuAction
+net.sf.taverna.t2.ui.menu.items.datalink.LinkSection
+net.sf.taverna.t2.ui.menu.items.datalink.RemoveLinkMenuAction
 
 net.sf.taverna.t2.ui.menu.items.merge.MergeSection
 net.sf.taverna.t2.ui.menu.items.merge.RemoveMergeMenuAction

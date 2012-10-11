@@ -28,7 +28,7 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
 import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 
 public class ActivityInputPortSection extends AbstractMenuSection implements
 		ContextualMenuComponent {
@@ -49,7 +49,7 @@ public class ActivityInputPortSection extends AbstractMenuSection implements
 
 	@Override
 	public boolean isEnabled() {
-		return getContextualSelection().getSelection() instanceof ActivityInputPort;
+		return getContextualSelection().getSelection() instanceof InputProcessorPort;
 	}
 
 	public void setContextualSelection(ContextualSelection contextualSelection) {
@@ -57,11 +57,9 @@ public class ActivityInputPortSection extends AbstractMenuSection implements
 		this.action = null;
 	}
 
-	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		ActivityInputPort port = (ActivityInputPort) getContextualSelection()
-				.getSelection();
+		InputProcessorPort port = (InputProcessorPort) getContextualSelection().getSelection();
 		String name = ACTIVITY_INPUT_PORT + port.getName();
 		return new DummyAction(name);
 	}

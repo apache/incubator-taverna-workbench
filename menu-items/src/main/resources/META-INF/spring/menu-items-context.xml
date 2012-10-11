@@ -15,7 +15,7 @@
 			<property name="fileManager" ref="fileManager" />
 			<property name="annotationBeans" ref="annotationBeans" />
 	</bean>
-	<bean id="ConditionSection" class="net.sf.taverna.t2.ui.menu.items.condition.ConditionSection" />
+	<bean id="ConditionSection" class="net.sf.taverna.t2.ui.menu.items.controllink.ConditionSection" />
 	<bean id="ConfigureRunningContextualMenuSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureRunningContextualMenuSection" />
 	<bean id="ConfigureSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureSection" />
 	<bean id="ConnectDataflowInputPortMenuActions" class="net.sf.taverna.t2.ui.menu.items.ports.ConnectDataflowInputPortMenuActions">
@@ -46,11 +46,11 @@
 			<property name="activityIconManager" ref="activityIconManager" />
 			<property name="colourManager" ref="colourManager" />
 	</bean>
-	<bean id="CreateInputMenuAction" class="net.sf.taverna.t2.ui.menu.items.dataflow.CreateInputMenuAction">
+	<bean id="CreateInputMenuAction" class="net.sf.taverna.t2.ui.menu.items.workflow.CreateInputMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
-	<bean id="CreateOutputMenuAction" class="net.sf.taverna.t2.ui.menu.items.dataflow.CreateOutputMenuAction">
+	<bean id="CreateOutputMenuAction" class="net.sf.taverna.t2.ui.menu.items.workflow.CreateOutputMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
@@ -64,14 +64,14 @@
 	</bean>
 	<bean id="EditSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.EditSection" />
 	<bean id="InsertSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.InsertSection" />
-	<bean id="LinkSection" class="net.sf.taverna.t2.ui.menu.items.link.LinkSection" />
+	<bean id="LinkSection" class="net.sf.taverna.t2.ui.menu.items.datalink.LinkSection" />
 	<bean id="PasteMenuAction" class="net.sf.taverna.t2.ui.menu.items.contextualviews.PasteMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
 	<bean id="ProcessorSection" class="net.sf.taverna.t2.ui.menu.items.processor.ProcessorSection" />
-	<bean id="RemoveConditionMenuAction" class="net.sf.taverna.t2.ui.menu.items.condition.RemoveConditionMenuAction">
+	<bean id="RemoveConditionMenuAction" class="net.sf.taverna.t2.ui.menu.items.controllink.RemoveConditionMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
@@ -83,7 +83,7 @@
 			<property name="editManager" ref="editManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
-	<bean id="RemoveLinkMenuAction" class="net.sf.taverna.t2.ui.menu.items.link.RemoveLinkMenuAction">
+	<bean id="RemoveLinkMenuAction" class="net.sf.taverna.t2.ui.menu.items.datalink.RemoveLinkMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
 	</bean>
@@ -119,6 +119,6 @@
 	</bean>
 	<bean id="WorkflowInputPortSection" class="net.sf.taverna.t2.ui.menu.items.ports.WorkflowInputPortSection" />
 	<bean id="WorkflowOutputPortSection" class="net.sf.taverna.t2.ui.menu.items.ports.WorkflowOutputPortSection" />
-	<bean id="WorkflowServiceTemplatesSection" class="net.sf.taverna.t2.ui.menu.items.dataflow.WorkflowServiceTemplatesSection" />
+	<bean id="WorkflowServiceTemplatesSection" class="net.sf.taverna.t2.ui.menu.items.workflow.WorkflowServiceTemplatesSection" />
 
 </beans>

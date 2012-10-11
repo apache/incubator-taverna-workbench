@@ -18,41 +18,37 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  **********************************************************************/
-package net.sf.taverna.t2.ui.menu.items.link;
-
-import java.awt.Component;
+package net.sf.taverna.t2.ui.menu.items.workflow;
 
 import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
-import net.sf.taverna.t2.workbench.design.actions.RemoveDatalinkAction;
+import net.sf.taverna.t2.ui.menu.items.contextualviews.InsertSection;
+import net.sf.taverna.t2.workbench.design.actions.AddDataflowInputAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import uk.org.taverna.scufl2.api.core.DataLink;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
-public class RemoveLinkMenuAction extends AbstractContextualMenuAction {
+public class CreateInputMenuAction extends AbstractContextualMenuAction {
 
 	private EditManager editManager;
 	private DataflowSelectionManager dataflowSelectionManager;
 
-	public RemoveLinkMenuAction() {
-		super(LinkSection.linkSection, 10);
+	public CreateInputMenuAction() {
+		super(InsertSection.insertSection, 10);
 	}
 
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof DataLink
-				&& getContextualSelection().getParent() instanceof Workflow;
+				&& getContextualSelection().getSelection() instanceof Workflow;
 	}
 
 	@Override
 	protected Action createAction() {
-		Workflow workflow = (Workflow) getContextualSelection().getParent();
-		DataLink datalink = (DataLink) getContextualSelection().getSelection();
-		Component component = getContextualSelection().getRelativeToComponent();
-		return new RemoveDatalinkAction(workflow, datalink, component, editManager, dataflowSelectionManager);
+		return new AddDataflowInputAction((Workflow) getContextualSelection()
+				.getSelection(), getContextualSelection()
+				.getRelativeToComponent(), editManager, dataflowSelectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {

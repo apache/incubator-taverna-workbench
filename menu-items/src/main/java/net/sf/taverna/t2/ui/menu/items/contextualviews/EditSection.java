@@ -56,7 +56,6 @@ public class EditSection extends AbstractMenuSection
 
 	@Override
 	public boolean isEnabled() {
-		Object selection = getContextualSelection().getSelection();
 		return super.isEnabled();
 	}
 

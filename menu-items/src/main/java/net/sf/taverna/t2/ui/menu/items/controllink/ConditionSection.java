@@ -18,17 +18,19 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  **********************************************************************/
-package net.sf.taverna.t2.ui.menu.items.condition;
+package net.sf.taverna.t2.ui.menu.items.controllink;
 
 import java.net.URI;
 
 import javax.swing.Action;
 
+import uk.org.taverna.scufl2.api.core.BlockingControlLink;
+import uk.org.taverna.scufl2.api.core.ControlLink;
+
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
 import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
-import net.sf.taverna.t2.workflowmodel.Condition;
 
 public class ConditionSection extends AbstractMenuSection implements
 		ContextualMenuComponent {
@@ -49,7 +51,7 @@ public class ConditionSection extends AbstractMenuSection implements
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof Condition;
+				&& getContextualSelection().getSelection() instanceof BlockingControlLink;
 	}
 
 	public void setContextualSelection(ContextualSelection contextualSelection) {
@@ -59,10 +61,10 @@ public class ConditionSection extends AbstractMenuSection implements
 
 	@Override
 	protected Action createAction() {
-		Condition controllink = (Condition) getContextualSelection()
+		BlockingControlLink controllink = (BlockingControlLink) getContextualSelection()
 				.getSelection();
-		String name = CONTROL_LINK + controllink.getTarget().getLocalName()
-				+ " RUNS_AFTER " + controllink.getControl().getLocalName();
+		String name = CONTROL_LINK + controllink.getBlock().getName()
+				+ " RUNS_AFTER " + controllink.getUntilFinished().getName();
 		return new DummyAction(name);
 	}
 

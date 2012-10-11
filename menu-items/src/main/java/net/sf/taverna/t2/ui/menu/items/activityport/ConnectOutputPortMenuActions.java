@@ -20,8 +20,9 @@
  **********************************************************************/
 package net.sf.taverna.t2.ui.menu.items.activityport;
 
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
+
 
 public class ConnectOutputPortMenuActions extends AbstractConnectPortMenuActions  {
 
@@ -32,8 +33,8 @@ public class ConnectOutputPortMenuActions extends AbstractConnectPortMenuActions
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof ActivityOutputPort
-				&& getContextualSelection().getParent() instanceof Dataflow;
+				&& getContextualSelection().getSelection() instanceof OutputProcessorPort
+				&& getContextualSelection().getParent() instanceof Workflow;
 	}
 
 

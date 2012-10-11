@@ -18,37 +18,41 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  **********************************************************************/
-package net.sf.taverna.t2.ui.menu.items.dataflow;
+package net.sf.taverna.t2.ui.menu.items.datalink;
+
+import java.awt.Component;
 
 import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
-import net.sf.taverna.t2.ui.menu.items.contextualviews.InsertSection;
-import net.sf.taverna.t2.workbench.design.actions.AddDataflowInputAction;
+import net.sf.taverna.t2.workbench.design.actions.RemoveDatalinkAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import uk.org.taverna.scufl2.api.core.DataLink;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
-public class CreateInputMenuAction extends AbstractContextualMenuAction {
+public class RemoveLinkMenuAction extends AbstractContextualMenuAction {
 
 	private EditManager editManager;
 	private DataflowSelectionManager dataflowSelectionManager;
 
-	public CreateInputMenuAction() {
-		super(InsertSection.insertSection, 10);
+	public RemoveLinkMenuAction() {
+		super(LinkSection.linkSection, 10);
 	}
 
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof Workflow;
+				&& getContextualSelection().getSelection() instanceof DataLink
+				&& getContextualSelection().getParent() instanceof Workflow;
 	}
 
 	@Override
 	protected Action createAction() {
-		return new AddDataflowInputAction((Workflow) getContextualSelection()
-				.getSelection(), getContextualSelection()
-				.getRelativeToComponent(), editManager, dataflowSelectionManager);
+		Workflow workflow = (Workflow) getContextualSelection().getParent();
+		DataLink datalink = (DataLink) getContextualSelection().getSelection();
+		Component component = getContextualSelection().getRelativeToComponent();
+		return new RemoveDatalinkAction(workflow, datalink, component, editManager, dataflowSelectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {

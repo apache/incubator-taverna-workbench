@@ -40,7 +40,6 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workflow.edits.AddDataLinkEdit;
 import net.sf.taverna.t2.workflow.edits.AddDataflowInputPortEdit;
 import net.sf.taverna.t2.workflow.edits.AddDataflowOutputPortEdit;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
 

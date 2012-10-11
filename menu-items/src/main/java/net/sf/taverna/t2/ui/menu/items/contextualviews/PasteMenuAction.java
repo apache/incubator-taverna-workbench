@@ -27,19 +27,14 @@ import javax.swing.Action;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.PasteGraphComponentAction;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class PasteMenuAction extends AbstractContextualMenuAction {
 
 	private static final URI PASTE_SERVICE_URI = URI
 	.create("http://taverna.sf.net/2008/t2workbench/paste#pasteServiceComponent");
-
-	private static final String PASTE_SERVICE = "Paste service";
-
-	private String namedComponent = "contextualView";
 
 	private EditManager editManager;
 	private MenuManager menuManager;
@@ -55,7 +50,7 @@ public class PasteMenuAction extends AbstractContextualMenuAction {
 	}
 
 	public boolean isEnabled() {
-		return super.isEnabled() && (getContextualSelection().getSelection() instanceof Dataflow);
+		return super.isEnabled() && (getContextualSelection().getSelection() instanceof Workflow);
 	}
 
 	public void setEditManager(EditManager editManager) {
