@@ -32,7 +32,7 @@
 	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
 	<reference id="applicationConfiguration" interface="uk.org.taverna.configuration.app.ApplicationConfiguration" />
 
-	<list id="perspectives" interface="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI" cardinality="0..N" comparator-ref="PerspectiveComparator">
+	<list id="perspectives" interface="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI" cardinality="0..N" comparator-ref="PerspectiveComparator" greedy-proxying="true">
 		<listener ref="Workbench" bind-method="refreshPerspectives" unbind-method="refreshPerspectives" />
 	</list>
 
