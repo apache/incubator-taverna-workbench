@@ -13,11 +13,6 @@
 	<description>Tools useful for ui-activitys</description>
 	<dependencies>
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>menu-api</artifactId>
 			<version>${t2.ui.api.version}</version>
@@ -28,9 +23,15 @@
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-api</artifactId>
-			<version>${t2.core.version}</version>
+			<groupId>uk.org.taverna.scufl2</groupId>
+			<artifactId>scufl2-api</artifactId>
+			<version>${scufl2.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 </project>
