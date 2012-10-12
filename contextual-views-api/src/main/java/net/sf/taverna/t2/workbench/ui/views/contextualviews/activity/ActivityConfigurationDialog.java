@@ -33,6 +33,7 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
+import net.sf.taverna.t2.workflow.edits.AddConfigurationToProfileEdit;
 import net.sf.taverna.t2.workflow.edits.ConfigureEdit;
 
 import org.apache.log4j.Logger;
@@ -214,10 +215,10 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 
 	public static void configureActivityStatic(WorkflowBundle workflowBundle, Activity activity,
 			Configuration configuration, EditManager editManager) {
-		Edit<Activity> configureActivityEdit = new ConfigureEdit(activity, configuration);
 		try {
 			List<Edit<?>> editList = new ArrayList<Edit<?>>();
-			editList.add(configureActivityEdit);
+			editList.add(new AddConfigurationToProfileEdit(workflowBundle.getMainProfile(), configuration));
+			editList.add(new ConfigureEdit<Activity>(activity, configuration));
 			Processor p = findProcessor(activity);
 			if (p != null) {
 				// TODO how does port binding work for scufl2?
