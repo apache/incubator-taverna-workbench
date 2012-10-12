@@ -14,11 +14,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>common-icons</artifactId>
-			<version>${t2.ui.api.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>edits-api</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
@@ -57,11 +52,11 @@
 			<artifactId>workflow-explorer</artifactId>
 			<version>${t2.ui.components.version}</version>
 		</dependency>
-		<dependency>
+		<!-- <dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>report-view</artifactId>
 			<version>${t2.ui.components.version}</version>
-		</dependency>
+		</dependency> -->
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
 			<artifactId>ui</artifactId>
