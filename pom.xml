@@ -14,7 +14,6 @@
 	<name>Taverna 2 UI extensions</name>
 	<description>Extensions for the Taverna 2 workbench libraries</description>
 	<modules>
-		<module>constant-value</module>
 		<!-- <module>file-translator</module> -->
 		<module>loop-ui</module>
 		<module>parallelize-ui</module>
