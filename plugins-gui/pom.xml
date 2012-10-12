@@ -29,11 +29,6 @@
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>helper-api</artifactId>
 			<version>${t2.ui.api.version}</version>
-		</dependency>		
-		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>common-icons</artifactId>
-			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
