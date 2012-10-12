@@ -16,7 +16,6 @@
 	<modules>
 		<module>activity-palette-api</module>
 		<module>activity-tools</module>
-		<module>common-icons</module>
 		<module>configuration-api</module>
 		<module>contextual-views-api</module>
 		<module>edits-api</module>

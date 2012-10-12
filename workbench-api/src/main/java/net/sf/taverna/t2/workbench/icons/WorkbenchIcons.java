@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -26,15 +26,13 @@ import org.apache.log4j.Logger;
 
 /**
  * A container for common icons used by the workbench
- * 
+ *
  * @author David Withers
  * @author Stian Soiland-Reyes
  */
-@SuppressWarnings("unchecked")
 public class WorkbenchIcons {
 
-	private static Logger logger = Logger
-	.getLogger(WorkbenchIcons.class);
+	private static Logger logger = Logger.getLogger(WorkbenchIcons.class);
 
 	public static ImageIcon resultsPerspectiveIcon;
 	public static ImageIcon closeIcon;
@@ -120,12 +118,12 @@ public class WorkbenchIcons {
 	public static ImageIcon questionMessageIcon;
 	public static ImageIcon warningMessageIcon;
 
-	
+
 	static {
 		// Load the image files found in this package into the class.
 		try {
-			Class c = WorkbenchIcons.class;
-			
+			Class<?> c = WorkbenchIcons.class;
+
 			resultsPerspectiveIcon = new ImageIcon(c.getResource("generic/results-perspective.png"));
 			closeIcon = new ImageIcon(c.getResource("generic/close.gif"));
 			closeAllIcon = new ImageIcon(c.getResource("generic/closeAll.gif"));
@@ -235,7 +233,7 @@ public class WorkbenchIcons {
 			configureIcon = new ImageIcon(c
 					.getResource("generic/configure.png"));
 			plusIcon = new ImageIcon(c
-					.getResource("generic/plus.png"));			
+					.getResource("generic/plus.png"));
 			minusIcon = new ImageIcon(c
 							.getResource("generic/minus.png"));
 			undoIcon = new ImageIcon(c
@@ -257,12 +255,12 @@ public class WorkbenchIcons {
 			workflowResultsIcon = new ImageIcon(c
 					.getResource("generic/workflowResults.png"));
 			normalizeIcon = new ImageIcon(c.getResource("generic/normalize.png"));
-			
+
 			errorMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-error-icon.png"));
 			infoMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-info-icon.png"));
 			questionMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-question-icon.png"));
 			warningMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-warning-icon.png"));
-			
+
 		} catch (Exception ex) {
 			logger.error("Could not create icon", ex);
 		}
