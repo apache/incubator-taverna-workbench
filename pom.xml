@@ -26,6 +26,7 @@
 		<module>workbench-api</module>
 		<module>activity-icons-api</module>
 		<module>report-api</module>
+		<module>selection-api</module>
 	</modules>
 	<scm>
 		<connection>scm:svn:http://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-api/trunk/</connection>
