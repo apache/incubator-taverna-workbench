@@ -20,35 +20,35 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import java.net.URI;
+
+import uk.org.taverna.scufl2.api.property.PropertyObject;
+import uk.org.taverna.scufl2.api.property.PropertyResource;
 
 /**
- * Adds a workflow input port to a workflow.
+ * Adds a Property to a PropertyResource.
  *
  * @author David Withers
  */
-public class AddDataflowInputPortEdit extends AbstractEdit<Workflow> {
+public class AddPropertyEdit extends AbstractEdit<PropertyResource> {
 
-	private InputWorkflowPort dataflowInputPort;
+	private PropertyObject propertyObject;
+	private final URI predicate;
 
-	public AddDataflowInputPortEdit(Workflow dataflow, InputWorkflowPort dataflowInputPort) {
-		super(dataflow);
-		this.dataflowInputPort = dataflowInputPort;
+	public AddPropertyEdit(PropertyResource propertyResource, URI predicate, PropertyObject propertyObject) {
+		super(propertyResource);
+		this.predicate = predicate;
+		this.propertyObject = propertyObject;
 	}
 
 	@Override
-	protected void doEditAction(Workflow dataflow) {
-		dataflowInputPort.setParent(dataflow);
+	protected void doEditAction(PropertyResource propertyResource) {
+		propertyResource.getProperties().get(predicate).add(propertyObject);
 	}
 
 	@Override
-	protected void undoEditAction(Workflow dataflow) {
-		dataflowInputPort.setParent(null);
-	}
-
-	public InputWorkflowPort getDataflowInputPort() {
-		return dataflowInputPort;
+	protected void undoEditAction(PropertyResource propertyResource) {
+		propertyResource.getProperties().get(predicate).remove(propertyObject);
 	}
 
 }

@@ -20,34 +20,28 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import net.sf.taverna.t2.workbench.edits.EditException;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
 
 /**
- * Add a new output port to the specified ProcessorImpl
+ * Add a new output port to the specified Processor
  *
  * @author Tom Oinn
- *
+ * @author David Withers
  */
-public class AddProcessorOutputPortEdit extends AbstractProcessorEdit {
+public class AddProcessorOutputPortEdit extends AddChildEdit<Processor> {
 
 	private final OutputProcessorPort port;
 
 	public AddProcessorOutputPortEdit(Processor processor, OutputProcessorPort port) {
-		super(processor);
+		super(processor, port);
 		this.port = port;
 	}
 
 	@Override
-	protected void doEditAction(Processor processor) throws EditException {
+	protected void doEditAction(Processor processor) {
 		processor.getOutputPorts().addWithUniqueName(port);
-		port.setParent(processor);
-	}
-
-	@Override
-	protected void undoEditAction(Processor processor) {
-		port.setParent(null);
+		super.doEditAction(processor);
 	}
 
 }

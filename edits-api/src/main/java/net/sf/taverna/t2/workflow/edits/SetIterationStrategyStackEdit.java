@@ -23,14 +23,12 @@ package net.sf.taverna.t2.workflow.edits;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
 
-
 /**
  * Set the iteration strategy
  *
  * @author Stian Soiland-Reyes
- *
  */
-public class SetIterationStrategyStackEdit extends AbstractProcessorEdit {
+public class SetIterationStrategyStackEdit extends AbstractEdit<Processor> {
 
 	private final IterationStrategyStack iterationStrategyStack;
 	private IterationStrategyStack oldStrategyStack;
@@ -42,7 +40,7 @@ public class SetIterationStrategyStackEdit extends AbstractProcessorEdit {
 	}
 
 	@Override
-	protected void doEditAction(Processor processor)  {
+	protected void doEditAction(Processor processor) {
 		oldStrategyStack = processor.getIterationStrategyStack();
 		processor.setIterationStrategyStack(iterationStrategyStack);
 	}

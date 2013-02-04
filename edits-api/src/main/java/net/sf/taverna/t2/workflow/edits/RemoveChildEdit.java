@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester
+ * Copyright (C) 2012 The University of Manchester
  *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -20,18 +20,31 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.common.Child;
+import uk.org.taverna.scufl2.api.common.WorkflowBean;
 
 /**
- * Abstraction of an edit acting on a DataLink instance.
+ * Removes a child from a parent.
  *
  * @author David Withers
- *
  */
-public abstract class AbstractDatalinkEdit extends AbstractEdit<DataLink> {
+public class RemoveChildEdit<T extends WorkflowBean> extends AbstractEdit<T> {
 
-	protected AbstractDatalinkEdit(DataLink datalink) {
-		super(datalink);
+	private Child<T> child;
+
+	public RemoveChildEdit(T parent, Child<T> child) {
+		super(parent);
+		this.child = child;
+	}
+
+	@Override
+	protected void doEditAction(T parent) {
+		child.setParent(null);
+	}
+
+	@Override
+	protected void undoEditAction(T parent) {
+		child.setParent(parent);
 	}
 
 }

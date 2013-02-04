@@ -24,36 +24,24 @@ import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
- * An Edit class responsible for add a Processor to the dataflow.
+ * Adds a Processor to a Workflow.
  *
  * @author Stuart Owen
- *
+ * @author David Withers
  */
-public class AddProcessorEdit extends AbstractDataflowEdit {
+public class AddProcessorEdit extends AddChildEdit<Workflow> {
 
 	private Processor processor;
 
-	public Processor getProcessor() {
-		return processor;
+	public AddProcessorEdit(Workflow workflow, Processor processor) {
+		super(workflow, processor);
+		this.processor = processor;
 	}
 
-	public AddProcessorEdit(Workflow dataflow, Processor processor) {
-		super(dataflow);
-		this.processor=processor;
-	}
-
-	/**
-	 * Adds the Processor instance to the Dataflow
-	 *
-	 */
 	@Override
 	protected void doEditAction(Workflow workflow) {
-		workflow.getProcessors().addWithUniqueName(processor);
-		processor.setParent(workflow);
+		getSubject().getProcessors().addWithUniqueName(processor);
+		super.doEditAction(workflow);
 	}
 
-	@Override
-	protected void undoEditAction(Workflow workflow) {
-		processor.setParent(null);
-	}
 }

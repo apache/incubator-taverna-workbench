@@ -27,9 +27,9 @@ import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
  * Edit implementation to remove a DispatchLayer from a DispatchStackImpl
  *
  * @author Tom Oinn
- *
+ * @author David Withers
  */
-public class DeleteDispatchLayerEdit extends AbstractDispatchLayerEdit {
+public class DeleteDispatchLayerEdit extends AbstractEdit<DispatchStack> {
 
 	private DispatchStackLayer dispatchStackLayer;
 

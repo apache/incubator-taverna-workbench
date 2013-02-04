@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester
+ * Copyright (C) 2012 The University of Manchester
  *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -20,31 +20,35 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.port.InputActivityPort;
+import uk.org.taverna.scufl2.api.common.Child;
+import uk.org.taverna.scufl2.api.common.WorkflowBean;
 
 /**
- * Adds an activity input port to an activity.
+ * Adds a child to a parent.
  *
  * @author David Withers
  */
-public class AddActivityInputPortEdit extends AbstractActivityEdit {
+public class AddChildEdit<T extends WorkflowBean> extends AbstractEdit<T> {
 
-	private InputActivityPort activityInputPort;
+	private Child<T> child;
 
-	public AddActivityInputPortEdit(Activity activity, InputActivityPort activityInputPort) {
-		super(activity);
-		this.activityInputPort = activityInputPort;
+	public AddChildEdit(T parent, Child<T> child) {
+		super(parent);
+		this.child = child;
 	}
 
 	@Override
-	protected void doEditAction(Activity activity) {
-		activityInputPort.setParent(activity);
+	protected void doEditAction(T parent) {
+		child.setParent(parent);
 	}
 
 	@Override
-	protected void undoEditAction(Activity activity) {
-		activityInputPort.setParent(null);
+	protected void undoEditAction(T parent) {
+		child.setParent(null);
+	}
+
+	public Child<T> getChild() {
+		return child;
 	}
 
 }

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester
+ * Copyright (C) 2012 The University of Manchester
  *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -20,34 +20,31 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.common.Named;
 
 /**
- * Change the depth of the specified DataflowInputPort.
+ * Renames a Named WorkflowBean.
  *
  * @author David Withers
- *
  */
-public class ChangeDataflowInputPortDepthEdit extends AbstractDataflowInputPortEdit {
+public class RenameEdit<T extends Named> extends AbstractEdit<T> {
 
-	private int newDepth;
+	private String oldName, newName;
 
-	private int oldDepth;
-
-	public ChangeDataflowInputPortDepthEdit(InputWorkflowPort dataflowInputPort, int newDepth) {
-		super(dataflowInputPort);
-		this.newDepth = newDepth;
+	public RenameEdit(T named, String newName) {
+		super(named);
+		this.newName = newName;
+		oldName = named.getName();
 	}
 
 	@Override
-	protected void doEditAction(InputWorkflowPort dataflowInputPort) {
-		oldDepth = dataflowInputPort.getDepth();
-		dataflowInputPort.setDepth(newDepth);
+	protected void doEditAction(T named) {
+		named.setName(newName);
 	}
 
 	@Override
-	protected void undoEditAction(InputWorkflowPort dataflowInputPort) {
-		dataflowInputPort.setDepth(oldDepth);
+	protected void undoEditAction(T named) {
+		named.setName(oldName);
 	}
 
 }

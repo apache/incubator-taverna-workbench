@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester
+ * Copyright (C) 2012 The University of Manchester
  *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -24,30 +24,28 @@ import uk.org.taverna.scufl2.api.activity.Activity;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 
-
 /**
- * Add a new Activity to a Processor, adding the new Activity at the end of the
- * current activity list for that processor.
+ * Creates a ProcessorBinding binding for the Activity and Processor and adds the binding to the
+ * Profile containing the Activity.
  *
- * @author Tom Oinn
- *
+ * @author David Withers
  */
-public class AddActivityEdit extends AbstractProcessorEdit {
+public class AddActivityEdit extends AbstractEdit<Processor> {
 
-	private Activity activityToAdd;
+	private Activity activity;
 	private ProcessorBinding addedProcessorBinding;
 
 	public AddActivityEdit(Processor processor, Activity activity) {
 		super(processor);
-		this.activityToAdd = activity;
+		this.activity = activity;
 	}
 
 	@Override
 	protected void doEditAction(Processor processor) {
 		ProcessorBinding processorBinding = new ProcessorBinding();
 		processorBinding.setBoundProcessor(processor);
-		processorBinding.setBoundActivity(activityToAdd);
-		processorBinding.setParent(activityToAdd.getParent());
+		processorBinding.setBoundActivity(activity);
+		processorBinding.setParent(activity.getParent());
 		addedProcessorBinding = processorBinding;
 	}
 

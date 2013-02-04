@@ -20,8 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import java.util.List;
-
 import uk.org.taverna.scufl2.api.common.Configurable;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 
@@ -33,30 +31,25 @@ import uk.org.taverna.scufl2.api.configurations.Configuration;
  */
 public class ConfigureEdit<ConfigurableType extends Configurable> extends AbstractEdit<ConfigurableType> {
 
-	private Configuration previousConfiguration;
-	private final Configuration configuration;
+	private final Configuration oldConfiguration;
+	private final Configuration newConfiguration;
 
-	public ConfigureEdit(ConfigurableType configurable, Configuration configuration) {
+	public ConfigureEdit(ConfigurableType configurable, Configuration oldConfiguration, Configuration newConfiguration) {
 		super(configurable);
-		this.configuration = configuration;
+		this.oldConfiguration = oldConfiguration;
+		this.newConfiguration = newConfiguration;
 	}
 
 	@Override
 	protected void doEditAction(ConfigurableType configurable) {
-		List<Configuration> configurations = scufl2Tools.configurationsFor(configurable, configuration.getParent());
-		if (configurations.size() == 1) {
-			previousConfiguration = configurations.get(0);
-			previousConfiguration.setConfigures(null);
-		}
-		configuration.setConfigures(configurable);
+		oldConfiguration.setConfigures(null);
+		newConfiguration.setConfigures(configurable);
 	}
 
 	@Override
 	protected void undoEditAction(ConfigurableType configurable) {
-		configuration.setConfigures(null);
-		if (previousConfiguration != null) {
-			previousConfiguration.setConfigures(configurable);
-		}
+		oldConfiguration.setConfigures(configurable);
+		newConfiguration.setConfigures(null);
 	}
 
 }

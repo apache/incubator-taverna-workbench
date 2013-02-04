@@ -29,7 +29,7 @@ import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 import uk.org.taverna.scufl2.api.profiles.ProcessorInputPortBinding;
 
-public class AddActivityInputPortMappingEdit extends AbstractActivityEdit {
+public class AddActivityInputPortMappingEdit extends AbstractEdit<Activity> {
 
 	private final InputProcessorPort inputProcessorPort;
 	private final InputActivityPort inputActivityPort;

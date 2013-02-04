@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester
+ * Copyright (C) 2012 The University of Manchester
  *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -20,31 +20,31 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.port.OutputActivityPort;
+import uk.org.taverna.scufl2.api.port.DepthPort;
 
 /**
- * Removes an output port from an activity.
+ * Changes the depth of a port.
  *
  * @author David Withers
  */
-public class RemoveActivityOutputPortEdit extends AbstractActivityEdit {
+public class ChangeDepthEdit<T extends DepthPort> extends AbstractEdit<T> {
 
-	private OutputActivityPort outputActivityPort;
+	private int newDepth, oldDepth;
 
-	public RemoveActivityOutputPortEdit(Activity activity, OutputActivityPort outputActivityPort) {
-		super(activity);
-		this.outputActivityPort = outputActivityPort;
+	public ChangeDepthEdit(T depthPort, int newDepth) {
+		super(depthPort);
+		this.newDepth = newDepth;
+		oldDepth = depthPort.getDepth();
 	}
 
 	@Override
-	protected void doEditAction(Activity activity) {
-		outputActivityPort.setParent(null);
+	protected void doEditAction(T depthPort) {
+		depthPort.setDepth(newDepth);
 	}
 
 	@Override
-	protected void undoEditAction(Activity activity) {
-		outputActivityPort.setParent(activity);
+	protected void undoEditAction(T depthPort) {
+		depthPort.setDepth(oldDepth);
 	}
 
 }

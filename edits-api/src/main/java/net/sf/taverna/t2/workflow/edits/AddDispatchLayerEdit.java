@@ -27,9 +27,8 @@ import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
  * Edit to add a new DispatchStackLayer to a DispatchStack
  *
  * @author David Withers
- *
  */
-public class AddDispatchLayerEdit extends AbstractDispatchLayerEdit {
+public class AddDispatchLayerEdit extends AbstractEdit<DispatchStack> {
 
 	private DispatchStackLayer dispatchStackLayer;
 

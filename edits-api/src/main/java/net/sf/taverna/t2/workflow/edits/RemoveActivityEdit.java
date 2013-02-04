@@ -30,9 +30,8 @@ import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
  * Remove an Activity from a Processor.
  *
  * @author alanrw
- *
  */
-public class RemoveActivityEdit extends AbstractProcessorEdit {
+public class RemoveActivityEdit extends AbstractEdit<Processor> {
 
 	private Activity activityToRemove;
 	private ProcessorBinding removedProcessorBinding;

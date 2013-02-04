@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester
+ * Copyright (C) 2012 The University of Manchester
  *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -20,26 +20,32 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.core.ControlLink;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.property.PropertyResource;
 
-public class AddControlLinkEdit extends AbstractDataflowEdit {
+/**
+ * Changes the property resource of a configuration.
+ *
+ * @author David Withers
+ */
+public class ChangePropertyResourceEdit extends AbstractEdit<Configuration> {
 
-	private ControlLink controlLink;
+	private PropertyResource oldPropertyResource, newPropertyResource;
 
-	public AddControlLinkEdit(Workflow workflow, ControlLink controlLink) {
-		super(workflow);
-		this.controlLink = controlLink;
+	public ChangePropertyResourceEdit(Configuration configuration, PropertyResource newPropertyResource) {
+		super(configuration);
+		this.newPropertyResource = newPropertyResource;
+		oldPropertyResource = configuration.getPropertyResource();
 	}
 
 	@Override
-	protected void doEditAction(Workflow workflow) {
-		controlLink.setParent(workflow);
+	protected void doEditAction(Configuration configuration) {
+		configuration.setPropertyResource(newPropertyResource);
 	}
 
 	@Override
-	protected void undoEditAction(Workflow workflow) {
-		controlLink.setParent(null);
+	protected void undoEditAction(Configuration configuration) {
+		configuration.setPropertyResource(oldPropertyResource);
 	}
 
 }

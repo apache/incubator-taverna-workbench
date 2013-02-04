@@ -35,9 +35,8 @@ import uk.org.taverna.scufl2.api.port.InputProcessorPort;
  * iteration strategy or strategies to ensure the new port is bound into them.
  *
  * @author Tom Oinn
- *
  */
-public class AddProcessorInputPortEdit extends AbstractProcessorEdit {
+public class AddProcessorInputPortEdit extends AbstractEdit<Processor> {
 
 	private final InputProcessorPort port;
 	private PortNode portNode;

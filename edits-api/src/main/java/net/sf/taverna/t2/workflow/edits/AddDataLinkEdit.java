@@ -27,12 +27,13 @@ import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.ReceiverPort;
 
 /**
- * Add a DataLink to a Workflow.
+ * Adds a DataLink to a Workflow.
+ * <p>
+ * Handles setting the merge position of all dataLinks with the same receiver port.
  *
  * @author David Withers
- *
  */
-public class AddDataLinkEdit extends AbstractDataflowEdit {
+public class AddDataLinkEdit extends AbstractEdit<Workflow> {
 
 	private DataLink dataLink;
 
@@ -46,6 +47,9 @@ public class AddDataLinkEdit extends AbstractDataflowEdit {
 		ReceiverPort sink = dataLink.getSendsTo();
 		List<DataLink> datalinksTo = scufl2Tools.datalinksTo(sink);
 		if (datalinksTo.size() > 0) {
+			if (datalinksTo.size() == 1) {
+				datalinksTo.get(0).setMergePosition(0);
+			}
 			dataLink.setMergePosition(scufl2Tools.datalinksTo(sink).size());
 		} else {
 			dataLink.setMergePosition(null);
@@ -56,6 +60,11 @@ public class AddDataLinkEdit extends AbstractDataflowEdit {
 	@Override
 	protected void undoEditAction(Workflow workflow) {
 		dataLink.setParent(null);
+		ReceiverPort sink = dataLink.getSendsTo();
+		List<DataLink> datalinksTo = scufl2Tools.datalinksTo(sink);
+		if (datalinksTo.size() == 1) {
+			datalinksTo.get(0).setMergePosition(null);
+		}
 	}
 
 }

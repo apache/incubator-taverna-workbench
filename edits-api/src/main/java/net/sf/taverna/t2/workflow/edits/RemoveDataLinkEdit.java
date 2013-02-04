@@ -28,11 +28,12 @@ import uk.org.taverna.scufl2.api.port.ReceiverPort;
 
 /**
  * Remove a DataLink from a Workflow.
+ * <p>
+ * Handles setting the merge position of all dataLinks with the same receiver port.
  *
  * @author David Withers
- *
  */
-public class RemoveDataLinkEdit extends AbstractDataflowEdit {
+public class RemoveDataLinkEdit extends AbstractEdit<Workflow> {
 
 	private final DataLink dataLink;
 
@@ -42,7 +43,7 @@ public class RemoveDataLinkEdit extends AbstractDataflowEdit {
 	}
 
 	@Override
-	protected void doEditAction(Workflow workflow)  {
+	protected void doEditAction(Workflow workflow) {
 		dataLink.setParent(null);
 		ReceiverPort sink = dataLink.getSendsTo();
 		List<DataLink> datalinksTo = scufl2Tools.datalinksTo(sink);

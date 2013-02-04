@@ -25,7 +25,7 @@ import uk.org.taverna.scufl2.api.port.OutputActivityPort;
 import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 import uk.org.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
 
-public class RemoveActivityOutputPortMappingEdit extends AbstractActivityEdit {
+public class RemoveActivityOutputPortMappingEdit extends AbstractEdit<Activity> {
 
 	private final OutputActivityPort outputActivityPort;
 	private ProcessorOutputPortBinding removedPortBinding;
