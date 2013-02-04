@@ -38,8 +38,6 @@ public interface WorkbenchPerspectives {
 	 */
 	public void setWorkflowPerspective();
 
-	public void switchPerspective(PerspectiveSPI perspective);
-
 	public List<PerspectiveSPI> getPerspectives();
 
 	public void setPerspectives(List<PerspectiveSPI> perspectives);
