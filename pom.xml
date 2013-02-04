@@ -30,6 +30,7 @@
 		<!-- <module>update-manager</module> -->
 		<module>workbench-impl</module>
 		<!-- <module>report-impl</module> -->
+		<module>selection-impl</module>
 	</modules>
 	<repositories>
 		<repository>
