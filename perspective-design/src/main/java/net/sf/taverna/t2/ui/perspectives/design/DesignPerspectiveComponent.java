@@ -22,9 +22,12 @@ package net.sf.taverna.t2.ui.perspectives.design;
 
 import java.awt.Component;
 
+import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
+import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 
 /**
@@ -41,17 +44,24 @@ public class DesignPerspectiveComponent extends JSplitPane {
 	private final UIComponentFactorySPI contextualViewComponentFactory;
 	private final UIComponentFactorySPI workflowExplorerFactory;
 	private final UIComponentFactorySPI reportViewComponentFactory;
+	private final SelectionManager selectionManager;
+
+	private FileManager fileManager;
+
 
 	public DesignPerspectiveComponent(UIComponentFactorySPI graphViewComponentFactory,
 			UIComponentFactorySPI servicePanelComponentFactory,
 			UIComponentFactorySPI contextualViewComponentFactory,
 			UIComponentFactorySPI workflowExplorerFactory,
-			UIComponentFactorySPI reportViewComponentFactory) {
+			UIComponentFactorySPI reportViewComponentFactory, FileManager fileManager,
+			SelectionManager selectionManager) {
 		this.graphViewComponentFactory = graphViewComponentFactory;
 		this.servicePanelComponentFactory = servicePanelComponentFactory;
 		this.contextualViewComponentFactory = contextualViewComponentFactory;
 		this.workflowExplorerFactory = workflowExplorerFactory;
 		this.reportViewComponentFactory = reportViewComponentFactory;
+		this.fileManager = fileManager;
+		this.selectionManager = selectionManager;
 
 		setOrientation(JSplitPane.HORIZONTAL_SPLIT);
 		setDividerLocation(0.49949545913218973);
@@ -82,7 +92,7 @@ public class DesignPerspectiveComponent extends JSplitPane {
 	 * @return
 	 */
 	private Component createRightComponent() {
-		return (Component) graphViewComponentFactory.getComponent();
+		return new WorkflowSelectorComponent((Component) graphViewComponentFactory.getComponent(), selectionManager, fileManager);
 	}
 
 }

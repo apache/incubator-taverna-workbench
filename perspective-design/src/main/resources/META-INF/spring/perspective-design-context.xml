@@ -9,6 +9,8 @@
 			<property name="contextualViewComponentFactory" ref="contextualViewComponentFactory" />
 			<property name="workflowExplorerFactory" ref="workflowExplorerFactory" />
 			<!-- <property name="reportViewComponentFactory" ref="reportViewComponentFactory" /> -->
+			<property name="fileManager" ref="fileManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 
 </beans>

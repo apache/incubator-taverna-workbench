@@ -22,9 +22,10 @@ package net.sf.taverna.t2.ui.perspectives.design;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 
+import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
@@ -38,6 +39,8 @@ public class DesignPerspective implements PerspectiveSPI, WorkflowPerspective {
 	private UIComponentFactorySPI contextualViewComponentFactory;
 	private UIComponentFactorySPI workflowExplorerFactory;
 	private UIComponentFactorySPI reportViewComponentFactory;
+	private FileManager fileManager;
+	private SelectionManager selectionManager;
 
 	@Override
 	public String getID() {
@@ -49,7 +52,8 @@ public class DesignPerspective implements PerspectiveSPI, WorkflowPerspective {
 		if (designPerspectiveComponent == null) {
 			designPerspectiveComponent = new DesignPerspectiveComponent(
 					graphViewComponentFactory, servicePanelComponentFactory,
-					contextualViewComponentFactory, workflowExplorerFactory, reportViewComponentFactory);
+					contextualViewComponentFactory, workflowExplorerFactory,
+					reportViewComponentFactory, fileManager, selectionManager);
 		}
 		return designPerspectiveComponent;
 	}
@@ -87,6 +91,14 @@ public class DesignPerspective implements PerspectiveSPI, WorkflowPerspective {
 
 	public void setReportViewComponentFactory(UIComponentFactorySPI reportViewComponentFactory) {
 		this.reportViewComponentFactory = reportViewComponentFactory;
+	}
+
+	public void setFileManager(FileManager fileManager) {
+		this.fileManager = fileManager;
+	}
+
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }
