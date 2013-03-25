@@ -37,9 +37,8 @@ import net.sf.taverna.t2.workbench.edits.CompoundEdit;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workflow.edits.AddChildEdit;
 import net.sf.taverna.t2.workflow.edits.AddDataLinkEdit;
-import net.sf.taverna.t2.workflow.edits.AddDataflowInputPortEdit;
-import net.sf.taverna.t2.workflow.edits.AddDataflowOutputPortEdit;
 
 import org.apache.log4j.Logger;
 
@@ -173,7 +172,7 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 			inputWorkflowPort.setName(inputPanel.getPortName());
 			inputWorkflowPort.setDepth(inputPanel.getPortDepth());
 			List<Edit<?>> editList = new ArrayList<Edit<?>>();
-			editList.add(new AddDataflowInputPortEdit(workflow, inputWorkflowPort));
+			editList.add(new AddChildEdit<Workflow>(workflow, inputWorkflowPort));
 			DataLink dataLink = new DataLink();
 			dataLink.setReceivesFrom(inputWorkflowPort);
 			dataLink.setSendsTo((ReceiverPort) port);
@@ -208,7 +207,7 @@ public class CreateAndConnectDataflowPortAction extends AbstractAction {
 			OutputWorkflowPort outputWorkflowPort = new OutputWorkflowPort();
 			outputWorkflowPort.setName(outputPanel.getPortName());
 			List<Edit<?>> editList = new ArrayList<Edit<?>>();
-			editList.add(new AddDataflowOutputPortEdit(workflow, outputWorkflowPort));
+			editList.add(new AddChildEdit<Workflow>(workflow, outputWorkflowPort));
 			DataLink dataLink = new DataLink();
 			dataLink.setReceivesFrom((SenderPort) port);
 			dataLink.setSendsTo(outputWorkflowPort);

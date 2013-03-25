@@ -27,7 +27,7 @@ import javax.swing.Action;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveDataflowOutputPortAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 
@@ -35,7 +35,7 @@ public class RemoveDataflowOutputPortMenuAction extends
 		AbstractContextualMenuAction {
 
 	private EditManager editManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	public RemoveDataflowOutputPortMenuAction() {
 		super(WorkflowOutputPortSection.outputPort, 10);
@@ -54,15 +54,15 @@ public class RemoveDataflowOutputPortMenuAction extends
 		OutputWorkflowPort outport = (OutputWorkflowPort) getContextualSelection()
 				.getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();
-		return new RemoveDataflowOutputPortAction(workflow, outport, component, editManager, dataflowSelectionManager);
+		return new RemoveDataflowOutputPortAction(workflow, outport, component, editManager, selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

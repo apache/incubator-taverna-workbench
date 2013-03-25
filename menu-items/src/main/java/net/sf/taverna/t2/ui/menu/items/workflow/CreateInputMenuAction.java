@@ -26,13 +26,13 @@ import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.ui.menu.items.contextualviews.InsertSection;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowInputAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class CreateInputMenuAction extends AbstractContextualMenuAction {
 
 	private EditManager editManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	public CreateInputMenuAction() {
 		super(InsertSection.insertSection, 10);
@@ -48,15 +48,15 @@ public class CreateInputMenuAction extends AbstractContextualMenuAction {
 	protected Action createAction() {
 		return new AddDataflowInputAction((Workflow) getContextualSelection()
 				.getSelection(), getContextualSelection()
-				.getRelativeToComponent(), editManager, dataflowSelectionManager);
+				.getRelativeToComponent(), editManager, selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

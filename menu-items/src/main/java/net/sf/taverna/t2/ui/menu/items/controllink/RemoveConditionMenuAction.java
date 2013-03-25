@@ -27,14 +27,14 @@ import javax.swing.Action;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveConditionAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.core.ControlLink;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class RemoveConditionMenuAction extends AbstractContextualMenuAction {
 
 	private EditManager editManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	public RemoveConditionMenuAction() {
 		super(ConditionSection.conditionSection, 10);
@@ -53,15 +53,15 @@ public class RemoveConditionMenuAction extends AbstractContextualMenuAction {
 		ControlLink controlLink = (ControlLink) getContextualSelection()
 				.getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();
-		return new RemoveConditionAction(dataflow, controlLink, component, editManager, dataflowSelectionManager);
+		return new RemoveConditionAction(dataflow, controlLink, component, editManager, selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

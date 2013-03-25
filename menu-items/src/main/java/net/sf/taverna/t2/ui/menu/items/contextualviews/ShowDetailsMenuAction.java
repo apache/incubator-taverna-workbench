@@ -25,12 +25,11 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.net.URI;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
 import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 
@@ -54,13 +53,12 @@ public class ShowDetailsMenuAction extends AbstractMenuAction {
 		// && getContextualSelection().getSelection() instanceof Processor;
 	}
 
-	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
 		return new ShowDetailsAction();
 	}
 
-	protected class ShowDetailsAction extends DesignOnlyAction {
+	protected class ShowDetailsAction extends AbstractAction implements DesignOnlyAction {
 
 		ShowDetailsAction() {
 			super();

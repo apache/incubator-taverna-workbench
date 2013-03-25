@@ -11,7 +11,7 @@
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
 	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" />
-	<reference id="dataflowSelectionManager" interface="net.sf.taverna.t2.workbench.ui.DataflowSelectionManager" />
+	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
 	<reference id="activityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
 
 	<list id="configurationUIFactories" interface="uk.org.taverna.configuration.ConfigurationUIFactory" cardinality="0..N" />

@@ -35,7 +35,7 @@ import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workflow.edits.AddActivityEdit;
 import net.sf.taverna.t2.workflow.edits.AddActivityOutputPortMappingEdit;
 import net.sf.taverna.t2.workflow.edits.AddDataLinkEdit;
@@ -68,8 +68,8 @@ public class AddInputPortDefaultValueAction extends DataflowEditAction {
 
 	private InputProcessorPort inputPort;
 
-	public AddInputPortDefaultValueAction(Workflow workflow, InputProcessorPort inputPort, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
-		super(workflow, component, editManager, dataflowSelectionManager);
+	public AddInputPortDefaultValueAction(Workflow workflow, InputProcessorPort inputPort, Component component, EditManager editManager, SelectionManager selectionManager) {
+		super(workflow, component, editManager, selectionManager);
 		this.inputPort = inputPort;
 		putValue(SMALL_ICON, WorkbenchIcons.inputValueIcon);
 		putValue(NAME, "Set constant value");
@@ -83,10 +83,9 @@ public class AddInputPortDefaultValueAction extends DataflowEditAction {
 			Activity strConstActivity = new Activity();
 			strConstActivity.setConfigurableType(STRING_CONSTANT);
 			Configuration strConstConfBean = new Configuration();
-			strConstConfBean.setConfigurableType(STRING_CONSTANT.resolve("#Config"));
-			strConstConfBean.setConfigures(strConstActivity);
+			strConstConfBean.setType(STRING_CONSTANT.resolve("#Config"));
 			strConstConfBean.getPropertyResource().addPropertyAsString(STRING_CONSTANT.resolve("#string"), defaultValue);
-			StringConstantConfigView configView = new StringConstantConfigView(strConstActivity, strConstConfBean);
+			StringConstantConfigView configView = new StringConstantConfigView(strConstActivity, null);
 
 			int answer = JOptionPane.showConfirmDialog(component, configView, "Text constant value", JOptionPane.OK_CANCEL_OPTION);
 			if (answer != JOptionPane.CANCEL_OPTION) {
@@ -98,7 +97,7 @@ public class AddInputPortDefaultValueAction extends DataflowEditAction {
 				List<Edit<?>> editList = new ArrayList<Edit<?>>();
 
 				// Create new string constant activity with the given default value
-				editList.add(new ConfigureEdit(strConstActivity, strConstConfBean));
+				editList.add(new ConfigureEdit<Activity>(strConstActivity, null, strConstConfBean));
 
 				OutputActivityPort outputActivityPort = new OutputActivityPort(strConstActivity, "value");
 				outputActivityPort.setDepth(0);

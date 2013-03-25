@@ -24,17 +24,14 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.InputActivityPort;
 
-public class SetConstantInputPortValueMenuAction extends
-		AbstractContextualMenuAction {
+public class SetConstantInputPortValueMenuAction extends AbstractContextualMenuAction {
 
 	private EditManager editManager;
-	private FileManager fileManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	public SetConstantInputPortValueMenuAction() {
 		super(ActivityInputPortSection.activityInputPortSection, 10);
@@ -42,10 +39,8 @@ public class SetConstantInputPortValueMenuAction extends
 
 	@Override
 	public synchronized Action getAction() {
-		Workflow dataflow = (Workflow) getContextualSelection().getParent();
-		SetDefaultInputPortValueAction action = (SetDefaultInputPortValueAction) super
-				.getAction();
-		action.updateStatus(dataflow.getParent());
+		SetDefaultInputPortValueAction action = (SetDefaultInputPortValueAction) super.getAction();
+		action.updateStatus();
 		return action;
 	}
 
@@ -58,19 +53,15 @@ public class SetConstantInputPortValueMenuAction extends
 
 	@Override
 	protected Action createAction() {
-		return new SetDefaultInputPortValueAction(editManager, fileManager, dataflowSelectionManager);
+		return new SetDefaultInputPortValueAction(editManager, selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

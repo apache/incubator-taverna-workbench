@@ -27,14 +27,14 @@ import javax.swing.Action;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveDatalinkAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.core.DataLink;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class RemoveLinkMenuAction extends AbstractContextualMenuAction {
 
 	private EditManager editManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	public RemoveLinkMenuAction() {
 		super(LinkSection.linkSection, 10);
@@ -52,15 +52,15 @@ public class RemoveLinkMenuAction extends AbstractContextualMenuAction {
 		Workflow workflow = (Workflow) getContextualSelection().getParent();
 		DataLink datalink = (DataLink) getContextualSelection().getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();
-		return new RemoveDatalinkAction(workflow, datalink, component, editManager, dataflowSelectionManager);
+		return new RemoveDatalinkAction(workflow, datalink, component, editManager, selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

@@ -38,8 +38,8 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.impl.EditManagerImpl;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.FileManagerImpl;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManagerImpl;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workbench.ui.impl.SelectionManagerImpl;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.impl.ContextualViewComponent;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.impl.ContextualViewFactoryRegistryImpl;
@@ -54,7 +54,7 @@ import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
  * A standalone application to show contextual views
  * <p>
  * The application shows a JFrame containing a contextual view, together with
- * buttons which will select items in the {@link DataflowSelectionManager} for a
+ * buttons which will select items in the {@link SelectionManager} for a
  * (rather) empty current dataflow.
  *
  * @author Stian Soiland-Reyes.
@@ -66,10 +66,10 @@ public class ShowContextualView {
 		EditManager editManager = new EditManagerImpl(new EditsImpl());
 		FileManager fileManager = new FileManagerImpl(editManager);
 		ContextualViewFactoryRegistry contextualViewFactoryRegistry = new ContextualViewFactoryRegistryImpl();
-		new ShowContextualView(editManager, fileManager, new DataflowSelectionManagerImpl(fileManager), contextualViewFactoryRegistry).showFrame();
+		new ShowContextualView(editManager, fileManager, new SelectionManagerImpl(fileManager), contextualViewFactoryRegistry).showFrame();
 	}
 
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 	private FileManager fileManager;
 	private EditManager editManager;
 	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
@@ -80,10 +80,10 @@ public class ShowContextualView {
 
 	private Dataflow currentDataflow;
 
-	public ShowContextualView(EditManager editManager, FileManager fileManager, final DataflowSelectionManager dataflowSelectionManager, ContextualViewFactoryRegistry contextualViewFactoryRegistry) throws EditException {
+	public ShowContextualView(EditManager editManager, FileManager fileManager, final SelectionManager selectionManager, ContextualViewFactoryRegistry contextualViewFactoryRegistry) throws EditException {
 		this.editManager = editManager;
 		this.fileManager = fileManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.selectionManager = selectionManager;
 		this.contextualViewFactoryRegistry = contextualViewFactoryRegistry;
 		currentDataflow = fileManager.newDataflow();
 		makeProcessor();
@@ -117,7 +117,7 @@ public class ShowContextualView {
 		for (final Object selection : getSelections()) {
 			buttons.add(new JButton(new AbstractAction("" + selection) {
 				public void actionPerformed(ActionEvent e) {
-					dataflowSelectionManager.getDataflowSelectionModel(
+					selectionManager.getDataflowSelectionModel(
 							currentDataflow).setSelection(
 							Collections.<Object> singleton(selection));
 				}
@@ -128,7 +128,7 @@ public class ShowContextualView {
 
 	protected void showFrame() {
 		JFrame frame = new JFrame(getClass().getName());
-		ContextualViewComponent contextualViewComponent = new ContextualViewComponent(editManager, fileManager, dataflowSelectionManager, contextualViewFactoryRegistry);
+		ContextualViewComponent contextualViewComponent = new ContextualViewComponent(editManager, fileManager, selectionManager, contextualViewFactoryRegistry);
 		frame.add(contextualViewComponent, BorderLayout.CENTER);
 
 		frame.add(makeSelectionButtons(), BorderLayout.NORTH);

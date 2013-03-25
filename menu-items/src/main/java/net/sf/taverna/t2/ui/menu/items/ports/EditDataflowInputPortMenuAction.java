@@ -27,7 +27,7 @@ import javax.swing.Action;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.design.actions.EditDataflowInputPortAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
 
@@ -35,7 +35,7 @@ public class EditDataflowInputPortMenuAction extends
 		AbstractContextualMenuAction {
 
 	private EditManager editManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	public EditDataflowInputPortMenuAction() {
 		super(WorkflowInputPortSection.inputPort, 10);
@@ -54,15 +54,15 @@ public class EditDataflowInputPortMenuAction extends
 		InputWorkflowPort inport = (InputWorkflowPort) getContextualSelection()
 				.getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();
-		return new EditDataflowInputPortAction(workflow, inport, component, editManager, dataflowSelectionManager);
+		return new EditDataflowInputPortAction(workflow, inport, component, editManager, selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

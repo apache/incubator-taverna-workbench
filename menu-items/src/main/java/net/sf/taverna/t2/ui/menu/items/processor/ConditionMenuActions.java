@@ -36,7 +36,7 @@ import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.design.actions.AddConditionAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
@@ -46,7 +46,7 @@ public class ConditionMenuActions extends AbstractMenuCustom implements
 
 	private ContextualSelection contextualSelection;
 	private EditManager editManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 	private ActivityIconManager activityIconManager;
 	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
@@ -98,7 +98,7 @@ public class ConditionMenuActions extends AbstractMenuCustom implements
 		List<AddConditionAction> actions = new ArrayList<AddConditionAction>();
 		for (Processor processor : scufl2Tools.possibleUpStreamProcessors(workflow, targetProcessor)) {
 			actions.add(new AddConditionAction(workflow, processor,
-					targetProcessor, component, editManager, dataflowSelectionManager, activityIconManager));
+					targetProcessor, component, editManager, selectionManager, activityIconManager));
 		}
 		return actions;
 	}
@@ -107,8 +107,8 @@ public class ConditionMenuActions extends AbstractMenuCustom implements
 		this.editManager = editManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 	public void setActivityIconManager(ActivityIconManager activityIconManager) {

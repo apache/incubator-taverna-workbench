@@ -61,7 +61,7 @@ import net.sf.taverna.t2.workbench.report.UnresolvedOutputKind;
 import net.sf.taverna.t2.workbench.report.UnsatisfiedEntityKind;
 import net.sf.taverna.t2.workbench.report.view.ReportViewConfigureAction;
 import net.sf.taverna.t2.workbench.retry.RetryConfigureAction;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.ui.T2ConfigurationFrame;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -101,7 +101,7 @@ public class BasicExplainer implements VisitExplainer {
 
 	private ReportManager reportManager;
 
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	private List<ConfigurationUIFactory> configurationUIFactories;
 
@@ -818,7 +818,7 @@ public class BasicExplainer implements VisitExplainer {
 		String message = "Add a service from the service panel to the workflow, or";
 		JButton button = new JButton();
 		button.setAction(new AddDataflowOutputAction(
-				(Dataflow) vr.getSubject(), null, editManager, dataflowSelectionManager));
+				(Dataflow) vr.getSubject(), null, editManager, selectionManager));
 		button.setText("Add an output port");
 		return createPanel(new Object[] { message, button });
 	}
@@ -1279,8 +1279,8 @@ public class BasicExplainer implements VisitExplainer {
 		this.reportManager = reportManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 	public void setConfigurationUIFactories(List<ConfigurationUIFactory> configurationUIFactories) {

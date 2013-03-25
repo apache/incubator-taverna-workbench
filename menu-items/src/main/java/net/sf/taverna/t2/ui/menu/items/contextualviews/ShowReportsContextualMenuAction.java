@@ -28,13 +28,12 @@ import javax.swing.Icon;
 
 import net.sf.taverna.t2.lang.ui.icons.Icons;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.common.WorkflowBean;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.validation.Status;
@@ -43,9 +42,9 @@ public class ShowReportsContextualMenuAction extends AbstractContextualMenuActio
 
 	private static final String SHOW_REPORTS = "Show validation report";
 	private String namedComponent = "reportView";
-	private FileManager fileManager;
 	private ReportManager reportManager;
 	private Workbench workbench;
+	private SelectionManager selectionManager;
 
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ShowReportsContextualMenuAction.class);
@@ -68,11 +67,11 @@ public class ShowReportsContextualMenuAction extends AbstractContextualMenuActio
 		if (getContextualSelection().getParent() instanceof Workflow) {
 			parent = ((Workflow)getContextualSelection().getParent()).getParent();
 		} else {
-			parent = fileManager.getCurrentDataflow();
+			parent = selectionManager.getSelectedWorkflowBundle();
 		}
 		Status status = Status.OK;
 		if (reportManager != null) {
-			status = reportManager.getStatus(parent.getMainProfile(), (WorkflowBean) getContextualSelection().getSelection());
+//			status = reportManager.getStatus(parent.getMainProfile(), (WorkflowBean) getContextualSelection().getSelection());
 		}
 
 		Icon icon = null;
@@ -90,8 +89,8 @@ public class ShowReportsContextualMenuAction extends AbstractContextualMenuActio
 		};
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 	public void setReportManager(ReportManager reportManager) {

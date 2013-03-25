@@ -29,6 +29,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 import javax.swing.text.JTextComponent;
@@ -39,9 +40,8 @@ import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.design.actions.EditDataflowInputPortAction;
 import net.sf.taverna.t2.workbench.design.actions.EditDataflowOutputPortAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.merge.MergeConfigurationView;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 
@@ -70,9 +70,7 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 
 	private EditManager editManager;
 
-	private FileManager fileManager;
-
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	private MenuManager menuManager;
 
@@ -82,13 +80,12 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 		super(GRAPH_DETAILS_MENU_SECTION, 20, SHOW_CONFIGURE_URI);
 	}
 
-	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
 		return new ShowConfigureAction();
 	}
 
-	protected class ShowConfigureAction extends DesignOnlyAction {
+	protected class ShowConfigureAction extends AbstractAction implements DesignOnlyAction {
 
 		ShowConfigureAction() {
 		super();
@@ -107,8 +104,8 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 						if (e.getNewValue() instanceof JTextComponent) {
 									ShowConfigureAction.this.setEnabled(false);
 						} else {
-									ShowConfigureAction.this
-											.setEnabled(inWorkflow);
+//									ShowConfigureAction.this
+//											.setEnabled(inWorkflow);
 								}
 							}
 						}
@@ -117,8 +114,8 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 
 		}
 		public void actionPerformed(ActionEvent e) {
-			WorkflowBundle workflowBundle = fileManager.getCurrentDataflow();
-			DataflowSelectionModel dataFlowSelectionModel = dataflowSelectionManager.getDataflowSelectionModel(workflowBundle);
+			WorkflowBundle workflowBundle = selectionManager.getSelectedWorkflowBundle();
+			DataflowSelectionModel dataFlowSelectionModel = selectionManager.getDataflowSelectionModel(workflowBundle);
 			// Get selected port
 			Set<Object> selectedWFComponents = dataFlowSelectionModel
 					.getSelection();
@@ -133,18 +130,18 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 					DataLink dataLink = (DataLink) component;
 					if (dataLink.getMergePosition() != null) {
 						List<DataLink> datalinks = scufl2Tools.datalinksTo(dataLink.getSendsTo());
-						MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(datalinks, editManager, fileManager);
+						MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(datalinks, editManager, selectionManager);
 						mergeConfigurationView.setLocationRelativeTo(null);
 						mergeConfigurationView.setVisible(true);
 					}
 				} else if (component instanceof InputWorkflowPort) {
 					InputWorkflowPort port = (InputWorkflowPort) component;
 					new EditDataflowInputPortAction(port.getParent(),
-							port, null, editManager, dataflowSelectionManager)
+							port, null, editManager, selectionManager)
 							.actionPerformed(e);
 				} else if (component instanceof OutputWorkflowPort) {
 					OutputWorkflowPort port = (OutputWorkflowPort) component;
-					new EditDataflowOutputPortAction(port.getParent(), port, null, editManager, dataflowSelectionManager).actionPerformed(e);
+					new EditDataflowOutputPortAction(port.getParent(), port, null, editManager, selectionManager).actionPerformed(e);
 				}
 			}
 		}
@@ -154,16 +151,12 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 		this.editManager = editManager;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
 	public void setMenuManager(MenuManager menuManager) {
 		this.menuManager = menuManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

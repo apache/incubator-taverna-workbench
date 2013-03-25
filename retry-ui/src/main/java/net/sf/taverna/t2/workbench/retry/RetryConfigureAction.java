@@ -14,14 +14,16 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Retry;
+import net.sf.taverna.t2.workflow.edits.ConfigureEdit;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
 
 /**
  * @author alanrw
@@ -30,7 +32,7 @@ import org.apache.log4j.Logger;
 public class RetryConfigureAction extends AbstractAction {
 
 	private Frame owner;
-	private final Retry retryLayer;
+	private final DispatchStackLayer retryLayer;
 	private final RetryContextualView retryContextualView;
 
 	private EditManager editManager;
@@ -39,7 +41,7 @@ public class RetryConfigureAction extends AbstractAction {
 	private static Logger logger = Logger.getLogger(RetryConfigureAction.class);
 
 	public RetryConfigureAction(Frame owner, RetryContextualView retryContextualView,
-			Retry retryLayer, EditManager editManager, FileManager fileManager) {
+			DispatchStackLayer retryLayer, EditManager editManager, FileManager fileManager) {
 		super("Configure");
 		this.owner = owner;
 		this.retryContextualView = retryContextualView;
@@ -102,8 +104,7 @@ public class RetryConfigureAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			if (retryConfigurationPanel.validateConfig()) {
 				try {
-					Edit edit = editManager.getEdits().getConfigureEdit(retryLayer,
-							retryConfigurationPanel.getConfiguration());
+					Edit edit = new ConfigureEdit(retryLayer, retryConfigurationPanel.getConfiguration());
 					editManager.doDataflowEdit(fileManager.getCurrentDataflow(), edit);
 					dialog.setVisible(false);
 					if (retryContextualView != null) {

@@ -7,12 +7,12 @@
 	<bean id="ActivityOutputPortSection" class="net.sf.taverna.t2.ui.menu.items.activityport.ActivityOutputPortSection" />
 	<bean id="ConditionMenuActions" class="net.sf.taverna.t2.ui.menu.items.processor.ConditionMenuActions">
 			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 			<property name="activityIconManager" ref="activityIconManager" />
 	</bean>
 	<bean id="AnnotatedConfigureMenuAction" class="net.sf.taverna.t2.ui.menu.items.annotated.AnnotatedConfigureMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
+			<property name="selectionManager" ref="selectionManager" />
 			<property name="annotationBeans" ref="annotationBeans" />
 	</bean>
 	<bean id="ConditionSection" class="net.sf.taverna.t2.ui.menu.items.controllink.ConditionSection" />
@@ -48,19 +48,19 @@
 	</bean>
 	<bean id="CreateInputMenuAction" class="net.sf.taverna.t2.ui.menu.items.workflow.CreateInputMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="CreateOutputMenuAction" class="net.sf.taverna.t2.ui.menu.items.workflow.CreateOutputMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="EditDataflowInputPortMenuAction" class="net.sf.taverna.t2.ui.menu.items.ports.EditDataflowInputPortMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="EditDataflowOutputPortMenuAction" class="net.sf.taverna.t2.ui.menu.items.ports.EditDataflowOutputPortMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="EditSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.EditSection" />
 	<bean id="InsertSection" class="net.sf.taverna.t2.ui.menu.items.contextualviews.InsertSection" />
@@ -68,43 +68,41 @@
 	<bean id="PasteMenuAction" class="net.sf.taverna.t2.ui.menu.items.contextualviews.PasteMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="ProcessorSection" class="net.sf.taverna.t2.ui.menu.items.processor.ProcessorSection" />
 	<bean id="RemoveConditionMenuAction" class="net.sf.taverna.t2.ui.menu.items.controllink.RemoveConditionMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="RemoveDataflowInputPortMenuAction" class="net.sf.taverna.t2.ui.menu.items.ports.RemoveDataflowInputPortMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="RemoveDataflowOutputPortMenuAction" class="net.sf.taverna.t2.ui.menu.items.ports.RemoveDataflowOutputPortMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="RemoveLinkMenuAction" class="net.sf.taverna.t2.ui.menu.items.datalink.RemoveLinkMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="RemoveProcessorMenuAction" class="net.sf.taverna.t2.ui.menu.items.processor.RemoveProcessorMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="RenameProcessorMenuAction" class="net.sf.taverna.t2.ui.menu.items.processor.RenameProcessorMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="SetConstantInputPortValueMenuAction" class="net.sf.taverna.t2.ui.menu.items.activityport.SetConstantInputPortValueMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="ShowConfigureMenuAction" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ShowConfigureMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
 			<property name="menuManager" ref="menuManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="ShowDetailsContextualMenuAction" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ShowDetailsContextualMenuAction">
 			<property name="workbench" ref="workbench" />
@@ -113,7 +111,7 @@
 			<property name="workbench" ref="workbench" />
 	</bean>
 	<bean id="ShowReportsContextualMenuAction" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ShowReportsContextualMenuAction">
-			<property name="fileManager" ref="fileManager" />
+			<property name="selectionManager" ref="selectionManager" />
 			<property name="reportManager" ref="reportManager" />
 			<property name="workbench" ref="workbench" />
 	</bean>

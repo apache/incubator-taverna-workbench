@@ -32,13 +32,13 @@ import net.sf.taverna.t2.annotation.AnnotationBeanSPI;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureSection;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.annotated.AnnotatedContextualView;
 
 public class AnnotatedConfigureMenuAction extends AbstractContextualMenuAction {
 	private static final String ANNOTATE = "Annotate...";
 	private EditManager editManager;
-	private FileManager fileManager;
+	private SelectionManager selectionManager;
 	private List<AnnotationBeanSPI> annotationBeans;
 
 	public AnnotatedConfigureMenuAction() {
@@ -55,8 +55,8 @@ public class AnnotatedConfigureMenuAction extends AbstractContextualMenuAction {
 	protected Action createAction() {
 		return new AbstractAction(ANNOTATE) {
 			public void actionPerformed(ActionEvent e) {
-				AnnotatedContextualView view = new AnnotatedContextualView((Annotated) getContextualSelection().getSelection(), editManager,
-					 fileManager, annotationBeans);
+				AnnotatedContextualView view = new AnnotatedContextualView((Annotated) getContextualSelection().getSelection(),
+						editManager, selectionManager, annotationBeans);
 				JOptionPane.showMessageDialog(null, view.getMainFrame(), "Annotation", JOptionPane.PLAIN_MESSAGE);
 			}
 		};
@@ -66,12 +66,12 @@ public class AnnotatedConfigureMenuAction extends AbstractContextualMenuAction {
 		this.editManager = editManager;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
 	public void setAnnotationBeans(List<AnnotationBeanSPI> annotationBeans) {
 		this.annotationBeans = annotationBeans;
+	}
+
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }
