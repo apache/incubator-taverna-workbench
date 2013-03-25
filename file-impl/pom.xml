@@ -71,6 +71,11 @@
 			<artifactId>com.springsource.org.apache.commons.codec</artifactId>
 			<version>${commons.codec.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.jdom</groupId>
+			<artifactId>com.springsource.org.jdom</artifactId>
+			<version>${jdom.version}</version>
+		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
