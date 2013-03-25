@@ -28,6 +28,8 @@ import javax.swing.JDialog;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosingDataflowEvent;
@@ -50,13 +52,21 @@ public abstract class ActivityConfigurationAction extends AbstractAction {
 
 	private static DataflowCloseListener listener;
 
-	public ActivityConfigurationAction(Activity activity, ActivityIconManager activityIconManager) {
+	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
+
+	public ActivityConfigurationAction(Activity activity, ActivityIconManager activityIconManager,
+			ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.activity = activity;
+		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 		putValue(SMALL_ICON, activityIconManager.iconForActivity(activity.getConfigurableType()));
 	}
 
 	protected Activity getActivity() {
 		return activity;
+	}
+
+	protected ServiceDescription getServiceDescription() {
+		return serviceDescriptionRegistry.getServiceDescription(activity.getConfigurableType());
 	}
 
 	protected static void setDialog(Activity activity, ActivityConfigurationDialog dialog, FileManager fileManager) {
