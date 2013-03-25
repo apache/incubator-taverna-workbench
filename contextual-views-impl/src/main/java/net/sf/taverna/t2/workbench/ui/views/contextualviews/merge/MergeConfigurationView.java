@@ -25,12 +25,11 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import uk.org.taverna.scufl2.api.core.DataLink;
-
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import uk.org.taverna.scufl2.api.core.DataLink;
 
 @SuppressWarnings("serial")
 public class MergeConfigurationView extends HelpEnabledDialog {
@@ -52,16 +51,17 @@ public class MergeConfigurationView extends HelpEnabledDialog {
 
 	private final EditManager editManager;
 
-	private final FileManager fileManager;
+	private final SelectionManager selectionManager;
 
-	public MergeConfigurationView(List<DataLink> dataLinks, EditManager editManager, FileManager fileManager){
+	public MergeConfigurationView(List<DataLink> dataLinks, EditManager editManager,
+			SelectionManager selectionManager) {
 
 		super((Frame)null, "Merge Configuration", true);
 
 		this.dataLinks = new ArrayList<DataLink>(dataLinks);
 		reorderedDataLinks = new ArrayList<DataLink>(dataLinks);
 		this.editManager = editManager;
-		this.fileManager = fileManager;
+		this.selectionManager = selectionManager;
 		labelListModel = new DefaultListModel();
 		for (DataLink dataLink : dataLinks) {
 			labelListModel.addElement(dataLink.toString());
@@ -196,7 +196,7 @@ public class MergeConfigurationView extends HelpEnabledDialog {
         {
 			public void actionPerformed(ActionEvent e) {
 
-				new MergeConfigurationAction(dataLinks, reorderedDataLinks, editManager, fileManager).actionPerformed(e);
+				new MergeConfigurationAction(dataLinks, reorderedDataLinks, editManager, selectionManager).actionPerformed(e);
 		        closeDialog();
 			}
 

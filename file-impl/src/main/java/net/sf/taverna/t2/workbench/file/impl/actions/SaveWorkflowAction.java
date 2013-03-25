@@ -32,15 +32,13 @@ import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
+import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -64,10 +62,6 @@ public class SaveWorkflowAction extends AbstractAction {
 
 	private FileManagerObserver fileManagerObserver = new FileManagerObserver();
 
-	private ModelMap modelMap = ModelMap.getInstance();
-
-	private ModelMapObserver modelMapObserver = new ModelMapObserver();
-
 	public SaveWorkflowAction(EditManager editManager, FileManager fileManager) {
 		super(SAVE_WORKFLOW, WorkbenchIcons.saveIcon);
 		this.fileManager = fileManager;
@@ -76,7 +70,6 @@ public class SaveWorkflowAction extends AbstractAction {
 				KeyStroke.getKeyStroke(KeyEvent.VK_S,
 						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
 		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
-		modelMap.addObserver(modelMapObserver);
 		editManager.addObserver(editManagerObserver);
 		fileManager.addObserver(fileManagerObserver);
 		updateEnabledStatus(fileManager.getCurrentDataflow());
@@ -159,8 +152,7 @@ public class SaveWorkflowAction extends AbstractAction {
 		public void notify(Observable<EditManagerEvent> sender,
 				EditManagerEvent message) throws Exception {
 			if (message instanceof AbstractDataflowEditEvent) {
-				WorkflowBundle workflowBundle = ((AbstractDataflowEditEvent) message)
-						.getDataFlow();
+				WorkflowBundle workflowBundle = ((AbstractDataflowEditEvent) message).getDataFlow();
 				if (workflowBundle == fileManager.getCurrentDataflow()) {
 					updateEnabledStatus(workflowBundle);
 				}
@@ -174,17 +166,8 @@ public class SaveWorkflowAction extends AbstractAction {
 				FileManagerEvent message) throws Exception {
 			if (message instanceof SavedDataflowEvent){
 				updateEnabledStatus(((SavedDataflowEvent) message).getDataflow());
-			}
-		}
-	}
-
-	private final class ModelMapObserver implements Observer<ModelMapEvent> {
-		public void notify(Observable<ModelMapEvent> sender,
-				ModelMapEvent message) throws Exception {
-			if (message.getModelName().equals(
-					ModelMapConstants.CURRENT_DATAFLOW)) {
-				WorkflowBundle workflowBundle = (WorkflowBundle) message.getNewModel();
-				updateEnabledStatus(workflowBundle);
+			} else if (message instanceof SetCurrentDataflowEvent){
+				updateEnabledStatus(((SetCurrentDataflowEvent) message).getDataflow());
 			}
 		}
 	}

@@ -35,8 +35,6 @@ import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.OpenedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.AbstractXMLDeserializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.AbstractXMLSerializer;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -168,15 +166,15 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		}
 		synchronized (recents) {
 			recents.clear();
-			RecentDeserializer deserialiser = new RecentDeserializer();
-			try {
-				recents.addAll(deserialiser.deserializeRecent(document
-						.getRootElement()));
-			} catch (Exception e) {
-				logger.warn("Could not read recent workflows from file "
-						+ recentFile, e);
-				return;
-			}
+//			RecentDeserializer deserialiser = new RecentDeserializer();
+//			try {
+//				recents.addAll(deserialiser.deserializeRecent(document
+//						.getRootElement()));
+//			} catch (Exception e) {
+//				logger.warn("Could not read recent workflows from file "
+//						+ recentFile, e);
+//				return;
+//			}
 		}
 	}
 
@@ -185,7 +183,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		confDir.mkdir();
 		File recentFile = new File(confDir, RECENT_WORKFLOWS_XML);
 
-		RecentSerializer serializer = new RecentSerializer();
+//		RecentSerializer serializer = new RecentSerializer();
 		XMLOutputter outputter = new XMLOutputter();
 
 		OutputStream outputStream = null;
@@ -196,15 +194,15 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 					// Remove excess entries
 					recents.subList(MAX_ITEMS, recents.size()).clear();
 				}
-				serializedRecent = serializer.serializeRecent(recents);
+//				serializedRecent = serializer.serializeRecent(recents);
 			}
 			outputStream = new BufferedOutputStream(new FileOutputStream(
 					recentFile));
-			outputter.output(serializedRecent, outputStream);
-		} catch (JDOMException e) {
-			logger.warn("Could not generate XML for recent workflows to file "
-					+ recentFile, e);
-			return;
+//			outputter.output(serializedRecent, outputStream);
+//		} catch (JDOMException e) {
+//			logger.warn("Could not generate XML for recent workflows to file "
+//					+ recentFile, e);
+//			return;
 		} catch (IOException e) {
 			logger.warn("Could not write recent workflows to file "
 					+ recentFile, e);
@@ -415,20 +413,21 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 
 	}
 
-	protected static class RecentDeserializer extends AbstractXMLDeserializer {
-		public Collection<Recent> deserializeRecent(Element el) {
-			return (Collection<Recent>) super.createBean(el, getClass()
-					.getClassLoader());
-		}
-	}
-
-	protected static class RecentSerializer extends AbstractXMLSerializer {
-		public Element serializeRecent(List<Recent> x) throws JDOMException,
-				IOException {
-			Element beanAsElement = super.beanAsElement(x);
-			return beanAsElement;
-		}
-	}
+	// TODO find new serialization
+//	protected static class RecentDeserializer extends AbstractXMLDeserializer {
+//		public Collection<Recent> deserializeRecent(Element el) {
+//			return (Collection<Recent>) super.createBean(el, getClass()
+//					.getClassLoader());
+//		}
+//	}
+//
+//	protected static class RecentSerializer extends AbstractXMLSerializer {
+//		public Element serializeRecent(List<Recent> x) throws JDOMException,
+//				IOException {
+//			Element beanAsElement = super.beanAsElement(x);
+//			return beanAsElement;
+//		}
+//	}
 
 	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
 		this.applicationConfiguration = applicationConfiguration;

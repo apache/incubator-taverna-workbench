@@ -15,4 +15,6 @@
 
 	<service ref="EditManagerImpl" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 
+	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" cardinality="0..1" />
+
 </beans:beans>

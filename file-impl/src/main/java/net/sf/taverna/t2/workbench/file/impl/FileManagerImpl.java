@@ -40,9 +40,6 @@ import javax.swing.filechooser.FileFilter;
 import net.sf.taverna.t2.lang.observer.MultiCaster;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
@@ -88,10 +85,6 @@ public class FileManagerImpl implements FileManager {
 
 	private EditManagerObserver editManagerObserver = new EditManagerObserver();
 
-	private ModelMap modelMap = ModelMap.getInstance();
-
-	private ModelMapObserver modelMapObserver = new ModelMapObserver();
-
 	protected MultiCaster<FileManagerEvent> observers = new MultiCaster<FileManagerEvent>(
 			this);
 
@@ -104,6 +97,8 @@ public class FileManagerImpl implements FileManager {
 
 	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
+	private WorkflowBundle currentWorkflowBundle;
+
 	public DataflowPersistenceHandlerRegistry getPersistanceHandlerRegistry() {
 		return dataflowPersistenceHandlerRegistry;
 	}
@@ -111,7 +106,6 @@ public class FileManagerImpl implements FileManager {
 	public FileManagerImpl(EditManager editManager) {
 		this.editManager = editManager;
 		editManager.addObserver(editManagerObserver);
-		modelMap.addObserver(modelMapObserver);
 	}
 
 	/**
@@ -185,9 +179,8 @@ public class FileManagerImpl implements FileManager {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
 	public WorkflowBundle getCurrentDataflow() {
-		return (WorkflowBundle) modelMap.getModel(ModelMapConstants.CURRENT_DATAFLOW);
+		return currentWorkflowBundle;
 	}
 
 	@Override
@@ -413,9 +406,9 @@ public class FileManagerImpl implements FileManager {
 			}
 			return r.getDataflow();
 		}
-			 else {
-					return performOpenDataflow(fileType, source);
-				}
+		else {
+			return performOpenDataflow(fileType, source);
+		}
 	}
 
 	public WorkflowBundle performOpenDataflow(FileType fileType, Object source) throws OpenException {
@@ -615,6 +608,7 @@ public class FileManagerImpl implements FileManager {
 	 */
 	@Override
 	public void setCurrentDataflow(WorkflowBundle workflowBundle, boolean openIfNeeded) {
+		currentWorkflowBundle = workflowBundle;
 		if (!isDataflowOpen(workflowBundle)) {
 			if (openIfNeeded) {
 				openDataflow(workflowBundle);
@@ -624,7 +618,7 @@ public class FileManagerImpl implements FileManager {
 						+ workflowBundle);
 			}
 		}
-		modelMap.setModel(ModelMapConstants.CURRENT_DATAFLOW, workflowBundle);
+		observers.notify(new SetCurrentDataflowEvent(workflowBundle));
 	}
 
 	/**
@@ -685,32 +679,5 @@ public class FileManagerImpl implements FileManager {
 			}
 		}
 	}
-
-	/**
-	 * Observes the {@link ModelMap} for the ModelMapConstants.CURRENT_DATAFLOW.
-	 * Make sure that the workflowBundle is opened and notifies observers with a
-	 * SetCurrentDataflowEvent.
-	 *
-	 * @author Stian Soiland-Reyes
-	 *
-	 */
-	private final class ModelMapObserver implements Observer<ModelMapEvent> {
-		public void notify(Observable<ModelMapEvent> sender,
-				ModelMapEvent message) throws Exception {
-			if (message.getModelName().equals(
-					ModelMapConstants.CURRENT_DATAFLOW)) {
-				WorkflowBundle newModel = (WorkflowBundle) message.getNewModel();
-				if (newModel != null) {
-					if (!isDataflowOpen(newModel)) {
-						openDataflowInternal(newModel);
-					}
-				}
-				observers.notify(new SetCurrentDataflowEvent(newModel));
-			}
-		}
-	}
-
-
-
 
 }

@@ -8,11 +8,13 @@
 		<constructor-arg name="editManager">
 			<ref local="EditManagerImpl" />
 		</constructor-arg>
+		<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="RedoMenuAction" class="net.sf.taverna.t2.workbench.edits.impl.menu.RedoMenuAction">
 		<constructor-arg name="editManager">
 			<ref local="EditManagerImpl" />
 		</constructor-arg>
+		<property name="selectionManager" ref="selectionManager" />
 	</bean>
 	<bean id="EditToolbarSection" class="net.sf.taverna.t2.workbench.edits.impl.toolbar.EditToolbarSection" />
 	<bean id="UndoToolbarAction" class="net.sf.taverna.t2.workbench.edits.impl.toolbar.UndoToolbarAction">

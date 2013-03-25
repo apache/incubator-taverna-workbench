@@ -35,19 +35,18 @@ import java.util.List;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.impl.EditManagerImpl;
 import net.sf.taverna.t2.workbench.file.DataflowInfo;
 import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
 import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
-import net.sf.taverna.t2.workflow.edits.RenameProcessorEdit;
+import net.sf.taverna.t2.workflow.edits.RenameEdit;
 
 import org.junit.After;
 import org.junit.Before;
@@ -74,8 +73,7 @@ public class FileManagerTest {
 	private FileManagerImpl fileManager;
 	private EditManager editManager;
 
-	private ModelMap modelmap = ModelMap.getInstance();
-	private final ModelMapObserver modelMapObserver = new ModelMapObserver();
+	private FileManagerObserver fileManagerObserver= new FileManagerObserver();;
 
 	@Test
 	public void close() throws Exception {
@@ -170,11 +168,6 @@ public class FileManagerTest {
 				.asList(dataflow), fileManager.getOpenDataflows());
 	}
 
-	@Before
-	public void listenToModelMap() {
-		modelmap.addObserver(modelMapObserver);
-	}
-
 	/**
 	 * Always uses a <strong>new</strong> file manager instead of the instance
 	 * one from {@link FileManager#getInstance()}.
@@ -187,6 +180,8 @@ public class FileManagerTest {
 		System.setProperty("java.awt.headless", "true");
 		editManager = new EditManagerImpl();
 		fileManager = new FileManagerImpl(editManager);
+		fileManagerObserver = new FileManagerObserver();
+		fileManager.addObserver(fileManagerObserver);
 		WorkflowBundleIO workflowBundleIO = new WorkflowBundleIO();
 		workflowBundleIO.setReaders(Arrays.<WorkflowBundleReader>asList(new RDFXMLReader(), new T2FlowReader()));
 		workflowBundleIO.setWriters(Arrays.<WorkflowBundleWriter>asList(new RDFXMLWriter()));
@@ -206,24 +201,24 @@ public class FileManagerTest {
 	@Test
 	public void open() throws Exception {
 		assertTrue("ModelMapObserver already contained messages",
-				modelMapObserver.messages.isEmpty());
+				fileManagerObserver.messages.isEmpty());
 		WorkflowBundle dataflow = openDataflow();
 		assertNotNull("Dataflow was not loaded", dataflow);
 		assertEquals("Loaded dataflow was not set as current dataflow",
-				dataflow, modelmap.getModel(ModelMapConstants.CURRENT_DATAFLOW));
+				dataflow, fileManager.getCurrentDataflow());
 		assertFalse("ModelMapObserver did not contain message",
-				modelMapObserver.messages.isEmpty());
-		assertEquals("ModelMapObserver contained unexpected messages", 1,
-				modelMapObserver.messages.size());
-		ModelMapEvent event = modelMapObserver.messages.get(0);
-		assertEquals("currentDataflow", event.getModelName());
-		assertEquals(dataflow, event.getNewModel());
+				fileManagerObserver.messages.isEmpty());
+		assertEquals("ModelMapObserver contained unexpected messages", 2,
+				fileManagerObserver.messages.size());
+		FileManagerEvent event = fileManagerObserver.messages.get(0);
+		assertTrue(event instanceof SetCurrentDataflowEvent);
+		assertEquals(dataflow, ((SetCurrentDataflowEvent) event).getDataflow());
 	}
 
 	@Test
 	public void openSilently() throws Exception {
 		assertTrue("ModelMapObserver already contained messages",
-				modelMapObserver.messages.isEmpty());
+				fileManagerObserver.messages.isEmpty());
 		URL url = getClass().getResource(DUMMY_WORKFLOW_T2FLOW);
 		DataflowInfo info = fileManager.openDataflowSilently(T2_FLOW_FILE_TYPE, url);
 
@@ -231,9 +226,9 @@ public class FileManagerTest {
 		assertNotNull("Dataflow was not loaded", dataflow);
 
 		assertNotSame("Loaded dataflow was set as current dataflow",
-				dataflow, modelmap.getModel(ModelMapConstants.CURRENT_DATAFLOW));
+				dataflow, fileManager.getCurrentDataflow());
 		assertTrue("ModelMapObserver contained unexpected messages",
-				modelMapObserver.messages.isEmpty());
+				fileManagerObserver.messages.isEmpty());
 	}
 
 	@Test
@@ -291,13 +286,13 @@ public class FileManagerTest {
 	@Test
 	public void saveSilent() throws Exception {
 		assertTrue("ModelMapObserver contained unexpected messages",
-				modelMapObserver.messages.isEmpty());
+				fileManagerObserver.messages.isEmpty());
 
 		URL url = getClass().getResource(DUMMY_WORKFLOW_T2FLOW);
 		DataflowInfo info = fileManager.openDataflowSilently(T2_FLOW_FILE_TYPE, url);
 		WorkflowBundle dataflow = info.getDataflow();
 		assertTrue("ModelMapObserver contained unexpected messages",
-				modelMapObserver.messages.isEmpty());
+				fileManagerObserver.messages.isEmpty());
 
 		File dataflowFile = File.createTempFile("test", ".t2flow");
 		dataflowFile.deleteOnExit();
@@ -308,7 +303,7 @@ public class FileManagerTest {
 		assertTrue("File should exist", dataflowFile.isFile());
 
 		assertTrue("ModelMapObserver contained unexpected messages",
-				modelMapObserver.messages.isEmpty());
+				fileManagerObserver.messages.isEmpty());
 
 	}
 
@@ -322,7 +317,7 @@ public class FileManagerTest {
 		fileManager.saveDataflow(dataflow, WF_BUNDLE_FILE_TYPE, dataflowFile, true);
 
 		Processor processor = dataflow.getMainWorkflow().getProcessors().first();
-		Edit<Processor> renameEdit = new RenameProcessorEdit(processor,
+		Edit<Processor> renameEdit = new RenameEdit<Processor>(processor,
 				processor.getName() + "-changed");
 		editManager.doDataflowEdit(dataflow, renameEdit);
 
@@ -364,7 +359,7 @@ public class FileManagerTest {
 
 	@After
 	public void stopListeningToModelMap() {
-		modelmap.removeObserver(modelMapObserver);
+		fileManager.removeObserver(fileManagerObserver);
 	}
 
 	protected WorkflowBundle openDataflow() throws OpenException {
@@ -375,17 +370,15 @@ public class FileManagerTest {
 		return dataflow;
 	}
 
-	private final class ModelMapObserver implements Observer<ModelMapEvent> {
-		protected List<ModelMapEvent> messages = new ArrayList<ModelMapEvent>();
+	private final class FileManagerObserver implements Observer<FileManagerEvent> {
+		protected List<FileManagerEvent> messages = new ArrayList<FileManagerEvent>();
 
-		public void notify(Observable<ModelMapEvent> sender,
-				ModelMapEvent message) throws Exception {
+		public void notify(Observable<FileManagerEvent> sender, FileManagerEvent message) throws Exception {
 			messages.add(message);
-			if (message.getModelName().equals(
-					ModelMapConstants.CURRENT_DATAFLOW)) {
+			if (message instanceof SetCurrentDataflowEvent) {
 				assertTrue("Dataflow was not listed as open when set current",
 						fileManager.getOpenDataflows().contains(
-								message.getNewModel()));
+								((SetCurrentDataflowEvent) message).getDataflow()));
 			}
 		}
 	}

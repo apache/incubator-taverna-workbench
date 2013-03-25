@@ -21,7 +21,7 @@
 
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
-	<reference id="dataflowSelectionManager" interface="net.sf.taverna.t2.workbench.ui.DataflowSelectionManager" />
+	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
 	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
 
 	<list id="annotationBeans" interface="net.sf.taverna.t2.annotation.AnnotationBeanSPI" />

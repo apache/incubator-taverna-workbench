@@ -20,36 +20,30 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.annotated;
 
-import java.awt.BorderLayout;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 
-import javax.naming.AuthenticationNotSupportedException;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 
 import net.sf.taverna.t2.annotation.Annotated;
 import net.sf.taverna.t2.annotation.AnnotationBeanSPI;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
-import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.workbench.edits.CompoundEdit;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.impl.ContextualViewComponent;
 
@@ -94,7 +88,7 @@ public class AnnotatedContextualView extends ContextualView {
 	private static int DEFAULT_AREA_WIDTH = 60;
 	private static int DEFAULT_AREA_ROWS = 8;
 
-	private FileManager fileManager;
+	private SelectionManager selectionManager;
 	private EditManager editManager;
 
 	private boolean isStandalone = false;
@@ -108,10 +102,10 @@ public class AnnotatedContextualView extends ContextualView {
 	private final List<AnnotationBeanSPI> annotationBeans;
 
 	public AnnotatedContextualView(Annotated<?> annotated, EditManager editManager,
-			FileManager fileManager, List<AnnotationBeanSPI> annotationBeans) {
+			SelectionManager selectionManager, List<AnnotationBeanSPI> annotationBeans) {
 		super();
 		this.editManager = editManager;
-		this.fileManager = fileManager;
+		this.selectionManager = selectionManager;
 		this.annotationBeans = annotationBeans;
 
 		this.annotated = annotated;
@@ -224,7 +218,7 @@ public class AnnotatedContextualView extends ContextualView {
 					currentValue = "";
 				}
 				try {
-					WorkflowBundle currentDataflow = fileManager.getCurrentDataflow();
+					WorkflowBundle currentDataflow = selectionManager.getSelectedWorkflowBundle();
 					List<Edit<?>> editList = new ArrayList<Edit<?>>();
 					// TODO convert to scufl2
 //					editList.add(annotationTools.setAnnotationString(annotated, annotationClass, currentValue, editManager.getEdits()));

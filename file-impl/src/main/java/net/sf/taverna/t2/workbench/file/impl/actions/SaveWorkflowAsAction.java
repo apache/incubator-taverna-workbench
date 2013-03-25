@@ -37,11 +37,10 @@ import javax.swing.filechooser.FileFilter;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
+import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.file.impl.FileTypeFileFilter;
@@ -53,35 +52,19 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 public class SaveWorkflowAsAction extends AbstractAction {
 
-	private final class ModelMapObserver implements Observer<ModelMapEvent> {
-		public void notify(Observable<ModelMapEvent> sender,
-				ModelMapEvent message) throws Exception {
-			if (message.getModelName().equals(
-					ModelMapConstants.CURRENT_DATAFLOW)) {
-				WorkflowBundle workflowBundle = (WorkflowBundle) message.getNewModel();
-				updateEnabledStatus(workflowBundle);
-			}
-		}
-	}
-
 	private static final String SAVE_WORKFLOW_AS = "Save workflow as...";
 
 	private static Logger logger = Logger.getLogger(SaveWorkflowAsAction.class);
 
 	private FileManager fileManager;
 
-	private ModelMap modelMap = ModelMap.getInstance();
-
 	public SaveWorkflowAsAction(FileManager fileManager) {
 		super(SAVE_WORKFLOW_AS, WorkbenchIcons.saveAsIcon);
 		this.fileManager = fileManager;
+		fileManager.addObserver(new FileManagerObserver());
 		putValue(Action.ACCELERATOR_KEY,
 				KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
 		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
-
-		modelMap.addObserver(new ModelMapObserver());
-		updateEnabledStatus((WorkflowBundle) modelMap
-				.getModel(ModelMapConstants.CURRENT_DATAFLOW));
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -96,19 +79,6 @@ public class SaveWorkflowAsAction extends AbstractAction {
 					JOptionPane.ERROR_MESSAGE);
 			return;
 		}
-		Object source = fileManager.getDataflowSource(workflowBundle);
-		//TODO Decide how to handle nested workflows
-//		if (source instanceof NestedDataflowSource) {
-//			int n = JOptionPane.showConfirmDialog(
-//				    parentComponent,
-//				    "Saving a nested workflow to a file cuts its link to the parent workflow. Do you want to continue?",
-//				    "Nested workflow save",
-//				    JOptionPane.YES_NO_OPTION);
-//			if (n == JOptionPane.NO_OPTION) {
-//				return;
-//			}
-//
-//		}
 		saveCurrentDataflow(parentComponent);
 	}
 
@@ -234,6 +204,15 @@ public class SaveWorkflowAsAction extends AbstractAction {
 			setEnabled(false);
 		} else {
 			setEnabled(true);
+		}
+	}
+
+	private final class FileManagerObserver implements Observer<FileManagerEvent> {
+		public void notify(Observable<FileManagerEvent> sender,
+				FileManagerEvent message) throws Exception {
+			if (message instanceof SetCurrentDataflowEvent){
+				updateEnabledStatus(((SetCurrentDataflowEvent) message).getDataflow());
+			}
 		}
 	}
 

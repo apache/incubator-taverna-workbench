@@ -5,8 +5,7 @@
 
 	<bean id="ContextualViewComponentFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.impl.ContextualViewComponentFactory">
 			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 			<property name="contextualViewFactoryRegistry">
 				<ref local="ContextualViewFactoryRegistry"/>
 			</property>
@@ -26,12 +25,12 @@
 	<bean id="ConditionContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.condition.ConditionContextualViewFactory" />
 	<bean id="MergeContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.merge.MergeContextualViewFactory">
 			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
+			<property name="selectionManager" ref="selectionManager" />
 			<property name="colourManager" ref="colourManager" />
 	</bean>
 	<bean id="AnnotatedContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.annotated.AnnotatedContextualViewFactory">
 			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
+			<property name="selectionManager" ref="selectionManager" />
 			<property name="annotationBeans" ref ="annotationBeans"/>
 	</bean>
 	<bean id="DataflowContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflow.DataflowContextualViewFactory">

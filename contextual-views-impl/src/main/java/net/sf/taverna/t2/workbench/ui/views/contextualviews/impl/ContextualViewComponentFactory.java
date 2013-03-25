@@ -23,8 +23,7 @@ package net.sf.taverna.t2.workbench.ui.views.contextualviews.impl;
 import javax.swing.ImageIcon;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
@@ -32,12 +31,11 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 public class ContextualViewComponentFactory implements UIComponentFactorySPI {
 
 	private EditManager editManager;
-	private FileManager fileManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
 
 	public UIComponentSPI getComponent() {
-		return new ContextualViewComponent(editManager, fileManager, dataflowSelectionManager, contextualViewFactoryRegistry);
+		return new ContextualViewComponent(editManager, selectionManager, contextualViewFactoryRegistry);
 	}
 
 	public ImageIcon getIcon() {
@@ -52,12 +50,8 @@ public class ContextualViewComponentFactory implements UIComponentFactorySPI {
 		this.editManager = editManager;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 	public void setContextualViewFactoryRegistry(ContextualViewFactoryRegistry contextualViewFactoryRegistry) {

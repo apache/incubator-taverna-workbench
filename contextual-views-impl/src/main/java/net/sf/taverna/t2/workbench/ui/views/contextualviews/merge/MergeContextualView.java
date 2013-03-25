@@ -34,7 +34,7 @@ import javax.swing.JPanel;
 import net.sf.taverna.t2.lang.ui.HtmlUtils;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
@@ -54,18 +54,19 @@ public class MergeContextualView extends ContextualView{
 	private WorkflowBundle workflow;
 	private JEditorPane editorPane;
 	private final EditManager editManager;
-	private final FileManager fileManager;
 	private final ColourManager colourManager;
 
 	private Scufl2Tools scufl2Tools = new Scufl2Tools();
+	private final SelectionManager selectionManager;
 
-	public MergeContextualView(DataLink dataLink, EditManager editManager, FileManager fileManager, ColourManager colourManager) {
+	public MergeContextualView(DataLink dataLink, EditManager editManager,
+			SelectionManager selectionManager, ColourManager colourManager) {
 		this.dataLink = dataLink;
+		this.selectionManager = selectionManager;
 		datalinks = scufl2Tools.datalinksTo(dataLink.getSendsTo());
 		this.editManager = editManager;
-		this.fileManager = fileManager;
 		this.colourManager = colourManager;
-		workflow = fileManager.getCurrentDataflow();
+		workflow = selectionManager.getSelectedWorkflowBundle();
 		initView();
 	}
 
@@ -119,7 +120,7 @@ public class MergeContextualView extends ContextualView{
 		JButton configureButton = new JButton(new AbstractAction(){
 
 			public void actionPerformed(ActionEvent e) {
-				MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(datalinks, editManager, fileManager);
+				MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(datalinks, editManager, selectionManager);
 				mergeConfigurationView.setLocationRelativeTo(panel);
 				mergeConfigurationView.setVisible(true);
 			}

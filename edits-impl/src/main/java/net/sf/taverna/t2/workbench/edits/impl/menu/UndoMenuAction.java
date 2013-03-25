@@ -23,7 +23,9 @@ package net.sf.taverna.t2.workbench.edits.impl.menu;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
+import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 
 import org.apache.log4j.Logger;
 
@@ -36,17 +38,21 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
  * @author Stian Soiland-Reyes
  *
  */
-public class UndoMenuAction extends AbstractUndoMenuAction {
+public class UndoMenuAction extends AbstractMenuAction {
 
 	private static Logger logger = Logger.getLogger(UndoMenuAction.class);
+	private final EditManager editManager;
+	private SelectionManager selectionManager;
+	private AbstractUndoAction undoAction;
 
 	public UndoMenuAction(EditManager editManager) {
-		super(10, editManager);
+		super(UndoMenuSection.UNDO_SECTION_URI, 10);
+		this.editManager = editManager;
 	}
 
 	@Override
 	protected Action createAction() {
-		return new AbstractUndoAction("Undo") {
+		undoAction = new AbstractUndoAction("Undo", editManager) {
 			@Override
 			protected boolean isActive(WorkflowBundle workflowBundle) {
 				return editManager.canUndoDataflowEdit(workflowBundle);
@@ -65,6 +71,15 @@ public class UndoMenuAction extends AbstractUndoMenuAction {
 				}
 			}
 		};
+		undoAction.setSelectionManager(selectionManager);
+		return undoAction;
+	}
+
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
+		if (undoAction != null) {
+			undoAction.setSelectionManager(selectionManager);
+		}
 	}
 
 }

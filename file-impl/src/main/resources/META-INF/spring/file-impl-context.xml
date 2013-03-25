@@ -109,7 +109,7 @@
     </bean>
 
 	<bean id="FileManagerImpl" class="net.sf.taverna.t2.workbench.file.impl.FileManagerImpl">
-    	<constructor-arg ref="editManager" />
+    	<constructor-arg name="editManager" ref="editManager" />
     	<property name="DataflowPersistenceHandlerRegistry">
     		<ref local="DataflowPersistenceHandlerRegistry"/>
     	</property>

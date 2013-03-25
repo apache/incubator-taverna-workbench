@@ -116,17 +116,19 @@ public class SelectionManagerImpl implements SelectionManager {
 
 	private void setSelectedWorkflowBundle(WorkflowBundle workflowBundle, boolean notifyFileManager) {
 		if (workflowBundle != null && workflowBundle != selectedWorkflowBundle) {
-			Workflow selectedWorkflow = selectedWorkflows.get(workflowBundle);
-			if (selectedWorkflow == null) {
-				setSelectedWorkflow(workflowBundle.getMainWorkflow(), notifyFileManager);
+			System.out.println("setSelectedWorkflowBundle("+notifyFileManager+") " + workflowBundle.getName());
+			if (notifyFileManager) {
+				fileManager.setCurrentDataflow(workflowBundle);
 			} else {
-				setSelectedWorkflow(selectedWorkflow, notifyFileManager);
-			}
-			Profile selectedProfile = selectedProfiles.get(workflowBundle);
-			if (selectedProfile == null) {
-				setSelectedProfile(workflowBundle.getMainProfile());
-			} else {
-				setSelectedProfile(selectedProfile);
+				if (selectedWorkflows.get(workflowBundle) == null) {
+					selectedWorkflows.put(workflowBundle, workflowBundle.getMainWorkflow());
+				}
+				if (selectedProfiles.get(workflowBundle) == null) {
+					selectedProfiles.put(workflowBundle, workflowBundle.getMainProfile());
+				}
+				SelectionManagerEvent selectionManagerEvent = new WorkflowBundleSelectionEvent(selectedWorkflowBundle, workflowBundle);
+				selectedWorkflowBundle = workflowBundle;
+				notify(selectionManagerEvent);
 			}
 		}
 	}
@@ -138,25 +140,12 @@ public class SelectionManagerImpl implements SelectionManager {
 
 	@Override
 	public void setSelectedWorkflow(Workflow workflow) {
-		setSelectedWorkflow(workflow, true);
-	}
-
-	private void setSelectedWorkflow(Workflow workflow, boolean notifyFileManager) {
 		if (workflow != null) {
-			if (notifyFileManager) {
-				fileManager.setCurrentDataflow(workflow.getParent());
-			} else {
-				Workflow selectedWorkflow = selectedWorkflows.get(selectedWorkflowBundle);
-				if (selectedWorkflowBundle != workflow.getParent()) {
-					SelectionManagerEvent workflowManagerEvent = new WorkflowBundleSelectionEvent(selectedWorkflowBundle, workflow.getParent());
-					selectedWorkflowBundle = workflow.getParent();
-					notify(workflowManagerEvent);
-				}
-				if (selectedWorkflow != workflow) {
-					SelectionManagerEvent workflowManagerEvent = new WorkflowSelectionEvent(selectedWorkflow, workflow);
-					selectedWorkflows.put(workflow.getParent(), workflow);
-					notify(workflowManagerEvent);
-				}
+			Workflow selectedWorkflow = selectedWorkflows.get(workflow.getParent());
+			if (selectedWorkflow != workflow) {
+				SelectionManagerEvent selectionManagerEvent = new WorkflowSelectionEvent(selectedWorkflow, workflow);
+				selectedWorkflows.put(workflow.getParent(), workflow);
+				notify(selectionManagerEvent);
 			}
 		}
 	}
@@ -168,11 +157,13 @@ public class SelectionManagerImpl implements SelectionManager {
 
 	@Override
 	public void setSelectedProfile(Profile profile) {
-		Profile selectedProfile = selectedProfiles.get(profile.getParent());
-		if (selectedProfile != profile) {
-			SelectionManagerEvent workflowManagerEvent = new ProfileSelectionEvent(selectedProfile, profile);
-			selectedProfiles.put(profile.getParent(), profile);
-			notify(workflowManagerEvent);
+		if (profile != null) {
+			Profile selectedProfile = selectedProfiles.get(profile.getParent());
+			if (selectedProfile != profile) {
+				SelectionManagerEvent selectionManagerEvent = new ProfileSelectionEvent(selectedProfile, profile);
+				selectedProfiles.put(profile.getParent(), profile);
+				notify(selectionManagerEvent);
+			}
 		}
 	}
 
@@ -184,9 +175,9 @@ public class SelectionManagerImpl implements SelectionManager {
 	@Override
 	public void setSelectedPerspective(PerspectiveSPI perspective) {
 		if (selectedPerspective != perspective) {
-			SelectionManagerEvent workflowManagerEvent = new PerspectiveSelectionEvent(selectedPerspective, perspective);
+			SelectionManagerEvent selectionManagerEvent = new PerspectiveSelectionEvent(selectedPerspective, perspective);
 			selectedPerspective = perspective;
-			notify(workflowManagerEvent);
+			notify(selectionManagerEvent);
 		}
 	}
 
@@ -232,12 +223,15 @@ public class SelectionManagerImpl implements SelectionManager {
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) throws Exception {
 			if (message instanceof ClosedDataflowEvent) {
+				System.out.println("ClosedDataflowEvent");
 				WorkflowBundle workflowBundle = ((ClosedDataflowEvent) message).getDataflow();
 				removeDataflowSelectionModel(workflowBundle);
 			} else if (message instanceof OpenedDataflowEvent) {
+				System.out.println("OpenedDataflowEvent");
 				WorkflowBundle workflowBundle = ((OpenedDataflowEvent) message).getDataflow();
-				setSelectedWorkflowBundle(workflowBundle);
+				setSelectedWorkflowBundle(workflowBundle, false);
 			} else if (message instanceof SetCurrentDataflowEvent) {
+				System.out.println("SetCurrentDataflowEvent");
 				WorkflowBundle workflowBundle = ((SetCurrentDataflowEvent) message).getDataflow();
 				setSelectedWorkflowBundle(workflowBundle, false);
 			}

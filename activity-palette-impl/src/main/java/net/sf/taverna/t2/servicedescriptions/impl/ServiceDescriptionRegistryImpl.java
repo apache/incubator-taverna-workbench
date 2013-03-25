@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.InvocationTargetException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -364,7 +365,6 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 		return new HashSet<ServiceDescriptionProvider>(allServiceProviders);
 	}
 
-	@SuppressWarnings("unchecked")
 	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders(ServiceDescription sd) {
 		Set<ServiceDescriptionProvider> result = new HashSet<ServiceDescriptionProvider>();
 		for (ServiceDescriptionProvider sdp : providerDescriptions.keySet()) {
@@ -375,7 +375,6 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 		return result;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Set<ServiceDescription> getServiceDescriptions() {
 		updateServiceDescriptions(false, true);
 		Set<ServiceDescription> serviceDescriptions = new HashSet<ServiceDescription>();
@@ -387,7 +386,16 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 		return serviceDescriptions;
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
+	public ServiceDescription getServiceDescription(URI serviceType) {
+		for (ServiceDescription serviceDescription : getServiceDescriptions()) {
+			if (serviceDescription.getActivityType().equals(serviceType)) {
+				return serviceDescription;
+			}
+		}
+		return null;
+	}
+
 	public List<ConfigurableServiceProvider> getUnconfiguredServiceProviders() {
 		List<ConfigurableServiceProvider> providers = new ArrayList<ConfigurableServiceProvider>();
 		List<ServiceDescriptionProvider> possibleProviders = new ArrayList<ServiceDescriptionProvider>(
@@ -556,7 +564,6 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 
 		private final ServiceDescriptionProvider provider;
 
-		@SuppressWarnings("unchecked")
 		final Set<ServiceDescription> providerDescs = new HashSet<ServiceDescription>();
 
 		public FindDescriptionsCallBack(ServiceDescriptionProvider provider) {
@@ -585,7 +592,6 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 			return provider;
 		}
 
-		@SuppressWarnings("unchecked")
 		public void partialResults(Collection<? extends ServiceDescription> serviceDescriptions) {
 			if (aborting) {
 				return;

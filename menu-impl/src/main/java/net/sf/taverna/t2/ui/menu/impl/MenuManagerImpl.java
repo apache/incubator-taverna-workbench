@@ -495,13 +495,15 @@ public class MenuManagerImpl implements MenuManager {
 					.getParentId());
 			if (siblings == null) {
 				siblings = new ArrayList<MenuComponent>();
-				menuElementTree.put(menuElement.getParentId(), siblings);
+				synchronized (menuElementTree) {
+					menuElementTree.put(menuElement.getParentId(), siblings);
+				}
 			}
 			siblings.add(menuElement);
 		}
-		if (uriToMenuElement.isEmpty()) {
-			logger.error("No menu elements found, check classpath/Raven/SPI");
-		}
+//		if (uriToMenuElement.isEmpty()) {
+//			logger.error("No menu elements found, check classpath/Raven/SPI");
+//		}
 	}
 
 	/**
@@ -514,11 +516,18 @@ public class MenuManagerImpl implements MenuManager {
 	 *         parent
 	 */
 	protected List<MenuComponent> getChildren(URI id) {
-		List<MenuComponent> children = menuElementTree.get(id);
-		if (children == null) {
-			return Collections.<MenuComponent> emptyList();
+		List<MenuComponent> children = null;
+		synchronized (menuElementTree) {
+			children = menuElementTree.get(id);
+			if (children != null) {
+				children = new ArrayList<MenuComponent>(children);
+			}
 		}
-		Collections.sort(children, menuElementComparator);
+		if (children == null) {
+			children = Collections.<MenuComponent> emptyList();
+		} else {
+			Collections.sort(children, menuElementComparator);
+		}
 		return children;
 	}
 

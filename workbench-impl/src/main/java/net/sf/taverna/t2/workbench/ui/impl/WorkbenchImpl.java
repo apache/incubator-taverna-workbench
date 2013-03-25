@@ -29,7 +29,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.List;
 import java.util.Map;
@@ -42,6 +41,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
@@ -49,18 +49,20 @@ import net.sf.taverna.osx.OSXAdapter;
 import net.sf.taverna.osx.OSXApplication;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.ui.menu.MenuManager.MenuManagerEvent;
+import net.sf.taverna.t2.ui.menu.MenuManager.UpdatedMenuManagerEvent;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.ShutdownSPI;
 import net.sf.taverna.t2.workbench.StartupSPI;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 import net.sf.taverna.t2.workbench.ui.WorkbenchPerspectives;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
@@ -96,6 +98,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	private EditManager editManager;
 	private WorkbenchConfiguration workbenchConfiguration;
 	private ApplicationConfiguration applicationConfiguration;
+	private SelectionManager selectionManager;
 	private WorkbenchPerspectives workbenchPerspectives;
 	private List<ConfigurationUIFactory> configurationUIFactories;
 
@@ -105,30 +108,19 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	private List<ShutdownSPI> shutdownHooks;
 	private final List<PerspectiveSPI> perspectives;
 
+	private JMenuBar menuBar;
+	private JToolBar toolBar;
+
+	private MenuManagerObserver menuManagerObserver;
+
 	public WorkbenchImpl(List<StartupSPI> startupHooks, List<ShutdownSPI> shutdownHooks, List<PerspectiveSPI> perspectives) {
 		this.perspectives = perspectives;
-		System.out.println("Constructing workbench");
 		this.startupHooks = startupHooks;
 		this.shutdownHooks = shutdownHooks;
 		MainWindow.setMainWindow(this);
-//		try {
-//			SwingUtilities.invokeAndWait(new Runnable() {
-//				public void run() {
-//					System.out.println("Calling initialize");
-//					initialize();
-//				}
-//			});
-//		} catch (InterruptedException e) {
-//			throw new RuntimeException(
-//					"Interrupted while initializing workbench", e);
-//		} catch (InvocationTargetException e) {
-//			throw new RuntimeException("Could not initialize workbench", e
-//					.getCause());
-//		}
 	}
 
 	protected void initialize() {
-		System.out.println("Initialize workbench");
 		setExceptionHandler();
 		setLookAndFeel();
 
@@ -139,25 +131,24 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		UIManager.put("OptionPane.warningIcon", WorkbenchIcons.warningMessageIcon);
 
 		// Call the startup hooks
-		System.out.println("Calling startup hooks");
 		if (!callStartupHooks()) {
 			System.exit(0);
 		}
 
+		System.out.println("Constructing the GUI");
 		makeGUI();
 		fileManager.newDataflow();
-		editManager.addObserver(new DataflowEditsListener());
+		// the DataflowEditsListener changes the WorkflowBundle ID for every workflow edit
+		// and changes the URI so port definitions can't find the port they refer to
+		// TODO check if it's OK to not update the WorkflowBundle ID
+		//editManager.addObserver(new DataflowEditsListener());
+
 //		SplashScreen splash = SplashScreen.getSplashScreen();
 //		if (splash != null) {
 //			splash.setClosable();
 //			splash.requestClose();
 //		}
 
-		// Register a listener with FileManager so whenever a current workflow
-		// is set
-		// we make sure we are in the design perspective
-		fileManager.addObserver(new SwitchToWorkflowPerspective());
-		System.out.println("Making frame visible");
 		setVisible(true);
 	}
 
@@ -199,10 +190,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 
 		add(makePerspectivePanel(), gbc);
 
-		/*
-		 * Need to do this <b>last</b> as it references perspectives
-		 */
-		JMenuBar menuBar = menuManager.createMenuBar();
+		menuBar = menuManager.createMenuBar();
 		setJMenuBar(menuBar);
 	}
 
@@ -215,9 +203,9 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		gbc.gridwidth = 2;
 		gbc.anchor = GridBagConstraints.LINE_START;
 
-		JToolBar generatedToolbar = menuManager.createToolBar();
-		generatedToolbar.setFloatable(false);
-		toolbarPanel.add(generatedToolbar, gbc);
+		toolBar = menuManager.createToolBar();
+		toolBar.setFloatable(false);
+		toolbarPanel.add(toolBar, gbc);
 
 		perspectiveToolBar = new JToolBar("Perspectives");
 		perspectiveToolBar.setFloatable(false);
@@ -232,7 +220,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	private JPanel makePerspectivePanel() {
 		CardLayout perspectiveLayout = new CardLayout();
 		JPanel perspectivePanel = new JPanel(perspectiveLayout);
-		workbenchPerspectives = new WorkbenchPerspectivesImpl(perspectiveToolBar, perspectivePanel, perspectiveLayout);
+		workbenchPerspectives = new WorkbenchPerspectivesImpl(perspectiveToolBar, perspectivePanel, perspectiveLayout, selectionManager);
 		workbenchPerspectives.setPerspectives(perspectives);
 		return perspectivePanel;
 	}
@@ -354,6 +342,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 			String systemLF = UIManager.getSystemLookAndFeelClassName();
 			try {
 				UIManager.setLookAndFeel(systemLF);
+				UIManager.getLookAndFeelDefaults().put("ClassLoader", WorkbenchImpl.class.getClassLoader());
 				logger.info("Using system L&F " + systemLF);
 				return;
 			} catch (Exception ex2) {
@@ -377,6 +366,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 			String crossPlatform = UIManager.getCrossPlatformLookAndFeelClassName();
 			UIManager.setLookAndFeel(crossPlatform);
 			logger.info("Using cross platform Look and Feel " + crossPlatform);
+			return;
 		} catch (Exception e){
 		}
 
@@ -396,7 +386,12 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	}
 
 	public void setMenuManager(MenuManager menuManager) {
+		if (this.menuManager != null && menuManagerObserver != null) {
+			this.menuManager.removeObserver(menuManagerObserver);
+		}
 		this.menuManager = menuManager;
+		menuManagerObserver = new MenuManagerObserver();
+		menuManager.addObserver(menuManagerObserver);
 	}
 
 	public void setFileManager(FileManager fileManager) {
@@ -406,10 +401,6 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
-
-//	public void setPerspectiveList(List<PerspectiveSPI> perspectives) {
-//		workbenchPerspectives.setPerspectives(perspectives);
-//	}
 
 	public void refreshPerspectives(Object service, Map properties) {
 		workbenchPerspectives.refreshPerspectives();
@@ -425,6 +416,28 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 
 	public void setConfigurationUIFactories(List<ConfigurationUIFactory> configurationUIFactories) {
 		this.configurationUIFactories = configurationUIFactories;
+	}
+
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
+	}
+
+	private final class MenuManagerObserver extends SwingAwareObserver<MenuManagerEvent> {
+		@Override
+		public void notifySwing(Observable<MenuManagerEvent> sender, MenuManagerEvent message) {
+			if (message instanceof UpdatedMenuManagerEvent) {
+				if (WorkbenchImpl.this.isVisible()) {
+					if (menuBar != null) {
+						menuBar.revalidate();
+						menuBar.repaint();
+					}
+					if (toolBar != null) {
+						toolBar.revalidate();
+						toolBar.repaint();
+					}
+				}
+			}
+		}
 	}
 
 	public final class ExceptionHandler implements UncaughtExceptionHandler {
@@ -463,17 +476,6 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		@Override
 		public void windowClosing(WindowEvent e) {
 			exit();
-		}
-	}
-
-	private final class SwitchToWorkflowPerspective implements
-			Observer<FileManagerEvent> {
-		// If we currently are not in the design perspective - switch to it now
-		public void notify(Observable<FileManagerEvent> sender,
-				FileManagerEvent message) throws Exception {
-			if (message instanceof SetCurrentDataflowEvent) {
-				getPerspectives().setWorkflowPerspective();
-			}
 		}
 	}
 

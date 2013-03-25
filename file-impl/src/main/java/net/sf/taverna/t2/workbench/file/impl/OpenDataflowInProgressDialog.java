@@ -34,7 +34,6 @@ import javax.swing.border.EmptyBorder;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-//import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 
 /**
  * Dialog that is popped up while we are opening a workflow.

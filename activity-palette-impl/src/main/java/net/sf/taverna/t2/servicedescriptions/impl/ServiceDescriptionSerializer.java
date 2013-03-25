@@ -19,15 +19,13 @@ import org.jdom.output.XMLOutputter;
 
 public class ServiceDescriptionSerializer extends AbstractXMLSerializer
 		implements ServiceDescriptionXMLConstants{
-	
+
 	private static Logger logger = Logger
 			.getLogger(ServiceDescriptionSerializer.class);
 
-	@SuppressWarnings("unchecked")
 	public Element serviceProviderToXML(ServiceDescriptionProvider provider)
 			throws JDOMException, IOException {
-		Element serviceProviderElem = new Element(PROVIDER,
-				SERVICE_DESCRIPTION_NS);
+		Element serviceProviderElem = new Element(PROVIDER, SERVICE_DESCRIPTION_NS);
 
 		Element providerIdElem = new Element(PROVIDER_IDENTIFIER, T2_WORKFLOW_NAMESPACE);
 		providerIdElem.setText(provider.getId());
@@ -45,7 +43,7 @@ public class ServiceDescriptionSerializer extends AbstractXMLSerializer
 	public Element serviceRegistryToXML(ServiceDescriptionRegistry registry) {
 		Element serviceDescriptionElem = new Element(SERVICE_DESCRIPTIONS,
 				SERVICE_DESCRIPTION_NS);
-		
+
 		Element localProvidersElem = new Element(PROVIDERS,
 				SERVICE_DESCRIPTION_NS);
 		serviceDescriptionElem.addContent(localProvidersElem);
@@ -61,7 +59,7 @@ public class ServiceDescriptionSerializer extends AbstractXMLSerializer
 				logger.warn("Could not serialize " + provider, e);
 			}
 		}
-		
+
 		Element ignoredProvidersElem = new Element(IGNORED_PROVIDERS,
 				SERVICE_DESCRIPTION_NS);
 		serviceDescriptionElem.addContent(ignoredProvidersElem);
@@ -91,10 +89,10 @@ public class ServiceDescriptionSerializer extends AbstractXMLSerializer
 		bufferedOutStream.flush();
 		bufferedOutStream.close();
 	}
-	
+
 	/**
-	 * Export the whole service registry to an xml file, regardless of who 
-	 * added the service provider (user or system default). In this case there 
+	 * Export the whole service registry to an xml file, regardless of who
+	 * added the service provider (user or system default). In this case there
 	 * will be no "ignored providers" in the saved file.
 	 */
 	public void exportServiceRegistryToXML(ServiceDescriptionRegistry registry,
@@ -108,11 +106,11 @@ public class ServiceDescriptionSerializer extends AbstractXMLSerializer
 		bufferedOutStream.flush();
 		bufferedOutStream.close();
 	}
-	
+
 	public Element exportServiceRegistryToXML(ServiceDescriptionRegistry registry) {
 		Element serviceDescriptionElem = new Element(SERVICE_DESCRIPTIONS,
 				SERVICE_DESCRIPTION_NS);
-		
+
 		Element localProvidersElem = new Element(PROVIDERS,
 				SERVICE_DESCRIPTION_NS);
 		serviceDescriptionElem.addContent(localProvidersElem);
@@ -131,7 +129,7 @@ public class ServiceDescriptionSerializer extends AbstractXMLSerializer
 				}
 			}
 		}
-		
+
 		return serviceDescriptionElem;
 	}
 

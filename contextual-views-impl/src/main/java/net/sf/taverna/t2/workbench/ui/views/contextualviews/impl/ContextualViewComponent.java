@@ -33,16 +33,16 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
+import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.ui.Utils;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
-import net.sf.taverna.t2.workbench.ui.views.contextualviews.annotated.AnnotatedContextualView;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
@@ -54,10 +54,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 
 	private Observer<DataflowSelectionMessage> dataflowSelectionListener = new DataflowSelectionListener();
 
-	private FileManager fileManager;
-	private EditManagerObserver editManagerObserver = new EditManagerObserver();
-	private FileManagerObserver fileManagerObserver = new FileManagerObserver();
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
 
 	/** Keep list of views in case you want to go back or forward between them */
@@ -86,24 +83,21 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	private Timer updateSelectionTimer = null;
 
 	private Object lastSelectedObject = null;
-	
+
 	public static boolean selfGenerated = false;
 
-	public ContextualViewComponent(EditManager editManager, FileManager fileManager,
-			DataflowSelectionManager dataflowSelectionManager,
+	public ContextualViewComponent(EditManager editManager,
+			SelectionManager selectionManager,
 			ContextualViewFactoryRegistry contextualViewFactoryRegistry) {
-		this.fileManager = fileManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.selectionManager = selectionManager;
 		this.contextualViewFactoryRegistry = contextualViewFactoryRegistry;
-		WorkflowBundle currentWorkflowBundle = fileManager.getCurrentDataflow();
+		updateSelectionTimer = new Timer(DELAY, updateSelectionListener);
+		updateSelectionTimer.setRepeats(false);
 
-		DataflowSelectionModel selectionModel = dataflowSelectionManager
-				.getDataflowSelectionModel(currentWorkflowBundle);
-		selectionModel.addObserver(dataflowSelectionListener);
-
-		editManager.addObserver(editManagerObserver);
-		fileManager.addObserver(fileManagerObserver);
 		initialise();
+
+		editManager.addObserver(new EditManagerObserver());
+		selectionManager.addObserver(new SelectionManagerObserver());
 	}
 
 	public ImageIcon getIcon() {
@@ -118,8 +112,6 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	private void initialise() {
 		mainPanel = new JPanel(new GridBagLayout());
 		this.setViewportView(mainPanel);
-		updateSelectionTimer = new Timer(DELAY, updateSelectionListener);
-		updateSelectionTimer.setRepeats(false);
 	}
 
 	public void onDisplay() {
@@ -260,14 +252,14 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 
 	private Object getSelection() {
-		WorkflowBundle workflowBundle = fileManager.getCurrentDataflow();
+		WorkflowBundle workflowBundle = selectionManager.getSelectedWorkflowBundle();
 
 		// If there is no currently opened dataflow,
 		// clear the contextual view panel
 		if (workflowBundle == null) {
 			return null;
 		}
-		DataflowSelectionModel selectionModel = dataflowSelectionManager
+		DataflowSelectionModel selectionModel = selectionManager
 				.getDataflowSelectionModel(workflowBundle);
 		Set<Object> selection = selectionModel.getSelection();
 
@@ -287,13 +279,12 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		updateContextualView(viewFactoriesForBeanType, selection);
 	}
 
-	private final class FileManagerObserver implements Observer<FileManagerEvent> {
-		public void notify(Observable<FileManagerEvent> sender, FileManagerEvent event)
-				throws Exception {
-			if (event instanceof SetCurrentDataflowEvent) {
-				WorkflowBundle workflowBundle = ((SetCurrentDataflowEvent) event).getDataflow();
+	private final class SelectionManagerObserver implements Observer<SelectionManagerEvent> {
+		public void notify(Observable<SelectionManagerEvent> sender, SelectionManagerEvent event) {
+			if (event instanceof WorkflowBundleSelectionEvent) {
+				WorkflowBundle workflowBundle = ((WorkflowBundleSelectionEvent) event).getSelectedWorkflowBundle();
 				if (workflowBundle != null) {
-					dataflowSelectionManager.getDataflowSelectionModel(workflowBundle).addObserver(
+					selectionManager.getDataflowSelectionModel(workflowBundle).addObserver(
 							dataflowSelectionListener);
 				}
 				lastSelectedObject = null;

@@ -28,6 +28,7 @@ import uk.org.taverna.scufl2.api.core.DataLink;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 
@@ -40,7 +41,7 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualV
 public class MergeContextualViewFactory implements ContextualViewFactory<DataLink> {
 
 	private EditManager editManager;
-	private FileManager fileManager;
+	private SelectionManager selectionManager;
 	private ColourManager colourManager;
 
 	public boolean canHandle(Object object) {
@@ -48,19 +49,19 @@ public class MergeContextualViewFactory implements ContextualViewFactory<DataLin
 	}
 
 	public List<ContextualView> getViews(DataLink merge) {
-		return Arrays.asList(new ContextualView[] {new MergeContextualView(merge, editManager, fileManager, colourManager)});
+		return Arrays.asList(new ContextualView[] {new MergeContextualView(merge, editManager, selectionManager, colourManager)});
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
 	public void setColourManager(ColourManager colourManager) {
 		this.colourManager = colourManager;
+	}
+
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

@@ -40,10 +40,10 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workbench.selection.events.PerspectiveSelectionEvent;
+import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.ui.WorkbenchPerspectives;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
@@ -55,13 +55,9 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 
 	private static Logger logger = Logger.getLogger(WorkbenchPerspectivesImpl.class);
 
-	private static ModelMap modelMap = ModelMap.getInstance();
-
 	private PerspectiveSPI currentPerspective;
 
 	private ButtonGroup perspectiveButtonGroup = new ButtonGroup();
-
-	private CurrentPerspectiveObserver perspectiveObserver = new CurrentPerspectiveObserver();
 
 	private Map<PerspectiveSPI, JToggleButton> perspectiveButtonMap = new HashMap<PerspectiveSPI, JToggleButton>();
 
@@ -73,12 +69,15 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 
 	private boolean refreshing;
 
-	public WorkbenchPerspectivesImpl(JToolBar toolBar, JPanel panel, CardLayout cardLayout) {
+	private final SelectionManager selectionManager;
+
+	public WorkbenchPerspectivesImpl(JToolBar toolBar, JPanel panel, CardLayout cardLayout, SelectionManager selectionManager) {
 		this.panel = panel;
 		this.toolBar = toolBar;
 		this.cardLayout = cardLayout;
+		this.selectionManager = selectionManager;
 		refreshing = true;
-		modelMap.addObserver(perspectiveObserver);
+		selectionManager.addObserver(new SelectionManagerObserver());
 		refreshing = false;
 	}
 
@@ -94,24 +93,18 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 	}
 
 	private void initialisePerspectives() {
-
 		for (final PerspectiveSPI perspective : perspectives) {
 			addPerspective(perspective, false);
 		}
 		selectFirstPerspective();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.ui.impl.WorkbenchPerspectives#setWorkflowPerspective()
-	 */
 	@Override
 	public void setWorkflowPerspective() {
-		PerspectiveSPI currentPerspective = (PerspectiveSPI) modelMap
-				.getModel(ModelMapConstants.CURRENT_PERSPECTIVE);
 		if (!(currentPerspective instanceof WorkflowPerspective)) {
 			for (PerspectiveSPI perspective : perspectives) {
 				if (perspective instanceof WorkflowPerspective) {
-					modelMap.setModel(ModelMapConstants.CURRENT_PERSPECTIVE, perspective);
+					selectionManager.setSelectedPerspective(perspective);
 					return;
 				}
 			}
@@ -119,11 +112,7 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.ui.impl.WorkbenchPerspectives#switchPerspective(net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI)
-	 */
-	@Override
-	public void switchPerspective(PerspectiveSPI perspective) {
+	private void setPerspective(PerspectiveSPI perspective) {
 		if (perspective != currentPerspective) {
 			if (!perspectiveButtonMap.containsKey(perspective)) {
 				addPerspective(perspective, true);
@@ -150,8 +139,7 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 		toolbarButton.setToolTipText(perspective.getText() + " perspective");
 		Action action = new AbstractAction() {
 			public void actionPerformed(ActionEvent e) {
-				modelMap.setModel(ModelMapConstants.CURRENT_PERSPECTIVE,
-						perspective);
+				selectionManager.setSelectedPerspective(perspective);
 			}
 		};
 		action.putValue(Action.NAME, perspective.getText());
@@ -189,8 +177,7 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 		if (!set) // no visible perspectives were found
 		{
 			logger.info("No visible perspectives.");
-			modelMap.setModel(ModelMapConstants.CURRENT_PERSPECTIVE,
-					new BlankPerspective());
+			selectionManager.setSelectedPerspective(new BlankPerspective());
 		}
 	}
 
@@ -215,24 +202,12 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 		}
 	}
 
-	/**
-	 * Change perspective when ModelMapConstants.CURRENT_PERSPECTIVE has been
-	 * modified.
-	 *
-	 * @author Stian Soiland-Reyes
-	 * @author Stuart Owen
-	 */
-	public class CurrentPerspectiveObserver implements Observer<ModelMapEvent> {
-		public void notify(Observable<ModelMapEvent> sender,
-				ModelMapEvent message) throws Exception {
-			if (!message.getModelName().equals(
-					ModelMapConstants.CURRENT_PERSPECTIVE)) {
-				return;
-			}
-			if (message.getNewModel() instanceof PerspectiveSPI) {
-				PerspectiveSPI newPerspective = (PerspectiveSPI) message
-						.getNewModel();
-				switchPerspective(newPerspective);
+	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+		@Override
+		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message) {
+			if (message instanceof PerspectiveSelectionEvent) {
+				PerspectiveSPI selectedPerspective = ((PerspectiveSelectionEvent) message).getSelectedPerspective();
+				setPerspective(selectedPerspective);
 			}
 		}
 	}

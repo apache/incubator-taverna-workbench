@@ -29,6 +29,7 @@ import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workflow.edits.ReorderMergePositionsEdit;
 
 import org.apache.log4j.Logger;
@@ -54,20 +55,21 @@ public class MergeConfigurationAction extends AbstractAction {
 
 	private final EditManager editManager;
 
-	private final FileManager fileManager;
+	private final SelectionManager selectionManager;
 
 
-	MergeConfigurationAction(List<DataLink> datalinks, List<DataLink> reorderedDataLinksList, EditManager editManager, FileManager fileManager) {
+	MergeConfigurationAction(List<DataLink> datalinks, List<DataLink> reorderedDataLinksList,
+			EditManager editManager, SelectionManager selectionManager) {
 		this.datalinks = datalinks;
 		this.reorderedDataLinksList = reorderedDataLinksList;
 		this.editManager = editManager;
-		this.fileManager = fileManager;
+		this.selectionManager = selectionManager;
 	}
 
 	public void actionPerformed(ActionEvent e) {
 		ReorderMergePositionsEdit reorderMergeInputPortsEdit = new ReorderMergePositionsEdit(datalinks, reorderedDataLinksList);
 
-		WorkflowBundle currentWorkflowBundle = fileManager.getCurrentDataflow();
+		WorkflowBundle currentWorkflowBundle = selectionManager.getSelectedWorkflowBundle();
 
 		try {
 			editManager.doDataflowEdit(currentWorkflowBundle,
