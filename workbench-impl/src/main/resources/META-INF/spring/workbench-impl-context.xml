@@ -10,26 +10,15 @@
 		<constructor-arg ref="workbenchConfiguration" />
 	</bean>
 
-	<!-- <bean id="WorkbenchLauncher" class="net.sf.taverna.t2.workbench.ui.impl.WorkbenchLauncher" /> -->
-
-	<bean id="FileMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.FileMenu" />
-	<bean id="ExitAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.ExitAction">
+	<bean id="StoreWindowStateOnShutdown" class="net.sf.taverna.t2.workbench.ui.impl.StoreWindowStateOnShutdown">
 		<property name="workbench">
 			<ref local="Workbench"/>
 		</property>
 	</bean>
-	<bean id="EditMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.EditMenu" />
-	<bean id="AdvancedMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.AdvancedMenu" />
-	<bean id="HelpMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.HelpMenu" />
-	<bean id="OnlineHelpMenuAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.OnlineHelpMenuAction" />
-	<bean id="FeedbackMenuAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.FeedbackMenuAction" />
-	<bean id="ShowLogsAndDataMenuAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.ShowLogsAndDataMenuAction">
-		<property name="applicationConfiguration" ref="applicationConfiguration"/>
-	</bean>
 
-	<bean id="StoreWindowStateOnShutdown" class="net.sf.taverna.t2.workbench.ui.impl.StoreWindowStateOnShutdown">
+	<bean id="ExitAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.ExitAction">
 		<property name="workbench">
-			<ref local="Workbench"/>
+			<ref local ="Workbench"/>
 		</property>
 	</bean>
 
@@ -43,10 +32,7 @@
 		<property name="configurationUIFactories" ref="configurationUIFactories"/>
 		<property name="workbenchConfiguration" ref="workbenchConfiguration"/>
 		<property name="applicationConfiguration" ref="applicationConfiguration"/>
-	</bean>
-
-	<bean id="DataflowSelectionManager" class="net.sf.taverna.t2.workbench.ui.impl.DataflowSelectionManagerImpl">
-		<constructor-arg ref="fileManager"/>
+		<property name="selectionManager" ref="selectionManager"/>
 	</bean>
 
 	<bean id="PerspectiveComparator" class="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI$PerspectiveComparator" />

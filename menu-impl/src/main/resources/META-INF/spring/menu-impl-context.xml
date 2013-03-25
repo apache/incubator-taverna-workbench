@@ -7,4 +7,14 @@
 		<property name="menuComponents" ref="menuComponents"/>
 	</bean>
 
+	<bean id="FileMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.FileMenu" />
+	<bean id="EditMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.EditMenu" />
+	<bean id="AdvancedMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.AdvancedMenu" />
+	<bean id="HelpMenu" class="net.sf.taverna.t2.workbench.ui.impl.menu.HelpMenu" />
+	<bean id="OnlineHelpMenuAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.OnlineHelpMenuAction" />
+	<bean id="FeedbackMenuAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.FeedbackMenuAction" />
+	<bean id="ShowLogsAndDataMenuAction" class="net.sf.taverna.t2.workbench.ui.impl.menu.ShowLogsAndDataMenuAction">
+		<property name="applicationConfiguration" ref="applicationConfiguration"/>
+	</bean>
+
 </beans>

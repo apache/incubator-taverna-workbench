@@ -7,28 +7,18 @@
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
 	<service ref="UserRegistrationHook" interface="net.sf.taverna.t2.workbench.StartupSPI" />
-	<service ref="SetConsoleLoggerStartup" interface="net.sf.taverna.t2.workbench.StartupSPI" />
-
-	<!-- <service ref="WorkbenchLauncher" interface="net.sf.taverna.raven.launcher.Launchable" /> -->
-
-	<service ref="FileMenu" auto-export="interfaces" />
-	<service ref="ExitAction" auto-export="interfaces" />
-	<service ref="EditMenu" auto-export="interfaces" />
-	<service ref="AdvancedMenu" auto-export="interfaces" />
-	<service ref="HelpMenu" auto-export="interfaces" />
-	<service ref="OnlineHelpMenuAction" auto-export="interfaces" />
-	<service ref="FeedbackMenuAction" auto-export="interfaces" />
-	<service ref="ShowLogsAndDataMenuAction" auto-export="interfaces" />
+	<!-- <service ref="SetConsoleLoggerStartup" interface="net.sf.taverna.t2.workbench.StartupSPI" /> -->
 
 	<service ref="StoreWindowStateOnShutdown" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />
 
-	<service ref="Workbench" interface="net.sf.taverna.t2.workbench.ui.Workbench" />
+	<service ref="ExitAction" auto-export="interfaces" />
 
-	<service ref="DataflowSelectionManager" interface="net.sf.taverna.t2.workbench.ui.DataflowSelectionManager" />
+	<service ref="Workbench" interface="net.sf.taverna.t2.workbench.ui.Workbench" />
 
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
 	<reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
+	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
 	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
 	<reference id="applicationConfiguration" interface="uk.org.taverna.configuration.app.ApplicationConfiguration" />
 

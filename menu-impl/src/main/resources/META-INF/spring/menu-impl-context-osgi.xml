@@ -8,6 +8,16 @@
 
 	<service ref="MenuManagerImpl" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
 
+	<service ref="FileMenu" auto-export="interfaces" />
+	<service ref="EditMenu" auto-export="interfaces" />
+	<service ref="AdvancedMenu" auto-export="interfaces" />
+	<service ref="HelpMenu" auto-export="interfaces" />
+	<service ref="OnlineHelpMenuAction" auto-export="interfaces" />
+	<service ref="FeedbackMenuAction" auto-export="interfaces" />
+	<service ref="ShowLogsAndDataMenuAction" auto-export="interfaces" />
+
+	<reference id="applicationConfiguration" interface="uk.org.taverna.configuration.app.ApplicationConfiguration" />
+
 	<list id="menuComponents" interface="net.sf.taverna.t2.ui.menu.MenuComponent" cardinality="0..N" greedy-proxying="true">
 		<listener ref="MenuManagerImpl" bind-method="update" unbind-method="update" />
 	</list>
