@@ -26,8 +26,8 @@ import java.awt.event.ActionEvent;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflow.edits.RemoveControlLinkEdit;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workflow.edits.RemoveChildEdit;
 
 import org.apache.log4j.Logger;
 
@@ -47,8 +47,8 @@ public class RemoveConditionAction extends DataflowEditAction {
 
 	private ControlLink controlLink;
 
-	public RemoveConditionAction(Workflow dataflow, ControlLink controlLink, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
-		super(dataflow, component, editManager, dataflowSelectionManager);
+	public RemoveConditionAction(Workflow dataflow, ControlLink controlLink, Component component, EditManager editManager, SelectionManager selectionManager) {
+		super(dataflow, component, editManager, selectionManager);
 		this.controlLink = controlLink;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
 		putValue(NAME, "Delete control link");
@@ -56,7 +56,7 @@ public class RemoveConditionAction extends DataflowEditAction {
 
 	public void actionPerformed(ActionEvent e) {
 		try {
-			editManager.doDataflowEdit(dataflow.getParent(), new RemoveControlLinkEdit(dataflow, controlLink));
+			editManager.doDataflowEdit(dataflow.getParent(), new RemoveChildEdit<Workflow>(dataflow, controlLink));
 			dataflowSelectionModel.removeSelection(controlLink);
 		} catch (EditException e1) {
 			logger.debug("Delete control link failed", e1);

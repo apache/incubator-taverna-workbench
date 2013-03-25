@@ -162,7 +162,7 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 	/**
 	 * Returns a path from the root to the node containing the object. For a nested workflow,
 	 * only a path for the DataflowActivity and its input and output ports is returned - for all other
-	 * nested workflow objects we return null as we do not want them to be selectable in the tree.
+	 * nested workflow objects we return null as we do not want them to be selection in the tree.
 	 */
 	public static TreePath getPathForObject(Object userObject, DefaultMutableTreeNode root){
 

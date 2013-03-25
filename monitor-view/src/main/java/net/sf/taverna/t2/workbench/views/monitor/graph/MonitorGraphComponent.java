@@ -47,7 +47,7 @@ import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
 import net.sf.taverna.t2.workbench.models.graph.GraphNode;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
@@ -104,18 +104,18 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 
 	protected final MenuManager menuManager;
 
-	protected final DataflowSelectionManager dataflowSelectionManager;
+	protected final SelectionManager selectionManager;
 
 	protected final ColourManager colourManager;
 
 	protected final WorkbenchConfiguration workbenchConfiguration;
 
-	public MonitorGraphComponent(EditManager editManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager,
+	public MonitorGraphComponent(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager,
 			ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
 		super(new BorderLayout());
 		this.editManager = editManager;
 		this.menuManager = menuManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.selectionManager = selectionManager;
 		this.colourManager = colourManager;
 		this.workbenchConfiguration = workbenchConfiguration;
 		setBorder(LineBorder.createGrayLineBorder());
@@ -222,7 +222,7 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 		SVGGraphController svgGraphController = new SVGGraphController(dataflow, true, svgCanvas, editManager, menuManager, colourManager, workbenchConfiguration);
 		svgGraphController.setGraphEventManager(new MonitorGraphEventManager(this, provenanceConnector, dataflow, getSessionId()));
 		// For selections on the graph
-		svgGraphController.setDataflowSelectionModel(dataflowSelectionManager.getDataflowSelectionModel(dataflow));
+		svgGraphController.setDataflowSelectionModel(selectionManager.getDataflowSelectionModel(dataflow));
 		setGraphController(svgGraphController);
 		graphMonitor = new GraphMonitor(svgGraphController);
 		return graphMonitor;
@@ -373,7 +373,7 @@ class MonitorGraphEventManager implements GraphEventManager {
 			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
 			int screenX, int screenY) {
 
-		Object dataflowObject = graphElement.getDataflowObject();
+		Object dataflowObject = graphElement.getWorkflowBean();
 
 		GraphElement parent = graphElement.getParent();
 		if (parent instanceof GraphNode) {

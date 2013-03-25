@@ -30,10 +30,9 @@ import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflow.edits.RemoveControlLinkEdit;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workflow.edits.RemoveChildEdit;
 import net.sf.taverna.t2.workflow.edits.RemoveDataLinkEdit;
-import net.sf.taverna.t2.workflow.edits.RemoveProcessorEdit;
 
 import org.apache.log4j.Logger;
 
@@ -59,8 +58,8 @@ public class RemoveProcessorAction extends DataflowEditAction {
 
 	private Processor processor;
 
-	public RemoveProcessorAction(Workflow dataflow, Processor processor, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
-		super(dataflow, component, editManager, dataflowSelectionManager);
+	public RemoveProcessorAction(Workflow dataflow, Processor processor, Component component, EditManager editManager, SelectionManager selectionManager) {
+		super(dataflow, component, editManager, selectionManager);
 		this.processor = processor;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
 		putValue(NAME, "Delete service");
@@ -84,16 +83,16 @@ public class RemoveProcessorAction extends DataflowEditAction {
 				}
 			}
 			for (ControlLink controlLink : controlLinksBlocking) {
-				editList.add(new RemoveControlLinkEdit(dataflow, controlLink));
+				editList.add(new RemoveChildEdit<Workflow>(dataflow, controlLink));
 			}
 			for (ControlLink controlLink : controlLinksWaitingFor) {
-				editList.add(new RemoveControlLinkEdit(dataflow, controlLink));
+				editList.add(new RemoveChildEdit<Workflow>(dataflow, controlLink));
 			}
 
 			if (editList.isEmpty()) {
-				editManager.doDataflowEdit(dataflow.getParent(), new RemoveProcessorEdit(dataflow, processor));
+				editManager.doDataflowEdit(dataflow.getParent(), new RemoveChildEdit<Workflow>(dataflow, processor));
 			} else {
-				editList.add(new RemoveProcessorEdit(dataflow, processor));
+				editList.add(new RemoveChildEdit<Workflow>(dataflow, processor));
 				editManager.doDataflowEdit(dataflow.getParent(), new CompoundEdit(editList));
 			}
 			dataflowSelectionModel.removeSelection(processor);

@@ -26,7 +26,7 @@ import java.awt.event.ActionEvent;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workflow.edits.RemoveDataLinkEdit;
 
 import org.apache.log4j.Logger;
@@ -47,8 +47,8 @@ public class RemoveDatalinkAction extends DataflowEditAction {
 
 	private DataLink datalink;
 
-	public RemoveDatalinkAction(Workflow dataflow, DataLink datalink, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
-		super(dataflow, component, editManager, dataflowSelectionManager);
+	public RemoveDatalinkAction(Workflow dataflow, DataLink datalink, Component component, EditManager editManager, SelectionManager selectionManager) {
+		super(dataflow, component, editManager, selectionManager);
 		this.datalink = datalink;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
 		putValue(NAME, "Delete data link");

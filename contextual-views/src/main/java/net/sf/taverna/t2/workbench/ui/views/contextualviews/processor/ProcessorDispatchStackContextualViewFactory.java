@@ -43,7 +43,6 @@ public class ProcessorDispatchStackContextualViewFactory implements
 		ContextualViewFactory<Processor> {
 
 	private EditManager editManager;
-	private FileManager fileManager;
 	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
 	private List<AddLayerFactorySPI> addLayerFactories;
 
@@ -53,16 +52,12 @@ public class ProcessorDispatchStackContextualViewFactory implements
 
 	public List<ContextualView> getViews(Processor selection) {
 		return Arrays.asList(new ContextualView[] { new ProcessorDispatchStackContextualView(
-				selection, editManager, fileManager, contextualViewFactoryRegistry,
+				selection, editManager, contextualViewFactoryRegistry,
 				addLayerFactories) });
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
-	}
-
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
 	}
 
 	public void setContextualViewFactoryRegistry(

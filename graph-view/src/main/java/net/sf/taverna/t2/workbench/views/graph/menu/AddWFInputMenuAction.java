@@ -26,8 +26,7 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.views.graph.actions.AddWFInputAction;
 
 /**
@@ -40,8 +39,7 @@ public class AddWFInputMenuAction extends AbstractMenuAction {
 	private static final URI ADD_WF_INPUT_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuAddWFInput");
 	private EditManager editManager;
-	private FileManager fileManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	public AddWFInputMenuAction() {
 		super(InsertMenu.INSERT, 10, ADD_WF_INPUT_URI);
@@ -49,19 +47,15 @@ public class AddWFInputMenuAction extends AbstractMenuAction {
 
 	@Override
 	protected Action createAction() {
-		return new AddWFInputAction(editManager, fileManager, dataflowSelectionManager);
+		return new AddWFInputAction(editManager, selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

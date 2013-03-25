@@ -23,6 +23,8 @@ package net.sf.taverna.t2.workbench.models.graph;
 import java.awt.Color;
 import java.awt.Point;
 
+import uk.org.taverna.scufl2.api.common.WorkflowBean;
+
 /**
  * An element of a graph.
  *
@@ -60,7 +62,7 @@ public abstract class GraphElement {
 
 	private boolean filtered;
 
-	private Object dataflowObject;
+	private WorkflowBean workflowBean;
 
 	protected GraphController graphController;
 
@@ -87,21 +89,21 @@ public abstract class GraphElement {
 	}
 
 	/**
-	 * Returns the dataflowObject.
+	 * Returns the workflowBean.
 	 *
-	 * @return the dataflowObject
+	 * @return the workflowBean
 	 */
-	public Object getDataflowObject() {
-		return dataflowObject;
+	public WorkflowBean getWorkflowBean() {
+		return workflowBean;
 	}
 
 	/**
-	 * Sets the dataflowObject.
+	 * Sets the workflowBean.
 	 *
-	 * @param dataflowObject the new dataflowObject
+	 * @param workflowBean the new workflowBean
 	 */
-	public void setDataflowObject(Object dataflowObject) {
-		this.dataflowObject = dataflowObject;
+	public void setWorkflowBean(WorkflowBean workflowBean) {
+		this.workflowBean = workflowBean;
 	}
 
 	/**

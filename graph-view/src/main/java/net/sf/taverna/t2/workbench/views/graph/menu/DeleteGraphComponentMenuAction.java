@@ -26,8 +26,7 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.views.graph.actions.DeleteGraphComponentAction;
 
 /**
@@ -41,8 +40,7 @@ public class DeleteGraphComponentMenuAction extends AbstractMenuAction {
 	private static final URI DELETE_GRAPH_COMPONENT_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuDeleteGraphComponent");
 	private EditManager editManager;
-	private FileManager fileManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	public DeleteGraphComponentMenuAction() {
 		super(GraphDeleteMenuSection.GRAPH_DELETE_MENU_SECTION, 10, DELETE_GRAPH_COMPONENT_URI);
@@ -50,19 +48,15 @@ public class DeleteGraphComponentMenuAction extends AbstractMenuAction {
 
 	@Override
 	protected Action createAction() {
-		return new DeleteGraphComponentAction(editManager, fileManager, dataflowSelectionManager);
+		return new DeleteGraphComponentAction(editManager, selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

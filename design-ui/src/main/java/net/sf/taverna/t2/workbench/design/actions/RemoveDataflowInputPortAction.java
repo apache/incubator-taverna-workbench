@@ -30,9 +30,9 @@ import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workflow.edits.RemoveChildEdit;
 import net.sf.taverna.t2.workflow.edits.RemoveDataLinkEdit;
-import net.sf.taverna.t2.workflow.edits.RemoveDataflowInputPortEdit;
 
 import org.apache.log4j.Logger;
 
@@ -53,8 +53,8 @@ public class RemoveDataflowInputPortAction extends DataflowEditAction {
 
 	private InputWorkflowPort port;
 
-	public RemoveDataflowInputPortAction(Workflow dataflow, InputWorkflowPort port, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
-		super(dataflow, component, editManager, dataflowSelectionManager);
+	public RemoveDataflowInputPortAction(Workflow dataflow, InputWorkflowPort port, Component component, EditManager editManager, SelectionManager selectionManager) {
+		super(dataflow, component, editManager, selectionManager);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
 		putValue(NAME, "Delete workflow input port");
@@ -64,13 +64,13 @@ public class RemoveDataflowInputPortAction extends DataflowEditAction {
 		try {
 			List<DataLink> datalinks = scufl2Tools.datalinksFrom(port);
 			if (datalinks.isEmpty()) {
-				editManager.doDataflowEdit(dataflow.getParent(), new RemoveDataflowInputPortEdit(dataflow, port));
+				editManager.doDataflowEdit(dataflow.getParent(), new RemoveChildEdit<Workflow>(dataflow, port));
 			} else {
 				List<Edit<?>> editList = new ArrayList<Edit<?>>();
 				for (DataLink datalink : datalinks) {
 					editList.add(new RemoveDataLinkEdit(dataflow, datalink));
 				}
-				editList.add(new RemoveDataflowInputPortEdit(dataflow, port));
+				editList.add(new RemoveChildEdit<Workflow>(dataflow, port));
 				editManager.doDataflowEdit(dataflow.getParent(), new CompoundEdit(editList));
 			}
 			dataflowSelectionModel.removeSelection(port);

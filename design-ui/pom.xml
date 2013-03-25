@@ -11,11 +11,6 @@
 	<name>Design UI</name>
 	<packaging>bundle</packaging>
 	<dependencies>
-		<!-- <dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-api</artifactId>
-			<version>${t2.core.version}</version>
-		</dependency> -->
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>activity-icons-api</artifactId>
@@ -33,7 +28,7 @@
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>workbench-api</artifactId>
+			<artifactId>selection-api</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>

@@ -11,7 +11,7 @@
 	<bean id="ServicePanelComponentFactory" class="net.sf.taverna.t2.workbench.ui.servicepanel.ServicePanelComponentFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 			<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
 	</bean>
 

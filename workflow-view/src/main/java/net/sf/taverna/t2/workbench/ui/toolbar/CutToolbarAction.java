@@ -26,8 +26,7 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.CutGraphComponentAction;
 
 public class CutToolbarAction extends AbstractMenuAction {
@@ -38,8 +37,7 @@ public class CutToolbarAction extends AbstractMenuAction {
 			.create("http://taverna.sf.net/2008/t2workbench/menu#editToolbarCut");
 
 	private EditManager editManager;
-	private FileManager fileManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	public CutToolbarAction() {
 		super(EDIT_TOOLBAR_SECTION, 30, EDIT_TOOLBAR_CUT_URI);
@@ -47,19 +45,15 @@ public class CutToolbarAction extends AbstractMenuAction {
 
 	@Override
 	protected Action createAction() {
-		return new CutGraphComponentAction(editManager, fileManager, dataflowSelectionManager);
+		return new CutGraphComponentAction(editManager, selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

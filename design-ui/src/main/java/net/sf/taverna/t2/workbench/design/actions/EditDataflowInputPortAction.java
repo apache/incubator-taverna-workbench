@@ -35,14 +35,16 @@ import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflow.edits.ChangeDataflowInputPortDepthEdit;
-import net.sf.taverna.t2.workflow.edits.RenameDataflowInputPortEdit;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workflow.edits.ChangeDepthEdit;
+import net.sf.taverna.t2.workflow.edits.RenameEdit;
 
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.DepthPort;
 import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.Port;
 
 /**
  * Action for editing a dataflow input port.
@@ -59,8 +61,8 @@ public class EditDataflowInputPortAction extends DataflowEditAction {
 	private InputWorkflowPort port;
 
 	public EditDataflowInputPortAction(Workflow dataflow,
-			InputWorkflowPort port, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
-		super(dataflow, component, editManager, dataflowSelectionManager);
+			InputWorkflowPort port, Component component, EditManager editManager, SelectionManager selectionManager) {
+		super(dataflow, component, editManager, selectionManager);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
 		putValue(NAME, "Edit workflow input port...");
@@ -94,11 +96,11 @@ public class EditDataflowInputPortAction extends DataflowEditAction {
 				List<Edit<?>> editList = new ArrayList<Edit<?>>();
 				String portName = inputPanel.getPortName();
 				if (!portName.equals(port.getName())) {
-					editList.add(new RenameDataflowInputPortEdit(port, portName));
+					editList.add(new RenameEdit<Port>(port, portName));
 				}
 				int portDepth = inputPanel.getPortDepth();
 				if (portDepth != port.getDepth()) {
-					editList.add(new ChangeDataflowInputPortDepthEdit(port, portDepth));
+					editList.add(new ChangeDepthEdit<DepthPort>(port, portDepth));
 				}
 				if (editList.size() == 1) {
 					editManager.doDataflowEdit(dataflow.getParent(), editList.get(0));

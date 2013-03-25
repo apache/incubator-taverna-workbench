@@ -26,10 +26,8 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.views.graph.actions.RenameWFInputOutputProcessorAction;
-import net.sf.taverna.t2.workflowmodel.Edits;
 
 /**
  *
@@ -41,8 +39,7 @@ public class RenameWFInputOutputProcessorToolbarAction extends AbstractMenuActio
 	private static final URI RENAME_WF_INPUT_OUTPUT_PROCESSOR_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphToolbarRenameWFInputOutputProcessor");
 	private EditManager editManager;
-	private FileManager fileManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	public RenameWFInputOutputProcessorToolbarAction() {
 		super(GraphEditToolbarSection.GRAPH_EDIT_TOOLBAR_SECTION, 30, RENAME_WF_INPUT_OUTPUT_PROCESSOR_URI);
@@ -50,19 +47,15 @@ public class RenameWFInputOutputProcessorToolbarAction extends AbstractMenuActio
 
 	@Override
 	protected Action createAction() {
-		return new RenameWFInputOutputProcessorAction(editManager, fileManager, dataflowSelectionManager);
+		return new RenameWFInputOutputProcessorAction(editManager, selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

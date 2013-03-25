@@ -24,14 +24,9 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
@@ -40,21 +35,15 @@ import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.TreePath;
 
-import org.apache.log4j.Logger;
-
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-
-import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.ui.menu.MenuManager;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ExportServiceDescriptionsAction;
 import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ImportServiceDescriptionsFromFileAction;
 import net.sf.taverna.t2.workbench.ui.servicepanel.actions.ImportServiceDescriptionsFromURLAction;
@@ -65,6 +54,8 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeSelectionModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.TreePanel;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
+
+import org.apache.log4j.Logger;
 
 /**
  * @author alanrw
@@ -83,17 +74,17 @@ public class ServiceTreeClickListener extends MouseAdapter {
 
 	private final MenuManager menuManager;
 
-	private final DataflowSelectionManager dataflowSelectionManager;
+	private final SelectionManager selectionManager;
 
 	public ServiceTreeClickListener(JTree tree, TreePanel panel,
 			ServiceDescriptionRegistry serviceDescriptionRegistry, EditManager editManager,
-			MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager) {
+			MenuManager menuManager, SelectionManager selectionManager) {
 		this.tree = tree;
 		this.panel = panel;
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 		this.editManager = editManager;
 		this.menuManager = menuManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.selectionManager = selectionManager;
 	}
 
 	private void handleMouseEvent(MouseEvent evt) {
@@ -149,9 +140,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 						menu.add(new AbstractAction("Add to workflow") {
 
 							public void actionPerformed(ActionEvent e) {
-								WorkflowBundle currentDataflow = (WorkflowBundle) ModelMap.getInstance()
-										.getModel(ModelMapConstants.CURRENT_DATAFLOW);
-								WorkflowView.importServiceDescription(sd, false, editManager, menuManager, dataflowSelectionManager);
+								WorkflowView.importServiceDescription(sd, false, editManager, menuManager, selectionManager);
 
 							}
 
@@ -159,9 +148,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 						menu.add(new AbstractAction("Add to workflow with name...") {
 
 							public void actionPerformed(ActionEvent e) {
-								WorkflowBundle currentDataflow = (WorkflowBundle) ModelMap.getInstance()
-										.getModel(ModelMapConstants.CURRENT_DATAFLOW);
-								WorkflowView.importServiceDescription(sd, true, editManager, menuManager, dataflowSelectionManager);
+								WorkflowView.importServiceDescription(sd, true, editManager, menuManager, selectionManager);
 
 							}
 

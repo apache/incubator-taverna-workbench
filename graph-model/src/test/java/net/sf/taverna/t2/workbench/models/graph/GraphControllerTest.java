@@ -43,7 +43,7 @@ public class GraphControllerTest {
 //		System.setProperty("raven.eclipse", "true");
 //		setUpRavenRepository();
 //		dataflow = WorkflowModelTranslator.doTranslation(loadScufl("nested_iteration.xml"));
-		graphController = new GraphController(dataflow, false, null, null, null, null) {
+		graphController = new GraphController(dataflow, null, false, null, null, null, null) {
 
 			public GraphEdge createGraphEdge() {
 				return new GraphEdge(this);

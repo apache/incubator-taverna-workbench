@@ -28,8 +28,8 @@ import javax.swing.Icon;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflow.edits.AddControlLinkEdit;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workflow.edits.AddChildEdit;
 
 import org.apache.log4j.Logger;
 
@@ -57,8 +57,8 @@ public class AddConditionAction extends DataflowEditAction {
 
 	public AddConditionAction(Workflow dataflow, Processor control, Processor target,
 			Component component, EditManager editManager,
-			DataflowSelectionManager dataflowSelectionManager, ActivityIconManager activityIconManager) {
-		super(dataflow, component, editManager, dataflowSelectionManager);
+			SelectionManager selectionManager, ActivityIconManager activityIconManager) {
+		super(dataflow, component, editManager, selectionManager);
 		this.control = control;
 		this.target = target;
 		ProcessorBinding processorBinding = scufl2Tools.processorBindingForProcessor(control, dataflow.getParent().getMainProfile());
@@ -72,7 +72,7 @@ public class AddConditionAction extends DataflowEditAction {
 			BlockingControlLink controlLink = new BlockingControlLink();
 			controlLink.setUntilFinished(control);
 			controlLink.setBlock(target);
-			editManager.doDataflowEdit(dataflow.getParent(), new AddControlLinkEdit(dataflow, controlLink));
+			editManager.doDataflowEdit(dataflow.getParent(), new AddChildEdit<Workflow>(dataflow, controlLink));
 		} catch (EditException e) {
 			logger.debug("Create control link between '" + control.getName() + "' and '"
 					+ target.getName() + "' failed");

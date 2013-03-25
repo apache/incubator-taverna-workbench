@@ -32,7 +32,7 @@ import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
 import net.sf.taverna.t2.workbench.views.graph.AutoScrollInteractor;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -55,9 +55,9 @@ public class MonitorGraphPreviousRunComponent extends MonitorGraphComponent {
 
 	private GVTTreeRendererAdapter gvtTreeBuilderAdapter;
 
-	public MonitorGraphPreviousRunComponent(EditManager editManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager,
+	public MonitorGraphPreviousRunComponent(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager,
 			ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
-		super(editManager, menuManager, dataflowSelectionManager, colourManager, workbenchConfiguration);
+		super(editManager, menuManager, selectionManager, colourManager, workbenchConfiguration);
 		setLayout(new BorderLayout());
 
 	}
@@ -74,7 +74,7 @@ public class MonitorGraphPreviousRunComponent extends MonitorGraphComponent {
 		svgCanvas.setEnableZoomInteractor(false);
 		svgCanvas.setEnableRotateInteractor(false);
 		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
-		svgCanvas.setTransferHandler(new ServiceTransferHandler(editManager, menuManager, dataflowSelectionManager));
+		svgCanvas.setTransferHandler(new ServiceTransferHandler(editManager, menuManager, selectionManager));
 
 		AutoScrollInteractor asi = new AutoScrollInteractor(svgCanvas);
 		svgCanvas.addMouseListener(asi);
@@ -94,7 +94,7 @@ public class MonitorGraphPreviousRunComponent extends MonitorGraphComponent {
 		final SVGGraphController svgGraphController = new SVGGraphController(
 				dataflow, true, svgCanvas, editManager, menuManager, colourManager, workbenchConfiguration);
 		// For selections on the graph
-		svgGraphController.setDataflowSelectionModel(dataflowSelectionManager.getDataflowSelectionModel(dataflow));
+		svgGraphController.setDataflowSelectionModel(selectionManager.getDataflowSelectionModel(dataflow));
 		svgGraphController.setAnimationSpeed(0);
 		svgGraphController.setGraphEventManager(new MonitorGraphEventManager(
 				this, provenanceConnector, dataflow, getSessionId()));

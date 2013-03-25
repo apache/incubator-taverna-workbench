@@ -31,7 +31,7 @@ import javax.swing.KeyStroke;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 
 import org.apache.log4j.Logger;
@@ -53,13 +53,13 @@ public class PasteGraphComponentAction extends AbstractAction {
 
 	private final EditManager editManager;
 	private final MenuManager menuManager;
-	private final DataflowSelectionManager dataflowSelectionManager;
+	private final SelectionManager selectionManager;
 
-	private PasteGraphComponentAction(EditManager editManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager) {
+	private PasteGraphComponentAction(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager) {
 		super();
 		this.editManager = editManager;
 		this.menuManager = menuManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.selectionManager = selectionManager;
 		putValue(SMALL_ICON, WorkbenchIcons.pasteIcon);
 		putValue(NAME, "Paste");
 		putValue(SHORT_DESCRIPTION, "Paste");
@@ -71,12 +71,12 @@ public class PasteGraphComponentAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		WorkflowView.pasteTransferable(editManager, menuManager, dataflowSelectionManager);
+		WorkflowView.pasteTransferable(editManager, menuManager, selectionManager);
 	}
 
-	public static Action getInstance(EditManager editManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager) {
+	public static Action getInstance(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager) {
 		if (instance == null) {
-			instance = new PasteGraphComponentAction(editManager, menuManager, dataflowSelectionManager);
+			instance = new PasteGraphComponentAction(editManager, menuManager, selectionManager);
 		}
 		return instance;
 	}

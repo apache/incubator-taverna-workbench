@@ -27,8 +27,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.util.HashMap;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -39,13 +41,12 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
@@ -55,16 +56,17 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
-import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowSelectionEvent;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
-import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
+import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
@@ -76,7 +78,6 @@ import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.platform.capability.api.ActivityService;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
@@ -87,21 +88,22 @@ import uk.org.taverna.scufl2.api.core.Workflow;
  * @author Tom Oinn
  *
  */
-public class GraphViewComponent extends WorkflowView {
+public class GraphViewComponent extends JPanel implements UIComponentSPI {
 
 	private static final long serialVersionUID = 1L;
 
 	private static Logger logger = Logger.getLogger(GraphViewComponent.class);
 
+	private Workflow workflow;
 	private SVGGraphController graphController;
-
 	private JPanel diagramPanel;
 
-	public static Map<WorkflowBundle, SVGGraphController> graphControllerMap = new HashMap<WorkflowBundle, SVGGraphController>();
-	public static Map<WorkflowBundle, JPanel> diagramPanelMap = new HashMap<WorkflowBundle, JPanel>();
-	public static Map<WorkflowBundle, Action[]> diagramActionsMap = new HashMap<WorkflowBundle, Action[]>();
+	private Map<WorkflowBundle, Set<Workflow>> workflowsMap = new IdentityHashMap<WorkflowBundle, Set<Workflow>>();
 
-	private WorkflowBundle workflowBundle;
+	private Map<Workflow, SVGGraphController> graphControllerMap = new IdentityHashMap<Workflow, SVGGraphController>();
+	private Map<Workflow, JPanel> diagramPanelMap = new IdentityHashMap<Workflow, JPanel>();
+	private Map<Workflow, Action[]> diagramActionsMap = new IdentityHashMap<Workflow, Action[]>();
+
 
 	private Timer timer;
 
@@ -109,43 +111,25 @@ public class GraphViewComponent extends WorkflowView {
 
 	private CardLayout cardLayout;
 
-    private TitledBorder border;
-
-	private final EditManager editManager;
-	private final FileManager fileManager;
-	private final MenuManager menuManager;
-	private final DataflowSelectionManager dataflowSelectionManager;
 	private final ColourManager colourManager;
+	private final EditManager editManager;
+	private final MenuManager menuManager;
+	private final GraphViewConfiguration graphViewConfiguration;
 	private final WorkbenchConfiguration workbenchConfiguration;
-	private final GraphViewConfiguration configuration;
+	private final SelectionManager selectionManager;
 
-	public GraphViewComponent(EditManager editManager, FileManager fileManager, MenuManager menuManager,
-			DataflowSelectionManager dataflowSelectionManager, ColourManager colourManager,
-			WorkbenchConfiguration workbenchConfiguration, GraphViewConfiguration configuration, ActivityService activityService) {
-		super(editManager, dataflowSelectionManager, activityService);
-		this.editManager = editManager;
-		this.fileManager = fileManager;
-		this.menuManager = menuManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public GraphViewComponent(ColourManager colourManager, EditManager editManager, FileManager fileManager, MenuManager menuManager,
+			GraphViewConfiguration graphViewConfiguration, WorkbenchConfiguration workbenchConfiguration,
+			SelectionManager selectionManager) {
 		this.colourManager = colourManager;
+		this.editManager = editManager;
+		this.menuManager = menuManager;
+		this.graphViewConfiguration = graphViewConfiguration;
 		this.workbenchConfiguration = workbenchConfiguration;
-		this.configuration = configuration;
+		this.selectionManager = selectionManager;
+
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
-
-		border = new TitledBorder("Workflow diagram");
-		border.setTitleJustification(TitledBorder.CENTER);
-		setBorder(border);
-
-		FileManagerObserver fileManagerObserver = new FileManagerObserver();
-		fileManager.addObserver(fileManagerObserver);
-		try {
-			fileManagerObserver.notify(fileManager, new SetCurrentDataflowEvent(fileManager.getCurrentDataflow()));
-		} catch (Exception e) {
-			logger.warn("Could not notify " + fileManagerObserver, e);
-		}
-
-		editManager.addObserver(new EditManagerObserver());
 
 		ActionListener taskPerformer = new ActionListener() {
 			public void actionPerformed(ActionEvent evt) {
@@ -167,19 +151,29 @@ public class GraphViewComponent extends WorkflowView {
 			}
 		});
 
+		editManager.addObserver(new EditManagerObserver());
+		selectionManager.addObserver(new SelectionManagerObserver());
+		fileManager.addObserver(new FileManagerObserver());
 	}
 
-	private JPanel createDiagramPanel(WorkflowBundle workflowBundle) {
+	@Override
+	protected void finalize() throws Throwable {
+		if (timer != null) {
+			timer.stop();
+		}
+	}
+
+	private JPanel createDiagramPanel(Workflow workflow) {
 		JPanel diagramPanel = new JPanel(new BorderLayout());
 
 		// get the default diagram settings
-		Alignment alignment = Alignment.valueOf(configuration
+		Alignment alignment = Alignment.valueOf(graphViewConfiguration
 				.getProperty(GraphViewConfiguration.ALIGNMENT));
-		PortStyle portStyle = PortStyle.valueOf(configuration
+		PortStyle portStyle = PortStyle.valueOf(graphViewConfiguration
 				.getProperty(GraphViewConfiguration.PORT_STYLE));
-		boolean animationEnabled = Boolean.parseBoolean(configuration
+		boolean animationEnabled = Boolean.parseBoolean(graphViewConfiguration
 				.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
-		int animationSpeed = Integer.parseInt(configuration
+		int animationSpeed = Integer.parseInt(graphViewConfiguration
 				.getProperty(GraphViewConfiguration.ANIMATION_SPEED));
 
 		// create an SVG canvas
@@ -187,7 +181,7 @@ public class GraphViewComponent extends WorkflowView {
 		svgCanvas.setEnableZoomInteractor(false);
 		svgCanvas.setEnableRotateInteractor(false);
 		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
-		svgCanvas.setTransferHandler(new ServiceTransferHandler(editManager, menuManager, dataflowSelectionManager));
+		svgCanvas.setTransferHandler(new ServiceTransferHandler(editManager, menuManager, selectionManager));
 
 		AutoScrollInteractor asi = new AutoScrollInteractor(svgCanvas);
 		svgCanvas.addMouseListener(asi);
@@ -206,36 +200,36 @@ public class GraphViewComponent extends WorkflowView {
 
 		// create a graph controller
 		SVGGraphController svgGraphController = new SVGGraphController(
-				workflowBundle.getMainWorkflow(), false, svgCanvas, alignment, portStyle, editManager, menuManager, colourManager, workbenchConfiguration);
-		svgGraphController.setDataflowSelectionModel(dataflowSelectionManager
-				.getDataflowSelectionModel(workflowBundle));
+				workflow, selectionManager.getSelectedProfile(), false, svgCanvas, alignment, portStyle, editManager, menuManager, colourManager, workbenchConfiguration);
+		svgGraphController.setDataflowSelectionModel(selectionManager
+				.getDataflowSelectionModel(workflow.getParent()));
 		svgGraphController.setAnimationSpeed(animationEnabled ? animationSpeed
 				: 0);
 
-		graphControllerMap.put(workflowBundle, svgGraphController);
+		graphControllerMap.put(workflow, svgGraphController);
 
 		// Toolbar with actions related to graph
-		JToolBar graphActionsToolbar = graphActionsToolbar(workflowBundle, svgGraphController,
+		JToolBar graphActionsToolbar = graphActionsToolbar(workflow, svgGraphController,
 				svgCanvas, alignment, portStyle);
 		graphActionsToolbar.setAlignmentX(Component.LEFT_ALIGNMENT);
 		graphActionsToolbar.setFloatable(false);
 
 		// Panel to hold the toolbars
 		JPanel toolbarPanel = new JPanel();
-		toolbarPanel
-				.setLayout(new BoxLayout(toolbarPanel, BoxLayout.PAGE_AXIS));
+		toolbarPanel.setLayout(new BoxLayout(toolbarPanel, BoxLayout.PAGE_AXIS));
 		toolbarPanel.add(graphActionsToolbar);
 
 		diagramPanel.add(toolbarPanel, BorderLayout.NORTH);
 		diagramPanel.add(svgScrollPane, BorderLayout.CENTER);
-		// diagramPanel.add(new MySvgScrollPane(svgCanvas),
-		// BorderLayout.CENTER);
+
+//		JTextField workflowHierarchy  = new JTextField(workflow.getName());
+//		diagramPanel.add(workflowHierarchy, BorderLayout.SOUTH);
 
 		return diagramPanel;
 	}
 
 	@SuppressWarnings("serial")
-	private JToolBar graphActionsToolbar(WorkflowBundle workflowBundle,
+	private JToolBar graphActionsToolbar(Workflow workflow,
 			final SVGGraphController graphController, JSVGCanvas svgCanvas,
 			Alignment alignment, PortStyle portStyle) {
 		JToolBar toolBar = new JToolBar();
@@ -266,7 +260,7 @@ public class GraphViewComponent extends WorkflowView {
 		zoomOutAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomOutIcon);
 		zoomOutButton.setAction(zoomOutAction);
 
-		diagramActionsMap.put(workflowBundle, new Action[] {resetDiagramAction, zoomInAction, zoomOutAction});
+		diagramActionsMap.put(workflow, new Action[] {resetDiagramAction, zoomInAction, zoomOutAction});
 
 		toolBar.add(resetDiagramButton);
 		toolBar.add(zoomInButton);
@@ -406,85 +400,58 @@ public class GraphViewComponent extends WorkflowView {
 		return toolBar;
 	}
 
-	private String getBorderTitle(final WorkflowBundle workflowBundle) {
-		String localName = workflowBundle.getName();
-		String sourceName = fileManager.getDataflowName(workflowBundle);
-		String result = "";
-		if (localName.equals(sourceName)) {
-			result = localName;
-		}
-		else if (sourceName.startsWith(localName + " ")) {
-			result = sourceName;
-		}
-		else {
-			result = localName + " from " + sourceName;
-		}
-		if (result.length() > 60) {
-			result = result.substring(0, 57) + "...";
-		}
-		return result;
-	}
-
 	/**
-	 * Sets the Dataflow to display in the graph view.
+	 * Sets the Workflow to display in the graph view.
 	 *
-	 * @param dataflow
+	 * @param workflow
 	 */
-	public void setDataflow(WorkflowBundle dataflow) {
-		this.workflowBundle = dataflow;
-		if (!diagramPanelMap.containsKey(dataflow)) {
-			JPanel newDiagramPanel = createDiagramPanel(dataflow);
-			add(newDiagramPanel, String.valueOf(newDiagramPanel.hashCode()));
-			diagramPanelMap.put(dataflow, newDiagramPanel);
+	private void setWorkflow(Workflow workflow) {
+		this.workflow = workflow;
+		if (!diagramPanelMap.containsKey(workflow)) {
+			addWorkflow(workflow);
 		}
-		graphController = graphControllerMap.get(dataflow);
-		diagramPanel = diagramPanelMap.get(dataflow);
-		Action[] actions = diagramActionsMap.get(dataflow);
+		graphController = graphControllerMap.get(workflow);
+		diagramPanel = diagramPanelMap.get(workflow);
+		Action[] actions = diagramActionsMap.get(workflow);
 		if (actions != null && actions.length == 3) {
 			ResetDiagramAction.setDesignAction(actions[0]);
 			ZoomInAction.setDesignAction(actions[1]);
 			ZoomOutAction.setDesignAction(actions[2]);
 		}
 		cardLayout.show(this, String.valueOf(diagramPanel.hashCode()));
-		border.setTitle(getBorderTitle(dataflow));
 		graphController.redraw();
-		this.repaint();
 	}
 
-	/**
-	 * Returns the dataflow.
-	 *
-	 * @return the dataflow
-	 */
-	public WorkflowBundle getDataflow() {
-		return workflowBundle;
+	private void addWorkflow(Workflow workflow) {
+		JPanel newDiagramPanel = createDiagramPanel(workflow);
+		add(newDiagramPanel, String.valueOf(newDiagramPanel.hashCode()));
+		diagramPanelMap.put(workflow, newDiagramPanel);
+		if (!workflowsMap.containsKey(workflow.getParent())) {
+			workflowsMap.put(workflow.getParent(), new HashSet<Workflow>());
+		}
+		workflowsMap.get(workflow.getParent()).add(workflow);
 	}
 
-	/**
-	 * For testing only
-	 */
-//	public static void main(String[] args) throws Exception {
-//		System.setProperty("raven.eclipse", "true");
-//		System.setProperty("taverna.dotlocation",
-//				"/Applications/Taverna-1.7.1.app/Contents/MacOS/dot");
-//		// System.setProperty("taverna.dotlocation", "/opt/local/bin/dot");
-//
-//		GraphViewComponent graphView = new GraphViewComponent(null, null, null, null);
-//
-//		T2DataflowOpener t2DataflowOpener = new T2DataflowOpener();
-//		InputStream stream = GraphViewComponent.class
-//				.getResourceAsStream("/nested_iteration.t2flow");
-//		Dataflow dataflow = t2DataflowOpener.openDataflow(new T2FlowFileType(),
-//				stream).getDataflow();
-//
-//		JFrame frame = new JFrame();
-//		frame.add(graphView);
-//		frame.setPreferredSize(new Dimension(600, 800));
-//		frame.pack();
-//		graphView.setDataflow(dataflow);
-//		frame.setVisible(true);
-//
-//	}
+	private void removeWorkflow(Workflow workflow) {
+		JPanel panel = diagramPanelMap.remove(workflow);
+		if (panel != null) {
+			remove(panel);
+		}
+		SVGGraphController removedController = graphControllerMap.remove(workflow);
+		if (removedController != null) {
+			removedController.getSVGCanvas().removeGVTTreeRendererListener(gvtTreeBuilderAdapter);
+			removedController.shutdown();
+		}
+		diagramActionsMap.remove(workflow);
+		Set<Workflow> workflows = workflowsMap.get(workflow.getParent());
+		if (workflows != null) {
+			workflows.remove(workflow);
+		}
+	}
+
+	public GraphController getGraphController(Workflow workflow) {
+		return graphControllerMap.get(workflow);
+	}
 
 	@Override
 	public String getName() {
@@ -504,102 +471,60 @@ public class GraphViewComponent extends WorkflowView {
 		}
 	}
 
-	@Override
-	protected void finalize() throws Throwable {
-		onDispose();
-	}
+	protected class EditManagerObserver extends SwingAwareObserver<EditManagerEvent> {
+		@Override
+		public void notifySwing(Observable<EditManagerEvent> sender, EditManagerEvent message) {
+			if (message instanceof AbstractDataflowEditEvent) {
+				System.out.println("EditManagerEvent");
+				AbstractDataflowEditEvent dataflowEditEvent = (AbstractDataflowEditEvent) message;
 
-	protected class EditManagerObserver implements Observer<EditManagerEvent> {
-		public void notify(Observable<EditManagerEvent> sender,
-				final EditManagerEvent message) throws Exception {
-			if (! (message instanceof AbstractDataflowEditEvent)) {
-				return;
-			}
+				boolean animationEnabled = Boolean.parseBoolean(graphViewConfiguration
+						.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
+				int animationSpeed = (animationEnabled ? Integer.parseInt(graphViewConfiguration
+						.getProperty(GraphViewConfiguration.ANIMATION_SPEED)) : 0);
 
-			boolean animationEnabled = Boolean.parseBoolean(configuration
-					.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
-			final int animationSpeed = (animationEnabled ? Integer.parseInt(configuration
-					.getProperty(GraphViewConfiguration.ANIMATION_SPEED)) : 0);
+				boolean animationSettingChanged = (animationEnabled != (graphController.getAnimationSpeed() != 0));
 
-			final boolean animationSettingChanged = (animationEnabled != (graphController.getAnimationSpeed() != 0));
-
-			Runnable redraw = new Runnable() {
-				public void run() {
-					AbstractDataflowEditEvent dataflowEditEvent = (AbstractDataflowEditEvent) message;
-
-					if (dataflowEditEvent.getDataFlow() == workflowBundle) {
-
-						if (graphController.isDotMissing() || animationSettingChanged) {
-							diagramPanelMap.remove(workflowBundle);
-							setDataflow(workflowBundle);
-						} else {
-							if (animationSpeed != graphController.getAnimationSpeed()) {
-								graphController.setAnimationSpeed(animationSpeed);
-							}
-							graphController.redraw();
-							String dataflowName = getBorderTitle(workflowBundle);
-							if (!dataflowName.equals(border.getTitle())) {
-							    border.setTitle(dataflowName);
-							    GraphViewComponent.this.repaint();
-							}
+				if (dataflowEditEvent.getDataFlow() == workflow.getParent()) {
+					if (graphController.isDotMissing() || animationSettingChanged) {
+						removeWorkflow(workflow);
+						setWorkflow(workflow);
+					} else {
+						if (animationSpeed != graphController.getAnimationSpeed()) {
+							graphController.setAnimationSpeed(animationSpeed);
 						}
+						graphController.redraw();
 					}
 				}
-			};
-			if (SwingUtilities.isEventDispatchThread()) {
-				redraw.run();
-			} else {
-				// T2-971
-				SwingUtilities.invokeLater(redraw);
 			}
 		}
 	}
 
-
-	public class FileManagerObserverRunnable implements Runnable {
-		private final FileManagerEvent message;
-
-	    public FileManagerObserverRunnable(FileManagerEvent message) {
-			this.message = message;
-		}
-
-		public void run() {
+	public class FileManagerObserver extends SwingAwareObserver<FileManagerEvent> {
+		@Override
+		public void notifySwing(Observable<FileManagerEvent> sender, final FileManagerEvent message) {
 			if (message instanceof ClosedDataflowEvent) {
 				ClosedDataflowEvent closedDataflowEvent = (ClosedDataflowEvent) message;
-				WorkflowBundle dataflow = closedDataflowEvent.getDataflow();
-				JPanel panel = diagramPanelMap.remove(dataflow);
-				if (panel != null) {
-					remove(panel);
+				WorkflowBundle workflowBundle = closedDataflowEvent.getDataflow();
+				if (workflowsMap.containsKey(workflowBundle)) {
+					Set<Workflow> workflows = workflowsMap.remove(workflowBundle);
+					for (Workflow workflow : workflows) {
+						removeWorkflow(workflow);
+					}
 				}
-				SVGGraphController removedController = graphControllerMap
-						.remove(dataflow);
-				if (removedController != null) {
-					removedController.getSVGCanvas()
-							.removeGVTTreeRendererListener(
-									gvtTreeBuilderAdapter);
-					removedController.shutdown();
-				}
-				diagramActionsMap.remove(dataflow);
-			} else if (message instanceof SetCurrentDataflowEvent) {
-				SetCurrentDataflowEvent currentDataflowEvent = (SetCurrentDataflowEvent) message;
-				WorkflowBundle dataflow = currentDataflowEvent.getDataflow();
-				setDataflow(dataflow);
-			} else if (message instanceof SavedDataflowEvent) {
-				setDataflow(workflowBundle);
 			}
 		}
 	}
 
-	public class FileManagerObserver implements Observer<FileManagerEvent> {
-
-		public void notify(Observable<FileManagerEvent> sender,
-				FileManagerEvent message) {
-		    FileManagerObserverRunnable runnable = new FileManagerObserverRunnable(message);
-			if (SwingUtilities.isEventDispatchThread()) {
-				runnable.run();
-			} else {
-				// T2-971
-				SwingUtilities.invokeLater(runnable);
+	public class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+		@Override
+		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message)  {
+			if (message instanceof WorkflowSelectionEvent) {
+				System.out.println("GraphViewComponent.WorkflowSelectionEvent");
+				setWorkflow(selectionManager.getSelectedWorkflow());
+			} else if (message instanceof WorkflowBundleSelectionEvent) {
+				System.out.println("GraphViewComponent.WorkflowBundleSelectionEvent");
+				setWorkflow(selectionManager.getSelectedWorkflow());
 			}
 		}
 	}

@@ -31,7 +31,7 @@ import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
 
@@ -40,7 +40,7 @@ public class ResultsPerspective implements PerspectiveSPI {
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 	private XMLDeserializer xmlDeserializer;
 	private ReferenceService referenceService;
 	private List<ProvenanceConnectorFactory> provenanceConnectorFactories;
@@ -59,7 +59,7 @@ public class ResultsPerspective implements PerspectiveSPI {
 			resultsPerspectiveComponent.setEditManager(editManager);
 			resultsPerspectiveComponent.setFileManager(fileManager);
 			resultsPerspectiveComponent.setMenuManager(menuManager);
-			resultsPerspectiveComponent.setDataflowSelectionManager(dataflowSelectionManager);
+			resultsPerspectiveComponent.setSelectionManager(selectionManager);
 			resultsPerspectiveComponent.setXmlDeserializer(xmlDeserializer);
 			resultsPerspectiveComponent.setReferenceService(referenceService);
 		}
@@ -94,8 +94,8 @@ public class ResultsPerspective implements PerspectiveSPI {
 		this.menuManager = menuManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 	public void setXmlDeserializer(XMLDeserializer xmlDeserializer) {

@@ -76,7 +76,7 @@ public class DefaultGraphEventManager implements GraphEventManager {
 	 */
 	public void mouseClicked(final GraphElement graphElement, short button,
 			boolean altKey, boolean ctrlKey, boolean metaKey, final int x, final int y, int screenX, int screenY) {
-		Object dataflowObject = graphElement.getDataflowObject();
+		Object dataflowObject = graphElement.getWorkflowBean();
 
 		// For both left and right click - add to selection model
 		if (graphController.getDataflowSelectionModel() != null) {
@@ -243,7 +243,7 @@ public class DefaultGraphEventManager implements GraphEventManager {
 	public void mouseOver(GraphElement graphElement, short button,
 			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
 			int screenX, int screenY) {
-		if (graphElement.getDataflowObject() != null) {
+		if (graphElement.getWorkflowBean() != null) {
 			graphElement.setActive(true);
 		}
 	}
@@ -251,7 +251,7 @@ public class DefaultGraphEventManager implements GraphEventManager {
 	public void mouseOut(GraphElement graphElement, short button,
 			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
 			int screenX, int screenY) {
-		if (graphElement.getDataflowObject() != null) {
+		if (graphElement.getWorkflowBean() != null) {
 			graphElement.setActive(false);
 		}
 	}

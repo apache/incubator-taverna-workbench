@@ -8,9 +8,8 @@
 			<property name="fileManager" ref="fileManager" />
 			<property name="menuManager" ref="menuManager" />
 			<property name="reportManager" ref="reportManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 			<property name="activityIconManager" ref="activityIconManager" />
-			<property name="activityService" ref="activityService" />
 	</bean>
 
 </beans>

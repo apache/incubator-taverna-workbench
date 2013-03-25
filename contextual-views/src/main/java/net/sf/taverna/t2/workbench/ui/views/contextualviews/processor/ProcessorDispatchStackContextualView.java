@@ -37,7 +37,6 @@ import javax.swing.JPanel;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.Utils;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI;
@@ -67,8 +66,6 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 
 	private EditManager editManager;
 
-	private FileManager fileManager;
-
 	private ContextualViewFactoryRegistry viewFactoryRegistry;
 
 	protected List<AddLayerFactorySPI> addLayerFactories;
@@ -78,12 +75,11 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 	protected Processor processor;
 
 	public ProcessorDispatchStackContextualView(Processor processor, EditManager editManager,
-			FileManager fileManager, ContextualViewFactoryRegistry contextualViewFactoryRegistry,
+			ContextualViewFactoryRegistry contextualViewFactoryRegistry,
 			List<AddLayerFactorySPI> addLayerFactories) {
 		super();
 		this.processor = processor;
 		this.editManager = editManager;
-		this.fileManager = fileManager;
 		viewFactoryRegistry = contextualViewFactoryRegistry;
 		this.addLayerFactories = addLayerFactories;
 		initialise();
@@ -221,7 +217,7 @@ public class ProcessorDispatchStackContextualView extends ContextualView {
 					processor.getDispatchStack(), layer);
 			// TODO: Should warn before removing "essential" layers
 			try {
-				editManager.doDataflowEdit(fileManager.getCurrentDataflow(), deleteEdit);
+				editManager.doDataflowEdit(processor.getParent().getParent(), deleteEdit);
 				refreshView();
 			} catch (EditException ex) {
 				logger.warn("Could not remove layer " + layer, ex);

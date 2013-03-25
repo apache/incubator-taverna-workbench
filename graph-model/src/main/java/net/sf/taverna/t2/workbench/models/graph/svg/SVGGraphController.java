@@ -62,6 +62,7 @@ import org.w3c.dom.svg.SVGPoint;
 import org.w3c.dom.svg.SVGSVGElement;
 
 import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.profiles.Profile;
 
 public class SVGGraphController extends GraphController {
 
@@ -102,9 +103,9 @@ public class SVGGraphController extends GraphController {
 
 	private final WorkbenchConfiguration workbenchConfiguration;
 
-	public SVGGraphController(Workflow dataflow, boolean interactive, JSVGCanvas svgCanvas, EditManager editManager,
+	public SVGGraphController(Workflow dataflow, Profile profile, boolean interactive, JSVGCanvas svgCanvas, EditManager editManager,
 			MenuManager menuManager, ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
-		super(dataflow, interactive, svgCanvas, editManager, menuManager, colourManager);
+		super(dataflow, profile, interactive, svgCanvas, editManager, menuManager, colourManager);
 		this.svgCanvas = svgCanvas;
 		this.workbenchConfiguration = workbenchConfiguration;
 		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
@@ -116,9 +117,9 @@ public class SVGGraphController extends GraphController {
 		svgCanvas.setDocument(getSVGDocument());
 	}
 
-	public SVGGraphController(Workflow dataflow, boolean interactive, JSVGCanvas svgCanvas, Alignment alignment,
+	public SVGGraphController(Workflow dataflow, Profile profile, boolean interactive, JSVGCanvas svgCanvas, Alignment alignment,
 			PortStyle portStyle, EditManager editManager, MenuManager menuManager, ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
-		super(dataflow, interactive, svgCanvas, alignment, portStyle, editManager, menuManager, colourManager);
+		super(dataflow, profile, interactive, svgCanvas, alignment, portStyle, editManager, menuManager, colourManager);
 		this.svgCanvas = svgCanvas;
 		this.workbenchConfiguration = workbenchConfiguration;
 		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {

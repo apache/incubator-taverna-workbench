@@ -27,20 +27,13 @@ import java.awt.datatransfer.Transferable;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.ui.menu.MenuManager;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 
 import org.apache.log4j.Logger;
-
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * TransferHandler for accepting ActivityAndBeanWrapper object dropped on the
@@ -54,33 +47,19 @@ public class ServiceTransferHandler extends TransferHandler {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger
-			.getLogger(ServiceTransferHandler.class);
-
-	private WorkflowBundle currentDataflow;
+	private static Logger logger = Logger.getLogger(ServiceTransferHandler.class);
 
 	private DataFlavor serviceDescriptionDataFlavor;
 
 	private final EditManager editManager;
 	private final MenuManager menuManager;
-	private final DataflowSelectionManager dataflowSelectionManager;
+	private final SelectionManager selectionManager;
 
-	public ServiceTransferHandler(EditManager editManager, MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager) {
+	public ServiceTransferHandler(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager) {
 
 		this.editManager = editManager;
 		this.menuManager = menuManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
-		ModelMap.getInstance().addObserver(new Observer<ModelMap.ModelMapEvent>() {
-			public void notify(Observable<ModelMapEvent> sender, ModelMapEvent message) {
-				if (message.getModelName().equals(ModelMapConstants.CURRENT_DATAFLOW)) {
-					if (message.getNewModel() instanceof WorkflowBundle) {
-						currentDataflow = ((WorkflowBundle) message.getNewModel());
-					}
-				}
-			}
-		});
-
-		currentDataflow = (WorkflowBundle) ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_DATAFLOW);
+		this.selectionManager = selectionManager;
 
 		try {
 			serviceDescriptionDataFlavor = new DataFlavor(
@@ -93,12 +72,6 @@ public class ServiceTransferHandler extends TransferHandler {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see javax.swing.TransferHandler#canImport(javax.swing.JComponent,
-	 *      java.awt.datatransfer.DataFlavor[])
-	 */
 	@Override
 	public boolean canImport(JComponent component, DataFlavor[] dataFlavors) {
 		logger.debug("Trying to import something");
@@ -110,18 +83,11 @@ public class ServiceTransferHandler extends TransferHandler {
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see javax.swing.TransferHandler#importData(javax.swing.JComponent,
-	 *      java.awt.datatransfer.Transferable)
-	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean importData(JComponent component, Transferable transferable) {
 		logger.info("Importing a transferable");
 		logger.debug(component.getClass().getCanonicalName());
-		WorkflowView.pasteTransferable(transferable, editManager, menuManager, dataflowSelectionManager);
+		WorkflowView.pasteTransferable(transferable, editManager, menuManager, selectionManager);
 		return true;
 	}
 
@@ -138,9 +104,9 @@ public class ServiceTransferHandler extends TransferHandler {
 			throws IllegalStateException {
 		super.exportToClipboard(comp, clip, action);
 		if (action == COPY) {
-			WorkflowView.copyProcessor(dataflowSelectionManager);
+			WorkflowView.copyProcessor(selectionManager);
 		} else if (action == MOVE) {
-			WorkflowView.cutProcessor(editManager, dataflowSelectionManager);
+			WorkflowView.cutProcessor(editManager, selectionManager);
 		}
 	}
 }

@@ -31,8 +31,8 @@ import net.sf.taverna.t2.workbench.design.ui.ProcessorPanel;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflow.edits.RenameProcessorEdit;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workflow.edits.RenameEdit;
 
 import org.apache.log4j.Logger;
 
@@ -52,8 +52,8 @@ public class RenameProcessorAction extends DataflowEditAction {
 
 	private Processor processor;
 
-	public RenameProcessorAction(Workflow dataflow, Processor processor, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
-		super(dataflow, component, editManager, dataflowSelectionManager);
+	public RenameProcessorAction(Workflow dataflow, Processor processor, Component component, EditManager editManager, SelectionManager selectionManager) {
+		super(dataflow, component, editManager, selectionManager);
 		this.processor = processor;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
 		putValue(NAME, "Rename service...");
@@ -82,7 +82,7 @@ public class RenameProcessorAction extends DataflowEditAction {
 
 			if (vuid.show(component)) {
 				String processorName = inputPanel.getProcessorName();
-				editManager.doDataflowEdit(dataflow.getParent(), new RenameProcessorEdit(processor, processorName));
+				editManager.doDataflowEdit(dataflow.getParent(), new RenameEdit<Processor>(processor, processorName));
 			}
 
 		} catch (EditException e1) {

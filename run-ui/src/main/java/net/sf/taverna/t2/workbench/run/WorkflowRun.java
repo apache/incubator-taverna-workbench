@@ -59,7 +59,7 @@ import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.run.cleanup.DatabaseCleanup;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.views.monitor.MonitorViewComponent;
 import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
 import net.sf.taverna.t2.workbench.views.monitor.graph.GraphMonitor;
@@ -167,14 +167,14 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage> {
 	private String workflowName = "(Unknown)";
 	private final EditManager editManager;
 	private final MenuManager menuManager;
-	private final DataflowSelectionManager dataflowSelectionManager;
+	private final SelectionManager selectionManager;
 	private final XMLDeserializer xmlDeserializer;
 	private final FileManager fileManager;
 	private final DatabaseConfiguration databaseConfiguration;
 
 	public WorkflowRun(Dataflow dataflow, Date date, String sessionID,
 			ReferenceService referenceService, EditManager editManager, FileManager fileManager,
-			MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager,
+			MenuManager menuManager, SelectionManager selectionManager,
 			XMLDeserializer xmlDeserializer, List<ProvenanceConnectorFactory> provenanceConnectorFactories,
 			DatabaseConfiguration databaseConfiguration) {
 		this.date = date;
@@ -183,7 +183,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage> {
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.selectionManager = selectionManager;
 		this.xmlDeserializer = xmlDeserializer;
 		this.databaseConfiguration = databaseConfiguration;
 		setDataflow(dataflow);
@@ -211,18 +211,18 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage> {
 
 	public WorkflowRun(WorkflowInstanceFacade facade, Map<String, T2Reference> inputs, Date date,
 			ReferenceService referenceService, EditManager editManager, FileManager fileManager,
-			MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager,
+			MenuManager menuManager, SelectionManager selectionManager,
 			XMLDeserializer xmlDeserializer) {
 		this.date = date;
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.selectionManager = selectionManager;
 		this.xmlDeserializer = xmlDeserializer;
 
 		// Create graph monitor for the current run
 		progressRunGraph = new MonitorGraphComponent(editManager, menuManager,
-				dataflowSelectionManager);
+				selectionManager);
 		this.facade = facade;
 		this.inputs = inputs;
 		this.referenceService = referenceService;
@@ -277,9 +277,9 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage> {
 	public WorkflowRun(byte[] dataflowBytes, String workflowId, String workflowName, Date date,
 			String sessionID, ReferenceService referenceService, EditManager editManager,
 			FileManager fileManager, MenuManager menuManager,
-			DataflowSelectionManager dataflowSelectionManager, XMLDeserializer xmlDeserializer) {
+			SelectionManager selectionManager, XMLDeserializer xmlDeserializer) {
 		this((Dataflow) null, date, sessionID, referenceService, editManager, fileManager,
-				menuManager, dataflowSelectionManager, xmlDeserializer);
+				menuManager, selectionManager, xmlDeserializer);
 		this.dataflowBytes = dataflowBytes;
 		this.workflowId = workflowId;
 		this.workflowName = workflowName;
@@ -432,7 +432,7 @@ public class WorkflowRun implements Observer<WorkflowObjectSelectionMessage> {
 
 			// Create graph monitor for a previous run
 			progressRunGraph = new MonitorGraphPreviousRunComponent(editManager, menuManager,
-					dataflowSelectionManager);
+					selectionManager);
 			progressRunGraph.setProvenanceConnector(connector);
 			progressRunGraph.setReferenceService(referenceService);
 			monitorObserverForGraph = progressRunGraph.setDataflow(getDataflow());

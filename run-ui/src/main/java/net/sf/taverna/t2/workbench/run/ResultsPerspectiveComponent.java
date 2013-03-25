@@ -62,7 +62,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
 import net.sf.taverna.t2.workbench.run.cleanup.DatabaseCleanup;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
@@ -119,7 +119,7 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 	private MenuManager menuManager;
 
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	private XMLDeserializer xmlDeserializer;
 
@@ -426,7 +426,7 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 				WorkflowRun runComponent = new WorkflowRun(workflowRun.getDataflowBlob(),
 						workflowRun.getWorkflowId(), workflowRun.getWorkflowExternalName(), date,
 						workflowRun.getWorkflowRunId(), referenceServiceWithDatabase, editManager,
-						fileManager, menuManager, dataflowSelectionManager, xmlDeserializer);
+						fileManager, menuManager, selectionManager, xmlDeserializer);
 				runComponent.setDataSavedInDatabase(true);
 				runComponent.setProvenanceEnabledForRun(true);
 				workflowRunsListModel.add(workflowRunsListModel.getSize(), runComponent);
@@ -464,7 +464,7 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 	public void runWorkflow(WorkflowInstanceFacade facade, Map<String, T2Reference> inputs) {
 		WorkflowRun workflowRun = new WorkflowRun(facade, inputs, new Date(), referenceService,
-				editManager, fileManager, menuManager, dataflowSelectionManager, xmlDeserializer);
+				editManager, fileManager, menuManager, selectionManager, xmlDeserializer);
 		workflowRun.setProvenanceEnabledForRun(DataManagementConfiguration.getInstance()
 				.isProvenanceEnabled());
 		workflowRun.setDataSavedInDatabase(DataManagementConfiguration.getInstance()
@@ -501,8 +501,8 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 		this.menuManager = menuManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 	public void setXmlDeserializer(XMLDeserializer xmlDeserializer) {

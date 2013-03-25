@@ -5,7 +5,6 @@
 
 	<bean id="ProcessorDispatchStackContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorDispatchStackContextualViewFactory">
 			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
 			<property name="contextualViewFactoryRegistry" ref="contextualViewFactoryRegistry" />
 			<property name="addLayerFactories" ref="addLayerFactories" />
 	</bean>

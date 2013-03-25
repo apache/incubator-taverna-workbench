@@ -25,8 +25,8 @@ import java.awt.Component;
 import javax.swing.AbstractAction;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
@@ -38,7 +38,7 @@ import uk.org.taverna.scufl2.api.core.Workflow;
 public abstract class DataflowEditAction extends AbstractAction {
 
 	private static final long serialVersionUID = -1155192575675025091L;
-	protected final DataflowSelectionManager dataflowSelectionManager;
+	protected final SelectionManager selectionManager;
 	protected EditManager editManager;
 	protected DataflowSelectionModel dataflowSelectionModel;
 	protected Workflow dataflow;
@@ -46,12 +46,12 @@ public abstract class DataflowEditAction extends AbstractAction {
 	protected Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	public DataflowEditAction(Workflow dataflow, Component component, EditManager editManager,
-			DataflowSelectionManager dataflowSelectionManager) {
+			SelectionManager selectionManager) {
 		this.dataflow = dataflow;
 		this.component = component;
 		this.editManager = editManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
-		dataflowSelectionModel = dataflowSelectionManager.getDataflowSelectionModel(dataflow.getParent());
+		this.selectionManager = selectionManager;
+		dataflowSelectionModel = selectionManager.getDataflowSelectionModel(dataflow.getParent());
 	}
 
 }

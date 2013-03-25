@@ -31,13 +31,14 @@ import net.sf.taverna.t2.workbench.design.ui.DataflowOutputPortPanel;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflow.edits.RenameDataflowOutputPortEdit;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workflow.edits.RenameEdit;
 
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.Port;
 
 /**
  * Action for editing a dataflow output port.
@@ -52,8 +53,8 @@ public class EditDataflowOutputPortAction extends DataflowEditAction {
 
 	private OutputWorkflowPort port;
 
-	public EditDataflowOutputPortAction(Workflow dataflow, OutputWorkflowPort port, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
-		super(dataflow, component, editManager, dataflowSelectionManager);
+	public EditDataflowOutputPortAction(Workflow dataflow, OutputWorkflowPort port, Component component, EditManager editManager, SelectionManager selectionManager) {
+		super(dataflow, component, editManager, selectionManager);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
 		putValue(NAME, "Edit workflow output port...");
@@ -82,7 +83,7 @@ public class EditDataflowOutputPortAction extends DataflowEditAction {
 
 			if (vuid.show(component)) {
 				String portName = inputPanel.getPortName();
-				editManager.doDataflowEdit(dataflow.getParent(), new RenameDataflowOutputPortEdit(port, portName));
+				editManager.doDataflowEdit(dataflow.getParent(), new RenameEdit<Port>(port, portName));
 			}
 		} catch (EditException e1) {
 			logger.debug("Rename workflow output port failed", e1);

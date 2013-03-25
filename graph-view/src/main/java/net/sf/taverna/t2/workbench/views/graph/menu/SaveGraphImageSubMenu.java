@@ -22,7 +22,6 @@ package net.sf.taverna.t2.workbench.views.graph.menu;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
@@ -33,6 +32,7 @@ import java.net.URI;
 import java.net.URL;
 import java.util.prefs.Preferences;
 
+import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
@@ -42,25 +42,24 @@ import javax.swing.JOptionPane;
 import net.sf.taverna.t2.lang.io.StreamCopier;
 import net.sf.taverna.t2.lang.io.StreamDevourer;
 import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
 import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.DotWriter;
-import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
+import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workbench.selection.events.PerspectiveSelectionEvent;
+import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
-import net.sf.taverna.t2.workbench.views.graph.actions.SaveGraphImageAction;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
@@ -70,14 +69,9 @@ import uk.org.taverna.scufl2.api.core.Workflow;
  * @author Tom Oinn
  *
  */
-public class SaveGraphImageSubMenu extends AbstractMenuCustom{
+public class SaveGraphImageSubMenu extends AbstractMenuCustom {
 
-	private static Logger logger = Logger.getLogger(SaveGraphImageAction.class);
-
-	private static ModelMap modelMap = ModelMap.getInstance();
-
-	// Perspective switch observer
-	private CurrentPerspectiveObserver perspectiveObserver = new CurrentPerspectiveObserver();
+	private static Logger logger = Logger.getLogger(SaveGraphImageSubMenu.class);
 
 	private JMenu saveDiagramMenu;
 
@@ -87,7 +81,9 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 			"scalable vector graphics", "postscript", "postscript for PDF" };
 
 	private FileManager fileManager;
+	private SelectionManager selectionManager;
 	private WorkbenchConfiguration workbenchConfiguration;
+	private GraphViewComponent graphViewComponent;
 
 	public static final URI SAVE_GRAPH_IMAGE_MENU_URI = URI
 	.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuSaveGraphImage");
@@ -96,7 +92,6 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 		super(DiagramSaveMenuSection.DIAGRAM_SAVE_MENU_SECTION, 70, SAVE_GRAPH_IMAGE_MENU_URI);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected Component createCustomComponent() {
 		saveDiagramMenu = new JMenu("Export diagram");
 		saveDiagramMenu.setToolTipText("Open this menu to export the diagram in various formats");
@@ -105,35 +100,25 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 			String extension = saveExtensions[i];
 			ImageIcon icon = new ImageIcon(WorkbenchIcons.class
 					.getResource("graph/saveAs" + type.toUpperCase() + ".png"));
-			JMenuItem item = new JMenuItem("Export as " + saveTypeNames[i],
-					icon);
-			item.addActionListener(new DotInvoker(type, extension));
-			modelMap.addObserver(perspectiveObserver);
+			JMenuItem item = new JMenuItem(new DotInvoker("Export as " + saveTypeNames[i], icon, type, extension));
 			saveDiagramMenu.add(item);
 		}
 		return saveDiagramMenu;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
-	class DotInvoker implements ActionListener {
+	class DotInvoker extends AbstractAction implements DesignOnlyAction {
 		String type = "dot";
 		String extension = "dot";
 
-		public DotInvoker() {
-			//
-		}
-
-		public DotInvoker(String type, String extension) {
+		public DotInvoker(String name, ImageIcon icon, String type, String extension) {
+			super(name, icon);
 			this.type = type;
 			this.extension = extension;
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			WorkflowBundle dataflow = fileManager.getCurrentDataflow();
-			if (dataflow == null) {
+			Workflow workflow = selectionManager.getSelectedWorkflow();
+			if (workflow == null) {
 				JOptionPane
 				.showMessageDialog(
 						null,
@@ -141,12 +126,12 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 						"Warning", JOptionPane.WARNING_MESSAGE);
 			}
 			else{
-				File file = saveDialogue(null, dataflow, extension,
+				File file = saveDialogue(null, workflow, extension,
 						"Export workflow diagram");
 				if (file != null) {// User did not cancel
 					try {
 
-						SVGGraphController graphController = GraphViewComponent.graphControllerMap.get(dataflow);
+						GraphController graphController = graphViewComponent.getGraphController(workflow);
 
 						if (type.equals("dot")) {
 							// Just write out the dot text, no processing required
@@ -207,16 +192,16 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 	 *         dialogue was cancelled.
 	 */
 	private File saveDialogue(Component parentComponent,
-			WorkflowBundle dataflow, String extension, String windowTitle) {
+			Workflow workflow, String extension, String windowTitle) {
 
 		JFileChooser fc = new JFileChooser();
 		Preferences prefs = Preferences
-				.userNodeForPackage(SaveGraphImageAction.class);
+				.userNodeForPackage(SaveGraphImageSubMenu.class);
 		String curDir = prefs
 				.get("currentDir", System.getProperty("user.home"));
 		String suggestedFileName = "";
 		// Get the source the workflow was loaded from - can be File, URL, or InputStream
-		Object source  = fileManager.getDataflowSource(dataflow);
+		Object source  = fileManager.getDataflowSource(workflow.getParent());
 		if (source instanceof File){
 			suggestedFileName = ((File)source).getName();
 			// remove the file extension
@@ -300,20 +285,28 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 		return new File(file.getParent(), name + "." + extension);
 	}
 
+	public void setFileManager(FileManager fileManager) {
+		this.fileManager = fileManager;
+	}
+
 	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
 		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
-	/**
-	 * Modify the enabled/disabled state of the action when ModelMapConstants.CURRENT_PERSPECTIVE has been
-	 * modified (i.e. when perspective has been switched).
-	 */
-	public class CurrentPerspectiveObserver implements Observer<ModelMapEvent> {
-		public void notify(Observable<ModelMapEvent> sender,
-				ModelMapEvent message) throws Exception {
-			if (message.getModelName().equals(
-					ModelMapConstants.CURRENT_PERSPECTIVE)) {
-				if (message.getNewModel() instanceof WorkflowPerspective) {
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
+	}
+
+	public void setGraphViewComponent(GraphViewComponent graphViewComponent) {
+		this.graphViewComponent = graphViewComponent;
+	}
+
+	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+		@Override
+		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message) {
+			if (message instanceof PerspectiveSelectionEvent) {
+				PerspectiveSelectionEvent perspectiveSelectionEvent = (PerspectiveSelectionEvent) message;
+				if (perspectiveSelectionEvent.getSelectedPerspective() instanceof WorkflowPerspective) {
 					saveDiagramMenu.setEnabled(true);
 				}
 				else{
@@ -322,4 +315,5 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom{
 			}
 		}
 	}
+
 }

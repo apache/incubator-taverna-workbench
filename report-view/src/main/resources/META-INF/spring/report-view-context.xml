@@ -14,7 +14,7 @@
 			<property name="menuManager" ref="menuManager" />
 			<property name="reportManager" ref="reportManager" />
 			<property name="workbench" ref="workbench" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 			<property name="visitExplainers" ref="visitExplainers" />
 	</bean>
 

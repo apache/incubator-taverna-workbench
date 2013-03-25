@@ -30,7 +30,7 @@ import uk.org.taverna.scufl2.api.core.Workflow;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.CutProcessorAction;
 
 public class CutProcessorMenuAction extends AbstractContextualMenuAction {
@@ -38,7 +38,7 @@ public class CutProcessorMenuAction extends AbstractContextualMenuAction {
 	public static final URI editSection = URI
 	.create("http://taverna.sf.net/2009/contextMenu/edit");
 	private EditManager editManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	public CutProcessorMenuAction() {
 		super(editSection, 10);
@@ -50,7 +50,7 @@ public class CutProcessorMenuAction extends AbstractContextualMenuAction {
 		Processor processor = (Processor) getContextualSelection()
 				.getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();
-		return new CutProcessorAction(dataflow, processor, component, editManager, dataflowSelectionManager);
+		return new CutProcessorAction(dataflow, processor, component, editManager, selectionManager);
 	}
 
 	@Override
@@ -63,8 +63,8 @@ public class CutProcessorMenuAction extends AbstractContextualMenuAction {
 		this.editManager = editManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

@@ -24,12 +24,7 @@ import java.net.URI;
 
 import javax.swing.Action;
 
-import net.sf.taverna.t2.lang.ui.ModelMap;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-
-import org.apache.log4j.Logger;
 
 /**
  * An action that zooms a diagram image
@@ -37,15 +32,10 @@ import org.apache.log4j.Logger;
  * @author Alex Nenadic
  * @author Tom Oinn
  * @author Alan R Williams
- *
  */
-@SuppressWarnings("serial")
-public class ZoomOutMenuAction extends AbstractMenuAction{
+public class ZoomOutMenuAction extends AbstractMenuAction {
 
-	private static Logger logger = Logger.getLogger(ZoomOutMenuAction.class);
-
-	public static final URI ZOOM_OUT_URI = URI
-	.create("http://taverna.sf.net/2008/t2workbench/menu#diagramMenuZoomOut");
+	public static final URI ZOOM_OUT_URI = URI.create("http://taverna.sf.net/2008/t2workbench/menu#diagramMenuZoomOut");
 
 	public ZoomOutMenuAction(){
 		super(DiagramZoomMenuSection.DIAGRAM_ZOOM_MENU_SECTION, 20, ZOOM_OUT_URI);

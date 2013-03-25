@@ -29,25 +29,25 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- <dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
-			<artifactId>workflowmodel-api</artifactId>
-			<version>${t2.core.version}</version>
-		</dependency> -->
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
-			<artifactId>workbench-api</artifactId>
+			<artifactId>configuration-api</artifactId>
 			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>workbench-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>edits-api</artifactId>
+			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
-			<artifactId>menu-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>menu-api</artifactId>
+			<version>${t2.ui.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>selection-api</artifactId>
+			<version>${t2.ui.api.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
@@ -75,44 +75,6 @@
 			<artifactId>batik-osgi</artifactId>
 			<version>1.7.0</version>
 		</dependency>
-
-		<!-- <dependency>
-			<groupId>org.apache.batik</groupId>
-			<artifactId>com.springsource.org.apache.batik.util</artifactId>
-			<version>1.7.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.batik</groupId>
-			<artifactId>com.springsource.org.apache.batik.bridge</artifactId>
-			<version>1.7.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.batik</groupId>
-			<artifactId>com.springsource.org.apache.batik.dom.svg</artifactId>
-			<version>1.7.0</version>
-		</dependency> -->
-
-		<!-- <dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-svg-dom</artifactId>
-			<version>${batik.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-bridge</artifactId>
-			<version>${batik.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-util</artifactId>
-			<version>${batik.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-swing</artifactId>
-			<version>${batik.version}</version>
-		</dependency> -->
-
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>com.springsource.org.apache.commons.beanutils</artifactId>
@@ -122,7 +84,6 @@
 			<groupId>org.apache.log4j</groupId>
 			<artifactId>com.springsource.org.apache.log4j</artifactId>
 		</dependency>
-
 
 		<dependency>
 			<groupId>junit</groupId>
@@ -141,9 +102,5 @@
 			<version>${t2.activities.version}</version>
 			<scope>test</scope>
 		</dependency>
-		<!-- <dependency> <groupId>net.sf.taverna.t2.translators</groupId> <artifactId>all-activity-translators</artifactId>
-			<version>${t2.translators.version}</version> <scope>test</scope> </dependency> -->
-		<!-- <dependency> <groupId>net.sf.taverna.t2.translators</groupId> <artifactId>translators-test-utils</artifactId>
-			<version>${t2.translators.version}</version> <scope>test</scope> </dependency> -->
 	</dependencies>
 </project>

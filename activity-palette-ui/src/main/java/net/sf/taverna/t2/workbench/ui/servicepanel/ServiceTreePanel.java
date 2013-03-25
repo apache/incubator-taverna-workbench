@@ -24,7 +24,7 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.servicepanel.menu.AddServiceProviderMenu;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
@@ -44,16 +44,16 @@ public class ServiceTreePanel extends TreePanel {
 
 	private final MenuManager menuManager;
 
-	private final DataflowSelectionManager dataflowSelectionManager;
+	private final SelectionManager selectionManager;
 
 	public ServiceTreePanel(FilterTreeModel treeModel,
 			ServiceDescriptionRegistry serviceDescriptionRegistry, EditManager editManager,
-			MenuManager menuManager, DataflowSelectionManager dataflowSelectionManager) {
+			MenuManager menuManager, SelectionManager selectionManager) {
 		super(treeModel);
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 		this.editManager = editManager;
 		this.menuManager = menuManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.selectionManager = selectionManager;
 		initialize();
 	}
 
@@ -69,7 +69,7 @@ public class ServiceTreePanel extends TreePanel {
 
 			public void run() {
 				tree.addMouseListener(new ServiceTreeClickListener(tree, ServiceTreePanel.this,
-						serviceDescriptionRegistry, editManager, menuManager, dataflowSelectionManager));
+						serviceDescriptionRegistry, editManager, menuManager, selectionManager));
 			}
 
 		});

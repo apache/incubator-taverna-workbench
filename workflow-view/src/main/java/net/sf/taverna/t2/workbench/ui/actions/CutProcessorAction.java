@@ -29,11 +29,8 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-
-import org.apache.log4j.Logger;
-
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
@@ -44,8 +41,6 @@ import uk.org.taverna.scufl2.api.core.Workflow;
  */
 public class CutProcessorAction extends AbstractAction {
 
-	private static Logger logger = Logger.getLogger(CutProcessorAction.class);
-
 	private Processor processor;
 
 	private Workflow dataflow;
@@ -54,21 +49,21 @@ public class CutProcessorAction extends AbstractAction {
 
 	private final EditManager editManager;
 
-	private final DataflowSelectionManager dataflowSelectionManager;
+	private final SelectionManager selectionManager;
 
-	public CutProcessorAction(Workflow dataflow, Processor processor, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
+	public CutProcessorAction(Workflow dataflow, Processor processor, Component component, EditManager editManager, SelectionManager selectionManager) {
 		this.dataflow = dataflow;
 		this.processor = processor;
 		this.component = component;
 		this.editManager = editManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.selectionManager = selectionManager;
 		putValue(SMALL_ICON, WorkbenchIcons.cutIcon);
 		putValue(NAME, "Cut");
 		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
 	}
 
 	public void actionPerformed(ActionEvent e) {
-			WorkflowView.cutProcessor(dataflow, processor, component, editManager, dataflowSelectionManager);
+			WorkflowView.cutProcessor(dataflow, processor, component, editManager, selectionManager);
 	}
 
 }

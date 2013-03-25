@@ -22,14 +22,12 @@ package net.sf.taverna.t2.workbench.views.graph;
 
 import javax.swing.ImageIcon;
 
-import uk.org.taverna.platform.capability.api.ActivityService;
-
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration;
@@ -44,18 +42,17 @@ public class GraphViewComponentFactory implements UIComponentFactorySPI {
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 	private ColourManager colourManager;
 	private WorkbenchConfiguration workbenchConfiguration;
 	private GraphViewConfiguration graphViewConfiguration;
-	private ActivityService activityService;
 
 	/* (non-Javadoc)
 	 * @see net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI#getComponent()
 	 */
 	public UIComponentSPI getComponent() {
-		return new GraphViewComponent(editManager, fileManager, menuManager,
-				dataflowSelectionManager, colourManager, workbenchConfiguration, graphViewConfiguration, activityService);
+		return new GraphViewComponent(colourManager, editManager, fileManager, menuManager,
+				graphViewConfiguration, workbenchConfiguration, selectionManager);
 	}
 
 	/* (non-Javadoc)
@@ -85,8 +82,8 @@ public class GraphViewComponentFactory implements UIComponentFactorySPI {
 		this.menuManager = menuManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 	public void setColourManager(ColourManager colourManager) {
@@ -99,10 +96,6 @@ public class GraphViewComponentFactory implements UIComponentFactorySPI {
 
 	public void setGraphViewConfiguration(GraphViewConfiguration graphViewConfiguration) {
 		this.graphViewConfiguration = graphViewConfiguration;
-	}
-
-	public void setActivityService(ActivityService activityService) {
-		this.activityService = activityService;
 	}
 
 }

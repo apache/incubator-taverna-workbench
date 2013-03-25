@@ -70,9 +70,9 @@ import net.sf.taverna.t2.workbench.report.DataflowReportEvent;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.report.ReportManagerEvent;
 import net.sf.taverna.t2.workbench.report.explainer.VisitExplainer;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
@@ -137,7 +137,7 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 
 	protected FileManager fileManager;
 	protected FileManagerObserver fileManagerObserver = new FileManagerObserver();
-	private DataflowSelectionManager openedWorkflowsManager;
+	private SelectionManager openedWorkflowsManager;
 	private Observer<DataflowSelectionMessage> workflowSelectionListener = new DataflowSelectionListener();
 
 	private final Workbench workbench;
@@ -148,14 +148,14 @@ public class ReportViewComponent extends JPanel implements UIComponentSPI {
 
 	public ReportViewComponent(EditManager editManager, FileManager fileManager, MenuManager menuManager,
 			ReportManager reportManager, Workbench workbench,
-			DataflowSelectionManager dataflowSelectionManager, List<VisitExplainer> visitExplainers) {
+			SelectionManager selectionManager, List<VisitExplainer> visitExplainers) {
 		super();
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
 		this.reportManager = reportManager;
 		this.workbench = workbench;
-		openedWorkflowsManager = dataflowSelectionManager;
+		openedWorkflowsManager = selectionManager;
 		this.visitExplainers = visitExplainers;
 		reportManager.addObserver(new ReportManagerObserver());
 		fileManager.addObserver(fileManagerObserver);

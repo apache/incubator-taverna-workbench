@@ -26,8 +26,6 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 
-import org.apache.log4j.Logger;
-
 /**
  * An action that zooms a diagram image
  *
@@ -36,10 +34,7 @@ import org.apache.log4j.Logger;
  * @author Alan R Williams
  *
  */
-@SuppressWarnings("serial")
 public class ResetDiagramMenuAction extends AbstractMenuAction{
-
-	private static Logger logger = Logger.getLogger(ResetDiagramMenuAction.class);
 
 	public static final URI RESET_DIAGRAM_URI = URI
 	.create("http://taverna.sf.net/2008/t2workbench/menu#diagramMenuResetDiagram");

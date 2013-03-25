@@ -31,8 +31,8 @@ import net.sf.taverna.t2.workbench.design.ui.DataflowOutputPortPanel;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workflow.edits.AddDataflowOutputPortEdit;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workflow.edits.AddChildEdit;
 
 import org.apache.log4j.Logger;
 
@@ -50,8 +50,8 @@ public class AddDataflowOutputAction extends DataflowEditAction {
 
 	private static Logger logger = Logger.getLogger(AddDataflowOutputAction.class);
 
-	public AddDataflowOutputAction(Workflow dataflow, Component component, EditManager editManager, DataflowSelectionManager dataflowSelectionManager) {
-		super(dataflow, component, editManager, dataflowSelectionManager);
+	public AddDataflowOutputAction(Workflow dataflow, Component component, EditManager editManager, SelectionManager selectionManager) {
+		super(dataflow, component, editManager, selectionManager);
 		putValue(SMALL_ICON, WorkbenchIcons.outputIcon);
 		putValue(NAME, "Workflow output port");
 		putValue(SHORT_DESCRIPTION, "Add workflow output port");
@@ -78,7 +78,7 @@ public class AddDataflowOutputAction extends DataflowEditAction {
 				String portName = inputPanel.getPortName();
 				OutputWorkflowPort dataflowOutputPort = new OutputWorkflowPort();
 				dataflowOutputPort.setName(portName);
-				editManager.doDataflowEdit(dataflow.getParent(), new AddDataflowOutputPortEdit(dataflow, dataflowOutputPort));
+				editManager.doDataflowEdit(dataflow.getParent(), new AddChildEdit<Workflow>(dataflow, dataflowOutputPort));
 			}
 		} catch (EditException e) {
 			logger.debug("Create workflow output port failed", e);

@@ -26,7 +26,7 @@ import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
@@ -34,12 +34,12 @@ public class MonitorGraphComponentFactory implements UIComponentFactorySPI {
 
 	private EditManager editManager;
 	private MenuManager menuManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 	private ColourManager colourManager;
 	private WorkbenchConfiguration workbenchConfiguration;
 
 	public UIComponentSPI getComponent() {
-		return new MonitorGraphComponent(editManager, menuManager, dataflowSelectionManager, colourManager, workbenchConfiguration);
+		return new MonitorGraphComponent(editManager, menuManager, selectionManager, colourManager, workbenchConfiguration);
 	}
 
 	public ImageIcon getIcon() {
@@ -59,8 +59,8 @@ public class MonitorGraphComponentFactory implements UIComponentFactorySPI {
 		this.menuManager = menuManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 	public void setColourManager(ColourManager colourManager) {

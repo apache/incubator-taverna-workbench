@@ -26,7 +26,7 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.CopyGraphComponentAction;
 
 /**
@@ -38,8 +38,8 @@ public class CopyGraphComponentMenuAction extends AbstractMenuAction {
 
 	private static final URI COPY_GRAPH_COMPONENT_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuCopyGraphComponent");
-	private FileManager fileManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+
+	private SelectionManager selectionManager;
 
 	public CopyGraphComponentMenuAction() {
 		super(URI
@@ -48,15 +48,11 @@ public class CopyGraphComponentMenuAction extends AbstractMenuAction {
 
 	@Override
 	protected Action createAction() {
-		return new CopyGraphComponentAction(fileManager, dataflowSelectionManager);
+		return new CopyGraphComponentAction(selectionManager);
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
-	}
-
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

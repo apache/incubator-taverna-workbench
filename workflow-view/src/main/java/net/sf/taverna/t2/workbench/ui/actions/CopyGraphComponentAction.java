@@ -31,22 +31,21 @@ import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
+import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionMessage;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
+import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * An action that copies the selected graph component.
@@ -55,29 +54,16 @@ import uk.org.taverna.scufl2.api.core.Workflow;
  *
  */
 @SuppressWarnings("serial")
-public class CopyGraphComponentAction extends AbstractAction {
-
-	private static ModelMap modelMap = ModelMap.getInstance();
-
-	/* Perspective switch observer */
-	private CurrentPerspectiveObserver perspectiveObserver = new CurrentPerspectiveObserver();
+public class CopyGraphComponentAction extends AbstractAction implements DesignOnlyAction {
 
 	/* Current workflow's selection model event observer. */
 	private Observer<DataflowSelectionMessage> workflowSelectionObserver = new DataflowSelectionObserver();
 
-	private static Logger logger = Logger.getLogger(CopyGraphComponentAction.class);
+	private final SelectionManager selectionManager;
 
-	private final FileManager fileManager;
-
-	private final DataflowSelectionManager dataflowSelectionManager;
-
-	public CopyGraphComponentAction(FileManager fileManager,
-			final DataflowSelectionManager dataflowSelectionManager) {
-		super();
-		this.fileManager = fileManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
-		putValue(SMALL_ICON, WorkbenchIcons.copyIcon);
-		putValue(NAME, "Copy");
+	public CopyGraphComponentAction(final SelectionManager selectionManager) {
+		super("Copy", WorkbenchIcons.copyIcon);
+		this.selectionManager = selectionManager;
 		putValue(SHORT_DESCRIPTION, "Copy selected component");
 		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_Y);
 
@@ -85,44 +71,15 @@ public class CopyGraphComponentAction extends AbstractAction {
 				.getDefaultToolkit().getMenuShortcutKeyMask()));
 		setEnabled(false);
 
-		modelMap.addObserver(perspectiveObserver);
-
-		modelMap.addObserver(new Observer<ModelMap.ModelMapEvent>() {
-			public void notify(Observable<ModelMapEvent> sender, ModelMapEvent message) {
-				if (message.getModelName().equals(ModelMapConstants.CURRENT_DATAFLOW)) {
-					if (message.getNewModel() instanceof WorkflowBundle) {
-
-						// Update the buttons status as current dataflow has
-						// changed
-						updateStatus((WorkflowBundle) message.getNewModel());
-
-						// Remove the workflow selection model listener from the
-						// previous (if any)
-						// and add to the new workflow (if any)
-						WorkflowBundle oldFlow = (WorkflowBundle) message.getOldModel();
-						WorkflowBundle newFlow = (WorkflowBundle) message.getNewModel();
-						if (oldFlow != null) {
-							dataflowSelectionManager.getDataflowSelectionModel(oldFlow)
-									.removeObserver(workflowSelectionObserver);
-						}
-
-						if (newFlow != null) {
-							dataflowSelectionManager.getDataflowSelectionModel(newFlow)
-									.addObserver(workflowSelectionObserver);
-						}
-					}
-				}
-			}
-		});
+		selectionManager.addObserver(new SelectionManagerObserver());
 	}
 
 	/**
 	 * Check if action should be enabled or disabled and update its status.
 	 */
-	public void updateStatus(WorkflowBundle dataflow) {
-
-		DataflowSelectionModel selectionModel = dataflowSelectionManager
-				.getDataflowSelectionModel(dataflow);
+	public void updateStatus() {
+		WorkflowBundle workflowBundle = selectionManager.getSelectedWorkflowBundle();
+		DataflowSelectionModel selectionModel = selectionManager.getDataflowSelectionModel(workflowBundle);
 
 		// List of all selected objects in the graph view
 		Set<Object> selection = selectionModel.getSelection();
@@ -142,7 +99,7 @@ public class CopyGraphComponentAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		WorkflowView.copyProcessor(dataflowSelectionManager);
+		WorkflowView.copyProcessor(selectionManager);
 	}
 
 	/**
@@ -150,29 +107,34 @@ public class CopyGraphComponentAction extends AbstractAction {
 	 * is selected in the graph view, and enables/disables this action
 	 * accordingly.
 	 */
-	private final class DataflowSelectionObserver implements Observer<DataflowSelectionMessage> {
-
-		public void notify(Observable<DataflowSelectionMessage> sender,
-				DataflowSelectionMessage message) throws Exception {
-			updateStatus(fileManager.getCurrentDataflow());
+	private final class DataflowSelectionObserver extends SwingAwareObserver<DataflowSelectionMessage> {
+		@Override
+		public void notifySwing(Observable<DataflowSelectionMessage> sender, DataflowSelectionMessage message) {
+			updateStatus();
 		}
 	}
 
-	/**
-	 * Modify the enabled/disabled state of the action when
-	 * ModelMapConstants.CURRENT_PERSPECTIVE has been modified (i.e. when
-	 * perspective has been switched).
-	 */
-	public class CurrentPerspectiveObserver implements Observer<ModelMapEvent> {
-		public void notify(Observable<ModelMapEvent> sender, ModelMapEvent message)
-				throws Exception {
-			if (message.getModelName().equals(ModelMapConstants.CURRENT_PERSPECTIVE)) {
-				if (message.getNewModel() instanceof WorkflowPerspective) {
-					updateStatus(fileManager.getCurrentDataflow());
-				} else {
-					setEnabled(false);
+	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+		@Override
+		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message) {
+			if (message instanceof WorkflowBundleSelectionEvent) {
+				WorkflowBundleSelectionEvent workflowBundleSelectionEvent = (WorkflowBundleSelectionEvent) message;
+				WorkflowBundle oldFlow = workflowBundleSelectionEvent.getPreviouslySelectedWorkflowBundle();
+				WorkflowBundle newFlow = workflowBundleSelectionEvent.getSelectedWorkflowBundle();
+				// Update the buttons status as current dataflow has changed
+				updateStatus();
+
+				// Remove the workflow selection model listener from the previous (if any)
+				// and add to the new workflow (if any)
+				if (oldFlow != null) {
+					selectionManager.getDataflowSelectionModel(oldFlow).removeObserver(workflowSelectionObserver);
+				}
+
+				if (newFlow != null) {
+					selectionManager.getDataflowSelectionModel(newFlow).addObserver(workflowSelectionObserver);
 				}
 			}
 		}
 	}
+
 }

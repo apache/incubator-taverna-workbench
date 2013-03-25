@@ -52,7 +52,7 @@ import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionProvidedEv
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
@@ -109,15 +109,15 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	private final MenuManager menuManager;
 
-	private final DataflowSelectionManager dataflowSelectionManager;
+	private final SelectionManager selectionManager;
 
 	public ServicePanel(ServiceDescriptionRegistry serviceDescriptionRegistry,
 			EditManager editManager, MenuManager menuManager,
-			DataflowSelectionManager dataflowSelectionManager) {
+			SelectionManager selectionManager) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 		this.editManager = editManager;
 		this.menuManager = menuManager;
-		this.dataflowSelectionManager = dataflowSelectionManager;
+		this.selectionManager = selectionManager;
 		serviceDescriptionRegistry.addObserver(serviceDescriptionRegistryObserver);
 		initialise();
 		TitledBorder border = new TitledBorder("Service panel");
@@ -156,7 +156,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		removeAll();
 		setLayout(new BorderLayout());
 		treeModel = new FilterTreeModel(root);
-		serviceTreePanel = new ServiceTreePanel(treeModel, serviceDescriptionRegistry, editManager, menuManager, dataflowSelectionManager);
+		serviceTreePanel = new ServiceTreePanel(treeModel, serviceDescriptionRegistry, editManager, menuManager, selectionManager);
 		serviceTreePanel.setAvailableObjectsString(AVAILABLE_SERVICES);
 		serviceTreePanel.setMatchingObjectsString(MATCHING_SERVIES);
 		serviceTreePanel.setNoMatchingObjectsString(NO_MATCHING_SERVICES);
