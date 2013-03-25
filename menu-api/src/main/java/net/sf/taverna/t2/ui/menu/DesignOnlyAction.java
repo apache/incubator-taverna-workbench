@@ -20,52 +20,12 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.menu;
 
-import javax.swing.AbstractAction;
-
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
-import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
-
 /**
- * @author alanrw
+ * Marker interface for actions that are valid only when the design perspective is selected.
  *
+ * @author alanrw
+ * @author David Withers
  */
-public abstract class DesignOnlyAction extends AbstractAction {
+public interface DesignOnlyAction {
 
-	private static ModelMap modelMap = ModelMap.getInstance();
-
-	/* Perspective switch observer */
-	private CurrentPerspectiveObserver perspectiveObserver = new CurrentPerspectiveObserver();
-
-	protected boolean inWorkflow = true;
-
-	public DesignOnlyAction() {
-		super();
-		inWorkflow = ModelMap.getInstance().getModel(ModelMapConstants.CURRENT_PERSPECTIVE) instanceof WorkflowPerspective;
-		modelMap.addObserver(perspectiveObserver);
-	}
-
-	/**
-	 * Modify the enabled/disabled state of the action when ModelMapConstants.CURRENT_PERSPECTIVE has been
-	 * modified (i.e. when perspective has been switched).
-	 */
-	public class CurrentPerspectiveObserver implements Observer<ModelMapEvent> {
-		public void notify(Observable<ModelMapEvent> sender,
-				ModelMapEvent message) throws Exception {
-			if (message.getModelName().equals(
-					ModelMapConstants.CURRENT_PERSPECTIVE)) {
-				if (message.getNewModel() instanceof WorkflowPerspective) {
-					inWorkflow = true;
-					setEnabled(true);
-				}
-				else{
-					inWorkflow = false;
-					setEnabled(false);
-				}
-			}
-		}
-	}
 }

@@ -20,63 +20,12 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.menu;
 
-import javax.swing.AbstractAction;
-
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.ui.ModelMap;
-import net.sf.taverna.t2.lang.ui.ModelMap.ModelMapEvent;
-import net.sf.taverna.t2.workbench.ModelMapConstants;
-import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
-
 /**
- * @author alanrw
+ * Marker interface for actions that are valid the design or result perspectives are selected.
  *
+ * @author alanrw
+ * @author David Withers
  */
-public abstract class DesignOrResultsAction extends AbstractAction {
+public interface DesignOrResultsAction {
 
-	private static ModelMap modelMap = ModelMap.getInstance();
-
-	/* Perspective switch observer */
-	private CurrentPerspectiveObserver perspectiveObserver = new CurrentPerspectiveObserver();
-
-	private Object lastPerspective = null;
-
-	public DesignOrResultsAction() {
-		super();
-
-		modelMap.addObserver(perspectiveObserver);
-	}
-
-	/**
-	 * Modify the enabled/disabled state of the action when ModelMapConstants.CURRENT_PERSPECTIVE has been
-	 * modified (i.e. when perspective has been switched).
-	 */
-	public class CurrentPerspectiveObserver implements Observer<ModelMapEvent> {
-		public void notify(Observable<ModelMapEvent> sender,
-				ModelMapEvent message) throws Exception {
-			if (message.getModelName().equals(
-					ModelMapConstants.CURRENT_PERSPECTIVE)) {
-				lastPerspective = message.getNewModel();
-				if ((lastPerspective instanceof WorkflowPerspective) || (lastPerspective.getClass().getName().equals("net.sf.taverna.t2.workbench.run.ResultsPerspective"))) {
-					setEnabled(true);
-				}
-				else{
-					setEnabled(false);
-				}
-			}
-		}
-	}
-
-	protected boolean isWorkflowPerspective() {
-		return (!isShowingPerspective() || (lastPerspective instanceof WorkflowPerspective));
-	}
-
-	protected boolean isResultsPerspective() {
-		return (isShowingPerspective() && (lastPerspective.getClass().getName().equals("net.sf.taverna.t2.workbench.run.ResultsPerspective")));
-
-	}
-	protected boolean isShowingPerspective() {
-		return (lastPerspective != null);
-	}
 }
