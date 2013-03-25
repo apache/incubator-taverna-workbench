@@ -34,10 +34,12 @@ import net.sf.taverna.t2.workbench.activityicons.ActivityIconSPI;
  */
 public class StringConstantActivityIcon implements ActivityIconSPI{
 
+	private static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
+
 	private static Icon icon = null;
 
 	public int canProvideIconScore(URI activityType) {
-		if (activityType.equals(StringConstantTemplateService.ACTIVITY_TYPE))
+		if (activityType.equals(ACTIVITY_TYPE))
 			return DEFAULT_ICON + 1;
 		else
 			return NO_ICON;

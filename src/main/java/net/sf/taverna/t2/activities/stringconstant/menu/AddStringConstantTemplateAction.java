@@ -27,11 +27,12 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 
@@ -44,12 +45,15 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 @SuppressWarnings("serial")
 public class AddStringConstantTemplateAction extends AbstractContextualMenuAction {
 
+	private static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
+
 	private static final URI insertSection = URI
 			.create("http://taverna.sf.net/2009/contextMenu/insert");
 	private EditManager editManager;
 	private MenuManager menuManager;
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 	private ActivityIconManager activityIconManager;
+	private ServiceDescriptionRegistry serviceDescriptionRegistry;
 
 	// private static Logger logger = Logger.getLogger(AddStringConstantTemplateAction.class);
 
@@ -65,13 +69,13 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 	@Override
 	protected Action createAction() {
 		AbstractAction action = new AbstractAction("Text constant",
-				activityIconManager.iconForActivity(StringConstantTemplateService.ACTIVITY_TYPE)) {
+				activityIconManager.iconForActivity(ACTIVITY_TYPE)) {
 
 			public void actionPerformed(ActionEvent e) {
 
 				WorkflowView.importServiceDescription(
-						StringConstantTemplateService.getServiceDescription(), false, editManager,
-						menuManager, dataflowSelectionManager);
+						serviceDescriptionRegistry.getServiceDescription(ACTIVITY_TYPE), false, editManager,
+						menuManager, selectionManager);
 
 			}
 
@@ -87,12 +91,16 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 		this.menuManager = menuManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 	public void setActivityIconManager(ActivityIconManager activityIconManager) {
 		this.activityIconManager = activityIconManager;
+	}
+
+	public void setServiceDescriptionRegistry(ServiceDescriptionRegistry serviceDescriptionRegistry) {
+		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
 }

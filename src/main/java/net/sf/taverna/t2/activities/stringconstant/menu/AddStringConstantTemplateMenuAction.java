@@ -25,17 +25,19 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.net.URI;
 
+import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.ui.DataflowSelectionManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 
 /**
@@ -47,6 +49,8 @@ import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
  */
 @SuppressWarnings("serial")
 public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
+
+	private static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
 
 	private static final URI INSERT = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#insert");
@@ -60,9 +64,11 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 
 	private MenuManager menuManager;
 
-	private DataflowSelectionManager dataflowSelectionManager;
+	private SelectionManager selectionManager;
 
 	private ActivityIconManager activityIconManager;
+
+	private ServiceDescriptionRegistry serviceDescriptionRegistry;
 
 	// private static Logger logger = Logger.getLogger(AddStringConstantTemplateMenuAction.class);
 
@@ -75,10 +81,10 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 		return new AddStringConstantMenuAction();
 	}
 
-	protected class AddStringConstantMenuAction extends DesignOnlyAction {
+	protected class AddStringConstantMenuAction extends AbstractAction implements DesignOnlyAction {
 		AddStringConstantMenuAction() {
 			super();
-			putValue(SMALL_ICON, activityIconManager.iconForActivity(StringConstantTemplateService.ACTIVITY_TYPE));
+			putValue(SMALL_ICON, activityIconManager.iconForActivity(ACTIVITY_TYPE));
 			putValue(NAME, ADD_STRING_CONSTANT);
 			putValue(SHORT_DESCRIPTION, ADD_STRING_CONSTANT);
 			putValue(
@@ -91,8 +97,8 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 		public void actionPerformed(ActionEvent e) {
 
 			WorkflowView.importServiceDescription(
-					StringConstantTemplateService.getServiceDescription(), false, editManager,
-					menuManager, dataflowSelectionManager);
+					serviceDescriptionRegistry.getServiceDescription(ACTIVITY_TYPE), false, editManager,
+					menuManager, selectionManager);
 
 		}
 	}
@@ -105,12 +111,16 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 		this.menuManager = menuManager;
 	}
 
-	public void setDataflowSelectionManager(DataflowSelectionManager dataflowSelectionManager) {
-		this.dataflowSelectionManager = dataflowSelectionManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 	public void setActivityIconManager(ActivityIconManager activityIconManager) {
 		this.activityIconManager = activityIconManager;
+	}
+
+	public void setServiceDescriptionRegistry(ServiceDescriptionRegistry serviceDescriptionRegistry) {
+		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
 }

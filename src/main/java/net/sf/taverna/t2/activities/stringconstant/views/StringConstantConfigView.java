@@ -13,11 +13,8 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
-import java.util.Collections;
 
-import javax.help.CSH;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -25,20 +22,17 @@ import javax.swing.JTextPane;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
-import uk.org.taverna.scufl2.api.property.PropertyException;
-
-import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
-import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
 import net.sf.taverna.t2.lang.ui.FileTools;
-import net.sf.taverna.t2.lang.ui.KeywordDocument;
 import net.sf.taverna.t2.lang.ui.LineEnabledTextPanel;
 import net.sf.taverna.t2.lang.ui.LinePainter;
 import net.sf.taverna.t2.lang.ui.NoWrapEditorKit;
-import net.sf.taverna.t2.visit.VisitReport;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationPanel;
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.property.PropertyException;
+import uk.org.taverna.serviceregistry.api.ServiceRegistry;
 
 /**
  * @author alanrw
@@ -46,38 +40,34 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityCon
  */
 public class StringConstantConfigView extends ActivityConfigurationPanel {
 
-	/** The configuration bean used to configure the activity */
-	private Configuration configuration;
+	private static final long serialVersionUID = 1L;
+
+	private static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
 
 	/** The text */
 	private JEditorPane scriptTextArea;
 
-	private static final Color LINE_COLOR = new Color(225,225,225);
+	private static final Color LINE_COLOR = Color.WHITE;
 
-	private final Activity activity;
+	private final ServiceDescription serviceDescription;
 
-	public StringConstantConfigView(Activity activity, Configuration configuration) {
-		this.activity = activity;
-		this.configuration = configuration;
+	public StringConstantConfigView(Activity activity, ServiceDescription serviceDescription) {
+		super(activity);
+		this.serviceDescription = serviceDescription;
 		setLayout(new GridBagLayout());
 		initialise();
 		this.addAncestorListener(new AncestorListener() {
-
 			@Override
 			public void ancestorAdded(AncestorEvent event) {
 				StringConstantConfigView.this.whenOpened();
 			}
-
 			@Override
 			public void ancestorMoved(AncestorEvent event) {
 				// TODO Auto-generated method stub
-
 			}
-
 			@Override
 			public void ancestorRemoved(AncestorEvent event) {
 				// TODO Auto-generated method stub
-
 			}});
 	}
 
@@ -88,11 +78,11 @@ public class StringConstantConfigView extends ActivityConfigurationPanel {
     	}
     }
 
-	private void initialise() {
-		CSH
-		.setHelpIDString(
-				this,
-				"net.sf.taverna.t2.activities.stringconstant.views.StringConstantConfigView");
+	protected void initialise() {
+//		CSH
+//		.setHelpIDString(
+//				this,
+//				"net.sf.taverna.t2.activities.stringconstant.views.StringConstantConfigView");
 
 		setBorder(javax.swing.BorderFactory.createTitledBorder(null, null,
 				javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
@@ -107,7 +97,7 @@ public class StringConstantConfigView extends ActivityConfigurationPanel {
 		// NOTE: Due to T2-1145 - always set editor kit BEFORE setDocument
 		scriptTextArea.setEditorKit( new NoWrapEditorKit() );
 		scriptTextArea.setFont(new Font("Monospaced",Font.PLAIN,14));
-		scriptTextArea.setText(getValue(configuration));
+		scriptTextArea.setText(getProperty("string"));
 		scriptTextArea.setCaretPosition(0);
 		scriptTextArea.setPreferredSize(new Dimension(200, 100));
 
@@ -176,9 +166,7 @@ public class StringConstantConfigView extends ActivityConfigurationPanel {
 				"Clearing the script", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			scriptTextArea.setText("");
 		}
-
 	}
-
 
 	@Override
 	public boolean checkValues() {
@@ -186,44 +174,14 @@ public class StringConstantConfigView extends ActivityConfigurationPanel {
 	}
 
 	@Override
-	public Configuration getConfiguration() {
-		return configuration;
-	}
-
-	@Override
 	public boolean isConfigurationChanged() {
-		return !scriptTextArea.getText().equals(getValue(configuration));
+		return !scriptTextArea.getText().equals(getProperty("string"));
 	}
 
 	@Override
 	public void noteConfiguration() {
-		configuration = makeConfiguration();
-	}
-
-	private Configuration makeConfiguration() {
-		URI activityURI = StringConstantTemplateService.ACTIVITY_TYPE;
-		Configuration configuration = new Configuration();
-		configuration.setConfigurableType(activityURI.resolve("#Config"));
-		configuration.setConfigures(activity);
-		configuration.getPropertyResource().addPropertyAsString(StringConstantTemplateService.ACTIVITY_TYPE.resolve("#string"), scriptTextArea.getText());
-		return configuration;
-	}
-
-	private String getValue(Configuration configuration) {
-		String value = null;
-		try {
-			value = configuration.getPropertyResource().getPropertyAsString(StringConstantTemplateService.ACTIVITY_TYPE.resolve("#string"));
-		} catch (PropertyException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return value;
-	}
-
-	@Override
-	public void refreshConfiguration() {
-		// TODO Auto-generated method stub
-
+		configuration = serviceDescription.getActivityConfiguration();
+		setProperty("string", scriptTextArea.getText());
 	}
 
 }

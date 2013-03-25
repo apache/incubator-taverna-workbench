@@ -24,14 +24,13 @@ import java.net.URI;
 
 import javax.swing.Icon;
 
-import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
 import net.sf.taverna.t2.servicedescriptions.AbstractTemplateService;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 
 public class StringConstantTemplateService extends AbstractTemplateService {
 
-	public static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
+	private static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
 
 	public static final String DEFAULT_VALUE = "Add your own value here";
 
@@ -41,14 +40,14 @@ public class StringConstantTemplateService extends AbstractTemplateService {
 	.create("http://taverna.sf.net/2010/service-provider/stringconstant");
 
 	@Override
-	public URI getActivityURI() {
-		return URI.create(StringConstantActivity.URI);
+	public URI getActivityType() {
+		return ACTIVITY_TYPE;
 	}
 
 	@Override
 	public Configuration getActivityConfiguration() {
 		Configuration configuration = new Configuration();
-		configuration.setConfigurableType(ACTIVITY_TYPE.resolve("#Config"));
+		configuration.setType(ACTIVITY_TYPE.resolve("#Config"));
 		configuration.getPropertyResource().addPropertyAsString(ACTIVITY_TYPE.resolve("#string"), DEFAULT_VALUE);
 		return configuration;
 	}

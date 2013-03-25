@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.activities.stringconstant.views;
 
 import java.awt.Frame;
+import java.net.URI;
 
 import javax.swing.Action;
 
@@ -30,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.actions.StringConstantActivityConfigurationAction;
 import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
@@ -43,18 +45,23 @@ public class StringConstantActivityContextualView extends HTMLBasedActivityConte
 
 	private static final long serialVersionUID = -553974544001808511L;
 
+	private static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
+
 	private final EditManager editManager;
 	private final FileManager fileManager;
 	private final ActivityIconManager activityIconManager;
+	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 	private static final int MAX_LENGTH = 100;
+
 
 	public StringConstantActivityContextualView(Activity activity, EditManager editManager,
 			FileManager fileManager, ActivityIconManager activityIconManager,
-			ColourManager colourManager) {
+			ColourManager colourManager, ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		super(activity, colourManager);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.activityIconManager = activityIconManager;
+		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
 	@Override
@@ -67,7 +74,7 @@ public class StringConstantActivityContextualView extends HTMLBasedActivityConte
 		PropertyResource propertyResource = getConfigBean().getPropertyResource();
 		String value;
 		try {
-			value = propertyResource.getPropertyAsString(StringConstantTemplateService.ACTIVITY_TYPE.resolve("#string"));
+			value = propertyResource.getPropertyAsString(ACTIVITY_TYPE.resolve("#string"));
 		} catch (PropertyException e) {
 			value = "Error finding value";
 		}
@@ -81,7 +88,7 @@ public class StringConstantActivityContextualView extends HTMLBasedActivityConte
 	public Action getConfigureAction(Frame owner) {
 		return new StringConstantActivityConfigurationAction(
 				getActivity(), owner, editManager, fileManager,
-				activityIconManager);
+				activityIconManager, serviceDescriptionRegistry);
 	}
 
 	@Override

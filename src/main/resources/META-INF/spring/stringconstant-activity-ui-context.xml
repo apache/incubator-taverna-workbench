@@ -10,19 +10,22 @@
 	<bean id="AddStringConstantTemplateAction" class="net.sf.taverna.t2.activities.stringconstant.menu.AddStringConstantTemplateAction">
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 			<property name="activityIconManager" ref="activityIconManager" />
+			<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
 	</bean>
 	<bean id="AddStringConstantTemplateMenuAction" class="net.sf.taverna.t2.activities.stringconstant.menu.AddStringConstantTemplateMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
-			<property name="dataflowSelectionManager" ref="dataflowSelectionManager" />
+			<property name="selectionManager" ref="selectionManager" />
 			<property name="activityIconManager" ref="activityIconManager" />
+			<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
 	</bean>
 	<bean id="ConfigureStringConstantMenuAction" class="net.sf.taverna.t2.activities.stringconstant.menu.ConfigureStringConstantMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
 			<property name="activityIconManager" ref="activityIconManager" />
+			<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
 	</bean>
 
 	<bean id="StringConstantActivityViewFactory" class="net.sf.taverna.t2.activities.stringconstant.views.StringConstantActivityViewFactory">
@@ -30,6 +33,7 @@
 			<property name="fileManager" ref="fileManager" />
 			<property name="activityIconManager" ref="activityIconManager" />
 			<property name="colourManager" ref="colourManager" />
+			<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
 	</bean>
 
 </beans>
