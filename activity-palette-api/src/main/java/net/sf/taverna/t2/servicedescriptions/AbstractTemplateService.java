@@ -21,7 +21,7 @@ public abstract class AbstractTemplateService implements ServiceDescriptionProvi
 
 	public abstract Icon getIcon();
 
-	public URI getActivityURI() {
+	public URI getActivityType() {
 		return null;
 	}
 
@@ -52,8 +52,8 @@ public abstract class AbstractTemplateService implements ServiceDescriptionProvi
 		}
 
 		@Override
-		public URI getActivityURI() {
-			return AbstractTemplateService.this.getActivityURI();
+		public URI getActivityType() {
+			return AbstractTemplateService.this.getActivityType();
 		}
 
 		@Override

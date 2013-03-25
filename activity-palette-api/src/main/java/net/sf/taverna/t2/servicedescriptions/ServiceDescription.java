@@ -30,7 +30,7 @@ public abstract class ServiceDescription extends IdentifiedObject {
 	private static Logger logger = Logger.getLogger(ServiceDescription.class);
 
 	@PropertyAnnotation(expert = true, displayName = SERVICE_IMPLEMENTATION_URI)
-	public URI getActivityURI() {
+	public URI getActivityType() {
 		return null;
 	}
 

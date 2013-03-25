@@ -6,7 +6,6 @@ import net.sf.taverna.t2.lang.beans.PropertyAnnotated;
 
 public abstract class IdentifiedObject extends PropertyAnnotated {
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object obj) {
 		if (! (obj instanceof IdentifiedObject)) {
