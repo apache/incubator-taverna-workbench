@@ -70,6 +70,7 @@
 		<dependency>
 			<groupId>uk.org.mygrid.taverna</groupId>
 			<artifactId>osxapplication</artifactId>
+			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
