@@ -116,7 +116,6 @@ public class SelectionManagerImpl implements SelectionManager {
 
 	private void setSelectedWorkflowBundle(WorkflowBundle workflowBundle, boolean notifyFileManager) {
 		if (workflowBundle != null && workflowBundle != selectedWorkflowBundle) {
-			System.out.println("setSelectedWorkflowBundle("+notifyFileManager+") " + workflowBundle.getName());
 			if (notifyFileManager) {
 				fileManager.setCurrentDataflow(workflowBundle);
 			} else {
@@ -223,15 +222,12 @@ public class SelectionManagerImpl implements SelectionManager {
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) throws Exception {
 			if (message instanceof ClosedDataflowEvent) {
-				System.out.println("ClosedDataflowEvent");
 				WorkflowBundle workflowBundle = ((ClosedDataflowEvent) message).getDataflow();
 				removeDataflowSelectionModel(workflowBundle);
 			} else if (message instanceof OpenedDataflowEvent) {
-				System.out.println("OpenedDataflowEvent");
 				WorkflowBundle workflowBundle = ((OpenedDataflowEvent) message).getDataflow();
 				setSelectedWorkflowBundle(workflowBundle, false);
 			} else if (message instanceof SetCurrentDataflowEvent) {
-				System.out.println("SetCurrentDataflowEvent");
 				WorkflowBundle workflowBundle = ((SetCurrentDataflowEvent) message).getDataflow();
 				setSelectedWorkflowBundle(workflowBundle, false);
 			}
