@@ -135,7 +135,6 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 			System.exit(0);
 		}
 
-		System.out.println("Constructing the GUI");
 		makeGUI();
 		fileManager.newDataflow();
 		// the DataflowEditsListener changes the WorkflowBundle ID for every workflow edit
@@ -262,7 +261,6 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		if (callShutdownHooks()) {
 			System.exit(0);
 		}
-
 	}
 
 	public void setShutdownHooks(List<ShutdownSPI> shutdownHooks) {
