@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.helper;
 
@@ -7,7 +7,6 @@ import java.awt.AWTEvent;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
-import java.awt.Dimension;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
@@ -15,17 +14,12 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.help.BadIDException;
-import javax.help.JHelp;
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
 import javax.swing.RootPaneContainer;
@@ -35,9 +29,9 @@ import org.apache.log4j.Logger;
 /**
  * This class creates the dialogs for the presentation of the HelpSet held by
  * the HelpCollator.
- * 
+ *
  * @author alanrw
- * 
+ *
  */
 public final class Helper {
 	private static Helper instance;
@@ -53,7 +47,7 @@ public final class Helper {
 	/**
 	 * Get the singleton instance of Helper. In theory there could be more than
 	 * one.
-	 * 
+	 *
 	 * @return
 	 */
 	private static Helper getInstance() {
@@ -67,7 +61,7 @@ public final class Helper {
 	/**
 	 * Show in the current dialog the entry (if any) corresponding to the
 	 * specified id.
-	 * 
+	 *
 	 * @param id
 	 */
 	private static void showID(String id) {
@@ -92,7 +86,7 @@ public final class Helper {
 
 	/**
 	 * Show the most suitable help for the specified component.
-	 * 
+	 *
 	 * @param c
 	 */
 	public static void showHelp(Component c) {
@@ -101,7 +95,7 @@ public final class Helper {
 
 	/**
 	 * Display the default home page help.
-	 * 
+	 *
 	 * @param e
 	 */
 	public static void displayDefaultHelp(AWTEvent e) {
@@ -115,7 +109,7 @@ public final class Helper {
 	/**
 	 * Associated the specified acion with key presses in the specified
 	 * compoent.
-	 * 
+	 *
 	 * @param component
 	 * @param theAction
 	 */
@@ -138,7 +132,7 @@ public final class Helper {
 	/**
 	 * Set up a key-press catcher for the specified component such that when F1
 	 * is pressed it should help for the component where the cursor is.
-	 * 
+	 *
 	 * @param rootpanecontainer
 	 */
 	public static void setKeyCatcher(final RootPaneContainer rootpanecontainer) {
@@ -168,7 +162,7 @@ public final class Helper {
 
 	/**
 	 * Show the help most associated with the specific component within the container.
-	 * 
+	 *
 	 * @param rootpanecontainer
 	 * @param c
 	 */
@@ -181,7 +175,7 @@ public final class Helper {
 
 	/**
 	 * Register a component with the HelpCollator under the specified id.
-	 * 
+	 *
 	 * @param component
 	 * @param id
 	 */
@@ -191,7 +185,7 @@ public final class Helper {
 
 	/**
 	 * Register a component with the HelpCollator.
-	 * 
+	 *
 	 * @param component
 	 * @param parent
 	 * @param suffix

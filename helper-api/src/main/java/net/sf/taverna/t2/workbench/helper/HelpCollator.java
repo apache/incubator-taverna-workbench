@@ -4,9 +4,7 @@
 package net.sf.taverna.t2.workbench.helper;
 
 import java.awt.Component;
-
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -21,7 +19,6 @@ import javax.help.HelpSet;
 import javax.help.HelpSetException;
 import javax.help.Map.ID;
 import javax.help.TryMap;
-import javax.help.Map.ID;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
@@ -40,12 +37,6 @@ import org.apache.log4j.Logger;
 public final class HelpCollator {
 
 	private static Logger logger = Logger.getLogger(HelpCollator.class);
-
-	/**
-	 * The singleton instance of the HelpCollator. In theory there could be more
-	 * than one.
-	 */
-	private static HelpCollator instance = null;
 
 	/**
 	 * The HelpSet that is being used.
