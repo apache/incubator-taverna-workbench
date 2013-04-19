@@ -18,72 +18,64 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-/**
- * This file is a component of the Taverna project,
- * and is licensed under the GNU LGPL.
- * Copyright Tom Oinn, EMBL-EBI
- */
-package net.sf.taverna.t2.renderers;
+package net.sf.taverna.t2.renderers.impl;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
+import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.renderers.Renderer;
+import net.sf.taverna.t2.renderers.RendererException;
 
 /**
- * Class that renders objects which have a Java Component subclass as their user
- * object
+ * Display the content of a URL.
  * 
- * @author Tom Oinn
  * @author Ian Dunlop
  */
-public class AWTComponentRenderer implements Renderer {
+public class TextTavernaWebUrlFetcherRenderer implements Renderer {
+	private Pattern pattern;
 
-	public AWTComponentRenderer() {
+	public TextTavernaWebUrlFetcherRenderer() {
+		pattern = Pattern.compile(".*text/x-taverna-web-url.*");
+	}
+
+	public boolean isTerminal() {
+		return false;
 	}
 
 	public boolean canHandle(String mimeType) {
-		return true;
+		return pattern.matcher(mimeType).matches();
+	}
+
+	public String getType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	public boolean canHandle(ReferenceService referenceService,
 			T2Reference reference, String mimeType) throws RendererException {
-		Object resolve = null;
-		try {
-			resolve = referenceService.renderIdentifier(reference,
-					Component.class, null);
-		} catch (Exception e) {
-			throw new RendererException("Could not resolve " + reference, e);
-		}
-		if (resolve instanceof Component) {
-			return true;
-		}
-
-		return false;
-	}
-
-	public String getType() {
-		return "AWT Component";
+		return canHandle(mimeType);
 	}
 
 	public JComponent getComponent(ReferenceService referenceService,
 			T2Reference reference) throws RendererException {
-		// TODO Auto-generated method stub
-
-		JPanel itemPanel = new JPanel(new BorderLayout());
-		Component c = null;
-		try {
-			c = (Component) referenceService.renderIdentifier(reference,
-					Component.class, null);
-		} catch (Exception e) {
-			throw new RendererException("Could not resolve " + reference, e);
-		}
-		itemPanel.add(c, BorderLayout.CENTER);
-		return itemPanel;
+		// FIXME needs to do something here
+		// not sure what should happen here
+		// {
+		// Object dataObject = dataFacade.resolve(entityIdentifier);
+		// try {
+		// URL url = new URL((String) dataObject);
+		// DataThing urlThing = DataThingFactory.fetchFromURL(url);
+		// return renderers.getRenderer(urlThing).getComponent(
+		// renderers, urlThing);
+		// } catch (Exception ex) {
+		// DialogTextArea theTextArea = new DialogTextArea();
+		// theTextArea.setText((String) dataObject);
+		// theTextArea.setFont(Font.getFont("Monospaced"));
+		// return theTextArea;
+		// }
+		return null;
 	}
-
 }

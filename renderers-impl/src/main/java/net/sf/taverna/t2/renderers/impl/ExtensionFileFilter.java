@@ -23,7 +23,7 @@
  * and is licensed under the GNU LGPL.
  * Copyright Tom Oinn, EMBL-EBI
  */
-package net.sf.taverna.t2.renderers;
+package net.sf.taverna.t2.renderers.impl;
 
 import java.io.File;
 

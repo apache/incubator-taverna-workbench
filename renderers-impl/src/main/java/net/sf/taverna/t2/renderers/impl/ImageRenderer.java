@@ -18,7 +18,7 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.renderers;
+package net.sf.taverna.t2.renderers.impl;
 
 import java.awt.image.ImageProducer;
 import java.util.regex.Pattern;
@@ -31,6 +31,8 @@ import javax.swing.JTextArea;
 
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.renderers.Renderer;
+import net.sf.taverna.t2.renderers.RendererException;
 
 import org.apache.log4j.Logger;
 
