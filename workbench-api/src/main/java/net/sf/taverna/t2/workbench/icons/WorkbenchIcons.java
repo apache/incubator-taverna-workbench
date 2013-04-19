@@ -22,8 +22,6 @@ package net.sf.taverna.t2.workbench.icons;
 
 import javax.swing.ImageIcon;
 
-import org.apache.log4j.Logger;
-
 /**
  * A container for common icons used by the workbench
  *
@@ -31,8 +29,6 @@ import org.apache.log4j.Logger;
  * @author Stian Soiland-Reyes
  */
 public class WorkbenchIcons {
-
-	private static Logger logger = Logger.getLogger(WorkbenchIcons.class);
 
 	public static ImageIcon resultsPerspectiveIcon;
 	public static ImageIcon closeIcon;
@@ -118,151 +114,101 @@ public class WorkbenchIcons {
 	public static ImageIcon questionMessageIcon;
 	public static ImageIcon warningMessageIcon;
 
-
 	static {
 		// Load the image files found in this package into the class.
-		try {
-			Class<?> c = WorkbenchIcons.class;
+		Class<?> c = WorkbenchIcons.class;
 
-			resultsPerspectiveIcon = new ImageIcon(c.getResource("generic/results-perspective.png"));
-			closeIcon = new ImageIcon(c.getResource("generic/close.gif"));
-			closeAllIcon = new ImageIcon(c.getResource("generic/closeAll.gif"));
-			deleteIcon = new ImageIcon(c.getResource("generic/bin.png"));
-			trashIcon = new ImageIcon(c.getResource("graph/trash.png"));
-			zoomIcon = new ImageIcon(c.getResource("generic/zoom.gif"));
-			zoomInIcon = new ImageIcon(c.getResource("generic/zoomin.png"));
-			zoomOutIcon = new ImageIcon(c.getResource("generic/zoomout.png"));
-			webIcon = new ImageIcon(c.getResource("generic/web.gif"));
-			openIcon = new ImageIcon(c.getResource("generic/open.gif"));
-			runIcon = new ImageIcon(c.getResource("generic/run.gif"));
-			refreshIcon = new ImageIcon(c
-					.getResource("generic/refresh.gif"));
-			editIcon = new ImageIcon(c.getResource("generic/edit.gif"));
-			findIcon = new ImageIcon(c.getResource("generic/find.gif"));
-			folderOpenIcon = new ImageIcon(c
-					.getResource("generic/folder-open.png"));
-			folderClosedIcon = new ImageIcon(c
-					.getResource("generic/folder-closed.png"));
-			newInputIcon = new ImageIcon(c
-					.getResource("generic/newinput.gif"));
-			newIcon = new ImageIcon(c.getResource("generic/newinput.gif"));
-			newListIcon = new ImageIcon(c
-					.getResource("generic/newlist.gif"));
-			inputValueIcon = new ImageIcon(c
-					.getResource("generic/inputValue.gif"));
+		resultsPerspectiveIcon = new ImageIcon(c.getResource("generic/results-perspective.png"));
+		closeIcon = new ImageIcon(c.getResource("generic/close.gif"));
+		closeAllIcon = new ImageIcon(c.getResource("generic/closeAll.gif"));
+		deleteIcon = new ImageIcon(c.getResource("generic/bin.png"));
+		trashIcon = new ImageIcon(c.getResource("graph/trash.png"));
+		zoomIcon = new ImageIcon(c.getResource("generic/zoom.gif"));
+		zoomInIcon = new ImageIcon(c.getResource("generic/zoomin.png"));
+		zoomOutIcon = new ImageIcon(c.getResource("generic/zoomout.png"));
+		webIcon = new ImageIcon(c.getResource("generic/web.gif"));
+		openIcon = new ImageIcon(c.getResource("generic/open.gif"));
+		runIcon = new ImageIcon(c.getResource("generic/run.gif"));
+		refreshIcon = new ImageIcon(c.getResource("generic/refresh.gif"));
+		editIcon = new ImageIcon(c.getResource("generic/edit.gif"));
+		findIcon = new ImageIcon(c.getResource("generic/find.gif"));
+		folderOpenIcon = new ImageIcon(c.getResource("generic/folder-open.png"));
+		folderClosedIcon = new ImageIcon(c.getResource("generic/folder-closed.png"));
+		newInputIcon = new ImageIcon(c.getResource("generic/newinput.gif"));
+		newIcon = new ImageIcon(c.getResource("generic/newinput.gif"));
+		newListIcon = new ImageIcon(c.getResource("generic/newlist.gif"));
+		inputValueIcon = new ImageIcon(c.getResource("generic/inputValue.gif"));
 
-			xmlNodeIcon = new ImageIcon(c
-					.getResource("generic/xml_node.gif"));
-			leafIcon = new ImageIcon(c.getResource("generic/leaf.gif"));
-			saveIcon = new ImageIcon(c.getResource("generic/save.png"));
-			saveAllIcon = new ImageIcon(c.getResource("generic/saveAll.png"));
-			saveAsIcon = new ImageIcon(c.getResource("generic/saveAs.png"));
-			saveMenuIcon = new ImageIcon(c
-					.getResource("generic/savemenu.gif"));
-			savePNGIcon = new ImageIcon(c
-					.getResource("generic/savepng.gif"));
-			importIcon = new ImageIcon(c
-					.getResource("generic/import.gif"));
-			importFileIcon = new ImageIcon(c
-					.getResource("generic/fileimport.png"));
-			importUrlIcon = new ImageIcon(c
-					.getResource("generic/urlimport.png"));
-			openurlIcon = new ImageIcon(c
-					.getResource("generic/openurl.gif"));
-			openIcon = new ImageIcon(c.getResource("generic/open.gif"));
-			openMenuIcon = new ImageIcon(c
-					.getResource("generic/openmenu.gif"));
-			pauseIcon = new ImageIcon(c.getResource("generic/pause.png"));
-			playIcon = new ImageIcon(c.getResource("generic/play.png"));
-			stopIcon = new ImageIcon(c.getResource("generic/stop.gif"));
-			breakIcon = new ImageIcon(c.getResource("generic/break.gif"));
-			rbreakIcon = new ImageIcon(c
-					.getResource("generic/rbreak.gif"));
-			tickIcon = new ImageIcon(c.getResource("generic/tick.png"));
-			untickIcon = new ImageIcon(c.getResource("generic/untick.png"));
-			greentickIcon = new ImageIcon(c.getResource("generic/greentick.png"));
-			renameIcon = new ImageIcon(c
-					.getResource("generic/rename.png"));
-			databaseIcon = new ImageIcon(c
-					.getResource("generic/database.gif"));
-			nullIcon = new ImageIcon(new java.awt.image.BufferedImage(1, 1,
-					java.awt.image.BufferedImage.TYPE_INT_RGB));
-			copyIcon = new ImageIcon(c.getResource("generic/copy.png"));
-			cutIcon = new ImageIcon(c.getResource("generic/cut.png"));
-			pasteIcon = new ImageIcon(c.getResource("generic/paste.png"));
-			searchIcon = new ImageIcon(c
-					.getResource("generic/search.png"));
-			updateIcon = new ImageIcon(c
-					.getResource("generic/update.png"));
-			updateRecommendedIcon = new ImageIcon(c
-					.getResource("generic/updateRecommended.png"));
-			uninstallIcon = new ImageIcon(c
-					.getResource("generic/uninstall.png"));
-			workingIcon = new ImageIcon(c
-					.getResource("generic/working.gif"));
-			workingStoppedIcon = new ImageIcon(c
-					.getResource("generic/workingStopped.png"));
-			datalinkIcon = new ImageIcon(c
-					.getResource("explorer/datalink.gif"));
-			controlLinkIcon = new ImageIcon(c
-					.getResource("explorer/constraint.gif"));
-			mergeIcon = new ImageIcon(c
-					.getResource("explorer/merge.png"));
-			inputIcon = new ImageIcon(c
-					.getResource("explorer/input.png"));
-			inputPortIcon = new ImageIcon(c
-					.getResource("explorer/inputport.png"));
-			outputIcon = new ImageIcon(c
-					.getResource("explorer/output.png"));
-			outputPortIcon = new ImageIcon(c
-					.getResource("explorer/outputport.png"));
-			verticalIcon = new ImageIcon(c
-					.getResource("graph/vertical.png"));
-			horizontalIcon = new ImageIcon(c
-					.getResource("graph/horizontal.png"));
-			noportIcon = new ImageIcon(c
-					.getResource("graph/noport.png"));
-			allportIcon = new ImageIcon(c
-					.getResource("graph/allport.png"));
-			blobIcon = new ImageIcon(c
-					.getResource("graph/blob.png"));
-			expandNestedIcon = new ImageIcon(c
-					.getResource("graph/expandnested.png"));
-			workflowExplorerIcon = new ImageIcon(c
-					.getResource("explorer/workflow-explorer.png"));
-			configureIcon = new ImageIcon(c
-					.getResource("generic/configure.png"));
-			plusIcon = new ImageIcon(c
-					.getResource("generic/plus.png"));
-			minusIcon = new ImageIcon(c
-							.getResource("generic/minus.png"));
-			undoIcon = new ImageIcon(c
-					.getResource("generic/undo.png"));
-			redoIcon = new ImageIcon(c
-					.getResource("generic/redo.png"));
-			upArrowIcon = new ImageIcon(c
-					.getResource("generic/up-arrow.png"));
-			downArrowIcon = new ImageIcon(c
-					.getResource("generic/down-arrow.png"));
-			tavernaCogs64x64Icon = new ImageIcon(c
-					.getResource("generic/taverna_cogs_64x64.png"));
-			tavernaCogs32x32Icon = new ImageIcon(c
-					.getResource("generic/taverna_cogs_32x32.png"));
-			opmIcon = new ImageIcon(c
-					.getResource("generic/opmIcon.png"));
-			janusIcon = new ImageIcon(c
-					.getResource("generic/janus.png"));
-			workflowResultsIcon = new ImageIcon(c
-					.getResource("generic/workflowResults.png"));
-			normalizeIcon = new ImageIcon(c.getResource("generic/normalize.png"));
+		xmlNodeIcon = new ImageIcon(c.getResource("generic/xml_node.gif"));
+		leafIcon = new ImageIcon(c.getResource("generic/leaf.gif"));
+		saveIcon = new ImageIcon(c.getResource("generic/save.png"));
+		saveAllIcon = new ImageIcon(c.getResource("generic/saveAll.png"));
+		saveAsIcon = new ImageIcon(c.getResource("generic/saveAs.png"));
+		saveMenuIcon = new ImageIcon(c.getResource("generic/savemenu.gif"));
+		savePNGIcon = new ImageIcon(c.getResource("generic/savepng.gif"));
+		importIcon = new ImageIcon(c.getResource("generic/import.gif"));
+		importFileIcon = new ImageIcon(c.getResource("generic/fileimport.png"));
+		importUrlIcon = new ImageIcon(c.getResource("generic/urlimport.png"));
+		openurlIcon = new ImageIcon(c.getResource("generic/openurl.gif"));
+		openIcon = new ImageIcon(c.getResource("generic/open.gif"));
+		openMenuIcon = new ImageIcon(c.getResource("generic/openmenu.gif"));
+		pauseIcon = new ImageIcon(c.getResource("generic/pause.png"));
+		playIcon = new ImageIcon(c.getResource("generic/play.png"));
+		stopIcon = new ImageIcon(c.getResource("generic/stop.gif"));
+		breakIcon = new ImageIcon(c.getResource("generic/break.gif"));
+		rbreakIcon = new ImageIcon(c.getResource("generic/rbreak.gif"));
+		tickIcon = new ImageIcon(c.getResource("generic/tick.png"));
+		untickIcon = new ImageIcon(c.getResource("generic/untick.png"));
+		greentickIcon = new ImageIcon(c.getResource("generic/greentick.png"));
+		renameIcon = new ImageIcon(c.getResource("generic/rename.png"));
+		databaseIcon = new ImageIcon(c.getResource("generic/database.gif"));
+		nullIcon = new ImageIcon(new java.awt.image.BufferedImage(1, 1,
+				java.awt.image.BufferedImage.TYPE_INT_RGB));
+		copyIcon = new ImageIcon(c.getResource("generic/copy.png"));
+		cutIcon = new ImageIcon(c.getResource("generic/cut.png"));
+		pasteIcon = new ImageIcon(c.getResource("generic/paste.png"));
+		searchIcon = new ImageIcon(c.getResource("generic/search.png"));
+		updateIcon = new ImageIcon(c.getResource("generic/update.png"));
+		updateRecommendedIcon = new ImageIcon(c.getResource("generic/updateRecommended.png"));
+		uninstallIcon = new ImageIcon(c.getResource("generic/uninstall.png"));
+		workingIcon = new ImageIcon(c.getResource("generic/working.gif"));
+		workingStoppedIcon = new ImageIcon(c.getResource("generic/workingStopped.png"));
+		datalinkIcon = new ImageIcon(c.getResource("explorer/datalink.gif"));
+		controlLinkIcon = new ImageIcon(c.getResource("explorer/constraint.gif"));
+		mergeIcon = new ImageIcon(c.getResource("explorer/merge.png"));
+		inputIcon = new ImageIcon(c.getResource("explorer/input.png"));
+		inputPortIcon = new ImageIcon(c.getResource("explorer/inputport.png"));
+		outputIcon = new ImageIcon(c.getResource("explorer/output.png"));
+		outputPortIcon = new ImageIcon(c.getResource("explorer/outputport.png"));
+		verticalIcon = new ImageIcon(c.getResource("graph/vertical.png"));
+		horizontalIcon = new ImageIcon(c.getResource("graph/horizontal.png"));
+		noportIcon = new ImageIcon(c.getResource("graph/noport.png"));
+		allportIcon = new ImageIcon(c.getResource("graph/allport.png"));
+		blobIcon = new ImageIcon(c.getResource("graph/blob.png"));
+		expandNestedIcon = new ImageIcon(c.getResource("graph/expandnested.png"));
+		workflowExplorerIcon = new ImageIcon(c.getResource("explorer/workflow-explorer.png"));
+		configureIcon = new ImageIcon(c.getResource("generic/configure.png"));
+		plusIcon = new ImageIcon(c.getResource("generic/plus.png"));
+		minusIcon = new ImageIcon(c.getResource("generic/minus.png"));
+		undoIcon = new ImageIcon(c.getResource("generic/undo.png"));
+		redoIcon = new ImageIcon(c.getResource("generic/redo.png"));
+		upArrowIcon = new ImageIcon(c.getResource("generic/up-arrow.png"));
+		downArrowIcon = new ImageIcon(c.getResource("generic/down-arrow.png"));
+		tavernaCogs64x64Icon = new ImageIcon(c.getResource("generic/taverna_cogs_64x64.png"));
+		tavernaCogs32x32Icon = new ImageIcon(c.getResource("generic/taverna_cogs_32x32.png"));
+		opmIcon = new ImageIcon(c.getResource("generic/opmIcon.png"));
+		janusIcon = new ImageIcon(c.getResource("generic/janus.png"));
+		workflowResultsIcon = new ImageIcon(c.getResource("generic/workflowResults.png"));
+		normalizeIcon = new ImageIcon(c.getResource("generic/normalize.png"));
 
-			errorMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-error-icon.png"));
-			infoMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-info-icon.png"));
-			questionMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-question-icon.png"));
-			warningMessageIcon = new ImageIcon(c.getResource("generic/taverna-wheel-message-dialog-warning-icon.png"));
+		errorMessageIcon = new ImageIcon(
+				c.getResource("generic/taverna-wheel-message-dialog-error-icon.png"));
+		infoMessageIcon = new ImageIcon(
+				c.getResource("generic/taverna-wheel-message-dialog-info-icon.png"));
+		questionMessageIcon = new ImageIcon(
+				c.getResource("generic/taverna-wheel-message-dialog-question-icon.png"));
+		warningMessageIcon = new ImageIcon(
+				c.getResource("generic/taverna-wheel-message-dialog-warning-icon.png"));
 
-		} catch (Exception ex) {
-			logger.error("Could not create icon", ex);
-		}
 	}
 }
