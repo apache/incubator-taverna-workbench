@@ -32,10 +32,8 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.org.taverna.configuration.app.ApplicationConfiguration;
 import uk.org.taverna.configuration.app.impl.ApplicationConfigurationImpl;
 import uk.org.taverna.configuration.impl.ConfigurationManagerImpl;
-import uk.org.taverna.ns._2013.application.profile.ApplicationProfile;
 
 public class ActivityPaletteConfigurationTest {
 
