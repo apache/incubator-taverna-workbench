@@ -30,7 +30,6 @@ import javax.swing.filechooser.FileFilter;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.OpenedDataflowEvent;
