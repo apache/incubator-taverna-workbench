@@ -18,7 +18,7 @@ import org.apache.log4j.Level;
 
 /**
  * A subclass of PrintStream that redirects its output to a log4j Logger.
- * 
+ *
  * <p>This class is used to map PrintStream/PrintWriter oriented logging onto
  *    the log4j Categories. Examples include capturing System.out/System.err
  *
@@ -45,20 +45,19 @@ public class LoggerStream
          return defaultValue;
       return new Boolean(value).booleanValue();
    }
-   
+
    private Logger logger;
    private Level level;
-   private boolean inWrite;
    private boolean issuedWarning;
-   
+
    /**
     * Redirect logging to the indicated logger using Level.INFO
     */
    public LoggerStream(final Logger logger)
    {
       this(logger, Level.INFO, System.out);
-   } 
-    
+   }
+
    /**
     * Redirect logging to the indicated logger using the given
     * level. The ps is simply passed to super but is not used.
@@ -71,7 +70,7 @@ public class LoggerStream
       this.logger = logger;
       this.level = level;
    }
-    
+
    public void println(String msg)
    {
       if( msg == null )
@@ -79,7 +78,7 @@ public class LoggerStream
       byte[] bytes = msg.getBytes();
       write(bytes, 0, bytes.length);
    }
-    
+
    public void println(Object msg)
    {
       if( msg == null )
@@ -87,17 +86,17 @@ public class LoggerStream
       byte[] bytes = msg.toString().getBytes();
       write(bytes, 0, bytes.length);
    }
-    
+
    public void write(byte b)
    {
       byte[] bytes = {b};
       write(bytes, 0, 1);
    }
-    
-   private ThreadLocal recursiveCheck = new ThreadLocal();
+
+   private ThreadLocal<Boolean> recursiveCheck = new ThreadLocal<Boolean>();
    public void write(byte[] b, int off, int len)
    {
-      Boolean recursed = (Boolean)recursiveCheck.get();
+      Boolean recursed = recursiveCheck.get();
       if (recursed != null && recursed.equals(Boolean.TRUE))
       {
          /* There is a configuration error that is causing looping. Most
@@ -111,7 +110,7 @@ public class LoggerStream
            new Exception(msg).printStackTrace((PrintStream)out);
            issuedWarning = true;
          }
-         // 
+         //
          try {
 			out.write(b, off, len);
 		} catch (IOException e) {
