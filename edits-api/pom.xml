@@ -22,11 +22,5 @@
 			<artifactId>observer</artifactId>
 			<version>${t2.lang.version}</version>
 		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 </project>
