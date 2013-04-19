@@ -32,8 +32,10 @@ import java.util.UUID;
 import org.junit.Before;
 import org.junit.Test;
 
+import uk.org.taverna.configuration.app.ApplicationConfiguration;
 import uk.org.taverna.configuration.app.impl.ApplicationConfigurationImpl;
 import uk.org.taverna.configuration.impl.ConfigurationManagerImpl;
+import uk.org.taverna.ns._2013.application.profile.ApplicationProfile;
 
 public class ActivityPaletteConfigurationTest {
 
@@ -42,11 +44,15 @@ public class ActivityPaletteConfigurationTest {
 
 	@Before
 	public void setup() {
-		manager = new ConfigurationManagerImpl(new ApplicationConfigurationImpl());
 		File f = new File(System.getProperty("java.io.tmpdir"));
-		File d = new File(f,UUID.randomUUID().toString());
+		final File d = new File(f,UUID.randomUUID().toString());
 		d.mkdir();
-		manager.setBaseConfigLocation(d);
+		manager = new ConfigurationManagerImpl(new ApplicationConfigurationImpl() {
+			@Override
+			public File getApplicationHomeDir() {
+				return d;
+			}
+		});
 		conf=new ActivityPaletteConfiguration(manager);
 		conf.restoreDefaults();
 	}
