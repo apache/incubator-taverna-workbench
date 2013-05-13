@@ -26,7 +26,10 @@ import javax.swing.Icon;
 
 import net.sf.taverna.t2.servicedescriptions.AbstractTemplateService;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.property.PropertyLiteral;
+import uk.org.taverna.scufl2.api.property.PropertyResource;
 
 public class StringConstantTemplateService extends AbstractTemplateService {
 
@@ -49,6 +52,13 @@ public class StringConstantTemplateService extends AbstractTemplateService {
 		Configuration configuration = new Configuration();
 		configuration.setType(ACTIVITY_TYPE.resolve("#Config"));
 		configuration.getPropertyResource().addPropertyAsString(ACTIVITY_TYPE.resolve("#string"), DEFAULT_VALUE);
+
+		PropertyResource portDefinition = new PropertyResource();
+		portDefinition.setTypeURI(Scufl2Tools.PORT_DEFINITION.resolve("#OutputPortDefinition"));
+		portDefinition.addProperty(Scufl2Tools.PORT_DEFINITION.resolve("#name"), new PropertyLiteral("value"));
+		portDefinition.addProperty(Scufl2Tools.PORT_DEFINITION.resolve("#depth"), new PropertyLiteral(0));
+		configuration.getPropertyResource().addProperty(Scufl2Tools.PORT_DEFINITION.resolve("#outputPortDefinition"), portDefinition);
+
 		return configuration;
 	}
 
