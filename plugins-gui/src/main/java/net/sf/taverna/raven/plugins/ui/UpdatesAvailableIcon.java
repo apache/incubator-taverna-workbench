@@ -1,25 +1,25 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
 /*
- * Copyright (C) 2003 The University of Manchester 
+ * Copyright (C) 2003 The University of Manchester
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -30,12 +30,12 @@
  * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation; either version 2.1 of
  * the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -64,9 +64,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingUtilities;
 
-import net.sf.taverna.raven.plugins.PluginManager;
-import net.sf.taverna.raven.plugins.event.PluginManagerEvent;
-import net.sf.taverna.raven.plugins.event.PluginManagerListener;
 
 import org.apache.log4j.Logger;
 
@@ -74,17 +71,16 @@ import org.apache.log4j.Logger;
  * A JLabel that periodically checks for updates, running on a daemon thread. If
  * updates are available it makes itself visible and responds to click events to
  * display the appropriate update response.
- * 
+ *
  * Also acts as a pluginmanager listener to refresh itself whenever a new plugin
  * is added.
- * 
+ *
  * @author Stuart Owen
- * 
+ *
  */
 
 @SuppressWarnings("serial")
-public class UpdatesAvailableIcon extends JLabel implements
-		PluginManagerListener {
+public class UpdatesAvailableIcon extends JLabel implements PluginManagerListener {
 
 	private UpdatePluginsMouseAdaptor updatePluginMouseAdaptor = new UpdatePluginsMouseAdaptor();
 	private static Logger logger = Logger.getLogger(UpdatesAvailableIcon.class);
@@ -117,7 +113,7 @@ public class UpdatesAvailableIcon extends JLabel implements
 	public void pluginUpdated(PluginManagerEvent event) {
 		logger.info("Plugin Updated");
 	}
-	
+
 	public void pluginRemoved(PluginManagerEvent event) {
 		logger.info("Plugin Removed");
 		if (isVisible())
@@ -180,7 +176,7 @@ public class UpdatesAvailableIcon extends JLabel implements
 			} else {
 				setToolTipText("");
 				setVisible(false);
-			
+
 			}
 		}
 

@@ -1,25 +1,25 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
 /*
- * Copyright (C) 2003 The University of Manchester 
+ * Copyright (C) 2003 The University of Manchester
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -30,12 +30,12 @@
  * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation; either version 2.1 of
  * the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -67,11 +67,10 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.AbstractBorder;
 
-import net.sf.taverna.raven.plugins.Plugin;
-import net.sf.taverna.raven.plugins.PluginManager;
+import uk.org.taverna.commons.plugin.PluginManager;
 
 /**
- * 
+ *
  * @author David Withers
  */
 public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
@@ -100,7 +99,7 @@ public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
 
 	/**
 	 * This method initializes this
-	 * 
+	 *
 	 * @return void
 	 */
 	private void initialize() {
@@ -110,14 +109,14 @@ public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
 		gridBagStatus.anchor = GridBagConstraints.NORTHWEST;
 		gridBagStatus.insets = new Insets(3, 3, 3, 3);
 		gridBagStatus.gridy = 2;
-		
+
 		GridBagConstraints gridBagStatus2 = new GridBagConstraints();
 		gridBagStatus2.gridx = 0;
 		gridBagStatus2.gridwidth = 2;
 		gridBagStatus2.anchor = GridBagConstraints.NORTHWEST;
 		gridBagStatus2.insets = new Insets(3, 3, 3, 3);
 		gridBagStatus2.gridy = 3;
-		
+
 		status = new JLabel();
 		status.setFont(getFont().deriveFont(Font.BOLD));
 		status.setForeground(Color.BLUE);
@@ -126,19 +125,19 @@ public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
 		status2.setFont(getFont().deriveFont(Font.BOLD));
 		status2.setForeground(Color.RED);
 		status2.setText("Status");
-		
-		
+
+
 		GridBagConstraints gridBagVersion = new GridBagConstraints();
 		gridBagVersion.gridx = 1;
 		gridBagVersion.insets = new Insets(3, 8, 3, 3);
 		gridBagVersion.anchor = GridBagConstraints.NORTHWEST;
 		gridBagVersion.fill = GridBagConstraints.NONE;
 		gridBagVersion.gridy = 0;
-		
+
 		version = new JLabel();
 		version.setFont(getFont().deriveFont(Font.PLAIN));
 		version.setText("Version");
-		
+
 		GridBagConstraints gridBagDescription = new GridBagConstraints();
 		gridBagDescription.gridx = 0;
 		gridBagDescription.anchor = GridBagConstraints.NORTHWEST;
@@ -150,7 +149,7 @@ public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
 		description = new JLabel();
 		description.setFont(getFont().deriveFont(Font.PLAIN));
 		description.setText("Plugin description");
-		
+
 		GridBagConstraints gridBagName = new GridBagConstraints();
 		gridBagName.gridx = 0;
 		gridBagName.anchor = GridBagConstraints.NORTHWEST;
@@ -163,7 +162,7 @@ public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
 		name = new JLabel();
 		name.setFont(getFont().deriveFont(Font.BOLD));
 		name.setText("Plugin name");
-		
+
 		this.setSize(297, 97);
 		this.setLayout(new GridBagLayout());
 		this.setBorder(new AbstractBorder() {
@@ -197,17 +196,17 @@ public class PluginListCellRenderer extends JPanel implements ListCellRenderer {
 			name.setText(plugin.getName());
 			version.setText(plugin.getVersion());
 			description.setText("<html>"+plugin.getDescription());
-						
+
 			status2.setText("");
 			if (!plugin.isCompatible()) {
-				status2.setText("This plugin is incompatible.");				
+				status2.setText("This plugin is incompatible.");
 			}
-			
+
 			status.setText("");
 			if (pluginManager.isUpdateAvailable(plugin)) {
-				status.setText("An update is available for this plugin");				
+				status.setText("An update is available for this plugin");
 			} else if (!plugin.isEnabled()) {
-				status.setText("This plugin is disabled");				
+				status.setText("This plugin is disabled");
 			}
 		}
 		return this;

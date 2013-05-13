@@ -1,25 +1,25 @@
 /*******************************************************************************
- * Copyright (C) 2007-2010 The University of Manchester   
- * 
+ * Copyright (C) 2007-2010 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
 /*
- * Copyright (C) 2003 The University of Manchester 
+ * Copyright (C) 2003 The University of Manchester
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -30,12 +30,12 @@
  * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation; either version 2.1 of
  * the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -83,18 +83,16 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.EtchedBorder;
 
-import net.sf.taverna.raven.plugins.Plugin;
-import net.sf.taverna.raven.plugins.PluginManager;
-import net.sf.taverna.raven.plugins.PluginSite;
-import net.sf.taverna.raven.plugins.TavernaPluginSite;
+import uk.org.taverna.commons.plugin.PluginManager;
+
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 
 /**
- * 
+ *
  * @author David Withers
  */
-public class PluginSiteFrame extends HelpEnabledDialog {	
+public class PluginSiteFrame extends HelpEnabledDialog {
 
 	private static final long serialVersionUID = 1L;
 
@@ -111,19 +109,19 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 	private JButton addSiteButton = null;
 
 	private Map<Plugin, PluginRepositoryListener> listeners = new HashMap<Plugin, PluginRepositoryListener>();
-	
+
 	private AddPluginSiteFrame addSiteFrame = null;
-	
+
 	private JScrollPane scrollPane = null;
 
 	/**
 	 * This is the default constructor
 	 */
 	public PluginSiteFrame(Frame owner) {
-		super(owner, "Update sites", true);				
+		super(owner, "Update sites", true);
 		initialize();
 	}
-	
+
 	/**
 	 * This is the default constructor
 	 */
@@ -134,7 +132,7 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 
 	/**
 	 * This method initializes this
-	 * 
+	 *
 	 * @return void
 	 */
 	private void initialize() {
@@ -146,7 +144,7 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 
 	/**
 	 * This method initializes jContentPane
-	 * 
+	 *
 	 * @return javax.swing.JPanel
 	 */
 	private JPanel getJContentPane() {
@@ -184,18 +182,18 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 
 	/**
 	 * This method initializes jScrollPane
-	 * 
+	 *
 	 * @return javax.swing.JScrollPane
 	 */
 	private JScrollPane getJScrollPane() {
-		scrollPane = new JScrollPane();		
-		scrollPane.setViewportView(getJPanel());		
+		scrollPane = new JScrollPane();
+		scrollPane.setViewportView(getJPanel());
 		return scrollPane;
 	}
 
 	/**
 	 * This method initializes jPanel
-	 * 
+	 *
 	 * @return javax.swing.JPanel
 	 */
 	private JPanel getJPanel() {
@@ -217,7 +215,7 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 		gridBagConstraints.gridx = 0;
 		gridBagConstraints.gridy = GridBagConstraints.RELATIVE;
 		gridBagConstraints.weighty = 1.0;
-		jPanel.add(new JPanel(), gridBagConstraints);		
+		jPanel.add(new JPanel(), gridBagConstraints);
 		return jPanel;
 	}
 
@@ -237,7 +235,7 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 		gridBagConstraints.weightx = 1.0;
 		//ShadedLabel siteNameLabel = getSiteLabel(pluginSite);
 		JLabel siteNameLabel = getSiteLabel(pluginSite);
-		
+
 		pluginSitePanel.add(siteNameLabel, gridBagConstraints);
 
 		final GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
@@ -272,43 +270,43 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 						int gridY = 0;
 						for (Plugin plugin : plugins) {
 							gridY++;
-							GridBagConstraints gridBagConstraints1 = new GridBagConstraints();							
+							GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 							gridBagConstraints1.gridx = 0;
 							gridBagConstraints1.gridy = gridY;
 							gridBagConstraints1.anchor = GridBagConstraints.WEST;
 							gridBagConstraints1.insets = new Insets(5, 20, 0, 0);
 							pluginSitePanel.add(getJCheckBox(plugin),
 									gridBagConstraints1);
-							
+
 							gridY++;
-							
-							GridBagConstraints gridBagConstraintsDescription = new GridBagConstraints();							
+
+							GridBagConstraints gridBagConstraintsDescription = new GridBagConstraints();
 							gridBagConstraintsDescription.gridx = 0;
 							gridBagConstraintsDescription.ipadx = 50;
-							gridBagConstraintsDescription.gridy = gridY;							
+							gridBagConstraintsDescription.gridy = gridY;
 							gridBagConstraintsDescription.anchor = GridBagConstraints.WEST;
-							gridBagConstraintsDescription.insets = new Insets(5, 25, 10, 5);							
+							gridBagConstraintsDescription.insets = new Insets(5, 25, 10, 5);
 
 							gridY++;
 
-							GridBagConstraints gridBagConstraintsProgress = new GridBagConstraints();							
+							GridBagConstraints gridBagConstraintsProgress = new GridBagConstraints();
 							gridBagConstraintsProgress.gridx = 0;
-							gridBagConstraintsProgress.gridy = gridY;							
+							gridBagConstraintsProgress.gridy = gridY;
 							gridBagConstraintsProgress.fill = GridBagConstraints.HORIZONTAL;
 							gridBagConstraintsProgress.anchor = GridBagConstraints.WEST;
-							gridBagConstraintsProgress.insets = new Insets(5, 5, 0, 0);							
-							
-							JLabel description = new JLabel();							
-							description.setText("<html>"+plugin.getDescription());														
+							gridBagConstraintsProgress.insets = new Insets(5, 5, 0, 0);
+
+							JLabel description = new JLabel();
+							description.setText("<html>"+plugin.getDescription());
 							description.setFont(getFont().deriveFont(Font.PLAIN));
 							pluginSitePanel.add(description,gridBagConstraintsDescription);
-							
+
 							PluginRepositoryListener progress = new PluginRepositoryListener();
 							listeners.put(plugin, progress);
 							progress.setVisible(false);
-							
+
 							pluginSitePanel.add(progress.getProgressBar(),
-									gridBagConstraintsProgress);													
+									gridBagConstraintsProgress);
 						}
 					} else {
 						pluginSitePanel.remove(progressBar);
@@ -328,15 +326,15 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 			}
 		}.start();
 
-		pluginSitePanel.setBorder(new EtchedBorder());		
+		pluginSitePanel.setBorder(new EtchedBorder());
 		return pluginSitePanel;
 	}
-	
+
 	private JLabel getSiteLabel(final PluginSite pluginSite) {
-		//ShadedLabel result = new ShadedLabel(pluginSite.getName(),Color.LIGHT_GRAY);		
+		//ShadedLabel result = new ShadedLabel(pluginSite.getName(),Color.LIGHT_GRAY);
 		JLabel result = new JLabel(pluginSite.getName());
 
-		
+
 		//add popup remove option, except on the Taverna main plugin site.
 		if (!(pluginSite instanceof TavernaPluginSite)) {
 			result.addMouseListener(new MouseAdapter() {
@@ -344,22 +342,22 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 				public void mouseClicked(MouseEvent e) {
 					popup(e);
 				}
-				
+
 				@Override
 				public void mousePressed(MouseEvent e) {
 					popup(e);
 				}
-				
-				private void popup(MouseEvent e) {				
-					if (e.isPopupTrigger()) {									
-						JPopupMenu menu=new JPopupMenu();	
+
+				private void popup(MouseEvent e) {
+					if (e.isPopupTrigger()) {
+						JPopupMenu menu=new JPopupMenu();
 						//JMenuItem item = new JMenuItem("Remove site",TavernaIcons.deleteIcon);
 						JMenuItem item = new JMenuItem("Remove site");
 
 						menu.add(item);
 						menu.show(e.getComponent(), e.getX(), e.getY());
 						item.addActionListener(new ActionListener() {
-	
+
 							public void actionPerformed(ActionEvent e) {
 								int response=JOptionPane.showConfirmDialog(PluginSiteFrame.this, "Are you sure you want to remove the update site:"+pluginSite.getName(),"Remove update site",JOptionPane.YES_NO_OPTION);
 								if (response==JOptionPane.YES_OPTION) {
@@ -367,10 +365,10 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 									pluginManager.savePluginSites();
 									scrollPane.setViewportView(getJPanel());
 								}
-							}						
+							}
 						});
 					}
-				}			
+				}
 			});
 		}
 		return result;
@@ -378,7 +376,7 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 
 	/**
 	 * This method initializes jButton
-	 * 
+	 *
 	 * @return javax.swing.JButton
 	 */
 	private JCheckBox getJCheckBox(Plugin plugin) {
@@ -392,9 +390,9 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 					PluginCheckBox checkBox = (PluginCheckBox) e.getSource();
 					if (checkBox.isSelected()) {
 						installationScheduled.add(checkBox.plugin);
-						
-						
-						
+
+
+
 						getInstallButton().setEnabled(true);
 					} else {
 						installationScheduled.remove(checkBox.plugin);
@@ -412,8 +410,8 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 	private final Thread getUpdateRepositoryThread() {
 		return new Thread("Update Repository Progress") {
 
-			public void run() {				
-				cancelButton.setEnabled(false); 
+			public void run() {
+				cancelButton.setEnabled(false);
 				for (int i = 0; i < installationScheduled.size(); i++) {
 					final Plugin plugin = installationScheduled.get(i);
 					PluginRepositoryListener listener = listeners.get(plugin);
@@ -436,7 +434,7 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 				pluginManager.savePlugins();
 				installationScheduled.clear();
 				setVisible(false);
-				dispose();				
+				dispose();
 			}
 
 		};
@@ -444,7 +442,7 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 
 	/**
 	 * This method initializes jButton
-	 * 
+	 *
 	 * @return javax.swing.JButton
 	 */
 	private JButton getInstallButton() {
@@ -466,7 +464,7 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 
 	/**
 	 * This method initializes jButton
-	 * 
+	 *
 	 * @return javax.swing.JButton
 	 */
 	private JButton getCloseButton() {
@@ -489,12 +487,12 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 	}
 
 	private final void addPluginSite() {
-			
+
 		addSiteFrame=new AddPluginSiteFrame(this);
-		
+
 		addSiteFrame.setLocationRelativeTo(this);
 		addSiteFrame.setVisible(true);
-		
+
 		if (addSiteFrame.getName()!=null) {
 			if (addSiteFrame.getName().length()==0) {
 				JOptionPane.showMessageDialog(this, "You must provide a name for your site.","Error adding update site",JOptionPane.ERROR_MESSAGE);
@@ -506,22 +504,22 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 						PluginSite site = new PluginSite(addSiteFrame.getName(), new URL(addSiteFrame.getUrl()));
 						pluginManager.addPluginSite(site);
 						pluginManager.savePluginSites();
-						
+
 						//refresh
 						scrollPane.setViewportView(getJPanel());
 						addSiteFrame=null; //so that the name and url are reset.
 					}
 					catch(Exception e) {
-						JOptionPane.showMessageDialog(this, "There was a problem adding the site you provided: "+e.getMessage(),"Error adding update site",JOptionPane.ERROR_MESSAGE);						
+						JOptionPane.showMessageDialog(this, "There was a problem adding the site you provided: "+e.getMessage(),"Error adding update site",JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * This method initializes jButton
-	 * 
+	 *
 	 * @return javax.swing.JButton
 	 */
 	private JButton getAddPluginSiteButton() {
@@ -534,9 +532,9 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 					addSiteButton.setEnabled(false);
 					addPluginSite();
 					addSiteButton.setEnabled(true);
-				}				
+				}
 			});
-			
+
 		}
 		return addSiteButton;
 	}

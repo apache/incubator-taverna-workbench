@@ -1,25 +1,25 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
 /*
- * Copyright (C) 2003 The University of Manchester 
+ * Copyright (C) 2003 The University of Manchester
  *
  * Modifications to the initial code base are copyright of their
  * respective authors, or their employers as appropriate.  Authorship
@@ -30,12 +30,12 @@
  * modify it under the terms of the GNU Lesser General Public License
  * as published by the Free Software Foundation; either version 2.1 of
  * the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -55,10 +55,6 @@ package net.sf.taverna.raven.plugins.ui;
 
 import javax.swing.AbstractListModel;
 
-import net.sf.taverna.raven.plugins.PluginManager;
-import net.sf.taverna.raven.plugins.event.PluginManagerEvent;
-import net.sf.taverna.raven.plugins.event.PluginManagerListener;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -68,14 +64,14 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class PluginListModel extends AbstractListModel implements PluginManagerListener {
 	private PluginManager pluginManager;
-	
+
 	private static Logger logger = Logger.getLogger(PluginListModel.class);
-	
+
 	public PluginListModel(PluginManager pluginManager) {
 		this.pluginManager = pluginManager;
 		PluginManager.addPluginManagerListener(this);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see javax.swing.ListModel#getElementAt(int)
 	 */
@@ -89,24 +85,24 @@ public class PluginListModel extends AbstractListModel implements PluginManagerL
 	public int getSize() {
 		return pluginManager.getPlugins().size();
 	}
-	
-	public void pluginAdded(PluginManagerEvent event) {		
+
+	public void pluginAdded(PluginManagerEvent event) {
 		fireIntervalAdded(this, event.getPluginIndex(), event.getPluginIndex());
 	}
 
-	public void pluginRemoved(PluginManagerEvent event) {	
+	public void pluginRemoved(PluginManagerEvent event) {
 		fireIntervalRemoved(this, event.getPluginIndex(), event.getPluginIndex());
 	}
 
-	public void pluginUpdated(PluginManagerEvent event) {		
+	public void pluginUpdated(PluginManagerEvent event) {
 		//fireContentsChanged(this, event.getPluginIndex(), event.getPluginIndex());
 	}
-	
-	public void pluginStateChanged(PluginManagerEvent event) {		
+
+	public void pluginStateChanged(PluginManagerEvent event) {
 		fireContentsChanged(this, event.getPluginIndex(), event.getPluginIndex());
 	}
 
 	public void pluginIncompatible(PluginManagerEvent event) {
-				
+
 	}
 }

@@ -74,11 +74,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.sf.taverna.raven.plugins.Plugin;
-import net.sf.taverna.raven.plugins.PluginManager;
-import net.sf.taverna.raven.plugins.event.PluginEvent;
-import net.sf.taverna.raven.plugins.event.PluginManagerEvent;
-import net.sf.taverna.raven.plugins.event.PluginManagerListener;
+import uk.org.taverna.commons.plugin.PluginManager;
+
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 /**
