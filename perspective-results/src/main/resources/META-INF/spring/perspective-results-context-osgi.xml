@@ -6,4 +6,6 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
+	<service ref="ResultsPerspective" auto-export="interfaces" />
+
 </beans:beans>
