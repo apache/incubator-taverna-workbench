@@ -33,6 +33,7 @@
 		<property name="workbenchConfiguration" ref="workbenchConfiguration"/>
 		<property name="applicationConfiguration" ref="applicationConfiguration"/>
 		<property name="selectionManager" ref="selectionManager"/>
+		<property name="pluginManager" ref="pluginManager"/>
 	</bean>
 
 	<bean id="PerspectiveComparator" class="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI$PerspectiveComparator" />

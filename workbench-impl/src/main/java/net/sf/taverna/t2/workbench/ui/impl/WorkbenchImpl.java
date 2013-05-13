@@ -41,14 +41,12 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
-import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
 import net.sf.taverna.osx.OSXAdapter;
 import net.sf.taverna.osx.OSXApplication;
 import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.ui.menu.MenuManager.MenuManagerEvent;
@@ -69,6 +67,8 @@ import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.commons.plugin.PluginException;
+import uk.org.taverna.commons.plugin.PluginManager;
 import uk.org.taverna.configuration.ConfigurationUIFactory;
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
@@ -96,9 +96,10 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	private MenuManager menuManager;
 	private FileManager fileManager;
 	private EditManager editManager;
+	private PluginManager pluginManager;
+	private SelectionManager selectionManager;
 	private WorkbenchConfiguration workbenchConfiguration;
 	private ApplicationConfiguration applicationConfiguration;
-	private SelectionManager selectionManager;
 	private WorkbenchPerspectives workbenchPerspectives;
 	private List<ConfigurationUIFactory> configurationUIFactories;
 
@@ -137,6 +138,13 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 
 		makeGUI();
 		fileManager.newDataflow();
+		try {
+			pluginManager.loadPlugins();
+		} catch (PluginException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		// the DataflowEditsListener changes the WorkflowBundle ID for every workflow edit
 		// and changes the URI so port definitions can't find the port they refer to
 		// TODO check if it's OK to not update the WorkflowBundle ID
@@ -418,6 +426,10 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
+	}
+
+	public void setPluginManager(PluginManager pluginManager) {
+		this.pluginManager = pluginManager;
 	}
 
 	private final class MenuManagerObserver extends SwingAwareObserver<MenuManagerEvent> {
