@@ -31,9 +31,10 @@ import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguratio
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.actions.ImportWorkflowAction;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * An action to import nested/merged workflows.
@@ -61,7 +62,7 @@ public class ImportWorkflowMenuAction extends AbstractContextualMenuAction {
 
 	@Override
 	public boolean isEnabled() {
-		return super.isEnabled() && getContextualSelection().getSelection() instanceof Dataflow;
+		return super.isEnabled() && getContextualSelection().getSelection() instanceof Workflow;
 	}
 
 	@Override

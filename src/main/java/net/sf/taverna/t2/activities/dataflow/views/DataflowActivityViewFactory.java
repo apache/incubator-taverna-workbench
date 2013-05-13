@@ -20,8 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.activities.dataflow.views;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
+
+import uk.org.taverna.scufl2.api.activity.Activity;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.ui.menu.MenuManager;
@@ -33,7 +36,9 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 
-public class DataflowActivityViewFactory implements ContextualViewFactory<DataflowActivity> {
+public class DataflowActivityViewFactory implements ContextualViewFactory<Activity> {
+
+	private static final URI NESTED_ACTIVITY = URI.create("http://ns.taverna.org.uk/2010/activity/nested-workflow");
 
 	private EditManager editManager;
 	private FileManager fileManager;
@@ -43,10 +48,14 @@ public class DataflowActivityViewFactory implements ContextualViewFactory<Datafl
 	private WorkbenchConfiguration workbenchConfiguration;
 
 	public boolean canHandle(Object object) {
-		return object instanceof DataflowActivity;
+		if (object instanceof Activity) {
+			Activity activity = (Activity) object;
+			return NESTED_ACTIVITY.equals(activity.getConfigurableType());
+		}
+		return false;
 	}
 
-	public List<ContextualView> getViews(DataflowActivity activity) {
+	public List<ContextualView> getViews(Activity activity) {
 		return Arrays.asList(new ContextualView[] { new DataflowActivityContextualView(activity,
 				editManager, fileManager, menuManager, activityIconManager, colourManager, workbenchConfiguration) });
 	}

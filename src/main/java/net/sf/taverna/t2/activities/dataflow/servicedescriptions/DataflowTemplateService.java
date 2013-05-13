@@ -4,28 +4,30 @@ import java.net.URI;
 
 import javax.swing.Icon;
 
-import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.servicedescriptions.AbstractTemplateService;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edits;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 
-public class DataflowTemplateService extends AbstractTemplateService<Dataflow>{
+public class DataflowTemplateService extends AbstractTemplateService {
 
 	private static final String A_CONFIGURABLE_NESTED_WORKFLOW = "A service that allows you to have one workflow nested within another";
 	private static final String DATAFLOW = "Nested workflow";
 
 	private static final URI providerId = URI.create("http://taverna.sf.net/2010/service-provider/dataflow");
+	private static final URI NESTED_ACTIVITY = URI.create("http://ns.taverna.org.uk/2010/activity/nested-workflow");
+
 	private Edits edits;
 
 	@Override
-	public Class<DataflowActivity> getActivityClass() {
-		return DataflowActivity.class;
+	public URI getActivityType() {
+		return NESTED_ACTIVITY;
 	}
 
 	@Override
-	public Dataflow getActivityConfiguration() {
-		return edits.createDataflow();
+	public Configuration getActivityConfiguration() {
+		Configuration configuration = new Configuration();
+		return configuration;
 	}
 
 	@Override

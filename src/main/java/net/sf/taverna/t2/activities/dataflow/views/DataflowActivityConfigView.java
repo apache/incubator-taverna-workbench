@@ -38,7 +38,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
 
-import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ModelMap;
@@ -47,18 +46,14 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
-import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.DataflowXMLDeserializer;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
+
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.core.Processor;
 
 public class DataflowActivityConfigView extends JPanel {
 
@@ -67,7 +62,7 @@ public class DataflowActivityConfigView extends JPanel {
 
 	private FileManager fileManager;
 
-	private DataflowActivity dataflowActivity;
+	private Activity dataflowActivity;
 
 	private boolean configChanged = false;
 
@@ -87,7 +82,7 @@ public class DataflowActivityConfigView extends JPanel {
 		this.configChanged = configChanged;
 	}
 
-	public DataflowActivityConfigView(DataflowActivity dataflow, EditManager editManager, FileManager fileManager) {
+	public DataflowActivityConfigView(Activity dataflow, EditManager editManager, FileManager fileManager) {
 		this.dataflowActivity = dataflow;
 		this.editManager = editManager;
 		this.fileManager = fileManager;

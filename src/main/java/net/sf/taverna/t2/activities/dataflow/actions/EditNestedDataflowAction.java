@@ -9,25 +9,24 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
-import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
-import net.sf.taverna.t2.activities.dataflow.filemanager.NestedDataflowActivitySource;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflowSource;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 public class EditNestedDataflowAction extends AbstractAction {
 	private static final long serialVersionUID = 8854590545492535080L;
 	private static Logger logger = Logger
 			.getLogger(EditNestedDataflowAction.class);
 	private static final T2FlowFileType T2_FLOW_FILE_TYPE = new T2FlowFileType();
-	private final DataflowActivity dataflowActivity;
+	private final Activity dataflowActivity;
 	private final FileManager fileManager;
 
-	public EditNestedDataflowAction(DataflowActivity activity, FileManager fileManager) {
+	public EditNestedDataflowAction(Activity activity, FileManager fileManager) {
 		super("Edit nested workflow");
 		this.dataflowActivity = activity;
 		this.fileManager = fileManager;
@@ -47,8 +46,7 @@ public class EditNestedDataflowAction extends AbstractAction {
 		NestedDataflowSource nestedDataflowSource = new NestedDataflowActivitySource(
 				fileManager.getCurrentDataflow(), dataflowActivity, fileManager);
 
-		Dataflow alreadyOpen = fileManager
-				.getDataflowBySource(nestedDataflowSource);
+		WorkflowBundle alreadyOpen = fileManager.getDataflowBySource(nestedDataflowSource);
 		if (alreadyOpen != null) {
 			// The nested workflow is already opened - switch to it
 			fileManager.setCurrentDataflow(alreadyOpen);

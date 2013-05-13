@@ -1,5 +1,7 @@
 package net.sf.taverna.t2.workbench.file.importworkflow.menu;
 
+import java.net.URI;
+
 import javax.swing.Action;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
@@ -12,9 +14,9 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.actions.ReplaceNestedWorkflowAction;
 
-public class ReplaceNestedWorkflowMenuAction extends
-		AbstractConfigureActivityMenuAction<DataflowActivity> {
+public class ReplaceNestedWorkflowMenuAction extends AbstractConfigureActivityMenuAction {
 
+	private static final URI NESTED_ACTIVITY = URI.create("http://ns.taverna.org.uk/2010/activity/nested-workflow");
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
@@ -23,7 +25,7 @@ public class ReplaceNestedWorkflowMenuAction extends
 	private WorkbenchConfiguration workbenchConfiguration;
 
 	public ReplaceNestedWorkflowMenuAction() {
-		super(DataflowActivity.class);
+		super(NESTED_ACTIVITY);
 	}
 
 	@Override

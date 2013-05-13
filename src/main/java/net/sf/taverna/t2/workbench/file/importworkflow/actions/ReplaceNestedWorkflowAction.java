@@ -13,11 +13,14 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.gui.ImportWorkflowWizard;
 import net.sf.taverna.t2.workbench.ui.Utils;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
+import net.sf.taverna.t2.workflow.edits.ConfigureEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
-public class ReplaceNestedWorkflowAction extends
-		ActivityConfigurationAction<DataflowActivity, Dataflow> {
+public class ReplaceNestedWorkflowAction extends ActivityConfigurationAction {
 	private static final long serialVersionUID = 1L;
 
 	private final EditManager editManager;
@@ -28,7 +31,7 @@ public class ReplaceNestedWorkflowAction extends
 
 	private final WorkbenchConfiguration workbenchConfiguration;
 
-	public ReplaceNestedWorkflowAction(DataflowActivity activity, EditManager editManager,
+	public ReplaceNestedWorkflowAction(Activity activity, EditManager editManager,
 			FileManager fileManager, MenuManager menuManager,
 			ActivityIconManager activityIconManager, ColourManager colourManager,
 			WorkbenchConfiguration workbenchConfiguration) {
@@ -54,12 +57,14 @@ public class ReplaceNestedWorkflowAction extends
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected Edit<?> makeInsertNestedWorkflowEdit(Dataflow nestedFlow, String name) {
-				return editManager.getEdits().getConfigureActivityEdit(getActivity(), nestedFlow);
+			protected Edit<?> makeInsertNestedWorkflowEdit(Workflow nestedFlow, String name) {
+				Configuration configuration = new Configuration();
+				// TODO use service registry
+				return new ConfigureEdit<Activity>(getActivity(), nestedFlow);
 			}
 
 			@Override
-			protected DataflowActivity getInsertedActivity() {
+			protected Activity getInsertedActivity() {
 				return getActivity();
 			}
 		};

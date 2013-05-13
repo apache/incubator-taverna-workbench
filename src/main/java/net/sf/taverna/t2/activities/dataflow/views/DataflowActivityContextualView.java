@@ -29,7 +29,6 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.activities.dataflow.actions.EditNestedDataflowAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
@@ -40,12 +39,12 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
 import net.sf.taverna.t2.workbench.file.importworkflow.actions.ReplaceNestedWorkflowAction;
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 import org.apache.log4j.Logger;
 
-public class DataflowActivityContextualView extends HTMLBasedActivityContextualView<Dataflow> {
+import uk.org.taverna.scufl2.api.activity.Activity;
+
+public class DataflowActivityContextualView extends HTMLBasedActivityContextualView {
 
 	private static final long serialVersionUID = -552783425303398911L;
 
@@ -65,7 +64,7 @@ public class DataflowActivityContextualView extends HTMLBasedActivityContextualV
 
 	private final WorkbenchConfiguration workbenchConfiguration;
 
-	public DataflowActivityContextualView(Activity<?> activity, EditManager editManager,
+	public DataflowActivityContextualView(Activity activity, EditManager editManager,
 			FileManager fileManager, MenuManager menuManager,
 			ActivityIconManager activityIconManager, ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
 		super(activity, colourManager);
@@ -78,8 +77,8 @@ public class DataflowActivityContextualView extends HTMLBasedActivityContextualV
 	}
 
 	@Override
-	public DataflowActivity getActivity() {
-		return (DataflowActivity) super.getActivity();
+	public Activity getActivity() {
+		return super.getActivity();
 	}
 
 	@Override
@@ -101,7 +100,7 @@ public class DataflowActivityContextualView extends HTMLBasedActivityContextualV
 	@Override
 	protected String getRawTableRowsHtml() {
 
-		return ("<tr><td colspan=2>" + getActivity().getConfiguration().getLocalName() + "</td></tr>");
+		return ("<tr><td colspan=2>" + getActivity().getName() + "</td></tr>");
 	}
 
 	@Override

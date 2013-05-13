@@ -34,12 +34,14 @@ import javax.swing.JTextField;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
 
-import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.activities.dataflow.actions.EditNestedDataflowAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
+import net.sf.taverna.t2.workbench.edits.CompoundEdit;
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.DataflowInfo;
 import net.sf.taverna.t2.workbench.file.FileManager;
@@ -50,16 +52,17 @@ import net.sf.taverna.t2.workbench.file.importworkflow.DataflowMerger;
 import net.sf.taverna.t2.workbench.file.importworkflow.MergeException;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import net.sf.taverna.t2.workflow.edits.AddActivityEdit;
+import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
+import net.sf.taverna.t2.workflow.edits.ConfigureEdit;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class ImportWorkflowWizard extends HelpEnabledDialog {
 	private static final long serialVersionUID = -8124860319858897065L;
@@ -70,7 +73,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	protected JComboBox chooseDataflow;
 	protected DataflowOpenerThread dataflowOpenerThread;
 
-	protected Dataflow destinationDataflow;
+	protected WorkflowBundle destinationDataflow;
 	protected JTextField fieldFile;
 
 	protected JTextField fieldUrl;
@@ -83,7 +86,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	protected JRadioButton radioNew;
 	protected JRadioButton radioOpened;
 	protected JRadioButton radioUrl;
-	protected Dataflow sourceDataflow;
+	protected Workflow sourceDataflow;
 	protected ButtonGroup sourceSelection;
 	protected ActionListener updateChosenListener = new UpdateChosenListener();
 	protected Thread updatePreviewsThread;
@@ -268,7 +271,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	 * @throws InvocationTargetException
 	 * @throws InterruptedException
 	 */
-	protected void updateWorkflowGraphic(final JSVGCanvas svgCanvas, final Dataflow dataflow) {
+	protected void updateWorkflowGraphic(final JSVGCanvas svgCanvas, final Workflow dataflow) {
 		try {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				public void run() {
@@ -585,7 +588,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	protected JComboBox makeSelectOpenWorkflowComboBox(boolean selectCurrent) {
 		List<DataflowSelection> openDataflows = new ArrayList<DataflowSelection>();
 		DataflowSelection current = null;
-		for (Dataflow df : fileManager.getOpenDataflows()) {
+		for (WorkflowBundle df : fileManager.getOpenDataflows()) {
 			String name = fileManager.getDataflowName(df);
 			boolean isCurrent = df.equals(fileManager.getCurrentDataflow());
 			if (isCurrent) {
@@ -689,29 +692,29 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 
 	private EditManager editManager;
 
-	private Edits edits = editManager.getEdits();
-	private Dataflow customSourceDataFlow = null;
-	private Dataflow customDestinationDataflow = null;
+	private Workflow customSourceDataFlow = null;
+	private Workflow customDestinationDataflow = null;
 	private String customSourceName = "";
 	private String customDestinationName = "";
 
 	private boolean sourceEnabled = true;
 	private boolean destinationEnabled = true;
-	private DataflowActivity insertedActivity;
+	private Activity insertedActivity;
 
-	protected Edit<?> makeInsertNestedWorkflowEdit(Dataflow nestedFlow, String name) {
+	protected Edit<?> makeInsertNestedWorkflowEdit(Workflow nestedFlow, String name) {
 		List<Edit<?>> editList = new ArrayList<Edit<?>>();
-		insertedActivity = new DataflowActivity();
-		editList.add(edits.getConfigureActivityEdit(insertedActivity, nestedFlow));
-		Processor p = edits.createProcessor(name);
-		editList.add(edits.getDefaultDispatchStackEdit(p));
-		editList.add(edits.getAddActivityEdit(p, insertedActivity));
-		editList.add(edits.getAddProcessorEdit(destinationDataflow, p));
+		insertedActivity = new Activity();
+		// TODO use service registry
+		editList.add(new ConfigureEdit<Activity>(insertedActivity, nestedFlow));
+		Processor p = new Processor();
+		p.setName(name);
+		editList.add(new AddActivityEdit(p, insertedActivity));
+		editList.add(new AddProcessorEdit(destinationDataflow, p));
 		CompoundEdit edit = new CompoundEdit(editList);
 		return edit;
 	}
 
-	protected DataflowActivity getInsertedActivity() {
+	protected Activity getInsertedActivity() {
 		return insertedActivity;
 	}
 
@@ -754,7 +757,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 			}
 
 			progressMonitor.setNote("Copying source workflow");
-			Dataflow nestedFlow;
+			Workflow nestedFlow;
 			try {
 				nestedFlow = DataflowMerger.copyWorkflow(sourceDataflow);
 			} catch (Exception ex) {
@@ -783,7 +786,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 			progressMonitor.setProgress(65);
 
 			try {
-				editManager.doDataflowEdit(destinationDataflow, edit);
+				editManager.doDataflowEdit(destinationDataflow.getParent(), edit);
 			} catch (EditException e) {
 				progressMonitor.setProgress(100);
 				logger.warn("Could not import nested workflow", e);
@@ -792,7 +795,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 						"Could not import workflows", JOptionPane.WARNING_MESSAGE);
 			}
 
-			DataflowActivity inserted = getInsertedActivity();
+			Activity inserted = getInsertedActivity();
 			if (radioNew.isSelected()) {
 				progressMonitor.setNote("Opening new nested workflow for editing");
 				progressMonitor.setProgress(90);
@@ -939,11 +942,11 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 
 		public void updateDestination() {
 			ButtonModel selection = destinationSelection.getSelection();
-			Dataflow chosenDataflow = null;
+			Workflow chosenDataflow = null;
 			if (selection == null) {
 				chosenDataflow = null;
 			} else if (selection.equals(radioNewDestination.getModel())) {
-				chosenDataflow = editManager.getEdits().createDataflow();
+				chosenDataflow = new Workflow();
 			} else if (selection.equals(radioOpenDestination.getModel())) {
 				DataflowSelection chosen = (DataflowSelection) destinationAlreadyOpen
 						.getSelectedItem();
@@ -983,11 +986,11 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 
 		public void updateSource() {
 			ButtonModel selection = sourceSelection.getSelection();
-			Dataflow chosenDataflow = null;
+			Workflow chosenDataflow = null;
 			if (selection == null) {
 				chosenDataflow = null;
 			} else if (selection.equals(radioNew.getModel())) {
-				chosenDataflow = editManager.getEdits().createDataflow();
+				chosenDataflow = new Workflow();
 			} else if (selection.equals(radioFile.getModel())) {
 				final String filePath = fieldFile.getText();
 				try {
@@ -1104,15 +1107,15 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	}
 
 	public static class DataflowSelection {
-		private final Dataflow dataflow;
+		private final WorkflowBundle dataflow;
 		private final String name;
 
-		public DataflowSelection(Dataflow dataflow, String name) {
+		public DataflowSelection(WorkflowBundle dataflow, String name) {
 			this.dataflow = dataflow;
 			this.name = name;
 		}
 
-		public Dataflow getDataflow() {
+		public WorkflowBundle getDataflow() {
 			return dataflow;
 		}
 
@@ -1140,14 +1143,14 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		}
 	}
 
-	public void setCustomSourceDataflow(Dataflow sourceDataflow, String label) {
+	public void setCustomSourceDataflow(Workflow sourceDataflow, String label) {
 		this.customSourceDataFlow = sourceDataflow;
 		this.customSourceName = label;
 		updateSourceSection();
 		radioCustomSource.doClick();
 	}
 
-	public void setCustomDestinationDataflow(Dataflow destinationDataflow, String label) {
+	public void setCustomDestinationDataflow(Workflow destinationDataflow, String label) {
 		this.customDestinationDataflow = destinationDataflow;
 		this.customDestinationName = label;
 		updateDestinationSection();
