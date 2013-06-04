@@ -3,21 +3,12 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="WorkflowResultsComponentFactory" class="net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultsComponentFactory" />
-
-	<bean id="SaveResultAction" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveResultAction" />
-	<bean id="SaveAllResultsAction" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAction" />
+	<bean id="WorkflowResultsComponent" class="net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultsComponent" />
 
 	<bean id="SaveIndividualResult" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResult" />
 
 	<bean id="SaveAllResultsAsXML" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsXML" />
 	<bean id="SaveAllResultsAsExcel" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsExcel" />
 	<bean id="SaveAllResultsToFileSystem" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsToFileSystem" />
-	<bean id="SaveAllResultsAsOPM" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsOPM">
-		<property name="provenanceConnectorFactories" ref="provenanceConnectorFactories" />
-	</bean>
-	<bean id="SaveAllResultsAsJanus" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsAsJanus">
-		<property name="provenanceConnectorFactories" ref="provenanceConnectorFactories" />
-	</bean>
 
 </beans>

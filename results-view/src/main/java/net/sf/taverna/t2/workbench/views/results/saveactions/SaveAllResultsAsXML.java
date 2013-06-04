@@ -22,33 +22,31 @@ package net.sf.taverna.t2.workbench.views.results.saveactions;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.invocation.InvocationContext;
-import net.sf.taverna.t2.reference.ReferenceService;
-import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.results.BaclavaDocumentHandler;
+import net.sf.taverna.t2.results.BaclavaDocumentPathHandler;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 /**
  * Stores the entire map of result objects to disk
  * as a single XML data document.
- *
- * For the most part, this class delegates to {@link BaclavaDocumentHandler}
+ * For the most part, this class delegates to {@link BaclavaDocumentPathHandler}
  *
  * @author Tom Oinn
  * @author Alex Nenadic
  * @author Stuart Owen
+ * @author David Withers
  */
 public class SaveAllResultsAsXML extends SaveAllResultsSPI {
 
 	private static final long serialVersionUID = 452360182978773176L;
 
-	private BaclavaDocumentHandler baclavaDocumentHandler = new BaclavaDocumentHandler();
+	private BaclavaDocumentPathHandler baclavaDocumentHandler = new BaclavaDocumentPathHandler();
 
-	public SaveAllResultsAsXML(){
+	public SaveAllResultsAsXML() {
 		super();
 		putValue(NAME, "Save in single XML document");
 		putValue(SMALL_ICON, WorkbenchIcons.xmlNodeIcon);
@@ -58,9 +56,9 @@ public class SaveAllResultsAsXML extends SaveAllResultsSPI {
 		return new SaveAllResultsAsXML();
 	}
 
-
 	/**
 	 * Saves the result data to an XML Baclava file.
+	 *
 	 * @throws IOException
 	 */
 	protected void saveData(File file) throws IOException {
@@ -68,21 +66,9 @@ public class SaveAllResultsAsXML extends SaveAllResultsSPI {
 	}
 
 	@Override
-	public void setInvocationContext(InvocationContext context) {
-		super.setInvocationContext(context);
-		baclavaDocumentHandler.setInvocationContext(context);
-	}
-
-	@Override
-	public void setChosenReferences(Map<String, T2Reference> chosenReferences) {
+	public void setChosenReferences(Map<String, Path> chosenReferences) {
 		super.setChosenReferences(chosenReferences);
 		baclavaDocumentHandler.setChosenReferences(chosenReferences);
-	}
-
-	@Override
-	public void setReferenceService(ReferenceService referenceService) {
-		super.setReferenceService(referenceService);
-		baclavaDocumentHandler.setReferenceService(referenceService);
 	}
 
 	@Override

@@ -6,19 +6,12 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="WorkflowResultsComponentFactory" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI" />
-
-	<service ref="SaveResultAction" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveResultActionSPI" />
-	<service ref="SaveAllResultsAction" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveResultActionSPI" />
+	<service ref="WorkflowResultsComponent" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI" />
 
 	<service ref="SaveIndividualResult" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI" />
 
 	<service ref="SaveAllResultsAsXML" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
 	<service ref="SaveAllResultsAsExcel" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
 	<service ref="SaveAllResultsToFileSystem" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
-	<service ref="SaveAllResultsAsOPM" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
-	<service ref="SaveAllResultsAsJanus" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
-
-	<list id="provenanceConnectorFactories" interface="net.sf.taverna.t2.provenance.ProvenanceConnectorFactory" />
 
 </beans:beans>

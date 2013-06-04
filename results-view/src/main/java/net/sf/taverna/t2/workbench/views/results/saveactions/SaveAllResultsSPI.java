@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.views.results.saveactions;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
@@ -31,41 +32,26 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
-import net.sf.taverna.t2.reference.ReferenceService;
-import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.results.ResultsUtils;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
 
 /**
  * Implementing classes are capable of storing a collection
- * of T2References held in a result map.
+ * of Paths held in a result map.
  *
  * @author Tom Oinn
  * @author Alex Nenadic
+ * @author David Withers
  */
 @SuppressWarnings("serial")
 public abstract class SaveAllResultsSPI extends AbstractAction {
 
 	protected static Logger logger = Logger.getLogger(SaveAllResultsSPI.class);
-	protected ReferenceService referenceService;
-	protected InvocationContext context = null;
-	protected Map<String, T2Reference> chosenReferences;
+
+	protected Map<String, Path> chosenReferences;
 	protected JDialog dialog;
-	private boolean isProvenanceEnabledForRun;
-	private String runId;
-	private Dataflow dataflow;
-
-	public final String getRunId() {
-		return runId;
-	}
-
-	public final Dataflow getDataflow() {
-		return dataflow;
-	}
 
 	/**
 	 * Returns the save result action implementing this interface. The returned
@@ -75,14 +61,6 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	public abstract AbstractAction getAction();
 
 	/**
-	 * Sets the InvocationContext to be used to get the Reference Service to be
-	 * used dereference the reference.
-	 */
-	public void setInvocationContext(InvocationContext context) {
-		this.context = context;
-	}
-
-	/**
 	 * The Map passed into this method contains the String -> T2Reference (port
 	 * name to reference to value pairs) returned by the current set of results.
 	 * The actual listener may well wish to display some kind of dialog, for
@@ -90,11 +68,11 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	 * give the user some choice over where the results would be inserted into
 	 * the sheet, and also where the generated file would be stored.
 	 * <p>
-	 * The parent parameter is optional and may be set to null, if not it is
-	 * assumed to be the parent component in the UI which caused this action to
-	 * be created, this allows save dialogs etc to be placed correctly.
+	 * The parent parameter is optional and may be set to null, if not it is assumed to be the
+	 * parent component in the UI which caused this action to be created, this allows save dialogs
+	 * etc to be placed correctly.
 	 */
-	public void setChosenReferences(Map<String, T2Reference> chosenReferences) {
+	public void setChosenReferences(Map<String, Path> chosenReferences) {
 		this.chosenReferences = chosenReferences;
 	}
 
@@ -117,7 +95,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 		String curDir = prefs.get("currentDir", System.getProperty("user.home"));
 		fc.resetChoosableFileFilters();
 		if (getFilter() != null) {
-		fc.setFileFilter(new ExtensionFileFilter(new String[]{getFilter()}));
+			fc.setFileFilter(new ExtensionFileFilter(new String[] { getFilter() }));
 		}
 		fc.setCurrentDirectory(new File(curDir));
 		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -132,7 +110,8 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 				File file = fc.getSelectedFile();
 
 				if (getFilter() != null) {
-					// If the user did not use the .xml extension for the file - append it to the file name now
+					// If the user did not use the .xml extension for the file - append it to the
+					// file name now
 					if (!file.getName().toLowerCase().endsWith("." + getFilter())) {
 						String newFileName = file.getName() + "." + getFilter();
 						file = new File(file.getParentFile(), newFileName);
@@ -140,45 +119,45 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 				}
 				final File finalFile = file;
 
-				if (file.exists()){ // File already exists
+				if (file.exists()) { // File already exists
 					// Ask the user if they want to overwrite the file
-					String msg = file.getAbsolutePath() + " already exists. Do you want to overwrite it?";
-					int ret = JOptionPane.showConfirmDialog(
-							null, msg, "File already exists",
+					String msg = file.getAbsolutePath()
+							+ " already exists. Do you want to overwrite it?";
+					int ret = JOptionPane.showConfirmDialog(null, msg, "File already exists",
 							JOptionPane.YES_NO_OPTION);
 
 					if (ret == JOptionPane.YES_OPTION) {
 						// Do this in separate thread to avoid hanging UI
-						new Thread("SaveAllResults: Saving results to " + finalFile){
-							public void run(){
+						new Thread("SaveAllResults: Saving results to " + finalFile) {
+							public void run() {
 								try {
-									synchronized(chosenReferences){
+									synchronized (chosenReferences) {
 										saveData(finalFile);
 									}
 								} catch (Exception ex) {
-									JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
+									JOptionPane.showMessageDialog(null,
+											"Problem saving result data", "Save Result Error",
 											JOptionPane.ERROR_MESSAGE);
-									logger.error("SaveAllResults Error: Problem saving result data", ex);
+									logger.error(
+											"SaveAllResults Error: Problem saving result data", ex);
 								}
 							}
 						}.start();
-					}
-					else{
+					} else {
 						tryAgain = true;
 					}
-				}
-				else{ // File does not already exist
+				} else { // File does not already exist
 
 					// Do this in separate thread to avoid hanging UI
-					new Thread("SaveAllResults: Saving results to " + finalFile){
-						public void run(){
+					new Thread("SaveAllResults: Saving results to " + finalFile) {
+						public void run() {
 							try {
-								synchronized(chosenReferences){
+								synchronized (chosenReferences) {
 									saveData(finalFile);
 								}
 							} catch (Exception ex) {
-								JOptionPane.showMessageDialog(null, "Problem saving result data" + ex, "Save Result Error",
-										JOptionPane.ERROR_MESSAGE);
+								JOptionPane.showMessageDialog(null, "Problem saving result data"
+										+ ex, "Save Result Error", JOptionPane.ERROR_MESSAGE);
 								logger.error("SaveAllResults Error: Problem saving result data", ex);
 							}
 						}
@@ -193,7 +172,11 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	protected Object getObjectForName(String name) {
 		Object result = null;
 		if (chosenReferences.containsKey(name)) {
-			result = ResultsUtils.convertReferenceToObject(chosenReferences.get(name),getReferenceService(),getContext());
+			try {
+				result = ResultsUtils.convertPathToObject(chosenReferences.get(name));
+			} catch (IOException e) {
+				logger.warn("Error getting value for " + name, e);
+			}
 		}
 		if (result == null) {
 			result = "null";
@@ -202,23 +185,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 
 	}
 
-	public void setRunId(String runId) {
-		this.runId = runId;
-	}
-
-	public void setDataflow(Dataflow dataflow) {
-		this.dataflow = dataflow;
-	}
-
-	public ReferenceService getReferenceService() {
-		return referenceService;
-	}
-
-	public InvocationContext getContext() {
-		return context;
-	}
-
-	public Map<String, T2Reference> getChosenReferences() {
+	public Map<String, Path> getChosenReferences() {
 		return chosenReferences;
 	}
 
@@ -226,19 +193,4 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 		return dialog;
 	}
 
-	public void setProvenanceEnabledForRun(boolean isProvenanceEnabledForRun) {
-		this.isProvenanceEnabledForRun = isProvenanceEnabledForRun;
-	}
-
-	public boolean isProvenanceEnabledForRun() {
-		return isProvenanceEnabledForRun;
-	}
-
-	/**
-	 * @param referenceService the referenceService to set
-	 */
-	public void setReferenceService(ReferenceService referenceService) {
-		this.referenceService = referenceService;
-	}
 }
-

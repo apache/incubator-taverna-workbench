@@ -21,14 +21,9 @@
 package net.sf.taverna.t2.workbench.views.results.saveactions;
 
 import java.awt.event.ActionEvent;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
@@ -36,19 +31,12 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
-import net.sf.taverna.t2.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
-import net.sf.taverna.t2.reference.DereferenceException;
-import net.sf.taverna.t2.reference.ErrorDocument;
-import net.sf.taverna.t2.reference.ExternalReferenceSPI;
-import net.sf.taverna.t2.reference.Identified;
-import net.sf.taverna.t2.reference.ReferenceSet;
-import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.results.ResultsUtils;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.databundle.DataBundles;
 
 /**
  * Saves individual result to a file. A T2Reference to the result data is held
@@ -56,20 +44,18 @@ import org.apache.log4j.Logger;
  *
  * @author Alex Nenadic
  * @author Alan R Williams
- *
+ * @author David Withers
  */
 public class SaveIndividualResult extends AbstractAction implements SaveIndividualResultSPI{
 
-	private static final long serialVersionUID = 4588945388830291235L;
+	private static final long serialVersionUID = 4637392234806851345L;
 
 	private static Logger logger = Logger.getLogger(SaveIndividualResult.class);
 
 	/**
-	 * T2Reference pointing to the result to be saved.
+	 * Path pointing to the result to be saved.
 	 */
-	private T2Reference resultReference = null;
-
-	private InvocationContext context = null;
+	private Path resultReference = null;
 
 	public SaveIndividualResult(){
 		super();
@@ -77,6 +63,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 		putValue(SMALL_ICON, WorkbenchIcons.saveIcon);
 	}
 
+	@Override
 	public AbstractAction getAction() {
 		return new SaveIndividualResult();
 	}
@@ -85,34 +72,9 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 	 * Saves a result either as a text or a binary file - depending on the
 	 * result data type.
 	 */
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		Identified identified = context.getReferenceService().resolveIdentifier(resultReference, null, context);
-
-		if (identified instanceof ReferenceSet) { // Node contains an external reference to data
-
-			ReferenceSet referenceSet = (ReferenceSet) identified;
-			List<ExternalReferenceSPI> externalReferences = new ArrayList<ExternalReferenceSPI>(referenceSet.getExternalReferences());
-			Collections.sort(externalReferences, new Comparator<ExternalReferenceSPI>() {
-				public int compare(ExternalReferenceSPI o1, ExternalReferenceSPI o2) {
-					return (int) (o1.getResolutionCost() - o2.getResolutionCost());
-				}
-			});
-
-			final InputStream dataStream;
-
-			try{
-				// externalReferences must contain at least one element - use the first one,
-				// it is the most efficient
-				dataStream = externalReferences.get(0).openStream(context);
-			}
-			catch(DereferenceException drse){
-				JOptionPane.showMessageDialog(null, "Problem opening an input stream to the data when saving the result data value", "Save Result Error",
-						JOptionPane.ERROR_MESSAGE);
-				logger.error("SaveIndividualResult Error: Problem opening an input stream to the data when saving the result data value", drse);
-				return;
-			}
-			// All is fine - we have rendered the T2Reference correctly
-
+		if (DataBundles.isValue(resultReference)) { // Node contains a data value
 			// Popup a save dialog and allow the user to store the data to disc
 			JFileChooser fc = new JFileChooser();
 			Preferences prefs = Preferences.userNodeForPackage(getClass());
@@ -147,7 +109,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 								@Override
 								public void run(){
 									try {
-										IOUtils.copyLarge(dataStream, new FileOutputStream(finalFile));
+										Files.copy(resultReference, finalFile.toPath());
 									} catch (Exception ex) {
 										JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 												JOptionPane.ERROR_MESSAGE);
@@ -166,7 +128,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 							@Override
 							public void run(){
 								try {
-									IOUtils.copyLarge(dataStream, new FileOutputStream(finalFile));
+									Files.copy(resultReference, finalFile.toPath());
 								} catch (Exception ex) {
 									JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 											JOptionPane.ERROR_MESSAGE);
@@ -177,10 +139,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 					}
 				}
 			}
-		} else if (identified instanceof ErrorDocument) { // Node contains a reference to ErrorDocument
-			// Save ErrorDocument as text
-			final String errorString = ResultsUtils.buildErrorDocumentString((ErrorDocument)identified, context);
-
+		} else if (DataBundles.isError(resultReference)) { // Node contains a reference to ErrorDocument
 			// Popup a save dialog and allow the user to store the data to disc
 			JFileChooser fc = new JFileChooser();
 			Preferences prefs = Preferences.userNodeForPackage(getClass());
@@ -224,7 +183,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 								@Override
 								public void run(){
 									try {
-										IOUtils.copyLarge(new ByteArrayInputStream(errorString.getBytes("UTF-8")), new FileOutputStream(finalFile));
+										Files.copy(resultReference, finalFile.toPath());
 									} catch (Exception ex) {
 										JOptionPane.showMessageDialog(null, "Problem saving error document", "Save Result Error",
 												JOptionPane.ERROR_MESSAGE);
@@ -243,7 +202,7 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 							@Override
 							public void run(){
 								try {
-									IOUtils.copyLarge(new ByteArrayInputStream(errorString.getBytes("UTF-8")), new FileOutputStream(finalFile));
+									Files.copy(resultReference, finalFile.toPath());
 								} catch (Exception ex) {
 									JOptionPane.showMessageDialog(null, "Problem saving result data", "Save Result Error",
 											JOptionPane.ERROR_MESSAGE);
@@ -259,12 +218,9 @@ public class SaveIndividualResult extends AbstractAction implements SaveIndividu
 
 
 	// Must be called before actionPerformed()
-	public void setResultReference(T2Reference reference) {
+	@Override
+	public void setResultReference(Path reference) {
 		this.resultReference = reference;
 	}
 
-	// Must be called before actionPerformed()
-	public void setInvocationContext(InvocationContext ctxt) {
-		this.context = ctxt;
-	}
 }
