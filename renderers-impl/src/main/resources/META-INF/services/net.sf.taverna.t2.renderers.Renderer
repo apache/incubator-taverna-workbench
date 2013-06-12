@@ -1,10 +1,7 @@
-#net.sf.taverna.t2.renderers.impl.ImageRenderer
 net.sf.taverna.t2.renderers.impl.AdvancedImageRenderer
 net.sf.taverna.t2.renderers.impl.HexBinaryRenderer
 net.sf.taverna.t2.renderers.impl.TextRenderer
-#net.sf.taverna.t2.renderers.impl.TextHtmlRenderer
 net.sf.taverna.t2.renderers.impl.TextRtfRenderer
 net.sf.taverna.t2.renderers.impl.TextXMLRenderer
-#net.sf.taverna.t2.renderers.impl.AWTComponentRenderer
 
 
