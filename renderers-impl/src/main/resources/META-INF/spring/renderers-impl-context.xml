@@ -6,7 +6,6 @@
 	<bean id="AdvancedImageRenderer" class="net.sf.taverna.t2.renderers.impl.AdvancedImageRenderer" />
 	<bean id="HexBinaryRenderer" class="net.sf.taverna.t2.renderers.impl.HexBinaryRenderer" />
 	<bean id="TextRenderer" class="net.sf.taverna.t2.renderers.impl.TextRenderer" />
-	<bean id="TextHtmlRenderer" class="net.sf.taverna.t2.renderers.impl.TextHtmlRenderer" />
 	<bean id="TextRtfRenderer" class="net.sf.taverna.t2.renderers.impl.TextRtfRenderer" />
 	<bean id="TextXMLRenderer" class="net.sf.taverna.t2.renderers.impl.TextXMLRenderer" />
 

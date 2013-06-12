@@ -9,7 +9,6 @@
 	<service ref="AdvancedImageRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
 	<service ref="HexBinaryRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
 	<service ref="TextRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
-	<service ref="TextHtmlRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
 	<service ref="TextRtfRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
 	<service ref="TextXMLRenderer" interface="net.sf.taverna.t2.renderers.Renderer" />
 
