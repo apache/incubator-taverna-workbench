@@ -181,7 +181,7 @@ public abstract class AbstractConnectPortMenuActions extends AbstractMenuCustom
 
 			JMenu processorMenu = new JMenu(new DummyAction(processor.getName(), icon));
 			List<JMenuItem> processorMenuItems = new ArrayList<JMenuItem>();
-			if (targetPort instanceof InputPort) {
+			if (targetPort instanceof ReceiverPort) {
 				processorMenu.add(new ShadedLabel(SERVICE_OUTPUT_PORTS,
 						processorPortColour));
 				menuItems.add(processorMenu);
@@ -193,7 +193,7 @@ public abstract class AbstractConnectPortMenuActions extends AbstractMenuCustom
 					connectPortsAction.putValue(Action.NAME, outputProcessorPort.getName());
 					processorMenuItems.add(new JMenuItem(connectPortsAction));
 				}
-			} else {
+			} else if (targetPort instanceof SenderPort) {
 				processorMenu.add(new ShadedLabel(SERVICE_INPUT_PORTS,
 						processorPortColour));
 				menuItems.add(processorMenu);
