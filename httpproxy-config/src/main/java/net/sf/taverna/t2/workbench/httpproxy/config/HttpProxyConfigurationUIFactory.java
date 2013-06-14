@@ -24,25 +24,35 @@ import javax.swing.JPanel;
 
 import uk.org.taverna.configuration.Configurable;
 import uk.org.taverna.configuration.ConfigurationUIFactory;
+import uk.org.taverna.configuration.proxy.HttpProxyConfiguration;
 
 /**
- * @author alanrw
- *
  * A Factory to create a HttpProxyConfiguration
  *
+ * @author alanrw
+ * @author David Withers
  */
 public class HttpProxyConfigurationUIFactory implements ConfigurationUIFactory {
 
+	private HttpProxyConfiguration httpProxyConfiguration;
+
+	@Override
 	public boolean canHandle(String uuid) {
 		return uuid.equals(getConfigurable().getUUID());
 	}
 
+	@Override
 	public JPanel getConfigurationPanel() {
-		return new HttpProxyConfigurationPanel();
+		return new HttpProxyConfigurationPanel(httpProxyConfiguration);
 	}
 
+	@Override
 	public Configurable getConfigurable() {
-		return HttpProxyConfiguration.getInstance();
+		return httpProxyConfiguration;
+	}
+
+	public void setHttpProxyConfiguration(HttpProxyConfiguration httpProxyConfiguration) {
+		this.httpProxyConfiguration = httpProxyConfiguration;
 	}
 
 }

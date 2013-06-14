@@ -20,6 +20,21 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.httpproxy.config;
 
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.PROXY_USE_OPTION;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_NON_PROXY_HOSTS;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_PROXY_HOST;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_PROXY_PASSWORD;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_PROXY_PORT;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.SYSTEM_PROXY_USER;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_NON_PROXY_HOSTS;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_PROXY_HOST;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_PROXY_PASSWORD;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_PROXY_PORT;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.TAVERNA_PROXY_USER;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.USE_NO_PROXY_OPTION;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.USE_SPECIFIED_VALUES_OPTION;
+import static uk.org.taverna.configuration.proxy.HttpProxyConfiguration.USE_SYSTEM_PROPERTIES_OPTION;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -41,30 +56,20 @@ import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.helper.Helper;
-
-import org.apache.log4j.Logger;
+import uk.org.taverna.configuration.proxy.HttpProxyConfiguration;
 
 /**
+ * The HttpProxyConfigurationPanel provides the user interface to a {@link HttpProxyConfiguration}
+ * to determine how HTTP Connections are made by Taverna.
+ *
  * @author alanrw
- *
- *         The HttpProxyConfigurationPanel provides the user interface to a
- *         {@link HttpProxyConfiguration} to determine how HTTP Connections are
- *         made by Taverna.
- *
- */
-/**
- * @author alanrw
- *
+ * @author David Withers
  */
 public class HttpProxyConfigurationPanel extends JPanel {
 
-	/**
-	 *
-	 */
 	static final long serialVersionUID = 3668473431971125038L;
 
-	private static Logger logger = Logger
-			.getLogger(HttpProxyConfigurationUIFactory.class);
+	private final HttpProxyConfiguration httpProxyConfiguration;
 
 	/**
 	 * RadioButtons that are in a common ButtonGroup. Selecting one of them
@@ -92,7 +97,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	 * A string that indicates which HTTP setting option the user has currently
 	 * picked. This does not necesarily match that which has been applied.
 	 */
-	private String shownOption = HttpProxyConfiguration.USE_SYSTEM_PROPERTIES_OPTION;
+	private String shownOption = USE_SYSTEM_PROPERTIES_OPTION;
 
 	/**
 	 * The size of the field for the JTextFields.
@@ -104,45 +109,38 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	 * where the configuration values for HTTP can be specified
 	 * and a set of buttons where the more general apply, help etc. appear.
 	 */
-	public HttpProxyConfigurationPanel() {
-
-		super();
-		initComponents(HttpProxyConfiguration.getInstance());
+	public HttpProxyConfigurationPanel(HttpProxyConfiguration httpProxyConfiguration) {
+		this.httpProxyConfiguration = httpProxyConfiguration;
+		initComponents();
 	}
 
 	/**
 	 * Populates the panel with a representation of the current HTTP proxy
 	 * settings for the specified {@link HttpProxyConfiguration} and also the
 	 * capability to alter them.
-	 *
-	 * @param configurable
-	 * @return
 	 */
-	private void initComponents(
-			final HttpProxyConfiguration configurable) {
-
-		shownOption = configurable
-				.getProperty(HttpProxyConfiguration.PROXY_USE_OPTION);
+	private void initComponents() {
+		shownOption = httpProxyConfiguration.getProperty(PROXY_USE_OPTION);
 
 		this.setLayout(new GridBagLayout());
 
 		GridBagConstraints gbc = new GridBagConstraints();
 
 		// Title describing what kind of settings we are configuring here
-        JTextArea descriptionText = new JTextArea("HTTP proxy configuration");
-        descriptionText.setLineWrap(true);
-        descriptionText.setWrapStyleWord(true);
-        descriptionText.setEditable(false);
-        descriptionText.setFocusable(false);
-        descriptionText.setBorder(new EmptyBorder(10, 10, 10, 10));
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 2;
-        gbc.weightx = 1.0;
-        gbc.weighty = 0.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        this.add(descriptionText, gbc);
+		JTextArea descriptionText = new JTextArea("HTTP proxy configuration");
+		descriptionText.setLineWrap(true);
+		descriptionText.setWrapStyleWord(true);
+		descriptionText.setEditable(false);
+		descriptionText.setFocusable(false);
+		descriptionText.setBorder(new EmptyBorder(10, 10, 10, 10));
+		gbc.anchor = GridBagConstraints.WEST;
+		gbc.gridx = 0;
+		gbc.gridy = 0;
+		gbc.gridwidth = 2;
+		gbc.weightx = 1.0;
+		gbc.weighty = 0.0;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		this.add(descriptionText, gbc);
 
 		/**
 		 * Generate the three radio buttons and put them in a group. Each
@@ -151,48 +149,48 @@ public class HttpProxyConfigurationPanel extends JPanel {
 		 */
 		useNoProxy = new JRadioButton("Do not use a proxy");
 		useNoProxy.setAlignmentX(LEFT_ALIGNMENT);
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        gbc.gridwidth = 2;
-        gbc.weightx = 0.0;
-        gbc.weighty = 0.0;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.insets = new Insets(10,0,0,0);
-        this.add(useNoProxy, gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 1;
+		gbc.gridwidth = 2;
+		gbc.weightx = 0.0;
+		gbc.weighty = 0.0;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.insets = new Insets(10, 0, 0, 0);
+		this.add(useNoProxy, gbc);
 		ActionListener useNoProxyListener = new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
-				shownOption = HttpProxyConfiguration.USE_NO_PROXY_OPTION;
-				populateFields(configurable);
+				shownOption = USE_NO_PROXY_OPTION;
+				populateFields();
 			}
 		};
 		useNoProxy.addActionListener(useNoProxyListener);
 
 		useSystemProperties = new JRadioButton("Use system properties");
 		useSystemProperties.setAlignmentX(LEFT_ALIGNMENT);
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        gbc.insets = new Insets(0,0,0,0);
-        this.add(useSystemProperties, gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 2;
+		gbc.insets = new Insets(0, 0, 0, 0);
+		this.add(useSystemProperties, gbc);
 		ActionListener systemPropertiesListener = new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
-				shownOption = HttpProxyConfiguration.USE_SYSTEM_PROPERTIES_OPTION;
-				populateFields(configurable);
+				shownOption = USE_SYSTEM_PROPERTIES_OPTION;
+				populateFields();
 			}
 		};
 		useSystemProperties.addActionListener(systemPropertiesListener);
 
 		useSpecifiedValues = new JRadioButton("Use specified values");
 		useSpecifiedValues.setAlignmentX(LEFT_ALIGNMENT);
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        this.add(useSpecifiedValues, gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 3;
+		this.add(useSpecifiedValues, gbc);
 		ActionListener specifiedValuesListener = new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
-				shownOption = HttpProxyConfiguration.USE_SPECIFIED_VALUES_OPTION;
-				populateFields(configurable);
+				shownOption = USE_SPECIFIED_VALUES_OPTION;
+				populateFields();
 			}
 		};
 		useSpecifiedValues.addActionListener(specifiedValuesListener);
@@ -207,54 +205,54 @@ public class HttpProxyConfigurationPanel extends JPanel {
 		 * become editable if the shown option is to use specified values.
 		 */
 		proxyHostField = new JTextField(TEXTFIELD_SIZE);
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.insets = new Insets(10,0,0,0);
-        this.add(new JLabel("Proxy host"), gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 4;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        this.add(proxyHostField, gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 4;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.insets = new Insets(10, 0, 0, 0);
+		this.add(new JLabel("Proxy host"), gbc);
+		gbc.gridx = 1;
+		gbc.gridy = 4;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		this.add(proxyHostField, gbc);
 
 		proxyPortField = new JTextField(TEXTFIELD_SIZE);
-        gbc.gridx = 0;
-        gbc.gridy = 5;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.insets = new Insets(0,0,0,0);
-        this.add(new JLabel("Proxy port"), gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 5;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        this.add(proxyPortField, gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 5;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.insets = new Insets(0, 0, 0, 0);
+		this.add(new JLabel("Proxy port"), gbc);
+		gbc.gridx = 1;
+		gbc.gridy = 5;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		this.add(proxyPortField, gbc);
 
 		proxyUserField = new JTextField(TEXTFIELD_SIZE);
-        gbc.gridx = 0;
-        gbc.gridy = 6;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        this.add(new JLabel("Proxy user"), gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 6;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        this.add(proxyUserField, gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 6;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.NONE;
+		this.add(new JLabel("Proxy user"), gbc);
+		gbc.gridx = 1;
+		gbc.gridy = 6;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		this.add(proxyUserField, gbc);
 
 		proxyPasswordField = new JTextField(TEXTFIELD_SIZE);
-        gbc.gridx = 0;
-        gbc.gridy = 7;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.NONE;
-        this.add(new JLabel("Proxy password"), gbc);
-        gbc.gridx = 1;
-        gbc.gridy = 7;
-        gbc.gridwidth = 1;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        this.add(proxyPasswordField, gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 7;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.NONE;
+		this.add(new JLabel("Proxy password"), gbc);
+		gbc.gridx = 1;
+		gbc.gridy = 7;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		this.add(proxyPasswordField, gbc);
 
 		nonProxyHostsArea = new DialogTextArea(10, 40);
 		nonProxyScrollPane = new JScrollPane(nonProxyHostsArea);
@@ -262,79 +260,59 @@ public class HttpProxyConfigurationPanel extends JPanel {
 				.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		nonProxyScrollPane
 				.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
-		//nonProxyScrollPane.setPreferredSize(new Dimension(300, 500));
-        gbc.gridx = 0;
-        gbc.gridy = 8;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.insets = new Insets(10, 0, 0, 0);
-        this.add(new JLabel("Non-proxy hosts"), gbc);
-        gbc.gridx = 0;
-        gbc.gridy = 9;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.gridwidth = 2;
-        gbc.insets = new Insets(0, 0, 0, 0);
-        gbc.fill = GridBagConstraints.BOTH;
-        this.add(nonProxyScrollPane, gbc);
+		// nonProxyScrollPane.setPreferredSize(new Dimension(300, 500));
+		gbc.gridx = 0;
+		gbc.gridy = 8;
+		gbc.gridwidth = 2;
+		gbc.fill = GridBagConstraints.NONE;
+		gbc.insets = new Insets(10, 0, 0, 0);
+		this.add(new JLabel("Non-proxy hosts"), gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 9;
+		gbc.weightx = 1.0;
+		gbc.weighty = 1.0;
+		gbc.gridwidth = 2;
+		gbc.insets = new Insets(0, 0, 0, 0);
+		gbc.fill = GridBagConstraints.BOTH;
+		this.add(nonProxyScrollPane, gbc);
 
 		// Add buttons panel
-        gbc.gridx = 0;
-        gbc.gridy = 10;
-        gbc.weightx = 0.0;
-        gbc.weighty = 0.0;
-        gbc.gridwidth = 2;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.CENTER;
-        gbc.insets = new Insets(10, 0, 0, 0);
-        this.add(createButtonPanel(), gbc);
+		gbc.gridx = 0;
+		gbc.gridy = 10;
+		gbc.weightx = 0.0;
+		gbc.weighty = 0.0;
+		gbc.gridwidth = 2;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.insets = new Insets(10, 0, 0, 0);
+		this.add(createButtonPanel(), gbc);
 
-		setFields(configurable);
+		setFields();
 	}
 
 	/**
 	 * Populate the fields in the property panel according to which option is
-	 * being shown and the stored values within the
-	 * {@link HttpProxyConfiguration}.
-	 *
-	 * @param configurable
+	 * being shown and the stored values within the {@link HttpProxyConfiguration}.
 	 */
-	private void populateFields(HttpProxyConfiguration configurable) {
-
+	private void populateFields() {
 		/**
 		 * Editing of the property fields is only available when the option is
 		 * to use the specified values.
 		 */
-		boolean editingEnabled = shownOption
-				.equals(HttpProxyConfiguration.USE_SPECIFIED_VALUES_OPTION);
+		boolean editingEnabled = shownOption.equals(USE_SPECIFIED_VALUES_OPTION);
 
-		if (shownOption
-				.equals(HttpProxyConfiguration.USE_SYSTEM_PROPERTIES_OPTION)) {
-			proxyHostField.setText(configurable
-					.getProperty(HttpProxyConfiguration.SYSTEM_PROXY_HOST));
-			proxyPortField.setText(configurable
-					.getProperty(HttpProxyConfiguration.SYSTEM_PROXY_PORT));
-			proxyUserField.setText(configurable
-					.getProperty(HttpProxyConfiguration.SYSTEM_PROXY_USER));
-			proxyPasswordField.setText(configurable
-					.getProperty(HttpProxyConfiguration.SYSTEM_PROXY_PASSWORD));
-			nonProxyHostsArea
-					.setText(configurable
-							.getProperty(HttpProxyConfiguration.SYSTEM_NON_PROXY_HOSTS));
-		} else if (shownOption
-				.equals(HttpProxyConfiguration.USE_SPECIFIED_VALUES_OPTION)) {
-			proxyHostField.setText(configurable
-					.getProperty(HttpProxyConfiguration.TAVERNA_PROXY_HOST));
-			proxyPortField.setText(configurable
-					.getProperty(HttpProxyConfiguration.TAVERNA_PROXY_PORT));
-			proxyUserField.setText(configurable
-					.getProperty(HttpProxyConfiguration.TAVERNA_PROXY_USER));
-			proxyPasswordField
-					.setText(configurable
-							.getProperty(HttpProxyConfiguration.TAVERNA_PROXY_PASSWORD));
-			nonProxyHostsArea
-					.setText(configurable
-							.getProperty(HttpProxyConfiguration.TAVERNA_NON_PROXY_HOSTS));
+		if (shownOption.equals(USE_SYSTEM_PROPERTIES_OPTION)) {
+			proxyHostField.setText(httpProxyConfiguration.getProperty(SYSTEM_PROXY_HOST));
+			proxyPortField.setText(httpProxyConfiguration.getProperty(SYSTEM_PROXY_PORT));
+			proxyUserField.setText(httpProxyConfiguration.getProperty(SYSTEM_PROXY_USER));
+			proxyPasswordField.setText(httpProxyConfiguration.getProperty(SYSTEM_PROXY_PASSWORD));
+			nonProxyHostsArea.setText(httpProxyConfiguration.getProperty(SYSTEM_NON_PROXY_HOSTS));
+		} else if (shownOption.equals(USE_SPECIFIED_VALUES_OPTION)) {
+			proxyHostField.setText(httpProxyConfiguration.getProperty(TAVERNA_PROXY_HOST));
+			proxyPortField.setText(httpProxyConfiguration.getProperty(TAVERNA_PROXY_PORT));
+			proxyUserField.setText(httpProxyConfiguration.getProperty(TAVERNA_PROXY_USER));
+			proxyPasswordField.setText(httpProxyConfiguration.getProperty(TAVERNA_PROXY_PASSWORD));
+			nonProxyHostsArea.setText(httpProxyConfiguration.getProperty(TAVERNA_NON_PROXY_HOSTS));
 		} else {
 			proxyHostField.setText(null);
 			proxyPortField.setText(null);
@@ -377,19 +355,19 @@ public class HttpProxyConfigurationPanel extends JPanel {
 		 */
 		JButton resetButton = new JButton(new AbstractAction("Reset") {
 			public void actionPerformed(ActionEvent arg0) {
-				setFields(HttpProxyConfiguration.getInstance());
+				setFields();
 			}
 		});
 		panel.add(resetButton);
 
 		/**
-		 * The applyButton applies the shown field values to the
-		 * {@link HttpProxyConfiguration} and saves them for future.
+		 * The applyButton applies the shown field values to the {@link HttpProxyConfiguration} and
+		 * saves them for future.
 		 */
 		JButton applyButton = new JButton(new AbstractAction("Apply") {
 			public void actionPerformed(ActionEvent arg0) {
 				applySettings();
-				setFields(HttpProxyConfiguration.getInstance());
+				setFields();
 			}
 		});
 		panel.add(applyButton);
@@ -398,39 +376,26 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	}
 
 	/**
-	 * saveSettings checks that the specified values for the HTTP properties are
+	 * Checks that the specified values for the HTTP properties are
 	 * a valid combination and, if so, saves them for future use. It does not
 	 * apply them to the currently executing Taverna.
 	 */
 	private void saveSettings() {
-		HttpProxyConfiguration conf = HttpProxyConfiguration.getInstance();
 		if (useSystemProperties.isSelected()) {
-			conf.setProperty(HttpProxyConfiguration.PROXY_USE_OPTION,
-					HttpProxyConfiguration.USE_SYSTEM_PROPERTIES_OPTION);
+			httpProxyConfiguration.setProperty(PROXY_USE_OPTION, USE_SYSTEM_PROPERTIES_OPTION);
 		} else if (useNoProxy.isSelected()) {
-			conf.setProperty(HttpProxyConfiguration.PROXY_USE_OPTION,
-					HttpProxyConfiguration.USE_NO_PROXY_OPTION);
+			httpProxyConfiguration.setProperty(PROXY_USE_OPTION, USE_NO_PROXY_OPTION);
 		} else {
 			if (validateFields()) {
-				conf.setProperty(HttpProxyConfiguration.PROXY_USE_OPTION,
-						HttpProxyConfiguration.USE_SPECIFIED_VALUES_OPTION);
-				conf.setProperty(HttpProxyConfiguration.TAVERNA_PROXY_HOST,
-						proxyHostField.getText());
-				conf.setProperty(HttpProxyConfiguration.TAVERNA_PROXY_PORT,
-						proxyPortField.getText());
-				conf.setProperty(HttpProxyConfiguration.TAVERNA_PROXY_USER,
-						proxyUserField.getText());
-				conf.setProperty(HttpProxyConfiguration.TAVERNA_PROXY_PASSWORD,
+				httpProxyConfiguration.setProperty(PROXY_USE_OPTION, USE_SPECIFIED_VALUES_OPTION);
+				httpProxyConfiguration.setProperty(TAVERNA_PROXY_HOST, proxyHostField.getText());
+				httpProxyConfiguration.setProperty(TAVERNA_PROXY_PORT, proxyPortField.getText());
+				httpProxyConfiguration.setProperty(TAVERNA_PROXY_USER, proxyUserField.getText());
+				httpProxyConfiguration.setProperty(TAVERNA_PROXY_PASSWORD,
 						proxyPasswordField.getText());
-				conf.setProperty(
-						HttpProxyConfiguration.TAVERNA_NON_PROXY_HOSTS,
+				httpProxyConfiguration.setProperty(TAVERNA_NON_PROXY_HOSTS,
 						nonProxyHostsArea.getText());
 			}
-		}
-		try {
-			ConfigurationManager.getInstance().store(conf);
-		} catch (Exception e) {
-			logger.error("Error storing updated configuration");
 		}
 	}
 
@@ -453,7 +418,6 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	/**
 	 * Checks that, if a value is specified for non-proxy hosts then a proxy
 	 * host has also been specified.
-	 *
 	 * Formats the non-proxy hosts string so that if the user has entered the
 	 * hosts on separate lines, then the stored values are separated by bars.
 	 *
@@ -465,9 +429,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 		if ((value != null) && (!value.equals(""))) {
 			value = value.replaceAll("\\n", "|");
 			nonProxyHostsArea.setText(value);
-			result = result
-					&& dependsUpon("non-proxy host", "host", proxyHostField
-							.getText());
+			result = result && dependsUpon("non-proxy host", "host", proxyHostField.getText());
 		}
 		return result;
 	}
@@ -482,8 +444,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 		boolean result = true;
 		String value = proxyPasswordField.getText();
 		if ((value != null) && (!value.equals(""))) {
-			result = result
-					&& dependsUpon("password", "user", proxyHostField.getText());
+			result = result && dependsUpon("password", "user", proxyHostField.getText());
 		}
 		return result;
 	}
@@ -498,8 +459,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 		boolean result = true;
 		String value = proxyUserField.getText();
 		if ((value != null) && (!value.equals(""))) {
-			result = result
-					&& dependsUpon("user", "host", proxyHostField.getText());
+			result = result && dependsUpon("user", "host", proxyHostField.getText());
 		}
 		return result;
 	}
@@ -507,7 +467,6 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	/**
 	 * Checks that if a port has been specified then a host has also been
 	 * specified. Checks that the port number is a non-negative integer.
-	 *
 	 * If the port has not been specified, then if a host has been specified,
 	 * the default value 80 is used.
 	 *
@@ -517,18 +476,15 @@ public class HttpProxyConfigurationPanel extends JPanel {
 		boolean result = true;
 		String value = proxyPortField.getText();
 		if ((value != null) && (!value.equals(""))) {
-			result = result
-					&& dependsUpon("port", "host", proxyHostField.getText());
+			result = result && dependsUpon("port", "host", proxyHostField.getText());
 			try {
 				int parsedNumber = Integer.parseInt(value);
 				if (parsedNumber <= 0) {
-					JOptionPane.showMessageDialog(this,
-							"The port must be non-negative");
+					JOptionPane.showMessageDialog(this, "The port must be non-negative");
 					result = false;
 				}
 			} catch (NumberFormatException e) {
-				JOptionPane.showMessageDialog(this,
-						"The port must be an integer");
+				JOptionPane.showMessageDialog(this, "The port must be an integer");
 				result = false;
 			}
 		} else {
@@ -550,8 +506,7 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	 * @param targetValue
 	 * @return
 	 */
-	private boolean dependsUpon(String dependent, String target,
-			String targetValue) {
+	private boolean dependsUpon(String dependent, String target, String targetValue) {
 		boolean result = true;
 		if ((targetValue == null) || target.equals("")) {
 			JOptionPane.showMessageDialog(this, "A " + dependent
@@ -569,20 +524,19 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	 */
 	private boolean validateHostField() {
 		boolean result = true;
-		//String value = proxyHostField.getText();
+		// String value = proxyHostField.getText();
 		return result;
 	}
 
 	/**
-	 * Save the currently set field values (if valid) to the
-	 * {@link HttpProxyConfiguration}. Also applies those values to the
+	 * Save the currently set field values (if valid) to the {@link HttpProxyConfiguration}. Also
+	 * applies those values to the
 	 * currently running Taverna.
 	 */
 	private void applySettings() {
-		HttpProxyConfiguration conf = HttpProxyConfiguration.getInstance();
 		if (validateFields()) {
 			saveSettings();
-			conf.changeProxySettings();
+			httpProxyConfiguration.changeProxySettings();
 		}
 	}
 
@@ -590,15 +544,12 @@ public class HttpProxyConfigurationPanel extends JPanel {
 	 * Set the shown field values to those currently in use
 	 * (i.e. last saved configuration).
 	 */
-	private void setFields(HttpProxyConfiguration configurable) {
-		shownOption = configurable
-				.getProperty(HttpProxyConfiguration.PROXY_USE_OPTION);
-		useSystemProperties.setSelected(shownOption
-				.equals(HttpProxyConfiguration.USE_SYSTEM_PROPERTIES_OPTION));
-		useSpecifiedValues.setSelected(shownOption
-				.equals(HttpProxyConfiguration.USE_SPECIFIED_VALUES_OPTION));
-		useNoProxy.setSelected(shownOption
-				.equals(HttpProxyConfiguration.USE_NO_PROXY_OPTION));
-		populateFields(configurable);
+	private void setFields() {
+		shownOption = httpProxyConfiguration.getProperty(PROXY_USE_OPTION);
+		useSystemProperties.setSelected(shownOption.equals(USE_SYSTEM_PROPERTIES_OPTION));
+		useSpecifiedValues.setSelected(shownOption.equals(USE_SPECIFIED_VALUES_OPTION));
+		useNoProxy.setSelected(shownOption.equals(USE_NO_PROXY_OPTION));
+		populateFields();
 	}
+
 }

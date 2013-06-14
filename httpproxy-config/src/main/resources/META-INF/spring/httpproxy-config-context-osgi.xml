@@ -8,4 +8,6 @@
 
 	<service ref="HttpProxyConfigurationUIFactory" interface="uk.org.taverna.configuration.ConfigurationUIFactory" />
 
+	<reference id="httpProxyConfiguration" interface="uk.org.taverna.configuration.proxy.HttpProxyConfiguration" />
+
 </beans:beans>
