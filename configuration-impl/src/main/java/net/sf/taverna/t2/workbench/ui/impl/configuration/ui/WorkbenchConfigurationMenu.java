@@ -22,20 +22,18 @@ package net.sf.taverna.t2.workbench.ui.impl.configuration.ui;
 
 import java.awt.event.ActionEvent;
 import java.net.URI;
-import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import uk.org.taverna.configuration.ConfigurationUIFactory;
-
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
+import net.sf.taverna.t2.workbench.configuration.workbench.ui.T2ConfigurationFrame;
 
 public class WorkbenchConfigurationMenu extends AbstractMenuAction {
 
 	private static final String MAC_OS_X = "Mac OS X";
 
-	private List<ConfigurationUIFactory> configurationUIFactories;
+	private T2ConfigurationFrame t2ConfigurationFrame;
 
 	public WorkbenchConfigurationMenu() {
 		super(URI.create("http://taverna.sf.net/2008/t2workbench/menu#preferences"),
@@ -47,7 +45,7 @@ public class WorkbenchConfigurationMenu extends AbstractMenuAction {
 	protected Action createAction() {
 		return new AbstractAction("Preferences") {
 			public void actionPerformed(ActionEvent event) {
-				T2ConfigurationFrame.showFrame(configurationUIFactories);
+				t2ConfigurationFrame.showFrame();
 			}
 		};
 	}
@@ -57,8 +55,8 @@ public class WorkbenchConfigurationMenu extends AbstractMenuAction {
 		return !MAC_OS_X.equalsIgnoreCase(System.getProperty("os.name"));
 	}
 
-	public void setConfigurationUIFactories(List<ConfigurationUIFactory> configurationUIFactories) {
-		this.configurationUIFactories = configurationUIFactories;
+	public void setT2ConfigurationFrame(T2ConfigurationFrame t2ConfigurationFrame) {
+		this.t2ConfigurationFrame = t2ConfigurationFrame;
 	}
 
 }

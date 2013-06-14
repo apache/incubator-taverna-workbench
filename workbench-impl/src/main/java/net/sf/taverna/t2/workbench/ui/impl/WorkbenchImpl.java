@@ -55,6 +55,7 @@ import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.ShutdownSPI;
 import net.sf.taverna.t2.workbench.StartupSPI;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
+import net.sf.taverna.t2.workbench.configuration.workbench.ui.T2ConfigurationFrame;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
@@ -101,7 +102,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	private WorkbenchConfiguration workbenchConfiguration;
 	private ApplicationConfiguration applicationConfiguration;
 	private WorkbenchPerspectives workbenchPerspectives;
-	private List<ConfigurationUIFactory> configurationUIFactories;
+	private T2ConfigurationFrame t2ConfigurationFrame;
 
 	private JToolBar perspectiveToolBar;
 
@@ -420,8 +421,8 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		this.applicationConfiguration = applicationConfiguration;
 	}
 
-	public void setConfigurationUIFactories(List<ConfigurationUIFactory> configurationUIFactories) {
-		this.configurationUIFactories = configurationUIFactories;
+	public void setT2ConfigurationFrame(T2ConfigurationFrame t2ConfigurationFrame) {
+		this.t2ConfigurationFrame = t2ConfigurationFrame;
 	}
 
 	public void setSelectionManager(SelectionManager selectionManager) {
@@ -502,7 +503,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		}
 		@Override
 		public boolean handlePreferences() {
-//			T2ConfigurationFrame.showFrame(configurationUIFactories);
+			t2ConfigurationFrame.showFrame();
 			return true;
 		}
 

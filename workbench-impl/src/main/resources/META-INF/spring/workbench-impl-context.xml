@@ -29,7 +29,7 @@
 		<property name="editManager" ref="editManager"/>
 		<property name="fileManager" ref="fileManager"/>
 		<property name="menuManager" ref="menuManager"/>
-		<property name="configurationUIFactories" ref="configurationUIFactories"/>
+		<property name="t2ConfigurationFrame" ref="t2ConfigurationFrame"/>
 		<property name="workbenchConfiguration" ref="workbenchConfiguration"/>
 		<property name="applicationConfiguration" ref="applicationConfiguration"/>
 		<property name="selectionManager" ref="selectionManager"/>
