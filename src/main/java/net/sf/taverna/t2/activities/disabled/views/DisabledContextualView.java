@@ -16,27 +16,27 @@ import java.util.List;
 import javax.swing.Action;
 
 import net.sf.taverna.t2.activities.disabled.actions.DisabledActivityConfigurationAction;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
-import net.sf.taverna.t2.workflowmodel.OutputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.port.InputActivityPort;
+import uk.org.taverna.scufl2.api.port.OutputActivityPort;
 
-import org.apache.log4j.Logger;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * A DisabledContextualView displays information about a DisabledActivity
  *
  * @author alanrw
- *
+ * @author David Withers
  */
-public class DisabledContextualView extends HTMLBasedActivityContextualView<Object> {
-
-	private static Logger logger = Logger.getLogger(DisabledContextualView.class);
+@SuppressWarnings("serial")
+public class DisabledContextualView extends HTMLBasedActivityContextualView {
 
 	private List<String> fieldNames;
 
@@ -44,19 +44,17 @@ public class DisabledContextualView extends HTMLBasedActivityContextualView<Obje
 	private final FileManager fileManager;
 	private final ReportManager reportManager;
 	private final ActivityIconManager activityIconManager;
+	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-	public DisabledContextualView(DisabledActivity activity, EditManager editManager,
+	public DisabledContextualView(Activity activity, EditManager editManager,
 			FileManager fileManager, ReportManager reportManager, ColourManager colourManager,
-			ActivityIconManager activityIconManager) {
+			ActivityIconManager activityIconManager, ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		super(activity, colourManager);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.reportManager = reportManager;
 		this.activityIconManager = activityIconManager;
-		init();
-	}
-
-	private void init() {
+		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
 	/**
@@ -67,26 +65,31 @@ public class DisabledContextualView extends HTMLBasedActivityContextualView<Obje
 	 */
 	@Override
 	protected String getRawTableRowsHtml() {
-		String html = "";
-		html = html + "<tr><th>Input Port Name</th><th>Port depth</th>" + "</tr>";
-		for (ActivityInputPort aip : getActivity().getInputPorts()) {
-			html = html + "<tr><td>" + aip.getName() + "</td><td>" + aip.getDepth() + "</td></tr>";
+		StringBuilder html = new StringBuilder();
+		html.append("<tr><th>Input Port Name</th><th>Depth</th></tr>");
+		for (InputActivityPort inputActivityPort : getActivity().getInputPorts()) {
+			html.append("<tr><td>" + inputActivityPort.getName() + "</td><td>");
+			html.append(inputActivityPort.getDepth() + "</td></tr>");
 		}
-		html = html + "<tr><th>Output Port Name</th><th>Port depth</th>" + "</tr>";
-		for (OutputPort aop : getActivity().getOutputPorts()) {
-			html = html + "<tr><td>" + aop.getName() + "</td><td>" + aop.getDepth() + "</td></tr>";
+		html.append("<tr><th>Output Port Name</th><th>Depth</th></tr>");
+		for (OutputActivityPort outputActivityPort : getActivity().getOutputPorts()) {
+			html.append("<tr><td>" + outputActivityPort.getName() + "</td><td>");
+			html.append(outputActivityPort.getDepth() + "</td></tr>");
 		}
 
-		Object config = ((DisabledActivity) getActivity()).getConfiguration().getBean();
+		JsonNode config = getConfigBean().getJson();
 		try {
-			html += "<tr><th>Property Name</th><th>Property Value</th></tr>";
+			html.append("<tr><th>Property Name</th><th>Property Value</th></tr>");
 			BeanInfo beanInfo = Introspector.getBeanInfo(config.getClass());
 			for (PropertyDescriptor pd : beanInfo.getPropertyDescriptors()) {
 				Method readMethod = pd.getReadMethod();
 				if ((readMethod != null) && !(pd.getName().equals("class"))) {
 					try {
-						html += "<tr><td>" + pd.getName() + "</td><td>" + readMethod.invoke(config)
-								+ "</td></tr>";
+						html.append("<tr><td>");
+						html.append(pd.getName());
+						html.append("</td><td>");
+						html.append(readMethod.invoke(config));
+						html.append("</td></tr>");
 						if (fieldNames == null) {
 							fieldNames = new ArrayList<String>();
 						}
@@ -103,7 +106,7 @@ public class DisabledContextualView extends HTMLBasedActivityContextualView<Obje
 		} catch (IntrospectionException e) {
 			// ignore
 		}
-		return html;
+		return html.toString();
 	}
 
 	@Override
@@ -118,8 +121,8 @@ public class DisabledContextualView extends HTMLBasedActivityContextualView<Obje
 
 	@Override
 	public Action getConfigureAction(Frame owner) {
-		return new DisabledActivityConfigurationAction((DisabledActivity) getActivity(), owner,
-				editManager, fileManager, reportManager, activityIconManager);
+		return new DisabledActivityConfigurationAction(getActivity(), owner,
+				editManager, fileManager, reportManager, activityIconManager, serviceDescriptionRegistry);
 	}
 
 }

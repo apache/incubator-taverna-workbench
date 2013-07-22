@@ -8,6 +8,7 @@
 			<property name="fileManager" ref="fileManager" />
 			<property name="reportManager" ref="reportManager" />
 			<property name="activityIconManager" ref="activityIconManager" />
+			<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
 	</bean>
 
 	<bean id="DisabledActivityViewFactory" class="net.sf.taverna.t2.activities.disabled.views.DisabledActivityViewFactory">
@@ -16,6 +17,7 @@
 			<property name="reportManager" ref="reportManager" />
 			<property name="activityIconManager" ref="activityIconManager" />
 			<property name="colourManager" ref="colourManager" />
+			<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
 	</bean>
 
 </beans>

@@ -28,36 +28,29 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
+import uk.org.taverna.scufl2.api.activity.Activity;
+
 import net.sf.taverna.t2.activities.disabled.views.DisabledConfigView;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
-import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 @SuppressWarnings("serial")
-public class DisabledActivityConfigurationAction extends
-		ActivityConfigurationAction<DisabledActivity, ActivityAndBeanWrapper> {
+public class DisabledActivityConfigurationAction extends ActivityConfigurationAction {
 
 	public static final String FIX_DISABLED = "Edit properties";
 	private final EditManager editManager;
 	private final FileManager fileManager;
 	private final ReportManager reportManager;
 
-	public DisabledActivityConfigurationAction(DisabledActivity activity, Frame owner,
+	public DisabledActivityConfigurationAction(Activity activity, Frame owner,
 			EditManager editManager, FileManager fileManager, ReportManager reportManager,
-			ActivityIconManager activityIconManager) {
-		super(activity, activityIconManager);
+			ActivityIconManager activityIconManager, ServiceDescriptionRegistry serviceDescriptionRegistry) {
+		super(activity, activityIconManager, serviceDescriptionRegistry);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.reportManager = reportManager;
@@ -78,8 +71,7 @@ public class DisabledActivityConfigurationAction extends
 			return;
 		}
 
-		final DisabledConfigView disabledConfigView = new DisabledConfigView(
-				(DisabledActivity) getActivity());
+		final DisabledConfigView disabledConfigView = new DisabledConfigView(getActivity());
 		final DisabledActivityConfigurationDialog dialog = new DisabledActivityConfigurationDialog(
 				getActivity(), disabledConfigView);
 
@@ -87,10 +79,9 @@ public class DisabledActivityConfigurationAction extends
 
 	}
 
-	private class DisabledActivityConfigurationDialog extends
-			ActivityConfigurationDialog<DisabledActivity, ActivityAndBeanWrapper> {
-		public DisabledActivityConfigurationDialog(DisabledActivity a, DisabledConfigView p) {
-			super(a, p, editManager, fileManager);
+	private class DisabledActivityConfigurationDialog extends ActivityConfigurationDialog {
+		public DisabledActivityConfigurationDialog(Activity a, DisabledConfigView p) {
+			super(a, p, editManager);
 			this.setModal(true);
 			super.applyButton.setEnabled(false);
 			super.applyButton.setVisible(false);

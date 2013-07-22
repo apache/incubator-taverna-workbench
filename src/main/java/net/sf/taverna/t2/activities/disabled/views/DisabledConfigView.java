@@ -33,26 +33,25 @@ import javax.help.CSH;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import uk.org.taverna.scufl2.api.activity.Activity;
+
 import net.sf.taverna.t2.lang.uibuilder.UIBuilder;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationPanel;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityAndBeanWrapper;
-import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.io.xml.DomDriver;
 
-public class DisabledConfigView extends ActivityConfigurationPanel<DisabledActivity, ActivityAndBeanWrapper> {
+@SuppressWarnings("serial")
+public class DisabledConfigView extends ActivityConfigurationPanel {
 
 	private ActivityAndBeanWrapper configuration;
-    private DisabledActivity activity;
     private List<String> fieldNames;
 
     private Object clonedConfig = null;
     String origConfigXML = "";
 
-	public DisabledConfigView(DisabledActivity activity) {
-		this.activity = activity;
+	public DisabledConfigView(Activity activity) {
+		super(activity);
 		setLayout(new BorderLayout());
 		fieldNames = null;
 		initialise();
