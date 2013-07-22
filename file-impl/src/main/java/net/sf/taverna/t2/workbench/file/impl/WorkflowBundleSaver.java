@@ -41,7 +41,6 @@ import org.apache.log4j.Logger;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.io.WorkflowBundleIO;
 import uk.org.taverna.scufl2.api.io.WriterException;
-import uk.org.taverna.scufl2.rdfxml.RDFXMLReader;
 
 public class WorkflowBundleSaver extends AbstractDataflowPersistenceHandler
 		implements DataflowPersistenceHandler {
@@ -94,10 +93,9 @@ public class WorkflowBundleSaver extends AbstractDataflowPersistenceHandler
 
 	protected void saveDataflowToStream(WorkflowBundle workflowBundle,
 			OutputStream fileOutStream) throws SaveException {
-		BufferedOutputStream bufferedOutStream = new BufferedOutputStream(fileOutStream);
 		try {
 			workflowBundleIO.writeBundle(workflowBundle, fileOutStream,
-					RDFXMLReader.APPLICATION_VND_TAVERNA_SCUFL2_WORKFLOW_BUNDLE);
+					WorkflowBundleFileType.APPLICATION_VND_TAVERNA_SCUFL2_WORKFLOW_BUNDLE);
 		} catch (WriterException e) {
 			throw new SaveException("Can't write workflow:\n" + e.getLocalizedMessage(), e);
 		} catch (IOException e) {

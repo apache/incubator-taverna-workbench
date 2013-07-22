@@ -20,10 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl;
 
-import uk.org.taverna.scufl2.translator.t2flow.T2FlowReader;
 import net.sf.taverna.t2.workbench.file.FileType;
 
 public class T2FlowFileType extends FileType {
+
+	public static final String APPLICATION_VND_TAVERNA_T2FLOW_XML = "application/vnd.taverna.t2flow+xml";
 
 	@Override
 	public String getDescription() {
@@ -37,8 +38,7 @@ public class T2FlowFileType extends FileType {
 
 	@Override
 	public String getMimeType() {
-		// "application/vnd.taverna.t2flow+xml";
-		return T2FlowReader.APPLICATION_VND_TAVERNA_T2FLOW_XML;
+		return APPLICATION_VND_TAVERNA_T2FLOW_XML;
 	}
 
 }
