@@ -29,8 +29,6 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.KeyStroke;
 
-import net.sf.taverna.t2.activities.stringconstant.StringConstantActivity;
-import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
@@ -39,13 +37,14 @@ import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
+import uk.org.taverna.commons.services.ServiceRegistry;
 
 /**
  * An action to add a string constant activity + a wrapping processor to the workflow.
  *
  * @author Alex Nenadic
  * @author Alan R Williams
- *
+ * @author David Withers
  */
 @SuppressWarnings("serial")
 public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
@@ -70,7 +69,7 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 
 	private ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-	// private static Logger logger = Logger.getLogger(AddStringConstantTemplateMenuAction.class);
+	private ServiceRegistry serviceRegistry;
 
 	public AddStringConstantTemplateMenuAction() {
 		super(INSERT, 800, ADD_STRING_CONSTANT_URI);
@@ -98,7 +97,7 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 
 			WorkflowView.importServiceDescription(
 					serviceDescriptionRegistry.getServiceDescription(ACTIVITY_TYPE), false, editManager,
-					menuManager, selectionManager);
+					menuManager, selectionManager, serviceRegistry);
 
 		}
 	}
@@ -121,6 +120,10 @@ public class AddStringConstantTemplateMenuAction extends AbstractMenuAction {
 
 	public void setServiceDescriptionRegistry(ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
+	}
+
+	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+		this.serviceRegistry = serviceRegistry;
 	}
 
 }

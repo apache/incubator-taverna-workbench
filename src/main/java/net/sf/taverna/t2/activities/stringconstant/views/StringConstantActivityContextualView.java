@@ -21,47 +21,45 @@
 package net.sf.taverna.t2.activities.stringconstant.views;
 
 import java.awt.Frame;
-import java.net.URI;
 
 import javax.swing.Action;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
-
-import net.sf.taverna.t2.activities.stringconstant.StringConstantConfigurationBean;
 import net.sf.taverna.t2.activities.stringconstant.actions.StringConstantActivityConfigurationAction;
-import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
+
+import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.property.PropertyException;
-import uk.org.taverna.scufl2.api.property.PropertyResource;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 public class StringConstantActivityContextualView extends HTMLBasedActivityContextualView {
 
 	private static final long serialVersionUID = -553974544001808511L;
 
-	private static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
-
 	private final EditManager editManager;
 	private final FileManager fileManager;
 	private final ActivityIconManager activityIconManager;
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
+	private final ServiceRegistry serviceRegistry;
 	private static final int MAX_LENGTH = 100;
-
 
 	public StringConstantActivityContextualView(Activity activity, EditManager editManager,
 			FileManager fileManager, ActivityIconManager activityIconManager,
-			ColourManager colourManager, ServiceDescriptionRegistry serviceDescriptionRegistry) {
+			ColourManager colourManager, ServiceDescriptionRegistry serviceDescriptionRegistry, ServiceRegistry serviceRegistry) {
 		super(activity, colourManager);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.activityIconManager = activityIconManager;
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
+		this.serviceRegistry = serviceRegistry;
 	}
 
 	@Override
@@ -71,13 +69,8 @@ public class StringConstantActivityContextualView extends HTMLBasedActivityConte
 
 	@Override
 	protected String getRawTableRowsHtml() {
-		PropertyResource propertyResource = getConfigBean().getPropertyResource();
-		String value;
-		try {
-			value = propertyResource.getPropertyAsString(ACTIVITY_TYPE.resolve("#string"));
-		} catch (PropertyException e) {
-			value = "Error finding value";
-		}
+		JsonNode json = getConfigBean().getJson();
+		String value = json.get("string").textValue();
 		value = StringUtils.abbreviate(value, MAX_LENGTH);
 		value = StringEscapeUtils.escapeHtml(value);
 		String html = "<tr><td>Value</td><td>" + value + "</td></tr>";
@@ -88,7 +81,7 @@ public class StringConstantActivityContextualView extends HTMLBasedActivityConte
 	public Action getConfigureAction(Frame owner) {
 		return new StringConstantActivityConfigurationAction(
 				getActivity(), owner, editManager, fileManager,
-				activityIconManager, serviceDescriptionRegistry);
+				activityIconManager, serviceDescriptionRegistry, serviceRegistry);
 	}
 
 	@Override

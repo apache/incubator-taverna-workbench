@@ -32,6 +32,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
+import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.activity.Activity;
 
 public class StringConstantActivityConfigurationAction extends ActivityConfigurationAction {
@@ -44,12 +45,15 @@ public class StringConstantActivityConfigurationAction extends ActivityConfigura
 
 	private final FileManager fileManager;
 
+	private final ServiceRegistry serviceRegistry;
+
 	public StringConstantActivityConfigurationAction(Activity activity, Frame owner,
 			EditManager editManager, FileManager fileManager,
-			ActivityIconManager activityIconManager, ServiceDescriptionRegistry serviceDescriptionRegistry) {
+			ActivityIconManager activityIconManager, ServiceDescriptionRegistry serviceDescriptionRegistry, ServiceRegistry serviceRegistry) {
 		super(activity, activityIconManager, serviceDescriptionRegistry);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
+		this.serviceRegistry = serviceRegistry;
 		putValue(Action.NAME, CONFIGURE_STRINGCONSTANT);
 	}
 
@@ -60,7 +64,7 @@ public class StringConstantActivityConfigurationAction extends ActivityConfigura
 			return;
 		}
 
-		StringConstantConfigView stringConstantConfigView = new StringConstantConfigView(activity, getServiceDescription());
+		StringConstantConfigView stringConstantConfigView = new StringConstantConfigView(activity, serviceRegistry);
 		ActivityConfigurationDialog dialog = new ActivityConfigurationDialog(getActivity(), stringConstantConfigView, editManager);
 
 		ActivityConfigurationAction.setDialog(getActivity(), dialog, fileManager);

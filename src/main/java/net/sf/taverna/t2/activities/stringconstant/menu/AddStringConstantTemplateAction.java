@@ -26,7 +26,6 @@ import java.net.URI;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import net.sf.taverna.t2.activities.stringconstant.servicedescriptions.StringConstantTemplateService;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
@@ -34,13 +33,14 @@ import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import uk.org.taverna.commons.services.ServiceRegistry;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * An action to add a string constant activity + a wrapping processor to the workflow.
  *
  * @author Alex Nenadic
- *
+ * @author David Withers
  */
 @SuppressWarnings("serial")
 public class AddStringConstantTemplateAction extends AbstractContextualMenuAction {
@@ -49,13 +49,14 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 
 	private static final URI insertSection = URI
 			.create("http://taverna.sf.net/2009/contextMenu/insert");
+
 	private EditManager editManager;
 	private MenuManager menuManager;
 	private SelectionManager selectionManager;
 	private ActivityIconManager activityIconManager;
 	private ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-	// private static Logger logger = Logger.getLogger(AddStringConstantTemplateAction.class);
+	private ServiceRegistry serviceRegistry;
 
 	public AddStringConstantTemplateAction() {
 		super(insertSection, 800);
@@ -63,7 +64,7 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 
 	@Override
 	public boolean isEnabled() {
-		return super.isEnabled() && getContextualSelection().getSelection() instanceof Dataflow;
+		return super.isEnabled() && getContextualSelection().getSelection() instanceof Workflow;
 	}
 
 	@Override
@@ -75,7 +76,7 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 
 				WorkflowView.importServiceDescription(
 						serviceDescriptionRegistry.getServiceDescription(ACTIVITY_TYPE), false, editManager,
-						menuManager, selectionManager);
+						menuManager, selectionManager, serviceRegistry);
 
 			}
 
@@ -101,6 +102,10 @@ public class AddStringConstantTemplateAction extends AbstractContextualMenuActio
 
 	public void setServiceDescriptionRegistry(ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
+	}
+
+	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+		this.serviceRegistry = serviceRegistry;
 	}
 
 }

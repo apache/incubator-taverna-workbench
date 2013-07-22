@@ -12,7 +12,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URI;
 
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
@@ -27,33 +26,34 @@ import net.sf.taverna.t2.lang.ui.FileTools;
 import net.sf.taverna.t2.lang.ui.LineEnabledTextPanel;
 import net.sf.taverna.t2.lang.ui.LinePainter;
 import net.sf.taverna.t2.lang.ui.NoWrapEditorKit;
-import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationPanel;
+
+import org.apache.log4j.Logger;
+
+import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.activity.Activity;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
-import uk.org.taverna.scufl2.api.property.PropertyException;
-import uk.org.taverna.serviceregistry.api.ServiceRegistry;
 
 /**
  * @author alanrw
- *
+ * @author David Withers
  */
+@SuppressWarnings("serial")
 public class StringConstantConfigView extends ActivityConfigurationPanel {
 
-	private static final long serialVersionUID = 1L;
-
-	private static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
+	public static Logger logger = Logger.getLogger(StringConstantConfigView.class);
 
 	/** The text */
 	private JEditorPane scriptTextArea;
 
 	private static final Color LINE_COLOR = Color.WHITE;
 
-	private final ServiceDescription serviceDescription;
+	private final ServiceRegistry serviceRegistry;
 
-	public StringConstantConfigView(Activity activity, ServiceDescription serviceDescription) {
-		super(activity);
-		this.serviceDescription = serviceDescription;
+	public StringConstantConfigView(Activity activity, Configuration configuration,
+			ServiceRegistry serviceRegistry) {
+		super(activity, configuration);
+		this.serviceRegistry = serviceRegistry;
 		setLayout(new GridBagLayout());
 		initialise();
 		this.addAncestorListener(new AncestorListener() {
@@ -61,33 +61,56 @@ public class StringConstantConfigView extends ActivityConfigurationPanel {
 			public void ancestorAdded(AncestorEvent event) {
 				StringConstantConfigView.this.whenOpened();
 			}
+
 			@Override
 			public void ancestorMoved(AncestorEvent event) {
-				// TODO Auto-generated method stub
 			}
+
 			@Override
 			public void ancestorRemoved(AncestorEvent event) {
-				// TODO Auto-generated method stub
-			}});
+			}
+		});
 	}
 
-    public void whenOpened() {
-    	scriptTextArea.requestFocus();
-    	if (scriptTextArea.getText().equals(StringConstantTemplateService.DEFAULT_VALUE)) {
-    		scriptTextArea.selectAll();
-    	}
-    }
+	public StringConstantConfigView(Activity activity, ServiceRegistry serviceRegistry) {
+		super(activity);
+		this.serviceRegistry = serviceRegistry;
+		setLayout(new GridBagLayout());
+		initialise();
+		this.addAncestorListener(new AncestorListener() {
+			@Override
+			public void ancestorAdded(AncestorEvent event) {
+				StringConstantConfigView.this.whenOpened();
+			}
+
+			@Override
+			public void ancestorMoved(AncestorEvent event) {
+			}
+
+			@Override
+			public void ancestorRemoved(AncestorEvent event) {
+			}
+		});
+	}
+
+	public void whenOpened() {
+		scriptTextArea.requestFocus();
+		if (scriptTextArea.getText().equals(StringConstantTemplateService.DEFAULT_VALUE)) {
+			scriptTextArea.selectAll();
+		}
+	}
 
 	protected void initialise() {
-//		CSH
-//		.setHelpIDString(
-//				this,
-//				"net.sf.taverna.t2.activities.stringconstant.views.StringConstantConfigView");
+		super.initialise();
+		// CSH
+		// .setHelpIDString(
+		// this,
+		// "net.sf.taverna.t2.activities.stringconstant.views.StringConstantConfigView");
 
 		setBorder(javax.swing.BorderFactory.createTitledBorder(null, null,
 				javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
-				javax.swing.border.TitledBorder.DEFAULT_POSITION,
-				new java.awt.Font("Lucida Grande", 1, 12)));
+				javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font(
+						"Lucida Grande", 1, 12)));
 
 		JPanel scriptEditPanel = new JPanel(new BorderLayout());
 
@@ -95,8 +118,8 @@ public class StringConstantConfigView extends ActivityConfigurationPanel {
 		new LinePainter(scriptTextArea, LINE_COLOR);
 
 		// NOTE: Due to T2-1145 - always set editor kit BEFORE setDocument
-		scriptTextArea.setEditorKit( new NoWrapEditorKit() );
-		scriptTextArea.setFont(new Font("Monospaced",Font.PLAIN,14));
+		scriptTextArea.setEditorKit(new NoWrapEditorKit());
+		scriptTextArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
 		scriptTextArea.setText(getProperty("string"));
 		scriptTextArea.setCaretPosition(0);
 		scriptTextArea.setPreferredSize(new Dimension(200, 100));
@@ -117,7 +140,8 @@ public class StringConstantConfigView extends ActivityConfigurationPanel {
 		loadScriptButton.setToolTipText("Load text from a file");
 		loadScriptButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			    String newScript = FileTools.readStringFromFile(StringConstantConfigView.this, "Load text", ".txt");
+				String newScript = FileTools.readStringFromFile(StringConstantConfigView.this,
+						"Load text", ".txt");
 				if (newScript != null) {
 					scriptTextArea.setText(newScript);
 					scriptTextArea.setCaretPosition(0);
@@ -129,13 +153,13 @@ public class StringConstantConfigView extends ActivityConfigurationPanel {
 		saveRScriptButton.setToolTipText("Save the text to a file");
 		saveRScriptButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				FileTools.saveStringToFile(StringConstantConfigView.this, "Save text", ".txt", scriptTextArea.getText());
+				FileTools.saveStringToFile(StringConstantConfigView.this, "Save text", ".txt",
+						scriptTextArea.getText());
 			}
 		});
 
 		JButton clearScriptButton = new JButton("Clear text");
-		clearScriptButton
-				.setToolTipText("Clear current text from the edit area");
+		clearScriptButton.setToolTipText("Clear current text from the edit area");
 		clearScriptButton.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -151,18 +175,16 @@ public class StringConstantConfigView extends ActivityConfigurationPanel {
 		buttonPanel.add(clearScriptButton);
 
 		scriptEditPanel.add(buttonPanel, BorderLayout.SOUTH);
-		setPreferredSize(new Dimension(600,500));
+		setPreferredSize(new Dimension(600, 500));
 		this.validate();
 
 	}
 
 	/**
 	 * Method for clearing the script
-	 *
 	 */
 	private void cleaText() {
-		if (JOptionPane.showConfirmDialog(this,
-				"Do you really want to clear the text?",
+		if (JOptionPane.showConfirmDialog(this, "Do you really want to clear the text?",
 				"Clearing the script", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
 			scriptTextArea.setText("");
 		}
@@ -180,8 +202,9 @@ public class StringConstantConfigView extends ActivityConfigurationPanel {
 
 	@Override
 	public void noteConfiguration() {
-		configuration = serviceDescription.getActivityConfiguration();
 		setProperty("string", scriptTextArea.getText());
+		configureInputPorts(serviceRegistry);
+		configureOutputPorts(serviceRegistry);
 	}
 
 }
