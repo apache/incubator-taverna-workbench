@@ -16,6 +16,7 @@
 	<service ref="ConditionContextualViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 	<service ref="MergeContextualViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 	<service ref="AnnotatedContextualViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
+	<service ref="DataflowContextualViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 
 	<service ref="ContextualViewFactoryRegistry" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry" />
 
