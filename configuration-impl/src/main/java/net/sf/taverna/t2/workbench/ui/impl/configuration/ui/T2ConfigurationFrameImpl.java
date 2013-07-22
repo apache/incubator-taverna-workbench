@@ -53,7 +53,7 @@ public class T2ConfigurationFrameImpl implements T2ConfigurationFrame {
 	private static final int FRAME_WIDTH = 700;
 	private static final int FRAME_HEIGHT = 450;
 
-	private List<ConfigurationUIFactory> configurationUIFactories;
+	private List<ConfigurationUIFactory> configurationUIFactories = new ArrayList<>();
 
 	private JFrame frame;
 	private JSplitPane splitPane;
