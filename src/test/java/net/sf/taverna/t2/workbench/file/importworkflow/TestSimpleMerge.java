@@ -3,20 +3,23 @@ package net.sf.taverna.t2.workbench.file.importworkflow;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
-import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
+
+import java.util.List;
 
 import org.junit.Ignore;
 import org.junit.Test;
 
+import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.SenderPort;
+
 @Ignore
 public class TestSimpleMerge extends AbstractTestHelper {
 
-	private void checkMergedAbcP(Dataflow merged) {
+	private void checkMergedAbcP(Workflow merged) {
 		// Check that it has everything from both
 		assertHasProcessors(merged, "A", "B", "C", "P");
 		assertHasInputPorts(merged, "in1", "in2", "i");
@@ -30,30 +33,31 @@ public class TestSimpleMerge extends AbstractTestHelper {
 		assertHasConditionals(merged, "A;B");
 	}
 
-	private void checkCopiedFromP(Dataflow merged) {
+	private void checkCopiedFromP(Workflow merged) {
 		Processor newProcP = findProcessor(merged, "P");
 		Processor originalProcP = findProcessor(p, "P");
 		assertNotSame("Did not copy processor P", newProcP, originalProcP);
 
-		ProcessorInputPort inp = newProcP.getInputPorts().get(0);
-		DataflowInputPort newInI = findInputPort(merged, "i");
-		assertEquals(0, newInI.getDepth());
-		assertEquals(0, newInI.getGranularInputDepth());
+		InputProcessorPort inp = newProcP.getInputPorts().first();
+		InputWorkflowPort newInI = findInputPort(merged, "i");
+		assertEquals(0, newInI.getDepth().intValue());
 
-		DataflowInputPort originalInI = findInputPort(p, "i");
+		InputWorkflowPort originalInI = findInputPort(p, "i");
 		assertNotSame("Did not copy port 'i'", originalInI, newInI);
-		assertSame("Not linked to new port", inp.getIncomingLink().getSource(),
-				newInI.getInternalOutputPort());
-		assertNotSame("Still linked to old port", inp.getIncomingLink().getSource(),
-				originalInI.getInternalOutputPort());
+
+		List<DataLink> datalinksTo = scufl2Tools.datalinksTo(inp);
+		assertEquals(1, datalinksTo.size());
+		SenderPort source = datalinksTo.get(0).getReceivesFrom();
+
+		assertSame("Not linked to new port", source, newInI);
+		assertNotSame("Still linked to old port", source, originalInI);
 	}
 
 
 	@Test
 	public void mergeAbcAndPIntoNew() throws Exception {
-		Edits edits = new EditsImpl();
-		Dataflow merged = edits.createDataflow();
-		DataflowMerger merger = new DataflowMerger(merged, edits);
+		Workflow merged = new Workflow();
+		DataflowMerger merger = new DataflowMerger(merged);
 		merger.getMergeEdit(abc).doEdit();
 
 		assertNotSame(abc, merged);
@@ -70,9 +74,8 @@ public class TestSimpleMerge extends AbstractTestHelper {
 
 	@Test
 	public void mergePintoAbc() throws Exception {
-		Edits edits = new EditsImpl();
-		DataflowMerger merger = new DataflowMerger(abc, edits);
-		Dataflow merged = abc;
+		DataflowMerger merger = new DataflowMerger(abc);
+		Workflow merged = abc;
 
 		merger.getMergeEdit(p).doEdit();
 		checkMergedAbcP(merged);
@@ -83,9 +86,8 @@ public class TestSimpleMerge extends AbstractTestHelper {
 
 	@Test
 	public void mergeAbcintoP() throws Exception {
-		Edits edits = new EditsImpl();
-		Dataflow merged = p;
-		DataflowMerger merger = new DataflowMerger(merged, edits);
+		Workflow merged = p;
+		DataflowMerger merger = new DataflowMerger(merged);
 		merger.getMergeEdit(abc).doEdit();
 
 		checkMergedAbcP(merged);

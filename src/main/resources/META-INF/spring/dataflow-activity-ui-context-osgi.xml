@@ -16,7 +16,7 @@
 	<service ref="MergeWorkflowMenuAction" auto-export="interfaces" />
 	<service ref="EditNestedDataflowMenuAction" auto-export="interfaces" />
 
-	<service ref="NestedDataflowPersistenceHandler" interface="net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler" />
+	<!-- <service ref="NestedDataflowPersistenceHandler" interface="net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler" /> -->
 
 	<service ref="DataflowActivityViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 
@@ -26,6 +26,8 @@
 	<reference id="edits" interface="net.sf.taverna.t2.workflowmodel.Edits" />
 	<reference id="activityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
 	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
+	<reference id="serviceDescriptionRegistry" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry" />
 	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
+	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
 
 </beans:beans>

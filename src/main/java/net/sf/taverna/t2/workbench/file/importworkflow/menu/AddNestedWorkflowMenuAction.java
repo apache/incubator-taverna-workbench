@@ -34,9 +34,8 @@ import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguratio
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.actions.AddNestedWorkflowAction;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.views.graph.menu.InsertMenu;
-
-import org.apache.log4j.Logger;
 
 /**
  * An action to add a nested workflow activity + a wrapping processor to the
@@ -53,14 +52,12 @@ public class AddNestedWorkflowMenuAction extends AbstractMenuAction {
 	private static final URI ADD_NESTED_WORKFLOW_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuAddNestedWorkflow");
 
-	private static Logger logger = Logger
-			.getLogger(AddNestedWorkflowMenuAction.class);
-
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
 	private ColourManager colourManager;
 	private WorkbenchConfiguration workbenchConfiguration;
+	private SelectionManager selectionManager;
 
 	public AddNestedWorkflowMenuAction() {
 		super(InsertMenu.INSERT, 400, ADD_NESTED_WORKFLOW_URI);
@@ -69,7 +66,7 @@ public class AddNestedWorkflowMenuAction extends AbstractMenuAction {
 	@Override
 	protected Action createAction() {
 		AddNestedWorkflowAction a = new AddNestedWorkflowAction(editManager, fileManager,
-				menuManager, colourManager, workbenchConfiguration);
+				menuManager, colourManager, workbenchConfiguration, selectionManager);
 		// Override name to avoid "Add "
 		a.putValue(Action.NAME, ADD_NESTED_WORKFLOW);
 		a.putValue(Action.SHORT_DESCRIPTION, ADD_NESTED_WORKFLOW);
@@ -98,6 +95,10 @@ public class AddNestedWorkflowMenuAction extends AbstractMenuAction {
 
 	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
 		this.workbenchConfiguration = workbenchConfiguration;
+	}
+
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

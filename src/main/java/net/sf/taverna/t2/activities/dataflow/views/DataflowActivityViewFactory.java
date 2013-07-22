@@ -20,25 +20,23 @@
  ******************************************************************************/
 package net.sf.taverna.t2.activities.dataflow.views;
 
-import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
-
-import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
+import net.sf.taverna.t2.activities.dataflow.servicedescriptions.DataflowTemplateService;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
+import uk.org.taverna.scufl2.api.activity.Activity;
 
 public class DataflowActivityViewFactory implements ContextualViewFactory<Activity> {
-
-	private static final URI NESTED_ACTIVITY = URI.create("http://ns.taverna.org.uk/2010/activity/nested-workflow");
 
 	private EditManager editManager;
 	private FileManager fileManager;
@@ -46,18 +44,18 @@ public class DataflowActivityViewFactory implements ContextualViewFactory<Activi
 	private ColourManager colourManager;
 	private ActivityIconManager activityIconManager;
 	private WorkbenchConfiguration workbenchConfiguration;
+	private ServiceDescriptionRegistry serviceDescriptionRegistry;
+	private SelectionManager selectionManager;
 
 	public boolean canHandle(Object object) {
-		if (object instanceof Activity) {
-			Activity activity = (Activity) object;
-			return NESTED_ACTIVITY.equals(activity.getConfigurableType());
-		}
-		return false;
+		return object instanceof Activity
+				&& ((Activity) object).getType().equals(DataflowTemplateService.ACTIVITY_TYPE);
 	}
 
 	public List<ContextualView> getViews(Activity activity) {
 		return Arrays.asList(new ContextualView[] { new DataflowActivityContextualView(activity,
-				editManager, fileManager, menuManager, activityIconManager, colourManager, workbenchConfiguration) });
+				editManager, fileManager, menuManager, activityIconManager, colourManager,
+				serviceDescriptionRegistry, workbenchConfiguration, selectionManager) });
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -80,8 +78,16 @@ public class DataflowActivityViewFactory implements ContextualViewFactory<Activi
 		this.colourManager = colourManager;
 	}
 
+	public void setServiceDescriptionRegistry(ServiceDescriptionRegistry serviceDescriptionRegistry) {
+		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
+	}
+
 	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
 		this.workbenchConfiguration = workbenchConfiguration;
+	}
+
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

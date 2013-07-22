@@ -1,20 +1,18 @@
 package net.sf.taverna.t2.workbench.file.importworkflow;
 
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
-
 import org.junit.Ignore;
 import org.junit.Test;
+
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 @Ignore
 public class TestRename extends AbstractTestHelper {
 
 	@Test
 	public void mergePintoP() throws Exception {
-		DataflowMerger merger = new DataflowMerger(p, new EditsImpl());
+		DataflowMerger merger = new DataflowMerger(p);
 		merger.getMergeEdit(p).doEdit();
-		Dataflow merged = p;
+		Workflow merged = p;
 
 		assertHasProcessors(merged, "P", "P_2");
 		assertHasInputPorts(merged, "i", "i_2");
@@ -26,9 +24,8 @@ public class TestRename extends AbstractTestHelper {
 	@Test
 	public void mergePintoPintoP() throws Exception {
 		// Don't put p in constructor, or we would get exponential merging!
-		Edits edits = new EditsImpl();
-		Dataflow merged = edits.createDataflow();
-		DataflowMerger merger = new DataflowMerger(merged,edits);
+		Workflow merged = new Workflow();
+		DataflowMerger merger = new DataflowMerger(merged);
 		merger.getMergeEdit(p).doEdit();
 		merger.getMergeEdit(p).doEdit();
 		merger.getMergeEdit(p).doEdit();
@@ -44,9 +41,8 @@ public class TestRename extends AbstractTestHelper {
 	@Test
 	public void mergePintoPWithPrefix() throws Exception {
 		// Don't put p in constructor, or we would get exponential merging!
-		Edits edits = new EditsImpl();
-		Dataflow merged = edits.createDataflow();
-		DataflowMerger merger = new DataflowMerger(merged, edits);
+		Workflow merged = new Workflow();
+		DataflowMerger merger = new DataflowMerger(merged);
 		merger.getMergeEdit(p).doEdit();
 		merger.getMergeEdit(p, "fish_").doEdit();
 		merger.getMergeEdit(p, "soup_").doEdit();

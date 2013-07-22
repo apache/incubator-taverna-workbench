@@ -4,31 +4,26 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import net.sf.taverna.t2.workflowmodel.Condition;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.EventForwardingOutputPort;
-import net.sf.taverna.t2.workflowmodel.EventHandlingInputPort;
-import net.sf.taverna.t2.workflowmodel.MergePort;
-import net.sf.taverna.t2.workflowmodel.Port;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.ProcessorPort;
-import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.XMLDeserializerImpl;
-
-import org.jdom.Document;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
 import org.junit.Before;
+
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.BlockingControlLink;
+import uk.org.taverna.scufl2.api.core.ControlLink;
+import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.io.WorkflowBundleIO;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.ProcessorPort;
+import uk.org.taverna.scufl2.api.port.ReceiverPort;
+import uk.org.taverna.scufl2.api.port.SenderPort;
 
 public abstract class AbstractTestHelper {
 
@@ -38,13 +33,17 @@ public abstract class AbstractTestHelper {
 
 	private static final String P_T2FLOW = "/p.t2flow";
 
-	protected Dataflow abc;
+	private WorkflowBundleIO workflowBundleIO = new WorkflowBundleIO();
 
-	protected Dataflow p;
+	protected Scufl2Tools scufl2Tools = new Scufl2Tools();
 
-	protected Dataflow q;
+	protected Workflow abc;
 
-	protected void assertHasConditionals(Dataflow dataflow,
+	protected Workflow p;
+
+	protected Workflow q;
+
+	protected void assertHasConditionals(Workflow dataflow,
 			String... expectedConditionalDef) {
 		Set<String> expectedConditionals = new HashSet<String>();
 		for (String expected : expectedConditionalDef) {
@@ -53,10 +52,11 @@ public abstract class AbstractTestHelper {
 
 		Set<String> foundConditionals = new HashSet<String>();
 
-		for (Processor p : dataflow.getProcessors()) {
-			for (Condition c : p.getPreconditionList()) {
-				foundConditionals.add(c.getControl().getLocalName() + ";"
-						+ c.getTarget().getLocalName());
+		for (ControlLink c : dataflow.getControlLinks()) {
+			if (c instanceof BlockingControlLink) {
+			BlockingControlLink bcl = (BlockingControlLink) c;
+			foundConditionals.add(bcl.getUntilFinished().getName() + ";"
+					+ bcl.getBlock().getName());
 			}
 		}
 
@@ -69,7 +69,7 @@ public abstract class AbstractTestHelper {
 		assertTrue("Could not find conditional  " + missing, missing.isEmpty());
 	}
 
-	protected void assertHasDatalinks(Dataflow dataflow,
+	protected void assertHasDatalinks(Workflow dataflow,
 			String... expectedLinkDef) {
 		Set<String> expectedLinks = new HashSet<String>();
 		for (String expected : expectedLinkDef) {
@@ -78,31 +78,23 @@ public abstract class AbstractTestHelper {
 
 		Set<String> foundLinks = new HashSet<String>();
 
-		for (Datalink link : dataflow.getLinks()) {
+		for (DataLink link : dataflow.getDataLinks()) {
 			StringBuilder linkRef = new StringBuilder();
-			EventForwardingOutputPort source = link.getSource();
+			SenderPort source = link.getReceivesFrom();
 			if (source instanceof ProcessorPort) {
-				linkRef.append(((ProcessorPort) source).getProcessor()
-						.getLocalName());
+				linkRef.append(((ProcessorPort) source).getParent()
+						.getName());
 				linkRef.append('.');
-			} else if (source instanceof MergePort) {
-				MergePort mergePort = (MergePort) source;
-				linkRef.append(mergePort.getMerge().getLocalName());
-				linkRef.append(':'); // : indicates merge ..
 			}
 			linkRef.append(source.getName());
 
 			linkRef.append("->");
 
-			EventHandlingInputPort sink = link.getSink();
+			ReceiverPort sink = link.getSendsTo();
 			if (sink instanceof ProcessorPort) {
-				linkRef.append(((ProcessorPort) sink).getProcessor()
-						.getLocalName());
+				linkRef.append(((ProcessorPort) sink).getParent()
+						.getName());
 				linkRef.append('.');
-			} else if (sink instanceof MergePort) {
-				MergePort mergePort = (MergePort) sink;
-				linkRef.append(mergePort.getMerge().getLocalName());
-				linkRef.append(':');
 			}
 			linkRef.append(sink.getName());
 
@@ -119,14 +111,14 @@ public abstract class AbstractTestHelper {
 		assertTrue("Could not find links  " + missing, missing.isEmpty());
 	}
 
-	protected void assertHasInputPorts(Dataflow dataflow,
+	protected void assertHasInputPorts(Workflow dataflow,
 			String... expectedInputPorts) {
 		Set<String> expectedNames = new HashSet<String>();
 		for (String expected : expectedInputPorts) {
 			expectedNames.add(expected);
 		}
 		Set<String> foundNames = new HashSet<String>();
-		for (Port port : dataflow.getInputPorts()) {
+		for (InputWorkflowPort port : dataflow.getInputPorts()) {
 			String name = port.getName();
 			foundNames.add(name);
 		}
@@ -141,14 +133,14 @@ public abstract class AbstractTestHelper {
 
 	}
 
-	protected void assertHasOutputPorts(Dataflow dataflow,
+	protected void assertHasOutputPorts(Workflow dataflow,
 			String... expectedOutputPorts) {
 		Set<String> expectedNames = new HashSet<String>();
 		for (String expected : expectedOutputPorts) {
 			expectedNames.add(expected);
 		}
 		Set<String> foundNames = new HashSet<String>();
-		for (Port port : dataflow.getOutputPorts()) {
+		for (OutputWorkflowPort port : dataflow.getOutputPorts()) {
 			String name = port.getName();
 			foundNames.add(name);
 		}
@@ -162,7 +154,7 @@ public abstract class AbstractTestHelper {
 		assertTrue("Could not find output port  " + missing, missing.isEmpty());
 	}
 
-	protected void assertHasProcessors(Dataflow dataflow,
+	protected void assertHasProcessors(Workflow dataflow,
 			String... expectedProcessors) {
 		Set<String> expectedNames = new HashSet<String>();
 		for (String expected : expectedProcessors) {
@@ -171,7 +163,7 @@ public abstract class AbstractTestHelper {
 		Set<String> foundNames = new HashSet<String>();
 
 		for (Processor proc : dataflow.getProcessors()) {
-			String processorName = proc.getLocalName();
+			String processorName = proc.getName();
 			foundNames.add(processorName);
 		}
 
@@ -212,25 +204,22 @@ public abstract class AbstractTestHelper {
 		assertHasDatalinks(q, "p->Q.inputlist", "Q.outputlist->q", "p->p");
 		assertHasConditionals(q);
 
-		EventForwardingOutputPort source = findOutputPort(q, "p")
-				.getInternalInputPort().getIncomingLink().getSource();
-		assertEquals("out port P not linked to input P", source, findInputPort(
-				q, "p").getInternalOutputPort());
+		List<DataLink> datalinksTo = scufl2Tools.datalinksTo(findOutputPort(q, "p"));
+		assertEquals(1, datalinksTo.size());
+		SenderPort source = datalinksTo.get(0).getReceivesFrom();
+		assertEquals("out port P not linked to input P", source, findInputPort(q, "p"));
 
 	}
 
-	protected Dataflow loadAbc() throws JDOMException, IOException,
-			DeserializationException, EditException {
+	protected Workflow loadAbc() throws Exception {
 		return openWorkflow(getClass().getResourceAsStream(ABC_T2FLOW));
 	}
 
-	protected Dataflow loadP() throws JDOMException, IOException,
-			DeserializationException, EditException {
+	protected Workflow loadP() throws Exception {
 		return openWorkflow(getClass().getResourceAsStream(P_T2FLOW));
 	}
 
-	protected Dataflow loadQ() throws JDOMException, IOException,
-			DeserializationException, EditException {
+	protected Workflow loadQ() throws Exception {
 		return openWorkflow(getClass().getResourceAsStream(Q_T2FLOW));
 	}
 
@@ -241,22 +230,14 @@ public abstract class AbstractTestHelper {
 		q = loadQ();
 	}
 
-	protected Dataflow openWorkflow(InputStream workflowXMLstream)
-			throws JDOMException, IOException, DeserializationException,
-			EditException {
+	protected Workflow openWorkflow(InputStream workflowXMLstream) throws Exception {
 		assertNotNull(workflowXMLstream);
-		XMLDeserializer deserializer = new XMLDeserializerImpl();
-		SAXBuilder builder = new SAXBuilder();
-		Document document;
-		document = builder.build(workflowXMLstream);
-
-		Dataflow dataflow;
-		dataflow = deserializer.deserializeDataflow(document.getRootElement());
-		return dataflow;
+		WorkflowBundle workflowBundle = workflowBundleIO.readBundle(workflowXMLstream, "application/vnd.taverna.t2flow+xml");
+		return workflowBundle.getMainWorkflow();
 	}
 
-	protected DataflowInputPort findInputPort(Dataflow wf, String name) {
-		for (DataflowInputPort inp : wf.getInputPorts()) {
+	protected InputWorkflowPort findInputPort(Workflow wf, String name) {
+		for (InputWorkflowPort inp : wf.getInputPorts()) {
 			if (inp.getName().equals(name)) {
 				return inp;
 			}
@@ -264,9 +245,8 @@ public abstract class AbstractTestHelper {
 		throw new IllegalArgumentException("Unknown input port: " + name);
 	}
 
-	@SuppressWarnings("unused")
-	protected DataflowOutputPort findOutputPort(Dataflow wf, String name) {
-		for (DataflowOutputPort outp : wf.getOutputPorts()) {
+	protected OutputWorkflowPort findOutputPort(Workflow wf, String name) {
+		for (OutputWorkflowPort outp : wf.getOutputPorts()) {
 			if (outp.getName().equals(name)) {
 				return outp;
 			}
@@ -274,9 +254,9 @@ public abstract class AbstractTestHelper {
 		throw new IllegalArgumentException("Unknown output port: " + name);
 	}
 
-	protected Processor findProcessor(Dataflow wf, String name) {
+	protected Processor findProcessor(Workflow wf, String name) {
 		for (Processor proc : wf.getProcessors()) {
-			if (proc.getLocalName().equals(name)) {
+			if (proc.getName().equals(name)) {
 				return proc;
 			}
 		}

@@ -3,68 +3,46 @@
  */
 package net.sf.taverna.t2.activities.dataflow.actions;
 
-import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.JOptionPane;
 
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
-import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
+import com.fasterxml.jackson.databind.JsonNode;
 
-import org.apache.log4j.Logger;
-
+import net.sf.taverna.t2.activities.dataflow.servicedescriptions.DataflowTemplateService;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 
+@SuppressWarnings("serial")
 public class EditNestedDataflowAction extends AbstractAction {
-	private static final long serialVersionUID = 8854590545492535080L;
-	private static Logger logger = Logger
-			.getLogger(EditNestedDataflowAction.class);
-	private static final T2FlowFileType T2_FLOW_FILE_TYPE = new T2FlowFileType();
-	private final Activity dataflowActivity;
-	private final FileManager fileManager;
 
-	public EditNestedDataflowAction(Activity activity, FileManager fileManager) {
+	private final Activity activity;
+	private final SelectionManager selectionManager;
+
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
+
+	public EditNestedDataflowAction(Activity activity, SelectionManager selectionManager) {
 		super("Edit nested workflow");
-		this.dataflowActivity = activity;
-		this.fileManager = fileManager;
+		this.activity = activity;
+		this.selectionManager = selectionManager;
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		final Component parentComponent;
-		if (e.getSource() instanceof Component) {
-			parentComponent = (Component) e.getSource();
-		} else {
-			parentComponent = null;
-		}
-		openNestedWorkflow(parentComponent);
-	}
-
-	public void openNestedWorkflow(final Component parentComponent) {
-		NestedDataflowSource nestedDataflowSource = new NestedDataflowActivitySource(
-				fileManager.getCurrentDataflow(), dataflowActivity, fileManager);
-
-		WorkflowBundle alreadyOpen = fileManager.getDataflowBySource(nestedDataflowSource);
-		if (alreadyOpen != null) {
-			// The nested workflow is already opened - switch to it
-			fileManager.setCurrentDataflow(alreadyOpen);
-			return;
-		}
-
-		try {
-			fileManager.openDataflow(T2_FLOW_FILE_TYPE, nestedDataflowSource);
-		} catch (OpenException e1) {
-			logger.error("Could not open nested workflow from service "
-					+ dataflowActivity, e1);
-			JOptionPane
-					.showMessageDialog(parentComponent,
-							"Could not open nested workflow:\n"
-									+ e1.getMessage(),
-							"Could not open nested workflow",
-							JOptionPane.ERROR_MESSAGE);
-			return;
+		if (activity.getType().equals(DataflowTemplateService.ACTIVITY_TYPE)) {
+			for (Configuration configuration : scufl2Tools.configurationsFor(activity, selectionManager.getSelectedProfile())) {
+				JsonNode nested = configuration.getJson().get("nestedWorkflow");
+				Workflow nestedWorkflow = selectionManager.getSelectedWorkflowBundle().getWorkflows().getByName(nested.asText());
+				if (nestedWorkflow != null) {
+					selectionManager.setSelectedWorkflow(nestedWorkflow);
+					break;
+				}
+			}
 		}
 	}
 

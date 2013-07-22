@@ -31,9 +31,7 @@ import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguratio
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.actions.ImportWorkflowAction;
-
-import org.apache.log4j.Logger;
-
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
@@ -48,13 +46,12 @@ public class ImportWorkflowMenuAction extends AbstractContextualMenuAction {
 	private static final URI insertSection = URI
 			.create("http://taverna.sf.net/2009/contextMenu/insert");
 
-	private static Logger logger = Logger.getLogger(ImportWorkflowMenuAction.class);
-
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
 	private ColourManager colourManager;
 	private WorkbenchConfiguration workbenchConfiguration;
+	private SelectionManager selectionManager;
 
 	public ImportWorkflowMenuAction() {
 		super(insertSection, 400);
@@ -68,7 +65,7 @@ public class ImportWorkflowMenuAction extends AbstractContextualMenuAction {
 	@Override
 	protected Action createAction() {
 		ImportWorkflowAction myAction = new ImportWorkflowAction(editManager, fileManager,
-				menuManager, colourManager, workbenchConfiguration);
+				menuManager, colourManager, workbenchConfiguration, selectionManager);
 		// Just "Workflow" as we go under the "Insert" menu
 		myAction.putValue(Action.NAME, "Nested workflow");
 		return myAction;
@@ -92,6 +89,10 @@ public class ImportWorkflowMenuAction extends AbstractContextualMenuAction {
 
 	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
 		this.workbenchConfiguration = workbenchConfiguration;
+	}
+
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

@@ -30,50 +30,51 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import net.sf.taverna.t2.activities.dataflow.actions.EditNestedDataflowAction;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
 import net.sf.taverna.t2.workbench.file.importworkflow.actions.ReplaceNestedWorkflowAction;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
 
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.activity.Activity;
 
+@SuppressWarnings("serial")
 public class DataflowActivityContextualView extends HTMLBasedActivityContextualView {
-
-	private static final long serialVersionUID = -552783425303398911L;
 
 	static Logger logger = Logger.getLogger(DataflowActivityContextualView.class);
 
-	private T2FlowFileType T2_FLOW_FILE_TYPE = new T2FlowFileType();
-
 	private final EditManager editManager;
-
 	private final FileManager fileManager;
-
 	private final MenuManager menuManager;
-
 	private final ActivityIconManager activityIconManager;
-
 	private final ColourManager colourManager;
-
 	private final WorkbenchConfiguration workbenchConfiguration;
+	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
+
+	private final SelectionManager selectionManager;
 
 	public DataflowActivityContextualView(Activity activity, EditManager editManager,
 			FileManager fileManager, MenuManager menuManager,
-			ActivityIconManager activityIconManager, ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
+			ActivityIconManager activityIconManager, ColourManager colourManager,
+			ServiceDescriptionRegistry serviceDescriptionRegistry,
+			WorkbenchConfiguration workbenchConfiguration, SelectionManager selectionManager) {
 		super(activity, colourManager);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
 		this.activityIconManager = activityIconManager;
 		this.colourManager = colourManager;
+		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 		this.workbenchConfiguration = workbenchConfiguration;
+		this.selectionManager = selectionManager;
+		addEditButtons();
 	}
 
 	@Override
@@ -81,25 +82,41 @@ public class DataflowActivityContextualView extends HTMLBasedActivityContextualV
 		return super.getActivity();
 	}
 
-	@Override
-	public JComponent getMainFrame() {
-		JComponent mainFrame = super.getMainFrame();
+	public void addEditButtons() {
+		JComponent mainFrame = getMainFrame();
 		JButton viewWorkflowButton = new JButton("Edit workflow");
 		viewWorkflowButton.addActionListener(new EditNestedDataflowAction(getActivity(),
-				fileManager));
+				selectionManager));
 		JButton configureButton = new JButton(new ReplaceNestedWorkflowAction(getActivity(),
-				editManager, fileManager, menuManager, activityIconManager, colourManager, workbenchConfiguration));
+				editManager, fileManager, menuManager, activityIconManager, colourManager,
+				serviceDescriptionRegistry, workbenchConfiguration, selectionManager));
 		configureButton.setIcon(null);
 		JPanel flowPanel = new JPanel(new FlowLayout());
 		flowPanel.add(viewWorkflowButton);
 		flowPanel.add(configureButton);
 		mainFrame.add(flowPanel, BorderLayout.SOUTH);
-		return mainFrame;
+		mainFrame.revalidate();
 	}
+
+//	@Override
+//	public JComponent getMainFrame() {
+//		JComponent mainFrame = super.getMainFrame();
+//		JButton viewWorkflowButton = new JButton("Edit workflow");
+//		viewWorkflowButton.addActionListener(new EditNestedDataflowAction(getActivity(),
+//				selectionManager));
+//		JButton configureButton = new JButton(new ReplaceNestedWorkflowAction(getActivity(),
+//				editManager, fileManager, menuManager, activityIconManager, colourManager,
+//				serviceDescriptionRegistry, workbenchConfiguration, selectionManager));
+//		configureButton.setIcon(null);
+//		JPanel flowPanel = new JPanel(new FlowLayout());
+//		flowPanel.add(viewWorkflowButton);
+//		flowPanel.add(configureButton);
+//		mainFrame.add(flowPanel, BorderLayout.SOUTH);
+//		return mainFrame;
+//	}
 
 	@Override
 	protected String getRawTableRowsHtml() {
-
 		return ("<tr><td colspan=2>" + getActivity().getName() + "</td></tr>");
 	}
 

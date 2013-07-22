@@ -37,10 +37,8 @@ public class DataflowActivityIcon implements ActivityIconSPI{
 
 	private static Icon icon;
 
-	private static final URI NESTED_ACTIVITY = URI.create("http://ns.taverna.org.uk/2010/activity/nested-workflow");
-
 	public int canProvideIconScore(URI activityType) {
-		if (NESTED_ACTIVITY.equals(activityType))
+		if (DataflowTemplateService.ACTIVITY_TYPE.equals(activityType))
 			return DEFAULT_ICON + 1;
 		else
 			return NO_ICON;

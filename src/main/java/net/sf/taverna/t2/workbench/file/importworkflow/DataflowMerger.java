@@ -1,31 +1,20 @@
 package net.sf.taverna.t2.workbench.file.importworkflow;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.EventForwardingOutputPort;
-import net.sf.taverna.t2.workflowmodel.EventHandlingInputPort;
-import net.sf.taverna.t2.workflowmodel.Merge;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLDeserializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.XMLDeserializerImpl;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.XMLSerializerImpl;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import net.sf.taverna.t2.workbench.edits.CompoundEdit;
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workflow.edits.AddChildEdit;
+import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
+import uk.org.taverna.scufl2.api.common.AbstractCloneable;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.ControlLink;
+import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * A tool that allows merging of two workflow.
@@ -34,45 +23,32 @@ import net.sf.taverna.t2.workflowmodel.utils.Tools;
  * workflow into the destination workflow.
  *
  * @author Stian Soiland-Reyes
- *
+ * @author David Withers
  */
 public class DataflowMerger {
 
-	private Edits edits;
-
 	/**
-	 * Make a copy of a dataflow by serializing and deserializing.
+	 * Make a copy of a workflow.
 	 *
 	 * @param source
-	 *            Dataflow to copy
-	 * @return A copy of the dataflow.
-	 * @throws DeserializationException
-	 *             If a copy could not be made
-	 * @throws EditException
-	 *             If a copy could not be made
-	 * @throws SerializationException
-	 *             If a copy could not be made
+	 *            workflow to copy
+	 * @return A copy of the workflow.
 	 */
-	public static Dataflow copyWorkflow(Dataflow source)
-			throws DeserializationException, EditException,
-			SerializationException {
-		XMLSerializer serialiser = new XMLSerializerImpl();
-		XMLDeserializer deserializer = new XMLDeserializerImpl();
-		return deserializer.deserializeDataflow(serialiser
-				.serializeDataflow(source));
+	public static Workflow copyWorkflow(Workflow source) {
+		WorkflowBundle workflowBundle = AbstractCloneable.cloneWorkflowBean(source.getParent());
+		return workflowBundle.getWorkflows().getByName(source.getName());
 	}
 
-	private final Dataflow dataflow;
+	private final Workflow destinationWorkflow;
 
 	/**
-	 * Construct a {@link DataflowMerger} for the given destination dataflow.
+	 * Construct a {@link DataflowMerger} for the given destination workflow.
 	 *
-	 * @param destinationDataflow
-	 *            Dataflow to be merged into
+	 * @param destinationWorkflow
+	 *            Workflow to be merged into
 	 */
-	public DataflowMerger(Dataflow destinationDataflow, Edits edits) {
-		this.dataflow = destinationDataflow;
-		this.edits = edits;
+	public DataflowMerger(Workflow destinationWorkflow) {
+		this.destinationWorkflow = destinationWorkflow;
 	}
 
 	/**
@@ -89,7 +65,7 @@ public class DataflowMerger {
 	 * @throws MergeException
 	 *             If the merge cannot be performed.
 	 */
-	public CompoundEdit getMergeEdit(Dataflow sourceDataflow)
+	public CompoundEdit getMergeEdit(Workflow sourceDataflow)
 			throws MergeException {
 		return getMergeEdit(sourceDataflow, "");
 	}
@@ -101,7 +77,7 @@ public class DataflowMerger {
 	 * Internally a copy is made of the source dataflow, to avoid modifying the
 	 * links and processors.
 	 *
-	 * @param sourceDataflow
+	 * @param sourceWorkflow
 	 *            Dataflow to merge from
 	 * @param prefix
 	 *            A prefix which will be inserted in front of the names for the
@@ -111,116 +87,33 @@ public class DataflowMerger {
 	 * @throws MergeException
 	 *             If the merge cannot be performed.
 	 */
-	public CompoundEdit getMergeEdit(Dataflow sourceDataflow, String prefix)
+	public CompoundEdit getMergeEdit(Workflow sourceWorkflow, String prefix)
 			throws MergeException {
-		List<Edit<?>> compoundEdit = new ArrayList<Edit<?>>();
+		List<Edit<?>> compoundEdit = new ArrayList<>();
 
-		try {
-			sourceDataflow = copyWorkflow(sourceDataflow);
-		} catch (Exception ex) {
-			throw new MergeException("Could not copy workflow", ex);
+		Workflow workflow = copyWorkflow(sourceWorkflow);
+
+		for (InputWorkflowPort input : workflow.getInputPorts()) {
+			destinationWorkflow.getInputPorts().addWithUniqueName(input);
+			destinationWorkflow.getInputPorts().remove(input);
+			compoundEdit.add(new AddChildEdit<Workflow>(destinationWorkflow, input));
+		}
+		for (OutputWorkflowPort output : workflow.getOutputPorts()) {
+			destinationWorkflow.getOutputPorts().addWithUniqueName(output);
+			destinationWorkflow.getOutputPorts().remove(output);
+			compoundEdit.add(new AddChildEdit<Workflow>(destinationWorkflow, output));
+		}
+		for (Processor processor : workflow.getProcessors()) {
+			processor.setName(prefix + processor.getName());
+			compoundEdit.add(new AddProcessorEdit(destinationWorkflow, processor));
+		}
+		for (DataLink dataLink : workflow.getDataLinks()) {
+			compoundEdit.add(new AddChildEdit<Workflow>(destinationWorkflow, dataLink));
+		}
+		for (ControlLink controlLink : workflow.getControlLinks()) {
+			compoundEdit.add(new AddChildEdit<Workflow>(destinationWorkflow, controlLink));
 		}
 
-		// Mapping from *old* names to *new* ports
-		Map<String, DataflowInputPort> inp = new HashMap<String, DataflowInputPort>();
-		Map<String, DataflowOutputPort> outp = new HashMap<String, DataflowOutputPort>();
-
-		for (DataflowInputPort input : sourceDataflow.getInputPorts()) {
-			String portName = Tools.uniquePortName(prefix + input.getName(),
-					dataflow.getInputPorts());
-			DataflowInputPort newInpPort = edits.createDataflowInputPort(
-					portName, input.getDepth(), input.getGranularInputDepth(),
-					dataflow);
-			inp.put(input.getName(), newInpPort);
-
-			compoundEdit.add(edits.getAddDataflowInputPortEdit(dataflow,
-					newInpPort));
-
-		}
-		for (DataflowOutputPort output : sourceDataflow.getOutputPorts()) {
-			String portName = Tools.uniquePortName(prefix + output.getName(),
-					dataflow.getOutputPorts());
-			DataflowOutputPort newOutputPort = edits.createDataflowOutputPort(
-					portName, dataflow);
-			outp.put(output.getName(), newOutputPort);
-			compoundEdit.add(edits.getAddDataflowOutputPortEdit(dataflow,
-					newOutputPort));
-		}
-
-		for (Processor processor : sourceDataflow.getProcessors()) {
-			String originalName = processor.getLocalName();
-			String processorName = Tools.uniqueProcessorName(prefix
-					+ originalName, dataflow);
-			try {
-				if (!processorName.equals(originalName)) {
-					edits.getRenameProcessorEdit(processor, processorName)
-							.doEdit();
-				}
-			} catch (EditException e) {
-				throw new MergeException("Could not copy processor "
-						+ originalName, e);
-			}
-			compoundEdit.add(edits.getAddProcessorEdit(dataflow, processor));
-		}
-		for (Merge merge : sourceDataflow.getMerges()) {
-			String originalName = merge.getLocalName();
-			String mergeName = Tools.uniqueProcessorName(prefix + originalName,
-					dataflow);
-			try {
-				if (!originalName.equals(mergeName)) {
-					edits.getRenameMergeEdit(merge, mergeName).doEdit();
-				}
-			} catch (EditException e) {
-				throw new MergeException("Could not copy merge "
-						+ merge.getLocalName(), e);
-			}
-			compoundEdit.add(edits.getAddMergeEdit(dataflow, merge));
-		}
-
-		// Re-map connections from input and output ports
-		for (DataflowInputPort inputPort : sourceDataflow.getInputPorts()) {
-			try {
-				Set<? extends Datalink> outgoingLinks = inputPort
-						.getInternalOutputPort().getOutgoingLinks();
-				for (Datalink outgoingLink : new HashSet<Datalink>(
-						outgoingLinks)) {
-					EventHandlingInputPort originalSink = outgoingLink
-							.getSink();
-					edits.getDisconnectDatalinkEdit(outgoingLink).doEdit();
-
-					EventForwardingOutputPort newSource = inp.get(
-							inputPort.getName()).getInternalOutputPort();
-					Datalink newLink = edits.createDatalink(newSource,
-							originalSink);
-					edits.getConnectDatalinkEdit(newLink).doEdit();
-				}
-			} catch (EditException e) {
-				throw new MergeException("Could not remap port for input port "
-						+ inputPort.getName());
-			}
-		}
-		for (DataflowOutputPort outputPort : sourceDataflow.getOutputPorts()) {
-			try {
-				Datalink incomingLink = outputPort.getInternalInputPort()
-						.getIncomingLink();
-
-				EventForwardingOutputPort originalSource = incomingLink
-						.getSource();
-
-				edits.getDisconnectDatalinkEdit(incomingLink).doEdit();
-
-				EventHandlingInputPort newSink = outp.get(outputPort.getName())
-						.getInternalInputPort();
-				Datalink newLink = edits
-						.createDatalink(originalSource, newSink);
-				edits.getConnectDatalinkEdit(newLink).doEdit();
-
-			} catch (EditException e) {
-				throw new MergeException(
-						"Could not remap port for output port "
-								+ outputPort.getName());
-			}
-		}
 		return new CompoundEdit(compoundEdit);
 
 	}

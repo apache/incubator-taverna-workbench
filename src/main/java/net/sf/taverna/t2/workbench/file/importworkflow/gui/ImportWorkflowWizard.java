@@ -18,7 +18,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
@@ -34,7 +36,7 @@ import javax.swing.JTextField;
 import javax.swing.ProgressMonitor;
 import javax.swing.SwingUtilities;
 
-import net.sf.taverna.t2.activities.dataflow.actions.EditNestedDataflowAction;
+import net.sf.taverna.t2.activities.dataflow.servicedescriptions.DataflowTemplateService;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
@@ -45,35 +47,59 @@ import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.DataflowInfo;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
-import net.sf.taverna.t2.workbench.file.impl.actions.OpenWorkflowAction;
 import net.sf.taverna.t2.workbench.file.importworkflow.DataflowMerger;
 import net.sf.taverna.t2.workbench.file.importworkflow.MergeException;
+import net.sf.taverna.t2.workbench.file.importworkflow.actions.OpenSourceWorkflowAction;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
-import net.sf.taverna.t2.workflow.edits.AddActivityEdit;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workflow.edits.AddChildEdit;
 import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
-import net.sf.taverna.t2.workflow.edits.ConfigureEdit;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
+import uk.org.taverna.scufl2.api.iterationstrategy.CrossProduct;
+import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
+import uk.org.taverna.scufl2.api.iterationstrategy.PortNode;
+import uk.org.taverna.scufl2.api.port.InputActivityPort;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.port.OutputActivityPort;
+import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
+import uk.org.taverna.scufl2.api.profiles.ProcessorInputPortBinding;
+import uk.org.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
+import uk.org.taverna.scufl2.api.profiles.Profile;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+@SuppressWarnings("serial")
 public class ImportWorkflowWizard extends HelpEnabledDialog {
-	private static final long serialVersionUID = -8124860319858897065L;
-	protected static Logger logger = Logger.getLogger(ImportWorkflowWizard.class);
-	protected FileManager fileManager;
+
+	private static Logger logger = Logger.getLogger(ImportWorkflowWizard.class);
+
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
+
 	protected BrowseFileOnClick browseFileOnClick = new BrowseFileOnClick();
 	protected JButton buttonBrowse;
 	protected JComboBox chooseDataflow;
 	protected DataflowOpenerThread dataflowOpenerThread;
 
-	protected WorkflowBundle destinationDataflow;
+	private WorkflowBundle destinationWorkflowBundle;
+	private Workflow destinationWorkflow;
+	private Profile destinationProfile;
+	private Workflow sourceWorkflow;
+
 	protected JTextField fieldFile;
 
 	protected JTextField fieldUrl;
@@ -86,32 +112,49 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	protected JRadioButton radioNew;
 	protected JRadioButton radioOpened;
 	protected JRadioButton radioUrl;
-	protected Workflow sourceDataflow;
 	protected ButtonGroup sourceSelection;
 	protected ActionListener updateChosenListener = new UpdateChosenListener();
 	protected Thread updatePreviewsThread;
 	protected Component sourceSelectionPanel;
 	protected JLabel prefixLabel;
 	protected JLabel prefixHelp;
-	protected JPanel destinationSelectionPanel;
-	protected ButtonGroup destinationSelection;
-	protected JRadioButton radioNewDestination;
-	protected JRadioButton radioOpenDestination;
-	protected JComboBox destinationAlreadyOpen;
+//	protected JPanel destinationSelectionPanel;
+//	protected ButtonGroup destinationSelection;
+//	protected JRadioButton radioNewDestination;
+//	protected JRadioButton radioOpenDestination;
+//	protected JComboBox destinationAlreadyOpen;
 	protected JPanel introductionPanel;
 	protected ButtonGroup actionSelection;
 	protected JRadioButton actionNested;
 	protected JRadioButton actionMerge;
 	protected JRadioButton radioCustomSource;
 	protected JRadioButton radioCustomDestination;
+
+	private final EditManager editManager;
+	private final FileManager fileManager;
 	private final MenuManager menuManager;
 	private final ColourManager colourManager;
 	private final WorkbenchConfiguration workbenchConfiguration;
+	private final SelectionManager selectionManager;
+
+	private WorkflowBundle customSourceDataFlow = null;
+//	private Workflow customDestinationDataflow = null;
+	private String customSourceName = "";
+//	private String customDestinationName = "";
+
+	private boolean sourceEnabled = true;
+//	private boolean destinationEnabled = true;
+	private Activity insertedActivity;
 
 	public ImportWorkflowWizard(Frame parentFrame, EditManager editManager,
 			FileManager fileManager, MenuManager menuManager, ColourManager colourManager,
-			WorkbenchConfiguration workbenchConfiguration) {
+			WorkbenchConfiguration workbenchConfiguration, SelectionManager selectionManager) {
 		super(parentFrame, "Import workflow", true, null);
+		this.selectionManager = selectionManager;
+		destinationWorkflow = selectionManager.getSelectedWorkflow();
+		destinationProfile = selectionManager.getSelectedProfile();
+		destinationWorkflowBundle = selectionManager.getSelectedWorkflowBundle();
+
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
@@ -191,23 +234,23 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		updatePreviews(); // will go in separate thread anyway, do it first
 		updateHeader();
 		updateSourceSection();
-		updateDestinationSection();
+//		updateDestinationSection();
 		updateFooter();
 	}
 
-	protected void updateDestinationSection() {
-
-		radioNewDestination.setVisible(false);
-
-		radioCustomDestination.setText(customDestinationName);
-		radioCustomDestination.setVisible(customDestinationDataflow != null);
-
-		// radioNewDestination.setVisible(nestedEnabled);
-		// radioNewDestination.setEnabled(actionNested.isSelected());
-
-		destinationSelectionPanel.setVisible(destinationEnabled);
-
-	}
+//	protected void updateDestinationSection() {
+//
+//		radioNewDestination.setVisible(false);
+//
+//		radioCustomDestination.setText(customDestinationName);
+//		radioCustomDestination.setVisible(customDestinationDataflow != null);
+//
+//		// radioNewDestination.setVisible(nestedEnabled);
+//		// radioNewDestination.setEnabled(actionNested.isSelected());
+//
+//		destinationSelectionPanel.setVisible(destinationEnabled);
+//
+//	}
 
 	protected synchronized void updatePreviews() {
 		if (updatePreviewsThread != null && updatePreviewsThread.isAlive()) {
@@ -218,11 +261,15 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	}
 
 	protected void updateDestinationPreview() {
-		updateWorkflowGraphic(previewDestination, destinationDataflow);
+		updateWorkflowGraphic(previewDestination, destinationWorkflow, destinationProfile);
 	}
 
 	protected void updateSourcePreview() {
-		updateWorkflowGraphic(previewSource, sourceDataflow);
+		Profile sourceProfile = null;
+		if (sourceWorkflow != null) {
+			sourceProfile = sourceWorkflow.getParent().getMainProfile();
+		}
+		updateWorkflowGraphic(previewSource, sourceWorkflow, sourceProfile);
 	}
 
 	protected void updateFooter() {
@@ -271,16 +318,16 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	 * @throws InvocationTargetException
 	 * @throws InterruptedException
 	 */
-	protected void updateWorkflowGraphic(final JSVGCanvas svgCanvas, final Workflow dataflow) {
+	protected void updateWorkflowGraphic(final JSVGCanvas svgCanvas, final Workflow workflow, final Profile profile) {
 		try {
 			SwingUtilities.invokeAndWait(new Runnable() {
 				public void run() {
 					// Set it to blank while reloading
 					svgCanvas.setSVGDocument(null);
-					if (dataflow != null) {
+					if (workflow != null) {
 						SVGGraphController currentWfGraphController = new SVGGraphController(
-								dataflow, false, svgCanvas, editManager, menuManager,
-								colourManager, workbenchConfiguration);
+								workflow, profile, false, svgCanvas,
+								editManager, menuManager, colourManager, workbenchConfiguration);
 					}
 				}
 			});
@@ -295,7 +342,6 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 	 * Open the selected source and destination workflows. If background is true, this method will
 	 * return immediately while a {@link DataflowOpenerThread} performs the updates. If a
 	 * DataflowOpenerThread is already running, it will be interrupted and stopped.
-	 *
 	 *
 	 * @param parentComponent
 	 *            The parent component for showing dialogues
@@ -340,22 +386,18 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		gbc.ipady = 5;
 
 		gbc.gridx = 0;
-		gbc.gridy = 0;
 		gbc.weightx = 0.1;
 		gbc.fill = GridBagConstraints.BOTH;
 
 		introductionPanel = makeIntroductionPanel();
 		panel.add(introductionPanel, gbc);
 
-		gbc.gridy = 1;
 		sourceSelectionPanel = makeSourceSelectionPanel();
 		panel.add(sourceSelectionPanel, gbc);
 
-		gbc.gridy = 2;
-		destinationSelectionPanel = makeDestinationSelectionPanel();
-		panel.add(destinationSelectionPanel, gbc);
+//		destinationSelectionPanel = makeDestinationSelectionPanel();
+//		panel.add(destinationSelectionPanel, gbc);
 
-		gbc.gridy = 3;
 		gbc.weighty = 0.1;
 		panel.add(makeImportStylePanel(), gbc);
 
@@ -409,7 +451,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		ActionListener updateListener = new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				updateSourceSection();
-				updateDestinationSection();
+//				updateDestinationSection();
 				updateFooter();
 			}
 		};
@@ -434,45 +476,45 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		return introductionPanel;
 	}
 
-	protected JPanel makeDestinationSelectionPanel() {
-		JPanel j = new JPanel(new GridBagLayout());
-		j.setBorder(BorderFactory.createTitledBorder("Workflow destination"));
-
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = 0;
-		gbc.gridy = 0;
-		gbc.fill = GridBagConstraints.BOTH;
-
-		destinationSelection = new ButtonGroup();
-		radioNewDestination = new JRadioButton("New workflow");
-		gbc.gridy = 0;
-		j.add(radioNewDestination, gbc);
-		destinationSelection.add(radioNewDestination);
-		radioNewDestination.addActionListener(updateChosenListener);
-
-		radioOpenDestination = new JRadioButton("Already opened workflow");
-		gbc.gridy = 2;
-		j.add(radioOpenDestination, gbc);
-		destinationSelection.add(radioOpenDestination);
-		radioOpenDestination.addActionListener(updateChosenListener);
-		gbc.weightx = 0.1;
-		gbc.gridx = 1;
-		destinationAlreadyOpen = makeSelectOpenWorkflowComboBox(true);
-		j.add(destinationAlreadyOpen, gbc);
-
-		radioCustomDestination = new JRadioButton(customDestinationName);
-		radioCustomDestination.setVisible(customDestinationName != null);
-		gbc.gridx = 0;
-		gbc.gridy = 3;
-		gbc.gridwidth = 2;
-		j.add(radioCustomDestination, gbc);
-		destinationSelection.add(radioCustomDestination);
-		radioCustomDestination.addActionListener(updateChosenListener);
-		gbc.gridwidth = 1;
-
-		radioOpenDestination.setSelected(true);
-		return j;
-	}
+//	protected JPanel makeDestinationSelectionPanel() {
+//		JPanel j = new JPanel(new GridBagLayout());
+//		j.setBorder(BorderFactory.createTitledBorder("Workflow destination"));
+//
+//		GridBagConstraints gbc = new GridBagConstraints();
+//		gbc.gridx = 0;
+//		gbc.gridy = 0;
+//		gbc.fill = GridBagConstraints.BOTH;
+//
+//		destinationSelection = new ButtonGroup();
+//		radioNewDestination = new JRadioButton("New workflow");
+//		gbc.gridy = 0;
+//		j.add(radioNewDestination, gbc);
+//		destinationSelection.add(radioNewDestination);
+//		radioNewDestination.addActionListener(updateChosenListener);
+//
+//		radioOpenDestination = new JRadioButton("Already opened workflow");
+//		gbc.gridy = 2;
+//		j.add(radioOpenDestination, gbc);
+//		destinationSelection.add(radioOpenDestination);
+//		radioOpenDestination.addActionListener(updateChosenListener);
+//		gbc.weightx = 0.1;
+//		gbc.gridx = 1;
+//		destinationAlreadyOpen = makeSelectOpenWorkflowComboBox(true);
+//		j.add(destinationAlreadyOpen, gbc);
+//
+//		radioCustomDestination = new JRadioButton(customDestinationName);
+//		radioCustomDestination.setVisible(customDestinationName != null);
+//		gbc.gridx = 0;
+//		gbc.gridy = 3;
+//		gbc.gridwidth = 2;
+//		j.add(radioCustomDestination, gbc);
+//		destinationSelection.add(radioCustomDestination);
+//		radioCustomDestination.addActionListener(updateChosenListener);
+//		gbc.gridwidth = 1;
+//
+//		radioOpenDestination.setSelected(true);
+//		return j;
+//	}
 
 	protected Component makeImportStylePanel() {
 		JPanel j = new JPanel(new GridBagLayout());
@@ -522,7 +564,6 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 
 	}
 
-	@SuppressWarnings("serial")
 	protected Component makeSelectFile() {
 		JPanel j = new JPanel(new GridBagLayout());
 		j.setBorder(BorderFactory.createEtchedBorder());
@@ -558,10 +599,9 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		gbc.gridx = 1;
 		gbc.weightx = 0.0;
 		gbc.fill = GridBagConstraints.NONE;
-		buttonBrowse = new JButton(new OpenWorkflowAction(fileManager) {
+		buttonBrowse = new JButton(new OpenSourceWorkflowAction(fileManager) {
 			@Override
-			public void openWorkflows(Component parentComponent, File[] files, FileType fileType,
-					OpenCallback openCallback) {
+			public void openWorkflows(Component parentComponent, File[] files) {
 				if (files.length == 0) {
 					radioFile.setSelected(false);
 					fieldFile.setText("");
@@ -589,7 +629,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		List<DataflowSelection> openDataflows = new ArrayList<DataflowSelection>();
 		DataflowSelection current = null;
 		for (WorkflowBundle df : fileManager.getOpenDataflows()) {
-			String name = fileManager.getDataflowName(df);
+			String name = df.getMainWorkflow().getName();
 			boolean isCurrent = df.equals(fileManager.getCurrentDataflow());
 			if (isCurrent) {
 				// Wrapping as HTML causes weird drop-down box under MAC, so
@@ -690,35 +730,111 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		return j;
 	}
 
-	private EditManager editManager;
+	protected Edit<?> makeInsertNestedWorkflowEdit(Workflow nestedFlow) {
+		Processor processor = new Processor();
+		processor.setName("nestedWorkflow");
 
-	private Workflow customSourceDataFlow = null;
-	private Workflow customDestinationDataflow = null;
-	private String customSourceName = "";
-	private String customDestinationName = "";
+		CrossProduct crossProduct = new CrossProduct();
+		crossProduct.setParent(processor.getIterationStrategyStack());
 
-	private boolean sourceEnabled = true;
-	private boolean destinationEnabled = true;
-	private Activity insertedActivity;
+		Activity activity = new Activity();
+		activity.setType(DataflowTemplateService.ACTIVITY_TYPE);
+		Configuration configuration = new Configuration();
+		configuration.setType(DataflowTemplateService.ACTIVITY_TYPE.resolve("#Config"));
+		destinationWorkflowBundle.getWorkflows().addWithUniqueName(nestedFlow);
+		((ObjectNode) configuration.getJson()).put("nestedWorkflow", nestedFlow.getName());
+		destinationWorkflowBundle.getWorkflows().remove(nestedFlow);
+		configuration.setConfigures(activity);
 
-	protected Edit<?> makeInsertNestedWorkflowEdit(Workflow nestedFlow, String name) {
+		ProcessorBinding processorBinding = new ProcessorBinding();
+		processorBinding.setBoundProcessor(processor);
+		processorBinding.setBoundActivity(activity);
+
+		for (InputWorkflowPort workflowPort : nestedFlow.getInputPorts()) {
+			InputActivityPort activityPort = new InputActivityPort(activity, workflowPort.getName());
+			activityPort.setDepth(workflowPort.getDepth());
+			// create processor port
+			InputProcessorPort processorPort = new InputProcessorPort(processor, activityPort.getName());
+			processorPort.setDepth(activityPort.getDepth());
+			// add a new port binding
+			new ProcessorInputPortBinding(processorBinding, processorPort, activityPort);
+			for (IterationStrategyTopNode iterationStrategyTopNode : processor.getIterationStrategyStack()) {
+				PortNode portNode = new PortNode(iterationStrategyTopNode, processorPort);
+				portNode.setDesiredDepth(processorPort.getDepth());
+				break;
+			}
+		}
+		for (OutputWorkflowPort workflowPort : nestedFlow.getOutputPorts()) {
+			OutputActivityPort activityPort = new OutputActivityPort(activity, workflowPort.getName());
+			// TODO calculate output depth
+			activityPort.setDepth(0);
+			activityPort.setGranularDepth(0);
+			// create processor port
+			OutputProcessorPort processorPort = new OutputProcessorPort(processor, activityPort.getName());
+			processorPort.setDepth(activityPort.getDepth());
+			processorPort.setGranularDepth(activityPort.getGranularDepth());
+			// add a new port binding
+			new ProcessorOutputPortBinding(processorBinding, activityPort, processorPort);
+		}
+
 		List<Edit<?>> editList = new ArrayList<Edit<?>>();
-		insertedActivity = new Activity();
-		// TODO use service registry
-		editList.add(new ConfigureEdit<Activity>(insertedActivity, nestedFlow));
-		Processor p = new Processor();
-		p.setName(name);
-		editList.add(new AddActivityEdit(p, insertedActivity));
-		editList.add(new AddProcessorEdit(destinationDataflow, p));
-		CompoundEdit edit = new CompoundEdit(editList);
-		return edit;
+		editList.add(new AddChildEdit<Profile>(destinationProfile, activity));
+		editList.add(new AddChildEdit<Profile>(destinationProfile, configuration));
+		editList.add(new AddChildEdit<Profile>(destinationProfile, processorBinding));
+		editList.add(new AddProcessorEdit(destinationWorkflow, processor));
+
+		editList.add(makeInsertWorkflowEdit(nestedFlow, nestedFlow.getParent().getMainProfile()));
+
+		return new CompoundEdit(editList);
 	}
 
-	protected Activity getInsertedActivity() {
-		return insertedActivity;
+	protected Edit<?> makeInsertWorkflowEdit(Workflow nestedFlow, Profile profile) {
+		return makeInsertWorkflowEdit(nestedFlow, profile, new HashSet<>());
 	}
 
-	@SuppressWarnings("serial")
+	protected Edit<?> makeInsertWorkflowEdit(Workflow nestedFlow, Profile profile, Set<Object> seen) {
+		List<Edit<?>> editList = new ArrayList<Edit<?>>();
+		// add the nested workflow to the workflow bundle
+		editList.add(new AddChildEdit<WorkflowBundle>(destinationWorkflowBundle, nestedFlow));
+		seen.add(nestedFlow);
+		for (Processor processor : nestedFlow.getProcessors()) {
+			// add processor bindings to the profile
+			List<ProcessorBinding> processorBindings = scufl2Tools.processorBindingsForProcessor(processor, profile);
+			for (ProcessorBinding processorBinding : processorBindings) {
+				editList.add(new AddChildEdit<Profile>(destinationProfile, processorBinding));
+				// add activity to the profile
+				Activity activity = processorBinding.getBoundActivity();
+				if (!seen.contains(activity)) {
+					editList.add(new AddChildEdit<Profile>(destinationProfile, activity));
+					// add activity configurations to the profile
+					for (Configuration configuration : scufl2Tools.configurationsFor(activity, profile)) {
+						editList.add(new AddChildEdit<Profile>(destinationProfile, configuration));
+					}
+					seen.add(activity);
+				}
+			}
+			// add dispatch layer configurations  to the profile
+			for (DispatchStackLayer dispatchStackLayer : processor.getDispatchStack()) {
+				List<Configuration> configurations = scufl2Tools.configurationsFor(dispatchStackLayer, profile);
+				for (Configuration configuration : configurations) {
+					editList.add(new AddChildEdit<Profile>(destinationProfile, configuration));
+				}
+
+			}
+			for (Workflow workflow : scufl2Tools.nestedWorkflowsForProcessor(processor, profile)) {
+				if (!seen.contains(workflow)) {
+					// recursively add nested workflows
+					editList.add(makeInsertWorkflowEdit(workflow, profile, seen));
+				}
+			}
+		}
+		return new CompoundEdit(editList);
+	}
+
+//	protected Activity getInsertedActivity() {
+//		return insertedActivity;
+//	}
+
 	protected class ImportWorkflowAction extends AbstractAction implements Runnable {
 		private static final String VALID_NAME_REGEX = "[\\p{L}\\p{Digit}_.]+";
 		private Component parentComponent;
@@ -747,11 +863,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 				return;
 			}
 			progressMonitor.setProgress(15);
-			if (!fileManager.isDataflowOpen(destinationDataflow)) {
-				fileManager.openDataflow(destinationDataflow);
-			} else {
-				fileManager.setCurrentDataflow(destinationDataflow);
-			}
+			selectionManager.setSelectedWorkflowBundle(destinationWorkflowBundle);
 			if (progressMonitor.isCanceled()) {
 				return;
 			}
@@ -759,7 +871,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 			progressMonitor.setNote("Copying source workflow");
 			Workflow nestedFlow;
 			try {
-				nestedFlow = DataflowMerger.copyWorkflow(sourceDataflow);
+				nestedFlow = DataflowMerger.copyWorkflow(sourceWorkflow);
 			} catch (Exception ex) {
 				logger.warn("Could not copy nested workflow", ex);
 				progressMonitor.setProgress(100);
@@ -775,9 +887,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 			progressMonitor.setNote("Creating nested workflow");
 			progressMonitor.setProgress(45);
 
-			String name = Tools.uniqueProcessorName(nestedFlow.getLocalName(), destinationDataflow);
-
-			Edit<?> edit = makeInsertNestedWorkflowEdit(nestedFlow, name);
+			Edit<?> edit = makeInsertNestedWorkflowEdit(nestedFlow);
 			if (progressMonitor.isCanceled()) {
 				return;
 			}
@@ -786,29 +896,27 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 			progressMonitor.setProgress(65);
 
 			try {
-				editManager.doDataflowEdit(destinationDataflow.getParent(), edit);
+				editManager.doDataflowEdit(destinationWorkflowBundle, edit);
 			} catch (EditException e) {
 				progressMonitor.setProgress(100);
 				logger.warn("Could not import nested workflow", e);
 				JOptionPane.showMessageDialog(parentComponent,
 						"An error occured while importing workflow:\n" + e.getLocalizedMessage(),
 						"Could not import workflows", JOptionPane.WARNING_MESSAGE);
+				return;
 			}
 
-			Activity inserted = getInsertedActivity();
 			if (radioNew.isSelected()) {
 				progressMonitor.setNote("Opening new nested workflow for editing");
 				progressMonitor.setProgress(90);
-				// To 'force' the progress bar dialogue to appear
-				new EditNestedDataflowAction(inserted, fileManager)
-						.openNestedWorkflow(parentComponent);
+				selectionManager.setSelectedWorkflow(nestedFlow);
 			}
 			progressMonitor.setProgress(100);
 		}
 
 		protected void merge() {
 			progressMonitor.setProgress(10);
-			DataflowMerger merger = new DataflowMerger(destinationDataflow, edits);
+			DataflowMerger merger = new DataflowMerger(destinationWorkflow);
 			progressMonitor.setProgress(25);
 			progressMonitor.setNote("Planning workflow merging");
 
@@ -836,7 +944,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 
 			CompoundEdit mergeEdit;
 			try {
-				mergeEdit = merger.getMergeEdit(ImportWorkflowWizard.this.sourceDataflow, prefix);
+				mergeEdit = merger.getMergeEdit(ImportWorkflowWizard.this.sourceWorkflow, prefix);
 			} catch (MergeException e1) {
 				progressMonitor.setProgress(100);
 				logger.warn("Could not merge workflow", e1);
@@ -847,11 +955,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 			}
 
 			progressMonitor.setProgress(55);
-			if (!fileManager.isDataflowOpen(destinationDataflow)) {
-				fileManager.openDataflow(destinationDataflow);
-			} else {
-				fileManager.setCurrentDataflow(destinationDataflow);
-			}
+			selectionManager.setSelectedWorkflowBundle(destinationWorkflowBundle);
 
 			progressMonitor.setNote("Merging workflows");
 			progressMonitor.setProgress(75);
@@ -861,7 +965,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 			}
 
 			try {
-				editManager.doDataflowEdit(destinationDataflow, mergeEdit);
+				editManager.doDataflowEdit(destinationWorkflowBundle, mergeEdit);
 			} catch (EditException e1) {
 				progressMonitor.setProgress(100);
 				JOptionPane.showMessageDialog(parentComponent,
@@ -937,52 +1041,52 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 
 		public void run() {
 			updateSource();
-			updateDestination();
+//			updateDestination();
 		}
 
-		public void updateDestination() {
-			ButtonModel selection = destinationSelection.getSelection();
-			Workflow chosenDataflow = null;
-			if (selection == null) {
-				chosenDataflow = null;
-			} else if (selection.equals(radioNewDestination.getModel())) {
-				chosenDataflow = new Workflow();
-			} else if (selection.equals(radioOpenDestination.getModel())) {
-				DataflowSelection chosen = (DataflowSelection) destinationAlreadyOpen
-						.getSelectedItem();
-				chosenDataflow = chosen.getDataflow();
-			} else if (selection.equals(radioCustomDestination.getModel())) {
-				chosenDataflow = customDestinationDataflow;
-			} else {
-				logger.error("Unknown selection " + selection);
-			}
-
-			if (chosenDataflow == null) {
-				if (!background && !shownWarning) {
-					shownWarning = true;
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							JOptionPane.showMessageDialog(parentComponent,
-									"You need to choose a destination workflow",
-									"No destination workflow chosen", JOptionPane.ERROR_MESSAGE);
-							setVisible(true);
-						}
-					});
-					return;
-				}
-			}
-			if (checkInterrupted()) {
-				return;
-			}
-			if (chosenDataflow != ImportWorkflowWizard.this.destinationDataflow) {
-				updateWorkflowGraphic(previewDestination, chosenDataflow);
-				if (checkInterrupted()) {
-					return;
-				}
-				ImportWorkflowWizard.this.destinationDataflow = chosenDataflow;
-			}
-
-		}
+//		public void updateDestination() {
+//			ButtonModel selection = destinationSelection.getSelection();
+//			Workflow chosenDataflow = null;
+//			if (selection == null) {
+//				chosenDataflow = null;
+//			} else if (selection.equals(radioNewDestination.getModel())) {
+//				chosenDataflow = new Workflow();
+//			} else if (selection.equals(radioOpenDestination.getModel())) {
+//				DataflowSelection chosen = (DataflowSelection) destinationAlreadyOpen
+//						.getSelectedItem();
+//				chosenDataflow = chosen.getDataflow();
+//			} else if (selection.equals(radioCustomDestination.getModel())) {
+//				chosenDataflow = customDestinationDataflow;
+//			} else {
+//				logger.error("Unknown selection " + selection);
+//			}
+//
+//			if (chosenDataflow == null) {
+//				if (!background && !shownWarning) {
+//					shownWarning = true;
+//					SwingUtilities.invokeLater(new Runnable() {
+//						public void run() {
+//							JOptionPane.showMessageDialog(parentComponent,
+//									"You need to choose a destination workflow",
+//									"No destination workflow chosen", JOptionPane.ERROR_MESSAGE);
+//							setVisible(true);
+//						}
+//					});
+//					return;
+//				}
+//			}
+//			if (checkInterrupted()) {
+//				return;
+//			}
+//			if (chosenDataflow != ImportWorkflowWizard.this.destinationDataflow) {
+//				updateWorkflowGraphic(previewDestination, chosenDataflow);
+//				if (checkInterrupted()) {
+//					return;
+//				}
+//				ImportWorkflowWizard.this.destinationDataflow = chosenDataflow;
+//			}
+//
+//		}
 
 		public void updateSource() {
 			ButtonModel selection = sourceSelection.getSelection();
@@ -990,7 +1094,12 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 			if (selection == null) {
 				chosenDataflow = null;
 			} else if (selection.equals(radioNew.getModel())) {
-				chosenDataflow = new Workflow();
+				WorkflowBundle workflowBundle = new WorkflowBundle();
+				workflowBundle.setMainWorkflow(new Workflow());
+				workflowBundle.getMainWorkflow().setName(fileManager.getDefaultWorkflowName());
+				workflowBundle.setMainProfile(new Profile());
+				scufl2Tools.setParents(workflowBundle);
+				chosenDataflow = workflowBundle.getMainWorkflow();
 			} else if (selection.equals(radioFile.getModel())) {
 				final String filePath = fieldFile.getText();
 				try {
@@ -999,7 +1108,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 					if (checkInterrupted()) {
 						return;
 					}
-					chosenDataflow = opened.getDataflow();
+					chosenDataflow = opened.getDataflow().getMainWorkflow();
 				} catch (final OpenException e1) {
 					if (!background && !shownWarning) {
 						shownWarning = true;
@@ -1023,7 +1132,7 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 					if (checkInterrupted()) {
 						return;
 					}
-					chosenDataflow = opened.getDataflow();
+					chosenDataflow = opened.getDataflow().getMainWorkflow();
 				} catch (final OpenException e1) {
 					if (!background && !shownWarning) {
 						logger.warn("Could not open source workflow: " + url, e1);
@@ -1066,21 +1175,25 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 				}
 			} else if (selection.equals(radioOpened.getModel())) {
 				DataflowSelection chosen = (DataflowSelection) chooseDataflow.getSelectedItem();
-				chosenDataflow = chosen.getDataflow();
+				chosenDataflow = chosen.getDataflow().getMainWorkflow();
 			} else if (selection.equals(radioCustomSource.getModel())) {
-				chosenDataflow = customSourceDataFlow;
+				chosenDataflow = customSourceDataFlow.getMainWorkflow();
 			} else {
 				logger.error("Unknown selection " + selection);
 			}
 			if (checkInterrupted()) {
 				return;
 			}
-			if (chosenDataflow != ImportWorkflowWizard.this.sourceDataflow) {
-				updateWorkflowGraphic(previewSource, chosenDataflow);
+			if (chosenDataflow != ImportWorkflowWizard.this.sourceWorkflow) {
+				Profile chosenProfile = null;
+				if (chosenDataflow != null) {
+					chosenProfile = chosenDataflow.getParent().getMainProfile();
+				}
+				updateWorkflowGraphic(previewSource, chosenDataflow, chosenProfile);
 				if (checkInterrupted()) {
 					return;
 				}
-				ImportWorkflowWizard.this.sourceDataflow = chosenDataflow;
+				ImportWorkflowWizard.this.sourceWorkflow = chosenDataflow;
 			}
 			if (chosenDataflow == null) {
 				if (!background && !shownWarning) {
@@ -1143,24 +1256,24 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 		}
 	}
 
-	public void setCustomSourceDataflow(Workflow sourceDataflow, String label) {
+	public void setCustomSourceDataflow(WorkflowBundle sourceDataflow, String label) {
 		this.customSourceDataFlow = sourceDataflow;
 		this.customSourceName = label;
 		updateSourceSection();
 		radioCustomSource.doClick();
 	}
 
-	public void setCustomDestinationDataflow(Workflow destinationDataflow, String label) {
-		this.customDestinationDataflow = destinationDataflow;
-		this.customDestinationName = label;
-		updateDestinationSection();
-		radioCustomDestination.doClick();
-	}
+//	public void setCustomDestinationDataflow(Workflow destinationDataflow, String label) {
+//		this.customDestinationDataflow = destinationDataflow;
+//		this.customDestinationName = label;
+//		updateDestinationSection();
+//		radioCustomDestination.doClick();
+//	}
 
-	public void setDestinationEnabled(boolean destinationEnabled) {
-		this.destinationEnabled = destinationEnabled;
-		updateDestinationSection();
-	}
+//	public void setDestinationEnabled(boolean destinationEnabled) {
+//		this.destinationEnabled = destinationEnabled;
+//		updateDestinationSection();
+//	}
 
 	public void setSourceEnabled(boolean sourceEnabled) {
 		this.sourceEnabled = sourceEnabled;
