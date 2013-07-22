@@ -5,55 +5,42 @@ package net.sf.taverna.t2.activities.unrecognized.views;
 
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
-import net.sf.taverna.t2.workflowmodel.OutputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.UnrecognizedActivity;
-
-import org.apache.log4j.Logger;
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.port.InputActivityPort;
+import uk.org.taverna.scufl2.api.port.OutputActivityPort;
 
 /**
  * A UnrecognizedContextualView displays information about a UnrecognizedActivity
  *
  * @author alanrw
- *
+ * @author David Withers
  */
-public class UnrecognizedContextualView extends
-		HTMLBasedActivityContextualView<Object> {
+@SuppressWarnings("serial")
+public class UnrecognizedContextualView extends HTMLBasedActivityContextualView {
 
-	private static Logger logger = Logger
-			.getLogger(UnrecognizedContextualView.class);
-
-	public UnrecognizedContextualView(UnrecognizedActivity activity, ColourManager colourManager) {
+	public UnrecognizedContextualView(Activity activity, ColourManager colourManager) {
 		super(activity, colourManager);
-		init();
-	}
-
-	private void init() {
 	}
 
 	/**
-	 * The table for the UnrecognizedActivity shows its ports and the information
-	 * within the offline Activity's configuration.
+	 * The table for the UnrecognizedActivity shows its ports.
 	 *
 	 * @return
 	 */
 	@Override
 	protected String getRawTableRowsHtml() {
-		String html = "";
-		html = html + "<tr><th>Input Port Name</th><th>Port depth</th>"
-				+ "</tr>";
-		for (ActivityInputPort aip : getActivity().getInputPorts()) {
-			html = html + "<tr><td>" + aip.getName() + "</td><td>"
-					+ aip.getDepth() + "</td></tr>";
+		StringBuilder html = new StringBuilder();
+		html.append("<tr><th>Input Port Name</th><th>Depth</th></tr>");
+		for (InputActivityPort inputActivityPort : getActivity().getInputPorts()) {
+			html.append("<tr><td>" + inputActivityPort.getName() + "</td><td>");
+			html.append(inputActivityPort.getDepth() + "</td></tr>");
 		}
-		html = html + "<tr><th>Output Port Name</th><th>Port depth</th>"
-				+ "</tr>";
-		for (OutputPort aop : getActivity().getOutputPorts()) {
-			html = html + "<tr><td>" + aop.getName() + "</td><td>"
-					+ aop.getDepth() + "</td></tr>";
+		html.append("<tr><th>Output Port Name</th><th>Depth</th></tr>");
+		for (OutputActivityPort outputActivityPort : getActivity().getOutputPorts()) {
+			html.append("<tr><td>" + outputActivityPort.getName() + "</td><td>");
+			html.append(outputActivityPort.getDepth() + "</td></tr>");
 		}
-
-		return html;
+		return html.toString();
 	}
 
 	@Override
