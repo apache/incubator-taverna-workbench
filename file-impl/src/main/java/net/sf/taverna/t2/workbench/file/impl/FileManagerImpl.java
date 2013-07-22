@@ -74,6 +74,8 @@ import uk.org.taverna.scufl2.api.profiles.Profile;
 public class FileManagerImpl implements FileManager {
 	private static Logger logger = Logger.getLogger(FileManagerImpl.class);
 
+	private static int nameIndex = 1;
+
 	/**
 	 * The last blank workflowBundle created using #newDataflow() until it has been
 	 * changed - when this variable will be set to null again. Used to
@@ -229,6 +231,11 @@ public class FileManagerImpl implements FileManager {
 		return name;
 	}
 
+	public String getDefaultWorkflowName() {
+		return "Workflow" + (nameIndex++);
+	}
+
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -363,6 +370,7 @@ public class FileManagerImpl implements FileManager {
 	public WorkflowBundle newDataflow() {
 		WorkflowBundle workflowBundle = new WorkflowBundle();
 		workflowBundle.setMainWorkflow(new Workflow());
+		workflowBundle.getMainWorkflow().setName(getDefaultWorkflowName());
 		workflowBundle.setMainProfile(new Profile());
 		scufl2Tools.setParents(workflowBundle);
 		blankWorkflowBundle = null;
