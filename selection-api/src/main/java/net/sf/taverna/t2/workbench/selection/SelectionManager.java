@@ -25,14 +25,6 @@ public interface SelectionManager extends Observable<SelectionManagerEvent> {
 	public DataflowSelectionModel getDataflowSelectionModel(WorkflowBundle workflowBundle);
 
 	/**
-	 * Removes the <code>DataflowSelectionModel</code> for the WorkflowBundle.
-	 *
-	 * @param workflowBundle
-	 *            the WorkflowBundle to remove the current selection model for
-	 */
-	public void removeDataflowSelectionModel(WorkflowBundle workflowBundle);
-
-	/**
 	 * Returns the currently selected WorkflowBundle.
 	 *
 	 * @return the currently selected WorkflowBundle
@@ -78,6 +70,34 @@ public interface SelectionManager extends Observable<SelectionManagerEvent> {
 	public void setSelectedProfile(Profile profile);
 
 	/**
+	 * Returns the currently selected workflow run.
+	 * <p>
+	 * If there are no workflow runs <code>null</code> is returned.
+	 *
+	 * @return the currently selected workflow run
+	 */
+	public String getSelectedWorkflowRun();
+
+	/**
+	 * Sets the currently selected workflow run.
+	 * <p>
+	 * May be <code>null</code> if there are no workflow runs .
+	 *
+	 * @param workflowRun
+	 *            the workflow run to set as currently selected
+	 */
+	public void setSelectedWorkflowRun(String workflowRun);
+
+	/**
+	 * Returns the <code>DataflowSelectionModel</code> for the workflow run.
+	 *
+	 * @param workflowRun
+	 *            the workflow run to return the current selection model for
+	 * @return the <code>DataflowSelectionModel</code> for the workflow run
+	 */
+	public DataflowSelectionModel getWorkflowRunSelectionModel(String workflowRun);
+
+		/**
 	 * Returns the currently selected Perspective.
 	 *
 	 * @return the currently selected Perspective
