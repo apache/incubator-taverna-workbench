@@ -100,24 +100,22 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 	 */
 	private boolean loading = false;
 
-	protected Set<ServiceDescriptionProvider> allServiceProviders;
+	private MultiCaster<ServiceDescriptionRegistryEvent> observers = new MultiCaster<ServiceDescriptionRegistryEvent>(this);
 
-	protected MultiCaster<ServiceDescriptionRegistryEvent> observers = new MultiCaster<ServiceDescriptionRegistryEvent>(
-			this);
+	private List<ServiceDescriptionProvider> serviceDescriptionProviders;
 
-	@SuppressWarnings("unchecked")
-	protected Map<ServiceDescriptionProvider, Set<ServiceDescription>> providerDescriptions = new HashMap<ServiceDescriptionProvider, Set<ServiceDescription>>();
+	private Set<ServiceDescriptionProvider> allServiceProviders;
 
-	protected List<ServiceDescriptionProvider> serviceDescriptionProviders;
+	private Map<ServiceDescriptionProvider, Set<ServiceDescription>> providerDescriptions = new HashMap<ServiceDescriptionProvider, Set<ServiceDescription>>();
 
-	protected Map<ServiceDescriptionProvider, FindServiceDescriptionsThread> serviceDescriptionThreads = new HashMap<ServiceDescriptionProvider, FindServiceDescriptionsThread>();
+	private Map<ServiceDescriptionProvider, FindServiceDescriptionsThread> serviceDescriptionThreads = new HashMap<ServiceDescriptionProvider, FindServiceDescriptionsThread>();
 
 	/**
 	 * Service providers added by the user, should be saved
 	 */
-	protected Set<ServiceDescriptionProvider> userAddedProviders = new HashSet<ServiceDescriptionProvider>();
+	private Set<ServiceDescriptionProvider> userAddedProviders = new HashSet<ServiceDescriptionProvider>();
 
-	protected Set<ServiceDescriptionProvider> userRemovedProviders = new HashSet<ServiceDescriptionProvider>();
+	private Set<ServiceDescriptionProvider> userRemovedProviders = new HashSet<ServiceDescriptionProvider>();
 
 	private Set<ServiceDescriptionProvider> defaultServiceDescriptionProviders;
 
@@ -217,51 +215,45 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 		return observers.getObservers();
 	}
 
-	public List<ServiceDescriptionProvider> getProviderRegistry() {
-		return serviceDescriptionProviders;
-	}
-
 	// Fallback to this method that uses hardcoded default services if you cannot read them from
 	// the file.
-	// @SuppressWarnings("unchecked")
-	// public synchronized Set<ServiceDescriptionProvider>
-	// getDefaultServiceDescriptionProvidersFallback() {
-	// /*if (defaultServiceDescriptionProviders != null) {
-	// return defaultServiceDescriptionProviders;
-	// }
-	// defaultServiceDescriptionProviders = new HashSet<ServiceDescriptionProvider>();
-	// */
-	// for (ServiceDescriptionProvider provider : getProviderRegistry()
-	// .getInstances()) {
-	//
-	// /* We do not need these - already loaded them from getDefaultServiceDescriptionProviders()
-	// if (!(provider instanceof ConfigurableServiceProvider)) {
-	// defaultServiceDescriptionProviders.add(provider);
-	// continue;
-	// }*/
-	//
-	// // Just load the hard coded default configurable service providers
-	// if (provider instanceof ConfigurableServiceProvider){
-	// ConfigurableServiceProvider<Object> template = ((ConfigurableServiceProvider<Object>)
-	// provider);
-	// // Get configurations
-	// List<Object> configurables = template.getDefaultConfigurations();
-	// for (Object config : configurables) {
-	// // Make a copy that we can configure
-	// ConfigurableServiceProvider<Object> configurableProvider = template.clone();
-	// try {
-	// configurableProvider.configure(config);
-	// } catch (ConfigurationException e) {
-	// logger.warn("Can't configure provider "
-	// + configurableProvider + " with " + config);
-	// continue;
-	// }
-	// defaultServiceDescriptionProviders.add(configurableProvider);
-	// }
-	// }
-	// }
-	// return defaultServiceDescriptionProviders;
-	// }
+//	@SuppressWarnings("unchecked")
+//	public synchronized Set<ServiceDescriptionProvider> getDefaultServiceDescriptionProvidersFallback() {
+//		/*if (defaultServiceDescriptionProviders != null) {
+//	 return defaultServiceDescriptionProviders;
+//	 }
+//	 defaultServiceDescriptionProviders = new HashSet<ServiceDescriptionProvider>();
+//		 */
+//		for (ServiceDescriptionProvider provider : serviceDescriptionProviders) {
+//
+//			/* We do not need these - already loaded them from getDefaultServiceDescriptionProviders()
+//	 if (!(provider instanceof ConfigurableServiceProvider)) {
+//	 defaultServiceDescriptionProviders.add(provider);
+//	 continue;
+//	 }*/
+//
+//			// Just load the hard coded default configurable service providers
+//			if (provider instanceof ConfigurableServiceProvider){
+//				ConfigurableServiceProvider<Object> template = ((ConfigurableServiceProvider<Object>)
+//						provider);
+//				// Get configurations
+//				List<Object> configurables = template.getDefaultConfigurations();
+//				for (Object config : configurables) {
+//					// Make a copy that we can configure
+//					ConfigurableServiceProvider<Object> configurableProvider = template.clone();
+//					try {
+//						configurableProvider.configure(config);
+//					} catch (ConfigurationException e) {
+//						logger.warn("Can't configure provider "
+//								+ configurableProvider + " with " + config);
+//						continue;
+//					}
+//					defaultServiceDescriptionProviders.add(configurableProvider);
+//				}
+//			}
+//		}
+//		return defaultServiceDescriptionProviders;
+//	}
 
 	// Get the default services.
 	@SuppressWarnings("unchecked")
@@ -304,7 +296,7 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 
 		// Load other default service description providers - template, local workers
 		// and third party configurable service providers
-		for (ServiceDescriptionProvider provider : getProviderRegistry()) {
+		for (ServiceDescriptionProvider provider : serviceDescriptionProviders) {
 			// Template service providers (beanshell, string constant, etc. )
 			// and providers of local workers.
 			if (!(provider instanceof ConfigurableServiceProvider)) {
@@ -398,9 +390,7 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 
 	public List<ConfigurableServiceProvider> getUnconfiguredServiceProviders() {
 		List<ConfigurableServiceProvider> providers = new ArrayList<ConfigurableServiceProvider>();
-		List<ServiceDescriptionProvider> possibleProviders = new ArrayList<ServiceDescriptionProvider>(
-				getProviderRegistry());
-		for (ServiceDescriptionProvider provider : possibleProviders) {
+		for (ServiceDescriptionProvider provider : serviceDescriptionProviders) {
 			if (provider instanceof ConfigurableServiceProvider) {
 				ConfigurableServiceProvider confProvider = (ConfigurableServiceProvider) provider;
 				providers.add(confProvider);
