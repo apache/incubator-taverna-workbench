@@ -15,5 +15,6 @@
 	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
 	<reference id="serviceDescriptionRegistry" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry"/>
 	<reference id="serviceDescriptionsConfiguration" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionsConfiguration"/>
+	<reference id="serviceRegistry" interface="uk.org.taverna.commons.services.ServiceRegistry" />
 
 </beans:beans>
