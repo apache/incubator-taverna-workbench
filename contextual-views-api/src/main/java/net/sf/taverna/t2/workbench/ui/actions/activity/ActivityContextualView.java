@@ -39,6 +39,7 @@ import uk.org.taverna.scufl2.api.configurations.Configuration;
  * @see Activity
  * @see ContextualView
  */
+@SuppressWarnings("serial")
 public abstract class ActivityContextualView extends ContextualView {
 
 	private Activity activity;

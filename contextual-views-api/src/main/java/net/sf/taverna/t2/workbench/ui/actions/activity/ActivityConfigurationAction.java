@@ -58,7 +58,7 @@ public abstract class ActivityConfigurationAction extends AbstractAction {
 			ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.activity = activity;
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
-		putValue(SMALL_ICON, activityIconManager.iconForActivity(activity.getConfigurableType()));
+		putValue(SMALL_ICON, activityIconManager.iconForActivity(activity.getType()));
 	}
 
 	protected Activity getActivity() {
@@ -66,7 +66,7 @@ public abstract class ActivityConfigurationAction extends AbstractAction {
 	}
 
 	protected ServiceDescription getServiceDescription() {
-		return serviceDescriptionRegistry.getServiceDescription(activity.getConfigurableType());
+		return serviceDescriptionRegistry.getServiceDescription(activity.getType());
 	}
 
 	protected static void setDialog(Activity activity, ActivityConfigurationDialog dialog, FileManager fileManager) {
