@@ -49,8 +49,7 @@ public abstract class ServiceDescription extends IdentifiedObject {
 	public abstract String getName();
 
 	@PropertyAnnotation(expert = true)
-	@SuppressWarnings("unchecked")
-	public abstract List<? extends Comparable> getPath();
+	public abstract List<? extends Comparable<?>> getPath();
 
 	@PropertyAnnotation(hidden = true)
 	public boolean isTemplateService() {
@@ -79,7 +78,7 @@ public abstract class ServiceDescription extends IdentifiedObject {
 	 * @param a
 	 * @return
 	 */
-	public Edit getInsertionEdit(Workflow dataflow, Processor p, Activity a) {
+	public Edit<?> getInsertionEdit(Workflow dataflow, Processor p, Activity a) {
 		return null;
 	}
 
