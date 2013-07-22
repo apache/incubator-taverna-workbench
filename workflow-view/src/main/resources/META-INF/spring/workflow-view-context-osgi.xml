@@ -18,5 +18,6 @@
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
 	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
+	<reference id="serviceRegistry" interface="uk.org.taverna.commons.services.ServiceRegistry" />
 
 </beans:beans>

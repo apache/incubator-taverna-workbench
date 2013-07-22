@@ -11,6 +11,8 @@
 			<!-- <property name="reportViewComponentFactory" ref="reportViewComponentFactory" /> -->
 			<property name="fileManager" ref="fileManager" />
 			<property name="selectionManager" ref="selectionManager" />
+			<property name="menuManager" ref="menuManager" />
+			<property name="editManager" ref="editManager" />
 	</bean>
 
 </beans>

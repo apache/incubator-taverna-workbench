@@ -20,67 +20,135 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.design;
 
-import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.URI;
+import java.util.LinkedList;
+import java.util.List;
+
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
-import net.sf.taverna.t2.lang.ui.tabselector.Tab;
-import net.sf.taverna.t2.lang.ui.tabselector.TabSelectorComponent;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
-import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowSelectionEvent;
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.NamedSet;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
+import uk.org.taverna.scufl2.api.profiles.Profile;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Component for managing selection of workflows.
  *
  * @author David Withers
  */
-public class WorkflowSelectorComponent extends TabSelectorComponent<WorkflowBundle> {
+@SuppressWarnings("serial")
+public class WorkflowSelectorComponent extends JPanel {
 
-	private static final long serialVersionUID = 1L;
+	private static final URI NESTED_WORKFLOW_TYPE = URI
+			.create("http://ns.taverna.org.uk/2010/activity/nested-workflow");
+
+	private final Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	private final SelectionManager selectionManager;
-	private final FileManager fileManager;
 
-	public WorkflowSelectorComponent(Component component, SelectionManager selectionManager, FileManager fileManager) {
-		super(component);
+	public WorkflowSelectorComponent(SelectionManager selectionManager) {
+		super(new FlowLayout(FlowLayout.LEFT));
 		this.selectionManager = selectionManager;
-		this.fileManager = fileManager;
-		fileManager.addObserver(new FileManagerObserver());
+		update(selectionManager.getSelectedWorkflow());
 		selectionManager.addObserver(new SelectionManagerObserver());
 	}
 
-	private class FileManagerObserver extends SwingAwareObserver<FileManagerEvent> {
-		public void notifySwing(Observable<FileManagerEvent> sender, FileManagerEvent message) {
-			if (message instanceof ClosedDataflowEvent) {
-				ClosedDataflowEvent event = (ClosedDataflowEvent) message;
-				removeObject(event.getDataflow());
-			} else if (message instanceof SavedDataflowEvent) {
-				SavedDataflowEvent event = (SavedDataflowEvent) message;
-				// set saved
+	private void update(Workflow workflow) {
+		removeAll();
+		if (workflow != null && (workflow.getParent().getMainWorkflow() != workflow)) {
+			Profile profile = selectionManager.getSelectedProfile();
+			NamedSet<Activity> activities = new NamedSet<>(profile.getActivities());
+			boolean first = true;
+			for (final Workflow workflowItem : getPath(activities, workflow, profile)) {
+				JButton button = new JButton(workflowItem.getName());
+//				button.setBorder(null);
+				button.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						selectionManager.setSelectedWorkflow(workflowItem);
+					}
+				});
+				if (!first) {
+					add(new JLabel(">"));
+				}
+				first = false;
+				add(button);
 			}
 		}
+		revalidate();
+		repaint();
+	}
+
+	private List<Workflow> getPath(NamedSet<Activity> activities, Workflow workflow, Profile profile) {
+		LinkedList<Workflow> path = new LinkedList<>();
+		for (Activity activity : activities) {
+			if (activity.getType().equals(NESTED_WORKFLOW_TYPE)) {
+				Workflow nestedWorkflow = null;
+				for (Configuration configuration : scufl2Tools.configurationsFor(activity, profile)) {
+					JsonNode nested = configuration.getJson().get("nestedWorkflow");
+					Workflow wf = workflow.getParent().getWorkflows().getByName(nested.asText());
+					if (wf != null) {
+						nestedWorkflow = wf;
+						break;
+					}
+				}
+				if (nestedWorkflow == workflow) {
+					List<ProcessorBinding> processorBindings = scufl2Tools.processorBindingsToActivity(activity);
+					for (ProcessorBinding processorBinding : processorBindings) {
+						Processor processor = processorBinding.getBoundProcessor();
+						Workflow parentWorkflow = processor.getParent();
+						if (workflow.getParent().getMainWorkflow() == parentWorkflow) {
+							path.add(parentWorkflow);
+						} else {
+							activities.remove(activity);
+							path.addAll(getPath(activities, parentWorkflow, profile));
+						}
+						break;
+					}
+					break;
+				}
+			}
+		}
+		path.add(workflow);
+		return path;
 	}
 
 	private class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
 		@Override
-		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message)  {
+		public void notifySwing(Observable<SelectionManagerEvent> sender,
+				SelectionManagerEvent message) {
 			if (message instanceof WorkflowBundleSelectionEvent) {
 				WorkflowBundleSelectionEvent workflowBundleSelectionEvent = (WorkflowBundleSelectionEvent) message;
 				WorkflowBundle workflowBundle = workflowBundleSelectionEvent.getSelectedWorkflowBundle();
-				selectObject(workflowBundle);
+				if (workflowBundle == null) {
+					update((Workflow) null);
+				} else {
+					update(selectionManager.getSelectedWorkflow());
+				}
+			} else if (message instanceof WorkflowSelectionEvent) {
+				WorkflowSelectionEvent workflowSelectionEvent = (WorkflowSelectionEvent) message;
+				update(workflowSelectionEvent.getSelectedWorkflow());
 			}
 		}
-	}
 
-	@Override
-	protected Tab<WorkflowBundle> createTab(WorkflowBundle workflowBundle) {
-		return new WorkflowTab(workflowBundle, selectionManager, fileManager);
 	}
 
 }

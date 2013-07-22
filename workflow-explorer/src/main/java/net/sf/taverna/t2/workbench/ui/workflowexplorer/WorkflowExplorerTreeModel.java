@@ -20,28 +20,22 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
 import uk.org.taverna.scufl2.api.common.NamedSet;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.core.ControlLink;
 import uk.org.taverna.scufl2.api.core.DataLink;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputActivityPort;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.OutputActivityPort;
-import uk.org.taverna.scufl2.api.port.OutputPort;
+import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
 import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
-import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 
 /**
  * Workflow Explorer tree model. The tree root has four children nodes,
@@ -61,7 +55,7 @@ import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
  *
  * @author Alex Nenadic
  * @author Stian Soiland-Reyes
- *
+ * @author David Withers
  */
 public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 
@@ -125,21 +119,14 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 			DefaultMutableTreeNode processorNode = new DefaultMutableTreeNode(
 					processor);
 			services.add(processorNode);
-			List<ProcessorBinding> processorbindings = scufl2Tools.processorBindingsForProcessor(processor, df.getParent().getMainProfile());
-			if (processorbindings.isEmpty()) {
-				continue;
-			}
-			Activity activity = processorbindings.get(0).getBoundActivity();
 
-		    // A processor node can have children (input and output ports of its
-			// associated activity/activities).
-			// Currently we just look at the first activity in the list.
-			NamedSet<InputActivityPort> inputPorts = activity.getInputPorts();
-			for (InputActivityPort inputPort : inputPorts) {
+		    // A processor node can have children (input and output ports).
+			NamedSet<InputProcessorPort> inputPorts = processor.getInputPorts();
+			for (InputProcessorPort inputPort : inputPorts) {
 				processorNode.add(new DefaultMutableTreeNode(inputPort));
 			}
-			NamedSet<OutputActivityPort> outputPorts = activity.getOutputPorts();
-			for (OutputActivityPort outputPort : outputPorts) {
+			NamedSet<OutputProcessorPort> outputPorts = processor.getOutputPorts();
+			for (OutputProcessorPort outputPort : outputPorts) {
 				processorNode.add(new DefaultMutableTreeNode(outputPort));
 			}
 
@@ -248,8 +235,8 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 					}
 			}*/
 		}
-		else if (userObject instanceof InputActivityPort){
-			// This is an input port of a processor (i.e. of its associated activity)
+		else if (userObject instanceof InputProcessorPort){
+			// This is an input port of a processor
 			// Get the root processors node
 			DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root.getChildAt(2);
 			for (int i = processors.getChildCount() - 1; i >= 0 ; i--){
@@ -285,8 +272,8 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 					// and see if there is a matching input port
 					for (int j = 0; j < processor.getChildCount(); j++){
 						DefaultMutableTreeNode port_node = (DefaultMutableTreeNode) processor.getChildAt(j);
-						if ((port_node.getUserObject() instanceof InputActivityPort) &&
-								(((InputActivityPort) port_node.getUserObject()).equals(userObject))){
+						if ((port_node.getUserObject() instanceof InputProcessorPort) &&
+								(((InputProcessorPort) port_node.getUserObject()).equals(userObject))){
 							return new TreePath(port_node.getPath());
 						}
 					}
@@ -294,7 +281,7 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 			}
 			return null; // The node is inside a nested workflow so just return here
 		}
-		else if (userObject instanceof OutputActivityPort){
+		else if (userObject instanceof OutputProcessorPort){
 			// This is an output port of a processor (i.e. of its associated activity)
 			// Get the root processors node
 			DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root.getChildAt(2);
@@ -332,8 +319,8 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 					for (int j = 0; j < processor.getChildCount(); j++){
 
 						DefaultMutableTreeNode port_node = (DefaultMutableTreeNode) processor.getChildAt(j);
-						if ((port_node.getUserObject() instanceof OutputActivityPort) &&
-								(((OutputPort) port_node.getUserObject()).equals(userObject))){
+						if ((port_node.getUserObject() instanceof OutputProcessorPort) &&
+								(((OutputProcessorPort) port_node.getUserObject()).equals(userObject))){
 							return new TreePath(port_node.getPath());
 						}
 					}

@@ -40,13 +40,12 @@ import org.apache.commons.beanutils.BeanUtils;
 import uk.org.taverna.scufl2.api.activity.Activity;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.core.BlockingControlLink;
-import uk.org.taverna.scufl2.api.core.ControlLink;
 import uk.org.taverna.scufl2.api.core.DataLink;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputActivityPort;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.OutputPort;
+import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
 import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 import uk.org.taverna.scufl2.api.port.Port;
 import uk.org.taverna.scufl2.api.port.ProcessorPort;
@@ -58,9 +57,8 @@ import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
  * Cell renderer for Workflow Explorer tree.
  *
  * @author Alex Nenadic
- *
+ * @author David Withers
  */
-
 public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 
 	private static final long serialVersionUID = -1326663036193567147L;
@@ -133,15 +131,15 @@ public class WorkflowExplorerTreeCellRenderer extends DefaultTreeCellRenderer {
 			}
 			renderer.setText(text);
 		}
-		// Processor's child input port (from the associated activity)
-		else if (userObject instanceof InputActivityPort) {
+		// Processor's child input port
+		else if (userObject instanceof InputProcessorPort) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.inputPortIcon, status));
-			renderer.setText(((InputActivityPort) userObject).getName());
+			renderer.setText(((InputProcessorPort) userObject).getName());
 		}
-		// Processor's child output port (from the associated activity)
-		else if (userObject instanceof OutputPort) {
+		// Processor's child output port
+		else if (userObject instanceof OutputProcessorPort) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.outputPortIcon, status));
-			renderer.setText(((OutputPort) userObject).getName());
+			renderer.setText(((OutputProcessorPort) userObject).getName());
 		} else if (userObject instanceof DataLink) {
 			renderer.setIcon(chooseIcon(WorkbenchIcons.datalinkIcon, status));
 			SenderPort source = ((DataLink) userObject).getReceivesFrom();

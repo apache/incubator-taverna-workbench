@@ -63,13 +63,12 @@ import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
-import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowSelectionEvent;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
-
-import org.apache.log4j.Logger;
-
+import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
@@ -79,12 +78,10 @@ import uk.org.taverna.scufl2.api.core.Workflow;
  * right-click leads to context sensitive options appearing in a pop-up menu.
  *
  * @author Alex Nenadic
- *
+ * @author David Withers
  */
 @SuppressWarnings("serial")
 public class WorkflowExplorer extends JPanel implements UIComponentSPI {
-
-	private static Logger logger = Logger.getLogger(WorkflowExplorer.class);
 
 	/* Purple colour for shaded label on pop up menus */
 	public static final Color PURPLISH = new Color(0x8070ff);
@@ -95,10 +92,10 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	private MenuManager menuManager;
 
 	/* Currently selected workflow (to be displayed in the Workflow Explorer). */
-	private WorkflowBundle workflow;
+	private Workflow workflow;
 
 	/* Map of trees for all opened workflows. */
-	private Map<WorkflowBundle, JTree> openedWorkflowsTrees = new HashMap<WorkflowBundle, JTree>();
+	private Map<Workflow, JTree> openedWorkflowsTrees = new HashMap<>();
 
 	/* Tree representation of the currently selected workflow. */
 	private JTree wfTree;
@@ -122,6 +119,8 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 
 	private final ActivityIconManager activityIconManager;
 
+	private final ServiceRegistry serviceRegistry;
+
 	public ImageIcon getIcon() {
 		return null;
 	}
@@ -144,15 +143,16 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	public WorkflowExplorer(EditManager editManager, FileManager fileManager,
 			MenuManager menuManager, ReportManager reportManager,
 			SelectionManager selectionManager,
-			ActivityIconManager activityIconManager) {
+			ActivityIconManager activityIconManager, ServiceRegistry serviceRegistry) {
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
 		this.reportManager = reportManager;
 		this.selectionManager = selectionManager;
 		this.activityIconManager = activityIconManager;
+		this.serviceRegistry = serviceRegistry;
 		this.setTransferHandler(new ServiceTransferHandler(editManager, menuManager,
-				selectionManager));
+				selectionManager, serviceRegistry));
 
 		// Create a tree that will represent a view over the current workflow
 		// Initially, there is no workflow opened, so we create an empty tree,
@@ -178,7 +178,7 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	private void assignWfTree(JTree tree) {
 		wfTree = tree;
 		wfTree.setTransferHandler(new ServiceTransferHandler(editManager, menuManager,
-				selectionManager));
+				selectionManager, serviceRegistry));
 	}
 
 	/**
@@ -208,13 +208,13 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	/**
 	 * Gets called when a workflow is opened or a new (empty) one created.
 	 */
-	public void createWorkflowTree(WorkflowBundle df) {
+	public void createWorkflowTree(Workflow df) {
 
 		// Set the current workflow
 		workflow = df;
 
 		// Create a new tree and populate it with the workflow's data
-		assignWfTree(createTreeFromWorkflow(workflow.getMainWorkflow()));
+		assignWfTree(createTreeFromWorkflow(workflow));
 
 		// Add the new tree to the list of opened workflow trees
 		openedWorkflowsTrees.put(workflow, wfTree);
@@ -242,9 +242,9 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	/**
 	 * Switch the current workflow to a previously opened workflow.
 	 */
-	private void switchWorkflowTree(WorkflowBundle workflowBundle) {
+	private void switchWorkflowTree(Workflow workflow) {
 		// Set the current workflow to the one we have switched to
-		workflow = workflowBundle;
+		this.workflow = workflow;
 		// Select the node(s) that should be selected (do this after
 		// assigning the tree to the scroll pane)
 		setSelectedNodes(wfTree, workflow);
@@ -264,10 +264,10 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	 * workflow is edited due to saved changes in the nested workflow (which is the current
 	 * workflow).
 	 */
-	public void updateWorkflowTree(WorkflowBundle df) {
+	public void updateWorkflowTree(Workflow df) {
 
 		// Create the new tree from the updated workflow
-		JTree newTree = createTreeFromWorkflow(df.getMainWorkflow());
+		JTree newTree = createTreeFromWorkflow(df);
 
 		// Get the old workflow tree
 		JTree oldTree = openedWorkflowsTrees.get(df);
@@ -285,19 +285,14 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 		// Get the current workflow from FileManager.
 		// If current workflow is different from the workflow df passed through
 		// this method then this means that the current workflow is the nested
-		// workflow
-		// (whose parent is workflow df) and that the nested workflow has been
-		// previously
-		// edited and then saved which triggered the update on the parent
+		// workflow (whose parent is workflow df) and that the nested workflow has been
+		// previously edited and then saved which triggered the update on the parent
 		// workflow df.
 		// In this case, we should just update the parent workflow tree but keep
-		// the nested
-		// workflow as the current workflow. On the other hand, if the current
-		// workflow is
-		// the same as workflow df then this is just an update to the current
-		// workflow so
-		// we have to update and redraw the workflow tree.
-		if (df.equals(selectionManager.getSelectedWorkflowBundle())) {
+		// the nested workflow as the current workflow. On the other hand, if the current
+		// workflow is the same as workflow df then this is just an update to the current
+		// workflow so we have to update and redraw the workflow tree.
+		if (df.equals(selectionManager.getSelectedWorkflow())) {
 			// this was an update on the current workflow
 
 			// Update the current workflow
@@ -611,9 +606,9 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 	 * Sets the currently selected node(s) based on the workflow selection model, i.e. the node(s)
 	 * currently selected in the workflow graph view also become selected in the tree view.
 	 */
-	private void setSelectedNodes(JTree tree, WorkflowBundle wf) {
+	private void setSelectedNodes(JTree tree, Workflow wf) {
 		DataflowSelectionModel selectionModel = selectionManager
-				.getDataflowSelectionModel(wf);
+				.getDataflowSelectionModel(wf.getParent());
 
 		// List of all selected objects in the graph view
 		Set<Object> selection = selectionModel.getSelection();
@@ -702,35 +697,36 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message) {
 			if (message instanceof WorkflowBundleSelectionEvent) {
 				WorkflowBundleSelectionEvent workflowBundleSelectionEvent = (WorkflowBundleSelectionEvent) message;
-				WorkflowBundle oldFlow = workflowBundleSelectionEvent.getPreviouslySelectedWorkflowBundle();
-				final WorkflowBundle newFlow = workflowBundleSelectionEvent.getSelectedWorkflowBundle();
+				WorkflowBundle oldWorkflowBundle = workflowBundleSelectionEvent.getPreviouslySelectedWorkflowBundle();
+				WorkflowBundle newWorkflowBundle = workflowBundleSelectionEvent.getSelectedWorkflowBundle();
+				Workflow selectedWorkflow = selectionManager.getSelectedWorkflow();
 
 				// Remove the workflow selection model listener from the
 				// previous (if any) and add to the new workflow (if any)
-				WorkflowBundle oldWF = workflow; // previous workflow
-				if (oldFlow != null) {
-					selectionManager.getDataflowSelectionModel(oldFlow).removeObserver(
+				if (oldWorkflowBundle != null) {
+					selectionManager.getDataflowSelectionModel(oldWorkflowBundle).removeObserver(
 							workflowSelectionListener);
 				}
-
-				if (newFlow != null) {
-					selectionManager.getDataflowSelectionModel(newFlow).addObserver(workflowSelectionListener);
+				if (newWorkflowBundle != null) {
+					selectionManager.getDataflowSelectionModel(newWorkflowBundle).addObserver(workflowSelectionListener);
 				}
 
-				// Create a new thread to prevent drawing the
-				// current workflow tree to take over completely
-				new Thread("Workflow Explorer - model map message: current workflow switched.") {
-					@Override
-					public void run() {
-						// If the workflow tree has already been created -
-						// switch to it
-						if (openedWorkflowsTrees.containsKey(newFlow)) {
-							switchWorkflowTree(newFlow);
-						} else { // otherwise create a new tree for the workflow
-							createWorkflowTree(newFlow);
-						}
-					}
-				}.start();
+				// If the workflow tree has already been created switch to it
+				if (openedWorkflowsTrees.containsKey(selectedWorkflow)) {
+					switchWorkflowTree(selectedWorkflow);
+				} else { // otherwise create a new tree for the workflow
+					createWorkflowTree(selectedWorkflow);
+				}
+			} else if (message instanceof WorkflowSelectionEvent) {
+				WorkflowSelectionEvent workflowSelectionEvent = (WorkflowSelectionEvent) message;
+				Workflow newWorkflow = workflowSelectionEvent.getSelectedWorkflow();
+
+				// If the workflow tree has already been created switch to it
+				if (openedWorkflowsTrees.containsKey(newWorkflow)) {
+					switchWorkflowTree(newWorkflow);
+				} else { // otherwise create a new tree for the workflow
+					createWorkflowTree(newWorkflow);
+				}
 			}
 		}
 	}
@@ -745,18 +741,13 @@ public class WorkflowExplorer extends JPanel implements UIComponentSPI {
 		@Override
 		public void notifySwing(Observable<EditManagerEvent> sender, final EditManagerEvent message) {
 			if (message instanceof AbstractDataflowEditEvent) {
-				// React to edits in the current workflow
-				// Create a new thread to prevent drawing the workflow
-				// tree to take over completely
-
-				new Thread("Workflow Explorer - edit manager message: current workflow edited.") {
-					@Override
-					public void run() {
-						WorkflowBundle workflowBundle = ((AbstractDataflowEditEvent) message).getDataFlow();
-						// Update the workflow tree to reflect the changes
-						updateWorkflowTree(workflowBundle);
+				WorkflowBundle workflowBundle = ((AbstractDataflowEditEvent) message).getDataFlow();
+				// Update the workflow trees to reflect the changes
+				for (Workflow workflow : workflowBundle.getWorkflows()) {
+					if (openedWorkflowsTrees.containsKey(workflow)) {
+						updateWorkflowTree(workflow);
 					}
-				}.start();
+				}
 			}
 		}
 	}

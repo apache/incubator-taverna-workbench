@@ -20,9 +20,32 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.design;
 
+import java.net.URI;
+import java.util.List;
+
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.NamedSet;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputActivityPort;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
+import uk.org.taverna.scufl2.api.profiles.Profile;
+
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
+import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
@@ -31,6 +54,9 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 
 public class DesignPerspective implements PerspectiveSPI, WorkflowPerspective {
+
+	private static final URI NESTED_WORKFLOW_TYPE = URI
+			.create("http://ns.taverna.org.uk/2010/activity/nested-workflow");
 
 	private DesignPerspectiveComponent designPerspectiveComponent;
 
@@ -41,19 +67,23 @@ public class DesignPerspective implements PerspectiveSPI, WorkflowPerspective {
 	private UIComponentFactorySPI reportViewComponentFactory;
 	private FileManager fileManager;
 	private SelectionManager selectionManager;
+	private MenuManager menuManager;
+	private EditManager editManager;
+
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	@Override
 	public String getID() {
-		return this.getClass().getName();
+		return DesignPerspective.class.getName();
 	}
 
 	@Override
 	public JComponent getPanel() {
 		if (designPerspectiveComponent == null) {
-			designPerspectiveComponent = new DesignPerspectiveComponent(
-					graphViewComponentFactory, servicePanelComponentFactory,
-					contextualViewComponentFactory, workflowExplorerFactory,
-					reportViewComponentFactory, fileManager, selectionManager);
+			designPerspectiveComponent = new DesignPerspectiveComponent(graphViewComponentFactory,
+					servicePanelComponentFactory, contextualViewComponentFactory,
+					workflowExplorerFactory, reportViewComponentFactory, fileManager,
+					selectionManager, menuManager, editManager);
 		}
 		return designPerspectiveComponent;
 	}
@@ -81,7 +111,8 @@ public class DesignPerspective implements PerspectiveSPI, WorkflowPerspective {
 		this.servicePanelComponentFactory = servicePanelComponentFactory;
 	}
 
-	public void setContextualViewComponentFactory(UIComponentFactorySPI contextualViewComponentFactory) {
+	public void setContextualViewComponentFactory(
+			UIComponentFactorySPI contextualViewComponentFactory) {
 		this.contextualViewComponentFactory = contextualViewComponentFactory;
 	}
 
@@ -99,6 +130,14 @@ public class DesignPerspective implements PerspectiveSPI, WorkflowPerspective {
 
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
+	}
+
+	public void setMenuManager(MenuManager menuManager) {
+		this.menuManager = menuManager;
+	}
+
+	public void setEditManager(EditManager editManager) {
+		this.editManager = editManager;
 	}
 
 }

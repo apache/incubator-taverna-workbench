@@ -20,13 +20,25 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.design;
 
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.Component;
+import java.awt.event.ActionEvent;
 
+import javax.swing.Action;
+
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.tabselector.Tab;
+import net.sf.taverna.t2.workbench.edits.EditManager;
+import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
+import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
+import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.UnsavedException;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
@@ -38,32 +50,29 @@ public class WorkflowTab extends Tab<WorkflowBundle> {
 
 	private static final long serialVersionUID = 1L;
 
+	private final Component component;
 	private final SelectionManager selectionManager;
 	private final FileManager fileManager;
+	private final EditManager editManager;
+	private final Action closeMenuAction;
 
-	public WorkflowTab(final WorkflowBundle workflowBundle, final SelectionManager selectionManager, final FileManager fileManager) {
-		super(fileManager.getDataflowName(workflowBundle), workflowBundle);
+	private boolean saved = true;
+	private EditManagerObserver editManagerObserver;
+	private FileManagerObserver fileManagerObserver;
+
+	public WorkflowTab(Component component, final WorkflowBundle workflowBundle,
+			final SelectionManager selectionManager, final FileManager fileManager,
+			EditManager editManager, Action closeMenuAction) {
+		super(workflowBundle.getMainWorkflow().getName(), workflowBundle);
+		this.component = component;
 		this.selectionManager = selectionManager;
 		this.fileManager = fileManager;
-	}
-
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D) g.create();
-		if (getModel().isPressed()) {
-			g2.translate(1, 1);
-		}
-		if (!getModel().isSelected()) {
-			g2.setColor(lightGrey);
-			g2.fillRoundRect(1, 0, getWidth() - 3, getHeight() - 1, 4, 10);
-		}
-		g2.setColor(midGrey);
-		g2.drawRoundRect(1, 0, getWidth() - 3, getHeight(), 4, 10);
-		if (getModel().isSelected()) {
-			g2.setColor(getParent().getBackground());
-			g2.drawLine(1, getHeight() - 1, getWidth() - 2, getHeight() - 1);
-		}
-		g2.dispose();
+		this.editManager = editManager;
+		this.closeMenuAction = closeMenuAction;
+		editManagerObserver = new EditManagerObserver();
+		fileManagerObserver = new FileManagerObserver();
+		editManager.addObserver(editManagerObserver);
+		fileManager.addObserver(fileManagerObserver);
 	}
 
 	protected void clickTabAction() {
@@ -71,10 +80,54 @@ public class WorkflowTab extends Tab<WorkflowBundle> {
 	}
 
 	protected void closeTabAction() {
-		try {
-			fileManager.closeDataflow(selection, false);
-		} catch (UnsavedException e1) {
-			// ignore
+		if (!saved && closeMenuAction != null) {
+			selectionManager.setSelectedWorkflowBundle(selection);
+			closeMenuAction.actionPerformed(new ActionEvent(component, 0, ""));
+		} else {
+			try {
+				fileManager.closeDataflow(selection, false);
+			} catch (UnsavedException e) {
+			}
+		}
+	}
+
+	private class EditManagerObserver extends SwingAwareObserver<EditManagerEvent> {
+		@Override
+		public void notifySwing(Observable<EditManagerEvent> sender,
+				EditManagerEvent message) {
+			if (message instanceof AbstractDataflowEditEvent) {
+				AbstractDataflowEditEvent event = (AbstractDataflowEditEvent) message;
+				if (event.getDataFlow() == selection) {
+					setSaved(false);
+				}
+			}
+		}
+	}
+
+	private class FileManagerObserver extends SwingAwareObserver<FileManagerEvent> {
+		public void notifySwing(Observable<FileManagerEvent> sender, FileManagerEvent message) {
+			if (message instanceof ClosedDataflowEvent) {
+				ClosedDataflowEvent event = (ClosedDataflowEvent) message;
+				if (event.getDataflow() == selection) {
+					fileManager.removeObserver(fileManagerObserver);
+					editManager.removeObserver(editManagerObserver);
+				}
+			} else if (message instanceof SavedDataflowEvent) {
+				SavedDataflowEvent event = (SavedDataflowEvent) message;
+				if (event.getDataflow() == selection) {
+					setSaved(true);
+				}
+			}
+		}
+	}
+
+	public void setSaved(boolean saved) {
+		this.saved = saved;
+		String name = getName();
+		if (saved && name.startsWith("*")) {
+			setName(name.substring(1));
+		} else if (!saved && !name.startsWith("*")) {
+			setName("*" + name);
 		}
 	}
 

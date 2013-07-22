@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -24,21 +24,16 @@ import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.dnd.Autoscroll;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.EventObject;
 import java.util.List;
 
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreeCellEditor;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
@@ -50,12 +45,12 @@ import org.apache.log4j.Logger;
  * listeners used by the pre-registration tree control. Implements autoscroll
  * and zooms to any new nodes when added. Handles drop of URLs (from e.g.
  * FireFox), File structures and plain text by creating corresponding POJOs.
- * 
+ *
  * @author Tom Oinn
- * 
+ *
  */
 public class PreRegistrationTree extends JTree implements Autoscroll {
-	
+
 	private static Logger logger = Logger
 	.getLogger(PreRegistrationTree.class);
 
@@ -68,7 +63,7 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 	 * Get the PreRegistrationTreeModel for this tree. Used to get the contents
 	 * of the tree as a POJO which can then be registered with the
 	 * ReferenceService
-	 * 
+	 *
 	 * @return a POJO containing the contents of the tree.
 	 */
 	public PreRegistrationTreeModel getPreRegistrationTreeModel() {
@@ -81,12 +76,12 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 	public void setStatusMessage(String message, boolean isError) {
 		//
 	}
-	
+
 	/**
 	 * Construct with the depth of the collection to be assembled. This will
 	 * instantiate an appropriate internal model and set all the drag and drop
 	 * handlers, renderers and cell editing components.
-	 * 
+	 *
 	 * @param depth
 	 *            the collection depth to use, 0 for single items, 1 for lists
 	 *            and so on.
@@ -99,7 +94,7 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 	 * Construct with the depth of the collection to be assembled. This will
 	 * instantiate an appropriate internal model and set all the drag and drop
 	 * handlers, renderers and cell editing components.
-	 * 
+	 *
 	 * @param depth
 	 *            the collection depth to use, 0 for single items, 1 for lists
 	 *            and so on.
@@ -114,13 +109,13 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 		}
 		setModel(model);
 		setInvokesStopCellEditing(true);
-		
+
 		getSelectionModel().setSelectionMode(
 				TreeSelectionModel.SINGLE_TREE_SELECTION);
 		DefaultTreeCellRenderer renderer = new PreRegistrationTreeCellRenderer();
 		setRowHeight(0);
 		setCellRenderer(renderer);
-		
+
 		new PreRegistrationTreeDnDHandler(this) {
 			@Override
 			public void handleNodeMove(MutableTreeNode source,
@@ -216,7 +211,7 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 				+ margin, outer.width - inner.width - inner.x + outer.x
 				+ margin);
 	}
-	
+
 	public int getRowCount() {
 		int result = super.getRowCount();
 		logger.info("Row count is " + result);

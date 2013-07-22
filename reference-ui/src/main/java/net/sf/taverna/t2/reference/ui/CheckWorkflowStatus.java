@@ -7,15 +7,15 @@ import java.util.Map;
 
 import javax.swing.JOptionPane;
 
-import net.sf.taverna.t2.visit.VisitReport.Status;
+import uk.org.taverna.scufl2.api.profiles.Profile;
+import uk.org.taverna.scufl2.validation.Status;
+
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
-import net.sf.taverna.t2.workbench.report.view.ReportOnWorkflowAction;
 import net.sf.taverna.t2.workbench.ui.Workbench;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 public class CheckWorkflowStatus {
 
@@ -23,27 +23,27 @@ public class CheckWorkflowStatus {
 
 	protected static Map<String, Date> runAnyways = Collections.synchronizedMap(new HashMap<String, Date>());
 
-	private static ReportManagerConfiguration reportManagerConfig = ReportManagerConfiguration.getInstance();
+	private static ReportManagerConfiguration reportManagerConfig;
 
-	public static boolean checkWorkflow(Dataflow dataflow, Workbench workbench, EditManager editManager, FileManager fileManager, ReportManager reportManager) {
+	public static boolean checkWorkflow(Profile dataflow, Workbench workbench, EditManager editManager, FileManager fileManager, ReportManager reportManager) {
 		synchronized (runAnyways) {
 			Date runAnyway = runAnyways.remove(dataflow.getIdentifier());
 			Date now = new Date();
 			if (runAnyway != null && (now.getTime() - runAnyway.getTime()) < RUN_ANYWAY_EXPIRE_MILLIS) {
 				// new expiration time (remember we removed it above)
-				runAnyways.put(dataflow.getIdentifier(), new Date());
+				runAnyways.put(dataflow.getName(), new Date());
 				return true;
 			}
 		}
 
 		String beforeRunSetting = reportManagerConfig
 				.getProperty(ReportManagerConfiguration.BEFORE_RUN);
-		ReportOnWorkflowAction action = new ReportOnWorkflowAction("",
-				dataflow, beforeRunSetting
-						.equals(ReportManagerConfiguration.FULL_CHECK), false, editManager, fileManager, reportManager, workbench);
-		if (reportManager.isReportOutdated(dataflow)) {
-			action.validateWorkflow();
-		}
+//		ReportOnWorkflowAction action = new ReportOnWorkflowAction("",
+//				dataflow, beforeRunSetting
+//						.equals(ReportManagerConfiguration.FULL_CHECK), false, editManager, fileManager, reportManager, workbench);
+//		if (reportManager.isReportOutdated(dataflow)) {
+//			action.validateWorkflow();
+//		}
 		if (!reportManager.isStructurallySound(dataflow)) {
 			JOptionPane
 					.showMessageDialog(
@@ -73,7 +73,7 @@ public class CheckWorkflowStatus {
 				showReport(workbench);
 				return false;
 			} else {
-				runAnyways.put(dataflow.getIdentifier(), new Date());
+				runAnyways.put(dataflow.getName(), new Date());
 			}
 		} else if (status.equals(Status.WARNING)
 				&& queryBeforeRunSetting
@@ -86,7 +86,7 @@ public class CheckWorkflowStatus {
 				showReport(workbench);
 				return false;
 			} else {
-				runAnyways.put(dataflow.getIdentifier(), new Date());
+				runAnyways.put(dataflow.getName(), new Date());
 			}
 		}
 		return true;

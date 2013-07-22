@@ -35,6 +35,8 @@ import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.commons.services.ServiceRegistry;
+
 /**
  * TransferHandler for accepting ActivityAndBeanWrapper object dropped on the
  * GraphView. On a successful drop a Processor is created from the Activity and
@@ -54,12 +56,14 @@ public class ServiceTransferHandler extends TransferHandler {
 	private final EditManager editManager;
 	private final MenuManager menuManager;
 	private final SelectionManager selectionManager;
+	private final ServiceRegistry serviceRegistry;
 
-	public ServiceTransferHandler(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager) {
+	public ServiceTransferHandler(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
 
 		this.editManager = editManager;
 		this.menuManager = menuManager;
 		this.selectionManager = selectionManager;
+		this.serviceRegistry = serviceRegistry;
 
 		try {
 			serviceDescriptionDataFlavor = new DataFlavor(
@@ -87,7 +91,7 @@ public class ServiceTransferHandler extends TransferHandler {
 	public boolean importData(JComponent component, Transferable transferable) {
 		logger.info("Importing a transferable");
 		logger.debug(component.getClass().getCanonicalName());
-		WorkflowView.pasteTransferable(transferable, editManager, menuManager, selectionManager);
+		WorkflowView.pasteTransferable(transferable, editManager, menuManager, selectionManager, serviceRegistry);
 		return true;
 	}
 

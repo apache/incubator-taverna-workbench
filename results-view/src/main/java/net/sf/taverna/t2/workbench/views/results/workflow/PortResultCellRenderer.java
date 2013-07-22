@@ -1,73 +1,96 @@
 /**
- * 
+ *
  */
 package net.sf.taverna.t2.workbench.views.results.workflow;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.nio.file.Path;
+import java.util.Enumeration;
 
 import javax.swing.JLabel;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeNode;
 
-import net.sf.taverna.t2.reference.T2Reference;
-import net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState;
+import uk.org.taverna.databundle.DataBundles;
 
 /**
  * @author alanrw
- *
  */
 @SuppressWarnings("serial")
 public class PortResultCellRenderer extends DefaultTreeCellRenderer {
-	public Component getTreeCellRendererComponent(JTree tree,
-			Object value, boolean selected, boolean expanded,
-			boolean leaf, int row, boolean hasFocus) {
-		Component result = super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row, hasFocus);
-		if (value instanceof WorkflowResultTreeNode) {
-			WorkflowResultTreeNode value2 = (WorkflowResultTreeNode) value;
+	public Component getTreeCellRendererComponent(JTree tree, Object value, boolean selected,
+			boolean expanded, boolean leaf, int row, boolean hasFocus) {
+		Component result = super.getTreeCellRendererComponent(tree, value, selected, expanded,
+				leaf, row, hasFocus);
+		if (value instanceof DefaultMutableTreeNode) {
+			DefaultMutableTreeNode node = (DefaultMutableTreeNode) value;
+			Path path = (Path) node.getUserObject();
 			String text = "";
-			WorkflowResultTreeNode parent = (WorkflowResultTreeNode) value2.getParent();
-			if (value2.getState().equals(ResultTreeNodeState.RESULT_LIST)) {
-				if (value2.getChildCount() == 0) {
+			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+			if (path == null) {
+				text = "Waiting for data";
+			} else if (DataBundles.isList(path)) {
+				if (node.getChildCount() == 0) {
 					text = "Empty list";
 				} else {
-				text = "List";
-				if (!parent.getState().equals(ResultTreeNodeState.RESULT_TOP)) {
-					text += " " + (parent.getIndex(value2) + 1);
+					text = "List";
+					if (parent != null) {
+						text += " " + (parent.getIndex(node) + 1);
+					}
+					int valueCount = node.getLeafCount();
+					text += " with " + valueCount + " value";
+					if (valueCount != 1) {
+						text += "s";
+					}
+					int sublistCount = getSublistCount(node);
+					if (sublistCount > 0) {
+						text += " in " + sublistCount + " sublists";
+					}
 				}
-				text += " with " + value2.getValueCount() + " value";
-				if (value2.getValueCount() != 1) {
-					text += "s";
+			} else {
+				int index = 1;
+				if (parent != null) {
+					index += parent.getIndex(node);
 				}
-				if (value2.getSublistCount() > 0) {
-					text += " in " + value2.getSublistCount() + " sublists";
-				}
-				}
-			} else if (value2.getState().equals(ResultTreeNodeState.RESULT_REFERENCE)) {
-				text = "Value " + (parent.getIndex(value2) + 1);
-			} else if (value2.getState().equals(ResultTreeNodeState.RESULT_WAITING)) {
-				text = "Waiting for data";
+				text = "Value " + index;
 			}
 			((JLabel) result).setText(text);
-			if (containsError(value2)) {
+			if (containsError(node)) {
 				result.setForeground(Color.RED);
 			}
 		}
 		return result;
 	}
 
-	private static boolean containsError (TreeNode node) {
+	public int getSublistCount(DefaultMutableTreeNode node) {
+		int result = 0;
+		Enumeration<?> children = node.children();
+		while (children.hasMoreElements()) {
+			Object nextElement = children.nextElement();
+			if (nextElement instanceof DefaultMutableTreeNode) {
+				DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) nextElement;
+				if (childNode.getChildCount() != 0) {
+					result++;
+				}
+			}
+		}
+		return result;
+	}
+
+	private static boolean containsError(TreeNode node) {
 		boolean result = false;
-		if (node instanceof WorkflowResultTreeNode) {
-			WorkflowResultTreeNode rtn = (WorkflowResultTreeNode) node;
-			T2Reference reference = rtn.getReference();
-			if ((reference != null) && (reference.containsErrors())) {
+		if (node instanceof DefaultMutableTreeNode) {
+			DefaultMutableTreeNode rtn = (DefaultMutableTreeNode) node;
+			Path reference = (Path) rtn.getUserObject();
+			if ((reference != null) && (DataBundles.isError(reference))) {
 				result = true;
 			}
 		}
 		int childCount = node.getChildCount();
-		for (int i = 0; (i < childCount) && !result; i++ ) {
+		for (int i = 0; (i < childCount) && !result; i++) {
 			result = containsError(node.getChildAt(i));
 		}
 		return result;

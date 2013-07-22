@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2009 The University of Manchester
+ * Copyright (C) 2013 The University of Manchester
  *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -18,33 +18,51 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.reference.ui;
+package net.sf.taverna.t2.ui.perspectives.results;
 
-import javax.swing.SwingWorker;
+import javax.swing.AbstractListModel;
 
-import org.apache.log4j.Logger;
+import uk.org.taverna.platform.run.api.RunService;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+/**
+ * @author David Withers
+ */
+public class WorkflowRunListModel extends AbstractListModel<String> {
 
-public class CopyWorkflowSwingWorker extends SwingWorker<WorkflowBundle, String>{
+	private final RunService runService;
 
-	private Logger logger = Logger.getLogger(CopyWorkflowSwingWorker.class);
-
-	private WorkflowBundle dataflowOriginal;
-
-	public CopyWorkflowSwingWorker(WorkflowBundle dataflowOriginal){
-		this.dataflowOriginal = dataflowOriginal;
+	public WorkflowRunListModel(RunService runService) {
+		this.runService = runService;
 	}
 
 	@Override
-	protected WorkflowBundle doInBackground() throws Exception {
-		WorkflowBundle dataflowCopy = null;
-		return dataflowOriginal;
-//		logger.info("CopyWorkflowSwingWorker: copying of the workflow started.");
-//		dataflowCopy = WorkflowBundle.cloneWorkflowBean(dataflowOriginal);
-//		logger.info("CopyWorkflowSwingWorker: copying of the workflow finished.");
-//
-//		return dataflowCopy;
+	public int getSize() {
+		return runService.getRuns().size();
+	}
+
+	@Override
+	public String getElementAt(int index) {
+		return runService.getRuns().get(index);
+	}
+
+	/**
+	 * @param runID
+	 */
+	public void runAdded(String runID) {
+		int index = runService.getRuns().indexOf(runID);
+		if (index >= 0) {
+			fireIntervalAdded(this, index, index);
+		}
+	}
+
+	/**
+	 * @param runID
+	 */
+	public void runRemoved(String runID) {
+		int index = runService.getRuns().indexOf(runID);
+		if (index >= 0) {
+			fireIntervalRemoved(this, index, index);
+		}
 	}
 
 }

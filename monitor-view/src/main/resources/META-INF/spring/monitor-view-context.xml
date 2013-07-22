@@ -3,12 +3,4 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="MonitorGraphComponentFactory" class="net.sf.taverna.t2.workbench.views.monitor.graph.MonitorGraphComponentFactory">
-			<property name="editManager" ref="editManager" />
-			<property name="menuManager" ref="menuManager" />
-			<property name="selectionManager" ref="selectionManager" />
-			<property name="colourManager" ref="colourManager" />
-			<property name="workbenchConfiguration" ref="workbenchConfiguration" />
-	</bean>
-
 </beans>

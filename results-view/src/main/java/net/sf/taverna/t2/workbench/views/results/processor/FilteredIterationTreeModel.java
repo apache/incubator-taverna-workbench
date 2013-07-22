@@ -3,15 +3,14 @@ package net.sf.taverna.t2.workbench.views.results.processor;
 
 import java.util.Enumeration;
 
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeNode;
- 
+
 import net.sf.taverna.t2.workbench.views.results.SimpleFilteredTreeModel;
 import net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState;
 
+@SuppressWarnings("serial")
 public class FilteredIterationTreeModel extends SimpleFilteredTreeModel {
- 
+
     public enum FilterType {
 	ALL { public String toString() {return "View all";} },
 	    RESULTS { public String toString() {return "View results";} },
@@ -25,7 +24,7 @@ public class FilteredIterationTreeModel extends SimpleFilteredTreeModel {
         super(delegate);
 	this.filter = FilterType.ALL;
     }
- 
+
     public void setFilter(FilterType filter) {
 	this.filter = filter;
     }
@@ -39,7 +38,7 @@ public class FilteredIterationTreeModel extends SimpleFilteredTreeModel {
 	    return (true);
 	}
 	if (filter.equals(FilterType.RESULTS)) {
-	    for (Enumeration e = node.depthFirstEnumeration(); e.hasMoreElements();) {
+	    for (Enumeration<?> e = node.depthFirstEnumeration(); e.hasMoreElements();) {
 		IterationTreeNode subNode = (IterationTreeNode) e.nextElement();
 		if (subNode.isLeaf() && subNode.getErrorState().equals(ErrorState.NO_ERRORS)) {
 		    return true;

@@ -21,8 +21,7 @@
 package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
 import java.awt.Component;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
+import java.util.Set;
 
 import javax.swing.Icon;
 import javax.swing.JTree;
@@ -31,14 +30,9 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.MergePort;
-import net.sf.taverna.t2.workflowmodel.Port;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.ProcessorPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-
-import org.apache.commons.beanutils.BeanUtils;
+import uk.org.taverna.platform.report.ActivityReport;
+import uk.org.taverna.platform.report.ProcessorReport;
+import uk.org.taverna.platform.report.WorkflowReport;
 
 /**
  * Cell renderer for Workflow Explorer tree.
@@ -68,34 +62,20 @@ public class WorkflowRunProgressTreeCellRenderer extends DefaultTreeCellRenderer
 
 		WorkflowRunProgressTreeCellRenderer renderer = (WorkflowRunProgressTreeCellRenderer) result;
 
-		if (userObject instanceof Dataflow){ //the root node
+		if (userObject instanceof WorkflowReport){ //the root node
 			renderer.setIcon(WorkbenchIcons.workflowExplorerIcon);
-			renderer.setText(((Dataflow) userObject).getLocalName());
-		} else if (userObject instanceof Processor) {
-			// Get the activity associated with the procesor - currently only
-			// the first one in the list gets displayed
-			List<? extends Activity<?>> activityList = ((Processor) userObject)
-					.getActivityList();
-			String text = ((Processor) userObject).getLocalName();
-			if (!activityList.isEmpty()) {
-				Activity<?> activity = activityList.get(0);
-				Icon icon = activityIconManager.iconForActivity(activity);
-
+			renderer.setText(((WorkflowReport) userObject).getSubject().getName());
+		} else if (userObject instanceof ProcessorReport) {
+			ProcessorReport processorReport = (ProcessorReport) userObject;
+			// Get the activity associated with the processor - currently only
+			// one gets displayed
+			Set<ActivityReport> activityReports = processorReport.getChildReports();
+			String text = processorReport.getSubject().getName();
+			if (!activityReports.isEmpty()) {
+				ActivityReport activityReport = activityReports.iterator().next();
+				Icon icon = activityIconManager.iconForActivity(activityReport.getSubject());
 				if (icon != null) {
 					renderer.setIcon(icon);
-				}
-
-				String extraDescription;
-				try {
-					extraDescription = BeanUtils.getProperty(activity,
-							"extraDescription");
-					text += " - " + extraDescription;
-				} catch (IllegalAccessException e) {
-					// no problem
-				} catch (InvocationTargetException e) {
-					// no problem
-				} catch (NoSuchMethodException e) {
-					// no problem;
 				}
 			}
 			renderer.setText(text);
@@ -103,20 +83,5 @@ public class WorkflowRunProgressTreeCellRenderer extends DefaultTreeCellRenderer
 
 		return result;
 	}
-
-	protected String findName(Port port) {
-		if (port instanceof ProcessorPort) {
-			String sourceProcessorName = ((ProcessorPort)port).getProcessor().getLocalName();
-			return sourceProcessorName + ":" + port.getName();
-		} else if (port instanceof MergePort) {
-			String sourceMergeName = ((MergePort)port).getMerge().getLocalName();
-			return sourceMergeName + ":" + port.getName();
-
-		} else {
-			return port.getName();
-		}
-	}
-
-
 
 }

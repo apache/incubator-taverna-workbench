@@ -3,7 +3,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="WorkflowResultsComponent" class="net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultsComponent" />
+	<!-- <bean id="WorkflowResultsComponent" class="net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultsComponent" /> -->
 
 	<bean id="SaveIndividualResult" class="net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResult" />
 

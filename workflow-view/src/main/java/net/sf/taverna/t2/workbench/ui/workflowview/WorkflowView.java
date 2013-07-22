@@ -8,6 +8,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,19 +30,31 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
-import net.sf.taverna.t2.workflow.edits.AddActivityEdit;
 import net.sf.taverna.t2.workflow.edits.AddChildEdit;
 import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
 
 import org.apache.log4j.Logger;
 import org.jdom.Element;
 
+import uk.org.taverna.commons.services.ActivityTypeNotFoundException;
+import uk.org.taverna.commons.services.InvalidConfigurationException;
+import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.activity.Activity;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.iterationstrategy.CrossProduct;
+import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
+import uk.org.taverna.scufl2.api.iterationstrategy.PortNode;
+import uk.org.taverna.scufl2.api.port.InputActivityPort;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+import uk.org.taverna.scufl2.api.port.OutputActivityPort;
+import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
+import uk.org.taverna.scufl2.api.profiles.ProcessorInputPortBinding;
+import uk.org.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
 import uk.org.taverna.scufl2.api.profiles.Profile;
 
 /**
@@ -83,32 +96,70 @@ public class WorkflowView {
 		}
 	}
 
-	public final static Processor importServiceDescription(ServiceDescription sd, boolean rename, EditManager editManager, MenuManager menuManager, SelectionManager selectionManager) {
-		WorkflowBundle currentDataflow = selectionManager.getSelectedWorkflowBundle();
+	public final static Processor importServiceDescription(ServiceDescription sd, boolean rename, EditManager editManager,
+			MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
 		Workflow workflow = selectionManager.getSelectedWorkflow();
+		System.out.println("Workflow = " + workflow.getName());
 		Profile profile = selectionManager.getSelectedProfile();
+		System.out.println("Profile = " + profile.getName());
 
 		Processor processor = new Processor();
 		processor.setName(sd.getName());
 
+		CrossProduct crossProduct = new CrossProduct();
+		crossProduct.setParent(processor.getIterationStrategyStack());
+
+		URI activityType = sd.getActivityType();
+
 		Activity activity = new Activity();
-		activity.setConfigurableType(sd.getActivityType());
+		activity.setType(activityType);
 		Configuration configuration = sd.getActivityConfiguration();
 		configuration.setConfigures(activity);
+
+		ProcessorBinding processorBinding = new ProcessorBinding();
+		processorBinding.setBoundProcessor(processor);
+		processorBinding.setBoundActivity(activity);
+
+		try {
+			for (InputActivityPort activityPort : serviceRegistry.getActivityInputPorts(activityType, configuration.getJson())) {
+				// add port to activity
+				activityPort.setParent(activity);
+				// create processor port
+				InputProcessorPort processorPort = new InputProcessorPort(processor, activityPort.getName());
+				processorPort.setDepth(activityPort.getDepth());
+				// add a new port binding
+				new ProcessorInputPortBinding(processorBinding, processorPort, activityPort);
+				for (IterationStrategyTopNode iterationStrategyTopNode : processor.getIterationStrategyStack()) {
+					PortNode portNode = new PortNode(iterationStrategyTopNode, processorPort);
+					portNode.setDesiredDepth(processorPort.getDepth());
+					break;
+				}
+			}
+			for (OutputActivityPort activityPort : serviceRegistry.getActivityOutputPorts(activityType, configuration.getJson())) {
+				// add port to activity
+				activityPort.setParent(activity);
+				// create processor port
+				OutputProcessorPort processorPort = new OutputProcessorPort(processor, activityPort.getName());
+				processorPort.setDepth(activityPort.getDepth());
+				processorPort.setGranularDepth(activityPort.getGranularDepth());
+				// add a new port binding
+				new ProcessorOutputPortBinding(processorBinding, activityPort, processorPort);
+			}
+		} catch (InvalidConfigurationException | ActivityTypeNotFoundException e) {
+			logger.warn("Unable to get activity ports for configuration", e);
+		}
 
 		List<Edit<?>> editList = new ArrayList<Edit<?>>();
 		editList.add(new AddChildEdit<Profile>(profile, activity));
 		editList.add(new AddChildEdit<Profile>(profile, configuration));
-		// editList.add(edits.getDefaultDispatchStackEdit(p));
-		editList.add(new AddActivityEdit(processor, activity));
-		// editList.add(edits.getMapProcessorPortsForActivityEdit(p));
+		editList.add(new AddChildEdit<Profile>(profile, processorBinding));
 		editList.add(new AddProcessorEdit(workflow, processor));
 		Edit<?> insertionEdit = sd.getInsertionEdit(workflow, processor, activity);
 		if (insertionEdit != null) {
 			editList.add(insertionEdit);
 		}
 		try {
-			editManager.doDataflowEdit(currentDataflow, new CompoundEdit(editList));
+			editManager.doDataflowEdit(workflow.getParent(), new CompoundEdit(editList));
 		} catch (EditException e) {
 			showException(UNABLE_TO_ADD_SERVICE, e);
 			logger.warn("Could not add processor : edit error", e);
@@ -154,14 +205,14 @@ public class WorkflowView {
 		return result;
 	}
 
-	public static void pasteTransferable(Transferable t, EditManager editManager, MenuManager menuManager, SelectionManager selectionManager) {
+	public static void pasteTransferable(Transferable t, EditManager editManager, MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
 		if (t.isDataFlavorSupported(processorFlavor)) {
 			pasteProcessor(t, editManager);
 		} else if (t.isDataFlavorSupported(serviceDescriptionDataFlavor)) {
 			try {
 				ServiceDescription data = (ServiceDescription) t
 						.getTransferData(serviceDescriptionDataFlavor);
-				importServiceDescription(data, false, editManager, menuManager, selectionManager);
+				importServiceDescription(data, false, editManager, menuManager, selectionManager, serviceRegistry);
 			} catch (UnsupportedFlavorException e) {
 				showException(UNABLE_TO_ADD_SERVICE, e);
 				logger.error(e);
@@ -173,8 +224,8 @@ public class WorkflowView {
 		}
 	}
 
-	public static void pasteTransferable(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager) {
-		pasteTransferable(Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null), editManager, menuManager, selectionManager);
+	public static void pasteTransferable(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
+		pasteTransferable(Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null), editManager, menuManager, selectionManager, serviceRegistry);
 
 	}
 

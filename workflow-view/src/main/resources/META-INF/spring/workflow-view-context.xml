@@ -11,6 +11,7 @@
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
 			<property name="selectionManager" ref="selectionManager" />
+			<property name="serviceRegistry" ref="serviceRegistry" />
 	</bean>
 	<bean id="CutProcessorMenuAction" class="net.sf.taverna.t2.workbench.ui.menu.CutProcessorMenuAction">
 			<property name="editManager" ref="editManager" />
@@ -31,6 +32,7 @@
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
 			<property name="selectionManager" ref="selectionManager" />
+			<property name="serviceRegistry" ref="serviceRegistry" />
 	</bean>
 
 </beans>

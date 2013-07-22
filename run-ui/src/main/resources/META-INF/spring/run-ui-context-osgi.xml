@@ -6,32 +6,22 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="ResultsPerspective" interface="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI" />
-
-	<service ref="LoadRunIdsToDeleteStartupHook" interface="net.sf.taverna.t2.workbench.StartupSPI" />
+	<service ref="FileRunMenuSection" auto-export="interfaces" />
+	<service ref="RunToolbarSection" auto-export="interfaces" />
 
 	<service ref="FileRunMenuAction" auto-export="interfaces" />
 	<service ref="FileValidateMenuAction" auto-export="interfaces" />
-	<service ref="FileRunMenuSection" auto-export="interfaces" />
-	<service ref="RunToolbarSection" auto-export="interfaces" />
 	<service ref="RunToolbarAction" auto-export="interfaces" />
 
-	<service ref="ReferenceDatabaseCleanUpShutdownHook" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />
-	<service ref="ReferenceServiceShutdownHook" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />
-	<service ref="RemoveDataflowRunsShutdownHook" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />
-	<service ref="StoreRunIdsToDeleteLaterShutdownHook" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />
 	<service ref="WorkflowRunStatusShutdownHook" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />
 
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
 	<reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" />
 	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
-	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" />
-	<reference id="workbench" interface="net.sf.taverna.t2.workbench.ui.Workbench" />
-	<reference id="xmlDeserializer" interface="net.sf.taverna.t2.workflowmodel.serialization.xml.impl.XMLDeserializer" />
-	<reference id="referenceService" interface="net.sf.taverna.t2.reference.ReferenceService" />
-	<reference id="databaseConfiguration" interface="uk.org.taverna.configuration.database.DatabaseConfiguration" />
-
-	<list id="provenanceConnectorFactories" interface="net.sf.taverna.t2.provenance.ProvenanceConnectorFactory" />
+	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" cardinality="0..1"/>
+	<reference id="workbench" interface="net.sf.taverna.t2.workbench.ui.Workbench" cardinality="0..1"/>
+	<reference id="runService" interface="uk.org.taverna.platform.run.api.RunService" />
+	<reference id="resultsPerspective" interface="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI" bean-name="ResultsPerspective" />
 
 </beans:beans>

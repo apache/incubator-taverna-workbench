@@ -19,7 +19,6 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.ui.Workbench;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 /**
  * @author alanrw

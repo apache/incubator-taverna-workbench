@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -23,6 +23,7 @@ package net.sf.taverna.t2.reference.ui.tree;
 import java.io.File;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,12 +32,9 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-import net.sf.taverna.t2.reference.AbstractExternalReference;
-import net.sf.taverna.t2.reference.ExternalReferenceSPI;
-import net.sf.taverna.t2.reference.impl.external.file.FileReference;
-import net.sf.taverna.t2.reference.impl.external.http.HttpReference;
-
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.databundle.DataBundles;
 
 /**
  * A subclass of DefaultTreeModel which is aware of the depth property of its
@@ -55,12 +53,12 @@ import org.apache.log4j.Logger;
  * The getAsPojo method returns the appropriate object type for the entire
  * contents of this tree, mapping empty nodes to List implementations. It
  * returns null if the root node has zero children.
- * 
+ *
  * @author Tom Oinn
- * 
+ *
  */
 public class PreRegistrationTreeModel extends DefaultTreeModel {
-	
+
 	private static Logger logger = Logger
 	.getLogger(PreRegistrationTreeModel.class);
 
@@ -84,7 +82,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	public PreRegistrationTreeModel(int depth) {
 		this(depth, INPUT);
 	}
-	
+
 	public PreRegistrationTreeModel(int depth, String name) {
 
 		super(new DefaultMutableTreeNode(getRootName(depth, name)));
@@ -114,7 +112,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	 * the ReferenceService, returns null if the root has no children and throws
 	 * IllegalStateException if there are any objects other than File, URL,
 	 * String or byte[] at leaf nodes.
-	 * 
+	 *
 	 * @return
 	 */
 	public synchronized Object getAsPojo() {
@@ -136,8 +134,8 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 			}
 			return result;
 		} else {
-			if (userObject instanceof String || userObject instanceof ExternalReferenceSPI
-					|| userObject instanceof byte[]) {
+			if (userObject instanceof String || userObject instanceof File
+					|| userObject instanceof URL || userObject instanceof byte[]) {
 				return userObject;
 			} else {
 				throw new IllegalStateException(
@@ -168,7 +166,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	 * target node is, if required, re-written to ensure the depth property of
 	 * the model is maintained. If specified as null the target is assumed to be
 	 * the root node.
-	 * 
+	 *
 	 * @param parent
 	 * @param pojo
 	 * @param depth
@@ -185,7 +183,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 		// node must have depth of (depth - 1) to be correct, this means we can
 		// add the collection in place without any problems.
 		int targetDepth = getNodeDepth(parent);
-		
+
 		if (targetDepth > (depth + 1)) {
 			// Need to traverse down the structure to find an appropriate parent
 			// node, creating empty nodes as we go if required.
@@ -223,31 +221,11 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 					addPojoStructure(newTarget, preceding, child, depth - 1);
 				}
 				return newTarget;
-			} else if (pojo instanceof String) {
+			} else {
 				DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(pojo);
 				insertNodeInto(newChild, parent,
 						position);
-				return newChild;				
-			} else {
-				AbstractExternalReference ref = null;
-				if (pojo instanceof AbstractExternalReference) {
-					ref = (AbstractExternalReference) pojo;
-				}
-				else if (pojo instanceof File) {
-					ref = new FileReference((File) pojo);
-					((FileReference)ref).setCharset(Charset.defaultCharset().name());
-				} else if (pojo instanceof URL) {
-					ref = new HttpReference();
-					((HttpReference)ref).setHttpUrlString(((URL) pojo).toString());
-				}
-				if (ref != null) {
-					// Append to the target node
-					DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(ref);
-					insertNodeInto(newChild, parent,
-							position);
-					return newChild;
-				}
-				return null;
+				return newChild;
 			}
 		} else {
 			// Can we really reach this code?
@@ -278,7 +256,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	 * </ol>
 	 * This method is called before any nodes are modified, and causes the
 	 * modifications to take place.
-	 * 
+	 *
 	 */
 	public synchronized void moveNode(MutableTreeNode source,
 			MutableTreeNode target) {
@@ -334,7 +312,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 		if (node.getParent() != null) {
 			super.removeNodeFromParent(node);
 		} else {
-			
+
 		}
 	}
 
@@ -343,7 +321,7 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	 * length of the path to the root, where a path of length 2 corresponds to
 	 * the depth of this model structure. The result is therefore equal to
 	 * <code>getDepth() - (getPathToRoot(o).length - 2)</code>
-	 * 
+	 *
 	 * @param o
 	 * @return
 	 */

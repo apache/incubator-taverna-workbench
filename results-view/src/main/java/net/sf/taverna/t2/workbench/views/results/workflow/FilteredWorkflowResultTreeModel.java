@@ -4,16 +4,17 @@ package net.sf.taverna.t2.workbench.views.results.workflow;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
- 
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+
 import net.sf.taverna.t2.workbench.views.results.SimpleFilteredTreeModel;
+import uk.org.taverna.databundle.DataBundles;
 
 @SuppressWarnings("serial")
 public class FilteredWorkflowResultTreeModel extends SimpleFilteredTreeModel implements TreeModelListener{
- 
+
     public enum FilterType {
 	ALL { public String toString() {return "view values";} },
 	    RESULTS { public String toString() {return "view results";} },
@@ -27,7 +28,7 @@ public class FilteredWorkflowResultTreeModel extends SimpleFilteredTreeModel imp
 	delegate.addTreeModelListener(this);
 	this.filter = FilterType.ALL;
     }
- 
+
     public void setFilter(FilterType filter) {
 	this.filter = filter;
     }
@@ -41,18 +42,18 @@ public class FilteredWorkflowResultTreeModel extends SimpleFilteredTreeModel imp
 	    return (true);
 	}
 	if (filter.equals(FilterType.RESULTS)) {
-	    for (Enumeration e = node.depthFirstEnumeration(); e.hasMoreElements();) {
+	    for (Enumeration<?> e = node.depthFirstEnumeration(); e.hasMoreElements();) {
 		WorkflowResultTreeNode subNode = (WorkflowResultTreeNode) e.nextElement();
-		if ((subNode.getReference() != null) && !subNode.getReference().containsErrors()) {
+		if ((subNode.getReference() != null) && !DataBundles.isError(subNode.getReference())) {
 		    return true;
 		}
 	    }
 	    return false;
 	}
 	if (filter.equals(FilterType.ERRORS)) {
-	    for (Enumeration e = node.depthFirstEnumeration(); e.hasMoreElements();) {
+	    for (Enumeration<?> e = node.depthFirstEnumeration(); e.hasMoreElements();) {
 		WorkflowResultTreeNode subNode = (WorkflowResultTreeNode) e.nextElement();
-		if ((subNode.getReference() != null) && subNode.getReference().containsErrors()) {
+		if ((subNode.getReference() != null) && DataBundles.isError(subNode.getReference())) {
 		    return true;
 		}
 	    }

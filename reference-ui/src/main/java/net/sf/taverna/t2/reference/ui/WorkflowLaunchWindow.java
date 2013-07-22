@@ -27,8 +27,12 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -49,20 +53,9 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import net.sf.taverna.t2.annotation.annotationbeans.Author;
-import net.sf.taverna.t2.annotation.annotationbeans.DescriptiveTitle;
-import net.sf.taverna.t2.annotation.annotationbeans.ExampleValue;
-import net.sf.taverna.t2.annotation.annotationbeans.FreeTextDescription;
-import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
-import net.sf.taverna.t2.invocation.InvocationContext;
-import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
-import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
-import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
-import net.sf.taverna.t2.reference.ReferenceService;
-import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionSPI;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
@@ -71,30 +64,23 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.report.ReportManager;
-import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.ui.Workbench;
-import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
-import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.InvalidDataflowException;
-import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
-import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
-import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.log4j.Logger;
-import org.w3c.dom.svg.SVGDocument;
+import org.purl.wf4ever.robundle.Bundle;
 
 import uk.org.taverna.configuration.database.DatabaseConfiguration;
+import uk.org.taverna.databundle.DataBundles;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
 
 /**
  * A simple workflow launch window, uses a tabbed layout to display a set of named RegistrationPanel
  * instances, and a 'run workflow' button. Also shows a pane contining a picture of the workflow,
  * the author and the description.
- *
  * We use one WorkflowLaunchWindow per workflow, multiple runs of the same workflow get the same
  * window.
  *
@@ -111,12 +97,11 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	private static final String LAUNCH_WORKFLOW = "Run workflow";
 
-	private final ImageIcon launchIcon = new ImageIcon(getClass().getResource(
-			"/icons/start_task.gif"));
-	
-	private static final ImageIcon addTextIcon = new ImageIcon(
-			RegistrationPanel.class.getResource("/icons/addtext_co.gif"));
+	private static final ImageIcon launchIcon = new ImageIcon(
+			WorkflowLaunchWindow.class.getResource("/icons/start_task.gif"));
 
+	private static final ImageIcon addTextIcon = new ImageIcon(
+			WorkflowLaunchWindow.class.getResource("/icons/addtext_co.gif"));
 
 	// An action enabled when all inputs are enabled and used to trigger the
 	// handleLaunch method
@@ -126,19 +111,10 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	// workflow, if any)
 	private Map<String, RegistrationPanel> inputPanelMap = new HashMap<String, RegistrationPanel>();
 
-	// A map of input port names to T2ReferenceS of the input values (the ones entered for the
-	// previous run of the same workflow)
-	private final Map<String, T2Reference> inputMap = new HashMap<String, T2Reference>();
-
 	// A pane holding various tabs for workflow input ports
 	private JTabbedPane tabsPane;
 
-	private WorkflowInstanceFacade facade;
-	private ReferenceService referenceService;
-	private InvocationContext invocationContext;
-
-	// Original workflow (we create a copy of it when we actually push the 'Run' button)
-	private Dataflow dataflowOriginal;
+	private Workflow workflow;
 
 	private static final String NO_WORKFLOW_DESCRIPTION = "No description";
 	private static final String NO_WORKFLOW_AUTHOR = "No author";
@@ -146,7 +122,6 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	private DialogTextArea workflowDescriptionArea;
 	private DialogTextArea workflowAuthorArea;
 
-	private AnnotationTools annotationTools = new AnnotationTools();
 	private JSVGCanvas createWorkflowGraphic;
 
 	// Whether the original workflow has been modified in the design perspective so we know to
@@ -172,23 +147,21 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	private final List<ReferenceActionSPI> referenceActionSPIs;
 
-	private final List<ProvenanceConnectorFactory> provenanceConnectorFactories;
-
 	private final DatabaseConfiguration databaseConfiguration;
 
-	public WorkflowLaunchWindow(Dataflow dataflowOriginal, ReferenceService refService,
-			EditManager editManager, FileManager fileManager, ReportManager reportManager,
-			Workbench workbench, List<ProvenanceConnectorFactory> provenanceConnectorFactories,
-			List<ReferenceActionSPI> referenceActionSPIs, DatabaseConfiguration databaseConfiguration) {
+	private final Scufl2Tools scufl2Tools = new Scufl2Tools();
+
+	public WorkflowLaunchWindow(Workflow workflow, EditManager editManager,
+			FileManager fileManager, ReportManager reportManager, Workbench workbench,
+			List<ReferenceActionSPI> referenceActionSPIs,
+			DatabaseConfiguration databaseConfiguration) {
 		super();
 
-		this.dataflowOriginal = dataflowOriginal;
-		this.referenceService = refService;
+		this.workflow = workflow;
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.reportManager = reportManager;
 		this.workbench = workbench;
-		this.provenanceConnectorFactories = provenanceConnectorFactories;
 		this.referenceActionSPIs = referenceActionSPIs;
 		this.databaseConfiguration = databaseConfiguration;
 
@@ -217,7 +190,6 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 		// Handle window closing
 		this.addWindowListener(new WindowAdapter() {
-
 			@Override
 			public void windowClosing(WindowEvent winEvt) {
 				handleCancel(); // do not dispose the window, just hide it
@@ -229,7 +201,6 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 		// Start observing edit workflow events on Edit Manager
 		editManager.addObserver(editManagerObserver);
-
 	}
 
 	/**
@@ -237,16 +208,16 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	 * users can easily identify which workflow is being run.
 	 */
 	private void setWindowTitle() {
-		String title = annotationTools.getAnnotationString(dataflowOriginal,
-				DescriptiveTitle.class, "");
+		// TODO get annotation from scufl2
+		String title = "";
 		String windowTitle = "Input values for ";
 		if ((title != null) && (!title.equals(""))) {
 			windowTitle += "'" + title + "' ";
 		} else {
-			windowTitle += "'" + dataflowOriginal.getLocalName() + "' ";
+			windowTitle += "'" + workflow.getName() + "' ";
 		}
 
-		Object workflowLocation = fileManager.getDataflowSource(dataflowOriginal);
+		Object workflowLocation = fileManager.getDataflowSource(workflow.getParent());
 
 		windowTitle += (workflowLocation == null) ? "" : "from " + workflowLocation.toString();
 
@@ -263,7 +234,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		workflowPart = new JPanel(new GridLayout(3, 1));
 		portsPart = new JPanel(new BorderLayout());
 
-		createWorkflowGraphic = createWorkflowGraphic(dataflowOriginal);
+		createWorkflowGraphic = createWorkflowGraphic(workflow);
 		createWorkflowGraphic.setBorder(new TitledBorder("Diagram"));
 
 		workflowPart.add(new JScrollPane(createWorkflowGraphic));
@@ -288,158 +259,67 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			public void actionPerformed(ActionEvent ae) {
 
 				// First of all - is the workflow valid?
-				if (!CheckWorkflowStatus.checkWorkflow(dataflowOriginal, workbench, editManager,
-						fileManager, reportManager)) {
-					setVisible(false);
-					return;
-				}
+				// TODO convert to Scufl2 validation
+				// if (!CheckWorkflowStatus.checkWorkflow(dataflowOriginal, workbench, editManager,
+				// fileManager, reportManager)) {
+				// setVisible(false);
+				// return;
+				// }
 
 				// Check if user had entered input values for all input ports -
 				// otherwise there is no point in attempting to run the workflow
-				for (String input : inputMap.keySet()) {
-					RegistrationPanel registrationPanel = inputPanelMap.get(input);
+				for (InputWorkflowPort input : workflow.getInputPorts()) {
+					RegistrationPanel registrationPanel = inputPanelMap.get(input.getName());
 					Object userInput = registrationPanel.getUserInput();
-					if (userInput instanceof RuntimeException) {
+					if (userInput == null) {
 						JOptionPane.showMessageDialog(null,
 								"You have not provided input values for all workflow inputs",
 								"Workflow input value error", JOptionPane.ERROR_MESSAGE);
 						// exit
 						return;
 					}
-				}			
+				}
 				setState(Frame.ICONIFIED);
-				
-				// Make a copy of the workflow to run so user can still
-				// modify the original workflow
-				Dataflow dataflowCopy = null;
 
-				// CopyWorkflowSwingWorker will make a copy of the workflow and pop up a
-				// modal dialog that will block the GUI while CopyWorkflowSwingWorker is
-				// doing it to let the user know that something is being done. Blocking
-				// of the GUI is needed here so that the user cannot modify the original
-				// workflow while it is being copied.
-				CopyWorkflowSwingWorker copyWorkflowSwingWorker = new CopyWorkflowSwingWorker(
-						dataflowOriginal);
-				CopyWorkflowInProgressDialog dialog = new CopyWorkflowInProgressDialog();
-				copyWorkflowSwingWorker.addPropertyChangeListener(new SwingWorkerCompletionWaiter(
-						dialog));
-				copyWorkflowSwingWorker.execute();
-
-				// Give a chance to the SwingWorker to finish so we do not have to display
-				// the dialog if copying of the workflow is quick (so it won't flicker on the
-				// screen)
 				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					// do nothing
-				}
-				if (!copyWorkflowSwingWorker.isDone()) {
-					dialog.setVisible(true); // this will block the GUI
-				}
-				boolean userCancelled = dialog.hasUserCancelled(); // see if user cancelled the
-																	// dialog
-
-				if (userCancelled) {
-					// Stop the CopyWorkflowSwingWorker if it is still working
-					copyWorkflowSwingWorker.cancel(true);
-					// exit
+					Bundle inputDataBundle = createInputDataBundle();
+					handleLaunch(inputDataBundle);
+				} catch (IOException e) {
+					JOptionPane.showMessageDialog(WorkflowLaunchWindow.this,
+							"An error occurred while creating input values\n" + e.getMessage(),
+							"Error creating inputs", JOptionPane.ERROR_MESSAGE);
 					return;
-				} else {
-					// Get the workflow copy from the CopyWorkflowSwingWorker
-					try {
-						dataflowCopy = copyWorkflowSwingWorker.get();
-					} catch (Exception e) {
-						dataflowCopy = null;
-						logger.error("Failed to get the workflow copy", e);
-					}
+				}
+			}
+		};
 
-					if (dataflowCopy == null) {
-						InvalidDataflowReport.showErrorDialog(
-								"Unable to make a copy of the workflow to run",
-								"Workflow copy failed");
-						dispose(); // close the workflow launch window
-					} else {
+		// TODO get annotation from scufl2
+		String wfDescription = "";
+		setWorkflowDescription(wfDescription);
 
-						// Create provenance connector and facade, similar as in
-						// RunWorkflowAction
+		// TODO get annotation from scufl2
+		String wfAuthor = "";
+		setWorkflowAuthor(wfAuthor);
 
-						// TODO check if the database has been created and create if needed
-						// if provenance turned on then add an IntermediateProvLayer to each
-						// Processor
-						ProvenanceConnector provenanceConnector = null;
+		Action useExamplesAction = new AbstractAction("Use examples", addTextIcon) {
 
-						// FIXME: All these run-stuff should be done in a general way so it
-						// could also be used when running workflows non-interactively
-						if (databaseConfiguration.isProvenanceEnabled()) {
-							String connectorType = databaseConfiguration.getConnectorType();
-
-							for (ProvenanceConnectorFactory factory : provenanceConnectorFactories) {
-								if (connectorType.equalsIgnoreCase(factory.getConnectorType())) {
-									provenanceConnector = factory.getProvenanceConnector();
-								}
-							}
-
-							// slight change, the init is outside but it also
-							// means that the
-							// init call has to ensure that the dbURL is set
-							// correctly
-							try {
-								if (provenanceConnector != null) {
-									provenanceConnector.init();
-									provenanceConnector.setReferenceService(referenceService);
-								}
-							} catch (Exception except) {
-
-							}
-						}
-						invocationContext = new InvocationContextImpl(referenceService,
-								provenanceConnector);
-						if (provenanceConnector != null) {
-							provenanceConnector.setInvocationContext(invocationContext);
-						}
-
-						// Workflow run id will be set on the invocation context
-						// from the facade
-						try {
-							facade = new EditsImpl().createWorkflowInstanceFacade(dataflowCopy,
-									invocationContext, "");
-						} catch (InvalidDataflowException ex) {
-							InvalidDataflowReport.invalidDataflow(ex.getDataflowValidationReport());
-							return;
-						}
-
-						registerInputs();
-						handleLaunch(inputMap);
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				List<InputWorkflowPort> inputPorts = new ArrayList<>(workflow.getInputPorts());
+				// Create tabs for input ports (but only for the one that are connected!)
+				for (InputWorkflowPort inputPort : inputPorts) {
+					RegistrationPanel rp = inputPanelMap.get(inputPort.getName());
+					Object example = rp.getExample();
+					if ((example != null) && (inputPort.getDepth() == 0) && (rp.getValue() == null)) {
+						rp.setValue(example);
 					}
 				}
 			}
 		};
 
-		String wfDescription = annotationTools.getAnnotationString(dataflowOriginal,
-				FreeTextDescription.class, "");
-		setWorkflowDescription(wfDescription);
-
-		String wfAuthor = annotationTools.getAnnotationString(dataflowOriginal, Author.class, "");
-		setWorkflowAuthor(wfAuthor);
-
-		Action useExamplesAction = new AbstractAction ("Use examples", addTextIcon) {
-
-            @Override
-            public void actionPerformed(ActionEvent arg0) {
-                List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(
-                        dataflowOriginal.getInputPorts());
-                // Create tabs for input ports (but only for the one that are connected!)
-                for (DataflowInputPort inputPort : inputPorts) {
-                    RegistrationPanel rp = inputPanelMap.get(inputPort.getName());
-                    Object example = rp.getExample();
-                    if ((example != null) && (inputPort.getDepth() == 0) && (rp.getValue() == null)) {
-                        rp.setValue(example);
-                    }
-                }
-            }};
-
-        JButton useExamplesButton = new JButton(useExamplesAction);
-        useExamplesButton.setToolTipText("Use the example value (if any) for ports that you have not set a value for");
+		JButton useExamplesButton = new JButton(useExamplesAction);
+		useExamplesButton
+				.setToolTipText("Use the example value (if any) for ports that you have not set a value for");
 		// Construct tool bar
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
@@ -461,7 +341,6 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			loadButtonsBar.add(loadButton);
 		}
 
-		
 		JPanel toolBarPanel = new JPanel(new BorderLayout());
 		toolBarPanel.add(loadButtonsBar, BorderLayout.WEST);
 		toolBarPanel.add(toolBar, BorderLayout.EAST);
@@ -471,49 +350,34 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		// Construct tab container - tabs will be populated based on the wf input ports
 		tabsPane = new JTabbedPane();
 
-		List<DataflowInputPort> inputPorts = new ArrayList<DataflowInputPort>(
-				dataflowOriginal.getInputPorts());
-		Collections.sort(inputPorts, new PortComparator());
-		
+		List<InputWorkflowPort> inputPorts = new ArrayList<>(workflow.getInputPorts());
+
 		Set<String> inputNames = new HashSet<String>();
-		
+
 		// Create tabs for input ports (but only for the one that are connected!)
-		for (DataflowInputPort inputPort : inputPorts) {
+		for (InputWorkflowPort inputPort : inputPorts) {
 
 			// Is this input port connected to anything?
-			if (dataflowOriginal.isInputPortConnected(inputPort)) {
-				String portDescription = annotationTools.getAnnotationString(inputPort,
-						FreeTextDescription.class, null);
-				String portExample = annotationTools.getAnnotationString(inputPort,
-						ExampleValue.class, null);
-				// add tabs for wf input ports
+			if (!scufl2Tools.datalinksFrom(inputPort).isEmpty()) {
+				// TODO get annotation from scufl2
+				String portDescription = "";
+				// TODO get annotation from scufl2
+				String portExample = "";
 
+				// add tabs for wf input ports
 				String name = inputPort.getName();
 				inputNames.add(name);
-				addInput(name, inputPort.getDepth(), portDescription,
-						portExample);
+				addInput(name, inputPort.getDepth(), portDescription, portExample);
 			}
 		}
 
-		// This is needed to ensure that deleted ports are removed
-		Set<String> toRemove = new HashSet<String>();
-		for (String n : inputMap.keySet()) {
-			if (!inputNames.contains(n)) {
-				toRemove.add(n);
-			}
-		}
-		for (String n : toRemove) {
-			inputMap.remove(n);
-		}
-		
 		portsPart.add(tabsPane, BorderLayout.CENTER);
 
-		workflowPart.setPreferredSize(new Dimension(300,500));
-		portsPart.setPreferredSize(new Dimension(650,500));
-		
+		workflowPart.setPreferredSize(new Dimension(300, 500));
+		portsPart.setPreferredSize(new Dimension(650, 500));
+
 		overallPanel = new JPanel();
 		overallPanel.setLayout(new BoxLayout(overallPanel, BoxLayout.X_AXIS));
-		
 
 		overallPanel.add(workflowPart);
 		overallPanel.add(portsPart);
@@ -537,13 +401,13 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	 * @param dataflow
 	 * @return
 	 */
-	private JSVGCanvas createWorkflowGraphic(Dataflow dataflow) {
+	private JSVGCanvas createWorkflowGraphic(Workflow worklfow) {
 		JSVGCanvas svgCanvas = new JSVGCanvas();
-		SVGGraphController graphController = GraphViewComponent.graphControllerMap.get(dataflow);
-		if (graphController != null) {
-			SVGDocument svgDoc = graphController.getSVGDocument();
-			svgCanvas.setDocument((SVGDocument) svgDoc.cloneNode(true));
-		}
+		// SVGGraphController graphController = GraphViewComponent.graphControllerMap.get(worklfow);
+		// if (graphController != null) {
+		// SVGDocument svgDoc = graphController.getSVGDocument();
+		// svgCanvas.setDocument((SVGDocument) svgDoc.cloneNode(true));
+		// }
 		return svgCanvas;
 	}
 
@@ -566,7 +430,6 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			inputRegistrationPanel.setDescription(inputDescription);
 			inputRegistrationPanel.setExample(inputExample);
 		}
-		inputMap.put(inputName, null);
 		tabsPane.addTab(inputName, inputRegistrationPanel);
 		tabsPane.revalidate();
 		tabsPane.repaint();
@@ -574,26 +437,35 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	public synchronized void removeInputTab(final String inputName) {
 		// Only do something if we have a registration panel for this input port to begin with
-		if (!inputMap.containsKey(inputName)) {
+		if (!inputPanelMap.containsKey(inputName)) {
 			return;
 		} else {
 			RegistrationPanel inputRegistrationPanelToRemove = inputPanelMap.remove(inputName);
-			inputMap.remove(inputName);
 			tabsPane.remove(inputRegistrationPanelToRemove);
 		}
 	}
 
-	private void registerInputs() {
-
-		for (String input : inputMap.keySet()) {
+	private Bundle createInputDataBundle() throws IOException {
+		Bundle inputDataBundle = DataBundles.createBundle();
+		Path inputs = DataBundles.getInputs(inputDataBundle);
+		for (String input : inputPanelMap.keySet()) {
 			RegistrationPanel registrationPanel = inputPanelMap.get(input);
 			Object userInput = registrationPanel.getUserInput();
-			int inputDepth = registrationPanel.getDepth();
 
-			T2Reference reference = referenceService.register(userInput, inputDepth, true,
-					invocationContext);
-			inputMap.put(input, reference);
+			Path port = DataBundles.getPort(inputs, input);
+			if (userInput instanceof File) {
+				DataBundles.setReference(port, ((File) userInput).toURI());
+			} else if (userInput instanceof URL) {
+				try {
+					DataBundles.setReference(port, ((URL) userInput).toURI());
+				} catch (URISyntaxException e) {
+					logger.warn(String.format("Error converting %1$s to URI", userInput), e);
+				}
+			} else {
+				DataBundles.setStringValue(port, userInput.toString());
+			}
 		}
+		return inputDataBundle;
 	}
 
 	/**
@@ -602,7 +474,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	 * @param workflowInputs
 	 *            a map of named inputs in the form of T2Reference instances
 	 */
-	public abstract void handleLaunch(Map<String, T2Reference> workflowInputs);
+	public abstract void handleLaunch(Bundle workflowInputs);
 
 	public abstract void handleCancel();
 
@@ -635,19 +507,11 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		super.finalize();
 	}
 
-	public WorkflowInstanceFacade getFacade() {
-		return facade;
-	}
-
-	public void setReferenceService(ReferenceService refService) {
-		this.referenceService = refService;
-	}
-
 	public class FileManagerObserver implements Observer<FileManagerEvent> {
 		public void notify(Observable<FileManagerEvent> sender, FileManagerEvent message)
 				throws Exception {
 			if (message instanceof ClosedDataflowEvent
-					&& ((ClosedDataflowEvent) message).getDataflow() == dataflowOriginal) {
+					&& ((ClosedDataflowEvent) message).getDataflow() == workflow.getParent()) {
 				// Remove listeners of various events
 				editManager.removeObserver(editManagerObserver);
 				fileManager.removeObserver(fileManagerObserver);
@@ -662,7 +526,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 				throws Exception {
 
 			if (message instanceof AbstractDataflowEditEvent
-					&& ((AbstractDataflowEditEvent) message).getDataFlow() == dataflowOriginal) {
+					&& ((AbstractDataflowEditEvent) message).getDataFlow() == workflow.getParent()) {
 				workflowModified = true;
 			}
 		}

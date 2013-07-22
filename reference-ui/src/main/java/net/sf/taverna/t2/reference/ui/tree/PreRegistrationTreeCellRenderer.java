@@ -1,19 +1,19 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester   
- * 
+ * Copyright (C) 2007 The University of Manchester
+ *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
- * 
+ *
  *  This program is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
  *  as published by the Free Software Foundation; either version 2.1 of
  *  the License, or (at your option) any later version.
- *    
+ *
  *  This program is distributed in the hope that it will be useful, but
  *  WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  *  Lesser General Public License for more details.
- *    
+ *
  *  You should have received a copy of the GNU Lesser General Public
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
@@ -22,7 +22,6 @@ package net.sf.taverna.t2.reference.ui.tree;
 
 import java.awt.Component;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
@@ -30,18 +29,15 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import net.sf.taverna.t2.reference.impl.external.file.FileReference;
-import net.sf.taverna.t2.reference.impl.external.http.HttpReference;
-
 /**
  * A cell renderer for the pre-registration tree model, with appropriate
  * rendering for inline strings, web URLs and files. The renderer doesn't
  * attempt to show the contents (other than in the case of inline strings), but
  * does show the URL and File paths for those types along with sensible icons
  * stolen from Eclipse.
- * 
+ *
  * @author Tom Oinn
- * 
+ *
  */
 public class PreRegistrationTreeCellRenderer extends DefaultTreeCellRenderer {
 
@@ -54,7 +50,7 @@ public class PreRegistrationTreeCellRenderer extends DefaultTreeCellRenderer {
 			"/icons/web.gif"));
 	private ImageIcon binaryIcon = new ImageIcon(getClass().getResource(
 			"/icons/genericregister_obj.gif"));
-	
+
 	private static int MAXIMUM_TEXT_LENGTH = 14;
 
 	@Override
@@ -86,22 +82,14 @@ public class PreRegistrationTreeCellRenderer extends DefaultTreeCellRenderer {
 						byte[] bytes = (byte[]) userObject;
 						setIcon(binaryIcon);
 						setText("byte[] " + getHumanReadableSize(bytes.length));
-					} else if (userObject instanceof FileReference) {
+					} else if (userObject instanceof File) {
 						setIcon(fileIcon);
-						File f = ((FileReference) userObject).getFile();
-						if (f != null) {
-							setText(f.getName());
-						} else {
-							setText("?");
-						}
-					} else if (userObject instanceof HttpReference) {
+						File f = (File) userObject;
+						setText(f.getName());
+					} else if (userObject instanceof URL) {
 						setIcon(urlIcon);
-						URL url = ((HttpReference) userObject).getHttpUrl();
-						if (url != null) {
-							setText(url.getHost());
-						} else {
-							setText("?");
-						}
+						URL url = (URL) userObject;
+						setText(url.getHost());
 					}
 				} else {
 					if (expanded) {

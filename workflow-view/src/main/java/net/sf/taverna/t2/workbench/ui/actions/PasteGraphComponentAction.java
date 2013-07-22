@@ -36,6 +36,8 @@ import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.commons.services.ServiceRegistry;
+
 /**
  * An action that pastes a graph component
  *
@@ -54,12 +56,14 @@ public class PasteGraphComponentAction extends AbstractAction {
 	private final EditManager editManager;
 	private final MenuManager menuManager;
 	private final SelectionManager selectionManager;
+	private final ServiceRegistry serviceRegistry;
 
-	private PasteGraphComponentAction(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager) {
+	private PasteGraphComponentAction(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
 		super();
 		this.editManager = editManager;
 		this.menuManager = menuManager;
 		this.selectionManager = selectionManager;
+		this.serviceRegistry = serviceRegistry;
 		putValue(SMALL_ICON, WorkbenchIcons.pasteIcon);
 		putValue(NAME, "Paste");
 		putValue(SHORT_DESCRIPTION, "Paste");
@@ -71,12 +75,12 @@ public class PasteGraphComponentAction extends AbstractAction {
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		WorkflowView.pasteTransferable(editManager, menuManager, selectionManager);
+		WorkflowView.pasteTransferable(editManager, menuManager, selectionManager, serviceRegistry);
 	}
 
-	public static Action getInstance(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager) {
+	public static Action getInstance(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
 		if (instance == null) {
-			instance = new PasteGraphComponentAction(editManager, menuManager, selectionManager);
+			instance = new PasteGraphComponentAction(editManager, menuManager, selectionManager, serviceRegistry);
 		}
 		return instance;
 	}

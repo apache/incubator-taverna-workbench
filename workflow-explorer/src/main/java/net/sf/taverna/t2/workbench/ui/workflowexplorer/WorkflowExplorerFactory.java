@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 
 import javax.swing.ImageIcon;
 
-import uk.org.taverna.platform.capability.api.ActivityService;
+import uk.org.taverna.commons.services.ServiceRegistry;
 
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
@@ -37,7 +37,7 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
  * Workflow Explorer factory.
  *
  * @author Alex Nenadic
- *
+ * @author David Withers
  */
 public class WorkflowExplorerFactory implements UIComponentFactorySPI {
 
@@ -47,10 +47,11 @@ public class WorkflowExplorerFactory implements UIComponentFactorySPI {
 	private ReportManager reportManager;
 	private SelectionManager selectionManager;
 	private ActivityIconManager activityIconManager;
+	private ServiceRegistry serviceRegistry;
 
 	public UIComponentSPI getComponent() {
 		return new WorkflowExplorer(editManager, fileManager, menuManager, reportManager,
-				selectionManager, activityIconManager);
+				selectionManager, activityIconManager, serviceRegistry);
 	}
 
 	public ImageIcon getIcon() {
@@ -83,6 +84,10 @@ public class WorkflowExplorerFactory implements UIComponentFactorySPI {
 
 	public void setActivityIconManager(ActivityIconManager activityIconManager) {
 		this.activityIconManager = activityIconManager;
+	}
+
+	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+		this.serviceRegistry = serviceRegistry;
 	}
 
 }

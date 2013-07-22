@@ -31,6 +31,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.nio.file.Path;
 import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -91,7 +92,6 @@ import net.sf.taverna.t2.workbench.views.results.processor.FilteredIterationTree
 import net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
-import net.sf.taverna.t2.workbench.views.results.workflow.DummyContext;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
@@ -122,18 +122,15 @@ public class ProcessorResultsComponent extends JPanel {
 	private static final String MILLISECONDS = "ms";
 
 	// JSplitPane that contains the invocation list for the processor on the
-	// left and
-	// a tabbed pane with processors ports on the right.
+	// left and a tabbed pane with processors ports on the right.
 	private JSplitPane splitPane;
 
 	// Tree containing enactments (invocations) of the processor.
 	protected JTree processorEnactmentsTree;
 
 	// Tabbed pane - each tab contains a processor input/outputs data/results
-	// tree and
-	// a RenderedProcessorResultComponent, which in turn contains the currently
-	// selected
-	// node rendered according to its mime type.
+	// tree and a RenderedProcessorResultComponent, which in turn contains the currently
+	// selected node rendered according to its mime type.
 	private JTabbedPane tabbedPane;
 
 	// Panel containing the title
@@ -462,7 +459,7 @@ public class ProcessorResultsComponent extends JPanel {
 
 					// Create a tree for this data
 					ProcessorResultsTreeModel treeModel = new ProcessorResultsTreeModel(
-							(T2Reference) listOfPortData.get(1), referenceService);
+							(Path) listOfPortData.get(1));
 					tree = new JTree(new FilteredProcessorValueTreeModel(treeModel));
 					// Remember this triple and its index in the big list so
 					// we can
@@ -848,10 +845,10 @@ public class ProcessorResultsComponent extends JPanel {
 			explanation.setFont(new JLabel().getFont()); // make the font the same as for other
 															// components in the dialog
 			panel.add(explanation, BorderLayout.NORTH);
-			final Map<String, JCheckBox> inputChecks = new HashMap<String, JCheckBox>();
-			final Map<String, JCheckBox> outputChecks = new HashMap<String, JCheckBox>();
-			final Map<JCheckBox, T2Reference> checkReferences = new HashMap<JCheckBox, T2Reference>();
-			final Map<String, T2Reference> chosenReferences = new HashMap<String, T2Reference>();
+			final Map<String, JCheckBox> inputChecks = new HashMap<>();
+			final Map<String, JCheckBox> outputChecks = new HashMap<>();
+			final Map<JCheckBox, T2Reference> checkReferences = new HashMap<>();
+			final Map<String, T2Reference> chosenReferences = new HashMap<>();
 			final Set<Action> actionSet = new HashSet<Action>();
 
 			ItemListener listener = new ItemListener() {
@@ -967,18 +964,12 @@ public class ProcessorResultsComponent extends JPanel {
 			buttonsBar.setLayout(new FlowLayout());
 			// Get all existing 'Save result' actions
 			for (SaveAllResultsSPI spi : saveActions) {
-				spi.setProvenanceEnabledForRun(false);
-				spi.setRunId(runId);
-				spi.setDataflow(null);
 				AbstractAction action = spi.getAction();
 				actionSet.add(action);
 				JButton saveButton = new JButton((AbstractAction) action);
 				if (action instanceof SaveAllResultsSPI) {
-					((SaveAllResultsSPI) action).setChosenReferences(chosenReferences);
+//					((SaveAllResultsSPI) action).setChosenReferences(chosenReferences);
 					((SaveAllResultsSPI) action).setParent(dialog);
-					((SaveAllResultsSPI) action).setReferenceService(referenceService);
-					((SaveAllResultsSPI) action).setInvocationContext(new DummyContext(
-							referenceService));
 				}
 				// saveButton.setEnabled(true);
 				buttonsBar.add(saveButton);

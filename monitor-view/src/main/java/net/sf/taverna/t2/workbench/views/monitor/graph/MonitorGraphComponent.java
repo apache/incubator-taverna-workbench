@@ -21,41 +21,41 @@
 package net.sf.taverna.t2.workbench.views.monitor.graph;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
 import java.awt.Component;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.Action;
+import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 
 import net.sf.taverna.t2.lang.observer.MultiCaster;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
-import net.sf.taverna.t2.reference.ReferenceService;
-import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
-import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
-import net.sf.taverna.t2.workbench.models.graph.GraphNode;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowRunSelectionEvent;
+import net.sf.taverna.t2.workbench.ui.Updatable;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
+import net.sf.taverna.t2.workbench.views.graph.AutoScrollInteractor;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
 import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowPort;
-import net.sf.taverna.t2.workflowmodel.Processor;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
@@ -63,94 +63,183 @@ import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.platform.run.api.InvalidRunIdException;
+import uk.org.taverna.platform.run.api.RunService;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.WorkflowPort;
+import uk.org.taverna.scufl2.api.profiles.Profile;
+
 /**
  * Use to display the graph for fresh workflow runs and allow the user to
  * click on processors to see the intermediate results for processors pulled from provenance.
- *
  */
-public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Observable<WorkflowObjectSelectionMessage> {
+@SuppressWarnings("serial")
+public class MonitorGraphComponent extends JPanel implements UIComponentSPI,
+		Observable<WorkflowObjectSelectionMessage>, Updatable {
 
-	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(MonitorGraphComponent.class);
 
 	// Multicaster used to notify all interested parties that a selection of
 	// a workflow object has occurred on the graph.
-	private MultiCaster<WorkflowObjectSelectionMessage> multiCaster = new MultiCaster<WorkflowObjectSelectionMessage>(this);
-
-	private static final long serialVersionUID = 1L;
+	private MultiCaster<WorkflowObjectSelectionMessage> multiCaster = new MultiCaster<WorkflowObjectSelectionMessage>(
+			this);
 
 	private SVGGraphController graphController;
-
-	protected JSVGCanvas svgCanvas;
-	protected JSVGScrollPane svgScrollPane;
-
-	protected JLabel statusLabel;
-
-	protected ProvenanceConnector provenanceConnector;
-
-	private String sessionId;
-
-	protected GVTTreeRendererAdapter gvtTreeRendererAdapter;
-
+	private JPanel diagramPanel;
 	private GraphMonitor graphMonitor;
 
-	protected Dataflow dataflow;
+	private Map<String, SVGGraphController> graphControllerMap = new HashMap<>();
+	private Map<String, GraphMonitor> graphMonitorMap = new HashMap<>();
+	private Map<String, JPanel> diagramPanelMap = new HashMap<>();
+	private Map<String, Action[]> diagramActionsMap = new HashMap<>();
 
-	private ReferenceService referenceService;
+	private SelectionManagerObserver selectionManagerObserver = new SelectionManagerObserver();
 
-	private Action resetDiagramAction, zoomInAction, zoomOutAction;
+	// private Timer timer;
 
-	protected final EditManager editManager;
+	private CardLayout cardLayout;
 
-	protected final MenuManager menuManager;
+	private JLabel statusLabel;
 
-	protected final SelectionManager selectionManager;
+	private final RunService runService;
+	private final ColourManager colourManager;
+	private final WorkbenchConfiguration workbenchConfiguration;
+	private final SelectionManager selectionManager;
 
-	protected final ColourManager colourManager;
-
-	protected final WorkbenchConfiguration workbenchConfiguration;
-
-	public MonitorGraphComponent(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager,
-			ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
-		super(new BorderLayout());
-		this.editManager = editManager;
-		this.menuManager = menuManager;
-		this.selectionManager = selectionManager;
+	public MonitorGraphComponent(RunService runService, ColourManager colourManager,
+			WorkbenchConfiguration workbenchConfiguration, SelectionManager selectionManager) {
+		this.runService = runService;
 		this.colourManager = colourManager;
 		this.workbenchConfiguration = workbenchConfiguration;
-		setBorder(LineBorder.createGrayLineBorder());
+		this.selectionManager = selectionManager;
 
-		svgCanvas = new JSVGCanvas();
-		svgCanvas.setEnableZoomInteractor(false);
-		svgCanvas.setEnableRotateInteractor(false);
-		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
+		cardLayout = new CardLayout();
+		setLayout(cardLayout);
 
-		gvtTreeRendererAdapter = new GVTTreeRendererAdapter() {
-			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
-//				svgScrollPane.reset();
-//				MonitorViewComponent.this.revalidate();
-			}
-		};
-		svgCanvas.addGVTTreeRendererListener(gvtTreeRendererAdapter);
+		// ActionListener taskPerformer = new ActionListener() {
+		// public void actionPerformed(ActionEvent evt) {
+		// if (graphController != null) {
+		// graphController.redraw();
+		// graphMonitor.redraw();
+		// }
+		// timer.stop();
+		// }
+		// };
+		// timer = new Timer(100, taskPerformer);
+		//
+		// addComponentListener(new ComponentAdapter() {
+		// public void componentResized(ComponentEvent e) {
+		// if (timer.isRunning()) {
+		// timer.restart();
+		// } else {
+		// timer.start();
+		// }
+		// }
+		// });
 
-		JPanel diagramAndControls = new JPanel();
-		diagramAndControls.setLayout(new BorderLayout());
-
-		svgScrollPane = new MySvgScrollPane(svgCanvas);
-		diagramAndControls.add(graphActionsToolbar(), BorderLayout.NORTH);
-		diagramAndControls.add(svgScrollPane, BorderLayout.CENTER);
-
-		add(diagramAndControls, BorderLayout.CENTER);
-
-		statusLabel = new JLabel();
-		statusLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
-
-		//add(statusLabel, BorderLayout.SOUTH);
-
-//		setProvenanceConnector();
+		selectionManager.addObserver(selectionManagerObserver);
 	}
 
-	protected JToolBar graphActionsToolbar() {
+	@Override
+	protected void finalize() throws Throwable {
+		selectionManager.removeObserver(selectionManagerObserver);
+		onDispose();
+	}
+
+	@Override
+	public String getName() {
+		return "Monitor View Component";
+	}
+
+	@Override
+	public ImageIcon getIcon() {
+		return null;
+	}
+
+	@Override
+	public void onDisplay() {
+	}
+
+	@Override
+	public void onDispose() {
+		if (graphController != null) {
+			graphController.shutdown();
+		}
+	}
+
+	@Override
+	public void update() {
+		if (graphMonitor != null) {
+			graphMonitor.update();
+		}
+	}
+
+	private JPanel createDiagramPanel(String workflowRun) {
+		final JPanel diagramPanel = new JPanel(new BorderLayout());
+
+		try {
+			Workflow workflow = runService.getWorkflow(workflowRun);
+			Profile profile = runService.getProfile(workflowRun);
+
+			// get the default diagram settings
+			// Alignment alignment = Alignment.valueOf(graphViewConfiguration
+			// .getProperty(GraphViewConfiguration.ALIGNMENT));
+			// PortStyle portStyle = PortStyle.valueOf(graphViewConfiguration
+			// .getProperty(GraphViewConfiguration.PORT_STYLE));
+
+			// create an SVG canvas
+			final JSVGCanvas svgCanvas = new JSVGCanvas(null, true, false);
+			svgCanvas.setEnableZoomInteractor(false);
+			svgCanvas.setEnableRotateInteractor(false);
+			svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
+
+			AutoScrollInteractor asi = new AutoScrollInteractor(svgCanvas);
+			svgCanvas.addMouseListener(asi);
+			svgCanvas.addMouseMotionListener(asi);
+
+			final JSVGScrollPane svgScrollPane = new MySvgScrollPane(svgCanvas);
+
+			GVTTreeRendererAdapter gvtTreeRendererAdapter = new GVTTreeRendererAdapter() {
+				public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
+					logger.info("Rendered svg");
+					// svgScrollPane.reset();
+					// revalidate();
+				}
+			};
+			svgCanvas.addGVTTreeRendererListener(gvtTreeRendererAdapter);
+
+			// create a graph controller
+			SVGGraphController svgGraphController = new SVGGraphController(workflow, profile,
+					false, svgCanvas, null, null, colourManager, workbenchConfiguration);
+			svgGraphController.setDataflowSelectionModel(selectionManager
+					.getWorkflowRunSelectionModel(workflowRun));
+
+			graphControllerMap.put(workflowRun, svgGraphController);
+
+			// Toolbar with actions related to graph
+			JToolBar graphActionsToolbar = graphActionsToolbar(workflowRun, svgCanvas);
+			graphActionsToolbar.setAlignmentX(Component.LEFT_ALIGNMENT);
+			graphActionsToolbar.setFloatable(false);
+
+			// Panel to hold the toolbars
+			JPanel toolbarPanel = new JPanel();
+			toolbarPanel.setLayout(new BoxLayout(toolbarPanel, BoxLayout.PAGE_AXIS));
+			toolbarPanel.add(graphActionsToolbar);
+
+			diagramPanel.add(toolbarPanel, BorderLayout.NORTH);
+			diagramPanel.add(svgScrollPane, BorderLayout.CENTER);
+
+			// JTextField workflowHierarchy = new JTextField(workflow.getName());
+			// diagramPanel.add(workflowHierarchy, BorderLayout.SOUTH);
+		} catch (InvalidRunIdException e) {
+			diagramPanel.add(new JLabel("Workflow run ID invalid", JLabel.CENTER),
+					BorderLayout.CENTER);
+		}
+		return diagramPanel;
+	}
+
+	protected JToolBar graphActionsToolbar(String workflowRun, JSVGCanvas svgCanvas) {
 		JToolBar toolBar = new JToolBar();
 		toolBar.setAlignmentX(Component.LEFT_ALIGNMENT);
 		toolBar.setFloatable(false);
@@ -162,23 +251,26 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 		JButton zoomOutButton = new JButton();
 		zoomOutButton.setBorder(new EmptyBorder(0, 2, 0, 2));
 
-		resetDiagramAction = svgCanvas.new ResetTransformAction();
+		Action resetDiagramAction = svgCanvas.new ResetTransformAction();
 		ResetDiagramAction.setResultsAction(resetDiagramAction);
 		resetDiagramAction.putValue(Action.SHORT_DESCRIPTION, "Reset Diagram");
 		resetDiagramAction.putValue(Action.SMALL_ICON, WorkbenchIcons.refreshIcon);
 		resetDiagramButton.setAction(resetDiagramAction);
 
-		zoomInAction = svgCanvas.new ZoomAction(1.2);
+		Action zoomInAction = svgCanvas.new ZoomAction(1.2);
 		ZoomInAction.setResultsAction(zoomInAction);
 		zoomInAction.putValue(Action.SHORT_DESCRIPTION, "Zoom In");
 		zoomInAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomInIcon);
 		zoomInButton.setAction(zoomInAction);
 
-		zoomOutAction = svgCanvas.new ZoomAction(1/1.2);
+		Action zoomOutAction = svgCanvas.new ZoomAction(1 / 1.2);
 		ZoomOutAction.setResultsAction(zoomOutAction);
 		zoomOutAction.putValue(Action.SHORT_DESCRIPTION, "Zoom Out");
 		zoomOutAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomOutIcon);
 		zoomOutButton.setAction(zoomOutAction);
+
+		// diagramActionsMap.put(workflowRun, new Action[] { resetDiagramAction, zoomInAction,
+		// zoomOutAction });
 
 		toolBar.add(resetDiagramButton);
 		toolBar.add(zoomInButton);
@@ -187,129 +279,68 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 		return toolBar;
 	}
 
-//	public void setStatus(Status status) {
-//		switch (status) {
-//			case RUNNING :
-//				statusLabel.setText("Workflow running");
-//				statusLabel.setIcon(WorkbenchIcons.workingIcon);
-//				if (dataflow != null){ // should not be null really, dataflow should be set before this method is called
-//					dataflow.setIsRunning(true);
-//				}
-//			    break;
-//			case FINISHED :
-//				statusLabel.setText("Workflow finished");
-//				statusLabel.setIcon(WorkbenchIcons.tickIcon);
-//				if (dataflow != null){// should not be null really, dataflow should be set before this method is called
-//					dataflow.setIsRunning(false);
-//				}
-//			    break;
-//		}
-//	}
+	// public void setStatus(Status status) {
+	// switch (status) {
+	// case RUNNING :
+	// statusLabel.setText("Workflow running");
+	// statusLabel.setIcon(WorkbenchIcons.workingIcon);
+	// if (workflow != null){ // should not be null really, workflow should be set before this
+	// method is called
+	// workflow.setIsRunning(true);
+	// }
+	// break;
+	// case FINISHED :
+	// statusLabel.setText("Workflow finished");
+	// statusLabel.setIcon(WorkbenchIcons.tickIcon);
+	// if (workflow != null){// should not be null really, workflow should be set before this method
+	// is called
+	// workflow.setIsRunning(false);
+	// }
+	// break;
+	// }
+	// }
 
-	public void setProvenanceConnector(ProvenanceConnector connector) {
-		if (connector != null) {
-			provenanceConnector = connector;
-			setSessionId(provenanceConnector.getSessionID());
+	public void setWorkflowRun(String workflowRun) throws InvalidRunIdException {
+		if (workflowRun != null) {
+			if (!diagramPanelMap.containsKey(workflowRun)) {
+				addWorkflowRun(workflowRun);
+			}
+			graphController = graphControllerMap.get(workflowRun);
+			diagramPanel = diagramPanelMap.get(workflowRun);
+			graphMonitor = graphMonitorMap.get(workflowRun);
+			Action[] actions = diagramActionsMap.get(workflowRun);
+			if (actions != null && actions.length == 3) {
+				ResetDiagramAction.setDesignAction(actions[0]);
+				ZoomInAction.setDesignAction(actions[1]);
+				ZoomOutAction.setDesignAction(actions[2]);
+			}
+			cardLayout.show(this, String.valueOf(diagramPanel.hashCode()));
+			//				graphController.redraw();
 		}
 	}
 
-	public void setReferenceService(ReferenceService referenceService) {
-		this.referenceService = referenceService;
+	public void addWorkflowRun(String workflowRun) throws InvalidRunIdException {
+		JPanel newDiagramPanel = createDiagramPanel(workflowRun);
+		add(newDiagramPanel, String.valueOf(newDiagramPanel.hashCode()));
+		diagramPanelMap.put(workflowRun, newDiagramPanel);
+		graphMonitorMap.put(workflowRun, new GraphMonitor(graphControllerMap.get(workflowRun), runService.getWorkflowReport(workflowRun)));
 	}
 
-	public GraphMonitor setDataflow(Dataflow dataflow) {
-		this.dataflow = dataflow;
-		SVGGraphController svgGraphController = new SVGGraphController(dataflow, true, svgCanvas, editManager, menuManager, colourManager, workbenchConfiguration);
-		svgGraphController.setGraphEventManager(new MonitorGraphEventManager(this, provenanceConnector, dataflow, getSessionId()));
-		// For selections on the graph
-		svgGraphController.setDataflowSelectionModel(selectionManager.getDataflowSelectionModel(dataflow));
-		setGraphController(svgGraphController);
-		graphMonitor = new GraphMonitor(svgGraphController);
-		return graphMonitor;
-	}
-
-	public Action getResetDiagramAction() {
-		return resetDiagramAction;
-	}
-
-	public Action getZoomInAction() {
-		return zoomInAction;
-	}
-
-	public Action getZoomOutAction() {
-		return zoomOutAction;
-	}
-
-	public ImageIcon getIcon() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public String getName() {
-		return "Monitor View Component";
-	}
-
-	public void onDisplay() {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void onDispose() {
-		if (graphMonitor != null) {
-
-			graphMonitor.onDispose();
+	public void removeWorkflowRun(String workflowRun) {
+		JPanel removedDiagramPanel = diagramPanelMap.remove(workflowRun);
+		if (removedDiagramPanel != null) {
+			remove(removedDiagramPanel);
 		}
-		if (svgScrollPane != null) {
-			svgScrollPane.removeAll();
-			svgScrollPane = null;
+		SVGGraphController removedController = graphControllerMap.remove(workflowRun);
+		if (removedController != null) {
+			removedController.shutdown();
 		}
-		if (graphController != null) {
-			graphController.shutdown();
-			graphController = null;
-		}
-		if (svgCanvas != null) {
-			svgCanvas.removeGVTTreeRendererListener(gvtTreeRendererAdapter);
-			svgCanvas = null;
-		}
-
-	}
-
-	@Override
-	protected void finalize() throws Throwable {
-		onDispose();
-	}
-
-	public void setSessionId(String sessionId) {
-		this.sessionId = sessionId;
-	}
-
-	public String getSessionId() {
-		return sessionId;
-	}
-
-	public void setGraphController(SVGGraphController graphController) {
-		this.graphController = graphController;
+		graphMonitorMap.remove(workflowRun);
+		diagramActionsMap.remove(workflowRun);
 	}
 
 	public SVGGraphController getGraphController() {
 		return graphController;
-	}
-
-	class MySvgScrollPane extends JSVGScrollPane {
-		private static final long serialVersionUID = 6890422410714378543L;
-
-		public MySvgScrollPane(JSVGCanvas canvas) {
-			super(canvas);
-		}
-
-		public void reset() {
-			super.resizeScrollBars();
-			super.reset();
-		}
-	}
-
-	public ReferenceService getReferenceService() {
-		return referenceService;
 	}
 
 	public void addObserver(Observer<WorkflowObjectSelectionMessage> observer) {
@@ -328,97 +359,78 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Obs
 		return multiCaster.getObservers();
 	}
 
-	public void setSelectedGraphElementForWorkflowObject(Object workflowObject){
+	public void setSelectedGraphElementForWorkflowObject(Object workflowObject) {
+		// Clear previous selection
+		graphController.getDataflowSelectionModel().clearSelection();
 		// Only select processors, ignore links, ports etc.
-		if (workflowObject instanceof Processor || workflowObject instanceof DataflowPort) {
-			// Clear previous selection
-			graphController.getDataflowSelectionModel().clearSelection();
+		if (workflowObject instanceof Processor || workflowObject instanceof WorkflowPort) {
 			graphController.getDataflowSelectionModel().addSelection(workflowObject);
-		} else {
-			// We cannot show dataflow object as selected of the graph so clear previous selection
-			graphController.getDataflowSelectionModel().clearSelection();
 		}
 	}
-}
 
-class MonitorGraphEventManager implements GraphEventManager {
-
-	private static Logger logger = Logger
-			.getLogger(MonitorGraphEventManager.class);
-	private final ProvenanceConnector provenanceConnector;
-	private final Dataflow dataflow;
-	private String localName;
-
-	private Runnable runnable;
-	private String sessionID;
-	private String targetWorkflowID;
-
-	static int MINIMUM_HEIGHT = 500;
-	static int MINIMUM_WIDTH = 800;
-	private MonitorGraphComponent monitorViewComponent;
-	private GraphElement previouslySelectedProcessorGraphElement;
-
-	public MonitorGraphEventManager(MonitorGraphComponent monitorViewComponent, ProvenanceConnector provenanceConnector,
-			Dataflow dataflow, String sessionID) {
-		this.monitorViewComponent = monitorViewComponent;
-		this.provenanceConnector = provenanceConnector;
-		this.dataflow = dataflow;
-		this.sessionID = sessionID;
+	private class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+		@Override
+		public void notifySwing(Observable<SelectionManagerEvent> sender,
+				SelectionManagerEvent message) {
+			if (message instanceof WorkflowRunSelectionEvent) {
+				try {
+					setWorkflowRun(((WorkflowRunSelectionEvent) message).getSelectedWorkflowRun());
+				} catch (InvalidRunIdException e) {
+					logger.warn("Invalid workflow run", e);
+				}
+			}
+		}
 	}
 
-	/**
-	 * Retrieve the provenance for a dataflow object
-	 */
-	public void mouseClicked(final GraphElement graphElement, short button,
-			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
-			int screenX, int screenY) {
+	private class MonitorGraphEventManager implements GraphEventManager {
 
-		Object dataflowObject = graphElement.getWorkflowBean();
+		/**
+		 * Retrieve the provenance for a workflow object
+		 */
+		public void mouseClicked(final GraphElement graphElement, short button, boolean altKey,
+				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
 
-		GraphElement parent = graphElement.getParent();
-		if (parent instanceof GraphNode) {
-			   parent = parent.getParent();
+			Object dataflowObject = graphElement.getWorkflowBean();
+
+			setSelectedGraphElementForWorkflowObject(dataflowObject);
+
+			// Notify anyone interested that a selection occurred on the graph
+			triggerWorkflowObjectSelectionEvent(dataflowObject);
 		}
 
-		monitorViewComponent.setSelectedGraphElementForWorkflowObject(dataflowObject);
+		public void mouseDown(GraphElement graphElement, short button, boolean altKey,
+				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
+		}
 
-		// Notify anyone interested that a selection occurred on the graph
-		monitorViewComponent.triggerWorkflowObjectSelectionEvent(dataflowObject);
-	}
+		public void mouseMoved(GraphElement graphElement, short button, boolean altKey,
+				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
+		}
 
-	public void mouseDown(GraphElement graphElement, short button,
-			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
-			int screenX, int screenY) {
-		// TODO Auto-generated method stub
+		public void mouseUp(GraphElement graphElement, short button, boolean altKey,
+				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
+		}
 
-	}
+		public void mouseOut(GraphElement graphElement, short button, boolean altKey,
+				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
+		}
 
-	public void mouseMoved(GraphElement graphElement, short button,
-			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
-			int screenX, int screenY) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void mouseUp(GraphElement graphElement, short button,
-			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
-			int screenX, int screenY) {
-		// TODO Auto-generated method stub
+		public void mouseOver(GraphElement graphElement, short button, boolean altKey,
+				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
+		}
 
 	}
 
-	public void mouseOut(GraphElement graphElement, short button,
-			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
-			int screenX, int screenY) {
-		// TODO Auto-generated method stub
+	private class MySvgScrollPane extends JSVGScrollPane {
+		private static final long serialVersionUID = 6890422410714378543L;
 
-	}
+		public MySvgScrollPane(JSVGCanvas canvas) {
+			super(canvas);
+		}
 
-	public void mouseOver(GraphElement graphElement, short button,
-			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
-			int screenX, int screenY) {
-		// TODO Auto-generated method stub
-
+		public void reset() {
+			super.resizeScrollBars();
+			super.reset();
+		}
 	}
 
 }

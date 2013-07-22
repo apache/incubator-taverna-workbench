@@ -20,19 +20,20 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.design;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
 
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
+import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 
 /**
- *
- *
  * @author David Withers
  */
 public class DesignPerspectiveComponent extends JSplitPane {
@@ -46,15 +47,16 @@ public class DesignPerspectiveComponent extends JSplitPane {
 	private final UIComponentFactorySPI reportViewComponentFactory;
 	private final SelectionManager selectionManager;
 
-	private FileManager fileManager;
-
+	private final FileManager fileManager;
+	private final MenuManager menuManager;
+	private final EditManager editManager;
 
 	public DesignPerspectiveComponent(UIComponentFactorySPI graphViewComponentFactory,
 			UIComponentFactorySPI servicePanelComponentFactory,
 			UIComponentFactorySPI contextualViewComponentFactory,
 			UIComponentFactorySPI workflowExplorerFactory,
 			UIComponentFactorySPI reportViewComponentFactory, FileManager fileManager,
-			SelectionManager selectionManager) {
+			SelectionManager selectionManager, MenuManager menuManager, EditManager editManager) {
 		this.graphViewComponentFactory = graphViewComponentFactory;
 		this.servicePanelComponentFactory = servicePanelComponentFactory;
 		this.contextualViewComponentFactory = contextualViewComponentFactory;
@@ -62,37 +64,45 @@ public class DesignPerspectiveComponent extends JSplitPane {
 		this.reportViewComponentFactory = reportViewComponentFactory;
 		this.fileManager = fileManager;
 		this.selectionManager = selectionManager;
+		this.menuManager = menuManager;
+		this.editManager = editManager;
 
+		setBorder(null);
 		setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-		setDividerLocation(0.49949545913218973);
+		setDividerLocation(200);
 		setLeftComponent(createLeftComponent());
 		setRightComponent(createRightComponent());
 	}
 
-	/**
-	 * @return
-	 */
 	private Component createLeftComponent() {
-		JSplitPane leftComponent = new JSplitPane();
-		leftComponent.setOrientation(JSplitPane.VERTICAL_SPLIT);
-		leftComponent.setDividerLocation(0.381635581061693);
+		JSplitPane leftComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		leftComponent.setBorder(null);
+		leftComponent.setDividerLocation(100);
 
 		leftComponent.setLeftComponent((Component) servicePanelComponentFactory.getComponent());
 
 		JTabbedPane rightComponent = new JTabbedPane();
-		rightComponent.addTab("Workflow explorer", (Component) workflowExplorerFactory.getComponent());
+		rightComponent.addTab("Workflow explorer",
+				(Component) workflowExplorerFactory.getComponent());
 		rightComponent.addTab("Details", (Component) contextualViewComponentFactory.getComponent());
-//		rightComponent.addTab("Validation report",  (Component) reportViewComponentFactory.getComponent());
+		// rightComponent.addTab("Validation report", (Component)
+		// reportViewComponentFactory.getComponent());
 		leftComponent.setRightComponent(rightComponent);
 
 		return leftComponent;
 	}
 
-	/**
-	 * @return
-	 */
 	private Component createRightComponent() {
-		return new WorkflowSelectorComponent((Component) graphViewComponentFactory.getComponent(), selectionManager, fileManager);
+		JPanel diagramComponent = new JPanel(new BorderLayout());
+		diagramComponent.add(new WorkflowSelectorComponent(selectionManager), BorderLayout.NORTH);
+		diagramComponent.add((Component) graphViewComponentFactory.getComponent(),
+				BorderLayout.CENTER);
+
+		JPanel rightComonent = new JPanel(new BorderLayout());
+		rightComonent.add(new WorkflowBundleSelectorComponent(selectionManager, fileManager,
+				menuManager, editManager), BorderLayout.NORTH);
+		rightComonent.add(diagramComponent, BorderLayout.CENTER);
+		return rightComonent;
 	}
 
 }

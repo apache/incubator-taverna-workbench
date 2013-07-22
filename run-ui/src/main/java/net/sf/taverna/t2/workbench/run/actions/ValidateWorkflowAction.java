@@ -30,30 +30,24 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.report.ReportManager;
-import net.sf.taverna.t2.workbench.report.view.ReportOnWorkflowAction;
 import net.sf.taverna.t2.workbench.ui.Workbench;
-
-//import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
 public class ValidateWorkflowAction extends AbstractAction {
 
-	// private static Logger logger =
-	// Logger.getLogger(ValidateWorkflowAction.class);
-
 	private static final String VALIDATE_WORKFLOW = "Validate workflow";
 
-	protected ReportOnWorkflowAction subAction;
+//	protected ReportOnWorkflowAction subAction;
 
 	public ValidateWorkflowAction(EditManager editManager, FileManager fileManager,
 			ReportManager reportManager, Workbench workbench) {
 		super(VALIDATE_WORKFLOW, WorkbenchIcons.searchIcon);
 		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_V);
-		subAction = new ReportOnWorkflowAction("", true, false, editManager, fileManager, reportManager, workbench);
+//		subAction = new ReportOnWorkflowAction("", true, false, editManager, fileManager, reportManager, workbench);
 	}
 
 	public void actionPerformed(ActionEvent ev) {
-		subAction.actionPerformed(ev);
+//		subAction.actionPerformed(ev);
 	}
 
 }

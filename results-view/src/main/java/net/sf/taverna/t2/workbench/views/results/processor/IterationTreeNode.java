@@ -7,27 +7,25 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-import org.apache.log4j.Logger;
-
 public class IterationTreeNode extends DefaultMutableTreeNode {
 	private static final long serialVersionUID = -7522904828725470216L;
-	
+
 	public static enum ErrorState {
 		NO_ERRORS,
 		INPUT_ERRORS,
 		OUTPUT_ERRORS;
 	}
-	
+
 	private ErrorState errorState = ErrorState.NO_ERRORS;
 
 	private List<Integer> iteration;
-	
+
 	public IterationTreeNode() {
 		this.setIteration(new ArrayList<Integer>());
 	}
-	
+
 	public IterationTreeNode(List<Integer> iteration) {
-		this.setIteration(iteration);		
+		this.setIteration(iteration);
 	}
 
 	public void setIteration(List<Integer> iteration) {
@@ -45,19 +43,19 @@ public class IterationTreeNode extends DefaultMutableTreeNode {
 		}
 		return null;
 	}
-	
+
 	public List<Integer> getParentIteration() {
 		IterationTreeNode parentIterationTreeNode = getParentIterationTreeNode();
 		if (parentIterationTreeNode != null) {
 			return parentIterationTreeNode.getIteration();
 		}
-		return null;		
+		return null;
 	}
-	
-	
+
+
 	public String toString(){
 		boolean isNested = getChildCount() > 0;
-		StringBuilder sb = new StringBuilder();		
+		StringBuilder sb = new StringBuilder();
 		if (! getIteration().isEmpty() || isNested) {
 			// Iteration 3.1.3
 			if (isNested) {
@@ -69,7 +67,7 @@ public class IterationTreeNode extends DefaultMutableTreeNode {
 					sb.append("Iteration ");
 				}
 			}
-			for (Integer index : getIteration()) {				
+			for (Integer index : getIteration()) {
 				sb.append(index+1);
 				sb.append(".");
 			}
@@ -79,8 +77,8 @@ public class IterationTreeNode extends DefaultMutableTreeNode {
 			}
 		} else {
 			sb.append("Invocation");
-		}		
-		
+		}
+
 		return sb.toString();
 	}
 
@@ -104,7 +102,7 @@ public class IterationTreeNode extends DefaultMutableTreeNode {
 		super.setParent(newParent);
 		notifyParentErrorState();
 	}
-	
+
 	public ErrorState getErrorState() {
 		return errorState;
 	}

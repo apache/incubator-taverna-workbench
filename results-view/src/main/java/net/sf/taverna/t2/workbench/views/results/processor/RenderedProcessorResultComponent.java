@@ -28,9 +28,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,28 +57,21 @@ import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import net.sf.taverna.t2.invocation.InvocationContext;
-import net.sf.taverna.t2.invocation.impl.InvocationContextImpl;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
-import net.sf.taverna.t2.reference.ErrorDocument;
-import net.sf.taverna.t2.reference.ExternalReferenceSPI;
-import net.sf.taverna.t2.reference.Identified;
-import net.sf.taverna.t2.reference.ReferenceService;
-import net.sf.taverna.t2.reference.ReferenceSet;
-import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.renderers.Renderer;
 import net.sf.taverna.t2.renderers.RendererException;
 import net.sf.taverna.t2.renderers.RendererRegistry;
+import net.sf.taverna.t2.renderers.RendererUtils;
 import net.sf.taverna.t2.results.ResultsUtils;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
-import net.sf.taverna.t2.workbench.views.results.workflow.RenderedResultComponent;
-import net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.databundle.DataBundles;
+import uk.org.taverna.databundle.ErrorDocument;
+import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 import eu.medsea.mimeutil.MimeType;
 
 /**
@@ -103,7 +97,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 	private JPanel renderedResultPanel;
 
 	// Combo box containing possible result types
-	private JComboBox renderersComboBox;
+	private JComboBox<String> renderersComboBox;
 
 	// Button to refresh (re-render) the result, especially needed
 	// for large results that are not rendered or are
@@ -138,7 +132,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 	private JCheckBox wrapTextCheckBox;
 
 	// Reference to the object being displayed (contained in the tree node)
-	private T2Reference t2Reference;
+	private Path path;
 
 	// Currently selected node from the ResultViewComponent, if any.
 	private ProcessorResultTreeNode node = null;
@@ -149,14 +143,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 	private Map<Integer, Boolean> nodeToWrapSelection = new HashMap<Integer, Boolean>();
 
 	// List of all output ports - needs to be passed to 'save result' actions.
-	List<? extends DataflowOutputPort> dataflowOutputPorts = null;
-
-	private ReferenceService referenceService;
-        private InvocationContext context;
-
-	// List of all existing 'save individual result' actions,
-	// e.g. each action can save the result in a different format.
-	private final List<SaveIndividualResultSPI> saveActions;
+	List<? extends OutputWorkflowPort> dataflowOutputPorts = null;
 
 	// Panel containing all 'save results' buttons
 	JPanel saveButtonsPanel = null;
@@ -165,15 +152,13 @@ public class RenderedProcessorResultComponent extends JPanel {
 	 * Creates the component.
 	 */
 	public RenderedProcessorResultComponent(RendererRegistry rendererRegistry, List<SaveIndividualResultSPI> saveActions) {
-
 		this.rendererRegistry = rendererRegistry;
-		this.saveActions = saveActions;
 		setLayout(new BorderLayout());
 		setBorder(new EtchedBorder());
 
 		// Results type combo box
-		renderersComboBox = new JComboBox();
-		renderersComboBox.setModel(new DefaultComboBoxModel()); // initially empty
+		renderersComboBox = new JComboBox<>();
+		renderersComboBox.setModel(new DefaultComboBoxModel<String>()); // initially empty
 
 		renderersComboBox.setRenderer(new ColorCellRenderer());
 		renderersComboBox.setEditable(false);
@@ -234,7 +219,6 @@ public class RenderedProcessorResultComponent extends JPanel {
 		saveButtonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		for (SaveIndividualResultSPI action : saveActions) {
 			action.setResultReference(null);
-			action.setInvocationContext(null);
 			final JButton saveButton = new JButton(action.getAction());
 			saveButton.setEnabled(false);
 			saveButton.addActionListener(new ActionListener() {
@@ -266,18 +250,16 @@ public class RenderedProcessorResultComponent extends JPanel {
 	 */
 	public void setNode(ProcessorResultTreeNode node) {
 		this.node = node;
-		this.referenceService = node.getReferenceService();
-		this.context = new InvocationContextImpl(this.referenceService, null);
 		SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					if (RenderedProcessorResultComponent.this.node
-							.isState(ProcessorResultTreeNode.ProcessorResultTreeNodeState.RESULT_REFERENCE)) {
-						updateResult();
-					} else {
-						clearResult();
-					}
+			public void run() {
+				if (RenderedProcessorResultComponent.this.node
+						.isState(ProcessorResultTreeNode.ProcessorResultTreeNodeState.RESULT_REFERENCE)) {
+					updateResult();
+				} else {
+					clearResult();
 				}
-			});
+			}
+		});
 	}
 
 	/**
@@ -297,7 +279,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 		ProcessorResultTreeNode result = (ProcessorResultTreeNode) node;
 
 		// Reference to the result data
-		t2Reference = result.getReference();
+		path = result.getReference();
 
 		// Enable the combo box
 		renderersComboBox.setEnabled(true);
@@ -309,36 +291,19 @@ public class RenderedProcessorResultComponent extends JPanel {
 			SaveIndividualResultSPI action = (SaveIndividualResultSPI) (saveButton
 					.getAction());
 			// Update the action with the new result reference
-			action.setResultReference(t2Reference);
-			action.setInvocationContext(context);
+			action.setResultReference(path);
 			saveButton.setEnabled(true);
 		}
 
-		Identified identified = referenceService.resolveIdentifier(t2Reference, null, context);
-
-		if (identified instanceof ReferenceSet) {
-
+		if (DataBundles.isValue(path) || DataBundles.isReference(path)) {
 			// Enable refresh button
 			refreshButton.setEnabled(true);
 
 			List<MimeType> mimeTypes = new ArrayList<MimeType>();
-			ReferenceSet referenceSet = (ReferenceSet) identified;
-			List<ExternalReferenceSPI> externalReferences = new ArrayList<ExternalReferenceSPI>(
-					referenceSet.getExternalReferences());
-			Collections.sort(externalReferences,
-					new Comparator<ExternalReferenceSPI>() {
-						public int compare(ExternalReferenceSPI o1,
-								ExternalReferenceSPI o2) {
-							return (int) (o1.getResolutionCost() - o2
-									.getResolutionCost());
-						}
-					});
-			for (ExternalReferenceSPI externalReference : externalReferences) {
-				mimeTypes.addAll(ResultsUtils.getMimeTypes(externalReference,
-						null));
-				if (!mimeTypes.isEmpty()) {
-					break;
-				}
+			try (InputStream inputstream = RendererUtils.getInputStream(path)) {
+				mimeTypes.addAll(ResultsUtils.getMimeTypes(inputstream));
+			} catch (IOException e) {
+				logger.warn("Error getting mimetype", e);
 			}
 
 			if (mimeTypes.isEmpty()) { // If MIME types is empty - add
@@ -362,7 +327,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 
 			for (MimeType mimeType : mimeTypes) {
 				List<Renderer> renderersList = rendererRegistry
-						.getRenderersForMimeType(context, t2Reference, mimeType
+						.getRenderersForMimeType(mimeType
 								.toString());
 				for (Renderer renderer : renderersList) {
 					if (!recognisedRenderersForMimeType.contains(renderer)) {
@@ -373,7 +338,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 			// if there are no renderers then force text/plain
 			if (recognisedRenderersForMimeType.isEmpty()) {
 				recognisedRenderersForMimeType = rendererRegistry
-						.getRenderersForMimeType(context, t2Reference,
+						.getRenderersForMimeType(
 								"text/plain");
 			}
 
@@ -424,12 +389,17 @@ public class RenderedProcessorResultComponent extends JPanel {
 				}
 			}
 
-		} else if (identified instanceof ErrorDocument) {
+		} else if (DataBundles.isError(path)) {
 
 			// Disable refresh button
 			refreshButton.setEnabled(false);
 
-			ErrorDocument errorDocument = (ErrorDocument) identified;
+			ErrorDocument errorDocument;
+			try {
+				errorDocument = DataBundles.getError(path);
+			} catch (IOException e) {
+				logger.warn("Error getting the error document", e);
+			}
 
 			// Reset the renderers as we have an error item
 			recognisedRenderersForMimeType = null;
@@ -438,7 +408,8 @@ public class RenderedProcessorResultComponent extends JPanel {
 			DefaultMutableTreeNode root = new DefaultMutableTreeNode(
 				"Error Trace");
 
-			ResultsUtils.buildErrorDocumentTree(root, errorDocument, referenceService);
+			// TODO handle error documents
+			// ResultsUtils.buildErrorDocumentTree(root, errorDocument, referenceService);
 
 			JTree errorTree = new JTree(root);
 
@@ -515,7 +486,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 
 			JComponent component = null;
 			try {
-				component = renderer.getComponent(referenceService, t2Reference);
+				component = renderer.getComponent(path);
 				if (component instanceof DialogTextArea){
 					if (wrapTextCheckBox.isSelected()){
 						((JTextArea) component).setLineWrap(wrapTextCheckBox.isSelected());
@@ -562,7 +533,6 @@ public class RenderedProcessorResultComponent extends JPanel {
 					.getAction());
 			// Update the action
 			action.setResultReference(null);
-			action.setInvocationContext(context);
 			saveButton.setEnabled(false);
 		}
 
@@ -590,7 +560,8 @@ public class RenderedProcessorResultComponent extends JPanel {
 			    return renderer;
 		    }
 
-			if (value != null && index >= recognisedRenderersForMimeType.size()){ // one of the non-preferred renderers - show it in grey
+			if (value != null && index >= recognisedRenderersForMimeType.size()){
+				// one of the non-preferred renderers - show it in grey
 			    renderer.setForeground(Color.GRAY);
 			}
 

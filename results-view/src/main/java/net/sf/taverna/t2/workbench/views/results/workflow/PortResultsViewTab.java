@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.views.results.workflow;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.BorderLayout;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -42,44 +43,42 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.taverna.t2.renderers.RendererRegistry;
+import net.sf.taverna.t2.workbench.ui.Updatable;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
-import net.sf.taverna.t2.workbench.views.results.workflow.FilteredWorkflowResultTreeModel.FilterType;
+import net.sf.taverna.t2.workbench.views.results.workflow.FilteredDataBundleTreeModel.FilterType;
 
 /**
  * A tab containing result tree for an output port and a panel with rendered result
  * of the currently selected node in the tree.
  *
  * @author Alex Nenadic
- *
  */
-public class PortResultsViewTab extends JPanel{
+public class PortResultsViewTab extends JPanel implements Updatable {
 
 	private static final long serialVersionUID = -5531195402446371947L;
 
 	// Tree model of results
-	WorkflowResultTreeModel resultModel;
+	DataBundleTreeModel resultModel;
 
-    FilteredWorkflowResultTreeModel filteredTreeModel;
+	FilteredDataBundleTreeModel filteredTreeModel;
 
 	// Rendered result component
 	private RenderedResultComponent renderedResultComponent;
 
-	private String portName;
-
-	private int portDepth;
-
 	private JTree tree;
 
-    private JComboBox filterChoiceBox;
+	private JComboBox<FilterType> filterChoiceBox;
 
 	private final RendererRegistry rendererRegistry;
 
 	private final List<SaveIndividualResultSPI> saveActions;
 
-	public PortResultsViewTab(String portName, int portDepth, RendererRegistry rendererRegistry, List<SaveIndividualResultSPI> saveActions) {
+	private final Path path;
+
+	public PortResultsViewTab(Path path, RendererRegistry rendererRegistry,
+			List<SaveIndividualResultSPI> saveActions) {
 		super(new BorderLayout());
-		this.portName = portName;
-		this.portDepth = portDepth;
+		this.path = path;
 		this.rendererRegistry = rendererRegistry;
 		this.saveActions = saveActions;
 
@@ -93,15 +92,13 @@ public class PortResultsViewTab extends JPanel{
 		// from the tree
 		JSplitPane splitPanel = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
-		// Results tree (containing T2References to all individual results for this port)
-		resultModel =  new WorkflowResultTreeModel(portName,
-				portDepth);
-
-		filteredTreeModel = new FilteredWorkflowResultTreeModel(getResultModel());
+		// Results tree (containing DataBundle Paths to all individual results for this port)
+		resultModel = new DataBundleTreeModel(path);
+		filteredTreeModel = new FilteredDataBundleTreeModel(resultModel);
 		tree = new JTree(filteredTreeModel);
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.setExpandsSelectedPaths(true);
-		tree.setRootVisible(false);
+		tree.setRootVisible(true);
 		tree.setShowsRootHandles(true);
 		tree.setCellRenderer(new PortResultCellRenderer());
 
@@ -114,8 +111,9 @@ public class PortResultsViewTab extends JPanel{
 				TreePath selectionPath = e.getNewLeadSelectionPath();
 				if (selectionPath != null) {
 					// Get the selected node
-					final Object selectedNode = selectionPath.getLastPathComponent();
-					renderedResultComponent.setNode((WorkflowResultTreeNode)selectedNode);
+					final DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) selectionPath
+							.getLastPathComponent();
+					renderedResultComponent.setPath((Path) selectedNode.getUserObject());
 				}
 			}
 
@@ -130,14 +128,19 @@ public class PortResultsViewTab extends JPanel{
 				// If nothing is currently selected in the tree - select either the
 				// result or the first AVAILABLE item in the result list
 				/*
-				if (tree.getSelectionRows() == null || tree.getSelectionRows().length == 0){
-					ResultTreeNode parent = (ResultTreeNode)e.getTreePath().getLastPathComponent(); // parent of the changed node(s)
-					int[] indices = e.getChildIndices(); //indexes of the changed node(s)
-					ResultTreeNode firstChild = (ResultTreeNode) parent.getChildAt(indices[0]); // get the first changed node
-					if (firstChild.getState().equals(ResultTreeNode.ResultTreeNodeState.RESULT_REFERENCE)){ // if this is the result node rather than result list placeholder
-						tree.setSelectionPath(new TreePath(firstChild.getPath())); // select this node
-					}
-				}*/
+				 * if (tree.getSelectionRows() == null || tree.getSelectionRows().length == 0){
+				 * ResultTreeNode parent = (ResultTreeNode)e.getTreePath().getLastPathComponent();
+				 * // parent of the changed node(s)
+				 * int[] indices = e.getChildIndices(); //indexes of the changed node(s)
+				 * ResultTreeNode firstChild = (ResultTreeNode) parent.getChildAt(indices[0]); //
+				 * get the first changed node
+				 * if
+				 * (firstChild.getState().equals(ResultTreeNode.ResultTreeNodeState.RESULT_REFERENCE
+				 * )){ // if this is the result node rather than result list placeholder
+				 * tree.setSelectionPath(new TreePath(firstChild.getPath())); // select this node
+				 * }
+				 * }
+				 */
 			}
 
 			public void treeNodesInserted(TreeModelEvent e) {
@@ -156,12 +159,13 @@ public class PortResultsViewTab extends JPanel{
 		JPanel treeSubPanel = new JPanel();
 		treeSubPanel.setLayout(new BorderLayout());
 		treeSubPanel.add(new JLabel("Click in tree to"), BorderLayout.WEST);
-		filterChoiceBox = new JComboBox(new FilterType[] {FilterType.ALL, FilterType.RESULTS, FilterType.ERRORS});
+		filterChoiceBox = new JComboBox<>(new FilterType[] { FilterType.ALL, FilterType.RESULTS,
+				FilterType.ERRORS });
 		filterChoiceBox.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-			    updateTree();
+				updateTree();
 			}
-		    });
+		});
 		treeSubPanel.add(filterChoiceBox);
 		leftPanel.add(treeSubPanel, BorderLayout.NORTH);
 		leftPanel.add(new JScrollPane(tree), BorderLayout.CENTER);
@@ -174,59 +178,64 @@ public class PortResultsViewTab extends JPanel{
 
 	}
 
+	public void update() {
+		resultModel.update();
+	}
+
 	/**
 	 * @return the resultModel
 	 */
-	public WorkflowResultTreeModel getResultModel() {
+	public DataBundleTreeModel getResultModel() {
 		return resultModel;
 	}
 
-    public FilteredWorkflowResultTreeModel getModel() {
-	return filteredTreeModel;
-    }
-
-    private List<TreePath> expandedPaths = new ArrayList<TreePath>();
-    private TreePath selectionPath = null;
-
-    private void rememberPaths() {
-	expandedPaths.clear();
-	for (Enumeration e = tree.getExpandedDescendants(new TreePath(filteredTreeModel.getRoot())); (e != null) && e.hasMoreElements();) {
-	    expandedPaths.add((TreePath) e.nextElement());
+	public FilteredDataBundleTreeModel getModel() {
+		return filteredTreeModel;
 	}
-	selectionPath = tree.getSelectionPath();
-    }
 
-    private void reinstatePaths() {
-	for (TreePath path : expandedPaths) {
-	    if (filteredTreeModel.isShown((DefaultMutableTreeNode) path.getLastPathComponent())) {
-		tree.expandPath(path);
-	    }
-	}
-	if (selectionPath != null) {
-	    if (filteredTreeModel.isShown((DefaultMutableTreeNode) selectionPath.getLastPathComponent())) {
-		    tree.setSelectionPath(selectionPath);
-	    }
-	    else {
-		tree.clearSelection();
-		renderedResultComponent.clearResult();
-	    }
-	}
-    }
+	private List<TreePath> expandedPaths = new ArrayList<TreePath>();
+	private TreePath selectionPath = null;
 
-    private void updateTree() {
-	filteredTreeModel.setFilter((FilterType) filterChoiceBox.getSelectedItem());
-	rememberPaths();
-	filteredTreeModel.reload();
-	tree.setModel(filteredTreeModel);
-	reinstatePaths();
-    }
+	private void rememberPaths() {
+		expandedPaths.clear();
+		for (Enumeration<TreePath> e = tree.getExpandedDescendants(new TreePath(filteredTreeModel
+				.getRoot())); (e != null) && e.hasMoreElements();) {
+			expandedPaths.add(e.nextElement());
+		}
+		selectionPath = tree.getSelectionPath();
+	}
+
+	private void reinstatePaths() {
+		for (TreePath path : expandedPaths) {
+			if (filteredTreeModel.isShown((DefaultMutableTreeNode) path.getLastPathComponent())) {
+				tree.expandPath(path);
+			}
+		}
+		if (selectionPath != null) {
+			if (filteredTreeModel.isShown((DefaultMutableTreeNode) selectionPath
+					.getLastPathComponent())) {
+				tree.setSelectionPath(selectionPath);
+			} else {
+				tree.clearSelection();
+				renderedResultComponent.clearResult();
+			}
+		}
+	}
+
+	private void updateTree() {
+		filteredTreeModel.setFilter((FilterType) filterChoiceBox.getSelectedItem());
+		rememberPaths();
+		filteredTreeModel.reload();
+		tree.setModel(filteredTreeModel);
+		reinstatePaths();
+	}
 
 	public void expandTree() {
 
-		if (tree != null){
-			for (int row = 0; row < tree.getRowCount(); row ++) {
-			      tree.expandRow(row);
-			 }
+		if (tree != null) {
+			for (int row = 0; row < tree.getRowCount(); row++) {
+				tree.expandRow(row);
+			}
 		}
 	}
 }

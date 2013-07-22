@@ -24,6 +24,8 @@ import java.net.URI;
 
 import javax.swing.Action;
 
+import uk.org.taverna.commons.services.ServiceRegistry;
+
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
@@ -42,6 +44,7 @@ public class PasteGraphComponentMenuAction extends AbstractMenuAction {
 	private EditManager editManager;
 	private MenuManager menuManager;
 	private SelectionManager selectionManager;
+	private ServiceRegistry serviceRegistry;
 
 	public PasteGraphComponentMenuAction() {
 		super(URI
@@ -50,7 +53,7 @@ public class PasteGraphComponentMenuAction extends AbstractMenuAction {
 
 	@Override
 	protected Action createAction() {
-		return PasteGraphComponentAction.getInstance(editManager, menuManager, selectionManager);
+		return PasteGraphComponentAction.getInstance(editManager, menuManager, selectionManager, serviceRegistry);
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -63,6 +66,10 @@ public class PasteGraphComponentMenuAction extends AbstractMenuAction {
 
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
+	}
+
+	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+		this.serviceRegistry = serviceRegistry;
 	}
 
 }

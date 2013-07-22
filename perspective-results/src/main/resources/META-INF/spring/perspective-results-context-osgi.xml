@@ -6,6 +6,20 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="ResultsPerspective" auto-export="interfaces" />
+	<service ref="ResultsPerspective" auto-export="interfaces">
+		<service-properties value-type="java.lang.String[]">
+			<beans:entry key="event.topics"
+				value="uk/org/taverna/platform/run/RunManager/*" />
+		</service-properties>
+	</service>
+
+	<reference id="runService" interface="uk.org.taverna.platform.run.api.RunService" />
+	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
+	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
+	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
+	<reference id="rendererRegistry" interface="net.sf.taverna.t2.renderers.RendererRegistry" />
+
+	<list id="saveAllResultsSPIs" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
+	<list id="saveIndividualResultSPIs" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI" />
 
 </beans:beans>
