@@ -122,29 +122,28 @@ public class DeleteGraphComponentAction extends AbstractAction implements Design
 	/**
 	 * Check if action should be enabled or disabled and update its status.
 	 */
-	public void updateStatus() {
-		WorkflowBundle workflowBundle = selectionManager.getSelectedWorkflowBundle();
-		DataflowSelectionModel selectionModel = selectionManager.getDataflowSelectionModel(workflowBundle);
+	public void updateStatus(WorkflowBundle selectionWorkflowBundle) {
+		if (selectionWorkflowBundle != null) {
+			DataflowSelectionModel selectionModel = selectionManager.getDataflowSelectionModel(selectionWorkflowBundle);
+			Set<Object> selection = selectionModel.getSelection();
 
-		// List of all selected objects in the graph view
-		Set<Object> selection = selectionModel.getSelection();
-
-		if (selection.isEmpty()){
-			setEnabled(false);
-		}
-		else{
-			// Take the first selected item - we only support single selections anyway
-			Object selected = selection.toArray()[0];
-			if ((selected instanceof Processor) ||
-					(selected instanceof InputWorkflowPort) ||
-					(selected instanceof OutputWorkflowPort) ||
-					(selected instanceof DataLink) ||
-					(selected instanceof ControlLink)){
-				setEnabled(true);
-			}
-			else{
+			if (selection.isEmpty()){
 				setEnabled(false);
+			} else{
+				// Take the first selected item - we only support single selections anyway
+				Object selected = selection.toArray()[0];
+				if ((selected instanceof Processor) ||
+						(selected instanceof InputWorkflowPort) ||
+						(selected instanceof OutputWorkflowPort) ||
+						(selected instanceof DataLink) ||
+						(selected instanceof ControlLink)){
+					setEnabled(true);
+				} else{
+					setEnabled(false);
+				}
 			}
+		} else {
+			setEnabled(false);
 		}
 	}
 
@@ -155,7 +154,7 @@ public class DeleteGraphComponentAction extends AbstractAction implements Design
 	private final class DataflowSelectionObserver extends SwingAwareObserver<DataflowSelectionMessage> {
 		@Override
 		public void notifySwing(Observable<DataflowSelectionMessage> sender, DataflowSelectionMessage message) {
-			updateStatus();
+			updateStatus(selectionManager.getSelectedWorkflowBundle());
 		}
 	}
 
@@ -166,14 +165,15 @@ public class DeleteGraphComponentAction extends AbstractAction implements Design
 				WorkflowBundleSelectionEvent workflowBundleSelectionEvent = (WorkflowBundleSelectionEvent) message;
 				WorkflowBundle oldFlow = workflowBundleSelectionEvent.getPreviouslySelectedWorkflowBundle();
 				WorkflowBundle newFlow = workflowBundleSelectionEvent.getSelectedWorkflowBundle();
-				// Update the buttons status as current dataflow has changed
-				updateStatus();
 
 				// Remove the workflow selection model listener from the previous (if any)
 				// and add to the new workflow (if any)
 				if (oldFlow != null) {
 					selectionManager.getDataflowSelectionModel(oldFlow).removeObserver(workflowSelectionObserver);
 				}
+
+				// Update the buttons status as current dataflow has changed
+				updateStatus(newFlow);
 
 				if (newFlow != null) {
 					selectionManager.getDataflowSelectionModel(newFlow).addObserver(workflowSelectionObserver);

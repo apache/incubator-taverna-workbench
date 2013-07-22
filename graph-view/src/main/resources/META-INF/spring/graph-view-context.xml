@@ -26,6 +26,7 @@
 		<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 		<property name="selectionManager" ref="selectionManager" />
 		<property name="fileManager" ref="fileManager" />
+		<property name="serviceRegistry" ref="serviceRegistry" />
 	</bean>
 
 	<bean id="GraphEditToolbarSection"

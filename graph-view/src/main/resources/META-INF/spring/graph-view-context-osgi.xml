@@ -41,5 +41,6 @@
 	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
 	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
 	<reference id="configurationManager" interface="uk.org.taverna.configuration.ConfigurationManager" />
+	<reference id="serviceRegistry" interface="uk.org.taverna.commons.services.ServiceRegistry" />
 
 </beans:beans>

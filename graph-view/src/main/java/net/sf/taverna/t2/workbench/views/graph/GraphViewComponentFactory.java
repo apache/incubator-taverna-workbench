@@ -22,6 +22,8 @@ package net.sf.taverna.t2.workbench.views.graph;
 
 import javax.swing.ImageIcon;
 
+import uk.org.taverna.commons.services.ServiceRegistry;
+
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
@@ -46,13 +48,14 @@ public class GraphViewComponentFactory implements UIComponentFactorySPI {
 	private ColourManager colourManager;
 	private WorkbenchConfiguration workbenchConfiguration;
 	private GraphViewConfiguration graphViewConfiguration;
+	private ServiceRegistry serviceRegistry;
 
 	/* (non-Javadoc)
 	 * @see net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI#getComponent()
 	 */
 	public UIComponentSPI getComponent() {
 		return new GraphViewComponent(colourManager, editManager, fileManager, menuManager,
-				graphViewConfiguration, workbenchConfiguration, selectionManager);
+				graphViewConfiguration, workbenchConfiguration, selectionManager, serviceRegistry);
 	}
 
 	/* (non-Javadoc)
@@ -96,6 +99,10 @@ public class GraphViewComponentFactory implements UIComponentFactorySPI {
 
 	public void setGraphViewConfiguration(GraphViewConfiguration graphViewConfiguration) {
 		this.graphViewConfiguration = graphViewConfiguration;
+	}
+
+	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+		this.serviceRegistry = serviceRegistry;
 	}
 
 }

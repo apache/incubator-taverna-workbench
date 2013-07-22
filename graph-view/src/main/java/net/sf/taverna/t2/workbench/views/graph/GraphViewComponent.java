@@ -45,7 +45,6 @@ import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
@@ -78,6 +77,7 @@ import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
@@ -86,7 +86,6 @@ import uk.org.taverna.scufl2.api.core.Workflow;
  * @author David Withers
  * @author Alex Nenadic
  * @author Tom Oinn
- *
  */
 public class GraphViewComponent extends JPanel implements UIComponentSPI {
 
@@ -104,10 +103,7 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 	private Map<Workflow, JPanel> diagramPanelMap = new IdentityHashMap<Workflow, JPanel>();
 	private Map<Workflow, Action[]> diagramActionsMap = new IdentityHashMap<Workflow, Action[]>();
 
-
 	private Timer timer;
-
-	private GVTTreeRendererAdapter gvtTreeBuilderAdapter;
 
 	private CardLayout cardLayout;
 
@@ -117,16 +113,18 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 	private final GraphViewConfiguration graphViewConfiguration;
 	private final WorkbenchConfiguration workbenchConfiguration;
 	private final SelectionManager selectionManager;
+	private final ServiceRegistry serviceRegistry;
 
 	public GraphViewComponent(ColourManager colourManager, EditManager editManager, FileManager fileManager, MenuManager menuManager,
 			GraphViewConfiguration graphViewConfiguration, WorkbenchConfiguration workbenchConfiguration,
-			SelectionManager selectionManager) {
+			SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
 		this.colourManager = colourManager;
 		this.editManager = editManager;
 		this.menuManager = menuManager;
 		this.graphViewConfiguration = graphViewConfiguration;
 		this.workbenchConfiguration = workbenchConfiguration;
 		this.selectionManager = selectionManager;
+		this.serviceRegistry = serviceRegistry;
 
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
@@ -163,8 +161,29 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		}
 	}
 
+	@Override
+	public String getName() {
+		return "Graph View Component";
+	}
+
+	@Override
+	public ImageIcon getIcon() {
+		return null;
+	}
+
+	@Override
+	public void onDisplay() {
+	}
+
+	@Override
+	public void onDispose() {
+		if (timer != null) {
+			timer.stop();
+		}
+	}
+
 	private JPanel createDiagramPanel(Workflow workflow) {
-		JPanel diagramPanel = new JPanel(new BorderLayout());
+		final JPanel diagramPanel = new JPanel(new BorderLayout());
 
 		// get the default diagram settings
 		Alignment alignment = Alignment.valueOf(graphViewConfiguration
@@ -181,7 +200,7 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		svgCanvas.setEnableZoomInteractor(false);
 		svgCanvas.setEnableRotateInteractor(false);
 		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
-		svgCanvas.setTransferHandler(new ServiceTransferHandler(editManager, menuManager, selectionManager));
+		svgCanvas.setTransferHandler(new ServiceTransferHandler(editManager, menuManager, selectionManager, serviceRegistry));
 
 		AutoScrollInteractor asi = new AutoScrollInteractor(svgCanvas);
 		svgCanvas.addMouseListener(asi);
@@ -189,14 +208,14 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 
 		final JSVGScrollPane svgScrollPane = new MySvgScrollPane(svgCanvas);
 
-		gvtTreeBuilderAdapter = new GVTTreeRendererAdapter() {
+		GVTTreeRendererAdapter gvtTreeRendererAdapter = new GVTTreeRendererAdapter() {
 			public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
 				logger.info("Rendered svg");
 				svgScrollPane.reset();
-				GraphViewComponent.this.revalidate();
+				diagramPanel.revalidate();
 			}
 		};
-		svgCanvas.addGVTTreeRendererListener(gvtTreeBuilderAdapter);
+		svgCanvas.addGVTTreeRendererListener(gvtTreeRendererAdapter);
 
 		// create a graph controller
 		SVGGraphController svgGraphController = new SVGGraphController(
@@ -439,7 +458,6 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		}
 		SVGGraphController removedController = graphControllerMap.remove(workflow);
 		if (removedController != null) {
-			removedController.getSVGCanvas().removeGVTTreeRendererListener(gvtTreeBuilderAdapter);
 			removedController.shutdown();
 		}
 		diagramActionsMap.remove(workflow);
@@ -453,29 +471,10 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		return graphControllerMap.get(workflow);
 	}
 
-	@Override
-	public String getName() {
-		return "Graph View Component";
-	}
-
-	public ImageIcon getIcon() {
-		return null;
-	}
-
-	public void onDisplay() {
-	}
-
-	public void onDispose() {
-		if (timer != null) {
-			timer.stop();
-		}
-	}
-
-	protected class EditManagerObserver extends SwingAwareObserver<EditManagerEvent> {
+	private class EditManagerObserver extends SwingAwareObserver<EditManagerEvent> {
 		@Override
 		public void notifySwing(Observable<EditManagerEvent> sender, EditManagerEvent message) {
 			if (message instanceof AbstractDataflowEditEvent) {
-				System.out.println("EditManagerEvent");
 				AbstractDataflowEditEvent dataflowEditEvent = (AbstractDataflowEditEvent) message;
 
 				boolean animationEnabled = Boolean.parseBoolean(graphViewConfiguration
@@ -500,7 +499,7 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		}
 	}
 
-	public class FileManagerObserver extends SwingAwareObserver<FileManagerEvent> {
+	private class FileManagerObserver extends SwingAwareObserver<FileManagerEvent> {
 		@Override
 		public void notifySwing(Observable<FileManagerEvent> sender, final FileManagerEvent message) {
 			if (message instanceof ClosedDataflowEvent) {
@@ -516,14 +515,12 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		}
 	}
 
-	public class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+	private class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
 		@Override
 		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message)  {
 			if (message instanceof WorkflowSelectionEvent) {
-				System.out.println("GraphViewComponent.WorkflowSelectionEvent");
 				setWorkflow(selectionManager.getSelectedWorkflow());
 			} else if (message instanceof WorkflowBundleSelectionEvent) {
-				System.out.println("GraphViewComponent.WorkflowBundleSelectionEvent");
 				setWorkflow(selectionManager.getSelectedWorkflow());
 			}
 		}
