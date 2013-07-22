@@ -14,6 +14,11 @@
 	<description>An SPI system for building UI menues</description>
 	<dependencies>
 		<dependency>
+			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<artifactId>selection-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
 			<artifactId>observer</artifactId>
 			<version>${t2.lang.version}</version>
