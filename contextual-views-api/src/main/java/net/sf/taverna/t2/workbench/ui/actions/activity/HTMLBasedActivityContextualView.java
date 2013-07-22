@@ -23,13 +23,10 @@ package net.sf.taverna.t2.workbench.ui.actions.activity;
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
-
-//import net.sf.taverna.t2.annotation.AnnotationAssertion;
-//import net.sf.taverna.t2.annotation.AnnotationChain;
-//import net.sf.taverna.t2.annotation.annotationbeans.HostInstitution;
 import net.sf.taverna.t2.lang.ui.HtmlUtils;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 
 @SuppressWarnings("serial")
 public abstract class HTMLBasedActivityContextualView extends ActivityContextualView {
@@ -61,36 +58,18 @@ public abstract class HTMLBasedActivityContextualView extends ActivityContextual
 	protected abstract String getRawTableRowsHtml();
 
 	public String getBackgroundColour() {
-		// FIXME would prefer instanceof but no class def found error was thrown
-		// even though the pom had the activity in it - spring peoblem?
-//		if (getActivity().getClass().getName().equalsIgnoreCase(
-//				"net.sf.taverna.t2.activities.localworker.LocalworkerActivity")) {
-//			if (checkAnnotations()) {
-//				String colour = (String) colourManager.getProperty(
-//								"net.sf.taverna.t2.activities.beanshell.BeanshellActivity");
-//				return colour;
-//			}
-//		}
-		String colour = (String) colourManager.getProperty(getActivity().getClass().getName());
+		String activityType = getActivity().getType().toString();
+		if ("http://ns.taverna.org.uk/2010/activity/localworker".equals(activityType)) {
+			Configuration configuration = getConfigBean();
+			if (configuration.getJson().get("isAltered").booleanValue()) {
+				String colour = (String) colourManager
+						.getProperty("http://ns.taverna.org.uk/2010/activity/beanshell");
+				return colour;
+			}
+		}
+		String colour = (String) colourManager.getProperty(activityType);
 		return colour == null ? "#ffffff" : colour;
 	}
-
-	// TODO remove this nasty hack
-//	private boolean checkAnnotations() {
-//		for (AnnotationChain chain : getActivity().getAnnotations()) {
-//			for (AnnotationAssertion<?> assertion : chain.getAssertions()) {
-//				Object detail = assertion.getDetail();
-//				if (detail instanceof HostInstitution) {
-//					// this is a user defined localworker so use the beanshell
-//					// colour!
-//					return true;
-//				}
-//			}
-//		}
-//		return false;
-//	}
-
-
 
 	/**
 	 * Update the html view with the latest information in the configuration
@@ -99,4 +78,5 @@ public abstract class HTMLBasedActivityContextualView extends ActivityContextual
 	public void refreshView() {
 		editorPane.setText(buildHtml());
 	}
+
 }
