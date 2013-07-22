@@ -28,17 +28,16 @@ import javax.swing.Timer;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
-import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 import net.sf.taverna.t2.workbench.ui.Utils;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
@@ -56,9 +55,6 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 
 	private SelectionManager selectionManager;
 	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
-
-	/** Keep list of views in case you want to go back or forward between them */
-	// private List<ContextualView> views = new ArrayList<ContextualView>();
 
 	GridBagConstraints gbc;
 
@@ -272,48 +268,48 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void findContextualView(Object selection) {
 		List<ContextualViewFactory> viewFactoriesForBeanType = contextualViewFactoryRegistry
 				.getViewFactoriesForObject(selection);
 		updateContextualView(viewFactoriesForBeanType, selection);
 	}
 
-	private final class SelectionManagerObserver implements Observer<SelectionManagerEvent> {
-		public void notify(Observable<SelectionManagerEvent> sender, SelectionManagerEvent event) {
-			if (event instanceof WorkflowBundleSelectionEvent) {
-				WorkflowBundle workflowBundle = ((WorkflowBundleSelectionEvent) event).getSelectedWorkflowBundle();
-				if (workflowBundle != null) {
-					selectionManager.getDataflowSelectionModel(workflowBundle).addObserver(
+	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message) {
+			if (message instanceof WorkflowBundleSelectionEvent) {
+				WorkflowBundleSelectionEvent workflowBundleSelectionEvent = (WorkflowBundleSelectionEvent) message;
+				WorkflowBundle oldWorkflowBundle = workflowBundleSelectionEvent.getPreviouslySelectedWorkflowBundle();
+				WorkflowBundle newWorkflowBundle = workflowBundleSelectionEvent.getSelectedWorkflowBundle();
+
+				if (oldWorkflowBundle != null) {
+					selectionManager.getDataflowSelectionModel(oldWorkflowBundle).removeObserver(
 							dataflowSelectionListener);
 				}
+				if (newWorkflowBundle != null) {
+					selectionManager.getDataflowSelectionModel(newWorkflowBundle).addObserver(dataflowSelectionListener);
+				}
+
 				lastSelectedObject = null;
 				updateSelection();
 			}
 		}
 	}
 
-	private final class DataflowSelectionListener implements Observer<DataflowSelectionMessage> {
-
-		public void notify(Observable<DataflowSelectionMessage> sender,
-				DataflowSelectionMessage message) throws Exception {
+	private final class DataflowSelectionListener extends SwingAwareObserver<DataflowSelectionMessage> {
+		public void notifySwing(Observable<DataflowSelectionMessage> sender,
+				DataflowSelectionMessage message) {
 			updateSelection();
 		}
-
 	}
 
-	private final class EditManagerObserver implements Observer<EditManagerEvent> {
-
-		public void notify(Observable<EditManagerEvent> sender, EditManagerEvent message)
-				throws Exception {
+	private final class EditManagerObserver extends SwingAwareObserver<EditManagerEvent> {
+		public void notifySwing(Observable<EditManagerEvent> sender, EditManagerEvent message) {
 			Object selection = getSelection();
-			if ((selection != lastSelectedObject)
-					|| !selfGenerated) {
+			if ((selection != lastSelectedObject) && !selfGenerated) {
 				lastSelectedObject = null;
 				refreshView();
 			}
 		}
-
 	}
 
 	public void refreshView() {
