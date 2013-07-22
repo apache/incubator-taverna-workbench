@@ -38,6 +38,7 @@ import javax.swing.JScrollPane;
  *
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public abstract class ListConfigurationComponent<T> extends JPanel {
 
 	private static final String REMOVE = "Remove";

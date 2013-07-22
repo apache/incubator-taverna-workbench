@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2012 The University of Manchester
+ * Copyright (C) 2013 The University of Manchester
  *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -20,44 +20,65 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-
-import javax.swing.JTabbedPane;
-
-import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.port.ActivityPort;
 
 /**
- * Component for configuring activities that have multiple configuration pages.
+ *
  *
  * @author David Withers
  */
-@SuppressWarnings("serial")
-public abstract class MultiPageActivityConfigurationPanel extends ActivityConfigurationPanel {
+public class ActivityPortConfiguration {
 
-	private JTabbedPane tabbedPane;
+	private ActivityPort activityPort;
 
-	/**
-	 * Constructs a new <code>MultiPageActivityConfigurationPanel</code>.
-	 * @param activity
-	 */
-	public MultiPageActivityConfigurationPanel(Activity activity) {
-		super(activity);
-		setLayout(new BorderLayout());
-		tabbedPane = new JTabbedPane();
-		add(tabbedPane, BorderLayout.CENTER);
+	private String name;
+
+	private int depth;
+
+	private int granularDepth;
+
+	public ActivityPortConfiguration(ActivityPort activityPort) {
+		this.activityPort = activityPort;
+		name = activityPort.getName();
+		depth = activityPort.getDepth();
 	}
 
-	public void addPage(String name, Component component) {
-		tabbedPane.addTab(name, component);
+	public ActivityPortConfiguration(String name, int depth) {
+		this(name, depth, depth);
 	}
 
-	public void removePage(String name) {
-		tabbedPane.removeTabAt(tabbedPane.indexOfTab(name));
+	public ActivityPortConfiguration(String name, int depth, int granularDepth) {
+		this.name = name;
+		this.depth = depth;
+		this.granularDepth = granularDepth;
 	}
 
-	public void removeAllPages() {
-		tabbedPane.removeAll();
+	public ActivityPort getActivityPort() {
+		return activityPort;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public int getDepth() {
+		return depth;
+	}
+
+	public void setDepth(int depth) {
+		this.depth = depth;
+	}
+
+	public int getGranularDepth() {
+		return granularDepth;
+	}
+
+	public void setGranularDepth(int granularDepth) {
+		this.granularDepth = granularDepth;
 	}
 
 }

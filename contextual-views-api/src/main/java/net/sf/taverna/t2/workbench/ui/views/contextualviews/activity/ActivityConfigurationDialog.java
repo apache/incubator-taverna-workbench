@@ -9,11 +9,9 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
@@ -39,9 +37,9 @@ import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationActi
 import net.sf.taverna.t2.workflow.edits.AddChildEdit;
 import net.sf.taverna.t2.workflow.edits.AddProcessorInputPortEdit;
 import net.sf.taverna.t2.workflow.edits.AddProcessorOutputPortEdit;
-import net.sf.taverna.t2.workflow.edits.AddPropertyEdit;
 import net.sf.taverna.t2.workflow.edits.ChangeDepthEdit;
-import net.sf.taverna.t2.workflow.edits.ChangePropertyResourceEdit;
+import net.sf.taverna.t2.workflow.edits.ChangeGranularDepthEdit;
+import net.sf.taverna.t2.workflow.edits.ChangeJsonEdit;
 import net.sf.taverna.t2.workflow.edits.RemoveChildEdit;
 import net.sf.taverna.t2.workflow.edits.RemoveProcessorInputPortEdit;
 import net.sf.taverna.t2.workflow.edits.RemoveProcessorOutputPortEdit;
@@ -51,13 +49,13 @@ import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.activity.Activity;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
-import uk.org.taverna.scufl2.api.common.URITools;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.ActivityPort;
 import uk.org.taverna.scufl2.api.port.DepthPort;
+import uk.org.taverna.scufl2.api.port.GranularDepthPort;
 import uk.org.taverna.scufl2.api.port.InputActivityPort;
 import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 import uk.org.taverna.scufl2.api.port.OutputActivityPort;
@@ -67,12 +65,10 @@ import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 import uk.org.taverna.scufl2.api.profiles.ProcessorInputPortBinding;
 import uk.org.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
 import uk.org.taverna.scufl2.api.profiles.Profile;
-import uk.org.taverna.scufl2.api.property.MultiplePropertiesException;
-import uk.org.taverna.scufl2.api.property.PropertyNotFoundException;
-import uk.org.taverna.scufl2.api.property.PropertyReference;
-import uk.org.taverna.scufl2.api.property.PropertyResource;
-import uk.org.taverna.scufl2.api.property.UnexpectedPropertyException;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+@SuppressWarnings("serial")
 public class ActivityConfigurationDialog extends HelpEnabledDialog {
 
 	private Activity activity;
@@ -92,11 +88,14 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 	protected JButton applyButton;
 	private final EditManager editManager;
 
-	private enum PortType {INPUT, OUTPUT}
-	private static Scufl2Tools scufl2Tools = new Scufl2Tools();
-	private static URITools uriTools = new URITools();
+	private enum PortType {
+		INPUT, OUTPUT
+	}
 
-	public ActivityConfigurationDialog(Activity a, ActivityConfigurationPanel p, EditManager editManager) {
+	private static Scufl2Tools scufl2Tools = new Scufl2Tools();
+
+	public ActivityConfigurationDialog(Activity a, ActivityConfigurationPanel p,
+			EditManager editManager) {
 		super(MainWindow.getMainWindow(), "Configuring " + a.getClass().getSimpleName(), false,
 				null);
 		this.activity = a;
@@ -183,7 +182,7 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 					throws Exception {
 				logger.info("sender is a " + sender.getClass().getCanonicalName());
 				logger.info("message is a " + message.getClass().getCanonicalName());
-				Edit edit = message.getEdit();
+				Edit<?> edit = message.getEdit();
 				logger.info(edit.getClass().getCanonicalName());
 				considerEdit(message, edit);
 			}
@@ -202,10 +201,10 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 		return result;
 	}
 
-	private void considerEdit(EditManagerEvent message, Edit edit) {
+	private void considerEdit(EditManagerEvent message, Edit<?> edit) {
 		// boolean result = false;
 		if (edit instanceof CompoundEdit) {
-			for (Edit subEdit : ((CompoundEdit) edit).getChildEdits()) {
+			for (Edit<?> subEdit : ((CompoundEdit) edit).getChildEdits()) {
 				considerEdit(message, subEdit);
 			}
 		} else {
@@ -231,40 +230,24 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 		}
 	}
 
-	protected void configureActivity(PropertyResource propertyResource) {
-		configureActivity(owningWorkflowBundle, activity, propertyResource);
+	protected void configureActivity(ObjectNode json, List<ActivityPortConfiguration> inputPorts,
+			List<ActivityPortConfiguration> outputPorts) {
+		configureActivity(owningWorkflowBundle, activity, json, inputPorts, outputPorts);
 	}
 
 	public void configureActivity(WorkflowBundle workflowBundle, Activity activity,
-			PropertyResource propertyResource) {
-		configureActivityStatic(workflowBundle, activity, propertyResource, editManager);
-	}
-
-	public static void configureActivityStatic(WorkflowBundle workflowBundle, Activity activity,
-			PropertyResource propertyResource, EditManager editManager) {
+			ObjectNode json, List<ActivityPortConfiguration> inputPorts,
+			List<ActivityPortConfiguration> outputPorts) {
 		try {
 			List<Edit<?>> editList = new ArrayList<Edit<?>>();
 			Profile profile = activity.getParent();
-			List<ProcessorBinding> processorBindings = scufl2Tools.processorBindingsToActivity(activity);
+			List<ProcessorBinding> processorBindings = scufl2Tools
+					.processorBindingsToActivity(activity);
 			Configuration configuration = scufl2Tools.configurationFor(activity, profile);
-			editList.add(new ChangePropertyResourceEdit(configuration, propertyResource));
+			editList.add(new ChangeJsonEdit(configuration, json));
 
-			try {
-				Set<PropertyResource> inputPortDefinitions = propertyResource.getPropertiesAsResources(
-								Scufl2Tools.PORT_DEFINITION.resolve("#inputPortDefinition"));
-				configurePorts(activity, editList, processorBindings,
-						inputPortDefinitions, PortType.INPUT);
-			} catch (UnexpectedPropertyException e) {
-				// no input ports defined
-			}
-			try {
-				Set<PropertyResource> outputPortDefinitions = propertyResource.getPropertiesAsResources(
-								Scufl2Tools.PORT_DEFINITION.resolve("#outputPortDefinition"));
-				configurePorts(activity, editList, processorBindings,
-						outputPortDefinitions, PortType.OUTPUT);
-			} catch (UnexpectedPropertyException e) {
-				// no output ports defined
-			}
+			configurePorts(activity, editList, processorBindings, inputPorts, PortType.INPUT);
+			configurePorts(activity, editList, processorBindings, outputPorts, PortType.OUTPUT);
 			editManager.doDataflowEdit(workflowBundle, new CompoundEdit(editList));
 		} catch (IllegalStateException e) {
 			logger.error(e);
@@ -273,48 +256,36 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 		}
 	}
 
-	private static void configurePorts(Activity activity,
-			List<Edit<?>> editList, List<ProcessorBinding> processorBindings,
-			Set<PropertyResource> portDefinitions, PortType portType) {
-		Map<URI, ActivityPort> ports = new HashMap<URI, ActivityPort>();
-		for (ActivityPort activityPort : portType == PortType.INPUT ? activity.getInputPorts() : activity.getOutputPorts()) {
-			ports.put(uriTools.uriForBean(activityPort), activityPort);
+	private void configurePorts(Activity activity, List<Edit<?>> editList,
+			List<ProcessorBinding> processorBindings,
+			List<ActivityPortConfiguration> portDefinitions, PortType portType) {
+		Set<ActivityPort> ports = new HashSet<>();
+		for (ActivityPort activityPort : portType == PortType.INPUT ? activity.getInputPorts()
+				: activity.getOutputPorts()) {
+			ports.add(activityPort);
 		}
-		for (PropertyResource portDefinition : portDefinitions) {
-			try {
-				String portName = portDefinition.getPropertyAsLiteral(
-						Scufl2Tools.PORT_DEFINITION.resolve("#name")).getLiteralValue();
-				int portDepth = portDefinition.getPropertyAsLiteral(
-						Scufl2Tools.PORT_DEFINITION.resolve("#depth")).getLiteralValueAsInt();
-				System.out.println("====="+portName+"=====");
-				URI portURI = null;
-				try {
-					if (portType == PortType.INPUT) {
-						portURI = portDefinition.getPropertyAsResourceURI(Scufl2Tools.PORT_DEFINITION.resolve("#definesInputPort"));
-					} else {
-						portURI = portDefinition.getPropertyAsResourceURI(Scufl2Tools.PORT_DEFINITION.resolve("#definesOutputPort"));
-					}
-				} catch (PropertyNotFoundException e) {
-					// no activity port so add a new one
-					System.out.println("Adding port " + portName);
-					if (portType == PortType.INPUT) {
-						URI inputPortURI = createInputPort(activity, editList, processorBindings, portName, portDepth);
-						PropertyReference propertyReference = new PropertyReference(inputPortURI);
-						editList.add(new AddPropertyEdit(portDefinition, Scufl2Tools.PORT_DEFINITION.resolve("#definesInputPort"), propertyReference));
-					} else {
-						URI outputPortURI = createOutputPort(activity, editList, processorBindings, portName, portDepth);
-						PropertyReference propertyReference = new PropertyReference(outputPortURI);
-						editList.add(new AddPropertyEdit(portDefinition, Scufl2Tools.PORT_DEFINITION.resolve("#definesOutputPort"), propertyReference));
-					}
+		for (ActivityPortConfiguration portDefinition : portDefinitions) {
+			String portName = portDefinition.getName();
+			int portDepth = portDefinition.getDepth();
+			int granularPortDepth = portDefinition.getGranularDepth();
+			ActivityPort activityPort = portDefinition.getActivityPort();
+			if (activityPort == null) {
+				// no activity port so add a new one
+				if (portType == PortType.INPUT) {
+					createInputPort(activity, editList, processorBindings, portDefinition);
+				} else {
+					createOutputPort(activity, editList, processorBindings, portDefinition);
 				}
-				ActivityPort activityPort = ports.remove(portURI);
-				if (activityPort != null) {
-					// check if port has changed
-					System.out.println("Checking port " + portName);
-					for (ProcessorBinding processorBinding : processorBindings) {
-						for (ProcessorInputPortBinding portBinding : processorBinding.getInputPortBindings()) {
+			} else {
+				ports.remove(activityPort);
+				// check if port has changed
+				for (ProcessorBinding processorBinding : processorBindings) {
+					if (portType == PortType.INPUT) {
+						for (ProcessorInputPortBinding portBinding : processorBinding
+								.getInputPortBindings()) {
 							if (portBinding.getBoundActivityPort().equals(activityPort)) {
-								InputProcessorPort processorPort = portBinding.getBoundProcessorPort();
+								InputProcessorPort processorPort = portBinding
+										.getBoundProcessorPort();
 								if (!activityPort.getName().equals(portName)) {
 									// port name changed
 									if (processorPort.getName().equals(activityPort.getName())) {
@@ -324,48 +295,80 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 								}
 								if (!processorPort.getDepth().equals(portDepth)) {
 									// port depth changed
-									editList.add(new ChangeDepthEdit<DepthPort>(processorPort, portDepth));
+									editList.add(new ChangeDepthEdit<DepthPort>(processorPort,
+											portDepth));
+								}
+							}
+						}
+					} else {
+						for (ProcessorOutputPortBinding portBinding : processorBinding
+								.getOutputPortBindings()) {
+							if (portBinding.getBoundActivityPort().equals(activityPort)) {
+								OutputProcessorPort processorPort = portBinding
+										.getBoundProcessorPort();
+								if (!activityPort.getName().equals(portName)) {
+									// port name changed
+									if (processorPort.getName().equals(activityPort.getName())) {
+										// default mapping so change processor port
+										editList.add(new RenameEdit<Port>(processorPort, portName));
+									}
+								}
+								if (!processorPort.getDepth().equals(portDepth)) {
+									// port depth changed
+									editList.add(new ChangeDepthEdit<DepthPort>(processorPort,
+											portDepth));
+								}
+								if (!processorPort.getGranularDepth().equals(granularPortDepth)) {
+									// port granular depth changed
+									editList.add(new ChangeGranularDepthEdit<GranularDepthPort>(
+											processorPort, granularPortDepth));
 								}
 							}
 						}
 					}
-					if (!activityPort.getName().equals(portName)) {
-						// port name changed
-						editList.add(new RenameEdit<Port>(activityPort, portName));
-					}
-					if (!activityPort.getDepth().equals(portDepth)) {
-						// port depth changed
-						editList.add(new ChangeDepthEdit<DepthPort>(activityPort, portDepth));
-					}
-
 				}
-			} catch (MultiplePropertiesException e) {
-				logger.error(e);
-			} catch (UnexpectedPropertyException e) {
-				logger.error(e);
-			} catch (PropertyNotFoundException e) {
-				logger.error(e);
+				if (!activityPort.getName().equals(portName)) {
+					// port name changed
+					editList.add(new RenameEdit<Port>(activityPort, portName));
+				}
+				if (!activityPort.getDepth().equals(portDepth)) {
+					// port depth changed
+					editList.add(new ChangeDepthEdit<DepthPort>(activityPort, portDepth));
+				}
+				if (activityPort instanceof OutputActivityPort) {
+					OutputActivityPort outputActivityPort = (OutputActivityPort) activityPort;
+					Integer granularDepth = outputActivityPort.getGranularDepth();
+					if (granularDepth == null || !granularDepth.equals(granularPortDepth)) {
+						// granular port depth changed
+						editList.add(new ChangeGranularDepthEdit<GranularDepthPort>(
+								outputActivityPort, granularPortDepth));
+					}
+				}
+
 			}
 		}
 		// remove any unconfigured ports
-		for (ActivityPort activityPort : ports.values()) {
+		for (ActivityPort activityPort : ports) {
 			// remove processor ports and bindings
-			System.out.println("Removing port " + activityPort.getName());
 			for (ProcessorBinding processorBinding : processorBindings) {
 				if (portType.equals(PortType.INPUT)) {
-					for (ProcessorInputPortBinding portBinding : processorBinding.getInputPortBindings()) {
+					for (ProcessorInputPortBinding portBinding : processorBinding
+							.getInputPortBindings()) {
 						if (portBinding.getBoundActivityPort().equals(activityPort)) {
 							editList.add(new RemoveProcessorInputPortEdit(processorBinding
 									.getBoundProcessor(), portBinding.getBoundProcessorPort()));
-							editList.add(new RemoveChildEdit<ProcessorBinding>(processorBinding, portBinding));
+							editList.add(new RemoveChildEdit<ProcessorBinding>(processorBinding,
+									portBinding));
 						}
 					}
 				} else {
-					for (ProcessorOutputPortBinding portBinding : processorBinding.getOutputPortBindings()) {
+					for (ProcessorOutputPortBinding portBinding : processorBinding
+							.getOutputPortBindings()) {
 						if (portBinding.getBoundActivityPort().equals(activityPort)) {
 							editList.add(new RemoveProcessorOutputPortEdit(processorBinding
 									.getBoundProcessor(), portBinding.getBoundProcessorPort()));
-							editList.add(new RemoveChildEdit<ProcessorBinding>(processorBinding, portBinding));
+							editList.add(new RemoveChildEdit<ProcessorBinding>(processorBinding,
+									portBinding));
 						}
 					}
 				}
@@ -375,54 +378,50 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 		}
 	}
 
-	private static URI createInputPort(Activity activity, List<Edit<?>> editList,
-			List<ProcessorBinding> processorBindings, String portName, int portDepth) throws UnexpectedPropertyException,
-			MultiplePropertiesException {
-		InputActivityPort activityPort = new InputActivityPort(activity, portName);
-		activityPort.setDepth(portDepth);
-		URI portURI = uriTools.uriForBean(activityPort);
-		activityPort.setParent(null);
+	private void createInputPort(Activity activity, List<Edit<?>> editList,
+			List<ProcessorBinding> processorBindings, ActivityPortConfiguration portDefinition) {
+		InputActivityPort activityPort = new InputActivityPort(null, portDefinition.getName());
+		activityPort.setDepth(portDefinition.getDepth());
 		// add port to activity
 		editList.add(new AddChildEdit<Activity>(activity, activityPort));
 		for (ProcessorBinding processorBinding : processorBindings) {
 			Processor processor = processorBinding.getBoundProcessor();
 			// add a new processor port
 			InputProcessorPort inputProcessorPort = new InputProcessorPort();
-			inputProcessorPort.setName(portName);
-			inputProcessorPort.setDepth(portDepth);
+			inputProcessorPort.setName(portDefinition.getName());
+			inputProcessorPort.setDepth(portDefinition.getDepth());
 			editList.add(new AddProcessorInputPortEdit(processor, inputProcessorPort));
 			// add a new port binding
 			ProcessorInputPortBinding processorInputPortBinding = new ProcessorInputPortBinding();
 			processorInputPortBinding.setBoundProcessorPort(inputProcessorPort);
 			processorInputPortBinding.setBoundActivityPort(activityPort);
-			editList.add(new AddChildEdit<ProcessorBinding>(processorBinding, processorInputPortBinding));
+			editList.add(new AddChildEdit<ProcessorBinding>(processorBinding,
+					processorInputPortBinding));
 		}
-		return portURI;
 	}
 
-	private static URI createOutputPort(Activity activity, List<Edit<?>> editList,
-			List<ProcessorBinding> processorBindings, String portName, int portDepth) throws UnexpectedPropertyException,
-			MultiplePropertiesException {
-		OutputActivityPort activityPort = new OutputActivityPort(activity, portName);
-		activityPort.setDepth(portDepth);
-		URI portURI = uriTools.uriForBean(activityPort);
-		activityPort.setParent(null);
+	private void createOutputPort(Activity activity, List<Edit<?>> editList,
+			List<ProcessorBinding> processorBindings, ActivityPortConfiguration portDefinition) {
+		OutputActivityPort activityPort = new OutputActivityPort(null, portDefinition.getName());
+		activityPort.setDepth(portDefinition.getDepth());
+		activityPort.setGranularDepth(portDefinition.getGranularDepth());
 		// add port to activity
 		editList.add(new AddChildEdit<Activity>(activity, activityPort));
 		for (ProcessorBinding processorBinding : processorBindings) {
 			Processor processor = processorBinding.getBoundProcessor();
 			// add a new processor port
 			OutputProcessorPort outputProcessorPort = new OutputProcessorPort();
-			outputProcessorPort.setName(portName);
-			outputProcessorPort.setDepth(portDepth);
+			outputProcessorPort.setName(portDefinition.getName());
+			outputProcessorPort.setDepth(portDefinition.getDepth());
+			outputProcessorPort.setGranularDepth(portDefinition.getGranularDepth());
 			editList.add(new AddProcessorOutputPortEdit(processor, outputProcessorPort));
 			// add a new port binding
 			ProcessorOutputPortBinding processorOutputPortBinding = new ProcessorOutputPortBinding();
 			processorOutputPortBinding.setBoundProcessorPort(outputProcessorPort);
 			processorOutputPortBinding.setBoundActivityPort(activityPort);
-			editList.add(new AddChildEdit<ProcessorBinding>(processorBinding, processorOutputPortBinding));
+			editList.add(new AddChildEdit<ProcessorBinding>(processorBinding,
+					processorOutputPortBinding));
 		}
-		return portURI;
 	}
 
 	protected static Processor findProcessor(Activity activity) {
@@ -474,7 +473,7 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 
 	private void applyConfiguration() {
 		panel.noteConfiguration();
-		configureActivity(panel.getPropertyResource());
+		configureActivity(panel.getJson(), panel.getInputPorts(), panel.getOutputPorts());
 		panel.refreshConfiguration();
 	}
 

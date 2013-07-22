@@ -45,16 +45,18 @@ import net.sf.taverna.t2.lang.ui.NoWrapEditorKit;
  *
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class ScriptConfigurationComponent extends JPanel {
 
 	private JTextPane scriptTextArea;
 
-	public ScriptConfigurationComponent(String script, Set<String> keywords, final String scriptType, final String fileExtension) {
+	public ScriptConfigurationComponent(String script, Set<String> keywords, Set<String> ports, final String scriptType, final String fileExtension) {
 		super(new BorderLayout());
 		scriptTextArea = new JTextPane();
 		new LinePainter(scriptTextArea, Color.WHITE);
 
-		final KeywordDocument doc = new KeywordDocument(keywords);
+		final KeywordDocument doc = new KeywordDocument(keywords, ports);
+
 		// NOTE: Due to T2-1145 - always set editor kit BEFORE setDocument
 		scriptTextArea.setEditorKit(new NoWrapEditorKit());
 		scriptTextArea.setFont(new Font("Monospaced", Font.PLAIN, 14));
@@ -62,15 +64,6 @@ public class ScriptConfigurationComponent extends JPanel {
 		scriptTextArea.setText(script);
 		scriptTextArea.setCaretPosition(0);
 		scriptTextArea.setPreferredSize(new Dimension(200, 100));
-
-//		for (InputActivityPort ip : activity.getInputPorts()) {
-//			String name = ip.getName();
-//			doc.addPort(name);
-//		}
-//		for (OutputActivityPort op : activity.getOutputPorts()) {
-//			String name = op.getName();
-//			doc.addPort(name);
-//		}
 
 		add(new LineEnabledTextPanel(scriptTextArea), BorderLayout.CENTER);
 

@@ -27,6 +27,7 @@ import javax.swing.JTextField;
  *
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class ValidatingTextField extends JTextField {
 
 	private boolean valid = true;
