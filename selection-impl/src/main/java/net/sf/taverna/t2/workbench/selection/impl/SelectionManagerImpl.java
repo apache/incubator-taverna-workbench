@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.selection.impl;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -45,6 +46,7 @@ import net.sf.taverna.t2.workbench.selection.events.PerspectiveSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.ProfileSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowRunSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowSelectionEvent;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workflow.edits.AddChildEdit;
@@ -67,10 +69,14 @@ public class SelectionManagerImpl implements SelectionManager {
 
 	private static final Logger logger = Logger.getLogger(SelectionManagerImpl.class);
 
-	private Map<WorkflowBundle, DataflowSelectionModel> workflowSelectionModels = new IdentityHashMap<WorkflowBundle, DataflowSelectionModel>();
-	private Map<WorkflowBundle, Workflow> selectedWorkflows = new IdentityHashMap<WorkflowBundle, Workflow>();
-	private Map<WorkflowBundle, Profile> selectedProfiles = new IdentityHashMap<WorkflowBundle, Profile>();
 	private WorkflowBundle selectedWorkflowBundle;
+	private Map<WorkflowBundle, DataflowSelectionModel> workflowSelectionModels = new IdentityHashMap<>();
+	private Map<WorkflowBundle, Workflow> selectedWorkflows = new IdentityHashMap<>();
+	private Map<WorkflowBundle, Profile> selectedProfiles = new IdentityHashMap<>();
+
+	private String selectedWorkflowRun;
+	private Map<String, DataflowSelectionModel> workflowRunSelectionModels = new HashMap<>();
+
 	private PerspectiveSPI selectedPerspective;
 
 	private MultiCaster<SelectionManagerEvent> observers = new MultiCaster<SelectionManagerEvent>(this);
@@ -88,20 +94,6 @@ public class SelectionManagerImpl implements SelectionManager {
 			}
 		}
 		return selectionModel;
-	}
-
-	@Override
-	public void removeDataflowSelectionModel(WorkflowBundle dataflow) {
-		DataflowSelectionModel selectionModel = workflowSelectionModels
-				.get(dataflow);
-		if (selectionModel == null) {
-			return;
-		}
-		for (Observer<DataflowSelectionMessage> observer : selectionModel
-				.getObservers()) {
-			selectionModel.removeObserver(observer);
-		}
-		workflowSelectionModels.remove(dataflow);
 	}
 
 	@Override
@@ -129,6 +121,23 @@ public class SelectionManagerImpl implements SelectionManager {
 				selectedWorkflowBundle = workflowBundle;
 				notify(selectionManagerEvent);
 			}
+		}
+	}
+
+	private void removeWorkflowBundle(WorkflowBundle dataflow) {
+		synchronized (workflowSelectionModels) {
+			DataflowSelectionModel selectionModel = workflowSelectionModels.remove(dataflow);
+			if (selectionModel != null) {
+				for (Observer<DataflowSelectionMessage> observer : selectionModel.getObservers()) {
+					selectionModel.removeObserver(observer);
+				}
+			}
+		}
+		synchronized (selectedWorkflows) {
+			selectedWorkflows.remove(dataflow);
+		}
+		synchronized (selectedProfiles) {
+			selectedProfiles.remove(dataflow);
 		}
 	}
 
@@ -167,6 +176,44 @@ public class SelectionManagerImpl implements SelectionManager {
 	}
 
 	@Override
+	public String getSelectedWorkflowRun() {
+		return selectedWorkflowRun;
+	}
+
+	@Override
+	public void setSelectedWorkflowRun(String workflowRun) {
+		if ((selectedWorkflowRun == null && workflowRun != null) || !selectedWorkflowRun.equals(workflowRun)) {
+			SelectionManagerEvent selectionManagerEvent = new WorkflowRunSelectionEvent(selectedWorkflowRun, workflowRun);
+			selectedWorkflowRun = workflowRun;
+			notify(selectionManagerEvent);
+		}
+	}
+
+	@Override
+	public DataflowSelectionModel getWorkflowRunSelectionModel(String workflowRun) {
+		DataflowSelectionModel selectionModel;
+		synchronized (workflowRunSelectionModels) {
+			selectionModel = workflowRunSelectionModels.get(workflowRun);
+			if (selectionModel == null) {
+				selectionModel = new DataflowSelectionModelImpl();
+				workflowRunSelectionModels.put(workflowRun, selectionModel);
+			}
+		}
+		return selectionModel;
+	}
+
+	private void removeWorkflowRun(String workflowRun) {
+		synchronized (workflowRunSelectionModels) {
+			DataflowSelectionModel selectionModel = workflowRunSelectionModels.remove(workflowRun);
+			if (selectionModel != null) {
+				for (Observer<DataflowSelectionMessage> observer : selectionModel.getObservers()) {
+					selectionModel.removeObserver(observer);
+				}
+			}
+		}
+	}
+
+	@Override
 	public PerspectiveSPI getSelectedPerspective() {
 		return selectedPerspective;
 	}
@@ -183,16 +230,29 @@ public class SelectionManagerImpl implements SelectionManager {
 	@Override
 	public void addObserver(Observer<SelectionManagerEvent> observer) {
 		synchronized (observers) {
-			if (selectedWorkflowBundle != null) {
-				Workflow selectedWorkflow = getSelectedWorkflow();
-				try {
+			WorkflowBundle selectedWorkflowBundle = getSelectedWorkflowBundle();
+			Workflow selectedWorkflow = getSelectedWorkflow();
+			Profile selectedProfile = getSelectedProfile();
+			String selectedWorkflowRun = getSelectedWorkflowRun();
+			PerspectiveSPI selectedPerspective = getSelectedPerspective();
+			try {
+				if (selectedWorkflowBundle != null) {
 					observer.notify(this, new WorkflowBundleSelectionEvent(null, selectedWorkflowBundle));
-					if (selectedWorkflow != null) {
-						observer.notify(this, new WorkflowSelectionEvent(null, selectedWorkflow));
-					}
-				} catch (Exception e) {
-					logger.warn("Could not notify " + observer, e);
 				}
+				if (selectedWorkflow != null) {
+					observer.notify(this, new WorkflowSelectionEvent(null, selectedWorkflow));
+				}
+				if (selectedProfile != null) {
+					observer.notify(this, new ProfileSelectionEvent(null, selectedProfile));
+				}
+				if (selectedWorkflowRun != null) {
+					observer.notify(this, new WorkflowRunSelectionEvent(null, selectedWorkflowRun));
+				}
+				if (selectedPerspective != null) {
+					observer.notify(this, new PerspectiveSelectionEvent(null, selectedPerspective));
+				}
+			} catch (Exception e) {
+				logger.warn("Could not notify " + observer, e);
 			}
 			observers.addObserver(observer);
 		}
@@ -223,7 +283,7 @@ public class SelectionManagerImpl implements SelectionManager {
 				FileManagerEvent message) throws Exception {
 			if (message instanceof ClosedDataflowEvent) {
 				WorkflowBundle workflowBundle = ((ClosedDataflowEvent) message).getDataflow();
-				removeDataflowSelectionModel(workflowBundle);
+				removeWorkflowBundle(workflowBundle);
 			} else if (message instanceof OpenedDataflowEvent) {
 				WorkflowBundle workflowBundle = ((OpenedDataflowEvent) message).getDataflow();
 				setSelectedWorkflowBundle(workflowBundle, false);
