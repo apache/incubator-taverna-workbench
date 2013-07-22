@@ -117,7 +117,7 @@ public class DefaultGraphEventManager implements GraphEventManager {
 							}
 						}));
 					}
-					if (activity.getConfigurableType().equals(NESTED_WORKFLOW_URI)) {
+					if (activity.getType().equals(NESTED_WORKFLOW_URI)) {
 						menu.addSeparator();
 						menu.add(new JMenuItem(new AbstractAction("Show nested workflow") {
 							public void actionPerformed(ActionEvent arg0) {
@@ -186,7 +186,7 @@ public class DefaultGraphEventManager implements GraphEventManager {
 						}
 					}
 				} else if (graphElement instanceof Graph) {
-					if (activity.getConfigurableType().equals(NESTED_WORKFLOW_URI)) {
+					if (activity.getType().equals(NESTED_WORKFLOW_URI)) {
 						menu.addSeparator();
 						menu.add(new JMenuItem(new AbstractAction("Hide nested workflow") {
 							public void actionPerformed(ActionEvent arg0) {

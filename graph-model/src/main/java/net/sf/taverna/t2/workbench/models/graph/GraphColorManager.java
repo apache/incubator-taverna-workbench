@@ -57,7 +57,7 @@ public class GraphColorManager {
 	 */
 	public static Color getFillColor(Activity activity, ColourManager colourManager) {
 
-		if (activity.getConfigurableType().equals(LOCALWORKER)) {
+		if (activity.getType().equals(LOCALWORKER)) {
 			try {
 				// To avoid compile time dependency - read isAltered property as bean
 				if (Boolean.TRUE.equals(PropertyUtils.getProperty(activity, "altered"))) {
@@ -70,7 +70,7 @@ public class GraphColorManager {
 			}
 
 		}
-		Color colour = colourManager.getPreferredColour(activity.getConfigurableType().toASCIIString());
+		Color colour = colourManager.getPreferredColour(activity.getType().toASCIIString());
 		return colour;
 	}
 
