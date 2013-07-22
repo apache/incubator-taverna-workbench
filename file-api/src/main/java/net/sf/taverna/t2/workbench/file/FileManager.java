@@ -191,6 +191,13 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	public abstract String getDataflowName(WorkflowBundle dataflow);
 
 	/**
+	 * Returns the default name to use when creating new workflows.
+	 *
+	 * @return the default name to use when creating new workflows
+	 */
+	public abstract String getDefaultWorkflowName();
+
+	/**
 	 * Get the last opened/saved source/destination for the given dataflow.
 	 * <p>
 	 * The source is the last source used with
