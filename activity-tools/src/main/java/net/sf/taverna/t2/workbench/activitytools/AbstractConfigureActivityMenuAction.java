@@ -40,7 +40,7 @@ public abstract class AbstractConfigureActivityMenuAction extends AbstractContex
 		Object selection = getContextualSelection().getSelection();
 		if (selection instanceof Activity) {
 			Activity activity = (Activity) selection;
-			if (activity.getConfigurableType().equals(activityType)) {
+			if (activity.getType().equals(activityType)) {
 				return activity;
 			}
 		}
@@ -48,7 +48,7 @@ public abstract class AbstractConfigureActivityMenuAction extends AbstractContex
 			Processor processor = (Processor) selection;
 			Profile profile = processor.getParent().getParent().getMainProfile();
 			for (ProcessorBinding processorBinding : scufl2Tools.processorBindingsForProcessor(processor, profile)) {
-				if (processorBinding.getBoundActivity().getConfigurableType().equals(activityType)) {
+				if (processorBinding.getBoundActivity().getType().equals(activityType)) {
 					return processorBinding.getBoundActivity();
 				}
 			}
