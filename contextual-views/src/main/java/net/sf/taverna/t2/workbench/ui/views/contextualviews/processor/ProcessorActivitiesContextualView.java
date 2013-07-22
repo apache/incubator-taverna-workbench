@@ -31,32 +31,29 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.Utils;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 
 /**
  * View of a processor, including it's iteration stack, activities, etc.
  *
  * @author Stian Soiland-Reyes
  * @author Alan R Williams
- *
  */
+@SuppressWarnings("serial")
 public class ProcessorActivitiesContextualView extends ContextualView {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -7675243000874724197L;
-
-	@SuppressWarnings("unused")
-	private static Logger logger = Logger
-			.getLogger(ProcessorActivitiesContextualView.class);
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	protected JPanel mainPanel = new JPanel();
 
@@ -64,10 +61,14 @@ public class ProcessorActivitiesContextualView extends ContextualView {
 
 	private final ContextualViewFactoryRegistry contextualViewFactoryRegistry;
 
-	public ProcessorActivitiesContextualView(Processor processor, ContextualViewFactoryRegistry contextualViewFactoryRegistry) {
+	private final SelectionManager selectionManager;
+
+	public ProcessorActivitiesContextualView(Processor processor,
+			ContextualViewFactoryRegistry contextualViewFactoryRegistry, SelectionManager selectionManager) {
 		super();
 		this.processor = processor;
 		this.contextualViewFactoryRegistry = contextualViewFactoryRegistry;
+		this.selectionManager = selectionManager;
 		initialise();
 		initView();
 	}
@@ -77,7 +78,6 @@ public class ProcessorActivitiesContextualView extends ContextualView {
 		initialise();
 		this.revalidate();
 	}
-
 
 	private synchronized void initialise() {
 		mainPanel.removeAll();
@@ -89,42 +89,42 @@ public class ProcessorActivitiesContextualView extends ContextualView {
 		constraints.weightx = 0.1;
 		constraints.weighty = 0;
 
-		List<? extends Activity<?>> activityList = processor.getActivityList();
-		for (Activity<?> activity : activityList) {
-
-			List<ContextualViewFactory> viewFactoryForBeanType = (List<ContextualViewFactory>)
-					contextualViewFactoryRegistry.getViewFactoriesForObject(activity);
-			if (!viewFactoryForBeanType.isEmpty()) {
-				ContextualView view = (ContextualView) viewFactoryForBeanType.get(0).getViews(
-						activity).get(0);
-				constraints.anchor = GridBagConstraints.CENTER;
-				constraints.fill = GridBagConstraints.HORIZONTAL;
-				mainPanel.add(view, constraints);
-				Frame frame = Utils.getParentFrame(this);
-				Action configureAction = view.getConfigureAction(frame);
-				if (configureAction != null) {
-					constraints.gridy++;
-					constraints.fill = GridBagConstraints.NONE;
-					constraints.anchor = GridBagConstraints.LINE_START;
-					JButton configureButton = new JButton(configureAction);
-					if (configureButton.getText() == null
-							|| configureButton.getText().equals("")) {
-						configureButton.setText("Configure");
-					}
-					mainPanel.add(configureButton, constraints);
-				}
-				constraints.gridy++;
-			}
-		}
-		if (activityList.isEmpty()) {
-			JLabel noActivitiesLabel = new JLabel(
-					"<html><strong>Abstract processor</strong>"
-							+ "<br><i>No services.  This will not execute./i></html>");
+		List<ProcessorBinding> processorBindings = scufl2Tools.processorBindingsForProcessor(
+				processor, selectionManager.getSelectedProfile());
+		if (processorBindings.isEmpty()) {
+			JLabel noActivitiesLabel = new JLabel("<html><strong>Abstract processor</strong>"
+					+ "<br><i>No services.  This will not execute./i></html>");
 			constraints.fill = GridBagConstraints.NONE;
 			constraints.anchor = GridBagConstraints.LINE_START;
 			mainPanel.add(noActivitiesLabel, constraints);
+		} else {
+			for (ProcessorBinding processorBinding : processorBindings) {
+				Activity activity = processorBinding.getBoundActivity();
+				List<ContextualViewFactory> viewFactoryForBeanType = (List<ContextualViewFactory>) contextualViewFactoryRegistry
+						.getViewFactoriesForObject(activity);
+				if (!viewFactoryForBeanType.isEmpty()) {
+					ContextualView view = (ContextualView) viewFactoryForBeanType.get(0)
+							.getViews(activity).get(0);
+					constraints.anchor = GridBagConstraints.CENTER;
+					constraints.fill = GridBagConstraints.HORIZONTAL;
+					mainPanel.add(view, constraints);
+					Frame frame = Utils.getParentFrame(this);
+					Action configureAction = view.getConfigureAction(frame);
+					if (configureAction != null) {
+						constraints.gridy++;
+						constraints.fill = GridBagConstraints.NONE;
+						constraints.anchor = GridBagConstraints.LINE_START;
+						JButton configureButton = new JButton(configureAction);
+						if (configureButton.getText() == null
+								|| configureButton.getText().equals("")) {
+							configureButton.setText("Configure");
+						}
+						mainPanel.add(configureButton, constraints);
+					}
+					constraints.gridy++;
+				}
+			}
 		}
-
 		mainPanel.revalidate();
 		mainPanel.repaint();
 		this.revalidate();

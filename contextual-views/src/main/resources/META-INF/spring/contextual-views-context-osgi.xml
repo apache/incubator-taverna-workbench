@@ -13,6 +13,7 @@
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
 	<reference id="contextualViewFactoryRegistry" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry" />
+	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
 
 	<list id="addLayerFactories" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI" cardinality="0..N"/>
 

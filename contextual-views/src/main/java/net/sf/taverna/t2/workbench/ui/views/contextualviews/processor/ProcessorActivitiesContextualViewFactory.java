@@ -23,23 +23,27 @@ package net.sf.taverna.t2.workbench.ui.views.contextualviews.processor;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 
 /**
  * SPI factory for creating a {@link ProcessorContextualView}.
  *
  * @author Stian Soiland-Reyes
  * @author Alan R Williams
- *
  */
-public class ProcessorActivitiesContextualViewFactory implements
-		ContextualViewFactory<Processor> {
+public class ProcessorActivitiesContextualViewFactory implements ContextualViewFactory<Processor> {
+
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
+	private SelectionManager selectionManager;
 
 	public boolean canHandle(Object selection) {
 		return selection instanceof Processor;
@@ -47,11 +51,12 @@ public class ProcessorActivitiesContextualViewFactory implements
 
 	public List<ContextualView> getViews(Processor selection) {
 		List<ContextualView> result = new ArrayList<ContextualView>();
-		List<? extends Activity<?>> activityList = selection.getActivityList();
-		for (Activity<?> activity : activityList) {
-
-			List<ContextualViewFactory> viewFactoryForBeanType = (List<ContextualViewFactory>)
-					contextualViewFactoryRegistry.getViewFactoriesForObject(activity);
+		List<ProcessorBinding> processorBindings = scufl2Tools.processorBindingsForProcessor(
+				selection, selectionManager.getSelectedProfile());
+		for (ProcessorBinding processorBinding : processorBindings) {
+			Activity activity = processorBinding.getBoundActivity();
+			List<ContextualViewFactory> viewFactoryForBeanType = (List<ContextualViewFactory>) contextualViewFactoryRegistry
+					.getViewFactoriesForObject(activity);
 			for (ContextualViewFactory cvf : viewFactoryForBeanType) {
 				result.addAll(cvf.getViews(activity));
 			}
@@ -59,8 +64,13 @@ public class ProcessorActivitiesContextualViewFactory implements
 		return result;
 	}
 
-	public void setContextualViewFactoryRegistry(ContextualViewFactoryRegistry contextualViewFactoryRegistry) {
+	public void setContextualViewFactoryRegistry(
+			ContextualViewFactoryRegistry contextualViewFactoryRegistry) {
 		this.contextualViewFactoryRegistry = contextualViewFactoryRegistry;
+	}
+
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

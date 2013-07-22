@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.processor;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
@@ -29,12 +28,12 @@ import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
-import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
-
-import org.apache.log4j.Logger;
+import uk.org.taverna.scufl2.api.common.NamedSet;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.core.DataLink;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
 
 /**
  * View of a processor, including it's iteration stack, activities, etc.
@@ -43,16 +42,10 @@ import org.apache.log4j.Logger;
  * @author Alan R Williams
  *
  */
+@SuppressWarnings("serial")
 public class ProcessorPredictedBehaviorContextualView extends ContextualView {
 
-	/**
-	 *
-	 */
-	private static final long serialVersionUID = -7675243000874724197L;
-
-	@SuppressWarnings("unused")
-	private static Logger logger = Logger
-			.getLogger(ProcessorPredictedBehaviorContextualView.class);
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	protected JPanel mainPanel = new JPanel();
 
@@ -78,17 +71,18 @@ public class ProcessorPredictedBehaviorContextualView extends ContextualView {
 
 		String html ="<html><head>" + getStyle() + "</head><body>";
 
-		List<? extends ProcessorInputPort> inputs = processor.getInputPorts();
+		NamedSet<InputProcessorPort> inputs = processor.getInputPorts();
 		if (!inputs.isEmpty()) {
 			html += "<table border=1><tr><th>Input Port Name</th>"
 				+ "<th>Size of data</th>" + "</tr>";
-			for (ProcessorInputPort ip : inputs) {
+			for (InputProcessorPort ip : inputs) {
 				html += "<tr><td>" + ip.getName() + "</td><td>";
-				Datalink incoming = ip.getIncomingLink();
-				if (incoming == null) {
+				List<DataLink> incomingDataLinks = scufl2Tools.datalinksTo(ip);
+				if (incomingDataLinks.isEmpty()) {
 					html += "No value";
 				} else {
-					int depth = incoming.getResolvedDepth();
+					DataLink incoming = incomingDataLinks.get(0);
+					int depth = -1;// TODO calculate actual depth
 					if (depth == -1) {
 						html += "Invalid";
 					} else if (depth == 0) {
@@ -101,18 +95,18 @@ public class ProcessorPredictedBehaviorContextualView extends ContextualView {
 			}
 			html += "</table>";
 		}
-		List<? extends ProcessorOutputPort> outputs = processor.getOutputPorts();
+		NamedSet<OutputProcessorPort> outputs = processor.getOutputPorts();
 		if (!outputs.isEmpty()) {
 			html += "<table border=1><tr><th>Output Port Name</th>"
 				+ "<th>Size of data</th>" + "</tr>";
-			for (ProcessorOutputPort op : outputs) {
+			for (OutputProcessorPort op : outputs) {
 				html += "<tr><td>" + op.getName() + "</td><td>";
-				Set<? extends Datalink> outgoingSet = op.getOutgoingLinks();
-				if (outgoingSet.isEmpty()) {
+				List<DataLink> outgoingDataLinks = scufl2Tools.datalinksFrom(op);
+				if (outgoingDataLinks.isEmpty()) {
 					html += "No value";
 				} else {
-					Datalink outgoing = outgoingSet.iterator().next();
-					int depth = outgoing.getResolvedDepth();
+					DataLink outgoing = outgoingDataLinks.get(0);
+					int depth = -1;// TODO calculate actual depth
 					if (depth == -1) {
 						html += "Invalid/unpredicted";
 					} else if (depth == 0) {

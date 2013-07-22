@@ -25,13 +25,12 @@ import java.util.List;
 
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import uk.org.taverna.scufl2.api.core.Processor;
 
 /**
  * SPI factory for creating a {@link ProcessorContextualView}.
  *
  * @author Stian Soiland-Reyes
- *
  */
 public class ProcessorPredictedBehaviorContextualViewFactory implements
 		ContextualViewFactory<Processor> {
@@ -41,7 +40,8 @@ public class ProcessorPredictedBehaviorContextualViewFactory implements
 	}
 
 	public List<ContextualView> getViews(Processor selection) {
-		return Arrays.asList(new ContextualView[] {new ProcessorPredictedBehaviorContextualView(selection)});
+		return Arrays.asList(new ContextualView[] { new ProcessorPredictedBehaviorContextualView(
+				selection) });
 	}
 
 }

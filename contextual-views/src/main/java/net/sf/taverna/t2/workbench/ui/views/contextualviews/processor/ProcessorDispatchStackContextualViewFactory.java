@@ -23,14 +23,12 @@ package net.sf.taverna.t2.workbench.ui.views.contextualviews.processor;
 import java.util.Arrays;
 import java.util.List;
 
-import uk.org.taverna.scufl2.api.core.Processor;
-
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
+import uk.org.taverna.scufl2.api.core.Processor;
 
 /**
  * SPI factory for creating a {@link ProcessorDispatchStackContextualView}.

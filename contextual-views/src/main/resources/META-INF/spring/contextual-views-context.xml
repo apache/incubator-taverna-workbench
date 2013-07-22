@@ -11,6 +11,7 @@
 	<bean id="ProcessorPredictedBehaviorContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorPredictedBehaviorContextualViewFactory" />
 	<bean id="ProcessorActivitiesContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorActivitiesContextualViewFactory">
 			<property name="contextualViewFactoryRegistry" ref="contextualViewFactoryRegistry" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 
 </beans>
