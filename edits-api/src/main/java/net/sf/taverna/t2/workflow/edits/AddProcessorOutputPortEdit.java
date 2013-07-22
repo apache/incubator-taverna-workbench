@@ -24,7 +24,7 @@ import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
 
 /**
- * Add a new output port to the specified Processor
+ * Adds an output port to a processor.
  *
  * @author Tom Oinn
  * @author David Withers

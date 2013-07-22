@@ -21,28 +21,12 @@
 package net.sf.taverna.t2.workflow.edits;
 
 import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
 import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 
 public class RemoveProcessorInputPortEdit extends RemoveChildEdit<Processor> {
 
-	private final InputProcessorPort port;
-
 	public RemoveProcessorInputPortEdit(Processor processor, InputProcessorPort port) {
 		super(processor, port);
-		this.port = port;
-	}
-
-	@Override
-	protected void doEditAction(Processor processor) {
-		IterationStrategyStack iterationStrategyStack = processor.getIterationStrategyStack();
-		// TODO RemovePortNode from iteration strategy
-		port.setParent(null);
-	}
-
-	@Override
-	protected void undoEditAction(Processor processor) {
-		port.setParent(processor);
 	}
 
 }

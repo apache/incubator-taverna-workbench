@@ -20,32 +20,31 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.configurations.Configuration;
-import uk.org.taverna.scufl2.api.property.PropertyResource;
+import uk.org.taverna.scufl2.api.port.GranularDepthPort;
 
 /**
- * Changes the property resource of a configuration.
+ * Changes the granular depth of a port.
  *
  * @author David Withers
  */
-public class ChangePropertyResourceEdit extends AbstractEdit<Configuration> {
+public class ChangeGranularDepthEdit<T extends GranularDepthPort> extends AbstractEdit<T> {
 
-	private PropertyResource oldPropertyResource, newPropertyResource;
+	private Integer newGranularDepth, oldGranularDepth;
 
-	public ChangePropertyResourceEdit(Configuration configuration, PropertyResource newPropertyResource) {
-		super(configuration);
-		this.newPropertyResource = newPropertyResource;
-		oldPropertyResource = configuration.getPropertyResource();
+	public ChangeGranularDepthEdit(T granularDepthPort, Integer newGranularDepth) {
+		super(granularDepthPort);
+		this.newGranularDepth = newGranularDepth;
+		oldGranularDepth = granularDepthPort.getGranularDepth();
 	}
 
 	@Override
-	protected void doEditAction(Configuration configuration) {
-		configuration.setPropertyResource(newPropertyResource);
+	protected void doEditAction(T granularDepthPort) {
+		granularDepthPort.setGranularDepth(newGranularDepth);
 	}
 
 	@Override
-	protected void undoEditAction(Configuration configuration) {
-		configuration.setPropertyResource(oldPropertyResource);
+	protected void undoEditAction(T granularDepthPort) {
+		granularDepthPort.setGranularDepth(oldGranularDepth);
 	}
 
 }

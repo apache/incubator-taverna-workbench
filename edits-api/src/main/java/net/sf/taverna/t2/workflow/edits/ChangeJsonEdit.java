@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007 The University of Manchester
+ * Copyright (C) 2012 The University of Manchester
  *
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -20,35 +20,33 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import java.net.URI;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 
-import uk.org.taverna.scufl2.api.property.PropertyObject;
-import uk.org.taverna.scufl2.api.property.PropertyResource;
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
- * Adds a Property to a PropertyResource.
+ * Changes the JSON of a configuration.
  *
  * @author David Withers
  */
-public class AddPropertyEdit extends AbstractEdit<PropertyResource> {
+public class ChangeJsonEdit extends AbstractEdit<Configuration> {
 
-	private PropertyObject propertyObject;
-	private final URI predicate;
+	private JsonNode oldJson, newJson;
 
-	public AddPropertyEdit(PropertyResource propertyResource, URI predicate, PropertyObject propertyObject) {
-		super(propertyResource);
-		this.predicate = predicate;
-		this.propertyObject = propertyObject;
+	public ChangeJsonEdit(Configuration configuration, JsonNode newJson) {
+		super(configuration);
+		this.newJson = newJson;
+		newJson = configuration.getJson();
 	}
 
 	@Override
-	protected void doEditAction(PropertyResource propertyResource) {
-		propertyResource.getProperties().get(predicate).add(propertyObject);
+	protected void doEditAction(Configuration configuration) {
+		configuration.setJson(newJson);
 	}
 
 	@Override
-	protected void undoEditAction(PropertyResource propertyResource) {
-		propertyResource.getProperties().get(predicate).remove(propertyObject);
+	protected void undoEditAction(Configuration configuration) {
+		configuration.setJson(oldJson);
 	}
 
 }

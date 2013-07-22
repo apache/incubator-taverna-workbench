@@ -29,9 +29,9 @@ import uk.org.taverna.scufl2.api.port.DepthPort;
  */
 public class ChangeDepthEdit<T extends DepthPort> extends AbstractEdit<T> {
 
-	private int newDepth, oldDepth;
+	private Integer newDepth, oldDepth;
 
-	public ChangeDepthEdit(T depthPort, int newDepth) {
+	public ChangeDepthEdit(T depthPort, Integer newDepth) {
 		super(depthPort);
 		this.newDepth = newDepth;
 		oldDepth = depthPort.getDepth();

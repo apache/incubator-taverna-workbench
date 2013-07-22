@@ -20,63 +20,28 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import net.sf.taverna.t2.workbench.edits.EditException;
 import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.iterationstrategy.CrossProduct;
-import uk.org.taverna.scufl2.api.iterationstrategy.DotProduct;
-import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyParent;
-import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
-import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
-import uk.org.taverna.scufl2.api.iterationstrategy.PortNode;
 import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 
 /**
- * Build a new input port on a processor, also modifies the processor's
- * iteration strategy or strategies to ensure the new port is bound into them.
+ * Adds an input port to a processor.
  *
  * @author Tom Oinn
+ * @author David Withers
  */
-public class AddProcessorInputPortEdit extends AbstractEdit<Processor> {
+public class AddProcessorInputPortEdit extends AddChildEdit<Processor> {
 
 	private final InputProcessorPort port;
-	private PortNode portNode;
 
-	public AddProcessorInputPortEdit(Processor p, InputProcessorPort port) {
-		super(p);
+	public AddProcessorInputPortEdit(Processor processor, InputProcessorPort port) {
+		super(processor, port);
 		this.port = port;
-
 	}
 
 	@Override
-	protected void doEditAction(Processor processor) throws EditException {
-		// Add a new InputPort object to the processor and also create an
-		// appropriate PortNode in any iteration strategies. By
-		// default set the desired drill depth on each iteration strategy node
-		// to the same as the input port, so this won't automatically trigger
-		// iteration staging unless the depth is altered on the iteration
-		// strategy itself.)
+	protected void doEditAction(Processor processor) {
 		processor.getInputPorts().addWithUniqueName(port);
-		port.setParent(processor);
-		IterationStrategyStack iterationStrategyStack = processor.getIterationStrategyStack();
-		for (IterationStrategyTopNode iterationStrategyTopNode : iterationStrategyStack) {
-			portNode = new PortNode(iterationStrategyTopNode, port);
-			portNode.setDesiredDepth(port.getDepth());
-			break;
-		}
-
-	}
-
-	@Override
-	protected void undoEditAction(Processor processor) {
-		if (portNode != null) {
-			IterationStrategyParent parent = portNode.getParent();
-			if (parent instanceof DotProduct) {
-				((DotProduct) parent).remove(portNode);
-			} else if (parent instanceof CrossProduct) {
-				((CrossProduct) parent).remove(portNode);
-			}
-		}
-		processor.getInputPorts().remove(port);
+		super.doEditAction(processor);
 	}
 
 }
