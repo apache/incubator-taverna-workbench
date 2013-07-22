@@ -50,6 +50,7 @@
 	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
 	<reference id="activityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
 	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
+	<reference id="serviceRegistry" interface="uk.org.taverna.commons.services.ServiceRegistry" />
 
 	<list id="annotationBeans" interface="net.sf.taverna.t2.annotation.AnnotationBeanSPI"/>
 

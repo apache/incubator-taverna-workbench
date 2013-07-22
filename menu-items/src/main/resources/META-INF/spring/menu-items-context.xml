@@ -69,6 +69,7 @@
 			<property name="editManager" ref="editManager" />
 			<property name="menuManager" ref="menuManager" />
 			<property name="selectionManager" ref="selectionManager" />
+			<property name="serviceRegistry" ref="serviceRegistry" />
 	</bean>
 	<bean id="ProcessorSection" class="net.sf.taverna.t2.ui.menu.items.processor.ProcessorSection" />
 	<bean id="RemoveConditionMenuAction" class="net.sf.taverna.t2.ui.menu.items.controllink.RemoveConditionMenuAction">
@@ -98,6 +99,7 @@
 	<bean id="SetConstantInputPortValueMenuAction" class="net.sf.taverna.t2.ui.menu.items.activityport.SetConstantInputPortValueMenuAction">
 			<property name="editManager" ref="editManager" />
 			<property name="selectionManager" ref="selectionManager" />
+			<property name="serviceRegistry" ref="serviceRegistry" />
 	</bean>
 	<bean id="ShowConfigureMenuAction" class="net.sf.taverna.t2.ui.menu.items.contextualviews.ShowConfigureMenuAction">
 			<property name="editManager" ref="editManager" />

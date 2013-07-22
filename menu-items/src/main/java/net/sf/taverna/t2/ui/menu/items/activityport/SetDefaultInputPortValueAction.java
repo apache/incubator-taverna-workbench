@@ -35,9 +35,10 @@ import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.selection.events.PerspectiveSelectionEvent;
-import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
+import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.port.InputProcessorPort;
@@ -47,23 +48,25 @@ import uk.org.taverna.scufl2.api.port.InputProcessorPort;
  * the input port is selected on the Graph View.
  *
  * @author Alex Nenadic
- *
  */
 @SuppressWarnings("serial")
 public class SetDefaultInputPortValueAction extends AbstractAction {
 
-	/* Current workflow's selection model event observer.*/
+	/* Current workflow's selection model event observer. */
 	private Observer<DataflowSelectionMessage> workflowSelectionObserver = new DataflowSelectionObserver();
 
 	private final EditManager editManager;
 	private final SelectionManager selectionManager;
+	private final ServiceRegistry serviceRegistry;
 
 	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
-	public SetDefaultInputPortValueAction(EditManager editManager, SelectionManager selectionManager){
+	public SetDefaultInputPortValueAction(EditManager editManager,
+			SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
 		super();
 		this.editManager = editManager;
 		this.selectionManager = selectionManager;
+		this.serviceRegistry = serviceRegistry;
 		putValue(SMALL_ICON, WorkbenchIcons.inputValueIcon);
 		putValue(NAME, "Constant value");
 		putValue(SHORT_DESCRIPTION, "Add a constant value for an input port");
@@ -75,22 +78,20 @@ public class SetDefaultInputPortValueAction extends AbstractAction {
 
 	public void actionPerformed(ActionEvent e) {
 		WorkflowBundle workflowBundle = selectionManager.getSelectedWorkflowBundle();
-		DataflowSelectionModel dataFlowSelectionModel = selectionManager.getDataflowSelectionModel(workflowBundle);
+		DataflowSelectionModel dataFlowSelectionModel = selectionManager
+				.getDataflowSelectionModel(workflowBundle);
 		// Get selected port
 		Set<Object> selectedWFComponents = dataFlowSelectionModel.getSelection();
-		if (selectedWFComponents.size() > 1){
-			JOptionPane
-					.showMessageDialog(
-							null,
-							"Only one workflow component should be selected for this action.",
-							"Warning", JOptionPane.WARNING_MESSAGE);
-		}
-		else{
+		if (selectedWFComponents.size() > 1) {
+			JOptionPane.showMessageDialog(null,
+					"Only one workflow component should be selected for this action.", "Warning",
+					JOptionPane.WARNING_MESSAGE);
+		} else {
 			Object selectedWFComponent = selectedWFComponents.toArray()[0];
 			if (selectedWFComponent instanceof InputProcessorPort) {
 				new AddInputPortDefaultValueAction(workflowBundle.getMainWorkflow(),
-						(InputProcessorPort) selectedWFComponent, null, editManager, selectionManager)
-						.actionPerformed(e);
+						(InputProcessorPort) selectedWFComponent, null, editManager,
+						selectionManager, serviceRegistry).actionPerformed(e);
 			}
 		}
 	}
@@ -100,15 +101,15 @@ public class SetDefaultInputPortValueAction extends AbstractAction {
 	 */
 	public void updateStatus() {
 		WorkflowBundle workflowBundle = selectionManager.getSelectedWorkflowBundle();
-		DataflowSelectionModel selectionModel = selectionManager.getDataflowSelectionModel(workflowBundle);
+		DataflowSelectionModel selectionModel = selectionManager
+				.getDataflowSelectionModel(workflowBundle);
 
 		// List of all selected objects in the graph view
 		Set<Object> selection = selectionModel.getSelection();
 
-		if (selection.isEmpty()){
+		if (selection.isEmpty()) {
 			setEnabled(false);
-		}
-		else{
+		} else {
 			// Take the first selected item - we only support single selections anyway
 			Object selected = selection.toArray()[0];
 			if (selected instanceof InputProcessorPort) {
@@ -117,12 +118,12 @@ public class SetDefaultInputPortValueAction extends AbstractAction {
 			}
 		}
 	}
+
 	/**
 	 * Observes events on workflow Selection Manager, i.e. when a workflow
 	 * node is selected in the graph view, and enables/disables this action accordingly.
 	 */
-	private final class DataflowSelectionObserver implements
-			Observer<DataflowSelectionMessage> {
+	private final class DataflowSelectionObserver implements Observer<DataflowSelectionMessage> {
 
 		public void notify(Observable<DataflowSelectionMessage> sender,
 				DataflowSelectionMessage message) throws Exception {
@@ -132,10 +133,12 @@ public class SetDefaultInputPortValueAction extends AbstractAction {
 
 	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
 		@Override
-		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message) {
+		public void notifySwing(Observable<SelectionManagerEvent> sender,
+				SelectionManagerEvent message) {
 			if (message instanceof WorkflowBundleSelectionEvent) {
 				WorkflowBundleSelectionEvent workflowBundleSelectionEvent = (WorkflowBundleSelectionEvent) message;
-				WorkflowBundle oldFlow = workflowBundleSelectionEvent.getPreviouslySelectedWorkflowBundle();
+				WorkflowBundle oldFlow = workflowBundleSelectionEvent
+						.getPreviouslySelectedWorkflowBundle();
 				WorkflowBundle newFlow = workflowBundleSelectionEvent.getSelectedWorkflowBundle();
 				// Update the buttons status as current dataflow has changed
 				updateStatus();
@@ -143,15 +146,17 @@ public class SetDefaultInputPortValueAction extends AbstractAction {
 				// Remove the workflow selection model listener from the previous (if any)
 				// and add to the new workflow (if any)
 				if (oldFlow != null) {
-					selectionManager.getDataflowSelectionModel(oldFlow).removeObserver(workflowSelectionObserver);
+					selectionManager.getDataflowSelectionModel(oldFlow).removeObserver(
+							workflowSelectionObserver);
 				}
 
 				if (newFlow != null) {
-					selectionManager.getDataflowSelectionModel(newFlow).addObserver(workflowSelectionObserver);
+					selectionManager.getDataflowSelectionModel(newFlow).addObserver(
+							workflowSelectionObserver);
 				}
 			} else if (message instanceof PerspectiveSelectionEvent) {
 				PerspectiveSelectionEvent perspectiveSelectionEvent = (PerspectiveSelectionEvent) message;
-				if (perspectiveSelectionEvent.getSelectedPerspective()  instanceof WorkflowPerspective) {
+				if (perspectiveSelectionEvent.getSelectedPerspective() instanceof WorkflowPerspective) {
 					updateStatus();
 				} else {
 					setEnabled(false);

@@ -52,6 +52,11 @@
 			<artifactId>ui</artifactId>
 			<version>${t2.lang.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>uk.org.taverna.commons</groupId>
+			<artifactId>taverna-services-api</artifactId>
+			<version>0.1.0-SNAPSHOT</version>
+		</dependency>
 
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-activities</groupId>

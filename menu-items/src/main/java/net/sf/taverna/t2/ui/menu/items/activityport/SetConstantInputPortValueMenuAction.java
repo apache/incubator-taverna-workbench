@@ -25,6 +25,7 @@ import javax.swing.Action;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.InputActivityPort;
 
@@ -32,6 +33,7 @@ public class SetConstantInputPortValueMenuAction extends AbstractContextualMenuA
 
 	private EditManager editManager;
 	private SelectionManager selectionManager;
+	private ServiceRegistry serviceRegistry;
 
 	public SetConstantInputPortValueMenuAction() {
 		super(ActivityInputPortSection.activityInputPortSection, 10);
@@ -53,7 +55,7 @@ public class SetConstantInputPortValueMenuAction extends AbstractContextualMenuA
 
 	@Override
 	protected Action createAction() {
-		return new SetDefaultInputPortValueAction(editManager, selectionManager);
+		return new SetDefaultInputPortValueAction(editManager, selectionManager, serviceRegistry);
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -62,6 +64,10 @@ public class SetConstantInputPortValueMenuAction extends AbstractContextualMenuA
 
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
+	}
+
+	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+		this.serviceRegistry = serviceRegistry;
 	}
 
 }

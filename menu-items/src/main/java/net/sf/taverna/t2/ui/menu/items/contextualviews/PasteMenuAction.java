@@ -29,6 +29,7 @@ import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.PasteGraphComponentAction;
+import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class PasteMenuAction extends AbstractContextualMenuAction {
@@ -39,6 +40,7 @@ public class PasteMenuAction extends AbstractContextualMenuAction {
 	private EditManager editManager;
 	private MenuManager menuManager;
 	private SelectionManager selectionManager;
+	private ServiceRegistry serviceRegistry;
 
 	public PasteMenuAction() {
 		super(EditSection.editSection, 20, PASTE_SERVICE_URI);
@@ -46,7 +48,7 @@ public class PasteMenuAction extends AbstractContextualMenuAction {
 
 	@Override
 	protected Action createAction() {
-		return PasteGraphComponentAction.getInstance(editManager, menuManager, selectionManager);
+		return PasteGraphComponentAction.getInstance(editManager, menuManager, selectionManager, serviceRegistry);
 	}
 
 	public boolean isEnabled() {
@@ -64,4 +66,9 @@ public class PasteMenuAction extends AbstractContextualMenuAction {
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
 	}
+
+	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+		this.serviceRegistry = serviceRegistry;
+	}
+
 }
