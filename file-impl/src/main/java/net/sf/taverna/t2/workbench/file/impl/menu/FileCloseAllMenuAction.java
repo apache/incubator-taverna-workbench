@@ -32,7 +32,7 @@ import net.sf.taverna.t2.workbench.file.impl.actions.CloseAllWorkflowsAction;
 public class FileCloseAllMenuAction extends AbstractMenuAction {
 
 	private static final URI FILE_CLOSE_URI = URI
-			.create("http://taverna.sf.net/2008/t2workbench/menu#fileClose");
+			.create("http://taverna.sf.net/2008/t2workbench/menu#fileCloseAll");
 	private final EditManager editManager;
 	private final FileManager fileManager;
 
