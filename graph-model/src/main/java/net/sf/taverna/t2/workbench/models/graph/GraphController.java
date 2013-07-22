@@ -57,9 +57,7 @@ import org.apache.log4j.Logger;
 import uk.org.taverna.scufl2.api.activity.Activity;
 import uk.org.taverna.scufl2.api.common.NamedSet;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
-import uk.org.taverna.scufl2.api.common.URITools;
 import uk.org.taverna.scufl2.api.common.WorkflowBean;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.core.BlockingControlLink;
 import uk.org.taverna.scufl2.api.core.ControlLink;
 import uk.org.taverna.scufl2.api.core.DataLink;
@@ -79,10 +77,7 @@ import uk.org.taverna.scufl2.api.port.ReceiverPort;
 import uk.org.taverna.scufl2.api.port.SenderPort;
 import uk.org.taverna.scufl2.api.port.WorkflowPort;
 import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
-import uk.org.taverna.scufl2.api.profiles.ProcessorInputPortBinding;
-import uk.org.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
 import uk.org.taverna.scufl2.api.profiles.Profile;
-import uk.org.taverna.scufl2.api.property.PropertyException;
 
 /**
  *
@@ -157,9 +152,6 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 
 	}
 
-	private static final URI NESTED_WORKFLOW_URI = URI
-			.create("http://ns.taverna.org.uk/2010/activity/nested-workflow");
-
 	private static Logger logger = Logger.getLogger(GraphController.class);
 
 	private Map<String, GraphElement> idToElement = new HashMap<String, GraphElement>();
@@ -218,8 +210,6 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 	private final ColourManager colourManager;
 
 	private Scufl2Tools scufl2Tools = new Scufl2Tools();
-
-	private final URITools uriTools = new URITools();
 
 	public GraphController(Workflow workflow, Profile profile, boolean interactive,
 			Component componentForPopups, EditManager editManager, MenuManager menuManager, ColourManager colourManager) {
@@ -735,7 +725,7 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 		// Blatantly ignoring any other activities for now
 		ProcessorBinding processorBinding = scufl2Tools.processorBindingForProcessor(processor, profile);
 		Activity activity = processorBinding.getBoundActivity();
-		URI activityType = activity.getConfigurableType();
+		URI activityType = activity.getType();
 
 		GraphNode node = createGraphNode();
 		node.setId(prefix + processor.getName());
@@ -772,47 +762,39 @@ public abstract class GraphController implements Observer<DataflowSelectionMessa
 			node.setWorkflowBean(processor);
 		}
 
-		Configuration configuration = scufl2Tools.configurationFor(activity, profile);
-		if (activityType.equals(NESTED_WORKFLOW_URI) && expandNestedDataflow(activity)) {
-			try {
-				URI workflowURI = configuration.getPropertyResource().getPropertyAsResourceURI(NESTED_WORKFLOW_URI.resolve("#workflow"));
-				URI profileURI = uriTools.uriForBean(profile);
-				Workflow subDataflow = (Workflow) uriTools.resolveUri(profileURI.resolve(workflowURI), workflow.getParent());
+		if (scufl2Tools.containsNestedWorkflow(processor, profile) && expandNestedDataflow(activity)) {
+			Workflow subDataflow = scufl2Tools.nestedWorkflowForProcessor(processor, profile);
 
-				NamedSet<InputWorkflowPort> inputWorkflowPorts = subDataflow.getInputPorts();
-				for (InputActivityPort inputActivityPort : activity.getInputPorts()) {
-					InputWorkflowPort inputWorkflowPort = inputWorkflowPorts.getByName(inputActivityPort.getName());
-					InputProcessorPort inputProcessorPort = scufl2Tools.processorPortBindingForPort(inputActivityPort, profile).getBoundProcessorPort();
-					nestedWorkflowPorts.put(inputProcessorPort, inputWorkflowPort);
-					workflowPortToProcessorPort.put(inputWorkflowPort, inputProcessorPort);
-					processorBinding.getInputPortBindings();
-				}
-
-				NamedSet<OutputWorkflowPort> outputWorkflowPorts = subDataflow.getOutputPorts();
-				for (OutputActivityPort outputActivityPort : activity.getOutputPorts()) {
-					OutputWorkflowPort outputWorkflowPort = outputWorkflowPorts.getByName(outputActivityPort.getName());
-					OutputProcessorPort outputProcessorPort = scufl2Tools.processorPortBindingForPort(outputActivityPort, profile).getBoundProcessorPort();
-					nestedWorkflowPorts.put(outputProcessorPort, outputWorkflowPort);
-					workflowPortToProcessorPort.put(outputWorkflowPort, outputProcessorPort);
-				}
-
-				Graph subGraph = generateGraph(subDataflow, prefix,
-						processor.getName(), depth + 1);
-				// TODO why does this depth matter?
-				if (depth == 0) {
-					subGraph.setWorkflowBean(processor);
-				}
-				if (interactive) {
-					subGraph.setWorkflowBean(processor);
-				}
-				node.setGraph(subGraph);
-				node.setExpanded(true);
-
-				workflowToGraph.put(processor, subGraph);
-			} catch (PropertyException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			NamedSet<InputWorkflowPort> inputWorkflowPorts = subDataflow.getInputPorts();
+			for (InputActivityPort inputActivityPort : activity.getInputPorts()) {
+				InputWorkflowPort inputWorkflowPort = inputWorkflowPorts.getByName(inputActivityPort.getName());
+				InputProcessorPort inputProcessorPort = scufl2Tools.processorPortBindingForPort(inputActivityPort, profile).getBoundProcessorPort();
+				nestedWorkflowPorts.put(inputProcessorPort, inputWorkflowPort);
+				workflowPortToProcessorPort.put(inputWorkflowPort, inputProcessorPort);
+				processorBinding.getInputPortBindings();
 			}
+
+			NamedSet<OutputWorkflowPort> outputWorkflowPorts = subDataflow.getOutputPorts();
+			for (OutputActivityPort outputActivityPort : activity.getOutputPorts()) {
+				OutputWorkflowPort outputWorkflowPort = outputWorkflowPorts.getByName(outputActivityPort.getName());
+				OutputProcessorPort outputProcessorPort = scufl2Tools.processorPortBindingForPort(outputActivityPort, profile).getBoundProcessorPort();
+				nestedWorkflowPorts.put(outputProcessorPort, outputWorkflowPort);
+				workflowPortToProcessorPort.put(outputWorkflowPort, outputProcessorPort);
+			}
+
+			Graph subGraph = generateGraph(subDataflow, prefix,
+					processor.getName(), depth + 1);
+			// TODO why does this depth matter?
+			if (depth == 0) {
+				subGraph.setWorkflowBean(processor);
+			}
+			if (interactive) {
+				subGraph.setWorkflowBean(processor);
+			}
+			node.setGraph(subGraph);
+			node.setExpanded(true);
+
+			workflowToGraph.put(processor, subGraph);
 		} else {
 			graphElementMap.put(node.getId(), node);
 			workflowToGraph.put(processor, node);
