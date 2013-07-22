@@ -72,7 +72,7 @@ public class ActivityIconManagerImpl implements ActivityIconManager{
 	}
 
 	public Icon iconForActivity(Activity activity) {
-		return iconForActivity(activity.getConfigurableType());
+		return iconForActivity(activity.getType());
 	}
 
 	public void resetIcon(URI activityType) {
