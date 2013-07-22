@@ -59,7 +59,7 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 
 	private ButtonGroup perspectiveButtonGroup = new ButtonGroup();
 
-	private Map<PerspectiveSPI, JToggleButton> perspectiveButtonMap = new HashMap<PerspectiveSPI, JToggleButton>();
+	private Map<String, JToggleButton> perspectiveButtonMap = new HashMap<String, JToggleButton>();
 
 	private JToolBar toolBar;
 	private JPanel panel;
@@ -114,11 +114,11 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 
 	private void setPerspective(PerspectiveSPI perspective) {
 		if (perspective != currentPerspective) {
-			if (!perspectiveButtonMap.containsKey(perspective)) {
+			if (!perspectiveButtonMap.containsKey(perspective.getID())) {
 				addPerspective(perspective, true);
 			}
 			if (!(perspective instanceof BlankPerspective)) {
-				perspectiveButtonMap.get(perspective).setSelected(true);
+				perspectiveButtonMap.get(perspective.getID()).setSelected(true);
 			}
 			cardLayout.show(panel, perspective.getID());
 			currentPerspective = perspective;
@@ -148,7 +148,7 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 		toolbarButton.setAction(action);
 		toolBar.add(toolbarButton);
 		perspectiveButtonGroup.add(toolbarButton);
-		perspectiveButtonMap.put(perspective, toolbarButton);
+		perspectiveButtonMap.put(perspective.getID(), toolbarButton);
 
 		panel.add(perspective.getPanel(), perspective.getID());
 		if (makeActive) {
