@@ -67,6 +67,8 @@ public class RemoveProcessorAction extends DataflowEditAction {
 
 	public void actionPerformed(ActionEvent e) {
 		try {
+			dataflowSelectionModel.removeSelection(processor);
+
 			NamedSet<InputProcessorPort> inputPorts = processor.getInputPorts();
 			NamedSet<OutputProcessorPort> outputPorts = processor.getOutputPorts();
 			List<BlockingControlLink> controlLinksBlocking = scufl2Tools.controlLinksBlocking(processor);
@@ -95,7 +97,6 @@ public class RemoveProcessorAction extends DataflowEditAction {
 				editList.add(new RemoveChildEdit<Workflow>(dataflow, processor));
 				editManager.doDataflowEdit(dataflow.getParent(), new CompoundEdit(editList));
 			}
-			dataflowSelectionModel.removeSelection(processor);
 		} catch (EditException e1) {
 			logger.error("Delete processor failed", e1);
 		}

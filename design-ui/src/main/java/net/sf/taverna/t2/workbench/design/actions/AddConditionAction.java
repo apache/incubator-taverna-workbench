@@ -62,7 +62,7 @@ public class AddConditionAction extends DataflowEditAction {
 		this.control = control;
 		this.target = target;
 		ProcessorBinding processorBinding = scufl2Tools.processorBindingForProcessor(control, dataflow.getParent().getMainProfile());
-		Icon activityIcon = activityIconManager.iconForActivity(processorBinding.getBoundActivity().getConfigurableType());
+		Icon activityIcon = activityIconManager.iconForActivity(processorBinding.getBoundActivity().getType());
 		putValue(SMALL_ICON, activityIcon);
 		putValue(NAME, control.getName());
 	}

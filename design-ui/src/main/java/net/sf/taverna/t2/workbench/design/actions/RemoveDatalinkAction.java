@@ -56,8 +56,8 @@ public class RemoveDatalinkAction extends DataflowEditAction {
 
 	public void actionPerformed(ActionEvent e) {
 		try {
-			editManager.doDataflowEdit(dataflow.getParent(), new RemoveDataLinkEdit(dataflow, datalink));
 			dataflowSelectionModel.removeSelection(datalink);
+			editManager.doDataflowEdit(dataflow.getParent(), new RemoveDataLinkEdit(dataflow, datalink));
 		} catch (EditException e1) {
 			logger.debug("Delete data link failed", e1);
 		}

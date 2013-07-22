@@ -62,6 +62,7 @@ public class RemoveDataflowInputPortAction extends DataflowEditAction {
 
 	public void actionPerformed(ActionEvent e) {
 		try {
+			dataflowSelectionModel.removeSelection(port);
 			List<DataLink> datalinks = scufl2Tools.datalinksFrom(port);
 			if (datalinks.isEmpty()) {
 				editManager.doDataflowEdit(dataflow.getParent(), new RemoveChildEdit<Workflow>(dataflow, port));
@@ -73,7 +74,6 @@ public class RemoveDataflowInputPortAction extends DataflowEditAction {
 				editList.add(new RemoveChildEdit<Workflow>(dataflow, port));
 				editManager.doDataflowEdit(dataflow.getParent(), new CompoundEdit(editList));
 			}
-			dataflowSelectionModel.removeSelection(port);
 		} catch (EditException e1) {
 			logger.debug("Delete workflow input port failed", e1);
 		}

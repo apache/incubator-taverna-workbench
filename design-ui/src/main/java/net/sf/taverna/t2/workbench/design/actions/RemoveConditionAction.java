@@ -56,8 +56,8 @@ public class RemoveConditionAction extends DataflowEditAction {
 
 	public void actionPerformed(ActionEvent e) {
 		try {
-			editManager.doDataflowEdit(dataflow.getParent(), new RemoveChildEdit<Workflow>(dataflow, controlLink));
 			dataflowSelectionModel.removeSelection(controlLink);
+			editManager.doDataflowEdit(dataflow.getParent(), new RemoveChildEdit<Workflow>(dataflow, controlLink));
 		} catch (EditException e1) {
 			logger.debug("Delete control link failed", e1);
 		}
