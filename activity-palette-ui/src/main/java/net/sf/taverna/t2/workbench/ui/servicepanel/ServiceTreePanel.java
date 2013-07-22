@@ -33,6 +33,8 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.tree.TreePanel;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.commons.services.ServiceRegistry;
+
 public class ServiceTreePanel extends TreePanel {
 	private static final long serialVersionUID = 6611462684296693909L;
 
@@ -46,14 +48,17 @@ public class ServiceTreePanel extends TreePanel {
 
 	private final SelectionManager selectionManager;
 
+	private final ServiceRegistry serviceRegistry;
+
 	public ServiceTreePanel(FilterTreeModel treeModel,
 			ServiceDescriptionRegistry serviceDescriptionRegistry, EditManager editManager,
-			MenuManager menuManager, SelectionManager selectionManager) {
+			MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
 		super(treeModel);
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 		this.editManager = editManager;
 		this.menuManager = menuManager;
 		this.selectionManager = selectionManager;
+		this.serviceRegistry = serviceRegistry;
 		initialize();
 	}
 
@@ -69,7 +74,7 @@ public class ServiceTreePanel extends TreePanel {
 
 			public void run() {
 				tree.addMouseListener(new ServiceTreeClickListener(tree, ServiceTreePanel.this,
-						serviceDescriptionRegistry, editManager, menuManager, selectionManager));
+						serviceDescriptionRegistry, editManager, menuManager, selectionManager, serviceRegistry));
 			}
 
 		});

@@ -22,6 +22,8 @@ package net.sf.taverna.t2.workbench.ui.servicepanel;
 
 import javax.swing.ImageIcon;
 
+import uk.org.taverna.commons.services.ServiceRegistry;
+
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
@@ -40,9 +42,10 @@ public class ServicePanelComponentFactory implements UIComponentFactorySPI {
 	private EditManager editManager;
 	private MenuManager menuManager;
 	private SelectionManager selectionManager;
+	private ServiceRegistry serviceRegistry;
 
 	public UIComponentSPI getComponent() {
-		return new ServicePanel(serviceDescriptionRegistry, editManager, menuManager, selectionManager);
+		return new ServicePanel(serviceDescriptionRegistry, editManager, menuManager, selectionManager, serviceRegistry);
 	}
 
 	public ImageIcon getIcon() {
@@ -67,6 +70,10 @@ public class ServicePanelComponentFactory implements UIComponentFactorySPI {
 
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
+	}
+
+	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+		this.serviceRegistry = serviceRegistry;
 	}
 
 }

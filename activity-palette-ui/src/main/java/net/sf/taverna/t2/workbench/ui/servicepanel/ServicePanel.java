@@ -36,7 +36,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.border.TitledBorder;
+import javax.swing.border.LineBorder;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -58,6 +58,8 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.commons.services.ServiceRegistry;
 
 /**
  * A panel of available services
@@ -111,18 +113,18 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	private final SelectionManager selectionManager;
 
+	private final ServiceRegistry serviceRegistry;
+
 	public ServicePanel(ServiceDescriptionRegistry serviceDescriptionRegistry,
 			EditManager editManager, MenuManager menuManager,
-			SelectionManager selectionManager) {
+			SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 		this.editManager = editManager;
 		this.menuManager = menuManager;
 		this.selectionManager = selectionManager;
+		this.serviceRegistry = serviceRegistry;
 		serviceDescriptionRegistry.addObserver(serviceDescriptionRegistryObserver);
 		initialise();
-		TitledBorder border = new TitledBorder("Service panel");
-		border.setTitleJustification(TitledBorder.CENTER);
-		this.setBorder(border);
 	}
 
 	public ImageIcon getIcon() {
@@ -156,7 +158,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		removeAll();
 		setLayout(new BorderLayout());
 		treeModel = new FilterTreeModel(root);
-		serviceTreePanel = new ServiceTreePanel(treeModel, serviceDescriptionRegistry, editManager, menuManager, selectionManager);
+		serviceTreePanel = new ServiceTreePanel(treeModel, serviceDescriptionRegistry, editManager, menuManager, selectionManager, serviceRegistry);
 		serviceTreePanel.setAvailableObjectsString(AVAILABLE_SERVICES);
 		serviceTreePanel.setMatchingObjectsString(MATCHING_SERVIES);
 		serviceTreePanel.setNoMatchingObjectsString(NO_MATCHING_SERVICES);

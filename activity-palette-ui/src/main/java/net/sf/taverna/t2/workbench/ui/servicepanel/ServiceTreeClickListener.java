@@ -57,6 +57,8 @@ import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.commons.services.ServiceRegistry;
+
 /**
  * @author alanrw
  *
@@ -76,15 +78,18 @@ public class ServiceTreeClickListener extends MouseAdapter {
 
 	private final SelectionManager selectionManager;
 
+	private final ServiceRegistry serviceRegistry;
+
 	public ServiceTreeClickListener(JTree tree, TreePanel panel,
 			ServiceDescriptionRegistry serviceDescriptionRegistry, EditManager editManager,
-			MenuManager menuManager, SelectionManager selectionManager) {
+			MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
 		this.tree = tree;
 		this.panel = panel;
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 		this.editManager = editManager;
 		this.menuManager = menuManager;
 		this.selectionManager = selectionManager;
+		this.serviceRegistry = serviceRegistry;
 	}
 
 	private void handleMouseEvent(MouseEvent evt) {
@@ -140,7 +145,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 						menu.add(new AbstractAction("Add to workflow") {
 
 							public void actionPerformed(ActionEvent e) {
-								WorkflowView.importServiceDescription(sd, false, editManager, menuManager, selectionManager);
+								WorkflowView.importServiceDescription(sd, false, editManager, menuManager, selectionManager, serviceRegistry);
 
 							}
 
@@ -148,7 +153,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 						menu.add(new AbstractAction("Add to workflow with name...") {
 
 							public void actionPerformed(ActionEvent e) {
-								WorkflowView.importServiceDescription(sd, true, editManager, menuManager, selectionManager);
+								WorkflowView.importServiceDescription(sd, true, editManager, menuManager, selectionManager, serviceRegistry);
 
 							}
 
