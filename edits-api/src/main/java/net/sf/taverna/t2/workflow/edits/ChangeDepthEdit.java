@@ -20,7 +20,20 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.port.ActivityPort;
 import uk.org.taverna.scufl2.api.port.DepthPort;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
+import uk.org.taverna.scufl2.api.profiles.ProcessorInputPortBinding;
+import uk.org.taverna.scufl2.api.profiles.Profile;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Changes the depth of a port.
@@ -40,11 +53,49 @@ public class ChangeDepthEdit<T extends DepthPort> extends AbstractEdit<T> {
 	@Override
 	protected void doEditAction(T depthPort) {
 		depthPort.setDepth(newDepth);
+		if (depthPort instanceof InputWorkflowPort) {
+			checkNestedPortDepths((InputWorkflowPort) depthPort, newDepth);
+		}
 	}
 
 	@Override
 	protected void undoEditAction(T depthPort) {
 		depthPort.setDepth(oldDepth);
+		if (depthPort instanceof InputWorkflowPort) {
+			checkNestedPortDepths((InputWorkflowPort) depthPort, oldDepth);
+		}
+	}
+
+	private void checkNestedPortDepths(InputWorkflowPort workflowPort, Integer depth) {
+		Workflow workflow = workflowPort.getParent();
+		if (workflow != null) {
+			WorkflowBundle workflowBundle = workflow.getParent();
+			if (workflowBundle != null) {
+				for (Profile profile : workflowBundle.getProfiles()) {
+					for (Activity activity : profile.getActivities()) {
+						if (activity.getType().equals(Scufl2Tools.NESTED_WORKFLOW)) {
+							for (Configuration c : scufl2Tools.configurationsFor(activity, profile)) {
+								JsonNode nested = c.getJson().get("nestedWorkflow");
+								Workflow nestedWorkflow = workflowBundle.getWorkflows().getByName(
+										nested.asText());
+								if (nestedWorkflow == workflow) {
+									ActivityPort activityPort = activity.getInputPorts().getByName(workflowPort.getName());
+									activityPort.setDepth(depth);
+									for (ProcessorBinding binding : scufl2Tools.processorBindingsToActivity(activity)) {
+										for (ProcessorInputPortBinding portBinding : binding.getInputPortBindings()) {
+											if (portBinding.getBoundActivityPort() == activityPort) {
+												InputProcessorPort processorPort = portBinding.getBoundProcessorPort();
+												processorPort.setDepth(depth);
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 
 }
