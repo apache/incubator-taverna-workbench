@@ -172,8 +172,10 @@ public class T2ConfigurationFrameImpl implements T2ConfigurationFrame {
 
 	public void update(Object service, Map<?, ?> properties) {
 		getConfigurationList().setListData(getListItems());
-		getFrame().revalidate();
-		getFrame().repaint();
+		if (frame != null) {
+			frame.revalidate();
+			frame.repaint();
+		}
 		// select first item if one exists
 		if (list.getModel().getSize() > 0) {
 			list.setSelectedValue(list.getModel().getElementAt(0), true);
