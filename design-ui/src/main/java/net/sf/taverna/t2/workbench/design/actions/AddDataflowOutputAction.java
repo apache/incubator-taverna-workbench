@@ -33,6 +33,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workflow.edits.AddChildEdit;
+import net.sf.taverna.t2.workflow.edits.AddWorkflowOutputPortEdit;
 
 import org.apache.log4j.Logger;
 
@@ -78,7 +79,7 @@ public class AddDataflowOutputAction extends DataflowEditAction {
 				String portName = inputPanel.getPortName();
 				OutputWorkflowPort dataflowOutputPort = new OutputWorkflowPort();
 				dataflowOutputPort.setName(portName);
-				editManager.doDataflowEdit(dataflow.getParent(), new AddChildEdit<Workflow>(dataflow, dataflowOutputPort));
+				editManager.doDataflowEdit(dataflow.getParent(), new AddWorkflowOutputPortEdit(dataflow, dataflowOutputPort));
 			}
 		} catch (EditException e) {
 			logger.debug("Create workflow output port failed", e);

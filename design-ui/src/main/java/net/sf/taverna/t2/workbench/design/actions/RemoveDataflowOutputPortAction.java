@@ -31,8 +31,8 @@ import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
-import net.sf.taverna.t2.workflow.edits.RemoveChildEdit;
 import net.sf.taverna.t2.workflow.edits.RemoveDataLinkEdit;
+import net.sf.taverna.t2.workflow.edits.RemoveWorkflowOutputPortEdit;
 
 import org.apache.log4j.Logger;
 
@@ -65,13 +65,13 @@ public class RemoveDataflowOutputPortAction extends DataflowEditAction {
 			dataflowSelectionModel.removeSelection(port);
 			List<DataLink> datalinks = scufl2Tools.datalinksTo(port);
 			if (datalinks.isEmpty()) {
-				editManager.doDataflowEdit(dataflow.getParent(), new RemoveChildEdit<Workflow>(dataflow, port));
+				editManager.doDataflowEdit(dataflow.getParent(), new RemoveWorkflowOutputPortEdit(dataflow, port));
 			} else {
 				List<Edit<?>> editList = new ArrayList<Edit<?>>();
 				for (DataLink datalink : datalinks) {
 					editList.add(new RemoveDataLinkEdit(dataflow, datalink));
 				}
-				editList.add(new RemoveChildEdit<Workflow>(dataflow, port));
+				editList.add(new RemoveWorkflowOutputPortEdit(dataflow, port));
 				editManager.doDataflowEdit(dataflow.getParent(), new CompoundEdit(editList));
 			}
 		} catch (EditException e1) {

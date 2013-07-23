@@ -33,6 +33,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workflow.edits.AddChildEdit;
+import net.sf.taverna.t2.workflow.edits.AddWorkflowInputPortEdit;
 
 import org.apache.log4j.Logger;
 
@@ -84,7 +85,7 @@ public class AddDataflowInputAction extends DataflowEditAction {
 				InputWorkflowPort dataflowInputPort = new InputWorkflowPort();
 				dataflowInputPort.setName(portName);
 				dataflowInputPort.setDepth(portDepth);
-				editManager.doDataflowEdit(dataflow.getParent(), new AddChildEdit<Workflow>(dataflow, dataflowInputPort));
+				editManager.doDataflowEdit(dataflow.getParent(), new AddWorkflowInputPortEdit(dataflow, dataflowInputPort));
 			}
 		} catch (EditException e) {
 			logger.warn("Adding a new workflow input port failed");
