@@ -20,9 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.selection.impl;
 
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import net.sf.taverna.t2.lang.observer.MultiCaster;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -39,7 +41,16 @@ public class DataflowSelectionModelImpl implements DataflowSelectionModel {
 
 	private MultiCaster<DataflowSelectionMessage> multiCaster;
 
-	private Set<Object> selection = new HashSet<Object>();
+	private Set<Object> selection = new TreeSet<Object>(new Comparator<Object>() {
+		@Override
+		public int compare(Object o1, Object o2) {
+			if (o1 == o2) {
+				return 0;
+			} else {
+				return o1.hashCode() - o2.hashCode();
+			}
+		}
+	});
 
 	/**
 	 * Constructs a new instance of DataflowSelectionModelImpl.
