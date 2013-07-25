@@ -6,7 +6,10 @@ import java.util.List;
 import net.sf.taverna.t2.workbench.edits.CompoundEdit;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workflow.edits.AddChildEdit;
+import net.sf.taverna.t2.workflow.edits.AddDataLinkEdit;
 import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
+import net.sf.taverna.t2.workflow.edits.AddWorkflowInputPortEdit;
+import net.sf.taverna.t2.workflow.edits.AddWorkflowOutputPortEdit;
 import uk.org.taverna.scufl2.api.common.AbstractCloneable;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.ControlLink;
@@ -96,19 +99,19 @@ public class DataflowMerger {
 		for (InputWorkflowPort input : workflow.getInputPorts()) {
 			destinationWorkflow.getInputPorts().addWithUniqueName(input);
 			destinationWorkflow.getInputPorts().remove(input);
-			compoundEdit.add(new AddChildEdit<Workflow>(destinationWorkflow, input));
+			compoundEdit.add(new AddWorkflowInputPortEdit(destinationWorkflow, input));
 		}
 		for (OutputWorkflowPort output : workflow.getOutputPorts()) {
 			destinationWorkflow.getOutputPorts().addWithUniqueName(output);
 			destinationWorkflow.getOutputPorts().remove(output);
-			compoundEdit.add(new AddChildEdit<Workflow>(destinationWorkflow, output));
+			compoundEdit.add(new AddWorkflowOutputPortEdit(destinationWorkflow, output));
 		}
 		for (Processor processor : workflow.getProcessors()) {
 			processor.setName(prefix + processor.getName());
 			compoundEdit.add(new AddProcessorEdit(destinationWorkflow, processor));
 		}
 		for (DataLink dataLink : workflow.getDataLinks()) {
-			compoundEdit.add(new AddChildEdit<Workflow>(destinationWorkflow, dataLink));
+			compoundEdit.add(new AddDataLinkEdit(destinationWorkflow, dataLink));
 		}
 		for (ControlLink controlLink : workflow.getControlLinks()) {
 			compoundEdit.add(new AddChildEdit<Workflow>(destinationWorkflow, controlLink));
