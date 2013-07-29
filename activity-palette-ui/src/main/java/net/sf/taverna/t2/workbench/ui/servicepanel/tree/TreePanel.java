@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel.tree;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -44,10 +45,14 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeExpansionListener;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
+
+import net.sf.taverna.t2.lang.ui.EdgeLineBorder;
 
 import org.apache.log4j.Logger;
 
@@ -136,6 +141,7 @@ public abstract class TreePanel extends JPanel {
 		tree.setSelectionModel(new FilterTreeSelectionModel());
 
 		JPanel topPanel = new JPanel();
+		topPanel.setBorder(new CompoundBorder(new EdgeLineBorder(EdgeLineBorder.TOP, Color.GRAY), new EmptyBorder(10, 5, 0, 5)));
 		topPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
