@@ -69,7 +69,7 @@ public class DesignPerspectiveComponent extends JSplitPane {
 
 		setBorder(null);
 		setOrientation(JSplitPane.HORIZONTAL_SPLIT);
-		setDividerLocation(200);
+		setDividerLocation(300);
 		setLeftComponent(createLeftComponent());
 		setRightComponent(createRightComponent());
 	}
@@ -77,7 +77,7 @@ public class DesignPerspectiveComponent extends JSplitPane {
 	private Component createLeftComponent() {
 		JSplitPane leftComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		leftComponent.setBorder(null);
-		leftComponent.setDividerLocation(100);
+		leftComponent.setDividerLocation(400);
 
 		leftComponent.setLeftComponent((Component) servicePanelComponentFactory.getComponent());
 
