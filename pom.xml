@@ -34,7 +34,6 @@
 		<module>run-ui</module>
 		<module>workflow-explorer</module>
 		<module>workflow-view</module>
-		<module>data-view</module>
 	</modules>
 	<repositories>
 		<repository>
