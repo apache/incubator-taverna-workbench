@@ -99,9 +99,7 @@ public class WorkflowView {
 	public final static Processor importServiceDescription(ServiceDescription sd, boolean rename, EditManager editManager,
 			MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
 		Workflow workflow = selectionManager.getSelectedWorkflow();
-		System.out.println("Workflow = " + workflow.getName());
 		Profile profile = selectionManager.getSelectedProfile();
-		System.out.println("Profile = " + profile.getName());
 
 		Processor processor = new Processor();
 		processor.setName(sd.getName());
