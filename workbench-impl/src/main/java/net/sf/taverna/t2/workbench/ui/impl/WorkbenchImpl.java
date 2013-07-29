@@ -70,7 +70,6 @@ import org.apache.log4j.Logger;
 
 import uk.org.taverna.commons.plugin.PluginException;
 import uk.org.taverna.commons.plugin.PluginManager;
-import uk.org.taverna.configuration.ConfigurationUIFactory;
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
 /**
