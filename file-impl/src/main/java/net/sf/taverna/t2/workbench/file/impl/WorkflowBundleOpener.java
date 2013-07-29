@@ -54,7 +54,7 @@ public class WorkflowBundleOpener extends AbstractDataflowPersistenceHandler
 	public DataflowInfo openDataflow(FileType fileType, Object source)
 			throws OpenException {
 		if (!getOpenFileTypes().contains(fileType)) {
-			throw new IllegalArgumentException("Unsupported file type "
+			throw new OpenException("Unsupported file type "
 					+ fileType);
 		}
 		InputStream inputStream;
@@ -89,7 +89,7 @@ public class WorkflowBundleOpener extends AbstractDataflowPersistenceHandler
 				}
 			}
 		} else {
-			throw new IllegalArgumentException("Unsupported source type "
+			throw new OpenException("Unsupported source type "
 					+ source.getClass());
 		}
 
@@ -123,7 +123,9 @@ public class WorkflowBundleOpener extends AbstractDataflowPersistenceHandler
 		} catch (ReaderException e) {
 			throw new OpenException("Could not read the workflow", e);
 		} catch (IOException e) {
-			throw new OpenException("Could not open the workflow file for parsing", e);
+			throw new OpenException("Could not open the workflow for parsing", e);
+		} catch (Exception e) {
+			throw new OpenException("Error while opening workflow", e);
 		}
 
 		return workflowBundle;

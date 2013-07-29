@@ -67,7 +67,7 @@ public class WorkflowBundleSaver extends AbstractDataflowPersistenceHandler
 		} else if (destination instanceof OutputStream) {
 			outStream = (OutputStream) destination;
 		} else {
-			throw new IllegalArgumentException("Unsupported destination type "
+			throw new SaveException("Unsupported destination type "
 					+ destination.getClass());
 		}
 		try {
@@ -96,9 +96,7 @@ public class WorkflowBundleSaver extends AbstractDataflowPersistenceHandler
 		try {
 			workflowBundleIO.writeBundle(workflowBundle, fileOutStream,
 					WorkflowBundleFileType.APPLICATION_VND_TAVERNA_SCUFL2_WORKFLOW_BUNDLE);
-		} catch (WriterException e) {
-			throw new SaveException("Can't write workflow:\n" + e.getLocalizedMessage(), e);
-		} catch (IOException e) {
+		}catch (Exception e) {
 			throw new SaveException("Can't write workflow:\n" + e.getLocalizedMessage(), e);
 		}
 	}
