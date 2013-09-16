@@ -94,7 +94,7 @@
  		</dependency>
 
 		<dependency>
-			<groupId>eu.medsea.mimeutil</groupId>
+			<groupId>uk.org.mygrid.resources.mimeutil</groupId>
 			<artifactId>mime-util</artifactId>
 			<version>${mimeutil.version}</version>
 		</dependency>
