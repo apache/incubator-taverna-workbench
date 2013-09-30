@@ -46,8 +46,6 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.iterationstrategy.CrossProduct;
-import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
-import uk.org.taverna.scufl2.api.iterationstrategy.PortNode;
 import uk.org.taverna.scufl2.api.port.InputActivityPort;
 import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 import uk.org.taverna.scufl2.api.port.OutputActivityPort;
@@ -127,11 +125,6 @@ public class WorkflowView {
 				processorPort.setDepth(activityPort.getDepth());
 				// add a new port binding
 				new ProcessorInputPortBinding(processorBinding, processorPort, activityPort);
-				for (IterationStrategyTopNode iterationStrategyTopNode : processor.getIterationStrategyStack()) {
-					PortNode portNode = new PortNode(iterationStrategyTopNode, processorPort);
-					portNode.setDesiredDepth(processorPort.getDepth());
-					break;
-				}
 			}
 			for (OutputActivityPort activityPort : serviceRegistry.getActivityOutputPorts(activityType, configuration.getJson())) {
 				// add port to activity
