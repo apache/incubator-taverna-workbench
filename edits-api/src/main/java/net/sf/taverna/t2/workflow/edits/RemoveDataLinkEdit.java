@@ -24,6 +24,8 @@ import java.util.List;
 
 import uk.org.taverna.scufl2.api.core.DataLink;
 import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.iterationstrategy.CrossProduct;
+import uk.org.taverna.scufl2.api.iterationstrategy.DotProduct;
 import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyNode;
 import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyParent;
 import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
@@ -42,7 +44,8 @@ public class RemoveDataLinkEdit extends AbstractEdit<Workflow> {
 
 	private final DataLink dataLink;
 	private PortNode portNode;
-	private IterationStrategyParent parent;
+	private int portPosition;
+	private IterationStrategyTopNode parent;
 
 	public RemoveDataLinkEdit(Workflow workflow, DataLink dataLink) {
 		super(workflow);
@@ -60,8 +63,12 @@ public class RemoveDataLinkEdit extends AbstractEdit<Workflow> {
 				for (IterationStrategyTopNode topNode : port.getParent().getIterationStrategyStack()) {
 					portNode = findPortNode(topNode, port);
 					if (portNode != null) {
-						parent = portNode.getParent();
-						portNode.setParent(null);
+						IterationStrategyParent parentNode = portNode.getParent();
+						if (parentNode instanceof IterationStrategyTopNode) {
+							parent = (IterationStrategyTopNode) parentNode;
+							portPosition = parent.indexOf(portNode);
+							parent.remove(portNode);
+						}
 						break;
 					}
 				}
@@ -85,6 +92,7 @@ public class RemoveDataLinkEdit extends AbstractEdit<Workflow> {
 			}
 		}
 		if (portNode != null) {
+			parent.add(portPosition, portNode);
 			portNode.setParent(parent);
 		}
 		dataLink.setParent(workflow);
