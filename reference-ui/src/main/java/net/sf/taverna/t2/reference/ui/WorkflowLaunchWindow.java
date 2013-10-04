@@ -453,19 +453,31 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			Object userInput = registrationPanel.getUserInput();
 
 			Path port = DataBundles.getPort(inputs, input);
-			if (userInput instanceof File) {
-				DataBundles.setReference(port, ((File) userInput).toURI());
-			} else if (userInput instanceof URL) {
-				try {
-					DataBundles.setReference(port, ((URL) userInput).toURI());
-				} catch (URISyntaxException e) {
-					logger.warn(String.format("Error converting %1$s to URI", userInput), e);
-				}
-			} else {
-				DataBundles.setStringValue(port, userInput.toString());
-			}
+			setValue(port, userInput);
 		}
 		return inputDataBundle;
+	}
+
+	private void setValue(Path port, Object userInput) throws IOException {
+		if (userInput instanceof File) {
+			DataBundles.setReference(port, ((File) userInput).toURI());
+		} else if (userInput instanceof URL) {
+			try {
+				DataBundles.setReference(port, ((URL) userInput).toURI());
+			} catch (URISyntaxException e) {
+				logger.warn(String.format("Error converting %1$s to URI", userInput), e);
+			}
+		} else if (userInput instanceof String){
+			DataBundles.setStringValue(port, (String) userInput);
+		} else if (userInput instanceof List<?>) {
+			DataBundles.createList(port);
+			List<?> list = (List<?>) userInput;
+			for (Object object : list) {
+				setValue(DataBundles.newListItem(port), object);
+			}
+		} else {
+			logger.warn("Unknown input type : " + userInput.getClass().getName());
+		}
 	}
 
 	/**
