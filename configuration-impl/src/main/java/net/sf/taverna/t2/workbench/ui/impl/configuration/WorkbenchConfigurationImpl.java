@@ -88,7 +88,9 @@ public class WorkbenchConfigurationImpl extends AbstractConfigurable implements 
 			String dotLocation = System.getProperty(TAVERNA_DOTLOCATION) != null ? System
 					.getProperty(TAVERNA_DOTLOCATION)
 					: getDefaultDotLocation();
-			defaultWorkbenchProperties.put(TAVERNA_DOTLOCATION, dotLocation);
+			if (dotLocation != null) {
+				defaultWorkbenchProperties.put(TAVERNA_DOTLOCATION, dotLocation);
+			}
 			defaultWorkbenchProperties.put(MAX_MENU_ITEMS, Integer.toString(DEFAULT_MAX_MENU_ITEMS));
 			defaultWorkbenchProperties.put(WARN_INTERNAL_ERRORS, Boolean.FALSE.toString());
 			defaultWorkbenchProperties.put(CAPTURE_CONSOLE, Boolean.TRUE.toString());
@@ -169,6 +171,9 @@ public class WorkbenchConfigurationImpl extends AbstractConfigurable implements 
 	}
 
 	private String getDefaultDotLocation() {
+		if (applicationConfiguration == null) {
+			return null;
+		}
 		File startupDir = applicationConfiguration.getStartupDir();
 		if (startupDir == null) {
 			return DOT_FALLBACK;
@@ -204,6 +209,7 @@ public class WorkbenchConfigurationImpl extends AbstractConfigurable implements 
 	 */
 	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
 		this.applicationConfiguration = applicationConfiguration;
+		defaultWorkbenchProperties = null;
 	}
 
 }
