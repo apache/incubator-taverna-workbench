@@ -150,7 +150,8 @@ public class RenderedResultComponent extends JPanel {
 	/**
 	 * Creates the component.
 	 */
-	public RenderedResultComponent(RendererRegistry rendererRegistry, List<SaveIndividualResultSPI> saveActions) {
+	public RenderedResultComponent(RendererRegistry rendererRegistry,
+			List<SaveIndividualResultSPI> saveActions) {
 		this.rendererRegistry = rendererRegistry;
 		setLayout(new BorderLayout());
 
@@ -253,10 +254,11 @@ public class RenderedResultComponent extends JPanel {
 	 */
 	public void setPath(Path path) {
 		this.path = path;
-
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
-				if (DataBundles.isList(RenderedResultComponent.this.path)) {
+				if (RenderedResultComponent.this.path == null) {
+					clearResult();
+				} else if (DataBundles.isList(RenderedResultComponent.this.path)) {
 					clearResult();
 				} else {
 					updateResult();
@@ -439,7 +441,8 @@ public class RenderedResultComponent extends JPanel {
 				}
 			});
 
-			renderersComboBox.setModel(new DefaultComboBoxModel<String>(new String[] { ERROR_DOCUMENT }));
+			renderersComboBox.setModel(new DefaultComboBoxModel<String>(
+					new String[] { ERROR_DOCUMENT }));
 			renderedResultPanel.removeAll();
 			renderedResultPanel.add(errorTextArea != null ? errorTextArea : errorTree,
 					BorderLayout.CENTER);
@@ -552,7 +555,7 @@ public class RenderedResultComponent extends JPanel {
 			}
 
 			if (value != null && index >= recognisedRenderersForMimeType.size()) {
-				// one of the non-preferred  renderers - show it in grey
+				// one of the non-preferred renderers - show it in grey
 				renderer.setForeground(Color.GRAY);
 			}
 
