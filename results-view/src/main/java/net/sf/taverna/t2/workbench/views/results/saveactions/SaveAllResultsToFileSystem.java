@@ -24,8 +24,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 import javax.swing.AbstractAction;
+import javax.swing.JFileChooser;
 
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import uk.org.taverna.databundle.DataBundles;
@@ -48,28 +50,17 @@ public class SaveAllResultsToFileSystem extends SaveAllResultsSPI {
 		return new SaveAllResultsToFileSystem();
 	}
 
-
 	/**
 	 * Saves the result data as a file structure
 	 * @throws IOException
 	 */
-	protected void saveData(File file) throws IOException {
-		// First convert map of references to objects into a map of real result objects
+	protected void saveData(File directory) throws IOException {
+		if (directory.exists() && !directory.isDirectory()) {
+			throw new IOException(directory.getName() + " is not a directory.");
+		}
 		for (String portName : chosenReferences.keySet()) {
-			writeToFileSystem(chosenReferences.get(portName), file, portName);
+			writeToFileSystem(chosenReferences.get(portName), new File(directory, portName));
 		}
-	}
-
-	public File writeToFileSystem(Path ref, File destination, String name)
-			throws IOException {
-		String fileExtension = "";
-		if (DataBundles.isError(ref)) {
-			fileExtension = ".err";
-		}
-
-		File writtenFile = writeObjectToFileSystem(destination, name,
-				ref, fileExtension);
-		return writtenFile;
 	}
 
 	/**
@@ -77,88 +68,20 @@ public class SaveAllResultsToFileSystem extends SaveAllResultsSPI {
 	 * about the object and so is not particularly clever. A File object
 	 * representing the file or directory that has been written is returned.
 	 */
-	public File writeObjectToFileSystem(File destination, String name,
-			Path ref, String defaultExtension) throws IOException {
-		// If the destination is not a directory then set the destination
-		// directory to the parent and the name to the filename
-		// i.e. if the destination is /tmp/foo.text and this exists
-		// then set destination to /tmp/ and name to 'foo.text'
-		if (destination.exists() && destination.isFile()) {
-			name = destination.getName();
-			destination = destination.getParentFile();
+	public File writeToFileSystem(Path source, File destination) throws IOException {
+		destination.mkdirs();
+		if (Files.isDirectory(source)) {
+			DataBundles.copyRecursively(source, destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
+		} else if (Files.exists(source)){
+			Files.copy(source, destination.toPath(), StandardCopyOption.REPLACE_EXISTING);
 		}
-		if (destination.exists() == false) {
-			// Create the directory structure if not already present
-			destination.mkdirs();
-		}
-		Files.copy(ref, destination.toPath());
 		return destination;
 	}
 
-//	private File writeDataObject(File destination, String name, Path ref, String defaultExtension) throws IOException {
-//		if (DataBundles.isList(ref)) {
-//			// Create a new directory, iterate over the collection recursively
-//			// calling this method
-//			File targetDir = new File(destination.toString() + File.separatorChar + name);
-//			targetDir.mkdir();
-//			int count = 0;
-//			for (T2Reference subRef : ref.) {
-//				writeDataObject(targetDir, "" + count++, subRef,
-//						defaultExtension);
-//			}
-//			return targetDir;
-//		}
-//
-//		else {
-//			String fileExtension = ".text";
-//			if (identified instanceof ReferenceSet) {
-//				List<MimeType> mimeTypes = new ArrayList<MimeType>();
-//				ReferenceSet referenceSet = (ReferenceSet) identified;
-//				List<ExternalReferenceSPI> externalReferences = new ArrayList<ExternalReferenceSPI>(
-//						referenceSet.getExternalReferences());
-//				Collections.sort(externalReferences,
-//						new Comparator<ExternalReferenceSPI>() {
-//							public int compare(ExternalReferenceSPI o1,
-//									ExternalReferenceSPI o2) {
-//								return (int) (o1.getResolutionCost() - o2
-//										.getResolutionCost());
-//							}
-//						});
-//				for (ExternalReferenceSPI externalReference : externalReferences) {
-//					if (externalReference.getDataNature().equals(ReferencedDataNature.TEXT)) {
-//						break;
-//					}
-//					mimeTypes.addAll(ResultsUtils.getMimeTypes(
-//							externalReference, context));
-//				}
-//				if (!mimeTypes.isEmpty()) {
-//
-//					// Check for the most interesting type, if defined
-//					String interestingType = mimeTypes.get(0).toString();
-//
-//					if (interestingType != null
-//							&& interestingType.equals("text/plain") == false) {
-//						// MIME types look like 'foo/bar'
-//						String lastPart = interestingType.split("/")[1];
-//						if (lastPart.startsWith("x-") == false) {
-//							fileExtension = "." + lastPart;
-//						}
-//					}
-//				}
-//				File targetFile = new File(destination.toString()
-//						+ File.separatorChar + name + fileExtension);
-//				IOUtils.copyLarge(externalReferences.get(0)
-//						.openStream(context), new FileOutputStream(targetFile));
-//				return targetFile;
-//			} else {
-//				File targetFile = new File(destination.toString()
-//						+ File.separatorChar + name + ".err");
-//				FileUtils.writeStringToFile(targetFile, ((ErrorDocument) identified).getMessage());
-//				return targetFile;
-//			}
-//
-//		}
-//	}
+	@Override
+	protected int getFileSelectionMode() {
+		return JFileChooser.DIRECTORIES_ONLY;
+	}
 
 	@Override
 	protected String getFilter() {

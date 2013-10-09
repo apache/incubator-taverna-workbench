@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.workbench.views.results.workflow;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -32,11 +31,11 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -49,16 +48,13 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.renderers.RendererRegistry;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.Updatable;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
@@ -66,8 +62,6 @@ import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResul
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.databundle.DataBundles;
-import uk.org.taverna.platform.report.ReportListener;
-import uk.org.taverna.platform.report.State;
 import uk.org.taverna.platform.report.WorkflowReport;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
@@ -82,19 +76,11 @@ import uk.org.taverna.scufl2.api.port.WorkflowPort;
  * @author David Withers
  * @author Alex Nenadic
  */
-public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, ReportListener {
+public class WorkflowResultsComponent extends JPanel implements UIComponentSPI {
 
 	private static Logger logger = Logger.getLogger(WorkflowResultsComponent.class);
 
 	private static final long serialVersionUID = 1L;
-
-	// The map contains a mapping for each port to a Path pointing to the port's result(s)
-	private HashMap<String, Path> resultReferencesMap = new HashMap<>();
-
-	private HashMap<String, Path> inputReferencesMap = new HashMap<>();
-
-	// Per-port boolean values indicating if all results have been received per port
-	private HashMap<String, Boolean> receivedAllResultsForPort = new HashMap<String, Boolean>();
 
 	// Tabbed pane - each tab contains a results tree and a RenderedResultComponent,
 	// which in turn contains the currently selected result node rendered according
@@ -103,8 +89,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 
 	// Panel containing the save buttons
 	private JPanel saveButtonsPanel;
-
-	private JButton saveButton;
 
 	// List of all existing 'save results' actions, each one can save results
 	// in a different format
@@ -119,6 +103,12 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 
 	private final WorkflowReport workflowReport;
 
+	private Path inputs;
+
+	private Path outputs;
+
+	private Workflow workflow;
+
 	public WorkflowResultsComponent(WorkflowReport workflowReport,
 			RendererRegistry rendererRegistry, List<SaveAllResultsSPI> saveActions,
 			List<SaveIndividualResultSPI> saveIndividualActions) {
@@ -128,8 +118,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		this.saveActions = saveActions;
 		this.saveIndividualActions = saveIndividualActions;
 
-		workflowReport.addReportListener(this);
-
 		tabbedPane = new JTabbedPane();
 		saveButtonsPanel = new JPanel(new BorderLayout());
 		add(saveButtonsPanel, BorderLayout.NORTH);
@@ -137,8 +125,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		try {
 			init();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("Error initializing workflow results", e);
 		}
 	}
 
@@ -164,9 +151,9 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		clear();
 		populateSaveButtonsPanel();
 
-		Workflow workflow = workflowReport.getSubject();
-		Path inputs = DataBundles.getInputs(workflowReport.getInputs());
-		Path outputs = DataBundles.getOutputs(workflowReport.getOutputs());
+		workflow = workflowReport.getSubject();
+		inputs = DataBundles.getInputs(workflowReport.getInputs());
+		outputs = DataBundles.getOutputs(workflowReport.getOutputs());
 
 		// Input ports
 		for (InputWorkflowPort dataflowInputPort : workflow.getInputPorts()) {
@@ -185,12 +172,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		// Output ports
 		for (OutputWorkflowPort dataflowOutputPort : workflow.getOutputPorts()) {
 			String portName = dataflowOutputPort.getName();
-
-			// Initially we have no results for a port
-			State state = workflowReport.getState();
-			boolean workflowFinished = state == State.CANCELLED || state == State.FAILED
-					|| state == State.COMPLETED;
-			receivedAllResultsForPort.put(portName, new Boolean(workflowFinished));
 
 			// Create a tab containing a tree view of per-port results and a rendering
 			// component for displaying individual results
@@ -213,7 +194,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 	}
 
 	private void populateSaveButtonsPanel() {
-		saveButton = new JButton(new SaveAllAction("Save all values", this));
+		JButton saveButton = new JButton(new SaveAllAction("Save all values", this));
 		saveButtonsPanel.add(saveButton, BorderLayout.EAST);
 	}
 
@@ -234,39 +215,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		tabbedPane.removeAll();
 	}
 
-	public void outputAdded(Path path, String portName, int[] index) {
-		// If we have finished receiving results - index.length is 0
-		if (index.length == 0) {
-			receivedAllResultsForPort.put(portName, new Boolean(Boolean.TRUE));
-			// We know that at this point the path contains all result(s)
-			// Put the resultsRef in the resultReferencesMap
-			resultReferencesMap.put(portName, path);
-		}
-
-		// If this is the last token for all ports - update the save buttons' state
-		boolean receivedAll = true;
-		for (String pName : receivedAllResultsForPort.keySet()) {
-			if (!receivedAllResultsForPort.get(pName).booleanValue()) {
-				receivedAll = false;
-				break;
-			}
-		}
-		if (receivedAll) {
-			try {
-				Path inputs = DataBundles.getInputs(workflowReport.getInputs());
-				for (InputWorkflowPort dataflowInputPort : workflowReport.getSubject()
-						.getInputPorts()) {
-					String name = dataflowInputPort.getName();
-					inputReferencesMap.put(name, DataBundles.getPort(inputs, portName));
-				}
-				saveButton.setEnabled(true);
-				saveButton.setFocusable(false);
-			} catch (IOException e) {
-				logger.warn("Error retieving workflow inputs", e);
-			}
-		}
-	}
-
 	public void update() {
 		for (PortResultsViewTab portResultsViewTab : inputPortTabMap.values()) {
 			portResultsViewTab.update();
@@ -279,11 +227,8 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 	@SuppressWarnings("serial")
 	private class SaveAllAction extends AbstractAction {
 
-		// private WorkflowResultsComponent parent;
-
 		public SaveAllAction(String name, WorkflowResultsComponent resultViewComponent) {
 			super(name);
-			// this.parent = resultViewComponent;
 			putValue(SMALL_ICON, WorkbenchIcons.saveAllIcon);
 		}
 
@@ -339,9 +284,21 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				}
 
 			};
+			NavigableMap<String, Path> inputPorts = new TreeMap<>();
+			try {
+				inputPorts = DataBundles.getPorts(inputs);
+			} catch (IOException e1) {
+				logger.info("No input ports for worklow " + workflow.getName(), e1);
+			}
+			NavigableMap<String, Path> outputPorts = new TreeMap<>();
+			try {
+				outputPorts = DataBundles.getPorts(outputs);
+			} catch (IOException e1) {
+				logger.info("No output ports for worklow " + workflow.getName(), e1);
+			}
 			JPanel portsPanel = new JPanel();
 			portsPanel.setLayout(new GridBagLayout());
-			if (!workflowReport.getSubject().getInputPorts().isEmpty()) {
+			if (!workflow.getInputPorts().isEmpty()) {
 				GridBagConstraints gbc = new GridBagConstraints();
 				gbc.gridx = 0;
 				gbc.gridy = 0;
@@ -351,24 +308,19 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				gbc.weighty = 0.0;
 				gbc.insets = new Insets(5, 10, 5, 10);
 				portsPanel.add(new JLabel("Workflow inputs:"), gbc);
-				// JPanel inputsPanel = new JPanel();
-				// WeakHashMap<String, T2Reference> pushedDataMap = null;
 
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (InputWorkflowPort port : workflowReport.getSubject().getInputPorts()) {
 					String portName = port.getName();
-					Path o = inputReferencesMap.get(portName);
-					if (o == null) {
-						WorkflowResultTreeNode root = (WorkflowResultTreeNode) inputPortTabMap
-								.get(portName).getResultModel().getRoot();
-						o = root.getReference();
+					Path value = inputPorts.get(portName);
+					if (value != null) {
+						JCheckBox checkBox = new JCheckBox(portName);
+						checkBox.setSelected(!outputPorts.containsKey(portName));
+						checkBox.addItemListener(listener);
+						inputChecks.put(portName, checkBox);
+						sortedBoxes.put(portName, checkBox);
+						checkReferences.put(checkBox, value);
 					}
-					JCheckBox checkBox = new JCheckBox(portName);
-					checkBox.setSelected(!resultReferencesMap.containsKey(portName));
-					checkBox.addItemListener(listener);
-					inputChecks.put(portName, checkBox);
-					sortedBoxes.put(portName, checkBox);
-					checkReferences.put(checkBox, o);
 				}
 				gbc.insets = new Insets(0, 10, 0, 10);
 				for (String portName : sortedBoxes.keySet()) {
@@ -382,7 +334,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				gbc.insets = new Insets(5, 10, 5, 10);
 				portsPanel.add(new JLabel(""), gbc); // empty space
 			}
-			if (!workflowReport.getSubject().getOutputPorts().isEmpty()) {
+			if (!workflow.getOutputPorts().isEmpty()) {
 				GridBagConstraints gbc = new GridBagConstraints();
 				gbc.gridx = 1;
 				gbc.gridy = 0;
@@ -395,19 +347,16 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
 				for (OutputWorkflowPort port : workflowReport.getSubject().getOutputPorts()) {
 					String portName = port.getName();
-					Path o = resultReferencesMap.get(portName);
-					if (o == null) {
-						WorkflowResultTreeNode root = (WorkflowResultTreeNode) outputPortTabMap
-								.get(portName).getResultModel().getRoot();
-						o = root.getReference();
-					}
-					JCheckBox checkBox = new JCheckBox(portName);
-					checkBox.setSelected(true);
+					Path value = outputPorts.get(portName);
+					if (value != null) {
+						JCheckBox checkBox = new JCheckBox(portName);
+						checkBox.setSelected(true);
 
-					checkReferences.put(checkBox, o);
-					checkBox.addItemListener(listener);
-					outputChecks.put(portName, checkBox);
-					sortedBoxes.put(portName, checkBox);
+						checkReferences.put(checkBox, value);
+						checkBox.addItemListener(listener);
+						outputChecks.put(portName, checkBox);
+						sortedBoxes.put(portName, checkBox);
+					}
 				}
 				gbc.insets = new Insets(0, 10, 0, 10);
 				for (String portName : sortedBoxes.keySet()) {
@@ -440,7 +389,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 					((SaveAllResultsSPI) action).setChosenReferences(chosenReferences);
 					((SaveAllResultsSPI) action).setParent(dialog);
 				}
-				// saveButton.setEnabled(true);
 				buttonsBar.add(saveButton);
 			}
 			JButton cancelButton = new JButton("Cancel", WorkbenchIcons.closeIcon);

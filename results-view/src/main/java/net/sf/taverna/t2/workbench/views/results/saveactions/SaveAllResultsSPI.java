@@ -82,6 +82,10 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 
 	protected abstract String getFilter();
 
+	protected int getFileSelectionMode() {
+		return JFileChooser.FILES_ONLY;
+	}
+
 	/**
 	 * Shows a standard save dialog and dumps the entire result
 	 * set to the specified XML file.
@@ -98,7 +102,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 			fc.setFileFilter(new ExtensionFileFilter(new String[] { getFilter() }));
 		}
 		fc.setCurrentDirectory(new File(curDir));
-		fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
+		fc.setFileSelectionMode(getFileSelectionMode());
 
 		boolean tryAgain = true;
 		while (tryAgain) {
@@ -136,8 +140,8 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 									}
 								} catch (Exception ex) {
 									JOptionPane.showMessageDialog(null,
-											"Problem saving result data", "Save Result Error",
-											JOptionPane.ERROR_MESSAGE);
+											"Problem saving result data\n" + ex.getMessage(),
+											"Save Result Error", JOptionPane.ERROR_MESSAGE);
 									logger.error(
 											"SaveAllResults Error: Problem saving result data", ex);
 								}
@@ -156,8 +160,9 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 									saveData(finalFile);
 								}
 							} catch (Exception ex) {
-								JOptionPane.showMessageDialog(null, "Problem saving result data"
-										+ ex, "Save Result Error", JOptionPane.ERROR_MESSAGE);
+								JOptionPane.showMessageDialog(null, "Problem saving result data\n"
+										+ ex.getMessage(), "Save Result Error",
+										JOptionPane.ERROR_MESSAGE);
 								logger.error("SaveAllResults Error: Problem saving result data", ex);
 							}
 						}
