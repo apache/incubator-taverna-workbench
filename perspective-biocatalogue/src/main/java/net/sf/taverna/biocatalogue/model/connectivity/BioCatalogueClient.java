@@ -89,7 +89,7 @@ public class BioCatalogueClient
   // API URLs
   public static final String DEFAULT_API_SANDBOX_BASE_URL = "http://sandbox.biocatalogue.org";
   public static final String DEFAULT_API_TEST_SERVER_BASE_URL = "http://test.biocatalogue.org";
-  public static final String DEFAULT_API_LIVE_SERVER_BASE_URL = "http://www.biocatalogue.org";
+  public static final String DEFAULT_API_LIVE_SERVER_BASE_URL = "https://www.biodiversitycatalogue.org";
   
   private static String BASE_URL;    // BioCatalogue base URL to use (can be updated at runtime)
   
