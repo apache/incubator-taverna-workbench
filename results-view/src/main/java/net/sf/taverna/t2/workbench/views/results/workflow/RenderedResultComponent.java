@@ -51,8 +51,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.EtchedBorder;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -390,27 +388,29 @@ public class RenderedResultComponent extends JPanel {
 			// Hide wrap text check box - only works for actual data
 			wrapTextCheckBox.setVisible(false);
 
-			ErrorDocument errorDocument;
-			try {
-				errorDocument = DataBundles.getError(path);
-			} catch (IOException e) {
-				logger.warn("Error getting the error document", e);
-			}
-
 			// Reset the renderers as we have an error item
 			recognisedRenderersForMimeType = null;
 			otherRenderers = null;
+
+			DefaultMutableTreeNode root = new DefaultMutableTreeNode("Error Trace");
+
+			try {
+				ErrorDocument errorDocument = DataBundles.getError(path);
+				try {
+					buildErrorDocumentTree(root, errorDocument);
+				} catch (IOException e) {
+					logger.warn("Error building error document tree", e);
+				}
+			} catch (IOException e) {
+				logger.warn("Error getting the error document", e);
+			}
 
 			// If there is no exception message, e.g. service returned error as HTML document but no
 			// actual exception occurred - do not build the error tree just show the message text
 			// This is because multiline text is not being showed properly in the JTree
 			JTextArea errorTextArea = null;
-			JTree errorTree = null;
-			DefaultMutableTreeNode root = new DefaultMutableTreeNode("Error Trace");
-			// TODO handle error documents
-			// ResultsUtils.buildErrorDocumentTree(root, errorDocument, referenceService);
 
-			errorTree = new JTree(root);
+			JTree errorTree = new JTree(root);
 			errorTree.setCellRenderer(new DefaultTreeCellRenderer() {
 				public Component getTreeCellRendererComponent(JTree tree, Object value,
 						boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
@@ -424,7 +424,7 @@ public class RenderedResultComponent extends JPanel {
 									tree,
 									"<html>"
 											+ StringEscapeUtils
-													.escapeHtml(((ErrorDocument) userObject)
+													.escapeHtml(errorDocument
 															.getMessage()) + "</html>", selected,
 									expanded, leaf, row, hasFocus);
 						}
@@ -449,6 +449,38 @@ public class RenderedResultComponent extends JPanel {
 			repaint();
 		}
 
+	}
+
+	public void buildErrorDocumentTree(DefaultMutableTreeNode node, ErrorDocument errorDocument) throws IOException {
+		DefaultMutableTreeNode child = new DefaultMutableTreeNode(errorDocument);
+		String trace = errorDocument.getTrace();
+		if (trace != null && !trace.equals("")) {
+			for (String line : trace.split("\n")) {
+				child.add(new DefaultMutableTreeNode(line));
+			}
+		}
+		node.add(child);
+
+		List<Path> causes = errorDocument.getCausedBy();
+		for (Path cause : causes) {
+			if (DataBundles.isError(cause)) {
+				ErrorDocument causeErrorDocument = DataBundles.getError(cause);
+				if (causes.size() == 1) {
+					buildErrorDocumentTree(node, causeErrorDocument);
+				} else {
+					buildErrorDocumentTree(child, causeErrorDocument);
+				}
+			} else if (DataBundles.isList(cause)) {
+//				List<ErrorDocument> errorDocuments = getErrorDocuments(reference);
+//				if (errorDocuments.size() == 1) {
+//					buildErrorDocumentTree(node, errorDocuments.get(0));
+//				} else {
+//					for (ErrorDocument errorDocument2 : errorDocuments) {
+//						buildErrorDocumentTree(child, errorDocument2);
+//					}
+//				}
+			}
+		}
 	}
 
 	/**
