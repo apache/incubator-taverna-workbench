@@ -44,6 +44,8 @@ import uk.org.taverna.scufl2.api.core.ControlLink;
 import uk.org.taverna.scufl2.api.core.DataLink;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStack;
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
 import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
 import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
@@ -108,6 +110,17 @@ public class RemoveProcessorAction extends DataflowEditAction {
 						}
 					}
 					editList.add(new RemoveChildEdit<Profile>(profile, processorBinding));
+				}
+			}
+			DispatchStack dispatchStack = processor.getDispatchStack();
+			if (dispatchStack != null) {
+				for (DispatchStackLayer dispatchStackLayer : dispatchStack) {
+					for (Profile profile : dataflow.getParent().getProfiles()) {
+						List<Configuration> configurations = scufl2Tools.configurationsFor(dispatchStackLayer, profile);
+						for (Configuration configuration : configurations) {
+							editList.add(new RemoveChildEdit<Profile>(profile, configuration));
+						}
+					}
 				}
 			}
 			if (editList.isEmpty()) {
