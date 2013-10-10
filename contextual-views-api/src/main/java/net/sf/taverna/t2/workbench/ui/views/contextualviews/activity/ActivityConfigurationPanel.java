@@ -19,6 +19,7 @@ import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.activity.Activity;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.port.ActivityPort;
 import uk.org.taverna.scufl2.api.port.InputActivityPort;
 import uk.org.taverna.scufl2.api.port.OutputActivityPort;
 
@@ -77,7 +78,13 @@ public abstract class ActivityConfigurationPanel extends JPanel {
 	public abstract void noteConfiguration();
 
 	public boolean isConfigurationChanged() {
-		// TODO check ports
+		noteConfiguration();
+		if (portsChanged(inputPorts, activity.getInputPorts().size())) {
+			return true;
+		}
+		if (portsChanged(outputPorts, activity.getOutputPorts().size())) {
+			return true;
+		}
 		return !json.equals(configuration.getJson());
 	}
 
@@ -187,6 +194,34 @@ public abstract class ActivityConfigurationPanel extends JPanel {
 		} catch (InvalidConfigurationException | ActivityTypeNotFoundException e) {
 			logger.warn("Error configuring output ports", e);
 		}
+	}
+
+	private boolean portsChanged(List<ActivityPortConfiguration> portDefinitions, int ports) {
+		int checkedPorts = 0;
+		for (ActivityPortConfiguration portDefinition : portDefinitions) {
+			String portName = portDefinition.getName();
+			int portDepth = portDefinition.getDepth();
+			ActivityPort activityPort = portDefinition.getActivityPort();
+			if (activityPort == null) {
+				// new port added
+				return true;
+			} else {
+				if (!activityPort.getName().equals(portName)) {
+					// port name changed
+					return true;
+				}
+				if (!activityPort.getDepth().equals(portDepth)) {
+					// port depth changed
+					return true;
+				}
+				checkedPorts++;
+			}
+		}
+		if (checkedPorts < ports) {
+			// ports deleted
+			return true;
+		}
+		return false;
 	}
 
 	public Activity getActivity() {
