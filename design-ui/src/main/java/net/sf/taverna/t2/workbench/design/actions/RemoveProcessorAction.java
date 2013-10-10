@@ -36,7 +36,9 @@ import net.sf.taverna.t2.workflow.edits.RemoveDataLinkEdit;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.scufl2.api.activity.Activity;
 import uk.org.taverna.scufl2.api.common.NamedSet;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.core.BlockingControlLink;
 import uk.org.taverna.scufl2.api.core.ControlLink;
 import uk.org.taverna.scufl2.api.core.DataLink;
@@ -44,6 +46,8 @@ import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
+import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
+import uk.org.taverna.scufl2.api.profiles.Profile;
 
 /**
  * Action for removing a processor from the dataflow.
@@ -91,6 +95,21 @@ public class RemoveProcessorAction extends DataflowEditAction {
 				editList.add(new RemoveChildEdit<Workflow>(dataflow, controlLink));
 			}
 
+			for (Profile profile : dataflow.getParent().getProfiles()) {
+				List<ProcessorBinding> processorBindings = scufl2Tools.processorBindingsForProcessor(processor, profile);
+				for (ProcessorBinding processorBinding : processorBindings) {
+					Activity boundActivity = processorBinding.getBoundActivity();
+					List<ProcessorBinding> processorBindingsToActivity = scufl2Tools.processorBindingsToActivity(boundActivity);
+					if (processorBindingsToActivity.size() == 1) {
+						editList.add(new RemoveChildEdit<Profile>(profile, boundActivity));
+						List<Configuration> configurations = scufl2Tools.configurationsFor(boundActivity, profile);
+						for (Configuration configuration : configurations) {
+							editList.add(new RemoveChildEdit<Profile>(profile, configuration));
+						}
+					}
+					editList.add(new RemoveChildEdit<Profile>(profile, processorBinding));
+				}
+			}
 			if (editList.isEmpty()) {
 				editManager.doDataflowEdit(dataflow.getParent(), new RemoveChildEdit<Workflow>(dataflow, processor));
 			} else {
