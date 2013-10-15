@@ -28,24 +28,24 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Parallelize;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStack;
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
 
 public class ParallelizeConfigureMenuAction extends AbstractContextualMenuAction {
 
-
-
 	public static final URI configureRunningSection = URI
-	.create("http://taverna.sf.net/2009/contextMenu/configureRunning");
+			.create("http://taverna.sf.net/2009/contextMenu/configureRunning");
 
 	private static final URI PARALLELIZE_CONFIGURE_URI = URI
-	.create("http://taverna.sf.net/2008/t2workbench/parallelizeConfigure");
+			.create("http://taverna.sf.net/2008/t2workbench/parallelizeConfigure");
+
+	public static URI TYPE = URI.create("http://ns.taverna.org.uk/2010/scufl2/taverna/dispatchlayer/Parallelize");
 
 	private EditManager editManager;
 
-	private FileManager fileManager;
+	private SelectionManager selectionManager;
 
 	public ParallelizeConfigureMenuAction() {
 		super(configureRunningSection, 10, PARALLELIZE_CONFIGURE_URI);
@@ -56,17 +56,19 @@ public class ParallelizeConfigureMenuAction extends AbstractContextualMenuAction
 	protected Action createAction() {
 		return new AbstractAction("Parallel jobs...") {
 			public void actionPerformed(ActionEvent e) {
-				Parallelize parallelizeLayer = null;
-				Processor p = (Processor) getContextualSelection().getSelection();
-				for (DispatchLayer dl : p.getDispatchStack().getLayers()) {
-					if (dl instanceof Parallelize) {
-						parallelizeLayer = (Parallelize) dl;
+				DispatchStackLayer parallelizeLayer = null;
+				Processor processor = (Processor) getContextualSelection().getSelection();
+				DispatchStack dispatchStack = processor.getDispatchStack();
+				for (DispatchStackLayer dl : dispatchStack) {
+					if (TYPE.equals(dl.getType())) {
+						parallelizeLayer = dl;
 						break;
 					}
 				}
 				if (parallelizeLayer != null) {
-				ParallelizeConfigureAction parallelizeConfigureAction = new ParallelizeConfigureAction(null, null, parallelizeLayer, editManager, fileManager);
-				parallelizeConfigureAction.actionPerformed(e);
+					ParallelizeConfigureAction parallelizeConfigureAction = new ParallelizeConfigureAction(
+							null, null, parallelizeLayer, editManager, selectionManager);
+					parallelizeConfigureAction.actionPerformed(e);
 				}
 			}
 		};
@@ -80,8 +82,8 @@ public class ParallelizeConfigureMenuAction extends AbstractContextualMenuAction
 		this.editManager = editManager;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

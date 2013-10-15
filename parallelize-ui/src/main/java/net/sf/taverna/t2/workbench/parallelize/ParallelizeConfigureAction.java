@@ -14,44 +14,55 @@ import javax.swing.JDialog;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import net.sf.taverna.t2.workbench.edits.Edit;
+import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Parallelize;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workflow.edits.ChangeJsonEdit;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
+
 /**
  * @author alanrw
- *
+ * @author David Withers
  */
+@SuppressWarnings("serial")
 public class ParallelizeConfigureAction extends AbstractAction {
 
 	private Frame owner;
-	private final Parallelize parallelizeLayer;
+	private final DispatchStackLayer parallelizeLayer;
 	private final ParallelizeContextualView parallelizeContextualView;
 
 	private EditManager editManager;
-	private FileManager fileManager;
 
 	private static Logger logger = Logger.getLogger(ParallelizeConfigureAction.class);
 
-	public ParallelizeConfigureAction(Frame owner, ParallelizeContextualView parallelizeContextualView, Parallelize parallelizeLayer, EditManager editManager, FileManager fileManager) {
+	private final Scufl2Tools scufl2Tools = new Scufl2Tools();
+	private final SelectionManager selectionManager;
+	private Configuration configuration;
+
+	public ParallelizeConfigureAction(Frame owner,
+			ParallelizeContextualView parallelizeContextualView,
+			DispatchStackLayer parallelizeLayer, EditManager editManager, SelectionManager selectionManager) {
 		super("Configure");
 		this.owner = owner;
 		this.parallelizeContextualView = parallelizeContextualView;
 		this.parallelizeLayer = parallelizeLayer;
 		this.editManager = editManager;
-		this.fileManager = fileManager;
+		this.selectionManager = selectionManager;
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		String processorName = parallelizeLayer.getProcessor().getLocalName();
+		String processorName = parallelizeLayer.getParent().getParent().getName();
 		String title = "Parallel jobs for service " + processorName;
 		final JDialog dialog = new HelpEnabledDialog(owner, title, true);
-		ParallelizeConfigurationPanel parallelizeConfigurationPanel = new ParallelizeConfigurationPanel(parallelizeLayer.getConfiguration(), processorName);
+		configuration = scufl2Tools.configurationFor(parallelizeLayer, selectionManager.getSelectedProfile());
+		ParallelizeConfigurationPanel parallelizeConfigurationPanel = new ParallelizeConfigurationPanel(configuration, processorName);
 		dialog.add(parallelizeConfigurationPanel, BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel();
@@ -94,8 +105,7 @@ public class ParallelizeConfigureAction extends AbstractAction {
 		private final ParallelizeConfigurationPanel parallelizeConfigurationPanel;
 		private final JDialog dialog;
 
-		public OKAction(JDialog dialog,
-				ParallelizeConfigurationPanel parallelizeConfigurationPanel) {
+		public OKAction(JDialog dialog, ParallelizeConfigurationPanel parallelizeConfigurationPanel) {
 			super("OK");
 			this.dialog = dialog;
 			this.parallelizeConfigurationPanel = parallelizeConfigurationPanel;
@@ -104,20 +114,16 @@ public class ParallelizeConfigureAction extends AbstractAction {
 		public void actionPerformed(ActionEvent e) {
 			if (parallelizeConfigurationPanel.validateConfig()) {
 				try {
-					Edit edit = editManager.getEdits().getConfigureEdit(parallelizeLayer,
-							parallelizeConfigurationPanel.getConfiguration());
-					editManager.doDataflowEdit(
-							fileManager.getCurrentDataflow(), edit);
+					Edit<Configuration> edit = new ChangeJsonEdit(configuration, parallelizeConfigurationPanel.getJson());
+					editManager.doDataflowEdit(selectionManager.getSelectedWorkflowBundle(), edit);
 					dialog.setVisible(false);
 					if (parallelizeContextualView != null) {
-					parallelizeContextualView.refreshView();
+						parallelizeContextualView.refreshView();
 					}
 				} catch (EditException e1) {
 					logger.warn("Could not configure jobs", e1);
-					JOptionPane.showMessageDialog(owner,
-							"Could not configure jobs",
-							"An error occured when configuring jobs: "
-									+ e1.getMessage(),
+					JOptionPane.showMessageDialog(owner, "Could not configure jobs",
+							"An error occured when configuring jobs: " + e1.getMessage(),
 							JOptionPane.ERROR_MESSAGE);
 				}
 			}
@@ -140,6 +146,5 @@ public class ParallelizeConfigureAction extends AbstractAction {
 		}
 
 	}
-
 
 }

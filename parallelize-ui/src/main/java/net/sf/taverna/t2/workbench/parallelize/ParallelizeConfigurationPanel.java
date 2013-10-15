@@ -10,17 +10,20 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.ParallelizeConfig;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @SuppressWarnings("serial")
 public class ParallelizeConfigurationPanel extends JPanel {
 
-	private final ParallelizeConfig configuration;
+	private final ObjectNode json;
 	private JTextField maxJobsField = new JTextField(10);
 	private final String processorName;
 
-	public ParallelizeConfigurationPanel(ParallelizeConfig configuration, String processorName) {
-		this.configuration = configuration;
+	public ParallelizeConfigurationPanel(Configuration configuration, String processorName) {
+		this.json = configuration.getJson().deepCopy();
 		this.processorName = processorName;
 		this.setLayout(new GridBagLayout());
 		this.setBorder(new EmptyBorder(10,10,10,10));
@@ -34,15 +37,19 @@ public class ParallelizeConfigurationPanel extends JPanel {
 
 		jobs.setBorder(new EmptyBorder(0,0,0,10));
 		gbc.weightx = 0.8;
-		gbc.fill = GridBagConstraints.HORIZONTAL;		
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 		this.add(jobs, gbc);
-		maxJobsField.setText(Integer.toString(configuration.getMaximumJobs()));
+		if (json.has("maximumJobs")) {
+			maxJobsField.setText(json.get("maximumJobs").asText());
+		} else {
+			maxJobsField.setText("1");
+		}
 		gbc.weightx = 0.2;
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		this.add(maxJobsField, gbc);
 		gbc.weightx = 0.1;
 		this.add(new JPanel(), gbc);
-		
+
 		gbc.gridy=1;
 		gbc.gridx=0;
 		gbc.gridwidth=3;
@@ -56,7 +63,7 @@ public class ParallelizeConfigurationPanel extends JPanel {
 					"will be invoked at the same time."
 					+ "</small></body></html>");
 		this.add(explanationLabel, gbc);
-		
+
 		this.setPreferredSize(new Dimension(350, 170));
 	}
 
@@ -80,10 +87,9 @@ public class ParallelizeConfigurationPanel extends JPanel {
 		return true;
 	}
 
-	public ParallelizeConfig getConfiguration() {
-		ParallelizeConfig newConfig = new ParallelizeConfig();
-		newConfig.setMaximumJobs(Integer.parseInt(maxJobsField.getText()));
-		return newConfig;
+	public JsonNode getJson() {
+		json.put("maximumJobs", maxJobsField.getText());
+		return json;
 	}
 
 }

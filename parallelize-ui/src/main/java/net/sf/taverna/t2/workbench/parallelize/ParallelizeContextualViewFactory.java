@@ -20,34 +20,37 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.parallelize;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Parallelize;
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
 
-public class ParallelizeContextualViewFactory implements ContextualViewFactory<Parallelize> {
+public class ParallelizeContextualViewFactory implements ContextualViewFactory<DispatchStackLayer> {
+
+	public static URI TYPE = URI.create("http://ns.taverna.org.uk/2010/scufl2/taverna/dispatchlayer/Parallelize");
 
 	private EditManager editManager;
-	private FileManager fileManager;
+	private SelectionManager selectionManager;
 
 	public boolean canHandle(Object selection) {
-		return selection instanceof Parallelize;
+		return selection instanceof DispatchStackLayer && ((DispatchStackLayer) selection).getType().equals(TYPE);
 	}
 
-	public List<ContextualView> getViews(Parallelize selection) {
-		return Arrays.asList(new ContextualView[] {new ParallelizeContextualView(selection, editManager, fileManager)});
+	public List<ContextualView> getViews(DispatchStackLayer selection) {
+		return Arrays.asList(new ContextualView[] {new ParallelizeContextualView(selection, editManager, selectionManager)});
 	}
 
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }
