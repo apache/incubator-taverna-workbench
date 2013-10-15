@@ -28,10 +28,10 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Retry;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStack;
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
 
 public class RetryConfigureMenuAction extends AbstractContextualMenuAction {
 
@@ -41,11 +41,11 @@ public class RetryConfigureMenuAction extends AbstractContextualMenuAction {
 	private static final URI RETRY_CONFIGURE_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/retryConfigure");
 
-	private static final String RETRY_CONFIGURE = "Retry configure";
+	public static URI TYPE = URI.create("http://ns.taverna.org.uk/2010/scufl2/taverna/dispatchlayer/Retry");
 
 	private EditManager editManager;
 
-	private FileManager fileManager;
+	private SelectionManager selectionManager;
 
 	public RetryConfigureMenuAction() {
 		super(configureRunningSection, 30, RETRY_CONFIGURE_URI);
@@ -56,17 +56,18 @@ public class RetryConfigureMenuAction extends AbstractContextualMenuAction {
 	protected Action createAction() {
 		return new AbstractAction("Retries...") {
 			public void actionPerformed(ActionEvent e) {
-				Retry retryLayer = null;
-				Processor p = (Processor) getContextualSelection().getSelection();
-				for (DispatchLayer dl : p.getDispatchStack().getLayers()) {
-					if (dl instanceof Retry) {
-						retryLayer = (Retry) dl;
+				DispatchStackLayer retryLayer = null;
+				Processor processor = (Processor) getContextualSelection().getSelection();
+				DispatchStack dispatchStack = processor.getDispatchStack();
+				for (DispatchStackLayer dl : dispatchStack) {
+					if (TYPE.equals(dl.getType())) {
+						retryLayer = dl;
 						break;
 					}
 				}
 				if (retryLayer != null) {
 					RetryConfigureAction retryConfigureAction = new RetryConfigureAction(null,
-							null, retryLayer, editManager, fileManager);
+							null, retryLayer, editManager, selectionManager);
 					retryConfigureAction.actionPerformed(e);
 				}
 			}
@@ -81,8 +82,8 @@ public class RetryConfigureMenuAction extends AbstractContextualMenuAction {
 		this.editManager = editManager;
 	}
 
-	public void setFileManager(FileManager fileManager) {
-		this.fileManager = fileManager;
+	public void setSelectionManager(SelectionManager selectionManager) {
+		this.selectionManager = selectionManager;
 	}
 
 }

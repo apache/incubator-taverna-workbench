@@ -5,12 +5,12 @@
 
 	<bean id="RetryConfigureMenuAction" class="net.sf.taverna.t2.workbench.retry.RetryConfigureMenuAction">
 			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 
 	<bean id="RetryContextualViewFactory" class="net.sf.taverna.t2.workbench.retry.RetryContextualViewFactory">
 			<property name="editManager" ref="editManager" />
-			<property name="fileManager" ref="fileManager" />
+			<property name="selectionManager" ref="selectionManager" />
 	</bean>
 
 </beans>

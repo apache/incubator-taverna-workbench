@@ -11,6 +11,6 @@
 	<service ref="RetryContextualViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
-	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
+	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
 
 </beans:beans>

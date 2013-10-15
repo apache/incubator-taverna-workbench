@@ -15,9 +15,9 @@
 	<description>Extensions for the Taverna 2 workbench libraries</description>
 	<modules>
 		<!-- <module>loop-ui</module> -->
-		<!-- <module>parallelize-ui</module> -->
+		<module>parallelize-ui</module>
 		<!-- <module>report-explainer</module> -->
-		<!-- <module>retry-ui</module> -->
+		<module>retry-ui</module>
 		<module>menu-items</module>
 		<!-- <module>perspective-biocatalogue</module> -->
 		<!-- <module>perspective-myexperiment</module> -->

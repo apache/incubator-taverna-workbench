@@ -30,12 +30,11 @@ import javax.swing.JTextArea;
 
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Retry;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.RetryConfig;
-
-import org.apache.log4j.Logger;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
 
 /**
  * View of a processor, including it's iteration stack, activities, etc.
@@ -43,26 +42,24 @@ import org.apache.log4j.Logger;
  * @author Alan R Williams
  *
  */
+@SuppressWarnings("serial")
 public class RetryContextualView extends ContextualView {
 
-	private static Logger logger = Logger.getLogger(RetryContextualView.class);
-
-	private Retry retryLayer;
-
-	private JPanel panel;
+	private final DispatchStackLayer retryLayer;
 
 	private final EditManager editManager;
 
-	private final FileManager fileManager;
+	private final SelectionManager selectionManager;
 
-	// private Processor processor;
+	private final Scufl2Tools scufl2Tools = new Scufl2Tools();
 
-	public RetryContextualView(Retry retryLayer, EditManager editManager, FileManager fileManager) {
+	private JPanel panel;
+
+	public RetryContextualView(DispatchStackLayer retryLayer, EditManager editManager, SelectionManager selectionManager) {
 		super();
 		this.retryLayer = retryLayer;
 		this.editManager = editManager;
-		this.fileManager = fileManager;
-		// processor = retryLayer.getProcessor();
+		this.selectionManager = selectionManager;
 		initialise();
 		initView();
 	}
@@ -86,21 +83,38 @@ public class RetryContextualView extends ContextualView {
 		JTextArea textArea = new ReadOnlyTextArea();
 		textArea.setEditable(false);
 		String text = "";
-		RetryConfig config = retryLayer.getConfiguration();
-		int maxRetries = config.getMaxRetries();
+		Configuration config = scufl2Tools.configurationFor(retryLayer, selectionManager.getSelectedProfile());
+		int maxRetries = RetryConfigurationPanel.DEFAULT_RETRIES;
+		int initialDelay = RetryConfigurationPanel.DEFAULT_INITIAL_DELAY;
+		int maxDelay = RetryConfigurationPanel.DEFAULT_MAX_DELAY;
+		double backoffFactor = RetryConfigurationPanel.DEFAULT_BACKOFF;
+
+		if (config.getJson().has("maxRetries")) {
+			maxRetries = config.getJson().get("maxRetries").asInt();
+		}
+		if (config.getJson().has("initialDelay")) {
+			initialDelay = config.getJson().get("initialDelay").asInt();
+		}
+		if (config.getJson().has("maxDelay")) {
+			maxDelay = config.getJson().get("maxDelay").asInt();
+		}
+		if (config.getJson().has("backoffFactor")) {
+			backoffFactor = config.getJson().get("backoffFactor").asDouble();;
+		}
+
+		if (config.getJson().has("maxRetries")) {
+			maxRetries = config.getJson().get("maxRetries").asInt();
+		}
 		if (maxRetries < 1) {
 			text += "The service is not re-tried";
 		} else if (maxRetries == 1) {
 			text += "The service is re-tried once";
-			text += " after " + config.getInitialDelay() + "ms";
+			text += " after " + initialDelay + "ms";
 		} else {
 			text += "The service is re-tried " + maxRetries + " times.  ";
-			float backoffFactor = config.getBackoffFactor();
-			int initialDelay = config.getInitialDelay();
 			if (backoffFactor == 1.0) {
 				text += "Each time after a delay of " + initialDelay + "ms.";
 			} else {
-				int maxDelay = config.getMaxDelay();
 				text += "The first delay is " + initialDelay + "ms";
 				int noMaxDelay = (int) (initialDelay * Math.pow(backoffFactor, maxRetries - 1));
 				if (noMaxDelay < maxDelay) {
@@ -123,7 +137,7 @@ public class RetryContextualView extends ContextualView {
 
 	@Override
 	public String getViewTitle() {
-		return "Retry of " + retryLayer.getProcessor().getLocalName();
+		return "Retry of " + retryLayer.getParent().getParent().getName();
 	}
 
 	protected JPanel createPanel() {
@@ -141,7 +155,7 @@ public class RetryContextualView extends ContextualView {
 
 	@Override
 	public Action getConfigureAction(Frame owner) {
-		return new RetryConfigureAction(owner, this, this.retryLayer, editManager, fileManager);
+		return new RetryConfigureAction(owner, this, this.retryLayer, editManager, selectionManager);
 	}
 
 }
