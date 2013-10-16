@@ -509,6 +509,15 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 
 		gbc.gridy = 4;
 		gbc.fill = GridBagConstraints.NONE;
+		gbc.gridwidth = 1;
+		JButton cancelButton = new JButton(new AbstractAction("Cancel") {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				ImportWorkflowWizard.this.setVisible(false);
+			}});
+		j.add(cancelButton, gbc);
+		gbc.gridx = 1;
 		JButton comp = new JButton(new ImportWorkflowAction());
 		j.add(comp, gbc);
 		return j;
