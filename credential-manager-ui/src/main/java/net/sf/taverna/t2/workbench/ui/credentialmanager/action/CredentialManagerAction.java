@@ -24,6 +24,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
 //import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
@@ -32,27 +33,29 @@ import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI;
 @SuppressWarnings("serial")
 public class CredentialManagerAction extends AbstractAction {
 
-	private static ImageIcon ICON = new ImageIcon(CredentialManagerAction.class.getResource("/images/cred_manager16x16.png"));
-	private final CredentialManagerUI cmUI;
+	private static ImageIcon ICON = new ImageIcon(
+			CredentialManagerAction.class.getResource("/images/cred_manager16x16.png"));
+
+	private CredentialManagerUI cmUI;
+	private final CredentialManager credentialManager;
 
 	public CredentialManagerAction(CredentialManager credentialManager) {
-		super("Credential Manager",ICON);
-		cmUI = new CredentialManagerUI(credentialManager);
+		super("Credential Manager", ICON);
+		this.credentialManager = credentialManager;
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		if (cmUI != null)
+		if (cmUI != null) {
 			cmUI.setVisible(true);
-
-//		Runnable createAndShowCredentialManagerUI = new Runnable(){
-//
-//		   public void run()
-//		   	{
-//			   CredentialManagerUI cmUI = new CredentialManagerUI();
-//   				cmUI.setVisible(true);
-//		   	}
-//		};
-//		SwingUtilities.invokeLater(createAndShowCredentialManagerUI);
+		} else {
+			Runnable createAndShowCredentialManagerUI = new Runnable() {
+				public void run() {
+					cmUI = new CredentialManagerUI(credentialManager);
+					cmUI.setVisible(true);
+				}
+			};
+			SwingUtilities.invokeLater(createAndShowCredentialManagerUI);
+		}
 
 	}
 }
