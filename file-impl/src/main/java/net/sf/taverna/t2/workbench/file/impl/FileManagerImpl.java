@@ -206,7 +206,14 @@ public class FileManagerImpl implements FileManager {
 		if (isDataflowOpen(workflowBundle)) {
 			source = getDataflowSource(workflowBundle);
 		}
-		String name = workflowBundle.getName(); 	// Fallback
+	 	// Fallback
+		String name;
+		Workflow workflow = workflowBundle.getMainWorkflow();
+		if (workflow != null) {
+			name = workflow.getName();
+		} else {
+			name = workflowBundle.getName();
+		}
 		if (source == null) {
 			return name;
 		}

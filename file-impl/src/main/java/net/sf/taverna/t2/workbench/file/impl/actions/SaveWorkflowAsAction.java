@@ -49,6 +49,7 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Workflow;
 
 public class SaveWorkflowAsAction extends AbstractAction {
 
@@ -105,7 +106,12 @@ public class SaveWorkflowAsAction extends AbstractAction {
 			result = fileName;
 		}
 		else {
-			result = workflowBundle.getName();
+			Workflow mainWorkflow = workflowBundle.getMainWorkflow();
+			if (mainWorkflow != null) {
+				result = mainWorkflow.getName();
+			} else {
+				result = workflowBundle.getName();
+			}
 		}
 		return result;
 	}
