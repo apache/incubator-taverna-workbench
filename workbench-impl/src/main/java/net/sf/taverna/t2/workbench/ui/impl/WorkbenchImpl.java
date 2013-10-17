@@ -63,7 +63,6 @@ import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.Workbench;
-import net.sf.taverna.t2.workbench.ui.WorkbenchPerspectives;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
 import org.apache.log4j.Logger;
@@ -227,7 +226,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	private JPanel makePerspectivePanel() {
 		CardLayout perspectiveLayout = new CardLayout();
 		JPanel perspectivePanel = new JPanel(perspectiveLayout);
-		workbenchPerspectives = new WorkbenchPerspectivesImpl(perspectiveToolBar, perspectivePanel, perspectiveLayout, selectionManager);
+		workbenchPerspectives = new WorkbenchPerspectives(perspectiveToolBar, perspectivePanel, perspectiveLayout, selectionManager);
 		workbenchPerspectives.setPerspectives(perspectives);
 		return perspectivePanel;
 	}
@@ -384,11 +383,6 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		} catch (Exception e){
 			logger.info("Using default Look and Feel " + UIManager.getLookAndFeel());
 		}
-	}
-
-	@Override
-	public WorkbenchPerspectives getPerspectives() {
-		return workbenchPerspectives;
 	}
 
 	public void setMenuManager(MenuManager menuManager) {

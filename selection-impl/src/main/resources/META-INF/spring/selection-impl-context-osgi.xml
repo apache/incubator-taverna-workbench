@@ -12,4 +12,6 @@
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
 	<!-- <reference id="menuManager" interface="net.sf.taverna.t2.ui.menu.MenuManager" /> -->
 
+	<list id="perspectives" interface="net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI" cardinality="0..N" />
+
 </beans:beans>

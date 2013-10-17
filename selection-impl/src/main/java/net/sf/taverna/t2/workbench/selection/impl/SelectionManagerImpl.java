@@ -82,6 +82,7 @@ public class SelectionManagerImpl implements SelectionManager {
 	private MultiCaster<SelectionManagerEvent> observers = new MultiCaster<SelectionManagerEvent>(this);
 
 	private FileManager fileManager;
+	private List<PerspectiveSPI> perspectives;
 
 	@Override
 	public DataflowSelectionModel getDataflowSelectionModel(WorkflowBundle dataflow) {
@@ -120,6 +121,7 @@ public class SelectionManagerImpl implements SelectionManager {
 				SelectionManagerEvent selectionManagerEvent = new WorkflowBundleSelectionEvent(selectedWorkflowBundle, workflowBundle);
 				selectedWorkflowBundle = workflowBundle;
 				notify(selectionManagerEvent);
+				selectDesignPerspective();
 			}
 		}
 	}
@@ -186,6 +188,7 @@ public class SelectionManagerImpl implements SelectionManager {
 			SelectionManagerEvent selectionManagerEvent = new WorkflowRunSelectionEvent(selectedWorkflowRun, workflowRun);
 			selectedWorkflowRun = workflowRun;
 			notify(selectionManagerEvent);
+			selectResultsPerspective();
 		}
 	}
 
@@ -224,6 +227,24 @@ public class SelectionManagerImpl implements SelectionManager {
 			SelectionManagerEvent selectionManagerEvent = new PerspectiveSelectionEvent(selectedPerspective, perspective);
 			selectedPerspective = perspective;
 			notify(selectionManagerEvent);
+		}
+	}
+
+	private void selectDesignPerspective() {
+		for (PerspectiveSPI perspective : perspectives) {
+			if ("net.sf.taverna.t2.ui.perspectives.design.DesignPerspective".equals(perspective.getID())) {
+				setSelectedPerspective(perspective);
+				break;
+			}
+		}
+	}
+
+	private void selectResultsPerspective() {
+		for (PerspectiveSPI perspective : perspectives) {
+			if ("net.sf.taverna.t2.ui.perspectives.results.ResultsPerspective".equals(perspective.getID())) {
+				setSelectedPerspective(perspective);
+				break;
+			}
 		}
 	}
 
@@ -276,6 +297,10 @@ public class SelectionManagerImpl implements SelectionManager {
 
 	public void setEditManager(EditManager editManager) {
 		editManager.addObserver(new EditManagerObserver());
+	}
+
+	public void setPerspectives(List<PerspectiveSPI> perspectives) {
+		this.perspectives = perspectives;
 	}
 
 	public class FileManagerObserver implements Observer<FileManagerEvent> {

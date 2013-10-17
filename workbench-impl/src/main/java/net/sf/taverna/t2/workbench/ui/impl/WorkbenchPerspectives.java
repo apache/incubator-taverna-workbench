@@ -44,16 +44,14 @@ import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.PerspectiveSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
-import net.sf.taverna.t2.workbench.ui.WorkbenchPerspectives;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
-import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 
 import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
-public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
+public class WorkbenchPerspectives {
 
-	private static Logger logger = Logger.getLogger(WorkbenchPerspectivesImpl.class);
+	private static Logger logger = Logger.getLogger(WorkbenchPerspectives.class);
 
 	private PerspectiveSPI currentPerspective;
 
@@ -71,7 +69,7 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 
 	private final SelectionManager selectionManager;
 
-	public WorkbenchPerspectivesImpl(JToolBar toolBar, JPanel panel, CardLayout cardLayout, SelectionManager selectionManager) {
+	public WorkbenchPerspectives(JToolBar toolBar, JPanel panel, CardLayout cardLayout, SelectionManager selectionManager) {
 		this.panel = panel;
 		this.toolBar = toolBar;
 		this.cardLayout = cardLayout;
@@ -81,12 +79,10 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 		refreshing = false;
 	}
 
-	@Override
 	public List<PerspectiveSPI> getPerspectives() {
 		return this.perspectives;
 	}
 
-	@Override
 	public void setPerspectives(List<PerspectiveSPI> perspectives) {
 		this.perspectives = perspectives;
 		initialisePerspectives();
@@ -97,19 +93,6 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 			addPerspective(perspective, false);
 		}
 		selectFirstPerspective();
-	}
-
-	@Override
-	public void setWorkflowPerspective() {
-		if (!(currentPerspective instanceof WorkflowPerspective)) {
-			for (PerspectiveSPI perspective : perspectives) {
-				if (perspective instanceof WorkflowPerspective) {
-					selectionManager.setSelectedPerspective(perspective);
-					return;
-				}
-			}
-			logger.warn("No WorkflowPerspective found");
-		}
 	}
 
 	private void setPerspective(PerspectiveSPI perspective) {
@@ -183,7 +166,7 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 
 	private final class RefreshRunner implements Runnable {
 		public void run() {
-			synchronized (WorkbenchPerspectivesImpl.this) {
+			synchronized (WorkbenchPerspectives.this) {
 				if (refreshing) {
 					// We only need one run
 					return;
@@ -195,7 +178,7 @@ public class WorkbenchPerspectivesImpl implements WorkbenchPerspectives {
 				toolBar.repaint();
 				initialisePerspectives();
 			} finally {
-				synchronized (WorkbenchPerspectivesImpl.this) {
+				synchronized (WorkbenchPerspectives.this) {
 					refreshing = false;
 				}
 			}
