@@ -22,15 +22,11 @@ package net.sf.taverna.t2.workbench.ui;
 
 import java.io.IOException;
 
-import net.sf.taverna.t2.workbench.ui.WorkbenchPerspectives;
-
 public interface Workbench {
 
 	public void makeNamedComponentVisible(String componentName);
 
 	public void exit();
-
-	public WorkbenchPerspectives getPerspectives();
 
 	public void storeSizeAndLocationPrefs() throws IOException;
 
