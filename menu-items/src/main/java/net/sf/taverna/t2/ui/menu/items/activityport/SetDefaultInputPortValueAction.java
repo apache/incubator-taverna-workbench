@@ -37,7 +37,6 @@ import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.selection.events.PerspectiveSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
-import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
@@ -132,6 +131,9 @@ public class SetDefaultInputPortValueAction extends AbstractAction {
 	}
 
 	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+
+		private static final String DESIGN_PERSPECTIVE_ID = "net.sf.taverna.t2.ui.perspectives.design.DesignPerspective";
+
 		@Override
 		public void notifySwing(Observable<SelectionManagerEvent> sender,
 				SelectionManagerEvent message) {
@@ -156,7 +158,7 @@ public class SetDefaultInputPortValueAction extends AbstractAction {
 				}
 			} else if (message instanceof PerspectiveSelectionEvent) {
 				PerspectiveSelectionEvent perspectiveSelectionEvent = (PerspectiveSelectionEvent) message;
-				if (perspectiveSelectionEvent.getSelectedPerspective() instanceof WorkflowPerspective) {
+				if (DESIGN_PERSPECTIVE_ID.equals(perspectiveSelectionEvent.getSelectedPerspective().getID())) {
 					updateStatus();
 				} else {
 					setEnabled(false);

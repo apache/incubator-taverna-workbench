@@ -69,7 +69,6 @@ public class ShowDetailsMenuAction extends AbstractMenuAction {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			workbench.getPerspectives().setWorkflowPerspective();
 			workbench.makeNamedComponentVisible(namedComponent);
 		}
 

@@ -53,7 +53,6 @@ public class ShowDetailsContextualMenuAction extends AbstractContextualMenuActio
 	protected Action createAction() {
 		return new AbstractAction(SHOW_DETAILS) {
 			public void actionPerformed(ActionEvent e) {
-				workbench.getPerspectives().setWorkflowPerspective();
 				workbench.makeNamedComponentVisible(namedComponent);
 			}
 		};

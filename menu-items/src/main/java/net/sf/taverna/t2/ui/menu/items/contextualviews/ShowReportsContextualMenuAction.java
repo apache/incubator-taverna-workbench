@@ -83,7 +83,6 @@ public class ShowReportsContextualMenuAction extends AbstractContextualMenuActio
 
 		return new AbstractAction(SHOW_REPORTS, icon) {
 			public void actionPerformed(ActionEvent e) {
-				workbench.getPerspectives().setWorkflowPerspective();
 				workbench.makeNamedComponentVisible(namedComponent);
 			}
 		};
