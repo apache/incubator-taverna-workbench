@@ -432,15 +432,19 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 	}
 
 	public static String getRelativeName(WorkflowBundle workflowBundle, Activity activity) {
-		String result = "";
+		StringBuilder relativeName = new StringBuilder("");
 		if (workflowBundle != null) {
-			result += workflowBundle.getName();
-			Processor p = findProcessor(activity);
-			if (p != null) {
-				result += (":" + p.getName());
+			Workflow workflow = workflowBundle.getMainWorkflow();
+			if (workflow != null) {
+				relativeName.append(workflow.getName());
+				relativeName.append(":");
 			}
 		}
-		return result;
+		Processor processor = findProcessor(activity);
+		if (processor != null) {
+			relativeName.append(processor.getName());
+		}
+		return relativeName.toString();
 	}
 
 	public boolean closeDialog() {
