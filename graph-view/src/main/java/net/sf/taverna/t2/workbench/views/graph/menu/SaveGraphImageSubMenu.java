@@ -55,7 +55,6 @@ import net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.PerspectiveSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
-import net.sf.taverna.t2.workbench.ui.zaria.WorkflowPerspective;
 import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 
 import org.apache.log4j.Logger;
@@ -302,11 +301,14 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom {
 	}
 
 	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+
+		private static final String DESIGN_PERSPECTIVE_ID = "net.sf.taverna.t2.ui.perspectives.design.DesignPerspective";
+
 		@Override
 		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message) {
 			if (message instanceof PerspectiveSelectionEvent) {
 				PerspectiveSelectionEvent perspectiveSelectionEvent = (PerspectiveSelectionEvent) message;
-				if (perspectiveSelectionEvent.getSelectedPerspective() instanceof WorkflowPerspective) {
+				if (DESIGN_PERSPECTIVE_ID.equals(perspectiveSelectionEvent.getSelectedPerspective().getID())) {
 					saveDiagramMenu.setEnabled(true);
 				}
 				else{

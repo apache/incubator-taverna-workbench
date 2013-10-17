@@ -93,7 +93,6 @@ public class CheckWorkflowStatus {
 	}
 
 	private static void showReport(Workbench workbench) {
-		workbench.getPerspectives().setWorkflowPerspective();
 		workbench.makeNamedComponentVisible("reportView");
 	}
 }

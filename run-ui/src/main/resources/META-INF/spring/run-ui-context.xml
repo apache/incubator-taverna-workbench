@@ -13,7 +13,6 @@
 			<property name="workbench" ref="workbench" />
 			<property name="runService" ref="runService" />
 			<property name="selectionManager" ref="selectionManager" />
-			<property name="resultsPerspective" ref="resultsPerspective" />
 	</bean>
 	<bean id="FileValidateMenuAction" class="net.sf.taverna.t2.workbench.run.menu.FileValidateMenuAction">
 			<property name="editManager" ref="editManager" />
@@ -28,7 +27,6 @@
 			<property name="workbench" ref="workbench" />
 			<property name="runService" ref="runService" />
 			<property name="selectionManager" ref="selectionManager" />
-			<property name="resultsPerspective" ref="resultsPerspective" />
 	</bean>
 
 	<bean id="WorkflowRunStatusShutdownHook" class="net.sf.taverna.t2.workbench.run.cleanup.WorkflowRunStatusShutdownHook">

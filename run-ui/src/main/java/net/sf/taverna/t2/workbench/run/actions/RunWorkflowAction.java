@@ -50,7 +50,6 @@ import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.ui.Workbench;
-import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
 import org.apache.log4j.Logger;
 import org.purl.wf4ever.robundle.Bundle;
@@ -79,8 +78,6 @@ public class RunWorkflowAction extends AbstractAction {
 
 	private static Logger logger = Logger.getLogger(RunWorkflowAction.class);
 
-	private PerspectiveSPI resultsPerspective;
-
 	// A map of workflows and their corresponding WorkflowLaunchWindowS
 	// We only create one window per workflow and then update its content if the
 	// workflow gets updated
@@ -95,14 +92,13 @@ public class RunWorkflowAction extends AbstractAction {
 
 	public RunWorkflowAction(EditManager editManager, FileManager fileManager,
 			ReportManager reportManager, Workbench workbench, RunService runService,
-			SelectionManager selectionManager, PerspectiveSPI resultsPerspective) {
+			SelectionManager selectionManager) {
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.reportManager = reportManager;
 		this.workbench = workbench;
 		this.runService = runService;
 		this.selectionManager = selectionManager;
-		this.resultsPerspective = resultsPerspective;
 		putValue(SMALL_ICON, WorkbenchIcons.runIcon);
 		putValue(NAME, "Run workflow...");
 		putValue(SHORT_DESCRIPTION, "Run the current workflow");
@@ -165,7 +161,6 @@ public class RunWorkflowAction extends AbstractAction {
 			if (runProfile != null) {
 				String runId = runService.createRun(runProfile);
 				selectionManager.setSelectedWorkflowRun(runId);
-				switchToResultsPerspective();
 				runService.start(runId);
 			}
 		} catch (InvalidWorkflowException | RunProfileException | InvalidRunIdException
@@ -230,10 +225,6 @@ public class RunWorkflowAction extends AbstractAction {
 		} else {
 			return null;
 		}
-	}
-
-	private void switchToResultsPerspective() {
-		selectionManager.setSelectedPerspective(resultsPerspective);
 	}
 
 	@SuppressWarnings("serial")

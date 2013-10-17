@@ -24,8 +24,6 @@ import java.net.URI;
 
 import javax.swing.Action;
 
-import uk.org.taverna.platform.run.api.RunService;
-
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
@@ -33,7 +31,7 @@ import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.run.actions.RunWorkflowAction;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.Workbench;
-import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
+import uk.org.taverna.platform.run.api.RunService;
 
 public class FileRunMenuAction extends AbstractMenuAction {
 
@@ -45,7 +43,6 @@ public class FileRunMenuAction extends AbstractMenuAction {
 	private Workbench workbench;
 	private RunService runService;
 	private SelectionManager selectionManager;
-	private PerspectiveSPI resultsPerspective;
 
 	public FileRunMenuAction() {
 		super(FileRunMenuSection.FILE_RUN_SECTION_URI, 10, FILE_RUN_URI);
@@ -53,7 +50,8 @@ public class FileRunMenuAction extends AbstractMenuAction {
 
 	@Override
 	protected Action createAction() {
-		return new RunWorkflowAction(editManager, fileManager, reportManager, workbench, runService, selectionManager, resultsPerspective);
+		return new RunWorkflowAction(editManager, fileManager, reportManager, workbench,
+				runService, selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -78,10 +76,6 @@ public class FileRunMenuAction extends AbstractMenuAction {
 
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
-	}
-
-	public void setResultsPerspective(PerspectiveSPI resultsPerspective) {
-		this.resultsPerspective = resultsPerspective;
 	}
 
 }

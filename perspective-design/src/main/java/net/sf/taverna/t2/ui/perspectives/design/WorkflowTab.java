@@ -37,8 +37,6 @@ import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.UnsavedException;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
-import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
-import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
