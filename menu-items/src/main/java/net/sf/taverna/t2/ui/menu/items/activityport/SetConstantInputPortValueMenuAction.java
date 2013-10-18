@@ -27,7 +27,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputActivityPort;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 
 public class SetConstantInputPortValueMenuAction extends AbstractContextualMenuAction {
 
@@ -49,7 +49,7 @@ public class SetConstantInputPortValueMenuAction extends AbstractContextualMenuA
 	@Override
 	public boolean isEnabled() {
 		return super.isEnabled()
-				&& getContextualSelection().getSelection() instanceof InputActivityPort
+				&& getContextualSelection().getSelection() instanceof InputProcessorPort
 				&& getContextualSelection().getParent() instanceof Workflow;
 	}
 
