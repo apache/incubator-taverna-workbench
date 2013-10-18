@@ -49,7 +49,9 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.observer.MultiCaster;
+import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
+import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.AbstractMenuOptionGroup;
@@ -59,11 +61,19 @@ import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
 import net.sf.taverna.t2.ui.menu.DefaultMenuBar;
 import net.sf.taverna.t2.ui.menu.DefaultToolBar;
+import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
+import net.sf.taverna.t2.ui.menu.DesignOrResultsAction;
 import net.sf.taverna.t2.ui.menu.MenuComponent;
 import net.sf.taverna.t2.ui.menu.MenuComponent.MenuType;
 import net.sf.taverna.t2.ui.menu.MenuManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workbench.selection.events.PerspectiveSelectionEvent;
+import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Implementation of {@link MenuManager}.
@@ -863,6 +873,10 @@ public class MenuManagerImpl implements MenuManager {
 		this.menuComponents = menuComponents;
 	}
 
+	public void setSelectionManager(SelectionManager selectionManager) {
+		selectionManager.addObserver(new SelectionManagerObserver());
+	}
+
 	/**
 	 * {@link Comparator} that can order {@link MenuComponent}s by their
 	 * {@link MenuComponent#getPositionHint()}.
@@ -925,6 +939,46 @@ public class MenuManagerImpl implements MenuManager {
 		public void setOptionGroup(boolean isOptionGroup) {
 			this.isOptionGroup = isOptionGroup;
 		}
+	}
+
+	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+
+		private static final String DESIGN_PERSPECTIVE_ID = "net.sf.taverna.t2.ui.perspectives.design.DesignPerspective";
+		private static final String RESULTS_PERSPECTIVE_ID = "net.sf.taverna.t2.ui.perspectives.results.ResultsPerspective";
+
+		@Override
+		public void notifySwing(Observable<SelectionManagerEvent> sender,
+				SelectionManagerEvent message) {
+			if (message instanceof PerspectiveSelectionEvent) {
+				PerspectiveSelectionEvent perspectiveSelectionEvent = (PerspectiveSelectionEvent) message;
+				String perspectiveID = perspectiveSelectionEvent.getSelectedPerspective().getID();
+				for (MenuComponent menuComponent : menuComponents) {
+					if (!(menuComponent instanceof ContextualMenuComponent)) {
+						Action action = menuComponent.getAction();
+						if (DESIGN_PERSPECTIVE_ID.equals(perspectiveID)) {
+							if (action instanceof DesignOnlyAction) {
+								action.setEnabled(true);
+							} else if (action instanceof DesignOrResultsAction) {
+								action.setEnabled(true);
+							}
+						} else if (RESULTS_PERSPECTIVE_ID.equals(perspectiveID)) {
+							if (action instanceof DesignOnlyAction) {
+								action.setEnabled(false);
+							} else if (action instanceof DesignOrResultsAction) {
+								action.setEnabled(true);
+							}
+						} else{
+							if (action instanceof DesignOnlyAction) {
+								action.setEnabled(false);
+							} else if (action instanceof DesignOrResultsAction) {
+								action.setEnabled(false);
+							}
+						}
+					}
+				}
+			}
+		}
+
 	}
 
 }
