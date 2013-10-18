@@ -59,14 +59,10 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 	private static Logger logger = Logger.getLogger(ShowConfigureMenuAction.class);
 
 	public static final URI GRAPH_DETAILS_MENU_SECTION = URI
-	.create("http://taverna.sf.net/2008/t2workbench/menu#graphDetailsMenuSection");
+			.create("http://taverna.sf.net/2008/t2workbench/menu#graphDetailsMenuSection");
 
 	private static final URI SHOW_CONFIGURE_URI = URI
-	.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuShowConfigureComponent");
-
-	private static final String SHOW_CONFIGURE = "Configure";
-
-	private String namedComponent = "contextualView";
+			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuShowConfigureComponent");
 
 	private EditManager editManager;
 
@@ -85,44 +81,50 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 		return new ShowConfigureAction();
 	}
 
+	@SuppressWarnings("serial")
 	protected class ShowConfigureAction extends AbstractAction implements DesignOnlyAction {
 
+		private boolean enabled;
+
 		ShowConfigureAction() {
-		super();
-		putValue(NAME, "Configure");
-		putValue(SHORT_DESCRIPTION, "Configure selected component");
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false));
+			super();
+			putValue(NAME, "Configure");
+			putValue(SHORT_DESCRIPTION, "Configure selected component");
+			putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false));
 
-		KeyboardFocusManager focusManager =
-		    KeyboardFocusManager.getCurrentKeyboardFocusManager();
-		focusManager.addPropertyChangeListener(
-		    new PropertyChangeListener() {
-		        public void propertyChange(PropertyChangeEvent e) {
-		            String prop = e.getPropertyName();
-		            if ("focusOwner".equals(prop)) {
+			KeyboardFocusManager focusManager = KeyboardFocusManager
+					.getCurrentKeyboardFocusManager();
+			focusManager.addPropertyChangeListener(new PropertyChangeListener() {
+				public void propertyChange(PropertyChangeEvent e) {
+					String prop = e.getPropertyName();
+					if ("focusOwner".equals(prop)) {
 						if (e.getNewValue() instanceof JTextComponent) {
-									ShowConfigureAction.this.setEnabled(false);
+							ShowConfigureAction.super.setEnabled(false);
 						} else {
-//									ShowConfigureAction.this
-//											.setEnabled(inWorkflow);
-								}
-							}
+							ShowConfigureAction.this.setEnabled(enabled);
 						}
-		    }
-		);
-
+					}
+				}
+			});
 		}
+
+		@Override
+		public void setEnabled(boolean enabled) {
+			this.enabled = enabled;
+			super.setEnabled(enabled);
+		}
+
 		public void actionPerformed(ActionEvent e) {
 			WorkflowBundle workflowBundle = selectionManager.getSelectedWorkflowBundle();
-			DataflowSelectionModel dataFlowSelectionModel = selectionManager.getDataflowSelectionModel(workflowBundle);
+			DataflowSelectionModel dataFlowSelectionModel = selectionManager
+					.getDataflowSelectionModel(workflowBundle);
 			// Get selected port
-			Set<Object> selectedWFComponents = dataFlowSelectionModel
-					.getSelection();
+			Set<Object> selectedWFComponents = dataFlowSelectionModel.getSelection();
 			if (selectedWFComponents.size() > 0) {
 				Object component = selectedWFComponents.iterator().next();
 				if (component instanceof Processor) {
-					Action action = WorkflowView.getConfigureAction((Processor) component, menuManager);
+					Action action = WorkflowView.getConfigureAction((Processor) component,
+							menuManager);
 					if (action != null) {
 						action.actionPerformed(e);
 					}
@@ -130,18 +132,19 @@ public class ShowConfigureMenuAction extends AbstractMenuAction {
 					DataLink dataLink = (DataLink) component;
 					if (dataLink.getMergePosition() != null) {
 						List<DataLink> datalinks = scufl2Tools.datalinksTo(dataLink.getSendsTo());
-						MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(datalinks, editManager, selectionManager);
+						MergeConfigurationView mergeConfigurationView = new MergeConfigurationView(
+								datalinks, editManager, selectionManager);
 						mergeConfigurationView.setLocationRelativeTo(null);
 						mergeConfigurationView.setVisible(true);
 					}
 				} else if (component instanceof InputWorkflowPort) {
 					InputWorkflowPort port = (InputWorkflowPort) component;
-					new EditDataflowInputPortAction(port.getParent(),
-							port, null, editManager, selectionManager)
-							.actionPerformed(e);
+					new EditDataflowInputPortAction(port.getParent(), port, null, editManager,
+							selectionManager).actionPerformed(e);
 				} else if (component instanceof OutputWorkflowPort) {
 					OutputWorkflowPort port = (OutputWorkflowPort) component;
-					new EditDataflowOutputPortAction(port.getParent(), port, null, editManager, selectionManager).actionPerformed(e);
+					new EditDataflowOutputPortAction(port.getParent(), port, null, editManager,
+							selectionManager).actionPerformed(e);
 				}
 			}
 		}
