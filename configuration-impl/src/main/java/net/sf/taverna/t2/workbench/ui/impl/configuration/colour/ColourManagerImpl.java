@@ -94,11 +94,11 @@ public class ColourManagerImpl extends AbstractConfigurable implements ColourMan
 		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/localworker", "#d15fee"); //mediumorchid2
 		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/xml-splitter/in", "#ab92ea"); //light purple non standard
 		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/xml-splitter/out", "#ab92ea"); //light purple non-standard
+		defaultPropertyMap.put("http://ns.taverna.org.uk/2010/activity/nonExecutable", "#777777");
 		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.Merge", "#77aadd");
-		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.Processor", "#a1c69d"); // ShadedLabel.Green
-		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.ProcessorPort", "#8070ff"); // purplish
-		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.DataflowPort", "#eece8f"); // ShadedLabel.Orange
-		defaultPropertyMap.put("net.sf.taverna.t2.workflowmodel.processor.activity.NonExecutableActivity", "#777777");
+		defaultPropertyMap.put("uk.org.taverna.scufl2.api.core.Processor", "#a1c69d"); // ShadedLabel.Green
+		defaultPropertyMap.put("uk.org.taverna.scufl2.api.port.ProcessorPort", "#8070ff"); // purplish
+		defaultPropertyMap.put("uk.org.taverna.scufl2.api.port.WorkflowPort", "#eece8f"); // ShadedLabel.Orange
 
 	}
 
