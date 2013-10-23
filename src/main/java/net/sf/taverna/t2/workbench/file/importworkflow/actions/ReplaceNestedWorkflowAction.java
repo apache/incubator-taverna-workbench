@@ -2,6 +2,8 @@ package net.sf.taverna.t2.workbench.file.importworkflow.actions;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.workbench.edits.EditManager;
@@ -9,9 +11,13 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.importworkflow.gui.ImportWorkflowWizard;
 import net.sf.taverna.t2.workbench.ui.Utils;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
+import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.Edits;
+import net.sf.taverna.t2.workflowmodel.EditsRegistry;
+import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 public class ReplaceNestedWorkflowAction extends
 		ActivityConfigurationAction<DataflowActivity, Dataflow> {
@@ -40,8 +46,17 @@ public class ReplaceNestedWorkflowAction extends
 			@Override
 			protected Edit<?> makeInsertNestedWorkflowEdit(Dataflow nestedFlow,
 					String name) {
-				return edits
-						.getConfigureActivityEdit(getActivity(), nestedFlow);
+				Edits edits = EditsRegistry.getEdits();
+				Edit<?> configureActivityEdit = edits.getConfigureActivityEdit(getActivity(), nestedFlow);
+
+					List<Edit<?>> editList = new ArrayList<Edit<?>>();
+					editList.add(configureActivityEdit);
+					Processor p = findProcessor(fileManager.getCurrentDataflow(), getActivity());
+					if (p != null && p.getActivityList().size() == 1) {
+						editList.add(edits.getMapProcessorPortsForActivityEdit(p));
+					}
+
+				return new CompoundEdit(editList);
 			}
 
 			@Override
@@ -56,5 +71,15 @@ public class ReplaceNestedWorkflowAction extends
 		wizard.setDestinationEnabled(false);
 		wizard.setVisible(true);
 	}
+	
+	protected static Processor findProcessor(Dataflow df, Activity activity) {
+		for (Processor processor : df.getProcessors()) {
+			if (processor.getActivityList().contains(activity))
+				return processor;
+		}
+		return null;
+	}
+
+
 
 }
