@@ -54,6 +54,7 @@ import net.sf.taverna.t2.workbench.ui.Workbench;
 import org.apache.log4j.Logger;
 import org.purl.wf4ever.robundle.Bundle;
 
+import uk.org.taverna.databundle.DataBundles;
 import uk.org.taverna.platform.execution.api.ExecutionEnvironment;
 import uk.org.taverna.platform.execution.api.InvalidExecutionIdException;
 import uk.org.taverna.platform.execution.api.InvalidWorkflowException;
@@ -131,10 +132,11 @@ public class RunWorkflowAction extends AbstractAction {
 			// if (CheckWorkflowStatus.checkWorkflow(selectedProfile, workbench, editManager,
 			// fileManager,reportManager)) {
 			try {
+				final Bundle bundle = DataBundles.createBundle();
 				if (workflowBundle.getMainWorkflow().getInputPorts().isEmpty()) {
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
-							runWorkflow(workflowBundle, profile, executionEnvironment, null);
+							runWorkflow(workflowBundle, profile, executionEnvironment, bundle);
 						}
 					});
 				} else { // workflow had inputs - show the input dialog
