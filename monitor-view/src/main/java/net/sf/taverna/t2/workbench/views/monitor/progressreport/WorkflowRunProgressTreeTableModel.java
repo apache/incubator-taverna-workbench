@@ -22,7 +22,6 @@ package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
 //import static net.sf.taverna.t2.workbench.views.results.processor.ProcessorResultsComponent.formatMilliseconds;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -36,7 +35,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import net.sf.taverna.t2.lang.ui.treetable.AbstractTreeTableModel;
 import net.sf.taverna.t2.lang.ui.treetable.TreeTableModel;
-import uk.org.taverna.configuration.database.DatabaseConfiguration;
 import uk.org.taverna.platform.report.ActivityReport;
 import uk.org.taverna.platform.report.ProcessorReport;
 import uk.org.taverna.platform.report.WorkflowReport;
@@ -203,7 +201,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
     	}
 
     	// One row for each processor
-		List<ProcessorReport> processorsList = new ArrayList<ProcessorReport>(workflowReport.getChildReports());
+		List<ProcessorReport> processorsList = new ArrayList<ProcessorReport>(workflowReport.getProcessorReports());
 //		Collections.sort(processorsList, namedWorkflowEntitiyComparator);
 		for (ProcessorReport processorReport : processorsList){
 		    processors.add(processorReport);
@@ -326,12 +324,12 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
    			data.put(processorNode, processorData);
 			root.add(processorNode);
 
-			Set<ActivityReport> activityReports = processorReport.getChildReports();
+			Set<ActivityReport> activityReports = processorReport.getActivityReports();
 			if (activityReports.size() == 1) {
-				Set<WorkflowReport> workflowReports = activityReports.iterator().next().getChildReports();
-				if (workflowReports.size() == 1) {
+				WorkflowReport nestedWorkflowReport = activityReports.iterator().next().getNestedWorkflowReport();
+				if (nestedWorkflowReport != null) {
 					// create sub-tree
-					createTree(workflowReports.iterator().next(), processorNode);
+					createTree(nestedWorkflowReport, processorNode);
 				}
 			}
 		}

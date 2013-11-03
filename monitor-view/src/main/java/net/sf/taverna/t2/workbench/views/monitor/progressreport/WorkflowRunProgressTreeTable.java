@@ -1,34 +1,27 @@
 package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import net.sf.taverna.t2.lang.observer.MultiCaster;
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.treetable.JTreeTable;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
-import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
+import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.port.WorkflowPort;
+
 @SuppressWarnings("serial")
-public class WorkflowRunProgressTreeTable extends JTreeTable implements
-		Observable<WorkflowObjectSelectionMessage> {
+public class WorkflowRunProgressTreeTable extends JTreeTable {
 
 	private static Logger logger = Logger.getLogger(WorkflowRunProgressTreeTable.class);
 
 	private WorkflowRunProgressTreeTableModel treeTableModel;
-
-	// Multicaster used to notify all interested parties that a selection of
-	// row (and therefore a workflow object) has occurred on the table.
-	private MultiCaster<WorkflowObjectSelectionMessage> multiCaster = new MultiCaster<WorkflowObjectSelectionMessage>(
-			this);
 
 	// Index of the last selected row in the WorkflowRunProgressTreeTable.
 	// Need to keep track of it as selections on the table can occur from various
@@ -37,11 +30,14 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements
 
 	private Runnable refreshRunnable = null;
 
+	private final DataflowSelectionModel selectionModel;
+
 	public WorkflowRunProgressTreeTable(WorkflowRunProgressTreeTableModel treeTableModel,
-			ActivityIconManager activityIconManager) {
+			ActivityIconManager activityIconManager, DataflowSelectionModel selectionModel) {
 		super(treeTableModel);
 
 		this.treeTableModel = treeTableModel;
+		this.selectionModel = selectionModel;
 
 		final WorkflowRunProgressTreeTableModel model = treeTableModel;
 		this.tree.setCellRenderer(new WorkflowRunProgressTreeCellRenderer(activityIconManager));
@@ -86,20 +82,10 @@ public class WorkflowRunProgressTreeTable extends JTreeTable implements
 		}
 	}
 
-	public void addObserver(Observer<WorkflowObjectSelectionMessage> observer) {
-		multiCaster.addObserver(observer);
-	}
-
-	public void removeObserver(Observer<WorkflowObjectSelectionMessage> observer) {
-		multiCaster.removeObserver(observer);
-	}
-
 	public void triggerWorkflowObjectSelectionEvent(Object workflowObject) {
-		multiCaster.notify(new WorkflowObjectSelectionMessage(workflowObject));
-	}
-
-	public List<Observer<WorkflowObjectSelectionMessage>> getObservers() {
-		return multiCaster.getObservers();
+		if (workflowObject instanceof Processor || workflowObject instanceof WorkflowPort) {
+			selectionModel.addSelection(workflowObject);
+		}
 	}
 
 	public void setLastSelectedTableRow(int lastSelectedTableRow) {

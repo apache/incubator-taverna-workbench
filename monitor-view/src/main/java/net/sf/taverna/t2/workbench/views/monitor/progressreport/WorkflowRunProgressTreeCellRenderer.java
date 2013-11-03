@@ -69,7 +69,7 @@ public class WorkflowRunProgressTreeCellRenderer extends DefaultTreeCellRenderer
 			ProcessorReport processorReport = (ProcessorReport) userObject;
 			// Get the activity associated with the processor - currently only
 			// one gets displayed
-			Set<ActivityReport> activityReports = processorReport.getChildReports();
+			Set<ActivityReport> activityReports = processorReport.getActivityReports();
 			String text = processorReport.getSubject().getName();
 			if (!activityReports.isEmpty()) {
 				ActivityReport activityReport = activityReports.iterator().next();

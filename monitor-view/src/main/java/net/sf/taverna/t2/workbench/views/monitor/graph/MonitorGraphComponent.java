@@ -24,7 +24,6 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.Action;
@@ -36,9 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.lang.observer.MultiCaster;
 import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
@@ -46,6 +43,7 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
+import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowRunSelectionEvent;
@@ -55,7 +53,6 @@ import net.sf.taverna.t2.workbench.views.graph.AutoScrollInteractor;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomOutAction;
-import net.sf.taverna.t2.workbench.views.monitor.WorkflowObjectSelectionMessage;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.JSVGScrollPane;
@@ -75,15 +72,9 @@ import uk.org.taverna.scufl2.api.profiles.Profile;
  * click on processors to see the intermediate results for processors pulled from provenance.
  */
 @SuppressWarnings("serial")
-public class MonitorGraphComponent extends JPanel implements UIComponentSPI,
-		Observable<WorkflowObjectSelectionMessage>, Updatable {
+public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Updatable {
 
 	private static Logger logger = Logger.getLogger(MonitorGraphComponent.class);
-
-	// Multicaster used to notify all interested parties that a selection of
-	// a workflow object has occurred on the graph.
-	private MultiCaster<WorkflowObjectSelectionMessage> multiCaster = new MultiCaster<WorkflowObjectSelectionMessage>(
-			this);
 
 	private SVGGraphController graphController;
 	private JPanel diagramPanel;
@@ -211,9 +202,10 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI,
 
 			// create a graph controller
 			SVGGraphController svgGraphController = new SVGGraphController(workflow, profile,
-					false, svgCanvas, null, null, colourManager, workbenchConfiguration);
-			svgGraphController.setDataflowSelectionModel(selectionManager
-					.getWorkflowRunSelectionModel(workflowRun));
+					true, svgCanvas, null, null, colourManager, workbenchConfiguration);
+			DataflowSelectionModel selectionModel = selectionManager.getWorkflowRunSelectionModel(workflowRun);
+			svgGraphController.setDataflowSelectionModel(selectionModel);
+			svgGraphController.setGraphEventManager(new MonitorGraphEventManager(selectionModel));
 
 			graphControllerMap.put(workflowRun, svgGraphController);
 
@@ -343,31 +335,6 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI,
 		return graphController;
 	}
 
-	public void addObserver(Observer<WorkflowObjectSelectionMessage> observer) {
-		multiCaster.addObserver(observer);
-	}
-
-	public void removeObserver(Observer<WorkflowObjectSelectionMessage> observer) {
-		multiCaster.removeObserver(observer);
-	}
-
-	public void triggerWorkflowObjectSelectionEvent(Object workflowObject) {
-		multiCaster.notify(new WorkflowObjectSelectionMessage(workflowObject));
-	}
-
-	public List<Observer<WorkflowObjectSelectionMessage>> getObservers() {
-		return multiCaster.getObservers();
-	}
-
-	public void setSelectedGraphElementForWorkflowObject(Object workflowObject) {
-		// Clear previous selection
-		graphController.getDataflowSelectionModel().clearSelection();
-		// Only select processors, ignore links, ports etc.
-		if (workflowObject instanceof Processor || workflowObject instanceof WorkflowPort) {
-			graphController.getDataflowSelectionModel().addSelection(workflowObject);
-		}
-	}
-
 	private class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
 		@Override
 		public void notifySwing(Observable<SelectionManagerEvent> sender,
@@ -384,18 +351,20 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI,
 
 	private class MonitorGraphEventManager implements GraphEventManager {
 
-		/**
-		 * Retrieve the provenance for a workflow object
-		 */
+		private final DataflowSelectionModel selectionModel;
+
+		public MonitorGraphEventManager(DataflowSelectionModel selectionModel) {
+			this.selectionModel = selectionModel;
+		}
+
 		public void mouseClicked(final GraphElement graphElement, short button, boolean altKey,
 				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
 
-			Object dataflowObject = graphElement.getWorkflowBean();
+			Object workflowObject = graphElement.getWorkflowBean();
+			if (workflowObject instanceof Processor || workflowObject instanceof WorkflowPort) {
+				selectionModel.addSelection(workflowObject);
+			}
 
-			setSelectedGraphElementForWorkflowObject(dataflowObject);
-
-			// Notify anyone interested that a selection occurred on the graph
-			triggerWorkflowObjectSelectionEvent(dataflowObject);
 		}
 
 		public void mouseDown(GraphElement graphElement, short button, boolean altKey,

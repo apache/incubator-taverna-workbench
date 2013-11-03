@@ -62,8 +62,6 @@ public class GraphMonitor implements Updatable {
 
 	private GraphController graphController;
 
-	private Set<String> datalinks = Collections.synchronizedSet(new HashSet<String>());
-
 	private Set<GraphMonitorNode> processors = Collections
 			.synchronizedSet(new HashSet<GraphMonitorNode>());
 
@@ -77,10 +75,11 @@ public class GraphMonitor implements Updatable {
 	}
 
 	private void createMonitorNodes(WorkflowReport workflowReport) {
-		for (ProcessorReport processorReport : workflowReport.getChildReports()) {
+		for (ProcessorReport processorReport : workflowReport.getProcessorReports()) {
 			processors.add(new GraphMonitorNode(processorReport, graphController));
-			for (ActivityReport activityReport : processorReport.getChildReports()) {
-				for (WorkflowReport nestedWorkflowReport : activityReport.getChildReports()) {
+			for (ActivityReport activityReport : processorReport.getActivityReports()) {
+				WorkflowReport nestedWorkflowReport = activityReport.getNestedWorkflowReport();
+				if (nestedWorkflowReport != null) {
 					createMonitorNodes(nestedWorkflowReport);
 				}
 			}
@@ -126,7 +125,6 @@ public class GraphMonitor implements Updatable {
 			workflowRunStatusLabel.setIcon(WorkbenchIcons.workingIcon);
 		}
 	}
-
 
 	/**
 	 * Calculates the id that will identify the box on the diagram that
