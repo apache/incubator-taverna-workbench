@@ -151,10 +151,12 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	private final Scufl2Tools scufl2Tools = new Scufl2Tools();
 
+	private final Bundle bundle;
+
 	public WorkflowLaunchWindow(Workflow workflow, EditManager editManager,
 			FileManager fileManager, ReportManager reportManager, Workbench workbench,
 			List<ReferenceActionSPI> referenceActionSPIs,
-			DatabaseConfiguration databaseConfiguration) {
+			DatabaseConfiguration databaseConfiguration, Bundle bundle) {
 		super();
 
 		this.workflow = workflow;
@@ -164,6 +166,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		this.workbench = workbench;
 		this.referenceActionSPIs = referenceActionSPIs;
 		this.databaseConfiguration = databaseConfiguration;
+		this.bundle = bundle;
 
 		initComponents();
 
@@ -446,7 +449,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	}
 
 	private Bundle createInputDataBundle() throws IOException {
-		Path inputs = DataBundles.getInputs(inputDataBundle);
+		Path inputs = DataBundles.getInputs(bundle);
 		for (String input : inputPanelMap.keySet()) {
 			RegistrationPanel registrationPanel = inputPanelMap.get(input);
 			Object userInput = registrationPanel.getUserInput();
@@ -454,7 +457,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			Path port = DataBundles.getPort(inputs, input);
 			setValue(port, userInput);
 		}
-		return inputDataBundle;
+		return bundle;
 	}
 
 	private void setValue(Path port, Object userInput) throws IOException {

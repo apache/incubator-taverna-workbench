@@ -142,7 +142,7 @@ public class RunWorkflowAction extends AbstractAction {
 				} else { // workflow had inputs - show the input dialog
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
-							showInputDialog(workflowBundle, profile, executionEnvironment);
+							showInputDialog(workflowBundle, profile, executionEnvironment, bundle);
 						}
 					});
 				}
@@ -231,14 +231,14 @@ public class RunWorkflowAction extends AbstractAction {
 
 	@SuppressWarnings("serial")
 	private void showInputDialog(final WorkflowBundle workflowBundle, final Profile profile,
-			final ExecutionEnvironment executionEnvironment) {
+			final ExecutionEnvironment executionEnvironment, Bundle bundle) {
 		// Get the WorkflowLauchWindow
 		WorkflowLaunchWindow launchWindow = null;
 		synchronized (workflowLaunchWindowMap) {
 			WorkflowLaunchWindow savedLaunchWindow = workflowLaunchWindowMap.get(workflowBundle);
 			if (savedLaunchWindow == null) {
 				launchWindow = new WorkflowLaunchWindow(workflowBundle.getMainWorkflow(),
-						editManager, fileManager, reportManager, workbench, new ArrayList<ReferenceActionSPI>(), null) {
+						editManager, fileManager, reportManager, workbench, new ArrayList<ReferenceActionSPI>(), null, bundle) {
 
 					@Override
 					public void handleLaunch(Bundle workflowInputs) {
