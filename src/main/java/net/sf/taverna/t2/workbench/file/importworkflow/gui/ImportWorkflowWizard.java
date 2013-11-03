@@ -66,7 +66,6 @@ import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
 import uk.org.taverna.scufl2.api.iterationstrategy.CrossProduct;
 import uk.org.taverna.scufl2.api.port.InputActivityPort;
 import uk.org.taverna.scufl2.api.port.InputProcessorPort;
@@ -806,14 +805,12 @@ public class ImportWorkflowWizard extends HelpEnabledDialog {
 					seen.add(activity);
 				}
 			}
-			// add dispatch layer configurations  to the profile
-			for (DispatchStackLayer dispatchStackLayer : processor.getDispatchStack()) {
-				List<Configuration> configurations = scufl2Tools.configurationsFor(dispatchStackLayer, profile);
-				for (Configuration configuration : configurations) {
-					editList.add(new AddChildEdit<Profile>(destinationProfile, configuration));
-				}
-
+			// add processor configurations to the profile
+			List<Configuration> configurations = scufl2Tools.configurationsFor(processor, profile);
+			for (Configuration configuration : configurations) {
+				editList.add(new AddChildEdit<Profile>(destinationProfile, configuration));
 			}
+
 			for (Workflow workflow : scufl2Tools.nestedWorkflowsForProcessor(processor, profile)) {
 				if (!seen.contains(workflow)) {
 					// recursively add nested workflows
