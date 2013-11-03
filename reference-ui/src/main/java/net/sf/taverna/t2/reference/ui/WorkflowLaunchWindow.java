@@ -446,7 +446,6 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	}
 
 	private Bundle createInputDataBundle() throws IOException {
-		Bundle inputDataBundle = DataBundles.createBundle();
 		Path inputs = DataBundles.getInputs(inputDataBundle);
 		for (String input : inputPanelMap.keySet()) {
 			RegistrationPanel registrationPanel = inputPanelMap.get(input);
