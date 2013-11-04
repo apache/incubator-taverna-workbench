@@ -24,28 +24,36 @@ import java.awt.CardLayout;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.JPanel;
 
 import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.renderers.RendererRegistry;
+import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
+import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowRunSelectionEvent;
 import net.sf.taverna.t2.workbench.ui.Updatable;
-import net.sf.taverna.t2.workbench.views.results.processor.ProcessorResultsComponent;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
-import net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultsComponent;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.platform.report.ActivityReport;
+import uk.org.taverna.platform.report.ProcessorReport;
 import uk.org.taverna.platform.report.WorkflowReport;
 import uk.org.taverna.platform.run.api.InvalidRunIdException;
 import uk.org.taverna.platform.run.api.RunService;
+import uk.org.taverna.scufl2.api.core.Processor;
 
 /**
+ * Component for displaying the input and output values of workflow and processor invocations.
+ *
  * @author David Withers
  */
 @SuppressWarnings("serial")
@@ -61,15 +69,17 @@ public class ResultsComponent extends JPanel implements Updatable {
 
 	private CardLayout cardLayout = new CardLayout();
 
-	private WorkflowResultsComponent workflowResultsComponent;
+	private Updatable updatableComponent;
 
-	private Map<String, WorkflowResultsComponent> workflowResultsComponents = new HashMap<>();
-	private Map<String, ProcessorResultsComponent> processorResultsComponents = new HashMap<>();
+	private Map<String, ReportView> workflowResults = new HashMap<>();
+	private Map<String, Map<Processor, ReportView>> processorResults = new HashMap<>();
 
 	private SelectionManagerObserver selectionManagerObserver = new SelectionManagerObserver();
 
-	public ResultsComponent(RunService runService, SelectionManager selectionManager, RendererRegistry rendererRegistry,
-			List<SaveAllResultsSPI> saveAllResultsSPIs,
+	private String workflowRun;
+
+	public ResultsComponent(RunService runService, SelectionManager selectionManager,
+			RendererRegistry rendererRegistry, List<SaveAllResultsSPI> saveAllResultsSPIs,
 			List<SaveIndividualResultSPI> saveIndividualResultSPIs) {
 		this.runService = runService;
 		this.selectionManager = selectionManager;
@@ -89,34 +99,93 @@ public class ResultsComponent extends JPanel implements Updatable {
 
 	@Override
 	public void update() {
-		if (workflowResultsComponent != null) {
-			workflowResultsComponent.update();
+		if (updatableComponent != null) {
+			updatableComponent.update();
 		}
 	}
 
 	public void setWorkflowRun(String workflowRun) throws InvalidRunIdException {
 		if (workflowRun != null) {
-			if (!workflowResultsComponents.containsKey(workflowRun)) {
-				addWorkflowRun(workflowRun);
+			this.workflowRun = workflowRun;
+			DataflowSelectionModel selectionModel = selectionManager
+					.getWorkflowRunSelectionModel(workflowRun);
+			Set<Object> selectionSet = selectionModel.getSelection();
+			if (selectionSet.size() == 1) {
+				Object selection = selectionSet.iterator().next();
+				if (selection instanceof Processor) {
+					showProcessorResults((Processor) selection);
+				} else {
+					showWorkflowResults();
+				}
+			} else {
+				showWorkflowResults();
 			}
-			workflowResultsComponent = workflowResultsComponents.get(workflowRun);
-			cardLayout.show(this, workflowRun);
 		}
 	}
 
 	public void addWorkflowRun(String workflowRun) throws InvalidRunIdException {
 		WorkflowReport workflowReport = runService.getWorkflowReport(workflowRun);
-		WorkflowResultsComponent workflowResultsComponent = new WorkflowResultsComponent(workflowReport,
-				rendererRegistry, saveAllResultsSPIs, saveIndividualResultSPIs);
-		add(workflowResultsComponent, workflowRun);
-		workflowResultsComponents.put(workflowRun, workflowResultsComponent);
+		ReportView reportView = new ReportView(workflowReport, rendererRegistry,
+				saveAllResultsSPIs, saveIndividualResultSPIs);
+		add(reportView, workflowRun);
+		workflowResults.put(workflowRun, reportView);
+		DataflowSelectionModel selectionModel = selectionManager
+				.getWorkflowRunSelectionModel(workflowRun);
+		selectionModel.addObserver(new DataflowSelectionObserver());
 	}
 
 	public void removeWorkflowRun(String workflowRun) {
-		WorkflowResultsComponent removedWorkflowResultsComponent = workflowResultsComponents.remove(workflowRun);
-		if (removedWorkflowResultsComponent != null) {
-			remove(removedWorkflowResultsComponent);
+		ReportView removedWorkflowResults = workflowResults.remove(workflowRun);
+		if (removedWorkflowResults != null) {
+			remove(removedWorkflowResults);
 		}
+		Map<Processor, ReportView> removedProcessorResults = processorResults.remove(workflowRun);
+		if (removedProcessorResults != null) {
+			for (Entry<Processor, ReportView> entry : removedProcessorResults.entrySet()) {
+				remove(entry.getValue());
+			}
+		}
+	}
+
+	private void showWorkflowResults() throws InvalidRunIdException {
+		if (!workflowResults.containsKey(workflowRun)) {
+			addWorkflowRun(workflowRun);
+		}
+		updatableComponent = workflowResults.get(workflowRun);
+		cardLayout.show(this, workflowRun);
+		update();
+	}
+
+	private void showProcessorResults(Processor processor) throws InvalidRunIdException {
+		if (!processorResults.containsKey(workflowRun)) {
+			processorResults.put(workflowRun, new HashMap<Processor, ReportView>());
+		}
+		Map<Processor, ReportView> components = processorResults.get(workflowRun);
+		if (!components.containsKey(processor)) {
+			WorkflowReport workflowReport = runService.getWorkflowReport(workflowRun);
+			ProcessorReport processorReport = findProcessorReport(workflowReport, processor);
+			ReportView reportView = new ReportView(processorReport, rendererRegistry,
+					saveAllResultsSPIs, saveIndividualResultSPIs);
+			components.put(processor, reportView);
+			add(reportView, String.valueOf(reportView.hashCode()));
+		}
+		updatableComponent = components.get(processor);
+		cardLayout.show(this, String.valueOf(updatableComponent.hashCode()));
+	}
+
+	private ProcessorReport findProcessorReport(WorkflowReport workflowReport, Processor processor) {
+		for (ProcessorReport processorReport : workflowReport.getProcessorReports()) {
+			if (processorReport.getSubject().equals(processor)) {
+				return processorReport;
+			}
+			for (ActivityReport activityReport : processorReport.getActivityReports()) {
+				WorkflowReport nestedWorkflowReport = activityReport.getNestedWorkflowReport();
+				if (nestedWorkflowReport != null) {
+					return findProcessorReport(nestedWorkflowReport, processor);
+				}
+			}
+		}
+		return null;
 	}
 
 	private class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
@@ -128,6 +197,20 @@ public class ResultsComponent extends JPanel implements Updatable {
 					setWorkflowRun(((WorkflowRunSelectionEvent) message).getSelectedWorkflowRun());
 				} catch (InvalidRunIdException e) {
 					logger.warn("Invalid workflow run", e);
+				}
+			}
+		}
+	}
+
+	private final class DataflowSelectionObserver implements Observer<DataflowSelectionMessage> {
+		public void notify(Observable<DataflowSelectionMessage> sender,
+				DataflowSelectionMessage message) throws Exception {
+			if (message.getType() == DataflowSelectionMessage.Type.ADDED) {
+				Object element = message.getElement();
+				if (element instanceof Processor) {
+					showProcessorResults((Processor) element);
+				} else {
+					showWorkflowResults();
 				}
 			}
 		}

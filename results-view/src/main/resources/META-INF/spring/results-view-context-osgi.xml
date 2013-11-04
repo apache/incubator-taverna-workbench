@@ -6,10 +6,7 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<!-- <service ref="WorkflowResultsComponent" interface="net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI" /> -->
-
 	<service ref="SaveIndividualResult" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI" />
-
 	<service ref="SaveAllResultsAsXML" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
 	<service ref="SaveAllResultsAsExcel" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
 	<service ref="SaveAllResultsToFileSystem" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />

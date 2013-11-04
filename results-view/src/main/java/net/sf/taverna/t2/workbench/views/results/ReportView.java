@@ -18,10 +18,13 @@
  *  License along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  ******************************************************************************/
-package net.sf.taverna.t2.workbench.views.results.workflow;
+package net.sf.taverna.t2.workbench.views.results;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -29,25 +32,31 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.NavigableMap;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.renderers.RendererRegistry;
@@ -55,129 +64,161 @@ import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.Updatable;
-import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
-import net.sf.taverna.t2.workbench.views.results.InvocationView;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
-
-import org.apache.log4j.Logger;
-
-import uk.org.taverna.databundle.DataBundles;
+import uk.org.taverna.platform.report.Invocation;
+import uk.org.taverna.platform.report.StatusReport;
 import uk.org.taverna.platform.report.WorkflowReport;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.WorkflowPort;
+import uk.org.taverna.scufl2.api.port.Port;
 
 /**
- * This component contains a tabbed pane, where each tab displays results for one of the output
- * ports of a workflow, and a set of 'save results' buttons that save results from all ports in a
- * certain format.
+ * View showing the results of iterations from a workflow or processor report.
  *
  * @author David Withers
- * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, Updatable {
-
-	private static Logger logger = Logger.getLogger(WorkflowResultsComponent.class);
-
-	private InvocationView portValuesComponent;
-
-	private JPanel saveButtonsPanel;
-
-	// List of all existing 'save results' actions, each one can save results
-	// in a different format
-	private List<SaveAllResultsSPI> saveActions;
+public class ReportView extends JPanel implements Updatable {
 
 	private final RendererRegistry rendererRegistry;
 
+	private final List<SaveAllResultsSPI> saveActions;
+
 	private final List<SaveIndividualResultSPI> saveIndividualActions;
 
-	private final WorkflowReport workflowReport;
+	private int invocationCount = 0;
 
-	private final Workflow workflow;
+	private CardLayout cardLayout = new CardLayout();
 
-	private Path inputs, outputs;
+	private Map<Invocation, InvocationView> invocationComponents = new HashMap<>();
 
-	public WorkflowResultsComponent(WorkflowReport workflowReport,
-			RendererRegistry rendererRegistry, List<SaveAllResultsSPI> saveActions,
-			List<SaveIndividualResultSPI> saveIndividualActions) {
+	private JList<Invocation> invocationList;
+
+	private StatusReport<?, ?> report;
+
+	private Invocation selectedInvocation;
+
+	private JPanel invocationPanel;
+
+	public ReportView(StatusReport<?, ?> report, RendererRegistry rendererRegistry,
+			List<SaveAllResultsSPI> saveActions, List<SaveIndividualResultSPI> saveIndividualActions) {
 		super(new BorderLayout());
-		this.workflowReport = workflowReport;
+		this.report = report;
 		this.rendererRegistry = rendererRegistry;
 		this.saveActions = saveActions;
 		this.saveIndividualActions = saveIndividualActions;
-
-		workflow = workflowReport.getSubject();
-		try {
-			inputs = DataBundles.getInputs(workflowReport.getDataBundle());
-			outputs = DataBundles.getOutputs(workflowReport.getDataBundle());
-		} catch (IOException e) {
-			logger.warn("Error initializing workflow results", e);
-		}
 		init();
-
-	}
-
-	@Override
-	public ImageIcon getIcon() {
-		return null;
-	}
-
-	@Override
-	public String getName() {
-		return "Results View Component";
-	}
-
-	@Override
-	public void onDisplay() {
-	}
-
-	@Override
-	public void onDispose() {
 	}
 
 	private void init() {
-		saveButtonsPanel = new JPanel(new BorderLayout());
-		populateSaveButtonsPanel();
-		add(saveButtonsPanel, BorderLayout.NORTH);
+		removeAll();
 
-		portValuesComponent = new InvocationView(workflowReport.getInvocations().first(), rendererRegistry, saveIndividualActions);
-		add(portValuesComponent, BorderLayout.CENTER);
+		SortedSet<Invocation> invocations = report.getInvocations();
+		invocationCount = invocations.size();
+
+		if (invocationCount == 0) {
+			JLabel noDataMessage = new JLabel("No data available", JLabel.CENTER);
+			Font font = noDataMessage.getFont();
+			if (font != null) {
+				font = font.deriveFont(Math.round((font.getSize() * 1.5))).deriveFont(Font.BOLD);
+				noDataMessage.setFont(font);
+			}
+			add(noDataMessage, BorderLayout.CENTER);
+		} else {
+			JPanel saveButtonsPanel = new JPanel(new BorderLayout());
+			JButton saveButton;
+			if (report instanceof WorkflowReport) {
+				saveButton = new JButton(new SaveAllAction("Save all values", this));
+			} else {
+				saveButton = new JButton(new SaveAllAction("Save invocation values", this));
+			}
+			saveButtonsPanel.add(saveButton, BorderLayout.EAST);
+			add(saveButtonsPanel, BorderLayout.NORTH);
+
+			invocationPanel = new JPanel();
+			invocationPanel.setLayout(cardLayout);
+
+			if (invocationCount == 1) {
+				add(invocationPanel, BorderLayout.CENTER);
+			} else {
+				invocationList = new JList<Invocation>(invocations.toArray(new Invocation[invocationCount]));
+				invocationList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+				invocationList.addListSelectionListener(new ListSelectionListener() {
+					@Override
+					public void valueChanged(ListSelectionEvent e) {
+						if (!e.getValueIsAdjusting()) {
+							Invocation invocation = invocationList.getSelectedValue();
+							showInvocation(invocation);
+						}
+					}
+				});
+
+				JScrollPane jScrollPane = new JScrollPane(invocationList,
+						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				jScrollPane.setMinimumSize(new Dimension(100, 0));
+
+				JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+				splitPane.setLeftComponent(jScrollPane);
+				splitPane.setRightComponent(invocationPanel);
+
+				add(splitPane, BorderLayout.CENTER);
+			}
+			showInvocation(invocations.first());
+		}
 	}
 
-	private void populateSaveButtonsPanel() {
-		JButton saveButton = new JButton(new SaveAllAction("Save all values", this));
-		saveButtonsPanel.add(saveButton, BorderLayout.EAST);
-	}
-
-	public void selectWorkflowPortTab(WorkflowPort port) {
-		portValuesComponent.selectPortTab(port);
+	public void selectPort(Port port) {
+		invocationComponents.get(selectedInvocation).selectPortTab(port);
 	}
 
 	public void update() {
-		portValuesComponent.update();
+		SortedSet<Invocation> invocations = report.getInvocations();
+		if (invocationCount < 2) {
+			if (invocations.size() != invocationCount) {
+				init();
+			} else if (invocationCount == 1) {
+				invocationComponents.get(selectedInvocation).update();
+			}
+		} else {
+			if (invocations.size() != invocationCount) {
+				// update invocations list
+				invocationCount = invocations.size();
+				int selectedIndex = invocationList.getSelectedIndex();
+				invocationList.setListData(invocations.toArray(new Invocation[invocationCount]));
+				invocationList.setSelectedIndex(selectedIndex);
+			}
+			invocationComponents.get(selectedInvocation).update();
+		}
+	}
+
+	private void showInvocation(Invocation invocation) {
+		if (!invocationComponents.containsKey(invocation)) {
+			InvocationView invocationView = new InvocationView(invocation, rendererRegistry,
+					saveIndividualActions);
+			invocationComponents.put(invocation, invocationView);
+			invocationPanel.add(invocationView, invocation.getContextId());
+		}
+		cardLayout.show(invocationPanel, invocation.getContextId());
+		selectedInvocation = invocation;
 	}
 
 	private class SaveAllAction extends AbstractAction {
 
-		public SaveAllAction(String name, WorkflowResultsComponent resultViewComponent) {
+		public SaveAllAction(String name, ReportView resultViewComponent) {
 			super(name);
 			putValue(SMALL_ICON, WorkbenchIcons.saveAllIcon);
 		}
 
 		public void actionPerformed(ActionEvent e) {
 
-			String title = "Workflow run data saver";
+			String title = "Data saver";
 
 			final JDialog dialog = new HelpEnabledDialog(MainWindow.getMainWindow(), title, true);
 			dialog.setResizable(false);
 			dialog.setLocationRelativeTo(MainWindow.getMainWindow());
 			JPanel panel = new JPanel(new BorderLayout());
 			DialogTextArea explanation = new DialogTextArea();
-			explanation
-					.setText("Select the workflow input and output ports to save the associated data");
+			explanation.setText("Select the input and output ports to save the associated data");
 			explanation.setColumns(40);
 			explanation.setEditable(false);
 			explanation.setOpaque(false);
@@ -219,21 +260,13 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				}
 
 			};
-			NavigableMap<String, Path> inputPorts = new TreeMap<>();
-			try {
-				inputPorts = DataBundles.getPorts(inputs);
-			} catch (IOException e1) {
-				logger.info("No input ports for worklow " + workflow.getName(), e1);
-			}
-			NavigableMap<String, Path> outputPorts = new TreeMap<>();
-			try {
-				outputPorts = DataBundles.getPorts(outputs);
-			} catch (IOException e1) {
-				logger.info("No output ports for worklow " + workflow.getName(), e1);
-			}
+
+			SortedMap<String, Path> inputPorts = selectedInvocation.getInputs();
+			SortedMap<String, Path> outputPorts = selectedInvocation.getOutputs();
+
 			JPanel portsPanel = new JPanel();
 			portsPanel.setLayout(new GridBagLayout());
-			if (!workflow.getInputPorts().isEmpty()) {
+			if (!inputPorts.isEmpty()) {
 				GridBagConstraints gbc = new GridBagConstraints();
 				gbc.gridx = 0;
 				gbc.gridy = 0;
@@ -245,9 +278,9 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				portsPanel.add(new JLabel("Workflow inputs:"), gbc);
 
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
-				for (InputWorkflowPort port : workflowReport.getSubject().getInputPorts()) {
-					String portName = port.getName();
-					Path value = inputPorts.get(portName);
+				for (Entry<String, Path> entry : inputPorts.entrySet()) {
+					String portName = entry.getKey();
+					Path value = entry.getValue();
 					if (value != null) {
 						JCheckBox checkBox = new JCheckBox(portName);
 						checkBox.setSelected(!outputPorts.containsKey(portName));
@@ -269,7 +302,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				gbc.insets = new Insets(5, 10, 5, 10);
 				portsPanel.add(new JLabel(""), gbc); // empty space
 			}
-			if (!workflow.getOutputPorts().isEmpty()) {
+			if (!outputPorts.isEmpty()) {
 				GridBagConstraints gbc = new GridBagConstraints();
 				gbc.gridx = 1;
 				gbc.gridy = 0;
@@ -280,9 +313,9 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				gbc.insets = new Insets(5, 10, 5, 10);
 				portsPanel.add(new JLabel("Workflow outputs:"), gbc);
 				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
-				for (OutputWorkflowPort port : workflowReport.getSubject().getOutputPorts()) {
-					String portName = port.getName();
-					Path value = outputPorts.get(portName);
+				for (Entry<String, Path> entry : outputPorts.entrySet()) {
+					String portName = entry.getKey();
+					Path value = entry.getValue();
 					if (value != null) {
 						JCheckBox checkBox = new JCheckBox(portName);
 						checkBox.setSelected(true);

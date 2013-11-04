@@ -59,6 +59,10 @@ public class DataBundleTreeModel extends DefaultTreeModel implements Updatable {
 		path = root;
 	}
 
+	public void setPath(Path path) {
+		this.path = path;
+	}
+
 	private static DefaultMutableTreeNode createTree(Path path) {
 		DefaultMutableTreeNode node;
 		if (path == null || DataBundles.isMissing(path)) {
@@ -84,7 +88,7 @@ public class DataBundleTreeModel extends DefaultTreeModel implements Updatable {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				DefaultMutableTreeNode oldNode = (DefaultMutableTreeNode) root;
-				if (oldNode.getUserObject() == null && DataBundles.isMissing(path)) {
+				if (oldNode.getUserObject() == null && (path == null || DataBundles.isMissing(path))) {
 					return;
 				}
 				compare(oldNode, createTree(path));
