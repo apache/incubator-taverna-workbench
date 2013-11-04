@@ -30,8 +30,6 @@ import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.dispatchstack.DispatchStack;
-import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
 
 public class RetryConfigureMenuAction extends AbstractContextualMenuAction {
 
@@ -56,20 +54,10 @@ public class RetryConfigureMenuAction extends AbstractContextualMenuAction {
 	protected Action createAction() {
 		return new AbstractAction("Retries...") {
 			public void actionPerformed(ActionEvent e) {
-				DispatchStackLayer retryLayer = null;
 				Processor processor = (Processor) getContextualSelection().getSelection();
-				DispatchStack dispatchStack = processor.getDispatchStack();
-				for (DispatchStackLayer dl : dispatchStack) {
-					if (TYPE.equals(dl.getType())) {
-						retryLayer = dl;
-						break;
-					}
-				}
-				if (retryLayer != null) {
-					RetryConfigureAction retryConfigureAction = new RetryConfigureAction(null,
-							null, retryLayer, editManager, selectionManager);
-					retryConfigureAction.actionPerformed(e);
-				}
+				RetryConfigureAction retryConfigureAction = new RetryConfigureAction(null,
+						null, processor, editManager, selectionManager);
+				retryConfigureAction.actionPerformed(e);
 			}
 		};
 	}

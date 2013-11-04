@@ -30,8 +30,6 @@ import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.dispatchstack.DispatchStack;
-import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
 
 public class ParallelizeConfigureMenuAction extends AbstractContextualMenuAction {
 
@@ -56,20 +54,10 @@ public class ParallelizeConfigureMenuAction extends AbstractContextualMenuAction
 	protected Action createAction() {
 		return new AbstractAction("Parallel jobs...") {
 			public void actionPerformed(ActionEvent e) {
-				DispatchStackLayer parallelizeLayer = null;
 				Processor processor = (Processor) getContextualSelection().getSelection();
-				DispatchStack dispatchStack = processor.getDispatchStack();
-				for (DispatchStackLayer dl : dispatchStack) {
-					if (TYPE.equals(dl.getType())) {
-						parallelizeLayer = dl;
-						break;
-					}
-				}
-				if (parallelizeLayer != null) {
-					ParallelizeConfigureAction parallelizeConfigureAction = new ParallelizeConfigureAction(
-							null, null, parallelizeLayer, editManager, selectionManager);
-					parallelizeConfigureAction.actionPerformed(e);
-				}
+				ParallelizeConfigureAction parallelizeConfigureAction = new ParallelizeConfigureAction(
+						null, null, processor, editManager, selectionManager);
+				parallelizeConfigureAction.actionPerformed(e);
 			}
 		};
 	}

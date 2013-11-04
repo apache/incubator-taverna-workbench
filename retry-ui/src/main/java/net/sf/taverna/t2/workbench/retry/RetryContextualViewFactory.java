@@ -28,9 +28,9 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
+import uk.org.taverna.scufl2.api.core.Processor;
 
-public class RetryContextualViewFactory implements ContextualViewFactory<DispatchStackLayer> {
+public class RetryContextualViewFactory implements ContextualViewFactory<Processor> {
 
 	public static URI TYPE = URI.create("http://ns.taverna.org.uk/2010/scufl2/taverna/dispatchlayer/Retry");
 
@@ -38,10 +38,10 @@ public class RetryContextualViewFactory implements ContextualViewFactory<Dispatc
 	private SelectionManager selectionManager;
 
 	public boolean canHandle(Object selection) {
-		return selection instanceof DispatchStackLayer && ((DispatchStackLayer) selection).getType().equals(TYPE);
+		return selection instanceof Processor;
 	}
 
-	public List<ContextualView> getViews(DispatchStackLayer selection) {
+	public List<ContextualView> getViews(Processor selection) {
 		return Arrays.asList(new ContextualView[] { new RetryContextualView(selection, editManager,
 				selectionManager) });
 	}

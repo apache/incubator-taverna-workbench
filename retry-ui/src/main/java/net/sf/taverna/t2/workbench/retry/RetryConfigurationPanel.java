@@ -33,7 +33,11 @@ public class RetryConfigurationPanel extends JPanel {
 	private JTextField backoffFactorField = new JTextField();
 
 	public RetryConfigurationPanel(Configuration configuration) {
-		this.json = configuration.getJson().deepCopy();
+		if (configuration.getJson().has("retry")) {
+			json = (ObjectNode) configuration.getJson().get("retry").deepCopy();
+		} else {
+			json = configuration.getJsonAsObjectNode().objectNode();
+		}
 		this.setLayout(new GridLayout(4,2));
 		this.setBorder(new EmptyBorder(10,10,10,10));
 		populate();

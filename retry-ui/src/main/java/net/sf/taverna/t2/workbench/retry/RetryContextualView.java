@@ -28,13 +28,15 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
-import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
+import uk.org.taverna.scufl2.api.core.Processor;
 
 /**
  * View of a processor, including it's iteration stack, activities, etc.
@@ -45,7 +47,7 @@ import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
 @SuppressWarnings("serial")
 public class RetryContextualView extends ContextualView {
 
-	private final DispatchStackLayer retryLayer;
+	private final Processor processor;
 
 	private final EditManager editManager;
 
@@ -55,9 +57,9 @@ public class RetryContextualView extends ContextualView {
 
 	private JPanel panel;
 
-	public RetryContextualView(DispatchStackLayer retryLayer, EditManager editManager, SelectionManager selectionManager) {
+	public RetryContextualView(Processor processor, EditManager editManager, SelectionManager selectionManager) {
 		super();
-		this.retryLayer = retryLayer;
+		this.processor = processor;
 		this.editManager = editManager;
 		this.selectionManager = selectionManager;
 		initialise();
@@ -83,28 +85,30 @@ public class RetryContextualView extends ContextualView {
 		JTextArea textArea = new ReadOnlyTextArea();
 		textArea.setEditable(false);
 		String text = "";
-		Configuration config = scufl2Tools.configurationFor(retryLayer, selectionManager.getSelectedProfile());
 		int maxRetries = RetryConfigurationPanel.DEFAULT_RETRIES;
 		int initialDelay = RetryConfigurationPanel.DEFAULT_INITIAL_DELAY;
 		int maxDelay = RetryConfigurationPanel.DEFAULT_MAX_DELAY;
 		double backoffFactor = RetryConfigurationPanel.DEFAULT_BACKOFF;
 
-		if (config.getJson().has("maxRetries")) {
-			maxRetries = config.getJson().get("maxRetries").asInt();
-		}
-		if (config.getJson().has("initialDelay")) {
-			initialDelay = config.getJson().get("initialDelay").asInt();
-		}
-		if (config.getJson().has("maxDelay")) {
-			maxDelay = config.getJson().get("maxDelay").asInt();
-		}
-		if (config.getJson().has("backoffFactor")) {
-			backoffFactor = config.getJson().get("backoffFactor").asDouble();;
+		for (Configuration configuration : scufl2Tools.configurationsFor(processor, selectionManager.getSelectedProfile())) {
+			JsonNode processorConfig = configuration.getJson();
+			if (processorConfig.has("retry")) {
+				JsonNode retryConfig = processorConfig.get("retry");
+				if (retryConfig.has("maxRetries")) {
+					maxRetries = retryConfig.get("maxRetries").asInt();
+				}
+				if (retryConfig.has("initialDelay")) {
+					initialDelay = retryConfig.get("initialDelay").asInt();
+				}
+				if (retryConfig.has("maxDelay")) {
+					maxDelay = retryConfig.get("maxDelay").asInt();
+				}
+				if (retryConfig.has("backoffFactor")) {
+					backoffFactor = retryConfig.get("backoffFactor").asDouble();;
+				}
+			}
 		}
 
-		if (config.getJson().has("maxRetries")) {
-			maxRetries = config.getJson().get("maxRetries").asInt();
-		}
 		if (maxRetries < 1) {
 			text += "The service is not re-tried";
 		} else if (maxRetries == 1) {
@@ -137,7 +141,7 @@ public class RetryContextualView extends ContextualView {
 
 	@Override
 	public String getViewTitle() {
-		return "Retry of " + retryLayer.getParent().getParent().getName();
+		return "Retries";
 	}
 
 	protected JPanel createPanel() {
@@ -155,7 +159,7 @@ public class RetryContextualView extends ContextualView {
 
 	@Override
 	public Action getConfigureAction(Frame owner) {
-		return new RetryConfigureAction(owner, this, this.retryLayer, editManager, selectionManager);
+		return new RetryConfigureAction(owner, this, processor, editManager, selectionManager);
 	}
 
 }

@@ -22,6 +22,7 @@ package net.sf.taverna.t2.workbench.parallelize;
 
 import java.awt.BorderLayout;
 import java.awt.Frame;
+import java.util.List;
 
 import javax.swing.Action;
 import javax.swing.JComponent;
@@ -34,7 +35,9 @@ import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
-import uk.org.taverna.scufl2.api.dispatchstack.DispatchStackLayer;
+import uk.org.taverna.scufl2.api.core.Processor;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * View of a processor, including it's iteration stack, activities, etc.
@@ -47,7 +50,7 @@ public class ParallelizeContextualView extends ContextualView {
 
 	private final Scufl2Tools scufl2Tools = new Scufl2Tools();
 
-	private DispatchStackLayer parallelizeLayer;
+	private Processor processor;
 
 	private JPanel panel;
 
@@ -55,9 +58,9 @@ public class ParallelizeContextualView extends ContextualView {
 
 	private final SelectionManager selectionManager;
 
-	public ParallelizeContextualView(DispatchStackLayer parallelizeLayer, EditManager editManager, SelectionManager selectionManager) {
+	public ParallelizeContextualView(Processor processor, EditManager editManager, SelectionManager selectionManager) {
 		super();
-		this.parallelizeLayer = parallelizeLayer;
+		this.processor = processor;
 		this.editManager = editManager;
 		this.selectionManager = selectionManager;
 		initialise();
@@ -79,9 +82,14 @@ public class ParallelizeContextualView extends ContextualView {
 		JTextArea textArea = new ReadOnlyTextArea();
 		textArea.setEditable(false);
 		String maxJobs = "1";
-		Configuration config = scufl2Tools.configurationFor(parallelizeLayer, selectionManager.getSelectedProfile());
-		if (config.getJson().has("maximumJobs")) {
-			maxJobs = config.getJson().get("maximumJobs").asText();
+		for (Configuration configuration : scufl2Tools.configurationsFor(processor, selectionManager.getSelectedProfile())) {
+			JsonNode processorConfig = configuration.getJson();
+			if (processorConfig.has("parallelize")) {
+				JsonNode parallelizeConfig = processorConfig.get("parallelize");
+				if (parallelizeConfig.has("maximumJobs")) {
+					maxJobs = parallelizeConfig.get("maximumJobs").asText();
+				}
+			}
 		}
 		textArea.setText("The maximum number of jobs is " + maxJobs);
 		textArea.setBackground(panel.getBackground());
@@ -97,7 +105,7 @@ public class ParallelizeContextualView extends ContextualView {
 
 	@Override
 	public String getViewTitle() {
-	    return "Parallelize of " + parallelizeLayer.getParent().getParent().getName();
+	    return "Parallel jobs";
 	}
 
 	protected JPanel createPanel() {
@@ -115,7 +123,7 @@ public class ParallelizeContextualView extends ContextualView {
 
 	@Override
 	public Action getConfigureAction(Frame owner) {
-		return new ParallelizeConfigureAction(owner, this, this.parallelizeLayer, editManager, selectionManager);
+		return new ParallelizeConfigureAction(owner, this, processor, editManager, selectionManager);
 	}
 
 

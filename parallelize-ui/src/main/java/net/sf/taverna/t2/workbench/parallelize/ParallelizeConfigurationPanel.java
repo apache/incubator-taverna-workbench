@@ -18,12 +18,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 @SuppressWarnings("serial")
 public class ParallelizeConfigurationPanel extends JPanel {
 
-	private final ObjectNode json;
+	private ObjectNode json;
 	private JTextField maxJobsField = new JTextField(10);
 	private final String processorName;
 
 	public ParallelizeConfigurationPanel(Configuration configuration, String processorName) {
-		this.json = configuration.getJson().deepCopy();
+		if (configuration.getJson().has("parallelize")) {
+			json = (ObjectNode) configuration.getJson().get("parallelize").deepCopy();
+		} else {
+			json = configuration.getJsonAsObjectNode().objectNode();
+		}
 		this.processorName = processorName;
 		this.setLayout(new GridBagLayout());
 		this.setBorder(new EmptyBorder(10,10,10,10));
