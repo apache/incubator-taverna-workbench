@@ -6,15 +6,10 @@
                       http://www.springframework.org/schema/osgi
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
-	<service ref="ProcessorDispatchStackContextualViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 	<service ref="ProcessorPredictedBehaviorContextualViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 	<service ref="ProcessorActivitiesContextualViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 
-	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
-	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
 	<reference id="contextualViewFactoryRegistry" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry" />
 	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
-
-	<list id="addLayerFactories" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI" cardinality="0..N"/>
 
 </beans:beans>

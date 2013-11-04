@@ -3,11 +3,6 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
                       http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="ProcessorDispatchStackContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorDispatchStackContextualViewFactory">
-			<property name="editManager" ref="editManager" />
-			<property name="contextualViewFactoryRegistry" ref="contextualViewFactoryRegistry" />
-			<property name="addLayerFactories" ref="addLayerFactories" />
-	</bean>
 	<bean id="ProcessorPredictedBehaviorContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorPredictedBehaviorContextualViewFactory" />
 	<bean id="ProcessorActivitiesContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorActivitiesContextualViewFactory">
 			<property name="contextualViewFactoryRegistry" ref="contextualViewFactoryRegistry" />
