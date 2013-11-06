@@ -125,7 +125,7 @@ public abstract class WorkflowView extends JPanel implements UIComponentSPI{
 		try {
 			activity = (Activity) sd.getActivityClass().newInstance();
 			String name = sd.getName()
-			.replace(' ', '_');
+			.replaceAll("[\\W]", "_");
 	name = Tools.uniqueProcessorName(name, currentDataflow);
 		List<Edit<?>> editList = new ArrayList<Edit<?>>();
 		editList.add(edits.getConfigureActivityEdit(activity, bean));
