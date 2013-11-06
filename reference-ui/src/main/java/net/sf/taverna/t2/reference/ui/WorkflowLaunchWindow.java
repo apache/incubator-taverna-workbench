@@ -281,7 +281,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 						return;
 					}
 				}			
-				setState(Frame.ICONIFIED);
+				setVisible(false);
 				
 				// Make a copy of the workflow to run so user can still
 				// modify the original workflow
