@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
 import java.awt.BorderLayout;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -31,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -52,7 +54,6 @@ import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import edu.stanford.ejalbert.BrowserLauncher;
 
 /**
  * Dialog that warns user that they need to install unlimited cryptography strength policy for Java.
@@ -109,8 +110,8 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 			    if (type == HyperlinkEvent.EventType.ACTIVATED) {
 					// Open a Web browser
 					try{
-						BrowserLauncher launcher = new BrowserLauncher();
-						launcher.openURLinBrowser(he.getURL().toString());
+						Desktop.getDesktop().browse(he.getURL().toURI());
+
 					}catch(Exception ex){
 						logger.error("User registration: Failed to launch browser to show terms and conditions at " + he.getURL().toString());
 					}
