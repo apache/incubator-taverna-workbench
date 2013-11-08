@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results;
 
+import java.awt.Component;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,8 @@ import net.sf.taverna.t2.workbench.ui.Updatable;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
 import net.sf.taverna.t2.workbench.views.results.workflow.PortResultsViewTab;
 import uk.org.taverna.platform.report.Invocation;
+import uk.org.taverna.platform.report.StatusReport;
+import uk.org.taverna.scufl2.api.common.Ported;
 import uk.org.taverna.scufl2.api.port.InputPort;
 import uk.org.taverna.scufl2.api.port.Port;
 
@@ -66,14 +69,15 @@ public class InvocationView extends JTabbedPane implements Updatable {
 	public void init() {
 		SortedMap<String, Path> inputs = invocation.getInputs();
 		SortedMap<String, Path> outputs = invocation.getOutputs();
+		Ported ported = invocation.getReport().getSubject();
 
 		// Input ports
-		for (Entry<String, Path> entry : inputs.entrySet()) {
-			String name = entry.getKey();
-			Path value = entry.getValue();
+		for (Port port : ported.getInputPorts()) {
+			String name = port.getName();
+			Path value = inputs.get(name);
 			// Create a tab containing a tree view of per-port results and a rendering
 			// component for displaying individual results
-			PortResultsViewTab resultTab = new PortResultsViewTab(name, value, rendererRegistry, saveIndividualActions);
+			PortResultsViewTab resultTab = new PortResultsViewTab(port, value, rendererRegistry, saveIndividualActions);
 
 			inputPortTabMap.put(name, resultTab);
 
@@ -81,13 +85,12 @@ public class InvocationView extends JTabbedPane implements Updatable {
 		}
 
 		// Output ports
-		for (Entry<String, Path> entry : outputs.entrySet()) {
-			String name = entry.getKey();
-			Path value = entry.getValue();
-
+		for (Port port : ported.getOutputPorts()) {
+			String name = port.getName();
+			Path value = outputs.get(name);
 			// Create a tab containing a tree view of per-port results and a rendering
 			// component for displaying individual results
-			PortResultsViewTab resultTab = new PortResultsViewTab(name, value, rendererRegistry, saveIndividualActions);
+			PortResultsViewTab resultTab = new PortResultsViewTab(port, value, rendererRegistry, saveIndividualActions);
 			outputPortTabMap.put(name, resultTab);
 
 			addTab(name, WorkbenchIcons.outputIcon, resultTab, "Output port " + name);
@@ -112,6 +115,15 @@ public class InvocationView extends JTabbedPane implements Updatable {
 		if (tab != null) {
 			setSelectedComponent(tab);
 		}
+	}
+
+	public Port getSelectedPort() {
+		Component selectedComponent = getSelectedComponent();
+		if (selectedComponent instanceof PortResultsViewTab) {
+			PortResultsViewTab portView = (PortResultsViewTab) selectedComponent;
+			return portView.getPort();
+		}
+		return null;
 	}
 
 	public void update() {

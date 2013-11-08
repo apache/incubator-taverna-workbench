@@ -104,6 +104,8 @@ public class ReportView extends JPanel implements Updatable {
 
 	private JButton saveButton;
 
+	private Port selectedPort;
+
 	public ReportView(StatusReport<?, ?> report, RendererRegistry rendererRegistry,
 			List<SaveAllResultsSPI> saveActions, List<SaveIndividualResultSPI> saveIndividualActions) {
 		super(new BorderLayout());
@@ -229,12 +231,19 @@ public class ReportView extends JPanel implements Updatable {
 	}
 
 	private void showInvocation(Invocation invocation) {
+		if (selectedInvocation != null) {
+			InvocationView invocationView = invocationComponents.get(selectedInvocation);
+			selectedPort = invocationView.getSelectedPort();
+		}
 		if (invocation != null) {
 			if (!invocationComponents.containsKey(invocation)) {
 				InvocationView invocationView = new InvocationView(invocation, rendererRegistry,
 						saveIndividualActions);
 				invocationComponents.put(invocation, invocationView);
 				invocationPanel.add(invocationView, invocation.getId());
+			}
+			if (selectedPort != null) {
+				invocationComponents.get(invocation).selectPortTab(selectedPort);
 			}
 			cardLayout.show(invocationPanel, invocation.getId());
 			saveButton.setEnabled(true);

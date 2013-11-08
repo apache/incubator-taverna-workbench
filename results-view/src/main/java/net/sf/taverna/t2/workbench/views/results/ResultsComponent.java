@@ -50,6 +50,7 @@ import uk.org.taverna.platform.report.WorkflowReport;
 import uk.org.taverna.platform.run.api.InvalidRunIdException;
 import uk.org.taverna.platform.run.api.RunService;
 import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.port.Port;
 
 /**
  * Component for displaying the input and output values of workflow and processor invocations.
@@ -212,6 +213,13 @@ public class ResultsComponent extends JPanel implements Updatable {
 					showProcessorResults((Processor) element);
 				} else {
 					showWorkflowResults();
+					if (element instanceof Port) {
+						Port port = (Port) element;
+						if (updatableComponent instanceof ReportView) {
+							ReportView reportView = (ReportView) updatableComponent;
+							reportView.selectPort(port);
+						}
+					}
 				}
 			}
 		}

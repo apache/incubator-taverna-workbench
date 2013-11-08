@@ -48,6 +48,7 @@ import net.sf.taverna.t2.workbench.ui.Updatable;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
 import net.sf.taverna.t2.workbench.views.results.workflow.FilteredDataBundleTreeModel.FilterType;
 import uk.org.taverna.databundle.DataBundles;
+import uk.org.taverna.scufl2.api.port.Port;
 
 /**
  * A tab containing result tree for an output port and a panel with rendered result
@@ -78,14 +79,14 @@ public class PortResultsViewTab extends JPanel implements Updatable {
 
 	private final List<SaveIndividualResultSPI> saveActions;
 
-	private final String name;
+	private final Port port;
 
 	private Path value;
 
-	public PortResultsViewTab(String name, Path value, RendererRegistry rendererRegistry,
+	public PortResultsViewTab(Port port, Path value, RendererRegistry rendererRegistry,
 			List<SaveIndividualResultSPI> saveActions) {
 		super(new BorderLayout());
-		this.name = name;
+		this.port = port;
 		this.value = value;
 		this.rendererRegistry = rendererRegistry;
 		this.saveActions = saveActions;
@@ -222,8 +223,8 @@ public class PortResultsViewTab extends JPanel implements Updatable {
 		}
 	}
 
-	public String getName() {
-		return name;
+	public Port getPort() {
+		return port;
 	}
 
 	public FilteredDataBundleTreeModel getModel() {
