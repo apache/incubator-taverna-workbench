@@ -204,11 +204,6 @@ public class PortResultsViewTab extends JPanel implements Updatable {
 
 	}
 
-	public void setPath(Path value) {
-		this.value = value;
-		update();
-	}
-
 	public void update() {
 		if (value == null || DataBundles.isMissing(value)) {
 			if (state != State.NO_DATA) {
@@ -223,8 +218,6 @@ public class PortResultsViewTab extends JPanel implements Updatable {
 		} else {
 			if (state != State.SINGLE_VALUE) {
 				initComponents();
-			} else {
-				renderedResultComponent.setPath(value);
 			}
 		}
 	}

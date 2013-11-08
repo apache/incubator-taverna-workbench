@@ -171,6 +171,7 @@ public class ResultsComponent extends JPanel implements Updatable {
 		}
 		updatableComponent = components.get(processor);
 		cardLayout.show(this, String.valueOf(updatableComponent.hashCode()));
+		update();
 	}
 
 	private ProcessorReport findProcessorReport(WorkflowReport workflowReport, Processor processor) {

@@ -100,7 +100,6 @@ public class InvocationView extends JTabbedPane implements Updatable {
 		}
 
 		revalidate();
-
 	}
 
 	public void selectPortTab(Port port) {

@@ -22,6 +22,7 @@ package net.sf.taverna.t2.workbench.views.results;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -49,14 +50,16 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.ListSelectionModel;
+import javax.swing.JTree;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.renderers.RendererRegistry;
@@ -91,13 +94,15 @@ public class ReportView extends JPanel implements Updatable {
 
 	private Map<Invocation, InvocationView> invocationComponents = new HashMap<>();
 
-	private JList<Invocation> invocationList;
+	private InvocationTreeModel invocationTreeModel;
 
 	private StatusReport<?, ?> report;
 
 	private Invocation selectedInvocation;
 
 	private JPanel invocationPanel;
+
+	private JButton saveButton;
 
 	public ReportView(StatusReport<?, ?> report, RendererRegistry rendererRegistry,
 			List<SaveAllResultsSPI> saveActions, List<SaveIndividualResultSPI> saveIndividualActions) {
@@ -125,7 +130,6 @@ public class ReportView extends JPanel implements Updatable {
 			add(noDataMessage, BorderLayout.CENTER);
 		} else {
 			JPanel saveButtonsPanel = new JPanel(new BorderLayout());
-			JButton saveButton;
 			if (report instanceof WorkflowReport) {
 				saveButton = new JButton(new SaveAllAction("Save all values", this));
 			} else {
@@ -136,39 +140,67 @@ public class ReportView extends JPanel implements Updatable {
 
 			invocationPanel = new JPanel();
 			invocationPanel.setLayout(cardLayout);
+			invocationPanel.add(new JPanel(), "BLANK");
 
 			if (invocationCount == 1) {
 				add(invocationPanel, BorderLayout.CENTER);
+				showInvocation(invocations.first());
 			} else {
-				invocationList = new JList<Invocation>(invocations.toArray(new Invocation[invocationCount]));
-				invocationList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-				invocationList.addListSelectionListener(new ListSelectionListener() {
+				invocationTreeModel = new InvocationTreeModel(report);
+				JTree invocationTree = new JTree(invocationTreeModel);
+				invocationTree.setExpandsSelectedPaths(true);
+				invocationTree.setRootVisible(false);
+				invocationTree.setShowsRootHandles(true);
+				invocationTree.getSelectionModel().setSelectionMode(
+						TreeSelectionModel.SINGLE_TREE_SELECTION);
+				invocationTree.addTreeSelectionListener(new TreeSelectionListener() {
 					@Override
-					public void valueChanged(ListSelectionEvent e) {
-						if (!e.getValueIsAdjusting()) {
-							Invocation invocation = invocationList.getSelectedValue();
-							showInvocation(invocation);
+					public void valueChanged(TreeSelectionEvent e) {
+						Object selectedComponent = e.getPath().getLastPathComponent();
+						if (selectedComponent instanceof InvocationTreeNode) {
+							InvocationTreeNode selectedNode = (InvocationTreeNode) selectedComponent;
+							if (selectedNode.isLeaf()) {
+								showInvocation(selectedNode.getInvocation());
+							} else {
+								showInvocation(null);
+							}
 						}
 					}
 				});
+				invocationTree.setCellRenderer(new DefaultTreeCellRenderer() {
+					public Component getTreeCellRendererComponent(JTree tree, Object value,
+							boolean selected, boolean expanded, boolean leaf, int row,
+							boolean hasFocus) {
+						Component renderer =  super.getTreeCellRendererComponent(tree, value, selected,
+									expanded, leaf, row, hasFocus);
+						if (renderer instanceof JLabel) {
+							JLabel label = (JLabel) renderer;
+							label.setIcon(null);
+						}
+						return renderer;
+					}
+				});
 
-				JScrollPane jScrollPane = new JScrollPane(invocationList,
+				JScrollPane jScrollPane = new JScrollPane(invocationTree,
 						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-				jScrollPane.setMinimumSize(new Dimension(100, 0));
+				jScrollPane.setMinimumSize(new Dimension(150, 0));
 
 				JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 				splitPane.setLeftComponent(jScrollPane);
 				splitPane.setRightComponent(invocationPanel);
 
 				add(splitPane, BorderLayout.CENTER);
+				invocationTree.setSelectionPath(new TreePath(invocationTreeModel.getFirstInvocationNode().getPath()));
 			}
-			showInvocation(invocations.first());
 		}
 	}
 
 	public void selectPort(Port port) {
-		invocationComponents.get(selectedInvocation).selectPortTab(port);
+		InvocationView invocationView = invocationComponents.get(selectedInvocation);
+		if (invocationView != null) {
+			invocationView.selectPortTab(port);
+		}
 	}
 
 	public void update() {
@@ -177,28 +209,39 @@ public class ReportView extends JPanel implements Updatable {
 			if (invocations.size() != invocationCount) {
 				init();
 			} else if (invocationCount == 1) {
-				invocationComponents.get(selectedInvocation).update();
+				if (selectedInvocation != null) {
+					invocationComponents.get(selectedInvocation).update();
+				}
 			}
 		} else {
 			if (invocations.size() != invocationCount) {
-				// update invocations list
+				// update invocations tree
 				invocationCount = invocations.size();
-				int selectedIndex = invocationList.getSelectedIndex();
-				invocationList.setListData(invocations.toArray(new Invocation[invocationCount]));
-				invocationList.setSelectedIndex(selectedIndex);
+				invocationTreeModel.update();
+				// int selectedIndex = invocationList.getSelectedIndex();
+				// invocationList.setListData(invocations.toArray(new Invocation[invocationCount]));
+				// invocationList.setSelectedIndex(selectedIndex);
 			}
-			invocationComponents.get(selectedInvocation).update();
+			if (selectedInvocation != null) {
+				invocationComponents.get(selectedInvocation).update();
+			}
 		}
 	}
 
 	private void showInvocation(Invocation invocation) {
-		if (!invocationComponents.containsKey(invocation)) {
-			InvocationView invocationView = new InvocationView(invocation, rendererRegistry,
-					saveIndividualActions);
-			invocationComponents.put(invocation, invocationView);
-			invocationPanel.add(invocationView, invocation.getContextId());
+		if (invocation != null) {
+			if (!invocationComponents.containsKey(invocation)) {
+				InvocationView invocationView = new InvocationView(invocation, rendererRegistry,
+						saveIndividualActions);
+				invocationComponents.put(invocation, invocationView);
+				invocationPanel.add(invocationView, invocation.getId());
+			}
+			cardLayout.show(invocationPanel, invocation.getId());
+			saveButton.setEnabled(true);
+		} else {
+			saveButton.setEnabled(false);
+			cardLayout.show(invocationPanel, "BLANK");
 		}
-		cardLayout.show(invocationPanel, invocation.getContextId());
 		selectedInvocation = invocation;
 	}
 

@@ -110,12 +110,6 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 		this.saveIndividualActions = saveIndividualActions;
 
 		workflow = workflowReport.getSubject();
-		try {
-			inputs = DataBundles.getInputs(workflowReport.getDataBundle());
-			outputs = DataBundles.getOutputs(workflowReport.getDataBundle());
-		} catch (IOException e) {
-			logger.warn("Error initializing workflow results", e);
-		}
 		init();
 
 	}
