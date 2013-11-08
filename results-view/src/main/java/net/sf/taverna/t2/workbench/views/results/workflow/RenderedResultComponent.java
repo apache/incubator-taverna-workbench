@@ -405,11 +405,6 @@ public class RenderedResultComponent extends JPanel {
 				logger.warn("Error getting the error document", e);
 			}
 
-			// If there is no exception message, e.g. service returned error as HTML document but no
-			// actual exception occurred - do not build the error tree just show the message text
-			// This is because multiline text is not being showed properly in the JTree
-			JTextArea errorTextArea = null;
-
 			JTree errorTree = new JTree(root);
 			errorTree.setCellRenderer(new DefaultTreeCellRenderer() {
 				public Component getTreeCellRendererComponent(JTree tree, Object value,
@@ -444,8 +439,7 @@ public class RenderedResultComponent extends JPanel {
 			renderersComboBox.setModel(new DefaultComboBoxModel<String>(
 					new String[] { ERROR_DOCUMENT }));
 			renderedResultPanel.removeAll();
-			renderedResultPanel.add(errorTextArea != null ? errorTextArea : errorTree,
-					BorderLayout.CENTER);
+			renderedResultPanel.add(errorTree, BorderLayout.CENTER);
 			repaint();
 		}
 
@@ -471,16 +465,28 @@ public class RenderedResultComponent extends JPanel {
 					buildErrorDocumentTree(child, causeErrorDocument);
 				}
 			} else if (DataBundles.isList(cause)) {
-//				List<ErrorDocument> errorDocuments = getErrorDocuments(reference);
-//				if (errorDocuments.size() == 1) {
-//					buildErrorDocumentTree(node, errorDocuments.get(0));
-//				} else {
-//					for (ErrorDocument errorDocument2 : errorDocuments) {
-//						buildErrorDocumentTree(child, errorDocument2);
-//					}
-//				}
+				List<ErrorDocument> errorDocuments = getErrorDocuments(cause);
+				if (errorDocuments.size() == 1) {
+					buildErrorDocumentTree(node, errorDocuments.get(0));
+				} else {
+					for (ErrorDocument errorDocument2 : errorDocuments) {
+						buildErrorDocumentTree(child, errorDocument2);
+					}
+				}
 			}
 		}
+	}
+
+	public List<ErrorDocument> getErrorDocuments(Path reference) throws IOException {
+		List<ErrorDocument> errorDocuments = new ArrayList<ErrorDocument>();
+		if (DataBundles.isError(reference)) {
+			errorDocuments.add(DataBundles.getError(reference));
+		} else if (DataBundles.isList(reference)) {
+			for (Path element : DataBundles.getList(reference)) {
+				errorDocuments.addAll(getErrorDocuments(element));
+			}
+		}
+		return errorDocuments;
 	}
 
 	/**
@@ -570,17 +576,13 @@ public class RenderedResultComponent extends JPanel {
 		repaint();
 	}
 
-	class ColorCellRenderer implements ListCellRenderer {
+	class ColorCellRenderer implements ListCellRenderer<String> {
 		protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 
-		public Component getListCellRendererComponent(JList list, Object value, int index,
+		public Component getListCellRendererComponent(JList<? extends String> list, String value, int index,
 				boolean isSelected, boolean cellHasFocus) {
 			JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value,
 					index, isSelected, cellHasFocus);
-
-			if (value instanceof Color) {
-				renderer.setBackground((Color) value);
-			}
 
 			if (recognisedRenderersForMimeType == null) { // error occurred
 				return renderer;
@@ -593,6 +595,7 @@ public class RenderedResultComponent extends JPanel {
 
 			return renderer;
 		}
+
 	}
 
 }
