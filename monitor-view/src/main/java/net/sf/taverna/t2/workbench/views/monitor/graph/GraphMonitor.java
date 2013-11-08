@@ -30,9 +30,6 @@ import javax.swing.JLabel;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.ui.Updatable;
-
-import org.apache.log4j.Logger;
-
 import uk.org.taverna.platform.report.ActivityReport;
 import uk.org.taverna.platform.report.ProcessorReport;
 import uk.org.taverna.platform.report.State;
@@ -44,8 +41,6 @@ import uk.org.taverna.platform.report.WorkflowReport;
  * @author David Withers
  */
 public class GraphMonitor implements Updatable {
-
-	private static Logger logger = Logger.getLogger(GraphMonitor.class);
 
 	private static final String STATUS_RUNNING = "Running";
 	private static final String STATUS_FINISHED = "Finished";
@@ -70,17 +65,18 @@ public class GraphMonitor implements Updatable {
 	public GraphMonitor(GraphController graphController, WorkflowReport workflowReport) {
 		this.graphController = graphController;
 		this.workflowReport = workflowReport;
-		createMonitorNodes(workflowReport);
+		createMonitorNodes(workflowReport.getSubject().getName(), workflowReport);
 		redraw();
 	}
 
-	private void createMonitorNodes(WorkflowReport workflowReport) {
+	private void createMonitorNodes(String id, WorkflowReport workflowReport) {
 		for (ProcessorReport processorReport : workflowReport.getProcessorReports()) {
-			processors.add(new GraphMonitorNode(processorReport, graphController));
+			String processorId = id + processorReport.getSubject().getName();
+			processors.add(new GraphMonitorNode(processorId, processorReport, graphController));
 			for (ActivityReport activityReport : processorReport.getActivityReports()) {
 				WorkflowReport nestedWorkflowReport = activityReport.getNestedWorkflowReport();
 				if (nestedWorkflowReport != null) {
-					createMonitorNodes(nestedWorkflowReport);
+					createMonitorNodes(processorId, nestedWorkflowReport);
 				}
 			}
 		}
@@ -124,29 +120,6 @@ public class GraphMonitor implements Updatable {
 			workflowRunStatusLabel.setText(STATUS_RUNNING);
 			workflowRunStatusLabel.setIcon(WorkbenchIcons.workingIcon);
 		}
-	}
-
-	/**
-	 * Calculates the id that will identify the box on the diagram that
-	 * represents the processor.
-	 *
-	 * @param processorReport
-	 *            the processorReport
-	 * @return the id that will identify the box on the diagram that represents
-	 *         the processor
-	 */
-	public static String getProcessorId(ProcessorReport processorReport) {
-		WorkflowReport workflowReport = processorReport.getParentReport();
-		return getWorkflowId(workflowReport) + processorReport.getSubject().getName();
-	}
-
-	public static String getWorkflowId(WorkflowReport workflowReport) {
-		String workflowId = workflowReport.getSubject().getName();
-		ActivityReport activityReport = workflowReport.getParentReport();
-		if (activityReport != null) {
-			return getProcessorId(activityReport.getParentReport()) + workflowId;
-		}
-		return workflowId;
 	}
 
 	// Set the status label that will be updated from this monitor

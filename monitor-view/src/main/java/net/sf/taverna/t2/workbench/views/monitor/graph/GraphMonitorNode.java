@@ -22,11 +22,10 @@ package net.sf.taverna.t2.workbench.views.monitor.graph;
 
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import uk.org.taverna.platform.report.ProcessorReport;
-import uk.org.taverna.platform.report.State;
 
 /**
  * A <code>MonitorNode</code> that updates a <code>Graph</code> when
- * <code>MonitorableProperty</code>s change.
+ * <code>ProcessorReport</code> property changes.
  *
  * @author David Withers
  */
@@ -46,73 +45,62 @@ public class GraphMonitorNode {
 
 	private int errors = 0;
 
-	private State state = State.CREATED;
-
-	public GraphMonitorNode(ProcessorReport processorReport, GraphController graphController) {
+	public GraphMonitorNode(String id, ProcessorReport processorReport,
+			GraphController graphController) {
 		this.processorReport = processorReport;
 		this.graphController = graphController;
-		processorId = GraphMonitor.getProcessorId(processorReport);
+		processorId = id;
 	}
 
 	/**
-	 * Updates the <code>Graph</code> when changes to
-	 * properties are detected.
+	 * Updates the <code>Graph</code> when changes to properties are detected.
 	 */
 	public void update() {
-		boolean stateChanged = false;
-		State newState = processorReport.getState();
-		if (newState != state) {
-			state = newState;
-			stateChanged = true;
+		boolean queueSizeChanged = false;
+		boolean sentJobsChanged = false;
+		boolean completedJobsChanged = false;
+		boolean errorsChanged = false;
+
+		int newQueueSize = processorReport.getJobsQueued();
+		newQueueSize = newQueueSize == -1 ? 0 : newQueueSize;
+		if (queueSize != newQueueSize) {
+			queueSize = newQueueSize;
+			queueSizeChanged = true;
 		}
-		if (stateChanged || state == State.RUNNING) {
-			boolean queueSizeChanged = false;
-			boolean sentJobsChanged = false;
-			boolean completedJobsChanged = false;
-			boolean errorsChanged = false;
 
-			int newQueueSize = processorReport.getJobsQueued();
-			newQueueSize = newQueueSize == -1 ? 0 : newQueueSize;
-			if (queueSize != newQueueSize) {
-				queueSize = newQueueSize;
-				queueSizeChanged = true;
+		int newSentJobs = processorReport.getJobsStarted();
+		if (sentJobs != newSentJobs) {
+			sentJobs = newSentJobs;
+			sentJobsChanged = true;
+		}
+
+		int newCompletedJobs = processorReport.getJobsCompleted();
+		if (completedJobs != newCompletedJobs) {
+			completedJobs = newCompletedJobs;
+			completedJobsChanged = true;
+		}
+
+		int newErrors = processorReport.getJobsCompletedWithErrors();
+		if (errors != newErrors) {
+			errors = newErrors;
+			errorsChanged = true;
+		}
+
+		if (queueSizeChanged || sentJobsChanged || completedJobsChanged || errorsChanged) {
+			if (completedJobsChanged) {
+				graphController.setIteration(processorId, completedJobs);
 			}
-
-			int newSentJobs = processorReport.getJobsStarted();
-			if (sentJobs != newSentJobs) {
-				sentJobs = newSentJobs;
-				sentJobsChanged = true;
+			if (completedJobs > 0) {
+				int totalJobs = sentJobs + queueSize;
+				graphController.setNodeCompleted(processorId, ((float) (completedJobs))
+						/ (float) totalJobs);
 			}
-
-			int newCompletedJobs = processorReport.getJobsCompleted();
-			if (completedJobs != newCompletedJobs) {
-				completedJobs = newCompletedJobs;
-				completedJobsChanged = true;
+			if (sentJobsChanged) {
+				// graphController.setEdgeActive(processorId, true);
 			}
-
-			int newErrors = processorReport.getJobsCompletedWithErrors();
-			if (errors != newErrors) {
-				errors = newErrors;
-				errorsChanged = true;
+			if (errorsChanged && errors > 0) {
+				graphController.setErrors(processorId, errors);
 			}
-
-			if (queueSizeChanged || sentJobsChanged || completedJobsChanged || errorsChanged) {
-				if (completedJobsChanged) {
-					graphController.setIteration(processorId, completedJobs);
-				}
-				if (completedJobs > 0) {
-					int totalJobs = sentJobs + queueSize;
-					graphController.setNodeCompleted(processorId, ((float) (completedJobs))
-							/ (float) totalJobs);
-				}
-				if (sentJobsChanged) {
-					// graphController.setEdgeActive(processorId, true);
-				}
-				if (errorsChanged && errors > 0) {
-					graphController.setErrors(processorId, errors);
-				}
-			}
-
 		}
 	}
 
