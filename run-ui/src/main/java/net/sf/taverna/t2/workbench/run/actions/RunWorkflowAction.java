@@ -132,8 +132,8 @@ public class RunWorkflowAction extends AbstractAction {
 			// if (CheckWorkflowStatus.checkWorkflow(selectedProfile, workbench, editManager,
 			// fileManager,reportManager)) {
 			try {
-				final Bundle bundle = DataBundles.createBundle();
 				if (workflowBundle.getMainWorkflow().getInputPorts().isEmpty()) {
+					final Bundle bundle = DataBundles.createBundle();
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
 							runWorkflow(workflowBundle, profile, executionEnvironment, bundle);
@@ -142,7 +142,7 @@ public class RunWorkflowAction extends AbstractAction {
 				} else { // workflow had inputs - show the input dialog
 					SwingUtilities.invokeLater(new Runnable() {
 						public void run() {
-							showInputDialog(workflowBundle, profile, executionEnvironment, bundle);
+							showInputDialog(workflowBundle, profile, executionEnvironment);
 						}
 					});
 				}
@@ -231,14 +231,14 @@ public class RunWorkflowAction extends AbstractAction {
 
 	@SuppressWarnings("serial")
 	private void showInputDialog(final WorkflowBundle workflowBundle, final Profile profile,
-			final ExecutionEnvironment executionEnvironment, Bundle bundle) {
+			final ExecutionEnvironment executionEnvironment) {
 		// Get the WorkflowLauchWindow
 		WorkflowLaunchWindow launchWindow = null;
 		synchronized (workflowLaunchWindowMap) {
 			WorkflowLaunchWindow savedLaunchWindow = workflowLaunchWindowMap.get(workflowBundle);
 			if (savedLaunchWindow == null) {
 				launchWindow = new WorkflowLaunchWindow(workflowBundle.getMainWorkflow(),
-						editManager, fileManager, reportManager, workbench, new ArrayList<ReferenceActionSPI>(), null, bundle) {
+						editManager, fileManager, reportManager, workbench, new ArrayList<ReferenceActionSPI>(), null) {
 
 					@Override
 					public void handleLaunch(Bundle workflowInputs) {
