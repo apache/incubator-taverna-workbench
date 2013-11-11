@@ -20,7 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.monitor.graph;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -57,8 +56,7 @@ public class GraphMonitor implements Updatable {
 
 	private GraphController graphController;
 
-	private Set<GraphMonitorNode> processors = Collections
-			.synchronizedSet(new HashSet<GraphMonitorNode>());
+	private Set<GraphMonitorNode> processors = new HashSet<GraphMonitorNode>();
 
 	private final WorkflowReport workflowReport;
 
@@ -83,21 +81,17 @@ public class GraphMonitor implements Updatable {
 	}
 
 	public void redraw() {
-		synchronized (processors) {
-			for (GraphMonitorNode node : processors) {
-				node.redraw();
-			}
+		for (GraphMonitorNode node : processors) {
+			node.redraw();
 		}
 	}
 
 	@Override
 	public void update() {
-		synchronized (processors) {
-			for (GraphMonitorNode node : processors) {
-				node.update();
-			}
+		for (GraphMonitorNode node : processors) {
+			node.update();
 		}
-//		updateState();
+		// updateState();
 	}
 
 	private void updateState() {

@@ -8,6 +8,7 @@
 			<property name="runService" ref="runService" />
 			<property name="selectionManager" ref="selectionManager" />
 			<property name="colourManager" ref="colourManager" />
+			<property name="activityIconManager" ref="activityIconManager" />
 			<property name="workbenchConfiguration" ref="workbenchConfiguration" />
 			<property name="rendererRegistry" ref="rendererRegistry" />
 			<property name="saveAllResultsSPIs" ref="saveAllResultsSPIs" />

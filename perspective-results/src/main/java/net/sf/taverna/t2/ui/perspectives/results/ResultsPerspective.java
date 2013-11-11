@@ -26,6 +26,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
 import net.sf.taverna.t2.renderers.RendererRegistry;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -50,6 +51,7 @@ public class ResultsPerspective implements PerspectiveSPI, EventHandler {
 	private RunService runService;
 	private SelectionManager selectionManager;
 	private ColourManager colourManager;
+	private ActivityIconManager activityIconManager;
 	private WorkbenchConfiguration workbenchConfiguration;
 	private RendererRegistry rendererRegistry;
 	private List<SaveAllResultsSPI> saveAllResultsSPIs;
@@ -64,7 +66,7 @@ public class ResultsPerspective implements PerspectiveSPI, EventHandler {
 	public JComponent getPanel() {
 		if (resultsPerspectiveComponent == null) {
 			resultsPerspectiveComponent = new ResultsPerspectiveComponent(runService,
-					selectionManager, colourManager, workbenchConfiguration, rendererRegistry,
+					selectionManager, colourManager, activityIconManager, workbenchConfiguration, rendererRegistry,
 					saveAllResultsSPIs, saveIndividualResultSPIs);
 			runMonitor = new RunMonitor(runService, selectionManager, resultsPerspectiveComponent);
 		}
@@ -99,6 +101,10 @@ public class ResultsPerspective implements PerspectiveSPI, EventHandler {
 
 	public void setColourManager(ColourManager colourManager) {
 		this.colourManager = colourManager;
+	}
+
+	public void setActivityIconManager(ActivityIconManager activityIconManager) {
+		this.activityIconManager = activityIconManager;
 	}
 
 	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {

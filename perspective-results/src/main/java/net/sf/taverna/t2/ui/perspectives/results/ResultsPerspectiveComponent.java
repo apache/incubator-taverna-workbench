@@ -28,18 +28,24 @@ import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import net.sf.taverna.t2.lang.ui.tabselector.Tab;
 import net.sf.taverna.t2.renderers.RendererRegistry;
+import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowRunSelectionEvent;
 import net.sf.taverna.t2.workbench.ui.Updatable;
 import net.sf.taverna.t2.workbench.views.monitor.graph.MonitorGraphComponent;
+import net.sf.taverna.t2.workbench.views.monitor.progressreport.TableMonitorComponent;
 import net.sf.taverna.t2.workbench.views.results.ResultsComponent;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
@@ -47,6 +53,7 @@ import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResul
 import org.apache.log4j.Logger;
 import org.osgi.service.event.Event;
 
+import uk.org.taverna.platform.run.api.InvalidRunIdException;
 import uk.org.taverna.platform.run.api.RunService;
 
 /**
@@ -62,6 +69,7 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 	private final RunService runService;
 	private final SelectionManager selectionManager;
 	private final ColourManager colourManager;
+	private final ActivityIconManager activityIconManager;
 	private final WorkbenchConfiguration workbenchConfiguration;
 
 	private List<Updatable> updatables = new ArrayList<>();
@@ -71,16 +79,19 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 	private SelectionManagerObserver selectionManagerObserver;
 
 	private MonitorGraphComponent monitorGraphComponent;
+	private TableMonitorComponent tableMonitorComponent;
 	private ResultsComponent resultsComponent;
 	private RunSelectorComponent runSelectorComponent;
 
 	public ResultsPerspectiveComponent(RunService runService, SelectionManager selectionManager,
-			ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration,
-			RendererRegistry rendererRegistry, List<SaveAllResultsSPI> saveAllResultsSPIs,
+			ColourManager colourManager, ActivityIconManager activityIconManager,
+			WorkbenchConfiguration workbenchConfiguration, RendererRegistry rendererRegistry,
+			List<SaveAllResultsSPI> saveAllResultsSPIs,
 			List<SaveIndividualResultSPI> saveIndividualResultSPIs) {
 		this.runService = runService;
 		this.selectionManager = selectionManager;
 		this.colourManager = colourManager;
+		this.activityIconManager = activityIconManager;
 		this.workbenchConfiguration = workbenchConfiguration;
 
 		cardLayout = new CardLayout();
@@ -96,17 +107,25 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 		noRunsPanel.add(noRunsMessage, BorderLayout.CENTER);
 		add(noRunsPanel, NO_RUNS_SELECTED);
 
-		monitorGraphComponent = new MonitorGraphComponent(runService,
-				colourManager, workbenchConfiguration, selectionManager);
-		resultsComponent = new ResultsComponent(runService, selectionManager,
-				rendererRegistry, saveAllResultsSPIs, saveIndividualResultSPIs);
+		monitorGraphComponent = new MonitorGraphComponent(runService, colourManager,
+				workbenchConfiguration, selectionManager);
+		tableMonitorComponent = new TableMonitorComponent(runService, selectionManager,
+				activityIconManager);
+
+		resultsComponent = new ResultsComponent(runService, selectionManager, rendererRegistry,
+				saveAllResultsSPIs, saveIndividualResultSPIs);
 
 		updatables.add(monitorGraphComponent);
+		updatables.add(tableMonitorComponent);
 		updatables.add(resultsComponent);
+
+		JTabbedPane tabbedPane = new JTabbedPane();
+		tabbedPane.add("Graph", monitorGraphComponent);
+		tabbedPane.add("Progress report", tableMonitorComponent);
 
 		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setBorder(null);
-		splitPane.setLeftComponent(monitorGraphComponent);
+		splitPane.setLeftComponent(tabbedPane);
 		splitPane.setRightComponent(resultsComponent);
 		splitPane.setDividerLocation(200);
 
@@ -139,11 +158,19 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 				SelectionManagerEvent message) {
 			if (message instanceof WorkflowRunSelectionEvent) {
 				WorkflowRunSelectionEvent workflowRunSelectionEvent = (WorkflowRunSelectionEvent) message;
-				String selectedWorkflowRun = workflowRunSelectionEvent.getSelectedWorkflowRun();
-				if (selectedWorkflowRun == null) {
+				String workflowRun = workflowRunSelectionEvent.getSelectedWorkflowRun();
+				if (workflowRun == null) {
 					cardLayout.show(ResultsPerspectiveComponent.this, NO_RUNS_SELECTED);
+					repaint();
 				} else {
 					cardLayout.show(ResultsPerspectiveComponent.this, RUNS_SELECTED);
+				}
+				runSelectorComponent.selectObject(workflowRun);
+				try {
+					monitorGraphComponent.setWorkflowRun(workflowRun);
+					tableMonitorComponent.setWorkflowRun(workflowRun);
+				} catch (InvalidRunIdException e) {
+					logger.warn("Failed to create monitor components for workflow run " + workflowRun, e);
 				}
 			}
 		}
@@ -151,15 +178,33 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 
 	public void handleEvent(Event event) {
 		String topic = event.getTopic();
+		String workflowRun = event.getProperty("RUN_ID").toString();
+		Tab<String> tab = runSelectorComponent.getTab(workflowRun);
 		switch (topic) {
 		case RunService.RUN_CREATED:
 			// addWorkflowRun(event.getProperty("RUN_ID").toString());
 			break;
 		case RunService.RUN_DELETED:
-			String workflowRun = event.getProperty("RUN_ID").toString();
 			runSelectorComponent.removeObject(workflowRun);
 			monitorGraphComponent.removeWorkflowRun(workflowRun);
+			tableMonitorComponent.removeWorkflowRun(workflowRun);
 			resultsComponent.removeWorkflowRun(workflowRun);
+			break;
+		case RunService.RUN_STOPPED:
+			if (tab != null) {
+				tab.setIcon(WorkbenchIcons.tickIcon);
+			}
+			break;
+		case RunService.RUN_PAUSED:
+			if (tab != null) {
+				tab.setIcon(WorkbenchIcons.pauseIcon);
+			}
+			break;
+		case RunService.RUN_STARTED:
+		case RunService.RUN_RESUMED:
+			if (tab != null) {
+				tab.setIcon(WorkbenchIcons.workingIcon);
+			}
 			break;
 		}
 	}

@@ -51,7 +51,7 @@ public class WorkflowRunProgressTreeTable extends JTreeTable {
 
 		refreshRunnable = new Runnable() {
 			public void run() {
-				model.refresh();
+				model.update();
 			}
 		};
 
@@ -96,17 +96,17 @@ public class WorkflowRunProgressTreeTable extends JTreeTable {
 		return lastSelectedTableRow;
 	}
 
-	public void setSelectedRowForObject(Object workflowObject) {
-		// Find the row for the object in the tree
-		DefaultMutableTreeNode node = treeTableModel.getNodeForObject(workflowObject);
-		TreeNode[] path = node.getPath();
-		this.tree.scrollPathToVisible(new TreePath(path));
-		int row = this.tree.getRowForPath(new TreePath(path));
-		if (row > 0) {
-			// Set selected row on the table
-			this.setRowSelectionInterval(row, row);
-		}
-		lastSelectedTableRow = row;
-	}
+//	public void setSelectedRowForObject(Object workflowObject) {
+//		// Find the row for the object in the tree
+//		DefaultMutableTreeNode node = treeTableModel.getNodeForObject(workflowObject);
+//		TreeNode[] path = node.getPath();
+//		this.tree.scrollPathToVisible(new TreePath(path));
+//		int row = this.tree.getRowForPath(new TreePath(path));
+//		if (row > 0) {
+//			// Set selected row on the table
+//			this.setRowSelectionInterval(row, row);
+//		}
+//		lastSelectedTableRow = row;
+//	}
 
 }

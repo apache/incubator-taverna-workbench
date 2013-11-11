@@ -16,6 +16,7 @@
 	<reference id="runService" interface="uk.org.taverna.platform.run.api.RunService" />
 	<reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
 	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
+	<reference id="activityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
 	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
 	<reference id="rendererRegistry" interface="net.sf.taverna.t2.renderers.RendererRegistry" />
 

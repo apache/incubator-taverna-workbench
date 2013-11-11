@@ -28,15 +28,12 @@ import java.util.Map;
 
 import javax.swing.Action;
 import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -45,10 +42,7 @@ import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
-import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
-import net.sf.taverna.t2.workbench.selection.events.WorkflowRunSelectionEvent;
 import net.sf.taverna.t2.workbench.ui.Updatable;
-import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.AutoScrollInteractor;
 import net.sf.taverna.t2.workbench.views.graph.menu.ResetDiagramAction;
 import net.sf.taverna.t2.workbench.views.graph.menu.ZoomInAction;
@@ -72,7 +66,7 @@ import uk.org.taverna.scufl2.api.profiles.Profile;
  * click on processors to see the intermediate results for processors pulled from provenance.
  */
 @SuppressWarnings("serial")
-public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Updatable {
+public class MonitorGraphComponent extends JPanel implements Updatable {
 
 	private static Logger logger = Logger.getLogger(MonitorGraphComponent.class);
 
@@ -84,10 +78,6 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Upd
 	private Map<String, GraphMonitor> graphMonitorMap = new HashMap<>();
 	private Map<String, JPanel> diagramPanelMap = new HashMap<>();
 	private Map<String, Action[]> diagramActionsMap = new HashMap<>();
-
-	private SelectionManagerObserver selectionManagerObserver = new SelectionManagerObserver();
-
-	// private Timer timer;
 
 	private CardLayout cardLayout;
 
@@ -129,31 +119,10 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Upd
 		// }
 		// });
 
-		selectionManager.addObserver(selectionManagerObserver);
 	}
 
 	@Override
 	protected void finalize() throws Throwable {
-		selectionManager.removeObserver(selectionManagerObserver);
-		onDispose();
-	}
-
-	@Override
-	public String getName() {
-		return "Monitor View Component";
-	}
-
-	@Override
-	public ImageIcon getIcon() {
-		return null;
-	}
-
-	@Override
-	public void onDisplay() {
-	}
-
-	@Override
-	public void onDispose() {
 		if (graphController != null) {
 			graphController.shutdown();
 		}
@@ -201,9 +170,10 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Upd
 			svgCanvas.addGVTTreeRendererListener(gvtTreeRendererAdapter);
 
 			// create a graph controller
-			SVGGraphController svgGraphController = new SVGGraphController(workflow, profile,
-					true, svgCanvas, null, null, colourManager, workbenchConfiguration);
-			DataflowSelectionModel selectionModel = selectionManager.getWorkflowRunSelectionModel(workflowRun);
+			SVGGraphController svgGraphController = new SVGGraphController(workflow, profile, true,
+					svgCanvas, null, null, colourManager, workbenchConfiguration);
+			DataflowSelectionModel selectionModel = selectionManager
+					.getWorkflowRunSelectionModel(workflowRun);
 			svgGraphController.setDataflowSelectionModel(selectionModel);
 			svgGraphController.setGraphEventManager(new MonitorGraphEventManager(selectionModel));
 
@@ -307,7 +277,7 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Upd
 				ZoomOutAction.setDesignAction(actions[2]);
 			}
 			cardLayout.show(this, String.valueOf(diagramPanel.hashCode()));
-			//				graphController.redraw();
+			// graphController.redraw();
 		}
 	}
 
@@ -315,7 +285,8 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Upd
 		JPanel newDiagramPanel = createDiagramPanel(workflowRun);
 		add(newDiagramPanel, String.valueOf(newDiagramPanel.hashCode()));
 		diagramPanelMap.put(workflowRun, newDiagramPanel);
-		graphMonitorMap.put(workflowRun, new GraphMonitor(graphControllerMap.get(workflowRun), runService.getWorkflowReport(workflowRun)));
+		graphMonitorMap.put(workflowRun, new GraphMonitor(graphControllerMap.get(workflowRun),
+				runService.getWorkflowReport(workflowRun)));
 	}
 
 	public void removeWorkflowRun(String workflowRun) {
@@ -329,24 +300,6 @@ public class MonitorGraphComponent extends JPanel implements UIComponentSPI, Upd
 		}
 		graphMonitorMap.remove(workflowRun);
 		diagramActionsMap.remove(workflowRun);
-	}
-
-	public SVGGraphController getGraphController() {
-		return graphController;
-	}
-
-	private class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
-		@Override
-		public void notifySwing(Observable<SelectionManagerEvent> sender,
-				SelectionManagerEvent message) {
-			if (message instanceof WorkflowRunSelectionEvent) {
-				try {
-					setWorkflowRun(((WorkflowRunSelectionEvent) message).getSelectedWorkflowRun());
-				} catch (InvalidRunIdException e) {
-					logger.warn("Invalid workflow run", e);
-				}
-			}
-		}
 	}
 
 	private class MonitorGraphEventManager implements GraphEventManager {

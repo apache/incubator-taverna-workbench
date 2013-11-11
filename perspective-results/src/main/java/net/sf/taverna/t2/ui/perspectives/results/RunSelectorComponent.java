@@ -27,9 +27,6 @@ import net.sf.taverna.t2.lang.ui.tabselector.TabSelectorComponent;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowRunSelectionEvent;
-
-import org.osgi.service.event.Event;
-
 import uk.org.taverna.platform.run.api.RunService;
 
 /**
@@ -61,20 +58,9 @@ public class RunSelectorComponent extends TabSelectorComponent<String> {
 		}
 	}
 
-	public void handleEvent(Event event) {
-		String topic = event.getTopic();
-		switch (topic) {
-		case RunService.RUN_CREATED:
-			// addObject(event.getProperty("RUN_ID").toString());
-			break;
-		case RunService.RUN_DELETED:
-			removeObject(event.getProperty("RUN_ID").toString());
-			break;
-		}
-	}
-
 	@Override
 	protected Tab<String> createTab(String runID) {
 		return new RunTab(runID, selectionManager, runService);
 	}
+
 }
