@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 
 import uk.org.taverna.databundle.DataBundles;
 import uk.org.taverna.platform.report.ReportListener;
+import uk.org.taverna.platform.report.State;
 
 public class WorkflowResultTreeModel extends DefaultTreeModel implements ReportListener {
 
@@ -57,6 +58,12 @@ public class WorkflowResultTreeModel extends DefaultTreeModel implements ReportL
 				resultTokenProducedGui(path, portName, index);
 			}
 		});
+	}
+
+	@Override
+	public void stateChanged(State oldState, State newState) {
+		// TODO Auto-generated method stub
+
 	}
 
 	public void resultTokenProducedGui(Path path, String portName, int[] index) {
