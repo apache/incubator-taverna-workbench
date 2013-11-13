@@ -9,6 +9,7 @@
 	<service ref="FileRunMenuSection" auto-export="interfaces" />
 	<service ref="RunToolbarSection" auto-export="interfaces" />
 
+	<service ref="FileOpenRunMenuAction" auto-export="interfaces" />
 	<service ref="FileRunMenuAction" auto-export="interfaces" />
 	<service ref="FileValidateMenuAction" auto-export="interfaces" />
 	<service ref="RunToolbarAction" auto-export="interfaces" />
@@ -22,5 +23,6 @@
 	<reference id="reportManager" interface="net.sf.taverna.t2.workbench.report.ReportManager" cardinality="0..1"/>
 	<reference id="workbench" interface="net.sf.taverna.t2.workbench.ui.Workbench" cardinality="0..1"/>
 	<reference id="runService" interface="uk.org.taverna.platform.run.api.RunService" />
+	<reference id="applicationConfiguration" interface="uk.org.taverna.configuration.app.ApplicationConfiguration" />
 
 </beans:beans>

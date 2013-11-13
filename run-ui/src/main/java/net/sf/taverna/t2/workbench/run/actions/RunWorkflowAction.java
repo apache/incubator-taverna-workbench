@@ -162,7 +162,6 @@ public class RunWorkflowAction extends AbstractAction {
 					executionEnvironment, workflowInputs);
 			if (runProfile != null) {
 				String runId = runService.createRun(runProfile);
-				selectionManager.setSelectedWorkflowRun(runId);
 				runService.start(runId);
 			}
 		} catch (InvalidWorkflowException | RunProfileException | InvalidRunIdException

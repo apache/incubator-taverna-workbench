@@ -23,6 +23,7 @@ package net.sf.taverna.t2.ui.perspectives.results;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Font;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -87,7 +88,7 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 			ColourManager colourManager, ActivityIconManager activityIconManager,
 			WorkbenchConfiguration workbenchConfiguration, RendererRegistry rendererRegistry,
 			List<SaveAllResultsSPI> saveAllResultsSPIs,
-			List<SaveIndividualResultSPI> saveIndividualResultSPIs) {
+			List<SaveIndividualResultSPI> saveIndividualResultSPIs, File runStore) {
 		this.runService = runService;
 		this.selectionManager = selectionManager;
 		this.colourManager = colourManager;
@@ -129,7 +130,7 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 		splitPane.setRightComponent(resultsComponent);
 		splitPane.setDividerLocation(200);
 
-		runSelectorComponent = new RunSelectorComponent(runService, selectionManager);
+		runSelectorComponent = new RunSelectorComponent(runService, selectionManager, runStore);
 
 		JPanel runsPanel = new JPanel(new BorderLayout());
 		runsPanel.add(runSelectorComponent, BorderLayout.NORTH);
@@ -161,16 +162,15 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 				String workflowRun = workflowRunSelectionEvent.getSelectedWorkflowRun();
 				if (workflowRun == null) {
 					cardLayout.show(ResultsPerspectiveComponent.this, NO_RUNS_SELECTED);
-					repaint();
 				} else {
 					cardLayout.show(ResultsPerspectiveComponent.this, RUNS_SELECTED);
-				}
-				runSelectorComponent.selectObject(workflowRun);
-				try {
-					monitorGraphComponent.setWorkflowRun(workflowRun);
-					tableMonitorComponent.setWorkflowRun(workflowRun);
-				} catch (InvalidRunIdException e) {
-					logger.warn("Failed to create monitor components for workflow run " + workflowRun, e);
+					runSelectorComponent.selectObject(workflowRun);
+					try {
+						monitorGraphComponent.setWorkflowRun(workflowRun);
+						tableMonitorComponent.setWorkflowRun(workflowRun);
+					} catch (InvalidRunIdException e) {
+						logger.warn("Failed to create monitor components for workflow run " + workflowRun, e);
+					}
 				}
 			}
 		}
@@ -182,8 +182,10 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 		Tab<String> tab = runSelectorComponent.getTab(workflowRun);
 		switch (topic) {
 		case RunService.RUN_CREATED:
-			// addWorkflowRun(event.getProperty("RUN_ID").toString());
+		case RunService.RUN_OPENED:
+			selectionManager.setSelectedWorkflowRun(workflowRun);
 			break;
+		case RunService.RUN_CLOSED:
 		case RunService.RUN_DELETED:
 			runSelectorComponent.removeObject(workflowRun);
 			monitorGraphComponent.removeWorkflowRun(workflowRun);

@@ -13,6 +13,7 @@
 			<property name="rendererRegistry" ref="rendererRegistry" />
 			<property name="saveAllResultsSPIs" ref="saveAllResultsSPIs" />
 			<property name="saveIndividualResultSPIs" ref="saveIndividualResultSPIs" />
+    		<property name="applicationConfiguration" ref="applicationConfiguration"/>
 	</bean>
 
 </beans>

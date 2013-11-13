@@ -20,16 +20,18 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.cleanup;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.taverna.t2.workbench.ShutdownSPI;
+import uk.org.taverna.configuration.app.ApplicationConfiguration;
 import uk.org.taverna.platform.execution.api.InvalidExecutionIdException;
 import uk.org.taverna.platform.report.State;
 import uk.org.taverna.platform.run.api.InvalidRunIdException;
 import uk.org.taverna.platform.run.api.RunService;
 import uk.org.taverna.platform.run.api.RunStateException;
-
-import net.sf.taverna.t2.workbench.ShutdownSPI;
 
 /**
  * Shutdown hook that detects running and paused workflows.
@@ -38,7 +40,10 @@ import net.sf.taverna.t2.workbench.ShutdownSPI;
  */
 public class WorkflowRunStatusShutdownHook implements ShutdownSPI {
 
+	private static final String RUN_STORE_DIRECTORY = "workflow-runs";
+
 	private RunService runService;
+	private ApplicationConfiguration applicationConfiguration;
 
 	public int positionHint() {
 		return 40;
@@ -83,12 +88,26 @@ public class WorkflowRunStatusShutdownHook implements ShutdownSPI {
 				} catch (InvalidRunIdException | RunStateException | InvalidExecutionIdException e) {
 				}
 			}
+			for (String workflowRun : workflowRuns) {
+				File runStore = new File(applicationConfiguration.getApplicationHomeDir(), RUN_STORE_DIRECTORY);
+				try {
+					File file = new File(runStore, runService.getRunName(workflowRun) + ".wfRun");
+					if (!file.exists()) {
+						runService.save(workflowRun, file);
+					}
+				} catch (InvalidRunIdException | IOException e) {
+				}
+			}
 		}
 		return shutdown;
 	}
 
 	public void setRunService(RunService runService) {
 		this.runService = runService;
+	}
+
+	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+		this.applicationConfiguration = applicationConfiguration;
 	}
 
 }

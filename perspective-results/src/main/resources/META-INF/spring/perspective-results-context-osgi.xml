@@ -19,6 +19,7 @@
 	<reference id="activityIconManager" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconManager" />
 	<reference id="workbenchConfiguration" interface="net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration" />
 	<reference id="rendererRegistry" interface="net.sf.taverna.t2.renderers.RendererRegistry" />
+	<reference id="applicationConfiguration" interface="uk.org.taverna.configuration.app.ApplicationConfiguration" />
 
 	<list id="saveAllResultsSPIs" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI" />
 	<list id="saveIndividualResultSPIs" interface="net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI" />

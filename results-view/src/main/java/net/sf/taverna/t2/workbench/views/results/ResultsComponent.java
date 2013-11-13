@@ -49,6 +49,9 @@ import uk.org.taverna.platform.report.ProcessorReport;
 import uk.org.taverna.platform.report.WorkflowReport;
 import uk.org.taverna.platform.run.api.InvalidRunIdException;
 import uk.org.taverna.platform.run.api.RunService;
+import uk.org.taverna.scufl2.api.common.Child;
+import uk.org.taverna.scufl2.api.common.Named;
+import uk.org.taverna.scufl2.api.common.WorkflowBean;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.port.Port;
 
@@ -177,7 +180,7 @@ public class ResultsComponent extends JPanel implements Updatable {
 
 	private ProcessorReport findProcessorReport(WorkflowReport workflowReport, Processor processor) {
 		for (ProcessorReport processorReport : workflowReport.getProcessorReports()) {
-			if (processorReport.getSubject().equals(processor)) {
+			if (equals(processorReport.getSubject(), processor)) {
 				return processorReport;
 			}
 			for (ActivityReport activityReport : processorReport.getActivityReports()) {
@@ -188,6 +191,21 @@ public class ResultsComponent extends JPanel implements Updatable {
 			}
 		}
 		return null;
+	}
+
+	private boolean equals(Named named1, Named named2) {
+		if (named1.getName().equals(named2.getName())) {
+			if (named1 instanceof Child<?> && named2 instanceof Child<?>) {
+				Object parent1 = ((Child<?>) named1).getParent();
+				Object parent2 = ((Child<?>) named2).getParent();
+				if (parent1 instanceof Named && parent2 instanceof Named) {
+					return equals((Named) parent1, (Named) parent2);
+				}
+			} else {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {

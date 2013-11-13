@@ -20,7 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.results;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+
+import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.lang.ui.tabselector.Tab;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
@@ -29,26 +33,33 @@ import uk.org.taverna.platform.report.State;
 import uk.org.taverna.platform.report.WorkflowReport;
 import uk.org.taverna.platform.run.api.InvalidRunIdException;
 import uk.org.taverna.platform.run.api.RunService;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import uk.org.taverna.platform.run.api.RunStateException;
 
 /**
- *
- *
  * @author David Withers
  */
 public class RunTab extends Tab<String> {
 
 	private static final long serialVersionUID = 1L;
 
-	private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
 	private final SelectionManager selectionManager;
 	private final RunService runService;
+	private final File runStore;
 
-	public RunTab(final String runID, final SelectionManager selectionManager, final RunService runService) {
+	public RunTab(final String runID, final SelectionManager selectionManager,
+			final RunService runService, File runStore) {
 		super(getRunName(runService, runID), runID);
 		this.selectionManager = selectionManager;
 		this.runService = runService;
+		this.runStore = runStore;
+	}
+
+	private static String getRunName(RunService runService, String runID) {
+		try {
+			return runService.getRunName(runID);
+		} catch (InvalidRunIdException e) {
+			return "Invalid Run";
+		}
 	}
 
 	protected void clickTabAction() {
@@ -58,20 +69,28 @@ public class RunTab extends Tab<String> {
 	protected void closeTabAction() {
 		try {
 			State state = runService.getState(selection);
-			runService.delete(selection);
-		} catch (InvalidRunIdException | InvalidExecutionIdException e) {
-			// TODO Have to cope with this - execution ID could be invalid but still need to close the tab
+			if (state == State.RUNNING || state == State.PAUSED) {
+				int answer = JOptionPane.showConfirmDialog(null, "Closing the tab will cancel the workflow run. Do you want to continue?",
+						"Workflow is still running", JOptionPane.YES_NO_OPTION);
+				if (answer == JOptionPane.NO_OPTION) {
+					return;
+				} else {
+					try {
+						runService.cancel(selection);
+					} catch (RunStateException e) {
+						// workflow may have finished by now
+					}
+				}
+			}
+			File file = new File(runStore, getName() + ".wfRun");
+			if (!file.exists()) {
+				runService.save(selection, file);
+			}
+			runService.close(selection);
+		} catch (InvalidRunIdException | InvalidExecutionIdException | IOException e) {
+			// TODO Have to cope with this - execution ID could be invalid but still need to close
+			// the tab
 			e.printStackTrace();
-		}
-	}
-
-	private static String getRunName(RunService runService, String runID) {
-		try {
-			WorkflowReport workflowReport = runService.getWorkflowReport(runID);
-			Workflow workflow = runService.getWorkflow(runID);
-			return workflow.getName() + " " + ISO_8601.format(workflowReport.getCreatedDate());
-		} catch (InvalidRunIdException e) {
-			return runID;
 		}
 	}
 

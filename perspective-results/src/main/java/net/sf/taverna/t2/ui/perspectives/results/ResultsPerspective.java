@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.results;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -38,12 +40,15 @@ import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResul
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
+import uk.org.taverna.configuration.app.ApplicationConfiguration;
 import uk.org.taverna.platform.run.api.RunService;
 
 /**
  * @author David Withers
  */
 public class ResultsPerspective implements PerspectiveSPI, EventHandler {
+
+	private static final String RUN_STORE_DIRECTORY = "workflow-runs";
 
 	private ResultsPerspectiveComponent resultsPerspectiveComponent;
 	private RunMonitor runMonitor;
@@ -56,6 +61,7 @@ public class ResultsPerspective implements PerspectiveSPI, EventHandler {
 	private RendererRegistry rendererRegistry;
 	private List<SaveAllResultsSPI> saveAllResultsSPIs;
 	private List<SaveIndividualResultSPI> saveIndividualResultSPIs;
+	private ApplicationConfiguration applicationConfiguration;
 
 	@Override
 	public String getID() {
@@ -65,13 +71,26 @@ public class ResultsPerspective implements PerspectiveSPI, EventHandler {
 	@Override
 	public JComponent getPanel() {
 		if (resultsPerspectiveComponent == null) {
+			File runStore = new File(applicationConfiguration.getApplicationHomeDir(), RUN_STORE_DIRECTORY);
+			runStore.mkdirs();
 			resultsPerspectiveComponent = new ResultsPerspectiveComponent(runService,
 					selectionManager, colourManager, activityIconManager, workbenchConfiguration, rendererRegistry,
-					saveAllResultsSPIs, saveIndividualResultSPIs);
+					saveAllResultsSPIs, saveIndividualResultSPIs, runStore);
 			runMonitor = new RunMonitor(runService, selectionManager, resultsPerspectiveComponent);
 		}
 		return resultsPerspectiveComponent;
 	}
+
+//	public void loadWorkflowRuns(File runStoreDirectory) {
+//		if (runStoreDirectory.exists()) {
+//			for (File runFile : runStoreDirectory.listFiles(new RunFileFilter())) {
+//				try {
+//					runService.open(runFile);
+//				} catch (IOException e) {
+//				}
+//			}
+//		}
+//	}
 
 	@Override
 	public ImageIcon getButtonIcon() {
@@ -125,6 +144,10 @@ public class ResultsPerspective implements PerspectiveSPI, EventHandler {
 
 	public void setSaveIndividualResultSPIs(List<SaveIndividualResultSPI> saveIndividualResultSPIs) {
 		this.saveIndividualResultSPIs = saveIndividualResultSPIs;
+	}
+
+	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+		this.applicationConfiguration = applicationConfiguration;
 	}
 
 }

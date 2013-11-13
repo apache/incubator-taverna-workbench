@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.results;
 
+import java.io.File;
+
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.tabselector.Tab;
@@ -40,10 +42,12 @@ public class RunSelectorComponent extends TabSelectorComponent<String> {
 
 	private final RunService runService;
 	private final SelectionManager selectionManager;
+	private final File runStore;
 
-	public RunSelectorComponent(RunService runSevice, SelectionManager selectionManager) {
+	public RunSelectorComponent(RunService runSevice, SelectionManager selectionManager, File runStore) {
 		this.runService = runSevice;
 		this.selectionManager = selectionManager;
+		this.runStore = runStore;
 		selectionManager.addObserver(new SelectionManagerObserver());
 	}
 
@@ -60,7 +64,7 @@ public class RunSelectorComponent extends TabSelectorComponent<String> {
 
 	@Override
 	protected Tab<String> createTab(String runID) {
-		return new RunTab(runID, selectionManager, runService);
+		return new RunTab(runID, selectionManager, runService, runStore);
 	}
 
 }
