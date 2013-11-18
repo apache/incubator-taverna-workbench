@@ -77,17 +77,22 @@ public class RunTab extends Tab<String> {
 				} else {
 					try {
 						runService.cancel(selection);
-					} catch (RunStateException e) {
+					} catch (RunStateException | InvalidExecutionIdException e) {
 						// workflow may have finished by now
 					}
 				}
 			}
 			File file = new File(runStore, getName() + ".wfRun");
 			if (!file.exists()) {
-				runService.save(selection, file);
+				try {
+					runService.save(selection, file);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 			runService.close(selection);
-		} catch (InvalidRunIdException | InvalidExecutionIdException | IOException e) {
+		} catch (InvalidRunIdException | InvalidExecutionIdException e) {
 			// TODO Have to cope with this - execution ID could be invalid but still need to close
 			// the tab
 			e.printStackTrace();
