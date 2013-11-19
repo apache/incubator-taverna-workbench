@@ -57,6 +57,7 @@ public class RunTab extends Tab<String> {
 		this.selectionManager = selectionManager;
 		this.runService = runService;
 		this.runStore = runStore;
+		updateTabIcon();
 	}
 
 	private static String getRunName(RunService runService, String runID) {
