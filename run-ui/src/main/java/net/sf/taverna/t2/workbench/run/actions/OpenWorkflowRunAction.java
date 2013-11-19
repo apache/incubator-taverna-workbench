@@ -23,11 +23,13 @@ package net.sf.taverna.t2.workbench.run.actions;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
@@ -69,8 +71,7 @@ public class OpenWorkflowRunAction extends AbstractAction {
 		openWorkflowRuns(parentComponent);
 	}
 
-
-	public boolean openWorkflowRuns(final Component parentComponent) {
+	public void openWorkflowRuns(final Component parentComponent) {
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.setDialogTitle(OPEN_WORKFLOW_RUN);
 
@@ -94,19 +95,22 @@ public class OpenWorkflowRunAction extends AbstractAction {
 			final File[] selectedFiles = fileChooser.getSelectedFiles();
 			if (selectedFiles.length == 0) {
 				logger.warn("No files selected");
-				return false;
+				return;
 			}
-			for (File file : selectedFiles) {
-				try {
-					runService.open(file);
-				} catch (Exception e) {
-					logger.error("Failed to open workflow run from " + file, e);
-					showErrorMessage(parentComponent, file, e);
+			new SwingWorker<Void, Void>() {
+				@Override
+				public Void doInBackground() {
+					for (final File file : selectedFiles) {
+						try {
+							runService.open(file);
+						} catch (IOException e) {
+							showErrorMessage(parentComponent, file, e);
+						}
+					}
+					return null;
 				}
-			}
-			return true;
+			}.execute();
 		}
-		return false;
 	}
 
 	/**
@@ -116,17 +120,16 @@ public class OpenWorkflowRunAction extends AbstractAction {
 	 * @param file
 	 * @param throwable
 	 */
-	protected void showErrorMessage(final Component parentComponent,
-			final File file, final Throwable throwable) {
+	protected void showErrorMessage(final Component parentComponent, final File file,
+			final Throwable throwable) {
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				Throwable cause = throwable;
 				while (cause.getCause() != null) {
 					cause = cause.getCause();
 				}
-				JOptionPane.showMessageDialog(parentComponent,
-						"Failed to open workflow from " + file + ": \n"
-								+ cause.getMessage(), "Warning",
+				JOptionPane.showMessageDialog(parentComponent, "Failed to open workflow from "
+						+ file + ": \n" + cause.getMessage(), "Warning",
 						JOptionPane.WARNING_MESSAGE);
 			}
 		});
