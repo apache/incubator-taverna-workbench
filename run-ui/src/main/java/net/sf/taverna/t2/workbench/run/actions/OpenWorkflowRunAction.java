@@ -23,7 +23,6 @@ package net.sf.taverna.t2.workbench.run.actions;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.File;
-import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
@@ -102,7 +101,6 @@ public class OpenWorkflowRunAction extends AbstractAction {
 					runService.open(file);
 				} catch (Exception e) {
 					logger.error("Failed to open workflow run from " + file, e);
-					e.printStackTrace();
 					showErrorMessage(parentComponent, file, e);
 				}
 			}
