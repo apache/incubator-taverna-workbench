@@ -60,9 +60,13 @@ import uk.org.taverna.platform.run.api.RunService;
 /**
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 
+
 	private static Logger logger = Logger.getLogger(ResultsPerspectiveComponent.class);
+
+	private static final String NO_RUNS_MESSAGE = "No workflow runs";
 
 	private static final String RUNS_SELECTED = "RUNS_SELECTED";
 	private static final String NO_RUNS_SELECTED = "NO_RUNS_SELECTED";
@@ -98,7 +102,7 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 
-		JLabel noRunsMessage = new JLabel("No workflows run yet", JLabel.CENTER);
+		JLabel noRunsMessage = new JLabel(NO_RUNS_MESSAGE, JLabel.CENTER);
 		Font font = noRunsMessage.getFont();
 		if (font != null) {
 			font = font.deriveFont(Math.round((font.getSize() * 1.5))).deriveFont(Font.BOLD);
@@ -169,7 +173,8 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 						monitorGraphComponent.setWorkflowRun(workflowRun);
 						tableMonitorComponent.setWorkflowRun(workflowRun);
 					} catch (InvalidRunIdException e) {
-						logger.warn("Failed to create monitor components for workflow run " + workflowRun, e);
+						logger.warn("Failed to create monitor components for workflow run "
+								+ workflowRun, e);
 					}
 				}
 			}
@@ -179,36 +184,38 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 	public void handleEvent(Event event) {
 		String topic = event.getTopic();
 		String workflowRun = event.getProperty("RUN_ID").toString();
-		Tab<String> tab = runSelectorComponent.getTab(workflowRun);
 		switch (topic) {
-		case RunService.RUN_CREATED:
-		case RunService.RUN_OPENED:
-			selectionManager.setSelectedWorkflowRun(workflowRun);
-			break;
 		case RunService.RUN_CLOSED:
 		case RunService.RUN_DELETED:
 			runSelectorComponent.removeObject(workflowRun);
 			monitorGraphComponent.removeWorkflowRun(workflowRun);
 			tableMonitorComponent.removeWorkflowRun(workflowRun);
 			resultsComponent.removeWorkflowRun(workflowRun);
+			if (selectionManager.getSelectedWorkflowRun().equals(workflowRun)) {
+				List<String> runs = runService.getRuns();
+				if (runs.isEmpty()) {
+					selectionManager.setSelectedWorkflowRun(null);
+				} else {
+					selectionManager.setSelectedWorkflowRun(runs.get(0));
+				}
+			}
+			break;
+		case RunService.RUN_CREATED:
+		case RunService.RUN_OPENED:
+			selectionManager.setSelectedWorkflowRun(workflowRun);
 			break;
 		case RunService.RUN_STOPPED:
-			if (tab != null) {
-				tab.setIcon(WorkbenchIcons.tickIcon);
-			}
-			break;
 		case RunService.RUN_PAUSED:
-			if (tab != null) {
-				tab.setIcon(WorkbenchIcons.pauseIcon);
-			}
-			break;
 		case RunService.RUN_STARTED:
 		case RunService.RUN_RESUMED:
-			if (tab != null) {
-				tab.setIcon(WorkbenchIcons.workingIcon);
+			Tab<String> tab = runSelectorComponent.getTab(workflowRun);
+			if (tab instanceof RunTab) {
+				RunTab runTab = (RunTab) tab;
+				runTab.updateTabIcon();
 			}
 			break;
 		}
 	}
+
 
 }

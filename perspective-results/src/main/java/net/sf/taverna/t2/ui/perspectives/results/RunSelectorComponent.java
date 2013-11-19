@@ -57,7 +57,9 @@ public class RunSelectorComponent extends TabSelectorComponent<String> {
 			if (message instanceof WorkflowRunSelectionEvent) {
 				WorkflowRunSelectionEvent workflowRunSelectionEvent = (WorkflowRunSelectionEvent) message;
 				String workflowRun = workflowRunSelectionEvent.getSelectedWorkflowRun();
-				selectObject(workflowRun);
+				if (workflowRun != null) {
+					selectObject(workflowRun);
+				}
 			}
 		}
 	}

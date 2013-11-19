@@ -22,25 +22,30 @@ package net.sf.taverna.t2.ui.perspectives.results;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.lang.ui.tabselector.Tab;
+import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
+
+import org.apache.log4j.Logger;
+
 import uk.org.taverna.platform.execution.api.InvalidExecutionIdException;
 import uk.org.taverna.platform.report.State;
-import uk.org.taverna.platform.report.WorkflowReport;
 import uk.org.taverna.platform.run.api.InvalidRunIdException;
 import uk.org.taverna.platform.run.api.RunService;
 import uk.org.taverna.platform.run.api.RunStateException;
 
 /**
+ * Tab for selecting the current workflow run.
+ *
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class RunTab extends Tab<String> {
 
-	private static final long serialVersionUID = 1L;
+	private static Logger logger = Logger.getLogger(RunTab.class);
 
 	private final SelectionManager selectionManager;
 	private final RunService runService;
@@ -70,7 +75,8 @@ public class RunTab extends Tab<String> {
 		try {
 			State state = runService.getState(selection);
 			if (state == State.RUNNING || state == State.PAUSED) {
-				int answer = JOptionPane.showConfirmDialog(null, "Closing the tab will cancel the workflow run. Do you want to continue?",
+				int answer = JOptionPane.showConfirmDialog(null,
+						"Closing the tab will cancel the workflow run. Do you want to continue?",
 						"Workflow is still running", JOptionPane.YES_NO_OPTION);
 				if (answer == JOptionPane.NO_OPTION) {
 					return;
@@ -87,8 +93,7 @@ public class RunTab extends Tab<String> {
 				try {
 					runService.save(selection, file);
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.warn("Failed to save workflow run to " + file, e);
 				}
 			}
 			runService.close(selection);
@@ -96,6 +101,28 @@ public class RunTab extends Tab<String> {
 			// TODO Have to cope with this - execution ID could be invalid but still need to close
 			// the tab
 			e.printStackTrace();
+		}
+	}
+
+	public void updateTabIcon() {
+		try {
+			switch (runService.getState(selection)) {
+			case RUNNING:
+				setIcon(WorkbenchIcons.workingIcon);
+				break;
+			case COMPLETED:
+				setIcon(WorkbenchIcons.tickIcon);
+				break;
+			case PAUSED:
+				setIcon(WorkbenchIcons.pauseIcon);
+				break;
+			case CANCELLED:
+			case FAILED:
+				setIcon(WorkbenchIcons.errorMessageIcon);
+				break;
+			}
+		} catch (InvalidRunIdException e) {
+			logger.warn(e);
 		}
 	}
 
