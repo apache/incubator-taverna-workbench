@@ -119,7 +119,7 @@ public class RunTab extends Tab<String> {
 				break;
 			case CANCELLED:
 			case FAILED:
-				setIcon(WorkbenchIcons.errorMessageIcon);
+				setIcon(WorkbenchIcons.tickIcon);
 				break;
 			}
 		} catch (InvalidRunIdException e) {
