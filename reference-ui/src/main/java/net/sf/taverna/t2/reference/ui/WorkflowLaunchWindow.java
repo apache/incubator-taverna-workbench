@@ -327,7 +327,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
             setWorkflowDescription(bean.getProperty(descProp).getString());
         }
 
-        Property creatorProp = annotations.createProperty("http://purl.org/dc/terms/description");
+        Property creatorProp = annotations.createProperty("http://purl.org/dc/elements/1.1/creator");
         if (bean.hasProperty(creatorProp)) {
             setWorkflowAuthor(bean.getProperty(creatorProp).getString());
         }
