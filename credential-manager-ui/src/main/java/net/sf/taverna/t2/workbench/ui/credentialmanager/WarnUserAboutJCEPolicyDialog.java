@@ -33,7 +33,9 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.security.NoSuchAlgorithmException;
 
+import javax.crypto.Cipher;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
@@ -64,10 +66,10 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 	
-	private Logger logger = Logger.getLogger(WarnUserAboutJCEPolicyDialog.class);
+	private static Logger logger = Logger.getLogger(WarnUserAboutJCEPolicyDialog.class);
 	
 	private JCheckBox doNotWarnMeAgainCheckBox;
-
+	
 	public WarnUserAboutJCEPolicyDialog(){
 		super((Frame)null, "Java Unlimited Strength Cryptography Policy Warning", true);
 		initComponents();
@@ -162,9 +164,21 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 	 */
 	public static void warnUserAboutJCEPolicy(){
 		
+		boolean alreadyInstalled = true;
+		
+
+			try {
+				final int maxAllowedKeyLength = Cipher.getMaxAllowedKeyLength("PBEWithSHAAndTwofish-CBC");
+				alreadyInstalled = maxAllowedKeyLength == Integer.MAX_VALUE;
+			} catch (NoSuchAlgorithmException e) {
+				logger.error("Algorithm PBEWithSHAAndTwofish-CBC could not be found");
+			}
+
+
+		
 		// Do not pop up a dialog if we are running headlessly.
 		// If we have warned the user and they do not want us to remind them again - exit.
-		if (warnedUser || GraphicsEnvironment.isHeadless() || doNotWarnUserAboutJCEPolicyFile.exists()){
+		if (alreadyInstalled || warnedUser || GraphicsEnvironment.isHeadless() || doNotWarnUserAboutJCEPolicyFile.exists()){
 			return;
 		}
 
