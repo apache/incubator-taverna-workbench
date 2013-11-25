@@ -29,6 +29,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -73,9 +75,18 @@ import org.purl.wf4ever.robundle.Bundle;
 
 import uk.org.taverna.configuration.database.DatabaseConfiguration;
 import uk.org.taverna.databundle.DataBundles;
+import uk.org.taverna.scufl2.api.annotation.Annotation;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.common.URITools;
+import uk.org.taverna.scufl2.api.common.WorkflowBean;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.Property;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 /**
  * A simple workflow launch window, uses a tabbed layout to display a set of named RegistrationPanel
@@ -150,6 +161,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	private final DatabaseConfiguration databaseConfiguration;
 
 	private final Scufl2Tools scufl2Tools = new Scufl2Tools();
+	private final URITools uriTools = new URITools();
 
 	public WorkflowLaunchWindow(Workflow workflow, EditManager editManager,
 			FileManager fileManager, ReportManager reportManager, Workbench workbench,
@@ -206,14 +218,14 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	/**
 	 * Set the title of the window to contain the workflow name and its file/url location so that
 	 * users can easily identify which workflow is being run.
+	 * @param title2 
 	 */
-	private void setWindowTitle() {
-		// TODO get annotation from scufl2
-		String title = "";
+	private void setWindowTitle(String title) {
 		String windowTitle = "Input values for ";
-		if ((title != null) && (!title.equals(""))) {
+		if ((title != null) && (!title.isEmpty())) {
 			windowTitle += "'" + title + "' ";
 		} else {
+		    // Fall back to its name
 			windowTitle += "'" + workflow.getName() + "' ";
 		}
 
@@ -228,8 +240,6 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	 * Draw the components of the frame.
 	 */
 	public void initComponents() {
-
-		setWindowTitle();
 
 		workflowPart = new JPanel(new GridLayout(3, 1));
 		portsPart = new JPanel(new BorderLayout());
@@ -293,13 +303,28 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			}
 		};
 
-		// TODO get annotation from scufl2
-		String wfDescription = "";
-		setWorkflowDescription(wfDescription);
+		WorkflowBundle workflowBundle = workflow.getParent();
 
-		// TODO get annotation from scufl2
-		String wfAuthor = "";
-		setWorkflowAuthor(wfAuthor);
+        Model annotations = annotationsForBean(workflowBundle, workflow);
+        Resource bean = annotations.getResource(uriTools.uriForBean(workflow).toASCIIString());
+
+        
+        String title = null;
+        Property titleProp = annotations.createProperty("http://purl.org/dc/terms/title");
+        if (bean.hasProperty(titleProp)) {
+            title = bean.getProperty(titleProp).getString();
+        }
+        setWindowTitle(title);
+
+        Property descProp = annotations.createProperty("http://purl.org/dc/terms/description");
+        if (bean.hasProperty(descProp)) {
+            setWorkflowDescription(bean.getProperty(descProp).getString());
+        }
+
+        Property creatorProp = annotations.createProperty("http://purl.org/dc/terms/description");
+        if (bean.hasProperty(creatorProp)) {
+            setWorkflowAuthor(bean.getProperty(creatorProp).getString());
+        }
 
 		Action useExamplesAction = new AbstractAction("Use examples", addTextIcon) {
 
@@ -356,19 +381,27 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 		// Create tabs for input ports (but only for the one that are connected!)
 		for (InputWorkflowPort inputPort : inputPorts) {
-
 			// Is this input port connected to anything?
-			if (!scufl2Tools.datalinksFrom(inputPort).isEmpty()) {
-				// TODO get annotation from scufl2
-				String portDescription = "";
-				// TODO get annotation from scufl2
-				String portExample = "";
-
-				// add tabs for wf input ports
-				String name = inputPort.getName();
-				inputNames.add(name);
-				addInput(name, inputPort.getDepth(), portDescription, portExample);
+			if (scufl2Tools.datalinksFrom(inputPort).isEmpty()) { 
+			    continue;
 			}
+			String portDescription = "";
+			String portExample = "";
+
+			annotations = annotationsForBean(workflowBundle, inputPort);
+			bean = annotations.getResource(uriTools.uriForBean(inputPort).toASCIIString());
+			if (bean.hasProperty(descProp)) {
+			    portDescription = bean.getProperty(descProp).getString();
+			}
+			Property exDataProp = annotations.createProperty("http://biocatalogue.org/attribute/exampleData");
+            if (bean.hasProperty(exDataProp)) {
+                portExample = bean.getProperty(exDataProp).getString();
+            }
+
+			// add tabs for wf input ports
+			String name = inputPort.getName();
+			inputNames.add(name);
+			addInput(name, inputPort.getDepth(), portDescription, portExample);
 		}
 
 		portsPart.add(tabsPane, BorderLayout.CENTER);
@@ -387,6 +420,31 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 		pack();
 	}
+
+    private Model annotationsForBean(WorkflowBundle workflowBundle,
+            WorkflowBean bean) {
+        Model model = GraphFactory.makeDefaultModel();
+        for (Annotation annotation : scufl2Tools.annotationsFor(bean,
+                workflowBundle)) {
+            URI base = uriTools.uriForBean(annotation);
+            URI body = base.resolve(annotation.getBody());
+            URI path = uriTools.relativePath(workflowBundle.getGlobalBaseURI(),
+                    body);
+            System.out.println(body);
+            System.out.println(path.getPath());
+            String mediaType = workflowBundle.getResources()
+                    .getResourceEntry(path.getPath()).getMediaType();
+            System.out.println(mediaType);
+            try (InputStream inputStream = workflowBundle.getResources()
+                    .getResourceAsInputStream(path.getPath())) {
+                model.read(inputStream, body.toASCIIString(), "TURTLE");                
+            } catch (IOException e) {
+                logger.warn("Can't read " + body, e);
+                continue;
+            }
+        }
+        return model;
+    }
 
 	/**
 	 * User clicked the cancel button.
