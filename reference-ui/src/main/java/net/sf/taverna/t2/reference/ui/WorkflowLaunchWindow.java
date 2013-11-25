@@ -426,12 +426,14 @@ public abstract class WorkflowLaunchWindow extends JFrame {
         Model model = GraphFactory.makeDefaultModel();
         for (Annotation annotation : scufl2Tools.annotationsFor(bean,
                 workflowBundle)) {
-            URI base = uriTools.uriForBean(annotation);
+            System.out.println(annotation.getBody());
+            URI base = uriTools.uriForBean(workflowBundle);
             URI body = base.resolve(annotation.getBody());
+            System.out.println(body);
             URI path = uriTools.relativePath(workflowBundle.getGlobalBaseURI(),
                     body);
-            System.out.println(body);
             System.out.println(path.getPath());
+            
             String mediaType = workflowBundle.getResources()
                     .getResourceEntry(path.getPath()).getMediaType();
             System.out.println(mediaType);
