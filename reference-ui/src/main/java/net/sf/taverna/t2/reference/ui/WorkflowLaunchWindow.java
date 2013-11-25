@@ -70,6 +70,10 @@ import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 
 import org.apache.batik.swing.JSVGCanvas;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
+import org.apache.jena.riot.RDFLanguages;
+import org.apache.jena.riot.RIOT;
 import org.apache.log4j.Logger;
 import org.purl.wf4ever.robundle.Bundle;
 
@@ -168,6 +172,8 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			List<ReferenceActionSPI> referenceActionSPIs,
 			DatabaseConfiguration databaseConfiguration) {
 		super();
+		// Initialize RIOT reader
+		RIOT.register();
 
 		this.workflow = workflow;
 		this.editManager = editManager;
@@ -423,23 +429,30 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
     private Model annotationsForBean(WorkflowBundle workflowBundle,
             WorkflowBean bean) {
+        
         Model model = GraphFactory.makeDefaultModel();
         for (Annotation annotation : scufl2Tools.annotationsFor(bean,
                 workflowBundle)) {
-            System.out.println(annotation.getBody());
+//            System.out.println(annotation.getBody());
             URI base = uriTools.uriForBean(workflowBundle);
             URI body = base.resolve(annotation.getBody());
-            System.out.println(body);
+//            System.out.println(body);
             URI path = uriTools.relativePath(workflowBundle.getGlobalBaseURI(),
                     body);
-            System.out.println(path.getPath());
+//            System.out.println(path.getPath());
             
             String mediaType = workflowBundle.getResources()
                     .getResourceEntry(path.getPath()).getMediaType();
-            System.out.println(mediaType);
+            Lang lang = RDFLanguages.contentTypeToLang(mediaType);
+            if (lang == null) {
+                // Safe fallback
+                lang = Lang.TURTLE;
+            }
+//            System.out.println(mediaType);
             try (InputStream inputStream = workflowBundle.getResources()
                     .getResourceAsInputStream(path.getPath())) {
-                model.read(inputStream, body.toASCIIString(), "TURTLE");                
+                RDFDataMgr.read(model, inputStream, body.toASCIIString(), lang);
+//                model.read(inputStream, body.toASCIIString(), mediaType);                
             } catch (IOException e) {
                 logger.warn("Can't read " + body, e);
                 continue;
