@@ -164,7 +164,7 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 	 */
 	public static void warnUserAboutJCEPolicy(){
 		
-		boolean alreadyInstalled = true;
+		boolean alreadyInstalled = false;
 		
 
 			try {
