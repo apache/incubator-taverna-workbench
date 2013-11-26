@@ -35,6 +35,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTree;
+import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.event.TreeSelectionEvent;
@@ -134,25 +135,13 @@ public class PortResultsViewTab extends JPanel implements Updatable {
 			filteredTreeModel.addTreeModelListener(new TreeModelListener() {
 
 				public void treeNodesChanged(TreeModelEvent e) {
-
-					tree.expandPath(e.getTreePath());
-
-					// If nothing is currently selected in the tree - select either the
-					// result or the first AVAILABLE item in the result list
-					/*
-					 * if (tree.getSelectionRows() == null || tree.getSelectionRows().length == 0){
-					 * ResultTreeNode parent = (ResultTreeNode)e.getTreePath().getLastPathComponent();
-					 * // parent of the changed node(s)
-					 * int[] indices = e.getChildIndices(); //indexes of the changed node(s)
-					 * ResultTreeNode firstChild = (ResultTreeNode) parent.getChildAt(indices[0]); //
-					 * get the first changed node
-					 * if
-					 * (firstChild.getState().equals(ResultTreeNode.ResultTreeNodeState.RESULT_REFERENCE
-					 * )){ // if this is the result node rather than result list placeholder
-					 * tree.setSelectionPath(new TreePath(firstChild.getPath())); // select this node
-					 * }
-					 * }
-					 */
+					TreePath treePath = e.getTreePath();
+					tree.expandPath(treePath);
+					// If nothing is currently selected in the tree - select the first item in the result list
+					if (tree.getSelectionRows() == null || tree.getSelectionRows().length == 0) {
+						DefaultMutableTreeNode firstLeaf = ((DefaultMutableTreeNode)filteredTreeModel.getRoot()).getFirstLeaf();
+						tree.setSelectionPath(new TreePath(firstLeaf.getPath()));
+					}
 				}
 
 				public void treeNodesInserted(TreeModelEvent e) {
@@ -195,6 +184,9 @@ public class PortResultsViewTab extends JPanel implements Updatable {
 
 			// Add all to main panel
 			add(splitPanel, BorderLayout.CENTER);
+
+			DefaultMutableTreeNode firstLeaf = ((DefaultMutableTreeNode)filteredTreeModel.getRoot()).getFirstLeaf();
+			tree.setSelectionPath(new TreePath(firstLeaf.getPath()));
 		} else {
 			state = State.SINGLE_VALUE;
 			// Component for rendering individual results
@@ -202,23 +194,35 @@ public class PortResultsViewTab extends JPanel implements Updatable {
 			renderedResultComponent.setPath(value);
 			add(renderedResultComponent, BorderLayout.CENTER);
 		}
-
+		revalidate();
 	}
 
 	public void update() {
 		if (value == null || DataBundles.isMissing(value)) {
 			if (state != State.NO_DATA) {
-				initComponents();
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						initComponents();
+					}
+				});
 			}
 		} else if (DataBundles.isList(value)) {
 			if (state != State.LIST) {
-				initComponents();
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						initComponents();
+					}
+				});
 			} else {
 				resultModel.update();
 			}
 		} else {
 			if (state != State.SINGLE_VALUE) {
-				initComponents();
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						initComponents();
+					}
+				});
 			}
 		}
 	}
