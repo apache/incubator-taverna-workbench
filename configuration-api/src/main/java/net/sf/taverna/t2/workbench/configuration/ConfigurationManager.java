@@ -22,7 +22,9 @@ package net.sf.taverna.t2.workbench.configuration;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -71,16 +73,21 @@ public class ConfigurationManager {
 			Map<String, String> propertyMap = configurable.getInternalPropertyMap();
 			Properties props = new Properties();
 		    for (String key : propertyMap.keySet()) {
-		    	if (!propertyMap.get(key).equals(configurable.getDefaultProperty(key))) {
 		    		props.put(key, propertyMap.get(key));
-		    	}
 		    }
 			File configFile = new File(baseConfigLocation,generateFilename(configurable));
-			logger.info("Storing configuration for "+configurable.getFilePrefix()+" to "+configFile.getAbsolutePath());
-			props.store(new FileOutputStream(configFile), "");
+			writeProperties(configurable, props, configFile);
 		} catch (Exception e) {
 			throw new Exception("Configuration storage failed: " + e);
 		}
+	}
+
+	private static void writeProperties(Configurable configurable, Properties props,
+			File configFile) throws IOException, FileNotFoundException {
+		logger.info("Storing configuration for "+configurable.getFilePrefix()+" to "+configFile.getAbsolutePath());
+		final FileOutputStream out = new FileOutputStream(configFile);
+		props.store(out, "");
+		out.close();
 	}
 	
 	
@@ -98,8 +105,7 @@ public class ConfigurationManager {
 		try {
 			File configFile = new File(baseConfigLocation,generateFilename(configurable));
 			if (configFile.exists()) {
-				Properties props = new Properties();
-				props.load(new FileInputStream(configFile));
+				Properties props = readProperties(configFile);
 				configurable.clear();
 				for (Object key : props.keySet()) {
 					configurable.setProperty(key.toString(), props.getProperty(key.toString()));
@@ -115,6 +121,15 @@ public class ConfigurationManager {
 			logger.error("There was a error reading the configuration file for "+configurable.getFilePrefix()+", using defaults",e);
 			configurable.restoreDefaults();
 		}
+	}
+
+	private static Properties readProperties(File configFile) throws IOException,
+			FileNotFoundException {
+		Properties props = new Properties();
+		final FileInputStream inStream = new FileInputStream(configFile);
+		props.load(inStream);
+		inStream.close();
+		return props;
 	}
 
 	protected String generateFilename(Configurable configurable) {
