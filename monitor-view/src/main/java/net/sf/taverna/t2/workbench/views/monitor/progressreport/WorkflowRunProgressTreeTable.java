@@ -1,36 +1,31 @@
 package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
-import java.lang.reflect.InvocationTargetException;
-
-import javax.swing.SwingUtilities;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.treetable.JTreeTable;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
-
-import org.apache.log4j.Logger;
-
+import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
+import uk.org.taverna.platform.report.StatusReport;
+import uk.org.taverna.platform.report.WorkflowReport;
 import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.WorkflowPort;
 
 @SuppressWarnings("serial")
 public class WorkflowRunProgressTreeTable extends JTreeTable {
 
-	private static Logger logger = Logger.getLogger(WorkflowRunProgressTreeTable.class);
-
-	private WorkflowRunProgressTreeTableModel treeTableModel;
-
-	// Index of the last selected row in the WorkflowRunProgressTreeTable.
-	// Need to keep track of it as selections on the table can occur from various
-	// events - mouse click, key press or mouse click on the progress run graph.
-	private int lastSelectedTableRow = -1;
-
-	private Runnable refreshRunnable = null;
-
+	private final WorkflowRunProgressTreeTableModel treeTableModel;
 	private final DataflowSelectionModel selectionModel;
+
+	private final DataflowSelectionObserver dataflowSelectionObserver;
 
 	public WorkflowRunProgressTreeTable(WorkflowRunProgressTreeTableModel treeTableModel,
 			ActivityIconManager activityIconManager, DataflowSelectionModel selectionModel) {
@@ -39,7 +34,6 @@ public class WorkflowRunProgressTreeTable extends JTreeTable {
 		this.treeTableModel = treeTableModel;
 		this.selectionModel = selectionModel;
 
-		final WorkflowRunProgressTreeTableModel model = treeTableModel;
 		this.tree.setCellRenderer(new WorkflowRunProgressTreeCellRenderer(activityIconManager));
 		this.tree.setEditable(false);
 		this.tree.setExpandsSelectedPaths(true);
@@ -47,28 +41,16 @@ public class WorkflowRunProgressTreeTable extends JTreeTable {
 		this.tree.setScrollsOnExpand(false);
 
 		getTableHeader().setReorderingAllowed(false);
-		// getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		getSelectionModel().addListSelectionListener(new TableSelectionListener());
 
-		refreshRunnable = new Runnable() {
-			public void run() {
-				model.update();
-			}
-		};
-
+		dataflowSelectionObserver = new DataflowSelectionObserver();
+		selectionModel.addObserver(dataflowSelectionObserver);
 	}
 
-	public void refreshTable() {
-		try {
-			if (!SwingUtilities.isEventDispatchThread()) {
-				SwingUtilities.invokeAndWait(refreshRunnable);
-			} else {
-				refreshRunnable.run();
-			}
-		} catch (InterruptedException e) {
-			logger.error("refresh of table interrupted", e);
-		} catch (InvocationTargetException e) {
-			logger.error("invocation of table refresh failed", e);
-		}
+	@Override
+	protected void finalize() throws Throwable {
+		selectionModel.removeObserver(dataflowSelectionObserver);
 	}
 
 	// Return object in the tree part of this JTreeTable that corresponds to
@@ -82,31 +64,49 @@ public class WorkflowRunProgressTreeTable extends JTreeTable {
 		}
 	}
 
-	public void triggerWorkflowObjectSelectionEvent(Object workflowObject) {
-		if (workflowObject instanceof Processor || workflowObject instanceof WorkflowPort) {
-			selectionModel.addSelection(workflowObject);
+	public void setSelectedRowForObject(Object workflowObject) {
+		// Find the row for the object in the tree
+		DefaultMutableTreeNode node = treeTableModel.getNodeForObject(workflowObject);
+		if (node != null) {
+			TreeNode[] path = node.getPath();
+			tree.scrollPathToVisible(new TreePath(path));
+			int row = tree.getRowForPath(new TreePath(path));
+			if (row >= 0) {
+				// Set selected row on the table
+				setRowSelectionInterval(row, row);
+			}
 		}
 	}
 
-	public void setLastSelectedTableRow(int lastSelectedTableRow) {
-		this.lastSelectedTableRow = lastSelectedTableRow;
+	private class DataflowSelectionObserver extends SwingAwareObserver<DataflowSelectionMessage> {
+		@Override
+		public void notifySwing(Observable<DataflowSelectionMessage> sender,
+				DataflowSelectionMessage message) {
+			for (Object selection : selectionModel.getSelection()) {
+				if (selection instanceof Processor || selection instanceof Workflow) {
+					setSelectedRowForObject(selection);
+				} else if (selection instanceof WorkflowPort) {
+					WorkflowPort workflowPort = (WorkflowPort) selection;
+					setSelectedRowForObject(workflowPort.getParent());
+				}
+			}
+		}
 	}
 
-	public int getLastSelectedTableRow() {
-		return lastSelectedTableRow;
+	private class TableSelectionListener implements ListSelectionListener {
+		@Override
+		public void valueChanged(ListSelectionEvent e) {
+			if (!e.getValueIsAdjusting()) {
+				int selectedRow = getSelectedRow();
+				if (selectedRow >= 0) {
+					Object selection = getTreeObjectForRow(selectedRow);
+					if (selection instanceof StatusReport || selection instanceof WorkflowReport) {
+						StatusReport<?,?> statusReport = (StatusReport<?,?>) selection;
+						selectionModel.addSelection(statusReport.getSubject());
+					}
+				}
+			}
+		}
 	}
-
-//	public void setSelectedRowForObject(Object workflowObject) {
-//		// Find the row for the object in the tree
-//		DefaultMutableTreeNode node = treeTableModel.getNodeForObject(workflowObject);
-//		TreeNode[] path = node.getPath();
-//		this.tree.scrollPathToVisible(new TreePath(path));
-//		int row = this.tree.getRowForPath(new TreePath(path));
-//		if (row > 0) {
-//			// Set selected row on the table
-//			this.setRowSelectionInterval(row, row);
-//		}
-//		lastSelectedTableRow = row;
-//	}
 
 }

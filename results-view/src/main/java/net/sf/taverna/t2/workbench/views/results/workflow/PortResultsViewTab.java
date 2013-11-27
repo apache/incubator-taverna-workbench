@@ -214,7 +214,9 @@ public class PortResultsViewTab extends JPanel implements Updatable {
 					}
 				});
 			} else {
-				resultModel.update();
+				if (resultModel != null) {
+					resultModel.update();
+				}
 			}
 		} else {
 			if (state != State.SINGLE_VALUE) {

@@ -67,8 +67,7 @@ public class MonitorViewComponent extends JPanel implements Updatable {
 		tabbedPane = new JTabbedPane();
 
 		buttonsPanel = new JPanel(new GridBagLayout());
-//		buttonsPanel = new JPanel(new GridBagLayout());
-//
+
 //		buttonsPanel.add(new JLabel("Workflow status"));
 //
 //		buttonsPanel.add(new JButton("Pause"));

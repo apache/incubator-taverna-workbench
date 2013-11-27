@@ -23,6 +23,10 @@ package net.sf.taverna.t2.workbench.views.monitor.graph;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +36,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
@@ -79,6 +84,8 @@ public class MonitorGraphComponent extends JPanel implements Updatable {
 	private Map<String, JPanel> diagramPanelMap = new HashMap<>();
 	private Map<String, Action[]> diagramActionsMap = new HashMap<>();
 
+	private Timer timer;
+
 	private CardLayout cardLayout;
 
 	private JLabel statusLabel;
@@ -98,26 +105,26 @@ public class MonitorGraphComponent extends JPanel implements Updatable {
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
 
-		// ActionListener taskPerformer = new ActionListener() {
-		// public void actionPerformed(ActionEvent evt) {
-		// if (graphController != null) {
-		// graphController.redraw();
-		// graphMonitor.redraw();
-		// }
-		// timer.stop();
-		// }
-		// };
-		// timer = new Timer(100, taskPerformer);
-		//
-		// addComponentListener(new ComponentAdapter() {
-		// public void componentResized(ComponentEvent e) {
-		// if (timer.isRunning()) {
-		// timer.restart();
-		// } else {
-		// timer.start();
-		// }
-		// }
-		// });
+//		ActionListener taskPerformer = new ActionListener() {
+//			public void actionPerformed(ActionEvent evt) {
+//				if (graphController != null) {
+//					graphController.redraw();
+//					graphMonitor.redraw();
+//				}
+//				timer.stop();
+//			}
+//		};
+//		timer = new Timer(100, taskPerformer);
+//
+//		addComponentListener(new ComponentAdapter() {
+//			public void componentResized(ComponentEvent e) {
+//				if (timer.isRunning()) {
+//					timer.restart();
+//				} else {
+//					timer.start();
+//				}
+//			}
+//		});
 
 	}
 
@@ -163,8 +170,8 @@ public class MonitorGraphComponent extends JPanel implements Updatable {
 			GVTTreeRendererAdapter gvtTreeRendererAdapter = new GVTTreeRendererAdapter() {
 				public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
 					logger.info("Rendered svg");
-					// svgScrollPane.reset();
-					// revalidate();
+//					svgScrollPane.reset();
+//					diagramPanel.revalidate();
 				}
 			};
 			svgCanvas.addGVTTreeRendererListener(gvtTreeRendererAdapter);

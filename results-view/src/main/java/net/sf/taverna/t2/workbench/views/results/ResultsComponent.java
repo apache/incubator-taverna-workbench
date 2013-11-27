@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.views.results;
 
 import java.awt.CardLayout;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -179,33 +180,27 @@ public class ResultsComponent extends JPanel implements Updatable {
 	}
 
 	private ProcessorReport findProcessorReport(WorkflowReport workflowReport, Processor processor) {
-		for (ProcessorReport processorReport : workflowReport.getProcessorReports()) {
-			if (equals(processorReport.getSubject(), processor)) {
-				return processorReport;
+		URI workflowIdentifier = workflowReport.getSubject().getIdentifier();
+		if (processor.getParent().getIdentifier().equals(workflowIdentifier)) {
+			for (ProcessorReport processorReport : workflowReport.getProcessorReports()) {
+				if (processorReport.getSubject().getName().equals(processor.getName())) {
+					return processorReport;
+				}
 			}
-			for (ActivityReport activityReport : processorReport.getActivityReports()) {
-				WorkflowReport nestedWorkflowReport = activityReport.getNestedWorkflowReport();
-				if (nestedWorkflowReport != null) {
-					return findProcessorReport(nestedWorkflowReport, processor);
+		} else {
+			for (ProcessorReport processorReport : workflowReport.getProcessorReports()) {
+				for (ActivityReport activityReport : processorReport.getActivityReports()) {
+					WorkflowReport nestedWorkflowReport = activityReport.getNestedWorkflowReport();
+					if (nestedWorkflowReport != null) {
+						ProcessorReport report = findProcessorReport(nestedWorkflowReport, processor);
+						if (report != null) {
+							return report;
+						}
+					}
 				}
 			}
 		}
 		return null;
-	}
-
-	private boolean equals(Named named1, Named named2) {
-		if (named1.getName().equals(named2.getName())) {
-			if (named1 instanceof Child<?> && named2 instanceof Child<?>) {
-				Object parent1 = ((Child<?>) named1).getParent();
-				Object parent2 = ((Child<?>) named2).getParent();
-				if (parent1 instanceof Named && parent2 instanceof Named) {
-					return equals((Named) parent1, (Named) parent2);
-				}
-			} else {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	private class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {

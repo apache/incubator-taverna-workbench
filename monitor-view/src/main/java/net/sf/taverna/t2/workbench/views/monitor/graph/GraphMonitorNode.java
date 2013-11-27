@@ -24,8 +24,8 @@ import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import uk.org.taverna.platform.report.ProcessorReport;
 
 /**
- * A <code>MonitorNode</code> that updates a <code>Graph</code> when
- * <code>ProcessorReport</code> property changes.
+ * A <code>MonitorNode</code> that updates a <code>Graph</code> when <code>ProcessorReport</code>
+ * property changes.
  *
  * @author David Withers
  */
@@ -56,68 +56,73 @@ public class GraphMonitorNode {
 	 * Updates the <code>Graph</code> when changes to properties are detected.
 	 */
 	public void update() {
-		boolean queueSizeChanged = false;
-		boolean sentJobsChanged = false;
-		boolean completedJobsChanged = false;
-		boolean errorsChanged = false;
+		synchronized (graphController) {
+			boolean queueSizeChanged = false;
+			boolean sentJobsChanged = false;
+			boolean completedJobsChanged = false;
+			boolean errorsChanged = false;
 
-		int newQueueSize = processorReport.getJobsQueued();
-		newQueueSize = newQueueSize == -1 ? 0 : newQueueSize;
-		if (queueSize != newQueueSize) {
-			queueSize = newQueueSize;
-			queueSizeChanged = true;
-		}
-
-		int newSentJobs = processorReport.getJobsStarted();
-		if (sentJobs != newSentJobs) {
-			sentJobs = newSentJobs;
-			sentJobsChanged = true;
-		}
-
-		int newCompletedJobs = processorReport.getJobsCompleted();
-		if (completedJobs != newCompletedJobs) {
-			completedJobs = newCompletedJobs;
-			completedJobsChanged = true;
-		}
-
-		int newErrors = processorReport.getJobsCompletedWithErrors();
-		if (errors != newErrors) {
-			errors = newErrors;
-			errorsChanged = true;
-		}
-
-		if (queueSizeChanged || sentJobsChanged || completedJobsChanged || errorsChanged) {
-			if (completedJobsChanged) {
-				graphController.setIteration(processorId, completedJobs);
+			int newQueueSize = processorReport.getJobsQueued();
+			newQueueSize = newQueueSize == -1 ? 0 : newQueueSize;
+			if (queueSize != newQueueSize) {
+				queueSize = newQueueSize;
+				queueSizeChanged = true;
 			}
+
+			int newSentJobs = processorReport.getJobsStarted();
+			if (sentJobs != newSentJobs) {
+				sentJobs = newSentJobs;
+				sentJobsChanged = true;
+			}
+
+			int newCompletedJobs = processorReport.getJobsCompleted();
+			if (completedJobs != newCompletedJobs) {
+				completedJobs = newCompletedJobs;
+				completedJobsChanged = true;
+			}
+
+			int newErrors = processorReport.getJobsCompletedWithErrors();
+			if (errors != newErrors) {
+				errors = newErrors;
+				errorsChanged = true;
+			}
+
+			if (queueSizeChanged || sentJobsChanged || completedJobsChanged || errorsChanged) {
+				if (completedJobsChanged) {
+					graphController.setIteration(processorId, completedJobs);
+				}
+				if (completedJobs > 0) {
+					int totalJobs = sentJobs + queueSize;
+					graphController.setNodeCompleted(processorId, ((float) (completedJobs))
+							/ (float) totalJobs);
+				}
+				if (sentJobsChanged) {
+					// graphController.setEdgeActive(processorId, true);
+				}
+				if (errorsChanged && errors > 0) {
+					graphController.setErrors(processorId, errors);
+				}
+			}
+
+		}
+	}
+
+	public void redraw() {
+		synchronized (graphController) {
+			queueSize = Math.max(processorReport.getJobsQueued(), 0);
+			sentJobs = processorReport.getJobsStarted();
+			completedJobs = processorReport.getJobsCompleted();
+			errors = processorReport.getJobsCompletedWithErrors();
+
+			graphController.setIteration(processorId, completedJobs);
 			if (completedJobs > 0) {
 				int totalJobs = sentJobs + queueSize;
 				graphController.setNodeCompleted(processorId, ((float) (completedJobs))
 						/ (float) totalJobs);
 			}
-			if (sentJobsChanged) {
-				// graphController.setEdgeActive(processorId, true);
-			}
-			if (errorsChanged && errors > 0) {
+			if (errors > 0) {
 				graphController.setErrors(processorId, errors);
 			}
-		}
-	}
-
-	public void redraw() {
-		queueSize = Math.max(processorReport.getJobsQueued(), 0);
-		sentJobs = processorReport.getJobsStarted();
-		completedJobs = processorReport.getJobsCompleted();
-		errors = processorReport.getJobsCompletedWithErrors();
-
-		graphController.setIteration(processorId, completedJobs);
-		if (completedJobs > 0) {
-			int totalJobs = sentJobs + queueSize;
-			graphController.setNodeCompleted(processorId, ((float) (completedJobs))
-					/ (float) totalJobs);
-		}
-		if (errors > 0) {
-			graphController.setErrors(processorId, errors);
 		}
 	}
 

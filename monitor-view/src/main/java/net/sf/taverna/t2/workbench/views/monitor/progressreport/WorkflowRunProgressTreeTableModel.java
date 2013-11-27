@@ -25,7 +25,6 @@ import static net.sf.taverna.t2.workbench.views.results.processor.ProcessorResul
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,6 +114,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 			List<Object> columnData = new ArrayList<Object>(Collections.nCopies(Column.values().length, null));
 			setColumnValues(workflowReport, columnData);
 			nodeForObject.put(workflowReport, root);
+			nodeForObject.put(workflowReport.getSubject(), root);
 			data.put(root, columnData);
 		}
 		// One row for each processor
@@ -123,6 +123,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 			DefaultMutableTreeNode processorNode = new DefaultMutableTreeNode(processorReport);
 			setColumnValues(processorReport, columnData);
 			nodeForObject.put(processorReport, processorNode);
+			nodeForObject.put(processorReport.getSubject(), processorNode);
 			data.put(processorNode, columnData);
 			root.add(processorNode);
 
@@ -136,6 +137,10 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 				}
 			}
 		}
+	}
+
+	public DefaultMutableTreeNode getNodeForObject(Object workflowObject) {
+		return nodeForObject.get(workflowObject);
 	}
 
 	public void setColumnValues(StatusReport<?, ?> report, List<Object> columns) {
@@ -186,17 +191,19 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 				for (Invocation invocation : invocations) {
 					// Get the earliest start time of all invocations
 					Date startTime = invocation.getStartedDate();
-					if (startTime.before(earliestStartTime)) {
-						earliestStartTime = startTime;
-					}
-					// Get the latest finish time of all invocations
-					Date finishTime = invocation.getCompletedDate();
-					if (finishTime != null) {
-						if (finishTime.after(latestFinishTime)) {
-							latestFinishTime = finishTime;
-							totalInvocationTime += finishTime.getTime() - startTime.getTime();
+					if (startTime != null) {
+						if (startTime.before(earliestStartTime)) {
+							earliestStartTime = startTime;
 						}
-						finishedInvocations++;
+						// Get the latest finish time of all invocations
+						Date finishTime = invocation.getCompletedDate();
+						if (finishTime != null) {
+							if (finishTime.after(latestFinishTime)) {
+								latestFinishTime = finishTime;
+								totalInvocationTime += finishTime.getTime() - startTime.getTime();
+							}
+							finishedInvocations++;
+						}
 					}
 				}
 
@@ -216,7 +223,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 
 	public void update() {
 		update(rootNode);
-		this.fireTreeNodesChanged(rootNode, rootNode.getPath(), null, null);
+		fireTreeNodesChanged(rootNode, rootNode.getPath(), null, null);
 	}
 
 	private void update(DefaultMutableTreeNode node) {
