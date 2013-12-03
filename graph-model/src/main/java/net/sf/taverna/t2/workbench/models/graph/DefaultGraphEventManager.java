@@ -42,6 +42,7 @@ import net.sf.taverna.t2.workflowmodel.Merge;
 import net.sf.taverna.t2.workflowmodel.Processor;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
+import net.sf.taverna.t2.workflowmodel.processor.activity.LockedNestedDataflow;
 import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 
 /**
@@ -111,7 +112,8 @@ public class DefaultGraphEventManager implements GraphEventManager {
 						}));
 					}
 					if (!processor.getActivityList().isEmpty() && 
-							processor.getActivityList().get(0) instanceof NestedDataflow) {						
+							(processor.getActivityList().get(0) instanceof NestedDataflow) &&
+							!(processor.getActivityList().get(0) instanceof LockedNestedDataflow)) {						
 						final NestedDataflow nestedDataflow = (NestedDataflow) processor.getActivityList().get(0);
 						menu.addSeparator();
 						menu.add(new JMenuItem(new AbstractAction("Show nested workflow") {

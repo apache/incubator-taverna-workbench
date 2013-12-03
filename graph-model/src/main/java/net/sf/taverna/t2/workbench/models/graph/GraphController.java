@@ -68,6 +68,7 @@ import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
 import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
+import net.sf.taverna.t2.workflowmodel.processor.activity.LockedNestedDataflow;
 import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 import net.sf.taverna.t2.workflowmodel.processor.activity.NonExecutableActivity;
 import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
@@ -379,6 +380,9 @@ public abstract class GraphController implements
 			int index = newNodes.indexOf(oldNode);
 			if (index >= 0) {
 				GraphNode newNode = newNodes.remove(index);
+				if ((!oldNode.isExpanded()) && newNode.isExpanded() && (oldNode.getGraph() == null)) {
+					oldNode.setGraph(newNode.getGraph());
+				}
 				oldNode.setExpanded(newNode.isExpanded());
 				List<GraphNode> newSourceNodes = new ArrayList<GraphNode>(
 						newNode.getSourceNodes());
@@ -854,7 +858,7 @@ public abstract class GraphController implements
 			node.setDataflowObject(processor);
 		}
 
-		if (firstActivity instanceof NestedDataflow
+		if ((firstActivity instanceof NestedDataflow) && !(firstActivity instanceof LockedNestedDataflow)
 				&& expandNestedDataflow(((NestedDataflow) firstActivity)
 						.getNestedDataflow())) {
 			Dataflow subDataflow = ((NestedDataflow) firstActivity)
