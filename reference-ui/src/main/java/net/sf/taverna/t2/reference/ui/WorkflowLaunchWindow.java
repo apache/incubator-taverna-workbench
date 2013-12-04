@@ -40,6 +40,7 @@ import javax.swing.Action;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -649,6 +650,20 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 				workflowModified = true;
 			}
 		}
+	}
+	
+	public void showFrame() {
+		setVisible(true);
+		toFront();
+	      requestFocus();
+	      setAlwaysOnTop(true);
+	      repaint();
+	}
+
+	public void hideFrame() {
+		setVisible(false);
+
+	      setAlwaysOnTop(false);
 	}
 
 }
