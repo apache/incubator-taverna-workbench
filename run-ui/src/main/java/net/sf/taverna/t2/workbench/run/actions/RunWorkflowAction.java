@@ -291,7 +291,7 @@ public class RunWorkflowAction extends AbstractAction {
 					@Override
 					public void handleLaunch(
 							Map<String, T2Reference> workflowInputs) {
-						setVisible(false);
+						this.hideFrame();
 						resultsPerspectiveComponent.runWorkflow(getFacade(), workflowInputs);
 						switchToResultsPerspective();
 					}
@@ -299,7 +299,7 @@ public class RunWorkflowAction extends AbstractAction {
 					@Override
 					public void handleCancel() {
 						// Keep the window so we do not have to rebuild it again
-						setVisible(false);
+						this.hideFrame();
 					}
 				};
 
@@ -319,7 +319,7 @@ public class RunWorkflowAction extends AbstractAction {
 			}
 			
 			// Display the window
-			launchWindow.setVisible(true);
+			launchWindow.showFrame();
 		}
 	}
 
