@@ -656,7 +656,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		setVisible(true);
 		toFront();
 	      requestFocus();
-	      setAlwaysOnTop(true);
+//	      setAlwaysOnTop(true);
 	      repaint();
 	}
 
