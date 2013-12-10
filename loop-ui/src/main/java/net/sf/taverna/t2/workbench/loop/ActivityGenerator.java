@@ -20,6 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.loop;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -30,8 +31,6 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Map.Entry;
 
-import net.sf.taverna.t2.activities.beanshell.BeanshellActivity;
-import net.sf.taverna.t2.activities.beanshell.BeanshellActivityConfigurationBean;
 import net.sf.taverna.t2.workbench.loop.comparisons.Comparison;
 import net.sf.taverna.t2.workbench.loop.comparisons.EqualTo;
 import net.sf.taverna.t2.workbench.loop.comparisons.IsGreaterThan;
@@ -39,21 +38,34 @@ import net.sf.taverna.t2.workbench.loop.comparisons.IsLessThan;
 import net.sf.taverna.t2.workbench.loop.comparisons.Matches;
 import net.sf.taverna.t2.workbench.loop.comparisons.NotEqualTo;
 import net.sf.taverna.t2.workbench.loop.comparisons.NotMatches;
-import net.sf.taverna.t2.workflowmodel.InputPort;
-import net.sf.taverna.t2.workflowmodel.OutputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
-import net.sf.taverna.t2.workflowmodel.processor.activity.config.ActivityInputPortDefinitionBean;
-import net.sf.taverna.t2.workflowmodel.processor.activity.config.ActivityOutputPortDefinitionBean;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.port.InputActivityPort;
+import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+import uk.org.taverna.scufl2.api.port.OutputActivityPort;
+import uk.org.taverna.scufl2.api.port.OutputPort;
+import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 public class ActivityGenerator {
 
-	public static final String DEFAULT_DELAY_S = "0.2";
+    private static final String LOOP_PORT = "loop";
 
+    private static final String SCRIPT = "script";
 
+    public static URI BEANSHELL_ACTIVITY = URI
+            .create("http://ns.taverna.org.uk/2010/activity/beanshell");
+
+    public static URI BEANSHELL_CONFIG = BEANSHELL_ACTIVITY.resolve("#Config");
+
+    
+	public static final double DEFAULT_DELAY_S = 0.2;
 	public static final String COMPARE_PORT = "comparePort";
 	public static final String COMPARISON = "comparison";
 	public static final String CUSTOM_COMPARISON = "custom";
@@ -62,32 +74,29 @@ public class ActivityGenerator {
 	public static final String DELAY = "delay";
 
 	private static Logger logger = Logger.getLogger(ActivityGenerator.class);
-	private final Properties loopProperties;
-	private final Activity<?> activityToCompare;
+	private final ObjectNode loopProperties;
+	private final Processor processorToCompare;
+	private static Scufl2Tools scufl2Tools = new Scufl2Tools();
 
-	public ActivityGenerator(Properties loopProperties,
-			Activity<?> activityToCompare) {
-		this.loopProperties = loopProperties;
-		this.activityToCompare = activityToCompare;
+	public ActivityGenerator(ObjectNode configuration,
+			Processor processorToCompare) {
+		this.loopProperties = configuration;
+		this.processorToCompare = processorToCompare;
 	}
 
-	protected Activity<?> generateActivity() {
-		BeanshellActivity beanshell = new BeanshellActivity(null);
-		BeanshellActivityConfigurationBean beanshellConfig = generateBeanshellConfig();
-		try {
-			beanshell.configure(beanshellConfig);
-		} catch (ActivityConfigurationException e) {
-			logger.error("Could not configure beanshell", e);
-			return null;
-		}
+	protected Activity generateActivity() {
+		Activity beanshell = new Activity();
+		beanshell.setType(BEANSHELL_ACTIVITY);
+		Configuration config = generateBeanshellConfig(beanshell);
+		// TODO: Where to put the config?
 		return beanshell;
 	}
 
-	private BeanshellActivityConfigurationBean generateBeanshellConfig() {
-		BeanshellActivityConfigurationBean config = new BeanshellActivityConfigurationBean();
-		config.setInputPortDefinitions(generateInputPorts());
-		config.setOutputPortDefinitions(generateOutputPorts());
-		config.setScript(generateScript());
+	private Configuration generateBeanshellConfig(Activity beanshell) {
+	    Configuration config = scufl2Tools.createConfigurationFor(beanshell, BEANSHELL_CONFIG);
+	    generateInputPorts(beanshell);
+	    generateOutputPorts(beanshell);
+	    config.getJsonAsObjectNode().put(SCRIPT, generateScript());
 		return config;
 	}
 
@@ -96,6 +105,9 @@ public class ActivityGenerator {
 			new IsGreaterThan(), new IsLessThan());
 
 	protected static Comparison getComparisonById(String id) {
+	    if (id == null || id.isEmpty()) {
+	        return comparisons.get(0);
+	    }
 		for (Comparison potentialComparison : comparisons) {
 			if (potentialComparison.getId().equals(id)) {
 				return potentialComparison;
@@ -107,30 +119,27 @@ public class ActivityGenerator {
 	@SuppressWarnings("boxing")
 	private String generateScript() {
 		Map<String, String> replacements = new HashMap<String, String>();
-		replacements.put("${loopPort}", Loop.LOOP_PORT);
-		replacements.put("${port}", loopProperties.getProperty(COMPARE_PORT));
+		replacements.put("${loopPort}", LOOP_PORT);
+		replacements.put("${port}", loopProperties.findValue(COMPARE_PORT).asText());
 		replacements.put("${value}", beanshellString(loopProperties
-				.getProperty(COMPARE_VALUE)));
+				.findValue(COMPARE_VALUE).asText()));
 
 
-		String delaySeconds = loopProperties.getProperty(DELAY, DEFAULT_DELAY_S);
-		Double delay;
-		try {
-			delay = Double.parseDouble(delaySeconds) * 1000;
-		} catch (NumberFormatException ex) {
-			logger.warn("Invalid number for loop delay: " + delaySeconds);
-			delay = 0.0;
-		}
-		delay = Math.max(0.0, delay);
-
+		// as seconds
+		Double delay = loopProperties.findPath(DELAY).asDouble(DEFAULT_DELAY_S);
+		// as milliseconds
+		delay = Math.max(0.0, delay) * 1000;
+		// as integer (for Thread.sleep)
 		replacements.put("${delay}", Integer.toString(delay.intValue()));
 
 		String template = getComparisonById(
-				loopProperties.getProperty(COMPARISON)).getScriptTemplate();
+				loopProperties.findValue(COMPARISON).asText()).getScriptTemplate();
 
-		template += "\nif (\"true\".matches(${loopPort})) {\n";
-		template += "   Thread.sleep(${delay});\n";
-		template += "}";
+		if (delay > 0.0) {
+    		template += "\nif (\"true\".matches(${loopPort})) {\n";
+    		template += "   Thread.sleep(${delay});\n";
+    		template += "}";
+		}
 
 		String script = template;
 		for (Entry<String, String> mapping : replacements.entrySet()) {
@@ -146,109 +155,41 @@ public class ActivityGenerator {
 		return '"' + value + '"';
 	}
 
-	private List<ActivityInputPortDefinitionBean> generateInputPorts() {
-		List<ActivityInputPortDefinitionBean> inputs = new ArrayList<ActivityInputPortDefinitionBean>();
-		if (activityToCompare == null) {
-			return inputs;
+	private void generateInputPorts(Activity beanshell) {
+		if (processorToCompare == null) {
+		    return;
 		}
-		for (OutputPort outputPort : activityToCompare.getOutputPorts()) {
-			ActivityInputPortDefinitionBean inputDef = new ActivityInputPortDefinitionBean();
-			String activityPortName = outputPort.getName();
-			String processorPortName = activityToCompare.getOutputPortMapping()
-					.get(activityPortName);
-			if (processorPortName == null) {
-				// We'll need to map it later
-				processorPortName = activityPortName;
+		for (OutputProcessorPort procOut : processorToCompare.getOutputPorts()) {
+		    // Any of the outputs are available to the script, giving
+		    // a custom script that compares multiple outputs a better
+		    // starting point.
+			String portName = procOut.getName();
+			if (portName.equals(loopProperties.findValue(COMPARE_PORT).asText()) ||
+			        (loopProperties.findValue(IS_FEED_BACK).asBoolean())) {
+				InputActivityPort input = new InputActivityPort(beanshell, portName);
+				input.setDepth(procOut.getDepth());
+				input.setParent(beanshell);
 			}
-			inputDef.setName(processorPortName);
-			inputDef.setDepth(outputPort.getDepth());
-
-			inputDef.setAllowsLiteralValues(true);
-			if (loopProperties.getProperty(COMPARE_PORT).equals(
-					activityPortName)) {
-				inputDef.setAllowsLiteralValues(true);
-				inputDef.setTranslatedElementType(String.class);
-			} else if (Boolean.parseBoolean(loopProperties
-					.getProperty(IS_FEED_BACK))) {
-				// Don't translate
-				// inputDef.setTranslatedElementType(T2Reference.class);
-				inputDef.setTranslatedElementType(Object.class);
-				// FIXME: Need a way to allow T2Reference into beanshell
-			} else {
-				continue;
-			}
-			inputs.add(inputDef);
 		}
-		return inputs;
 	}
 
-	private List<ActivityOutputPortDefinitionBean> generateOutputPorts() {
-		List<ActivityOutputPortDefinitionBean> outputs = new ArrayList<ActivityOutputPortDefinitionBean>();
-		ActivityOutputPortDefinitionBean outputDef = new ActivityOutputPortDefinitionBean();
-		outputDef.setName(Loop.LOOP_PORT);
-		outputDef.setDepth(0);
-		outputDef.setGranularDepth(0);
-		outputs.add(outputDef);
-
-		if (activityToCompare == null
-				|| !Boolean.parseBoolean(loopProperties
-						.getProperty(IS_FEED_BACK))) {
-			return outputs;
-		}
-
-		Set<String> feedbackPorts = findFeedbackPorts();
-
-		// We'll add the feedback ports as outputs
-		for (OutputPort outputPort : activityToCompare.getOutputPorts()) {
-			outputDef = new ActivityOutputPortDefinitionBean();
-			String activityPortName = outputPort.getName();
-			String processorPortName = activityToCompare.getOutputPortMapping()
-					.get(activityPortName);
-			if (processorPortName == null) {
-				// We'll need to map it later
-				processorPortName = activityPortName;
-			}
-			if (!feedbackPorts.contains(processorPortName)) {
-				// Skip output ports that don't have a matching input port
-				// etc.
-				continue;
-			}
-			outputDef.setName(processorPortName);
-			outputDef.setDepth(outputPort.getDepth());
-			outputDef.setGranularDepth(outputDef.getDepth());
-			outputs.add(outputDef);
-		}
-
-		return outputs;
-	}
-
-	private HashSet<String> findFeedbackPorts() {
-		HashSet<String> incoming = new HashSet<String>();
-		for (InputPort inputPort : activityToCompare.getInputPorts()) {
-			String activityPortName = inputPort.getName();
-			String processorPortName = activityToCompare.getInputPortMapping()
-					.get(activityPortName);
-			if (processorPortName == null) {
-				// We'll need to map it later
-				processorPortName = activityPortName;
-			}
-			incoming.add(processorPortName);
-		}
-
-		HashSet<String> outgoing = new HashSet<String>();
-		for (OutputPort outputPort : activityToCompare.getOutputPorts()) {
-			String activityPortName = outputPort.getName();
-			String processorPortName = activityToCompare.getOutputPortMapping()
-					.get(activityPortName);
-			if (processorPortName == null) {
-				// We'll need to map it later
-				processorPortName = activityPortName;
-			}
-			outgoing.add(processorPortName);
-		}
-
-		// Return the port names that are common
-		incoming.retainAll(outgoing);
-		return incoming;
+	private void generateOutputPorts(Activity beanshell) {
+	       OutputActivityPort loopPort = new OutputActivityPort(beanshell, LOOP_PORT);
+	        loopPort.setDepth(0);
+	        loopPort.setGranularDepth(0);
+	    if (processorToCompare == null) {
+            return;
+	    }	    
+	    if (! loopProperties.findValue(IS_FEED_BACK).asBoolean()) {
+           return;
+	    }
+	    for (InputProcessorPort procIn : processorToCompare.getInputPorts()) {
+            String portName = procIn.getName();
+            if (processorToCompare.getOutputPorts().containsName(portName)) {
+                OutputActivityPort actOut = new OutputActivityPort(beanshell, portName);
+                actOut.setDepth(procIn.getDepth());
+                actOut.setGranularDepth(procIn.getDepth());
+            }
+	    }
 	}
 }

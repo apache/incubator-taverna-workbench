@@ -46,20 +46,21 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.activities.beanshell.BeanshellActivity;
-import net.sf.taverna.t2.activities.beanshell.BeanshellActivityConfigurationBean;
-import net.sf.taverna.t2.activities.beanshell.views.BeanshellConfigView;
+import net.sf.taverna.t2.activities.beanshell.views.BeanshellConfigurationPanel;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.loop.comparisons.Comparison;
 import net.sf.taverna.t2.workbench.ui.Utils;
-import net.sf.taverna.t2.workflowmodel.OutputPort;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityConfigurationException;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.LoopConfiguration;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.configuration.app.ApplicationConfiguration;
+import uk.org.taverna.scufl2.api.activity.Activity;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.profiles.Profile;
+
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
  * UI for {@link LoopConfiguration}
@@ -70,9 +71,14 @@ import org.apache.log4j.Logger;
 @SuppressWarnings("serial")
 public class LoopConfigurationPanel extends JPanel {
 
-	private static final String DEFAULT_DELAY_S = "0.5";
-	protected LoopConfiguration configuration;
+	private static final String CONDITION_ACTIVITY = "conditionActivity";
+    private static final String DEFAULT_DELAY_S = "0.5";
+	protected ObjectNode configuration;
 
+	private static final Scufl2Tools scufl2tools = new Scufl2Tools();
+	private ApplicationConfiguration applicationConfig;
+
+	
 	protected final Processor processor;
 
 	protected JPanel headerPanel = new JPanel();
@@ -86,72 +92,76 @@ public class LoopConfigurationPanel extends JPanel {
 
 	protected JLabel delayLabel = new JLabel("adding a delay of ");
 	protected JTextField delayField = new JTextField(
-			ActivityGenerator.DEFAULT_DELAY_S, 4);
+			Double.toString(ActivityGenerator.DEFAULT_DELAY_S), 4);
 	protected JLabel secondsLabel = new JLabel(" seconds between the loops.");
 
-	private JComboBox portCombo;
-	private JComboBox comparisonCombo;
+	private JComboBox<String> portCombo;
+	private JComboBox<Comparison> comparisonCombo;
 	private JButton customizeButton;
 
-	protected Loop loopLayer;
+	protected ObjectNode loopLayer;
 	private Object Comparison;
-	private Activity<?> originalCondition = null;
+	private Activity originalCondition = null;
+    private Profile profile;
 
-	public LoopConfigurationPanel(Processor processor, Loop loopLayer) {
+    public LoopConfigurationPanel(Processor processor, ObjectNode loopLayer,
+            Profile profile, ApplicationConfiguration applicationConfig) {
 		this.processor = processor;
 		this.loopLayer = loopLayer;
+        this.profile = profile;
+        this.applicationConfig = applicationConfig;
 		this.setBorder(new EmptyBorder(10,10,10,10));
 		initialise();
-		setConfiguration(loopLayer.getConfiguration());
+		setConfiguration(loopLayer);
 	}
 
-	public LoopConfiguration getConfiguration() {
+	public ObjectNode getConfiguration() {
 		uiToConfig();
-		return configuration.clone();
+		return loopLayer.deepCopy();
 	}
 
 	private static Logger logger = Logger
 			.getLogger(LoopConfigurationPanel.class);
 
 	protected void uiToConfig() {
-		Properties properties = configuration.getProperties();
-		if (properties.getProperty(ActivityGenerator.COMPARISON,
-				ActivityGenerator.CUSTOM_COMPARISON).equals(
-				ActivityGenerator.CUSTOM_COMPARISON)
-				&& configuration.getCondition() != null) {
+	    String comparisonStr = configuration.path(ActivityGenerator.COMPARISON).asText();
+	    if (comparisonStr.isEmpty()) {
+	        comparisonStr = ActivityGenerator.CUSTOM_COMPARISON;
+	    }
+		if (comparisonStr.equals(ActivityGenerator.CUSTOM_COMPARISON)
+				&& ! configuration.path(CONDITION_ACTIVITY).asText().isEmpty()) {
 			// Ignore values
 		} else {
-			configuration.setRunFirst(true);
+		    configuration.put("runFirst", true);
 			if (portCombo.getSelectedItem() == null) {
-				properties.remove(ActivityGenerator.COMPARE_PORT);
-				configuration.setCondition(null);
+			    // unconfigured port
+				configuration.remove(ActivityGenerator.COMPARE_PORT);
+				configuration.putNull(CONDITION_ACTIVITY);
 				return;
 			} else {
-				properties.put(ActivityGenerator.COMPARE_PORT,
+				configuration.put(ActivityGenerator.COMPARE_PORT,
 						((String) portCombo.getSelectedItem()));
 			}
 
 			Comparison comparison = (Comparison) comparisonCombo
 					.getSelectedItem();
 			if (comparison == null) {
-				properties.remove(ActivityGenerator.COMPARISON);
-				configuration.setCondition(null);
+				configuration.remove(ActivityGenerator.COMPARISON);
+				configuration.putNull(CONDITION_ACTIVITY);
 				return;
 			} else {
-				properties
+				configuration
 						.put(ActivityGenerator.COMPARISON, comparison.getId());
 			}
-			properties.put(ActivityGenerator.COMPARE_VALUE, valueField
+			configuration.put(ActivityGenerator.COMPARE_VALUE, valueField
 					.getText());
-			properties.put(ActivityGenerator.DELAY, delayField.getText());
-
-			properties.put(ActivityGenerator.IS_FEED_BACK, Boolean
-					.toString(feedBackCheck.isSelected()));
+			configuration.put(ActivityGenerator.DELAY, Double.parseDouble(delayField.getText()));
+			configuration.put(ActivityGenerator.IS_FEED_BACK, feedBackCheck.isSelected());
 
 			// Generate activity
 			ActivityGenerator activityGenerator = new ActivityGenerator(
-					properties, getFirstProcessorActivity());
-			configuration.setCondition(activityGenerator.generateActivity());
+					configuration, processor);
+			configuration.put(CONDITION_ACTIVITY, activityGenerator.generateActivity().getName());
 		}
 	}
 
@@ -161,12 +171,13 @@ public class LoopConfigurationPanel extends JPanel {
 		}
 
 		public void actionPerformed(ActionEvent e) {
-			configuration.setCondition(null);
+			configuration.putNull(CONDITION_ACTIVITY);
 			configToUi();
 		}
 	}
 
 	private final class CustomizeAction implements ActionListener {
+
 
 //		public CustomizeAction() {
 //			super();
@@ -176,31 +187,27 @@ public class LoopConfigurationPanel extends JPanel {
 		public void actionPerformed(ActionEvent e) {
 			uiToConfig();
 
-			Activity<?> condition = configuration.getCondition();
+			String conditionName = configuration.path(CONDITION_ACTIVITY).asText();
+			
+			Activity condition = profile.getActivities().getByName(conditionName);
 			if (condition == null) {
-				BeanshellActivity activity = new BeanshellActivity(null);
-				try {
-					activity
-							.configure(new BeanshellActivityConfigurationBean());
-				} catch (ActivityConfigurationException e1) {
-					logger.warn("Can't configure new beanshell activity");
-					return;
-				}
-				configuration.setCondition(activity);
-			} else if (!(condition instanceof BeanshellActivity)) {
+			    condition = new Activity();
+			    profile.getActivities().add(condition);
+			    configuration.put(CONDITION_ACTIVITY, condition.getName());
+			    condition.setType(ActivityGenerator.BEANSHELL_ACTIVITY);
+			    Configuration config = scufl2tools.createConfigurationFor(condition, ActivityGenerator.BEANSHELL_CONFIG);
+			} else if (!(condition.getType().equals(ActivityGenerator.BEANSHELL_ACTIVITY))) {
 				logger.warn("Can't configure unsupported loop condition of service type "
-						+ condition.getClass());
+						+ condition.getType());
 				return;
 			}
 
-			final BeanshellActivity beanshellActivity = (BeanshellActivity) configuration
-					.getCondition();
-
 			Frame owner = Utils.getParentFrame(LoopConfigurationPanel.this);
-
-			final BeanshellConfigView beanshellConfigView = new BeanshellConfigView(
-					beanshellActivity);
-
+			
+			
+            final BeanshellConfigurationPanel beanshellConfigView = new BeanshellConfigurationPanel(
+                    condition, applicationConfig);
+			
 			final JDialog dialog = new HelpEnabledDialog(owner, "Customize looping", true);
 			dialog.setLayout(new BorderLayout());
 			dialog.add(beanshellConfigView, BorderLayout.NORTH);
@@ -213,18 +220,15 @@ public class LoopConfigurationPanel extends JPanel {
 
 				public void actionPerformed(ActionEvent e) {
 					if (beanshellConfigView.isConfigurationChanged()) {
-						try {
-							beanshellConfigView.noteConfiguration();
-							beanshellActivity.configure(beanshellConfigView
-									.getConfiguration());
-							configuration.setCondition(beanshellActivity);
-							configuration.getProperties().put(
-									ActivityGenerator.COMPARISON,
-									ActivityGenerator.CUSTOM_COMPARISON);
-						} catch (ActivityConfigurationException e1) {
-							logger.warn("Can't configure condition beanshell",
-									e1);
-						}
+						beanshellConfigView.noteConfiguration();
+//							beanshellActivity.configure(beanshellConfigView
+//									.getConfiguration());
+//							configuration.setCondition(beanshellActivity);
+						Configuration config = beanshellConfigView.getConfiguration();
+						// TODO: Do we need to store this somehow?
+						configuration.put(
+								ActivityGenerator.COMPARISON,
+								ActivityGenerator.CUSTOM_COMPARISON);
 					}
 					dialog.setVisible(false);
 					configToUi();
@@ -249,20 +253,25 @@ public class LoopConfigurationPanel extends JPanel {
 		}
 	}
 
-	public void setConfiguration(LoopConfiguration configuration) {
-		this.configuration = configuration.clone();
+	public void setConfiguration(ObjectNode configuration) {
+		this.configuration = configuration.deepCopy();
 		configToUi();
 	}
 
 	protected void configToUi() {
-		Properties properties = configuration.getProperties();
+		
 
-		String comparisonId = properties.getProperty(
-				ActivityGenerator.COMPARISON,
-				ActivityGenerator.CUSTOM_COMPARISON);
+		String comparisonId;
+		
+		if (configuration.has(ActivityGenerator.COMPARISON)) {
+            comparisonId = configuration.get(ActivityGenerator.COMPARISON)
+                    .asText();
+		} else {
+            comparisonId = ActivityGenerator.CUSTOM_COMPARISON;
+		}
 
 		if (comparisonId.equals(ActivityGenerator.CUSTOM_COMPARISON)
-				&& configuration.getCondition() != null) {
+				&& configuration.has("conditionalActivity")) {
 			configPanel.setVisible(false);
 			customPanel.setVisible(true);
 		} else {
@@ -270,8 +279,7 @@ public class LoopConfigurationPanel extends JPanel {
 			customPanel.setVisible(false);
 		}
 
-		portCombo.setSelectedItem(properties
-				.getProperty(ActivityGenerator.COMPARE_PORT));
+		portCombo.setSelectedItem(configuration.get(ActivityGenerator.COMPARE_PORT).asText());
 		if (portCombo.getSelectedIndex() == -1
 				&& portCombo.getModel().getSize() > 0) {
 			portCombo.setSelectedIndex(0);
@@ -285,14 +293,15 @@ public class LoopConfigurationPanel extends JPanel {
 			comparisonCombo.setSelectedIndex(0);
 		}
 
-		valueField.setText(properties.getProperty(
-				ActivityGenerator.COMPARE_VALUE, ""));
+		valueField.setText(configuration.get(ActivityGenerator.COMPARE_VALUE).asText());
 
-		delayField.setText(properties.getProperty(ActivityGenerator.DELAY,
-				DEFAULT_DELAY_S));
+		if (configuration.has(ActivityGenerator.DELAY)) {
+		    delayField.setText(configuration.get(ActivityGenerator.DELAY).asText());
+		} else {
+		    delayField.setText(DEFAULT_DELAY_S);
+		}
 
-		feedBackCheck.setSelected(Boolean.parseBoolean(properties
-				.getProperty(ActivityGenerator.IS_FEED_BACK)));
+		feedBackCheck.setSelected(configuration.get(ActivityGenerator.IS_FEED_BACK).asBoolean());
 		updateFeedbackHelp();
 	}
 
@@ -335,7 +344,7 @@ public class LoopConfigurationPanel extends JPanel {
 
 		JLabel helpLabel = new JLabel(
 				"<html><body>"
-						+ "The service <strong>" + processor.getLocalName() +  "</strong> will be "
+						+ "The service <strong>" + processor.getName() +  "</strong> will be "
 						+ "invoked repeatedly as "
 						+ "long as the <em>customized loop condition service</em> returns a string equal "
 						+ "to <strong>\"true\"</strong> on its output port <code>loop</code>."
@@ -382,7 +391,7 @@ public class LoopConfigurationPanel extends JPanel {
 		gbc.fill = GridBagConstraints.HORIZONTAL;
 		JLabel invokedRepeatedlyLabel = new JLabel(
 
-				"<html><body>The service <strong>" + processor.getLocalName() +  "</strong> " +
+				"<html><body>The service <strong>" + processor.getName() +  "</strong> " +
 						"will be invoked repeatedly <em>until</em> its output port</body></html>");
 		invokedRepeatedlyLabel.setBorder(new EmptyBorder(10,0,10,0)); // give some top and bottom border to the label
 		configPanel.add(invokedRepeatedlyLabel, gbc);
@@ -503,31 +512,12 @@ public class LoopConfigurationPanel extends JPanel {
 		configPanel.add(Box.createGlue(), gbc);
 	}
 
-	private Activity<?> getFirstProcessorActivity() {
-		List<? extends Activity<?>> activityList = processor.getActivityList();
-		if (activityList.isEmpty()) {
-			return null;
-		}
-		return activityList.get(0);
-	}
-
 	private List<String> getActivityOutputPorts() {
-		// TODO: Support multiple activities
-		Activity<?> activity = getFirstProcessorActivity();
-		if (activity == null) {
-			return new ArrayList<String>();
-		}
-		List<String> ports = new ArrayList<String>();
-		for (OutputPort outPort : activity.getOutputPorts()) {
-			if (outPort.getDepth() == 0) {
-				ports.add(outPort.getName());
-			}
-		}
-		Collections.sort(ports);
-		return ports;
-	}
+	    // Should already be sorted
+	    return new ArrayList<>(processor.getOutputPorts().getNames());
+    }
 
-	protected JCheckBox feedBackCheck = new JCheckBox(
+    protected JCheckBox feedBackCheck = new JCheckBox(
 			"Enable output port to input port feedback");
 	private JLabel portWarning = new JLabel(
 			"<html><body><small>Note that for Taverna to be able to execute this loop, "

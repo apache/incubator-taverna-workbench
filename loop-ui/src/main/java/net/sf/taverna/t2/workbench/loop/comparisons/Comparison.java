@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.workbench.loop.comparisons;
 
 import net.sf.taverna.t2.workbench.loop.LoopConfigurationPanel;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
 
 /**
  * A comparison beanshell template for {@link LoopConfigurationPanel}.

@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.loop;
 
 import java.awt.event.ActionEvent;
+import java.net.URI;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -29,92 +30,70 @@ import javax.swing.Action;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
+import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.AddLayerFactorySPI;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchStack;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.ErrorBounce;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Parallelize;
 
 import org.apache.log4j.Logger;
 
+import uk.org.taverna.configuration.app.ApplicationConfiguration;
+import uk.org.taverna.scufl2.api.common.Scufl2Tools;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
+import uk.org.taverna.scufl2.api.core.Processor;
+
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 public class AddLoopFactory implements AddLayerFactorySPI {
 
-	private static Logger logger = Logger.getLogger(AddLoopFactory.class);
+    private static final URI LOOP_TYPE = URI.create("http://ns.taverna.org.uk/2010/scufl2/taverna/dispatchlayer/Loop");
+
+    
+    private static Logger logger = Logger.getLogger(AddLoopFactory.class);
+    private static final JsonNodeFactory JSON_NODE_FACTORY = JsonNodeFactory.instance;
+    private static Scufl2Tools scufl2Tools = new Scufl2Tools();
+    
 	private EditManager editManager;
 	private FileManager fileManager;
+	private SelectionManager selectionManager;
+	private ApplicationConfiguration applicationConfig;
 
-	public boolean canAddLayerFor(Processor proc) {
-		DispatchStack dispatchStack = proc.getDispatchStack();
-		for (DispatchLayer<?> layer : dispatchStack.getLayers()) {
-			if (layer instanceof Loop) {
-				return false;
-			}
-		}
-		// Not found
-		return true;
+	public boolean canAddLayerFor(Processor processor) {
+	   return findLoopLayer(processor) == null;
 	}
 
+
+    public ObjectNode findLoopLayer(Processor processor) {
+        List<Configuration> configs = scufl2Tools.configurationsFor(processor, selectionManager.getSelectedProfile());
+        for (Configuration config : configs) {
+            if (config.getJson().has("loop")) {
+                return (ObjectNode) config.getJson().get("loop");
+            }
+        }
+        return null;
+    }
+	
 	@SuppressWarnings("serial")
 	public Action getAddLayerActionFor(final Processor processor) {
 		return new AbstractAction("Add looping") {
-			public void actionPerformed(ActionEvent e) {
-				try {
-					Loop loopLayer = findLoopLayer();
+
+            public void actionPerformed(ActionEvent e) {
+				    ObjectNode loopLayer = findLoopLayer(processor);
+				    if (loopLayer == null) {
+				        loopLayer = JSON_NODE_FACTORY.objectNode();
+				    }
 					// Pop up the configure loop dialog
-					LoopConfigureAction loopConfigureAction = new LoopConfigureAction(
-							MainWindow.getMainWindow(), null, loopLayer, editManager, fileManager);
+                LoopConfigureAction loopConfigureAction = new LoopConfigureAction(
+                        MainWindow.getMainWindow(), null, processor, loopLayer,
+                        selectionManager.getSelectedProfile(), editManager,
+                        fileManager, getApplicationConfig());
 					loopConfigureAction.actionPerformed(e);
-				} catch (EditException e1) {
-					logger.warn("Can't add loop layer", e1);
-				}
 			}
-
-			public Loop findLoopLayer() throws EditException {
-				DispatchStack dispatchStack = processor.getDispatchStack();
-				Loop loopLayer = null;
-				for (DispatchLayer<?> layer : dispatchStack.getLayers()) {
-					if (layer instanceof Loop) {
-						loopLayer = (Loop) layer;
-					}
-				}
-				if (loopLayer == null) {
-					loopLayer = new Loop();
-					insertLoopLayer(dispatchStack, loopLayer);
-				}
-				return loopLayer;
-			}
-
-			private void insertLoopLayer(DispatchStack dispatchStack,
-					Loop loopLayer) throws EditException {
-				// TODO: Make a real Edit for inserting layer
-				List<DispatchLayer<?>> layers = dispatchStack.getLayers();
-				int loopLayerPosition = 0;
-				for (int layerPosition = 0; layerPosition < layers.size(); layerPosition++) {
-					DispatchLayer<?> dispatchLayer = layers.get(layerPosition);
-					if (dispatchLayer instanceof Parallelize) {
-						// At least below Parallelize
-						loopLayerPosition = layerPosition + 1;
-					}
-					if (dispatchLayer instanceof ErrorBounce) {
-						// But preferably below ErrorBounce
-						loopLayerPosition = layerPosition + 1;
-						break;
-					}
-				}
-				Edit<DispatchStack> edit = editManager.getEdits().getAddDispatchLayerEdit(dispatchStack, loopLayer,
-						loopLayerPosition);
-				editManager.doDataflowEdit(fileManager.getCurrentDataflow(), edit);
-			}
-
 		};
 	}
 
-	public boolean canCreateLayerClass(Class<? extends DispatchLayer> c) {
-		return (c.isAssignableFrom(Loop.class));
+	@Override
+	public boolean canCreateLayerClass(URI dispatchLayerType) {
+	    return dispatchLayerType.equals(LOOP_TYPE);
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -124,5 +103,23 @@ public class AddLoopFactory implements AddLayerFactorySPI {
 	public void setFileManager(FileManager fileManager) {
 		this.fileManager = fileManager;
 	}
+
+    public SelectionManager getSelectionManager() {
+        return selectionManager;
+    }
+
+    public void setSelectionManager(SelectionManager selectionManager) {
+        this.selectionManager = selectionManager;
+    }
+
+
+    public ApplicationConfiguration getApplicationConfig() {
+        return applicationConfig;
+    }
+
+
+    public void setApplicationConfig(ApplicationConfiguration applicationConfig) {
+        this.applicationConfig = applicationConfig;
+    }
 
 }

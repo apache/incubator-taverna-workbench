@@ -32,23 +32,18 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import net.sf.taverna.t2.activities.beanshell.BeanshellActivity;
-import net.sf.taverna.t2.activities.beanshell.BeanshellActivityConfigurationBean;
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import uk.org.taverna.scufl2.api.core.Processor;
+
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.impl.EditManagerImpl;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.FileManagerImpl;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
-import net.sf.taverna.t2.workbench.ui.impl.SelectionManagerImpl;
+import net.sf.taverna.t2.workbench.selection.impl.SelectionManagerImpl;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.impl.ContextualViewComponent;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.impl.ContextualViewFactoryRegistryImpl;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 
 /**
  * A standalone application to show contextual views
@@ -63,10 +58,13 @@ import net.sf.taverna.t2.workflowmodel.impl.EditsImpl;
 public class ShowContextualView {
 
 	public static void main(String[] args) throws Exception {
-		EditManager editManager = new EditManagerImpl(new EditsImpl());
+		EditManager editManager = new EditManagerImpl();
 		FileManager fileManager = new FileManagerImpl(editManager);
 		ContextualViewFactoryRegistry contextualViewFactoryRegistry = new ContextualViewFactoryRegistryImpl();
-		new ShowContextualView(editManager, fileManager, new SelectionManagerImpl(fileManager), contextualViewFactoryRegistry).showFrame();
+		SelectionManagerImpl selectionMan = new SelectionManagerImpl();
+		selectionMan.setFileManager(fileManager);
+		selectionMan.setEditManager(editManager);
+		new ShowContextualView(editManager, fileManager,selectionMan, contextualViewFactoryRegistry).showFrame();
 	}
 
 	private SelectionManager selectionManager;
@@ -74,13 +72,11 @@ public class ShowContextualView {
 	private EditManager editManager;
 	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
 
-	private Processor processor;
+	private uk.org.taverna.scufl2.api.core.Processor processor;
 
-	private Edits edits = editManager.getEdits();
+	private WorkflowBundle currentDataflow;
 
-	private Dataflow currentDataflow;
-
-	public ShowContextualView(EditManager editManager, FileManager fileManager, final SelectionManager selectionManager, ContextualViewFactoryRegistry contextualViewFactoryRegistry) throws EditException {
+	public ShowContextualView(EditManager editManager, FileManager fileManager, final SelectionManager selectionManager, ContextualViewFactoryRegistry contextualViewFactoryRegistry) {
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.selectionManager = selectionManager;
@@ -90,22 +86,8 @@ public class ShowContextualView {
 
 	}
 
-	private void makeProcessor() throws EditException {
-		processor = edits.createProcessor("Hello");
-
-		Edit<Dataflow> edit = edits.getAddProcessorEdit(currentDataflow,
-				processor);
-		editManager.doDataflowEdit(currentDataflow, edit);
-		editManager.doDataflowEdit(currentDataflow, edits
-				.getDefaultDispatchStackEdit(processor));
-
-		BeanshellActivity beanshell = new BeanshellActivity(null);
-		BeanshellActivityConfigurationBean beanshellConfig = new BeanshellActivityConfigurationBean();
-		editManager.doDataflowEdit(currentDataflow, edits
-				.getConfigureActivityEdit(beanshell, beanshellConfig));
-
-		editManager.doDataflowEdit(currentDataflow, edits.getAddActivityEdit(
-				processor, beanshell));
+	private void makeProcessor() {
+	    processor = new Processor(currentDataflow.getMainWorkflow(), "Hello");
 	}
 
 	private List getSelections() {
@@ -128,7 +110,7 @@ public class ShowContextualView {
 
 	protected void showFrame() {
 		JFrame frame = new JFrame(getClass().getName());
-		ContextualViewComponent contextualViewComponent = new ContextualViewComponent(editManager, fileManager, selectionManager, contextualViewFactoryRegistry);
+		ContextualViewComponent contextualViewComponent = new ContextualViewComponent(editManager, selectionManager, contextualViewFactoryRegistry);
 		frame.add(contextualViewComponent, BorderLayout.CENTER);
 
 		frame.add(makeSelectionButtons(), BorderLayout.NORTH);

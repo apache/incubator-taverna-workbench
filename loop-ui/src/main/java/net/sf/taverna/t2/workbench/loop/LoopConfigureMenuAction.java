@@ -26,12 +26,13 @@ import java.net.URI;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import uk.org.taverna.scufl2.api.core.Processor;
+
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
 
 public class LoopConfigureMenuAction extends AbstractContextualMenuAction {
 
@@ -63,15 +64,14 @@ public class LoopConfigureMenuAction extends AbstractContextualMenuAction {
 	}
 
 	public void configureLoopLayer(Processor p, ActionEvent e) {
-		Loop loopLayer = getLoopLayer(p);
+	    ObjectNode loopLayer = getLoopLayer(p);
 		if (loopLayer != null) {
 			LoopConfigureAction loopConfigureAction = new LoopConfigureAction(null, null, loopLayer, editManager, fileManager);
 			loopConfigureAction.actionPerformed(e);
 		}
 	}
 
-	public static Loop getLoopLayer(Processor p) {
-		Loop result = null;
+	public static ObjectNode getLoopLayer(Processor p) {
 		for (DispatchLayer dl : p.getDispatchStack().getLayers()) {
 			if (dl instanceof Loop) {
 				result = (Loop) dl;

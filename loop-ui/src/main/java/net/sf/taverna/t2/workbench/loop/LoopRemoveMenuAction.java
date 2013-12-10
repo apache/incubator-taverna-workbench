@@ -29,13 +29,10 @@ import javax.swing.Action;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchStack;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.Processor;
 
 public class LoopRemoveMenuAction extends AbstractContextualMenuAction {
 

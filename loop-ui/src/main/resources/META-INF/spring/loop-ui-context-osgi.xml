@@ -16,5 +16,6 @@
 
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
-
+    <reference id="selectionManager" interface="net.sf.taverna.t2.workbench.selection.SelectionManager" />
+    <reference id="applicationConfig" interface="uk.org.taverna.configuration.app.ApplicationConfiguration"/>
 </beans:beans>

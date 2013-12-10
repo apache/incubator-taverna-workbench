@@ -21,22 +21,19 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import uk.org.taverna.configuration.app.ApplicationConfiguration;
+import uk.org.taverna.scufl2.api.core.Processor;
+import uk.org.taverna.scufl2.api.profiles.Profile;
+
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.InputPort;
-import net.sf.taverna.t2.workflowmodel.OutputPort;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.LoopConfiguration;
 
 /**
- * @author alanrw
+ * @author Alan R Williams
+ * @author Stian Soiland-Reyes
  *
  */
 @SuppressWarnings("serial")
@@ -46,31 +43,36 @@ public class LoopConfigureAction extends AbstractAction {
 
 	private final EditManager editManager;
 	private final FileManager fileManager;
-	private final Edits edits;
 
 	private final Frame owner;
-	private final Loop loopLayer;
+	private final ObjectNode loopLayer;
 	private final LoopContextualView contextualView;
 	private final Processor processor;
+    private final Profile profile;
+
+    private ApplicationConfiguration applicationConfig;
 
 
-	protected LoopConfigureAction(Frame owner, LoopContextualView contextualView, Loop loopLayer,
-			EditManager editManager, FileManager fileManager) {
+    protected LoopConfigureAction(Frame owner,
+            LoopContextualView contextualView, Processor processor,
+            ObjectNode loopLayer, Profile profile, EditManager editManager,
+            FileManager fileManager, ApplicationConfiguration applicationConfig) {
 		super("Configure");
 		this.owner = owner;
 		this.contextualView = contextualView;
 		this.loopLayer = loopLayer;
+        this.profile = profile;
 		this.editManager = editManager;
 		this.fileManager = fileManager;
-		edits = editManager.getEdits();
-		this.processor = loopLayer.getProcessor();
+		this.processor = processor;
+        this.applicationConfig = applicationConfig;
 	}
 
 	public void actionPerformed(ActionEvent e) {
-		String title = "Looping for service " + processor.getLocalName();
+		String title = "Looping for service " + processor.getName();
 		final JDialog dialog = new HelpEnabledDialog(owner, title, true);
-		LoopConfigurationPanel loopConfigurationPanel = new LoopConfigurationPanel(processor,
-				loopLayer);
+        LoopConfigurationPanel loopConfigurationPanel = new LoopConfigurationPanel(
+                processor, loopLayer, profile, applicationConfig);
 		dialog.add(loopConfigurationPanel, BorderLayout.CENTER);
 
 		JPanel buttonPanel = new JPanel();

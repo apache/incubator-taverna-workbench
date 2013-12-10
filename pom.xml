@@ -14,7 +14,7 @@
 	<name>Taverna 2 UI extensions</name>
 	<description>Extensions for the Taverna 2 workbench libraries</description>
 	<modules>
-		<!-- <module>loop-ui</module> -->
+		<module>loop-ui</module>
 		<module>parallelize-ui</module>
 		<!-- <module>report-explainer</module> -->
 		<module>retry-ui</module>

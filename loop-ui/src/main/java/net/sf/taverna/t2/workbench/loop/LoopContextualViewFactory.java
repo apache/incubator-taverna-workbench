@@ -23,22 +23,23 @@ package net.sf.taverna.t2.workbench.loop;
 import java.util.Arrays;
 import java.util.List;
 
+import uk.org.taverna.scufl2.api.core.Processor;
+
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
 
-public class LoopContextualViewFactory implements ContextualViewFactory<Loop> {
+public class LoopContextualViewFactory implements ContextualViewFactory<Processor> {
 
 	private EditManager editManager;
 	private FileManager fileManager;
 
 	public boolean canHandle(Object selection) {
-		return selection instanceof Loop;
+		return selection instanceof Processor;
 	}
 
-	public List<ContextualView> getViews(Loop selection) {
+	public List<ContextualView> getViews(Processor selection) {
 		return Arrays.asList(new ContextualView[] {new LoopContextualView(selection, editManager, fileManager)});
 	}
 

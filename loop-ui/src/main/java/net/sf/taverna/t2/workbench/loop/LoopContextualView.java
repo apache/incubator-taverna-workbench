@@ -30,16 +30,14 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.sf.taverna.t2.activities.beanshell.BeanshellActivity;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.loop.comparisons.Comparison;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
 
 import org.apache.log4j.Logger;
+
+import uk.org.taverna.scufl2.api.core.Processor;
 
 /**
  * View of a processor, including it's iteration stack, activities, etc.
@@ -62,19 +60,19 @@ public class LoopContextualView extends ContextualView {
 
 	private Processor processor;
 
-	public LoopContextualView(Loop loopLayer, EditManager editManager, FileManager fileManager) {
+	public LoopContextualView(Processor processor, EditManager editManager, FileManager fileManager) {
 		super();
 		this.loopLayer = loopLayer;
 		this.editManager = editManager;
 		this.fileManager = fileManager;
-		processor = loopLayer.getProcessor();
+		this.processor = processor;
 		initialise();
 		initView();
 	}
 
 	@Override
 	public Action getConfigureAction(Frame owner) {
-		return new LoopConfigureAction(owner, this, loopLayer, editManager, fileManager);
+		return new LoopConfigureAction(owner, this, processor, editManager, fileManager);
 	}
 
 	@Override

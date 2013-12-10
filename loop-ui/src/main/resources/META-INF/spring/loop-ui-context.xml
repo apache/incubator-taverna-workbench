@@ -6,6 +6,8 @@
 	<bean id="AddLoopFactory" class="net.sf.taverna.t2.workbench.loop.AddLoopFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="fileManager" ref="fileManager" />
+            <property name="selectionManager" ref="selectionManager" />
+            <property name="applicationConfig" ref="applicationConfig" />            
 	</bean>
 
 	<bean id="LoopConfigureMenuAction" class="net.sf.taverna.t2.workbench.loop.LoopConfigureMenuAction">
