@@ -27,12 +27,16 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
+import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
+
+import org.apache.log4j.Logger;
+
 import uk.org.taverna.commons.update.UpdateException;
 import uk.org.taverna.commons.update.UpdateManager;
 
-import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-
 public class UpdateMenuAction extends AbstractMenuAction {
+
+	private static final Logger logger = Logger.getLogger(UpdateMenuAction.class);
 
 	private static final URI ADVANCED_MENU_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#advanced");
@@ -62,6 +66,7 @@ public class UpdateMenuAction extends AbstractMenuAction {
 					}
 				} catch (UpdateException ex) {
 					JOptionPane.showMessageDialog(null, "Update failed: "  + ex.getMessage());
+					logger.warn("Update failed", ex);
 				}
 
 			}
