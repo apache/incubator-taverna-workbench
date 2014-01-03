@@ -53,7 +53,6 @@
  *****************************************************************/
 package net.sf.taverna.raven.profile.ui;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -68,7 +67,6 @@ import javax.swing.JPanel;
 import javax.swing.ListCellRenderer;
 import javax.swing.border.AbstractBorder;
 
-import net.sf.taverna.raven.profile.ProfileHandler;
 import net.sf.taverna.raven.profile.ProfileVersion;
 import net.sf.taverna.raven.spi.Profile;
 import net.sf.taverna.raven.spi.ProfileFactory;

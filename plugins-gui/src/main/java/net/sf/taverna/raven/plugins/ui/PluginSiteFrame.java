@@ -63,7 +63,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -503,7 +503,7 @@ public class PluginSiteFrame extends HelpEnabledDialog {
 			else {
 				if (addSiteFrame.getUrl()!=null) {
 					try {
-						PluginSite site = new PluginSite(addSiteFrame.getName(), new URL(addSiteFrame.getUrl()));
+						PluginSite site = new PluginSite(addSiteFrame.getName(), new URI(addSiteFrame.getUrl()));
 						pluginManager.addPluginSite(site);
 						pluginManager.savePluginSites();
 						

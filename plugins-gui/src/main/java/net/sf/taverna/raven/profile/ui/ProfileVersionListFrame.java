@@ -64,7 +64,6 @@ import java.net.URL;
 import java.util.List;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -76,7 +75,6 @@ import javax.swing.event.ListSelectionListener;
 import net.sf.taverna.raven.appconfig.bootstrap.RavenProperties;
 import net.sf.taverna.raven.plugins.Plugin;
 import net.sf.taverna.raven.plugins.PluginManager;
-import net.sf.taverna.raven.profile.ProfileHandler;
 import net.sf.taverna.raven.profile.ProfileUpdateHandler;
 import net.sf.taverna.raven.profile.ProfileVersion;
 import net.sf.taverna.raven.spi.ProfileFactory;
