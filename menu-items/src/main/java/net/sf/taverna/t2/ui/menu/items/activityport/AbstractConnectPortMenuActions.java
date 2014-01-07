@@ -179,14 +179,16 @@ public abstract class AbstractConnectPortMenuActions extends AbstractMenuCustom
 		}
 
 		String suggestedName;
-		if (processorsWithActivityPort.isEmpty()) {
-			suggestedName = port.getName();
-		} else {
-			suggestedName = processorsWithActivityPort.iterator().next()
-					.getLocalName()
-					+ "_" + port.getName();
-		}
+//		if (processorsWithActivityPort.isEmpty()) {
+//			suggestedName = port.getName();
+//		} else {
+//			suggestedName = processorsWithActivityPort.iterator().next()
+//					.getLocalName()
+//					+ "_" + port.getName();
+//		}
 
+		suggestedName = port.getName();
+		
 		CreateAndConnectDataflowPortAction newDataflowPortAction = new CreateAndConnectDataflowPortAction(
 				dataflow, port, suggestedName, contextualSelection
 						.getRelativeToComponent());
