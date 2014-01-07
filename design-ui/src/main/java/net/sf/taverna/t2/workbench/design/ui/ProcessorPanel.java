@@ -27,6 +27,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.Document;
+
+import net.sf.taverna.t2.lang.ui.SanitisingDocumentFilter;
 
 /**
  * UI for editing processors.
@@ -43,7 +47,10 @@ public class ProcessorPanel extends JPanel {
 		super(new GridBagLayout());
 
 		processorNameField = new JTextField();
- 
+		Document d = processorNameField.getDocument();
+		if (d instanceof AbstractDocument) {
+			((AbstractDocument) d).setDocumentFilter(new SanitisingDocumentFilter());
+		}
 		setBorder(new EmptyBorder(10, 10, 10, 10));
 		
 		GridBagConstraints constraints = new GridBagConstraints();

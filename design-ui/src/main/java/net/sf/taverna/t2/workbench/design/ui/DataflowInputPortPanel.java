@@ -34,6 +34,14 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.DocumentFilter;
+
+import net.sf.taverna.t2.lang.ui.SanitisingDocumentFilter;
+import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
 /**
  * UI for creating/editing dataflow input ports.
@@ -53,6 +61,10 @@ public class DataflowInputPortPanel extends JPanel {
 		super(new GridBagLayout());
 
 		portNameField = new JTextField();
+		Document d = portNameField.getDocument();
+		if (d instanceof AbstractDocument) {
+			((AbstractDocument) d).setDocumentFilter(new SanitisingDocumentFilter());
+		}
 		singleValueButton = new JRadioButton("Single value");
 		listValueButton = new JRadioButton("List of depth ");
 		listDepthSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));

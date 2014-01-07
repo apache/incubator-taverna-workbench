@@ -27,6 +27,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.Document;
+
+import net.sf.taverna.t2.lang.ui.SanitisingDocumentFilter;
 
 /**
  * UI for creating/editing dataflow output ports.
@@ -43,7 +47,10 @@ public class DataflowOutputPortPanel extends JPanel {
 		super(new GridBagLayout());
 
 		portNameField = new JTextField();
- 
+		Document d = portNameField.getDocument();
+		if (d instanceof AbstractDocument) {
+			((AbstractDocument) d).setDocumentFilter(new SanitisingDocumentFilter());
+		} 
 		setBorder(new EmptyBorder(10, 10, 10, 10));
 		
 		GridBagConstraints constraints = new GridBagConstraints();
