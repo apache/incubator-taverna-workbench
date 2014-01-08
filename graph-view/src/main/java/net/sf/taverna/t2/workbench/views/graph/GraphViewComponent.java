@@ -405,6 +405,27 @@ public class GraphViewComponent extends WorkflowView {
 		}
 		return result;
 	}
+	
+	private static String calculateToolTipText(final Dataflow d) {
+		
+		String localName = d.getLocalName();
+		String sourceName = FileManager.getInstance().getDataflowName(d);
+		String result = "";
+		if (localName.equals(sourceName)) {
+			result = localName;
+		}
+		else if (sourceName.startsWith(localName + " ")) {
+			result = sourceName;
+		}
+		else {
+			result = localName + " from " + sourceName;
+		}
+		result = "<html><p>" + result + "</p></html>";
+		result = result.replace("from ", "from<br/>");
+		result = result.replace("in ", "in<br/>");
+		result = result.replace("on ", "on<br/>");
+		return result;
+	}
 
 	/**
 	 * Sets the Dataflow to display in the graph view.
@@ -428,6 +449,7 @@ public class GraphViewComponent extends WorkflowView {
 		}
 		cardLayout.show(this, String.valueOf(diagramPanel.hashCode()));
 		border.setTitle(getBorderTitle(dataflow));
+		this.setToolTipText(calculateToolTipText(dataflow));
 		graphController.redraw();
 		this.repaint();
 	}
