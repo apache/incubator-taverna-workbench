@@ -16,11 +16,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 
 import javax.swing.Action;
 import javax.swing.ImageIcon;
@@ -71,7 +73,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 
 	protected Map<JPanel, SectionLabel> panelToLabelMap = new HashMap<JPanel, SectionLabel>();
 	
-	private String lastOpenedSectionName = "";
+	private Set<String> openedSectionNames = new TreeSet<String>();
 
 	private JPanel mainPanel;
 	
@@ -143,7 +145,8 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		
 		gbc.gridy = 0;
 		JPanel firstPanel = null;
-		JPanel lastOpenedSection = null;
+		Set<JPanel> openedSections = new HashSet<JPanel> ();
+//		JPanel lastOpenedSection = null;
 		shownComponents = new ArrayList<JPanel>();
 		List<ContextualView> views = new ArrayList<ContextualView>();
 		for (ContextualViewFactory cvf: viewFactoriesForBeanType) {
@@ -158,8 +161,8 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 				mainPanel.add(label, gbc);
 				gbc.gridy++;
 				JPanel subPanel = new JPanel();
-				if (view.getViewTitle().equals(lastOpenedSectionName)) {
-				    lastOpenedSection = subPanel;
+				if (openedSectionNames.contains(view.getViewTitle())) {
+					openedSections.add(subPanel);
 				}
  				subPanel.setLayout(new GridBagLayout());
 
@@ -194,14 +197,16 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 				if (viewFactoriesForBeanType.size() != 1) {
 					makeCloseable(subPanel, label);
 				} else {
-				    lastOpenedSectionName = label.getText();
-				    lastOpenedSection = subPanel;
+				    openedSectionNames.add(label.getText());
+				    openedSections.add(subPanel);
 				    panelToLabelMap.put(subPanel, label);
 				    subPanel.setVisible(false);
 				}
 			}
-			if (lastOpenedSection != null) {
-			    openSection(lastOpenedSection);
+			if (!openedSections.isEmpty()) {
+				for (JPanel p : openedSections) {
+					openSection(p);
+				}
 			} else if (firstPanel != null) {
 			    openSection(firstPanel);
  			}
@@ -377,17 +382,18 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 	
 	public synchronized void openSection(JPanel sectionToOpen) {
-		lastOpenedSectionName = "";
 		for (Entry<JPanel, SectionLabel> entry : panelToLabelMap.entrySet()) {
 			JPanel section = entry.getKey();
 			SectionLabel sectionLabel = entry.getValue();
 			
 			if (section != sectionToOpen) {
-				section.setVisible(false);
+//				section.setVisible(false);
 			} else {
 				section.setVisible(! section.isVisible());
 				if (section.isVisible()) {
-					lastOpenedSectionName = sectionLabel.getText();
+					openedSectionNames.add(sectionLabel.getText());
+				} else {
+					openedSectionNames.remove(sectionLabel.getText());
 				}
 			}
 			sectionLabel.setExpanded(section.isVisible());
