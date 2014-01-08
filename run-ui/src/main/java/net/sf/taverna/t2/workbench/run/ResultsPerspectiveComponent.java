@@ -23,6 +23,8 @@ package net.sf.taverna.t2.workbench.run;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.FlowLayout;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Timestamp;
@@ -48,6 +50,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.event.ListDataEvent;
+import javax.swing.event.ListDataListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -105,6 +109,9 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 	// Multi-selection list of previous workflow runs
 	private JList workflowRunsList;
+
+	// A button to remove all previous runs
+	private JButton removeAllWorkflowRunsButton;
 
 	// A button to remove previous runs
 	private JButton removeWorkflowRunsButton;
@@ -258,11 +265,58 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 		JLabel worklflowRunsLabel = new JLabel("Workflow runs");
 		worklflowRunsLabel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		worklflowRunsLabel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+		
+		// button to remove all previous workflow runs
+		removeAllWorkflowRunsButton = new JButton("Delete all");
+		removeAllWorkflowRunsButton.setAlignmentX(JComponent.RIGHT_ALIGNMENT);
+		removeAllWorkflowRunsButton.setEnabled(false);
+		removeAllWorkflowRunsButton.setToolTipText("Delete all workflow run(s)");
+		removeAllWorkflowRunsButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+
+				// Warn user that removing workflow run will
+				// cause all provenance data for that run to be deleted
+				int option = JOptionPane
+						.showConfirmDialog(
+								null,
+								new JLabel(
+										"<html><body>Are you sure you want to delete all the workflow runs?<br>"
+												+ "Deleting them will delete all provenance data related to the runs.</body></html>"),
+								"Confirm workflow run deletion",
+								JOptionPane.OK_CANCEL_OPTION);
+				if (option == JOptionPane.CANCEL_OPTION) {
+					return;
+				}
+
+				workflowRunsList.setSelectionInterval(0, workflowRunsListModel.getSize() - 1);
+				deleteRuns(workflowRunsList.getSelectedIndices());
+			}
+
+
+		});
+		
+		workflowRunsListModel.addListDataListener(new ListDataListener() {
+
+			@Override
+			public void intervalAdded(ListDataEvent e) {
+				removeAllWorkflowRunsButton.setEnabled(!workflowRunsListModel.isEmpty());
+			}
+
+			@Override
+			public void intervalRemoved(ListDataEvent e) {
+				removeAllWorkflowRunsButton.setEnabled(!workflowRunsListModel.isEmpty());
+			}
+
+			@Override
+			public void contentsChanged(ListDataEvent e) {
+				removeAllWorkflowRunsButton.setEnabled(!workflowRunsListModel.isEmpty());
+			}});
+		
 		// button to remove previous workflow runs
-		removeWorkflowRunsButton = new JButton("Remove");
+		removeWorkflowRunsButton = new JButton("Delete");
 		removeWorkflowRunsButton.setAlignmentX(JComponent.RIGHT_ALIGNMENT);
 		removeWorkflowRunsButton.setEnabled(false);
-		removeWorkflowRunsButton.setToolTipText("Remove workflow run(s)");
+		removeWorkflowRunsButton.setToolTipText("Delete workflow run(s)");
 		removeWorkflowRunsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
@@ -273,98 +327,37 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 								null,
 								new JLabel(
 										"<html><body>Are you sure you want to delete the selected workflow run(s)?<br>"
-												+ "Deleting them will remove all provenance data related to the run(s).</body></html>"),
+												+ "Deleting them will delete all provenance data related to the run(s).</body></html>"),
 								"Confirm workflow run deletion",
 								JOptionPane.OK_CANCEL_OPTION);
 				if (option == JOptionPane.CANCEL_OPTION) {
 					return;
 				}
 
-				int[] selectedRunsToDelete = workflowRunsList.getSelectedIndices();
-				WorkflowRun nextToSelect = null;
-				if (selectedRunsToDelete.length > 0) {
-					int lastSelectedIndex = selectedRunsToDelete[selectedRunsToDelete.length - 1];
-					if (lastSelectedIndex != workflowRunsListModel.size() - 1) {
-						nextToSelect = (WorkflowRun) workflowRunsListModel.get(lastSelectedIndex + 1);
-					}
-				}
-				for (int i = 0; i < selectedRunsToDelete.length; i++) {
-					
-					WorkflowRun wfRun = ((WorkflowRun) workflowRunsListModel.get(i));
-					
-					if (wfRun.getFacade() != null && wfRun.getFacade().getState().equals(State.running)){
-						option = JOptionPane
-								.showConfirmDialog(
-										null,
-										new JLabel(
-												"<html><body>Some of the workflow runs you are trying to delete appear not to have finished.<br>Are you sure you want to continue and delete them as well (this is not recommended)?</body></html>"),
-										"Confirm unfinished workflow run deletion",
-										JOptionPane.WARNING_MESSAGE);
-						if (option == JOptionPane.CANCEL_OPTION) {
-							return;
-						} else {
-							// Don't ask again
-							break;
-						}
-					}
-				}
-
-				for (int i = selectedRunsToDelete.length - 1; i >= 0; i--) {
-					final WorkflowRun workflowRunToBeDeleted = (WorkflowRun) workflowRunsListModel
-							.remove(selectedRunsToDelete[i]);
-					
-					// Stop the workflow run if it still active
-					WorkflowInstanceFacade facade = workflowRunToBeDeleted.getFacade();
-					if (facade != null) {
-						synchronized (facade) {
-							if (facade.getState().equals(State.running)) {
-								facade.cancelWorkflowRun();
-							}
-						}
-					}
-					MonitorGraphComponent mvc = workflowRunToBeDeleted
-							.getMonitorGraphComponent();
-					if (mvc != null) {
-						mvc.onDispose();
-					}
-					WorkflowRunProgressMonitor progressRunMonitor = workflowRunToBeDeleted.getWorkflowRunProgressMonitor();
-					if (progressRunMonitor != null) {
-						progressRunMonitor.onDispose();
-					}
-					DatabaseCleanup.getInstance().scheduleDeleteDataflowRun(workflowRunToBeDeleted, true);					
-				}
-				// Set the first item as selected - if there is one
-				if (workflowRunsListModel.size() > 0) {
-					int selectedIndex = 0;
-					if (nextToSelect != null) {
-						selectedIndex = workflowRunsListModel.indexOf(nextToSelect);
-						if (selectedIndex < 0) {
-							selectedIndex = 0;
-						}
-					}
-					workflowRunsList.setSelectedIndex(selectedIndex);
-				}
-				System.gc();
+				deleteRuns(workflowRunsList.getSelectedIndices());
 			}
+
+
 		});
 		
 		JPanel workflowRunListTopPanel = new JPanel();
 		workflowRunListTopPanel.setLayout(new BorderLayout());
 		workflowRunListTopPanel.add(worklflowRunsLabel, BorderLayout.WEST);
-		workflowRunListTopPanel.add(removeWorkflowRunsButton, BorderLayout.EAST);
+		
+		JPanel buttonPanel = new JPanel(new FlowLayout());
+		buttonPanel.add(removeAllWorkflowRunsButton);
+		buttonPanel.add(removeWorkflowRunsButton);
+		workflowRunListTopPanel.add(buttonPanel, BorderLayout.EAST);
 
 		JPanel workflowRunListWithHintTopPanel = new JPanel();
 		workflowRunListWithHintTopPanel.setLayout(new BorderLayout());
 		workflowRunListWithHintTopPanel.add(workflowRunListTopPanel, BorderLayout.NORTH);
 
 		JPanel hintsPanel = new JPanel();
-		hintsPanel.setLayout(new BorderLayout());
-		hintsPanel.add(new JLabel("Click on a run to see its values"),
-				BorderLayout.NORTH);
-		hintsPanel.add(new JLabel("Click on a service in the diagram"),
-				BorderLayout.CENTER);
-		hintsPanel.add(new JLabel("to see intermediate values (if available)"),
-				BorderLayout.SOUTH);
+		hintsPanel.setLayout(new GridLayout(0,1));
+		hintsPanel.add(new JLabel("Click on a run to see its values"));
+		hintsPanel.add(new JLabel("Click on a service in the diagram"));
+		hintsPanel.add(new JLabel("to see intermediate values (if available)"));
 		workflowRunListWithHintTopPanel.add(hintsPanel, BorderLayout.SOUTH);
 
 		workflowRunsListPanel.add(workflowRunListWithHintTopPanel, BorderLayout.NORTH);
@@ -397,6 +390,77 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 
 	}
 
+	/**
+	 * @param selectedRunsToDelete
+	 */
+	private void deleteRuns(int[] selectedRunsToDelete) {
+		int option;
+		WorkflowRun nextToSelect = null;
+		if (selectedRunsToDelete.length > 0) {
+			int lastSelectedIndex = selectedRunsToDelete[selectedRunsToDelete.length - 1];
+			if (lastSelectedIndex != workflowRunsListModel.size() - 1) {
+				nextToSelect = (WorkflowRun) workflowRunsListModel.get(lastSelectedIndex + 1);
+			}
+		}
+		for (int i = 0; i < selectedRunsToDelete.length; i++) {
+			
+			WorkflowRun wfRun = ((WorkflowRun) workflowRunsListModel.get(i));
+			
+			if (wfRun.getFacade() != null && wfRun.getFacade().getState().equals(State.running)){
+				option = JOptionPane
+						.showConfirmDialog(
+								null,
+								new JLabel(
+										"<html><body>Some of the workflow runs you are trying to delete appear not to have finished.<br>Are you sure you want to continue and delete them as well (this is not recommended)?</body></html>"),
+								"Confirm unfinished workflow run deletion",
+								JOptionPane.WARNING_MESSAGE);
+				if (option == JOptionPane.CANCEL_OPTION) {
+					return;
+				} else {
+					// Don't ask again
+					break;
+				}
+			}
+		}
+
+		for (int i = selectedRunsToDelete.length - 1; i >= 0; i--) {
+			final WorkflowRun workflowRunToBeDeleted = (WorkflowRun) workflowRunsListModel
+					.remove(selectedRunsToDelete[i]);
+			
+			// Stop the workflow run if it still active
+			WorkflowInstanceFacade facade = workflowRunToBeDeleted.getFacade();
+			if (facade != null) {
+				synchronized (facade) {
+					if (facade.getState().equals(State.running)) {
+						facade.cancelWorkflowRun();
+					}
+				}
+			}
+			MonitorGraphComponent mvc = workflowRunToBeDeleted
+					.getMonitorGraphComponent();
+			if (mvc != null) {
+				mvc.onDispose();
+			}
+			WorkflowRunProgressMonitor progressRunMonitor = workflowRunToBeDeleted.getWorkflowRunProgressMonitor();
+			if (progressRunMonitor != null) {
+				progressRunMonitor.onDispose();
+			}
+			DatabaseCleanup.getInstance().scheduleDeleteDataflowRun(workflowRunToBeDeleted, true);					
+		}
+		// Set the first item as selected - if there is one
+		if (workflowRunsListModel.size() > 0) {
+			int selectedIndex = 0;
+			if (nextToSelect != null) {
+				selectedIndex = workflowRunsListModel.indexOf(nextToSelect);
+				if (selectedIndex < 0) {
+					selectedIndex = 0;
+				}
+			}
+			workflowRunsList.setSelectedIndex(selectedIndex);
+		}
+		System.gc();
+	}
+	
 	@SuppressWarnings("unchecked")
 	public ArrayList<WorkflowRun> getPreviousWorkflowRuns() {
 		return (ArrayList<WorkflowRun>) Collections.list(workflowRunsListModel
@@ -406,9 +470,15 @@ public class ResultsPerspectiveComponent extends JSplitPane implements UICompone
 	protected void retrievePreviousWorkflowRunsFromDatabase() {
 		String connectorType = DataManagementConfiguration.getInstance()
 				.getConnectorType();
-		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
-
+		ProvenanceAccess provenanceAccess = null;
 		
+		try {
+			provenanceAccess = new ProvenanceAccess(connectorType);
+		} catch (Exception e) {
+			logger.error("Unable to establish provenance access", e);
+			return;
+		}
+	
 		List<net.sf.taverna.t2.provenance.lineageservice.utils.WorkflowRun> allWorkflowRunIDs = provenanceAccess.listRuns(
 				null, null);
 		// List<WorkflowInstance> allWorkflowRunIDs =
