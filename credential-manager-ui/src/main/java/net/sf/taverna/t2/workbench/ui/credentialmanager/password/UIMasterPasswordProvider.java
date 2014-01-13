@@ -81,7 +81,7 @@ public class UIMasterPasswordProvider implements CredentialProviderSPI {
 
 		// Pop up a warning about Java Cryptography Extension (JCE)
 		// Unlimited Strength Jurisdiction Policy
-		WarnUserAboutJCEPolicyDialog.warnUserAboutJCEPolicy();
+		WarnUserAboutJCEPolicyDialog.warnUserAboutJCEPolicy(); // no need for this any more as OpenJDK 7 includes the strong policy but just as well
 		
 		if (firstTime) {
 			// Ask user to set the master password for Credential Manager (only

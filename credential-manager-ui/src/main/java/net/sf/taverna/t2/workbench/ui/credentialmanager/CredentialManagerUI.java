@@ -155,16 +155,19 @@ public class CredentialManagerUI extends JFrame {
 	public static final String TRUST_CERT_ENTRY_TYPE = "Trusted Certificate";
 
 	/**
-	 * Returns a CredentialManagerUIJKS singleton.
+	 * Returns a CredentialManagerUI singleton.
 	 */
 	public static CredentialManagerUI getInstance() {
 		synchronized (CredentialManagerUI.class) {
 			if (INSTANCE == null) {
-				// Pop up a warning about Java Cryptography Extension (JCE)
-				// Unlimited Strength Jurisdiction Policy
-				WarnUserAboutJCEPolicyDialog.warnUserAboutJCEPolicy();
-				String password;
-				if (CredentialManager.isInitialised()) {
+//				// Pop up a warning about Java Cryptography Extension (JCE)
+//				// Unlimited Strength Jurisdiction Policy
+				WarnUserAboutJCEPolicyDialog.warnUserAboutJCEPolicy();// no need to do this any more as we are using OpenJDK 7 which includes strong policy by default but just as well
+				
+				// We have to ask for the master password ourselves here, instead of letting 
+				// the master password SPI do the work as we want the possibility  for the user to cancel the dialog.
+				String password = null;
+				if (!CredentialManager.getUseDefaultMasterPassword()) {
 					// Ask user to provide a master password for Credential
 					// Manager
 					GetMasterPasswordDialog getPasswordDialog = new GetMasterPasswordDialog(
@@ -172,38 +175,13 @@ public class CredentialManagerUI extends JFrame {
 					getPasswordDialog.setLocationRelativeTo(null);
 					getPasswordDialog.setVisible(true);
 					password = getPasswordDialog.getPassword();
-				} else { // Credential Manager has not been initialised so far
-					File keystoreFile = new File(CMUtils
-							.getCredentialManagerDefaultDirectory(),
-							CredentialManager.T2KEYSTORE_FILE);
-					if (keystoreFile.exists()) { // If keystore exists then
-						// password has been set
-						// some time before
-						// Ask user to provide a master password for Credential
-						// Manager
-						GetMasterPasswordDialog getPasswordDialog = new GetMasterPasswordDialog(
-								"Enter master password for Credential Manager");
-						getPasswordDialog.setLocationRelativeTo(null);
-						getPasswordDialog.setVisible(true);
-						password = getPasswordDialog.getPassword();
-						if (password == null) { // user cancelled
-							return null;
-						}
-					} else { // Keystore does not exist - ask user to set the
-						// master password for Credential Manager
-						SetMasterPasswordDialog setPasswordDialog = new SetMasterPasswordDialog(
-								(JFrame) null, "Set master password", true,
-								"Set master password for Credential Manager");
-						setPasswordDialog.setLocationRelativeTo(null);
-						setPasswordDialog.setVisible(true);
-						password = setPasswordDialog.getPassword();
-						if (password == null) { // user cancelled
-							return null;
-						}
+					if (password == null) { // user cancelled
+						return null;
 					}
 				}
+				
 				try {
-					INSTANCE = new CredentialManagerUI(password);
+					INSTANCE = new CredentialManagerUI(password);										
 				} catch (CMException cme) {
 					// Failed to instantiate Credential Manager - warn the user
 					// and exit
@@ -224,20 +202,24 @@ public class CredentialManagerUI extends JFrame {
 					INSTANCE.requestFocusInWindow();
 				}
 				else{
-					GetMasterPasswordDialog getPasswordDialog = new GetMasterPasswordDialog(
-							"Enter master password for Credential Manager");
-					getPasswordDialog.setLocationRelativeTo(null);
-					getPasswordDialog.setVisible(true);
-					String password = getPasswordDialog.getPassword();
-					if (password == null) { // user cancelled
-						return null;
-					}
-					if (!CredentialManager.confirmMasterPassword(password)) {
-						JOptionPane.showMessageDialog(null,
-								"Incorrect password.",
-								"Credential Manager Error",
-								JOptionPane.ERROR_MESSAGE);
-						return null;
+					// Unless Credential Manager is using the default password - ask the user to provide
+					// one so we can confirm its correctness
+					if (!CredentialManager.getUseDefaultMasterPassword()){
+						GetMasterPasswordDialog getPasswordDialog = new GetMasterPasswordDialog(
+								"Enter master password for Credential Manager");
+						getPasswordDialog.setLocationRelativeTo(null);
+						getPasswordDialog.setVisible(true);
+						String password = getPasswordDialog.getPassword();
+						if (password == null) { // user cancelled
+							return null;
+						}
+						if (!CredentialManager.confirmMasterPassword(password)) {
+							JOptionPane.showMessageDialog(null,
+									"Incorrect password.",
+									"Credential Manager Error",
+									JOptionPane.ERROR_MESSAGE);
+							return null;
+						}
 					}
 				}
 			}
@@ -253,7 +235,7 @@ public class CredentialManagerUI extends JFrame {
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
-
+	
 	/**
 	 * Creates a new Credential Manager UI's frame.
 	 */
@@ -271,6 +253,24 @@ public class CredentialManagerUI extends JFrame {
 		// Initialise the UI components
 		initComponents();
 	}
+
+//	/**
+//	 * Creates a new Credential Manager UI's frame.
+//	 */
+//	private CredentialManagerUI(String password) throws CMException {
+//
+//		// Instantiate Credential Manager that will perform all
+//		// operations on the Keystore and Truststore.
+//		// We are using a special method that takes a password to instantiate
+//		// Credential Manager as we needed to give user the option to cancel 
+//		// the action from the UI.
+//		credManager = CredentialManager.getInstance(password);
+//		
+//		this.setModalExclusionType(Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
+//
+//		// Initialise the UI components
+//		initComponents();
+//	}
 
 	private void initComponents() {
 
@@ -306,11 +306,17 @@ public class CredentialManagerUI extends JFrame {
 		globalButtons.add(resetJavaAuthCache);
 
 		// Button for changing Credential Manager's master password
-		JButton changeMasterPasswordButton = new JButton(
-				"Change master password");
+		JButton changeMasterPasswordButton = new JButton(getMasterPasswordButtonLabel());
 		changeMasterPasswordButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				changeMasterPassword();
+				JButton button = (JButton)e.getSource();
+				if (CredentialManager.getUseDefaultMasterPassword()){
+					setMasterPassword();
+					button.setText(getMasterPasswordButtonLabel());
+				}
+				else{
+					changeMasterPassword();
+				}
 			}
 		});
 		globalButtons.add(changeMasterPasswordButton);
@@ -379,7 +385,35 @@ public class CredentialManagerUI extends JFrame {
 				credManager.changeMasterPassword(password);
 				JOptionPane.showMessageDialog(this,
 						"Master password changed sucessfully",
-						"Credential Manager Error",
+						"Credential Manager Information",
+						JOptionPane.INFORMATION_MESSAGE);
+			} catch (CMException cme) {
+				// Failed to change the master password for Credential Manager -
+				// warn the user
+				String exMessage = "Failed to change master password for Credential Manager";
+				logger.error(exMessage);
+				JOptionPane.showMessageDialog(this, exMessage,
+						"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			}
+		}
+	}
+	protected void setMasterPassword() {
+
+		SetMasterPasswordDialog setPasswordDialog = new SetMasterPasswordDialog(
+				this, "Set master password", true,
+				"Set master password for Credential Manager");
+		setPasswordDialog.setLocationRelativeTo(null);
+		setPasswordDialog.setVisible(true);
+		String password = setPasswordDialog.getPassword();
+		if (password == null) { // user cancelled
+			return; // do nothing
+		} else {
+			try {
+				credManager.changeMasterPassword(password);
+				CredentialManager.setUseDefaultMasterPassword(false);
+				JOptionPane.showMessageDialog(this,
+						"Master password set sucessfully",
+						"Credential Manager Information",
 						JOptionPane.INFORMATION_MESSAGE);
 			} catch (CMException cme) {
 				// Failed to change the master password for Credential Manager -
@@ -1665,6 +1699,10 @@ public class CredentialManagerUI extends JFrame {
 	private void closeFrame() {
 		setVisible(false);
 		dispose();
+	}
+	
+	private String getMasterPasswordButtonLabel(){
+		return CredentialManager.getUseDefaultMasterPassword()? "Set master password" : "Change master password";
 	}
 }
 

@@ -139,7 +139,7 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 			// Unlimited Strength Jurisdiction Policy - this code is currently the
 			// first thing to touch security and Credential Manager so 
 			// make sure we warn the user early
-			WarnUserAboutJCEPolicyDialog.warnUserAboutJCEPolicy();
+			WarnUserAboutJCEPolicyDialog.warnUserAboutJCEPolicy();// no need for this any more as OpenJDK 7 includes the strong policy but just as well
 			
 			CopyOldCredentialManagerDialog copyDialog = new CopyOldCredentialManagerDialog(previousTavernaVersion);
 			while(true){ //loop in case user enters wrong password
@@ -255,6 +255,8 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 						try {
 							fos = new FileOutputStream(currentKeystoreFile);
 							currentKeystore.store(fos, password.toCharArray());
+							// Also set the flag to use user-set master password
+							FileUtils.touch(new File(currentCredentialManagerDirectory, CredentialManager.USER_SET_MASTER_PASSWORD_INDICATOR_FILE_NAME));
 						} catch (Exception ex) {
 							logger.error("Failed to save the new Keystore when copying from the old location in "+previousKeystoreFile + " to the new location in "+ currentKeystoreFile, ex);
 							FileUtils.deleteQuietly(currentKeystoreFile);
@@ -394,6 +396,9 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							FileUtils.copyFile(previousKeystoreFile, currentKeystoreFile);
 					        logger.info("Trying to copy over the old Truststore from " + previousTruststoreFile);
 							FileUtils.copyFile(previousTruststoreFile, currentTruststoreFile);
+							
+							// Also set the flag to use user-set master password
+							FileUtils.touch(new File(currentCredentialManagerDirectory, CredentialManager.USER_SET_MASTER_PASSWORD_INDICATOR_FILE_NAME));
 							
 							// Try to instantiate Credential Manager
 							CredentialManager.getInstance(password);
