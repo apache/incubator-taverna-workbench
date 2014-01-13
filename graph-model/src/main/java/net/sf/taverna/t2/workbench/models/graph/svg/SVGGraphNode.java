@@ -26,7 +26,6 @@ import java.awt.Point;
 
 import net.sf.taverna.t2.workbench.models.graph.Graph;
 import net.sf.taverna.t2.workbench.models.graph.GraphNode;
-import net.sf.taverna.t2.workbench.models.graph.GraphElement.LineStyle;
 import net.sf.taverna.t2.workbench.models.graph.svg.event.SVGMouseClickEventListener;
 import net.sf.taverna.t2.workbench.models.graph.svg.event.SVGMouseDownEventListener;
 import net.sf.taverna.t2.workbench.models.graph.svg.event.SVGMouseMovedEventListener;
@@ -34,6 +33,7 @@ import net.sf.taverna.t2.workbench.models.graph.svg.event.SVGMouseOutEventListen
 import net.sf.taverna.t2.workbench.models.graph.svg.event.SVGMouseOverEventListener;
 
 import org.apache.batik.dom.svg.SVGOMAnimationElement;
+import org.apache.batik.dom.svg.SVGOMDescElement;
 import org.apache.batik.dom.svg.SVGOMEllipseElement;
 import org.apache.batik.dom.svg.SVGOMGElement;
 import org.apache.batik.dom.svg.SVGOMPathElement;
@@ -42,7 +42,6 @@ import org.apache.batik.dom.svg.SVGOMRectElement;
 import org.apache.batik.dom.svg.SVGOMTextElement;
 import org.apache.batik.util.CSSConstants;
 import org.apache.batik.util.SVGConstants;
-import org.w3c.dom.Node;
 import org.w3c.dom.Text;
 import org.w3c.dom.events.Event;
 import org.w3c.dom.events.EventListener;
@@ -74,20 +73,26 @@ public class SVGGraphNode extends GraphNode {
 
 	private SVGOMGElement mainGroup, labelGroup, portsGroup;
 
-	private SVGElement expandedElement, contractedElement;
+	private SVGOMGElement expandedElement, contractedElement;
 
 	private SVGOMPolygonElement polygon, completedPolygon;
+	
+	private SVGOMPathElement outerRectangle;
 
 	private SVGOMEllipseElement ellipse;
 
-	private SVGOMTextElement label, iteration, error;
+	private SVGOMTextElement label, iteration, error/*, comment*/;
+	
+	private SVGOMDescElement desc;
 
-	private Text labelText, iterationText, errorsText;
+	private Text labelText, iterationText, errorsText/*, commentText*/;
+	
+	private Text descText;
 
 	private SVGElement deleteButton;
 
 	private SVGOMAnimationElement animateShape, animatePosition, animateLabel, animateIteration,
-			animateErrors;
+			animateErrors/*, animateComment*/;
 
 	public SVGGraphNode(SVGGraphController graphController) {
 		super(graphController);
@@ -141,6 +146,13 @@ public class SVGGraphNode extends GraphNode {
 				SVGGraphSettings.COMPLETED_COLOUR);
 		completedPolygon.setAttribute(SVGConstants.SVG_FILL_OPACITY_ATTRIBUTE, "0.8");
 		contractedElement.appendChild(completedPolygon);
+		
+		outerRectangle = (SVGOMPathElement) graphController.createElement(SVGConstants.SVG_PATH_TAG);
+		outerRectangle.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, CSSConstants.CSS_NONE_VALUE);
+		outerRectangle.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY, CSSConstants.CSS_NONE_VALUE);
+		outerRectangle.setAttribute(SVGConstants.SVG_D_ATTRIBUTE, "M-2 -2 L-2 20");
+		contractedElement.appendChild(outerRectangle);
+		
 
 		labelText = graphController.createText("");
 		label = (SVGOMTextElement) graphController.createElement(SVGConstants.SVG_TEXT_TAG);
@@ -162,6 +174,16 @@ public class SVGGraphNode extends GraphNode {
 		iteration.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
 		iteration.appendChild(iterationText);
 		contractedElement.appendChild(iteration);
+		
+/*		commentText = graphController.createText("");
+		comment = (SVGOMTextElement) graphController.createElement(SVGConstants.SVG_TEXT_TAG);
+		comment.setAttribute(SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE, SVGConstants.SVG_START_VALUE);
+		comment.setAttribute(SVGConstants.SVG_FONT_SIZE_ATTRIBUTE, "6");
+		comment.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
+		comment.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, CSSConstants.CSS_BLACK_VALUE);
+		comment.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
+		comment.appendChild(commentText);
+		contractedElement.appendChild(comment);*/
 
 		errorsText = graphController.createText("");
 		error = (SVGOMTextElement) graphController.createElement(SVGConstants.SVG_TEXT_TAG);
@@ -172,7 +194,12 @@ public class SVGGraphNode extends GraphNode {
 		error.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
 		error.appendChild(errorsText);
 		contractedElement.appendChild(error);
-
+		
+		descText = graphController.createText("");
+		desc = (SVGOMDescElement) graphController.createElement(SVGConstants.SVG_DESC_TAG);	
+		desc.appendChild(descText);
+		contractedElement.appendChild(desc);
+		
 		// deleteButton = createDeleteButton();
 		// g.appendChild(deleteButton);
 
@@ -191,6 +218,10 @@ public class SVGGraphNode extends GraphNode {
 				SVGConstants.SVG_ANIMATE_TRANSFORM_TAG, SVGConstants.SVG_TRANSFORM_ATTRIBUTE,
 				SVGConstants.TRANSFORM_TRANSLATE);
 
+/*		animateComment = SVGUtil.createAnimationElement(graphController,
+				SVGConstants.SVG_ANIMATE_TRANSFORM_TAG, SVGConstants.SVG_TRANSFORM_ATTRIBUTE,
+				SVGConstants.TRANSFORM_TRANSLATE);
+		*/
 		animateErrors = SVGUtil.createAnimationElement(graphController,
 				SVGConstants.SVG_ANIMATE_TRANSFORM_TAG, SVGConstants.SVG_TRANSFORM_ATTRIBUTE,
 				SVGConstants.TRANSFORM_TRANSLATE);
@@ -275,15 +306,23 @@ public class SVGGraphNode extends GraphNode {
 		super.setGraph(graph);
 		if (graph instanceof SVGGraph) {
 			SVGGraph svgGraph = (SVGGraph) graph;
+			
 			final SVGElement graphElement = svgGraph.getSVGElement();
-			if (isExpanded()) {
-				graphController.updateSVGDocument(new Runnable() {
-					public void run() {
-						mainGroup.replaceChild(expandedElement, graphElement);
-					}
-				});
-			}
-			expandedElement = graphElement;
+//			final SVGElement expandedElementInitial = expandedElement;
+//			if (isExpanded()) {
+//				Dimension d = svgGraph.getSize();
+//				graphController.updateSVGDocument(new Runnable() {
+//					public void run() {
+//						mainGroup.replaceChild(expandedElementInitial, graphElement);
+//						mainGroup.removeChild(graphElement);
+//						mainGroup.appendChild(expandedElementInitial);
+//						expandedElement.appendChild(outerRectangle);
+//						mainGroup.replaceChild(graphElement, expandedElementInitial);
+//					}
+//				});
+//			}
+			expandedElement = (SVGOMGElement) graphElement;
+			;
 		}
 	}
 
@@ -294,9 +333,12 @@ public class SVGGraphNode extends GraphNode {
 				public void run() {
 					if (expanded) {
 						mainGroup.replaceChild(expandedElement, contractedElement);
+//						expandedElement.appendChild(outerRectangle);
 					} else {
 						mainGroup.replaceChild(contractedElement, expandedElement);
+//						contractedElement.appendChild(outerRectangle);
 					}
+					changeOuterRectangle();
 				}
 			});
 		}
@@ -399,6 +441,7 @@ public class SVGGraphNode extends GraphNode {
 									.getAnimationSpeed(), SVGUtil.calculatePoints(getShape(),
 									oldWidth, oldHeight), SVGUtil.calculatePoints(getShape(),
 									getWidth(), getHeight()));
+//							outerRectangle.setAttribute(SVGConstants.SVG_D_ATTRIBUTE, SVGUtil.calculateOuterPoints(getShape(), getWidth(), getHeight()));
 						}
 
 						if (getLabel() != null && !getLabel().equals("")) {
@@ -420,6 +463,15 @@ public class SVGGraphNode extends GraphNode {
 									"translate(" + (getWidth() - 1.5) + " 5.5)");
 						}
 
+/*						if (!getComment().isEmpty()) {
+							SVGUtil.animate(animateComment, comment, graphController
+									.getAnimationSpeed(), (oldWidth - 1.5) + ", 5.5",
+									(getWidth() - 1.5) + ", 5.5");
+						} else {
+							comment.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE,
+									"translate(" + (getWidth() - 1.5) + " 5.5)");
+						}*/
+						
 						if (getErrors() > 0) {
 							SVGUtil.animate(animateErrors, error, graphController
 									.getAnimationSpeed(), (oldWidth - 1.5) + ", "
@@ -429,6 +481,7 @@ public class SVGGraphNode extends GraphNode {
 							error.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
 									+ (getWidth() - 1.5) + " " + (getHeight() - 1) + ")");
 						}
+						
 					} else {
 						if (Shape.CIRCLE.equals(getShape())) {
 							ellipse.setAttribute(SVGConstants.SVG_RX_ATTRIBUTE, String
@@ -442,16 +495,33 @@ public class SVGGraphNode extends GraphNode {
 						} else {
 							polygon.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil
 									.calculatePoints(getShape(), getWidth(), getHeight()));
+//							outerRectangle.setAttribute(SVGConstants.SVG_D_ATTRIBUTE, SVGUtil.calculateOuterPoints(getShape(), getWidth(), getHeight()));
+
 						}
 						labelGroup.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
 								+ getWidth() / 2f + " " + getHeight() / 2f + ")");
 						iteration.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
 								+ (getWidth() - 1.5) + " 5.5)");
+/*						comment.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+								+ 1.5 + " 5.5)");*/
 						error.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
 								+ (getWidth() - 1.5) + " " + (getHeight() - 1) + ")");
 					}
+					changeOuterRectangle();
 				}
 			});
+		}
+	}
+
+	protected void changeOuterRectangle() {
+		outerRectangle.setAttribute(SVGConstants.SVG_D_ATTRIBUTE, SVGUtil.calculateOuterPoints(getShape(), getWidth(), getHeight()));
+
+		if (SVGGraphNode.this.isOuterShown() && !Shape.CIRCLE.equals(getShape()) && !isExpanded()) {
+			outerRectangle.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
+					CSSConstants.CSS_INLINE_VALUE);
+		} else {
+			outerRectangle.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
+					CSSConstants.CSS_NONE_VALUE);		
 		}
 	}
 
@@ -462,16 +532,21 @@ public class SVGGraphNode extends GraphNode {
 			super.setShape(shape);
 			graphController.updateSVGDocument(new Runnable() {
 				public void run() {
+
 					if (Shape.CIRCLE.equals(shape)) {
 						ellipse.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
 								CSSConstants.CSS_INLINE_VALUE);
 						polygon.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
 								CSSConstants.CSS_NONE_VALUE);
+//						outerRectangle.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
+//								CSSConstants.CSS_NONE_VALUE);
 					} else if (Shape.CIRCLE.equals(currentShape)) {
 						ellipse.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
 								CSSConstants.CSS_NONE_VALUE);
 						polygon.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
 								CSSConstants.CSS_INLINE_VALUE);
+//						outerRectangle.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
+//								CSSConstants.CSS_INLINE_VALUE);
 					}
 					if (Shape.RECORD.equals(shape)) {
 						portsGroup.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
@@ -480,6 +555,7 @@ public class SVGGraphNode extends GraphNode {
 						portsGroup.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
 								CSSConstants.CSS_NONE_VALUE);
 					}
+					changeOuterRectangle();
 				}
 			});
 		}
@@ -509,6 +585,28 @@ public class SVGGraphNode extends GraphNode {
 		});
 	}
 
+/*	@Override
+	public void setComment(final String comment) {
+		super.setComment(comment);
+		graphController.updateSVGDocument(new Runnable() {
+			public void run() {
+					commentText.setData(comment);
+
+			}
+		});
+	}*/
+
+	@Override
+	public void setDesc(final String desc) {
+		super.setDesc(desc);
+		graphController.updateSVGDocument(new Runnable() {
+			public void run() {
+					descText.setData(desc);
+
+			}
+		});
+	}
+	
 	@Override
 	public void setErrors(final int errors) {
 		super.setErrors(errors);
@@ -578,6 +676,16 @@ public class SVGGraphNode extends GraphNode {
 	public void setOpacity(final float opacity) {
 		delegate.setOpacity(opacity);
 		super.setOpacity(opacity);
+	}
+	
+	@Override
+	public void setOuterShown(boolean outerShown) {
+		super.setOuterShown(outerShown);
+		graphController.updateSVGDocument(new Runnable() {
+			public void run() {
+				changeOuterRectangle();
+			}
+		});
 	}
 
 }

@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Point;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -71,9 +72,16 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
 import net.sf.taverna.t2.workflowmodel.processor.activity.LockedNestedDataflow;
 import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 import net.sf.taverna.t2.workflowmodel.processor.activity.NonExecutableActivity;
+import net.sf.taverna.t2.workflowmodel.processor.dispatch.DispatchLayer;
+import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop;
+import net.sf.taverna.t2.workflowmodel.processor.iteration.DotProduct;
+import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategy;
+import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategyStack;
+import net.sf.taverna.t2.workflowmodel.processor.iteration.TerminalNode;
 import net.sf.taverna.t2.workflowmodel.utils.PortComparator;
 import net.sf.taverna.t2.workflowmodel.utils.Tools;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -463,6 +471,10 @@ public abstract class GraphController implements
 		oldGraphElement.setVisible(newGraphElement.isVisible());
 		oldGraphElement.setColor(newGraphElement.getColor());
 		oldGraphElement.setFillColor(newGraphElement.getFillColor());
+		oldGraphElement.setIteration(newGraphElement.getIteration());
+/*		oldGraphElement.setComment(newGraphElement.getComment());*/
+		oldGraphElement.setDesc(newGraphElement.getDesc());
+		oldGraphElement.setOuterShown(newGraphElement.isOuterShown());
 		dataflowToGraph.put(oldGraphElement.getDataflowObject(),
 				oldGraphElement);
 	}
@@ -672,6 +684,7 @@ public abstract class GraphController implements
 
 		for (DataflowInputPort inputPort : inputPorts) {
 			GraphNode inputNode = createGraphNode();
+/*			inputNode.setComment("" + inputPort.getDepth());*/
 			inputNode.setId(prefix + "WORKFLOWINTERNALSOURCE_"
 					+ inputPort.getName());
 			if (getPortStyle().equals(PortStyle.BLOB)) {
@@ -738,6 +751,7 @@ public abstract class GraphController implements
 
 		for (DataflowOutputPort outputPort : outputPorts) {
 			GraphNode outputNode = createGraphNode();
+/*			outputNode.setComment("" + outputPort.getDepth());*/
 			outputNode.setId(prefix + "WORKFLOWINTERNALSINK_"
 					+ outputPort.getName());
 			if (getPortStyle().equals(PortStyle.BLOB)) {
@@ -822,6 +836,26 @@ public abstract class GraphController implements
 		}
 
 		GraphNode node = createGraphNode();
+/*		IterationStrategyStack s = processor.getIterationStrategy();
+		if (!s.getStrategies().isEmpty()) {
+			IterationStrategy is = s.getStrategies().get(0);
+			TerminalNode t = is.getTerminalNode();
+			if (t.getChildCount() > 0) {
+				Object o = t.getFirstChild();
+				if (o instanceof DotProduct) {
+					node.setComment("O");
+				} else {
+					node.setComment("X");
+				}
+			}
+			else {
+				node.setComment("");
+			}
+		}
+		else {
+			node.setComment("");
+		}
+*/
 		node.setId(prefix + processor.getLocalName());
 		if (getPortStyle().equals(PortStyle.BLOB)) {
 			node.setLabel("");
@@ -832,6 +866,20 @@ public abstract class GraphController implements
 		node.setShape(getPortStyle(processor).processorShape());
 		node.setColor(Color.BLACK);
 		node.setLineStyle(LineStyle.SOLID);
+		
+		// Change the line style if there is looping
+		final List<DispatchLayer<?>> layers = processor.getDispatchStack().getLayers();
+		Loop ll = null;
+		for (DispatchLayer dl : layers) {
+			if (dl instanceof Loop) {
+				ll = (Loop) dl;
+				break;
+			}
+		}
+		if ((ll != null) && (ll.getConfiguration() != null) && (ll.getConfiguration().getCondition() != null)) {
+			node.setOuterShown(true);
+		}
+		
 		if (firstActivity != null) {
 			if (firstActivity instanceof NonExecutableActivity) {
 				if (firstActivity instanceof DisabledActivity) {
@@ -846,7 +894,23 @@ public abstract class GraphController implements
 			} else {
 				node.setFillColor(GraphColorManager.getFillColor(firstActivity));
 			}
+			
+			String extraDescription = null;
+			try {
+				extraDescription = BeanUtils.getProperty(firstActivity,
+						"extraDescription");
+			} catch (IllegalAccessException e) {
+				// no problem
+			} catch (InvocationTargetException e) {
+				// no problem
+			} catch (NoSuchMethodException e) {
+				// no problem;
+			}
+			if (extraDescription != null) {
+				node.setDesc(extraDescription);
+			}
 		}
+		
 		// check whether the nested workflow processors should be clickable or
 		// not, if top level workflow then should be clickable regardless
 		if (depth == 0) {
@@ -896,6 +960,7 @@ public abstract class GraphController implements
 			if (interactive) {
 				subGraph.setDataflowObject(processor);
 			}
+			subGraph.setOuterShown(node.isOuterShown());
 			node.setGraph(subGraph);
 			node.setExpanded(true);
 
@@ -992,6 +1057,7 @@ public abstract class GraphController implements
 			}
 		}
 
+		logger.info("processor " + processor.getLocalName() + "has iteration setting " + node.getIteration());
 		return node;
 	}
 
@@ -1610,6 +1676,13 @@ public abstract class GraphController implements
 		}
 	}
 
+/*	public void setComment(String nodeId, String comment) {
+		if (graphElementMap.containsKey(nodeId)) {
+			GraphElement graphElement = graphElementMap.get(nodeId);
+			graphElement.setComment(comment);
+		}		
+	}*/
+	
 	public void setErrors(String nodeId, int errors) {
 		if (graphElementMap.containsKey(nodeId)) {
 			GraphElement graphElement = graphElementMap.get(nodeId);

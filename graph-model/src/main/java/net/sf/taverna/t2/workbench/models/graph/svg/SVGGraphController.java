@@ -66,7 +66,6 @@ public class SVGGraphController extends GraphController {
 	
 	private final JSVGCanvas svgCanvas;
 
-
 	private SVGDocument svgDocument;
 	
 	private GraphLayout graphLayout = new GraphLayout();

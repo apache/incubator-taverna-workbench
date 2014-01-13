@@ -35,6 +35,7 @@ import net.sf.taverna.t2.workbench.models.graph.svg.event.SVGMouseUpEventListene
 
 import org.apache.batik.dom.svg.SVGOMAnimationElement;
 import org.apache.batik.dom.svg.SVGOMGElement;
+import org.apache.batik.dom.svg.SVGOMPathElement;
 import org.apache.batik.dom.svg.SVGOMPolygonElement;
 import org.apache.batik.dom.svg.SVGOMTextElement;
 import org.apache.batik.util.CSSConstants;
@@ -60,7 +61,6 @@ public class SVGGraph extends Graph {
 
 	private SVGMouseUpEventListener mouseUpAction;
 
-	@SuppressWarnings("unused")
 	private SVGMouseOverEventListener mouseOverAction;
 
 	@SuppressWarnings("unused")
@@ -69,6 +69,8 @@ public class SVGGraph extends Graph {
 	private SVGOMGElement mainGroup, labelGroup;
 
 	private SVGOMPolygonElement polygon, completedPolygon;
+	
+	private SVGOMPathElement outerRectangle;
 
 	private SVGOMTextElement label, iteration, error;
 
@@ -118,6 +120,12 @@ public class SVGGraph extends Graph {
 		// completedPolygon.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE,
 		// SVGConstants.SVG_NONE_VALUE);
 		mainGroup.appendChild(completedPolygon);
+		
+		outerRectangle = (SVGOMPathElement) graphController.createElement(SVGConstants.SVG_PATH_TAG);
+		outerRectangle.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, CSSConstants.CSS_NONE_VALUE);
+		outerRectangle.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY, CSSConstants.CSS_INLINE_VALUE);
+		outerRectangle.setAttribute(SVGConstants.SVG_D_ATTRIBUTE, "M-2 -2 L-2 20");
+		mainGroup.appendChild(outerRectangle);
 
 		labelText = graphController.createText("");
 		label = (SVGOMTextElement) graphController.createElement(SVGConstants.SVG_TEXT_TAG);
@@ -270,6 +278,8 @@ public class SVGGraph extends Graph {
 						polygon.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
 								+ position.x + " " + position.y + ")");
 					}
+					outerRectangle.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
+							+ position.x + " " + position.y + ")");
 				}
 			});
 		}
@@ -369,6 +379,8 @@ public class SVGGraph extends Graph {
 						error.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
 								+ (getWidth() - 1.5) + " " + (getHeight() - 1) + ")");
 					}
+					outerRectangle.setAttribute(SVGConstants.SVG_D_ATTRIBUTE, SVGUtil.calculateOuterPoints(getShape(), getWidth(), getHeight()));
+
 				}
 			});
 		}
@@ -415,5 +427,27 @@ public class SVGGraph extends Graph {
 		delegate.setOpacity(opacity);
 		super.setOpacity(opacity);
 	}
+	
+	protected void changeOuterRectangle() {
+
+		if (this.isOuterShown()) {
+			outerRectangle.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
+					CSSConstants.CSS_INLINE_VALUE);
+		} else {
+			outerRectangle.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
+					CSSConstants.CSS_NONE_VALUE);		
+		}
+	}
+	
+	@Override
+	public void setOuterShown(boolean outerShown) {
+		super.setOuterShown(outerShown);
+		graphController.updateSVGDocument(new Runnable() {
+			public void run() {
+				changeOuterRectangle();
+			}
+		});
+	}
+
 
 }

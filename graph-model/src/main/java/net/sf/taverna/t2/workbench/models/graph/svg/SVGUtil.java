@@ -80,6 +80,8 @@ public class SVGUtil {
 
 	private static final String SVG = "svg";
 
+	private static final int OUTER_GAP = 2;
+
 	private static Logger logger = Logger.getLogger(SVGUtil.class);
 
 	private static SAXSVGDocumentFactory docFactory;
@@ -350,6 +352,37 @@ public class SVGUtil {
 		}
 		return sb.toString();
 	}
+
+	/**
+	 * Calculates the points that make up the outer rectangle for the specified
+	 * {@link Shape}.
+	 * 
+	 * @param shape
+	 *            the <code>Shape</code> to calculate points for
+	 * @param width
+	 *            the width of the <code>Shape</code>
+	 * @param height
+	 *            the height of the <code>Shape</code>
+	 * @return the points that make up the outer rectangle for the specified
+	 *         <code>Shape</code>
+	 */
+	public static String calculateOuterPoints(Shape shape, int width, int height) {
+
+		int minX = -OUTER_GAP;
+		int minY = -OUTER_GAP;
+		int maxX = width + OUTER_GAP;
+		int maxY = height + OUTER_GAP;
+		
+		if (Shape.RECORD.equals(shape)) {
+			minY -= height;
+			maxY += height;
+		}
+		String pathFormat = "M%1$s %2$s L%1$s %4$s L%3$s %4$s L%3$s %2$s Z";
+		final String path = String.format(pathFormat, minX, minY, maxX, maxY);
+		
+		return path;
+	}
+
 
 	/**
 	 * Appends x y coordinates to a <code>StringBuilder</code> in the format

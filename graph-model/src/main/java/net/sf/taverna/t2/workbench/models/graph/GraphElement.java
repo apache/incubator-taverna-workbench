@@ -68,7 +68,13 @@ public abstract class GraphElement {
 
 	protected int iteration;
 
+	protected String comment = "";
+
+	protected String desc = "";
+	
 	protected int errors;
+
+	private boolean outerShown = false;
 
 	protected GraphElement(GraphController graphController) {
 		this.graphController = graphController;
@@ -273,6 +279,15 @@ public abstract class GraphElement {
 		this.iteration = iteration;
 	}
 
+	
+/*	public String getComment() {
+		return comment;
+	}*/
+
+/*	public void setComment(String comment) {
+		this.comment = comment;
+	}*/
+	
 	/**
 	 * Returns the errors.
 	 *
@@ -281,6 +296,21 @@ public abstract class GraphElement {
 	public int getErrors() {
 		return errors;
 	}
+
+	/**
+	 * @return the desc
+	 */
+	public String getDesc() {
+		return desc;
+	}
+
+	/**
+	 * @param desc the desc to set
+	 */
+	public void setDesc(String desc) {
+		this.desc = desc;
+	}
+
 
 	/**
 	 * Sets the errors.
@@ -427,6 +457,20 @@ public abstract class GraphElement {
 			return false;
 		}
 		return true;
+	}
+
+	/**
+	 * @return the outerShown
+	 */
+	public final boolean isOuterShown() {
+		return outerShown;
+	}
+
+	/**
+	 * @param outerShown the outerShown to set
+	 */
+	public void setOuterShown(boolean outerShown) {
+		this.outerShown = outerShown;
 	}
 	
 }
