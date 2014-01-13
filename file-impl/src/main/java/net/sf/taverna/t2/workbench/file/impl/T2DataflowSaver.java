@@ -36,6 +36,7 @@ import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.DataflowValidationReport;
 import net.sf.taverna.t2.workflowmodel.serialization.SerializationException;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializer;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.XMLSerializerImpl;
@@ -58,6 +59,9 @@ public class T2DataflowSaver extends AbstractDataflowPersistenceHandler
 			throw new IllegalArgumentException("Unsupported file type "
 					+ fileType);
 		}
+		DataflowValidationReport dvr = dataflow.checkValidity();
+		// Saving an invalid dataflow is OK. Validity check is done to get predicted depth for output (if possible)
+		
 		OutputStream outStream;
 		if (destination instanceof File) {
 			try {
