@@ -123,7 +123,7 @@ public class SVGGraph extends Graph {
 		
 		outerRectangle = (SVGOMPathElement) graphController.createElement(SVGConstants.SVG_PATH_TAG);
 		outerRectangle.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, CSSConstants.CSS_NONE_VALUE);
-		outerRectangle.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY, CSSConstants.CSS_INLINE_VALUE);
+		outerRectangle.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY, CSSConstants.CSS_NONE_VALUE);
 		outerRectangle.setAttribute(SVGConstants.SVG_D_ATTRIBUTE, "M-2 -2 L-2 20");
 		mainGroup.appendChild(outerRectangle);
 
