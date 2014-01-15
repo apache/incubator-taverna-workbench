@@ -61,10 +61,8 @@ public class DataflowInputPortPanel extends JPanel {
 		super(new GridBagLayout());
 
 		portNameField = new JTextField();
-		Document d = portNameField.getDocument();
-		if (d instanceof AbstractDocument) {
-			((AbstractDocument) d).setDocumentFilter(new SanitisingDocumentFilter());
-		}
+		SanitisingDocumentFilter.addFilterToComponent(portNameField);
+
 		singleValueButton = new JRadioButton("Single value");
 		listValueButton = new JRadioButton("List of depth ");
 		listDepthSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));

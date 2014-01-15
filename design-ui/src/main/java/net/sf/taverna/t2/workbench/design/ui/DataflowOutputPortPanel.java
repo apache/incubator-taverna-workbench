@@ -47,10 +47,8 @@ public class DataflowOutputPortPanel extends JPanel {
 		super(new GridBagLayout());
 
 		portNameField = new JTextField();
-		Document d = portNameField.getDocument();
-		if (d instanceof AbstractDocument) {
-			((AbstractDocument) d).setDocumentFilter(new SanitisingDocumentFilter());
-		} 
+		SanitisingDocumentFilter.addFilterToComponent(portNameField);
+
 		setBorder(new EmptyBorder(10, 10, 10, 10));
 		
 		GridBagConstraints constraints = new GridBagConstraints();

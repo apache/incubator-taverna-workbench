@@ -47,10 +47,8 @@ public class ProcessorPanel extends JPanel {
 		super(new GridBagLayout());
 
 		processorNameField = new JTextField();
-		Document d = processorNameField.getDocument();
-		if (d instanceof AbstractDocument) {
-			((AbstractDocument) d).setDocumentFilter(new SanitisingDocumentFilter());
-		}
+		SanitisingDocumentFilter.addFilterToComponent(processorNameField);
+
 		setBorder(new EmptyBorder(10, 10, 10, 10));
 		
 		GridBagConstraints constraints = new GridBagConstraints();
