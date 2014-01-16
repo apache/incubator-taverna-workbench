@@ -390,8 +390,13 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 							return;
 						}
 
-						registerInputs();
-						handleLaunch(inputMap);
+						try {
+							registerInputs();
+							handleLaunch(inputMap);
+						} catch (Exception e) {
+							logger.error(e);
+							JOptionPane.showMessageDialog(null, "Unable to start workflow run", "Workflow run error", JOptionPane.ERROR_MESSAGE);
+						}
 					}
 				}
 			}
