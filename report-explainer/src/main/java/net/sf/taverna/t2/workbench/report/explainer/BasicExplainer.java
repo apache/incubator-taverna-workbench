@@ -137,7 +137,8 @@ public class BasicExplainer implements VisitExplainer {
 				(resultId == HealthCheck.UNRECOGNIZED) ||
 				(resultId == HealthCheck.LOOP_CONNECTION) ||
 				(resultId == HealthCheck.UNMANAGED_LOCATION) ||
-				(resultId == HealthCheck.INCOMPATIBLE_MIMETYPES))) {
+				(resultId == HealthCheck.INCOMPATIBLE_MIMETYPES) ||
+				(resultId == HealthCheck.HIGH_PORT_DEPTH))) {
 			return true;
 		}
 		return false;
@@ -228,6 +229,9 @@ public class BasicExplainer implements VisitExplainer {
 		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.INCOMPATIBLE_MIMETYPES)) {
 			return explanationIncompatibleMimetypes(vr);
 		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.HIGH_PORT_DEPTH)) {
+			return explanationHighPortDepth(vr);
+		}
 		return null;
 	}
 
@@ -315,6 +319,9 @@ public class BasicExplainer implements VisitExplainer {
 		}
 		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.INCOMPATIBLE_MIMETYPES)) {
 			return solutionIncompatibleMimetypes(vr);
+		}
+		if ((vk instanceof HealthCheck) && (resultId == HealthCheck.HIGH_PORT_DEPTH)) {
+			return solutionHighPortDepth(vr);
 		}
 		return null;
 	}
@@ -638,6 +645,11 @@ public class BasicExplainer implements VisitExplainer {
 	    return createPanel(new Object[] {message});
 	}
 
+	private static JComponent explanationHighPortDepth(VisitReport vr) {
+		return createPanel(new Object[] {"Port \"" + vr.getProperty("portname") +
+				"\" has a predicted depth of "+ vr.getProperty("predictedportdepth")});
+	}
+	
 
     private static JComponent solutionFailedEntity(VisitReport vr) {
 	if (vr.getSubject() instanceof Processor) {
@@ -1139,10 +1151,15 @@ public class BasicExplainer implements VisitExplainer {
 		    }
 });
 
+
 		return createPanel(new Object[] {"Change the source or destination mimetype or remove the link",
 						     sourceButton, sinkButton, deleteLinkButton});
 	}
 
+    private static JComponent solutionHighPortDepth(VisitReport vr) {
+		return createPanel(new Object[] {"Check the list handling of services and the depths of ports that generate \"" + vr.getProperty("portname") + "\""});
+	}
+    
 
 
 	private static JPanel createPanel(Object[] components) {
