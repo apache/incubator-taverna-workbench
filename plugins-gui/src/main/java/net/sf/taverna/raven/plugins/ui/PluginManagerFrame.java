@@ -62,6 +62,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -94,6 +96,8 @@ public class PluginManagerFrame extends HelpEnabledDialog {
 
 	private JButton updateButton = null;
 
+	private JButton updateAllButton = null;
+
 	private JButton findPluginsButton = null;
 
 	private PluginManager pluginManager;
@@ -102,8 +106,6 @@ public class PluginManagerFrame extends HelpEnabledDialog {
 
 	private JList jList = null;
 
-	private JButton enableButton = null;
-
 	private JButton uninstallButton = null;
 
 	private JButton findUpdatesButton = null;
@@ -111,6 +113,8 @@ public class PluginManagerFrame extends HelpEnabledDialog {
 	private JButton closeButton = null;
 	
 	private PluginManagerListener managerListener;
+	
+	private boolean showEachMessage = true;
 	
 	/**
 	 * This is the default constructor
@@ -193,7 +197,9 @@ public class PluginManagerFrame extends HelpEnabledDialog {
 			}
 
 			public void pluginUpdated(PluginManagerEvent event) {
-				JOptionPane.showMessageDialog(PluginManagerFrame.this, "The plugin '"+event.getPlugin().getName()+"' will not be completely updated until Taverna is restarted.","Restart Required", JOptionPane.WARNING_MESSAGE);
+				if (showEachMessage) {
+					JOptionPane.showMessageDialog(PluginManagerFrame.this, "The plugin '"+event.getPlugin().getName()+"' will not be completely updated until Taverna is restarted.","Restart Required", JOptionPane.WARNING_MESSAGE);
+				}
 			}
 			
 			public void pluginRemoved(PluginManagerEvent event) {
@@ -215,7 +221,7 @@ public class PluginManagerFrame extends HelpEnabledDialog {
 			GridBagConstraints findUpdatesConstraints = new GridBagConstraints();
 			findUpdatesConstraints.gridx = 0;
 			findUpdatesConstraints.insets = new Insets(5, 5, 5, 5);
-			findUpdatesConstraints.gridy = 3;
+			findUpdatesConstraints.gridy = 4;
 			GridBagConstraints uninstallButtonConstraints = new GridBagConstraints();
 			uninstallButtonConstraints.gridx = 2;
 			uninstallButtonConstraints.anchor = GridBagConstraints.NORTHEAST;
@@ -236,13 +242,13 @@ public class PluginManagerFrame extends HelpEnabledDialog {
 			scrollPaneConstraints.gridwidth = 2;
 			scrollPaneConstraints.insets = new Insets(5, 5, 5, 5);
 			scrollPaneConstraints.gridx = 0;
-			scrollPaneConstraints.gridheight = 3;
+			scrollPaneConstraints.gridheight = 4;
 			scrollPaneConstraints.anchor = GridBagConstraints.NORTHWEST;
 			GridBagConstraints findPluginsConstraints = new GridBagConstraints();
 			findPluginsConstraints.gridx = 1;
 			findPluginsConstraints.anchor = GridBagConstraints.WEST;
 			findPluginsConstraints.insets = new Insets(5, 5, 5, 5);
-			findPluginsConstraints.gridy = 3;
+			findPluginsConstraints.gridy = 4;
 			GridBagConstraints updateButtonConstraints = new GridBagConstraints();
 			updateButtonConstraints.gridx = 2;
 			updateButtonConstraints.gridwidth = 1;
@@ -250,11 +256,19 @@ public class PluginManagerFrame extends HelpEnabledDialog {
 			updateButtonConstraints.insets = new Insets(5, 0, 0, 5);
 			updateButtonConstraints.fill = GridBagConstraints.HORIZONTAL;
 			updateButtonConstraints.gridy = 2;
+
+			GridBagConstraints updateButtonAllConstraints = new GridBagConstraints();
+			updateButtonAllConstraints.gridx = 2;
+			updateButtonAllConstraints.gridwidth = 1;
+			updateButtonAllConstraints.anchor = GridBagConstraints.NORTHEAST;
+			updateButtonAllConstraints.insets = new Insets(5, 0, 0, 5);
+			updateButtonAllConstraints.fill = GridBagConstraints.HORIZONTAL;
+			updateButtonAllConstraints.gridy = 3;
 			
 			GridBagConstraints closeButtonConstraints = new GridBagConstraints();
 			closeButtonConstraints.gridx = 2;
 			closeButtonConstraints.insets = new Insets(5, 5, 5, 5);
-			closeButtonConstraints.gridy = 3;
+			closeButtonConstraints.gridy = 4;
 			closeButtonConstraints.fill = GridBagConstraints.HORIZONTAL;
 //			closeButtonConstraints.gridx = 2;
 //			closeButtonConstraints.gridwidth = 1;
@@ -267,9 +281,9 @@ public class PluginManagerFrame extends HelpEnabledDialog {
 			jContentPane = new JPanel();
 			jContentPane.setLayout(new GridBagLayout());
 			jContentPane.add(getUpdateButton(), updateButtonConstraints);
+			jContentPane.add(getUpdateAllButton(), updateButtonAllConstraints);
 			jContentPane.add(getFindPluginsButton(), findPluginsConstraints);
 			jContentPane.add(getJScrollPane(), scrollPaneConstraints);
-			jContentPane.add(getEnableButton(), enableButtonConstraints);
 			jContentPane.add(getUninstallButton(), uninstallButtonConstraints);
 			jContentPane.add(getFindUpdatesButton(), findUpdatesConstraints);
 			jContentPane.add(getCloseButton(),closeButtonConstraints);
@@ -299,6 +313,47 @@ public class PluginManagerFrame extends HelpEnabledDialog {
 			});
 		}
 		return updateButton;
+	}
+
+	/**
+	 * This method initializes jButton
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getUpdateAllButton() {
+		if (updateAllButton == null) {
+			updateAllButton = new JButton();
+			updateAllButton.setText("Update all");
+			boolean anyUpdates = false;
+			for (Plugin p : pluginManager.getPlugins()) {
+				if (pluginManager.isUpdateAvailable(p)) {
+					anyUpdates = true;
+					break;
+				}
+			}
+			updateAllButton.setEnabled(anyUpdates);
+			updateAllButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					showEachMessage = false;
+					boolean updated = false;
+					List<Plugin> plugins = new ArrayList<Plugin>();
+					plugins.addAll(pluginManager.getPlugins());
+					for (Plugin p : plugins) {
+						if (pluginManager.isUpdateAvailable(p)) {
+							pluginManager.updatePlugin(p);
+							jList.setSelectedValue(p, true);
+							updated = true;
+						}
+					}
+					if (updated) {
+						JOptionPane.showMessageDialog(PluginManagerFrame.this, "The plugins will not be completely updated until Taverna is restarted.","Restart Required", JOptionPane.WARNING_MESSAGE);						
+					}
+					showEachMessage = true;
+					updateAllButton.setEnabled(false);
+				}
+			});
+		}
+		return updateAllButton;
 	}
 
 	/**
@@ -341,39 +396,6 @@ public class PluginManagerFrame extends HelpEnabledDialog {
 			}
 		}
 		return jList;
-	}
-
-	/**
-	 * This method initializes jButton2
-	 * 
-	 * @return javax.swing.JButton
-	 */
-	private JButton getEnableButton() {
-		if (enableButton == null) {
-			enableButton = new JButton();
-			enableButton.setText("Enable");
-			enableButton.setEnabled(false);
-			enableButton.setActionCommand("enable");
-			enableButton.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					Object selectedObject = jList.getSelectedValue();
-					if (selectedObject instanceof Plugin) {
-						Plugin plugin = (Plugin) selectedObject;
-						if ("enable".equals(e.getActionCommand())) {
-							plugin.setEnabled(true);
-							enableButton.setText("Disable");
-							enableButton.setActionCommand("disable");
-						} else if ("disable".equals(e.getActionCommand())) {
-							plugin.setEnabled(false);
-							enableButton.setText("Enable");
-							enableButton.setActionCommand("enable");
-						}
-					}
-					jList.setSelectedValue(selectedObject, true);
-				}
-			});
-		}
-		return enableButton;
 	}
 
 	/**
@@ -478,33 +500,6 @@ public class PluginManagerFrame extends HelpEnabledDialog {
 		if (selectedObject!=null && selectedObject instanceof Plugin) {
 			Plugin plugin = (Plugin) selectedObject;
 			
-			// If this is a build-in plugin - set the text of the enableButton
-			// to 'Disable' but also disable the button to indicate that
-			// built-in plugins cannot be disabled.
-			// Similarly, uninstallButton should be disabled in this case.
-			if (plugin.isBuiltIn()){
-				getEnableButton().setText("Disable");
-				getEnableButton().setActionCommand("disable");
-				getEnableButton().setEnabled(false);
-			}
-			else{
-				if (plugin.isEnabled()) {
-					getEnableButton().setText("Disable");
-					getEnableButton().setActionCommand("disable");
-				} else {
-					getEnableButton().setText("Enable");
-					getEnableButton().setActionCommand("enable");
-				}
-				
-				//only allow plugin to be enabled if it is compatible.
-				if (plugin.isCompatible()) {								
-					getEnableButton().setEnabled(true);
-				}
-				else {
-					getEnableButton().setEnabled(false);
-				}
-			}
-
 			if (pluginManager.isUpdateAvailable(plugin)) {
 				getUpdateButton().setEnabled(true);
 			} else {
