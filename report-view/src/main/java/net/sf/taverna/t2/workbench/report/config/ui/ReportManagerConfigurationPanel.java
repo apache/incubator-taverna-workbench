@@ -45,6 +45,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
     private static final String CHECKS_ON_EDIT = "Checks after each edit";
     private static final String CHECKS_BEFORE_RUN = "Checks before running a workflow";
     private static final String QUERY_USER_BEFORE_RUN = "Ask before run";
+    private static final String MAXIMUM_PORT_DEPTH_STRING = "Maximum output port depth before warning";
 
 	private static ReportManagerConfiguration configuration = ReportManagerConfiguration.getInstance();
 	
@@ -60,6 +61,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 	private JComboBox editCombo;
 	private JComboBox runCombo;
 	private JComboBox queryBeforeRunCombo;
+	private JTextField maxPortDepthField;
     
     public ReportManagerConfigurationPanel() {
     	super();
@@ -155,6 +157,18 @@ public class ReportManagerConfigurationPanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         this.add(queryBeforeRunCombo, gbc);
         
+        maxPortDepthField = new JTextField(TEXTFIELD_SIZE);
+        gbc.gridx = 0;
+        gbc.gridy++;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.insets = new Insets(10,0,0,0);
+        this.add(new JLabel(MAXIMUM_PORT_DEPTH_STRING), gbc);
+        gbc.gridx = 1;
+        gbc.gridwidth = 1;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        this.add(maxPortDepthField, gbc);
+        
 		// Add buttons panel
         gbc.gridx = 0;
         gbc.gridy++;
@@ -221,6 +235,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 	private void setFields() {
 		timeoutField.setText(Integer.toString(Integer.parseInt(configuration.getProperty(ReportManagerConfiguration.TIMEOUT))));
 		expirationField.setText(Integer.toString(Integer.parseInt(configuration.getProperty(ReportManagerConfiguration.REPORT_EXPIRATION))));
+		maxPortDepthField.setText(configuration.getProperty(ReportManagerConfiguration.MAX_PORT_DEPTH));
 		
 		String openSetting = configuration.getProperty(ReportManagerConfiguration.ON_OPEN);
 		if (openSetting.equals(ReportManagerConfiguration.NO_CHECK)) {
@@ -269,7 +284,7 @@ public class ReportManagerConfigurationPanel extends JPanel {
 	}
 	
 	private boolean validateFields() {
-	    return (validateTimeoutField() && validateExpirationField());
+	    return (validateTimeoutField() && validateExpirationField() && validateMaxPortDepthField());
 	}
 
 	private boolean validateTimeoutField() {
@@ -310,6 +325,26 @@ public class ReportManagerConfigurationPanel extends JPanel {
 		return true;
 	}
 
+	private boolean validateMaxPortDepthField() {
+		String maxPortDepthText = maxPortDepthField.getText();
+		String errorText = "";
+		int newMaxPortDepth = -1;
+		try {
+			newMaxPortDepth = Integer.parseInt(maxPortDepthText);
+			if (newMaxPortDepth < 0) {
+				errorText += "The maximum port depth must be zero or greater";
+			}
+		} catch (NumberFormatException e) {
+			errorText += "The maximum port depth must be an integer value";
+		}
+		if (errorText.length() > 0) {
+			JOptionPane.showMessageDialog(this, errorText, "", JOptionPane.ERROR_MESSAGE);
+			return false;
+		}
+		return true;
+	}
+
+
 	/**
 	 * saveSettings saves the specified values for future use.
 	 */
@@ -320,6 +355,10 @@ public class ReportManagerConfigurationPanel extends JPanel {
 		configuration.setProperty(ReportManagerConfiguration.REPORT_EXPIRATION, Integer
 				.toString(Integer.parseInt(expirationField.getText())));
 
+
+		configuration.setProperty(ReportManagerConfiguration.MAX_PORT_DEPTH, Integer
+				.toString(Integer.parseInt(maxPortDepthField.getText())));
+		
 		int openSetting = openCombo.getSelectedIndex();
 		if (openSetting == 0) {
 			configuration.setProperty(ReportManagerConfiguration.ON_OPEN,
