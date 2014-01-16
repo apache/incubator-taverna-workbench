@@ -27,8 +27,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -109,6 +111,10 @@ public class Workbench extends JFrame {
 	private WorkbenchZBasePane basePane;
 
 	private boolean isInitialized = false;
+	
+	private static final String WORKBENCH_PROFILE_PROPERTIES = "workbench-profile.properties";
+	
+	private Properties workbenchProfileProperties;
 
 	public final class ExceptionHandler implements UncaughtExceptionHandler {
 		public void uncaughtException(Thread t, Throwable e) {
@@ -275,7 +281,9 @@ public class Workbench extends JFrame {
 		UIManager.put("OptionPane.errorIcon", WorkbenchIcons.errorMessageIcon);
 		UIManager.put("OptionPane.informationIcon", WorkbenchIcons.infoMessageIcon);
 		UIManager.put("OptionPane.questionIcon", WorkbenchIcons.questionMessageIcon);
-		UIManager.put("OptionPane.warningIcon", WorkbenchIcons.warningMessageIcon);  
+		UIManager.put("OptionPane.warningIcon", WorkbenchIcons.warningMessageIcon);
+		
+		readWorkbenchProperties();
 
 		// Call the startup hooks
 		if (!callStartupHooks()) {
@@ -297,6 +305,42 @@ public class Workbench extends JFrame {
 		fileManager.addObserver(new SwitchToWorkflowPerspective());
 	}
 
+
+	private void readWorkbenchProperties() {
+		workbenchProfileProperties = new Properties();
+		InputStream inStream = null;
+		try {
+			String startup = System.getProperty("taverna.startup");
+		File startupDir = new File(startup);
+		File confDir = new File(startupDir, "conf");
+		File workbenchProfilePropertiesFile = new File(confDir, WORKBENCH_PROFILE_PROPERTIES);
+		inStream = new FileInputStream(workbenchProfilePropertiesFile);
+		
+		workbenchProfileProperties.load(inStream);
+		}
+		catch (IOException e) {
+			logger.error("Unable to read workbench profile properties file", e);
+		}
+		finally {
+			if (inStream != null) {
+				try {
+					inStream.close();
+				} catch (IOException e) {
+					logger.error("Unable to close workbench profile properties file",e);
+				}
+			}
+		}
+	}
+	
+	public static Properties getWorkbenchProfileProperties() {
+		return getInstance().workbenchProfileProperties;
+	}
+	
+	public static String getWorkbenchProfileProperty(String key,
+			String fallback) {
+		String result = getWorkbenchProfileProperties().getProperty(key, fallback);
+		return result;
+	}
 
 	protected void setExceptionHandler() {
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
@@ -559,5 +603,7 @@ public class Workbench extends JFrame {
 			return false;
 		}
 	}
+
+
 
 }
