@@ -20,6 +20,7 @@ import net.sf.taverna.biocatalogue.model.SoapOperationPortIdentity;
 import net.sf.taverna.biocatalogue.model.Util;
 import net.sf.taverna.biocatalogue.model.connectivity.BeansForJSONLiteAPI.ResourceIndex;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.config.BioCataloguePluginConfiguration;
+import net.sf.taverna.t2.workbench.ui.impl.Workbench;
 
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.Annotations;
@@ -87,9 +88,7 @@ public class BioCatalogueClient
   
   
   // API URLs
-  public static final String DEFAULT_API_SANDBOX_BASE_URL = "http://sandbox.biocatalogue.org";
-  public static final String DEFAULT_API_TEST_SERVER_BASE_URL = "http://test.biocatalogue.org";
-  public static final String DEFAULT_API_LIVE_SERVER_BASE_URL = "https://www.biodiversitycatalogue.org";
+  public static final String DEFAULT_API_LIVE_SERVER_BASE_URL = Workbench.getWorkbenchProfileProperty("servicecatalogue.base.url", "https://www.biocatalogue.org");
   
   private static String BASE_URL;    // BioCatalogue base URL to use (can be updated at runtime)
   
