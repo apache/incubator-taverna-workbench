@@ -321,6 +321,9 @@ public class Workbench extends JFrame {
 		catch (IOException e) {
 			logger.error("Unable to read workbench profile properties file", e);
 		}
+		catch (NullPointerException e) {
+			logger.error("Unable to read workbench profile properties file", e);
+		}
 		finally {
 			if (inStream != null) {
 				try {
@@ -340,6 +343,15 @@ public class Workbench extends JFrame {
 			String fallback) {
 		String result = getWorkbenchProfileProperties().getProperty(key, fallback);
 		return result;
+	}
+	
+	public static int getWorkbenchProfileIntegerProperty(String key, int fallback) {
+		try {
+			return Integer.parseInt(getWorkbenchProfileProperty(key, Integer.toString(fallback)));
+		} catch (NumberFormatException e) {
+			logger.error(e);
+			return fallback;
+		}
 	}
 
 	protected void setExceptionHandler() {
@@ -603,6 +615,8 @@ public class Workbench extends JFrame {
 			return false;
 		}
 	}
+
+
 
 
 
