@@ -34,6 +34,9 @@ public final class ReportManagerConfiguration extends AbstractConfigurable {
 	
     public static final int DEFAULT_REPORT_EXPIRATION = 0;
     public static final String REPORT_EXPIRATION = "REPORT_EXPIRATION";
+    
+    public static final int DEFAULT_MAX_PORT_DEPTH = 5;
+    public static final String MAX_PORT_DEPTH = "MAX_PORT_DEPTH";
 
     private Map<String, String> defaultPropertyMap;
 
@@ -62,6 +65,7 @@ public final class ReportManagerConfiguration extends AbstractConfigurable {
             defaultPropertyMap.put(BEFORE_RUN, FULL_CHECK);
             defaultPropertyMap.put(QUERY_BEFORE_RUN, ERRORS_OR_WARNINGS);
             defaultPropertyMap.put(REPORT_EXPIRATION, Integer.toString(DEFAULT_REPORT_EXPIRATION));
+            defaultPropertyMap.put(MAX_PORT_DEPTH, Integer.toString(DEFAULT_MAX_PORT_DEPTH));
         }
         return defaultPropertyMap;
     }
