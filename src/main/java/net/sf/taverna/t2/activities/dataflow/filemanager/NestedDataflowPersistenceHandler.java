@@ -36,6 +36,7 @@ import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.file.impl.T2FlowFileType;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
+import net.sf.taverna.t2.workflowmodel.DataflowValidationReport;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
@@ -135,6 +136,10 @@ public class NestedDataflowPersistenceHandler extends
 			throw new IllegalArgumentException("Unsupported source "
 					+ destination);
 		}
+		
+		DataflowValidationReport dvr = dataflow.checkValidity();
+		// Saving an invalid dataflow is OK. Validity check is done to get predicted depth for output (if possible)
+
 		NestedDataflowActivitySource nestedDataflowDestination = (NestedDataflowActivitySource) destination;
 		Dataflow parentDataflow = nestedDataflowDestination.getParentDataflow();
 		if (! FileManager.getInstance().isDataflowOpen(parentDataflow)) {
