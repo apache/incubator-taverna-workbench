@@ -64,7 +64,7 @@ public class DataManagementHelper {
     }
 	
 	private static void setDerbyPaths() {
-		if (DataManagementConfiguration.getInstance().getConnectorType()==DataManagementConfiguration.CONNECTOR_DERBY) {
+		if (DataManagementConfiguration.getInstance().getConnectorType().equals(DataManagementConfiguration.CONNECTOR_DERBY)) {
 			String homeDir=ApplicationRuntime.getInstance().getApplicationHomeDir().getAbsolutePath();
 			System.setProperty("derby.system.home",homeDir);			
 			File logFile = new File(Log4JConfiguration.getInstance().getLogDir(), "derby.log");
