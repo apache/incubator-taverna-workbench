@@ -73,7 +73,9 @@ public class ConfigurationManager {
 			Map<String, String> propertyMap = configurable.getInternalPropertyMap();
 			Properties props = new Properties();
 		    for (String key : propertyMap.keySet()) {
+		    	if (!propertyMap.get(key).equals(configurable.getDefaultProperty(key))) {
 		    		props.put(key, propertyMap.get(key));
+		    	}
 		    }
 			File configFile = new File(baseConfigLocation,generateFilename(configurable));
 			writeProperties(configurable, props, configFile);

@@ -56,7 +56,7 @@ private File configFile;
 		assertTrue(configFile.exists());
 	}
 	
-	@Ignore @Test
+	@Test
 	public void testDefaultValues() throws Exception {
 		Configurable conf = DummyConfigurable.getInstance();
 		ConfigurationManager manager = ConfigurationManager.getInstance();
