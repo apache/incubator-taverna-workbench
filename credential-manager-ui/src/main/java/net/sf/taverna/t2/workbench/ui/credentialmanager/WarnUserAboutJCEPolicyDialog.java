@@ -72,7 +72,7 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 
 	public WarnUserAboutJCEPolicyDialog() {
 		super((Frame) null,
-				"Java Unlimited Strength Cryptography Policy Warning", true);
+				"Java Limited Strength Cryptography Policy Warning", true);
 		initComponents();
 	}
 
@@ -104,11 +104,15 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 				+ "; font-size:10px;}");
 		Document doc = kit.createDefaultDocument();
 		message.setDocument(doc);
-		message.setText("<html><body>In order for Taverna's security features to function properly - you need to install<br>"
+		message.setText("<html><body>"
+				+ "Looks like only have 'Limited Strength' cryptography policy installed in your Java.<br>"
+				+ "This means you will be limited to using short passwords and limited security support.<br><br>"
+				+ "In order for all Taverna's security features to function properly - you need to install<br>"
 				+ "'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy'. <br><br>"
-				+ "If you do not already have it, for <b>Java 7</b> you can get it from:<br>"
-				+ "<a href=\"http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html\">http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html</a><br<br>"
-				+ "Installation instructions are contained in the bundle you download."
+				+ "For <b>Oracle's Java 7</b> you can get it from:<br>"
+				+ "<a href=\"http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html\">http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html</a><br>"
+				+ "Installation instructions are contained in the bundle you download.<br><br>"
+				+ "Nota that for OpenJDK 7 you should not have to install the policy as it should already<br> be included."
 				+ "</body><html>");
 		message.addHyperlinkListener(new HyperlinkListener() {
 			public void hyperlinkUpdate(HyperlinkEvent he) {
