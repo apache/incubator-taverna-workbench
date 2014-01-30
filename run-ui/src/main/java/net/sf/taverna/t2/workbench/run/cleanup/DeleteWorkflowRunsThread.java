@@ -56,7 +56,13 @@ public class DeleteWorkflowRunsThread extends Thread {
 		DatabaseCleanup databaseCleanup = DatabaseCleanup.getInstance();
 		String connectorType = DataManagementConfiguration.getInstance()
 				.getConnectorType();
-		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
+		ProvenanceAccess provenanceAccess = null;
+		try {
+			provenanceAccess = new ProvenanceAccess(connectorType);
+		} catch (Exception e) {
+			logger.error("Unable to establish provenance access", e);
+			return;
+		}
 
 		try {
 			while (active) {

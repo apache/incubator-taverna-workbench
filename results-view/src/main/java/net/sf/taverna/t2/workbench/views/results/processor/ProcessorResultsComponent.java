@@ -154,8 +154,19 @@ public class ProcessorResultsComponent extends JPanel {
 	private Map<String, ProcessorPortResultsViewTab> outputPortTabMap = new ConcurrentHashMap<String, ProcessorPortResultsViewTab>();
 
 	// All data for intermediate results is pulled from provenance.
-	private static ProvenanceAccess provenanceAccess = new ProvenanceAccess(
+	private static final ProvenanceAccess provenanceAccess;
+	
+	static {
+		ProvenanceAccess p = null;
+		try {
+			p = new ProvenanceAccess(
 			DataManagementConfiguration.getInstance().getConnectorType());
+		}
+		catch (Exception e) {
+			logger.error("Initialization of provenanceAccess failed", e);
+		}
+		provenanceAccess = p;
+	}
 
 	private ProcessorEnactmentsTreeModel processorEnactmentsTreeModel;
 
@@ -597,6 +608,9 @@ public class ProcessorResultsComponent extends JPanel {
 	}
 
 	public void populateEnactmentsMaps() {
+		if (provenanceAccess == null) {
+			return;
+		}
 		synchronized (enactmentsGotSoFar) {
 			// Get processor enactments (invocations) from provenance
 	
@@ -829,6 +843,10 @@ public class ProcessorResultsComponent extends JPanel {
 		}
 
 		public void actionPerformed(ActionEvent e) {
+			
+			if (provenanceAccess == null) {
+				return;
+			}
 			
 			ProcessorEnactment processorEnactment = (ProcessorEnactment) procEnactmentTreeNode
 			.getUserObject();

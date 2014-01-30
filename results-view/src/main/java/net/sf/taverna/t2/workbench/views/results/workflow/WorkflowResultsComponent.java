@@ -76,7 +76,7 @@ import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
 import net.sf.taverna.t2.workflowmodel.DataflowPort;
 import net.sf.taverna.t2.workflowmodel.EditException;
 
-//import org.apache.log4j.Logger;
+import org.apache.log4j.Logger;
 
 /**
  * This component contains a tabbed pane, where each tab displays results for one of
@@ -89,8 +89,8 @@ import net.sf.taverna.t2.workflowmodel.EditException;
  */
 public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, ResultListener {
 
-//	private static Logger logger = Logger
-	//	.getLogger(WorkflowResultsComponent.class);
+	private static Logger logger = Logger
+		.getLogger(WorkflowResultsComponent.class);
 
 
 	private static final long serialVersionUID = 988812623494396366L;
@@ -263,7 +263,14 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 	public void populateResultsFromProvenance() {
 		
 		String connectorType = DataManagementConfiguration.getInstance().getConnectorType();
-		ProvenanceAccess provenanceAccess = new ProvenanceAccess(connectorType);
+		ProvenanceAccess provenanceAccess = null;
+		try {
+			provenanceAccess = new ProvenanceAccess(connectorType);
+		}
+		catch (Exception e) {
+			logger.error("Unable to estable provenance access", e);
+			return;
+		}
 		
 		
 		populateSaveButtonsPanel();

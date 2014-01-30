@@ -35,6 +35,8 @@ import java.util.WeakHashMap;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.apache.log4j.Logger;
+
 import net.sf.taverna.t2.lang.ui.treetable.AbstractTreeTableModel;
 import net.sf.taverna.t2.lang.ui.treetable.TreeTableModel;
 import net.sf.taverna.t2.provenance.api.ProvenanceAccess;
@@ -63,6 +65,8 @@ import net.sf.taverna.t2.workflowmodel.utils.Tools;
  * @author Stian Soiland-Reyes
  */
 public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
+	
+	private static Logger logger = Logger.getLogger(WorkflowRunProgressTreeTableModel.class);
 
 	public static final String NAME = "Name";
 	public static final String STATUS = "Status";	
@@ -125,7 +129,7 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 	private Object referenceService;
 	// For fetching data for past runs from provenance
 	private String workflowRunId;
-	private ProvenanceAccess provenanceAccess;
+	private ProvenanceAccess provenanceAccess = null;
 	
     private Set<Processor> processors = new HashSet<Processor>();
 
@@ -146,10 +150,13 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
 		this.provenanceConnector = connector;
 		this.referenceService = refService;
 		this.workflowRunId = workflowRunId;
-		provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
-
-		rootNode = (DefaultMutableTreeNode) this.getRoot();
-		createTree(dataflow, rootNode);	
+		try {
+			provenanceAccess = new ProvenanceAccess(DataManagementConfiguration.getInstance().getConnectorType());
+		} catch (Exception e) {
+			logger.error("Unable to establish provenance access", e);
+		}
+			rootNode = (DefaultMutableTreeNode) this.getRoot();
+			createTree(dataflow, rootNode);
     }
 	private final NamedWorkflowEntityComparator namedWorkflowEntitiyComparator = new NamedWorkflowEntityComparator();
 
@@ -205,6 +212,9 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     			workflowData.set(Column.START_TIME.ordinal(), null); // wf start time
     			workflowData.set(Column.FINISH_TIME.ordinal(), null); // wf finish time
 
+    		}
+    		if (nodeForObject.containsKey(df)) {
+    			logger.error("Duplicate entry");
     		}
     		nodeForObject.put(df, root);
 			data.put(root, workflowData);
@@ -328,6 +338,10 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel{
     			processorData.set(Column.START_TIME.ordinal(),null); // start time
     			processorData.set(Column.FINISH_TIME.ordinal(),null); // finish time
     			processorData.set(Column.AVERAGE_ITERATION_TIME.ordinal(),null); // average time per iteration
+    		}
+
+    		if (nodeForObject.containsKey(processor)) {
+    			logger.error("Duplicate entry");
     		}
 
     		nodeForObject.put(processor, processorNode);
