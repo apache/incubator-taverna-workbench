@@ -8,7 +8,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-components</groupId>
 	<artifactId>run-ui</artifactId>
-	<name>Results UI</name>
+	<name>Run UI</name>
 	<dependencies>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>

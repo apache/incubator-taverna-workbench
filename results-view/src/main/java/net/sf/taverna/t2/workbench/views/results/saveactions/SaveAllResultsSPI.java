@@ -48,7 +48,7 @@ import org.apache.log4j.Logger;
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public abstract class SaveAllResultsSPI extends AbstractAction {
+public abstract class SaveAllResultsSPI extends AbstractAction implements Comparable<SaveAllResultsSPI>{
 
 	protected static Logger logger = Logger.getLogger(SaveAllResultsSPI.class);
 	protected ReferenceService referenceService;
@@ -58,7 +58,7 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	private boolean isProvenanceEnabledForRun;
 	private String runId;
 	private Dataflow dataflow;
-
+	
 	public final String getRunId() {
 		return runId;
 	}
@@ -239,6 +239,37 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	 */
 	public void setReferenceService(ReferenceService referenceService) {
 		this.referenceService = referenceService;
+	}
+	
+
+	@Override
+	public int compareTo(SaveAllResultsSPI o) {
+		// Could have just used Apache Commons' null-safe ObjectUtils.compare(this,o)
+		// but we are using an old version of the commmons library which does not have this method
+		
+		// The actions names should not really be null, but we can never know
+		String name = (String)this.getAction().getValue(AbstractAction.NAME);
+		String name2 = (String)o.getAction().getValue(AbstractAction.NAME);
+
+		return nullSafeStringComparator(name, name2);
+	}
+	
+	/**
+	 * See http://stackoverflow.com/questions/481813/how-to-simplify-a-null-safe-compareto-implementation
+	 * @param one
+	 * @param two
+	 * @return
+	 */
+	public static int nullSafeStringComparator(final String one, final String two) {
+	    if (one == null ^ two == null) {
+	        return (one == null) ? -1 : 1;
+	    }
+
+	    if (one == null && two == null) {
+	        return 0;
+	    }
+
+	    return one.compareToIgnoreCase(two);
 	}
 }
 

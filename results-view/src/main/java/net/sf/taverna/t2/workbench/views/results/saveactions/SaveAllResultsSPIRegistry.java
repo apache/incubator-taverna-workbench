@@ -21,6 +21,8 @@
 package net.sf.taverna.t2.workbench.views.results.saveactions;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import net.sf.taverna.t2.spi.SPIRegistry;
@@ -61,6 +63,16 @@ public class SaveAllResultsSPIRegistry extends SPIRegistry<SaveAllResultsSPI>{
 		for (SaveAllResultsSPI spi : getInstances()) {
 			result.add(spi);
 		}
+		//Sort the list so that buttons always appear in the same order 
+		Collections.sort(result, new Comparator<SaveAllResultsSPI>(){
+
+			@Override
+			public int compare(SaveAllResultsSPI o1, SaveAllResultsSPI o2) {
+				return o1.compareTo(o2);
+			}
+			
+		});
 		return result;
 	}
+
 }
