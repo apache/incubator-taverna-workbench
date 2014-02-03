@@ -2,6 +2,7 @@ package net.sf.taverna.t2.workbench.reference.config;
 
 import java.io.File;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.SQLException;
 
 import javax.naming.Context;
@@ -32,6 +33,8 @@ import org.springframework.context.ApplicationContext;
  */
 public class DataManagementHelper {
 	
+	private static final String DERBY_SHUTDOWN = "jdbc:derby:;shutdown=true";
+
 	private final static Logger logger = Logger.getLogger(DataManagementHelper.class); 
 			
 	private static NetworkServerControl server;
@@ -165,6 +168,16 @@ public class DataManagementHelper {
 			return false;
 		}
 		return true;
+	}
+	
+	public static final void unlockDatabase() {
+		try {
+			// Should be OK even if not using derby as any exception will just be logged
+			DriverManager.getConnection(DERBY_SHUTDOWN);
+		} catch (SQLException e) {
+			logger.error("Unable to shutdown database", e);
+		}
+		
 	}
 
 }

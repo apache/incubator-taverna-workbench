@@ -59,6 +59,9 @@ import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
 import net.sf.taverna.t2.workflowmodel.EditsRegistry;
+import net.sf.taverna.t2.workflowmodel.Processor;
+import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import net.sf.taverna.t2.workflowmodel.processor.activity.NestedDataflow;
 import net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.ParallelizeConfig;
 import net.sf.taverna.t2.workflowmodel.utils.AnnotationTools;
 
@@ -174,8 +177,19 @@ public class AnnotatedContextualView extends ContextualView {
 				name = c.getCanonicalName();
 			}
 			JPanel subPanel = new JPanel();
-			subPanel.setBorder(new TitledBorder(name));
-			String value = annotationTools.getAnnotationString(annotated, c, MISSING_VALUE);
+			Annotated<?> suitableAnnotated = findSuitableAnnotated(annotated, c);
+			String value = MISSING_VALUE;
+			if (suitableAnnotated != null) {
+				value = annotationTools.getAnnotationString(suitableAnnotated, c, MISSING_VALUE);
+			}
+			if (suitableAnnotated == null) {
+				subPanel.setBorder(new TitledBorder(name + " (default)"));				
+			}
+			else if (annotated.equals(suitableAnnotated)) {
+				subPanel.setBorder(new TitledBorder(name));				
+			} else {
+				subPanel.setBorder(new TitledBorder(name + " (inferred)"));
+			}
 			subPanel.add(createTextArea(c, value));
 			scrollPanel.add(subPanel);
 		}
@@ -183,6 +197,23 @@ public class AnnotatedContextualView extends ContextualView {
 		panel.add(scrollPane);
 	}
 	
+	private Annotated<?> findSuitableAnnotated(Annotated<?> annotatedUnderConsideration, Class<?> c) {
+		String value = annotationTools.getAnnotationString(annotatedUnderConsideration, c, MISSING_VALUE);
+		if (!value.equals(MISSING_VALUE)) {
+			return annotatedUnderConsideration;
+		}
+		if (annotatedUnderConsideration instanceof Processor) {
+			List<? extends Activity<?>> activities = ((Processor) annotatedUnderConsideration).getActivityList();
+			if (!activities.isEmpty()) {
+				return findSuitableAnnotated(activities.get(0), c);
+			}
+		}
+		if (annotatedUnderConsideration instanceof NestedDataflow) {
+			return findSuitableAnnotated(((NestedDataflow) annotatedUnderConsideration).getNestedDataflow(), c);
+		}
+		return null;
+	}
+
 	private JScrollPane createTextArea(final Class<?> c, final String value) {
 		DialogTextArea area = new DialogTextArea(value);
 		area.setFocusable(true);
