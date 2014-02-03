@@ -8,13 +8,20 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
+import net.sf.taverna.platform.spring.RavenAwareClassPathXmlApplicationContext;
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.raven.appconfig.config.Log4JConfiguration;
+import net.sf.taverna.t2.reference.ReferenceService;
+import net.sf.taverna.t2.reference.ReferenceServiceException;
+import net.sf.taverna.t2.reference.T2Reference;
 
 import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.derby.drda.NetworkServerControl;
 import org.apache.log4j.Logger;
+import org.springframework.context.ApplicationContext;
 
 /**
  * A set of utility methods related to basic data management.
@@ -123,6 +130,41 @@ public class DataManagementHelper {
 		} catch (Exception e) {
 			logger.error("Error shutting down Derby network server",e);
 		}
+	}
+	
+	public static ReferenceService checkDatabaseAvailability() {
+		ReferenceService referenceServiceWithDatabase = null;
+		try {
+			String databasecontext = DataManagementConfiguration.HIBERNATE_CONTEXT;
+		ApplicationContext appContext = new RavenAwareClassPathXmlApplicationContext(
+				databasecontext);
+		referenceServiceWithDatabase = (ReferenceService) appContext
+				.getBean("t2reference.service.referenceService");
+
+
+		T2Reference testRef = referenceServiceWithDatabase.register("Hello", 0, true, null);
+		referenceServiceWithDatabase.delete(testRef);
+	}
+	catch (ReferenceServiceException e) {
+		logger.error("Unable to connect to database");
+		throw new ReferenceServiceException("Unable to connect to database");
+	}
+		return referenceServiceWithDatabase;
+	}
+
+	public static synchronized final boolean checkDatabase() {
+		ReferenceService databaseService = null;
+		try {
+			databaseService = checkDatabaseAvailability();
+		}
+		catch (Exception e) {
+			databaseService = null;
+			logger.error(e);
+		}
+		if (databaseService == null) {
+			return false;
+		}
+		return true;
 	}
 
 }
