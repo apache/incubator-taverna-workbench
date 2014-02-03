@@ -175,7 +175,7 @@ public class DataManagementHelper {
 			// Should be OK even if not using derby as any exception will just be logged
 			DriverManager.getConnection(DERBY_SHUTDOWN);
 		} catch (SQLException e) {
-			logger.error("Unable to shutdown database", e);
+			// Ignore
 		}
 		
 	}
