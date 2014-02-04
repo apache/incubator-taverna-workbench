@@ -198,7 +198,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 	}
 
 	public class TreeUpdaterThread extends Thread {
-
+		
 		private boolean aborting = false;
 
 		private TreeUpdaterThread() {
@@ -214,8 +214,9 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		@SuppressWarnings("unchecked")
 		@Override
 		public void run() {
+
 			Map<Comparable, Map> pathMap = buildPathMap();
-			RootFilterTreeNode newRoot = new RootFilterTreeNode(AVAILABLE_SERVICES);
+
 			populateChildren(root, pathMap);
 			
 			SwingUtilities.invokeLater(new Runnable() {
@@ -272,18 +273,18 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			if (aborting) {
 				return;
 			}
-//			if (node == root) {
-//				// Clear top root
-//				SwingUtilities.invokeLater(new Runnable() {
-//					public void run() {
-//						if (aborting) {
-//							return;
-//						}
-//						serviceTreePanel.setFilter(null);
-//						root.removeAllChildren();
-//					}
-//				});
-//			}
+			if (node == root) {
+				// Clear top root
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						if (aborting) {
+							return;
+						}
+						serviceTreePanel.setFilter(null);
+						root.removeAllChildren();
+					}
+				});
+			}
 
 			TreeSet<Comparable> paths = new TreeSet<Comparable>(servicePathElementComparator);
 			TreeMap<String, Set<ServiceDescription>> services = (TreeMap<String, Set<ServiceDescription>>) pathMap
