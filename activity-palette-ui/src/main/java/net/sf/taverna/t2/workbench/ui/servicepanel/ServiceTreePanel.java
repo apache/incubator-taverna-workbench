@@ -161,4 +161,18 @@ public class ServiceTreePanel extends TreePanel {
 		}
 	}
 
+//	private String lastFieldValue = "";
+	public void disableFilter() {
+		super.searchField.setEnabled(false);
+//		lastFieldValue = super.searchField.getText();
+//		super.searchField.setText("Not enabled during service loading");
+		super.setFilter(null);
+	}
+	
+	public void reenableFilter(Filter filter) {
+		super.searchField.setEnabled(true);
+//		super.searchField.setText(lastFieldValue);
+		super.setFilter(filter);
+	}
+
 }

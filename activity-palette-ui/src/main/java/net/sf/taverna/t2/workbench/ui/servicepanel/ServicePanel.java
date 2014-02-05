@@ -22,8 +22,13 @@ package net.sf.taverna.t2.workbench.ui.servicepanel;
 
 import java.awt.BorderLayout;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
@@ -50,10 +55,12 @@ import net.sf.taverna.t2.servicedescriptions.events.ProviderErrorNotification;
 import net.sf.taverna.t2.servicedescriptions.events.RemovedProviderEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionProvidedEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
+import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -196,7 +203,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			return o1.toString().compareToIgnoreCase(o2.toString());
 		}
 	}
-
+	
 	public class TreeUpdaterThread extends Thread {
 		
 		private boolean aborting = false;
@@ -216,22 +223,13 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		public void run() {
 
 			Map<Comparable, Map> pathMap = buildPathMap();
-
-			populateChildren(root, pathMap);
 			
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					try {
-							serviceTreePanel.runFilter();
-						} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-							logger.error("", e);
-					} catch (InvocationTargetException e) {
-						// TODO Auto-generated catch block
-						logger.error("", e);
-					}
-				}
-			});
+			final Map<FilterTreeNode, List<FilterTreeNode>> childrenMap = new HashMap<FilterTreeNode, List<FilterTreeNode>>();
+			
+
+
+			populateChildren(root, childrenMap, pathMap);
+				
 		}
 
 		@SuppressWarnings("unchecked")
@@ -269,21 +267,9 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		}
 
 		@SuppressWarnings("unchecked")
-		protected void populateChildren(FilterTreeNode node, Map pathMap) {
+		protected void populateChildren(FilterTreeNode node, Map<FilterTreeNode, List<FilterTreeNode>> childrenMap, Map pathMap) {
 			if (aborting) {
 				return;
-			}
-			if (node == root) {
-				// Clear top root
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						if (aborting) {
-							return;
-						}
-						serviceTreePanel.setFilter(null);
-						root.removeAllChildren();
-					}
-				});
 			}
 
 			TreeSet<Comparable> paths = new TreeSet<Comparable>(servicePathElementComparator);
@@ -295,6 +281,8 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			paths.addAll(pathMap.keySet());
 			paths.addAll(services.keySet());
 			
+			Map<FilterTreeNode, Comparable> newChildMap = new HashMap<FilterTreeNode, Comparable>();
+			List<FilterTreeNode> newChildNodes = new ArrayList<FilterTreeNode> ();
 			for (Comparable pathElement : paths) {
 				if (aborting) {
 					return;
@@ -302,65 +290,104 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				if (pathElement.equals(SERVICES)) {
 					continue;
 				}
-				Set<FilterTreeNode> childNodes = new HashSet<FilterTreeNode> ();
+
+				FilterTreeNode child = null;
 				if (services.containsKey(pathElement)) {
 					for (ServiceDescription sd : services.get(pathElement)) {
-						childNodes.add (new ServiceFilterTreeNode(sd));
+						child = findChild(node, sd);
+						newChildNodes.add (child);
 					}
 				} else {
-					childNodes.add(new PathElementFilterTreeNode((String)pathElement));
+					child = findChild(node, (String)pathElement);
+					newChildNodes.add (child);
 				}
-				SwingUtilities
-						.invokeLater(new AddNodeRunnable(node, childNodes));
-				if ((pathMap.containsKey(pathElement)) && !childNodes.isEmpty()){
-					populateChildren(childNodes.iterator().next(), (Map) pathMap.get(pathElement));
+				
+//				childrenMap.put(node,  newChildNodes);
+				if (pathMap.containsKey(pathElement)) {
+					newChildMap.put(child, pathElement);
 				}
 			}
-//			if (!services.isEmpty()) {
-//				Collections.sort(services, serviceComparator);
-//				for (String serviceName : services.keySet()) {
-//					if (aborting) {
-//						return;
-//					}
-//					if (pathMap.containsKey(serviceName)) {
-//						continue;
-//					}
-//					SwingUtilities.invokeLater(new AddNodeRunnable(node,
-//							new ServiceFilterTreeNode(services.get(serviceName))));
-//				}
-//			}
+				SwingUtilities
+						.invokeLater(new SetChildrenRunnable(node, newChildNodes));
+			
+			
+				for (FilterTreeNode child : newChildMap.keySet()) {
+					populateChildren(child, childrenMap, (Map) pathMap.get(newChildMap.get(child)));
+				}
+
 		}
 		
 
-		public class AddNodeRunnable implements Runnable {
-			private final Set< FilterTreeNode> nodes;
+		private PathElementFilterTreeNode findChild(FilterTreeNode node,
+				String pathElement) {
+			PathElementFilterTreeNode result = null;
+			for (int i=0; (i < node.getChildCount()) && (result == null); i++) {
+				FilterTreeNode child = (FilterTreeNode) node.getChildAt(i);
+				if (child instanceof PathElementFilterTreeNode) {
+					if (((PathElementFilterTreeNode) child).getUserObject().equals(pathElement)) {
+						return (PathElementFilterTreeNode) child;
+					}
+				}
+			}
+			result = new PathElementFilterTreeNode(pathElement);
+			return result;
+		}
+
+		private ServiceFilterTreeNode findChild(FilterTreeNode node,
+				ServiceDescription sd) {
+			FilterTreeNode result = null;
+			for (int i=0; (i < node.getChildCount()) && (result == null); i++) {
+				FilterTreeNode child = (FilterTreeNode) node.getChildAt(i);
+				if (child instanceof ServiceFilterTreeNode) {
+					if (((ServiceFilterTreeNode) child).getUserObject() == sd) {
+						return (ServiceFilterTreeNode) child;
+					}
+				}
+			}
+			return new ServiceFilterTreeNode(sd);
+		}
+
+
+		public class SetChildrenRunnable implements Runnable {
+			private final List< FilterTreeNode> nodes;
 			private final FilterTreeNode root;
 
-			public AddNodeRunnable(FilterTreeNode root, Set<FilterTreeNode> nodes) {
+			public SetChildrenRunnable(FilterTreeNode root, List<FilterTreeNode> nodes) {
 				this.root = root;
-				this.nodes = nodes;
+				this.nodes = new ArrayList<FilterTreeNode>(nodes);
 			}
 
 			public void run() {
 				if (aborting) {
 					return;
 				}
-				for (FilterTreeNode n : nodes) {
-					root.add(n);
+//				Filter currentFilter = treeModel.getCurrentFilter();			
+//				serviceTreePanel.disableFilter();
+				
+				List<FilterTreeNode> currentChildren = new ArrayList<FilterTreeNode>(Collections.list(root.children()));
+				List<FilterTreeNode> childrenToRemove = new ArrayList<FilterTreeNode>(currentChildren);
+				int insertionIndex = currentChildren.size();
+				List<FilterTreeNode> nodesReversed = new ArrayList<FilterTreeNode>(nodes);
+				Collections.reverse(nodesReversed);
+				for (FilterTreeNode n : nodesReversed) {
+					if (!currentChildren.contains(n)) {
+						treeModel.insertNodeInto(n, root, insertionIndex);
+					}
+					else {
+						insertionIndex = currentChildren.indexOf(n);
+					}
+					childrenToRemove.remove(n);
 				}
+				for (FilterTreeNode n : childrenToRemove) {
+						treeModel.removeNodeFromParent(n);
+				}
+				if (currentChildren.isEmpty()) {
+					treeModel.nodeStructureChanged(root);
+				}
+//				
+//				serviceTreePanel.reenableFilter(currentFilter);
+				
 			}
-		}
-	}
-
-	public static class RemoveNodeRunnable implements Runnable {
-		private final FilterTreeNode root;
-
-		public RemoveNodeRunnable(FilterTreeNode root) {
-			this.root = root;
-		}
-
-		public void run() {
-			root.removeFromParent();
 		}
 	}
 
@@ -385,12 +412,17 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 						abstractProviderNotification.getMessage());
 			}
 			if (message instanceof PartialServiceDescriptionsNotification) {
+				PartialServiceDescriptionsNotification notification = (PartialServiceDescriptionsNotification) message;
+				Collection<? extends ServiceDescription> addedServiceDescriptions = notification.getServiceDescriptions();
+				
 				// TODO: Support other events
 				// and only update relevant parts of tree, or at least select
 				// the recently added provider
 				updateTree();
 			}
 			if (message instanceof RemovedProviderEvent) {
+				RemovedProviderEvent notification = (RemovedProviderEvent) message;
+				ServiceDescriptionProvider removedProvider = notification.getProvider();
 				updateTree();
 			}
 		}
