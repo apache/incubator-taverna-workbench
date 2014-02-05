@@ -111,10 +111,6 @@ public class Workbench extends JFrame {
 	private WorkbenchZBasePane basePane;
 
 	private boolean isInitialized = false;
-	
-	private static final String WORKBENCH_PROFILE_PROPERTIES = "workbench-profile.properties";
-	
-	private Properties workbenchProfileProperties;
 
 	public final class ExceptionHandler implements UncaughtExceptionHandler {
 		public void uncaughtException(Thread t, Throwable e) {
@@ -282,8 +278,6 @@ public class Workbench extends JFrame {
 		UIManager.put("OptionPane.informationIcon", WorkbenchIcons.infoMessageIcon);
 		UIManager.put("OptionPane.questionIcon", WorkbenchIcons.questionMessageIcon);
 		UIManager.put("OptionPane.warningIcon", WorkbenchIcons.warningMessageIcon);
-		
-		readWorkbenchProperties();
 
 		// Call the startup hooks
 		if (!callStartupHooks()) {
@@ -306,53 +300,7 @@ public class Workbench extends JFrame {
 	}
 
 
-	private void readWorkbenchProperties() {
-		workbenchProfileProperties = new Properties();
-		InputStream inStream = null;
-		try {
-			String startup = System.getProperty("taverna.startup");
-		File startupDir = new File(startup);
-		File confDir = new File(startupDir, "conf");
-		File workbenchProfilePropertiesFile = new File(confDir, WORKBENCH_PROFILE_PROPERTIES);
-		inStream = new FileInputStream(workbenchProfilePropertiesFile);
-		
-		workbenchProfileProperties.load(inStream);
-		}
-		catch (IOException e) {
-			logger.error("Unable to read workbench profile properties file", e);
-		}
-		catch (NullPointerException e) {
-			logger.error("Unable to read workbench profile properties file", e);
-		}
-		finally {
-			if (inStream != null) {
-				try {
-					inStream.close();
-				} catch (IOException e) {
-					logger.error("Unable to close workbench profile properties file",e);
-				}
-			}
-		}
-	}
-	
-	public static Properties getWorkbenchProfileProperties() {
-		return getInstance().workbenchProfileProperties;
-	}
-	
-	public static String getWorkbenchProfileProperty(String key,
-			String fallback) {
-		String result = getWorkbenchProfileProperties().getProperty(key, fallback);
-		return result;
-	}
-	
-	public static int getWorkbenchProfileIntegerProperty(String key, int fallback) {
-		try {
-			return Integer.parseInt(getWorkbenchProfileProperty(key, Integer.toString(fallback)));
-		} catch (NumberFormatException e) {
-			logger.error(e);
-			return fallback;
-		}
-	}
+
 
 	protected void setExceptionHandler() {
 		Thread.setDefaultUncaughtExceptionHandler(new ExceptionHandler());
