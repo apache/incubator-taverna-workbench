@@ -21,6 +21,7 @@ import net.sf.taverna.biocatalogue.model.Util;
 import net.sf.taverna.biocatalogue.model.connectivity.BeansForJSONLiteAPI.ResourceIndex;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.config.BioCataloguePluginConfiguration;
 import net.sf.taverna.t2.workbench.ui.impl.Workbench;
+import net.sf.taverna.t2.workbench.ui.impl.WorkbenchProfileProperties;
 
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.Annotations;
@@ -88,7 +89,7 @@ public class BioCatalogueClient
   
   
   // API URLs
-  public static final String DEFAULT_API_LIVE_SERVER_BASE_URL = Workbench.getWorkbenchProfileProperty("servicecatalogue.base.url", "https://www.biocatalogue.org");
+  public static final String DEFAULT_API_LIVE_SERVER_BASE_URL = WorkbenchProfileProperties.getWorkbenchProfileProperty("servicecatalogue.base.url", "https://www.biocatalogue.org");
   
   private static String BASE_URL;    // BioCatalogue base URL to use (can be updated at runtime)
   
