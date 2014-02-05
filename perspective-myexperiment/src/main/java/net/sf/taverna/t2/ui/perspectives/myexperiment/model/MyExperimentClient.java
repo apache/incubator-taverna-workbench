@@ -56,6 +56,8 @@ import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponent;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MyExperimentPerspective;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.SearchEngine.QuerySearchInstance;
+import net.sf.taverna.t2.workbench.ui.impl.Workbench;
+import net.sf.taverna.t2.workbench.ui.impl.WorkbenchProfileProperties;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
@@ -68,13 +70,14 @@ import org.xml.sax.InputSource;
  */
 public class MyExperimentClient {
   // CONSTANTS
-  public static final String DEFAULT_BASE_URL = "http://www.myexperiment.org";
+  public static final String DEFAULT_BASE_URL = WorkbenchProfileProperties.getWorkbenchProfileProperty("myexperiment.base.url", "http://www.myexperiment.org");
   public static final String PLUGIN_USER_AGENT = "Taverna2-myExperiment-plugin/"
       + MyExperimentPerspective.PLUGIN_VERSION
       + " Java/"
       + System.getProperty("java.version");
   private static final String INI_FILE_NAME = "myexperiment-plugin.ini";
-  private static final int EXAMPLE_WORKFLOWS_PACK_ID = 254;
+  private static final int EXAMPLE_WORKFLOWS_PACK_ID =
+		  WorkbenchProfileProperties.getWorkbenchProfileIntegerProperty("myexperiment.starterpack",254);
 
   public static final String INI_BASE_URL = "my_experiment_base_url";
   public static final String INI_AUTO_LOGIN = "auto_login";
