@@ -112,7 +112,7 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 				+ "For <b>Oracle's Java 7</b> you can get it from:<br>"
 				+ "<a href=\"http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html\">http://www.oracle.com/technetwork/java/javase/downloads/jce-7-download-432124.html</a><br>"
 				+ "Installation instructions are contained in the bundle you download.<br><br>"
-				+ "Nota that for OpenJDK 7 you should not have to install the policy as it should already<br> be included."
+				+ "Note that for OpenJDK 7 (which comes bundled with Taverna) you should not have to install <br/>the policy as it is already included."
 				+ "</body><html>");
 		message.addHyperlinkListener(new HyperlinkListener() {
 			public void hyperlinkUpdate(HyperlinkEvent he) {
