@@ -6,10 +6,18 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.Security;
 import java.security.KeyStore.Entry;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -255,8 +263,6 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 						try {
 							fos = new FileOutputStream(currentKeystoreFile);
 							currentKeystore.store(fos, password.toCharArray());
-							// Also set the flag to use user-set master password
-							FileUtils.touch(new File(currentCredentialManagerDirectory, CredentialManager.USER_SET_MASTER_PASSWORD_INDICATOR_FILE_NAME));
 						} catch (Exception ex) {
 							logger.error("Failed to save the new Keystore when copying from the old location in "+previousKeystoreFile + " to the new location in "+ currentKeystoreFile, ex);
 							FileUtils.deleteQuietly(currentKeystoreFile);
@@ -363,28 +369,7 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 									// ignore
 								}
 							}
-						}
-						
-						// Try to instantiate Credential Manager
-						try{
-							CredentialManager.getInstance(password);
-						}
-						catch (CMException cmex) {
-							logger
-							.error("Failed to instantiate Credential Manager's with the older files copied from "
-									+ previousTavernaDirectory
-									+ System.getProperty("file.separator") + SECURITY_DIRECTORY_NAME
-									+ " to " + currentCredentialManagerDirectory, cmex);
-							// Remove the files
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
-							}
-							catch(Exception ex2){
-								// Ignore - nothing we can do
-							}
-							JOptionPane.showMessageDialog(null, "Failed to instantiate new Credential Manager with the old credentials and trusted certificates", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
-							break;
-						}
+						}						
 					}
 					// For Taverna 2.3+
 					else{
@@ -395,13 +380,7 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 					        logger.info("Trying to copy over the old Keystore from " + previousKeystoreFile);
 							FileUtils.copyFile(previousKeystoreFile, currentKeystoreFile);
 					        logger.info("Trying to copy over the old Truststore from " + previousTruststoreFile);
-							FileUtils.copyFile(previousTruststoreFile, currentTruststoreFile);
-							
-							// Also set the flag to use user-set master password
-							FileUtils.touch(new File(currentCredentialManagerDirectory, CredentialManager.USER_SET_MASTER_PASSWORD_INDICATOR_FILE_NAME));
-							
-							// Try to instantiate Credential Manager
-							CredentialManager.getInstance(password);
+							FileUtils.copyFile(previousTruststoreFile, currentTruststoreFile);							
 						}
 						catch(IOException ex){
 							logger
@@ -418,21 +397,78 @@ public class CheckForOlderCredentialManagersStartupHook implements StartupSPI{
 							}
 							JOptionPane.showMessageDialog(null, "Failed to copy the old Keystore and Truststore with credentials and trusted certificates", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
 							break;
-						} catch (CMException cmex) {
-							logger
-							.error("Failed to instantiate Credential Manager's with the older files copied from "
-									+ previousTavernaDirectory
-									+ System.getProperty("file.separator") + SECURITY_DIRECTORY_NAME
-									+ " to " + currentCredentialManagerDirectory, cmex);
-							// Remove the files
-							try{
-								FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+						}
+					}
+					
+					// Try to instantiate Credential Manager
+					try{												
+						// Try to instantiate Credential Manager to see if all is good
+						CredentialManager cm = CredentialManager.getInstance(password);
+						
+						// Set the flag to use user-set master password
+						FileUtils.touch(new File(currentCredentialManagerDirectory, CredentialManager.USER_SET_MASTER_PASSWORD_INDICATOR_FILE_NAME));
+						
+						// Also need to add some 'special' trusted certificates
+						InputStream[] trustedCertStreams = CredentialManager.getSpecialTrustedCertificateStreams();
+						for (InputStream trustedCertStream : trustedCertStreams) {						
+							// Load the certificate (possibly a chain) from the stream
+							List<X509Certificate> trustedCertChain = new ArrayList<X509Certificate>();
+							try {
+								CertificateFactory cf = CertificateFactory
+										.getInstance("X.509");
+								Collection<? extends Certificate> c = cf
+										.generateCertificates(trustedCertStream);
+								Iterator<? extends Certificate> i = c
+										.iterator();
+								while (i.hasNext()) {
+									trustedCertChain.add((X509Certificate) i
+											.next());
+								}
+							} catch (Exception cex) {
+								logger.error(cex);
+							} finally {
+								try {
+									trustedCertStream.close();
+								} catch (Exception ex) {
+									// ignore
+								}
 							}
-							catch(Exception ex2){
-								// Ignore - nothing we can do
+
+							if (trustedCertChain.size() > 0) { // Managed to load certificate (chain)
+								for (X509Certificate trustedCert : trustedCertChain) {
+									try {
+										cm.saveTrustedCertificate(trustedCert);
+									} catch (Exception ex) {
+										String exMessage = "Credential Manager: Failed to insert trusted certificate entry in the Truststore.";
+										logger.error(exMessage, ex);
+									}
+								}
 							}
-							JOptionPane.showMessageDialog(null, "Failed to instantiate new Credential Manager with the old credentials and trusted certificates", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
-							break;
+						}						
+					}
+					catch (CMException cmex) {
+						logger
+						.error("Failed to instantiate Credential Manager's with the older files copied from "
+								+ previousTavernaDirectory
+								+ System.getProperty("file.separator") + SECURITY_DIRECTORY_NAME
+								+ " to " + currentCredentialManagerDirectory, cmex);
+						// Remove the files
+						try{
+							FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+						}
+						catch(Exception ex2){
+							// Ignore - nothing we can do
+						}
+						JOptionPane.showMessageDialog(null, "Failed to instantiate new Credential Manager with the old credentials and trusted certificates", "Credential Manager copy failed", JOptionPane.ERROR_MESSAGE);
+						break;
+					} catch (IOException ioex) {
+						logger.error("Failed to set the flag indicating the use of a user-set master password for Credential Manager.", ioex);
+						// Remove the files
+						try{
+							FileUtils.deleteDirectory(currentCredentialManagerDirectory);
+						}
+						catch(Exception ex2){
+							// Ignore - nothing we can do
 						}
 					}
 				}
