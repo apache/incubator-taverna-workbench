@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
@@ -42,6 +43,13 @@ public class RetryConfigureAction extends AbstractAction {
 
 	private static Logger logger = Logger.getLogger(RetryConfigureAction.class);
 	
+	private static AbstractAction helpAction = new AbstractAction("Help"){
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Helper.showID(RetryConfigureAction.class.getCanonicalName());
+		}};
+	
 	public RetryConfigureAction(Frame owner, RetryContextualView retryContextualView, Retry retryLayer) {
 		super("Configure");
 		this.owner = owner;
@@ -57,6 +65,9 @@ public class RetryConfigureAction extends AbstractAction {
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
+		
+		JButton helpButton = new JButton(helpAction);
+		buttonPanel.add(helpButton);
 
 		JButton okButton = new JButton(new OKAction(dialog,
 				retryConfigurationPanel));
