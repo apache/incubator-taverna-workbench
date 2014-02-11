@@ -24,6 +24,7 @@ import org.apache.log4j.Logger;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workflowmodel.CompoundEdit;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
@@ -55,6 +56,13 @@ public class LoopConfigureAction extends AbstractAction {
 		private final Loop loopLayer;
 		private final LoopContextualView contextualView;
 		private final Processor processor;
+		
+		private static AbstractAction helpAction = new AbstractAction("Help"){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Helper.showID(LoopConfigureAction.class.getCanonicalName());
+			}};
 
 		protected LoopConfigureAction(Frame owner, LoopContextualView contextualView, Loop loopLayer) {
 			super("Configure");
@@ -73,6 +81,9 @@ public class LoopConfigureAction extends AbstractAction {
 
 			JPanel buttonPanel = new JPanel();
 			buttonPanel.setLayout(new FlowLayout());
+			
+			JButton helpButton = new JButton(helpAction);
+			buttonPanel.add(helpButton);
 
 			JButton okButton = new JButton(new OKAction(dialog,
 					loopConfigurationPanel));
