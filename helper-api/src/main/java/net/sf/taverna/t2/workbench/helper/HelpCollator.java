@@ -9,11 +9,15 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -85,6 +89,8 @@ public final class HelpCollator {
 	private static Profile profile = ProfileFactory.getInstance().getProfile();
 	private static String version = profile.getVersion();
 	private static String externalHelpSetURL = "http://www.mygrid.org.uk/taverna/helpset/" + version + "/helpset.hs";
+	
+	private static Map<String, Map<String, URL>> examplesMap = new TreeMap<String,Map<String, URL>>();
 
 	/**
 	 * Attempt to read the up-to-date HelpSet from the web
@@ -139,8 +145,43 @@ public final class HelpCollator {
 			}
 			idMap = new HashMap<Component, String>();
 			nonAlphanumeric = Pattern.compile("[^a-z0-9\\.]");
+			
+			if (hs != null) {
+				for (Object idAsObject : Collections.list(hs.getLocalMap().getAllIDs())) {
+					final ID id = (ID) idAsObject;
+					String stringId = id.getIDString();
+					if (stringId.contains("$")) {
+						String[] parts = stringId.split("[$]");
+						if (parts.length != 2) {
+							continue;
+						}
+						String baseId = parts[0];
+						String exampleTitle = parts[1];
+						try {
+							URL targetURL = id.getURL();
+							Map<String, URL> examples = examplesMap.get(baseId);
+							if (examples == null) {
+								examples = new HashMap<String,URL>();
+								examplesMap.put(baseId, examples);
+							}
+							examples.put(exampleTitle, targetURL);
+						} catch (MalformedURLException e) {
+							logger.error(e);
+						}
+						
+					}
+				}
+			}
 			initialized = true;
 		}
+	}
+	
+	public static Map<String, URL> getExamples(String baseId) {
+		Map<String, URL> result = examplesMap.get(baseId);
+		if (result == null) {
+			return Collections.emptyMap();
+		}
+		return result;
 	}
 
 	/**
@@ -287,7 +328,7 @@ public final class HelpCollator {
 	 * @param c
 	 * @return
 	 */
-	private static String getHelpIDInTree(JTree c) {
+	public static String getHelpIDInTree(JTree c) {
 		initialize();
 		String result = null;
 

@@ -70,7 +70,7 @@ public final class Helper {
 	 * 
 	 * @param id
 	 */
-	private static void showID(String id) {
+	public static void showID(String id) {
 		getInstance();
 		URL result;
 		try {
