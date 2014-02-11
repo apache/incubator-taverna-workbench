@@ -71,6 +71,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
+import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
 import net.sf.taverna.t2.workbench.reference.config.DataManagementConfiguration;
@@ -116,7 +117,9 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	private static final ImageIcon addTextIcon = new ImageIcon(
 			RegistrationPanel.class.getResource("/icons/addtext_co.gif"));
 
-
+	private static final ImageIcon helpIcon = new ImageIcon(
+			RegistrationPanel.class.getResource("/icons/information.gif"));
+	
 	// An action enabled when all inputs are enabled and used to trigger the
 	// handleLaunch method
 	private Action launchAction;
@@ -162,6 +165,13 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	private JPanel workflowPart;
 
 	private JPanel portsPart;
+	
+	private static AbstractAction helpAction = new AbstractAction("Help", helpIcon){
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Helper.showID(WorkflowLaunchWindow.class.getCanonicalName());
+		}};
 
 	public WorkflowLaunchWindow(Dataflow dataflowOriginal, ReferenceService refService) {
 		super();
@@ -426,9 +436,13 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
         JButton useExamplesButton = new JButton(useExamplesAction);
         useExamplesButton.setToolTipText("Use the example value (if any) for ports that you have not set a value for");
+        
+       JButton helpButton = new JButton(helpAction);
+       
 		// Construct tool bar
 		JToolBar toolBar = new JToolBar();
 		toolBar.setFloatable(false);
+		toolBar.add(helpButton);
 		toolBar.add(useExamplesButton);
 		toolBar.add(new JButton(launchAction));
 		toolBar.add(new JButton(new AbstractAction("Cancel", WorkbenchIcons.closeIcon) {
