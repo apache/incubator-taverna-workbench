@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
+import net.sf.taverna.t2.workbench.helper.Helper;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.EditException;
 import net.sf.taverna.t2.workflowmodel.Edits;
@@ -42,6 +43,13 @@ public class ParallelizeConfigureAction extends AbstractAction {
 
 	private static Logger logger = Logger.getLogger(ParallelizeConfigureAction.class);
 	
+	private static AbstractAction helpAction = new AbstractAction("Help"){
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Helper.showID(ParallelizeConfigureAction.class.getCanonicalName());
+		}};
+	
 	public ParallelizeConfigureAction(Frame owner, ParallelizeContextualView parallelizeContextualView, Parallelize parallelizeLayer) {
 		super("Configure");
 		this.owner = owner;
@@ -58,6 +66,9 @@ public class ParallelizeConfigureAction extends AbstractAction {
 
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
+		
+		JButton helpButton = new JButton(helpAction);
+		buttonPanel.add(helpButton);
 
 		JButton okButton = new JButton(new OKAction(dialog,
 				parallelizeConfigurationPanel));
