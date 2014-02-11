@@ -25,6 +25,9 @@
  */
 package net.sf.taverna.t2.workbench.iterationstrategy.editor;
 
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -102,7 +105,8 @@ public class IterationStrategyEditorControl extends JPanel {
 
 	protected AddCrossAction addCross = new AddCrossAction();
 	protected AddDotAction addDot = new AddDotAction();
-	protected ChangeAction change = new ChangeAction();
+	protected ChangeAction changeToDot = new ChangeAction("Dot", IterationStrategyIcons.lockStepIteratorIcon);
+	protected ChangeAction changeToCross = new ChangeAction("Cross", IterationStrategyIcons.joinIteratorIcon);
 	protected NormalizeAction normalize = new NormalizeAction();
 	protected RemoveAction remove = new RemoveAction();
 	protected MoveUpAction moveUp = new MoveUpAction();
@@ -123,7 +127,7 @@ public class IterationStrategyEditorControl extends JPanel {
 	public IterationStrategyEditorControl(IterationStrategy strategy) {
 
 		this.strategy = strategy;
-		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		setLayout(new GridBagLayout());
 
 		// Create the components
 		tree = new IterationStrategyEditor(strategy);
@@ -137,8 +141,10 @@ public class IterationStrategyEditorControl extends JPanel {
 		normalizeButton.setIcon(normalizeIcon);
 		JButton removeButton = new JButton(remove);
 		removeButton.setHorizontalAlignment(SwingConstants.LEFT);
-		JButton changeButton = new JButton(change);
-		changeButton.setHorizontalAlignment(SwingConstants.LEFT);
+		JButton changeToDotButton = new JButton(changeToDot);
+		changeToDotButton.setHorizontalAlignment(SwingConstants.LEFT);
+		JButton changeToCrossButton = new JButton(changeToCross);
+		changeToCrossButton.setHorizontalAlignment(SwingConstants.LEFT);
 
 		JButton moveUpButton = new JButton(moveUp);
 		moveUpButton.setIcon(arrowUpIcon);
@@ -151,27 +157,59 @@ public class IterationStrategyEditorControl extends JPanel {
 
 		// Create a layout with the tree on the right and the buttons in a grid
 		// layout on the left
-		JToolBar toolbar = new JToolBar();
-		toolbar.setFloatable(false);
-		toolbar.setRollover(true);
-		// toolbar.setLayout(new GridLayout(2,2));
-		toolbar.add(normalizeButton);
-		toolbar.add(addCrossButton);
-		toolbar.add(addDotButton);
-		toolbar.add(removeButton);
-		toolbar.add(changeButton);
-		toolbar.add(moveUpButton);
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new GridBagLayout());
+		GridBagConstraints gc = new GridBagConstraints();
+		gc.gridx = 0;
+		gc.gridy = 0;
+		gc.fill = GridBagConstraints.HORIZONTAL;
+		gc.weightx = 0.1;
+		gc.weighty = 0.0;
+		gc.anchor = GridBagConstraints.NORTH;
+		gc.insets = new Insets(0,0,0,0);
+		gc.ipadx = 2;
+		gc.ipady = 2;
+		
 
-		toolbar.setAlignmentX(LEFT_ALIGNMENT);
+		buttonPanel.add(normalizeButton, gc);
+		gc.gridy++;
+		buttonPanel.add(addCrossButton, gc);
+		gc.gridy++;
+		buttonPanel.add(addDotButton, gc);
+		gc.gridy++;
+		buttonPanel.add(removeButton, gc);
+		gc.gridy++;
+		buttonPanel.add(changeToDotButton, gc);
+		gc.gridy++;
+		buttonPanel.add(changeToCrossButton, gc);
+		gc.gridy++;
+		buttonPanel.add(moveUpButton, gc);
+		gc.gridy++;
+		gc.fill = GridBagConstraints.BOTH;
+		gc.weighty = 1.0;
+		final JPanel fillerPanel = new JPanel();
+		buttonPanel.add(fillerPanel, gc);
+
 
 		// Listen to tree selection events and enable buttons appropriately
 		tree.addTreeSelectionListener(new ButtonEnabler());
 
 		// Add components to the control panel
-		add(toolbar);
 		JScrollPane treePane = new JScrollPane(tree);
 		//treePane.setPreferredSize(new Dimension(0, 0));
-		add(treePane);
+		
+		gc.gridx = 0;
+		gc.gridy = 0;
+		gc.weightx = 1.0;
+		gc.weighty = 1.0;
+		gc.fill = GridBagConstraints.BOTH;
+		add(treePane, gc);
+		
+		gc.gridx = 1;
+		gc.weightx = 0.1;
+		gc.weighty = 0.1;
+		gc.fill = GridBagConstraints.BOTH;
+		add(buttonPanel, gc);
 	}
 
 	public void setIterationStrategy(IterationStrategy iterationStrategy) {
@@ -184,7 +222,9 @@ public class IterationStrategyEditorControl extends JPanel {
 		remove.setEnabled(false);
 		addCross.setEnabled(false);
 		addDot.setEnabled(false);
-		change.setEnabled(false);
+		changeToDot.setEnabled(false);
+		changeToCross.setEnabled(false);
+		moveUp.setEnabled(false);
 	}
 
 	private IterationStrategyNode findRoot() {
@@ -218,6 +258,7 @@ public class IterationStrategyEditorControl extends JPanel {
 			CrossProduct newNode = new CrossProduct();
 			newNode.setParent(selectedNode);
 			tree.refreshModel();
+			selectNode(newNode);
 		}
 	}
 
@@ -237,6 +278,7 @@ public class IterationStrategyEditorControl extends JPanel {
 			DotProduct newNode = new DotProduct();
 			newNode.setParent(selectedNode);
 			tree.refreshModel();
+			selectNode(newNode);
 		}
 	}
 
@@ -254,23 +296,27 @@ public class IterationStrategyEditorControl extends JPanel {
 					remove.setEnabled(true);
 				}
 				if (selectedObject instanceof CrossProduct) {
-					change.putValue(Action.NAME, "Change to Dot Product");
-					change.putValue(Action.SMALL_ICON,
-							IterationStrategyIcons.lockStepIteratorIcon);
+					changeToDot.setEnabled(true);
+					changeToCross.setEnabled(false);
 				} else {
-					change.putValue(Action.NAME, "Change to Cross Product");
-					change.putValue(Action.SMALL_ICON,
-							IterationStrategyIcons.joinIteratorIcon);
+					changeToDot.setEnabled(false);
+					changeToCross.setEnabled(true);
 				}
 				addCross.setEnabled(true);
 				addDot.setEnabled(true);
-				change.setEnabled(true);
 			} else {
 				// Top- or leaf node
 				remove.setEnabled(false);
 				addCross.setEnabled(false);
 				addDot.setEnabled(false);
-				change.setEnabled(false);
+				changeToDot.setEnabled(false);
+				changeToCross.setEnabled(false);
+			}
+			IterationStrategyNode aboveNode = aboveSelectedNode();
+			if ((aboveNode == null) || ((aboveNode instanceof TerminalNode) && (aboveNode.getChildCount() > 0))) {
+				moveUp.setEnabled(false);
+			} else {
+				moveUp.setEnabled(true);
 			}
 		}
 	}
@@ -280,8 +326,8 @@ public class IterationStrategyEditorControl extends JPanel {
 	 */
 	protected class ChangeAction extends AbstractAction {
 
-		public ChangeAction() {
-			super("Switch to...", IterationStrategyIcons.joinIteratorIcon);
+		public ChangeAction(String changeToName, ImageIcon icon) {
+			super("Change to " + changeToName + " Product", icon);
 		}
 
 		public void actionPerformed(ActionEvent e) {
@@ -330,6 +376,7 @@ public class IterationStrategyEditorControl extends JPanel {
 			// Expand all the nodes in the tree
 			//DefaultTreeModel model = tree.getModel();
 			tree.refreshModel();
+			disableButtons();
 		}
 	}
 
@@ -365,7 +412,8 @@ public class IterationStrategyEditorControl extends JPanel {
 			remove.setEnabled(false);
 			addCross.setEnabled(false);
 			addDot.setEnabled(false);
-			change.setEnabled(false);
+			changeToDot.setEnabled(false);
+			
 			selectNode(oldParent);
 		}
 	}

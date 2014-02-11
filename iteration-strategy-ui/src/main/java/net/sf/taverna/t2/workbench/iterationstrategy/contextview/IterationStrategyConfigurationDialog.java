@@ -86,7 +86,7 @@ public class IterationStrategyConfigurationDialog extends HelpEnabledDialog {
 
 		this.add(buttonPanel, BorderLayout.SOUTH);
 		this.pack();
-		this.setSize(new Dimension(getPreferredSize().width, getPreferredSize().height > 400 ? 400 : getPreferredSize().height));
+		this.setSize(new Dimension(400, getPreferredSize().height > 400 ? 400 : getPreferredSize().height));
 	}
 
 	private final class OKAction extends AbstractAction {
