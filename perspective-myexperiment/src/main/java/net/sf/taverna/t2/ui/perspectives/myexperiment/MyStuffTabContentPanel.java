@@ -21,6 +21,8 @@
 package net.sf.taverna.t2.ui.perspectives.myexperiment;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -33,6 +35,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 
 import javax.swing.BorderFactory;
@@ -41,6 +45,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.JEditorPane;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -50,7 +55,10 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.event.HyperlinkEvent;
+import javax.swing.event.HyperlinkListener;
 
+import net.sf.taverna.t2.lang.ui.DeselectingButton;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.MyExperimentClient;
 
@@ -164,7 +172,35 @@ public class MyStuffTabContentPanel extends JPanel implements ActionListener, Ke
 	  JPanel jpLoginBoxContainer = new JPanel();
 	  jpLoginBoxContainer.setLayout(new GridBagLayout());
 	  GridBagConstraints c = new GridBagConstraints();
+	  c.gridx = 0;
+	  c.gridy = 0;
+	  c.fill = GridBagConstraints.HORIZONTAL;
 	  jpLoginBoxContainer.add(createLoginBox(), c);
+	  
+	  c.gridx=0;
+	  c.gridy++;
+
+	  String target = myExperimentClient.getBaseURL() + "/users/new";
+			JEditorPane jep = new JEditorPane("text/html",
+					"<center><p><a href='" + target + "'>" 
+							+ "Register on myExperiment</a>.</p>" +
+							"<p>Do <strong>not</strong> register with OpenID.</p></center>");
+			jep.setEditable(false);
+			jep.setOpaque(false);
+			jep.addHyperlinkListener(new HyperlinkListener() {
+				public void hyperlinkUpdate(HyperlinkEvent hle) {
+					if (HyperlinkEvent.EventType.ACTIVATED.equals(hle
+							.getEventType())) {
+						try {
+							Desktop.getDesktop().browse(hle.getURL().toURI());
+						} catch (IOException | URISyntaxException e) {
+							logger.error(e);
+						}
+					}
+				}
+			});
+			  
+	  jpLoginBoxContainer.add(jep, c);
 
 	  // put everything together (welcome banner + login box)
 	  this.setLayout(new BorderLayout());
