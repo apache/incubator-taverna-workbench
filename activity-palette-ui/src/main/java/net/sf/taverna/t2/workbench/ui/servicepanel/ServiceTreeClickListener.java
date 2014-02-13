@@ -321,7 +321,7 @@ public class ServiceTreeClickListener extends MouseAdapter {
 
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					if (target.toExternalForm().endsWith("t2flow")) {
+					if (target.toExternalForm().contains(".t2flow")) {
 						try {
 							FileManager.getInstance().openDataflow(null, target);
 						} catch (OpenException | IllegalStateException e) {
