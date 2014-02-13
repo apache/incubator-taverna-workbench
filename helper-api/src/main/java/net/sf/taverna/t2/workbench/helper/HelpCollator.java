@@ -342,6 +342,9 @@ public final class HelpCollator {
 						o = dmtn.getUserObject();
 					}
 				}
+				if (o instanceof HelpEndpointsProvider) {
+					return ((HelpEndpointsProvider) o).getHelpId();
+				}
 				String possibility = o.toString();
 				String className = o.getClass().getCanonicalName();
 				logger.info("Tree node as a string is " + possibility);

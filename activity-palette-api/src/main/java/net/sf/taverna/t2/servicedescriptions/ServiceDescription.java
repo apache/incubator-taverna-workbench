@@ -1,10 +1,15 @@
 package net.sf.taverna.t2.servicedescriptions;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
+import javax.help.BadIDException;
 import javax.swing.Icon;
 
 import net.sf.taverna.t2.lang.beans.PropertyAnnotation;
+import net.sf.taverna.t2.workbench.helper.HelpCollator;
+import net.sf.taverna.t2.workbench.helper.HelpEndpointsProvider;
 import net.sf.taverna.t2.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.Edit;
 import net.sf.taverna.t2.workflowmodel.Processor;
@@ -12,7 +17,7 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
 
 import org.apache.log4j.Logger;
 
-public abstract class ServiceDescription<ConfigType> extends IdentifiedObject {
+public abstract class ServiceDescription<ConfigType> extends IdentifiedObject implements HelpEndpointsProvider {
 
 	public static final String SERVICE_TEMPLATES = "Service templates";
 	private static final String NAME = "Name";
@@ -76,6 +81,26 @@ public abstract class ServiceDescription<ConfigType> extends IdentifiedObject {
 	 */
 	public Edit getInsertionEdit(Dataflow dataflow, Processor p, Activity a) {
 		return null;
+	}
+	
+	public String getHelpId() {
+		return getActivityClass().getCanonicalName();
+	}
+	
+	public URL getHelpURL() {
+		try {
+			return HelpCollator.getURLFromID(getHelpId());
+		} catch (BadIDException e) {
+			logger.error(e);
+		} catch (MalformedURLException e) {
+			logger.error(e);
+		}
+		return null;
+	}
+
+	public java.util.Map<String, URL> getExamples() {
+		String baseId = getHelpId();
+		return HelpCollator.getExamples(baseId);
 	}
 
 }
