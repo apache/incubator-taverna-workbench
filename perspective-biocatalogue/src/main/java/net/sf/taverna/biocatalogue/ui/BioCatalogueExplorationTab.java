@@ -6,8 +6,11 @@ import java.awt.Container;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -17,6 +20,8 @@ import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
 import net.sf.taverna.biocatalogue.ui.search_results.SearchResultsMainPanel;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponent;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
+import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.config.BioCataloguePluginConfiguration;
+import net.sf.taverna.t2.workbench.ui.impl.configuration.ui.T2ConfigurationFrame;
 
 import org.apache.log4j.Logger;
 
@@ -38,6 +43,7 @@ public class BioCatalogueExplorationTab extends JPanel implements HasDefaultFocu
   
   private SearchOptionsPanel searchOptionsPanel;
   private SearchResultsMainPanel tabbedSearchResultsPanel;
+private JLabel baseLabel;
   
   
   public BioCatalogueExplorationTab()
@@ -75,21 +81,46 @@ public class BioCatalogueExplorationTab extends JPanel implements HasDefaultFocu
     c.weightx = 0.0;
     c.anchor = GridBagConstraints.WEST;
     c.insets = new Insets(3,10,3,10);
-    String baseString= "<html><b>Using service catalogue at </b>" + client.getBaseURL() + "</html>";
-    this.add(new JLabel(baseString), c);
+    String baseString= "<html><b>Using service catalogue at: </b>" + client.getBaseURL() + "</html>";
+    baseLabel = new JLabel(baseString);
+    this.add(baseLabel, c);
 
-    
+    c.gridx = 0;
+    c.gridy = 1;
+    c.weightx = 0.0;
+    c.weighty = 0.0;
+    c.fill = GridBagConstraints.NONE;
+    c.gridwidth = 2;
+    c.insets = new Insets(0,5,0,0);
+    c.anchor = GridBagConstraints.FIRST_LINE_START;
+    JButton changeServiceCatalogueButton = new JButton("Change");
+    JPanel changeServiceCataloguePanel = new JPanel(new BorderLayout());
+    changeServiceCataloguePanel.add(changeServiceCatalogueButton, BorderLayout.WEST);
+    changeServiceCatalogueButton.addActionListener(new ActionListener() {
+		
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			T2ConfigurationFrame.showConfiguration(BioCataloguePluginConfiguration.getInstance().getDisplayName());
+			if (!baseLabel.getText().equals(client.getBaseURL())){
+				baseLabel.setText(client.getBaseURL());
+			}
+		}
+	});
+    c.fill = GridBagConstraints.BOTH;
+    this.add(changeServiceCataloguePanel, c);
+
     c.gridx = 1;
     c.gridy = 0;
     c.weightx = 0.1;
+    c.weighty = 0.0;
+    c.gridwidth = 1;
     c.fill = GridBagConstraints.HORIZONTAL;
     c.anchor = GridBagConstraints.EAST;
-    c.insets = new Insets(3,30,3,10);
-    
+    c.insets = new Insets(23,30,3,10);
     this.add(searchOptionsPanel, c);
     
     c.insets = new Insets(0,0,0,0);
-    c.gridy++;
+    c.gridy = 2;
     c.gridx = 0;
     c.gridwidth = 2;
     c.weightx = c.weighty = 1.0;
