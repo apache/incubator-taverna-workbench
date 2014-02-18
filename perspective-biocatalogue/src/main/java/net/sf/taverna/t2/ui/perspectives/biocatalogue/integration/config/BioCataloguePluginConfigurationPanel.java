@@ -74,9 +74,6 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 			"0" }; // major, minor and patch versions
 	public static String API_VERSION = "apiVersion";
 
-	private static final String DEFAULT_SERVICE_CATALOGUE_TYPE = "DEFAULT";
-	private static final String USER_ADDED_SERVICE_CATALOGUE_TYPE = "USER_ADDED";
-
 	private static final Charset ENCODING = StandardCharsets.UTF_8;
 
 	private static final String CONF = "conf";
@@ -84,14 +81,8 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 	private static final String USER_ADDED_SERVICE_CATALOGUES_FILE = "user-added-service-catalogues.txt";
 
 	// Default available service catalogues that come predefined with Taverna.
-	private List<ServiceCatalogue> defaultCatalogues = new ArrayList<ServiceCatalogue>();
-	{
-		defaultCatalogues.add(new ServiceCatalogue("BioCatalogue",
-				"https://www.biocatalogue.org", DEFAULT_SERVICE_CATALOGUE_TYPE));
-		defaultCatalogues.add(new ServiceCatalogue("BiodiversityCatalogue",
-				"https://www.biodiversitycatalogue.org",
-				DEFAULT_SERVICE_CATALOGUE_TYPE));
-	};
+	//private List<ServiceCatalogue> defaultCatalogues = BioCataloguePluginConfiguration.defaultCatalogues;
+	//};
 
 	// User-added catalogues
 	private List<ServiceCatalogue> userAddedCatalogues;
@@ -150,7 +141,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 
 		userAddedCatalogues = getUserAddedServiceCatalogues();
 		allServiceCatalogues = new Vector<ServiceCatalogue>();
-		allServiceCatalogues.addAll(defaultCatalogues);
+		allServiceCatalogues.addAll(BioCataloguePluginConfiguration.defaultCatalogues);
 		allServiceCatalogues.addAll(userAddedCatalogues);
 		serviceCatalogueModel = new ServiceCatalogueComboBoxModel(
 				allServiceCatalogues);
@@ -163,7 +154,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 				@SuppressWarnings("unchecked")
 				JComboBox<ServiceCatalogue> combo = (JComboBox<ServiceCatalogue>)e.getSource();
 				ServiceCatalogue current = (ServiceCatalogue)combo.getSelectedItem();
-				if (current.getType().equals(USER_ADDED_SERVICE_CATALOGUE_TYPE)){
+				if (current.getType().equals(BioCataloguePluginConfiguration.USER_ADDED_SERVICE_CATALOGUE_TYPE)){
 					bRemoveServiceCatalogue.setEnabled(true);
 				}
 				else {
@@ -268,7 +259,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 		String catalogueURL = addServiceCatalogueDialog.getCatalogueURL();
 		
 		if (catalogueName != null && catalogueURL != null){
-			ServiceCatalogue sc = new ServiceCatalogue(catalogueName, catalogueURL, USER_ADDED_SERVICE_CATALOGUE_TYPE);
+			ServiceCatalogue sc = new ServiceCatalogue(catalogueName, catalogueURL, BioCataloguePluginConfiguration.USER_ADDED_SERVICE_CATALOGUE_TYPE);
 			userAddedCatalogues.add(sc);
 			serviceCatalogueModel.addElement(sc);
 			saveUserAddedServiceCatalogues(userAddedCatalogues);	
@@ -520,6 +511,8 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 			configuration.setProperty(
 					BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL,
 					candidateBaseURL);
+			configuration.setServiceCatalogueFriendlyName(((ServiceCatalogue) cbBioCatalogueAPIBaseURL
+				.getSelectedItem()).getFriendlyName());
 
 			/*
 			 * // also update the base URL in the BioCatalogueClient
@@ -618,7 +611,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 				String[] parts = catalogueEntry.split("\\t");
 				if (parts[0] != null && parts[1] != null){
 					ServiceCatalogue sc = new ServiceCatalogue(parts[0], parts[1],
-						USER_ADDED_SERVICE_CATALOGUE_TYPE);
+						BioCataloguePluginConfiguration.USER_ADDED_SERVICE_CATALOGUE_TYPE);
 					catalogues.add(sc);
 				}
 			}
