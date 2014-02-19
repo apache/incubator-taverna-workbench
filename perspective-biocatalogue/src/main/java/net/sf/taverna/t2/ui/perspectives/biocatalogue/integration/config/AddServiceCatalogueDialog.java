@@ -9,6 +9,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.ByteArrayInputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProxySelector;
+import java.net.URL;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -19,6 +24,19 @@ import javax.swing.JTextField;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
+import org.jdom.Attribute;
+import org.jdom.Document;
+import org.jdom.input.SAXBuilder;
 
 public class AddServiceCatalogueDialog extends JDialog {
 
@@ -99,20 +117,20 @@ public class AddServiceCatalogueDialog extends JDialog {
 	private boolean checkControls() {
 		catalogueName = catalogueNameField.getText();
 		if (catalogueName.length() == 0) {
-			JOptionPane.showMessageDialog(this, "Catalogue name cannot be empty",
-					"Warning", JOptionPane.WARNING_MESSAGE);
+			JOptionPane.showMessageDialog(this, "Service Catalogue name must not be blank",
+					"Service Catalogue Configuration", JOptionPane.WARNING_MESSAGE);
 			return false;
 		}
 
 		catalogueURL = new String(catalogueURLField.getText());
-		if (catalogueURL.length() == 0) { // password empty
-			JOptionPane.showMessageDialog(this, "Catalogue URL cannot be empty",
+		if (catalogueURL.length() == 0) { 
+			JOptionPane.showMessageDialog(this, "Service Catalogue base URL must not be blank",
 					"Warning", JOptionPane.WARNING_MESSAGE);
 
 			return false;
 		}
 
-		return true;
+		return BioCataloguePluginConfigurationPanel.checkServiceCatalogueBaseURL(catalogueURL);
 	}
 
 	private void okPressed() {

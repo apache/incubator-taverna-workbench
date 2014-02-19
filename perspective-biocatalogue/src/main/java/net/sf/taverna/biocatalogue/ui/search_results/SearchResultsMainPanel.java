@@ -487,12 +487,14 @@ public void clearListingPanels() {
 	
 }
 
-public void clearSearch() {
-	clearPreviousSearchInstances();
-	clearListingPanels();
-    for (FilterTreePane treePanel : currentFilterPanes.values()) {
-    	treePanel.reset();
-    }
-}
-  
+	public void clearSearch() {
+		clearPreviousSearchInstances();
+		clearListingPanels();
+		for (FilterTreePane treePanel : currentFilterPanes.values()) {
+			treePanel.reset();
+		}
+		for (TYPE resourceType : searchResultTabs.keySet()) {
+			setDefaultIconForTab(resourceType);
+		}
+	}
 }

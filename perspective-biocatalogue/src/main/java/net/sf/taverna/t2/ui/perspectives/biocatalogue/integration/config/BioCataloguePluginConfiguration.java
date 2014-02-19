@@ -42,8 +42,7 @@ public class BioCataloguePluginConfiguration extends AbstractConfigurable
 				DEFAULT_SERVICE_CATALOGUE_TYPE));
 	};
 	
-	private MultiCaster<BaseURLChangedEvent> multiCaster = new MultiCaster<BaseURLChangedEvent>(
-			this);
+	private MultiCaster<BaseURLChangedEvent> multiCaster = new MultiCaster<BaseURLChangedEvent>(this);
 
 	private static class Singleton {
 		private static BioCataloguePluginConfiguration instance = new BioCataloguePluginConfiguration();
@@ -95,6 +94,9 @@ public class BioCataloguePluginConfiguration extends AbstractConfigurable
 	public synchronized void setProperty(String key, String value){
 		super.setProperty(key, value);
 		if (key.equals(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL)){
+			if (multiCaster == null){
+				multiCaster = new MultiCaster<BaseURLChangedEvent>(this); // for some reason multicaster is not initialised the first time this method is called
+			}
 			multiCaster.notify(new BaseURLChangedEvent());
 		}
 	}

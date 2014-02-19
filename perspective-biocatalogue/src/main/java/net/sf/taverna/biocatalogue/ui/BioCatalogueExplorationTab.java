@@ -174,8 +174,12 @@ public class BioCatalogueExplorationTab extends JPanel implements
 			baseURL = configuration
 					.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL);
 			baseLabel.setText(getBaseURLLabelString(baseURL));
-			client.setBaseURL(baseURL);
 		}
+	}
+	
+	public void cleanSearch(){
+		client.setBaseURL(baseURL);
+		tabbedSearchResultsPanel.clearSearch();
 	}
  
 }
