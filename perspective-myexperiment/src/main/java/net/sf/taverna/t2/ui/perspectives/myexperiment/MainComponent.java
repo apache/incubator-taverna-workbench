@@ -410,7 +410,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
       String strTooltip = "Loading " + strResourceType
           + "s into Taverna Workbench is currently not possible";
       if (resource.getItemType() == Resource.WORKFLOW) {
-        if (((Workflow) resource).isTavernaWorkflow()) {
+        if (((Workflow) resource).isTavernaWorkflow() && ((Workflow) resource).getContentType().equals(Workflow.MIME_TYPE_TAVERNA_2)) {
           if (resource.isDownloadAllowed()) {
             // Taverna workflow and download allowed - can load in Taverna
             bLoadingAllowed = true;
@@ -492,7 +492,7 @@ public final class MainComponent extends JPanel implements UIComponentSPI, Chang
       boolean bLoadingAllowed = false;
       String strTooltip = "Loading " + strResourceType
           + "s into Taverna Workbench is currently not possible";
-      if (resource.getItemType() == Resource.WORKFLOW) {
+      if (resource.getItemType() == Resource.WORKFLOW && ((Workflow) resource).getContentType().equals(Workflow.MIME_TYPE_TAVERNA_2)) {
         if (((Workflow) resource).isTavernaWorkflow()) {
           if (resource.isDownloadAllowed()) {
             // Taverna workflow and download allowed - can load in Taverna

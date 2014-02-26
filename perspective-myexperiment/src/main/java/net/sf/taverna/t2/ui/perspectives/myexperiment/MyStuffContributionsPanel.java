@@ -220,7 +220,9 @@ public class MyStuffContributionsPanel extends JPanel implements ActionListener 
 					anyMore = !foundElements.isEmpty();
 					for (Element e : foundElements) {
 						Workflow wfCurrent = Workflow.buildFromXML(e, logger);
-						alWorkflowInstances.add(wfCurrent);
+						if (wfCurrent.getContentType().equals(Workflow.MIME_TYPE_TAVERNA_2)){
+							alWorkflowInstances.add(wfCurrent);
+						}
 					}
 				}
 				}

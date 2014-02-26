@@ -172,8 +172,10 @@ public class SearchEngine {
 		hmClassifiedResults.put(res.getItemType(), new ArrayList<Resource>());
 	  }
 
-	  // add the resource into the result set
-	  hmClassifiedResults.get(res.getItemType()).add(res);
+	  // add the resource into the result set bu only if it is not a Taverna 1 wf - we are ignoring them from now on
+	  if (res.getItemType() != Resource.WORKFLOW || ((Workflow)res).getContentType().equals(Workflow.MIME_TYPE_TAVERNA_2)){
+		  hmClassifiedResults.get(res.getItemType()).add(res);
+	  }
 	}
 
 	// populate the results when everything's done
