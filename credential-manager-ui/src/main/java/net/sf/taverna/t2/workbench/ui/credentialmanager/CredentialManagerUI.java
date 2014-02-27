@@ -641,14 +641,14 @@ public class CredentialManagerUI extends JFrame {
 						}
 					});
 
-			final JButton exportTrustedCertificateButton = new JButton("Export");
-			exportTrustedCertificateButton
-					.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							exportTrustedCertificate();
-						}
-					});
-			exportTrustedCertificateButton.setEnabled(false);
+//			final JButton exportTrustedCertificateButton = new JButton("Export");
+//			exportTrustedCertificateButton
+//					.addActionListener(new ActionListener() {
+//						public void actionPerformed(ActionEvent e) {
+//							exportTrustedCertificate();
+//						}
+//					});
+//			exportTrustedCertificateButton.setEnabled(false);
 			
 			final JButton deleteTrustedCertificateButton = new JButton("Delete");
 			deleteTrustedCertificateButton
@@ -666,16 +666,16 @@ public class CredentialManagerUI extends JFrame {
 					if (e.getSource() == trustedCertsTable.getSelectionModel()){
 						if (trustedCertsTable.getSelectedRow() == -1){ // nothing is selected
 							viewTrustedCertificateButton.setEnabled(false);
-							exportTrustedCertificateButton.setEnabled(false);
+							//exportTrustedCertificateButton.setEnabled(false);
 							deleteTrustedCertificateButton.setEnabled(false);
 						}
 						else{
 							if (!viewTrustedCertificateButton.isEnabled()){
 								viewTrustedCertificateButton.setEnabled(true);
 							}
-							if (!exportTrustedCertificateButton.isEnabled()){
-								exportTrustedCertificateButton.setEnabled(true);
-							}
+//							if (!exportTrustedCertificateButton.isEnabled()){
+//								exportTrustedCertificateButton.setEnabled(true);
+//							}
 							if (!deleteTrustedCertificateButton.isEnabled()){
 								deleteTrustedCertificateButton.setEnabled(true);
 							}
@@ -690,7 +690,7 @@ public class CredentialManagerUI extends JFrame {
 			JPanel bp = new JPanel();
 			bp.add(viewTrustedCertificateButton);
 			bp.add(importTrustedCertificateButton);
-			bp.add(exportTrustedCertificateButton);
+			//bp.add(exportTrustedCertificateButton);
 			bp.add(deleteTrustedCertificateButton);
 
 			// Add button panel to the tab
