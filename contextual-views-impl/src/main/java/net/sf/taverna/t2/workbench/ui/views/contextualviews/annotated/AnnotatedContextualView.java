@@ -177,19 +177,22 @@ public class AnnotatedContextualView extends ContextualView {
 				name = c.getCanonicalName();
 			}
 			JPanel subPanel = new JPanel();
-			Annotated<?> suitableAnnotated = findSuitableAnnotated(annotated, c);
-			String value = MISSING_VALUE;
-			if (suitableAnnotated != null) {
-				value = annotationTools.getAnnotationString(suitableAnnotated, c, MISSING_VALUE);
-			}
-			if (suitableAnnotated == null) {
-				subPanel.setBorder(new TitledBorder(name + " (default)"));				
-			}
-			else if (annotated.equals(suitableAnnotated)) {
-				subPanel.setBorder(new TitledBorder(name));				
-			} else {
-				subPanel.setBorder(new TitledBorder(name + " (inferred)"));
-			}
+			subPanel.setBorder(new TitledBorder(name));
+            String value = annotationTools.getAnnotationString(annotated, c, MISSING_VALUE);
+            
+//			Annotated<?> suitableAnnotated = findSuitableAnnotated(annotated, c);
+//			String value = MISSING_VALUE;
+//			if (suitableAnnotated != null) {
+//				value = annotationTools.getAnnotationString(suitableAnnotated, c, MISSING_VALUE);
+//			}
+//			if (suitableAnnotated == null) {
+//				subPanel.setBorder(new TitledBorder(name + " (default)"));				
+//			}
+//			else if (annotated.equals(suitableAnnotated)) {
+//				subPanel.setBorder(new TitledBorder(name));				
+//			} else {
+//				subPanel.setBorder(new TitledBorder(name + " (inferred)"));
+//			}
 			subPanel.add(createTextArea(c, value));
 			scrollPanel.add(subPanel);
 		}
