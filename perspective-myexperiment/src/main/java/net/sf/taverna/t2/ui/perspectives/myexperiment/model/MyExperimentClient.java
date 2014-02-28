@@ -1052,14 +1052,17 @@ public class MyExperimentClient {
     String encodedWorkflow = "";
 
     // check the format of the workflow
-    String scuflSchemaDef = "xmlns:s=\"http://org.embl.ebi.escience/xscufl/0.1alpha\"";
+
     String t2flowSchemaDef = "xmlns=\"http://taverna.sf.net/2008/xml/t2flow\"";
 
     if (workflowContent.length() > 0) {
       String contentType;
-      if (workflowContent.contains(scuflSchemaDef)) contentType = "application/vnd.taverna.scufl+xml";
-      else if (workflowContent.contains(t2flowSchemaDef)) contentType = "application/vnd.taverna.t2flow+xml";
-      else contentType = "";
+     if (workflowContent.contains(t2flowSchemaDef)) {
+    	 contentType = "application/vnd.taverna.t2flow+xml";
+     }
+      else {
+    	  contentType = "";
+      }
 
       encodedWorkflow += "<content-type>" + contentType + "</content-type>"
           + "<content encoding=\"base64\" type=\"binary\">"
