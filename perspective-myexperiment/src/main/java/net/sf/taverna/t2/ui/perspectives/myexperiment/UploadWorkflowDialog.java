@@ -564,12 +564,11 @@ public class UploadWorkflowDialog extends HelpEnabledDialog implements ActionLis
                       uploadFile));
                   String line;
 
-                  String scuflSchemaDef = "xmlns:s=\"http://org.embl.ebi.escience/xscufl/0.1alpha\"";
                   String t2flowSchemaDef = "xmlns=\"http://taverna.sf.net/2008/xml/t2flow\"";
 
                   while ((line = reader.readLine()) != null) {
                     if (!formatRecognized
-                        && (line.contains(scuflSchemaDef) || line
+                        && (line
                             .contains(t2flowSchemaDef)))
                       formatRecognized = true;
 
