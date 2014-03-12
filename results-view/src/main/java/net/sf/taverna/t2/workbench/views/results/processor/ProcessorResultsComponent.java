@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.views.results.processor;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -868,7 +869,7 @@ public class ProcessorResultsComponent extends JPanel {
 			String title = "Service iteration data saver";
 			
 			final JDialog dialog = new HelpEnabledDialog(MainWindow.getMainWindow(), title, true);
-			dialog.setResizable(false);
+			dialog.setResizable(true);
 			dialog.setLocationRelativeTo(MainWindow.getMainWindow());
 			JPanel panel = new JPanel(new BorderLayout());
 			DialogTextArea explanation = new DialogTextArea();
@@ -991,7 +992,8 @@ public class ProcessorResultsComponent extends JPanel {
 				gbc.insets = new Insets(5,10,5,10);
 				portsPanel.add(new JLabel(""), gbc); // empty space
 			}
-			panel.add(portsPanel, BorderLayout.CENTER);
+			portsPanel.setPreferredSize(new Dimension(100,100));
+			panel.add(new JScrollPane(portsPanel), BorderLayout.CENTER);
 			chosenReferences.clear();
 			for (JCheckBox checkBox : checkReferences.keySet()) {
 				if (checkBox.isSelected()) {
@@ -1031,6 +1033,7 @@ public class ProcessorResultsComponent extends JPanel {
 			});
 			buttonsBar.add(cancelButton);
 			panel.add(buttonsBar, BorderLayout.SOUTH);
+			panel.setPreferredSize(new Dimension(900,500));
 			panel.revalidate();
 			dialog.add(panel);
 			dialog.pack();

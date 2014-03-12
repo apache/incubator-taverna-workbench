@@ -21,6 +21,7 @@
 package net.sf.taverna.t2.workbench.views.results.workflow;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -47,6 +48,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -432,7 +434,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			String title = "Workflow run data saver";
 			
 			final JDialog dialog = new HelpEnabledDialog(MainWindow.getMainWindow(), title, true);
-			dialog.setResizable(false);
+			dialog.setResizable(true);
 			dialog.setLocationRelativeTo(MainWindow.getMainWindow());
 			JPanel panel = new JPanel(new BorderLayout());
 			DialogTextArea explanation = new DialogTextArea();
@@ -564,7 +566,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 				gbc.insets = new Insets(5,10,5,10);
 				portsPanel.add(new JLabel(""), gbc); // empty space
 			}
-			panel.add(portsPanel, BorderLayout.CENTER);
+			panel.add(new JScrollPane(portsPanel), BorderLayout.CENTER);
 			chosenReferences.clear();
 			for (JCheckBox checkBox : checkReferences.keySet()) {
 				if (checkBox.isSelected()) {
@@ -604,6 +606,7 @@ public class WorkflowResultsComponent extends JPanel implements UIComponentSPI, 
 			});
 			buttonsBar.add(cancelButton);
 			panel.add(buttonsBar, BorderLayout.SOUTH);
+			panel.setPreferredSize(new Dimension(900,500));
 			panel.revalidate();
 			dialog.add(panel);
 			dialog.pack();

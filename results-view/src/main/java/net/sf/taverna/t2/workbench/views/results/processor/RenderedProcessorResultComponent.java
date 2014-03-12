@@ -444,6 +444,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 			ResultsUtils.buildErrorDocumentTree(root, errorDocument, referenceService);
 			
 			JTree errorTree = new JTree(root);
+			errorTree.setRowHeight(0);
 			
 			errorTree.setCellRenderer(new DefaultTreeCellRenderer() {
 
@@ -456,7 +457,7 @@ public class RenderedProcessorResultComponent extends JPanel {
 						Object userObject = treeNode.getUserObject();
 						if (userObject instanceof ErrorDocument) {
 							renderer = super.getTreeCellRendererComponent(tree,
-									"<html>" + StringEscapeUtils.escapeHtml(((ErrorDocument) userObject).getMessage()) + "</html>", selected, expanded, leaf, row,
+									"<html><pre>" + StringEscapeUtils.escapeHtml(((ErrorDocument) userObject).getMessage()) + "</pre></html>", selected, expanded, leaf, row,
 									hasFocus);
 						}
 					}
