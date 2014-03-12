@@ -26,4 +26,5 @@ public class ErrorCapturingSVGCanvas extends JSVGCanvas {
 			logger.error(ex);
 		}
 	}
+
 }

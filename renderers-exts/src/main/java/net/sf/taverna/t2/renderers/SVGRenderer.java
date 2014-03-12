@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.renderers;
 
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 import java.util.regex.Pattern;
@@ -27,6 +29,7 @@ import java.util.regex.Pattern;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
 import net.sf.taverna.t2.reference.ReferenceService;
@@ -35,6 +38,10 @@ import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.reference.T2ReferenceType;
 
 import org.apache.batik.swing.JSVGCanvas;
+import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
+import org.apache.batik.swing.svg.SVGDocumentLoaderListener;
+import org.apache.batik.swing.svg.SVGLoadEventDispatcherEvent;
+import org.apache.batik.swing.svg.SVGLoadEventDispatcherListener;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
@@ -140,20 +147,46 @@ public class SVGRenderer implements Renderer {
 							e);
 					return new JTextArea("Failed to write the data to temporary file (see error log for more details): \n"
 							+ e.getMessage());				}
-				try {
-					svgCanvas.setURI(tmpFile.toURI().toASCIIString());
-				} catch (Exception e) {
-					logger.error("Failed to create SVG renderer", e);
-					return new JTextArea("Failed to create SVG renderer (see error log for more details): \n"
-							+ e.getMessage());				}
-				JPanel jp = new JPanel(){
+				final JPanel jp = new JPanel(new BorderLayout()){
 					@Override
 					protected void finalize() throws Throwable {
 						svgCanvas.stopProcessing();
 						super.finalize();
 					}
 				};
-				jp.add(svgCanvas);
+
+				jp.add(svgCanvas, BorderLayout.CENTER);
+				svgCanvas.addSVGDocumentLoaderListener(new SVGDocumentLoaderListener() {
+
+					@Override
+					public void documentLoadingCancelled(
+							SVGDocumentLoaderEvent arg0) {
+						// nowt
+					}
+
+					@Override
+					public void documentLoadingCompleted(
+							SVGDocumentLoaderEvent arg0) {
+						jp.setPreferredSize(svgCanvas.getSize());
+					}
+
+					@Override
+					public void documentLoadingFailed(
+							SVGDocumentLoaderEvent arg0) {
+						// nowt
+					}
+
+					@Override
+					public void documentLoadingStarted(
+							SVGDocumentLoaderEvent arg0) {
+						// nowt
+					}});
+				try {
+					svgCanvas.setURI(tmpFile.toURI().toASCIIString());
+				} catch (Exception e) {
+					logger.error("Failed to create SVG renderer", e);
+					return new JTextArea("Failed to create SVG renderer (see error log for more details): \n"
+							+ e.getMessage());}
 				return jp;			
 			} catch (Exception e) {
 				logger.error("Failed to create SVG renderer", e);
