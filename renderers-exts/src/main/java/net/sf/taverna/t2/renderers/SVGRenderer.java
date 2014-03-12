@@ -127,7 +127,7 @@ public class SVGRenderer implements Renderer {
 									+ e.getMessage());
 				}
 				
-				final JSVGCanvas svgCanvas = new JSVGCanvas();
+				final JSVGCanvas svgCanvas = new ErrorCapturingSVGCanvas();
 				File tmpFile = null;
 				try {
 					tmpFile = File.createTempFile("taverna", "svg");
