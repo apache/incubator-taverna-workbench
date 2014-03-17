@@ -44,7 +44,10 @@ import org.apache.log4j.Logger;
  */
 public class SearchResultsMainPanel extends JPanel implements ActionListener, SearchInstanceTracker
 {
-  private final SearchResultsMainPanel instanceOfSelf;
+ 
+	private static final long serialVersionUID = 1L;
+	
+	private final SearchResultsMainPanel instanceOfSelf;
   private Logger logger;
   
   private LinkedHashMap<TYPE, JComponent> searchResultTabs;
@@ -488,6 +491,7 @@ public void clearListingPanels() {
 }
 
 	public void clearSearch() {
+		
 		clearPreviousSearchInstances();
 		clearListingPanels();
 		for (FilterTreePane treePanel : currentFilterPanes.values()) {

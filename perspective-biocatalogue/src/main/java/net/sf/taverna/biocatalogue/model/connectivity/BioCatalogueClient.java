@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 import net.sf.taverna.biocatalogue.model.BioCataloguePluginConstants;
 import net.sf.taverna.biocatalogue.model.Pair;
@@ -20,8 +19,6 @@ import net.sf.taverna.biocatalogue.model.SoapOperationPortIdentity;
 import net.sf.taverna.biocatalogue.model.Util;
 import net.sf.taverna.biocatalogue.model.connectivity.BeansForJSONLiteAPI.ResourceIndex;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.config.BioCataloguePluginConfiguration;
-import net.sf.taverna.t2.workbench.ui.impl.Workbench;
-import net.sf.taverna.t2.workbench.ui.impl.WorkbenchProfileProperties;
 
 import org.apache.log4j.Logger;
 import org.biocatalogue.x2009.xml.rest.Annotations;
@@ -88,9 +85,7 @@ public class BioCatalogueClient
   
   
   
-  // API URLs
-  public static final String DEFAULT_API_LIVE_SERVER_BASE_URL = WorkbenchProfileProperties.getWorkbenchProfileProperty("servicecatalogue.base.url", "https://www.biocatalogue.org");
-  
+  // API URLs  
   private static String BASE_URL;    // BioCatalogue base URL to use (can be updated at runtime)
   
   public static String API_REGISTRIES_URL;
@@ -146,7 +141,7 @@ public class BioCatalogueClient
   
   
   // SETTINGS
-  private Properties iniSettings;    // settings that are read/stored from/to INI file
+  //private Properties iniSettings;    // settings that are read/stored from/to INI file
   
   private File fAPIOperationLog;
   private PrintWriter pwAPILogWriter;
@@ -163,7 +158,7 @@ public class BioCatalogueClient
     
     // load the BioCatalogue API base URL from the plugin's configuration settings
     this.setBaseURL(BioCataloguePluginConfiguration.getInstance().
-            getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL));
+            getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL_PROPERTY));
     
     // open API operation log file, if necessary
     if (BioCataloguePluginConstants.PERFORM_API_RESPONSE_TIME_LOGGING || 
@@ -193,8 +188,8 @@ public class BioCatalogueClient
   }
   
   
-  public String getBaseURL() {
-    return this.BASE_URL;
+  public static String getBaseURL() {
+    return BASE_URL;
   }
   
   /**
@@ -210,7 +205,7 @@ public class BioCatalogueClient
     // (otherwise double slashes may occur during URL manipulation)
     while (baseURL.endsWith("/")) { baseURL = baseURL.substring(0, baseURL.length() - 1); }
     
-    this.BASE_URL = baseURL;
+    BASE_URL = baseURL;
     
     API_REGISTRIES_URL = BASE_URL + "/registries";
     API_SERVICE_PROVIDERS_URL = BASE_URL + "/service_providers";

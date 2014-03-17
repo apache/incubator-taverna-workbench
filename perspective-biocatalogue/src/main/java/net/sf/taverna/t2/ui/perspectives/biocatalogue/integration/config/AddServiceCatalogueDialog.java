@@ -9,11 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.ByteArrayInputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProxySelector;
-import java.net.URL;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -25,18 +20,6 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.auth.AuthScope;
-import org.apache.http.auth.UsernamePasswordCredentials;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
-import org.apache.http.protocol.BasicHttpContext;
-import org.apache.http.protocol.HttpContext;
-import org.jdom.Attribute;
-import org.jdom.Document;
-import org.jdom.input.SAXBuilder;
 
 public class AddServiceCatalogueDialog extends JDialog {
 

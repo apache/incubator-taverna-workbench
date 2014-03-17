@@ -38,7 +38,7 @@ public class SearchOptionsPanel extends JPanel implements HasDefaultFocusCapabil
   // COMPONENTS
   private SearchOptionsPanel thisPanel;
   
-private JTextField tfSearchQuery;
+  private JTextField tfSearchQuery;
   private JButton bSearch;
   
   private final SearchResultsMainPanel tabbedSearchResultsPanel;

@@ -8,19 +8,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProxySelector;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -35,14 +28,14 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
-import net.sf.taverna.raven.appconfig.ApplicationRuntime;
-import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
+import net.sf.taverna.t2.lang.observer.MultiCaster;
+import net.sf.taverna.t2.lang.observer.Observable;
+import net.sf.taverna.t2.lang.observer.Observer;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
-//import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
@@ -58,7 +51,7 @@ import org.jdom.input.SAXBuilder;
  * @author Sergejs Aleksejevs
  */
 @SuppressWarnings("serial")
-public class BioCataloguePluginConfigurationPanel extends JPanel {
+public class BioCataloguePluginConfigurationPanel extends JPanel implements Observable<ServiceCatalogueChangedEvent> {
 	public static final String APPLICATION_XML_MIME_TYPE = "application/xml";
 
 	public static String PROXY_HOST = "http.proxyHost";
@@ -76,21 +69,10 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 			"0" }; // major, minor and patch versions
 	public static String API_VERSION = "apiVersion";
 
-	private static final Charset ENCODING = StandardCharsets.UTF_8;
-
-	private static final String CONF = "conf";
-
-	private static final String USER_ADDED_SERVICE_CATALOGUES_FILE = "user-added-service-catalogues.txt";
-
-	// Default available service catalogues that come predefined with Taverna.
-	// private List<ServiceCatalogue> defaultCatalogues =
-	// BioCataloguePluginConfiguration.defaultCatalogues;
-	// };
-
 	// User-added catalogues
 	private List<ServiceCatalogue> userAddedCatalogues;
 
-	// All available catalogues - union of default and user-added.
+	// All available catalogues - union of the default service catalogue and the ones user has added.
 	private Vector<ServiceCatalogue> allServiceCatalogues;
 
 	private ServiceCatalogueComboBoxModel serviceCatalogueModel;
@@ -109,10 +91,21 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 	// Indicates that we have already done the check on the base URL so
 	// no need to do it again when pressing 'Apply' button
 	private boolean currentServiceCatalogueBaseURLChecked = false;
+	
+	// Multicaster to inform all interested parties that Service Catalogue has changed
+	private MultiCaster<ServiceCatalogueChangedEvent> multiCaster = new MultiCaster<ServiceCatalogueChangedEvent>(this);
 
-	public BioCataloguePluginConfigurationPanel() {
+	private static class Singleton {
+		private static BioCataloguePluginConfigurationPanel instance = new BioCataloguePluginConfigurationPanel();
+	}
+	
+	private BioCataloguePluginConfigurationPanel() {
 		initialiseUI();
 		resetFields();
+	}
+	
+	public static BioCataloguePluginConfigurationPanel getInstance(){
+		return Singleton.instance;
 	}
 
 	private void initialiseUI() {
@@ -145,10 +138,15 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 		c.gridy++;
 		c.insets = new Insets(0, 0, 0, 0);
 
-		userAddedCatalogues = getUserAddedServiceCatalogues();
+		userAddedCatalogues = BioCataloguePluginConfiguration.getUserAddedServiceCatalogues();
+		
 		allServiceCatalogues = new Vector<ServiceCatalogue>();
-		allServiceCatalogues
-				.addAll(BioCataloguePluginConfiguration.defaultCatalogues);
+		
+		// Add the default Service Catalogue
+		String defaultServiceCatalogueName = configuration.getDefaultProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_NAME_PROPERTY);
+		String defaultServiceCatalogueBaseURL = configuration.getDefaultProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL_PROPERTY);		
+		allServiceCatalogues.add(new ServiceCatalogue(defaultServiceCatalogueName, defaultServiceCatalogueBaseURL, BioCataloguePluginConfiguration.DEFAULT_SERVICE_CATALOGUE_TYPE));
+		
 		allServiceCatalogues.addAll(userAddedCatalogues);
 		serviceCatalogueModel = new ServiceCatalogueComboBoxModel(
 				allServiceCatalogues);
@@ -175,7 +173,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 				// If something has changed - set the flag to do the URL check later on
 				if (!selectedBaseURL
 						.equals(configuration
-								.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL))){
+								.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL_PROPERTY))){
 					currentServiceCatalogueBaseURLChecked = false;
 				}
 			}
@@ -289,18 +287,47 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 			userAddedCatalogues.add(sc);
 			serviceCatalogueModel.addElement(sc);
 			serviceCatalogueModel.setSelectedItem(sc);
-			saveUserAddedServiceCatalogues(userAddedCatalogues);
-
-			currentServiceCatalogueBaseURLChecked = true;
+			// Also set this Service Catalogue to configuration
+			applyChanges();
+			try{
+				BioCataloguePluginConfiguration.saveUserAddedServiceCatalogues(userAddedCatalogues);
+				currentServiceCatalogueBaseURLChecked = true;
+			}
+			catch (IOException ioex){
+				logger.error("Failed to save user-defined service catalogues to: "
+				+ BioCataloguePluginConfiguration.getUserAddedCataloguesFile().getAbsolutePath(), ioex);
+				JOptionPane.showMessageDialog(this,
+				"Failed to save user-defined service catalogues",
+				"Service Catalogue Configuration",
+				JOptionPane.ERROR_MESSAGE);
+			}
 		}
 	}
 
 	private void removeServiceCatalogue() {
 		ServiceCatalogue serviceCatalogueToRemove = (ServiceCatalogue) serviceCatalogueModel
 				.getSelectedItem();
-		userAddedCatalogues.remove(serviceCatalogueToRemove);
-		saveUserAddedServiceCatalogues(userAddedCatalogues);
-		serviceCatalogueModel.removeElement(serviceCatalogueToRemove);
+		
+		try{
+			BioCataloguePluginConfiguration.saveUserAddedServiceCatalogues(userAddedCatalogues);
+			userAddedCatalogues.remove(serviceCatalogueToRemove);
+			serviceCatalogueModel.removeElement(serviceCatalogueToRemove);
+		}
+		catch (IOException ioex){
+			logger.error("Failed to save user-defined service catalogues to: "
+			+ BioCataloguePluginConfiguration.getUserAddedCataloguesFile().getAbsolutePath(), ioex);
+			JOptionPane.showMessageDialog(this,
+			"Failed to save user-defined service catalogues",
+			"Service Catalogue Configuration",
+			JOptionPane.ERROR_MESSAGE);
+		}
+		
+		// If the deleted service catalogue is also the one currently set in configuration
+		// then we need to update the configuration as this is now a non-existing service catalogue.
+		// Just set it to whichever is not selected from the list of catalogues.
+		if (serviceCatalogueToRemove.getUrl().equals(configuration.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL_PROPERTY))){
+			applyChanges();
+		}
 	}
 
 	/**
@@ -309,7 +336,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 	private void resetFields() {
 		int index = serviceCatalogueModel
 				.getIndexOfURL(configuration
-						.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL));
+						.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL_PROPERTY));
 		cbBioCatalogueAPIBaseURL.setSelectedIndex(index);
 	}
 
@@ -318,8 +345,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 	 */
 	private void loadDefaults() {
 		int index = serviceCatalogueModel
-				.getIndexOfURL(configuration
-						.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL));
+				.getIndexOfURL(configuration.getDefaultPropertyMap().get(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL_PROPERTY));
 		cbBioCatalogueAPIBaseURL.setSelectedIndex(index);
 	}
 
@@ -332,6 +358,12 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 
 		String candidateBaseURL = ((ServiceCatalogue) cbBioCatalogueAPIBaseURL
 				.getSelectedItem()).getUrl();
+		
+		// Check if anything has actually changed
+		if (candidateBaseURL.equals(configuration.getProperty(
+					BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL_PROPERTY))){
+			return;
+		}
 
 		boolean check = true;
 		// If this URL has not been checked before
@@ -342,35 +374,27 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 		if (check) {
 			// the new base URL seems to be valid - can save it into config
 			// settings
-			configuration.setProperty(
-					BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL,
-					candidateBaseURL);
-			configuration
-					.setServiceCatalogueFriendlyName(((ServiceCatalogue) cbBioCatalogueAPIBaseURL
-							.getSelectedItem()).getFriendlyName());
 
-			// Also update the base URL in the BioCatalogueClient
-			BioCatalogueClient.getInstance().setBaseURL(candidateBaseURL); // this
-																			// potentially
-																			// will
-																			// not
-																			// have
-																			// much
-																			// effect
-																			// -
-																			// it
-																			// has
-																			// been
-																			// proven
-																			// that
-																			// this
-																			// works
-																			// correctly
-			if (MainComponentFactory.getSharedInstance()
-					.getBioCatalogueExplorationTab() != null){
-				MainComponentFactory.getSharedInstance()
-				.getBioCatalogueExplorationTab().cleanSearch();
-			}
+			configuration.setProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_NAME_PROPERTY, ((ServiceCatalogue) cbBioCatalogueAPIBaseURL
+					.getSelectedItem()).getName());
+			
+			configuration.setProperty(
+					BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL_PROPERTY, candidateBaseURL);
+			
+			// Notify all listeners
+			BioCatalogueClient.getInstance().setBaseURL(candidateBaseURL); // this potentially will not have much effect - it has not been proven that it works correctly			
+			String candidateName = ((ServiceCatalogue) cbBioCatalogueAPIBaseURL
+					.getSelectedItem()).getName();
+			multiCaster.notify(new ServiceCatalogueChangedEvent(candidateName, candidateBaseURL));
+			
+			// Warn the user of the changes in the BioCatalogue base URL
+			JOptionPane
+					.showMessageDialog(
+							null,
+							"You have updated the Service Catalogue to " + candidateName +".\n"
+									+ "It is advised that you restart Taverna.",
+							"Service Catalogue Configuration",
+							JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
@@ -397,7 +421,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 			// check if the base URL has changed from the last saved state
 			if (!candidateBaseURL
 					.equals(configuration
-							.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL))) {
+							.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL_PROPERTY))) {
 				// Perform various checks on the new URL
 
 				// Do a GET with "Accept" header set to "application/xml"
@@ -560,15 +584,6 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 									JOptionPane.INFORMATION_MESSAGE);
 					return false;
 				}
-
-				// Warn the user of the changes in the BioCatalogue base URL
-				JOptionPane
-						.showMessageDialog(
-								null,
-								"You have updated the Service Catalogue base URL.\n"
-										+ "This does not take effect until you restart Taverna.",
-								"Service catalogue Configuration",
-								JOptionPane.INFORMATION_MESSAGE);
 				return true;
 			}
 			return true;
@@ -623,56 +638,56 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 		return (responseBodyString.toString());
 	}
 
-	/*
-	 * Read a list of users added catalogue entries from a specially formatted
-	 * file. Each entry is on a separate line in the format:
-	 * <SERVICE_CATALOGUE_FRIENDLY_NAME>\t<SERVICE_CATALOGUE_URL> (i.e. tab
-	 * separated).
-	 */
-	private List<ServiceCatalogue> getUserAddedServiceCatalogues() {
-
-		List<ServiceCatalogue> catalogues = new ArrayList<ServiceCatalogue>();
-
-		File confDir = new File(ApplicationRuntime.getInstance()
-				.getApplicationHomeDir(), CONF);
-		if (!confDir.exists()) {
-			confDir.mkdir();
-		}
-		File cataloguesFile = new File(confDir,
-				USER_ADDED_SERVICE_CATALOGUES_FILE);
-		Path path = cataloguesFile.toPath();
-
-		List<String> list = new ArrayList<String>();
-
-		if (cataloguesFile.exists()) {
-			try {
-				list = Files.readAllLines(path, ENCODING);
-			} catch (IOException ioex) {
-				logger.error(
-						"Failed to read user-defined service catalogues from: "
-								+ cataloguesFile.getAbsolutePath(), ioex);
-				JOptionPane.showMessageDialog(this,
-						"Failed to read user-defined service catalogues from:\n"
-								+ path.toString() + "\n"
-								+ "Please check the file above.",
-						"Service Catalogue Configuration",
-						JOptionPane.ERROR_MESSAGE);
-			}
-			for (String catalogueEntry : list) {
-				// Split the friendly name and URL our of the catalogue entry
-				// line read from the file
-				String[] parts = catalogueEntry.split("\\t");
-				if (parts[0] != null && parts[1] != null) {
-					ServiceCatalogue sc = new ServiceCatalogue(
-							parts[0],
-							parts[1],
-							BioCataloguePluginConfiguration.USER_ADDED_SERVICE_CATALOGUE_TYPE);
-					catalogues.add(sc);
-				}
-			}
-		}
-		return catalogues;
-	}
+//	/*
+//	 * Read a list of users added catalogue entries from a specially formatted
+//	 * file. Each entry is on a separate line in the format:
+//	 * <SERVICE_CATALOGUE_FRIENDLY_NAME>\t<SERVICE_CATALOGUE_URL> (i.e. tab
+//	 * separated).
+//	 */
+//	public List<ServiceCatalogue> getUserAddedServiceCatalogues() {
+//
+//		List<ServiceCatalogue> catalogues = new ArrayList<ServiceCatalogue>();
+//
+//		File confDir = new File(ApplicationRuntime.getInstance()
+//				.getApplicationHomeDir(), CONF);
+//		if (!confDir.exists()) {
+//			confDir.mkdir();
+//		}
+//		File cataloguesFile = new File(confDir,
+//				USER_ADDED_SERVICE_CATALOGUES_FILE);
+//		Path path = cataloguesFile.toPath();
+//
+//		List<String> list = new ArrayList<String>();
+//
+//		if (cataloguesFile.exists()) {
+//			try {
+//				list = Files.readAllLines(path, ENCODING);
+//			} catch (IOException ioex) {
+//				logger.error(
+//						"Failed to read user-defined service catalogues from: "
+//								+ cataloguesFile.getAbsolutePath(), ioex);
+//				JOptionPane.showMessageDialog(this,
+//						"Failed to read user-defined service catalogues from:\n"
+//								+ path.toString() + "\n"
+//								+ "Please check the file above.",
+//						"Service Catalogue Configuration",
+//						JOptionPane.ERROR_MESSAGE);
+//			}
+//			for (String catalogueEntry : list) {
+//				// Split the friendly name and URL our of the catalogue entry
+//				// line read from the file
+//				String[] parts = catalogueEntry.split("\\t");
+//				if (parts[0] != null && parts[1] != null) {
+//					ServiceCatalogue sc = new ServiceCatalogue(
+//							parts[0],
+//							parts[1],
+//							BioCataloguePluginConfiguration.USER_ADDED_SERVICE_CATALOGUE_TYPE);
+//					catalogues.add(sc);
+//				}
+//			}
+//		}
+//		return catalogues;
+//	}
 
 	/*
 	 * Write user-added service catalogues to a file. Each entry is on a
@@ -680,60 +695,60 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 	 * <SERVICE_CATALOGUE_FRIENDLY_NAME>\t<SERVICE_CATALOGUE_URL> (i.e. tab
 	 * separated).
 	 */
-	private void saveUserAddedServiceCatalogues(
-			List<ServiceCatalogue> catalogues) {
-
-		File confDir = new File(ApplicationRuntime.getInstance()
-				.getApplicationHomeDir(), CONF);
-		if (!confDir.exists()) {
-			confDir.mkdir();
-		}
-		File cataloguesFile = new File(confDir,
-				USER_ADDED_SERVICE_CATALOGUES_FILE);
-		Path path = cataloguesFile.toPath();
-
-		List<String> list = new ArrayList<String>();
-		for (ServiceCatalogue catalogue : catalogues) {
-			list.add(catalogue.getFriendlyName() + "\t" + catalogue.getUrl());
-		}
-
-		try {
-			Files.write(cataloguesFile.toPath(), list, ENCODING,
-					StandardOpenOption.CREATE,
-					StandardOpenOption.TRUNCATE_EXISTING);
-		} catch (IOException ioex) {
-			logger.error("Failed to save user-defined service catalogues to: "
-					+ cataloguesFile.getAbsolutePath(), ioex);
-			JOptionPane.showMessageDialog(this,
-					"Failed to save user-defined service catalogues to:\n"
-							+ path.toString(),
-					"Service Catalogue Configuration",
-					JOptionPane.ERROR_MESSAGE);
-		}
-	}
+//	private void saveUserAddedServiceCatalogues(
+//			List<ServiceCatalogue> catalogues) {
+//
+//		File confDir = new File(ApplicationRuntime.getInstance()
+//				.getApplicationHomeDir(), CONF);
+//		if (!confDir.exists()) {
+//			confDir.mkdir();
+//		}
+//		File cataloguesFile = new File(confDir,
+//				USER_ADDED_SERVICE_CATALOGUES_FILE);
+//		Path path = cataloguesFile.toPath();
+//
+//		List<String> list = new ArrayList<String>();
+//		for (ServiceCatalogue catalogue : catalogues) {
+//			list.add(catalogue.getName() + "\t" + catalogue.getUrl());
+//		}
+//
+//		try {
+//			Files.write(cataloguesFile.toPath(), list, ENCODING,
+//					StandardOpenOption.CREATE,
+//					StandardOpenOption.TRUNCATE_EXISTING);
+//		} catch (IOException ioex) {
+//			logger.error("Failed to save user-defined service catalogues to: "
+//					+ cataloguesFile.getAbsolutePath(), ioex);
+//			JOptionPane.showMessageDialog(this,
+//					"Failed to save user-defined service catalogues to:\n"
+//							+ path.toString(),
+//					"Service Catalogue Configuration",
+//					JOptionPane.ERROR_MESSAGE);
+//		}
+//	}
 
 	/*
-	 * A Service Catalogue entry. Has a friendly name, a URL and an indicator if
-	 * it is user-added or comes with Taverna.
+	 * A Service Catalogue entry. Has a name, a URL and an indicator if
+	 * it is user-added or comes pre-configured from Taverna.
 	 */
 	public static class ServiceCatalogue {
 
-		private String friendlyName;
+		private String name;
 		private String url;
 		private String type;
 
 		ServiceCatalogue(String friendlyName, String url, String type) {
-			this.setFriendlyName(friendlyName);
+			this.setName(friendlyName);
 			this.setUrl(url);
 			this.setType(type);
 		}
 
-		public String getFriendlyName() {
-			return friendlyName;
+		public String getName() {
+			return name;
 		}
 
-		public void setFriendlyName(String friendlyName) {
-			this.friendlyName = friendlyName;
+		public void setName(String name) {
+			this.name = name;
 		}
 
 		public String getUrl() {
@@ -754,7 +769,7 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 
 		@Override
 		public String toString() {
-			return getFriendlyName();
+			return getName();
 		}
 	}
 
@@ -775,6 +790,21 @@ public class BioCataloguePluginConfigurationPanel extends JPanel {
 			return -1;
 		}
 
+	}
+	
+	@Override
+	public void addObserver(Observer<ServiceCatalogueChangedEvent> observer) {
+		multiCaster.addObserver(observer);
+	}
+
+	@Override
+	public List<Observer<ServiceCatalogueChangedEvent>> getObservers() {
+		return multiCaster.getObservers();
+	}
+
+	@Override
+	public void removeObserver(Observer<ServiceCatalogueChangedEvent> observer) {
+		multiCaster.removeObserver(observer);
 	}
 
 }

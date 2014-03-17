@@ -11,7 +11,6 @@ import net.sf.taverna.biocatalogue.model.connectivity.BeansForJSONLiteAPI;
 import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
 import net.sf.taverna.biocatalogue.ui.search_results.RESTMethodListCellRenderer;
 import net.sf.taverna.biocatalogue.ui.search_results.SOAPOperationListCellRenderer;
-import net.sf.taverna.biocatalogue.ui.search_results.ServiceListCellRenderer;
 import net.sf.taverna.t2.workbench.MainWindow;
 
 import org.apache.log4j.Logger;
@@ -21,7 +20,7 @@ import org.biocatalogue.x2009.xml.rest.RestMethod;
 import org.biocatalogue.x2009.xml.rest.RestMethods;
 import org.biocatalogue.x2009.xml.rest.Service;
 import org.biocatalogue.x2009.xml.rest.ServiceProvider;
-import org.biocatalogue.x2009.xml.rest.Services;
+//import org.biocatalogue.x2009.xml.rest.Services;
 import org.biocatalogue.x2009.xml.rest.SoapOperation;
 import org.biocatalogue.x2009.xml.rest.SoapOperations;
 import org.biocatalogue.x2009.xml.rest.User;
@@ -47,27 +46,25 @@ public class Resource
 	SOAPOperation (SoapOperation.class, SoapOperations.class, BeansForJSONLiteAPI.SOAPOperationsIndex.class, "WSDL service", "WSDL services",
                    "WSDL services can be directly imported into the current workflow or Service Panel",
                    ResourceManager.getIconFromTaverna(ResourceManager.SOAP_OPERATION_ICON), true, true, true, false, true, true, true, true,
-                   SOAPOperationListCellRenderer.class, BioCatalogueClient.API_SOAP_OPERATIONS_URL,
+                   SOAPOperationListCellRenderer.class,
                    new HashMap<String,String>() {{
                    }},
                    new HashMap<String,String>(BioCatalogueClient.API_INCLUDE_ANCESTORS) {{
                      put(BioCatalogueClient.API_PER_PAGE_PARAMETER, ""+BioCataloguePluginConstants.API_DEFAULT_REQUESTED_SOAP_OPERATION_COUNT_PER_PAGE);
                    }},
-                   BioCataloguePluginConstants.API_DEFAULT_REQUESTED_SOAP_OPERATION_COUNT_PER_PAGE,
-                   BioCatalogueClient.API_SOAP_OPERATION_FILTERS_URL),
+                   BioCataloguePluginConstants.API_DEFAULT_REQUESTED_SOAP_OPERATION_COUNT_PER_PAGE),
                    
     @SuppressWarnings("serial")
 	RESTMethod    (RestMethod.class, RestMethods.class, BeansForJSONLiteAPI.RESTMethodsIndex.class, "REST service", "REST services",
                    "REST services can be directly imported into the current workflow or Service Panel",
                    ResourceManager.getIconFromTaverna(ResourceManager.REST_METHOD_ICON), true, true, true, false, true, false, true, true,
-                   RESTMethodListCellRenderer.class, BioCatalogueClient.API_REST_METHODS_URL,
+                   RESTMethodListCellRenderer.class, 
                    new HashMap<String,String>() {{
                    }},
                    new HashMap<String,String>(BioCatalogueClient.API_INCLUDE_ANCESTORS) {{
                      put(BioCatalogueClient.API_PER_PAGE_PARAMETER, ""+BioCataloguePluginConstants.API_DEFAULT_REQUESTED_REST_METHOD_COUNT_PER_PAGE);
                    }},
-                   BioCataloguePluginConstants.API_DEFAULT_REQUESTED_REST_METHOD_COUNT_PER_PAGE,
-                   BioCatalogueClient.API_REST_METHOD_FILTERS_URL); //,
+                   BioCataloguePluginConstants.API_DEFAULT_REQUESTED_REST_METHOD_COUNT_PER_PAGE); 
                    
     // TODO - the following resource types have been disabled, as no actions for them can be done yet
     //        -- they are still to be implemented; if the following types are uncommented, they will be
@@ -129,11 +126,11 @@ public class Resource
     private boolean suitableForAddingToWorkflowDiagram;
     private boolean suitableForHealthCheck;
     private Class<? extends ListCellRenderer> resultListingCellRendererClass;
-    private String apiResourceCollectionIndex;
+    //private String apiResourceCollectionIndex;
     private Map<String,String> apiResourceCollectionIndexSingleExpandedResourceAdditionalParameters;
     private Map<String,String> apiResourceCollectionIndexAdditionalParameters;
     private int apiResourceCountPerIndexPage;
-    private String apiResourceCollectionFilters;
+    //private String apiResourceCollectionFilters;
 	private final boolean suitableForAddingAllToServicePanel;
     
     @SuppressWarnings("unchecked")
@@ -141,10 +138,8 @@ public class Resource
         String resourceTypeName, String resourceCollectionName, String resourceTabTooltip, Icon icon,
         boolean defaultType, boolean suitableForTagSearch, boolean suitableForFiltering, boolean suitableForOpeningInPreviewBrowser,
         boolean suitableForAddingToServicePanel, boolean suitableForAddingAllToServicePanel, boolean suitableForAddingToWorkflowDiagram,
-        boolean suitableForHealthCheck, Class<? extends ListCellRenderer> resultListingCellRendererClass,
-        String apiResourceCollectionIndex, Map<String,String> apiResourceCollectionIndexSingleExpandedResourceAdditionalParameters,
-        Map<String,String> apiResourceCollectionIndexAdditionalParameters, int apiResourceCountPerIndexListingPage,
-        String apiResourceCollectionFilters)
+        boolean suitableForHealthCheck, Class<? extends ListCellRenderer> resultListingCellRendererClass, Map<String,String> apiResourceCollectionIndexSingleExpandedResourceAdditionalParameters,
+        Map<String,String> apiResourceCollectionIndexAdditionalParameters, int apiResourceCountPerIndexListingPage)
     {
       this.xmlbeansGeneratedClass = xmlbeansGeneratedClass;
       this.xmlbeansGeneratedCollectionClass = xmlbeansGeneratedCollectionClass;
@@ -162,11 +157,11 @@ public class Resource
       this.suitableForAddingToWorkflowDiagram = suitableForAddingToWorkflowDiagram;
       this.suitableForHealthCheck = suitableForHealthCheck;
       this.resultListingCellRendererClass = resultListingCellRendererClass;
-      this.apiResourceCollectionIndex = apiResourceCollectionIndex;
+      //this.apiResourceCollectionIndex = apiResourceCollectionIndex;
       this.apiResourceCollectionIndexSingleExpandedResourceAdditionalParameters = apiResourceCollectionIndexSingleExpandedResourceAdditionalParameters;
       this.apiResourceCollectionIndexAdditionalParameters = apiResourceCollectionIndexAdditionalParameters;
       this.apiResourceCountPerIndexPage = apiResourceCountPerIndexListingPage;
-      this.apiResourceCollectionFilters = apiResourceCollectionFilters;
+      //this.apiResourceCollectionFilters = apiResourceCollectionFilters;
     }
     
     
@@ -314,7 +309,16 @@ public class Resource
      *         all resources of this type.
      */
     public String getAPIResourceCollectionIndex() {
-      return apiResourceCollectionIndex;
+    	if (this.name().equals(SOAPOperation.name()))
+    	{
+    		return BioCatalogueClient.API_SOAP_OPERATIONS_URL;
+    	}
+    	else if (this.name().equals(RESTMethod.name())){
+    		return BioCatalogueClient.API_REST_METHODS_URL;
+    	}
+    	else{
+    		return null;
+    	}
     }
     
     /**
@@ -347,7 +351,16 @@ public class Resource
      *         resource of this type. 
      */
     public String getAPIResourceCollectionFiltersURL() {
-      return apiResourceCollectionFilters;
+    	if (this.name().equals(SOAPOperation.name()))
+    	{
+    		return BioCatalogueClient.API_SOAP_OPERATION_FILTERS_URL;
+    	}
+    	else if (this.name().equals(RESTMethod.name())){
+    		return BioCatalogueClient.API_REST_METHOD_FILTERS_URL;
+    	}
+    	else{
+    		return null;
+    	}
     }
     
     

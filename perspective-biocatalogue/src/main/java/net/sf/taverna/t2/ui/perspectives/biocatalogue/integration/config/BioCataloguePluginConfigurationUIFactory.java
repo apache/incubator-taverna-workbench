@@ -21,7 +21,7 @@ public class BioCataloguePluginConfigurationUIFactory implements ConfigurationUI
   }
   
   public JPanel getConfigurationPanel() {
-    return new BioCataloguePluginConfigurationPanel();
+    return BioCataloguePluginConfigurationPanel.getInstance();
   }
   
 }

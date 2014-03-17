@@ -117,7 +117,7 @@ public class TestAPICaller extends JFrame implements ActionListener {
 	private JTextField getTfURL() {
 		if (tfURL == null) {
 			tfURL = new JTextField();
-			tfURL.setText(BioCatalogueClient.DEFAULT_API_LIVE_SERVER_BASE_URL);
+			tfURL.setText(BioCatalogueClient.getBaseURL());
 		}
 		return tfURL;
 	}

@@ -20,13 +20,10 @@ import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
 import net.sf.taverna.biocatalogue.ui.search_results.SearchResultsMainPanel;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponent;
-import net.sf.taverna.t2.ui.perspectives.biocatalogue.MainComponentFactory;
-import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.config.BaseURLChangedEvent;
+import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.config.BioCataloguePluginConfigurationPanel;
+import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.config.ServiceCatalogueChangedEvent;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.config.BioCataloguePluginConfiguration;
 import net.sf.taverna.t2.workbench.ui.impl.configuration.ui.T2ConfigurationFrame;
-
-import org.apache.log4j.Logger;
 
 /**
  * 
@@ -34,10 +31,10 @@ import org.apache.log4j.Logger;
  */
 @SuppressWarnings("serial")
 public class BioCatalogueExplorationTab extends JPanel implements
-		HasDefaultFocusCapability, Observer<BaseURLChangedEvent> {
-	private final MainComponent pluginPerspectiveMainComponent;
+		HasDefaultFocusCapability, Observer<ServiceCatalogueChangedEvent> {
+	//private final MainComponent pluginPerspectiveMainComponent;
 	private final BioCatalogueClient client;
-	private final Logger logger;
+//	private final Logger logger;
 
 	// COMPONENTS
 	private BioCatalogueExplorationTab thisPanel;
@@ -49,14 +46,15 @@ public class BioCatalogueExplorationTab extends JPanel implements
 
 	public BioCatalogueExplorationTab() {
 		
-		BioCataloguePluginConfiguration.getInstance().addObserver(this);
+		// Observe changes to the Service Catalogue settings
+		BioCataloguePluginConfigurationPanel.getInstance().addObserver(this);
 		
 		this.thisPanel = this;
 
-		this.pluginPerspectiveMainComponent = MainComponentFactory
-				.getSharedInstance();
+//		this.pluginPerspectiveMainComponent = MainComponentFactory
+//				.getSharedInstance();
 		this.client = BioCatalogueClient.getInstance();
-		this.logger = Logger.getLogger(this.getClass());
+//		this.logger = Logger.getLogger(this.getClass());
 
 		initialiseUI();
 
@@ -84,7 +82,7 @@ public class BioCatalogueExplorationTab extends JPanel implements
 		c.weightx = 0.0;
 		c.anchor = GridBagConstraints.WEST;
 		c.insets = new Insets(3, 10, 3, 10);
-		baseURL = client.getBaseURL();
+		baseURL = BioCatalogueClient.getBaseURL();
 		String baseURLString = getBaseURLLabelString(baseURL);
 		baseLabel = new JLabel(baseURLString);
 		this.add(baseLabel, c);
@@ -136,7 +134,7 @@ public class BioCatalogueExplorationTab extends JPanel implements
 	}
 
 	private String getBaseURLLabelString(String url) {
-		return "<html>Using " + BioCataloguePluginConfiguration.getInstance().getServiceCatalogueFriendlyName() + " at: " + url + "</html>";
+		return "<html>Using " + BioCataloguePluginConfiguration.getInstance().getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_NAME_PROPERTY) + " at: " + url + "</html>";
 	}
 
 	public SearchResultsMainPanel getTabbedSearchResultsPanel() {
@@ -165,21 +163,23 @@ public class BioCatalogueExplorationTab extends JPanel implements
 	}
 
 	@Override
-	public void notify(Observable<BaseURLChangedEvent> sender,
-			BaseURLChangedEvent message) throws Exception {
+	public void notify(Observable<ServiceCatalogueChangedEvent> sender,
+			ServiceCatalogueChangedEvent message) throws Exception {
 		BioCataloguePluginConfiguration configuration = BioCataloguePluginConfiguration
 				.getInstance();
 		if (!baseURL.equals(configuration
-				.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL))) {
+				.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL_PROPERTY))) {
 			baseURL = configuration
-					.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL);
+					.getProperty(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL_PROPERTY);
 			baseLabel.setText(getBaseURLLabelString(baseURL));
+			cleanSearch();
 		}
 	}
 	
 	public void cleanSearch(){
 		client.setBaseURL(baseURL);
 		tabbedSearchResultsPanel.clearSearch();
+		searchOptionsPanel.setSearchQuery("");
 	}
  
 }

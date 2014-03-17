@@ -1,56 +1,60 @@
 package net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.config;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.taverna.biocatalogue.model.connectivity.BioCatalogueClient;
-import net.sf.taverna.t2.lang.observer.MultiCaster;
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.log4j.Logger;
+
+import net.sf.taverna.raven.appconfig.ApplicationRuntime;
 import net.sf.taverna.t2.ui.perspectives.biocatalogue.integration.config.BioCataloguePluginConfigurationPanel.ServiceCatalogue;
 import net.sf.taverna.t2.workbench.configuration.AbstractConfigurable;
+import net.sf.taverna.t2.workbench.ui.impl.WorkbenchProfileProperties;
 
 /**
  * 
  * 
  * @author Sergejs Aleksejevs
  */
-public class BioCataloguePluginConfiguration extends AbstractConfigurable
-		implements Observable<BaseURLChangedEvent> {
-	public static final String SERVICE_CATALOGUE_BASE_URL = "ServiceCatalogue_Base_URL";
-	private String serviceCatalogueFriendlyName;
+public class BioCataloguePluginConfiguration extends AbstractConfigurable{
+	
+	public static final String SERVICE_CATALOGUE_BASE_URL_PROPERTY = "servicecatalogue.base.url";
+	public static final String SERVICE_CATALOGUE_NAME_PROPERTY = "servicecatalogue.name";
+	
 	public static final String SOAP_OPERATIONS_IN_SERVICE_PANEL = "SOAP_Operations_in_Service_Panel";
+	
 	public static final String REST_METHODS_IN_SERVICE_PANEL = "REST_Methods_in_Service_Panel";
 
 	public static final String DEFAULT_SERVICE_CATALOGUE_TYPE = "DEFAULT";
 	public static final String USER_ADDED_SERVICE_CATALOGUE_TYPE = "USER_ADDED";
 	
+	 // Default Service Catalogue
 	public static final String BIOCATALOGUE_URL = "https://www.biocatalogue.org";
-	public static final String BIOCATALOGUE_FRIENDLY_NAME = "BioCatalogue";
-
-	public static final String BIODIVERSITYCATALOGUE_URL = "https://www.biodiversitycatalogue.org";
-	public static final String BIODIVERSITYCATALOGUE_FRIENDLY_NAME = "BiodiversityCatalogue";
-
-	public static List<ServiceCatalogue> defaultCatalogues = new ArrayList<ServiceCatalogue>();
-	{
-		defaultCatalogues.add(new ServiceCatalogue(BIOCATALOGUE_FRIENDLY_NAME,
-				BIOCATALOGUE_URL, DEFAULT_SERVICE_CATALOGUE_TYPE));
-		defaultCatalogues.add(new ServiceCatalogue(BIODIVERSITYCATALOGUE_FRIENDLY_NAME,
-				BIODIVERSITYCATALOGUE_URL,
-				DEFAULT_SERVICE_CATALOGUE_TYPE));
-	};
+	public static final String BIOCATALOGUE_NAME = "BioCatalogue";
 	
-	private MultiCaster<BaseURLChangedEvent> multiCaster = new MultiCaster<BaseURLChangedEvent>(this);
+	private static final Charset ENCODING = StandardCharsets.UTF_8;
+	
+	private static final String USER_ADDED_SERVICE_CATALOGUES_FILE = "user-added-service-catalogues.txt";
+	
+	private static File userAddedCataloguesFile;
+	
+	private static final String CONF = "conf";
+	
+	private static Logger logger = Logger
+			.getLogger(BioCataloguePluginConfiguration.class);	
 
 	private static class Singleton {
 		private static BioCataloguePluginConfiguration instance = new BioCataloguePluginConfiguration();
 	}
-
-	// private static Logger logger =
-	// Logger.getLogger(MyExperimentConfiguration.class);
-
+	
 	private Map<String, String> defaultPropertyMap;
 
 	public static BioCataloguePluginConfiguration getInstance() {
@@ -64,8 +68,10 @@ public class BioCataloguePluginConfiguration extends AbstractConfigurable
 	public Map<String, String> getDefaultPropertyMap() {
 		if (defaultPropertyMap == null) {
 			defaultPropertyMap = new HashMap<String, String>();
-			defaultPropertyMap.put(SERVICE_CATALOGUE_BASE_URL,
-					BioCatalogueClient.DEFAULT_API_LIVE_SERVER_BASE_URL);
+			defaultPropertyMap.put(SERVICE_CATALOGUE_BASE_URL_PROPERTY,
+					WorkbenchProfileProperties.getWorkbenchProfileProperty(SERVICE_CATALOGUE_BASE_URL_PROPERTY, BIOCATALOGUE_URL));
+			defaultPropertyMap.put(SERVICE_CATALOGUE_NAME_PROPERTY,
+					WorkbenchProfileProperties.getWorkbenchProfileProperty(SERVICE_CATALOGUE_NAME_PROPERTY, BIOCATALOGUE_NAME));
 		}
 		return defaultPropertyMap;
 	}
@@ -89,51 +95,95 @@ public class BioCataloguePluginConfiguration extends AbstractConfigurable
 	public void store() {
 		super.store();
 	}
+
+	/*
+	 * Read a list of users added catalogue entries from a specially formatted
+	 * file. Each entry is on a separate line in the format:
+	 * <SERVICE_CATALOGUE_FRIENDLY_NAME>\t<SERVICE_CATALOGUE_URL> (i.e. tab
+	 * separated).
+	 */
+	public static List<ServiceCatalogue> getUserAddedServiceCatalogues() {
+
+		List<ServiceCatalogue> catalogues = new ArrayList<ServiceCatalogue>();
+
+		if (userAddedCataloguesFile == null) {
+			File confDir = new File(ApplicationRuntime.getInstance()
+					.getApplicationHomeDir(), CONF);
+			if (!confDir.exists()) {
+				confDir.mkdir();
+			}
+			userAddedCataloguesFile = new File(confDir,
+					USER_ADDED_SERVICE_CATALOGUES_FILE);
+		}
+		
+		Path path = userAddedCataloguesFile.toPath();
+
+		List<String> list = new ArrayList<String>();
+
+		if (userAddedCataloguesFile.exists()) {
+			try {
+				list = Files.readAllLines(path, ENCODING);
+			} catch (IOException ioex) {
+				logger.error(
+						"Failed to read user-defined service catalogues from: "
+								+ userAddedCataloguesFile.getAbsolutePath(), ioex);				
+			}
+			for (String catalogueEntry : list) {
+				// Split the friendly name and URL our of the catalogue entry
+				// line read from the file
+				String[] parts = catalogueEntry.split("\\t");
+				if (parts[0] != null && parts[1] != null) {
+					ServiceCatalogue sc = new ServiceCatalogue(
+							parts[0],
+							parts[1],
+							BioCataloguePluginConfiguration.USER_ADDED_SERVICE_CATALOGUE_TYPE);
+					catalogues.add(sc);
+				}
+			}
+		}
+		return catalogues;
+	}
 	
-	@Override
-	public synchronized void setProperty(String key, String value){
-		super.setProperty(key, value);
-		if (key.equals(BioCataloguePluginConfiguration.SERVICE_CATALOGUE_BASE_URL)){
-			if (multiCaster == null){
-				multiCaster = new MultiCaster<BaseURLChangedEvent>(this); // for some reason multicaster is not initialised the first time this method is called
+	/*
+	 * Write user-added service catalogues to a file. Each entry is on a
+	 * separate line in the format:
+	 * <SERVICE_CATALOGUE_FRIENDLY_NAME>\t<SERVICE_CATALOGUE_URL> (i.e. tab
+	 * separated).
+	 */
+	public static void saveUserAddedServiceCatalogues(
+			List<ServiceCatalogue> catalogues) throws IOException{
+
+		if (userAddedCataloguesFile == null){
+			File confDir = new File(ApplicationRuntime.getInstance()
+					.getApplicationHomeDir(), CONF);
+			if (!confDir.exists()) {
+				confDir.mkdir();
 			}
-			multiCaster.notify(new BaseURLChangedEvent());
+			userAddedCataloguesFile = new File(confDir,
+					USER_ADDED_SERVICE_CATALOGUES_FILE);
 		}
-	}
 
-	@Override
-	public void addObserver(Observer<BaseURLChangedEvent> observer) {
-		multiCaster.addObserver(observer);
-	}
-
-	@Override
-	public List<Observer<BaseURLChangedEvent>> getObservers() {
-		return multiCaster.getObservers();
-	}
-
-	@Override
-	public void removeObserver(Observer<BaseURLChangedEvent> observer) {
-		multiCaster.removeObserver(observer);
-	}
-
-	public String getServiceCatalogueFriendlyName() {
-		// Because we did not set the friendly name of the service catalogue
-		// initially, we have to do some tricks to get them in here.
-		// Later on, make sure you set the friendly name each time you
-		// set the SERVICE_CATALOGUE_BASE_URL property.
-		if (serviceCatalogueFriendlyName == null){
-			if (getInstance().getProperty(SERVICE_CATALOGUE_BASE_URL).equals(BIOCATALOGUE_URL)){
-				serviceCatalogueFriendlyName = BIOCATALOGUE_FRIENDLY_NAME;
-			}
-			else if (getInstance().getProperty(SERVICE_CATALOGUE_BASE_URL).equals(BIODIVERSITYCATALOGUE_URL)){
-				serviceCatalogueFriendlyName = BIODIVERSITYCATALOGUE_FRIENDLY_NAME;
-			}
+		List<String> list = new ArrayList<String>();
+		for (ServiceCatalogue catalogue : catalogues) {
+			list.add(catalogue.getName() + "\t" + catalogue.getUrl());
 		}
-		return serviceCatalogueFriendlyName;
+
+		Files.write(userAddedCataloguesFile.toPath(), list, ENCODING,
+					StandardOpenOption.CREATE,
+					StandardOpenOption.TRUNCATE_EXISTING);
 	}
 
-	public void setServiceCatalogueFriendlyName(
-			String serviceCatalogueFriendlyName) {
-		this.serviceCatalogueFriendlyName = serviceCatalogueFriendlyName;
+	public static File getUserAddedCataloguesFile() {
+		
+		if (userAddedCataloguesFile == null){
+			File confDir = new File(ApplicationRuntime.getInstance()
+					.getApplicationHomeDir(), CONF);
+			if (!confDir.exists()) {
+				confDir.mkdir();
+			}
+			userAddedCataloguesFile = new File(confDir,
+					USER_ADDED_SERVICE_CATALOGUES_FILE);
+		}
+		return userAddedCataloguesFile;
 	}
 }
