@@ -663,7 +663,7 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 
 				// now start loading data for the 'loading' entries
 				final CountDownLatch latch = new CountDownLatch(1);
-				new Thread("Search via the API") {
+				Thread searchThread = new Thread("Search via the API") {
 					public void run() {
 						try {
 							searchInstance.fetchMoreResults(
@@ -674,11 +674,12 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 
 						}
 					}
-				}.start();
+				};
+				SwingUtilities.invokeLater(searchThread);				
 
 				// wait for the previous portion of results to load, then fetch
 				// the next portion
-				new Thread(
+				Thread fetchMoreSearchResults = new Thread(
 						"Fetch more another page of details for search results") {
 					public void run() {
 						try {
@@ -692,7 +693,8 @@ public class SearchResultsListingPanel extends JPanel implements MouseListener,
 											e);
 						}
 					}
-				}.start();
+				};
+				SwingUtilities.invokeLater(fetchMoreSearchResults);				
 
 			}
 		}
