@@ -42,9 +42,9 @@
 			<version>${t2.lang.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
+			<groupId>net.sf.taverna.t2.results</groupId>
 			<artifactId>results</artifactId>
-			<version>${t2.lang.version}</version>
+			<version>${t2.results.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>
