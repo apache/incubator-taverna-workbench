@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<s:scufl xmlns:s="http://org.embl.ebi.escience/xscufl/0.1alpha" version="0.2" log="0">
+  <s:workflowdescription lsid="urn:lsid:net.sf.taverna:wfDefinition:c7016fc0-c2f4-4171-b6f1-430f408f4822" author="" title="nested_iteration" />
+  <s:processor name="constant" boring="true">
+    <s:stringconstant>constant</s:stringconstant>
+  </s:processor>
+  <s:processor name="generate_list">
+    <s:defaults>
+      <s:default name="prefix">prefix</s:default>
+    </s:defaults>
+    <s:beanshell>
+      <s:scriptvalue>list = new ArrayList();
+for (int i = 0; i &lt; 20; i++) {
+ list.add(prefix + i);
+}</s:scriptvalue>
+      <s:beanshellinputlist>
+        <s:beanshellinput s:syntactictype="'text/plain'">prefix</s:beanshellinput>
+      </s:beanshellinputlist>
+      <s:beanshelloutputlist>
+        <s:beanshelloutput s:syntactictype="l('text/plain')">list</s:beanshelloutput>
+      </s:beanshelloutputlist>
+      <s:dependencies s:classloader="iteration" />
+    </s:beanshell>
+  </s:processor>
+  <s:processor name="merge">
+    <s:workflow>
+      <s:scufl version="0.2" log="0">
+        <s:workflowdescription lsid="urn:lsid:net.sf.taverna:wfDefinition:3368fb8d-ecc7-4fcd-b511-6ace84b13c81" author="" title="Untitled workflow #24" />
+        <s:processor name="Nested_Workflow">
+          <s:workflow>
+            <s:scufl version="0.2" log="0">
+              <s:workflowdescription lsid="urn:lsid:net.sf.taverna:wfDefinition:75b99c76-7a76-4d3c-8d39-8c48df3355ad" author="" title="Untitled workflow #36" />
+              <s:processor name="concat">
+                <s:beanshell>
+                  <s:scriptvalue>Thread.sleep(200);
+out = in1 + in2;</s:scriptvalue>
+                  <s:beanshellinputlist>
+                    <s:beanshellinput s:syntactictype="'text/plain'">in1</s:beanshellinput>
+                    <s:beanshellinput s:syntactictype="'text/plain'">in2</s:beanshellinput>
+                  </s:beanshellinputlist>
+                  <s:beanshelloutputlist>
+                    <s:beanshelloutput s:syntactictype="'text/plain'">out</s:beanshelloutput>
+                  </s:beanshelloutputlist>
+                  <s:dependencies s:classloader="iteration" />
+                </s:beanshell>
+              </s:processor>
+              <s:link source="in1" sink="concat:in1" />
+              <s:link source="in2" sink="concat:in2" />
+              <s:link source="concat:out" sink="out" />
+              <s:source name="in1" />
+              <s:source name="in2" />
+              <s:sink name="out" />
+            </s:scufl>
+          </s:workflow>
+        </s:processor>
+        <s:link source="in1" sink="Nested_Workflow:in1" />
+        <s:link source="in2" sink="Nested_Workflow:in2" />
+        <s:link source="Nested_Workflow:out" sink="out" />
+        <s:source name="in1" />
+        <s:source name="in2" />
+        <s:sink name="out" />
+      </s:scufl>
+    </s:workflow>
+    <s:mergemode input="in2" mode="merge" />
+  </s:processor>
+  <s:link source="constant:value" sink="merge:in1" />
+  <s:link source="generate_list:list" sink="merge:in2" />
+  <s:link source="generate_list:list" sink="merge:in2" />
+  <s:link source="constant:value" sink="constant" />
+  <s:link source="generate_list:list" sink="list" />
+  <s:link source="merge:out" sink="concat" />
+  <s:source name="input" />
+  <s:sink name="concat">
+    <s:metadata>
+      <s:mimeTypes>
+        <s:mimeType>'text/plain'</s:mimeType>
+      </s:mimeTypes>
+    </s:metadata>
+  </s:sink>
+  <s:sink name="list">
+    <s:metadata>
+      <s:mimeTypes>
+        <s:mimeType>l('text/plain')</s:mimeType>
+      </s:mimeTypes>
+    </s:metadata>
+  </s:sink>
+  <s:sink name="constant">
+    <s:metadata>
+      <s:mimeTypes>
+        <s:mimeType>'text/plain'</s:mimeType>
+      </s:mimeTypes>
+    </s:metadata>
+  </s:sink>
+  <s:coordination name="constant_BLOCKON_generate_list">
+    <s:condition>
+      <s:state>Completed</s:state>
+      <s:target>generate_list</s:target>
+    </s:condition>
+    <s:action>
+      <s:target>constant</s:target>
+      <s:statechange>
+        <s:from>Scheduled</s:from>
+        <s:to>Running</s:to>
+      </s:statechange>
+    </s:action>
+  </s:coordination>
+  <s:coordination name="merge_BLOCKON_generate_list">
+    <s:condition>
+      <s:state>Completed</s:state>
+      <s:target>generate_list</s:target>
+    </s:condition>
+    <s:action>
+      <s:target>merge</s:target>
+      <s:statechange>
+        <s:from>Scheduled</s:from>
+        <s:to>Running</s:to>
+      </s:statechange>
+    </s:action>
+  </s:coordination>
+</s:scufl>
+
