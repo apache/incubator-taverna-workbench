@@ -1,0 +1,157 @@
+<workflow xmlns="http://taverna.sf.net/2008/xml/t2flow">
+	<dataflow id="ec0991ba-275c-49ed-b1d6-38534180fb7c" role="top">
+		<name>simple_workflow_with_input</name>
+		<inputPorts>
+			<port>
+				<name>input</name>
+				<depth>0</depth>
+				<granularDepth>0</granularDepth>
+			</port>
+		</inputPorts>
+		<outputPorts>
+			<port>
+				<name>output</name>
+			</port>
+		</outputPorts>
+		<processors>
+			<processor>
+				<name>Concat_XXX</name>
+				<inputPorts>
+					<port>
+						<name>input</name>
+						<depth>0</depth>
+					</port>
+				</inputPorts>
+				<outputPorts>
+					<port>
+						<name>output</name>
+						<depth>0</depth>
+						<granularDepth>0</granularDepth>
+					</port>
+				</outputPorts>
+				<annotations />
+				<activities>
+					<activity>
+						<class>
+							net.sf.taverna.t2.activities.beanshell.BeanshellActivity
+						</class>
+						<inputMap>
+							<map from="input" to="input" />
+						</inputMap>
+						<outputMap>
+							<map from="output" to="output" />
+						</outputMap>
+						<configBean encoding="xstream">
+							<net.sf.taverna.t2.activities.beanshell.BeanshellActivityConfigurationBean
+								xmlns="">
+								<script>String output = input + "XXX";</script>
+								<dependencies />
+								<inputs>
+									<net.sf.taverna.t2.workflowmodel.processor.activity.config.ActivityInputPortDefinitionBean>
+										<handledReferenceSchemes />
+										<translatedElementType>java.lang.String</translatedElementType>
+										<allowsLiteralValues>true</allowsLiteralValues>
+										<name>input</name>
+										<depth>0</depth>
+										<mimeTypes>
+											<string>'text/plain'</string>
+										</mimeTypes>
+									</net.sf.taverna.t2.workflowmodel.processor.activity.config.ActivityInputPortDefinitionBean>
+								</inputs>
+								<outputs>
+									<net.sf.taverna.t2.workflowmodel.processor.activity.config.ActivityOutputPortDefinitionBean>
+										<granularDepth>0</granularDepth>
+										<name>output</name>
+										<depth>0</depth>
+										<mimeTypes>
+											<string>'text/plain'</string>
+										</mimeTypes>
+									</net.sf.taverna.t2.workflowmodel.processor.activity.config.ActivityOutputPortDefinitionBean>
+								</outputs>
+							</net.sf.taverna.t2.activities.beanshell.BeanshellActivityConfigurationBean>
+						</configBean>
+					</activity>
+				</activities>
+				<dispatchStack>
+					<dispatchLayer>
+						<class>
+							net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Parallelize
+						</class>
+						<configBean encoding="xstream">
+							<net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.ParallelizeConfig
+								xmlns="">
+								<maxJobs>1</maxJobs>
+							</net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.ParallelizeConfig>
+						</configBean>
+					</dispatchLayer>
+					<dispatchLayer>
+						<class>
+							net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.ErrorBounce
+						</class>
+						<configBean encoding="xstream">
+							<null xmlns="" />
+						</configBean>
+					</dispatchLayer>
+					<dispatchLayer>
+						<class>
+							net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Failover
+						</class>
+						<configBean encoding="xstream">
+							<null xmlns="" />
+						</configBean>
+					</dispatchLayer>
+					<dispatchLayer>
+						<class>
+							net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Retry
+						</class>
+						<configBean encoding="xstream">
+							<net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.RetryConfig
+								xmlns="">
+								<backoffFactor>1.0</backoffFactor>
+								<initialDelay>0</initialDelay>
+								<maxDelay>0</maxDelay>
+								<maxRetries>0</maxRetries>
+							</net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.RetryConfig>
+						</configBean>
+					</dispatchLayer>
+					<dispatchLayer>
+						<class>
+							net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Invoke
+						</class>
+						<configBean encoding="xstream">
+							<null xmlns="" />
+						</configBean>
+					</dispatchLayer>
+				</dispatchStack>
+				<iterationStrategyStack>
+					<iteration>
+						<strategy>
+							<port name="input" depth="0" />
+						</strategy>
+					</iteration>
+				</iterationStrategyStack>
+			</processor>
+		</processors>
+		<conditions />
+		<datalinks>
+			<datalink>
+				<sink type="processor">
+					<processor>Concat_XXX</processor>
+					<port>input</port>
+				</sink>
+				<source type="dataflow">
+					<port>input</port>
+				</source>
+			</datalink>
+			<datalink>
+				<sink type="dataflow">
+					<port>output</port>
+				</sink>
+				<source type="processor">
+					<processor>Concat_XXX</processor>
+					<port>output</port>
+				</source>
+			</datalink>
+		</datalinks>
+	</dataflow>
+</workflow>
