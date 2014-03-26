@@ -61,8 +61,11 @@ import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactory;
 import net.sf.taverna.t2.provenance.ProvenanceConnectorFactoryRegistry;
 import net.sf.taverna.t2.provenance.connector.ProvenanceConnector;
+import net.sf.taverna.t2.reference.ExternalReferenceSPI;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
+import net.sf.taverna.t2.reference.impl.external.file.FileReference;
+import net.sf.taverna.t2.reference.impl.external.http.HttpReference;
 import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionSPI;
 import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionsSPIRegistry;
 import net.sf.taverna.t2.workbench.edits.EditManager;
@@ -590,6 +593,14 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		for (String input : inputMap.keySet()) {
 			RegistrationPanel registrationPanel = inputPanelMap.get(input);
 			Object userInput = registrationPanel.getUserInput();
+			if (userInput instanceof ExternalReferenceSPI) {
+				ExternalReferenceSPI c = (ExternalReferenceSPI) userInput;
+				try {
+					userInput = c.clone();
+				} catch (CloneNotSupportedException e) {
+					// nothing
+				}
+			}
 			int inputDepth = registrationPanel.getDepth();
 
 			T2Reference reference = referenceService.register(userInput,
