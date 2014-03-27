@@ -23,9 +23,10 @@ package net.sf.taverna.t2.workbench.file.impl;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.JDialog;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
@@ -61,34 +62,38 @@ public class OpenDataflowInProgressDialog extends HelpEnabledDialog {
 		JPanel textPanel = new JPanel();
 		JLabel text = new JLabel(WorkbenchIcons.workingIcon);
 		text.setText("Opening workflow...");
-		text.setBorder(new EmptyBorder(10,0,10,0));
+		text.setBorder(new EmptyBorder(10, 0,10,0));
 		textPanel.add(text);
 		panel.add(textPanel, BorderLayout.CENTER);
 		
-/**
- * Cancellation does not work when opening
- 
 		// Cancel button
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
-				userCancelled = true;
-				setVisible(false);
-				dispose();
+				cancelTheDialog();
 			}
 		});
 		JPanel cancelButtonPanel = new JPanel();
 		cancelButtonPanel.add(cancelButton);
 		panel.add(cancelButtonPanel, BorderLayout.SOUTH);
-*/
-		setContentPane(panel);
-		setPreferredSize(new Dimension(300, 100));
 
-		pack();		
+		setContentPane(panel);
+		setPreferredSize(new Dimension(300, 130));
+
+		pack();
 	}
 
 	public boolean hasUserCancelled() {
 		return userCancelled;
+	}
+
+	/**
+	 * 
+	 */
+	private void cancelTheDialog() {
+		userCancelled = true;
+		setVisible(false);
+		dispose();
 	}
 }
