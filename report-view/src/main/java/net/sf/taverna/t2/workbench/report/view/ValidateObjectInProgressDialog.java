@@ -24,7 +24,10 @@ package net.sf.taverna.t2.workbench.report.view;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -63,9 +66,6 @@ public class ValidateObjectInProgressDialog extends JDialog{
 		textPanel.add(text);
 		panel.add(textPanel, BorderLayout.CENTER);
 
-		/**
-		 * Cancellation does not work
-
 		// Cancel button
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {
@@ -79,9 +79,9 @@ public class ValidateObjectInProgressDialog extends JDialog{
 		JPanel cancelButtonPanel = new JPanel();
 		cancelButtonPanel.add(cancelButton);
 		panel.add(cancelButtonPanel, BorderLayout.SOUTH);
-*/
+
 		setContentPane(panel);
-		setPreferredSize(new Dimension(300, 100));
+		setPreferredSize(new Dimension(300, 130));
 
 		pack();		
 	}
