@@ -3,6 +3,7 @@ package net.sf.taverna.biocatalogue.ui;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -81,24 +82,11 @@ public class BioCatalogueExplorationTab extends JPanel implements
 		c.gridy = 0;
 		c.weightx = 0.0;
 		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(3, 10, 3, 10);
+		c.insets = new Insets(3, 10, 3, 10);	
 		baseURL = BioCatalogueClient.getBaseURL();
 		String baseURLString = getBaseURLLabelString(baseURL);
 		baseLabel = new JLabel(baseURLString);
-		this.add(baseLabel, c);
-
-		c.gridx = 0;
-		c.gridy = 1;
-		c.weightx = 0.0;
-		c.weighty = 0.0;
-		c.fill = GridBagConstraints.NONE;
-		c.gridwidth = 2;
-		c.insets = new Insets(0, 5, 0, 0);
-		c.anchor = GridBagConstraints.FIRST_LINE_START;
 		JButton changeServiceCatalogueButton = new JButton("Change");
-		JPanel changeServiceCataloguePanel = new JPanel(new BorderLayout());
-		changeServiceCataloguePanel.add(changeServiceCatalogueButton,
-				BorderLayout.WEST);
 		changeServiceCatalogueButton.addActionListener(new ActionListener() {
 
 			@Override
@@ -107,24 +95,25 @@ public class BioCatalogueExplorationTab extends JPanel implements
 						.showConfiguration(BioCataloguePluginConfiguration
 								.getInstance().getDisplayName());
 			}
-		});
-		c.fill = GridBagConstraints.BOTH;
+		});		
+		JPanel changeServiceCataloguePanel = new JPanel(new FlowLayout());
+		changeServiceCataloguePanel.add(baseLabel);
+		changeServiceCataloguePanel.add(changeServiceCatalogueButton);
+		c.fill = GridBagConstraints.NONE;
 		this.add(changeServiceCataloguePanel, c);
 
-		c.gridx = 1;
-		c.gridy = 0;
+		c.gridx = 0;
+		c.gridy = 1;
 		c.weightx = 0.1;
 		c.weighty = 0.0;
-		c.gridwidth = 1;
 		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.EAST;
-		c.insets = new Insets(23, 30, 3, 10);
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(3, 10, 3, 10);
 		this.add(searchOptionsPanel, c);
 
 		c.insets = new Insets(0, 0, 0, 0);
-		c.gridy = 2;
 		c.gridx = 0;
-		c.gridwidth = 2;
+		c.gridy = 2;
 		c.weightx = c.weighty = 1.0;
 		c.fill = GridBagConstraints.BOTH;
 		c.anchor = GridBagConstraints.CENTER;
