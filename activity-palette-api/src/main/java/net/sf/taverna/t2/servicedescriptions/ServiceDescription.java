@@ -91,7 +91,7 @@ public abstract class ServiceDescription<ConfigType> extends IdentifiedObject im
 		try {
 			return HelpCollator.getURLFromID(getHelpId());
 		} catch (BadIDException e) {
-			logger.error(e);
+			logger.warn(e);
 		} catch (MalformedURLException e) {
 			logger.error(e);
 		}
