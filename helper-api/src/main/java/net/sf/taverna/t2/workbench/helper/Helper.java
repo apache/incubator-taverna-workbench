@@ -80,7 +80,7 @@ public final class Helper {
 			}
 			Desktop.getDesktop().browse(result.toURI());
 		} catch (BadIDException e) {
-			logger.error(e);
+			logger.warn(e);
 		} catch (MalformedURLException e) {
 			logger.error(e);
 		} catch (IOException e) {
