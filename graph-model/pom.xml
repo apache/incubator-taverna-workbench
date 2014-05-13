@@ -71,24 +71,24 @@
 			<artifactId>io</artifactId>
 			<version>${t2.lang.version}</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>net.sf.taverna.t2.translators</groupId>
 			<artifactId>translators-test-utils</artifactId>
 			<version>${t2.translators.version}</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
+		</dependency-->
+		<!--dependency>
 			<groupId>net.sf.taverna.t2.activities</groupId>
 			<artifactId>all-activities</artifactId>
 			<version>${t2.activities.version}</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
+		</dependency-->
+		<!--dependency>
 			<groupId>net.sf.taverna.t2.translators</groupId>
 			<artifactId>all-activity-translators</artifactId>
 			<version>${t2.translators.version}</version>
 			<scope>test</scope>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>net.sf.taverna.t2.activities</groupId>
 			<artifactId>activity-test-utils</artifactId>
