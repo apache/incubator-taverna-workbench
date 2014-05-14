@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>net.sf.taverna.t2</groupId>
-		<artifactId>ui-activities</artifactId>
-		<version>2.0-SNAPSHOT</version>
+                <groupId>net.sf.taverna</groupId>
+                <artifactId>taverna-parent</artifactId>
+                <version>3.0.1-SNAPSHOT</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-activities</groupId>
 	<artifactId>disabled-activity-ui</artifactId>
@@ -83,5 +83,11 @@
 			<url>http://www.mygrid.org.uk/maven/snapshot-repository</url>
 		</repository>
 	</repositories>
+        <scm>
+                <connection>scm:git:https://github.com/taverna/taverna-disabled-activity-ui.git</connection>
+                <developerConnection>scm:git:ssh://git@github.com/taverna/taverna-disabled-activity-ui.git</developerConnection>
+                <url>https://github.com/taverna/taverna-disabled-activity-ui/</url>
+                <tag>HEAD</tag>
+        </scm>
 </project>
 
