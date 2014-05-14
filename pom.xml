@@ -33,7 +33,6 @@
 		<module>report-api</module>
 	</modules>
 	<repositories>
-<!--
 		<repository>
 			<releases />
 			<snapshots>
@@ -52,12 +51,12 @@
 			<name>myGrid Snapshot Repository</name>
 			<url>http://www.mygrid.org.uk/maven/snapshot-repository</url>
 		</repository>
--->
 	</repositories>
 	<scm>
-		<connection>scm:svn:http://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-api/trunk/</connection>
-		<developerConnection>scm:svn:https://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-api/trunk/</developerConnection>
-		<url>http://code.google.com/p/taverna/source/browse/#svn/taverna/ui/net.sf.taverna.t2.ui-api/trunk/</url>
+                <connection>scm:git:https://github.com/taverna/taverna-ui-api.git</connection>
+                <developerConnection>scm:git:ssh://git@github.com:taverna/taverna-ui-api.git</developerConnection>
+                <url>https://github.com/taverna/taverna-ui-api</url>
+                <tag>HEAD</tag>
 	</scm>
 	<dependencies>
 		<dependency>
