@@ -8,6 +8,7 @@
 	</parent>
 	<groupId>net.sf.taverna.t2.ui-activities</groupId>
 	<artifactId>disabled-activity-ui</artifactId>
+	<version>1.6-SNAPSHOT</version>
 	<name>Taverna 2 Disabled Activity UI</name>
 	<dependencies>
 		<dependency>
