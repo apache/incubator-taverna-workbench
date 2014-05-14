@@ -60,12 +60,6 @@
                 <url>https://github.com/taverna/taverna-ui-impl</url>
                 <tag>HEAD</tag>
 	</scm>
-
-	<scm>
-		<connection>scm:svn:http://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-impl/trunk/</connection>
-		<developerConnection>scm:svn:https://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-impl/trunk/</developerConnection>
-		<url>http://code.google.com/p/taverna/source/browse/#svn/taverna/ui/net.sf.taverna.t2.ui-impl/trunk/</url>
-	</scm>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
