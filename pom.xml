@@ -53,8 +53,14 @@
 			<name>myGrid Snapshot Repository</name>
 			<url>http://www.mygrid.org.uk/maven/snapshot-repository</url>
 		</repository>
-
 	</repositories>
+	<scm>
+                <connection>scm:git:https://github.com/taverna/taverna-ui-impl.git</connection>
+                <developerConnection>scm:git:ssh://git@github.com:taverna/taverna-ui-impl.git</developerConnection>
+                <url>https://github.com/taverna/taverna-ui-impl</url>
+                <tag>HEAD</tag>
+	</scm>
+
 	<scm>
 		<connection>scm:svn:http://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-impl/trunk/</connection>
 		<developerConnection>scm:svn:https://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-impl/trunk/</developerConnection>
