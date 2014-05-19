@@ -50,9 +50,10 @@
 		</repository>
 	</repositories>
 	<scm>
-		<connection>scm:svn:http://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-exts/trunk/</connection>
-		<developerConnection>scm:svn:https://taverna.googlecode.com/svn/taverna/ui/net.sf.taverna.t2.ui-exts/trunk/</developerConnection>
-		<url>http://code.google.com/p/taverna/source/browse/#svn/taverna/ui/net.sf.taverna.t2.ui-exts/trunk/</url>
+                <connection>scm:git:https://github.com/taverna/taverna-ui-exts.git</connection>
+                <developerConnection>scm:git:ssh://git@github.com:taverna/taverna-ui-exts.git</developerConnection>
+                <url>https://github.com/taverna/taverna-ui-exts</url>
+                <tag>HEAD</tag>
 	</scm>
 	<dependencyManagement>
 		<dependencies>
