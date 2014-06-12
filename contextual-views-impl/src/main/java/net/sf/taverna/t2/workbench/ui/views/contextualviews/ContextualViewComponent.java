@@ -33,6 +33,8 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
+import org.apache.log4j.Logger;
+
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
@@ -54,6 +56,8 @@ import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 @SuppressWarnings("serial")
 public class ContextualViewComponent extends JScrollPane implements UIComponentSPI {
+	
+	private static Logger logger = Logger.getLogger(ContextualViewComponent.class);
 
 	private static final int DELAY = 250; // delay before contextual view is redrawn
 
@@ -150,7 +154,12 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		shownComponents = new ArrayList<JPanel>();
 		List<ContextualView> views = new ArrayList<ContextualView>();
 		for (ContextualViewFactory cvf: viewFactoriesForBeanType) {
-			views.addAll(cvf.getViews(selection));
+			try {
+				views.addAll(cvf.getViews(selection));
+			}
+			catch (Exception e) {
+				logger.error("Problem creating some contextual views for a " + selection.getClass(), e);
+			}
 		}
 		Collections.sort(views, viewComparator);
 		colorIndex = 0;
