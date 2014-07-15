@@ -50,7 +50,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.Preferences;
-
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -64,13 +63,11 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
-
 import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.CMUtils;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager.KeystoreType;
 import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
-
+import net.sf.taverna.t2.security.credentialmanager.impl.CMUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PEMWriter;

@@ -32,7 +32,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
@@ -46,13 +45,10 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
-
-import net.sf.taverna.t2.security.credentialmanager.CMUtils;
+import net.sf.taverna.t2.security.credentialmanager.impl.CMUtils;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
 /**
