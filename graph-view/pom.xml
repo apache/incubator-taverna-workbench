@@ -77,11 +77,6 @@
 			<artifactId>batik-osgi</artifactId>
 			<version>1.7.0</version>
 		</dependency>
-		<!-- <dependency>
-			<groupId>org.apache.xmlgraphics</groupId>
-			<artifactId>batik-swing</artifactId>
-			<version>${batik.version}</version>
-		</dependency> -->
 		<dependency>
 			<groupId>org.apache.log4j</groupId>
 			<artifactId>com.springsource.org.apache.log4j</artifactId>
@@ -92,18 +87,5 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.activities</groupId>
-			<artifactId>all-activities</artifactId>
-			<version>${t2.activities.version}</version>
-			<scope>test</scope>
-		</dependency>
-		<!-- <dependency>
-			<groupId>net.sf.taverna.t2.translators</groupId>
-			<artifactId>all-activity-translators
-			</artifactId>
-			<version>${t2.translators.version}</version>
-			<scope>test</scope>
-		</dependency> -->
 	</dependencies>
 </project>
