@@ -35,16 +35,18 @@ public class RestoreDefaultServicesAction extends AbstractAction {
 	public RestoreDefaultServicesAction() {
 		super("Restore default service providers");
 	}
-	
-	public void actionPerformed(ActionEvent e) {
-		
-		ServiceDescriptionRegistry serviceDescRegistry = ServiceDescriptionRegistryImpl.getInstance();
-		for (ServiceDescriptionProvider provider : serviceDescRegistry.getDefaultServiceDescriptionProviders()) {
-			if (! (provider instanceof ConfigurableServiceProvider)) {
+
+	@Override
+	public void actionPerformed(final ActionEvent e) {
+
+		final ServiceDescriptionRegistry serviceDescRegistry = ServiceDescriptionRegistryImpl
+				.getInstance();
+		for (final ServiceDescriptionProvider provider : serviceDescRegistry
+				.getDefaultServiceDescriptionProviders()) {
+			if (!(provider instanceof ConfigurableServiceProvider)) {
 				continue;
 			}
 			serviceDescRegistry.addServiceDescriptionProvider(provider);
 		}
 	}
 }
-

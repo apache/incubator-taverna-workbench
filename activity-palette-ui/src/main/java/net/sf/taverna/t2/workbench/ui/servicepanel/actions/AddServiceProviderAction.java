@@ -40,8 +40,8 @@ import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.uibuilder.UIBuilder;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.CustomizedConfigurePanelProvider;
-import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.servicedescriptions.CustomizedConfigurePanelProvider.CustomizedConfigureCallBack;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.servicedescriptions.events.ProviderErrorNotification;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionProvidedEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
@@ -69,42 +69,47 @@ public class AddServiceProviderAction extends AbstractAction {
 
 	private ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private final ConfigurableServiceProvider confProvider;
 
-	private final Component owner;
-
-	@SuppressWarnings("unchecked")
-	public AddServiceProviderAction(ConfigurableServiceProvider confProvider,
-			Component owner) {
+	@SuppressWarnings("rawtypes")
+	public AddServiceProviderAction(
+			final ConfigurableServiceProvider confProvider,
+			final Component owner) {
 		super(confProvider.getName() + "...", confProvider.getIcon());
 		this.confProvider = confProvider;
-		this.owner = owner;
 	}
 
-	@SuppressWarnings("unchecked")
-	public void actionPerformed(ActionEvent e) {
+	@Override
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void actionPerformed(final ActionEvent e) {
 		if (confProvider instanceof CustomizedConfigurePanelProvider) {
 			// Clone it and run the configure on the new one
-			CustomizedConfigurePanelProvider customProvider = (CustomizedConfigurePanelProvider) confProvider
+			final CustomizedConfigurePanelProvider customProvider = (CustomizedConfigurePanelProvider) confProvider
 					.clone();
-			CustomizedConfigureCallBack callBack = new CustomizedConfigureCallBack() {
-				public void newProviderConfiguration(Object providerConfig) {
+			final CustomizedConfigureCallBack callBack = new CustomizedConfigureCallBack() {
+				@Override
+				public void newProviderConfiguration(final Object providerConfig) {
 					addNewProvider(providerConfig);
 				}
+
+				@Override
 				public Object getTemplateConfig() {
 					try {
 						return BeanUtils.cloneBean(confProvider
 								.getConfiguration());
-					} catch (Exception ex) {
+					} catch (final Exception ex) {
 						throw new RuntimeException(
 								"Can't clone configuration bean", ex);
 					}
 				}
+
+				@Override
 				public ServiceDescriptionRegistry getServiceDescriptionRegistry() {
-					return AddServiceProviderAction.this.getServiceDescriptionRegistry();
+					return AddServiceProviderAction.this
+							.getServiceDescriptionRegistry();
 				}
-				
+
 			};
 			customProvider.createCustomizedConfigurePanel(callBack);
 			return;
@@ -114,43 +119,45 @@ public class AddServiceProviderAction extends AbstractAction {
 		try {
 			configurationBean = BeanUtils.cloneBean(confProvider
 					.getConfiguration());
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			throw new RuntimeException("Can't clone configuration bean", ex);
 		}
-		JPanel buildEditor = buildEditor(configurationBean);
-		String title = "Add " + confProvider.getName();
-		JDialog dialog = new HelpEnabledDialog(MainWindow.getMainWindow(), title, true, null);
-		JPanel iconPanel = new JPanel();
+		final JPanel buildEditor = buildEditor(configurationBean);
+		final String title = "Add " + confProvider.getName();
+		final JDialog dialog = new HelpEnabledDialog(
+				MainWindow.getMainWindow(), title, true, null);
+		final JPanel iconPanel = new JPanel();
 		iconPanel.add(new JLabel(confProvider.getIcon()), BorderLayout.NORTH);
 		dialog.add(iconPanel, BorderLayout.WEST);
 		dialog.add(buildEditor, BorderLayout.CENTER);
-		JPanel buttonPanel = new JPanel();
-		final AddProviderAction addProviderAction = new AddProviderAction(configurationBean,
-				dialog);
-		JButton addProviderButton = new JButton(addProviderAction);
+		final JPanel buttonPanel = new JPanel();
+		final AddProviderAction addProviderAction = new AddProviderAction(
+				configurationBean, dialog);
+		final JButton addProviderButton = new JButton(addProviderAction);
 		buttonPanel.add(addProviderButton, BorderLayout.WEST);
-		
+
 		dialog.add(buttonPanel, BorderLayout.SOUTH);
-	    // When user presses "Return" key fire the action on the "Add" button
+		// When user presses "Return" key fire the action on the "Add" button
 		addProviderButton.addKeyListener(new java.awt.event.KeyAdapter() {
-			public void keyPressed(java.awt.event.KeyEvent evt) {
+			@Override
+			public void keyPressed(final java.awt.event.KeyEvent evt) {
 				if (evt.getKeyCode() == KeyEvent.VK_ENTER) {
 					addProviderAction.actionPerformed(null);
 				}
 			}
 		});
 		dialog.getRootPane().setDefaultButton(addProviderButton);
-		
+
 		// dialog.setSize(buttonPanel.getPreferredSize());
 		dialog.pack();
 		dialog.setLocationRelativeTo(MainWindow.getMainWindow());
-//		dialog.setLocation(owner.getLocationOnScreen().x + owner.getWidth(),
-//				owner.getLocationOnScreen().y + owner.getHeight());
+		// dialog.setLocation(owner.getLocationOnScreen().x + owner.getWidth(),
+		// owner.getLocationOnScreen().y + owner.getHeight());
 		dialog.setVisible(true);
 	}
 
-	@SuppressWarnings("unchecked")
-	protected void addNewProvider(Object configurationBean) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected void addNewProvider(final Object configurationBean) {
 		final ConfigurableServiceProvider cloned = confProvider.clone();
 		try {
 			cloned.configure(configurationBean);
@@ -158,7 +165,7 @@ public class AddServiceProviderAction extends AbstractAction {
 					new CheckAddedCorrectlyObserver(cloned));
 			getServiceDescriptionRegistry().addServiceDescriptionProvider(
 					cloned);
-		} catch (ConfigurationException e1) {
+		} catch (final ConfigurationException e1) {
 			logger.warn("Can't configure provider " + cloned + " using "
 					+ configurationBean, e1);
 			JOptionPane.showMessageDialog(null,
@@ -169,22 +176,22 @@ public class AddServiceProviderAction extends AbstractAction {
 
 	}
 
-	protected JPanel buildEditor(Object configurationBean) {
+	protected JPanel buildEditor(final Object configurationBean) {
 		PropertyDescriptor[] properties;
 		try {
 			properties = PropertyUtils
 					.getPropertyDescriptors(configurationBean);
-		} catch (Exception ex) {
+		} catch (final Exception ex) {
 			throw new RuntimeException("Can't inspect configuration bean", ex);
 		}
-		List<String> uiBuilderConfig = new ArrayList<String>();
+		final List<String> uiBuilderConfig = new ArrayList<String>();
 		int lastPreferred = 0;
-		for (PropertyDescriptor property : properties) {
+		for (final PropertyDescriptor property : properties) {
 			if (property.isHidden() || property.isExpert()) {
 				// TODO: Add support for expert properties
 				continue;
 			}
-			String propertySpec = property.getName() + ":name="
+			final String propertySpec = property.getName() + ":name="
 					+ property.getDisplayName();
 			if (property.isPreferred()) {
 				// Add it to the front
@@ -194,12 +201,12 @@ public class AddServiceProviderAction extends AbstractAction {
 			}
 		}
 
-		return UIBuilder.buildEditor(configurationBean, uiBuilderConfig
-				.toArray(new String[uiBuilderConfig.size()]));
+		return UIBuilder.buildEditor(configurationBean,
+				uiBuilderConfig.toArray(new String[uiBuilderConfig.size()]));
 	}
 
 	public void setServiceDescriptionRegistry(
-			ServiceDescriptionRegistry serviceDescriptionRegistry) {
+			final ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
@@ -212,13 +219,15 @@ public class AddServiceProviderAction extends AbstractAction {
 		private final Object configurationBean;
 		private final JDialog dialog;
 
-		private AddProviderAction(Object configurationBean, JDialog dialog) {
+		private AddProviderAction(final Object configurationBean,
+				final JDialog dialog) {
 			super("Add");
 			this.configurationBean = configurationBean;
 			this.dialog = dialog;
 		}
 
-		public void actionPerformed(ActionEvent e) {
+		@Override
+		public void actionPerformed(final ActionEvent e) {
 			addNewProvider(configurationBean);
 			dialog.setVisible(false);
 		}
@@ -226,28 +235,32 @@ public class AddServiceProviderAction extends AbstractAction {
 
 	public class CheckAddedCorrectlyObserver implements
 			Observer<ServiceDescriptionRegistryEvent> {
-		@SuppressWarnings("unchecked")
+		@SuppressWarnings("rawtypes")
 		private final ConfigurableServiceProvider provider;
 
-		@SuppressWarnings("unchecked")
-		private CheckAddedCorrectlyObserver(ConfigurableServiceProvider provider) {
+		@SuppressWarnings("rawtypes")
+		private CheckAddedCorrectlyObserver(
+				final ConfigurableServiceProvider provider) {
 			this.provider = provider;
 		}
 
-		public void notify(Observable<ServiceDescriptionRegistryEvent> sender,
-				ServiceDescriptionRegistryEvent message) throws Exception {
+		@Override
+		public void notify(
+				final Observable<ServiceDescriptionRegistryEvent> sender,
+				final ServiceDescriptionRegistryEvent message) throws Exception {
 			if (message instanceof ProviderErrorNotification) {
-				ProviderErrorNotification errorMsg = (ProviderErrorNotification) message;
+				final ProviderErrorNotification errorMsg = (ProviderErrorNotification) message;
 				if (errorMsg.getProvider() == provider) {
 					getServiceDescriptionRegistry().removeObserver(this);
 					getServiceDescriptionRegistry()
 							.removeServiceDescriptionProvider(provider);
-//					JOptionPane.showMessageDialog(null, errorMsg.getMessage(),
-//							"Can't add provider " + provider,
-//							JOptionPane.ERROR_MESSAGE);
+					// JOptionPane.showMessageDialog(null,
+					// errorMsg.getMessage(),
+					// "Can't add provider " + provider,
+					// JOptionPane.ERROR_MESSAGE);
 				}
 			} else if (message instanceof ServiceDescriptionProvidedEvent) {
-				ServiceDescriptionProvidedEvent providedMsg = (ServiceDescriptionProvidedEvent) message;
+				final ServiceDescriptionProvidedEvent providedMsg = (ServiceDescriptionProvidedEvent) message;
 				if (providedMsg.getProvider() == provider) {
 					getServiceDescriptionRegistry().removeObserver(this);
 				}

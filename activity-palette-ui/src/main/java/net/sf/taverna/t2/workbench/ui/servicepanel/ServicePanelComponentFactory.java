@@ -37,20 +37,23 @@ public class ServicePanelComponentFactory implements UIComponentFactorySPI {
 	private ServiceDescriptionRegistry serviceDescriptionRegistry = ServiceDescriptionRegistryImpl
 			.getInstance();
 
+	@Override
 	public UIComponentSPI getComponent() {
 		return new ServicePanel(serviceDescriptionRegistry);
 	}
 
+	@Override
 	public ImageIcon getIcon() {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return "Service panel";
 	}
 
 	public void setServiceDescriptionRegistry(
-			ServiceDescriptionRegistry serviceDescriptionRegistry) {
+			final ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 

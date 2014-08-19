@@ -60,10 +60,11 @@ public class AddServiceProviderMenu extends JButton {
 
 	public static class ServiceProviderComparator implements
 			Comparator<ServiceDescriptionProvider> {
-		public int compare(ServiceDescriptionProvider o1,
-				ServiceDescriptionProvider o2) {
-			return o1.getName().toLowerCase().compareTo(
-					o2.getName().toLowerCase());
+		@Override
+		public int compare(final ServiceDescriptionProvider o1,
+				final ServiceDescriptionProvider o2) {
+			return o1.getName().toLowerCase()
+					.compareTo(o2.getName().toLowerCase());
 		}
 	}
 
@@ -75,7 +76,8 @@ public class AddServiceProviderMenu extends JButton {
 		final Component c = createCustomComponent();
 		this.setAction(new AbstractAction(ADD_SERVICE_PROVIDER_MENU_NAME) {
 
-			public void actionPerformed(ActionEvent e) {
+			@Override
+			public void actionPerformed(final ActionEvent e) {
 				((JPopupMenu) c).show(AddServiceProviderMenu.this, 0,
 						AddServiceProviderMenu.this.getHeight());
 			}
@@ -84,25 +86,27 @@ public class AddServiceProviderMenu extends JButton {
 
 	private ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private Component createCustomComponent() {
-		JPopupMenu addServiceMenu = new JPopupMenu(
+		final JPopupMenu addServiceMenu = new JPopupMenu(
 				ADD_SERVICE_PROVIDER_MENU_NAME);
 		addServiceMenu.setToolTipText("Add a new service provider");
 		boolean isEmpty = true;
-		List<ConfigurableServiceProvider> providers = new ArrayList<ConfigurableServiceProvider>(
+		final List<ConfigurableServiceProvider> providers = new ArrayList<ConfigurableServiceProvider>(
 				getServiceDescriptionRegistry()
 						.getUnconfiguredServiceProviders());
-		Collections.sort(providers,  new ServiceProviderComparator());
-		for (ConfigurableServiceProvider provider : providers) {
+		Collections.sort(providers, new ServiceProviderComparator());
+		for (final ConfigurableServiceProvider provider : providers) {
 			// Skip BioCatalogue's ConfigurableServiceProviderS as they should
-			// not be used to add servcie directlry but rather though the Service Catalogue perspective 
-			if (!provider.getId().toLowerCase().contains("servicecatalogue")){
-				AddServiceProviderAction addAction = new AddServiceProviderAction(
+			// not be used to add servcie directlry but rather though the
+			// Service Catalogue perspective
+			if (!provider.getId().toLowerCase().contains("servicecatalogue")) {
+				final AddServiceProviderAction addAction = new AddServiceProviderAction(
 						provider, this);
-				addAction.setServiceDescriptionRegistry(getServiceDescriptionRegistry());
+				addAction
+						.setServiceDescriptionRegistry(getServiceDescriptionRegistry());
 				addServiceMenu.add(addAction);
-				isEmpty = false;	
+				isEmpty = false;
 			}
 		}
 		if (isEmpty) {
@@ -112,7 +116,7 @@ public class AddServiceProviderMenu extends JButton {
 	}
 
 	public void setServiceDescriptionRegistry(
-			ServiceDescriptionRegistry serviceDescriptionRegistry) {		
+			final ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 

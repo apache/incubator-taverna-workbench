@@ -31,50 +31,56 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
-import org.apache.log4j.Logger;
-
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionRegistryImpl;
 
+import org.apache.log4j.Logger;
+
 /**
- * Action to export the current service descritpions from the Service 
- * Registry to an xml file.
+ * Action to export the current service descritpions from the Service Registry
+ * to an xml file.
  * 
  * @author Alex Nenadic
- *
+ * 
  */
 @SuppressWarnings("serial")
-public class ExportServiceDescriptionsAction extends AbstractAction{
+public class ExportServiceDescriptionsAction extends AbstractAction {
 
 	private static final String EXPORT_SERVICES = "Export services to file";
 	private static final String SERVICE_EXPORT_DIR_PROPERTY = "serviceExportDir";
-	private Logger logger = Logger.getLogger(ExportServiceDescriptionsAction.class);
-	
-	public ExportServiceDescriptionsAction(){
+	private final Logger logger = Logger
+			.getLogger(ExportServiceDescriptionsAction.class);
+
+	public ExportServiceDescriptionsAction() {
 		super(EXPORT_SERVICES);
 	}
-	
-	public void actionPerformed(ActionEvent e) {
+
+	@Override
+	public void actionPerformed(final ActionEvent e) {
 
 		JComponent parentComponent = null;
-		if (e.getSource() instanceof JComponent){
-			parentComponent = (JComponent)e.getSource();
+		if (e.getSource() instanceof JComponent) {
+			parentComponent = (JComponent) e.getSource();
 		}
-		
-		JFileChooser fileChooser = new JFileChooser();
-		Preferences prefs = Preferences.userNodeForPackage(getClass());
-		String curDir = prefs.get(SERVICE_EXPORT_DIR_PROPERTY, System.getProperty("user.home"));
+
+		final JFileChooser fileChooser = new JFileChooser();
+		final Preferences prefs = Preferences.userNodeForPackage(getClass());
+		final String curDir = prefs.get(SERVICE_EXPORT_DIR_PROPERTY,
+				System.getProperty("user.home"));
 		fileChooser.setDialogTitle("Select file to export services to");
 
 		fileChooser.setFileFilter(new FileFilter() {
-		   
-			public boolean accept(File f) {
-		        return f.isDirectory() || f.getName().toLowerCase().endsWith(".xml");
-		    }
-		    
-		    public String getDescription() {
-		        return ".xml files";
-		    }
+
+			@Override
+			public boolean accept(final File f) {
+				return f.isDirectory()
+						|| f.getName().toLowerCase().endsWith(".xml");
+			}
+
+			@Override
+			public String getDescription() {
+				return ".xml files";
+			}
 
 		});
 
@@ -83,37 +89,40 @@ public class ExportServiceDescriptionsAction extends AbstractAction{
 		boolean tryAgain = true;
 		while (tryAgain) {
 			tryAgain = false;
-			int returnVal = fileChooser.showSaveDialog(parentComponent);
+			final int returnVal = fileChooser.showSaveDialog(parentComponent);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				prefs.put(SERVICE_EXPORT_DIR_PROPERTY, fileChooser.getCurrentDirectory()
-						.toString());
+				prefs.put(SERVICE_EXPORT_DIR_PROPERTY, fileChooser
+						.getCurrentDirectory().toString());
 				File file = fileChooser.getSelectedFile();
 				if (!file.getName().toLowerCase().endsWith(".xml")) {
-					String newName = file.getName() + ".xml";
+					final String newName = file.getName() + ".xml";
 					file = new File(file.getParentFile(), newName);
 				}
 
 				// TODO: Open in separate thread to avoid hanging UI
 				if (file.exists()) {
-					String msg = "Are you sure you want to overwrite existing file "
+					final String msg = "Are you sure you want to overwrite existing file "
 							+ file + "?";
-					int ret = JOptionPane.showConfirmDialog(parentComponent,
-							msg, "File already exists",
+					final int ret = JOptionPane.showConfirmDialog(
+							parentComponent, msg, "File already exists",
 							JOptionPane.YES_NO_CANCEL_OPTION);
 					if (ret == JOptionPane.YES_OPTION) {
 						try {
-							ServiceDescriptionRegistry serviceDescriptionRegistry = ServiceDescriptionRegistryImpl
+							final ServiceDescriptionRegistry serviceDescriptionRegistry = ServiceDescriptionRegistryImpl
 									.getInstance();
 							serviceDescriptionRegistry
 									.exportCurrentServiceDescriptions(file);
 							logger.info("Service descriptions export: saved to file "
-											+ file.getAbsolutePath());
-						} catch (Exception ex) {
-							logger.error("Service descriptions export: failed to export services to "
+									+ file.getAbsolutePath());
+						} catch (final Exception ex) {
+							logger.error(
+									"Service descriptions export: failed to export services to "
 											+ file.getAbsolutePath(), ex);
-							JOptionPane.showMessageDialog(parentComponent,
-									"Failed to export services to " + file.getAbsolutePath(),
-									"Error", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(
+									parentComponent,
+									"Failed to export services to "
+											+ file.getAbsolutePath(), "Error",
+									JOptionPane.ERROR_MESSAGE);
 						}
 						break;
 
@@ -122,31 +131,33 @@ public class ExportServiceDescriptionsAction extends AbstractAction{
 						continue;
 					} else {
 						logger.info("Service descriptions export: aborted overwrite of "
-										+ file.getAbsolutePath());
+								+ file.getAbsolutePath());
 						break;
 					}
-				}
-				else{
+				} else {
 					try {
-						ServiceDescriptionRegistry serviceDescriptionRegistry = ServiceDescriptionRegistryImpl
+						final ServiceDescriptionRegistry serviceDescriptionRegistry = ServiceDescriptionRegistryImpl
 								.getInstance();
 						serviceDescriptionRegistry
 								.exportCurrentServiceDescriptions(file);
 						logger.info("Service descriptions export: saved to file "
-										+ file.getAbsolutePath());
-					} catch (Exception ex) {
-						logger.error("Service descriptions export: failed to export services to "
+								+ file.getAbsolutePath());
+					} catch (final Exception ex) {
+						logger.error(
+								"Service descriptions export: failed to export services to "
 										+ file.getAbsolutePath(), ex);
-						JOptionPane.showMessageDialog(parentComponent,
-								"Failed to export services to " + file.getAbsolutePath(),
-								"Error", JOptionPane.ERROR_MESSAGE);
+						JOptionPane.showMessageDialog(
+								parentComponent,
+								"Failed to export services to "
+										+ file.getAbsolutePath(), "Error",
+								JOptionPane.ERROR_MESSAGE);
 					}
 					break;
 				}
 			}
 		}
-		
-		if (parentComponent instanceof JButton){
+
+		if (parentComponent instanceof JButton) {
 			// lose the focus from the button after performing the action
 			parentComponent.requestFocusInWindow();
 		}

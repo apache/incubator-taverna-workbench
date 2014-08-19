@@ -23,58 +23,53 @@ package net.sf.taverna.t2.workbench.ui.servicepanel;
 import java.awt.Component;
 
 import javax.swing.Icon;
+import javax.swing.JLabel;
 import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeCellRenderer;
 
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.workbench.activityicons.DefaultActivityIcon;
-import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeCellRenderer;
-import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
+import net.sf.taverna.t2.workbench.ui.servicepanel.servicetree.ServiceTreeNode;
 
 @SuppressWarnings("serial")
-public class ServiceTreeCellRenderer extends FilterTreeCellRenderer {
+public class ServiceTreeCellRenderer extends DefaultTreeCellRenderer {
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public Component getTreeCellRendererComponent(JTree tree, Object value,
-			boolean sel, boolean expanded, boolean leaf, int row,
-			boolean hasFocus) {
+	public Component getTreeCellRendererComponent(final JTree tree,
+			final Object value, final boolean sel, final boolean expanded,
+			final boolean leaf, final int row, final boolean hasFocus) {
 
-		Component result = super.getTreeCellRendererComponent(tree, value, sel,
-				expanded, leaf, row, hasFocus);
-		if (result instanceof ServiceTreeCellRenderer
-				&& value instanceof FilterTreeNode
-				&& ((FilterTreeNode) value).getUserObject() instanceof ServiceDescription) {
-			ServiceTreeCellRenderer serviceTreeCellRenderer = (ServiceTreeCellRenderer) result;
-			ServiceDescription item = (ServiceDescription) ((FilterTreeNode) value)
-					.getUserObject();
-			String name = item.getName();
-			if (getFilter() != null) {
-				name = getFilter().filterRepresentation(name);
-			}
-//			serviceTreeCellRenderer.setForeground(Color.red);
-			String displayName = name;
-			String textualDescription = item.getDescription();
-			if ((textualDescription != null) && !textualDescription.equals("")) {
-				displayName = displayName + " - " + textualDescription;
-			}
-			serviceTreeCellRenderer.setText(displayName);
-			Icon activityIcon = item.getIcon();
-			if (activityIcon != null) {
-				serviceTreeCellRenderer.setIcon(activityIcon);
-			} else {
-				serviceTreeCellRenderer.setIcon(DefaultActivityIcon.getDefaultIcon());				
-			}
-		} else {
-			// Commented out - these are ugly, use the default folder icons
-			// instead
-			/*
-			 * if (expanded) { ((ServiceTreeCellRenderer) result)
-			 * .setIcon(WorkbenchIcons.folderOpenIcon); } else {
-			 * ((ServiceTreeCellRenderer) result)
-			 * .setIcon(WorkbenchIcons.folderClosedIcon); }
-			 */
+		final Component result = super.getTreeCellRendererComponent(tree,
+				value, sel, expanded, leaf, row, hasFocus);
+		if (!(result instanceof JLabel)) {
+			return result;
 		}
-		return result;
+		final JLabel l = (JLabel) result;
+		if (!(value instanceof ServiceTreeNode)) {
+			return l;
+		}
+		final ServiceTreeNode node = (ServiceTreeNode) value;
+
+		final Object o = node.getUserObject();
+		if (!(o instanceof ServiceDescription)) {
+			return l;
+		}
+		final ServiceDescription<?> sd = (ServiceDescription<?>) o;
+
+		String displayName = sd.getName();
+		final String textualDescription = sd.getDescription();
+		if ((textualDescription != null) && !textualDescription.isEmpty()) {
+			displayName = displayName + " - " + textualDescription;
+		}
+		l.setText(displayName);
+
+		final Icon activityIcon = sd.getIcon();
+		if (activityIcon != null) {
+			l.setIcon(activityIcon);
+		} else {
+			l.setIcon(DefaultActivityIcon.getDefaultIcon());
+		}
+		return l;
 	}
 
 }

@@ -30,28 +30,23 @@ import java.lang.reflect.Method;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
-import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
 
 import org.apache.log4j.Logger;
 
-public class ServiceFilter implements Filter {
+public class ServiceFilter {
 
-	private String filterString;
-	private boolean superseded;
-	private String[] filterLowerCaseSplit;
+	private final String filterString;
+	private final String[] filterLowerCaseSplit;
 	private final Object rootToIgnore;
-	private static Logger logger = Logger
-	.getLogger(ServiceFilter.class);
+	private static Logger logger = Logger.getLogger(ServiceFilter.class);
 
-	public ServiceFilter(String filterString, Object rootToIgnore) {
+	public ServiceFilter(final String filterString, final Object rootToIgnore) {
 		this.filterString = filterString;
 		this.rootToIgnore = rootToIgnore;
 		this.filterLowerCaseSplit = filterString.toLowerCase().split(" ");
-		this.superseded = false;
 	}
 
-	@SuppressWarnings("unchecked")
-	private boolean basicFilter(DefaultMutableTreeNode node) {
+	private boolean basicFilter(final DefaultMutableTreeNode node) {
 		if (node == rootToIgnore) {
 			return false;
 		}
@@ -59,13 +54,11 @@ public class ServiceFilter implements Filter {
 			return true;
 		}
 		if (node.getUserObject() instanceof ServiceDescription) {
-			ServiceDescription serviceDescription = (ServiceDescription) node
+			@SuppressWarnings("rawtypes")
+			final ServiceDescription serviceDescription = (ServiceDescription) node
 					.getUserObject();
-			search: for (String searchTerm : filterLowerCaseSplit) {
-				if (superseded) {
-					return false;
-				}
-				String[] typeSplit = searchTerm.split(":", 2);
+			search: for (final String searchTerm : filterLowerCaseSplit) {
+				final String[] typeSplit = searchTerm.split(":", 2);
 				String type;
 				String keyword;
 				if (typeSplit.length == 2) {
@@ -76,27 +69,24 @@ public class ServiceFilter implements Filter {
 					keyword = searchTerm;
 				}
 				try {
-					BeanInfo beanInfo = Introspector
+					final BeanInfo beanInfo = Introspector
 							.getBeanInfo(serviceDescription.getClass());
-					for (PropertyDescriptor property : beanInfo
+					for (final PropertyDescriptor property : beanInfo
 							.getPropertyDescriptors()) {
-						if (superseded) {
-							return false;
-						}
-						if (type == null && !property.isHidden()
-								&& !property.isExpert()
-								|| property.getName().equalsIgnoreCase(type)) {							
-							Method readMethod = property.getReadMethod();
+						if (((type == null) && !property.isHidden() && !property
+								.isExpert())
+								|| property.getName().equalsIgnoreCase(type)) {
+							final Method readMethod = property.getReadMethod();
 							if (readMethod == null) {
 								continue;
 							}
-							Object readProperty = readMethod
-									.invoke(serviceDescription, new Object[0]);
+							final Object readProperty = readMethod.invoke(
+									serviceDescription, new Object[0]);
 							if (readProperty == null) {
 								continue;
 							}
-							if (readProperty.toString().toLowerCase().contains(
-									keyword)) {
+							if (readProperty.toString().toLowerCase()
+									.contains(keyword)) {
 								continue search;
 							} else {
 								// Dig deeper?
@@ -104,53 +94,31 @@ public class ServiceFilter implements Filter {
 						}
 					}
 					return false;
-				} catch (IntrospectionException e) {
-					// TODO Auto-generated catch block
-					logger.error("", e);
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					logger.error("", e);
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					logger.error("", e);
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					logger.error("", e);
+				} catch (final IntrospectionException | IllegalArgumentException | IllegalAccessException | InvocationTargetException e) {
+					logger.error("Bean inspection failed", e);
 				}
 				return false;
 			}
 			return true;
 		}
-		for (String searchString : filterLowerCaseSplit) {
-			if (!node.getUserObject().toString().toLowerCase().contains(
-					searchString)) {
+		for (final String searchString : filterLowerCaseSplit) {
+			if (!node.getUserObject().toString().toLowerCase()
+					.contains(searchString)) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	public boolean pass(DefaultMutableTreeNode node) {
+	public boolean pass(final DefaultMutableTreeNode node) {
 		return basicFilter(node);
 	}
 
-	public String filterRepresentation(String original) {
-		return original;
-	}
-
 	/**
-	 * @return the superseded
+	 * @return the filterString
 	 */
-	public boolean isSuperseded() {
-		return superseded;
-	}
-
-	/**
-	 * @param superseded
-	 *            the superseded to set
-	 */
-	public void setSuperseded(boolean superseded) {
-		this.superseded = superseded;
+	public String getFilterString() {
+		return filterString;
 	}
 
 }

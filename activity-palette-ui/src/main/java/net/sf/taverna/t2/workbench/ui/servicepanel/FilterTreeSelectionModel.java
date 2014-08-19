@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (C) 2007-2009 The University of Manchester   
+ * Copyright (C) 2007 The University of Manchester   
  * 
  *  Modifications to the initial code base are copyright of their
  *  respective authors, or their employers as appropriate.
@@ -20,27 +20,27 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
-import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
-import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
+import javax.swing.tree.DefaultTreeSelectionModel;
+import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
-/**
- * @author alanrw
- *
- */
-public class ServiceFilterTreeNode extends FilterTreeNode {
+public class FilterTreeSelectionModel extends DefaultTreeSelectionModel {
 
-	public ServiceFilterTreeNode(ServiceDescription userObject) {
-		super(userObject);
+	private static final long serialVersionUID = 3127644524735089630L;
+
+	public FilterTreeSelectionModel() {
+		super();
+		setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6066698619971305454L;
-	
-	public ServiceDescription getUserObject() {
-		return (ServiceDescription) super.getUserObject();
-		
+	@Override
+	public void setSelectionPath(final TreePath path) {
+		// Nothing happens here - only calls to mySetSelectionPath()
+		// will have the effect of a node being selected
+	}
+
+	public void mySetSelectionPath(final TreePath path) {
+		super.setSelectionPath(path);
 	}
 
 }

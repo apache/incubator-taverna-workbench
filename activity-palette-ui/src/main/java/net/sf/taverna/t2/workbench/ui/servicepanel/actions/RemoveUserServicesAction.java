@@ -37,21 +37,24 @@ public class RemoveUserServicesAction extends AbstractAction {
 		super("Remove all user added service providers");
 	}
 
-	public void actionPerformed(ActionEvent e) {
-		
-		int option = JOptionPane
+	@Override
+	public void actionPerformed(final ActionEvent e) {
+
+		final int option = JOptionPane
 				.showConfirmDialog(
 						null,
-						new JLabel("<html><body>You are about to remove all services you have added. <br>Are you REALLY sure you want to do this?</body></html>"),
-						"Confirm service deletion", JOptionPane.YES_NO_CANCEL_OPTION);
-		
-		if (option==JOptionPane.YES_OPTION){
-			ServiceDescriptionRegistry serviceDescRegistry = ServiceDescriptionRegistryImpl.getInstance();
-			for (ServiceDescriptionProvider provider : serviceDescRegistry
+						new JLabel(
+								"<html><body>You are about to remove all services you have added. <br>Are you REALLY sure you want to do this?</body></html>"),
+						"Confirm service deletion",
+						JOptionPane.YES_NO_CANCEL_OPTION);
+
+		if (option == JOptionPane.YES_OPTION) {
+			final ServiceDescriptionRegistry serviceDescRegistry = ServiceDescriptionRegistryImpl
+					.getInstance();
+			for (final ServiceDescriptionProvider provider : serviceDescRegistry
 					.getUserAddedServiceProviders()) {
 				serviceDescRegistry.removeServiceDescriptionProvider(provider);
 			}
 		}
 	}
 }
-

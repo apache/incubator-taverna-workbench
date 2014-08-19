@@ -29,20 +29,24 @@ import net.sf.taverna.t2.workbench.configuration.ConfigurationUIFactory;
 
 public class ServiceDescriptionConfigUIFactory implements
 		ConfigurationUIFactory {
-	
+
 	protected ServiceDescriptionsConfig serviceDescriptionsConfig = ServiceDescriptionsConfig
 			.getInstance();
 
-	public boolean canHandle(String uuid) {
+	@Override
+	public boolean canHandle(final String uuid) {
 		return uuid.equals(serviceDescriptionsConfig.getUUID());
 	}
 
+	@Override
 	public Configurable getConfigurable() {
 		return serviceDescriptionsConfig;
 	}
 
+	@Override
 	public JPanel getConfigurationPanel() {
-		return new ServiceDescriptionConfigPanel(serviceDescriptionsConfig, ServiceDescriptionRegistryImpl.getInstance());
+		return new ServiceDescriptionConfigPanel(serviceDescriptionsConfig,
+				ServiceDescriptionRegistryImpl.getInstance());
 	}
 
 }

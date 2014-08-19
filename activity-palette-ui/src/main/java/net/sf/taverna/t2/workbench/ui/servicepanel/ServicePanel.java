@@ -21,20 +21,11 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
 import java.awt.BorderLayout;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -55,12 +46,9 @@ import net.sf.taverna.t2.servicedescriptions.events.ProviderErrorNotification;
 import net.sf.taverna.t2.servicedescriptions.events.RemovedProviderEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionProvidedEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
-import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
-import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeModel;
-import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
+import net.sf.taverna.t2.workbench.ui.servicepanel.servicetree.ServiceTreeModel;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 
 /**
@@ -78,68 +66,71 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	public int blankOutCounter = 0;
 
-	public static final String AVAILABLE_SERVICES = "Available services";
-	public static final String MATCHING_SERVIES = "Matching services";
-	public static final String NO_MATCHING_SERVICES = "No matching services";
-	public static final String MOBY_OBJECTS = "MOBY Objects";
-	
-	/**
-	 * A Comparable constant to be used with buildPathMap
-	 */
-	private static final String SERVICES = "4DA84170-7746-4817-8C2E-E29AF8B2984D";
-
 	private static final int STATUS_LINE_MESSAGE_MS = 600;
 
-	private TreeUpdaterThread updaterThread;
-
-	private RootFilterTreeNode root = new RootFilterTreeNode(AVAILABLE_SERVICES);
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 
 	private ServiceTreePanel serviceTreePanel;
 
 	private JLabel statusLine;
 
-	private FilterTreeModel treeModel;
+	private ServiceTreeModel serviceTreeModel;
 
 	protected ServiceDescriptionRegistryObserver serviceDescriptionRegistryObserver = new ServiceDescriptionRegistryObserver();
 
 	protected Timer statusUpdateTimer;
 
 	protected Object updateLock = new Object();
-	
-	private static ServicePathElementComparator servicePathElementComparator = new ServicePathElementComparator();
 
-	public ServicePanel(ServiceDescriptionRegistry serviceDescriptionRegistry) {
+	private final Set<PartialServiceDescriptionsNotification> addedServiceNotifications = new HashSet<PartialServiceDescriptionsNotification>();
+
+	private final Set<RemovedProviderEvent> removedProviderNotifications = new HashSet<RemovedProviderEvent>();
+
+	public ServicePanel(
+			final ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
-		serviceDescriptionRegistry
-				.addObserver(serviceDescriptionRegistryObserver);
 		initialise();
-		TitledBorder border = new TitledBorder("Service panel");
+
+		final TitledBorder border = new TitledBorder("Service panel");
 		border.setTitleJustification(TitledBorder.CENTER);
 		this.setBorder(border);
+
+		@SuppressWarnings("rawtypes")
+		final Set<ServiceDescription> existingDescriptions = serviceDescriptionRegistry
+				.getServiceDescriptions();
+
+		serviceDescriptionRegistry
+				.addObserver(serviceDescriptionRegistryObserver);
+
+		SwingUtilities.invokeLater(new TreeAdderRunnable(existingDescriptions));
 	}
 
+	@Override
 	public ImageIcon getIcon() {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return "Service panel";
 	}
 
+	@Override
 	public void onDisplay() {
 	}
 
+	@Override
 	public void onDispose() {
 	}
 
-	public void providerStatus(ServiceDescriptionProvider provider,
-			String message) {
+	public void providerStatus(final ServiceDescriptionProvider provider,
+			final String message) {
 		logger.info(message + " " + provider);
 		final String htmlMessage = "<html><small>" + message + " [" + provider
 				+ "]</small></html>";
 
 		SwingUtilities.invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				blankOutCounter = INITIAL_BLANK_OUT_COUNTER;
 				statusLine.setText(htmlMessage);
@@ -151,12 +142,11 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 	protected void initialise() {
 		removeAll();
 		setLayout(new BorderLayout());
-		treeModel = new FilterTreeModel(root);
-		serviceTreePanel = new ServiceTreePanel(treeModel, serviceDescriptionRegistry);
-		serviceTreePanel.setAvailableObjectsString(AVAILABLE_SERVICES);
-		serviceTreePanel.setMatchingObjectsString(MATCHING_SERVIES);
-		serviceTreePanel.setNoMatchingObjectsString(NO_MATCHING_SERVICES);
-		add(serviceTreePanel);
+
+		serviceTreeModel = new ServiceTreeModel();
+		serviceTreePanel = new ServiceTreePanel(serviceTreeModel,
+				serviceDescriptionRegistry);
+		add(serviceTreePanel, BorderLayout.CENTER);
 		statusLine = new JLabel();
 		add(statusLine, BorderLayout.SOUTH);
 		if (statusUpdateTimer != null) {
@@ -165,271 +155,98 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		statusUpdateTimer = new Timer("Clear status line", true);
 		statusUpdateTimer.scheduleAtFixedRate(new UpdateStatusLineTask(), 0,
 				STATUS_LINE_MESSAGE_MS);
-		updateTree();
+		;
 	}
 
-	protected void updateTree() {
-		synchronized (updateLock) {
-			if (updaterThread != null && updaterThread.isAlive()) {
-				return;
-			}
-			updaterThread = new TreeUpdaterThread();
-			updaterThread.start();
-		}
-	}
+	public class TreeAdderRunnable implements Runnable {
 
-	protected static class ServicePathElementComparator implements Comparator {
-		public int compare(Object o1, Object o2) {
-			if ((o1 instanceof String) && (o2 instanceof String)) {
-				if (o1.equals(ServiceDescription.SERVICE_TEMPLATES)) {
-					return -1;
-				}
-				if (o2.equals(ServiceDescription.SERVICE_TEMPLATES)) {
-					return 1;
-				}
-				if (o1.equals(ServiceDescription.LOCAL_SERVICES)) {
-					return -1;
-				}
-				if (o2.equals(ServiceDescription.LOCAL_SERVICES)) {
-					return 1;
-				}
-				if (o1.equals(MOBY_OBJECTS)) {
-					return -1;
-				}
-				if (o2.equals(MOBY_OBJECTS)) {
-					return 1;
-				}
-			}
-			return o1.toString().compareToIgnoreCase(o2.toString());
-		}
-	}
-	
-	public class TreeUpdaterThread extends Thread {
-		
-		private boolean aborting = false;
+		@SuppressWarnings("rawtypes")
+		private final Collection<? extends ServiceDescription> addedDescriptions;
 
-		private TreeUpdaterThread() {
-			super("Updating service panel");
-			setDaemon(true);
+		public TreeAdderRunnable(
+				@SuppressWarnings("rawtypes") final Collection<? extends ServiceDescription> collection) {
+			this.addedDescriptions = collection;
 		}
 
-		public void abort() {
-			aborting = true;
-			interrupt();
-		}
-
-		@SuppressWarnings("unchecked")
 		@Override
 		public void run() {
-
-			Map<Comparable, Map> pathMap = buildPathMap();
-			
-			final Map<FilterTreeNode, List<FilterTreeNode>> childrenMap = new HashMap<FilterTreeNode, List<FilterTreeNode>>();
-			
-
-
-			populateChildren(root, childrenMap, pathMap);
-				
+			serviceTreeModel.addServiceDescriptions(addedDescriptions);
+			serviceTreePanel.expandRoot();
 		}
 
-		@SuppressWarnings("unchecked")
-		protected Map<Comparable, Map> buildPathMap() {
-			Map<Comparable, Map> paths = new TreeMap<Comparable, Map>();
-			for (ServiceDescription serviceDescription : serviceDescriptionRegistry
-					.getServiceDescriptions()) {
-				if (aborting) {
-					return paths;
-				}
-				Map currentPath = paths;
-				Map pathEntry = paths;
-				for (Object pathElem : serviceDescription.getPath()) {
-					pathEntry = (Map) currentPath.get(pathElem);
-					if (pathEntry == null) {
-						pathEntry = new TreeMap();
-						currentPath.put(pathElem, pathEntry);
-					}
-					currentPath = pathEntry;
-				}
-				TreeMap<String, Set<ServiceDescription>> services = (TreeMap<String, Set<ServiceDescription>>) pathEntry
-						.get(SERVICES);
-				if (services == null) {
-					services = new TreeMap<String, Set<ServiceDescription>>();
-					pathEntry.put(SERVICES, services);
-				}
-				String serviceDescriptionName = serviceDescription.getName();
-				if (!services.containsKey(serviceDescriptionName)) {
-					Set<ServiceDescription> serviceSet = new HashSet<ServiceDescription>();
-					services.put(serviceDescriptionName, serviceSet);
-				}
-				services.get(serviceDescriptionName).add(serviceDescription);
-			}
-			return paths;
+	}
+
+	public class TreeRemoverRunnable implements Runnable {
+
+		@SuppressWarnings("rawtypes")
+		private final Collection<? extends ServiceDescription> removedDescriptions;
+
+		public TreeRemoverRunnable(
+				@SuppressWarnings("rawtypes") final Collection<? extends ServiceDescription> collection) {
+			this.removedDescriptions = collection;
 		}
 
-		@SuppressWarnings("unchecked")
-		protected void populateChildren(FilterTreeNode node, Map<FilterTreeNode, List<FilterTreeNode>> childrenMap, Map pathMap) {
-			if (aborting) {
-				return;
-			}
-
-			TreeSet<Comparable> paths = new TreeSet<Comparable>(servicePathElementComparator);
-			TreeMap<String, Set<ServiceDescription>> services = (TreeMap<String, Set<ServiceDescription>>) pathMap
-			.get(SERVICES);
-			if (services == null) {
-				services = new TreeMap<String, Set<ServiceDescription>>();
-			}
-			paths.addAll(pathMap.keySet());
-			paths.addAll(services.keySet());
-			
-			Map<FilterTreeNode, Comparable> newChildMap = new HashMap<FilterTreeNode, Comparable>();
-			List<FilterTreeNode> newChildNodes = new ArrayList<FilterTreeNode> ();
-			for (Comparable pathElement : paths) {
-				if (aborting) {
-					return;
-				}
-				if (pathElement.equals(SERVICES)) {
-					continue;
-				}
-
-				FilterTreeNode child = null;
-				if (services.containsKey(pathElement)) {
-					for (ServiceDescription sd : services.get(pathElement)) {
-						child = findChild(node, sd);
-						newChildNodes.add (child);
-					}
-				} else {
-					child = findChild(node, (String)pathElement);
-					newChildNodes.add (child);
-				}
-				
-//				childrenMap.put(node,  newChildNodes);
-				if (pathMap.containsKey(pathElement)) {
-					newChildMap.put(child, pathElement);
-				}
-			}
-				SwingUtilities
-						.invokeLater(new SetChildrenRunnable(node, newChildNodes));
-			
-			
-				for (FilterTreeNode child : newChildMap.keySet()) {
-					populateChildren(child, childrenMap, (Map) pathMap.get(newChildMap.get(child)));
-				}
-
-		}
-		
-
-		private PathElementFilterTreeNode findChild(FilterTreeNode node,
-				String pathElement) {
-			PathElementFilterTreeNode result = null;
-			for (int i=0; (i < node.getChildCount()) && (result == null); i++) {
-				FilterTreeNode child = (FilterTreeNode) node.getChildAt(i);
-				if (child instanceof PathElementFilterTreeNode) {
-					if (((PathElementFilterTreeNode) child).getUserObject().equals(pathElement)) {
-						return (PathElementFilterTreeNode) child;
-					}
-				}
-			}
-			result = new PathElementFilterTreeNode(pathElement);
-			return result;
-		}
-
-		private ServiceFilterTreeNode findChild(FilterTreeNode node,
-				ServiceDescription sd) {
-			FilterTreeNode result = null;
-			for (int i=0; (i < node.getChildCount()) && (result == null); i++) {
-				FilterTreeNode child = (FilterTreeNode) node.getChildAt(i);
-				if (child instanceof ServiceFilterTreeNode) {
-					if (((ServiceFilterTreeNode) child).getUserObject() == sd) {
-						return (ServiceFilterTreeNode) child;
-					}
-				}
-			}
-			return new ServiceFilterTreeNode(sd);
-		}
-
-
-		public class SetChildrenRunnable implements Runnable {
-			private final List< FilterTreeNode> nodes;
-			private final FilterTreeNode root;
-
-			public SetChildrenRunnable(FilterTreeNode root, List<FilterTreeNode> nodes) {
-				this.root = root;
-				this.nodes = new ArrayList<FilterTreeNode>(nodes);
-			}
-
-			public void run() {
-				if (aborting) {
-					return;
-				}
-//				Filter currentFilter = treeModel.getCurrentFilter();			
-//				serviceTreePanel.disableFilter();
-				
-				List<FilterTreeNode> currentChildren = new ArrayList<FilterTreeNode>(Collections.list(root.children()));
-				List<FilterTreeNode> childrenToRemove = new ArrayList<FilterTreeNode>(currentChildren);
-				int insertionIndex = currentChildren.size();
-				List<FilterTreeNode> nodesReversed = new ArrayList<FilterTreeNode>(nodes);
-				Collections.reverse(nodesReversed);
-				for (FilterTreeNode n : nodesReversed) {
-					if (!currentChildren.contains(n)) {
-						treeModel.insertNodeInto(n, root, insertionIndex);
-					}
-					else {
-						insertionIndex = currentChildren.indexOf(n);
-					}
-					childrenToRemove.remove(n);
-				}
-				for (FilterTreeNode n : childrenToRemove) {
-						treeModel.removeNodeFromParent(n);
-				}
-				if (currentChildren.isEmpty()) {
-					treeModel.nodeStructureChanged(root);
-				}
-//				
-//				serviceTreePanel.reenableFilter(currentFilter);
-				
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Runnable#run()
+		 */
+		@SuppressWarnings("rawtypes")
+		@Override
+		public void run() {
+			for (final ServiceDescription sd : removedDescriptions) {
+				serviceTreeModel.removeServiceDescription(sd);
 			}
 		}
+
 	}
 
 	private final class ServiceDescriptionRegistryObserver implements
 			Observer<ServiceDescriptionRegistryEvent> {
 		Set<ServiceDescriptionProvider> alreadyComplainedAbout = new HashSet<ServiceDescriptionProvider>();
 
-		public void notify(Observable<ServiceDescriptionRegistryEvent> sender,
-				ServiceDescriptionRegistryEvent message) throws Exception {
+		@Override
+		public void notify(
+				final Observable<ServiceDescriptionRegistryEvent> sender,
+				final ServiceDescriptionRegistryEvent message) throws Exception {
+			logger.info("Received a " + message.getClass().getCanonicalName());
 			if (message instanceof ProviderErrorNotification) {
 				final ProviderErrorNotification pen = (ProviderErrorNotification) message;
 				reportServiceProviderError(pen);
 			} else if ((message instanceof ServiceDescriptionProvidedEvent)
 					|| (message instanceof RemovedProviderEvent)) {
-				AbstractProviderEvent ape = (AbstractProviderEvent) message;
+				final AbstractProviderEvent ape = (AbstractProviderEvent) message;
 				alreadyComplainedAbout.remove(ape.getProvider());
 			}
 
 			if (message instanceof AbstractProviderNotification) {
-				AbstractProviderNotification abstractProviderNotification = (AbstractProviderNotification) message;
+				final AbstractProviderNotification abstractProviderNotification = (AbstractProviderNotification) message;
 				providerStatus(abstractProviderNotification.getProvider(),
 						abstractProviderNotification.getMessage());
 			}
 			if (message instanceof PartialServiceDescriptionsNotification) {
-				PartialServiceDescriptionsNotification notification = (PartialServiceDescriptionsNotification) message;
-				Collection<? extends ServiceDescription> addedServiceDescriptions = notification.getServiceDescriptions();
-				
-				// TODO: Support other events
-				// and only update relevant parts of tree, or at least select
-				// the recently added provider
-				updateTree();
+				final PartialServiceDescriptionsNotification notification = (PartialServiceDescriptionsNotification) message;
+				synchronized (addedServiceNotifications) {
+					addedServiceNotifications.add(notification);
+				}
+
+				SwingUtilities.invokeLater(new TreeAdderRunnable(notification
+						.getServiceDescriptions()));
 			}
 			if (message instanceof RemovedProviderEvent) {
-				RemovedProviderEvent notification = (RemovedProviderEvent) message;
-				ServiceDescriptionProvider removedProvider = notification.getProvider();
-				updateTree();
+				final RemovedProviderEvent rpe = (RemovedProviderEvent) message;
+				synchronized (removedProviderNotifications) {
+					removedProviderNotifications.add(rpe);
+				}
+
+				SwingUtilities.invokeLater(new TreeRemoverRunnable(rpe
+						.getRemovedDescriptions()));
 			}
 		}
 
 		private void reportServiceProviderError(
 				final ProviderErrorNotification pen) {
-			ServiceDescriptionProvider provider = pen.getProvider();
+			final ServiceDescriptionProvider provider = pen.getProvider();
 
 			if (serviceDescriptionRegistry
 					.getDefaultServiceDescriptionProviders().contains(provider)) {
@@ -440,25 +257,25 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			}
 			alreadyComplainedAbout.add(provider);
 			SwingUtilities.invokeLater(new Runnable() {
+				@Override
 				public void run() {
-					JOptionPane.showMessageDialog(ServicePanel.this, pen
-							.getMessage()
-							+ "\n" + pen.getProvider(), "Import service error",
-							JOptionPane.ERROR_MESSAGE);
+					JOptionPane.showMessageDialog(ServicePanel.this,
+							pen.getMessage() + "\n" + pen.getProvider(),
+							"Import service error", JOptionPane.ERROR_MESSAGE);
 				}
 			});
 		}
 	}
 
-
 	private final class UpdateStatusLineTask extends TimerTask {
 		@Override
 		public void run() {
-			if (blankOutCounter < 0 || blankOutCounter-- > 0) {
+			if ((blankOutCounter < 0) || (blankOutCounter-- > 0)) {
 				// Only clear it once
 				return;
 			}
 			SwingUtilities.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					if (blankOutCounter < 0) {
 						statusLine.setVisible(false);
