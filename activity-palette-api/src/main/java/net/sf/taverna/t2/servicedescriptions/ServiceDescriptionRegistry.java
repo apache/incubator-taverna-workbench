@@ -23,6 +23,9 @@ public interface ServiceDescriptionRegistry extends
 	
 	@SuppressWarnings("unchecked")
 	public Set<ServiceDescription> getServiceDescriptions();
+	
+	@SuppressWarnings("unchecked")
+	public Set<ServiceDescription> getServiceDescriptions(ServiceDescriptionProvider provider);
 
 	@SuppressWarnings("unchecked")
 	public List<ConfigurableServiceProvider> getUnconfiguredServiceProviders();
