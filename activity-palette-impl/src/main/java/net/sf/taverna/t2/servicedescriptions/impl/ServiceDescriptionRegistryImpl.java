@@ -27,6 +27,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -403,6 +404,19 @@ public class ServiceDescriptionRegistryImpl implements
 		return serviceDescriptions;
 	}
 
+	@Override
+	public Set<ServiceDescription> getServiceDescriptions(
+			ServiceDescriptionProvider provider) {
+		Set<ServiceDescription> serviceDescriptions = new HashSet<ServiceDescription>();
+		synchronized (providerDescriptions) {
+			Set<ServiceDescription> serviceDescs = providerDescriptions.get(provider);
+			if (serviceDescs != null) {
+				serviceDescriptions.addAll(serviceDescs);
+			}
+		}
+		return serviceDescriptions;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public List<ConfigurableServiceProvider> getUnconfiguredServiceProviders() {
 		List<ConfigurableServiceProvider> providers = new ArrayList<ConfigurableServiceProvider>();
@@ -468,7 +482,9 @@ public class ServiceDescriptionRegistryImpl implements
 			}
 		}
 		if (allServiceProviders.remove(provider)) {
+			Set<ServiceDescription> removedDescriptions = Collections.EMPTY_SET;
 			synchronized (providerDescriptions) {
+				removedDescriptions = providerDescriptions.get(provider);
 				FindServiceDescriptionsThread serviceDescriptionsThread = serviceDescriptionThreads
 						.remove(provider);
 				if (serviceDescriptionsThread != null) {
@@ -476,7 +492,7 @@ public class ServiceDescriptionRegistryImpl implements
 				}
 				providerDescriptions.remove(provider);
 			}
-			observers.notify(new RemovedProviderEvent(provider));
+			observers.notify(new RemovedProviderEvent(provider, removedDescriptions));
 		}
 		if (!loading) {
 			saveServiceDescriptions();
@@ -602,15 +618,16 @@ public class ServiceDescriptionRegistryImpl implements
 		@SuppressWarnings("unchecked")
 		public void partialResults(
 				Collection<? extends ServiceDescription> serviceDescriptions) {
+			Set<ServiceDescription> foundDescriptions = new HashSet<ServiceDescription>(serviceDescriptions);
 			if (aborting) {
 				return;
 			}
-			providerDescs.addAll(serviceDescriptions);
+			providerDescs.addAll(foundDescriptions);
 			synchronized (providerDescriptions) {
 				providerDescriptions.put(getProvider(), providerDescs);
 			}
 			observers.notify(new PartialServiceDescriptionsNotification(
-					getProvider(), serviceDescriptions));
+					getProvider(),foundDescriptions));
 		}
 
 		public void status(String message) {
@@ -679,5 +696,7 @@ public class ServiceDescriptionRegistryImpl implements
 	private static class Singleton {
 		private static final ServiceDescriptionRegistryImpl instance = new ServiceDescriptionRegistryImpl();
 	}
+
+
 
 }
