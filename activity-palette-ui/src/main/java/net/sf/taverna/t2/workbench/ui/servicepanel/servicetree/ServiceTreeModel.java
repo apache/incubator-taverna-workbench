@@ -113,8 +113,17 @@ public class ServiceTreeModel extends DefaultTreeModel {
 				+ " at " + i);
 		return newChild;
 	}
+	
 
-	public void removeServiceDescription(final ServiceDescription<?> sd) {
+	@SuppressWarnings("rawtypes")
+	public void removeServiceDescriptions(
+			Collection<? extends ServiceDescription> removedDescriptions) {
+		for (final ServiceDescription sd : removedDescriptions) {
+			removeServiceDescription(sd);
+		}
+	}
+
+	private void removeServiceDescription(final ServiceDescription<?> sd) {
 		ServiceTreeNode node = serviceDescriptionToNode.get(sd);
 		if (node == null) {
 			return;
@@ -215,5 +224,6 @@ public class ServiceTreeModel extends DefaultTreeModel {
 		}
 
 	}
+
 
 }

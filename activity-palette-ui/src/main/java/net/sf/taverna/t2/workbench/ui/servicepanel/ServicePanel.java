@@ -194,9 +194,8 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		@SuppressWarnings("rawtypes")
 		@Override
 		public void run() {
-			for (final ServiceDescription sd : removedDescriptions) {
-				serviceTreeModel.removeServiceDescription(sd);
-			}
+			serviceTreeModel.removeServiceDescriptions(removedDescriptions);
+
 		}
 
 	}
