@@ -35,6 +35,8 @@ import org.apache.log4j.Logger;
 
 public class ServiceFilter {
 
+	private static final String DESCRIPTION = "description";
+	private static final String NAME = "name";
 	private final String filterString;
 	private final String[] filterLowerCaseSplit;
 	private final Object rootToIgnore;
@@ -50,13 +52,13 @@ public class ServiceFilter {
 		if (node == rootToIgnore) {
 			return false;
 		}
-		if (filterString.equals("")) {
+		if ("".equals(filterString)) {
 			return true;
 		}
-		if (node.getUserObject() instanceof ServiceDescription) {
+		final Object userObject = node.getUserObject();
+		if (userObject instanceof ServiceDescription) {
 			@SuppressWarnings("rawtypes")
-			final ServiceDescription serviceDescription = (ServiceDescription) node
-					.getUserObject();
+			final ServiceDescription serviceDescription = (ServiceDescription) userObject;
 			search: for (final String searchTerm : filterLowerCaseSplit) {
 				final String[] typeSplit = searchTerm.split(":", 2);
 				String type;
@@ -73,9 +75,11 @@ public class ServiceFilter {
 							.getBeanInfo(serviceDescription.getClass());
 					for (final PropertyDescriptor property : beanInfo
 							.getPropertyDescriptors()) {
-						if (((type == null) && !property.isHidden() && !property
-								.isExpert())
-								|| property.getName().equalsIgnoreCase(type)) {
+						if (property.isHidden() || property.isExpert()) {
+							continue;
+						}
+						final String propertyName = property.getName();
+						if (filterableProperty(type, propertyName)) {
 							final Method readMethod = property.getReadMethod();
 							if (readMethod == null) {
 								continue;
@@ -102,12 +106,24 @@ public class ServiceFilter {
 			return true;
 		}
 		for (final String searchString : filterLowerCaseSplit) {
-			if (!node.getUserObject().toString().toLowerCase()
+			if (!userObject.toString().toLowerCase()
 					.contains(searchString)) {
 				return false;
 			}
 		}
 		return true;
+	}
+
+	/**
+	 * @param type
+	 * @param propertyName
+	 * @return
+	 */
+	private static boolean filterableProperty(final String type, final String propertyName) {
+		if (type == null) {
+			return propertyName.equalsIgnoreCase(NAME) || propertyName.equalsIgnoreCase(DESCRIPTION);
+		}
+		return (propertyName.equalsIgnoreCase(type));
 	}
 
 	public boolean pass(final DefaultMutableTreeNode node) {
