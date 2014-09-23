@@ -24,13 +24,13 @@
 		<dependency>
 			<groupId>uk.org.taverna.commons</groupId>
 			<artifactId>taverna-plugin-api</artifactId>
-			<version>0.1.0-SNAPSHOT</version>
+			<version> ${taverna.commons.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.compendium</artifactId>
-			<version>4.3.1</version>
+			<version>${osgi.core.version}</version>
 		</dependency>
 
 		<!-- <dependency>
