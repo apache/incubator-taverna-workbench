@@ -49,12 +49,13 @@
 		<dependency>
 			<groupId>uk.org.taverna.configuration</groupId>
 			<artifactId>taverna-app-configuration-api</artifactId>
-			<version>0.1.1-SNAPSHOT</version>
+			<version>${taverna.configuration.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>javax.help</groupId>
 			<artifactId>javahelp</artifactId>
+                        <version>${javahelp.version}</version>
 		</dependency>
 
 		<dependency>
