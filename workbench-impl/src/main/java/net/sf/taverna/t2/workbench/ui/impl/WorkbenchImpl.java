@@ -44,8 +44,6 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 
-import net.sf.taverna.osx.OSXAdapter;
-import net.sf.taverna.osx.OSXApplication;
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.ui.menu.MenuManager;
@@ -66,6 +64,11 @@ import net.sf.taverna.t2.workbench.ui.Workbench;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
 import org.apache.log4j.Logger;
+import org.simplericity.macify.eawt.Application;
+import org.simplericity.macify.eawt.ApplicationAdapter;
+import org.simplericity.macify.eawt.ApplicationEvent;
+import org.simplericity.macify.eawt.ApplicationListener;
+import org.simplericity.macify.eawt.DefaultApplication;
 
 import uk.org.taverna.commons.plugin.PluginException;
 import uk.org.taverna.commons.plugin.PluginManager;
@@ -79,19 +82,14 @@ import uk.org.taverna.configuration.app.ApplicationConfiguration;
  *
  */
 public class WorkbenchImpl extends JFrame implements Workbench {
-
 	private static final String NIMBUS = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
-
-	private OSXAppListener osxAppListener = new OSXAppListener();
-
 	private static final String LAUNCHER_LOGO_PNG = "/launcher_logo.png";
-
 	private static final long serialVersionUID = 1L;
-
 	private static Logger logger = Logger.getLogger(WorkbenchImpl.class);
-
 	private static Preferences userPreferences = Preferences.userNodeForPackage(WorkbenchImpl.class);
-
+	
+	private Application osxApp = new DefaultApplication();
+	private ApplicationListener osxAppListener = new OSXAppListener();
 	private MenuManager menuManager;
 	private FileManager fileManager;
 	private EditManager editManager;
@@ -101,19 +99,16 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	private ApplicationConfiguration applicationConfiguration;
 	private WorkbenchPerspectives workbenchPerspectives;
 	private T2ConfigurationFrame t2ConfigurationFrame;
-
 	private JToolBar perspectiveToolBar;
-
 	private List<StartupSPI> startupHooks;
 	private List<ShutdownSPI> shutdownHooks;
 	private final List<PerspectiveSPI> perspectives;
-
 	private JMenuBar menuBar;
 	private JToolBar toolBar;
-
 	private MenuManagerObserver menuManagerObserver;
 
-	public WorkbenchImpl(List<StartupSPI> startupHooks, List<ShutdownSPI> shutdownHooks, List<PerspectiveSPI> perspectives) {
+	public WorkbenchImpl(List<StartupSPI> startupHooks,
+			List<ShutdownSPI> shutdownHooks, List<PerspectiveSPI> perspectives) {
 		this.perspectives = perspectives;
 		this.startupHooks = startupHooks;
 		this.shutdownHooks = shutdownHooks;
@@ -144,8 +139,11 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 			e.printStackTrace();
 		}
 
-		// the DataflowEditsListener changes the WorkflowBundle ID for every workflow edit
-		// and changes the URI so port definitions can't find the port they refer to
+		/*
+		 * the DataflowEditsListener changes the WorkflowBundle ID for every
+		 * workflow edit and changes the URI so port definitions can't find the
+		 * port they refer to
+		 */
 		// TODO check if it's OK to not update the WorkflowBundle ID
 		//editManager.addObserver(new DataflowEditsListener());
 
@@ -156,6 +154,10 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 //		}
 
 		setVisible(true);
+	}
+
+	private void showAboutDialog() {
+		// TODO implement this!
 	}
 
 	private void makeGUI() {
@@ -173,10 +175,14 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		}
 		setTitle(applicationConfiguration.getTitle());
 
-		OSXApplication.setListener(osxAppListener);
+		osxApp.setEnabledPreferencesMenu(true);
+		osxApp.setEnabledAboutMenu(true);
+		osxApp.addApplicationListener(osxAppListener);
 
-		// Set the size and position of the Workbench to the last
-		// saved values or use the default ones the first time it is launched
+		/*
+		 * Set the size and position of the Workbench to the last saved values
+		 * or use the default ones the first time it is launched
+		 */
 		loadSizeAndLocationPrefs();
 
 		GridBagConstraints gbc = new GridBagConstraints();
@@ -226,7 +232,8 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	private JPanel makePerspectivePanel() {
 		CardLayout perspectiveLayout = new CardLayout();
 		JPanel perspectivePanel = new JPanel(perspectiveLayout);
-		workbenchPerspectives = new WorkbenchPerspectives(perspectiveToolBar, perspectivePanel, perspectiveLayout, selectionManager);
+		workbenchPerspectives = new WorkbenchPerspectives(perspectiveToolBar,
+				perspectivePanel, perspectiveLayout, selectionManager);
 		workbenchPerspectives.setPerspectives(perspectives);
 		return perspectivePanel;
 	}
@@ -297,6 +304,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	/**
 	 * Store current Workbench position and size.
 	 */
+	@Override
 	public void storeSizeAndLocationPrefs() throws IOException {
 		userPreferences.putInt("width", getWidth());
 		userPreferences.putInt("height", getHeight());
@@ -338,7 +346,9 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 				UIManager.setLookAndFeel(defaultLaf);
 				return;
 			} catch (Exception e) {
-				logger.info("Can't set requested look and feel -Dswing.defaultlaf=" + defaultLaf, e);
+				logger.info(
+						"Can't set requested look and feel -Dswing.defaultlaf="
+								+ defaultLaf, e);
 			}
 		}
 		String os = System.getProperty("os.name");
@@ -347,18 +357,20 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 			String systemLF = UIManager.getSystemLookAndFeelClassName();
 			try {
 				UIManager.setLookAndFeel(systemLF);
-				UIManager.getLookAndFeelDefaults().put("ClassLoader", WorkbenchImpl.class.getClassLoader());
+				UIManager.getLookAndFeelDefaults().put("ClassLoader",
+						WorkbenchImpl.class.getClassLoader());
 				logger.info("Using system L&F " + systemLF);
 				return;
 			} catch (Exception ex2) {
-				logger.error("Unable to load system look and feel "
-						+ systemLF, ex2);
+				logger.error("Unable to load system look and feel " + systemLF,
+						ex2);
 			}
 		}
-		// The system look and feel on *NIX
-		// (com.sun.java.swing.plaf.gtk.GTKLookAndFeel) looks
-		// like Windows 3.1.. try to use Nimbus (Java 6e10 and
-		// later)
+		/*
+		 * The system look and feel on *NIX
+		 * (com.sun.java.swing.plaf.gtk.GTKLookAndFeel) looks like Windows 3.1..
+		 * try to use Nimbus (Java 6e10 and later)
+		 */
 		try {
 			UIManager.setLookAndFeel(NIMBUS);
 			logger.info("Using Nimbus look and feel");
@@ -386,9 +398,8 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 	}
 
 	public void setMenuManager(MenuManager menuManager) {
-		if (this.menuManager != null && menuManagerObserver != null) {
+		if (this.menuManager != null && menuManagerObserver != null)
 			this.menuManager.removeObserver(menuManagerObserver);
-		}
 		this.menuManager = menuManager;
 		menuManagerObserver = new MenuManagerObserver();
 		menuManager.addObserver(menuManagerObserver);
@@ -402,7 +413,7 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		this.editManager = editManager;
 	}
 
-	public void refreshPerspectives(Object service, Map properties) {
+	public void refreshPerspectives(Object service, Map<?,?> properties) {
 		workbenchPerspectives.refreshPerspectives();
 	}
 
@@ -426,33 +437,37 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		this.pluginManager = pluginManager;
 	}
 
-	private final class MenuManagerObserver extends SwingAwareObserver<MenuManagerEvent> {
+	private final class MenuManagerObserver extends
+			SwingAwareObserver<MenuManagerEvent> {
 		@Override
-		public void notifySwing(Observable<MenuManagerEvent> sender, MenuManagerEvent message) {
-			if (message instanceof UpdatedMenuManagerEvent) {
-				if (WorkbenchImpl.this.isVisible()) {
-					if (menuBar != null) {
-						menuBar.revalidate();
-						menuBar.repaint();
-					}
-					if (toolBar != null) {
-						toolBar.revalidate();
-						toolBar.repaint();
-					}
+		public void notifySwing(Observable<MenuManagerEvent> sender,
+				MenuManagerEvent message) {
+			if (message instanceof UpdatedMenuManagerEvent
+					&& WorkbenchImpl.this.isVisible()) {
+				if (menuBar != null) {
+					menuBar.revalidate();
+					menuBar.repaint();
+				}
+				if (toolBar != null) {
+					toolBar.revalidate();
+					toolBar.repaint();
 				}
 			}
 		}
 	}
 
 	public final class ExceptionHandler implements UncaughtExceptionHandler {
+		@Override
 		public void uncaughtException(Thread t, Throwable e) {
 			logger.error("Uncaught exception in " + t, e);
-			if (e instanceof Exception &&
-				    !(workbenchConfiguration.getWarnInternalErrors())) {
-					// User preference disables warnings - but we'll show it anyway
-					// if it is an Error (which is more serious)
-					return;
-				}
+			if (e instanceof Exception
+					&& !(workbenchConfiguration.getWarnInternalErrors())) {
+				/*
+				 * User preference disables warnings - but we'll show it anyway
+				 * if it is an Error (which is more serious)
+				 */
+				return;
+			}
 			final String message;
 			final String title;
 			final int style;
@@ -467,10 +482,10 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 				style = JOptionPane.WARNING_MESSAGE;
 			}
 			SwingUtilities.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					JOptionPane.showMessageDialog(WorkbenchImpl.this, message,
 							title, style);
-
 				}
 			});
 		}
@@ -483,35 +498,35 @@ public class WorkbenchImpl extends JFrame implements Workbench {
 		}
 	}
 
-	protected class OSXAppListener extends OSXAdapter {
+	class OSXAppListener extends ApplicationAdapter {
 		@Override
-		public boolean handleQuit() {
+		public void handleAbout(ApplicationEvent e) {
+			showAboutDialog();
+			e.setHandled(true);
+		}
+
+		@Override
+		public void handleQuit(ApplicationEvent e) {
+			e.setHandled(true);
 			exit();
-			return false;
 		}
 
 		@Override
-		public boolean hasPreferences() {
-			return true;
-		}
-		@Override
-		public boolean handlePreferences() {
+		public void handlePreferences(ApplicationEvent e) {
+			e.setHandled(true);
 			t2ConfigurationFrame.showFrame();
-			return true;
 		}
 
 		@Override
-		public boolean handleOpenFile(String filename) {
+		public void handleOpenFile(ApplicationEvent e) {
 			try {
-				fileManager.openDataflow(null, new File(filename));
-				return true;
-			} catch (OpenException e) {
-				logger.warn("Could not open file " + filename, e);
-			} catch (IllegalStateException e) {
-				logger.warn("Could not open file " + filename, e);
+				if (e.getFilename() != null) {
+					fileManager.openDataflow(null, new File(e.getFilename()));
+					e.setHandled(true);
+				}
+			} catch (OpenException | IllegalStateException ex) {
+				logger.warn("Could not open file " + e.getFilename(), ex);
 			}
-			return false;
 		}
 	}
-
 }
