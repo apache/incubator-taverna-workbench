@@ -29,7 +29,6 @@ import java.util.List;
  * @author David Withers
  */
 public interface ContextualViewFactoryRegistry {
-
 	/**
 	 * Discover and return the ContextualViewFactory associated to the provided
 	 * object. This is accomplished by returning the discovered
@@ -38,9 +37,7 @@ public interface ContextualViewFactoryRegistry {
 	 *
 	 * @param object
 	 * @return
-	 *
 	 * @see ContextualViewFactory#canHandle(Object)
 	 */
-	public List<ContextualViewFactory> getViewFactoriesForObject(Object object);
-
+	public List<ContextualViewFactory<?>> getViewFactoriesForObject(Object object);
 }
