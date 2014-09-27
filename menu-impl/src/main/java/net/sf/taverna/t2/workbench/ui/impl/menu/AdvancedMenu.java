@@ -20,28 +20,25 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.impl.menu;
 
-import java.awt.event.KeyEvent;
+import static java.awt.event.KeyEvent.VK_A;
+import static javax.swing.Action.MNEMONIC_KEY;
+import static net.sf.taverna.t2.ui.menu.DefaultMenuBar.DEFAULT_MENU_BAR;
+
 import java.net.URI;
 
-import javax.swing.Action;
-
 import net.sf.taverna.t2.ui.menu.AbstractMenu;
-import net.sf.taverna.t2.ui.menu.DefaultMenuBar;
 
 public class AdvancedMenu extends AbstractMenu {
 	public static final URI ADVANCED_URI = URI
-					.create("http://taverna.sf.net/2008/t2workbench/menu#advanced");
+			.create("http://taverna.sf.net/2008/t2workbench/menu#advanced");
 
 	public AdvancedMenu() {
-		super(DefaultMenuBar.DEFAULT_MENU_BAR, 1000, ADVANCED_URI,
-				makeAction());
-	}
-	
-	public static DummyAction makeAction() {
-		DummyAction action = new DummyAction("Advanced");
-		action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_A));
-		return action;
+		super(DEFAULT_MENU_BAR, 1000, ADVANCED_URI, makeAction());
 	}
 
-	
+	public static DummyAction makeAction() {
+		DummyAction action = new DummyAction("Advanced");
+		action.putValue(MNEMONIC_KEY, Integer.valueOf(VK_A));
+		return action;
+	}
 }

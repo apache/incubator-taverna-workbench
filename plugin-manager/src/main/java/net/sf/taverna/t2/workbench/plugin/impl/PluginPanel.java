@@ -20,8 +20,12 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.plugin.impl;
 
+import static java.awt.Font.BOLD;
+import static java.awt.GridBagConstraints.CENTER;
+import static java.awt.GridBagConstraints.NORTHWEST;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.tavernaCogs64x64Icon;
+
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -36,28 +40,23 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicButtonUI;
 
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import uk.org.taverna.commons.plugin.PluginManager;
-
 /**
- *
- *
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public abstract class PluginPanel extends JPanel {
-
+	@SuppressWarnings("unused")
 	private static final int logoSize = 64;
 
 	private JLabel descriptionLabel;
-
 	private JLabel descriptionTitle;
-
 	private JButton actionButton;
 
-	public PluginPanel(String name, String organization, String version, String description) {
+	public PluginPanel(String name, String organization, String version,
+			String description) {
 		setLayout(new GridBagLayout());
 		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.anchor = GridBagConstraints.NORTHWEST;
+		gbc.anchor = NORTHWEST;
 		gbc.insets.left = 10;
 		gbc.insets.right = 10;
 		gbc.insets.top = 10;
@@ -66,11 +65,11 @@ public abstract class PluginPanel extends JPanel {
 		gbc.gridx = 0;
 		gbc.weightx = 0;
 		gbc.gridheight = 4;
-		JLabel logo = new JLabel(WorkbenchIcons.tavernaCogs64x64Icon);
+		JLabel logo = new JLabel(tavernaCogs64x64Icon);
 		add(logo, gbc);
 
 		gbc.gridx = 2;
-		gbc.anchor = GridBagConstraints.CENTER;
+		gbc.anchor = CENTER;
 		actionButton = new JButton(getPluginAction());
 		add(actionButton, gbc);
 
@@ -79,9 +78,9 @@ public abstract class PluginPanel extends JPanel {
 		gbc.gridheight = 1;
 		gbc.insets.top = 7;
 		gbc.insets.bottom = 0;
-		gbc.anchor = GridBagConstraints.NORTHWEST;
+		gbc.anchor = NORTHWEST;
 		JLabel nameLabel = new JLabel(name);
-		nameLabel.setFont(getFont().deriveFont(Font.BOLD));
+		nameLabel.setFont(getFont().deriveFont(BOLD));
 		add(nameLabel, gbc);
 
 		gbc.insets.top = 0;
@@ -90,21 +89,21 @@ public abstract class PluginPanel extends JPanel {
 		add(new JLabel("Version " + version), gbc);
 
 		JButton information = new JButton(new InfoAction());
-		information.setFont(information.getFont().deriveFont(Font.BOLD));
+		information.setFont(information.getFont().deriveFont(BOLD));
 		information.setUI(new BasicButtonUI());
 		information.setBorder(null);
 		add(information, gbc);
 
 		descriptionTitle = new JLabel("Description");
-		descriptionTitle.setFont(getFont().deriveFont(Font.BOLD));
-		descriptionLabel = new JLabel("<html>"+description);
+		descriptionTitle.setFont(getFont().deriveFont(BOLD));
+		descriptionLabel = new JLabel("<html>" + description);
 
 		setBorder(new PluginBorder());
 	}
 
 	private void showInformation() {
 		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.anchor = GridBagConstraints.NORTHWEST;
+		gbc.anchor = NORTHWEST;
 		gbc.insets.left = 10;
 		gbc.insets.right = 10;
 		gbc.insets.bottom = 10;
@@ -124,36 +123,34 @@ public abstract class PluginPanel extends JPanel {
 
 	public abstract Action getPluginAction();
 
-	@SuppressWarnings("serial")
 	class InfoAction extends AbstractAction {
-
 		private boolean showInformation = true;
 
 		public InfoAction() {
-			putValue(Action.NAME, "Show information");
+			putValue(NAME, "Show information");
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if (showInformation) {
 				showInformation();
-				putValue(Action.NAME, "Hide information");
+				putValue(NAME, "Hide information");
 				showInformation = false;
 			} else {
 				hideInformation();
-				putValue(Action.NAME, "Show information");
+				putValue(NAME, "Show information");
 				showInformation = true;
 			}
 		}
 	}
 
 	class PluginBorder implements Border {
-
 		@Override
-		public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+		public void paintBorder(Component c, Graphics g, int x, int y,
+				int width, int height) {
 			g.setColor(getBackground().darker());
 			g.drawLine(x, y, x + width, y);
-			g.drawLine(x, y + height -1, x + width, y + height -1);
+			g.drawLine(x, y + height - 1, x + width, y + height - 1);
 		}
 
 		@Override
@@ -165,7 +162,5 @@ public abstract class PluginPanel extends JPanel {
 		public Insets getBorderInsets(Component c) {
 			return new Insets(0, 0, 0, 0);
 		}
-
 	}
-
 }

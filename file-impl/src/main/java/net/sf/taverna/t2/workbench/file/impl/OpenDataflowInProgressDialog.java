@@ -21,56 +21,51 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl;
 
+import static java.awt.BorderLayout.CENTER;
+import static net.sf.taverna.t2.workbench.MainWindow.getMainWindow;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.workingIcon;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Frame;
 
-import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 /**
  * Dialog that is popped up while we are opening a workflow.
  * 
  * @author Alex Nenadic
  * @author Alan R Williams
- *
  */
 @SuppressWarnings("serial")
 public class OpenDataflowInProgressDialog extends HelpEnabledDialog {
-
-
 	private boolean userCancelled = false;
 
 	public OpenDataflowInProgressDialog() {
-		
-		super(MainWindow.getMainWindow(), "Opening workflow", true);
+		super(getMainWindow(), "Opening workflow", true);
 		setResizable(false);
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setBorder(new EmptyBorder(10,10,10,10));
 		
 		JPanel textPanel = new JPanel();
-		JLabel text = new JLabel(WorkbenchIcons.workingIcon);
+		JLabel text = new JLabel(workingIcon);
 		text.setText("Opening workflow...");
 		text.setBorder(new EmptyBorder(10,0,10,0));
 		textPanel.add(text);
-		panel.add(textPanel, BorderLayout.CENTER);
+		panel.add(textPanel, CENTER);
 		
-/**
+/*
  * Cancellation does not work when opening
  
 		// Cancel button
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {
-			
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				userCancelled = true;
 				setVisible(false);

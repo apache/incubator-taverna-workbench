@@ -20,8 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.edits.impl.menu;
 
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static net.sf.taverna.t2.workbench.edits.impl.menu.UndoMenuSection.UNDO_SECTION_URI;
+
 import javax.swing.Action;
-import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.edits.Edit;
@@ -38,20 +41,19 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
  * {@link EditManager}.
  *
  * @author Stian Soiland-Reyes
- *
  */
 public class RedoMenuAction extends AbstractMenuAction {
-
 	private static Logger logger = Logger.getLogger(RedoMenuAction.class);
 	private final EditManager editManager;
 	private SelectionManager selectionManager;
 	private AbstractUndoAction undoAction;
 
 	public RedoMenuAction(EditManager editManager) {
-		super(UndoMenuSection.UNDO_SECTION_URI, 20);
+		super(UNDO_SECTION_URI, 20);
 		this.editManager = editManager;
 	}
 
+	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
 		undoAction = new AbstractUndoAction("Redo", editManager) {
@@ -64,18 +66,11 @@ public class RedoMenuAction extends AbstractMenuAction {
 			protected void performUndoOrRedo(WorkflowBundle workflowBundle) {
 				try {
 					editManager.redoDataflowEdit(workflowBundle);
-				} catch (EditException e) {
+				} catch (EditException | RuntimeException e) {
 					logger.warn("Could not redo for " + workflowBundle, e);
-					JOptionPane.showMessageDialog(null,
-							"Could not redo for workflow " + workflowBundle + ":\n"
-									+ e, "Could not redo",
-							JOptionPane.ERROR_MESSAGE);
-				} catch (RuntimeException e) {
-					logger.warn("Could not redo for " + workflowBundle, e);
-					JOptionPane.showMessageDialog(null,
-							"Could not redo for workflow " + workflowBundle + ":\n"
-									+ e, "Could not redo",
-							JOptionPane.ERROR_MESSAGE);
+					showMessageDialog(null, "Could not redo for workflow "
+							+ workflowBundle + ":\n" + e, "Could not redo",
+							ERROR_MESSAGE);
 				}
 			}
 		};
@@ -85,9 +80,7 @@ public class RedoMenuAction extends AbstractMenuAction {
 
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
-		if (undoAction != null) {
+		if (undoAction != null)
 			undoAction.setSelectionManager(selectionManager);
-		}
 	}
-
 }

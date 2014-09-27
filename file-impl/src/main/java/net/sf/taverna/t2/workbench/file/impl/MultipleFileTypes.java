@@ -43,20 +43,16 @@ public class MultipleFileTypes extends FileFilter {
 
 	@Override
 	public boolean accept(File file) {
-		if (file.isDirectory()) {
+		if (file.isDirectory())
 			return true;
-		}
 
 		String lowerFileName = file.getName().toLowerCase();
 		for (FileType fileType : fileTypes) {
-			if (fileType.getExtension() == null) {
+			if (fileType.getExtension() == null)
 				continue;
-			}
-			if (lowerFileName.endsWith(fileType.getExtension())) {
+			if (lowerFileName.endsWith(fileType.getExtension()))
 				return true;
-			}
 		}
 		return false;
 	}
-
 }

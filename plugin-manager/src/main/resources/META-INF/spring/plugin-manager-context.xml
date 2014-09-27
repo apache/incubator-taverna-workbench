@@ -6,13 +6,10 @@
 
 	<bean id="PluginMenuAction"
 		class="net.sf.taverna.t2.workbench.plugin.impl.menu.PluginMenuAction">
-		<property name="pluginManagerView" >
-			<ref local="pluginManagerView" />
-		</property>
+		<property name="pluginManagerView" ref="pluginManagerView" />
 	</bean>
 
 	<bean id="pluginManagerView" class="net.sf.taverna.t2.workbench.plugin.impl.PluginManagerView">
 		<property name="pluginManager" ref="pluginManager" />
 	</bean>
-
 </beans>

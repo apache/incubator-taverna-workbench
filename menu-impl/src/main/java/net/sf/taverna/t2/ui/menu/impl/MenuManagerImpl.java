@@ -20,6 +20,16 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.menu.impl;
 
+import static java.lang.Math.min;
+import static javax.help.CSH.setHelpIDString;
+import static javax.swing.Action.NAME;
+import static javax.swing.Action.SHORT_DESCRIPTION;
+import static net.sf.taverna.t2.lang.ui.ShadedLabel.GREEN;
+import static net.sf.taverna.t2.ui.menu.AbstractMenuSection.SECTION_COLOR;
+import static net.sf.taverna.t2.ui.menu.DefaultContextualMenu.DEFAULT_CONTEXT_MENU;
+import static net.sf.taverna.t2.ui.menu.DefaultMenuBar.DEFAULT_MENU_BAR;
+import static net.sf.taverna.t2.ui.menu.DefaultToolBar.DEFAULT_TOOL_BAR;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.lang.ref.WeakReference;
@@ -33,7 +43,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
 
-import javax.help.CSH;
 import javax.swing.AbstractButton;
 import javax.swing.Action;
 import javax.swing.ButtonGroup;
@@ -55,12 +64,8 @@ import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.AbstractMenuOptionGroup;
-import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
 import net.sf.taverna.t2.ui.menu.ContextualSelection;
-import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
-import net.sf.taverna.t2.ui.menu.DefaultMenuBar;
-import net.sf.taverna.t2.ui.menu.DefaultToolBar;
 import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.ui.menu.DesignOrResultsAction;
 import net.sf.taverna.t2.ui.menu.MenuComponent;
@@ -69,233 +74,177 @@ import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.PerspectiveSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
-import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 
 import org.apache.log4j.Logger;
-
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Implementation of {@link MenuManager}.
  *
- * {@inheritDoc}
- *
  * @author Stian Soiland-Reyes
- *
  */
 public class MenuManagerImpl implements MenuManager {
-
 	private static Logger logger = Logger.getLogger(MenuManagerImpl.class);
 
 	private boolean needsUpdate;
-
 	/**
 	 * Cache used by {@link #getURIByComponent(Component)}
 	 */
 	private WeakHashMap<Component, URI> componentToUri;
-
 	/**
 	 * {@link MenuElementComparator} used for sorting menu components from the
 	 * SPI registry.
 	 */
 	private MenuElementComparator menuElementComparator = new MenuElementComparator();
-
 	/**
 	 * Map of {@link URI} to it's discovered children. Populated by
 	 * {@link #findChildren()}.
 	 */
 	private HashMap<URI, List<MenuComponent>> menuElementTree;
-
 	/**
 	 * Multicaster to distribute messages to {@link Observer}s of this menu
 	 * manager.
 	 */
 	private MultiCaster<MenuManagerEvent> multiCaster;
-
 	/**
 	 * Lock for {@link #update()}
 	 */
 	private final Object updateLock = new Object();
-
 	/**
 	 * True if {@link #doUpdate()} is running, subsequents call to
 	 * {@link #update()} will return immediately.
 	 */
 	private boolean updating;
-
 	/**
 	 * Cache used by {@link #getComponentByURI(URI)}
 	 */
 	private Map<URI, WeakReference<Component>> uriToComponent;
-
 	/**
 	 * Map from {@link URI} to defining {@link MenuComponent}. Children are in
 	 * {@link #menuElementTree}.
 	 */
 	private Map<URI, MenuComponent> uriToMenuElement;
-
 	// Note: Not reset by #resetCollections()
-	private Map<URI, List<WeakReference<Component>>> uriToPublishedComponents = new HashMap<URI, List<WeakReference<Component>>>();
-
-	private List<MenuComponent> menuComponents = new ArrayList<MenuComponent>();
+	private Map<URI, List<WeakReference<Component>>> uriToPublishedComponents = new HashMap<>();
+	private List<MenuComponent> menuComponents = new ArrayList<>();
 
 	/**
 	 * Construct the MenuManagerImpl. Observes the SPI registry and does an
 	 * initial {@link #update()}.
 	 */
 	public MenuManagerImpl() {
-		multiCaster = new MultiCaster<MenuManagerEvent>(this);
+		multiCaster = new MultiCaster<>(this);
 		needsUpdate = true;
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void addMenuItemsWithExpansion(List<JMenuItem> menuItems,
 			JMenu parentMenu, int maxItemsInMenu,
 			ComponentFactory headerItemFactory) {
 		if (menuItems.size() <= maxItemsInMenu) {
 			// Just add them directly
-			for (JMenuItem menuItem : menuItems) {
+			for (JMenuItem menuItem : menuItems)
 				parentMenu.add(menuItem);
-			}
 			return;
 		}
 		int index = 0;
 		while (index < menuItems.size()) {
-			int toIndex = Math.min(menuItems.size(), index
-					+ maxItemsInMenu);
-			if (toIndex == menuItems.size() - 1) {
+			int toIndex = min(menuItems.size(), index + maxItemsInMenu);
+			if (toIndex == menuItems.size() - 1)
 				// Don't leave a single item left for the last subMenu
 				toIndex--;
-			}
 			List<JMenuItem> subList = menuItems.subList(index, toIndex);
 			JMenuItem firstItem = subList.get(0);
 			JMenuItem lastItem = subList.get(subList.size() - 1);
 			JMenu subMenu = new JMenu(firstItem.getText() + " ... "
 					+ lastItem.getText());
-			if (headerItemFactory != null) {
+			if (headerItemFactory != null)
 				subMenu.add(headerItemFactory.makeComponent());
-			}
-			for (JMenuItem menuItem : subList) {
+			for (JMenuItem menuItem : subList)
 				subMenu.add(menuItem);
-			}
 			parentMenu.add(subMenu);
 			index = toIndex;
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void addObserver(Observer<MenuManagerEvent> observer) {
 		multiCaster.addObserver(observer);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JPopupMenu createContextMenu(Object parent, Object selection,
 			Component relativeToComponent) {
 		ContextualSelection contextualSelection = new ContextualSelection(
 				parent, selection, relativeToComponent);
 		JPopupMenu popupMenu = new JPopupMenu();
-		populateContextMenu(popupMenu,
-				DefaultContextualMenu.DEFAULT_CONTEXT_MENU, contextualSelection);
-		registerComponent(DefaultContextualMenu.DEFAULT_CONTEXT_MENU,
-				popupMenu, true);
+		populateContextMenu(popupMenu, DEFAULT_CONTEXT_MENU,
+				contextualSelection);
+		registerComponent(DEFAULT_CONTEXT_MENU, popupMenu, true);
 		return popupMenu;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JMenuBar createMenuBar() {
-		return createMenuBar(DefaultMenuBar.DEFAULT_MENU_BAR);
+		return createMenuBar(DEFAULT_MENU_BAR);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JMenuBar createMenuBar(URI id) {
 		JMenuBar menuBar = new JMenuBar();
-		if (needsUpdate) {
+		if (needsUpdate)
 			update();
-		}
 		populateMenuBar(menuBar, id);
 		registerComponent(id, menuBar, true);
 		return menuBar;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JToolBar createToolBar() {
-		return createToolBar(DefaultToolBar.DEFAULT_TOOL_BAR);
+		return createToolBar(DEFAULT_TOOL_BAR);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public JToolBar createToolBar(URI id) {
 		JToolBar toolbar = new JToolBar();
-		if (needsUpdate) {
+		if (needsUpdate)
 			update();
-		}
 		populateToolBar(toolbar, id);
 		registerComponent(id, toolbar, true);
 		return toolbar;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized Component getComponentByURI(URI id) {
 		WeakReference<Component> componentRef = uriToComponent.get(id);
-		if (componentRef == null) {
+		if (componentRef == null)
 			return null;
-		}
 		// Might also be null it reference has gone dead
 		return componentRef.get();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<Observer<MenuManagerEvent>> getObservers() {
 		return multiCaster.getObservers();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public synchronized URI getURIByComponent(Component component) {
 		return componentToUri.get(component);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void removeObserver(Observer<MenuManagerEvent> observer) {
 		multiCaster.removeObserver(observer);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void update() {
 		synchronized (updateLock) {
-			if (updating && !needsUpdate) {
+			if (updating && !needsUpdate)
 				return;
-			}
 			updating = true;
 		}
 		try {
@@ -308,7 +257,7 @@ public class MenuManagerImpl implements MenuManager {
 		}
 	}
 
-	public void update(Object service, Map properties) {
+	public void update(Object service, Map<?, ?> properties) {
 		needsUpdate = true;
 		update();
 	}
@@ -340,13 +289,11 @@ public class MenuManagerImpl implements MenuManager {
 		}
 
 		JMenu menu = new JMenu(menuComponent.getAction());
-		for (Component menuItem : subComponents) {
-			if (menuItem == null) {
+		for (Component menuItem : subComponents)
+			if (menuItem == null)
 				menu.addSeparator();
-			} else {
+			else
 				menu.add(menuItem);
-			}
-		}
 		registerComponent(menuId, menu);
 		components.add(menu);
 	}
@@ -355,19 +302,17 @@ public class MenuManagerImpl implements MenuManager {
 	 * Add <code>null</code> to the list of components, meaning that a separator
 	 * is to be created. Subsequent separators are ignored, and if there are no
 	 * components on the list already no separator will be added.
-	 *
+	 * 
 	 * @param components
 	 *            List of components
 	 */
 	private void addNullSeparator(List<Component> components) {
-		if (components.isEmpty()) {
+		if (components.isEmpty())
 			// Don't start with a separator
 			return;
-		}
-		if (components.get(components.size() - 1) == null) {
+		if (components.get(components.size() - 1) == null)
 			// Already a separator in last position
 			return;
-		}
 		components.add(null);
 	}
 
@@ -397,18 +342,16 @@ public class MenuManagerImpl implements MenuManager {
 		ButtonGroup buttonGroup = new ButtonGroup();
 
 		for (Component button : buttons) {
-			if (button instanceof AbstractButton) {
+			if (button instanceof AbstractButton)
 				buttonGroup.add((AbstractButton) button);
-			} else {
+			else
 				logger.warn("Component of button group " + optionGroupId
 						+ " is not an AbstractButton: " + button);
-			}
 			if (button == null) {
 				logger.warn("Separator found within button group");
 				addNullSeparator(components);
-			} else {
+			} else
 				components.add(button);
-			}
 		}
 		addNullSeparator(components);
 	}
@@ -427,7 +370,6 @@ public class MenuManagerImpl implements MenuManager {
 			MenuOptions menuOptions) {
 		List<Component> childComponents = makeComponents(sectionId, menuOptions);
 
-
 		MenuComponent sectionDef = uriToMenuElement.get(sectionId);
 		addNullSeparator(components);
 		if (childComponents.isEmpty()) {
@@ -436,26 +378,23 @@ public class MenuManagerImpl implements MenuManager {
 		}
 		Action sectionAction = sectionDef.getAction();
 		if (sectionAction != null) {
-			String sectionLabel = (String) sectionAction.getValue(Action.NAME);
+			String sectionLabel = (String) sectionAction.getValue(NAME);
 			if (sectionLabel != null) {
 				// No separators before the label
 				stripTrailingNullSeparator(components);
-				Color labelColor = (Color) sectionAction.getValue(AbstractMenuSection.SECTION_COLOR);
-				if (labelColor == null) {
-					labelColor = ShadedLabel.GREEN;
-				}
+				Color labelColor = (Color) sectionAction.getValue(SECTION_COLOR);
+				if (labelColor == null)
+					labelColor = GREEN;
 				ShadedLabel label = new ShadedLabel(sectionLabel, labelColor);
 				components.add(label);
 			}
 		}
-		for (Component childComponent : childComponents) {
+		for (Component childComponent : childComponents)
 			if (childComponent == null) {
 				logger.warn("Separator found within section " + sectionId);
 				addNullSeparator(components);
-			} else {
+			} else
 				components.add(childComponent);
-			}
-		}
 		addNullSeparator(components);
 	}
 
@@ -469,9 +408,8 @@ public class MenuManagerImpl implements MenuManager {
 	private void stripTrailingNullSeparator(List<Component> components) {
 		if (!components.isEmpty()) {
 			int lastIndex = components.size() - 1;
-			if (components.get(lastIndex) == null) {
+			if (components.get(lastIndex) == null)
 				components.remove(lastIndex);
-			}
 		}
 	}
 
@@ -479,7 +417,6 @@ public class MenuManagerImpl implements MenuManager {
 	 * Perform the actual update, called by {@link #update()}. Reset all the
 	 * collections, refresh from SPI, modify any previously published components
 	 * and notify any observers.
-	 *
 	 */
 	protected synchronized void doUpdate() {
 		resetCollections();
@@ -498,13 +435,12 @@ public class MenuManagerImpl implements MenuManager {
 			uriToMenuElement.put(menuElement.getId(), menuElement);
 			logger.debug("Found menu element " + menuElement.getId() + " "
 					+ menuElement);
-			if (menuElement.getParentId() == null) {
+			if (menuElement.getParentId() == null)
 				continue;
-			}
 			List<MenuComponent> siblings = menuElementTree.get(menuElement
 					.getParentId());
 			if (siblings == null) {
-				siblings = new ArrayList<MenuComponent>();
+				siblings = new ArrayList<>();
 				synchronized (menuElementTree) {
 					menuElementTree.put(menuElement.getParentId(), siblings);
 				}
@@ -529,15 +465,13 @@ public class MenuManagerImpl implements MenuManager {
 		List<MenuComponent> children = null;
 		synchronized (menuElementTree) {
 			children = menuElementTree.get(id);
-			if (children != null) {
-				children = new ArrayList<MenuComponent>(children);
-			}
+			if (children != null)
+				children = new ArrayList<>(children);
 		}
-		if (children == null) {
+		if (children == null)
 			children = Collections.<MenuComponent> emptyList();
-		} else {
+		else
 			Collections.sort(children, menuElementComparator);
-		}
 		return children;
 	}
 
@@ -554,18 +488,18 @@ public class MenuManagerImpl implements MenuManager {
 	 *         {@link JMenuBar}, {@link JMenu} or {@link JToolBar}.
 	 */
 	protected List<Component> makeComponents(URI id, MenuOptions menuOptions) {
-		List<Component> components = new ArrayList<Component>();
+		List<Component> components = new ArrayList<>();
 		for (MenuComponent childElement : getChildren(id)) {
-			if (childElement instanceof ContextualMenuComponent) {
+			if (childElement instanceof ContextualMenuComponent)
 				((ContextualMenuComponent) childElement)
 						.setContextualSelection(menuOptions
 								.getContextualSelection());
-			}
-			// Important - check this AFTER setContextualSelection so the item
-			// can change it's enabled-state if needed.
-			if (!childElement.isEnabled()) {
+			/*
+			 * Important - check this AFTER setContextualSelection so the item
+			 * can change it's enabled-state if needed.
+			 */
+			if (!childElement.isEnabled())
 				continue;
-			}
 			MenuType type = childElement.getType();
 			Action action = childElement.getAction();
 			URI childId = childElement.getId();
@@ -581,17 +515,14 @@ public class MenuManagerImpl implements MenuManager {
 					if (menuOptions.isToolbar()) {
 						actionComponent = new JToggleButton(action);
 						toolbarizeButton((AbstractButton) actionComponent);
-					} else {
+					} else
 						actionComponent = new JRadioButtonMenuItem(action);
-					}
 				} else {
 					if (menuOptions.isToolbar()) {
 						actionComponent = new JButton(action);
 						toolbarizeButton((AbstractButton) actionComponent);
-
-					} else {
+					} else
 						actionComponent = new JMenuItem(action);
-					}
 				}
 				registerComponent(childId, actionComponent);
 				components.add(actionComponent);
@@ -602,11 +533,10 @@ public class MenuManagerImpl implements MenuManager {
 					continue;
 				}
 				Component toggleComponent;
-				if (menuOptions.isToolbar()) {
+				if (menuOptions.isToolbar())
 					toggleComponent = new JToggleButton(action);
-				} else {
+				else
 					toggleComponent = new JCheckBoxMenuItem(action);
-				}
 				registerComponent(childId, toggleComponent);
 				components.add(toggleComponent);
 			} else if (type.equals(MenuType.custom)) {
@@ -618,13 +548,13 @@ public class MenuManagerImpl implements MenuManager {
 				}
 				registerComponent(childId, customComponent);
 				components.add(customComponent);
-			} else if (type.equals(MenuType.optionGroup)) {
+			} else if (type.equals(MenuType.optionGroup))
 				addOptionGroup(components, childId, menuOptions);
-			} else if (type.equals(MenuType.section)) {
+			else if (type.equals(MenuType.section))
 				addSection(components, childId, menuOptions);
-			} else if (type.equals(MenuType.menu)) {
+			else if (type.equals(MenuType.menu))
 				addMenu(components, childElement, menuOptions);
-			} else {
+			else {
 				logger.warn("Skipping invalid/unknown type " + type + " for "
 						+ id);
 				continue;
@@ -639,7 +569,6 @@ public class MenuManagerImpl implements MenuManager {
 	 * URI as their parent.
 	 * <p>
 	 * Existing elements on the menu bar will be removed.
-	 * </p>
 	 *
 	 * @param menuBar
 	 *            The {@link JMenuBar} to update
@@ -649,21 +578,17 @@ public class MenuManagerImpl implements MenuManager {
 	protected void populateMenuBar(JMenuBar menuBar, URI id) {
 		menuBar.removeAll();
 		MenuComponent menuDef = uriToMenuElement.get(id);
-		if (menuDef == null) {
+		if (menuDef == null)
 			throw new IllegalArgumentException("Unknown menuBar " + id);
-		}
-		if (!menuDef.getType().equals(MenuType.menu)) {
+		if (!menuDef.getType().equals(MenuType.menu))
 			throw new IllegalArgumentException("Element " + id
 					+ " is not a menu, but a " + menuDef.getType());
-		}
 		MenuOptions menuOptions = new MenuOptions();
-		for (Component component : makeComponents(id, menuOptions)) {
-			if (component == null) {
+		for (Component component : makeComponents(id, menuOptions))
+			if (component == null)
 				logger.warn("Ignoring separator in menu bar " + id);
-			} else {
+			else
 				menuBar.add(component);
-			}
-		}
 	}
 
 	/**
@@ -671,7 +596,6 @@ public class MenuManagerImpl implements MenuManager {
 	 * URI as their parent.
 	 * <p>
 	 * Existing elements on the menu bar will be removed.
-	 * </p>
 	 *
 	 * @param popupMenu
 	 *            The {@link JPopupMenu} to update
@@ -684,22 +608,18 @@ public class MenuManagerImpl implements MenuManager {
 			ContextualSelection contextualSelection) {
 		popupMenu.removeAll();
 		MenuComponent menuDef = uriToMenuElement.get(id);
-		if (menuDef == null) {
+		if (menuDef == null)
 			throw new IllegalArgumentException("Unknown menuBar " + id);
-		}
-		if (!menuDef.getType().equals(MenuType.menu)) {
+		if (!menuDef.getType().equals(MenuType.menu))
 			throw new IllegalArgumentException("Element " + id
 					+ " is not a menu, but a " + menuDef.getType());
-		}
 		MenuOptions menuOptions = new MenuOptions();
 		menuOptions.setContextualSelection(contextualSelection);
-		for (Component component : makeComponents(id, menuOptions)) {
-			if (component == null) {
+		for (Component component : makeComponents(id, menuOptions))
+			if (component == null)
 				popupMenu.addSeparator();
-			} else {
+			else
 				popupMenu.add(component);
-			}
-		}
 	}
 
 	/**
@@ -707,7 +627,6 @@ public class MenuManagerImpl implements MenuManager {
 	 * their parent.
 	 * <p>
 	 * Existing elements on the tool bar will be removed.
-	 * </p>
 	 *
 	 * @param toolbar
 	 *            The {@link JToolBar} to update
@@ -717,31 +636,28 @@ public class MenuManagerImpl implements MenuManager {
 	protected void populateToolBar(JToolBar toolbar, URI id) {
 		toolbar.removeAll();
 		MenuComponent toolbarDef = uriToMenuElement.get(id);
-		if (toolbarDef == null) {
+		if (toolbarDef == null)
 			throw new IllegalArgumentException("Unknown toolBar " + id);
-		}
-		if (!toolbarDef.getType().equals(MenuType.toolBar)) {
+		if (!toolbarDef.getType().equals(MenuType.toolBar))
 			throw new IllegalArgumentException("Element " + id
 					+ " is not a toolBar, but a " + toolbarDef.getType());
-		}
 		if (toolbarDef.getAction() != null) {
 			String name = (String) toolbarDef.getAction().getValue(Action.NAME);
 			toolbar.setName(name);
-		} else {
+		} else
 			toolbar.setName("");
-		}
 		MenuOptions menuOptions = new MenuOptions();
 		menuOptions.setToolbar(true);
 		for (Component component : makeComponents(id, menuOptions)) {
 			if (component == null) {
 				toolbar.addSeparator();
-			} else {
-				if (component instanceof JButton) {
-					JButton toolbarButton = (JButton) component;
-					toolbarButton.putClientProperty("hideActionText", true);
-				}
-				toolbar.add(component);
+				continue;
 			}
+			if (component instanceof JButton) {
+				JButton toolbarButton = (JButton) component;
+				toolbarButton.putClientProperty("hideActionText", true);
+			}
+			toolbar.add(component);
 		}
 	}
 
@@ -773,16 +689,16 @@ public class MenuManagerImpl implements MenuManager {
 	 */
 	protected synchronized void registerComponent(URI id, Component component,
 			boolean published) {
-		uriToComponent.put(id, new WeakReference<Component>(component));
+		uriToComponent.put(id, new WeakReference<>(component));
 		componentToUri.put(component, id);
 		if (published) {
 			List<WeakReference<Component>> publishedComponents = uriToPublishedComponents
 					.get(id);
 			if (publishedComponents == null) {
-				publishedComponents = new ArrayList<WeakReference<Component>>();
+				publishedComponents = new ArrayList<>();
 				uriToPublishedComponents.put(id, publishedComponents);
 			}
-			publishedComponents.add(new WeakReference<Component>(component));
+			publishedComponents.add(new WeakReference<>(component));
 		}
 		setHelpStringForComponent(component, id);
 	}
@@ -792,10 +708,10 @@ public class MenuManagerImpl implements MenuManager {
 	 *
 	 */
 	protected synchronized void resetCollections() {
-		menuElementTree = new HashMap<URI, List<MenuComponent>>();
-		componentToUri = new WeakHashMap<Component, URI>();
-		uriToMenuElement = new HashMap<URI, MenuComponent>();
-		uriToComponent = new HashMap<URI, WeakReference<Component>>();
+		menuElementTree = new HashMap<>();
+		componentToUri = new WeakHashMap<>();
+		uriToMenuElement = new HashMap<>();
+		uriToComponent = new HashMap<>();
 	}
 
 	/**
@@ -813,7 +729,7 @@ public class MenuManagerImpl implements MenuManager {
 			URI componentId) {
 		if (componentId != null) {
 			String helpId = componentId.toASCIIString();
-			CSH.setHelpIDString(component, helpId);
+			setHelpIDString(component, helpId);
 		}
 	}
 
@@ -826,47 +742,40 @@ public class MenuManagerImpl implements MenuManager {
 	 */
 	protected void toolbarizeButton(AbstractButton actionButton) {
 		Action action = actionButton.getAction();
-		if (action.getValue(Action.SHORT_DESCRIPTION) == null) {
-			action.putValue(Action.SHORT_DESCRIPTION, action
-					.getValue(Action.NAME));
-		}
+		if (action.getValue(SHORT_DESCRIPTION) == null)
+			action.putValue(SHORT_DESCRIPTION, action.getValue(NAME));
 		actionButton.setBorder(new EmptyBorder(0, 2, 0, 2));
 		// actionButton.setHorizontalTextPosition(JButton.CENTER);
 		// actionButton.setVerticalTextPosition(JButton.BOTTOM);
 		if (action.getValue(Action.SMALL_ICON) != null) {
 			// Don't show the text
-			actionButton.putClientProperty("hideActionText", Boolean.TRUE);
-			// Since hideActionText seems to be broken in Java 5
-			// and/or OS X
+			actionButton.putClientProperty("hideActionText", true);
+			// Since hideActionText seems to be broken in Java 5 and/or OS X
 			actionButton.setText(null);
 		}
 	}
 
 	/**
 	 * Update all components that have been published using
-	 * {@link #createMenuBar()} and similar. Content of such componenents will
-	 * be removed and replaced by fresh components.
-	 *
+	 * {@link #createMenuBar()} and similar. Content of such components will be
+	 * removed and replaced by fresh components.
 	 */
 	protected void updatePublishedComponents() {
 		for (Entry<URI, List<WeakReference<Component>>> entry : uriToPublishedComponents
-				.entrySet()) {
-			URI id = entry.getKey();
+				.entrySet())
 			for (WeakReference<Component> reference : entry.getValue()) {
+				URI id = entry.getKey();
 				Component component = reference.get();
-				if (component == null) {
+				if (component == null)
 					continue;
-				}
-				if (component instanceof JToolBar) {
+				if (component instanceof JToolBar)
 					populateToolBar((JToolBar) component, id);
-				} else if (component instanceof JMenuBar) {
+				else if (component instanceof JMenuBar)
 					populateMenuBar((JMenuBar) component, id);
-				} else {
+				else
 					logger.warn("Could not update published component " + id
 							+ ": " + component.getClass());
-				}
 			}
-		}
 	}
 
 	public void setMenuComponents(List<MenuComponent> menuComponents) {
@@ -880,10 +789,10 @@ public class MenuManagerImpl implements MenuManager {
 	/**
 	 * {@link Comparator} that can order {@link MenuComponent}s by their
 	 * {@link MenuComponent#getPositionHint()}.
-	 *
 	 */
 	protected static class MenuElementComparator implements
 			Comparator<MenuComponent> {
+		@Override
 		public int compare(MenuComponent a, MenuComponent b) {
 			return a.getPositionHint() - b.getPositionHint();
 		}
@@ -894,7 +803,6 @@ public class MenuManagerImpl implements MenuManager {
 	 * {@link MenuManagerImpl#makeComponents(URI, MenuOptions)} and friends.
 	 *
 	 * @author Stian Soiland-Reyes
-	 *
 	 */
 	public static class MenuOptions {
 		private boolean isToolbar = false;
@@ -941,44 +849,32 @@ public class MenuManagerImpl implements MenuManager {
 		}
 	}
 
-	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
-
+	private final class SelectionManagerObserver extends
+			SwingAwareObserver<SelectionManagerEvent> {
 		private static final String DESIGN_PERSPECTIVE_ID = "net.sf.taverna.t2.ui.perspectives.design.DesignPerspective";
 		private static final String RESULTS_PERSPECTIVE_ID = "net.sf.taverna.t2.ui.perspectives.results.ResultsPerspective";
 
 		@Override
 		public void notifySwing(Observable<SelectionManagerEvent> sender,
 				SelectionManagerEvent message) {
-			if (message instanceof PerspectiveSelectionEvent) {
-				PerspectiveSelectionEvent perspectiveSelectionEvent = (PerspectiveSelectionEvent) message;
-				String perspectiveID = perspectiveSelectionEvent.getSelectedPerspective().getID();
-				for (MenuComponent menuComponent : menuComponents) {
-					if (!(menuComponent instanceof ContextualMenuComponent)) {
-						Action action = menuComponent.getAction();
-						if (DESIGN_PERSPECTIVE_ID.equals(perspectiveID)) {
-							if (action instanceof DesignOnlyAction) {
-								action.setEnabled(true);
-							} else if (action instanceof DesignOrResultsAction) {
-								action.setEnabled(true);
-							}
-						} else if (RESULTS_PERSPECTIVE_ID.equals(perspectiveID)) {
-							if (action instanceof DesignOnlyAction) {
-								action.setEnabled(false);
-							} else if (action instanceof DesignOrResultsAction) {
-								action.setEnabled(true);
-							}
-						} else{
-							if (action instanceof DesignOnlyAction) {
-								action.setEnabled(false);
-							} else if (action instanceof DesignOrResultsAction) {
-								action.setEnabled(false);
-							}
-						}
-					}
-				}
-			}
+			if (!(message instanceof PerspectiveSelectionEvent))
+				return;
+			handlePerspectiveSelect((PerspectiveSelectionEvent) message);
 		}
 
-	}
+		private void handlePerspectiveSelect(PerspectiveSelectionEvent event) {
+			String perspectiveID = event.getSelectedPerspective().getID();
+			boolean isDesign = DESIGN_PERSPECTIVE_ID.equals(perspectiveID);
+			boolean isResults = RESULTS_PERSPECTIVE_ID.equals(perspectiveID);
 
+			for (MenuComponent menuComponent : menuComponents)
+				if (!(menuComponent instanceof ContextualMenuComponent)) {
+					Action action = menuComponent.getAction();
+					if (action instanceof DesignOnlyAction)
+						action.setEnabled(isDesign);
+					else if (action instanceof DesignOrResultsAction)
+						action.setEnabled(isDesign || isResults);
+				}
+		}
+	}
 }

@@ -20,7 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.impl.menu;
 
-import java.awt.Desktop;
+import static java.awt.Desktop.getDesktop;
+import static net.sf.taverna.t2.workbench.ui.impl.menu.HelpMenu.HELP_URI;
+
 import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.URI;
@@ -37,16 +39,14 @@ import org.apache.log4j.Logger;
  * MenuItem for feedback
  * 
  * @author alanrw
- *
  */
 public class FeedbackMenuAction extends AbstractMenuAction {
-	
 	private static Logger logger = Logger.getLogger(FeedbackMenuAction.class);
-	
+
 	private static String FEEDBACK_URL = "http://www.taverna.org.uk/about/contact-us/feedback/";
 
 	public FeedbackMenuAction() {
-		super(HelpMenu.HELP_URI, 20);
+		super(HELP_URI, 20);
 	}
 
 	@Override
@@ -60,14 +60,15 @@ public class FeedbackMenuAction extends AbstractMenuAction {
 			super("Contact us");
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
-				try {
-					Desktop.getDesktop().browse(new URI(FEEDBACK_URL));
-				} catch (IOException e1) {
-					logger.error("Unable to open URL", e1);
-				} catch (URISyntaxException e1) {
-					logger.error("Invalid URL syntax", e1);
-				}
+			try {
+				getDesktop().browse(new URI(FEEDBACK_URL));
+			} catch (IOException e1) {
+				logger.error("Unable to open URL", e1);
+			} catch (URISyntaxException e1) {
+				logger.error("Invalid URL syntax", e1);
+			}
 		}
 	}
 

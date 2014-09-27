@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl.menu;
 
+import static net.sf.taverna.t2.workbench.file.impl.menu.FileSaveMenuSection.FILE_SAVE_SECTION_URI;
+
 import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
@@ -27,11 +29,10 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.actions.SaveWorkflowAsAction;
 
 public class FileSaveAsMenuAction extends AbstractMenuAction {
-
 	private final FileManager fileManager;
 
 	public FileSaveAsMenuAction(FileManager fileManager) {
-		super(FileSaveMenuSection.FILE_SAVE_SECTION_URI, 20);
+		super(FILE_SAVE_SECTION_URI, 20);
 		this.fileManager = fileManager;
 	}
 
@@ -39,6 +40,4 @@ public class FileSaveAsMenuAction extends AbstractMenuAction {
 	protected Action createAction() {
 		return new SaveWorkflowAsAction(fileManager);
 	}
-
-
 }

@@ -20,48 +20,52 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.event.KeyEvent.VK_C;
+import static java.awt.event.KeyEvent.VK_W;
+import static javax.swing.JOptionPane.CANCEL_OPTION;
+import static javax.swing.JOptionPane.NO_OPTION;
+import static javax.swing.JOptionPane.YES_NO_CANCEL_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
+import static javax.swing.JOptionPane.showConfirmDialog;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.closeIcon;
+
 import java.awt.Component;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.exceptions.UnsavedException;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
+@SuppressWarnings("serial")
 public class CloseWorkflowAction extends AbstractAction {
-
 	private static Logger logger = Logger.getLogger(CloseWorkflowAction.class);
 	private static final String CLOSE_WORKFLOW = "Close workflow";
 	private final SaveWorkflowAction saveWorkflowAction;
 	private FileManager fileManager;
 
 	public CloseWorkflowAction(EditManager editManager, FileManager fileManager) {
-		super(CLOSE_WORKFLOW, WorkbenchIcons.closeIcon);
+		super(CLOSE_WORKFLOW, closeIcon);
 		this.fileManager = fileManager;
 		saveWorkflowAction = new SaveWorkflowAction(editManager, fileManager);
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_W,
-						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_C);
+		putValue(
+				ACCELERATOR_KEY,
+				getKeyStroke(VK_W, getDefaultToolkit().getMenuShortcutKeyMask()));
+		putValue(MNEMONIC_KEY, VK_C);
 
 	}
-
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		Component parentComponent = null;
-		if (e.getSource() instanceof Component) {
+		if (e.getSource() instanceof Component)
 			parentComponent = (Component) e.getSource();
-		}
 		closeWorkflow(parentComponent, fileManager.getCurrentDataflow());
 	}
 
@@ -77,11 +81,9 @@ public class CloseWorkflowAction extends AbstractAction {
 			fileManager.setCurrentDataflow(workflowBundle);
 			String msg = "Do you want to save changes before closing the workflow "
 					+ fileManager.getDataflowName(workflowBundle) + "?";
-			int ret = JOptionPane.showConfirmDialog(parentComponent, msg,
-					"Save workflow?", JOptionPane.YES_NO_CANCEL_OPTION);
-			if (ret == JOptionPane.CANCEL_OPTION || ret == JOptionPane.CLOSED_OPTION) {
-				return false;
-			} else if (ret == JOptionPane.NO_OPTION) {
+			switch (showConfirmDialog(parentComponent, msg, "Save workflow?",
+					YES_NO_CANCEL_OPTION)) {
+			case NO_OPTION:
 				try {
 					fileManager.closeDataflow(workflowBundle, false);
 					return true;
@@ -90,14 +92,14 @@ public class CloseWorkflowAction extends AbstractAction {
 							+ "closing workflow", e2);
 					return false;
 				}
-			} else if (ret == JOptionPane.YES_OPTION) {
-				boolean saved = saveWorkflowAction.saveDataflow(parentComponent, workflowBundle);
-				if (! saved) {
+			case YES_OPTION:
+				boolean saved = saveWorkflowAction.saveDataflow(
+						parentComponent, workflowBundle);
+				if (!saved)
 					return false;
-				}
 				return closeWorkflow(parentComponent, workflowBundle);
-			} else {
-				logger.error("Unknown return from JOptionPane: " + ret);
+			case CANCEL_OPTION:
+			default:
 				return false;
 			}
 		}

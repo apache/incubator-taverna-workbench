@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl.toolbar;
 
+import static net.sf.taverna.t2.workbench.file.impl.toolbar.FileToolbarMenuSection.FILE_TOOLBAR_SECTION;
+
 import java.net.URI;
 
 import javax.swing.Action;
@@ -29,13 +31,12 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.actions.OpenWorkflowFromURLAction;
 
 public class OpenWorkflowFromURLToolbarAction extends AbstractMenuAction {
-
 	private static final URI FILE_OPEN_FROM_URL_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#fileToolbarOpenFromURL");
 	private final FileManager fileManager;
 
 	public OpenWorkflowFromURLToolbarAction(FileManager fileManager) {
-		super(FileToolbarMenuSection.FILE_TOOLBAR_SECTION, 25, FILE_OPEN_FROM_URL_URI);
+		super(FILE_TOOLBAR_SECTION, 25, FILE_OPEN_FROM_URL_URI);
 		this.fileManager = fileManager;
 	}
 
@@ -43,5 +44,4 @@ public class OpenWorkflowFromURLToolbarAction extends AbstractMenuAction {
 	protected Action createAction() {
 		return new OpenWorkflowFromURLAction(null, fileManager);
 	}
-
 }

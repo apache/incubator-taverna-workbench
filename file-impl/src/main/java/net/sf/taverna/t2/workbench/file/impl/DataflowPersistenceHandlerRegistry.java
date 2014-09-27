@@ -20,6 +20,10 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl;
 
+import static org.apache.commons.collections.map.LazyMap.decorate;
+import static org.apache.commons.lang.ClassUtils.getAllInterfaces;
+import static org.apache.commons.lang.ClassUtils.getAllSuperclasses;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -31,23 +35,19 @@ import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
 import net.sf.taverna.t2.workbench.file.FileType;
 
 import org.apache.commons.collections.Factory;
-import org.apache.commons.collections.map.LazyMap;
-import org.apache.commons.lang.ClassUtils;
 
 // TODO: Cache lookups / build one massive structure
 public class DataflowPersistenceHandlerRegistry {
-
 	private static final MapFactory MAP_FACTORY = new MapFactory();
-
 	private static final SetFactory SET_FACTORY = new SetFactory();
 
 	@SuppressWarnings("unchecked")
 	protected static List<Class<?>> findAllParentClasses(
 			final Class<?> sourceClass) {
-		List<Class<?>> superClasses = new ArrayList<Class<?>>();
+		List<Class<?>> superClasses = new ArrayList<>();
 		superClasses.add(sourceClass);
-		superClasses.addAll(ClassUtils.getAllSuperclasses(sourceClass));
-		superClasses.addAll(ClassUtils.getAllInterfaces(sourceClass));
+		superClasses.addAll(getAllSuperclasses(sourceClass));
+		superClasses.addAll(getAllInterfaces(sourceClass));
 		return superClasses;
 	}
 
@@ -70,29 +70,26 @@ public class DataflowPersistenceHandlerRegistry {
 	}
 
 	public Set<FileType> getOpenFileTypesFor(Class<?> sourceClass) {
-		Set<FileType> fileTypes = new LinkedHashSet<FileType>();
-		for (Class<?> candidateClass : findAllParentClasses(sourceClass)) {
+		Set<FileType> fileTypes = new LinkedHashSet<>();
+		for (Class<?> candidateClass : findAllParentClasses(sourceClass))
 			fileTypes.addAll(getOpenClassToTypes().get(candidateClass));
-		}
 		return fileTypes;
 	}
 
 	public Set<DataflowPersistenceHandler> getOpenHandlersFor(
 			Class<? extends Object> sourceClass) {
-		Set<DataflowPersistenceHandler> handlers = new LinkedHashSet<DataflowPersistenceHandler>();
-		for (Class<?> candidateClass : findAllParentClasses(sourceClass)) {
+		Set<DataflowPersistenceHandler> handlers = new LinkedHashSet<>();
+		for (Class<?> candidateClass : findAllParentClasses(sourceClass))
 			handlers.addAll(getOpenClassToHandlers().get(candidateClass));
-		}
 		return handlers;
 	}
 
 	public Set<DataflowPersistenceHandler> getOpenHandlersFor(
 			FileType fileType, Class<? extends Object> sourceClass) {
-		Set<DataflowPersistenceHandler> handlers = new LinkedHashSet<DataflowPersistenceHandler>();
-		for (Class<?> candidateClass : findAllParentClasses(sourceClass)) {
+		Set<DataflowPersistenceHandler> handlers = new LinkedHashSet<>();
+		for (Class<?> candidateClass : findAllParentClasses(sourceClass))
 			handlers.addAll(getOpenFileClassToHandler().get(fileType).get(
 					candidateClass));
-		}
 		return handlers;
 	}
 
@@ -103,11 +100,10 @@ public class DataflowPersistenceHandlerRegistry {
 
 	public synchronized Set<DataflowPersistenceHandler> getOpenHandlersForType(
 			FileType fileType, Class<?> sourceClass) {
-		Set<DataflowPersistenceHandler> handlers = new LinkedHashSet<DataflowPersistenceHandler>();
-		for (Class<?> candidateClass : findAllParentClasses(sourceClass)) {
+		Set<DataflowPersistenceHandler> handlers = new LinkedHashSet<>();
+		for (Class<?> candidateClass : findAllParentClasses(sourceClass))
 			handlers.addAll(getOpenFileClassToHandler().get(fileType).get(
 					candidateClass));
-		}
 		return handlers;
 	}
 
@@ -116,44 +112,40 @@ public class DataflowPersistenceHandlerRegistry {
 	}
 
 	public Set<FileType> getSaveFileTypesFor(Class<?> destinationClass) {
-		Set<FileType> fileTypes = new LinkedHashSet<FileType>();
-		for (Class<?> candidateClass : findAllParentClasses(destinationClass)) {
+		Set<FileType> fileTypes = new LinkedHashSet<>();
+		for (Class<?> candidateClass : findAllParentClasses(destinationClass))
 			fileTypes.addAll(getSaveClassToTypes().get(candidateClass));
-		}
 		return fileTypes;
 	}
 
 	public Set<DataflowPersistenceHandler> getSaveHandlersFor(
 			Class<? extends Object> destinationClass) {
-		Set<DataflowPersistenceHandler> handlers = new LinkedHashSet<DataflowPersistenceHandler>();
-		for (Class<?> candidateClass : findAllParentClasses(destinationClass)) {
+		Set<DataflowPersistenceHandler> handlers = new LinkedHashSet<>();
+		for (Class<?> candidateClass : findAllParentClasses(destinationClass))
 			handlers.addAll(getSaveClassToHandlers().get(candidateClass));
-		}
 		return handlers;
 	}
 
 	public Set<DataflowPersistenceHandler> getSaveHandlersForType(
 			FileType fileType, Class<?> destinationClass) {
-		Set<DataflowPersistenceHandler> handlers = new LinkedHashSet<DataflowPersistenceHandler>();
-		for (Class<?> candidateClass : findAllParentClasses(destinationClass)) {
+		Set<DataflowPersistenceHandler> handlers = new LinkedHashSet<>();
+		for (Class<?> candidateClass : findAllParentClasses(destinationClass))
 			handlers.addAll(getSaveFileClassToHandler().get(fileType).get(
 					candidateClass));
-		}
 		return handlers;
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private synchronized void createCollections() {
-		openFileClassToHandler = LazyMap.decorate(new HashMap(), MAP_FACTORY);
-		openFileToHandler = LazyMap.decorate(new HashMap(), SET_FACTORY);
-		openClassToTypes = LazyMap.decorate(new HashMap(), SET_FACTORY);
-		openClassToHandlers = LazyMap.decorate(new HashMap(), SET_FACTORY);
+		openFileClassToHandler = decorate(new HashMap(), MAP_FACTORY);
+		openFileToHandler = decorate(new HashMap(), SET_FACTORY);
+		openClassToTypes = decorate(new HashMap(), SET_FACTORY);
+		openClassToHandlers = decorate(new HashMap(), SET_FACTORY);
 
-		saveFileClassToHandler = LazyMap.decorate(new HashMap(), MAP_FACTORY);
-		saveFileToHandler = LazyMap.decorate(new HashMap(), SET_FACTORY);
-		saveClassToTypes = LazyMap.decorate(new HashMap(), SET_FACTORY);
-		saveClassToHandlers = LazyMap.decorate(new HashMap(), SET_FACTORY);
-
+		saveFileClassToHandler = decorate(new HashMap(), MAP_FACTORY);
+		saveFileToHandler = decorate(new HashMap(), SET_FACTORY);
+		saveClassToTypes = decorate(new HashMap(), SET_FACTORY);
+		saveClassToHandlers = decorate(new HashMap(), SET_FACTORY);
 	}
 
 	private Map<Class<?>, Set<DataflowPersistenceHandler>> getOpenClassToHandlers() {
@@ -186,14 +178,13 @@ public class DataflowPersistenceHandlerRegistry {
 
 	/**
 	 * Bind method for SpringDM.
-	 *
+	 * 
 	 * @param service
 	 * @param properties
 	 */
-	public void update(Object service, Map properties) {
-		if (dataflowPersistenceHandlers != null) {
+	public void update(Object service, Map<?, ?> properties) {
+		if (dataflowPersistenceHandlers != null)
 			updateColletions();
-		}
 	}
 
 	public synchronized void updateColletions() {
@@ -209,9 +200,8 @@ public class DataflowPersistenceHandlerRegistry {
 					openClassToTypes.get(openClass).add(openFileType);
 				}
 			}
-			for (Class<?> openClass : handler.getOpenSourceTypes()) {
+			for (Class<?> openClass : handler.getOpenSourceTypes())
 				openClassToHandlers.get(openClass).add(handler);
-			}
 
 			for (FileType saveFileType : handler.getSaveFileTypes()) {
 				saveFileToHandler.get(saveFileType).add(handler);
@@ -221,28 +211,28 @@ public class DataflowPersistenceHandlerRegistry {
 					saveClassToTypes.get(saveClass).add(saveFileType);
 				}
 			}
-			for (Class<?> openClass : handler.getSaveDestinationTypes()) {
+			for (Class<?> openClass : handler.getSaveDestinationTypes())
 				saveClassToHandlers.get(openClass).add(handler);
-			}
 		}
 	}
 
-	public void setDataflowPersistenceHandlers(List<DataflowPersistenceHandler> dataflowPersistenceHandlers) {
+	public void setDataflowPersistenceHandlers(
+			List<DataflowPersistenceHandler> dataflowPersistenceHandlers) {
 		this.dataflowPersistenceHandlers = dataflowPersistenceHandlers;
 	}
 
 	private static class MapFactory implements Factory {
-		@SuppressWarnings("unchecked")
+		@Override
+		@SuppressWarnings("rawtypes")
 		public Object create() {
-			return LazyMap.decorate(new HashMap(), SET_FACTORY);
+			return decorate(new HashMap(), SET_FACTORY);
 		}
 	}
 
 	private static class SetFactory implements Factory {
-		@SuppressWarnings("unchecked")
+		@Override
 		public Object create() {
-			return new LinkedHashSet();
+			return new LinkedHashSet<Object>();
 		}
 	}
-
 }

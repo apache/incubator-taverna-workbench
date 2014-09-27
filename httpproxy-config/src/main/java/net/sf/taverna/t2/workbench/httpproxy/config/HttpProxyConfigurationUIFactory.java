@@ -33,7 +33,6 @@ import uk.org.taverna.configuration.proxy.HttpProxyConfiguration;
  * @author David Withers
  */
 public class HttpProxyConfigurationUIFactory implements ConfigurationUIFactory {
-
 	private HttpProxyConfiguration httpProxyConfiguration;
 
 	@Override
@@ -54,5 +53,4 @@ public class HttpProxyConfigurationUIFactory implements ConfigurationUIFactory {
 	public void setHttpProxyConfiguration(HttpProxyConfiguration httpProxyConfiguration) {
 		this.httpProxyConfiguration = httpProxyConfiguration;
 	}
-
 }

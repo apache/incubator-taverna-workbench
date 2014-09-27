@@ -29,16 +29,15 @@ import uk.org.taverna.commons.plugin.Plugin;
 import uk.org.taverna.commons.plugin.PluginException;
 
 /**
- *
- *
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class InstalledPluginPanel extends PluginPanel {
-
 	private final Plugin plugin;
 
 	public InstalledPluginPanel(Plugin plugin) {
-		super(plugin.getName(), plugin.getOrganization(), plugin.getVersion().toString(), plugin.getDescription());
+		super(plugin.getName(), plugin.getOrganization(), plugin.getVersion()
+				.toString(), plugin.getDescription());
 		this.plugin = plugin;
 	}
 
@@ -47,24 +46,21 @@ public class InstalledPluginPanel extends PluginPanel {
 		return new PluginAction();
 	}
 
-	@SuppressWarnings("serial")
 	class PluginAction extends AbstractAction {
-
 		public PluginAction() {
-			putValue(Action.NAME, "Uninstall");
+			putValue(NAME, "Uninstall");
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			setEnabled(false);
-			putValue(Action.NAME, "Uninstalling");
+			putValue(NAME, "Uninstalling");
 			try {
 				plugin.uninstall();
 			} catch (PluginException ex) {
 				ex.printStackTrace();
 			}
-			putValue(Action.NAME, "Uninstalled");
+			putValue(NAME, "Uninstalled");
 		}
 	}
-
 }

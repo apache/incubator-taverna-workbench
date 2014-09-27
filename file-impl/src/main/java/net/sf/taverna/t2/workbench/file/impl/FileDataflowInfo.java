@@ -35,24 +35,24 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 /**
  * Information about an open dataflow that was opened from or saved to a
  * {@link File}.
- *
+ * 
  * @see DataflowInfo
  * @see FileManager
  * @author Stian Soiland-Reyes
- *
  */
 public class FileDataflowInfo extends DataflowInfo {
 	private static Logger logger = Logger.getLogger(FileDataflowInfo.class);
 
-	public FileDataflowInfo(FileType fileType, File source, WorkflowBundle workflowBundle) {
-		super(fileType, canonicalFile(source), workflowBundle, lastModifiedFile(source));
+	public FileDataflowInfo(FileType fileType, File source,
+			WorkflowBundle workflowBundle) {
+		super(fileType, canonicalFile(source), workflowBundle,
+				lastModifiedFile(source));
 	}
 
 	protected static Date lastModifiedFile(File file) {
 		long lastModifiedLong = file.lastModified();
-		if (lastModifiedLong == 0) {
+		if (lastModifiedLong == 0)
 			return null;
-		}
 		return new Date(lastModifiedLong);
 	}
 

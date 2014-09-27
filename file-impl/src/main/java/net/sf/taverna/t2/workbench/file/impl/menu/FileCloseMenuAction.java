@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl.menu;
 
+import static net.sf.taverna.t2.workbench.file.impl.menu.FileOpenMenuSection.FILE_URI;
+
 import java.net.URI;
 
 import javax.swing.Action;
@@ -30,14 +32,13 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.actions.CloseWorkflowAction;
 
 public class FileCloseMenuAction extends AbstractMenuAction {
-
 	private static final URI FILE_CLOSE_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#fileClose");
 	private final EditManager editManager;
 	private final FileManager fileManager;
 
 	public FileCloseMenuAction(EditManager editManager, FileManager fileManager) {
-		super(FileOpenMenuSection.FILE_URI, 30, FILE_CLOSE_URI);
+		super(FILE_URI, 30, FILE_CLOSE_URI);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 	}
@@ -46,5 +47,4 @@ public class FileCloseMenuAction extends AbstractMenuAction {
 	protected Action createAction() {
 		return new CloseWorkflowAction(editManager, fileManager);
 	}
-
 }

@@ -50,13 +50,12 @@ public class WorkflowBundleOpener extends AbstractDataflowPersistenceHandler
 	private static Logger logger = Logger.getLogger(WorkflowBundleOpener.class);
 	private WorkflowBundleIO workflowBundleIO;
 
+	@SuppressWarnings("resource")
 	@Override
 	public DataflowInfo openDataflow(FileType fileType, Object source)
 			throws OpenException {
-		if (!getOpenFileTypes().contains(fileType)) {
-			throw new OpenException("Unsupported file type "
-					+ fileType);
-		}
+		if (!getOpenFileTypes().contains(fileType))
+			throw new OpenException("Unsupported file type " + fileType);
 		InputStream inputStream;
 		Date lastModified = null;
 		Object canonicalSource = source;
@@ -66,53 +65,48 @@ public class WorkflowBundleOpener extends AbstractDataflowPersistenceHandler
 			try {
 				inputStream = new FileInputStream((File) source);
 			} catch (FileNotFoundException e) {
-				throw new OpenException("Could not open file " + source + ":\n" + e.getLocalizedMessage(), e);
+				throw new OpenException("Could not open file " + source + ":\n"
+						+ e.getLocalizedMessage(), e);
 			}
 		} else if (source instanceof URL) {
 			URL url = ((URL) source);
 			try {
 				URLConnection connection = url.openConnection();
-				connection.setRequestProperty("Accept", "text/xml");
+				connection.setRequestProperty("Accept", "application/zip");
 				inputStream = connection.getInputStream();
-				if (connection.getLastModified() != 0) {
+				if (connection.getLastModified() != 0)
 					lastModified = new Date(connection.getLastModified());
-				}
 			} catch (IOException e) {
 				throw new OpenException("Could not open connection to URL "
-						+ source+ ":\n" + e.getLocalizedMessage(), e);
+						+ source + ":\n" + e.getLocalizedMessage(), e);
 			}
-			if (url.getProtocol().equalsIgnoreCase("file")) {
-				try {
+			try {
+				if (url.getProtocol().equalsIgnoreCase("file"))
 					canonicalSource = new File(url.toURI());
-				} catch (URISyntaxException e) {
-					logger.warn("Invalid file URI created from " + url);
-				}
+			} catch (URISyntaxException e) {
+				logger.warn("Invalid file URI created from " + url);
 			}
-		} else {
+		} else
 			throw new OpenException("Unsupported source type "
 					+ source.getClass());
-		}
 
 		final WorkflowBundle workflowBundle;
 		try {
 			workflowBundle = openDataflowStream(inputStream);
 		} finally {
-			if (!(source instanceof InputStream)) {
-				// We created the stream, we'll close it
-				try {
+			// We created the stream, we'll close it
+			try {
+				if (!(source instanceof InputStream))
 					inputStream.close();
-				} catch (IOException ex) {
-					logger.warn("Could not close inputstream " + inputStream,
-							ex);
-				}
+			} catch (IOException ex) {
+				logger.warn("Could not close inputstream " + inputStream, ex);
 			}
 		}
-		if (canonicalSource instanceof File) {
+		if (canonicalSource instanceof File)
 			return new FileDataflowInfo(WF_BUNDLE_FILE_TYPE,
 					(File) canonicalSource, workflowBundle);
-		}
-		return new DataflowInfo(WF_BUNDLE_FILE_TYPE, canonicalSource, workflowBundle,
-				lastModified);
+		return new DataflowInfo(WF_BUNDLE_FILE_TYPE, canonicalSource,
+				workflowBundle, lastModified);
 	}
 
 	protected WorkflowBundle openDataflowStream(InputStream inputStream)
@@ -123,7 +117,8 @@ public class WorkflowBundleOpener extends AbstractDataflowPersistenceHandler
 		} catch (ReaderException e) {
 			throw new OpenException("Could not read the workflow", e);
 		} catch (IOException e) {
-			throw new OpenException("Could not open the workflow for parsing", e);
+			throw new OpenException("Could not open the workflow for parsing",
+					e);
 		} catch (Exception e) {
 			throw new OpenException("Error while opening workflow", e);
 		}
@@ -145,5 +140,4 @@ public class WorkflowBundleOpener extends AbstractDataflowPersistenceHandler
 	public void setWorkflowBundleIO(WorkflowBundleIO workflowBundleIO) {
 		this.workflowBundleIO = workflowBundleIO;
 	}
-
 }

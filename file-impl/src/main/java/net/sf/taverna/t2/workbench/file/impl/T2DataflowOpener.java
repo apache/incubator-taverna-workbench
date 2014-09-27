@@ -51,43 +51,41 @@ public class T2DataflowOpener extends AbstractDataflowPersistenceHandler
 
 	private WorkflowBundleIO workflowBundleIO;
 
+	@SuppressWarnings("resource")
 	@Override
 	public DataflowInfo openDataflow(FileType fileType, Object source)
 			throws OpenException {
-		if (!getOpenFileTypes().contains(fileType)) {
+		if (!getOpenFileTypes().contains(fileType))
 			throw new OpenException("Unsupported file type "
 					+ fileType);
-		}
 		InputStream inputStream;
 		Date lastModified = null;
 		Object canonicalSource = source;
-		if (source instanceof InputStream) {
+		if (source instanceof InputStream)
 			inputStream = (InputStream) source;
-		} else if (source instanceof File) {
+		else if (source instanceof File)
 			try {
 				inputStream = new FileInputStream((File) source);
 			} catch (FileNotFoundException e) {
 				throw new OpenException("Could not open file " + source + ":\n" + e.getLocalizedMessage(), e);
 			}
-		} else if (source instanceof URL) {
+		else if (source instanceof URL) {
 			URL url = ((URL) source);
 			try {
 				URLConnection connection = url.openConnection();
 				connection.setRequestProperty("Accept", "text/xml");
 				inputStream = connection.getInputStream();
-				if (connection.getLastModified() != 0) {
+				if (connection.getLastModified() != 0)
 					lastModified = new Date(connection.getLastModified());
-				}
 			} catch (IOException e) {
 				throw new OpenException("Could not open connection to URL "
 						+ source+ ":\n" + e.getLocalizedMessage(), e);
 			}
-			if (url.getProtocol().equalsIgnoreCase("file")) {
-				try {
+			try {
+				if (url.getProtocol().equalsIgnoreCase("file"))
 					canonicalSource = new File(url.toURI());
-				} catch (URISyntaxException e) {
-					logger.warn("Invalid file URI created from " + url);
-				}
+			} catch (URISyntaxException e) {
+				logger.warn("Invalid file URI created from " + url);
 			}
 		} else {
 			throw new OpenException("Unsupported source type "
@@ -98,22 +96,19 @@ public class T2DataflowOpener extends AbstractDataflowPersistenceHandler
 		try {
 			workflowBundle = openDataflowStream(inputStream);
 		} finally {
-			if (!(source instanceof InputStream)) {
-				// We created the stream, we'll close it
-				try {
+			try {
+				if (!(source instanceof InputStream))
+					// We created the stream, we'll close it
 					inputStream.close();
-				} catch (IOException ex) {
-					logger.warn("Could not close inputstream " + inputStream,
-							ex);
-				}
+			} catch (IOException ex) {
+				logger.warn("Could not close inputstream " + inputStream, ex);
 			}
 		}
-		if (canonicalSource instanceof File) {
+		if (canonicalSource instanceof File)
 			return new FileDataflowInfo(T2_FLOW_FILE_TYPE,
 					(File) canonicalSource, workflowBundle);
-		}
-		return new DataflowInfo(T2_FLOW_FILE_TYPE, canonicalSource, workflowBundle,
-				lastModified);
+		return new DataflowInfo(T2_FLOW_FILE_TYPE, canonicalSource,
+				workflowBundle, lastModified);
 	}
 
 	protected WorkflowBundle openDataflowStream(InputStream workflowXMLstream)
@@ -146,5 +141,4 @@ public class T2DataflowOpener extends AbstractDataflowPersistenceHandler
 	public void setWorkflowBundleIO(WorkflowBundleIO workflowBundleIO) {
 		this.workflowBundleIO = workflowBundleIO;
 	}
-
 }

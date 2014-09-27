@@ -23,7 +23,6 @@ package net.sf.taverna.t2.workbench.file.impl;
 import net.sf.taverna.t2.workbench.file.FileType;
 
 public class WorkflowBundleFileType extends FileType {
-
 	public static final String APPLICATION_VND_TAVERNA_SCUFL2_WORKFLOW_BUNDLE = "application/vnd.taverna.scufl2.workflow-bundle";
 
 	@Override
@@ -40,5 +39,4 @@ public class WorkflowBundleFileType extends FileType {
 	public String getMimeType() {
 		return APPLICATION_VND_TAVERNA_SCUFL2_WORKFLOW_BUNDLE;
 	}
-
 }

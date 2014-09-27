@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.edits.impl.toolbar;
 
+import static net.sf.taverna.t2.workbench.edits.impl.toolbar.EditToolbarSection.EDIT_TOOLBAR_SECTION;
+
 import java.net.URI;
 
 import javax.swing.Action;
@@ -28,13 +30,12 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.edits.impl.menu.UndoMenuAction;
 
 public class UndoToolbarAction extends AbstractMenuAction {
-
 	private static final URI EDIT_TOOLBAR_UNDO_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#editToolbarUndo");
 	private final UndoMenuAction undoMenuAction;
 
 	public UndoToolbarAction(UndoMenuAction undoMenuAction) {
-		super(EditToolbarSection.EDIT_TOOLBAR_SECTION, 10, EDIT_TOOLBAR_UNDO_URI);
+		super(EDIT_TOOLBAR_SECTION, 10, EDIT_TOOLBAR_UNDO_URI);
 		this.undoMenuAction = undoMenuAction;
 	}
 
@@ -42,5 +43,4 @@ public class UndoToolbarAction extends AbstractMenuAction {
 	protected Action createAction() {
 		return undoMenuAction.getAction();
 	}
-
 }

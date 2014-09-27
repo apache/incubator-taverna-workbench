@@ -26,7 +26,6 @@ import java.io.File;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
-import net.sf.taverna.t2.workbench.file.impl.actions.OpenWorkflowAction.OpenCallback;
 
 import org.apache.log4j.Logger;
 
@@ -34,49 +33,44 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * An action for opening a nested workflow from a file.
- *
+ * 
  * @author Alex Nenadic
- *
  */
 public class OpenNestedWorkflowAction extends OpenWorkflowAction {
-
 	private static final long serialVersionUID = -5398423684000142379L;
+	private static Logger logger = Logger
+			.getLogger(OpenNestedWorkflowAction.class);
 
-	private static Logger logger = Logger.getLogger(OpenNestedWorkflowAction.class);
-
-	public OpenNestedWorkflowAction(FileManager fileManager){
+	public OpenNestedWorkflowAction(FileManager fileManager) {
 		super(fileManager);
 	}
 
 	/**
-	 * Opens a nested workflow from a file (should be one file even though
-	 * the method takes a list of files - this is because it overrides the
-	 * #{@link net.sf.taverna.t2.workbench.file.impl.actions.OpenWorkflowAction.java#openWorkflows(Component, File[], FileType, OpenCallback)}).
+	 * Opens a nested workflow from a file (should be one file even though the
+	 * method takes a list of files - this is because it overrides the
+	 * {@link OpenWorkflowAction#openWorkflows(Component, File[], FileType, OpenCallback)
+	 * openWorkflows(...)} method).
 	 */
 	@Override
 	public void openWorkflows(final Component parentComponent, File[] files,
 			FileType fileType, OpenCallback openCallback) {
-
 		ErrorLoggingOpenCallbackWrapper callback = new ErrorLoggingOpenCallbackWrapper(
 				openCallback);
-		for (final File file : files) {
-
+		for (File file : files)
 			try {
 				callback.aboutToOpenDataflow(file);
-				WorkflowBundle workflowBundle = fileManager.openDataflow(fileType, file);
+				WorkflowBundle workflowBundle = fileManager.openDataflow(
+						fileType, file);
 				callback.openedDataflow(file, workflowBundle);
 			} catch (final RuntimeException ex) {
 				logger.warn("Could not open workflow from " + file, ex);
-				if (!callback.couldNotOpenDataflow(file, ex)) {
+				if (!callback.couldNotOpenDataflow(file, ex))
 					showErrorMessage(parentComponent, file, ex);
-				}
 			} catch (final OpenException ex) {
 				logger.warn("Could not open workflow from " + file, ex);
-				if (!callback.couldNotOpenDataflow(file, ex)) {
+				if (!callback.couldNotOpenDataflow(file, ex))
 					showErrorMessage(parentComponent, file, ex);
-				}
 				return;
 			}
-		}
 	}
 }

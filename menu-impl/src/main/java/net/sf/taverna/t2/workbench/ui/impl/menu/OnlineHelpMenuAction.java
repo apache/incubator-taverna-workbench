@@ -20,27 +20,27 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.impl.menu;
 
+import static java.awt.event.KeyEvent.VK_F1;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static net.sf.taverna.t2.workbench.helper.Helper.displayDefaultHelp;
+import static net.sf.taverna.t2.workbench.ui.impl.menu.HelpMenu.HELP_URI;
+
 import java.awt.AWTEvent;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.workbench.helper.Helper;
 
 /**
  * MenuItem for help
  * 
  * @author alanrw
- *
  */
 public class OnlineHelpMenuAction extends AbstractMenuAction {
-
 	public OnlineHelpMenuAction() {
-		super(HelpMenu.HELP_URI, 10);
+		super(HELP_URI, 10);
 	}
 
 	@Override
@@ -52,19 +52,17 @@ public class OnlineHelpMenuAction extends AbstractMenuAction {
 	private final class OnlineHelpAction extends AbstractAction {
 		private OnlineHelpAction() {
 			super("Online help");
-			putValue(Action.ACCELERATOR_KEY,
-					KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
+			putValue(ACCELERATOR_KEY, getKeyStroke(VK_F1, 0));
 
 		}
 
-		/* 
+		/**
 		 * When selected, use the Helper to display the default help.
-		 * (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
+		@Override
 		public void actionPerformed(ActionEvent e) {
-				Helper.displayDefaultHelp((AWTEvent) e);
+			displayDefaultHelp((AWTEvent) e);
+			// TODO change helper to bean?
 		}
 	}
-
 }

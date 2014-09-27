@@ -28,26 +28,29 @@ import net.sf.taverna.t2.workbench.file.impl.actions.CloseAllWorkflowsAction;
 /**
  * Close open workflows (and ask the user if she wants to save changes) on
  * shutdown.
- *
+ * 
  * @author Stian Soiland-Reyes
- *
  */
 public class CloseWorkflowsOnShutdown implements ShutdownSPI {
-
 	private CloseAllWorkflowsAction closeAllWorkflowsAction;
 
-	public CloseWorkflowsOnShutdown(EditManager editManager, FileManager fileManager) {
-		closeAllWorkflowsAction = new CloseAllWorkflowsAction(editManager, fileManager);
+	public CloseWorkflowsOnShutdown(EditManager editManager,
+			FileManager fileManager) {
+		closeAllWorkflowsAction = new CloseAllWorkflowsAction(editManager,
+				fileManager);
 	}
 
+	@Override
 	public int positionHint() {
-		// Quite early, we don't want to do various clean-up in case the
-		// user clicks Cancel
+		/*
+		 * Quite early, we don't want to do various clean-up in case the user
+		 * clicks Cancel
+		 */
 		return 50;
 	}
 
+	@Override
 	public boolean shutdown() {
 		return closeAllWorkflowsAction.closeAllWorkflows(null);
 	}
-
 }

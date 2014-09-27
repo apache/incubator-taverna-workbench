@@ -20,28 +20,21 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.plugin.impl;
 
-import javax.swing.JDialog;
-import javax.swing.SwingUtilities;
+import static net.sf.taverna.t2.workbench.MainWindow.getMainWindow;
 
-import net.sf.taverna.t2.workbench.MainWindow;
+import javax.swing.JDialog;
 
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
-import uk.org.taverna.commons.plugin.PluginException;
 import uk.org.taverna.commons.plugin.PluginManager;
 
 /**
- *
- *
  * @author David Withers
  */
 public class PluginManagerView implements EventHandler {
-
 	private JDialog dialog;
-
 	private PluginManagerPanel pluginManagerPanel;
-
 	private PluginManager pluginManager;
 
 	public void showDialog() {
@@ -51,7 +44,7 @@ public class PluginManagerView implements EventHandler {
 
 	private JDialog getDialog() {
 		if (dialog == null) {
-			dialog = new JDialog(MainWindow.getMainWindow(), "Plugin Manager");
+			dialog = new JDialog(getMainWindow(), "Plugin Manager");
 			dialog.add(getPluginManagerPanel());
 			dialog.setSize(700, 500);
 			dialog.setLocationRelativeTo(dialog.getOwner());
@@ -61,9 +54,8 @@ public class PluginManagerView implements EventHandler {
 	}
 
 	private PluginManagerPanel getPluginManagerPanel() {
-		if (pluginManagerPanel == null) {
+		if (pluginManagerPanel == null)
 			pluginManagerPanel = new PluginManagerPanel(pluginManager);
-		}
 		return pluginManagerPanel;
 	}
 
@@ -76,5 +68,4 @@ public class PluginManagerView implements EventHandler {
 	public void setPluginManager(PluginManager pluginManager) {
 		this.pluginManager = pluginManager;
 	}
-
 }

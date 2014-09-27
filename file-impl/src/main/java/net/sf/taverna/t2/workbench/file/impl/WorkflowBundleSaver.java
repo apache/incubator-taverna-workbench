@@ -20,7 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl;
 
-import java.io.BufferedOutputStream;
+import static net.sf.taverna.t2.workbench.file.impl.WorkflowBundleFileType.APPLICATION_VND_TAVERNA_SCUFL2_WORKFLOW_BUNDLE;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -40,11 +41,9 @@ import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.io.WorkflowBundleIO;
-import uk.org.taverna.scufl2.api.io.WriterException;
 
 public class WorkflowBundleSaver extends AbstractDataflowPersistenceHandler
 		implements DataflowPersistenceHandler {
-
 	private static final WorkflowBundleFileType WF_BUNDLE_FILE_TYPE = new WorkflowBundleFileType();
 	private static Logger logger = Logger.getLogger(WorkflowBundleSaver.class);
 	private WorkflowBundleIO workflowBundleIO;
@@ -52,52 +51,49 @@ public class WorkflowBundleSaver extends AbstractDataflowPersistenceHandler
 	@Override
 	public DataflowInfo saveDataflow(WorkflowBundle workflowBundle, FileType fileType,
 			Object destination) throws SaveException {
-		if (!getSaveFileTypes().contains(fileType)) {
+		if (!getSaveFileTypes().contains(fileType))
 			throw new IllegalArgumentException("Unsupported file type "
 					+ fileType);
-		}
 		OutputStream outStream;
-		if (destination instanceof File) {
+		if (destination instanceof File)
 			try {
 				outStream = new FileOutputStream((File) destination);
 			} catch (FileNotFoundException e) {
 				throw new SaveException("Can't create workflow file "
 						+ destination + ":\n" + e.getLocalizedMessage(), e);
 			}
-		} else if (destination instanceof OutputStream) {
+		else if (destination instanceof OutputStream)
 			outStream = (OutputStream) destination;
-		} else {
+		else
 			throw new SaveException("Unsupported destination type "
 					+ destination.getClass());
-		}
+
 		try {
 			saveDataflowToStream(workflowBundle, outStream);
 		} finally {
-			if (!(destination instanceof OutputStream)) {
+			try {
 				// Only close if we opened the stream
-				try {
+				if (!(destination instanceof OutputStream))
 					outStream.close();
-				} catch (IOException e) {
-					logger.warn("Could not close stream", e);
-				}
+			} catch (IOException e) {
+				logger.warn("Could not close stream", e);
 			}
 		}
 
-		if (destination instanceof File) {
+		if (destination instanceof File)
 			return new FileDataflowInfo(WF_BUNDLE_FILE_TYPE, (File) destination,
 					workflowBundle);
-		}
 		return new DataflowInfo(WF_BUNDLE_FILE_TYPE, destination, workflowBundle);
-
 	}
 
 	protected void saveDataflowToStream(WorkflowBundle workflowBundle,
 			OutputStream fileOutStream) throws SaveException {
 		try {
 			workflowBundleIO.writeBundle(workflowBundle, fileOutStream,
-					WorkflowBundleFileType.APPLICATION_VND_TAVERNA_SCUFL2_WORKFLOW_BUNDLE);
-		}catch (Exception e) {
-			throw new SaveException("Can't write workflow:\n" + e.getLocalizedMessage(), e);
+					APPLICATION_VND_TAVERNA_SCUFL2_WORKFLOW_BUNDLE);
+		} catch (Exception e) {
+			throw new SaveException("Can't write workflow:\n"
+					+ e.getLocalizedMessage(), e);
 		}
 	}
 
@@ -114,13 +110,11 @@ public class WorkflowBundleSaver extends AbstractDataflowPersistenceHandler
 	@Override
 	public boolean wouldOverwriteDataflow(WorkflowBundle workflowBundle, FileType fileType,
 			Object destination, DataflowInfo lastDataflowInfo) {
-		if (!getSaveFileTypes().contains(fileType)) {
+		if (!getSaveFileTypes().contains(fileType))
 			throw new IllegalArgumentException("Unsupported file type "
 					+ fileType);
-		}
-		if (!(destination instanceof File)) {
+		if (!(destination instanceof File))
 			return false;
-		}
 
 		File file;
 		try {
@@ -128,31 +122,24 @@ public class WorkflowBundleSaver extends AbstractDataflowPersistenceHandler
 		} catch (IOException e) {
 			return false;
 		}
-		if (!file.exists()) {
+		if (!file.exists())
 			return false;
-		}
-		if (lastDataflowInfo == null) {
+		if (lastDataflowInfo == null)
 			return true;
-		}
 		Object lastDestination = lastDataflowInfo.getCanonicalSource();
-		if (!(lastDestination instanceof File)) {
+		if (!(lastDestination instanceof File))
 			return true;
-		}
 		File lastFile = (File) lastDestination;
-		if (! lastFile.getAbsoluteFile().equals(file)) {
+		if (!lastFile.getAbsoluteFile().equals(file))
 			return true;
-		}
-
 
 		Date lastModified = new Date(file.lastModified());
-		if (lastModified.equals(lastDataflowInfo.getLastModified())) {
+		if (lastModified.equals(lastDataflowInfo.getLastModified()))
 			return false;
-		}
 		return true;
 	}
 
 	public void setWorkflowBundleIO(WorkflowBundleIO workflowBundleIO) {
 		this.workflowBundleIO = workflowBundleIO;
 	}
-
 }

@@ -30,7 +30,6 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.plugin.impl.PluginManagerView;
 
 public class PluginMenuAction extends AbstractMenuAction {
-
 	private static final URI ADVANCED_MENU_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#advanced");
 
@@ -41,9 +40,9 @@ public class PluginMenuAction extends AbstractMenuAction {
 	}
 
 	@Override
+	@SuppressWarnings("serial")
 	protected Action createAction() {
 		return new AbstractAction("Plugin Manager") {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				pluginManagerView.showDialog();
@@ -54,5 +53,4 @@ public class PluginMenuAction extends AbstractMenuAction {
 	public void setPluginManagerView(PluginManagerView pluginManagerView) {
 		this.pluginManagerView = pluginManagerView;
 	}
-
 }

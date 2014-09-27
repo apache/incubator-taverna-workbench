@@ -20,39 +20,39 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
-import java.awt.Toolkit;
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.event.KeyEvent.VK_N;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.newIcon;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
 public class NewWorkflowAction extends AbstractAction {
-
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(NewWorkflowAction.class);
 	private static final String NEW_WORKFLOW = "New workflow";
 	private FileManager fileManager;
 
 	public NewWorkflowAction(FileManager fileManager) {
-		super(NEW_WORKFLOW, WorkbenchIcons.newIcon);
+		super(NEW_WORKFLOW, newIcon);
 		this.fileManager = fileManager;
-		putValue(Action.SHORT_DESCRIPTION, NEW_WORKFLOW);
-		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_N);
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_N,
-						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		putValue(SHORT_DESCRIPTION, NEW_WORKFLOW);
+		putValue(MNEMONIC_KEY, KeyEvent.VK_N);
+		putValue(
+				ACCELERATOR_KEY,
+				getKeyStroke(VK_N, getDefaultToolkit().getMenuShortcutKeyMask()));
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		fileManager.newDataflow();
 	}
-
 }

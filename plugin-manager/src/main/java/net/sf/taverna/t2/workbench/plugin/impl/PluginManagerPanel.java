@@ -20,6 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.plugin.impl;
 
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.EAST;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.WEST;
+import static java.lang.Math.max;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER;
+import static javax.swing.SwingConstants.CENTER;
+
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
@@ -32,8 +40,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingConstants;
 
 import org.apache.log4j.Logger;
 
@@ -45,12 +51,12 @@ import uk.org.taverna.commons.plugin.xml.jaxb.PluginVersions;
 /**
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class PluginManagerPanel extends JPanel {
-
-	private static final Logger logger = Logger.getLogger(PluginManagerPanel.class);
+	private static final Logger logger = Logger
+			.getLogger(PluginManagerPanel.class);
 
 	private PluginManager pluginManager;
-
 	private JLabel message = new JLabel("");
 
 	public PluginManagerPanel(PluginManager pluginManager) {
@@ -63,7 +69,7 @@ public class PluginManagerPanel extends JPanel {
 		setLayout(new GridBagLayout());
 
 		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.anchor = GridBagConstraints.WEST;
+		gbc.anchor = WEST;
 		gbc.gridy = 0;
 		gbc.insets.left = 5;
 		gbc.insets.right = 5;
@@ -77,12 +83,11 @@ public class PluginManagerPanel extends JPanel {
 		gbc.weightx = 1;
 		gbc.weighty = 1;
 		gbc.gridy = 1;
-//		gbc.gridwidth = 2;
-		gbc.fill = GridBagConstraints.BOTH;
+		gbc.fill = BOTH;
 		add(tabbedPane, gbc);
 
-		gbc.anchor = GridBagConstraints.EAST;
-		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = EAST;
+		gbc.fill = NONE;
 		gbc.weightx = 0;
 		gbc.weighty = 0;
 		gbc.gridy = 2;
@@ -101,72 +106,62 @@ public class PluginManagerPanel extends JPanel {
 		}
 	}
 
+	private static Component scrolled(Component view) {
+		JScrollPane scrollPane = new JScrollPane(view);
+		scrollPane.setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setBorder(null);
+		return scrollPane;
+	}
+
 	private Component createAvailablePluginsPanel() {
 		try {
-			List<PluginVersions> availablePlugins = pluginManager.getAvailablePlugins();
-			if (availablePlugins.size() == 0) {
-				return new JLabel("No new plugins available", SwingConstants.CENTER);
-			} else {
-				JPanel avaialablePluginsPanel = new JPanel();
-				avaialablePluginsPanel.setLayout(new ListLayout());
-				for (PluginVersions plugin : availablePlugins) {
-					avaialablePluginsPanel.add(new AvailablePluginPanel(plugin, pluginManager));
-				}
-				JScrollPane scrollPane = new JScrollPane(avaialablePluginsPanel);
-				scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-				scrollPane.setBorder(null);
-				return scrollPane;
-			}
+			List<PluginVersions> availablePlugins = pluginManager
+					.getAvailablePlugins();
+			if (availablePlugins.size() == 0)
+				return new JLabel("No new plugins available", CENTER);
+
+			JPanel panel = new JPanel(new ListLayout());
+			for (PluginVersions plugin : availablePlugins)
+				panel.add(new AvailablePluginPanel(plugin, pluginManager));
+			return scrolled(panel);
 		} catch (PluginException e) {
 			logger.info("Error looking for new plugins", e);
-			return new JLabel("No new plugins available", SwingConstants.CENTER);
+			return new JLabel("No new plugins available", CENTER);
 		}
 	}
 
 	private Component createInstalledPluginsPanel() {
 		try {
 			List<Plugin> installedPlugins = pluginManager.getInstalledPlugins();
-			if (installedPlugins.size() == 0) {
-				return new JLabel("No installed plugins", SwingConstants.CENTER);
-			} else {
-				JPanel installedPluginsPanel = new JPanel();
-				installedPluginsPanel.setLayout(new ListLayout());
-				for (Plugin plugin : installedPlugins) {
-					installedPluginsPanel.add(new InstalledPluginPanel(plugin));
-				}
-				JScrollPane scrollPane = new JScrollPane(installedPluginsPanel);
-				scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-				scrollPane.setBorder(null);
-				return installedPluginsPanel;
-			}
+			if (installedPlugins.size() == 0)
+				return new JLabel("No installed plugins", CENTER);
+
+			JPanel panel = new JPanel(new ListLayout());
+			for (Plugin plugin : installedPlugins)
+				panel.add(new InstalledPluginPanel(plugin));
+			return scrolled(panel);
 		} catch (PluginException e) {
-			return new JLabel("No installed plugins", SwingConstants.CENTER);
+			return new JLabel("No installed plugins", CENTER);
 		}
 	}
 
 	private Component createUpdatePluginsPanel() {
 		try {
-			List<PluginVersions> pluginUpdates = pluginManager.getPluginUpdates();
-			if (pluginUpdates.size() == 0) {
-				return new JLabel("All plugins are up to date", SwingConstants.CENTER);
-			} else {
-				JPanel updatePluginsPanel = new JPanel();
-				updatePluginsPanel.setLayout(new ListLayout());
-				for (PluginVersions plugin : pluginUpdates) {
-					updatePluginsPanel.add(new UpdatePluginPanel(plugin, pluginManager));
-				}
-				JScrollPane scrollPane = new JScrollPane(updatePluginsPanel);
-				scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-				scrollPane.setBorder(null);
-				return updatePluginsPanel;
-			}
+			List<PluginVersions> pluginUpdates = pluginManager
+					.getPluginUpdates();
+			if (pluginUpdates.size() == 0)
+				return new JLabel("All plugins are up to date", CENTER);
+
+			JPanel panel = new JPanel(new ListLayout());
+			for (PluginVersions plugin : pluginUpdates)
+				panel.add(new UpdatePluginPanel(plugin, pluginManager));
+			return scrolled(panel);
 		} catch (PluginException e) {
-			return new JLabel("All plugins are up to date", SwingConstants.CENTER);
+			return new JLabel("All plugins are up to date", CENTER);
 		}
 	}
 
 	private final class ListLayout implements LayoutManager {
-
 		@Override
 		public void addLayoutComponent(String name, Component comp) {
 		}
@@ -180,8 +175,10 @@ public class PluginManagerPanel extends JPanel {
 			Dimension preferredLayoutSize = new Dimension(0, 1);
 			for (Component component : parent.getComponents()) {
 				Dimension preferredSize = component.getPreferredSize();
-				preferredLayoutSize.width = Math.max(preferredSize.width, preferredLayoutSize.width);
-				preferredLayoutSize.height = preferredSize.height + preferredLayoutSize.height - 1;
+				preferredLayoutSize.width = max(preferredSize.width,
+						preferredLayoutSize.width);
+				preferredLayoutSize.height = preferredSize.height
+						+ preferredLayoutSize.height - 1;
 			}
 			return preferredLayoutSize;
 		}
@@ -191,8 +188,10 @@ public class PluginManagerPanel extends JPanel {
 			Dimension minimumLayoutSize = new Dimension(0, 1);
 			for (Component component : parent.getComponents()) {
 				Dimension minimumSize = component.getMinimumSize();
-				minimumLayoutSize.width = Math.max(minimumSize.width, minimumLayoutSize.width);
-				minimumLayoutSize.height = minimumSize.height + minimumLayoutSize.height - 1;
+				minimumLayoutSize.width = max(minimumSize.width,
+						minimumLayoutSize.width);
+				minimumLayoutSize.height = minimumSize.height
+						+ minimumLayoutSize.height - 1;
 			}
 			return minimumLayoutSize;
 		}
@@ -202,11 +201,10 @@ public class PluginManagerPanel extends JPanel {
 			int y = 0;
 			for (Component component : parent.getComponents()) {
 				component.setLocation(0, y);
-				component.setSize(parent.getSize().width, component.getPreferredSize().height);
-				y = y + component.getHeight() - 1;
+				component.setSize(parent.getSize().width,
+						component.getPreferredSize().height);
+				y += component.getHeight() - 1;
 			}
 		}
-
 	}
-
 }

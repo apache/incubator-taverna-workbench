@@ -20,31 +20,29 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.impl.menu;
 
-import java.awt.event.KeyEvent;
+import static java.awt.event.KeyEvent.VK_F;
+import static javax.swing.Action.MNEMONIC_KEY;
+import static net.sf.taverna.t2.ui.menu.DefaultMenuBar.DEFAULT_MENU_BAR;
+
 import java.net.URI;
 
-import javax.swing.Action;
-
 import net.sf.taverna.t2.ui.menu.AbstractMenu;
-import net.sf.taverna.t2.ui.menu.DefaultMenuBar;
 
 /**
- * 
  * File menu
  * 
  * @author Stian Soiland-Reyes
- * 
  */
 public class FileMenu extends AbstractMenu {
 	public FileMenu() {
-		super(DefaultMenuBar.DEFAULT_MENU_BAR, 10, URI
+		super(DEFAULT_MENU_BAR, 10, URI
 				.create("http://taverna.sf.net/2008/t2workbench/menu#file"),
 				makeAction());
 	}
 
 	public static DummyAction makeAction() {
 		DummyAction action = new DummyAction("File");
-		action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_F));
+		action.putValue(MNEMONIC_KEY, Integer.valueOf(VK_F));
 		return action;
 	}
 }

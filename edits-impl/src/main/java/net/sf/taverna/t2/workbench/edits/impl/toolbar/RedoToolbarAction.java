@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.edits.impl.toolbar;
 
+import static net.sf.taverna.t2.workbench.edits.impl.toolbar.EditToolbarSection.EDIT_TOOLBAR_SECTION;
+
 import java.net.URI;
 
 import javax.swing.Action;
@@ -28,13 +30,12 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.edits.impl.menu.RedoMenuAction;
 
 public class RedoToolbarAction extends AbstractMenuAction {
-
 	private static final URI EDIT_TOOLBAR_REDO_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#editToolbarRedo");
 	private final RedoMenuAction redoMenuAction;
 
 	public RedoToolbarAction(RedoMenuAction redoMenuAction) {
-		super(EditToolbarSection.EDIT_TOOLBAR_SECTION, 20, EDIT_TOOLBAR_REDO_URI);
+		super(EDIT_TOOLBAR_SECTION, 20, EDIT_TOOLBAR_REDO_URI);
 		this.redoMenuAction = redoMenuAction;
 	}
 
@@ -42,5 +43,4 @@ public class RedoToolbarAction extends AbstractMenuAction {
 	protected Action createAction() {
 		return redoMenuAction.getAction();
 	}
-
 }

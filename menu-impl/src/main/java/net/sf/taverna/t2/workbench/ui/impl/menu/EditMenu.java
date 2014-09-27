@@ -20,27 +20,24 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.impl.menu;
 
-import java.awt.event.KeyEvent;
+import static java.awt.event.KeyEvent.VK_E;
+import static javax.swing.Action.MNEMONIC_KEY;
+import static net.sf.taverna.t2.ui.menu.DefaultMenuBar.DEFAULT_MENU_BAR;
+
 import java.net.URI;
 
-import javax.swing.Action;
-
 import net.sf.taverna.t2.ui.menu.AbstractMenu;
-import net.sf.taverna.t2.ui.menu.DefaultMenuBar;
 
 public class EditMenu extends AbstractMenu {
-
 	public EditMenu() {
-		super(DefaultMenuBar.DEFAULT_MENU_BAR, 20, URI
+		super(DEFAULT_MENU_BAR, 20, URI
 				.create("http://taverna.sf.net/2008/t2workbench/menu#edit"),
 				makeAction());
 	}
-	
+
 	public static DummyAction makeAction() {
 		DummyAction action = new DummyAction("Edit");
-		action.putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_E));
+		action.putValue(MNEMONIC_KEY, Integer.valueOf(VK_E));
 		return action;
 	}
-
-
 }

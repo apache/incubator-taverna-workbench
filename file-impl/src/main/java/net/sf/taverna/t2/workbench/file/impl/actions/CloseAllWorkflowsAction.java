@@ -20,28 +20,29 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.event.InputEvent.SHIFT_DOWN_MASK;
+import static java.awt.event.KeyEvent.VK_L;
+import static java.awt.event.KeyEvent.VK_W;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.closeAllIcon;
+
 import java.awt.Component;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
+@SuppressWarnings("serial")
 public class CloseAllWorkflowsAction extends AbstractAction {
-
 	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(CloseWorkflowAction.class);
 	private static final String CLOSE_ALL_WORKFLOWS = "Close all workflows";
@@ -49,22 +50,21 @@ public class CloseAllWorkflowsAction extends AbstractAction {
 	private CloseWorkflowAction closeWorkflowAction;
 
 	public CloseAllWorkflowsAction(EditManager editManager, FileManager fileManager) {
-		super(CLOSE_ALL_WORKFLOWS, WorkbenchIcons.closeAllIcon);
+		super(CLOSE_ALL_WORKFLOWS, closeAllIcon);
 		this.fileManager = fileManager;
 		closeWorkflowAction = new CloseWorkflowAction(editManager, fileManager);
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_W,
-						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()
-						| InputEvent.SHIFT_DOWN_MASK));
-		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_L);
-
+		putValue(
+				ACCELERATOR_KEY,
+				getKeyStroke(VK_W, getDefaultToolkit().getMenuShortcutKeyMask()
+						| SHIFT_DOWN_MASK));
+		putValue(MNEMONIC_KEY, VK_L);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent event) {
 		Component parentComponent = null;
-		if (event.getSource() instanceof Component) {
+		if (event.getSource() instanceof Component)
 			parentComponent = (Component) event.getSource();
-		}
 		closeAllWorkflows(parentComponent);
 	}
 
@@ -77,11 +77,9 @@ public class CloseAllWorkflowsAction extends AbstractAction {
 		for (WorkflowBundle workflowBundle : workflowBundles) {
 			boolean success = closeWorkflowAction.closeWorkflow(
 					parentComponent, workflowBundle);
-			if (!success) {
+			if (!success)
 				return false;
-			}
 		}
 		return true;
 	}
-
 }

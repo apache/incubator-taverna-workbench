@@ -39,44 +39,30 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
  * Implementation of {@link EditManager}.
  *
  * @author Stian Soiland-Reyes
- *
  */
 public class EditManagerImpl implements EditManager {
-
 	private static Logger logger = Logger.getLogger(EditManagerImpl.class);
 
-	private MultiCaster<EditManagerEvent> multiCaster = new MultiCaster<EditManagerEvent>(this);
+	private MultiCaster<EditManagerEvent> multiCaster = new MultiCaster<>(this);
+	private Map<WorkflowBundle, DataflowEdits> editsForDataflow = new HashMap<>();
 
-	private Map<WorkflowBundle, DataflowEdits> editsForDataflow = new HashMap<WorkflowBundle, DataflowEdits>();
-
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void addObserver(Observer<EditManagerEvent> observer) {
 		multiCaster.addObserver(observer);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean canRedoDataflowEdit(WorkflowBundle dataflow) {
 		DataflowEdits edits = getEditsForDataflow(dataflow);
 		return edits.canRedo();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean canUndoDataflowEdit(WorkflowBundle dataflow) {
 		DataflowEdits edits = getEditsForDataflow(dataflow);
 		return edits.canUndo();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void doDataflowEdit(WorkflowBundle dataflow, Edit<?> edit)
 			throws EditException {
@@ -90,50 +76,37 @@ public class EditManagerImpl implements EditManager {
 		multiCaster.notify(new DataflowEditEvent(dataflow, edit));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<Observer<EditManagerEvent>> getObservers() {
 		return multiCaster.getObservers();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void redoDataflowEdit(WorkflowBundle dataflow) throws EditException {
 		DataflowEdits edits = getEditsForDataflow(dataflow);
 		Edit<?> edit;
 		synchronized (edits) {
-			if (!edits.canRedo()) {
+			if (!edits.canRedo())
 				return;
-			}
 			edit = edits.getLastUndo();
 			edit.doEdit();
 			edits.addRedo(edit);
 		}
 		multiCaster.notify(new DataFlowRedoEvent(dataflow, edit));
-
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void removeObserver(Observer<EditManagerEvent> observer) {
 		multiCaster.removeObserver(observer);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void undoDataflowEdit(WorkflowBundle dataflow) {
 		DataflowEdits edits = getEditsForDataflow(dataflow);
 		Edit<?> edit;
 		synchronized (edits) {
-			if (!edits.canUndo()) {
+			if (!edits.canUndo())
 				return;
-			}
 			edit = edits.getLastEdit();
 			edit.undo();
 			edits.addUndo(edit);
@@ -169,11 +142,11 @@ public class EditManagerImpl implements EditManager {
 		/**
 		 * List of edits that have been performed and can be undone.
 		 */
-		private List<Edit<?>> edits = new ArrayList<Edit<?>>();
+		private List<Edit<?>> edits = new ArrayList<>();
 		/**
 		 * List of edits that have been undone and can be redone
 		 */
-		private List<Edit<?>> undoes = new ArrayList<Edit<?>>();
+		private List<Edit<?>> undoes = new ArrayList<>();
 
 		/**
 		 * Add an {@link Edit} that has been done by the EditManager.
@@ -221,10 +194,9 @@ public class EditManagerImpl implements EditManager {
 		 */
 		public synchronized void addUndo(Edit<?> edit) {
 			int lastIndex = edits.size() - 1;
-			if (lastIndex < 0 || !edits.get(lastIndex).equals(edit)) {
+			if (lastIndex < 0 || !edits.get(lastIndex).equals(edit))
 				throw new IllegalArgumentException("Can't undo unknown edit "
 						+ edit);
-			}
 			undoes.add(edit);
 			edits.remove(lastIndex);
 		}
@@ -259,9 +231,8 @@ public class EditManagerImpl implements EditManager {
 		 *
 		 */
 		public synchronized Edit<?> getLastEdit() throws IllegalStateException {
-			if (edits.isEmpty()) {
+			if (edits.isEmpty())
 				throw new IllegalStateException("No more edits");
-			}
 			int lastEdit = edits.size() - 1;
 			return edits.get(lastEdit);
 		}
@@ -277,9 +248,8 @@ public class EditManagerImpl implements EditManager {
 		 *
 		 */
 		public synchronized Edit<?> getLastUndo() throws IllegalStateException {
-			if (undoes.isEmpty()) {
+			if (undoes.isEmpty())
 				throw new IllegalStateException("No more undoes");
-			}
 			int lastUndo = undoes.size() - 1;
 			return undoes.get(lastUndo);
 		}
@@ -297,24 +267,19 @@ public class EditManagerImpl implements EditManager {
 		 */
 		protected void addEditOrRedo(Edit<?> edit, boolean isRedo) {
 			edits.add(edit);
-			if (undoes.isEmpty()) {
+			if (undoes.isEmpty())
 				return;
-			}
 			if (isRedo) {
 				// It's a redo, remove only the last one
 				int lastUndoIndex = undoes.size() - 1;
 				Edit<?> lastUndo = undoes.get(lastUndoIndex);
-				if (!edit.equals(lastUndo)) {
+				if (!edit.equals(lastUndo))
 					throw new IllegalArgumentException(
 							"Can only redo last undo");
-				}
 				undoes.remove(lastUndoIndex);
-			} else {
+			} else
 				// It's a new edit, remove all redos
 				undoes.clear();
-			}
 		}
-
 	}
-
 }

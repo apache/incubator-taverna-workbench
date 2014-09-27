@@ -20,6 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl;
 
+import static java.awt.GraphicsEnvironment.isHeadless;
+import static java.util.Collections.singleton;
+import static javax.swing.SwingUtilities.invokeAndWait;
+import static javax.swing.SwingUtilities.isEventDispatchThread;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -28,13 +33,11 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import net.sf.taverna.t2.lang.observer.MultiCaster;
@@ -64,41 +67,33 @@ import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.profiles.Profile;
+import uk.org.taverna.scufl2.xml.t2flow.jaxb.Dataflow;
 
 /**
  * Implementation of {@link FileManager}
- *
+ * 
  * @author Stian Soiland-Reyes
- *
  */
 public class FileManagerImpl implements FileManager {
 	private static Logger logger = Logger.getLogger(FileManagerImpl.class);
-
 	private static int nameIndex = 1;
 
 	/**
-	 * The last blank workflowBundle created using #newDataflow() until it has been
-	 * changed - when this variable will be set to null again. Used to
+	 * The last blank workflowBundle created using #newDataflow() until it has
+	 * been changed - when this variable will be set to null again. Used to
 	 * automatically close unmodified blank workflowBundles on open.
 	 */
 	private WorkflowBundle blankWorkflowBundle = null;
-
+	@SuppressWarnings("unused")
 	private EditManager editManager;
-
 	private EditManagerObserver editManagerObserver = new EditManagerObserver();
-
-	protected MultiCaster<FileManagerEvent> observers = new MultiCaster<FileManagerEvent>(
-			this);
-
+	protected MultiCaster<FileManagerEvent> observers = new MultiCaster<>(this);
 	/**
 	 * Ordered list of open WorkflowBundle
 	 */
-	private LinkedHashMap<WorkflowBundle, OpenDataflowInfo> openDataflowInfos = new LinkedHashMap<WorkflowBundle, OpenDataflowInfo>();
-
+	private LinkedHashMap<WorkflowBundle, OpenDataflowInfo> openDataflowInfos = new LinkedHashMap<>();
 	private DataflowPersistenceHandlerRegistry dataflowPersistenceHandlerRegistry;
-
 	private Scufl2Tools scufl2Tools = new Scufl2Tools();
-
 	private WorkflowBundle currentWorkflowBundle;
 
 	public DataflowPersistenceHandlerRegistry getPersistanceHandlerRegistry() {
@@ -113,162 +108,136 @@ public class FileManagerImpl implements FileManager {
 	/**
 	 * Add an observer to be notified of {@link FileManagerEvent}s, such as
 	 * {@link OpenedDataflowEvent} and {@link SavedDataflowEvent}.
-	 *
+	 * 
 	 * {@inheritDoc}
 	 */
+	@Override
 	public void addObserver(Observer<FileManagerEvent> observer) {
 		observers.addObserver(observer);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean canSaveWithoutDestination(WorkflowBundle workflowBundle) {
 		OpenDataflowInfo dataflowInfo = getOpenDataflowInfo(workflowBundle);
-		if (dataflowInfo.getSource() == null) {
+		if (dataflowInfo.getSource() == null)
 			return false;
-		}
-		Set<DataflowPersistenceHandler> handlers = getPersistanceHandlerRegistry()
-				.getSaveHandlersForType(dataflowInfo.getFileType(),
+		Set<?> handlers = getPersistanceHandlerRegistry()
+				.getSaveHandlersForType(
+						dataflowInfo.getFileType(),
 						dataflowInfo.getDataflowInfo().getCanonicalSource()
 								.getClass());
 		return !handlers.isEmpty();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public boolean closeDataflow(WorkflowBundle workflowBundle, boolean failOnUnsaved)
-			throws UnsavedException {
-		if (workflowBundle == null) {
+	public boolean closeDataflow(WorkflowBundle workflowBundle,
+			boolean failOnUnsaved) throws UnsavedException {
+		if (workflowBundle == null)
 			throw new NullPointerException("Dataflow can't be null");
-		}
 		ClosingDataflowEvent message = new ClosingDataflowEvent(workflowBundle);
 		observers.notify(message);
-		if (message.isAbortClose()) {
+		if (message.isAbortClose())
 			return false;
-		}
-		if ((failOnUnsaved && getOpenDataflowInfo(workflowBundle).isChanged())) {
+		if ((failOnUnsaved && getOpenDataflowInfo(workflowBundle).isChanged()))
 			throw new UnsavedException(workflowBundle);
-		}
 		if (workflowBundle.equals(getCurrentDataflow())) {
 			// We'll need to change current workflowBundle
 			// Find best candidate to the left or right
 			List<WorkflowBundle> workflowBundles = getOpenDataflows();
 			int openIndex = workflowBundles.indexOf(workflowBundle);
-			if (openIndex == -1) {
+			if (openIndex == -1)
 				throw new IllegalArgumentException("Workflow was not opened "
 						+ workflowBundle);
-			} else if (openIndex > 0) {
+
+			if (openIndex > 0)
 				setCurrentDataflow(workflowBundles.get(openIndex - 1));
-			} else if (openIndex == 0 && workflowBundles.size() > 1) {
+			else if (openIndex == 0 && workflowBundles.size() > 1)
 				setCurrentDataflow(workflowBundles.get(1));
-			} else {
+			else
 				// If it was the last one, start a new, empty workflowBundle
 				newDataflow();
-			}
 		}
-		if (workflowBundle == blankWorkflowBundle) {
+		if (workflowBundle == blankWorkflowBundle)
 			blankWorkflowBundle = null;
-		}
 		openDataflowInfos.remove(workflowBundle);
 		observers.notify(new ClosedDataflowEvent(workflowBundle));
 		return true;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public WorkflowBundle getCurrentDataflow() {
 		return currentWorkflowBundle;
 	}
 
 	@Override
 	public WorkflowBundle getDataflowBySource(Object source) {
-		for (Entry<WorkflowBundle,OpenDataflowInfo> infoEntry : openDataflowInfos.entrySet()) {
+		for (Entry<WorkflowBundle, OpenDataflowInfo> infoEntry : openDataflowInfos
+				.entrySet()) {
 			OpenDataflowInfo info = infoEntry.getValue();
-			if (source.equals(info.getSource())) {
+			if (source.equals(info.getSource()))
 				return infoEntry.getKey();
-			}
 		}
 		// Not found
 		return null;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getDataflowName(WorkflowBundle workflowBundle) {
 		Object source = null;
-		if (isDataflowOpen(workflowBundle)) {
+		if (isDataflowOpen(workflowBundle))
 			source = getDataflowSource(workflowBundle);
-		}
-	 	// Fallback
+		// Fallback
 		String name;
 		Workflow workflow = workflowBundle.getMainWorkflow();
-		if (workflow != null) {
+		if (workflow != null)
 			name = workflow.getName();
-		} else {
+		else
 			name = workflowBundle.getName();
-		}
-		if (source == null) {
+		if (source == null)
 			return name;
-		}
-		if (source instanceof File){
-			return ((File)source).getAbsolutePath();
-		} else if (source instanceof URL){
+		if (source instanceof File)
+			return ((File) source).getAbsolutePath();
+		else if (source instanceof URL)
 			return source.toString();
-		} else {
-			// Check if it has implemented a toString() method
-			Method toStringMethod = null;
-			Method toStringMethodFromObject = null;
-			try {
-				toStringMethod = source.getClass().getMethod("toString");
-				toStringMethodFromObject = Object.class.getMethod("toString");
-			} catch (Exception e) {
-				throw new IllegalStateException("Source did not implement Object.toString() " + source);
-			}
-			if (! toStringMethod.equals(toStringMethodFromObject)) {
-				return source.toString();
-			}
+
+		// Check if it has implemented a toString() method
+		Method toStringMethod = null;
+		Method toStringMethodFromObject = null;
+		try {
+			toStringMethod = source.getClass().getMethod("toString");
+			toStringMethodFromObject = Object.class.getMethod("toString");
+		} catch (Exception e) {
+			throw new IllegalStateException(
+					"Source did not implement Object.toString() " + source);
 		}
+		if (!toStringMethod.equals(toStringMethodFromObject))
+			return source.toString();
 		return name;
 	}
 
+	@Override
 	public String getDefaultWorkflowName() {
 		return "Workflow" + (nameIndex++);
 	}
 
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Object getDataflowSource(WorkflowBundle workflowBundle) {
 		return getOpenDataflowInfo(workflowBundle).getSource();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public FileType getDataflowType(WorkflowBundle workflowBundle) {
 		return getOpenDataflowInfo(workflowBundle).getFileType();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<Observer<FileManagerEvent>> getObservers() {
 		return observers.getObservers();
 	}
 
 	/**
 	 * Get the {@link OpenDataflowInfo} for the given WorkflowBundle
-	 *
+	 * 
 	 * @throws NullPointerException
 	 *             if the WorkflowBundle was <code>null</code>
 	 * @throws IllegalArgumentException
@@ -277,102 +246,73 @@ public class FileManagerImpl implements FileManager {
 	 *            WorkflowBundle which information is to be found
 	 * @return The {@link OpenDataflowInfo} describing the WorkflowBundle
 	 */
-	protected synchronized OpenDataflowInfo getOpenDataflowInfo(WorkflowBundle workflowBundle) {
-		if (workflowBundle == null) {
+	protected synchronized OpenDataflowInfo getOpenDataflowInfo(
+			WorkflowBundle workflowBundle) {
+		if (workflowBundle == null)
 			throw new NullPointerException("Dataflow can't be null");
-		}
 		OpenDataflowInfo info = openDataflowInfos.get(workflowBundle);
-		if (info != null) {
-			return info;
-		} else {
-			throw new IllegalArgumentException("Workflow was not opened"
+		if (info == null)
+			throw new IllegalArgumentException("Workflow was not opened "
 					+ workflowBundle);
-		}
+		return info;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<WorkflowBundle> getOpenDataflows() {
-		return new ArrayList<WorkflowBundle>(openDataflowInfos.keySet());
+		return new ArrayList<>(openDataflowInfos.keySet());
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<FileFilter> getOpenFileFilters() {
-		List<FileFilter> fileFilters = new ArrayList<FileFilter>();
+		List<FileFilter> fileFilters = new ArrayList<>();
 
-		Set<FileType> fileTypes = getPersistanceHandlerRegistry().getOpenFileTypes();
-		if (!fileTypes.isEmpty()) {
+		Set<FileType> fileTypes = getPersistanceHandlerRegistry()
+				.getOpenFileTypes();
+		if (!fileTypes.isEmpty())
 			fileFilters.add(new MultipleFileTypes(fileTypes,
 					"All supported workflows"));
-		}
-		for (FileType fileType : fileTypes) {
+		for (FileType fileType : fileTypes)
 			fileFilters.add(new FileTypeFileFilter(fileType));
-		}
 		return fileFilters;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<FileFilter> getOpenFileFilters(Class<?> sourceClass) {
-		List<FileFilter> fileFilters = new ArrayList<FileFilter>();
+		List<FileFilter> fileFilters = new ArrayList<>();
 		for (FileType fileType : getPersistanceHandlerRegistry()
-				.getOpenFileTypesFor(sourceClass)) {
+				.getOpenFileTypesFor(sourceClass))
 			fileFilters.add(new FileTypeFileFilter(fileType));
-		}
 		return fileFilters;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<FileFilter> getSaveFileFilters() {
-		List<FileFilter> fileFilters = new ArrayList<FileFilter>();
-		for (FileType fileType : getPersistanceHandlerRegistry().getSaveFileTypes()) {
+		List<FileFilter> fileFilters = new ArrayList<>();
+		for (FileType fileType : getPersistanceHandlerRegistry()
+				.getSaveFileTypes())
 			fileFilters.add(new FileTypeFileFilter(fileType));
-		}
 		return fileFilters;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public List<FileFilter> getSaveFileFilters(Class<?> destinationClass) {
-		List<FileFilter> fileFilters = new ArrayList<FileFilter>();
+		List<FileFilter> fileFilters = new ArrayList<>();
 		for (FileType fileType : getPersistanceHandlerRegistry()
-				.getSaveFileTypesFor(destinationClass)) {
+				.getSaveFileTypesFor(destinationClass))
 			fileFilters.add(new FileTypeFileFilter(fileType));
-		}
 		return fileFilters;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isDataflowChanged(WorkflowBundle workflowBundle) {
 		return getOpenDataflowInfo(workflowBundle).isChanged();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public boolean isDataflowOpen(WorkflowBundle workflowBundle) {
 		return openDataflowInfos.containsKey(workflowBundle);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public WorkflowBundle newDataflow() {
 		WorkflowBundle workflowBundle = new WorkflowBundle();
@@ -387,9 +327,6 @@ public class FileManagerImpl implements FileManager {
 		return workflowBundle;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void openDataflow(WorkflowBundle workflowBundle) {
 		openDataflowInternal(workflowBundle);
@@ -402,31 +339,27 @@ public class FileManagerImpl implements FileManager {
 	@Override
 	public WorkflowBundle openDataflow(FileType fileType, Object source)
 			throws OpenException {
-		if (!java.awt.GraphicsEnvironment.isHeadless()) {
-			OpenDataflowRunnable r = new OpenDataflowRunnable(this, fileType, source);
-			if (SwingUtilities.isEventDispatchThread()) {
-				r.run();
-			} else {
-				try {
-					SwingUtilities.invokeAndWait(r);
-				} catch (InterruptedException e) {
-					throw new OpenException("Opening was interrupted", e);
-				}catch (InvocationTargetException e) {
-					throw new OpenException("Opening was interrupted", e);
-				}
-			}
-			OpenException thrownException = r.getException();
-			if (thrownException != null) {
-			    throw (thrownException);
-			}
-			return r.getDataflow();
-		}
-		else {
+		if (isHeadless())
 			return performOpenDataflow(fileType, source);
-		}
+
+		OpenDataflowRunnable r = new OpenDataflowRunnable(this, fileType,
+				source);
+		if (isEventDispatchThread()) {
+			r.run();
+		} else
+			try {
+				invokeAndWait(r);
+			} catch (InterruptedException | InvocationTargetException e) {
+				throw new OpenException("Opening was interrupted", e);
+			}
+		OpenException thrownException = r.getException();
+		if (thrownException != null)
+			throw thrownException;
+		return r.getDataflow();
 	}
 
-	public WorkflowBundle performOpenDataflow(FileType fileType, Object source) throws OpenException {
+	public WorkflowBundle performOpenDataflow(FileType fileType, Object source)
+			throws OpenException {
 		DataflowInfo dataflowInfo;
 		WorkflowBundle workflowBundle;
 		dataflowInfo = openDataflowSilently(fileType, source);
@@ -437,53 +370,49 @@ public class FileManagerImpl implements FileManager {
 		return workflowBundle;
 	}
 
-
 	@Override
 	public DataflowInfo openDataflowSilently(FileType fileType, Object source)
 			throws OpenException {
-
 		Set<DataflowPersistenceHandler> handlers;
 		Class<? extends Object> sourceClass = source.getClass();
 
 		boolean unknownFileType = (fileType == null);
-		if (unknownFileType) {
-			handlers = getPersistanceHandlerRegistry()
-					.getOpenHandlersFor(sourceClass);
-		} else {
-			handlers = getPersistanceHandlerRegistry().getOpenHandlersFor(fileType,
+		if (unknownFileType)
+			handlers = getPersistanceHandlerRegistry().getOpenHandlersFor(
 					sourceClass);
-		}
-
-		if (handlers.isEmpty()) {
+		else
+			handlers = getPersistanceHandlerRegistry().getOpenHandlersFor(
+					fileType, sourceClass);
+		if (handlers.isEmpty())
 			throw new OpenException("Unsupported file type or class "
 					+ fileType + " " + sourceClass);
-		}
+
 		Throwable lastException = null;
 		for (DataflowPersistenceHandler handler : handlers) {
 			Collection<FileType> fileTypes;
-			if (unknownFileType) {
+			if (unknownFileType)
 				fileTypes = handler.getOpenFileTypes();
-			} else {
-				fileTypes = Collections.singleton(fileType);
-			}
+			else
+				fileTypes = singleton(fileType);
 			for (FileType candidateFileType : fileTypes) {
-				if (unknownFileType && (source instanceof File)) {
-					// If source is file but fileType was not explicitly set from the
-					// open workflow dialog - check the file extension and decide which
-					// handler to use based on that (so that we do not loop though all handlers)
-					File file = (File) source;
-					if (! file.getPath().endsWith(candidateFileType.getExtension())) {
+				if (unknownFileType && (source instanceof File))
+					/*
+					 * If source is file but fileType was not explicitly set
+					 * from the open workflow dialog - check the file extension
+					 * and decide which handler to use based on that (so that we
+					 * do not loop though all handlers)
+					 */
+					if (!((File) source).getPath().endsWith(
+							candidateFileType.getExtension()))
 						continue;
-					}
-				}
 
 				try {
 					DataflowInfo openDataflow = handler.openDataflow(
 							candidateFileType, source);
 					WorkflowBundle workflowBundle = openDataflow.getDataflow();
 					logger.info("Loaded workflow: " + workflowBundle.getName()
-							+ " " + workflowBundle.getGlobalBaseURI() + " from "
-							+ source + " using " + handler);
+							+ " " + workflowBundle.getGlobalBaseURI()
+							+ " from " + source + " using " + handler);
 					return openDataflow;
 				} catch (OpenException ex) {
 					logger.warn("Could not open workflow " + source + " using "
@@ -492,107 +421,91 @@ public class FileManagerImpl implements FileManager {
 				}
 			}
 		}
-		throw new OpenException("Could not open workflow " + source + "\n", lastException);
+		throw new OpenException("Could not open workflow " + source + "\n",
+				lastException);
 	}
 
 	/**
-	 * Mark the WorkflowBundle as opened, and close the blank WorkflowBundle if needed.
-	 *
+	 * Mark the WorkflowBundle as opened, and close the blank WorkflowBundle if
+	 * needed.
+	 * 
 	 * @param workflowBundle
 	 *            WorkflowBundle that has been opened
 	 */
 	protected void openDataflowInternal(WorkflowBundle workflowBundle) {
-		if (workflowBundle == null) {
+		if (workflowBundle == null)
 			throw new NullPointerException("Dataflow can't be null");
-		}
-
-		if (isDataflowOpen(workflowBundle)) {
+		if (isDataflowOpen(workflowBundle))
 			throw new IllegalArgumentException("Workflow is already open: "
 					+ workflowBundle);
-		}
+
 		openDataflowInfos.put(workflowBundle, new OpenDataflowInfo());
 		setCurrentDataflow(workflowBundle);
-		if (openDataflowInfos.size() == 2 && blankWorkflowBundle != null) {
-			// Behave like a word processor and close the blank WorkflowBundle
-			// when another workflow has been opened
+		if (openDataflowInfos.size() == 2 && blankWorkflowBundle != null)
+			/*
+			 * Behave like a word processor and close the blank WorkflowBundle
+			 * when another workflow has been opened
+			 */
 			try {
 				closeDataflow(blankWorkflowBundle, true);
 			} catch (UnsavedException e) {
 				logger.error("Blank workflow was modified "
 						+ "and could not be closed");
 			}
-		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void removeObserver(Observer<FileManagerEvent> observer) {
 		observers.removeObserver(observer);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void saveDataflow(WorkflowBundle workflowBundle, boolean failOnOverwrite)
-			throws SaveException {
-		if (workflowBundle == null) {
+	public void saveDataflow(WorkflowBundle workflowBundle,
+			boolean failOnOverwrite) throws SaveException {
+		if (workflowBundle == null)
 			throw new NullPointerException("Dataflow can't be null");
-		}
 		OpenDataflowInfo lastSave = getOpenDataflowInfo(workflowBundle);
-		if (lastSave.getSource() == null) {
-			throw new SaveException("Can't save without source " + workflowBundle);
-		}
-		saveDataflow(workflowBundle, lastSave.getFileType(), lastSave.getSource(),
-				failOnOverwrite);
+		if (lastSave.getSource() == null)
+			throw new SaveException("Can't save without source "
+					+ workflowBundle);
+		saveDataflow(workflowBundle, lastSave.getFileType(),
+				lastSave.getSource(), failOnOverwrite);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void saveDataflow(WorkflowBundle workflowBundle, FileType fileType,
 			Object destination, boolean failOnOverwrite) throws SaveException {
-		DataflowInfo savedDataflow = saveDataflowSilently(workflowBundle, fileType, destination, failOnOverwrite);
+		DataflowInfo savedDataflow = saveDataflowSilently(workflowBundle,
+				fileType, destination, failOnOverwrite);
 		getOpenDataflowInfo(workflowBundle).setSavedTo(savedDataflow);
 		observers.notify(new SavedDataflowEvent(workflowBundle));
 	}
 
-
 	@Override
-	public DataflowInfo saveDataflowSilently(WorkflowBundle workflowBundle, FileType fileType,
-			Object destination, boolean failOnOverwrite) throws SaveException,
-			OverwriteException {
+	public DataflowInfo saveDataflowSilently(WorkflowBundle workflowBundle,
+			FileType fileType, Object destination, boolean failOnOverwrite)
+			throws SaveException, OverwriteException {
 		Set<DataflowPersistenceHandler> handlers;
 
 		Class<? extends Object> destinationClass = destination.getClass();
-		if (fileType != null) {
+		if (fileType != null)
 			handlers = getPersistanceHandlerRegistry().getSaveHandlersForType(
 					fileType, destinationClass);
-		} else {
-			handlers = getPersistanceHandlerRegistry()
-					.getSaveHandlersFor(destinationClass);
-		}
+		else
+			handlers = getPersistanceHandlerRegistry().getSaveHandlersFor(
+					destinationClass);
 
-		if (handlers.isEmpty()) {
-			throw new SaveException("Unsupported file type or class "
-					+ fileType + " " + destinationClass);
-		}
 		SaveException lastException = null;
-
 		for (DataflowPersistenceHandler handler : handlers) {
-
 			if (failOnOverwrite) {
 				OpenDataflowInfo openDataflowInfo = getOpenDataflowInfo(workflowBundle);
 				if (handler.wouldOverwriteDataflow(workflowBundle, fileType,
-						destination, openDataflowInfo.getDataflowInfo())) {
+						destination, openDataflowInfo.getDataflowInfo()))
 					throw new OverwriteException(destination);
-				}
 			}
 			try {
-				DataflowInfo savedDataflow = handler.saveDataflow(workflowBundle,
-						fileType, destination);
+				DataflowInfo savedDataflow = handler.saveDataflow(
+						workflowBundle, fileType, destination);
 				savedDataflow.getDataflow();
 				logger.info("Saved workflow: " + workflowBundle.getName() + " "
 						+ workflowBundle.getGlobalBaseURI() + " to "
@@ -605,81 +518,73 @@ public class FileManagerImpl implements FileManager {
 				lastException = ex;
 			}
 		}
-		throw new SaveException("Could not save to " + destination + ":\n" + lastException.getLocalizedMessage(),
-				lastException);
+
+		if (lastException == null)
+			throw new SaveException("Unsupported file type or class "
+					+ fileType + " " + destinationClass);
+		throw new SaveException("Could not save to " + destination + ":\n"
+				+ lastException.getLocalizedMessage(), lastException);
 	}
 
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void setCurrentDataflow(WorkflowBundle workflowBundle) {
 		setCurrentDataflow(workflowBundle, false);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void setCurrentDataflow(WorkflowBundle workflowBundle, boolean openIfNeeded) {
+	public void setCurrentDataflow(WorkflowBundle workflowBundle,
+			boolean openIfNeeded) {
 		currentWorkflowBundle = workflowBundle;
 		if (!isDataflowOpen(workflowBundle)) {
-			if (openIfNeeded) {
-				openDataflow(workflowBundle);
-				return;
-			} else {
+			if (!openIfNeeded)
 				throw new IllegalArgumentException("Workflow is not open: "
 						+ workflowBundle);
-			}
+			openDataflow(workflowBundle);
+			return;
 		}
 		observers.notify(new SetCurrentDataflowEvent(workflowBundle));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public void setDataflowChanged(WorkflowBundle workflowBundle, boolean isChanged) {
+	public void setDataflowChanged(WorkflowBundle workflowBundle,
+			boolean isChanged) {
 		getOpenDataflowInfo(workflowBundle).setIsChanged(isChanged);
-		if (blankWorkflowBundle == workflowBundle) {
+		if (blankWorkflowBundle == workflowBundle)
 			blankWorkflowBundle = null;
-		}
 	}
 
-	public Object getCanonical(Object source)
-			throws IllegalArgumentException, URISyntaxException, IOException {
-
+	@Override
+	public Object getCanonical(Object source) throws IllegalArgumentException,
+			URISyntaxException, IOException {
 		Object canonicalSource = source;
 
-		if (source instanceof URL){
+		if (source instanceof URL) {
 			URL url = ((URL) source);
-			if (url.getProtocol().equalsIgnoreCase("file")) {
+			if (url.getProtocol().equalsIgnoreCase("file"))
 				canonicalSource = new File(url.toURI());
-			}
 		}
 
-		if (canonicalSource instanceof File) {
-			canonicalSource = ((File)canonicalSource).getCanonicalFile();
-		}
+		if (canonicalSource instanceof File)
+			canonicalSource = ((File) canonicalSource).getCanonicalFile();
 		return canonicalSource;
 	}
 
-	public void setDataflowPersistenceHandlerRegistry(DataflowPersistenceHandlerRegistry dataflowPersistenceHandlerRegistry) {
+	public void setDataflowPersistenceHandlerRegistry(
+			DataflowPersistenceHandlerRegistry dataflowPersistenceHandlerRegistry) {
 		this.dataflowPersistenceHandlerRegistry = dataflowPersistenceHandlerRegistry;
 	}
 
 	/**
-	 * Observe the {@link EditManager} for changes to open workflowBundles. A change
-	 * of an open workflow would set it as changed using
+	 * Observe the {@link EditManager} for changes to open workflowBundles. A
+	 * change of an open workflow would set it as changed using
 	 * {@link FileManagerImpl#setDataflowChanged(Dataflow, boolean)}.
-	 *
+	 * 
 	 * @author Stian Soiland-Reyes
-	 *
+	 * 
 	 */
 	private final class EditManagerObserver implements
 			Observer<EditManagerEvent> {
-
+		@Override
 		public void notify(Observable<EditManagerEvent> sender,
 				EditManagerEvent message) throws Exception {
 			if (message instanceof AbstractDataflowEditEvent) {
@@ -694,5 +599,4 @@ public class FileManagerImpl implements FileManager {
 			}
 		}
 	}
-
 }

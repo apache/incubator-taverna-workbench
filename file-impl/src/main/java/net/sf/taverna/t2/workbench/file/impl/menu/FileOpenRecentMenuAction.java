@@ -1,12 +1,21 @@
 package net.sf.taverna.t2.workbench.file.impl.menu;
 
+import static java.awt.event.KeyEvent.VK_0;
+import static java.awt.event.KeyEvent.VK_R;
+import static javax.swing.Action.MNEMONIC_KEY;
+import static javax.swing.Action.NAME;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static javax.swing.SwingUtilities.invokeLater;
+import static net.sf.taverna.t2.workbench.file.impl.menu.FileOpenMenuSection.FILE_OPEN_SECTION_URI;
+
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -14,15 +23,11 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -38,85 +43,73 @@ import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 
 import org.apache.log4j.Logger;
 import org.jdom.Document;
-import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.jdom.output.XMLOutputter;
 
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		Observer<FileManagerEvent> {
-
 	public static final URI RECENT_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#fileOpenRecent");
-
 	private static final String CONF = "conf";
+	private static Logger logger = Logger
+			.getLogger(FileOpenRecentMenuAction.class);
+	private static final String RECENT_WORKFLOWS_XML = "recentWorkflows.xml";
+	private static final int MAX_ITEMS = 10;
 
 	private FileManager fileManager;
 	private ApplicationConfiguration applicationConfiguration;
-
-	private static Logger logger = Logger
-			.getLogger(FileOpenRecentMenuAction.class);
-
-	private static final String RECENT_WORKFLOWS_XML = "recentWorkflows.xml";
-
-	private final int MAX_ITEMS = 10;
-
 	private JMenu menu;
-
-	private List<Recent> recents = new ArrayList<Recent>();
-
+	private List<Recent> recents = new ArrayList<>();
 	private Thread loadRecentThread;
 
 	public FileOpenRecentMenuAction(FileManager fileManager) {
-		super(FileOpenMenuSection.FILE_OPEN_SECTION_URI, 30, RECENT_URI);
+		super(FILE_OPEN_SECTION_URI, 30, RECENT_URI);
 		this.fileManager = fileManager;
 		fileManager.addObserver(this);
 	}
 
+	@Override
 	public void notify(Observable<FileManagerEvent> sender,
 			FileManagerEvent message) throws Exception {
 		FileManager fileManager = (FileManager) sender;
-		if ((message instanceof OpenedDataflowEvent)
-				|| (message instanceof SavedDataflowEvent)) {
+		if (message instanceof OpenedDataflowEvent
+				|| message instanceof SavedDataflowEvent) {
 			AbstractDataflowEvent dataflowEvent = (AbstractDataflowEvent) message;
 			WorkflowBundle dataflow = dataflowEvent.getDataflow();
 			Object dataflowSource = fileManager.getDataflowSource(dataflow);
 			FileType dataflowType = fileManager.getDataflowType(dataflow);
 			addRecent(dataflowSource, dataflowType);
 		}
-		if (message instanceof ClosedDataflowEvent) {
+		if (message instanceof ClosedDataflowEvent)
 			// Make sure enabled/disabled status is correct
 			updateRecentMenu();
-		}
 	}
 
 	public void updateRecentMenu() {
-		SwingUtilities.invokeLater(new Runnable() {
+		invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				updateRecentMenuGUI();
 			}
 		});
-
 		saveRecent();
 	}
 
 	protected void addRecent(Object dataflowSource, FileType dataflowType) {
-		if (dataflowSource == null) {
+		if (dataflowSource == null)
 			return;
-		}
 		if (!(dataflowSource instanceof Serializable)) {
 			logger.warn("Can't serialize workflow source for 'Recent workflows': "
-							+ dataflowSource);
+					+ dataflowSource);
 			return;
 		}
 		synchronized (recents) {
 			Recent recent = new Recent((Serializable) dataflowSource, dataflowType);
-			if (recents.contains(recent)) {
+			if (recents.contains(recent))
 				recents.remove(recent);
-			}
 			recents.add(0, recent); // Add to front
 		}
 		updateRecentMenu();
@@ -125,7 +118,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 	@Override
 	protected Component createCustomComponent() {
 		action = new DummyAction("Recent workflows");
-		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_R);
+		action.putValue(MNEMONIC_KEY, VK_R);
 		menu = new JMenu(action);
 		// Disabled until we have loaded the recent workflows
 		menu.setEnabled(false);
@@ -145,36 +138,35 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		File confDir = new File(applicationConfiguration.getApplicationHomeDir(), CONF);
 		confDir.mkdir();
 		File recentFile = new File(confDir, RECENT_WORKFLOWS_XML);
-		if (!recentFile.isFile()) {
+		if (!recentFile.isFile())
 			return;
-		}
-		SAXBuilder builder = new SAXBuilder();
-		Document document;
 		try {
-			InputStream fileInputStream;
-			fileInputStream = new BufferedInputStream(new FileInputStream(
-					recentFile));
+			loadRecent(recentFile);
+		} catch (JDOMException|IOException e) {
+			logger.warn("Could not read recent workflows from file "
+					+ recentFile, e);
+		}
+	}
+
+	private void loadRecent(File recentFile) throws FileNotFoundException,
+			IOException, JDOMException {
+		SAXBuilder builder = new SAXBuilder();
+		@SuppressWarnings("unused")
+		Document document;
+		try (InputStream fileInputStream = new BufferedInputStream(
+				new FileInputStream(recentFile))) {
 			document = builder.build(fileInputStream);
-		} catch (JDOMException e) {
-			logger.warn("Could not read recent workflows from file "
-					+ recentFile, e);
-			return;
-		} catch (IOException e) {
-			logger.warn("Could not read recent workflows from file "
-					+ recentFile, e);
-			return;
 		}
 		synchronized (recents) {
 			recents.clear();
-//			RecentDeserializer deserialiser = new RecentDeserializer();
-//			try {
-//				recents.addAll(deserialiser.deserializeRecent(document
-//						.getRootElement()));
-//			} catch (Exception e) {
-//				logger.warn("Could not read recent workflows from file "
-//						+ recentFile, e);
-//				return;
-//			}
+			//RecentDeserializer deserialiser = new RecentDeserializer();
+			try {
+				// recents.addAll(deserialiser.deserializeRecent(document
+				// .getRootElement()));
+			} catch (Exception e) {
+				logger.warn("Could not read recent workflows from file "
+						+ recentFile, e);
+			}
 		}
 	}
 
@@ -183,40 +175,32 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		confDir.mkdir();
 		File recentFile = new File(confDir, RECENT_WORKFLOWS_XML);
 
-//		RecentSerializer serializer = new RecentSerializer();
-		XMLOutputter outputter = new XMLOutputter();
-
-		OutputStream outputStream = null;
 		try {
-			Element serializedRecent;
-			synchronized (recents) {
-				if (recents.size() > MAX_ITEMS) {
-					// Remove excess entries
-					recents.subList(MAX_ITEMS, recents.size()).clear();
-				}
-//				serializedRecent = serializer.serializeRecent(recents);
-			}
-			outputStream = new BufferedOutputStream(new FileOutputStream(
-					recentFile));
-//			outputter.output(serializedRecent, outputStream);
+			saveRecent(recentFile);
 //		} catch (JDOMException e) {
 //			logger.warn("Could not generate XML for recent workflows to file "
 //					+ recentFile, e);
-//			return;
 		} catch (IOException e) {
 			logger.warn("Could not write recent workflows to file "
 					+ recentFile, e);
-			return;
-		} finally {
-			if (outputStream != null) {
-				try {
-					outputStream.close();
-				} catch (IOException e) {
-					logger.warn(
-							"Could not close file writing recent workflows to file "
-									+ recentFile, e);
-				}
-			}
+		}
+	}
+
+	private void saveRecent(File recentFile) throws FileNotFoundException,
+			IOException {
+		// RecentSerializer serializer = new RecentSerializer();
+		// XMLOutputter outputter = new XMLOutputter();
+
+		// Element serializedRecent;
+		synchronized (recents) {
+			if (recents.size() > MAX_ITEMS)
+				// Remove excess entries
+				recents.subList(MAX_ITEMS, recents.size()).clear();
+			// serializedRecent = serializer.serializeRecent(recents);
+		}
+		try (OutputStream outputStream = new BufferedOutputStream(
+				new FileOutputStream(recentFile))) {
+			// outputter.output(serializedRecent, outputStream);
 		}
 	}
 
@@ -225,17 +209,18 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		menu.removeAll();
 		synchronized (recents) {
 			for (Recent recent : recents) {
-				if (++items >= MAX_ITEMS) {
+				if (++items >= MAX_ITEMS)
 					break;
-				}
-				OpenRecentAction openRecentAction = new OpenRecentAction(recent, fileManager);
-				if (fileManager.getDataflowBySource(recent.getDataflowSource()) != null) {
+				OpenRecentAction openRecentAction = new OpenRecentAction(
+						recent, fileManager);
+				if (fileManager.getDataflowBySource(recent.getDataflowSource()) != null)
 					openRecentAction.setEnabled(false);
-				} // else setEnabled(true)
+				// else setEnabled(true)
 				JMenuItem menuItem = new JMenuItem(openRecentAction);
 				if (items < 10) {
-					openRecentAction.putValue(Action.NAME, items + " " + openRecentAction.getValue(Action.NAME));
-					menuItem.setMnemonic(KeyEvent.VK_0 + items);
+					openRecentAction.putValue(NAME, items + " "
+							+ openRecentAction.getValue(NAME));
+					menuItem.setMnemonic(VK_0 + items);
 				}
 				menu.add(menuItem);
 			}
@@ -244,6 +229,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		menu.revalidate();
 	}
 
+	@SuppressWarnings("serial")
 	public static class OpenRecentAction extends AbstractAction implements
 			Runnable {
 		private final Recent recent;
@@ -255,20 +241,19 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 			this.fileManager = fileManager;
 			Serializable source = recent.getDataflowSource();
 			String name;
-			if (source instanceof File) {
+			if (source instanceof File)
 				name = ((File) source).getAbsolutePath();
-			} else {
+			else
 				name = source.toString();
-			}
 			this.putValue(NAME, name);
 			this.putValue(SHORT_DESCRIPTION, "Open the workflow " + name);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			component = null;
-			if (e.getSource() instanceof Component) {
+			if (e.getSource() instanceof Component)
 				component = (Component) e.getSource();
-			}
 			setEnabled(false);
 			new Thread(this, "Opening workflow from "
 					+ recent.getDataflowSource()).start();
@@ -277,6 +262,7 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		/**
 		 * Opening workflow in separate thread
 		 */
+		@Override
 		public void run() {
 			final Serializable source = recent.getDataflowSource();
 			try {
@@ -284,23 +270,24 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 			} catch (OpenException ex) {
 				logger.warn("Failed to open the workflow from  " + source
 						+ " \n", ex);
-				JOptionPane.showMessageDialog(component,
+				showMessageDialog(component,
 						"Failed to open the workflow from url " + source
 								+ " \n" + ex.getMessage(), "Error!",
-						JOptionPane.ERROR_MESSAGE);
+						ERROR_MESSAGE);
 			} finally {
 				setEnabled(true);
 			}
 		}
 	}
 
+	@SuppressWarnings("serial")
 	public static class Recent implements Serializable {
-
 		private final class RecentFileType extends FileType {
 			@Override
 			public String getMimeType() {
 				return mimeType;
 			}
+
 			@Override
 			public String getExtension() {
 				return extension;
@@ -311,8 +298,11 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 				return "File type " + extension + " " + mimeType;
 			}
 		}
+
 		private Serializable dataflowSource;
 		private String mimeType;
+		private String extension;
+
 		public String getMimeType() {
 			return mimeType;
 		}
@@ -328,26 +318,23 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		public void setExtension(String extension) {
 			this.extension = extension;
 		}
-		private String extension;
 
 		public Recent() {
 		}
 
 		public FileType makefileType() {
-			if (mimeType == null && extension == null) {
+			if (mimeType == null && extension == null)
 				return null;
-			}
 			return new RecentFileType();
 		}
 
 		public Recent(Serializable dataflowSource, FileType dataflowType) {
-			this.setDataflowSource(dataflowSource);
+			setDataflowSource(dataflowSource);
 			if (dataflowType != null) {
-				this.setMimeType(dataflowType.getMimeType());
-				this.setExtension(dataflowType.getExtension());
+				setMimeType(dataflowType.getMimeType());
+				setExtension(dataflowType.getExtension());
 			}
 		}
-
 
 		@Override
 		public int hashCode() {
@@ -365,37 +352,32 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj) {
+			if (this == obj)
 				return true;
-			}
-			if (obj == null) {
+			if (obj == null)
 				return false;
-			}
-			if (!(obj instanceof Recent)) {
+			if (!(obj instanceof Recent))
 				return false;
-			}
 			Recent other = (Recent) obj;
+
 			if (dataflowSource == null) {
-				if (other.dataflowSource != null) {
+				if (other.dataflowSource != null)
 					return false;
-				}
-			} else if (!dataflowSource.equals(other.dataflowSource)) {
+			} else if (!dataflowSource.equals(other.dataflowSource))
 				return false;
-			}
+
 			if (extension == null) {
-				if (other.extension != null) {
+				if (other.extension != null)
 					return false;
-				}
-			} else if (!extension.equals(other.extension)) {
+			} else if (!extension.equals(other.extension))
 				return false;
-			}
+
 			if (mimeType == null) {
-				if (other.mimeType != null) {
+				if (other.mimeType != null)
 					return false;
-				}
-			} else if (!mimeType.equals(other.mimeType)) {
+			} else if (!mimeType.equals(other.mimeType))
 				return false;
-			}
+
 			return true;
 		}
 
@@ -406,11 +388,11 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		public void setDataflowSource(Serializable dataflowSource) {
 			this.dataflowSource = dataflowSource;
 		}
+
 		@Override
 		public String toString() {
 			return getDataflowSource() + "";
 		}
-
 	}
 
 	// TODO find new serialization
@@ -429,9 +411,8 @@ public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 //		}
 //	}
 
-	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+	public void setApplicationConfiguration(
+			ApplicationConfiguration applicationConfiguration) {
 		this.applicationConfiguration = applicationConfiguration;
 	}
-
-
 }

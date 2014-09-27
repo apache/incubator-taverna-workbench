@@ -25,50 +25,48 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import uk.org.taverna.commons.plugin.Plugin;
 import uk.org.taverna.commons.plugin.PluginException;
 import uk.org.taverna.commons.plugin.PluginManager;
 import uk.org.taverna.commons.plugin.xml.jaxb.PluginVersions;
 
 /**
- *
- *
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class UpdatePluginPanel extends PluginPanel {
-
 	private final PluginVersions pluginVersions;
 	private final PluginManager pluginManager;
 
-	public UpdatePluginPanel(PluginVersions pluginVersions, PluginManager pluginManager) {
-		super(pluginVersions.getName(), pluginVersions.getOrganization(), pluginVersions.getLatestVersion().getVersion(), pluginVersions.getDescription());
+	public UpdatePluginPanel(PluginVersions pluginVersions,
+			PluginManager pluginManager) {
+		super(pluginVersions.getName(), pluginVersions.getOrganization(),
+				pluginVersions.getLatestVersion().getVersion(), pluginVersions
+						.getDescription());
 		this.pluginVersions = pluginVersions;
 		this.pluginManager = pluginManager;
 	}
 
 	@Override
 	public Action getPluginAction() {
-		return new PluginAction();
-	}
-
-	@SuppressWarnings("serial")
-	class PluginAction extends AbstractAction {
-
-		public PluginAction() {
-			putValue(Action.NAME, "Update");
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			setEnabled(false);
-			putValue(Action.NAME, "Updating");
-			try {
-				pluginManager.updatePlugin(pluginVersions);
-			} catch (PluginException ex) {
-				ex.printStackTrace();
+		return new AbstractAction("Update") {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				setEnabled(false);
+				putValue(NAME, "Updating");
+				boolean succeeded = doUpdate();
+				putValue(NAME, succeeded ? "Updated" : "Failed to update");
 			}
-			putValue(Action.NAME, "Updated");
-		}
+		};
 	}
 
+	private boolean doUpdate() {
+		try {
+			pluginManager.updatePlugin(pluginVersions);
+			return true;
+		} catch (PluginException e) {
+			// FIXME Log exception properly
+			e.printStackTrace();
+			return false;
+		}
+	}
 }

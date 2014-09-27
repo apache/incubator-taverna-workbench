@@ -20,28 +20,27 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl;
 
-import org.apache.log4j.Logger;
-
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Workflow;
-
 import javax.swing.SwingWorker;
 
-import net.sf.taverna.t2.workbench.file.DataflowInfo;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 
-public class OpenDataflowSwingWorker extends SwingWorker<WorkflowBundle, Object>{
+import org.apache.log4j.Logger;
 
+import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+
+public class OpenDataflowSwingWorker extends
+		SwingWorker<WorkflowBundle, Object> {
+	@SuppressWarnings("unused")
 	private Logger logger = Logger.getLogger(OpenDataflowSwingWorker.class);
 	private FileType fileType;
 	private Object source;
 	private FileManagerImpl fileManagerImpl;
 	private WorkflowBundle workflowBundle;
-    private OpenException e = null;
+	private OpenException e = null;
 
-	public OpenDataflowSwingWorker(FileType fileType, Object source, FileManagerImpl fileManagerImpl){
+	public OpenDataflowSwingWorker(FileType fileType, Object source,
+			FileManagerImpl fileManagerImpl) {
 		this.fileType = fileType;
 		this.source = source;
 		this.fileManagerImpl = fileManagerImpl;
@@ -49,12 +48,12 @@ public class OpenDataflowSwingWorker extends SwingWorker<WorkflowBundle, Object>
 
 	@Override
 	protected WorkflowBundle doInBackground() throws Exception {
-
-	    try {
-		workflowBundle = fileManagerImpl.performOpenDataflow(fileType, source);
-	    } catch (OpenException e) {
-		this.e = e;
-	    }
+		try {
+			workflowBundle = fileManagerImpl.performOpenDataflow(fileType,
+					source);
+		} catch (OpenException e) {
+			this.e = e;
+		}
 		return workflowBundle;
 	}
 
@@ -62,7 +61,7 @@ public class OpenDataflowSwingWorker extends SwingWorker<WorkflowBundle, Object>
 		return workflowBundle;
 	}
 
-    public OpenException getException() {
-	return e;
-    }
+	public OpenException getException() {
+		return e;
+	}
 }

@@ -20,28 +20,37 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.event.KeyEvent.VK_O;
+import static java.util.prefs.Preferences.userNodeForPackage;
+import static javax.swing.JFileChooser.APPROVE_OPTION;
+import static javax.swing.JOptionPane.CANCEL_OPTION;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.QUESTION_MESSAGE;
+import static javax.swing.JOptionPane.WARNING_MESSAGE;
+import static javax.swing.JOptionPane.YES_NO_CANCEL_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static javax.swing.JOptionPane.showOptionDialog;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static javax.swing.SwingUtilities.invokeLater;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.openIcon;
+
 import java.awt.Component;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.impl.FileTypeFileFilter;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
 
@@ -52,41 +61,31 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
  * {@link FileManager} as compatible with the {@link File} type are supported.
  *
  * @author Stian Soiland-Reyes
- *
  */
 public class OpenWorkflowAction extends AbstractAction {
-
 	private static final long serialVersionUID = 103237694130052153L;
-
 	private static Logger logger = Logger.getLogger(OpenWorkflowAction.class);
-
 	private static final String OPEN_WORKFLOW = "Open workflow...";
 
 	public final OpenCallback DUMMY_OPEN_CALLBACK = new OpenCallbackAdapter();
-
 	protected FileManager fileManager;
 
 	public OpenWorkflowAction(FileManager fileManager) {
-		super(OPEN_WORKFLOW, WorkbenchIcons.openIcon);
+		super(OPEN_WORKFLOW, openIcon);
 		this.fileManager = fileManager;
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_O,
-						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
-		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_O);
+		putValue(
+				ACCELERATOR_KEY,
+				getKeyStroke(VK_O, getDefaultToolkit().getMenuShortcutKeyMask()));
+		putValue(MNEMONIC_KEY, VK_O);
 	}
 
-
-
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		final Component parentComponent;
-		if (e.getSource() instanceof Component) {
+		if (e.getSource() instanceof Component)
 			parentComponent = (Component) e.getSource();
-		} else {
+		else
 			parentComponent = null;
-		}
 		openWorkflows(parentComponent);
 	}
 
@@ -130,32 +129,30 @@ public class OpenWorkflowAction extends AbstractAction {
 			FileType fileType, OpenCallback openCallback) {
 		ErrorLoggingOpenCallbackWrapper callback = new ErrorLoggingOpenCallbackWrapper(
 				openCallback);
-		for (final File file : files) {
-
+		for (File file : files)
 			try {
 				Object canonicalSource = fileManager.getCanonical(file);
 				WorkflowBundle alreadyOpen = fileManager.getDataflowBySource(canonicalSource);
 				if (alreadyOpen != null) {
-					// The workflow from the same source is already opened -
-					// ask the user if they want to switch to it or open another copy;
+					/*
+					 * The workflow from the same source is already opened - ask
+					 * the user if they want to switch to it or open another
+					 * copy...
+					 */
 
 					Object[] options = { "Switch to opened", "Open new copy",
 							"Cancel" };
-					int iSelected = JOptionPane
-							.showOptionDialog(
-									null,
-									"The workflow from the same location is already opened.\n"
-											+ "Do you want to switch to it or open a new copy?",
-									"File Manager Alert",
-									JOptionPane.YES_NO_CANCEL_OPTION,
-									JOptionPane.QUESTION_MESSAGE, null,
-									options, // the titles of buttons
-									options[0]); // default button title
-
-					if (iSelected == JOptionPane.YES_OPTION) {
+					switch (showOptionDialog(
+							null,
+							"The workflow from the same location is already opened.\n"
+									+ "Do you want to switch to it or open a new copy?",
+							"File Manager Alert", YES_NO_CANCEL_OPTION,
+							QUESTION_MESSAGE, null, options, // the titles of buttons
+							options[0])) { // default button title
+					case YES_OPTION:
 						fileManager.setCurrentDataflow(alreadyOpen);
 						return;
-					} else if (iSelected == JOptionPane.CANCEL_OPTION) {
+					case CANCEL_OPTION:
 						// do nothing
 						return;
 					}
@@ -165,19 +162,16 @@ public class OpenWorkflowAction extends AbstractAction {
 				callback.aboutToOpenDataflow(file);
 				WorkflowBundle workflowBundle = fileManager.openDataflow(fileType, file);
 				callback.openedDataflow(file, workflowBundle);
-			} catch (final RuntimeException ex) {
+			} catch (RuntimeException ex) {
 				logger.warn("Failed to open workflow from " + file, ex);
-				if (!callback.couldNotOpenDataflow(file, ex)) {
+				if (!callback.couldNotOpenDataflow(file, ex))
 					showErrorMessage(parentComponent, file, ex);
-				}
-			} catch (final Exception ex) {
+			} catch (Exception ex) {
 				logger.warn("Failed to open workflow from " + file, ex);
-				if (!callback.couldNotOpenDataflow(file, ex)) {
+				if (!callback.couldNotOpenDataflow(file, ex))
 					showErrorMessage(parentComponent, file, ex);
-				}
 				return;
 			}
-		}
 	}
 
 	/**
@@ -197,7 +191,7 @@ public class OpenWorkflowAction extends AbstractAction {
 	public boolean openWorkflows(final Component parentComponent,
 			OpenCallback openCallback) {
 		JFileChooser fileChooser = new JFileChooser();
-		Preferences prefs = Preferences.userNodeForPackage(getClass());
+		Preferences prefs = userNodeForPackage(getClass());
 		String curDir = prefs
 				.get("currentDir", System.getProperty("user.home"));
 		fileChooser.setDialogTitle(OPEN_WORKFLOW);
@@ -207,22 +201,19 @@ public class OpenWorkflowAction extends AbstractAction {
 		List<FileFilter> fileFilters = fileManager.getOpenFileFilters();
 		if (fileFilters.isEmpty()) {
 			logger.warn("No file types found for opening workflow");
-			JOptionPane.showMessageDialog(parentComponent,
+			showMessageDialog(parentComponent,
 					"No file types found for opening workflow.", "Error",
-					JOptionPane.ERROR_MESSAGE);
+					ERROR_MESSAGE);
 			return false;
 		}
-		for (FileFilter fileFilter : fileFilters) {
+		for (FileFilter fileFilter : fileFilters)
 			fileChooser.addChoosableFileFilter(fileFilter);
-		}
-
 		fileChooser.setFileFilter(fileFilters.get(0));
-
 		fileChooser.setCurrentDirectory(new File(curDir));
 		fileChooser.setMultiSelectionEnabled(true);
 
 		int returnVal = fileChooser.showOpenDialog(parentComponent);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
+		if (returnVal == APPROVE_OPTION) {
 			prefs.put("currentDir", fileChooser.getCurrentDirectory()
 					.toString());
 			final File[] selectedFiles = fileChooser.getSelectedFiles();
@@ -232,13 +223,12 @@ public class OpenWorkflowAction extends AbstractAction {
 			}
 			FileFilter fileFilter = fileChooser.getFileFilter();
 			FileType fileType;
-			if (fileFilter instanceof FileTypeFileFilter) {
+			if (fileFilter instanceof FileTypeFileFilter)
 				fileType = ((FileTypeFileFilter) fileChooser.getFileFilter())
 						.getFileType();
-			} else {
+			else
 				// Unknown filetype, try all of them
 				fileType = null;
-			}
 			new FileOpenerThread(parentComponent, selectedFiles, fileType,
 					openCallback).start();
 			return true;
@@ -248,23 +238,24 @@ public class OpenWorkflowAction extends AbstractAction {
 
 	/**
 	 * Show an error message if a file could not be opened
-	 *
+	 * 
 	 * @param parentComponent
 	 * @param file
 	 * @param throwable
 	 */
 	protected void showErrorMessage(final Component parentComponent,
 			final File file, final Throwable throwable) {
-		SwingUtilities.invokeLater(new Runnable() {
+		invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				Throwable cause = throwable;
-				while (cause.getCause() != null) {
+				while (cause.getCause() != null)
 					cause = cause.getCause();
-				}
-				JOptionPane.showMessageDialog(parentComponent,
+				showMessageDialog(
+						parentComponent,
 						"Failed to open workflow from " + file + ": \n"
 								+ cause.getMessage(), "Warning",
-						JOptionPane.WARNING_MESSAGE);
+						WARNING_MESSAGE);
 			}
 		});
 
@@ -279,17 +270,15 @@ public class OpenWorkflowAction extends AbstractAction {
 	 * as file opening happens in a separate thread.
 	 *
 	 * @author Stian Soiland-Reyes
-	 *
 	 */
 	public interface OpenCallback {
-
 		/**
 		 * Called before a workflowBundle is to be opened from the given file
 		 *
 		 * @param file
 		 *            File which workflowBundle is to be opened
 		 */
-		public void aboutToOpenDataflow(File file);
+		void aboutToOpenDataflow(File file);
 
 		/**
 		 * Called if an exception happened while attempting to open the
@@ -302,7 +291,7 @@ public class OpenWorkflowAction extends AbstractAction {
 		 * @return <code>true</code> if the error has been handled, or
 		 *         <code>false</code>3 if a UI warning dialogue is to be opened.
 		 */
-		public boolean couldNotOpenDataflow(File file, Exception ex);
+		boolean couldNotOpenDataflow(File file, Exception ex);
 
 		/**
 		 * Called when a workflowBundle has been successfully opened. The workflowBundle
@@ -313,32 +302,25 @@ public class OpenWorkflowAction extends AbstractAction {
 		 * @param workflowBundle
 		 *            WorkflowBundle that was opened
 		 */
-		public void openedDataflow(File file, WorkflowBundle workflowBundle);
+		void openedDataflow(File file, WorkflowBundle workflowBundle);
 	}
 
 	/**
 	 * Adapter for {@link OpenCallback}
 	 *
 	 * @author Stian Soiland-Reyes
-	 *
 	 */
 	public static class OpenCallbackAdapter implements OpenCallback {
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public void aboutToOpenDataflow(File file) {
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public boolean couldNotOpenDataflow(File file, Exception ex) {
 			return false;
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public void openedDataflow(File file, WorkflowBundle workflowBundle) {
 		}
 	}
@@ -370,19 +352,15 @@ public class OpenWorkflowAction extends AbstractAction {
 	 * thrown without disrupting the caller of the callback.
 	 *
 	 * @author Stian Soiland-Reyes
-	 *
 	 */
 	protected class ErrorLoggingOpenCallbackWrapper implements OpenCallback {
-
 		private final OpenCallback wrapped;
 
 		public ErrorLoggingOpenCallbackWrapper(OpenCallback wrapped) {
 			this.wrapped = wrapped;
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public void aboutToOpenDataflow(File file) {
 			try {
 				wrapped.aboutToOpenDataflow(file);
@@ -392,9 +370,7 @@ public class OpenWorkflowAction extends AbstractAction {
 			}
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public boolean couldNotOpenDataflow(File file, Exception ex) {
 			try {
 				return wrapped.couldNotOpenDataflow(file, ex);
@@ -405,9 +381,7 @@ public class OpenWorkflowAction extends AbstractAction {
 			}
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
+		@Override
 		public void openedDataflow(File file, WorkflowBundle workflowBundle) {
 			try {
 				wrapped.openedDataflow(file, workflowBundle);
@@ -416,7 +390,6 @@ public class OpenWorkflowAction extends AbstractAction {
 						+ ".openedDataflow(File, Dataflow)", wrapperEx);
 			}
 		}
-
 	}
 
 }

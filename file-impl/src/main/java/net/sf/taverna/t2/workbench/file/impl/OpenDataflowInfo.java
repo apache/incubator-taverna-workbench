@@ -27,14 +27,10 @@ import net.sf.taverna.t2.workbench.file.FileType;
 
 /**
  * Information about an open dataflow.
- * <p>
- * 
  * 
  * @author Stian Soiland-Reyes
- * 
  */
 public class OpenDataflowInfo {
-
 	private DataflowInfo dataflowInfo;
 	private boolean isChanged;
 	private Date openedAt;
@@ -43,16 +39,14 @@ public class OpenDataflowInfo {
 	}
 
 	public FileType getFileType() {
-		if (dataflowInfo == null) {
+		if (dataflowInfo == null)
 			return null;
-		}
 		return dataflowInfo.getFileType();
 	}
 
 	public Date getLastModified() {
-		if (dataflowInfo == null) {
+		if (dataflowInfo == null)
 			return null;
-		}
 		return dataflowInfo.getLastModified();
 	}
 
@@ -61,9 +55,8 @@ public class OpenDataflowInfo {
 	}
 
 	public Object getSource() {
-		if (dataflowInfo == null) {
+		if (dataflowInfo == null)
 			return null;
-		}
 		return dataflowInfo.getCanonicalSource();
 	}
 

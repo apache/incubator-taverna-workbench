@@ -31,7 +31,6 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
  * @author Stian Soiland-Reyes
  */
 public class UndoMenuSection extends AbstractMenuSection {
-
 	public static final URI UNDO_SECTION_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/edits#undoSection");
 	public static final URI EDIT_MENU_URI = URI

@@ -20,18 +20,17 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.edits.impl.toolbar;
 
+import static net.sf.taverna.t2.ui.menu.DefaultToolBar.DEFAULT_TOOL_BAR;
+
 import java.net.URI;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
-import net.sf.taverna.t2.ui.menu.DefaultToolBar;
 
 public class EditToolbarSection extends AbstractMenuSection {
-
 	public static final URI EDIT_TOOLBAR_SECTION = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#editToolbarSection");
 
 	public EditToolbarSection() {
-		super(DefaultToolBar.DEFAULT_TOOL_BAR, 60, EDIT_TOOLBAR_SECTION);
+		super(DEFAULT_TOOL_BAR, 60, EDIT_TOOLBAR_SECTION);
 	}
-
 }

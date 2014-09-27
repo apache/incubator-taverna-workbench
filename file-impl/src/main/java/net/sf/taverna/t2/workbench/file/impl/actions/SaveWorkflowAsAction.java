@@ -20,19 +20,28 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.impl.actions;
 
+import static java.awt.event.KeyEvent.VK_F6;
+import static java.awt.event.KeyEvent.VK_S;
+import static javax.swing.JFileChooser.APPROVE_OPTION;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.NO_OPTION;
+import static javax.swing.JOptionPane.WARNING_MESSAGE;
+import static javax.swing.JOptionPane.YES_NO_CANCEL_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
+import static javax.swing.JOptionPane.showConfirmDialog;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.saveAsIcon;
+
 import java.awt.Component;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URL;
 import java.util.List;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import net.sf.taverna.t2.lang.observer.Observable;
@@ -44,40 +53,36 @@ import net.sf.taverna.t2.workbench.file.events.SetCurrentDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.file.impl.FileTypeFileFilter;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
+@SuppressWarnings("serial")
 public class SaveWorkflowAsAction extends AbstractAction {
-
 	private static final String SAVE_WORKFLOW_AS = "Save workflow as...";
-
+	private static final String PREF_CURRENT_DIR = "currentDir";
 	private static Logger logger = Logger.getLogger(SaveWorkflowAsAction.class);
-
 	private FileManager fileManager;
 
 	public SaveWorkflowAsAction(FileManager fileManager) {
-		super(SAVE_WORKFLOW_AS, WorkbenchIcons.saveAsIcon);
+		super(SAVE_WORKFLOW_AS, saveAsIcon);
 		this.fileManager = fileManager;
 		fileManager.addObserver(new FileManagerObserver());
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0));
-		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_S);
+		putValue(ACCELERATOR_KEY, getKeyStroke(VK_F6, 0));
+		putValue(MNEMONIC_KEY, VK_S);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		Component parentComponent = null;
-		if (e.getSource() instanceof Component) {
+		if (e.getSource() instanceof Component)
 			parentComponent = (Component) e.getSource();
-		}
 		WorkflowBundle workflowBundle = fileManager.getCurrentDataflow();
 		if (workflowBundle == null) {
-			JOptionPane.showMessageDialog(parentComponent,
-					"No workflow open yet", "No workflow to save",
-					JOptionPane.ERROR_MESSAGE);
+			showMessageDialog(parentComponent, "No workflow open yet",
+					"No workflow to save", ERROR_MESSAGE);
 			return;
 		}
 		saveCurrentDataflow(parentComponent);
@@ -92,26 +97,22 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		String result;
 		Object source = fileManager.getDataflowSource(workflowBundle);
 		String fileName = null;
-		if (source instanceof File) {
+		if (source instanceof File)
 			fileName = ((File) source).getName();
-
-		} else if (source instanceof URL) {
+		else if (source instanceof URL)
 			fileName = ((URL) source).getPath();
-		}
+
 		if (fileName != null) {
 			int lastIndex = fileName.lastIndexOf(".");
-				if (lastIndex > 0) {
-					fileName = fileName.substring(0, fileName.lastIndexOf("."));
-				}
+			if (lastIndex > 0)
+				fileName = fileName.substring(0, fileName.lastIndexOf("."));
 			result = fileName;
-		}
-		else {
+		} else {
 			Workflow mainWorkflow = workflowBundle.getMainWorkflow();
-			if (mainWorkflow != null) {
+			if (mainWorkflow != null)
 				result = mainWorkflow.getName();
-			} else {
+			else
 				result = workflowBundle.getName();
-			}
 		}
 		return result;
 	}
@@ -121,7 +122,7 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		JFileChooser fileChooser = new JFileChooser();
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
 		String curDir = prefs
-				.get("currentDir", System.getProperty("user.home"));
+				.get(PREF_CURRENT_DIR, System.getProperty("user.home"));
 		fileChooser.setDialogTitle(SAVE_WORKFLOW_AS);
 
 		fileChooser.resetChoosableFileFilters();
@@ -130,28 +131,26 @@ public class SaveWorkflowAsAction extends AbstractAction {
 		List<FileFilter> fileFilters = fileManager
 				.getSaveFileFilters(File.class);
 		if (fileFilters.isEmpty()) {
-			logger.warn("No file types found for saving workflow " + workflowBundle);
-			JOptionPane.showMessageDialog(parentComponent,
+			logger.warn("No file types found for saving workflow "
+					+ workflowBundle);
+			showMessageDialog(parentComponent,
 					"No file types found for saving workflow.", "Error",
-					JOptionPane.ERROR_MESSAGE);
+					ERROR_MESSAGE);
 			return false;
 		}
-		for (FileFilter fileFilter : fileFilters) {
+		for (FileFilter fileFilter : fileFilters)
 			fileChooser.addChoosableFileFilter(fileFilter);
-		}
 		fileChooser.setFileFilter(fileFilters.get(0));
-
 		fileChooser.setCurrentDirectory(new File(curDir));
 
 		File possibleName = new File(determineFileName(workflowBundle));
-
 		boolean tryAgain = true;
 		while (tryAgain) {
 			tryAgain = false;
 			fileChooser.setSelectedFile(possibleName);
 			int returnVal = fileChooser.showSaveDialog(parentComponent);
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				prefs.put("currentDir", fileChooser.getCurrentDirectory()
+			if (returnVal == APPROVE_OPTION) {
+				prefs.put(PREF_CURRENT_DIR, fileChooser.getCurrentDirectory()
 						.toString());
 				File file = fileChooser.getSelectedFile();
 				FileTypeFileFilter fileFilter = (FileTypeFileFilter) fileChooser
@@ -166,8 +165,8 @@ public class SaveWorkflowAsAction extends AbstractAction {
 				// TODO: Open in separate thread to avoid hanging UI
 				try {
 					try {
-						fileManager
-								.saveDataflow(workflowBundle, fileType, file, true);
+						fileManager.saveDataflow(workflowBundle, fileType,
+								file, true);
 						logger.info("Saved workflow " + workflowBundle + " to "
 								+ file);
 						return true;
@@ -175,16 +174,15 @@ public class SaveWorkflowAsAction extends AbstractAction {
 						logger.info("File already exists: " + file);
 						String msg = "Are you sure you want to overwrite existing file "
 								+ file + "?";
-						int ret = JOptionPane.showConfirmDialog(
-								parentComponent, msg, "File already exists",
-								JOptionPane.YES_NO_CANCEL_OPTION);
-						if (ret == JOptionPane.YES_OPTION) {
-							fileManager.saveDataflow(workflowBundle, fileType, file,
-									false);
+						int ret = showConfirmDialog(parentComponent, msg,
+								"File already exists", YES_NO_CANCEL_OPTION);
+						if (ret == YES_OPTION) {
+							fileManager.saveDataflow(workflowBundle, fileType,
+									file, false);
 							logger.info("Saved workflow " + workflowBundle
 									+ " by overwriting " + file);
 							return true;
-						} else if (ret == JOptionPane.NO_OPTION) {
+						} else if (ret == NO_OPTION) {
 							tryAgain = true;
 							continue;
 						} else {
@@ -194,10 +192,10 @@ public class SaveWorkflowAsAction extends AbstractAction {
 					}
 				} catch (SaveException ex) {
 					logger.warn("Could not save workflow to " + file, ex);
-					JOptionPane.showMessageDialog(parentComponent,
+					showMessageDialog(parentComponent,
 							"Could not save workflow to " + file + ": \n\n"
 									+ ex.getMessage(), "Warning",
-							JOptionPane.WARNING_MESSAGE);
+							WARNING_MESSAGE);
 					return false;
 				}
 			}
@@ -206,20 +204,16 @@ public class SaveWorkflowAsAction extends AbstractAction {
 	}
 
 	protected void updateEnabledStatus(WorkflowBundle workflowBundle) {
-		if (workflowBundle == null) {
-			setEnabled(false);
-		} else {
-			setEnabled(true);
-		}
+		setEnabled(workflowBundle != null);
 	}
 
 	private final class FileManagerObserver implements Observer<FileManagerEvent> {
+		@Override
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) throws Exception {
-			if (message instanceof SetCurrentDataflowEvent){
-				updateEnabledStatus(((SetCurrentDataflowEvent) message).getDataflow());
-			}
+			if (message instanceof SetCurrentDataflowEvent)
+				updateEnabledStatus(((SetCurrentDataflowEvent) message)
+						.getDataflow());
 		}
 	}
-
 }

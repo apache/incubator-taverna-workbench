@@ -20,10 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.edits.impl.menu;
 
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static net.sf.taverna.t2.workbench.edits.impl.menu.UndoMenuSection.UNDO_SECTION_URI;
+
 import javax.swing.Action;
-import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
+import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 
@@ -34,22 +38,22 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 /**
  * Undo the last {@link Edit} done on the current workflow using the
  * {@link EditManager}.
- *
+ * 
  * @author Stian Soiland-Reyes
- *
+ * 
  */
 public class UndoMenuAction extends AbstractMenuAction {
-
 	private static Logger logger = Logger.getLogger(UndoMenuAction.class);
 	private final EditManager editManager;
 	private SelectionManager selectionManager;
 	private AbstractUndoAction undoAction;
 
 	public UndoMenuAction(EditManager editManager) {
-		super(UndoMenuSection.UNDO_SECTION_URI, 10);
+		super(UNDO_SECTION_URI, 10);
 		this.editManager = editManager;
 	}
 
+	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
 		undoAction = new AbstractUndoAction("Undo", editManager) {
@@ -64,10 +68,9 @@ public class UndoMenuAction extends AbstractMenuAction {
 					editManager.undoDataflowEdit(workflowBundle);
 				} catch (RuntimeException e) {
 					logger.warn("Could not undo for " + workflowBundle, e);
-					JOptionPane.showMessageDialog(null,
-							"Could not undo for workflow " + workflowBundle + ":\n"
-									+ e, "Could not undo",
-							JOptionPane.ERROR_MESSAGE);
+					showMessageDialog(null, "Could not undo for workflow "
+							+ workflowBundle + ":\n" + e, "Could not undo",
+							ERROR_MESSAGE);
 				}
 			}
 		};
@@ -77,9 +80,7 @@ public class UndoMenuAction extends AbstractMenuAction {
 
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
-		if (undoAction != null) {
+		if (undoAction != null)
 			undoAction.setSelectionManager(selectionManager);
-		}
 	}
-
 }

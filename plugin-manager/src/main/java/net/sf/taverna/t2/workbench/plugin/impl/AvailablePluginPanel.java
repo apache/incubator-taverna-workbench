@@ -30,18 +30,18 @@ import uk.org.taverna.commons.plugin.PluginManager;
 import uk.org.taverna.commons.plugin.xml.jaxb.PluginVersions;
 
 /**
- *
- *
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class AvailablePluginPanel extends PluginPanel {
-
 	private final PluginManager pluginManager;
-
 	private final PluginVersions pluginVersions;
 
-	public AvailablePluginPanel(PluginVersions pluginVersions, PluginManager pluginManager) {
-		super(pluginVersions.getName(), pluginVersions.getOrganization(), pluginVersions.getLatestVersion().getVersion(), pluginVersions.getDescription());
+	public AvailablePluginPanel(PluginVersions pluginVersions,
+			PluginManager pluginManager) {
+		super(pluginVersions.getName(), pluginVersions.getOrganization(),
+				pluginVersions.getLatestVersion().getVersion(), pluginVersions
+						.getDescription());
 		this.pluginVersions = pluginVersions;
 		this.pluginManager = pluginManager;
 	}
@@ -51,25 +51,22 @@ public class AvailablePluginPanel extends PluginPanel {
 		return new PluginAction();
 	}
 
-
-	@SuppressWarnings("serial")
 	class PluginAction extends AbstractAction {
-
 		public PluginAction() {
-			putValue(Action.NAME, "Install");
+			putValue(NAME, "Install");
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			setEnabled(false);
-			putValue(Action.NAME, "Installing");
+			putValue(NAME, "Installing");
 			try {
-				pluginManager.installPlugin(pluginVersions.getPluginSiteUrl(), pluginVersions.getLatestVersion().getFile()).start();
+				pluginManager.installPlugin(pluginVersions.getPluginSiteUrl(),
+						pluginVersions.getLatestVersion().getFile()).start();
 			} catch (PluginException ex) {
 				ex.printStackTrace();
 			}
-			putValue(Action.NAME, "Installed");
+			putValue(NAME, "Installed");
 		}
 	}
-
 }
