@@ -29,19 +29,22 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
 public class ContextualViewComponentFactory implements UIComponentFactorySPI {
-
 	private EditManager editManager;
 	private SelectionManager selectionManager;
 	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
 
+	@Override
 	public UIComponentSPI getComponent() {
-		return new ContextualViewComponent(editManager, selectionManager, contextualViewFactoryRegistry);
+		return new ContextualViewComponent(editManager, selectionManager,
+				contextualViewFactoryRegistry);
 	}
 
+	@Override
 	public ImageIcon getIcon() {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return "Details";
 	}
@@ -54,8 +57,8 @@ public class ContextualViewComponentFactory implements UIComponentFactorySPI {
 		this.selectionManager = selectionManager;
 	}
 
-	public void setContextualViewFactoryRegistry(ContextualViewFactoryRegistry contextualViewFactoryRegistry) {
+	public void setContextualViewFactoryRegistry(
+			ContextualViewFactoryRegistry contextualViewFactoryRegistry) {
 		this.contextualViewFactoryRegistry = contextualViewFactoryRegistry;
 	}
-
 }

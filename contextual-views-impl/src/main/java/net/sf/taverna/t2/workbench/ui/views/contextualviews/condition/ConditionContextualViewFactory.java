@@ -20,7 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.condition;
 
-import java.util.Arrays;
+import static java.util.Arrays.asList;
+
 import java.util.List;
 
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
@@ -30,19 +31,21 @@ import uk.org.taverna.scufl2.api.core.BlockingControlLink;
 
 /**
  * A factory of contextual views for dataflow's condition links.
- *
+ * 
  * @author David Withers
- *
+ * 
  */
 public class ConditionContextualViewFactory implements
 		ContextualViewFactory<BlockingControlLink> {
-
+	@Override
 	public boolean canHandle(Object object) {
 		return object instanceof Condition;
 	}
 
+	@Override
 	public List<ContextualView> getViews(BlockingControlLink condition) {
-		return Arrays.asList(new ContextualView[] {new ConditionContextualView(condition)});
+		return asList(new ContextualView[] { new ConditionContextualView(
+				condition) });
 	}
 
 }

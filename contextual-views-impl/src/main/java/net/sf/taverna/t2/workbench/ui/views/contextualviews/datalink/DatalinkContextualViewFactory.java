@@ -33,23 +33,23 @@ import uk.org.taverna.scufl2.api.core.DataLink;
  * A factory of contextual views for dataflow's datalinks.
  *
  * @author Alex Nenadic
- *
  */
 public class DatalinkContextualViewFactory implements
 		ContextualViewFactory<DataLink> {
-
 	private FileManager fileManager;
 
+	@Override
 	public boolean canHandle(Object object) {
 		return object instanceof Datalink;
 	}
 
+	@Override
 	public List<ContextualView> getViews(DataLink datalink) {
-		return Arrays.asList(new ContextualView[] {new DatalinkContextualView(datalink, fileManager)});
+		return Arrays.asList(new ContextualView[] {
+				new DatalinkContextualView(datalink, fileManager)});
 	}
 
 	public void setFileManager(FileManager fileManager) {
 		this.fileManager = fileManager;
 	}
-
 }

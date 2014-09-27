@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.outputport;
 
+import static java.awt.FlowLayout.LEFT;
+
 import java.awt.FlowLayout;
 
 import javax.swing.JComponent;
@@ -32,12 +34,12 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
 
 /**
  * Contextual view for dataflow procerssor's output ports.
- *
+ * 
  * @author Alex Nenadic
- *
  */
-public class OutputPortContextualView extends ContextualView{
-
+public class OutputPortContextualView extends ContextualView {
+	private static final String NO_DETAILS_AVAILABLE_HTML = "<html><body>"
+			+ "<i>No details available.</i>" + "</body><html>";
 	private static final long serialVersionUID = -7743029534480678624L;
 
 	private ActivityOutputPort outputPort;
@@ -61,17 +63,14 @@ public class OutputPortContextualView extends ContextualView{
 
 	@Override
 	public void refreshView() {
-
-		outputPortView = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		outputPortView = new JPanel(new FlowLayout(LEFT));
 		outputPortView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel label = new JLabel("<html><body><i>No details available.</i></body><html>");
+		JLabel label = new JLabel(NO_DETAILS_AVAILABLE_HTML);
 		outputPortView.add(label);
-
 	}
 
 	@Override
 	public int getPreferredPosition() {
 		return 100;
 	}
-
 }

@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.datalink;
 
+import static java.awt.FlowLayout.LEFT;
+
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -32,7 +34,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import uk.org.taverna.scufl2.api.core.DataLink;
-
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 
@@ -41,16 +42,14 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
  *
  * @author Alex Nenadic
  * @author Alan R Williams
- *
  */
-public class DatalinkContextualView extends ContextualView {
-
+class DatalinkContextualView extends ContextualView {
 	private static final long serialVersionUID = -5031256519235454876L;
 
 	private DataLink datalink;
 	private JPanel datalinkView;
+	@SuppressWarnings("unused")
 	private final FileManager fileManager;
-
 
 	public DatalinkContextualView(DataLink datalink, FileManager fileManager) {
 		this.datalink = datalink;
@@ -71,29 +70,37 @@ public class DatalinkContextualView extends ContextualView {
 
 	@Override
 	public void refreshView() {
-
-		datalinkView = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		datalinkView = new JPanel(new FlowLayout(LEFT));
 		datalinkView.setBorder(new EmptyBorder(5,5,5,5));
-//		JLabel label = new JLabel (getTextFromDepth("link", datalink.getResolvedDepth()));
-		JLabel label = new JLabel ("Fix DataLink resolved depth");
+		JLabel label = new JLabel (getTextForLabel());
 		datalinkView.add(label);
+	}
 
+	private String getTextForLabel() {
+		//FIXME
+		// return getTextFromDepth("link", datalink.getResolvedDepth());
+		return "Fix DataLink resolved depth";
+	}
+
+	private void updatePrediction() {
+		//FIXME
+		// fileManager.getCurrentDataflow().checkValidity();
 	}
 
 	@Override
+	@SuppressWarnings("serial")
 	public Action getConfigureAction(Frame owner) {
 		return new AbstractAction("Update prediction") {
-
+			@Override
 			public void actionPerformed(ActionEvent e) {
-//				fileManager.getCurrentDataflow().checkValidity();
+				updatePrediction();
 				refreshView();
-			}};
+			}
+		};
 	}
-
 
 	@Override
 	public int getPreferredPosition() {
 		return 100;
 	}
-
 }

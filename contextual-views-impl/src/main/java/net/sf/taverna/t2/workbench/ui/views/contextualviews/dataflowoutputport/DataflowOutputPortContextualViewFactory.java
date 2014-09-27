@@ -33,23 +33,23 @@ import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
  * A factory of contextual views for dataflow's output ports.
  *
  * @author Alex Nenadic
- *
  */
 public class DataflowOutputPortContextualViewFactory implements
 		ContextualViewFactory<OutputWorkflowPort> {
-
 	private FileManager fileManager;
 
+	@Override
 	public boolean canHandle(Object object) {
 		return object instanceof DataflowOutputPort;
 	}
 
+	@Override
 	public List<ContextualView> getViews(OutputWorkflowPort outputport) {
-		return Arrays.asList(new ContextualView[] {new DataflowOutputPortContextualView(outputport, fileManager)});
+		return Arrays.asList(new ContextualView[] {
+				new DataflowOutputPortContextualView(outputport, fileManager)});
 	}
 
 	public void setFileManager(FileManager fileManager) {
 		this.fileManager = fileManager;
 	}
-
 }

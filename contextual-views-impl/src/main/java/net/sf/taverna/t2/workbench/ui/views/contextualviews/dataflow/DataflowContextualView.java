@@ -3,119 +3,106 @@
  */
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflow;
 
+import static net.sf.taverna.t2.lang.ui.HtmlUtils.buildTableOpeningTag;
+import static net.sf.taverna.t2.lang.ui.HtmlUtils.createEditorPane;
+import static net.sf.taverna.t2.lang.ui.HtmlUtils.getHtmlHead;
+import static net.sf.taverna.t2.lang.ui.HtmlUtils.panelForHtml;
+
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 
-import net.sf.taverna.t2.lang.ui.HtmlUtils;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
+import net.sf.taverna.t2.workflowmodel.Dataflow;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
 import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * @author alanrw
- *
  */
-public class DataflowContextualView extends ContextualView {
+@SuppressWarnings("serial")
+class DataflowContextualView extends ContextualView {
+	private static int MAX_LENGTH = 50;
+	private static final String ELLIPSIS = "...";
 
 	private Workflow dataflow;
 	private JEditorPane editorPane;
 	private final FileManager fileManager;
 	private final ColourManager colourManager;
 
-	public DataflowContextualView(Workflow dataflow, FileManager fileManager, ColourManager colourManager) {
+	public DataflowContextualView(Workflow dataflow, FileManager fileManager,
+			ColourManager colourManager) {
 		this.dataflow = dataflow;
 		this.fileManager = fileManager;
 		this.colourManager = colourManager;
 		initView();
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView#getMainFrame()
-	 */
 	@Override
 	public JComponent getMainFrame() {
-		editorPane = HtmlUtils.createEditorPane(buildHtml());
-		return HtmlUtils.panelForHtml(editorPane);
+		editorPane = createEditorPane(buildHtml());
+		return panelForHtml(editorPane);
 	}
 
 	private String buildHtml() {
-		String html = HtmlUtils.getHtmlHead(getBackgroundColour());
-		html += HtmlUtils.buildTableOpeningTag();
+		StringBuilder html = new StringBuilder(getHtmlHead(getBackgroundColour()));
+		html.append(buildTableOpeningTag());
 
-		html += "<tr><td colspan=\"2\" align=\"center\"><b>Source</b></td></tr>";
+		html.append("<tr><td colspan=\"2\" align=\"center\"><b>Source</b></td></tr>");
 		String source = "Newly created";
-		if (fileManager.getDataflowSource(dataflow.getParent()) != null) {
+		if (fileManager.getDataflowSource(dataflow.getParent()) != null)
 			source = fileManager.getDataflowName(dataflow.getParent());
-		}
 
-		html += "<tr><td colspan=\"2\" align=\"center\">" + source
-					+ "</td></tr>";
+		html.append("<tr><td colspan=\"2\" align=\"center\">").append(source)
+				.append("</td></tr>");
 		if (!dataflow.getInputPorts().isEmpty()) {
-			html = html
-			+ "<tr><th>Input Port Name</th>"
-				+	"<th>Depth</th>"
-				+"</tr>";
-			for (InputWorkflowPort dip : dataflow.getInputPorts()) {
-				html = html + "<tr><td>" + dip.getName() + "</td><td>"
-						+ (dip.getDepth() < 0 ? "invalid/unpredicted" : dip.getDepth()) + "</td></tr>";
-			}
+			html.append("<tr><th>Input Port Name</th><th>Depth</th></tr>");
+			for (InputWorkflowPort dip : dataflow.getInputPorts())
+				html.append("<tr><td>")
+						.append(dip.getName())
+						.append("</td><td>")
+						.append(dip.getDepth() < 0 ? "invalid/unpredicted"
+								: dip.getDepth()).append("</td></tr>");
 		}
 		if (!dataflow.getOutputPorts().isEmpty()) {
-			html = html
-					+ "<tr><th>Output Port Name</th>"
-						+	"<th>Depth</th>"
-						+"</tr>";
-			for (OutputWorkflowPort dop : dataflow.getOutputPorts()) {
-				html = html + "<tr><td>" + dop.getName() + "</td><td>"
-						+ /*(dop.getDepth() < 0 ?*/ "invalid/unpredicted" /*: dop.getDepth())*/ + "</td>"
-						+ "</tr>";
-			}
+			html.append("<tr><th>Output Port Name</th><th>Depth</th></tr>");
+			for (OutputWorkflowPort dop : dataflow.getOutputPorts())
+				html.append("<tr><td>")
+						.append(dop.getName())
+						.append("</td><td>")
+						.append(/*(dop.getDepth() < 0 ?*/ "invalid/unpredicted" /*: dop.getDepth())*/)
+						.append("</td>" + "</tr>");
 		}
 
-		html += "</table>";
-		html += "</body></html>";
-		return html;
+		return html.append("</table>").append("</body></html>").toString();
 	}
 
 	public String getBackgroundColour() {
-		return colourManager.getDefaultPropertyMap().get("net.sf.taverna.t2.workflowmodel.Dataflow");
+		return colourManager.getDefaultPropertyMap().get(
+				Dataflow.class.toString());
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView#getPreferredPosition()
-	 */
 	@Override
 	public int getPreferredPosition() {
 		return 100;
 	}
 
-	private static int MAX_LENGTH = 50;
-
 	private String limitName(String fullName) {
-		if (fullName.length() > MAX_LENGTH) {
-			return (fullName.substring(0, MAX_LENGTH - 3) + "...");
-		}
-		return fullName;
+		if (fullName.length() <= MAX_LENGTH)
+			return fullName;
+		return fullName.substring(0, MAX_LENGTH - ELLIPSIS.length()) + ELLIPSIS;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView#getViewTitle()
-	 */
 	@Override
 	public String getViewTitle() {
 		return "Workflow " + limitName(dataflow.getName());
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView#refreshView()
-	 */
 	@Override
 	public void refreshView() {
 		editorPane.setText(buildHtml());
 		repaint();
 	}
-
 }

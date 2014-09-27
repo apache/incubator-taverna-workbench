@@ -30,7 +30,6 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.configuration.workbench.ui.T2ConfigurationFrame;
 
 public class WorkbenchConfigurationMenu extends AbstractMenuAction {
-
 	private static final String MAC_OS_X = "Mac OS X";
 
 	private T2ConfigurationFrame t2ConfigurationFrame;
@@ -44,6 +43,7 @@ public class WorkbenchConfigurationMenu extends AbstractMenuAction {
 	@Override
 	protected Action createAction() {
 		return new AbstractAction("Preferences") {
+			@Override
 			public void actionPerformed(ActionEvent event) {
 				t2ConfigurationFrame.showFrame();
 			}
@@ -58,5 +58,4 @@ public class WorkbenchConfigurationMenu extends AbstractMenuAction {
 	public void setT2ConfigurationFrame(T2ConfigurationFrame t2ConfigurationFrame) {
 		this.t2ConfigurationFrame = t2ConfigurationFrame;
 	}
-
 }

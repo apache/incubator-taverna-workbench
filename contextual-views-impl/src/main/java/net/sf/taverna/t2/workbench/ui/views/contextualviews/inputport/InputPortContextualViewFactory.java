@@ -32,17 +32,17 @@ import uk.org.taverna.scufl2.api.port.InputActivityPort;
  * activity's) input ports.
  *
  * @author Alex Nenadic
- *
  */
 public class InputPortContextualViewFactory implements
 		ContextualViewFactory<InputActivityPort> {
-
+	@Override
 	public boolean canHandle(Object object) {
 		return object instanceof InputActivityPort;
 	}
 
+	@Override
 	public List<ContextualView> getViews(InputActivityPort inputport) {
-		return Arrays.asList(new ContextualView[] {new InputPortContextualView(inputport)});
+		return Arrays.asList(new ContextualView[] {
+				new InputPortContextualView(inputport)});
 	}
-
 }

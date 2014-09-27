@@ -28,23 +28,25 @@ import uk.org.taverna.configuration.ConfigurationUIFactory;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
 
 public class WorkbenchConfigurationUIFactory implements ConfigurationUIFactory {
-
 	private WorkbenchConfiguration workbenchConfiguration;
 
+	@Override
 	public boolean canHandle(String uuid) {
 		return uuid.equals(workbenchConfiguration.getUUID());
 	}
 
+	@Override
 	public JPanel getConfigurationPanel() {
 		return new WorkbenchConfigurationPanel(workbenchConfiguration);
 	}
 
+	@Override
 	public Configurable getConfigurable() {
 		return workbenchConfiguration;
 	}
 
-	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+	public void setWorkbenchConfiguration(
+			WorkbenchConfiguration workbenchConfiguration) {
 		this.workbenchConfiguration = workbenchConfiguration;
 	}
-
 }

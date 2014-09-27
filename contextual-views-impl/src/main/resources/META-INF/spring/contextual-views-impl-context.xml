@@ -6,9 +6,7 @@
 	<bean id="ContextualViewComponentFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.impl.ContextualViewComponentFactory">
 			<property name="editManager" ref="editManager" />
 			<property name="selectionManager" ref="selectionManager" />
-			<property name="contextualViewFactoryRegistry">
-				<ref local="ContextualViewFactoryRegistry"/>
-			</property>
+			<property name="contextualViewFactoryRegistry" ref="ContextualViewFactoryRegistry"/>
 	</bean>
 
 	<bean id="OutputPortContextualViewFactory" class="net.sf.taverna.t2.workbench.ui.views.contextualviews.outputport.OutputPortContextualViewFactory" />

@@ -32,17 +32,14 @@ import uk.org.taverna.scufl2.api.core.BlockingControlLink;
 
 /**
  * Contextual view for dataflow's control (condition) links.
- *
+ * 
  * @author David Withers
- *
  */
-public class ConditionContextualView extends ContextualView {
-
+class ConditionContextualView extends ContextualView {
 	private static final long serialVersionUID = -894521200616176439L;
 
-	private BlockingControlLink condition;
+	private final BlockingControlLink condition;
 	private JPanel contitionView;
-
 
 	public ConditionContextualView(BlockingControlLink condition) {
 		this.condition = condition;
@@ -58,22 +55,20 @@ public class ConditionContextualView extends ContextualView {
 	@Override
 	public String getViewTitle() {
 		return "Control link: " + condition.getBlock().getName()
-		+ " runs after " + condition.getUntilFinished().getName();
+				+ " runs after " + condition.getUntilFinished().getName();
 	}
 
 	@Override
 	public void refreshView() {
-
 		contitionView = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		contitionView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel label = new JLabel("<html><body><i>No details available.</i></body><html>");
+		contitionView.setBorder(new EmptyBorder(5, 5, 5, 5));
+		JLabel label = new JLabel(
+				"<html><body><i>No details available.</i></body><html>");
 		contitionView.add(label);
-
 	}
 
 	@Override
 	public int getPreferredPosition() {
 		return 100;
 	}
-
 }

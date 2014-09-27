@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflowinputport;
 
+import static java.awt.FlowLayout.LEFT;
+
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -32,7 +34,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
-
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 
@@ -40,16 +41,17 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
  * Contextual view for dataflow's input ports.
  *
  * @author Alex Nenadic
- *
  */
-public class DataflowInputPortContextualView extends ContextualView{
-
+class DataflowInputPortContextualView extends ContextualView{
 	private static final long serialVersionUID = -8746856072335775933L;
+
 	private InputWorkflowPort dataflowInputPort;
 	private JPanel dataflowInputPortView;
+	@SuppressWarnings("unused")
 	private FileManager fileManager;
 
-	public DataflowInputPortContextualView(InputWorkflowPort inputport, FileManager fileManager) {
+	public DataflowInputPortContextualView(InputWorkflowPort inputport,
+			FileManager fileManager) {
 		this.dataflowInputPort = inputport;
 		this.fileManager = fileManager;
 		initView();
@@ -68,25 +70,27 @@ public class DataflowInputPortContextualView extends ContextualView{
 
 	@Override
 	public void refreshView() {
-		dataflowInputPortView = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		dataflowInputPortView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel label = new JLabel (getTextFromDepth("port", dataflowInputPort.getDepth()));
+		dataflowInputPortView = new JPanel(new FlowLayout(LEFT));
+		dataflowInputPortView.setBorder(new EmptyBorder(5, 5, 5, 5));
+		JLabel label = new JLabel(getTextFromDepth("port",
+				dataflowInputPort.getDepth()));
 		dataflowInputPortView.add(label);
 	}
 
+	@SuppressWarnings("serial")
 	@Override
 	public Action getConfigureAction(Frame owner) {
 		return new AbstractAction("Update prediction") {
-
+			@Override
 			public void actionPerformed(ActionEvent e) {
-//				fileManager.getCurrentDataflow().checkValidity();
+				// fileManager.getCurrentDataflow().checkValidity();
 				refreshView();
-			}};
+			}
+		};
 	}
 
 	@Override
 	public int getPreferredPosition() {
 		return 100;
 	}
-
 }

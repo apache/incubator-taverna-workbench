@@ -14,20 +14,21 @@ import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * @author alanrw
- *
  */
 public class DataflowContextualViewFactory implements
 		ContextualViewFactory<Workflow> {
-
 	private FileManager fileManager;
 	private ColourManager colourManager;
 
+	@Override
 	public boolean canHandle(Object selection) {
 		return selection instanceof Workflow;
 	}
 
+	@Override
 	public List<ContextualView> getViews(Workflow selection) {
-		return Arrays.asList(new ContextualView[] {new DataflowContextualView(selection, fileManager, colourManager)});
+		return Arrays.asList(new ContextualView[] {
+				new DataflowContextualView(selection, fileManager, colourManager)});
 	}
 
 	public void setFileManager(FileManager fileManager) {
@@ -37,5 +38,4 @@ public class DataflowContextualViewFactory implements
 	public void setColourManager(ColourManager colourManager) {
 		this.colourManager = colourManager;
 	}
-
 }

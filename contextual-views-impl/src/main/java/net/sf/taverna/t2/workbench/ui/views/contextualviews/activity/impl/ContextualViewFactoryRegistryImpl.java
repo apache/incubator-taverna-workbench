@@ -37,44 +37,39 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualV
  * For {@link ContextualViewFactory factories} to be found, its full qualified
  * name needs to be defined as a resource file
  * <code>/META-INF/services/net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualViewFactory</code>
- * </p>
- *
+ * 
  * @author Stuart Owen
  * @author Ian Dunlop
  * @author Stian Soiland-Reyes
- *
+ * 
  * @see ContextualViewFactory
- *
  */
-@SuppressWarnings("unchecked")
-public class ContextualViewFactoryRegistryImpl implements ContextualViewFactoryRegistry {
-
-	private List<ContextualViewFactory> contextualViewFactories;
+public class ContextualViewFactoryRegistryImpl implements
+		ContextualViewFactoryRegistry {
+	private List<ContextualViewFactory<?>> contextualViewFactories;
 
 	/**
 	 * Discover and return the ContextualViewFactory associated to the provided
 	 * object. This is accomplished by returning the discovered
 	 * {@link ContextualViewFactory#canHandle(Object)} that returns true for
 	 * that Object.
-	 *
+	 * 
 	 * @param object
 	 * @return
-	 *
 	 * @see ContextualViewFactory#canHandle(Object)
 	 */
-	public List<ContextualViewFactory> getViewFactoriesForObject(Object object) {
-
-		List<ContextualViewFactory> result = new ArrayList<ContextualViewFactory>();
-		for (ContextualViewFactory<?> factory : contextualViewFactories) {
-			if (factory.canHandle(object)) {
+	@Override
+	public List<ContextualViewFactory<?>> getViewFactoriesForObject(
+			Object object) {
+		List<ContextualViewFactory<?>> result = new ArrayList<>();
+		for (ContextualViewFactory<?> factory : contextualViewFactories)
+			if (factory.canHandle(object))
 				result.add(factory);
-			}
-		}
 		return result;
 	}
 
-	public void setContextualViewFactories(List<ContextualViewFactory> contextualViewFactories) {
+	public void setContextualViewFactories(
+			List<ContextualViewFactory<?>> contextualViewFactories) {
 		this.contextualViewFactories = contextualViewFactories;
 	}
-
 }

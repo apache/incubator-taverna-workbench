@@ -20,6 +20,13 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.merge;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.SOUTH;
+import static java.awt.FlowLayout.LEFT;
+import static net.sf.taverna.t2.lang.ui.HtmlUtils.buildTableOpeningTag;
+import static net.sf.taverna.t2.lang.ui.HtmlUtils.createEditorPane;
+import static net.sf.taverna.t2.lang.ui.HtmlUtils.getHtmlHead;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -31,33 +38,34 @@ import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 
-import net.sf.taverna.t2.lang.ui.HtmlUtils;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
+import net.sf.taverna.t2.workflowmodel.Merge;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.DataLink;
 
 /**
  * Contextual view for a {@link Merge}.
- *
+ * 
  * @author Alex Nenadic
- *
  */
 @SuppressWarnings("serial")
-public class MergeContextualView extends ContextualView{
-
+class MergeContextualView extends ContextualView {
+	@SuppressWarnings("unused")
 	private DataLink dataLink;
 	private List<DataLink> datalinks;
+	@SuppressWarnings("unused")
 	private WorkflowBundle workflow;
 	private JEditorPane editorPane;
 	private final EditManager editManager;
 	private final ColourManager colourManager;
-
-	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 	private final SelectionManager selectionManager;
+
+	// TODO inject from Spring via factory?
+	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	public MergeContextualView(DataLink dataLink, EditManager editManager,
 			SelectionManager selectionManager, ColourManager colourManager) {
@@ -72,8 +80,8 @@ public class MergeContextualView extends ContextualView{
 
 	@Override
 	public JComponent getMainFrame() {
-		editorPane = HtmlUtils.createEditorPane(buildHtml());
-		return this.panelForHtml(editorPane);
+		editorPane = createEditorPane(buildHtml());
+		return panelForHtml(editorPane);
 	}
 
 	@Override
@@ -81,10 +89,8 @@ public class MergeContextualView extends ContextualView{
 		return "Merge Position";
 	}
 
-
 	/**
-	 * Update the view with the latest information
-	 * from the configuration bean.
+	 * Update the view with the latest information from the configuration bean.
 	 */
 	@Override
 	public void refreshView() {
@@ -93,55 +99,52 @@ public class MergeContextualView extends ContextualView{
 	}
 
 	private String buildHtml() {
-		String html = HtmlUtils.getHtmlHead(getBackgroundColour());
-		html += HtmlUtils.buildTableOpeningTag();
-		html += "<tr><td colspan=\"2\"><b>" + getViewTitle() + "</b></td></tr>";
-		html += "<tr><td colspan=\"2\"><b>Ordered incoming links</b></td></tr>";
+		StringBuilder html = new StringBuilder(
+				getHtmlHead(getBackgroundColour()));
+		html.append(buildTableOpeningTag())
+				.append("<tr><td colspan=\"2\"><b>")
+				.append(getViewTitle())
+				.append("</b></td></tr>")
+				.append("<tr><td colspan=\"2\"><b>Ordered incoming links</b></td></tr>");
 
 		int counter = 1;
+		for (DataLink datalink : datalinks)
+			html.append("<tr><td>").append(counter++).append(".</td><td>")
+					.append(datalink).append("</td></tr>");
 
-		for (DataLink datalink : datalinks){
-			html += "<tr><td>"+ (counter++) + ".</td><td>" + datalink + "</td></tr>";
-		}
-
-		html += "</table>";
-		html += "</body></html>";
-		return html;
+		return html.append("</table>").append("</body></html>").toString();
 	}
 
 	protected JPanel panelForHtml(JEditorPane editorPane) {
 		final JPanel panel = new JPanel();
 
-		panel.setLayout(new BorderLayout());
-		panel.add(editorPane, BorderLayout.CENTER);
+		JPanel buttonPanel = new JPanel(new FlowLayout(LEFT));
 
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-
-		JButton configureButton = new JButton(new AbstractAction(){
-
+		JButton configureButton = new JButton(new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				MergeConfigurationView	mergeConfigurationView = new MergeConfigurationView(datalinks, editManager, selectionManager);
+				MergeConfigurationView mergeConfigurationView = new MergeConfigurationView(
+						datalinks, editManager, selectionManager);
 				mergeConfigurationView.setLocationRelativeTo(panel);
 				mergeConfigurationView.setVisible(true);
 			}
-
 		});
 		configureButton.setText("Configure");
 		buttonPanel.add(configureButton);
 
-		panel.add(buttonPanel, BorderLayout.SOUTH);
-
+		panel.setLayout(new BorderLayout());
+		panel.add(editorPane, CENTER);
+		panel.add(buttonPanel, SOUTH);
 		return panel;
 	}
 
 	public String getBackgroundColour() {
-		return colourManager.getDefaultPropertyMap().get("net.sf.taverna.t2.workflowmodel.Merge");
+		return colourManager.getDefaultPropertyMap().get(
+				"net.sf.taverna.t2.workflowmodel.Merge");
 	}
-
 
 	@Override
 	public int getPreferredPosition() {
 		return 100;
 	}
-
 }

@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.dataflowoutputport;
 
+import static java.awt.FlowLayout.LEFT;
+
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -32,7 +34,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
-
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 
@@ -40,16 +41,17 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
  * Contextual view for dataflow's output ports.
  *
  * @author Alex Nenadic
- *
  */
 public class DataflowOutputPortContextualView extends ContextualView {
-
 	private static final long serialVersionUID = 5496014085110553051L;
+
 	private OutputWorkflowPort dataflowOutputPort;
 	private JPanel dataflowOutputPortView;
+	@SuppressWarnings("unused")
 	private FileManager fileManager;
 
-	public DataflowOutputPortContextualView(OutputWorkflowPort outputport, FileManager fileManager) {
+	public DataflowOutputPortContextualView(OutputWorkflowPort outputport,
+			FileManager fileManager) {
 		this.dataflowOutputPort = outputport;
 		this.fileManager = fileManager;
 		initView();
@@ -68,21 +70,33 @@ public class DataflowOutputPortContextualView extends ContextualView {
 
 	@Override
 	public void refreshView() {
-		dataflowOutputPortView = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		dataflowOutputPortView = new JPanel(new FlowLayout(LEFT));
 		dataflowOutputPortView.setBorder(new EmptyBorder(5,5,5,5));
-//		JLabel label = new JLabel (getTextFromDepth("port", dataflowOutputPort.getDepth()));
-		JLabel label = new JLabel ("Fix depth for OutputWorkflowPort");
+		JLabel label = new JLabel(getTextForLabel());
 		dataflowOutputPortView.add(label);
 	}
 
+	private String getTextForLabel() {
+		//FIXME
+		//return getTextFromDepth("port", dataflowOutputPort.getDepth());
+		return "Fix depth for OutputWorkflowPort";
+	}
+
+	private void updatePrediction() {
+		//FIXME
+		// fileManager.getCurrentDataflow().checkValidity();
+	}
+
 	@Override
+	@SuppressWarnings("serial")
 	public Action getConfigureAction(Frame owner) {
 		return new AbstractAction("Update prediction") {
-
+			@Override
 			public void actionPerformed(ActionEvent e) {
-//				fileManager.getCurrentDataflow().checkValidity();
+				updatePrediction();
 				refreshView();
-			}};
+			}
+		};
 	}
 
 	@Override

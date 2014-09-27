@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.inputport;
 
+import static java.awt.FlowLayout.LEFT;
+
 import java.awt.FlowLayout;
 
 import javax.swing.JComponent;
@@ -28,17 +30,16 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import uk.org.taverna.scufl2.api.port.InputActivityPort;
-
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 
 /**
  * Contextual view for dataflow procerssor's input ports.
- *
+ * 
  * @author Alex Nenadic
- *
  */
-public class InputPortContextualView extends ContextualView {
-
+class InputPortContextualView extends ContextualView {
+	private static final String NO_DETAILS_AVAILABLE_HTML = "<html><body>"
+			+ "<i>No details available.</i>" + "</body><html>";
 	private static final long serialVersionUID = -7743029534480678624L;
 
 	private InputActivityPort inputPort;
@@ -62,17 +63,14 @@ public class InputPortContextualView extends ContextualView {
 
 	@Override
 	public void refreshView() {
-
-		inputPortView = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		inputPortView.setBorder(new EmptyBorder(5,5,5,5));
-		JLabel label = new JLabel("<html><body><i>No details available.</i></body><html>");
+		inputPortView = new JPanel(new FlowLayout(LEFT));
+		inputPortView.setBorder(new EmptyBorder(5, 5, 5, 5));
+		JLabel label = new JLabel(NO_DETAILS_AVAILABLE_HTML);
 		inputPortView.add(label);
-
 	}
 
 	@Override
 	public int getPreferredPosition() {
 		return 100;
 	}
-
 }

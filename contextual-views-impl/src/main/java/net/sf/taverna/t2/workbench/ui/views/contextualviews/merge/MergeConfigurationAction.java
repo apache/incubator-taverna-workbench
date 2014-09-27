@@ -25,10 +25,8 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workflow.edits.ReorderMergePositionsEdit;
 
@@ -45,41 +43,37 @@ import uk.org.taverna.scufl2.api.core.DataLink;
  *
  */
 @SuppressWarnings("serial")
-public class MergeConfigurationAction extends AbstractAction {
-
+class MergeConfigurationAction extends AbstractAction {
 	private static Logger logger = Logger
-	.getLogger(MergeConfigurationAction.class);
+			.getLogger(MergeConfigurationAction.class);
 
 	private final List<DataLink> reorderedDataLinksList;
 	private final List<DataLink> datalinks;
-
 	private final EditManager editManager;
-
 	private final SelectionManager selectionManager;
 
-
-	MergeConfigurationAction(List<DataLink> datalinks, List<DataLink> reorderedDataLinksList,
-			EditManager editManager, SelectionManager selectionManager) {
+	MergeConfigurationAction(List<DataLink> datalinks,
+			List<DataLink> reorderedDataLinksList, EditManager editManager,
+			SelectionManager selectionManager) {
 		this.datalinks = datalinks;
 		this.reorderedDataLinksList = reorderedDataLinksList;
 		this.editManager = editManager;
 		this.selectionManager = selectionManager;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		ReorderMergePositionsEdit reorderMergeInputPortsEdit = new ReorderMergePositionsEdit(datalinks, reorderedDataLinksList);
+		ReorderMergePositionsEdit edit = new ReorderMergePositionsEdit(
+				datalinks, reorderedDataLinksList);
 
-		WorkflowBundle currentWorkflowBundle = selectionManager.getSelectedWorkflowBundle();
+		WorkflowBundle bundle = selectionManager.getSelectedWorkflowBundle();
 
 		try {
-			editManager.doDataflowEdit(currentWorkflowBundle,
-					reorderMergeInputPortsEdit);
+			editManager.doDataflowEdit(bundle, edit);
 		} catch (IllegalStateException ex1) {
 			logger.error("Could not configure merge", ex1);
 		} catch (EditException ex2) {
 			logger.error("Could not configure merge", ex2);
 		}
-
 	}
-
 }

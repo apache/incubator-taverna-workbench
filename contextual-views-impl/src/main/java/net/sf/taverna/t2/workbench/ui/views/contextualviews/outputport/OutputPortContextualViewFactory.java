@@ -32,17 +32,17 @@ import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
  * activity's) output ports.
  *
  * @author Alex Nenadic
- *
  */
 public class OutputPortContextualViewFactory implements
 		ContextualViewFactory<ActivityOutputPort> {
-
+	@Override
 	public boolean canHandle(Object object) {
 		return object instanceof ActivityOutputPort;
 	}
 
+	@Override
 	public List<ContextualView> getViews(ActivityOutputPort outputport) {
-		return Arrays.asList(new ContextualView[] {new OutputPortContextualView(outputport)});
+		return Arrays.asList(new ContextualView[] {
+				new OutputPortContextualView(outputport)});
 	}
-
 }

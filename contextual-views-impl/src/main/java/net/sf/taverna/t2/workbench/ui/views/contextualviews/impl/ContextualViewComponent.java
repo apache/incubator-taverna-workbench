@@ -1,5 +1,16 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.impl;
 
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.CENTER;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.LINE_START;
+import static java.awt.GridBagConstraints.NONE;
+import static net.sf.taverna.t2.lang.ui.ShadedLabel.BLUE;
+import static net.sf.taverna.t2.lang.ui.ShadedLabel.GREEN;
+import static net.sf.taverna.t2.lang.ui.ShadedLabel.ORANGE;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.minusIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.plusIcon;
+
 import java.awt.Color;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -32,7 +43,6 @@ import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
@@ -47,40 +57,30 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 @SuppressWarnings("serial")
 public class ContextualViewComponent extends JScrollPane implements UIComponentSPI {
-
-	private static final int DELAY = 250; // delay before contextual view is
-											// redrawn
+	/** delay before contextual view is redrawn */
+	private static final int DELAY = 250;
+	private static final Color[] colors = new Color[] { BLUE, GREEN, ORANGE };
+	// HACK ALERT!
+	public static boolean selfGenerated = false;
 
 	private Observer<DataflowSelectionMessage> dataflowSelectionListener = new DataflowSelectionListener();
-
 	private SelectionManager selectionManager;
 	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
-
 	GridBagConstraints gbc;
-
-	protected Map<JPanel, SectionLabel> panelToLabelMap = new HashMap<JPanel, SectionLabel>();
-
+	protected Map<JPanel, SectionLabel> panelToLabelMap = new HashMap<>();
 	private String lastOpenedSectionName = "";
-
 	private JPanel mainPanel;
-
 	private List<JPanel> shownComponents = null;
-
-	private static Comparator<ContextualView> viewComparator = new Comparator<ContextualView>() {
-
-		public int compare(ContextualView o1, ContextualView o2) {
-			return (o1.getPreferredPosition() - o2.getPreferredPosition());
-		}
-	};
-
-	private Color[] colors = new Color[] { ShadedLabel.BLUE, ShadedLabel.GREEN, ShadedLabel.ORANGE };
 	int colorIndex = 0;
-
 	private Timer updateSelectionTimer = null;
-
 	private Object lastSelectedObject = null;
 
-	public static boolean selfGenerated = false;
+	private static final Comparator<ContextualView> viewComparator = new Comparator<ContextualView>() {
+		@Override
+		public int compare(ContextualView o1, ContextualView o2) {
+			return o1.getPreferredPosition() - o2.getPreferredPosition();
+		}
+	};
 
 	public ContextualViewComponent(EditManager editManager,
 			SelectionManager selectionManager,
@@ -96,11 +96,13 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		selectionManager.addObserver(new SelectionManagerObserver());
 	}
 
+	@Override
 	public ImageIcon getIcon() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return "Details";
 	}
@@ -110,19 +112,20 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		this.setViewportView(mainPanel);
 	}
 
+	@Override
 	public void onDisplay() {
-
 	}
 
+	@Override
 	public void onDispose() {
 		updateSelectionTimer.stop();
 	}
 
-	private void updateContextualView(List<ContextualViewFactory> viewFactoriesForBeanType,
+	@SuppressWarnings("unchecked")
+	private void updateContextualView(List<ContextualViewFactory<?>> viewFactories,
 			Object selection) {
-		if (selection == lastSelectedObject) {
+		if (selection == lastSelectedObject)
 			return;
-		}
 		lastSelectedObject = selection;
 		mainPanel = new JPanel(new GridBagLayout());
 		panelToLabelMap.clear();
@@ -130,81 +133,83 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = 0;
 		gbc.weightx = 0.1;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.fill = HORIZONTAL;
 
 		gbc.gridy = 0;
-		JPanel firstPanel = null;
-		JPanel lastOpenedSection = null;
-		shownComponents = new ArrayList<JPanel>();
-		List<ContextualView> views = new ArrayList<ContextualView>();
-		for (ContextualViewFactory cvf : viewFactoriesForBeanType) {
-			views.addAll(cvf.getViews(selection));
-		}
+		shownComponents = new ArrayList<>();
+		List<ContextualView> views = new ArrayList<>();
+		for (ContextualViewFactory<?> cvf : viewFactories)
+			views.addAll(((ContextualViewFactory<Object>) cvf)
+					.getViews(selection));
 		Collections.sort(views, viewComparator);
 		colorIndex = 0;
-		if (!views.isEmpty()) {
-			for (ContextualView view : views) {
-				SectionLabel label = new SectionLabel(view.getViewTitle(), nextColor());
-				mainPanel.add(label, gbc);
-				gbc.gridy++;
-				JPanel subPanel = new JPanel();
-				if (view.getViewTitle().equals(lastOpenedSectionName)) {
-					lastOpenedSection = subPanel;
-				}
-				subPanel.setLayout(new GridBagLayout());
-
-				GridBagConstraints constraints = new GridBagConstraints();
-				constraints.gridx = 0;
-				constraints.gridy = 0;
-				constraints.weightx = 0.1;
-				constraints.weighty = 0;
-				constraints.anchor = GridBagConstraints.CENTER;
-				constraints.fill = GridBagConstraints.HORIZONTAL;
-
-				subPanel.add(view, constraints);
-				Frame frame = Utils.getParentFrame(this);
-				Action configureAction = view.getConfigureAction(frame);
-				if (configureAction != null) {
-					JButton configureButton = new JButton(configureAction);
-					if (configureButton.getText() == null || configureButton.getText().equals("")) {
-						configureButton.setText("Configure");
-					}
-					constraints.gridy++;
-					constraints.fill = GridBagConstraints.NONE;
-					constraints.anchor = GridBagConstraints.LINE_START;
-					subPanel.add(configureButton, constraints);
-				}
-				if (firstPanel == null) {
-					firstPanel = subPanel;
-				}
-				mainPanel.add(subPanel, gbc);
-				shownComponents.add(subPanel);
-				gbc.gridy++;
-				if (viewFactoriesForBeanType.size() != 1) {
-					makeCloseable(subPanel, label);
-				} else {
-					lastOpenedSectionName = label.getText();
-					lastOpenedSection = subPanel;
-					panelToLabelMap.put(subPanel, label);
-					subPanel.setVisible(false);
-				}
-			}
-			if (lastOpenedSection != null) {
-				openSection(lastOpenedSection);
-			} else if (firstPanel != null) {
-				openSection(firstPanel);
-			}
-		} else {
+		if (views.isEmpty())
 			mainPanel.add(new JLabel("No details available"));
-		}
+		else
+			populateContextualView(viewFactories, gbc, views);
 		gbc.weighty = 0.1;
-		gbc.fill = GridBagConstraints.BOTH;
+		gbc.fill = BOTH;
 		mainPanel.add(new JPanel(), gbc);
 		// mainPanel.revalidate();
 		// mainPanel.repaint();
 		this.setViewportView(mainPanel);
 		// this.revalidate();
 		// this.repaint();
+	}
+
+	private void populateContextualView(
+			List<ContextualViewFactory<?>> viewFactories,
+			GridBagConstraints gbc, List<ContextualView> views) {
+		JPanel firstPanel = null;
+		JPanel lastOpenedSection = null;
+		for (ContextualView view : views) {
+			SectionLabel label = new SectionLabel(view.getViewTitle(), nextColor());
+			mainPanel.add(label, gbc);
+			gbc.gridy++;
+			JPanel subPanel = new JPanel();
+			if (view.getViewTitle().equals(lastOpenedSectionName))
+				lastOpenedSection = subPanel;
+			subPanel.setLayout(new GridBagLayout());
+
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			constraints.weightx = 0.1;
+			constraints.weighty = 0;
+			constraints.anchor = CENTER;
+			constraints.fill = HORIZONTAL;
+
+			subPanel.add(view, constraints);
+			Frame frame = Utils.getParentFrame(this);
+			Action configureAction = view.getConfigureAction(frame);
+			if (configureAction != null) {
+				JButton configButton = new JButton(configureAction);
+				if (configButton.getText() == null
+						|| configButton.getText().isEmpty())
+					configButton.setText("Configure");
+				constraints.gridy++;
+				constraints.fill = NONE;
+				constraints.anchor = LINE_START;
+				subPanel.add(configButton, constraints);
+			}
+			if (firstPanel == null)
+				firstPanel = subPanel;
+			mainPanel.add(subPanel, gbc);
+			shownComponents.add(subPanel);
+			gbc.gridy++;
+			if (viewFactories.size() != 1)
+				makeCloseable(subPanel, label);
+			else {
+				lastOpenedSectionName = label.getText();
+				lastOpenedSection = subPanel;
+				panelToLabelMap.put(subPanel, label);
+				subPanel.setVisible(false);
+			}
+		}
+		if (lastOpenedSection != null)
+			openSection(lastOpenedSection);
+		else if (firstPanel != null)
+			openSection(firstPanel);
 	}
 
 	private void clearContextualView() {
@@ -216,31 +221,25 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 
 	public void updateSelection(Object selectedItem) {
-
 		findContextualView(selectedItem);
-
 	}
 
 	private Runnable updateSelectionRunnable = new Runnable() {
-
+		@Override
 		public void run() {
 			Object selection = getSelection();
-			if (selection == null) {
+			if (selection == null)
 				clearContextualView();
-			} else {
+			else
 				updateSelection(selection);
-			}
 		}
-
 	};
 
 	private ActionListener updateSelectionListener = new ActionListener() {
-
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			SwingUtilities.invokeLater(updateSelectionRunnable);
-
 		}
-
 	};
 
 	public void updateSelection() {
@@ -250,8 +249,10 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	private Object getSelection() {
 		WorkflowBundle workflowBundle = selectionManager.getSelectedWorkflowBundle();
 
-		// If there is no currently opened dataflow,
-		// clear the contextual view panel
+		/*
+		 * If there is no currently opened dataflow, clear the contextual view
+		 * panel
+		 */
 		if (workflowBundle == null) {
 			return null;
 		}
@@ -259,43 +260,46 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 				.getDataflowSelectionModel(workflowBundle);
 		Set<Object> selection = selectionModel.getSelection();
 
-		// If the dataflow is opened but no component of the dataflow is
-		// selected, clear the contextual view panel
-		if (selection.isEmpty()) {
+		/*
+		 * If the dataflow is opened but no component of the dataflow is
+		 * selected, clear the contextual view panel
+		 */
+		if (selection.isEmpty())
 			return null;
-		} else {
-			return selection.iterator().next();
-		}
+		return selection.iterator().next();
 	}
 
 	private void findContextualView(Object selection) {
-		List<ContextualViewFactory> viewFactoriesForBeanType = contextualViewFactoryRegistry
+		List<ContextualViewFactory<?>> viewFactoriesForBeanType = contextualViewFactoryRegistry
 				.getViewFactoriesForObject(selection);
 		updateContextualView(viewFactoriesForBeanType, selection);
 	}
 
 	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+		@Override
 		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message) {
-			if (message instanceof WorkflowBundleSelectionEvent) {
-				WorkflowBundleSelectionEvent workflowBundleSelectionEvent = (WorkflowBundleSelectionEvent) message;
-				WorkflowBundle oldWorkflowBundle = workflowBundleSelectionEvent.getPreviouslySelectedWorkflowBundle();
-				WorkflowBundle newWorkflowBundle = workflowBundleSelectionEvent.getSelectedWorkflowBundle();
+			if (message instanceof WorkflowBundleSelectionEvent)
+				bundleSelected((WorkflowBundleSelectionEvent) message);
+		}
 
-				if (oldWorkflowBundle != null) {
-					selectionManager.getDataflowSelectionModel(oldWorkflowBundle).removeObserver(
-							dataflowSelectionListener);
-				}
-				if (newWorkflowBundle != null) {
-					selectionManager.getDataflowSelectionModel(newWorkflowBundle).addObserver(dataflowSelectionListener);
-				}
+		private void bundleSelected(WorkflowBundleSelectionEvent event) {
+			WorkflowBundle oldBundle = event
+					.getPreviouslySelectedWorkflowBundle();
+			WorkflowBundle newBundle = event.getSelectedWorkflowBundle();
 
-				lastSelectedObject = null;
-				updateSelection();
-			}
+			if (oldBundle != null)
+				selectionManager.getDataflowSelectionModel(oldBundle)
+						.removeObserver(dataflowSelectionListener);
+			if (newBundle != null)
+				selectionManager.getDataflowSelectionModel(newBundle)
+						.addObserver(dataflowSelectionListener);
+			lastSelectedObject = null;
+			updateSelection();
 		}
 	}
 
 	private final class DataflowSelectionListener extends SwingAwareObserver<DataflowSelectionMessage> {
+		@Override
 		public void notifySwing(Observable<DataflowSelectionMessage> sender,
 				DataflowSelectionMessage message) {
 			updateSelection();
@@ -303,6 +307,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 
 	private final class EditManagerObserver extends SwingAwareObserver<EditManagerEvent> {
+		@Override
 		public void notifySwing(Observable<EditManagerEvent> sender, EditManagerEvent message) {
 			Object selection = getSelection();
 			if ((selection != lastSelectedObject) && !selfGenerated) {
@@ -313,9 +318,8 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 
 	public void refreshView() {
-		if (mainPanel != null) {
+		if (mainPanel != null)
 			updateSelection();
-		}
 	}
 
 	private final class SectionLabel extends ShadedLabel {
@@ -323,17 +327,16 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 
 		private SectionLabel(String text, Color colour) {
 			super(text, colour);
-			expand = new JLabel(WorkbenchIcons.minusIcon);
+			expand = new JLabel(minusIcon);
 			add(expand, 0);
 			setExpanded(true);
 		}
 
 		public void setExpanded(boolean expanded) {
-			if (expanded) {
-				expand.setIcon(WorkbenchIcons.minusIcon);
-			} else {
-				expand.setIcon(WorkbenchIcons.plusIcon);
-			}
+			if (expanded)
+				expand.setIcon(minusIcon);
+			else
+				expand.setIcon(plusIcon);
 		}
 	}
 
@@ -347,13 +350,13 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 
 	protected class SectionOpener extends MouseAdapter {
-
 		private final JPanel sectionToOpen;
 
 		public SectionOpener(JPanel sectionToOpen) {
 			this.sectionToOpen = sectionToOpen;
 		}
 
+		@Override
 		public void mouseClicked(MouseEvent e) {
 			openSection(sectionToOpen);
 		}
@@ -365,13 +368,12 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 			JPanel section = entry.getKey();
 			SectionLabel sectionLabel = entry.getValue();
 
-			if (section != sectionToOpen) {
+			if (section != sectionToOpen)
 				section.setVisible(false);
-			} else {
+			else {
 				section.setVisible(!section.isVisible());
-				if (section.isVisible()) {
+				if (section.isVisible())
 					lastOpenedSectionName = sectionLabel.getText();
-				}
 			}
 			sectionLabel.setExpanded(section.isVisible());
 		}
@@ -380,9 +382,8 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 
 	private Color nextColor() {
-		if (colorIndex >= colors.length) {
+		if (colorIndex >= colors.length)
 			colorIndex = 0;
-		}
 		return colors[colorIndex++];
 	}
 }

@@ -25,9 +25,12 @@ import java.net.URI;
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 
 public class WorkbenchPreferencesSection extends AbstractMenuSection {
+	private static final URI FILE_MENU = URI
+			.create("http://taverna.sf.net/2008/t2workbench/menu#file");
+	private static final URI PREFERENCES_MENU_ITEM = URI
+			.create("http://taverna.sf.net/2008/t2workbench/menu#preferences");
 
 	public WorkbenchPreferencesSection() {
-		super(URI.create("http://taverna.sf.net/2008/t2workbench/menu#file"), 100, URI.create("http://taverna.sf.net/2008/t2workbench/menu#preferences"));
+		super(FILE_MENU, 100, PREFERENCES_MENU_ITEM);
 	}
-
 }
