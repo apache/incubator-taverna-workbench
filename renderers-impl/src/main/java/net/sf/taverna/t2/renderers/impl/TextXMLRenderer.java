@@ -20,35 +20,27 @@
  ******************************************************************************/
 package net.sf.taverna.t2.renderers.impl;
 
+import static net.sf.taverna.t2.renderers.impl.RendererConstants.SEE_LOG_MSG;
+
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
-import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
-import net.sf.taverna.t2.renderers.Renderer;
-import net.sf.taverna.t2.renderers.RendererException;
 import net.sf.taverna.t2.renderers.RendererUtils;
-
-import org.apache.log4j.Logger;
-
-import uk.org.taverna.databundle.DataBundles;
 
 /**
  * Viewer to display XML as a tree.
- *
+ * 
  * @author Matthew Pocock
  * @auhor Ian Dunlop
  * @author David Withers
  */
-public class TextXMLRenderer implements Renderer {
-
-	private Logger logger = Logger.getLogger(TextXMLRenderer.class);
-
+public class TextXMLRenderer extends AbstractRenderer {
+	private static final String UNREADABLE_MSG = "Reference Service failed to render data as string " + SEE_LOG_MSG;
+	private static final String RENDERER_FAILED_MSG = "Failed to create XML renderer " + SEE_LOG_MSG;
 	private Pattern pattern;
-
-	private int MEGABYTE = 1024 * 1024;
 
 	public TextXMLRenderer() {
 		pattern = Pattern.compile(".*text/xml.*");
@@ -68,67 +60,27 @@ public class TextXMLRenderer implements Renderer {
 		return "XML tree";
 	}
 
-	public JComponent getComponent(Path path) throws RendererException {
-		if (DataBundles.isValue(path) || DataBundles.isReference(path)) {
-			try {
-
-				long approximateSizeInBytes = 0;
-				try {
-					approximateSizeInBytes = RendererUtils.getSizeInBytes(path);
-				} catch (Exception ex) {
-					logger.error("Failed to get the size of the data", ex);
-					return new JTextArea(
-							"Failed to get the size of the data (see error log for more details): \n"
-									+ ex.getMessage());
-				}
-
-				if (approximateSizeInBytes > MEGABYTE) {
-					int response = JOptionPane
-							.showConfirmDialog(
-									null,
-									"Result is approximately "
-											+ bytesToMeg(approximateSizeInBytes)
-											+ " MB in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
-									"Render this as XML?", JOptionPane.YES_NO_OPTION);
-
-					if (response != JOptionPane.YES_OPTION) {
-						return new JTextArea(
-								"Rendering cancelled due to size of data. Try saving and viewing in an external application.");
-					}
-				}
-
-				String resolve = null;
-				try {
-					// Resolve it as a string
-					resolve = RendererUtils.getString(path);
-				} catch (Exception ex) {
-					logger.error("Reference Service failed to render data as string", ex);
-					return new JTextArea(
-							"Reference Service failed to render data as string (see error log for more details): \n"
-									+ ex.getMessage());
-				}
-				return new XMLTree(resolve);
-			} catch (Exception e) {
-				logger.error("Failed to create XML renderer", e);
-				return new JTextArea(
-						"Failed to create XML renderer (see error log for more details): \n"
-								+ e.getMessage());
-			}
-		} else {
-			logger.error("Failed to obtain the data to render: data is not a value or reference");
-			return new JTextArea(
-					"Failed to obtain the data to render: data is not a value or reference");
-		}
+	@Override
+	protected String getSizeQueryTitle() {
+		return "Render this as XML?";
 	}
 
-	/**
-	 * Work out size of file in megabytes to 1 decimal place
-	 *
-	 * @param bytes
-	 * @return
-	 */
-	private int bytesToMeg(long bytes) {
-		float f = bytes / MEGABYTE;
-		return Math.round(f);
+	@Override
+	public JComponent getRendererComponent(Path path) {
+		String resolve = null;
+		try {
+			// Resolve it as a string
+			resolve = RendererUtils.getString(path);
+		} catch (Exception ex) {
+			logger.error("unrenderable: Reference Service failed to render data as string",
+					ex);
+			return new JTextArea(UNREADABLE_MSG + ex.getMessage());
+		}
+		try {
+			return new XMLTree(resolve);
+		} catch (Exception e) {
+			logger.error("unrenderable: failed to create XML renderer", e);
+			return new JTextArea(RENDERER_FAILED_MSG + e.getMessage());
+		}
 	}
 }

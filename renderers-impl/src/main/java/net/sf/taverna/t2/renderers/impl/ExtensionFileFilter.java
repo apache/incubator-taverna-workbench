@@ -27,13 +27,15 @@ package net.sf.taverna.t2.renderers.impl;
 
 import java.io.File;
 
+import javax.swing.filechooser.FileFilter;
+
 /**
  * A FileFilter implementation that can be configured to show only specific file
  * suffixes.
  * 
  * @author Tom Oinn
  */
-public class ExtensionFileFilter extends javax.swing.filechooser.FileFilter {
+public class ExtensionFileFilter extends FileFilter {
 	String[] allowedExtensions;
 
 	public ExtensionFileFilter(String[] allowedExtensions) {
@@ -42,17 +44,13 @@ public class ExtensionFileFilter extends javax.swing.filechooser.FileFilter {
 
 	@Override
 	public boolean accept(File f) {
-		if (f.isDirectory()) {
+		if (f.isDirectory())
 			return true;
-		}
 		String extension = getExtension(f);
-		if (extension != null) {
-			for (int i = 0; i < allowedExtensions.length; i++) {
-				if (extension.equalsIgnoreCase(allowedExtensions[i])) {
+		if (extension != null)
+			for (int i = 0; i < allowedExtensions.length; i++)
+				if (extension.equalsIgnoreCase(allowedExtensions[i]))
 					return true;
-				}
-			}
-		}
 		return false;
 	}
 
@@ -60,23 +58,20 @@ public class ExtensionFileFilter extends javax.swing.filechooser.FileFilter {
 		String ext = null;
 		String s = f.getName();
 		int i = s.lastIndexOf('.');
-		if (i > 0 && i < s.length() - 1) {
+		if (i > 0 && i < s.length() - 1)
 			ext = s.substring(i + 1).toLowerCase();
-		}
 		return ext;
 	}
 
 	@Override
 	public String getDescription() {
-		StringBuffer sb = new StringBuffer();
+		StringBuilder sb = new StringBuilder();
 		sb.append("Filter for extensions : ");
-		for (int i = 0; i < allowedExtensions.length; i++) {
-			sb.append(allowedExtensions[i]);
-			if (i < allowedExtensions.length - 1) {
-				sb.append(", ");
-			}
+		String sep = "";
+		for (String ext : allowedExtensions) {
+			sb.append(sep).append(ext);
+			sep = ", ";
 		}
 		return sb.toString();
 	}
-
 }

@@ -32,17 +32,14 @@ import net.sf.taverna.t2.renderers.RendererRegistry;
  * @author David Withers
  */
 public class RendererRegistryImpl implements RendererRegistry {
-
 	private List<Renderer> renderers;
 
 	@Override
 	public List<Renderer> getRenderersForMimeType(String mimeType) {
-		ArrayList<Renderer> list = new ArrayList<Renderer>();
-		for (Renderer renderer : renderers) {
-			if (renderer.canHandle(mimeType)) {
+		ArrayList<Renderer> list = new ArrayList<>();
+		for (Renderer renderer : renderers)
+			if (renderer.canHandle(mimeType))
 				list.add(renderer);
-			}
-		}
 		return list;
 	}
 
@@ -54,5 +51,4 @@ public class RendererRegistryImpl implements RendererRegistry {
 	public void setRenderers(List<Renderer> renderers) {
 		this.renderers = renderers;
 	}
-
 }

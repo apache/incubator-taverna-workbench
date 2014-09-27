@@ -20,21 +20,17 @@
  ******************************************************************************/
 package net.sf.taverna.t2.renderers.impl;
 
+import static net.sf.taverna.t2.renderers.impl.RendererConstants.SEE_LOG_MSG;
+
 import java.nio.file.Path;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
-import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 
-import net.sf.taverna.t2.renderers.Renderer;
 import net.sf.taverna.t2.renderers.RendererException;
 import net.sf.taverna.t2.renderers.RendererUtils;
-
-import org.apache.log4j.Logger;
-
-import uk.org.taverna.databundle.DataBundles;
 
 /**
  * Renderer for mime type text/rtf
@@ -43,17 +39,12 @@ import uk.org.taverna.databundle.DataBundles;
  * @author Alex Nenadic
  * @author David Withers
  */
-public class TextRtfRenderer implements Renderer {
-
-	private Logger logger = Logger.getLogger(TextRtfRenderer.class);
-
-	private int MEGABYTE = 1024 * 1024;
-
-	private Pattern pattern;
-
-	public TextRtfRenderer() {
-		pattern = Pattern.compile(".*text/rtf.*");
-	}
+public class TextRtfRenderer extends AbstractRenderer {
+	private static final String UNREADABLE_MSG = "Reference Service failed to render data "
+			+ SEE_LOG_MSG;
+	private static final String RENDERER_FAILED_MSG = "Failed to create RTF renderer "
+			+ SEE_LOG_MSG;
+	private static final Pattern pattern = Pattern.compile(".*text/rtf.*");
 
 	public boolean isTerminal() {
 		return true;
@@ -70,69 +61,25 @@ public class TextRtfRenderer implements Renderer {
 	}
 
 	@Override
-	public JComponent getComponent(Path path) throws RendererException {
-		if (DataBundles.isValue(path) || DataBundles.isReference(path)) {
-			try {
-				JEditorPane editorPane = null;
-
-				long approximateSizeInBytes = 0;
-				try {
-					approximateSizeInBytes = RendererUtils.getSizeInBytes(path);
-				} catch (Exception ex) {
-					logger.error("Failed to get the size of the data", ex);
-					return new JTextArea(
-							"Failed to get the size of the data (see error log for more details): \n"
-									+ ex.getMessage());
-				}
-
-				if (approximateSizeInBytes > MEGABYTE) {
-					int response = JOptionPane
-							.showConfirmDialog(
-									null,
-									"Result is approximately "
-											+ bytesToMeg(approximateSizeInBytes)
-											+ " MB in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
-									"Render as RTF?", JOptionPane.YES_NO_OPTION);
-
-					if (response != JOptionPane.YES_OPTION) {
-						return new JTextArea(
-								"Rendering cancelled due to size of data. Try saving and viewing in an external application.");
-					}
-				}
-
-				String resolve = null;
-				try {
-					// Resolve it as a string
-					resolve = RendererUtils.getString(path);
-				} catch (Exception e) {
-					logger.error("Reference Service failed to render data as string", e);
-					return new JTextArea(
-							"Reference Service failed to render data as string (see error log for more details): \n"
-									+ e.getMessage());
-				}
-				editorPane = new JEditorPane("text/rtf", resolve);
-				return editorPane;
-			} catch (Exception e) {
-				logger.error("Failed to create RTF renderer", e);
-				return new JTextArea(
-						"Failed to create RTF renderer (see error log for more details): \n"
-								+ e.getMessage());
-			}
-		} else {
-			logger.error("Failed to obtain the data to render: data is not a value or reference");
-			return new JTextArea(
-					"Failed to obtain the data to render: data is not a value or reference");
-		}
+	protected String getSizeQueryTitle() {
+		return "Render as RTF?";
 	}
 
-	/**
-	 * Work out size of file in megabytes to 1 decimal place
-	 *
-	 * @param bytes
-	 * @return
-	 */
-	private int bytesToMeg(long bytes) {
-		float f = bytes / MEGABYTE;
-		return Math.round(f);
+	@Override
+	public JComponent getRendererComponent(Path path) throws RendererException {
+		String resolve;
+		try {
+			// Resolve it as a string
+			resolve = RendererUtils.getString(path);
+		} catch (Exception e) {
+			logger.error("Reference Service failed to render data as string", e);
+			return new JTextArea(UNREADABLE_MSG + e.getMessage());
+		}
+		try {
+			return new JEditorPane("text/rtf", resolve);
+		} catch (Exception e) {
+			logger.error("Failed to create RTF renderer", e);
+			return new JTextArea(RENDERER_FAILED_MSG + e.getMessage());
+		}
 	}
 }

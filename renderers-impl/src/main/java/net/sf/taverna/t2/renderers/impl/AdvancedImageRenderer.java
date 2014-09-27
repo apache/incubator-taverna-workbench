@@ -20,6 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.renderers.impl;
 
+import static javax.imageio.ImageIO.getReaderMIMETypes;
+import static javax.imageio.ImageIO.getWriterFormatNames;
+import static net.sf.taverna.t2.renderers.RendererUtils.getInputStream;
+import static net.sf.taverna.t2.renderers.impl.RendererConstants.SEE_LOG_MSG;
+
 import java.awt.Image;
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -30,35 +35,26 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
-
-import net.sf.taverna.t2.renderers.Renderer;
-import net.sf.taverna.t2.renderers.RendererException;
-import net.sf.taverna.t2.renderers.RendererUtils;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.databundle.DataBundles;
-
 /**
- * Advanced renderer for mime type image/* that can render tiff files.
- * Uses Java Advanced Imaging (JAI) ImageIO from https://jai-imageio.dev.java.net/.
- *
+ * Advanced renderer for mime type image/* that can render tiff files. Uses Java
+ * Advanced Imaging (JAI) ImageIO from https://jai-imageio.dev.java.net/.
+ * 
  * @author Alex Nenadic
  * @author David Withers
  */
-public class AdvancedImageRenderer implements Renderer
+public class AdvancedImageRenderer extends AbstractRenderer {
+	private static final String BAD_FORMAT_MSG = "Data does not seem to contain an image in any of the recognised formats:\n";
+	private static final String UNRENDERABLE_MSG = "Failed to create image renderer " + SEE_LOG_MSG;
 
-{
 	private Logger logger = Logger.getLogger(AdvancedImageRenderer.class);
-
-	private int MEGABYTE = 1024 * 1024;
-
 	private List<String> mimeTypesList;
 
 	public AdvancedImageRenderer() {
-		mimeTypesList = Arrays.asList(ImageIO.getReaderMIMETypes());
+		mimeTypesList = Arrays.asList(getReaderMIMETypes());
 	}
 
 	@Override
@@ -72,66 +68,27 @@ public class AdvancedImageRenderer implements Renderer
 	}
 
 	@Override
-	public JComponent getComponent(Path path) throws RendererException {
-		if (DataBundles.isValue(path) || DataBundles.isReference(path)) {
-			long approximateSizeInBytes = 0;
-			try {
-				approximateSizeInBytes = RendererUtils.getSizeInBytes(path);
-			} catch (Exception ex) {
-				logger.error("Failed to get the size of the data", ex);
-				return new JTextArea(
-						"Failed to get the size of the data (see error log for more details): \n"
-								+ ex.getMessage());
-			}
-
-			// 4 megabyte limit for image viewing?
-			if (approximateSizeInBytes > (MEGABYTE * 4)) {
-				int response = JOptionPane
-						.showConfirmDialog(
-								null,
-								"Image is approximately "
-										+ bytesToMeg(approximateSizeInBytes)
-										+ " MB in size, there could be issues with rendering this inside Taverna\nDo you want to continue?",
-								"Render this image?", JOptionPane.YES_NO_OPTION);
-
-				if (response != JOptionPane.YES_OPTION) { // NO_OPTION or ESCAPE key
-					return new JTextArea(
-							"Rendering cancelled due to size of image. Try saving and viewing in an external application.");
-				}
-			}
-
-			try (InputStream inputStream = RendererUtils.getInputStream(path)) {
-				Image image = ImageIO.read(inputStream);
-				if (image == null) {
-					return new JTextArea(
-							"Data does not seem to contain an image in any of the recognised formats: \n"
-									+ Arrays.asList(ImageIO.getWriterFormatNames()));
-				} else {
-					ImageIcon imageIcon = new ImageIcon(image);
-					return (new JLabel(imageIcon));
-				}
-			} catch (Exception e) {
-				logger.error("Failed to create image renderer", e);
-				return new JTextArea(
-						"Failed to create image renderer (see error log for more details): \n"
-								+ e.getMessage());
-			}
-		} else {
-			logger.error("Failed to obtain the data to render: data is not a value or reference");
-			return new JTextArea(
-					"Failed to obtain the data to render: data is not a value or reference");
+	public JComponent getRendererComponent(Path path) {
+		// Render into a label
+		try (InputStream inputStream = getInputStream(path)) {
+			Image image = ImageIO.read(inputStream);
+			if (image == null)
+				return new JTextArea(BAD_FORMAT_MSG
+						+ Arrays.asList(getWriterFormatNames()));
+			return new JLabel(new ImageIcon(image));
+		} catch (Exception e) {
+			logger.error("unrenderable: failed to create image renderer", e);
+			return new JTextArea(UNRENDERABLE_MSG + e.getMessage());
 		}
 	}
 
-	/**
-	 * Work out size of file in megabytes to 1 decimal place
-	 *
-	 * @param bytes
-	 * @return
-	 */
-	private int bytesToMeg(long bytes) {
-		float f = bytes / MEGABYTE;
-		return Math.round(f);
+	@Override
+	protected int getSizeLimit() {
+		return 4;
 	}
 
+	@Override
+	protected String getResultType() {
+		return "Image";
+	}
 }
