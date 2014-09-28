@@ -20,6 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.impl;
 
+import static java.awt.Image.SCALE_SMOOTH;
+import static javax.swing.Action.NAME;
+import static javax.swing.Action.SMALL_ICON;
+import static javax.swing.SwingUtilities.invokeLater;
+
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Image;
@@ -37,7 +42,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
@@ -50,26 +54,21 @@ import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
 public class WorkbenchPerspectives {
-
-	private static Logger logger = Logger.getLogger(WorkbenchPerspectives.class);
+	private static Logger logger = Logger
+			.getLogger(WorkbenchPerspectives.class);
 
 	private PerspectiveSPI currentPerspective;
-
 	private ButtonGroup perspectiveButtonGroup = new ButtonGroup();
-
-	private Map<String, JToggleButton> perspectiveButtonMap = new HashMap<String, JToggleButton>();
-
+	private Map<String, JToggleButton> perspectiveButtonMap = new HashMap<>();
 	private JToolBar toolBar;
 	private JPanel panel;
 	private CardLayout cardLayout;
-
-	private List<PerspectiveSPI> perspectives = new ArrayList<PerspectiveSPI>();
-
+	private List<PerspectiveSPI> perspectives = new ArrayList<>();
 	private boolean refreshing;
-
 	private final SelectionManager selectionManager;
 
-	public WorkbenchPerspectives(JToolBar toolBar, JPanel panel, CardLayout cardLayout, SelectionManager selectionManager) {
+	public WorkbenchPerspectives(JToolBar toolBar, JPanel panel,
+			CardLayout cardLayout, SelectionManager selectionManager) {
 		this.panel = panel;
 		this.toolBar = toolBar;
 		this.cardLayout = cardLayout;
@@ -89,44 +88,43 @@ public class WorkbenchPerspectives {
 	}
 
 	private void initialisePerspectives() {
-		for (final PerspectiveSPI perspective : perspectives) {
+		for (final PerspectiveSPI perspective : perspectives)
 			addPerspective(perspective, false);
-		}
 		selectFirstPerspective();
 	}
 
 	private void setPerspective(PerspectiveSPI perspective) {
 		if (perspective != currentPerspective) {
-			if (!perspectiveButtonMap.containsKey(perspective.getID())) {
+			if (!perspectiveButtonMap.containsKey(perspective.getID()))
 				addPerspective(perspective, true);
-			}
-			if (!(perspective instanceof BlankPerspective)) {
+			if (!(perspective instanceof BlankPerspective))
 				perspectiveButtonMap.get(perspective.getID()).setSelected(true);
-			}
 			cardLayout.show(panel, perspective.getID());
 			currentPerspective = perspective;
 		}
 	}
 
-	private void addPerspective(final PerspectiveSPI perspective, boolean makeActive) {
+	private void addPerspective(final PerspectiveSPI perspective,
+			boolean makeActive) {
 		// ensure icon image is always 16x16
 		ImageIcon buttonIcon = null;
 		if (perspective.getButtonIcon() != null) {
 			Image buttonImage = perspective.getButtonIcon().getImage();
 			buttonIcon = new ImageIcon(buttonImage.getScaledInstance(16, 16,
-					Image.SCALE_SMOOTH));
+					SCALE_SMOOTH));
 		}
 
-		final JToggleButton toolbarButton = new JToggleButton(perspective
-				.getText(), buttonIcon);
+		final JToggleButton toolbarButton = new JToggleButton(
+				perspective.getText(), buttonIcon);
 		toolbarButton.setToolTipText(perspective.getText() + " perspective");
 		Action action = new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				selectionManager.setSelectedPerspective(perspective);
 			}
 		};
-		action.putValue(Action.NAME, perspective.getText());
-		action.putValue(Action.SMALL_ICON, buttonIcon);
+		action.putValue(NAME, perspective.getText());
+		action.putValue(SMALL_ICON, buttonIcon);
 
 		toolbarButton.setAction(action);
 		toolBar.add(toolbarButton);
@@ -134,43 +132,41 @@ public class WorkbenchPerspectives {
 		perspectiveButtonMap.put(perspective.getID(), toolbarButton);
 
 		panel.add(perspective.getPanel(), perspective.getID());
-		if (makeActive) {
+		if (makeActive)
 			toolbarButton.doClick();
-		}
 	}
 
 	/**
 	 * Recreates the toolbar buttons. Useful if a perspective has been removed.
 	 */
 	public void refreshPerspectives() {
-		SwingUtilities.invokeLater(new RefreshRunner());
+		invokeLater(new RefreshRunner());
 	}
 
-	// selects the first visible perspective by clicking on the toolbar button
+	/** selects the first visible perspective by clicking on the toolbar button */
 	private void selectFirstPerspective() {
 		boolean set = false;
-		for (Component c : toolBar.getComponents()) {
+		for (Component c : toolBar.getComponents())
 			if (c instanceof AbstractButton && c.isVisible()) {
 				((AbstractButton) c).doClick();
 				set = true;
 				break;
 			}
-		}
 
-		if (!set) // no visible perspectives were found
-		{
+		if (!set) {
+			// no visible perspectives were found
 			logger.info("No visible perspectives.");
 			selectionManager.setSelectedPerspective(new BlankPerspective());
 		}
 	}
 
 	private final class RefreshRunner implements Runnable {
+		@Override
 		public void run() {
 			synchronized (WorkbenchPerspectives.this) {
-				if (refreshing) {
+				if (refreshing)
 					// We only need one run
 					return;
-				}
 				refreshing = true;
 			}
 			try {
@@ -185,11 +181,14 @@ public class WorkbenchPerspectives {
 		}
 	}
 
-	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+	private final class SelectionManagerObserver extends
+			SwingAwareObserver<SelectionManagerEvent> {
 		@Override
-		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message) {
+		public void notifySwing(Observable<SelectionManagerEvent> sender,
+				SelectionManagerEvent message) {
 			if (message instanceof PerspectiveSelectionEvent) {
-				PerspectiveSPI selectedPerspective = ((PerspectiveSelectionEvent) message).getSelectedPerspective();
+				PerspectiveSPI selectedPerspective = ((PerspectiveSelectionEvent) message)
+						.getSelectedPerspective();
 				setPerspective(selectedPerspective);
 			}
 		}
@@ -201,8 +200,7 @@ public class WorkbenchPerspectives {
 	 *
 	 * @author Stuart Owen
 	 */
-	class BlankPerspective implements PerspectiveSPI {
-
+	private class BlankPerspective implements PerspectiveSPI {
 		@Override
 		public String getID() {
 			return BlankPerspective.class.getName();
@@ -227,7 +225,5 @@ public class WorkbenchPerspectives {
 		public int positionHint() {
 			return 0;
 		}
-
 	}
-
 }

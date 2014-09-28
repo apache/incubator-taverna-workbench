@@ -31,12 +31,10 @@ import net.sf.taverna.t2.workbench.ui.Workbench;
 
 /**
  * Exit the workbench
- *
+ * 
  * @author Stian Soiland-Reyes
- *
  */
 public class ExitAction extends AbstractMenuAction {
-
 	private static final String MAC_OS_X = "Mac OS X";
 	private Workbench workbench;
 
@@ -49,6 +47,7 @@ public class ExitAction extends AbstractMenuAction {
 	@Override
 	protected Action createAction() {
 		return new AbstractAction("Exit") {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				workbench.exit();
 			}
@@ -63,5 +62,4 @@ public class ExitAction extends AbstractMenuAction {
 	public void setWorkbench(Workbench workbench) {
 		this.workbench = workbench;
 	}
-
 }

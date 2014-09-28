@@ -28,21 +28,21 @@ import net.sf.taverna.t2.workbench.ui.Workbench;
 /**
  * Store Workbench window size and perspectives, so that settings can be used on
  * next startup.
- *
+ * 
  * @author Stian Soiland-Reyes
- *
  */
 public class StoreWindowStateOnShutdown implements ShutdownSPI {
-
-	private Workbench workbench;
-
 	private static Logger logger = Logger
 			.getLogger(StoreWindowStateOnShutdown.class);
 
+	private Workbench workbench;
+
+	@Override
 	public int positionHint() {
 		return 1000;
 	}
 
+	@Override
 	public boolean shutdown() {
 		try {
 			workbench.storeSizeAndLocationPrefs();
@@ -55,5 +55,4 @@ public class StoreWindowStateOnShutdown implements ShutdownSPI {
 	public void setWorkbench(Workbench workbench) {
 		this.workbench = workbench;
 	}
-
 }

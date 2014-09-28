@@ -21,23 +21,14 @@
 package net.sf.taverna.t2.workbench.ui.impl;
 
 public class UserRegistrationData {
-	
-	private String tavernaVersion="";
-	
-	private String firstName="";
-	
-	private String lastName="";
-	
-	private String emailAddress="";
-	
-	private String institutionOrCompanyName="";
-	
-	private String industry="";
-	
-	private String field="";
-	
+	private String tavernaVersion = "";
+	private String firstName = "";
+	private String lastName = "";
+	private String emailAddress = "";
+	private String institutionOrCompanyName = "";
+	private String industry = "";
+	private String field = "";
 	private String purposeOfUsingTaverna = "";
-	
 	private boolean keepMeInformed = false;
 
 	public void setTavernaVersion(String tavernaVersion) {
@@ -55,7 +46,7 @@ public class UserRegistrationData {
 	public String getFirstName() {
 		return firstName;
 	}
-	
+
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
 	}

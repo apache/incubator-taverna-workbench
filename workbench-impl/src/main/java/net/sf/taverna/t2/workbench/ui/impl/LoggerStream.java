@@ -26,118 +26,111 @@ import org.apache.log4j.Level;
  * @author <a href="mailto:Scott.Stark@jboss.org">Scott Stark</a>.
  * @author <a href="mailto:jason@planet57.com">Jason Dillon</a>
  */
-public class LoggerStream
-    extends PrintStream
-{
-   /**
-    * Default flag to enable/disable tracing println calls.
-    * from the system property <tt>net.sf.taverna.t2.workbench.ui.impl.LoggerStream.trace</tt>
-    * or if not set defaults to <tt>false</tt>.
-    */
+//FIXME Replace this class entirely
+class LoggerStream extends PrintStream {
+	/**
+	 * Default flag to enable/disable tracing println calls. from the system
+	 * property <tt>net.sf.taverna.t2.workbench.ui.impl.LoggerStream.trace</tt>
+	 * or if not set defaults to <tt>false</tt>.
+	 */
    public static final boolean TRACE =
-      getBoolean(LoggerStream.class.getName() + ".trace", false);
+		   getBoolean(LoggerStream.class.getName() + ".trace", false);
 
-   /** Helper to get boolean value from system property or use default if not set. */
-   private static boolean getBoolean(String name, boolean defaultValue)
-   {
-      String value = System.getProperty(name, null);
-      if (value == null)
-         return defaultValue;
-      return new Boolean(value).booleanValue();
-   }
+	/**
+	 * Helper to get boolean value from system property or use default if not
+	 * set.
+	 */
+	private static boolean getBoolean(String name, boolean defaultValue) {
+		String value = System.getProperty(name, null);
+		if (value == null)
+			return defaultValue;
+		return new Boolean(value).booleanValue();
+	}
 
-   private Logger logger;
-   private Level level;
-   private boolean issuedWarning;
+	private Logger logger;
+	private Level level;
+	private boolean issuedWarning;
 
-   /**
-    * Redirect logging to the indicated logger using Level.INFO
-    */
-   public LoggerStream(final Logger logger)
-   {
-      this(logger, Level.INFO, System.out);
-   }
+	/**
+	 * Redirect logging to the indicated logger using Level.INFO
+	 */
+	public LoggerStream(Logger logger) {
+		this(logger, Level.INFO, System.out);
+	}
 
-   /**
-    * Redirect logging to the indicated logger using the given
-    * level. The ps is simply passed to super but is not used.
-    */
-   public LoggerStream(final Logger logger,
-                       final Level level,
-                       final PrintStream ps)
-   {
-      super(ps);
-      this.logger = logger;
-      this.level = level;
-   }
+	/**
+	 * Redirect logging to the indicated logger using the given level. The ps is
+	 * simply passed to super but is not used.
+	 */
+	public LoggerStream(Logger logger, Level level, PrintStream ps) {
+		super(ps);
+		this.logger = logger;
+		this.level = level;
+	}
 
-   public void println(String msg)
-   {
-      if( msg == null )
-         msg = "null";
-      byte[] bytes = msg.getBytes();
-      write(bytes, 0, bytes.length);
-   }
+	@Override
+	public void println(String msg) {
+		if (msg == null)
+			msg = "null";
+		byte[] bytes = msg.getBytes();
+		write(bytes, 0, bytes.length);
+	}
 
-   public void println(Object msg)
-   {
-      if( msg == null )
-         msg = "null";
-      byte[] bytes = msg.toString().getBytes();
-      write(bytes, 0, bytes.length);
-   }
+	@Override
+	public void println(Object msg) {
+		if (msg == null)
+			msg = "null";
+		byte[] bytes = msg.toString().getBytes();
+		write(bytes, 0, bytes.length);
+	}
 
-   public void write(byte b)
-   {
-      byte[] bytes = {b};
-      write(bytes, 0, 1);
-   }
+	public void write(byte b) {
+		byte[] bytes = { b };
+		write(bytes, 0, 1);
+	}
 
-   private ThreadLocal<Boolean> recursiveCheck = new ThreadLocal<Boolean>();
-   public void write(byte[] b, int off, int len)
-   {
-      Boolean recursed = recursiveCheck.get();
-      if (recursed != null && recursed.equals(Boolean.TRUE))
-      {
-         /* There is a configuration error that is causing looping. Most
-            likely there are two console appenders so just return to prevent
-            spinning.
-         */
-         if( issuedWarning == false )
-         {
-            String msg = "ERROR: invalid log settings detected, console capturing is looping";
-               //out.write(msg.getBytes());
-           new Exception(msg).printStackTrace((PrintStream)out);
-           issuedWarning = true;
-         }
-         //
-         try {
-			out.write(b, off, len);
-		} catch (IOException e) {
+	private ThreadLocal<Boolean> recursiveCheck = new ThreadLocal<>();
+
+	@Override
+	public void write(byte[] b, int off, int len) {
+		Boolean recursed = recursiveCheck.get();
+		if (recursed != null && recursed) {
+			/*
+			 * There is a configuration error that is causing looping. Most
+			 * likely there are two console appenders so just return to prevent
+			 * spinning.
+			 */
+			if (issuedWarning == false) {
+				String msg = "ERROR: invalid log settings detected, console capturing is looping";
+				// out.write(msg.getBytes());
+				new Exception(msg).printStackTrace((PrintStream) out);
+				issuedWarning = true;
+			}
+			try {
+				out.write(b, off, len);
+			} catch (IOException e) {
+			}
+			return;
 		}
-         return;
-      }
 
-      // Remove the end of line chars
-      while( len > 0 && (b[len-1] == '\n' || b[len-1] == '\r') && len > off )
-         len --;
+		// Remove the end of line chars
+		while (len > 0 && (b[len - 1] == '\n' || b[len - 1] == '\r')
+				&& len > off)
+			len--;
 
-      // HACK, something is logging exceptions line by line (including
-      // blanks), but I can't seem to find it, so for now just ignore
-      // empty lines... they aren't very useful.
-      if (len != 0)
-      {
-         String msg = new String(b, off, len);
-         recursiveCheck.set(Boolean.TRUE);
-         if (TRACE)
-         {
-            logger.log(level, msg, new Throwable());
-         }
-         else
-         {
-            logger.log(level, msg);
-         }
-         recursiveCheck.set(Boolean.FALSE);
-      }
-   }
+		/*
+		 * HACK, something is logging exceptions line by line (including
+		 * blanks), but I can't seem to find it, so for now just ignore empty
+		 * lines... they aren't very useful.
+		 */
+		if (len != 0) {
+			String msg = new String(b, off, len);
+			recursiveCheck.set(true);
+			if (TRACE)
+				logger.log(level, msg, new Throwable());
+			else
+				logger.log(level, msg);
+			recursiveCheck.set(false);
+		}
+	}
 }
