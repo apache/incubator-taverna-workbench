@@ -3,35 +3,24 @@
  */
 package net.sf.taverna.t2.workbench.helper;
 
+import static net.sf.taverna.t2.workbench.MainWindow.getMainWindow;
+import static net.sf.taverna.t2.workbench.helper.HelpCollator.registerComponent;
+import static net.sf.taverna.t2.workbench.helper.Helper.setKeyCatcher;
+
 import java.awt.Dialog;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 
 import javax.swing.JDialog;
 
-import net.sf.taverna.t2.workbench.MainWindow;
-
 /**
- *
  * This class extends JDialog to register the dialog and also attach a key
  * catcher so that F1 is interpreted as help
  *
  * @author alanrw
- *
  */
 public class HelpEnabledDialog extends JDialog {
-
-	/**
-	 *
-	 */
 	private static final long serialVersionUID = -5068807887477419800L;
-
-	/**
-	 * Prevent information-free creation of a HelpEnabledDialog.
-	 */
-	private HelpEnabledDialog() {
-
-	}
 
 	/**
 	 * Create a HelpEnabledDialog, register it (if possible) with the
@@ -45,18 +34,16 @@ public class HelpEnabledDialog extends JDialog {
 	 */
 	public HelpEnabledDialog(Frame owner, String title, boolean modal, String id)
 			throws HeadlessException {
-		super(owner == null ? MainWindow.getMainWindow() : owner, title, modal);
+		super(owner == null ? getMainWindow() : owner, title, modal);
 
-		if (id != null) {
-			HelpCollator.registerComponent(this, id);
-		} else if (owner != null) {
-			HelpCollator.registerComponent(this, owner.getClass()
-					.getCanonicalName()
+		if (id != null)
+			registerComponent(this, id);
+		else if (owner != null)
+			registerComponent(this, owner.getClass().getCanonicalName()
 					+ "-dialog");
-		} else if ((title != null) && !title.equals("")) {
-			HelpCollator.registerComponent(this, title);
-		}
-		Helper.setKeyCatcher(this);
+		else if (title != null && !title.isEmpty())
+			registerComponent(this, title);
+		setKeyCatcher(this);
 	}
 
 	/**
@@ -72,14 +59,12 @@ public class HelpEnabledDialog extends JDialog {
 	public HelpEnabledDialog(Dialog owner, String title, boolean modal,
 			String id) throws HeadlessException {
 		super(owner, title, modal);
-		if (id != null) {
-			HelpCollator.registerComponent(this, id);
-		} else if (owner != null) {
-			HelpCollator.registerComponent(this, owner.getClass()
-					.getCanonicalName()
+		if (id != null)
+			registerComponent(this, id);
+		else if (owner != null)
+			registerComponent(this, owner.getClass().getCanonicalName()
 					+ "-dialog");
-		}
-		Helper.setKeyCatcher(this);
+		setKeyCatcher(this);
 	}
 
 	/**
@@ -108,8 +93,9 @@ public class HelpEnabledDialog extends JDialog {
 		this(parent, title, modal, null);
 	}
 
-    public void setVisible(boolean b) {
-	this.setLocationRelativeTo(this.getParent());
-	super.setVisible(b);
-    }
+	@Override
+	public void setVisible(boolean b) {
+		setLocationRelativeTo(getParent());
+		super.setVisible(b);
+	}
 }
