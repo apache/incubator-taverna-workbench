@@ -20,52 +20,47 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.menu;
 
+import static net.sf.taverna.t2.ui.menu.MenuComponent.MenuType.menu;
+
 import java.net.URI;
 
 import javax.swing.Action;
 
 /**
- * A {@link MenuComponent} of the type
- * {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#menu}.
+ * A {@link MenuComponent} of the type {@link MenuType#menu menu}.
  * <p>
  * Subclass to create an SPI implementation for the {@link MenuManager} of a
  * menu. The definition of "menu" includes both the menu bar and sub menus. A
- * menu can contain {@link AbstractMenuAction actions},
- * {@link AbstractMenuToggle toggles} or
- * {@link AbstractMenuCustom custom components}, or any of the above grouped in
- * a {@link AbstractMenuSection section},
- * {@link AbstractMenuOptionGroup option group} or a
- * {@link AbstractMenu submenu}.
- * </p>
+ * menu can contain {@linkplain AbstractMenuAction actions},
+ * {@linkplain AbstractMenuToggle toggles} or {@linkplain AbstractMenuCustom
+ * custom components}, or any of the above grouped in a
+ * {@linkplain AbstractMenuSection section},
+ * {@linkplain AbstractMenuOptionGroup option group} or a
+ * {@linkplain AbstractMenu submenu}.
  * <p>
  * Menu components are linked together using URIs, avoiding the need for compile
  * time dependencies between SPI implementations. To add components to a menu,
  * use the {@link URI} identifying this menu as their parent id.
- * </p>
  * <p>
- * <strong>Note:</strong>To avoid conflicts with other plugins, use a unique
+ * <strong>Note:</strong> To avoid conflicts with other plugins, use a unique
  * URI root that is related to the Java package name, for instance
  * <code>http://cs.university.ac.uk/myplugin/2008/menu</code>, and use hash
  * identifiers for each menu item, for instance
  * <code>http://cs.university.ac.uk/myplugin/2008/menu#run</code> for a "Run"
  * item. Use flat URI namespaces, don't base a child's URI on the parent's URI,
  * as this might make it difficult to relocate the parent menu.
- * </p>
  * <p>
- * You need to list the {@link Class#getName() fully qualified class name} (for
- * example <code>com.example.t2plugin.menu.MyMenu</code>) of the menu
+ * You need to list the {@linkplain Class#getName() fully qualified class name}
+ * (for example <code>com.example.t2plugin.menu.MyMenu</code>) of the menu
  * implementation in the SPI description resource file
  * <code>/META-INF/services/net.sf.taverna.t2.ui.menu.MenuComponent</code> so
  * that it can be discovered by the {@link MenuManager}. This requirement also
  * applies to parent menu components (except {@link DefaultToolBar} and
  * {@link DefaultMenuBar}, but ensure they are only listed once.
- * </p>
  * 
  * @author Stian Soiland-Reyes
- * 
  */
 public abstract class AbstractMenu extends AbstractMenuItem {
-
 	/**
 	 * Construct a menu bar (does not have a parent). This menu bar can be built
 	 * and used through {@link MenuManager#createMenuBar(URI)}. There is a
@@ -78,7 +73,7 @@ public abstract class AbstractMenu extends AbstractMenuItem {
 	 *            parent ID for menu components to appear in this menu.
 	 */
 	public AbstractMenu(URI id) {
-		super(MenuType.menu, (URI) null, id);
+		super(menu, (URI) null, id);
 	}
 
 	/**
@@ -86,7 +81,8 @@ public abstract class AbstractMenu extends AbstractMenuItem {
 	 * 
 	 * @param parentId
 	 *            The {@link URI} of the parent menu. The parent should be of
-	 *            type {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#menu}.
+	 *            type
+	 *            {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#menu}.
 	 * @param positionHint
 	 *            The position hint to determine the position of this submenu
 	 *            among its siblings in the parent menu. For extensibility, use
@@ -106,7 +102,8 @@ public abstract class AbstractMenu extends AbstractMenuItem {
 	 * 
 	 * @param parentId
 	 *            The {@link URI} of the parent menu. The parent should be of
-	 *            type {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#menu}.
+	 *            type
+	 *            {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#menu}.
 	 * @param positionHint
 	 *            The position hint to determine the position of this submenu
 	 *            among its siblings in the parent menu. For extensibility, use
@@ -119,9 +116,8 @@ public abstract class AbstractMenu extends AbstractMenuItem {
 	 *            sub-menu in the parent menu.
 	 */
 	public AbstractMenu(URI parentId, int positionHint, URI id, Action action) {
-		super(MenuType.menu, parentId, id);
+		super(menu, parentId, id);
 		this.action = action;
 		this.positionHint = positionHint;
 	}
-
 }

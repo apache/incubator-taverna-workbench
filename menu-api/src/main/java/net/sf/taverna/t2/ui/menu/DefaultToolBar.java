@@ -32,10 +32,8 @@ import java.net.URI;
  * created by using {@link MenuManager#createToolBar(URI)}.
  * 
  * @author Stian Soiland-Reyes
- * 
  */
 public class DefaultToolBar extends AbstractToolBar {
-
 	/**
 	 * The URI of a tool bar item representing the default tool bar. Items who
 	 * has this URI as their {@link #getParentId()} will be shown in the default
@@ -46,10 +44,8 @@ public class DefaultToolBar extends AbstractToolBar {
 
 	/**
 	 * Construct the default toolbar.
-	 * 
 	 */
 	public DefaultToolBar() {
 		super(DEFAULT_TOOL_BAR);
 	}
-
 }

@@ -23,23 +23,23 @@ package net.sf.taverna.t2.workbench.selection.events;
 import uk.org.taverna.scufl2.api.profiles.Profile;
 
 /**
- * {@link SelectionManagerEvent} for changes to the selected Profile.
- *
+ * {@link SelectionManagerEvent} for changes to the selected {@link Profile}.
+ * 
  * @author David Withers
  */
 public class ProfileSelectionEvent implements SelectionManagerEvent {
-
 	private Profile previouslySelectedProfile;
 	private Profile selectedProfile;
 
-	public ProfileSelectionEvent(Profile previouslySelectedProfile, Profile selectedProfile) {
+	public ProfileSelectionEvent(Profile previouslySelectedProfile,
+			Profile selectedProfile) {
 		this.previouslySelectedProfile = previouslySelectedProfile;
 		this.selectedProfile = selectedProfile;
 	}
 
 	/**
 	 * Returns the previously selected Profile.
-	 *
+	 * 
 	 * @return the previously selected Profile
 	 */
 	public Profile getPreviouslySelectedProfile() {
@@ -48,11 +48,10 @@ public class ProfileSelectionEvent implements SelectionManagerEvent {
 
 	/**
 	 * Returns the currently selected Profile.
-	 *
+	 * 
 	 * @return the currently selected Profile
 	 */
 	public Profile getSelectedProfile() {
 		return selectedProfile;
 	}
-
 }

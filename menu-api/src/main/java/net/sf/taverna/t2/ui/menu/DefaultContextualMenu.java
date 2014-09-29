@@ -34,10 +34,8 @@ import java.net.URI;
  * selected object).
  * 
  * @author Stian Soiland-Reyes
- * 
  */
 public class DefaultContextualMenu extends AbstractMenu {
-
 	/**
 	 * The URI of a menu item representing the default menu bar. Menu items who
 	 * has this URI as their {@link #getParentId()} will be shown in the top
@@ -48,10 +46,8 @@ public class DefaultContextualMenu extends AbstractMenu {
 
 	/**
 	 * Construct the default menu bar
-	 * 
 	 */
 	public DefaultContextualMenu() {
 		super(DEFAULT_CONTEXT_MENU);
 	}
-
 }

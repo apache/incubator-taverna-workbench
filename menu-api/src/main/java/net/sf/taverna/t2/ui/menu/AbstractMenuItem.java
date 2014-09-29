@@ -38,27 +38,26 @@ import javax.swing.Icon;
  * depending on the required type:
  * </p>
  * <dl>
- * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#menu} </dt>
- * <dd> Subclass {@link AbstractMenu} </dd>
+ * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#menu}</dt>
+ * <dd>Subclass {@link AbstractMenu}</dd>
  * 
- * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#toolBar} </dt>
- * <dd> Subclass {@link AbstractToolBar} </dd>
+ * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#toolBar}</dt>
+ * <dd>Subclass {@link AbstractToolBar}</dd>
  * 
- * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#section} </dt>
- * <dd> Subclass {@link AbstractMenuSection} </dd>
+ * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#section}</dt>
+ * <dd>Subclass {@link AbstractMenuSection}</dd>
  * 
- * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#action} </dt>
- * <dd> Subclass {@link AbstractMenuAction} </dd>
+ * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#action}</dt>
+ * <dd>Subclass {@link AbstractMenuAction}</dd>
  * 
- * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#toggle} </dt>
- * <dd> Subclass {@link AbstractMenuToggle} </dd>
+ * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#toggle}</dt>
+ * <dd>Subclass {@link AbstractMenuToggle}</dd>
  * 
- * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#custom} </dt>
- * <dd> Subclass {@link AbstractMenuCustom} </dd>
+ * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#custom}</dt>
+ * <dd>Subclass {@link AbstractMenuCustom}</dd>
  * 
- * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#optionGroup}
- * </dt>
- * <dd> Subclass {@link AbstractMenuOptionGroup} </dd>
+ * <dt> {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#optionGroup}</dt>
+ * <dd>Subclass {@link AbstractMenuOptionGroup}</dd>
  * 
  * </dl>
  * <p>
@@ -73,7 +72,6 @@ import javax.swing.Icon;
  * 
  */
 public abstract class AbstractMenuItem implements MenuComponent {
-
 	/**
 	 * An {@link Action} that does not perform any action, but only contains a
 	 * name and icon. Used by {@link AbstractMenu} and others.
@@ -91,6 +89,7 @@ public abstract class AbstractMenuItem implements MenuComponent {
 			super(name, icon);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 		}
 	}
@@ -108,50 +107,38 @@ public abstract class AbstractMenuItem implements MenuComponent {
 	protected Action action;
 	protected Component customComponent;
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Action getAction() {
 		return action;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public Component getCustomComponent() {
 		return customComponent;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public URI getId() {
 		return id;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public URI getParentId() {
 		return parentId;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public int getPositionHint() {
 		return positionHint;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public MenuType getType() {
 		return type;
 	}
-	
+
+	@Override
 	public boolean isEnabled() {
 		return true;
 	}
-
 }

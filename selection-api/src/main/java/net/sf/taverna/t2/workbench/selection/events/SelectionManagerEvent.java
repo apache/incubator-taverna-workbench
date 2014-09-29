@@ -20,12 +20,13 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.selection.events;
 
+import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 
 /**
  * An event given to {@link SelectionManager} observers registered using
- * {@link SelectionManager#addObserver(net.sf.taverna.t2.lang.observer.Observer)}.
- *
+ * {@link SelectionManager#addObserver(Observer)} .
+ * 
  * @author David Withers
  */
 public interface SelectionManagerEvent {

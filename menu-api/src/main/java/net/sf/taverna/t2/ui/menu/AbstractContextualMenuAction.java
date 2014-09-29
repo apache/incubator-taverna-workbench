@@ -22,7 +22,6 @@ package net.sf.taverna.t2.ui.menu;
 
 import java.net.URI;
 
-
 /**
  * An {@link AbstractMenuAction} that is {@link ContextualMenuComponent} aware.
  * The contextual selection can be retrieved from
@@ -33,7 +32,6 @@ import java.net.URI;
  * {@link #isEnabled()} returns true.
  * 
  * @author Stian Soiland-Reyes
- * 
  */
 public abstract class AbstractContextualMenuAction extends AbstractMenuAction
 		implements ContextualMenuComponent {
@@ -57,10 +55,10 @@ public abstract class AbstractContextualMenuAction extends AbstractMenuAction
 		return contextualSelection != null;
 	}
 
+	@Override
 	public void setContextualSelection(ContextualSelection contextualSelection) {
 		this.contextualSelection = contextualSelection;
 		// Force new createAction() call
 		action = null;
 	}
-
 }

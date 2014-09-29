@@ -23,23 +23,23 @@ package net.sf.taverna.t2.workbench.selection.events;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
- * {@link SelectionManagerEvent} for changes to the selected Workflow.
- *
+ * {@link SelectionManagerEvent} for changes to the selected {@link Workflow}.
+ * 
  * @author David Withers
  */
 public class WorkflowSelectionEvent implements SelectionManagerEvent {
-
 	private Workflow previouslySelectedWorkflow;
 	private Workflow selectedWorkflow;
 
-	public WorkflowSelectionEvent(Workflow previouslySelectedWorkflow, Workflow selectedWorkflow) {
+	public WorkflowSelectionEvent(Workflow previouslySelectedWorkflow,
+			Workflow selectedWorkflow) {
 		this.previouslySelectedWorkflow = previouslySelectedWorkflow;
 		this.selectedWorkflow = selectedWorkflow;
 	}
 
 	/**
 	 * Returns the previously selected Workflow.
-	 *
+	 * 
 	 * @return the previously selected Workflow
 	 */
 	public Workflow getPreviouslySelectedWorkflow() {
@@ -48,11 +48,10 @@ public class WorkflowSelectionEvent implements SelectionManagerEvent {
 
 	/**
 	 * Returns the currently selected Workflow.
-	 *
+	 * 
 	 * @return the currently selected Workflow
 	 */
 	public Workflow getSelectedWorkflow() {
 		return selectedWorkflow;
 	}
-
 }

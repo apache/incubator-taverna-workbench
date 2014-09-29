@@ -21,8 +21,9 @@
 package net.sf.taverna.t2.ui.menu;
 
 /**
- * Marker interface for actions that are valid the design or result perspectives are selected.
- *
+ * Marker interface for actions that are valid the design or result perspectives
+ * are selected.
+ * 
  * @author alanrw
  * @author David Withers
  */

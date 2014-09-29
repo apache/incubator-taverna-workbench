@@ -21,8 +21,9 @@
 package net.sf.taverna.t2.ui.menu;
 
 /**
- * Marker interface for actions that are valid only when the design perspective is selected.
- *
+ * Marker interface for actions that are valid only when the design perspective
+ * is selected.
+ * 
  * @author alanrw
  * @author David Withers
  */

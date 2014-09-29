@@ -23,52 +23,44 @@ package net.sf.taverna.t2.ui.menu;
 import java.net.URI;
 
 /**
- * A {@link MenuComponent} of the type
- * {@link net.sf.taverna.t2.ui.menu.MenuComponent.MenuType#toolBar}.
+ * A {@link MenuComponent} of the type {@link MenuType#toolBar}.
  * <p>
  * Subclass to create an SPI implementation for the {@link MenuManager} of a
- * toolbar. A toolbar can contain {@link AbstractMenuAction actions},
- * {@link AbstractMenuToggle toggles} or
- * {@link AbstractMenuCustom custom components}, or any of the above grouped in
- * a {@link AbstractMenuSection section} or an
- * {@link AbstractMenuOptionGroup option group}.
- * </p>
+ * toolbar. A toolbar can contain {@linkplain AbstractMenuAction actions},
+ * {@linkplain AbstractMenuToggle toggles} or {@linkplain AbstractMenuCustom
+ * custom components}, or any of the above grouped in a
+ * {@linkplain AbstractMenuSection section} or an
+ * {@linkplain AbstractMenuOptionGroup option group}.
  * <p>
  * The {@link DefaultToolBar default toolbar} can be used as a parent for items
  * that are to be returned in the toolbar {@link MenuManager#createToolBar()},
  * while toolbars from other instances of AbstractToolBar can be created using
  * {@link MenuManager#createToolBar(URI)} specifying the URI of the toolbar's
  * identifier.
- * </p>
  * <p>
  * Menu components are linked together using URIs, avoiding the need for compile
  * time dependencies between SPI implementations. To add components to a
  * toolbar, use the {@link URI} identifying this toolbar as their parent id.
- * </p>
  * <p>
- * <strong>Note:</strong>To avoid conflicts with other plugins, use a unique
+ * <strong>Note:</strong> To avoid conflicts with other plugins, use a unique
  * URI root that is related to the Java package name, for instance
  * <code>http://cs.university.ac.uk/myplugin/2008/menu</code>, and use hash
  * identifiers for each menu item, for instance
  * <code>http://cs.university.ac.uk/myplugin/2008/menu#run</code> for a "Run"
  * item. Use flat URI namespaces, don't base a child's URI on the parent's URI,
  * as this might make it difficult to relocate the parent menu.
- * </p>
  * <p>
- * You need to list the {@link Class#getName() fully qualified class name} (for
- * example <code>com.example.t2plugin.menu.MyMenu</code>) of the toolbar
+ * You need to list the {@linkplain Class#getName() fully qualified class name}
+ * (for example <code>com.example.t2plugin.menu.MyMenu</code>) of the toolbar
  * implementation in the SPI description resource file
  * <code>/META-INF/services/net.sf.taverna.t2.ui.menu.MenuComponent</code> so
  * that it can be discovered by the {@link MenuManager}. This requirement also
  * applies to parent menu components (except {@link DefaultToolBar} and
  * {@link DefaultMenuBar}, but ensure they are only listed once.
- * </p>
  * 
  * @author Stian Soiland-Reyes
- * 
  */
 public abstract class AbstractToolBar extends AbstractMenuItem {
-
 	/**
 	 * Construct a toolbar with the given {@link URI} as identifier.
 	 * 
@@ -79,5 +71,4 @@ public abstract class AbstractToolBar extends AbstractMenuItem {
 	public AbstractToolBar(URI id) {
 		super(MenuType.toolBar, null, id);
 	}
-
 }

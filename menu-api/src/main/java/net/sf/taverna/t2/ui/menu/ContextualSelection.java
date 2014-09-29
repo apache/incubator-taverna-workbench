@@ -2,14 +2,16 @@ package net.sf.taverna.t2.ui.menu;
 
 import java.awt.Component;
 
+import javax.swing.JPopupMenu;
+
+import uk.org.taverna.scufl2.api.core.Workflow;
+
 /**
  * A contextual selection as passed to a {@link ContextualMenuComponent}.
  * 
  * @author Stian Soiland-Reyes
- * 
  */
 public class ContextualSelection {
-
 	private final Object parent;
 	private final Object selection;
 	private final Component relativeToComponent;
@@ -22,8 +24,7 @@ public class ContextualSelection {
 	}
 
 	/**
-	 * The parent object of the selected object, for instance a
-	 * {@link net.sf.taverna.t2.workflowmodel.Dataflow Dataflow}.
+	 * The parent object of the selected object, for instance a {@link Workflow}.
 	 */
 	public Object getParent() {
 		return parent;
@@ -38,11 +39,10 @@ public class ContextualSelection {
 	}
 
 	/**
-	 * A UI component which the returned JPopupMenu (and it's actions) is to be
-	 * relative to, for instance as a parent of pop-up dialogues.
+	 * A UI component which the returned {@link JPopupMenu} (and it's actions)
+	 * is to be relative to, for instance as a parent of pop-up dialogues.
 	 */
 	public Component getRelativeToComponent() {
 		return relativeToComponent;
 	}
-
 }

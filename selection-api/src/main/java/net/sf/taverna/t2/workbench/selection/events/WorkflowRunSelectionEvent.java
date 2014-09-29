@@ -22,11 +22,10 @@ package net.sf.taverna.t2.workbench.selection.events;
 
 /**
  * {@link SelectionManagerEvent} for changes to the selected workflow run.
- *
+ * 
  * @author David Withers
  */
 public class WorkflowRunSelectionEvent implements SelectionManagerEvent {
-
 	private String previouslySelectedWorkflowRun;
 	private String selectedWorkflowRun;
 
@@ -37,21 +36,16 @@ public class WorkflowRunSelectionEvent implements SelectionManagerEvent {
 	}
 
 	/**
-	 * Returns the previously selected workflow run.
-	 *
-	 * @return the previously selected workflow run
+	 * @return the ID of the previously selected workflow run
 	 */
 	public String getPreviouslySelectedWorkflowRun() {
 		return previouslySelectedWorkflowRun;
 	}
 
 	/**
-	 * Returns the currently selected workflow run.
-	 *
-	 * @return the currently selected workflow run
+	 * @return the ID of the currently selected workflow run
 	 */
 	public String getSelectedWorkflowRun() {
 		return selectedWorkflowRun;
 	}
-
 }

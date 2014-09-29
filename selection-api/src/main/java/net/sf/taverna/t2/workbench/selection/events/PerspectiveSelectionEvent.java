@@ -23,23 +23,25 @@ package net.sf.taverna.t2.workbench.selection.events;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
 /**
- * {@link SelectionManagerEvent} for changes to the selected Profile.
- *
+ * {@link SelectionManagerEvent} for changes to the selected
+ * {@linkplain PerspectiveSPI perspective}.
+ * 
  * @author David Withers
  */
 public class PerspectiveSelectionEvent implements SelectionManagerEvent {
-
 	private PerspectiveSPI previouslySelectedPerspective;
 	private PerspectiveSPI selectedPerspective;
 
-	public PerspectiveSelectionEvent(PerspectiveSPI previouslySelectedPerspective, PerspectiveSPI selectedPerspective) {
+	public PerspectiveSelectionEvent(
+			PerspectiveSPI previouslySelectedPerspective,
+			PerspectiveSPI selectedPerspective) {
 		this.previouslySelectedPerspective = previouslySelectedPerspective;
 		this.selectedPerspective = selectedPerspective;
 	}
 
 	/**
 	 * Returns the previously selected Perspective.
-	 *
+	 * 
 	 * @return the previously selected Perspective
 	 */
 	public PerspectiveSPI getPreviouslySelectedPerspective() {
@@ -48,11 +50,10 @@ public class PerspectiveSelectionEvent implements SelectionManagerEvent {
 
 	/**
 	 * Returns the currently selected Perspective.
-	 *
+	 * 
 	 * @return the currently selected Perspective
 	 */
 	public PerspectiveSPI getSelectedPerspective() {
 		return selectedPerspective;
 	}
-
 }

@@ -20,22 +20,24 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.selection.events;
 
+import uk.org.taverna.scufl2.api.core.Workflow;
+
 /**
- * A message about the selection of a dataflow object.
+ * A message about the selection of a {@linkplain Workflow dataflow} object.
  * 
  * @author David Withers
  */
 public class DataflowSelectionMessage {
+	public enum Type {
+		ADDED, REMOVED
+	}
 
-	public enum Type {ADDED, REMOVED}
-	
 	private Type type;
-	
 	private Object element;
-	
+
 	/**
 	 * Constructs a new instance of DataflowSelectionMessage.
-	 *
+	 * 
 	 * @param type
 	 * @param element
 	 */
@@ -46,7 +48,7 @@ public class DataflowSelectionMessage {
 
 	/**
 	 * Returns the type of the message.
-	 *
+	 * 
 	 * @return the type of the message
 	 */
 	public Type getType() {
@@ -55,11 +57,10 @@ public class DataflowSelectionMessage {
 
 	/**
 	 * Returns the subject of the message.
-	 *
-	 * @return the  of the message
+	 * 
+	 * @return the of the message
 	 */
 	public Object getElement() {
 		return element;
 	}
-	
 }

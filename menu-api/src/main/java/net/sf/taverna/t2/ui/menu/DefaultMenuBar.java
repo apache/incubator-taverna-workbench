@@ -30,10 +30,8 @@ import java.net.URI;
  * instance of {@link AbstractMenu}.
  * 
  * @author Stian Soiland-Reyes
- * 
  */
 public class DefaultMenuBar extends AbstractMenu {
-
 	/**
 	 * The URI of a menu item representing the default menu bar. Menu items who
 	 * has this URI as their {@link #getParentId()} will be shown in the top
@@ -49,5 +47,4 @@ public class DefaultMenuBar extends AbstractMenu {
 	public DefaultMenuBar() {
 		super(DEFAULT_MENU_BAR);
 	}
-
 }
