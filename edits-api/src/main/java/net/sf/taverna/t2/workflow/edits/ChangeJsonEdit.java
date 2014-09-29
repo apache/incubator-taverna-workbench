@@ -26,11 +26,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 /**
  * Changes the JSON of a configuration.
- *
+ * 
  * @author David Withers
  */
 public class ChangeJsonEdit extends AbstractEdit<Configuration> {
-
 	private JsonNode oldJson, newJson;
 
 	public ChangeJsonEdit(Configuration configuration, JsonNode newJson) {
@@ -48,5 +47,4 @@ public class ChangeJsonEdit extends AbstractEdit<Configuration> {
 	protected void undoEditAction(Configuration configuration) {
 		configuration.setJson(oldJson);
 	}
-
 }

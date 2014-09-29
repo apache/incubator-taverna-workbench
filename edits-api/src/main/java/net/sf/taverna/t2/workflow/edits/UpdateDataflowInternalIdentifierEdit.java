@@ -24,26 +24,25 @@ import java.net.URI;
 
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
-public class UpdateDataflowInternalIdentifierEdit extends AbstractEdit<WorkflowBundle> {
-
+public class UpdateDataflowInternalIdentifierEdit extends
+		AbstractEdit<WorkflowBundle> {
 	private URI newId;
 	private URI oldId;
 
-	public UpdateDataflowInternalIdentifierEdit(WorkflowBundle dataflow, URI newId) {
+	public UpdateDataflowInternalIdentifierEdit(WorkflowBundle dataflow,
+			URI newId) {
 		super(dataflow);
-		this.newId=newId;
-		this.oldId=dataflow.getGlobalBaseURI();
+		this.newId = newId;
+		this.oldId = dataflow.getGlobalBaseURI();
 	}
 
 	@Override
 	protected void doEditAction(WorkflowBundle dataflow) {
-	    dataflow.setGlobalBaseURI(newId);
+		dataflow.setGlobalBaseURI(newId);
 	}
 
 	@Override
 	protected void undoEditAction(WorkflowBundle dataflow) {
-	    dataflow.setGlobalBaseURI(oldId);
+		dataflow.setGlobalBaseURI(oldId);
 	}
-
-
 }

@@ -29,7 +29,6 @@ import uk.org.taverna.scufl2.api.common.WorkflowBean;
  * @author David Withers
  */
 public class AddChildEdit<T extends WorkflowBean> extends AbstractEdit<T> {
-
 	private Child<T> child;
 
 	public AddChildEdit(T parent, Child<T> child) {
@@ -50,5 +49,4 @@ public class AddChildEdit<T extends WorkflowBean> extends AbstractEdit<T> {
 	public Child<T> getChild() {
 		return child;
 	}
-
 }

@@ -32,12 +32,9 @@ import uk.org.taverna.scufl2.api.common.WorkflowBean;
  * exception.
  * 
  * @author Tom Oinn
- * 
  */
 public class CompoundEdit implements Edit<WorkflowBean> {
-
 	private final transient List<Edit<?>> childEdits;
-
 	private transient boolean applied = false;
 
 	/**
@@ -45,7 +42,7 @@ public class CompoundEdit implements Edit<WorkflowBean> {
 	 * 
 	 */
 	public CompoundEdit() {
-		this.childEdits = new ArrayList<Edit<?>>();
+		this.childEdits = new ArrayList<>();
 	}
 
 	/**
@@ -55,6 +52,10 @@ public class CompoundEdit implements Edit<WorkflowBean> {
 		this.childEdits = edits;
 	}
 
+	/**
+	 * Get the list of edits.
+	 * @return a live-editable list.
+	 */
 	public List<Edit<?>> getChildEdits() {
 		return childEdits;
 	}
@@ -65,24 +66,25 @@ public class CompoundEdit implements Edit<WorkflowBean> {
 	 * the exception is rethrown as the cause of a new EditException from the
 	 * CompoundEdit
 	 */
+	@Override
 	public synchronized WorkflowBean doEdit() throws EditException {
-		if (isApplied()) {
+		if (isApplied())
 			throw new EditException("Cannot apply an edit more than once!");
-		}
-		List<Edit<?>> doneEdits = new ArrayList<Edit<?>>();
+		List<Edit<?>> doneEdits = new ArrayList<>();
 		try {
 			for (Edit<?> edit : childEdits) {
 				edit.doEdit();
-				// Insert the done edit at position 0 in the list so we can
-				// iterate over the list in the normal order if we need to
-				// rollback, this ensures that the most recent edit is first.
+				/*
+				 * Insert the done edit at position 0 in the list so we can
+				 * iterate over the list in the normal order if we need to
+				 * rollback, this ensures that the most recent edit is first.
+				 */
 				doneEdits.add(0, edit);
 			}
 			applied = true;
 		} catch (EditException ee) {
-			for (Edit<?> undoMe : doneEdits) {
+			for (Edit<?> undoMe : doneEdits)
 				undoMe.undo();
-			}
 			applied = false;
 			throw new EditException("Failed child of compound edit", ee);
 		}
@@ -93,6 +95,7 @@ public class CompoundEdit implements Edit<WorkflowBean> {
 	 * There is no explicit subject for a compound edit, so this method always
 	 * returns null.
 	 */
+	@Override
 	public Object getSubject() {
 		return null;
 	}
@@ -100,16 +103,16 @@ public class CompoundEdit implements Edit<WorkflowBean> {
 	/**
 	 * Rolls back all child edits in reverse order
 	 */
+	@Override
 	public synchronized void undo() {
-		for (int i = (childEdits.size() - 1); i >= 0; i--) {
+		for (int i = childEdits.size() - 1; i >= 0; i--)
 			// Undo child edits in reverse order
 			childEdits.get(i).undo();
-		}
 		applied = false;
 	}
 
+	@Override
 	public boolean isApplied() {
 		return applied;
 	}
-
 }

@@ -27,7 +27,6 @@ import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.iterationstrategy.CrossProduct;
 import uk.org.taverna.scufl2.api.iterationstrategy.DotProduct;
 import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyParent;
-import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
 import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
 import uk.org.taverna.scufl2.api.iterationstrategy.PortNode;
 import uk.org.taverna.scufl2.api.port.InputProcessorPort;
@@ -43,7 +42,6 @@ import uk.org.taverna.scufl2.api.port.ReceiverPort;
  * @author David Withers
  */
 public class AddDataLinkEdit extends AbstractEdit<Workflow> {
-
 	private DataLink dataLink;
 	private PortNode portNode;
 
@@ -57,17 +55,15 @@ public class AddDataLinkEdit extends AbstractEdit<Workflow> {
 		ReceiverPort sink = dataLink.getSendsTo();
 		List<DataLink> datalinksTo = scufl2Tools.datalinksTo(sink);
 		if (datalinksTo.size() > 0) {
-			if (datalinksTo.size() == 1) {
+			if (datalinksTo.size() == 1)
 				datalinksTo.get(0).setMergePosition(0);
-			}
 			dataLink.setMergePosition(datalinksTo.size());
 		} else {
 			dataLink.setMergePosition(null);
 			if (sink instanceof InputProcessorPort) {
 				InputProcessorPort inputProcessorPort = (InputProcessorPort) sink;
-				IterationStrategyStack iterationStrategyStack = inputProcessorPort.getParent().getIterationStrategyStack();
-				for (IterationStrategyTopNode iterationStrategyTopNode : iterationStrategyStack) {
-					portNode = new PortNode(iterationStrategyTopNode, inputProcessorPort);
+				for (IterationStrategyTopNode node : inputProcessorPort.getParent().getIterationStrategyStack()) {
+					portNode = new PortNode(node, inputProcessorPort);
 					portNode.setDesiredDepth(inputProcessorPort.getDepth());
 					break;
 				}
@@ -81,18 +77,14 @@ public class AddDataLinkEdit extends AbstractEdit<Workflow> {
 		dataLink.setParent(null);
 		ReceiverPort sink = dataLink.getSendsTo();
 		List<DataLink> datalinksTo = scufl2Tools.datalinksTo(sink);
-		if (datalinksTo.size() == 1) {
+		if (datalinksTo.size() == 1)
 			datalinksTo.get(0).setMergePosition(null);
-		} else if (datalinksTo.isEmpty()) {
-			if (portNode != null) {
-				IterationStrategyParent parent = portNode.getParent();
-				if (parent instanceof DotProduct) {
-					((DotProduct) parent).remove(portNode);
-				} else if (parent instanceof CrossProduct) {
-					((CrossProduct) parent).remove(portNode);
-				}
-			}
+		else if (datalinksTo.isEmpty()&&portNode != null) {
+			IterationStrategyParent parent = portNode.getParent();
+			if (parent instanceof DotProduct)
+				((DotProduct) parent).remove(portNode);
+			else if (parent instanceof CrossProduct)
+				((CrossProduct) parent).remove(portNode);
 		}
 	}
-
 }

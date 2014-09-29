@@ -31,62 +31,63 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
  * Edits to a workflow that are to be undoable or redoable should be created by
  * using {@link EditManager#getEdits()} to get an {@link Edits} object. Using
  * this to create {@link Edit}s, instead of calling {@link Edit#doEdit()}, use
- * {@link EditManager#doDataflowEdit(WorkflowBundle, Edit)} to associate the edit with
- * the specified Dataflow.
- * </p>
+ * {@link EditManager#doDataflowEdit(WorkflowBundle, Edit)} to associate the
+ * edit with the specified Dataflow.
  * <p>
  * It is possible to undo a series of edits done on a particular dataflow in
- * this way by using {@link #undoDataflowEdit(WorkflowBundle)}. If one or more undoes
- * have been performed, they can be redone step by step using
- * {@link #redoDataflowEdit(WorkflowBundle)}. Note that it is no longer possible to
- * call {@link #redoDataflowEdit(WorkflowBundle)} after a
+ * this way by using {@link #undoDataflowEdit(WorkflowBundle)}. If one or more
+ * undoes have been performed, they can be redone step by step using
+ * {@link #redoDataflowEdit(WorkflowBundle)}. Note that it is no longer possible
+ * to call {@link #redoDataflowEdit(WorkflowBundle)} after a
  * {@link #doDataflowEdit(WorkflowBundle, Edit)}.
  * <p>
  * The EditManager is {@link Observable}. If you
- * {@link Observable#addObserver(net.sf.taverna.t2.lang.observer.Observer) add an observer}
- * you can be notified on {@link DataflowEditEvent edits},
- * {@link DataFlowUndoEvent undoes} and {@link DataFlowRedoEvent redoes}.
- *
+ * {@linkplain Observable#addObserver(net.sf.taverna.t2.lang.observer.Observer)
+ * add an observer} you can be notified on {@linkplain DataflowEditEvent edits},
+ * {@linkplain DataFlowUndoEvent undoes} and {@linkplain DataFlowRedoEvent
+ * redoes}.
+ * 
  * @author Stian Soiland-Reyes
- *
  */
 public interface EditManager extends Observable<EditManagerEvent> {
+	/**
+	 * <code>true</code> if {@link #redoDataflowEdit(WorkflowBundle)} on the
+	 * given dataflow would redo the last undone edit. If there are no previous
+	 * edits, return <code>false</code>.
+	 * 
+	 * @param dataflow
+	 *            {@link WorkflowBundle} which last affecting edit is to be
+	 *            undone
+	 * @return <code>true</code if and only if
+	 *         {@link #redoDataflowEdit(WorkflowBundle)} would undo
+	 */
+	boolean canRedoDataflowEdit(WorkflowBundle dataflow);
 
 	/**
-	 * <code>true</code> if {@link #redoDataflowEdit(WorkflowBundle)} on the given
-	 * dataflow would redo the last undone edit. If there are no previous edits,
+	 * <code>true</code> if {@link #undoDataflowEdit(WorkflowBundle)} on the
+	 * given dataflow would undo the last edit. If there are no previous edits,
 	 * return <code>false</code>.
-	 *
+	 * 
 	 * @param dataflow
-	 *            {@link WorkflowBundle} which last affecting edit is to be undone
-	 * @return <code>true</code if and only if {@link #redoDataflowEdit(WorkflowBundle)} would undo
+	 *            {@link WorkflowBundle} which last affecting edit is to be
+	 *            undone
+	 * @return <code>true</code if {@link #undoDataflowEdit(WorkflowBundle)}
+	 *         would undo
 	 */
-	public abstract boolean canRedoDataflowEdit(WorkflowBundle dataflow);
-
-	/**
-	 * <code>true</code> if {@link #undoDataflowEdit(WorkflowBundle)} on the given
-	 * dataflow would undo the last edit. If there are no previous edits, return
-	 * <code>false</code>.
-	 *
-	 * @param dataflow
-	 *            {@link WorkflowBundle} which last affecting edit is to be undone
-	 * @return <code>true</code if {@link #undoDataflowEdit(WorkflowBundle)} would undo
-	 */
-	public abstract boolean canUndoDataflowEdit(WorkflowBundle dataflow);
+	boolean canUndoDataflowEdit(WorkflowBundle dataflow);
 
 	/**
 	 * Do an {@link Edit} affecting the given {@link WorkflowBundle}.
 	 * <p>
 	 * The edit is {@link Edit#doEdit() performed} and the edit can later be
 	 * undone using {@link EditManager#undoDataflowEdit(WorkflowBundle)}.
-	 * </p>
 	 * <p>
 	 * Note that any events previously undone with
-	 * {@link EditManager#undoDataflowEdit(WorkflowBundle)} for the given dataflow can
-	 * no longer be {@link EditManager#redoDataflowEdit(WorkflowBundle) redone} after
-	 * calling this method.
-	 * </p>
-	 *
+	 * {@link EditManager#undoDataflowEdit(WorkflowBundle)} for the given
+	 * dataflow can no longer be
+	 * {@link EditManager#redoDataflowEdit(WorkflowBundle) redone} after calling
+	 * this method.
+	 * 
 	 * @see EditManager#undoDataflowEdit(WorkflowBundle)
 	 * @param dataflow
 	 *            {@link WorkflowBundle} this edit is affecting
@@ -95,7 +96,7 @@ public interface EditManager extends Observable<EditManagerEvent> {
 	 * @throws EditException
 	 *             If {@link Edit#doEdit()} fails
 	 */
-	public abstract void doDataflowEdit(WorkflowBundle dataflow, Edit<?> edit)
+	void doDataflowEdit(WorkflowBundle dataflow, Edit<?> edit)
 			throws EditException;
 
 	/**
@@ -104,21 +105,19 @@ public interface EditManager extends Observable<EditManagerEvent> {
 	 * <p>
 	 * Note that the {@link EditManager} might only be able to redo a reasonable
 	 * number of steps.
-	 * </p>
 	 * <p>
-	 * It is not possible to use {@link #redoDataflowEdit(WorkflowBundle)} after a
-	 * {@link #doDataflowEdit(WorkflowBundle, Edit)} affecting the same
-	 * {@link WorkflowBundle}, or if no edits have been undone yet. No action would
-	 * be taken in these cases.
-	 * </p>
-	 *
+	 * It is not possible to use {@link #redoDataflowEdit(WorkflowBundle)} after
+	 * a {@link #doDataflowEdit(WorkflowBundle, Edit)} affecting the same
+	 * {@link WorkflowBundle}, or if no edits have been undone yet. No action
+	 * would be taken in these cases.
+	 * 
 	 * @param dataflow
-	 *            {@link WorkflowBundle} which last affecting edit is to be redone
+	 *            {@link WorkflowBundle} which last affecting edit is to be
+	 *            redone
 	 * @throws EditException
 	 *             If {@link Edit#doEdit()} fails
 	 */
-	public abstract void redoDataflowEdit(WorkflowBundle dataflow)
-			throws EditException;
+	void redoDataflowEdit(WorkflowBundle dataflow) throws EditException;
 
 	/**
 	 * Undo the last {@link Edit} affecting the given {@link WorkflowBundle}.
@@ -129,23 +128,22 @@ public interface EditManager extends Observable<EditManagerEvent> {
 	 * <p>
 	 * The last edit must have been performed using
 	 * {@link EditManager#doDataflowEdit(WorkflowBundle, Edit)} or
-	 * {@link EditManager#redoDataflowEdit(WorkflowBundle)}. The undo is done using
-	 * {@link Edit#undo()}. If no edits have been performed for the dataflow
-	 * yet, no action is taken.
-	 * </p>
+	 * {@link EditManager#redoDataflowEdit(WorkflowBundle)}. The undo is done
+	 * using {@link Edit#undo()}. If no edits have been performed for the
+	 * dataflow yet, no action is taken.
 	 * <p>
 	 * Undoes can be redone using {@link #redoDataflowEdit(WorkflowBundle)}.
-	 *
+	 * 
 	 * @param dataflow
-	 *            {@link WorkflowBundle} which last affecting edit is to be undone
+	 *            {@link WorkflowBundle} which last affecting edit is to be
+	 *            undone
 	 */
-	public abstract void undoDataflowEdit(WorkflowBundle dataflow);
+	void undoDataflowEdit(WorkflowBundle dataflow);
 
 	/**
-	 * An event about an {@link Edit} on a {@link WorkflowBundle}, accessible through
-	 * {@link AbstractDataflowEditEvent#getEdit()} and
+	 * An event about an {@link Edit} on a {@link WorkflowBundle}, accessible
+	 * through {@link AbstractDataflowEditEvent#getEdit()} and
 	 * {@link AbstractDataflowEditEvent#getDataFlow()}.
-	 *
 	 */
 	public static abstract class AbstractDataflowEditEvent implements
 			EditManagerEvent {
@@ -153,18 +151,16 @@ public interface EditManager extends Observable<EditManagerEvent> {
 		private final Edit<?> edit;
 
 		public AbstractDataflowEditEvent(WorkflowBundle dataFlow, Edit<?> edit) {
-			if (dataFlow == null || edit == null) {
+			if (dataFlow == null || edit == null)
 				throw new NullPointerException(
 						"Dataflow and/or Edit can't be null");
-			}
 			this.dataFlow = dataFlow;
 			this.edit = edit;
-
 		}
 
 		/**
 		 * The {@link WorkflowBundle} this event affected.
-		 *
+		 * 
 		 * @return A {@link WorkflowBundle}
 		 */
 		public WorkflowBundle getDataFlow() {
@@ -174,9 +170,10 @@ public interface EditManager extends Observable<EditManagerEvent> {
 		/**
 		 * The {@link Edit} that was performed, undoed or redone on the
 		 * {@link #getDataFlow() dataflow}.
-		 *
+		 * 
 		 * @return An {@link Edit}
 		 */
+		@Override
 		public Edit<?> getEdit() {
 			return edit;
 		}
@@ -185,7 +182,7 @@ public interface EditManager extends Observable<EditManagerEvent> {
 	/**
 	 * An event sent when an {@link Edit} has been performed on a
 	 * {@link WorkflowBundle}.
-	 *
+	 * 
 	 */
 	public static class DataflowEditEvent extends AbstractDataflowEditEvent {
 		public DataflowEditEvent(WorkflowBundle dataFlow, Edit<?> edit) {
@@ -196,7 +193,7 @@ public interface EditManager extends Observable<EditManagerEvent> {
 	/**
 	 * An event sent when a previously undone {@link Edit} has been redone on a
 	 * {@link WorkflowBundle}.
-	 *
+	 * 
 	 */
 	public static class DataFlowRedoEvent extends AbstractDataflowEditEvent {
 		public DataFlowRedoEvent(WorkflowBundle dataFlow, Edit<?> edit) {
@@ -205,8 +202,9 @@ public interface EditManager extends Observable<EditManagerEvent> {
 	}
 
 	/**
-	 * An event sent when an {@link Edit} has been undone on a {@link WorkflowBundle}.
-	 *
+	 * An event sent when an {@link Edit} has been undone on a
+	 * {@link WorkflowBundle}.
+	 * 
 	 */
 	public static class DataFlowUndoEvent extends AbstractDataflowEditEvent {
 		public DataFlowUndoEvent(WorkflowBundle dataFlow, Edit<?> edit) {
@@ -221,5 +219,4 @@ public interface EditManager extends Observable<EditManagerEvent> {
 	public interface EditManagerEvent {
 		public Edit<?> getEdit();
 	}
-
 }

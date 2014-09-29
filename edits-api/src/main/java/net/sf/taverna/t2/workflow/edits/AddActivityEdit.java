@@ -31,7 +31,6 @@ import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
  * @author David Withers
  */
 public class AddActivityEdit extends AbstractEdit<Processor> {
-
 	private Activity activity;
 	private ProcessorBinding addedProcessorBinding;
 
@@ -42,16 +41,15 @@ public class AddActivityEdit extends AbstractEdit<Processor> {
 
 	@Override
 	protected void doEditAction(Processor processor) {
-		ProcessorBinding processorBinding = new ProcessorBinding();
-		processorBinding.setBoundProcessor(processor);
-		processorBinding.setBoundActivity(activity);
-		processorBinding.setParent(activity.getParent());
-		addedProcessorBinding = processorBinding;
+		ProcessorBinding binding = new ProcessorBinding();
+		binding.setBoundProcessor(processor);
+		binding.setBoundActivity(activity);
+		binding.setParent(activity.getParent());
+		addedProcessorBinding = binding;
 	}
 
 	@Override
 	protected void undoEditAction(Processor processor) {
 		addedProcessorBinding.setParent(null);
 	}
-
 }

@@ -28,16 +28,16 @@ import uk.org.taverna.scufl2.api.port.ReceiverPort;
 
 /**
  * Change datalink merge positions based on ordered list of data links.
- *
+ * 
  * @author David Withers
  * @author Stian Soiland-Reyes
  */
 public class ReorderMergePositionsEdit extends AbstractEdit<ReceiverPort> {
-
 	private List<DataLink> newMergePositions;
 	private final List<DataLink> oldMergePositions;
 
-	public ReorderMergePositionsEdit(List<DataLink> dataLinks, List<DataLink> newMergePositions) {
+	public ReorderMergePositionsEdit(List<DataLink> dataLinks,
+			List<DataLink> newMergePositions) {
 		super(dataLinks.get(0).getSendsTo());
 		this.oldMergePositions = dataLinks;
 		this.newMergePositions = newMergePositions;
@@ -45,16 +45,13 @@ public class ReorderMergePositionsEdit extends AbstractEdit<ReceiverPort> {
 
 	@Override
 	protected void doEditAction(ReceiverPort subject) throws EditException {
-		for (int i = 0; i < newMergePositions.size(); i++) {
+		for (int i = 0; i < newMergePositions.size(); i++)
 			newMergePositions.get(i).setMergePosition(i);
-		}
 	}
 
 	@Override
 	protected void undoEditAction(ReceiverPort subject) {
-		for (int i = 0; i < oldMergePositions.size(); i++) {
+		for (int i = 0; i < oldMergePositions.size(); i++)
 			oldMergePositions.get(i).setMergePosition(i);
-		}
 	}
-
 }

@@ -24,11 +24,11 @@ import uk.org.taverna.scufl2.api.port.GranularDepthPort;
 
 /**
  * Changes the granular depth of a port.
- *
+ * 
  * @author David Withers
  */
-public class ChangeGranularDepthEdit<T extends GranularDepthPort> extends AbstractEdit<T> {
-
+public class ChangeGranularDepthEdit<T extends GranularDepthPort> extends
+		AbstractEdit<T> {
 	private Integer newGranularDepth, oldGranularDepth;
 
 	public ChangeGranularDepthEdit(T granularDepthPort, Integer newGranularDepth) {
@@ -46,5 +46,4 @@ public class ChangeGranularDepthEdit<T extends GranularDepthPort> extends Abstra
 	protected void undoEditAction(T granularDepthPort) {
 		granularDepthPort.setGranularDepth(oldGranularDepth);
 	}
-
 }

@@ -25,11 +25,10 @@ import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
 
 /**
  * Set the iteration strategy
- *
+ * 
  * @author Stian Soiland-Reyes
  */
 public class SetIterationStrategyStackEdit extends AbstractEdit<Processor> {
-
 	private final IterationStrategyStack iterationStrategyStack;
 	private IterationStrategyStack oldStrategyStack;
 
@@ -49,5 +48,4 @@ public class SetIterationStrategyStackEdit extends AbstractEdit<Processor> {
 	protected void undoEditAction(Processor processor) {
 		processor.setIterationStrategyStack(oldStrategyStack);
 	}
-
 }

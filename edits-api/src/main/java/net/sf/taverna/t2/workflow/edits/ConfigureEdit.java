@@ -24,17 +24,18 @@ import uk.org.taverna.scufl2.api.common.Configurable;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 
 /**
- * An Edit that configures a {@link Configurable} with a
- * given {@link Configuration}.
- *
+ * An Edit that configures a {@link Configurable} with a given
+ * {@link Configuration}.
+ * 
  * @author David Withers
  */
-public class ConfigureEdit<ConfigurableType extends Configurable> extends AbstractEdit<ConfigurableType> {
-
+public class ConfigureEdit<ConfigurableType extends Configurable> extends
+		AbstractEdit<ConfigurableType> {
 	private final Configuration oldConfiguration;
 	private final Configuration newConfiguration;
 
-	public ConfigureEdit(ConfigurableType configurable, Configuration oldConfiguration, Configuration newConfiguration) {
+	public ConfigureEdit(ConfigurableType configurable,
+			Configuration oldConfiguration, Configuration newConfiguration) {
 		super(configurable);
 		this.oldConfiguration = oldConfiguration;
 		this.newConfiguration = newConfiguration;
@@ -51,5 +52,4 @@ public class ConfigureEdit<ConfigurableType extends Configurable> extends Abstra
 		oldConfiguration.setConfigures(configurable);
 		newConfiguration.setConfigures(null);
 	}
-
 }

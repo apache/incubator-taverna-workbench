@@ -29,7 +29,6 @@ import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
  * @author David Withers
  */
 public class AddIterationStrategyEdit extends AbstractEdit<IterationStrategyStack> {
-
 	private final IterationStrategyTopNode iterationStrategyTopNode;
 
 	public AddIterationStrategyEdit(IterationStrategyStack iterationStrategyStack,
@@ -47,5 +46,4 @@ public class AddIterationStrategyEdit extends AbstractEdit<IterationStrategyStac
 	public void undoEditAction(IterationStrategyStack iterationStrategyStack) {
 		iterationStrategyStack.remove(iterationStrategyTopNode);
 	}
-
 }

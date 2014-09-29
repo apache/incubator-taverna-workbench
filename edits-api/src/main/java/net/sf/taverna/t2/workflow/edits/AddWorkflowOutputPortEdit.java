@@ -20,13 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
+import static uk.org.taverna.scufl2.api.common.Scufl2Tools.NESTED_WORKFLOW;
+
 import java.util.List;
 
 import net.sf.taverna.t2.workbench.edits.CompoundEdit;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Processor;
@@ -46,47 +47,51 @@ import com.fasterxml.jackson.databind.JsonNode;
  * @author David Withers
  */
 public class AddWorkflowOutputPortEdit extends AbstractEdit<Workflow> {
-
 	private final OutputWorkflowPort port;
-
-	private CompoundEdit nestedPortEdit = new CompoundEdit();
-
-	private Scufl2Tools scufl2Tools = new Scufl2Tools();
+	private final CompoundEdit nestedPortEdit = new CompoundEdit();
 
 	public AddWorkflowOutputPortEdit(Workflow workflow, OutputWorkflowPort port) {
 		super(workflow);
 		this.port = port;
 		WorkflowBundle workflowBundle = workflow.getParent();
-		if (workflowBundle != null) {
-			List<Edit<?>> edits = nestedPortEdit.getChildEdits();
-			for (Profile profile : workflowBundle.getProfiles()) {
-				for (Activity activity : profile.getActivities()) {
-					if (activity.getType().equals(Scufl2Tools.NESTED_WORKFLOW)) {
-						for (Configuration c : scufl2Tools.configurationsFor(activity, profile)) {
-							JsonNode nested = c.getJson().get("nestedWorkflow");
-							Workflow nestedWorkflow = workflowBundle.getWorkflows().getByName(nested.asText());
-							if (nestedWorkflow == workflow) {
-								OutputActivityPort activityPort = new OutputActivityPort();
-								activityPort.setName(port.getName());
-								activityPort.setDepth(0);
-								activityPort.setGranularDepth(0);
-								edits.add(new AddChildEdit<Activity>(activity, activityPort));
-								for (ProcessorBinding binding : scufl2Tools.processorBindingsToActivity(activity)) {
-									Processor processor = binding.getBoundProcessor();
-									OutputProcessorPort processorPort = new OutputProcessorPort();
-									processorPort.setName(port.getName());
-									processorPort.setDepth(0);
-									processorPort.setGranularDepth(0);
-									edits.add(new AddProcessorOutputPortEdit(processor, processorPort));
-									ProcessorOutputPortBinding portBinding = new ProcessorOutputPortBinding();
-									portBinding.setBoundProcessorPort(processorPort);
-									portBinding.setBoundActivityPort(activityPort);
-									edits.add(new AddChildEdit<ProcessorBinding>(binding, portBinding));
-								}
-							}
-						}
-					}
-				}
+		if (workflowBundle != null)
+			for (Profile profile : workflowBundle.getProfiles())
+				for (Activity activity : profile.getActivities())
+					if (activity.getType().equals(NESTED_WORKFLOW))
+						for (Configuration c : scufl2Tools.configurationsFor(
+								activity, profile))
+							defineEditsForOneConfiguration(workflow, port,
+									workflowBundle, activity, c);
+	}
+
+	private void defineEditsForOneConfiguration(Workflow workflow,
+			OutputWorkflowPort port, WorkflowBundle workflowBundle,
+			Activity activity, Configuration c) {
+		List<Edit<?>> edits = nestedPortEdit.getChildEdits();
+		JsonNode nested = c.getJson().get("nestedWorkflow");
+		Workflow nestedWorkflow = workflowBundle.getWorkflows().getByName(
+				nested.asText());
+		if (nestedWorkflow == workflow) {
+			OutputActivityPort activityPort = new OutputActivityPort();
+			activityPort.setName(port.getName());
+			activityPort.setDepth(0);
+			activityPort.setGranularDepth(0);
+			edits.add(new AddChildEdit<>(activity, activityPort));
+
+			for (ProcessorBinding binding : scufl2Tools
+					.processorBindingsToActivity(activity)) {
+				Processor processor = binding.getBoundProcessor();
+				OutputProcessorPort processorPort = new OutputProcessorPort();
+				processorPort.setName(port.getName());
+				processorPort.setDepth(0);
+				processorPort.setGranularDepth(0);
+				edits.add(new AddProcessorOutputPortEdit(processor,
+						processorPort));
+
+				ProcessorOutputPortBinding portBinding = new ProcessorOutputPortBinding();
+				portBinding.setBoundProcessorPort(processorPort);
+				portBinding.setBoundActivityPort(activityPort);
+				edits.add(new AddChildEdit<>(binding, portBinding));
 			}
 		}
 	}
@@ -103,5 +108,4 @@ public class AddWorkflowOutputPortEdit extends AbstractEdit<Workflow> {
 		port.setParent(null);
 		nestedPortEdit.undo();
 	}
-
 }

@@ -25,11 +25,10 @@ import uk.org.taverna.scufl2.api.common.WorkflowBean;
 
 /**
  * Removes a child from a parent.
- *
+ * 
  * @author David Withers
  */
 public class RemoveChildEdit<T extends WorkflowBean> extends AbstractEdit<T> {
-
 	private Child<T> child;
 
 	public RemoveChildEdit(T parent, Child<T> child) {
@@ -46,5 +45,4 @@ public class RemoveChildEdit<T extends WorkflowBean> extends AbstractEdit<T> {
 	protected void undoEditAction(T parent) {
 		child.setParent(parent);
 	}
-
 }

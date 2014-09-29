@@ -20,9 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
+import static uk.org.taverna.scufl2.api.common.Scufl2Tools.NESTED_WORKFLOW;
 import uk.org.taverna.scufl2.api.activity.Activity;
 import uk.org.taverna.scufl2.api.common.Named;
-import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Workflow;
@@ -43,7 +43,6 @@ import com.fasterxml.jackson.databind.JsonNode;
  * @author David Withers
  */
 public class RenameEdit<T extends Named> extends AbstractEdit<T> {
-
 	private String oldName, newName;
 
 	public RenameEdit(T named, String newName) {
@@ -55,67 +54,83 @@ public class RenameEdit<T extends Named> extends AbstractEdit<T> {
 	@Override
 	protected void doEditAction(T named) {
 		named.setName(newName);
-		if (named instanceof WorkflowPort) {
+		if (named instanceof WorkflowPort)
 			checkNestedPortNames((WorkflowPort) named, oldName, newName);
-		}
 	}
 
 	@Override
 	protected void undoEditAction(T named) {
 		named.setName(oldName);
-		if (named instanceof WorkflowPort) {
+		if (named instanceof WorkflowPort)
 			checkNestedPortNames((WorkflowPort) named, newName, oldName);
-		}
 	}
 
 	private void checkNestedPortNames(WorkflowPort workflowPort, String oldName, String newName) {
 		Workflow workflow = workflowPort.getParent();
-		if (workflow != null) {
-			WorkflowBundle workflowBundle = workflow.getParent();
-			if (workflowBundle != null) {
-				for (Profile profile : workflowBundle.getProfiles()) {
-					for (Activity activity : profile.getActivities()) {
-						if (activity.getType().equals(Scufl2Tools.NESTED_WORKFLOW)) {
-							for (Configuration c : scufl2Tools.configurationsFor(activity, profile)) {
-								JsonNode nested = c.getJson().get("nestedWorkflow");
-								Workflow nestedWorkflow = workflowBundle.getWorkflows().getByName(
-										nested.asText());
-								if (nestedWorkflow == workflow) {
-									ActivityPort activityPort;
-									if (workflowPort instanceof InputPort) {
-										activityPort = activity.getInputPorts().getByName(oldName);
-									} else {
-										activityPort = activity.getOutputPorts().getByName(oldName);
-									}
-									activityPort.setName(newName);
-									for (ProcessorBinding binding : scufl2Tools.processorBindingsToActivity(activity)) {
-										if (activityPort instanceof InputPort) {
-											for (ProcessorInputPortBinding portBinding : binding.getInputPortBindings()) {
-												if (portBinding.getBoundActivityPort() == activityPort) {
-													ProcessorPort processorPort = portBinding.getBoundProcessorPort();
-													if (processorPort.getName().equals(oldName)) {
-														processorPort.setName(newName);
-													}
-												}
-											}
-										} else {
-											for (ProcessorOutputPortBinding portBinding : binding.getOutputPortBindings()) {
-												if (portBinding.getBoundActivityPort() == activityPort) {
-													ProcessorPort processorPort = portBinding.getBoundProcessorPort();
-													if (processorPort.getName().equals(oldName)) {
-														processorPort.setName(newName);
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
+		if (workflow == null)
+			return;
+		WorkflowBundle workflowBundle = workflow.getParent();
+		if (workflowBundle == null)
+			return;
+		for (Profile profile : workflowBundle.getProfiles())
+			for (Activity activity : profile.getActivities())
+				if (activity.getType().equals(NESTED_WORKFLOW))
+					for (Configuration c : scufl2Tools.configurationsFor(activity, profile))
+						changeActivityPortName(workflowPort, oldName,
+								newName, workflow, workflowBundle, activity, c);
 	}
 
+	private void changeActivityPortName(WorkflowPort workflowPort,
+			String oldName, String newName, Workflow workflow,
+			WorkflowBundle workflowBundle, Activity activity, Configuration c) {
+		JsonNode nested = c.getJson().get("nestedWorkflow");
+		Workflow nestedWorkflow = workflowBundle.getWorkflows().getByName(
+				nested.asText());
+		if (nestedWorkflow != workflow)
+			return;
+
+		ActivityPort activityPort;
+		if (workflowPort instanceof InputPort) {
+			activityPort = activity.getInputPorts().getByName(oldName);
+			changeProcessorInputPortName(oldName, newName, activity,
+					activityPort);
+		} else {
+			activityPort = activity.getOutputPorts().getByName(oldName);
+			changeProcessorOutputPortName(oldName, newName, activity,
+					activityPort);
+		}
+		activityPort.setName(newName);
+	}
+
+	private void changeProcessorInputPortName(String oldName, String newName,
+			Activity activity, ActivityPort activityPort) {
+		bindings: for (ProcessorBinding binding : scufl2Tools
+				.processorBindingsToActivity(activity))
+			for (ProcessorInputPortBinding portBinding : binding
+					.getInputPortBindings())
+				if (portBinding.getBoundActivityPort() == activityPort) {
+					ProcessorPort processorPort = portBinding
+							.getBoundProcessorPort();
+					if (processorPort.getName().equals(oldName)) {
+						processorPort.setName(newName);
+						continue bindings;
+					}
+				}
+	}
+
+	private void changeProcessorOutputPortName(String oldName, String newName,
+			Activity activity, ActivityPort activityPort) {
+		bindings: for (ProcessorBinding binding : scufl2Tools
+				.processorBindingsToActivity(activity))
+			for (ProcessorOutputPortBinding portBinding : binding
+					.getOutputPortBindings())
+				if (portBinding.getBoundActivityPort() == activityPort) {
+					ProcessorPort processorPort = portBinding
+							.getBoundProcessorPort();
+					if (processorPort.getName().equals(oldName)) {
+						processorPort.setName(newName);
+						continue bindings;
+					}
+				}
+	}
 }

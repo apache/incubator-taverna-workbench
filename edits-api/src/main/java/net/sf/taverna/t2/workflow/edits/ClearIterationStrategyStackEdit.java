@@ -24,14 +24,15 @@ import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
 
 /**
  * Removes all the iteration strategies from an iteration strategy stack.
- *
+ * 
  * @author David Withers
  */
-public class ClearIterationStrategyStackEdit extends AbstractEdit<IterationStrategyStack> {
-
+public class ClearIterationStrategyStackEdit extends
+		AbstractEdit<IterationStrategyStack> {
 	private IterationStrategyStack oldIterationStrategyStack;
 
-	public ClearIterationStrategyStackEdit(IterationStrategyStack iterationStrategyStack) {
+	public ClearIterationStrategyStackEdit(
+			IterationStrategyStack iterationStrategyStack) {
 		super(iterationStrategyStack);
 	}
 
@@ -46,5 +47,4 @@ public class ClearIterationStrategyStackEdit extends AbstractEdit<IterationStrat
 	public void undoEditAction(IterationStrategyStack iterationStrategyStack) {
 		iterationStrategyStack.addAll(oldIterationStrategyStack);
 	}
-
 }

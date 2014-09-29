@@ -25,7 +25,6 @@ import net.sf.taverna.t2.workbench.edits.EditException;
 import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.common.WorkflowBean;
 
-
 /**
  * An abstract {@link Edit} implementation that checks if an edit has been
  * applied or not.
@@ -35,11 +34,11 @@ import uk.org.taverna.scufl2.api.common.WorkflowBean;
  * @param <Subject>
  *            Subject of this edit
  */
-public abstract class AbstractEdit<Subject extends WorkflowBean> implements Edit<Subject> {
-
+public abstract class AbstractEdit<Subject extends WorkflowBean> implements
+		Edit<Subject> {
 	private boolean applied = false;
-	protected Subject subject;
-	protected Scufl2Tools scufl2Tools = new Scufl2Tools();
+	private final Subject subject;
+	protected final Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	/**
 	 * Construct an AbstractEdit.
@@ -53,10 +52,9 @@ public abstract class AbstractEdit<Subject extends WorkflowBean> implements Edit
 	 *            The subject of this edit
 	 */
 	public AbstractEdit(Subject subject) {
-		if (subject == null && !isNullSubjectAllowed()) {
+		if (subject == null && !isNullSubjectAllowed())
 			throw new IllegalArgumentException(
 					"Cannot construct an edit with null subject");
-		}
 		this.subject = subject;
 	}
 
@@ -64,13 +62,10 @@ public abstract class AbstractEdit<Subject extends WorkflowBean> implements Edit
 		return false;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public final Subject doEdit() throws EditException {
-		if (applied) {
+		if (applied)
 			throw new EditException("Edit has already been applied!");
-		}
 		try {
 			synchronized (subject) {
 				doEditAction(subject);
@@ -101,32 +96,24 @@ public abstract class AbstractEdit<Subject extends WorkflowBean> implements Edit
 	 */
 	protected abstract void undoEditAction(Subject subject);
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public final Subject getSubject() {
 		return subject;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public final boolean isApplied() {
 		return applied;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public final void undo() {
-		if (!applied) {
+		if (!applied)
 			throw new RuntimeException(
 					"Attempt to undo edit that was never applied");
-		}
 		synchronized (subject) {
 			undoEditAction(subject);
 			applied = false;
 		}
 	}
-
 }

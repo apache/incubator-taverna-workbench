@@ -25,15 +25,15 @@ import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
 
 /**
  * Adds an output port to a processor.
- *
+ * 
  * @author Tom Oinn
  * @author David Withers
  */
 public class AddProcessorOutputPortEdit extends AddChildEdit<Processor> {
-
 	private final OutputProcessorPort port;
 
-	public AddProcessorOutputPortEdit(Processor processor, OutputProcessorPort port) {
+	public AddProcessorOutputPortEdit(Processor processor,
+			OutputProcessorPort port) {
 		super(processor, port);
 		this.port = port;
 	}
@@ -43,5 +43,4 @@ public class AddProcessorOutputPortEdit extends AddChildEdit<Processor> {
 		processor.getOutputPorts().addWithUniqueName(port);
 		super.doEditAction(processor);
 	}
-
 }

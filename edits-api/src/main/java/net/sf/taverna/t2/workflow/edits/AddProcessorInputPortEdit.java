@@ -30,7 +30,6 @@ import uk.org.taverna.scufl2.api.port.InputProcessorPort;
  * @author David Withers
  */
 public class AddProcessorInputPortEdit extends AddChildEdit<Processor> {
-
 	private final InputProcessorPort port;
 
 	public AddProcessorInputPortEdit(Processor processor, InputProcessorPort port) {
@@ -43,5 +42,4 @@ public class AddProcessorInputPortEdit extends AddChildEdit<Processor> {
 		processor.getInputPorts().addWithUniqueName(port);
 		super.doEditAction(processor);
 	}
-
 }

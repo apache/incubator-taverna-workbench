@@ -26,20 +26,20 @@ import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 import uk.org.taverna.scufl2.api.profiles.ProcessorInputPortBinding;
 
 public class RemoveActivityInputPortMappingEdit extends AbstractEdit<Activity> {
-
 	private final InputActivityPort inputActivityPort;
 	private ProcessorInputPortBinding removedPortBinding;
 	private ProcessorBinding processorBinding;
 
-	public RemoveActivityInputPortMappingEdit(Activity activity, InputActivityPort inputActivityPort) {
+	public RemoveActivityInputPortMappingEdit(Activity activity,
+			InputActivityPort inputActivityPort) {
 		super(activity);
 		this.inputActivityPort = inputActivityPort;
-
 	}
 
 	@Override
 	protected void doEditAction(Activity activity) {
-		removedPortBinding = scufl2Tools.processorPortBindingForPort(inputActivityPort, activity.getParent());
+		removedPortBinding = scufl2Tools.processorPortBindingForPort(
+				inputActivityPort, activity.getParent());
 		processorBinding = removedPortBinding.getParent();
 		removedPortBinding.setParent(null);
 	}
@@ -48,5 +48,4 @@ public class RemoveActivityInputPortMappingEdit extends AbstractEdit<Activity> {
 	protected void undoEditAction(Activity activity) {
 		removedPortBinding.setParent(processorBinding);
 	}
-
 }

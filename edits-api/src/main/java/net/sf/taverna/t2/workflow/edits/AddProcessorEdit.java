@@ -30,7 +30,6 @@ import uk.org.taverna.scufl2.api.core.Workflow;
  * @author David Withers
  */
 public class AddProcessorEdit extends AddChildEdit<Workflow> {
-
 	private Processor processor;
 
 	public AddProcessorEdit(Workflow workflow, Processor processor) {
@@ -43,5 +42,4 @@ public class AddProcessorEdit extends AddChildEdit<Workflow> {
 		getSubject().getProcessors().addWithUniqueName(processor);
 		super.doEditAction(workflow);
 	}
-
 }

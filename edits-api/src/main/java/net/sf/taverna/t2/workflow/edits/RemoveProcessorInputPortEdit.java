@@ -24,9 +24,8 @@ import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 
 public class RemoveProcessorInputPortEdit extends RemoveChildEdit<Processor> {
-
-	public RemoveProcessorInputPortEdit(Processor processor, InputProcessorPort port) {
+	public RemoveProcessorInputPortEdit(Processor processor,
+			InputProcessorPort port) {
 		super(processor, port);
 	}
-
 }

@@ -24,8 +24,6 @@ import java.util.List;
 
 import uk.org.taverna.scufl2.api.core.DataLink;
 import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.iterationstrategy.CrossProduct;
-import uk.org.taverna.scufl2.api.iterationstrategy.DotProduct;
 import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyNode;
 import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyParent;
 import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
@@ -41,7 +39,6 @@ import uk.org.taverna.scufl2.api.port.ReceiverPort;
  * @author David Withers
  */
 public class RemoveDataLinkEdit extends AbstractEdit<Workflow> {
-
 	private final DataLink dataLink;
 	private PortNode portNode;
 	private int portPosition;
@@ -76,9 +73,8 @@ public class RemoveDataLinkEdit extends AbstractEdit<Workflow> {
 		} else if (datalinksTo.size() == 1) {
 			datalinksTo.get(0).setMergePosition(null);
 		} else {
-			for (int i = 0; i < datalinksTo.size(); i++) {
+			for (int i = 0; i < datalinksTo.size(); i++)
 				datalinksTo.get(i).setMergePosition(i);
-			}
 		}
 	}
 
@@ -86,11 +82,9 @@ public class RemoveDataLinkEdit extends AbstractEdit<Workflow> {
 	protected void undoEditAction(Workflow workflow) {
 		ReceiverPort sink = dataLink.getSendsTo();
 		List<DataLink> datalinksTo = scufl2Tools.datalinksTo(sink);
-		if (dataLink.getMergePosition() != null) {
-			for (int i = dataLink.getMergePosition(); i < datalinksTo.size(); i++) {
+		if (dataLink.getMergePosition() != null)
+			for (int i = dataLink.getMergePosition(); i < datalinksTo.size(); i++)
 				datalinksTo.get(i).setMergePosition(i + 1);
-			}
-		}
 		if (portNode != null) {
 			parent.add(portPosition, portNode);
 			portNode.setParent(parent);
@@ -98,24 +92,20 @@ public class RemoveDataLinkEdit extends AbstractEdit<Workflow> {
 		dataLink.setParent(workflow);
 	}
 
-	private PortNode findPortNode(IterationStrategyTopNode topNode, InputProcessorPort port) {
-		PortNode result = null;
-		for (IterationStrategyNode iterationStrategyNode : topNode) {
-			if (iterationStrategyNode instanceof PortNode) {
-				PortNode portNode = (PortNode) iterationStrategyNode;
-				if (port.equals(portNode.getInputProcessorPort())) {
-					result =  portNode;
-					break;
-				}
-			} else if (iterationStrategyNode instanceof IterationStrategyTopNode) {
-				IterationStrategyTopNode iterationStrategyTopNode = (IterationStrategyTopNode) iterationStrategyNode;
-				result = findPortNode(iterationStrategyTopNode, port);
-				if (result != null) {
-					break;
-				}
+	private PortNode findPortNode(IterationStrategyTopNode topNode,
+			InputProcessorPort port) {
+		for (IterationStrategyNode node : topNode) {
+			if (node instanceof PortNode) {
+				PortNode portNode = (PortNode) node;
+				if (port.equals(portNode.getInputProcessorPort()))
+					return portNode;
+			} else if (node instanceof IterationStrategyTopNode) {
+				IterationStrategyTopNode iterationStrategyTopNode = (IterationStrategyTopNode) node;
+				PortNode result = findPortNode(iterationStrategyTopNode, port);
+				if (result != null)
+					return result;
 			}
 		}
-		return result;
+		return null;
 	}
-
 }

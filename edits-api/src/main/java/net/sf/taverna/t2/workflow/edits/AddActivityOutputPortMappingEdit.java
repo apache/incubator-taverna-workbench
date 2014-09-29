@@ -30,12 +30,12 @@ import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 import uk.org.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
 
 public class AddActivityOutputPortMappingEdit extends AbstractEdit<Activity> {
-
 	private final OutputProcessorPort outputProcessorPort;
 	private final OutputActivityPort outputActivityPort;
 	private List<ProcessorOutputPortBinding> portBindings;
 
-	public AddActivityOutputPortMappingEdit(Activity activity, OutputProcessorPort outputProcessorPort,
+	public AddActivityOutputPortMappingEdit(Activity activity,
+			OutputProcessorPort outputProcessorPort,
 			OutputActivityPort outputActivityPort) {
 		super(activity);
 		this.outputProcessorPort = outputProcessorPort;
@@ -44,18 +44,16 @@ public class AddActivityOutputPortMappingEdit extends AbstractEdit<Activity> {
 
 	@Override
 	protected void doEditAction(Activity activity) {
-		portBindings = new ArrayList<ProcessorOutputPortBinding>();
-		List<ProcessorBinding> bindingsToActivity = scufl2Tools.processorBindingsToActivity(activity);
-		for (ProcessorBinding processorBinding : bindingsToActivity) {
-			portBindings.add(new ProcessorOutputPortBinding(processorBinding, outputActivityPort, outputProcessorPort));
-		}
+		portBindings = new ArrayList<>();
+		for (ProcessorBinding binding : scufl2Tools
+				.processorBindingsToActivity(activity))
+			portBindings.add(new ProcessorOutputPortBinding(binding,
+					outputActivityPort, outputProcessorPort));
 	}
 
 	@Override
 	protected void undoEditAction(Activity activity) {
-		for (ProcessorOutputPortBinding portBinding : portBindings) {
-			portBinding.setParent(null);
-		}
+		for (ProcessorOutputPortBinding binding : portBindings)
+			binding.setParent(null);
 	}
-
 }

@@ -20,8 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import java.util.List;
-
 import uk.org.taverna.scufl2.api.activity.Activity;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
@@ -32,7 +30,6 @@ import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
  * @author alanrw
  */
 public class RemoveActivityEdit extends AbstractEdit<Processor> {
-
 	private Activity activityToRemove;
 	private ProcessorBinding removedProcessorBinding;
 
@@ -43,18 +40,16 @@ public class RemoveActivityEdit extends AbstractEdit<Processor> {
 
 	@Override
 	protected void doEditAction(Processor processor) {
-		List<ProcessorBinding> bindingsToActivity = scufl2Tools.processorBindingsToActivity(activityToRemove);
-		for (ProcessorBinding processorBinding : bindingsToActivity) {
-			if (processorBinding.getBoundProcessor().equals(processor)) {
-				removedProcessorBinding = processorBinding;
+		for (ProcessorBinding binding : scufl2Tools
+				.processorBindingsToActivity(activityToRemove))
+			if (binding.getBoundProcessor().equals(processor)) {
+				removedProcessorBinding = binding;
 				removedProcessorBinding.setParent(null);
 			}
-		}
 	}
 
 	@Override
 	protected void undoEditAction(Processor processor) {
 		removedProcessorBinding.setParent(activityToRemove.getParent());
 	}
-
 }

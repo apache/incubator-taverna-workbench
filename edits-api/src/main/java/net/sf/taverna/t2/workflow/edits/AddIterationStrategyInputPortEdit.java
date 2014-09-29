@@ -20,56 +20,31 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import net.sf.taverna.t2.workbench.edits.Edit;
-import net.sf.taverna.t2.workbench.edits.EditException;
 import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
 import uk.org.taverna.scufl2.api.iterationstrategy.PortNode;
 
 /**
  * Adds an iteration strategy input port node to an iteration strategy.
- *
+ * 
  * @author David Withers
  */
-public class AddIterationStrategyInputPortEdit implements Edit<IterationStrategyStack> {
-
-	private final IterationStrategyStack iterationStrategy;
+public class AddIterationStrategyInputPortEdit extends
+		AbstractEdit<IterationStrategyStack> {
 	private final PortNode portNode;
-	private boolean applied;
 
-	public AddIterationStrategyInputPortEdit(IterationStrategyStack iterationStrategy,
-			PortNode portNode) {
-		this.iterationStrategy = iterationStrategy;
+	public AddIterationStrategyInputPortEdit(
+			IterationStrategyStack iterationStrategy, PortNode portNode) {
+		super(iterationStrategy);
 		this.portNode = portNode;
 	}
 
 	@Override
-	public IterationStrategyStack doEdit() throws EditException {
-		if (applied) {
-			throw new EditException("Edit has already been applied");
-		}
+	public void doEditAction(IterationStrategyStack iterationStrategy) {
 		portNode.setParent(iterationStrategy.get(0));
-		applied = true;
-		return iterationStrategy;
 	}
 
 	@Override
-	public void undo() {
-		if (!applied) {
-			throw new RuntimeException(
-					"Attempt to undo edit that was never applied");
-		}
+	public void undoEditAction(IterationStrategyStack iterationStrategy) {
 		portNode.setParent(null);
-		applied = false;
 	}
-
-	@Override
-	public IterationStrategyStack getSubject() {
-		return iterationStrategy;
-	}
-
-	@Override
-	public boolean isApplied() {
-		return applied;
-	}
-
 }
