@@ -1,15 +1,10 @@
 package net.sf.taverna.t2.servicedescriptions;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 public abstract class AbstractConfigurableServiceProvider<ConfigType> extends IdentifiedObject
 		implements ConfigurableServiceProvider<ConfigType> {
-
-	@SuppressWarnings("unchecked")
-	private Collection<? extends ServiceDescription> cachedDescriptions;
-
 	protected ConfigType serviceProviderConfig;
 
 	/**
@@ -19,9 +14,8 @@ public abstract class AbstractConfigurableServiceProvider<ConfigType> extends Id
 	 *            Template configuration
 	 */
 	public AbstractConfigurableServiceProvider(ConfigType configTemplate) {
-		if (configTemplate == null) {
+		if (configTemplate == null)
 			throw new NullPointerException("Default config can't be null");
-		}
 		serviceProviderConfig = configTemplate;
 	}
 
@@ -47,23 +41,24 @@ public abstract class AbstractConfigurableServiceProvider<ConfigType> extends Id
 		}
 
 		ConfigType configuration = getConfiguration();
-		if (configuration != null) {
+		if (configuration != null)
 			provider.configure(configuration);
-		}
 		return provider;
 	}
 
+	@Override
 	public synchronized void configure(ConfigType conf) {
-		if (conf == null) {
+		if (conf == null)
 			throw new NullPointerException("Config can't be null");
-		}
 		this.serviceProviderConfig = conf;
 	}
 
+	@Override
 	public ConfigType getConfiguration() {
 		return serviceProviderConfig;
 	}
 
+	@Override
 	public List<ConfigType> getDefaultConfigurations() {
 		return Collections.emptyList();
 	}
@@ -72,5 +67,4 @@ public abstract class AbstractConfigurableServiceProvider<ConfigType> extends Id
 	public String toString() {
 		return getName() + " " + getConfiguration();
 	}
-
 }

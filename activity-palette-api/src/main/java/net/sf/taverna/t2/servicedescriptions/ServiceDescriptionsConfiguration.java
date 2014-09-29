@@ -23,12 +23,9 @@ package net.sf.taverna.t2.servicedescriptions;
 import uk.org.taverna.configuration.Configurable;
 
 /**
- *
- *
  * @author David Withers
  */
 public interface ServiceDescriptionsConfiguration extends Configurable {
-
 	public boolean isIncludeDefaults();
 
 	public void setIncludeDefaults(boolean includeDefaults);
@@ -36,5 +33,4 @@ public interface ServiceDescriptionsConfiguration extends Configurable {
 	public boolean isRemovePermanently();
 
 	public void setRemovePermanently(boolean removePermanently);
-
 }

@@ -4,12 +4,9 @@ import java.util.List;
 
 import net.sf.taverna.t2.workflowmodel.Configurable;
 
-public interface ConfigurableServiceProvider<ConfigurationBean>
-		extends ServiceDescriptionProvider, Configurable<ConfigurationBean>,
-		Cloneable {
+public interface ConfigurableServiceProvider<ConfigurationBean> extends
+		ServiceDescriptionProvider, Configurable<ConfigurationBean>, Cloneable {
+	List<ConfigurationBean> getDefaultConfigurations();
 
-	public List<ConfigurationBean> getDefaultConfigurations();
-
-	public ConfigurableServiceProvider<ConfigurationBean> clone();
-	
+	ConfigurableServiceProvider<ConfigurationBean> clone();
 }

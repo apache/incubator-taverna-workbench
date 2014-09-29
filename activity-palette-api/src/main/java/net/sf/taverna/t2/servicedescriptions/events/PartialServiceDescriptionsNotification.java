@@ -7,11 +7,8 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 
 public class PartialServiceDescriptionsNotification extends
 		AbstractProviderNotification {
-
-	@SuppressWarnings("unchecked")
 	private final Collection<? extends ServiceDescription> serviceDescriptions;
 
-	@SuppressWarnings("unchecked")
 	public PartialServiceDescriptionsNotification(
 			ServiceDescriptionProvider provider,
 			Collection<? extends ServiceDescription> serviceDescriptions) {
@@ -19,9 +16,7 @@ public class PartialServiceDescriptionsNotification extends
 		this.serviceDescriptions = serviceDescriptions;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Collection<? extends ServiceDescription> getServiceDescriptions() {
 		return serviceDescriptions;
 	}
-
 }

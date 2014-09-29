@@ -12,41 +12,42 @@ import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 
 public interface ServiceDescriptionRegistry extends
 		Observable<ServiceDescriptionRegistryEvent> {
+	void addServiceDescriptionProvider(ServiceDescriptionProvider provider);
 
-	public void addServiceDescriptionProvider(ServiceDescriptionProvider provider);
+	Set<ServiceDescriptionProvider> getDefaultServiceDescriptionProviders();
 
-	public Set<ServiceDescriptionProvider> getDefaultServiceDescriptionProviders();
+	Set<ServiceDescriptionProvider> getServiceDescriptionProviders();
 
-	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders();
+	Set<ServiceDescriptionProvider> getServiceDescriptionProviders(
+			ServiceDescription sd);
 
-	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders(ServiceDescription sd);
+	Set<ServiceDescription> getServiceDescriptions();
 
-	public Set<ServiceDescription> getServiceDescriptions();
+	ServiceDescription getServiceDescription(URI activityType);
 
-	public ServiceDescription getServiceDescription(URI activityType);
+	List<ConfigurableServiceProvider<?>> getUnconfiguredServiceProviders();
 
-	public List<ConfigurableServiceProvider> getUnconfiguredServiceProviders();
+	Set<ServiceDescriptionProvider> getUserAddedServiceProviders();
 
-	public Set<ServiceDescriptionProvider> getUserAddedServiceProviders();
+	Set<ServiceDescriptionProvider> getUserRemovedServiceProviders();
 
-	public Set<ServiceDescriptionProvider> getUserRemovedServiceProviders();
+	void loadServiceProviders() throws DeserializationException;
 
-	public void loadServiceProviders() throws DeserializationException;
+	void loadServiceProviders(File serviceProvidersURL)
+			throws DeserializationException;
 
-	public void loadServiceProviders(File serviceProvidersURL) throws DeserializationException;
+	void loadServiceProviders(URL serviceProvidersURL)
+			throws DeserializationException;
 
-	public void loadServiceProviders(URL serviceProvidersURL) throws DeserializationException;
+	void refresh();
 
-	public void refresh();
+	void removeServiceDescriptionProvider(ServiceDescriptionProvider provider);
 
-	public void removeServiceDescriptionProvider(ServiceDescriptionProvider provider);
+	void saveServiceDescriptions();
 
-	public void saveServiceDescriptions();
+	void saveServiceDescriptions(File serviceDescriptionsFile);
 
-	public void saveServiceDescriptions(File serviceDescriptionsFile);
+	void exportCurrentServiceDescriptions(File serviceDescriptionsFile);
 
-	public void exportCurrentServiceDescriptions(File serviceDescriptionsFile);
-
-	public boolean isDefaultSystemConfigurableProvidersLoaded();
-
+	boolean isDefaultSystemConfigurableProvidersLoaded();
 }

@@ -1,24 +1,27 @@
 package net.sf.taverna.t2.servicedescriptions;
 
+import static java.util.Collections.singleton;
+
 import java.net.URI;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 import javax.swing.Icon;
 
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 
-public abstract class AbstractTemplateService implements ServiceDescriptionProvider {
-
+public abstract class AbstractTemplateService implements
+		ServiceDescriptionProvider {
 	protected TemplateServiceDescription templateService = new TemplateServiceDescription();
 
+	@Override
 	public void findServiceDescriptionsAsync(
 			FindServiceDescriptionsCallBack callBack) {
-		callBack.partialResults(Collections.singleton(templateService));
+		callBack.partialResults(singleton(templateService));
 		callBack.finished();
 	}
 
+	@Override
 	public abstract Icon getIcon();
 
 	public URI getActivityType() {
@@ -28,19 +31,22 @@ public abstract class AbstractTemplateService implements ServiceDescriptionProvi
 	public abstract Configuration getActivityConfiguration();
 
 	public class TemplateServiceDescription extends ServiceDescription {
-
+		@Override
 		public Icon getIcon() {
 			return AbstractTemplateService.this.getIcon();
 		}
 
+		@Override
 		public String getName() {
 			return AbstractTemplateService.this.getName();
 		}
 
+		@Override
 		public List<String> getPath() {
 			return Arrays.asList(SERVICE_TEMPLATES);
 		}
 
+		@Override
 		public boolean isTemplateService() {
 			return true;
 		}
@@ -61,6 +67,7 @@ public abstract class AbstractTemplateService implements ServiceDescriptionProvi
 			return AbstractTemplateService.this.getActivityConfiguration();
 		}
 
+		@Override
 		public String getDescription() {
 			return AbstractTemplateService.this.getDescription();
 		}
@@ -75,5 +82,4 @@ public abstract class AbstractTemplateService implements ServiceDescriptionProvi
 		// Default to an empty string
 		return "";
 	}
-
 }

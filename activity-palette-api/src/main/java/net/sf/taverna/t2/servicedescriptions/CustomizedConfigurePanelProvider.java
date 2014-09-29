@@ -20,23 +20,16 @@
  ******************************************************************************/
 package net.sf.taverna.t2.servicedescriptions;
 
-public interface CustomizedConfigurePanelProvider<ConfigurationBean> 
-	extends ConfigurableServiceProvider<ConfigurationBean> {
-
-	public void createCustomizedConfigurePanel(
+public interface CustomizedConfigurePanelProvider<ConfigurationBean> extends
+		ConfigurableServiceProvider<ConfigurationBean> {
+	void createCustomizedConfigurePanel(
 			CustomizedConfigureCallBack<ConfigurationBean> callBack);
 
-	
-	public interface CustomizedConfigureCallBack<ConfigurationBean> {
+	interface CustomizedConfigureCallBack<ConfigurationBean> {
+		void newProviderConfiguration(ConfigurationBean providerConfig);
 
-		public void newProviderConfiguration(
-				ConfigurationBean providerConfig);
+		ConfigurationBean getTemplateConfig();
 
-		public ConfigurationBean getTemplateConfig();
-
-		public ServiceDescriptionRegistry getServiceDescriptionRegistry();
-		
+		ServiceDescriptionRegistry getServiceDescriptionRegistry();
 	}
-	
-	
 }
