@@ -25,7 +25,7 @@ public interface ServiceDescriptionRegistry extends
 
 	ServiceDescription getServiceDescription(URI activityType);
 
-	List<ConfigurableServiceProvider<?>> getUnconfiguredServiceProviders();
+	List<ConfigurableServiceProvider> getUnconfiguredServiceProviders();
 
 	Set<ServiceDescriptionProvider> getUserAddedServiceProviders();
 

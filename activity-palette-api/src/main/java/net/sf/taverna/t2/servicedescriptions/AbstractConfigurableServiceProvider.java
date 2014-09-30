@@ -3,17 +3,19 @@ package net.sf.taverna.t2.servicedescriptions;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class AbstractConfigurableServiceProvider<ConfigType> extends IdentifiedObject
-		implements ConfigurableServiceProvider<ConfigType> {
-	protected ConfigType serviceProviderConfig;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+public abstract class AbstractConfigurableServiceProvider extends
+		IdentifiedObject implements ConfigurableServiceProvider {
+	protected ObjectNode serviceProviderConfig;
 
 	/**
 	 * Construct configurable service provider.
-	 *
+	 * 
 	 * @param configTemplate
 	 *            Template configuration
 	 */
-	public AbstractConfigurableServiceProvider(ConfigType configTemplate) {
+	public AbstractConfigurableServiceProvider(ObjectNode configTemplate) {
 		if (configTemplate == null)
 			throw new NullPointerException("Default config can't be null");
 		serviceProviderConfig = configTemplate;
@@ -26,10 +28,9 @@ public abstract class AbstractConfigurableServiceProvider<ConfigType> extends Id
 	AbstractConfigurableServiceProvider() {
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	public AbstractConfigurableServiceProvider<ConfigType> clone() {
-		AbstractConfigurableServiceProvider<ConfigType> provider;
+	public AbstractConfigurableServiceProvider clone() {
+		AbstractConfigurableServiceProvider provider;
 		try {
 			provider = getClass().newInstance();
 		} catch (IllegalAccessException ex) {
@@ -40,26 +41,26 @@ public abstract class AbstractConfigurableServiceProvider<ConfigType> extends Id
 					ex);
 		}
 
-		ConfigType configuration = getConfiguration();
+		ObjectNode configuration = getConfiguration();
 		if (configuration != null)
 			provider.configure(configuration);
 		return provider;
 	}
 
 	@Override
-	public synchronized void configure(ConfigType conf) {
+	public synchronized void configure(ObjectNode conf) {
 		if (conf == null)
 			throw new NullPointerException("Config can't be null");
 		this.serviceProviderConfig = conf;
 	}
 
 	@Override
-	public ConfigType getConfiguration() {
+	public ObjectNode getConfiguration() {
 		return serviceProviderConfig;
 	}
 
 	@Override
-	public List<ConfigType> getDefaultConfigurations() {
+	public List<ObjectNode> getDefaultConfigurations() {
 		return Collections.emptyList();
 	}
 
