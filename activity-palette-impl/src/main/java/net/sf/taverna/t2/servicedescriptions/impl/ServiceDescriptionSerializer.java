@@ -1,107 +1,101 @@
 package net.sf.taverna.t2.servicedescriptions.impl;
 
+import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.CONFIGURATION;
+import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.IGNORED;
+import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.PROVIDERS;
+import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.PROVIDER_ID;
+import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.SERVICE_PANEL_CONFIGURATION;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Set;
 
-import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
-import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.AbstractXMLSerializer;
+import net.sf.taverna.t2.workflowmodel.Configurable;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
 import org.jdom.JDOMException;
-import org.jdom.output.Format;
-import org.jdom.output.XMLOutputter;
 
-class ServiceDescriptionSerializer extends AbstractXMLSerializer
-		implements ServiceDescriptionXMLConstants{
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+class ServiceDescriptionSerializer {
 	private static Logger logger = Logger
 			.getLogger(ServiceDescriptionSerializer.class);
-
-	private Element serializeProvider(ServiceDescriptionProvider provider)
-			throws JDOMException, IOException {
-		Element serviceProviderElem = new Element(PROVIDER, SERVICE_DESCRIPTION_NS);
-
-		Element providerIdElem = new Element(PROVIDER_IDENTIFIER, T2_WORKFLOW_NAMESPACE);
-		providerIdElem.setText(provider.getId());
-		serviceProviderElem.addContent(providerIdElem);
-
-		if (provider instanceof ConfigurableServiceProvider) {
-			ConfigurableServiceProvider configurableServiceProvider = (ConfigurableServiceProvider) provider;
-			Object config = configurableServiceProvider.getConfiguration();
-			Element configElem = beanAsElement(config);
-			serviceProviderElem.addContent(configElem);
-		}
-		return serviceProviderElem;
-	}
-
-	private Element serializeRegistry(ServiceDescriptionRegistry registry,
-			Set<ServiceDescriptionProvider> ignoreProviders) {
-		Element serviceDescriptionElem = new Element(SERVICE_DESCRIPTIONS,
-				SERVICE_DESCRIPTION_NS);
-
-		Element localProvidersElem = new Element(PROVIDERS,
-				SERVICE_DESCRIPTION_NS);
-		serviceDescriptionElem.addContent(localProvidersElem);
-
-		for (ServiceDescriptionProvider provider : registry
-				.getUserAddedServiceProviders())
-			try {
-				localProvidersElem.addContent(serializeProvider(provider));
-			} catch (JDOMException | IOException e) {
-				logger.warn("Could not serialize " + provider, e);
-			}
-
-		if (ignoreProviders != ALL_PROVIDERS) {
-			Element ignoredProvidersElem = new Element(IGNORED_PROVIDERS,
-					SERVICE_DESCRIPTION_NS);
-			serviceDescriptionElem.addContent(ignoredProvidersElem);
-
-			for (ServiceDescriptionProvider provider : ignoreProviders)
-				try {
-					ignoredProvidersElem
-							.addContent(serializeProvider(provider));
-				} catch (JDOMException | IOException e) {
-					logger.warn("Could not serialize " + provider, e);
-				}
-		}
-		return serviceDescriptionElem;
-	}
 
 	public void serializeRegistry(ServiceDescriptionRegistry registry, File file)
 			throws IOException {
 		Set<ServiceDescriptionProvider> ignoreProviders = registry
 				.getUserRemovedServiceProviders();
-		Element registryElement = serializeRegistry(registry, ignoreProviders);
+		JsonNode registryElement = serializeRegistry(registry, ignoreProviders);
 		try (BufferedOutputStream bufferedOutStream = new BufferedOutputStream(
 				new FileOutputStream(file))) {
-			XMLOutputter outputter = new XMLOutputter();
-			outputter.setFormat(Format.getPrettyFormat());
-			outputter.output(registryElement, bufferedOutStream);
-			bufferedOutStream.flush();
+			bufferedOutStream.write(registryElement.toString()
+					.getBytes("UTF-8"));
 		}
 	}
 
 	/**
-	 * Export the whole service registry to an xml file, regardless of who
-	 * added the service provider (user or system default). In this case there
-	 * will be no "ignored providers" in the saved file.
+	 * Export the whole service registry to an xml file, regardless of who added
+	 * the service provider (user or system default). In this case there will be
+	 * no "ignored providers" in the saved file.
 	 */
 	public void serializeFullRegistry(ServiceDescriptionRegistry registry,
 			File file) throws IOException {
-		Element registryElement = serializeRegistry(registry, ALL_PROVIDERS);
+		JsonNode registryElement = serializeRegistry(registry, ALL_PROVIDERS);
 		try (BufferedOutputStream bufferedOutStream = new BufferedOutputStream(
 				new FileOutputStream(file))) {
-			XMLOutputter outputter = new XMLOutputter();
-			outputter.setFormat(Format.getPrettyFormat());
-			outputter.output(registryElement, bufferedOutStream);
-			bufferedOutStream.flush();
+			bufferedOutStream.write(registryElement.toString()
+					.getBytes("UTF-8"));
 		}
 	}
 
+	private static final JsonNodeFactory factory = JsonNodeFactory.instance;
 	private static final Set<ServiceDescriptionProvider> ALL_PROVIDERS = null;
+
+	private JsonNode serializeRegistry(ServiceDescriptionRegistry registry,
+			Set<ServiceDescriptionProvider> ignoreProviders) {
+		ObjectNode overallConfiguration = factory.objectNode();
+		overallConfiguration.put(SERVICE_PANEL_CONFIGURATION,
+				ignoreProviders != ALL_PROVIDERS ? "full" : "defaults only");
+		ArrayNode providers = overallConfiguration.putArray(PROVIDERS);
+
+		for (ServiceDescriptionProvider provider : registry
+				.getUserAddedServiceProviders())
+			try {
+				providers.add(serializeProvider(provider));
+			} catch (JDOMException | IOException e) {
+				logger.warn("Could not serialize " + provider, e);
+			}
+
+		if (ignoreProviders != ALL_PROVIDERS) {
+			ArrayNode ignored = overallConfiguration.putArray(IGNORED);
+			for (ServiceDescriptionProvider provider : ignoreProviders)
+				try {
+					ignored.add(serializeProvider(provider));
+				} catch (JDOMException | IOException e) {
+					logger.warn("Could not serialize " + provider, e);
+				}
+		}
+
+		return overallConfiguration;
+	}
+
+	private JsonNode serializeProvider(ServiceDescriptionProvider provider)
+			throws JDOMException, IOException {
+		ObjectNode node = factory.objectNode();
+		node.put(PROVIDER_ID, provider.getId());
+
+		if (provider instanceof Configurable) {
+			Configurable<?> configurable = (Configurable<?>) provider;
+			node.put(CONFIGURATION,
+					factory.pojoNode(configurable.getConfiguration()));
+		}
+		return node;
+	}
 }

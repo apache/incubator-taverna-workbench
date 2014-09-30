@@ -445,7 +445,8 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 	}
 
 	@Override
-	public synchronized void removeServiceDescriptionProvider(ServiceDescriptionProvider provider) {
+	public synchronized void removeServiceDescriptionProvider(
+			ServiceDescriptionProvider provider) {
 		if (!userAddedProviders.remove(provider))
 			// Not previously added - must be a default one.. but should we remove it?
 			if (loading || serviceDescriptionsConfig.isRemovePermanently()
@@ -453,10 +454,9 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 				userRemovedProviders.add(provider);
 		if (allServiceProviders.remove(provider)) {
 			synchronized (providerDescriptions) {
-				Thread serviceDescriptionsThread = serviceDescriptionThreads
-						.remove(provider);
-				if (serviceDescriptionsThread != null)
-					serviceDescriptionsThread.interrupt();
+				Thread thread = serviceDescriptionThreads.remove(provider);
+				if (thread != null)
+					thread.interrupt();
 				providerDescriptions.remove(provider);
 			}
 			observers.notify(new RemovedProviderEvent(provider));
@@ -528,9 +528,7 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 					}
 				}
 				// Not run yet - we'll start a new tread
-				FindDescriptionsCallBack callBack = new FindDescriptionsCallBack(provider);
-				Thread thread = new FindServiceDescriptionsThread(provider,
-						callBack);
+				Thread thread = new FindServiceDescriptionsThread(provider);
 				threads.add(thread);
 				serviceDescriptionThreads.put(provider, thread);
 				thread.start();
@@ -556,13 +554,17 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 		this.serviceDescriptionsConfig = serviceDescriptionsConfig;
 	}
 
-	class FindDescriptionsCallBack implements FindServiceDescriptionsCallBack {
-		private boolean aborting = false;
+	class FindServiceDescriptionsThread extends Thread implements
+			UncaughtExceptionHandler, FindServiceDescriptionsCallBack {
 		private final ServiceDescriptionProvider provider;
-		final Set<ServiceDescription> providerDescs = new HashSet<>();
+		private boolean aborting = false;
+		private final Set<ServiceDescription> providerDescs = new HashSet<>();
 
-		public FindDescriptionsCallBack(ServiceDescriptionProvider provider) {
+		FindServiceDescriptionsThread(ServiceDescriptionProvider provider) {
+			super(threadGroup, "Find service descriptions from " + provider);
 			this.provider = provider;
+			setUncaughtExceptionHandler(this);
+			setDaemon(true);
 		}
 
 		@Override
@@ -570,7 +572,8 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 			logger.warn("Provider " + getProvider() + ": " + message, ex);
 			if (aborting)
 				return;
-			observers.notify(new ProviderErrorNotification(getProvider(), message, ex));
+			observers.notify(new ProviderErrorNotification(getProvider(),
+					message, ex));
 		}
 
 		@Override
@@ -580,23 +583,21 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 			synchronized (providerDescriptions) {
 				providerDescriptions.put(getProvider(), providerDescs);
 			}
-			observers.notify(new ServiceDescriptionProvidedEvent(getProvider(), providerDescs));
-		}
-
-		public ServiceDescriptionProvider getProvider() {
-			return provider;
+			observers.notify(new ServiceDescriptionProvidedEvent(getProvider(),
+					providerDescs));
 		}
 
 		@Override
-		public void partialResults(Collection<? extends ServiceDescription> serviceDescriptions) {
+		public void partialResults(
+				Collection<? extends ServiceDescription> serviceDescriptions) {
 			if (aborting)
 				return;
 			providerDescs.addAll(serviceDescriptions);
 			synchronized (providerDescriptions) {
 				providerDescriptions.put(getProvider(), providerDescs);
 			}
-			observers.notify(new PartialServiceDescriptionsNotification(getProvider(),
-					serviceDescriptions));
+			observers.notify(new PartialServiceDescriptionsNotification(
+					getProvider(), serviceDescriptions));
 		}
 
 		@Override
@@ -604,7 +605,8 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 			logger.debug("Provider " + getProvider() + ": " + message);
 			if (aborting)
 				return;
-			observers.notify(new ProviderStatusNotification(getProvider(), message));
+			observers.notify(new ProviderStatusNotification(getProvider(),
+					message));
 		}
 
 		@Override
@@ -612,28 +614,8 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 			logger.warn("Provider " + getProvider() + ": " + message);
 			if (aborting)
 				return;
-			observers.notify(new ProviderWarningNotification(getProvider(), message));
-		}
-
-		/**
-		 * Ignore any further callbacks
-		 */
-		protected void abort() {
-			aborting = true;
-		}
-	}
-
-	class FindServiceDescriptionsThread extends Thread implements UncaughtExceptionHandler {
-		private FindDescriptionsCallBack callBack;
-		private final ServiceDescriptionProvider provider;
-
-		FindServiceDescriptionsThread(ServiceDescriptionProvider provider,
-				FindDescriptionsCallBack callBack) {
-			super(threadGroup, "Find service descriptions from " + provider);
-			this.provider = provider;
-			this.callBack = callBack;
-			this.setUncaughtExceptionHandler(this);
-			this.setDaemon(true);
+			observers.notify(new ProviderWarningNotification(getProvider(),
+					message));
 		}
 
 		public ServiceDescriptionProvider getProvider() {
@@ -642,20 +624,20 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 
 		@Override
 		public void interrupt() {
-			callBack.abort();
+			aborting = true;
 			super.interrupt();
 		}
 
 		@Override
 		public void run() {
 			observers.notify(new ProviderUpdatingNotification(provider));
-			getProvider().findServiceDescriptionsAsync(callBack);
+			getProvider().findServiceDescriptionsAsync(this);
 		}
 
 		@Override
 		public void uncaughtException(Thread t, Throwable ex) {
 			logger.error("Uncaught exception in " + t, ex);
-			callBack.fail("Uncaught exception", ex);
+			fail("Uncaught exception", ex);
 		}
 	}
 }

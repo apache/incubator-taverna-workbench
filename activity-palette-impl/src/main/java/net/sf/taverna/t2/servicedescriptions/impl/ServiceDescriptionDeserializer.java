@@ -1,5 +1,10 @@
 package net.sf.taverna.t2.servicedescriptions.impl;
 
+import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.CONFIGURATION;
+import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.IGNORED;
+import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.PROVIDERS;
+import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.PROVIDER_ID;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -10,21 +15,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
+import net.sf.taverna.t2.workflowmodel.Configurable;
 import net.sf.taverna.t2.workflowmodel.ConfigurationException;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 
-import org.jdom.Document;
-import org.jdom.Element;
-import org.jdom.JDOMException;
-import org.jdom.input.SAXBuilder;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.POJONode;
 
-class ServiceDescriptionDeserializer
-		extends
-		net.sf.taverna.t2.workflowmodel.serialization.xml.impl.AbstractXMLDeserializer
-		implements ServiceDescriptionXMLConstants {
+class ServiceDescriptionDeserializer {
 	private List<ServiceDescriptionProvider> serviceDescriptionProviders;
 
 	ServiceDescriptionDeserializer(
@@ -41,10 +45,6 @@ class ServiceDescriptionDeserializer
 			throw new DeserializationException("Could not locate file "
 					+ serviceDescriptionsFile.getAbsolutePath()
 					+ " containing service descriptions.");
-		} catch (JDOMException ex) {
-			throw new DeserializationException(
-					"Could not deserialize stream containing service descriptions from "
-							+ serviceDescriptionsFile.getAbsolutePath(), ex);
 		} catch (IOException ex) {
 			throw new DeserializationException(
 					"Could not read stream containing service descriptions from "
@@ -59,84 +59,68 @@ class ServiceDescriptionDeserializer
 			deserialize(registry, serviceDescriptionInputStream);
 		} catch (FileNotFoundException ex) {
 			throw new DeserializationException("Could not open URL "
-					+ serviceDescriptionsURL.toString()
+					+ serviceDescriptionsURL
 					+ " containing service descriptions.");
-		} catch (JDOMException ex1) {
-			throw new DeserializationException(
-					"Could not deserialize stream containing service descriptions from "
-							+ serviceDescriptionsURL.toString(), ex1);
-		} catch (IOException ex2) {
+		} catch (IOException ex) {
 			throw new DeserializationException(
 					"Could not read stream containing service descriptions from "
-							+ serviceDescriptionsURL.toString(), ex2);
+							+ serviceDescriptionsURL, ex);
 		}
 	}
+
+	private static final JsonFactory factory = new JsonFactory();
 
 	private void deserialize(ServiceDescriptionRegistry registry,
-			InputStream serviceDescriptionsInputStream) throws JDOMException,
-			IOException, DeserializationException {
-		Document document = null;
-		SAXBuilder builder = new SAXBuilder();
-		document = builder.build(serviceDescriptionsInputStream);
-
-		List<ServiceDescriptionProvider> providers = deserializeProviders(
-				document.getRootElement(), true);
+			InputStream serviceDescriptionsInputStream) throws IOException,
+			DeserializationException {
+		ObjectNode node = (ObjectNode) new ObjectMapper(factory)
+				.readTree(serviceDescriptionsInputStream);
+		List<ServiceDescriptionProvider> providers = deserializeProviders(node,
+				true);
 		for (ServiceDescriptionProvider provider : providers)
 			registry.addServiceDescriptionProvider(provider);
-	}
-
-	@SuppressWarnings("unchecked")
-	private List<ServiceDescriptionProvider> deserializeProviders(
-			Element rootElement, boolean obeyIgnored)
-			throws DeserializationException {
-		List<ServiceDescriptionProvider> providers = new ArrayList<>();
-		Element providersElem = rootElement.getChild(PROVIDERS,
-				SERVICE_DESCRIPTION_NS);
-		if (providersElem != null)
-			for (Element providerElem : (Iterable<Element>) providersElem
-					.getChildren(PROVIDER, SERVICE_DESCRIPTION_NS)) {
-				ServiceDescriptionProvider serviceProvider = deserializeProvider(providerElem);
-				providers.add(serviceProvider);
-			}
-
-		if (obeyIgnored) {
-			Element ignoredProvidersElem = rootElement.getChild(
-					IGNORED_PROVIDERS, SERVICE_DESCRIPTION_NS);
-			if (ignoredProvidersElem != null)
-				for (Element providerElem : (Iterable<Element>) ignoredProvidersElem
-						.getChildren(PROVIDER, SERVICE_DESCRIPTION_NS)) {
-					ServiceDescriptionProvider serviceProvider = deserializeProvider(providerElem);
-					providers.remove(serviceProvider);
-				}
-		}
-
-		return providers;
 	}
 
 	public Collection<? extends ServiceDescriptionProvider> deserializeDefaults(
 			ServiceDescriptionRegistry registry,
 			File defaultConfigurableServiceProvidersFile)
 			throws DeserializationException {
-		Document document;
+		ObjectNode node;
 		try (FileInputStream serviceDescriptionStream = new FileInputStream(
 				defaultConfigurableServiceProvidersFile)) {
-			SAXBuilder builder = new SAXBuilder();
-			document = builder.build(serviceDescriptionStream);
-		} catch (JDOMException e) {
-			throw new DeserializationException("Can't deserialize "
-					+ defaultConfigurableServiceProvidersFile);
+			node = (ObjectNode) new ObjectMapper(factory)
+					.readTree(serviceDescriptionStream);
 		} catch (IOException e) {
 			throw new DeserializationException("Can't read "
 					+ defaultConfigurableServiceProvidersFile);
 		}
-		return deserializeProviders(document.getRootElement(), false);
+		return deserializeProviders(node, false);
 	}
 
-	@SuppressWarnings("unchecked")
-	private ServiceDescriptionProvider deserializeProvider(Element providerElem)
+	private List<ServiceDescriptionProvider> deserializeProviders(
+			ObjectNode rootNode, boolean obeyIgnored)
 			throws DeserializationException {
-		Element providerIdElem = providerElem.getChild(PROVIDER_IDENTIFIER, T2_WORKFLOW_NAMESPACE);
-		String providerId = providerIdElem.getTextTrim();
+		List<ServiceDescriptionProvider> providers = new ArrayList<>();
+
+		ArrayNode providersNode = (ArrayNode) rootNode.get(PROVIDERS);
+		if (providersNode != null)
+			for (JsonNode provider : providersNode)
+				providers.add(deserializeProvider((ObjectNode) provider));
+
+		if (obeyIgnored) {
+			ArrayNode ignoredNode = (ArrayNode) rootNode.get(IGNORED);
+			if (ignoredNode != null)
+				for (JsonNode provider : ignoredNode)
+					providers
+							.remove(deserializeProvider((ObjectNode) provider));
+		}
+
+		return providers;
+	}
+
+	private ServiceDescriptionProvider deserializeProvider(
+			ObjectNode providerNode) throws DeserializationException {
+		String providerId = providerNode.get(PROVIDER_ID).asText().trim();
 		ServiceDescriptionProvider provider = null;
 		for (ServiceDescriptionProvider serviceProvider : serviceDescriptionProviders)
 			if (serviceProvider.getId().equals(providerId)) {
@@ -144,8 +128,8 @@ class ServiceDescriptionDeserializer
 				break;
 			}
 		if (provider == null)
-			throw new DeserializationException("Could not find provider with id "
-					+ providerId);
+			throw new DeserializationException(
+					"Could not find provider with id " + providerId);
 
 		/*
 		 * So we know the service provider now, but we need a separate instance
@@ -158,26 +142,30 @@ class ServiceDescriptionDeserializer
 			providerInstance = provider.getClass().newInstance();
 		} catch (InstantiationException | IllegalAccessException e) {
 			throw new DeserializationException(
-					"Can't instantiate provider class " + provider.getClass(), e);
+					"Can't instantiate provider class " + provider.getClass(),
+					e);
 		} catch (ClassCastException e) {
 			throw new DeserializationException(
-					"Not a ServiceDescriptionProvider: " + provider.getClass(), e);
+					"Not a ServiceDescriptionProvider: " + provider.getClass(),
+					e);
 		}
 
-		// This class loader will know how to load the config bean for the given provider
-		ClassLoader classLoader = provider.getClass().getClassLoader();
-		Object configBean = createBean(providerElem, classLoader);
-		try {
-			if (configBean != null)
-				((ConfigurableServiceProvider<Object>) providerInstance)
-						.configure(configBean);
-		} catch (ConfigurationException e) {
-			throw new DeserializationException("Could not configure provider "
-					+ providerInstance + " using bean " + configBean, e);
-		} catch (ClassCastException e) {
-			throw new DeserializationException(
-					"Not a ConfigurableServiceProvider: "
-							+ providerInstance.getClass(), e);
+		if (providerInstance instanceof Configurable) {
+			POJONode config = (POJONode) providerNode.get(CONFIGURATION);
+			try {
+				@SuppressWarnings("unchecked")
+				Configurable<Object> csp = (Configurable<Object>) providerInstance;
+				if (config != null)
+					csp.configure(config.getPojo());
+			} catch (ConfigurationException e) {
+				throw new DeserializationException(
+						"Could not configure provider " + providerInstance
+								+ " using bean " + config, e);
+			} catch (ClassCastException e) {
+				throw new DeserializationException(
+						"Not a ConfigurableServiceProvider: "
+								+ providerInstance.getClass(), e);
+			}
 		}
 		return providerInstance;
 	}
