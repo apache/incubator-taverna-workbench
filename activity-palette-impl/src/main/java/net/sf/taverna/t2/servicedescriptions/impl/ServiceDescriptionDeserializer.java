@@ -15,9 +15,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
-import net.sf.taverna.t2.workflowmodel.Configurable;
 import net.sf.taverna.t2.workflowmodel.ConfigurationException;
 import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 
@@ -26,7 +26,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.POJONode;
 
 class ServiceDescriptionDeserializer {
 	private List<ServiceDescriptionProvider> serviceDescriptionProviders;
@@ -137,36 +136,20 @@ class ServiceDescriptionDeserializer {
 		 * WSDL provider elements and need to return a separate provider
 		 * instance for each as they will have different configurations.
 		 */
-		ServiceDescriptionProvider providerInstance = null;
-		try {
-			providerInstance = provider.getClass().newInstance();
-		} catch (InstantiationException | IllegalAccessException e) {
-			throw new DeserializationException(
-					"Can't instantiate provider class " + provider.getClass(),
-					e);
-		} catch (ClassCastException e) {
-			throw new DeserializationException(
-					"Not a ServiceDescriptionProvider: " + provider.getClass(),
-					e);
-		}
+		ServiceDescriptionProvider instance = provider.newInstance();
 
-		if (providerInstance instanceof Configurable) {
-			POJONode config = (POJONode) providerNode.get(CONFIGURATION);
+		if (instance instanceof ConfigurableServiceProvider) {
+			JsonNode config = providerNode.get(CONFIGURATION);
 			try {
-				@SuppressWarnings("unchecked")
-				Configurable<Object> csp = (Configurable<Object>) providerInstance;
 				if (config != null)
-					csp.configure(config.getPojo());
-			} catch (ConfigurationException e) {
+					((ConfigurableServiceProvider) instance)
+							.configure((ObjectNode) config);
+			} catch (ConfigurationException | ClassCastException e) {
 				throw new DeserializationException(
-						"Could not configure provider " + providerInstance
+						"Could not configure provider " + providerId
 								+ " using bean " + config, e);
-			} catch (ClassCastException e) {
-				throw new DeserializationException(
-						"Not a ConfigurableServiceProvider: "
-								+ providerInstance.getClass(), e);
 			}
 		}
-		return providerInstance;
+		return instance;
 	}
 }

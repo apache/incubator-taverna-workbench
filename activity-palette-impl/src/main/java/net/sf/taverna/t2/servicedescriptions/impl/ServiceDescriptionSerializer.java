@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Set;
 
+import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workflowmodel.Configurable;
@@ -91,10 +92,9 @@ class ServiceDescriptionSerializer {
 		ObjectNode node = factory.objectNode();
 		node.put(PROVIDER_ID, provider.getId());
 
-		if (provider instanceof Configurable) {
-			Configurable<?> configurable = (Configurable<?>) provider;
-			node.put(CONFIGURATION,
-					factory.pojoNode(configurable.getConfiguration()));
+		if (provider instanceof ConfigurableServiceProvider) {
+			Configurable<ObjectNode> configurable = (ConfigurableServiceProvider) provider;
+			node.put(CONFIGURATION, configurable.getConfiguration());
 		}
 		return node;
 	}

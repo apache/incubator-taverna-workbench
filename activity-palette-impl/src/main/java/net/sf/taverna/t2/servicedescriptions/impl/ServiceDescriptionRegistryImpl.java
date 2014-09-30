@@ -61,6 +61,8 @@ import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
 public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistry {
@@ -243,7 +245,6 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 
 	// Get the default services.
 	@Override
-	@SuppressWarnings("unchecked")
 	public synchronized Set<ServiceDescriptionProvider> getDefaultServiceDescriptionProviders() {
 		if (defaultServiceDescriptionProviders != null)
 			return defaultServiceDescriptionProviders;
@@ -312,12 +313,12 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 			 * on them will not have much effect here unless
 			 * defaultSystemConfigurableProvidersLoaded is set to false.
 			 */
-			ConfigurableServiceProvider<Object> template = (ConfigurableServiceProvider<Object>) provider;
+			ConfigurableServiceProvider template = (ConfigurableServiceProvider) provider;
 			// Get configurations
-			List<Object> configurables = template.getDefaultConfigurations();
-			for (Object config : configurables) {
+			List<ObjectNode> configurables = template.getDefaultConfigurations();
+			for (ObjectNode config : configurables) {
 				// Make a copy that we can configure
-				ConfigurableServiceProvider<Object> configurableProvider = template.clone();
+				ConfigurableServiceProvider configurableProvider = template.clone();
 				try {
 					configurableProvider.configure(config);
 				} catch (ConfigurationException e) {
@@ -350,7 +351,7 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 		for (ServiceDescriptionProvider provider : getDefaultServiceDescriptionProviders()) {
 			if (userRemovedProviders.contains(provider))
 				continue;
-			if (provider instanceof ConfigurableServiceProvider<?>
+			if (provider instanceof ConfigurableServiceProvider
 					&& !serviceDescriptionsConfig.isIncludeDefaults())
 				// We'll skip the default configurable service provders
 				continue;
@@ -390,11 +391,11 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 	}
 
 	@Override
-	public List<ConfigurableServiceProvider<?>> getUnconfiguredServiceProviders() {
-		List<ConfigurableServiceProvider<?>> providers = new ArrayList<>();
+	public List<ConfigurableServiceProvider> getUnconfiguredServiceProviders() {
+		List<ConfigurableServiceProvider> providers = new ArrayList<>();
 		for (ServiceDescriptionProvider provider : serviceDescriptionProviders)
 			if (provider instanceof ConfigurableServiceProvider)
-				providers.add((ConfigurableServiceProvider<?>) provider);
+				providers.add((ConfigurableServiceProvider) provider);
 		return providers;
 	}
 
