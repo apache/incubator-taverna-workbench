@@ -50,4 +50,12 @@ public interface ServiceDescriptionProvider {
 	 * @return unique id of this provider.
 	 */
 	String getId();
+
+	/**
+	 * Create a new copy of this service provider. It <i>need not be
+	 * configured</i> at the point where it is returned.
+	 * 
+	 * @return The copy.
+	 */
+	ServiceDescriptionProvider newInstance();
 }
