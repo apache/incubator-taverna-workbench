@@ -45,7 +45,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import net.sf.taverna.t2.security.credentialmanager.impl.CMUtils;
+import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
+import net.sf.taverna.t2.security.credentialmanager.ParsedDistinguishedName;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
 
@@ -63,17 +64,21 @@ public class NewTrustCertsDialog extends NonBlockedHelpEnabledDialog {
     // List of trusted certs selected for import
     private ArrayList<X509Certificate> selectedTrustedCerts;
     
-    public NewTrustCertsDialog(JFrame parent, String title, boolean modal, ArrayList<X509Certificate> lCerts)
+    private final DistinguishedNameParser dnParser;
+    
+    public NewTrustCertsDialog(JFrame parent, String title, boolean modal, ArrayList<X509Certificate> lCerts, DistinguishedNameParser dnParser)
     {
         super(parent, title, modal);
         availableTrustedCerts = lCerts;
+        this.dnParser = dnParser;
         initComponents();
     }
     
-    public NewTrustCertsDialog(JDialog parent, String title, boolean modal, ArrayList<X509Certificate> lCerts)
+    public NewTrustCertsDialog(JDialog parent, String title, boolean modal, ArrayList<X509Certificate> lCerts, DistinguishedNameParser dnParser)
     {
         super(parent, title, modal);
         availableTrustedCerts = lCerts;
+        this.dnParser = dnParser;
         initComponents();
     }
 
@@ -130,10 +135,8 @@ public class NewTrustCertsDialog extends NonBlockedHelpEnabledDialog {
         for (int i = 0; i < availableTrustedCerts.size(); i++){        	
     		
         	String subjectDN = ((X509Certificate) availableTrustedCerts.get(i)).getSubjectX500Principal().getName(X500Principal.RFC2253);
-    		CMUtils util = new CMUtils();
-    		util.parseDN(subjectDN);
-    		
-        	String subjectCN = util.getCN();
+                ParsedDistinguishedName parsedDN = dnParser.parseDN(subjectDN);    		
+        	String subjectCN = parsedDN.getCN();
         	cns.add(i, subjectCN);
         }
         trustedCertsJList.setListData(cns.toArray());
@@ -206,7 +209,8 @@ public class NewTrustCertsDialog extends NonBlockedHelpEnabledDialog {
             		"Certificate details", 
             		true, 
             		cert,
-            		null);
+            		null,
+                        dnParser);
             viewCertificateDialog.setLocationRelativeTo(this);
             viewCertificateDialog.setVisible(true);
             

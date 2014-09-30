@@ -45,7 +45,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.impl.CMUtils;
+import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
+import net.sf.taverna.t2.security.credentialmanager.ParsedDistinguishedName;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 import org.apache.log4j.Logger;
 
@@ -70,18 +71,22 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 	// one connection only - so we can either "trust" or "not" trust but not "trust once".)
 	private boolean shouldSave = false;
 
+        private final DistinguishedNameParser dnParser;
+        
 	public ConfirmTrustedCertificateDialog(Frame parent, String title,
-			boolean modal, X509Certificate crt){
+			boolean modal, X509Certificate crt, DistinguishedNameParser dnParser){
 		super(parent, title, modal);
 		this.cert = crt;
+                this.dnParser = dnParser;
 		initComponents();
 	}
 	
 	public ConfirmTrustedCertificateDialog(Dialog parent, String title,
-			boolean modal, X509Certificate crt)
+			boolean modal, X509Certificate crt, DistinguishedNameParser dnParser)
 			throws CMException {
 		super(parent, title, modal);
 		this.cert = crt;
+                this.dnParser = dnParser;
 		initComponents();
 	}
 
@@ -167,12 +172,11 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 		// Subject's Distinguished Name (DN)
 		String subjectDN = cert.getSubjectX500Principal().getName(
 				X500Principal.RFC2253);
-		CMUtils util = new CMUtils();
-		util.parseDN(subjectDN);
+                ParsedDistinguishedName parsedDN =  dnParser.parseDN(subjectDN);
 		// Extract the CN, O, OU and EMAILADDRESS fields
-		String subjectCN = util.getCN();
-		String subjectOrg = util.getO();
-		String subjectOU = util.getOU();
+		String subjectCN = parsedDN.getCN();
+		String subjectOrg = parsedDN.getO();
+		String subjectOU = parsedDN.getOU();
 		titleMessage.setText("The service host " + subjectCN + " requires HTTPS connection and has identified itself with the certificate below.\n" +
 				"Do you want to trust this service? (Refusing to trust means you will not be able to invoke services on this host from a workflow.)");
 		// String sEMAILADDRESS = CMUtils.getEmilAddress();
@@ -261,11 +265,11 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 		// Issuer's Distinguished Name (DN)
 		String issuerDN = cert.getIssuerX500Principal().getName(
 				X500Principal.RFC2253);
-		util.parseDN(issuerDN);
+		parsedDN =  dnParser.parseDN(issuerDN);
 		// Extract the CN, O and OU fields for the issuer
-		String issuerCN = util.getCN();
-		String issuerOrg = util.getO();
-		String issuerOU = util.getOU();
+		String issuerCN = parsedDN.getCN();
+		String issuerOrg = parsedDN.getO();
+		String issuerOU = parsedDN.getOU();
 		// Issuer's Common Name (CN)
 		JLabel issuerCNLabel = new JLabel("Common Name (CN)");
 		issuerCNLabel.setFont(new Font(null, Font.PLAIN, 11));
@@ -351,7 +355,7 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 		GridBagConstraints gbc_sha1FingerprintLabel = (GridBagConstraints) gbc_labels
 				.clone();
 		gbc_sha1FingerprintLabel.gridy = 16;
-		JLabel sha1FingerprintValue = new JLabel(CMUtils.getMessageDigestAsFormattedString(binaryCertificateEncoding,
+		JLabel sha1FingerprintValue = new JLabel(dnParser.getMessageDigestAsFormattedString(binaryCertificateEncoding,
 				"SHA1"));
 		sha1FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
 		GridBagConstraints gbc_sha1FingerprintValue = (GridBagConstraints) gbc_values
@@ -364,7 +368,7 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 				.clone();
 		gbc_md5FingerprinLabel.gridy = 17;
 		JLabel md5FingerprintValue = new JLabel(
-				CMUtils.getMessageDigestAsFormattedString(binaryCertificateEncoding, "MD5"));
+				dnParser.getMessageDigestAsFormattedString(binaryCertificateEncoding, "MD5"));
 		md5FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
 		GridBagConstraints gbc_md5FingerprintValue = (GridBagConstraints) gbc_values
 				.clone();

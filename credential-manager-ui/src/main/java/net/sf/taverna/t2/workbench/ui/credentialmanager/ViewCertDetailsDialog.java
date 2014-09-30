@@ -48,7 +48,8 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.impl.CMUtils;
+import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
+import net.sf.taverna.t2.security.credentialmanager.ParsedDistinguishedName;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 
@@ -71,16 +72,19 @@ public class ViewCertDetailsDialog
     // Stores list of serviceURLs to display 
     private  ArrayList<String> serviceURLs;
 
+    private final DistinguishedNameParser dnParser;
+    
     /**
      * Creates new ViewCertDetailsDialog dialog where the parent is a frame.
      */
     public ViewCertDetailsDialog(JFrame parent, String title, boolean modal,
-        X509Certificate crt, ArrayList<String> serviceURLs)
+        X509Certificate crt, ArrayList<String> serviceURLs, DistinguishedNameParser dnParser)
         throws CMException
     {
         super(parent, title, modal);
         this.cert = crt;
         this.serviceURLs = serviceURLs;
+        this.dnParser = dnParser;
         initComponents();
     }
 
@@ -88,12 +92,13 @@ public class ViewCertDetailsDialog
      * Creates new ViewCertDetailsDialog dialog where the parent is a dialog.
      */
     public ViewCertDetailsDialog(JDialog parent, String title, boolean modal,
-        X509Certificate crt, ArrayList<String> urlList)
+        X509Certificate crt, ArrayList<String> urlList, DistinguishedNameParser dnParser)
         throws CMException
     {
         super(parent, title, modal);
         cert = crt;
         serviceURLs = urlList;
+        this.dnParser = dnParser;
         initComponents();
     }
     
@@ -170,13 +175,12 @@ public class ViewCertDetailsDialog
         gbc_jlIssuedTo.gridwidth = 2; //takes two columns
         gbc_jlIssuedTo.insets = new Insets(5, 5, 5, 5);//has slightly bigger insets
         // Distinguished Name (DN)
-		String sDN = cert.getSubjectX500Principal().getName(X500Principal.RFC2253);
-		CMUtils util = new CMUtils();
-		util.parseDN(sDN);       
-		// Extract the CN, O, OU and EMAILADDRESS fields
-        String sCN = util.getCN();
-        String sOrg = util.getO();
-        String sOU = util.getOU();
+        String sDN = cert.getSubjectX500Principal().getName(X500Principal.RFC2253);
+        ParsedDistinguishedName parsedDN = dnParser.parseDN(sDN);       
+        // Extract the CN, O, OU and EMAILADDRESS fields
+        String sCN = parsedDN.getCN();
+        String sOrg = parsedDN.getO();
+        String sOU = parsedDN.getOU();
         //String sEMAILADDRESS = CMX509Util.getEmilAddress();
         // Common Name (CN)
         JLabel jlCN = new JLabel("Common Name (CN)");
@@ -252,11 +256,11 @@ public class ViewCertDetailsDialog
         gbc_jlIssuedBy.insets = new Insets(5, 5, 5, 5);//has slightly bigger insets        
         // Distinguished Name (DN)       
 		String iDN = cert.getIssuerX500Principal().getName(X500Principal.RFC2253);
-		util.parseDN(iDN);        
+		parsedDN = dnParser.parseDN(iDN);        
         // Extract the CN, O and OU fields
-        String iCN = util.getCN();
-        String iOrg = util.getO();
-        String iOU = util.getOU();   	
+        String iCN = parsedDN.getCN();
+        String iOrg = parsedDN.getO();
+        String iOU = parsedDN.getOU();   	
         // Common Name (CN)
         JLabel jlICN = new JLabel("Common Name (CN)");
         jlICN.setFont(new Font(null, Font.PLAIN, 11));
@@ -331,7 +335,7 @@ public class ViewCertDetailsDialog
         jlSHA1Fingerprint.setFont(new Font(null, Font.PLAIN, 11));
         GridBagConstraints gbc_jlSHA1Fingerprint = (GridBagConstraints) gbcLabel.clone();
         gbc_jlSHA1Fingerprint.gridy = 16;
-        JLabel jlSHA1FingerprintValue = new JLabel(CMUtils.getMessageDigestAsFormattedString(certBinaryEncoding, "SHA1"));
+        JLabel jlSHA1FingerprintValue = new JLabel(dnParser.getMessageDigestAsFormattedString(certBinaryEncoding, "SHA1"));
         jlSHA1FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
         GridBagConstraints gbc_jlSHA1FingerprintValue = (GridBagConstraints) gbcValue.clone();
         gbc_jlSHA1FingerprintValue.gridy = 16;
@@ -340,7 +344,7 @@ public class ViewCertDetailsDialog
         jlMD5Fingerprint.setFont(new Font(null, Font.PLAIN, 11));
         GridBagConstraints gbc_jlMD5Fingerprint = (GridBagConstraints) gbcLabel.clone();
         gbc_jlMD5Fingerprint.gridy = 17;
-        JLabel jlMD5FingerprintValue = new JLabel(CMUtils.getMessageDigestAsFormattedString(certBinaryEncoding, "MD5"));
+        JLabel jlMD5FingerprintValue = new JLabel(dnParser.getMessageDigestAsFormattedString(certBinaryEncoding, "MD5"));
         jlMD5FingerprintValue.setFont(new Font(null, Font.PLAIN, 11));
         GridBagConstraints gbc_jlMD5FingerprintValue = (GridBagConstraints) gbcValue.clone();
         gbc_jlMD5FingerprintValue.gridy = 17;

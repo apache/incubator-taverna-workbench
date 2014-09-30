@@ -63,7 +63,7 @@ public class CredentialManagerUILauncher extends JFrame {
 		jbLaunch.addActionListener(new ActionListener(){
 
 			public void actionPerformed(ActionEvent e) {
-				CredentialManagerUI cmGUI = new CredentialManagerUI(null);
+				CredentialManagerUI cmGUI = new CredentialManagerUI(null, null);
 				if (cmGUI != null){
 					cmGUI.setVisible(true);
 				}

@@ -35,7 +35,7 @@ public class CredentialManagerToolbarAction extends AbstractMenuAction{
 
 	@Override
 	protected Action createAction() {
-		return new CredentialManagerAction(null);//need to add CredentialManager if toolbar is ever used
+		return new CredentialManagerAction(null, null);//need to add CredentialManager if toolbar is ever used
 	}
 
 }

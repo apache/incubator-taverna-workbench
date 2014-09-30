@@ -66,8 +66,8 @@ import javax.swing.table.TableColumn;
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager.KeystoreType;
+import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
-import net.sf.taverna.t2.security.credentialmanager.impl.CMUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PEMWriter;
@@ -109,8 +109,10 @@ public class CredentialManagerUI extends JFrame {
 	////////////// Tabs //////////////
 
 	// Credential Manager to manage all operations on the Keystore and Truststore
-	public static CredentialManager credManager;
+	public final CredentialManager credManager;
 
+        private final DistinguishedNameParser dnParser;
+        
 	// Tabbed pane to hold tables containing various entries in the Keystore and Truststore
 	private JTabbedPane keyStoreTabbedPane;
 
@@ -165,8 +167,9 @@ public class CredentialManagerUI extends JFrame {
 	/**
 	 * Creates a new Credential Manager UI's frame.
 	 */
-	public CredentialManagerUI(CredentialManager credentialManager) {
+	public CredentialManagerUI(CredentialManager credentialManager, DistinguishedNameParser dnParser) {
 		credManager = credentialManager;
+                this.dnParser = dnParser;
 		this.setModalExclusionType(Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
 		// Initialise the UI components
 		initComponents();
@@ -1054,13 +1057,13 @@ public class CredentialManagerUI extends JFrame {
 		if (selectedRow != -1) { // something has been selected
 			try {
 				// Get the entry's certificate
-				certToView = CMUtils.convertCertificate(credManager
+				certToView = dnParser.convertCertificate(credManager
 						.getCertificate(keystoreType, alias));
 
 				// Show the certificate's contents to the user
 				ViewCertDetailsDialog viewCertDetailsDialog = new ViewCertDetailsDialog(
 						this, "Certificate details", true, certToView,
-						serviceURIs);
+						serviceURIs, dnParser);
 				viewCertDetailsDialog.setLocationRelativeTo(this);
 				viewCertDetailsDialog.setVisible(true);
 			} catch (CMException cme) {
@@ -1127,7 +1130,7 @@ public class CredentialManagerUI extends JFrame {
 			// stored in the PKCS #12 file (normally there will be only one private
 			// key inside, but could be more as this is a keystore after all).
 			NewKeyPairEntryDialog importKeyPairDialog = new NewKeyPairEntryDialog(
-					this, "Credential Manager", true, pkcs12Keystore);
+					this, "Credential Manager", true, pkcs12Keystore, dnParser);
 			importKeyPairDialog.setLocationRelativeTo(this);
 			importKeyPairDialog.setVisible(true);
 
@@ -1362,7 +1365,7 @@ public class CredentialManagerUI extends JFrame {
 		// Show the list of certificates contained in the file for the user to
 		// select the ones to import
 		NewTrustCertsDialog importTrustCertsDialog = new NewTrustCertsDialog(this,
-				"Credential Manager", true, trustCertsList);
+				"Credential Manager", true, trustCertsList, dnParser);
 
 		importTrustCertsDialog.setLocationRelativeTo(this);
 		importTrustCertsDialog.setVisible(true);

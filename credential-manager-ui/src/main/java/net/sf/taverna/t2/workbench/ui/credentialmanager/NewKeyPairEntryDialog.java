@@ -48,7 +48,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.impl.CMUtils;
+import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.ViewCertDetailsDialog;
 
@@ -75,19 +75,23 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
     // Key pair alias to be used for this entry in the Keystore 
     private String alias;
     
-    public NewKeyPairEntryDialog(JFrame parent, String title, boolean modal, KeyStore pkcs12KeyStore)
+    private final DistinguishedNameParser dnParser;
+    
+    public NewKeyPairEntryDialog(JFrame parent, String title, boolean modal, KeyStore pkcs12KeyStore, DistinguishedNameParser dnParser)
         throws CMException
     {
         super(parent, title, modal);
         this.pkcs12KeyStore = pkcs12KeyStore;
+        this.dnParser = dnParser;
         initComponents();
     }
 
-    public NewKeyPairEntryDialog(JDialog parent, String title, boolean modal, KeyStore pkcs12KeyStore)
+    public NewKeyPairEntryDialog(JDialog parent, String title, boolean modal, KeyStore pkcs12KeyStore, DistinguishedNameParser dnParser)
         throws CMException
     {
         super(parent, title, modal);
         this.pkcs12KeyStore = pkcs12KeyStore;
+        this.dnParser = dnParser;
         initComponents();
     }
 
@@ -271,13 +275,13 @@ class NewKeyPairEntryDialog extends NonBlockedHelpEnabledDialog {
         	String alias = (String) keyPairsJList.getSelectedValue();
 
             //Convert the certificate object into an X509Certificate object.
-             X509Certificate cert = CMUtils.convertCertificate(pkcs12KeyStore.getCertificate(alias));
+             X509Certificate cert = dnParser.convertCertificate(pkcs12KeyStore.getCertificate(alias));
 
             ViewCertDetailsDialog viewCertificateDialog = new ViewCertDetailsDialog(this,
             		"Certificate details", 
             		true, 
             		(X509Certificate) cert,
-            		null);
+            		null, dnParser);
             viewCertificateDialog.setLocationRelativeTo(this);
             viewCertificateDialog.setVisible(true);
             

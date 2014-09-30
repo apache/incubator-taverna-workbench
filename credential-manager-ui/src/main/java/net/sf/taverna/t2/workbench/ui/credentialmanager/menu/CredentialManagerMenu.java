@@ -29,6 +29,7 @@ import javax.swing.Action;
 //import net.sf.taverna.t2.security.credentialmanager.CMException;
 //import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
+import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.action.CredentialManagerAction;
 
@@ -36,6 +37,8 @@ public class CredentialManagerMenu extends AbstractMenuAction{
 
 	private CredentialManager credentialManager;
 
+        private DistinguishedNameParser dnParser;
+        
 	//private static Logger logger = Logger.getLogger(CredentialManagerMenu.class);
 
 	public CredentialManagerMenu() {
@@ -52,11 +55,18 @@ public class CredentialManagerMenu extends AbstractMenuAction{
 
 	@Override
 	protected Action createAction() {
-		return new CredentialManagerAction(credentialManager);
+		return new CredentialManagerAction(credentialManager, dnParser);
 	}
 
 	public void setCredentialManager(CredentialManager credentialManager){
 		this.credentialManager = credentialManager;
 	}
+
+    /**
+     * @param dnParser the dnParser to set
+     */
+    public void setDistinguishedNameParser(DistinguishedNameParser dnParser) {
+        this.dnParser = dnParser;
+    }
 
 }

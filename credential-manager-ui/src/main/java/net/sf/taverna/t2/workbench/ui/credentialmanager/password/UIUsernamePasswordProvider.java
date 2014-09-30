@@ -5,7 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import net.sf.taverna.t2.security.credentialmanager.ServiceUsernameAndPasswordProvider;
 import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
-import net.sf.taverna.t2.security.credentialmanager.impl.CMUtils;
+import net.sf.taverna.t2.security.credentialmanager.CMUtils;
 import org.apache.log4j.Logger;
 
 public class UIUsernamePasswordProvider implements ServiceUsernameAndPasswordProvider {

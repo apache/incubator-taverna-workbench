@@ -28,6 +28,7 @@ import javax.swing.SwingUtilities;
 //import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
+import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI;
 
 @SuppressWarnings("serial")
@@ -38,10 +39,12 @@ public class CredentialManagerAction extends AbstractAction {
 
 	private CredentialManagerUI cmUI;
 	private final CredentialManager credentialManager;
+        private final DistinguishedNameParser dnParser;
 
-	public CredentialManagerAction(CredentialManager credentialManager) {
+	public CredentialManagerAction(CredentialManager credentialManager, DistinguishedNameParser dnParser) {
 		super("Credential Manager", ICON);
 		this.credentialManager = credentialManager;
+                this.dnParser = dnParser;
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -50,7 +53,7 @@ public class CredentialManagerAction extends AbstractAction {
 		} else {
 			Runnable createAndShowCredentialManagerUI = new Runnable() {
 				public void run() {
-					cmUI = new CredentialManagerUI(credentialManager);
+					cmUI = new CredentialManagerUI(credentialManager, dnParser);
 					cmUI.setVisible(true);
 				}
 			};

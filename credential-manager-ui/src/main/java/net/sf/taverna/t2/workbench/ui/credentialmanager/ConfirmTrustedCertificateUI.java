@@ -22,11 +22,9 @@ package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
 import java.awt.Frame;
 import java.security.cert.X509Certificate;
-
 import javax.swing.JOptionPane;
-
+import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.security.credentialmanager.TrustConfirmationProvider;
-
 import org.apache.log4j.Logger;
 
 /**
@@ -37,14 +35,16 @@ public class ConfirmTrustedCertificateUI implements TrustConfirmationProvider {
 
 	private static Logger logger = Logger
 			.getLogger(ConfirmTrustedCertificateUI.class);
-
+        
+        private DistinguishedNameParser dnParser;
+        
 	public Boolean shouldTrustCertificate(X509Certificate[] chain) {
 		boolean trustConfirm = false;
 		logger.info("Asking the user if they want to trust a certificate.");
 		// Ask user if they want to trust this service
 		ConfirmTrustedCertificateDialog confirmCertTrustDialog = new ConfirmTrustedCertificateDialog(
 				(Frame) null, "Untrusted HTTPS connection", true,
-				(X509Certificate) chain[0]);
+				(X509Certificate) chain[0], dnParser);
 		confirmCertTrustDialog.setLocationRelativeTo(null);
 		confirmCertTrustDialog.setVisible(true);
 		trustConfirm = confirmCertTrustDialog.shouldTrust();
@@ -60,5 +60,12 @@ public class ConfirmTrustedCertificateUI implements TrustConfirmationProvider {
 
 		return trustConfirm;
 	}
+
+    /**
+     * @param dnParser the dnParser to set
+     */
+    public void setDistinguishedNameParser(DistinguishedNameParser dnParser) {
+        this.dnParser = dnParser;
+    }
 
 }
