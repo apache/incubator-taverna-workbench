@@ -20,6 +20,10 @@
  ******************************************************************************/
 package net.sf.taverna.t2.servicedescriptions.impl;
 
+import static java.lang.System.currentTimeMillis;
+import static java.lang.Thread.MIN_PRIORITY;
+import static java.lang.Thread.currentThread;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.Thread.UncaughtExceptionHandler;
@@ -60,38 +64,29 @@ import org.apache.log4j.Logger;
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
 public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistry {
-
 	/**
 	 * If a writable property of this name on a provider exists (ie. the provider has a method
 	 * setServiceDescriptionRegistry(ServiceDescriptionRegistry registry) - then this property will
 	 * be set to the current registry.
 	 */
 	public static final String SERVICE_DESCRIPTION_REGISTRY = "serviceDescriptionRegistry";
-
 	public static Logger logger = Logger.getLogger(ServiceDescriptionRegistryImpl.class);
-
 	public static final ThreadGroup threadGroup = new ThreadGroup("Service description providers");
-
-	private ServiceDescriptionsConfiguration serviceDescriptionsConfig;
-	private ApplicationConfiguration applicationConfiguration;
-
 	/**
 	 * Total maximum timeout while waiting for description threads to finish
 	 */
 	private static final long DESCRIPTION_THREAD_TIMEOUT_MS = 3000;
-
 	protected static final String CONF_DIR = "conf";
-
 	protected static final String SERVICE_PROVIDERS_FILENAME = "service_providers.xml";
-
 	private static final String DEFAULT_CONFIGURABLE_SERVICE_PROVIDERS_FILENAME = "default_service_providers.xml";
 
+	private ServiceDescriptionsConfiguration serviceDescriptionsConfig;
+	private ApplicationConfiguration applicationConfiguration;
 	/**
 	 * <code>false</code> until first call to {@link #loadServiceProviders()} - which is done by
 	 * first call to {@link #getServiceDescriptionProviders()}.
 	 */
 	private boolean hasLoadedProviders = false;
-
 	/**
 	 * <code>true</code> while {@link #loadServiceProviders(File)},
 	 * {@link #loadServiceProviders(URL)} or {@link #loadServiceProviders()} is in progress, avoids
@@ -99,42 +94,34 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 	 * {@link #addServiceDescriptionProvider(ServiceDescriptionProvider)} calls.
 	 */
 	private boolean loading = false;
-
-	private MultiCaster<ServiceDescriptionRegistryEvent> observers = new MultiCaster<ServiceDescriptionRegistryEvent>(this);
-
+	private MultiCaster<ServiceDescriptionRegistryEvent> observers = new MultiCaster<>(this);
 	private List<ServiceDescriptionProvider> serviceDescriptionProviders;
-
 	private Set<ServiceDescriptionProvider> allServiceProviders;
-
-	private Map<ServiceDescriptionProvider, Set<ServiceDescription>> providerDescriptions = new HashMap<ServiceDescriptionProvider, Set<ServiceDescription>>();
-
-	private Map<ServiceDescriptionProvider, FindServiceDescriptionsThread> serviceDescriptionThreads = new HashMap<ServiceDescriptionProvider, FindServiceDescriptionsThread>();
-
+	private Map<ServiceDescriptionProvider, Set<ServiceDescription>> providerDescriptions = new HashMap<>();
+	private Map<ServiceDescriptionProvider, Thread> serviceDescriptionThreads = new HashMap<>();
 	/**
 	 * Service providers added by the user, should be saved
 	 */
-	private Set<ServiceDescriptionProvider> userAddedProviders = new HashSet<ServiceDescriptionProvider>();
-
-	private Set<ServiceDescriptionProvider> userRemovedProviders = new HashSet<ServiceDescriptionProvider>();
-
+	private Set<ServiceDescriptionProvider> userAddedProviders = new HashSet<>();
+	private Set<ServiceDescriptionProvider> userRemovedProviders = new HashSet<>();
 	private Set<ServiceDescriptionProvider> defaultServiceDescriptionProviders;
-
 	/**
 	 * File containing a list of configured ConfigurableServiceProviders which is used to get the
 	 * default set of service descriptions together with those provided by AbstractTemplateServiceS.
 	 * This file is located in the conf directory of the Taverna startup directory.
 	 */
 	private File defaultConfigurableServiceProvidersFile;
-
 	private boolean defaultSystemConfigurableProvidersLoaded = false;
 
 	static {
-		threadGroup.setMaxPriority(Thread.MIN_PRIORITY);
+		threadGroup.setMaxPriority(MIN_PRIORITY);
 	}
 
-	public ServiceDescriptionRegistryImpl(ApplicationConfiguration applicationConfiguration) {
+	public ServiceDescriptionRegistryImpl(
+			ApplicationConfiguration applicationConfiguration) {
 		this.applicationConfiguration = applicationConfiguration;
-		defaultConfigurableServiceProvidersFile = new File(getTavernaStartupConfigurationDirectory(),
+		defaultConfigurableServiceProvidersFile = new File(
+				getTavernaStartupConfigurationDirectory(),
 				DEFAULT_CONFIGURABLE_SERVICE_PROVIDERS_FILENAME);
 	}
 
@@ -146,41 +133,40 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 		File configDirectory = null;
 		distroHome = applicationConfiguration.getStartupDir();
 		configDirectory = new File(distroHome, "conf");
-		if (!configDirectory.exists()) {
+		if (!configDirectory.exists())
 			configDirectory.mkdir();
-		}
 		return configDirectory;
 	}
 
-	public static void joinThreads(Collection<? extends Thread> threads,
+	private static void joinThreads(Collection<? extends Thread> threads,
 			long descriptionThreadTimeoutMs) {
-		long finishJoinBy = System.currentTimeMillis() + descriptionThreadTimeoutMs;
+		long finishJoinBy = currentTimeMillis() + descriptionThreadTimeoutMs;
 		for (Thread thread : threads) {
 			// No shorter timeout than 1 ms (thread.join(0) waits forever!)
-			long timeout = Math.max(1, finishJoinBy - System.currentTimeMillis());
+			long timeout = Math.max(1, finishJoinBy - currentTimeMillis());
 			try {
 				thread.join(timeout);
 			} catch (InterruptedException e) {
-				Thread.currentThread().interrupt();
+				currentThread().interrupt();
 				return;
 			}
-			if (thread.isAlive()) {
+			if (thread.isAlive())
 				logger.debug("Thread did not finish " + thread);
-			}
 		}
 	}
 
 
+	@Override
 	public void addObserver(Observer<ServiceDescriptionRegistryEvent> observer) {
 		observers.addObserver(observer);
 	}
 
+	@Override
 	public void addServiceDescriptionProvider(ServiceDescriptionProvider provider) {
 		synchronized (this) {
 			userRemovedProviders.remove(provider);
-			if (!getDefaultServiceDescriptionProviders().contains(provider)) {
+			if (!getDefaultServiceDescriptionProviders().contains(provider))
 				userAddedProviders.add(provider);
-			}
 			allServiceProviders.add(provider);
 		}
 
@@ -188,29 +174,29 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 		try {
 			// BeanUtils should ignore this if provider does not have that property
 			BeanUtils.setProperty(provider, SERVICE_DESCRIPTION_REGISTRY, this);
-		} catch (IllegalAccessException e) {
-			logger.warn("Could not set serviceDescriptionRegistry on " + provider, e);
-		} catch (InvocationTargetException e) {
-			logger.warn("Could not set serviceDescriptionRegistry on " + provider, e);
+		} catch (IllegalAccessException | InvocationTargetException e) {
+			logger.warn("Could not set serviceDescriptionRegistry on "
+					+ provider, e);
 		}
 
-		if (!loading) {
+		if (!loading)
 			saveServiceDescriptions();
-		}
 		observers.notify(new AddedProviderEvent(provider));
 		updateServiceDescriptions(false, false);
 	}
 
-	public File findServiceDescriptionsFile() {
-		File confDir = new File(applicationConfiguration.getApplicationHomeDir(), CONF_DIR);
+	private File findServiceDescriptionsFile() {
+		File confDir = new File(
+				applicationConfiguration.getApplicationHomeDir(), CONF_DIR);
 		confDir.mkdirs();
-		if (!confDir.isDirectory()) {
+		if (!confDir.isDirectory())
 			throw new RuntimeException("Invalid directory: " + confDir);
-		}
-		File serviceDescriptionsFile = new File(confDir, SERVICE_PROVIDERS_FILENAME);
+		File serviceDescriptionsFile = new File(confDir,
+				SERVICE_PROVIDERS_FILENAME);
 		return serviceDescriptionsFile;
 	}
 
+	@Override
 	public List<Observer<ServiceDescriptionRegistryEvent>> getObservers() {
 		return observers.getObservers();
 	}
@@ -256,84 +242,103 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 //	}
 
 	// Get the default services.
+	@Override
 	@SuppressWarnings("unchecked")
 	public synchronized Set<ServiceDescriptionProvider> getDefaultServiceDescriptionProviders() {
-		if (defaultServiceDescriptionProviders != null) {
+		if (defaultServiceDescriptionProviders != null)
 			return defaultServiceDescriptionProviders;
-		}
-		defaultServiceDescriptionProviders = new HashSet<ServiceDescriptionProvider>();
+		defaultServiceDescriptionProviders = new HashSet<>();
 
-		// Add default configurable service description providers
-		// from the default_service_providers.xml file
-		ServiceDescriptionDeserializer deserializer = new ServiceDescriptionDeserializer(
-				serviceDescriptionProviders);
+		/*
+		 * Add default configurable service description providers from the
+		 * default_service_providers.xml file
+		 */
 		if (defaultConfigurableServiceProvidersFile.exists()) {
 			try {
+				ServiceDescriptionDeserializer deserializer = new ServiceDescriptionDeserializer(
+						serviceDescriptionProviders);
 				defaultServiceDescriptionProviders.addAll(deserializer
-						.xmlToServiceRegistryForDefaultServices(this,
+						.deserializeDefaults(this,
 								defaultConfigurableServiceProvidersFile));
-				// We have successfully loaded the defaults for system configurable providers.
-				// Note that there are still defaults for third party configurable providers,
-				// which will be loaded below using getDefaultConfigurations().
+				/*
+				 * We have successfully loaded the defaults for system
+				 * configurable providers. Note that there are still defaults
+				 * for third party configurable providers, which will be loaded
+				 * below using getDefaultConfigurations().
+				 */
 				defaultSystemConfigurableProvidersLoaded = true;
 			} catch (Exception e) {
 				logger.error("Could not load default service providers from "
 						+ defaultConfigurableServiceProvidersFile.getAbsolutePath(), e);
 
-				// Fallback on the old hardcoded method of loading default system configurable
-				// service providers using getDefaultConfigurations().
+				/*
+				 * Fallback on the old hardcoded method of loading default
+				 * system configurable service providers using
+				 * getDefaultConfigurations().
+				 */
 				defaultSystemConfigurableProvidersLoaded = false;
 			}
 		} else {
 			logger.warn("Could not find the file "
 					+ defaultConfigurableServiceProvidersFile.getAbsolutePath()
-					+ " containing default system service providers. Using the hardcoded list of default system providers.");
+					+ " containing default system service providers. "
+					+ "Using the hardcoded list of default system providers.");
 
-			// Fallback on the old hardcoded method of loading default system configurable
-			// service providers using getDefaultConfigurations().
+			/*
+			 * Fallback on the old hardcoded method of loading default system
+			 * configurable service providers using getDefaultConfigurations().
+			 */
 			defaultSystemConfigurableProvidersLoaded = false;
 		}
 
-		// Load other default service description providers - template, local workers
-		// and third party configurable service providers
+		/*
+		 * Load other default service description providers - template, local
+		 * workers and third party configurable service providers
+		 */
 		for (ServiceDescriptionProvider provider : serviceDescriptionProviders) {
-			// Template service providers (beanshell, string constant, etc. )
-			// and providers of local workers.
+			/*
+			 * Template service providers (beanshell, string constant, etc. )
+			 * and providers of local workers.
+			 */
 			if (!(provider instanceof ConfigurableServiceProvider)) {
 				defaultServiceDescriptionProviders.add(provider);
-			} else {
-				// Default system or third party configurable service description provider.
-				// System ones are read from the default_service_providers.xml file so
-				// getDefaultConfigurations() on them will not have much effect here unless
-				// defaultSystemConfigurableProvidersLoaded is set to false.
-				ConfigurableServiceProvider<Object> template = ((ConfigurableServiceProvider<Object>) provider);
-				// Get configurations
-				List<Object> configurables = template.getDefaultConfigurations();
-				for (Object config : configurables) {
-					// Make a copy that we can configure
-					ConfigurableServiceProvider<Object> configurableProvider = template.clone();
-					try {
-						configurableProvider.configure(config);
-					} catch (ConfigurationException e) {
-						logger.warn("Can't configure provider " + configurableProvider + " with "
-								+ config);
-						continue;
-					}
-					defaultServiceDescriptionProviders.add(configurableProvider);
+				continue;
+			}
+
+			/*
+			 * Default system or third party configurable service description
+			 * provider. System ones are read from the
+			 * default_service_providers.xml file so getDefaultConfigurations()
+			 * on them will not have much effect here unless
+			 * defaultSystemConfigurableProvidersLoaded is set to false.
+			 */
+			ConfigurableServiceProvider<Object> template = (ConfigurableServiceProvider<Object>) provider;
+			// Get configurations
+			List<Object> configurables = template.getDefaultConfigurations();
+			for (Object config : configurables) {
+				// Make a copy that we can configure
+				ConfigurableServiceProvider<Object> configurableProvider = template.clone();
+				try {
+					configurableProvider.configure(config);
+				} catch (ConfigurationException e) {
+					logger.warn("Can't configure provider "
+							+ configurableProvider + " with " + config);
+					continue;
 				}
+				defaultServiceDescriptionProviders.add(configurableProvider);
 			}
 		}
 
 		return defaultServiceDescriptionProviders;
 	}
 
+	@Override
 	public synchronized Set<ServiceDescriptionProvider> getServiceDescriptionProviders() {
-		if (allServiceProviders != null) {
-			return new HashSet<ServiceDescriptionProvider>(allServiceProviders);
-		}
-		allServiceProviders = new HashSet<ServiceDescriptionProvider>(userAddedProviders);
+		if (allServiceProviders != null)
+			return new HashSet<>(allServiceProviders);
+		allServiceProviders = new HashSet<>(userAddedProviders);
 		synchronized (this) {
-			if (!hasLoadedProviders) {
+			if (!hasLoadedProviders)
 				try {
 					loadServiceProviders();
 				} catch (Exception e) {
@@ -341,137 +346,136 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 				} finally {
 					hasLoadedProviders = true;
 				}
-			}
 		}
 		for (ServiceDescriptionProvider provider : getDefaultServiceDescriptionProviders()) {
-			if (userRemovedProviders.contains(provider)) {
+			if (userRemovedProviders.contains(provider))
 				continue;
-			}
 			if (provider instanceof ConfigurableServiceProvider<?>
-					&& !serviceDescriptionsConfig.isIncludeDefaults()) {
+					&& !serviceDescriptionsConfig.isIncludeDefaults())
 				// We'll skip the default configurable service provders
 				continue;
-			}
 			allServiceProviders.add(provider);
 		}
-		return new HashSet<ServiceDescriptionProvider>(allServiceProviders);
+		return new HashSet<>(allServiceProviders);
 	}
 
-	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders(ServiceDescription sd) {
-		Set<ServiceDescriptionProvider> result = new HashSet<ServiceDescriptionProvider>();
-		for (ServiceDescriptionProvider sdp : providerDescriptions.keySet()) {
-			if (providerDescriptions.get(sdp).contains(sd)) {
+	@Override
+	public Set<ServiceDescriptionProvider> getServiceDescriptionProviders(
+			ServiceDescription sd) {
+		Set<ServiceDescriptionProvider> result = new HashSet<>();
+		for (ServiceDescriptionProvider sdp : providerDescriptions.keySet())
+			if (providerDescriptions.get(sdp).contains(sd))
 				result.add(sdp);
-			}
-		}
 		return result;
 	}
 
+	@Override
 	public Set<ServiceDescription> getServiceDescriptions() {
 		updateServiceDescriptions(false, true);
-		Set<ServiceDescription> serviceDescriptions = new HashSet<ServiceDescription>();
+		Set<ServiceDescription> serviceDescriptions = new HashSet<>();
 		synchronized (providerDescriptions) {
-			for (Set<ServiceDescription> providerDesc : providerDescriptions.values()) {
+			for (Set<ServiceDescription> providerDesc : providerDescriptions
+					.values())
 				serviceDescriptions.addAll(providerDesc);
-			}
 		}
 		return serviceDescriptions;
 	}
 
 	@Override
 	public ServiceDescription getServiceDescription(URI serviceType) {
-		for (ServiceDescription serviceDescription : getServiceDescriptions()) {
-			if (serviceDescription.getActivityType().equals(serviceType)) {
+		for (ServiceDescription serviceDescription : getServiceDescriptions())
+			if (serviceDescription.getActivityType().equals(serviceType))
 				return serviceDescription;
-			}
-		}
 		return null;
 	}
 
-	public List<ConfigurableServiceProvider> getUnconfiguredServiceProviders() {
-		List<ConfigurableServiceProvider> providers = new ArrayList<ConfigurableServiceProvider>();
-		for (ServiceDescriptionProvider provider : serviceDescriptionProviders) {
-			if (provider instanceof ConfigurableServiceProvider) {
-				ConfigurableServiceProvider confProvider = (ConfigurableServiceProvider) provider;
-				providers.add(confProvider);
-			}
-		}
+	@Override
+	public List<ConfigurableServiceProvider<?>> getUnconfiguredServiceProviders() {
+		List<ConfigurableServiceProvider<?>> providers = new ArrayList<>();
+		for (ServiceDescriptionProvider provider : serviceDescriptionProviders)
+			if (provider instanceof ConfigurableServiceProvider)
+				providers.add((ConfigurableServiceProvider<?>) provider);
 		return providers;
 	}
 
+	@Override
 	public Set<ServiceDescriptionProvider> getUserAddedServiceProviders() {
-		return new HashSet<ServiceDescriptionProvider>(userAddedProviders);
+		return new HashSet<>(userAddedProviders);
 	}
 
+	@Override
 	public Set<ServiceDescriptionProvider> getUserRemovedServiceProviders() {
-		return new HashSet<ServiceDescriptionProvider>(userRemovedProviders);
+		return new HashSet<>(userRemovedProviders);
 	}
 
+	@Override
 	public void loadServiceProviders() throws DeserializationException {
 		File serviceProviderFile = findServiceDescriptionsFile();
-		if (serviceProviderFile.isFile()) {
+		if (serviceProviderFile.isFile())
 			loadServiceProviders(serviceProviderFile);
-		}
 		hasLoadedProviders = true;
 	}
 
+	@Override
 	public void loadServiceProviders(File serviceProvidersFile) throws DeserializationException {
 		ServiceDescriptionDeserializer deserializer = new ServiceDescriptionDeserializer(
 				serviceDescriptionProviders);
 		loading = true;
-		deserializer.xmlToServiceRegistry(this, serviceProvidersFile);
+		deserializer.deserialize(this, serviceProvidersFile);
 		loading = false;
 	}
 
+	@Override
 	public void loadServiceProviders(URL serviceProvidersURL) throws DeserializationException {
 		ServiceDescriptionDeserializer deserializer = new ServiceDescriptionDeserializer(
 				serviceDescriptionProviders);
 		loading = true;
-		deserializer.xmlToServiceRegistry(this, serviceProvidersURL);
+		deserializer.deserialize(this, serviceProvidersURL);
 		loading = false;
 	}
 
+	@Override
 	public void refresh() {
 		updateServiceDescriptions(true, false);
 	}
 
+	@Override
 	public void removeObserver(Observer<ServiceDescriptionRegistryEvent> observer) {
 		observers.removeObserver(observer);
 	}
 
+	@Override
 	public synchronized void removeServiceDescriptionProvider(ServiceDescriptionProvider provider) {
-		if (!userAddedProviders.remove(provider)) {
+		if (!userAddedProviders.remove(provider))
 			// Not previously added - must be a default one.. but should we remove it?
 			if (loading || serviceDescriptionsConfig.isRemovePermanently()
-					&& serviceDescriptionsConfig.isIncludeDefaults()) {
+					&& serviceDescriptionsConfig.isIncludeDefaults())
 				userRemovedProviders.add(provider);
-			}
-		}
 		if (allServiceProviders.remove(provider)) {
 			synchronized (providerDescriptions) {
-				FindServiceDescriptionsThread serviceDescriptionsThread = serviceDescriptionThreads
+				Thread serviceDescriptionsThread = serviceDescriptionThreads
 						.remove(provider);
-				if (serviceDescriptionsThread != null) {
+				if (serviceDescriptionsThread != null)
 					serviceDescriptionsThread.interrupt();
-				}
 				providerDescriptions.remove(provider);
 			}
 			observers.notify(new RemovedProviderEvent(provider));
 		}
-		if (!loading) {
+		if (!loading)
 			saveServiceDescriptions();
-		}
 	}
 
+	@Override
 	public void saveServiceDescriptions() {
 		File serviceDescriptionsFile = findServiceDescriptionsFile();
 		saveServiceDescriptions(serviceDescriptionsFile);
 	}
 
+	@Override
 	public void saveServiceDescriptions(File serviceDescriptionsFile) {
 		ServiceDescriptionSerializer serializer = new ServiceDescriptionSerializer();
 		try {
-			serializer.serviceRegistryToXML(this, serviceDescriptionsFile);
+			serializer.serializeRegistry(this, serviceDescriptionsFile);
 		} catch (IOException e) {
 			throw new RuntimeException("Can't save service descriptions to "
 					+ serviceDescriptionsFile);
@@ -479,19 +483,22 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 	}
 
 	/**
-	 * Exports all configurable service providers (that give service descriptions) currently found
-	 * in the Service Registry (apart from service templates and local services) regardless of who
-	 * added them (user or default system providers).
-	 *
-	 * Unlike {@link #saveServiceDescriptions}, this export does not have the "ignored providers"
-	 * section as this is just a plain export of everything in the Service Registry.
-	 *
+	 * Exports all configurable service providers (that give service
+	 * descriptions) currently found in the Service Registry (apart from service
+	 * templates and local services) regardless of who added them (user or
+	 * default system providers).
+	 * <p>
+	 * Unlike {@link #saveServiceDescriptions}, this export does not have the
+	 * "ignored providers" section as this is just a plain export of everything
+	 * in the Service Registry.
+	 * 
 	 * @param serviceDescriptionsFile
 	 */
+	@Override
 	public void exportCurrentServiceDescriptions(File serviceDescriptionsFile) {
 		ServiceDescriptionSerializer serializer = new ServiceDescriptionSerializer();
 		try {
-			serializer.exportServiceRegistryToXML(this, serviceDescriptionsFile);
+			serializer.serializeFullRegistry(this, serviceDescriptionsFile);
 		} catch (IOException e) {
 			throw new RuntimeException("Could not save service descriptions to "
 					+ serviceDescriptionsFile);
@@ -503,75 +510,73 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 		this.serviceDescriptionProviders = serviceDescriptionProviders;
 	}
 
-	public void updateServiceDescriptions(boolean refreshAll, boolean waitFor) {
-		List<FindServiceDescriptionsThread> threads = new ArrayList<FindServiceDescriptionsThread>();
+	private void updateServiceDescriptions(boolean refreshAll, boolean waitFor) {
+		List<Thread> threads = new ArrayList<>();
 		for (ServiceDescriptionProvider provider : getServiceDescriptionProviders()) {
 			synchronized (providerDescriptions) {
-				if (providerDescriptions.containsKey(provider) && !refreshAll) {
+				if (providerDescriptions.containsKey(provider) && !refreshAll)
 					// We'll used the cached values
 					continue;
-				}
-				FindServiceDescriptionsThread oldThread = serviceDescriptionThreads.get(provider);
+				Thread oldThread = serviceDescriptionThreads.get(provider);
 				if (oldThread != null && oldThread.isAlive()) {
-					if (refreshAll) {
+					if (refreshAll)
 						// New thread will override the old thread
 						oldThread.interrupt();
-					} else {
-						// observers.notify(new ProviderStatusNotification(
-						// provider, "Waiting for provider"));
+					else {
+						// observers.notify(new ProviderStatusNotification(provider, "Waiting for provider"));
 						continue;
 					}
 				}
 				// Not run yet - we'll start a new tread
 				FindDescriptionsCallBack callBack = new FindDescriptionsCallBack(provider);
-				FindServiceDescriptionsThread thread = new FindServiceDescriptionsThread(provider,
+				Thread thread = new FindServiceDescriptionsThread(provider,
 						callBack);
 				threads.add(thread);
 				serviceDescriptionThreads.put(provider, thread);
 				thread.start();
 			}
 		}
-		if (waitFor) {
+		if (waitFor)
 			joinThreads(threads, DESCRIPTION_THREAD_TIMEOUT_MS);
-		}
 	}
 
+	@Override
 	public boolean isDefaultSystemConfigurableProvidersLoaded() {
 		return defaultSystemConfigurableProvidersLoaded;
 	}
 
 	/**
 	 * Sets the serviceDescriptionsConfig.
-	 *
-	 * @param serviceDescriptionsConfig the new value of serviceDescriptionsConfig
+	 * 
+	 * @param serviceDescriptionsConfig
+	 *            the new value of serviceDescriptionsConfig
 	 */
-	public void setServiceDescriptionsConfig(ServiceDescriptionsConfiguration serviceDescriptionsConfig) {
+	public void setServiceDescriptionsConfig(
+			ServiceDescriptionsConfiguration serviceDescriptionsConfig) {
 		this.serviceDescriptionsConfig = serviceDescriptionsConfig;
 	}
 
-	public class FindDescriptionsCallBack implements FindServiceDescriptionsCallBack {
+	class FindDescriptionsCallBack implements FindServiceDescriptionsCallBack {
 		private boolean aborting = false;
-
 		private final ServiceDescriptionProvider provider;
-
-		final Set<ServiceDescription> providerDescs = new HashSet<ServiceDescription>();
+		final Set<ServiceDescription> providerDescs = new HashSet<>();
 
 		public FindDescriptionsCallBack(ServiceDescriptionProvider provider) {
 			this.provider = provider;
 		}
 
+		@Override
 		public void fail(String message, Throwable ex) {
 			logger.warn("Provider " + getProvider() + ": " + message, ex);
-			if (aborting) {
+			if (aborting)
 				return;
-			}
 			observers.notify(new ProviderErrorNotification(getProvider(), message, ex));
 		}
 
+		@Override
 		public void finished() {
-			if (aborting) {
+			if (aborting)
 				return;
-			}
 			synchronized (providerDescriptions) {
 				providerDescriptions.put(getProvider(), providerDescs);
 			}
@@ -582,10 +587,10 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 			return provider;
 		}
 
+		@Override
 		public void partialResults(Collection<? extends ServiceDescription> serviceDescriptions) {
-			if (aborting) {
+			if (aborting)
 				return;
-			}
 			providerDescs.addAll(serviceDescriptions);
 			synchronized (providerDescriptions) {
 				providerDescriptions.put(getProvider(), providerDescs);
@@ -594,19 +599,19 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 					serviceDescriptions));
 		}
 
+		@Override
 		public void status(String message) {
 			logger.debug("Provider " + getProvider() + ": " + message);
-			if (aborting) {
+			if (aborting)
 				return;
-			}
 			observers.notify(new ProviderStatusNotification(getProvider(), message));
 		}
 
+		@Override
 		public void warning(String message) {
 			logger.warn("Provider " + getProvider() + ": " + message);
-			if (aborting) {
+			if (aborting)
 				return;
-			}
 			observers.notify(new ProviderWarningNotification(getProvider(), message));
 		}
 
@@ -618,11 +623,11 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 		}
 	}
 
-	public class FindServiceDescriptionsThread extends Thread implements UncaughtExceptionHandler {
+	class FindServiceDescriptionsThread extends Thread implements UncaughtExceptionHandler {
 		private FindDescriptionsCallBack callBack;
 		private final ServiceDescriptionProvider provider;
 
-		public FindServiceDescriptionsThread(ServiceDescriptionProvider provider,
+		FindServiceDescriptionsThread(ServiceDescriptionProvider provider,
 				FindDescriptionsCallBack callBack) {
 			super(threadGroup, "Find service descriptions from " + provider);
 			this.provider = provider;
@@ -647,10 +652,10 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 			getProvider().findServiceDescriptionsAsync(callBack);
 		}
 
+		@Override
 		public void uncaughtException(Thread t, Throwable ex) {
 			logger.error("Uncaught exception in " + t, ex);
 			callBack.fail("Uncaught exception", ex);
 		}
 	}
-
 }

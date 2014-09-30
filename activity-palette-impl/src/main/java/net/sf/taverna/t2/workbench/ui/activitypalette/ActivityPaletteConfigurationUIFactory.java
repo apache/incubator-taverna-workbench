@@ -25,26 +25,28 @@ import javax.swing.JPanel;
 import uk.org.taverna.configuration.Configurable;
 import uk.org.taverna.configuration.ConfigurationUIFactory;
 
-
 public class ActivityPaletteConfigurationUIFactory implements
 		ConfigurationUIFactory {
-
 	private ActivityPaletteConfiguration activityPaletteConfiguration;
 
+	@Override
 	public boolean canHandle(String uuid) {
-		return (uuid!=null && uuid.equals(getConfigurable().getUUID()));
+		return uuid != null && uuid.equals(getConfigurable().getUUID());
 	}
 
+	@Override
 	public Configurable getConfigurable() {
 		return activityPaletteConfiguration;
 	}
 
+	@Override
 	public JPanel getConfigurationPanel() {
-		return new ActivityPaletteConfigurationPanel(activityPaletteConfiguration);
+		return new ActivityPaletteConfigurationPanel(
+				activityPaletteConfiguration);
 	}
 
-	public void setActivityPaletteConfiguration(ActivityPaletteConfiguration activityPaletteConfiguration) {
+	public void setActivityPaletteConfiguration(
+			ActivityPaletteConfiguration activityPaletteConfiguration) {
 		this.activityPaletteConfiguration = activityPaletteConfiguration;
 	}
-
 }

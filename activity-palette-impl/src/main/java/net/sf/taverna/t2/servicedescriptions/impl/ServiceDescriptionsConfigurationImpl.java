@@ -28,20 +28,21 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionsConfiguration;
 import uk.org.taverna.configuration.AbstractConfigurable;
 import uk.org.taverna.configuration.ConfigurationManager;
 
-public class ServiceDescriptionsConfigurationImpl extends AbstractConfigurable implements ServiceDescriptionsConfiguration  {
-
-	public ServiceDescriptionsConfigurationImpl(ConfigurationManager configurationManager) {
-		super(configurationManager);
-	}
-
+public class ServiceDescriptionsConfigurationImpl extends AbstractConfigurable
+		implements ServiceDescriptionsConfiguration {
 	private static final String INCLUDE_DEFAULTS = "includeDefaults";
-
 	private static final String SERVICE_PALETTE = "Service providers";
 	private static final String SERVICE_PALETTE_PREFIX = "ServiceProviders";
 	private static final String CATEGORY = "Services";
 	private static final String UUID = "f0d1ef24-9337-412f-b2c3-220a01e2efd0";
 	private static final String REMOVE_PERMANENTLY = "removePermanently";
 
+	public ServiceDescriptionsConfigurationImpl(
+			ConfigurationManager configurationManager) {
+		super(configurationManager);
+	}
+
+	@Override
 	public String getCategory() {
 		return CATEGORY;
 	}
@@ -64,7 +65,8 @@ public class ServiceDescriptionsConfigurationImpl extends AbstractConfigurable i
 		return SERVICE_PALETTE_PREFIX;
 	}
 
-	@Override	public String getUUID() {
+	@Override
+	public String getUUID() {
 		return UUID;
 	}
 
@@ -87,5 +89,4 @@ public class ServiceDescriptionsConfigurationImpl extends AbstractConfigurable i
 	public void setRemovePermanently(boolean removePermanently) {
 		setProperty(REMOVE_PERMANENTLY, Boolean.toString(removePermanently));
 	}
-
 }
