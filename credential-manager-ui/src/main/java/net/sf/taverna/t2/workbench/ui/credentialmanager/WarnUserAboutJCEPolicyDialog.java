@@ -45,7 +45,7 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
-import net.sf.taverna.t2.security.credentialmanager.CMUtils;
+import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -65,16 +65,20 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 	private JCheckBox doNotWarnMeAgainCheckBox;
 
 	private final ApplicationConfiguration applicationConfiguration;
+        
+        private final DistinguishedNameParser dnParser;
 
-	public WarnUserAboutJCEPolicyDialog(ApplicationConfiguration applicationConfiguration){
+	public WarnUserAboutJCEPolicyDialog(ApplicationConfiguration applicationConfiguration, 
+                    DistinguishedNameParser dnParser){
 		super((Frame)null, "Java Unlimited Strength Cryptography Policy Warning", true);
 		this.applicationConfiguration = applicationConfiguration;
+                this.dnParser = dnParser;
 		initComponents();
 	}
 
 	// For testing
 	public static void main (String[] args){
-		WarnUserAboutJCEPolicyDialog dialog = new WarnUserAboutJCEPolicyDialog(null);
+		WarnUserAboutJCEPolicyDialog dialog = new WarnUserAboutJCEPolicyDialog(null, null);
 		dialog.setVisible(true);
 	}
 
@@ -159,27 +163,27 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 	 * Extension (JCE) Unlimited Strength Jurisdiction Policy
 	 * if they want Credential Manager to function properly.
 	 */
-	public static void warnUserAboutJCEPolicy(ApplicationConfiguration applicationConfiguration){
+	public static void warnUserAboutJCEPolicy(ApplicationConfiguration applicationConfiguration, DistinguishedNameParser dnParser){
 		// Do not pop up a dialog if we are running headlessly.
 		// If we have warned the user and they do not want us to remind them again - exit.
-		if (warnedUser || GraphicsEnvironment.isHeadless() || doNotWarnFile(applicationConfiguration).exists()){
+		if (warnedUser || GraphicsEnvironment.isHeadless() || doNotWarnFile(applicationConfiguration, dnParser).exists()){
 			return;
 		}
 
-		WarnUserAboutJCEPolicyDialog warnDialog = new WarnUserAboutJCEPolicyDialog(applicationConfiguration);
+		WarnUserAboutJCEPolicyDialog warnDialog = new WarnUserAboutJCEPolicyDialog(applicationConfiguration, dnParser);
 		warnDialog.setVisible(true);
 		warnedUser = true;
 
 	}
 
-	private static File doNotWarnFile(ApplicationConfiguration applicationConfiguration) {
-		return new File(CMUtils.getCredentialManagerDefaultDirectory(applicationConfiguration),DO_NOT_WARN_ABOUT_JCE_POLICY);
+	private static File doNotWarnFile(ApplicationConfiguration applicationConfiguration, DistinguishedNameParser dnParser) {
+		return new File(dnParser.getCredentialManagerDefaultDirectory(applicationConfiguration),DO_NOT_WARN_ABOUT_JCE_POLICY);
 	}
 
 	protected void okPressed(){
 		if (doNotWarnMeAgainCheckBox.isSelected()){
 			try {
-				FileUtils.touch(doNotWarnFile(applicationConfiguration));
+				FileUtils.touch(doNotWarnFile(applicationConfiguration, dnParser));
 			} catch (IOException ioex) {
 				logger.error("Failed to touch the 'Do not want me about JCE unilimited security policy file.",
 								ioex);

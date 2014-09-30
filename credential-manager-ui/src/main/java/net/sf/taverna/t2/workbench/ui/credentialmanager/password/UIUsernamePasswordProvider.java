@@ -3,9 +3,9 @@ package net.sf.taverna.t2.workbench.ui.credentialmanager.password;
 import java.awt.GraphicsEnvironment;
 import java.net.URI;
 import java.net.URISyntaxException;
+import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.security.credentialmanager.ServiceUsernameAndPasswordProvider;
 import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
-import net.sf.taverna.t2.security.credentialmanager.CMUtils;
 import org.apache.log4j.Logger;
 
 public class UIUsernamePasswordProvider implements ServiceUsernameAndPasswordProvider {
@@ -13,7 +13,9 @@ public class UIUsernamePasswordProvider implements ServiceUsernameAndPasswordPro
 	private static Logger logger = Logger
 			.getLogger(UIUsernamePasswordProvider.class);
 
-	public boolean canProvideUsernamePassword(URI serviceURI) {
+        private DistinguishedNameParser dnParser;
+        
+ 	public boolean canProvideUsernamePassword(URI serviceURI) {
 		return ! GraphicsEnvironment.isHeadless();
 	}
 
@@ -23,8 +25,8 @@ public class UIUsernamePasswordProvider implements ServiceUsernameAndPasswordPro
 		URI displayURI = serviceURI;
 
 		try {
-			displayURI = CMUtils.setFragmentForURI(displayURI, null);
-			displayURI = CMUtils.setUserInfoForURI(displayURI, null);
+			displayURI = dnParser.setFragmentForURI(displayURI, null);
+			displayURI = dnParser.setUserInfoForURI(displayURI, null);
 		} catch (URISyntaxException e) {
 			logger.warn("Could not strip fragment/userinfo from " + serviceURI, e);
 		}
@@ -78,4 +80,10 @@ public class UIUsernamePasswordProvider implements ServiceUsernameAndPasswordPro
 	public void setServiceUsernameAndPassword(URI serviceURI, UsernamePassword usernamePassword) {
 	}
 
+        /**
+	 * @param dnParser the dnParser to set
+	 */
+	public void setDistinguishedNameParser(DistinguishedNameParser dnParser) {
+		this.dnParser = dnParser;
+	}
 }

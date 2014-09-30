@@ -62,11 +62,11 @@ public class CredentialManagerMenu extends AbstractMenuAction{
 		this.credentialManager = credentialManager;
 	}
 
-    /**
-     * @param dnParser the dnParser to set
-     */
-    public void setDistinguishedNameParser(DistinguishedNameParser dnParser) {
-        this.dnParser = dnParser;
-    }
+	/**
+	 * @param dnParser the dnParser to set
+	 */
+	public void setDistinguishedNameParser(DistinguishedNameParser dnParser) {
+		this.dnParser = dnParser;
+	}
 
 }

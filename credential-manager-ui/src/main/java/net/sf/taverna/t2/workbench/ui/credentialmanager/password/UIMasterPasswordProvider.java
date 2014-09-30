@@ -23,6 +23,7 @@ package net.sf.taverna.t2.workbench.ui.credentialmanager.password;
 import java.awt.GraphicsEnvironment;
 
 import javax.swing.JFrame;
+import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
@@ -43,6 +44,8 @@ public class UIMasterPasswordProvider implements MasterPasswordProvider, JavaTru
 
 	private ApplicationConfiguration applicationConfiguration;
 
+        private DistinguishedNameParser dnParser;
+        
 	@Override
 	public String getJavaTruststorePassword() {
 		if (GraphicsEnvironment.isHeadless()) {
@@ -75,7 +78,7 @@ public class UIMasterPasswordProvider implements MasterPasswordProvider, JavaTru
 
 		// Pop up a warning about Java Cryptography Extension (JCE)
 		// Unlimited Strength Jurisdiction Policy
-		WarnUserAboutJCEPolicyDialog.warnUserAboutJCEPolicy(applicationConfiguration);
+		WarnUserAboutJCEPolicyDialog.warnUserAboutJCEPolicy(applicationConfiguration, dnParser);
 
 		if (firstTime) {
 			// Ask user to set the master password for Credential Manager (only
@@ -113,5 +116,11 @@ public class UIMasterPasswordProvider implements MasterPasswordProvider, JavaTru
 	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
 		this.applicationConfiguration = applicationConfiguration;
 	}
-
+        
+        /**
+	 * @param dnParser the dnParser to set
+	 */
+	public void setDistinguishedNameParser(DistinguishedNameParser dnParser) {
+		this.dnParser = dnParser;
+	}
 }
