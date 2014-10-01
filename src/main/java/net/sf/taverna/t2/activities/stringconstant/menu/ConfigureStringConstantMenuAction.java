@@ -1,5 +1,8 @@
 package net.sf.taverna.t2.activities.stringconstant.menu;
 
+import static javax.swing.Action.NAME;
+import static net.sf.taverna.t2.activities.stringconstant.actions.StringConstantActivityConfigurationAction.CONFIGURE_STRINGCONSTANT;
+
 import java.net.URI;
 
 import javax.swing.Action;
@@ -12,8 +15,8 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import uk.org.taverna.commons.services.ServiceRegistry;
 
-public class ConfigureStringConstantMenuAction extends AbstractConfigureActivityMenuAction {
-
+public class ConfigureStringConstantMenuAction extends
+		AbstractConfigureActivityMenuAction {
 	private static final URI ACTIVITY_TYPE = URI
 			.create("http://ns.taverna.org.uk/2010/activity/constant");
 
@@ -21,7 +24,6 @@ public class ConfigureStringConstantMenuAction extends AbstractConfigureActivity
 	private FileManager fileManager;
 	private ActivityIconManager activityIconManager;
 	private ServiceDescriptionRegistry serviceDescriptionRegistry;
-
 	private ServiceRegistry serviceRegistry;
 
 	public ConfigureStringConstantMenuAction() {
@@ -31,10 +33,10 @@ public class ConfigureStringConstantMenuAction extends AbstractConfigureActivity
 	@Override
 	protected Action createAction() {
 		StringConstantActivityConfigurationAction configAction = new StringConstantActivityConfigurationAction(
-				findActivity(), getParentFrame(), editManager, fileManager, activityIconManager,
-				serviceDescriptionRegistry, serviceRegistry);
-		configAction.putValue(Action.NAME,
-				StringConstantActivityConfigurationAction.CONFIGURE_STRINGCONSTANT);
+				findActivity(), getParentFrame(), editManager, fileManager,
+				activityIconManager, serviceDescriptionRegistry,
+				serviceRegistry);
+		configAction.putValue(NAME, CONFIGURE_STRINGCONSTANT);
 		addMenuDots(configAction);
 		return configAction;
 	}
@@ -51,12 +53,12 @@ public class ConfigureStringConstantMenuAction extends AbstractConfigureActivity
 		this.activityIconManager = activityIconManager;
 	}
 
-	public void setServiceDescriptionRegistry(ServiceDescriptionRegistry serviceDescriptionRegistry) {
+	public void setServiceDescriptionRegistry(
+			ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
 	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
 	}
-
 }

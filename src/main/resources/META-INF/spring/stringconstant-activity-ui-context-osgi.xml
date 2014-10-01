@@ -7,14 +7,12 @@
                       http://www.springframework.org/schema/osgi/spring-osgi.xsd">
 
 	<service ref="StringConstantActivityIcon" interface="net.sf.taverna.t2.workbench.activityicons.ActivityIconSPI" />
-
 	<service ref="StringConstantTemplateService" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider" />
+	<service ref="StringConstantActivityViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 
 	<service ref="AddStringConstantTemplateAction" auto-export="interfaces" />
 	<service ref="AddStringConstantTemplateMenuAction" auto-export="interfaces" />
 	<service ref="ConfigureStringConstantMenuAction" auto-export="interfaces" />
-
-	<service ref="StringConstantActivityViewFactory" interface="net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory" />
 
 	<reference id="editManager" interface="net.sf.taverna.t2.workbench.edits.EditManager" />
 	<reference id="fileManager" interface="net.sf.taverna.t2.workbench.file.FileManager" />
@@ -24,5 +22,4 @@
 	<reference id="colourManager" interface="net.sf.taverna.t2.workbench.configuration.colour.ColourManager" />
 	<reference id="serviceDescriptionRegistry" interface="net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry" />
 	<reference id="serviceRegistry" interface="uk.org.taverna.commons.services.ServiceRegistry" />
-
 </beans:beans>

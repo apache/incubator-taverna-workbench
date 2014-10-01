@@ -26,20 +26,18 @@ import javax.swing.Icon;
 
 import net.sf.taverna.t2.servicedescriptions.AbstractTemplateService;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
+import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class StringConstantTemplateService extends AbstractTemplateService {
-
-	private static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
-
-	public static final String DEFAULT_VALUE = "Add your own value here";
-
-	private static final String STRINGCONSTANT = "Text constant";
-
+	private static final URI ACTIVITY_TYPE = URI
+			.create("http://ns.taverna.org.uk/2010/activity/constant");
 	private static final URI providerId = URI
-	.create("http://taverna.sf.net/2010/service-provider/stringconstant");
+			.create("http://taverna.sf.net/2010/service-provider/stringconstant");
+	public static final String DEFAULT_VALUE = "Add your own value here";
+	private static final String STRINGCONSTANT = "Text constant";
 
 	@Override
 	public URI getActivityType() {
@@ -59,10 +57,12 @@ public class StringConstantTemplateService extends AbstractTemplateService {
 		return StringConstantActivityIcon.getStringConstantIcon();
 	}
 
+	@Override
 	public String getName() {
 		return STRINGCONSTANT;
 	}
 
+	@Override
 	public String getDescription() {
 		return "A string value that you can set";
 	}
@@ -72,7 +72,13 @@ public class StringConstantTemplateService extends AbstractTemplateService {
 		return scts.templateService;
 	}
 
+	@Override
 	public String getId() {
 		return providerId.toString();
+	}
+
+	@Override
+	public ServiceDescriptionProvider newInstance() {
+		return new StringConstantTemplateService();
 	}
 }

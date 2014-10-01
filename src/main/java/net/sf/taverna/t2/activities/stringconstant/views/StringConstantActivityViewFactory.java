@@ -20,8 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.activities.stringconstant.views;
 
+import static java.util.Arrays.asList;
+
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
@@ -34,25 +35,29 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualV
 import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.activity.Activity;
 
-public class StringConstantActivityViewFactory implements ContextualViewFactory<Activity> {
-
-	private static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
+public class StringConstantActivityViewFactory implements
+		ContextualViewFactory<Activity> {
+	private static final URI ACTIVITY_TYPE = URI
+			.create("http://ns.taverna.org.uk/2010/activity/constant");
 
 	private EditManager editManager;
 	private FileManager fileManager;
 	private ActivityIconManager activityIconManager;
 	private ColourManager colourManager;
 	private ServiceDescriptionRegistry serviceDescriptionRegistry;
-
 	private ServiceRegistry serviceRegistry;
 
+	@Override
 	public boolean canHandle(Object object) {
-		return object instanceof Activity && ((Activity) object).getType().equals(ACTIVITY_TYPE);
+		return object instanceof Activity
+				&& ((Activity) object).getType().equals(ACTIVITY_TYPE);
 	}
 
+	@Override
 	public List<ContextualView> getViews(Activity activity) {
-		return Arrays.asList(new ContextualView[] { new StringConstantActivityContextualView(
-				activity, editManager, fileManager, activityIconManager, colourManager, serviceDescriptionRegistry, serviceRegistry) });
+		return asList(new ContextualView[] { new StringConstantActivityContextualView(
+				activity, editManager, fileManager, activityIconManager,
+				colourManager, serviceDescriptionRegistry, serviceRegistry) });
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -71,12 +76,12 @@ public class StringConstantActivityViewFactory implements ContextualViewFactory<
 		this.colourManager = colourManager;
 	}
 
-	public void setServiceDescriptionRegistry(ServiceDescriptionRegistry serviceDescriptionRegistry) {
+	public void setServiceDescriptionRegistry(
+			ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
 	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
 	}
-
 }

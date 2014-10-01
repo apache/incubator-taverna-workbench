@@ -23,8 +23,6 @@ package net.sf.taverna.t2.activities.stringconstant.actions;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 
-import javax.swing.Action;
-
 import net.sf.taverna.t2.activities.stringconstant.views.StringConstantConfigView;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
@@ -35,39 +33,39 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityCon
 import uk.org.taverna.commons.services.ServiceRegistry;
 import uk.org.taverna.scufl2.api.activity.Activity;
 
-public class StringConstantActivityConfigurationAction extends ActivityConfigurationAction {
-
+public class StringConstantActivityConfigurationAction extends
+		ActivityConfigurationAction {
 	private static final long serialVersionUID = 2518716617809186972L;
-
 	public static final String CONFIGURE_STRINGCONSTANT = "Edit value";
 
 	private final EditManager editManager;
-
 	private final FileManager fileManager;
-
 	private final ServiceRegistry serviceRegistry;
 
-	public StringConstantActivityConfigurationAction(Activity activity, Frame owner,
-			EditManager editManager, FileManager fileManager,
-			ActivityIconManager activityIconManager, ServiceDescriptionRegistry serviceDescriptionRegistry, ServiceRegistry serviceRegistry) {
+	public StringConstantActivityConfigurationAction(Activity activity,
+			Frame owner, EditManager editManager, FileManager fileManager,
+			ActivityIconManager activityIconManager,
+			ServiceDescriptionRegistry serviceDescriptionRegistry,
+			ServiceRegistry serviceRegistry) {
 		super(activity, activityIconManager, serviceDescriptionRegistry);
 		this.editManager = editManager;
 		this.fileManager = fileManager;
 		this.serviceRegistry = serviceRegistry;
-		putValue(Action.NAME, CONFIGURE_STRINGCONSTANT);
+		putValue(NAME, CONFIGURE_STRINGCONSTANT);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		ActivityConfigurationDialog currentDialog = ActivityConfigurationAction.getDialog(getActivity());
+		ActivityConfigurationDialog currentDialog = getDialog(getActivity());
 		if (currentDialog != null) {
 			currentDialog.toFront();
 			return;
 		}
 
-		StringConstantConfigView stringConstantConfigView = new StringConstantConfigView(activity, serviceRegistry);
-		ActivityConfigurationDialog dialog = new ActivityConfigurationDialog(getActivity(), stringConstantConfigView, editManager);
-
-		ActivityConfigurationAction.setDialog(getActivity(), dialog, fileManager);
+		StringConstantConfigView configView = new StringConstantConfigView(
+				activity, serviceRegistry);
+		ActivityConfigurationDialog dialog = new ActivityConfigurationDialog(
+				getActivity(), configView, editManager);
+		setDialog(getActivity(), dialog, fileManager);
 	}
-
 }

@@ -28,16 +28,14 @@ import javax.swing.ImageIcon;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconSPI;
 
 /**
- *
  * @author Alex Nenadic
- *
  */
-public class StringConstantActivityIcon implements ActivityIconSPI{
-
-	private static final URI ACTIVITY_TYPE = URI.create("http://ns.taverna.org.uk/2010/activity/constant");
-
+public class StringConstantActivityIcon implements ActivityIconSPI {
+	private static final URI ACTIVITY_TYPE = URI
+			.create("http://ns.taverna.org.uk/2010/activity/constant");
 	private static Icon icon = null;
 
+	@Override
 	public int canProvideIconScore(URI activityType) {
 		if (activityType.equals(ACTIVITY_TYPE))
 			return DEFAULT_ICON + 1;
@@ -45,16 +43,16 @@ public class StringConstantActivityIcon implements ActivityIconSPI{
 			return NO_ICON;
 	}
 
+	@Override
 	public Icon getIcon(URI activityType) {
 		return getStringConstantIcon();
 	}
 
 	public static Icon getStringConstantIcon() {
-		if (icon == null) {
-			icon = new ImageIcon(StringConstantActivityIcon.class.getResource("/stringconstant.png"));
-		}
+		if (icon == null)
+			icon = new ImageIcon(
+					StringConstantActivityIcon.class
+							.getResource("/stringconstant.png"));
 		return icon;
 	}
 }
-
-

@@ -46,5 +46,4 @@
 		<property name="serviceDescriptionRegistry" ref="serviceDescriptionRegistry" />
 		<property name="serviceRegistry" ref="serviceRegistry" />
 	</bean>
-
 </beans>
