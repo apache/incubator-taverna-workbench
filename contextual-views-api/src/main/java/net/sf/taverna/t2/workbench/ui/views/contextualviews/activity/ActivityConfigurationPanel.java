@@ -64,13 +64,11 @@ public abstract class ActivityConfigurationPanel extends JPanel {
 	protected void initialise() {
 		json = configuration.getJson().deepCopy();
 		inputPorts.clear();
-		for (InputActivityPort activityPort : activity.getInputPorts()) {
+		for (InputActivityPort activityPort : activity.getInputPorts())
 			inputPorts.add(new ActivityPortConfiguration(activityPort));
-		}
 		outputPorts.clear();
-		for (OutputActivityPort activityPort : activity.getOutputPorts()) {
+		for (OutputActivityPort activityPort : activity.getOutputPorts())
 			outputPorts.add(new ActivityPortConfiguration(activityPort));
-		}
 	}
 
 	public abstract boolean checkValues();
@@ -79,12 +77,10 @@ public abstract class ActivityConfigurationPanel extends JPanel {
 
 	public boolean isConfigurationChanged() {
 		noteConfiguration();
-		if (portsChanged(inputPorts, activity.getInputPorts().size())) {
+		if (portsChanged(inputPorts, activity.getInputPorts().size()))
 			return true;
-		}
-		if (portsChanged(outputPorts, activity.getOutputPorts().size())) {
+		if (portsChanged(outputPorts, activity.getOutputPorts().size()))
 			return true;
-		}
 		return !json.equals(configuration.getJson());
 	}
 
@@ -119,9 +115,8 @@ public abstract class ActivityConfigurationPanel extends JPanel {
 	 */
 	protected String getProperty(String name) {
 		JsonNode jsonNode = json.get(name);
-		if (jsonNode == null) {
+		if (jsonNode == null)
 			return null;
-		}
 		return json.get(name).asText();
 	}
 
@@ -148,23 +143,21 @@ public abstract class ActivityConfigurationPanel extends JPanel {
 	protected void configureInputPorts(ServiceRegistry serviceRegistry) {
 		try {
 			Map<String, InputActivityPort> newInputPorts = new HashMap<>();
-			Set<InputActivityPort> activityInputPorts = serviceRegistry.getActivityInputPorts(
-					getActivity().getType(), getJson());
-			for (InputActivityPort inputActivityPort : activityInputPorts) {
-				newInputPorts.put(inputActivityPort.getName(), inputActivityPort);
-			}
+			for (InputActivityPort port : serviceRegistry
+					.getActivityInputPorts(getActivity().getType(), getJson()))
+				newInputPorts.put(port.getName(), port);
 			List<ActivityPortConfiguration> inputPorts = getInputPorts();
-			for (ActivityPortConfiguration portConfiguration : new ArrayList<>(inputPorts)) {
-				if (newInputPorts.containsKey(portConfiguration.getName())) {
-					InputActivityPort port = newInputPorts.remove(portConfiguration.getName());
-					portConfiguration.setDepth(port.getDepth());
-				} else {
-					inputPorts.remove(portConfiguration);
-				}
-			}
-			for (InputActivityPort newPort : newInputPorts.values()) {
-				inputPorts.add(new ActivityPortConfiguration(newPort.getName(), newPort.getDepth()));
-			}
+			for (ActivityPortConfiguration portConfig : new ArrayList<>(
+					inputPorts))
+				if (newInputPorts.containsKey(portConfig.getName())) {
+					InputActivityPort port = newInputPorts.remove(portConfig
+							.getName());
+					portConfig.setDepth(port.getDepth());
+				} else
+					inputPorts.remove(portConfig);
+			for (InputActivityPort newPort : newInputPorts.values())
+				inputPorts.add(new ActivityPortConfiguration(newPort.getName(),
+						newPort.getDepth()));
 		} catch (InvalidConfigurationException | ActivityTypeNotFoundException e) {
 			logger.warn("Error configuring input ports", e);
 		}
@@ -173,24 +166,22 @@ public abstract class ActivityConfigurationPanel extends JPanel {
 	protected void configureOutputPorts(ServiceRegistry serviceRegistry) {
 		try {
 			Map<String, OutputActivityPort> newOutputPorts = new HashMap<>();
-			Set<OutputActivityPort> activityOutputPorts = serviceRegistry.getActivityOutputPorts(
-					getActivity().getType(), getJson());
-			for (OutputActivityPort outputActivityPort : activityOutputPorts) {
-				newOutputPorts.put(outputActivityPort.getName(), outputActivityPort);
-			}
+			for (OutputActivityPort port : serviceRegistry
+					.getActivityOutputPorts(getActivity().getType(), getJson()))
+				newOutputPorts.put(port.getName(), port);
 			List<ActivityPortConfiguration> outputPorts = getOutputPorts();
-			for (ActivityPortConfiguration portConfiguration : new ArrayList<>(outputPorts)) {
-				if (newOutputPorts.containsKey(portConfiguration.getName())) {
-					OutputActivityPort port = newOutputPorts.remove(portConfiguration.getName());
-					portConfiguration.setDepth(port.getDepth());
-					portConfiguration.setGranularDepth(port.getGranularDepth());
-				} else {
-					outputPorts.remove(portConfiguration);
-				}
-			}
-			for (OutputActivityPort newPort : newOutputPorts.values()) {
-				outputPorts.add(new ActivityPortConfiguration(newPort.getName(), newPort.getDepth()));
-			}
+			for (ActivityPortConfiguration portConfig : new ArrayList<>(
+					outputPorts))
+				if (newOutputPorts.containsKey(portConfig.getName())) {
+					OutputActivityPort port = newOutputPorts.remove(portConfig
+							.getName());
+					portConfig.setDepth(port.getDepth());
+					portConfig.setGranularDepth(port.getGranularDepth());
+				} else
+					outputPorts.remove(portConfig);
+			for (OutputActivityPort newPort : newOutputPorts.values())
+				outputPorts.add(new ActivityPortConfiguration(
+						newPort.getName(), newPort.getDepth()));
 		} catch (InvalidConfigurationException | ActivityTypeNotFoundException e) {
 			logger.warn("Error configuring output ports", e);
 		}
@@ -202,30 +193,24 @@ public abstract class ActivityConfigurationPanel extends JPanel {
 			String portName = portDefinition.getName();
 			int portDepth = portDefinition.getDepth();
 			ActivityPort activityPort = portDefinition.getActivityPort();
-			if (activityPort == null) {
+			if (activityPort == null)
 				// new port added
 				return true;
-			} else {
-				if (!activityPort.getName().equals(portName)) {
-					// port name changed
-					return true;
-				}
-				if (!activityPort.getDepth().equals(portDepth)) {
-					// port depth changed
-					return true;
-				}
-				checkedPorts++;
-			}
+			if (!activityPort.getName().equals(portName))
+				// port name changed
+				return true;
+			if (!activityPort.getDepth().equals(portDepth))
+				// port depth changed
+				return true;
+			checkedPorts++;
 		}
-		if (checkedPorts < ports) {
+		if (checkedPorts < ports)
 			// ports deleted
 			return true;
-		}
 		return false;
 	}
 
 	public Activity getActivity() {
 		return activity;
 	}
-
 }
