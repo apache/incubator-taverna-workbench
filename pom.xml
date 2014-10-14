@@ -25,12 +25,12 @@
 		<module>graph-model</module>
 		<module>graph-view</module>
 		<!-- <module>iteration-strategy-ui</module> -->
-		<!-- <module>monitor-view</module> -->
-		<module>perspective-design</module> 
-		<!-- <module>perspective-results</module> -->
+		<module>monitor-view</module>
+		<module>perspective-design</module>
+		<module>perspective-results</module>
 		<module>reference-ui</module>
 		<!-- <module>report-view</module> -->
-		<!-- <module>results-view</module> -->
+		<module>results-view</module>
 		<module>run-ui</module>
 		<module>workflow-explorer</module>
 		<module>workflow-view</module>
