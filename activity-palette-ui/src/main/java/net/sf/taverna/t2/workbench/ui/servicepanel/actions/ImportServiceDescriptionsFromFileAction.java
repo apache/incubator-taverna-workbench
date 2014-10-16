@@ -79,6 +79,13 @@ public class ImportServiceDescriptionsFromFileAction extends AbstractAction{
 		if (e.getSource() instanceof JComponent)
 			parentComponent = (JComponent) e.getSource();
 
+		if (ExportServiceDescriptionsAction.INHIBIT) {
+			showMessageDialog(parentComponent,
+					"Operation not currently working correctly",
+					"Not Implemented", ERROR_MESSAGE);
+			return;
+		}
+
 		int choice = showOptionDialog(
 				parentComponent,
 				"Do you want to add the imported services to the current ones or replace the current ones?",
@@ -107,8 +114,7 @@ public class ImportServiceDescriptionsFromFileAction extends AbstractAction{
 
 			fileChooser.setCurrentDirectory(new File(curDir));
 
-			int returnVal = fileChooser.showOpenDialog(parentComponent);
-			if (returnVal == APPROVE_OPTION) {
+			if (fileChooser.showOpenDialog(parentComponent) == APPROVE_OPTION) {
 				prefs.put(SERVICE_IMPORT_DIR_PROPERTY, fileChooser
 						.getCurrentDirectory().toString());
 				File file = fileChooser.getSelectedFile();
@@ -132,27 +138,19 @@ public class ImportServiceDescriptionsFromFileAction extends AbstractAction{
 			parentComponent.requestFocusInWindow();
 	}
 
-	private void importServices(File file, boolean addToCurrent) throws Exception {
+	private void importServices(final File file, final boolean addToCurrent)
+			throws Exception {
 		// TODO: Open in separate thread to avoid hanging UI
-		if (addToCurrent)
-			addServices(file);
-		else
-			replaceServices(file);
-	}
 
-	private void replaceServices(File file) throws Exception {
-		for (ServiceDescriptionProvider provider : new HashSet<>(
-				serviceDescriptionRegistry.getServiceDescriptionProviders()))
-			// remove all configurable service providers
-			if (provider instanceof ConfigurableServiceProvider)
-				serviceDescriptionRegistry
-						.removeServiceDescriptionProvider(provider);
+		if (!addToCurrent)
+			for (ServiceDescriptionProvider provider : new HashSet<>(
+					serviceDescriptionRegistry.getServiceDescriptionProviders()))
+				// remove all configurable service providers
+				if (provider instanceof ConfigurableServiceProvider)
+					serviceDescriptionRegistry
+							.removeServiceDescriptionProvider(provider);
 
 		// import all providers from the file
-		addServices(file);
-	}
-
-	private void addServices(File file) throws Exception {
 		serviceDescriptionRegistry.loadServiceProviders(file);
 		serviceDescriptionRegistry.saveServiceDescriptions();
 	}

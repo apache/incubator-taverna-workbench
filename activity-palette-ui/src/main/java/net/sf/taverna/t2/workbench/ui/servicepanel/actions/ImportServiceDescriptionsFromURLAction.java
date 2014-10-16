@@ -72,6 +72,13 @@ public class ImportServiceDescriptionsFromURLAction extends AbstractAction{
 		if (e.getSource() instanceof JComponent)
 			parentComponent = (JComponent) e.getSource();
 
+		if (ExportServiceDescriptionsAction.INHIBIT) {
+			showMessageDialog(parentComponent,
+					"Operation not currently working correctly",
+					"Not Implemented", ERROR_MESSAGE);
+			return;
+		}
+
 		int choice = showOptionDialog(
 				parentComponent,
 				"Do you want to add the imported services to the current ones or replace the current ones?",
@@ -83,22 +90,18 @@ public class ImportServiceDescriptionsFromURLAction extends AbstractAction{
 					"Enter the URL of the service descriptions file to import",
 					"Service Descriptions URL", QUESTION_MESSAGE, null, null,
 					"http://");
-			if (urlString != null)
-				// TODO: Open in separate thread to avoid hanging UI
-				try {
+			try {
+				if (urlString != null && !urlString.isEmpty())
 					// Did user want to replace or add services?
-					if (choice == YES_OPTION)
-						addServices(urlString);
-					else
-						replaceServices(urlString);
-				} catch (Exception ex) {
-					logger.error(
-							"Service descriptions import: failed to import services from "
-									+ urlString, ex);
-					showMessageDialog(parentComponent,
-							"Failed to import services from " + urlString,
-							"Error", ERROR_MESSAGE);
-				}
+					importServices(urlString, choice == YES_OPTION);
+			} catch (Exception ex) {
+				logger.error(
+						"Service descriptions import: failed to import services from "
+								+ urlString, ex);
+				showMessageDialog(parentComponent,
+						"Failed to import services from " + urlString, "Error",
+						ERROR_MESSAGE);
+			}
 		}
 
 		if (parentComponent instanceof JButton)
@@ -106,22 +109,21 @@ public class ImportServiceDescriptionsFromURLAction extends AbstractAction{
 			parentComponent.requestFocusInWindow();
 	}
 
-	private void replaceServices(String urlString) throws Exception {
-		for (ServiceDescriptionProvider provider : new HashSet<>(
-				serviceDescriptionRegistry.getServiceDescriptionProviders()))
-			// remove all configurable service providers
-			if (provider instanceof ConfigurableServiceProvider)
-				serviceDescriptionRegistry
-						.removeServiceDescriptionProvider(provider);
-
-		// import all providers from the file
-		addServices(urlString);
-	}
-
-	private void addServices(String urlString) throws Exception {
+	private void importServices(final String urlString, final boolean addToCurrent)
+			throws Exception {
+		// TODO: Open in separate thread to avoid hanging UI
 		URL url = new URL(urlString);
+
+		if (!addToCurrent)
+			for (ServiceDescriptionProvider provider : new HashSet<>(
+					serviceDescriptionRegistry.getServiceDescriptionProviders()))
+				// remove all configurable service providers
+				if (provider instanceof ConfigurableServiceProvider)
+					serviceDescriptionRegistry
+							.removeServiceDescriptionProvider(provider);
+
+		// import all providers from the URL
 		serviceDescriptionRegistry.loadServiceProviders(url);
 		serviceDescriptionRegistry.saveServiceDescriptions();
 	}
 }
-

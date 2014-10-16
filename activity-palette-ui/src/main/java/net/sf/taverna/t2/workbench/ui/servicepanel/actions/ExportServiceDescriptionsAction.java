@@ -50,7 +50,7 @@ import org.apache.log4j.Logger;
  */
 //FIXME this file assumes we're writing out as XML
 @SuppressWarnings("serial")
-public class ExportServiceDescriptionsAction extends AbstractAction{
+public class ExportServiceDescriptionsAction extends AbstractAction {
 	private static final String EXTENSION = ".xml";
 	private static final String EXPORT_SERVICES = "Export services to file";
 	private static final String SERVICE_EXPORT_DIR_PROPERTY = "serviceExportDir";
@@ -62,11 +62,20 @@ public class ExportServiceDescriptionsAction extends AbstractAction{
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
+	public static final boolean INHIBIT = true;
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		JComponent parentComponent = null;
 		if (e.getSource() instanceof JComponent)
 			parentComponent = (JComponent) e.getSource();
+
+		if (INHIBIT) {
+			showMessageDialog(parentComponent,
+					"Operation not currently working correctly",
+					"Not Implemented", ERROR_MESSAGE);
+			return;
+		}
 
 		JFileChooser fileChooser = new JFileChooser();
 		Preferences prefs = Preferences.userNodeForPackage(getClass());

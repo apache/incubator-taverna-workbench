@@ -148,7 +148,7 @@ public class AddServiceProviderAction extends AbstractAction {
 	}
 
 	protected void addNewProvider(Configuration configurationBean) {
-		final ConfigurableServiceProvider cloned = (ConfigurableServiceProvider) confProvider
+		ConfigurableServiceProvider cloned = (ConfigurableServiceProvider) confProvider
 				.newInstance();
 		try {
 			cloned.configure(configurationBean);
@@ -165,17 +165,20 @@ public class AddServiceProviderAction extends AbstractAction {
 		}
 	}
 
-	// FIXME This is *so* wrong!
-	protected JPanel buildEditor(Configuration configuration) {
-		PropertyDescriptor[] properties;
+	private PropertyDescriptor[] getProperties(Configuration configuration) {
+		// FIXME This is *so* wrong!
 		try {
-			properties = getPropertyDescriptors(configuration);
+			return getPropertyDescriptors(configuration);
 		} catch (Exception ex) {
 			throw new RuntimeException("Can't inspect configuration bean", ex);
 		}
+	}
+
+	// TODO This is probably not right
+	protected JPanel buildEditor(Configuration configuration) {
 		List<String> uiBuilderConfig = new ArrayList<>();
 		int lastPreferred = 0;
-		for (PropertyDescriptor property : properties) {
+		for (PropertyDescriptor property : getProperties(configuration)) {
 			if (property.isHidden() || property.isExpert())
 				// TODO: Add support for expert properties
 				continue;
@@ -189,7 +192,7 @@ public class AddServiceProviderAction extends AbstractAction {
 		}
 
 		return UIBuilder.buildEditor(configuration, uiBuilderConfig
-				.toArray(new String[uiBuilderConfig.size()]));
+				.toArray(new String[0]));
 	}
 
 	public void setServiceDescriptionRegistry(
