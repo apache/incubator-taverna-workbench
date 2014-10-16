@@ -1,14 +1,10 @@
 package net.sf.taverna.t2.servicedescriptions;
 
-import java.util.List;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import net.sf.taverna.t2.workflowmodel.Configurable;
+import uk.org.taverna.scufl2.api.common.Configurable;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 
 public interface ConfigurableServiceProvider extends
-		ServiceDescriptionProvider, Configurable<ObjectNode>, Cloneable {
-	List<ObjectNode> getDefaultConfigurations();
-
-	ConfigurableServiceProvider clone();
+		ServiceDescriptionProvider, Configurable, Cloneable {
+	void configure(Configuration configuration) throws Exception;
+	Configuration getConfiguration();
 }

@@ -23,12 +23,14 @@ public abstract class ServiceDescription extends IdentifiedObject {
 	private String description = "";
 
 	@PropertyAnnotation(expert = true, displayName = SERVICE_IMPLEMENTATION_URI)
-	public URI getActivityType() {
-		return null;
-	}
+	public abstract URI getActivityType();
 
 	@PropertyAnnotation(expert = true, displayName = SERVICE_CONFIGURATION)
-	public abstract Configuration getActivityConfiguration();
+	public Configuration getActivityConfiguration() {
+		Configuration configuration = new Configuration();
+		configuration.setType(getActivityType().resolve("#Config"));
+		return configuration;
+	}
 
 	@PropertyAnnotation(displayName = DESCRIPTION)
 	public String getDescription() {

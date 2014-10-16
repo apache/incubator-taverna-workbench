@@ -1,13 +1,12 @@
 package net.sf.taverna.t2.servicedescriptions;
 
-import java.util.Collections;
-import java.util.List;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public abstract class AbstractConfigurableServiceProvider extends
 		IdentifiedObject implements ConfigurableServiceProvider {
-	protected ObjectNode serviceProviderConfig;
+	protected Configuration serviceProviderConfig;
 
 	/**
 	 * Construct configurable service provider.
@@ -15,7 +14,7 @@ public abstract class AbstractConfigurableServiceProvider extends
 	 * @param configTemplate
 	 *            Template configuration
 	 */
-	public AbstractConfigurableServiceProvider(ObjectNode configTemplate) {
+	public AbstractConfigurableServiceProvider(Configuration configTemplate) {
 		if (configTemplate == null)
 			throw new NullPointerException("Default config can't be null");
 		serviceProviderConfig = configTemplate;
@@ -41,27 +40,22 @@ public abstract class AbstractConfigurableServiceProvider extends
 					ex);
 		}
 
-		ObjectNode configuration = getConfiguration();
+		Configuration configuration = getConfiguration();
 		if (configuration != null)
 			provider.configure(configuration);
 		return provider;
 	}
 
 	@Override
-	public synchronized void configure(ObjectNode conf) {
+	public synchronized void configure(Configuration conf) {
 		if (conf == null)
-			throw new NullPointerException("Config can't be null");
+			throw new IllegalArgumentException("Config can't be null");
 		this.serviceProviderConfig = conf;
 	}
 
 	@Override
-	public ObjectNode getConfiguration() {
+	public Configuration getConfiguration() {
 		return serviceProviderConfig;
-	}
-
-	@Override
-	public List<ObjectNode> getDefaultConfigurations() {
-		return Collections.emptyList();
 	}
 
 	@Override

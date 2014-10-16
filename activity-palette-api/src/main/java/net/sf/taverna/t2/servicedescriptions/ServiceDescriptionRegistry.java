@@ -8,7 +8,6 @@ import java.util.Set;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
-import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 
 public interface ServiceDescriptionRegistry extends
 		Observable<ServiceDescriptionRegistryEvent> {
@@ -31,13 +30,11 @@ public interface ServiceDescriptionRegistry extends
 
 	Set<ServiceDescriptionProvider> getUserRemovedServiceProviders();
 
-	void loadServiceProviders() throws DeserializationException;
+	void loadServiceProviders();
 
-	void loadServiceProviders(File serviceProvidersURL)
-			throws DeserializationException;
+	void loadServiceProviders(File serviceProvidersURL);
 
-	void loadServiceProviders(URL serviceProvidersURL)
-			throws DeserializationException;
+	void loadServiceProviders(URL serviceProvidersURL);
 
 	void refresh();
 

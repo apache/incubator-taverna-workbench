@@ -20,16 +20,16 @@
  ******************************************************************************/
 package net.sf.taverna.t2.servicedescriptions;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 
 public interface CustomizedConfigurePanelProvider extends
 		ConfigurableServiceProvider {
 	void createCustomizedConfigurePanel(CustomizedConfigureCallBack callBack);
 
 	interface CustomizedConfigureCallBack {
-		void newProviderConfiguration(ObjectNode providerConfig);
+		void newProviderConfiguration(Configuration providerConfig);
 
-		ObjectNode getTemplateConfig();
+		Configuration getTemplateConfig();
 
 		ServiceDescriptionRegistry getServiceDescriptionRegistry();
 	}
