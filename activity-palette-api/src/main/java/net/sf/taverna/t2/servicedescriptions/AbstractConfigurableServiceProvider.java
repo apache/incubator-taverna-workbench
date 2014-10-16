@@ -2,8 +2,6 @@ package net.sf.taverna.t2.servicedescriptions;
 
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
 public abstract class AbstractConfigurableServiceProvider extends
 		IdentifiedObject implements ConfigurableServiceProvider {
 	protected Configuration serviceProviderConfig;
@@ -29,17 +27,7 @@ public abstract class AbstractConfigurableServiceProvider extends
 
 	@Override
 	public AbstractConfigurableServiceProvider clone() {
-		AbstractConfigurableServiceProvider provider;
-		try {
-			provider = getClass().newInstance();
-		} catch (IllegalAccessException ex) {
-			throw new RuntimeException(
-					"Can't clone accessing default constructor", ex);
-		} catch (InstantiationException ex) {
-			throw new RuntimeException("Can't clone using default constructor",
-					ex);
-		}
-
+		AbstractConfigurableServiceProvider provider = (AbstractConfigurableServiceProvider) newInstance();
 		Configuration configuration = getConfiguration();
 		if (configuration != null)
 			provider.configure(configuration);
