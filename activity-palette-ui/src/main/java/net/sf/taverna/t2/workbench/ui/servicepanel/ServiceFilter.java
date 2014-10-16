@@ -20,9 +20,10 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
+import static java.beans.Introspector.getBeanInfo;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -35,13 +36,12 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.tree.Filter;
 import org.apache.log4j.Logger;
 
 public class ServiceFilter implements Filter {
+	private static Logger logger = Logger.getLogger(ServiceFilter.class);
 
 	private String filterString;
 	private boolean superseded;
 	private String[] filterLowerCaseSplit;
 	private final Object rootToIgnore;
-	private static Logger logger = Logger
-	.getLogger(ServiceFilter.class);
 
 	public ServiceFilter(String filterString, Object rootToIgnore) {
 		this.filterString = filterString;
@@ -50,90 +50,91 @@ public class ServiceFilter implements Filter {
 		this.superseded = false;
 	}
 
-	@SuppressWarnings("unchecked")
 	private boolean basicFilter(DefaultMutableTreeNode node) {
-		if (node == rootToIgnore) {
+		if (node == rootToIgnore)
 			return false;
-		}
-		if (filterString.equals("")) {
+		if (filterString.isEmpty())
 			return true;
-		}
+
 		if (node.getUserObject() instanceof ServiceDescription) {
 			ServiceDescription serviceDescription = (ServiceDescription) node
 					.getUserObject();
-			search: for (String searchTerm : filterLowerCaseSplit) {
-				if (superseded) {
+			for (String searchTerm : filterLowerCaseSplit) {
+				if (superseded)
 					return false;
-				}
 				String[] typeSplit = searchTerm.split(":", 2);
 				String type;
 				String keyword;
 				if (typeSplit.length == 2) {
 					type = typeSplit[0];
-					keyword = typeSplit[1];
+					keyword = typeSplit[1].toLowerCase();
 				} else {
 					type = null;
-					keyword = searchTerm;
+					keyword = searchTerm.toLowerCase();
 				}
 				try {
-					BeanInfo beanInfo = Introspector
-							.getBeanInfo(serviceDescription.getClass());
-					for (PropertyDescriptor property : beanInfo
-							.getPropertyDescriptors()) {
-						if (superseded) {
-							return false;
-						}
-						if (type == null && !property.isHidden()
-								&& !property.isExpert()
-								|| property.getName().equalsIgnoreCase(type)) {							
-							Method readMethod = property.getReadMethod();
-							if (readMethod == null) {
-								continue;
-							}
-							Object readProperty = readMethod
-									.invoke(serviceDescription, new Object[0]);
-							if (readProperty == null) {
-								continue;
-							}
-							if (readProperty.toString().toLowerCase().contains(
-									keyword)) {
-								continue search;
-							} else {
-								// Dig deeper?
-							}
-						}
-					}
+					if (!doesPropertySatisfy(serviceDescription, type, keyword))
+						return false;
+				} catch (IntrospectionException | IllegalArgumentException
+						| IllegalAccessException | InvocationTargetException e) {
+					logger.error(
+							"failed to get properties of service description",
+							e);
 					return false;
-				} catch (IntrospectionException e) {
-					// TODO Auto-generated catch block
-					logger.error("", e);
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					logger.error("", e);
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					logger.error("", e);
-				} catch (InvocationTargetException e) {
-					// TODO Auto-generated catch block
-					logger.error("", e);
 				}
-				return false;
 			}
 			return true;
 		}
-		for (String searchString : filterLowerCaseSplit) {
+		for (String searchString : filterLowerCaseSplit)
 			if (!node.getUserObject().toString().toLowerCase().contains(
-					searchString)) {
+					searchString))
 				return false;
-			}
-		}
 		return true;
 	}
 
+	/**
+	 * Determine whether a service description satisfies a search term.
+	 * 
+	 * @param serviceDescription
+	 *            The service description bean to look in.
+	 * @param type
+	 *            The name of the property to look in, or <tt>null</tt> to
+	 *            search in all public non-expert properties.
+	 * @param searchTerm
+	 *            The string to search for.
+	 * @return <tt>true</tt> if-and-only-if the description matches.
+	 */
+	private boolean doesPropertySatisfy(ServiceDescription serviceDescription,
+			String type, String searchTerm) throws IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException,
+			IntrospectionException {
+		BeanInfo beanInfo = getBeanInfo(serviceDescription.getClass());
+		for (PropertyDescriptor property : beanInfo.getPropertyDescriptors()) {
+			if (superseded)
+				return false;
+			if ((type == null && !property.isHidden() && !property.isExpert())
+					|| property.getName().equalsIgnoreCase(type)) {
+				Method readMethod = property.getReadMethod();
+				if (readMethod == null)
+					continue;
+				Object readProperty = readMethod.invoke(serviceDescription,
+						new Object[0]);
+				if (readProperty == null)
+					continue;
+				if (readProperty.toString().toLowerCase().contains(searchTerm))
+					return true;
+				// Dig deeper?
+			}
+		}
+		return false;
+	}
+
+	@Override
 	public boolean pass(DefaultMutableTreeNode node) {
 		return basicFilter(node);
 	}
 
+	@Override
 	public String filterRepresentation(String original) {
 		return original;
 	}
@@ -141,6 +142,7 @@ public class ServiceFilter implements Filter {
 	/**
 	 * @return the superseded
 	 */
+	@Override
 	public boolean isSuperseded() {
 		return superseded;
 	}
@@ -149,8 +151,8 @@ public class ServiceFilter implements Filter {
 	 * @param superseded
 	 *            the superseded to set
 	 */
+	@Override
 	public void setSuperseded(boolean superseded) {
 		this.superseded = superseded;
 	}
-
 }

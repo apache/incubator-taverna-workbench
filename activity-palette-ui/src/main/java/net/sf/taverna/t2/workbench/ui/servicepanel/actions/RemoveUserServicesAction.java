@@ -20,39 +20,40 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel.actions;
 
+import static javax.swing.JOptionPane.YES_NO_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
+import static javax.swing.JOptionPane.showConfirmDialog;
+
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 
 @SuppressWarnings("serial")
 public class RemoveUserServicesAction extends AbstractAction {
-
+	private static final String CONFIRM_MESSAGE = "You are about to remove all services you have added. <br>"
+			+ "Are you <b>really</b> sure you want to do this?";
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-	public RemoveUserServicesAction(ServiceDescriptionRegistry serviceDescriptionRegistry) {
+	public RemoveUserServicesAction(
+			ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		super("Remove all user added service providers");
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
+		int option = showConfirmDialog(null, new JLabel("<html><body>"
+				+ CONFIRM_MESSAGE + "</body></html>"),
+				"Confirm service deletion", YES_NO_OPTION);
 
-		int option = JOptionPane
-				.showConfirmDialog(
-						null,
-						new JLabel("<html><body>You are about to remove all services you have added. <br>Are you REALLY sure you want to do this?</body></html>"),
-						"Confirm service deletion", JOptionPane.YES_NO_CANCEL_OPTION);
-
-		if (option==JOptionPane.YES_OPTION){
+		if (option == YES_OPTION)
 			for (ServiceDescriptionProvider provider : serviceDescriptionRegistry
-					.getUserAddedServiceProviders()) {
-				serviceDescriptionRegistry.removeServiceDescriptionProvider(provider);
-			}
-		}
+					.getUserAddedServiceProviders())
+				serviceDescriptionRegistry
+						.removeServiceDescriptionProvider(provider);
 	}
 }
-

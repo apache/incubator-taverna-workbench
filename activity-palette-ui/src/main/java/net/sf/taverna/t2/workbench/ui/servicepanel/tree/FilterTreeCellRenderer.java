@@ -20,18 +20,19 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel.tree;
 
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.folderClosedIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.folderOpenIcon;
+
 import java.awt.Component;
 
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-
 @SuppressWarnings("serial")
 public class FilterTreeCellRenderer extends DefaultTreeCellRenderer {
-
 	private Filter filter = null;
 
+	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 			boolean sel, boolean expanded, boolean leaf, int row,
 			boolean hasFocus) {
@@ -39,14 +40,12 @@ public class FilterTreeCellRenderer extends DefaultTreeCellRenderer {
 		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf,
 				row, hasFocus);
 		Filter filter = getFilter();
-		if (filter != null) {
+		if (filter != null)
 			setText(filter.filterRepresentation(getText()));
-		}
-		if (expanded) {
-			setIcon(WorkbenchIcons.folderOpenIcon);
-		} else {
-			setIcon(WorkbenchIcons.folderClosedIcon);
-		}
+		if (expanded)
+			setIcon(folderOpenIcon);
+		else
+			setIcon(folderClosedIcon);
 		return this;
 	}
 
@@ -57,5 +56,4 @@ public class FilterTreeCellRenderer extends DefaultTreeCellRenderer {
 	public void setFilter(Filter currentFilter) {
 		this.filter = currentFilter;
 	}
-
 }

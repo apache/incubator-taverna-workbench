@@ -23,11 +23,11 @@ package net.sf.taverna.t2.workbench.ui.servicepanel.tree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public class MyFilter implements Filter {
-
 	private static final String HTML_MATCH_END = "</font><font color=\"black\">";
 	private static final String HTML_MATCH_START = "</font><font color=\"red\">";
 	private static final String HTML_POSTFIX = "</font></html>";
 	private static final String HTML_PREFIX = "<html><font color=\"black\">";
+
 	private String filterString;
 	private boolean superseded;
 	private String filterLowerCase;
@@ -39,40 +39,41 @@ public class MyFilter implements Filter {
 	}
 
 	private boolean basicFilter(DefaultMutableTreeNode node) {
-		if (filterString.equals("")) {
+		if (filterString.isEmpty())
 			return true;
-		}
-		return node.getUserObject().toString().toLowerCase().contains(filterLowerCase);
+		return node.getUserObject().toString().toLowerCase()
+				.contains(filterLowerCase);
 	}
 
+	@Override
 	public boolean pass(DefaultMutableTreeNode node) {
 		return basicFilter(node);
 	}
 
+	@Override
 	public String filterRepresentation(String original) {
-		StringBuffer sb = new StringBuffer();
-		sb.append(HTML_PREFIX);
+		StringBuilder sb = new StringBuilder(HTML_PREFIX);
 		int from = 0;
 		String originalLowerCase = original.toLowerCase();
 		int index = originalLowerCase.indexOf(filterLowerCase, from);
 		while (index > -1) {
 			sb.append(original.substring(from, index));
 			sb.append(HTML_MATCH_START);
-			sb.append(original.substring(index, index+filterLowerCase.length()));
+			sb.append(original.substring(index,
+					index + filterLowerCase.length()));
 			sb.append(HTML_MATCH_END);
-			from = index+filterLowerCase.length();
+			from = index + filterLowerCase.length();
 			index = originalLowerCase.indexOf(filterLowerCase, from);
 		}
-		if (from < original.length()) {
+		if (from < original.length())
 			sb.append(original.substring(from, original.length()));
-		}
-		sb.append(HTML_POSTFIX);
-		return sb.toString();
+		return sb.append(HTML_POSTFIX).toString();
 	}
 
 	/**
 	 * @return the superseded
 	 */
+	@Override
 	public boolean isSuperseded() {
 		return superseded;
 	}
@@ -81,8 +82,8 @@ public class MyFilter implements Filter {
 	 * @param superseded
 	 *            the superseded to set
 	 */
+	@Override
 	public void setSuperseded(boolean superseded) {
 		this.superseded = superseded;
 	}
-
 }

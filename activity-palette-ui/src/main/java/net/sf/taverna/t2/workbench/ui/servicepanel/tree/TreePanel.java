@@ -20,8 +20,16 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel.tree;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.NORTH;
+import static java.awt.BorderLayout.WEST;
+import static java.awt.Color.GRAY;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static javax.swing.SwingUtilities.invokeLater;
+import static net.sf.taverna.t2.lang.ui.EdgeLineBorder.TOP;
+
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -44,7 +52,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTree;
-import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TreeExpansionEvent;
@@ -58,11 +65,11 @@ import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
 public abstract class TreePanel extends JPanel {
-
 	private static int MAX_EXPANSION = 100;
 	private static final int SEARCH_WIDTH = 15;
+	private static Logger logger = Logger.getLogger(TreePanel.class);
 
-	protected Set<List<Object>> expandedPaths = new HashSet<List<Object>>();
+	protected Set<List<Object>> expandedPaths = new HashSet<>();
 	protected FilterTreeModel filterTreeModel;
 	protected JTextField searchField = new JTextField(SEARCH_WIDTH);
 	protected JTree tree = new JTree();
@@ -75,9 +82,6 @@ public abstract class TreePanel extends JPanel {
 	private TreeExpandCollapseListener treeExpandListener = new TreeExpandCollapseListener();
 	private Object filterLock = new Object();
 
-	private static Logger logger = Logger
-	.getLogger(TreePanel.class);
-
 	public TreePanel(FilterTreeModel treeModel) {
 		filterTreeModel = treeModel;
 	}
@@ -86,9 +90,8 @@ public abstract class TreePanel extends JPanel {
 			InvocationTargetException {
 //		Filter appliedFilter = filterTreeModel.getCurrentFilter();
 //		if (appliedFilter == null) {
-			for (int i = 0; (i < tree.getRowCount()) && (i < MAX_EXPANSION); i++) {
+			for (int i = 0; (i < tree.getRowCount()) && (i < MAX_EXPANSION); i++)
 				tree.expandRow(i);
-			}
 //		} else {
 //			boolean rowsFinished = false;
 //			for (int i = 0; (!appliedFilter.isSuperseded()) && (!rowsFinished)
@@ -107,29 +110,29 @@ public abstract class TreePanel extends JPanel {
 	}
 
 	public void expandAll(FilterTreeNode node, boolean expand) {
-        FilterTreeNode root = (FilterTreeNode) tree.getModel().getRoot();
+        @SuppressWarnings("unused")
+		FilterTreeNode root = (FilterTreeNode) tree.getModel().getRoot();
 
         // Traverse tree from root
         expandAll(new TreePath(node.getPath()), expand);
     }
 
-    private void expandAll(TreePath parent, boolean expand) {
+    @SuppressWarnings("rawtypes")
+	private void expandAll(TreePath parent, boolean expand) {
         // Traverse children
         FilterTreeNode node = (FilterTreeNode) parent.getLastPathComponent();
-        if (node.getChildCount() >= 0) {
+        if (node.getChildCount() >= 0)
             for (Enumeration e=node.children(); e.hasMoreElements(); ) {
                 FilterTreeNode n = (FilterTreeNode) e.nextElement();
                 TreePath path = parent.pathByAddingChild(n);
                 expandAll(path, expand);
             }
-        }
 
         // Expansion or collapse must be done bottom-up
-        if (expand) {
+        if (expand)
             tree.expandPath(parent);
-        } else {
+        else
             tree.collapsePath(parent);
-        }
     }
 
 	protected void initialize() {
@@ -141,34 +144,35 @@ public abstract class TreePanel extends JPanel {
 		tree.setSelectionModel(new FilterTreeSelectionModel());
 
 		JPanel topPanel = new JPanel();
-		topPanel.setBorder(new CompoundBorder(new EdgeLineBorder(EdgeLineBorder.TOP, Color.GRAY), new EmptyBorder(10, 5, 0, 5)));
+		topPanel.setBorder(new CompoundBorder(new EdgeLineBorder(TOP, GRAY), new EmptyBorder(10, 5, 0, 5)));
 		topPanel.setLayout(new GridBagLayout());
 		GridBagConstraints c = new GridBagConstraints();
 
 		JLabel filterLabel = new JLabel("Filter:  ");
-		c.fill = GridBagConstraints.NONE;
+		c.fill = NONE;
 		c.gridx = 0;
 		c.gridy = 0;
 		c.weightx = 0.0;
 		c.anchor = GridBagConstraints.LINE_START;
 		topPanel.add(filterLabel, c);
 
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = HORIZONTAL;
 		c.gridx = 1;
 		c.gridy = 0;
 		c.weightx = 1.0;
 		topPanel.add(searchField, c);
 
 
-		c.fill = GridBagConstraints.NONE;
+		c.fill = NONE;
 		c.gridx = 2;
 		c.gridy = 0;
 		c.weightx = 0.0;
 		final JButton clearButton = new JButton("Clear");
 		clearButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				searchField.setText("");
-				SwingUtilities.invokeLater(new RunFilter());
+				invokeLater(new RunFilter());
 				clearButton.getParent().requestFocusInWindow();// so that the button does not stay focused after it is clicked on and did its action
 			}
 		});
@@ -178,22 +182,20 @@ public abstract class TreePanel extends JPanel {
 		c.weightx = 0.2;
 		topPanel.add(new JPanel(), c);
 
-		JPanel topExtraPanel = new JPanel();
-		topExtraPanel.setLayout(new BorderLayout());
+		JPanel topExtraPanel = new JPanel(new BorderLayout());
 
-		topExtraPanel.add(topPanel, BorderLayout.NORTH);
+		topExtraPanel.add(topPanel, NORTH);
 
 		Component extraComponent = createExtraComponent();
 		if (extraComponent != null) {
 			JPanel extraPanel  = new JPanel();
 			extraPanel.setLayout(new BorderLayout());
-			extraPanel.add(extraComponent, BorderLayout.WEST);
-			topExtraPanel.add(extraPanel, BorderLayout.CENTER);
-	}
+			extraPanel.add(extraComponent, WEST);
+			topExtraPanel.add(extraPanel, CENTER);
+		}
 
-		add(topExtraPanel, BorderLayout.NORTH);
-
-		add(treeScrollPane, BorderLayout.CENTER);
+		add(topExtraPanel, NORTH);
+		add(treeScrollPane, CENTER);
 
 		searchField.addKeyListener(new SearchFieldKeyAdapter());
 	}
@@ -208,32 +210,28 @@ public abstract class TreePanel extends JPanel {
 
 	public void runFilter() throws InterruptedException,
 			InvocationTargetException {
-		/* Special lock object, don't do a synchronized model, as the lock on
-		 * JComponent might deadlock when painting the
-		 * panel - see comments at
+		/*
+		 * Special lock object, don't do a synchronized model, as the lock on
+		 * JComponent might deadlock when painting the panel - see comments at
 		 * http://www.mygrid.org.uk/dev/issues/browse/T2-1438
 		 */
 		synchronized (filterLock) {
 			tree.removeTreeExpansionListener(treeExpandListener);
 			String text = searchField.getText();
-			final FilterTreeNode root = (FilterTreeNode) tree.getModel().getRoot();
-			if (text.length() == 0) {
+			FilterTreeNode root = (FilterTreeNode) tree.getModel().getRoot();
+			if (text.isEmpty()) {
 				setFilter(null);
-						root.setUserObject(getAvailableObjectsString());
-						filterTreeModel.nodeChanged(root);
+				root.setUserObject(getAvailableObjectsString());
+				filterTreeModel.nodeChanged(root);
 				for (List<Object> tp : expandedPaths) {
-	//				for (int i = 0; i < tp.length; i++) {
-	//					logger.info("Trying to expand " + tp[i].toString());
-	//				}
+	//				for (int i = 0; i < tp.length; i++)
+	//					logger.info("Trying to expand " + tp[i]);
 					tree.expandPath(filterTreeModel.getTreePathForObjectPath(tp));
 				}
 			} else {
 				setFilter(createFilter(text));
-				if (root.getChildCount() > 0) {
-					root.setUserObject(getMatchingObjectsString());
-					} else {
-						root.setUserObject(getNoMatchingObjectsString());
-					}
+				root.setUserObject(root.getChildCount() > 0 ? getMatchingObjectsString()
+						: getNoMatchingObjectsString());
 				filterTreeModel.nodeChanged(root);
 				expandTreePaths();
 			}
@@ -288,11 +286,9 @@ public abstract class TreePanel extends JPanel {
 	}
 
 	public void setFilter(Filter filter) {
-		if (tree.getCellRenderer() instanceof FilterTreeCellRenderer) {
+		if (tree.getCellRenderer() instanceof FilterTreeCellRenderer)
 			((FilterTreeCellRenderer)tree.getCellRenderer()).setFilter(filter);
-		}
 		filterTreeModel.setFilter(filter);
-
 	}
 
 	protected class ExpandRowRunnable implements Runnable {
@@ -302,18 +298,18 @@ public abstract class TreePanel extends JPanel {
 			this.rowNumber = rowNumber;
 		}
 
+		@Override
 		public void run() {
 			tree.expandRow(rowNumber);
 		}
-
 	}
 
 	protected class RunFilter implements Runnable {
+		@Override
 		public void run() {
 			Filter oldFilter = filterTreeModel.getCurrentFilter();
-			if (oldFilter != null) {
+			if (oldFilter != null)
 				oldFilter.setSuperseded(true);
-			}
 			try {
 				runFilter();
 			} catch (InterruptedException e) {
@@ -332,44 +328,44 @@ public abstract class TreePanel extends JPanel {
 			this.runFilterRunnable = new RunFilter();
 		}
 
+		@Override
 		public void keyReleased(KeyEvent e) {
 			timer.cancel();
 			timer = new Timer();
 			timer.schedule(new TimerTask() {
 				@Override
 				public void run() {
-					SwingUtilities.invokeLater(runFilterRunnable);
+					invokeLater(runFilterRunnable);
 				}
-
 			}, 500);
 		}
 	}
 
-	protected class TreeExpandCollapseListener implements TreeExpansionListener {
-
-		private void noteExpansions() {
-			expandedPaths.clear();
-			TreePath rootPath = new TreePath(filterTreeModel.getRoot());
-			for (Enumeration<TreePath> e = tree.getExpandedDescendants(rootPath); e.hasMoreElements();) {
-				List<Object> userObjects = new ArrayList<Object>();
-				Object[] expandedPath = e.nextElement().getPath();
-				for (int i = 0; i < expandedPath.length; i++) {
-					FilterTreeNode node = (FilterTreeNode) expandedPath[i];
-//					logger.info("The object in the path is a " + expandedPath[i].getClass().getCanonicalName());
-					userObjects.add(node.getUserObject());
-//					logger.info("Added " + node.getUserObject() + " to path");
-				}
-				expandedPaths.add(userObjects);
+	private void noteExpansions() {
+		expandedPaths.clear();
+		TreePath rootPath = new TreePath(filterTreeModel.getRoot());
+		for (Enumeration<TreePath> e = tree.getExpandedDescendants(rootPath); e.hasMoreElements();) {
+			List<Object> userObjects = new ArrayList<>();
+			Object[] expandedPath = e.nextElement().getPath();
+			for (int i = 0; i < expandedPath.length; i++) {
+				FilterTreeNode node = (FilterTreeNode) expandedPath[i];
+//				logger.info("The object in the path is a " + expandedPath[i].getClass());
+				userObjects.add(node.getUserObject());
+//				logger.info("Added " + node.getUserObject() + " to path");
 			}
-
+			expandedPaths.add(userObjects);
 		}
-
+	}
+	
+	protected class TreeExpandCollapseListener implements TreeExpansionListener {
+		@Override
 		public void treeCollapsed(TreeExpansionEvent event) {
 			noteExpansions();
 		}
+
+		@Override
 		public void treeExpanded(TreeExpansionEvent event) {
 			noteExpansions();
 		}
 	}
-
 }

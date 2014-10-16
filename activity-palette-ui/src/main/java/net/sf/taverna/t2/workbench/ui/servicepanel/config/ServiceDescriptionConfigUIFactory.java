@@ -29,18 +29,20 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionsConfiguration;
 
 public class ServiceDescriptionConfigUIFactory implements ConfigurationUIFactory {
-
 	private ServiceDescriptionsConfiguration serviceDescriptionsConfiguration;
 	private ServiceDescriptionRegistry serviceDescriptionRegistry;
 
+	@Override
 	public boolean canHandle(String uuid) {
 		return uuid.equals(serviceDescriptionsConfiguration.getUUID());
 	}
 
+	@Override
 	public Configurable getConfigurable() {
 		return serviceDescriptionsConfiguration;
 	}
 
+	@Override
 	public JPanel getConfigurationPanel() {
 		return new ServiceDescriptionConfigPanel(serviceDescriptionsConfiguration, serviceDescriptionRegistry);
 	}
@@ -52,5 +54,4 @@ public class ServiceDescriptionConfigUIFactory implements ConfigurationUIFactory
 	public void setServiceDescriptionsConfiguration(ServiceDescriptionsConfiguration serviceDescriptionsConfiguration) {
 		this.serviceDescriptionsConfiguration = serviceDescriptionsConfiguration;
 	}
-
 }

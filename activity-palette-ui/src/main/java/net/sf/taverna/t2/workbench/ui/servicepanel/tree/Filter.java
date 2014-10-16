@@ -23,8 +23,11 @@ package net.sf.taverna.t2.workbench.ui.servicepanel.tree;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public interface Filter {
-    public boolean pass(DefaultMutableTreeNode node);
-    public String filterRepresentation(String original);
-    public void setSuperseded(boolean superseded);
-    public boolean isSuperseded();
+	boolean pass(DefaultMutableTreeNode node);
+
+	String filterRepresentation(String original);
+
+	void setSuperseded(boolean superseded);
+
+	boolean isSuperseded();
 }

@@ -29,11 +29,11 @@ import javax.swing.tree.TreePath;
 import org.apache.log4j.Logger;
 
 public final class FilterTreeModel extends DefaultTreeModel {
-
+	private static final long serialVersionUID = -8931308369832839862L;
+	private static final Logger logger = Logger
+			.getLogger(FilterTreeModel.class);
+	
 	Filter currentFilter;
-
-	private static Logger logger = Logger
-	.getLogger(FilterTreeModel.class);
 
 	public FilterTreeModel(FilterTreeNode node) {
 		this(node, null);
@@ -54,24 +54,19 @@ public final class FilterTreeModel extends DefaultTreeModel {
 		}
 	}
 
+	@Override
 	public int getChildCount(Object parent) {
-		if (parent instanceof FilterTreeNode) {
+		if (parent instanceof FilterTreeNode)
 			return (((FilterTreeNode) parent).getChildCount());
-		}
 		return 0;
 	}
 
+	@Override
 	public Object getChild(Object parent, int index) {
-		if (parent instanceof FilterTreeNode) {
+		if (parent instanceof FilterTreeNode)
 			return (((FilterTreeNode) parent).getChildAt(index));
-		}
 		return null;
 	}
-
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -8931308369832839862L;
 
 	/**
 	 * @return the currentFilter
@@ -81,20 +76,17 @@ public final class FilterTreeModel extends DefaultTreeModel {
 	}
 
 	public TreePath getTreePathForObjectPath(List<Object> path) {
-		List<FilterTreeNode> resultList = new ArrayList<FilterTreeNode>();
+		List<FilterTreeNode> resultList = new ArrayList<>();
 		FilterTreeNode current = (FilterTreeNode) root;
 		resultList.add(current);
 		for (int i = 1; (i < path.size()) && (current != null); i++) {
-//			logger.info("Looking in " + current.getUserObject().toString() + " for " + path[i].toString());
+			logger.debug("Looking in " + current.getUserObject() + " for " + path.get(i));
 			current = current.getChildForObject(path.get(i));
-			if (current != null) {
+			if (current != null)
 				resultList.add(current);
-			}
 		}
-		if (current != null) {
-			Object[] nodeArray = resultList.toArray();
-			return (new TreePath(nodeArray));
-		}
+		if (current != null)
+			return new TreePath(resultList.toArray());
 		return null;
 	}
 }

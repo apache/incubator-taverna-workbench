@@ -33,30 +33,34 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
 /**
  * Service panel factory
- *
+ * 
  * @author Stian Soiland-Reyes
  */
 public class ServicePanelComponentFactory implements UIComponentFactorySPI {
-
 	private ServiceDescriptionRegistry serviceDescriptionRegistry;
 	private EditManager editManager;
 	private MenuManager menuManager;
 	private SelectionManager selectionManager;
 	private ServiceRegistry serviceRegistry;
 
+	@Override
 	public UIComponentSPI getComponent() {
-		return new ServicePanel(serviceDescriptionRegistry, editManager, menuManager, selectionManager, serviceRegistry);
+		return new ServicePanel(serviceDescriptionRegistry, editManager,
+				menuManager, selectionManager, serviceRegistry);
 	}
 
+	@Override
 	public ImageIcon getIcon() {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return "Service panel";
 	}
 
-	public void setServiceDescriptionRegistry(ServiceDescriptionRegistry serviceDescriptionRegistry) {
+	public void setServiceDescriptionRegistry(
+			ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
@@ -75,5 +79,4 @@ public class ServicePanelComponentFactory implements UIComponentFactorySPI {
 	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
 	}
-
 }

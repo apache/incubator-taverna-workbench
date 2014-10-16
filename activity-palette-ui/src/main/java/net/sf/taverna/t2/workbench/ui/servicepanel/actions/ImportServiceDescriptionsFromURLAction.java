@@ -20,15 +20,22 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel.actions;
 
+import static javax.swing.JOptionPane.CANCEL_OPTION;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.QUESTION_MESSAGE;
+import static javax.swing.JOptionPane.YES_NO_CANCEL_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
+import static javax.swing.JOptionPane.showInputDialog;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static javax.swing.JOptionPane.showOptionDialog;
+
 import java.awt.event.ActionEvent;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
-import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
@@ -43,14 +50,11 @@ import org.apache.log4j.Logger;
  * file to the current services.
  *
  * @author Alex Nenadic
- *
  */
 @SuppressWarnings("serial")
 public class ImportServiceDescriptionsFromURLAction extends AbstractAction{
-
 	private static final String IMPORT_SERVICES_FROM_URL = "Import services from URL";
-
-	private Logger logger = Logger.getLogger(ExportServiceDescriptionsAction.class);
+	private static final Logger logger = Logger.getLogger(ExportServiceDescriptionsAction.class);
 
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 
@@ -59,80 +63,65 @@ public class ImportServiceDescriptionsFromURLAction extends AbstractAction{
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
+	private static final Object[] CHOICES = { "Add to current services",
+			"Replace current services", "Cancel" };
+
+	@Override
 	public void actionPerformed(ActionEvent e) {
-
 		JComponent parentComponent = null;
-		if (e.getSource() instanceof JComponent) {
+		if (e.getSource() instanceof JComponent)
 			parentComponent = (JComponent) e.getSource();
-		}
 
-		Object[] options = { "Add to current services",
-				"Replace current services", "Cancel" };
-		int choice = JOptionPane
-				.showOptionDialog(
-						parentComponent,
-						"Do you want to add the imported services to the current ones or replace the current ones?",
-						"Import services", JOptionPane.YES_NO_CANCEL_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int choice = showOptionDialog(
+				parentComponent,
+				"Do you want to add the imported services to the current ones or replace the current ones?",
+				"Import services", YES_NO_CANCEL_OPTION, QUESTION_MESSAGE,
+				null, CHOICES, CHOICES[0]);
 
-		if (choice != JOptionPane.CANCEL_OPTION) {
-
-			final String urlString = (String) JOptionPane.showInputDialog(parentComponent,
+		if (choice != CANCEL_OPTION) {
+			final String urlString = (String) showInputDialog(parentComponent,
 					"Enter the URL of the service descriptions file to import",
-					"Service Descriptions URL", JOptionPane.QUESTION_MESSAGE, null, null,
+					"Service Descriptions URL", QUESTION_MESSAGE, null, null,
 					"http://");
-			if (urlString != null) {
-
+			if (urlString != null)
 				// TODO: Open in separate thread to avoid hanging UI
 				try {
 					// Did user want to replace or add services?
-					if (choice == JOptionPane.YES_OPTION) {
+					if (choice == YES_OPTION)
 						addServices(urlString);
-					} else {
+					else
 						replaceServices(urlString);
-					}
 				} catch (Exception ex) {
 					logger.error(
 							"Service descriptions import: failed to import services from "
 									+ urlString, ex);
-					JOptionPane.showMessageDialog(parentComponent,
-							"Failed to import services from "
-									+ urlString, "Error",
-							JOptionPane.ERROR_MESSAGE);
+					showMessageDialog(parentComponent,
+							"Failed to import services from " + urlString,
+							"Error", ERROR_MESSAGE);
 				}
-			}
 		}
 
-		if (parentComponent instanceof JButton) {
+		if (parentComponent instanceof JButton)
 			// lose the focus from the button after performing the action
 			parentComponent.requestFocusInWindow();
-		}
 	}
 
 	private void replaceServices(String urlString) throws Exception {
-		Set<ServiceDescriptionProvider> providers = serviceDescriptionRegistry.getServiceDescriptionProviders();
-		Set<ServiceDescriptionProvider> providersCopy = new HashSet<ServiceDescriptionProvider>(providers);
-
-		for (ServiceDescriptionProvider provider : providersCopy) {
+		for (ServiceDescriptionProvider provider : new HashSet<>(
+				serviceDescriptionRegistry.getServiceDescriptionProviders()))
 			// remove all configurable service providers
-			if (provider instanceof ConfigurableServiceProvider<?>) {
+			if (provider instanceof ConfigurableServiceProvider)
 				serviceDescriptionRegistry
 						.removeServiceDescriptionProvider(provider);
-			}
-		}
 
 		// import all providers from the file
 		addServices(urlString);
 	}
 
 	private void addServices(String urlString) throws Exception {
-
 		URL url = new URL(urlString);
-
 		serviceDescriptionRegistry.loadServiceProviders(url);
-
 		serviceDescriptionRegistry.saveServiceDescriptions();
 	}
-
 }
 

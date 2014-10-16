@@ -20,6 +20,10 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel.config;
 
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.WEST;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -40,9 +44,9 @@ import net.sf.taverna.t2.workbench.helper.Helper;
 
 @SuppressWarnings("serial")
 public class ServiceDescriptionConfigPanel extends JPanel {
-
 	private static final String REMOVE_PERMANENTLY = "Allow permanent removal of default service providers";
 	private static final String INCLUDE_DEFAULTS = "Include default service providers";
+
 	private final ServiceDescriptionsConfiguration config;
 	private JCheckBox includeDefaults;
 	private JCheckBox removePermanently;
@@ -50,14 +54,14 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 
 	public ServiceDescriptionConfigPanel(ServiceDescriptionsConfiguration config,
 			ServiceDescriptionRegistry serviceDescRegistry) {
+		super(new GridBagLayout());
 		this.config = config;
 		this.serviceDescRegistry = serviceDescRegistry;
 		initialize();
 	}
 
-	protected void initialize() {
+	private void initialize() {
 		removeAll();
-		setLayout(new GridBagLayout());
 
 		GridBagConstraints gbc = new GridBagConstraints();
 
@@ -71,15 +75,15 @@ public class ServiceDescriptionConfigPanel extends JPanel {
         descriptionText.setBorder(new EmptyBorder(10, 10, 10, 10));
 		gbc.gridx = 0;
 		gbc.gridy = 0;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.HORIZONTAL;
+		gbc.anchor = WEST;
+		gbc.fill = HORIZONTAL;
 		add(descriptionText, gbc);
 
 		includeDefaults = new JCheckBox(INCLUDE_DEFAULTS);
 		gbc.gridx = 0;
 		gbc.gridy = 1;
-		gbc.anchor = GridBagConstraints.WEST;
-		gbc.fill = GridBagConstraints.NONE;
+		gbc.anchor = WEST;
+		gbc.fill = NONE;
         gbc.insets = new Insets(10, 0, 0, 0);
 		add(includeDefaults, gbc);
 
@@ -113,6 +117,7 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 		 * The helpButton shows help about the current component
 		 */
 		JButton helpButton = new JButton(new AbstractAction("Help") {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				Helper.showHelp(panel);
 			}
@@ -124,6 +129,7 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 		 * corresponding to the configuration currently applied.
 		 */
 		JButton resetButton = new JButton(new AbstractAction("Reset") {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				setFields(config);
 			}
@@ -135,6 +141,7 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 		 * {@link HttpProxyConfiguration} and saves them for future.
 		 */
 		JButton applyButton = new JButton(new AbstractAction("Apply") {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				applySettings();
 				setFields(config);
@@ -150,14 +157,12 @@ public class ServiceDescriptionConfigPanel extends JPanel {
 		config.setIncludeDefaults(includeDefaults.isSelected());
 		for (ServiceDescriptionProvider provider : serviceDescRegistry
 				.getDefaultServiceDescriptionProviders()) {
-			if (! (provider instanceof ConfigurableServiceProvider)) {
+			if (! (provider instanceof ConfigurableServiceProvider))
 				continue;
-			}
-			if (config.isIncludeDefaults()) {
+			if (config.isIncludeDefaults())
 				serviceDescRegistry.addServiceDescriptionProvider(provider);
-			} else {
+			else
 				serviceDescRegistry.removeServiceDescriptionProvider(provider);
-			}
 		}
 
 		// Allow permanent removal of default service providers

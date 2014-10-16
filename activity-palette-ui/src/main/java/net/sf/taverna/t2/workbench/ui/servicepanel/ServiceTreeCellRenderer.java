@@ -20,53 +20,33 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
+import static net.sf.taverna.t2.workbench.activityicons.DefaultActivityIcon.getDefaultIcon;
+
 import java.awt.Component;
 
 import javax.swing.Icon;
 import javax.swing.JTree;
 
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
-import net.sf.taverna.t2.workbench.activityicons.DefaultActivityIcon;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeCellRenderer;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 
 @SuppressWarnings("serial")
 public class ServiceTreeCellRenderer extends FilterTreeCellRenderer {
-
-	@SuppressWarnings("unchecked")
 	@Override
 	public Component getTreeCellRendererComponent(JTree tree, Object value,
 			boolean sel, boolean expanded, boolean leaf, int row,
 			boolean hasFocus) {
-
 		Component result = super.getTreeCellRendererComponent(tree, value, sel,
 				expanded, leaf, row, hasFocus);
 		if (result instanceof ServiceTreeCellRenderer
 				&& value instanceof FilterTreeNode
-				&& ((FilterTreeNode) value).getUserObject() instanceof ServiceDescription) {
-			ServiceTreeCellRenderer serviceTreeCellRenderer = (ServiceTreeCellRenderer) result;
-			ServiceDescription item = (ServiceDescription) ((FilterTreeNode) value)
-					.getUserObject();
-			String name = item.getName();
-			if (getFilter() != null) {
-				name = getFilter().filterRepresentation(name);
-			}
-//			serviceTreeCellRenderer.setForeground(Color.red);
-			String displayName = name;
-			String textualDescription = item.getDescription();
-			if ((textualDescription != null) && !textualDescription.equals("")) {
-				displayName = displayName + " - " + textualDescription;
-			}
-			serviceTreeCellRenderer.setText(displayName);
-			Icon activityIcon = item.getIcon();
-			if (activityIcon != null) {
-				serviceTreeCellRenderer.setIcon(activityIcon);
-			} else {
-				serviceTreeCellRenderer.setIcon(DefaultActivityIcon.getDefaultIcon());				
-			}
-		} else {
-			// Commented out - these are ugly, use the default folder icons
-			// instead
+				&& ((FilterTreeNode) value).getUserObject() instanceof ServiceDescription)
+			prettifyServiceTreeCell((ServiceTreeCellRenderer) result,
+					(ServiceDescription) ((FilterTreeNode) value)
+							.getUserObject());
+		else {
+			// Commented out - these are ugly, use the default folder icons instead
 			/*
 			 * if (expanded) { ((ServiceTreeCellRenderer) result)
 			 * .setIcon(WorkbenchIcons.folderOpenIcon); } else {
@@ -77,4 +57,21 @@ public class ServiceTreeCellRenderer extends FilterTreeCellRenderer {
 		return result;
 	}
 
+	private void prettifyServiceTreeCell(ServiceTreeCellRenderer renderer,
+			ServiceDescription item) {
+		String name = item.getName();
+		if (getFilter() != null)
+			name = getFilter().filterRepresentation(name);
+		// serviceTreeCellRenderer.setForeground(Color.red);
+		String displayName = name;
+
+		String textualDescription = item.getDescription();
+		if (textualDescription != null && !textualDescription.isEmpty())
+			displayName = displayName + " - " + textualDescription;
+		renderer.setText(displayName);
+
+		Icon activityIcon = item.getIcon();
+		renderer.setIcon(activityIcon != null ? activityIcon
+				: getDefaultIcon());
+	}
 }

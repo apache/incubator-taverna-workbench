@@ -20,17 +20,24 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel.actions;
 
+import static javax.swing.JFileChooser.APPROVE_OPTION;
+import static javax.swing.JOptionPane.CANCEL_OPTION;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.QUESTION_MESSAGE;
+import static javax.swing.JOptionPane.YES_NO_CANCEL_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static javax.swing.JOptionPane.showOptionDialog;
+
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.prefs.Preferences;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
@@ -46,40 +53,39 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
  * to the current services.
  *
  * @author Alex Nenadic
- *
  */
+//FIXME this file assumes we're writing out as XML
 @SuppressWarnings("serial")
 public class ImportServiceDescriptionsFromFileAction extends AbstractAction{
-
+	private static final String EXTENSION = ".xml";
 	private static final String IMPORT_SERVICES = "Import services from file";
 	private static final String SERVICE_IMPORT_DIR_PROPERTY = "serviceImportDir";
-	private Logger logger = Logger.getLogger(ExportServiceDescriptionsAction.class);
+	private static final Logger logger = Logger.getLogger(ExportServiceDescriptionsAction.class);
+
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-	public ImportServiceDescriptionsFromFileAction(ServiceDescriptionRegistry serviceDescriptionRegistry){
+	public ImportServiceDescriptionsFromFileAction(
+			ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		super(IMPORT_SERVICES);
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
+	private static final Object[] CHOICES = { "Add to current services",
+			"Replace current services", "Cancel" };
+
+	@Override
 	public void actionPerformed(ActionEvent e) {
-
 		JComponent parentComponent = null;
-		if (e.getSource() instanceof JComponent){
-			parentComponent = (JComponent)e.getSource();
-		}
+		if (e.getSource() instanceof JComponent)
+			parentComponent = (JComponent) e.getSource();
 
-		Object[] options = {"Add to current services",
-				"Replace current services",
-                "Cancel"};
-		int choice = JOptionPane
-				.showOptionDialog(
-						parentComponent,
-						"Do you want to add the imported services to the current ones or replace the current ones?",
-						"Import services", JOptionPane.YES_NO_CANCEL_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		int choice = showOptionDialog(
+				parentComponent,
+				"Do you want to add the imported services to the current ones or replace the current ones?",
+				"Import services", YES_NO_CANCEL_OPTION, QUESTION_MESSAGE,
+				null, CHOICES, CHOICES[0]);
 
-		if (choice != JOptionPane.CANCEL_OPTION){
-
+		if (choice != CANCEL_OPTION) {
 			JFileChooser fileChooser = new JFileChooser();
 			Preferences prefs = Preferences.userNodeForPackage(getClass());
 			String curDir = prefs.get(SERVICE_IMPORT_DIR_PROPERTY, System.getProperty("user.home"));
@@ -87,60 +93,60 @@ public class ImportServiceDescriptionsFromFileAction extends AbstractAction{
 			fileChooser.setDialogTitle("Select file to import services from");
 
 			fileChooser.setFileFilter(new FileFilter() {
-
+				@Override
 				public boolean accept(File f) {
-			        return f.isDirectory() || f.getName().toLowerCase().endsWith(".xml");
-			    }
+					return f.isDirectory()
+							|| f.getName().toLowerCase().endsWith(EXTENSION);
+				}
 
-			    public String getDescription() {
-			        return ".xml files";
-			    }
+				@Override
+				public String getDescription() {
+					return EXTENSION + " files";
+				}
 			});
 
 			fileChooser.setCurrentDirectory(new File(curDir));
 
 			int returnVal = fileChooser.showOpenDialog(parentComponent);
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
+			if (returnVal == APPROVE_OPTION) {
 				prefs.put(SERVICE_IMPORT_DIR_PROPERTY, fileChooser
 						.getCurrentDirectory().toString());
 				File file = fileChooser.getSelectedFile();
 
-				// TODO: Open in separate thread to avoid hanging UI
 				try {
 					// Did user want to replace or add services?
-					if (choice == JOptionPane.YES_OPTION) {
-						addServices(file);
-					} else {
-						replaceServices(file);
-					}
+					importServices(file, choice == YES_OPTION);
 				} catch (Exception ex) {
 					logger.error(
 							"Service descriptions import: failed to import services from "
 									+ file.getAbsolutePath(), ex);
-					JOptionPane.showMessageDialog(parentComponent,
+					showMessageDialog(parentComponent,
 							"Failed to import services from " + file.getAbsolutePath(), "Error",
-							JOptionPane.ERROR_MESSAGE);
+							ERROR_MESSAGE);
 				}
 			}
 		}
 
-		if (parentComponent instanceof JButton){
+		if (parentComponent instanceof JButton)
 			// lose the focus from the button after performing the action
 			parentComponent.requestFocusInWindow();
-		}
+	}
+
+	private void importServices(File file, boolean addToCurrent) throws Exception {
+		// TODO: Open in separate thread to avoid hanging UI
+		if (addToCurrent)
+			addServices(file);
+		else
+			replaceServices(file);
 	}
 
 	private void replaceServices(File file) throws Exception {
-		Set<ServiceDescriptionProvider> providers = serviceDescriptionRegistry.getServiceDescriptionProviders();
-		Set<ServiceDescriptionProvider> providersCopy = new HashSet<ServiceDescriptionProvider>(providers);
-
-		for (ServiceDescriptionProvider provider : providersCopy) {
+		for (ServiceDescriptionProvider provider : new HashSet<>(
+				serviceDescriptionRegistry.getServiceDescriptionProviders()))
 			// remove all configurable service providers
-			if (provider instanceof ConfigurableServiceProvider<?>) {
+			if (provider instanceof ConfigurableServiceProvider)
 				serviceDescriptionRegistry
 						.removeServiceDescriptionProvider(provider);
-			}
-		}
 
 		// import all providers from the file
 		addServices(file);
@@ -148,9 +154,7 @@ public class ImportServiceDescriptionsFromFileAction extends AbstractAction{
 
 	private void addServices(File file) throws Exception {
 		serviceDescriptionRegistry.loadServiceProviders(file);
-
 		serviceDescriptionRegistry.saveServiceDescriptions();
 	}
-
 }
 

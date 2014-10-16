@@ -30,21 +30,22 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 
 @SuppressWarnings("serial")
 public class RemoveDefaultServicesAction extends AbstractAction {
-
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-	public RemoveDefaultServicesAction(ServiceDescriptionRegistry serviceDescriptionRegistry) {
+	public RemoveDefaultServicesAction(
+			ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		super("Remove default service providers");
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		for (ServiceDescriptionProvider provider : serviceDescriptionRegistry.getDefaultServiceDescriptionProviders()) {
-			if (! (provider instanceof ConfigurableServiceProvider)) {
+		for (ServiceDescriptionProvider provider : serviceDescriptionRegistry
+				.getDefaultServiceDescriptionProviders()) {
+			if (!(provider instanceof ConfigurableServiceProvider))
 				continue;
-			}
-			serviceDescriptionRegistry.removeServiceDescriptionProvider(provider);
+			serviceDescriptionRegistry
+					.removeServiceDescriptionProvider(provider);
 		}
 	}
 }
-

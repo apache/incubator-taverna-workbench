@@ -25,22 +25,16 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 
 /**
  * @author alanrw
- *
  */
 public class ServiceFilterTreeNode extends FilterTreeNode {
-
+	private static final long serialVersionUID = 6066698619971305454L;
+	
 	public ServiceFilterTreeNode(ServiceDescription userObject) {
 		super(userObject);
 	}
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 6066698619971305454L;
-	
+	@Override
 	public ServiceDescription getUserObject() {
 		return (ServiceDescription) super.getUserObject();
-		
 	}
-
 }

@@ -30,25 +30,23 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
  * Action for refreshing the service provider registry.
  * <p>
  * This would typically re-parse WSDLs, etc.
- *
+ * 
  * @see ServiceDescriptionRegistry#refresh()
- *
  * @author Stian Soiland-Reyes
- *
  */
 @SuppressWarnings("serial")
 public class RefreshProviderRegistryAction extends AbstractAction {
-
 	private static final String REFRESH = "Reload services";
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-	public RefreshProviderRegistryAction(ServiceDescriptionRegistry serviceDescriptionRegistry) {
+	public RefreshProviderRegistryAction(
+			ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		super(REFRESH);
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		serviceDescriptionRegistry.refresh();
 	}
-
 }

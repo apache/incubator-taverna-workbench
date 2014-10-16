@@ -3,6 +3,9 @@
  */
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
+import static java.awt.datatransfer.DataFlavor.javaJVMLocalObjectMimeType;
+import static javax.swing.SwingUtilities.invokeLater;
+
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.datatransfer.DataFlavor;
@@ -12,7 +15,6 @@ import java.io.IOException;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
@@ -37,17 +39,12 @@ import uk.org.taverna.commons.services.ServiceRegistry;
 
 public class ServiceTreePanel extends TreePanel {
 	private static final long serialVersionUID = 6611462684296693909L;
-
 	private static Logger logger = Logger.getLogger(ServiceTreePanel.class);
 
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
-
 	private final EditManager editManager;
-
 	private final MenuManager menuManager;
-
 	private final SelectionManager selectionManager;
-
 	private final ServiceRegistry serviceRegistry;
 
 	public ServiceTreePanel(FilterTreeModel treeModel,
@@ -70,15 +67,15 @@ public class ServiceTreePanel extends TreePanel {
 		tree.addTreeWillExpandListener(new AvoidRootCollapse());
 		tree.expandRow(0);
 
-		SwingUtilities.invokeLater(new Runnable() {
-
+		invokeLater(new Runnable() {
+			@Override
 			public void run() {
-				tree.addMouseListener(new ServiceTreeClickListener(tree, ServiceTreePanel.this,
-						serviceDescriptionRegistry, editManager, menuManager, selectionManager, serviceRegistry));
+				tree.addMouseListener(new ServiceTreeClickListener(tree,
+						ServiceTreePanel.this, serviceDescriptionRegistry,
+						editManager, menuManager, selectionManager,
+						serviceRegistry));
 			}
-
 		});
-
 	}
 
 	@Override
@@ -100,12 +97,13 @@ public class ServiceTreePanel extends TreePanel {
 	}
 
 	public static class AvoidRootCollapse implements TreeWillExpandListener {
+		@Override
 		public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
-			if (event.getPath().getPathCount() == 1) {
+			if (event.getPath().getPathCount() == 1)
 				throw new ExpandVetoException(event, "Can't collapse root");
-			}
 		}
 
+		@Override
 		public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
 		}
 	}
@@ -118,56 +116,61 @@ public class ServiceTreePanel extends TreePanel {
 		 * the tree. Figures out what node it is being dragged and then starts a
 		 * drag action with it
 		 */
-		@SuppressWarnings("unchecked")
+		@Override
 		protected Transferable createTransferable(JComponent c) {
 			TreePath selectionPath = tree.getSelectionPath();
-			if (selectionPath != null) {
-				FilterTreeNode lastPathComponent = (FilterTreeNode) selectionPath
-						.getLastPathComponent();
-				if (lastPathComponent.getUserObject() instanceof ServiceDescription) {
-					final ServiceDescription serviceDescription = (ServiceDescription) lastPathComponent
-							.getUserObject();
-					return new Transferable() {
-						public Object getTransferData(DataFlavor flavor)
-								throws UnsupportedFlavorException, IOException {
-							return serviceDescription;
-						}
+			if (selectionPath == null)
+				return null;
+			FilterTreeNode lastPathComponent = (FilterTreeNode) selectionPath
+					.getLastPathComponent();
+			if (!(lastPathComponent.getUserObject() instanceof ServiceDescription))
+				return null;
+			final ServiceDescription serviceDescription = (ServiceDescription) lastPathComponent
+					.getUserObject();
 
-						public DataFlavor[] getTransferDataFlavors() {
-							DataFlavor[] flavors = new DataFlavor[1];
-							DataFlavor flavor = null;
-							try {
-								flavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType
-										+ ";class=" + ServiceDescription.class.getCanonicalName(),
-										"ServiceDescription", getClass().getClassLoader());
-							} catch (ClassNotFoundException e) {
-								logger.error("Error casting Dataflavor", e);
-							}
-							flavors[0] = flavor;
-							return flavors;
-						}
-
-						public boolean isDataFlavorSupported(DataFlavor flavor) {
-							DataFlavor thisFlavor = null;
-							try {
-								thisFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType
-										+ ";class=" + ServiceDescription.class.getCanonicalName(),
-										"ServiceDescription", getClass().getClassLoader());
-							} catch (ClassNotFoundException e) {
-								logger.error("Error casting Dataflavor", e);
-							}
-							return flavor.equals(thisFlavor);
-						}
-
-					};
+			return new Transferable() {
+				@Override
+				public Object getTransferData(DataFlavor flavor)
+						throws UnsupportedFlavorException, IOException {
+					return serviceDescription;
 				}
-			}
-			return null;
+
+				@Override
+				public DataFlavor[] getTransferDataFlavors() {
+					DataFlavor[] flavors = new DataFlavor[1];
+					try {
+						flavors[0] = getFlavorForClass(ServiceDescription.class);
+					} catch (ClassNotFoundException e) {
+						logger.error("Error casting Dataflavor", e);
+						flavors[0] = null;
+					}
+					return flavors;
+				}
+
+				@Override
+				public boolean isDataFlavorSupported(DataFlavor flavor) {
+					DataFlavor thisFlavor = null;
+					try {
+						thisFlavor = getFlavorForClass(ServiceDescription.class);
+					} catch (ClassNotFoundException e) {
+						logger.error("Error casting Dataflavor", e);
+					}
+					return flavor.equals(thisFlavor);
+				}
+			};
 		}
 
+		@Override
 		public int getSourceActions(JComponent c) {
 			return COPY_OR_MOVE;
 		}
 	}
 
+	private DataFlavor getFlavorForClass(Class<?> clazz)
+			throws ClassNotFoundException {
+		String name = clazz.getName();
+		return new DataFlavor(javaJVMLocalObjectMimeType + ";class=" + clazz,
+				name.substring(name.lastIndexOf('.') + 1),
+				clazz.getClassLoader());
+	}
 }

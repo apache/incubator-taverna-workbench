@@ -20,6 +20,12 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.servicepanel;
 
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static javax.swing.SwingUtilities.invokeLater;
+import static net.sf.taverna.t2.servicedescriptions.ServiceDescription.LOCAL_SERVICES;
+import static net.sf.taverna.t2.servicedescriptions.ServiceDescription.SERVICE_TEMPLATES;
+
 import java.awt.BorderLayout;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Comparator;
@@ -33,10 +39,7 @@ import java.util.TreeSet;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -65,54 +68,36 @@ import uk.org.taverna.commons.services.ServiceRegistry;
  * A panel of available services
  *
  * @author Stian Soiland-Reyes
- *
  */
 @SuppressWarnings("serial")
 public class ServicePanel extends JPanel implements UIComponentSPI {
-
 	private static Logger logger = Logger.getLogger(ServicePanel.class);
-
 	private static final int INITIAL_BLANK_OUT_COUNTER = 2;
-
-	public int blankOutCounter = 0;
-
 	public static final String AVAILABLE_SERVICES = "Available services";
 	public static final String MATCHING_SERVIES = "Matching services";
 	public static final String NO_MATCHING_SERVICES = "No matching services";
 	public static final String MOBY_OBJECTS = "MOBY Objects";
-
 	/**
 	 * A Comparable constant to be used with buildPathMap
 	 */
 	private static final String SERVICES = "4DA84170-7746-4817-8C2E-E29AF8B2984D";
-
 	private static final int STATUS_LINE_MESSAGE_MS = 600;
-
-	private TreeUpdaterThread updaterThread;
-
-	private RootFilterTreeNode root = new RootFilterTreeNode(AVAILABLE_SERVICES);
-	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
-
-	private ServiceTreePanel serviceTreePanel;
-
-	private JLabel statusLine;
-
-	private FilterTreeModel treeModel;
-
-	protected ServiceDescriptionRegistryObserver serviceDescriptionRegistryObserver = new ServiceDescriptionRegistryObserver();
-
-	protected Timer statusUpdateTimer;
-
-	protected Object updateLock = new Object();
-
 	private static ServicePathElementComparator servicePathElementComparator = new ServicePathElementComparator();
 
+	public int blankOutCounter = 0;
+	private TreeUpdaterThread updaterThread;
+	private RootFilterTreeNode root = new RootFilterTreeNode(AVAILABLE_SERVICES);
+	private ServiceTreePanel serviceTreePanel;
+	private JLabel statusLine;
+	private FilterTreeModel treeModel;
+	protected Timer statusUpdateTimer;
+
+	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
+	protected final ServiceDescriptionRegistryObserver serviceDescriptionRegistryObserver = new ServiceDescriptionRegistryObserver();
+	protected final Object updateLock = new Object();
 	private final EditManager editManager;
-
 	private final MenuManager menuManager;
-
 	private final SelectionManager selectionManager;
-
 	private final ServiceRegistry serviceRegistry;
 
 	public ServicePanel(ServiceDescriptionRegistry serviceDescriptionRegistry,
@@ -127,28 +112,33 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		initialise();
 	}
 
+	@Override
 	public ImageIcon getIcon() {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return "Service panel";
 	}
 
+	@Override
 	public void onDisplay() {
 	}
 
+	@Override
 	public void onDispose() {
 	}
 
 	public void providerStatus(ServiceDescriptionProvider provider, String message) {
 		logger.info(message + " " + provider);
-		final String htmlMessage = "<html><small>" + message + " [" + provider + "]</small></html>";
+		final String htmlMessage = "<small>" + message + " [" + provider + "]</small>";
 
-		SwingUtilities.invokeLater(new Runnable() {
+		invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				blankOutCounter = INITIAL_BLANK_OUT_COUNTER;
-				statusLine.setText(htmlMessage);
+				statusLine.setText("<html>" + htmlMessage + "</html>");
 				statusLine.setVisible(true);
 			}
 		});
@@ -165,9 +155,8 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		add(serviceTreePanel);
 		statusLine = new JLabel();
 		add(statusLine, BorderLayout.SOUTH);
-		if (statusUpdateTimer != null) {
+		if (statusUpdateTimer != null)
 			statusUpdateTimer.cancel();
-		}
 		statusUpdateTimer = new Timer("Clear status line", true);
 		statusUpdateTimer
 				.scheduleAtFixedRate(new UpdateStatusLineTask(), 0, STATUS_LINE_MESSAGE_MS);
@@ -184,34 +173,30 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 		}
 	}
 
-	protected static class ServicePathElementComparator implements Comparator {
+	protected static class ServicePathElementComparator implements Comparator<Object> {
+		@Override
 		public int compare(Object o1, Object o2) {
 			if ((o1 instanceof String) && (o2 instanceof String)) {
-				if (o1.equals(ServiceDescription.SERVICE_TEMPLATES)) {
+				if (o1.equals(SERVICE_TEMPLATES))
 					return -1;
-				}
-				if (o2.equals(ServiceDescription.SERVICE_TEMPLATES)) {
+				else if (o2.equals(SERVICE_TEMPLATES))
 					return 1;
-				}
-				if (o1.equals(ServiceDescription.LOCAL_SERVICES)) {
+				if (o1.equals(LOCAL_SERVICES))
 					return -1;
-				}
-				if (o2.equals(ServiceDescription.LOCAL_SERVICES)) {
+				else if (o2.equals(LOCAL_SERVICES))
 					return 1;
-				}
-				if (o1.equals(MOBY_OBJECTS)) {
+				if (o1.equals(MOBY_OBJECTS))
 					return -1;
-				}
-				if (o2.equals(MOBY_OBJECTS)) {
+				else if (o2.equals(MOBY_OBJECTS))
 					return 1;
-				}
 			}
 			return o1.toString().compareToIgnoreCase(o2.toString());
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	//FIXME this class is type-disastrous! Really bad.
 	public class TreeUpdaterThread extends Thread {
-
 		private boolean aborting = false;
 
 		private TreeUpdaterThread() {
@@ -224,53 +209,46 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			interrupt();
 		}
 
-		@SuppressWarnings("unchecked")
 		@Override
 		public void run() {
 			Map<Comparable, Map> pathMap = buildPathMap();
 			populateChildren(root, pathMap);
-			SwingUtilities.invokeLater(new Runnable() {
+			invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					try {
 						serviceTreePanel.runFilter();
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						logger.error("", e);
-					} catch (InvocationTargetException e) {
-						// TODO Auto-generated catch block
-						logger.error("", e);
+					} catch (InterruptedException | InvocationTargetException e) {
+						logger.error("failed to filter", e);
 					}
 				}
 			});
 		}
 
-		@SuppressWarnings("unchecked")
 		protected Map<Comparable, Map> buildPathMap() {
-			Map<Comparable, Map> paths = new TreeMap<Comparable, Map>();
+			Map<Comparable, Map> paths = new TreeMap<>();
 			for (ServiceDescription serviceDescription : serviceDescriptionRegistry
 					.getServiceDescriptions()) {
-				if (aborting) {
+				if (aborting)
 					return paths;
-				}
 				Map currentPath = paths;
-				Map pathEntry = paths;
 				for (Object pathElem : serviceDescription.getPath()) {
-					pathEntry = (Map) currentPath.get(pathElem);
+					Map pathEntry = (Map) currentPath.get(pathElem);
 					if (pathEntry == null) {
 						pathEntry = new TreeMap();
 						currentPath.put(pathElem, pathEntry);
 					}
 					currentPath = pathEntry;
 				}
-				TreeMap<String, Set<ServiceDescription>> services = (TreeMap<String, Set<ServiceDescription>>) pathEntry
+				TreeMap<String, Set<ServiceDescription>> services = (TreeMap) currentPath
 						.get(SERVICES);
 				if (services == null) {
-					services = new TreeMap<String, Set<ServiceDescription>>();
-					pathEntry.put(SERVICES, services);
+					services = new TreeMap<>();
+					currentPath.put(SERVICES, services);
 				}
 				String serviceDescriptionName = serviceDescription.getName();
 				if (!services.containsKey(serviceDescriptionName)) {
-					Set<ServiceDescription> serviceSet = new HashSet<ServiceDescription>();
+					Set<ServiceDescription> serviceSet = new HashSet<>();
 					services.put(serviceDescriptionName, serviceSet);
 				}
 				services.get(serviceDescriptionName).add(serviceDescription);
@@ -278,52 +256,44 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			return paths;
 		}
 
-		@SuppressWarnings("unchecked")
 		protected void populateChildren(FilterTreeNode node, Map pathMap) {
-			if (aborting) {
+			if (aborting)
 				return;
-			}
 			if (node == root) {
 				// Clear top root
-				SwingUtilities.invokeLater(new Runnable() {
+				invokeLater(new Runnable() {
+					@Override
 					public void run() {
-						if (aborting) {
+						if (aborting)
 							return;
-						}
 						serviceTreePanel.setFilter(null);
 						root.removeAllChildren();
 					}
 				});
 			}
 
-			TreeSet<Comparable> paths = new TreeSet<Comparable>(servicePathElementComparator);
-			TreeMap<String, Set<ServiceDescription>> services = (TreeMap<String, Set<ServiceDescription>>) pathMap
+			Set<Comparable> paths = new TreeSet<>(servicePathElementComparator);
+			Map<String, Set<ServiceDescription>> services = (Map) pathMap
 					.get(SERVICES);
-			if (services == null) {
-				services = new TreeMap<String, Set<ServiceDescription>>();
-			}
+			if (services == null)
+				services = new TreeMap<>();
 			paths.addAll(pathMap.keySet());
 			paths.addAll(services.keySet());
 
 			for (Comparable pathElement : paths) {
-				if (aborting) {
+				if (aborting)
 					return;
-				}
-				if (pathElement.equals(SERVICES)) {
+				if (pathElement.equals(SERVICES))
 					continue;
-				}
-				Set<FilterTreeNode> childNodes = new HashSet<FilterTreeNode>();
+				Set<FilterTreeNode> childNodes = new HashSet<>();
 				if (services.containsKey(pathElement)) {
-					for (ServiceDescription sd : services.get(pathElement)) {
+					for (ServiceDescription sd : services.get(pathElement))
 						childNodes.add(new ServiceFilterTreeNode(sd));
-					}
-				} else {
+				} else
 					childNodes.add(new PathElementFilterTreeNode((String) pathElement));
-				}
-				SwingUtilities.invokeLater(new AddNodeRunnable(node, childNodes));
-				if ((pathMap.containsKey(pathElement)) && !childNodes.isEmpty()) {
+				invokeLater(new AddNodeRunnable(node, childNodes));
+				if ((pathMap.containsKey(pathElement)) && !childNodes.isEmpty())
 					populateChildren(childNodes.iterator().next(), (Map) pathMap.get(pathElement));
-				}
 			}
 			// if (!services.isEmpty()) {
 			// Collections.sort(services, serviceComparator);
@@ -349,13 +319,12 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				this.nodes = nodes;
 			}
 
+			@Override
 			public void run() {
-				if (aborting) {
+				if (aborting)
 					return;
-				}
-				for (FilterTreeNode n : nodes) {
+				for (FilterTreeNode n : nodes)
 					root.add(n);
-				}
 			}
 		}
 	}
@@ -367,6 +336,7 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 			this.root = root;
 		}
 
+		@Override
 		public void run() {
 			root.removeFromParent();
 		}
@@ -374,15 +344,15 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 
 	private final class ServiceDescriptionRegistryObserver implements
 			Observer<ServiceDescriptionRegistryEvent> {
-		Set<ServiceDescriptionProvider> alreadyComplainedAbout = new HashSet<ServiceDescriptionProvider>();
+		Set<ServiceDescriptionProvider> alreadyComplainedAbout = new HashSet<>();
 
+		@Override
 		public void notify(Observable<ServiceDescriptionRegistryEvent> sender,
 				ServiceDescriptionRegistryEvent message) throws Exception {
-			if (message instanceof ProviderErrorNotification) {
-				final ProviderErrorNotification pen = (ProviderErrorNotification) message;
-				reportServiceProviderError(pen);
-			} else if ((message instanceof ServiceDescriptionProvidedEvent)
-					|| (message instanceof RemovedProviderEvent)) {
+			if (message instanceof ProviderErrorNotification)
+				reportServiceProviderError((ProviderErrorNotification) message);
+			else if (message instanceof ServiceDescriptionProvidedEvent
+					|| message instanceof RemovedProviderEvent) {
 				AbstractProviderEvent ape = (AbstractProviderEvent) message;
 				alreadyComplainedAbout.remove(ape.getProvider());
 			}
@@ -392,33 +362,32 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 				providerStatus(abstractProviderNotification.getProvider(),
 						abstractProviderNotification.getMessage());
 			}
-			if (message instanceof PartialServiceDescriptionsNotification) {
-				// TODO: Support other events
-				// and only update relevant parts of tree, or at least select
-				// the recently added provider
+			if (message instanceof PartialServiceDescriptionsNotification)
+				/*
+				 * TODO: Support other events and only update relevant parts of
+				 * tree, or at least select the recently added provider
+				 */
 				updateTree();
-			}
-			if (message instanceof RemovedProviderEvent) {
+			else if (message instanceof RemovedProviderEvent)
 				updateTree();
-			}
 		}
 
-		private void reportServiceProviderError(final ProviderErrorNotification pen) {
+		private void reportServiceProviderError(
+				final ProviderErrorNotification pen) {
 			ServiceDescriptionProvider provider = pen.getProvider();
+			if (serviceDescriptionRegistry
+					.getDefaultServiceDescriptionProviders().contains(provider))
+				return;
+			if (alreadyComplainedAbout.contains(provider))
+				return;
 
-			if (serviceDescriptionRegistry.getDefaultServiceDescriptionProviders().contains(
-					provider)) {
-				return;
-			}
-			if (alreadyComplainedAbout.contains(provider)) {
-				return;
-			}
 			alreadyComplainedAbout.add(provider);
-			SwingUtilities.invokeLater(new Runnable() {
+			invokeLater(new Runnable() {
+				@Override
 				public void run() {
-					JOptionPane.showMessageDialog(ServicePanel.this,
-							pen.getMessage() + "\n" + pen.getProvider(), "Import service error",
-							JOptionPane.ERROR_MESSAGE);
+					showMessageDialog(ServicePanel.this, pen.getMessage()
+							+ "\n" + pen.getProvider(), "Import service error",
+							ERROR_MESSAGE);
 				}
 			});
 		}
@@ -427,15 +396,14 @@ public class ServicePanel extends JPanel implements UIComponentSPI {
 	private final class UpdateStatusLineTask extends TimerTask {
 		@Override
 		public void run() {
-			if (blankOutCounter < 0 || blankOutCounter-- > 0) {
+			if (blankOutCounter < 0 || blankOutCounter-- > 0)
 				// Only clear it once
 				return;
-			}
-			SwingUtilities.invokeLater(new Runnable() {
+			invokeLater(new Runnable() {
+				@Override
 				public void run() {
-					if (blankOutCounter < 0) {
+					if (blankOutCounter < 0)
 						statusLine.setVisible(false);
-					}
 				}
 			});
 		}

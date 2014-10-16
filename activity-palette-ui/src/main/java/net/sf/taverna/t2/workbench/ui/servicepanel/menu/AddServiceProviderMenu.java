@@ -51,14 +51,13 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.actions.AddServiceProviderAct
  *
  * @see ServiceDescription
  * @see ServicePanel
- * @see ServiceDescriptionRegistry#addServiceDescriptionProvider(net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider)
- *
+ * @see ServiceDescriptionRegistry#addServiceDescriptionProvider(ServiceDescriptionProvider)
  */
 @SuppressWarnings("serial")
 public class AddServiceProviderMenu extends JButton {
-
 	public static class ServiceProviderComparator implements
 			Comparator<ServiceDescriptionProvider> {
+		@Override
 		public int compare(ServiceDescriptionProvider o1,
 				ServiceDescriptionProvider o2) {
 			return o1.getName().toLowerCase().compareTo(
@@ -75,8 +74,8 @@ public class AddServiceProviderMenu extends JButton {
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 
 		final Component c = createCustomComponent();
-		this.setAction(new AbstractAction(ADD_SERVICE_PROVIDER_MENU_NAME) {
-
+		setAction(new AbstractAction(ADD_SERVICE_PROVIDER_MENU_NAME) {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				((JPopupMenu) c).show(AddServiceProviderMenu.this, 0,
 						AddServiceProviderMenu.this.getHeight());
@@ -84,30 +83,31 @@ public class AddServiceProviderMenu extends JButton {
 		});
 	}
 
-	@SuppressWarnings("unchecked")
 	private Component createCustomComponent() {
 		JPopupMenu addServiceMenu = new JPopupMenu(
 				ADD_SERVICE_PROVIDER_MENU_NAME);
 		addServiceMenu.setToolTipText("Add a new service provider");
 		boolean isEmpty = true;
-		List<ConfigurableServiceProvider> providers = new ArrayList<ConfigurableServiceProvider>(
+		List<ConfigurableServiceProvider> providers = new ArrayList<>(
 				serviceDescriptionRegistry.getUnconfiguredServiceProviders());
 		Collections.sort(providers,  new ServiceProviderComparator());
 		for (ConfigurableServiceProvider provider : providers) {
-			// Skip BioCatalogue's ConfigurableServiceProviderS as they should
-			// not be used to add servcie directlry but rather though the Service Catalogue perspective
-			if (!provider.getId().toLowerCase().contains("servicecatalogue")){
-				AddServiceProviderAction addAction = new AddServiceProviderAction(
-						provider, this);
-				addAction.setServiceDescriptionRegistry(serviceDescriptionRegistry);
-				addServiceMenu.add(addAction);
-				isEmpty = false;
-			}
+			/*
+			 * Skip BioCatalogue's ConfigurableServiceProviderS as they should
+			 * not be used to add servcie directlry but rather though the
+			 * Service Catalogue perspective
+			 */
+			if (provider.getId().toLowerCase().contains("servicecatalogue"))
+				continue;
+
+			AddServiceProviderAction addAction = new AddServiceProviderAction(
+					provider, this);
+			addAction.setServiceDescriptionRegistry(serviceDescriptionRegistry);
+			addServiceMenu.add(addAction);
+			isEmpty = false;
 		}
-		if (isEmpty) {
+		if (isEmpty)
 			addServiceMenu.setEnabled(false);
-		}
 		return addServiceMenu;
 	}
-
 }

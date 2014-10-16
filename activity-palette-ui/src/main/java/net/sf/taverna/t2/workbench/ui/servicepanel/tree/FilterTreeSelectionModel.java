@@ -25,7 +25,6 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 public class FilterTreeSelectionModel extends DefaultTreeSelectionModel{
-
 	private static final long serialVersionUID = 3127644524735089630L;
 	
 	public FilterTreeSelectionModel(){
@@ -34,14 +33,14 @@ public class FilterTreeSelectionModel extends DefaultTreeSelectionModel{
 	}
 	
 	@Override
-	public void setSelectionPath(TreePath path){
-		// Nothing happens here - only calls to mySetSelectionPath() 
-		// will have the effect of a node being selected 
+	public void setSelectionPath(TreePath path) {
+		/*
+		 * Nothing happens here - only calls to mySetSelectionPath() will have
+		 * the effect of a node being selected.
+		 */
 	}
 	
-	public void mySetSelectionPath(TreePath path){
+	public void mySetSelectionPath(TreePath path) {
 		super.setSelectionPath(path);
 	}
-
-
 }

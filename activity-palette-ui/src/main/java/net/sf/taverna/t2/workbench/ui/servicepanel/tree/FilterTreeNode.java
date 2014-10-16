@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.workbench.ui.servicepanel.tree;
 
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -31,17 +30,13 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import org.apache.log4j.Logger;
 
 public class FilterTreeNode extends DefaultMutableTreeNode {
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1933553584349932151L;
+	@SuppressWarnings("unused")
+	private static Logger logger = Logger.getLogger(FilterTreeNode.class);
+	
 	private Filter filter;
 	private boolean passed = true;
-	private List<FilterTreeNode> filteredChildren = new ArrayList<FilterTreeNode>();
-
-	private static Logger logger = Logger
-	.getLogger(FilterTreeNode.class);
+	private List<FilterTreeNode> filteredChildren = new ArrayList<>();
 
 	public FilterTreeNode(Object userObject) {
 		super(userObject);
@@ -75,9 +70,8 @@ public class FilterTreeNode extends DefaultMutableTreeNode {
 		for (int i = 0; i < realChildCount; i++) {
 			FilterTreeNode realChild = (FilterTreeNode) super.getChildAt(i);
 			realChild.setFilter(filter);
-			if (realChild.isPassed()) {
+			if (realChild.isPassed())
 				filteredChildren.add(realChild);
-			}
 		}
 	}
 
@@ -85,32 +79,29 @@ public class FilterTreeNode extends DefaultMutableTreeNode {
 		super.add(node);
 		node.setFilter(filter);
 		// TODO work up
-		if (node.isPassed()) {
+		if (node.isPassed())
 			filteredChildren.add(node);
-		}
 	}
 	
 	@Override
 	public void remove(int childIndex) {
-		if (filter != null) {
+		if (filter != null)
 			// as child indexes might be inconsistent..
 			throw new IllegalStateException("Can't remove while the filter is active");
-		}
 		super.remove(childIndex);
 	}
-	
 
+	@Override
 	public int getChildCount() {
-		if (filter == null) {
+		if (filter == null)
 			return super.getChildCount();
-		}
-		return (filteredChildren.size());
+		return filteredChildren.size();
 	}
 
+	@Override
 	public FilterTreeNode getChildAt(int index) {
-		if (filter == null) {
+		if (filter == null)
 			return (FilterTreeNode) super.getChildAt(index);
-		}
 		return filteredChildren.get(index);
 	}
 
@@ -119,14 +110,15 @@ public class FilterTreeNode extends DefaultMutableTreeNode {
 	}
 	
 	public Set<FilterTreeNode> getLeaves() {
-		Set<FilterTreeNode> result = new HashSet<FilterTreeNode>();
+		Set<FilterTreeNode> result = new HashSet<>();
 		if (super.getChildCount() == 0) {
 			result.add(this);
-		} else {
+			return result;
+		}
+
 		for (int i = 0; i < super.getChildCount(); i++) {
 			FilterTreeNode child = (FilterTreeNode) super.getChildAt(i);
 			result.addAll(child.getLeaves());
-		}
 		}
 		return result;
 	}
@@ -136,18 +128,15 @@ public class FilterTreeNode extends DefaultMutableTreeNode {
 		for (int i=0; (i < super.getChildCount()) && (result == null); i++) {
 			FilterTreeNode child = (FilterTreeNode) super.getChildAt(i);
 			Object nodeObject = child.getUserObject();
-//			logger.info("nodeObject is a " + nodeObject.getClass().getCanonicalName() + " - " +
-//					"userObject is a " + userObject.getClass().getCanonicalName());
+//			logger.info("nodeObject is a " + nodeObject.getClass() + " - " +
+//					"userObject is a " + userObject.getClass());
 			if (nodeObject.toString().equals(userObject.toString())) {
 				result = child;
-//				logger.info(nodeObject.toString() + " is equal to " + userObject.toString());
+//				logger.info(nodeObject + " is equal to " + userObject);
 //			} else {
-//				logger.info(nodeObject.toString() + " is not equal to " + userObject.toString());
-//				
+//				logger.info(nodeObject + " is not equal to " + userObject);
 			}
 		}
 		return result;
 	}
-	
-
 }

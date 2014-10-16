@@ -30,21 +30,21 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 
 @SuppressWarnings("serial")
 public class RestoreDefaultServicesAction extends AbstractAction {
-
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-	public RestoreDefaultServicesAction(ServiceDescriptionRegistry serviceDescriptionRegistry) {
+	public RestoreDefaultServicesAction(
+			ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		super("Restore default service providers");
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		for (ServiceDescriptionProvider provider : serviceDescriptionRegistry.getDefaultServiceDescriptionProviders()) {
-			if (! (provider instanceof ConfigurableServiceProvider)) {
+		for (ServiceDescriptionProvider provider : serviceDescriptionRegistry
+				.getDefaultServiceDescriptionProviders()) {
+			if (!(provider instanceof ConfigurableServiceProvider))
 				continue;
-			}
 			serviceDescriptionRegistry.addServiceDescriptionProvider(provider);
 		}
 	}
 }
-
