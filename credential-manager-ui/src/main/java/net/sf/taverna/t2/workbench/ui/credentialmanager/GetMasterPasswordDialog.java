@@ -20,9 +20,16 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.NORTH;
+import static java.awt.BorderLayout.SOUTH;
+import static javax.swing.BoxLayout.Y_AXIS;
+import static javax.swing.JOptionPane.WARNING_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static net.sf.taverna.t2.workbench.ui.credentialmanager.CMStrings.WARN_TITLE;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -33,7 +40,6 @@ import java.awt.event.WindowEvent;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.border.EmptyBorder;
@@ -41,21 +47,18 @@ import javax.swing.border.EmptyBorder;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**
- * Dialog used for getting a master password for Credential Manager
- * from the users.
- *
+ * Dialog used for getting a master password for Credential Manager from the
+ * users.
+ * 
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
 public class GetMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
-
-	// Password entry field
+	/** Password entry field */
 	private JPasswordField passwordField;
-
-	// The entered password
+	/** The entered password */
 	private String password = null;
-
-	// Text giving user the instructions what to do in the dialog
+	/** Text giving user the instructions what to do in the dialog */
 	private String instructions;
 
 	public GetMasterPasswordDialog(String instructions) {
@@ -68,10 +71,10 @@ public class GetMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
 		getContentPane().setLayout(new BorderLayout());
 
 		JLabel instructionsLabel = new JLabel(instructions);
-//		instructionsLabel.setFont(new Font(null, Font.PLAIN, 11));
+		// instructionsLabel.setFont(new Font(null, Font.PLAIN, 11));
 
 		JPanel instructionsPanel = new JPanel();
-		instructionsPanel.setLayout(new BoxLayout(instructionsPanel, BoxLayout.Y_AXIS));
+		instructionsPanel.setLayout(new BoxLayout(instructionsPanel, Y_AXIS));
 		instructionsPanel.add(instructionsLabel);
 		instructionsPanel.setBorder(new EmptyBorder(10, 5, 10, 0));
 
@@ -85,11 +88,12 @@ public class GetMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
 
 		JPanel mainPanel = new JPanel(new BorderLayout());
 		mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-		mainPanel.add(instructionsPanel, BorderLayout.NORTH);
-		mainPanel.add(passwordPanel, BorderLayout.CENTER);
+		mainPanel.add(instructionsPanel, NORTH);
+		mainPanel.add(passwordPanel, CENTER);
 
 		JButton okButton = new JButton("OK");
 		okButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				okPressed();
 			}
@@ -97,6 +101,7 @@ public class GetMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
 
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
 				cancelPressed();
 			}
@@ -105,19 +110,18 @@ public class GetMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
 		buttonsPanel.add(okButton);
 		buttonsPanel.add(cancelButton);
 
-		getContentPane().add(mainPanel, BorderLayout.CENTER);
-		getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+		getContentPane().add(mainPanel, CENTER);
+		getContentPane().add(buttonsPanel, SOUTH);
 
 		addWindowListener(new WindowAdapter() {
+			@Override
 			public void windowClosing(WindowEvent evt) {
 				closeDialog();
 			}
 		});
 
 		setResizable(false);
-
 		getRootPane().setDefaultButton(okButton);
-
 		pack();
 	}
 
@@ -129,29 +133,31 @@ public class GetMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
 	}
 
 	/**
-	 * Check that the entered password is not empty and store the entered password.
+	 * Check that the entered password is not empty and store the entered
+	 * password.
 	 */
 	private boolean checkPassword() {
 		password = new String(passwordField.getPassword());
 
-		if (password.length() == 0) { // password is empty
-			JOptionPane.showMessageDialog(this, "The password cannot be empty",
-					"Credential Manager Warning", JOptionPane.WARNING_MESSAGE);
+		if (password.isEmpty()) {
+			showMessageDialog(this, "The password cannot be empty",
+					WARN_TITLE, WARNING_MESSAGE);
 			return false;
-		} else { // password is not empty
-			return true;
 		}
+
+		return true;
 	}
 
 	private void okPressed() {
-		if (checkPassword()) {
+		if (checkPassword())
 			closeDialog();
-		}
 	}
 
 	private void cancelPressed() {
-		// Set the password to null as it might have changed in the meantime
-		// if user entered something then cancelled.
+		/*
+		 * Set the password to null as it might have changed in the meantime if
+		 * user entered something then cancelled.
+		 */
 		password = null;
 		closeDialog();
 	}

@@ -20,24 +20,27 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
+
 import java.awt.Frame;
 import java.security.cert.X509Certificate;
-import javax.swing.JOptionPane;
+
 import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.security.credentialmanager.TrustConfirmationProvider;
+
 import org.apache.log4j.Logger;
 
 /**
  * @author Stian Soiland-Reyes
- *
  */
 public class ConfirmTrustedCertificateUI implements TrustConfirmationProvider {
-
 	private static Logger logger = Logger
 			.getLogger(ConfirmTrustedCertificateUI.class);
-        
-        private DistinguishedNameParser dnParser;
-        
+
+	private DistinguishedNameParser dnParser;
+
+	@Override
 	public Boolean shouldTrustCertificate(X509Certificate[] chain) {
 		boolean trustConfirm = false;
 		logger.info("Asking the user if they want to trust a certificate.");
@@ -49,23 +52,20 @@ public class ConfirmTrustedCertificateUI implements TrustConfirmationProvider {
 		confirmCertTrustDialog.setVisible(true);
 		trustConfirm = confirmCertTrustDialog.shouldTrust();
 //		trustConfirm.setShouldSave(confirmCertTrustDialog.shouldSave());
-		if (!confirmCertTrustDialog.shouldTrust()) {
-			JOptionPane
-					.showMessageDialog(
-							null,
-							"As you refused to trust this host, you will not be able to use its services from a workflow.",
-							"Untrusted HTTPS connection",
-							JOptionPane.INFORMATION_MESSAGE);
-		}
+		if (!confirmCertTrustDialog.shouldTrust())
+			showMessageDialog(
+					null,
+					"As you refused to trust this host, you will not be able to use its services from a workflow.",
+					"Untrusted HTTPS connection", INFORMATION_MESSAGE);
 
 		return trustConfirm;
 	}
 
-    /**
-     * @param dnParser the dnParser to set
-     */
-    public void setDistinguishedNameParser(DistinguishedNameParser dnParser) {
-        this.dnParser = dnParser;
-    }
-
+	/**
+	 * @param dnParser
+	 *            the dnParser to set
+	 */
+	public void setDistinguishedNameParser(DistinguishedNameParser dnParser) {
+		this.dnParser = dnParser;
+	}
 }

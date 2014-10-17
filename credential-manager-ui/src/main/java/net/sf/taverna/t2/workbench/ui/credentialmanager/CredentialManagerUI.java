@@ -20,14 +20,33 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.NORTH;
+import static java.awt.BorderLayout.PAGE_END;
+import static java.awt.Dialog.ModalExclusionType.APPLICATION_EXCLUDE;
+import static java.awt.Toolkit.getDefaultToolkit;
+import static javax.swing.JFileChooser.APPROVE_OPTION;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
+import static javax.swing.JOptionPane.NO_OPTION;
+import static javax.swing.JOptionPane.WARNING_MESSAGE;
+import static javax.swing.JOptionPane.YES_NO_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
+import static javax.swing.JOptionPane.showConfirmDialog;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+import static net.sf.taverna.t2.security.credentialmanager.CredentialManager.KeystoreType.KEYSTORE;
+import static net.sf.taverna.t2.security.credentialmanager.CredentialManager.KeystoreType.TRUSTSTORE;
+import static net.sf.taverna.t2.workbench.ui.credentialmanager.CMStrings.ALERT_TITLE;
+import static net.sf.taverna.t2.workbench.ui.credentialmanager.CMStrings.ERROR_TITLE;
+
 import java.awt.BorderLayout;
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.Frame;
 import java.awt.Image;
 import java.awt.Point;
-import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -37,7 +56,6 @@ import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.security.Key;
@@ -46,28 +64,27 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.prefs.Preferences;
+
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
+
 import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager.KeystoreType;
 import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
+
 import org.apache.log4j.Logger;
 import org.bouncycastle.openssl.PEMReader;
 import org.bouncycastle.openssl.PEMWriter;
@@ -89,71 +106,58 @@ import org.bouncycastle.openssl.PEMWriter;
 
 @SuppressWarnings("serial")
 public class CredentialManagerUI extends JFrame {
-
-	// Logger
 	private static Logger logger = Logger.getLogger(CredentialManagerUI.class);
-
-	// Default tabbed pane width
+	/** Default tabbed pane width */
 	private static final int DEFAULT_FRAME_WIDTH = 650;
-
-	// Default tabbed pane height
+	/** Default tabbed pane height */
 	private static final int DEFAULT_FRAME_HEIGHT = 400;
-
-	// Credential Manager icon (when frame is minimised)
-	private static final Image credManagerIconImage = Toolkit
-			.getDefaultToolkit()
+	/** Credential Manager icon (when frame is minimised)*/
+	private static final Image credManagerIconImage = getDefaultToolkit()
 			.createImage(
 					CredentialManagerUI.class
 							.getResource("/images/cred_manager_transparent.png"));
 
+	/**
+	 * Credential Manager to manage all operations on the Keystore and
+	 * Truststore
+	 */
+	public final CredentialManager credManager;
+	private final DistinguishedNameParser dnParser;
+	
 	////////////// Tabs //////////////
 
-	// Credential Manager to manage all operations on the Keystore and Truststore
-	public final CredentialManager credManager;
-
-        private final DistinguishedNameParser dnParser;
-        
-	// Tabbed pane to hold tables containing various entries in the Keystore and Truststore
+	/**
+	 * Tabbed pane to hold tables containing various entries in the Keystore and
+	 * Truststore
+	 */
 	private JTabbedPane keyStoreTabbedPane;
-
-	// Tab 1: holds passwords table
+	/** Tab 1: holds passwords table */
 	private JPanel passwordsTab = new JPanel(new BorderLayout(10, 10));
-
-	// Tab 1: name
+	/** Tab 1: name */
 	public static final String PASSWORDS = "Passwords";
-
-	// Tab 2: holds key pairs (user certificates) table
+	/** Tab 2: holds key pairs (user certificates) table */
 	private JPanel keyPairsTab = new JPanel(new BorderLayout(10, 10));
-
-	// Tab 2: name
+	/** Tab 2: name */
 	public static final String KEYPAIRS = "Your Certificates";
-
-	// Tab 3: holds trusted certificates table
+	/** Tab 3: holds trusted certificates table */
 	private JPanel trustedCertificatesTab = new JPanel(new BorderLayout(10, 10));
-
-	// Tab 3: name
+	/** Tab 3: name */
 	public static final String TRUSTED_CERTIFICATES = "Trusted Certificates";
 
 	////////////// Tables //////////////
 
-	// Password entries' table
+	/** Password entries' table */
 	private JTable passwordsTable;
-
-	// Key pair entries' table
+	/** Key pair entries' table */
 	private JTable keyPairsTable;
-
-	// Trusted certificate entries' table
+	/** Trusted certificate entries' table */
 	private JTable trustedCertsTable;
-
-	// Password entry column type
+	/** Password entry column type */
 	public static final String PASSWORD_ENTRY_TYPE = "Password";
-
-	// Key pair entry column type
+	/** Key pair entry column type */
 	public static final String KEY_PAIR_ENTRY_TYPE = "Key Pair";
-
-	// Trusted cert entry column type
+	/** Trusted cert entry column type */
 	public static final String TRUST_CERT_ENTRY_TYPE = "Trusted Certificate";
-
 
 	/**
 	 * Overrides the Object's clone method to prevent the singleton object to be
@@ -167,41 +171,53 @@ public class CredentialManagerUI extends JFrame {
 	/**
 	 * Creates a new Credential Manager UI's frame.
 	 */
-	public CredentialManagerUI(CredentialManager credentialManager, DistinguishedNameParser dnParser) {
+	public CredentialManagerUI(CredentialManager credentialManager,
+			DistinguishedNameParser dnParser) {
 		credManager = credentialManager;
-                this.dnParser = dnParser;
-		this.setModalExclusionType(Dialog.ModalExclusionType.APPLICATION_EXCLUDE);
+		this.dnParser = dnParser;
+		setModalExclusionType(APPLICATION_EXCLUDE);
 		// Initialise the UI components
 		initComponents();
 	}
 
 	private void initComponents() {
-
-		// Initialise the tabbed pane that contains the tabs with tabular
-		// representations of the Keystore's content.
+		/*
+		 * Initialise the tabbed pane that contains the tabs with tabular
+		 * representations of the Keystore's content.
+		 */
 		keyStoreTabbedPane = new JTabbedPane();
-		// Initialise the tab containing the table for username/password entries
-		// from the
-		// Keystore
+		/*
+		 * Initialise the tab containing the table for username/password entries
+		 * from the Keystore
+		 */
 		passwordsTable = initTable(PASSWORDS, passwordsTab);
-		// Initialise the tab containing the table for key pair entries from the
-		// Keystore
+		/*
+		 * Initialise the tab containing the table for key pair entries from the
+		 * Keystore
+		 */
 		keyPairsTable = initTable(KEYPAIRS, keyPairsTab);
-		// Initialise the tab containing the table for proxy entries from the
-		// Keystore
+		/*
+		 * Initialise the tab containing the table for proxy entries from the
+		 * Keystore
+		 */
 		//proxiesTable = initTable(PROXIES, proxiesTab);
-		// Initialise the tab containing the table for trusted certificate
-		// entries from the Truststore
+		/*
+		 * Initialise the tab containing the table for trusted certificate
+		 * entries from the Truststore
+		 */
 		trustedCertsTable = initTable(TRUSTED_CERTIFICATES,
 				trustedCertificatesTab);
-		// Set the size of the tabbed pane to the preferred size - the size of
-		// the main application frame depends on it.
+		/*
+		 * Set the size of the tabbed pane to the preferred size - the size of
+		 * the main application frame depends on it.
+		 */
 		keyStoreTabbedPane.setPreferredSize(new Dimension(DEFAULT_FRAME_WIDTH,
 				DEFAULT_FRAME_HEIGHT));
 
 		JPanel globalButtons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		JButton resetJavaAuthCache = new JButton("Clear HTTP authentication");
 		resetJavaAuthCache.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				clearAuthenticationCache();
 			}
@@ -212,6 +228,7 @@ public class CredentialManagerUI extends JFrame {
 		JButton changeMasterPasswordButton = new JButton(
 				"Change master password");
 		changeMasterPasswordButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				changeMasterPassword();
 			}
@@ -219,17 +236,18 @@ public class CredentialManagerUI extends JFrame {
 		globalButtons.add(changeMasterPasswordButton);
 
 		// Add change master password to the main application frame
-		getContentPane().add(globalButtons, BorderLayout.NORTH);
+		getContentPane().add(globalButtons, NORTH);
 		// Add tabbed pane to the main application frame
-		getContentPane().add(keyStoreTabbedPane, BorderLayout.CENTER);
+		getContentPane().add(keyStoreTabbedPane, CENTER);
 
 		// Handle application close
 		addWindowListener(new WindowAdapter() {
+			@Override
 			public void windowClosing(WindowEvent evt) {
 				closeFrame();
 			}
 		});
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
 		pack();
 
@@ -247,51 +265,46 @@ public class CredentialManagerUI extends JFrame {
 	}
 
 	protected void clearAuthenticationCache() {
-		if (! credManager.resetAuthCache()) {
-			JOptionPane
-					.showMessageDialog(
-							this,
-							"Java's internal HTTP authentication cache could not be cleared. \n\n" +
-							"Taverna can only clear the cache using an undocumented Java API \n" +
-							"that might not work if you are using a Java VM other than \n" +
-							"Java 6 from Sun. You can restarting Taverna to clear the cache.",
-							"Could not clear authentication cache",
-							JOptionPane.ERROR_MESSAGE);
-		} else {
-			JOptionPane.showMessageDialog(this,
+		if (!credManager.resetAuthCache())
+			showMessageDialog(
+					this,
+					"Java's internal HTTP authentication cache could not be cleared. \n\n"
+							+ "Taverna can only clear the cache using an undocumented Java API \n"
+							+ "that might not work if you are using a Java VM other than \n"
+							+ "Java 6 from Sun. You can restarting Taverna to clear the cache.",
+					"Could not clear authentication cache", ERROR_MESSAGE);
+		else
+			showMessageDialog(
+					this,
 					"Java's internal HTTP authentication cache has been cleared. \n\n"
 							+ "You might also need to edit or delete individual \n"
 							+ "password entries in the credential manager \n"
 							+ "if a relevant password has previously been saved.",
-					"Cleared authentication cache", JOptionPane.INFORMATION_MESSAGE);
-		}
+					"Cleared authentication cache", INFORMATION_MESSAGE);
 	}
 
 	protected void changeMasterPassword() {
-
 		ChangeMasterPasswordDialog changePasswordDialog = new ChangeMasterPasswordDialog(
 				this, "Change master password", true,
 				"Change master password for Credential Manager", credManager);
 		changePasswordDialog.setLocationRelativeTo(null);
 		changePasswordDialog.setVisible(true);
 		String password = changePasswordDialog.getPassword();
-		if (password == null) { // user cancelled
+		if (password == null) // user cancelled
 			return; // do nothing
-		} else {
-			try {
-				credManager.changeMasterPassword(password);
-				JOptionPane.showMessageDialog(this,
-						"Master password changed sucessfully",
-						"Credential Manager Error",
-						JOptionPane.INFORMATION_MESSAGE);
-			} catch (CMException cme) {
-				// Failed to change the master password for Credential Manager -
-				// warn the user
-				String exMessage = "Failed to change master password for Credential Manager";
-				logger.error(exMessage);
-				JOptionPane.showMessageDialog(this, exMessage,
-						"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
-			}
+
+		try {
+			credManager.changeMasterPassword(password);
+			showMessageDialog(this, "Master password changed sucessfully",
+					ALERT_TITLE, INFORMATION_MESSAGE);
+		} catch (CMException cme) {
+			/*
+			 * Failed to change the master password for Credential Manager -
+			 * warn the user
+			 */
+			String exMessage = "Failed to change master password for Credential Manager";
+			logger.error(exMessage);
+			showMessageDialog(this, exMessage, ERROR_TITLE, ERROR_MESSAGE);
 		}
 	}
 
@@ -299,20 +312,21 @@ public class CredentialManagerUI extends JFrame {
 	 * Initialise the tabs and tables with the content from the Keystore and Truststore.
 	 */
 	private JTable initTable(String tableType, JPanel tab) {
-
 		JTable table = null;
 
 		if (tableType.equals(PASSWORDS)) { // Passwords table
-
 			// The Passwords table's data model
 			PasswordsTableModel passwordsTableModel = new PasswordsTableModel(credManager);
 			// The table itself
 			table = new JTable(passwordsTableModel);
 
-			// Set the password and alias columns of the Passwords table to be
-			// invisible by removing them from the column model (they will still
-			// present in the table model)
-			// Remove the last column first
+			/*
+			 * Set the password and alias columns of the Passwords table to be
+			 * invisible by removing them from the column model (they will still
+			 * present in the table model)
+			 * 
+			 * Remove the last column first
+			 */
 			TableColumn aliasColumn = table.getColumnModel().getColumn(5);
 			table.getColumnModel().removeColumn(aliasColumn);
 			TableColumn passwordColumn = table.getColumnModel().getColumn(4);
@@ -323,6 +337,7 @@ public class CredentialManagerUI extends JFrame {
 			// Buttons
 			JButton newPasswordButton = new JButton("New");
 			newPasswordButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					newPassword();
 				}
@@ -330,6 +345,7 @@ public class CredentialManagerUI extends JFrame {
 
 			final JButton viewPasswordButton = new JButton("Details");
 			viewPasswordButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					viewPassword();
 				}
@@ -338,6 +354,7 @@ public class CredentialManagerUI extends JFrame {
 
 			final JButton editPasswordButton = new JButton("Edit");
 			editPasswordButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					editPassword();
 				}
@@ -346,35 +363,36 @@ public class CredentialManagerUI extends JFrame {
 
 			final JButton deletePasswordButton = new JButton("Delete");
 			deletePasswordButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					deletePassword();
 				}
 			});
 			deletePasswordButton.setEnabled(false);
 
-			// Selection listener for passwords table to enable/disable action buttons accordingly
-			class PasswordsTableSelectionListner implements ListSelectionListener{
+			/*
+			 * Selection listener for passwords table to enable/disable action
+			 * buttons accordingly
+			 */
+			class PasswordsTableSelectionListner implements
+					ListSelectionListener {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-					if (e.getSource() == passwordsTable.getSelectionModel()){
-						if (passwordsTable.getSelectedRow() == -1){ // nothing is selected
-							viewPasswordButton.setEnabled(false);
-							editPasswordButton.setEnabled(false);
-							deletePasswordButton.setEnabled(false);
-						}
-						else{
-							if (!viewPasswordButton.isEnabled()){
-								viewPasswordButton.setEnabled(true);
-							}
-							if(!editPasswordButton.isEnabled()){
-								editPasswordButton.setEnabled(true);
-							}
-							if (!deletePasswordButton.isEnabled()){
-								deletePasswordButton.setEnabled(true);
-							}
-						}
+					if (e.getSource() != passwordsTable.getSelectionModel())
+						return;
+					if (passwordsTable.getSelectedRow() == -1) {
+						// nothing is selected
+						viewPasswordButton.setEnabled(false);
+						editPasswordButton.setEnabled(false);
+						deletePasswordButton.setEnabled(false);
+					} else {
+						if (!viewPasswordButton.isEnabled())
+							viewPasswordButton.setEnabled(true);
+						if (!editPasswordButton.isEnabled())
+							editPasswordButton.setEnabled(true);
+						if (!deletePasswordButton.isEnabled())
+							deletePasswordButton.setEnabled(true);
 					}
-
 				}
 			}
 			table.getSelectionModel().addListSelectionListener(new PasswordsTableSelectionListner());
@@ -387,19 +405,21 @@ public class CredentialManagerUI extends JFrame {
 			bp.add(deletePasswordButton);
 
 			// Add button panel to the tab
-			tab.add(bp, BorderLayout.PAGE_END);
+			tab.add(bp, PAGE_END);
 
 		} else if (tableType.equals(KEYPAIRS)) { // Key Pairs tab
-
 			// The Key Pairs table's data model
 			KeyPairsTableModel keyPairsTableModel = new KeyPairsTableModel(credManager);
 			// The table itself
 			table = new JTable(keyPairsTableModel);
 
-			// Set the alias and service URIs columns of the KayPairs table to
-			// be invisible by removing them from the column model (they will still
-			// present in the table model)
-			// Remove the last column first
+			/*
+			 * Set the alias and service URIs columns of the KayPairs table to
+			 * be invisible by removing them from the column model (they will
+			 * still present in the table model)
+			 * 
+			 * Remove the last column first
+			 */
 			TableColumn aliasColumn = table.getColumnModel().getColumn(6);
 			table.getColumnModel().removeColumn(aliasColumn);
 			TableColumn serviceURIsColumn = table.getColumnModel().getColumn(5);
@@ -410,6 +430,7 @@ public class CredentialManagerUI extends JFrame {
 			// Buttons
 			final JButton viewKeyPairButton = new JButton("Details");
 			viewKeyPairButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					viewCertificate();
 				}
@@ -418,6 +439,7 @@ public class CredentialManagerUI extends JFrame {
 
 			JButton importKeyPairButton = new JButton("Import");
 			importKeyPairButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					importKeyPair();
 				}
@@ -425,6 +447,7 @@ public class CredentialManagerUI extends JFrame {
 
 			final JButton exportKeyPairButton = new JButton("Export");
 			exportKeyPairButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					exportKeyPair();
 				}
@@ -433,38 +456,40 @@ public class CredentialManagerUI extends JFrame {
 
 			final JButton deleteKeyPairButton = new JButton("Delete");
 			deleteKeyPairButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					deleteKeyPair();
 				}
 			});
 			deleteKeyPairButton.setEnabled(false);
 
-			// Selection listener for key pairs table to enable/disable action buttons accordingly
-			class KeyPairsTableSelectionListner implements ListSelectionListener{
+			/*
+			 * Selection listener for key pairs table to enable/disable action
+			 * buttons accordingly
+			 */
+			class KeyPairsTableSelectionListner implements
+					ListSelectionListener {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-					if (e.getSource() == keyPairsTable.getSelectionModel()){
-						if (keyPairsTable.getSelectedRow() == -1){ // nothing is selected
-							viewKeyPairButton.setEnabled(false);
-							exportKeyPairButton.setEnabled(false);
-							deleteKeyPairButton.setEnabled(false);
-						}
-						else{
-							if (!viewKeyPairButton.isEnabled()){
-								viewKeyPairButton.setEnabled(true);
-							}
-							if(!exportKeyPairButton.isEnabled()){
-								exportKeyPairButton.setEnabled(true);
-							}
-							if (!deleteKeyPairButton.isEnabled()){
-								deleteKeyPairButton.setEnabled(true);
-							}
-						}
+					if (e.getSource() != keyPairsTable.getSelectionModel())
+						return;
+					if (keyPairsTable.getSelectedRow() == -1) {
+						// nothing is selected
+						viewKeyPairButton.setEnabled(false);
+						exportKeyPairButton.setEnabled(false);
+						deleteKeyPairButton.setEnabled(false);
+					} else {
+						if (!viewKeyPairButton.isEnabled())
+							viewKeyPairButton.setEnabled(true);
+						if (!exportKeyPairButton.isEnabled())
+							exportKeyPairButton.setEnabled(true);
+						if (!deleteKeyPairButton.isEnabled())
+							deleteKeyPairButton.setEnabled(true);
 					}
-
 				}
 			}
-			table.getSelectionModel().addListSelectionListener(new KeyPairsTableSelectionListner());
+			table.getSelectionModel().addListSelectionListener(
+					new KeyPairsTableSelectionListner());
 
 			// Panel to hold the buttons
 			JPanel bp = new JPanel();
@@ -474,19 +499,21 @@ public class CredentialManagerUI extends JFrame {
 			bp.add(deleteKeyPairButton);
 
 			// Add button panel to the tab
-			tab.add(bp, BorderLayout.PAGE_END);
-		}
-		else if (tableType.equals(TRUSTED_CERTIFICATES)) { // Certificates tab
+			tab.add(bp, PAGE_END);
+		} else if (tableType.equals(TRUSTED_CERTIFICATES)) { // Certificates tab
 
 			// The Trusted Certificate table's data model
 			TrustedCertsTableModel trustedCertificatesTableModel = new TrustedCertsTableModel(credManager);
 			// The table itself
 			table = new JTable(trustedCertificatesTableModel);
 
-			// Set the alias columns of the Trusted Certs table to be invisible
-			// by removing them from the column model (they will still be present in the
-			// table model)
-			// Remove the last column first
+			/*
+			 * Set the alias columns of the Trusted Certs table to be invisible
+			 * by removing them from the column model (they will still be
+			 * present in the table model)
+			 * 
+			 * Remove the last column first
+			 */
 			TableColumn aliasColumn = table.getColumnModel().getColumn(5);
 			table.getColumnModel().removeColumn(aliasColumn);
 			TableColumn lastModifiedDateColumn = table.getColumnModel().getColumn(4);
@@ -496,6 +523,7 @@ public class CredentialManagerUI extends JFrame {
 			final JButton viewTrustedCertificateButton = new JButton("Details");
 			viewTrustedCertificateButton
 					.addActionListener(new ActionListener() {
+						@Override
 						public void actionPerformed(ActionEvent e) {
 							viewCertificate();
 						}
@@ -505,6 +533,7 @@ public class CredentialManagerUI extends JFrame {
 			JButton importTrustedCertificateButton = new JButton("Import");
 			importTrustedCertificateButton
 					.addActionListener(new ActionListener() {
+						@Override
 						public void actionPerformed(ActionEvent e) {
 							importTrustedCertificate();
 						}
@@ -513,6 +542,7 @@ public class CredentialManagerUI extends JFrame {
 			final JButton exportTrustedCertificateButton = new JButton("Export");
 			exportTrustedCertificateButton
 					.addActionListener(new ActionListener() {
+						@Override
 						public void actionPerformed(ActionEvent e) {
 							exportTrustedCertificate();
 						}
@@ -522,6 +552,7 @@ public class CredentialManagerUI extends JFrame {
 			final JButton deleteTrustedCertificateButton = new JButton("Delete");
 			deleteTrustedCertificateButton
 					.addActionListener(new ActionListener() {
+						@Override
 						public void actionPerformed(ActionEvent e) {
 							deleteTrustedCertificate();
 						}
@@ -529,31 +560,29 @@ public class CredentialManagerUI extends JFrame {
 			deleteTrustedCertificateButton.setEnabled(false);
 
 			// Selection listener for trusted certs table to enable/disable action buttons accordingly
-			class TrustedCertsTableSelectionListner implements ListSelectionListener{
+			class TrustedCertsTableSelectionListener implements
+					ListSelectionListener {
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
-					if (e.getSource() == trustedCertsTable.getSelectionModel()){
-						if (trustedCertsTable.getSelectedRow() == -1){ // nothing is selected
-							viewTrustedCertificateButton.setEnabled(false);
-							exportTrustedCertificateButton.setEnabled(false);
-							deleteTrustedCertificateButton.setEnabled(false);
-						}
-						else{
-							if (!viewTrustedCertificateButton.isEnabled()){
-								viewTrustedCertificateButton.setEnabled(true);
-							}
-							if (!exportTrustedCertificateButton.isEnabled()){
-								exportTrustedCertificateButton.setEnabled(true);
-							}
-							if (!deleteTrustedCertificateButton.isEnabled()){
-								deleteTrustedCertificateButton.setEnabled(true);
-							}
-						}
+					if (e.getSource() != trustedCertsTable.getSelectionModel())
+						return;
+					if (trustedCertsTable.getSelectedRow() == -1) {
+						// nothing is selected
+						viewTrustedCertificateButton.setEnabled(false);
+						exportTrustedCertificateButton.setEnabled(false);
+						deleteTrustedCertificateButton.setEnabled(false);
+					} else {
+						if (!viewTrustedCertificateButton.isEnabled())
+							viewTrustedCertificateButton.setEnabled(true);
+						if (!exportTrustedCertificateButton.isEnabled())
+							exportTrustedCertificateButton.setEnabled(true);
+						if (!deleteTrustedCertificateButton.isEnabled())
+							deleteTrustedCertificateButton.setEnabled(true);
 					}
-
 				}
 			}
-			table.getSelectionModel().addListSelectionListener(new TrustedCertsTableSelectionListner());
+			table.getSelectionModel().addListSelectionListener(
+					new TrustedCertsTableSelectionListener());
 
 			// Panel to hold the buttons
 			JPanel bp = new JPanel();
@@ -563,7 +592,7 @@ public class CredentialManagerUI extends JFrame {
 			bp.add(deleteTrustedCertificateButton);
 
 			// Add button panel to the tab
-			tab.add(bp, BorderLayout.PAGE_END);
+			tab.add(bp, PAGE_END);
 		} else {
 			throw new RuntimeException("Unknown table type " + tableType);
 		}
@@ -572,7 +601,7 @@ public class CredentialManagerUI extends JFrame {
 		table.setRowMargin(0);
 		table.getColumnModel().setColumnMargin(0);
 		table.getTableHeader().setReorderingAllowed(false);
-		table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+		table.setAutoResizeMode(AUTO_RESIZE_ALL_COLUMNS);
 		// Top accommodates entry icons with 2 pixels spare space (images are
 		// 16x16 pixels)
 		table.setRowHeight(18);
@@ -603,17 +632,19 @@ public class CredentialManagerUI extends JFrame {
 
 		// Put the table into a scroll pane
 		JScrollPane jspTableScrollPane = new JScrollPane(table,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		jspTableScrollPane.getViewport().setBackground(table.getBackground());
 
 		// Put the scroll pane on the tab panel
-		tab.add(jspTableScrollPane, BorderLayout.CENTER);
+		tab.add(jspTableScrollPane, CENTER);
 		jspTableScrollPane.setBorder(new EmptyBorder(3, 3, 3, 3));
 
-		// Add mouse listeners to show an entry's details if it is
-		// double-clicked
+		/*
+		 * Add mouse listeners to show an entry's details if it is
+		 * double-clicked
+		 */
 		table.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent evt) {
 				tableDoubleClick(evt);
 			}
@@ -632,17 +663,18 @@ public class CredentialManagerUI extends JFrame {
 	private void viewPassword() {
 		// Which username/password pair entry has been selected, if any?
 		int iRow = passwordsTable.getSelectedRow();
-		if (iRow == -1) { // no row currently selected
+		if (iRow == -1) // no row currently selected
 			return;
-		}
 
 		// Get current values for service URI, username and password
 		String serviceURI = (String) passwordsTable.getValueAt(iRow, 1); // current entry's service URI
 
 		String username = (String) passwordsTable.getValueAt(iRow, 2); // current entry's username
 
-		// Because the password column is not visible we call
-		// the getValueAt method on the table model rather than at the JTable
+		/*
+		 * Because the password column is not visible we call the getValueAt
+		 * method on the table model rather than at the JTable
+		 */
 		String password = (String) passwordsTable.getModel()
 				.getValueAt(iRow, 4); // current entry's password value
 
@@ -659,16 +691,16 @@ public class CredentialManagerUI extends JFrame {
 	 * Keystore.
 	 */
 	private void newPassword() {
-
 		URI serviceURI = null; // service URI
 		String username = null; // username
 		String password = null; // password
 
 		// Loop until the user cancels or enters everything correctly
 		while (true) {
-
-			// Let the user insert a new password entry (by specifying service
-			// URI, username and password)
+			/*
+			 * Let the user insert a new password entry (by specifying service
+			 * URI, username and password)
+			 */
 			NewEditPasswordEntryDialog newPasswordDialog = new NewEditPasswordEntryDialog(
 					this, "New username and password for a service", true,
 					serviceURI, username, password, credManager);
@@ -685,64 +717,67 @@ public class CredentialManagerUI extends JFrame {
 				return;
 			}
 
-			// Check if a password entry with the given service URI
-			// already exists in the Keystore.
-			// We ask this here as the user may wish to overwrite the
-			// existing password entry.
-			// Checking for key pair entries' URIs is done in the
-			// NewEditPasswordEntry dialog.
+			/*
+			 * Check if a password entry with the given service URI already
+			 * exists in the Keystore. We ask this here as the user may wish to
+			 * overwrite the existing password entry. Checking for key pair
+			 * entries' URIs is done in the NewEditPasswordEntry dialog.
+			 */
 
-			// Get list of service URIs for all the password entries in the
-			// Keystore
+			/*
+			 * Get list of service URIs for all the password entries in the
+			 * Keystore
+			 */
 			List<URI> serviceURIs = null;
 			try {
 				serviceURIs = credManager
 						.getServiceURIsForAllUsernameAndPasswordPairs();
 			} catch (CMException cme) {
-				String exMessage = "Failed to get service URIs for all username and password pairs to check if the entered service URI already exists";
-				JOptionPane.showMessageDialog(this, exMessage,
-						"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+				showMessageDialog(this, "Failed to get service URIs for all username and password pairs "
+						+ "to check if the entered service URI already exists",
+						ERROR_TITLE, ERROR_MESSAGE);
 				return;
 			}
 			if (serviceURIs.contains(serviceURI)) { // if such a URI already
 				// exists
 				// Ask if the user wants to overwrite it
-				int answer = JOptionPane
-						.showConfirmDialog(
+				int answer = showConfirmDialog(
 								this,
 								"Credential Manager already contains a password entry with the same service URI.\n"
 										+ "Do you want to overwrite it?",
-								"Credential Manager Alert",
-								JOptionPane.YES_NO_OPTION);
+								ALERT_TITLE,
+								YES_NO_OPTION);
 
 				// Add the new password entry in the Keystore
-				if (answer == JOptionPane.YES_OPTION) {
-					try {
-						credManager.addUsernameAndPasswordForService(new UsernamePassword(username,
-								password), serviceURI);
+				try {
+					if (answer == YES_OPTION) {
+						credManager.addUsernameAndPasswordForService(
+								new UsernamePassword(username, password),
+								serviceURI);
 						break;
-					} catch (CMException cme) {
-						String exMessage = "Credential Manager failed to insert a new username and password pair";
-						JOptionPane.showMessageDialog(this, exMessage,
-								"Credential Manager Error",
-								JOptionPane.ERROR_MESSAGE);
 					}
+				} catch (CMException cme) {
+					showMessageDialog(
+							this,
+							"Credential Manager failed to insert a new username and password pair",
+							ERROR_TITLE, ERROR_MESSAGE);
 				}
-				// Otherwise show the same window with the entered service
-				// URI, username and password values
-			} else {
+				/*
+				 * Otherwise show the same window with the entered service URI,
+				 * username and password values
+				 */
+			} else
 				// Add the new password entry in the Keystore
 				try {
 					credManager.addUsernameAndPasswordForService(new UsernamePassword(username,
 							password), serviceURI);
 					break;
 				} catch (CMException cme) {
-					String exMessage = "Credential Manager failed to insert a new username and password pair";
-					JOptionPane.showMessageDialog(this, exMessage,
-							"Credential Manager Error",
-							JOptionPane.ERROR_MESSAGE);
+					showMessageDialog(
+							this,
+							"Credential Manager failed to insert a new username and password pair",
+							ERROR_TITLE, ERROR_MESSAGE);
 				}
-			}
 		}
 	}
 
@@ -751,15 +786,15 @@ public class CredentialManagerUI extends JFrame {
 	 * to the Keystore.
 	 */
 	public void newPasswordForService(URI serviceURI) {
-
-		// As this method can be called from outside of Credential Manager UI,
-		// e.g. from wsdl-activity-ui or rshell-activity-ui to pop up a dialog to
-		// ask the user for username and password, we also want to make sure the
-		// main Credential Manager UI Dialog is visible as it may be clearer to the
-		// user what is going on
-		if (!this.isVisible() || this.getState()==Frame.ICONIFIED){
-			this.setVisible(true);
-		}
+		/*
+		 * As this method can be called from outside of Credential Manager UI,
+		 * e.g. from wsdl-activity-ui or rshell-activity-ui to pop up a dialog
+		 * to ask the user for username and password, we also want to make sure
+		 * the main Credential Manager UI Dialog is visible as it may be clearer
+		 * to the user what is going on
+		 */
+		if (!isVisible() || getState() == ICONIFIED)
+			setVisible(true);
 
 		// Make sure password tab is selected as this method may
 		// be called from outside of Credential Manager UI.
@@ -787,18 +822,17 @@ public class CredentialManagerUI extends JFrame {
 			username = newPasswordDialog.getUsername(); // get username
 			password = newPasswordDialog.getPassword(); // get password
 
-			if (password == null) { // user cancelled - any of the above three
+			if (password == null) // user cancelled - any of the above three
 				// fields is null
 				// do nothing
 				return;
-			}
 
-			// Check if a password entry with the given service URI
-			// already exists in the Keystore.
-			// We ask this here as the user may wish to overwrite the
-			// existing password entry.
-			// Checking for key pair entries' URIs is done in the
-			// NewEditPasswordEntry dialog.
+			/*
+			 * Check if a password entry with the given service URI already
+			 * exists in the Keystore. We ask this here as the user may wish to
+			 * overwrite the existing password entry. Checking for key pair
+			 * entries' URIs is done in the NewEditPasswordEntry dialog.
+			 */
 
 			// Get list of service URIs for all the password entries in the
 			// Keystore
@@ -807,50 +841,46 @@ public class CredentialManagerUI extends JFrame {
 				serviceURIs = credManager
 						.getServiceURIsForAllUsernameAndPasswordPairs();
 			} catch (CMException cme) {
-				String exMessage = "Failed to get service URIs for all username and password pairs to check if the entered service URI already exists";
-				JOptionPane.showMessageDialog(this, exMessage,
-						"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+				showMessageDialog(this, "Failed to get service URIs for all username and password pairs "
+						+ "to check if the entered service URI already exists",
+						ERROR_TITLE, ERROR_MESSAGE);
 				return;
 			}
 			if (serviceURIs.contains(serviceURI)) { // if such a URI already
 				// exists
 				// Ask if the user wants to overwrite it
-				int answer = JOptionPane
-						.showConfirmDialog(
-								this,
-								"Credential Manager already contains a password entry with the same service URI.\n"
-										+ "Do you want to overwrite it?",
-								"Credential Manager Alert",
-								JOptionPane.YES_NO_OPTION);
+				int answer = showConfirmDialog(
+						this,
+						"Credential Manager already contains a password entry with the same service URI.\n"
+								+ "Do you want to overwrite it?", ALERT_TITLE,
+						YES_NO_OPTION);
 
 				// Add the new password entry in the Keystore
-				if (answer == JOptionPane.YES_OPTION) {
-					try {
-						credManager.addUsernameAndPasswordForService(new UsernamePassword(username,
-								password), serviceURI);
+				try {
+					if (answer == YES_OPTION) {
+						credManager.addUsernameAndPasswordForService(
+								new UsernamePassword(username, password),
+								serviceURI);
 						break;
-					} catch (CMException cme) {
-						String exMessage = "Credential Manager failed to insert a new username and password pair";
-						JOptionPane.showMessageDialog(this, exMessage,
-								"Credential Manager Error",
-								JOptionPane.ERROR_MESSAGE);
 					}
+				} catch (CMException cme) {
+					String exMessage = "Credential Manager failed to insert a new username and password pair";
+					showMessageDialog(this, exMessage, ERROR_TITLE,
+							ERROR_MESSAGE);
 				}
 				// Otherwise show the same window with the entered service
 				// URI, username and password values
-			} else {
+			} else
 				// Add the new password entry in the Keystore
 				try {
 					credManager.addUsernameAndPasswordForService(new UsernamePassword(username,
 							password), serviceURI);
 					break;
 				} catch (CMException cme) {
-					String exMessage = "Credential Manager failed to insert a new username and password pair";
-					JOptionPane.showMessageDialog(this, exMessage,
-							"Credential Manager Error",
-							JOptionPane.ERROR_MESSAGE);
+					showMessageDialog(this, "Credential Manager failed to insert a new username and password pair",
+							ERROR_TITLE,
+							ERROR_MESSAGE);
 				}
-			}
 		}
 	}
 
@@ -859,7 +889,6 @@ public class CredentialManagerUI extends JFrame {
 	 * URI to the Keystore.
 	 */
 	private void editPassword() {
-
 		// Which password entry has been selected?
 		int iRow = passwordsTable.getSelectedRow();
 		if (iRow == -1) { // no row currently selected
@@ -871,8 +900,10 @@ public class CredentialManagerUI extends JFrame {
 
 		String username = (String) passwordsTable.getValueAt(iRow, 2); // current entry's username
 
-		// Because the password column is not visible we call
-		// the getValueAt method on the table model rather than at the JTable
+		/*
+		 * Because the password column is not visible we call the getValueAt
+		 * method on the table model rather than at the JTable
+		 */
 		String password = (String) passwordsTable.getModel()
 				.getValueAt(iRow, 4); // current entry's password value
 
@@ -890,22 +921,22 @@ public class CredentialManagerUI extends JFrame {
 			String newUsername = editPasswordDialog.getUsername(); // get new username
 			String newPassword = editPasswordDialog.getPassword(); // get new password
 
-			if (newPassword == null) { // user cancelled - any of the above three
+			if (newPassword == null) // user cancelled - any of the above three
 				// fields is null
 				// do nothing
 				return;
-			}
 
 			// Is anything actually modified?
-			boolean isModified = (!serviceURI.equals(newServiceURI)
-					|| !username.equals(newUsername) || !password
-					.equals(newPassword));
+			boolean isModified = !serviceURI.equals(newServiceURI)
+					|| !username.equals(newUsername)
+					|| !password.equals(newPassword);
 
 			if (isModified) {
-				// Check if a different password entry with the new URI
-				// (i.e. alias) already exists in the Keystore
-				// We ask this here as the user may wish to overwrite that
-				// other password entry.
+				/*
+				 * Check if a different password entry with the new URI (i.e.
+				 * alias) already exists in the Keystore We ask this here as the
+				 * user may wish to overwrite that other password entry.
+				 */
 
 				// Get list of URIs for all passwords in the Keystore
 				List<URI> serviceURIs = null;
@@ -913,66 +944,62 @@ public class CredentialManagerUI extends JFrame {
 					serviceURIs = credManager
 							.getServiceURIsForAllUsernameAndPasswordPairs();
 				} catch (CMException cme) {
-					String exMessage = "Failed to get service URIs for all username and password pairs to check if the modified entry already exists";
-					JOptionPane.showMessageDialog(this, exMessage,
-							"Credential Manager Error",
-							JOptionPane.ERROR_MESSAGE);
+					showMessageDialog(this, "Failed to get service URIs for all username and password pairs "
+							+ "to check if the modified entry already exists",
+							ERROR_TITLE,
+							ERROR_MESSAGE);
 					return;
 				}
 
 				// If the modified service URI already exists and is not the
 				// currently selected one
-				if ((!newServiceURI.equals(serviceURI))
+				if (!newServiceURI.equals(serviceURI)
 						&& serviceURIs.contains(newServiceURI)) {
+					int answer = showConfirmDialog(
+							this,
+							"The Keystore already contains username and password pair for the entered service URI.\n"
+									+ "Do you want to overwrite it?",
+							ALERT_TITLE, YES_NO_OPTION);
 
-					int answer = JOptionPane
-							.showConfirmDialog(
-									this,
-									"The Keystore already contains username and password pair for the entered service URI.\n"
-											+ "Do you want to overwrite it?",
-									"Credential Manager Alert",
-									JOptionPane.YES_NO_OPTION);
-
-					if (answer == JOptionPane.YES_OPTION) {
-
-						// Overwrite that other entry entry and save the new
-						// one in its place.
-						// Also remove the current one that we are editing -
-						// as it is replacing the other entry.
-						try {
+					try {
+						if (answer == YES_OPTION) {
+							/*
+							 * Overwrite that other entry entry and save the new
+							 * one in its place. Also remove the current one
+							 * that we are editing - as it is replacing the
+							 * other entry.
+							 */
 							credManager
 									.deleteUsernameAndPasswordForService(serviceURI);
 							credManager.addUsernameAndPasswordForService(
-									new UsernamePassword(newUsername, newPassword), newServiceURI);
+									new UsernamePassword(newUsername,
+											newPassword), newServiceURI);
 							break;
-						} catch (CMException cme) {
-							String exMessage = "Failed to update the username and password pair in the Keystore";
-							JOptionPane.showMessageDialog(this, exMessage,
-									"Credential Manager Error",
-									JOptionPane.ERROR_MESSAGE);
 						}
+					} catch (CMException cme) {
+						showMessageDialog(
+								this,
+								"Failed to update the username and password pair in the Keystore",
+								ERROR_TITLE, ERROR_MESSAGE);
 					}
 					// Otherwise show the same window with the entered
 					// service URI, username and password values
-				} else {
+				} else
 					try {
-						if (!newServiceURI.equals(serviceURI)) {
+						if (!newServiceURI.equals(serviceURI))
 							credManager
 									.deleteUsernameAndPasswordForService(serviceURI);
-						}
 						credManager.addUsernameAndPasswordForService(
 								new UsernamePassword(newUsername, newPassword), newServiceURI);
 						break;
 					} catch (CMException cme) {
-						String exMessage = "Failed to update the username and password pair in the Keystore";
-						JOptionPane.showMessageDialog(this, exMessage,
-								"Credential Manager Error",
-								JOptionPane.ERROR_MESSAGE);
+						showMessageDialog(
+								this,
+								"Failed to update the username and password pair in the Keystore",
+								ERROR_TITLE, ERROR_MESSAGE);
 					}
-				}
-			} else { // nothing actually modified
+			} else // nothing actually modified
 				break;
-			}
 		}
 	}
 
@@ -981,46 +1008,38 @@ public class CredentialManagerUI extends JFrame {
 	 * Keystore.
 	 */
 	private void deletePassword() {
-
 		// Which entries have been selected?
 		int[] selectedRows = passwordsTable.getSelectedRows();
-		if (selectedRows.length == 0) { // no password entry selected
+		if (selectedRows.length == 0) // no password entry selected
 			return;
-		}
 
 		// Ask user to confirm the deletion
-		int answer = JOptionPane
-				.showConfirmDialog(
-						null,
-						"Are you sure you want to delete the selected username and password entries?",
-						"Credential Manager Alert", JOptionPane.YES_NO_OPTION);
-
-		if (answer != JOptionPane.YES_OPTION) {
+		if (showConfirmDialog(
+				null,
+				"Are you sure you want to delete the selected username and password entries?",
+				ALERT_TITLE, YES_NO_OPTION) != YES_OPTION)
 			return;
-		}
 
+		String exMessage = null;
 		for (int i = selectedRows.length - 1; i >= 0; i--) { // delete from backwards
 			// Get service URI for the current entry
-			URI serviceURI = URI.create((String) passwordsTable.getValueAt(selectedRows[i], 1)); // current
-			// entry's
-			// service
-			// URI
+			URI serviceURI = URI.create((String) passwordsTable.getValueAt(selectedRows[i], 1));
+			// current entry's service URI
 			try {
 				// Delete the password entry from the Keystore
 				credManager.deleteUsernameAndPasswordForService(serviceURI);
 			} catch (CMException cme) {
-				String exMessage = "Failed to delete the username and password pair from the Keystore";
-				JOptionPane.showMessageDialog(this, exMessage,
-						"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+				exMessage = "Failed to delete the username and password pair from the Keystore";
 			}
 		}
+		if (exMessage != null)
+			showMessageDialog(this, exMessage, ERROR_TITLE, ERROR_MESSAGE);
 	}
 
 	/**
 	 * Shows the contents of a (user or trusted) certificate.
 	 */
 	private void viewCertificate() {
-
 		int selectedRow = -1;
 		String alias = null;
 		X509Certificate certToView = null;
@@ -1029,33 +1048,34 @@ public class CredentialManagerUI extends JFrame {
 
 		// Are we showing user's public key certificate?
 		if (keyPairsTab.isShowing()) {
-			keystoreType = KeystoreType.KEYSTORE;
+			keystoreType = KEYSTORE;
 			selectedRow = keyPairsTable.getSelectedRow();
 
-			if (selectedRow != -1) {
-				// Because the alias column is not visible we call the
-				// getValueAt method on the table model rather than at the
-				// JTable
+			if (selectedRow != -1)
+				/*
+				 * Because the alias column is not visible we call the
+				 * getValueAt method on the table model rather than at the
+				 * JTable
+				 */
 				alias = (String) keyPairsTable.getModel().getValueAt(selectedRow, 6); // current entry's Keystore alias
-			}
 		}
 		// Are we showing trusted certificate?
 		else if (trustedCertificatesTab.isShowing()) {
-			keystoreType = KeystoreType.TRUSTSTORE;
+			keystoreType = TRUSTSTORE;
 			selectedRow = trustedCertsTable.getSelectedRow();
 
-			if (selectedRow != -1) {
-
-				// Get the selected trusted certificate entry's Truststore alias
-				// Alias column is invisible so we get the value from the table
-				// model
-				alias = (String) trustedCertsTable.getModel().getValueAt(selectedRow,
-						5);
-			}
+			if (selectedRow != -1)
+				/*
+				 * Get the selected trusted certificate entry's Truststore alias
+				 * Alias column is invisible so we get the value from the table
+				 * model
+				 */
+				alias = (String) trustedCertsTable.getModel().getValueAt(
+						selectedRow, 5);
 		}
 
-		if (selectedRow != -1) { // something has been selected
-			try {
+		try {
+			if (selectedRow != -1) { // something has been selected
 				// Get the entry's certificate
 				certToView = dnParser.convertCertificate(credManager
 						.getCertificate(keystoreType, alias));
@@ -1066,12 +1086,11 @@ public class CredentialManagerUI extends JFrame {
 						serviceURIs, dnParser);
 				viewCertDetailsDialog.setLocationRelativeTo(this);
 				viewCertDetailsDialog.setVisible(true);
-			} catch (CMException cme) {
-				String exMessage = "Failed to get certificate details to display to the user";
-				logger.error(exMessage);
-				JOptionPane.showMessageDialog(this, exMessage,
-						"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
 			}
+		} catch (CMException cme) {
+			String exMessage = "Failed to get certificate details to display to the user";
+			logger.error(exMessage, cme);
+			showMessageDialog(this, exMessage, ERROR_TITLE, ERROR_MESSAGE);
 		}
 	}
 
@@ -1080,9 +1099,10 @@ public class CredentialManagerUI extends JFrame {
 	 * Keystore.
 	 */
 	private void importKeyPair() {
-
-		// Let the user choose a PKCS #12 file (keystore) containing a public
-		// and private key pair to import
+		/*
+		 * Let the user choose a PKCS #12 file (keystore) containing a public
+		 * and private key pair to import
+		 */
 		File importFile = selectImportExportFile(
 				"PKCS #12 file to import from", // title
 				new String[] { ".p12", ".pfx" }, // array of file extensions
@@ -1091,14 +1111,13 @@ public class CredentialManagerUI extends JFrame {
 				"Import", // text for the file chooser's approve button
 				"keyPairDir"); // preference string for saving the last chosen directory
 
-		if (importFile == null) {
+		if (importFile == null)
 			return;
-		}
 
 		// The PKCS #12 keystore is not a file
 		if (!importFile.isFile()) {
-			JOptionPane.showMessageDialog(this, "Your selection is not a file",
-					"Credential Manager Alert", JOptionPane.WARNING_MESSAGE);
+			showMessageDialog(this, "Your selection is not a file",
+					ALERT_TITLE, WARNING_MESSAGE);
 			return;
 		}
 
@@ -1112,13 +1131,11 @@ public class CredentialManagerUI extends JFrame {
 
 		String pkcs12Password = getPasswordDialog.getPassword();
 
-		if (pkcs12Password == null) { // user cancelled
+		if (pkcs12Password == null) // user cancelled
 			return;
-		} else if (pkcs12Password.length() == 0) { // empty password
-			// FIXME: Maybe user did not have the password set for the private
-			// key???
+		else if (pkcs12Password.isEmpty()) // empty password
+			// FIXME: Maybe user did not have the password set for the private key???
 			return;
-		}
 
 		try {
 			// Load the PKCS #12 keystore from the file
@@ -1126,9 +1143,12 @@ public class CredentialManagerUI extends JFrame {
 			KeyStore pkcs12Keystore = credManager.loadPKCS12Keystore(importFile,
 					pkcs12Password);
 
-			// Display the import key pair dialog supplying all the private keys
-			// stored in the PKCS #12 file (normally there will be only one private
-			// key inside, but could be more as this is a keystore after all).
+			/*
+			 * Display the import key pair dialog supplying all the private keys
+			 * stored in the PKCS #12 file (normally there will be only one
+			 * private key inside, but could be more as this is a keystore after
+			 * all).
+			 */
 			NewKeyPairEntryDialog importKeyPairDialog = new NewKeyPairEntryDialog(
 					this, "Credential Manager", true, pkcs12Keystore, dnParser);
 			importKeyPairDialog.setLocationRelativeTo(this);
@@ -1138,40 +1158,32 @@ public class CredentialManagerUI extends JFrame {
 			Key privateKey = importKeyPairDialog.getPrivateKey();
 			Certificate[] certChain = importKeyPairDialog.getCertificateChain();
 
-			if (privateKey == null || certChain == null) {
+			if (privateKey == null || certChain == null)
 				// User did not select a key pair for import or cancelled
 				return;
-			}
 
-			// Check if a key pair entry with the same alias already exists in
-			// the Keystore
-			if (credManager.hasKeyPair(privateKey, certChain)) {
-				int answer = JOptionPane
-						.showConfirmDialog(
-								this,
-								"The keystore already contains the key pair entry with the same private key.\nDo you want to overwrite it?",
-								"Credential Manager Alert",
-								JOptionPane.YES_NO_OPTION);
-
-				if (answer != JOptionPane.YES_OPTION) {
-					return;
-				}
-			}
+			/*
+			 * Check if a key pair entry with the same alias already exists in
+			 * the Keystore
+			 */
+			if (credManager.hasKeyPair(privateKey, certChain)
+					&& showConfirmDialog(this,
+							"The keystore already contains the key pair entry with the same private key.\n"
+									+ "Do you want to overwrite it?",
+							ALERT_TITLE, YES_NO_OPTION) != YES_OPTION)
+				return;
 
 			// Place the private key and certificate chain into the Keystore
 			credManager.addKeyPair(privateKey, certChain);
 
 			// Display success message
-			JOptionPane
-					.showMessageDialog(this, "Key pair import successful",
-							"Credential Manager Alert",
-							JOptionPane.INFORMATION_MESSAGE);
+			showMessageDialog(this, "Key pair import successful", ALERT_TITLE,
+					INFORMATION_MESSAGE);
 		} catch (Exception ex) { // too many exceptions to catch separately
 			String exMessage = "Failed to import the key pair entry to the Keystore. "
 					+ ex.getMessage();
 			logger.error(exMessage, ex);
-			JOptionPane.showMessageDialog(this, exMessage,
-					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			showMessageDialog(this, exMessage, ERROR_TITLE, ERROR_MESSAGE);
 		}
 	}
 
@@ -1180,12 +1192,10 @@ public class CredentialManagerUI extends JFrame {
 	 * keystore file.
 	 */
 	private void exportKeyPair() {
-
 		// Which key pair entry has been selected?
 		int selectedRow = keyPairsTable.getSelectedRow();
-		if (selectedRow == -1) { // no row currently selected
+		if (selectedRow == -1) // no row currently selected
 			return;
-		}
 
 		// Get the key pair entry's Keystore alias
 		String alias = (String) keyPairsTable.getModel().getValueAt(selectedRow, 6);
@@ -1199,23 +1209,16 @@ public class CredentialManagerUI extends JFrame {
 				"Export", // text for the file chooser's approve button
 				"keyPairDir"); // preference string for saving the last chosen directory
 
-		if (exportFile == null) {
+		if (exportFile == null)
 			return;
-		}
 
 		// If file already exist - ask the user if he wants to overwrite it
-		if (exportFile.isFile()) {
-			int answer = JOptionPane
-					.showConfirmDialog(
-							this,
-							"The file with the given name already exists.\nDo you want to overwrite it?",
-							"Credential Manager Alert",
-							JOptionPane.YES_NO_OPTION);
-
-			if (answer == JOptionPane.NO_OPTION) {
-				return;
-			}
-		}
+		if (exportFile.isFile()
+				&& showConfirmDialog(this,
+						"The file with the given name already exists.\n"
+								+ "Do you want to overwrite it?", ALERT_TITLE,
+						YES_NO_OPTION) == NO_OPTION)
+			return;
 
 		// Get the user to enter the password for the PKCS #12 keystore file
 		GetPasswordDialog getPasswordDialog = new GetPasswordDialog(this,
@@ -1228,25 +1231,21 @@ public class CredentialManagerUI extends JFrame {
 
 		if (pkcs12Password == null) { // user cancelled or empty password
 			// Warn the user
-			JOptionPane
-					.showMessageDialog(
-							this,
-							"You must supply a password for protecting the exported key pair.",
-							"Credential Manager Alert",
-							JOptionPane.INFORMATION_MESSAGE);
+			showMessageDialog(
+					this,
+					"You must supply a password for protecting the exported key pair.",
+					ALERT_TITLE, INFORMATION_MESSAGE);
 			return;
 		}
 
 		// Export the key pair
 		try {
 			credManager.exportKeyPair(alias, exportFile, pkcs12Password);
-			JOptionPane
-					.showMessageDialog(this, "Key pair export successful",
-							"Credential Manager Alert",
-							JOptionPane.INFORMATION_MESSAGE);
+			showMessageDialog(this, "Key pair export successful", ALERT_TITLE,
+					INFORMATION_MESSAGE);
 		} catch (CMException cme) {
-			JOptionPane.showMessageDialog(this, cme.getMessage(),
-					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			showMessageDialog(this, cme.getMessage(), ERROR_TITLE,
+					ERROR_MESSAGE);
 		}
 	}
 
@@ -1254,22 +1253,18 @@ public class CredentialManagerUI extends JFrame {
 	 * Lets a user delete selected key pair entries from the Keystore.
 	 */
 	private void deleteKeyPair() {
-
 		// Which entries have been selected?
 		int[] selectedRows = keyPairsTable.getSelectedRows();
-		if (selectedRows.length == 0) { // no key pair entry selected
+		if (selectedRows.length == 0) // no key pair entry selected
 			return;
-		}
 
 		// Ask user to confirm the deletion
-		int answer = JOptionPane.showConfirmDialog(null,
+		if (showConfirmDialog(null,
 				"Are you sure you want to delete the selected key pairs?",
-				"Credential Manager Alert", JOptionPane.YES_NO_OPTION);
-
-		if (answer != JOptionPane.YES_OPTION) {
+				ALERT_TITLE, YES_NO_OPTION) != YES_OPTION)
 			return;
-		}
 
+		String exMessage = null;
 		for (int i = selectedRows.length - 1; i >= 0; i--) { // delete from backwards
 			// Get the alias for the current entry
 			String alias = (String) keyPairsTable.getModel().getValueAt(
@@ -1278,11 +1273,12 @@ public class CredentialManagerUI extends JFrame {
 				// Delete the key pair entry from the Keystore
 				credManager.deleteKeyPair(alias);
 			} catch (CMException cme) {
-				String exMessage = "Failed to delete the key pair(s) from the Keystore";
-				JOptionPane.showMessageDialog(this, exMessage,
-						"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+				logger.warn("failed to delete " + alias, cme);
+				exMessage = "Failed to delete the key pair(s) from the Keystore";
 			}
 		}
+		if (exMessage != null)
+			showMessageDialog(this, exMessage, ERROR_TITLE, ERROR_MESSAGE);
 	}
 
 	/**
@@ -1298,67 +1294,53 @@ public class CredentialManagerUI extends JFrame {
 				"Certificate Files (*.pem, *.crt, , *.cer, *.der, *.p7, *.p7c)", // filter descriptions
 				"Import", // text for the file chooser's approve button
 				"trustedCertDir"); // preference string for saving the last chosen directory
-
-		if (certFile == null) {
+		if (certFile == null)
 			return;
-		}
 
 		// Load the certificate(s) from the file
-		ArrayList<X509Certificate> trustCertsList = new ArrayList<X509Certificate>();
-		FileInputStream fis = null;
-
+		ArrayList<X509Certificate> trustCertsList = new ArrayList<>();
+		CertificateFactory cf;
 		try {
-			fis = new FileInputStream(certFile);
-			CertificateFactory cf = CertificateFactory.getInstance("X.509");
-			Collection<? extends Certificate> c = cf.generateCertificates(fis);
-			Iterator<? extends Certificate> i = c.iterator();
-			while (i.hasNext()) {
-				trustCertsList.add((X509Certificate) i.next());
-			}
-		} catch (Exception cex) {
-			// Do nothing
-		} finally {
-			try {
-				fis.close();
-			} catch (Exception ex) {
-				// ignore
-			}
+			cf = CertificateFactory.getInstance("X.509");
+		} catch (Exception e) {
+			// Nothing we can do! Things are badly misconfigured
+			cf = null;
 		}
 
-		if (trustCertsList.size() == 0) { // Could not load certificates as
-			// any of the above types
-			try {
-				// Try as openssl PEM format - which sligtly differs from the
-				// one supported by JCE
-				fis = new FileInputStream(certFile);
-				CertificateFactory cf = CertificateFactory.getInstance("X.509");
-				PEMReader pr = new PEMReader(new InputStreamReader(fis), null,
-						cf.getProvider().getName());
-				Object cert;
-				while ((cert = pr.readObject()) != null) {
-					if (cert instanceof X509Certificate) {
-						trustCertsList.add((X509Certificate) cert);
-					}
-				}
+		if (cf != null) {
+			try (FileInputStream fis = new FileInputStream(certFile)) {
+				for (Certificate cert : cf.generateCertificates(fis))
+					trustCertsList.add((X509Certificate) cert);
 			} catch (Exception cex) {
-				// do nothing
-			} finally {
-				try {
-					fis.close();
-				} catch (Exception ex) {
-					// ignore
+				// Do nothing
+			}
+
+			if (trustCertsList.size() == 0) {
+				// Could not load certificates as any of the above types
+				try (FileInputStream fis = new FileInputStream(certFile);
+						PEMReader pr = new PEMReader(
+								new InputStreamReader(fis), null, cf
+										.getProvider().getName())) {
+					/*
+					 * Try as openssl PEM format - which sligtly differs from
+					 * the one supported by JCE
+					 */
+					Object cert;
+					while ((cert = pr.readObject()) != null)
+						if (cert instanceof X509Certificate)
+							trustCertsList.add((X509Certificate) cert);
+				} catch (Exception cex) {
+					// do nothing
 				}
 			}
 		}
 
-		if (trustCertsList.size() == 0) { // Failed to load certifcate(s)
-			// using any of the known encodings
-			JOptionPane
-					.showMessageDialog(
-							this,
-							"Failed to load certificate(s) using any of the known encodings -\nfile format not recognised.",
-							"Credential Manager Error",
-							JOptionPane.ERROR_MESSAGE);
+		if (trustCertsList.size() == 0) {
+			/* Failed to load certifcate(s) using any of the known encodings */
+			showMessageDialog(this,
+					"Failed to load certificate(s) using any of the known encodings -\n"
+							+ "file format not recognised.", ERROR_TITLE,
+					ERROR_MESSAGE);
 			return;
 		}
 
@@ -1369,31 +1351,25 @@ public class CredentialManagerUI extends JFrame {
 
 		importTrustCertsDialog.setLocationRelativeTo(this);
 		importTrustCertsDialog.setVisible(true);
-		ArrayList<X509Certificate> selectedTrustCerts = importTrustCertsDialog
+		List<X509Certificate> selectedTrustCerts = importTrustCertsDialog
 				.getTrustedCertificates(); // user-selected trusted certs to import
 
 		// If user cancelled or did not select any cert to import
-		if ((selectedTrustCerts) == null || (selectedTrustCerts.size() == 0)) {
+		if (selectedTrustCerts == null || selectedTrustCerts.isEmpty())
 			return;
-		}
 
 		try {
-			for (int i = selectedTrustCerts.size() - 1; i >= 0; i--) {
+			for (X509Certificate cert : selectedTrustCerts)
 				// Import the selected trusted certificates
-				credManager.addTrustedCertificate(selectedTrustCerts.get(i));
-			}
+				credManager.addTrustedCertificate(cert);
 
 			// Display success message
-			JOptionPane
-					.showMessageDialog(this,
-							"Trusted certificate(s) import successful",
-							"Credential Manager Alert",
-							JOptionPane.INFORMATION_MESSAGE);
+			showMessageDialog(this, "Trusted certificate(s) import successful",
+					ALERT_TITLE, INFORMATION_MESSAGE);
 		} catch (CMException cme) {
 			String exMessage = "Failed to import trusted certificate(s) to the Truststore";
-			logger.error(exMessage);
-			JOptionPane.showMessageDialog(this, exMessage,
-					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			logger.error(exMessage, cme);
+			showMessageDialog(this, exMessage, ERROR_TITLE, ERROR_MESSAGE);
 		}
 	}
 
@@ -1402,12 +1378,10 @@ public class CredentialManagerUI extends JFrame {
 	 * certificate entries to a PEM-encoded file.
 	 */
 	private boolean exportTrustedCertificate() {
-
 		// Which trusted certificate has been selected?
 		int selectedRow = trustedCertsTable.getSelectedRow();
-		if (selectedRow == -1) { // no row currently selected
+		if (selectedRow == -1) // no row currently selected
 			return false;
-		}
 
 		// Get the trusted certificate entry's Keystore alias
 		String alias = (String) trustedCertsTable.getModel()
@@ -1422,56 +1396,30 @@ public class CredentialManagerUI extends JFrame {
 				"Certificate Files (*.pem)", // description of the filter
 				"Export", // text for the file chooser's approve button
 				"trustedCertDir"); // preference string for saving the last chosen directory
-
-		if (exportFile == null) {
+		if (exportFile == null)
 			return false;
-		}
 
 		// If file already exist - ask the user if he wants to overwrite it
-		if (exportFile.isFile()) {
-			int answer = JOptionPane
-					.showConfirmDialog(
-							this,
-							"The file with the given name already exists.\nDo you want to overwrite it?",
-							"Credential Manager Alert",
-							JOptionPane.YES_NO_OPTION);
-
-			if (answer == JOptionPane.NO_OPTION) {
-				return false;
-			}
-		}
+		if (exportFile.isFile()
+				&& showConfirmDialog(this,
+						"The file with the given name already exists.\n"
+								+ "Do you want to overwrite it?", ALERT_TITLE,
+						YES_NO_OPTION) == NO_OPTION)
+			return false;
 
 		// Export the trusted certificate
-		PEMWriter pw = null;
-		try {
+		try (PEMWriter pw = new PEMWriter(new FileWriter(exportFile))) {
 			// Get the trusted certificate
-			Certificate certToExport = credManager.getCertificate(
-					KeystoreType.TRUSTSTORE, alias);
-			pw = new PEMWriter(new FileWriter(exportFile));
-			pw.writeObject(certToExport);
-
-			JOptionPane
-					.showMessageDialog(this,
-							"Trusted certificate export successful",
-							"Credential Manager Alert",
-							JOptionPane.INFORMATION_MESSAGE);
-
-			return true;
+			pw.writeObject(credManager.getCertificate(TRUSTSTORE, alias));
 		} catch (Exception ex) {
 			String exMessage = "Failed to export the trusted certificate from the Truststore.";
-			logger.error(exMessage);
-			JOptionPane.showMessageDialog(this, exMessage,
-					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			logger.error(exMessage, ex);
+			showMessageDialog(this, exMessage, ERROR_TITLE, ERROR_MESSAGE);
 			return false;
-		} finally {
-			if (pw != null) {
-				try {
-					pw.close();
-				} catch (IOException ex) {
-					// ignore
-				}
-			}
 		}
+		showMessageDialog(this, "Trusted certificate export successful",
+				ALERT_TITLE, INFORMATION_MESSAGE);
+		return true;
 	}
 
 	/**
@@ -1479,24 +1427,19 @@ public class CredentialManagerUI extends JFrame {
 	 * Truststore.
 	 */
 	private void deleteTrustedCertificate() {
-
 		// Which entries have been selected?
 		int[] selectedRows = trustedCertsTable.getSelectedRows();
-		if (selectedRows.length == 0) { // no trusted cert entry selected
+		if (selectedRows.length == 0) // no trusted cert entry selected
 			return;
-		}
 
 		// Ask user to confirm the deletion
-		int answer = JOptionPane
-				.showConfirmDialog(
-						null,
-						"Are you sure you want to delete the selected trusted certificate(s)?",
-						"Credential Manager Alert", JOptionPane.YES_NO_OPTION);
-
-		if (answer != JOptionPane.YES_OPTION) {
+		if (showConfirmDialog(
+				null,
+				"Are you sure you want to delete the selected trusted certificate(s)?",
+				ALERT_TITLE, YES_NO_OPTION) != YES_OPTION)
 			return;
-		}
 
+		String exMessage = null;
 		for (int i = selectedRows.length - 1; i >= 0; i--) { // delete from backwards
 			// Get the alias for the current entry
 			String alias = (String) trustedCertsTable.getModel().getValueAt(
@@ -1505,12 +1448,12 @@ public class CredentialManagerUI extends JFrame {
 				// Delete the trusted certificate entry from the Truststore
 				credManager.deleteTrustedCertificate(alias);
 			} catch (CMException cme) {
-				String exMessage = "Failed to delete the trusted certificate(s) from the Truststore";
-				logger.error(exMessage);
-				JOptionPane.showMessageDialog(this, exMessage,
-						"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+				exMessage = "Failed to delete the trusted certificate(s) from the Truststore";
+				logger.error(exMessage, cme);
 			}
 		}
+		if (exMessage != null)
+			showMessageDialog(this, exMessage, ERROR_TITLE, ERROR_MESSAGE);
 	}
 
 	/**
@@ -1519,22 +1462,21 @@ public class CredentialManagerUI extends JFrame {
 	 */
 	private void tableDoubleClick(MouseEvent evt) {
 		if (evt.getClickCount() > 1) { // is it a double click?
-
 			// Which row was clicked on (if any)?
 			Point point = new Point(evt.getX(), evt.getY());
 			int row = ((JTable) evt.getSource()).rowAtPoint(point);
-			if (row == -1) {
+			if (row == -1)
 				return;
-			}
 			// Which table the click occured on?
-			if (((JTable) evt.getSource()).getModel() instanceof PasswordsTableModel) { // Passwords
-				// table
+			if (((JTable) evt.getSource()).getModel() instanceof PasswordsTableModel)
+				// Passwords table
 				viewPassword();
-			} else if (((JTable) evt.getSource()).getModel() instanceof KeyPairsTableModel) { // Key pairs table
+			else if (((JTable) evt.getSource()).getModel() instanceof KeyPairsTableModel)
+				// Key pairs table
 				viewCertificate();
-			} else { // Trusted certificates table
+			else
+				// Trusted certificates table
 				viewCertificate();
-			}
 		}
 	}
 
@@ -1544,25 +1486,23 @@ public class CredentialManagerUI extends JFrame {
 	 */
 	private File selectImportExportFile(String title, String[] filter,
 			String description, String approveButtonText, String prefString) {
-
-		Preferences prefs = Preferences.userNodeForPackage(CredentialManagerUI.class);
-		String keyPairDir = prefs
-				.get(prefString, System.getProperty("user.home"));
+		Preferences prefs = Preferences
+				.userNodeForPackage(CredentialManagerUI.class);
+		String keyPairDir = prefs.get(prefString,
+				System.getProperty("user.home"));
 		JFileChooser fileChooser = new JFileChooser();
 		fileChooser.addChoosableFileFilter(new CryptoFileFilter(filter,
-						description));
+				description));
 		fileChooser.setDialogTitle(title);
 		fileChooser.setMultiSelectionEnabled(false);
 		fileChooser.setCurrentDirectory(new File(keyPairDir));
 
-		int rtnValue = fileChooser.showDialog(this, approveButtonText);
-		if (rtnValue == JFileChooser.APPROVE_OPTION) {
-			File selectedFile = fileChooser.getSelectedFile();
-			prefs.put(prefString, fileChooser.getCurrentDirectory()
-					.toString());
-			return selectedFile;
-		}
-		return null;
+		if (fileChooser.showDialog(this, approveButtonText) != APPROVE_OPTION)
+			return null;
+
+		File selectedFile = fileChooser.getSelectedFile();
+		prefs.put(prefString, fileChooser.getCurrentDirectory().toString());
+		return selectedFile;
 	}
 
 	private void closeFrame() {
@@ -1570,4 +1510,3 @@ public class CredentialManagerUI extends JFrame {
 		dispose();
 	}
 }
-

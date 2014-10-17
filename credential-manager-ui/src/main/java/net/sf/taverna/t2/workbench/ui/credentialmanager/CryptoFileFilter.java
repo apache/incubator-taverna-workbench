@@ -21,9 +21,7 @@
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.filechooser.FileFilter;
@@ -41,30 +39,26 @@ import javax.swing.filechooser.FileFilter;
  * encoded as binary DER or as ASCII PEM. .p7 and .p7c are PKCS #7 certificate
  * chain files (i.e. SignedData structure without data, just certificate(s)).
  */
-public class CryptoFileFilter extends FileFilter 
-{
+public class CryptoFileFilter extends FileFilter {
 	// Description of the filter
 	private String description;
-	
+
 	// Array of file extensions to filter against
-	private List<String> exts = new ArrayList<String>();
+	private List<String> exts;
 
-    public CryptoFileFilter(String [] extList, String desc)
-    {
-    	exts = Arrays.asList(extList);
-        this.description = desc;
-    }
+	public CryptoFileFilter(String[] extList, String desc) {
+		exts = Arrays.asList(extList);
+		this.description = desc;
+	}
 
+	@Override
 	public boolean accept(File file) {
-		if (file.isDirectory()) {
+		if (file.isDirectory())
 			return true;
-		} else if (file.isFile()) {
-			Iterator<String> it = exts.iterator();
-			while (it.hasNext()) {
-				if (file.getName().toLowerCase().endsWith((String) it.next()))
+		if (file.isFile())
+			for (String ext : exts)
+				if (file.getName().toLowerCase().endsWith(ext))
 					return true;
-			}
-		}
 		return false;
 	}
 
@@ -72,6 +66,7 @@ public class CryptoFileFilter extends FileFilter
 		this.description = desc;
 	}
 
+	@Override
 	public String getDescription() {
 		return this.description;
 	}
