@@ -5,6 +5,7 @@ import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConst
 import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.PROVIDERS;
 import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.PROVIDER_ID;
 import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.SERVICE_PANEL_CONFIGURATION;
+import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.TYPE;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -15,7 +16,6 @@ import java.util.Set;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
-import net.sf.taverna.t2.workflowmodel.Configurable;
 
 import org.apache.log4j.Logger;
 import org.jdom.JDOMException;
@@ -93,8 +93,9 @@ class ServiceDescriptionSerializer {
 		node.put(PROVIDER_ID, provider.getId());
 
 		if (provider instanceof ConfigurableServiceProvider) {
-			Configurable<ObjectNode> configurable = (ConfigurableServiceProvider) provider;
-			node.put(CONFIGURATION, configurable.getConfiguration());
+			ConfigurableServiceProvider configurable = (ConfigurableServiceProvider) provider;
+			node.put(TYPE, configurable.getConfiguration().getType().toString());
+			node.put(CONFIGURATION, configurable.getConfiguration().getJson());
 		}
 		return node;
 	}

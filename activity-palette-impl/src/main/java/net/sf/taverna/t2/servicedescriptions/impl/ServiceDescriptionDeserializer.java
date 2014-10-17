@@ -4,22 +4,23 @@ import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConst
 import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.IGNORED;
 import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.PROVIDERS;
 import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.PROVIDER_ID;
+import static net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionConstants.TYPE;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import uk.org.taverna.scufl2.api.configurations.Configuration;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
-import net.sf.taverna.t2.workflowmodel.ConfigurationException;
-import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -138,18 +139,29 @@ class ServiceDescriptionDeserializer {
 		 */
 		ServiceDescriptionProvider instance = provider.newInstance();
 
-		if (instance instanceof ConfigurableServiceProvider) {
-			JsonNode config = providerNode.get(CONFIGURATION);
+		if (instance instanceof ConfigurableServiceProvider)
 			try {
+				Configuration config = new Configuration();
+				config.setType(URI.create(providerNode.get(TYPE).textValue()));
+				config.setJson(providerNode.get(CONFIGURATION));
 				if (config != null)
-					((ConfigurableServiceProvider) instance)
-							.configure((ObjectNode) config);
-			} catch (ConfigurationException | ClassCastException e) {
+					((ConfigurableServiceProvider) instance).configure(config);
+			} catch (Exception e) {
 				throw new DeserializationException(
 						"Could not configure provider " + providerId
-								+ " using bean " + config, e);
+								+ " using bean " + providerNode, e);
 			}
-		}
 		return instance;
+	}
+
+	@SuppressWarnings("serial")
+	static class DeserializationException extends Exception {
+		public DeserializationException(String string) {
+			super(string);
+		}
+
+		public DeserializationException(String string, Exception ex) {
+			super(string, ex);
+		}
 	}
 }

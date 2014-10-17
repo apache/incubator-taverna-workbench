@@ -55,13 +55,10 @@ import net.sf.taverna.t2.servicedescriptions.events.ProviderWarningNotification;
 import net.sf.taverna.t2.servicedescriptions.events.RemovedProviderEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionProvidedEvent;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
-import net.sf.taverna.t2.workflowmodel.ConfigurationException;
-import net.sf.taverna.t2.workflowmodel.serialization.DeserializationException;
+import net.sf.taverna.t2.servicedescriptions.impl.ServiceDescriptionDeserializer.DeserializationException;
 
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.log4j.Logger;
-
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
@@ -313,10 +310,12 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 			 * on them will not have much effect here unless
 			 * defaultSystemConfigurableProvidersLoaded is set to false.
 			 */
+			//FIXME needs to be designed to work using Configuration instances
+			//FIXME needs to get configurations via OSGi discovery
+			/*
 			ConfigurableServiceProvider template = (ConfigurableServiceProvider) provider;
 			// Get configurations
-			List<ObjectNode> configurables = template.getDefaultConfigurations();
-			for (ObjectNode config : configurables) {
+			for (ObjectNode config : template.getDefaultConfigurations()) {
 				// Make a copy that we can configure
 				ConfigurableServiceProvider configurableProvider = template.clone();
 				try {
@@ -328,6 +327,7 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 				}
 				defaultServiceDescriptionProviders.add(configurableProvider);
 			}
+			*/
 		}
 
 		return defaultServiceDescriptionProviders;
@@ -410,7 +410,7 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 	}
 
 	@Override
-	public void loadServiceProviders() throws DeserializationException {
+	public void loadServiceProviders() {
 		File serviceProviderFile = findServiceDescriptionsFile();
 		if (serviceProviderFile.isFile())
 			loadServiceProviders(serviceProviderFile);
@@ -418,20 +418,28 @@ public class ServiceDescriptionRegistryImpl implements ServiceDescriptionRegistr
 	}
 
 	@Override
-	public void loadServiceProviders(File serviceProvidersFile) throws DeserializationException {
+	public void loadServiceProviders(File serviceProvidersFile) {
 		ServiceDescriptionDeserializer deserializer = new ServiceDescriptionDeserializer(
 				serviceDescriptionProviders);
 		loading = true;
-		deserializer.deserialize(this, serviceProvidersFile);
+		try {
+			deserializer.deserialize(this, serviceProvidersFile);
+		} catch (DeserializationException e) {
+			logger.error("failed to deserialize configuration", e);
+		}
 		loading = false;
 	}
 
 	@Override
-	public void loadServiceProviders(URL serviceProvidersURL) throws DeserializationException {
+	public void loadServiceProviders(URL serviceProvidersURL) {
 		ServiceDescriptionDeserializer deserializer = new ServiceDescriptionDeserializer(
 				serviceDescriptionProviders);
 		loading = true;
-		deserializer.deserialize(this, serviceProvidersURL);
+		try {
+			deserializer.deserialize(this, serviceProvidersURL);
+		} catch (DeserializationException e) {
+			logger.error("failed to deserialize configuration", e);
+		}
 		loading = false;
 	}
 

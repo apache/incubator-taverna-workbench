@@ -6,4 +6,5 @@ public interface ServiceDescriptionConstants {
 	String IGNORED = "ignored";
 	String PROVIDER_ID = "providerID";
 	String CONFIGURATION = "configuration";
+	String TYPE = "type";
 }
