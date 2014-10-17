@@ -20,6 +20,15 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.NORTH;
+import static java.awt.BorderLayout.SOUTH;
+import static java.awt.Font.PLAIN;
+import static javax.swing.BoxLayout.Y_AXIS;
+import static javax.swing.JOptionPane.WARNING_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static net.sf.taverna.t2.workbench.ui.credentialmanager.CMStrings.WARN_TITLE;
+
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -33,7 +42,6 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.border.CompoundBorder;
@@ -49,156 +57,133 @@ import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
  */
 @SuppressWarnings("serial")
 public class SetMasterPasswordDialog extends NonBlockedHelpEnabledDialog {
-	
-    // Password entry field 
-    private JPasswordField passwordField;
+	/** Password entry field */
+	private JPasswordField passwordField;
+	/** Password confirmation entry field */
+	private JPasswordField passwordConfirmField;
+	/** The entered password */
+	private String password = null;
+	/** Instructions for the user */
+	private String instructions;
 
-    // Password confirmation entry field 
-    private JPasswordField passwordConfirmField;
+	public SetMasterPasswordDialog(JFrame parent, String title, boolean modal,
+			String instructions) {
+		super(parent, title, modal);
+		this.instructions = instructions;
+		initComponents();
+	}
 
-    // The entered password 
-    private String password = null;
-    
-    // Instructions for the user 
-    private String instructions;
+	private void initComponents() {
+		getContentPane().setLayout(new BorderLayout());
 
-    public SetMasterPasswordDialog(JFrame parent, String title, boolean modal, String instructions)
-    {
-        super(parent, title, modal);
-        this.instructions = instructions;
-        initComponents();
-    }
+		JLabel instructionsLabel = new JLabel(instructions);
+		instructionsLabel.setFont(new Font(null, PLAIN, 11));
 
-    private void initComponents()
-    {
-        getContentPane().setLayout(new BorderLayout());
+		JPanel instructionsPanel = new JPanel();
+		instructionsPanel.setLayout(new BoxLayout(instructionsPanel, Y_AXIS));
+		instructionsPanel.add(instructionsLabel);
+		instructionsPanel.setBorder(new EmptyBorder(10, 5, 10, 0));
 
-        JLabel instructionsLabel = new JLabel (instructions);
-    	instructionsLabel.setFont(new Font(null, Font.PLAIN, 11));
-    	
-    	JPanel instructionsPanel = new JPanel();
-    	instructionsPanel.setLayout(new BoxLayout(instructionsPanel, BoxLayout.Y_AXIS));
-    	instructionsPanel.add(instructionsLabel);
-    	instructionsPanel.setBorder(new EmptyBorder(10,5,10,0)); 
+		JLabel passwordLabel = new JLabel("Master password");
+		passwordLabel.setBorder(new EmptyBorder(0, 5, 0, 0));
 
-        JLabel passwordLabel = new JLabel("Master password");
-        passwordLabel.setBorder(new EmptyBorder(0,5,0,0));
+		JLabel passwordConfirmLabel = new JLabel("Confirm master password");
+		passwordConfirmLabel.setBorder(new EmptyBorder(0, 5, 0, 0));
 
-        JLabel passwordConfirmLabel = new JLabel("Confirm master password");
-        passwordConfirmLabel.setBorder(new EmptyBorder(0,5,0,0));
+		passwordField = new JPasswordField(15);
+		passwordConfirmField = new JPasswordField(15);
 
-        passwordField = new JPasswordField(15);
-        passwordConfirmField = new JPasswordField(15);
-        
-        JPanel passwordPanel = new JPanel(new GridLayout(2, 2, 5, 5));
-        passwordPanel.add(passwordLabel);
-        passwordPanel.add(passwordField);
-        passwordPanel.add(passwordConfirmLabel);
-        passwordPanel.add(passwordConfirmField);
-        
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBorder(new CompoundBorder(
-                new EmptyBorder(10, 10, 10, 10), new EtchedBorder()));
-        mainPanel.add(instructionsPanel, BorderLayout.NORTH);
-        mainPanel.add(passwordPanel, BorderLayout.CENTER);
-        
+		JPanel passwordPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+		passwordPanel.add(passwordLabel);
+		passwordPanel.add(passwordField);
+		passwordPanel.add(passwordConfirmLabel);
+		passwordPanel.add(passwordConfirmField);
 
-        JButton okButton = new JButton("OK");
-        okButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                okPressed();
-            }
-        });
+		JPanel mainPanel = new JPanel(new BorderLayout());
+		mainPanel.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10, 10),
+				new EtchedBorder()));
+		mainPanel.add(instructionsPanel, NORTH);
+		mainPanel.add(passwordPanel, CENTER);
 
-        JButton cancelButton = new JButton("Cancel");
-        cancelButton.addActionListener(new ActionListener()
-        {
-            public void actionPerformed(ActionEvent evt)
-            {
-                cancelPressed();
-            }
-        });
-        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        buttonsPanel.add(okButton);
-        buttonsPanel.add(cancelButton);
-        
-        getContentPane().add(mainPanel, BorderLayout.CENTER);
-        getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+		JButton okButton = new JButton("OK");
+		okButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				okPressed();
+			}
+		});
 
-        addWindowListener(new WindowAdapter()
-        {
-            public void windowClosing(WindowEvent evt)
-            {
-                closeDialog();
-            }
-        });
+		JButton cancelButton = new JButton("Cancel");
+		cancelButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent evt) {
+				cancelPressed();
+			}
+		});
+		JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+		buttonsPanel.add(okButton);
+		buttonsPanel.add(cancelButton);
 
-        setResizable(false);
+		getContentPane().add(mainPanel, CENTER);
+		getContentPane().add(buttonsPanel, SOUTH);
 
-        getRootPane().setDefaultButton(okButton);
+		addWindowListener(new WindowAdapter() {
+			@Override
+			public void windowClosing(WindowEvent evt) {
+				closeDialog();
+			}
+		});
 
-        pack();
-    }
+		setResizable(false);
+		getRootPane().setDefaultButton(okButton);
+		pack();
+	}
 
-    public String getPassword()
-    {
-    	return password;
-    }
-    
-    /**
-     * Check that the user has entered a non-empty password
-     * and store the new password.
-     */
-    private boolean checkPassword()
-    {
-        String firstPassword = new String(passwordField.getPassword());
-        String confirmPassword = new String(passwordConfirmField.getPassword());
+	public String getPassword() {
+		return password;
+	}
 
-        if ((firstPassword.equals(confirmPassword)) && (firstPassword.length()!= 0)) { //passwords match and not empty
-            password = firstPassword;
-            return true;
-        }
-        else if ((firstPassword.equals(confirmPassword)) && (firstPassword.length() == 0)) { //passwords match but are empty
-            JOptionPane.showMessageDialog(this,
-                    "The password cannot be empty", 
-                    "Credential Manager Warning",
-                    JOptionPane.WARNING_MESSAGE);
+	/**
+	 * Check that the user has entered a non-empty password and store the new
+	 * password.
+	 */
+	private boolean checkPassword() {
+		String firstPassword = new String(passwordField.getPassword());
+		String confirmPassword = new String(passwordConfirmField.getPassword());
 
-                return false;
-        }
-        else{ // passwords do not match
+		if (!firstPassword.equals(confirmPassword)) {
+			showMessageDialog(this, "The passwords do not match", WARN_TITLE,
+					WARNING_MESSAGE);
+			return false;
+		}
+		if (firstPassword.isEmpty()) {
+			// passwords match but are empty
+			showMessageDialog(this, "The password cannot be empty", WARN_TITLE,
+					WARNING_MESSAGE);
+			return false;
+		}
 
-       	JOptionPane.showMessageDialog(this,
-       			"The passwords do not match", 
-       			"Credential Manager Warning",
-       			JOptionPane.WARNING_MESSAGE);
+		// passwords match and not empty
+		password = firstPassword;
+		return true;
+	}
 
-       	return false;
-        }
-    }
+	private void okPressed() {
+		if (checkPassword())
+			closeDialog();
+	}
 
-    private void okPressed()
-    {
-        if (checkPassword()) {
-            closeDialog();
-        }
-    }
+	private void cancelPressed() {
+		/*
+		 * Set the password to null as it might have changed in the meantime if
+		 * user entered something then cancelled.
+		 */
+		password = null;
+		closeDialog();
+	}
 
-    private void cancelPressed()
-    {
-    	// Set the password to null as it might have changed in the meantime 
-    	// if user entered something then cancelled.
-    	password = null;
-        closeDialog();
-    }
-
-    private void closeDialog()
-    {
-        setVisible(false);
-        dispose();
-    }
+	private void closeDialog() {
+		setVisible(false);
+		dispose();
+	}
 }
-
-

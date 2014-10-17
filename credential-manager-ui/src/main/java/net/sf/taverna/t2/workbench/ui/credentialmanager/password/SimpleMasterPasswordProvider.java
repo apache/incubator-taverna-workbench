@@ -23,14 +23,12 @@ package net.sf.taverna.t2.workbench.ui.credentialmanager.password;
 import net.sf.taverna.t2.security.credentialmanager.MasterPasswordProvider;
 
 /**
- * A simple implementation of {@link MasterPasswordProvider} that just provides a  
- * master password that can be obtained and set from outside the provider. 
+ * A simple implementation of {@link MasterPasswordProvider} that just provides
+ * a master password that can be obtained and set from outside the provider.
  * 
  * @author Alex Nenadic
- *
  */
-public class SimpleMasterPasswordProvider implements MasterPasswordProvider{
-
+public class SimpleMasterPasswordProvider implements MasterPasswordProvider {
 	private String masterPassword;
 	private int priority = 200;
 	
@@ -39,6 +37,7 @@ public class SimpleMasterPasswordProvider implements MasterPasswordProvider{
 		return masterPassword;
 	}
 	
+	@Override
 	public void setMasterPassword(String masterPassword){
 		this.masterPassword = masterPassword;
 	}
@@ -52,5 +51,4 @@ public class SimpleMasterPasswordProvider implements MasterPasswordProvider{
 //	public void setProviderPriority(int priority) {
 //		this.priority = priority;		
 //	}
-
 }

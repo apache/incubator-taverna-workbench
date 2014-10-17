@@ -296,7 +296,7 @@ public class ConfirmTrustedCertificateDialog extends NonBlockedHelpEnabledDialog
 		gbc_snLabel.gridy = 6;
 		JLabel snValue = new JLabel();
 		// Get the hexadecimal serial number
-		StringBuffer strBuff = new StringBuffer(new BigInteger(1, cert
+		StringBuilder strBuff = new StringBuilder(new BigInteger(1, cert
 				.getSerialNumber().toByteArray()).toString(16).toUpperCase());
 		// Place colons at every two hexadecimal characters
 		if (strBuff.length() > 2)

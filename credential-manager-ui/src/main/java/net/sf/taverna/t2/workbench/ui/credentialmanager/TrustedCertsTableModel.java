@@ -20,11 +20,17 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.table.AbstractTableModel;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static net.sf.taverna.t2.security.credentialmanager.CredentialManager.KeystoreType.TRUSTSTORE;
+import static net.sf.taverna.t2.workbench.ui.credentialmanager.CMStrings.ERROR_TITLE;
+import static net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI.TRUST_CERT_ENTRY_TYPE;
 
-import org.apache.log4j.Logger;
+import java.util.Set;
+import java.util.TreeSet;
+
+import javax.swing.JFrame;
+import javax.swing.table.AbstractTableModel;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -32,35 +38,33 @@ import net.sf.taverna.t2.security.credentialmanager.CMException;
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.security.credentialmanager.KeystoreChangedEvent;
 
-import java.util.ArrayList;
-import java.util.TreeMap;
+import org.apache.log4j.Logger;
 
 /**
  * The table model used to display the Keystore's trusted certificate entries.
- *
+ * 
  * @author Alex Nenadic
  */
 @SuppressWarnings("serial")
-public class TrustedCertsTableModel extends AbstractTableModel implements Observer<KeystoreChangedEvent>{
+public class TrustedCertsTableModel extends AbstractTableModel implements
+		Observer<KeystoreChangedEvent> {
+	private static final Logger logger = Logger
+			.getLogger(TrustedCertsTableModel.class);
 
 	// Column names
-    private String[] columnNames;
-
-    // Table data
-    private Object[][] data;
-
+	private String[] columnNames;
+	// Table data
+	private Object[][] data;
 	private CredentialManager credManager;
 
-	private Logger logger = Logger.getLogger(TrustedCertsTableModel.class);
-
-    public TrustedCertsTableModel(CredentialManager credentialManager) {
-        credManager = credentialManager;
-        if (credentialManager == null){
+	public TrustedCertsTableModel(CredentialManager credentialManager) {
+		credManager = credentialManager;
+		if (credentialManager == null) {
 			// Failed to instantiate Credential Manager - warn the user and exit
 			String sMessage = "Failed to instantiate Credential Manager. ";
 			logger.error("CM GUI: "+ sMessage);
-			JOptionPane.showMessageDialog(new JFrame(), sMessage,
-					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			showMessageDialog(new JFrame(), sMessage, ERROR_TITLE,
+					ERROR_MESSAGE);
 			return;
         }
 
@@ -72,15 +76,15 @@ public class TrustedCertsTableModel extends AbstractTableModel implements Observ
         	"Serial Number", // public key certificate's serial number
             "Last Modified", // last modified date of the entry
             "Alias" // the invisible column holding the actual alias in the Keystore
-            };
+        };
 
         try {
 			load();
 		} catch (CMException cme) {
 			String sMessage = "Failed to load trusted certificates";
 			logger.error(sMessage);
-			JOptionPane.showMessageDialog(new JFrame(), sMessage,
-					"Credential Manager Error", JOptionPane.ERROR_MESSAGE);
+			showMessageDialog(new JFrame(), sMessage, ERROR_TITLE,
+					ERROR_MESSAGE);
 			return;
 		}
 
@@ -91,120 +95,122 @@ public class TrustedCertsTableModel extends AbstractTableModel implements Observ
     /**
      * Load the TrustCertsTableModel with trusted certificate entries from the Keystore.
      */
-    public void load() throws CMException {
-        try{
-            // Place trusted certificate entries' aliases in a tree map to sort them
-            TreeMap<String, String> sortedAliases = new TreeMap<String, String>();
+	public void load() throws CMException {
+		/*
+		 * Place trusted certificate entries' aliases in a tree map to sort them
+		 */
+		Set<String> aliases = new TreeSet<>();
+		for (String alias : credManager.getAliases(TRUSTSTORE))
+			/*
+			 * We are only interested in trusted certificate entries here. Alias
+			 * for such entries is constructed as
+			 * "trustedcert#<CERT_SERIAL_NUMBER>#<CERT_COMMON_NAME>"
+			 */
+			if (alias.startsWith("trustedcert#"))
+				aliases.add(alias);
 
-            ArrayList<String> aliases = credManager.getAliases(CredentialManager.KeystoreType.TRUSTSTORE);
+		/*
+		 * Create one table row for each trusted certificate entry Each row has
+		 * 4 fields - type, owner name, last modified data and the invisible
+		 * alias
+		 */
+		data = new Object[aliases.size()][6];
 
-           	for (String alias: aliases){
-        		// We are only interested in trusted certificate entries here.
-        		// Alias for such entries is constructed as "trustedcert#<CERT_SERIAL_NUMBER>#<CERT_COMMON_NAME>"
-        		if (alias.startsWith("trustedcert#")){
-        			sortedAliases.put(alias, alias);
-        		}
-        	}
+		/*
+		 * Iterate through the sorted aliases, retrieving the trusted
+		 * certificate entries and populating the table model
+		 */
+		int i = 0;
+		for (String alias : aliases) {
+			/*
+			 * Populate the type column - it is set with an integer but a custom
+			 * cell renderer will cause a suitable icon to be displayed
+			 */
+			data[i][0] = TRUST_CERT_ENTRY_TYPE;
 
-            // Create one table row for each trusted certificate entry
-            // Each row has 4 fields - type, owner name, last modified data and the invisible alias
-            data = new Object[sortedAliases.size()][6];
+			/*
+			 * Split the alias string to extract owner, issuer and serial number
+			 * alias =
+			 * "trustedcert#<CERT_SUBJECT_COMMON_NAME>"#"<CERT_ISSUER_COMMON_NAME>"
+			 * #"<CERT_SERIAL_NUMBER>
+			 */
+			String[] aliasComponents = alias.split("#");
 
-            // Iterate through the sorted aliases, retrieving the trusted certificate
-            // entries and populating the table model
-            int i = 0;
-            for (String alias : sortedAliases.values()){
-                // Populate the type column - it is set with an integer
-                // but a custom cell renderer will cause a suitable icon
-                // to be displayed
-                data[i][0] = CredentialManagerUI.TRUST_CERT_ENTRY_TYPE;
+			// Populate the owner column extracted from the alias
+			data[i][1] = aliasComponents[1];
 
-                // Split the alias string to extract owner, issuer and serial number
-                // alias = "trustedcert#<CERT_SUBJECT_COMMON_NAME>"#"<CERT_ISSUER_COMMON_NAME>"#"<CERT_SERIAL_NUMBER>
-                String[] aliasComponents = alias.split("#");
+			// Populate the issuer column extracted from the alias
+			data[i][2] = aliasComponents[2];
 
-                // Populate the owner column extracted from the alias
-                data[i][1] = aliasComponents[1];
+			// Populate the serial number column extracted from the alias
+			data[i][3] = aliasComponents[3];
 
-                // Populate the issuer column extracted from the alias
-                data[i][2] = aliasComponents[2];
+			// Populate the modified date column
+			//data[iCnt][4] = credManager.getEntryCreationDate(CredentialManager.TRUSTSTORE, alias);
 
-                // Populate the serial number column extracted from the alias
-                data[i][3] = aliasComponents[3];
+			// Populate the invisible alias column
+			data[i][5] = alias;
 
-                // Populate the modified date column
-                //data[iCnt][4] = credManager.getEntryCreationDate(CredentialManager.TRUSTSTORE, alias);
-
-                // Populate the invisible alias column
-                data[i][5] = alias;
-
-                i++;
-            }
-        }
-        catch (CMException cme){
-			 throw (cme);
-        }
+			i++;
+		}
 
         fireTableDataChanged();
     }
 
-    /**
-     * Get the number of columns in the table.
-     */
-    public int getColumnCount()
-    {
-        return columnNames.length;
-    }
-
-    /**
-     * Get the number of rows in the table.
-     */
-    public int getRowCount()
-    {
-        return data.length;
-    }
-
-    /**
-     * Get the name of the column at the given position.
-     */
-    public String getColumnName(int iCol)
-    {
-        return columnNames[iCol];
-    }
-
-    /**
-     * Get the cell value at the given row and column position.
-     */
-    public Object getValueAt(int iRow, int iCol)
-    {
-        return data[iRow][iCol];
-    }
-
-    /**
-     * Get the class at of the cells at the given column position.
-     */
-    public Class<? extends Object> getColumnClass(int iCol)
-    {
-        return getValueAt(0, iCol).getClass();
-    }
-
-    /**
-     * Is the cell at the given row and column position editable?
-     */
-    public boolean isCellEditable(int iRow, int iCol)
-    {
-        // The table is always read-only
-        return false;
-    }
-
-	public void notify(Observable<KeystoreChangedEvent> sender,
-			KeystoreChangedEvent message) throws Exception {
-
-		// reload the table
-		if (message.keystoreType.equals(CredentialManager.KeystoreType.TRUSTSTORE)){
-			load();
-		}
+	/**
+	 * Get the number of columns in the table.
+	 */
+	@Override
+	public int getColumnCount() {
+		return columnNames.length;
 	}
 
-}
+	/**
+	 * Get the number of rows in the table.
+	 */
+	@Override
+	public int getRowCount() {
+		return data.length;
+	}
 
+	/**
+	 * Get the name of the column at the given position.
+	 */
+	@Override
+	public String getColumnName(int iCol) {
+		return columnNames[iCol];
+	}
+
+	/**
+	 * Get the cell value at the given row and column position.
+	 */
+	@Override
+	public Object getValueAt(int iRow, int iCol) {
+		return data[iRow][iCol];
+	}
+
+	/**
+	 * Get the class at of the cells at the given column position.
+	 */
+	@Override
+	public Class<? extends Object> getColumnClass(int iCol) {
+		return getValueAt(0, iCol).getClass();
+	}
+
+	/**
+	 * Is the cell at the given row and column position editable?
+	 */
+	@Override
+	public boolean isCellEditable(int iRow, int iCol) {
+		// The table is always read-only
+		return false;
+	}
+
+	@Override
+	public void notify(Observable<KeystoreChangedEvent> sender,
+			KeystoreChangedEvent message) throws Exception {
+		// reload the table
+		if (message.keystoreType.equals(TRUSTSTORE))
+			load();
+	}
+}

@@ -20,6 +20,10 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
+import static net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI.KEY_PAIR_ENTRY_TYPE;
+import static net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI.PASSWORD_ENTRY_TYPE;
+import static net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI.TRUST_CERT_ENTRY_TYPE;
+
 import java.awt.Component;
 //import java.text.DateFormat;
 //import java.util.Date;
@@ -29,87 +33,81 @@ import javax.swing.JLabel;
 import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
-
-import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI;
 //import net.sf.taverna.t2.workbench.ui.credentialmanager.KeyPairsTableModel;
 //import net.sf.taverna.t2.workbench.ui.credentialmanager.PasswordsTableModel;
-import net.sf.taverna.t2.workbench.ui.credentialmanager.TableCellRenderer;
 //import net.sf.taverna.t2.workbench.ui.credentialmanager.TrustedCertsTableModel;
 
 /**
- * Custom cell renderer for the cells of the tables displaying Keystore/Truststore contents.
+ * Custom cell renderer for the cells of the tables displaying
+ * Keystore/Truststore contents.
  * 
  * @author Alex Nenadic
  */
-public class TableCellRenderer
-    extends DefaultTableCellRenderer
-{
+public class TableCellRenderer extends DefaultTableCellRenderer {
 	private static final long serialVersionUID = -3983986682794010259L;
 
-	private final ImageIcon passwordEntryIcon = new ImageIcon(TableCellRenderer.class.getResource(
-	"/images/table/key_entry.png"));
-	
-	private final ImageIcon keypairEntryIcon = new ImageIcon(TableCellRenderer.class.getResource(
-	"/images/table/keypair_entry.png"));
-	
-	private final ImageIcon trustcertEntryIcon = new ImageIcon(TableCellRenderer.class.getResource(
-	"/images/table/trustcert_entry.png"));
+	private final ImageIcon passwordEntryIcon = new ImageIcon(
+			TableCellRenderer.class.getResource("/images/table/key_entry.png"));
+	private final ImageIcon keypairEntryIcon = new ImageIcon(
+			TableCellRenderer.class
+					.getResource("/images/table/keypair_entry.png"));
+	private final ImageIcon trustcertEntryIcon = new ImageIcon(
+			TableCellRenderer.class
+					.getResource("/images/table/trustcert_entry.png"));
 
-    /**
-     * Get the rendered cell for the supplied value and column.
-     */
-    public Component getTableCellRendererComponent(JTable jtKeyStoreTable,
-        Object value, boolean bIsSelected, boolean bHasFocus, int iRow,
-        int iCol)
-    {
-        JLabel cell = (JLabel) super.getTableCellRendererComponent(jtKeyStoreTable,
-            value, bIsSelected, bHasFocus, iRow, iCol);
+	/**
+	 * Get the rendered cell for the supplied value and column.
+	 */
+	@Override
+	public Component getTableCellRendererComponent(JTable keyStoreTable,
+			Object value, boolean bIsSelected, boolean bHasFocus, int iRow,
+			int iCol) {
+		JLabel cell = (JLabel) super.getTableCellRendererComponent(
+				keyStoreTable, value, bIsSelected, bHasFocus, iRow, iCol);
 
-        if (value != null){
-            // Type column - display an icon representing the type
-            if (iCol == 0) {
-                ImageIcon icon = null;
-                //The cell is in the first column of Passwords table
-                if (CredentialManagerUI.PASSWORD_ENTRY_TYPE.equals(value)) { 
-                    icon = passwordEntryIcon; //key (i.e. password) entry image
-                }
-                // The cell is in the first column of Key Pairs table
-                else if (CredentialManagerUI.KEY_PAIR_ENTRY_TYPE.equals(value)) { 
-                    icon = keypairEntryIcon; //key pair entry image
-                }
-                //The cell is in the first column of Trusted Certificates table
-                else if (CredentialManagerUI.TRUST_CERT_ENTRY_TYPE.equals(value)) { 
-                    icon = trustcertEntryIcon; //trust. certificate entry image
-                }
-
-                cell.setIcon(icon);
-                cell.setText("");
-                cell.setVerticalAlignment(CENTER);
-                cell.setHorizontalAlignment(CENTER);
-                
-            }
+		if (value != null) {
+        	// Type column - display an icon representing the type
+			if (iCol == 0)
+				configureTypeColumn(value, cell);
             // Last Modified column - format date (if date supplied)        
-            /*else if (((jtKeyStoreTable.getModel() instanceof PasswordsTableModel) && (iCol == 3)) || 
-            	((jtKeyStoreTable.getModel() instanceof KeyPairsTableModel) && (iCol == 4))||
-            	((jtKeyStoreTable.getModel() instanceof TrustedCertsTableModel) && (iCol == 4))){
+            /*else if (((keyStoreTable.getModel() instanceof PasswordsTableModel) && (iCol == 3)) || 
+            	((keyStoreTable.getModel() instanceof KeyPairsTableModel) && (iCol == 4))||
+            	((keyStoreTable.getModel() instanceof TrustedCertsTableModel) && (iCol == 4))){
             	if (value instanceof Date) {
             		// Include timezone
             		cell.setText(DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
             			DateFormat.LONG).format((Date) value));
-            	}
-            	else {
+            	} else {
             		cell.setText(value.toString());
             	}
             }*/
             // Other columns - just use their text values
-            else { 
-            	cell.setText(value.toString());     	
-            }
-        }
+			else
+				cell.setText(value.toString());
+		}
 
-        cell.setBorder(new EmptyBorder(0, 5, 0, 5));
+		cell.setBorder(new EmptyBorder(0, 5, 0, 5));
+		return cell;
+	}
 
-        return cell;
-    }
+	private void configureTypeColumn(Object value, JLabel cell) {
+		ImageIcon icon = null;
+		// The cell is in the first column of Passwords table
+		if (PASSWORD_ENTRY_TYPE.equals(value)) {
+			icon = passwordEntryIcon; // key (i.e. password) entry image
+		}
+		// The cell is in the first column of Key Pairs table
+		else if (KEY_PAIR_ENTRY_TYPE.equals(value)) {
+			icon = keypairEntryIcon; // key pair entry image
+		}
+		// The cell is in the first column of Trusted Certificates table
+		else if (TRUST_CERT_ENTRY_TYPE.equals(value)) {
+			icon = trustcertEntryIcon; // trust. certificate entry image
+		}
+
+		cell.setIcon(icon);
+		cell.setText("");
+		cell.setVerticalAlignment(CENTER);
+		cell.setHorizontalAlignment(CENTER);
+	}
 }
-

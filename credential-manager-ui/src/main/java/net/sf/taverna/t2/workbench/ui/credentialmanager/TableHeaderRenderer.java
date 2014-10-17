@@ -20,7 +20,10 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
+import static javax.swing.border.BevelBorder.RAISED;
+
 import java.awt.Component;
+
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -40,14 +43,14 @@ import net.sf.taverna.t2.workbench.ui.credentialmanager.TrustedCertsTableModel;
  */
 @SuppressWarnings("serial")
 public class TableHeaderRenderer extends DefaultTableCellRenderer {
-	
-	private final ImageIcon entryTypeIcon = new ImageIcon(TableHeaderRenderer.class.getResource(
-	"/images/table/entry_heading.png"));
-    
-    public Component getTableCellRendererComponent(JTable jtKeyStoreTable,
-        Object value, boolean bIsSelected, boolean bHasFocus, int iRow,
-        int iCol)
-    {
+	private final ImageIcon entryTypeIcon = new ImageIcon(
+			TableHeaderRenderer.class
+					.getResource("/images/table/entry_heading.png"));
+
+	@Override
+	public Component getTableCellRendererComponent(JTable jtKeyStoreTable,
+			Object value, boolean bIsSelected, boolean bHasFocus, int iRow,
+			int iCol) {
         // Get header renderer
         JLabel header = (JLabel) jtKeyStoreTable.getColumnModel().getColumn(iCol).getHeaderRenderer();
 
@@ -58,7 +61,6 @@ public class TableHeaderRenderer extends DefaultTableCellRenderer {
             header.setHorizontalAlignment(CENTER);
             header.setVerticalAlignment(CENTER);
             header.setToolTipText("Entry type");
-
         }
         // All other headers contain text
         else {
@@ -67,43 +69,32 @@ public class TableHeaderRenderer extends DefaultTableCellRenderer {
             
             // Passwords table
             if (jtKeyStoreTable.getModel() instanceof PasswordsTableModel){
-                if (iCol == 1) { //Service URL column
-                    header.setToolTipText("URL of the service username and password will be used for");
-                }
-                else if (iCol == 2){ //Username column 
-                    header.setToolTipText("Username for the service");                	
-                }       	
-            }
+                if (iCol == 1) //Service URL column
+					header.setToolTipText("URL of the service username and password will be used for");
+				else if (iCol == 2) // Username column
+					header.setToolTipText("Username for the service");
+			}
             // Key pairs table
-            else if(jtKeyStoreTable.getModel() instanceof KeyPairsTableModel){
-                if (iCol == 1) { //Owner
-                    header.setToolTipText("Certificate's owner");
-                }
-                else if (iCol == 2) { //Issuer
-                    header.setToolTipText("Certificate's issuer");
-                }
-                else if (iCol == 3){ //Serial number
-                    header.setToolTipText("Certificate's serial number");
-                }      	
+			else if (jtKeyStoreTable.getModel() instanceof KeyPairsTableModel) {
+				if (iCol == 1) // Owner
+					header.setToolTipText("Certificate's owner");
+				else if (iCol == 2) // Issuer
+					header.setToolTipText("Certificate's issuer");
+				else if (iCol == 3) // Serial number
+					header.setToolTipText("Certificate's serial number");
             }       
             // Trusted certs table
-            else if(jtKeyStoreTable.getModel() instanceof TrustedCertsTableModel){
-                if (iCol == 1) { //Owner
-                    header.setToolTipText("Certificate's owner");
-                }
-                else if (iCol == 2) { //Issuer
-                    header.setToolTipText("Certificate's issuer");
-                }
-                else if (iCol == 3){ //Serial number
-                    header.setToolTipText("Certificate's serial number");
-                }     	
+			else if (jtKeyStoreTable.getModel() instanceof TrustedCertsTableModel) {
+				if (iCol == 1) // Owner
+					header.setToolTipText("Certificate's owner");
+				else if (iCol == 2) // Issuer
+					header.setToolTipText("Certificate's issuer");
+				else if (iCol == 3) // Serial number
+					header.setToolTipText("Certificate's serial number");
             }         
         }
-        header.setBorder(new CompoundBorder(
-            new BevelBorder(BevelBorder.RAISED), new EmptyBorder(0, 5, 0, 5)));
-
-        return header;
-    }
+		header.setBorder(new CompoundBorder(new BevelBorder(RAISED),
+				new EmptyBorder(0, 5, 0, 5)));
+		return header;
+	}
 }
-
-

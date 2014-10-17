@@ -33,16 +33,16 @@ import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.action.CredentialManagerAction;
 
-public class CredentialManagerMenu extends AbstractMenuAction{
+public class CredentialManagerMenu extends AbstractMenuAction {
+	private static final String MENU_URI = "http://taverna.sf.net/2008/t2workbench/menu#advanced";
 
 	private CredentialManager credentialManager;
+	private DistinguishedNameParser dnParser;
 
-        private DistinguishedNameParser dnParser;
-        
-	//private static Logger logger = Logger.getLogger(CredentialManagerMenu.class);
+	// private static Logger logger = Logger.getLogger(CredentialManagerMenu.class);
 
 	public CredentialManagerMenu() {
-		super(URI.create("http://taverna.sf.net/2008/t2workbench/menu#advanced"),60);
+		super(URI.create(MENU_URI), 60);
 		/* This is now done in the initialise SSL startup hook - no need to do it here.
 		// Force initialisation at startup
 		try {
@@ -58,15 +58,15 @@ public class CredentialManagerMenu extends AbstractMenuAction{
 		return new CredentialManagerAction(credentialManager, dnParser);
 	}
 
-	public void setCredentialManager(CredentialManager credentialManager){
+	public void setCredentialManager(CredentialManager credentialManager) {
 		this.credentialManager = credentialManager;
 	}
 
 	/**
-	 * @param dnParser the dnParser to set
+	 * @param dnParser
+	 *            the dnParser to set
 	 */
 	public void setDistinguishedNameParser(DistinguishedNameParser dnParser) {
 		this.dnParser = dnParser;
 	}
-
 }

@@ -20,45 +20,49 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager.action;
 
+import static javax.swing.SwingUtilities.invokeLater;
+
 import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
-import javax.swing.SwingUtilities;
-//import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI;
 
+//import javax.swing.SwingUtilities;
+
 @SuppressWarnings("serial")
 public class CredentialManagerAction extends AbstractAction {
-
 	private static ImageIcon ICON = new ImageIcon(
-			CredentialManagerAction.class.getResource("/images/cred_manager16x16.png"));
+			CredentialManagerAction.class
+					.getResource("/images/cred_manager16x16.png"));
 
 	private CredentialManagerUI cmUI;
 	private final CredentialManager credentialManager;
-        private final DistinguishedNameParser dnParser;
+	private final DistinguishedNameParser dnParser;
 
-	public CredentialManagerAction(CredentialManager credentialManager, DistinguishedNameParser dnParser) {
+	public CredentialManagerAction(CredentialManager credentialManager,
+			DistinguishedNameParser dnParser) {
 		super("Credential Manager", ICON);
 		this.credentialManager = credentialManager;
-                this.dnParser = dnParser;
+		this.dnParser = dnParser;
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (cmUI != null) {
 			cmUI.setVisible(true);
-		} else {
-			Runnable createAndShowCredentialManagerUI = new Runnable() {
-				public void run() {
-					cmUI = new CredentialManagerUI(credentialManager, dnParser);
-					cmUI.setVisible(true);
-				}
-			};
-			SwingUtilities.invokeLater(createAndShowCredentialManagerUI);
+			return;
 		}
 
+		invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				cmUI = new CredentialManagerUI(credentialManager, dnParser);
+				cmUI.setVisible(true);
+			}
+		});
 	}
 }

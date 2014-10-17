@@ -20,8 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.SOUTH;
+import static java.awt.Desktop.getDesktop;
+import static javax.swing.border.EtchedBorder.LOWERED;
+import static javax.swing.event.HyperlinkEvent.EventType.ACTIVATED;
+import static org.apache.commons.io.FileUtils.touch;
+
 import java.awt.BorderLayout;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -32,6 +38,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JEditorPane;
@@ -45,40 +52,43 @@ import javax.swing.event.HyperlinkListener;
 import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
+
 import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
-import org.apache.commons.io.FileUtils;
+
 import org.apache.log4j.Logger;
+
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
 /**
- * Dialog that warns user that they need to install unlimited cryptography strength policy for Java.
- *
+ * Dialog that warns user that they need to install unlimited cryptography
+ * strength policy for Java.
+ * 
  * @author Alex Nenadic
- *
  */
 @SuppressWarnings("serial")
 public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
-
-	private Logger logger = Logger.getLogger(WarnUserAboutJCEPolicyDialog.class);
+	private static final Logger logger = Logger
+			.getLogger(WarnUserAboutJCEPolicyDialog.class);
 
 	private JCheckBox doNotWarnMeAgainCheckBox;
-
 	private final ApplicationConfiguration applicationConfiguration;
-        
-        private final DistinguishedNameParser dnParser;
+	private final DistinguishedNameParser dnParser;
 
-	public WarnUserAboutJCEPolicyDialog(ApplicationConfiguration applicationConfiguration, 
-                    DistinguishedNameParser dnParser){
-		super((Frame)null, "Java Unlimited Strength Cryptography Policy Warning", true);
+	public WarnUserAboutJCEPolicyDialog(
+			ApplicationConfiguration applicationConfiguration,
+			DistinguishedNameParser dnParser) {
+		super((Frame) null,
+				"Java Unlimited Strength Cryptography Policy Warning", true);
 		this.applicationConfiguration = applicationConfiguration;
-                this.dnParser = dnParser;
+		this.dnParser = dnParser;
 		initComponents();
 	}
 
 	// For testing
-	public static void main (String[] args){
-		WarnUserAboutJCEPolicyDialog dialog = new WarnUserAboutJCEPolicyDialog(null, null);
+	public static void main(String[] args) {
+		WarnUserAboutJCEPolicyDialog dialog = new WarnUserAboutJCEPolicyDialog(
+				null, null);
 		dialog.setVisible(true);
 	}
 
@@ -88,7 +98,8 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 
 		// Message saying that updates are available
 		JPanel messagePanel = new JPanel(new BorderLayout());
-		messagePanel.setBorder(new CompoundBorder(new EmptyBorder(10,10,10,10), new EtchedBorder(EtchedBorder.LOWERED)));
+		messagePanel.setBorder(new CompoundBorder(new EmptyBorder(10, 10, 10,
+				10), new EtchedBorder(LOWERED)));
 
 		JEditorPane message = new JEditorPane();
 		message.setEditable(false);
@@ -98,42 +109,45 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 		message.setEditorKit(kit);
 		StyleSheet styleSheet = kit.getStyleSheet();
 		//styleSheet.addRule("body {font-family:"+baseFont.getFamily()+"; font-size:"+baseFont.getSize()+";}"); // base font looks bigger when rendered as HTML
-		styleSheet.addRule("body {font-family:"+baseFont.getFamily()+"; font-size:10px;}");
+		styleSheet.addRule("body {font-family:" + baseFont.getFamily()
+				+ "; font-size:10px;}");
 		Document doc = kit.createDefaultDocument();
 		message.setDocument(doc);
-		message.setText("<html><body>In order for Taverna's security features to function properly - you need to install<br>" +
-				"'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy'. <br><br>" +
-				"If you do not already have it, for <b>Java 6</b> you can get it from:<br>" +
-				"<a href=\"http://www.oracle.com/technetwork/java/javase/downloads/index.html\">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a><br<br>" +
-				"Installation instructions are contained in the bundle you download."+
-			"</body><html>");
+		message.setText("<html><body>In order for Taverna's security features to function properly - you need to install<br>"
+				+ "'Java Cryptography Extension (JCE) Unlimited Strength Jurisdiction Policy'. <br><br>"
+				+ "If you do not already have it, for <b>Java 6</b> you can get it from:<br>"
+				+ "<a href=\"http://www.oracle.com/technetwork/java/javase/downloads/index.html\">http://www.oracle.com/technetwork/java/javase/downloads/index.html</a><br<br>"
+				+ "Installation instructions are contained in the bundle you download."
+				+ "</body><html>");
 		message.addHyperlinkListener(new HyperlinkListener() {
+			@Override
 			public void hyperlinkUpdate(HyperlinkEvent he) {
 				HyperlinkEvent.EventType type = he.getEventType();
-			    if (type == HyperlinkEvent.EventType.ACTIVATED) {
+				if (type == ACTIVATED)
 					// Open a Web browser
-					try{
-						Desktop.getDesktop().browse(he.getURL().toURI());
+					try {
+						getDesktop().browse(he.getURL().toURI());
 //						BrowserLauncher launcher = new BrowserLauncher();
 //						launcher.openURLinBrowser(he.getURL().toString());
-					}catch(Exception ex){
-						logger.error("User registration: Failed to launch browser to show terms and conditions at " + he.getURL().toString());
+					} catch (Exception ex) {
+						logger.error("Failed to launch browser to fetch JCE "
+								+ he.getURL());
 					}
-			    }
 			}
 		});
-		message.setBorder(new EmptyBorder(5,5,5,5));
-		messagePanel.add(message, BorderLayout.CENTER);
+		message.setBorder(new EmptyBorder(5, 5, 5, 5));
+		messagePanel.add(message, CENTER);
 
 		doNotWarnMeAgainCheckBox = new JCheckBox("Do not warn me again");
 		doNotWarnMeAgainCheckBox.setFont(baseFont.deriveFont(12f));
-		messagePanel.add(doNotWarnMeAgainCheckBox, BorderLayout.SOUTH);
+		messagePanel.add(doNotWarnMeAgainCheckBox, SOUTH);
 
 		// Buttons
 		JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
 		JButton okButton = new JButton("OK");
 		okButton.setFont(baseFont);
-		okButton.addActionListener(new ActionListener(){
+		okButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				okPressed();
 			}
@@ -142,8 +156,8 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 		buttonsPanel.add(okButton);
 
 		getContentPane().setLayout(new BorderLayout());
-		getContentPane().add(messagePanel, BorderLayout.CENTER);
-		getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+		getContentPane().add(messagePanel, CENTER);
+		getContentPane().add(buttonsPanel, SOUTH);
 
 		pack();
 		setResizable(false);
@@ -155,42 +169,50 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 		setSize(getPreferredSize());
 	}
 
-
 	private static final String DO_NOT_WARN_ABOUT_JCE_POLICY = "do_not_warn_about_JCE_policy";
-	public static boolean warnedUser = false; // have we already warned user for this run
-	/**
-	 * Warn user that they need to install Java Cryptography
-	 * Extension (JCE) Unlimited Strength Jurisdiction Policy
-	 * if they want Credential Manager to function properly.
-	 */
-	public static void warnUserAboutJCEPolicy(ApplicationConfiguration applicationConfiguration, DistinguishedNameParser dnParser){
-		// Do not pop up a dialog if we are running headlessly.
-		// If we have warned the user and they do not want us to remind them again - exit.
-		if (warnedUser || GraphicsEnvironment.isHeadless() || doNotWarnFile(applicationConfiguration, dnParser).exists()){
-			return;
-		}
+	public static boolean warnedUser = false; // have we already warned user for
+												// this run
 
-		WarnUserAboutJCEPolicyDialog warnDialog = new WarnUserAboutJCEPolicyDialog(applicationConfiguration, dnParser);
+	/**
+	 * Warn user that they need to install Java Cryptography Extension (JCE)
+	 * Unlimited Strength Jurisdiction Policy if they want Credential Manager to
+	 * function properly.
+	 */
+	public static void warnUserAboutJCEPolicy(
+			ApplicationConfiguration applicationConfiguration,
+			DistinguishedNameParser dnParser) {
+		/*
+		 * Do not pop up a dialog if we are running headlessly. If we have
+		 * warned the user and they do not want us to remind them again - exit.
+		 */
+		if (warnedUser || GraphicsEnvironment.isHeadless()
+				|| doNotWarnFile(applicationConfiguration, dnParser).exists())
+			return;
+
+		WarnUserAboutJCEPolicyDialog warnDialog = new WarnUserAboutJCEPolicyDialog(
+				applicationConfiguration, dnParser);
 		warnDialog.setVisible(true);
 		warnedUser = true;
-
 	}
 
-	private static File doNotWarnFile(ApplicationConfiguration applicationConfiguration, DistinguishedNameParser dnParser) {
-		return new File(dnParser.getCredentialManagerDefaultDirectory(applicationConfiguration),DO_NOT_WARN_ABOUT_JCE_POLICY);
+	private static File doNotWarnFile(
+			ApplicationConfiguration applicationConfiguration,
+			DistinguishedNameParser dnParser) {
+		return new File(
+				dnParser.getCredentialManagerDefaultDirectory(applicationConfiguration),
+				DO_NOT_WARN_ABOUT_JCE_POLICY);
 	}
 
-	protected void okPressed(){
-		if (doNotWarnMeAgainCheckBox.isSelected()){
-			try {
-				FileUtils.touch(doNotWarnFile(applicationConfiguration, dnParser));
-			} catch (IOException ioex) {
-				logger.error("Failed to touch the 'Do not want me about JCE unilimited security policy file.",
-								ioex);
-			}
+	protected void okPressed() {
+		try {
+			if (doNotWarnMeAgainCheckBox.isSelected())
+				touch(doNotWarnFile(applicationConfiguration, dnParser));
+		} catch (IOException e) {
+			logger.error(
+					"Failed to touch the 'Do not want me about JCE unilimited security policy' file.",
+					e);
 		}
 		closeDialog();
-
 	}
 
 	private void closeDialog() {
@@ -199,4 +221,3 @@ public class WarnUserAboutJCEPolicyDialog extends NonBlockedHelpEnabledDialog {
 	}
 
 }
-

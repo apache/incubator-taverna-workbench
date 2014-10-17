@@ -5,22 +5,20 @@ import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.workbench.StartupSPI;
 
 public class SetCredManAuthenticatorStartupHook implements StartupSPI {
-
 	private CredentialManager credManager;
 
-        @Override
+	@Override
 	public int positionHint() {
 		return 50;
 	}
 
-        @Override
+	@Override
 	public boolean startup() {
-                Authenticator.setDefault(credManager.getAuthenticator());
+		Authenticator.setDefault(credManager.getAuthenticator());
 		return true;
 	}
 
-	public void setCredentialManager(CredentialManager credManager){
+	public void setCredentialManager(CredentialManager credManager) {
 		this.credManager = credManager;
 	}
-
 }
