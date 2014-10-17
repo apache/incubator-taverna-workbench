@@ -422,7 +422,7 @@ public class ProcessorResultsComponent extends JPanel {
 		}
 
 		// Update iterationLabel
-		StringBuffer iterationLabelText = labelForProcEnactment(procEnactmentTreeNode,
+		StringBuilder iterationLabelText = labelForProcEnactment(procEnactmentTreeNode,
 				processorEnactment);
 		iterationLabel.setText(iterationLabelText.toString());
 		saveAllButton.setEnabled(true);
@@ -434,9 +434,8 @@ public class ProcessorResultsComponent extends JPanel {
 			map = enactmentsToInputPortData;
 		}
 		List<List<Object>> listOfListsOfPortData = map.get(processorEnactment);
-		if (listOfListsOfPortData == null) {
+		if (listOfListsOfPortData == null)
 			listOfListsOfPortData = Collections.emptyList();
-		}
 
 		JTree tree = null;
 		int index = -1;
@@ -532,9 +531,9 @@ public class ProcessorResultsComponent extends JPanel {
 		saveAllButton.setEnabled(false);
 	}
 
-	private StringBuffer labelForProcEnactment(ProcessorEnactmentsTreeNode procEnactmentTreeNode,
+	private StringBuilder labelForProcEnactment(ProcessorEnactmentsTreeNode procEnactmentTreeNode,
 			ProcessorEnactment processorEnactment) {
-		StringBuffer iterationLabelText = new StringBuffer();
+		StringBuilder iterationLabelText = new StringBuilder();
 		// Use <html> so we can match font metrics of titleJLabel
 		iterationLabelText.append("<html><body>");
 		iterationLabelText.append(procEnactmentTreeNode);
@@ -572,7 +571,7 @@ public class ProcessorResultsComponent extends JPanel {
 	}
 
 	private String labelForNode(DefaultMutableTreeNode node) {
-		StringBuffer label = new StringBuffer();
+		StringBuilder label = new StringBuilder();
 		if (node == null) {
 			label.append("No selection");
 		} else {
