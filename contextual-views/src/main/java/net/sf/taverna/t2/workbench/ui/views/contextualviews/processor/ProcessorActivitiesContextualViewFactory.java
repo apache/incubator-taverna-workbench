@@ -34,32 +34,32 @@ import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 
 /**
  * SPI factory for creating a {@link ProcessorContextualView}.
- *
+ * 
  * @author Stian Soiland-Reyes
  * @author Alan R Williams
  */
-public class ProcessorActivitiesContextualViewFactory implements ContextualViewFactory<Processor> {
-
+public class ProcessorActivitiesContextualViewFactory implements
+		ContextualViewFactory<Processor> {
 	private Scufl2Tools scufl2Tools = new Scufl2Tools();
-
 	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
 	private SelectionManager selectionManager;
 
+	@Override
 	public boolean canHandle(Object selection) {
 		return selection instanceof Processor;
 	}
 
+	@Override
 	public List<ContextualView> getViews(Processor selection) {
-		List<ContextualView> result = new ArrayList<ContextualView>();
-		List<ProcessorBinding> processorBindings = scufl2Tools.processorBindingsForProcessor(
-				selection, selectionManager.getSelectedProfile());
+		List<ContextualView> result = new ArrayList<>();
+		List<ProcessorBinding> processorBindings = scufl2Tools
+				.processorBindingsForProcessor(selection,
+						selectionManager.getSelectedProfile());
 		for (ProcessorBinding processorBinding : processorBindings) {
 			Activity activity = processorBinding.getBoundActivity();
-			List<ContextualViewFactory> viewFactoryForBeanType = (List<ContextualViewFactory>) contextualViewFactoryRegistry
-					.getViewFactoriesForObject(activity);
-			for (ContextualViewFactory cvf : viewFactoryForBeanType) {
+			for (ContextualViewFactory<? super Activity> cvf : contextualViewFactoryRegistry
+					.getViewFactoriesForObject(activity))
 				result.addAll(cvf.getViews(activity));
-			}
 		}
 		return result;
 	}
@@ -72,5 +72,4 @@ public class ProcessorActivitiesContextualViewFactory implements ContextualViewF
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
 	}
-
 }
