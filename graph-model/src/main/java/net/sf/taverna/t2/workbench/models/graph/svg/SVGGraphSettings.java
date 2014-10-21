@@ -20,15 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.models.graph.svg;
 
-
-public class SVGGraphSettings {
-
-	public static final String COMPLETED_COLOUR = "grey";
-
-	public static final String ERROR_COLOUR = "#dd3131";
-
-	public static final String SELECTED_COLOUR = "#4377d3";
-
-	public static final String NORMAL_COLOUR = "black";
-
+public interface SVGGraphSettings {
+	String COMPLETED_COLOUR = "grey";
+	String ERROR_COLOUR = "#dd3131";
+	String SELECTED_COLOUR = "#4377d3";
+	String NORMAL_COLOUR = "black";
 }

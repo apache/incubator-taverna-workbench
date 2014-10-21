@@ -29,20 +29,13 @@ import java.util.List;
  * @author David Withers
  */
 public class GraphEdge extends GraphElement {
-
 	public enum ArrowStyle {NONE, NORMAL, DOT}
 
 	private GraphNode source;
-
 	private GraphNode sink;
-
 	private ArrowStyle arrowHeadStyle = ArrowStyle.NORMAL;
-
 	private ArrowStyle arrowTailStyle = ArrowStyle.NONE;
-
 	private List<Point> path;
-
-	private boolean active;
 
 	/**
 	 * Constructs a new instance of Edge.
@@ -141,14 +134,4 @@ public class GraphEdge extends GraphElement {
 	public void setPath(List<Point> path) {
 		this.path = path;
 	}
-
-	/**
-	 * Sets the active state of the Edge.
-	 *
-	 * @param active the active state of the Edge
-	 */
-	public void setActive(boolean active) {
-		this.active = active;
-	}
-
 }

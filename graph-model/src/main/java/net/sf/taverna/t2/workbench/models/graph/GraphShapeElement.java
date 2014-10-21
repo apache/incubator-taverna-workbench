@@ -25,15 +25,15 @@ import java.awt.Point;
 
 /**
  * A Graph element that has shape, size and position properties.
- *
+ * 
  * @author David Withers
  */
 public class GraphShapeElement extends GraphElement {
-
-	public enum Shape {BOX, RECORD, HOUSE, INVHOUSE, DOT, CIRCLE, TRIANGLE, INVTRIANGLE}
+	public enum Shape {
+		BOX, RECORD, HOUSE, INVHOUSE, DOT, CIRCLE, TRIANGLE, INVTRIANGLE
+	}
 
 	private Shape shape;
-
 	private int x, y, width, height;
 
 	public GraphShapeElement(GraphController graphController) {
@@ -42,7 +42,7 @@ public class GraphShapeElement extends GraphElement {
 
 	/**
 	 * Returns the height.
-	 *
+	 * 
 	 * @return the height
 	 */
 	public int getHeight() {
@@ -51,7 +51,7 @@ public class GraphShapeElement extends GraphElement {
 
 	/**
 	 * Returns the position.
-	 *
+	 * 
 	 * @return the position
 	 */
 	public Point getPosition() {
@@ -60,7 +60,7 @@ public class GraphShapeElement extends GraphElement {
 
 	/**
 	 * Returns the shape of the element.
-	 *
+	 * 
 	 * @return the shape of the element
 	 */
 	public Shape getShape() {
@@ -69,7 +69,7 @@ public class GraphShapeElement extends GraphElement {
 
 	/**
 	 * Returns the width.
-	 *
+	 * 
 	 * @return the width
 	 */
 	public int getWidth() {
@@ -78,8 +78,9 @@ public class GraphShapeElement extends GraphElement {
 
 	/**
 	 * Sets the position.
-	 *
-	 * @param position the new position
+	 * 
+	 * @param position
+	 *            the new position
 	 */
 	public void setPosition(Point position) {
 		x = position.x;
@@ -88,8 +89,9 @@ public class GraphShapeElement extends GraphElement {
 
 	/**
 	 * Sets the shape of the element.
-	 *
-	 * @param shape the new shape of the element
+	 * 
+	 * @param shape
+	 *            the new shape of the element
 	 */
 	public void setShape(Shape shape) {
 		this.shape = shape;
@@ -97,7 +99,7 @@ public class GraphShapeElement extends GraphElement {
 
 	/**
 	 * Returns the size of the element.
-	 *
+	 * 
 	 * @return the size of the element
 	 */
 	public Dimension getSize() {
@@ -106,12 +108,12 @@ public class GraphShapeElement extends GraphElement {
 
 	/**
 	 * Sets the size of the element.
-	 *
-	 * @param size the new size of the node
+	 * 
+	 * @param size
+	 *            the new size of the node
 	 */
 	public void setSize(Dimension size) {
 		width = size.width;
 		height = size.height;
 	}
-
 }

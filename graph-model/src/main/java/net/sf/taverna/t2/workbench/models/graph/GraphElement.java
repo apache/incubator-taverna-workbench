@@ -27,49 +27,31 @@ import uk.org.taverna.scufl2.api.common.WorkflowBean;
 
 /**
  * An element of a graph.
- *
+ * 
  * @author David Withers
  */
 public abstract class GraphElement {
-
 	public enum LineStyle {
 		NONE, SOLID, DOTTED
 	}
 
 	private String id;
-
 	private String label;
-
 	private Point labelPosition;
-
 	private LineStyle lineStyle = LineStyle.SOLID;
-
 	private Color color = Color.BLACK;
-
 	private Color fillColor;
-
 	private float opacity = 1f;
-
 	private GraphElement parent;
-
 	private boolean selected;
-
 	private boolean active;
-
 	private boolean interactive;
-
 	private boolean visible = true;
-
 	private boolean filtered;
-
 	private WorkflowBean workflowBean;
-
 	protected GraphController graphController;
-
 	protected float completed;
-
 	protected int iteration;
-
 	protected int errors;
 
 	protected GraphElement(GraphController graphController) {
@@ -78,7 +60,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the eventManager.
-	 *
+	 * 
 	 * @return the eventManager
 	 */
 	public GraphEventManager getEventManager() {
@@ -90,7 +72,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the workflowBean.
-	 *
+	 * 
 	 * @return the workflowBean
 	 */
 	public WorkflowBean getWorkflowBean() {
@@ -99,8 +81,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the workflowBean.
-	 *
-	 * @param workflowBean the new workflowBean
+	 * 
+	 * @param workflowBean
+	 *            the new workflowBean
 	 */
 	public void setWorkflowBean(WorkflowBean workflowBean) {
 		this.workflowBean = workflowBean;
@@ -108,7 +91,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the parent.
-	 *
+	 * 
 	 * @return the parent
 	 */
 	public GraphElement getParent() {
@@ -117,8 +100,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the parent.
-	 *
-	 * @param parent the new parent
+	 * 
+	 * @param parent
+	 *            the new parent
 	 */
 	protected void setParent(GraphElement parent) {
 		this.parent = parent;
@@ -126,7 +110,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the label.
-	 *
+	 * 
 	 * @return the label
 	 */
 	public String getLabel() {
@@ -135,8 +119,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the label.
-	 *
-	 * @param label the new label
+	 * 
+	 * @param label
+	 *            the new label
 	 */
 	public void setLabel(String label) {
 		this.label = label;
@@ -144,7 +129,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the labelPosition.
-	 *
+	 * 
 	 * @return the labelPosition
 	 */
 	public Point getLabelPosition() {
@@ -153,8 +138,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the labelPosition.
-	 *
-	 * @param labelPosition the new labelPosition
+	 * 
+	 * @param labelPosition
+	 *            the new labelPosition
 	 */
 	public void setLabelPosition(Point labelPosition) {
 		this.labelPosition = labelPosition;
@@ -162,7 +148,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the id.
-	 *
+	 * 
 	 * @return the id
 	 */
 	public String getId() {
@@ -171,8 +157,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the id.
-	 *
-	 * @param id the new id
+	 * 
+	 * @param id
+	 *            the new id
 	 */
 	public void setId(String id) {
 		if (graphController != null) {
@@ -183,7 +170,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the colour.
-	 *
+	 * 
 	 * @return the colour
 	 */
 	public Color getColor() {
@@ -192,8 +179,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the colour.
-	 *
-	 * @param color the new colour
+	 * 
+	 * @param color
+	 *            the new colour
 	 */
 	public void setColor(Color color) {
 		this.color = color;
@@ -201,7 +189,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the fillColor.
-	 *
+	 * 
 	 * @return the fillColor
 	 */
 	public Color getFillColor() {
@@ -210,8 +198,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the fillColor.
-	 *
-	 * @param fillColor the new fillColor
+	 * 
+	 * @param fillColor
+	 *            the new fillColor
 	 */
 	public void setFillColor(Color fillColor) {
 		this.fillColor = fillColor;
@@ -219,7 +208,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the lineStyle.
-	 *
+	 * 
 	 * @return the lineStyle
 	 */
 	public LineStyle getLineStyle() {
@@ -228,20 +217,22 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the lineStyle.
-	 *
-	 * @param lineStyle the new lineStyle
+	 * 
+	 * @param lineStyle
+	 *            the new lineStyle
 	 */
 	public void setLineStyle(LineStyle lineStyle) {
 		this.lineStyle = lineStyle;
 	}
 
+	@Override
 	public String toString() {
 		return id + "[" + label + "]";
 	}
 
 	/**
 	 * Returns the selected.
-	 *
+	 * 
 	 * @return the selected
 	 */
 	public boolean isSelected() {
@@ -250,8 +241,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the selected.
-	 *
-	 * @param selected the new selected
+	 * 
+	 * @param selected
+	 *            the new selected
 	 */
 	public void setSelected(boolean selected) {
 		this.selected = selected;
@@ -259,7 +251,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the iteration.
-	 *
+	 * 
 	 * @return the value of iteration
 	 */
 	public int getIteration() {
@@ -268,8 +260,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the iteration.
-	 *
-	 * @param iteration the new value for iteration
+	 * 
+	 * @param iteration
+	 *            the new value for iteration
 	 */
 	public void setIteration(int iteration) {
 		this.iteration = iteration;
@@ -277,7 +270,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the errors.
-	 *
+	 * 
 	 * @return the value of errors
 	 */
 	public int getErrors() {
@@ -286,8 +279,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the errors.
-	 *
-	 * @param errors the new value for errors
+	 * 
+	 * @param errors
+	 *            the new value for errors
 	 */
 	public void setErrors(int errors) {
 		this.errors = errors;
@@ -295,7 +289,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the completed.
-	 *
+	 * 
 	 * @return the value of completed
 	 */
 	public float getCompleted() {
@@ -304,7 +298,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the completed value.
-	 *
+	 * 
 	 * @param completed
 	 */
 	public void setCompleted(float completed) {
@@ -312,8 +306,9 @@ public abstract class GraphElement {
 	}
 
 	/**
-	 * Returns <code>true</code> if the element is active. The default value is <code>false</code>.
-	 *
+	 * Returns <code>true</code> if the element is active. The default value is
+	 * <code>false</code>.
+	 * 
 	 * @return <code>true</code> if the element is active
 	 */
 	public boolean isActive() {
@@ -322,16 +317,18 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the value of active.
-	 *
-	 * @param active the new active
+	 * 
+	 * @param active
+	 *            the new active
 	 */
 	public void setActive(boolean active) {
 		this.active = active;
 	}
 
 	/**
-	 * Returns <code>true</code> if the element is interactive. The default value is <code>false</code>.
-	 *
+	 * Returns <code>true</code> if the element is interactive. The default
+	 * value is <code>false</code>.
+	 * 
 	 * @return <code>true</code> if the element is interactive
 	 */
 	public boolean isInteractive() {
@@ -340,16 +337,18 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the value of interactive.
-	 *
-	 * @param interactive the new interactive
+	 * 
+	 * @param interactive
+	 *            the new interactive
 	 */
 	public void setInteractive(boolean interactive) {
 		this.interactive = interactive;
 	}
 
 	/**
-	 * Returns <code>true</code> if the element is visible. The default value is <code>true</code>.
-	 *
+	 * Returns <code>true</code> if the element is visible. The default value is
+	 * <code>true</code>.
+	 * 
 	 * @return <code>true</code> if the element is visible
 	 */
 	public boolean isVisible() {
@@ -358,8 +357,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets whether the element is visible.
-	 *
-	 * @param visible the new value for visible
+	 * 
+	 * @param visible
+	 *            the new value for visible
 	 */
 	public void setVisible(boolean visible) {
 		this.visible = visible;
@@ -367,7 +367,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns the opacity value. The default value is 1.0
-	 *
+	 * 
 	 * @return the opacity value
 	 */
 	public float getOpacity() {
@@ -376,8 +376,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the opacity of the element. Must be a value between 0.0 and 1.0.
-	 *
-	 * @param opacity the new opacity value
+	 * 
+	 * @param opacity
+	 *            the new opacity value
 	 */
 	public void setOpacity(float opacity) {
 		this.opacity = opacity;
@@ -385,7 +386,7 @@ public abstract class GraphElement {
 
 	/**
 	 * Returns <code>true</code> if the element is filtered.
-	 *
+	 * 
 	 * @return <code>true</code> if the element is filtered
 	 */
 	public boolean isFiltered() {
@@ -394,8 +395,9 @@ public abstract class GraphElement {
 
 	/**
 	 * Sets the value of filtered.
-	 *
-	 * @param filtered the new value for filtered
+	 * 
+	 * @param filtered
+	 *            the new value for filtered
 	 */
 	public void setFiltered(boolean filtered) {
 		this.filtered = filtered;
@@ -411,24 +413,18 @@ public abstract class GraphElement {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
+
+		// Equality by id
 		GraphElement other = (GraphElement) obj;
-		if (id == null) {
-			if (other.id != null) {
-				return false;
-			}
-		} else if (!id.equals(other.id)) {
-			return false;
-		}
-		return true;
+		if (id == null)
+			return (other.id == null);
+		return id.equals(other.id);
 	}
 
 }

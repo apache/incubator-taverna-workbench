@@ -20,6 +20,37 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.models.graph.svg;
 
+import static java.awt.Color.BLACK;
+import static java.awt.Color.GREEN;
+import static java.lang.Float.parseFloat;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.animate;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.calculateAngle;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.createAnimationElement;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.createSVGDocument;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.getDot;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.getHexValue;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.svgNS;
+import static org.apache.batik.util.SVGConstants.SVG_ANIMATE_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_ELLIPSE_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_FILL_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_FONT_SIZE_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_G_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_LINE_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_PATH_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_POINTS_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_POLYGON_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_RECT_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_STYLE_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_TEXT_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_TRANSFORM_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_VIEW_BOX_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_X1_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_X2_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_Y1_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_Y2_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_Y_ATTRIBUTE;
+
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -48,11 +79,15 @@ import net.sf.taverna.t2.workbench.models.graph.dot.ParseException;
 
 import org.apache.batik.bridge.UpdateManager;
 import org.apache.batik.dom.svg.SVGOMAnimationElement;
+import org.apache.batik.dom.svg.SVGOMEllipseElement;
+import org.apache.batik.dom.svg.SVGOMGElement;
+import org.apache.batik.dom.svg.SVGOMPathElement;
+import org.apache.batik.dom.svg.SVGOMPolygonElement;
+import org.apache.batik.dom.svg.SVGOMRectElement;
 import org.apache.batik.dom.svg.SVGOMTextElement;
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
-import org.apache.batik.util.SVGConstants;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -65,33 +100,9 @@ import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.profiles.Profile;
 
 public class SVGGraphController extends GraphController {
-
-	private static Logger logger = Logger.getLogger(SVGGraphController.class);
-
-	private Map<String, List<SVGGraphEdge>> datalinkMap = new HashMap<String, List<SVGGraphEdge>>();
-
-	private final JSVGCanvas svgCanvas;
-
-	private SVGDocument svgDocument;
-
-	private GraphLayout graphLayout = new GraphLayout();
-
-	private EdgeLine edgeLine;
-
-	private UpdateManager updateManager;
-
-	private ExecutorService executor = Executors.newFixedThreadPool(1);
-
-	private boolean drawingDiagram = false;
-
-	private int animationSpeed;
-
-	private Rectangle bounds, oldBounds;
-
-	private SVGOMAnimationElement animateBounds;
-
-	static final Timer timer = new Timer("SVG Graph controller timer", true);
-
+	private static final Logger logger = Logger.getLogger(SVGGraphController.class);
+	@SuppressWarnings("unused")
+	private static final Timer timer = new Timer("SVG Graph controller timer", true);
 	private static final String dotErrorMessage = "Cannot draw diagram(s)\n" +
 			"\n" +
 			"Install dot as described\n" +
@@ -99,46 +110,67 @@ public class SVGGraphController extends GraphController {
 			"and specify its location\n" +
 			"in the workbench preferences";
 
+	private Map<String, List<SVGGraphEdge>> datalinkMap = new HashMap<>();
+	private final JSVGCanvas svgCanvas;
+	private SVGDocument svgDocument;
+	private GraphLayout graphLayout = new GraphLayout();
+	private EdgeLine edgeLine;
+	private UpdateManager updateManager;
+	private ExecutorService executor = Executors.newFixedThreadPool(1);
+	private boolean drawingDiagram = false;
+	private int animationSpeed;
+	private Rectangle bounds, oldBounds;
+	private SVGOMAnimationElement animateBounds;
 	private boolean dotMissing = false;
-
 	private final WorkbenchConfiguration workbenchConfiguration;
 
-	public SVGGraphController(Workflow dataflow, Profile profile, boolean interactive, JSVGCanvas svgCanvas, EditManager editManager,
-			MenuManager menuManager, ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
-		super(dataflow, profile, interactive, svgCanvas, editManager, menuManager, colourManager);
+	public SVGGraphController(Workflow dataflow, Profile profile,
+			boolean interactive, JSVGCanvas svgCanvas, EditManager editManager,
+			MenuManager menuManager, ColourManager colourManager,
+			WorkbenchConfiguration workbenchConfiguration) {
+		super(dataflow, profile, interactive, svgCanvas, editManager,
+				menuManager, colourManager);
 		this.svgCanvas = svgCanvas;
 		this.workbenchConfiguration = workbenchConfiguration;
-		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
-			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
-				setUpdateManager(SVGGraphController.this.svgCanvas.getUpdateManager());
-			}
-		});
+		installUpdateManager();
 		layoutSVGDocument(svgCanvas.getBounds());
 		svgCanvas.setDocument(getSVGDocument());
 	}
 
-	public SVGGraphController(Workflow dataflow, Profile profile, boolean interactive, JSVGCanvas svgCanvas, Alignment alignment,
-			PortStyle portStyle, EditManager editManager, MenuManager menuManager, ColourManager colourManager, WorkbenchConfiguration workbenchConfiguration) {
-		super(dataflow, profile, interactive, svgCanvas, alignment, portStyle, editManager, menuManager, colourManager);
+	public SVGGraphController(Workflow dataflow, Profile profile,
+			boolean interactive, JSVGCanvas svgCanvas, Alignment alignment,
+			PortStyle portStyle, EditManager editManager,
+			MenuManager menuManager, ColourManager colourManager,
+			WorkbenchConfiguration workbenchConfiguration) {
+		super(dataflow, profile, interactive, svgCanvas, alignment, portStyle,
+				editManager, menuManager, colourManager);
 		this.svgCanvas = svgCanvas;
 		this.workbenchConfiguration = workbenchConfiguration;
-		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
-			public void gvtRenderingCompleted(GVTTreeRendererEvent arg0) {
-				setUpdateManager(SVGGraphController.this.svgCanvas.getUpdateManager());
-			}
-		});
+		installUpdateManager();
 		layoutSVGDocument(svgCanvas.getBounds());
 		svgCanvas.setDocument(getSVGDocument());
 	}
 
+	private void installUpdateManager() {
+		svgCanvas.addGVTTreeRendererListener(new GVTTreeRendererAdapter() {
+			@Override
+			public void gvtRenderingCompleted(GVTTreeRendererEvent ev) {
+				setUpdateManager(svgCanvas.getUpdateManager());
+			}
+		});
+	}
+	
+	@Override
 	public GraphEdge createGraphEdge() {
 		return new SVGGraphEdge(this);
 	}
 
+	@Override
 	public Graph createGraph() {
 		return new SVGGraph(this);
 	}
 
+	@Override
 	public GraphNode createGraphNode() {
 		return new SVGGraphNode(this);
 	}
@@ -148,12 +180,12 @@ public class SVGGraphController extends GraphController {
 	}
 
 	public synchronized SVGDocument getSVGDocument() {
-		if (svgDocument == null) {
-			svgDocument = SVGUtil.createSVGDocument();
-		}
+		if (svgDocument == null)
+			svgDocument = createSVGDocument();
 		return svgDocument;
 	}
 
+	@Override
 	public void redraw() {
 		Graph graph = generateGraph();
 		Rectangle actualBounds = layoutGraph(graph, svgCanvas.getBounds());
@@ -162,8 +194,8 @@ public class SVGGraphController extends GraphController {
 	}
 
 	private void layoutSVGDocument(Rectangle bounds) {
-		animateBounds = SVGUtil.createAnimationElement(this, SVGConstants.SVG_ANIMATE_TAG,
-				SVGConstants.SVG_VIEW_BOX_ATTRIBUTE, null);
+		animateBounds = createAnimationElement(this, SVG_ANIMATE_TAG,
+				SVG_VIEW_BOX_ATTRIBUTE, null);
 		updateManager = null;
 		datalinkMap.clear();
 
@@ -188,12 +220,11 @@ public class SVGGraphController extends GraphController {
 		DotWriter dotWriter = new DotWriter(stringWriter);
 		try {
 			dotWriter.writeGraph(graph);
-			String layout = SVGUtil.getDot(stringWriter.toString(), workbenchConfiguration);
-			if (layout.equals("")) {
+			String layout = getDot(stringWriter.toString(), workbenchConfiguration);
+			if (layout.isEmpty())
 				logger.warn("Invalid dot returned");
-			} else {
+			else
 				actualBounds = graphLayout.layoutGraph(this, graph, layout, bounds);
-			}
 		} catch (IOException e) {
 			outputMessage(dotErrorMessage);
 			setDotMissing(true);
@@ -216,19 +247,19 @@ public class SVGGraphController extends GraphController {
 		oldBounds = this.bounds;
 		this.bounds = bounds;
 		updateSVGDocument(new Runnable() {
+			@Override
 			public void run() {
 				SVGSVGElement svgElement = getSVGDocument().getRootElement();
 				if (isAnimatable() && oldBounds != null) {
-					String from =  "0 0 " + oldBounds.width + " " + oldBounds.height;
-					String to =  "0 0 " + bounds.width + " " + bounds.height;
-					SVGUtil.animate(animateBounds, svgElement, getAnimationSpeed(), from, to);
-				} else {
-					if ((svgElement != null) && (bounds != null)) {
-					svgElement.setAttribute(SVGConstants.SVG_VIEW_BOX_ATTRIBUTE, "0 0 " +
-							String.valueOf(bounds.width) + " " +
-							String.valueOf(bounds.height));
-					}
-				}
+					String from = "0 0 " + oldBounds.width + " "
+							+ oldBounds.height;
+					String to = "0 0 " + bounds.width + " " + bounds.height;
+					animate(animateBounds, svgElement, getAnimationSpeed(),
+							from, to);
+				} else if ((svgElement != null) && (bounds != null))
+					svgElement.setAttribute(SVG_VIEW_BOX_ATTRIBUTE,
+							"0 0 " + String.valueOf(bounds.width) + " "
+									+ String.valueOf(bounds.height));
 			}
 		});
 	}
@@ -239,11 +270,12 @@ public class SVGGraphController extends GraphController {
 		int initialPosition = 200;
 		for (int i = 0; i < parts.length; i++) {
 			Text errorsText = createText(parts[i]);
-			SVGOMTextElement error = (SVGOMTextElement) createElement(SVGConstants.SVG_TEXT_TAG);
-			error.setAttribute(SVGConstants.SVG_Y_ATTRIBUTE, Integer.toString(initialPosition + i * 60));
-			error.setAttribute(SVGConstants.SVG_FONT_SIZE_ATTRIBUTE, "20");
-			error.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
-			error.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, "red");
+			SVGOMTextElement error = (SVGOMTextElement) createElement(SVG_TEXT_TAG);
+			error.setAttribute(SVG_Y_ATTRIBUTE,
+					Integer.toString(initialPosition + i * 60));
+			error.setAttribute(SVG_FONT_SIZE_ATTRIBUTE, "20");
+			error.setAttribute(SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
+			error.setAttribute(SVG_FILL_ATTRIBUTE, "red");
 			error.appendChild(errorsText);
 			svgElement.appendChild(error);
 		}
@@ -264,11 +296,12 @@ public class SVGGraphController extends GraphController {
 		if (!alreadyStarted && started) {
 			if (edgeMoveElement instanceof SVGGraphEdge) {
 				SVGGraphEdge svgGraphEdge = (SVGGraphEdge) edgeMoveElement;
-				SVGPoint sourcePoint = svgGraphEdge.getPathElement().getPointAtLength(0f);
-				edgeLine.setSourcePoint(new Point((int) sourcePoint.getX(), (int) sourcePoint.getY()));
-			} else {
+				SVGPoint sourcePoint = svgGraphEdge.getPathElement()
+						.getPointAtLength(0f);
+				edgeLine.setSourcePoint(new Point((int) sourcePoint.getX(),
+						(int) sourcePoint.getY()));
+			} else
 				edgeLine.setSourcePoint(point);
-			}
 			edgeLine.setTargetPoint(point);
 			edgeLine.setColour(Color.BLACK);
 			// edgeLine.setVisible(true);
@@ -279,24 +312,21 @@ public class SVGGraphController extends GraphController {
 	@Override
 	public boolean moveEdgeCreationTarget(GraphElement graphElement, Point point) {
 		boolean linkValid = super.moveEdgeCreationTarget(graphElement, point);
-		if (edgeMoveElement instanceof SVGGraphEdge) {
+		if (edgeMoveElement instanceof SVGGraphEdge)
 			((SVGGraphEdge) edgeMoveElement).setVisible(false);
-		}
 		if (edgeCreationFromSink) {
 			edgeLine.setSourcePoint(point);
-			if (linkValid) {
-				edgeLine.setColour(Color.GREEN);
-			} else {
-				edgeLine.setColour(Color.BLACK);
-			}
+			if (linkValid)
+				edgeLine.setColour(GREEN);
+			else
+				edgeLine.setColour(BLACK);
 			edgeLine.setVisible(true);
 		} else if (edgeCreationFromSource) {
 			edgeLine.setTargetPoint(point);
-			if (linkValid) {
-				edgeLine.setColour(Color.GREEN);
-			} else {
-				edgeLine.setColour(Color.BLACK);
-			}
+			if (linkValid)
+				edgeLine.setColour(GREEN);
+			else
+				edgeLine.setColour(BLACK);
 			edgeLine.setVisible(true);
 		}
 		return linkValid;
@@ -306,58 +336,81 @@ public class SVGGraphController extends GraphController {
 	public boolean stopEdgeCreation(GraphElement graphElement, Point point) {
 		GraphEdge movedEdge = edgeMoveElement;
 		boolean edgeCreated = super.stopEdgeCreation(graphElement, point);
-		if (!edgeCreated && movedEdge instanceof SVGGraphEdge) {
+		if (!edgeCreated && movedEdge instanceof SVGGraphEdge)
 			((SVGGraphEdge) movedEdge).setVisible(true);
-		}
 		edgeLine.setVisible(false);
 		return edgeCreated;
 	}
 
 	@Override
 	public void setEdgeActive(String edgeId, boolean active) {
-		if (datalinkMap.containsKey(edgeId)) {
-			for (GraphEdge datalink : datalinkMap.get(edgeId)) {
+		if (datalinkMap.containsKey(edgeId))
+			for (GraphEdge datalink : datalinkMap.get(edgeId))
 				datalink.setActive(active);
-			}
-		}
 	}
 
 	public Element createElement(String tag) {
-		return getSVGDocument().createElementNS(SVGUtil.svgNS, tag);
+		return getSVGDocument().createElementNS(svgNS, tag);
+	}
+
+	SVGOMGElement createGElem() {
+		return (SVGOMGElement) createElement(SVG_G_TAG);
+	}
+
+	SVGOMPolygonElement createPolygon() {
+		return (SVGOMPolygonElement) createElement(SVG_POLYGON_TAG);
+	}
+
+	SVGOMEllipseElement createEllipse() {
+		return (SVGOMEllipseElement) createElement(SVG_ELLIPSE_TAG);
+	}
+
+	SVGOMPathElement createPath() {
+		return (SVGOMPathElement) createElement(SVG_PATH_TAG);
+	}
+
+	SVGOMRectElement createRect() {
+		return (SVGOMRectElement) createElement(SVG_RECT_TAG);
 	}
 
 	public Text createText(String text) {
 		return getSVGDocument().createTextNode(text);
 	}
 
+	SVGOMTextElement createText(Text text) {
+		SVGOMTextElement elem = (SVGOMTextElement) createElement(SVG_TEXT_TAG);
+		elem.appendChild(text);
+		return elem;
+	}
+
 	public void updateSVGDocument(final Runnable thread) {
-		if (updateManager == null && !drawingDiagram) {
+		if (updateManager == null && !drawingDiagram)
 			thread.run();
-		} else {
-			if (!executor.isShutdown()){
-				executor.execute(new Runnable() {
-					public void run() {
-						while (updateManager == null) {
-							try {
-								Thread.sleep(200);
-							} catch (InterruptedException e) {
-							}
-						}
-						try {
-							updateManager.getUpdateRunnableQueue().invokeLater(thread);
-						}
-						catch (IllegalStateException e) {
-							logger.error("Update of SVG failed", e);
-						}
+		else if (!executor.isShutdown())
+			executor.execute(new Runnable() {
+				@Override
+				public void run() {
+					waitForUpdateManager();
+					try {
+						updateManager.getUpdateRunnableQueue().invokeLater(
+								thread);
+					} catch (IllegalStateException e) {
+						logger.error("Update of SVG failed", e);
 					}
-				});
-			}
-		}
-//		if (updateManager == null) {
+				}
+
+				private void waitForUpdateManager() {
+					try {
+						while (updateManager == null)
+							Thread.sleep(200);
+					} catch (InterruptedException e) {
+					}
+				}
+			});
+//		if (updateManager == null)
 //			thread.run();
-//		} else {
+//		else
 //			updateManager.getUpdateRunnableQueue().invokeLater(thread);
-//		}
 	}
 
 	public boolean isAnimatable() {
@@ -386,6 +439,7 @@ public class SVGGraphController extends GraphController {
 	public void shutdown() {
 		super.shutdown();
 		executor.execute(new Runnable() {
+			@Override
 			public void run() {
 				getSVGCanvas().stopProcessing();
 				executor.shutdown();
@@ -396,15 +450,11 @@ public class SVGGraphController extends GraphController {
 }
 
 class EdgeLine {
-
 	private static final float arrowLength = 10f;
-
 	private static final float arrowWidth = 3f;
 
 	private Element line;
-
 	private Element pointer;
-
 	private SVGGraphController graphController;
 
 	private EdgeLine(SVGGraphController graphController) {
@@ -413,22 +463,20 @@ class EdgeLine {
 
 	public static EdgeLine createAndAdd(SVGDocument svgDocument, SVGGraphController graphController) {
 		EdgeLine edgeLine = new EdgeLine(graphController);
-		edgeLine.line = svgDocument.createElementNS(SVGUtil.svgNS,
-				SVGConstants.SVG_LINE_TAG);
-		edgeLine.line.setAttribute(SVGConstants.SVG_STYLE_ATTRIBUTE,
+		edgeLine.line = svgDocument.createElementNS(svgNS, SVG_LINE_TAG);
+		edgeLine.line.setAttribute(SVG_STYLE_ATTRIBUTE,
 				"fill:none;stroke:black");
 		edgeLine.line.setAttribute("pointer-events", "none");
 		edgeLine.line.setAttribute("visibility", "hidden");
-		edgeLine.line.setAttribute(SVGConstants.SVG_X1_ATTRIBUTE, "0");
-		edgeLine.line.setAttribute(SVGConstants.SVG_Y1_ATTRIBUTE, "0");
-		edgeLine.line.setAttribute(SVGConstants.SVG_X2_ATTRIBUTE, "0");
-		edgeLine.line.setAttribute(SVGConstants.SVG_Y2_ATTRIBUTE, "0");
+		edgeLine.line.setAttribute(SVG_X1_ATTRIBUTE, "0");
+		edgeLine.line.setAttribute(SVG_Y1_ATTRIBUTE, "0");
+		edgeLine.line.setAttribute(SVG_X2_ATTRIBUTE, "0");
+		edgeLine.line.setAttribute(SVG_Y2_ATTRIBUTE, "0");
 
-		edgeLine.pointer = svgDocument.createElementNS(SVGUtil.svgNS,
-				SVGConstants.SVG_POLYGON_TAG);
-		edgeLine.pointer.setAttribute(SVGConstants.SVG_STYLE_ATTRIBUTE,
+		edgeLine.pointer = svgDocument.createElementNS(svgNS, SVG_POLYGON_TAG);
+		edgeLine.pointer.setAttribute(SVG_STYLE_ATTRIBUTE,
 				"fill:black;stroke:black");
-		edgeLine.pointer.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, "0,0 "
+		edgeLine.pointer.setAttribute(SVG_POINTS_ATTRIBUTE, "0,0 "
 				+ -arrowLength + "," + arrowWidth + " " + -arrowLength + ","
 				+ -arrowWidth + " 0,0");
 		edgeLine.pointer.setAttribute("pointer-events", "none");
@@ -442,72 +490,66 @@ class EdgeLine {
 	}
 
 	public void setSourcePoint(final Point point) {
-		graphController.updateSVGDocument(
-			new Runnable() {
-				public void run() {
-					line.setAttribute(SVGConstants.SVG_X1_ATTRIBUTE, String.valueOf(point
-							.getX()));
-					line.setAttribute(SVGConstants.SVG_Y1_ATTRIBUTE, String.valueOf(point
-							.getY()));
+		graphController.updateSVGDocument(new Runnable() {
+			@Override
+			public void run() {
+				line.setAttribute(SVG_X1_ATTRIBUTE,
+						String.valueOf(point.getX()));
+				line.setAttribute(SVG_Y1_ATTRIBUTE,
+						String.valueOf(point.getY()));
 
-					float x = Float.parseFloat(line
-							.getAttribute(SVGConstants.SVG_X2_ATTRIBUTE));
-					float y = Float.parseFloat(line
-							.getAttribute(SVGConstants.SVG_Y2_ATTRIBUTE));
-					double angle = SVGUtil.calculateAngle(line);
+				float x = parseFloat(line.getAttribute(SVG_X2_ATTRIBUTE));
+				float y = parseFloat(line.getAttribute(SVG_Y2_ATTRIBUTE));
+				double angle = calculateAngle(line);
 
-					pointer.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-							+ x + " " + y + ") rotate(" + angle + " 0 0) ");
-				}
+				pointer.setAttribute(SVG_TRANSFORM_ATTRIBUTE, "translate(" + x
+						+ " " + y + ") rotate(" + angle + " 0 0) ");
 			}
-		);
+		});
 	}
 
 	public void setTargetPoint(final Point point) {
-		graphController.updateSVGDocument(
-			new Runnable() {
-				public void run() {
-					line.setAttribute(SVGConstants.SVG_X2_ATTRIBUTE, String.valueOf(point
-							.getX()));
-					line.setAttribute(SVGConstants.SVG_Y2_ATTRIBUTE, String.valueOf(point
-							.getY()));
+		graphController.updateSVGDocument(new Runnable() {
+			@Override
+			public void run() {
+				line.setAttribute(SVG_X2_ATTRIBUTE,
+						String.valueOf(point.getX()));
+				line.setAttribute(SVG_Y2_ATTRIBUTE,
+						String.valueOf(point.getY()));
 
-					double angle = SVGUtil.calculateAngle(line);
-					pointer.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-							+ point.x + " " + point.y + ") rotate(" + angle + " 0 0) ");
-				}
+				double angle = calculateAngle(line);
+				pointer.setAttribute(SVG_TRANSFORM_ATTRIBUTE, "translate("
+						+ point.x + " " + point.y + ") rotate(" + angle
+						+ " 0 0) ");
 			}
-		);
+		});
 	}
 
 	public void setColour(final Color colour) {
-		graphController.updateSVGDocument(
-			new Runnable() {
-				public void run() {
-					String hexColour = SVGUtil.getHexValue(colour);
-					line.setAttribute(SVGConstants.SVG_STYLE_ATTRIBUTE, "fill:none;stroke:"
-							+ hexColour + ";");
-					pointer.setAttribute(SVGConstants.SVG_STYLE_ATTRIBUTE, "fill:"
-							+ hexColour + ";stroke:" + hexColour + ";");
-				}
+		graphController.updateSVGDocument(new Runnable() {
+			@Override
+			public void run() {
+				String hexColour = getHexValue(colour);
+				line.setAttribute(SVG_STYLE_ATTRIBUTE, "fill:none;stroke:"
+						+ hexColour + ";");
+				pointer.setAttribute(SVG_STYLE_ATTRIBUTE, "fill:" + hexColour
+						+ ";stroke:" + hexColour + ";");
 			}
-		);
+		});
 	}
 
 	public void setVisible(final boolean visible) {
-		graphController.updateSVGDocument(
-			new Runnable() {
-				public void run() {
-					if (visible) {
-						line.setAttribute("visibility", "visible");
-						pointer.setAttribute("visibility", "visible");
-					} else {
-						line.setAttribute("visibility", "hidden");
-						pointer.setAttribute("visibility", "hidden");
-					}
+		graphController.updateSVGDocument(new Runnable() {
+			@Override
+			public void run() {
+				if (visible) {
+					line.setAttribute("visibility", "visible");
+					pointer.setAttribute("visibility", "visible");
+				} else {
+					line.setAttribute("visibility", "hidden");
+					pointer.setAttribute("visibility", "hidden");
 				}
 			}
-		);
+		});
 	}
-
 }

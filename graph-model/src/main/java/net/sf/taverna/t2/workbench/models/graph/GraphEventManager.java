@@ -21,29 +21,27 @@
 package net.sf.taverna.t2.workbench.models.graph;
 
 public interface GraphEventManager {
+	void mouseClicked(GraphElement graphElement, short button, boolean altKey,
+			boolean ctrlKey, boolean metaKey, int x, int y, int screenX,
+			int screenY);
 
-	public abstract void mouseClicked(final GraphElement graphElement,
-			short button, boolean altKey, boolean ctrlKey, boolean metaKey,
-			final int x, final int y, int screenX, int screenY);
+	void mouseDown(GraphElement graphElement, short button, boolean altKey,
+			boolean ctrlKey, boolean metaKey, int x, int y, int screenX,
+			int screenY);
 
-	public abstract void mouseDown(GraphElement graphElement, short button,
-			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
+	void mouseUp(GraphElement graphElement, short button, boolean altKey,
+			boolean ctrlKey, boolean metaKey, final int x, final int y,
 			int screenX, int screenY);
 
-	public abstract void mouseUp(GraphElement graphElement, short button,
-			boolean altKey, boolean ctrlKey, boolean metaKey, final int x,
-			final int y, int screenX, int screenY);
+	void mouseMoved(GraphElement graphElement, short button, boolean altKey,
+			boolean ctrlKey, boolean metaKey, int x, int y, int screenX,
+			int screenY);
 
-	public abstract void mouseMoved(GraphElement graphElement, short button,
-			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
-			int screenX, int screenY);
+	void mouseOver(GraphElement graphElement, short button, boolean altKey,
+			boolean ctrlKey, boolean metaKey, int x, int y, int screenX,
+			int screenY);
 
-	public abstract void mouseOver(GraphElement graphElement, short button,
-			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
-			int screenX, int screenY);
-
-	public abstract void mouseOut(GraphElement graphElement, short button,
-			boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
-			int screenX, int screenY);
-	
+	void mouseOut(GraphElement graphElement, short button, boolean altKey,
+			boolean ctrlKey, boolean metaKey, int x, int y, int screenX,
+			int screenY);
 }

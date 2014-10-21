@@ -20,24 +20,29 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.models.graph.svg;
 
+import static java.lang.Float.parseFloat;
+import static java.lang.Math.PI;
+import static java.lang.Math.atan2;
+import static org.apache.batik.dom.svg.SVGDOMImplementation.getDOMImplementation;
+import static org.apache.batik.util.SMILConstants.SMIL_ATTRIBUTE_NAME_ATTRIBUTE;
+import static org.apache.batik.util.SMILConstants.SMIL_DUR_ATTRIBUTE;
+import static org.apache.batik.util.SMILConstants.SMIL_FILL_ATTRIBUTE;
+import static org.apache.batik.util.SMILConstants.SMIL_FREEZE_VALUE;
+import static org.apache.batik.util.SMILConstants.SMIL_FROM_ATTRIBUTE;
+import static org.apache.batik.util.SMILConstants.SMIL_TO_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_TYPE_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_X1_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_X2_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_Y1_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_Y2_ATTRIBUTE;
+import static org.apache.batik.util.XMLResourceDescriptor.getXMLParserClassName;
+
 import java.awt.Color;
 import java.awt.Point;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.List;
-
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 
 import net.sf.taverna.t2.lang.io.StreamDevourer;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
@@ -47,19 +52,15 @@ import org.apache.batik.dom.svg.SAXSVGDocumentFactory;
 import org.apache.batik.dom.svg.SVGDOMImplementation;
 import org.apache.batik.dom.svg.SVGOMAnimationElement;
 import org.apache.batik.dom.svg.SVGOMPoint;
-//import org.apache.batik.transcoder.TranscoderException;
-//import org.apache.batik.transcoder.svg2svg.PrettyPrinter;
-import org.apache.batik.util.SMILConstants;
-import org.apache.batik.util.SVGConstants;
-import org.apache.batik.util.XMLResourceDescriptor;
 import org.apache.log4j.Logger;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.svg.SVGDocument;
 import org.w3c.dom.svg.SVGElement;
 import org.w3c.dom.svg.SVGLocatable;
 import org.w3c.dom.svg.SVGMatrix;
+//import org.apache.batik.transcoder.TranscoderException;
+//import org.apache.batik.transcoder.svg2svg.PrettyPrinter;
 
 /**
  * Utility methods.
@@ -67,51 +68,45 @@ import org.w3c.dom.svg.SVGMatrix;
  * @author David Withers
  */
 public class SVGUtil {
-
 	private static final String C = "C";
-
 	private static final String M = "M";
-
 	private static final String SPACE = " ";
-
 	private static final String COMMA = ",";
-
 	public static final String svgNS = SVGDOMImplementation.SVG_NAMESPACE_URI;
-
 	private static final String SVG = "svg";
-
-	private static Logger logger = Logger.getLogger(SVGUtil.class);
+	private static final Logger logger = Logger.getLogger(SVGUtil.class);
 
 	private static SAXSVGDocumentFactory docFactory;
 
 	static {
-		String parser = XMLResourceDescriptor.getXMLParserClassName();
+		String parser = getXMLParserClassName();
 		logger.info("Using XML parser " + parser);
 		docFactory = new SAXSVGDocumentFactory(parser);
 	}
 
 	/**
 	 * Creates a new SVGDocument.
-	 *
+	 * 
 	 * @return a new SVGDocument
 	 */
 	public static SVGDocument createSVGDocument() {
-		DOMImplementation impl = SVGDOMImplementation.getDOMImplementation();
+		DOMImplementation impl = getDOMImplementation();
 		return (SVGDocument) impl.createDocument(svgNS, SVG, null);
 	}
 
 	/**
 	 * Converts a point in screen coordinates to a point in document
 	 * coordinates.
-	 *
+	 * 
 	 * @param locatable
 	 * @param screenPoint
 	 *            the point in screen coordinates
 	 * @return the point in document coordinates
 	 */
-	public static SVGOMPoint screenToDocument(SVGLocatable locatable, SVGOMPoint screenPoint) {
-		SVGMatrix mat = ((SVGLocatable) locatable.getFarthestViewportElement()).getScreenCTM()
-				.inverse();
+	public static SVGOMPoint screenToDocument(SVGLocatable locatable,
+			SVGOMPoint screenPoint) {
+		SVGMatrix mat = ((SVGLocatable) locatable.getFarthestViewportElement())
+				.getScreenCTM().inverse();
 		return (SVGOMPoint) screenPoint.matrixTransform(mat);
 	}
 
@@ -136,94 +131,96 @@ public class SVGUtil {
 //	public static void writeSVG(SVGDocument svgDocument, Writer writer) {
 //		StringWriter sw = new StringWriter();
 //		try {
-//			TransformerFactory transformerFactory = TransformerFactory.newInstance();
-//			Transformer transformer = transformerFactory.newTransformer();
-//			Node node = svgDocument.getDocumentElement();
-//			Source src = new DOMSource(node);
-//			Result dest = new StreamResult(sw);
-//			transformer.transform(src, dest);
+//			Transformer transformer = TransformerFactory.newInstance().newTransformer();
+//			Source src = new DOMSource(svgDocument.getDocumentElement());
+//			transformer.transform(src, new StreamResult(sw));
 //
 //			PrettyPrinter pp = new PrettyPrinter();
 //			pp.print(new StringReader(sw.toString()), writer);
-//		} catch (TransformerConfigurationException e) {
-//			e.printStackTrace(new PrintWriter(writer));
-//		} catch (TransformerException e) {
-//			e.printStackTrace(new PrintWriter(writer));
-//		} catch (TranscoderException e) {
-//			e.printStackTrace(new PrintWriter(writer));
-//		} catch (IOException e) {
+//		} catch (TransformerException | TranscoderException | IOException e) {
 //			e.printStackTrace(new PrintWriter(writer));
 //		}
 //	}
 
 	/**
 	 * Generates an SVGDocument from DOT text by calling out to GraphViz.
-	 *
+	 * 
 	 * @param dotText
 	 * @return an SVGDocument
 	 * @throws IOException
 	 */
-	public static SVGDocument getSVG(String dotText, WorkbenchConfiguration workbenchConfiguration) throws IOException {
-		String dotLocation = (String) workbenchConfiguration.getProperty(
-				"taverna.dotlocation");
-		if (dotLocation == null) {
+	public static SVGDocument getSVG(String dotText,
+			WorkbenchConfiguration workbenchConfiguration) throws IOException {
+		String dotLocation = (String) workbenchConfiguration
+				.getProperty("taverna.dotlocation");
+		if (dotLocation == null)
 			dotLocation = "dot";
-		}
 		logger.debug("Invoking dot...");
-		Process dotProcess = Runtime.getRuntime().exec(new String[] { dotLocation, "-Tsvg" });
-		StreamDevourer devourer = new StreamDevourer(dotProcess.getInputStream());
+		Process dotProcess = exec(dotLocation, "-Tsvg");
+		StreamDevourer devourer = new StreamDevourer(
+				dotProcess.getInputStream());
 		devourer.start();
-		// Must create an error devourer otherwise stderr fills up and the
-		// process stalls!
-		StreamDevourer errorDevourer = new StreamDevourer(dotProcess.getErrorStream());
-		errorDevourer.start();
-		PrintWriter out = new PrintWriter(dotProcess.getOutputStream(), true);
-		out.print(dotText);
-		out.flush();
-		out.close();
+		try (PrintWriter out = new PrintWriter(dotProcess.getOutputStream(),
+				true)) {
+			out.print(dotText);
+			out.flush();
+		}
 
 		String svgText = devourer.blockOnOutput();
-		// Avoid TAV-424, replace buggy SVG outputted by "modern" GraphViz
-		// versions. http://www.graphviz.org/bugs/b1075.html
-		// Contributed by Marko Ullgren
-		svgText = svgText.replaceAll("font-weight:regular", "font-weight:normal");
+		/*
+		 * Avoid TAV-424, replace buggy SVG outputted by "modern" GraphViz
+		 * versions. http://www.graphviz.org/bugs/b1075.html
+		 * 
+		 * Contributed by Marko Ullgren
+		 */
+		svgText = svgText.replaceAll("font-weight:regular",
+				"font-weight:normal");
 		logger.info(svgText);
 		// Fake URI, just used for internal references like #fish
-		return docFactory.createSVGDocument("http://taverna.sf.net/diagram/generated.svg",
+		return docFactory.createSVGDocument(
+				"http://taverna.sf.net/diagram/generated.svg",
 				new StringReader(svgText));
 	}
 
 	/**
 	 * Generates DOT text with layout information from DOT text by calling out
 	 * to GraphViz.
-	 *
+	 * 
 	 * @param dotText
 	 *            dot text
 	 * @return dot text with layout information
 	 * @throws IOException
 	 */
-	public static String getDot(String dotText, WorkbenchConfiguration workbenchConfiguration) throws IOException {
-		String dotLocation = (String) workbenchConfiguration.getProperty(
-				"taverna.dotlocation");
-		if (dotLocation == null) {
+	public static String getDot(String dotText,
+			WorkbenchConfiguration workbenchConfiguration) throws IOException {
+		String dotLocation = (String) workbenchConfiguration
+				.getProperty("taverna.dotlocation");
+		if (dotLocation == null)
 			dotLocation = "dot";
-		}
 		logger.debug("Invoking dot...");
-		Process dotProcess = Runtime.getRuntime().exec(new String[] { dotLocation, "-Tdot", "-Glp=0,0" });
-		StreamDevourer devourer = new StreamDevourer(dotProcess.getInputStream());
+		Process dotProcess = exec(dotLocation, "-Tdot", "-Glp=0,0");
+		StreamDevourer devourer = new StreamDevourer(
+				dotProcess.getInputStream());
 		devourer.start();
-		// Must create an error devourer otherwise stderr fills up and the
-		// process stalls!
-		StreamDevourer errorDevourer = new StreamDevourer(dotProcess.getErrorStream());
-		errorDevourer.start();
-		PrintWriter out = new PrintWriter(dotProcess.getOutputStream(), true);
-		out.print(dotText);
-		out.flush();
-		out.close();
+		try (PrintWriter out = new PrintWriter(dotProcess.getOutputStream(),
+				true)) {
+			out.print(dotText);
+			out.flush();
+		}
 
 		String dot = devourer.blockOnOutput();
 		// logger.info(dot);
 		return dot;
+	}
+
+	private static Process exec(String...args) throws IOException {
+		Process p = Runtime.getRuntime().exec(args);
+		/*
+		 * Must create an error devourer otherwise stderr fills up and the
+		 * process stalls!
+		 */
+		new StreamDevourer(p.getErrorStream()).start();
+		return p;
 	}
 
 	/**
@@ -235,12 +232,11 @@ public class SVGUtil {
 	 * @return the hex value
 	 */
 	public static String getHexValue(Color color) {
-		if (color == null) {
+		if (color == null)
 			return "none";
-		} else {
-			return String
-					.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
-		}
+
+		return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(),
+				color.getBlue());
 	}
 
 	/**
@@ -252,10 +248,10 @@ public class SVGUtil {
 	 * @return the angle to rotate an arrow head
 	 */
 	public static double calculateAngle(Element line) {
-		float x1 = Float.parseFloat(line.getAttribute(SVGConstants.SVG_X1_ATTRIBUTE));
-		float y1 = Float.parseFloat(line.getAttribute(SVGConstants.SVG_Y1_ATTRIBUTE));
-		float x2 = Float.parseFloat(line.getAttribute(SVGConstants.SVG_X2_ATTRIBUTE));
-		float y2 = Float.parseFloat(line.getAttribute(SVGConstants.SVG_Y2_ATTRIBUTE));
+		float x1 = parseFloat(line.getAttribute(SVG_X1_ATTRIBUTE));
+		float y1 = parseFloat(line.getAttribute(SVG_Y1_ATTRIBUTE));
+		float x2 = parseFloat(line.getAttribute(SVG_X2_ATTRIBUTE));
+		float y2 = parseFloat(line.getAttribute(SVG_Y2_ATTRIBUTE));
 		return calculateAngle(x1, y1, x2, y2);
 	}
 
@@ -274,14 +270,16 @@ public class SVGUtil {
 			int listSize = pointList.size();
 			Point a = pointList.get(listSize - 2);
 			Point b = pointList.get(listSize - 1);
-			// dot sometimes generates paths with the same point repeated at the
-			// end of the path, so move back along the path until two different
-			// points are found
+			/*
+			 * dot sometimes generates paths with the same point repeated at the
+			 * end of the path, so move back along the path until two different
+			 * points are found
+			 */
 			while (a.equals(b) && listSize > 2) {
 				b = a;
 				a = pointList.get(--listSize - 2);
 			}
-			angle = SVGUtil.calculateAngle(a.x, a.y, b.x, b.y);
+			angle = calculateAngle(a.x, a.y, b.x, b.y);
 		}
 		return angle;
 	}
@@ -289,7 +287,7 @@ public class SVGUtil {
 	/**
 	 * Calculates the angle to rotate an arrow head to be placed on the end of a
 	 * line.
-	 *
+	 * 
 	 * @param x1
 	 *            the x coordinate of the start of the line
 	 * @param y1
@@ -301,10 +299,7 @@ public class SVGUtil {
 	 * @return the angle to rotate an arrow head
 	 */
 	public static double calculateAngle(float x1, float y1, float x2, float y2) {
-		float dx = x2 - x1;
-		float dy = y2 - y1;
-		double angle = Math.atan2(dy, dx);
-		return angle * 180 / Math.PI;
+		return atan2(y2 - y1, x2 - x1) * 180 / PI;
 	}
 
 	/**
@@ -322,31 +317,41 @@ public class SVGUtil {
 	 */
 	public static String calculatePoints(Shape shape, int width, int height) {
 		StringBuilder sb = new StringBuilder();
-		if (Shape.BOX.equals(shape) || Shape.RECORD.equals(shape)) {
+		switch (shape) {
+		case BOX:
+		case RECORD:
 			addPoint(sb, 0, 0);
 			addPoint(sb, width, 0);
 			addPoint(sb, width, height);
 			addPoint(sb, 0, height);
-		} else if (Shape.HOUSE.equals(shape)) {
+			break;
+		case HOUSE:
 			addPoint(sb, width / 2f, 0);
 			addPoint(sb, width, height / 3f);
 			addPoint(sb, width, height - 3);
 			addPoint(sb, 0, height - 3);
 			addPoint(sb, 0, height / 3f);
-		} else if (Shape.INVHOUSE.equals(shape)) {
+			break;
+		case INVHOUSE:
 			addPoint(sb, 0, 3);
 			addPoint(sb, width, 3);
 			addPoint(sb, width, height / 3f * 2f);
 			addPoint(sb, width / 2f, height);
 			addPoint(sb, 0, height / 3f * 2f);
-		} else if (Shape.TRIANGLE.equals(shape)) {
+			break;
+		case TRIANGLE:
 			addPoint(sb, width / 2f, 0);
 			addPoint(sb, width, height);
 			addPoint(sb, 0, height);
-		} else if (Shape.INVTRIANGLE.equals(shape)) {
+			break;
+		case INVTRIANGLE:
 			addPoint(sb, 0, 0);
 			addPoint(sb, width, 0);
 			addPoint(sb, width / 2f, height);
+			break;
+		default:
+			// Nothing to do for the others
+			break;
 		}
 		return sb.toString();
 	}
@@ -354,7 +359,7 @@ public class SVGUtil {
 	/**
 	 * Appends x y coordinates to a <code>StringBuilder</code> in the format
 	 * "x,y ".
-	 *
+	 * 
 	 * @param stringBuilder
 	 *            the <code>StringBuilder</code> to append the point to
 	 * @param x
@@ -380,10 +385,12 @@ public class SVGUtil {
 		StringBuilder sb = new StringBuilder();
 		if (pointList != null && pointList.size() > 1) {
 			Point firstPoint = pointList.get(0);
-			sb.append(M).append(firstPoint.x).append(COMMA).append(firstPoint.y);
+			sb.append(M).append(firstPoint.x).append(COMMA)
+					.append(firstPoint.y);
 			sb.append(SPACE);
 			Point secontPoint = pointList.get(1);
-			sb.append(C).append(secontPoint.x).append(COMMA).append(secontPoint.y);
+			sb.append(C).append(secontPoint.x).append(COMMA)
+					.append(secontPoint.y);
 			for (int i = 2; i < pointList.size(); i++) {
 				Point point = pointList.get(i);
 				sb.append(SPACE).append(point.x).append(COMMA).append(point.y);
@@ -406,16 +413,15 @@ public class SVGUtil {
 	 *            animation
 	 * @return an new animation element
 	 */
-	public static SVGOMAnimationElement createAnimationElement(SVGGraphController graphController,
-			String elementType, String attribute, String transformType) {
+	public static SVGOMAnimationElement createAnimationElement(
+			SVGGraphController graphController, String elementType,
+			String attribute, String transformType) {
 		SVGOMAnimationElement animationElement = (SVGOMAnimationElement) graphController
 				.createElement(elementType);
-		animationElement.setAttribute(SMILConstants.SMIL_ATTRIBUTE_NAME_ATTRIBUTE, attribute);
-		if (transformType != null) {
-			animationElement.setAttribute(SVGConstants.SVG_TYPE_ATTRIBUTE, transformType);
-		}
-		animationElement.setAttribute(SMILConstants.SMIL_FILL_ATTRIBUTE,
-				SMILConstants.SMIL_FREEZE_VALUE);
+		animationElement.setAttribute(SMIL_ATTRIBUTE_NAME_ATTRIBUTE, attribute);
+		if (transformType != null)
+			animationElement.setAttribute(SVG_TYPE_ATTRIBUTE, transformType);
+		animationElement.setAttribute(SMIL_FILL_ATTRIBUTE, SMIL_FREEZE_VALUE);
 		return animationElement;
 	}
 
@@ -435,11 +441,10 @@ public class SVGUtil {
 	 */
 	public static void animate(SVGOMAnimationElement animate, SVGElement element, int duration,
 			String from, String to) {
-		animate.setAttribute(SMILConstants.SMIL_DUR_ATTRIBUTE, duration + "ms");
-		if (from != null) {
-			animate.setAttribute(SMILConstants.SMIL_FROM_ATTRIBUTE, from);
-		}
-		animate.setAttribute(SMILConstants.SMIL_TO_ATTRIBUTE, to);
+		animate.setAttribute(SMIL_DUR_ATTRIBUTE, duration + "ms");
+		if (from != null)
+			animate.setAttribute(SMIL_FROM_ATTRIBUTE, from);
+		animate.setAttribute(SMIL_TO_ATTRIBUTE, to);
 		element.appendChild(animate);
 		try {
 			animate.beginElement();
@@ -462,14 +467,11 @@ public class SVGUtil {
 	public static void adjustPathLength(List<Point> pointList, int size) {
 		if (pointList.size() < size) {
 			Point lastPoint = pointList.get(pointList.size() - 1);
-			for (int i = pointList.size(); i < size; i++) {
+			for (int i = pointList.size(); i < size; i++)
 				pointList.add(lastPoint);
-			}
 		} else if (pointList.size() > size) {
-			for (int i = pointList.size(); i > size; i--) {
+			for (int i = pointList.size(); i > size; i--)
 				pointList.remove(i - 1);
-			}
 		}
 	}
-
 }

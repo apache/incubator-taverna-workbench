@@ -21,11 +21,9 @@
 package net.sf.taverna.t2.workbench.models.graph.svg;
 
 public interface SVGShape {
-
 	public void setIteration(final int iteration);
 
-//	public void setErrors(final int errors);
-//
-//	public void setCompleted(final float complete);
+	// public void setErrors(final int errors);
 
+	// public void setCompleted(final float complete);
 }

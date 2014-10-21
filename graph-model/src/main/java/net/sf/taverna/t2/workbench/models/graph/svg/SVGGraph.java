@@ -20,6 +20,31 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.models.graph.svg;
 
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphSettings.COMPLETED_COLOUR;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.animate;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.calculatePoints;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.createAnimationElement;
+import static org.apache.batik.util.CSSConstants.CSS_BLACK_VALUE;
+import static org.apache.batik.util.CSSConstants.CSS_NONE_VALUE;
+import static org.apache.batik.util.SVGConstants.SVG_ANIMATE_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_ANIMATE_TRANSFORM_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_CLICK_EVENT_TYPE;
+import static org.apache.batik.util.SVGConstants.SVG_END_VALUE;
+import static org.apache.batik.util.SVGConstants.SVG_FILL_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_FONT_SIZE_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_MIDDLE_VALUE;
+import static org.apache.batik.util.SVGConstants.SVG_MOUSEMOVE_EVENT_TYPE;
+import static org.apache.batik.util.SVGConstants.SVG_MOUSEUP_EVENT_TYPE;
+import static org.apache.batik.util.SVGConstants.SVG_NONE_VALUE;
+import static org.apache.batik.util.SVGConstants.SVG_POINTS_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_STROKE_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_STROKE_DASHARRAY_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_TRANSFORM_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.TRANSFORM_TRANSLATE;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -37,8 +62,6 @@ import org.apache.batik.dom.svg.SVGOMAnimationElement;
 import org.apache.batik.dom.svg.SVGOMGElement;
 import org.apache.batik.dom.svg.SVGOMPolygonElement;
 import org.apache.batik.dom.svg.SVGOMTextElement;
-import org.apache.batik.util.CSSConstants;
-import org.apache.batik.util.SVGConstants;
 import org.w3c.dom.Text;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.svg.SVGElement;
@@ -49,31 +72,19 @@ import org.w3c.dom.svg.SVGElement;
  * @author David Withers
  */
 public class SVGGraph extends Graph {
-
 	private SVGGraphController graphController;
-
 	private SVGGraphElementDelegate delegate;
-
 	private SVGMouseClickEventListener mouseClickAction;
-
 	private SVGMouseMovedEventListener mouseMovedAction;
-
 	private SVGMouseUpEventListener mouseUpAction;
-
 	@SuppressWarnings("unused")
 	private SVGMouseOverEventListener mouseOverAction;
-
 	@SuppressWarnings("unused")
 	private SVGMouseOutEventListener mouseOutAction;
-
 	private SVGOMGElement mainGroup, labelGroup;
-
 	private SVGOMPolygonElement polygon, completedPolygon;
-
 	private SVGOMTextElement label, iteration, error;
-
 	private Text labelText, iterationText, errorsText;
-
 	private SVGOMAnimationElement animateShape, animatePosition, animateLabel;
 
 	public SVGGraph(SVGGraphController graphController) {
@@ -86,79 +97,69 @@ public class SVGGraph extends Graph {
 		mouseOverAction = new SVGMouseOverEventListener(this);
 		mouseOutAction = new SVGMouseOutEventListener(this);
 
-		mainGroup = (SVGOMGElement) graphController.createElement(SVGConstants.SVG_G_TAG);
-		mainGroup.setAttribute(SVGConstants.SVG_FONT_SIZE_ATTRIBUTE, "10");
-		mainGroup.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "Helvetica");
-		mainGroup.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, CSSConstants.CSS_BLACK_VALUE);
-		mainGroup.setAttribute(SVGConstants.SVG_STROKE_DASHARRAY_ATTRIBUTE,
-				CSSConstants.CSS_NONE_VALUE);
-		mainGroup.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "1");
-		mainGroup.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, CSSConstants.CSS_NONE_VALUE);
+		mainGroup = graphController.createGElem();
+		mainGroup.setAttribute(SVG_FONT_SIZE_ATTRIBUTE, "10");
+		mainGroup.setAttribute(SVG_FONT_FAMILY_ATTRIBUTE, "Helvetica");
+		mainGroup.setAttribute(SVG_STROKE_ATTRIBUTE, CSS_BLACK_VALUE);
+		mainGroup.setAttribute(SVG_STROKE_DASHARRAY_ATTRIBUTE, CSS_NONE_VALUE);
+		mainGroup.setAttribute(SVG_STROKE_WIDTH_ATTRIBUTE, "1");
+		mainGroup.setAttribute(SVG_FILL_ATTRIBUTE, CSS_NONE_VALUE);
 
 		EventTarget t = (EventTarget) mainGroup;
-		t.addEventListener(SVGConstants.SVG_CLICK_EVENT_TYPE, mouseClickAction, false);
-		t.addEventListener(SVGConstants.SVG_MOUSEMOVE_EVENT_TYPE, mouseMovedAction, false);
-		t.addEventListener(SVGConstants.SVG_MOUSEUP_EVENT_TYPE, mouseUpAction, false);
-		// t.addEventListener(SVGConstants.SVG_MOUSEOVER_EVENT_TYPE,
-		// mouseOverAction, false);
-		// t.addEventListener(SVGConstants.SVG_MOUSEOUT_EVENT_TYPE,
-		// mouseOutAction, false);
+		t.addEventListener(SVG_CLICK_EVENT_TYPE, mouseClickAction, false);
+		t.addEventListener(SVG_MOUSEMOVE_EVENT_TYPE, mouseMovedAction, false);
+		t.addEventListener(SVG_MOUSEUP_EVENT_TYPE, mouseUpAction, false);
+		// t.addEventListener(SVGConstants.SVG_MOUSEOVER_EVENT_TYPE, mouseOverAction, false);
+		// t.addEventListener(SVGConstants.SVG_MOUSEOUT_EVENT_TYPE, mouseOutAction, false);
 
-		polygon = (SVGOMPolygonElement) graphController.createElement(SVGConstants.SVG_POLYGON_TAG);
+		polygon = graphController.createPolygon();
 		mainGroup.appendChild(polygon);
 
-		completedPolygon = (SVGOMPolygonElement) graphController
-				.createElement(SVGConstants.SVG_POLYGON_TAG);
-		completedPolygon.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil.calculatePoints(
-				getShape(), 0, 0));
-		completedPolygon.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE,
-				SVGGraphSettings.COMPLETED_COLOUR);
-		// completedPolygon.setAttribute(SVGConstants.SVG_FILL_OPACITY_ATTRIBUTE,
-		// "0.8");
-		// completedPolygon.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE,
-		// SVGConstants.SVG_NONE_VALUE);
+		completedPolygon = graphController.createPolygon();
+		completedPolygon.setAttribute(SVG_POINTS_ATTRIBUTE,
+				calculatePoints(getShape(), 0, 0));
+		completedPolygon.setAttribute(SVG_FILL_ATTRIBUTE, COMPLETED_COLOUR);
+		// completedPolygon.setAttribute(SVGConstants.SVG_FILL_OPACITY_ATTRIBUTE, "0.8");
+		// completedPolygon.setAttribute(SVG_STROKE_ATTRIBUTE, SVG_NONE_VALUE);
 		mainGroup.appendChild(completedPolygon);
 
 		labelText = graphController.createText("");
-		label = (SVGOMTextElement) graphController.createElement(SVGConstants.SVG_TEXT_TAG);
-		label.setAttribute(SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE, SVGConstants.SVG_MIDDLE_VALUE);
-		label.appendChild(labelText);
-		label.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, CSSConstants.CSS_BLACK_VALUE);
-		label.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
-		labelGroup = (SVGOMGElement) graphController.createElement(SVGConstants.SVG_G_TAG);
+		label = graphController.createText(labelText);
+		label.setAttribute(SVG_TEXT_ANCHOR_ATTRIBUTE, SVG_MIDDLE_VALUE);
+		label.setAttribute(SVG_FILL_ATTRIBUTE, CSS_BLACK_VALUE);
+		label.setAttribute(SVG_STROKE_ATTRIBUTE, SVG_NONE_VALUE);
+		labelGroup = graphController.createGElem();
 		labelGroup.appendChild(label);
 		mainGroup.appendChild(labelGroup);
 
 		iterationText = graphController.createText("");
-		iteration = (SVGOMTextElement) graphController.createElement(SVGConstants.SVG_TEXT_TAG);
-		iteration.setAttribute(SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE, SVGConstants.SVG_END_VALUE);
-		iteration.setAttribute(SVGConstants.SVG_FONT_SIZE_ATTRIBUTE, "6");
-		iteration.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
-		iteration.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, CSSConstants.CSS_BLACK_VALUE);
-		iteration.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
-		iteration.appendChild(iterationText);
+		iteration = graphController.createText(iterationText);
+		iteration.setAttribute(SVG_TEXT_ANCHOR_ATTRIBUTE, SVG_END_VALUE);
+		iteration.setAttribute(SVG_FONT_SIZE_ATTRIBUTE, "6");
+		iteration.setAttribute(SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
+		iteration.setAttribute(SVG_FILL_ATTRIBUTE, CSS_BLACK_VALUE);
+		iteration.setAttribute(SVG_STROKE_ATTRIBUTE, SVG_NONE_VALUE);
 		polygon.appendChild(iteration);
 
 		errorsText = graphController.createText("");
-		error = (SVGOMTextElement) graphController.createElement(SVGConstants.SVG_TEXT_TAG);
-		error.setAttribute(SVGConstants.SVG_TEXT_ANCHOR_ATTRIBUTE, SVGConstants.SVG_END_VALUE);
-		error.setAttribute(SVGConstants.SVG_FONT_SIZE_ATTRIBUTE, "6");
-		error.setAttribute(SVGConstants.SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
-		error.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, CSSConstants.CSS_BLACK_VALUE);
-		error.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
-		error.appendChild(errorsText);
+		error = graphController.createText(errorsText);
+		error.setAttribute(SVG_TEXT_ANCHOR_ATTRIBUTE, SVG_END_VALUE);
+		error.setAttribute(SVG_FONT_SIZE_ATTRIBUTE, "6");
+		error.setAttribute(SVG_FONT_FAMILY_ATTRIBUTE, "sans-serif");
+		error.setAttribute(SVG_FILL_ATTRIBUTE, CSS_BLACK_VALUE);
+		error.setAttribute(SVG_STROKE_ATTRIBUTE, SVG_NONE_VALUE);
 		polygon.appendChild(error);
 
-		animateShape = SVGUtil.createAnimationElement(graphController,
-				SVGConstants.SVG_ANIMATE_TAG, SVGConstants.SVG_POINTS_ATTRIBUTE, null);
+		animateShape = createAnimationElement(graphController, SVG_ANIMATE_TAG,
+				SVG_POINTS_ATTRIBUTE, null);
 
-		animatePosition = SVGUtil.createAnimationElement(graphController,
-				SVGConstants.SVG_ANIMATE_TRANSFORM_TAG, SVGConstants.SVG_TRANSFORM_ATTRIBUTE,
-				SVGConstants.TRANSFORM_TRANSLATE);
+		animatePosition = createAnimationElement(graphController,
+				SVG_ANIMATE_TRANSFORM_TAG, SVG_TRANSFORM_ATTRIBUTE,
+				TRANSFORM_TRANSLATE);
 
-		animateLabel = SVGUtil.createAnimationElement(graphController,
-				SVGConstants.SVG_ANIMATE_TRANSFORM_TAG, SVGConstants.SVG_TRANSFORM_ATTRIBUTE,
-				SVGConstants.TRANSFORM_TRANSLATE);
+		animateLabel = createAnimationElement(graphController,
+				SVG_ANIMATE_TRANSFORM_TAG, SVG_TRANSFORM_ATTRIBUTE,
+				TRANSFORM_TRANSLATE);
 
 		delegate = new SVGGraphElementDelegate(graphController, this, mainGroup);
 	}
@@ -172,6 +173,7 @@ public class SVGGraph extends Graph {
 		if (edge instanceof SVGGraphEdge) {
 			final SVGGraphEdge svgGraphEdge = (SVGGraphEdge) edge;
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
 				    float opacity = svgGraphEdge.getOpacity();
 					svgGraphEdge.setOpacity(0);
@@ -189,12 +191,12 @@ public class SVGGraph extends Graph {
 		if (node instanceof SVGGraphNode) {
 			final SVGGraphNode svgGraphNode = (SVGGraphNode) node;
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
 				    float opacity = svgGraphNode.getOpacity();
 					svgGraphNode.setOpacity(0);
 					mainGroup.appendChild(svgGraphNode.getSVGElement());
 					svgGraphNode.setOpacity(opacity);
-					
 				}
 			});
 		}
@@ -206,6 +208,7 @@ public class SVGGraph extends Graph {
 		if (subgraph instanceof SVGGraph) {
 			final SVGGraph svgGraph = (SVGGraph) subgraph;
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
 				    float opacity = svgGraph.getOpacity();
 					svgGraph.setOpacity(0);
@@ -221,6 +224,7 @@ public class SVGGraph extends Graph {
 		if (edge instanceof SVGGraphEdge) {
 			final SVGGraphEdge svgGraphEdge = (SVGGraphEdge) edge;
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
 					mainGroup.removeChild(svgGraphEdge.getSVGElement());
 				}
@@ -234,6 +238,7 @@ public class SVGGraph extends Graph {
 		if (node instanceof SVGGraphNode) {
 			final SVGGraphNode svgGraphNode = (SVGGraphNode) node;
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
 					mainGroup.removeChild(svgGraphNode.getSVGElement());
 				}
@@ -247,6 +252,7 @@ public class SVGGraph extends Graph {
 		if (subgraph instanceof SVGGraph) {
 			final SVGGraph svgGraph = (SVGGraph) subgraph;
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
 					mainGroup.removeChild(svgGraph.getSVGElement());
 				}
@@ -261,15 +267,17 @@ public class SVGGraph extends Graph {
 		if (position != null && !position.equals(oldPosition)) {
 			super.setPosition(position);
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
-					if (graphController.isAnimatable()) {
-						SVGUtil.animate(animatePosition, polygon, graphController
-								.getAnimationSpeed(), oldPosition.x + ", " + oldPosition.y,
+					if (graphController.isAnimatable())
+						animate(animatePosition, polygon,
+								graphController.getAnimationSpeed(),
+								oldPosition.x + ", " + oldPosition.y,
 								position.x + ", " + position.y);
-					} else {
-						polygon.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-								+ position.x + " " + position.y + ")");
-					}
+					else
+						polygon.setAttribute(SVG_TRANSFORM_ATTRIBUTE,
+								"translate(" + position.x + " " + position.y
+										+ ")");
 				}
 			});
 		}
@@ -298,6 +306,7 @@ public class SVGGraph extends Graph {
 	public void setLabel(final String label) {
 		super.setLabel(label);
 		graphController.updateSVGDocument(new Runnable() {
+			@Override
 			public void run() {
 				labelText.setData(label);
 			}
@@ -310,15 +319,18 @@ public class SVGGraph extends Graph {
 		if (labelPosition != null && !labelPosition.equals(oldLabelPosition)) {
 			super.setLabelPosition(labelPosition);
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
-					if (graphController.isAnimatable() && oldLabelPosition != null) {
-						SVGUtil.animate(animateLabel, labelGroup, graphController
-								.getAnimationSpeed(), oldLabelPosition.x + ", "
-								+ oldLabelPosition.y, labelPosition.x + ", " + labelPosition.y);
-					} else {
-						labelGroup.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-								+ labelPosition.x + " " + labelPosition.y + ")");
-					}
+					if (graphController.isAnimatable()
+							&& oldLabelPosition != null)
+						animate(animateLabel, labelGroup,
+								graphController.getAnimationSpeed(),
+								oldLabelPosition.x + ", " + oldLabelPosition.y,
+								labelPosition.x + ", " + labelPosition.y);
+					else
+						labelGroup.setAttribute(SVG_TRANSFORM_ATTRIBUTE,
+								"translate(" + labelPosition.x + " "
+										+ labelPosition.y + ")");
 				}
 			});
 		}
@@ -327,12 +339,12 @@ public class SVGGraph extends Graph {
 	@Override
 	public void setIteration(final int iteration) {
 		graphController.updateSVGDocument(new Runnable() {
+			@Override
 			public void run() {
-				if (iteration > 0) {
+				if (iteration > 0)
 					iterationText.setData(String.valueOf(iteration));
-				} else {
+				else
 					iterationText.setData("");
-				}
 			}
 		});
 	}
@@ -341,13 +353,16 @@ public class SVGGraph extends Graph {
 	public void setCompleted(final float complete) {
 		super.setCompleted(complete);
 		graphController.updateSVGDocument(new Runnable() {
+			@Override
 			public void run() {
 				Dimension size = getSize();
 				Point position = getPosition();
-				completedPolygon.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil
-						.calculatePoints(getShape(), (int) (size.width * complete), size.height));
-				completedPolygon.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-						+ position.x + " " + position.y + ")");
+				completedPolygon.setAttribute(
+						SVG_POINTS_ATTRIBUTE,
+						calculatePoints(getShape(),
+								(int) (size.width * complete), size.height));
+				completedPolygon.setAttribute(SVG_TRANSFORM_ATTRIBUTE,
+						"translate(" + position.x + " " + position.y + ")");
 			}
 		});
 	}
@@ -355,19 +370,25 @@ public class SVGGraph extends Graph {
 	private void updateShape(final int oldWidth, final int oldHeight) {
 		if (getShape() != null && getWidth() > 0f && getHeight() > 0f) {
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
-					if (graphController.isAnimatable()) {
-						SVGUtil.animate(animateShape, polygon, graphController
-								.getAnimationSpeed(), SVGUtil.calculatePoints(getShape(),
-								oldWidth, oldHeight), SVGUtil.calculatePoints(getShape(),
-								getWidth(), getHeight()));
-					} else {
-						polygon.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, SVGUtil
-								.calculatePoints(getShape(), getWidth(), getHeight()));
-						iteration.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-								+ (getWidth() - 1.5) + " 5.5)");
-						error.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-								+ (getWidth() - 1.5) + " " + (getHeight() - 1) + ")");
+					if (graphController.isAnimatable())
+						animate(animateShape,
+								polygon,
+								graphController.getAnimationSpeed(),
+								calculatePoints(getShape(), oldWidth, oldHeight),
+								calculatePoints(getShape(), getWidth(),
+										getHeight()));
+					else {
+						polygon.setAttribute(
+								SVG_POINTS_ATTRIBUTE,
+								calculatePoints(getShape(), getWidth(),
+										getHeight()));
+						iteration.setAttribute(SVG_TRANSFORM_ATTRIBUTE,
+								"translate(" + (getWidth() - 1.5) + " 5.5)");
+						error.setAttribute(SVG_TRANSFORM_ATTRIBUTE,
+								"translate(" + (getWidth() - 1.5) + " "
+										+ (getHeight() - 1) + ")");
 					}
 				}
 			});
@@ -415,5 +436,4 @@ public class SVGGraph extends Graph {
 		delegate.setOpacity(opacity);
 		super.setOpacity(opacity);
 	}
-
 }

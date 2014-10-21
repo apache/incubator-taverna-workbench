@@ -28,27 +28,23 @@ import java.util.Set;
 
 /**
  * A graph model of a dataflow.
- *
+ * 
  * @author David Withers
  */
 public class Graph extends GraphShapeElement {
-
 	public enum Alignment {
 		HORIZONTAL, VERTICAL
 	}
 
-	private List<GraphNode> nodes = new ArrayList<GraphNode>();
-
-	private Set<GraphEdge> edges = new HashSet<GraphEdge>();
-
-	private Set<Graph> subgraphs = new HashSet<Graph>();
-
+	private List<GraphNode> nodes = new ArrayList<>();
+	private Set<GraphEdge> edges = new HashSet<>();
+	private Set<Graph> subgraphs = new HashSet<>();
 	private Alignment alignment = Alignment.VERTICAL;
 
 	/**
 	 * Constructs a Graph that uses the specified GraphEventManager to handle
 	 * any user generated events on GraphElements.
-	 *
+	 * 
 	 * @param eventManager
 	 */
 	public Graph(GraphController graphController) {
@@ -57,7 +53,7 @@ public class Graph extends GraphShapeElement {
 
 	/**
 	 * Adds an edge to the Graph and sets its parent to be this Graph.
-	 *
+	 * 
 	 * @param edge
 	 *            the edge to add
 	 */
@@ -68,7 +64,7 @@ public class Graph extends GraphShapeElement {
 
 	/**
 	 * Adds a node to the Graph and sets its parent to be this Graph.
-	 *
+	 * 
 	 * @param node
 	 *            the node to add
 	 */
@@ -79,7 +75,7 @@ public class Graph extends GraphShapeElement {
 
 	/**
 	 * Adds a subgraph to the Graph and sets its parent to be this Graph.
-	 *
+	 * 
 	 * @param subgraph
 	 *            the subgraph to add
 	 */
@@ -90,7 +86,7 @@ public class Graph extends GraphShapeElement {
 
 	/**
 	 * Returns the alignment of the Graph.
-	 *
+	 * 
 	 * @return the alignment of the Graph
 	 */
 	public Alignment getAlignment() {
@@ -99,7 +95,7 @@ public class Graph extends GraphShapeElement {
 
 	/**
 	 * Returns the edges contained in the Graph.
-	 *
+	 * 
 	 * @return the edges contained in the Graph
 	 */
 	public Set<GraphEdge> getEdges() {
@@ -108,7 +104,7 @@ public class Graph extends GraphShapeElement {
 
 	/**
 	 * Returns the nodes contained in the Graph.
-	 *
+	 * 
 	 * @return the nodes contained in the Graph
 	 */
 	public List<GraphNode> getNodes() {
@@ -117,7 +113,7 @@ public class Graph extends GraphShapeElement {
 
 	/**
 	 * Returns the subgraphs contained in the Graph.
-	 *
+	 * 
 	 * @return the subgraphs contained in the Graph
 	 */
 	public Set<Graph> getSubgraphs() {
@@ -126,7 +122,7 @@ public class Graph extends GraphShapeElement {
 
 	/**
 	 * Removes an edge from the Graph.
-	 *
+	 * 
 	 * @param edge
 	 *            the edge to remove
 	 * @return true if the edge is removed from the Graph
@@ -137,7 +133,7 @@ public class Graph extends GraphShapeElement {
 
 	/**
 	 * Removes a node from the Graph.
-	 *
+	 * 
 	 * @param node
 	 *            the node to remove
 	 * @return true if the node is removed from the Graph
@@ -148,7 +144,7 @@ public class Graph extends GraphShapeElement {
 
 	/**
 	 * Removes a subgraph from the Graph.
-	 *
+	 * 
 	 * @param subgraph
 	 *            the subgraph to remove
 	 * @return true if the subgraph is removed from the Graph
@@ -159,12 +155,11 @@ public class Graph extends GraphShapeElement {
 
 	/**
 	 * Sets the alignment of the Graph.
-	 *
+	 * 
 	 * @param alignment
 	 *            the new alignment
 	 */
 	public void setAlignment(Alignment alignment) {
 		this.alignment = alignment;
 	}
-
 }

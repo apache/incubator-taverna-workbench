@@ -22,7 +22,6 @@ package net.sf.taverna.t2.workbench.models.graph;
 
 import java.awt.Color;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URI;
 
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 
@@ -37,7 +36,6 @@ import uk.org.taverna.scufl2.api.activity.Activity;
  * @author Start Owen
  */
 public class GraphColorManager {
-
 	private static final String BEANSHELL = "http://ns.taverna.org.uk/2010/activity/beanshell";
 	private static final String LOCALWORKER = "http://ns.taverna.org.uk/2010/activity/localworker";
 
@@ -56,19 +54,16 @@ public class GraphColorManager {
 	 * @return the colour associated with the Activity
 	 */
 	public static Color getFillColor(Activity activity, ColourManager colourManager) {
-
-		if (activity.getType().equals(LOCALWORKER)) {
-			try {
+		try {
+			if (activity.getType().equals(LOCALWORKER)) {
 				// To avoid compile time dependency - read isAltered property as bean
 				if (Boolean.TRUE.equals(PropertyUtils.getProperty(activity, "altered"))) {
 					Color colour = colourManager.getPreferredColour(BEANSHELL);
 					return colour;
 				}
-			} catch (IllegalAccessException e) {
-			} catch (InvocationTargetException e) {
-			} catch (NoSuchMethodException e) {
 			}
-
+		} catch (IllegalAccessException | InvocationTargetException
+				| NoSuchMethodException e) {
 		}
 		Color colour = colourManager.getPreferredColour(activity.getType().toASCIIString());
 		return colour;
@@ -77,5 +72,4 @@ public class GraphColorManager {
 	public static Color getSubGraphFillColor(int depth) {
 		return subGraphFillColors[depth % subGraphFillColors.length];
 	}
-
 }

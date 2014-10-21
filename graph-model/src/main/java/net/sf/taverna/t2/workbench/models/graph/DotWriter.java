@@ -20,14 +20,18 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.models.graph;
 
+import static java.lang.String.format;
+import static net.sf.taverna.t2.workbench.models.graph.Graph.Alignment.HORIZONTAL;
+import static net.sf.taverna.t2.workbench.models.graph.Graph.Alignment.VERTICAL;
+import static net.sf.taverna.t2.workbench.models.graph.GraphElement.LineStyle.NONE;
+import static net.sf.taverna.t2.workbench.models.graph.GraphShapeElement.Shape.RECORD;
+
 import java.awt.Color;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
 import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
-import net.sf.taverna.t2.workbench.models.graph.GraphElement.LineStyle;
-import net.sf.taverna.t2.workbench.models.graph.GraphShapeElement.Shape;
 
 /**
  * Writer for creating a graphical representation of a Graph in the DOT language.
@@ -35,7 +39,6 @@ import net.sf.taverna.t2.workbench.models.graph.GraphShapeElement.Shape;
  * @author David Withers
  */
 public class DotWriter {
-
 	private static final String EOL = System.getProperty("line.separator");
 
 	private Writer writer;
@@ -68,9 +71,8 @@ public class DotWriter {
 		writeLine("  ranksep=\"0.22\"");
 		writeLine("  nodesep=\"0.05\"");
 		// Set left to right view if alignment is horizontal
-		if (graph.getAlignment().equals(Alignment.HORIZONTAL)) {
+		if (graph.getAlignment().equals(HORIZONTAL))
 			writeLine("  rankdir=\"LR\"");
-		}
 		writeLine(" ]");
 
 		// Overall node style
@@ -94,63 +96,56 @@ public class DotWriter {
 		writeLine("  color=\"black\"");
 		writeLine(" ];");
 
-		for(GraphNode node : graph.getNodes()) {
-			if (node.isExpanded()) {
+		for (GraphNode node : graph.getNodes()) {
+			if (node.isExpanded())
 				writeSubGraph(node.getGraph(), " ");
-			} else {
+			else
 				writeNode(node, graph.getAlignment(), " ");
-			}
 		}
 
-		for(Graph subGraph : graph.getSubgraphs()) {
+		for (Graph subGraph : graph.getSubgraphs())
 			writeSubGraph(subGraph, " ");
-		}
 
-		for(GraphEdge edge : graph.getEdges()) {
+		for (GraphEdge edge : graph.getEdges())
 			writeEdges(edge, graph.getAlignment(), " ");
-		}
 
 		writeLine("}");
 	}
 
 	private void writeSubGraph(Graph graph, String indent) throws IOException {
-		writeLine(indent + "subgraph \"cluster_" + graph.getId() + "\" {");
-		writeLine(indent + " rank=\"same\"");
+		writeLine(format("%ssubgraph \"cluster_%s\" {", indent, graph.getId()));
+		writeLine(format("%s rank=\"same\"", indent));
 
 		StringBuilder style = new StringBuilder();
 		if (graph.getFillColor() != null) {
-			writeLine(indent + " fillcolor=\"" + getHexValue(graph.getFillColor()) + "\"");
+			writeLine(format("%s fillcolor=\"%s\"", indent,
+					getHexValue(graph.getFillColor())));
 			style.append("filled");
 		}
 		if (graph.getLineStyle() != null) {
 			style.append(style.length() == 0 ? "" : ",");
-			if (graph.getLineStyle().equals(LineStyle.NONE)) {
+			if (graph.getLineStyle().equals(NONE))
 				style.append("invis");
-			} else {
+			else
 				style.append(graph.getLineStyle().toString().toLowerCase());
-			}
 		}
-		writeLine(indent + " style=\"" + style.toString() + "\"");
+		writeLine(format("%s style=\"%s\"", indent, style));
 
-		if (graph.getLabel() != null) {
-			writeLine(indent + " label=\"" + graph.getLabel() + "\"");				
-		}
+		if (graph.getLabel() != null)
+			writeLine(format("%s label=\"%s\"", indent, graph.getLabel()));
 
 		for(GraphNode node : graph.getNodes()) {
-			if (node.isExpanded()) {
+			if (node.isExpanded())
 				writeSubGraph(node.getGraph(), indent + " ");
-			} else {
+			else
 				writeNode(node, graph.getAlignment(), indent + " ");
-			}
 		}
 
-		for(Graph subGraph : graph.getSubgraphs()) {
+		for (Graph subGraph : graph.getSubgraphs())
 			writeSubGraph(subGraph, indent + " ");
-		}
 
-		for(GraphEdge edge : graph.getEdges()) {
+		for (GraphEdge edge : graph.getEdges())
 			writeEdges(edge, graph.getAlignment(), indent + " ");
-		}
 
 		writeLine(indent + "}");
 	}
@@ -169,90 +164,90 @@ public class DotWriter {
 			GraphNode parent = (GraphNode) sink.getParent();
 			sinkId = "\"" + parent.getId() + "\":" + sinkId;
 		}
-	    //the compass point is required with newer versions of dot (e.g. 2.26.3)
-		//but is not compatible with older versions (e.g. 1.3)
-		if (alignment.equals(Alignment.HORIZONTAL)) {
+		/*
+		 * the compass point is required with newer versions of dot (e.g.
+		 * 2.26.3) but is not compatible with older versions (e.g. 1.3)
+		 */
+		if (alignment.equals(HORIZONTAL)) {
 			sourceId = sourceId + ":e";
 			sinkId = sinkId + ":w";
 		} else {
 			sourceId = sourceId + ":s";
 			sinkId = sinkId + ":n";			
 		}
-		writeLine(indent + sourceId + " -> " + sinkId + " [");
-		writeLine(indent + " arrowhead=\"" + edge.getArrowHeadStyle().toString().toLowerCase() + "\"");
-		writeLine(indent + " arrowtail=\"" + edge.getArrowTailStyle().toString().toLowerCase() + "\"");
-		if (edge.getColor() != null) {
-			writeLine(indent + " color=\"" + getHexValue(edge.getColor()) + "\"");
-		}
-				
-		writeLine(indent + "]");
+		writeLine(format("%s%s -> %s [", indent, sourceId, sinkId));
+		writeLine(format("%s arrowhead=\"%s\"", indent, edge
+				.getArrowHeadStyle().toString().toLowerCase()));
+		writeLine(format("%s, arrowtail=\"%s\"", indent, edge
+				.getArrowTailStyle().toString().toLowerCase()));
+		if (edge.getColor() != null)
+			writeLine(format("%s color=\"%s\"", indent,
+					getHexValue(edge.getColor())));
+		writeLine(format("%s]", indent));
 	}
 
 	private void writeNode(GraphNode node, Alignment alignment, String indent) throws IOException {
-		writeLine(indent + "\"" + node.getId() + "\" [");
+		writeLine(format("%s\"%s\" [", indent, node.getId()));
 
 		StringBuilder style = new StringBuilder();
 		if (node.getFillColor() != null) {
-			writeLine(indent + " fillcolor=\"" + getHexValue(node.getFillColor()) + "\"");
+			writeLine(format("%s fillcolor=\"%s\"", indent,
+					getHexValue(node.getFillColor())));
 			style.append("filled");
 		}
 		if (node.getLineStyle() != null) {
 			style.append(style.length() == 0 ? "" : ",");
 			style.append(node.getLineStyle().toString().toLowerCase());
 		}
-		writeLine(indent + " style=\"" + style + "\"");
+		writeLine(format("%s style=\"%s\"", indent, style));
 
-		writeLine(indent + " shape=\"" + node.getShape().toString().toLowerCase() + "\"");
-		writeLine(indent + " width=\"" + node.getWidth() / 72f + "\"");
-		writeLine(indent + " height=\"" + node.getHeight() / 72f + "\"");
+		writeLine(format("%s shape=\"%s\"", indent, node.getShape().toString().toLowerCase()));
+		writeLine(format("%s width=\"%s\"", indent, node.getWidth() / 72f));
+		writeLine(format("%s height=\"%s\"", indent, node.getHeight() / 72f));
 
-		if (node.getShape().equals(Shape.RECORD)) {
+		if (node.getShape().equals(RECORD)) {
 			StringBuilder labelString = new StringBuilder();
-			if (alignment.equals(Alignment.VERTICAL)) {
+			if (alignment.equals(VERTICAL)) {
 				labelString.append("{{");
 				addNodeLabels(node.getSinkNodes(), labelString);
-				labelString.append("}|" + node.getLabel() + "|{");
+				labelString.append("}|").append(node.getLabel()).append("|{");
 				addNodeLabels(node.getSourceNodes(), labelString);
 				labelString.append("}}");
 			} else {
-				labelString.append("" + node.getLabel() + "|{{");
+				labelString.append(node.getLabel()).append("|{{");
 				addNodeLabels(node.getSinkNodes(), labelString);
 				labelString.append("}|{");
 				addNodeLabels(node.getSourceNodes(), labelString);
 				labelString.append("}}");
 			}
-			writeLine(indent + " label=\"" + labelString + "\"");
+			writeLine(format("%s label=\"%s\"", indent, labelString));
 		} else {
-			writeLine(indent + " label=\"" + node.getLabel() + "\"");				
+			writeLine(format("%s label=\"%s\"", indent, node.getLabel()));
 		}
 
-		writeLine(indent + "];");
+		writeLine(format("%s];", indent));
 	}
 
 	private void addNodeLabels(List<GraphNode> nodes, StringBuilder labelString) {
-		boolean firstNode = true;
-		for (GraphNode node : nodes) {
+		String sep = "";
+		for (GraphNode node : nodes)
 			if (node.getLabel() != null) {
-				if (firstNode) {
-					firstNode = false;
-				} else {
-					labelString.append("|");
-				}
+				labelString.append(sep);
 				labelString.append("<");
 				labelString.append(node.getId());
 				labelString.append(">");
 				labelString.append(node.getLabel());
+				sep = "|";
 			}
-		}
 	}
 
 	private String getHexValue(Color color) {
-		return String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+		return format("#%02x%02x%02x", color.getRed(), color.getGreen(),
+				color.getBlue());
 	}
 
 	private void writeLine(String line) throws IOException {
 		writer.write(line);
 		writer.write(EOL);
 	}
-
 }

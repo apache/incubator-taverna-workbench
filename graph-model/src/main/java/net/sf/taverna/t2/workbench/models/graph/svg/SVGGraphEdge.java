@@ -20,6 +20,38 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.models.graph.svg;
 
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphSettings.SELECTED_COLOUR;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.adjustPathLength;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.animate;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.calculateAngle;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.createAnimationElement;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.getHexValue;
+import static org.apache.batik.util.CSSConstants.CSS_BLACK_VALUE;
+import static org.apache.batik.util.CSSConstants.CSS_DISPLAY_PROPERTY;
+import static org.apache.batik.util.CSSConstants.CSS_INLINE_VALUE;
+import static org.apache.batik.util.CSSConstants.CSS_NONE_VALUE;
+import static org.apache.batik.util.SMILConstants.SMIL_ADDITIVE_ATTRIBUTE;
+import static org.apache.batik.util.SMILConstants.SMIL_SUM_VALUE;
+import static org.apache.batik.util.SVGConstants.SVG_ANIMATE_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_ANIMATE_TRANSFORM_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_CLICK_EVENT_TYPE;
+import static org.apache.batik.util.SVGConstants.SVG_CX_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_CY_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_D_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_FILL_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_MOUSEDOWN_EVENT_TYPE;
+import static org.apache.batik.util.SVGConstants.SVG_NONE_VALUE;
+import static org.apache.batik.util.SVGConstants.SVG_POINTS_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_RX_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_RY_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_STROKE_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_STROKE_DASHARRAY_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_TRANSFORM_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_ZERO_VALUE;
+import static org.apache.batik.util.SVGConstants.TRANSFORM_ROTATE;
+import static org.apache.batik.util.SVGConstants.TRANSFORM_TRANSLATE;
+
 import java.awt.Color;
 import java.awt.Point;
 import java.util.List;
@@ -36,9 +68,6 @@ import org.apache.batik.dom.svg.SVGOMEllipseElement;
 import org.apache.batik.dom.svg.SVGOMGElement;
 import org.apache.batik.dom.svg.SVGOMPathElement;
 import org.apache.batik.dom.svg.SVGOMPolygonElement;
-import org.apache.batik.util.CSSConstants;
-import org.apache.batik.util.SMILConstants;
-import org.apache.batik.util.SVGConstants;
 import org.w3c.dom.events.EventTarget;
 import org.w3c.dom.svg.SVGElement;
 
@@ -48,37 +77,23 @@ import org.w3c.dom.svg.SVGElement;
  * @author David Withers
  */
 public class SVGGraphEdge extends GraphEdge {
-
 	private static final String ARROW_LENGTH = "8.5";
-
 	private static final String ARROW_WIDTH = "3";
-
 	private static final String ELLIPSE_RADIUS = "3.5";
 
 	private SVGGraphController graphController;
-
 	private SVGGraphElementDelegate delegate;
-
 	private SVGMouseClickEventListener mouseClickAction;
-
 	private SVGMouseDownEventListener mouseDownAction;
-
 	@SuppressWarnings("unused")
 	private SVGMouseOverEventListener mouseOverAction;
-
 	@SuppressWarnings("unused")
 	private SVGMouseOutEventListener mouseOutAction;
-
 	private SVGOMGElement mainGroup;
-
 	private SVGOMPathElement path, deleteButton;
-
 	private SVGOMPolygonElement polygon;
-
 	private SVGOMEllipseElement ellipse;
-
 	private SVGGraphicsElement arrowHead;
-
 	private SVGOMAnimationElement animatePath, animatePosition, animateRotation;
 
 	public SVGGraphEdge(SVGGraphController graphController) {
@@ -90,61 +105,56 @@ public class SVGGraphEdge extends GraphEdge {
 		mouseOverAction = new SVGMouseOverEventListener(this);
 		mouseOutAction = new SVGMouseOutEventListener(this);
 
-		mainGroup = (SVGOMGElement) graphController.createElement(SVGConstants.SVG_G_TAG);
-		mainGroup.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, CSSConstants.CSS_BLACK_VALUE);
-		mainGroup.setAttribute(SVGConstants.SVG_STROKE_DASHARRAY_ATTRIBUTE,
-				CSSConstants.CSS_NONE_VALUE);
-		mainGroup.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "1");
+		mainGroup = graphController.createGElem();
+		mainGroup.setAttribute(SVG_STROKE_ATTRIBUTE, CSS_BLACK_VALUE);
+		mainGroup.setAttribute(SVG_STROKE_DASHARRAY_ATTRIBUTE, CSS_NONE_VALUE);
+		mainGroup.setAttribute(SVG_STROKE_WIDTH_ATTRIBUTE, "1");
 
-		path = (SVGOMPathElement) graphController.createElement(SVGConstants.SVG_PATH_TAG);
-		path.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGConstants.SVG_NONE_VALUE);
+		path = graphController.createPath();
+		path.setAttribute(SVG_FILL_ATTRIBUTE, SVG_NONE_VALUE);
 		EventTarget t = (EventTarget) path;
-		t.addEventListener(SVGConstants.SVG_CLICK_EVENT_TYPE, mouseClickAction, false);
-		// t.addEventListener(SVGConstants.SVG_MOUSEOVER_EVENT_TYPE,
-		// mouseOverAction, false);
-		// t.addEventListener(SVGConstants.SVG_MOUSEOUT_EVENT_TYPE,
-		// mouseOutAction, false);
+		t.addEventListener(SVG_CLICK_EVENT_TYPE, mouseClickAction, false);
+		// t.addEventListener(SVGConstants.SVG_MOUSEOVER_EVENT_TYPE, mouseOverAction, false);
+		// t.addEventListener(SVGConstants.SVG_MOUSEOUT_EVENT_TYPE, mouseOutAction, false);
 		mainGroup.appendChild(path);
 
-		polygon = (SVGOMPolygonElement) graphController.createElement(SVGConstants.SVG_POLYGON_TAG);
-		polygon.setAttribute(SVGConstants.SVG_POINTS_ATTRIBUTE, ARROW_LENGTH + ", 0" + " 0, -"
-				+ ARROW_WIDTH + " 0," + ARROW_WIDTH);
+		polygon = graphController.createPolygon();
+		polygon.setAttribute(SVG_POINTS_ATTRIBUTE, ARROW_LENGTH + ", 0"
+				+ " 0, -" + ARROW_WIDTH + " 0," + ARROW_WIDTH);
 		t = (EventTarget) polygon;
-		t.addEventListener(SVGConstants.SVG_CLICK_EVENT_TYPE, mouseClickAction, false);
-		t.addEventListener(SVGConstants.SVG_MOUSEDOWN_EVENT_TYPE, mouseDownAction, false);
-		// t.addEventListener(SVGConstants.SVG_MOUSEOVER_EVENT_TYPE,
-		// mouseOverAction, false);
-		// t.addEventListener(SVGConstants.SVG_MOUSEOUT_EVENT_TYPE,
-		// mouseOutAction, false);
+		t.addEventListener(SVG_CLICK_EVENT_TYPE, mouseClickAction, false);
+		t.addEventListener(SVG_MOUSEDOWN_EVENT_TYPE, mouseDownAction, false);
+		// t.addEventListener(SVGConstants.SVG_MOUSEOVER_EVENT_TYPE, mouseOverAction, false);
+		// t.addEventListener(SVGConstants.SVG_MOUSEOUT_EVENT_TYPE, mouseOutAction, false);
 
-		ellipse = (SVGOMEllipseElement) graphController.createElement(SVGConstants.SVG_ELLIPSE_TAG);
-		ellipse.setAttribute(SVGConstants.SVG_CX_ATTRIBUTE, ELLIPSE_RADIUS);
-		ellipse.setAttribute(SVGConstants.SVG_CY_ATTRIBUTE, SVGConstants.SVG_ZERO_VALUE);
-		ellipse.setAttribute(SVGConstants.SVG_RX_ATTRIBUTE, ELLIPSE_RADIUS);
-		ellipse.setAttribute(SVGConstants.SVG_RY_ATTRIBUTE, ELLIPSE_RADIUS);
+		ellipse = graphController.createEllipse();
+		ellipse.setAttribute(SVG_CX_ATTRIBUTE, ELLIPSE_RADIUS);
+		ellipse.setAttribute(SVG_CY_ATTRIBUTE, SVG_ZERO_VALUE);
+		ellipse.setAttribute(SVG_RX_ATTRIBUTE, ELLIPSE_RADIUS);
+		ellipse.setAttribute(SVG_RY_ATTRIBUTE, ELLIPSE_RADIUS);
 
 		arrowHead = polygon;
 		mainGroup.appendChild(arrowHead);
 
-		deleteButton = (SVGOMPathElement) graphController.createElement(SVGConstants.SVG_PATH_TAG);
-		deleteButton.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, "red");
-		deleteButton.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "2");
-		deleteButton.setAttribute(SVGConstants.SVG_D_ATTRIBUTE, "M-3.5,-7L3.5,0M-3.5,0L3.5,-7");
-		deleteButton.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY, CSSConstants.CSS_NONE_VALUE);
+		deleteButton = graphController.createPath();
+		deleteButton.setAttribute(SVG_STROKE_ATTRIBUTE, "red");
+		deleteButton.setAttribute(SVG_STROKE_WIDTH_ATTRIBUTE, "2");
+		deleteButton.setAttribute(SVG_D_ATTRIBUTE,
+				"M-3.5,-7L3.5,0M-3.5,0L3.5,-7");
+		deleteButton.setAttribute(CSS_DISPLAY_PROPERTY, CSS_NONE_VALUE);
 		mainGroup.appendChild(deleteButton);
 
-		animatePath = SVGUtil.createAnimationElement(graphController, SVGConstants.SVG_ANIMATE_TAG,
-				SVGConstants.SVG_D_ATTRIBUTE, null);
+		animatePath = createAnimationElement(graphController, SVG_ANIMATE_TAG,
+				SVG_D_ATTRIBUTE, null);
 
-		animatePosition = SVGUtil.createAnimationElement(graphController,
-				SVGConstants.SVG_ANIMATE_TRANSFORM_TAG, SVGConstants.SVG_TRANSFORM_ATTRIBUTE,
-				SVGConstants.TRANSFORM_TRANSLATE);
+		animatePosition = createAnimationElement(graphController,
+				SVG_ANIMATE_TRANSFORM_TAG, SVG_TRANSFORM_ATTRIBUTE,
+				TRANSFORM_TRANSLATE);
 
-		animateRotation = SVGUtil.createAnimationElement(graphController,
-				SVGConstants.SVG_ANIMATE_TRANSFORM_TAG, SVGConstants.SVG_TRANSFORM_ATTRIBUTE,
-				SVGConstants.TRANSFORM_ROTATE);
-		animateRotation.setAttribute(SMILConstants.SMIL_ADDITIVE_ATTRIBUTE,
-				SMILConstants.SMIL_SUM_VALUE);
+		animateRotation = createAnimationElement(graphController,
+				SVG_ANIMATE_TRANSFORM_TAG, SVG_TRANSFORM_ATTRIBUTE,
+				TRANSFORM_ROTATE);
+		animateRotation.setAttribute(SMIL_ADDITIVE_ATTRIBUTE, SMIL_SUM_VALUE);
 
 		delegate = new SVGGraphElementDelegate(graphController, this, mainGroup);
 	}
@@ -163,16 +173,15 @@ public class SVGGraphEdge extends GraphEdge {
 	}
 
 	@Override
-	public void setSelected(final boolean selected) {
+	public void setSelected(boolean selected) {
 		super.setSelected(selected);
+		final String color = selected ? SELECTED_COLOUR
+				: getHexValue(getColor());
 		graphController.updateSVGDocument(new Runnable() {
+			@Override
 			public void run() {
-				mainGroup.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE,
-						selected ? SVGGraphSettings.SELECTED_COLOUR : SVGUtil
-								.getHexValue(getColor()));
-				mainGroup.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE,
-						selected ? SVGGraphSettings.SELECTED_COLOUR : SVGUtil
-								.getHexValue(getColor()));
+				mainGroup.setAttribute(SVG_STROKE_ATTRIBUTE, color);
+				mainGroup.setAttribute(SVG_FILL_ATTRIBUTE, color);
 			}
 		});
 	}
@@ -181,15 +190,16 @@ public class SVGGraphEdge extends GraphEdge {
 	public void setActive(final boolean active) {
 		super.setActive(active);
 		graphController.updateSVGDocument(new Runnable() {
+			@Override
 			public void run() {
 				if (active) {
-					path.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "2");
-					deleteButton.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
-							CSSConstants.CSS_INLINE_VALUE);
+					path.setAttribute(SVG_STROKE_WIDTH_ATTRIBUTE, "2");
+					deleteButton.setAttribute(CSS_DISPLAY_PROPERTY,
+							CSS_INLINE_VALUE);
 				} else {
-					path.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, "1");
-					deleteButton.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
-							CSSConstants.CSS_NONE_VALUE);
+					path.setAttribute(SVG_STROKE_WIDTH_ATTRIBUTE, "1");
+					deleteButton.setAttribute(CSS_DISPLAY_PROPERTY,
+							CSS_NONE_VALUE);
 				}
 			}
 		});
@@ -199,10 +209,11 @@ public class SVGGraphEdge extends GraphEdge {
 	public void setArrowHeadStyle(final ArrowStyle arrowHeadStyle) {
 		super.setArrowHeadStyle(arrowHeadStyle);
 		graphController.updateSVGDocument(new Runnable() {
+			@Override
 			public void run() {
-				if (ArrowStyle.NONE.equals(arrowHeadStyle)) {
+				if (ArrowStyle.NONE.equals(arrowHeadStyle))
 					mainGroup.removeChild(arrowHead);
-				} else if (ArrowStyle.NORMAL.equals(arrowHeadStyle)) {
+				else if (ArrowStyle.NORMAL.equals(arrowHeadStyle)) {
 					mainGroup.removeChild(arrowHead);
 					arrowHead = polygon;
 					mainGroup.appendChild(arrowHead);
@@ -217,41 +228,52 @@ public class SVGGraphEdge extends GraphEdge {
 
 	@Override
 	public void setPath(final List<Point> pointList) {
-		if (pointList == null) {
+		if (pointList == null)
 			return;
-		}
+
 		final List<Point> oldPointList = getPath();
 		super.setPath(pointList);
 		graphController.updateSVGDocument(new Runnable() {
+			@Override
 			public void run() {
 				Point lastPoint = pointList.get(pointList.size() - 1);
-				double angle = SVGUtil.calculateAngle(pointList);
+				double angle = calculateAngle(pointList);
 				if (graphController.isAnimatable() && oldPointList != null) {
-					SVGUtil.adjustPathLength(oldPointList, pointList.size());
+					adjustPathLength(oldPointList, pointList.size());
 					Point oldLastPoint = oldPointList.get(oldPointList.size() - 1);
-					double oldAngle = SVGUtil.calculateAngle(oldPointList);
-					SVGUtil.animate(animatePath, path, graphController.getAnimationSpeed(),
-							SVGUtil.getPath(oldPointList), SVGUtil.getPath(pointList));
+					double oldAngle = calculateAngle(oldPointList);
+					animate(animatePath, path,
+							graphController.getAnimationSpeed(),
+							SVGUtil.getPath(oldPointList),
+							SVGUtil.getPath(pointList));
 
-					SVGUtil.animate(animatePosition, polygon, graphController
-							.getAnimationSpeed(), oldLastPoint.x + ", " + oldLastPoint.y,
-							lastPoint.x + ", " + lastPoint.y);
+					animate(animatePosition, polygon,
+							graphController.getAnimationSpeed(), oldLastPoint.x
+									+ ", " + oldLastPoint.y, lastPoint.x + ", "
+									+ lastPoint.y);
 
-					SVGUtil.animate(animateRotation, polygon, graphController
-							.getAnimationSpeed(), oldAngle + " 0 0", angle + " 0 0");
+					animate(animateRotation, polygon,
+							graphController.getAnimationSpeed(), oldAngle
+									+ " 0 0", angle + " 0 0");
 
-					ellipse.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-							+ lastPoint.x + " " + lastPoint.y + ") rotate(" + angle + " 0 0) ");
-					deleteButton.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-							+ lastPoint.x + " " + lastPoint.y + ")");
+					ellipse.setAttribute(SVG_TRANSFORM_ATTRIBUTE, "translate("
+							+ lastPoint.x + " " + lastPoint.y + ") rotate("
+							+ angle + " 0 0) ");
+					deleteButton.setAttribute(SVG_TRANSFORM_ATTRIBUTE,
+							"translate(" + lastPoint.x + " " + lastPoint.y
+									+ ")");
 				} else {
-					path.setAttribute(SVGConstants.SVG_D_ATTRIBUTE, SVGUtil.getPath(pointList));
-					polygon.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-							+ lastPoint.x + " " + lastPoint.y + ") rotate(" + angle + " 0 0) ");
-					ellipse.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-							+ lastPoint.x + " " + lastPoint.y + ") rotate(" + angle + " 0 0) ");
-					deleteButton.setAttribute(SVGConstants.SVG_TRANSFORM_ATTRIBUTE, "translate("
-							+ lastPoint.x + " " + lastPoint.y + ")");
+					path.setAttribute(SVG_D_ATTRIBUTE,
+							SVGUtil.getPath(pointList));
+					polygon.setAttribute(SVG_TRANSFORM_ATTRIBUTE, "translate("
+							+ lastPoint.x + " " + lastPoint.y + ") rotate("
+							+ angle + " 0 0) ");
+					ellipse.setAttribute(SVG_TRANSFORM_ATTRIBUTE, "translate("
+							+ lastPoint.x + " " + lastPoint.y + ") rotate("
+							+ angle + " 0 0) ");
+					deleteButton.setAttribute(SVG_TRANSFORM_ATTRIBUTE,
+							"translate(" + lastPoint.x + " " + lastPoint.y
+									+ ")");
 				}
 			}
 		});
@@ -286,5 +308,4 @@ public class SVGGraphEdge extends GraphEdge {
 		delegate.setOpacity(opacity);
 		super.setOpacity(opacity);
 	}
-
 }

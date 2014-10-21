@@ -20,6 +20,24 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.models.graph.svg;
 
+import static net.sf.taverna.t2.workbench.models.graph.GraphElement.LineStyle.NONE;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphSettings.SELECTED_COLOUR;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.animate;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.createAnimationElement;
+import static net.sf.taverna.t2.workbench.models.graph.svg.SVGUtil.getHexValue;
+import static org.apache.batik.util.CSSConstants.CSS_DISPLAY_PROPERTY;
+import static org.apache.batik.util.CSSConstants.CSS_INLINE_VALUE;
+import static org.apache.batik.util.CSSConstants.CSS_NONE_VALUE;
+import static org.apache.batik.util.CSSConstants.CSS_OPACITY_PROPERTY;
+import static org.apache.batik.util.CSSConstants.CSS_POINTER_EVENTS_PROPERTY;
+import static org.apache.batik.util.CSSConstants.CSS_VISIBLEPAINTED_VALUE;
+import static org.apache.batik.util.SVGConstants.SVG_ANIMATE_TAG;
+import static org.apache.batik.util.SVGConstants.SVG_FILL_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_NONE_VALUE;
+import static org.apache.batik.util.SVGConstants.SVG_STROKE_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_STROKE_DASHARRAY_ATTRIBUTE;
+import static org.apache.batik.util.SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE;
+
 import java.awt.Color;
 
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
@@ -27,8 +45,6 @@ import net.sf.taverna.t2.workbench.models.graph.GraphElement.LineStyle;
 
 import org.apache.batik.dom.svg.SVGOMAnimationElement;
 import org.apache.batik.dom.svg.SVGOMElement;
-import org.apache.batik.util.CSSConstants;
-import org.apache.batik.util.SVGConstants;
 
 /**
  * Delegate for GraphElements. Logically a superclass of SVGGraph, SVGGraphNode
@@ -37,133 +53,126 @@ import org.apache.batik.util.SVGConstants;
  * @author David Withers
  */
 public class SVGGraphElementDelegate {
-
 	private SVGGraphController graphController;
-
 	private GraphElement graphElement;
-
 	private SVGOMElement mainGroup;
-
 	private SVGOMAnimationElement animateOpacity;
 
-	public SVGGraphElementDelegate(SVGGraphController graphController, GraphElement graphElement,
-			SVGOMElement mainGroup) {
+	public SVGGraphElementDelegate(SVGGraphController graphController,
+			GraphElement graphElement, SVGOMElement mainGroup) {
 		this.graphController = graphController;
 		this.graphElement = graphElement;
 		this.mainGroup = mainGroup;
 
-		animateOpacity = SVGUtil.createAnimationElement(graphController,
-				SVGConstants.SVG_ANIMATE_TAG, CSSConstants.CSS_OPACITY_PROPERTY, null);
+		animateOpacity = createAnimationElement(graphController,
+				SVG_ANIMATE_TAG, CSS_OPACITY_PROPERTY, null);
 	}
 
 	public void setSelected(final boolean selected) {
 		boolean currentSelected = graphElement.isSelected();
-		if (currentSelected != selected) {
-			if (!LineStyle.NONE.equals(graphElement.getLineStyle())) {
-				graphController.updateSVGDocument(new Runnable() {
-					public void run() {
-						mainGroup.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE,
-								selected ? SVGGraphSettings.SELECTED_COLOUR : SVGUtil
-										.getHexValue(graphElement.getColor()));
-						mainGroup.setAttribute(SVGConstants.SVG_STROKE_WIDTH_ATTRIBUTE, selected ? "2"
-								: "1");
-					}
-				});
-			}
-		}
+		if (currentSelected != selected
+				&& !LineStyle.NONE.equals(graphElement.getLineStyle()))
+			graphController.updateSVGDocument(new Runnable() {
+				@Override
+				public void run() {
+					mainGroup.setAttribute(SVG_STROKE_ATTRIBUTE,
+							selected ? SELECTED_COLOUR
+									: getHexValue(graphElement.getColor()));
+					mainGroup.setAttribute(SVG_STROKE_WIDTH_ATTRIBUTE,
+							selected ? "2" : "1");
+				}
+			});
 	}
 
 	public void setLineStyle(final LineStyle lineStyle) {
 		LineStyle currentLineStyle = graphElement.getLineStyle();
-		if (!currentLineStyle.equals(lineStyle)) {
+		if (!currentLineStyle.equals(lineStyle))
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
-					if (LineStyle.NONE.equals(lineStyle)) {
-						mainGroup.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE,
-								SVGConstants.SVG_NONE_VALUE);
-						mainGroup.setAttribute(SVGConstants.SVG_STROKE_DASHARRAY_ATTRIBUTE,
-								SVGConstants.SVG_NONE_VALUE);
-					} else if (LineStyle.DOTTED.equals(lineStyle)) {
-						mainGroup.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil
-								.getHexValue(graphElement.getColor()));
-						mainGroup.setAttribute(SVGConstants.SVG_STROKE_DASHARRAY_ATTRIBUTE, "1,5");
-					} else if (LineStyle.SOLID.equals(lineStyle)) {
-						mainGroup.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil
-								.getHexValue(graphElement.getColor()));
-						mainGroup.setAttribute(SVGConstants.SVG_STROKE_DASHARRAY_ATTRIBUTE,
-								SVGConstants.SVG_NONE_VALUE);
+					String stroke = SVG_NONE_VALUE, dash = SVG_NONE_VALUE;
+					switch (lineStyle) {
+					case DOTTED:
+						stroke = getHexValue(graphElement.getColor());
+						dash = "1,5";
+						break;
+					case SOLID:
+						stroke = getHexValue(graphElement.getColor());
+					default:
+						break;
 					}
+					mainGroup.setAttribute(SVG_STROKE_ATTRIBUTE, stroke);
+					mainGroup
+							.setAttribute(SVG_STROKE_DASHARRAY_ATTRIBUTE, dash);
 				}
 			});
-		}
 	}
 
 	public void setColor(final Color color) {
 		Color currentColor = graphElement.getColor();
-		if (currentColor != color && !LineStyle.NONE.equals(graphElement.getLineStyle())) {
+		if (currentColor != color && NONE != graphElement.getLineStyle())
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
-					mainGroup.setAttribute(SVGConstants.SVG_STROKE_ATTRIBUTE, SVGUtil
-							.getHexValue(color));
+					mainGroup.setAttribute(SVG_STROKE_ATTRIBUTE,
+							getHexValue(color));
 				}
 			});
-		}
 	}
 
 	public void setFillColor(final Color fillColor) {
 		Color currentFillColor = graphElement.getFillColor();
-		if (currentFillColor != fillColor) {
+		if (currentFillColor != fillColor)
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
-					mainGroup.setAttribute(SVGConstants.SVG_FILL_ATTRIBUTE, SVGUtil
-							.getHexValue(fillColor));
+					mainGroup.setAttribute(SVG_FILL_ATTRIBUTE,
+							getHexValue(fillColor));
 				}
 			});
-		}
 	}
 
 	public void setVisible(final boolean visible) {
 		boolean currentVisible = graphElement.isVisible();
-		if (currentVisible != visible) {
+		if (currentVisible != visible)
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
-					mainGroup.setAttribute(CSSConstants.CSS_DISPLAY_PROPERTY,
-							visible ? CSSConstants.CSS_INLINE_VALUE : CSSConstants.CSS_NONE_VALUE);
+					mainGroup.setAttribute(CSS_DISPLAY_PROPERTY,
+							visible ? CSS_INLINE_VALUE : CSS_NONE_VALUE);
 				}
 			});
-		}
 	}
 
 	public void setOpacity(final float opacity) {
 		final float currentOpacity = graphElement.getOpacity();
-		if (currentOpacity != opacity) {
+		if (currentOpacity != opacity)
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
-					if (graphController.isAnimatable()) {
-						SVGUtil.animate(animateOpacity, mainGroup, graphController
-								.getAnimationSpeed(), String.valueOf(currentOpacity), String
-								.valueOf(opacity));
-					} else {
-						mainGroup.setAttribute(CSSConstants.CSS_OPACITY_PROPERTY, String
-								.valueOf(opacity));
-					}
+					if (graphController.isAnimatable())
+						animate(animateOpacity, mainGroup,
+								graphController.getAnimationSpeed(),
+								String.valueOf(currentOpacity),
+								String.valueOf(opacity));
+					else
+						mainGroup.setAttribute(CSS_OPACITY_PROPERTY,
+								String.valueOf(opacity));
 				}
 			});
-		}
 	}
 
 	public void setFiltered(final boolean filtered) {
 		boolean currentFiltered = graphElement.isFiltered();
-		if (currentFiltered != filtered) {
+		if (currentFiltered != filtered)
 			graphController.updateSVGDocument(new Runnable() {
+				@Override
 				public void run() {
-					mainGroup.setAttribute(CSSConstants.CSS_POINTER_EVENTS_PROPERTY,
-							filtered ? CSSConstants.CSS_NONE_VALUE
-									: CSSConstants.CSS_VISIBLEPAINTED_VALUE);
+					mainGroup.setAttribute(CSS_POINTER_EVENTS_PROPERTY,
+							filtered ? CSS_NONE_VALUE
+									: CSS_VISIBLEPAINTED_VALUE);
 					setOpacity(filtered ? 0.2f : 1f);
 				}
 			});
-		}
 	}
-
 }

@@ -27,7 +27,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Dimension;
-import java.awt.Rectangle;
 
 import net.sf.taverna.t2.workbench.models.graph.GraphShapeElement.Shape;
 

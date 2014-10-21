@@ -45,18 +45,22 @@ public class GraphControllerTest {
 //		dataflow = WorkflowModelTranslator.doTranslation(loadScufl("nested_iteration.xml"));
 		graphController = new GraphController(dataflow, null, false, null, null, null, null) {
 
+			@Override
 			public GraphEdge createGraphEdge() {
 				return new GraphEdge(this);
 			}
 
+			@Override
 			public Graph createGraph() {
 				return new Graph(this);
 			}
 
+			@Override
 			public GraphNode createGraphNode() {
 				return new GraphNode(this);
 			}
 
+			@Override
 			public void redraw() {
 
 			}

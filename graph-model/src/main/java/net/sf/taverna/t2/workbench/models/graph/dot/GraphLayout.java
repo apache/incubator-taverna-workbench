@@ -20,6 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.models.graph.dot;
 
+import static java.lang.Float.parseFloat;
+import static net.sf.taverna.t2.workbench.models.graph.Graph.Alignment.HORIZONTAL;
+
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -28,7 +31,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.taverna.t2.workbench.models.graph.Graph;
-import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.GraphEdge;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
@@ -38,26 +40,21 @@ import org.apache.log4j.Logger;
 
 /**
  * Lays out a graph from a DOT layout.
- *
+ * 
  * @author David Withers
  */
 public class GraphLayout implements DOTParserVisitor {
-
-	private static Logger logger = Logger.getLogger(GraphLayout.class);
-
+	private static final Logger logger = Logger.getLogger(GraphLayout.class);
 	private static final int BORDER = 10;
 
 	private Rectangle bounds;
-
 	private Rectangle requiredBounds;
-
 	private GraphController graphController;
-
 	private int xOffset;
-
 	private int yOffset;
 
-	public Rectangle layoutGraph(GraphController graphController, Graph graph, String laidOutDot, Rectangle requiredBounds) throws ParseException {
+	public Rectangle layoutGraph(GraphController graphController, Graph graph,
+			String laidOutDot, Rectangle requiredBounds) throws ParseException {
 		this.graphController = graphController;
 		this.requiredBounds = requiredBounds;
 
@@ -65,56 +62,66 @@ public class GraphLayout implements DOTParserVisitor {
 		xOffset = 0;
 		yOffset = 0;
 
-//		logger.error(laidOutDot);
+		logger.debug(laidOutDot);
 		DOTParser parser = new DOTParser(new StringReader(laidOutDot));
 		parser.parse().jjtAccept(this, graph);
 
-//		int xOffset = (bounds.width - bounds.width) / 2;
-//		int yOffset = (bounds.height - bounds.height) / 2;
+		// int xOffset = (bounds.width - bounds.width) / 2;
+		// int yOffset = (bounds.height - bounds.height) / 2;
 
 		return new Rectangle(xOffset, yOffset, bounds.width, bounds.height);
 	}
 
+	@Override
 	public Object visit(SimpleNode node, Object data) {
 		return node.childrenAccept(this, data);
 	}
 
+	@Override
 	public Object visit(ASTParse node, Object data) {
 		return node.childrenAccept(this, data);
 	}
 
+	@Override
 	public Object visit(ASTGraph node, Object data) {
 		return node.childrenAccept(this, data);
 	}
 
+	@Override
 	public Object visit(ASTStatementList node, Object data) {
 		return node.childrenAccept(this, data);
 	}
 
+	@Override
 	public Object visit(ASTStatement node, Object data) {
 		return node.childrenAccept(this, data);
 	}
 
+	@Override
 	public Object visit(ASTAttributeStatement node, Object data) {
 		return node.childrenAccept(this, data);
 	}
 
+	@Override
 	public Object visit(ASTNodeStatement node, Object data) {
-		GraphElement element = graphController.getElement(removeQuotes(node.getName()));
-		if (element != null) {
+		GraphElement element = graphController.getElement(removeQuotes(node
+				.getName()));
+		if (element != null)
 			return node.childrenAccept(this, element);
-		}
 		return node.childrenAccept(this, data);
 	}
 
+	@Override
 	public Object visit(ASTNodeId node, Object data) {
 		return node.childrenAccept(this, data);
 	}
 
+	@Override
 	public Object visit(ASTPort node, Object data) {
 		return node.childrenAccept(this, data);
 	}
 
+	@Override
 	public Object visit(ASTEdgeStatement node, Object data) {
 		StringBuilder id = new StringBuilder();
 		id.append(removeQuotes(node.getName()));
@@ -122,42 +129,43 @@ public class GraphLayout implements DOTParserVisitor {
 			id.append(":");
 			id.append(removeQuotes(node.getPort()));
 		}
-	    if (node.children != null) {
-	        for (Node child : node.children) {
-	        	if (child instanceof ASTEdgeRHS) {
-	        		NamedNode rhsNode = (NamedNode) child.jjtAccept(this, data);
-	        		id.append("->");
-	        		id.append(removeQuotes(rhsNode.getName()));
-	        		if (rhsNode.getPort() != null) {
-	        			id.append(":");
-	        			id.append(removeQuotes(rhsNode.getPort()));
-	        		}
-	        	}
-	        }
-	    }
+		if (node.children != null)
+			for (Node child : node.children)
+				if (child instanceof ASTEdgeRHS) {
+					NamedNode rhsNode = (NamedNode) child.jjtAccept(this, data);
+					id.append("->");
+					id.append(removeQuotes(rhsNode.getName()));
+					if (rhsNode.getPort() != null) {
+						id.append(":");
+						id.append(removeQuotes(rhsNode.getPort()));
+					}
+				}
 		GraphElement element = graphController.getElement(id.toString());
-		if (element != null) {
+		if (element != null)
 			return node.childrenAccept(this, element);
-		}
-	    return node.childrenAccept(this, data);
-	}
-
-	public Object visit(ASTSubgraph node, Object data) {
-		GraphElement element = graphController.getElement(removeQuotes(node.getName()).substring("cluster_".length()));
-		if (element != null) {
-			return node.childrenAccept(this, element);
-		}
 		return node.childrenAccept(this, data);
 	}
 
+	@Override
+	public Object visit(ASTSubgraph node, Object data) {
+		GraphElement element = graphController.getElement(removeQuotes(
+				node.getName()).substring("cluster_".length()));
+		if (element != null)
+			return node.childrenAccept(this, element);
+		return node.childrenAccept(this, data);
+	}
+
+	@Override
 	public Object visit(ASTEdgeRHS node, Object data) {
 		return node;
 	}
 
+	@Override
 	public Object visit(ASTAttributeList node, Object data) {
 		return node.childrenAccept(this, data);
 	}
 
+	@Override
 	public Object visit(ASTAList node, Object data) {
 		if (data instanceof Graph) {
 			Graph graph = (Graph) data;
@@ -174,17 +182,18 @@ public class GraphLayout implements DOTParserVisitor {
 				graph.setSize(rect.getSize());
 				graph.setPosition(rect.getLocation());
 			} else if ("lp".equalsIgnoreCase(node.getName())) {
-				if (bounds != null) {
+				if (bounds != null)
 					graph.setLabelPosition(getPoint(node.getValue()));
-				}
 			}
 		} else if (data instanceof GraphNode) {
 			GraphNode graphNode = (GraphNode) data;
-			if ("width".equalsIgnoreCase(node.getName())) {
-				graphNode.setSize(new Dimension(getSize(node.getValue()), graphNode.getHeight()));
-			} else if ("height".equalsIgnoreCase(node.getName())) {
-				graphNode.setSize(new Dimension(graphNode.getWidth(), getSize(node.getValue())));
-			} else if ("pos".equalsIgnoreCase(node.getName())) {
+			if ("width".equalsIgnoreCase(node.getName()))
+				graphNode.setSize(new Dimension(getSize(node.getValue()),
+						graphNode.getHeight()));
+			else if ("height".equalsIgnoreCase(node.getName()))
+				graphNode.setSize(new Dimension(graphNode.getWidth(),
+						getSize(node.getValue())));
+			else if ("pos".equalsIgnoreCase(node.getName())) {
 				Point position = getPoint(node.getValue());
 				position.x = position.x - (graphNode.getWidth() / 2);
 				position.y = position.y - (graphNode.getHeight() / 2);
@@ -192,7 +201,7 @@ public class GraphLayout implements DOTParserVisitor {
 			} else if ("rects".equalsIgnoreCase(node.getName())) {
 				List<Rectangle> rectangles = getRectangles(node.getValue());
 				List<GraphNode> sinkNodes = graphNode.getSinkNodes();
-				if (graphController.getAlignment().equals(Alignment.HORIZONTAL)) {
+				if (graphController.getAlignment().equals(HORIZONTAL)) {
 					Rectangle rect = rectangles.remove(0);
 					graphNode.setSize(rect.getSize());
 					graphNode.setPosition(rect.getLocation());
@@ -208,8 +217,7 @@ public class GraphLayout implements DOTParserVisitor {
 					sinkNode.setSize(rect.getSize());
 					sinkNode.setPosition(rect.getLocation());
 				}
-				List<GraphNode> sourceNodes = graphNode.getSourceNodes();
-				for (GraphNode sourceNode : sourceNodes) {
+				for (GraphNode sourceNode : graphNode.getSourceNodes()) {
 					Rectangle rect = rectangles.remove(0);
 					rect.setLocation(rect.x - origin.x, rect.y - origin.y);
 					sourceNode.setSize(rect.getSize());
@@ -218,9 +226,8 @@ public class GraphLayout implements DOTParserVisitor {
 			}
 		} else if (data instanceof GraphEdge) {
 			GraphEdge graphEdge = (GraphEdge) data;
-			if ("pos".equalsIgnoreCase(node.getName())) {
+			if ("pos".equalsIgnoreCase(node.getName()))
 				graphEdge.setPath(getPath(node.getValue()));
-			}
 		}
 		return node.childrenAccept(this, data);
 	}
@@ -230,14 +237,15 @@ public class GraphLayout implements DOTParserVisitor {
 		bounds.width += BORDER;
 		bounds.height += BORDER;
 		Rectangle newBounds = new Rectangle(bounds);
-		double ratio = ((float) bounds.width) / ((float) bounds.height);
-		double requiredRatio = ((float) requiredBounds.width) / ((float) requiredBounds.height);
+		double ratio = bounds.width / (float) bounds.height;
+		double requiredRatio = requiredBounds.width
+				/ (float) requiredBounds.height;
 		// adjust the bounds so they match the aspect ration of the required bounds
-		if (ratio > requiredRatio) {
-			newBounds.height = (int) ((ratio / requiredRatio) * bounds.height);
-		} else if (ratio < requiredRatio) {
-			newBounds.width = (int) ((requiredRatio / ratio) * bounds.width);
-		}
+		if (ratio > requiredRatio)
+			newBounds.height = (int) (ratio / requiredRatio * bounds.height);
+		else if (ratio < requiredRatio)
+			newBounds.width = (int) (requiredRatio / ratio * bounds.width);
+
 		xOffset = (newBounds.width - bounds.width) / 2;
 		yOffset = (newBounds.height - bounds.height) / 2;
 		// adjust the bounds and so they are not less than the required bounds
@@ -250,19 +258,18 @@ public class GraphLayout implements DOTParserVisitor {
 			newBounds.height = requiredBounds.height;
 		}
 		// adjust the offset for the border
-		xOffset += BORDER/2;
-		yOffset += BORDER/2;
+		xOffset += BORDER / 2;
+		yOffset += BORDER / 2;
 		return newBounds;
 	}
 
 	private List<Point> getPath(String value) {
-		String[] points = removeQuotes(value).split(" ");
-		List<Point> path = new ArrayList<Point>();
-		for (String point : points) {
+		List<Point> path = new ArrayList<>();
+		for (String point : removeQuotes(value).split(" ")) {
 			String[] coords = point.split(",");
 			if (coords.length == 2) {
-				int x = (int) Float.parseFloat(coords[0]) + xOffset;
-				int y = (int) Float.parseFloat(coords[1]) + yOffset;
+				int x = (int) parseFloat(coords[0]) + xOffset;
+				int y = (int) parseFloat(coords[1]) + yOffset;
 				path.add(new Point(x, flipY(y)));
 			}
 		}
@@ -274,51 +281,46 @@ public class GraphLayout implements DOTParserVisitor {
 	}
 
 	private List<Rectangle> getRectangles(String value) {
-		List<Rectangle> rectangles = new ArrayList<Rectangle>();
+		List<Rectangle> rectangles = new ArrayList<>();
 		String[] rects = value.split(" ");
-		for (String rectangle : rects) {
+		for (String rectangle : rects)
 			rectangles.add(getRectangle(rectangle));
-		}
 		return rectangles;
 	}
 
 	private Rectangle getRectangle(String value) {
 		String[] coords = removeQuotes(value).split(",");
 		Rectangle rectangle = new Rectangle();
-		rectangle.x = (int) Float.parseFloat(coords[0]);
-		rectangle.y = (int) Float.parseFloat(coords[3]);
-		rectangle.width = (int) Float.parseFloat(coords[2]) - rectangle.x;
-		rectangle.height = rectangle.y - (int) Float.parseFloat(coords[1]);
+		rectangle.x = (int) parseFloat(coords[0]);
+		rectangle.y = (int) parseFloat(coords[3]);
+		rectangle.width = (int) parseFloat(coords[2]) - rectangle.x;
+		rectangle.height = rectangle.y - (int) parseFloat(coords[1]);
 		rectangle.x += xOffset;
 		rectangle.y += yOffset;
-		if (bounds != null) {
+		if (bounds != null)
 			rectangle.y = flipY(rectangle.y);
-		} else {
+		else
 			rectangle.y = rectangle.height - rectangle.y;
-		}
 		return rectangle;
 	}
 
 	private Point getPoint(String value) {
 		String[] coords = removeQuotes(value).split(",");
-		return new Point((int) Float.parseFloat(coords[0]) + xOffset, flipY((int) Float.parseFloat(coords[1]) + yOffset));
+		return new Point(xOffset + (int) parseFloat(coords[0]), flipY(yOffset
+				+ (int) parseFloat(coords[1])));
 	}
 
 	private int getSize(String value) {
-		double size = Double.parseDouble(removeQuotes(value));
-		return (int) (size * 72);
+		return (int) (parseFloat(removeQuotes(value)) * 72);
 	}
 
 	private String removeQuotes(String value) {
 		String result = value.trim();
-		if (result.startsWith("\"")) {
+		if (result.startsWith("\""))
 			result = result.substring(1);
-		}
-		if (result.endsWith("\"")) {
+		if (result.endsWith("\""))
 			result = result.substring(0, result.length() - 1);
-		}
 		result = result.replaceAll("\\\\", "");
 		return result;
 	}
-
 }

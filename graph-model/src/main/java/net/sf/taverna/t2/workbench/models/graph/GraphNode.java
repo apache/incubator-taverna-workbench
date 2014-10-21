@@ -25,23 +25,18 @@ import java.util.List;
 
 /**
  * A node of a graph that can optionally contain other graphs.
- *
+ * 
  * @author David Withers
  */
-
 public class GraphNode extends GraphShapeElement {
-
-	private List<GraphNode> sourceNodes = new ArrayList<GraphNode>();
-
-	private List<GraphNode> sinkNodes = new ArrayList<GraphNode>();
-
+	private List<GraphNode> sourceNodes = new ArrayList<>();
+	private List<GraphNode> sinkNodes = new ArrayList<>();
 	private Graph graph;
-
 	private boolean expanded;
 
 	/**
 	 * Constructs a new instance of Node.
-	 *
+	 * 
 	 */
 	public GraphNode(GraphController graphController) {
 		super(graphController);
@@ -49,8 +44,9 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Adds a sink node.
-	 *
-	 * @param sinkNode the sink node to add
+	 * 
+	 * @param sinkNode
+	 *            the sink node to add
 	 */
 	public void addSinkNode(GraphNode sinkNode) {
 		sinkNode.setParent(this);
@@ -59,8 +55,9 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Adds a source node.
-	 *
-	 * @param sourceNode the source node to add
+	 * 
+	 * @param sourceNode
+	 *            the source node to add
 	 */
 	public void addSourceNode(GraphNode sourceNode) {
 		sourceNode.setParent(this);
@@ -69,7 +66,7 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Returns the graph that this node contains.
-	 *
+	 * 
 	 * @return the graph that this node contains
 	 */
 	public Graph getGraph() {
@@ -78,7 +75,7 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Returns the sinkNodes.
-	 *
+	 * 
 	 * @return the sinkNodes
 	 */
 	public List<GraphNode> getSinkNodes() {
@@ -87,7 +84,7 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Returns the sourceNodes.
-	 *
+	 * 
 	 * @return the sourceNodes
 	 */
 	public List<GraphNode> getSourceNodes() {
@@ -96,7 +93,7 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Returns true if this node is expanded to show the contained graph.
-	 *
+	 * 
 	 * @return true if this node is expanded
 	 */
 	public boolean isExpanded() {
@@ -105,8 +102,9 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Removes a sink node.
-	 *
-	 * @param sinkNode the node to remove
+	 * 
+	 * @param sinkNode
+	 *            the node to remove
 	 * @return true if the node was removed, false otherwise
 	 */
 	public boolean removeSinkNode(GraphNode sinkNode) {
@@ -115,8 +113,9 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Removes a source node.
-	 *
-	 * @param sourceNode the node to remove
+	 * 
+	 * @param sourceNode
+	 *            the node to remove
 	 * @return true if the node was removed, false otherwise
 	 */
 	public boolean removeSourceNode(GraphNode sourceNode) {
@@ -125,8 +124,9 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Sets whether this node is expanded to show the contained graph.
-	 *
-	 * @param expanded true if this node is expanded
+	 * 
+	 * @param expanded
+	 *            true if this node is expanded
 	 */
 	public void setExpanded(boolean expanded) {
 		this.expanded = expanded;
@@ -134,26 +134,20 @@ public class GraphNode extends GraphShapeElement {
 
 	/**
 	 * Sets the graph that this node contains.
-	 *
-	 * @param graph the new graph
+	 * 
+	 * @param graph
+	 *            the new graph
 	 */
 	public void setGraph(Graph graph) {
-		 if (graph != null) {
-
-		     graph.setParent(this);
-		   }
-		   this.graph = graph;
+		if (graph != null)
+			graph.setParent(this);
+		this.graph = graph;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.models.graph.GraphElement#setSelected(boolean)
-	 */
 	@Override
 	public void setSelected(boolean selected) {
 		super.setSelected(selected);
-		if (isExpanded()) {
+		if (isExpanded())
 			getGraph().setSelected(selected);
-		}
 	}
-
 }
