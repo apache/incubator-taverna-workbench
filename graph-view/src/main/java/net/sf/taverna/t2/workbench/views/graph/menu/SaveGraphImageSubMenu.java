@@ -20,6 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.menu;
 
+import static javax.swing.JFileChooser.APPROVE_OPTION;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.WARNING_MESSAGE;
+import static javax.swing.JOptionPane.YES_NO_OPTION;
+import static javax.swing.JOptionPane.showConfirmDialog;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static net.sf.taverna.t2.workbench.views.graph.menu.DiagramSaveMenuSection.DIAGRAM_SAVE_MENU_SECTION;
+
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -66,110 +74,113 @@ import uk.org.taverna.scufl2.api.core.Workflow;
  *
  * @author Alex Nenadic
  * @author Tom Oinn
- *
  */
 public class SaveGraphImageSubMenu extends AbstractMenuCustom {
-
-	private static Logger logger = Logger.getLogger(SaveGraphImageSubMenu.class);
+	private static final Logger logger = Logger
+			.getLogger(SaveGraphImageSubMenu.class);
+	private static final String[] saveTypes = { "dot", "png", "svg", "ps",
+			"ps2" };
+	private static final String[] saveExtensions = { "dot", "png", "svg", "ps",
+			"ps" };
+	private static final String[] saveTypeNames = { "dot text", "PNG bitmap",
+			"scalable vector graphics", "postscript", "postscript for PDF" };	
+	public static final URI SAVE_GRAPH_IMAGE_MENU_URI = URI
+			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuSaveGraphImage");
 
 	private JMenu saveDiagramMenu;
-
-	private String[] saveTypes = { "dot", "png", "svg", "ps", "ps2" };
-	private String[] saveExtensions = { "dot", "png", "svg", "ps", "ps" };
-	private String[] saveTypeNames = { "dot text", "PNG bitmap",
-			"scalable vector graphics", "postscript", "postscript for PDF" };
-
 	private FileManager fileManager;
 	private SelectionManager selectionManager;
 	private WorkbenchConfiguration workbenchConfiguration;
 	private GraphViewComponent graphViewComponent;
 
-	public static final URI SAVE_GRAPH_IMAGE_MENU_URI = URI
-	.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuSaveGraphImage");
-
-	public SaveGraphImageSubMenu(){
-		super(DiagramSaveMenuSection.DIAGRAM_SAVE_MENU_SECTION, 70, SAVE_GRAPH_IMAGE_MENU_URI);
+	public SaveGraphImageSubMenu() {
+		super(DIAGRAM_SAVE_MENU_SECTION, 70, SAVE_GRAPH_IMAGE_MENU_URI);
 	}
 
+	@Override
 	protected Component createCustomComponent() {
 		saveDiagramMenu = new JMenu("Export diagram");
-		saveDiagramMenu.setToolTipText("Open this menu to export the diagram in various formats");
+		saveDiagramMenu
+				.setToolTipText("Open this menu to export the diagram in various formats");
 		for (int i = 0; i < saveTypes.length; i++) {
 			String type = saveTypes[i];
 			String extension = saveExtensions[i];
-			ImageIcon icon = new ImageIcon(WorkbenchIcons.class
-					.getResource("graph/saveAs" + type.toUpperCase() + ".png"));
-			JMenuItem item = new JMenuItem(new DotInvoker("Export as " + saveTypeNames[i], icon, type, extension));
+			ImageIcon icon = new ImageIcon(
+					WorkbenchIcons.class.getResource("graph/saveAs"
+							+ type.toUpperCase() + ".png"));
+			JMenuItem item = new JMenuItem(new DotInvoker("Export as "
+					+ saveTypeNames[i], icon, type, extension));
 			saveDiagramMenu.add(item);
 		}
 		return saveDiagramMenu;
 	}
 
+	@SuppressWarnings("serial")
 	class DotInvoker extends AbstractAction implements DesignOnlyAction {
 		String type = "dot";
 		String extension = "dot";
 
-		public DotInvoker(String name, ImageIcon icon, String type, String extension) {
+		public DotInvoker(String name, ImageIcon icon, String type,
+				String extension) {
 			super(name, icon);
 			this.type = type;
 			this.extension = extension;
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
 			Workflow workflow = selectionManager.getSelectedWorkflow();
 			if (workflow == null) {
-				JOptionPane
-				.showMessageDialog(
-						null,
-						"Cannot export an empty diagram.",
-						"Warning", JOptionPane.WARNING_MESSAGE);
+				showMessageDialog(null, "Cannot export an empty diagram.",
+						"Warning", WARNING_MESSAGE);
+				return;
 			}
-			else{
-				File file = saveDialogue(null, workflow, extension,
-						"Export workflow diagram");
-				if (file != null) {// User did not cancel
-					try {
 
-						GraphController graphController = graphViewComponent.getGraphController(workflow);
+			File file = saveDialogue(null, workflow, extension,
+					"Export workflow diagram");
+			if (file == null)
+				// User cancelled
+				return;
 
-						if (type.equals("dot")) {
-							// Just write out the dot text, no processing required
-							PrintWriter out = new PrintWriter(new FileWriter(file));
-							DotWriter dotWriter = new DotWriter(out);
-							dotWriter.writeGraph(graphController.generateGraph());
-							out.flush();
-							out.close();
-						}
-						else{
-							String dotLocation = (String) workbenchConfiguration.getProperty("taverna.dotlocation");
-							if (dotLocation == null) {
-								dotLocation = "dot";
-							}
-							logger.debug("GraphViewComponent: Invoking dot...");
-							Process dotProcess = Runtime.getRuntime().exec(
-									new String[] { dotLocation, "-T" + type });
+			try {
+				GraphController graphController = graphViewComponent
+						.getGraphController(workflow);
 
-							FileOutputStream fos = new FileOutputStream(file);
+				if (type.equals("dot")) {
+					// Just write out the dot text, no processing required
+					PrintWriter out = new PrintWriter(new FileWriter(file));
+					DotWriter dotWriter = new DotWriter(out);
+					dotWriter.writeGraph(graphController.generateGraph());
+					out.flush();
+					out.close();
+				} else {
+					String dotLocation = (String) workbenchConfiguration
+							.getProperty("taverna.dotlocation");
+					if (dotLocation == null)
+						dotLocation = "dot";
+					logger.debug("GraphViewComponent: Invoking dot...");
+					Process dotProcess = Runtime.getRuntime().exec(
+							new String[] { dotLocation, "-T" + type });
 
-							StringWriter stringWriter = new StringWriter();
-							DotWriter dotWriter = new DotWriter(stringWriter);
-							dotWriter.writeGraph(graphController.generateGraph());
+					FileOutputStream fos = new FileOutputStream(file);
 
-							OutputStream dotOut = dotProcess.getOutputStream();
-							dotOut.write(SVGUtil.getDot(stringWriter.toString(), workbenchConfiguration).getBytes());
-							dotOut.flush();
-							dotOut.close();
-							new StreamDevourer(dotProcess.getErrorStream()).start();
-							new StreamCopier(dotProcess.getInputStream(), fos).start();
+					StringWriter stringWriter = new StringWriter();
+					DotWriter dotWriter = new DotWriter(stringWriter);
+					dotWriter.writeGraph(graphController.generateGraph());
 
-						}
-					} catch (Exception ex) {
-						logger.warn("GraphViewComponent: Could not export diagram to " + file, ex);
-						JOptionPane.showMessageDialog(null,
-								"Problem saving diagram : \n" + ex.getMessage(),
-								"Error!", JOptionPane.ERROR_MESSAGE);
-					}
+					OutputStream dotOut = dotProcess.getOutputStream();
+					dotOut.write(SVGUtil.getDot(stringWriter.toString(),
+							workbenchConfiguration).getBytes());
+					dotOut.flush();
+					dotOut.close();
+					new StreamDevourer(dotProcess.getErrorStream()).start();
+					new StreamCopier(dotProcess.getInputStream(), fos).start();
 				}
+			} catch (Exception ex) {
+				logger.warn("GraphViewComponent: Could not export diagram to " + file, ex);
+				showMessageDialog(null,
+						"Problem saving diagram : \n" + ex.getMessage(),
+						"Error!", ERROR_MESSAGE);					
 			}
 		}
 	}
@@ -190,9 +201,8 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom {
 	 * @return File instance for the selected abstract filename, or null if the
 	 *         dialogue was cancelled.
 	 */
-	private File saveDialogue(Component parentComponent,
-			Workflow workflow, String extension, String windowTitle) {
-
+	private File saveDialogue(Component parentComponent, Workflow workflow,
+			String extension, String windowTitle) {
 		JFileChooser fc = new JFileChooser();
 		Preferences prefs = Preferences
 				.userNodeForPackage(SaveGraphImageSubMenu.class);
@@ -200,67 +210,53 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom {
 				.get("currentDir", System.getProperty("user.home"));
 		String suggestedFileName = "";
 		// Get the source the workflow was loaded from - can be File, URL, or InputStream
-		Object source  = fileManager.getDataflowSource(workflow.getParent());
-		if (source instanceof File){
-			suggestedFileName = ((File)source).getName();
+		Object source = fileManager.getDataflowSource(workflow.getParent());
+		if (source instanceof File) {
+			suggestedFileName = ((File) source).getName();
 			// remove the file extension
-			suggestedFileName = suggestedFileName.substring(0,suggestedFileName.lastIndexOf("."));
-		}
-		else if (source instanceof URL){
-			suggestedFileName = ((URL)source).getPath();
+			suggestedFileName = suggestedFileName.substring(0,
+					suggestedFileName.lastIndexOf("."));
+		} else if (source instanceof URL) {
+			suggestedFileName = ((URL) source).getPath();
 			// remove the file extension
-			suggestedFileName = suggestedFileName.substring(0,suggestedFileName.lastIndexOf("."));
-		}
-		else{
+			suggestedFileName = suggestedFileName.substring(0,
+					suggestedFileName.lastIndexOf("."));
+		} else {
 			// We cannot suggest the file name if workflow was read from an InputStream
 		}
 
 		fc.setDialogTitle(windowTitle);
 		fc.resetChoosableFileFilters();
 		fc.setFileFilter(new ExtensionFileFilter(new String[] { extension }));
-		if (suggestedFileName.equals("")) {
+		if (suggestedFileName.isEmpty())
 			// No file suggestion, just the directory
 			fc.setCurrentDirectory(new File(curDir));
-		} else {
+		else
 			// Suggest a filename from the workflow file name
 			fc.setSelectedFile(new File(curDir, suggestedFileName + "." + extension));
-		}
 
-		// Do the "Do you want to overwrite?" if user selected an already existing file
-		boolean tryAgain = true;
-		while (tryAgain) {
-			tryAgain = false;
-
-			int returnVal = fc.showSaveDialog(parentComponent);
-			if (returnVal != JFileChooser.APPROVE_OPTION) {
-				logger.info("GraphViewComponent: Aborting diagram export to " + suggestedFileName);
+		while (true) {
+			if (fc.showSaveDialog(parentComponent) != APPROVE_OPTION) {
+				logger.info("GraphViewComponent: Aborting diagram export to "
+						+ suggestedFileName);
 				return null;
 			}
-			else{
-				File file = fixExtension(fc.getSelectedFile(), extension);
-				logger.debug("GraphViewComponent: Selected " + file + " as export target");
-				prefs.put("currentDir", fc.getCurrentDirectory().toString());
 
-				if (file.exists()){ // File already exists
-					// Ask the user if they want to overwrite the file
-					String msg = file.getAbsolutePath() + " already exists. Do you want to overwrite it?";
-					int ret = JOptionPane.showConfirmDialog(
-							null, msg, "File already exists",
-							JOptionPane.YES_NO_OPTION);
+			File file = fixExtension(fc.getSelectedFile(), extension);
+			logger.debug("GraphViewComponent: Selected " + file + " as export target");
+			prefs.put("currentDir", fc.getCurrentDirectory().toString());
 
-					if (ret == JOptionPane.YES_OPTION) {
-						return file;
-					}
-					else{
-						tryAgain = true;
-					}
-				}
-				else{
-					return file;
-				}
-			}
+			// If file doesn't exist, we may write it! (Well, probably...)
+			if (!file.exists())
+				return file;
+
+			// Ask the user if they want to overwrite the file
+			String msg = file.getAbsolutePath()
+					+ " already exists. Do you want to overwrite it?";
+			if (showConfirmDialog(null, msg, "File already exists",
+					YES_NO_OPTION) == JOptionPane.YES_OPTION)
+				return file;
 		}
-		return null; // should not get to here, but java was complaining
 	}
 
 	/**
@@ -276,9 +272,8 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom {
 	 *         with the correct extension
 	 */
 	private File fixExtension(File file, String extension) {
-		if (file.getName().endsWith("." + extension)) {
+		if (file.getName().endsWith("." + extension))
 			return file;
-		}
 		// Append the extension (keep the existing one)
 		String name = file.getName();
 		return new File(file.getParent(), name + "." + extension);
@@ -288,7 +283,8 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom {
 		this.fileManager = fileManager;
 	}
 
-	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+	public void setWorkbenchConfiguration(
+			WorkbenchConfiguration workbenchConfiguration) {
 		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
@@ -300,22 +296,20 @@ public class SaveGraphImageSubMenu extends AbstractMenuCustom {
 		this.graphViewComponent = graphViewComponent;
 	}
 
-	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+	private static final String DESIGN_PERSPECTIVE_ID = "net.sf.taverna.t2.ui.perspectives.design.DesignPerspective";
 
-		private static final String DESIGN_PERSPECTIVE_ID = "net.sf.taverna.t2.ui.perspectives.design.DesignPerspective";
-
+	@SuppressWarnings("unused")
+	private final class SelectionManagerObserver extends
+			SwingAwareObserver<SelectionManagerEvent> {
 		@Override
-		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message) {
-			if (message instanceof PerspectiveSelectionEvent) {
-				PerspectiveSelectionEvent perspectiveSelectionEvent = (PerspectiveSelectionEvent) message;
-				if (DESIGN_PERSPECTIVE_ID.equals(perspectiveSelectionEvent.getSelectedPerspective().getID())) {
-					saveDiagramMenu.setEnabled(true);
-				}
-				else{
-					saveDiagramMenu.setEnabled(false);
-				}
-			}
+		public void notifySwing(Observable<SelectionManagerEvent> sender,
+				SelectionManagerEvent message) {
+			if (!(message instanceof PerspectiveSelectionEvent))
+				return;
+			PerspectiveSelectionEvent event = (PerspectiveSelectionEvent) message;
+
+			saveDiagramMenu.setEnabled((DESIGN_PERSPECTIVE_ID.equals(event
+					.getSelectedPerspective().getID())));
 		}
 	}
-
 }

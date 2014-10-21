@@ -20,24 +20,21 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.menu;
 
+import static net.sf.taverna.t2.workbench.views.graph.menu.DiagramMenu.DIAGRAM;
+
 import java.net.URI;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 
 /**
- * 
  * @author Alex Nenadic
  * @author Alan R Williams
- *
  */
 public class DiagramZoomMenuSection extends AbstractMenuSection {
-
 	public static final URI DIAGRAM_ZOOM_MENU_SECTION = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#diagramZoomMenuSection");
 
 	public DiagramZoomMenuSection() {
-		super(DiagramMenu.DIAGRAM, 20, DIAGRAM_ZOOM_MENU_SECTION);
+		super(DIAGRAM, 20, DIAGRAM_ZOOM_MENU_SECTION);
 	}
-
 }
-

@@ -23,32 +23,33 @@ package net.sf.taverna.t2.workbench.views.graph.config;
 import javax.swing.JPanel;
 
 import uk.org.taverna.configuration.Configurable;
-import uk.org.taverna.configuration.ConfigurationManager;
 import uk.org.taverna.configuration.ConfigurationUIFactory;
 
 /**
  * ConfigurationFactory for the GraphViewConfiguration.
- *
+ * 
  * @author David Withers
  */
-public class GraphViewConfigurationUIFactory  implements ConfigurationUIFactory {
-
+public class GraphViewConfigurationUIFactory implements ConfigurationUIFactory {
 	private GraphViewConfiguration graphViewConfiguration;
 
+	@Override
 	public boolean canHandle(String uuid) {
 		return uuid.equals(getConfigurable().getUUID());
 	}
 
+	@Override
 	public JPanel getConfigurationPanel() {
 		return new GraphViewConfigurationPanel(graphViewConfiguration);
 	}
 
+	@Override
 	public Configurable getConfigurable() {
 		return graphViewConfiguration;
 	}
 
-	public void setGraphViewConfiguration(GraphViewConfiguration graphViewConfiguration) {
+	public void setGraphViewConfiguration(
+			GraphViewConfiguration graphViewConfiguration) {
 		this.graphViewConfiguration = graphViewConfiguration;
 	}
-
 }

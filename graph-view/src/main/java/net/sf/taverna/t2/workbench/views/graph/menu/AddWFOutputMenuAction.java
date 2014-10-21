@@ -20,30 +20,29 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.menu;
 
+import static net.sf.taverna.t2.workbench.views.graph.menu.InsertMenu.INSERT;
+
 import java.net.URI;
 
 import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.views.graph.actions.AddWFOutputAction;
 
 /**
- *
  * @author Alex Nenadic
- *
  */
 public class AddWFOutputMenuAction extends AbstractMenuAction {
-
 	private static final URI ADD_WF_OUTPUT_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuAddWFOutput");
+
 	private EditManager editManager;
 	private SelectionManager selectionManager;
 
 	public AddWFOutputMenuAction() {
-		super(InsertMenu.INSERT, 20, ADD_WF_OUTPUT_URI);
+		super(INSERT, 20, ADD_WF_OUTPUT_URI);
 	}
 
 	@Override
@@ -58,7 +57,4 @@ public class AddWFOutputMenuAction extends AbstractMenuAction {
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
 	}
-
 }
-
-

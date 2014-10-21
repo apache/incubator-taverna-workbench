@@ -20,21 +20,23 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.menu;
 
-import java.awt.Toolkit;
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.event.KeyEvent.VK_MINUS;
+import static javax.swing.KeyStroke.getKeyStroke;
+
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.ui.menu.DesignOrResultsAction;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
-
-public class ZoomOutAction extends AbstractAction implements DesignOrResultsAction {
-
+@SuppressWarnings("serial")
+public class ZoomOutAction extends AbstractAction implements
+		DesignOrResultsAction {
 	private static Action designAction = null;
+	@SuppressWarnings("unused")
 	private static Action resultsAction = null;
 
 	public static void setResultsAction(Action resultsAction) {
@@ -47,17 +49,17 @@ public class ZoomOutAction extends AbstractAction implements DesignOrResultsActi
 
 	ZoomOutAction() {
 		super("Zoom out", WorkbenchIcons.zoomOutIcon);
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_MINUS,
-						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		putValue(
+				ACCELERATOR_KEY,
+				getKeyStroke(VK_MINUS, getDefaultToolkit()
+						.getMenuShortcutKeyMask()));
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
-//		if (isWorkflowPerspective() && (designAction != null)) {
+//		if (isWorkflowPerspective() && (designAction != null))
 			designAction.actionPerformed(e);
-//		} else if (isResultsPerspective() && (resultsAction != null)) {
+//		else if (isResultsPerspective() && (resultsAction != null))
 //			resultsAction.actionPerformed(e);
-//		}
 	}
-
 }

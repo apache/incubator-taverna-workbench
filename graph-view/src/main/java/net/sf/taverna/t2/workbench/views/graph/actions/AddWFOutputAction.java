@@ -20,13 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.actions;
 
+import static java.awt.event.InputEvent.ALT_DOWN_MASK;
+import static java.awt.event.InputEvent.SHIFT_DOWN_MASK;
+import static java.awt.event.KeyEvent.VK_O;
+import static javax.swing.KeyStroke.getKeyStroke;
+
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowOutputAction;
@@ -37,32 +38,32 @@ import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * An action that adds a workflow output.
- *
+ * 
  * @author Alex Nenadic
  * @author Alan R Williams
- *
  */
 @SuppressWarnings("serial")
-public class AddWFOutputAction extends AbstractAction implements DesignOnlyAction {
-
+public class AddWFOutputAction extends AbstractAction implements
+		DesignOnlyAction {
 	private final EditManager editManager;
 	private final SelectionManager selectionManager;
 
-	public AddWFOutputAction(EditManager editManager, SelectionManager selectionManager) {
+	public AddWFOutputAction(EditManager editManager,
+			SelectionManager selectionManager) {
 		super();
 		this.editManager = editManager;
 		this.selectionManager = selectionManager;
 		putValue(SMALL_ICON, WorkbenchIcons.outputIcon);
 		putValue(NAME, "Workflow output port");
 		putValue(SHORT_DESCRIPTION, "Workflow output port");
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_O, InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
+		putValue(ACCELERATOR_KEY,
+				getKeyStroke(VK_O, SHIFT_DOWN_MASK | ALT_DOWN_MASK));
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		Workflow workflow = selectionManager.getSelectedWorkflow();
-		new AddDataflowOutputAction(workflow, null, editManager, selectionManager).actionPerformed(e);
+		new AddDataflowOutputAction(workflow, null, editManager,
+				selectionManager).actionPerformed(e);
 	}
-
 }
-

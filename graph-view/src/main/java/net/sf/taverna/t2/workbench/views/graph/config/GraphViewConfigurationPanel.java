@@ -20,6 +20,23 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.config;
 
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NORTHWEST;
+import static java.awt.GridBagConstraints.RELATIVE;
+import static java.awt.GridBagConstraints.REMAINDER;
+import static java.awt.GridBagConstraints.WEST;
+import static javax.swing.SwingConstants.LEFT;
+import static net.sf.taverna.t2.workbench.helper.Helper.showHelp;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.allportIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.blobIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.horizontalIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.noportIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.verticalIcon;
+import static net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration.ALIGNMENT;
+import static net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration.ANIMATION_ENABLED;
+import static net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration.ANIMATION_SPEED;
+import static net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration.PORT_STYLE;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -40,186 +57,178 @@ import javax.swing.JSlider;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.workbench.helper.Helper;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
 
 /**
  * UI for GraphViewConfiguration.
- *
+ * 
  * @author David Withers
  */
 public class GraphViewConfigurationPanel extends JPanel {
+	private static final long serialVersionUID = 3779779432230124131L;
+	private static final int ANIMATION_SPEED_MIN = 100;
+	private static final int ANIMATION_SPEED_MAX = 3100;
 
-    private static final long serialVersionUID = 1L;
-
-    private static final int ANIMATION_SPEED_MIN = 100;
-    private static final int ANIMATION_SPEED_MAX = 3100;
-
-    private GraphViewConfiguration configuration;
-
+	private GraphViewConfiguration configuration;
 	private JRadioButton noPorts;
-
 	private JRadioButton allPorts;
-
 	private JRadioButton blobs;
-
 	private JRadioButton vertical;
-
 	private JRadioButton horizontal;
-
 	private JCheckBox animation;
-
 	private JLabel animationSpeedLabel;
-
 	private JSlider animationSpeedSlider;
 
-    public GraphViewConfigurationPanel(GraphViewConfiguration configuration) {
-        this.configuration = configuration;
+	public GraphViewConfigurationPanel(GraphViewConfiguration configuration) {
+		this.configuration = configuration;
 		GridBagLayout gridbag = new GridBagLayout();
-        GridBagConstraints c = new GridBagConstraints();
-        setLayout(gridbag);
+		GridBagConstraints c = new GridBagConstraints();
+		setLayout(gridbag);
 
 		// Title describing what kind of settings we are configuring here
-        JTextArea descriptionText = new JTextArea("Default settings for the workflow diagram");
-        descriptionText.setLineWrap(true);
-        descriptionText.setWrapStyleWord(true);
-        descriptionText.setEditable(false);
-        descriptionText.setFocusable(false);
-        descriptionText.setBorder(new EmptyBorder(10, 10, 10, 10));
+		JTextArea descriptionText = new JTextArea(
+				"Default settings for the workflow diagram");
+		descriptionText.setLineWrap(true);
+		descriptionText.setWrapStyleWord(true);
+		descriptionText.setEditable(false);
+		descriptionText.setFocusable(false);
+		descriptionText.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        JLabel defaultLayoutLabel = new JLabel("Service display");
+		JLabel defaultLayoutLabel = new JLabel("Service display");
 
-        noPorts = new JRadioButton();
-        allPorts = new JRadioButton();
-        blobs = new JRadioButton();
+		noPorts = new JRadioButton();
+		allPorts = new JRadioButton();
+		blobs = new JRadioButton();
 
-        JLabel noPortsLabel = new JLabel("Name only", WorkbenchIcons.noportIcon, JLabel.LEFT);
-        JLabel allPortsLabel = new JLabel("Name and ports", WorkbenchIcons.allportIcon, JLabel.LEFT);
-        JLabel blobsLabel = new JLabel("No text", WorkbenchIcons.blobIcon, JLabel.LEFT);
+		JLabel noPortsLabel = new JLabel("Name only", noportIcon, LEFT);
+		JLabel allPortsLabel = new JLabel("Name and ports", allportIcon, LEFT);
+		JLabel blobsLabel = new JLabel("No text", blobIcon, LEFT);
 
-        ButtonGroup buttonGroup = new ButtonGroup();
-        buttonGroup.add(noPorts);
-        buttonGroup.add(allPorts);
-        buttonGroup.add(blobs);
+		ButtonGroup buttonGroup = new ButtonGroup();
+		buttonGroup.add(noPorts);
+		buttonGroup.add(allPorts);
+		buttonGroup.add(blobs);
 
-        JLabel defaultAlignmentLabel = new JLabel("Diagram alignment");
+		JLabel defaultAlignmentLabel = new JLabel("Diagram alignment");
 
-        vertical = new JRadioButton();
-        horizontal = new JRadioButton();
+		vertical = new JRadioButton();
+		horizontal = new JRadioButton();
 
-        JLabel verticalLabel = new JLabel("Vertical", WorkbenchIcons.verticalIcon, JLabel.LEFT);
-        JLabel horizontalLabel = new JLabel("Horizontal", WorkbenchIcons.horizontalIcon, JLabel.LEFT);
+		JLabel verticalLabel = new JLabel("Vertical", verticalIcon, LEFT);
+		JLabel horizontalLabel = new JLabel("Horizontal", horizontalIcon, LEFT);
 
-        ButtonGroup alignmentButtonGroup = new ButtonGroup();
-        alignmentButtonGroup.add(horizontal);
-        alignmentButtonGroup.add(vertical);
+		ButtonGroup alignmentButtonGroup = new ButtonGroup();
+		alignmentButtonGroup.add(horizontal);
+		alignmentButtonGroup.add(vertical);
 
-        animation = new JCheckBox("Enable animation");
+		animation = new JCheckBox("Enable animation");
 
-        animationSpeedLabel = new JLabel("Animation speed");
+		animationSpeedLabel = new JLabel("Animation speed");
 
-        animationSpeedSlider = new JSlider(ANIMATION_SPEED_MIN, ANIMATION_SPEED_MAX);
-        animationSpeedSlider.setMajorTickSpacing(500);
-        animationSpeedSlider.setMinorTickSpacing(100);
-        animationSpeedSlider.setPaintTicks(true);
-        animationSpeedSlider.setPaintLabels(true);
-        animationSpeedSlider.setInverted(true);
-        animationSpeedSlider.setSnapToTicks(true);
+		animationSpeedSlider = new JSlider(ANIMATION_SPEED_MIN,
+				ANIMATION_SPEED_MAX);
+		animationSpeedSlider.setMajorTickSpacing(500);
+		animationSpeedSlider.setMinorTickSpacing(100);
+		animationSpeedSlider.setPaintTicks(true);
+		animationSpeedSlider.setPaintLabels(true);
+		animationSpeedSlider.setInverted(true);
+		animationSpeedSlider.setSnapToTicks(true);
 
-        Hashtable<Integer, JLabel> labelTable = new Hashtable<Integer, JLabel>();
-        labelTable.put(new Integer(ANIMATION_SPEED_MIN), new JLabel("Fast"));
-        labelTable.put(new Integer(((ANIMATION_SPEED_MAX - ANIMATION_SPEED_MIN) / 2) + ANIMATION_SPEED_MIN), new JLabel("Medium"));
-        labelTable.put(new Integer(ANIMATION_SPEED_MAX), new JLabel("Slow"));
-        animationSpeedSlider.setLabelTable(labelTable);
+		Hashtable<Integer, JLabel> labelTable = new Hashtable<>();
+		labelTable.put(new Integer(ANIMATION_SPEED_MIN), new JLabel("Fast"));
+		labelTable.put(new Integer(
+				((ANIMATION_SPEED_MAX - ANIMATION_SPEED_MIN) / 2)
+						+ ANIMATION_SPEED_MIN), new JLabel("Medium"));
+		labelTable.put(new Integer(ANIMATION_SPEED_MAX), new JLabel("Slow"));
+		animationSpeedSlider.setLabelTable(labelTable);
 
-        animation.addItemListener(new ItemListener() {
-            public void itemStateChanged(ItemEvent e) {
-            	boolean animationEnabled = animation.isSelected();
-         		animationSpeedLabel.setEnabled(animationEnabled);
-         		animationSpeedSlider.setEnabled(animationEnabled);
-            }
-        });
+		animation.addItemListener(new ItemListener() {
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				boolean animationEnabled = animation.isSelected();
+				animationSpeedLabel.setEnabled(animationEnabled);
+				animationSpeedSlider.setEnabled(animationEnabled);
+			}
+		});
 
-        // Set current configuration values
-        setFields(configuration);
+		// Set current configuration values
+		setFields(configuration);
 
-        c.anchor = GridBagConstraints.WEST;
-        c.gridx = 0;
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        c.weightx = 1d;
-        c.weighty = 0d;
-        c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = WEST;
+		c.gridx = 0;
+		c.gridwidth = REMAINDER;
+		c.weightx = 1d;
+		c.weighty = 0d;
+		c.fill = HORIZONTAL;
 
-        add(descriptionText, c);
+		add(descriptionText, c);
 
-        c.insets = new Insets(10, 0, 10, 0);
-        add(defaultLayoutLabel, c);
+		c.insets = new Insets(10, 0, 10, 0);
+		add(defaultLayoutLabel, c);
 
-        c.insets = new Insets(0, 20, 0, 0);
-        c.gridwidth = 1;
-        c.weightx = 0d;
-        add(noPorts, c);
-        c.insets = new Insets(0, 5, 0, 0);
-        c.gridx = GridBagConstraints.RELATIVE;
-        add(noPortsLabel, c);
+		c.insets = new Insets(0, 20, 0, 0);
+		c.gridwidth = 1;
+		c.weightx = 0d;
+		add(noPorts, c);
+		c.insets = new Insets(0, 5, 0, 0);
+		c.gridx = RELATIVE;
+		add(noPortsLabel, c);
 
-        c.insets = new Insets(0, 10, 0, 0);
-        add(allPorts, c);
-        c.insets = new Insets(0, 5, 0, 0);
-        add(allPortsLabel, c);
+		c.insets = new Insets(0, 10, 0, 0);
+		add(allPorts, c);
+		c.insets = new Insets(0, 5, 0, 0);
+		add(allPortsLabel, c);
 
-        c.insets = new Insets(0, 10, 0, 0);
-        add(blobs, c);
-        c.insets = new Insets(0, 5, 0, 0);
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        c.weightx = 1d;
-        add(blobsLabel, c);
+		c.insets = new Insets(0, 10, 0, 0);
+		add(blobs, c);
+		c.insets = new Insets(0, 5, 0, 0);
+		c.gridwidth = REMAINDER;
+		c.weightx = 1d;
+		add(blobsLabel, c);
 
-        // alignment
-        c.insets = new Insets(20, 0, 10, 0);
-        c.gridx = 0;
-        add(defaultAlignmentLabel, c);
+		// alignment
+		c.insets = new Insets(20, 0, 10, 0);
+		c.gridx = 0;
+		add(defaultAlignmentLabel, c);
 
-        c.insets = new Insets(0, 20, 0, 0);
-        c.gridx = 0;
-        c.gridwidth = 1;
-        c.weightx = 0d;
-        add(vertical, c);
-        c.insets = new Insets(0, 5, 0, 0);
-        c.gridx = GridBagConstraints.RELATIVE;
-        add(verticalLabel, c);
+		c.insets = new Insets(0, 20, 0, 0);
+		c.gridx = 0;
+		c.gridwidth = 1;
+		c.weightx = 0d;
+		add(vertical, c);
+		c.insets = new Insets(0, 5, 0, 0);
+		c.gridx = RELATIVE;
+		add(verticalLabel, c);
 
-        c.insets = new Insets(0, 10, 0, 0);
-        add(horizontal, c);
-        c.insets = new Insets(0, 5, 0, 0);
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        c.weightx = 1d;
-        add(horizontalLabel, c);
+		c.insets = new Insets(0, 10, 0, 0);
+		add(horizontal, c);
+		c.insets = new Insets(0, 5, 0, 0);
+		c.gridwidth = REMAINDER;
+		c.weightx = 1d;
+		add(horizontalLabel, c);
 
-        // animation
-        c.gridx = 0;
-        c.gridwidth = GridBagConstraints.REMAINDER;
-        c.insets = new Insets(20, 0, 10, 0);
-        add(animation, c);
+		// animation
+		c.gridx = 0;
+		c.gridwidth = REMAINDER;
+		c.insets = new Insets(20, 0, 10, 0);
+		add(animation, c);
 
-        c.insets = new Insets(0, 20, 0, 0);
-        add(animationSpeedLabel, c);
+		c.insets = new Insets(0, 20, 0, 0);
+		add(animationSpeedLabel, c);
 
-        c.insets = new Insets(0, 20, 10, 30);
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.weighty = 0d;
-        add(animationSpeedSlider, c);
+		c.insets = new Insets(0, 20, 10, 30);
+		c.anchor = NORTHWEST;
+		c.weighty = 0d;
+		add(animationSpeedSlider, c);
 
-        // Buttons
-        c.gridx = 0;
-        c.insets = new Insets(0, 20, 10, 30);
-        c.anchor = GridBagConstraints.NORTHWEST;
-        c.weighty = 1d;
-        add(createButtonPanel(), c);
-
-    }
+		// Buttons
+		c.gridx = 0;
+		c.insets = new Insets(0, 20, 10, 30);
+		c.anchor = NORTHWEST;
+		c.weighty = 1d;
+		add(createButtonPanel(), c);
+	}
 
 	/**
 	 * Create the panel with the buttons.
@@ -232,8 +241,9 @@ public class GraphViewConfigurationPanel extends JPanel {
 		 * The helpButton shows help about the current component
 		 */
 		JButton helpButton = new JButton(new AbstractAction("Help") {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Helper.showHelp(panel);
+				showHelp(panel);
 			}
 		});
 		panel.add(helpButton);
@@ -243,6 +253,7 @@ public class GraphViewConfigurationPanel extends JPanel {
 		 * corresponding to the configuration currently applied.
 		 */
 		JButton resetButton = new JButton(new AbstractAction("Reset") {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				setFields(configuration);
 			}
@@ -254,6 +265,7 @@ public class GraphViewConfigurationPanel extends JPanel {
 		 * {@link HttpProxyConfiguration} and saves them for future.
 		 */
 		JButton applyButton = new JButton(new AbstractAction("Apply") {
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				applySettings();
 				setFields(configuration);
@@ -265,90 +277,84 @@ public class GraphViewConfigurationPanel extends JPanel {
 	}
 
 	/**
-	 * Save the currently set field values to the
-	 * {@link GraphViewConfiguration}. Also apply those values to the
-	 * currently running Taverna.
+	 * Save the currently set field values to the {@link GraphViewConfiguration}
+	 * . Also apply those values to the currently running Taverna.
 	 */
 	private void applySettings() {
-
 		// Service display
-		if (noPorts.isSelected()){
-        	configuration.setProperty(GraphViewConfiguration.PORT_STYLE, PortStyle.NONE.toString());
-		}
-		else if (allPorts.isSelected()){
-        	configuration.setProperty(GraphViewConfiguration.PORT_STYLE, PortStyle.ALL.toString());
-		}
-		else if (blobs.isSelected()){
-        	configuration.setProperty(GraphViewConfiguration.PORT_STYLE, PortStyle.BLOB.toString());
+		if (noPorts.isSelected()) {
+			configuration.setProperty(PORT_STYLE, PortStyle.NONE.toString());
+		} else if (allPorts.isSelected()) {
+			configuration.setProperty(PORT_STYLE, PortStyle.ALL.toString());
+		} else if (blobs.isSelected()) {
+			configuration.setProperty(PORT_STYLE, PortStyle.BLOB.toString());
 		}
 
 		// Diagram alignment
-		if (vertical.isSelected()){
-        	configuration.setProperty(GraphViewConfiguration.ALIGNMENT, Alignment.VERTICAL.toString());
-		}
-		else if (horizontal.isSelected()){
-        	configuration.setProperty(GraphViewConfiguration.ALIGNMENT, Alignment.HORIZONTAL.toString());
+		if (vertical.isSelected()) {
+			configuration.setProperty(ALIGNMENT, Alignment.VERTICAL.toString());
+		} else if (horizontal.isSelected()) {
+			configuration.setProperty(ALIGNMENT,
+					Alignment.HORIZONTAL.toString());
 		}
 
 		// Animation and its speed
-		if (animation.isSelected()){
-        	configuration.setProperty(GraphViewConfiguration.ANIMATION_ENABLED,
-        			String.valueOf(true));
-		}
-		else{
-        	configuration.setProperty(GraphViewConfiguration.ANIMATION_ENABLED,
-        			String.valueOf(false));
+		if (animation.isSelected()) {
+			configuration.setProperty(ANIMATION_ENABLED, String.valueOf(true));
+		} else {
+			configuration.setProperty(ANIMATION_ENABLED, String.valueOf(false));
 		}
 		int speed = animationSpeedSlider.getValue();
-		configuration.setProperty(GraphViewConfiguration.ANIMATION_SPEED, String.valueOf(speed));
+		configuration.setProperty(ANIMATION_SPEED, String.valueOf(speed));
 	}
 
 	/**
-	 * Set the shown configuration field values to those currently in use
-	 * (i.e. last saved configuration).
-	 *
+	 * Set the shown configuration field values to those currently in use (i.e.
+	 * last saved configuration).
 	 */
 	private void setFields(GraphViewConfiguration configurable) {
+		PortStyle portStyle = PortStyle.valueOf(configurable
+				.getProperty(PORT_STYLE));
+		if (portStyle.equals(PortStyle.NONE)) {
+			noPorts.setSelected(true);
+		} else if (portStyle.equals(PortStyle.ALL)) {
+			allPorts.setSelected(true);
+		} else {
+			blobs.setSelected(true);
+		}
 
-        PortStyle portStyle = PortStyle.valueOf(configurable.getProperty(GraphViewConfiguration.PORT_STYLE));
-        if (portStyle.equals(PortStyle.NONE)) {
-        	noPorts.setSelected(true);
-        } else if (portStyle.equals(PortStyle.ALL)) {
-        	allPorts.setSelected(true);
-        } else {
-        	blobs.setSelected(true);
-        }
+		Alignment alignment = Alignment.valueOf(configurable
+				.getProperty(ALIGNMENT));
+		if (alignment.equals(Alignment.VERTICAL)) {
+			vertical.setSelected(true);
+		} else {
+			horizontal.setSelected(true);
+		}
 
-		Alignment alignment = Alignment.valueOf(configurable.getProperty(GraphViewConfiguration.ALIGNMENT));
-        if (alignment.equals(Alignment.VERTICAL)) {
-        	vertical.setSelected(true);
-        } else {
-        	horizontal.setSelected(true);
-        }
+		boolean animationEnabled = Boolean.parseBoolean(configurable
+				.getProperty(ANIMATION_ENABLED));
+		animation.setSelected(animationEnabled);
 
-        boolean animationEnabled = Boolean.parseBoolean(configurable.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
-        animation.setSelected(animationEnabled);
+		Integer animationSpeed = Integer.valueOf(configurable
+				.getProperty(ANIMATION_SPEED));
+		if (animationSpeed > ANIMATION_SPEED_MAX) {
+			animationSpeed = ANIMATION_SPEED_MAX;
+		} else if (animationSpeed < ANIMATION_SPEED_MIN) {
+			animationSpeed = ANIMATION_SPEED_MIN;
+		}
+		animationSpeedSlider.setValue(animationSpeed);
+		animationSpeedSlider.setEnabled(animationEnabled);
 
-        Integer animationSpeed = Integer.valueOf(configurable.getProperty(GraphViewConfiguration.ANIMATION_SPEED));
-        if (animationSpeed > ANIMATION_SPEED_MAX) {
-        	animationSpeed = ANIMATION_SPEED_MAX;
-        } else if (animationSpeed < ANIMATION_SPEED_MIN) {
-        	animationSpeed = ANIMATION_SPEED_MIN;
-        }
-        animationSpeedSlider.setValue(animationSpeed);
-        animationSpeedSlider.setEnabled(animationEnabled);
-
-        animationSpeedLabel.setEnabled(animationEnabled);
+		animationSpeedLabel.setEnabled(animationEnabled);
 	}
 
-    // for testing only
-    public static void main(String[] args) {
-        JDialog dialog = new JDialog();
-        dialog.add(new GraphViewConfigurationPanel(null));
-        dialog.setModal(true);
-        dialog.setSize(500, 400);
-        dialog.setVisible(true);
-        System.exit(0);
-    }
-
+	// for testing only
+	public static void main(String[] args) {
+		JDialog dialog = new JDialog();
+		dialog.add(new GraphViewConfigurationPanel(null));
+		dialog.setModal(true);
+		dialog.setSize(500, 400);
+		dialog.setVisible(true);
+		System.exit(0);
+	}
 }

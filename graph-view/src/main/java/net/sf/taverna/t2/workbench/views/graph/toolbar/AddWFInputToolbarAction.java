@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.toolbar;
 
+import static net.sf.taverna.t2.workbench.views.graph.toolbar.GraphEditToolbarSection.GRAPH_EDIT_TOOLBAR_SECTION;
+
 import java.net.URI;
 
 import javax.swing.Action;
@@ -30,19 +32,17 @@ import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.views.graph.actions.AddWFInputAction;
 
 /**
- *
  * @author Alex Nenadic
- *
  */
 public class AddWFInputToolbarAction extends AbstractMenuAction {
-
 	private static final URI ADD_WF_INPUT_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphToolbarAddWFInput");
+
 	private EditManager editManager;
 	private SelectionManager selectionManager;
 
 	public AddWFInputToolbarAction() {
-		super(GraphEditToolbarSection.GRAPH_EDIT_TOOLBAR_SECTION, 10, ADD_WF_INPUT_URI);
+		super(GRAPH_EDIT_TOOLBAR_SECTION, 10, ADD_WF_INPUT_URI);
 	}
 
 	@Override
@@ -57,6 +57,4 @@ public class AddWFInputToolbarAction extends AbstractMenuAction {
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
 	}
-
 }
-

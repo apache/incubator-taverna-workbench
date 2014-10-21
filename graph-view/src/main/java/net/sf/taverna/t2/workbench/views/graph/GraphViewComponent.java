@@ -20,9 +20,28 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.NORTH;
+import static javax.swing.Action.SHORT_DESCRIPTION;
+import static javax.swing.Action.SMALL_ICON;
+import static javax.swing.BoxLayout.PAGE_AXIS;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.allportIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.blobIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.expandNestedIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.horizontalIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.noportIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.refreshIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.verticalIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.zoomInIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.zoomOutIcon;
+import static net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration.ALIGNMENT;
+import static net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration.ANIMATION_ENABLED;
+import static net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration.ANIMATION_SPEED;
+import static net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration.PORT_STYLE;
+import static org.apache.batik.swing.svg.AbstractJSVGComponent.ALWAYS_DYNAMIC;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -55,7 +74,6 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.Graph.Alignment;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
@@ -82,26 +100,23 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
- *
  * @author David Withers
  * @author Alex Nenadic
  * @author Tom Oinn
  */
 public class GraphViewComponent extends JPanel implements UIComponentSPI {
-
-	private static final long serialVersionUID = 1L;
-
-	private static Logger logger = Logger.getLogger(GraphViewComponent.class);
+	private static final long serialVersionUID = 7404937056378331528L;
+	private static final Logger logger = Logger.getLogger(GraphViewComponent.class);
 
 	private Workflow workflow;
 	private SVGGraphController graphController;
 	private JPanel diagramPanel;
 
-	private Map<WorkflowBundle, Set<Workflow>> workflowsMap = new IdentityHashMap<WorkflowBundle, Set<Workflow>>();
+	private Map<WorkflowBundle, Set<Workflow>> workflowsMap = new IdentityHashMap<>();
 
-	private Map<Workflow, SVGGraphController> graphControllerMap = new IdentityHashMap<Workflow, SVGGraphController>();
-	private Map<Workflow, JPanel> diagramPanelMap = new IdentityHashMap<Workflow, JPanel>();
-	private Map<Workflow, Action[]> diagramActionsMap = new IdentityHashMap<Workflow, Action[]>();
+	private Map<Workflow, SVGGraphController> graphControllerMap = new IdentityHashMap<>();
+	private Map<Workflow, JPanel> diagramPanelMap = new IdentityHashMap<>();
+	private Map<Workflow, Action[]> diagramActionsMap = new IdentityHashMap<>();
 
 	private Timer timer;
 
@@ -115,8 +130,11 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 	private final SelectionManager selectionManager;
 	private final ServiceRegistry serviceRegistry;
 
-	public GraphViewComponent(ColourManager colourManager, EditManager editManager, FileManager fileManager, MenuManager menuManager,
-			GraphViewConfiguration graphViewConfiguration, WorkbenchConfiguration workbenchConfiguration,
+	public GraphViewComponent(ColourManager colourManager,
+			EditManager editManager, FileManager fileManager,
+			MenuManager menuManager,
+			GraphViewConfiguration graphViewConfiguration,
+			WorkbenchConfiguration workbenchConfiguration,
 			SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
 		this.colourManager = colourManager;
 		this.editManager = editManager;
@@ -130,22 +148,22 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		setLayout(cardLayout);
 
 		ActionListener taskPerformer = new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent evt) {
-				if (graphController != null) {
+				if (graphController != null)
 					graphController.redraw();
-				}
 				timer.stop();
 			}
 		};
 		timer = new Timer(100, taskPerformer);
 
 		addComponentListener(new ComponentAdapter() {
+			@Override
 			public void componentResized(ComponentEvent e) {
-				if (timer.isRunning()) {
+				if (timer.isRunning())
 					timer.restart();
-				} else {
+				else
 					timer.start();
-				}
 			}
 		});
 
@@ -156,9 +174,8 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 
 	@Override
 	protected void finalize() throws Throwable {
-		if (timer != null) {
+		if (timer != null)
 			timer.stop();
-		}
 	}
 
 	@Override
@@ -177,9 +194,8 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 
 	@Override
 	public void onDispose() {
-		if (timer != null) {
+		if (timer != null)
 			timer.stop();
-		}
 	}
 
 	private JPanel createDiagramPanel(Workflow workflow) {
@@ -187,20 +203,21 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 
 		// get the default diagram settings
 		Alignment alignment = Alignment.valueOf(graphViewConfiguration
-				.getProperty(GraphViewConfiguration.ALIGNMENT));
+				.getProperty(ALIGNMENT));
 		PortStyle portStyle = PortStyle.valueOf(graphViewConfiguration
-				.getProperty(GraphViewConfiguration.PORT_STYLE));
+				.getProperty(PORT_STYLE));
 		boolean animationEnabled = Boolean.parseBoolean(graphViewConfiguration
-				.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
+				.getProperty(ANIMATION_ENABLED));
 		int animationSpeed = Integer.parseInt(graphViewConfiguration
-				.getProperty(GraphViewConfiguration.ANIMATION_SPEED));
+				.getProperty(ANIMATION_SPEED));
 
 		// create an SVG canvas
 		final JSVGCanvas svgCanvas = new JSVGCanvas(null, true, false);
 		svgCanvas.setEnableZoomInteractor(false);
 		svgCanvas.setEnableRotateInteractor(false);
-		svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
-		svgCanvas.setTransferHandler(new ServiceTransferHandler(editManager, menuManager, selectionManager, serviceRegistry));
+		svgCanvas.setDocumentState(ALWAYS_DYNAMIC);
+		svgCanvas.setTransferHandler(new ServiceTransferHandler(editManager,
+				menuManager, selectionManager, serviceRegistry));
 
 		AutoScrollInteractor asi = new AutoScrollInteractor(svgCanvas);
 		svgCanvas.addMouseListener(asi);
@@ -209,6 +226,7 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		final JSVGScrollPane svgScrollPane = new MySvgScrollPane(svgCanvas);
 
 		GVTTreeRendererAdapter gvtTreeRendererAdapter = new GVTTreeRendererAdapter() {
+			@Override
 			public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
 				logger.info("Rendered svg");
 				svgScrollPane.reset();
@@ -219,7 +237,9 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 
 		// create a graph controller
 		SVGGraphController svgGraphController = new SVGGraphController(
-				workflow, selectionManager.getSelectedProfile(), false, svgCanvas, alignment, portStyle, editManager, menuManager, colourManager, workbenchConfiguration);
+				workflow, selectionManager.getSelectedProfile(), false,
+				svgCanvas, alignment, portStyle, editManager, menuManager,
+				colourManager, workbenchConfiguration);
 		svgGraphController.setDataflowSelectionModel(selectionManager
 				.getDataflowSelectionModel(workflow.getParent()));
 		svgGraphController.setAnimationSpeed(animationEnabled ? animationSpeed
@@ -228,21 +248,21 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		graphControllerMap.put(workflow, svgGraphController);
 
 		// Toolbar with actions related to graph
-		JToolBar graphActionsToolbar = graphActionsToolbar(workflow, svgGraphController,
-				svgCanvas, alignment, portStyle);
-		graphActionsToolbar.setAlignmentX(Component.LEFT_ALIGNMENT);
+		JToolBar graphActionsToolbar = graphActionsToolbar(workflow,
+				svgGraphController, svgCanvas, alignment, portStyle);
+		graphActionsToolbar.setAlignmentX(LEFT_ALIGNMENT);
 		graphActionsToolbar.setFloatable(false);
 
 		// Panel to hold the toolbars
 		JPanel toolbarPanel = new JPanel();
-		toolbarPanel.setLayout(new BoxLayout(toolbarPanel, BoxLayout.PAGE_AXIS));
+		toolbarPanel.setLayout(new BoxLayout(toolbarPanel, PAGE_AXIS));
 		toolbarPanel.add(graphActionsToolbar);
 
-		diagramPanel.add(toolbarPanel, BorderLayout.NORTH);
-		diagramPanel.add(svgScrollPane, BorderLayout.CENTER);
+		diagramPanel.add(toolbarPanel, NORTH);
+		diagramPanel.add(svgScrollPane, CENTER);
 
-//		JTextField workflowHierarchy  = new JTextField(workflow.getName());
-//		diagramPanel.add(workflowHierarchy, BorderLayout.SOUTH);
+		// JTextField workflowHierarchy = new JTextField(workflow.getName());
+		// diagramPanel.add(workflowHierarchy, BorderLayout.SOUTH);
 
 		return diagramPanel;
 	}
@@ -262,24 +282,24 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 
 		Action resetDiagramAction = svgCanvas.new ResetTransformAction();
 		ResetDiagramAction.setDesignAction(resetDiagramAction);
-		resetDiagramAction.putValue(Action.SHORT_DESCRIPTION, "Reset Diagram");
-		resetDiagramAction.putValue(Action.SMALL_ICON,
-				WorkbenchIcons.refreshIcon);
+		resetDiagramAction.putValue(SHORT_DESCRIPTION, "Reset Diagram");
+		resetDiagramAction.putValue(SMALL_ICON, refreshIcon);
 		resetDiagramButton.setAction(resetDiagramAction);
 
 		Action zoomInAction = svgCanvas.new ZoomAction(1.2);
 		ZoomInAction.setDesignAction(zoomInAction);
-		zoomInAction.putValue(Action.SHORT_DESCRIPTION, "Zoom In");
-		zoomInAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomInIcon);
+		zoomInAction.putValue(SHORT_DESCRIPTION, "Zoom In");
+		zoomInAction.putValue(SMALL_ICON, zoomInIcon);
 		zoomInButton.setAction(zoomInAction);
 
 		Action zoomOutAction = svgCanvas.new ZoomAction(1 / 1.2);
 		ZoomOutAction.setDesignAction(zoomOutAction);
-		zoomOutAction.putValue(Action.SHORT_DESCRIPTION, "Zoom Out");
-		zoomOutAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomOutIcon);
+		zoomOutAction.putValue(SHORT_DESCRIPTION, "Zoom Out");
+		zoomOutAction.putValue(SMALL_ICON, zoomOutIcon);
 		zoomOutButton.setAction(zoomOutAction);
 
-		diagramActionsMap.put(workflow, new Action[] {resetDiagramAction, zoomInAction, zoomOutAction});
+		diagramActionsMap.put(workflow, new Action[] { resetDiagramAction,
+				zoomInAction, zoomOutAction });
 
 		toolBar.add(resetDiagramButton);
 		toolBar.add(zoomInButton);
@@ -296,53 +316,47 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		nodeTypeGroup.add(allPorts);
 		nodeTypeGroup.add(blobs);
 
-		if (portStyle.equals(PortStyle.NONE)) {
+		if (portStyle.equals(PortStyle.NONE))
 			noPorts.setSelected(true);
-		} else if (portStyle.equals(PortStyle.ALL)) {
+		else if (portStyle.equals(PortStyle.ALL))
 			allPorts.setSelected(true);
-		} else {
+		else
 			blobs.setSelected(true);
-		}
 
 		noPorts.setAction(new AbstractAction() {
-
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				graphController.setPortStyle(PortStyle.NONE);
 				graphController.redraw();
 			}
-
 		});
-		noPorts.getAction().putValue(Action.SHORT_DESCRIPTION,
+		noPorts.getAction().putValue(SHORT_DESCRIPTION,
 				"Display no service ports");
-		noPorts.getAction().putValue(Action.SMALL_ICON,
-				WorkbenchIcons.noportIcon);
+		noPorts.getAction().putValue(SMALL_ICON, noportIcon);
 		noPorts.setFocusPainted(false);
 
 		allPorts.setAction(new AbstractAction() {
-
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				graphController.setPortStyle(PortStyle.ALL);
 				graphController.redraw();
 			}
-
 		});
-		allPorts.getAction().putValue(Action.SHORT_DESCRIPTION,
+		allPorts.getAction().putValue(SHORT_DESCRIPTION,
 				"Display all service ports");
-		allPorts.getAction().putValue(Action.SMALL_ICON,
-				WorkbenchIcons.allportIcon);
+		allPorts.getAction().putValue(SMALL_ICON, allportIcon);
 		allPorts.setFocusPainted(false);
 
 		blobs.setAction(new AbstractAction() {
-
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				graphController.setPortStyle(PortStyle.BLOB);
 				graphController.redraw();
 			}
-
 		});
-		blobs.getAction().putValue(Action.SHORT_DESCRIPTION,
+		blobs.getAction().putValue(SHORT_DESCRIPTION,
 				"Display services as circles");
-		blobs.getAction().putValue(Action.SMALL_ICON, WorkbenchIcons.blobIcon);
+		blobs.getAction().putValue(SMALL_ICON, blobIcon);
 		blobs.setFocusPainted(false);
 
 		toolBar.add(noPorts);
@@ -365,31 +379,28 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		}
 
 		vertical.setAction(new AbstractAction() {
-
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				graphController.setAlignment(Alignment.VERTICAL);
 				graphController.redraw();
 			}
-
 		});
-		vertical.getAction().putValue(Action.SHORT_DESCRIPTION,
+		vertical.getAction().putValue(SHORT_DESCRIPTION,
 				"Align services vertically");
-		vertical.getAction().putValue(Action.SMALL_ICON,
-				WorkbenchIcons.verticalIcon);
+		vertical.getAction().putValue(SMALL_ICON, verticalIcon);
 		vertical.setFocusPainted(false);
 
 		horizontal.setAction(new AbstractAction() {
-
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				graphController.setAlignment(Alignment.HORIZONTAL);
 				graphController.redraw();
 			}
 
 		});
-		horizontal.getAction().putValue(Action.SHORT_DESCRIPTION,
+		horizontal.getAction().putValue(SHORT_DESCRIPTION,
 				"Align services horizontally");
-		horizontal.getAction().putValue(Action.SMALL_ICON,
-				WorkbenchIcons.horizontalIcon);
+		horizontal.getAction().putValue(SMALL_ICON, horizontalIcon);
 		horizontal.setFocusPainted(false);
 
 		toolBar.add(vertical);
@@ -401,18 +412,16 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		expandNested.setSelected(true);
 
 		expandNested.setAction(new AbstractAction() {
-
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				graphController.setExpandNestedDataflows(!graphController
 						.expandNestedDataflows());
 				graphController.redraw();
 			}
-
 		});
-		expandNested.getAction().putValue(Action.SHORT_DESCRIPTION,
+		expandNested.getAction().putValue(SHORT_DESCRIPTION,
 				"Expand Nested Workflows");
-		expandNested.getAction().putValue(Action.SMALL_ICON,
-				WorkbenchIcons.expandNestedIcon);
+		expandNested.getAction().putValue(SMALL_ICON, expandNestedIcon);
 		expandNested.setFocusPainted(false);
 		toolBar.add(expandNested);
 
@@ -426,9 +435,8 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 	 */
 	private void setWorkflow(Workflow workflow) {
 		this.workflow = workflow;
-		if (!diagramPanelMap.containsKey(workflow)) {
+		if (!diagramPanelMap.containsKey(workflow))
 			addWorkflow(workflow);
-		}
 		graphController = graphControllerMap.get(workflow);
 		diagramPanel = diagramPanelMap.get(workflow);
 		Action[] actions = diagramActionsMap.get(workflow);
@@ -445,56 +453,55 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 		JPanel newDiagramPanel = createDiagramPanel(workflow);
 		add(newDiagramPanel, String.valueOf(newDiagramPanel.hashCode()));
 		diagramPanelMap.put(workflow, newDiagramPanel);
-		if (!workflowsMap.containsKey(workflow.getParent())) {
+		if (!workflowsMap.containsKey(workflow.getParent()))
 			workflowsMap.put(workflow.getParent(), new HashSet<Workflow>());
-		}
 		workflowsMap.get(workflow.getParent()).add(workflow);
 	}
 
 	private void removeWorkflow(Workflow workflow) {
 		JPanel panel = diagramPanelMap.remove(workflow);
-		if (panel != null) {
+		if (panel != null)
 			remove(panel);
-		}
 		SVGGraphController removedController = graphControllerMap.remove(workflow);
-		if (removedController != null) {
+		if (removedController != null)
 			removedController.shutdown();
-		}
 		diagramActionsMap.remove(workflow);
 		Set<Workflow> workflows = workflowsMap.get(workflow.getParent());
-		if (workflows != null) {
+		if (workflows != null)
 			workflows.remove(workflow);
-		}
 	}
 
 	public GraphController getGraphController(Workflow workflow) {
 		return graphControllerMap.get(workflow);
 	}
 
-	private class EditManagerObserver extends SwingAwareObserver<EditManagerEvent> {
+	private class EditManagerObserver extends
+			SwingAwareObserver<EditManagerEvent> {
 		@Override
-		public void notifySwing(Observable<EditManagerEvent> sender, EditManagerEvent message) {
-			if (message instanceof AbstractDataflowEditEvent) {
-				AbstractDataflowEditEvent dataflowEditEvent = (AbstractDataflowEditEvent) message;
+		public void notifySwing(Observable<EditManagerEvent> sender,
+				EditManagerEvent message) {
+			if (!(message instanceof AbstractDataflowEditEvent))
+				return;
+			AbstractDataflowEditEvent dataflowEditEvent = (AbstractDataflowEditEvent) message;
+			if (dataflowEditEvent.getDataFlow() != workflow.getParent())
+				return;
+			
+			boolean animationEnabled = Boolean
+					.parseBoolean(graphViewConfiguration
+							.getProperty(ANIMATION_ENABLED));
+			int animationSpeed = (animationEnabled ? Integer
+					.parseInt(graphViewConfiguration
+							.getProperty(ANIMATION_SPEED)) : 0);
+			boolean animationSettingChanged = (animationEnabled != (graphController
+					.getAnimationSpeed() != 0));
 
-				boolean animationEnabled = Boolean.parseBoolean(graphViewConfiguration
-						.getProperty(GraphViewConfiguration.ANIMATION_ENABLED));
-				int animationSpeed = (animationEnabled ? Integer.parseInt(graphViewConfiguration
-						.getProperty(GraphViewConfiguration.ANIMATION_SPEED)) : 0);
-
-				boolean animationSettingChanged = (animationEnabled != (graphController.getAnimationSpeed() != 0));
-
-				if (dataflowEditEvent.getDataFlow() == workflow.getParent()) {
-					if (graphController.isDotMissing() || animationSettingChanged) {
-						removeWorkflow(workflow);
-						setWorkflow(workflow);
-					} else {
-						if (animationSpeed != graphController.getAnimationSpeed()) {
-							graphController.setAnimationSpeed(animationSpeed);
-						}
-						graphController.redraw();
-					}
-				}
+			if (graphController.isDotMissing() || animationSettingChanged) {
+				removeWorkflow(workflow);
+				setWorkflow(workflow);
+			} else {
+				if (animationSpeed != graphController.getAnimationSpeed())
+					graphController.setAnimationSpeed(animationSpeed);
+				graphController.redraw();
 			}
 		}
 	}
@@ -502,41 +509,40 @@ public class GraphViewComponent extends JPanel implements UIComponentSPI {
 	private class FileManagerObserver extends SwingAwareObserver<FileManagerEvent> {
 		@Override
 		public void notifySwing(Observable<FileManagerEvent> sender, final FileManagerEvent message) {
-			if (message instanceof ClosedDataflowEvent) {
-				ClosedDataflowEvent closedDataflowEvent = (ClosedDataflowEvent) message;
-				WorkflowBundle workflowBundle = closedDataflowEvent.getDataflow();
-				if (workflowsMap.containsKey(workflowBundle)) {
-					Set<Workflow> workflows = workflowsMap.remove(workflowBundle);
-					for (Workflow workflow : workflows) {
-						removeWorkflow(workflow);
-					}
-				}
-			}
+			if (!(message instanceof ClosedDataflowEvent))
+				return;
+			ClosedDataflowEvent closedDataflowEvent = (ClosedDataflowEvent) message;
+
+			WorkflowBundle workflowBundle = closedDataflowEvent.getDataflow();
+			if (workflowsMap.containsKey(workflowBundle))
+				for (Workflow workflow : workflowsMap.remove(workflowBundle))
+					removeWorkflow(workflow);
 		}
 	}
 
-	private class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+	private class SelectionManagerObserver extends
+			SwingAwareObserver<SelectionManagerEvent> {
 		@Override
-		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message)  {
-			if (message instanceof WorkflowSelectionEvent) {
+		public void notifySwing(Observable<SelectionManagerEvent> sender,
+				SelectionManagerEvent message) {
+			if (message instanceof WorkflowSelectionEvent)
 				setWorkflow(selectionManager.getSelectedWorkflow());
-			} else if (message instanceof WorkflowBundleSelectionEvent) {
+			else if (message instanceof WorkflowBundleSelectionEvent)
 				setWorkflow(selectionManager.getSelectedWorkflow());
-			}
 		}
 	}
 
 	private class MySvgScrollPane extends JSVGScrollPane {
-		private static final long serialVersionUID = 1L;
+		private static final long serialVersionUID = -1539947450704269879L;
 
 		public MySvgScrollPane(JSVGCanvas canvas) {
 			super(canvas);
 		}
 
+		@Override
 		public void reset() {
 			super.resizeScrollBars();
 			super.reset();
 		}
 	}
-
 }

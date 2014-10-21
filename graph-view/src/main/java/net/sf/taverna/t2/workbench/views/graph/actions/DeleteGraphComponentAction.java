@@ -20,13 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.actions;
 
+import static java.awt.event.KeyEvent.VK_DELETE;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.deleteIcon;
+
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
@@ -38,12 +39,11 @@ import net.sf.taverna.t2.workbench.design.actions.RemoveDataflowOutputPortAction
 import net.sf.taverna.t2.workbench.design.actions.RemoveDatalinkAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveProcessorAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
-import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
+import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.ControlLink;
 import uk.org.taverna.scufl2.api.core.DataLink;
@@ -55,12 +55,10 @@ import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
  * An action that deletes the selected graph component.
  *
  * @author Alex Nenadic
- *
  */
 @SuppressWarnings("serial")
 public class DeleteGraphComponentAction extends AbstractAction implements DesignOnlyAction {
-
-	/* Current workflow's selection model event observer.*/
+	/** Current workflow's selection model event observer.*/
 	private Observer<DataflowSelectionMessage> workflowSelectionObserver = new DataflowSelectionObserver();
 
 	private final EditManager editManager;
@@ -70,53 +68,45 @@ public class DeleteGraphComponentAction extends AbstractAction implements Design
 		super();
 		this.editManager = editManager;
 		this.selectionManager = selectionManager;
-		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
+		putValue(SMALL_ICON, deleteIcon);
 		putValue(NAME, "Delete");
 		putValue(SHORT_DESCRIPTION, "Delete selected component");
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_DELETE, 0));
+		putValue(ACCELERATOR_KEY, getKeyStroke(VK_DELETE, 0));
 		setEnabled(false);
 
 		selectionManager.addObserver(new SelectionManagerObserver());
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		WorkflowBundle workflowBundle = selectionManager.getSelectedWorkflowBundle();
-		DataflowSelectionModel dataFlowSelectionModel = selectionManager.getDataflowSelectionModel(workflowBundle);
+		WorkflowBundle workflowBundle = selectionManager
+				.getSelectedWorkflowBundle();
+		DataflowSelectionModel dataFlowSelectionModel = selectionManager
+				.getDataflowSelectionModel(workflowBundle);
 		// Get all selected components
 		Set<Object> selectedWFComponents = dataFlowSelectionModel.getSelection();
-		for (Object selectedWFComponent : selectedWFComponents) {
+		for (Object selectedWFComponent : selectedWFComponents)
 			if (selectedWFComponent instanceof Processor) {
 				Processor processor = (Processor) selectedWFComponent;
-				new RemoveProcessorAction(processor.getParent(),
-						processor, null, editManager, selectionManager)
-						.actionPerformed(e);
-			}
-			else if (selectedWFComponent instanceof DataLink) {
+				new RemoveProcessorAction(processor.getParent(), processor,
+						null, editManager, selectionManager).actionPerformed(e);
+			} else if (selectedWFComponent instanceof DataLink) {
 				DataLink dataLink = (DataLink) selectedWFComponent;
-				new RemoveDatalinkAction(dataLink.getParent(),
-						dataLink, null, editManager, selectionManager)
-						.actionPerformed(e);
-			}
-			else if (selectedWFComponent instanceof InputWorkflowPort) {
+				new RemoveDatalinkAction(dataLink.getParent(), dataLink, null,
+						editManager, selectionManager).actionPerformed(e);
+			} else if (selectedWFComponent instanceof InputWorkflowPort) {
 				InputWorkflowPort port = (InputWorkflowPort) selectedWFComponent;
-				new RemoveDataflowInputPortAction(port.getParent(),
-						port, null, editManager, selectionManager)
-						.actionPerformed(e);
-			}
-			else if (selectedWFComponent instanceof OutputWorkflowPort) {
+				new RemoveDataflowInputPortAction(port.getParent(), port, null,
+						editManager, selectionManager).actionPerformed(e);
+			} else if (selectedWFComponent instanceof OutputWorkflowPort) {
 				OutputWorkflowPort port = (OutputWorkflowPort) selectedWFComponent;
-				new RemoveDataflowOutputPortAction(port.getParent(),
-						port, null, editManager, selectionManager)
-						.actionPerformed(e);
-			}
-			else if (selectedWFComponent instanceof ControlLink) {
+				new RemoveDataflowOutputPortAction(port.getParent(), port,
+						null, editManager, selectionManager).actionPerformed(e);
+			} else if (selectedWFComponent instanceof ControlLink) {
 				ControlLink controlLink = (ControlLink) selectedWFComponent;
-				new RemoveConditionAction(controlLink.getParent(),
-						controlLink, null, editManager, selectionManager)
-						.actionPerformed(e);
+				new RemoveConditionAction(controlLink.getParent(), controlLink,
+						null, editManager, selectionManager).actionPerformed(e);
 			}
-		}
 	}
 
 	/**
@@ -124,61 +114,66 @@ public class DeleteGraphComponentAction extends AbstractAction implements Design
 	 */
 	public void updateStatus(WorkflowBundle selectionWorkflowBundle) {
 		if (selectionWorkflowBundle != null) {
-			DataflowSelectionModel selectionModel = selectionManager.getDataflowSelectionModel(selectionWorkflowBundle);
+			DataflowSelectionModel selectionModel = selectionManager
+					.getDataflowSelectionModel(selectionWorkflowBundle);
 			Set<Object> selection = selectionModel.getSelection();
-
-			if (selection.isEmpty()){
-				setEnabled(false);
-			} else{
+			if (!selection.isEmpty()) {
 				// Take the first selected item - we only support single selections anyway
 				Object selected = selection.toArray()[0];
-				if ((selected instanceof Processor) ||
-						(selected instanceof InputWorkflowPort) ||
-						(selected instanceof OutputWorkflowPort) ||
-						(selected instanceof DataLink) ||
-						(selected instanceof ControlLink)){
+				if ((selected instanceof Processor)
+						|| (selected instanceof InputWorkflowPort)
+						|| (selected instanceof OutputWorkflowPort)
+						|| (selected instanceof DataLink)
+						|| (selected instanceof ControlLink)) {
 					setEnabled(true);
-				} else{
-					setEnabled(false);
+					return;
 				}
 			}
-		} else {
-			setEnabled(false);
 		}
+		setEnabled(false);
 	}
 
 	/**
-	 * Observes events on workflow Selection Manager, i.e. when a workflow
-	 * node is selected in the graph view, and enables/disables this action accordingly.
+	 * Observes events on workflow Selection Manager, i.e. when a workflow node
+	 * is selected in the graph view, and enables/disables this action
+	 * accordingly.
 	 */
-	private final class DataflowSelectionObserver extends SwingAwareObserver<DataflowSelectionMessage> {
+	private final class DataflowSelectionObserver extends
+			SwingAwareObserver<DataflowSelectionMessage> {
 		@Override
-		public void notifySwing(Observable<DataflowSelectionMessage> sender, DataflowSelectionMessage message) {
+		public void notifySwing(Observable<DataflowSelectionMessage> sender,
+				DataflowSelectionMessage message) {
 			updateStatus(selectionManager.getSelectedWorkflowBundle());
 		}
 	}
 
-	private final class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+	private final class SelectionManagerObserver extends
+			SwingAwareObserver<SelectionManagerEvent> {
 		@Override
-		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message) {
-			if (message instanceof WorkflowBundleSelectionEvent) {
-				WorkflowBundleSelectionEvent workflowBundleSelectionEvent = (WorkflowBundleSelectionEvent) message;
-				WorkflowBundle oldFlow = workflowBundleSelectionEvent.getPreviouslySelectedWorkflowBundle();
-				WorkflowBundle newFlow = workflowBundleSelectionEvent.getSelectedWorkflowBundle();
+		public void notifySwing(Observable<SelectionManagerEvent> sender,
+				SelectionManagerEvent message) {
+			if (!(message instanceof WorkflowBundleSelectionEvent))
+				return;
+			WorkflowBundleSelectionEvent workflowBundleSelectionEvent = (WorkflowBundleSelectionEvent) message;
+			WorkflowBundle oldFlow = workflowBundleSelectionEvent
+					.getPreviouslySelectedWorkflowBundle();
+			WorkflowBundle newFlow = workflowBundleSelectionEvent
+					.getSelectedWorkflowBundle();
 
-				// Remove the workflow selection model listener from the previous (if any)
-				// and add to the new workflow (if any)
-				if (oldFlow != null) {
-					selectionManager.getDataflowSelectionModel(oldFlow).removeObserver(workflowSelectionObserver);
-				}
+			/*
+			 * Remove the workflow selection model listener from the previous
+			 * (if any) and add to the new workflow (if any)
+			 */
+			if (oldFlow != null)
+				selectionManager.getDataflowSelectionModel(oldFlow)
+						.removeObserver(workflowSelectionObserver);
 
-				// Update the buttons status as current dataflow has changed
-				updateStatus(newFlow);
+			// Update the buttons status as current dataflow has changed
+			updateStatus(newFlow);
 
-				if (newFlow != null) {
-					selectionManager.getDataflowSelectionModel(newFlow).addObserver(workflowSelectionObserver);
-				}
-			}
+			if (newFlow != null)
+				selectionManager.getDataflowSelectionModel(newFlow)
+						.addObserver(workflowSelectionObserver);
 		}
 	}
 

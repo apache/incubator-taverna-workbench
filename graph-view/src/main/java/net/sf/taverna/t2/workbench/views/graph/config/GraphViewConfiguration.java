@@ -31,51 +31,50 @@ import net.sf.taverna.t2.workbench.models.graph.GraphController.PortStyle;
 
 /**
  * Configuration for the GraphViewComponent.
- *
+ * 
  * @author David Withers
  */
 public class GraphViewConfiguration extends AbstractConfigurable {
-
 	public static final String PORT_STYLE = "portStyle";
+	public static final String ALIGNMENT = "alignment";
+	public static final String ANIMATION_ENABLED = "animationEnabled";
+	public static final String ANIMATION_SPEED = "animationSpeed";
 
-    public static final String ALIGNMENT = "alignment";
-
-    public static final String ANIMATION_ENABLED = "animationEnabled";
-
-    public static final String ANIMATION_SPEED = "animationSpeed";
-
-    private Map<String, String> defaultPropertyMap;
+	private Map<String, String> defaultPropertyMap;
 
 	public GraphViewConfiguration(ConfigurationManager configurationManager) {
 		super(configurationManager);
 	}
 
-    public String getCategory() {
-        return "general";
-    }
+	@Override
+	public String getCategory() {
+		return "general";
+	}
 
-    public Map<String, String> getDefaultPropertyMap() {
-        if (defaultPropertyMap == null) {
-            defaultPropertyMap = new HashMap<String, String>();
-            defaultPropertyMap.put(PORT_STYLE, PortStyle.NONE.toString());
-            defaultPropertyMap.put(ALIGNMENT, Alignment.VERTICAL.toString());
-            defaultPropertyMap.put(ANIMATION_ENABLED, "false");
-            defaultPropertyMap.put(ANIMATION_SPEED, "800");
-        }
-        return defaultPropertyMap;
-    }
+	@Override
+	public Map<String, String> getDefaultPropertyMap() {
+		if (defaultPropertyMap == null) {
+			defaultPropertyMap = new HashMap<>();
+			defaultPropertyMap.put(PORT_STYLE, PortStyle.NONE.toString());
+			defaultPropertyMap.put(ALIGNMENT, Alignment.VERTICAL.toString());
+			defaultPropertyMap.put(ANIMATION_ENABLED, "false");
+			defaultPropertyMap.put(ANIMATION_SPEED, "800");
+		}
+		return defaultPropertyMap;
+	}
 
-    public String getDisplayName() {
-        return "Diagram";
-    }
+	@Override
+	public String getDisplayName() {
+		return "Diagram";
+	}
 
-    public String getFilePrefix() {
-        return "Diagram";
-    }
+	@Override
+	public String getFilePrefix() {
+		return "Diagram";
+	}
 
-    public String getUUID() {
-        return "3686BA31-449F-4147-A8AC-0C3F63AFC68F";
-    }
-
-
+	@Override
+	public String getUUID() {
+		return "3686BA31-449F-4147-A8AC-0C3F63AFC68F";
+	}
 }

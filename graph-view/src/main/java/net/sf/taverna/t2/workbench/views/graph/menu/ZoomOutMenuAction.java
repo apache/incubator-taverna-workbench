@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.menu;
 
+import static net.sf.taverna.t2.workbench.views.graph.menu.DiagramZoomMenuSection.DIAGRAM_ZOOM_MENU_SECTION;
+
 import java.net.URI;
 
 import javax.swing.Action;
@@ -28,22 +30,21 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 
 /**
  * An action that zooms a diagram image
- *
+ * 
  * @author Alex Nenadic
  * @author Tom Oinn
  * @author Alan R Williams
  */
 public class ZoomOutMenuAction extends AbstractMenuAction {
+	public static final URI ZOOM_OUT_URI = URI
+			.create("http://taverna.sf.net/2008/t2workbench/menu#diagramMenuZoomOut");
 
-	public static final URI ZOOM_OUT_URI = URI.create("http://taverna.sf.net/2008/t2workbench/menu#diagramMenuZoomOut");
-
-	public ZoomOutMenuAction(){
-		super(DiagramZoomMenuSection.DIAGRAM_ZOOM_MENU_SECTION, 20, ZOOM_OUT_URI);
+	public ZoomOutMenuAction() {
+		super(DIAGRAM_ZOOM_MENU_SECTION, 20, ZOOM_OUT_URI);
 	}
 
 	@Override
 	protected Action createAction() {
 		return new ZoomOutAction();
 	}
-
 }

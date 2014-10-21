@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.toolbar;
 
+import static net.sf.taverna.t2.workbench.views.graph.toolbar.GraphEditToolbarSection.GRAPH_EDIT_TOOLBAR_SECTION;
+
 import java.net.URI;
 
 import javax.swing.Action;
@@ -30,24 +32,25 @@ import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.views.graph.actions.RenameWFInputOutputProcessorAction;
 
 /**
- *
  * @author Alex Nenadic
- *
  */
-public class RenameWFInputOutputProcessorToolbarAction extends AbstractMenuAction {
-
+public class RenameWFInputOutputProcessorToolbarAction extends
+		AbstractMenuAction {
 	private static final URI RENAME_WF_INPUT_OUTPUT_PROCESSOR_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphToolbarRenameWFInputOutputProcessor");
+
 	private EditManager editManager;
 	private SelectionManager selectionManager;
 
 	public RenameWFInputOutputProcessorToolbarAction() {
-		super(GraphEditToolbarSection.GRAPH_EDIT_TOOLBAR_SECTION, 30, RENAME_WF_INPUT_OUTPUT_PROCESSOR_URI);
+		super(GRAPH_EDIT_TOOLBAR_SECTION, 30,
+				RENAME_WF_INPUT_OUTPUT_PROCESSOR_URI);
 	}
 
 	@Override
 	protected Action createAction() {
-		return new RenameWFInputOutputProcessorAction(editManager, selectionManager);
+		return new RenameWFInputOutputProcessorAction(editManager,
+				selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -57,7 +60,4 @@ public class RenameWFInputOutputProcessorToolbarAction extends AbstractMenuActio
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
 	}
-
 }
-
-

@@ -20,50 +20,50 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.actions;
 
+import static java.awt.event.InputEvent.ALT_DOWN_MASK;
+import static java.awt.event.InputEvent.SHIFT_DOWN_MASK;
+import static java.awt.event.KeyEvent.VK_I;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.inputIcon;
+
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowInputAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * An action that adds a workflow input.
- *
+ * 
  * @author Alex Nenadic
  * @author Alan R Williams
- *
  */
 @SuppressWarnings("serial")
-public class AddWFInputAction extends AbstractAction implements DesignOnlyAction {
-
+public class AddWFInputAction extends AbstractAction implements
+		DesignOnlyAction {
 	private final EditManager editManager;
 	private final SelectionManager selectionManager;
 
-	public AddWFInputAction(EditManager editManager, SelectionManager selectionManager) {
+	public AddWFInputAction(EditManager editManager,
+			SelectionManager selectionManager) {
 		super();
 		this.editManager = editManager;
 		this.selectionManager = selectionManager;
-		putValue(SMALL_ICON, WorkbenchIcons.inputIcon);
+		putValue(SMALL_ICON, inputIcon);
 		putValue(NAME, "Workflow input port");
 		putValue(SHORT_DESCRIPTION, "Workflow input port");
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_I, InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK));
+		putValue(ACCELERATOR_KEY,
+				getKeyStroke(VK_I, SHIFT_DOWN_MASK | ALT_DOWN_MASK));
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		Workflow workflow = selectionManager.getSelectedWorkflow();
-		new AddDataflowInputAction(workflow, null, editManager, selectionManager).actionPerformed(e);
+		new AddDataflowInputAction(workflow, null, editManager,
+				selectionManager).actionPerformed(e);
 	}
-
-
 }
-

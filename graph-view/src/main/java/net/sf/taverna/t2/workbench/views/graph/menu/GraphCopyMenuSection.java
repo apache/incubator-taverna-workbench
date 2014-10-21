@@ -20,22 +20,20 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.menu;
 
+import static net.sf.taverna.t2.workbench.views.graph.menu.GraphMenuSection.GRAPH_MENU_SECTION;
+
 import java.net.URI;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 
 /**
- * 
- *
+ * ???
  */
 public class GraphCopyMenuSection extends AbstractMenuSection {
-
 	public static final URI GRAPH_COPY_MENU_SECTION = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphCopyMenuSection");
 
 	public GraphCopyMenuSection() {
-		super(GraphMenuSection.GRAPH_MENU_SECTION, 15, GRAPH_COPY_MENU_SECTION);
+		super(GRAPH_MENU_SECTION, 15, GRAPH_COPY_MENU_SECTION);
 	}
-
 }
-

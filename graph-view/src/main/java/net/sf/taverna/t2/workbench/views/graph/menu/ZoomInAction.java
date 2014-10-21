@@ -20,27 +20,27 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.menu;
 
-import java.awt.Toolkit;
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.event.KeyEvent.VK_EQUALS;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.zoomInIcon;
+
 import java.awt.event.ActionEvent;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.KeyStroke;
+
+import net.sf.taverna.t2.ui.menu.DesignOrResultsAction;
 
 import org.apache.log4j.Logger;
 
-import net.sf.taverna.t2.ui.menu.DesignOrResultsAction;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
-
 @SuppressWarnings("serial")
-public class ZoomInAction extends AbstractAction implements DesignOrResultsAction {
-
+public class ZoomInAction extends AbstractAction implements
+		DesignOrResultsAction {
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger.getLogger(ZoomInAction.class);
-
 	private static Action designAction = null;
+	@SuppressWarnings("unused")
 	private static Action resultsAction = null;
 
 	public static void setResultsAction(Action resultsAction) {
@@ -52,22 +52,21 @@ public class ZoomInAction extends AbstractAction implements DesignOrResultsActio
 	}
 
 	ZoomInAction() {
-		super("Zoom in", WorkbenchIcons.zoomInIcon);
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_EQUALS,
-						Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		super("Zoom in", zoomInIcon);
+		putValue(
+				ACCELERATOR_KEY,
+				getKeyStroke(VK_EQUALS, getDefaultToolkit()
+						.getMenuShortcutKeyMask()));
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 //		if (isWorkflowPerspective()) {
-//			if (designAction != null) {
+//			if (designAction != null)
 				designAction.actionPerformed(e);
-//			} else {
+//			else
 //				logger.error("ZoomInAction.designAction is null");
-//			}
-//		} else if (isResultsPerspective() && (resultsAction != null)) {
+//		} else if (isResultsPerspective() && (resultsAction != null))
 //			resultsAction.actionPerformed(e);
-//		}
 	}
-
 }

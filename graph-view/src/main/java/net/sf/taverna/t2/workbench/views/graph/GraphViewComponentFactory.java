@@ -35,12 +35,9 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 import net.sf.taverna.t2.workbench.views.graph.config.GraphViewConfiguration;
 
 /**
- *
- *
  * @author David Withers
  */
 public class GraphViewComponentFactory implements UIComponentFactorySPI {
-
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
@@ -50,25 +47,19 @@ public class GraphViewComponentFactory implements UIComponentFactorySPI {
 	private GraphViewConfiguration graphViewConfiguration;
 	private ServiceRegistry serviceRegistry;
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI#getComponent()
-	 */
+	@Override
 	public UIComponentSPI getComponent() {
-		return new GraphViewComponent(colourManager, editManager, fileManager, menuManager,
-				graphViewConfiguration, workbenchConfiguration, selectionManager, serviceRegistry);
+		return new GraphViewComponent(colourManager, editManager, fileManager,
+				menuManager, graphViewConfiguration, workbenchConfiguration,
+				selectionManager, serviceRegistry);
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI#getIcon()
-	 */
+	@Override
 	public ImageIcon getIcon() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI#getName()
-	 */
+	@Override
 	public String getName() {
 		return "Graph View";
 	}
@@ -93,16 +84,17 @@ public class GraphViewComponentFactory implements UIComponentFactorySPI {
 		this.colourManager = colourManager;
 	}
 
-	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+	public void setWorkbenchConfiguration(
+			WorkbenchConfiguration workbenchConfiguration) {
 		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
-	public void setGraphViewConfiguration(GraphViewConfiguration graphViewConfiguration) {
+	public void setGraphViewConfiguration(
+			GraphViewConfiguration graphViewConfiguration) {
 		this.graphViewConfiguration = graphViewConfiguration;
 	}
 
 	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
 	}
-
 }

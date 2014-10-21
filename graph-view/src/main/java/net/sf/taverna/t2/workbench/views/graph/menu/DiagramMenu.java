@@ -20,28 +20,25 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.menu;
 
-import java.awt.event.KeyEvent;
+import static java.awt.event.KeyEvent.VK_V;
+import static javax.swing.Action.MNEMONIC_KEY;
+import static net.sf.taverna.t2.ui.menu.DefaultMenuBar.DEFAULT_MENU_BAR;
+
 import java.net.URI;
 
-import javax.swing.Action;
-
 import net.sf.taverna.t2.ui.menu.AbstractMenu;
-import net.sf.taverna.t2.ui.menu.DefaultMenuBar;
 
 public class DiagramMenu extends AbstractMenu {
-
 	public static final URI DIAGRAM = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#diagram");
 
 	public DiagramMenu() {
-		super(DefaultMenuBar.DEFAULT_MENU_BAR, 65, DIAGRAM, "View");
+		super(DEFAULT_MENU_BAR, 65, DIAGRAM, "View");
 	}
-	
+
 	public static DummyAction makeAction() {
 		DummyAction action = new DummyAction("View");
-		action.putValue(Action.MNEMONIC_KEY, KeyEvent.VK_V);
+		action.putValue(MNEMONIC_KEY, VK_V);
 		return action;
 	}
-
-
 }

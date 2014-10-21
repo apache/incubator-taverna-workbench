@@ -20,23 +20,20 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.graph.menu;
 
+import static net.sf.taverna.t2.workbench.views.graph.menu.DiagramMenu.DIAGRAM;
+
 import java.net.URI;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 
 /**
- * 
  * @author Alex Nenadic
- *
  */
 public class DiagramSaveMenuSection extends AbstractMenuSection {
-
 	public static final URI DIAGRAM_SAVE_MENU_SECTION = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#diagramSaveMenuSection");
 
 	public DiagramSaveMenuSection() {
-		super(DiagramMenu.DIAGRAM, 40, DIAGRAM_SAVE_MENU_SECTION);
+		super(DIAGRAM, 40, DIAGRAM_SAVE_MENU_SECTION);
 	}
-
 }
-

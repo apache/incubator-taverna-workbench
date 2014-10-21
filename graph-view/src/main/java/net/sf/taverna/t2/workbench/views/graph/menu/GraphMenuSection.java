@@ -25,21 +25,15 @@ import java.net.URI;
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 
 /**
- * 
  * @author Alex Nenadic
- *
  */
 public class GraphMenuSection extends AbstractMenuSection {
-
 	public static final URI GRAPH_MENU_SECTION = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuSection");
-
 	public static final URI EDIT_MENU_URI = URI
-	.create("http://taverna.sf.net/2008/t2workbench/menu#edit");
-	
+			.create("http://taverna.sf.net/2008/t2workbench/menu#edit");
+
 	public GraphMenuSection() {
-		super(EDIT_MENU_URI , 20, GRAPH_MENU_SECTION);
+		super(EDIT_MENU_URI, 20, GRAPH_MENU_SECTION);
 	}
-
 }
-
