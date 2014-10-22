@@ -20,12 +20,13 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.design.actions;
 
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.deleteIcon;
+
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workflow.edits.RemoveDataLinkEdit;
 
@@ -36,31 +37,32 @@ import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * Action for removing a datalink from the dataflow.
- *
+ * 
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class RemoveDatalinkAction extends DataflowEditAction {
-
-	private static final long serialVersionUID = 1L;
-
-	private static Logger logger = Logger.getLogger(RemoveDatalinkAction.class);
+	private static final Logger logger = Logger.getLogger(RemoveDatalinkAction.class);
 
 	private DataLink datalink;
 
-	public RemoveDatalinkAction(Workflow dataflow, DataLink datalink, Component component, EditManager editManager, SelectionManager selectionManager) {
+	public RemoveDatalinkAction(Workflow dataflow, DataLink datalink,
+			Component component, EditManager editManager,
+			SelectionManager selectionManager) {
 		super(dataflow, component, editManager, selectionManager);
 		this.datalink = datalink;
-		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
+		putValue(SMALL_ICON, deleteIcon);
 		putValue(NAME, "Delete data link");
 	}
 
-	public void actionPerformed(ActionEvent e) {
+	@Override
+	public void actionPerformed(ActionEvent ev) {
 		try {
 			dataflowSelectionModel.removeSelection(datalink);
-			editManager.doDataflowEdit(dataflow.getParent(), new RemoveDataLinkEdit(dataflow, datalink));
-		} catch (EditException e1) {
-			logger.debug("Delete data link failed", e1);
+			editManager.doDataflowEdit(dataflow.getParent(),
+					new RemoveDataLinkEdit(dataflow, datalink));
+		} catch (EditException ex) {
+			logger.debug("Delete data link failed", ex);
 		}
 	}
-
 }

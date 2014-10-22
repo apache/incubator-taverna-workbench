@@ -20,12 +20,13 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.design.actions;
 
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.deleteIcon;
+
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workflow.edits.RemoveChildEdit;
 
@@ -36,31 +37,33 @@ import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * Action for removing a condition from the dataflow.
- *
+ * 
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class RemoveConditionAction extends DataflowEditAction {
-
-	private static final long serialVersionUID = 1L;
-
-	private static Logger logger = Logger.getLogger(RemoveConditionAction.class);
+	private static final Logger logger = Logger
+			.getLogger(RemoveConditionAction.class);
 
 	private ControlLink controlLink;
 
-	public RemoveConditionAction(Workflow dataflow, ControlLink controlLink, Component component, EditManager editManager, SelectionManager selectionManager) {
+	public RemoveConditionAction(Workflow dataflow, ControlLink controlLink,
+			Component component, EditManager editManager,
+			SelectionManager selectionManager) {
 		super(dataflow, component, editManager, selectionManager);
 		this.controlLink = controlLink;
-		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
+		putValue(SMALL_ICON, deleteIcon);
 		putValue(NAME, "Delete control link");
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
 			dataflowSelectionModel.removeSelection(controlLink);
-			editManager.doDataflowEdit(dataflow.getParent(), new RemoveChildEdit<Workflow>(dataflow, controlLink));
+			editManager.doDataflowEdit(dataflow.getParent(),
+					new RemoveChildEdit<>(dataflow, controlLink));
 		} catch (EditException e1) {
 			logger.debug("Delete control link failed", e1);
 		}
 	}
-
 }

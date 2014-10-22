@@ -20,6 +20,10 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.design.ui;
 
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.VERTICAL;
+import static java.awt.GridBagConstraints.WEST;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
@@ -34,8 +38,7 @@ import javax.swing.border.EmptyBorder;
  * @author David Withers
  */
 public class DataflowOutputPortPanel extends JPanel {
-
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = -2542858679939965553L;
 
 	private JTextField portNameField;
 
@@ -48,7 +51,7 @@ public class DataflowOutputPortPanel extends JPanel {
 		
 		GridBagConstraints constraints = new GridBagConstraints();
 
-		constraints.anchor = GridBagConstraints.WEST;
+		constraints.anchor = WEST;
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.ipadx = 10;
@@ -58,12 +61,12 @@ public class DataflowOutputPortPanel extends JPanel {
 		constraints.gridwidth = 2;
 		constraints.ipadx = 0;
 		constraints.weightx = 1d;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.fill = HORIZONTAL;
 		add(portNameField, constraints);
 
 		constraints.gridx = 0;
 		constraints.gridy = 1;
-		constraints.fill = GridBagConstraints.VERTICAL;
+		constraints.fill = VERTICAL;
 		constraints.weighty = 1d;
 		add(new JPanel(), constraints);
 	}
@@ -94,10 +97,9 @@ public class DataflowOutputPortPanel extends JPanel {
 	public void setPortName(String name) {
 		portNameField.setText(name);
 		// Select the text
-		if (name.length() > 0){
+		if (!name.isEmpty()) {
 			portNameField.setSelectionStart(0);
 			portNameField.setSelectionEnd(name.length());
 		}
 	}
-	
 }

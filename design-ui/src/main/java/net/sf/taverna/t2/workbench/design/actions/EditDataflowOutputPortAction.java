@@ -38,56 +38,58 @@ import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.Port;
 
 /**
  * Action for editing a dataflow output port.
- *
+ * 
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class EditDataflowOutputPortAction extends DataflowEditAction {
-
-	private static final long serialVersionUID = 1L;
-
-	private static Logger logger = Logger.getLogger(EditDataflowOutputPortAction.class);
+	private static final Logger logger = Logger
+			.getLogger(EditDataflowOutputPortAction.class);
 
 	private OutputWorkflowPort port;
 
-	public EditDataflowOutputPortAction(Workflow dataflow, OutputWorkflowPort port, Component component, EditManager editManager, SelectionManager selectionManager) {
+	public EditDataflowOutputPortAction(Workflow dataflow,
+			OutputWorkflowPort port, Component component,
+			EditManager editManager, SelectionManager selectionManager) {
 		super(dataflow, component, editManager, selectionManager);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
 		putValue(NAME, "Edit workflow output port...");
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
+		Set<String> usedOutputPorts = new HashSet<>();
+		for (OutputWorkflowPort usedOutputPort : dataflow.getOutputPorts())
+			if (!usedOutputPort.getName().equals(port.getName()))
+				usedOutputPorts.add(usedOutputPort.getName());
+
+		DataflowOutputPortPanel inputPanel = new DataflowOutputPortPanel();
+
+		ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
+				"Edit Workflow Output Port", inputPanel);
+		vuid.addTextComponentValidation(inputPanel.getPortNameField(),
+				"Set the workflow output port name.", usedOutputPorts,
+				"Duplicate workflow output port name.",
+				"[\\p{L}\\p{Digit}_.]+", "Invalid workflow output port name.");
+		vuid.setSize(new Dimension(400, 200));
+
+		inputPanel.setPortName(port.getName());
+
 		try {
-			Set<String> usedOutputPorts = new HashSet<String>();
-			for (OutputWorkflowPort usedOutputPort : dataflow.getOutputPorts()) {
-				if (!usedOutputPort.getName().equals(port.getName())) {
-					usedOutputPorts.add(usedOutputPort.getName());
-				}
-			}
-
-			DataflowOutputPortPanel inputPanel = new DataflowOutputPortPanel();
-
-			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-					"Edit Workflow Output Port", inputPanel);
-			vuid.addTextComponentValidation(inputPanel.getPortNameField(),
-					"Set the workflow output port name.", usedOutputPorts,
-					"Duplicate workflow output port name.", "[\\p{L}\\p{Digit}_.]+",
-					"Invalid workflow output port name.");
-			vuid.setSize(new Dimension(400, 200));
-
-			inputPanel.setPortName(port.getName());
-
-			if (vuid.show(component)) {
-				String portName = inputPanel.getPortName();
-				editManager.doDataflowEdit(dataflow.getParent(), new RenameEdit<Port>(port, portName));
-			}
-		} catch (EditException e1) {
-			logger.debug("Rename workflow output port failed", e1);
+			if (vuid.show(component))
+				changeOutputPort(inputPanel);
+		} catch (EditException ex) {
+			logger.debug("Rename workflow output port failed", ex);
 		}
 	}
 
+	private void changeOutputPort(DataflowOutputPortPanel inputPanel)
+			throws EditException {
+		editManager.doDataflowEdit(dataflow.getParent(), new RenameEdit<>(port,
+				inputPanel.getPortName()));
+	}
 }

@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.design.actions;
 
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.deleteIcon;
+
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -29,7 +31,6 @@ import net.sf.taverna.t2.workbench.edits.CompoundEdit;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workflow.edits.RemoveDataLinkEdit;
 import net.sf.taverna.t2.workflow.edits.RemoveWorkflowOutputPortEdit;
@@ -42,41 +43,43 @@ import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * Action for removing an output port from the dataflow.
- *
+ * 
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class RemoveDataflowOutputPortAction extends DataflowEditAction {
-
-	private static final long serialVersionUID = 1L;
-
-	private static Logger logger = Logger.getLogger(RemoveDataflowOutputPortAction.class);
+	private static final Logger logger = Logger
+			.getLogger(RemoveDataflowOutputPortAction.class);
 
 	private OutputWorkflowPort port;
 
-	public RemoveDataflowOutputPortAction(Workflow dataflow, OutputWorkflowPort port, Component component, EditManager editManager, SelectionManager selectionManager) {
+	public RemoveDataflowOutputPortAction(Workflow dataflow,
+			OutputWorkflowPort port, Component component,
+			EditManager editManager, SelectionManager selectionManager) {
 		super(dataflow, component, editManager, selectionManager);
 		this.port = port;
-		putValue(SMALL_ICON, WorkbenchIcons.deleteIcon);
+		putValue(SMALL_ICON, deleteIcon);
 		putValue(NAME, "Delete workflow output port");
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		try {
 			dataflowSelectionModel.removeSelection(port);
 			List<DataLink> datalinks = scufl2Tools.datalinksTo(port);
-			if (datalinks.isEmpty()) {
-				editManager.doDataflowEdit(dataflow.getParent(), new RemoveWorkflowOutputPortEdit(dataflow, port));
-			} else {
-				List<Edit<?>> editList = new ArrayList<Edit<?>>();
-				for (DataLink datalink : datalinks) {
+			if (datalinks.isEmpty())
+				editManager.doDataflowEdit(dataflow.getParent(),
+						new RemoveWorkflowOutputPortEdit(dataflow, port));
+			else {
+				List<Edit<?>> editList = new ArrayList<>();
+				for (DataLink datalink : datalinks)
 					editList.add(new RemoveDataLinkEdit(dataflow, datalink));
-				}
 				editList.add(new RemoveWorkflowOutputPortEdit(dataflow, port));
-				editManager.doDataflowEdit(dataflow.getParent(), new CompoundEdit(editList));
+				editManager.doDataflowEdit(dataflow.getParent(),
+						new CompoundEdit(editList));
 			}
-		} catch (EditException e1) {
-			logger.debug("Delete workflow output port failed", e1);
+		} catch (EditException ex) {
+			logger.debug("Delete workflow output port failed", ex);
 		}
 	}
-
 }

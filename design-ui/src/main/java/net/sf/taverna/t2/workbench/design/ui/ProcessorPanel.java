@@ -20,6 +20,10 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.design.ui;
 
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.VERTICAL;
+import static java.awt.GridBagConstraints.WEST;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
@@ -34,8 +38,7 @@ import javax.swing.border.EmptyBorder;
  * @author David Withers
  */
 public class ProcessorPanel extends JPanel {
-
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 260705376633425003L;
 
 	private JTextField processorNameField;
 
@@ -43,12 +46,12 @@ public class ProcessorPanel extends JPanel {
 		super(new GridBagLayout());
 
 		processorNameField = new JTextField();
- 
+
 		setBorder(new EmptyBorder(10, 10, 10, 10));
-		
+
 		GridBagConstraints constraints = new GridBagConstraints();
 
-		constraints.anchor = GridBagConstraints.WEST;
+		constraints.anchor = WEST;
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.ipadx = 10;
@@ -58,19 +61,19 @@ public class ProcessorPanel extends JPanel {
 		constraints.gridwidth = 2;
 		constraints.ipadx = 0;
 		constraints.weightx = 1d;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.fill = HORIZONTAL;
 		add(processorNameField, constraints);
 
 		constraints.gridx = 0;
 		constraints.gridy = 1;
-		constraints.fill = GridBagConstraints.VERTICAL;
+		constraints.fill = VERTICAL;
 		constraints.weighty = 1d;
 		add(new JPanel(), constraints);
 	}
-	
+
 	/**
 	 * Returns the processorNameField.
-	 *
+	 * 
 	 * @return the processorNameField
 	 */
 	public JTextField getProcessorNameField() {
@@ -79,20 +82,20 @@ public class ProcessorPanel extends JPanel {
 
 	/**
 	 * Returns the processor name.
-	 *
+	 * 
 	 * @return the processor name
 	 */
 	public String getProcessorName() {
 		return processorNameField.getText();
 	}
-	
+
 	/**
 	 * Sets the processor name.
-	 *
-	 * @param name the name of the processor
+	 * 
+	 * @param name
+	 *            the name of the processor
 	 */
 	public void setProcessorName(String name) {
 		processorNameField.setText(name);
 	}
-	
 }

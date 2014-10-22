@@ -20,6 +20,12 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.design.ui;
 
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.NORTHWEST;
+import static java.awt.GridBagConstraints.WEST;
+import static java.awt.event.ItemEvent.SELECTED;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -41,8 +47,7 @@ import javax.swing.border.EmptyBorder;
  * @author David Withers
  */
 public class DataflowInputPortPanel extends JPanel {
-
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 2650486705615513458L;
 
 	private JTextField portNameField;
 	private JRadioButton singleValueButton;
@@ -58,10 +63,10 @@ public class DataflowInputPortPanel extends JPanel {
 		listDepthSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 100, 1));
 
 		setBorder(new EmptyBorder(10, 10, 10, 10));
-		
+
 		GridBagConstraints constraints = new GridBagConstraints();
 
-		constraints.anchor = GridBagConstraints.WEST;
+		constraints.anchor = WEST;
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.ipadx = 10;
@@ -71,14 +76,14 @@ public class DataflowInputPortPanel extends JPanel {
 		constraints.gridwidth = 2;
 		constraints.ipadx = 0;
 		constraints.weightx = 1d;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.fill = HORIZONTAL;
 		add(portNameField, constraints);
 
 		constraints.gridx = 0;
 		constraints.gridy = 1;
 		constraints.gridwidth = 1;
 		constraints.weightx = 0d;
-		constraints.fill = GridBagConstraints.NONE;
+		constraints.fill = NONE;
 		constraints.ipadx = 10;
 		constraints.insets = new Insets(10, 0, 0, 0);
 		add(new JLabel("Type:"), constraints);
@@ -86,22 +91,20 @@ public class DataflowInputPortPanel extends JPanel {
 		ButtonGroup buttonGroup = new ButtonGroup();
 		buttonGroup.add(singleValueButton);
 		buttonGroup.add(listValueButton);
-		
-		final JLabel helpLabel = new JLabel("Depth 1 is a list, 2 is a list of lists, etc.");
+
+		final JLabel helpLabel = new JLabel(
+				"Depth 1 is a list, 2 is a list of lists, etc.");
 		helpLabel.setFont(helpLabel.getFont().deriveFont(11f));
 
 		singleValueButton.addItemListener(new ItemListener() {
+			@Override
 			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					listDepthSpinner.setEnabled(false);
-					helpLabel.setEnabled(false);
-				} else {
-					listDepthSpinner.setEnabled(true);
-					helpLabel.setEnabled(true);
-				}
+				boolean selected = (e.getStateChange() == SELECTED);
+				listDepthSpinner.setEnabled(!selected);
+				helpLabel.setEnabled(!selected);
 			}
 		});
-		
+
 		constraints.gridx = 1;
 		constraints.gridwidth = 2;
 		constraints.ipadx = 0;
@@ -116,14 +119,14 @@ public class DataflowInputPortPanel extends JPanel {
 		constraints.gridy = 3;
 		constraints.gridwidth = 2;
 		constraints.weighty = 1d;
-		constraints.anchor = GridBagConstraints.NORTHWEST;
+		constraints.anchor = NORTHWEST;
 		constraints.insets = new Insets(0, 20, 0, 0);
 		add(helpLabel, constraints);
 	}
 
 	/**
 	 * Returns the portNameField.
-	 *
+	 * 
 	 * @return the portNameField
 	 */
 	public JTextField getPortNameField() {
@@ -132,7 +135,7 @@ public class DataflowInputPortPanel extends JPanel {
 
 	/**
 	 * Returns the singleValueButton.
-	 *
+	 * 
 	 * @return the singleValueButton
 	 */
 	public JRadioButton getSingleValueButton() {
@@ -141,7 +144,7 @@ public class DataflowInputPortPanel extends JPanel {
 
 	/**
 	 * Returns the listValueButton.
-	 *
+	 * 
 	 * @return the listValueButton
 	 */
 	public JRadioButton getListValueButton() {
@@ -150,44 +153,44 @@ public class DataflowInputPortPanel extends JPanel {
 
 	/**
 	 * Returns the port name.
-	 *
+	 * 
 	 * @return the port name
 	 */
 	public String getPortName() {
 		return portNameField.getText();
 	}
-	
+
 	/**
 	 * Sets the port name.
-	 *
-	 * @param name the name of the port
+	 * 
+	 * @param name
+	 *            the name of the port
 	 */
 	public void setPortName(String name) {
 		portNameField.setText(name);
 		// Select the text
-		if (name.length() > 0){
+		if (!name.isEmpty()) {
 			portNameField.setSelectionStart(0);
 			portNameField.setSelectionEnd(name.length());
 		}
 	}
-	
+
 	/**
 	 * Returns the port depth.
-	 *
+	 * 
 	 * @return the port depth
 	 */
 	public int getPortDepth() {
-		if (singleValueButton.isSelected()) {
+		if (singleValueButton.isSelected())
 			return 0;
-		} else {
-			return (Integer) listDepthSpinner.getValue();
-		}
+		return (Integer) listDepthSpinner.getValue();
 	}
 
 	/**
 	 * Sets the port depth.
-	 *
-	 * @param depth the depth of the port
+	 * 
+	 * @param depth
+	 *            the depth of the port
 	 */
 	public void setPortDepth(int depth) {
 		if (depth == 0) {
@@ -197,5 +200,4 @@ public class DataflowInputPortPanel extends JPanel {
 			listDepthSpinner.setValue(depth);
 		}
 	}
-	
 }

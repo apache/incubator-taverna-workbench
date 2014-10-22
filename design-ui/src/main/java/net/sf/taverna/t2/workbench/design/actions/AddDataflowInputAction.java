@@ -32,7 +32,6 @@ import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
-import net.sf.taverna.t2.workflow.edits.AddChildEdit;
 import net.sf.taverna.t2.workflow.edits.AddWorkflowInputPortEdit;
 
 import org.apache.log4j.Logger;
@@ -42,28 +41,28 @@ import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
 
 /**
  * Action for adding an input port to the dataflow.
- *
+ * 
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class AddDataflowInputAction extends DataflowEditAction {
+	private static final Logger logger = Logger
+			.getLogger(AddDataflowInputAction.class);
 
-	private static final long serialVersionUID = 1L;
-
-	private static Logger logger = Logger.getLogger(AddDataflowInputAction.class);
-
-	public AddDataflowInputAction(Workflow dataflow, Component component, EditManager editManager, SelectionManager selectionManager) {
+	public AddDataflowInputAction(Workflow dataflow, Component component,
+			EditManager editManager, SelectionManager selectionManager) {
 		super(dataflow, component, editManager, selectionManager);
 		putValue(SMALL_ICON, WorkbenchIcons.inputIcon);
 		putValue(NAME, "Workflow input port");
 		putValue(SHORT_DESCRIPTION, "Add workflow input port");
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent event) {
 		try {
-			Set<String> usedInputPorts = new HashSet<String>();
-			for (InputWorkflowPort inputPort : dataflow.getInputPorts()) {
+			Set<String> usedInputPorts = new HashSet<>();
+			for (InputWorkflowPort inputPort : dataflow.getInputPorts())
 				usedInputPorts.add(inputPort.getName());
-			}
 
 			DataflowInputPortPanel inputPanel = new DataflowInputPortPanel();
 
@@ -71,26 +70,27 @@ public class AddDataflowInputAction extends DataflowEditAction {
 					"Add Workflow Input Port", inputPanel);
 			vuid.addTextComponentValidation(inputPanel.getPortNameField(),
 					"Set the workflow input port name.", usedInputPorts,
-					"Duplicate workflow input port name.", "[\\p{L}\\p{Digit}_.]+",
+					"Duplicate workflow input port name.",
+					"[\\p{L}\\p{Digit}_.]+",
 					"Invalid workflow input port name.");
-			vuid.addMessageComponent(inputPanel.getSingleValueButton(), "Set the input port type.");
-			vuid.addMessageComponent(inputPanel.getListValueButton(), "Set the input port list depth.");
+			vuid.addMessageComponent(inputPanel.getSingleValueButton(),
+					"Set the input port type.");
+			vuid.addMessageComponent(inputPanel.getListValueButton(),
+					"Set the input port list depth.");
 			vuid.setSize(new Dimension(400, 250));
 
 			inputPanel.setPortDepth(0);
 
 			if (vuid.show(component)) {
-				String portName = inputPanel.getPortName();
-				int portDepth = inputPanel.getPortDepth();
 				InputWorkflowPort dataflowInputPort = new InputWorkflowPort();
-				dataflowInputPort.setName(portName);
-				dataflowInputPort.setDepth(portDepth);
-				editManager.doDataflowEdit(dataflow.getParent(), new AddWorkflowInputPortEdit(dataflow, dataflowInputPort));
+				dataflowInputPort.setName(inputPanel.getPortName());
+				dataflowInputPort.setDepth(inputPanel.getPortDepth());
+				editManager.doDataflowEdit(dataflow.getParent(),
+						new AddWorkflowInputPortEdit(dataflow,
+								dataflowInputPort));
 			}
 		} catch (EditException e) {
 			logger.warn("Adding a new workflow input port failed");
 		}
-
 	}
-
 }

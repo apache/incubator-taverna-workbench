@@ -32,12 +32,12 @@ import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * Abstract superclass of dataflow edit actions.
- *
+ * 
  * @author David Withers
  */
 public abstract class DataflowEditAction extends AbstractAction {
-
 	private static final long serialVersionUID = -1155192575675025091L;
+
 	protected final SelectionManager selectionManager;
 	protected EditManager editManager;
 	protected DataflowSelectionModel dataflowSelectionModel;
@@ -45,13 +45,13 @@ public abstract class DataflowEditAction extends AbstractAction {
 	protected Component component;
 	protected Scufl2Tools scufl2Tools = new Scufl2Tools();
 
-	public DataflowEditAction(Workflow dataflow, Component component, EditManager editManager,
-			SelectionManager selectionManager) {
+	public DataflowEditAction(Workflow dataflow, Component component,
+			EditManager editManager, SelectionManager selectionManager) {
 		this.dataflow = dataflow;
 		this.component = component;
 		this.editManager = editManager;
 		this.selectionManager = selectionManager;
-		dataflowSelectionModel = selectionManager.getDataflowSelectionModel(dataflow.getParent());
+		dataflowSelectionModel = selectionManager
+				.getDataflowSelectionModel(dataflow.getParent());
 	}
-
 }

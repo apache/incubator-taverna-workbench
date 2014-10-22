@@ -41,53 +41,57 @@ import uk.org.taverna.scufl2.api.core.Workflow;
 
 /**
  * Action for renaming a processor.
- *
+ * 
  * @author David Withers
  */
 public class RenameProcessorAction extends DataflowEditAction {
 
 	private static final long serialVersionUID = 1L;
 
-	private static Logger logger = Logger.getLogger(RenameProcessorAction.class);
+	private static Logger logger = Logger
+			.getLogger(RenameProcessorAction.class);
 
 	private Processor processor;
 
-	public RenameProcessorAction(Workflow dataflow, Processor processor, Component component, EditManager editManager, SelectionManager selectionManager) {
+	public RenameProcessorAction(Workflow dataflow, Processor processor,
+			Component component, EditManager editManager,
+			SelectionManager selectionManager) {
 		super(dataflow, component, editManager, selectionManager);
 		this.processor = processor;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
 		putValue(NAME, "Rename service...");
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
+		Set<String> usedProcessors = new HashSet<>();
+		for (Processor usedProcessor : dataflow.getProcessors())
+			if (!usedProcessor.getName().equals(processor.getName()))
+				usedProcessors.add(usedProcessor.getName());
+
+		ProcessorPanel inputPanel = new ProcessorPanel();
+
+		ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
+				"Rename service", inputPanel);
+		vuid.addTextComponentValidation(inputPanel.getProcessorNameField(),
+				"Set the service name.", usedProcessors, "Duplicate service.",
+				"[\\p{L}\\p{Digit}_.]+", "Invalid service name.");
+		vuid.setSize(new Dimension(400, 200));
+
+		inputPanel.setProcessorName(processor.getName());
+
 		try {
-			Set<String> usedProcessors = new HashSet<String>();
-			for (Processor usedProcessor : dataflow.getProcessors()) {
-				if (!usedProcessor.getName().equals(processor.getName())) {
-					usedProcessors.add(usedProcessor.getName());
-				}
-			}
-
-			ProcessorPanel inputPanel = new ProcessorPanel();
-
-			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-					"Rename service", inputPanel);
-			vuid.addTextComponentValidation(inputPanel.getProcessorNameField(),
-					"Set the service name.", usedProcessors,
-					"Duplicate service.", "[\\p{L}\\p{Digit}_.]+",
-					"Invalid service name.");
-			vuid.setSize(new Dimension(400, 200));
-
-			inputPanel.setProcessorName(processor.getName());
-
-			if (vuid.show(component)) {
-				String processorName = inputPanel.getProcessorName();
-				editManager.doDataflowEdit(dataflow.getParent(), new RenameEdit<Processor>(processor, processorName));
-			}
-
+			if (vuid.show(component))
+				changeProcessorName(inputPanel);
 		} catch (EditException e1) {
 			logger.debug("Rename service (processor) failed", e1);
 		}
 	}
 
+	private void changeProcessorName(ProcessorPanel inputPanel)
+			throws EditException {
+		String processorName = inputPanel.getProcessorName();
+		editManager.doDataflowEdit(dataflow.getParent(), new RenameEdit<>(
+				processor, processorName));
+	}
 }

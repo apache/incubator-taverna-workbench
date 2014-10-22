@@ -42,75 +42,74 @@ import net.sf.taverna.t2.workflow.edits.RenameEdit;
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.DepthPort;
 import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.Port;
 
 /**
  * Action for editing a dataflow input port.
- *
+ * 
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class EditDataflowInputPortAction extends DataflowEditAction {
-
-	private static final long serialVersionUID = 1L;
-
 	private static Logger logger = Logger
 			.getLogger(EditDataflowInputPortAction.class);
 
 	private InputWorkflowPort port;
 
 	public EditDataflowInputPortAction(Workflow dataflow,
-			InputWorkflowPort port, Component component, EditManager editManager, SelectionManager selectionManager) {
+			InputWorkflowPort port, Component component,
+			EditManager editManager, SelectionManager selectionManager) {
 		super(dataflow, component, editManager, selectionManager);
 		this.port = port;
 		putValue(SMALL_ICON, WorkbenchIcons.renameIcon);
 		putValue(NAME, "Edit workflow input port...");
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
+		Set<String> usedInputPorts = new HashSet<>();
+		for (InputWorkflowPort usedInputPort : dataflow.getInputPorts())
+			if (!usedInputPort.getName().equals(port.getName()))
+				usedInputPorts.add(usedInputPort.getName());
+
+		DataflowInputPortPanel inputPanel = new DataflowInputPortPanel();
+
+		ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
+				"Edit Workflow Input Port", inputPanel);
+		vuid.addTextComponentValidation(inputPanel.getPortNameField(),
+				"Set the workflow input port name.", usedInputPorts,
+				"Duplicate workflow input port name.", "[\\p{L}\\p{Digit}_.]+",
+				"Invalid workflow input port name.");
+		vuid.addMessageComponent(inputPanel.getSingleValueButton(),
+				"Set the input port type.");
+		vuid.addMessageComponent(inputPanel.getListValueButton(),
+				"Set the input port list depth.");
+		vuid.setSize(new Dimension(400, 250));
+
+		inputPanel.setPortName(port.getName());
+		inputPanel.setPortDepth(port.getDepth());
+
 		try {
-			Set<String> usedInputPorts = new HashSet<String>();
-			for (InputWorkflowPort usedInputPort : dataflow.getInputPorts()) {
-				if (!usedInputPort.getName().equals(port.getName())) {
-					usedInputPorts.add(usedInputPort.getName());
-				}
-			}
-
-			DataflowInputPortPanel inputPanel = new DataflowInputPortPanel();
-
-			ValidatingUserInputDialog vuid = new ValidatingUserInputDialog(
-					"Edit Workflow Input Port", inputPanel);
-			vuid.addTextComponentValidation(inputPanel.getPortNameField(),
-					"Set the workflow input port name.", usedInputPorts,
-					"Duplicate workflow input port name.", "[\\p{L}\\p{Digit}_.]+",
-					"Invalid workflow input port name.");
-			vuid.addMessageComponent(inputPanel.getSingleValueButton(), "Set the input port type.");
-			vuid.addMessageComponent(inputPanel.getListValueButton(), "Set the input port list depth.");
-			vuid.setSize(new Dimension(400, 250));
-
-			inputPanel.setPortName(port.getName());
-			inputPanel.setPortDepth(port.getDepth());
-
-			if (vuid.show(component)) {
-				List<Edit<?>> editList = new ArrayList<Edit<?>>();
-				String portName = inputPanel.getPortName();
-				if (!portName.equals(port.getName())) {
-					editList.add(new RenameEdit<Port>(port, portName));
-				}
-				int portDepth = inputPanel.getPortDepth();
-				if (portDepth != port.getDepth()) {
-					editList.add(new ChangeDepthEdit<DepthPort>(port, portDepth));
-				}
-				if (editList.size() == 1) {
-					editManager.doDataflowEdit(dataflow.getParent(), editList.get(0));
-				} else if (editList.size() > 1) {
-					editManager.doDataflowEdit(dataflow.getParent(), new CompoundEdit(editList));
-				}
-			}
+			if (vuid.show(component))
+				changeInputPort(inputPanel);
 		} catch (EditException e1) {
 			logger.warn("Rename workflow input port failed", e1);
 		}
 	}
 
+	private void changeInputPort(DataflowInputPortPanel inputPanel)
+			throws EditException {
+		List<Edit<?>> editList = new ArrayList<>();
+		String portName = inputPanel.getPortName();
+		if (!portName.equals(port.getName()))
+			editList.add(new RenameEdit<>(port, portName));
+		int portDepth = inputPanel.getPortDepth();
+		if (portDepth != port.getDepth())
+			editList.add(new ChangeDepthEdit<>(port, portDepth));
+		if (editList.size() == 1)
+			editManager.doDataflowEdit(dataflow.getParent(), editList.get(0));
+		else if (editList.size() > 1)
+			editManager.doDataflowEdit(dataflow.getParent(), new CompoundEdit(
+					editList));
+	}
 }
