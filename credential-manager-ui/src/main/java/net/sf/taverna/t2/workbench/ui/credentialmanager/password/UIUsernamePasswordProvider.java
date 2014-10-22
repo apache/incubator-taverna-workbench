@@ -1,11 +1,14 @@
 package net.sf.taverna.t2.workbench.ui.credentialmanager.password;
 
-import java.awt.GraphicsEnvironment;
+import static java.awt.GraphicsEnvironment.isHeadless;
+
 import java.net.URI;
 import java.net.URISyntaxException;
+
 import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.security.credentialmanager.ServiceUsernameAndPasswordProvider;
 import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
+
 import org.apache.log4j.Logger;
 
 public class UIUsernamePasswordProvider implements
@@ -16,7 +19,7 @@ public class UIUsernamePasswordProvider implements
 	private DistinguishedNameParser dnParser;
 
 	public boolean canProvideUsernamePassword(URI serviceURI) {
-		return !GraphicsEnvironment.isHeadless();
+		return !isHeadless();
 	}
 
 	@Override
@@ -63,16 +66,15 @@ public class UIUsernamePasswordProvider implements
 		String password = getPasswordDialog.getPassword(); // get password
 		boolean shouldSaveUsernameAndPassword = getPasswordDialog
 				.shouldSaveUsernameAndPassword();
-		if (username == null || password == null) {
+		if (username == null || password == null)
 			// user cancelled - any of the above two variables is null
 			return null;
-		}
 
-		UsernamePassword username_password = new UsernamePassword();
-		username_password.setUsername(username);
-		username_password.setPassword(password.toCharArray());
-		username_password.setShouldSave(shouldSaveUsernameAndPassword);
-		return username_password;
+		UsernamePassword credential = new UsernamePassword();
+		credential.setUsername(username);
+		credential.setPassword(password.toCharArray());
+		credential.setShouldSave(shouldSaveUsernameAndPassword);
+		return credential;
 	}
 
 	@Override

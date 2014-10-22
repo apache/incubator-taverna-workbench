@@ -20,17 +20,19 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager.toolbar;
 
+import static net.sf.taverna.t2.ui.menu.DefaultToolBar.DEFAULT_TOOL_BAR;
+
 import java.net.URI;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
-import net.sf.taverna.t2.ui.menu.DefaultToolBar;
 
 public class CredentialManagerToolbarSection extends AbstractMenuSection {
+	private static final String ENTRY_URI = "http://taverna.sf.net/2008/t2workbench/toolbar#credentialManagerSection";
+	/** {@value #ENTRY_URI} */
+	public static URI CREDENTIAL_MANAGER_TOOLBAR_SECTION = URI
+			.create(ENTRY_URI);
 
-	public static URI CREDENTIAL_MANAGER_TOOLBAR_SECTION = URI.create("http://taverna.sf.net/2008/t2workbench/toolbar#credentialManagerSection");
-	
 	public CredentialManagerToolbarSection() {
-		super(DefaultToolBar.DEFAULT_TOOL_BAR, 300, CREDENTIAL_MANAGER_TOOLBAR_SECTION);
+		super(DEFAULT_TOOL_BAR, 300, CREDENTIAL_MANAGER_TOOLBAR_SECTION);
 	}
-
 }
