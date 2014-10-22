@@ -20,13 +20,18 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.results;
 
+import static javax.swing.JOptionPane.YES_NO_OPTION;
+import static javax.swing.JOptionPane.showConfirmDialog;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.pauseIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.tickIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.workingIcon;
+
 import java.io.File;
 import java.io.IOException;
 
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.lang.ui.tabselector.Tab;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 
 import org.apache.log4j.Logger;
@@ -44,7 +49,6 @@ import uk.org.taverna.platform.run.api.RunStateException;
  */
 @SuppressWarnings("serial")
 public class RunTab extends Tab<String> {
-
 	private static Logger logger = Logger.getLogger(RunTab.class);
 
 	private final SelectionManager selectionManager;
@@ -68,40 +72,39 @@ public class RunTab extends Tab<String> {
 		}
 	}
 
+	@Override
 	protected void clickTabAction() {
 		selectionManager.setSelectedWorkflowRun(selection);
 	}
 
+	@Override
 	protected void closeTabAction() {
 		try {
 			State state = runService.getState(selection);
 			if (state == State.RUNNING || state == State.PAUSED) {
-				int answer = JOptionPane.showConfirmDialog(null,
+				if (showConfirmDialog(
+						null,
 						"Closing the tab will cancel the workflow run. Do you want to continue?",
-						"Workflow is still running", JOptionPane.YES_NO_OPTION);
-				if (answer == JOptionPane.NO_OPTION) {
+						"Workflow is still running", YES_NO_OPTION) == JOptionPane.NO_OPTION)
 					return;
-				} else {
-					try {
-						runService.cancel(selection);
-					} catch (RunStateException | InvalidExecutionIdException e) {
-						// workflow may have finished by now
-					}
+
+				try {
+					runService.cancel(selection);
+				} catch (RunStateException | InvalidExecutionIdException e) {
+					// workflow may have finished by now
 				}
 			}
 			File file = new File(runStore, getName() + ".wfRun");
-			if (!file.exists()) {
-				try {
+			try {
+				if (!file.exists())
 					runService.save(selection, file);
-				} catch (IOException e) {
-					logger.warn("Failed to save workflow run to " + file, e);
-				}
+			} catch (IOException e) {
+				logger.warn("Failed to save workflow run to " + file, e);
 			}
 			runService.close(selection);
 		} catch (InvalidRunIdException | InvalidExecutionIdException e) {
-			// TODO Have to cope with this - execution ID could be invalid but still need to close
-			// the tab
-			e.printStackTrace();
+			// TODO Have to cope with this - execution ID could be invalid but still need to close the tab
+			logger.error("problem with invalid id", e);
 		}
 	}
 
@@ -109,22 +112,22 @@ public class RunTab extends Tab<String> {
 		try {
 			switch (runService.getState(selection)) {
 			case RUNNING:
-				setIcon(WorkbenchIcons.workingIcon);
+				setIcon(workingIcon);
 				break;
 			case COMPLETED:
-				setIcon(WorkbenchIcons.tickIcon);
+				setIcon(tickIcon);
 				break;
 			case PAUSED:
-				setIcon(WorkbenchIcons.pauseIcon);
+				setIcon(pauseIcon);
 				break;
 			case CANCELLED:
 			case FAILED:
-				setIcon(WorkbenchIcons.tickIcon);
+				setIcon(tickIcon);
+			default:
 				break;
 			}
 		} catch (InvalidRunIdException e) {
 			logger.warn(e);
 		}
 	}
-
 }

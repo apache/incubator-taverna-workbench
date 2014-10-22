@@ -33,33 +33,34 @@ import uk.org.taverna.platform.run.api.RunService;
 
 /**
  * Component for managing selection of workflow runs.
- *
+ * 
  * @author David Withers
  */
 public class RunSelectorComponent extends TabSelectorComponent<String> {
-
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 3679972772159328891L;
 
 	private final RunService runService;
 	private final SelectionManager selectionManager;
 	private final File runStore;
 
-	public RunSelectorComponent(RunService runSevice, SelectionManager selectionManager, File runStore) {
+	public RunSelectorComponent(RunService runSevice,
+			SelectionManager selectionManager, File runStore) {
 		this.runService = runSevice;
 		this.selectionManager = selectionManager;
 		this.runStore = runStore;
 		selectionManager.addObserver(new SelectionManagerObserver());
 	}
 
-	private class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+	private class SelectionManagerObserver extends
+			SwingAwareObserver<SelectionManagerEvent> {
 		@Override
-		public void notifySwing(Observable<SelectionManagerEvent> sender, SelectionManagerEvent message)  {
+		public void notifySwing(Observable<SelectionManagerEvent> sender,
+				SelectionManagerEvent message) {
 			if (message instanceof WorkflowRunSelectionEvent) {
-				WorkflowRunSelectionEvent workflowRunSelectionEvent = (WorkflowRunSelectionEvent) message;
-				String workflowRun = workflowRunSelectionEvent.getSelectedWorkflowRun();
-				if (workflowRun != null) {
+				WorkflowRunSelectionEvent event = (WorkflowRunSelectionEvent) message;
+				String workflowRun = event.getSelectedWorkflowRun();
+				if (workflowRun != null)
 					selectObject(workflowRun);
-				}
 			}
 		}
 	}
@@ -68,5 +69,4 @@ public class RunSelectorComponent extends TabSelectorComponent<String> {
 	protected Tab<String> createTab(String runID) {
 		return new RunTab(runID, selectionManager, runService, runStore);
 	}
-
 }

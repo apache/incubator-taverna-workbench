@@ -44,23 +44,17 @@ import uk.org.taverna.platform.run.api.RunService;
  * @author David Withers
  */
 public class RunMonitor {
-
-	private static Logger logger = Logger.getLogger(RunMonitor.class);
+	private static final Logger logger = Logger.getLogger(RunMonitor.class);
+	private static final long monitorRate = 300;
 
 	private RunService runService;
 	private SelectionManager selectionManager;
 	private final Updatable updatable;
 
-	private static long monitorRate = 300;
-
 	private Timer updateTimer = new Timer("RunMonitor update timer", true);
-
 	private UpdateTask updateTask;
-
 	private String workflowRun;
-
 	private Set<String> finishedRuns = new HashSet<>();
-
 	private SelectionManagerObserver selectionManagerObserver = new SelectionManagerObserver();
 
 	public RunMonitor(RunService runService, SelectionManager selectionManager, Updatable updatable) {
@@ -77,9 +71,8 @@ public class RunMonitor {
 
 	public void start() {
 		synchronized (this) {
-			if (updateTask != null) {
+			if (updateTask != null)
 				updateTask.cancel();
-			}
 			updateTask = new UpdateTask();
 			try {
 				updateTimer.schedule(updateTask, monitorRate, monitorRate);
@@ -100,11 +93,10 @@ public class RunMonitor {
 
 	private void setWorkflowRun(String workflowRun) throws InvalidRunIdException {
 		this.workflowRun = workflowRun;
-		if (workflowRun == null || isFinished(workflowRun)) {
+		if (workflowRun == null || isFinished(workflowRun))
 			stop();
-		} else {
+		else
 			start();
-		}
 	}
 
 	/**
@@ -121,18 +113,19 @@ public class RunMonitor {
 	 */
 	private boolean isFinished(String workflowRun) throws InvalidRunIdException {
 		boolean finished = false;
-		if (finishedRuns.contains(workflowRun)) {
+		if (finishedRuns.contains(workflowRun))
 			finished = true;
-		} else {
+		else {
 			State state = runService.getState(workflowRun);
-			if (state == State.COMPLETED || state == State.CANCELLED || state == State.FAILED) {
+			if (state == State.COMPLETED || state == State.CANCELLED
+					|| state == State.FAILED)
 				finishedRuns.add(workflowRun);
-			}
 		}
 		return finished;
 	}
 
 	private class UpdateTask extends TimerTask {
+		@Override
 		public void run() {
 			try {
 				updatable.update();
@@ -141,7 +134,7 @@ public class RunMonitor {
 					stop();
 				}
 			} catch (InvalidRunIdException e) {
-				e.printStackTrace();
+				logger.warn("workflow run could not be queried", e);
 				stop();
 			}
 		}
@@ -152,29 +145,27 @@ public class RunMonitor {
 		public void notifySwing(Observable<SelectionManagerEvent> sender,
 				SelectionManagerEvent message) {
 			if (message instanceof WorkflowRunSelectionEvent) {
-				WorkflowRunSelectionEvent workflowRunSelectionEvent = (WorkflowRunSelectionEvent) message;
+				WorkflowRunSelectionEvent event = (WorkflowRunSelectionEvent) message;
 				try {
-					setWorkflowRun(workflowRunSelectionEvent.getSelectedWorkflowRun());
+					setWorkflowRun(event.getSelectedWorkflowRun());
 				} catch (InvalidRunIdException e) {
 					logger.warn("Selected workflow run ID is invalid", e);
 				}
 			} else if (message instanceof PerspectiveSelectionEvent) {
-				PerspectiveSelectionEvent perspectiveSelectionEvent = (PerspectiveSelectionEvent) message;
-				PerspectiveSPI selectedPerspective = perspectiveSelectionEvent
+				PerspectiveSelectionEvent event = (PerspectiveSelectionEvent) message;
+				PerspectiveSPI selectedPerspective = event
 						.getSelectedPerspective();
-				if ("net.sf.taverna.t2.ui.perspectives.results.ResultsPerspective".equals(selectedPerspective.getID())) {
+				if ("net.sf.taverna.t2.ui.perspectives.results.ResultsPerspective"
+						.equals(selectedPerspective.getID())) {
 					try {
-						if (workflowRun != null && !isFinished(workflowRun)) {
+						if (workflowRun != null && !isFinished(workflowRun))
 							start();
-						}
 					} catch (InvalidRunIdException e) {
 						logger.warn("Selected workflow run ID is invalid", e);
 					}
-				} else {
+				} else
 					stop();
-				}
 			}
 		}
 	}
-
 }

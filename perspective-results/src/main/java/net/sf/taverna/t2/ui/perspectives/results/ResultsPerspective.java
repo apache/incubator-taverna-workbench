@@ -20,8 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.results;
 
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.resultsPerspectiveIcon;
+
 import java.io.File;
-import java.io.FilenameFilter;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -31,7 +32,6 @@ import net.sf.taverna.t2.renderers.RendererRegistry;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
@@ -47,12 +47,11 @@ import uk.org.taverna.platform.run.api.RunService;
  * @author David Withers
  */
 public class ResultsPerspective implements PerspectiveSPI, EventHandler {
-
 	private static final String RUN_STORE_DIRECTORY = "workflow-runs";
 
 	private ResultsPerspectiveComponent resultsPerspectiveComponent;
+	@SuppressWarnings("unused")
 	private RunMonitor runMonitor;
-
 	private RunService runService;
 	private SelectionManager selectionManager;
 	private ColourManager colourManager;
@@ -71,12 +70,17 @@ public class ResultsPerspective implements PerspectiveSPI, EventHandler {
 	@Override
 	public JComponent getPanel() {
 		if (resultsPerspectiveComponent == null) {
-			File runStore = new File(applicationConfiguration.getApplicationHomeDir(), RUN_STORE_DIRECTORY);
+			File runStore = new File(
+					applicationConfiguration.getApplicationHomeDir(),
+					RUN_STORE_DIRECTORY);
 			runStore.mkdirs();
-			resultsPerspectiveComponent = new ResultsPerspectiveComponent(runService,
-					selectionManager, colourManager, activityIconManager, workbenchConfiguration, rendererRegistry,
-					saveAllResultsSPIs, saveIndividualResultSPIs, runStore);
-			runMonitor = new RunMonitor(runService, selectionManager, resultsPerspectiveComponent);
+			resultsPerspectiveComponent = new ResultsPerspectiveComponent(
+					runService, selectionManager, colourManager,
+					activityIconManager, workbenchConfiguration,
+					rendererRegistry, saveAllResultsSPIs,
+					saveIndividualResultSPIs, runStore);
+			runMonitor = new RunMonitor(runService, selectionManager,
+					resultsPerspectiveComponent);
 		}
 		return resultsPerspectiveComponent;
 	}
@@ -94,7 +98,7 @@ public class ResultsPerspective implements PerspectiveSPI, EventHandler {
 
 	@Override
 	public ImageIcon getButtonIcon() {
-		return WorkbenchIcons.resultsPerspectiveIcon;
+		return resultsPerspectiveIcon;
 	}
 
 	@Override
@@ -109,9 +113,8 @@ public class ResultsPerspective implements PerspectiveSPI, EventHandler {
 
 	@Override
 	public void handleEvent(Event event) {
-		if (resultsPerspectiveComponent != null) {
+		if (resultsPerspectiveComponent != null)
 			resultsPerspectiveComponent.handleEvent(event);
-		}
 	}
 
 	public void setRunService(RunService runService) {
@@ -126,7 +129,8 @@ public class ResultsPerspective implements PerspectiveSPI, EventHandler {
 		this.activityIconManager = activityIconManager;
 	}
 
-	public void setWorkbenchConfiguration(WorkbenchConfiguration workbenchConfiguration) {
+	public void setWorkbenchConfiguration(
+			WorkbenchConfiguration workbenchConfiguration) {
 		this.workbenchConfiguration = workbenchConfiguration;
 	}
 
@@ -142,12 +146,13 @@ public class ResultsPerspective implements PerspectiveSPI, EventHandler {
 		this.saveAllResultsSPIs = saveAllResultsSPIs;
 	}
 
-	public void setSaveIndividualResultSPIs(List<SaveIndividualResultSPI> saveIndividualResultSPIs) {
+	public void setSaveIndividualResultSPIs(
+			List<SaveIndividualResultSPI> saveIndividualResultSPIs) {
 		this.saveIndividualResultSPIs = saveIndividualResultSPIs;
 	}
 
-	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+	public void setApplicationConfiguration(
+			ApplicationConfiguration applicationConfiguration) {
 		this.applicationConfiguration = applicationConfiguration;
 	}
-
 }

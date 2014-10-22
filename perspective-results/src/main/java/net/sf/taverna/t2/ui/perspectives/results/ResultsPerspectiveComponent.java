@@ -20,6 +20,12 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.results;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.NORTH;
+import static java.awt.Font.BOLD;
+import static java.lang.Math.round;
+import static javax.swing.JSplitPane.VERTICAL_SPLIT;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Font;
@@ -29,7 +35,6 @@ import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
@@ -40,7 +45,6 @@ import net.sf.taverna.t2.renderers.RendererRegistry;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowRunSelectionEvent;
@@ -62,27 +66,23 @@ import uk.org.taverna.platform.run.api.RunService;
  */
 @SuppressWarnings("serial")
 public class ResultsPerspectiveComponent extends JPanel implements Updatable {
-
-
-	private static Logger logger = Logger.getLogger(ResultsPerspectiveComponent.class);
-
+	private static final Logger logger = Logger.getLogger(ResultsPerspectiveComponent.class);
 	private static final String NO_RUNS_MESSAGE = "No workflow runs";
-
 	private static final String RUNS_SELECTED = "RUNS_SELECTED";
 	private static final String NO_RUNS_SELECTED = "NO_RUNS_SELECTED";
 
 	private final RunService runService;
 	private final SelectionManager selectionManager;
+	@SuppressWarnings("unused")
 	private final ColourManager colourManager;
+	@SuppressWarnings("unused")
 	private final ActivityIconManager activityIconManager;
+	@SuppressWarnings("unused")
 	private final WorkbenchConfiguration workbenchConfiguration;
 
 	private List<Updatable> updatables = new ArrayList<>();
-
 	private CardLayout cardLayout;
-
 	private SelectionManagerObserver selectionManagerObserver;
-
 	private MonitorGraphComponent monitorGraphComponent;
 	private TableMonitorComponent tableMonitorComponent;
 	private ResultsComponent resultsComponent;
@@ -105,20 +105,21 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 		JLabel noRunsMessage = new JLabel(NO_RUNS_MESSAGE, JLabel.CENTER);
 		Font font = noRunsMessage.getFont();
 		if (font != null) {
-			font = font.deriveFont(Math.round((font.getSize() * 1.5))).deriveFont(Font.BOLD);
+			font = font.deriveFont(round(font.getSize() * 1.5))
+					.deriveFont(BOLD);
 			noRunsMessage.setFont(font);
 		}
 		JPanel noRunsPanel = new JPanel(new BorderLayout());
-		noRunsPanel.add(noRunsMessage, BorderLayout.CENTER);
+		noRunsPanel.add(noRunsMessage, CENTER);
 		add(noRunsPanel, NO_RUNS_SELECTED);
 
-		monitorGraphComponent = new MonitorGraphComponent(runService, colourManager,
-				workbenchConfiguration, selectionManager);
-		tableMonitorComponent = new TableMonitorComponent(runService, selectionManager,
-				activityIconManager);
+		monitorGraphComponent = new MonitorGraphComponent(runService,
+				colourManager, workbenchConfiguration, selectionManager);
+		tableMonitorComponent = new TableMonitorComponent(runService,
+				selectionManager, activityIconManager);
 
-		resultsComponent = new ResultsComponent(runService, selectionManager, rendererRegistry,
-				saveAllResultsSPIs, saveIndividualResultSPIs);
+		resultsComponent = new ResultsComponent(runService, selectionManager,
+				rendererRegistry, saveAllResultsSPIs, saveIndividualResultSPIs);
 
 		updatables.add(monitorGraphComponent);
 		updatables.add(tableMonitorComponent);
@@ -128,17 +129,18 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 		tabbedPane.add("Graph", monitorGraphComponent);
 		tabbedPane.add("Progress report", tableMonitorComponent);
 
-		JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		JSplitPane splitPane = new JSplitPane(VERTICAL_SPLIT);
 		splitPane.setBorder(null);
 		splitPane.setLeftComponent(tabbedPane);
 		splitPane.setRightComponent(resultsComponent);
 		splitPane.setDividerLocation(200);
 
-		runSelectorComponent = new RunSelectorComponent(runService, selectionManager, runStore);
+		runSelectorComponent = new RunSelectorComponent(runService,
+				selectionManager, runStore);
 
 		JPanel runsPanel = new JPanel(new BorderLayout());
-		runsPanel.add(runSelectorComponent, BorderLayout.NORTH);
-		runsPanel.add(splitPane, BorderLayout.CENTER);
+		runsPanel.add(runSelectorComponent, NORTH);
+		runsPanel.add(splitPane, CENTER);
 		add(runsPanel, RUNS_SELECTED);
 
 		selectionManagerObserver = new SelectionManagerObserver();
@@ -152,39 +154,40 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 
 	@Override
 	public void update() {
-		for (Updatable updatable : updatables) {
+		for (Updatable updatable : updatables)
 			updatable.update();
-		}
 	}
 
-	private class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+	private class SelectionManagerObserver extends
+			SwingAwareObserver<SelectionManagerEvent> {
 		@Override
 		public void notifySwing(Observable<SelectionManagerEvent> sender,
 				SelectionManagerEvent message) {
-			if (message instanceof WorkflowRunSelectionEvent) {
-				WorkflowRunSelectionEvent workflowRunSelectionEvent = (WorkflowRunSelectionEvent) message;
-				String workflowRun = workflowRunSelectionEvent.getSelectedWorkflowRun();
-				if (workflowRun == null) {
-					cardLayout.show(ResultsPerspectiveComponent.this, NO_RUNS_SELECTED);
-				} else {
-					cardLayout.show(ResultsPerspectiveComponent.this, RUNS_SELECTED);
-					runSelectorComponent.selectObject(workflowRun);
-					try {
-						monitorGraphComponent.setWorkflowRun(workflowRun);
-						tableMonitorComponent.setWorkflowRun(workflowRun);
-					} catch (InvalidRunIdException e) {
-						logger.warn("Failed to create monitor components for workflow run "
+			if (!(message instanceof WorkflowRunSelectionEvent)) return;
+			String workflowRun = ((WorkflowRunSelectionEvent) message)
+					.getSelectedWorkflowRun();
+			if (workflowRun == null) {
+				cardLayout.show(ResultsPerspectiveComponent.this,
+						NO_RUNS_SELECTED);
+				return;
+			}
+
+			cardLayout.show(ResultsPerspectiveComponent.this, RUNS_SELECTED);
+			runSelectorComponent.selectObject(workflowRun);
+			try {
+				monitorGraphComponent.setWorkflowRun(workflowRun);
+				tableMonitorComponent.setWorkflowRun(workflowRun);
+			} catch (InvalidRunIdException e) {
+				logger.warn(
+						"Failed to create monitor components for workflow run "
 								+ workflowRun, e);
-					}
-				}
 			}
 		}
 	}
 
 	public void handleEvent(Event event) {
-		String topic = event.getTopic();
 		String workflowRun = event.getProperty("RUN_ID").toString();
-		switch (topic) {
+		switch (event.getTopic()) {
 		case RunService.RUN_CLOSED:
 		case RunService.RUN_DELETED:
 			runSelectorComponent.removeObject(workflowRun);
@@ -193,11 +196,10 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 			resultsComponent.removeWorkflowRun(workflowRun);
 			if (selectionManager.getSelectedWorkflowRun().equals(workflowRun)) {
 				List<String> runs = runService.getRuns();
-				if (runs.isEmpty()) {
+				if (runs.isEmpty())
 					selectionManager.setSelectedWorkflowRun(null);
-				} else {
+				else
 					selectionManager.setSelectedWorkflowRun(runs.get(0));
-				}
 			}
 			break;
 		case RunService.RUN_CREATED:
@@ -216,6 +218,4 @@ public class ResultsPerspectiveComponent extends JPanel implements Updatable {
 			break;
 		}
 	}
-
-
 }

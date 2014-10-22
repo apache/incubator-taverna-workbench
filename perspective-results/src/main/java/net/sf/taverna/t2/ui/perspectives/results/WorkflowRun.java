@@ -21,8 +21,6 @@
 package net.sf.taverna.t2.ui.perspectives.results;
 
 /**
- *
- *
  * @author David Withers
  */
 public class WorkflowRun {
@@ -53,5 +51,4 @@ public class WorkflowRun {
 	public String toString() {
 		return name;
 	}
-
 }

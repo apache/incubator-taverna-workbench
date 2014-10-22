@@ -28,6 +28,7 @@ import uk.org.taverna.platform.run.api.RunService;
  * @author David Withers
  */
 public class WorkflowRunListModel extends AbstractListModel<String> {
+	private static final long serialVersionUID = 6899849120823569185L;
 
 	private final RunService runService;
 
@@ -50,9 +51,8 @@ public class WorkflowRunListModel extends AbstractListModel<String> {
 	 */
 	public void runAdded(String runID) {
 		int index = runService.getRuns().indexOf(runID);
-		if (index >= 0) {
+		if (index >= 0)
 			fireIntervalAdded(this, index, index);
-		}
 	}
 
 	/**
@@ -60,9 +60,7 @@ public class WorkflowRunListModel extends AbstractListModel<String> {
 	 */
 	public void runRemoved(String runID) {
 		int index = runService.getRuns().indexOf(runID);
-		if (index >= 0) {
+		if (index >= 0)
 			fireIntervalRemoved(this, index, index);
-		}
 	}
-
 }

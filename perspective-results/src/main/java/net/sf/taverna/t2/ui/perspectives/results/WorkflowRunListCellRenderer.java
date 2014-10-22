@@ -32,15 +32,11 @@ import uk.org.taverna.platform.run.api.InvalidRunIdException;
 import uk.org.taverna.platform.run.api.RunService;
 
 /**
- *
- *
  * @author David Withers
  */
 public class WorkflowRunListCellRenderer extends JLabel implements ListCellRenderer<String> {
-
-	private static final long serialVersionUID = 1L;
-
-	private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private static final long serialVersionUID = -4954451814016664554L;
+	private static final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	private final RunService runService;
 
@@ -53,11 +49,11 @@ public class WorkflowRunListCellRenderer extends JLabel implements ListCellRende
 			int index, boolean isSelected, boolean cellHasFocus) {
 		try {
 			WorkflowReport workflowReport = runService.getWorkflowReport(value);
-			setText(workflowReport.getSubject().getName() + " " + ISO_8601.format(workflowReport.getCreatedDate()));
+			setText(workflowReport.getSubject().getName() + " "
+					+ ISO_8601.format(workflowReport.getCreatedDate()));
 		} catch (InvalidRunIdException e) {
 			setText(value);
 		}
 		return this;
 	}
-
 }
