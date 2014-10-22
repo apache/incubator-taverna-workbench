@@ -21,6 +21,13 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.monitor;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.SOUTH;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+import static org.apache.batik.ext.swing.GridBagConstants.EAST;
+import static org.apache.batik.ext.swing.GridBagConstants.NONE;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
@@ -32,12 +39,9 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 
-import org.apache.batik.ext.swing.GridBagConstants;
-
 import net.sf.taverna.t2.workbench.ui.Updatable;
 import net.sf.taverna.t2.workbench.views.monitor.graph.MonitorGraphComponent;
 import net.sf.taverna.t2.workbench.views.monitor.progressreport.TableMonitorComponent;
-import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressTreeTable;
 
 /**
  * Component that shows the progress of a workflow run, either through a graph or
@@ -50,22 +54,17 @@ import net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgr
  * It also contains buttons to pause/resume and stop a workflow run.
  *
  */
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial","unused"})
 public class MonitorViewComponent extends JPanel implements Updatable {
-
 	private MonitorGraphComponent monitorGraph;
 	private TableMonitorComponent tableMonitorComponent;
 
 	private JTabbedPane tabbedPane;
 	private JPanel buttonsPanel;
 
-	public MonitorViewComponent(){
-		super();
-
-		setLayout(new BorderLayout());
-
+	public MonitorViewComponent() {
+		super(new BorderLayout());
 		tabbedPane = new JTabbedPane();
-
 		buttonsPanel = new JPanel(new GridBagLayout());
 
 //		buttonsPanel.add(new JLabel("Workflow status"));
@@ -74,9 +73,8 @@ public class MonitorViewComponent extends JPanel implements Updatable {
 //		buttonsPanel.add(new JButton("Cancel"));
 //		buttonsPanel.add(new JButton("Show results"));
 
-		add(tabbedPane, BorderLayout.CENTER);
-		add(buttonsPanel, BorderLayout.SOUTH);
-
+		add(tabbedPane, CENTER);
+		add(buttonsPanel, SOUTH);
 	}
 
 	public void setMonitorGraph(MonitorGraphComponent monitorGraph) {
@@ -88,8 +86,7 @@ public class MonitorViewComponent extends JPanel implements Updatable {
 		this.tableMonitorComponent = tableMonitorComponent;
 
 		JScrollPane scrollPane = new JScrollPane(tableMonitorComponent,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_AS_NEEDED);
 
 		tabbedPane.add("Progress report", scrollPane);
 	}
@@ -100,7 +97,7 @@ public class MonitorViewComponent extends JPanel implements Updatable {
 		gbc.gridx = 0;
 		gbc.gridy = 0;
 
-		gbc.fill = GridBagConstants.NONE;
+		gbc.fill = NONE;
 		buttonsPanel.add(statusLabel, gbc);
 	}
 
@@ -110,7 +107,7 @@ public class MonitorViewComponent extends JPanel implements Updatable {
 		gbc.gridx = 1;
 		gbc.gridy = 0;
 
-		gbc.fill = GridBagConstants.NONE;
+		gbc.fill = NONE;
 		gbc.weightx = 0.0;
 		buttonsPanel.add(workflowRunPauseButton, gbc);
 	}
@@ -121,7 +118,7 @@ public class MonitorViewComponent extends JPanel implements Updatable {
 		gbc.gridx = 2;
 		gbc.gridy = 0;
 
-		gbc.fill = GridBagConstants.NONE;
+		gbc.fill = NONE;
 		gbc.weightx = 0.0;
 		buttonsPanel.add(workflowRunCancelButton, gbc);
 	}
@@ -132,11 +129,10 @@ public class MonitorViewComponent extends JPanel implements Updatable {
 		gbc.gridx = 3;
 		gbc.gridy = 0;
 
-		gbc.fill = GridBagConstants.NONE;
+		gbc.fill = NONE;
 		gbc.weightx = 1.0;
-		gbc.anchor = GridBagConstants.EAST;
+		gbc.anchor = EAST;
 		buttonsPanel.add(reloadWorkflowButton, gbc);
-
 	}
 
 	public void addIntermediateValuesButton(JButton intermediateValuesButton) {
@@ -145,9 +141,9 @@ public class MonitorViewComponent extends JPanel implements Updatable {
 		gbc.gridx = 4;
 		gbc.gridy = 0;
 
-		gbc.fill = GridBagConstants.NONE;
+		gbc.fill = NONE;
 		gbc.weightx = 1.0;
-		gbc.anchor = GridBagConstants.EAST;
+		gbc.anchor = EAST;
 		buttonsPanel.add(intermediateValuesButton, gbc);
 	}
 
@@ -157,19 +153,16 @@ public class MonitorViewComponent extends JPanel implements Updatable {
 		gbc.gridx = 5;
 		gbc.gridy = 0;
 
-		gbc.fill = GridBagConstants.NONE;
+		gbc.fill = NONE;
 		gbc.weightx = 0.0;
-		gbc.anchor = GridBagConstants.EAST;
+		gbc.anchor = EAST;
 		buttonsPanel.add(workflowResultsButton, gbc);
 	}
 
 	@Override
 	public void update() {
 		Component selectedComponent = tabbedPane.getSelectedComponent();
-		if (selectedComponent instanceof Updatable) {
-			Updatable updatable = (Updatable) selectedComponent;
-			updatable.update();
-		}
+		if (selectedComponent instanceof Updatable)
+			((Updatable) selectedComponent).update();
 	}
-
 }

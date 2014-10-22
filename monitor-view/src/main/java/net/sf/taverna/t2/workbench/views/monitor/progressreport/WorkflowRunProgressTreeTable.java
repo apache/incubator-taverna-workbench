@@ -14,35 +14,37 @@ import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
 import uk.org.taverna.platform.report.StatusReport;
-import uk.org.taverna.platform.report.WorkflowReport;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.WorkflowPort;
 
 @SuppressWarnings("serial")
 public class WorkflowRunProgressTreeTable extends JTreeTable {
-
 	private final WorkflowRunProgressTreeTableModel treeTableModel;
 	private final DataflowSelectionModel selectionModel;
-
 	private final DataflowSelectionObserver dataflowSelectionObserver;
 
-	public WorkflowRunProgressTreeTable(WorkflowRunProgressTreeTableModel treeTableModel,
-			ActivityIconManager activityIconManager, DataflowSelectionModel selectionModel) {
+	public WorkflowRunProgressTreeTable(
+			WorkflowRunProgressTreeTableModel treeTableModel,
+			ActivityIconManager activityIconManager,
+			DataflowSelectionModel selectionModel) {
 		super(treeTableModel);
 
 		this.treeTableModel = treeTableModel;
 		this.selectionModel = selectionModel;
 
-		this.tree.setCellRenderer(new WorkflowRunProgressTreeCellRenderer(activityIconManager));
+		this.tree.setCellRenderer(new WorkflowRunProgressTreeCellRenderer(
+				activityIconManager));
 		this.tree.setEditable(false);
 		this.tree.setExpandsSelectedPaths(true);
 		this.tree.setDragEnabled(false);
 		this.tree.setScrollsOnExpand(false);
 
 		getTableHeader().setReorderingAllowed(false);
-		getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-		getSelectionModel().addListSelectionListener(new TableSelectionListener());
+		getSelectionModel().setSelectionMode(
+				ListSelectionModel.SINGLE_SELECTION);
+		getSelectionModel().addListSelectionListener(
+				new TableSelectionListener());
 
 		dataflowSelectionObserver = new DataflowSelectionObserver();
 		selectionModel.addObserver(dataflowSelectionObserver);
@@ -53,15 +55,16 @@ public class WorkflowRunProgressTreeTable extends JTreeTable {
 		selectionModel.removeObserver(dataflowSelectionObserver);
 	}
 
-	// Return object in the tree part of this JTreeTable that corresponds to
-	// this row. It will either be a workflow (tree root) or a processor.
+	/**
+	 * Return object in the tree part of this JTreeTable that corresponds to
+	 * this row. It will either be a workflow (tree root) or a processor.
+	 */
 	public Object getTreeObjectForRow(int row) {
 		TreePath path = tree.getPathForRow(row);
-		if (path != null) {
-			return ((DefaultMutableTreeNode) path.getLastPathComponent()).getUserObject();
-		} else {
+		if (path == null)
 			return null;
-		}
+		return ((DefaultMutableTreeNode) path.getLastPathComponent())
+				.getUserObject();
 	}
 
 	public void setSelectedRowForObject(Object workflowObject) {
@@ -71,10 +74,9 @@ public class WorkflowRunProgressTreeTable extends JTreeTable {
 			TreeNode[] path = node.getPath();
 			tree.scrollPathToVisible(new TreePath(path));
 			int row = tree.getRowForPath(new TreePath(path));
-			if (row >= 0) {
+			if (row >= 0)
 				// Set selected row on the table
 				setRowSelectionInterval(row, row);
-			}
 		}
 	}
 
@@ -83,12 +85,12 @@ public class WorkflowRunProgressTreeTable extends JTreeTable {
 		public void notifySwing(Observable<DataflowSelectionMessage> sender,
 				DataflowSelectionMessage message) {
 			for (Object selection : selectionModel.getSelection()) {
-				if (selection instanceof Processor || selection instanceof Workflow) {
+				if (selection instanceof Processor
+						|| selection instanceof Workflow)
 					setSelectedRowForObject(selection);
-				} else if (selection instanceof WorkflowPort) {
-					WorkflowPort workflowPort = (WorkflowPort) selection;
-					setSelectedRowForObject(workflowPort.getParent());
-				}
+				else if (selection instanceof WorkflowPort)
+					setSelectedRowForObject(((WorkflowPort) selection)
+							.getParent());
 			}
 		}
 	}
@@ -96,17 +98,15 @@ public class WorkflowRunProgressTreeTable extends JTreeTable {
 	private class TableSelectionListener implements ListSelectionListener {
 		@Override
 		public void valueChanged(ListSelectionEvent e) {
-			if (!e.getValueIsAdjusting()) {
-				int selectedRow = getSelectedRow();
-				if (selectedRow >= 0) {
-					Object selection = getTreeObjectForRow(selectedRow);
-					if (selection instanceof StatusReport || selection instanceof WorkflowReport) {
-						StatusReport<?,?> statusReport = (StatusReport<?,?>) selection;
-						selectionModel.addSelection(statusReport.getSubject());
-					}
-				}
-			}
+			if (e.getValueIsAdjusting())
+				return;
+			int selectedRow = getSelectedRow();
+			if (selectedRow < 0)
+				return;
+			Object selection = getTreeObjectForRow(selectedRow);
+			if (selection instanceof StatusReport)
+				selectionModel.addSelection(((StatusReport<?, ?>) selection)
+						.getSubject());
 		}
 	}
-
 }

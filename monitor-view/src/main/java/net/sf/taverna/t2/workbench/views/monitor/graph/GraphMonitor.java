@@ -20,13 +20,16 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.monitor.graph;
 
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.closeIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.tickIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.workingIcon;
+
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
 
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.ui.Updatable;
 import uk.org.taverna.platform.report.ActivityReport;
@@ -36,83 +39,89 @@ import uk.org.taverna.platform.report.WorkflowReport;
 
 /**
  * An implementation of the Updatable interface that updates a Graph.
- *
+ * 
  * @author David Withers
  */
 public class GraphMonitor implements Updatable {
-
 	private static final String STATUS_RUNNING = "Running";
 	private static final String STATUS_FINISHED = "Finished";
 	private static final String STATUS_CANCELLED = "Cancelled";
 
-	// Workflow run status label - we can only tell of workflow is running
-	// or is finished from inside this monitor. If workfow run is stopped or
-	// paused - this will be updated form the run-ui.
+	/**
+	 * Workflow run status label - we can only tell of workflow is running or is
+	 * finished from inside this monitor. If workfow run is stopped or paused -
+	 * this will be updated form the run-ui.
+	 */
 	private JLabel workflowRunStatusLabel;
-	// Similarly to workflowRunStatusLabel - we disable the pause anc cancel buttons
-	// when workflow runs is finished
+	/**
+	 * Similarly to {@link #workflowRunStatusLabel} - we disable the pause anc
+	 * cancel buttons when workflow runs is finished
+	 */
 	private JButton workflowRunPauseButton;
 	private JButton workflowRunCancelButton;
-
 	private GraphController graphController;
-
-	private Set<GraphMonitorNode> processors = new HashSet<GraphMonitorNode>();
-
+	private Set<GraphMonitorNode> processors = new HashSet<>();
 	private final WorkflowReport workflowReport;
 
-	public GraphMonitor(GraphController graphController, WorkflowReport workflowReport) {
+	public GraphMonitor(GraphController graphController,
+			WorkflowReport workflowReport) {
 		this.graphController = graphController;
 		this.workflowReport = workflowReport;
-		createMonitorNodes(workflowReport.getSubject().getName(), workflowReport);
+		createMonitorNodes(workflowReport.getSubject().getName(),
+				workflowReport);
 		redraw();
 	}
 
 	private void createMonitorNodes(String id, WorkflowReport workflowReport) {
-		for (ProcessorReport processorReport : workflowReport.getProcessorReports()) {
+		for (ProcessorReport processorReport : workflowReport
+				.getProcessorReports()) {
 			String processorId = id + processorReport.getSubject().getName();
-			processors.add(new GraphMonitorNode(processorId, processorReport, graphController));
-			for (ActivityReport activityReport : processorReport.getActivityReports()) {
-				WorkflowReport nestedWorkflowReport = activityReport.getNestedWorkflowReport();
-				if (nestedWorkflowReport != null) {
+			processors.add(new GraphMonitorNode(processorId, processorReport,
+					graphController));
+			for (ActivityReport activityReport : processorReport
+					.getActivityReports()) {
+				WorkflowReport nestedWorkflowReport = activityReport
+						.getNestedWorkflowReport();
+				if (nestedWorkflowReport != null)
 					createMonitorNodes(processorId, nestedWorkflowReport);
-				}
 			}
 		}
 	}
 
 	public void redraw() {
-		for (GraphMonitorNode node : processors) {
+		for (GraphMonitorNode node : processors)
 			node.redraw();
-		}
 	}
 
 	@Override
 	public void update() {
-		for (GraphMonitorNode node : processors) {
+		for (GraphMonitorNode node : processors)
 			node.update();
-		}
 		// updateState();
 	}
 
+	@SuppressWarnings("unused")
 	private void updateState() {
 		State state = workflowReport.getState();
 		switch (state) {
 		case COMPLETED:
 		case FAILED:
 			workflowRunStatusLabel.setText(STATUS_FINISHED);
-			workflowRunStatusLabel.setIcon(WorkbenchIcons.tickIcon);
+			workflowRunStatusLabel.setIcon(tickIcon);
 			workflowRunPauseButton.setEnabled(false);
 			workflowRunCancelButton.setEnabled(false);
 			break;
 		case CANCELLED:
 			workflowRunStatusLabel.setText(STATUS_CANCELLED);
-			workflowRunStatusLabel.setIcon(WorkbenchIcons.closeIcon);
+			workflowRunStatusLabel.setIcon(closeIcon);
 			workflowRunPauseButton.setEnabled(false);
 			workflowRunCancelButton.setEnabled(false);
 			break;
 		case RUNNING:
 			workflowRunStatusLabel.setText(STATUS_RUNNING);
-			workflowRunStatusLabel.setIcon(WorkbenchIcons.workingIcon);
+			workflowRunStatusLabel.setIcon(workingIcon);
+		default:
+			break;
 		}
 	}
 
@@ -128,5 +137,4 @@ public class GraphMonitor implements Updatable {
 	public void setWorkflowRunCancelButton(JButton workflowRunCancelButton) {
 		this.workflowRunCancelButton = workflowRunCancelButton;
 	}
-
 }

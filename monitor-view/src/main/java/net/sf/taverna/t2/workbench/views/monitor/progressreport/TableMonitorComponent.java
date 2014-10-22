@@ -39,20 +39,18 @@ import uk.org.taverna.platform.run.api.RunService;
  */
 @SuppressWarnings("serial")
 public class TableMonitorComponent extends JPanel implements Updatable {
-
 	private Map<String, WorkflowRunProgressTreeTable> tableMap = new HashMap<>();
 	private Map<String, WorkflowRunProgressTreeTableModel> tableModelMap = new HashMap<>();
-
 	private WorkflowRunProgressTreeTable table;
 	private WorkflowRunProgressTreeTableModel tableModel;
-
 	private CardLayout cardLayout;
 
 	private final RunService runService;
 	private final SelectionManager selectionManager;
 	private final ActivityIconManager activityIconManager;
 
-	public TableMonitorComponent(RunService runService, SelectionManager selectionManager,
+	public TableMonitorComponent(RunService runService,
+			SelectionManager selectionManager,
 			ActivityIconManager activityIconManager) {
 		this.runService = runService;
 		this.selectionManager = selectionManager;
@@ -60,14 +58,12 @@ public class TableMonitorComponent extends JPanel implements Updatable {
 
 		cardLayout = new CardLayout();
 		setLayout(cardLayout);
-
 	}
 
 	public void setWorkflowRun(String workflowRun) throws InvalidRunIdException {
 		if (workflowRun != null) {
-			if (!tableMap.containsKey(workflowRun)) {
+			if (!tableMap.containsKey(workflowRun))
 				addWorkflowRun(workflowRun);
-			}
 			table = tableMap.get(workflowRun);
 			tableModel = tableModelMap.get(workflowRun);
 			cardLayout.show(this, String.valueOf(table.hashCode()));
@@ -75,11 +71,13 @@ public class TableMonitorComponent extends JPanel implements Updatable {
 	}
 
 	public void addWorkflowRun(String workflowRun) throws InvalidRunIdException {
-		WorkflowReport workflowReport = runService.getWorkflowReport(workflowRun);
+		WorkflowReport workflowReport = runService
+				.getWorkflowReport(workflowRun);
 		WorkflowRunProgressTreeTableModel newTableModel = new WorkflowRunProgressTreeTableModel(
 				workflowReport);
-		WorkflowRunProgressTreeTable newTable = new WorkflowRunProgressTreeTable(newTableModel,
-				activityIconManager, selectionManager.getWorkflowRunSelectionModel(workflowRun));
+		WorkflowRunProgressTreeTable newTable = new WorkflowRunProgressTreeTable(
+				newTableModel, activityIconManager,
+				selectionManager.getWorkflowRunSelectionModel(workflowRun));
 
 		add(new JScrollPane(newTable), String.valueOf(newTable.hashCode()));
 		tableMap.put(workflowRun, newTable);
@@ -87,18 +85,16 @@ public class TableMonitorComponent extends JPanel implements Updatable {
 	}
 
 	public void removeWorkflowRun(String workflowRun) {
-		WorkflowRunProgressTreeTable removedTable = tableMap.remove(workflowRun);
-		if (removedTable != null) {
+		WorkflowRunProgressTreeTable removedTable = tableMap
+				.remove(workflowRun);
+		if (removedTable != null)
 			remove(removedTable);
-		}
 		tableModelMap.remove(workflowRun);
 	}
 
 	@Override
 	public void update() {
-		if (tableModel != null) {
+		if (tableModel != null)
 			tableModel.update();
-		}
 	}
-
 }

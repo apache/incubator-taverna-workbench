@@ -20,13 +20,18 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.monitor.graph;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.NORTH;
+import static javax.swing.Action.SHORT_DESCRIPTION;
+import static javax.swing.Action.SMALL_ICON;
+import static javax.swing.BoxLayout.PAGE_AXIS;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.refreshIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.zoomInIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.zoomOutIcon;
+import static org.apache.batik.swing.svg.AbstractJSVGComponent.ALWAYS_DYNAMIC;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,7 +46,6 @@ import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphEventManager;
 import net.sf.taverna.t2.workbench.models.graph.svg.SVGGraphController;
@@ -67,12 +71,12 @@ import uk.org.taverna.scufl2.api.port.WorkflowPort;
 import uk.org.taverna.scufl2.api.profiles.Profile;
 
 /**
- * Use to display the graph for fresh workflow runs and allow the user to
- * click on processors to see the intermediate results for processors pulled from provenance.
+ * Use to display the graph for fresh workflow runs and allow the user to click
+ * on processors to see the intermediate results for processors pulled from
+ * provenance.
  */
 @SuppressWarnings("serial")
 public class MonitorGraphComponent extends JPanel implements Updatable {
-
 	private static Logger logger = Logger.getLogger(MonitorGraphComponent.class);
 
 	private SVGGraphController graphController;
@@ -84,10 +88,10 @@ public class MonitorGraphComponent extends JPanel implements Updatable {
 	private Map<String, JPanel> diagramPanelMap = new HashMap<>();
 	private Map<String, Action[]> diagramActionsMap = new HashMap<>();
 
+	@SuppressWarnings("unused")
 	private Timer timer;
-
 	private CardLayout cardLayout;
-
+	@SuppressWarnings("unused")
 	private JLabel statusLabel;
 
 	private final RunService runService;
@@ -130,16 +134,14 @@ public class MonitorGraphComponent extends JPanel implements Updatable {
 
 	@Override
 	protected void finalize() throws Throwable {
-		if (graphController != null) {
+		if (graphController != null)
 			graphController.shutdown();
-		}
 	}
 
 	@Override
 	public void update() {
-		if (graphMonitor != null) {
+		if (graphMonitor != null)
 			graphMonitor.update();
-		}
 	}
 
 	private JPanel createDiagramPanel(String workflowRun) {
@@ -159,7 +161,7 @@ public class MonitorGraphComponent extends JPanel implements Updatable {
 			final JSVGCanvas svgCanvas = new JSVGCanvas(null, true, false);
 			svgCanvas.setEnableZoomInteractor(false);
 			svgCanvas.setEnableRotateInteractor(false);
-			svgCanvas.setDocumentState(JSVGCanvas.ALWAYS_DYNAMIC);
+			svgCanvas.setDocumentState(ALWAYS_DYNAMIC);
 
 			AutoScrollInteractor asi = new AutoScrollInteractor(svgCanvas);
 			svgCanvas.addMouseListener(asi);
@@ -168,6 +170,7 @@ public class MonitorGraphComponent extends JPanel implements Updatable {
 			final JSVGScrollPane svgScrollPane = new MySvgScrollPane(svgCanvas);
 
 			GVTTreeRendererAdapter gvtTreeRendererAdapter = new GVTTreeRendererAdapter() {
+				@Override
 				public void gvtRenderingCompleted(GVTTreeRendererEvent e) {
 					logger.info("Rendered svg");
 //					svgScrollPane.reset();
@@ -177,40 +180,43 @@ public class MonitorGraphComponent extends JPanel implements Updatable {
 			svgCanvas.addGVTTreeRendererListener(gvtTreeRendererAdapter);
 
 			// create a graph controller
-			SVGGraphController svgGraphController = new SVGGraphController(workflow, profile, true,
-					svgCanvas, null, null, colourManager, workbenchConfiguration);
+			SVGGraphController svgGraphController = new SVGGraphController(
+					workflow, profile, true, svgCanvas, null, null,
+					colourManager, workbenchConfiguration);
 			DataflowSelectionModel selectionModel = selectionManager
 					.getWorkflowRunSelectionModel(workflowRun);
 			svgGraphController.setDataflowSelectionModel(selectionModel);
-			svgGraphController.setGraphEventManager(new MonitorGraphEventManager(selectionModel));
+			svgGraphController
+					.setGraphEventManager(new MonitorGraphEventManager(
+							selectionModel));
 
 			graphControllerMap.put(workflowRun, svgGraphController);
 
 			// Toolbar with actions related to graph
 			JToolBar graphActionsToolbar = graphActionsToolbar(workflowRun, svgCanvas);
-			graphActionsToolbar.setAlignmentX(Component.LEFT_ALIGNMENT);
+			graphActionsToolbar.setAlignmentX(LEFT_ALIGNMENT);
 			graphActionsToolbar.setFloatable(false);
 
 			// Panel to hold the toolbars
 			JPanel toolbarPanel = new JPanel();
-			toolbarPanel.setLayout(new BoxLayout(toolbarPanel, BoxLayout.PAGE_AXIS));
+			toolbarPanel.setLayout(new BoxLayout(toolbarPanel, PAGE_AXIS));
 			toolbarPanel.add(graphActionsToolbar);
 
-			diagramPanel.add(toolbarPanel, BorderLayout.NORTH);
-			diagramPanel.add(svgScrollPane, BorderLayout.CENTER);
+			diagramPanel.add(toolbarPanel, NORTH);
+			diagramPanel.add(svgScrollPane, CENTER);
 
 			// JTextField workflowHierarchy = new JTextField(workflow.getName());
 			// diagramPanel.add(workflowHierarchy, BorderLayout.SOUTH);
 		} catch (InvalidRunIdException e) {
 			diagramPanel.add(new JLabel("Workflow run ID invalid", JLabel.CENTER),
-					BorderLayout.CENTER);
+					CENTER);
 		}
 		return diagramPanel;
 	}
 
 	protected JToolBar graphActionsToolbar(String workflowRun, JSVGCanvas svgCanvas) {
 		JToolBar toolBar = new JToolBar();
-		toolBar.setAlignmentX(Component.LEFT_ALIGNMENT);
+		toolBar.setAlignmentX(LEFT_ALIGNMENT);
 		toolBar.setFloatable(false);
 
 		JButton resetDiagramButton = new JButton();
@@ -222,20 +228,20 @@ public class MonitorGraphComponent extends JPanel implements Updatable {
 
 		Action resetDiagramAction = svgCanvas.new ResetTransformAction();
 		ResetDiagramAction.setResultsAction(resetDiagramAction);
-		resetDiagramAction.putValue(Action.SHORT_DESCRIPTION, "Reset Diagram");
-		resetDiagramAction.putValue(Action.SMALL_ICON, WorkbenchIcons.refreshIcon);
+		resetDiagramAction.putValue(SHORT_DESCRIPTION, "Reset Diagram");
+		resetDiagramAction.putValue(SMALL_ICON, refreshIcon);
 		resetDiagramButton.setAction(resetDiagramAction);
 
 		Action zoomInAction = svgCanvas.new ZoomAction(1.2);
 		ZoomInAction.setResultsAction(zoomInAction);
-		zoomInAction.putValue(Action.SHORT_DESCRIPTION, "Zoom In");
-		zoomInAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomInIcon);
+		zoomInAction.putValue(SHORT_DESCRIPTION, "Zoom In");
+		zoomInAction.putValue(SMALL_ICON, zoomInIcon);
 		zoomInButton.setAction(zoomInAction);
 
 		Action zoomOutAction = svgCanvas.new ZoomAction(1 / 1.2);
 		ZoomOutAction.setResultsAction(zoomOutAction);
-		zoomOutAction.putValue(Action.SHORT_DESCRIPTION, "Zoom Out");
-		zoomOutAction.putValue(Action.SMALL_ICON, WorkbenchIcons.zoomOutIcon);
+		zoomOutAction.putValue(SHORT_DESCRIPTION, "Zoom Out");
+		zoomOutAction.putValue(SMALL_ICON, zoomOutIcon);
 		zoomOutButton.setAction(zoomOutAction);
 
 		// diagramActionsMap.put(workflowRun, new Action[] { resetDiagramAction, zoomInAction,
@@ -271,9 +277,8 @@ public class MonitorGraphComponent extends JPanel implements Updatable {
 
 	public void setWorkflowRun(String workflowRun) throws InvalidRunIdException {
 		if (workflowRun != null) {
-			if (!diagramPanelMap.containsKey(workflowRun)) {
+			if (!diagramPanelMap.containsKey(workflowRun))
 				addWorkflowRun(workflowRun);
-			}
 			graphController = graphControllerMap.get(workflowRun);
 			diagramPanel = diagramPanelMap.get(workflowRun);
 			graphMonitor = graphMonitorMap.get(workflowRun);
@@ -292,61 +297,69 @@ public class MonitorGraphComponent extends JPanel implements Updatable {
 		JPanel newDiagramPanel = createDiagramPanel(workflowRun);
 		add(newDiagramPanel, String.valueOf(newDiagramPanel.hashCode()));
 		diagramPanelMap.put(workflowRun, newDiagramPanel);
-		graphMonitorMap.put(workflowRun, new GraphMonitor(graphControllerMap.get(workflowRun),
-				runService.getWorkflowReport(workflowRun)));
+		graphMonitorMap.put(workflowRun,
+				new GraphMonitor(graphControllerMap.get(workflowRun),
+						runService.getWorkflowReport(workflowRun)));
 	}
 
 	public void removeWorkflowRun(String workflowRun) {
 		JPanel removedDiagramPanel = diagramPanelMap.remove(workflowRun);
-		if (removedDiagramPanel != null) {
+		if (removedDiagramPanel != null)
 			remove(removedDiagramPanel);
-		}
-		SVGGraphController removedController = graphControllerMap.remove(workflowRun);
-		if (removedController != null) {
+		SVGGraphController removedController = graphControllerMap
+				.remove(workflowRun);
+		if (removedController != null)
 			removedController.shutdown();
-		}
 		graphMonitorMap.remove(workflowRun);
 		diagramActionsMap.remove(workflowRun);
 	}
 
 	private class MonitorGraphEventManager implements GraphEventManager {
-
 		private final DataflowSelectionModel selectionModel;
 
 		public MonitorGraphEventManager(DataflowSelectionModel selectionModel) {
 			this.selectionModel = selectionModel;
 		}
 
-		public void mouseClicked(final GraphElement graphElement, short button, boolean altKey,
-				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
-
+		@Override
+		public void mouseClicked(final GraphElement graphElement, short button,
+				boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
+				int screenX, int screenY) {
 			Object workflowObject = graphElement.getWorkflowBean();
-			if (workflowObject instanceof Processor || workflowObject instanceof WorkflowPort) {
+			if (workflowObject instanceof Processor
+					|| workflowObject instanceof WorkflowPort)
 				selectionModel.addSelection(workflowObject);
-			}
-
 		}
 
-		public void mouseDown(GraphElement graphElement, short button, boolean altKey,
-				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
+		@Override
+		public void mouseDown(GraphElement graphElement, short button,
+				boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
+				int screenX, int screenY) {
 		}
 
-		public void mouseMoved(GraphElement graphElement, short button, boolean altKey,
-				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
+		@Override
+		public void mouseMoved(GraphElement graphElement, short button,
+				boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
+				int screenX, int screenY) {
 		}
 
-		public void mouseUp(GraphElement graphElement, short button, boolean altKey,
-				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
+		@Override
+		public void mouseUp(GraphElement graphElement, short button,
+				boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
+				int screenX, int screenY) {
 		}
 
-		public void mouseOut(GraphElement graphElement, short button, boolean altKey,
-				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
+		@Override
+		public void mouseOut(GraphElement graphElement, short button,
+				boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
+				int screenX, int screenY) {
 		}
 
-		public void mouseOver(GraphElement graphElement, short button, boolean altKey,
-				boolean ctrlKey, boolean metaKey, int x, int y, int screenX, int screenY) {
+		@Override
+		public void mouseOver(GraphElement graphElement, short button,
+				boolean altKey, boolean ctrlKey, boolean metaKey, int x, int y,
+				int screenX, int screenY) {
 		}
-
 	}
 
 	private class MySvgScrollPane extends JSVGScrollPane {
@@ -356,10 +369,10 @@ public class MonitorGraphComponent extends JPanel implements Updatable {
 			super(canvas);
 		}
 
+		@Override
 		public void reset() {
 			super.resizeScrollBars();
 			super.reset();
 		}
 	}
-
 }

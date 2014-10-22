@@ -20,10 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.monitor.progressreport;
 
+import static java.util.Collections.nCopies;
+import static net.sf.taverna.t2.workbench.views.monitor.progressreport.WorkflowRunProgressTreeTableModel.Column.values;
 import static net.sf.taverna.t2.workbench.views.results.processor.ProcessorResultsComponent.formatMilliseconds;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -44,18 +45,16 @@ import uk.org.taverna.platform.report.StatusReport;
 import uk.org.taverna.platform.report.WorkflowReport;
 
 /**
- * A TreeTableModel used to display the progress of a workfow run.
- * Workflow and its processors (some of which may be nested)
- * are represented as a tree, where their properties, such
- * as status, start and finish times, number of iterations, etc.
- * are represented as table columns.
- *
+ * A TreeTableModel used to display the progress of a workfow run. The workflow
+ * and its processors (some of which may be nested) are represented as a tree,
+ * where their properties, such as status, start and finish times, number of
+ * iterations, etc. are represented as table columns.
+ * 
  * @author Alex Nenadic
  * @author Stian Soiland-Reyes
  * @author David Withers
  */
 public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
-
 	public static final String NAME = "Name";
 	public static final String STATUS = "Status";
 	public static final String AVERAGE_ITERATION_TIME = "Average time per iteration";
@@ -64,10 +63,11 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 	public static final String ITERATIONS_FAILED = "Iterations with errors";
 
 	public enum Column {
-
-		NAME("Name", TreeTableModel.class), STATUS("Status"), ITERATIONS_QUEUED("Queued iterations"), ITERATIONS_DONE(
-				"Iterations done"), ITERATIONS_FAILED("Iterations w/errors"), AVERAGE_ITERATION_TIME(
-				"Average time/iteration"), START_TIME("First iteration started", Date.class), FINISH_TIME(
+		NAME("Name", TreeTableModel.class), STATUS("Status"), ITERATIONS_QUEUED(
+				"Queued iterations"), ITERATIONS_DONE("Iterations done"), ITERATIONS_FAILED(
+				"Iterations w/errors"), AVERAGE_ITERATION_TIME(
+				"Average time/iteration"), START_TIME(
+				"First iteration started", Date.class), FINISH_TIME(
 				"Last iteration ended", Date.class);
 
 		private final String label;
@@ -97,10 +97,9 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 	}
 
 	// Table data (maps workflow element nodes to column data associated with them)
-	private Map<DefaultMutableTreeNode, List<Object>> data = new HashMap<DefaultMutableTreeNode, List<Object>>();
-	private Map<Object, DefaultMutableTreeNode> nodeForObject = new HashMap<Object, DefaultMutableTreeNode>();
-
-	private DefaultMutableTreeNode rootNode;
+	private final Map<DefaultMutableTreeNode, List<Object>> data = new HashMap<>();
+	private final Map<Object, DefaultMutableTreeNode> nodeForObject = new HashMap<>();
+	private final DefaultMutableTreeNode rootNode;
 
 	public WorkflowRunProgressTreeTableModel(WorkflowReport workflowReport) {
 		super(new DefaultMutableTreeNode(workflowReport));
@@ -111,7 +110,8 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 	private void createTree(WorkflowReport workflowReport, DefaultMutableTreeNode root) {
 		// If this is the root of the tree rather than a root of the nested sub-tree
 		if (root.equals(rootNode)) {
-			List<Object> columnData = new ArrayList<Object>(Collections.nCopies(Column.values().length, null));
+			List<Object> columnData = new ArrayList<>(nCopies(values().length,
+					null));
 			setColumnValues(workflowReport, columnData);
 			nodeForObject.put(workflowReport, root);
 			nodeForObject.put(workflowReport.getSubject(), root);
@@ -119,8 +119,10 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 		}
 		// One row for each processor
 		for (ProcessorReport processorReport : workflowReport.getProcessorReports()) {
-			List<Object> columnData = new ArrayList<Object>(Collections.nCopies(Column.values().length, null));
-			DefaultMutableTreeNode processorNode = new DefaultMutableTreeNode(processorReport);
+			List<Object> columnData = new ArrayList<>(nCopies(values().length,
+					null));
+			DefaultMutableTreeNode processorNode = new DefaultMutableTreeNode(
+					processorReport);
 			setColumnValues(processorReport, columnData);
 			nodeForObject.put(processorReport, processorNode);
 			nodeForObject.put(processorReport.getSubject(), processorNode);
@@ -131,10 +133,9 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 			if (activityReports.size() == 1) {
 				WorkflowReport nestedWorkflowReport = activityReports.iterator().next()
 						.getNestedWorkflowReport();
-				if (nestedWorkflowReport != null) {
+				if (nestedWorkflowReport != null)
 					// create sub-tree
 					createTree(nestedWorkflowReport, processorNode);
-				}
 			}
 		}
 	}
@@ -158,23 +159,25 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 			columns.set(Column.ITERATIONS_QUEUED.ordinal(), "-");
 			columns.set(Column.START_TIME.ordinal(), startTime);
 			columns.set(Column.FINISH_TIME.ordinal(), finishTime);
-			if (startTime != null && finishTime != null) {
+			if (startTime != null && finishTime != null)
 				columns.set(Column.AVERAGE_ITERATION_TIME.ordinal(),
 						formatMilliseconds(finishTime.getTime() - finishTime.getTime()));
-			} else {
+			else
 				columns.set(Column.AVERAGE_ITERATION_TIME.ordinal(), "-");
-			}
-
 		} else if (report instanceof ProcessorReport) {
 			ProcessorReport processorReport = (ProcessorReport) report;
 
 			State state = processorReport.getState();
-			SortedSet<Invocation> invocations = processorReport.getInvocations();
+			SortedSet<Invocation> invocations = processorReport
+					.getInvocations();
 
-			columns.set(Column.NAME.ordinal(), processorReport.getSubject().getName());
+			columns.set(Column.NAME.ordinal(), processorReport.getSubject()
+					.getName());
 			columns.set(Column.STATUS.ordinal(), state);
-			columns.set(Column.ITERATIONS_QUEUED.ordinal(), processorReport.getJobsQueued());
-			columns.set(Column.ITERATIONS_DONE.ordinal(), processorReport.getJobsCompleted());
+			columns.set(Column.ITERATIONS_QUEUED.ordinal(),
+					processorReport.getJobsQueued());
+			columns.set(Column.ITERATIONS_DONE.ordinal(),
+					processorReport.getJobsCompleted());
 			columns.set(Column.ITERATIONS_FAILED.ordinal(),
 					processorReport.getJobsCompletedWithErrors());
 
@@ -192,9 +195,8 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 					// Get the earliest start time of all invocations
 					Date startTime = invocation.getStartedDate();
 					if (startTime != null) {
-						if (startTime.before(earliestStartTime)) {
+						if (startTime.before(earliestStartTime))
 							earliestStartTime = startTime;
-						}
 						// Get the latest finish time of all invocations
 						Date finishTime = invocation.getCompletedDate();
 						if (finishTime != null) {
@@ -213,11 +215,9 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 					long averageTime = totalInvocationTime / finishedInvocations;
 					columns.set(Column.AVERAGE_ITERATION_TIME.ordinal(),
 							formatMilliseconds(averageTime));
-				} else {
+				} else
 					columns.set(Column.AVERAGE_ITERATION_TIME.ordinal(), "-");
-				}
 			}
-
 		}
 	}
 
@@ -228,19 +228,20 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 
 	private void update(DefaultMutableTreeNode node) {
 		setColumnValues((StatusReport<?, ?>) node.getUserObject(), data.get(node));
-		for (int i = 0; i < node.getChildCount(); i++) {
+		for (int i = 0; i < node.getChildCount(); i++)
 			update((DefaultMutableTreeNode) node.getChildAt(i));
-		}
 	}
 
 	//
 	// The TreeModel interface
 	//
 
+	@Override
 	public int getChildCount(Object node) {
 		return ((TreeNode) node).getChildCount();
 	}
 
+	@Override
 	public Object getChild(Object node, int i) {
 		return ((TreeNode) node).getChildAt(i);
 	}
@@ -249,29 +250,30 @@ public class WorkflowRunProgressTreeTableModel extends AbstractTreeTableModel {
 	// The TreeTableNode interface.
 	//
 
+	@Override
 	public int getColumnCount() {
-		return Column.values().length;
+		return values().length;
 	}
 
+	@Override
 	public String getColumnName(int column) {
-		return Column.values()[column].getLabel();
+		return values()[column].getLabel();
 	}
 
+	@Override
 	public Class<?> getColumnClass(int column) {
-		return Column.values()[column].getColumnClass();
+		return values()[column].getColumnClass();
 	}
 
 	public Object getValueAt(Object node, Column column) {
 		return getValueAt(node, column.ordinal());
 	}
 
+	@Override
 	public Object getValueAt(Object node, int column) {
 		List<Object> columnValues = data.get(node);
-		if (columnValues != null) {
-			return columnValues.get(column);
-		} else {
+		if (columnValues == null)
 			return null;
-		}
+		return columnValues.get(column);
 	}
-
 }

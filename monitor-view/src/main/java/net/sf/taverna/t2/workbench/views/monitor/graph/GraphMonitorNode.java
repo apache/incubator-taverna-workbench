@@ -20,29 +20,23 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.monitor.graph;
 
+import static java.lang.Math.max;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import uk.org.taverna.platform.report.ProcessorReport;
 
 /**
- * A <code>MonitorNode</code> that updates a <code>Graph</code> when <code>ProcessorReport</code>
- * property changes.
- *
+ * A <code>MonitorNode</code> that updates a <code>Graph</code> when
+ * <code>ProcessorReport</code> property changes.
+ * 
  * @author David Withers
  */
 public class GraphMonitorNode {
-
 	private ProcessorReport processorReport;
-
 	private GraphController graphController;
-
 	private String processorId;
-
 	private int queueSize = 0;
-
 	private int sentJobs = 0;
-
 	private int completedJobs = 0;
-
 	private int errors = 0;
 
 	public GraphMonitorNode(String id, ProcessorReport processorReport,
@@ -87,43 +81,35 @@ public class GraphMonitorNode {
 				errorsChanged = true;
 			}
 
-			if (queueSizeChanged || sentJobsChanged || completedJobsChanged || errorsChanged) {
-				if (completedJobsChanged) {
+			if (queueSizeChanged || sentJobsChanged || completedJobsChanged
+					|| errorsChanged) {
+				if (completedJobsChanged)
 					graphController.setIteration(processorId, completedJobs);
-				}
-				if (completedJobs > 0) {
-					int totalJobs = sentJobs + queueSize;
-					graphController.setNodeCompleted(processorId, ((float) (completedJobs))
-							/ (float) totalJobs);
-				}
+				if (completedJobs > 0)
+					graphController.setNodeCompleted(processorId,
+							(completedJobs / (float) (sentJobs + queueSize)));
 				if (sentJobsChanged) {
 					// graphController.setEdgeActive(processorId, true);
 				}
-				if (errorsChanged && errors > 0) {
+				if (errorsChanged && errors > 0)
 					graphController.setErrors(processorId, errors);
-				}
 			}
-
 		}
 	}
 
 	public void redraw() {
 		synchronized (graphController) {
-			queueSize = Math.max(processorReport.getJobsQueued(), 0);
+			queueSize = max(processorReport.getJobsQueued(), 0);
 			sentJobs = processorReport.getJobsStarted();
 			completedJobs = processorReport.getJobsCompleted();
 			errors = processorReport.getJobsCompletedWithErrors();
 
 			graphController.setIteration(processorId, completedJobs);
-			if (completedJobs > 0) {
-				int totalJobs = sentJobs + queueSize;
-				graphController.setNodeCompleted(processorId, ((float) (completedJobs))
-						/ (float) totalJobs);
-			}
-			if (errors > 0) {
+			if (completedJobs > 0)
+				graphController.setNodeCompleted(processorId,
+						(completedJobs / (float) (sentJobs + queueSize)));
+			if (errors > 0)
 				graphController.setErrors(processorId, errors);
-			}
 		}
 	}
-
 }
