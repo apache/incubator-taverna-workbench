@@ -21,14 +21,10 @@
 package net.sf.taverna.t2.workbench.configuration.workbench.ui;
 
 /**
- *
- *
  * @author David Withers
  */
 public interface T2ConfigurationFrame {
+	void showFrame();
 
-	public void showFrame();
-
-	public void showConfiguration(String name);
-
+	void showConfiguration(String name);
 }

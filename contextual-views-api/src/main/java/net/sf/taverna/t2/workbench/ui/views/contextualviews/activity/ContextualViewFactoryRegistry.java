@@ -39,5 +39,5 @@ public interface ContextualViewFactoryRegistry {
 	 * @return
 	 * @see ContextualViewFactory#canHandle(Object)
 	 */
-	public List<ContextualViewFactory<?>> getViewFactoriesForObject(Object object);
+	public <T> List<ContextualViewFactory<? super T>> getViewFactoriesForObject(T object);
 }

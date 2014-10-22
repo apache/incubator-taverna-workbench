@@ -23,26 +23,22 @@ package net.sf.taverna.t2.workbench.configuration.workbench;
 import uk.org.taverna.configuration.Configurable;
 
 /**
- *
- *
  * @author David Withers
  */
 public interface WorkbenchConfiguration extends Configurable {
+	boolean getCaptureConsole();
 
-	public boolean getCaptureConsole();
+	void setCaptureConsole(boolean captureConsole);
 
-	public void setCaptureConsole(boolean captureConsole);
+	boolean getWarnInternalErrors();
 
-	public boolean getWarnInternalErrors();
+	void setWarnInternalErrors(boolean warnInternalErrors);
 
-	public void setWarnInternalErrors(boolean warnInternalErrors);
+	int getMaxMenuItems();
 
-	public int getMaxMenuItems();
+	void setMaxMenuItems(int maxMenuItems);
 
-	public void setMaxMenuItems(int maxMenuItems);
+	String getDotLocation();
 
-	public String getDotLocation();
-
-	public void setDotLocation(String dotLocation);
-
+	void setDotLocation(String dotLocation);
 }

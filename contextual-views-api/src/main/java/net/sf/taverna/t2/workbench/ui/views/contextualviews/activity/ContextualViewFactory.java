@@ -44,7 +44,6 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
  * @see ContextualViewFactoryRegistry
  */
 public interface ContextualViewFactory<SelectionType> {
-
 	/**
 	 * @param selection
 	 *            - the object for which ContextualViews needs to be generated
@@ -61,5 +60,4 @@ public interface ContextualViewFactory<SelectionType> {
 	 * @see ContextualViewFactoryRegistry
 	 */
 	public boolean canHandle(Object selection);
-
 }

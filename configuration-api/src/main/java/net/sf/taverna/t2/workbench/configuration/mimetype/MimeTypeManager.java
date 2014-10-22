@@ -25,15 +25,18 @@ import java.util.Map;
 import uk.org.taverna.configuration.Configurable;
 
 public interface MimeTypeManager extends Configurable {
+	@Override
+	String getCategory();
 
-	public String getCategory();
+	@Override
+	Map<String, String> getDefaultPropertyMap();
 
-	public Map<String, String> getDefaultPropertyMap();
+	@Override
+	String getUUID();
 
-	public String getUUID();
+	@Override
+	String getDisplayName();
 
-	public String getDisplayName();
-
-	public String getFilePrefix();
-
+	@Override
+	String getFilePrefix();
 }

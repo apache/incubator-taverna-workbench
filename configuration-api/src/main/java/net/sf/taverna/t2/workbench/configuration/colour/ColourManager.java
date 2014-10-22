@@ -25,20 +25,17 @@ import java.awt.Color;
 import uk.org.taverna.configuration.Configurable;
 
 /**
- *
- *
  * @author David Withers
  */
 public interface ColourManager extends Configurable {
-
 	/**
-	 * Builds a Color that has been configured and associated with the given String (usually an object type).
-	 *
-	 * @return the associated Color, or if nothing is associated returns WHITE
-	 *
+	 * Builds a Color that has been configured and associated with the given
+	 * String (usually an object type).
+	 * 
+	 * @return the associated Color, or if nothing is associated returns
+	 *         {@link Color#WHITE}.
 	 */
-	public Color getPreferredColour(String itemKey);
+	Color getPreferredColour(String itemKey);
 
-	public void setPreferredColour(String itemKey, Color colour);
-
+	void setPreferredColour(String itemKey, Color colour);
 }
