@@ -20,6 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.design;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.NORTH;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 
@@ -37,13 +40,13 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
  * @author David Withers
  */
 public class DesignPerspectiveComponent extends JSplitPane {
-
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 6199239532713982318L;
 
 	private final UIComponentFactorySPI graphViewComponentFactory;
 	private final UIComponentFactorySPI servicePanelComponentFactory;
 	private final UIComponentFactorySPI contextualViewComponentFactory;
 	private final UIComponentFactorySPI workflowExplorerFactory;
+	@SuppressWarnings("unused")
 	private final UIComponentFactorySPI reportViewComponentFactory;
 	private final SelectionManager selectionManager;
 
@@ -51,12 +54,14 @@ public class DesignPerspectiveComponent extends JSplitPane {
 	private final MenuManager menuManager;
 	private final EditManager editManager;
 
-	public DesignPerspectiveComponent(UIComponentFactorySPI graphViewComponentFactory,
+	public DesignPerspectiveComponent(
+			UIComponentFactorySPI graphViewComponentFactory,
 			UIComponentFactorySPI servicePanelComponentFactory,
 			UIComponentFactorySPI contextualViewComponentFactory,
 			UIComponentFactorySPI workflowExplorerFactory,
-			UIComponentFactorySPI reportViewComponentFactory, FileManager fileManager,
-			SelectionManager selectionManager, MenuManager menuManager, EditManager editManager) {
+			UIComponentFactorySPI reportViewComponentFactory,
+			FileManager fileManager, SelectionManager selectionManager,
+			MenuManager menuManager, EditManager editManager) {
 		this.graphViewComponentFactory = graphViewComponentFactory;
 		this.servicePanelComponentFactory = servicePanelComponentFactory;
 		this.contextualViewComponentFactory = contextualViewComponentFactory;
@@ -68,23 +73,25 @@ public class DesignPerspectiveComponent extends JSplitPane {
 		this.editManager = editManager;
 
 		setBorder(null);
-		setOrientation(JSplitPane.HORIZONTAL_SPLIT);
+		setOrientation(HORIZONTAL_SPLIT);
 		setDividerLocation(300);
 		setLeftComponent(createLeftComponent());
 		setRightComponent(createRightComponent());
 	}
 
 	private Component createLeftComponent() {
-		JSplitPane leftComponent = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		JSplitPane leftComponent = new JSplitPane(VERTICAL_SPLIT);
 		leftComponent.setBorder(null);
 		leftComponent.setDividerLocation(400);
 
-		leftComponent.setLeftComponent((Component) servicePanelComponentFactory.getComponent());
+		leftComponent.setLeftComponent((Component) servicePanelComponentFactory
+				.getComponent());
 
 		JTabbedPane rightComponent = new JTabbedPane();
 		rightComponent.addTab("Workflow explorer",
 				(Component) workflowExplorerFactory.getComponent());
-		rightComponent.addTab("Details", (Component) contextualViewComponentFactory.getComponent());
+		rightComponent.addTab("Details",
+				(Component) contextualViewComponentFactory.getComponent());
 		// rightComponent.addTab("Validation report", (Component)
 		// reportViewComponentFactory.getComponent());
 		leftComponent.setRightComponent(rightComponent);
@@ -94,15 +101,15 @@ public class DesignPerspectiveComponent extends JSplitPane {
 
 	private Component createRightComponent() {
 		JPanel diagramComponent = new JPanel(new BorderLayout());
-		diagramComponent.add(new WorkflowSelectorComponent(selectionManager), BorderLayout.NORTH);
-		diagramComponent.add((Component) graphViewComponentFactory.getComponent(),
-				BorderLayout.CENTER);
+		diagramComponent.add(new WorkflowSelectorComponent(selectionManager),
+				NORTH);
+		diagramComponent.add(
+				(Component) graphViewComponentFactory.getComponent(), CENTER);
 
 		JPanel rightComonent = new JPanel(new BorderLayout());
-		rightComonent.add(new WorkflowBundleSelectorComponent(selectionManager, fileManager,
-				menuManager, editManager), BorderLayout.NORTH);
-		rightComonent.add(diagramComponent, BorderLayout.CENTER);
+		rightComonent.add(new WorkflowBundleSelectorComponent(selectionManager,
+				fileManager, menuManager, editManager), NORTH);
+		rightComonent.add(diagramComponent, CENTER);
 		return rightComonent;
 	}
-
 }

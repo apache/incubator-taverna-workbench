@@ -44,9 +44,9 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
  *
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class WorkflowTab extends Tab<WorkflowBundle> {
-
-	private static final long serialVersionUID = 1L;
+	private static final String SAVED_MARKER = "*";
 
 	private final Component component;
 	private final SelectionManager selectionManager;
@@ -73,37 +73,41 @@ public class WorkflowTab extends Tab<WorkflowBundle> {
 		fileManager.addObserver(fileManagerObserver);
 	}
 
+	@Override
 	protected void clickTabAction() {
 		selectionManager.setSelectedWorkflowBundle(selection);
 	}
 
+	@Override
 	protected void closeTabAction() {
 		if (!saved && closeMenuAction != null) {
 			selectionManager.setSelectedWorkflowBundle(selection);
 			closeMenuAction.actionPerformed(new ActionEvent(component, 0, ""));
-		} else {
+		} else
 			try {
 				fileManager.closeDataflow(selection, false);
 			} catch (UnsavedException e) {
 			}
-		}
 	}
 
-	private class EditManagerObserver extends SwingAwareObserver<EditManagerEvent> {
+	private class EditManagerObserver extends
+			SwingAwareObserver<EditManagerEvent> {
 		@Override
 		public void notifySwing(Observable<EditManagerEvent> sender,
 				EditManagerEvent message) {
 			if (message instanceof AbstractDataflowEditEvent) {
 				AbstractDataflowEditEvent event = (AbstractDataflowEditEvent) message;
-				if (event.getDataFlow() == selection) {
+				if (event.getDataFlow() == selection)
 					setSaved(false);
-				}
 			}
 		}
 	}
 
-	private class FileManagerObserver extends SwingAwareObserver<FileManagerEvent> {
-		public void notifySwing(Observable<FileManagerEvent> sender, FileManagerEvent message) {
+	private class FileManagerObserver extends
+			SwingAwareObserver<FileManagerEvent> {
+		@Override
+		public void notifySwing(Observable<FileManagerEvent> sender,
+				FileManagerEvent message) {
 			if (message instanceof ClosedDataflowEvent) {
 				ClosedDataflowEvent event = (ClosedDataflowEvent) message;
 				if (event.getDataflow() == selection) {
@@ -112,9 +116,8 @@ public class WorkflowTab extends Tab<WorkflowBundle> {
 				}
 			} else if (message instanceof SavedDataflowEvent) {
 				SavedDataflowEvent event = (SavedDataflowEvent) message;
-				if (event.getDataflow() == selection) {
+				if (event.getDataflow() == selection)
 					setSaved(true);
-				}
 			}
 		}
 	}
@@ -122,11 +125,9 @@ public class WorkflowTab extends Tab<WorkflowBundle> {
 	public void setSaved(boolean saved) {
 		this.saved = saved;
 		String name = getName();
-		if (saved && name.startsWith("*")) {
-			setName(name.substring(1));
-		} else if (!saved && !name.startsWith("*")) {
-			setName("*" + name);
-		}
+		if (saved && name.startsWith(SAVED_MARKER))
+			setName(name.substring(SAVED_MARKER.length()));
+		else if (!saved && !name.startsWith(SAVED_MARKER))
+			setName(SAVED_MARKER + name);
 	}
-
 }

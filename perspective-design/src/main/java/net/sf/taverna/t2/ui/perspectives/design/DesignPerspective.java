@@ -20,21 +20,20 @@
  ******************************************************************************/
 package net.sf.taverna.t2.ui.perspectives.design;
 
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.editIcon;
+
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentFactorySPI;
 
 public class DesignPerspective implements PerspectiveSPI {
-
 	private DesignPerspectiveComponent designPerspectiveComponent;
-
 	private UIComponentFactorySPI graphViewComponentFactory;
 	private UIComponentFactorySPI servicePanelComponentFactory;
 	private UIComponentFactorySPI contextualViewComponentFactory;
@@ -52,18 +51,18 @@ public class DesignPerspective implements PerspectiveSPI {
 
 	@Override
 	public JComponent getPanel() {
-		if (designPerspectiveComponent == null) {
-			designPerspectiveComponent = new DesignPerspectiveComponent(graphViewComponentFactory,
-					servicePanelComponentFactory, contextualViewComponentFactory,
-					workflowExplorerFactory, reportViewComponentFactory, fileManager,
-					selectionManager, menuManager, editManager);
-		}
+		if (designPerspectiveComponent == null)
+			designPerspectiveComponent = new DesignPerspectiveComponent(
+					graphViewComponentFactory, servicePanelComponentFactory,
+					contextualViewComponentFactory, workflowExplorerFactory,
+					reportViewComponentFactory, fileManager, selectionManager,
+					menuManager, editManager);
 		return designPerspectiveComponent;
 	}
 
 	@Override
 	public ImageIcon getButtonIcon() {
-		return WorkbenchIcons.editIcon;
+		return editIcon;
 	}
 
 	@Override
@@ -76,11 +75,13 @@ public class DesignPerspective implements PerspectiveSPI {
 		return 10;
 	}
 
-	public void setGraphViewComponentFactory(UIComponentFactorySPI graphViewComponentFactory) {
+	public void setGraphViewComponentFactory(
+			UIComponentFactorySPI graphViewComponentFactory) {
 		this.graphViewComponentFactory = graphViewComponentFactory;
 	}
 
-	public void setServicePanelComponentFactory(UIComponentFactorySPI servicePanelComponentFactory) {
+	public void setServicePanelComponentFactory(
+			UIComponentFactorySPI servicePanelComponentFactory) {
 		this.servicePanelComponentFactory = servicePanelComponentFactory;
 	}
 
@@ -89,11 +90,13 @@ public class DesignPerspective implements PerspectiveSPI {
 		this.contextualViewComponentFactory = contextualViewComponentFactory;
 	}
 
-	public void setWorkflowExplorerFactory(UIComponentFactorySPI workflowExplorerFactory) {
+	public void setWorkflowExplorerFactory(
+			UIComponentFactorySPI workflowExplorerFactory) {
 		this.workflowExplorerFactory = workflowExplorerFactory;
 	}
 
-	public void setReportViewComponentFactory(UIComponentFactorySPI reportViewComponentFactory) {
+	public void setReportViewComponentFactory(
+			UIComponentFactorySPI reportViewComponentFactory) {
 		this.reportViewComponentFactory = reportViewComponentFactory;
 	}
 
@@ -112,5 +115,4 @@ public class DesignPerspective implements PerspectiveSPI {
 	public void setEditManager(EditManager editManager) {
 		this.editManager = editManager;
 	}
-
 }

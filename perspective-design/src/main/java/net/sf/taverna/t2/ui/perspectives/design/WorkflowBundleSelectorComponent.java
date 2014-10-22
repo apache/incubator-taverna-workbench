@@ -46,9 +46,7 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
  * @author David Withers
  */
 public class WorkflowBundleSelectorComponent extends TabSelectorComponent<WorkflowBundle> {
-
-	private static final long serialVersionUID = 1L;
-
+	private static final long serialVersionUID = 7291973052895544750L;
 	private static final URI FILE_CLOSE_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#fileClose");
 
@@ -60,7 +58,8 @@ public class WorkflowBundleSelectorComponent extends TabSelectorComponent<Workfl
 	private Action closeMenuAction;
 
 	public WorkflowBundleSelectorComponent(SelectionManager selectionManager,
-			FileManager fileManager, MenuManager menuManager, EditManager editManager) {
+			FileManager fileManager, MenuManager menuManager,
+			EditManager editManager) {
 		this.selectionManager = selectionManager;
 		this.fileManager = fileManager;
 		this.menuManager = menuManager;
@@ -69,8 +68,11 @@ public class WorkflowBundleSelectorComponent extends TabSelectorComponent<Workfl
 		selectionManager.addObserver(new SelectionManagerObserver());
 	}
 
-	private class FileManagerObserver extends SwingAwareObserver<FileManagerEvent> {
-		public void notifySwing(Observable<FileManagerEvent> sender, FileManagerEvent message) {
+	private class FileManagerObserver extends
+			SwingAwareObserver<FileManagerEvent> {
+		@Override
+		public void notifySwing(Observable<FileManagerEvent> sender,
+				FileManagerEvent message) {
 			if (message instanceof ClosedDataflowEvent) {
 				ClosedDataflowEvent event = (ClosedDataflowEvent) message;
 				removeObject(event.getDataflow());
@@ -78,7 +80,8 @@ public class WorkflowBundleSelectorComponent extends TabSelectorComponent<Workfl
 		}
 	}
 
-	private class SelectionManagerObserver extends SwingAwareObserver<SelectionManagerEvent> {
+	private class SelectionManagerObserver extends
+			SwingAwareObserver<SelectionManagerEvent> {
 		@Override
 		public void notifySwing(Observable<SelectionManagerEvent> sender,
 				SelectionManagerEvent message) {
@@ -93,8 +96,8 @@ public class WorkflowBundleSelectorComponent extends TabSelectorComponent<Workfl
 
 	@Override
 	protected Tab<WorkflowBundle> createTab(WorkflowBundle workflowBundle) {
-		return new WorkflowTab(this, workflowBundle, selectionManager, fileManager, editManager,
-				getCloseMenuAction());
+		return new WorkflowTab(this, workflowBundle, selectionManager,
+				fileManager, editManager, getCloseMenuAction());
 	}
 
 	private Action getCloseMenuAction() {
