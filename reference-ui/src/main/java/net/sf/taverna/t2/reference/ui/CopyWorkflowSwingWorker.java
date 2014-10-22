@@ -26,25 +26,26 @@ import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
-public class CopyWorkflowSwingWorker extends SwingWorker<WorkflowBundle, String>{
-
-	private Logger logger = Logger.getLogger(CopyWorkflowSwingWorker.class);
+public class CopyWorkflowSwingWorker extends
+		SwingWorker<WorkflowBundle, String> {
+	@SuppressWarnings("unused")
+	private static final Logger logger = Logger
+			.getLogger(CopyWorkflowSwingWorker.class);
 
 	private WorkflowBundle dataflowOriginal;
 
-	public CopyWorkflowSwingWorker(WorkflowBundle dataflowOriginal){
+	public CopyWorkflowSwingWorker(WorkflowBundle dataflowOriginal) {
 		this.dataflowOriginal = dataflowOriginal;
 	}
 
 	@Override
 	protected WorkflowBundle doInBackground() throws Exception {
+		@SuppressWarnings("unused")
 		WorkflowBundle dataflowCopy = null;
 		return dataflowOriginal;
 //		logger.info("CopyWorkflowSwingWorker: copying of the workflow started.");
 //		dataflowCopy = WorkflowBundle.cloneWorkflowBean(dataflowOriginal);
 //		logger.info("CopyWorkflowSwingWorker: copying of the workflow finished.");
-//
 //		return dataflowCopy;
 	}
-
 }

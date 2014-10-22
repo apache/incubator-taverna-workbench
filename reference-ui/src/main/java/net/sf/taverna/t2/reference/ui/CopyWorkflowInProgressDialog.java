@@ -21,6 +21,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.reference.ui;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.SOUTH;
+import static net.sf.taverna.t2.workbench.MainWindow.getMainWindow;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.workingIcon;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -29,47 +34,41 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.WindowConstants;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 /**
- * Dialog that is popped up while we are copying the workflow in
- * preparation for the workflow execution. This is just to let
- * the user know that Taverna is doing something.
- *
+ * Dialog that is popped up while we are copying the workflow in preparation for
+ * the workflow execution. This is just to let the user know that Taverna is
+ * doing something.
+ * 
  * @author Alex Nenadic
- *
  */
 @SuppressWarnings("serial")
 public class CopyWorkflowInProgressDialog extends HelpEnabledDialog {
-
 	private boolean userCancelled = false;
 
 	public CopyWorkflowInProgressDialog() {
-
-		super(MainWindow.getMainWindow(), "Initialising workflow run", true);
+		super(getMainWindow(), "Initialising workflow run", true);
 		setLocationRelativeTo(null);
 		setResizable(false);
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 
 		JPanel panel = new JPanel(new BorderLayout());
 		panel.setBorder(new EmptyBorder(10,10,10,10));
 
 		JPanel textPanel = new JPanel();
-		JLabel text = new JLabel(WorkbenchIcons.workingIcon);
+		JLabel text = new JLabel(workingIcon);
 		text.setText("Initialising workflow run...");
-		text.setBorder(new EmptyBorder(10,0,10,0));
+		text.setBorder(new EmptyBorder(10, 0, 10, 0));
 		textPanel.add(text);
-		panel.add(textPanel, BorderLayout.CENTER);
+		panel.add(textPanel, CENTER);
 
 		// Cancel button
 		JButton cancelButton = new JButton("Cancel");
 		cancelButton.addActionListener(new ActionListener() {
-
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				userCancelled = true;
 				setVisible(false);
@@ -78,7 +77,7 @@ public class CopyWorkflowInProgressDialog extends HelpEnabledDialog {
 		});
 		JPanel cancelButtonPanel = new JPanel();
 		cancelButtonPanel.add(cancelButton);
-		panel.add(cancelButtonPanel, BorderLayout.SOUTH);
+		panel.add(cancelButtonPanel, SOUTH);
 
 		setContentPane(panel);
 		setPreferredSize(new Dimension(300, 130));
@@ -89,5 +88,4 @@ public class CopyWorkflowInProgressDialog extends HelpEnabledDialog {
 	public boolean hasUserCancelled() {
 		return userCancelled;
 	}
-
 }

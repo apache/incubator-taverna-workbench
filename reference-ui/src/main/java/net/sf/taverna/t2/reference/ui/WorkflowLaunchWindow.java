@@ -20,9 +20,20 @@
  ******************************************************************************/
 package net.sf.taverna.t2.reference.ui;
 
+import static com.hp.hpl.jena.sparql.graph.GraphFactory.makeDefaultModel;
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.EAST;
+import static java.awt.BorderLayout.SOUTH;
+import static java.awt.BorderLayout.WEST;
+import static javax.swing.BoxLayout.X_AXIS;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.closeIcon;
+import static org.apache.jena.riot.Lang.TURTLE;
+import static org.apache.jena.riot.RDFLanguages.contentTypeToLang;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
@@ -47,7 +58,6 @@ import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -65,14 +75,12 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 
 import org.apache.batik.swing.JSVGCanvas;
 import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.riot.RIOT;
 import org.apache.log4j.Logger;
 import org.purl.wf4ever.robundle.Bundle;
@@ -90,7 +98,6 @@ import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.sparql.graph.GraphFactory;
 
 /**
  * A simple workflow launch window, uses a tabbed layout to display a set of named RegistrationPanel
@@ -107,69 +114,56 @@ import com.hp.hpl.jena.sparql.graph.GraphFactory;
  */
 @SuppressWarnings("serial")
 public abstract class WorkflowLaunchWindow extends JFrame {
-
-	private static Logger logger = Logger.getLogger(WorkflowLaunchWindow.class);
-
+	private static final Logger logger = Logger.getLogger(WorkflowLaunchWindow.class);
 	private static final String LAUNCH_WORKFLOW = "Run workflow";
-
 	private static final ImageIcon launchIcon = new ImageIcon(
 			WorkflowLaunchWindow.class.getResource("/icons/start_task.gif"));
-
 	private static final ImageIcon addTextIcon = new ImageIcon(
 			WorkflowLaunchWindow.class.getResource("/icons/addtext_co.gif"));
-
-	// An action enabled when all inputs are enabled and used to trigger the
-	// handleLaunch method
-	private Action launchAction;
-
-	// A map of input port names to input registration panels (from the previous run of the same
-	// workflow, if any)
-	private Map<String, RegistrationPanel> inputPanelMap = new HashMap<String, RegistrationPanel>();
-
-	// A pane holding various tabs for workflow input ports
-	private JTabbedPane tabsPane;
-
-	private Workflow workflow;
-
 	private static final String NO_WORKFLOW_DESCRIPTION = "No description";
 	private static final String NO_WORKFLOW_AUTHOR = "No author";
-
+	
+	/**
+	 * An action enabled when all inputs are enabled and used to trigger the
+	 * {@link #handleLaunch(Bundle)} method
+	 */
+	private Action launchAction;
+	/**
+	 * A map of input port names to input registration panels (from the previous
+	 * run of the same workflow, if any)
+	 */
+	private Map<String, RegistrationPanel> inputPanelMap = new HashMap<>();
+	/** A pane holding various tabs for workflow input ports */
+	private JTabbedPane tabsPane;
+	private Workflow workflow;
 	private DialogTextArea workflowDescriptionArea;
 	private DialogTextArea workflowAuthorArea;
-
 	private JSVGCanvas createWorkflowGraphic;
-
-	// Whether the original workflow has been modified in the design perspective so we know to
-	// refresh this dialog
+	/**
+	 * Whether the original workflow has been modified in the design perspective
+	 * so we know to refresh this dialog
+	 */
 	private boolean workflowModified = false;
-
-	// Observer of workflow closing events so we can dispose off the window
 	private FileManager fileManager;
+	/** Observer of workflow closing events so we can dispose off the window */
 	private FileManagerObserver fileManagerObserver = new FileManagerObserver();
-
 	private EditManager editManager;
 	private EditManagerObserver editManagerObserver = new EditManagerObserver();
-
 	private JPanel overallPanel;
-
 	private JPanel workflowPart;
-
 	private JPanel portsPart;
-
+	@SuppressWarnings("unused")
 	private final Workbench workbench;
-
+	@SuppressWarnings("unused")
 	private final ReportManager reportManager;
-
 	private final List<ReferenceActionSPI> referenceActionSPIs;
-
 	private final DatabaseConfiguration databaseConfiguration;
-
 	private final Scufl2Tools scufl2Tools = new Scufl2Tools();
 	private final URITools uriTools = new URITools();
 
 	public WorkflowLaunchWindow(Workflow workflow, EditManager editManager,
-			FileManager fileManager, ReportManager reportManager, Workbench workbench,
-			List<ReferenceActionSPI> referenceActionSPIs,
+			FileManager fileManager, ReportManager reportManager,
+			Workbench workbench, List<ReferenceActionSPI> referenceActionSPIs,
 			DatabaseConfiguration databaseConfiguration) {
 		super();
 		// Initialize RIOT reader
@@ -186,12 +180,10 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		initComponents();
 
 		// Handle refreshing the frame when it receives focus
-		this.addWindowFocusListener(new WindowAdapter() {
-
+		addWindowFocusListener(new WindowAdapter() {
 			@Override
 			public void windowGainedFocus(WindowEvent e) {
 				if (workflowModified) {
-
 					// Clear all previous components
 					getContentPane().removeAll();
 
@@ -207,7 +199,7 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		});
 
 		// Handle window closing
-		this.addWindowListener(new WindowAdapter() {
+		addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent winEvt) {
 				handleCancel(); // do not dispose the window, just hide it
@@ -222,23 +214,21 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	}
 
 	/**
-	 * Set the title of the window to contain the workflow name and its file/url location so that
-	 * users can easily identify which workflow is being run.
-	 * @param title2 
+	 * Set the title of the window to contain the workflow name and its file/url
+	 * location so that users can easily identify which workflow is being run.
+	 * 
+	 * @param title
 	 */
 	private void setWindowTitle(String title) {
 		String windowTitle = "Input values for ";
-		if ((title != null) && (!title.isEmpty())) {
+		if (title != null && !title.isEmpty())
 			windowTitle += "'" + title + "' ";
-		} else {
+		else
 		    // Fall back to its name
 			windowTitle += "'" + workflow.getName() + "' ";
-		}
 
 		Object workflowLocation = fileManager.getDataflowSource(workflow.getParent());
-
 		windowTitle += (workflowLocation == null) ? "" : "from " + workflowLocation.toString();
-
 		setTitle(windowTitle);
 	}
 
@@ -246,7 +236,6 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	 * Draw the components of the frame.
 	 */
 	public void initComponents() {
-
 		workflowPart = new JPanel(new GridLayout(3, 1));
 		portsPart = new JPanel(new BorderLayout());
 
@@ -272,38 +261,43 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		workflowPart.add(new JScrollPane(workflowAuthorArea));
 
 		launchAction = new AbstractAction(LAUNCH_WORKFLOW, launchIcon) {
+			@Override
 			public void actionPerformed(ActionEvent ae) {
-
 				// First of all - is the workflow valid?
 				// TODO convert to Scufl2 validation
+
 				// if (!CheckWorkflowStatus.checkWorkflow(dataflowOriginal, workbench, editManager,
 				// fileManager, reportManager)) {
 				// setVisible(false);
 				// return;
 				// }
 
-				// Check if user had entered input values for all input ports -
-				// otherwise there is no point in attempting to run the workflow
+				/*
+				 * Check if user had entered input values for all input ports -
+				 * otherwise there is no point in attempting to run the workflow
+				 */
 				for (InputWorkflowPort input : workflow.getInputPorts()) {
 					RegistrationPanel registrationPanel = inputPanelMap.get(input.getName());
 					Object userInput = registrationPanel.getUserInput();
 					if (userInput == null) {
-						JOptionPane.showMessageDialog(null,
+						showMessageDialog(
+								WorkflowLaunchWindow.this,
 								"You have not provided input values for all workflow inputs",
-								"Workflow input value error", JOptionPane.ERROR_MESSAGE);
+								"Workflow input value error", ERROR_MESSAGE);
 						// exit
 						return;
 					}
 				}
-				setState(Frame.ICONIFIED);
+				setState(ICONIFIED);
 
 				try {
 					Bundle inputDataBundle = createInputDataBundle();
 					handleLaunch(inputDataBundle);
 				} catch (IOException e) {
-					JOptionPane.showMessageDialog(WorkflowLaunchWindow.this,
-							"An error occurred while creating input values\n" + e.getMessage(),
-							"Error creating inputs", JOptionPane.ERROR_MESSAGE);
+					showMessageDialog(WorkflowLaunchWindow.this,
+							"An error occurred while creating input values\n"
+									+ e.getMessage(), "Error creating inputs",
+							ERROR_MESSAGE);
 					return;
 				}
 			}
@@ -311,39 +305,43 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 		WorkflowBundle workflowBundle = workflow.getParent();
 
-        Model annotations = annotationsForBean(workflowBundle, workflow);
-        Resource bean = annotations.getResource(uriTools.uriForBean(workflow).toASCIIString());
+		Model annotations = annotationsForBean(workflowBundle, workflow);
+		Resource bean = annotations.getResource(uriTools.uriForBean(workflow)
+				.toASCIIString());
 
-        
-        String title = null;
-        Property titleProp = annotations.createProperty("http://purl.org/dc/terms/title");
-        if (bean.hasProperty(titleProp)) {
-            title = bean.getProperty(titleProp).getString();
-        }
-        setWindowTitle(title);
+		String title = null;
+		Property titleProp = annotations
+				.createProperty("http://purl.org/dc/terms/title");
+		if (bean.hasProperty(titleProp))
+			title = bean.getProperty(titleProp).getString();
+		setWindowTitle(title);
 
-        Property descProp = annotations.createProperty("http://purl.org/dc/terms/description");
-        if (bean.hasProperty(descProp)) {
-            setWorkflowDescription(bean.getProperty(descProp).getString());
-        }
+		Property descProp = annotations
+				.createProperty("http://purl.org/dc/terms/description");
+		if (bean.hasProperty(descProp))
+			setWorkflowDescription(bean.getProperty(descProp).getString());
 
-        Property creatorProp = annotations.createProperty("http://purl.org/dc/elements/1.1/creator");
-        if (bean.hasProperty(creatorProp)) {
-            setWorkflowAuthor(bean.getProperty(creatorProp).getString());
-        }
+		Property creatorProp = annotations
+				.createProperty("http://purl.org/dc/elements/1.1/creator");
+		if (bean.hasProperty(creatorProp))
+			setWorkflowAuthor(bean.getProperty(creatorProp).getString());
 
 		Action useExamplesAction = new AbstractAction("Use examples", addTextIcon) {
-
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				List<InputWorkflowPort> inputPorts = new ArrayList<>(workflow.getInputPorts());
-				// Create tabs for input ports (but only for the one that are connected!)
+				List<InputWorkflowPort> inputPorts = new ArrayList<>(
+						workflow.getInputPorts());
+				/*
+				 * Create tabs for input ports (but only for the one that are
+				 * connected!)
+				 */
 				for (InputWorkflowPort inputPort : inputPorts) {
-					RegistrationPanel rp = inputPanelMap.get(inputPort.getName());
+					RegistrationPanel rp = inputPanelMap.get(inputPort
+							.getName());
 					Object example = rp.getExample();
-					if ((example != null) && (inputPort.getDepth() == 0) && (rp.getValue() == null)) {
+					if (example != null && inputPort.getDepth() == 0
+							&& rp.getValue() == null)
 						rp.setValue(example);
-					}
 				}
 			}
 		};
@@ -356,8 +354,8 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		toolBar.setFloatable(false);
 		toolBar.add(useExamplesButton);
 		toolBar.add(new JButton(launchAction));
-		toolBar.add(new JButton(new AbstractAction("Cancel", WorkbenchIcons.closeIcon) {
-
+		toolBar.add(new JButton(new AbstractAction("Cancel", closeIcon) {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				handleCancel();
 			}
@@ -373,36 +371,40 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 		}
 
 		JPanel toolBarPanel = new JPanel(new BorderLayout());
-		toolBarPanel.add(loadButtonsBar, BorderLayout.WEST);
-		toolBarPanel.add(toolBar, BorderLayout.EAST);
+		toolBarPanel.add(loadButtonsBar, WEST);
+		toolBarPanel.add(toolBar, EAST);
 		toolBarPanel.setBorder(new EmptyBorder(5, 10, 5, 20));
-		portsPart.add(toolBarPanel, BorderLayout.SOUTH);
+		portsPart.add(toolBarPanel, SOUTH);
 
-		// Construct tab container - tabs will be populated based on the wf input ports
+		/*
+		 * Construct tab container - tabs will be populated based on the wf
+		 * input ports
+		 */
 		tabsPane = new JTabbedPane();
 
 		List<InputWorkflowPort> inputPorts = new ArrayList<>(workflow.getInputPorts());
+		Set<String> inputNames = new HashSet<>();
 
-		Set<String> inputNames = new HashSet<String>();
-
-		// Create tabs for input ports (but only for the one that are connected!)
+		/*
+		 * Create tabs for input ports (but only for the one that are
+		 * connected!)
+		 */
 		for (InputWorkflowPort inputPort : inputPorts) {
 			// Is this input port connected to anything?
-			if (scufl2Tools.datalinksFrom(inputPort).isEmpty()) { 
+			if (scufl2Tools.datalinksFrom(inputPort).isEmpty())
 			    continue;
-			}
 			String portDescription = "";
 			String portExample = "";
 
 			annotations = annotationsForBean(workflowBundle, inputPort);
-			bean = annotations.getResource(uriTools.uriForBean(inputPort).toASCIIString());
-			if (bean.hasProperty(descProp)) {
-			    portDescription = bean.getProperty(descProp).getString();
-			}
-			Property exDataProp = annotations.createProperty("http://biocatalogue.org/attribute/exampleData");
-            if (bean.hasProperty(exDataProp)) {
-                portExample = bean.getProperty(exDataProp).getString();
-            }
+			bean = annotations.getResource(uriTools.uriForBean(inputPort)
+					.toASCIIString());
+			if (bean.hasProperty(descProp))
+				portDescription = bean.getProperty(descProp).getString();
+			Property exDataProp = annotations
+					.createProperty("http://biocatalogue.org/attribute/exampleData");
+			if (bean.hasProperty(exDataProp))
+				portExample = bean.getProperty(exDataProp).getString();
 
 			// add tabs for wf input ports
 			String name = inputPort.getName();
@@ -410,49 +412,47 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 			addInput(name, inputPort.getDepth(), portDescription, portExample);
 		}
 
-		portsPart.add(tabsPane, BorderLayout.CENTER);
+		portsPart.add(tabsPane, CENTER);
 
 		workflowPart.setPreferredSize(new Dimension(300, 500));
 		portsPart.setPreferredSize(new Dimension(650, 500));
 
 		overallPanel = new JPanel();
-		overallPanel.setLayout(new BoxLayout(overallPanel, BoxLayout.X_AXIS));
+		overallPanel.setLayout(new BoxLayout(overallPanel, X_AXIS));
 
 		overallPanel.add(workflowPart);
 		overallPanel.add(portsPart);
 
 		setLayout(new BorderLayout());
-		getContentPane().add(new JScrollPane(overallPanel), BorderLayout.CENTER);
+		getContentPane().add(new JScrollPane(overallPanel), CENTER);
 
 		pack();
 	}
 
-    private Model annotationsForBean(WorkflowBundle workflowBundle,
-            WorkflowBean bean) {
-        
-        Model model = GraphFactory.makeDefaultModel();
-        for (Annotation annotation : scufl2Tools.annotationsFor(bean,
-                workflowBundle)) {
+	private Model annotationsForBean(WorkflowBundle workflowBundle,
+			WorkflowBean bean) {
+		Model model = makeDefaultModel();
+		for (Annotation annotation : scufl2Tools.annotationsFor(bean,
+				workflowBundle)) {
 //            System.out.println(annotation.getBody());
             URI base = uriTools.uriForBean(workflowBundle);
             URI body = base.resolve(annotation.getBody());
 //            System.out.println(body);
-            URI path = uriTools.relativePath(workflowBundle.getGlobalBaseURI(),
-                    body);
+			URI path = uriTools.relativePath(workflowBundle.getGlobalBaseURI(),
+					body);
 //            System.out.println(path.getPath());
-            
-            String mediaType = workflowBundle.getResources()
-                    .getResourceEntry(path.getPath()).getMediaType();
-            Lang lang = RDFLanguages.contentTypeToLang(mediaType);
-            if (lang == null) {
-                // Safe fallback
-                lang = Lang.TURTLE;
-            }
-//            System.out.println(mediaType);
-            try (InputStream inputStream = workflowBundle.getResources()
-                    .getResourceAsInputStream(path.getPath())) {
-                RDFDataMgr.read(model, inputStream, body.toASCIIString(), lang);
-//                model.read(inputStream, body.toASCIIString(), mediaType);                
+
+			String mediaType = workflowBundle.getResources()
+					.getResourceEntry(path.getPath()).getMediaType();
+			Lang lang = contentTypeToLang(mediaType);
+			if (lang == null)
+				// Safe fallback
+				lang = TURTLE;
+//			System.out.println(mediaType);
+			try (InputStream inputStream = workflowBundle.getResources()
+					.getResourceAsInputStream(path.getPath())) {
+				RDFDataMgr.read(model, inputStream, body.toASCIIString(), lang);
+//				model.read(inputStream, body.toASCIIString(), mediaType);                
             } catch (IOException e) {
                 logger.warn("Can't read " + body, e);
                 continue;
@@ -476,11 +476,11 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	 */
 	private JSVGCanvas createWorkflowGraphic(Workflow worklfow) {
 		JSVGCanvas svgCanvas = new JSVGCanvas();
-		// SVGGraphController graphController = GraphViewComponent.graphControllerMap.get(worklfow);
-		// if (graphController != null) {
-		// SVGDocument svgDoc = graphController.getSVGDocument();
-		// svgCanvas.setDocument((SVGDocument) svgDoc.cloneNode(true));
-		// }
+		//SVGGraphController graphController = GraphViewComponent.graphControllerMap.get(workflow);
+		//if (graphController != null) {
+		// 	SVGDocument svgDoc = graphController.getSVGDocument();
+		// 	svgCanvas.setDocument((SVGDocument) svgDoc.cloneNode(true));
+		//}
 		return svgCanvas;
 	}
 
@@ -490,8 +490,10 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 
 	public void addInput(final String inputName, final int inputDepth, String inputDescription,
 			String inputExample) {
-
-		// Don't do anything if we already have the input registration panel for this input port
+		/*
+		 * Don't do anything if we already have the input registration panel for
+		 * this input port
+		 */
 		RegistrationPanel inputRegistrationPanel = inputPanelMap.get(inputName);
 		if ((inputRegistrationPanel == null) || (inputRegistrationPanel.getDepth() != inputDepth)) {
 			inputRegistrationPanel = new RegistrationPanel(inputDepth, inputName, inputDescription,
@@ -509,13 +511,15 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	}
 
 	public synchronized void removeInputTab(final String inputName) {
-		// Only do something if we have a registration panel for this input port to begin with
-		if (!inputPanelMap.containsKey(inputName)) {
+		/*
+		 * Only do something if we have a registration panel for this input port
+		 * to begin with
+		 */
+		if (!inputPanelMap.containsKey(inputName))
 			return;
-		} else {
-			RegistrationPanel inputRegistrationPanelToRemove = inputPanelMap.remove(inputName);
-			tabsPane.remove(inputRegistrationPanelToRemove);
-		}
+		RegistrationPanel inputRegistrationPanelToRemove = inputPanelMap
+				.remove(inputName);
+		tabsPane.remove(inputRegistrationPanelToRemove);
 	}
 
 	private Bundle createInputDataBundle() throws IOException {
@@ -532,25 +536,25 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	}
 
 	private void setValue(Path port, Object userInput) throws IOException {
-		if (userInput instanceof File) {
+		if (userInput instanceof File)
 			DataBundles.setReference(port, ((File) userInput).toURI());
-		} else if (userInput instanceof URL) {
+		else if (userInput instanceof URL)
 			try {
 				DataBundles.setReference(port, ((URL) userInput).toURI());
 			} catch (URISyntaxException e) {
-				logger.warn(String.format("Error converting %1$s to URI", userInput), e);
+				logger.warn(String.format("Error converting %1$s to URI",
+						userInput), e);
 			}
-		} else if (userInput instanceof String){
+		else if (userInput instanceof String)
 			DataBundles.setStringValue(port, (String) userInput);
-		} else if (userInput instanceof List<?>) {
+		else if (userInput instanceof List<?>) {
 			DataBundles.createList(port);
 			List<?> list = (List<?>) userInput;
-			for (Object object : list) {
+			for (Object object : list)
 				setValue(DataBundles.newListItem(port), object);
-			}
-		} else {
-			logger.warn("Unknown input type : " + userInput.getClass().getName());
-		}
+		} else
+			logger.warn("Unknown input type : "
+					+ userInput.getClass().getName());
 	}
 
 	/**
@@ -569,16 +573,16 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	}
 
 	public void setWorkflowDescription(String workflowDescription) {
-		if ((workflowDescription != null) && (workflowDescription.length() > 0)) {
-			this.workflowDescriptionArea.setText(workflowDescription);
-			selectTopOfTextArea(this.workflowDescriptionArea);
+		if (workflowDescription != null && !workflowDescription.isEmpty()) {
+			workflowDescriptionArea.setText(workflowDescription);
+			selectTopOfTextArea(workflowDescriptionArea);
 		}
 	}
 
 	void setWorkflowAuthor(String workflowAuthor) {
-		if ((workflowAuthor != null) && (workflowAuthor.length() > 0)) {
-			this.workflowAuthorArea.setText(workflowAuthor);
-			selectTopOfTextArea(this.workflowAuthorArea);
+		if (workflowAuthor != null && !workflowAuthor.isEmpty()) {
+			workflowAuthorArea.setText(workflowAuthor);
+			selectTopOfTextArea(workflowAuthorArea);
 		}
 	}
 
@@ -593,10 +597,12 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	}
 
 	public class FileManagerObserver implements Observer<FileManagerEvent> {
+		@Override
 		public void notify(Observable<FileManagerEvent> sender, FileManagerEvent message)
 				throws Exception {
 			if (message instanceof ClosedDataflowEvent
-					&& ((ClosedDataflowEvent) message).getDataflow() == workflow.getParent()) {
+					&& ((ClosedDataflowEvent) message).getDataflow() == workflow
+							.getParent()) {
 				// Remove listeners of various events
 				editManager.removeObserver(editManagerObserver);
 				fileManager.removeObserver(fileManagerObserver);
@@ -607,14 +613,14 @@ public abstract class WorkflowLaunchWindow extends JFrame {
 	}
 
 	public class EditManagerObserver implements Observer<EditManagerEvent> {
-		public void notify(Observable<EditManagerEvent> sender, final EditManagerEvent message)
-				throws Exception {
-
+		@Override
+		public void notify(Observable<EditManagerEvent> sender,
+				final EditManagerEvent message) throws Exception {
 			if (message instanceof AbstractDataflowEditEvent
-					&& ((AbstractDataflowEditEvent) message).getDataFlow() == workflow.getParent()) {
+					&& ((AbstractDataflowEditEvent) message).getDataFlow() == workflow
+							.getParent()) {
 				workflowModified = true;
 			}
 		}
 	}
-
 }

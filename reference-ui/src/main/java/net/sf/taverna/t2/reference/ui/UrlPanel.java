@@ -20,6 +20,10 @@
  ******************************************************************************/
 package net.sf.taverna.t2.reference.ui;
 
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.VERTICAL;
+import static java.awt.GridBagConstraints.WEST;
+
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
@@ -33,22 +37,20 @@ import javax.swing.border.EmptyBorder;
  * 
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class UrlPanel extends JPanel {
-
-	private static final long serialVersionUID = 1L;
-
 	private JTextField urlField;
 
 	public UrlPanel() {
 		super(new GridBagLayout());
 
 		urlField = new JTextField();
- 
+
 		setBorder(new EmptyBorder(10, 10, 10, 10));
-		
+
 		GridBagConstraints constraints = new GridBagConstraints();
 
-		constraints.anchor = GridBagConstraints.WEST;
+		constraints.anchor = WEST;
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		constraints.ipadx = 10;
@@ -58,19 +60,19 @@ public class UrlPanel extends JPanel {
 		constraints.gridwidth = 2;
 		constraints.ipadx = 0;
 		constraints.weightx = 1d;
-		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.fill = HORIZONTAL;
 		add(urlField, constraints);
 
 		constraints.gridx = 0;
 		constraints.gridy = 1;
-		constraints.fill = GridBagConstraints.VERTICAL;
+		constraints.fill = VERTICAL;
 		constraints.weighty = 1d;
 		add(new JPanel(), constraints);
 	}
-	
+
 	/**
 	 * Returns the urlField.
-	 *
+	 * 
 	 * @return the urlField
 	 */
 	public JTextField getUrlField() {
@@ -79,20 +81,20 @@ public class UrlPanel extends JPanel {
 
 	/**
 	 * Returns the url.
-	 *
+	 * 
 	 * @return the url
 	 */
 	public String getUrl() {
 		return urlField.getText();
 	}
-	
+
 	/**
 	 * Sets the url.
-	 *
-	 * @param url the url
+	 * 
+	 * @param url
+	 *            the url
 	 */
 	public void setUrl(String url) {
 		urlField.setText(url);
 	}
-	
 }

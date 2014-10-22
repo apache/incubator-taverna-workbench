@@ -22,8 +22,6 @@ package net.sf.taverna.t2.reference.ui.tree;
 
 import java.io.File;
 import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +31,6 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
-
-import uk.org.taverna.databundle.DataBundles;
 
 /**
  * A subclass of DefaultTreeModel which is aware of the depth property of its
@@ -58,23 +54,15 @@ import uk.org.taverna.databundle.DataBundles;
  *
  */
 public class PreRegistrationTreeModel extends DefaultTreeModel {
-
+	@SuppressWarnings("unused")
 	private static Logger logger = Logger
-	.getLogger(PreRegistrationTreeModel.class);
-
-
+			.getLogger(PreRegistrationTreeModel.class);
 	private static final String INPUT = "Input";
-
 	private static final String LIST_OF_DEPTH = "List of depth";
-
 	private static final String LIST_OF_LISTS_OF_LISTS = "List of lists of lists";
-
 	private static final String LIST_OF_LISTS = "List of lists";
-
 	private static final String LIST = "List";
-
 	private static final String SINGLE_VALUE = "Single value";
-
 	private static final long serialVersionUID = 4133642236173701467L;
 
 	private int depth = 0;
@@ -84,21 +72,21 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	}
 
 	public PreRegistrationTreeModel(int depth, String name) {
-
 		super(new DefaultMutableTreeNode(getRootName(depth, name)));
 		this.depth = depth;
 	}
 
 	private static String getRootName(int depth, String name) {
-		if (depth == 0) {
+		switch (depth) {
+		case 0:
 			return name + ": " + SINGLE_VALUE;
-		} else if (depth == 1) {
+		case 1:
 			return name + ": " + LIST;
-		} else if (depth == 2) {
+		case 2:
 			return name + ": " + LIST_OF_LISTS;
-		} else if (depth == 3) {
+		case 3:
 			return name + ": " + LIST_OF_LISTS_OF_LISTS;
-		} else {
+		default:
 			return name + ": " + LIST_OF_DEPTH + " " + depth;
 		}
 	}
@@ -112,38 +100,32 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	 * the ReferenceService, returns null if the root has no children and throws
 	 * IllegalStateException if there are any objects other than File, URL,
 	 * String or byte[] at leaf nodes.
-	 *
+	 * 
 	 * @return
 	 */
 	public synchronized Object getAsPojo() {
-		if (getChildCount(getRoot()) == 0) {
+		if (getChildCount(getRoot()) == 0)
 			return null;
-		} else {
-			return getAsPojoInner(getChild(getRoot(), 0));
-		}
+		return getAsPojoInner(getChild(getRoot(), 0));
 	}
 
 	private synchronized Object getAsPojoInner(Object child) {
 		DefaultMutableTreeNode childNode = (DefaultMutableTreeNode) child;
 		Object userObject = childNode.getUserObject();
 		if (userObject == null) {
-			List<Object> result = new ArrayList<Object>();
+			List<Object> result = new ArrayList<>();
 			int children = getChildCount(childNode);
-			for (int i = 0; i < children; i++) {
+			for (int i = 0; i < children; i++)
 				result.add(getAsPojoInner(getChild(childNode, i)));
-			}
 			return result;
-		} else {
-			if (userObject instanceof String || userObject instanceof File
-					|| userObject instanceof URL || userObject instanceof byte[]) {
-				return userObject;
-			} else {
-				throw new IllegalStateException(
-						"Found an illegal object of type '"
-								+ userObject.getClass().getCanonicalName()
-								+ "' in collection structure.");
-			}
 		}
+		if (userObject instanceof String || userObject instanceof File
+				|| userObject instanceof URL || userObject instanceof byte[]) {
+			return userObject;
+		}
+		throw new IllegalStateException("Found an illegal object of type '"
+				+ userObject.getClass().getCanonicalName()
+				+ "' in collection structure.");
 	}
 
 	/**
@@ -153,12 +135,10 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	 */
 	@Override
 	public boolean isLeaf(Object o) {
-		if (o == getRoot()) {
+		if (o == getRoot())
 			return false;
-		} else {
-			DefaultMutableTreeNode node = (DefaultMutableTreeNode) o;
-			return (node.getUserObject() != null);
-		}
+		DefaultMutableTreeNode node = (DefaultMutableTreeNode) o;
+		return node.getUserObject() != null;
 	}
 
 	/**
@@ -172,64 +152,65 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	 * @param depth
 	 */
 	@SuppressWarnings("unchecked")
-	public synchronized DefaultMutableTreeNode addPojoStructure(MutableTreeNode parent, MutableTreeNode preceding,
-			Object pojo, int depth) {
-		// Firstly check for a null target and set the root node to be the
-		// target if so.
-		if (parent == null) {
+	public synchronized DefaultMutableTreeNode addPojoStructure(
+			MutableTreeNode parent, MutableTreeNode preceding, Object pojo,
+			int depth) {
+		/*
+		 * Firstly check for a null target and set the root node to be the
+		 * target if so.
+		 */
+		if (parent == null)
 			parent = (MutableTreeNode) getRoot();
-		}
-		// Now ensure that the target node has the correct depth. The target
-		// node must have depth of (depth - 1) to be correct, this means we can
-		// add the collection in place without any problems.
+		/*
+		 * Now ensure that the target node has the correct depth. The target
+		 * node must have depth of (depth - 1) to be correct, this means we can
+		 * add the collection in place without any problems.
+		 */
 		int targetDepth = getNodeDepth(parent);
 
-		if (targetDepth > (depth + 1)) {
-			// Need to traverse down the structure to find an appropriate parent
-			// node, creating empty nodes as we go if required.
-			if (parent.getChildCount() == 0) {
+		if (targetDepth > depth + 1) {
+			/*
+			 * Need to traverse down the structure to find an appropriate parent
+			 * node, creating empty nodes as we go if required.
+			 */
+			if (parent.getChildCount() == 0)
 				insertNodeInto(new DefaultMutableTreeNode(null), parent, 0);
-			}
 			return addPojoStructure((MutableTreeNode) parent.getChildAt(0), preceding, pojo,
 					depth);
-		} else if (targetDepth < (depth + 1)) {
-			// Need to traverse up the structure to find an appropriate parent
-			// node
-			if (parent.getParent() == null) {
+		} else if (targetDepth < depth + 1) {
+			/*
+			 * Need to traverse up the structure to find an appropriate parent
+			 * node
+			 */
+			if (parent.getParent() == null)
 				throw new IllegalArgumentException(
 						"Can't add this pojo, depths are not compatible.");
-			}
 			return addPojoStructure((MutableTreeNode) parent.getParent(), preceding, pojo, depth);
-		} else if (targetDepth == (depth + 1)) {
-			// Found an appropriate parent node, we can insert at position 0
-			// here. If this is the root node then we need to clear it first,
-			// the root can only have zero or one child nodes.
-			if (parent == getRoot()) {
-				if (parent.getChildCount() == 1) {
-					removeNodeFromParent((MutableTreeNode) parent.getChildAt(0));
-				}
-			}
-			int children = parent.getChildCount();
-			int position = children;
-			if ((preceding != null) && (preceding.getParent() != null) && preceding.getParent().equals(parent)) {
-				position = parent.getIndex(preceding) + 1;
-			}
-			if (pojo instanceof List) {
-				DefaultMutableTreeNode newTarget = new DefaultMutableTreeNode(null);
-				insertNodeInto(newTarget, parent, position);
-				for (Object child : (List<Object>) pojo) {
-					addPojoStructure(newTarget, preceding, child, depth - 1);
-				}
-				return newTarget;
-			} else {
-				DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(pojo);
-				insertNodeInto(newChild, parent,
-						position);
-				return newChild;
-			}
+		}
+
+		/*
+		 * Found an appropriate parent node, we can insert at position 0 here.
+		 * If this is the root node then we need to clear it first, the root can
+		 * only have zero or one child nodes.
+		 */
+		if (parent == getRoot())
+			if (parent.getChildCount() == 1)
+				removeNodeFromParent((MutableTreeNode) parent.getChildAt(0));
+		int children = parent.getChildCount();
+		int position = children;
+		if (preceding != null && preceding.getParent() != null
+				&& preceding.getParent().equals(parent))
+			position = parent.getIndex(preceding) + 1;
+		if (pojo instanceof List) {
+			DefaultMutableTreeNode newTarget = new DefaultMutableTreeNode(null);
+			insertNodeInto(newTarget, parent, position);
+			for (Object child : (List<Object>) pojo)
+				addPojoStructure(newTarget, preceding, child, depth - 1);
+			return newTarget;
 		} else {
-			// Can we really reach this code?
-			return null;
+			DefaultMutableTreeNode newChild = new DefaultMutableTreeNode(pojo);
+			insertNodeInto(newChild, parent, position);
+			return newChild;
 		}
 	}
 
@@ -256,64 +237,62 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	 * </ol>
 	 * This method is called before any nodes are modified, and causes the
 	 * modifications to take place.
-	 *
 	 */
 	public synchronized void moveNode(MutableTreeNode source,
 			MutableTreeNode target) {
 		// Check that we're not dragging onto ourselves!
-		if (source.equals(target)) {
+		if (source.equals(target))
 			return;
-		}
 		int targetDepth = getNodeDepth(target);
 		int sourceDepth = getNodeDepth(source);
 		// Handle drag onto a future sibling
 		if (sourceDepth == targetDepth) {
-
-			// Move the source from wherever it currently is and add it as a
-			// sibling of the target node at an index one higher.
-
+			/*
+			 * Move the source from wherever it currently is and add it as a
+			 * sibling of the target node at an index one higher.
+			 */
 			removeNodeFromParent(source);
 			// Capture the index of the target in its parent
 			int targetIndex = getIndexOfChild(target.getParent(), target);
-			// Insert the source node into the target's parent at the
-			// appropriate index
+			/*
+			 * Insert the source node into the target's parent at the
+			 * appropriate index
+			 */
 			insertNodeInto(source, (MutableTreeNode) target.getParent(),
 					targetIndex + 1);
 		}
 		// Traverse up to find a potential sibling node
-		else if (targetDepth < sourceDepth) {
+		else if (targetDepth < sourceDepth)
 			moveNode(source, (MutableTreeNode) target.getParent());
-		}
 		// Check for a move to an immediate future parent
-		else if (targetDepth == (sourceDepth + 1)) {
-			// Insert at index 0 in the target, removing from our old parent
-			// first
-
+		else if (targetDepth == sourceDepth + 1) {
+			/*
+			 * Insert at index 0 in the target, removing from our old parent
+			 * first
+			 */
 			removeNodeFromParent(source);
-
 			insertNodeInto(source, target, 0);
 		}
-		// Otherwise traverse, picking the child at index 0 every time and
-		// creating a new one if required
+		/*
+		 * Otherwise traverse, picking the child at index 0 every time and
+		 * creating a new one if required
+		 */
 		else if (targetDepth > sourceDepth) {
 			// Create a new non-leaf node first if needed
-			if (target.getChildCount() == 0) {
-
+			if (target.getChildCount() == 0)
 				insertNodeInto(new DefaultMutableTreeNode(null), target, 0);
-			}
-			// Recursively try to move the source to the target's child list at
-			// position 0
+			/*
+			 * Recursively try to move the source to the target's child list at
+			 * position 0
+			 */
 			moveNode(source, (MutableTreeNode) target.getChildAt(0));
 		}
 	}
 
 	@Override
 	public synchronized void removeNodeFromParent(MutableTreeNode node) {
-		if (node.getParent() != null) {
+		if (node.getParent() != null)
 			super.removeNodeFromParent(node);
-		} else {
-
-		}
 	}
 
 	/**
@@ -321,12 +300,11 @@ public class PreRegistrationTreeModel extends DefaultTreeModel {
 	 * length of the path to the root, where a path of length 2 corresponds to
 	 * the depth of this model structure. The result is therefore equal to
 	 * <code>getDepth() - (getPathToRoot(o).length - 2)</code>
-	 *
+	 * 
 	 * @param o
 	 * @return
 	 */
 	private int getNodeDepth(TreeNode o) {
 		return getDepth() - (getPathToRoot(o).length - 2);
 	}
-
 }

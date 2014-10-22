@@ -20,11 +20,16 @@
  ******************************************************************************/
 package net.sf.taverna.t2.reference.ui.tree;
 
+import static java.awt.datatransfer.DataFlavor.javaFileListFlavor;
+import static java.awt.dnd.DnDConstants.ACTION_COPY;
+import static java.awt.dnd.DnDConstants.ACTION_MOVE;
+import static java.awt.dnd.DragSource.DefaultMoveDrop;
+import static net.sf.taverna.t2.reference.ui.tree.PreRegistrationTreeDnDHandler.InternalNodeDragTransferable.INTERNAL_NODE_FLAVOR;
+
 import java.awt.Point;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DragGestureEvent;
 import java.awt.dnd.DragGestureListener;
 import java.awt.dnd.DragSource;
@@ -44,14 +49,15 @@ import java.net.URL;
 import java.util.List;
 
 import javax.swing.JTree;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
 
 /**
- * An abstract handler class for drags within a JTree backed by a
- * DefaultTreeModel. Implement the (@link
+ * An abstract handler class for drags within a {@link JTree} backed by a
+ * {@link DefaultTreeModel}. Implement the (@link
  * {@link #handleNodeMove(MutableTreeNode, MutableTreeNode)} method to determine
  * the behaviour when a node is dragged to another node in the tree. Additional
  * methods are called when drags corresponding to URL, List&lt;File&gt; and
@@ -62,21 +68,17 @@ import org.apache.log4j.Logger;
  */
 public abstract class PreRegistrationTreeDnDHandler implements
 		DropTargetListener, DragGestureListener, DragSourceListener {
-
 	private static Logger logger = Logger
-	.getLogger(PreRegistrationTreeDnDHandler.class);
+			.getLogger(PreRegistrationTreeDnDHandler.class);
 
 	private JTree tree;
-
 	private MutableTreeNode draggedNode = null;
-
 	private DragSource source = new DragSource();
 
 	public PreRegistrationTreeDnDHandler(JTree tree) {
 		this.tree = tree;
 		new DropTarget(tree, this);
-		source.createDefaultDragGestureRecognizer(tree,
-				DnDConstants.ACTION_MOVE, this);
+		source.createDefaultDragGestureRecognizer(tree, ACTION_MOVE, this);
 	}
 	
 	/**
@@ -124,126 +126,114 @@ public abstract class PreRegistrationTreeDnDHandler implements
 	 */
 	public abstract void handleStringDrop(MutableTreeNode target, String string);
 
+	@Override
 	public void dragEnter(DropTargetDragEvent dtde) {
-		dtde.acceptDrag(DnDConstants.ACTION_MOVE);
+		dtde.acceptDrag(ACTION_MOVE);
 	}
 
+	@Override
 	public void dragExit(DropTargetEvent dte) {
-		// TODO Auto-generated method stub
-
 	}
 
+	@Override
 	public void dragOver(DropTargetDragEvent dtde) {
-		dtde.acceptDrag(DnDConstants.ACTION_MOVE);
+		dtde.acceptDrag(ACTION_MOVE);
 	}
 
-	@SuppressWarnings("unchecked")
+	@Override
 	public void drop(DropTargetDropEvent dtde) {
 		Point pt = dtde.getLocation();
 		DropTargetContext dtc = dtde.getDropTargetContext();
 		JTree tree = (JTree) dtc.getComponent();
 		TreePath targetPath = tree.getClosestPathForLocation(pt.x, pt.y);
 		MutableTreeNode target = null;
-		if (targetPath != null) {
+		if (targetPath != null)
 			target = (MutableTreeNode) targetPath.getLastPathComponent();
-		}
 		Transferable tr = dtde.getTransferable();
-		if (tr
-				.isDataFlavorSupported(InternalNodeDragTransferable.INTERNAL_NODE_FLAVOR)) {
-			dtde.acceptDrop(DnDConstants.ACTION_MOVE);
+		if (tr.isDataFlavorSupported(INTERNAL_NODE_FLAVOR)) {
+			dtde.acceptDrop(ACTION_MOVE);
 			handleNodeMove(draggedNode, target);
 			draggedNode = null;
 			dtde.dropComplete(true);
 			return;
-		} else if (tr.isDataFlavorSupported(DataFlavor.javaFileListFlavor)) {
-			dtde.acceptDrop(DnDConstants.ACTION_COPY);
+		} else if (tr.isDataFlavorSupported(javaFileListFlavor)) {
+			dtde.acceptDrop(ACTION_COPY);
 			try {
+				@SuppressWarnings("unchecked")
 				List<File> fileList = (List<File>) tr
-						.getTransferData(DataFlavor.javaFileListFlavor);
+						.getTransferData(javaFileListFlavor);
 				handleFileDrop(target, fileList);
 				dtde.dropComplete(true);
 			} catch (Exception ex) {
 				dtde.dropComplete(false);
 			}
 			return;
-		} else {
-			for (DataFlavor flavor : tr.getTransferDataFlavors()) {
-				String mimeType = flavor.getMimeType();
-				if (mimeType.startsWith("application/x-java-url")) {
-					dtde.acceptDrop(DnDConstants.ACTION_COPY);
-					URL url;
-					try {
-						url = (URL) tr.getTransferData(flavor);
-						handleUrlDrop(target, url);
-						dtde.dropComplete(true);
-					} catch (UnsupportedFlavorException e) {
-						dtde.dropComplete(false);
-						logger.error("Cannot import data", e);
-					} catch (IOException e) {
-						dtde.dropComplete(false);
-						logger.error("Cannot import data", e);
-					}
-					return;
-				} else if (mimeType.contains("class=java.lang.String;")) {
-					dtde.acceptDrop(DnDConstants.ACTION_COPY);
-					String string;
-					try {
-						string = (String) tr.getTransferData(flavor);
-						handleStringDrop(target, string);
-						dtde.dropComplete(true);
-					} catch (UnsupportedFlavorException e) {
-						dtde.dropComplete(false);
-						logger.error("Cannot import data", e);
-					} catch (IOException e) {
-						dtde.dropComplete(false);
-						logger.error("Cannot import data", e);
-					}
-					return;
+		}
+
+		for (DataFlavor flavor : tr.getTransferDataFlavors()) {
+			String mimeType = flavor.getMimeType();
+			if (mimeType.startsWith("application/x-java-url")) {
+				dtde.acceptDrop(ACTION_COPY);
+				URL url;
+				try {
+					url = (URL) tr.getTransferData(flavor);
+					handleUrlDrop(target, url);
+					dtde.dropComplete(true);
+				} catch (UnsupportedFlavorException|IOException e) {
+					dtde.dropComplete(false);
+					logger.error("Cannot import data", e);
 				}
+				return;
+			} else if (mimeType.contains("class=java.lang.String;")) {
+				dtde.acceptDrop(ACTION_COPY);
+				String string;
+				try {
+					string = (String) tr.getTransferData(flavor);
+					handleStringDrop(target, string);
+					dtde.dropComplete(true);
+				} catch (UnsupportedFlavorException | IOException e) {
+					dtde.dropComplete(false);
+					logger.error("Cannot import data", e);
+				}
+				return;
 			}
 		}
 		dtde.rejectDrop();
 	}
 
+	@Override
 	public void dropActionChanged(DropTargetDragEvent dtde) {
-		// TODO Auto-generated method stub
 	}
 
+	@Override
 	public void dragGestureRecognized(DragGestureEvent dge) {
 		TreePath path = tree.getSelectionPath();
-		if ((path == null) || (path.getPathCount() <= 1)) {
+		if (path == null || path.getPathCount() <= 1)
 			// We can't move the root node or an empty selection
 			return;
-		}
 		draggedNode = (MutableTreeNode) path.getLastPathComponent();
-		source.startDrag(dge, DragSource.DefaultMoveDrop,
+		source.startDrag(dge, DefaultMoveDrop,
 				new InternalNodeDragTransferable(), this);
-
 	}
 
+	@Override
 	public void dragDropEnd(DragSourceDropEvent dsde) {
-		// TODO Auto-generated method stub
-
 	}
 
+	@Override
 	public void dragEnter(DragSourceDragEvent dsde) {
-		// TODO Auto-generated method stub
-
 	}
 
+	@Override
 	public void dragExit(DragSourceEvent dse) {
-		// TODO Auto-generated method stub
-
 	}
 
+	@Override
 	public void dragOver(DragSourceDragEvent dsde) {
-		// TODO Auto-generated method stub
-
 	}
 
+	@Override
 	public void dropActionChanged(DragSourceDragEvent dsde) {
-		// TODO Auto-generated method stub
-
 	}
 
 	/**
@@ -251,28 +241,28 @@ public abstract class PreRegistrationTreeDnDHandler implements
 	 * managing the same events.
 	 * 
 	 * @author Tom Oinn
-	 * 
 	 */
 	static class InternalNodeDragTransferable implements Transferable {
-
 		static DataFlavor INTERNAL_NODE_FLAVOR = new DataFlavor(
 				InternalNodeDragTransferable.class, "Internal node move");
 
 		private DataFlavor flavors[] = { INTERNAL_NODE_FLAVOR };
 
+		@Override
 		public Object getTransferData(DataFlavor flavor)
 				throws UnsupportedFlavorException, IOException {
 			// There is no data for this, so return null
 			return null;
 		}
 
+		@Override
 		public DataFlavor[] getTransferDataFlavors() {
 			return flavors;
 		}
 
+		@Override
 		public boolean isDataFlavorSupported(DataFlavor flavor) {
-			return (flavor.getRepresentationClass() == InternalNodeDragTransferable.class);
+			return flavor.getRepresentationClass() == InternalNodeDragTransferable.class;
 		}
-
 	}
 }

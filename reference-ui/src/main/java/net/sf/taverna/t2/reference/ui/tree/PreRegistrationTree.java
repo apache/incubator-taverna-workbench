@@ -20,6 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.reference.ui.tree;
 
+import static javax.swing.SwingUtilities.invokeLater;
+import static javax.swing.tree.TreeSelectionModel.SINGLE_TREE_SELECTION;
+
 import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -30,13 +33,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JTree;
-import javax.swing.SwingUtilities;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 
 import org.apache.log4j.Logger;
 
@@ -45,17 +46,13 @@ import org.apache.log4j.Logger;
  * listeners used by the pre-registration tree control. Implements autoscroll
  * and zooms to any new nodes when added. Handles drop of URLs (from e.g.
  * FireFox), File structures and plain text by creating corresponding POJOs.
- *
+ * 
  * @author Tom Oinn
- *
  */
 public class PreRegistrationTree extends JTree implements Autoscroll {
-
-	private static Logger logger = Logger
-	.getLogger(PreRegistrationTree.class);
-
-
 	private static final long serialVersionUID = -8357524058131749686L;
+	private static Logger logger = Logger.getLogger(PreRegistrationTree.class);
+
 	private PreRegistrationTreeModel model;
 	private int margin = 15;
 
@@ -63,7 +60,7 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 	 * Get the PreRegistrationTreeModel for this tree. Used to get the contents
 	 * of the tree as a POJO which can then be registered with the
 	 * ReferenceService
-	 *
+	 * 
 	 * @return a POJO containing the contents of the tree.
 	 */
 	public PreRegistrationTreeModel getPreRegistrationTreeModel() {
@@ -81,7 +78,7 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 	 * Construct with the depth of the collection to be assembled. This will
 	 * instantiate an appropriate internal model and set all the drag and drop
 	 * handlers, renderers and cell editing components.
-	 *
+	 * 
 	 * @param depth
 	 *            the collection depth to use, 0 for single items, 1 for lists
 	 *            and so on.
@@ -101,17 +98,14 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 	 * @param name Name of the top root of the tree (typically the port name)
 	 */
 	public PreRegistrationTree(int depth, String name) {
-		super();
-		if (name == null) {
+		if (name == null)
 			model = new PreRegistrationTreeModel(depth);
-		} else {
+		else
 			model = new PreRegistrationTreeModel(depth, name);
-		}
 		setModel(model);
 		setInvokesStopCellEditing(true);
 
-		getSelectionModel().setSelectionMode(
-				TreeSelectionModel.SINGLE_TREE_SELECTION);
+		getSelectionModel().setSelectionMode(SINGLE_TREE_SELECTION);
 		DefaultTreeCellRenderer renderer = new PreRegistrationTreeCellRenderer();
 		setRowHeight(0);
 		setCellRenderer(renderer);
@@ -129,23 +123,25 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 				for (File f : fileList) {
 					if (f.isDirectory() == false) {
 						model.addPojoStructure(target, target, f, 0);
-					} else {
-						if (model.getDepth() < 1) {
-							setStatusMessage(
-									"Can't add directory to single item input",
-									true);
-							return;
-						}
-						// Try to handle directories as flat lists, don't nest
-						// any deeper for now.
-						List<File> children = new ArrayList<File>();
-						for (File child : f.listFiles()) {
-							if (child.isFile()) {
-								children.add(child);
-							}
-						}
-						model.addPojoStructure(target, target, children, 1);
+						continue;
 					}
+
+					if (model.getDepth() < 1) {
+						setStatusMessage(
+								"Can't add directory to single item input",
+								true);
+						return;
+					}
+
+					/*
+					 * Try to handle directories as flat lists, don't nest any
+					 * deeper for now.
+					 */
+					List<File> children = new ArrayList<>();
+					for (File child : f.listFiles())
+						if (child.isFile())
+							children.add(child);
+					model.addPojoStructure(target, target, children, 1);
 				}
 			}
 
@@ -155,10 +151,9 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 					model.addPojoStructure(target, target, url, 0);
 					setStatusMessage("Added URL : " + url.toExternalForm(),
 							false);
-				} else {
+				} else
 					setStatusMessage("Only http URLs are supported for now.",
 							true);
-				}
 			}
 
 			@Override
@@ -177,8 +172,8 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 			treeModelListener = new TreeModelHandler() {
 				@Override
 				public void treeNodesInserted(final TreeModelEvent ev) {
-
-					SwingUtilities.invokeLater(new Runnable() {
+					invokeLater(new Runnable() {
+						@Override
 						public void run() {
 							TreePath path = ev.getTreePath();
 							setExpandedState(path, true);
@@ -187,14 +182,14 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 					});
 				}
 			};
-		if (model != null) {
+		if (model != null)
 			model.addTreeModelListener(treeModelListener);
-		}
 		TreeModel oldValue = treeModel;
 		treeModel = model;
 		firePropertyChange(TREE_MODEL_PROPERTY, oldValue, model);
 	}
 
+	@Override
 	public void autoscroll(Point p) {
 		int realrow = getRowForLocation(p.x, p.y);
 		Rectangle outer = getBounds();
@@ -203,6 +198,7 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 		scrollRowToVisible(realrow);
 	}
 
+	@Override
 	public Insets getAutoscrollInsets() {
 		Rectangle outer = getBounds();
 		Rectangle inner = getParent().getBounds();
@@ -212,10 +208,10 @@ public class PreRegistrationTree extends JTree implements Autoscroll {
 				+ margin);
 	}
 
+	@Override
 	public int getRowCount() {
 		int result = super.getRowCount();
 		logger.info("Row count is " + result);
 		return result;
 	}
-
 }

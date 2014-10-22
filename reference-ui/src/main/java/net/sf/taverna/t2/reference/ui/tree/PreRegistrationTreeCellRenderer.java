@@ -40,8 +40,9 @@ import javax.swing.tree.DefaultTreeCellRenderer;
  *
  */
 public class PreRegistrationTreeCellRenderer extends DefaultTreeCellRenderer {
-
 	private static final long serialVersionUID = 5284952103994689024L;
+	private static int MAXIMUM_TEXT_LENGTH = 14;
+
 	private ImageIcon textIcon = new ImageIcon(getClass().getResource(
 			"/icons/wordassist_co.gif"));
 	private ImageIcon fileIcon = new ImageIcon(getClass().getResource(
@@ -51,68 +52,64 @@ public class PreRegistrationTreeCellRenderer extends DefaultTreeCellRenderer {
 	private ImageIcon binaryIcon = new ImageIcon(getClass().getResource(
 			"/icons/genericregister_obj.gif"));
 
-	private static int MAXIMUM_TEXT_LENGTH = 14;
-
 	@Override
 	public synchronized Component getTreeCellRendererComponent(JTree tree,
 			Object value, boolean sel, boolean expanded, boolean leaf, int row,
 			boolean hasFocus) {
 		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf,
 				row, hasFocus);
-		if (value instanceof DefaultMutableTreeNode) {
-			Object userObject = ((DefaultMutableTreeNode) value)
-					.getUserObject();
-			if (userObject == null) {
-				setText("List");
-			}
-			if (tree.getModel().getRoot() == value) {
-				setText(userObject.toString());
-			} else {
-				if (userObject != null) {
-					// Handle rendering of string, file, url, byte[] here
-					if (userObject instanceof String) {
-						setIcon(textIcon);
-						String string = (String) userObject;
-						if (string.length() < MAXIMUM_TEXT_LENGTH) {
-							setText(string);
-						} else {
-							setText(string.substring(0, MAXIMUM_TEXT_LENGTH - 4) + "...");
-						}
-					} else if (userObject instanceof byte[]) {
-						byte[] bytes = (byte[]) userObject;
-						setIcon(binaryIcon);
-						setText("byte[] " + getHumanReadableSize(bytes.length));
-					} else if (userObject instanceof File) {
-						setIcon(fileIcon);
-						File f = (File) userObject;
-						setText(f.getName());
-					} else if (userObject instanceof URL) {
-						setIcon(urlIcon);
-						URL url = (URL) userObject;
-						setText(url.getHost());
-					}
-				} else {
-					if (expanded) {
-						// setIcon(expandedIcon);
-					} else {
-						// setIcon(unexpandedIcon);
-					}
-				}
-			}
-		}
+		if (value instanceof DefaultMutableTreeNode)
+			renderPreRegistrationCell(tree, value, expanded,
+					((DefaultMutableTreeNode) value).getUserObject());
 		return this;
 	}
 
-	private static String getHumanReadableSize(int size) {
-		if (size < 10000) {
-			return size + " bytes";
-		} else if (size < 2000000) {
-			return (int) (size / 1000) + " kB";
-		} else if (size < 2000000000) {
-			return (int) (size / (1000000)) + " mB";
+	private void renderPreRegistrationCell(JTree tree, Object value,
+			boolean expanded, Object userObject) {
+		if (userObject == null) {
+			setText("List");
+		} else if (tree.getModel().getRoot() == value) {
+			setText(userObject.toString());
 		} else {
-			return (int) (size / (1000000000)) + " gB";
+			// Handle rendering of string, file, url, byte[] here
+			if (userObject instanceof String) {
+				setIcon(textIcon);
+				String string = (String) userObject;
+				if (string.length() < MAXIMUM_TEXT_LENGTH)
+					setText(string);
+				else
+					setText(string.substring(0, MAXIMUM_TEXT_LENGTH - 4)
+							+ "...");
+			} else if (userObject instanceof byte[]) {
+				byte[] bytes = (byte[]) userObject;
+				setIcon(binaryIcon);
+				setText("byte[] " + getHumanReadableSize(bytes.length));
+			} else if (userObject instanceof File) {
+				setIcon(fileIcon);
+				File f = (File) userObject;
+				setText(f.getName());
+			} else if (userObject instanceof URL) {
+				setIcon(urlIcon);
+				URL url = (URL) userObject;
+				setText(url.getHost());
+			} else {
+				if (expanded) {
+					// setIcon(expandedIcon);
+				} else {
+					// setIcon(unexpandedIcon);
+				}
+			}
 		}
 	}
 
+	private static String getHumanReadableSize(int size) {
+		if (size < 10000)
+			return size + " bytes";
+		else if (size < 2000000)
+			return (int) (size / 1000) + " kB";
+		else if (size < 2000000000)
+			return (int) (size / 1000000) + " mB";
+		else
+			return (int) (size / 1000000000) + " gB";
+	}
 }
