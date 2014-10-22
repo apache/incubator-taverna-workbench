@@ -3,8 +3,8 @@ package net.sf.taverna.t2.workbench.views.results;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
+@SuppressWarnings("serial")
 public abstract class SimpleFilteredTreeModel extends DefaultTreeModel {
-
 	public DefaultTreeModel delegate;
 
 	public SimpleFilteredTreeModel(DefaultTreeModel delegate) {
@@ -12,16 +12,14 @@ public abstract class SimpleFilteredTreeModel extends DefaultTreeModel {
 		this.delegate = delegate;
 	}
 
+	@Override
 	public Object getChild(Object parent, int index) {
 		int count = -1;
 		for (int i = 0; i < delegate.getChildCount(parent); i++) {
 			final Object child = delegate.getChild(parent, i);
-			if (isShown(child)) {
-				count++;
-				if (count == index) {
+			if (isShown(child))
+				if (++count == index)
 					return child;
-				}
-			}
 		}
 		return null;
 	}
@@ -32,39 +30,37 @@ public abstract class SimpleFilteredTreeModel extends DefaultTreeModel {
 			final Object c = delegate.getChild(parent, i);
 			if (isShown(c)) {
 				count++;
-				if (c.equals(child)) {
+				if (c.equals(child))
 					return count;
-				}
 			}
-			if (c.equals(child)) {
+			if (c.equals(child))
 				return -1;
-			}
 		}
 		return -1;
 	}
 
+	@Override
 	public int getIndexOfChild(Object parent, Object child) {
 		return delegate.getIndexOfChild(parent, child);
 	}
 
+	@Override
 	public int getChildCount(Object parent) {
 		int count = 0;
 		for (int i = 0; i < delegate.getChildCount(parent); i++) {
 			final Object child = delegate.getChild(parent, i);
-			if (isShown(child)) {
+			if (isShown(child))
 				count++;
-			}
 		}
 		return count;
 	}
 
+	@Override
 	public boolean isLeaf(Object node) {
-		if (node == null) {
+		if (node == null)
 			return true;
-		}
-		if (delegate == null) {
+		if (delegate == null)
 			return true;
-		}
 		return delegate.isLeaf(node);
 	}
 

@@ -20,6 +20,17 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.saveactions;
 
+import static java.lang.System.getProperty;
+import static javax.swing.JFileChooser.APPROVE_OPTION;
+import static javax.swing.JFileChooser.FILES_ONLY;
+import static javax.swing.JOptionPane.ERROR_MESSAGE;
+import static javax.swing.JOptionPane.YES_NO_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
+import static javax.swing.JOptionPane.showConfirmDialog;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static net.sf.taverna.t2.results.ResultsUtils.convertPathToObject;
+import static org.apache.log4j.Logger.getLogger;
+
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
@@ -30,10 +41,8 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
-import net.sf.taverna.t2.results.ResultsUtils;
 
 import org.apache.log4j.Logger;
 
@@ -47,8 +56,7 @@ import org.apache.log4j.Logger;
  */
 @SuppressWarnings("serial")
 public abstract class SaveAllResultsSPI extends AbstractAction {
-
-	protected static Logger logger = Logger.getLogger(SaveAllResultsSPI.class);
+	protected static final Logger logger = getLogger(SaveAllResultsSPI.class);
 
 	protected Map<String, Path> chosenReferences;
 	protected JDialog dialog;
@@ -80,95 +88,83 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 		this.dialog = dialog;
 	}
 
+	/**
+	 * Get the extension for the filename.
+	 * 
+	 * @return The extension, in lower case, without any leading "<tt>.</tt>"
+	 */
 	protected abstract String getFilter();
 
 	protected int getFileSelectionMode() {
-		return JFileChooser.FILES_ONLY;
+		return FILES_ONLY;
 	}
 
 	/**
 	 * Shows a standard save dialog and dumps the entire result
 	 * set to the specified XML file.
 	 */
+	@Override
 	public void actionPerformed(ActionEvent e) {
-
 		dialog.setVisible(false);
 
 		JFileChooser fc = new JFileChooser();
 		Preferences prefs = Preferences.userNodeForPackage(getClass());
-		String curDir = prefs.get("currentDir", System.getProperty("user.home"));
+		String curDir = prefs.get("currentDir", getProperty("user.home"));
 		fc.resetChoosableFileFilters();
-		if (getFilter() != null) {
-			fc.setFileFilter(new ExtensionFileFilter(new String[] { getFilter() }));
-		}
+		if (getFilter() != null)
+			fc.setFileFilter(new ExtensionFileFilter(
+					new String[] { getFilter() }));
 		fc.setCurrentDirectory(new File(curDir));
 		fc.setFileSelectionMode(getFileSelectionMode());
 
-		boolean tryAgain = true;
-		while (tryAgain) {
-			tryAgain = false;
-			int returnVal = fc.showSaveDialog(null);
-			if (returnVal == JFileChooser.APPROVE_OPTION) {
+		while (true) {
+			if (fc.showSaveDialog(null) != APPROVE_OPTION)
+				return;
+			prefs.put("currentDir", fc.getCurrentDirectory().toString());
+			File file = fc.getSelectedFile();
 
-				prefs.put("currentDir", fc.getCurrentDirectory().toString());
-				File file = fc.getSelectedFile();
-
-				if (getFilter() != null) {
-					// If the user did not use the .xml extension for the file - append it to the
-					// file name now
-					if (!file.getName().toLowerCase().endsWith("." + getFilter())) {
-						String newFileName = file.getName() + "." + getFilter();
-						file = new File(file.getParentFile(), newFileName);
-					}
-				}
-				final File finalFile = file;
-
-				if (file.exists()) { // File already exists
-					// Ask the user if they want to overwrite the file
-					String msg = file.getAbsolutePath()
-							+ " already exists. Do you want to overwrite it?";
-					int ret = JOptionPane.showConfirmDialog(null, msg, "File already exists",
-							JOptionPane.YES_NO_OPTION);
-
-					if (ret == JOptionPane.YES_OPTION) {
-						// Do this in separate thread to avoid hanging UI
-						new Thread("SaveAllResults: Saving results to " + finalFile) {
-							public void run() {
-								try {
-									synchronized (chosenReferences) {
-										saveData(finalFile);
-									}
-								} catch (Exception ex) {
-									JOptionPane.showMessageDialog(null,
-											"Problem saving result data\n" + ex.getMessage(),
-											"Save Result Error", JOptionPane.ERROR_MESSAGE);
-									logger.error(
-											"SaveAllResults Error: Problem saving result data", ex);
-								}
-							}
-						}.start();
-					} else {
-						tryAgain = true;
-					}
-				} else { // File does not already exist
-
-					// Do this in separate thread to avoid hanging UI
-					new Thread("SaveAllResults: Saving results to " + finalFile) {
-						public void run() {
-							try {
-								synchronized (chosenReferences) {
-									saveData(finalFile);
-								}
-							} catch (Exception ex) {
-								JOptionPane.showMessageDialog(null, "Problem saving result data\n"
-										+ ex.getMessage(), "Save Result Error",
-										JOptionPane.ERROR_MESSAGE);
-								logger.error("SaveAllResults Error: Problem saving result data", ex);
-							}
-						}
-					}.start();
-				}
+			/*
+			 * If the user did not use the extension for the file, append it to
+			 * the file name now
+			 */
+			if (getFilter() != null
+					&& !file.getName().toLowerCase()
+							.endsWith("." + getFilter())) {
+				String newFileName = file.getName() + "." + getFilter();
+				file = new File(file.getParentFile(), newFileName);
 			}
+			final File finalFile = file;
+
+			if (file.exists()) // File already exists
+				// Ask the user if they want to overwrite the file
+				if (showConfirmDialog(null, file.getAbsolutePath()
+						+ " already exists. Do you want to overwrite it?",
+						"File already exists", YES_NO_OPTION) != YES_OPTION)
+					continue;
+
+			// File doesn't exist, or user has OK'd overwriting it
+
+			// Do this in separate thread to avoid hanging UI
+			new Thread("SaveAllResults: Saving results to " + finalFile) {
+				@Override
+				public void run() {
+					saveDataToFile(finalFile);
+				}
+			}.start();
+			return;
+		}
+	}
+
+	private void saveDataToFile(final File finalFile) {
+		try {
+			synchronized (chosenReferences) {
+				saveData(finalFile);
+			}
+		} catch (Exception ex) {
+			showMessageDialog(null,
+					"Problem saving result data\n" + ex.getMessage(),
+					"Save Result Error", ERROR_MESSAGE);
+			logger.error("SaveAllResults Error: Problem saving result data", ex);
 		}
 	}
 
@@ -176,18 +172,15 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 
 	protected Object getObjectForName(String name) {
 		Object result = null;
-		if (chosenReferences.containsKey(name)) {
-			try {
-				result = ResultsUtils.convertPathToObject(chosenReferences.get(name));
-			} catch (IOException e) {
-				logger.warn("Error getting value for " + name, e);
-			}
+		try {
+			if (chosenReferences.containsKey(name))
+				result = convertPathToObject(chosenReferences.get(name));
+		} catch (IOException e) {
+			logger.warn("Error getting value for " + name, e);
 		}
-		if (result == null) {
+		if (result == null)
 			result = "null";
-		}
 		return result;
-
 	}
 
 	public Map<String, Path> getChosenReferences() {
@@ -197,5 +190,4 @@ public abstract class SaveAllResultsSPI extends AbstractAction {
 	public JDialog getDialog() {
 		return dialog;
 	}
-
 }

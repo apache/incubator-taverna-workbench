@@ -8,7 +8,6 @@ import uk.org.taverna.platform.report.Invocation;
 
 @SuppressWarnings("serial")
 public class InvocationTreeNode extends DefaultMutableTreeNode {
-
 	public static enum ErrorState {
 		NO_ERRORS,
 		INPUT_ERRORS,
@@ -16,7 +15,6 @@ public class InvocationTreeNode extends DefaultMutableTreeNode {
 	}
 
 	private ErrorState errorState = ErrorState.NO_ERRORS;
-
 	private final Invocation invocation;
 
 	public InvocationTreeNode(Invocation invocation) {
@@ -26,9 +24,8 @@ public class InvocationTreeNode extends DefaultMutableTreeNode {
 
 	public InvocationTreeNode getParentInvocationTreeNode() {
 		TreeNode parentNode = getParent();
-		if (parentNode instanceof InvocationTreeNode) {
+		if (parentNode instanceof InvocationTreeNode)
 			return (InvocationTreeNode) parentNode;
-		}
 		return null;
 	}
 
@@ -47,14 +44,13 @@ public class InvocationTreeNode extends DefaultMutableTreeNode {
 			}
 		}
 		int[] index = invocation.getIndex();
-		if (index.length == 0) {
+		if (index.length == 0)
 			sb.append(1);
-		} else {
+		else {
+			String sep = "";
 			for (int i = 0; i < index.length; i++) {
-				sb.append(index[i]+1);
-				if (i < index.length - 1) {
-					sb.append(".");
-				}
+				sb.append(sep).append(index[i]+1);
+				sep = ".";
 			}
 		}
 		return sb.toString();
@@ -62,21 +58,19 @@ public class InvocationTreeNode extends DefaultMutableTreeNode {
 
 	public Invocation getParentInvocation() {
 		InvocationTreeNode parentIterationTreeNode = getParentInvocationTreeNode();
-		if (parentIterationTreeNode != null) {
+		if (parentIterationTreeNode != null)
 			return parentIterationTreeNode.getInvocation();
-		}
 		return null;
 	}
 
-
+	@Override
 	public String toString(){
 		boolean isNested = getChildCount() > 0;
 		StringBuilder sb = new StringBuilder();
-		if (isNested) {
+		if (isNested)
 			sb.append("Nested invocation ");
-		} else {
+		else
 			sb.append("Invocation ");
-		}
 		sb.append(getIndex());
 		return sb.toString();
 	}
@@ -88,12 +82,10 @@ public class InvocationTreeNode extends DefaultMutableTreeNode {
 
 	private void notifyParentErrorState() {
 		InvocationTreeNode parentIterationTreeNode = getParentInvocationTreeNode();
-		if (parentIterationTreeNode == null) {
+		if (parentIterationTreeNode == null)
 			return;
-		}
-		if (parentIterationTreeNode.getErrorState().compareTo(errorState) < 0) {
+		if (parentIterationTreeNode.getErrorState().compareTo(errorState) < 0)
 			parentIterationTreeNode.setErrorState(errorState);
-		}
 	}
 
 	@Override

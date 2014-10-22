@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.saveactions;
 
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.xmlNodeIcon;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -28,20 +30,18 @@ import java.util.Map;
 import javax.swing.AbstractAction;
 
 import net.sf.taverna.t2.results.BaclavaDocumentPathHandler;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 /**
- * Stores the entire map of result objects to disk
- * as a single XML data document.
- * For the most part, this class delegates to {@link BaclavaDocumentPathHandler}
- *
+ * Stores the entire map of result objects to disk as a single XML data
+ * document. For the most part, this class delegates to
+ * {@link BaclavaDocumentPathHandler}
+ * 
  * @author Tom Oinn
  * @author Alex Nenadic
  * @author Stuart Owen
  * @author David Withers
  */
 public class SaveAllResultsAsXML extends SaveAllResultsSPI {
-
 	private static final long serialVersionUID = 452360182978773176L;
 
 	private BaclavaDocumentPathHandler baclavaDocumentHandler = new BaclavaDocumentPathHandler();
@@ -49,18 +49,20 @@ public class SaveAllResultsAsXML extends SaveAllResultsSPI {
 	public SaveAllResultsAsXML() {
 		super();
 		putValue(NAME, "Save in single XML document");
-		putValue(SMALL_ICON, WorkbenchIcons.xmlNodeIcon);
+		putValue(SMALL_ICON, xmlNodeIcon);
 	}
 
+	@Override
 	public AbstractAction getAction() {
 		return new SaveAllResultsAsXML();
 	}
 
 	/**
 	 * Saves the result data to an XML Baclava file.
-	 *
+	 * 
 	 * @throws IOException
 	 */
+	@Override
 	protected void saveData(File file) throws IOException {
 		baclavaDocumentHandler.saveData(file);
 	}
@@ -75,5 +77,4 @@ public class SaveAllResultsAsXML extends SaveAllResultsSPI {
 	protected String getFilter() {
 		return "xml";
 	}
-
 }

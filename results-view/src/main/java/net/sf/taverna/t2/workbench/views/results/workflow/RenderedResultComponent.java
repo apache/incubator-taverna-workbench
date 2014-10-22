@@ -20,8 +20,18 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.workflow;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.NORTH;
+import static java.awt.Color.GRAY;
+import static java.awt.event.ItemEvent.SELECTED;
+import static javax.swing.BoxLayout.LINE_AXIS;
+import static javax.swing.SwingUtilities.invokeLater;
+import static net.sf.taverna.t2.renderers.RendererUtils.getInputStream;
+import static net.sf.taverna.t2.results.ResultsUtils.getMimeTypes;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.refreshIcon;
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -50,7 +60,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTree;
 import javax.swing.ListCellRenderer;
-import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -59,12 +68,8 @@ import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.renderers.Renderer;
 import net.sf.taverna.t2.renderers.RendererException;
 import net.sf.taverna.t2.renderers.RendererRegistry;
-import net.sf.taverna.t2.renderers.RendererUtils;
-import net.sf.taverna.t2.results.ResultsUtils;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.databundle.DataBundles;
@@ -82,67 +87,68 @@ import eu.medsea.mimeutil.MimeType;
  */
 @SuppressWarnings("serial")
 public class RenderedResultComponent extends JPanel {
-
+	private static final Logger logger = Logger.getLogger(RenderedResultComponent.class);
 	private static final String WRAP_TEXT = "Wrap text";
+	private static final String ERROR_DOCUMENT = "Error Document";
 
-	final String ERROR_DOCUMENT = "Error Document";
-
-	private static Logger logger = Logger.getLogger(RenderedResultComponent.class);
-
-	// Panel containing rendered result
+	/** Panel containing rendered result*/
 	private JPanel renderedResultPanel;
-
-	// Combo box containing possible result types
+	/** Combo box containing possible result types*/
 	private JComboBox<String> renderersComboBox;
-
-	// Button to refresh (re-render) the result, especially needed
-	// for large results that are not rendered or are
-	// partially rendered and the user wished to re-render them
+	/**
+	 * Button to refresh (re-render) the result, especially needed for large
+	 * results that are not rendered or are partially rendered and the user
+	 * wished to re-render them
+	 */
 	private JButton refreshButton;
-
-	// Preferred result type renderers (the ones recognised to be able to handle the result's MIME
-	// type)
+	/**
+	 * Preferred result type renderers (the ones recognised to be able to handle
+	 * the result's MIME type)
+	 */
 	private List<Renderer> recognisedRenderersForMimeType;
-
-	// All other result type renderers (the ones not recognised to be able to handle the result's
-	// MIME type)
-	// In case user wants to use them.
+	/**
+	 * All other result type renderers (the ones not recognised to be able to
+	 * handle the result's MIME type) in case user wants to use them.
+	 */
 	private List<Renderer> otherRenderers;
-
-	// Renderers' registry
+	/** Renderers' registry */
 	private final RendererRegistry rendererRegistry;
-
-	// List of all MIME strings from all available renderers to be used for renderersComboBox.
-	// Those that come from recognisedRenderersForMimeType are the preferred ones.
-	// Those from otherRenderers will be greyed-out in the combobox list but could still be used.
+	/**
+	 * List of all MIME strings from all available renderers to be used for
+	 * {@link #renderersComboBox}. Those that come from
+	 * {@link #recognisedRenderersForMimeType} are the preferred ones. Those
+	 * from {@link #otherRenderers} will be greyed-out in the combobox list but
+	 * could still be used.
+	 */
 	private String[] mimeList;
-
-	// List of all available renderers but ordered to match the corresponding MIME type strings in
-	// mimeList:
-	// first the preferred renderers from recognisedRenderersForMimeType then the ones from
-	// otherRenderers.
+	/**
+	 * List of all available renderers but ordered to match the corresponding
+	 * MIME type strings in mimeList: first the preferred renderers from
+	 * {@link #recognisedRenderersForMimeType} then the ones from
+	 * {@link #otherRenderers}.
+	 */
 	private ArrayList<Renderer> rendererList;
-
-	// Remember the MIME type of the last used renderer; use "text/plain" by default until
-	// user changes it - then use that one for all result items of the port (in case result
-	// contains a list). "text/plain" will always be added to the mimeList.
-	private String lastUsedMIMEtype = "text/plain"; // text renderer will always be available
-
-	// If result is "text/plain" - provide possibility to wrap wide text
+	/**
+	 * Remember the MIME type of the last used renderer. Use "
+	 * <tt>text/plain</tt>" by default until user changes it - then use that one
+	 * for all result items of the port (in case result contains a list). "
+	 * <tt>text/plain</tt>" will always be added to the {@link #mimeList}.
+	 */
+	// text renderer will always be available
+	private String lastUsedMIMEtype = "text/plain";
+	/** If result is "text/plain" - provide possibility to wrap wide text */
 	private JCheckBox wrapTextCheckBox;
-
-	// Reference to the object being displayed (contained in the tree node)
+	/** Reference to the object being displayed (contained in the tree node) */
 	private Path path;
-
-	// In case the node can be rendered as "text/plain", map the hash code of the node
-	// to the wrap text check box selection value for that node (that remembers if user wanted the
-	// text wrapped or not).
-	private Map<Path, Boolean> nodeToWrapSelection = new HashMap<Path, Boolean>();
-
-	// List of all output ports - needs to be passed to 'save result' actions.
+	/**
+	 * In case the node can be rendered as "<tt>text/plain</tt>", map the hash
+	 * code of the node to the wrap text check box selection value for that node
+	 * (that remembers if user wanted the text wrapped or not).
+	 */
+	private Map<Path, Boolean> nodeToWrapSelection = new HashMap<>();
+	/** List of all output ports - needs to be passed to 'save result' actions. */
 	List<OutputWorkflowPort> dataflowOutputPorts = null;
-
-	// Panel containing all 'save results' buttons
+	/** Panel containing all 'save results' buttons */
 	JPanel saveButtonsPanel = null;
 
 	/**
@@ -163,12 +169,12 @@ public class RenderedResultComponent extends JPanel {
 
 		// Set the new listener - listen for changes in the currently selected renderer
 		renderersComboBox.addItemListener(new ItemListener() {
+			@Override
 			public void itemStateChanged(ItemEvent e) {
 				if (e.getStateChange() == ItemEvent.SELECTED
-						&& !((String) e.getItem()).equals(ERROR_DOCUMENT)) {
+						&& !ERROR_DOCUMENT.equals(e.getItem()))
 					// render the result using the newly selected renderer
 					renderResult();
-				}
 			}
 		});
 
@@ -177,14 +183,17 @@ public class RenderedResultComponent extends JPanel {
 		resultsTypePanel.add(renderersComboBox);
 
 		// Refresh (re-render) button
-		refreshButton = new JButton("Refresh", WorkbenchIcons.refreshIcon);
+		refreshButton = new JButton("Refresh", refreshIcon);
 		refreshButton.setEnabled(false);
 		refreshButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				renderResult();
 				refreshButton.getParent().requestFocusInWindow();
-				// so that the button does not stay focused after it is clicked on and did its
-				// action
+				/*
+				 * so that the button does not stay focused after it is clicked
+				 * on and did its action
+				 */
 			}
 		});
 		resultsTypePanel.add(refreshButton);
@@ -193,23 +202,17 @@ public class RenderedResultComponent extends JPanel {
 		wrapTextCheckBox = new JCheckBox(WRAP_TEXT);
 		wrapTextCheckBox.setVisible(false);
 		wrapTextCheckBox.addItemListener(new ItemListener() {
-
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				// Should have only one child component holding the rendered result
 				// Check for empty just as well
-				if (renderedResultPanel.getComponents().length == 0) {
+				if (renderedResultPanel.getComponents().length == 0)
 					return;
-				}
 				Component component = renderedResultPanel.getComponent(0);
 				if (component instanceof DialogTextArea) {
-					if (e.getStateChange() == ItemEvent.SELECTED) {
-						nodeToWrapSelection.put(path, Boolean.TRUE);
-						renderResult();
-					} else {
-						nodeToWrapSelection.put(path, Boolean.FALSE);
-						renderResult();
-					}
+					nodeToWrapSelection.put(path,
+							e.getStateChange() == SELECTED);
+					renderResult();
 				}
 			}
 		});
@@ -223,10 +226,13 @@ public class RenderedResultComponent extends JPanel {
 			final JButton saveButton = new JButton(action.getAction());
 			saveButton.setEnabled(false);
 			saveButton.addActionListener(new ActionListener() {
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					saveButton.getParent().requestFocusInWindow();
-					// so that the button does not stay focused after it is clicked on and did its
-					// action
+					/*
+					 * so that the button does not stay focused after it is
+					 * clicked on and did its action
+					 */
 				}
 			});
 			saveButtonsPanel.add(saveButton);
@@ -234,7 +240,7 @@ public class RenderedResultComponent extends JPanel {
 
 		// Top panel contains result type combobox and various save buttons
 		JPanel topPanel = new JPanel();
-		topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.LINE_AXIS));
+		topPanel.setLayout(new BoxLayout(topPanel, LINE_AXIS));
 		topPanel.add(resultsTypePanel);
 		topPanel.add(saveButtonsPanel);
 
@@ -242,25 +248,23 @@ public class RenderedResultComponent extends JPanel {
 		renderedResultPanel = new JPanel(new BorderLayout());
 
 		// Add all components
-		add(topPanel, BorderLayout.NORTH);
-		add(new JScrollPane(renderedResultPanel), BorderLayout.CENTER);
+		add(topPanel, NORTH);
+		add(new JScrollPane(renderedResultPanel), CENTER);
 	}
 
 	/**
-	 * Sets the path this components renders the results for, and update
-	 * the rendered results panel.
+	 * Sets the path this components renders the results for, and update the
+	 * rendered results panel.
 	 */
-	public void setPath(Path path) {
+	public void setPath(final Path path) {
 		this.path = path;
-		SwingUtilities.invokeLater(new Runnable() {
+		invokeLater(new Runnable() {
+			@Override
 			public void run() {
-				if (RenderedResultComponent.this.path == null) {
+				if (path == null || DataBundles.isList(path))
 					clearResult();
-				} else if (DataBundles.isList(RenderedResultComponent.this.path)) {
-					clearResult();
-				} else {
+				else
 					updateResult();
-				}
 			}
 		});
 	}
@@ -270,21 +274,22 @@ public class RenderedResultComponent extends JPanel {
 	 * ResultViewComponent tree.
 	 */
 	public void updateResult() {
-		if (recognisedRenderersForMimeType == null) {
-			recognisedRenderersForMimeType = new ArrayList<Renderer>();
-		}
-		if (otherRenderers == null) {
-			otherRenderers = new ArrayList<Renderer>();
-		}
+		if (recognisedRenderersForMimeType == null)
+			recognisedRenderersForMimeType = new ArrayList<>();
+		if (otherRenderers == null)
+			otherRenderers = new ArrayList<>();
 
 		// Enable the combo box
 		renderersComboBox.setEnabled(true);
 
-		// Update the 'save result' buttons appropriately as the result node had
-		// changed
+		/*
+		 * Update the 'save result' buttons appropriately as the result node had
+		 * changed
+		 */
 		for (int i = 0; i < saveButtonsPanel.getComponents().length; i++) {
 			JButton saveButton = (JButton) saveButtonsPanel.getComponent(i);
-			SaveIndividualResultSPI action = (SaveIndividualResultSPI) (saveButton.getAction());
+			SaveIndividualResultSPI action = (SaveIndividualResultSPI) saveButton
+					.getAction();
 			// Update the action with the new result reference
 			action.setResultReference(path);
 			saveButton.setEnabled(true);
@@ -294,28 +299,28 @@ public class RenderedResultComponent extends JPanel {
 			// Enable refresh button
 			refreshButton.setEnabled(true);
 
-			List<MimeType> mimeTypes = new ArrayList<MimeType>();
-			try (InputStream inputstream = RendererUtils.getInputStream(path)) {
-				mimeTypes.addAll(ResultsUtils.getMimeTypes(inputstream));
+			List<MimeType> mimeTypes = new ArrayList<>();
+			try (InputStream inputstream = getInputStream(path)) {
+				mimeTypes.addAll(getMimeTypes(inputstream));
 			} catch (IOException e) {
 				logger.warn("Error getting mimetype", e);
 			}
 
-			if (mimeTypes.isEmpty()) {
+			if (mimeTypes.isEmpty())
 				// If MIME types is empty - add "plain/text" MIME type
 				mimeTypes.add(new MimeType("text/plain"));
-			} else if (mimeTypes.size() == 1
+			else if (mimeTypes.size() == 1
 					&& mimeTypes.get(0).toString().equals("chemical/x-fasta")) {
-				// If MIME type is recognised as "chemical/x-fasta" only then
-				// this might be an error
-				// from MIME magic (i.e. sometimes it recognises stuff that is
-				// not "chemical/x-fasta" as
-				// "chemical/x-fasta" and then Seq Vista renderer is used that
-				// causes errors) - make sure
-				// we also add the renderers for "text/plain" and "text/xml" as
-				// it is most probably just
-				// normal xml text and push the "chemical/x-fasta" to the bottom
-				// of the list.
+				/*
+				 * If MIME type is recognised as "chemical/x-fasta" only then
+				 * this might be an error from MIME magic (i.e., sometimes it
+				 * recognises stuff that is not "chemical/x-fasta" as
+				 * "chemical/x-fasta" and then Seq Vista renderer is used that
+				 * causes errors) - make sure we also add the renderers for
+				 * "text/plain" and "text/xml" as it is most probably just
+				 * normal xml text and push the "chemical/x-fasta" to the bottom
+				 * of the list.
+				 */
 				mimeTypes.add(0, new MimeType("text/plain"));
 				mimeTypes.add(1, new MimeType("text/xml"));
 			}
@@ -323,29 +328,30 @@ public class RenderedResultComponent extends JPanel {
 			for (MimeType mimeType : mimeTypes) {
 				List<Renderer> renderersList = rendererRegistry.getRenderersForMimeType(mimeType
 						.toString());
-				for (Renderer renderer : renderersList) {
-					if (!recognisedRenderersForMimeType.contains(renderer)) {
+				for (Renderer renderer : renderersList)
+					if (!recognisedRenderersForMimeType.contains(renderer))
 						recognisedRenderersForMimeType.add(renderer);
-					}
-				}
 			}
 			// if there are no renderers then force text/plain
-			if (recognisedRenderersForMimeType.isEmpty()) {
+			if (recognisedRenderersForMimeType.isEmpty())
 				recognisedRenderersForMimeType = rendererRegistry
 						.getRenderersForMimeType("text/plain");
-			}
 
-			// Add all other available renderers that are not recognised to be
-			// able to handle the
-			// MIME type of the result
+			/*
+			 * Add all other available renderers that are not recognised to be
+			 * able to handle the MIME type of the result
+			 */
 			otherRenderers = new ArrayList<>(rendererRegistry.getRenderers());
 			otherRenderers.removeAll(recognisedRenderersForMimeType);
 
-			mimeList = new String[recognisedRenderersForMimeType.size() + otherRenderers.size()];
-			rendererList = new ArrayList<Renderer>();
+			mimeList = new String[recognisedRenderersForMimeType.size()
+					+ otherRenderers.size()];
+			rendererList = new ArrayList<>();
 
-			// First add the ones that can handle the MIME type of the result
-			// item
+			/*
+			 * First add the ones that can handle the MIME type of the result
+			 * item
+			 */
 			for (int i = 0; i < recognisedRenderersForMimeType.size(); i++) {
 				mimeList[i] = recognisedRenderersForMimeType.get(i).getType();
 				rendererList.add(recognisedRenderersForMimeType.get(i));
@@ -363,22 +369,23 @@ public class RenderedResultComponent extends JPanel {
 				int index = 0;
 
 				// Find the index of the current MIME type for this output port.
-				for (int i = 0; i < mimeList.length; i++) {
+				for (int i = 0; i < mimeList.length; i++)
 					if (mimeList[i].equals(lastUsedMIMEtype)) {
 						index = i;
 						break;
 					}
-				}
 
 				int previousindex = renderersComboBox.getSelectedIndex();
 				renderersComboBox.setSelectedIndex(index);
-				// force rendering as setSelectedIndex will not fire an
-				// itemstatechanged event if previousindex == index and we still need
-				// render the result as we may have switched from a different result item in
-				// a result list but the renderer index stayed the same
-				if (previousindex == index) {
+				/*
+				 * force rendering as setSelectedIndex will not fire an
+				 * itemstatechanged event if previousindex == index and we still
+				 * need render the result as we may have switched from a
+				 * different result item in a result list but the renderer index
+				 * stayed the same
+				 */
+				if (previousindex == index)
 					renderResult(); // draw the rendered result component
-				}
 			}
 
 		} else if (DataBundles.isError(path)) {
@@ -407,85 +414,82 @@ public class RenderedResultComponent extends JPanel {
 
 			JTree errorTree = new JTree(root);
 			errorTree.setCellRenderer(new DefaultTreeCellRenderer() {
-				public Component getTreeCellRendererComponent(JTree tree, Object value,
-						boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+				@Override
+				public Component getTreeCellRendererComponent(JTree tree,
+						Object value, boolean selected, boolean expanded,
+						boolean leaf, int row, boolean hasFocus) {
 					Component renderer = null;
 					if (value instanceof DefaultMutableTreeNode) {
 						DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) value;
 						Object userObject = treeNode.getUserObject();
-						if (userObject instanceof ErrorDocument) {
-							ErrorDocument errorDocument = (ErrorDocument) userObject;
-							renderer = super.getTreeCellRendererComponent(
-									tree,
-									"<html>"
-											+ StringEscapeUtils
-													.escapeHtml(errorDocument
-															.getMessage()) + "</html>", selected,
-									expanded, leaf, row, hasFocus);
-						}
+						if (userObject instanceof ErrorDocument)
+							renderer = renderErrorDocument(tree, selected,
+									expanded, leaf, row, hasFocus,
+									(ErrorDocument) userObject);
 					}
-					if (renderer == null) {
-						renderer = super.getTreeCellRendererComponent(tree, value, selected,
-								expanded, leaf, row, hasFocus);
-					}
+					if (renderer == null)
+						renderer = super.getTreeCellRendererComponent(tree,
+								value, selected, expanded, leaf, row, hasFocus);
 					if (renderer instanceof JLabel) {
 						JLabel label = (JLabel) renderer;
 						label.setIcon(null);
 					}
 					return renderer;
 				}
+
+				private Component renderErrorDocument(JTree tree,
+						boolean selected, boolean expanded, boolean leaf,
+						int row, boolean hasFocus, ErrorDocument errorDocument) {
+					return super.getTreeCellRendererComponent(tree, "<html>"
+							+ escapeHtml(errorDocument.getMessage())
+							+ "</html>", selected, expanded, leaf, row,
+							hasFocus);
+				}
 			});
 
-			renderersComboBox.setModel(new DefaultComboBoxModel<String>(
+			renderersComboBox.setModel(new DefaultComboBoxModel<>(
 					new String[] { ERROR_DOCUMENT }));
 			renderedResultPanel.removeAll();
-			renderedResultPanel.add(errorTree, BorderLayout.CENTER);
+			renderedResultPanel.add(errorTree, CENTER);
 			repaint();
 		}
-
 	}
 
-	public void buildErrorDocumentTree(DefaultMutableTreeNode node, ErrorDocument errorDocument) throws IOException {
+	public void buildErrorDocumentTree(DefaultMutableTreeNode node,
+			ErrorDocument errorDocument) throws IOException {
 		DefaultMutableTreeNode child = new DefaultMutableTreeNode(errorDocument);
 		String trace = errorDocument.getTrace();
-		if (trace != null && !trace.equals("")) {
-			for (String line : trace.split("\n")) {
+		if (trace != null && !trace.isEmpty())
+			for (String line : trace.split("\n"))
 				child.add(new DefaultMutableTreeNode(line));
-			}
-		}
 		node.add(child);
 
 		List<Path> causes = errorDocument.getCausedBy();
-		for (Path cause : causes) {
+		for (Path cause : causes)
 			if (DataBundles.isError(cause)) {
 				ErrorDocument causeErrorDocument = DataBundles.getError(cause);
-				if (causes.size() == 1) {
+				if (causes.size() == 1)
 					buildErrorDocumentTree(node, causeErrorDocument);
-				} else {
+				else
 					buildErrorDocumentTree(child, causeErrorDocument);
-				}
 			} else if (DataBundles.isList(cause)) {
 				List<ErrorDocument> errorDocuments = getErrorDocuments(cause);
-				if (errorDocuments.size() == 1) {
+				if (errorDocuments.size() == 1)
 					buildErrorDocumentTree(node, errorDocuments.get(0));
-				} else {
-					for (ErrorDocument errorDocument2 : errorDocuments) {
+				else
+					for (ErrorDocument errorDocument2 : errorDocuments)
 						buildErrorDocumentTree(child, errorDocument2);
-					}
-				}
 			}
-		}
 	}
 
-	public List<ErrorDocument> getErrorDocuments(Path reference) throws IOException {
-		List<ErrorDocument> errorDocuments = new ArrayList<ErrorDocument>();
-		if (DataBundles.isError(reference)) {
+	public List<ErrorDocument> getErrorDocuments(Path reference)
+			throws IOException {
+		List<ErrorDocument> errorDocuments = new ArrayList<>();
+		if (DataBundles.isError(reference))
 			errorDocuments.add(DataBundles.getError(reference));
-		} else if (DataBundles.isList(reference)) {
-			for (Path element : DataBundles.getList(reference)) {
+		else if (DataBundles.isList(reference))
+			for (Path element : DataBundles.getList(reference))
 				errorDocuments.addAll(getErrorDocuments(element));
-			}
-		}
 		return errorDocuments;
 	}
 
@@ -493,60 +497,59 @@ public class RenderedResultComponent extends JPanel {
 	 * Renders the result panel using the last used renderer.
 	 */
 	public void renderResult() {
-
-		if (((String) renderersComboBox.getSelectedItem()).equals(ERROR_DOCUMENT)) {
+		if (ERROR_DOCUMENT.equals(renderersComboBox.getSelectedItem()))
 			// skip error documents - do not (re)render
 			return;
-		}
 
 		int selectedIndex = renderersComboBox.getSelectedIndex();
 		if (mimeList != null && selectedIndex >= 0) {
-
 			Renderer renderer = rendererList.get(selectedIndex);
 
 			if (renderer.getType().equals("Text")) { // if the result is "text/plain"
-				// We use node's hash code as the key in the nodeToWrapCheckBox
-				// map as node's user object may be too large
-				if (nodeToWrapSelection.get(path) == null) {
+				/*
+				 * We use node's hash code as the key in the nodeToWrapCheckBox
+				 * map as node's user object may be too large
+				 */
+				if (nodeToWrapSelection.get(path) == null)
 					// initially not selected
-					nodeToWrapSelection.put(path, Boolean.FALSE);
-				}
+					nodeToWrapSelection.put(path, false);
 				wrapTextCheckBox.setSelected(nodeToWrapSelection.get(path));
 				wrapTextCheckBox.setVisible(true);
-			} else {
+			} else
 				wrapTextCheckBox.setVisible(false);
-			}
-			// Remember the last used renderer - use it for all result items of this port
+			/*
+			 * Remember the last used renderer - use it for all result items of
+			 * this port
+			 */
 			// currentRendererIndex = selectedIndex;
 			lastUsedMIMEtype = mimeList[selectedIndex];
 
 			JComponent component = null;
 			try {
 				component = renderer.getComponent(path);
-				if (component instanceof DialogTextArea) {
-					if (wrapTextCheckBox.isSelected()) {
+				if (component instanceof DialogTextArea)
+					if (wrapTextCheckBox.isSelected())
 						((JTextArea) component).setLineWrap(wrapTextCheckBox.isSelected());
-					}
-				}
-				if (component instanceof JTextComponent) {
+				if (component instanceof JTextComponent)
 					((JTextComponent) component).setEditable(false);
-				} else if (component instanceof JTree) {
+				else if (component instanceof JTree)
 					((JTree) component).setEditable(false);
-				}
 			} catch (RendererException e1) {
 				// maybe this should be Exception
-				// show the user that something unexpected has
-				// happened but continue
+				/*
+				 * show the user that something unexpected has happened but
+				 * continue
+				 */
 				component = new DialogTextArea(
 						"Could not render using renderer type "
-								+ renderer.getClass().getName()
+								+ renderer.getClass()
 								+ "\n"
 								+ "Please try with a different renderer if available and consult log for details of problem");
 				((DialogTextArea) component).setEditable(false);
-				logger.warn("Couln not render using " + renderer.getClass().getName(), e1);
+				logger.warn("Couln not render using " + renderer.getClass(), e1);
 			}
 			renderedResultPanel.removeAll();
-			renderedResultPanel.add(component, BorderLayout.CENTER);
+			renderedResultPanel.add(component, CENTER);
 			repaint();
 			revalidate();
 		}
@@ -563,7 +566,8 @@ public class RenderedResultComponent extends JPanel {
 		// Update the 'save result' buttons appropriately
 		for (int i = 0; i < saveButtonsPanel.getComponents().length; i++) {
 			JButton saveButton = (JButton) saveButtonsPanel.getComponent(i);
-			SaveIndividualResultSPI action = (SaveIndividualResultSPI) (saveButton.getAction());
+			SaveIndividualResultSPI action = (SaveIndividualResultSPI) saveButton
+					.getAction();
 			// Update the action
 			action.setResultReference(null);
 			saveButton.setEnabled(false);
@@ -579,23 +583,19 @@ public class RenderedResultComponent extends JPanel {
 	class ColorCellRenderer implements ListCellRenderer<String> {
 		protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 
-		public Component getListCellRendererComponent(JList<? extends String> list, String value, int index,
+		@Override
+		public Component getListCellRendererComponent(
+				JList<? extends String> list, String value, int index,
 				boolean isSelected, boolean cellHasFocus) {
-			JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value,
-					index, isSelected, cellHasFocus);
-
-			if (recognisedRenderersForMimeType == null) { // error occurred
+			JComponent renderer = (JComponent) defaultRenderer
+					.getListCellRendererComponent(list, value, index,
+							isSelected, cellHasFocus);
+			if (recognisedRenderersForMimeType == null) // error occurred
 				return renderer;
-			}
-
-			if (value != null && index >= recognisedRenderersForMimeType.size()) {
+			if (value != null && index >= recognisedRenderersForMimeType.size())
 				// one of the non-preferred renderers - show it in grey
-				renderer.setForeground(Color.GRAY);
-			}
-
+				renderer.setForeground(GRAY);
 			return renderer;
 		}
-
 	}
-
 }

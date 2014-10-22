@@ -20,6 +20,32 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.processor;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.EAST;
+import static java.awt.BorderLayout.NORTH;
+import static java.awt.BorderLayout.SOUTH;
+import static java.awt.BorderLayout.WEST;
+import static java.awt.Color.RED;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.NONE;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.sort;
+import static java.util.Collections.synchronizedSet;
+import static javax.swing.BorderFactory.createEmptyBorder;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+import static javax.swing.SwingUtilities.invokeLater;
+import static javax.swing.SwingUtilities.isEventDispatchThread;
+import static javax.swing.border.EtchedBorder.LOWERED;
+import static javax.swing.tree.TreeSelectionModel.SINGLE_TREE_SELECTION;
+import static net.sf.taverna.t2.workbench.MainWindow.getMainWindow;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.closeIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.inputIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.outputIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.saveAllIcon;
+import static net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState.INPUT_ERRORS;
+import static net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState.OUTPUT_ERRORS;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -36,7 +62,6 @@ import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -50,7 +75,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -61,7 +85,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTree;
-import javax.swing.SwingUtilities;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
@@ -72,7 +95,6 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade;
 import net.sf.taverna.t2.facade.WorkflowInstanceFacade.State;
@@ -84,9 +106,7 @@ import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
 import net.sf.taverna.t2.reference.ReferenceService;
 import net.sf.taverna.t2.reference.T2Reference;
 import net.sf.taverna.t2.renderers.RendererRegistry;
-import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.views.results.processor.FilteredIterationTreeModel.FilterType;
 import net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState;
@@ -105,95 +125,86 @@ import uk.org.taverna.configuration.database.DatabaseConfiguration;
 /**
  * A component that contains a tabbed pane for displaying inputs and outputs of a processor (i.e.
  * intermediate results for a workflow run).
- *
+ *<p>
+ *FIXME Needs deleting or converting to DataBundles
  * @author Alex Nenadic
  *
  */
 @SuppressWarnings("serial")
 public class ProcessorResultsComponent extends JPanel {
-
-	private static Logger logger = Logger.getLogger(ProcessorResultsComponent.class);
-
-	private static SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
+	private static final Logger logger = Logger.getLogger(ProcessorResultsComponent.class);
+	private static final SimpleDateFormat ISO_8601 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static final String HOURS = "h";
 	private static final String MINUTES = "m";
 	private static final String SECONDS = "s";
 	private static final String MILLISECONDS = "ms";
 
-	// JSplitPane that contains the invocation list for the processor on the
-	// left and a tabbed pane with processors ports on the right.
+	/**
+	 * JSplitPane that contains the invocation list for the processor on the
+	 * left and a tabbed pane with processors ports on the right.
+	 */
 	private JSplitPane splitPane;
-
-	// Tree containing enactments (invocations) of the processor.
+	/** Tree containing enactments (invocations) of the processor.*/
 	protected JTree processorEnactmentsTree;
-
-	// Tabbed pane - each tab contains a processor input/outputs data/results
-	// tree and a RenderedProcessorResultComponent, which in turn contains the currently
-	// selected node rendered according to its mime type.
+	/**
+	 * Tabbed pane - each tab contains a processor input/outputs data/results
+	 * tree and a RenderedProcessorResultComponent, which in turn contains the
+	 * currently selected node rendered according to its MIME type.
+	 */
 	private JTabbedPane tabbedPane;
-
-	// Panel containing the title
+	/** Panel containing the title*/
 	private JPanel titlePanel;
-
 	private Processor processor;
+	@SuppressWarnings("unused")
 	private Dataflow dataflow;
 	private String runId;
+	@SuppressWarnings("unused")
 	private ReferenceService referenceService;
-
 	private WorkflowInstanceFacade facade; // in the case this is a fresh run
 	boolean resultsUpdateNeeded = false;
 
-	// Enactments received for this processor
-	private Set<ProcessorEnactment> enactmentsGotSoFar = Collections
-			.synchronizedSet(new HashSet<ProcessorEnactment>());
-	private Set<String> enactmentIdsGotSoFar = Collections.synchronizedSet(new HashSet<String>());
+	/** Enactments received for this processor */
+	private Set<ProcessorEnactment> enactmentsGotSoFar = synchronizedSet(new HashSet<ProcessorEnactment>());
+	private Set<String> enactmentIdsGotSoFar = synchronizedSet(new HashSet<String>());
 
-	private Map<String, ProcessorPortResultsViewTab> inputPortTabMap = new ConcurrentHashMap<String, ProcessorPortResultsViewTab>();
-	private Map<String, ProcessorPortResultsViewTab> outputPortTabMap = new ConcurrentHashMap<String, ProcessorPortResultsViewTab>();
+	private Map<String, ProcessorPortResultsViewTab> inputPortTabMap = new ConcurrentHashMap<>();
+	private Map<String, ProcessorPortResultsViewTab> outputPortTabMap = new ConcurrentHashMap<>();
 
-	// All data for intermediate results is pulled from provenance.
+	/** All data for intermediate results is pulled from provenance.*/
 	private ProvenanceAccess provenanceAccess;
-
 	private ProcessorEnactmentsTreeModel processorEnactmentsTreeModel;
-
 	private FilteredIterationTreeModel filteredTreeModel;
 
-	// Map: enactment -> (port, t2Ref, tree).
-	// Each enactment is mapped to a list of 3-element lists. The 3-element list
-	// contains
-	// processor input/output port, t2ref to data consumed/produced on that port
-	// and tree
-	// view of the data. Tree is only created on demand - i.e. when user selects
-	// a particular
-	// enactment and a specific port.
-	protected Map<ProcessorEnactment, List<List<Object>>> enactmentsToInputPortData = new ConcurrentHashMap<ProcessorEnactment, List<List<Object>>>();
-	protected Map<ProcessorEnactment, List<List<Object>>> enactmentsToOutputPortData = new ConcurrentHashMap<ProcessorEnactment, List<List<Object>>>();
+	/**
+	 * Map: enactment -> (port, t2Ref, tree).
+	 * <p>
+	 * Each enactment is mapped to a list of 3-element lists. The 3-element list
+	 * contains processor input/output port, t2ref to data consumed/produced on
+	 * that port and tree view of the data. Tree is only created on demand -
+	 * i.e. when user selects a particular enactment and a specific port.
+	 */
+	protected Map<ProcessorEnactment, List<List<Object>>> enactmentsToInputPortData = new ConcurrentHashMap<>();
+	protected Map<ProcessorEnactment, List<List<Object>>> enactmentsToOutputPortData = new ConcurrentHashMap<>();
 
-	protected Set<ProcessorEnactment> enactmentsWithErrorInputs = Collections
-			.synchronizedSet(new HashSet<ProcessorEnactment>());
-	protected Set<ProcessorEnactment> enactmentsWithErrorOutputs = Collections
-			.synchronizedSet(new HashSet<ProcessorEnactment>());
+	protected Set<ProcessorEnactment> enactmentsWithErrorInputs = synchronizedSet(new HashSet<ProcessorEnactment>());
+	protected Set<ProcessorEnactment> enactmentsWithErrorOutputs = synchronizedSet(new HashSet<ProcessorEnactment>());
 
 	private JLabel iterationLabel;
-
-	// List of all existing 'save results' actions, each one can save results
-	// in a different format
+	/**
+	 * List of all existing 'save results' actions, each one can save results in
+	 * a different format
+	 */
 	private final List<SaveAllResultsSPI> saveActions;
-
 	private JButton saveAllButton;
-
 	private String processorId = null;
-
 	private List<Processor> processorsPath;
 	private ProcessorEnactmentsTreeNode procEnactmentTreeNode = null;
-
 	private final RendererRegistry rendererRegistry;
-
 	private final List<SaveIndividualResultSPI> saveIndividualActions;
 
-	public ProcessorResultsComponent(Processor processor, Dataflow dataflow, String runId,
-			ReferenceService referenceService, RendererRegistry rendererRegistry,
+	public ProcessorResultsComponent(Processor processor, Dataflow dataflow,
+			String runId, ReferenceService referenceService,
+			RendererRegistry rendererRegistry,
 			List<SaveAllResultsSPI> saveActions,
 			List<SaveIndividualResultSPI> saveIndividualActions,
 			List<ProvenanceConnectorFactory> provenanceConnectorFactories,
@@ -203,12 +214,15 @@ public class ProcessorResultsComponent extends JPanel {
 		this.rendererRegistry = rendererRegistry;
 		this.saveActions = saveActions;
 		this.saveIndividualActions = saveIndividualActions;
-		this.processorsPath = Tools.getNestedPathForProcessor(processor, dataflow);
+		this.processorsPath = Tools.getNestedPathForProcessor(processor,
+				dataflow);
 		this.dataflow = dataflow;
 		this.runId = runId;
 		this.referenceService = referenceService;
 		this.facade = null;
-		provenanceAccess = new ProvenanceAccess(databaseConfiguration.getConnectorType(), provenanceConnectorFactories);
+		provenanceAccess = new ProvenanceAccess(
+				databaseConfiguration.getConnectorType(),
+				provenanceConnectorFactories);
 		initComponents();
 	}
 
@@ -218,7 +232,6 @@ public class ProcessorResultsComponent extends JPanel {
 			List<SaveIndividualResultSPI> saveIndividualActions,
 			List<ProvenanceConnectorFactory> provenanceConnectorFactories,
 			DatabaseConfiguration databaseConfiguration) {
-
 		super(new BorderLayout());
 		this.processor = processor;
 		this.rendererRegistry = rendererRegistry;
@@ -231,80 +244,80 @@ public class ProcessorResultsComponent extends JPanel {
 		this.facade = facade;
 		provenanceAccess = new ProvenanceAccess(databaseConfiguration.getConnectorType(), provenanceConnectorFactories);
 
-		// Is this still a running wf - do we need to periodically check with
-		// provenance for new results?
-		resultsUpdateNeeded = !(facade.getState().equals(State.cancelled) || facade.getState()
-				.equals(State.completed));
+		/**
+		 * Is this still a running wf - do we need to periodically check with
+		 * provenance for new results?
+		 */
+		resultsUpdateNeeded = !(facade.getState().equals(State.cancelled) || facade
+				.getState().equals(State.completed));
 
 		initComponents();
-
 	}
 
 	public void initComponents() {
-
 		setBorder(new EtchedBorder());
 
 		titlePanel = new JPanel(new BorderLayout());
 		titlePanel.setBorder(new EmptyBorder(5, 0, 5, 0));
 		titlePanel.add(new JLabel("Intermediate results for service: " + processor.getLocalName()),
-				BorderLayout.WEST);
+				WEST);
 
 		String title = "<html><body>Intermediate values for the service <b>"
 				+ processor.getLocalName() + "</b></body></html>";
 		JLabel tableLabel = new JLabel(title);
-		titlePanel.add(tableLabel, BorderLayout.WEST);
+		titlePanel.add(tableLabel, WEST);
 		iterationLabel = new JLabel();
 		int spacing = iterationLabel.getFontMetrics(iterationLabel.getFont()).charWidth(' ');
-		iterationLabel.setBorder(BorderFactory.createEmptyBorder(0, spacing * 5, 0, 0));
-		titlePanel.add(iterationLabel, BorderLayout.CENTER);
+		iterationLabel.setBorder(createEmptyBorder(0, spacing * 5, 0, 0));
+		titlePanel.add(iterationLabel, CENTER);
 
 		saveAllButton = new JButton(new SaveAllAction("Save iteration values", this));
 		saveAllButton.setEnabled(false);
 
-		titlePanel.add(saveAllButton, BorderLayout.EAST);
-		add(titlePanel, BorderLayout.NORTH);
+		titlePanel.add(saveAllButton, EAST);
+		add(titlePanel, NORTH);
 
 		tabbedPane = new JTabbedPane();
 
 		// Create enactment to (port, t2ref, tree) lists maps.
-		enactmentsToInputPortData = new HashMap<ProcessorEnactment, List<List<Object>>>();
-		enactmentsToOutputPortData = new HashMap<ProcessorEnactment, List<List<Object>>>();
+		enactmentsToInputPortData = new HashMap<>();
+		enactmentsToOutputPortData = new HashMap<>();
 
 		// Processor input ports
-		List<ProcessorInputPort> processorInputPorts = new ArrayList<ProcessorInputPort>(
+		List<ProcessorInputPort> processorInputPorts = new ArrayList<>(
 				processor.getInputPorts());
-		Collections.sort(processorInputPorts, new Comparator<ProcessorInputPort>() {
-
+		sort(processorInputPorts, new Comparator<ProcessorInputPort>() {
+			@Override
 			public int compare(ProcessorInputPort o1, ProcessorInputPort o2) {
 				return o1.getName().compareTo(o2.getName());
 			}
 		});
 		for (ProcessorInputPort processorInputPort : processorInputPorts) {
 			String portName = processorInputPort.getName();
-			ProcessorPortResultsViewTab resultTab = new ProcessorPortResultsViewTab(portName,
-					rendererRegistry, saveIndividualActions);
+			ProcessorPortResultsViewTab resultTab = new ProcessorPortResultsViewTab(
+					portName, rendererRegistry, saveIndividualActions);
 			resultTab.setIsOutputPortTab(false);
 			inputPortTabMap.put(portName, resultTab);
-			tabbedPane.addTab(portName, WorkbenchIcons.inputIcon, resultTab, "Input port "
+			tabbedPane.addTab(portName, inputIcon, resultTab, "Input port "
 					+ portName);
 		}
 
 		// Processor output ports
-		List<ProcessorOutputPort> processorOutputPorts = new ArrayList<ProcessorOutputPort>(
+		List<ProcessorOutputPort> processorOutputPorts = new ArrayList<>(
 				processor.getOutputPorts());
-		Collections.sort(processorOutputPorts, new Comparator<ProcessorOutputPort>() {
-
+		sort(processorOutputPorts, new Comparator<ProcessorOutputPort>() {
+			@Override
 			public int compare(ProcessorOutputPort o1, ProcessorOutputPort o2) {
 				return o1.getName().compareTo(o2.getName());
 			}
 		});
 		for (ProcessorOutputPort processorOutputPort : processorOutputPorts) {
 			String portName = processorOutputPort.getName();
-			ProcessorPortResultsViewTab resultTab = new ProcessorPortResultsViewTab(portName,
-					rendererRegistry, saveIndividualActions);
+			ProcessorPortResultsViewTab resultTab = new ProcessorPortResultsViewTab(
+					portName, rendererRegistry, saveIndividualActions);
 			resultTab.setIsOutputPortTab(true);
 			outputPortTabMap.put(portName, resultTab);
-			tabbedPane.addTab(portName, WorkbenchIcons.outputIcon, resultTab, "Output port "
+			tabbedPane.addTab(portName, outputIcon, resultTab, "Output port "
 					+ portName);
 		}
 
@@ -315,9 +328,10 @@ public class ProcessorResultsComponent extends JPanel {
 		processorEnactmentsTree.setRootVisible(false);
 		processorEnactmentsTree.setShowsRootHandles(true);
 		processorEnactmentsTree.getSelectionModel().setSelectionMode(
-				TreeSelectionModel.SINGLE_TREE_SELECTION);
+				SINGLE_TREE_SELECTION);
 		// Start listening for selections in the enactments tree
 		processorEnactmentsTree.addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
 			public void valueChanged(TreeSelectionEvent e) {
 				// Change the result for the selected enactment in the
 				// current tab
@@ -325,6 +339,7 @@ public class ProcessorResultsComponent extends JPanel {
 			}
 		});
 		processorEnactmentsTree.setCellRenderer(new DefaultTreeCellRenderer() {
+			@Override
 			public Component getTreeCellRendererComponent(JTree tree, Object value,
 					boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
 				super.getTreeCellRendererComponent(tree, value, selected, expanded, leaf, row,
@@ -332,11 +347,10 @@ public class ProcessorResultsComponent extends JPanel {
 				if (value instanceof IterationTreeNode) {
 					IterationTreeNode iterationTreeNode = (IterationTreeNode) value;
 					ErrorState errorState = iterationTreeNode.getErrorState();
-					if (errorState.equals(ErrorState.OUTPUT_ERRORS)) {
-						setForeground(Color.RED);
-					} else if (errorState.equals(ErrorState.INPUT_ERRORS)) {
+					if (errorState.equals(OUTPUT_ERRORS))
+						setForeground(RED);
+					else if (errorState.equals(INPUT_ERRORS))
 						setForeground(new Color(0xdd, 0xa7, 0x00));
-					}
 				}
 				return this;
 			}
@@ -344,6 +358,7 @@ public class ProcessorResultsComponent extends JPanel {
 
 		// Register a tab change listener
 		tabbedPane.addChangeListener(new ChangeListener() {
+			@Override
 			public void stateChanged(ChangeEvent evt) {
 				setDataTreeForResultTab();
 			}
@@ -352,9 +367,11 @@ public class ProcessorResultsComponent extends JPanel {
 		splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 		splitPane.setBottomComponent(tabbedPane);
 
-		final JComboBox filterChoiceBox = new JComboBox(new FilterType[] { FilterType.ALL,
-				FilterType.RESULTS, FilterType.ERRORS, FilterType.SKIPPED });
+		final JComboBox<FilterType> filterChoiceBox = new JComboBox<>(
+				new FilterType[] { FilterType.ALL, FilterType.RESULTS,
+						FilterType.ERRORS, FilterType.SKIPPED });
 		filterChoiceBox.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				filteredTreeModel.setFilter((FilterType) filterChoiceBox.getSelectedItem());
 				ProcessorResultsComponent.this.updateTree();
@@ -365,12 +382,12 @@ public class ProcessorResultsComponent extends JPanel {
 		JPanel enactmentsTreePanel = new JPanel(new BorderLayout());
 		JPanel enactmentsComboPanel = new JPanel(new BorderLayout());
 		enactmentsComboPanel.add(filterChoiceBox, BorderLayout.WEST);
-		enactmentsTreePanel.add(enactmentsComboPanel, BorderLayout.NORTH);
+		enactmentsTreePanel.add(enactmentsComboPanel, NORTH);
 		enactmentsTreePanel.add(new JScrollPane(processorEnactmentsTree,
-				JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
+				VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_AS_NEEDED),
+				CENTER);
 		splitPane.setTopComponent(enactmentsTreePanel);
-		add(splitPane, BorderLayout.CENTER);
+		add(splitPane, CENTER);
 
 		resultsUpdateNeeded = true;
 		update();
@@ -378,23 +395,19 @@ public class ProcessorResultsComponent extends JPanel {
 
 	public static String formatMilliseconds(long timeInMiliseconds) {
 		double timeInSeconds;
-		if (timeInMiliseconds < 1000) {
+		if (timeInMiliseconds < 1000)
 			return timeInMiliseconds + " " + MILLISECONDS;
-		}
 		NumberFormat numberFormat = NumberFormat.getNumberInstance();
 		numberFormat.setMaximumFractionDigits(1);
 		numberFormat.setMinimumFractionDigits(1);
 		timeInSeconds = timeInMiliseconds / 1000.0;
-		if (timeInSeconds < 60) {
+		if (timeInSeconds < 60)
 			return numberFormat.format(timeInSeconds) + " " + SECONDS;
-		}
 		double timeInMinutes = timeInSeconds / 60.0;
-		if (timeInMinutes < 60) {
+		if (timeInMinutes < 60)
 			return numberFormat.format(timeInMinutes) + " " + MINUTES;
-		}
 		double timeInHours = timeInMinutes / 60.0;
 		return numberFormat.format(timeInHours) + " " + HOURS;
-
 	}
 
 	private void setDataTreeForResultTab() {
@@ -404,19 +417,25 @@ public class ProcessorResultsComponent extends JPanel {
 			disableResultTabForNode(selectedResultTab, null);
 			return;
 		}
-		TreePath selectedPath = processorEnactmentsTree.getSelectionModel().getSelectionPath();
+		TreePath selectedPath = processorEnactmentsTree.getSelectionModel()
+				.getSelectionPath();
 		Object lastPathComponent = selectedPath.getLastPathComponent();
 		if (!(lastPathComponent instanceof ProcessorEnactmentsTreeNode)) {
 			// Just an IterationTreeNode along the way, no data to show
-			disableResultTabForNode(selectedResultTab, (DefaultMutableTreeNode) lastPathComponent);
+			disableResultTabForNode(selectedResultTab,
+					(DefaultMutableTreeNode) lastPathComponent);
 			return;
 		}
+
 		procEnactmentTreeNode = (ProcessorEnactmentsTreeNode) lastPathComponent;
 		ProcessorEnactment processorEnactment = (ProcessorEnactment) procEnactmentTreeNode
 				.getUserObject();
 
 		if (!processorEnactment.getProcessorId().equals(processorId)) {
-			// It's not our processor, must be a nested workflow iteration, which we should not show
+			/*
+			 * It's not our processor, must be a nested workflow iteration,
+			 * which we should not show
+			 */
 			disableResultTabForNode(selectedResultTab, procEnactmentTreeNode);
 			return;
 		}
@@ -427,100 +446,110 @@ public class ProcessorResultsComponent extends JPanel {
 		iterationLabel.setText(iterationLabelText.toString());
 		saveAllButton.setEnabled(true);
 
-		Map<ProcessorEnactment, List<List<Object>>> map = null;
-		if (selectedResultTab.getIsOutputPortTab()) { // output port tab
+		Map<ProcessorEnactment, List<List<Object>>> map;
+		if (selectedResultTab.getIsOutputPortTab()) // output port tab
 			map = enactmentsToOutputPortData;
-		} else { // input port tab
+		else // input port tab
 			map = enactmentsToInputPortData;
-		}
 		List<List<Object>> listOfListsOfPortData = map.get(processorEnactment);
 		if (listOfListsOfPortData == null)
-			listOfListsOfPortData = Collections.emptyList();
+			listOfListsOfPortData = emptyList();
 
 		JTree tree = null;
-		int index = -1;
-		List<Object> triple = null;
-		// Get the tree for this port and this enactment and show it on
-		// results tab
-		for (List<Object> listOfPortData : listOfListsOfPortData) {
+		/*
+		 * Get the tree for this port and this enactment and show it on results
+		 * tab
+		 */
+		for (List<Object> listOfPortData : listOfListsOfPortData)
 			// Find data in the map for this port
-			if (selectedResultTab.getPortName()
-					.equals(((Port) listOfPortData.get(0)).getPortName())) {
+			if (selectedResultTab.getPortName().equals(
+					((Port) listOfPortData.get(0)).getPortName())) {
 				// list.get(0) contains the port
 				// list.get(1) contains the t2Ref to data
 				// list.get(2) contains the tree
-				if (listOfPortData.get(2) == null) { // tree has not been
-														// created yet
-					// Clear previously shown rendered result, if any
-					RenderedProcessorResultComponent renderedResultComponent = selectedResultTab
-							.getRenderedResultComponent();
-					renderedResultComponent.clearResult();
-
-					// Create a tree for this data
-					ProcessorResultsTreeModel treeModel = new ProcessorResultsTreeModel(
-							(Path) listOfPortData.get(1));
-					tree = new JTree(new FilteredProcessorValueTreeModel(treeModel));
-					// Remember this triple and its index in the big list so
-					// we can
-					// update the map for this enactment after we have
-					// finished iterating
-					index = listOfListsOfPortData.indexOf(listOfPortData);
-					triple = listOfPortData;
-					tree.getSelectionModel().setSelectionMode(
-							TreeSelectionModel.SINGLE_TREE_SELECTION);
-					tree.setExpandsSelectedPaths(true);
-					tree.setRootVisible(false);
-					tree.setShowsRootHandles(true);
-					tree.setCellRenderer(new ProcessorResultCellRenderer());
-					// Expand the whole tree
-					/*
-					 * for (int row = 0; row < tree.getRowCount(); row++) { tree.expandRow(row); }
-					 */
-					tree.addTreeSelectionListener(new TreeSelectionListener() {
-						public void valueChanged(TreeSelectionEvent e) {
-							TreePath selectionPath = e.getNewLeadSelectionPath();
-							if (selectionPath != null) {
-								// Get the selected node
-								final Object selectedNode = selectionPath.getLastPathComponent();
-								ProcessorPortResultsViewTab selectedResultTab = (ProcessorPortResultsViewTab) tabbedPane
-										.getSelectedComponent();
-								RenderedProcessorResultComponent renderedResultComponent = selectedResultTab
-										.getRenderedResultComponent();
-								renderedResultComponent
-										.setNode((ProcessorResultTreeNode) selectedNode);
-							}
-						}
-
-					});
-					triple.set(2, tree); // set the new tree
-				} else {
-					tree = (JTree) listOfPortData.get(2);
-					// Show the right value in the rendering component
-					// i.e. render the selected value for this port and this
-					// enactment
-					// if anything was selected in the result for port tree.
-					TreePath selectionPath = tree.getSelectionPath();
-					if (selectionPath != null) {
-						// Get the selected node
-						final Object selectedNode = selectionPath.getLastPathComponent();
-						RenderedProcessorResultComponent renderedResultComponent = selectedResultTab
-								.getRenderedResultComponent();
-						renderedResultComponent.setNode((ProcessorResultTreeNode) selectedNode);
-					}
-				}
+				if (listOfPortData.get(2) == null)
+					// tree has not been created yet
+					tree = createTreeForPort(selectedResultTab,
+							processorEnactment, map, listOfListsOfPortData,
+							listOfPortData);
+				else
+					tree = updateTreeForPort(selectedResultTab, listOfPortData);
 				break;
 			}
-		}
-		if (index != -1) {
-			// Put the tree in the map and put the modified list back to the
-			// map
-			listOfListsOfPortData.set(index, triple);
-			map.put(processorEnactment, listOfListsOfPortData);
-		}
 
 		// Show the tree
 		selectedResultTab.setResultsTree(tree);
+	}
 
+	private JTree createTreeForPort(ProcessorPortResultsViewTab selectedTab,
+			ProcessorEnactment enactment,
+			Map<ProcessorEnactment, List<List<Object>>> map,
+			List<List<Object>> listOfPortDataLists, List<Object> portDataList) {
+		// Clear previously shown rendered result, if any
+		RenderedProcessorResultComponent renderedResultComponent = selectedTab
+				.getRenderedResultComponent();
+		renderedResultComponent.clearResult();
+
+		// Create a tree for this data
+		ProcessorResultsTreeModel treeModel = new ProcessorResultsTreeModel(
+				(Path) portDataList.get(1));
+		JTree tree = new JTree(new FilteredProcessorValueTreeModel(treeModel));
+		/*
+		 * Remember this triple and its index in the big list so we can update
+		 * the map for this enactment after we have finished iterating
+		 */
+		int index = listOfPortDataLists.indexOf(portDataList);
+		tree.getSelectionModel().setSelectionMode(SINGLE_TREE_SELECTION);
+		tree.setExpandsSelectedPaths(true);
+		tree.setRootVisible(false);
+		tree.setShowsRootHandles(true);
+		tree.setCellRenderer(new ProcessorResultCellRenderer());
+		// Expand the whole tree
+		/*
+		 * for (int row = 0; row < tree.getRowCount(); row++) { tree.expandRow(row); }
+		 */
+		tree.addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				TreePath selectionPath = e.getNewLeadSelectionPath();
+				if (selectionPath != null) {
+					// Get the selected node
+					Object selectedNode = selectionPath.getLastPathComponent();
+					ProcessorPortResultsViewTab selectedResultTab = (ProcessorPortResultsViewTab) tabbedPane
+							.getSelectedComponent();
+					selectedResultTab.getRenderedResultComponent().setNode(
+							(ProcessorResultTreeNode) selectedNode);
+				}
+			}
+		});
+
+		portDataList.set(2, tree); // set the new tree
+		if (index != -1) {
+			/*
+			 * Put the tree in the map and put the modified list back to the map
+			 */
+			listOfPortDataLists.set(index, portDataList);
+			map.put(enactment, listOfPortDataLists);
+		}
+		return tree;
+	}
+
+	private JTree updateTreeForPort(ProcessorPortResultsViewTab selectedTab,
+			List<Object> portDataList) {
+		JTree tree = (JTree) portDataList.get(2);
+		/*
+		 * Show the right value in the rendering component i.e. render the
+		 * selected value for this port and this enactment if anything was
+		 * selected in the result for port tree.
+		 */
+		TreePath selectionPath = tree.getSelectionPath();
+		if (selectionPath != null) {
+			// Get the selected node
+			Object selectedNode = selectionPath.getLastPathComponent();
+			selectedTab.getRenderedResultComponent().setNode(
+					(ProcessorResultTreeNode) selectedNode);
+		}
+		return tree;
 	}
 
 	private void disableResultTabForNode(final ProcessorPortResultsViewTab selectedResultTab,
@@ -540,24 +569,23 @@ public class ProcessorResultsComponent extends JPanel {
 		Timestamp started = processorEnactment.getEnactmentStarted();
 		Timestamp ended = processorEnactment.getEnactmentEnded();
 		if (started != null) {
-			if (procEnactmentTreeNode.getErrorState().equals(ErrorState.INPUT_ERRORS)) {
+			if (procEnactmentTreeNode.getErrorState() == INPUT_ERRORS)
 				iterationLabelText.append(" <font color='#cc9700'>skipped</font> ");
-			} else {
+			else
 				iterationLabelText.append(" started ");
-			}
 			iterationLabelText.append(ISO_8601.format(started));
 		}
-		if (ended != null && !procEnactmentTreeNode.getErrorState().equals(ErrorState.INPUT_ERRORS)) {
+		if (ended != null
+				&& procEnactmentTreeNode.getErrorState() != INPUT_ERRORS) {
 			// Don't show End time if there was input errors
 
 			if (started != null) {
 				iterationLabelText.append(", ");
 			}
-			if (procEnactmentTreeNode.getErrorState().equals(ErrorState.OUTPUT_ERRORS)) {
+			if (procEnactmentTreeNode.getErrorState() == OUTPUT_ERRORS)
 				iterationLabelText.append(" <font color='red'>failed</font> ");
-			} else {
+			else
 				iterationLabelText.append(" ended ");
-			}
 			iterationLabelText.append(ISO_8601.format(ended));
 			if (started != null) {
 				long duration = ended.getTime() - started.getTime();
@@ -571,16 +599,14 @@ public class ProcessorResultsComponent extends JPanel {
 	}
 
 	private String labelForNode(DefaultMutableTreeNode node) {
+		if (node == null)
+			return "No selection";
 		StringBuilder label = new StringBuilder();
-		if (node == null) {
-			label.append("No selection");
-		} else {
-			label.append(node);
-			if (node.getUserObject() != null) {
-				label.append(" containing ");
-				label.append(node.getLeafCount());
-				label.append(" iterations");
-			}
+		label.append(node);
+		if (node.getUserObject() != null) {
+			label.append(" containing ");
+			label.append(node.getLeafCount());
+			label.append(" iterations");
 		}
 		return label.toString();
 	}
@@ -594,9 +620,8 @@ public class ProcessorResultsComponent extends JPanel {
 			if (processorsPath != null) { // should not be null really
 				processorNamesPath = new String[processorsPath.size()];
 				int i = 0;
-				for (Processor proc : processorsPath) {
+				for (Processor proc : processorsPath)
 					processorNamesPath[i++] = proc.getLocalName();
-				}
 			} else { // This should not really happen!
 				processorNamesPath = new String[1];
 				processorNamesPath[0] = processor.getLocalName();
@@ -616,20 +641,24 @@ public class ProcessorResultsComponent extends JPanel {
 						.remove(processorEnactmentsStack.size() - 1);
 				if (!enactmentsGotSoFar.contains(processorEnactment)) {
 					enactmentsGotSoFar.add(processorEnactment);
-					enactmentIdsGotSoFar.add(processorEnactment.getProcessEnactmentId());
+					enactmentIdsGotSoFar.add(processorEnactment
+							.getProcessEnactmentId());
 
-					String parentId = processorEnactment.getParentProcessorEnactmentId();
-					if (parentId != null && !enactmentIdsGotSoFar.contains(parentId)) {
+					String parentId = processorEnactment
+							.getParentProcessorEnactmentId();
+					if (parentId != null
+							&& !enactmentIdsGotSoFar.contains(parentId)) {
 						/*
-						 * Also add parent (and their parent, etc) - so that we can show the full
-						 * iteration treeenactmentIdsGotSoFar
+						 * Also add parent (and their parent, etc) - so that we
+						 * can show the full iteration treeenactmentIdsGotSoFar
 						 */
-
 						ProcessorEnactment parentEnactment = provenanceAccess
 								.getProcessorEnactment(parentId);
 						if (parentEnactment == null) {
-							logger.error("Could not find parent processor enactment id=" + parentId
-									+ ", skipping " + processorEnactment);
+							logger.error("Could not find parent processor enactment id="
+									+ parentId
+									+ ", skipping "
+									+ processorEnactment);
 							enactmentsGotSoFar.remove(processorEnactment);
 							enactmentIdsGotSoFar.remove(processorEnactment);
 							continue;
@@ -637,10 +666,9 @@ public class ProcessorResultsComponent extends JPanel {
 						processorEnactmentsStack.add(parentEnactment);
 					}
 				}
-				if (!processorEnactment.getProcessorId().equals(processorId)) {
+				if (!processorEnactment.getProcessorId().equals(processorId))
 					// A parent processors, no need to fetch their data bindings
 					continue;
-				}
 
 				String initialInputs = processorEnactment.getInitialInputsDataBindingId();
 				String finalOutputs = processorEnactment.getFinalOutputsDataBindingId();
@@ -660,18 +688,19 @@ public class ProcessorResultsComponent extends JPanel {
 				if (fetchingOutputs) {
 					enactmentsToOutputPortData.put(processorEnactment,
 							new ArrayList<List<Object>>());
-					if (!fetchingInputs || !finalOutputs.equals(initialInputs)) {
+					if (!fetchingInputs
+							|| (finalOutputs != null && !finalOutputs
+									.equals(initialInputs)))
 						dataBindings.putAll(provenanceAccess.getDataBindings(finalOutputs));
-					}
 				}
 
 				for (Entry<Port, T2Reference> entry : dataBindings.entrySet()) {
 					/*
-					 * Create (port, t2Ref, tree) list for this enactment. Tree is set to null
-					 * initially and populated on demand (when user clicks on particular
-					 * enactment/iteration node).
+					 * Create (port, t2Ref, tree) list for this enactment. Tree
+					 * is set to null initially and populated on demand (when
+					 * user clicks on particular enactment/iteration node).
 					 */
-					List<Object> dataOnPortList = new ArrayList<Object>();
+					List<Object> dataOnPortList = new ArrayList<>();
 					Port port = entry.getKey();
 					dataOnPortList.add(port); // port
 					T2Reference t2Reference = entry.getValue();
@@ -683,17 +712,15 @@ public class ProcessorResultsComponent extends JPanel {
 					dataOnPortList.add(null);
 
 					if (port.isInputPort() && fetchingInputs) { // Input port
-						if (t2Reference.containsErrors()) {
+						if (t2Reference.containsErrors())
 							enactmentsWithErrorInputs.add(processorEnactment);
-						}
 						List<List<Object>> listOfPortDataLists = enactmentsToInputPortData
 								.get(processorEnactment);
 						listOfPortDataLists.add(dataOnPortList);
 						enactmentsToInputPortData.put(processorEnactment, listOfPortDataLists);
 					} else if (!port.isInputPort() && fetchingOutputs) { // output port
-						if (t2Reference.containsErrors()) {
+						if (t2Reference.containsErrors())
 							enactmentsWithErrorOutputs.add(processorEnactment);
-						}
 						List<List<Object>> listOfPortDataLists = enactmentsToOutputPortData
 								.get(processorEnactment);
 						listOfPortDataLists.add(dataOnPortList);
@@ -704,31 +731,30 @@ public class ProcessorResultsComponent extends JPanel {
 		}
 	}
 
-	private List<TreePath> expandedPaths = new ArrayList<TreePath>();
+	private List<TreePath> expandedPaths = new ArrayList<>();
 	private TreePath selectionPath = null;
 
 	private void rememberPaths() {
 		expandedPaths.clear();
-		for (Enumeration e = processorEnactmentsTree.getExpandedDescendants(new TreePath(
-				filteredTreeModel.getRoot())); (e != null) && e.hasMoreElements();) {
+		for (Enumeration<?> e = processorEnactmentsTree
+				.getExpandedDescendants(new TreePath(filteredTreeModel
+						.getRoot())); (e != null) && e.hasMoreElements();)
 			expandedPaths.add((TreePath) e.nextElement());
-		}
 		selectionPath = processorEnactmentsTree.getSelectionPath();
 	}
 
 	private void reinstatePaths() {
-		for (TreePath path : expandedPaths) {
-			if (filteredTreeModel.isShown((DefaultMutableTreeNode) path.getLastPathComponent())) {
+		for (TreePath path : expandedPaths)
+			if (filteredTreeModel.isShown((DefaultMutableTreeNode) path
+					.getLastPathComponent()))
 				processorEnactmentsTree.expandPath(path);
-			}
-		}
 		if (selectionPath != null) {
-			if (filteredTreeModel.isShown((DefaultMutableTreeNode) selectionPath
-					.getLastPathComponent())) {
+			if (filteredTreeModel
+					.isShown((DefaultMutableTreeNode) selectionPath
+							.getLastPathComponent()))
 				processorEnactmentsTree.setSelectionPath(selectionPath);
-			} else {
+			else
 				processorEnactmentsTree.clearSelection();
-			}
 		}
 	}
 
@@ -737,20 +763,20 @@ public class ProcessorResultsComponent extends JPanel {
 		processorEnactmentsTreeModel.update(enactmentsGotSoFar);
 		filteredTreeModel.reload();
 		reinstatePaths();
-		DefaultMutableTreeNode firstLeaf = ((DefaultMutableTreeNode) filteredTreeModel.getRoot())
-				.getFirstLeaf();
-		if ((firstLeaf != null) && (processorEnactmentsTree.getPathForRow(0) == null)) {
-			processorEnactmentsTree
-					.scrollPathToVisible(new TreePath((Object[]) firstLeaf.getPath()));
-		}
+		DefaultMutableTreeNode firstLeaf = ((DefaultMutableTreeNode) filteredTreeModel
+				.getRoot()).getFirstLeaf();
+		if ((firstLeaf != null)
+				&& (processorEnactmentsTree.getPathForRow(0) == null))
+			processorEnactmentsTree.scrollPathToVisible(new TreePath(
+					(Object[]) firstLeaf.getPath()));
 
-		if (facade == null) {
+		if (facade == null)
 			resultsUpdateNeeded = false;
-		}
 		setDataTreeForResultTab();
 	}
 
 	private Runnable updateTreeRunnable = new Runnable() {
+		@Override
 		public void run() {
 			updateTree();
 		}
@@ -762,26 +788,23 @@ public class ProcessorResultsComponent extends JPanel {
 					this);
 			IntermediateValuesInProgressDialog dialog = new IntermediateValuesInProgressDialog();
 			intermediateValuesSwingWorker
-					.addPropertyChangeListener(new SwingWorkerCompletionWaiter(dialog));
+					.addPropertyChangeListener(new SwingWorkerCompletionWaiter(
+							dialog));
 			intermediateValuesSwingWorker.execute();
 
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
 			}
-			if (!intermediateValuesSwingWorker.isDone()) {
+			if (!intermediateValuesSwingWorker.isDone())
 				dialog.setVisible(true);
-			}
-			if (intermediateValuesSwingWorker.getException() != null) {
+			if (intermediateValuesSwingWorker.getException() != null)
 				logger.error("Populating enactments failed",
 						intermediateValuesSwingWorker.getException());
-			} else {
-				if (SwingUtilities.isEventDispatchThread()) {
-					updateTreeRunnable.run();
-				} else {
-					SwingUtilities.invokeLater(updateTreeRunnable);
-				}
-			}
+			else if (isEventDispatchThread())
+				updateTreeRunnable.run();
+			else
+				invokeLater(updateTreeRunnable);
 		}
 	}
 
@@ -797,41 +820,40 @@ public class ProcessorResultsComponent extends JPanel {
 		onDispose();
 	}
 
-	@SuppressWarnings("serial")
 	private class SaveAllAction extends AbstractAction {
-
 		// private WorkflowResultsComponent parent;
 
 		public SaveAllAction(String name, ProcessorResultsComponent resultViewComponent) {
 			super(name);
 			// this.parent = resultViewComponent;
-			putValue(SMALL_ICON, WorkbenchIcons.saveAllIcon);
+			putValue(SMALL_ICON, saveAllIcon);
 		}
 
+		@Override
 		public void actionPerformed(ActionEvent e) {
-
 			ProcessorEnactment processorEnactment = (ProcessorEnactment) procEnactmentTreeNode
 					.getUserObject();
 
 			String initialInputs = processorEnactment.getInitialInputsDataBindingId();
 			String finalOutputs = processorEnactment.getFinalOutputsDataBindingId();
 
-			Map<String, T2Reference> inputBindings = new TreeMap<String, T2Reference>();
-			for (Entry<Port, T2Reference> entry : provenanceAccess.getDataBindings(initialInputs)
-					.entrySet()) {
-				inputBindings.put(entry.getKey().getPortName(), entry.getValue());
-			}
-			Map<String, T2Reference> outputBindings = new TreeMap<String, T2Reference>();
-			for (Entry<Port, T2Reference> entry : provenanceAccess.getDataBindings(finalOutputs)
-					.entrySet()) {
-				outputBindings.put(entry.getKey().getPortName(), entry.getValue());
-			}
+			Map<String, T2Reference> inputBindings = new TreeMap<>();
+			for (Entry<Port, T2Reference> entry : provenanceAccess
+					.getDataBindings(initialInputs).entrySet())
+				inputBindings.put(entry.getKey().getPortName(),
+						entry.getValue());
+			Map<String, T2Reference> outputBindings = new TreeMap<>();
+			for (Entry<Port, T2Reference> entry : provenanceAccess
+					.getDataBindings(finalOutputs).entrySet())
+				outputBindings.put(entry.getKey().getPortName(),
+						entry.getValue());
 
 			String title = "Service iteration data saver";
 
-			final JDialog dialog = new HelpEnabledDialog(MainWindow.getMainWindow(), title, true);
+			final JDialog dialog = new HelpEnabledDialog(getMainWindow(),
+					title, true);
 			dialog.setResizable(false);
-			dialog.setLocationRelativeTo(MainWindow.getMainWindow());
+			dialog.setLocationRelativeTo(getMainWindow());
 			JPanel panel = new JPanel(new BorderLayout());
 			DialogTextArea explanation = new DialogTextArea();
 			explanation
@@ -843,7 +865,7 @@ public class ProcessorResultsComponent extends JPanel {
 			explanation.setFocusable(false);
 			explanation.setFont(new JLabel().getFont()); // make the font the same as for other
 															// components in the dialog
-			panel.add(explanation, BorderLayout.NORTH);
+			panel.add(explanation, NORTH);
 			final Map<String, JCheckBox> inputChecks = new HashMap<>();
 			final Map<String, JCheckBox> outputChecks = new HashMap<>();
 			final Map<JCheckBox, T2Reference> checkReferences = new HashMap<>();
@@ -851,42 +873,33 @@ public class ProcessorResultsComponent extends JPanel {
 			final Set<Action> actionSet = new HashSet<Action>();
 
 			ItemListener listener = new ItemListener() {
-
+				@Override
 				public void itemStateChanged(ItemEvent e) {
 					JCheckBox source = (JCheckBox) e.getItemSelectable();
-					if (inputChecks.containsValue(source)) {
-						if (source.isSelected()) {
-							if (outputChecks.containsKey(source.getText())) {
-								outputChecks.get(source.getText()).setSelected(false);
-							}
-						}
-					}
-					if (outputChecks.containsValue(source)) {
-						if (source.isSelected()) {
-							if (inputChecks.containsKey(source.getText())) {
-								inputChecks.get(source.getText()).setSelected(false);
-							}
-						}
-					}
+					if (inputChecks.containsValue(source)
+							&& source.isSelected()
+							&& outputChecks.containsKey(source.getText()))
+						outputChecks.get(source.getText()).setSelected(false);
+					if (outputChecks.containsValue(source)
+							&& source.isSelected()
+							&& inputChecks.containsKey(source.getText()))
+						inputChecks.get(source.getText()).setSelected(false);
 					chosenReferences.clear();
-					for (JCheckBox checkBox : checkReferences.keySet()) {
-						if (checkBox.isSelected()) {
-							chosenReferences.put(checkBox.getText(), checkReferences.get(checkBox));
-						}
-					}
+					for (JCheckBox checkBox : checkReferences.keySet())
+						if (checkBox.isSelected())
+							chosenReferences.put(checkBox.getText(),
+									checkReferences.get(checkBox));
 				}
-
 			};
-			JPanel portsPanel = new JPanel();
-			portsPanel.setBorder(new CompoundBorder(new EmptyBorder(new Insets(5, 10, 5, 10)),
-					new EtchedBorder(EtchedBorder.LOWERED)));
-			portsPanel.setLayout(new GridBagLayout());
+			JPanel portsPanel = new JPanel(new GridBagLayout());
+			portsPanel.setBorder(new CompoundBorder(new EmptyBorder(new Insets(
+					5, 10, 5, 10)), new EtchedBorder(LOWERED)));
 			if (!inputBindings.isEmpty()) {
 				GridBagConstraints gbc = new GridBagConstraints();
 				gbc.gridx = 0;
 				gbc.gridy = 0;
 				gbc.anchor = GridBagConstraints.WEST;
-				gbc.fill = GridBagConstraints.NONE;
+				gbc.fill = NONE;
 				gbc.weightx = 0.0;
 				gbc.weighty = 0.0;
 				gbc.insets = new Insets(5, 10, 5, 10);
@@ -894,8 +907,9 @@ public class ProcessorResultsComponent extends JPanel {
 				// JPanel inputsPanel = new JPanel();
 				// WeakHashMap<String, T2Reference> pushedDataMap = null;
 
-				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
-				for (Entry<String, T2Reference> inputEntry : inputBindings.entrySet()) {
+				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<>();
+				for (Entry<String, T2Reference> inputEntry : inputBindings
+						.entrySet()) {
 					String portName = inputEntry.getKey();
 					T2Reference o = inputEntry.getValue();
 					JCheckBox checkBox = new JCheckBox(portName);
@@ -911,7 +925,7 @@ public class ProcessorResultsComponent extends JPanel {
 					portsPanel.add(sortedBoxes.get(portName), gbc);
 				}
 				gbc.gridy++;
-				gbc.fill = GridBagConstraints.BOTH;
+				gbc.fill = BOTH;
 				gbc.weightx = 1.0;
 				gbc.weighty = 1.0;
 				gbc.insets = new Insets(5, 10, 5, 10);
@@ -922,12 +936,12 @@ public class ProcessorResultsComponent extends JPanel {
 				gbc.gridx = 1;
 				gbc.gridy = 0;
 				gbc.anchor = GridBagConstraints.WEST;
-				gbc.fill = GridBagConstraints.NONE;
+				gbc.fill = NONE;
 				gbc.weightx = 0.0;
 				gbc.weighty = 0.0;
 				gbc.insets = new Insets(5, 10, 5, 10);
 				portsPanel.add(new JLabel("Iteration outputs:"), gbc);
-				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
+				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<>();
 				for (Entry<String, T2Reference> outputEntry : outputBindings.entrySet()) {
 					String portName = outputEntry.getKey();
 					T2Reference o = outputEntry.getValue();
@@ -945,19 +959,18 @@ public class ProcessorResultsComponent extends JPanel {
 					portsPanel.add(sortedBoxes.get(portName), gbc);
 				}
 				gbc.gridy++;
-				gbc.fill = GridBagConstraints.BOTH;
+				gbc.fill = BOTH;
 				gbc.weightx = 1.0;
 				gbc.weighty = 1.0;
 				gbc.insets = new Insets(5, 10, 5, 10);
 				portsPanel.add(new JLabel(""), gbc); // empty space
 			}
-			panel.add(portsPanel, BorderLayout.CENTER);
+			panel.add(portsPanel, CENTER);
 			chosenReferences.clear();
-			for (JCheckBox checkBox : checkReferences.keySet()) {
-				if (checkBox.isSelected()) {
-					chosenReferences.put(checkBox.getText(), checkReferences.get(checkBox));
-				}
-			}
+			for (JCheckBox checkBox : checkReferences.keySet())
+				if (checkBox.isSelected())
+					chosenReferences.put(checkBox.getText(),
+							checkReferences.get(checkBox));
 
 			JPanel buttonsBar = new JPanel();
 			buttonsBar.setLayout(new FlowLayout());
@@ -967,28 +980,25 @@ public class ProcessorResultsComponent extends JPanel {
 				actionSet.add(action);
 				JButton saveButton = new JButton((AbstractAction) action);
 				if (action instanceof SaveAllResultsSPI) {
-//					((SaveAllResultsSPI) action).setChosenReferences(chosenReferences);
+					// ((SaveAllResultsSPI) action).setChosenReferences(chosenReferences);
 					((SaveAllResultsSPI) action).setParent(dialog);
 				}
 				// saveButton.setEnabled(true);
 				buttonsBar.add(saveButton);
 			}
-			JButton cancelButton = new JButton("Cancel", WorkbenchIcons.closeIcon);
+			JButton cancelButton = new JButton("Cancel", closeIcon);
 			cancelButton.addActionListener(new ActionListener() {
-
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					dialog.setVisible(false);
 				}
-
 			});
 			buttonsBar.add(cancelButton);
-			panel.add(buttonsBar, BorderLayout.SOUTH);
+			panel.add(buttonsBar, SOUTH);
 			panel.revalidate();
 			dialog.add(panel);
 			dialog.pack();
 			dialog.setVisible(true);
 		}
-
 	}
-
 }

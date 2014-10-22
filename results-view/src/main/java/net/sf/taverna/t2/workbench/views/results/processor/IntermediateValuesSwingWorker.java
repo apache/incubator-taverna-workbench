@@ -20,31 +20,28 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.processor;
 
-import org.apache.log4j.Logger;
 import javax.swing.SwingWorker;
 
-public class IntermediateValuesSwingWorker extends SwingWorker<ProcessorResultsComponent, String>{
-
-	private static Logger logger = Logger.getLogger(IntermediateValuesSwingWorker.class);
+public class IntermediateValuesSwingWorker extends
+		SwingWorker<ProcessorResultsComponent, String> {
 	private ProcessorResultsComponent component;
 	private Exception exception = null;
 
-	public IntermediateValuesSwingWorker(ProcessorResultsComponent component){
-	    this.component = component;
+	public IntermediateValuesSwingWorker(ProcessorResultsComponent component) {
+		this.component = component;
 	}
-	
+
 	@Override
 	protected ProcessorResultsComponent doInBackground() throws Exception {
-	    try {
-		component.populateEnactmentsMaps();
-	    }
-	    catch (Exception e) {
-		this.exception = e;
-	    }
-	    return component;
+		try {
+			component.populateEnactmentsMaps();
+		} catch (Exception e) {
+			this.exception = e;
+		}
+		return component;
 	}
 
 	public Exception getException() {
-	    return exception;
+		return exception;
 	}
 }

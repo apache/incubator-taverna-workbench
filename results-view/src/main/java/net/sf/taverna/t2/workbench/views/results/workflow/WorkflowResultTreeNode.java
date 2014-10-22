@@ -20,6 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.workflow;
 
+import static net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState.RESULT_LIST;
+import static net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState.RESULT_REFERENCE;
+import static net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState.RESULT_TOP;
+import static net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState.RESULT_WAITING;
+
 import java.nio.file.Path;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -28,16 +33,14 @@ import org.apache.log4j.Logger;
 
 @SuppressWarnings("serial")
 public class WorkflowResultTreeNode extends DefaultMutableTreeNode {
-
-	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(WorkflowResultTreeNode.class);
-
 	public enum ResultTreeNodeState {
 		RESULT_TOP, RESULT_WAITING, RESULT_LIST, RESULT_REFERENCE
 	};
 
-	private Path path;
+	@SuppressWarnings("unused")
+	private static final Logger logger = Logger.getLogger(WorkflowResultTreeNode.class);
 
+	private Path path;
 	private ResultTreeNodeState state;
 
 	public WorkflowResultTreeNode(Path reference, ResultTreeNodeState state) {
@@ -63,45 +66,39 @@ public class WorkflowResultTreeNode extends DefaultMutableTreeNode {
 	}
 
 	public Path getReference() {
-		if (isState(ResultTreeNodeState.RESULT_TOP)) {
-			if (getChildCount() == 0) {
-				return null;
-			} else {
-				return ((WorkflowResultTreeNode) getChildAt(0)).getReference();
-			}
-		} else {
+		if (!isState(RESULT_TOP))
 			return path;
-		}
+		if (getChildCount() == 0)
+			return null;
+		return ((WorkflowResultTreeNode) getChildAt(0)).getReference();
 	}
 
 	public void setReference(Path reference) {
 		this.path = reference;
 	}
 
+	@Override
 	public String toString() {
-		if (state.equals(ResultTreeNodeState.RESULT_TOP)) {
+		if (state.equals(RESULT_TOP))
 			return "Results:";
-		}
-		if (state.equals(ResultTreeNodeState.RESULT_LIST)) {
-			if (getChildCount() == 0) {
+		if (state.equals(RESULT_LIST)) {
+			if (getChildCount() == 0)
 				return "Empty list";
-			}
 			return "List...";
 		}
-		if (state.equals(ResultTreeNodeState.RESULT_WAITING)) {
+		if (state.equals(RESULT_WAITING))
 			return "Waiting for data";
-		}
 		return path.toString();
 	}
 
 	public int getValueCount() {
 		int result = 0;
-		if (isState(ResultTreeNodeState.RESULT_REFERENCE)) {
+		if (isState(RESULT_REFERENCE))
 			result = 1;
-		} else if (isState(ResultTreeNodeState.RESULT_LIST)) {
-			int childCount = this.getChildCount();
+		else if (isState(RESULT_LIST)) {
+			int childCount = getChildCount();
 			for (int i = 0; i < childCount; i++) {
-				WorkflowResultTreeNode child = (WorkflowResultTreeNode) this.getChildAt(i);
+				WorkflowResultTreeNode child = (WorkflowResultTreeNode) getChildAt(i);
 				result += child.getValueCount();
 			}
 		}
@@ -110,16 +107,14 @@ public class WorkflowResultTreeNode extends DefaultMutableTreeNode {
 
 	public int getSublistCount() {
 		int result = 0;
-		if (isState(ResultTreeNodeState.RESULT_LIST)) {
-			int childCount = this.getChildCount();
+		if (isState(RESULT_LIST)) {
+			int childCount = getChildCount();
 			for (int i = 0; i < childCount; i++) {
-				WorkflowResultTreeNode child = (WorkflowResultTreeNode) this.getChildAt(i);
-				if (child.isState(ResultTreeNodeState.RESULT_LIST)) {
+				WorkflowResultTreeNode child = (WorkflowResultTreeNode) getChildAt(i);
+				if (child.isState(RESULT_LIST))
 					result++;
-				}
 			}
 		}
 		return result;
 	}
-
 }

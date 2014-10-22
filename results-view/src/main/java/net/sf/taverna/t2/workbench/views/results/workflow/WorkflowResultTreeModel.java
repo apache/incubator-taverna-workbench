@@ -20,11 +20,15 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.workflow;
 
+import static javax.swing.SwingUtilities.invokeLater;
+import static net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState.RESULT_LIST;
+import static net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState.RESULT_REFERENCE;
+import static net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState.RESULT_WAITING;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 
-import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
 
 import net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode.ResultTreeNodeState;
@@ -36,14 +40,11 @@ import uk.org.taverna.platform.report.ReportListener;
 import uk.org.taverna.platform.report.State;
 
 public class WorkflowResultTreeModel extends DefaultTreeModel implements ReportListener {
-
 	private static final long serialVersionUID = 7154527821423588046L;
+	private static final Logger logger = Logger.getLogger(WorkflowResultTreeModel.class);
 
-	private static Logger logger = Logger.getLogger(WorkflowResultTreeModel.class);
-
-	// Name of the output port this class models results for
+	/** Name of the output port this class models results for */
 	private String portName;
-
 	int depthSeen = -1;
 
 	public WorkflowResultTreeModel(String portName) {
@@ -51,9 +52,11 @@ public class WorkflowResultTreeModel extends DefaultTreeModel implements ReportL
 		this.portName = portName;
 	}
 
+	@Override
 	public void outputAdded(final Path path, final String portName, final int[] index) {
 		// Don't slow down workflow execution, do it in GUI thread
-		SwingUtilities.invokeLater(new Runnable() {
+		invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				resultTokenProducedGui(path, portName, index);
 			}
@@ -63,107 +66,101 @@ public class WorkflowResultTreeModel extends DefaultTreeModel implements ReportL
 	@Override
 	public void stateChanged(State oldState, State newState) {
 		// TODO Auto-generated method stub
-
 	}
 
 	public void resultTokenProducedGui(Path path, String portName, int[] index) {
-		if (this.portName.equals(portName)) {
-			if (depthSeen == -1) {
-				depthSeen = index.length;
-			}
+		if (!this.portName.equals(portName))
+			return;
+		if (depthSeen == -1)
+			depthSeen = index.length;
+		else if (index.length < depthSeen)
+			return;
 
-			if (index.length >= depthSeen) {
-				Path reference = path;
-				if (DataBundles.isList(reference)) {
-					try {
-						WorkflowResultTreeNode parent = (WorkflowResultTreeNode) getRoot();
-						parent = getChildAt(parent,0);
-						changeState(parent, ResultTreeNodeState.RESULT_LIST);
-						for (int i = 0; i < index.length; i++) {
-							parent = getChildAt(parent, index[i]);
-							changeState(parent, ResultTreeNodeState.RESULT_LIST);
-						}
-
-						List<Path> list = DataBundles.getList(reference);
-						int[] elementIndex = new int[index.length + 1];
-						for (int indexElement = 0; indexElement < index.length; indexElement++) {
-							elementIndex[indexElement] = index[indexElement];
-						}
-						int c = 0;
-						for (Path id : list) {
-							elementIndex[index.length] = c;
-							resultTokenProducedGui(id, portName, elementIndex);
-							c++;
-						}
-//						if (c == 0) {
-//							parent.setUserObject("Empty list (depth=" + reference.getDepth() + ")" + reference.getLocalPart());
-//							nodeChanged(parent);
-//						}
-					} catch (NullPointerException | IOException e) {
-						logger.error("Error resolving data entity list " + reference, e);
-					}
-				} else {
-					insertNewDataTokenNode(reference, index);
-				}
-			}
+		Path reference = path;
+		if (!DataBundles.isList(reference)) {
+			insertNewDataTokenNode(reference, index);
+			return;
 		}
 
+		try {
+			WorkflowResultTreeNode parent = (WorkflowResultTreeNode) getRoot();
+			parent = getChildAt(parent,0);
+			changeState(parent, RESULT_LIST);
+			for (int i = 0; i < index.length; i++) {
+				parent = getChildAt(parent, index[i]);
+				changeState(parent, RESULT_LIST);
+			}
+
+			List<Path> list = DataBundles.getList(reference);
+			int[] elementIndex = new int[index.length + 1];
+			for (int indexElement = 0; indexElement < index.length; indexElement++)
+				elementIndex[indexElement] = index[indexElement];
+			int c = 0;
+			for (Path id : list) {
+				elementIndex[index.length] = c;
+				resultTokenProducedGui(id, portName, elementIndex);
+				c++;
+			}
+			//if (c == 0) {
+			//	parent.setUserObject("Empty list (depth=" + reference.getDepth() + ")" + reference.getLocalPart());
+			//	nodeChanged(parent);
+			//}
+		} catch (NullPointerException | IOException e) {
+			logger.error("Error resolving data entity list " + reference, e);
+		}
 	}
 
 	public void insertNewDataTokenNode(Path reference, int[] index) {
 		WorkflowResultTreeNode parent = (WorkflowResultTreeNode) getRoot();
-		 if (DataBundles.isError(reference)) {
-			 parent = getChildAt(parent, 0);
-			 for (int i = 0; i < index.length - 1; i++) {
-				 parent = getChildAt(parent, index[i]);
-				 parent = getChildAt(parent, 0);
-				 changeState(parent, ResultTreeNodeState.RESULT_LIST);
-			 }
-			 if (index.length > 0) {
-				 WorkflowResultTreeNode child = getChildAt(parent, index[index.length-1]);
-				 updateNodeWithData(child, reference);
-			 } else {
-				 updateNodeWithData(parent, reference);
-			 }
+		if (DataBundles.isError(reference)) {
+			parent = getChildAt(parent, 0);
+			for (int i = 0; i < index.length - 1; i++) {
+				parent = getChildAt(parent, index[i]);
+				parent = getChildAt(parent, 0);
+				changeState(parent, RESULT_LIST);
+			}
+			if (index.length > 0) {
+				WorkflowResultTreeNode child = getChildAt(parent,
+						index[index.length - 1]);
+				updateNodeWithData(child, reference);
+			} else
+				updateNodeWithData(parent, reference);
 		 } else {
 			int depth = index.length;
-			if (index.length == 0) {
+			if (depth == 0) {
 				WorkflowResultTreeNode child = getChildAt(parent, 0);
 				updateNodeWithData(child, reference);
 			} else {
 				parent = getChildAt(parent, 0);
-				changeState(parent, ResultTreeNodeState.RESULT_LIST);
+				changeState(parent, RESULT_LIST);
 				for (int indexElement = 0; indexElement < depth; indexElement++) {
 					WorkflowResultTreeNode child = getChildAt(parent,
 							index[indexElement]);
-					if (indexElement == (depth - 1)) { // leaf
+					if (indexElement == depth - 1) // leaf
 						updateNodeWithData(child, reference);
-					} else { // list
-						child.setState(ResultTreeNodeState.RESULT_LIST);
+					else { // list
+						child.setState(RESULT_LIST);
 						nodeChanged(child);
 					}
 					parent = child;
 				}
 			}
-		 }
+		}
 	}
 
-	private void updateNodeWithData(WorkflowResultTreeNode node,
-			Path reference) {
-		node.setState(ResultTreeNodeState.RESULT_REFERENCE);
+	private void updateNodeWithData(WorkflowResultTreeNode node, Path reference) {
+		node.setState(RESULT_REFERENCE);
 		node.setReference(reference);
 		nodeChanged(node);
 	}
 
-	private WorkflowResultTreeNode getChildAt(WorkflowResultTreeNode parent, int i) {
+	private WorkflowResultTreeNode getChildAt(WorkflowResultTreeNode parent,
+			int i) {
 		int childCount = getChildCount(parent);
-		if (childCount <= i) {
-			for (int x = childCount; x <= i; x++) {
-				insertNodeInto(new WorkflowResultTreeNode(WorkflowResultTreeNode.ResultTreeNodeState.RESULT_WAITING),
+		if (childCount <= i)
+			for (int x = childCount; x <= i; x++)
+				insertNodeInto(new WorkflowResultTreeNode(RESULT_WAITING),
 						parent, x);
-			}
-		}
-
 		return (WorkflowResultTreeNode) parent.getChildAt(i);
 	}
 
@@ -172,26 +169,27 @@ public class WorkflowResultTreeModel extends DefaultTreeModel implements ReportL
 			node.setState(state);
 			nodeChanged(node);
 		}
-
 	}
 
 	// Normally used for past workflow runs where data is obtained from provenance
 	public void createTree(Path path,  WorkflowResultTreeNode parentNode){
 		// If reference contains a list of data references
-		if (DataBundles.isList(path)) {
+		if (DataBundles.isList(path))
+			// insert list node
 			try {
 				List<Path> list = DataBundles.getList(path);
-				WorkflowResultTreeNode listNode = new WorkflowResultTreeNode(path, ResultTreeNodeState.RESULT_LIST); // list node
+				WorkflowResultTreeNode listNode = new WorkflowResultTreeNode(
+						path, RESULT_LIST);
 				insertNodeInto(listNode, parentNode, parentNode.getChildCount());
-				for (Path ref : list) {
+				for (Path ref : list)
 					createTree(ref, listNode);
-				}
 			} catch (IOException e) {
-				logger .error("Error resolving data entity list " + path, e);
+				logger.error("Error resolving data entity list " + path, e);
 			}
-		} else { // reference to single data or an error
+		else { // reference to single data or an error
 			// insert data node
-		    WorkflowResultTreeNode dataNode = new WorkflowResultTreeNode(path, ResultTreeNodeState.RESULT_REFERENCE); // data node
+			WorkflowResultTreeNode dataNode = new WorkflowResultTreeNode(path,
+					RESULT_REFERENCE);
 			insertNodeInto(dataNode, parentNode, parentNode.getChildCount());
 		}
 	}

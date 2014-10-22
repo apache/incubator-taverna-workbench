@@ -9,19 +9,21 @@ import uk.org.taverna.databundle.DataBundles;
 
 @SuppressWarnings("serial")
 public class FilteredProcessorValueTreeModel extends SimpleFilteredTreeModel {
-
 	public enum FilterType {
 		ALL {
+			@Override
 			public String toString() {
 				return "view values";
 			}
 		},
 		RESULTS {
+			@Override
 			public String toString() {
 				return "view results";
 			}
 		},
 		ERRORS {
+			@Override
 			public String toString() {
 				return "view errors";
 			}
@@ -39,31 +41,30 @@ public class FilteredProcessorValueTreeModel extends SimpleFilteredTreeModel {
 		this.filter = filter;
 	}
 
+	@Override
 	public boolean isShown(Object o) {
-		if (!(o instanceof ProcessorResultTreeNode)) {
+		if (!(o instanceof ProcessorResultTreeNode))
 			return false;
-		}
 		ProcessorResultTreeNode node = (ProcessorResultTreeNode) o;
-		if (node.getReference() == null) {
+		if (node.getReference() == null)
 			// root of the model
 			return true;
-		}
-		if (filter.equals(FilterType.ALL)) {
-			return (true);
-		}
-		if (filter.equals(FilterType.RESULTS)) {
-			for (Enumeration e = node.depthFirstEnumeration(); e.hasMoreElements();) {
-				ProcessorResultTreeNode subNode = (ProcessorResultTreeNode) e.nextElement();
+		switch (filter) {
+		case RESULTS:
+			for (Enumeration<?> e = node.depthFirstEnumeration(); e
+					.hasMoreElements();) {
+				ProcessorResultTreeNode subNode = (ProcessorResultTreeNode) e
+						.nextElement();
 				if ((subNode.getReference() != null)
 						&& !DataBundles.isError(subNode.getReference())) {
 					return true;
 				}
 			}
 			return false;
-		}
-		if (filter.equals(FilterType.ERRORS)) {
+		case ERRORS:
 			return DataBundles.isError(node.getReference());
+		default:
+			return true;
 		}
-		return true;
 	}
 }

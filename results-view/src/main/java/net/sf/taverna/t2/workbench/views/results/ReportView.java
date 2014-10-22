@@ -20,6 +20,23 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.EAST;
+import static java.awt.BorderLayout.NORTH;
+import static java.awt.BorderLayout.SOUTH;
+import static java.awt.Font.BOLD;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.WEST;
+import static java.lang.Math.round;
+import static javax.swing.JSplitPane.HORIZONTAL_SPLIT;
+import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
+import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
+import static javax.swing.tree.TreeSelectionModel.SINGLE_TREE_SELECTION;
+import static net.sf.taverna.t2.workbench.MainWindow.getMainWindow;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.closeIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.saveAllIcon;
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
@@ -59,13 +76,10 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.renderers.RendererRegistry;
-import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.Updatable;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
@@ -81,33 +95,23 @@ import uk.org.taverna.scufl2.api.port.Port;
  */
 @SuppressWarnings("serial")
 public class ReportView extends JPanel implements Updatable {
-
 	private final RendererRegistry rendererRegistry;
-
 	private final List<SaveAllResultsSPI> saveActions;
-
 	private final List<SaveIndividualResultSPI> saveIndividualActions;
-
 	private int invocationCount = 0;
-
 	private CardLayout cardLayout = new CardLayout();
-
 	private Map<Invocation, InvocationView> invocationComponents = new HashMap<>();
-
 	private InvocationTreeModel invocationTreeModel;
-
 	private StatusReport<?, ?> report;
-
 	private Invocation selectedInvocation;
-
 	private JPanel invocationPanel;
-
 	private JButton saveButton;
-
 	private Port selectedPort;
 
-	public ReportView(StatusReport<?, ?> report, RendererRegistry rendererRegistry,
-			List<SaveAllResultsSPI> saveActions, List<SaveIndividualResultSPI> saveIndividualActions) {
+	public ReportView(StatusReport<?, ?> report,
+			RendererRegistry rendererRegistry,
+			List<SaveAllResultsSPI> saveActions,
+			List<SaveIndividualResultSPI> saveIndividualActions) {
 		super(new BorderLayout());
 		this.report = report;
 		this.rendererRegistry = rendererRegistry;
@@ -126,94 +130,94 @@ public class ReportView extends JPanel implements Updatable {
 			JLabel noDataMessage = new JLabel("No data available", JLabel.CENTER);
 			Font font = noDataMessage.getFont();
 			if (font != null) {
-				font = font.deriveFont(Math.round((font.getSize() * 1.5))).deriveFont(Font.BOLD);
+				font = font.deriveFont(round(font.getSize() * 1.5)).deriveFont(BOLD);
 				noDataMessage.setFont(font);
 			}
-			add(noDataMessage, BorderLayout.CENTER);
-		} else {
-			JPanel saveButtonsPanel = new JPanel(new BorderLayout());
-			if (report instanceof WorkflowReport) {
-				saveButton = new JButton(new SaveAllAction("Save all values", this));
-			} else {
-				saveButton = new JButton(new SaveAllAction("Save invocation values", this));
-			}
-			saveButtonsPanel.add(saveButton, BorderLayout.EAST);
-			add(saveButtonsPanel, BorderLayout.NORTH);
-
-			invocationPanel = new JPanel();
-			invocationPanel.setLayout(cardLayout);
-			invocationPanel.add(new JPanel(), "BLANK");
-
-			if (invocationCount == 1) {
-				add(invocationPanel, BorderLayout.CENTER);
-				showInvocation(invocations.first());
-			} else {
-				invocationTreeModel = new InvocationTreeModel(report);
-				JTree invocationTree = new JTree(invocationTreeModel);
-				invocationTree.setExpandsSelectedPaths(true);
-				invocationTree.setRootVisible(false);
-				invocationTree.setShowsRootHandles(true);
-				invocationTree.getSelectionModel().setSelectionMode(
-						TreeSelectionModel.SINGLE_TREE_SELECTION);
-				invocationTree.addTreeSelectionListener(new TreeSelectionListener() {
-					@Override
-					public void valueChanged(TreeSelectionEvent e) {
-						Object selectedComponent = e.getPath().getLastPathComponent();
-						if (selectedComponent instanceof InvocationTreeNode) {
-							InvocationTreeNode selectedNode = (InvocationTreeNode) selectedComponent;
-							if (selectedNode.isLeaf()) {
-								showInvocation(selectedNode.getInvocation());
-							} else {
-								showInvocation(null);
-							}
-						}
-					}
-				});
-				invocationTree.setCellRenderer(new DefaultTreeCellRenderer() {
-					public Component getTreeCellRendererComponent(JTree tree, Object value,
-							boolean selected, boolean expanded, boolean leaf, int row,
-							boolean hasFocus) {
-						Component renderer =  super.getTreeCellRendererComponent(tree, value, selected,
-									expanded, leaf, row, hasFocus);
-						if (renderer instanceof JLabel) {
-							JLabel label = (JLabel) renderer;
-							label.setIcon(null);
-						}
-						return renderer;
-					}
-				});
-
-				JScrollPane jScrollPane = new JScrollPane(invocationTree,
-						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-				jScrollPane.setMinimumSize(new Dimension(150, 0));
-
-				JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-				splitPane.setLeftComponent(jScrollPane);
-				splitPane.setRightComponent(invocationPanel);
-
-				add(splitPane, BorderLayout.CENTER);
-				invocationTree.setSelectionPath(new TreePath(invocationTreeModel.getFirstInvocationNode().getPath()));
-			}
+			add(noDataMessage, CENTER);
+			return;
 		}
+
+		JPanel saveButtonsPanel = new JPanel(new BorderLayout());
+		if (report instanceof WorkflowReport)
+			saveButton = new JButton(new SaveAllAction("Save all values", this));
+		else
+			saveButton = new JButton(new SaveAllAction("Save invocation values", this));
+		saveButtonsPanel.add(saveButton, EAST);
+		add(saveButtonsPanel, NORTH);
+
+		invocationPanel = new JPanel();
+		invocationPanel.setLayout(cardLayout);
+		invocationPanel.add(new JPanel(), "BLANK");
+
+		if (invocationCount == 1) {
+			add(invocationPanel, CENTER);
+			showInvocation(invocations.first());
+			return;
+		}
+
+		invocationTreeModel = new InvocationTreeModel(report);
+		JTree invocationTree = new JTree(invocationTreeModel);
+		invocationTree.setExpandsSelectedPaths(true);
+		invocationTree.setRootVisible(false);
+		invocationTree.setShowsRootHandles(true);
+		invocationTree.getSelectionModel().setSelectionMode(
+				SINGLE_TREE_SELECTION);
+		invocationTree.addTreeSelectionListener(new TreeSelectionListener() {
+			@Override
+			public void valueChanged(TreeSelectionEvent e) {
+				Object selectedComponent = e.getPath().getLastPathComponent();
+				if (selectedComponent instanceof InvocationTreeNode) {
+					InvocationTreeNode selectedNode = (InvocationTreeNode) selectedComponent;
+					if (selectedNode.isLeaf())
+						showInvocation(selectedNode.getInvocation());
+					else
+						showInvocation(null);
+				}
+			}
+		});
+		invocationTree.setCellRenderer(new DefaultTreeCellRenderer() {
+			@Override
+			public Component getTreeCellRendererComponent(JTree tree,
+					Object value, boolean selected, boolean expanded,
+					boolean leaf, int row, boolean hasFocus) {
+				Component renderer = super.getTreeCellRendererComponent(tree,
+						value, selected, expanded, leaf, row, hasFocus);
+				if (renderer instanceof JLabel) {
+					JLabel label = (JLabel) renderer;
+					label.setIcon(null);
+				}
+				return renderer;
+			}
+		});
+
+		JScrollPane jScrollPane = new JScrollPane(invocationTree,
+				VERTICAL_SCROLLBAR_AS_NEEDED, HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		jScrollPane.setMinimumSize(new Dimension(150, 0));
+
+		JSplitPane splitPane = new JSplitPane(HORIZONTAL_SPLIT);
+		splitPane.setLeftComponent(jScrollPane);
+		splitPane.setRightComponent(invocationPanel);
+
+		add(splitPane, CENTER);
+		invocationTree.setSelectionPath(new TreePath(invocationTreeModel
+				.getFirstInvocationNode().getPath()));
 	}
 
 	public void selectPort(Port port) {
 		InvocationView invocationView = invocationComponents.get(selectedInvocation);
-		if (invocationView != null) {
+		if (invocationView != null)
 			invocationView.selectPortTab(port);
-		}
 	}
 
+	@Override
 	public void update() {
 		SortedSet<Invocation> invocations = report.getInvocations();
 		if (invocationCount < 2) {
-			if (invocations.size() != invocationCount) {
+			if (invocations.size() != invocationCount)
 				init();
-			} else if (invocationCount == 1) {
-				if (selectedInvocation != null) {
+			else if (invocationCount == 1) {
+				if (selectedInvocation != null)
 					invocationComponents.get(selectedInvocation).update();
-				}
 			}
 		} else {
 			if (invocations.size() != invocationCount) {
@@ -224,9 +228,8 @@ public class ReportView extends JPanel implements Updatable {
 				// invocationList.setListData(invocations.toArray(new Invocation[invocationCount]));
 				// invocationList.setSelectedIndex(selectedIndex);
 			}
-			if (selectedInvocation != null) {
+			if (selectedInvocation != null)
 				invocationComponents.get(selectedInvocation).update();
-			}
 		}
 	}
 
@@ -242,9 +245,8 @@ public class ReportView extends JPanel implements Updatable {
 				invocationComponents.put(invocation, invocationView);
 				invocationPanel.add(invocationView, invocation.getId());
 			}
-			if (selectedPort != null) {
+			if (selectedPort != null)
 				invocationComponents.get(invocation).selectPortTab(selectedPort);
-			}
 			cardLayout.show(invocationPanel, invocation.getId());
 			saveButton.setEnabled(true);
 		} else {
@@ -255,19 +257,18 @@ public class ReportView extends JPanel implements Updatable {
 	}
 
 	private class SaveAllAction extends AbstractAction {
-
 		public SaveAllAction(String name, ReportView resultViewComponent) {
 			super(name);
-			putValue(SMALL_ICON, WorkbenchIcons.saveAllIcon);
+			putValue(SMALL_ICON, saveAllIcon);
 		}
 
+		private static final String TITLE = "Data saver";
+
+		@Override
 		public void actionPerformed(ActionEvent e) {
-
-			String title = "Data saver";
-
-			final JDialog dialog = new HelpEnabledDialog(MainWindow.getMainWindow(), title, true);
+			final JDialog dialog = new HelpEnabledDialog(getMainWindow(), TITLE, true);
 			dialog.setResizable(false);
-			dialog.setLocationRelativeTo(MainWindow.getMainWindow());
+			dialog.setLocationRelativeTo(getMainWindow());
 			JPanel panel = new JPanel(new BorderLayout());
 			DialogTextArea explanation = new DialogTextArea();
 			explanation.setText("Select the input and output ports to save the associated data");
@@ -278,39 +279,31 @@ public class ReportView extends JPanel implements Updatable {
 			explanation.setFocusable(false);
 			explanation.setFont(new JLabel().getFont()); // make the font the same as for other
 															// components in the dialog
-			panel.add(explanation, BorderLayout.NORTH);
-			final Map<String, JCheckBox> inputChecks = new HashMap<String, JCheckBox>();
-			final Map<String, JCheckBox> outputChecks = new HashMap<String, JCheckBox>();
-			final Map<JCheckBox, Path> checkReferences = new HashMap<JCheckBox, Path>();
-			final Map<String, Path> chosenReferences = new HashMap<String, Path>();
-			final Set<Action> actionSet = new HashSet<Action>();
+			panel.add(explanation, NORTH);
+			final Map<String, JCheckBox> inputChecks = new HashMap<>();
+			final Map<String, JCheckBox> outputChecks = new HashMap<>();
+			final Map<JCheckBox, Path> checkReferences = new HashMap<>();
+			final Map<String, Path> chosenReferences = new HashMap<>();
+			final Set<Action> actionSet = new HashSet<>();
 
 			ItemListener listener = new ItemListener() {
-
+				@Override
 				public void itemStateChanged(ItemEvent e) {
 					JCheckBox source = (JCheckBox) e.getItemSelectable();
-					if (inputChecks.containsValue(source)) {
-						if (source.isSelected()) {
-							if (outputChecks.containsKey(source.getText())) {
-								outputChecks.get(source.getText()).setSelected(false);
-							}
-						}
-					}
-					if (outputChecks.containsValue(source)) {
-						if (source.isSelected()) {
-							if (inputChecks.containsKey(source.getText())) {
-								inputChecks.get(source.getText()).setSelected(false);
-							}
-						}
-					}
+					if (inputChecks.containsValue(source)
+							&& source.isSelected()
+							&& outputChecks.containsKey(source.getText()))
+						outputChecks.get(source.getText()).setSelected(false);
+					if (outputChecks.containsValue(source)
+							&& source.isSelected()
+							&& inputChecks.containsKey(source.getText()))
+						inputChecks.get(source.getText()).setSelected(false);
 					chosenReferences.clear();
-					for (JCheckBox checkBox : checkReferences.keySet()) {
-						if (checkBox.isSelected()) {
-							chosenReferences.put(checkBox.getText(), checkReferences.get(checkBox));
-						}
-					}
+					for (JCheckBox checkBox : checkReferences.keySet())
+						if (checkBox.isSelected())
+							chosenReferences.put(checkBox.getText(),
+									checkReferences.get(checkBox));
 				}
-
 			};
 
 			SortedMap<String, Path> inputPorts = selectedInvocation.getInputs();
@@ -322,14 +315,14 @@ public class ReportView extends JPanel implements Updatable {
 				GridBagConstraints gbc = new GridBagConstraints();
 				gbc.gridx = 0;
 				gbc.gridy = 0;
-				gbc.anchor = GridBagConstraints.WEST;
-				gbc.fill = GridBagConstraints.NONE;
+				gbc.anchor = WEST;
+				gbc.fill = NONE;
 				gbc.weightx = 0.0;
 				gbc.weighty = 0.0;
 				gbc.insets = new Insets(5, 10, 5, 10);
 				portsPanel.add(new JLabel("Workflow inputs:"), gbc);
 
-				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
+				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<>();
 				for (Entry<String, Path> entry : inputPorts.entrySet()) {
 					String portName = entry.getKey();
 					Path value = entry.getValue();
@@ -348,7 +341,7 @@ public class ReportView extends JPanel implements Updatable {
 					portsPanel.add(sortedBoxes.get(portName), gbc);
 				}
 				gbc.gridy++;
-				gbc.fill = GridBagConstraints.BOTH;
+				gbc.fill = BOTH;
 				gbc.weightx = 1.0;
 				gbc.weighty = 1.0;
 				gbc.insets = new Insets(5, 10, 5, 10);
@@ -358,13 +351,13 @@ public class ReportView extends JPanel implements Updatable {
 				GridBagConstraints gbc = new GridBagConstraints();
 				gbc.gridx = 1;
 				gbc.gridy = 0;
-				gbc.anchor = GridBagConstraints.WEST;
-				gbc.fill = GridBagConstraints.NONE;
+				gbc.anchor = WEST;
+				gbc.fill = NONE;
 				gbc.weightx = 0.0;
 				gbc.weighty = 0.0;
 				gbc.insets = new Insets(5, 10, 5, 10);
 				portsPanel.add(new JLabel("Workflow outputs:"), gbc);
-				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<String, JCheckBox>();
+				TreeMap<String, JCheckBox> sortedBoxes = new TreeMap<>();
 				for (Entry<String, Path> entry : outputPorts.entrySet()) {
 					String portName = entry.getKey();
 					Path value = entry.getValue();
@@ -384,19 +377,17 @@ public class ReportView extends JPanel implements Updatable {
 					portsPanel.add(sortedBoxes.get(portName), gbc);
 				}
 				gbc.gridy++;
-				gbc.fill = GridBagConstraints.BOTH;
+				gbc.fill = BOTH;
 				gbc.weightx = 1.0;
 				gbc.weighty = 1.0;
 				gbc.insets = new Insets(5, 10, 5, 10);
 				portsPanel.add(new JLabel(""), gbc); // empty space
 			}
-			panel.add(portsPanel, BorderLayout.CENTER);
+			panel.add(portsPanel, CENTER);
 			chosenReferences.clear();
-			for (JCheckBox checkBox : checkReferences.keySet()) {
-				if (checkBox.isSelected()) {
+			for (JCheckBox checkBox : checkReferences.keySet())
+				if (checkBox.isSelected())
 					chosenReferences.put(checkBox.getText(), checkReferences.get(checkBox));
-				}
-			}
 
 			JPanel buttonsBar = new JPanel();
 			buttonsBar.setLayout(new FlowLayout());
@@ -411,22 +402,19 @@ public class ReportView extends JPanel implements Updatable {
 				}
 				buttonsBar.add(saveButton);
 			}
-			JButton cancelButton = new JButton("Cancel", WorkbenchIcons.closeIcon);
+			JButton cancelButton = new JButton("Cancel", closeIcon);
 			cancelButton.addActionListener(new ActionListener() {
-
+				@Override
 				public void actionPerformed(ActionEvent e) {
 					dialog.setVisible(false);
 				}
-
 			});
 			buttonsBar.add(cancelButton);
-			panel.add(buttonsBar, BorderLayout.SOUTH);
+			panel.add(buttonsBar, SOUTH);
 			panel.revalidate();
 			dialog.add(panel);
 			dialog.pack();
 			dialog.setVisible(true);
 		}
-
 	}
-
 }

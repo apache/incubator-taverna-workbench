@@ -20,11 +20,12 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results;
 
+import static javax.swing.SwingUtilities.invokeLater;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.SortedSet;
 
-import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
@@ -40,9 +41,7 @@ import uk.org.taverna.platform.report.StatusReport;
  */
 @SuppressWarnings("serial")
 public class InvocationTreeModel extends DefaultTreeModel implements Updatable {
-
 	private final StatusReport<?, ?> report;
-
 	private Map<String, InvocationTreeNode> nodes = new HashMap<>();
 
 	/**
@@ -64,9 +63,8 @@ public class InvocationTreeModel extends DefaultTreeModel implements Updatable {
 	private void updateTree(SortedSet<Invocation> invocations) {
 		for (Invocation invocation : invocations) {
 			String invocationId = invocation.getId();
-			if (!nodes.containsKey(invocationId)) {
+			if (!nodes.containsKey(invocationId))
 				nodes.put(invocationId, createNode(invocation));
-			}
 		}
 	}
 
@@ -79,33 +77,27 @@ public class InvocationTreeModel extends DefaultTreeModel implements Updatable {
 				Invocation greatGrandParent = grandParent.getParent();
 				if (greatGrandParent != null) {
 					String invocationId = greatGrandParent.getId();
-					if (!nodes.containsKey(invocationId)) {
+					if (!nodes.containsKey(invocationId))
 						nodes.put(invocationId, createNode(greatGrandParent));
-					}
 					MutableTreeNode parentNode = nodes.get(invocationId);
 					insertNodeInto(node, parentNode, parentNode.getChildCount());
-				} else {
-					MutableTreeNode parentNode = ((MutableTreeNode) getRoot());
-					insertNodeInto(node, parentNode, parentNode.getChildCount());
+					return node;
 				}
-			} else {
-				MutableTreeNode parentNode = ((MutableTreeNode) getRoot());
-				insertNodeInto(node, parentNode, parentNode.getChildCount());
 			}
-		} else {
-			MutableTreeNode parentNode = ((MutableTreeNode) getRoot());
-			insertNodeInto(node, parentNode, parentNode.getChildCount());
 		}
+
+		MutableTreeNode parentNode = ((MutableTreeNode) getRoot());
+		insertNodeInto(node, parentNode, parentNode.getChildCount());
 		return node;
 	}
 
 	@Override
 	public void update() {
-		SwingUtilities.invokeLater(new Runnable() {
+		invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				updateTree(report.getInvocations());
 			}
 		});
 	}
-
 }

@@ -20,13 +20,14 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.workflow;
 
+import static javax.swing.SwingUtilities.invokeLater;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
-import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -43,7 +44,6 @@ import uk.org.taverna.databundle.DataBundles;
  */
 @SuppressWarnings("serial")
 public class DataBundleTreeModel extends DefaultTreeModel implements Updatable {
-
 	private static final Logger logger = Logger.getLogger(DataBundleTreeModel.class);
 
 	private Path path;
@@ -64,73 +64,73 @@ public class DataBundleTreeModel extends DefaultTreeModel implements Updatable {
 	}
 
 	private static DefaultMutableTreeNode createTree(Path path) {
-		DefaultMutableTreeNode node;
-		if (path == null || DataBundles.isMissing(path)) {
-			node = new DefaultMutableTreeNode(null);
-		} else if (DataBundles.isList(path)) {
-			node = new DefaultMutableTreeNode(path);
-			try {
-				List<Path> elements = DataBundles.getList(path);
-				for (Path element : elements) {
-					node.add(createTree(element));
-				}
-			} catch (IOException e) {
-				logger.error("Error resolving data entity list " + path, e);
-			}
-		} else {
-			node = new DefaultMutableTreeNode(path);
+		if (path == null || DataBundles.isMissing(path))
+			return new DefaultMutableTreeNode(null);
+		else if (!DataBundles.isList(path))
+			return new DefaultMutableTreeNode(path);
+
+		DefaultMutableTreeNode node = new DefaultMutableTreeNode(path);
+		try {
+			for (Path element : DataBundles.getList(path))
+				node.add(createTree(element));
+		} catch (IOException e) {
+			logger.error("Error resolving data entity list " + path, e);
 		}
 		return node;
 	}
 
 	@Override
 	public void update() {
-		SwingUtilities.invokeLater(new Runnable() {
+		invokeLater(new Runnable() {
+			@Override
 			public void run() {
 				DefaultMutableTreeNode oldNode = (DefaultMutableTreeNode) root;
-				if (oldNode.getUserObject() == null && (path == null || DataBundles.isMissing(path))) {
+				if (oldNode.getUserObject() == null
+						&& (path == null || DataBundles.isMissing(path)))
 					return;
-				}
 				compare(oldNode, createTree(path));
 			}
 		});
 	}
 
-	private void compare(DefaultMutableTreeNode oldNode, DefaultMutableTreeNode newNode) {
+	private void compare(DefaultMutableTreeNode oldNode,
+			DefaultMutableTreeNode newNode) {
 		if (oldNode.getUserObject() == null) {
 			Path newPath = (Path) newNode.getUserObject();
 			if (newPath != null) {
 				oldNode.setUserObject(newPath);
-				if (DataBundles.isList(newPath)) {
+				if (DataBundles.isList(newPath))
 					nodeStructureChanged(oldNode);
-				} else {
+				else
 					nodeChanged(oldNode);
-				}
 			}
 		} else if (DataBundles.isList((Path) oldNode.getUserObject())) {
-			Enumeration<DefaultMutableTreeNode> oldChildren = oldNode.children();
-			Enumeration<DefaultMutableTreeNode> newChildren = newNode.children();
+			@SuppressWarnings("unchecked")
+			Enumeration<DefaultMutableTreeNode> oldChildren = oldNode
+					.children();
+			@SuppressWarnings("unchecked")
+			Enumeration<DefaultMutableTreeNode> newChildren = newNode
+					.children();
 			int index = 0;
 			while (oldChildren.hasMoreElements()) {
 				index++;
 				compare(oldChildren.nextElement(), newChildren.nextElement());
 			}
-			int newChildNodes = newNode.getChildCount() - oldNode.getChildCount();
+			int newChildNodes = newNode.getChildCount()
+					- oldNode.getChildCount();
 			if (newChildNodes != 0) {
-				List<DefaultMutableTreeNode> childrenToAdd = new ArrayList<>(newChildNodes);
+				List<DefaultMutableTreeNode> childrenToAdd = new ArrayList<>(
+						newChildNodes);
 				int[] childIndices = new int[newChildNodes];
 				for (int i = 0; newChildren.hasMoreElements(); i++) {
 					childrenToAdd.add(newChildren.nextElement());
 					childIndices[i] = index++;
 				}
-				for (DefaultMutableTreeNode childToAdd : childrenToAdd) {
+				for (DefaultMutableTreeNode childToAdd : childrenToAdd)
 					oldNode.add(childToAdd);
-				}
 				nodesWereInserted(oldNode, childIndices);
 				nodeChanged(oldNode);
 			}
 		}
 	}
-
-
 }

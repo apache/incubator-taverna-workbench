@@ -20,23 +20,23 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results;
 
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.inputIcon;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.outputIcon;
+
 import java.awt.Component;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.SortedMap;
 
 import javax.swing.JTabbedPane;
 
 import net.sf.taverna.t2.renderers.RendererRegistry;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.Updatable;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
 import net.sf.taverna.t2.workbench.views.results.workflow.PortResultsViewTab;
 import uk.org.taverna.platform.report.Invocation;
-import uk.org.taverna.platform.report.StatusReport;
 import uk.org.taverna.scufl2.api.common.Ported;
 import uk.org.taverna.scufl2.api.port.InputPort;
 import uk.org.taverna.scufl2.api.port.Port;
@@ -48,18 +48,15 @@ import uk.org.taverna.scufl2.api.port.Port;
  */
 @SuppressWarnings("serial")
 public class InvocationView extends JTabbedPane implements Updatable {
-
 	private final RendererRegistry rendererRegistry;
-
 	private final List<SaveIndividualResultSPI> saveIndividualActions;
-
 	private Map<String, PortResultsViewTab> inputPortTabMap = new HashMap<>(),
 			outputPortTabMap = new HashMap<>();
-
 	private final Invocation invocation;
 
 	public InvocationView(Invocation invocation,
-			RendererRegistry rendererRegistry, List<SaveIndividualResultSPI> saveIndividualActions) {
+			RendererRegistry rendererRegistry,
+			List<SaveIndividualResultSPI> saveIndividualActions) {
 		this.invocation = invocation;
 		this.rendererRegistry = rendererRegistry;
 		this.saveIndividualActions = saveIndividualActions;
@@ -75,46 +72,49 @@ public class InvocationView extends JTabbedPane implements Updatable {
 		for (Port port : ported.getInputPorts()) {
 			String name = port.getName();
 			Path value = inputs.get(name);
-			// Create a tab containing a tree view of per-port results and a rendering
-			// component for displaying individual results
-			PortResultsViewTab resultTab = new PortResultsViewTab(port, value, rendererRegistry, saveIndividualActions);
+			/*
+			 * Create a tab containing a tree view of per-port results and a
+			 * rendering component for displaying individual results
+			 */
+			PortResultsViewTab resultTab = new PortResultsViewTab(port, value,
+					rendererRegistry, saveIndividualActions);
 
 			inputPortTabMap.put(name, resultTab);
 
-			addTab(name, WorkbenchIcons.inputIcon, resultTab, "Input port " + name);
+			addTab(name, inputIcon, resultTab, "Input port " + name);
 		}
 
 		// Output ports
 		for (Port port : ported.getOutputPorts()) {
 			String name = port.getName();
 			Path value = outputs.get(name);
-			// Create a tab containing a tree view of per-port results and a rendering
-			// component for displaying individual results
-			PortResultsViewTab resultTab = new PortResultsViewTab(port, value, rendererRegistry, saveIndividualActions);
+			/*
+			 * Create a tab containing a tree view of per-port results and a
+			 * rendering component for displaying individual results
+			 */
+			PortResultsViewTab resultTab = new PortResultsViewTab(port, value,
+					rendererRegistry, saveIndividualActions);
 			outputPortTabMap.put(name, resultTab);
 
-			addTab(name, WorkbenchIcons.outputIcon, resultTab, "Output port " + name);
+			addTab(name, outputIcon, resultTab, "Output port " + name);
 		}
 		// Select the first output port tab
-		if (!outputs.isEmpty()) {
+		if (!outputs.isEmpty())
 			setSelectedIndex(inputs.size());
-		} else if (!inputs.isEmpty()) {
+		else if (!inputs.isEmpty())
 			setSelectedIndex(0);
-		}
 
 		revalidate();
 	}
 
 	public void selectPortTab(Port port) {
 		PortResultsViewTab tab;
-		if (port instanceof InputPort) {
+		if (port instanceof InputPort)
 			tab = inputPortTabMap.get(port.getName());
-		} else {
+		else
 			tab = outputPortTabMap.get(port.getName());
-		}
-		if (tab != null) {
+		if (tab != null)
 			setSelectedComponent(tab);
-		}
 	}
 
 	public Port getSelectedPort() {
@@ -126,13 +126,11 @@ public class InvocationView extends JTabbedPane implements Updatable {
 		return null;
 	}
 
+	@Override
 	public void update() {
-		for (PortResultsViewTab portResultsViewTab : inputPortTabMap.values()) {
+		for (PortResultsViewTab portResultsViewTab : inputPortTabMap.values())
 			portResultsViewTab.update();
-		}
-		for (PortResultsViewTab portResultsViewTab : outputPortTabMap.values()) {
+		for (PortResultsViewTab portResultsViewTab : outputPortTabMap.values())
 			portResultsViewTab.update();
-		}
 	}
-
 }

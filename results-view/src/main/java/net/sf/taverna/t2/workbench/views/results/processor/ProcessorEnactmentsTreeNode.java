@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.processor;
 
+import static net.sf.taverna.t2.workbench.views.results.processor.ProcessorEnactmentsTreeModel.iterationToIntegerList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,26 +30,25 @@ import net.sf.taverna.t2.provenance.lineageservice.utils.ProcessorEnactment;
 /**
  * Node in a processor enactments tree. Contains a particular enactment of the
  * processor.
+ * 
  * @author Alex Nenadic
- *
  */
 @SuppressWarnings("serial")
 public class ProcessorEnactmentsTreeNode extends IterationTreeNode {
-	
-	private List<Integer> myIteration = new ArrayList<Integer>();
-	private List<Integer> parentIteration = new ArrayList<Integer>();
-	
-	public ProcessorEnactmentsTreeNode(ProcessorEnactment processorEnactment, List<Integer> parentIteration){
+	private List<Integer> myIteration = new ArrayList<>();
+	private List<Integer> parentIteration = new ArrayList<>();
+
+	public ProcessorEnactmentsTreeNode(ProcessorEnactment processorEnactment,
+			List<Integer> parentIteration) {
 		super();
 		this.parentIteration = parentIteration;
-		setProcessorEnactment(processorEnactment);		
+		setProcessorEnactment(processorEnactment);
 	}
 
 	protected void updateFullIteration() {
-		List<Integer> fullIteration = new ArrayList<Integer>();
-		if (getParentIteration() != null) {
+		List<Integer> fullIteration = new ArrayList<>();
+		if (getParentIteration() != null)
 			fullIteration.addAll(getParentIteration());
-		}
 		fullIteration.addAll(getMyIteration());
 		setIteration(fullIteration);
 	}
@@ -56,6 +57,7 @@ public class ProcessorEnactmentsTreeNode extends IterationTreeNode {
 		return myIteration;
 	}
 
+	@Override
 	public final List<Integer> getParentIteration() {
 		return parentIteration;
 	}
@@ -68,17 +70,15 @@ public class ProcessorEnactmentsTreeNode extends IterationTreeNode {
 		this.myIteration = myIteration;
 		updateFullIteration();
 	}
-	
+
 	public final void setParentIteration(List<Integer> parentIteration) {
 		this.parentIteration = parentIteration;
 		updateFullIteration();
 	}
-	
-	public final void setProcessorEnactment(ProcessorEnactment processorEnactment) {
+
+	public final void setProcessorEnactment(
+			ProcessorEnactment processorEnactment) {
 		setUserObject(processorEnactment);
-		setMyIteration(ProcessorEnactmentsTreeModel.iterationToIntegerList(processorEnactment.getIteration()));
+		setMyIteration(iterationToIntegerList(processorEnactment.getIteration()));
 	}
-
-
-
 }

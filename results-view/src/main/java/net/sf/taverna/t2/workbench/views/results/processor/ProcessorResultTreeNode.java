@@ -37,11 +37,13 @@ import org.apache.log4j.Logger;
  */
 @SuppressWarnings("serial")
 public class ProcessorResultTreeNode extends DefaultMutableTreeNode {
+	public enum ProcessorResultTreeNodeState {
+		RESULT_TOP, RESULT_LIST, RESULT_REFERENCE
+	};
 
 	@SuppressWarnings("unused")
-	private static Logger logger = Logger.getLogger(ProcessorResultTreeNode.class);
-
-	public enum ProcessorResultTreeNodeState {RESULT_TOP, RESULT_LIST, RESULT_REFERENCE};
+	private static final Logger logger = Logger
+			.getLogger(ProcessorResultTreeNode.class);
 
 	private ProcessorResultTreeNodeState state;
 	private Path reference; // reference to actual data if this node is a data node
@@ -81,14 +83,13 @@ public class ProcessorResultTreeNode extends DefaultMutableTreeNode {
 		this.reference = reference;
 	}
 
+	@Override
 	public String toString() {
-		if (state.equals(ProcessorResultTreeNodeState.RESULT_TOP)) {
+		if (state.equals(ProcessorResultTreeNodeState.RESULT_TOP))
 			return "Results:";
-		}
 		if (state.equals(ProcessorResultTreeNodeState.RESULT_LIST)) {
-			if (getChildCount() == 0) {
+			if (getChildCount() == 0)
 				return "Empty list";
-			}
 			return "List with " + listSize + " values";
 		}
 		return reference.toString();
@@ -100,12 +101,12 @@ public class ProcessorResultTreeNode extends DefaultMutableTreeNode {
 
 	public int getValueCount() {
 		int result = 0;
-		if (isState(ProcessorResultTreeNodeState.RESULT_REFERENCE)) {
+		if (isState(ProcessorResultTreeNodeState.RESULT_REFERENCE))
 			result = 1;
-		} else if (isState(ProcessorResultTreeNodeState.RESULT_LIST)) {
-			int childCount = this.getChildCount();
+		else if (isState(ProcessorResultTreeNodeState.RESULT_LIST)) {
+			int childCount = getChildCount();
 			for (int i = 0; i < childCount; i++) {
-				ProcessorResultTreeNode child = (ProcessorResultTreeNode) this.getChildAt(i);
+				ProcessorResultTreeNode child = (ProcessorResultTreeNode) getChildAt(i);
 				result += child.getValueCount();
 			}
 		}
@@ -117,10 +118,9 @@ public class ProcessorResultTreeNode extends DefaultMutableTreeNode {
 		if (isState(ProcessorResultTreeNodeState.RESULT_LIST)) {
 			int childCount = this.getChildCount();
 			for (int i = 0; i < childCount; i++) {
-				ProcessorResultTreeNode child = (ProcessorResultTreeNode) this.getChildAt(i);
-				if (child.isState(ProcessorResultTreeNodeState.RESULT_LIST)) {
+				ProcessorResultTreeNode child = (ProcessorResultTreeNode) getChildAt(i);
+				if (child.isState(ProcessorResultTreeNodeState.RESULT_LIST))
 					result++;
-				}
 			}
 		}
 		return result;
@@ -178,5 +178,4 @@ public class ProcessorResultTreeNode extends DefaultMutableTreeNode {
 	public int getListSize() {
 		return listSize;
 	}
-
 }

@@ -25,7 +25,6 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.swing.JPanel;
@@ -50,9 +49,6 @@ import uk.org.taverna.platform.report.ProcessorReport;
 import uk.org.taverna.platform.report.WorkflowReport;
 import uk.org.taverna.platform.run.api.InvalidRunIdException;
 import uk.org.taverna.platform.run.api.RunService;
-import uk.org.taverna.scufl2.api.common.Child;
-import uk.org.taverna.scufl2.api.common.Named;
-import uk.org.taverna.scufl2.api.common.WorkflowBean;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.port.Port;
 
@@ -63,8 +59,7 @@ import uk.org.taverna.scufl2.api.port.Port;
  */
 @SuppressWarnings("serial")
 public class ResultsComponent extends JPanel implements Updatable {
-
-	private static Logger logger = Logger.getLogger(ResultsComponent.class);
+	private static final Logger logger = Logger.getLogger(ResultsComponent.class);
 
 	private final RunService runService;
 	private final SelectionManager selectionManager;
@@ -73,14 +68,10 @@ public class ResultsComponent extends JPanel implements Updatable {
 	private final List<SaveIndividualResultSPI> saveIndividualResultSPIs;
 
 	private CardLayout cardLayout = new CardLayout();
-
 	private Updatable updatableComponent;
-
 	private Map<String, ReportView> workflowResults = new HashMap<>();
 	private Map<String, Map<Processor, ReportView>> processorResults = new HashMap<>();
-
 	private SelectionManagerObserver selectionManagerObserver = new SelectionManagerObserver();
-
 	private String workflowRun;
 
 	public ResultsComponent(RunService runService, SelectionManager selectionManager,
@@ -104,28 +95,27 @@ public class ResultsComponent extends JPanel implements Updatable {
 
 	@Override
 	public void update() {
-		if (updatableComponent != null) {
+		if (updatableComponent != null)
 			updatableComponent.update();
-		}
 	}
 
 	public void setWorkflowRun(String workflowRun) throws InvalidRunIdException {
-		if (workflowRun != null) {
-			this.workflowRun = workflowRun;
-			DataflowSelectionModel selectionModel = selectionManager
-					.getWorkflowRunSelectionModel(workflowRun);
-			Set<Object> selectionSet = selectionModel.getSelection();
-			if (selectionSet.size() == 1) {
-				Object selection = selectionSet.iterator().next();
-				if (selection instanceof Processor) {
-					showProcessorResults((Processor) selection);
-				} else {
-					showWorkflowResults();
-				}
-			} else {
-				showWorkflowResults();
+		if (workflowRun == null)
+			return;
+		this.workflowRun = workflowRun;
+
+		DataflowSelectionModel selectionModel = selectionManager
+				.getWorkflowRunSelectionModel(workflowRun);
+		Set<Object> selectionSet = selectionModel.getSelection();
+		if (selectionSet.size() == 1) {
+			Object selection = selectionSet.iterator().next();
+			if (selection instanceof Processor) {
+				showProcessorResults((Processor) selection);
+				return;
 			}
 		}
+
+		showWorkflowResults();
 	}
 
 	public void addWorkflowRun(String workflowRun) throws InvalidRunIdException {
@@ -141,30 +131,25 @@ public class ResultsComponent extends JPanel implements Updatable {
 
 	public void removeWorkflowRun(String workflowRun) {
 		ReportView removedWorkflowResults = workflowResults.remove(workflowRun);
-		if (removedWorkflowResults != null) {
+		if (removedWorkflowResults != null)
 			remove(removedWorkflowResults);
-		}
 		Map<Processor, ReportView> removedProcessorResults = processorResults.remove(workflowRun);
-		if (removedProcessorResults != null) {
-			for (Entry<Processor, ReportView> entry : removedProcessorResults.entrySet()) {
-				remove(entry.getValue());
-			}
-		}
+		if (removedProcessorResults != null)
+			for (ReportView reportView: removedProcessorResults.values())
+				remove(reportView);
 	}
 
 	private void showWorkflowResults() throws InvalidRunIdException {
-		if (!workflowResults.containsKey(workflowRun)) {
+		if (!workflowResults.containsKey(workflowRun))
 			addWorkflowRun(workflowRun);
-		}
 		updatableComponent = workflowResults.get(workflowRun);
 		cardLayout.show(this, workflowRun);
 		update();
 	}
 
 	private void showProcessorResults(Processor processor) throws InvalidRunIdException {
-		if (!processorResults.containsKey(workflowRun)) {
+		if (!processorResults.containsKey(workflowRun))
 			processorResults.put(workflowRun, new HashMap<Processor, ReportView>());
-		}
 		Map<Processor, ReportView> components = processorResults.get(workflowRun);
 		if (!components.containsKey(processor)) {
 			WorkflowReport workflowReport = runService.getWorkflowReport(workflowRun);
@@ -179,27 +164,31 @@ public class ResultsComponent extends JPanel implements Updatable {
 		update();
 	}
 
-	private ProcessorReport findProcessorReport(WorkflowReport workflowReport, Processor processor) {
+	private ProcessorReport findProcessorReport(WorkflowReport workflowReport,
+			Processor processor) {
 		URI workflowIdentifier = workflowReport.getSubject().getIdentifier();
 		if (processor.getParent().getIdentifier().equals(workflowIdentifier)) {
-			for (ProcessorReport processorReport : workflowReport.getProcessorReports()) {
-				if (processorReport.getSubject().getName().equals(processor.getName())) {
+			for (ProcessorReport processorReport : workflowReport
+					.getProcessorReports())
+				if (processorReport.getSubject().getName()
+						.equals(processor.getName()))
 					return processorReport;
-				}
-			}
-		} else {
-			for (ProcessorReport processorReport : workflowReport.getProcessorReports()) {
-				for (ActivityReport activityReport : processorReport.getActivityReports()) {
-					WorkflowReport nestedWorkflowReport = activityReport.getNestedWorkflowReport();
-					if (nestedWorkflowReport != null) {
-						ProcessorReport report = findProcessorReport(nestedWorkflowReport, processor);
-						if (report != null) {
-							return report;
-						}
-					}
-				}
-			}
+			return null;
 		}
+
+		for (ProcessorReport processorReport : workflowReport
+				.getProcessorReports())
+			for (ActivityReport activityReport : processorReport
+					.getActivityReports()) {
+				WorkflowReport nestedWorkflowReport = activityReport
+						.getNestedWorkflowReport();
+				if (nestedWorkflowReport != null) {
+					ProcessorReport report = findProcessorReport(
+							nestedWorkflowReport, processor);
+					if (report != null)
+						return report;
+				}
+			}
 		return null;
 	}
 
@@ -207,35 +196,38 @@ public class ResultsComponent extends JPanel implements Updatable {
 		@Override
 		public void notifySwing(Observable<SelectionManagerEvent> sender,
 				SelectionManagerEvent message) {
-			if (message instanceof WorkflowRunSelectionEvent) {
-				try {
-					setWorkflowRun(((WorkflowRunSelectionEvent) message).getSelectedWorkflowRun());
-				} catch (InvalidRunIdException e) {
-					logger.warn("Invalid workflow run", e);
-				}
+			try {
+				if (message instanceof WorkflowRunSelectionEvent)
+					setWorkflowRun(((WorkflowRunSelectionEvent) message)
+							.getSelectedWorkflowRun());
+			} catch (InvalidRunIdException e) {
+				logger.warn("Invalid workflow run", e);
 			}
 		}
 	}
 
 	private final class DataflowSelectionObserver implements Observer<DataflowSelectionMessage> {
+		@Override
 		public void notify(Observable<DataflowSelectionMessage> sender,
 				DataflowSelectionMessage message) throws Exception {
-			if (message.getType() == DataflowSelectionMessage.Type.ADDED) {
-				Object element = message.getElement();
-				if (element instanceof Processor) {
-					showProcessorResults((Processor) element);
-				} else {
-					showWorkflowResults();
-					if (element instanceof Port) {
-						Port port = (Port) element;
-						if (updatableComponent instanceof ReportView) {
-							ReportView reportView = (ReportView) updatableComponent;
-							reportView.selectPort(port);
-						}
-					}
+			if (message.getType() != DataflowSelectionMessage.Type.ADDED)
+				return;
+
+			Object element = message.getElement();
+			if (element instanceof Processor) {
+				showProcessorResults((Processor) element);
+				return;
+			}
+
+			showWorkflowResults();
+
+			if (element instanceof Port) {
+				Port port = (Port) element;
+				if (updatableComponent instanceof ReportView) {
+					ReportView reportView = (ReportView) updatableComponent;
+					reportView.selectPort(port);
 				}
 			}
 		}
 	}
-
 }

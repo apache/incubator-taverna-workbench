@@ -20,20 +20,25 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.views.results.saveactions;
 
+import static java.lang.Math.max;
+import static java.util.Arrays.asList;
+import static net.sf.taverna.t2.baclava.factory.DataThingFactory.bake;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.saveIcon;
+import static org.apache.poi.ss.usermodel.CellStyle.BORDER_NONE;
+import static org.apache.poi.ss.usermodel.CellStyle.BORDER_THIN;
+import static org.apache.poi.ss.usermodel.CellStyle.SOLID_FOREGROUND;
+
 import java.beans.IntrospectionException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 
 import javax.swing.AbstractAction;
 
 import net.sf.taverna.t2.baclava.DataThing;
-import net.sf.taverna.t2.baclava.factory.DataThingFactory;
 import net.sf.taverna.t2.baclava.iterator.BaclavaIterator;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -48,7 +53,6 @@ import org.apache.poi.hssf.util.HSSFColor;
  * @author Tom Oinn
  */
 public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
-
 	private static final long serialVersionUID = -2759817859804112070L;
 
 	HSSFWorkbook wb = null;
@@ -59,30 +63,31 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 	public SaveAllResultsAsExcel() {
 		super();
 		putValue(NAME, "Save as Excel");
-		putValue(SMALL_ICON, WorkbenchIcons.saveIcon);
+		putValue(SMALL_ICON, saveIcon);
 	}
 
+	@Override
 	public AbstractAction getAction() {
 		return new SaveAllResultsAsExcel();
 	}
 
+	@Override
 	protected void saveData(File f) throws IOException {
 		try {
 			generateSheet();
 		} catch (IntrospectionException e) {
-			throw new IOException(e);
+			throw new IOException("failed to generate excel sheet model", e);
 		}
 		saveSheet(f);
 	}
 
 	/**
-	 * Generate the Excel sheet from the DataThing's in the map.
-	 * All of the results are shown in the same spreadsheet, but in
-	 * different columns. Flat lists are shown vertically, 2d lists
-	 * as a matrix, and deeper lists are flattened to 2d.
-	 *
+	 * Generate the Excel sheet from the DataThing's in the map. All of the
+	 * results are shown in the same spreadsheet, but in different columns. Flat
+	 * lists are shown vertically, 2d lists as a matrix, and deeper lists are
+	 * flattened to 2d.
+	 * 
 	 * @throws IntrospectionException
-	 * @throws Exception
 	 */
 	void generateSheet() throws IntrospectionException {
 		wb = new HSSFWorkbook();
@@ -93,12 +98,11 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 
 		for (String portName : chosenReferences.keySet()) {
 			logger.debug("Output for : " + portName);
-			DataThing resultValue = DataThingFactory.bake(getObjectForName(portName));
+			DataThing resultValue = bake(getObjectForName(portName));
 			// Check whether there's a textual type
 			Boolean textualType = isTextual(resultValue.getDataObject());
-			if (textualType == null || !textualType) {
+			if (textualType == null || !textualType)
 				continue;
-			}
 			logger.debug("Output is textual");
 			getCell(currentCol, 0).setCellValue(portName);
 			getCell(currentCol, 0).setCellStyle(headingStyle);
@@ -110,15 +114,21 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 				rows = resultValue.iterator("l('')");
 			} catch (IntrospectionException ex) {
 				// Not a list, single value. We'll fake the iterator
-				DataThing fakeValues = new DataThing(Arrays.asList(resultValue.getDataObject()));
+				DataThing fakeValues = new DataThing(
+						asList(resultValue.getDataObject()));
 				rows = fakeValues.iterator("l('')");
 			}
-			// If we only have one row, we'll show each value on a new
-			// row instead
+			/*
+			 * If we only have one row, we'll show each value on a new row
+			 * instead
+			 */
 			boolean isFlat = rows.size() == 1;
 			while (rows.hasNext()) {
 				DataThing row = (DataThing) rows.next();
-				// Even increase first time, as we don't want to overwrite our header
+				/*
+				 * Even increase first time, as we don't want to overwrite our
+				 * header
+				 */
 				currentRow++;
 				BaclavaIterator bi = row.iterator("''");
 				while (bi.hasNext()) {
@@ -133,89 +143,66 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 					logger.debug("Storing in cell " + (currentCol + columnOffset) + " "
 							+ currentRow + ": " + containedValue);
 					getCell(currentCol + columnOffset, currentRow).setCellValue(containedValue);
-					if (isFlat) {
+					if (isFlat)
 						currentRow++;
-					}
 				}
 			}
-			numRows = Math.max(numRows, currentRow);
+			numRows = max(numRows, currentRow);
 
 			// Set the styles
-			for (int x = currentCol; x < currentCol + numCols; x++) {
-				for (int y = 1; y < numRows + 1; y++) {
+			for (int x = currentCol; x < currentCol + numCols; x++)
+				for (int y = 1; y < numRows + 1; y++)
 					setStyle(currentCol, x, y);
-				}
-			}
-			sheet.setColumnWidth((short) (currentCol + numCols), (short) 200);
+			sheet.setColumnWidth(currentCol + numCols, 200);
 			currentCol += numCols + 1;
 		}
 	}
 
 	void setStyle(int currentCol, int column, int row) {
-		if (!hasValue(column, row)) {
+		if (!hasValue(column, row))
 			return;
-		}
 		HSSFCell cell = getCell(column, row);
 		int n = 0, s = 0, w = 0, e = 0;
-		if (row < 2 || !hasValue(column, row - 1)) {
+		if (row < 2 || !hasValue(column, row - 1))
 			n = 1;
-		}
-		if (column == currentCol || !hasValue(column - 1, row)) {
+		if (column == currentCol || !hasValue(column - 1, row))
 			w = 1;
-		}
-		if (!hasValue(column, row + 1)) {
+		if (!hasValue(column, row + 1))
 			s = 1;
-		}
-		if (!hasValue(column + 1, row)) {
+		if (!hasValue(column + 1, row))
 			e = 1;
-		}
 		int index = n + 2 * s + 4 * e + 8 * w;
 		cell.setCellStyle(styles[index]);
 	}
 
 	void setStyles() {
 		headingStyle = wb.createCellStyle();
-		headingStyle.setBorderTop(HSSFCellStyle.BORDER_THIN);
-		headingStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);
-		headingStyle.setBorderLeft(HSSFCellStyle.BORDER_THIN);
-		headingStyle.setBorderRight(HSSFCellStyle.BORDER_THIN);
+		headingStyle.setBorderTop(BORDER_THIN);
+		headingStyle.setBorderBottom(BORDER_THIN);
+		headingStyle.setBorderLeft(BORDER_THIN);
+		headingStyle.setBorderRight(BORDER_THIN);
 		headingStyle.setFillBackgroundColor(HSSFColor.LIGHT_YELLOW.index);
 		headingStyle.setFillForegroundColor(HSSFColor.LIGHT_YELLOW.index);
-		headingStyle.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+		headingStyle.setFillPattern(SOLID_FOREGROUND);
 		styles = new HSSFCellStyle[16];
-		for (int n = 0; n < 2; n++) {
-			for (int s = 0; s < 2; s++) {
-				for (int e = 0; e < 2; e++) {
+		for (int n = 0; n < 2; n++)
+			for (int s = 0; s < 2; s++)
+				for (int e = 0; e < 2; e++)
 					for (int w = 0; w < 2; w++) {
 						int index = n + 2 * s + 4 * e + 8 * w;
 						styles[index] = wb.createCellStyle();
-						if (n == 1) {
-							styles[index].setBorderTop(HSSFCellStyle.BORDER_THIN);
-						} else {
-							styles[index].setBorderTop(HSSFCellStyle.BORDER_NONE);
-						}
-						if (s == 1) {
-							styles[index].setBorderBottom(HSSFCellStyle.BORDER_THIN);
-						} else {
-							styles[index].setBorderBottom(HSSFCellStyle.BORDER_NONE);
-						}
-						if (e == 1) {
-							styles[index].setBorderRight(HSSFCellStyle.BORDER_THIN);
-						} else {
-							styles[index].setBorderRight(HSSFCellStyle.BORDER_NONE);
-						}
-						if (w == 1) {
-							styles[index].setBorderLeft(HSSFCellStyle.BORDER_THIN);
-						} else {
-							styles[index].setBorderLeft(HSSFCellStyle.BORDER_NONE);
-						}
+						styles[index].setBorderTop(n == 1 ? BORDER_THIN
+								: BORDER_NONE);
+						styles[index].setBorderBottom(s == 1 ? BORDER_THIN
+								: BORDER_NONE);
+						styles[index].setBorderRight(e == 1 ? BORDER_THIN
+								: BORDER_NONE);
+						styles[index].setBorderLeft(w == 1 ? BORDER_THIN
+								: BORDER_NONE);
 						styles[index].setFillBackgroundColor(HSSFColor.GOLD.index);
 						styles[index].setFillForegroundColor(HSSFColor.GOLD.index);
-						styles[index].setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+						styles[index].setFillPattern(SOLID_FOREGROUND);
 					}
-				}
-			}
-		}
 	}
 
 	/**
@@ -233,21 +220,21 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 	 *         null if o is a Collection, but it is empty or contains nothing but Collections.
 	 */
 	Boolean isTextual(Object o) {
-		if (o instanceof String) {
+		if (o instanceof String)
 			// We dug down and found a string. Hurray!
 			return true;
-		}
 		if (o instanceof Collection) {
-			for (Object child : (Collection) o) {
+			for (Object child : (Collection<?>) o) {
 				Boolean isTxt = isTextual(child);
-				if (isTxt == null) {
+				if (isTxt == null)
 					// Unknown, try next one
 					continue;
-				}
 				return isTxt;
 			}
-			// We looped through and found just empty collections
-			// (or we are an empty collection), we don't know
+			/*
+			 * We looped through and found just empty collections (or we are an
+			 * empty collection), we don't know.
+			 */
 			return null;
 		}
 		// No, sorry mate.. o was neither a String or Collection
@@ -262,14 +249,12 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 	 * @return
 	 */
 	HSSFCell getCell(int column, int row) {
-		HSSFRow srow = sheet.getRow((short) row);
-		if (srow == null) {
-			srow = sheet.createRow((short) row);
-		}
-		HSSFCell scell = srow.getCell((short) column);
-		if (scell == null) {
-			scell = srow.createCell((short) column);
-		}
+		HSSFRow srow = sheet.getRow(row);
+		if (srow == null)
+			srow = sheet.createRow(row);
+		HSSFCell scell = srow.getCell(column);
+		if (scell == null)
+			scell = srow.createCell(column);
 		return scell;
 	}
 
@@ -281,14 +266,12 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 	 * @return
 	 */
 	boolean hasValue(int column, int row) {
-		HSSFRow srow = sheet.getRow((short) row);
-		if (srow == null) {
+		HSSFRow srow = sheet.getRow(row);
+		if (srow == null)
 			return false;
-		}
-		HSSFCell scell = srow.getCell((short) column);
-		if (scell == null) {
+		HSSFCell scell = srow.getCell(column);
+		if (scell == null)
 			return false;
-		}
 		return true;
 	}
 
@@ -310,5 +293,4 @@ public class SaveAllResultsAsExcel extends SaveAllResultsSPI {
 	protected String getFilter() {
 		return "xls";
 	}
-
 }
