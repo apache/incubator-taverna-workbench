@@ -20,36 +20,32 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.actions;
 
-import java.awt.Toolkit;
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.event.KeyEvent.VK_P;
+import static java.awt.event.KeyEvent.VK_V;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.pasteIcon;
+import static net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView.pasteTransferable;
+
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
-import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-
-import org.apache.log4j.Logger;
-
 import uk.org.taverna.commons.services.ServiceRegistry;
 
 /**
  * An action that pastes a graph component
  *
  * @author Alan R Williams
- *
  */
 @SuppressWarnings("serial")
+//TODO this class appears to be non-OSGi-fied
 public class PasteGraphComponentAction extends AbstractAction {
-
 	private static PasteGraphComponentAction instance = null;
-
-	private static Logger logger = Logger.getLogger(PasteGraphComponentAction.class);
 
 	private static boolean enabled = false;
 
@@ -58,30 +54,37 @@ public class PasteGraphComponentAction extends AbstractAction {
 	private final SelectionManager selectionManager;
 	private final ServiceRegistry serviceRegistry;
 
-	private PasteGraphComponentAction(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
+	private PasteGraphComponentAction(EditManager editManager,
+			MenuManager menuManager, SelectionManager selectionManager,
+			ServiceRegistry serviceRegistry) {
 		super();
 		this.editManager = editManager;
 		this.menuManager = menuManager;
 		this.selectionManager = selectionManager;
 		this.serviceRegistry = serviceRegistry;
-		putValue(SMALL_ICON, WorkbenchIcons.pasteIcon);
+		putValue(SMALL_ICON, pasteIcon);
 		putValue(NAME, "Paste");
 		putValue(SHORT_DESCRIPTION, "Paste");
-		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_P);
+		putValue(MNEMONIC_KEY, VK_P);
 
-		putValue(Action.ACCELERATOR_KEY,
-				KeyStroke.getKeyStroke(KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()));
+		putValue(
+				ACCELERATOR_KEY,
+				getKeyStroke(VK_V, getDefaultToolkit().getMenuShortcutKeyMask()));
 		setEnabled(enabled);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		WorkflowView.pasteTransferable(editManager, menuManager, selectionManager, serviceRegistry);
+		pasteTransferable(editManager, menuManager, selectionManager,
+				serviceRegistry);
 	}
 
-	public static Action getInstance(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
-		if (instance == null) {
-			instance = new PasteGraphComponentAction(editManager, menuManager, selectionManager, serviceRegistry);
-		}
+	public static Action getInstance(EditManager editManager,
+			MenuManager menuManager, SelectionManager selectionManager,
+			ServiceRegistry serviceRegistry) {
+		if (instance == null)
+			instance = new PasteGraphComponentAction(editManager, menuManager,
+					selectionManager, serviceRegistry);
 		return instance;
 	}
 
@@ -92,5 +95,4 @@ public class PasteGraphComponentAction extends AbstractAction {
 			instance.setEnabled(enabled);
 		}
 	}
-
 }

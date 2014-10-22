@@ -1,8 +1,11 @@
 package net.sf.taverna.t2.workbench.ui.workflowview;
 
+import static java.awt.GraphicsEnvironment.isHeadless;
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.datatransfer.DataFlavor.javaJVMLocalObjectMimeType;
+import static javax.swing.SwingUtilities.invokeLater;
+
 import java.awt.Component;
-import java.awt.GraphicsEnvironment;
-import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -10,14 +13,12 @@ import java.awt.event.ActionEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
 import javax.swing.Action;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.ui.menu.MenuManager;
@@ -34,7 +35,9 @@ import net.sf.taverna.t2.workflow.edits.AddChildEdit;
 import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
 
 import org.apache.log4j.Logger;
-import org.jdom.Element;
+//import org.jdom.Element;
+
+
 
 import uk.org.taverna.commons.services.ActivityTypeNotFoundException;
 import uk.org.taverna.commons.services.InvalidConfigurationException;
@@ -56,46 +59,48 @@ import uk.org.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
 import uk.org.taverna.scufl2.api.profiles.Profile;
 
 /**
- *
  * Super class for all UIComponentSPIs that display a Workflow
- *
+ * 
  * @author alanrw
- *
  */
 public class WorkflowView {
-
-	public static Element copyRepresentation = null;
+	//public static Element copyRepresentation = null;
 
 	private static Logger logger = Logger.getLogger(WorkflowView.class);
 
 	private static DataFlavor processorFlavor = null;
 	private static DataFlavor serviceDescriptionDataFlavor = null;
-	private static HashMap<String, Element> requiredSubworkflows = new HashMap<String, Element>();
+	//private static HashMap<String, Element> requiredSubworkflows = new HashMap<>();
 
 	private static String UNABLE_TO_ADD_SERVICE = "Unable to add service";
+	@SuppressWarnings("unused")
 	private static String UNABLE_TO_COPY_SERVICE = "Unable to copy service";
 
+	@SuppressWarnings("unused")
 	private static Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	static {
-		if (serviceDescriptionDataFlavor == null) {
-			try {
-				serviceDescriptionDataFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType
-						+ ";class=" + ServiceDescription.class.getCanonicalName(),
-						"ServiceDescription", ServiceDescription.class.getClassLoader());
-				if (processorFlavor == null) {
-					processorFlavor = new DataFlavor(DataFlavor.javaJVMLocalObjectMimeType
-							+ ";class=" + Processor.class.getCanonicalName(), "Processor",
-							Processor.class.getClassLoader());
-				}
-			} catch (ClassNotFoundException e) {
-				logger.error(e);
+		try {
+			if (serviceDescriptionDataFlavor == null) {
+				serviceDescriptionDataFlavor = new DataFlavor(
+						javaJVMLocalObjectMimeType + ";class="
+								+ ServiceDescription.class.getCanonicalName(),
+						"ServiceDescription",
+						ServiceDescription.class.getClassLoader());
+				if (processorFlavor == null)
+					processorFlavor = new DataFlavor(javaJVMLocalObjectMimeType
+							+ ";class=" + Processor.class.getCanonicalName(),
+							"Processor", Processor.class.getClassLoader());
 			}
+		} catch (ClassNotFoundException e) {
+			logger.error(e);
 		}
 	}
 
-	public final static Processor importServiceDescription(ServiceDescription sd, boolean rename, EditManager editManager,
-			MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
+	public final static Processor importServiceDescription(
+			ServiceDescription sd, boolean rename, EditManager editManager,
+			MenuManager menuManager, SelectionManager selectionManager,
+			ServiceRegistry serviceRegistry) {
 		Workflow workflow = selectionManager.getSelectedWorkflow();
 		Profile profile = selectionManager.getSelectedProfile();
 
@@ -117,57 +122,64 @@ public class WorkflowView {
 		processorBinding.setBoundActivity(activity);
 
 		try {
-			for (InputActivityPort activityPort : serviceRegistry.getActivityInputPorts(activityType, configuration.getJson())) {
+			for (InputActivityPort activityPort : serviceRegistry
+					.getActivityInputPorts(activityType,
+							configuration.getJson())) {
 				// add port to activity
 				activityPort.setParent(activity);
 				// create processor port
-				InputProcessorPort processorPort = new InputProcessorPort(processor, activityPort.getName());
+				InputProcessorPort processorPort = new InputProcessorPort(
+						processor, activityPort.getName());
 				processorPort.setDepth(activityPort.getDepth());
 				// add a new port binding
-				new ProcessorInputPortBinding(processorBinding, processorPort, activityPort);
+				new ProcessorInputPortBinding(processorBinding, processorPort,
+						activityPort);
 			}
-			for (OutputActivityPort activityPort : serviceRegistry.getActivityOutputPorts(activityType, configuration.getJson())) {
+			for (OutputActivityPort activityPort : serviceRegistry
+					.getActivityOutputPorts(activityType,
+							configuration.getJson())) {
 				// add port to activity
 				activityPort.setParent(activity);
 				// create processor port
-				OutputProcessorPort processorPort = new OutputProcessorPort(processor, activityPort.getName());
+				OutputProcessorPort processorPort = new OutputProcessorPort(
+						processor, activityPort.getName());
 				processorPort.setDepth(activityPort.getDepth());
 				processorPort.setGranularDepth(activityPort.getGranularDepth());
 				// add a new port binding
-				new ProcessorOutputPortBinding(processorBinding, activityPort, processorPort);
+				new ProcessorOutputPortBinding(processorBinding, activityPort,
+						processorPort);
 			}
 		} catch (InvalidConfigurationException | ActivityTypeNotFoundException e) {
 			logger.warn("Unable to get activity ports for configuration", e);
 		}
 
-		List<Edit<?>> editList = new ArrayList<Edit<?>>();
-		editList.add(new AddChildEdit<Profile>(profile, activity));
-		editList.add(new AddChildEdit<Profile>(profile, configuration));
-		editList.add(new AddChildEdit<Profile>(profile, processorBinding));
+		List<Edit<?>> editList = new ArrayList<>();
+		editList.add(new AddChildEdit<>(profile, activity));
+		editList.add(new AddChildEdit<>(profile, configuration));
+		editList.add(new AddChildEdit<>(profile, processorBinding));
 		editList.add(new AddProcessorEdit(workflow, processor));
 		Edit<?> insertionEdit = sd.getInsertionEdit(workflow, processor, activity);
-		if (insertionEdit != null) {
+		if (insertionEdit != null)
 			editList.add(insertionEdit);
-		}
 		try {
-			editManager.doDataflowEdit(workflow.getParent(), new CompoundEdit(editList));
+			editManager.doDataflowEdit(workflow.getParent(), new CompoundEdit(
+					editList));
 		} catch (EditException e) {
 			showException(UNABLE_TO_ADD_SERVICE, e);
 			logger.warn("Could not add processor : edit error", e);
 			processor = null;
 		}
 
-		if ((processor != null) && rename) {
-			RenameProcessorAction rpa = new RenameProcessorAction(workflow, processor, null, editManager, selectionManager);
+		if (processor != null && rename) {
+			RenameProcessorAction rpa = new RenameProcessorAction(workflow,
+					processor, null, editManager, selectionManager);
 			rpa.actionPerformed(new ActionEvent(sd, 0, ""));
 		}
 
-		if ((processor != null) && sd.isTemplateService()) {
+		if (processor != null && sd.isTemplateService()) {
 			Action action = getConfigureAction(processor, menuManager);
-			if (action != null) {
+			if (action != null)
 				action.actionPerformed(new ActionEvent(sd, 0, ""));
-			}
-
 		}
 		return processor;
 	}
@@ -180,7 +192,8 @@ public class WorkflowView {
 			if (c instanceof JMenuItem) {
 				JMenuItem menuItem = (JMenuItem) c;
 				Action action = menuItem.getAction();
-				if ((action != null) && (action instanceof ActivityConfigurationAction)
+				if (action != null
+						&& action instanceof ActivityConfigurationAction
 						&& action.isEnabled()) {
 					if (result != null) {
 						// do not return anything if there are two matches
@@ -196,31 +209,33 @@ public class WorkflowView {
 		return result;
 	}
 
-	public static void pasteTransferable(Transferable t, EditManager editManager, MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
-		if (t.isDataFlavorSupported(processorFlavor)) {
+	public static void pasteTransferable(Transferable t,
+			EditManager editManager, MenuManager menuManager,
+			SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
+		if (t.isDataFlavorSupported(processorFlavor))
 			pasteProcessor(t, editManager);
-		} else if (t.isDataFlavorSupported(serviceDescriptionDataFlavor)) {
+		else if (t.isDataFlavorSupported(serviceDescriptionDataFlavor))
 			try {
 				ServiceDescription data = (ServiceDescription) t
 						.getTransferData(serviceDescriptionDataFlavor);
-				importServiceDescription(data, false, editManager, menuManager, selectionManager, serviceRegistry);
-			} catch (UnsupportedFlavorException e) {
-				showException(UNABLE_TO_ADD_SERVICE, e);
-				logger.error(e);
-			} catch (IOException e) {
+				importServiceDescription(data, false, editManager, menuManager,
+						selectionManager, serviceRegistry);
+			} catch (UnsupportedFlavorException | IOException e) {
 				showException(UNABLE_TO_ADD_SERVICE, e);
 				logger.error(e);
 			}
-
-		}
 	}
 
-	public static void pasteTransferable(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
-		pasteTransferable(Toolkit.getDefaultToolkit().getSystemClipboard().getContents(null), editManager, menuManager, selectionManager, serviceRegistry);
-
+	public static void pasteTransferable(EditManager editManager,
+			MenuManager menuManager, SelectionManager selectionManager,
+			ServiceRegistry serviceRegistry) {
+		pasteTransferable(
+				getDefaultToolkit().getSystemClipboard().getContents(null),
+				editManager, menuManager, selectionManager, serviceRegistry);
 	}
 
 	public static void pasteProcessor(Transferable t, EditManager editManager) {
+		//FIXME
 //		try {
 //			Element e = (Element) t.getTransferData(processorFlavor);
 //			WorkflowBundle currentDataflow = (WorkflowBundle) ModelMap.getInstance().getModel(
@@ -303,15 +318,13 @@ public class WorkflowView {
 		// Get all selected components
 		Set<Object> selectedWFComponents = dataFlowSelectionModel.getSelection();
 		Processor p = null;
-		for (Object selectedWFComponent : selectedWFComponents) {
+		for (Object selectedWFComponent : selectedWFComponents)
 			if (selectedWFComponent instanceof Processor) {
 				p = (Processor) selectedWFComponent;
 				break;
 			}
-		}
-		if (p != null) {
+		if (p != null)
 			copyProcessor(p);
-		}
 	}
 
 	public static void copyProcessor(Processor p) {
@@ -386,15 +399,16 @@ public class WorkflowView {
 //		}
 	}
 
-	public static void cutProcessor(Workflow dataflow, Processor processor, Component component, EditManager editManager, SelectionManager selectionManager) {
+	public static void cutProcessor(Workflow dataflow, Processor processor,
+			Component component, EditManager editManager,
+			SelectionManager selectionManager) {
 		copyProcessor(processor);
-		new RemoveProcessorAction(dataflow, processor, component, editManager, selectionManager).actionPerformed(null);
-
+		new RemoveProcessorAction(dataflow, processor, component, editManager,
+				selectionManager).actionPerformed(null);
 	}
 
 	private static void showException(String message, Exception e) {
-		if (!GraphicsEnvironment.isHeadless()) {
-			SwingUtilities.invokeLater(new ShowExceptionRunnable(message, e));
-		}
+		if (!isHeadless())
+			invokeLater(new ShowExceptionRunnable(message, e));
 	}
 }

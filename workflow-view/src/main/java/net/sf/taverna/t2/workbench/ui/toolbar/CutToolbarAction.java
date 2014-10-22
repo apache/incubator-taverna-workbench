@@ -30,7 +30,6 @@ import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.CutGraphComponentAction;
 
 public class CutToolbarAction extends AbstractMenuAction {
-
 	private static final URI EDIT_TOOLBAR_SECTION = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#editToolbarSection");
 	private static final URI EDIT_TOOLBAR_CUT_URI = URI
@@ -55,5 +54,4 @@ public class CutToolbarAction extends AbstractMenuAction {
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
 	}
-
 }

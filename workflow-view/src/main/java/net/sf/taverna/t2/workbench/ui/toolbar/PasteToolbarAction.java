@@ -33,7 +33,6 @@ import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.PasteGraphComponentAction;
 
 public class PasteToolbarAction extends AbstractMenuAction {
-
 	private static final URI EDIT_TOOLBAR_SECTION = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#editToolbarSection");
 	private static final URI EDIT_TOOLBAR_PASTE_URI = URI
@@ -49,7 +48,8 @@ public class PasteToolbarAction extends AbstractMenuAction {
 
 	@Override
 	protected Action createAction() {
-		return PasteGraphComponentAction.getInstance(editManager, menuManager, selectionManager, serviceRegistry);
+		return PasteGraphComponentAction.getInstance(editManager, menuManager,
+				selectionManager, serviceRegistry);
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -67,5 +67,4 @@ public class PasteToolbarAction extends AbstractMenuAction {
 	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
 	}
-
 }

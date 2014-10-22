@@ -20,39 +20,34 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.actions;
 
+import static java.awt.event.KeyEvent.VK_Y;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.copyIcon;
+import static net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView.copyProcessor;
+
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-
-import org.apache.log4j.Logger;
 
 import uk.org.taverna.scufl2.api.core.Processor;
 
 /**
  * Action for copying a processor.
- *
+ * 
  * @author Alan R Williams
  */
+@SuppressWarnings("serial")
 public class CopyProcessorAction extends AbstractAction {
-
-	private static Logger logger = Logger.getLogger(CopyProcessorAction.class);
-
 	private Processor processor;
 
 	public CopyProcessorAction(Processor processor) {
 		this.processor = processor;
-		putValue(SMALL_ICON, WorkbenchIcons.copyIcon);
+		putValue(SMALL_ICON, copyIcon);
 		putValue(NAME, "Copy");
-		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_Y);
+		putValue(MNEMONIC_KEY, VK_Y);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
-			WorkflowView.copyProcessor(processor);
+		copyProcessor(processor);
 	}
-
 }

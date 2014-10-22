@@ -30,12 +30,9 @@ import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.CutGraphComponentAction;
 
 /**
- *
  * @author Alan R Williams
- *
  */
 public class CutGraphComponentMenuAction extends AbstractMenuAction {
-
 	private static final URI CUT_GRAPH_COMPONENT_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuCutGraphComponent");
 
@@ -43,8 +40,9 @@ public class CutGraphComponentMenuAction extends AbstractMenuAction {
 	private SelectionManager selectionManager;
 
 	public CutGraphComponentMenuAction() {
-		super(URI
-				.create("http://taverna.sf.net/2008/t2workbench/menu#graphCopyMenuSection"), 11, CUT_GRAPH_COMPONENT_URI);
+		super(
+				URI.create("http://taverna.sf.net/2008/t2workbench/menu#graphCopyMenuSection"),
+				11, CUT_GRAPH_COMPONENT_URI);
 	}
 
 	@Override
@@ -59,9 +57,4 @@ public class CutGraphComponentMenuAction extends AbstractMenuAction {
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
 	}
-
 }
-
-
-
-

@@ -20,6 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.dndhandler;
 
+import static java.awt.datatransfer.DataFlavor.javaJVMLocalObjectMimeType;
+import static net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView.copyProcessor;
+import static net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView.cutProcessor;
+import static net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView.pasteTransferable;
+
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
@@ -31,7 +36,6 @@ import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
-import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 
 import org.apache.log4j.Logger;
 
@@ -45,10 +49,8 @@ import uk.org.taverna.commons.services.ServiceRegistry;
  * @author David Withers
  * @author Alan R Williams
  */
+@SuppressWarnings("serial")
 public class ServiceTransferHandler extends TransferHandler {
-
-	private static final long serialVersionUID = 1L;
-
 	private static Logger logger = Logger.getLogger(ServiceTransferHandler.class);
 
 	private DataFlavor serviceDescriptionDataFlavor;
@@ -58,8 +60,9 @@ public class ServiceTransferHandler extends TransferHandler {
 	private final SelectionManager selectionManager;
 	private final ServiceRegistry serviceRegistry;
 
-	public ServiceTransferHandler(EditManager editManager, MenuManager menuManager, SelectionManager selectionManager, ServiceRegistry serviceRegistry) {
-
+	public ServiceTransferHandler(EditManager editManager,
+			MenuManager menuManager, SelectionManager selectionManager,
+			ServiceRegistry serviceRegistry) {
 		this.editManager = editManager;
 		this.menuManager = menuManager;
 		this.selectionManager = selectionManager;
@@ -67,7 +70,7 @@ public class ServiceTransferHandler extends TransferHandler {
 
 		try {
 			serviceDescriptionDataFlavor = new DataFlavor(
-					DataFlavor.javaJVMLocalObjectMimeType + ";class="
+					javaJVMLocalObjectMimeType + ";class="
 							+ ServiceDescription.class.getCanonicalName(),
 					"ServiceDescription", getClass().getClassLoader());
 		} catch (ClassNotFoundException e) {
@@ -79,11 +82,9 @@ public class ServiceTransferHandler extends TransferHandler {
 	@Override
 	public boolean canImport(JComponent component, DataFlavor[] dataFlavors) {
 		logger.debug("Trying to import something");
-		for (DataFlavor dataFlavor : dataFlavors) {
-			if (dataFlavor.equals(serviceDescriptionDataFlavor)) {
+		for (DataFlavor dataFlavor : dataFlavors)
+			if (dataFlavor.equals(serviceDescriptionDataFlavor))
 				return true;
-			}
-		}
 		return false;
 	}
 
@@ -91,14 +92,17 @@ public class ServiceTransferHandler extends TransferHandler {
 	public boolean importData(JComponent component, Transferable transferable) {
 		logger.info("Importing a transferable");
 		logger.debug(component.getClass().getCanonicalName());
-		WorkflowView.pasteTransferable(transferable, editManager, menuManager, selectionManager, serviceRegistry);
+		pasteTransferable(transferable, editManager, menuManager,
+				selectionManager, serviceRegistry);
 		return true;
 	}
 
+	@Override
 	protected Transferable createTransferable(JComponent c) {
 		return null;
 	}
 
+	@Override
 	public int getSourceActions(JComponent c) {
 		return COPY_OR_MOVE;
 	}
@@ -107,10 +111,9 @@ public class ServiceTransferHandler extends TransferHandler {
 	public void exportToClipboard(JComponent comp, Clipboard clip, int action)
 			throws IllegalStateException {
 		super.exportToClipboard(comp, clip, action);
-		if (action == COPY) {
-			WorkflowView.copyProcessor(selectionManager);
-		} else if (action == MOVE) {
-			WorkflowView.cutProcessor(editManager, selectionManager);
-		}
+		if (action == COPY)
+			copyProcessor(selectionManager);
+		else if (action == MOVE)
+			cutProcessor(editManager, selectionManager);
 	}
 }

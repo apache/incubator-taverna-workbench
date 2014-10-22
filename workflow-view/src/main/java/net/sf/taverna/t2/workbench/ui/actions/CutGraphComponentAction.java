@@ -20,31 +20,28 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.actions;
 
-import java.awt.Toolkit;
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.event.KeyEvent.VK_T;
+import static java.awt.event.KeyEvent.VK_X;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.cutIcon;
+import static net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView.cutProcessor;
+
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.util.Set;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.KeyStroke;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
-import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
-import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
-import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-
-import org.apache.log4j.Logger;
-
+import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Processor;
 
@@ -52,29 +49,27 @@ import uk.org.taverna.scufl2.api.core.Processor;
  * An action that copies the selected graph component.
  *
  * @author Alan R Williams
- *
  */
 @SuppressWarnings("serial")
 public class CutGraphComponentAction extends AbstractAction implements DesignOnlyAction {
-
-	/* Current workflow's selection model event observer. */
+	/** Current workflow's selection model event observer. */
 	private Observer<DataflowSelectionMessage> workflowSelectionObserver = new DataflowSelectionObserver();
 
-	private WorkflowBundle dataflow;
 	private Processor processor;
 
 	private final EditManager editManager;
 	private final SelectionManager selectionManager;
 
 	public CutGraphComponentAction(EditManager editManager, SelectionManager selectionManager) {
-		super("Cut", WorkbenchIcons.cutIcon);
+		super("Cut", cutIcon);
 		this.editManager = editManager;
 		this.selectionManager = selectionManager;
 		putValue(SHORT_DESCRIPTION, "Cut selected component");
-		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_T);
+		putValue(MNEMONIC_KEY, VK_T);
 
-		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit
-				.getDefaultToolkit().getMenuShortcutKeyMask()));
+		putValue(
+				ACCELERATOR_KEY,
+				getKeyStroke(VK_X, getDefaultToolkit().getMenuShortcutKeyMask()));
 		setEnabled(false);
 
 		selectionManager.addObserver(new SelectionManagerObserver());
@@ -84,40 +79,46 @@ public class CutGraphComponentAction extends AbstractAction implements DesignOnl
 	 * Check if action should be enabled or disabled and update its status.
 	 */
 	public void updateStatus() {
-		WorkflowBundle workflowBundle = selectionManager.getSelectedWorkflowBundle();
-		DataflowSelectionModel selectionModel = selectionManager.getDataflowSelectionModel(workflowBundle);
+		WorkflowBundle workflowBundle = selectionManager
+				.getSelectedWorkflowBundle();
+		DataflowSelectionModel selectionModel = selectionManager
+				.getDataflowSelectionModel(workflowBundle);
 
 		// List of all selected objects in the graph view
 		Set<Object> selection = selectionModel.getSelection();
 
-		if (selection.isEmpty()) {
+		if (selection.isEmpty())
 			setEnabled(false);
-		} else {
-			// Take the first selected item - we only support single selections anyway
+		else {
+			/*
+			 * Take the first selected item - we only support single selections
+			 * anyway
+			 */
 			Object selected = selection.toArray()[0];
 			if (selected instanceof Processor) {
 				processor = (Processor) selected;
-				this.dataflow = dataflow;
 				setEnabled(true);
-			} else {
+			} else
 				setEnabled(false);
-			}
 		}
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
-		WorkflowView.cutProcessor(processor.getParent(), processor, null, editManager,
+		cutProcessor(processor.getParent(), processor, null, editManager,
 				selectionManager);
 	}
 
 	/**
-	 * Observes events on workflow Selection Manager, i.e. when a workflow node is selected in the
-	 * graph view, and enables/disables this action accordingly.
+	 * Observes events on workflow Selection Manager, i.e. when a workflow node
+	 * is selected in the graph view, and enables/disables this action
+	 * accordingly.
 	 */
 	private final class DataflowSelectionObserver extends
 			SwingAwareObserver<DataflowSelectionMessage> {
 		@Override
-		public void notifySwing(Observable<DataflowSelectionMessage> sender, DataflowSelectionMessage message) {
+		public void notifySwing(Observable<DataflowSelectionMessage> sender,
+				DataflowSelectionMessage message) {
 			updateStatus();
 		}
 	}
@@ -136,19 +137,17 @@ public class CutGraphComponentAction extends AbstractAction implements DesignOnl
 				// Update the buttons status as current dataflow has changed
 				updateStatus();
 
-				// Remove the workflow selection model listener from the previous (if any)
-				// and add to the new workflow (if any)
-				if (oldFlow != null) {
-					selectionManager.getDataflowSelectionModel(oldFlow).removeObserver(
-							workflowSelectionObserver);
-				}
-
-				if (newFlow != null) {
-					selectionManager.getDataflowSelectionModel(newFlow).addObserver(
-							workflowSelectionObserver);
-				}
+				/*
+				 * Remove the workflow selection model listener from the
+				 * previous (if any) and add to the new workflow (if any)
+				 */
+				if (oldFlow != null)
+					selectionManager.getDataflowSelectionModel(oldFlow)
+							.removeObserver(workflowSelectionObserver);
+				if (newFlow != null)
+					selectionManager.getDataflowSelectionModel(newFlow)
+							.addObserver(workflowSelectionObserver);
 			}
 		}
 	}
-
 }

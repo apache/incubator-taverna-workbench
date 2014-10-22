@@ -25,25 +25,22 @@ import java.net.URI;
 import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
-import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.CopyGraphComponentAction;
 
 /**
- *
  * @author Alan R Williams
- *
  */
 public class CopyGraphComponentMenuAction extends AbstractMenuAction {
-
 	private static final URI COPY_GRAPH_COMPONENT_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#graphMenuCopyGraphComponent");
 
 	private SelectionManager selectionManager;
 
 	public CopyGraphComponentMenuAction() {
-		super(URI
-				.create("http://taverna.sf.net/2008/t2workbench/menu#graphCopyMenuSection"), 12, COPY_GRAPH_COMPONENT_URI);
+		super(
+				URI.create("http://taverna.sf.net/2008/t2workbench/menu#graphCopyMenuSection"),
+				12, COPY_GRAPH_COMPONENT_URI);
 	}
 
 	@Override
@@ -54,9 +51,4 @@ public class CopyGraphComponentMenuAction extends AbstractMenuAction {
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
 	}
-
 }
-
-
-
-

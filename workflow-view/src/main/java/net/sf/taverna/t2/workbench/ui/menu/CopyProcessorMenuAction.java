@@ -25,17 +25,14 @@ import java.net.URI;
 
 import javax.swing.Action;
 
+import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
+import net.sf.taverna.t2.workbench.ui.actions.CopyProcessorAction;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
 
-import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
-import net.sf.taverna.t2.workbench.ui.actions.CopyProcessorAction;
-
 public class CopyProcessorMenuAction extends AbstractContextualMenuAction {
-
 	public static final URI editSection = URI
-	.create("http://taverna.sf.net/2009/contextMenu/edit");
-
+			.create("http://taverna.sf.net/2009/contextMenu/edit");
 
 	public CopyProcessorMenuAction() {
 		super(editSection, 20);
@@ -48,6 +45,7 @@ public class CopyProcessorMenuAction extends AbstractContextualMenuAction {
 	}
 
 	@Override
+	@SuppressWarnings("unused")
 	protected Action createAction() {
 		Workflow dataflow = (Workflow) getContextualSelection().getParent();
 		Processor processor = (Processor) getContextualSelection()
@@ -55,5 +53,4 @@ public class CopyProcessorMenuAction extends AbstractContextualMenuAction {
 		Component component = getContextualSelection().getRelativeToComponent();
 		return new CopyProcessorAction(processor);
 	}
-
 }

@@ -34,9 +34,8 @@ import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.actions.CutProcessorAction;
 
 public class CutProcessorMenuAction extends AbstractContextualMenuAction {
-
 	public static final URI editSection = URI
-	.create("http://taverna.sf.net/2009/contextMenu/edit");
+			.create("http://taverna.sf.net/2009/contextMenu/edit");
 	private EditManager editManager;
 	private SelectionManager selectionManager;
 
@@ -50,7 +49,8 @@ public class CutProcessorMenuAction extends AbstractContextualMenuAction {
 		Processor processor = (Processor) getContextualSelection()
 				.getSelection();
 		Component component = getContextualSelection().getRelativeToComponent();
-		return new CutProcessorAction(dataflow, processor, component, editManager, selectionManager);
+		return new CutProcessorAction(dataflow, processor, component,
+				editManager, selectionManager);
 	}
 
 	@Override
@@ -66,5 +66,4 @@ public class CutProcessorMenuAction extends AbstractContextualMenuAction {
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
 	}
-
 }
