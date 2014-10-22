@@ -35,12 +35,11 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
 /**
  * Workflow Explorer factory.
- *
+ * 
  * @author Alex Nenadic
  * @author David Withers
  */
 public class WorkflowExplorerFactory implements UIComponentFactorySPI {
-
 	private EditManager editManager;
 	private FileManager fileManager;
 	private MenuManager menuManager;
@@ -49,15 +48,19 @@ public class WorkflowExplorerFactory implements UIComponentFactorySPI {
 	private ActivityIconManager activityIconManager;
 	private ServiceRegistry serviceRegistry;
 
+	@Override
 	public UIComponentSPI getComponent() {
-		return new WorkflowExplorer(editManager, fileManager, menuManager, reportManager,
-				selectionManager, activityIconManager, serviceRegistry);
+		return new WorkflowExplorer(editManager, fileManager, menuManager,
+				reportManager, selectionManager, activityIconManager,
+				serviceRegistry);
 	}
 
+	@Override
 	public ImageIcon getIcon() {
 		return null;
 	}
 
+	@Override
 	public String getName() {
 		return "Workflow Explorer";
 	}
@@ -89,5 +92,4 @@ public class WorkflowExplorerFactory implements UIComponentFactorySPI {
 	public void setServiceRegistry(ServiceRegistry serviceRegistry) {
 		this.serviceRegistry = serviceRegistry;
 	}
-
 }

@@ -20,8 +20,6 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 
-import java.util.Set;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
@@ -42,8 +40,8 @@ import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
  * representing the workflow inputs, outputs, services (processors), dataLinks,
  * controlLinks.
  * <p>
- * A service node can contain a nested workflow if it contains an activity of
- * of type DataflowActivity. In this case, the service node will have 3 children:
+ * A service node can contain a nested workflow if it contains an activity of of
+ * type DataflowActivity. In this case, the service node will have 3 children:
  * the input and output of the DataflowActivity and the workflow node itself
  * (containing the nested workflow being wrapped inside the DataflowActivity).
  * The structure of the workflow node sub-tree (the tree whose root is the
@@ -52,16 +50,13 @@ import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
  * and have only the processor's input and output ports as children.
  * <p>
  * Input, output, data link and control link nodes are leaves.
- *
+ * 
  * @author Alex Nenadic
  * @author Stian Soiland-Reyes
  * @author David Withers
  */
 public class WorkflowExplorerTreeModel extends DefaultTreeModel{
-
-
 	private static final long serialVersionUID = -2327461863858923772L;
-
 	public static final String INPUTS = "Workflow input ports";
 	public static final String OUTPUTS = "Workflow output ports";
 	public static final String PROCESSORS = "Services";
@@ -69,13 +64,13 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 	public static final String CONTROLLINKS = "Control links";
 	public static final String MERGES = "Merges";
 
+	@SuppressWarnings("unused")
 	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	/* Root of the tree. */
 	private DefaultMutableTreeNode rootNode;
 
-	public WorkflowExplorerTreeModel(Workflow df){
-
+	public WorkflowExplorerTreeModel(Workflow df) {
 		super(new DefaultMutableTreeNode(df)); // root node contains the whole workflow
 		rootNode = (DefaultMutableTreeNode) this.getRoot();
 		createTree(df, rootNode);
@@ -85,7 +80,6 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 	 * Creates the tree model from a given workflow, for a given tree root.
 	 */
 	private void createTree(Workflow df, DefaultMutableTreeNode root) {
-
 		// Create the four main node groups - inputs, outputs,
 		// services, data links, control links and merges.
 		DefaultMutableTreeNode inputs = new DefaultMutableTreeNode(INPUTS);
@@ -102,74 +96,73 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 		root.add(controllinks);
 
 		// Populate the workflow's inputs.
-		NamedSet<InputWorkflowPort> inputsList = df.getInputPorts();
-		for (InputWorkflowPort dataflowInput : inputsList) {
+		for (InputWorkflowPort dataflowInput : df.getInputPorts())
 			inputs.add(new DefaultMutableTreeNode(dataflowInput));
-		}
 
 		// Populate the workflow's outputs.
-		NamedSet<OutputWorkflowPort> outputsList = df.getOutputPorts();
-		for (OutputWorkflowPort dataflowOutput : outputsList) {
+		for (OutputWorkflowPort dataflowOutput : df.getOutputPorts())
 			outputs.add(new DefaultMutableTreeNode(dataflowOutput));
-		}
 
-		// Populate the workflow's processors (which in turn can contain a nested workflow).
+		/*
+		 * Populate the workflow's processors (which in turn can contain a
+		 * nested workflow).
+		 */
 		NamedSet<Processor> processorsList = df.getProcessors();
-		for (Processor processor : processorsList){
+		for (Processor processor : processorsList) {
 			DefaultMutableTreeNode processorNode = new DefaultMutableTreeNode(
 					processor);
 			services.add(processorNode);
 
 		    // A processor node can have children (input and output ports).
-			NamedSet<InputProcessorPort> inputPorts = processor.getInputPorts();
-			for (InputProcessorPort inputPort : inputPorts) {
+			for (InputProcessorPort inputPort : processor.getInputPorts())
 				processorNode.add(new DefaultMutableTreeNode(inputPort));
-			}
-			NamedSet<OutputProcessorPort> outputPorts = processor.getOutputPorts();
-			for (OutputProcessorPort outputPort : outputPorts) {
+			for (OutputProcessorPort outputPort : processor.getOutputPorts())
 				processorNode.add(new DefaultMutableTreeNode(outputPort));
-			}
-
 		}
 
 		// Populate the workflow's data links.
-		Set<DataLink> datalinksList = df.getDataLinks();
-		for (DataLink datalink: datalinksList) {
+		for (DataLink datalink: df.getDataLinks())
 			datalinks.add(new DefaultMutableTreeNode(datalink));
-		}
 
 		// Populate the workflow's control links.
-		Set<ControlLink> controlLinksList = df.getControlLinks();
-		for (ControlLink controlLink : controlLinksList) {
+		for (ControlLink controlLink : df.getControlLinks())
 			controllinks.add(new DefaultMutableTreeNode(controlLink));
-		}
-
 	}
 
-	/**
-	 * Returns a path from the root to the node containing the object. For a nested workflow,
-	 * only a path for the DataflowActivity and its input and output ports is returned - for all other
-	 * nested workflow objects we return null as we do not want them to be selection in the tree.
-	 */
-	public static TreePath getPathForObject(Object userObject, DefaultMutableTreeNode root){
+	private static final int INPUT_IDX = 0;
+	private static final int OUTPUT_IDX = 1;
+	private static final int PROCESSOR_IDX = 2;
+	private static final int DATA_IDX = 3;
+	private static final int CONTROL_IDX = 4;
 
-		if (userObject instanceof Workflow){ // node contains a Dataflow object
-			if (root.getUserObject().equals(userObject)){ // is it the root of the tree?
+	/**
+	 * Returns a path from the root to the node containing the object. For a
+	 * nested workflow, only a path for the DataflowActivity and its input and
+	 * output ports is returned - for all other nested workflow objects we
+	 * return null as we do not want them to be selection in the tree.
+	 */
+	public static TreePath getPathForObject(Object userObject,
+			DefaultMutableTreeNode root) {
+		if (userObject instanceof Workflow) { // node contains a Dataflow object
+			if (root.getUserObject().equals(userObject)) // is it the root of the tree?
 				return new TreePath(root.getPath());
-			}
-		}
-		else if (userObject instanceof InputWorkflowPort){
+		} else if (userObject instanceof InputWorkflowPort) {
 			// Get the root inputs node
-			DefaultMutableTreeNode inputs = (DefaultMutableTreeNode) root.getChildAt(0);
-			for (int i = 0; i< inputs.getChildCount(); i++){
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) inputs.getChildAt(i);
-				if (node.getUserObject().equals(userObject)){
+			DefaultMutableTreeNode inputs = (DefaultMutableTreeNode) root
+					.getChildAt(INPUT_IDX);
+			for (int i = 0; i < inputs.getChildCount(); i++) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) inputs
+						.getChildAt(i);
+				if (node.getUserObject().equals(userObject))
 					return new TreePath(node.getPath());
-				}
 			}
-			// The node we are looking for must be under some nested workflow then - but
-			// we do not want to let the user select a node under a nested workflow so return here
+			/*
+			 * The node we are looking for must be under some nested workflow
+			 * then - but we do not want to let the user select a node under a
+			 * nested workflow so return here
+			 */
 			return null;
+
 			/*DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root.getChildAt(2);
 			for (int i = 0; i < processors.getChildCount(); i++){
 				DefaultMutableTreeNode processor = (DefaultMutableTreeNode) processors.getChildAt(i);
@@ -183,19 +176,23 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 						return tp;
 				}
 			}*/
-		}
-		else if (userObject instanceof OutputWorkflowPort){
+		} else if (userObject instanceof OutputWorkflowPort) {
 			// Get the root outputs node
-			DefaultMutableTreeNode outputs = (DefaultMutableTreeNode) root.getChildAt(1);
-			for (int i = 0; i< outputs.getChildCount(); i++){ // loop through the outputs
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) outputs.getChildAt(i);
-				if (node.getUserObject().equals(userObject)){
+			DefaultMutableTreeNode outputs = (DefaultMutableTreeNode) root
+					.getChildAt(OUTPUT_IDX);
+			for (int i = 0; i< outputs.getChildCount(); i++) { // loop through the outputs
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) outputs
+						.getChildAt(i);
+				if (node.getUserObject().equals(userObject))
 					return new TreePath(node.getPath());
-				}
 			}
-			// The node we are looking for must be under some nested workflow then - but
-			// we do not want to let the user select a node under a nested workflow so return here
+			/*
+			 * The node we are looking for must be under some nested workflow
+			 * then - but we do not want to let the user select a node under a
+			 * nested workflow so return here
+			 */
 			return null;
+
 			/*DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root.getChildAt(2);
 			for (int i = 0; i < processors.getChildCount(); i++){
 				DefaultMutableTreeNode processor = (DefaultMutableTreeNode) processors.getChildAt(i);
@@ -207,21 +204,25 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 					TreePath tp = getPathForObject(userObject, nestedWorkflowNode);
 					if (tp != null)
 						return tp;
-					}
-			}*/
-		}
-		else if (userObject instanceof Processor){
-			// Get the root services (processors) node
-			DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root.getChildAt(2);
-			for (int i = 0; i< processors.getChildCount(); i++){
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) processors.getChildAt(i);
-				if (node.getUserObject().equals(userObject)){
-					return new TreePath(node.getPath());
 				}
+			}*/
+		} else if (userObject instanceof Processor) {
+			// Get the root services (processors) node
+			DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root
+					.getChildAt(PROCESSOR_IDX);
+			for (int i = 0; i < processors.getChildCount(); i++) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) processors
+						.getChildAt(i);
+				if (node.getUserObject().equals(userObject))
+					return new TreePath(node.getPath());
 			}
-			// The node we are looking for must be under some nested workflow then - but
-			// we do not want to let the user select a node under a nested workflow so return here
+			/*
+			 * The node we are looking for must be under some nested workflow
+			 * then - but we do not want to let the user select a node under a
+			 * nested workflow so return here
+			 */
 			return null;
+
 			/*for (int i = 0; i < processors.getChildCount(); i++){
 				DefaultMutableTreeNode processor = (DefaultMutableTreeNode) processors.getChildAt(i);
 				// If this is a nested workflow - descend into it
@@ -232,19 +233,24 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 					TreePath tp = getPathForObject(userObject, nestedWorkflowNode);
 					if (tp != null)
 						return tp;
-					}
+				}
 			}*/
-		}
-		else if (userObject instanceof InputProcessorPort){
+		} else if (userObject instanceof InputProcessorPort) {
 			// This is an input port of a processor
 			// Get the root processors node
-			DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root.getChildAt(2);
-			for (int i = processors.getChildCount() - 1; i >= 0 ; i--){
+			DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root
+					.getChildAt(PROCESSOR_IDX);
+			for (int i = processors.getChildCount() - 1; i >= 0; i--) {
 				// Looping backwards so that nested workflows are checked last
-				DefaultMutableTreeNode processor = (DefaultMutableTreeNode) processors.getChildAt(i);
+				DefaultMutableTreeNode processor = (DefaultMutableTreeNode) processors
+						.getChildAt(i);
 
-				// We actually do not want to check nested workflows as we do not want the user
-				// to be able to select a component of a nested workflow
+				/*
+				 * We actually do not want to check nested workflows as we do
+				 * not want the user to be able to select a component of a
+				 * nested workflow
+				 */
+
 				/*
 				// If this is nested workflow - descend into it
 				if (Tools.containsNestedWorkflow((Processor) processor.getUserObject())){
@@ -253,44 +259,48 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 					for (int j = 0; j < processor.getChildCount()-1; j++){
 						DefaultMutableTreeNode port_node = (DefaultMutableTreeNode) processor.getChildAt(j);
 						if ((port_node.getUserObject() instanceof ActivityInputPort) &&
-								(((ActivityInputPort) port_node.getUserObject()).equals(userObject))){
+								(((ActivityInputPort) port_node.getUserObject()).equals(userObject)))
 							return new TreePath(port_node.getPath());
-						}
 					}
 
 					// Get the nested workflow node - it is always the last child of the
 					// wrapping processor's node
 					DefaultMutableTreeNode nestedWorkflowNode = (DefaultMutableTreeNode) processor.getLastChild();
 					TreePath tp = getPathForObject(userObject, nestedWorkflowNode);
-					if ( tp != null){
+					if (tp != null)
 						return tp;
-					}
-				}
-				else { */
-					// This is not a nested workflow, so loop
-					// thought the processor's input and output ports,
-					// and see if there is a matching input port
-					for (int j = 0; j < processor.getChildCount(); j++){
-						DefaultMutableTreeNode port_node = (DefaultMutableTreeNode) processor.getChildAt(j);
-						if ((port_node.getUserObject() instanceof InputProcessorPort) &&
-								(((InputProcessorPort) port_node.getUserObject()).equals(userObject))){
+				} else */
+					/*
+					 * This is not a nested workflow, so loop thought the
+					 * processor's input and output ports, and see if there is a
+					 * matching input port
+					 */
+					for (int j = 0; j < processor.getChildCount(); j++) {
+						DefaultMutableTreeNode port_node = (DefaultMutableTreeNode) processor
+								.getChildAt(j);
+						if ((port_node.getUserObject() instanceof InputProcessorPort)
+								&& (((InputProcessorPort) port_node
+										.getUserObject()).equals(userObject)))
 							return new TreePath(port_node.getPath());
-						}
 					}
-				//}
 			}
 			return null; // The node is inside a nested workflow so just return here
-		}
-		else if (userObject instanceof OutputProcessorPort){
+		} else if (userObject instanceof OutputProcessorPort) {
 			// This is an output port of a processor (i.e. of its associated activity)
 			// Get the root processors node
-			DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root.getChildAt(2);
+			DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root
+					.getChildAt(PROCESSOR_IDX);
 			for (int i = processors.getChildCount() - 1; i >= 0 ; i--){
 				// Looping backwards so that nested workflows are checked last
-				DefaultMutableTreeNode processor = (DefaultMutableTreeNode) processors.getChildAt(i);
+				DefaultMutableTreeNode processor = (DefaultMutableTreeNode) processors
+						.getChildAt(i);
 
-				// We actually do not want to check nested workflows as we do not want the user
-				// to be able to select a component of a nested workflow
+				/*
+				 * We actually do not want to check nested workflows as we do
+				 * not want the user to be able to select a component of a
+				 * nested workflow
+				 */
+
 				/*
 				// If this is nested workflow - descend into it
 				if (Tools.containsNestedWorkflow((Processor) processor.getUserObject())){
@@ -299,47 +309,51 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 					for (int j = 0; j < processor.getChildCount()-1; j++){
 						DefaultMutableTreeNode port_node = (DefaultMutableTreeNode) processor.getChildAt(j);
 						if ((port_node.getUserObject() instanceof ActivityOutputPortImpl) &&
-								(((ActivityOutputPortImpl) port_node.getUserObject()).equals(userObject))){
+								(((ActivityOutputPortImpl) port_node.getUserObject()).equals(userObject)))
 							return new TreePath(port_node.getPath());
-						}
 					}
 
 					// Get the nested workflow node - it is always the last child of the
 					// wrapping processor's node
 					DefaultMutableTreeNode nestedWorkflowNode = (DefaultMutableTreeNode) processor.getLastChild();
 					TreePath tp = getPathForObject(userObject, nestedWorkflowNode);
-					if ( tp != null){
+					if (tp != null)
 						return tp;
+				} else */
+				{
+					/*
+					 * This is not a nested workflow, so loop thought the
+					 * processor's input and output ports, and see if there is a
+					 * matching output port
+					 */
+					for (int j = 0; j < processor.getChildCount(); j++) {
+						DefaultMutableTreeNode port_node = (DefaultMutableTreeNode) processor
+								.getChildAt(j);
+						if ((port_node.getUserObject() instanceof OutputProcessorPort)
+								&& (((OutputProcessorPort) port_node
+										.getUserObject()).equals(userObject)))
+							return new TreePath(port_node.getPath());
 					}
 				}
-				else { */
-					// This is not a nested workflow, so loop
-					// thought the processor's input and output ports,
-					// and see if there is a matching output port
-					for (int j = 0; j < processor.getChildCount(); j++){
-
-						DefaultMutableTreeNode port_node = (DefaultMutableTreeNode) processor.getChildAt(j);
-						if ((port_node.getUserObject() instanceof OutputProcessorPort) &&
-								(((OutputProcessorPort) port_node.getUserObject()).equals(userObject))){
-							return new TreePath(port_node.getPath());
-						}
-					}
-				//}
 			}
 			return null; // The node is inside a nested workflow so just return here
-		}
-		else if (userObject instanceof DataLink){
+		} else if (userObject instanceof DataLink) {
 			// Get the root data links node
-			DefaultMutableTreeNode datalinks = (DefaultMutableTreeNode) root.getChildAt(3);
-			for (int i = 0; i< datalinks.getChildCount(); i++){
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) datalinks.getChildAt(i);
-				if (node.getUserObject().equals(userObject)){
+			DefaultMutableTreeNode datalinks = (DefaultMutableTreeNode) root
+					.getChildAt(DATA_IDX);
+			for (int i = 0; i < datalinks.getChildCount(); i++) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) datalinks
+						.getChildAt(i);
+				if (node.getUserObject().equals(userObject))
 					return new TreePath(node.getPath());
-				}
 			}
-			// The node we are looking for must be under some nested workflow then - but
-			// we do not want to let the user select a node under a nested workflow so return here
+			/*
+			 * The node we are looking for must be under some nested workflow
+			 * then - but we do not want to let the user select a node under a
+			 * nested workflow so return here
+			 */
 			return null;
+
 			/*DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root.getChildAt(2);
 			for (int i = 0; i < processors.getChildCount(); i++){
 				DefaultMutableTreeNode processor = (DefaultMutableTreeNode) processors.getChildAt(i);
@@ -353,19 +367,23 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 						return tp;
 				}
 			}*/
-		}
-		else if (userObject instanceof ControlLink){
+		} else if (userObject instanceof ControlLink) {
 			// Get the root control links node
-			DefaultMutableTreeNode controllinks = (DefaultMutableTreeNode) root.getChildAt(4);
-			for (int i = 0; i< controllinks.getChildCount(); i++){
-				DefaultMutableTreeNode node = (DefaultMutableTreeNode) controllinks.getChildAt(i);
-				if (node.getUserObject().equals(userObject)){
+			DefaultMutableTreeNode controllinks = (DefaultMutableTreeNode) root
+					.getChildAt(CONTROL_IDX);
+			for (int i = 0; i < controllinks.getChildCount(); i++) {
+				DefaultMutableTreeNode node = (DefaultMutableTreeNode) controllinks
+						.getChildAt(i);
+				if (node.getUserObject().equals(userObject))
 					return new TreePath(node.getPath());
-				}
 			}
-			// The node we are looking for must be under some nested workflow then - but
-			// we do not want to let the user select a node under a nested workflow so return here
+			/*
+			 * The node we are looking for must be under some nested workflow
+			 * then - but we do not want to let the user select a node under a
+			 * nested workflow so return here
+			 */
 			return null;
+
 			/*DefaultMutableTreeNode processors = (DefaultMutableTreeNode) root.getChildAt(2);
 			for (int i = 0; i < processors.getChildCount(); i++){
 				DefaultMutableTreeNode processor = (DefaultMutableTreeNode) processors.getChildAt(i);
@@ -383,5 +401,4 @@ public class WorkflowExplorerTreeModel extends DefaultTreeModel{
 
 		return null;
 	}
-
 }

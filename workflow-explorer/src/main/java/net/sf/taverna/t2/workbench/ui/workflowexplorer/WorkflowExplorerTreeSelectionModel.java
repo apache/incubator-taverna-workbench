@@ -23,23 +23,23 @@ package net.sf.taverna.t2.workbench.ui.workflowexplorer;
 import javax.swing.tree.DefaultTreeSelectionModel;
 import javax.swing.tree.TreePath;
 
-public class WorkflowExplorerTreeSelectionModel extends DefaultTreeSelectionModel{
-
+public class WorkflowExplorerTreeSelectionModel extends
+		DefaultTreeSelectionModel {
 	private static final long serialVersionUID = 3127644524735089630L;
-	
-	public WorkflowExplorerTreeSelectionModel(){
+
+	public WorkflowExplorerTreeSelectionModel() {
 		super();
 	}
-	
+
 	@Override
-	public void setSelectionPath(TreePath path){
-		// Nothing happens here - only calls to mySetSelectionPath() 
-		// will have the effect of a node being selected 
+	public void setSelectionPath(TreePath path) {
+		/*
+		 * Nothing happens here - only calls to mySetSelectionPath() will have
+		 * the effect of a node being selected
+		 */
 	}
-	
-	public void mySetSelectionPath(TreePath path){
+
+	public void mySetSelectionPath(TreePath path) {
 		super.setSelectionPath(path);
 	}
-
-
 }
