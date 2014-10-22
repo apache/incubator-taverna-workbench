@@ -20,7 +20,15 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.reference.config;
 
-import java.awt.Color;
+import static java.awt.Color.RED;
+import static java.awt.Font.PLAIN;
+import static java.awt.GridBagConstraints.BOTH;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.RELATIVE;
+import static java.awt.GridBagConstraints.WEST;
+import static net.sf.taverna.t2.workbench.helper.Helper.showHelp;
+
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -28,35 +36,26 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
-import java.sql.SQLException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
-import net.sf.taverna.t2.workbench.helper.Helper;
-
-import org.apache.log4j.Logger;
-
 import uk.org.taverna.configuration.database.DatabaseConfiguration;
 import uk.org.taverna.configuration.database.DatabaseManager;
 
+@SuppressWarnings("serial")
 public class DataManagementConfigurationPanel extends JPanel {
-
-	private static final long serialVersionUID = 1L;
-	private final static Logger logger = Logger.getLogger(DataManagementConfigurationPanel.class);
-
 	private DatabaseConfiguration configuration;
 	private DatabaseManager databaseManager;
 
-	JCheckBox enableProvenance;
-	JCheckBox enableInMemory;
+	private JCheckBox enableProvenance;
+	private JCheckBox enableInMemory;
 	private JButton helpButton;
 	private JButton resetButton;
 	private JButton applyButton;
@@ -69,25 +68,26 @@ public class DataManagementConfigurationPanel extends JPanel {
 		this.configuration = configuration;
 		this.databaseManager = databaseManager;
 
-		GridBagLayout gridbag = generateGridBagLayout();
-		setLayout(gridbag);
+		setLayout(generateLayout());
 		resetFields();
 	}
 
-	private GridBagLayout generateGridBagLayout() {
+	private static final boolean ADD_WARNING_LISTENERS = false;
+
+	private GridBagLayout generateLayout() {
 		GridBagLayout gridbag = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 
 		enableProvenance = new JCheckBox("Enable provenance capture");
 		DialogTextArea enableProvenanceText = new DialogTextArea(
 				"Disabling provenance will prevent you from being able to view intermediate results, but does give a performance benefit.");
+		Font plain = enableProvenanceText.getFont().deriveFont(PLAIN, 11);
 		enableProvenanceText.setLineWrap(true);
 		enableProvenanceText.setWrapStyleWord(true);
 		enableProvenanceText.setEditable(false);
 		enableProvenanceText.setFocusable(false);
 		enableProvenanceText.setOpaque(false);
-		enableProvenanceText.setFont(enableProvenanceText.getFont().deriveFont(
-				Font.PLAIN, 11));
+		enableProvenanceText.setFont(plain);
 
 		enableInMemory = new JCheckBox("In-memory storage");
 		DialogTextArea enableInMemoryText = new DialogTextArea(
@@ -97,8 +97,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		enableInMemoryText.setEditable(false);
 		enableInMemoryText.setFocusable(false);
 		enableInMemoryText.setOpaque(false);
-		enableInMemoryText.setFont(enableProvenanceText.getFont().deriveFont(
-				Font.PLAIN, 11));
+		enableInMemoryText.setFont(plain);
 
 		enableInMemoryTextDisabled = new DialogTextArea(
 				"If you enable in-memory storage of data when provenance collection is turned on then provenance will not be available after you shutdown Taverna as the in-memory data will be lost.");
@@ -107,25 +106,30 @@ public class DataManagementConfigurationPanel extends JPanel {
 		enableInMemoryTextDisabled.setEditable(false);
 		enableInMemoryTextDisabled.setFocusable(false);
 		enableInMemoryTextDisabled.setOpaque(false);
-		enableInMemoryTextDisabled.setFont(enableProvenanceText.getFont()
-				.deriveFont(Font.PLAIN, 11));
-		enableInMemoryTextDisabled.setForeground(Color.RED);
+		enableInMemoryTextDisabled.setFont(plain);
+		enableInMemoryTextDisabled.setForeground(RED);
 		enableInMemoryTextDisabled.setVisible(false);
 
 		// Disable warning as inMemory is default
 		// To re-enable - also see resetFields()
 
-//		enableInMemory.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
-//			}
-//		});
-//		enableProvenance.addActionListener(new ActionListener() {
-//			public void actionPerformed(ActionEvent e) {
-//				enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
-//			}
-//		});
-//
+		if (ADD_WARNING_LISTENERS) {
+			enableInMemory.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					enableInMemoryTextDisabled.setVisible(enableProvenance
+							.isSelected() && enableInMemory.isSelected());
+				}
+			});
+			enableProvenance.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					enableInMemoryTextDisabled.setVisible(enableProvenance
+							.isSelected() && enableInMemory.isSelected());
+				}
+			});
+		}
+
 		storageText = new JTextArea(
 				"Select how Taverna stores the data and provenance produced when a workflow is run. This includes workflow results and intermediate results.");
 		storageText.setLineWrap(true);
@@ -133,29 +137,28 @@ public class DataManagementConfigurationPanel extends JPanel {
 		storageText.setEditable(false);
 		storageText.setFocusable(false);
 		storageText.setBorder(new EmptyBorder(10, 10, 10, 10));
-		storageText.setFont(enableProvenanceText.getFont()
-				.deriveFont(Font.PLAIN, 11));
+		storageText.setFont(plain);
 
 		JComponent portPanel = createDerbyServerStatusComponent();
 
-		c.anchor = GridBagConstraints.WEST;
+		c.anchor = WEST;
 		c.insets = new Insets(0, 0, 10, 0);
 		c.gridx = 0;
-		c.gridy = GridBagConstraints.RELATIVE;
+		c.gridy = RELATIVE;
 		c.weightx = 0.0;
 		c.weighty = 0.0;
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = HORIZONTAL;
 		gridbag.setConstraints(storageText, c);
 		add(storageText);
 
 		c.ipady = 0;
 		c.insets = new Insets(0, 0, 5, 0);
-		c.fill = GridBagConstraints.NONE;
+		c.fill = NONE;
 		gridbag.setConstraints(enableProvenance, c);
 		add(enableProvenance);
 
 		c.insets = new Insets(0, 20, 15, 20);
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = HORIZONTAL;
 		gridbag.setConstraints(enableProvenanceText, c);
 		add(enableProvenanceText);
 
@@ -165,12 +168,12 @@ public class DataManagementConfigurationPanel extends JPanel {
 		add(enableInMemory);
 
 		c.insets = new Insets(0, 20, 15, 20);
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = HORIZONTAL;
 		gridbag.setConstraints(enableInMemoryText, c);
 		add(enableInMemoryText);
 
 		c.insets = new Insets(0, 20, 15, 20);
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = HORIZONTAL;
 		gridbag.setConstraints(enableInMemoryTextDisabled, c);
 		add(enableInMemoryTextDisabled);
 
@@ -179,30 +182,30 @@ public class DataManagementConfigurationPanel extends JPanel {
 		add(portPanel);
 
 		c.insets = new Insets(0, 0, 5, 0);
-		c.fill = GridBagConstraints.NONE;
-		exposeDatanatureBox = new JCheckBox("Allow setting of input data encoding");
+		c.fill = NONE;
+		exposeDatanatureBox = new JCheckBox(
+				"Allow setting of input data encoding");
 		gridbag.setConstraints(exposeDatanatureBox, c);
 		add(exposeDatanatureBox);
 
 		exposeDatanatureText = new JTextArea(
-		"Select if you want to control how Taverna handles files read as input data");
+				"Select if you want to control how Taverna handles files read as input data");
 		exposeDatanatureText.setLineWrap(true);
 		exposeDatanatureText.setWrapStyleWord(true);
 		exposeDatanatureText.setEditable(false);
 		exposeDatanatureText.setFocusable(false);
 		exposeDatanatureText.setOpaque(false);
-		exposeDatanatureText.setFont(enableProvenanceText.getFont()
-		.deriveFont(Font.PLAIN, 11));
+		exposeDatanatureText.setFont(plain);
 
 		c.insets = new Insets(0, 20, 15, 20);
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = HORIZONTAL;
 		gridbag.setConstraints(exposeDatanatureText, c);
 		add(exposeDatanatureText);
 
 		JPanel buttonPanel = createButtonPanel();
 		c.weightx = 1.0;
 		c.weighty = 1.0;
-		c.fill = GridBagConstraints.BOTH;
+		c.fill = BOTH;
 		c.insets = new Insets(0, 0, 5, 0);
 		gridbag.setConstraints(buttonPanel, c);
 		add(buttonPanel);
@@ -210,34 +213,21 @@ public class DataManagementConfigurationPanel extends JPanel {
 	}
 
 	private JComponent createDerbyServerStatusComponent() {
-
 		DialogTextArea textArea = new DialogTextArea();
-		Connection connection = null;
-		boolean running = false;
+		boolean running;
 
-		try {
+		try (Connection connection = databaseManager.getConnection()) {
 			running = databaseManager.isRunning();
-			connection = databaseManager.getConnection();
-
 		} catch (Exception e) {
 			running = false;
-		} finally {
-			if (connection != null)
-				try {
-					connection.close();
-				} catch (SQLException e) {
-					logger.warn("Unable to close connection to database (or return to pool)",
-									e);
-				}
 		}
 
-		if (running) {
-			int port = configuration.getCurrentPort();
+		if (running)
 			textArea.setText("The database is currently running on port: "
-					+ port + ".");
-		} else {
-			textArea.setText("Unable to retrieve a database connection - the database is not available.");
-		}
+					+ configuration.getCurrentPort() + ".");
+		else
+			textArea.setText("Unable to retrieve a database connection - "
+					+ "the database is not available.");
 
 		textArea.setLineWrap(true);
 		textArea.setWrapStyleWord(true);
@@ -245,7 +235,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		textArea.setFocusable(false);
 		textArea.setOpaque(false);
 		textArea.setAlignmentX(CENTER_ALIGNMENT);
-		textArea.setFont(textArea.getFont().deriveFont(Font.PLAIN, 11));
+		textArea.setFont(textArea.getFont().deriveFont(PLAIN, 11));
 		textArea.setVisible(configuration.getStartInternalDerbyServer());
 		return textArea;
 	}
@@ -265,7 +255,10 @@ public class DataManagementConfigurationPanel extends JPanel {
 		enableProvenance.setSelected(configuration.isProvenanceEnabled());
 		exposeDatanatureBox.setSelected(configuration.isExposeDatanature());
 
-		//enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected() && enableInMemory.isSelected());
+		if (ADD_WARNING_LISTENERS) {
+			enableInMemoryTextDisabled.setVisible(enableProvenance.isSelected()
+					&& enableInMemory.isSelected());
+		}
 	}
 
 	/*private boolean workflowInstances() {
@@ -278,20 +271,19 @@ public class DataManagementConfigurationPanel extends JPanel {
 		configuration.setExposeDatanature(exposeDatanatureBox.isSelected());
 	}
 
-	@SuppressWarnings("serial")
 	private JPanel createButtonPanel() {
 		final JPanel panel = new JPanel();
 
 		helpButton = new JButton(new AbstractAction("Help") {
-
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				Helper.showHelp(panel);
+				showHelp(panel);
 			}
 		});
 		panel.add(helpButton);
 
 		resetButton = new JButton(new AbstractAction("Reset") {
-
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				resetFields();
 			}
@@ -299,7 +291,7 @@ public class DataManagementConfigurationPanel extends JPanel {
 		panel.add(resetButton);
 
 		applyButton = new JButton(new AbstractAction("Apply") {
-
+			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				applySettings();
 				resetFields();

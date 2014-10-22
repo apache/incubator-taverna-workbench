@@ -27,36 +27,38 @@ import uk.org.taverna.configuration.ConfigurationUIFactory;
 import uk.org.taverna.configuration.database.DatabaseConfiguration;
 import uk.org.taverna.configuration.database.DatabaseManager;
 
-
-public class DataManagementConfigurationUIFactory implements ConfigurationUIFactory {
-
+public class DataManagementConfigurationUIFactory implements
+		ConfigurationUIFactory {
 	private DatabaseConfiguration databaseConfiguration;
 	private DatabaseManager databaseManager;
 
 	private DataManagementConfigurationPanel configPanel;
 
+	@Override
 	public boolean canHandle(String uuid) {
 		return uuid.equals(getConfigurable().getUUID());
 	}
 
+	@Override
 	public JPanel getConfigurationPanel() {
-		if (configPanel == null) {
-			configPanel = new DataManagementConfigurationPanel(databaseConfiguration, databaseManager);
-		}
+		if (configPanel == null)
+			configPanel = new DataManagementConfigurationPanel(
+					databaseConfiguration, databaseManager);
 		configPanel.resetFields();
 		return configPanel;
 	}
 
+	@Override
 	public Configurable getConfigurable() {
 		return databaseConfiguration;
 	}
 
-	public void setDatabaseConfiguration(DatabaseConfiguration databaseConfiguration) {
+	public void setDatabaseConfiguration(
+			DatabaseConfiguration databaseConfiguration) {
 		this.databaseConfiguration = databaseConfiguration;
 	}
 
 	public void setDatabaseManager(DatabaseManager databaseManager) {
 		this.databaseManager = databaseManager;
 	}
-
 }
