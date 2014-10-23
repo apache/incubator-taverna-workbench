@@ -27,19 +27,17 @@ import javax.swing.Action;
 import uk.org.taverna.scufl2.api.core.Processor;
 
 /**
- * SPI for adding dispatch stack layers to a processor, such as {@link net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop}.
+ * SPI for adding dispatch stack layers to a processor, such as
+ * {@link net.sf.taverna.t2.workflowmodel.processor.dispatch.layers.Loop}.
  * <p>
  * Buttons or similar will be added in the processor contextual view.
- *
+ * 
  * @author Stian Soiland-Reyes
- *
  */
 public interface AddLayerFactorySPI {
+	boolean canAddLayerFor(Processor proc);
 
-	public boolean canAddLayerFor(Processor proc);
+	Action getAddLayerActionFor(Processor proc);
 
-	public Action getAddLayerActionFor(Processor proc);
-
-	public boolean canCreateLayerClass(URI dispatchLayerType);
-
+	boolean canCreateLayerClass(URI dispatchLayerType);
 }

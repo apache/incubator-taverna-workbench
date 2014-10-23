@@ -27,12 +27,12 @@ import java.awt.Insets;
 import java.awt.LayoutManager;
 
 /**
- * Lays out components vertically using their preferred height and the available width.
- *
+ * Lays out components vertically using their preferred height and the available
+ * width.
+ * 
  * @author David Withers
  */
 public class ListLayout implements LayoutManager {
-
 	private static final int DEFAULT_GAP = 5;
 	private final int gap;
 
@@ -44,12 +44,15 @@ public class ListLayout implements LayoutManager {
 		this.gap = gap;
 	}
 
+	@Override
 	public void removeLayoutComponent(Component comp) {
 	}
 
+	@Override
 	public void addLayoutComponent(String name, Component comp) {
 	}
 
+	@Override
 	public void layoutContainer(Container parent) {
 		Insets insets = parent.getInsets();
 		int x = insets.left;
@@ -58,11 +61,13 @@ public class ListLayout implements LayoutManager {
 		Component[] components = parent.getComponents();
 		for (int i = 0; i < components.length; i++) {
 			components[i].setLocation(x, y);
-			components[i].setSize(width, components[i].getPreferredSize().height);
+			components[i].setSize(width,
+					components[i].getPreferredSize().height);
 			y = y + gap + components[i].getHeight();
 		}
 	}
 
+	@Override
 	public Dimension minimumLayoutSize(Container parent) {
 		Insets insets = parent.getInsets();
 		int minimumWidth = 0;
@@ -70,9 +75,8 @@ public class ListLayout implements LayoutManager {
 		Component[] components = parent.getComponents();
 		for (int i = 0; i < components.length; i++) {
 			Dimension size = components[i].getPreferredSize();
-			if (size.width > minimumWidth) {
+			if (size.width > minimumWidth)
 				minimumWidth = size.width;
-			}
 			minimumHeight = minimumHeight + size.height + gap;
 		}
 		minimumWidth = minimumWidth + insets.left + insets.right;
@@ -81,8 +85,8 @@ public class ListLayout implements LayoutManager {
 		return new Dimension(minimumWidth, minimumHeight);
 	}
 
+	@Override
 	public Dimension preferredLayoutSize(Container parent) {
 		return minimumLayoutSize(parent);
 	}
-
 }

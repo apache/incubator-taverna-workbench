@@ -1,7 +1,21 @@
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 
+import static java.awt.BorderLayout.SOUTH;
+import static java.awt.Cursor.DEFAULT_CURSOR;
+import static java.awt.Cursor.WAIT_CURSOR;
+import static java.awt.Cursor.getPredefinedCursor;
+import static java.lang.Math.max;
+import static javax.swing.JOptionPane.CANCEL_OPTION;
+import static javax.swing.JOptionPane.NO_OPTION;
+import static javax.swing.JOptionPane.YES_NO_CANCEL_OPTION;
+import static javax.swing.JOptionPane.YES_NO_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
+import static javax.swing.JOptionPane.showConfirmDialog;
+import static net.sf.taverna.t2.workbench.MainWindow.getMainWindow;
+import static net.sf.taverna.t2.workbench.helper.Helper.showHelp;
+import static net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction.clearDialog;
+
 import java.awt.BorderLayout;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
@@ -16,14 +30,12 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.DeselectingButton;
-import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.edits.CompoundEdit;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
@@ -32,8 +44,6 @@ import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowRedoEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowUndoEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
-import net.sf.taverna.t2.workbench.helper.Helper;
-import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workflow.edits.AddChildEdit;
 import net.sf.taverna.t2.workflow.edits.AddProcessorInputPortEdit;
 import net.sf.taverna.t2.workflow.edits.AddProcessorOutputPortEdit;
@@ -54,13 +64,10 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 import uk.org.taverna.scufl2.api.core.Processor;
 import uk.org.taverna.scufl2.api.core.Workflow;
 import uk.org.taverna.scufl2.api.port.ActivityPort;
-import uk.org.taverna.scufl2.api.port.DepthPort;
-import uk.org.taverna.scufl2.api.port.GranularDepthPort;
 import uk.org.taverna.scufl2.api.port.InputActivityPort;
 import uk.org.taverna.scufl2.api.port.InputProcessorPort;
 import uk.org.taverna.scufl2.api.port.OutputActivityPort;
 import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
-import uk.org.taverna.scufl2.api.port.Port;
 import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
 import uk.org.taverna.scufl2.api.profiles.ProcessorInputPortBinding;
 import uk.org.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
@@ -70,34 +77,29 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 @SuppressWarnings("serial")
 public class ActivityConfigurationDialog extends HelpEnabledDialog {
+	private enum PortType {
+		INPUT, OUTPUT
+	}
+	
+	protected static Logger logger = Logger.getLogger(ActivityConfigurationDialog.class);
+	private static final Scufl2Tools scufl2Tools = new Scufl2Tools();
+
+	private final EditManager editManager;
 
 	private Activity activity;
 	private ActivityConfigurationPanel panel;
 	protected WorkflowBundle owningWorkflowBundle;
 	protected Processor owningProcessor;
-
 	private Observer<EditManagerEvent> observer;
-
-	protected static Logger logger = Logger.getLogger(ActivityConfigurationDialog.class);
-
 	Dimension minimalSize = null;
 	Dimension buttonPanelSize = null;
-
 	JPanel buttonPanel;
-
 	protected JButton applyButton;
-	private final EditManager editManager;
-
-	private enum PortType {
-		INPUT, OUTPUT
-	}
-
-	private static Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	public ActivityConfigurationDialog(Activity a, ActivityConfigurationPanel p,
 			EditManager editManager) {
-		super(MainWindow.getMainWindow(), "Configuring " + a.getClass().getSimpleName(), false,
-				null);
+		super(getMainWindow(), "Configuring " + a.getClass().getSimpleName(),
+				false, null);
 		this.activity = a;
 		this.panel = p;
 		this.editManager = editManager;
@@ -105,79 +107,79 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 		owningWorkflowBundle = activity.getParent().getParent();
 		owningProcessor = findProcessor(a);
 
-		this.setTitle(getRelativeName(owningWorkflowBundle, activity));
-		this.setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		setTitle(getRelativeName(owningWorkflowBundle, activity));
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setLayout(new BorderLayout());
 
 		add(panel, BorderLayout.CENTER);
 
-		buttonPanel = new JPanel();
-
-		buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT));
+		buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		buttonPanel.setBorder(new EmptyBorder(5, 20, 5, 5));
 
 		JButton helpButton = new DeselectingButton("Help", new AbstractAction() {
-
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				Helper.showHelp(ActivityConfigurationDialog.this.panel);
+				showHelp(panel);
 			}
 		});
-
 		buttonPanel.add(helpButton);
 
 		applyButton = new DeselectingButton("Apply", new AbstractAction() {
-
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				// For the moment it always does an apply as what should be
-				// happening is that the apply button only becomes available
-				// when the configuration has changed. However, many
-				// configuration panels are not set up to detected changes
+				/*
+				 * For the moment it always does an apply as what should be
+				 * happening is that the apply button only becomes available
+				 * when the configuration has changed. However, many
+				 * configuration panels are not set up to detected changes
+				 */
 				// if (panel.isConfigurationChanged()) {
-				if (checkPanelValues()) {
+				if (checkPanelValues())
 					applyConfiguration();
-				}
 				// } else {
 				// logger.info("Ignoring apply");
 				// }
 			}
-
 		});
-
 		buttonPanel.add(applyButton);
-		JButton closeButton = new DeselectingButton("Close", new AbstractAction() {
 
+		JButton closeButton = new DeselectingButton("Close", new AbstractAction() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				closeDialog();
 			}
 		});
 		buttonPanel.add(closeButton);
-		buttonPanel.setBorder(new EmptyBorder(5, 20, 5, 5));
-		add(buttonPanel, BorderLayout.SOUTH);
+
+		add(buttonPanel, SOUTH);
 
 		this.addWindowListener(new WindowAdapter() {
-
+			@Override
 			public void windowOpened(WindowEvent e) {
-				ActivityConfigurationDialog.this.requestFocusInWindow();
-				ActivityConfigurationDialog.this.panel.whenOpened();
+				requestFocusInWindow();
+				panel.whenOpened();
 			}
 
+			@Override
 			public void windowClosing(WindowEvent e) {
 				closeDialog();
 			}
 		});
-		this.pack();
-		minimalSize = this.getSize();
-		this.setLocationRelativeTo(null);
-		this.setResizable(true);
-		this.addComponentListener(new ComponentAdapter() {
+		pack();
+		minimalSize = getSize();
+		setLocationRelativeTo(null);
+		setResizable(true);
+		addComponentListener(new ComponentAdapter() {
+			@Override
 			public void componentResized(ComponentEvent e) {
-				int newWidth = Math.max(getWidth(), minimalSize.width);
-				int newHeight = Math.max(getHeight(), minimalSize.height);
-				ActivityConfigurationDialog.this.setSize(new Dimension(newWidth, newHeight));
+				int newWidth = max(getWidth(), minimalSize.width);
+				int newHeight = max(getHeight(), minimalSize.height);
+				setSize(new Dimension(newWidth, newHeight));
 			}
 		});
 
 		observer = new Observer<EditManagerEvent>() {
-
+			@Override
 			public void notify(Observable<EditManagerEvent> sender, EditManagerEvent message)
 					throws Exception {
 				logger.info("sender is a " + sender.getClass().getCanonicalName());
@@ -193,10 +195,10 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 	private boolean checkPanelValues() {
 		boolean result = false;
 		try {
-			this.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+			setCursor(getPredefinedCursor(WAIT_CURSOR));
 			result = panel.checkValues();
 		} finally {
-			this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+			setCursor(getPredefinedCursor(DEFAULT_CURSOR));
 		}
 		return result;
 	}
@@ -204,28 +206,26 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 	private void considerEdit(EditManagerEvent message, Edit<?> edit) {
 		// boolean result = false;
 		if (edit instanceof CompoundEdit) {
-			for (Edit<?> subEdit : ((CompoundEdit) edit).getChildEdits()) {
+			for (Edit<?> subEdit : ((CompoundEdit) edit).getChildEdits())
 				considerEdit(message, subEdit);
-			}
-		} else {
-			Object subject = edit.getSubject();
-			if (subject == owningProcessor) {
-				// panel.reevaluate();
-				setTitle(getRelativeName(owningWorkflowBundle, activity));
-			} else if (subject == owningWorkflowBundle) {
-				for (Workflow workflow : owningWorkflowBundle.getWorkflows()) {
-					if (!workflow.getProcessors().contains(owningProcessor)) {
-						ActivityConfigurationAction.clearDialog(activity);
-					}
-				}
-			} else if (subject == activity) {
-				if (message instanceof DataFlowUndoEvent) {
-					logger.info("undo of activity edit found");
-					panel.refreshConfiguration();
-				} else if (message instanceof DataFlowRedoEvent) {
-					logger.info("redo of activity edit found");
-					panel.refreshConfiguration();
-				}
+			return;
+		}
+
+		Object subject = edit.getSubject();
+		if (subject == owningProcessor) {
+			// panel.reevaluate();
+			setTitle(getRelativeName(owningWorkflowBundle, activity));
+		} else if (subject == owningWorkflowBundle) {
+			for (Workflow workflow : owningWorkflowBundle.getWorkflows())
+				if (!workflow.getProcessors().contains(owningProcessor))
+					clearDialog(activity);
+		} else if (subject == activity) {
+			if (message instanceof DataFlowUndoEvent) {
+				logger.info("undo of activity edit found");
+				panel.refreshConfiguration();
+			} else if (message instanceof DataFlowRedoEvent) {
+				logger.info("redo of activity edit found");
+				panel.refreshConfiguration();
 			}
 		}
 	}
@@ -249,9 +249,7 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 			configurePorts(activity, editList, processorBindings, inputPorts, PortType.INPUT);
 			configurePorts(activity, editList, processorBindings, outputPorts, PortType.OUTPUT);
 			editManager.doDataflowEdit(workflowBundle, new CompoundEdit(editList));
-		} catch (IllegalStateException e) {
-			logger.error(e);
-		} catch (EditException e) {
+		} catch (IllegalStateException | EditException e) {
 			logger.error(e);
 		}
 	}
@@ -260,10 +258,9 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 			List<ProcessorBinding> processorBindings,
 			List<ActivityPortConfiguration> portDefinitions, PortType portType) {
 		Set<ActivityPort> ports = new HashSet<>();
-		for (ActivityPort activityPort : portType == PortType.INPUT ? activity.getInputPorts()
-				: activity.getOutputPorts()) {
+		for (ActivityPort activityPort : portType == PortType.INPUT ? activity
+				.getInputPorts() : activity.getOutputPorts())
 			ports.add(activityPort);
-		}
 		for (ActivityPortConfiguration portDefinition : portDefinitions) {
 			String portName = portDefinition.getName();
 			int portDepth = portDefinition.getDepth();
@@ -271,163 +268,156 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 			ActivityPort activityPort = portDefinition.getActivityPort();
 			if (activityPort == null) {
 				// no activity port so add a new one
-				if (portType == PortType.INPUT) {
+				if (portType == PortType.INPUT)
 					createInputPort(activity, editList, processorBindings, portDefinition);
-				} else {
+				else
 					createOutputPort(activity, editList, processorBindings, portDefinition);
-				}
 			} else {
 				ports.remove(activityPort);
 				// check if port has changed
-				for (ProcessorBinding processorBinding : processorBindings) {
-					if (portType == PortType.INPUT) {
+				for (ProcessorBinding processorBinding : processorBindings)
+					if (portType == PortType.INPUT)
 						for (ProcessorInputPortBinding portBinding : processorBinding
 								.getInputPortBindings()) {
-							if (portBinding.getBoundActivityPort().equals(activityPort)) {
-								InputProcessorPort processorPort = portBinding
-										.getBoundProcessorPort();
-								if (!activityPort.getName().equals(portName)) {
-									// port name changed
-									if (processorPort.getName().equals(activityPort.getName())) {
-										// default mapping so change processor port
-										editList.add(new RenameEdit<Port>(processorPort, portName));
-									}
-								}
-								if (!processorPort.getDepth().equals(portDepth)) {
-									// port depth changed
-									editList.add(new ChangeDepthEdit<DepthPort>(processorPort,
-											portDepth));
-								}
-							}
+							if (!portBinding.getBoundActivityPort().equals(
+									activityPort))
+								continue;
+							InputProcessorPort processorPort = portBinding
+									.getBoundProcessorPort();
+							if (!activityPort.getName().equals(portName))
+								// port name changed
+								if (processorPort.getName().equals(activityPort.getName()))
+									// default mapping so change processor port
+									editList.add(new RenameEdit<>(processorPort, portName));
+							if (!processorPort.getDepth().equals(portDepth))
+								// port depth changed
+								editList.add(new ChangeDepthEdit<>(
+										processorPort, portDepth));
 						}
-					} else {
+					else
 						for (ProcessorOutputPortBinding portBinding : processorBinding
 								.getOutputPortBindings()) {
-							if (portBinding.getBoundActivityPort().equals(activityPort)) {
-								OutputProcessorPort processorPort = portBinding
-										.getBoundProcessorPort();
-								if (!activityPort.getName().equals(portName)) {
-									// port name changed
-									if (processorPort.getName().equals(activityPort.getName())) {
-										// default mapping so change processor port
-										editList.add(new RenameEdit<Port>(processorPort, portName));
-									}
-								}
-								if (!processorPort.getDepth().equals(portDepth)) {
-									// port depth changed
-									editList.add(new ChangeDepthEdit<DepthPort>(processorPort,
-											portDepth));
-								}
-								if (!processorPort.getGranularDepth().equals(granularPortDepth)) {
-									// port granular depth changed
-									editList.add(new ChangeGranularDepthEdit<GranularDepthPort>(
-											processorPort, granularPortDepth));
-								}
-							}
+							if (!portBinding.getBoundActivityPort().equals(
+									activityPort))
+								continue;
+							OutputProcessorPort processorPort = portBinding
+									.getBoundProcessorPort();
+							if (!activityPort.getName().equals(portName))
+								// port name changed
+								if (processorPort.getName().equals(
+										activityPort.getName()))
+									// default mapping so change processor port
+									editList.add(new RenameEdit<>(
+											processorPort, portName));
+							if (!processorPort.getDepth().equals(portDepth))
+								// port depth changed
+								editList.add(new ChangeDepthEdit<>(
+										processorPort, portDepth));
+							if (!processorPort.getGranularDepth().equals(
+									granularPortDepth))
+								// port granular depth changed
+								editList.add(new ChangeGranularDepthEdit<>(
+										processorPort, granularPortDepth));
 						}
-					}
-				}
-				if (!activityPort.getName().equals(portName)) {
+				if (!activityPort.getName().equals(portName))
 					// port name changed
-					editList.add(new RenameEdit<Port>(activityPort, portName));
-				}
-				if (!activityPort.getDepth().equals(portDepth)) {
+					editList.add(new RenameEdit<>(activityPort, portName));
+				if (!activityPort.getDepth().equals(portDepth))
 					// port depth changed
-					editList.add(new ChangeDepthEdit<DepthPort>(activityPort, portDepth));
-				}
+					editList.add(new ChangeDepthEdit<>(activityPort, portDepth));
 				if (activityPort instanceof OutputActivityPort) {
 					OutputActivityPort outputActivityPort = (OutputActivityPort) activityPort;
-					Integer granularDepth = outputActivityPort.getGranularDepth();
-					if (granularDepth == null || !granularDepth.equals(granularPortDepth)) {
+					Integer granularDepth = outputActivityPort
+							.getGranularDepth();
+					if (granularDepth == null
+							|| !granularDepth.equals(granularPortDepth))
 						// granular port depth changed
-						editList.add(new ChangeGranularDepthEdit<GranularDepthPort>(
+						editList.add(new ChangeGranularDepthEdit<>(
 								outputActivityPort, granularPortDepth));
-					}
 				}
-
 			}
 		}
+
 		// remove any unconfigured ports
 		for (ActivityPort activityPort : ports) {
 			// remove processor ports and bindings
-			for (ProcessorBinding processorBinding : processorBindings) {
-				if (portType.equals(PortType.INPUT)) {
+			for (ProcessorBinding processorBinding : processorBindings)
+				if (portType.equals(PortType.INPUT))
 					for (ProcessorInputPortBinding portBinding : processorBinding
 							.getInputPortBindings()) {
 						if (portBinding.getBoundActivityPort().equals(activityPort)) {
 							editList.add(new RemoveProcessorInputPortEdit(processorBinding
 									.getBoundProcessor(), portBinding.getBoundProcessorPort()));
-							editList.add(new RemoveChildEdit<ProcessorBinding>(processorBinding,
+							editList.add(new RemoveChildEdit<>(processorBinding,
 									portBinding));
 						}
 					}
-				} else {
+				else
 					for (ProcessorOutputPortBinding portBinding : processorBinding
-							.getOutputPortBindings()) {
+							.getOutputPortBindings())
 						if (portBinding.getBoundActivityPort().equals(activityPort)) {
 							editList.add(new RemoveProcessorOutputPortEdit(processorBinding
 									.getBoundProcessor(), portBinding.getBoundProcessorPort()));
-							editList.add(new RemoveChildEdit<ProcessorBinding>(processorBinding,
+							editList.add(new RemoveChildEdit<>(processorBinding,
 									portBinding));
 						}
-					}
-				}
-			}
 			// remove activity port
 			editList.add(new RemoveChildEdit<Activity>(activity, activityPort));
 		}
 	}
 
 	private void createInputPort(Activity activity, List<Edit<?>> editList,
-			List<ProcessorBinding> processorBindings, ActivityPortConfiguration portDefinition) {
-		InputActivityPort activityPort = new InputActivityPort(null, portDefinition.getName());
-		activityPort.setDepth(portDefinition.getDepth());
+			List<ProcessorBinding> processorBindings,
+			ActivityPortConfiguration portDefinition) {
+		InputActivityPort actPort = new InputActivityPort(null,
+				portDefinition.getName());
+		actPort.setDepth(portDefinition.getDepth());
 		// add port to activity
-		editList.add(new AddChildEdit<Activity>(activity, activityPort));
+		editList.add(new AddChildEdit<>(activity, actPort));
 		for (ProcessorBinding processorBinding : processorBindings) {
 			Processor processor = processorBinding.getBoundProcessor();
 			// add a new processor port
-			InputProcessorPort inputProcessorPort = new InputProcessorPort();
-			inputProcessorPort.setName(portDefinition.getName());
-			inputProcessorPort.setDepth(portDefinition.getDepth());
-			editList.add(new AddProcessorInputPortEdit(processor, inputProcessorPort));
+			InputProcessorPort procPort = new InputProcessorPort();
+			procPort.setName(portDefinition.getName());
+			procPort.setDepth(portDefinition.getDepth());
+			editList.add(new AddProcessorInputPortEdit(processor, procPort));
 			// add a new port binding
-			ProcessorInputPortBinding processorInputPortBinding = new ProcessorInputPortBinding();
-			processorInputPortBinding.setBoundProcessorPort(inputProcessorPort);
-			processorInputPortBinding.setBoundActivityPort(activityPort);
-			editList.add(new AddChildEdit<ProcessorBinding>(processorBinding,
-					processorInputPortBinding));
+			ProcessorInputPortBinding binding = new ProcessorInputPortBinding();
+			binding.setBoundProcessorPort(procPort);
+			binding.setBoundActivityPort(actPort);
+			editList.add(new AddChildEdit<>(processorBinding, binding));
 		}
 	}
 
 	private void createOutputPort(Activity activity, List<Edit<?>> editList,
-			List<ProcessorBinding> processorBindings, ActivityPortConfiguration portDefinition) {
-		OutputActivityPort activityPort = new OutputActivityPort(null, portDefinition.getName());
-		activityPort.setDepth(portDefinition.getDepth());
-		activityPort.setGranularDepth(portDefinition.getGranularDepth());
+			List<ProcessorBinding> processorBindings,
+			ActivityPortConfiguration portDefinition) {
+		OutputActivityPort actPort = new OutputActivityPort(null,
+				portDefinition.getName());
+		actPort.setDepth(portDefinition.getDepth());
+		actPort.setGranularDepth(portDefinition.getGranularDepth());
 		// add port to activity
-		editList.add(new AddChildEdit<Activity>(activity, activityPort));
+		editList.add(new AddChildEdit<Activity>(activity, actPort));
 		for (ProcessorBinding processorBinding : processorBindings) {
 			Processor processor = processorBinding.getBoundProcessor();
 			// add a new processor port
-			OutputProcessorPort outputProcessorPort = new OutputProcessorPort();
-			outputProcessorPort.setName(portDefinition.getName());
-			outputProcessorPort.setDepth(portDefinition.getDepth());
-			outputProcessorPort.setGranularDepth(portDefinition.getGranularDepth());
-			editList.add(new AddProcessorOutputPortEdit(processor, outputProcessorPort));
+			OutputProcessorPort procPort = new OutputProcessorPort();
+			procPort.setName(portDefinition.getName());
+			procPort.setDepth(portDefinition.getDepth());
+			procPort.setGranularDepth(portDefinition.getGranularDepth());
+			editList.add(new AddProcessorOutputPortEdit(processor, procPort));
 			// add a new port binding
-			ProcessorOutputPortBinding processorOutputPortBinding = new ProcessorOutputPortBinding();
-			processorOutputPortBinding.setBoundProcessorPort(outputProcessorPort);
-			processorOutputPortBinding.setBoundActivityPort(activityPort);
-			editList.add(new AddChildEdit<ProcessorBinding>(processorBinding,
-					processorOutputPortBinding));
+			ProcessorOutputPortBinding binding = new ProcessorOutputPortBinding();
+			binding.setBoundProcessorPort(procPort);
+			binding.setBoundActivityPort(actPort);
+			editList.add(new AddChildEdit<>(processorBinding, binding));
 		}
 	}
 
 	protected static Processor findProcessor(Activity activity) {
-		for (ProcessorBinding processorBinding : scufl2Tools.processorBindingsToActivity(activity)) {
+		for (ProcessorBinding processorBinding : scufl2Tools
+				.processorBindingsToActivity(activity))
 			return processorBinding.getBoundProcessor();
-		}
 		return null;
 	}
 
@@ -441,49 +431,44 @@ public class ActivityConfigurationDialog extends HelpEnabledDialog {
 			}
 		}
 		Processor processor = findProcessor(activity);
-		if (processor != null) {
+		if (processor != null)
 			relativeName.append(processor.getName());
-		}
 		return relativeName.toString();
 	}
 
 	public boolean closeDialog() {
-
 		if (panel.isConfigurationChanged()) {
 			String relativeName = getRelativeName(owningWorkflowBundle, activity);
 			if (checkPanelValues()) {
-				int answer = JOptionPane.showConfirmDialog(this,
+				int answer = showConfirmDialog(this,
 						"Do you want to save the configuration of " + relativeName + "?",
-						relativeName, JOptionPane.YES_NO_CANCEL_OPTION);
-				if (answer == JOptionPane.YES_OPTION) {
+						relativeName, YES_NO_CANCEL_OPTION);
+				if (answer == YES_OPTION) {
 					applyConfiguration();
-				} else if (answer == JOptionPane.CANCEL_OPTION) {
+				} else if (answer == CANCEL_OPTION) {
 					return false;
 				}
-			} else {
-				int answer = JOptionPane.showConfirmDialog(this,
-						"New configuration could not be saved. Do you still want to close?",
-						relativeName, JOptionPane.YES_NO_OPTION);
-				if (answer == JOptionPane.NO_OPTION) {
-					return false;
-				}
-			}
+			} else if (showConfirmDialog(
+					this,
+					"New configuration could not be saved. Do you still want to close?",
+					relativeName, YES_NO_OPTION) == NO_OPTION)
+				return false;
 		}
 		panel.whenClosed();
-		ActivityConfigurationAction.clearDialog(activity);
-
+		clearDialog(activity);
 		return true;
 	}
 
 	private void applyConfiguration() {
 		panel.noteConfiguration();
-		configureActivity(panel.getJson(), panel.getInputPorts(), panel.getOutputPorts());
+		configureActivity(panel.getJson(), panel.getInputPorts(),
+				panel.getOutputPorts());
 		panel.refreshConfiguration();
 	}
 
+	@Override
 	public void dispose() {
 		super.dispose();
 		editManager.removeObserver(observer);
 	}
-
 }

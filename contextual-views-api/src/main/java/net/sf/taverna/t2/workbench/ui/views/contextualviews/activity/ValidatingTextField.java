@@ -23,29 +23,31 @@ package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 import javax.swing.JTextField;
 
 /**
- *
- *
+ * Adds a "<tt>valid</tt>" property to a JTextField.
+ * 
  * @author David Withers
  */
 @SuppressWarnings("serial")
 public class ValidatingTextField extends JTextField {
-
 	private boolean valid = true;
 
-	public ValidatingTextField() {}
+	public ValidatingTextField() {
+	}
 
 	public ValidatingTextField(String text) {
 		super(text);
 	}
 
+	@Override
 	public boolean isValid() {
 		return valid;
 	}
 
 	public void setValid(boolean valid) {
 		if (this.valid != valid) {
+			boolean old = this.valid;
 			this.valid = valid;
+			firePropertyChange("valid", old, valid);
 		}
 	}
-
 }

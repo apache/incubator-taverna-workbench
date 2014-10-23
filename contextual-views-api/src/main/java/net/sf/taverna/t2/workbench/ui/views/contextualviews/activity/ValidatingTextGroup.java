@@ -37,7 +37,7 @@ public class ValidatingTextGroup {
 	private Map<ValidatingTextField, DocumentListener> textComponents;
 
 	public ValidatingTextGroup() {
-		textComponents = new HashMap<ValidatingTextField, DocumentListener>();
+		textComponents = new HashMap<>();
 	}
 
 	public void addValidTextComponent(ValidatingTextField textComponent) {
@@ -55,7 +55,8 @@ public class ValidatingTextGroup {
 	}
 
 	public void removeTextComponent(ValidatingTextField textComponent) {
-		textComponent.getDocument().removeDocumentListener(textComponents.remove(textComponent));
+		textComponent.getDocument().removeDocumentListener(
+				textComponents.remove(textComponent));
 		validate();
 	}
 
@@ -74,10 +75,11 @@ public class ValidatingTextGroup {
 	}
 
 	private void validate() {
-		Map<String, ValidatingTextField> textValues = new HashMap<String, ValidatingTextField>();
-		Set<ValidatingTextField> maybeValid = new HashSet<ValidatingTextField>();
+		Map<String, ValidatingTextField> textValues = new HashMap<>();
+		Set<ValidatingTextField> maybeValid = new HashSet<>();
 		for (ValidatingTextField textComponent : textComponents.keySet()) {
-			ValidatingTextField duplicate = textValues.get(textComponent.getText());
+			ValidatingTextField duplicate = textValues.get(textComponent
+					.getText());
 			if (duplicate != null) {
 				duplicate.setValid(false);
 				maybeValid.remove(duplicate);
@@ -87,22 +89,18 @@ public class ValidatingTextGroup {
 				maybeValid.add(textComponent);
 			}
 		}
-		for (ValidatingTextField textComponent : maybeValid) {
+		for (ValidatingTextField textComponent : maybeValid)
 			textComponent.setValid(true);
-		}
 	}
 
 	private boolean textExists(String text) {
-		for (ValidatingTextField currentTextComponent : textComponents.keySet()) {
-			if (text.equals(currentTextComponent.getText())) {
+		for (ValidatingTextField currentTextComponent : textComponents.keySet())
+			if (text.equals(currentTextComponent.getText()))
 				return true;
-			}
-		}
 		return false;
 	}
 
 	class ValidatorDocumentListener implements DocumentListener {
-
 		@Override
 		public void insertUpdate(DocumentEvent e) {
 			validate();
@@ -117,6 +115,5 @@ public class ValidatingTextGroup {
 		public void changedUpdate(DocumentEvent e) {
 			validate();
 		}
-
 	}
 }

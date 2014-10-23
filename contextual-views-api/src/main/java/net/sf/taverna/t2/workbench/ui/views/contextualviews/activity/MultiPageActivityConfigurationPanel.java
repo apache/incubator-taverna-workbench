@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 
+import static java.awt.BorderLayout.CENTER;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 
@@ -29,23 +31,24 @@ import uk.org.taverna.scufl2.api.activity.Activity;
 
 /**
  * Component for configuring activities that have multiple configuration pages.
- *
+ * 
  * @author David Withers
  */
 @SuppressWarnings("serial")
-public abstract class MultiPageActivityConfigurationPanel extends ActivityConfigurationPanel {
-
+public abstract class MultiPageActivityConfigurationPanel extends
+		ActivityConfigurationPanel {
 	private JTabbedPane tabbedPane;
 
 	/**
 	 * Constructs a new <code>MultiPageActivityConfigurationPanel</code>.
+	 * 
 	 * @param activity
 	 */
 	public MultiPageActivityConfigurationPanel(Activity activity) {
 		super(activity);
 		setLayout(new BorderLayout());
 		tabbedPane = new JTabbedPane();
-		add(tabbedPane, BorderLayout.CENTER);
+		add(tabbedPane, CENTER);
 	}
 
 	public void addPage(String name, Component component) {
@@ -59,5 +62,4 @@ public abstract class MultiPageActivityConfigurationPanel extends ActivityConfig
 	public void removeAllPages() {
 		tabbedPane.removeAll();
 	}
-
 }

@@ -20,17 +20,21 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.actions.activity;
 
+import static net.sf.taverna.t2.lang.ui.HtmlUtils.buildTableOpeningTag;
+import static net.sf.taverna.t2.lang.ui.HtmlUtils.createEditorPane;
+import static net.sf.taverna.t2.lang.ui.HtmlUtils.getHtmlHead;
+import static net.sf.taverna.t2.lang.ui.HtmlUtils.panelForHtml;
+
 import javax.swing.JComponent;
 import javax.swing.JEditorPane;
 
-import net.sf.taverna.t2.lang.ui.HtmlUtils;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
 
 @SuppressWarnings("serial")
 public abstract class HTMLBasedActivityContextualView extends ActivityContextualView {
-
+	private static final String BEANSHELL_URI = "http://ns.taverna.org.uk/2010/activity/beanshell";
+	private static final String LOCALWORKER_URI = "http://ns.taverna.org.uk/2010/activity/localworker";
 	private JEditorPane editorPane;
 	private final ColourManager colourManager;
 
@@ -42,31 +46,26 @@ public abstract class HTMLBasedActivityContextualView extends ActivityContextual
 
 	@Override
 	public JComponent getMainFrame() {
-		editorPane = HtmlUtils.createEditorPane(buildHtml());
-		return HtmlUtils.panelForHtml(editorPane);
+		editorPane = createEditorPane(buildHtml());
+		return panelForHtml(editorPane);
 	}
 
 	private String buildHtml() {
-		String html = HtmlUtils.getHtmlHead(getBackgroundColour());
-		html += HtmlUtils.buildTableOpeningTag();
-		html += "<tr><th colspan=\"2\">" + getViewTitle() + "</th></tr>";
-		html += getRawTableRowsHtml() + "</table>";
-		html += "</body></html>";
-		return html;
+		StringBuilder html = new StringBuilder(getHtmlHead(getBackgroundColour()));
+		html.append(buildTableOpeningTag());
+		html.append("<tr><th colspan=\"2\">").append(getViewTitle()).append("</th></tr>");
+		html.append(getRawTableRowsHtml()).append("</table>");
+		html.append("</body></html>");
+		return html.toString();
 	}
 
 	protected abstract String getRawTableRowsHtml();
 
 	public String getBackgroundColour() {
 		String activityType = getActivity().getType().toString();
-		if ("http://ns.taverna.org.uk/2010/activity/localworker".equals(activityType)) {
-			Configuration configuration = getConfigBean();
-			if (configuration.getJson().get("isAltered").booleanValue()) {
-				String colour = (String) colourManager
-						.getProperty("http://ns.taverna.org.uk/2010/activity/beanshell");
-				return colour;
-			}
-		}
+		if (LOCALWORKER_URI.equals(activityType))
+			if (getConfigBean().getJson().get("isAltered").booleanValue())
+				return (String) colourManager.getProperty(BEANSHELL_URI);
 		String colour = (String) colourManager.getProperty(activityType);
 		return colour == null ? "#ffffff" : colour;
 	}
@@ -75,8 +74,8 @@ public abstract class HTMLBasedActivityContextualView extends ActivityContextual
 	 * Update the html view with the latest information in the configuration
 	 * bean
 	 */
+	@Override
 	public void refreshView() {
 		editorPane.setText(buildHtml());
 	}
-
 }

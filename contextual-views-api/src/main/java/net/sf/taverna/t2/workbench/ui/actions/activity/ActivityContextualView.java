@@ -26,44 +26,44 @@ import uk.org.taverna.scufl2.api.common.Scufl2Tools;
 import uk.org.taverna.scufl2.api.configurations.Configuration;
 
 /**
- * A contextual view specific to an Activity.
- * </p>
- * Concrete subclasses must initialise the view by calling initView().
+ * A contextual view specific to an Activity. Concrete subclasses must
+ * initialise the view by calling {@link #initView()}.
  * <p>
- * The implementation provides a view based upon the properties set in the Configuration
- * </p>
- *
+ * The implementation provides a view based upon the properties set in the
+ * Configuration
+ * 
  * @author Stuart Owen
  * @author Ian Dunlop
- *
+ * 
  * @see Activity
  * @see ContextualView
  */
 @SuppressWarnings("serial")
 public abstract class ActivityContextualView extends ContextualView {
-
 	private Activity activity;
 	private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
 	/**
 	 * Constructs an instance of the view.
 	 * <p>
-	 * The constructor parameter for the implementation of this class should define the specific Activity type itself.
-	 * </p>
+	 * The constructor parameter for the implementation of this class should
+	 * define the specific Activity type itself.
+	 * 
 	 * @param activity
 	 */
-	public ActivityContextualView(Activity activity) {
+	protected ActivityContextualView(Activity activity) {
 		super();
 		this.activity = activity;
 	}
 
 	public Activity getActivity() {
-		return this.activity;
+		return activity;
 	}
 
 	public Configuration getConfigBean() {
 		return scufl2Tools.configurationFor(activity, activity.getParent());
 	}
 
+	@Override
 	public abstract void refreshView();
 }

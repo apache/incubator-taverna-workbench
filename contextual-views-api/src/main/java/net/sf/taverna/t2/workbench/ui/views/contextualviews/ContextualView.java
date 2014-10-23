@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews;
 
+import static java.awt.BorderLayout.CENTER;
+
 import java.awt.BorderLayout;
 import java.awt.Frame;
 
@@ -32,23 +34,19 @@ import javax.swing.JPanel;
  * Dataflow element.
  * <p>
  * The specific implementation of this class to support a given dataflow element
- * needs to implement the getMainFrame() and getViewTitle().
- * </p>
+ * needs to implement the {@link #getMainFrame()} and {@link #getViewTitle()}.
  * <p>
  * If a view is associated with an action handler to configure this component,
- * then the getConfigureAction handler must be over-ridden. If this returns null
- * then the configure button is left disabled and it is not possible to
- * configure the element.
- * </p>
+ * then the {@link #getConfigureAction(Frame) getConfigureAction} handler must
+ * be over-ridden. If this returns null then the configure button is left
+ * disabled and it is not possible to configure the element.
  * 
  * @author Stuart Owen
  * @author Ian Dunlop
  * @author Alan R Williams
- * 
  */
 @SuppressWarnings("serial")
 public abstract class ContextualView extends JPanel {
-
 	/**
 	 * When implemented, this method should define the main frame that is placed
 	 * in this container, and provides a static view of the Dataflow element.
@@ -69,9 +67,10 @@ public abstract class ContextualView extends JPanel {
 	 * <p>
 	 * If there is no ability to configure the given item, then this should
 	 * return null.
-	 * </p>
 	 * 
-	 * @param owner - the owning dialog to be used when displaying dialogues for configuration options
+	 * @param owner
+	 *            the owning dialog to be used when displaying dialogues for
+	 *            configuration options
 	 * @return an action that allows the element being viewed to be configured.
 	 */
 	public Action getConfigureAction(Frame owner) {
@@ -79,38 +78,32 @@ public abstract class ContextualView extends JPanel {
 	}
 
 	/**
-	 * This MUST be called by any sub classes after they have initialised their
-	 * own view since it gets their main panel and adds it to the main
+	 * This <i>must</i> be called by any sub-classes after they have initialised
+	 * their own view since it gets their main panel and adds it to the main
 	 * contextual view. If you don't do this you will get a very empty frame
 	 * popping up!
 	 */
 	public void initView() {
 		setLayout(new BorderLayout());
-		add(getMainFrame(), BorderLayout.CENTER);
+		add(getMainFrame(), CENTER);
 		setName(getViewTitle());
 	}
-	
+
 	public abstract void refreshView();
-	
+
 	public abstract int getPreferredPosition();
-	
+
 	public static String getTextFromDepth(String kind, Integer depth) {
 		String labelText = "The last prediction said the " + kind;
 		if (depth == null) {
 			labelText += " would not transmit a value";
+		} else if (depth == -1) {
+			labelText += " was invalid/unpredicted";
+		} else if (depth == 0) {
+			labelText += " would carry a single value";
 		} else {
-			if (depth == -1) {
-				labelText += " was invalid/unpredicted";
-			} else {
-				labelText += " would carry ";
-				if (depth == 0) {
-					labelText += " a single value";
-				} else {
-					labelText += "a list of depth " + depth;
-				}
-			}
+			labelText += " would carry a list of depth " + depth;
 		}
 		return labelText;
 	}
-
 }

@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JPanel;
 
@@ -31,10 +30,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  */
 @SuppressWarnings("serial")
 public abstract class ActivityConfigurationPanel extends JPanel {
-
 	private static final Logger logger = Logger.getLogger(ActivityConfigurationPanel.class);
-
 	private final static Scufl2Tools scufl2Tools = new Scufl2Tools();
+
 	// protected final URITools uriTools = new URITools();
 	private final Activity activity;
 	private final Configuration configuration;
@@ -43,10 +41,12 @@ public abstract class ActivityConfigurationPanel extends JPanel {
 	protected ObjectNode json;
 
 	public ActivityConfigurationPanel(Activity activity) {
-		this(activity, scufl2Tools.configurationFor(activity, activity.getParent()));
+		this(activity, scufl2Tools.configurationFor(activity,
+				activity.getParent()));
 	}
 
-	public ActivityConfigurationPanel(Activity activity, Configuration configuration) {
+	public ActivityConfigurationPanel(Activity activity,
+			Configuration configuration) {
 		this.activity = activity;
 		this.configuration = configuration;
 		inputPorts = new ArrayList<>();
@@ -54,12 +54,10 @@ public abstract class ActivityConfigurationPanel extends JPanel {
 	}
 
 	/**
-	 * Initializes the configuration panel.
-	 * <p>
-	 * This method is also used to discard any changes and reset the panel to its initial state.
-	 * <p>
-	 * Subclasses should implement this method to set up the panel and must call super.initialise()
-	 * first.
+	 * Initializes the configuration panel. This method is also used to discard
+	 * any changes and reset the panel to its initial state. Subclasses should
+	 * implement this method to set up the panel and must call
+	 * <tt>super.initialise()</tt> first.
 	 */
 	protected void initialise() {
 		json = configuration.getJson().deepCopy();

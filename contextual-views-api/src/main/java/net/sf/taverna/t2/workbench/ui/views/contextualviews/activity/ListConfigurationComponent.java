@@ -20,6 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 
+import static java.awt.BorderLayout.CENTER;
+import static java.awt.BorderLayout.EAST;
+import static java.awt.BorderLayout.SOUTH;
+import static java.awt.FlowLayout.RIGHT;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.FlowLayout;
@@ -34,13 +39,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 /**
- *
- *
  * @author David Withers
  */
 @SuppressWarnings("serial")
 public abstract class ListConfigurationComponent<T> extends JPanel {
-
 	private static final String REMOVE = "Remove";
 	private static final String ADD = "Add";
 
@@ -53,11 +55,11 @@ public abstract class ListConfigurationComponent<T> extends JPanel {
 		setLayout(new BorderLayout());
 
 		listPanel = new JPanel(new ListLayout());
-		JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		JPanel buttonPanel = new JPanel(new FlowLayout(RIGHT));
 		buttonPanel.add(new JButton(createAddAction()));
 
-		add(new JScrollPane(listPanel), BorderLayout.CENTER);
-		add(buttonPanel, BorderLayout.SOUTH);
+		add(new JScrollPane(listPanel), CENTER);
+		add(buttonPanel, SOUTH);
 
 		setItems(items);
 	}
@@ -65,9 +67,8 @@ public abstract class ListConfigurationComponent<T> extends JPanel {
 	protected void setItems(List<T> items) {
 		this.items = items;
 		listPanel.removeAll();
-		for (T item : items) {
+		for (T item : items)
 			addItemComponent(item);
-		}
 	}
 
 	protected void addItem(T item) {
@@ -77,8 +78,8 @@ public abstract class ListConfigurationComponent<T> extends JPanel {
 
 	protected void addItemComponent(T item) {
 		JComponent itemPanel = new JPanel(new BorderLayout());
-		itemPanel.add(createItemComponent(item), BorderLayout.CENTER);
-		itemPanel.add(new JButton(createRemoveAction(item)), BorderLayout.EAST);
+		itemPanel.add(createItemComponent(item), CENTER);
+		itemPanel.add(new JButton(createRemoveAction(item)), EAST);
 		listPanel.add(itemPanel);
 		listPanel.revalidate();
 		listPanel.repaint();
@@ -96,7 +97,6 @@ public abstract class ListConfigurationComponent<T> extends JPanel {
 
 	private Action createRemoveAction(final T item) {
 		return new AbstractAction(REMOVE) {
-			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				removeItem(item);
@@ -106,7 +106,6 @@ public abstract class ListConfigurationComponent<T> extends JPanel {
 
 	private Action createAddAction() {
 		return new AbstractAction(ADD + " " + name) {
-			private static final long serialVersionUID = 1L;
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				addItem(createDefaultItem());
@@ -117,5 +116,4 @@ public abstract class ListConfigurationComponent<T> extends JPanel {
 	protected abstract Component createItemComponent(T item);
 
 	protected abstract T createDefaultItem();
-
 }

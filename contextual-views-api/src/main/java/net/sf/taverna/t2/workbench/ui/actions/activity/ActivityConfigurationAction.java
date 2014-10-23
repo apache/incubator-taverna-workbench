@@ -45,20 +45,19 @@ import uk.org.taverna.scufl2.api.profiles.Profile;
 
 @SuppressWarnings("serial")
 public abstract class ActivityConfigurationAction extends AbstractAction {
-
-	private static WeakHashMap<Activity, ActivityConfigurationDialog> configurationDialogs = new WeakHashMap<Activity, ActivityConfigurationDialog>();
-
-	protected Activity activity;
-
+	private static WeakHashMap<Activity, ActivityConfigurationDialog> configurationDialogs = new WeakHashMap<>();
 	private static DataflowCloseListener listener;
 
+	protected Activity activity;
 	private final ServiceDescriptionRegistry serviceDescriptionRegistry;
 
-	public ActivityConfigurationAction(Activity activity, ActivityIconManager activityIconManager,
+	public ActivityConfigurationAction(Activity activity,
+			ActivityIconManager activityIconManager,
 			ServiceDescriptionRegistry serviceDescriptionRegistry) {
 		this.activity = activity;
 		this.serviceDescriptionRegistry = serviceDescriptionRegistry;
-		putValue(SMALL_ICON, activityIconManager.iconForActivity(activity.getType()));
+		putValue(SMALL_ICON,
+				activityIconManager.iconForActivity(activity.getType()));
 	}
 
 	protected Activity getActivity() {
@@ -66,29 +65,32 @@ public abstract class ActivityConfigurationAction extends AbstractAction {
 	}
 
 	protected ServiceDescription getServiceDescription() {
-		return serviceDescriptionRegistry.getServiceDescription(activity.getType());
+		return serviceDescriptionRegistry.getServiceDescription(activity
+				.getType());
 	}
 
-	protected static void setDialog(Activity activity, ActivityConfigurationDialog dialog, FileManager fileManager) {
+	protected static void setDialog(Activity activity,
+			ActivityConfigurationDialog dialog, FileManager fileManager) {
 		if (listener == null) {
 			listener = new DataflowCloseListener();
-			// Ensure that the DataflowCloseListener is the first notified listener.  Otherwise you cannot save the configurations.
-			List<Observer<FileManagerEvent>> existingListeners = fileManager.getObservers();
+			/*
+			 * Ensure that the DataflowCloseListener is the first notified
+			 * listener. Otherwise you cannot save the configurations.
+			 */
+			List<Observer<FileManagerEvent>> existingListeners = fileManager
+					.getObservers();
 			fileManager.addObserver(listener);
-			for (Observer<FileManagerEvent> observer : existingListeners) {
+			for (Observer<FileManagerEvent> observer : existingListeners)
 				if (!observer.equals(listener)) {
 					fileManager.removeObserver(observer);
 					fileManager.addObserver(observer);
 				}
-			}
 		}
 		if (configurationDialogs.containsKey(activity)) {
-			ActivityConfigurationDialog currentDialog = configurationDialogs.get(activity);
-			if (!currentDialog.equals(dialog)) {
-				if (currentDialog.isVisible()) {
-					currentDialog.setVisible(false);
-				}
-			}
+			ActivityConfigurationDialog currentDialog = configurationDialogs
+					.get(activity);
+			if (!currentDialog.equals(dialog) && currentDialog.isVisible())
+				currentDialog.setVisible(false);
 		}
 		configurationDialogs.put(activity, dialog);
 		dialog.setVisible(true);
@@ -96,10 +98,10 @@ public abstract class ActivityConfigurationAction extends AbstractAction {
 
 	public static void clearDialog(Activity activity) {
 		if (configurationDialogs.containsKey(activity)) {
-			ActivityConfigurationDialog currentDialog = configurationDialogs.get(activity);
-			if (currentDialog.isVisible()) {
+			ActivityConfigurationDialog currentDialog = configurationDialogs
+					.get(activity);
+			if (currentDialog.isVisible())
 				currentDialog.setVisible(false);
-			}
 			configurationDialogs.remove(activity);
 			currentDialog.dispose();
 		}
@@ -107,14 +109,11 @@ public abstract class ActivityConfigurationAction extends AbstractAction {
 
 	protected static void clearDialog(JDialog dialog) {
 		if (configurationDialogs.containsValue(dialog)) {
-			if (dialog.isVisible()) {
+			if (dialog.isVisible())
 				dialog.setVisible(false);
-			}
-			for (Activity activity : configurationDialogs.keySet()) {
-				if (configurationDialogs.get(activity).equals(dialog)) {
+			for (Activity activity : configurationDialogs.keySet())
+				if (configurationDialogs.get(activity).equals(dialog))
 					configurationDialogs.remove(activity);
-				}
-			}
 			dialog.dispose();
 		}
 	}
@@ -122,13 +121,12 @@ public abstract class ActivityConfigurationAction extends AbstractAction {
 	public static boolean closeDialog(Activity activity) {
 		boolean closeIt = true;
 		if (configurationDialogs.containsKey(activity)) {
-			ActivityConfigurationDialog currentDialog = configurationDialogs.get(activity);
-			if (currentDialog.isVisible()) {
+			ActivityConfigurationDialog currentDialog = configurationDialogs
+					.get(activity);
+			if (currentDialog.isVisible())
 				closeIt = currentDialog.closeDialog();
-			}
-			if (closeIt) {
+			if (closeIt)
 				configurationDialogs.remove(activity);
-			}
 		}
 		return closeIt;
 	}
@@ -137,32 +135,33 @@ public abstract class ActivityConfigurationAction extends AbstractAction {
 		return configurationDialogs.get(activity);
 	}
 
-	private static class DataflowCloseListener implements Observer<FileManagerEvent> {
-
+	private static class DataflowCloseListener implements
+			Observer<FileManagerEvent> {
 		private Scufl2Tools scufl2Tools = new Scufl2Tools();
 
+		@Override
 		public void notify(Observable<FileManagerEvent> sender,
 				FileManagerEvent message) throws Exception {
 			if (message instanceof ClosingDataflowEvent) {
 				ClosingDataflowEvent closingDataflowEvent = (ClosingDataflowEvent) message;
-				if (closingDataflowEvent.isAbortClose()) {
+				if (closingDataflowEvent.isAbortClose())
 					return;
-				}
-				WorkflowBundle workflowBundle = ((ClosingDataflowEvent) message).getDataflow();
-				Profile profile = workflowBundle.getMainProfile();
-				for (Workflow workflow : workflowBundle.getWorkflows()) {
-					for (Processor p : workflow.getProcessors()) {
-						ProcessorBinding processorBinding = scufl2Tools.processorBindingForProcessor(p, profile);
-						Activity activity = processorBinding.getBoundActivity();
-						if (!closeDialog(activity)) {
-							closingDataflowEvent.setAbortClose(true);
-						}
-
-					}
-				}
+				closingDataflow(closingDataflowEvent,
+						((ClosingDataflowEvent) message).getDataflow());
 			}
-
 		}
 
+		private void closingDataflow(ClosingDataflowEvent event,
+				WorkflowBundle bundle) {
+			Profile profile = bundle.getMainProfile();
+			for (Workflow workflow : bundle.getWorkflows())
+				for (Processor p : workflow.getProcessors()) {
+					ProcessorBinding processorBinding = scufl2Tools
+							.processorBindingForProcessor(p, profile);
+					Activity activity = processorBinding.getBoundActivity();
+					if (!closeDialog(activity))
+						event.setAbortClose(true);
+				}
+		}
 	}
 }
