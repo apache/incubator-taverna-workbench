@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.toolbar;
 
+import static net.sf.taverna.t2.workbench.run.toolbar.RunToolbarSection.RUN_TOOLBAR_SECTION;
+
 import java.net.URI;
 
 import javax.swing.Action;
@@ -34,9 +36,9 @@ import net.sf.taverna.t2.workbench.ui.Workbench;
 import uk.org.taverna.platform.run.api.RunService;
 
 public class RunToolbarAction extends AbstractMenuAction {
-
 	private static final URI RUN_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#runToolbarRun");
+
 	private EditManager editManager;
 	private FileManager fileManager;
 	private ReportManager reportManager;
@@ -45,12 +47,13 @@ public class RunToolbarAction extends AbstractMenuAction {
 	private SelectionManager selectionManager;
 
 	public RunToolbarAction() {
-		super(RunToolbarSection.RUN_TOOLBAR_SECTION, 10, RUN_URI);
+		super(RUN_TOOLBAR_SECTION, 10, RUN_URI);
 	}
 
 	@Override
 	protected Action createAction() {
-		return new RunWorkflowAction(editManager, fileManager, reportManager, workbench, runService, selectionManager);
+		return new RunWorkflowAction(editManager, fileManager, reportManager,
+				workbench, runService, selectionManager);
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -76,5 +79,4 @@ public class RunToolbarAction extends AbstractMenuAction {
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
 	}
-
 }

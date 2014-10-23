@@ -20,34 +20,37 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.actions;
 
+import static java.awt.event.KeyEvent.VK_V;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.searchIcon;
+
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 
 @SuppressWarnings("serial")
 public class ValidateWorkflowAction extends AbstractAction {
-
 	private static final String VALIDATE_WORKFLOW = "Validate workflow";
 
-//	protected ReportOnWorkflowAction subAction;
+	protected Action subAction;
 
-	public ValidateWorkflowAction(EditManager editManager, FileManager fileManager,
-			ReportManager reportManager, Workbench workbench) {
-		super(VALIDATE_WORKFLOW, WorkbenchIcons.searchIcon);
-		putValue(Action.MNEMONIC_KEY, KeyEvent.VK_V);
-//		subAction = new ReportOnWorkflowAction("", true, false, editManager, fileManager, reportManager, workbench);
+	public ValidateWorkflowAction(EditManager editManager,
+			FileManager fileManager, ReportManager reportManager,
+			Workbench workbench) {
+		super(VALIDATE_WORKFLOW, searchIcon);
+		putValue(MNEMONIC_KEY, VK_V);
+		// subAction = new ReportOnWorkflowAction("", true, false, editManager,
+		// fileManager, reportManager, workbench);
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent ev) {
-//		subAction.actionPerformed(ev);
+		if (subAction != null)
+			subAction.actionPerformed(ev);
 	}
-
 }

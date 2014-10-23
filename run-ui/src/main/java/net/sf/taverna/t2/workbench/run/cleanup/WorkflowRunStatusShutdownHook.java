@@ -28,47 +28,43 @@ import java.util.List;
 import net.sf.taverna.t2.workbench.ShutdownSPI;
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 import uk.org.taverna.platform.execution.api.InvalidExecutionIdException;
-import uk.org.taverna.platform.report.State;
 import uk.org.taverna.platform.run.api.InvalidRunIdException;
 import uk.org.taverna.platform.run.api.RunService;
 import uk.org.taverna.platform.run.api.RunStateException;
 
 /**
  * Shutdown hook that detects running and paused workflows.
- *
+ * 
  * @author David Withers
  */
 public class WorkflowRunStatusShutdownHook implements ShutdownSPI {
-
 	private static final String RUN_STORE_DIRECTORY = "workflow-runs";
 
 	private RunService runService;
 	private ApplicationConfiguration applicationConfiguration;
 
+	@Override
 	public int positionHint() {
 		return 40;
 	}
 
+	@Override
 	public boolean shutdown() {
 		boolean shutdown = true;
 		List<String> workflowRuns = runService.getRuns();
 		List<String> runningWorkflows = new ArrayList<>();
 		List<String> pausedWorkflows = new ArrayList<>();
-		for (String workflowRun : workflowRuns) {
-			State runState;
+		for (String workflowRun : workflowRuns)
 			try {
-				runState = runService.getState(workflowRun);
-				switch (runState) {
+				switch (runService.getState(workflowRun)) {
 				case PAUSED:
-					pausedWorkflows.add(workflowRun);
-					break;
 				case RUNNING:
-					runningWorkflows.add(workflowRun);
+					pausedWorkflows.add(workflowRun);
+				default:
 					break;
 				}
 			} catch (InvalidRunIdException e) {
 			}
-		}
 		if (runningWorkflows.size() + pausedWorkflows.size() > 0) {
 			WorkflowRunStatusShutdownDialog dialog = new WorkflowRunStatusShutdownDialog(
 					runningWorkflows.size(), pausedWorkflows.size());
@@ -76,25 +72,27 @@ public class WorkflowRunStatusShutdownHook implements ShutdownSPI {
 			shutdown = dialog.confirmShutdown();
 		}
 		if (shutdown) {
-			for (String workflowRun : pausedWorkflows) {
+			for (String workflowRun : pausedWorkflows)
 				try {
 					runService.cancel(workflowRun);
-				} catch (InvalidRunIdException | RunStateException | InvalidExecutionIdException e) {
+				} catch (InvalidRunIdException | RunStateException
+						| InvalidExecutionIdException e) {
 				}
-			}
-			for (String workflowRun : runningWorkflows) {
+			for (String workflowRun : runningWorkflows)
 				try {
 					runService.cancel(workflowRun);
-				} catch (InvalidRunIdException | RunStateException | InvalidExecutionIdException e) {
+				} catch (InvalidRunIdException | RunStateException
+						| InvalidExecutionIdException e) {
 				}
-			}
 			for (String workflowRun : workflowRuns) {
-				File runStore = new File(applicationConfiguration.getApplicationHomeDir(), RUN_STORE_DIRECTORY);
+				File runStore = new File(
+						applicationConfiguration.getApplicationHomeDir(),
+						RUN_STORE_DIRECTORY);
 				try {
-					File file = new File(runStore, runService.getRunName(workflowRun) + ".wfRun");
-					if (!file.exists()) {
+					File file = new File(runStore,
+							runService.getRunName(workflowRun) + ".wfRun");
+					if (!file.exists())
 						runService.save(workflowRun, file);
-					}
 				} catch (InvalidRunIdException | IOException e) {
 				}
 			}
@@ -106,8 +104,7 @@ public class WorkflowRunStatusShutdownHook implements ShutdownSPI {
 		this.runService = runService;
 	}
 
-	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
-		this.applicationConfiguration = applicationConfiguration;
+	public void setApplicationConfiguration(ApplicationConfiguration appConfig) {
+		this.applicationConfiguration = appConfig;
 	}
-
 }

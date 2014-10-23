@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.menu;
 
+import static net.sf.taverna.t2.workbench.run.menu.FileRunMenuSection.FILE_RUN_SECTION_URI;
+
 import java.io.File;
 import java.net.URI;
 
@@ -27,28 +29,26 @@ import javax.swing.Action;
 
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 import uk.org.taverna.platform.run.api.RunService;
-
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.run.actions.OpenWorkflowRunAction;
 
 public class FileOpenRunMenuAction extends AbstractMenuAction {
-
 	private static final String RUN_STORE_DIRECTORY = "workflow-runs";
-
 	private static final URI FILE_OPEN_RUN_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#fileOpenRun");
 
 	private RunService runService;
-
 	private ApplicationConfiguration applicationConfiguration;
 
 	public FileOpenRunMenuAction() {
-		super(FileRunMenuSection.FILE_RUN_SECTION_URI, 20, FILE_OPEN_RUN_URI);
+		super(FILE_RUN_SECTION_URI, 20, FILE_OPEN_RUN_URI);
 	}
 
 	@Override
 	protected Action createAction() {
-		File runStore = new File(applicationConfiguration.getApplicationHomeDir(), RUN_STORE_DIRECTORY);
+		File runStore = new File(
+				applicationConfiguration.getApplicationHomeDir(),
+				RUN_STORE_DIRECTORY);
 		return new OpenWorkflowRunAction(runService, runStore);
 	}
 
@@ -56,8 +56,8 @@ public class FileOpenRunMenuAction extends AbstractMenuAction {
 		this.runService = runService;
 	}
 
-	public void setApplicationConfiguration(ApplicationConfiguration applicationConfiguration) {
+	public void setApplicationConfiguration(
+			ApplicationConfiguration applicationConfiguration) {
 		this.applicationConfiguration = applicationConfiguration;
 	}
-
 }

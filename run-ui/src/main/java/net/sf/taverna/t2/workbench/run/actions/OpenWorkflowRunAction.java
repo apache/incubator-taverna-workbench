@@ -20,6 +20,11 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.actions;
 
+import static javax.swing.JFileChooser.APPROVE_OPTION;
+import static javax.swing.JOptionPane.WARNING_MESSAGE;
+import static javax.swing.JOptionPane.showMessageDialog;
+import static javax.swing.SwingUtilities.invokeLater;
+
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -27,8 +32,6 @@ import java.io.IOException;
 
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 
@@ -45,13 +48,10 @@ import uk.org.taverna.platform.run.api.RunService;
  */
 @SuppressWarnings("serial")
 public class OpenWorkflowRunAction extends AbstractAction {
-
 	private static Logger logger = Logger.getLogger(OpenWorkflowRunAction.class);
-
 	private static final String OPEN_WORKFLOW_RUN = "Open workflow run...";
 
 	private final RunService runService;
-
 	private final File runStore;
 
 	public OpenWorkflowRunAction(RunService runService, File runStore) {
@@ -63,11 +63,10 @@ public class OpenWorkflowRunAction extends AbstractAction {
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		final Component parentComponent;
-		if (e.getSource() instanceof Component) {
+		if (e.getSource() instanceof Component)
 			parentComponent = (Component) e.getSource();
-		} else {
+		else
 			parentComponent = null;
-		}
 		openWorkflowRuns(parentComponent);
 	}
 
@@ -90,8 +89,7 @@ public class OpenWorkflowRunAction extends AbstractAction {
 		fileChooser.setCurrentDirectory(runStore);
 		fileChooser.setMultiSelectionEnabled(true);
 
-		int returnVal = fileChooser.showOpenDialog(parentComponent);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
+		if (fileChooser.showOpenDialog(parentComponent) == APPROVE_OPTION) {
 			final File[] selectedFiles = fileChooser.getSelectedFiles();
 			if (selectedFiles.length == 0) {
 				logger.warn("No files selected");
@@ -100,13 +98,12 @@ public class OpenWorkflowRunAction extends AbstractAction {
 			new SwingWorker<Void, Void>() {
 				@Override
 				public Void doInBackground() {
-					for (final File file : selectedFiles) {
+					for (File file : selectedFiles)
 						try {
 							runService.open(file);
 						} catch (IOException e) {
 							showErrorMessage(parentComponent, file, e);
 						}
-					}
 					return null;
 				}
 			}.execute();
@@ -115,25 +112,24 @@ public class OpenWorkflowRunAction extends AbstractAction {
 
 	/**
 	 * Show an error message if a file could not be opened
-	 *
+	 * 
 	 * @param parentComponent
 	 * @param file
 	 * @param throwable
 	 */
-	protected void showErrorMessage(final Component parentComponent, final File file,
-			final Throwable throwable) {
-		SwingUtilities.invokeLater(new Runnable() {
+	protected void showErrorMessage(final Component parentComponent,
+			final File file, Throwable throwable) {
+		Throwable cause = throwable;
+		while (cause.getCause() != null)
+			cause = cause.getCause();
+		final String message = cause.getMessage();
+		invokeLater(new Runnable() {
+			@Override
 			public void run() {
-				Throwable cause = throwable;
-				while (cause.getCause() != null) {
-					cause = cause.getCause();
-				}
-				JOptionPane.showMessageDialog(parentComponent, "Failed to open workflow from "
-						+ file + ": \n" + cause.getMessage(), "Warning",
-						JOptionPane.WARNING_MESSAGE);
+				showMessageDialog(parentComponent,
+						"Failed to open workflow from " + file + ":\n"
+								+ message, "Warning", WARNING_MESSAGE);
 			}
 		});
-
 	}
-
 }

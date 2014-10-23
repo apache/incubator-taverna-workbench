@@ -20,32 +20,33 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.actions;
 
-import java.awt.Frame;
-import java.awt.Toolkit;
+import static java.awt.Frame.ICONIFIED;
+import static java.awt.Frame.NORMAL;
+import static java.awt.Toolkit.getDefaultToolkit;
+import static java.awt.event.KeyEvent.VK_R;
+import static javax.swing.KeyStroke.getKeyStroke;
+import static javax.swing.SwingUtilities.invokeLater;
+import static net.sf.taverna.t2.reference.ui.InvalidDataflowReport.showErrorDialog;
+import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.runIcon;
+
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
 
 import net.sf.taverna.t2.lang.observer.Observable;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.reference.ui.CopyWorkflowInProgressDialog;
 import net.sf.taverna.t2.reference.ui.CopyWorkflowSwingWorker;
-import net.sf.taverna.t2.reference.ui.InvalidDataflowReport;
 import net.sf.taverna.t2.reference.ui.WorkflowLaunchWindow;
 import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionSPI;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
@@ -73,15 +74,15 @@ import uk.org.taverna.scufl2.api.profiles.Profile;
  * Note that running a workflow will force a clone of the WorkflowBundle, allowing further edits to
  * the current WorkflowBundle without obstructing the run.
  */
+@SuppressWarnings("serial")
 public class RunWorkflowAction extends AbstractAction {
-
-	private static final long serialVersionUID = 1L;
-
 	private static Logger logger = Logger.getLogger(RunWorkflowAction.class);
 
-	// A map of workflows and their corresponding WorkflowLaunchWindowS
-	// We only create one window per workflow and then update its content if the
-	// workflow gets updated
+	/**
+	 * A map of workflows and their corresponding {@link WorkflowLaunchWindow}s.
+	 * We only create one window per workflow and then update its content if the
+	 * workflow gets updated
+	 */
 	private static HashMap<WorkflowBundle, WorkflowLaunchWindow> workflowLaunchWindowMap = new HashMap<>();
 
 	private final EditManager editManager;
@@ -100,59 +101,72 @@ public class RunWorkflowAction extends AbstractAction {
 		this.workbench = workbench;
 		this.runService = runService;
 		this.selectionManager = selectionManager;
-		putValue(SMALL_ICON, WorkbenchIcons.runIcon);
+		putValue(SMALL_ICON, runIcon);
 		putValue(NAME, "Run workflow...");
 		putValue(SHORT_DESCRIPTION, "Run the current workflow");
-		putValue(Action.MNEMONIC_KEY, Integer.valueOf(KeyEvent.VK_R));
-		putValue(Action.ACCELERATOR_KEY, KeyStroke.getKeyStroke(KeyEvent.VK_R, Toolkit
-				.getDefaultToolkit().getMenuShortcutKeyMask()));
+		putValue(MNEMONIC_KEY, VK_R);
+		putValue(
+				ACCELERATOR_KEY,
+				getKeyStroke(VK_R, getDefaultToolkit().getMenuShortcutKeyMask()));
 		fileManager.addObserver(new Observer<FileManagerEvent>() {
+			@Override
 			public void notify(Observable<FileManagerEvent> sender, FileManagerEvent message)
 					throws Exception {
-				if (message instanceof ClosedDataflowEvent) {
-					workflowLaunchWindowMap.remove(((ClosedDataflowEvent) message).getDataflow());
-				}
+				if (message instanceof ClosedDataflowEvent)
+					workflowLaunchWindowMap
+							.remove(((ClosedDataflowEvent) message)
+									.getDataflow());
 			}
 		});
 	}
 
+	@Override
 	public void actionPerformed(ActionEvent e) {
 		final WorkflowBundle workflowBundle = selectionManager.getSelectedWorkflowBundle();
 		final Profile profile = selectionManager.getSelectedProfile();
 		Set<ExecutionEnvironment> executionEnvironments = runService
 				.getExecutionEnvironments(profile);
 		if (executionEnvironments.isEmpty()) {
-			InvalidDataflowReport.showErrorDialog(
+			showErrorDialog(
 					"There are no execution environments capable of running this workflow",
 					"Can't run workflow");
-		} else {
-			// TODO ask user to choose execution environment
-			final ExecutionEnvironment executionEnvironment = executionEnvironments.iterator().next();
-			// TODO update to use Scufl2 validation
-			// if (CheckWorkflowStatus.checkWorkflow(selectedProfile, workbench, editManager,
-			// fileManager,reportManager)) {
-			try {
+			return;
+		}
+
+		// TODO ask user to choose execution environment
+		final ExecutionEnvironment executionEnvironment = executionEnvironments.iterator().next();
+		try {
+			if (validate(workflowBundle, profile)) {
 				if (workflowBundle.getMainWorkflow().getInputPorts().isEmpty()) {
 					final Bundle bundle = DataBundles.createBundle();
-					SwingUtilities.invokeLater(new Runnable() {
+					invokeLater(new Runnable() {
+						@Override
 						public void run() {
-							runWorkflow(workflowBundle, profile, executionEnvironment, bundle);
+							runWorkflow(workflowBundle, profile,
+									executionEnvironment, bundle);
 						}
 					});
-				} else { // workflow had inputs - show the input dialog
-					SwingUtilities.invokeLater(new Runnable() {
+				} else // workflow had inputs - show the input dialog
+					invokeLater(new Runnable() {
+						@Override
 						public void run() {
-							showInputDialog(workflowBundle, profile, executionEnvironment);
+							showInputDialog(workflowBundle, profile,
+									executionEnvironment);
 						}
 					});
 				}
-			} catch (Exception ex) {
-				String message = "Could not run workflow " + workflowBundle.getName();
-				logger.warn(message);
-				InvalidDataflowReport.showErrorDialog(ex.getMessage(), message);
-			}
-			// }
+		} catch (Exception ex) {
+			String message = "Could not run workflow " + workflowBundle.getName();
+			logger.warn(message);
+			showErrorDialog(ex.getMessage(), message);
 		}
+	}
+
+	// TODO update to use Scufl2 validation
+	private boolean validate(WorkflowBundle workflowBundle, Profile selectedProfile) {
+		//CheckWorkflowStatus.checkWorkflow(selectedProfile, workbench, editManager,
+		//		fileManager,reportManager);
+		return true;
 	}
 
 	private void runWorkflow(WorkflowBundle workflowBundle, Profile profile,
@@ -168,21 +182,25 @@ public class RunWorkflowAction extends AbstractAction {
 				| RunStateException | InvalidExecutionIdException e) {
 			String message = "Could not run workflow " + workflowBundle.getName();
 			logger.warn(message, e);
-			InvalidDataflowReport.showErrorDialog(e.getMessage(), message);
+			showErrorDialog(e.getMessage(), message);
 		}
 	}
 
 	private RunProfile createRunProfile(WorkflowBundle workflowBundle, Profile profile,
 			ExecutionEnvironment executionEnvironment, Bundle inputDataBundle) {
-		// Make a copy of the workflow to run so user can still
-		// modify the original workflow
+		/*
+		 * Make a copy of the workflow to run so user can still modify the
+		 * original workflow
+		 */
 		WorkflowBundle workflowBundleCopy = null;
 
-		// CopyWorkflowSwingWorker will make a copy of the workflow and pop
-		// up a modal dialog that will block the GUI while
-		// CopyWorkflowSwingWorker is doing it to let the user know that something is being done.
-		// Blocking of the GUI is needed here so that the user cannot modify the
-		// original workflow while it is being copied.
+		/*
+		 * CopyWorkflowSwingWorker will make a copy of the workflow and pop up a
+		 * modal dialog that will block the GUI while CopyWorkflowSwingWorker is
+		 * doing it to let the user know that something is being done. Blocking
+		 * of the GUI is needed here so that the user cannot modify the original
+		 * workflow while it is being copied.
+		 */
 		CopyWorkflowSwingWorker copyWorkflowSwingWorker = new CopyWorkflowSwingWorker(
 				workflowBundle);
 
@@ -190,59 +208,65 @@ public class RunWorkflowAction extends AbstractAction {
 		copyWorkflowSwingWorker.addPropertyChangeListener(new SwingWorkerCompletionWaiter(dialog));
 		copyWorkflowSwingWorker.execute();
 
-		// Give a chance to the SwingWorker to finish so we do not have to display
-		// the dialog if copying of the workflow is quick (so it won't flicker on the screen)
+		/*
+		 * Give a chance to the SwingWorker to finish so we do not have to
+		 * display the dialog if copying of the workflow is quick (so it won't
+		 * flicker on the screen)
+		 */
 		try {
 			Thread.sleep(500);
 		} catch (InterruptedException e) {
 			// do nothing
 		}
-		if (!copyWorkflowSwingWorker.isDone()) {
+
+		if (!copyWorkflowSwingWorker.isDone())
 			dialog.setVisible(true); // this will block the GUI
-		}
 		// see if user cancelled the dialog
 		boolean userCancelled = dialog.hasUserCancelled();
 
 		if (userCancelled) {
 			// Stop the CopyWorkflowSwingWorker if it is still working
 			copyWorkflowSwingWorker.cancel(true);
-		} else {
-			// Get the workflow copy from the copyWorkflowSwingWorker
-			try {
-				workflowBundleCopy = copyWorkflowSwingWorker.get();
-			} catch (InterruptedException | ExecutionException e) {
-				logger.error("Failed to get the workflow copy", e);
-			}
-
-			if (workflowBundleCopy == null) {
-				InvalidDataflowReport.showErrorDialog(
-						"Unable to make a copy of the workflow to run", "Workflow copy failed");
-			}
-		}
-
-		if (workflowBundleCopy != null) {
-			return new RunProfile(executionEnvironment, workflowBundleCopy, workflowBundleCopy
-					.getMainWorkflow().getName(), profile.getName(), inputDataBundle);
-		} else {
 			return null;
 		}
+
+		// Get the workflow copy from the copyWorkflowSwingWorker
+		try {
+			workflowBundleCopy = copyWorkflowSwingWorker.get();
+		} catch (InterruptedException | ExecutionException e) {
+			logger.error("Failed to get the workflow copy", e);
+		}
+
+		if (workflowBundleCopy == null) {
+			showErrorDialog("Unable to make a copy of the workflow to run",
+					"Workflow copy failed");
+			return null;
+		}
+
+		return new RunProfile(executionEnvironment, workflowBundleCopy,
+				workflowBundleCopy.getMainWorkflow().getName(),
+				profile.getName(), inputDataBundle);
 	}
 
-	@SuppressWarnings("serial")
-	private void showInputDialog(final WorkflowBundle workflowBundle, final Profile profile,
+	private void showInputDialog(final WorkflowBundle workflowBundle,
+			final Profile profile,
 			final ExecutionEnvironment executionEnvironment) {
 		// Get the WorkflowLauchWindow
 		WorkflowLaunchWindow launchWindow = null;
 		synchronized (workflowLaunchWindowMap) {
-			WorkflowLaunchWindow savedLaunchWindow = workflowLaunchWindowMap.get(workflowBundle);
+			WorkflowLaunchWindow savedLaunchWindow = workflowLaunchWindowMap
+					.get(workflowBundle);
 			if (savedLaunchWindow == null) {
-				launchWindow = new WorkflowLaunchWindow(workflowBundle.getMainWorkflow(),
-						editManager, fileManager, reportManager, workbench, new ArrayList<ReferenceActionSPI>(), null) {
-
+				launchWindow = new WorkflowLaunchWindow(
+						workflowBundle.getMainWorkflow(), editManager,
+						fileManager, reportManager, workbench,
+						new ArrayList<ReferenceActionSPI>(), null) {
 					@Override
 					public void handleLaunch(Bundle workflowInputs) {
-						runWorkflow(workflowBundle, profile, executionEnvironment, workflowInputs);
-						setState(Frame.ICONIFIED); // minimise the window
+						runWorkflow(workflowBundle, profile,
+								executionEnvironment, workflowInputs);
+						//TODO T2 now makes the launch window vanish
+						setState(ICONIFIED); // minimise the window
 					}
 
 					@Override
@@ -252,24 +276,24 @@ public class RunWorkflowAction extends AbstractAction {
 					}
 				};
 
-				// Add this window to the map of the workflow input/launch
-				// windows
+				/*
+				 * Add this window to the map of the workflow input/launch
+				 * windows
+				 */
 				workflowLaunchWindowMap.put(workflowBundle, launchWindow);
-
 				launchWindow.setLocationRelativeTo(null);
-			} else {
+			} else
 				launchWindow = savedLaunchWindow;
-			}
 
 			// Display the window
 			launchWindow.setVisible(true);
-			// On Win XP setting the window visible seems not to be enough to
-			// bring the window up if it was minimised previously so we restore
-			// it here
-			if (launchWindow.getState() == Frame.ICONIFIED) {
-				launchWindow.setState(Frame.NORMAL); // restore the window
-			}
+			/*
+			 * On Win XP setting the window visible seems not to be enough to
+			 * bring the window up if it was minimised previously so we restore
+			 * it here
+			 */
+			if (launchWindow.getState() == ICONIFIED)
+				launchWindow.setState(NORMAL); // restore the window
 		}
 	}
-
 }

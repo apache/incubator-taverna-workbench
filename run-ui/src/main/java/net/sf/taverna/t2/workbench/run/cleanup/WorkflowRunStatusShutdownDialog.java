@@ -20,8 +20,18 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.cleanup;
 
-import java.awt.Color;
-import java.awt.Font;
+import static java.awt.Color.WHITE;
+import static java.awt.Font.BOLD;
+import static java.awt.GridBagConstraints.HORIZONTAL;
+import static java.awt.GridBagConstraints.NONE;
+import static java.awt.GridBagConstraints.NORTHWEST;
+import static java.awt.GridBagConstraints.SOUTHEAST;
+import static java.awt.GridBagConstraints.SOUTHWEST;
+import static javax.swing.JOptionPane.WARNING_MESSAGE;
+import static javax.swing.JOptionPane.YES_NO_OPTION;
+import static javax.swing.JOptionPane.YES_OPTION;
+import static javax.swing.JOptionPane.showConfirmDialog;
+
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -31,9 +41,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.WindowConstants;
 
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
@@ -43,44 +51,39 @@ import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
  * 
  * @author David Withers
  */
+@SuppressWarnings("serial")
 public class WorkflowRunStatusShutdownDialog extends HelpEnabledDialog {
-
-	private static final long serialVersionUID = 1L;
-
 	private JButton abortButton;
-
 	private JButton cancelButton;
-
 	private boolean confirmShutdown = true;
 
 	public WorkflowRunStatusShutdownDialog(int runningWorkflows, int pausedWorkflows) {
 		super((Frame) null, "Workflows still running", true);
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
 		setLocationRelativeTo(null);
 
 		GridBagConstraints c = new GridBagConstraints();
 		setLayout(new GridBagLayout());
 
 		JLabel title = new JLabel("Running or paused workflows detected.");
-		title.setFont(title.getFont().deriveFont(Font.BOLD, 14));
+		title.setFont(title.getFont().deriveFont(BOLD, 14));
 
 		abortButton = new JButton("Shutdown now");
 		abortButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
-				int result = JOptionPane
-						.showConfirmDialog(
-								WorkflowRunStatusShutdownDialog.this,
-								"If you close Taverna now all workflows will be cancelled.\nAre you sure you want to close now?",
-								"Confirm Shutdown", JOptionPane.YES_NO_OPTION,
-								JOptionPane.WARNING_MESSAGE);
-				if (result == JOptionPane.YES_OPTION) {
+				if (showConfirmDialog(
+						WorkflowRunStatusShutdownDialog.this,
+						"If you close Taverna now all workflows will be cancelled.\n"
+						+ "Are you sure you want to close now?",
+						"Confirm Shutdown", YES_NO_OPTION, WARNING_MESSAGE) == YES_OPTION)
 					setVisible(false);
-				}
 			}
 		});
 
 		cancelButton = new JButton("Cancel shutdown");
 		cancelButton.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				confirmShutdown = false;
 				setVisible(false);
@@ -94,13 +97,11 @@ public class WorkflowRunStatusShutdownDialog extends HelpEnabledDialog {
 			sb.append(runningWorkflows);
 			sb.append(" running ");
 			sb.append(runningWorkflows > 1 ? "workflows" : "workflow");
-		} else {
+		} else
 			sb.append(pausedWorkflows > 1 ? "are " : "is ");
-		}
 		if (pausedWorkflows > 0) {
-			if (runningWorkflows > 0) {
+			if (runningWorkflows > 0)
 				sb.append(" and ");
-			}
 			sb.append(pausedWorkflows);
 			sb.append(" paused ");
 			sb.append(pausedWorkflows > 1 ? "workflows" : "workflow");
@@ -108,16 +109,16 @@ public class WorkflowRunStatusShutdownDialog extends HelpEnabledDialog {
 		JLabel message = new JLabel(sb.toString());
 
 		JPanel topPanel = new JPanel(new GridBagLayout());
-		topPanel.setBackground(Color.WHITE);
+		topPanel.setBackground(WHITE);
 
-		c.anchor = GridBagConstraints.NORTHWEST;
+		c.anchor = NORTHWEST;
 		c.insets = new Insets(20, 30, 20, 30);
 		c.weightx = 1d;
 		c.weighty = 0d;
 		topPanel.add(title, c);
 
 		c.insets = new Insets(0, 0, 0, 0);
-		c.fill = GridBagConstraints.HORIZONTAL;
+		c.fill = HORIZONTAL;
 		c.gridwidth = 2;
 		c.gridx = 0;
 		add(topPanel, c);
@@ -127,8 +128,8 @@ public class WorkflowRunStatusShutdownDialog extends HelpEnabledDialog {
 		c.weighty = 1d;
 		add(message, c);
 
-		c.fill = GridBagConstraints.NONE;
-		c.anchor = GridBagConstraints.SOUTHWEST;
+		c.fill = NONE;
+		c.anchor = SOUTHWEST;
 		c.insets = new Insets(10, 20, 10, 20);
 		c.weightx = 0.5;
 		c.weighty = 0d;
@@ -136,21 +137,17 @@ public class WorkflowRunStatusShutdownDialog extends HelpEnabledDialog {
 		c.gridwidth = 1;
 		add(cancelButton, c);
 
-		c.anchor = GridBagConstraints.SOUTHEAST;
+		c.anchor = SOUTHEAST;
 		c.gridx = 1;
 		add(abortButton, c);
 
 		setSize(400, 230);
-
 	}
 
 	/**
-	 * Returns <code>true</code> if it's OK to proceed with the shutdown.
-	 * 
 	 * @return <code>true</code> if it's OK to proceed with the shutdown
 	 */
 	public boolean confirmShutdown() {
 		return confirmShutdown;
 	}
-
 }

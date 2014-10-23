@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.menu;
 
+import static net.sf.taverna.t2.workbench.run.menu.FileRunMenuSection.FILE_RUN_SECTION_URI;
+
 import java.net.URI;
 
 import javax.swing.Action;
@@ -32,22 +34,22 @@ import net.sf.taverna.t2.workbench.run.actions.ValidateWorkflowAction;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 
 public class FileValidateMenuAction extends AbstractMenuAction {
-
 	private static final URI FILE_VALIDATE_URI = URI
-	.create("http://taverna.sf.net/2008/t2workbench/menu#fileValidate");
+			.create("http://taverna.sf.net/2008/t2workbench/menu#fileValidate");
+
 	private EditManager editManager;
 	private FileManager fileManager;
 	private ReportManager reportManager;
 	private Workbench workbench;
 
-
 	public FileValidateMenuAction() {
-		super(FileRunMenuSection.FILE_RUN_SECTION_URI, 5, FILE_VALIDATE_URI);
+		super(FILE_RUN_SECTION_URI, 5, FILE_VALIDATE_URI);
 	}
 
 	@Override
 	protected Action createAction() {
-		return new ValidateWorkflowAction(editManager, fileManager, reportManager, workbench);
+		return new ValidateWorkflowAction(editManager, fileManager,
+				reportManager, workbench);
 	}
 
 	public void setEditManager(EditManager editManager) {
@@ -65,5 +67,4 @@ public class FileValidateMenuAction extends AbstractMenuAction {
 	public void setWorkbench(Workbench workbench) {
 		this.workbench = workbench;
 	}
-
 }

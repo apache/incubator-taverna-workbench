@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.run.menu;
 
+import static net.sf.taverna.t2.workbench.run.menu.FileRunMenuSection.FILE_RUN_SECTION_URI;
+
 import java.net.URI;
 
 import javax.swing.Action;
@@ -34,9 +36,9 @@ import net.sf.taverna.t2.workbench.ui.Workbench;
 import uk.org.taverna.platform.run.api.RunService;
 
 public class FileRunMenuAction extends AbstractMenuAction {
-
 	private static final URI FILE_RUN_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#fileRun");
+
 	private EditManager editManager;
 	private FileManager fileManager;
 	private ReportManager reportManager;
@@ -45,7 +47,7 @@ public class FileRunMenuAction extends AbstractMenuAction {
 	private SelectionManager selectionManager;
 
 	public FileRunMenuAction() {
-		super(FileRunMenuSection.FILE_RUN_SECTION_URI, 10, FILE_RUN_URI);
+		super(FILE_RUN_SECTION_URI, 10, FILE_RUN_URI);
 	}
 
 	@Override
@@ -77,5 +79,4 @@ public class FileRunMenuAction extends AbstractMenuAction {
 	public void setSelectionManager(SelectionManager selectionManager) {
 		this.selectionManager = selectionManager;
 	}
-
 }
