@@ -24,12 +24,10 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * {@link FileManagerEvent} that means a dataflow has been opened
- *
+ * 
  * @author Stian Soiland-Reyes
- *
  */
 public class OpenedDataflowEvent extends AbstractDataflowEvent {
-
 	public OpenedDataflowEvent(WorkflowBundle workflowBundle) {
 		super(workflowBundle);
 	}

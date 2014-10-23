@@ -24,14 +24,13 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Abstract FileManagerEvent that relates to a {@link WorkflowBundle}
- *
+ * 
  * @see AbstractDataflowEvent
  * @see ClosedDataflowEvent
  * @see OpenedDataflowEvent
  * @see SavedDataflowEvent
  * @see SetCurrentDataflowEvent
  * @author Stian Soiland-Reyes
- *
  */
 public abstract class AbstractDataflowEvent extends FileManagerEvent {
 	private final WorkflowBundle workflowBundle;

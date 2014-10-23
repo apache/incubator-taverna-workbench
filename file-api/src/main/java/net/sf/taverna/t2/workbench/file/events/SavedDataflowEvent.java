@@ -23,13 +23,11 @@ package net.sf.taverna.t2.workbench.file.events;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
- * {@link FileManagerEvent} that means a WorkflowBundle has been saved
- *
+ * {@link FileManagerEvent} that means a {@link WorkflowBundle} has been saved.
+ * 
  * @author Stian Soiland-Reyes
- *
  */
 public class SavedDataflowEvent extends AbstractDataflowEvent {
-
 	public SavedDataflowEvent(WorkflowBundle workflowBundle) {
 		super(workflowBundle);
 	}

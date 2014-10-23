@@ -20,8 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.exceptions;
 
+/** Indicate that a workflow could not be saved. */
+@SuppressWarnings("serial")
 public class SaveException extends FileException {
-
 	public SaveException() {
 	}
 
@@ -36,5 +37,4 @@ public class SaveException extends FileException {
 	public SaveException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
 }

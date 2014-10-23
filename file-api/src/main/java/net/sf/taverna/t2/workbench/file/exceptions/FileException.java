@@ -20,8 +20,13 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.exceptions;
 
-public class FileException extends Exception {
+import net.sf.taverna.t2.workbench.file.FileManager;
 
+/**
+ * Superclass of exceptions thrown by the {@link FileManager}.
+ */
+@SuppressWarnings("serial")
+public class FileException extends Exception {
 	public FileException() {
 	}
 
@@ -36,5 +41,4 @@ public class FileException extends Exception {
 	public FileException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
 }

@@ -29,23 +29,20 @@ import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
- * A handler for opening or saving WorkflowBundle from the {@link FileManager}.
- * <p>
- * </p>
- *
+ * A handler for opening or saving {@link WorkflowBundle} from the
+ * {@link FileManager}.
+ * 
  * @author Stian Soiland-Reyes
- *
  */
 public interface DataflowPersistenceHandler {
-
 	/**
 	 * A collection of supported file types for
 	 * {@link #openDataflow(FileType, Object)}, or an empty collection if
 	 * opening is not supported by this handler.
-	 *
+	 * 
 	 * @return A collection of supported {@link FileType}s for opening.
 	 */
-	public Collection<FileType> getOpenFileTypes();
+	Collection<FileType> getOpenFileTypes();
 
 	/**
 	 * A collection of supported source classes for
@@ -55,11 +52,11 @@ public interface DataflowPersistenceHandler {
 	 * For example, a handler that supports sources opened from a {@link File}
 	 * and {@link URL} could return
 	 * <code>Arrays.asList(File.class, URL.class)</code>
-	 *
+	 * 
 	 * @return A collection of supported {@link Class}es of the open source
 	 *         types.
 	 */
-	public Collection<Class<?>> getOpenSourceTypes();
+	Collection<Class<?>> getOpenSourceTypes();
 
 	/**
 	 * A collection of supported destination classes for
@@ -69,20 +66,20 @@ public interface DataflowPersistenceHandler {
 	 * For example, a handler that supports saving to destinations that are
 	 * instances of a {@link File} could return
 	 * <code>Arrays.asList(File.class)</code>
-	 *
+	 * 
 	 * @return A collection of supported {{@link Class}es of the save
 	 *         destination types.
 	 */
-	public Collection<Class<?>> getSaveDestinationTypes();
+	Collection<Class<?>> getSaveDestinationTypes();
 
 	/**
 	 * A collection of supported file types for
-	 * {@link #saveDataflow(WorkflowBundle, FileType, Object)}, or an empty collection
-	 * if saving is not supported by this handler.
-	 *
+	 * {@link #saveDataflow(WorkflowBundle, FileType, Object)}, or an empty
+	 * collection if saving is not supported by this handler.
+	 * 
 	 * @return A collection of supported {@link FileType}s for saving.
 	 */
-	public Collection<FileType> getSaveFileTypes();
+	Collection<FileType> getSaveFileTypes();
 
 	/**
 	 * Open a dataflow from a source containing a dataflow of the given
@@ -91,19 +88,19 @@ public interface DataflowPersistenceHandler {
 	 * The {@link FileType} will be equal to one of the types from
 	 * {@link #getOpenFileTypes()}, and the source class will be one that is
 	 * assignable to one of the classes from {@link #getOpenSourceTypes()}.
-	 *
+	 * 
 	 * @param fileType
 	 *            {@link FileType} determining which serialisation method has
 	 *            been used
 	 * @param source
 	 *            Source for reading the WorkflowBundle
-	 * @return {@link DataflowInfo} describing the opened WorkflowBundle, including
-	 *         the WorkflowBundle itself
+	 * @return {@link DataflowInfo} describing the opened WorkflowBundle,
+	 *         including the WorkflowBundle itself
 	 * @throws OpenException
-	 *             If the WorkflowBundle could not be read, parsed or opened for any
-	 *             reason.
+	 *             If the WorkflowBundle could not be read, parsed or opened for
+	 *             any reason.
 	 */
-	public DataflowInfo openDataflow(FileType fileType, Object source)
+	DataflowInfo openDataflow(FileType fileType, Object source)
 			throws OpenException;
 
 	/**
@@ -113,29 +110,30 @@ public interface DataflowPersistenceHandler {
 	 * {@link #getSaveFileTypes()}, and the destination class will be one that
 	 * is assignable to one of the classes from
 	 * {@link #getSaveDestinationTypes()}.
-	 *
+	 * 
 	 * @param dataflow
 	 *            {@link WorkflowBundle} to be saved
 	 * @param fileType
 	 *            {@link FileType} determining which serialisation method to use
 	 * @param destination
 	 *            Destination for writing the WorkflowBundle
-	 * @return {@link DataflowInfo} describing the saved WorkflowBundle, including the
-	 *         WorkflowBundle itself
+	 * @return {@link DataflowInfo} describing the saved WorkflowBundle,
+	 *         including the WorkflowBundle itself
 	 * @throws OpenException
-	 *             If the WorkflowBundle could not be read, parsed or opened for any
-	 *             reason.
+	 *             If the WorkflowBundle could not be read, parsed or opened for
+	 *             any reason.
 	 */
-	public DataflowInfo saveDataflow(WorkflowBundle dataflow, FileType fileType,
+	DataflowInfo saveDataflow(WorkflowBundle dataflow, FileType fileType,
 			Object destination) throws SaveException;
 
 	/**
 	 * Return <code>true</code> if a call to
-	 * {@link #saveDataflow(WorkflowBundle, FileType, Object)} would overwrite the
-	 * destination, and the destination is different from last
+	 * {@link #saveDataflow(WorkflowBundle, FileType, Object)} would overwrite
+	 * the destination, and the destination is different from last
 	 * {@link #openDataflow(FileType, Object)} or
-	 * {@link #saveDataflow(WorkflowBundle, FileType, Object)} of the given dataflow.
-	 *
+	 * {@link #saveDataflow(WorkflowBundle, FileType, Object)} of the given
+	 * dataflow.
+	 * 
 	 * @param dataflow
 	 *            {@link WorkflowBundle} that is to be saved
 	 * @param fileType
@@ -145,10 +143,10 @@ public interface DataflowPersistenceHandler {
 	 * @param lastDataflowInfo
 	 *            last provided {@link DataflowInfo} returned by
 	 *            {@link #openDataflow(FileType, Object)} or
-	 *            {@link #saveDataflow(WorkflowBundle, FileType, Object)}. (but not
-	 *            necessarily from this handler)
+	 *            {@link #saveDataflow(WorkflowBundle, FileType, Object)}. (but
+	 *            not necessarily from this handler)
 	 * @return <code>true</code> if the save would overwrite
 	 */
-	public boolean wouldOverwriteDataflow(WorkflowBundle dataflow, FileType fileType,
+	boolean wouldOverwriteDataflow(WorkflowBundle dataflow, FileType fileType,
 			Object destination, DataflowInfo lastDataflowInfo);
 }

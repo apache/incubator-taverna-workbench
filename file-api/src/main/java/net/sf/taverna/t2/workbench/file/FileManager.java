@@ -51,86 +51,69 @@ import uk.org.taverna.scufl2.api.container.WorkflowBundle;
  * through {@link #getCurrentDataflow()} or by observing the
  * {@link net.sf.taverna.t2.lang.ui.ModelMap} for the model name
  * {@link net.sf.taverna.t2.workbench.ModelMapConstants#CURRENT_DATAFLOW}.
- * </p>
  * <p>
  * A dataflow can be saved using
  * {@link #saveDataflow(WorkflowBundle, FileType, Object, boolean)}. Observers will be
  * presented a {@link SavedDataflowEvent}.
- * </p>
  * <p>
  * If a dataflow was previously opened from a saveable destination or previously
- * saved using {@link #saveDataflow(WorkflowBundle, FileType, Object, boolean)
- *
+ * saved using {@link #saveDataflow(WorkflowBundle, FileType, Object, boolean)},
  * {@link #saveDataflow(WorkflowBundle, boolean)} can be used to resave to that
  * destination.
- * </p>
  * <p>
  * You can get the last opened/saved source and type using
  * {@link #getDataflowSource(WorkflowBundle)} and {@link #getDataflowType(WorkflowBundle)}.
- * </p>
  * <p>
  * If the save methods are used with failOnOverwrite=true, an
  * {@link OverwriteException} will be thrown if the destination file already
  * exists and was not last written by a previous save on that dataflow. (This is
  * typically checked using timestamps on the file).
- * </p>
  * <p>
  * A dataflow can be closed using {@link #closeDataflow(WorkflowBundle, boolean)}. A
  * closed dataflow is no longer monitored for changes and can no longer be used
  * with the other operations, except {@link #openDataflow(WorkflowBundle)}.
- * </p>
  * <p>
  * If a dataflow has been changed using the {@link EditManager},
  * {@link #isDataflowChanged(WorkflowBundle)} will return true until the next save. If
  * the close methods are used with failOnUnsaved=true, an
  * {@link UnsavedException} will be thrown if the dataflow has been changed.
- * </p>
  * <p>
- * The implementation of this FileManager can be discovered using
- * {@link #getInstance()}.
- * </p>
+ * The implementation of this interface is an OSGi Service.
  *
  * @author Stian Soiland-Reyes
- *
  */
 public interface FileManager extends Observable<FileManagerEvent> {
-
-
 	/**
-	 * True if {@link #saveDataflow(WorkflowBundle, boolean)} can save the workflow,
-	 * ie. that there exists an SPI implementation of
+	 * True if {@link #saveDataflow(WorkflowBundle, boolean)} can save the
+	 * workflow, i.e., that there exists an SPI implementation of
 	 * {@link DataflowPersistenceHandler} that can save to
 	 * {@link #getDataflowSource(WorkflowBundle)} using
 	 * {@link #getDataflowType(WorkflowBundle)}.
-	 *
+	 * 
 	 * @see #saveDataflow(WorkflowBundle, boolean)
 	 * @param dataflow
 	 *            The dataflow to check
 	 * @return <code>true</code> if the given dataflow can be saved without
 	 *         providing a destination and filetype
 	 */
-	public abstract boolean canSaveWithoutDestination(WorkflowBundle dataflow);
+	boolean canSaveWithoutDestination(WorkflowBundle dataflow);
 
 	/**
 	 * Close the specified dataflow.
 	 * <p>
 	 * A closed dataflow can no longer be used with the save methods, and will
 	 * disappear from the UI's list of open dataflows.
-	 * </p>
 	 * <p>
 	 * If no more dataflows would be open after the close, a new empty dataflow
 	 * is opened as through {@link #newDataflow()}.
-	 * </p>
 	 * <p>
 	 * If the failOnUnsaved parameters is <code>true</code>, and
 	 * {@link #isDataflowChanged(WorkflowBundle)} is <code>true</code>, an
 	 * {@link UnsavedException} will be thrown, typically because the workflow
 	 * has been changed using the {@link EditManager} since the last change.
-	 * </p>
 	 * <p>
 	 * Listeners registered using {@link Observable#addObserver(Observer)} will
 	 * be notified with an {@link ClosedDataflowEvent}.
-	 * </p>
 	 *
 	 * @param dataflow
 	 *            {@link WorkflowBundle} to close
@@ -140,7 +123,7 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 *             If failOnUnsaved was <code>true</code> and there has been
 	 *             changes to the dataflow since the last save
 	 */
-	public abstract boolean closeDataflow(WorkflowBundle dataflow, boolean failOnUnsaved)
+	boolean closeDataflow(WorkflowBundle dataflow, boolean failOnUnsaved)
 			throws UnsavedException;
 
 	/**
@@ -148,17 +131,15 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * <p>
 	 * The current workflow is typically the one currently showed on the screen,
 	 * and is also in {@link #getOpenDataflows()}.
-	 * </p>
 	 * <p>
 	 * The current dataflow is set through {@link #setCurrentDataflow(WorkflowBundle)}
 	 * or the {@link net.sf.taverna.t2.lang.ui.ModelMap} using the key
 	 * {@link net.sf.taverna.t2.workbench.ModelMapConstants#CURRENT_DATAFLOW}.
-	 * </p>
 	 *
 	 * @return The current dataflow, or <code>null</code> if no dataflow is
 	 *         current
 	 */
-	public abstract WorkflowBundle getCurrentDataflow();
+	WorkflowBundle getCurrentDataflow();
 
 	/**
 	 * Get the dataflow that was opened from or last saved to the given source.
@@ -169,7 +150,7 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * @return The opened {@link WorkflowBundle} or <code>null</code> if no matching
 	 *         dataflow found.
 	 */
-	public abstract WorkflowBundle getDataflowBySource(Object source);
+	WorkflowBundle getDataflowBySource(Object source);
 
 	/**
 	 * Get a name to represent this dataflow.
@@ -188,14 +169,14 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 *            WorkflowBundle to get the name for
 	 * @return The deduced workflow name
 	 */
-	public abstract String getDataflowName(WorkflowBundle dataflow);
+	String getDataflowName(WorkflowBundle dataflow);
 
 	/**
 	 * Returns the default name to use when creating new workflows.
 	 *
 	 * @return the default name to use when creating new workflows
 	 */
-	public abstract String getDefaultWorkflowName();
+	String getDefaultWorkflowName();
 
 	/**
 	 * Get the last opened/saved source/destination for the given dataflow.
@@ -208,14 +189,13 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * If the given dataflow's last opened/saved location was unknown (opened
 	 * with {@link #newDataflow()} or {@link #openDataflow(WorkflowBundle)}), return
 	 * <code>null</code>.
-	 * </p>
 	 *
 	 * @param dataflow
 	 *            {@link WorkflowBundle} which file is to be returned
 	 * @return The last opened/saved source for the given dataflow, or
 	 *         <code>null</code> if unknown.
 	 */
-	public abstract Object getDataflowSource(WorkflowBundle dataflow);
+	Object getDataflowSource(WorkflowBundle dataflow);
 
 	/**
 	 * Get the last opened/saved source/destination FileType for the given
@@ -229,14 +209,13 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * If the given dataflow's last opened/saved file type was unknown (opened
 	 * with {@link #newDataflow()} or {@link #openDataflow(WorkflowBundle)}), return
 	 * <code>null</code>.
-	 * </p>
 	 *
 	 * @param dataflow
 	 *            {@link WorkflowBundle} which file is to be returned
 	 * @return The last opened/saved {@link FileType} for the given dataflow, or
 	 *         <code>null</code> if unknown.
 	 */
-	public abstract FileType getDataflowType(WorkflowBundle dataflow);
+	FileType getDataflowType(WorkflowBundle dataflow);
 
 	/**
 	 * Get the list of currently open dataflows. This list of dataflows are
@@ -245,7 +224,7 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 *
 	 * @return A copy of the {@link List} of open {@link WorkflowBundle}s
 	 */
-	public abstract List<WorkflowBundle> getOpenDataflows();
+	List<WorkflowBundle> getOpenDataflows();
 
 	/**
 	 * Get a list of {@link FileFilter}s for supported {@link FileType}s that
@@ -254,7 +233,7 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * @return A {@link List} of {@link FileFilter}s supported by
 	 *         {@link #openDataflow(FileType, Object)}
 	 */
-	public abstract List<FileFilter> getOpenFileFilters();
+	List<FileFilter> getOpenFileFilters();
 
 	/**
 	 * Get a list of {@link FileFilter}s for supported {@link FileType}s that
@@ -265,17 +244,16 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * @return A {@link List} of {@link FileFilter}s supported by
 	 *         {@link #openDataflow(FileType, Object)}
 	 */
-	public abstract List<FileFilter> getOpenFileFilters(Class<?> sourceClass);
+	List<FileFilter> getOpenFileFilters(Class<?> sourceClass);
 
 	/**
 	 * Get a list of {@link FileFilter}s for supported {@link FileType}s that
 	 * can be saved to any destination class.
 	 *
 	 * @return A {@link List} of {@link FileFilter}s supported by
-	 *         {@link #saveDataflow(WorkflowBundle, FileType, Object, boolean)
-
+	 *         {@link #saveDataflow(WorkflowBundle, FileType, Object, boolean)}
 	 */
-	public abstract List<FileFilter> getSaveFileFilters();
+	List<FileFilter> getSaveFileFilters();
 
 	/**
 	 * Get a list of {@link FileFilter}s for supported {@link FileType}s that
@@ -284,11 +262,9 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * @param destinationClass
 	 *            Destination class that can be saved to
 	 * @return A {@link List} of {@link FileFilter}s supported by
-	 *         {@link #saveDataflow(WorkflowBundle, FileType, Object, boolean)
-
+	 *         {@link #saveDataflow(WorkflowBundle, FileType, Object, boolean)}
 	 */
-	public abstract List<FileFilter> getSaveFileFilters(
-			Class<?> destinationClass);
+	List<FileFilter> getSaveFileFilters(Class<?> destinationClass);
 
 	/**
 	 * Return <code>true</code> if the dataflow has been changed (through the
@@ -300,7 +276,7 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * @return <code>true</code> if the dataflow has been changed since last
 	 *         save.
 	 */
-	public abstract boolean isDataflowChanged(WorkflowBundle dataflow);
+	boolean isDataflowChanged(WorkflowBundle dataflow);
 
 	/**
 	 * True if the given dataflow has been opened and is in
@@ -310,7 +286,7 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 *            Dataflow to check
 	 * @return <code>true</code> if dataflow is open
 	 */
-	public abstract boolean isDataflowOpen(WorkflowBundle dataflow);
+	boolean isDataflowOpen(WorkflowBundle dataflow);
 
 	/**
 	 * Create and open a new, blank dataflow. The dataflow will not initially be
@@ -318,17 +294,15 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * <p>
 	 * Listeners registered using {@link Observable#addObserver(Observer)} will
 	 * be notified with an {@link OpenedDataflowEvent}.
-	 * </p>
 	 * <p>
 	 * Note, if the dataflow is later changed, it will not be possible to save
 	 * it to any original location using
 	 * {@link #saveDataflow(WorkflowBundle, boolean)}, only
 	 * {@link #saveDataflow(WorkflowBundle, FileType, Object, boolean)}.
-	 * </p>
 	 *
 	 * @return The newly opened blank {@link WorkflowBundle}
 	 */
-	public abstract WorkflowBundle newDataflow();
+	WorkflowBundle newDataflow();
 
 	/**
 	 * Open a {@link WorkflowBundle} instance that has been created outside the
@@ -337,13 +311,11 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * <p>
 	 * Listeners registered using {@link Observable#addObserver(Observer)} will
 	 * be notified with an {@link OpenedDataflowEvent}.
-	 * </p>
 	 * <p>
 	 * Note, if the dataflow is later changed, it will not be possible to save
 	 * it to its original location using
 	 * {@link #saveDataflow(WorkflowBundle, boolean)}, only
 	 * {@link #saveDataflow(WorkflowBundle, FileType, Object, boolean)}.
-	 * </p>
 	 * <p>
 	 * Instead of using this option it is recommended to create your own
 	 * {@link FileType} and/or source type and a
@@ -352,13 +324,12 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * <p>
 	 * If there is only one workflow open before opening this workflow, and it
 	 * is an unchanged blank workflow, the blank workflow will be closed.
-	 * </p>
 	 *
 	 * @param dataflow
 	 *            {@link WorkflowBundle} instance that is to be added as an open
 	 *            dataflow
 	 */
-	public abstract void openDataflow(WorkflowBundle dataflow);
+	void openDataflow(WorkflowBundle dataflow);
 
 	/**
 	 * Open a dataflow from a source. The dataflow will not initially be marked
@@ -367,15 +338,12 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * The file manager will find implementations of the SPI
 	 * {@link DataflowPersistenceHandler} to perform the opening for the given file
 	 * type and destination class.
-	 * </p>
 	 * <p>
 	 * Listeners registered using {@link Observable#addObserver(Observer)} will
 	 * be notified with an {@link OpenedDataflowEvent}.
-	 * </p>
 	 * <p>
 	 * If there is only one workflow open before opening this workflow, and it
 	 * is an unchanged blank workflow, the blank workflow will be closed.
-	 * </p>
 	 *
 	 * @param fileType
 	 *            The filetype, for instance
@@ -386,14 +354,13 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 *            The source, for instance a {@link File} or {@link URL}. The
 	 *            source type must be supported by an implementation of
 	 *            DataflowPersistenceHandler.
-	 *
 	 * @return The opened {@link WorkflowBundle}.
 	 * @throws OpenException
 	 *             If there was no matching DataflowPersistenceHandler found or
 	 *             the source could not be opened for any other reason, such as
 	 *             IO errors or syntax errors.
 	 */
-	public abstract WorkflowBundle openDataflow(FileType fileType, Object source)
+	WorkflowBundle openDataflow(FileType fileType, Object source)
 			throws OpenException;
 
 	/**
@@ -403,10 +370,8 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * The file manager will find implementations of the SPI
 	 * {@link DataflowPersistenceHandler} to perform the opening for the given file
 	 * type and destination class.
-	 * </p>
 	 * <p>
 	 * Listeners will <strong>not</strong> be notified.
-	 * </p>
 	 *
 	 * @param fileType
 	 *            The filetype, for instance
@@ -417,25 +382,22 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 *            The source, for instance a {@link File} or {@link URL}. The
 	 *            source type must be supported by an implementation of
 	 *            DataflowPersistenceHandler.
-	 *
 	 * @return The {@link DataflowInfo} describing the opened dataflow.
 	 * @throws OpenException
 	 *             If there was no matching DataflowPersistenceHandler found or
 	 *             the source could not be opened for any other reason, such as
 	 *             IO errors or syntax errors.
 	 */
-	public abstract DataflowInfo openDataflowSilently(FileType fileType, Object source)
+	DataflowInfo openDataflowSilently(FileType fileType, Object source)
 			throws OpenException;
 
 	/**
 	 * Save the dataflow to the last saved destination and FileType from
 	 * {@link #saveDataflow(WorkflowBundle, FileType, Object, boolean)} or the last
 	 * opened source and FileType from {@link #openDataflow(FileType, Object)}.
-	 * </p>
 	 * <p>
 	 * Listeners registered using {@link Observable#addObserver(Observer)} will
 	 * be notified with an {@link SavedDataflowEvent}.
-	 * </p>
 	 *
 	 * @param dataflow
 	 *            Dataflow to save. Dataflow must have been opened with
@@ -456,7 +418,7 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 *             to, such as HTTP URLs), or any other IO error occurring while
 	 *             saving.
 	 */
-	public abstract void saveDataflow(WorkflowBundle dataflow, boolean failOnOverwrite)
+	void saveDataflow(WorkflowBundle dataflow, boolean failOnOverwrite)
 			throws SaveException, OverwriteException;
 
 	/**
@@ -465,11 +427,9 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * The file manager will find implementations of the SPI
 	 * {@link DataflowPersistenceHandler} to perform the save for the given file
 	 * type and destination class.
-	 * </p>
 	 * <p>
 	 * Listeners registered using {@link Observable#addObserver(Observer)} will
 	 * be notified with an {@link SavedDataflowEvent}.
-	 * </p>
 	 *
 	 * @param dataflow
 	 *            {@link Dataflow} to be saved
@@ -498,7 +458,7 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 *             to, such as HTTP URLs), or any other IO error occurring while
 	 *             saving.
 	 */
-	public abstract void saveDataflow(WorkflowBundle dataflow, FileType fileType,
+	void saveDataflow(WorkflowBundle dataflow, FileType fileType,
 			Object destination, boolean failOnOverwrite) throws SaveException,
 			OverwriteException;
 
@@ -509,14 +469,12 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * The file manager will find implementations of the SPI
 	 * {@link DataflowPersistenceHandler} to perform the save for the given file
 	 * type and destination class.
-	 * </p>
 	 * <p>
 	 * Listeners will <strong>not</strong> be notified, and the dataflow does
 	 * not previously have to be opened. getDataflowSource(),
 	 * isDataflowChanged() etc will not be affected - as if the silent save
 	 * never happened.
-	 * </p>
-	 *
+	 * 
 	 * @param dataflow
 	 *            {@link WorkflowBundle} to be saved
 	 * @param fileType
@@ -545,10 +503,9 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 *             to, such as HTTP URLs), or any other IO error occurring while
 	 *             saving.
 	 */
-	public abstract DataflowInfo saveDataflowSilently(WorkflowBundle dataflow, FileType fileType,
+	DataflowInfo saveDataflowSilently(WorkflowBundle dataflow, FileType fileType,
 			Object destination, boolean failOnOverwrite) throws SaveException,
 			OverwriteException;
-
 
 	/**
 	 * Set the current dataflow to the one provided.
@@ -556,11 +513,9 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * The current dataflow can be retrieved using {@link #getCurrentDataflow()}
 	 * . Note that opening a dataflow will normally also set it as the current
 	 * dataflow.
-	 * </p>
 	 * <p>
 	 * Listeners registered using {@link Observable#addObserver(Observer)} will
 	 * be notified with an {@link SetCurrentDataflowEvent}.
-	 * </p>
 	 * <p>
 	 * Note, the dataflow must already be open. If this is not the case, use one
 	 * of the openDataflow() methods or
@@ -570,7 +525,7 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * @param dataflow
 	 *            {@link WorkflowBundle} to be made current
 	 */
-	public abstract void setCurrentDataflow(WorkflowBundle dataflow);
+	void setCurrentDataflow(WorkflowBundle dataflow);
 
 	/**
 	 * Set the current dataflow to the one provided.
@@ -578,11 +533,9 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * The current dataflow can be retrieved using {@link #getCurrentDataflow()}
 	 * . Note that opening a dataflow will normally also set it as the current
 	 * dataflow.
-	 * </p>
 	 * <p>
 	 * Listeners registered using {@link Observable#addObserver(Observer)} will
 	 * be notified with an {@link SetCurrentDataflowEvent}.
-	 * </p>
 	 * <p>
 	 * Unless <code>openIfNeeded</code> is <code>true</code>, the dataflow must
 	 * already be open.
@@ -593,8 +546,7 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * @param openIfNeeded
 	 *            If <code>true</code>, open the dataflow if needed
 	 */
-	public abstract void setCurrentDataflow(WorkflowBundle dataflow,
-			boolean openIfNeeded);
+	void setCurrentDataflow(WorkflowBundle dataflow, boolean openIfNeeded);
 
 	/**
 	 * Set a dataflow as changed or not. This changes the value returned by
@@ -602,7 +554,6 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 * <p>
 	 * This method can be used if the dataflow has been changed outside the
 	 * {@link EditManager}.
-	 * </p>
 	 *
 	 * @param dataflow
 	 *            Dataflow which is to be marked
@@ -610,14 +561,13 @@ public interface FileManager extends Observable<FileManagerEvent> {
 	 *            <code>true</code> if the dataflow is to be marked as changed,
 	 *            <code>false</code> if it is to be marked as not changed.
 	 */
-	public abstract void setDataflowChanged(WorkflowBundle dataflow, boolean isChanged);
+	void setDataflowChanged(WorkflowBundle dataflow, boolean isChanged);
 
 	/**
 	 * Returns the canonical form of the source where the dataflow was opened
 	 * from or saved to. The code for this method was devised based on
 	 * {@link net.sf.taverna.t2.workbench.file.impl.T2DataflowOpener#openDataflow(FileType fileType, Object source)}.
 	 */
-	public abstract Object getCanonical(Object source)
-			throws IllegalArgumentException, URISyntaxException, IOException;
-
+	Object getCanonical(Object source) throws IllegalArgumentException,
+			URISyntaxException, IOException;
 }

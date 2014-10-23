@@ -23,15 +23,13 @@ package net.sf.taverna.t2.workbench.file.events;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
- * {@link FileManagerEvent} that means a WorkflowBundle has been made current
- *
+ * {@link FileManagerEvent} that means a {@link WorkflowBundle} has been made
+ * current.
+ * 
  * @author Stian Soiland-Reyes
- *
  */
 public class SetCurrentDataflowEvent extends AbstractDataflowEvent {
-
 	public SetCurrentDataflowEvent(WorkflowBundle workflowBundle) {
 		super(workflowBundle);
 	}
-
 }

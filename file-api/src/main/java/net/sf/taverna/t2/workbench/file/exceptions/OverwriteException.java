@@ -20,6 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.exceptions;
 
+/** Indicate that something could not be overwritten. */
+@SuppressWarnings("serial")
 public class OverwriteException extends SaveException {
 	private final Object destination;
 

@@ -23,13 +23,11 @@ package net.sf.taverna.t2.workbench.file.events;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
- * {@link FileManagerEvent} that means a WorkflowBundle has been closed
- *
+ * {@link FileManagerEvent} that means a {@link WorkflowBundle} has been closed.
+ * 
  * @author Stian Soiland-Reyes
- *
  */
 public class ClosedDataflowEvent extends AbstractDataflowEvent {
-
 	public ClosedDataflowEvent(WorkflowBundle workflowBundle) {
 		super(workflowBundle);
 	}

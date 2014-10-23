@@ -20,8 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.exceptions;
 
+/** Indicate that something went wrong during opening a file */
+@SuppressWarnings("serial")
 public class OpenException extends FileException {
-
 	public OpenException() {
 	}
 
@@ -36,5 +37,4 @@ public class OpenException extends FileException {
 	public OpenException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
 }

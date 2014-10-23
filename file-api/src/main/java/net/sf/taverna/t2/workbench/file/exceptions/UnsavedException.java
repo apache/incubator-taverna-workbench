@@ -22,8 +22,9 @@ package net.sf.taverna.t2.workbench.file.exceptions;
 
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
+/** Indicate that a workflow bundle is not saved. */
+@SuppressWarnings("serial")
 public class UnsavedException extends FileException {
-
 	private final WorkflowBundle workflowBundle;
 
 	public UnsavedException(WorkflowBundle workflowBundle) {
@@ -34,6 +35,4 @@ public class UnsavedException extends FileException {
 	public WorkflowBundle getDataflow() {
 		return workflowBundle;
 	}
-
-
 }

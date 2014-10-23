@@ -25,15 +25,14 @@ import java.util.Date;
 import uk.org.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
- * Information about a WorkflowBundle that has been opened by the {@link FileManager}.
+ * Information about a WorkflowBundle that has been opened by the
+ * {@link FileManager}.
  * <p>
  * This class, or a subclass of it, is used by
  * {@link DataflowPersistenceHandler}s to keep information about where a
- * WorkflowBundle came from or where it was saved to.
- * </p>
- *
+ * {@link WorkflowBundle} came from or where it was saved to.
+ * 
  * @author Stian Soiland-Reyes
- *
  */
 public class DataflowInfo {
 	private final FileType fileType;
@@ -55,20 +54,18 @@ public class DataflowInfo {
 	}
 
 	/**
-	 * Return the canonical source of where the WorkflowBundle was opened from or
-	 * saved to.
+	 * Return the canonical source of where the WorkflowBundle was opened from
+	 * or saved to.
 	 * <p>
 	 * This is not necessarily the source provided to
 	 * {@link FileManager#openDataflow(FileType, Object)} or
-	 * {@link FileManager#saveDataflow(WorkflowBundle, FileType, Object, boolean)},
-	 * but it's canonical version.
-	 * </p>
+	 * {@link FileManager#saveDataflow(WorkflowBundle, FileType, Object, boolean)}
+	 * , but it's canonical version.
 	 * <p>
 	 * For instance, if a WorkflowBundle was opened from a
-	 * File("relative/something.wfbundle) this canonical source would resolve the
-	 * relative path.
-	 * </p>
-	 *
+	 * File("relative/something.wfbundle) this canonical source would resolve
+	 * the relative path.
+	 * 
 	 * @return
 	 */
 	public Object getCanonicalSource() {
@@ -77,7 +74,7 @@ public class DataflowInfo {
 
 	/**
 	 * Return the WorkflowBundle that is open.
-	 *
+	 * 
 	 * @return The open WorkflowBundle
 	 */
 	public WorkflowBundle getDataflow() {
@@ -90,8 +87,7 @@ public class DataflowInfo {
 	 * <p>
 	 * It is important that this value is checked on creation time, and not on
 	 * demand.
-	 * </p>
-	 *
+	 * 
 	 * @return The {@link Date} of the source/destination's last modified
 	 *         timestamp, or <code>null</code> if unknown.
 	 */
@@ -100,9 +96,9 @@ public class DataflowInfo {
 	}
 
 	/**
-	 * The {@link FileType} of this {@link WorkflowBundle} serialisation used for
-	 * opening/saving.
-	 *
+	 * The {@link FileType} of this {@link WorkflowBundle} serialisation used
+	 * for opening/saving.
+	 * 
 	 * @return The {@link FileType}, for instance
 	 *         {@link net.sf.taverna.t2.workbench.file.impl.WorkflowBundleFileType}
 	 */

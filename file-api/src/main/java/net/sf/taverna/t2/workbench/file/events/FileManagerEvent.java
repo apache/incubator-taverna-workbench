@@ -33,7 +33,6 @@ import net.sf.taverna.t2.workbench.file.FileManager;
  * @see SavedDataflowEvent
  * @see SetCurrentDataflowEvent
  * @author Stian Soiland-Reyes
- * 
  */
 public class FileManagerEvent {
 

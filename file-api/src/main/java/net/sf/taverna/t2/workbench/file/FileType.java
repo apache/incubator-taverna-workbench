@@ -21,19 +21,16 @@
 package net.sf.taverna.t2.workbench.file;
 
 /**
- * A filetype to identify a way to (de)serialise a {@link WorkflowBundle} with the
- * {@link FileManager}.
+ * A filetype to identify a way to (de)serialise a {@link WorkflowBundle} with
+ * the {@link FileManager}.
  * <p>
  * Two filetypes are considered equal if they share an extension or mime type or
  * are the same instance.
- * </p>
- *
+ * 
  * @see net.sf.taverna.t2.workbench.file.impl.WorkflowBundleFileType
  * @author Stian Soiland-Reyes
- *
  */
 public abstract class FileType {
-
 	public abstract String getExtension();
 
 	public abstract String getMimeType();
@@ -45,19 +42,15 @@ public abstract class FileType {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-		if (obj == this) {
+		if (obj == this)
 			return true;
-		}
-		if (!(obj instanceof FileType)) {
+		if (!(obj instanceof FileType))
 			return false;
-		}
 		FileType other = (FileType) obj;
-		if (getMimeType() != null && other.getMimeType() != null) {
+		if (getMimeType() != null && other.getMimeType() != null)
 			return getMimeType().equalsIgnoreCase(other.getMimeType());
-		}
-		if (getExtension() != null && other.getExtension() != null) {
+		if (getExtension() != null && other.getExtension() != null)
 			return getExtension().equalsIgnoreCase(other.getExtension());
-		}
 		return false;
 	}
 
