@@ -26,33 +26,32 @@ import javax.swing.Icon;
 
 /**
  * Defines an interface for getting an icon for an Activity.
- *
+ * 
  * @author Alex Nenadic
- *
  */
 public interface ActivityIconSPI {
-
 	/**
 	 * A return value for {@link canProvideIconScore()} indicating an SPI cannot
 	 * provide an icon for a given activity.
 	 */
-	public static int NO_ICON = 0;
+	int NO_ICON = 0;
 
 	/**
-	 * {@link DefaultActivityIcon} returns this value that will be used when an activity
-	 * that has no other SPI providing an icon for. Any SPI shour return value of at least
-	 * DEFAULT_ICON + 1 if they want to 'override' the default icon.
+	 * {@link DefaultActivityIcon} returns this value that will be used when an
+	 * activity that has no other SPI providing an icon for. Any SPI shour
+	 * return value of at least DEFAULT_ICON + 1 if they want to 'override' the
+	 * default icon.
 	 */
-	public static int DEFAULT_ICON = 10;
+	int DEFAULT_ICON = 10;
 
 	/**
 	 * Returns a positive number if the class can provide an icon for the given
-	 * activity or {@link NO_ICON} otherwise. Out of two SPIs capable of providing
-	 * an icon for the same activity, the one returning a higher score will be used.
+	 * activity or {@link NO_ICON} otherwise. Out of two SPIs capable of
+	 * providing an icon for the same activity, the one returning a higher score
+	 * will be used.
 	 */
-	public int canProvideIconScore(URI activityType);
+	int canProvideIconScore(URI activityType);
 
 	/** Returns an icon for the Activity. */
-	public Icon getIcon(URI activityType);
-
+	Icon getIcon(URI activityType);
 }

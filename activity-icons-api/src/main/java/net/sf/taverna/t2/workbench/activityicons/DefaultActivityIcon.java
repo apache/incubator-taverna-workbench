@@ -26,24 +26,29 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 public class DefaultActivityIcon implements ActivityIconSPI {
+	private static final String ICON_RESOURCE = "/default-activity-icon.png";
 
-	private static ImageIcon icon = null;
-
+	@Override
 	public int canProvideIconScore(URI activityType) {
 		// For any activity we can provide a default icon
 		return DEFAULT_ICON;
 	}
 
+	@Override
 	public Icon getIcon(URI activityType) {
 		return getDefaultIcon();
 	}
-
+	
 	public static Icon getDefaultIcon() {
-		if (icon == null) {
-			icon = new ImageIcon(DefaultActivityIcon.class
-					.getResource("/default-activity-icon.png"));
-		}
-		return icon;
+		return IconLoader.icon;
 	}
 
+	private static class IconLoader {
+		static final Icon icon = loadDefaultIcon();
+
+		private static Icon loadDefaultIcon() {
+			return new ImageIcon(
+					DefaultActivityIcon.class.getResource(ICON_RESOURCE));
+		}
+	}
 }

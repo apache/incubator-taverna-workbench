@@ -28,16 +28,14 @@ import uk.org.taverna.scufl2.api.activity.Activity;
 
 /**
  * Manager for activities' icons.
- *
+ * 
  * @author David Withers
  */
 public interface ActivityIconManager {
-
 	/** Returns an icon for the Activity. */
-	public Icon iconForActivity(URI activityType);
+	Icon iconForActivity(URI activityType);
 
-	public Icon iconForActivity(Activity activity);
+	Icon iconForActivity(Activity activity);
 
-	public void resetIcon(URI activityType);
-
+	void resetIcon(URI activityType);
 }
