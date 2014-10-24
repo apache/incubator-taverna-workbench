@@ -20,11 +20,15 @@
  ******************************************************************************/
 package net.sf.taverna.t2.renderers;
 
-import java.io.File;
+import static org.purl.wf4ever.robundle.Bundles.getReference;
+import static org.purl.wf4ever.robundle.Bundles.getStringValue;
+import static org.purl.wf4ever.robundle.Bundles.isReference;
+import static uk.org.taverna.databundle.DataBundles.isValue;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,53 +36,54 @@ import java.nio.file.Path;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import uk.org.taverna.databundle.DataBundles;
-
 /**
- *
- *
  * @author David Withers
  */
 public class RendererUtils {
-
 	public static long getSizeInBytes(Path path) throws IOException {
-		if (DataBundles.isValue(path)) {
+		if (isValue(path))
 			return Files.size(path);
-		} else if (DataBundles.isReference(path)) {
-			URL url = DataBundles.getReference(path).toURL();
-			String protocol = url.getProtocol();
-			if ("http".equalsIgnoreCase(protocol) || "https".equalsIgnoreCase(protocol)) {
-				String contentLength = url.openConnection().getHeaderField("Content-Length");
-				if (contentLength != null && !contentLength.isEmpty()){
-					return new Long(contentLength);
-				}
-			} else if ("file".equalsIgnoreCase(protocol)) {
-				return FileUtils.toFile(url).length();
-			}
+		if (!isReference(path))
+			throw new IllegalArgumentException(
+					"Path is not a value or reference");
+
+		URL url = getReference(path).toURL();
+		switch (url.getProtocol().toLowerCase()) {
+		case "http":
+		case "https":
+			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("HEAD");
+			conn.connect();
+			String contentLength = conn.getHeaderField("Content-Length");
+			conn.disconnect();
+			if (contentLength != null && !contentLength.isEmpty())
+				return Long.parseLong(contentLength);
 			return -1;
-		} else {
-			throw new IllegalArgumentException("Path is not a value or reference");
+		case "file":
+			return FileUtils.toFile(url).length();
+		default:
+			return -1;
 		}
 	}
 
 	public static String getString(Path path) throws IOException {
-		if (DataBundles.isValue(path)) {
-			return DataBundles.getStringValue(path);
-		} else if (DataBundles.isReference(path)) {
-			return IOUtils.toString(DataBundles.getReference(path));
-		} else {
-			throw new IllegalArgumentException("Path is not a value or reference");
-		}
+		if (isValue(path))
+			return getStringValue(path);
+		else if (isReference(path))
+			return IOUtils.toString(getReference(path));
+		else
+			throw new IllegalArgumentException(
+					"Path is not a value or reference");
 	}
 
-	public static InputStream getInputStream(Path path) throws MalformedURLException, IOException {
-		if (DataBundles.isValue(path)) {
+	public static InputStream getInputStream(Path path)
+			throws MalformedURLException, IOException {
+		if (isValue(path))
 			return Files.newInputStream(path);
-		} else if (DataBundles.isReference(path)) {
-			return DataBundles.getReference(path).toURL().openStream();
-		} else {
-			throw new IllegalArgumentException("Path is not a value or reference");
-		}
+		else if (isReference(path))
+			return getReference(path).toURL().openStream();
+		else
+			throw new IllegalArgumentException(
+					"Path is not a value or reference");
 	}
-
 }

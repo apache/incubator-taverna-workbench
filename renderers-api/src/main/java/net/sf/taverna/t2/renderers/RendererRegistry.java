@@ -23,28 +23,26 @@ package net.sf.taverna.t2.renderers;
 import java.util.List;
 
 /**
- *
- *
+ * Manages the collection of {@linkplain Renderer renderers}.
+ * 
  * @author David Withers
  */
 public interface RendererRegistry {
-
 	/**
 	 * Get all of the available renderers for a specific MIME type. If there is
 	 * a problem with one then catch the exception and log the problem but carry
 	 * on since there is probably more than one way to render the data
-	 *
+	 * 
 	 * @param path
 	 * @param mimeType
 	 * @return
 	 */
-	public List<Renderer> getRenderersForMimeType(String mimeType);
+	List<Renderer> getRenderersForMimeType(String mimeType);
 
 	/**
 	 * Return all the renderers.
-	 *
+	 * 
 	 * @return all the renderers
 	 */
-	public List<Renderer> getRenderers();
-
+	List<Renderer> getRenderers();
 }

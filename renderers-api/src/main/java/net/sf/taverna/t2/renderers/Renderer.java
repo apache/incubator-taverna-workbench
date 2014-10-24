@@ -25,11 +25,9 @@ import java.nio.file.Path;
 import javax.swing.JComponent;
 
 public interface Renderer {
+	boolean canHandle(String mimeType);
 
-	public boolean canHandle(String mimeType);
+	JComponent getComponent(Path path) throws RendererException;
 
-	public JComponent getComponent(Path path) throws RendererException;
-
-	public String getType();
-
+	String getType();
 }
