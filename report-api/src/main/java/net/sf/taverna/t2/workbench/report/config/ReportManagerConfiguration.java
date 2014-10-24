@@ -23,26 +23,22 @@ package net.sf.taverna.t2.workbench.report.config;
 import uk.org.taverna.configuration.Configurable;
 
 /**
- *
- *
  * @author David Withers
  */
 public interface ReportManagerConfiguration extends Configurable {
-
-	public static final String TIMEOUT = "TIMEOUT";
-	public static final String ON_EDIT = "ON_EDIT";
-	public static final String ON_OPEN = "ON_OPEN";
-	public static final String BEFORE_RUN = "BEFORE_RUN";
-	public static final String NO_CHECK = "NoCheck";
-	public static final String QUICK_CHECK = "QuickCheck";
-	public static final String FULL_CHECK = "FullCheck";
-	public static final String NONE = "Do not care";
-	public static final String ERRORS_OR_WARNINGS = "Errors or warnings";
-	public static final String ERRORS = "Errors";
-	public static final String QUERY_BEFORE_RUN = "QUERY_BEFORE_RUN";
-	public static final int DEFAULT_REPORT_EXPIRATION = 0;
-	public static final String REPORT_EXPIRATION = "REPORT_EXPIRATION";
+	String TIMEOUT = "TIMEOUT";
+	String ON_EDIT = "ON_EDIT";
+	String ON_OPEN = "ON_OPEN";
+	String BEFORE_RUN = "BEFORE_RUN";
+	String NO_CHECK = "NoCheck";
+	String QUICK_CHECK = "QuickCheck";
+	String FULL_CHECK = "FullCheck";
+	String NONE = "Do not care";
+	String ERRORS_OR_WARNINGS = "Errors or warnings";
+	String ERRORS = "Errors";
+	String QUERY_BEFORE_RUN = "QUERY_BEFORE_RUN";
+	int DEFAULT_REPORT_EXPIRATION = 0;
+	String REPORT_EXPIRATION = "REPORT_EXPIRATION";
 
 	public void applySettings();
-
 }

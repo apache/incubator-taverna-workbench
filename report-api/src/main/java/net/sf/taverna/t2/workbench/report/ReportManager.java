@@ -12,36 +12,33 @@ import uk.org.taverna.scufl2.validation.Status;
 import net.sf.taverna.t2.lang.observer.Observer;
 //import net.sf.taverna.t2.visit.VisitReport;
 //import net.sf.taverna.t2.visit.VisitReport.Status;
-//import net.sf.taverna.t2.workflowmodel.Dataflow;
 
 public interface ReportManager {
+	void updateReport(Profile p, boolean includeTimeConsuming, boolean remember);
 
-	public void updateReport(Profile p, boolean includeTimeConsuming, boolean remember);
+	void updateObjectSetReport(Profile p, Set<WorkflowBean> objects);
 
-	public void updateObjectSetReport(Profile p, Set<WorkflowBean> objects);
+	void updateObjectReport(Profile p, WorkflowBean o);
 
-	public void updateObjectReport(Profile p, WorkflowBean o);
+	Set<WorkflowBeanReport> getReports(Profile p, WorkflowBean object);
 
-	public Set<WorkflowBeanReport> getReports(Profile p, WorkflowBean object);
+	Map<WorkflowBean, Set<WorkflowBeanReport>> getReports(Profile p);
 
-	public Map<WorkflowBean, Set<WorkflowBeanReport>> getReports(Profile p);
+	boolean isStructurallySound(Profile p);
 
-	public boolean isStructurallySound(Profile p);
+	Status getStatus(Profile p);
 
-	public Status getStatus(Profile p);
+	Status getStatus(Profile p, WorkflowBean object);
 
-	public Status getStatus(Profile p, WorkflowBean object);
+	String getSummaryMessage(Profile p, WorkflowBean object);
 
-	public String getSummaryMessage(Profile p, WorkflowBean object);
+	long getLastCheckedTime(Profile p);
 
-	public long getLastCheckedTime(Profile p);
+	long getLastFullCheckedTime(Profile p);
 
-	public long getLastFullCheckedTime(Profile p);
+	void addObserver(Observer<ReportManagerEvent> observer);
 
-	public void addObserver(Observer<ReportManagerEvent> observer);
+	List<Observer<ReportManagerEvent>> getObservers();
 
-	public List<Observer<ReportManagerEvent>> getObservers();
-
-	public void removeObserver(Observer<ReportManagerEvent> observer);
-
+	void removeObserver(Observer<ReportManagerEvent> observer);
 }
