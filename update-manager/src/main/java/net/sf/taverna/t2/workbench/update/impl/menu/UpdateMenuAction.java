@@ -20,12 +20,16 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.update.impl.menu;
 
+import static javax.swing.JOptionPane.YES_OPTION;
+import static javax.swing.JOptionPane.showConfirmDialog;
+import static javax.swing.JOptionPane.showMessageDialog;
+
+import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.net.URI;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
-import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 
@@ -35,9 +39,7 @@ import uk.org.taverna.commons.update.UpdateException;
 import uk.org.taverna.commons.update.UpdateManager;
 
 public class UpdateMenuAction extends AbstractMenuAction {
-
 	private static final Logger logger = Logger.getLogger(UpdateMenuAction.class);
-
 	private static final URI ADVANCED_MENU_URI = URI
 			.create("http://taverna.sf.net/2008/t2workbench/menu#advanced");
 
@@ -47,28 +49,13 @@ public class UpdateMenuAction extends AbstractMenuAction {
 		super(ADVANCED_MENU_URI, 1000);
 	}
 
+	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
 		return new AbstractAction("Check for updates") {
-
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					boolean updateAvailable = updateManager.checkForUpdates();
-					if (updateAvailable) {
-						int option = JOptionPane.showConfirmDialog(null, "Update available. Update Now?");
-						if (option == JOptionPane.YES_OPTION) {
-							updateManager.update();
-							JOptionPane.showMessageDialog(null, "Update complete. Restart Taverna to apply update.");
-						}
-					} else {
-						JOptionPane.showMessageDialog(null, "No update available");
-					}
-				} catch (UpdateException ex) {
-					JOptionPane.showMessageDialog(null, "Update failed: "  + ex.getMessage());
-					logger.warn("Update failed", ex);
-				}
-
+				findUpdates();
 			}
 		};
 	}
@@ -77,4 +64,29 @@ public class UpdateMenuAction extends AbstractMenuAction {
 		this.updateManager = updateManager;
 	}
 
+	private void findUpdates() {
+		Component parent = null;
+		try {
+			if (!areUpdatesAvailable()) {
+				showMessageDialog(null, "No update available");
+				return;
+			}
+			if (showConfirmDialog(parent, "Update available. Update Now?") != YES_OPTION)
+				return;
+			applyUpdates();
+			showMessageDialog(parent,
+					"Update complete. Restart Taverna to apply update.");
+		} catch (UpdateException ex) {
+			showMessageDialog(parent, "Update failed: " + ex.getMessage());
+			logger.warn("Update failed", ex);
+		}
+	}
+
+	protected boolean areUpdatesAvailable() throws UpdateException {
+		return updateManager.checkForUpdates();
+	}
+
+	protected void applyUpdates() throws UpdateException {
+		updateManager.update();
+	}
 }

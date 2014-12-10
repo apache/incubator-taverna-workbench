@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 
+@SuppressWarnings("unused")
 public class TestRendererSPI {
 	
 	private static final String TEST_NS = "testNS";

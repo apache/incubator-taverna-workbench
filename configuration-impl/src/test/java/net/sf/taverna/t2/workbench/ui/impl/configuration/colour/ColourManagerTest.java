@@ -22,7 +22,6 @@ package net.sf.taverna.t2.workbench.ui.impl.configuration.colour;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.awt.Color;
@@ -35,7 +34,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import uk.org.taverna.configuration.Configurable;
-import uk.org.taverna.configuration.ConfigurationManager;
 import uk.org.taverna.configuration.app.impl.ApplicationConfigurationImpl;
 import uk.org.taverna.configuration.impl.ConfigurationManagerImpl;
 

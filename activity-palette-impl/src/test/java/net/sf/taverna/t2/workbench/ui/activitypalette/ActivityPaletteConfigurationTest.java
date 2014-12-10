@@ -55,7 +55,6 @@ public class ActivityPaletteConfigurationTest {
 		conf.restoreDefaults();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testEmptyList() throws Exception {
 		conf.setPropertyStringList("list", new ArrayList<String>());
@@ -65,10 +64,9 @@ public class ActivityPaletteConfigurationTest {
 		assertEquals("There should be 0 elements",0,list.size());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testSingleItem() throws Exception {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		list.add("fred");
 		conf.setPropertyStringList("single", list);
 
@@ -80,7 +78,7 @@ public class ActivityPaletteConfigurationTest {
 
 	@Test
 	public void testList() throws Exception {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		list.add("fred");
 		list.add("bloggs");
 		conf.setPropertyStringList("list", list);

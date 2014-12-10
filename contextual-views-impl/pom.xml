@@ -11,8 +11,7 @@
 	<artifactId>contextual-views-impl</artifactId>
 	<packaging>bundle</packaging>
 	<name>Contextual Views Implementation</name>
-	<description>Contextual views for the activities
-	</description>
+	<description>Contextual views for the activities</description>
 	<dependencies>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
@@ -33,7 +32,6 @@
 		<dependency>
 			<groupId>javax.help</groupId>
 			<artifactId>javahelp</artifactId>
-                        <version>${javahelp.version}</version>
 		</dependency>
 
 		<dependency>

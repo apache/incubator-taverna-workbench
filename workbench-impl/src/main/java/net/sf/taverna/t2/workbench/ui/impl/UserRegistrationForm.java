@@ -389,7 +389,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		if (previousRegistrationData != null)
 			keepMeInformedCheckBox.setSelected(previousRegistrationData
 					.getKeepMeInformed());
-		keepMeInformedCheckBox.addKeyListener(new java.awt.event.KeyAdapter() {
+		keepMeInformedCheckBox.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent evt) {
 				if (evt.getKeyCode() == VK_ENTER) {
@@ -570,7 +570,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		// Terms and conditions link
 		JEditorPane termsAndConditionsURL = new JEditorPane();
 		termsAndConditionsURL.setEditable(false);
-		termsAndConditionsURL.setBackground(this.getBackground());
+		termsAndConditionsURL.setBackground(getBackground());
 		termsAndConditionsURL.setFocusable(false);
 		HTMLEditorKit kit = new HTMLEditorKit();
 		termsAndConditionsURL.setEditorKit(kit);
@@ -599,8 +599,7 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		gbc.anchor = WEST;
 		gbc.gridwidth = 2;
 		gbc.insets = new Insets(5, 10, 0, 10);
-		JPanel termsAndConditionsPanel = new JPanel(new FlowLayout(
-				FlowLayout.LEFT));
+		JPanel termsAndConditionsPanel = new JPanel(new FlowLayout(LEFT));
 		termsAndConditionsPanel.add(termsAndConditionsCheckBox);
 		termsAndConditionsPanel.add(termsAndConditionsURL);
 		mainPanel.add(termsAndConditionsPanel, gbc);
@@ -697,9 +696,8 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 	protected void doNotRegister() {
 		try {
 			FileUtils.touch(doNotRegisterMeFile);
-			if (remindMeLaterFile.exists()) {
+			if (remindMeLaterFile.exists())
 				remindMeLaterFile.delete();
-			}
 		} catch (IOException ioex) {
 			logger.error(
 					"Failed to touch the 'Do not register me' file at user registration.",
@@ -709,26 +707,25 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 	}
 
 	private void register() {
-		if (validateForm()) {
-			UserRegistrationData regData = new UserRegistrationData();
-			regData.setTavernaVersion(appName);
-			regData.setFirstName(firstNameTextField.getText());
-			regData.setLastName(lastNameTextField.getText());
-			regData.setEmailAddress(emailTextField.getText());
-			regData.setKeepMeInformed(keepMeInformedCheckBox.isSelected());
-			regData.setInstitutionOrCompanyName(institutionOrCompanyTextField
-					.getText());
-			regData.setIndustry(industryTypeTextField.getSelectedItem()
-					.toString());
-			regData.setField(fieldTextField.getText());
-			regData.setPurposeOfUsingTaverna(purposeTextArea.getText());
+		if (!validateForm())
+			return;
+		UserRegistrationData regData = new UserRegistrationData();
+		regData.setTavernaVersion(appName);
+		regData.setFirstName(firstNameTextField.getText());
+		regData.setLastName(lastNameTextField.getText());
+		regData.setEmailAddress(emailTextField.getText());
+		regData.setKeepMeInformed(keepMeInformedCheckBox.isSelected());
+		regData.setInstitutionOrCompanyName(institutionOrCompanyTextField
+				.getText());
+		regData.setIndustry(industryTypeTextField.getSelectedItem().toString());
+		regData.setField(fieldTextField.getText());
+		regData.setPurposeOfUsingTaverna(purposeTextArea.getText());
 
-			if (postUserRegistrationDataToServer(regData)) {
-				saveUserRegistrationData(regData, registrationDataFile);
-				if (remindMeLaterFile.exists())
-					remindMeLaterFile.delete();
-				closeDialog();
-			}
+		if (postUserRegistrationDataToServer(regData)) {
+			saveUserRegistrationData(regData, registrationDataFile);
+			if (remindMeLaterFile.exists())
+				remindMeLaterFile.delete();
+			closeDialog();
 		}
 	}
 
@@ -764,25 +761,24 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 		// Try to retrieve data from file
 		try {
 			props.load(new FileInputStream(propertiesFile));
-			regData.setTavernaVersion(props
-					.getProperty(TAVERNA_VERSION_PROPERTY_NAME));
-			regData.setFirstName(props.getProperty(FIRST_NAME_PROPERTY_NAME));
-			regData.setLastName(props.getProperty(LAST_NAME_PROPERTY_NAME));
-			regData.setEmailAddress(props
-					.getProperty(EMAIL_ADDRESS_PROPERTY_NAME));
-			regData.setKeepMeInformed((props.getProperty(
-					KEEP_ME_INFORMED_PROPERTY_NAME).equals(TRUE) ? true : false));
-			regData.setInstitutionOrCompanyName(props
-					.getProperty(INSTITUTION_OR_COMPANY_PROPERTY_NAME));
-			regData.setIndustry(props.getProperty(INDUSTRY_PROPERTY_NAME));
-			regData.setField(props.getProperty(FIELD_PROPERTY_NAME));
-			regData.setPurposeOfUsingTaverna(props
-					.getProperty(PURPOSE_PROPERTY_NAME));
 		} catch (IOException e) {
 			logger.error("Failed to load old user registration data from "
 					+ propertiesFile.getAbsolutePath(), e);
 			return null;
 		}
+		regData.setTavernaVersion(props
+				.getProperty(TAVERNA_VERSION_PROPERTY_NAME));
+		regData.setFirstName(props.getProperty(FIRST_NAME_PROPERTY_NAME));
+		regData.setLastName(props.getProperty(LAST_NAME_PROPERTY_NAME));
+		regData.setEmailAddress(props.getProperty(EMAIL_ADDRESS_PROPERTY_NAME));
+		regData.setKeepMeInformed(props.getProperty(
+				KEEP_ME_INFORMED_PROPERTY_NAME).equals(TRUE));
+		regData.setInstitutionOrCompanyName(props
+				.getProperty(INSTITUTION_OR_COMPANY_PROPERTY_NAME));
+		regData.setIndustry(props.getProperty(INDUSTRY_PROPERTY_NAME));
+		regData.setField(props.getProperty(FIELD_PROPERTY_NAME));
+		regData.setPurposeOfUsingTaverna(props
+				.getProperty(PURPOSE_PROPERTY_NAME));
 		return regData;
 	}
 
@@ -948,11 +944,10 @@ public class UserRegistrationForm extends HelpEnabledDialog {
 
 			@Override
 			public Insets getBorderInsets(Component c) {
-				if (position == TOP) {
+				if (position == TOP)
 					return new Insets(5, 0, 0, 0);
-				} else {
+				else
 					return new Insets(0, 0, 5, 0);
-				}
 			}
 
 			@Override

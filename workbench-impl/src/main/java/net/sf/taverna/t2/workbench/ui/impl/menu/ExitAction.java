@@ -35,6 +35,7 @@ import net.sf.taverna.t2.workbench.ui.Workbench;
  * @author Stian Soiland-Reyes
  */
 public class ExitAction extends AbstractMenuAction {
+	private static final String EXIT_LABEL = "Exit";
 	private static final String MAC_OS_X = "Mac OS X";
 	private Workbench workbench;
 
@@ -46,7 +47,7 @@ public class ExitAction extends AbstractMenuAction {
 	@SuppressWarnings("serial")
 	@Override
 	protected Action createAction() {
-		return new AbstractAction("Exit") {
+		return new AbstractAction(EXIT_LABEL) {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				workbench.exit();

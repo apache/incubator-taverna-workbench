@@ -27,10 +27,9 @@ import javax.swing.JPanel;
 import uk.org.taverna.commons.update.UpdateManager;
 
 /**
- *
- *
  * @author David Withers
  */
+@SuppressWarnings({ "serial", "unused" })
 public class UpdateManagerView extends JPanel {
 
 	private UpdateManager updateManager;
@@ -43,5 +42,4 @@ public class UpdateManagerView extends JPanel {
 	private void initialize() {
 		setLayout(new GridBagLayout());
 	}
-
 }

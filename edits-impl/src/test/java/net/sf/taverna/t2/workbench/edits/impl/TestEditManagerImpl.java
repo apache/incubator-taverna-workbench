@@ -231,8 +231,9 @@ public class TestEditManagerImpl {
 
 	private class EditManagerObserver implements Observer<EditManagerEvent> {
 
-		public List<EditManagerEvent> events = new ArrayList<EditManagerEvent>();
+		public List<EditManagerEvent> events = new ArrayList<>();
 
+		@Override
 		public void notify(Observable<EditManagerEvent> sender,
 				EditManagerEvent message) throws Exception {
 			events.add(message);

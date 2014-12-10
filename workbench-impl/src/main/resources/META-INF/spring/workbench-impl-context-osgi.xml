@@ -11,7 +11,11 @@
 
 	<service ref="StoreWindowStateOnShutdown" interface="net.sf.taverna.t2.workbench.ShutdownSPI" />
 
-	<service ref="ExitAction" auto-export="interfaces" />
+	<service ref="ExitAction" auto-export="interfaces">
+		<service-properties>
+			<beans:entry key="menu.action" value="file.exit" />
+		</service-properties>
+	</service>
 
 	<service ref="Workbench" interface="net.sf.taverna.t2.workbench.ui.Workbench" />
 

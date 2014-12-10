@@ -20,6 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.selection.impl;
 
+import static net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage.Type.ADDED;
+import static net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage.Type.REMOVED;
+
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -30,7 +33,6 @@ import net.sf.taverna.t2.lang.observer.MultiCaster;
 import net.sf.taverna.t2.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
-import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage.Type;
 
 /**
  * Default implementation of a <code>DataflowSelectionModel</code>.
@@ -38,26 +40,21 @@ import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage.Typ
  * @author David Withers
  */
 public class DataflowSelectionModelImpl implements DataflowSelectionModel {
-
 	private MultiCaster<DataflowSelectionMessage> multiCaster;
-
-	private Set<Object> selection = new TreeSet<Object>(new Comparator<Object>() {
+	private Set<Object> selection = new TreeSet<>(new Comparator<Object>() {
 		@Override
 		public int compare(Object o1, Object o2) {
-			if (o1 == o2) {
+			if (o1 == o2)
 				return 0;
-			} else {
-				return o1.hashCode() - o2.hashCode();
-			}
+			return o1.hashCode() - o2.hashCode();
 		}
 	});
 
 	/**
 	 * Constructs a new instance of DataflowSelectionModelImpl.
-	 *
 	 */
 	public DataflowSelectionModelImpl() {
-		multiCaster = new MultiCaster<DataflowSelectionMessage>(this);
+		multiCaster = new MultiCaster<>(this);
 	}
 
 	@Override
@@ -66,46 +63,40 @@ public class DataflowSelectionModelImpl implements DataflowSelectionModel {
 			if (!selection.contains(element)) {
 				clearSelection();
 				selection.add(element);
-				multiCaster.notify(new DataflowSelectionMessage(Type.ADDED, element));
+				multiCaster.notify(new DataflowSelectionMessage(ADDED, element));
 			}
 		}
 	}
 
 	@Override
 	public void clearSelection() {
-		for (Object element : new HashSet<Object>(selection)) {
+		for (Object element : new HashSet<>(selection))
 			removeSelection(element);
-		}
 	}
 
 	@Override
 	public Set<Object> getSelection() {
-		return new HashSet<Object>(selection);
+		return new HashSet<>(selection);
 	}
 
 	@Override
 	public void removeSelection(Object element) {
-		if (element != null && selection.remove(element)) {
-			multiCaster
-					.notify(new DataflowSelectionMessage(Type.REMOVED, element));
-		}
+		if (element != null && selection.remove(element))
+			multiCaster.notify(new DataflowSelectionMessage(REMOVED, element));
 	}
 
 	@Override
 	public void setSelection(Set<Object> elements) {
 		if (elements == null) {
 			clearSelection();
-		} else {
-			Set<Object> newSelection = new HashSet<Object>(elements);
-			for (Object element : new HashSet<Object>(selection)) {
-				if (!newSelection.remove(element)) {
-					removeSelection(element);
-				}
-			}
-			for (Object element : newSelection) {
-				addSelection(element);
-			}
+			return;
 		}
+		Set<Object> newSelection = new HashSet<>(elements);
+		for (Object element : new HashSet<>(selection))
+			if (!newSelection.remove(element))
+				removeSelection(element);
+		for (Object element : newSelection)
+			addSelection(element);
 	}
 
 	@Override
@@ -122,5 +113,4 @@ public class DataflowSelectionModelImpl implements DataflowSelectionModel {
 	public void removeObserver(Observer<DataflowSelectionMessage> observer) {
 		multiCaster.removeObserver(observer);
 	}
-
 }

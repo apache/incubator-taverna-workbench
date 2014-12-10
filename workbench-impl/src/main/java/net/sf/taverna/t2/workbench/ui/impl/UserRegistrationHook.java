@@ -30,6 +30,8 @@ import net.sf.taverna.t2.workbench.StartupSPI;
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
 public class UserRegistrationHook implements StartupSPI {
+	/** Delay between when we ask the user about registration, in milliseconds */
+	private static final int TWO_WEEKS = 14 * 24 * 3600 * 1000;
 	public static final String REGISTRATION_DIRECTORY_NAME = "registration";
 	public static final String REGISTRATION_DATA_FILE_NAME = "registration_data.properties";
 	public static final String REMIND_ME_LATER_FILE_NAME = "remind_me_later";
@@ -74,7 +76,7 @@ public class UserRegistrationHook implements StartupSPI {
 		if (remindMeLaterFile.exists()) {
 			long lastModified = remindMeLaterFile.lastModified();
 			long now = new Date().getTime();
-			if (now - lastModified < 14 * 24 * 3600 * 1000)
+			if (now - lastModified < TWO_WEEKS)
 				// 2 weeks have not passed since we last asked
 				return true;
 
@@ -123,22 +125,22 @@ public class UserRegistrationHook implements StartupSPI {
 				previousRegistrationDataFile = regFile;
 		}
 
-		if (previousRegistrationDataFile == null) {
+		UserRegistrationForm form;
+		if (previousRegistrationDataFile == null)
 			// No previous registration file - ask user to register
-			UserRegistrationForm form = new UserRegistrationForm(
-					applicationConfiguration.getName(), registrationDataFile,
-					doNotRegisterMeFile, remindMeLaterFile);
-			form.setVisible(true);
-			return true;
-		} else {
-			// Fill in user's old registration data in the form and ask them to register
-			UserRegistrationForm form = new UserRegistrationForm(
-					applicationConfiguration.getName(),
+			form = new UserRegistrationForm(applicationConfiguration.getName(),
+					registrationDataFile, doNotRegisterMeFile,
+					remindMeLaterFile);
+		else
+			/*
+			 * Fill in user's old registration data in the form and ask them to
+			 * register
+			 */
+			form = new UserRegistrationForm(applicationConfiguration.getName(),
 					previousRegistrationDataFile, registrationDataFile,
 					doNotRegisterMeFile, remindMeLaterFile);
-			form.setVisible(true);
-			return true;
-		}
+		form.setVisible(true);
+		return true;
 	}
 
 	/**

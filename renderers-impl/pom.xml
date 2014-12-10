@@ -43,14 +43,12 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.log4j</groupId>
-			<artifactId>com.springsource.org.apache.log4j</artifactId>
-			<version>${log4j.version}</version>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.jdom</groupId>
 			<artifactId>com.springsource.org.jdom</artifactId>
-			<version>${jdom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fife.ui.hex</groupId>
