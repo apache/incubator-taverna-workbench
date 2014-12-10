@@ -338,7 +338,6 @@ public class FileManagerTest {
 
 	@Test(expected = OverwriteException.class)
 	public void saveOverwriteWarningFails() throws Exception {
-		@SuppressWarnings("unused")
 		WorkflowBundle dataflow = openDataflow();
 		File dataflowFile = File.createTempFile("test", ".t2flow");
 		dataflowFile.deleteOnExit();
@@ -348,7 +347,6 @@ public class FileManagerTest {
 
 	@Test
 	public void saveOverwriteWarningWorks() throws Exception {
-		@SuppressWarnings("unused")
 		WorkflowBundle dataflow = openDataflow();
 		File dataflowFile = File.createTempFile("test", ".t2flow");
 		dataflowFile.delete();
@@ -373,6 +371,7 @@ public class FileManagerTest {
 	private final class FileManagerObserver implements Observer<FileManagerEvent> {
 		protected List<FileManagerEvent> messages = new ArrayList<FileManagerEvent>();
 
+		@Override
 		public void notify(Observable<FileManagerEvent> sender, FileManagerEvent message) throws Exception {
 			messages.add(message);
 			if (message instanceof SetCurrentDataflowEvent) {
