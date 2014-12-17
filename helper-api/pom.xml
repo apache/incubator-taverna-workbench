@@ -31,32 +31,28 @@
 			<artifactId>workbench-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>javax.help</groupId>
 			<artifactId>javahelp</artifactId>
-			<version>${javahelp.version}</version>
 			<scope>provided</scope>
 		</dependency>
 		<!-- Required by javahelp -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>com.springsource.javax.servlet</artifactId>
-			<version>${javax.servlet.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>com.springsource.javax.servlet.jsp</artifactId>
-			<version>${javax.servlet.jsp.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.el</groupId>
 			<artifactId>com.springsource.javax.el</artifactId>
-			<version>${javax.el.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.log4j</groupId>
 			<artifactId>com.springsource.org.apache.log4j</artifactId>
-			<version>${log4j.version}</version>
 		</dependency>
 	</dependencies>
 </project>

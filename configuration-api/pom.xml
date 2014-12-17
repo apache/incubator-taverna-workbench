@@ -17,8 +17,6 @@
 		<dependency>
 			<groupId>uk.org.taverna.configuration</groupId>
 			<artifactId>taverna-configuration-api</artifactId>
-			<version>${taverna.configuration.version}</version>
 		</dependency>
 	</dependencies>
-
 </project>
