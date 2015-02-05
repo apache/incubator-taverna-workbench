@@ -1,0 +1,3 @@
+net.sf.taverna.t2.activities.stringconstant.menu.AddStringConstantTemplateAction
+net.sf.taverna.t2.activities.stringconstant.menu.AddStringConstantTemplateMenuAction
+net.sf.taverna.t2.activities.stringconstant.menu.ConfigureStringConstantMenuAction
