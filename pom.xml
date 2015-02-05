@@ -19,6 +19,10 @@
     <taverna.commonactivities.version>2.1.0-incubating-SNAPSHOT</taverna.commonactivities.version>
   </properties>
 	<modules>
+    <module>taverna-dataflow-activity-ui</module>
+    <module>taverna-disabled-activity-ui</module>
+    <module>taverna-stringconstant-activity-ui</module>
+    <module>taverna-unrecognized-activity-ui</module>
     <module>taverna-workbench-activity-icons-api</module>
     <module>taverna-workbench-activity-palette-api</module>
     <module>taverna-workbench-activity-palette-impl</module>
