@@ -1,5 +1,0 @@
-net.sf.taverna.t2.workbench.run.cleanup.ReferenceDatabaseCleanUpShutdownHook
-net.sf.taverna.t2.workbench.run.cleanup.ReferenceServiceShutdownHook
-net.sf.taverna.t2.workbench.run.cleanup.RemoveDataflowRunsShutdownHook
-net.sf.taverna.t2.workbench.run.cleanup.StoreRunIdsToDeleteLaterShutdownHook
-net.sf.taverna.t2.workbench.run.cleanup.WorkflowRunStatusShutdownHook
