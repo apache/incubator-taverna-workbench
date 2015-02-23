@@ -1,0 +1,4 @@
+#net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorContextualViewFactory
+net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorDispatchStackContextualViewFactory
+net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorPredictedBehaviorContextualViewFactory
+net.sf.taverna.t2.workbench.ui.views.contextualviews.processor.ProcessorActivitiesContextualViewFactory

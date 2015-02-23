@@ -1,0 +1,10 @@
+net.sf.taverna.t2.workbench.ui.menu.CopyProcessorMenuAction
+
+net.sf.taverna.t2.workbench.ui.menu.CopyGraphComponentMenuAction
+net.sf.taverna.t2.workbench.ui.menu.PasteGraphComponentMenuAction
+net.sf.taverna.t2.workbench.ui.menu.CutProcessorMenuAction
+net.sf.taverna.t2.workbench.ui.menu.CutGraphComponentMenuAction
+
+net.sf.taverna.t2.workbench.ui.toolbar.CutToolbarAction
+net.sf.taverna.t2.workbench.ui.toolbar.CopyToolbarAction
+net.sf.taverna.t2.workbench.ui.toolbar.PasteToolbarAction
