@@ -7,8 +7,7 @@
 		<artifactId>lang</artifactId>
 		<version>2.0.1-SNAPSHOT</version>
 	</parent>
-	<groupId>net.sf.taverna.t2.lang</groupId>
-	<artifactId>uibuilder</artifactId>
+	<artifactId>taverna-uibuilder</artifactId>
 	<packaging>bundle</packaging>
 	<name>UI builder based on beans</name>
 	<dependencies>

@@ -8,7 +8,7 @@
 		<version>2.0.1-SNAPSHOT</version>
 	</parent>
 	<groupId>net.sf.taverna.t2.lang</groupId>
-	<artifactId>beans</artifactId>
+	<artifactId>taverna-beaninfo</artifactId>
 	<packaging>bundle</packaging>
 	<name>BeanInfo extensions</name>
 	<dependencies>
