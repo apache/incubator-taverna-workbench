@@ -32,22 +32,22 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>selection-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>workbench-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>monitor-view</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>results-view</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>

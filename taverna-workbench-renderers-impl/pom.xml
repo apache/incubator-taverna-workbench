@@ -44,7 +44,7 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>renderers-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>

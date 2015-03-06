@@ -31,27 +31,27 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>workbench-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>file-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>report-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>menu-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>activity-icons-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
@@ -61,12 +61,12 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>helper</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>workbench-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>

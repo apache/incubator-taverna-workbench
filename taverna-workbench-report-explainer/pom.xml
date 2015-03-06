@@ -33,7 +33,7 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>report-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-exts</groupId>
@@ -73,27 +73,27 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>edits-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>file-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>configuration-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>report-view</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>design-ui</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>

@@ -30,37 +30,37 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>menu-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>report-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>selection-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>workbench-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>design-ui</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>graph-view</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>workflow-view</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
@@ -82,7 +82,7 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>contextual-views-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 	</dependencies>
 </project>

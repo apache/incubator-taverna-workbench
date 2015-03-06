@@ -28,39 +28,39 @@
 	<name>Apache Taverna Dataflow Activity UI</name>
 	<dependencies>
 		<dependency>
-			<groupId>${parent.project.groupId}</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-icons-api</artifactId>
-			<version>${parent.project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${parent.project.groupId}</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-palette-api</artifactId>
-			<version>${parent.project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${parent.project.groupId}</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>contextual-views-api</artifactId>
-			<version>${parent.project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${parent.project.groupId}</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>file-api</artifactId>
-			<version>${parent.project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${parent.project.groupId}</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>edits-api</artifactId>
-			<version>${parent.project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${parent.project.groupId}</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>workflow-view</artifactId>
-			<version>${parent.project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${parent.project.groupId}</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>graph-view</artifactId>
-			<version>${parent.project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.taverna.language</groupId>
@@ -75,27 +75,27 @@
 		</dependency>
 
 		<dependency>
-			<groupId>${parent.project.groupId}</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-tools</artifactId>
-			<version>${parent.project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${parent.project.groupId}</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>helper-api</artifactId>
-			<version>${parent.project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 
 		<!--  testing dependencies -->
 		<dependency>
-			<groupId>${parent.project.groupId}</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>file-impl</artifactId>
-			<version>${parent.project.version}</version>
+			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>${parent.project.groupId}</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>edits-impl</artifactId>
-			<version>${parent.project.version}</version>
+			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- <dependency>

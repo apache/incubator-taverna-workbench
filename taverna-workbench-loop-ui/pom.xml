@@ -30,24 +30,24 @@
         <dependency>
             <groupId>net.sf.taverna.t2.ui-api</groupId>
             <artifactId>contextual-views-api</artifactId>
-            <version>${t2.ui.api.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
 
 
         <dependency>
             <groupId>net.sf.taverna.t2.ui-api</groupId>
             <artifactId>file-api</artifactId>
-            <version>${t2.ui.api.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.taverna.t2.ui-api</groupId>
             <artifactId>edits-api</artifactId>
-            <version>${t2.ui.api.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.taverna.t2.ui-api</groupId>
             <artifactId>helper-api</artifactId>
-            <version>${t2.ui.api.version}</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>net.sf.taverna.t2.ui-activities</groupId>
@@ -58,26 +58,26 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>edits-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>file-impl</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
 
         <dependency>
             <groupId>net.sf.taverna.t2.ui-impl</groupId>
             <artifactId>contextual-views-impl</artifactId>
-            <version>${t2.ui.impl.version}</version>
+            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
             <dependency>
             <groupId>net.sf.taverna.t2.ui-impl</groupId>
             <artifactId>selection-impl</artifactId>
-            <version>${t2.ui.impl.version}</version>
+            <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
 

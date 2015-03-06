@@ -39,7 +39,7 @@
 
 	<dependencies>
 		<!-- <dependency> <groupId>net.sf.taverna.t2.ui-api</groupId> <artifactId>perspective-core</artifactId>
-			<version>${t2.ui.api.version}</version> </dependency> -->
+			<version>${project.parent.version}</version> </dependency> -->
 		<dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>
 			<artifactId>workflowmodel-impl</artifactId>
@@ -48,12 +48,12 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>menu-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>file-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-api</groupId>
 			<artifactId>contextual-views-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<!-- required for inserting a SOAP processor into the current workflow -->
 		<dependency>
@@ -83,13 +83,13 @@
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-components</groupId>
 			<artifactId>workflow-view</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<!-- required registering with and opening help window -->
 		<dependency>
 			<groupId>net.sf.taverna.t2.ui-impl</groupId>
 			<artifactId>helper</artifactId>
-			<version>${t2.ui.impl.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>uk.org.taverna.configuration</groupId>
