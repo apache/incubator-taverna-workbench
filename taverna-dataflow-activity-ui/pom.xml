@@ -1,56 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-                <groupId>net.sf.taverna</groupId>
-                <artifactId>taverna-parent</artifactId>
-                <version>3.0.1-SNAPSHOT</version>
+		<groupId>org.apache.taverna.workbench</groupId>
+		<artifactId>taverna-workbench</artifactId>
+		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<groupId>net.sf.taverna.t2.ui-activities</groupId>
-	<artifactId>dataflow-activity-ui</artifactId>
-        <version>2.0-SNAPSHOT</version>
+	<artifactId>taverna-dataflow-activity-ui</artifactId>
 	<packaging>bundle</packaging>
-	<name>Taverna 2 Dataflow Activity UI</name>
+	<name>Apache Taverna Dataflow Activity UI</name>
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${parent.project.groupId}</groupId>
 			<artifactId>activity-icons-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${parent.project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${parent.project.groupId}</groupId>
 			<artifactId>activity-palette-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${parent.project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${parent.project.groupId}</groupId>
 			<artifactId>contextual-views-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${parent.project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${parent.project.groupId}</groupId>
 			<artifactId>file-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${parent.project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${parent.project.groupId}</groupId>
 			<artifactId>edits-api</artifactId>
-			<version>${t2.ui.api.version}</version>
+			<version>${parent.project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<groupId>${parent.project.groupId}</groupId>
 			<artifactId>workflow-view</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>${parent.project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<groupId>${parent.project.groupId}</groupId>
 			<artifactId>graph-view</artifactId>
-			<version>${t2.ui.components.version}</version>
+			<version>${parent.project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>uk.org.taverna.scufl2</groupId>
-			<artifactId>scufl2-api</artifactId>
-			<version>${scufl2.version}</version>
+			<groupId>org.apache.taverna.language</groupId>
+			<artifactId>taverna-scufl2-api</artifactId>
+			<version>${taverna.language.version}</version>
 		</dependency>
 
 		<dependency>
