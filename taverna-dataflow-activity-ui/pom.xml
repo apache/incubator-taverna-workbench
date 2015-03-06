@@ -100,7 +100,7 @@
 		</dependency>
 		<!-- <dependency>
 			<groupId>org.apache.taverna.language</groupId>
-			<artifactId>taverna-scufl2-t2flow</artifactId>
+			<artifactId>taverna-scufl2-wfbundle</artifactId>
 			<version>${taverna.language.version}</version>
 			<scope>test</scope>
 		</dependency> -->
