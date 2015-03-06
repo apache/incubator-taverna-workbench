@@ -29,27 +29,27 @@
 	<name>Taverna 2 StringConstant Activity UI</name>
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-icons-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-palette-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>menu-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>contextual-views-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>workflow-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
@@ -72,18 +72,18 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- <dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-palette-impl</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency> -->
 		<!-- <dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-tools</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency> -->
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-tools</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>

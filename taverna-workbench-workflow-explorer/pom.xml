@@ -29,47 +29,47 @@
 	<description>Workflow Explorer</description>
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>workbench-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>file-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>report-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>menu-impl</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-icons-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>design-ui</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>helper</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>workbench-impl</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>workflow-view</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -78,7 +78,7 @@
 			<artifactId>taverna-services-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>uk.org.taverna.scufl2</groupId>
+			<groupId>org.apache.taverna.language</groupId>
 			<artifactId>scufl2-api</artifactId>
 		</dependency>
 

@@ -34,17 +34,17 @@
 
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>report-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>graph-view</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<!-- <dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>report-view</artifactId>
 			<version>${project.version}</version>
 		</dependency> -->

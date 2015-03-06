@@ -43,32 +43,32 @@
 			<version>${t2.lang.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>workbench-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>edits-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-palette-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>contextual-views-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-tools</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>design-ui</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -77,7 +77,7 @@
 			<artifactId>taverna-services-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>uk.org.taverna.scufl2</groupId>
+			<groupId>org.apache.taverna.language</groupId>
 			<artifactId>scufl2-api</artifactId>
 		</dependency>
 

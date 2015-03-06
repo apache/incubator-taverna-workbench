@@ -29,37 +29,37 @@
 	<description>Contextual views for the activities</description>
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-icons-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-palette-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>configuration-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>edits-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>file-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>helper-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>workbench-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
@@ -73,7 +73,7 @@
 			<artifactId>observer</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>uk.org.taverna.scufl2</groupId>
+			<groupId>org.apache.taverna.language</groupId>
 			<artifactId>scufl2-api</artifactId>
 		</dependency>
 		<dependency>

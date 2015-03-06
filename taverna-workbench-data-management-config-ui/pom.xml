@@ -33,12 +33,12 @@
 			<version>${t2.lang.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>helper-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<!--<dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>run-ui</artifactId>
 			<version>${project.version}</version>
 		</dependency>

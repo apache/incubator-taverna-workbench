@@ -29,12 +29,12 @@
 	<name>Taverna 2 Unrecognized Activity UI</name>
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>configuration-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>contextual-views-impl</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>

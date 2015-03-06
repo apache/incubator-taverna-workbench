@@ -42,7 +42,7 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>renderers-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>

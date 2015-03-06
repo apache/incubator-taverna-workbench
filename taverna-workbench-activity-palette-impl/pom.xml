@@ -29,7 +29,7 @@
 	<description>Activity Palette Implementation</description>
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>activity-palette-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>

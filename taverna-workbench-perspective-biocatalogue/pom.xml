@@ -38,7 +38,7 @@
 	</repositories>
 
 	<dependencies>
-		<!-- <dependency> <groupId>net.sf.taverna.t2.ui-api</groupId> <artifactId>perspective-core</artifactId>
+		<!-- <dependency> <groupId>${project.parent.groupId}</groupId> <artifactId>perspective-core</artifactId>
 			<version>${project.parent.version}</version> </dependency> -->
 		<dependency>
 			<groupId>net.sf.taverna.t2.core</groupId>
@@ -46,12 +46,12 @@
 			<version>${t2.core.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>menu-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>file-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
@@ -63,7 +63,7 @@
 		<!-- required for providing contextual views in the bottom-left area of
 			Design perspective -->
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-api</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>contextual-views-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
@@ -81,13 +81,13 @@
 		</dependency>
 		<!-- required for inserting a processor into the current workflow -->
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-components</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>workflow-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<!-- required registering with and opening help window -->
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-impl</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>helper</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
