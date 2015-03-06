@@ -93,6 +93,12 @@
     <module>taverna-workbench-workbench-impl</module>
     <module>taverna-workbench-workflow-explorer</module>
     <module>taverna-workbench-workflow-view</module>
+		<module>taverna-beans</module>
+		<module>taverna-io</module>
+		<module>taverna-observer</module>
+		<module>taverna-partition</module>
+		<module>taverna-ui</module>
+		<module>taverna-uibuilder</module>
   </modules>
   <scm>
     <connection>scm:git:https://git-wip-us.apache.org/repos/asf/incubator-taverna-workbench.git</connection>
