@@ -59,9 +59,9 @@
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.activities</groupId>
-			<artifactId>beanshell-activity</artifactId>
-			<version>${t2.activities.version}</version>
+			<groupId>org.apache.taverna.commonactivities</groupId>
+			<artifactId>taverna-beanshell-activity</artifactId>
+			<version>${taverna.commonactivities.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.help</groupId>

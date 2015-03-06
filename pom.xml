@@ -33,9 +33,7 @@
     <taverna.language.version>0.15.0-incubating-SNAPSHOT</taverna.language.version>
     <taverna.osgi.version>0.2.0-incubating-SNAPSHOT</taverna.osgi.version>
     <taverna.engine.version>3.1.0-incubating-SNAPSHOT</taverna.engine.version>
-    <!--  should not use: 
     <taverna.commonactivities.version>2.1.0-incubating-SNAPSHOT</taverna.commonactivities.version>
-    -->
   </properties>
 	<modules>
     <module>taverna-dataflow-activity-ui</module>

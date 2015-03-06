@@ -41,9 +41,9 @@
 		<!-- <dependency> <groupId>${project.parent.groupId}</groupId> <artifactId>perspective-core</artifactId>
 			<version>${project.parent.version}</version> </dependency> -->
 		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
+			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>workflowmodel-impl</artifactId>
-			<version>${t2.core.version}</version>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>

@@ -28,7 +28,7 @@
 	<name>Renderers API</name>
 	<dependencies>
 		<dependency>
-    		<groupId>uk.org.taverna.databundle</groupId>
+    		<groupId>org.apache.taverna.language</groupId>
     		<artifactId>databundle</artifactId>
     		<version>${taverna.databundle.version}</version>
 		</dependency>

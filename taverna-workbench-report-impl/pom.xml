@@ -28,9 +28,9 @@
 	<name>Reporting Implementation</name>
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
+			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>workflowmodel-api</artifactId>
-			<version>${t2.core.version}</version>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>

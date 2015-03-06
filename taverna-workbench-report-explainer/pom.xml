@@ -38,27 +38,27 @@
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>retry-ui</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-activities</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>dataflow-activity-ui</artifactId>
-			<version>${t2.ui.activities.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-activities</groupId>
-			<artifactId>disabled-activity-ui</artifactId>
-			<version>${t2.ui.activities.version}</version>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-disabled-activity-ui</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.activities</groupId>
-			<artifactId>wsdl-activity</artifactId>
-			<version>${t2.activities.version}</version>
+			<groupId>org.apache.taverna.commonactivities</groupId>
+			<artifactId>taverna-wsdl-activity</artifactId>
+			<version>${taverna.commonactivities.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.activities</groupId>
-			<artifactId>dataflow-activity</artifactId>
-			<version>${t2.activities.version}</version>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-dataflow-activity</artifactId>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -66,9 +66,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
+			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>workflowmodel-api</artifactId>
-			<version>${t2.core.version}</version>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
@@ -96,9 +96,9 @@
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.core</groupId>
+			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>workflowmodel-impl</artifactId>
-			<version>${t2.core.version}</version>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
