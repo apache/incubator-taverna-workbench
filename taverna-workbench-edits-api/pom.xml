@@ -34,7 +34,7 @@
 		</dependency>
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>observer</artifactId>
+			<artifactId>taverna-observer</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
