@@ -59,7 +59,6 @@
     <module>taverna-workbench-file-impl</module>
     <module>taverna-workbench-graph-model</module>
     <module>taverna-workbench-graph-view</module>
-    <module>taverna-workbench-helper</module>
     <module>taverna-workbench-helper-api</module>
     <module>taverna-workbench-httpproxy-config</module>
     <module>taverna-workbench-iteration-strategy-ui</module>
@@ -96,7 +95,6 @@
 		<module>taverna-beans</module>
 		<module>taverna-io</module>
 		<module>taverna-observer</module>
-		<module>taverna-partition</module>
 		<module>taverna-ui</module>
 		<module>taverna-uibuilder</module>
   </modules>

@@ -23,39 +23,38 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>disabled-activity-ui</artifactId>
-	<version>2.0.1-SNAPSHOT</version>
+	<artifactId>taverna-disabled-activity-ui</artifactId>
 	<packaging>bundle</packaging>
-	<name>Taverna 2 Disabled Activity UI</name>
+	<name>Apache Taverna Disabled Activity UI</name>
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>activity-icons-api</artifactId>
+			<artifactId>taverna-activity-icons-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>menu-api</artifactId>
+			<artifactId>taverna-menu-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>report-api</artifactId>
+			<artifactId>taverna-report-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>contextual-views-impl</artifactId>
+			<artifactId>taverna-contextual-views-impl</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>activity-tools</artifactId>
+			<artifactId>taverna-activity-tools</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workflow-view</artifactId>
+			<artifactId>taverna-workflow-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
@@ -69,42 +68,14 @@
 			<version>${javahelp.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>uibuilder</artifactId>
-			<version>${t2.lang.version}</version>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-uibuilder</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>helper</artifactId>
+			<artifactId>taverna-helper-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 	</dependencies>
-	<repositories>
-		<repository>
-			<releases />
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<id>mygrid-repository</id>
-			<name>myGrid Repository</name>
-			<url>http://www.mygrid.org.uk/maven/repository
-			</url>
-		</repository>
-		<repository>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots />
-			<id>mygrid-snapshot-repository</id>
-			<name>myGrid Snapshot Repository</name>
-			<url>http://www.mygrid.org.uk/maven/snapshot-repository</url>
-		</repository>
-	</repositories>
-        <scm>
-                <connection>scm:git:https://github.com/taverna/taverna-disabled-activity-ui.git</connection>
-                <developerConnection>scm:git:ssh://git@github.com/taverna/taverna-disabled-activity-ui.git</developerConnection>
-                <url>https://github.com/taverna/taverna-disabled-activity-ui/</url>
-                <tag>HEAD</tag>
-        </scm>
 </project>
-

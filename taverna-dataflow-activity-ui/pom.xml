@@ -29,37 +29,37 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>activity-icons-api</artifactId>
+			<artifactId>taverna-activity-icons-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>activity-palette-api</artifactId>
+			<artifactId>taverna-activity-palette-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>contextual-views-api</artifactId>
+			<artifactId>taverna-contextual-views-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>file-api</artifactId>
+			<artifactId>taverna-file-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-api</artifactId>
+			<artifactId>taverna-edits-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workflow-view</artifactId>
+			<artifactId>taverna-workflow-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>graph-view</artifactId>
+			<artifactId>taverna-graph-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
@@ -71,30 +71,30 @@
 		<dependency>
 			<groupId>javax.help</groupId>
 			<artifactId>javahelp</artifactId>
-            <version>${javahelp.version}</version>
+      <version>${javahelp.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>activity-tools</artifactId>
+			<artifactId>taverna-activity-tools</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>helper-api</artifactId>
+			<artifactId>taverna-helper-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 
 		<!--  testing dependencies -->
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>file-impl</artifactId>
+			<artifactId>taverna-file-impl</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-impl</artifactId>
+			<artifactId>taverna-edits-impl</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
@@ -106,4 +106,3 @@
 		</dependency> -->
 	</dependencies>
 </project>
-

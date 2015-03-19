@@ -23,14 +23,15 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>activity-icons-api</artifactId>
+	<artifactId>taverna-activity-icons-api</artifactId>
 	<packaging>bundle</packaging>
-	<name>Activity icon manager API</name>
+	<name>Apache Taverna Activity icon manager API</name>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.taverna.language</groupId>
 			<artifactId>taverna-scufl2-api</artifactId>
+			<version>${taverna.language.version}</version>
 		</dependency>
 	</dependencies>
 </project>

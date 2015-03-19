@@ -23,7 +23,7 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>activity-palette-api</artifactId>
+	<artifactId>taverna-activity-palette-api</artifactId>
 	<packaging>bundle</packaging>
 	<name>Activity Palette API</name>
 	<description>Activity Palette API</description>
