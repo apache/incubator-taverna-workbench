@@ -23,54 +23,54 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>activity-palette-ui</artifactId>
+	<artifactId>taverna-activity-palette-ui</artifactId>
 	<packaging>bundle</packaging>
-	<name>Activity Palette UI Component</name>
-	<description>Activity Palette UI</description>
+	<name>Apache Taverna Activity Palette UI Component</name>
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>activity-icons-api</artifactId>
+			<artifactId>taverna-activity-icons-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>activity-palette-api</artifactId>
+			<artifactId>taverna-activity-palette-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workbench-api</artifactId>
+			<artifactId>taverna-workbench-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>menu-api</artifactId>
+			<artifactId>taverna-menu-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>helper-api</artifactId>
+			<artifactId>taverna-helper-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workflow-view</artifactId>
+			<artifactId>taverna-workflow-view</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-ui</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
+			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>uibuilder</artifactId>
-			<version>${t2.lang.version}</version>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>uk.org.taverna.commons</groupId>
+			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-services-api</artifactId>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 
 		<dependency>

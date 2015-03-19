@@ -23,15 +23,15 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>configuration-api</artifactId>
+	<artifactId>taverna-configuration-ui-api</artifactId>
 	<packaging>bundle</packaging>
-	<name>Configuration Management API</name>
-	<description>General configuration management</description>
+	<name>Apache Taverna Configuration Management UI API</name>
 
 	<dependencies>
 		<dependency>
-			<groupId>uk.org.taverna.configuration</groupId>
+			<groupId>org.apache.taverna.osgi</groupId>
 			<artifactId>taverna-configuration-api</artifactId>
+			<version>${taverna.osgi.version}</version>
 		</dependency>
 	</dependencies>
 </project>
