@@ -92,9 +92,8 @@
     <module>taverna-workbench-workbench-impl</module>
     <module>taverna-workbench-workflow-explorer</module>
     <module>taverna-workbench-workflow-view</module>
-		<module>taverna-beans</module>
+		<module>taverna-beaninfo</module>
 		<module>taverna-io</module>
-		<module>taverna-observer</module>
 		<module>taverna-ui</module>
 		<module>taverna-uibuilder</module>
   </modules>
