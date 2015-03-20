@@ -23,22 +23,25 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>edits-api</artifactId>
+	<artifactId>taverna-edits-api</artifactId>
 	<packaging>bundle</packaging>
-	<name>Edits API</name>
+	<name>Apache Edits API</name>
 	<description>API for doing workflow edits and undo.</description>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.taverna.language</groupId>
 			<artifactId>taverna-scufl2-api</artifactId>
+			<version>${taverna.language.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
+			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-observer</artifactId>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
 		</dependency>
 	</dependencies>
 </project>

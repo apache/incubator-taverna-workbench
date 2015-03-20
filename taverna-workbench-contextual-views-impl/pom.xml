@@ -23,19 +23,19 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>contextual-views-impl</artifactId>
+	<artifactId>taverna-contextual-views-impl</artifactId>
 	<packaging>bundle</packaging>
-	<name>Contextual Views Implementation</name>
+	<name>Apache Taverna Contextual Views Impl</name>
 	<description>Contextual views for the activities</description>
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>contextual-views-api</artifactId>
+			<artifactId>taverna-contextual-views-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>selection-api</artifactId>
+			<artifactId>taverna-selection-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
@@ -47,12 +47,8 @@
 		<dependency>
 			<groupId>javax.help</groupId>
 			<artifactId>javahelp</artifactId>
+			<version>${javahelp.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 </project>

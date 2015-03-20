@@ -23,7 +23,7 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>edits-impl</artifactId>
+	<artifactId>taverna-edits-impl</artifactId>
 	<packaging>bundle</packaging>
 	<name>Edits implementation</name>
 	<description>
@@ -32,23 +32,23 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-api</artifactId>
+			<artifactId>taverna-edits-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>menu-api</artifactId>
+			<artifactId>taverna-menu-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>selection-api</artifactId>
+			<artifactId>taverna-selection-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-ui</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.taverna.language</groupId>

@@ -23,38 +23,39 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>design-ui</artifactId>
-	<name>Design UI</name>
+	<artifactId>taverna-design-ui</artifactId>
+	<name>Apache Taverna Design UI</name>
 	<packaging>bundle</packaging>
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>activity-icons-api</artifactId>
+			<artifactId>taverna-activity-icons-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-api</artifactId>
+			<artifactId>taverna-edits-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>contextual-views-api</artifactId>
+			<artifactId>taverna-contextual-views-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>selection-api</artifactId>
+			<artifactId>taverna-selection-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-ui</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.taverna.language</groupId>
 			<artifactId>taverna-scufl2-api</artifactId>
+			<version>${taverna.language.version}</version>
 		</dependency>
 	</dependencies>
 </project>

@@ -23,28 +23,28 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>contextual-views</artifactId>
+	<artifactId>taverna-contextual-views</artifactId>
 	<packaging>bundle</packaging>
-	<name>Contextual views</name>
+	<name>Apache Taverna Contextual views</name>
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>contextual-views-api</artifactId>
+			<artifactId>taverna-contextual-views-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-api</artifactId>
+			<artifactId>taverna-edits-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>file-api</artifactId>
+			<artifactId>taverna-file-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>selection-api</artifactId>
+			<artifactId>taverna=selection-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 

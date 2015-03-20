@@ -23,21 +23,23 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>file-api</artifactId>
+	<artifactId>taverna-file-api</artifactId>
 	<packaging>bundle</packaging>
-	<name>File opening API</name>
+	<name>Apache Taverna File opening API</name>
 	<description>
 		API for doing file (ie. workflow) open/save in the workbench.
 	</description>
 
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
+			<groupId>${project.groupId.version}</groupId>
+			<artifactId>taverna-ui</artifactId>
+			<version>${project.version.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
+			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-observer</artifactId>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.taverna.language</groupId>
