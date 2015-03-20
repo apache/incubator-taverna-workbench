@@ -23,44 +23,44 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>monitor-view</artifactId>
+	<artifactId>taverna-monitor-view</artifactId>
 	<packaging>bundle</packaging>
-	<name>Monitor View</name>
+	<name>Apache Taverna Monitor View</name>
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workbench-api</artifactId>
+			<artifactId>taverna-workbench-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>graph-model</artifactId>
+			<artifactId>taverna-graph-model</artifactId>
 			<version>${project.version}</version>
 		</dependency>
  		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>results-view</artifactId>
+			<artifactId>taverna-results-view</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>graph-view</artifactId>
+			<artifactId>taverna-graph-view</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-ui</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-report-api</artifactId>
-			<version>${platform.version}</version>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-run-api</artifactId>
-			<version>${platform.version}</version>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 
 		<dependency>
@@ -71,12 +71,7 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
+			<version>${log4j.version}</version>
 		</dependency>
 	</dependencies>
 </project>

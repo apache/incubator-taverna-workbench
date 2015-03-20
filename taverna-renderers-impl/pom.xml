@@ -43,38 +43,36 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>renderers-api</artifactId>
+			<artifactId>taverna-renderers-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-ui</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
     		<groupId>org.apache.taverna.language</groupId>
-    		<artifactId>databundle</artifactId>
+    		<artifactId>taverna-databundle</artifactId>
     		<version>${taverna.databundle.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.jdom</groupId>
 			<artifactId>com.springsource.org.jdom</artifactId>
+			<version>${jdom.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.fife.ui.hex</groupId>
 			<artifactId>hexeditor</artifactId>
-			<version>1.1-SNAPSHOT</version>
+			<version>${org.fife.ui.hexeditor.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
+
 	</dependencies>
 </project>

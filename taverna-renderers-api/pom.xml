@@ -23,14 +23,14 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>renderers-api</artifactId>
+	<artifactId>taverna-renderers-api</artifactId>
 	<packaging>bundle</packaging>
-	<name>Renderers API</name>
+	<name>Apache Taverna Renderers API</name>
 	<dependencies>
 		<dependency>
     		<groupId>org.apache.taverna.language</groupId>
-    		<artifactId>databundle</artifactId>
-    		<version>${taverna.databundle.version}</version>
+    		<artifactId>taverna-databundle</artifactId>
+    		<version>${taverna.language.version}</version>
 		</dependency>
 
 		<dependency>

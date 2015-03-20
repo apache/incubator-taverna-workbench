@@ -23,64 +23,64 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>perspective-design</artifactId>
+	<artifactId>taverna-perspective-design</artifactId>
 	<packaging>bundle</packaging>
-	<name>Design perspective</name>
+	<name>Apache Taverna Design perspective</name>
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-api</artifactId>
+			<artifactId>taverna-edits-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>file-api</artifactId>
+			<artifactId>taverna-file-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>menu-api</artifactId>
+			<artifactId>taverna-menu-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>report-api</artifactId>
+			<artifactId>taverna-report-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>selection-api</artifactId>
+			<artifactId>taverna-selection-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workbench-api</artifactId>
+			<artifactId>taverna-workbench-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>activity-palette-ui</artifactId>
+			<artifactId>taverna-activity-palette-ui</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>graph-view</artifactId>
+			<artifactId>taverna-graph-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workflow-explorer</artifactId>
+			<artifactId>taverna-workflow-explorer</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<!-- <dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>report-view</artifactId>
+			<artifactId>taverna-report-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency> -->
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-ui</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 
 		<dependency>
@@ -90,9 +90,9 @@
 		</dependency>
 
 		<dependency>
-			<groupId>uk.org.taverna.configuration</groupId>
+			<groupId>org.apache.taverna.osgi</groupId>
 			<artifactId>taverna-app-configuration-api</artifactId>
-			<version>${taverna.configuration.version}</version>
+			<version>${taverna.osgi.version}</version>
 		</dependency>
 	</dependencies>
 </project>

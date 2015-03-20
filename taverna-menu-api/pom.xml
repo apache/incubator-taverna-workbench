@@ -23,21 +23,22 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>menu-api</artifactId>
+	<artifactId>taverna-menu-api</artifactId>
 	<packaging>bundle</packaging>
-	<name>Menu generation API</name>
+	<name>Apache Taverna Menu generation API</name>
 	<description>An SPI system for building UI menus</description>
 
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>selection-api</artifactId>
+			<artifactId>taverna-selection-api</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
+			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-observer</artifactId>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 	</dependencies>
 </project>

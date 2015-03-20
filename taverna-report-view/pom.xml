@@ -23,78 +23,74 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>report-view</artifactId>
+	<artifactId>taverna-report-view</artifactId>
 	<packaging>bundle</packaging>
-	<name>Reporting view</name>
+	<name>Apache Taverna Reporting view</name>
 	<description>
 		View of reports about dataflows in the workbench.
 	</description>
 	<dependencies>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-ui</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
+			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-observer</artifactId>
-			<version>${t2.lang.version}</version>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-api</artifactId>
+			<artifactId>taverna-edits-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>report-api</artifactId>
+			<artifactId>taverna-report-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>file-api</artifactId>
+			<artifactId>taverna-file-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>helper-api</artifactId>
+			<artifactId>taverna-helper-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>menu-api</artifactId>
+			<artifactId>taverna-menu-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workbench-api</artifactId>
+			<artifactId>taverna-workbench-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 <!-- 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workbench-impl</artifactId>
+			<artifactId>taverna-workbench-impl</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
  -->		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>configuration-api</artifactId>
+			<artifactId>taverna-configuration-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workflow-view</artifactId>
+			<artifactId>taverna-workflow-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>org.apache.log4j</groupId>
-			<artifactId>com.springsource.org.apache.log4j</artifactId>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 </project>

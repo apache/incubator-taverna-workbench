@@ -23,24 +23,25 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>renderers-exts</artifactId>
-	<name>Renderers extensions</name>
+	<artifactId>taverna-renderers-exts</artifactId>
+	<name>Apache Taverna Renderers extensions</name>
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>renderers-api</artifactId>
+			<artifactId>taverna-renderers-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workbench-impl</artifactId>
+			<artifactId>taverna-workbench-impl</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
     		<groupId>org.apache.taverna.language</groupId>
     		<artifactId>databundle</artifactId>
-    		<version>0.1.0-SNAPSHOT</version>
+    		<version>${taverna.language.version}</version>
 		</dependency>
+		<!-- 
 		<dependency>
 			<groupId>uk.org.mygrid.resources</groupId>
 			<artifactId>Jmol</artifactId>
@@ -51,6 +52,7 @@
 			<artifactId>seqvista-hacked</artifactId>
 			<version>NO-VERSION</version>
 		</dependency>
+		 -->
 		<dependency>
 			<groupId>org.apache.xmlgraphics</groupId>
 			<artifactId>batik-swing</artifactId>
@@ -61,17 +63,12 @@
 			<artifactId>com.springsource.org.apache.commons.io</artifactId>
 			<version>${commons.io.version}</version>
 		</dependency>
+		
 		<dependency>
 			<groupId>org.icepdf</groupId>
 			<artifactId>icepdf-viewer</artifactId>
-			<!-- <version>${org.icepdf.version}</version> -->
-			<version>4.1.1-taverna</version>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
+			<version>${org.icepdf.version}</version>
 		</dependency>
 	</dependencies>
+	<packaging>bundle</packaging>
 </project>

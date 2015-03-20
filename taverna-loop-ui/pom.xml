@@ -23,60 +23,60 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-    <artifactId>loop-ui</artifactId>
+    <artifactId>taverna-loop-ui</artifactId>
     <packaging>bundle</packaging>
-    <name>Loop layer contextual view</name>
+    <name>Apache Taverna Loop layer contextual view</name>
     <dependencies>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>contextual-views-api</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>${project.parent.groupId}</groupId>
-            <artifactId>file-api</artifactId>
+            <artifactId>taverna-contextual-views-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>edits-api</artifactId>
+            <artifactId>taverna-file-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>helper-api</artifactId>
+            <artifactId>taverna-edits-api</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>net.sf.taverna.t2.ui-activities</groupId>
+            <groupId>${project.parent.groupId}</groupId>
+            <artifactId>taverna-helper-api</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <!-- 
+        <dependency>
+            <groupId>org.apache.taverna.workbench.commonactivities</groupId>
             <artifactId>beanshell-activity-ui</artifactId>
-            <version>${t2.ui.activities.version}</version>
+            <version>${taverna.workbench.commonactivities.version}</version>
         </dependency>
+         -->
 
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-impl</artifactId>
+			<artifactId>taverna-edits-impl</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>file-impl</artifactId>
+			<artifactId>taverna-file-impl</artifactId>
 			<version>${project.parent.version}</version>
 			<scope>test</scope>
 		</dependency>
 
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>contextual-views-impl</artifactId>
+            <artifactId>taverna-contextual-views-impl</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
             <dependency>
             <groupId>${project.parent.groupId}</groupId>
-            <artifactId>selection-impl</artifactId>
+            <artifactId>taverna-selection-impl</artifactId>
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>

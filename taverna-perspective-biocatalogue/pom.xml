@@ -23,10 +23,11 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>perspective-biocatalogue</artifactId>
-	<name>BioCatalogue Perspective</name>
+	<artifactId>taverna-perspective-biocatalogue</artifactId>
+	<name>Apache Taverna BioCatalogue Perspective</name>
 	<repositories>
 		<repository>
+		<!--  FIXME: Avoid this repository -->
 			<releases />
 			<snapshots>
 				<enabled>false</enabled>
@@ -42,53 +43,53 @@
 			<version>${project.parent.version}</version> </dependency> -->
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
-			<artifactId>workflowmodel-impl</artifactId>
+			<artifactId>taverna-workflowmodel-impl</artifactId>
 			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>menu-api</artifactId>
+			<artifactId>taverna-menu-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>file-api</artifactId>
+			<artifactId>taverna-file-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-ui</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<!-- required for providing contextual views in the bottom-left area of
 			Design perspective -->
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>contextual-views-api</artifactId>
+			<artifactId>taverna-contextual-views-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<!-- required for inserting a SOAP processor into the current workflow -->
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-activities</groupId>
-			<artifactId>wsdl-activity-ui</artifactId>
+			<groupId>org.apache.taverna.workbench.commonactivities</groupId>
+			<artifactId>taverna-wsdl-activity-ui</artifactId>
 			<version>${t2.ui.activities.version}</version>
 		</dependency>
 		<!-- required for importing REST processors into the current workflow -->
 		<dependency>
-			<groupId>net.sf.taverna.t2.ui-activities</groupId>
-			<artifactId>rest-activity-ui</artifactId>
+			<groupId>org.apache.taverna.workbench.commonactivities</groupId>
+			<artifactId>taverna-rest-activity-ui</artifactId>
 			<version>${t2.ui.activities.version}</version>
 		</dependency>
 		<!-- required for inserting a processor into the current workflow -->
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workflow-view</artifactId>
+			<artifactId>taverna-workflow-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<!-- required registering with and opening help window -->
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>helper</artifactId>
+			<artifactId>taverna-helper</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
@@ -103,13 +104,14 @@
 			<version>${jdom.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.log4j</groupId>
-			<artifactId>com.springsource.org.apache.log4j</artifactId>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.xmlbeans</groupId>
 			<artifactId>xmlbeans</artifactId>
-			<version>2.5.0</version>
+			<version>${xmlbeans.version}</version>
 		</dependency>
 
 		<!-- FlyingSaucer XHTML Renderer -->
@@ -175,4 +177,5 @@
 			</plugin>
 		</plugins>
 	</build>
+	<packaging>bundle</packaging>
 </project>

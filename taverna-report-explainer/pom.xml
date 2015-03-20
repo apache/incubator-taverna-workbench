@@ -23,26 +23,26 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>report-explainer</artifactId>
+	<artifactId>taverna-report-explainer</artifactId>
 	<packaging>bundle</packaging>
-	<name>Report explainer</name>
+	<name>Apache Taverna Report explainer</name>
 	<description>
 		Explanations of reports
 	</description>
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>report-api</artifactId>
+			<artifactId>taverna-report-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>retry-ui</artifactId>
+			<artifactId>>taverna-retry-ui</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>dataflow-activity-ui</artifactId>
+			<artifactId>>taverna-dataflow-activity-ui</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
@@ -50,6 +50,7 @@
 			<artifactId>taverna-disabled-activity-ui</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+		<!-- FIXME: Why are these needed here? -->
 		<dependency>
 			<groupId>org.apache.taverna.commonactivities</groupId>
 			<artifactId>taverna-wsdl-activity</artifactId>
@@ -60,54 +61,52 @@
 			<artifactId>taverna-dataflow-activity</artifactId>
 			<version>${taverna.engine.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
+
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
-			<artifactId>workflowmodel-api</artifactId>
+			<artifactId>taverna-workflowmodel-api</artifactId>
 			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-api</artifactId>
+			<artifactId>taverna-edits-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>file-api</artifactId>
+			<artifactId>taverna-file-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>configuration-impl</artifactId>
+			<artifactId>taverna-configuration-impl</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>report-view</artifactId>
+			<artifactId>taverna-report-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>design-ui</artifactId>
+			<artifactId>taverna-design-ui</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
+		<!-- FIXME: why is this needed? -->
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>workflowmodel-impl</artifactId>
 			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-ui</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.log4j</groupId>
-			<artifactId>com.springsource.org.apache.log4j</artifactId>
+			<groupId>log4j</groupId>
+			<artifactId>log4j</artifactId>
+			<version>${log4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>BrowserLauncher2</groupId>

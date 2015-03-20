@@ -23,47 +23,28 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>selection-api</artifactId>
+	<artifactId>taverna-selection-api</artifactId>
 	<packaging>bundle</packaging>
-	<name>Selection API</name>
+	<name>Apache Taverna Selection API</name>
 	<description>API for handling selection in the workbench.</description>
 
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workbench-api</artifactId>
-			<version>${project.version}</version>
+			<artifactId>taverna-workbench-api</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.taverna.language</groupId>
 			<artifactId>taverna-scufl2-api</artifactId>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
+			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-observer</artifactId>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 	</dependencies>
 
-	<repositories>
-		<repository>
-			<releases />
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-			<id>mygrid-repository</id>
-			<name>myGrid Repository</name>
-			<url>http://www.mygrid.org.uk/maven/repository
-			</url>
-		</repository>
-		<repository>
-			<releases>
-				<enabled>false</enabled>
-			</releases>
-			<snapshots />
-			<id>mygrid-snapshot-repository</id>
-			<name>myGrid Snapshot Repository</name>
-			<url>http://www.mygrid.org.uk/maven/snapshot-repository</url>
-		</repository>
-	</repositories>
 </project>

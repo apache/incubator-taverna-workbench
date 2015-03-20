@@ -23,9 +23,9 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>results-view</artifactId>
+	<artifactId>taverna-results-view</artifactId>
 	<packaging>bundle</packaging>
-	<name>Results and outputs from a workflow run</name>
+	<name>Apache Taverna Results and outputs from a workflow run</name>
 	<build>
 		<plugins>
 			<plugin>

@@ -23,55 +23,49 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>iteration-strategy-ui</artifactId>
+	<artifactId>taverna-iteration-strategy-ui</artifactId>
 	<packaging>bundle</packaging>
-	<name>Menu generation API</name>
-	<description>An SPI system for building UI menues</description>
+	<name>Apache Taverna Iteration Strategy UI</name>
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
-			<artifactId>workflowmodel-api</artifactId>
+			<artifactId>taverna-workflowmodel-api</artifactId>
 			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workbench-api</artifactId>
+			<artifactId>taverna-ui</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>contextual-views-api</artifactId>
+			<artifactId>taverna-workbench-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-api</artifactId>
+			<artifactId>taverna-contextual-views-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>file-api</artifactId>
+			<artifactId>taverna-edits-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>helper-api</artifactId>
+			<artifactId>taverna-file-api</artifactId>
+			<version>${project.parent.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>${project.parent.groupId}</groupId>
+			<artifactId>taverna-helper-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
-			<artifactId>workflowmodel-impl</artifactId>
+			<artifactId>taverna-workflowmodel-impl</artifactId>
 			<version>${taverna.engine.version}</version>
 			<!-- <scope>test</scope> -->
 		</dependency>
