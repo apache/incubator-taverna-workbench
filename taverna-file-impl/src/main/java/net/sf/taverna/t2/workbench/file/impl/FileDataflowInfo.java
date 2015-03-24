@@ -30,7 +30,7 @@ import net.sf.taverna.t2.workbench.file.FileType;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Information about an open dataflow that was opened from or saved to a

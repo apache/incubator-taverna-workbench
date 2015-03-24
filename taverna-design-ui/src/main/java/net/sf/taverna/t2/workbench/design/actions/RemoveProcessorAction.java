@@ -37,18 +37,18 @@ import net.sf.taverna.t2.workflow.edits.RemoveDataLinkEdit;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.common.NamedSet;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
-import uk.org.taverna.scufl2.api.core.BlockingControlLink;
-import uk.org.taverna.scufl2.api.core.ControlLink;
-import uk.org.taverna.scufl2.api.core.DataLink;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputProcessorPort;
-import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
-import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
-import uk.org.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.common.NamedSet;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.core.BlockingControlLink;
+import org.apache.taverna.scufl2.api.core.ControlLink;
+import org.apache.taverna.scufl2.api.core.DataLink;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.InputProcessorPort;
+import org.apache.taverna.scufl2.api.port.OutputProcessorPort;
+import org.apache.taverna.scufl2.api.profiles.ProcessorBinding;
+import org.apache.taverna.scufl2.api.profiles.Profile;
 
 /**
  * Action for removing a processor from the dataflow.

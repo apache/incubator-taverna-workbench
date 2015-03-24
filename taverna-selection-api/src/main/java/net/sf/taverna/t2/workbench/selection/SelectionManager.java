@@ -1,12 +1,11 @@
 package net.sf.taverna.t2.workbench.selection;
 
-import net.sf.taverna.t2.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observable;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
-import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.profiles.Profile;
 
 /**
  * Manages workflowBundles, workflows, profiles and perspectives selected on the

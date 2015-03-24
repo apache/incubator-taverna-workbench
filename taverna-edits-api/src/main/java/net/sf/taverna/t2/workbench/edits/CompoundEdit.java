@@ -23,7 +23,7 @@ package net.sf.taverna.t2.workbench.edits;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.org.taverna.scufl2.api.common.WorkflowBean;
+import org.apache.taverna.scufl2.api.common.WorkflowBean;
 
 /**
  * Implementation of Edit which contains an ordered list of child edits. Child

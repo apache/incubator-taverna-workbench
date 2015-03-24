@@ -20,8 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.port.InputProcessorPort;
 
 /**
  * Adds an input port to a processor.

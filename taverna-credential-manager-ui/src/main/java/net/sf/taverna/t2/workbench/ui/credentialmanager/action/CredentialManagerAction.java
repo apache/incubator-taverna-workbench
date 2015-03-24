@@ -27,8 +27,8 @@ import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 
-import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
-import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
+import org.apache.taverna.security.credentialmanager.CredentialManager;
+import org.apache.taverna.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI;
 
 //import javax.swing.SwingUtilities;

@@ -10,14 +10,14 @@ import net.sf.taverna.t2.workflow.edits.AddDataLinkEdit;
 import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
 import net.sf.taverna.t2.workflow.edits.AddWorkflowInputPortEdit;
 import net.sf.taverna.t2.workflow.edits.AddWorkflowOutputPortEdit;
-import uk.org.taverna.scufl2.api.common.AbstractCloneable;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.ControlLink;
-import uk.org.taverna.scufl2.api.core.DataLink;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
+import org.apache.taverna.scufl2.api.common.AbstractCloneable;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.ControlLink;
+import org.apache.taverna.scufl2.api.core.DataLink;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.InputWorkflowPort;
+import org.apache.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * A tool that allows merging of two workflow.

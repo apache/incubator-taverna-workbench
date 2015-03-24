@@ -8,9 +8,9 @@ import java.util.List;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import uk.org.taverna.scufl2.api.core.DataLink;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.SenderPort;
+import org.apache.taverna.scufl2.api.core.DataLink;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.SenderPort;
 
 @Ignore
 public class TestPortMerge extends AbstractTestHelper {

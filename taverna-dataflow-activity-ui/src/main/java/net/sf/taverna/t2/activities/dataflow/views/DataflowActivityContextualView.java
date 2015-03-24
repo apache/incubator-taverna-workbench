@@ -43,7 +43,7 @@ import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextu
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.activity.Activity;
 
 @SuppressWarnings("serial")
 public class DataflowActivityContextualView extends HTMLBasedActivityContextualView {

@@ -32,8 +32,8 @@ import net.sf.taverna.t2.workflow.edits.RemoveDataLinkEdit;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.core.DataLink;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.core.DataLink;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 /**
  * Action for removing a datalink from the dataflow.

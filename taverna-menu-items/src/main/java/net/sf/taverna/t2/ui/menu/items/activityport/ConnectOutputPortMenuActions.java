@@ -20,8 +20,8 @@
  **********************************************************************/
 package net.sf.taverna.t2.ui.menu.items.activityport;
 
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.OutputProcessorPort;
 
 
 public class ConnectOutputPortMenuActions extends AbstractConnectPortMenuActions  {

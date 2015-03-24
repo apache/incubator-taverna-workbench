@@ -27,7 +27,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.Processor;
 
 public class IterationStrategyContextualViewFactory implements
 		ContextualViewFactory<Processor> {

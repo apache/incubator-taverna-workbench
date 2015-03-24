@@ -32,9 +32,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JToolBar;
 
-import uk.org.taverna.scufl2.api.core.Workflow;
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.ui.menu.MenuComponent.MenuType;
 import net.sf.taverna.t2.ui.menu.MenuManager.MenuManagerEvent;
 

@@ -71,12 +71,12 @@ import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResul
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.databundle.DataBundles;
-import uk.org.taverna.platform.report.WorkflowReport;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.WorkflowPort;
+import org.apache.taverna.databundle.DataBundles;
+import org.apache.taverna.platform.report.WorkflowReport;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.InputWorkflowPort;
+import org.apache.taverna.scufl2.api.port.OutputWorkflowPort;
+import org.apache.taverna.scufl2.api.port.WorkflowPort;
 
 /**
  * This component contains a tabbed pane, where each tab displays results for one of the output

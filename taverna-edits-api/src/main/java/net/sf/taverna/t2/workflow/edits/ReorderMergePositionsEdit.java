@@ -23,8 +23,8 @@ package net.sf.taverna.t2.workflow.edits;
 import java.util.List;
 
 import net.sf.taverna.t2.workbench.edits.EditException;
-import uk.org.taverna.scufl2.api.core.DataLink;
-import uk.org.taverna.scufl2.api.port.ReceiverPort;
+import org.apache.taverna.scufl2.api.core.DataLink;
+import org.apache.taverna.scufl2.api.port.ReceiverPort;
 
 /**
  * Change datalink merge positions based on ordered list of data links.

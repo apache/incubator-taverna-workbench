@@ -28,7 +28,7 @@ import javax.swing.tree.DefaultTreeModel;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.databundle.DataBundles;
+import org.apache.taverna.databundle.DataBundles;
 
 /**
  * Tree model for the results of a processor (workflow's intermediate results).

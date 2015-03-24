@@ -25,8 +25,8 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.PerspectiveSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
@@ -36,9 +36,9 @@ import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.platform.report.State;
-import uk.org.taverna.platform.run.api.InvalidRunIdException;
-import uk.org.taverna.platform.run.api.RunService;
+import org.apache.taverna.platform.report.State;
+import org.apache.taverna.platform.run.api.InvalidRunIdException;
+import org.apache.taverna.platform.run.api.RunService;
 
 /**
  * @author David Withers

@@ -34,8 +34,8 @@ import javax.swing.ButtonGroup;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
@@ -43,7 +43,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.AbstractDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 public class WorkflowsMenu extends AbstractMenuCustom {
 	private EditManagerObserver editManagerObserver = new EditManagerObserver();

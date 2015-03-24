@@ -32,12 +32,12 @@ import javax.swing.JPanel;
 
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import uk.org.taverna.scufl2.api.common.NamedSet;
-import uk.org.taverna.scufl2.api.common.Scufl2Tools;
-import uk.org.taverna.scufl2.api.core.DataLink;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.port.InputProcessorPort;
-import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
+import org.apache.taverna.scufl2.api.common.NamedSet;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
+import org.apache.taverna.scufl2.api.core.DataLink;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.port.InputProcessorPort;
+import org.apache.taverna.scufl2.api.port.OutputProcessorPort;
 
 /**
  * How to get a panel describing what Taverna predicts the depth of the ports of

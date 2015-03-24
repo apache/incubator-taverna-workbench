@@ -31,8 +31,8 @@ import javax.swing.AbstractAction;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 /**
  * Action for copying a processor.

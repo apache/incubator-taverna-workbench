@@ -27,7 +27,7 @@ import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 
 import org.apache.commons.beanutils.PropertyUtils;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.activity.Activity;
 
 /**
  * Manages the colour of elements in a graph.

@@ -37,7 +37,7 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Processor;
 
 /**
  * View of a processor, including it's iteration stack, activities, etc.

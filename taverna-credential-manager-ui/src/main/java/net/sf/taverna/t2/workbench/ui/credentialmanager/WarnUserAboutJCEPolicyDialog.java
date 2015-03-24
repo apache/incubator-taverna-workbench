@@ -53,7 +53,7 @@ import javax.swing.text.Document;
 import javax.swing.text.html.HTMLEditorKit;
 import javax.swing.text.html.StyleSheet;
 
-import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
+import org.apache.taverna.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 import org.apache.log4j.Logger;

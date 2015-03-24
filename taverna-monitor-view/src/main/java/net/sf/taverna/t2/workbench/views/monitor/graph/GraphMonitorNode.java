@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workbench.views.monitor.graph;
 
 import static java.lang.Math.max;
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
-import uk.org.taverna.platform.report.ProcessorReport;
+import org.apache.taverna.platform.report.ProcessorReport;
 
 /**
  * A <code>MonitorNode</code> that updates a <code>Graph</code> when

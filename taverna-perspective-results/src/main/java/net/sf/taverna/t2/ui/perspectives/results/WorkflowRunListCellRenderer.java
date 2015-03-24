@@ -27,9 +27,9 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
-import uk.org.taverna.platform.report.WorkflowReport;
-import uk.org.taverna.platform.run.api.InvalidRunIdException;
-import uk.org.taverna.platform.run.api.RunService;
+import org.apache.taverna.platform.report.WorkflowReport;
+import org.apache.taverna.platform.run.api.InvalidRunIdException;
+import org.apache.taverna.platform.run.api.RunService;
 
 /**
  * @author David Withers

@@ -25,8 +25,8 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.Action;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.tabselector.Tab;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
@@ -37,7 +37,7 @@ import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.SavedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.exceptions.UnsavedException;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Tab for selecting current workflow.

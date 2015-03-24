@@ -23,11 +23,11 @@ package net.sf.taverna.t2.workflow.edits;
 import java.util.ArrayList;
 import java.util.List;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.port.OutputActivityPort;
-import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
-import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
-import uk.org.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.port.OutputActivityPort;
+import org.apache.taverna.scufl2.api.port.OutputProcessorPort;
+import org.apache.taverna.scufl2.api.profiles.ProcessorBinding;
+import org.apache.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
 
 public class AddActivityOutputPortMappingEdit extends AbstractEdit<Activity> {
 	private final OutputProcessorPort outputProcessorPort;

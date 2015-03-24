@@ -5,9 +5,9 @@ import static java.awt.GraphicsEnvironment.isHeadless;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
-import net.sf.taverna.t2.security.credentialmanager.ServiceUsernameAndPasswordProvider;
-import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
+import org.apache.taverna.security.credentialmanager.DistinguishedNameParser;
+import org.apache.taverna.security.credentialmanager.ServiceUsernameAndPasswordProvider;
+import org.apache.taverna.security.credentialmanager.UsernamePassword;
 
 import org.apache.log4j.Logger;
 

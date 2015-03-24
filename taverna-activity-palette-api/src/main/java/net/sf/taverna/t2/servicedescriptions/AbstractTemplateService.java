@@ -8,7 +8,7 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import uk.org.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
 
 public abstract class AbstractTemplateService implements
 		ServiceDescriptionProvider {

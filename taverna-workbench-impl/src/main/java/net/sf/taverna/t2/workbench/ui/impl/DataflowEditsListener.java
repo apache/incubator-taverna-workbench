@@ -1,13 +1,13 @@
 package net.sf.taverna.t2.workbench.ui.impl;
 
-import static uk.org.taverna.scufl2.api.container.WorkflowBundle.generateIdentifier;
+import static org.apache.taverna.scufl2.api.container.WorkflowBundle.generateIdentifier;
 
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
@@ -19,7 +19,7 @@ import net.sf.taverna.t2.workflow.edits.UpdateDataflowInternalIdentifierEdit;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Listens out for any edits on a dataflow and changes its internal id (or back

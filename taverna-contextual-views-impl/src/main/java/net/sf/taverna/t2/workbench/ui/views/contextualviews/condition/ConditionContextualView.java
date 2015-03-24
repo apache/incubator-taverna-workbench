@@ -28,7 +28,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import uk.org.taverna.scufl2.api.core.BlockingControlLink;
+import org.apache.taverna.scufl2.api.core.BlockingControlLink;
 
 /**
  * Contextual view for dataflow's control (condition) links.

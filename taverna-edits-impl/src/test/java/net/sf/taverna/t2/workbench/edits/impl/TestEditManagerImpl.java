@@ -29,8 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.DataFlowRedoEvent;
@@ -42,9 +42,9 @@ import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
 import org.junit.Before;
 import org.junit.Test;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 public class TestEditManagerImpl {
 

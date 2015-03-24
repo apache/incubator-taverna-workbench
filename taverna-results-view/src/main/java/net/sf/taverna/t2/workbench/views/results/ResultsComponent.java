@@ -44,13 +44,13 @@ import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResul
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.platform.report.ActivityReport;
-import uk.org.taverna.platform.report.ProcessorReport;
-import uk.org.taverna.platform.report.WorkflowReport;
-import uk.org.taverna.platform.run.api.InvalidRunIdException;
-import uk.org.taverna.platform.run.api.RunService;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.port.Port;
+import org.apache.taverna.platform.report.ActivityReport;
+import org.apache.taverna.platform.report.ProcessorReport;
+import org.apache.taverna.platform.report.WorkflowReport;
+import org.apache.taverna.platform.run.api.InvalidRunIdException;
+import org.apache.taverna.platform.run.api.RunService;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.port.Port;
 
 /**
  * Component for displaying the input and output values of workflow and processor invocations.

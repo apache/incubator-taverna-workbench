@@ -37,9 +37,9 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
@@ -53,7 +53,7 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactoryRegistry;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 @SuppressWarnings("serial")
 public class ContextualViewComponent extends JScrollPane implements UIComponentSPI {

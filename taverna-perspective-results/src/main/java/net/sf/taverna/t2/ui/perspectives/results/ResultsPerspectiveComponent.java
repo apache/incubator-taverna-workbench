@@ -38,8 +38,8 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.tabselector.Tab;
 import net.sf.taverna.t2.renderers.RendererRegistry;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
@@ -58,8 +58,8 @@ import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResul
 import org.apache.log4j.Logger;
 import org.osgi.service.event.Event;
 
-import uk.org.taverna.platform.run.api.InvalidRunIdException;
-import uk.org.taverna.platform.run.api.RunService;
+import org.apache.taverna.platform.run.api.InvalidRunIdException;
+import org.apache.taverna.platform.run.api.RunService;
 
 /**
  * @author David Withers

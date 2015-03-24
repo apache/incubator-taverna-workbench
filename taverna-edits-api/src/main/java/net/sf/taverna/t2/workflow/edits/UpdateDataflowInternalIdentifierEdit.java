@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workflow.edits;
 
 import java.net.URI;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 public class UpdateDataflowInternalIdentifierEdit extends
 		AbstractEdit<WorkflowBundle> {

@@ -39,8 +39,8 @@ import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import net.sf.taverna.t2.annotation.Annotated;
-import net.sf.taverna.t2.annotation.AnnotationBeanSPI;
+import org.apache.taverna.annotation.Annotated;
+import org.apache.taverna.annotation.AnnotationBeanSPI;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.workbench.edits.CompoundEdit;
 import net.sf.taverna.t2.workbench.edits.Edit;
@@ -52,7 +52,7 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.impl.ContextualViewC
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * This is a ContextualView that should be able to display and allow editing of

@@ -64,7 +64,7 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.tree.TreePanel;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.commons.services.ServiceRegistry;
 
 /**
  * @author alanrw

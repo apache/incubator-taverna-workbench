@@ -50,22 +50,26 @@
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>reference-ui</artifactId>
-			<version>${project.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
 			<artifactId>ui</artifactId>
 			<version>${t2.lang.version}</version>
 		</dependency>
+-->
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-run-api</artifactId>
-			<version>${platform.version}</version>
+			<version>${taverna.engine.version}</version>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-execution-api</artifactId>
 			<version>${platform.version}</version>
 		</dependency>
+-->
 	</dependencies>
 </project>

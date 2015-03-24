@@ -29,9 +29,9 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveConditionAction;
 import net.sf.taverna.t2.workbench.design.actions.RemoveDataflowInputPortAction;
@@ -44,12 +44,12 @@ import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.ControlLink;
-import uk.org.taverna.scufl2.api.core.DataLink;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.ControlLink;
+import org.apache.taverna.scufl2.api.core.DataLink;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.port.InputWorkflowPort;
+import org.apache.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * An action that deletes the selected graph component.

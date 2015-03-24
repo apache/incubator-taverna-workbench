@@ -50,9 +50,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.raven.appconfig.ApplicationRuntime;
-import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
-import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
+import org.apache.taverna.security.credentialmanager.CMException;
+import org.apache.taverna.security.credentialmanager.CredentialManager;
+import org.apache.taverna.security.credentialmanager.UsernamePassword;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MainComponent;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.MyExperimentPerspective;
 import net.sf.taverna.t2.ui.perspectives.myexperiment.model.SearchEngine.QuerySearchInstance;

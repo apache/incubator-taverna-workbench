@@ -28,7 +28,7 @@ import java.awt.event.ActionEvent;
 
 import javax.swing.AbstractAction;
 
-import uk.org.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Processor;
 
 /**
  * Action for copying a processor.

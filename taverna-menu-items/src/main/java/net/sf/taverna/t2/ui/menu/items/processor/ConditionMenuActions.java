@@ -37,9 +37,9 @@ import net.sf.taverna.t2.workbench.design.actions.AddConditionAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
-import uk.org.taverna.scufl2.api.common.Scufl2Tools;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 public class ConditionMenuActions extends AbstractMenuCustom implements
 		ContextualMenuComponent {

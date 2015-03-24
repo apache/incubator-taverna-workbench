@@ -63,8 +63,8 @@ import javax.swing.JToolBar;
 import javax.swing.Timer;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.configuration.workbench.WorkbenchConfiguration;
@@ -95,9 +95,9 @@ import org.apache.batik.swing.gvt.GVTTreeRendererAdapter;
 import org.apache.batik.swing.gvt.GVTTreeRendererEvent;
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.commons.services.ServiceRegistry;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 /**
  * @author David Withers

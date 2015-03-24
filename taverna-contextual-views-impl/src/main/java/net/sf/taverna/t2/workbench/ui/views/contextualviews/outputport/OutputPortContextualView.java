@@ -30,7 +30,7 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
+import org.apache.taverna.workflowmodel.processor.activity.ActivityOutputPort;
 
 /**
  * Contextual view for dataflow procerssor's output ports.

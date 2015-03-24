@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.file.events;
 
-import net.sf.taverna.t2.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observable;
 import net.sf.taverna.t2.workbench.file.FileManager;
 
 /**

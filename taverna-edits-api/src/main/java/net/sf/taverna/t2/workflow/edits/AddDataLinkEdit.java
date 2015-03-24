@@ -22,15 +22,15 @@ package net.sf.taverna.t2.workflow.edits;
 
 import java.util.List;
 
-import uk.org.taverna.scufl2.api.core.DataLink;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.iterationstrategy.CrossProduct;
-import uk.org.taverna.scufl2.api.iterationstrategy.DotProduct;
-import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyParent;
-import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
-import uk.org.taverna.scufl2.api.iterationstrategy.PortNode;
-import uk.org.taverna.scufl2.api.port.InputProcessorPort;
-import uk.org.taverna.scufl2.api.port.ReceiverPort;
+import org.apache.taverna.scufl2.api.core.DataLink;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.iterationstrategy.CrossProduct;
+import org.apache.taverna.scufl2.api.iterationstrategy.DotProduct;
+import org.apache.taverna.scufl2.api.iterationstrategy.IterationStrategyParent;
+import org.apache.taverna.scufl2.api.iterationstrategy.IterationStrategyTopNode;
+import org.apache.taverna.scufl2.api.iterationstrategy.PortNode;
+import org.apache.taverna.scufl2.api.port.InputProcessorPort;
+import org.apache.taverna.scufl2.api.port.ReceiverPort;
 
 /**
  * Adds a DataLink to a Workflow.

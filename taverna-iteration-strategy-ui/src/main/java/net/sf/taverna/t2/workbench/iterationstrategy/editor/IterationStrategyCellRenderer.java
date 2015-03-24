@@ -30,9 +30,9 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.iterationstrategy.IterationStrategyIcons;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.CrossProduct;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.DotProduct;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.NamedInputPortNode;
+import org.apache.taverna.workflowmodel.processor.iteration.CrossProduct;
+import org.apache.taverna.workflowmodel.processor.iteration.DotProduct;
+import org.apache.taverna.workflowmodel.processor.iteration.NamedInputPortNode;
 
 import org.apache.log4j.Logger;
 

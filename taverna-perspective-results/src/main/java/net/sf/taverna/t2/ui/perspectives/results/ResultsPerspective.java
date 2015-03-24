@@ -41,7 +41,7 @@ import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
-import uk.org.taverna.platform.run.api.RunService;
+import org.apache.taverna.platform.run.api.RunService;
 
 /**
  * @author David Withers

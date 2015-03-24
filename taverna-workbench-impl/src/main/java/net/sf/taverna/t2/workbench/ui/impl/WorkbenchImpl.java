@@ -62,8 +62,8 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.UIManager;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.ui.menu.MenuManager.MenuManagerEvent;
 import net.sf.taverna.t2.ui.menu.MenuManager.UpdatedMenuManagerEvent;

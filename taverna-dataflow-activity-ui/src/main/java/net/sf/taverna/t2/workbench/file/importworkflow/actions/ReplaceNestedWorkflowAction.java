@@ -16,9 +16,9 @@ import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.Utils;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workflow.edits.ConfigureEdit;
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 public class ReplaceNestedWorkflowAction extends ActivityConfigurationAction {
 	private static final long serialVersionUID = 1L;

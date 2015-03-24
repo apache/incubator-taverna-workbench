@@ -53,9 +53,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
-import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
-import net.sf.taverna.t2.security.credentialmanager.ParsedDistinguishedName;
+import org.apache.taverna.security.credentialmanager.CMException;
+import org.apache.taverna.security.credentialmanager.DistinguishedNameParser;
+import org.apache.taverna.security.credentialmanager.ParsedDistinguishedName;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 import org.apache.log4j.Logger;

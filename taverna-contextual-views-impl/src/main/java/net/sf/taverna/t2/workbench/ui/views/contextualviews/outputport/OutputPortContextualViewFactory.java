@@ -25,7 +25,7 @@ import java.util.List;
 
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
+import org.apache.taverna.workflowmodel.processor.activity.ActivityOutputPort;
 
 /**
  * A factory of contextual views for dataflow proessor's (i.e. its associated

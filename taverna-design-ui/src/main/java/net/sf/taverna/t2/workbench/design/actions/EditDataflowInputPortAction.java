@@ -41,8 +41,8 @@ import net.sf.taverna.t2.workflow.edits.RenameEdit;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.InputWorkflowPort;
 
 /**
  * Action for editing a dataflow input port.

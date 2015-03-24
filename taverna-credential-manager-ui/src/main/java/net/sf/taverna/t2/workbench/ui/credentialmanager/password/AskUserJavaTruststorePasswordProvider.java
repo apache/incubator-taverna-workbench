@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager.password;
 
-import net.sf.taverna.t2.security.credentialmanager.JavaTruststorePasswordProvider;
+import org.apache.taverna.security.credentialmanager.JavaTruststorePasswordProvider;
 
 /**
  * An implementation of the {@link JavaTruststorePasswordProvider} that pops up a

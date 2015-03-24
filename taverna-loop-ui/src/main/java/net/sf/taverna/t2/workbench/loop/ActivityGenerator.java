@@ -41,15 +41,14 @@ import net.sf.taverna.t2.workbench.loop.comparisons.NotMatches;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.common.Scufl2Tools;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.port.InputActivityPort;
-import uk.org.taverna.scufl2.api.port.InputProcessorPort;
-import uk.org.taverna.scufl2.api.port.OutputActivityPort;
-import uk.org.taverna.scufl2.api.port.OutputPort;
-import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.port.InputActivityPort;
+import org.apache.taverna.scufl2.api.port.InputProcessorPort;
+import org.apache.taverna.scufl2.api.port.OutputActivityPort;
+import org.apache.taverna.scufl2.api.port.OutputProcessorPort;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 

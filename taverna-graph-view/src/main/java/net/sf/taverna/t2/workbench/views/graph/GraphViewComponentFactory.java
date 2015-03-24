@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workbench.views.graph;
 
 import javax.swing.ImageIcon;
 
-import uk.org.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.commons.services.ServiceRegistry;
 
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;

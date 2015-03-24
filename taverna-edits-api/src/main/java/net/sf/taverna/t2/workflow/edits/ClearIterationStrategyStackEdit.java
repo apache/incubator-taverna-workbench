@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
+import org.apache.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
 
 /**
  * Removes all the iteration strategies from an iteration strategy stack.

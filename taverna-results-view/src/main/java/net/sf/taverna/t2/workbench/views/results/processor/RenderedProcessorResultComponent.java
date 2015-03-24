@@ -75,9 +75,9 @@ import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResul
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.databundle.DataBundles;
-import uk.org.taverna.databundle.ErrorDocument;
-import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
+import org.apache.taverna.databundle.DataBundles;
+import org.apache.taverna.databundle.ErrorDocument;
+import org.apache.taverna.scufl2.api.port.OutputWorkflowPort;
 import eu.medsea.mimeutil.MimeType;
 
 /**

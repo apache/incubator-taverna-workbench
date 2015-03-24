@@ -20,8 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
-import uk.org.taverna.scufl2.api.iterationstrategy.PortNode;
+import org.apache.taverna.scufl2.api.iterationstrategy.IterationStrategyStack;
+import org.apache.taverna.scufl2.api.iterationstrategy.PortNode;
 
 /**
  * Adds an iteration strategy input port node to an iteration strategy.

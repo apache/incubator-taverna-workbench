@@ -31,9 +31,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
-import uk.org.taverna.platform.report.ActivityReport;
-import uk.org.taverna.platform.report.ProcessorReport;
-import uk.org.taverna.platform.report.WorkflowReport;
+import org.apache.taverna.platform.report.ActivityReport;
+import org.apache.taverna.platform.report.ProcessorReport;
+import org.apache.taverna.platform.report.WorkflowReport;
 
 /**
  * Cell renderer for Workflow Explorer tree.

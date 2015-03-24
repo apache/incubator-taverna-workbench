@@ -36,10 +36,10 @@ import net.sf.taverna.t2.renderers.RendererRegistry;
 import net.sf.taverna.t2.workbench.ui.Updatable;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
 import net.sf.taverna.t2.workbench.views.results.workflow.PortResultsViewTab;
-import uk.org.taverna.platform.report.Invocation;
-import uk.org.taverna.scufl2.api.common.Ported;
-import uk.org.taverna.scufl2.api.port.InputPort;
-import uk.org.taverna.scufl2.api.port.Port;
+import org.apache.taverna.platform.report.Invocation;
+import org.apache.taverna.scufl2.api.common.Ported;
+import org.apache.taverna.scufl2.api.port.InputPort;
+import org.apache.taverna.scufl2.api.port.Port;
 
 /**
  * View displaying input and output values of an invocation.

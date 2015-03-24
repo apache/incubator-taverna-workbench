@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.servicedescriptions;
 
-import uk.org.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
 
 public interface CustomizedConfigurePanelProvider extends
 		ConfigurableServiceProvider {

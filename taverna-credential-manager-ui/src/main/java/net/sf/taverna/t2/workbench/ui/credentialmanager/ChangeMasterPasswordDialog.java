@@ -48,7 +48,7 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.EtchedBorder;
 
-import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
+import org.apache.taverna.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**

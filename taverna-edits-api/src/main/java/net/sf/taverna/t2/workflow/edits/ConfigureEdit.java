@@ -20,8 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.common.Configurable;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.common.Configurable;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
 
 /**
  * An Edit that configures a {@link Configurable} with a given

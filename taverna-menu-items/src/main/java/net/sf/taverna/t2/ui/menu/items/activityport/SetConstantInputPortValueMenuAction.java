@@ -26,8 +26,8 @@ import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.commons.services.ServiceRegistry;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.InputProcessorPort;
 
 public class SetConstantInputPortValueMenuAction extends AbstractContextualMenuAction {
 

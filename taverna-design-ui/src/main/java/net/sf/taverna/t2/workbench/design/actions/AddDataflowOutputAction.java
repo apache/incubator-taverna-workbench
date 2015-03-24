@@ -36,8 +36,8 @@ import net.sf.taverna.t2.workflow.edits.AddWorkflowOutputPortEdit;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * Action for adding an output port to the dataflow.

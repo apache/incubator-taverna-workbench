@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.edits;
 
-import uk.org.taverna.scufl2.api.common.WorkflowBean;
+import org.apache.taverna.scufl2.api.common.WorkflowBean;
 
 /**
  * The workflow object model exposed by this API is read only. Properties of the

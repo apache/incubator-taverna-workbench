@@ -24,7 +24,7 @@ import java.net.URI;
 
 import javax.swing.Action;
 
-import uk.org.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.commons.services.ServiceRegistry;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.MenuManager;

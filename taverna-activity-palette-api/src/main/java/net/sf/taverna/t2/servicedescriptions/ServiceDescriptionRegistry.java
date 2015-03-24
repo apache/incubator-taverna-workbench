@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.taverna.t2.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observable;
 import net.sf.taverna.t2.servicedescriptions.events.ServiceDescriptionRegistryEvent;
 
 public interface ServiceDescriptionRegistry extends

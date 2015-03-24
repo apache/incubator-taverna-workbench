@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workbench.file;
 
 import java.util.Date;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Information about a WorkflowBundle that has been opened by the

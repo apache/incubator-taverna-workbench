@@ -27,7 +27,7 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
+import org.apache.taverna.scufl2.api.port.OutputWorkflowPort;
 
 /**
  * A factory of contextual views for dataflow's output ports.

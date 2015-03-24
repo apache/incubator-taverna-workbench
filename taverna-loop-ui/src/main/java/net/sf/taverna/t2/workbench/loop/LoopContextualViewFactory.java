@@ -23,7 +23,7 @@ package net.sf.taverna.t2.workbench.loop;
 import java.util.Arrays;
 import java.util.List;
 
-import uk.org.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Processor;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;

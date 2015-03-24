@@ -22,14 +22,14 @@ package net.sf.taverna.t2.ui.perspectives.results;
 
 import java.io.File;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.tabselector.Tab;
 import net.sf.taverna.t2.lang.ui.tabselector.TabSelectorComponent;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowRunSelectionEvent;
-import uk.org.taverna.platform.run.api.RunService;
+import org.apache.taverna.platform.run.api.RunService;
 
 /**
  * Component for managing selection of workflow runs.

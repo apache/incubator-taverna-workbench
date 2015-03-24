@@ -27,7 +27,7 @@ import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 public class OpenDataflowSwingWorker extends
 		SwingWorker<WorkflowBundle, Object> {

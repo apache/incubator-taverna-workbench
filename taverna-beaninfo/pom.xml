@@ -3,11 +3,10 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
-		<groupId>net.sf.taverna.t2</groupId>
-		<artifactId>lang</artifactId>
-		<version>2.0.1-SNAPSHOT</version>
+		<groupId>org.apache.taverna.workbench</groupId>
+		<artifactId>taverna-workbench</artifactId>
+		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<groupId>net.sf.taverna.t2.lang</groupId>
 	<artifactId>taverna-beaninfo</artifactId>
 	<packaging>bundle</packaging>
 	<name>Apache Taverna BeanInfo extensions</name>

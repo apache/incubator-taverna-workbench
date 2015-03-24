@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.selection.events;
 
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 
 /**

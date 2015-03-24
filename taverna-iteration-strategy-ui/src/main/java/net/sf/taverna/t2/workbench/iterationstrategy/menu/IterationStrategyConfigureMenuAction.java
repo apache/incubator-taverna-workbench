@@ -30,7 +30,7 @@ import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.iterationstrategy.contextview.IterationStrategyConfigurationDialog;
 import net.sf.taverna.t2.workbench.iterationstrategy.contextview.IterationStrategyContextualView;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.Processor;
 
 public class IterationStrategyConfigureMenuAction extends AbstractContextualMenuAction {
 	

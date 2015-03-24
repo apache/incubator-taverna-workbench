@@ -44,8 +44,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
@@ -56,8 +56,8 @@ import net.sf.taverna.t2.workbench.file.impl.FileTypeFileFilter;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 @SuppressWarnings("serial")
 public class SaveWorkflowAsAction extends AbstractAction {

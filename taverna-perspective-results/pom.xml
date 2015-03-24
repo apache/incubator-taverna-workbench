@@ -49,15 +49,17 @@
 			<artifactId>results-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>net.sf.taverna.t2.lang</groupId>
 			<artifactId>ui</artifactId>
 			<version>${t2.lang.version}</version>
 		</dependency>
+-->
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-run-api</artifactId>
-			<version>${platform.version}</version>
+			<version>${taverna.engine.version}</version>
 		</dependency>
 
 		<dependency>
@@ -68,11 +70,13 @@
 		<dependency>
 			<groupId>javax.help</groupId>
 			<artifactId>javahelp</artifactId>
+                        <version>${javahelp.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+                        <version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

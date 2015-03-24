@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.selection.events;
 
-import uk.org.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.scufl2.api.profiles.Profile;
 
 /**
  * {@link SelectionManagerEvent} for changes to the selected {@link Profile}.

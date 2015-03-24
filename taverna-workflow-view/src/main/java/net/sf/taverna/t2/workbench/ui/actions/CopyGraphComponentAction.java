@@ -32,17 +32,17 @@ import java.util.Set;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Processor;
 
 /**
  * An action that copies the selected graph component.

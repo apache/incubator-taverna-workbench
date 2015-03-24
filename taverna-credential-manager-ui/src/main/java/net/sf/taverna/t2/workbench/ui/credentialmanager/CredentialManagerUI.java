@@ -37,8 +37,8 @@ import static javax.swing.JOptionPane.showMessageDialog;
 import static javax.swing.JTable.AUTO_RESIZE_ALL_COLUMNS;
 import static javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED;
 import static javax.swing.ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED;
-import static net.sf.taverna.t2.security.credentialmanager.CredentialManager.KeystoreType.KEYSTORE;
-import static net.sf.taverna.t2.security.credentialmanager.CredentialManager.KeystoreType.TRUSTSTORE;
+import static org.apache.taverna.security.credentialmanager.CredentialManager.KeystoreType.KEYSTORE;
+import static org.apache.taverna.security.credentialmanager.CredentialManager.KeystoreType.TRUSTSTORE;
 import static net.sf.taverna.t2.workbench.ui.credentialmanager.CMStrings.ALERT_TITLE;
 import static net.sf.taverna.t2.workbench.ui.credentialmanager.CMStrings.ERROR_TITLE;
 
@@ -79,11 +79,11 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableColumn;
 
-import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
-import net.sf.taverna.t2.security.credentialmanager.CredentialManager.KeystoreType;
-import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
-import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
+import org.apache.taverna.security.credentialmanager.CMException;
+import org.apache.taverna.security.credentialmanager.CredentialManager;
+import org.apache.taverna.security.credentialmanager.CredentialManager.KeystoreType;
+import org.apache.taverna.security.credentialmanager.DistinguishedNameParser;
+import org.apache.taverna.security.credentialmanager.UsernamePassword;
 
 import org.apache.log4j.Logger;
 import org.bouncycastle.openssl.PEMReader;

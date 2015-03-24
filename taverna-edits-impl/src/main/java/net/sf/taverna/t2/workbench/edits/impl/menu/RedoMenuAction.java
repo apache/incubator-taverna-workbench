@@ -34,7 +34,7 @@ import net.sf.taverna.t2.workbench.selection.SelectionManager;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Redo the previous {@link Edit} done on the current workflow using the

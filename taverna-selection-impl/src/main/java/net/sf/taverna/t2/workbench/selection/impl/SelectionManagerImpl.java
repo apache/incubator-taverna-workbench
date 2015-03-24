@@ -27,9 +27,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.taverna.t2.lang.observer.MultiCaster;
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.MultiCaster;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.edits.CompoundEdit;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditManager;
@@ -54,12 +54,12 @@ import net.sf.taverna.t2.workflow.edits.AddChildEdit;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
-import uk.org.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.InputWorkflowPort;
+import org.apache.taverna.scufl2.api.port.OutputWorkflowPort;
+import org.apache.taverna.scufl2.api.profiles.Profile;
 
 /**
  * Implementation of the {@link SelectionManager}.

@@ -33,7 +33,7 @@ import javax.help.CSH;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.activity.Activity;
 
 import net.sf.taverna.t2.lang.uibuilder.UIBuilder;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationPanel;

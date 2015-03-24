@@ -36,11 +36,11 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.iterationstrategy.editor.IterationStrategyTree;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategy;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategyStack;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.impl.IterationStrategyImpl;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.impl.IterationStrategyStackImpl;
+import org.apache.taverna.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.processor.iteration.IterationStrategy;
+import org.apache.taverna.workflowmodel.processor.iteration.IterationStrategyStack;
+import org.apache.taverna.workflowmodel.processor.iteration.impl.IterationStrategyImpl;
+import org.apache.taverna.workflowmodel.processor.iteration.impl.IterationStrategyStackImpl;
 
 import org.apache.log4j.Logger;
 import org.jdom.Content;

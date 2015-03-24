@@ -35,7 +35,7 @@ import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import uk.org.taverna.commons.services.ServiceRegistry;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 /**
  * An action to add a string constant activity + a wrapping processor to the

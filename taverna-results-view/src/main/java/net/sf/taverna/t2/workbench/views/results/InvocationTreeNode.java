@@ -4,7 +4,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
-import uk.org.taverna.platform.report.Invocation;
+import org.apache.taverna.platform.report.Invocation;
 
 @SuppressWarnings("serial")
 public class InvocationTreeNode extends DefaultMutableTreeNode {

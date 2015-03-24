@@ -43,18 +43,18 @@ import net.sf.taverna.t2.workflow.edits.AddProcessorEdit;
 import org.apache.log4j.Logger;
 
 import uk.org.taverna.commons.services.ServiceRegistry;
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
-import uk.org.taverna.scufl2.api.core.DataLink;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.iterationstrategy.CrossProduct;
-import uk.org.taverna.scufl2.api.port.InputProcessorPort;
-import uk.org.taverna.scufl2.api.port.OutputActivityPort;
-import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
-import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
-import uk.org.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
-import uk.org.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.core.DataLink;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.iterationstrategy.CrossProduct;
+import org.apache.taverna.scufl2.api.port.InputProcessorPort;
+import org.apache.taverna.scufl2.api.port.OutputActivityPort;
+import org.apache.taverna.scufl2.api.port.OutputProcessorPort;
+import org.apache.taverna.scufl2.api.profiles.ProcessorBinding;
+import org.apache.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
+import org.apache.taverna.scufl2.api.profiles.Profile;
 
 /**
  * Action for adding a default value to an input port of a processor.

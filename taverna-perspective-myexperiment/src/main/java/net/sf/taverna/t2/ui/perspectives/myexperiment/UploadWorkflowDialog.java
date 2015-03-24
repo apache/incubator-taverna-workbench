@@ -73,7 +73,7 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.impl.actions.SaveWorkflowAsAction;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import org.apache.taverna.workflowmodel.Dataflow;
 
 import org.apache.log4j.Logger;
 

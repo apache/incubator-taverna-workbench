@@ -44,13 +44,14 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna=selection-api</artifactId>
+			<artifactId>taverna-selection-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
+                        <version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

@@ -37,11 +37,13 @@
 			<artifactId>taverna-edits-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+<!--
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-beans</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+-->
 		<dependency>
 			<groupId>org.apache.taverna.osgi</groupId>
 			<artifactId>taverna-configuration-api</artifactId>
@@ -52,6 +54,12 @@
 			<artifactId>taverna-scufl2-api</artifactId>
 			<version>${taverna.language.version}</version>
 		</dependency>
+
+                <dependency>
+                    <groupId>${project.parent.groupId}</groupId>
+                    <artifactId>taverna-beaninfo</artifactId>
+                    <version>${project.parent.version}</version>
+                </dependency>
 
 		<dependency>
 			<groupId>junit</groupId>

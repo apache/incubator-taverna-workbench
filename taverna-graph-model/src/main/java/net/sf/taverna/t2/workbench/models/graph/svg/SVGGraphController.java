@@ -75,7 +75,6 @@ import net.sf.taverna.t2.workbench.models.graph.GraphEdge;
 import net.sf.taverna.t2.workbench.models.graph.GraphElement;
 import net.sf.taverna.t2.workbench.models.graph.GraphNode;
 import net.sf.taverna.t2.workbench.models.graph.dot.GraphLayout;
-import net.sf.taverna.t2.workbench.models.graph.dot.ParseException;
 
 import org.apache.batik.bridge.UpdateManager;
 import org.apache.batik.dom.svg.SVGOMAnimationElement;
@@ -96,8 +95,8 @@ import org.w3c.dom.svg.SVGElement;
 import org.w3c.dom.svg.SVGPoint;
 import org.w3c.dom.svg.SVGSVGElement;
 
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.profiles.Profile;
 
 public class SVGGraphController extends GraphController {
 	private static final Logger logger = Logger.getLogger(SVGGraphController.class);
@@ -229,8 +228,6 @@ public class SVGGraphController extends GraphController {
 			outputMessage(dotErrorMessage);
 			setDotMissing(true);
 			logger.warn("Couldn't generate dot");
-		} catch (ParseException e) {
-			logger.warn("Couldn't layout graph", e);
 		}
 		return actualBounds;
 	}

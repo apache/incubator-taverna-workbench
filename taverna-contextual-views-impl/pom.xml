@@ -28,6 +28,12 @@
 	<name>Apache Taverna Contextual Views Impl</name>
 	<description>Contextual views for the activities</description>
 	<dependencies>
+        	<dependency>
+                    <groupId>org.apache.taverna.engine</groupId>
+                    <artifactId>taverna-workflowmodel-api</artifactId>
+                    <version>${taverna.engine.version}</version>
+                </dependency>
+
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-contextual-views-api</artifactId>
@@ -49,6 +55,5 @@
 			<artifactId>javahelp</artifactId>
 			<version>${javahelp.version}</version>
 		</dependency>
-
 	</dependencies>
 </project>

@@ -20,23 +20,23 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import static uk.org.taverna.scufl2.api.common.Scufl2Tools.NESTED_WORKFLOW;
+import static org.apache.taverna.scufl2.api.common.Scufl2Tools.NESTED_WORKFLOW;
 
 import java.util.List;
 
 import net.sf.taverna.t2.workbench.edits.CompoundEdit;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.OutputActivityPort;
-import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
-import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
-import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
-import uk.org.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
-import uk.org.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.OutputActivityPort;
+import org.apache.taverna.scufl2.api.port.OutputProcessorPort;
+import org.apache.taverna.scufl2.api.port.OutputWorkflowPort;
+import org.apache.taverna.scufl2.api.profiles.ProcessorBinding;
+import org.apache.taverna.scufl2.api.profiles.ProcessorOutputPortBinding;
+import org.apache.taverna.scufl2.api.profiles.Profile;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

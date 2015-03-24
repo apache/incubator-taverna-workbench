@@ -30,9 +30,9 @@ import javax.swing.JScrollPane;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.Updatable;
-import uk.org.taverna.platform.report.WorkflowReport;
-import uk.org.taverna.platform.run.api.InvalidRunIdException;
-import uk.org.taverna.platform.run.api.RunService;
+import org.apache.taverna.platform.report.WorkflowReport;
+import org.apache.taverna.platform.run.api.InvalidRunIdException;
+import org.apache.taverna.platform.run.api.RunService;
 
 /**
  * @author David Withers

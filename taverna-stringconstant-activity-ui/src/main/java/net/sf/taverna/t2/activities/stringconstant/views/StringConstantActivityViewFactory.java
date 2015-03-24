@@ -33,7 +33,7 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import uk.org.taverna.commons.services.ServiceRegistry;
-import uk.org.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.activity.Activity;
 
 public class StringConstantActivityViewFactory implements
 		ContextualViewFactory<Activity> {

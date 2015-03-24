@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workbench.httpproxy.config;
 
 import javax.swing.JPanel;
 
-import uk.org.taverna.configuration.Configurable;
+import org.apache.taverna.configuration.Configurable;
 import uk.org.taverna.configuration.ConfigurationUIFactory;
 import uk.org.taverna.configuration.proxy.HttpProxyConfiguration;
 

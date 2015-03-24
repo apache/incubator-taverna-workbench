@@ -55,8 +55,8 @@ import net.sf.taverna.t2.renderers.RendererRegistry;
 import net.sf.taverna.t2.workbench.ui.Updatable;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
 import net.sf.taverna.t2.workbench.views.results.workflow.FilteredDataBundleTreeModel.FilterType;
-import uk.org.taverna.databundle.DataBundles;
-import uk.org.taverna.scufl2.api.port.Port;
+import org.apache.taverna.databundle.DataBundles;
+import org.apache.taverna.scufl2.api.port.Port;
 
 /**
  * A tab containing result tree for an output port and a panel with rendered result

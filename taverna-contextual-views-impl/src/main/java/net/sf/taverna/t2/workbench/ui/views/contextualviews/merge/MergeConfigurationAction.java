@@ -32,8 +32,8 @@ import net.sf.taverna.t2.workflow.edits.ReorderMergePositionsEdit;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.DataLink;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.DataLink;
 
 /**
  * Configuration action for a Merge. This action changes the order of

@@ -30,7 +30,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 public class GraphControllerTest {
 

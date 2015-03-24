@@ -35,7 +35,7 @@ import net.sf.taverna.t2.workbench.ui.Updatable;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.databundle.DataBundles;
+import org.apache.taverna.databundle.DataBundles;
 
 /**
  * TreeModel for displaying DataBundle Paths.

@@ -1,7 +1,7 @@
 package net.sf.taverna.t2.servicedescriptions;
 
-import uk.org.taverna.scufl2.api.common.Configurable;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.common.Configurable;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
 
 public interface ConfigurableServiceProvider extends
 		ServiceDescriptionProvider, Configurable, Cloneable {

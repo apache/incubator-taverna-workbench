@@ -40,7 +40,7 @@ import javax.swing.event.ListSelectionListener;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
-import uk.org.taverna.scufl2.api.core.DataLink;
+import org.apache.taverna.scufl2.api.core.DataLink;
 
 @SuppressWarnings("serial")
 public class MergeConfigurationView extends HelpEnabledDialog {

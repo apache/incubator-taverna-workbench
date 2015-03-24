@@ -12,7 +12,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreeNode;
 
-import uk.org.taverna.databundle.DataBundles;
+import org.apache.taverna.databundle.DataBundles;
 
 /**
  * @author alanrw

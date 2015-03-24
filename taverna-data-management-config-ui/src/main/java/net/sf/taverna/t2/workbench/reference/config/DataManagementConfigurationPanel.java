@@ -46,8 +46,8 @@ import javax.swing.JTextArea;
 import javax.swing.border.EmptyBorder;
 
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
-import uk.org.taverna.configuration.database.DatabaseConfiguration;
-import uk.org.taverna.configuration.database.DatabaseManager;
+import org.apache.taverna.configuration.database.DatabaseConfiguration;
+import org.apache.taverna.configuration.database.DatabaseManager;
 
 @SuppressWarnings("serial")
 public class DataManagementConfigurationPanel extends JPanel {

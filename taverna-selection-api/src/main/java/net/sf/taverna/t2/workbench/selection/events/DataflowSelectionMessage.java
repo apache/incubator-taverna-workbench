@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.selection.events;
 
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 /**
  * A message about the selection of a {@linkplain Workflow dataflow} object.

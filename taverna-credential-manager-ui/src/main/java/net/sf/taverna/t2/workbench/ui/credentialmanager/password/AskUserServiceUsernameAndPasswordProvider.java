@@ -2,8 +2,8 @@ package net.sf.taverna.t2.workbench.ui.credentialmanager.password;
 
 import java.net.URI;
 
-import net.sf.taverna.t2.security.credentialmanager.ServiceUsernameAndPasswordProvider;
-import net.sf.taverna.t2.security.credentialmanager.UsernamePassword;
+import org.apache.taverna.security.credentialmanager.ServiceUsernameAndPasswordProvider;
+import org.apache.taverna.security.credentialmanager.UsernamePassword;
 
 public class AskUserServiceUsernameAndPasswordProvider implements ServiceUsernameAndPasswordProvider{
 

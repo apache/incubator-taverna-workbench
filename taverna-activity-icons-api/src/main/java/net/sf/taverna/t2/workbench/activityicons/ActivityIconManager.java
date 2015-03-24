@@ -24,7 +24,7 @@ import java.net.URI;
 
 import javax.swing.Icon;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.activity.Activity;
 
 /**
  * Manager for activities' icons.

@@ -20,10 +20,10 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.port.InputActivityPort;
-import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
-import uk.org.taverna.scufl2.api.profiles.ProcessorInputPortBinding;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.port.InputActivityPort;
+import org.apache.taverna.scufl2.api.profiles.ProcessorBinding;
+import org.apache.taverna.scufl2.api.profiles.ProcessorInputPortBinding;
 
 public class RemoveActivityInputPortMappingEdit extends AbstractEdit<Activity> {
 	private final InputActivityPort inputActivityPort;

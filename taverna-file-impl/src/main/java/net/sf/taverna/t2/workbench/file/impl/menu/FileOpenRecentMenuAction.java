@@ -29,8 +29,8 @@ import javax.swing.AbstractAction;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.FileType;
@@ -47,7 +47,7 @@ import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
 
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 public class FileOpenRecentMenuAction extends AbstractMenuCustom implements
 		Observer<FileManagerEvent> {

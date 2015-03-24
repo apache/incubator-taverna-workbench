@@ -7,16 +7,16 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
-import net.sf.taverna.t2.lang.ui.treetable.JTreeTable;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
+import net.sf.taverna.lang.ui.treetable.JTreeTable;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
-import uk.org.taverna.platform.report.StatusReport;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.WorkflowPort;
+import org.apache.taverna.platform.report.StatusReport;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.WorkflowPort;
 
 @SuppressWarnings("serial")
 public class WorkflowRunProgressTreeTable extends JTreeTable {

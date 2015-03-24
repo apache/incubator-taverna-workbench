@@ -22,8 +22,8 @@ package net.sf.taverna.t2.workflow.edits;
 
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
-import uk.org.taverna.scufl2.api.common.Scufl2Tools;
-import uk.org.taverna.scufl2.api.common.WorkflowBean;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
+import org.apache.taverna.scufl2.api.common.WorkflowBean;
 
 /**
  * An abstract {@link Edit} implementation that checks if an edit has been

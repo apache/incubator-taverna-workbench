@@ -41,8 +41,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionProvider;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
@@ -62,7 +62,7 @@ import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.commons.services.ServiceRegistry;
 
 /**
  * A panel of available services

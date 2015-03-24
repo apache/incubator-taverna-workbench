@@ -74,6 +74,16 @@
 			<artifactId>log4j</artifactId>
 			<version>${log4j.version}</version>
 		</dependency>
+                <dependency>
+                    <groupId>org.apache.taverna.engine</groupId>
+                    <artifactId>taverna-workflowmodel-api</artifactId>
+                    <version>${taverna.engine.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>org.apache.taverna.engine</groupId>
+                    <artifactId>taverna-credential-manager</artifactId>
+                    <version>${taverna.engine.version}</version>
+                </dependency>
 	</dependencies>
 	<packaging>bundle</packaging>
 </project>

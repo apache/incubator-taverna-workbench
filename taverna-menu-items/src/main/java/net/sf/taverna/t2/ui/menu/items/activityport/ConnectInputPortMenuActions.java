@@ -21,8 +21,8 @@
 package net.sf.taverna.t2.ui.menu.items.activityport;
 
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.InputProcessorPort;
 
 public class ConnectInputPortMenuActions extends AbstractConnectPortMenuActions
 		implements ContextualMenuComponent {

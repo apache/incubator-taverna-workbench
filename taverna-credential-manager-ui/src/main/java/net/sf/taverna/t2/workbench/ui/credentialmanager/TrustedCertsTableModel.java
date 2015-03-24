@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workbench.ui.credentialmanager;
 
 import static javax.swing.JOptionPane.ERROR_MESSAGE;
 import static javax.swing.JOptionPane.showMessageDialog;
-import static net.sf.taverna.t2.security.credentialmanager.CredentialManager.KeystoreType.TRUSTSTORE;
+import static org.apache.taverna.security.credentialmanager.CredentialManager.KeystoreType.TRUSTSTORE;
 import static net.sf.taverna.t2.workbench.ui.credentialmanager.CMStrings.ERROR_TITLE;
 import static net.sf.taverna.t2.workbench.ui.credentialmanager.CredentialManagerUI.TRUST_CERT_ENTRY_TYPE;
 
@@ -32,11 +32,11 @@ import java.util.TreeSet;
 import javax.swing.JFrame;
 import javax.swing.table.AbstractTableModel;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
-import net.sf.taverna.t2.security.credentialmanager.KeystoreChangedEvent;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
+import org.apache.taverna.security.credentialmanager.CMException;
+import org.apache.taverna.security.credentialmanager.CredentialManager;
+import org.apache.taverna.security.credentialmanager.KeystoreChangedEvent;
 
 import org.apache.log4j.Logger;
 

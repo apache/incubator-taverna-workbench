@@ -72,13 +72,13 @@
 		<dependency>
 			<groupId>org.apache.taverna.workbench.commonactivities</groupId>
 			<artifactId>taverna-wsdl-activity-ui</artifactId>
-			<version>${t2.ui.activities.version}</version>
+			<version>${taverna.commonactivities.version}</version>
 		</dependency>
 		<!-- required for importing REST processors into the current workflow -->
 		<dependency>
 			<groupId>org.apache.taverna.workbench.commonactivities</groupId>
 			<artifactId>taverna-rest-activity-ui</artifactId>
-			<version>${t2.ui.activities.version}</version>
+			<version>${taverna.commonactivities.version}</version>
 		</dependency>
 		<!-- required for inserting a processor into the current workflow -->
 		<dependency>
@@ -93,9 +93,9 @@
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>uk.org.taverna.configuration</groupId>
+			<groupId>org.apache.taverna.osgi</groupId>
 			<artifactId>taverna-app-configuration-api</artifactId>
-			<version>${taverna.configuration.version}</version>
+			<version>${taverna.osgi.version}</version>
 		</dependency>
 
 		<dependency>

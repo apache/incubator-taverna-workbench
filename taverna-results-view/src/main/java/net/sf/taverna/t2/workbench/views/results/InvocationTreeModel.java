@@ -31,8 +31,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 
 import net.sf.taverna.t2.workbench.ui.Updatable;
-import uk.org.taverna.platform.report.Invocation;
-import uk.org.taverna.platform.report.StatusReport;
+import org.apache.taverna.platform.report.Invocation;
+import org.apache.taverna.platform.report.StatusReport;
 
 /**
  * TreeModel for displaying invocations.

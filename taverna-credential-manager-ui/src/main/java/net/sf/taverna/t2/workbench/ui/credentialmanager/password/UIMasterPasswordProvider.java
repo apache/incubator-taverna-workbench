@@ -23,12 +23,12 @@ package net.sf.taverna.t2.workbench.ui.credentialmanager.password;
 import java.awt.GraphicsEnvironment;
 
 import javax.swing.JFrame;
-import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
+import org.apache.taverna.security.credentialmanager.DistinguishedNameParser;
 
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
 
-import net.sf.taverna.t2.security.credentialmanager.JavaTruststorePasswordProvider;
-import net.sf.taverna.t2.security.credentialmanager.MasterPasswordProvider;
+import org.apache.taverna.security.credentialmanager.JavaTruststorePasswordProvider;
+import org.apache.taverna.security.credentialmanager.MasterPasswordProvider;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.GetMasterPasswordDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.SetMasterPasswordDialog;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.WarnUserAboutJCEPolicyDialog;

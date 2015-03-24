@@ -20,9 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.profiles.ProcessorBinding;
 
 /**
  * Creates a ProcessorBinding binding for the Activity and Processor and adds the binding to the

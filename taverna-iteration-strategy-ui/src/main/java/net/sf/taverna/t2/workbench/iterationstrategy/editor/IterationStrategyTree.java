@@ -33,7 +33,7 @@ import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.taverna.t2.workbench.iterationstrategy.IterationStrategyIcons;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategy;
+import org.apache.taverna.workflowmodel.processor.iteration.IterationStrategy;
 
 @SuppressWarnings("serial")
 public class IterationStrategyTree extends JTree implements UIComponentSPI {

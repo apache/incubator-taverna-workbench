@@ -12,8 +12,8 @@ import net.sf.taverna.t2.workbench.file.DataflowInfo;
 import net.sf.taverna.t2.workbench.file.DataflowPersistenceHandler;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 /**
  * @author alanrw

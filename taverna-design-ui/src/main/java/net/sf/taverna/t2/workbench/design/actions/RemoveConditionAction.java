@@ -32,8 +32,8 @@ import net.sf.taverna.t2.workflow.edits.RemoveChildEdit;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.core.ControlLink;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.core.ControlLink;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 /**
  * Action for removing a condition from the dataflow.

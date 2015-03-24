@@ -36,10 +36,10 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.AbstractIterationStrategyNode;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategy;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.NamedInputPortNode;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.TerminalNode;
+import org.apache.taverna.workflowmodel.processor.iteration.AbstractIterationStrategyNode;
+import org.apache.taverna.workflowmodel.processor.iteration.IterationStrategy;
+import org.apache.taverna.workflowmodel.processor.iteration.NamedInputPortNode;
+import org.apache.taverna.workflowmodel.processor.iteration.TerminalNode;
 
 import org.apache.log4j.Logger;
 

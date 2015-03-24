@@ -37,12 +37,12 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>>taverna-retry-ui</artifactId>
+			<artifactId>taverna-retry-ui</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>>taverna-dataflow-activity-ui</artifactId>
+			<artifactId>taverna-dataflow-activity-ui</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>

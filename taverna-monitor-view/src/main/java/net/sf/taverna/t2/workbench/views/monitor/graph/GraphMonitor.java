@@ -32,10 +32,10 @@ import javax.swing.JLabel;
 
 import net.sf.taverna.t2.workbench.models.graph.GraphController;
 import net.sf.taverna.t2.workbench.ui.Updatable;
-import uk.org.taverna.platform.report.ActivityReport;
-import uk.org.taverna.platform.report.ProcessorReport;
-import uk.org.taverna.platform.report.State;
-import uk.org.taverna.platform.report.WorkflowReport;
+import org.apache.taverna.platform.report.ActivityReport;
+import org.apache.taverna.platform.report.ProcessorReport;
+import org.apache.taverna.platform.report.State;
+import org.apache.taverna.platform.report.WorkflowReport;
 
 /**
  * An implementation of the Updatable interface that updates a Graph.

@@ -20,8 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.port.OutputProcessorPort;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.port.OutputProcessorPort;
 
 public class RemoveProcessorOutputPortEdit extends RemoveChildEdit<Processor> {
 	public RemoveProcessorOutputPortEdit(Processor processor,

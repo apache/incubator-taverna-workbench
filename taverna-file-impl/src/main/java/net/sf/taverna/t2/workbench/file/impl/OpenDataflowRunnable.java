@@ -7,7 +7,7 @@ import static java.lang.Thread.sleep;
 import net.sf.taverna.t2.workbench.file.FileType;
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * @author alanrw

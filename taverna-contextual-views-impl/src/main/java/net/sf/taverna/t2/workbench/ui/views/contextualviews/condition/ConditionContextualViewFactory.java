@@ -27,7 +27,7 @@ import java.util.List;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
 import net.sf.taverna.t2.workflowmodel.Condition;
-import uk.org.taverna.scufl2.api.core.BlockingControlLink;
+import org.apache.taverna.scufl2.api.core.BlockingControlLink;
 
 /**
  * A factory of contextual views for dataflow's condition links.

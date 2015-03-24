@@ -22,8 +22,8 @@ package net.sf.taverna.t2.workbench.iterationstrategy.editor;
 
 import javax.swing.JFrame;
 
-import net.sf.taverna.t2.workflowmodel.processor.iteration.NamedInputPortNode;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.impl.IterationStrategyImpl;
+import org.apache.taverna.workflowmodel.processor.iteration.NamedInputPortNode;
+import org.apache.taverna.workflowmodel.processor.iteration.impl.IterationStrategyImpl;
 
 public class RunIterationStrategyEditor {
 

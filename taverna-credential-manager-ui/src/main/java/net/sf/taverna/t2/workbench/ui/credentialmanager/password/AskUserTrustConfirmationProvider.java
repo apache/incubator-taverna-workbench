@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workbench.ui.credentialmanager.password;
 
 import java.security.cert.X509Certificate;
 
-import net.sf.taverna.t2.security.credentialmanager.TrustConfirmationProvider;
+import org.apache.taverna.security.credentialmanager.TrustConfirmationProvider;
 
 public class AskUserTrustConfirmationProvider implements TrustConfirmationProvider {
 

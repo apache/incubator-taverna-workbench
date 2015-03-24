@@ -31,11 +31,11 @@ import net.sf.taverna.t2.workflow.edits.AddChildEdit;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.common.Scufl2Tools;
-import uk.org.taverna.scufl2.api.core.BlockingControlLink;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
+import org.apache.taverna.scufl2.api.core.BlockingControlLink;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.profiles.ProcessorBinding;
 
 /**
  * Action for adding a condition to the dataflow.

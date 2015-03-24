@@ -26,9 +26,9 @@ import java.util.Set;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.selection.DataflowSelectionModel;
@@ -38,9 +38,9 @@ import net.sf.taverna.t2.workbench.selection.events.PerspectiveSelectionEvent;
 import net.sf.taverna.t2.workbench.selection.events.SelectionManagerEvent;
 import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent;
 import uk.org.taverna.commons.services.ServiceRegistry;
-import uk.org.taverna.scufl2.api.common.Scufl2Tools;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.port.InputProcessorPort;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.port.InputProcessorPort;
 
 /**
  * An action that sets a default value to a processor's input port, in case

@@ -26,7 +26,7 @@ import java.util.Collection;
 
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * A handler for opening or saving {@link WorkflowBundle} from the

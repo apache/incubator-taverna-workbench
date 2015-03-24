@@ -20,8 +20,8 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workflow.edits;
 
-import uk.org.taverna.scufl2.api.common.Child;
-import uk.org.taverna.scufl2.api.common.WorkflowBean;
+import org.apache.taverna.scufl2.api.common.Child;
+import org.apache.taverna.scufl2.api.common.WorkflowBean;
 
 /**
  * Adds a child to a parent.

@@ -24,8 +24,8 @@ import org.apache.log4j.Logger;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.profiles.Profile;
 
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;

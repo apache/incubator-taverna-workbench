@@ -24,8 +24,8 @@ import javax.swing.JPanel;
 
 import uk.org.taverna.configuration.Configurable;
 import uk.org.taverna.configuration.ConfigurationUIFactory;
-import uk.org.taverna.configuration.database.DatabaseConfiguration;
-import uk.org.taverna.configuration.database.DatabaseManager;
+import org.apache.taverna.configuration.database.DatabaseConfiguration;
+import org.apache.taverna.configuration.database.DatabaseManager;
 
 public class DataManagementConfigurationUIFactory implements
 		ConfigurationUIFactory {

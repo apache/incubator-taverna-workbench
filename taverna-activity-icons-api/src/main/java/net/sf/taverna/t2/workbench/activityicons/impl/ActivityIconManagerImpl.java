@@ -28,7 +28,7 @@ import java.util.WeakHashMap;
 
 import javax.swing.Icon;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.activity.Activity;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconSPI;
 

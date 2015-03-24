@@ -27,8 +27,8 @@ import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JOptionPane;
 
-import net.sf.taverna.t2.annotation.Annotated;
-import net.sf.taverna.t2.annotation.AnnotationBeanSPI;
+import org.apache.taverna.annotation.Annotated;
+import org.apache.taverna.annotation.AnnotationBeanSPI;
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
 import net.sf.taverna.t2.ui.menu.items.contextualviews.ConfigureSection;
 import net.sf.taverna.t2.workbench.edits.EditManager;

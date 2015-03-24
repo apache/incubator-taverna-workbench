@@ -44,16 +44,16 @@ import net.sf.taverna.t2.workflow.edits.AddWorkflowOutputPortEdit;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.core.DataLink;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.DepthPort;
-import uk.org.taverna.scufl2.api.port.InputPort;
-import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.OutputPort;
-import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
-import uk.org.taverna.scufl2.api.port.Port;
-import uk.org.taverna.scufl2.api.port.ReceiverPort;
-import uk.org.taverna.scufl2.api.port.SenderPort;
+import org.apache.taverna.scufl2.api.core.DataLink;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.DepthPort;
+import org.apache.taverna.scufl2.api.port.InputPort;
+import org.apache.taverna.scufl2.api.port.InputWorkflowPort;
+import org.apache.taverna.scufl2.api.port.OutputPort;
+import org.apache.taverna.scufl2.api.port.OutputWorkflowPort;
+import org.apache.taverna.scufl2.api.port.Port;
+import org.apache.taverna.scufl2.api.port.ReceiverPort;
+import org.apache.taverna.scufl2.api.port.SenderPort;
 
 /**
  * Action to create a dataflow input/output port and connect it to the specified

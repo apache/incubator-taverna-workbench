@@ -44,7 +44,7 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * An action for opening a workflow from a url.

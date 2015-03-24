@@ -37,12 +37,12 @@ import javax.swing.tree.TreeNode;
 
 import net.sf.taverna.t2.lang.ui.treetable.AbstractTreeTableModel;
 import net.sf.taverna.t2.lang.ui.treetable.TreeTableModel;
-import uk.org.taverna.platform.report.ActivityReport;
-import uk.org.taverna.platform.report.Invocation;
-import uk.org.taverna.platform.report.ProcessorReport;
-import uk.org.taverna.platform.report.State;
-import uk.org.taverna.platform.report.StatusReport;
-import uk.org.taverna.platform.report.WorkflowReport;
+import org.apache.taverna.platform.report.ActivityReport;
+import org.apache.taverna.platform.report.Invocation;
+import org.apache.taverna.platform.report.ProcessorReport;
+import org.apache.taverna.platform.report.State;
+import org.apache.taverna.platform.report.StatusReport;
+import org.apache.taverna.platform.report.WorkflowReport;
 
 /**
  * A TreeTableModel used to display the progress of a workfow run. The workflow

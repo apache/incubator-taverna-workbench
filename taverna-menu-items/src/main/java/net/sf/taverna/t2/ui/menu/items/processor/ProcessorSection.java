@@ -22,7 +22,7 @@ package net.sf.taverna.t2.ui.menu.items.processor;
 
 import java.net.URI;
 
-import uk.org.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Processor;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;

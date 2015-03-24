@@ -25,7 +25,7 @@ import java.util.List;
 
 import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 public abstract class AbstractDataflowPersistenceHandler implements
 		DataflowPersistenceHandler {

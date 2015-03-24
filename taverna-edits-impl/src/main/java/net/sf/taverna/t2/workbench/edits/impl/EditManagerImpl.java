@@ -25,15 +25,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.sf.taverna.t2.lang.observer.MultiCaster;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.MultiCaster;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.edits.Edit;
 import net.sf.taverna.t2.workbench.edits.EditException;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Implementation of {@link EditManager}.

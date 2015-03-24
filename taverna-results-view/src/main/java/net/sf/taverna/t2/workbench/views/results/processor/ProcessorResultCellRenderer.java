@@ -24,7 +24,7 @@ import static java.awt.Color.RED;
 import static net.sf.taverna.t2.workbench.views.results.processor.ProcessorResultTreeNode.ProcessorResultTreeNodeState.RESULT_LIST;
 import static net.sf.taverna.t2.workbench.views.results.processor.ProcessorResultTreeNode.ProcessorResultTreeNodeState.RESULT_REFERENCE;
 import static net.sf.taverna.t2.workbench.views.results.processor.ProcessorResultTreeNode.ProcessorResultTreeNodeState.RESULT_TOP;
-import static uk.org.taverna.databundle.DataBundles.isError;
+import static org.apache.taverna.databundle.DataBundles.isError;
 
 import java.awt.Component;
 import java.nio.file.Path;

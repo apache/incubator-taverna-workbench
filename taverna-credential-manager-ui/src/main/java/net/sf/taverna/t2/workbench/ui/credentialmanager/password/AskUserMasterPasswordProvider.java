@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.credentialmanager.password;
 
-import net.sf.taverna.t2.security.credentialmanager.MasterPasswordProvider;
+import org.apache.taverna.security.credentialmanager.MasterPasswordProvider;
 
 public class AskUserMasterPasswordProvider implements MasterPasswordProvider{
 

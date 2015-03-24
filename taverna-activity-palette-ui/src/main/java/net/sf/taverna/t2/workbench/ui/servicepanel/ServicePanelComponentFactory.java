@@ -22,7 +22,7 @@ package net.sf.taverna.t2.workbench.ui.servicepanel;
 
 import javax.swing.ImageIcon;
 
-import uk.org.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.commons.services.ServiceRegistry;
 
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
 import net.sf.taverna.t2.ui.menu.MenuManager;

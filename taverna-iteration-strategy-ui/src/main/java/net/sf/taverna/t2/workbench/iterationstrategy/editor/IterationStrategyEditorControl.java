@@ -48,11 +48,11 @@ import javax.swing.tree.TreePath;
 
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.iterationstrategy.IterationStrategyIcons;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.CrossProduct;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.DotProduct;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategy;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategyNode;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.TerminalNode;
+import org.apache.taverna.workflowmodel.processor.iteration.CrossProduct;
+import org.apache.taverna.workflowmodel.processor.iteration.DotProduct;
+import org.apache.taverna.workflowmodel.processor.iteration.IterationStrategy;
+import org.apache.taverna.workflowmodel.processor.iteration.IterationStrategyNode;
+import org.apache.taverna.workflowmodel.processor.iteration.TerminalNode;
 
 import org.apache.log4j.Logger;
 

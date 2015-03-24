@@ -29,7 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import uk.org.taverna.scufl2.api.port.InputActivityPort;
+import org.apache.taverna.scufl2.api.port.InputActivityPort;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 
 /**

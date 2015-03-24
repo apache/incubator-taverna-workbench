@@ -58,8 +58,8 @@ import javax.swing.border.EtchedBorder;
 
 import org.apache.log4j.Logger;
 
-import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
+import org.apache.taverna.security.credentialmanager.CMException;
+import org.apache.taverna.security.credentialmanager.CredentialManager;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**

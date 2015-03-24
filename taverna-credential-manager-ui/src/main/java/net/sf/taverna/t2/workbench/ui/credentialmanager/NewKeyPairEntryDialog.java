@@ -62,8 +62,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import net.sf.taverna.t2.security.credentialmanager.CMException;
-import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
+import org.apache.taverna.security.credentialmanager.CMException;
+import org.apache.taverna.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.workbench.helper.NonBlockedHelpEnabledDialog;
 
 /**

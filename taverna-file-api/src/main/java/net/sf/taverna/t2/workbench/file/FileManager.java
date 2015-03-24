@@ -28,8 +28,8 @@ import java.util.List;
 
 import javax.swing.filechooser.FileFilter;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.file.events.ClosedDataflowEvent;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
 import net.sf.taverna.t2.workbench.file.events.OpenedDataflowEvent;
@@ -38,7 +38,7 @@ import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 import net.sf.taverna.t2.workbench.file.exceptions.OverwriteException;
 import net.sf.taverna.t2.workbench.file.exceptions.SaveException;
 import net.sf.taverna.t2.workbench.file.exceptions.UnsavedException;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * Manager of open files (WorkflowBundleBundles) in the workbench.

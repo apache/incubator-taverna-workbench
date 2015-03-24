@@ -3,7 +3,7 @@ package net.sf.taverna.t2.workbench.file.importworkflow;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 @Ignore
 public class TestRename extends AbstractTestHelper {

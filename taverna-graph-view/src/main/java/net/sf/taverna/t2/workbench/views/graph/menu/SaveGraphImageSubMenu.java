@@ -49,8 +49,8 @@ import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.lang.io.StreamCopier;
 import net.sf.taverna.t2.lang.io.StreamDevourer;
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
 import net.sf.taverna.t2.ui.menu.AbstractMenuCustom;
 import net.sf.taverna.t2.ui.menu.DesignOnlyAction;
@@ -67,7 +67,7 @@ import net.sf.taverna.t2.workbench.views.graph.GraphViewComponent;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 /**
  * An action that saves graph diagram image.

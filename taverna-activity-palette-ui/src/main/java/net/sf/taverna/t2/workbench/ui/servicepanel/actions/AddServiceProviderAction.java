@@ -46,8 +46,8 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.lang.uibuilder.UIBuilder;
 import net.sf.taverna.t2.servicedescriptions.ConfigurableServiceProvider;
 import net.sf.taverna.t2.servicedescriptions.CustomizedConfigurePanelProvider;
@@ -60,7 +60,7 @@ import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
 
 /**
  * Action for adding a service provider

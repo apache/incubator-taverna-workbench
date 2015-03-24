@@ -24,8 +24,7 @@ import java.net.URI;
 
 import javax.swing.Action;
 
-import uk.org.taverna.scufl2.api.core.BlockingControlLink;
-import uk.org.taverna.scufl2.api.core.ControlLink;
+import org.apache.taverna.scufl2.api.core.BlockingControlLink;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;

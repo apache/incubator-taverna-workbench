@@ -7,10 +7,10 @@ import javax.swing.Icon;
 
 import net.sf.taverna.t2.lang.beans.PropertyAnnotation;
 import net.sf.taverna.t2.workbench.edits.Edit;
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 public abstract class ServiceDescription extends IdentifiedObject {
 	public static final String SERVICE_TEMPLATES = "Service templates";

@@ -22,7 +22,7 @@ package net.sf.taverna.t2.ui.perspectives.results;
 
 import javax.swing.AbstractListModel;
 
-import uk.org.taverna.platform.run.api.RunService;
+import org.apache.taverna.platform.run.api.RunService;
 
 /**
  * @author David Withers

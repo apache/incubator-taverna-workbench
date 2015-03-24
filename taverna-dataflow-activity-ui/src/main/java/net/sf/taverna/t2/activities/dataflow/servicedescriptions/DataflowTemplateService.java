@@ -6,7 +6,7 @@ import javax.swing.Icon;
 
 import net.sf.taverna.t2.servicedescriptions.AbstractTemplateService;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescription;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
 
 public class DataflowTemplateService extends AbstractTemplateService {
 

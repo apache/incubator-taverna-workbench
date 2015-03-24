@@ -10,7 +10,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 import net.sf.taverna.t2.workbench.views.results.SimpleFilteredTreeModel;
-import uk.org.taverna.databundle.DataBundles;
+import org.apache.taverna.databundle.DataBundles;
 
 @SuppressWarnings("serial")
 public class FilteredWorkflowResultTreeModel extends SimpleFilteredTreeModel

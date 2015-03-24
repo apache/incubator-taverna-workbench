@@ -58,9 +58,9 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
@@ -81,9 +81,9 @@ import net.sf.taverna.t2.workbench.selection.events.WorkflowBundleSelectionEvent
 import net.sf.taverna.t2.workbench.selection.events.WorkflowSelectionEvent;
 import net.sf.taverna.t2.workbench.ui.dndhandler.ServiceTransferHandler;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
-import uk.org.taverna.commons.services.ServiceRegistry;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 /**
  * Workflow Explorer provides a context sensitive tree view of a workflow (showing its inputs,

@@ -29,7 +29,7 @@ import net.sf.taverna.t2.workbench.file.exceptions.OpenException;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 /**
  * An action for opening a nested workflow from a file.

@@ -4,7 +4,7 @@ import java.awt.Component;
 
 import javax.swing.JPopupMenu;
 
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 /**
  * A contextual selection as passed to a {@link ContextualMenuComponent}.

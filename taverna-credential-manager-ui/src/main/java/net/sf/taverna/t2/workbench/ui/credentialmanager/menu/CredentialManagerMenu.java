@@ -26,10 +26,8 @@ import javax.swing.Action;
 
 //import org.apache.log4j.Logger;
 
-//import net.sf.taverna.t2.security.credentialmanager.CMException;
-//import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
-import net.sf.taverna.t2.security.credentialmanager.CredentialManager;
-import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
+import org.apache.taverna.security.credentialmanager.CredentialManager;
+import org.apache.taverna.security.credentialmanager.DistinguishedNameParser;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.workbench.ui.credentialmanager.action.CredentialManagerAction;
 

@@ -22,8 +22,8 @@ package net.sf.taverna.t2.workbench.selection;
 
 import java.util.Set;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
 
 /**

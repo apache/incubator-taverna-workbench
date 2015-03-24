@@ -24,7 +24,7 @@
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
 	<artifactId>graph-view</artifactId>
-	<packaging>taverna-bundle</packaging>
+	<packaging>bundle</packaging>
 	<name>Apache Taverna Graph View</name>
 	<dependencies>
 		<dependency>
@@ -87,7 +87,11 @@
 			<artifactId>taverna-scufl2-api</artifactId>
 			<version>${taverna.language.version}</version>
 		</dependency>
-
+                <dependency>
+                        <groupId>org.apache.taverna.engine</groupId>
+                        <artifactId>taverna-services-api</artifactId>
+                        <version>${taverna.engine.version}</version>
+                </dependency>
 		<dependency>
 			<groupId>org.apache.batik</groupId>
 			<artifactId>batik-osgi</artifactId>

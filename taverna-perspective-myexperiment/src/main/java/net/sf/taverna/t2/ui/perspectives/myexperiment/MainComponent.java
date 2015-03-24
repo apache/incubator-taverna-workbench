@@ -53,7 +53,7 @@ import net.sf.taverna.t2.workbench.file.importworkflow.gui.ImportWorkflowWizard;
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 import net.sf.taverna.t2.workbench.ui.zaria.PerspectiveSPI;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
+import org.apache.taverna.workflowmodel.Dataflow;
 import net.sf.taverna.t2.workflowmodel.serialization.xml.impl.XMLSerializationConstants;
 
 import org.apache.log4j.Logger;

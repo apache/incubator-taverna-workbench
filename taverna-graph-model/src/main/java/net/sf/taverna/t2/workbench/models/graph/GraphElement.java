@@ -23,7 +23,7 @@ package net.sf.taverna.t2.workbench.models.graph;
 import java.awt.Color;
 import java.awt.Point;
 
-import uk.org.taverna.scufl2.api.common.WorkflowBean;
+import org.apache.taverna.scufl2.api.common.WorkflowBean;
 
 /**
  * An element of a graph.

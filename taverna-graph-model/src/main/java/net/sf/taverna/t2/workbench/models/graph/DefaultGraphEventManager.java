@@ -37,10 +37,10 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 
 import net.sf.taverna.t2.ui.menu.MenuManager;
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.common.Scufl2Tools;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.profiles.ProcessorBinding;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.profiles.ProcessorBinding;
 
 /**
  * Manager for handling UI events on GraphElements.

@@ -112,15 +112,15 @@ import net.sf.taverna.t2.workbench.views.results.processor.FilteredIterationTree
 import net.sf.taverna.t2.workbench.views.results.processor.IterationTreeNode.ErrorState;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveAllResultsSPI;
 import net.sf.taverna.t2.workbench.views.results.saveactions.SaveIndividualResultSPI;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
-import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import org.apache.taverna.workflowmodel.Dataflow;
+import org.apache.taverna.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.ProcessorInputPort;
+import org.apache.taverna.workflowmodel.ProcessorOutputPort;
+import org.apache.taverna.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.configuration.database.DatabaseConfiguration;
+import org.apache.taverna.configuration.database.DatabaseConfiguration;
 
 /**
  * A component that contains a tabbed pane for displaying inputs and outputs of a processor (i.e.

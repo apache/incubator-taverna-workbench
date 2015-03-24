@@ -20,9 +20,9 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.edits;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
 
 /**

@@ -24,7 +24,7 @@
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
 	<artifactId>httpproxy-config</artifactId>
-	<packaging>taverna-bundle</packaging>
+	<packaging>bundle</packaging>
 	<name>Apache Taverna HTTP Proxy configuration</name>
 	<dependencies>
 		<dependency>
@@ -35,12 +35,12 @@
 		<dependency>
 			<groupId>org.apache.taverna.osgi</groupId>
 			<artifactId>taverna-osgi-api</artifactId>
-			<version>${taverna.configuration.version}</version>
+			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-helper-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
- 	</dependencies>
+	</dependencies>
 </project>

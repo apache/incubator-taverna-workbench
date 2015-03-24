@@ -26,7 +26,7 @@ import java.net.URI;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 
-import uk.org.taverna.scufl2.api.port.OutputWorkflowPort;
+import org.apache.taverna.scufl2.api.port.OutputWorkflowPort;
 
 import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;

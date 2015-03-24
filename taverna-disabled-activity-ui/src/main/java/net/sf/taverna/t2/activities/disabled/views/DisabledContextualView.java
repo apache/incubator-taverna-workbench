@@ -23,9 +23,9 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.HTMLBasedActivityContextualView;
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.port.InputActivityPort;
-import uk.org.taverna.scufl2.api.port.OutputActivityPort;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.port.InputActivityPort;
+import org.apache.taverna.scufl2.api.port.OutputActivityPort;
 
 import com.fasterxml.jackson.databind.JsonNode;
 

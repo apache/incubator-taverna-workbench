@@ -57,10 +57,10 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 
-import net.sf.taverna.t2.lang.observer.MultiCaster;
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.lang.observer.SwingAwareObserver;
+import org.apache.taverna.lang.observer.MultiCaster;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
+import org.apache.taverna.lang.observer.SwingAwareObserver;
 import net.sf.taverna.t2.lang.ui.ShadedLabel;
 import net.sf.taverna.t2.ui.menu.AbstractMenuAction;
 import net.sf.taverna.t2.ui.menu.AbstractMenuOptionGroup;

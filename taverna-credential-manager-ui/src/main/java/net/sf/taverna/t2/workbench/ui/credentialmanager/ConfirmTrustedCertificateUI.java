@@ -26,8 +26,8 @@ import static javax.swing.JOptionPane.showMessageDialog;
 import java.awt.Frame;
 import java.security.cert.X509Certificate;
 
-import net.sf.taverna.t2.security.credentialmanager.DistinguishedNameParser;
-import net.sf.taverna.t2.security.credentialmanager.TrustConfirmationProvider;
+import org.apache.taverna.security.credentialmanager.DistinguishedNameParser;
+import org.apache.taverna.security.credentialmanager.TrustConfirmationProvider;
 
 import org.apache.log4j.Logger;
 

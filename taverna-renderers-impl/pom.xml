@@ -52,9 +52,9 @@
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-    		<groupId>org.apache.taverna.language</groupId>
-    		<artifactId>taverna-databundle</artifactId>
-    		<version>${taverna.databundle.version}</version>
+                        <groupId>org.apache.taverna.language</groupId>
+                        <artifactId>taverna-databundle</artifactId>
+                        <version>${taverna.language.version}</version>
 		</dependency>
 
 		<dependency>

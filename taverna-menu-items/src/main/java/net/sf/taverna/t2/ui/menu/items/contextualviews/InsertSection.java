@@ -28,7 +28,7 @@ import net.sf.taverna.t2.ui.menu.AbstractMenuSection;
 import net.sf.taverna.t2.ui.menu.ContextualMenuComponent;
 import net.sf.taverna.t2.ui.menu.ContextualSelection;
 import net.sf.taverna.t2.ui.menu.DefaultContextualMenu;
-import uk.org.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.core.Workflow;
 
 public class InsertSection extends AbstractMenuSection implements
 		ContextualMenuComponent {

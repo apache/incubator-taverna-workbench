@@ -40,5 +40,10 @@
 			<artifactId>taverna-observer</artifactId>
 			<version>${taverna.engine.version}</version>
 		</dependency>
+                <dependency>
+                    <groupId>org.apache.taverna.language</groupId>
+                    <artifactId>taverna-scufl2-api</artifactId>
+                    <version>${taverna.language.version}</version>
+                </dependency>
 	</dependencies>
 </project>

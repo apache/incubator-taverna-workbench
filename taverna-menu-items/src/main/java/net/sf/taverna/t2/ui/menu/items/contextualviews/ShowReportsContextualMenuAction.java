@@ -34,9 +34,9 @@ import net.sf.taverna.t2.workbench.ui.Workbench;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.validation.Status;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.validation.Status;
 
 public class ShowReportsContextualMenuAction extends AbstractContextualMenuAction {
 

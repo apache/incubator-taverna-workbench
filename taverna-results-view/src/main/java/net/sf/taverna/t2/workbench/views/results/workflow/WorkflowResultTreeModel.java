@@ -35,9 +35,9 @@ import net.sf.taverna.t2.workbench.views.results.workflow.WorkflowResultTreeNode
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.databundle.DataBundles;
-import uk.org.taverna.platform.report.ReportListener;
-import uk.org.taverna.platform.report.State;
+import org.apache.taverna.databundle.DataBundles;
+import org.apache.taverna.platform.report.ReportListener;
+import org.apache.taverna.platform.report.State;
 
 public class WorkflowResultTreeModel extends DefaultTreeModel implements ReportListener {
 	private static final long serialVersionUID = 7154527821423588046L;
