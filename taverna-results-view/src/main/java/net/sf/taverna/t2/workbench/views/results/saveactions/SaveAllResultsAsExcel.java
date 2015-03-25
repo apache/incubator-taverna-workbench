@@ -22,7 +22,6 @@ package net.sf.taverna.t2.workbench.views.results.saveactions;
 
 import static java.lang.Math.max;
 import static java.util.Arrays.asList;
-import static net.sf.taverna.t2.baclava.factory.DataThingFactory.bake;
 import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.saveIcon;
 import static org.apache.poi.ss.usermodel.CellStyle.BORDER_NONE;
 import static org.apache.poi.ss.usermodel.CellStyle.BORDER_THIN;
@@ -37,8 +36,6 @@ import java.util.Collection;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.baclava.DataThing;
-import net.sf.taverna.t2.baclava.iterator.BaclavaIterator;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;

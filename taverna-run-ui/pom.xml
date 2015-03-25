@@ -27,11 +27,44 @@
 	<packaging>bundle</packaging>
 	<name>Results UI</name>
 	<dependencies>
+                <dependency>
+                        <groupId>org.apache.taverna.osgi</groupId>
+                        <artifactId>taverna-app-configuration-api</artifactId>
+                        <version>${taverna.osgi.version}</version>
+                </dependency>
+
+		<dependency>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-run-api</artifactId>
+			<version>${taverna.engine.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.taverna.language</groupId>
+			<artifactId>taverna-robundle</artifactId>
+			<version>${taverna.language.version}</version>
+		</dependency>
+
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-file-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>menu-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-menu-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-edits-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>report-api</artifactId>
@@ -52,24 +85,15 @@
 			<artifactId>reference-ui</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
-		</dependency>
--->
-		<dependency>
-			<groupId>org.apache.taverna.engine</groupId>
-			<artifactId>taverna-run-api</artifactId>
-			<version>${taverna.engine.version}</version>
-		</dependency>
-<!--
-		<dependency>
-			<groupId>org.apache.taverna.engine</groupId>
-			<artifactId>taverna-execution-api</artifactId>
-			<version>${platform.version}</version>
-		</dependency>
--->
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-report-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-helper-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
 	</dependencies>
 </project>

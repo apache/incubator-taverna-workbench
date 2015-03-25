@@ -28,6 +28,16 @@
 	<name>Apache Taverna Contextual Views API</name>
 	<description>Contextual views for the activities</description>
 	<dependencies>
+                <dependency>
+                        <groupId>org.apache.taverna.engine</groupId>
+                        <artifactId>taverna-services-api</artifactId>
+                        <version>${taverna.engine.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-configuration-ui-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-activity-icons-api</artifactId>
@@ -36,11 +46,6 @@
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-activity-palette-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna-configuration-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
@@ -79,12 +84,6 @@
 			<artifactId>taverna-scufl2-api</artifactId>
 			<version>${taverna.language.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.taverna.osgi</groupId>
-			<artifactId>taverna-services-api</artifactId>
-			<version>${taverna.osgi.version}</version>
-		</dependency>
-
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>

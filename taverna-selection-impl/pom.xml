@@ -28,21 +28,6 @@
 	<name>Selection Implementation</name>
 	<dependencies>
 		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>file-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>selection-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.osgi</groupId>
 			<artifactId>org.osgi.compendium</artifactId>
 			<version>${osgi.core.version}</version>
@@ -51,18 +36,21 @@
                         <groupId>org.apache.taverna.engine</groupId>
                         <artifactId>taverna-observer</artifactId>
                         <version>${taverna.engine.version}</version>
-                </dependency>
-                
+                </dependency> 
                 <dependency>
                         <groupId>${project.parent.groupId}</groupId>
                         <artifactId>taverna-selection-api</artifactId>
                         <version>${project.version}</version>
                 </dependency>
-		<dependency>
-			<groupId>org.apache.taverna.language</groupId>
-			<artifactId>taverna-scufl2-api</artifactId>
-			<version>${taverna.language.version}</version>
-		</dependency>
-
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-edits-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-file-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
 	</dependencies>
 </project>

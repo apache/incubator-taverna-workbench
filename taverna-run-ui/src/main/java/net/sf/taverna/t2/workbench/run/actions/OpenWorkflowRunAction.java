@@ -39,7 +39,7 @@ import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.platform.run.api.RunService;
+import org.apache.taverna.platform.run.api.RunService;
 
 /**
  * An action for opening a workflow run from a file.

@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowValidationReport;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.TokenProcessingEntity;
+import org.apache.taverna.workflowmodel.DataflowOutputPort;
+import org.apache.taverna.workflowmodel.DataflowValidationReport;
+import org.apache.taverna.workflowmodel.Datalink;
+import org.apache.taverna.workflowmodel.TokenProcessingEntity;
 
 // FIXME This is a t2flow-related class, not a scufl2-related one
 public class InvalidDataflowReport {

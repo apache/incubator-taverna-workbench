@@ -34,7 +34,7 @@ import org.apache.batik.swing.JSVGCanvas;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.databundle.DataBundles;
+import org.apache.taverna.databundle.DataBundles;
 
 /**
  * This class renders SVG Documents.

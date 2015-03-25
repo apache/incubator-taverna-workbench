@@ -23,7 +23,7 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>workflow-view</artifactId>
+	<artifactId>taverna-workflow-view</artifactId>
 	<packaging>bundle</packaging>
 	<name>Workflow View</name>
 	<dependencies>
@@ -32,23 +32,13 @@
 			<artifactId>taverna-observer</artifactId>
 			<version>${taverna.engine.version}</version>
 		</dependency>
-<!--
+
 		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
+			<groupId>org.apache.taverna.language</groupId>
+			<artifactId>taverna-scufl2-api</artifactId>
+                        <version>${taverna.language.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>io</artifactId>
-			<version>${t2.lang.version}</version>
-		</dependency>
--->
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>workbench-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
+
                 <dependency>
                         <groupId>${project.parent.groupId}</groupId>
                         <artifactId>taverna-selection-api</artifactId>
@@ -59,46 +49,33 @@
                         <artifactId>taverna-menu-api</artifactId>
                         <version>${project.parent.version}</version>
                 </dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>activity-palette-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>contextual-views-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>activity-tools</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>design-ui</artifactId>
-			<version>${project.version}</version>
-		</dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-edits-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+                <dependency>
+                    <groupId>${project.parent.groupId}</groupId>
+                    <artifactId>taverna-activity-palette-api</artifactId>
+                    <version>${project.parent.version}</version>
+                </dependency>
 		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-services-api</artifactId>
                         <version>${taverna.engine.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.taverna.language</groupId>
-			<artifactId>taverna-scufl2-api</artifactId>
-                        <version>${taverna.language.version}</version>
-		</dependency>
-
+                
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-design-ui</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+                
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
                         <version>${log4j.version}</version>
-		</dependency>
+                </dependency>
+
 	</dependencies>
 </project>

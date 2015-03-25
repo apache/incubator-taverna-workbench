@@ -55,13 +55,13 @@ import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.DeselectingButton;
 import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import net.sf.taverna.t2.ui.menu.MenuManager;
-import net.sf.taverna.t2.visit.VisitReport;
-import net.sf.taverna.t2.visit.VisitReport.Status;
+import org.apache.taverna.visit.VisitReport;
+import org.apache.taverna.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.file.events.FileManagerEvent;
@@ -75,9 +75,9 @@ import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.selection.events.DataflowSelectionMessage;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 import net.sf.taverna.t2.workbench.ui.zaria.UIComponentSPI;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.health.RemoteHealthChecker;
+import org.apache.taverna.workflowmodel.Dataflow;
+import org.apache.taverna.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.health.RemoteHealthChecker;
 
 import org.apache.log4j.Logger;
 

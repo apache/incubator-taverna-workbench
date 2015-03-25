@@ -33,7 +33,7 @@ import javax.swing.JEditorPane;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.databundle.DataBundles;
+import org.apache.taverna.databundle.DataBundles;
 
 /**
  * Web browser renderer for MIME type text/html.

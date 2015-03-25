@@ -21,7 +21,6 @@
 package net.sf.taverna.t2.reference.ui.referenceactions;
 
 import static javax.swing.JFileChooser.APPROVE_OPTION;
-import static net.sf.taverna.t2.baclava.factory.DataThingXMLFactory.parseDataDocument;
 import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.xmlNodeIcon;
 
 import java.awt.event.ActionEvent;
@@ -36,7 +35,6 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 
-import net.sf.taverna.t2.baclava.DataThing;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
 import net.sf.taverna.t2.reference.ui.RegistrationPanel;
 

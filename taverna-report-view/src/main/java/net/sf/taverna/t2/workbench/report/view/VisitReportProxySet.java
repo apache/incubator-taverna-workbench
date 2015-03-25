@@ -6,9 +6,7 @@ package net.sf.taverna.t2.workbench.report.view;
 import java.util.HashSet;
 import java.util.Set;
 
-import net.sf.taverna.t2.visit.VisitKind;
-import net.sf.taverna.t2.visit.VisitReport;
-import net.sf.taverna.t2.visit.VisitReport.Status;
+import org.apache.taverna.visit.VisitReport;
 
 public class VisitReportProxySet {
 

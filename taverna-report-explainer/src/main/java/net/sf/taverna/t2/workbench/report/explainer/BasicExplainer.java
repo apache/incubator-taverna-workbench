@@ -39,7 +39,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import net.sf.taverna.t2.activities.dataflow.DataflowActivity;
+import org.apache.taverna.activities.dataflow.DataflowActivity;
 import net.sf.taverna.t2.activities.dataflow.actions.EditNestedDataflowAction;
 import net.sf.taverna.t2.activities.disabled.actions.DisabledActivityConfigurationAction;
 import net.sf.taverna.t2.activities.wsdl.InputPortTypeDescriptorActivity;
@@ -48,7 +48,7 @@ import net.sf.taverna.t2.lang.ui.ReadOnlyTextArea;
 import org.apache.taverna.visit.DataflowCollation;
 import org.apache.taverna.visit.VisitKind;
 import org.apache.taverna.visit.VisitReport;
-import net.sf.taverna.t2.visit.fragility.FragilityCheck;
+import org.sf.taverna.t2.visit.fragility.FragilityCheck;
 import net.sf.taverna.t2.workbench.activityicons.ActivityIconManager;
 import net.sf.taverna.t2.workbench.design.actions.AddDataflowOutputAction;
 import net.sf.taverna.t2.workbench.edits.EditManager;

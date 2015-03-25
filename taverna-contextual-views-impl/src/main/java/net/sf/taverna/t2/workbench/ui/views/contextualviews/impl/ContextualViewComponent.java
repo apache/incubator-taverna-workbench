@@ -122,7 +122,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 
 	@SuppressWarnings("unchecked")
-	private void updateContextualView(List<ContextualViewFactory<?>> viewFactories,
+	private void updateContextualView(List<ContextualViewFactory<? super Object>> viewFactories,
 			Object selection) {
 		if (selection == lastSelectedObject)
 			return;
@@ -158,7 +158,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 
 	private void populateContextualView(
-			List<ContextualViewFactory<?>> viewFactories,
+			List<ContextualViewFactory<? super Object>> viewFactories,
 			GridBagConstraints gbc, List<ContextualView> views) {
 		JPanel firstPanel = null;
 		JPanel lastOpenedSection = null;
@@ -270,7 +270,7 @@ public class ContextualViewComponent extends JScrollPane implements UIComponentS
 	}
 
 	private void findContextualView(Object selection) {
-		List<ContextualViewFactory<?>> viewFactoriesForBeanType = contextualViewFactoryRegistry
+		List<ContextualViewFactory<? super Object>> viewFactoriesForBeanType = contextualViewFactoryRegistry
 				.getViewFactoriesForObject(selection);
 		updateContextualView(viewFactoriesForBeanType, selection);
 	}

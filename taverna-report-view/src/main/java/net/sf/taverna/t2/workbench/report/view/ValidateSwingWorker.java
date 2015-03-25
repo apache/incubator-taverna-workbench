@@ -28,17 +28,17 @@ import java.util.Set;
 
 import javax.swing.SwingWorker;
 
-import net.sf.taverna.t2.visit.VisitReport;
+import org.apache.taverna.visit.VisitReport;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
-import net.sf.taverna.t2.workflowmodel.CompoundEdit;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.DisabledActivity;
-import net.sf.taverna.t2.workflowmodel.utils.Tools;
+import org.apache.taverna.workflowmodel.CompoundEdit;
+import org.apache.taverna.workflowmodel.Dataflow;
+import org.apache.taverna.workflowmodel.Edit;
+import org.apache.taverna.workflowmodel.EditException;
+import org.apache.taverna.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.processor.activity.Activity;
+import org.apache.taverna.workflowmodel.processor.activity.DisabledActivity;
+import org.apache.taverna.workflowmodel.utils.Tools;
 
 import org.apache.log4j.Logger;
 

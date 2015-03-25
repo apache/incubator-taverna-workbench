@@ -28,7 +28,6 @@ import static net.sf.taverna.t2.lang.ui.ShadedLabel.ORANGE;
 import static net.sf.taverna.t2.lang.ui.ShadedLabel.halfShade;
 import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.minusIcon;
 import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.plusIcon;
-import static net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView.importServiceDescription;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -61,6 +60,7 @@ import net.sf.taverna.t2.workbench.ui.servicepanel.actions.RestoreDefaultService
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeNode;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.FilterTreeSelectionModel;
 import net.sf.taverna.t2.workbench.ui.servicepanel.tree.TreePanel;
+import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
 
 import org.apache.log4j.Logger;
 
@@ -152,14 +152,14 @@ public class ServiceTreeClickListener extends MouseAdapter {
 				menu.add(new AbstractAction("Add to workflow") {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						importServiceDescription(sd, false, editManager,
+						WorkflowView.importServiceDescription(sd, false, editManager,
 								menuManager, selectionManager, serviceRegistry);
 					}
 				});
 				menu.add(new AbstractAction("Add to workflow with name...") {
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						importServiceDescription(sd, true, editManager,
+						WorkflowView.importServiceDescription(sd, true, editManager,
 								menuManager, selectionManager, serviceRegistry);
 					}
 				});

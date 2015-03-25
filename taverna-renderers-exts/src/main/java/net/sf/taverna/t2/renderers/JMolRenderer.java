@@ -37,7 +37,7 @@ import org.jmol.api.JmolSimpleViewer;
 import org.jmol.api.JmolViewer;
 import org.jmol.viewer.Viewer;
 
-import uk.org.taverna.databundle.DataBundles;
+import org.apache.taverna.databundle.DataBundles;
 
 /**
  * Renders using the Jmol software for chemical structures

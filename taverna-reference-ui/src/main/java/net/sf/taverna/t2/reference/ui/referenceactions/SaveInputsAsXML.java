@@ -28,7 +28,6 @@ import static javax.swing.JOptionPane.YES_NO_OPTION;
 import static javax.swing.JOptionPane.YES_OPTION;
 import static javax.swing.JOptionPane.showConfirmDialog;
 import static javax.swing.JOptionPane.showMessageDialog;
-import static net.sf.taverna.t2.baclava.factory.DataThingFactory.bake;
 import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.xmlNodeIcon;
 import static org.jdom.Namespace.getNamespace;
 import static org.jdom.output.Format.getPrettyFormat;
@@ -44,8 +43,7 @@ import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
 import javax.swing.JFileChooser;
 
-import net.sf.taverna.t2.baclava.DataThing;
-import net.sf.taverna.t2.invocation.InvocationContext;
+import org.apache.taverna.invocation.InvocationContext;
 import net.sf.taverna.t2.lang.ui.ExtensionFileFilter;
 import net.sf.taverna.t2.reference.ui.RegistrationPanel;
 

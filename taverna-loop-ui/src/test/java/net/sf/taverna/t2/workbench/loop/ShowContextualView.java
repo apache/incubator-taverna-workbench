@@ -72,7 +72,7 @@ public class ShowContextualView {
 	private EditManager editManager;
 	private ContextualViewFactoryRegistry contextualViewFactoryRegistry;
 
-	private uk.org.taverna.scufl2.api.core.Processor processor;
+	private org.apache.taverna.scufl2.api.core.Processor processor;
 
 	private WorkflowBundle currentDataflow;
 

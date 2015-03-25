@@ -24,7 +24,7 @@ import javax.swing.SwingWorker;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 
 public class CopyWorkflowSwingWorker extends
 		SwingWorker<WorkflowBundle, String> {

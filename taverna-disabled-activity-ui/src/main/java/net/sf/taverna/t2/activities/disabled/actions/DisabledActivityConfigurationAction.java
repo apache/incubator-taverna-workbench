@@ -28,7 +28,7 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import uk.org.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.activity.Activity;
 
 import net.sf.taverna.t2.activities.disabled.views.DisabledConfigView;
 import net.sf.taverna.t2.servicedescriptions.ServiceDescriptionRegistry;
@@ -38,6 +38,7 @@ import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.actions.activity.ActivityConfigurationAction;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityConfigurationDialog;
+
 
 @SuppressWarnings("serial")
 public class DisabledActivityConfigurationAction extends ActivityConfigurationAction {

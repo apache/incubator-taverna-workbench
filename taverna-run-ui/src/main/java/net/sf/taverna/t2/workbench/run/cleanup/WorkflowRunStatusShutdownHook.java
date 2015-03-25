@@ -27,10 +27,10 @@ import java.util.List;
 
 import net.sf.taverna.t2.workbench.ShutdownSPI;
 import uk.org.taverna.configuration.app.ApplicationConfiguration;
-import uk.org.taverna.platform.execution.api.InvalidExecutionIdException;
-import uk.org.taverna.platform.run.api.InvalidRunIdException;
-import uk.org.taverna.platform.run.api.RunService;
-import uk.org.taverna.platform.run.api.RunStateException;
+import org.apache.taverna.platform.execution.api.InvalidExecutionIdException;
+import org.apache.taverna.platform.run.api.InvalidRunIdException;
+import org.apache.taverna.platform.run.api.RunService;
+import org.apache.taverna.platform.run.api.RunStateException;
 
 /**
  * Shutdown hook that detects running and paused workflows.

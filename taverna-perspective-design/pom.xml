@@ -72,22 +72,7 @@
 			<artifactId>taverna-workflow-explorer</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-		<!-- <dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna-report-view</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency> -->
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna-ui</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
 
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>contextual-views-impl</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.apache.taverna.osgi</groupId>

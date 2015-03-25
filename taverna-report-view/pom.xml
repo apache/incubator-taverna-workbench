@@ -30,6 +30,11 @@
 		View of reports about dataflows in the workbench.
 	</description>
 	<dependencies>
+                <dependency>
+                        <groupId>org.apache.taverna.engine</groupId>
+                        <artifactId>taverna-workflowmodel-api</artifactId>
+                        <version>${taverna.engine.version}</version>
+                </dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-ui</artifactId>
@@ -75,10 +80,11 @@
 			<artifactId>taverna-workbench-impl</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
- -->		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
+ -->
+		<dependency>
+			<groupId>org.apache.taverna.osgi</groupId>
 			<artifactId>taverna-configuration-api</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${taverna.osgi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
@@ -91,6 +97,5 @@
 			<artifactId>log4j</artifactId>
 			<version>${log4j.version}</version>
 		</dependency>
-
 	</dependencies>
 </project>

@@ -28,7 +28,7 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import uk.org.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Processor;
 
 public class RetryContextualViewFactory implements ContextualViewFactory<Processor> {
 

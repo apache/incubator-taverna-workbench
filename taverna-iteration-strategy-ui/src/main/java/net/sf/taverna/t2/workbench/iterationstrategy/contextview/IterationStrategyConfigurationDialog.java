@@ -19,12 +19,12 @@ import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.helper.HelpEnabledDialog;
 import net.sf.taverna.t2.workbench.iterationstrategy.editor.IterationStrategyEditorControl;
-import net.sf.taverna.t2.workflowmodel.Edit;
-import net.sf.taverna.t2.workflowmodel.EditException;
-import net.sf.taverna.t2.workflowmodel.Edits;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategy;
-import net.sf.taverna.t2.workflowmodel.processor.iteration.IterationStrategyStack;
+import org.apache.taverna.workflowmodel.Edit;
+import org.apache.taverna.workflowmodel.EditException;
+import org.apache.taverna.workflowmodel.Edits;
+import org.apache.taverna.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.processor.iteration.IterationStrategy;
+import org.apache.taverna.workflowmodel.processor.iteration.IterationStrategyStack;
 
 import org.apache.log4j.Logger;
 

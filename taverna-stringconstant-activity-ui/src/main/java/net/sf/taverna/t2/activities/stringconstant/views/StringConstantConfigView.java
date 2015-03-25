@@ -44,7 +44,7 @@ import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ActivityCon
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.commons.services.ServiceRegistry;
 import org.apache.taverna.scufl2.api.activity.Activity;
 import org.apache.taverna.scufl2.api.configurations.Configuration;
 

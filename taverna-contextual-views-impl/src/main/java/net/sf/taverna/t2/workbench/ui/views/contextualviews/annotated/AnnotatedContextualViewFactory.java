@@ -4,13 +4,13 @@ import static java.util.Collections.singletonList;
 
 import java.util.List;
 
-import net.sf.taverna.t2.annotation.Annotated;
-import net.sf.taverna.t2.annotation.AnnotationBeanSPI;
+import org.apache.taverna.annotation.Annotated;
+import org.apache.taverna.annotation.AnnotationBeanSPI;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.ContextualViewFactory;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
+import org.apache.taverna.workflowmodel.processor.activity.Activity;
 
 public class AnnotatedContextualViewFactory implements
 		ContextualViewFactory<Annotated<?>> {

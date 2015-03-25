@@ -30,7 +30,7 @@ import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.databundle.DataBundles;
+import org.apache.taverna.databundle.DataBundles;
 import cht.svista.SeqVISTA;
 
 /**

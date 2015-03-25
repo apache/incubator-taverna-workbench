@@ -28,6 +28,17 @@
 	<name>Apache Taverna menu items</name>
 	<dependencies>
 		<dependency>
+			<groupId>org.apache.taverna.osgi</groupId>
+			<artifactId>taverna-services-api</artifactId>
+			<version>${taverna.osgi.version}</version>
+		</dependency>
+
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-contextual-views-impl</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-menu-api</artifactId>
 			<version>${project.parent.version}</version>
@@ -68,12 +79,6 @@
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.taverna.osgi</groupId>
-			<artifactId>taverna-services-api</artifactId>
-			<version>${taverna.osgi.version}</version>
-		</dependency>
-
-		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>stringconstant-activity-ui</artifactId>
 			<version>${project.parent.version}</version>
@@ -84,5 +89,6 @@
 			<artifactId>taverna-contextual-views-impl</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+
 	</dependencies>
 </project>

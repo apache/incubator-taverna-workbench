@@ -9,8 +9,8 @@ import static net.sf.taverna.t2.renderers.impl.RendererConstants.BIG_DATA_MSG;
 import static net.sf.taverna.t2.renderers.impl.RendererConstants.CANCELLED_MSG;
 import static net.sf.taverna.t2.renderers.impl.RendererConstants.NO_DATA_MSG;
 import static net.sf.taverna.t2.renderers.impl.RendererConstants.NO_SIZE_MSG;
-import static uk.org.taverna.databundle.DataBundles.isValue;
-import static uk.org.taverna.databundle.DataBundles.isReference;
+import static org.apache.taverna.databundle.DataBundles.isValue;
+import static org.apache.taverna.databundle.DataBundles.isReference;
 
 import java.nio.file.Path;
 

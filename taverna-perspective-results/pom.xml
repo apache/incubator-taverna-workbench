@@ -29,11 +29,18 @@
 	<description>Results component for viewing progress of a workflow run,
 	intermediate and final results, as well as previous workflow runs.</description>
 	<dependencies>
+                <dependency>
+                        <groupId>org.apache.taverna.osgi</groupId>
+                        <artifactId>taverna-app-configuration-api</artifactId>
+                        <version>${taverna.osgi.version}</version>
+                </dependency>
+         
 		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>selection-api</artifactId>
-			<version>${project.parent.version}</version>
+			<groupId>org.apache.taverna.engine</groupId>
+			<artifactId>taverna-run-api</artifactId>
+			<version>${taverna.engine.version}</version>
 		</dependency>
+
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>workbench-api</artifactId>
@@ -49,18 +56,31 @@
 			<artifactId>results-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-<!--
-		<dependency>
-			<groupId>net.sf.taverna.t2.lang</groupId>
-			<artifactId>ui</artifactId>
-			<version>${t2.lang.version}</version>
-		</dependency>
--->
-		<dependency>
-			<groupId>org.apache.taverna.engine</groupId>
-			<artifactId>taverna-run-api</artifactId>
-			<version>${taverna.engine.version}</version>
-		</dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-selection-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-ui</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-renderers-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+        	<dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-activity-icons-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-configuration-ui-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
 
 		<dependency>
 			<groupId>org.osgi</groupId>
@@ -79,6 +99,7 @@
                         <version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 </project>
 

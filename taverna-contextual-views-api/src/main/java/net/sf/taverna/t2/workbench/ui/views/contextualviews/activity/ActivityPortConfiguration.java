@@ -20,7 +20,7 @@
  ******************************************************************************/
 package net.sf.taverna.t2.workbench.ui.views.contextualviews.activity;
 
-import uk.org.taverna.scufl2.api.port.ActivityPort;
+import org.apache.taverna.scufl2.api.port.ActivityPort;
 
 /**
  *

@@ -42,7 +42,7 @@ import net.sf.taverna.t2.workbench.configuration.colour.ColourManager;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.views.contextualviews.ContextualView;
-import net.sf.taverna.t2.workflowmodel.Merge;
+import org.apache.taverna.workflowmodel.Merge;
 import org.apache.taverna.scufl2.api.common.Scufl2Tools;
 import org.apache.taverna.scufl2.api.container.WorkflowBundle;
 import org.apache.taverna.scufl2.api.core.DataLink;

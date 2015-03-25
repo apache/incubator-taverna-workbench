@@ -12,15 +12,15 @@ import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.commons.services.ActivityTypeNotFoundException;
-import uk.org.taverna.commons.services.InvalidConfigurationException;
-import uk.org.taverna.commons.services.ServiceRegistry;
-import uk.org.taverna.scufl2.api.activity.Activity;
-import uk.org.taverna.scufl2.api.common.Scufl2Tools;
-import uk.org.taverna.scufl2.api.configurations.Configuration;
-import uk.org.taverna.scufl2.api.port.ActivityPort;
-import uk.org.taverna.scufl2.api.port.InputActivityPort;
-import uk.org.taverna.scufl2.api.port.OutputActivityPort;
+import org.apache.taverna.commons.services.ActivityTypeNotFoundException;
+import org.apache.taverna.commons.services.InvalidConfigurationException;
+import org.apache.taverna.commons.services.ServiceRegistry;
+import org.apache.taverna.scufl2.api.activity.Activity;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
+import org.apache.taverna.scufl2.api.configurations.Configuration;
+import org.apache.taverna.scufl2.api.port.ActivityPort;
+import org.apache.taverna.scufl2.api.port.InputActivityPort;
+import org.apache.taverna.scufl2.api.port.OutputActivityPort;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;

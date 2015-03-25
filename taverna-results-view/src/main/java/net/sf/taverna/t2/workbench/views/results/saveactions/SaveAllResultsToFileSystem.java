@@ -25,7 +25,6 @@ import static java.nio.file.Files.exists;
 import static java.nio.file.Files.isDirectory;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static javax.swing.JFileChooser.DIRECTORIES_ONLY;
-import static org.purl.wf4ever.robundle.Bundles.copyRecursively;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,6 +33,7 @@ import java.nio.file.Path;
 import javax.swing.AbstractAction;
 
 import net.sf.taverna.t2.workbench.icons.WorkbenchIcons;
+import org.apache.taverna.robundle.Bundles;
 
 /**
  * Stores results to the file system.
@@ -76,7 +76,7 @@ public class SaveAllResultsToFileSystem extends SaveAllResultsSPI {
 			throws IOException {
 		destination.mkdirs();
 		if (isDirectory(source))
-			copyRecursively(source, destination.toPath(), REPLACE_EXISTING);
+			Bundles.copyRecursively(source, destination.toPath(), REPLACE_EXISTING);
 		else if (exists(source))
 			copy(source, destination.toPath(), REPLACE_EXISTING);
 		return destination;

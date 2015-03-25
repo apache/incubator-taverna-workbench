@@ -33,7 +33,7 @@ import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.run.actions.RunWorkflowAction;
 import net.sf.taverna.t2.workbench.selection.SelectionManager;
 import net.sf.taverna.t2.workbench.ui.Workbench;
-import uk.org.taverna.platform.run.api.RunService;
+import org.apache.taverna.platform.run.api.RunService;
 
 public class FileRunMenuAction extends AbstractMenuAction {
 	private static final URI FILE_RUN_URI = URI

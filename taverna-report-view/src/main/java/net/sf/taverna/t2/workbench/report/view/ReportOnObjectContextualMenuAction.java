@@ -30,17 +30,17 @@ import javax.swing.Action;
 import javax.swing.JOptionPane;
 
 import net.sf.taverna.t2.ui.menu.AbstractContextualMenuAction;
-import net.sf.taverna.t2.visit.DataflowCollation;
-import net.sf.taverna.t2.visit.VisitReport;
-import net.sf.taverna.t2.visit.VisitReport.Status;
+import org.apache.taverna.visit.DataflowCollation;
+import org.apache.taverna.visit.VisitReport;
+import org.apache.taverna.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.MainWindow;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;
 import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.ui.Workbench;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.Dataflow;
+import org.apache.taverna.workflowmodel.Processor;
 
 import org.apache.log4j.Logger;
 

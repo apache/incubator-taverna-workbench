@@ -27,6 +27,11 @@
 	<packaging>bundle</packaging>
 	<name>Apache Taverna Activity Palette UI Component</name>
 	<dependencies>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-workflow-view</artifactId>
+                	<version>${project.parent.version}</version>
+                </dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-activity-icons-api</artifactId>
@@ -37,6 +42,11 @@
 			<artifactId>taverna-activity-palette-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-uibuilder</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-workbench-api</artifactId>
@@ -54,17 +64,7 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna-workflow-view</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-ui</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>uibuilder</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -85,5 +85,6 @@
                         <version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
+
 	</dependencies>
 </project>

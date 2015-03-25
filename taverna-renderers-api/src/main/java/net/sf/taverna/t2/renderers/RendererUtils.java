@@ -20,10 +20,10 @@
  ******************************************************************************/
 package net.sf.taverna.t2.renderers;
 
-import static org.purl.wf4ever.robundle.Bundles.getReference;
-import static org.purl.wf4ever.robundle.Bundles.getStringValue;
-import static org.purl.wf4ever.robundle.Bundles.isReference;
-import static uk.org.taverna.databundle.DataBundles.isValue;
+import static org.apache.taverna.robundle.Bundles.getReference;
+import static org.apache.taverna.robundle.Bundles.getStringValue;
+import static org.apache.taverna.robundle.Bundles.isReference;
+import static org.apache.taverna.databundle.DataBundles.isValue;
 
 import java.io.IOException;
 import java.io.InputStream;

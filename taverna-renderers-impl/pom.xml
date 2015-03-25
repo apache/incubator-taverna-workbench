@@ -42,6 +42,11 @@
 	</build>
 	<dependencies>
 		<dependency>
+			<groupId>org.apache.taverna.language</groupId>
+			<artifactId>taverna-robundle</artifactId>
+			<version>${taverna.language.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-renderers-api</artifactId>
 			<version>${project.parent.version}</version>
@@ -72,7 +77,6 @@
 			<artifactId>hexeditor</artifactId>
 			<version>${org.fife.ui.hexeditor.version}</version>
 		</dependency>
-
 
 	</dependencies>
 </project>

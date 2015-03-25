@@ -29,11 +29,6 @@
 	<dependencies>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna-configuration-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-contextual-views-impl</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>

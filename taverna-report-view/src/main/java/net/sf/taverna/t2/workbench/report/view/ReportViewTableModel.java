@@ -11,25 +11,25 @@ import java.util.Set;
 
 import javax.swing.table.DefaultTableModel;
 
-import net.sf.taverna.t2.visit.VisitReport;
+import org.apache.taverna.visit.VisitReport;
 import net.sf.taverna.t2.visit.VisitReport.Status;
 import net.sf.taverna.t2.workbench.report.ReportManager;
-import net.sf.taverna.t2.workflowmodel.Condition;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowInputPort;
-import net.sf.taverna.t2.workflowmodel.DataflowOutputPort;
-import net.sf.taverna.t2.workflowmodel.Datalink;
-import net.sf.taverna.t2.workflowmodel.Merge;
-import net.sf.taverna.t2.workflowmodel.NamedWorkflowEntity;
-import net.sf.taverna.t2.workflowmodel.Port;
-import net.sf.taverna.t2.workflowmodel.Processor;
-import net.sf.taverna.t2.workflowmodel.ProcessorInputPort;
-import net.sf.taverna.t2.workflowmodel.ProcessorOutputPort;
-import net.sf.taverna.t2.workflowmodel.ProcessorPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.Activity;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityInputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityOutputPort;
-import net.sf.taverna.t2.workflowmodel.processor.activity.ActivityPort;
+import org.apache.taverna.workflowmodel.Condition;
+import org.apache.taverna.workflowmodel.Dataflow;
+import org.apache.taverna.workflowmodel.DataflowInputPort;
+import org.apache.taverna.workflowmodel.DataflowOutputPort;
+import org.apache.taverna.workflowmodel.Datalink;
+import org.apache.taverna.workflowmodel.Merge;
+import org.apache.taverna.workflowmodel.NamedWorkflowEntity;
+import org.apache.taverna.workflowmodel.Port;
+import org.apache.taverna.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.ProcessorInputPort;
+import org.apache.taverna.workflowmodel.ProcessorOutputPort;
+import org.apache.taverna.workflowmodel.ProcessorPort;
+import org.apache.taverna.workflowmodel.processor.activity.Activity;
+import org.apache.taverna.workflowmodel.processor.activity.ActivityInputPort;
+import org.apache.taverna.workflowmodel.processor.activity.ActivityOutputPort;
+import org.apache.taverna.workflowmodel.processor.activity.ActivityPort;
 
 
 /**

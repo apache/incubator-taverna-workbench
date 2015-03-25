@@ -53,15 +53,15 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Processor;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.io.WorkflowBundleIO;
-import uk.org.taverna.scufl2.api.io.WorkflowBundleReader;
-import uk.org.taverna.scufl2.api.io.WorkflowBundleWriter;
-import uk.org.taverna.scufl2.rdfxml.RDFXMLReader;
-import uk.org.taverna.scufl2.rdfxml.RDFXMLWriter;
-import uk.org.taverna.scufl2.translator.t2flow.T2FlowReader;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.io.WorkflowBundleIO;
+import org.apache.taverna.scufl2.api.io.WorkflowBundleReader;
+import org.apache.taverna.scufl2.api.io.WorkflowBundleWriter;
+import org.apache.taverna.scufl2.rdfxml.RDFXMLReader;
+import org.apache.taverna.scufl2.rdfxml.RDFXMLWriter;
+import org.apache.taverna.scufl2.translator.t2flow.T2FlowReader;
 
 public class FileManagerTest {
 

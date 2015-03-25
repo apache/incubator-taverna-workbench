@@ -77,5 +77,11 @@
 			<artifactId>taverna-helper-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+	 <dependency>
+	  <groupId>com.thoughtworks.xstream</groupId>
+	  <artifactId>xstream</artifactId>
+	  <version>1.4.1</version>
+	  <type>jar</type>
+	 </dependency>
 	</dependencies>
 </project>

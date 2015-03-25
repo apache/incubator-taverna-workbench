@@ -28,9 +28,15 @@
 	<name>Apache Taverna Renderers API</name>
 	<dependencies>
 		<dependency>
-    		<groupId>org.apache.taverna.language</groupId>
-    		<artifactId>taverna-databundle</artifactId>
-    		<version>${taverna.language.version}</version>
+                        <groupId>org.apache.taverna.language</groupId>
+                        <artifactId>taverna-databundle</artifactId>
+                        <version>${taverna.language.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.taverna.language</groupId>
+			<artifactId>taverna-robundle</artifactId>
+			<version>${taverna.language.version}</version>
 		</dependency>
 
 		<dependency>

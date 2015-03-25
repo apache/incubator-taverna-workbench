@@ -44,20 +44,21 @@ import com.thoughtworks.xstream.io.xml.DomDriver;
 @SuppressWarnings("serial")
 public class DisabledConfigView extends ActivityConfigurationPanel {
 
-	private ActivityAndBeanWrapper configuration;
+    private ActivityAndBeanWrapper configuration;
     private List<String> fieldNames;
 
     private Object clonedConfig = null;
     String origConfigXML = "";
 
-	public DisabledConfigView(Activity activity) {
-		super(activity);
-		setLayout(new BorderLayout());
-		fieldNames = null;
-		initialise();
-	}
+    public DisabledConfigView(Activity activity) {
+        super(activity);
+        setLayout(new BorderLayout());
+        fieldNames = null;
+        initialise();
+    }
 
-	private void initialise() {
+    @Override
+	protected void initialise() {
 		CSH.setHelpIDString(
 				    this,
 				    "net.sf.taverna.t2.workbench.ui.views.contextualviews.activity.DisabledConfigView");

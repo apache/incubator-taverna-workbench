@@ -32,11 +32,21 @@
 			<artifactId>taverna-workbench-api</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-ui</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-graph-model</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-activity-icons-api</artifactId>
+                        <version>${project.version}</version>
+                </dependency>
  		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-results-view</artifactId>
@@ -45,11 +55,6 @@
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-graph-view</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna-ui</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>

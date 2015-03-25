@@ -26,7 +26,7 @@ import static java.awt.Toolkit.getDefaultToolkit;
 import static java.awt.event.KeyEvent.VK_R;
 import static javax.swing.KeyStroke.getKeyStroke;
 import static javax.swing.SwingUtilities.invokeLater;
-import static net.sf.taverna.t2.reference.ui.InvalidDataflowReport.showErrorDialog;
+import static net.sf.taverna.t2.reference.ui.InvalidDataflowReport;
 import static net.sf.taverna.t2.workbench.icons.WorkbenchIcons.runIcon;
 
 import java.awt.event.ActionEvent;
@@ -37,8 +37,8 @@ import java.util.concurrent.ExecutionException;
 
 import javax.swing.AbstractAction;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.reference.ui.CopyWorkflowInProgressDialog;
 import net.sf.taverna.t2.reference.ui.CopyWorkflowSwingWorker;
 import net.sf.taverna.t2.reference.ui.WorkflowLaunchWindow;
@@ -53,19 +53,19 @@ import net.sf.taverna.t2.workbench.ui.SwingWorkerCompletionWaiter;
 import net.sf.taverna.t2.workbench.ui.Workbench;
 
 import org.apache.log4j.Logger;
-import org.purl.wf4ever.robundle.Bundle;
 
-import uk.org.taverna.databundle.DataBundles;
-import uk.org.taverna.platform.execution.api.ExecutionEnvironment;
-import uk.org.taverna.platform.execution.api.InvalidExecutionIdException;
-import uk.org.taverna.platform.execution.api.InvalidWorkflowException;
-import uk.org.taverna.platform.run.api.InvalidRunIdException;
-import uk.org.taverna.platform.run.api.RunProfile;
-import uk.org.taverna.platform.run.api.RunProfileException;
-import uk.org.taverna.platform.run.api.RunService;
-import uk.org.taverna.platform.run.api.RunStateException;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.databundle.DataBundles;
+import org.apache.taverna.platform.execution.api.ExecutionEnvironment;
+import org.apache.taverna.platform.execution.api.InvalidExecutionIdException;
+import org.apache.taverna.platform.execution.api.InvalidWorkflowException;
+import org.apache.taverna.platform.run.api.InvalidRunIdException;
+import org.apache.taverna.platform.run.api.RunProfile;
+import org.apache.taverna.platform.run.api.RunProfileException;
+import org.apache.taverna.platform.run.api.RunService;
+import org.apache.taverna.platform.run.api.RunStateException;
+import org.apache.taverna.robundle.Bundle;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.profiles.Profile;
 
 /**
  * Run the current workflow (with workflow input dialogue if needed) and add it

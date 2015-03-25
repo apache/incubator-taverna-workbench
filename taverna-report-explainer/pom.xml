@@ -31,6 +31,13 @@
 	</description>
 	<dependencies>
 		<dependency>
+			<groupId>org.apache.taverna.osgi</groupId>
+			<artifactId>taverna-configuration-impl</artifactId>
+			<version>${taverna.osgi.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-report-api</artifactId>
 			<version>${project.parent.version}</version>
@@ -79,11 +86,6 @@
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna-configuration-impl</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-report-view</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
@@ -92,17 +94,7 @@
 			<artifactId>taverna-design-ui</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
-		<dependency>
-		<!-- FIXME: why is this needed? -->
-			<groupId>org.apache.taverna.engine</groupId>
-			<artifactId>workflowmodel-impl</artifactId>
-			<version>${taverna.engine.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna-ui</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
+
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -113,5 +105,6 @@
 			<artifactId>BrowserLauncher2</artifactId>
 			<version>1.3</version>
 		</dependency>
+
 	</dependencies>
 </project>

@@ -27,6 +27,13 @@
     <packaging>bundle</packaging>
     <name>Apache Taverna Loop layer contextual view</name>
     <dependencies>
+        
+        <dependency>
+            <groupId>org.apache.taverna.osgi</groupId>
+            <artifactId>taverna-app-configuration-api</artifactId>
+            <version>${taverna.osgi.version}</version>
+        </dependency>
+        
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
             <artifactId>taverna-contextual-views-api</artifactId>
@@ -44,8 +51,30 @@
         </dependency>
         <dependency>
             <groupId>${project.parent.groupId}</groupId>
+            <artifactId>taverna-selection-api</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.parent.groupId}</groupId>
+            <artifactId>taverna-selection-impl</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.parent.groupId}</groupId>
+            <artifactId>taverna-menu-api</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>${project.parent.groupId}</groupId>
             <artifactId>taverna-helper-api</artifactId>
             <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.parent.groupId}</groupId>
+            <artifactId>selection-impl</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>test</scope>
         </dependency>
         <!-- 
         <dependency>
@@ -74,12 +103,6 @@
             <version>${project.parent.version}</version>
             <scope>test</scope>
         </dependency>
-            <dependency>
-            <groupId>${project.parent.groupId}</groupId>
-            <artifactId>taverna-selection-impl</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>test</scope>
-        </dependency>
 
-	</dependencies>
+    </dependencies>
 </project>

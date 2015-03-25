@@ -4,14 +4,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import uk.org.taverna.scufl2.api.common.WorkflowBean;
-import uk.org.taverna.scufl2.api.profiles.Profile;
-import uk.org.taverna.scufl2.validation.WorkflowBeanReport;
-import uk.org.taverna.scufl2.validation.Status;
+import org.apache.taverna.scufl2.api.common.WorkflowBean;
+import org.apache.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.scufl2.validation.WorkflowBeanReport;
+import org.apache.taverna.scufl2.validation.Status;
 
-import net.sf.taverna.t2.lang.observer.Observer;
-//import net.sf.taverna.t2.visit.VisitReport;
-//import net.sf.taverna.t2.visit.VisitReport.Status;
+import org.apache.taverna.lang.observer.Observer;
 
 public interface ReportManager {
 	void updateReport(Profile p, boolean includeTimeConsuming, boolean remember);

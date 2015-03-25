@@ -24,7 +24,7 @@ import java.net.URI;
 
 import javax.swing.Action;
 
-import uk.org.taverna.scufl2.api.core.Processor;
+import org.apache.taverna.scufl2.api.core.Processor;
 
 /**
  * SPI for adding dispatch stack layers to a processor, such as

@@ -12,14 +12,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import net.sf.taverna.t2.lang.observer.MultiCaster;
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
-import net.sf.taverna.t2.visit.HierarchyTraverser;
-import net.sf.taverna.t2.visit.VisitKind;
-import net.sf.taverna.t2.visit.VisitReport;
-import net.sf.taverna.t2.visit.VisitReport.Status;
-import net.sf.taverna.t2.visit.Visitor;
+import org.apache.taverna.lang.observer.MultiCaster;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
+import org.apache.taverna.visit.HierarchyTraverser;
+import org.apache.taverna.visit.VisitKind;
+import org.apache.taverna.visit.VisitReport;
+import org.apache.taverna.visit.VisitReport.Status;
+import org.apache.taverna.visit.Visitor;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.edits.EditManager.AbstractDataflowEditEvent;
 import net.sf.taverna.t2.workbench.edits.EditManager.EditManagerEvent;
@@ -36,9 +36,9 @@ import net.sf.taverna.t2.workbench.report.ReportManagerEvent;
 import net.sf.taverna.t2.workbench.report.UnresolvedOutputKind;
 import net.sf.taverna.t2.workbench.report.UnsatisfiedEntityKind;
 import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
-import net.sf.taverna.t2.workflowmodel.Dataflow;
-import net.sf.taverna.t2.workflowmodel.DataflowValidationReport;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.Dataflow;
+import org.apache.taverna.workflowmodel.DataflowValidationReport;
+import org.apache.taverna.workflowmodel.Processor;
 
 import org.apache.log4j.Logger;
 

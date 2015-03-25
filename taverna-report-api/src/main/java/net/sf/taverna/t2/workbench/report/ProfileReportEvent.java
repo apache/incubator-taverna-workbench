@@ -3,7 +3,7 @@
  */
 package net.sf.taverna.t2.workbench.report;
 
-import uk.org.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.scufl2.api.profiles.Profile;
 
 /**
  * @author alanrw

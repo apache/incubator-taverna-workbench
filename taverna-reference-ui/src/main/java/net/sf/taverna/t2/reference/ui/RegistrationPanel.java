@@ -83,7 +83,7 @@ import net.sf.taverna.t2.reference.ui.tree.PreRegistrationTreeModel;
 
 import org.apache.log4j.Logger;
 
-import uk.org.taverna.configuration.database.DatabaseConfiguration;
+import org.apache.taverna.configuration.database.DatabaseConfiguration;
 
 /**
  * A JPanel containing a pre-registration tree along with a toolbar for adding

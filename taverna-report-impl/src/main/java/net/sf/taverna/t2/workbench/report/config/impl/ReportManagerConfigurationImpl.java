@@ -10,7 +10,7 @@ import uk.org.taverna.configuration.AbstractConfigurable;
 import uk.org.taverna.configuration.ConfigurationManager;
 
 import net.sf.taverna.t2.workbench.report.config.ReportManagerConfiguration;
-import net.sf.taverna.t2.workflowmodel.health.RemoteHealthChecker;
+import org.apache.taverna.workflowmodel.health.RemoteHealthChecker;
 
 /**
  * @author alanrw

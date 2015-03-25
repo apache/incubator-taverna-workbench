@@ -18,8 +18,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import uk.org.taverna.scufl2.api.profiles.Profile;
-import uk.org.taverna.scufl2.validation.Status;
+import org.apache.taverna.scufl2.api.profiles.Profile;
+import org.apache.taverna.scufl2.validation.Status;
 import net.sf.taverna.t2.workbench.edits.EditManager;
 import net.sf.taverna.t2.workbench.file.FileManager;
 import net.sf.taverna.t2.workbench.report.ReportManager;

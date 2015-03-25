@@ -23,31 +23,49 @@
 		<artifactId>taverna-workbench</artifactId>
 		<version>3.1.0-incubating-SNAPSHOT</version>
 	</parent>
-	<artifactId>retry-ui</artifactId>
+	<artifactId>taverna-retry-ui</artifactId>
 	<packaging>bundle</packaging>
 	<name>Retry layer contextual view</name>
 	<dependencies>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>contextual-views-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>menu-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>edits-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>selection-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-
+                <dependency>
+                        <groupId>org.apache.taverna.language</groupId>
+                        <artifactId>taverna-scufl2-api</artifactId>
+                        <version>${taverna.language.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-edits-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-selection-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+                
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-menu-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-ui</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+         
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-contextual-views-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+         
+                <dependency>
+                        <groupId>${project.parent.groupId}</groupId>
+                        <artifactId>taverna-helper-api</artifactId>
+                        <version>${project.parent.version}</version>
+                </dependency>
+         
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>

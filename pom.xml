@@ -35,7 +35,9 @@
             <taverna.osgi.version>0.2.0-incubating-SNAPSHOT</taverna.osgi.version>
             <taverna.engine.version>3.1.0-incubating-SNAPSHOT</taverna.engine.version>
             <taverna.commonactivities.version>2.1.0-incubating-SNAPSHOT</taverna.commonactivities.version>
+            <org.icepdf.version>4.1.1</org.icepdf.version>
             <batik.version>1.7.0</batik.version>
+            <org.fife.ui.hexeditor.version>1.1-SNAPSHOT</org.fife.ui.hexeditor.version>
         </properties>
         
 	<modules>

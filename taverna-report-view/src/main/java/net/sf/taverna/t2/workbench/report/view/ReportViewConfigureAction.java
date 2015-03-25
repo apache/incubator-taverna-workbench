@@ -10,7 +10,7 @@ import javax.swing.Action;
 
 import net.sf.taverna.t2.ui.menu.MenuManager;
 import net.sf.taverna.t2.workbench.ui.workflowview.WorkflowView;
-import net.sf.taverna.t2.workflowmodel.Processor;
+import org.apache.taverna.workflowmodel.Processor;
 
 /**
  * @author alanrw

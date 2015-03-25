@@ -104,5 +104,12 @@
 			<version>${taverna.language.version}</version>
 			<scope>test</scope>
 		</dependency> -->
+
+                <dependency>
+                        <groupId>org.apache.batik</groupId>
+                        <artifactId>batik-osgi</artifactId>
+                        <version>${batik.version}</version>
+                </dependency>
+                
 	</dependencies>
 </project>

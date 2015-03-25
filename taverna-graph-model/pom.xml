@@ -82,9 +82,9 @@
 	</build>
 	<dependencies>
 		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
+			<groupId>org.apache.taverna.osgi</groupId>
 			<artifactId>taverna-configuration-api</artifactId>
-			<version>${project.parent.version}</version>
+			<version>${taverna.osgi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
@@ -102,18 +102,13 @@
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna-onfiguration-impl</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.taverna.engine</groupId>
 			<artifactId>taverna-observer</artifactId>
 			<version>${taverna.engine.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>taverna.io</artifactId>
+			<artifactId>taverna-io</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>
 		<dependency>
@@ -134,7 +129,7 @@
 		<dependency>
 			<groupId>org.apache.batik</groupId>
 			<artifactId>batik-osgi</artifactId>
-			<version>1.7.0</version>
+			<version>${batik.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-beanutils</groupId>

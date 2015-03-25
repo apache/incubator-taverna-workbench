@@ -65,8 +65,8 @@ import javax.swing.JToolBar;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import net.sf.taverna.t2.lang.observer.Observable;
-import net.sf.taverna.t2.lang.observer.Observer;
+import org.apache.taverna.lang.observer.Observable;
+import org.apache.taverna.lang.observer.Observer;
 import net.sf.taverna.t2.lang.ui.DialogTextArea;
 import net.sf.taverna.t2.reference.ui.referenceactions.ReferenceActionSPI;
 import net.sf.taverna.t2.workbench.edits.EditManager;
@@ -83,21 +83,21 @@ import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RIOT;
 import org.apache.log4j.Logger;
-import org.purl.wf4ever.robundle.Bundle;
 
-import uk.org.taverna.configuration.database.DatabaseConfiguration;
-import uk.org.taverna.databundle.DataBundles;
-import uk.org.taverna.scufl2.api.annotation.Annotation;
-import uk.org.taverna.scufl2.api.common.Scufl2Tools;
-import uk.org.taverna.scufl2.api.common.URITools;
-import uk.org.taverna.scufl2.api.common.WorkflowBean;
-import uk.org.taverna.scufl2.api.container.WorkflowBundle;
-import uk.org.taverna.scufl2.api.core.Workflow;
-import uk.org.taverna.scufl2.api.port.InputWorkflowPort;
+import org.apache.taverna.configuration.database.DatabaseConfiguration;
+import org.apache.taverna.databundle.DataBundles;
+import org.apache.taverna.scufl2.api.annotation.Annotation;
+import org.apache.taverna.scufl2.api.common.Scufl2Tools;
+import org.apache.taverna.scufl2.api.common.URITools;
+import org.apache.taverna.scufl2.api.common.WorkflowBean;
+import org.apache.taverna.scufl2.api.container.WorkflowBundle;
+import org.apache.taverna.scufl2.api.core.Workflow;
+import org.apache.taverna.scufl2.api.port.InputWorkflowPort;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import org.apache.taverna.robundle.Bundle;
 
 /**
  * A simple workflow launch window, uses a tabbed layout to display a set of named RegistrationPanel

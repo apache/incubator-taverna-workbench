@@ -27,11 +27,11 @@
 	<packaging>bundle</packaging>
 	<name>Apache Taverna Reporting Implementation</name>
 	<dependencies>
-		<dependency>
-			<groupId>org.apache.taverna.engine</groupId>
-			<artifactId>workflowmodel-api</artifactId>
-			<version>${taverna.engine.version}</version>
-		</dependency>
+                <dependency>
+                        <groupId>org.apache.taverna.engine</groupId>
+                        <artifactId>taverna-workflowmodel-api</artifactId>
+                        <version>${taverna.engine.version}</version>
+                </dependency>
 		<dependency>
 			<groupId>${project.parent.groupId}</groupId>
 			<artifactId>taverna-report-api</artifactId>
